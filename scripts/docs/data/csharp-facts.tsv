@@ -1,0 +1,536 @@
+kind	f1	f2	f3	f4
+reg	BYN0001	BidiControl	Error	bidirectional control character U+{0} is not allowed outside string literals
+reg	BYN0002	UnexpectedCharacter	Error	unexpected character `{0}`
+reg	BYN0003	UnterminatedString	Error	unterminated string literal
+reg	BYN0004	UnterminatedComment	Error	unterminated block comment
+reg	BYN0005	IdentifierNotNfc	Error	identifier `{0}` is not in Unicode normalization form C
+reg	BYN0006	InvalidEscape	Error	invalid escape sequence `{0}`
+reg	BYN0007	EmptyCharLiteral	Error	empty char literal
+reg	BYN0008	UnterminatedCharLiteral	Error	unterminated char literal
+reg	BYN0009	CharLiteralTooLong	Error	a char literal holds exactly one Unicode scalar
+reg	BYN0010	InvalidNumber	Error	invalid numeric literal: {0}
+reg	BYN0011	SuffixOnHexOrBinary	Error	unit suffix `{0}` is not allowed on a {1} literal
+reg	BYN0012	ReservedKeyword	Error	`{0}` is reserved and cannot be used as an identifier
+reg	BYN0013	InvalidUnicodeEscape	Error	`{0}` is not a Unicode scalar value
+reg	BYN0014	UnescapedCloseBrace	Error	`}}` in an interpolated string must be doubled
+reg	BYN0015	InvalidUtf8	Error	source is not valid UTF-8 (byte 0x{0})
+reg	BYN0016	InterpolationTooDeep	Error	interpolated strings are nested too deeply
+reg	BYN1001	Expected	Error	expected {0}, found {1}
+reg	BYN1002	ExpectedExpression	Error	expected an expression, found {0}
+reg	BYN1003	ExpectedType	Error	expected a type, found {0}
+reg	BYN1004	ExpectedMember	Error	expected a field, property, constructor or method, found {0}
+reg	BYN1005	MissingLineBreak	Error	expected a line break after the statement
+reg	BYN1006	UnlessWithElse	Error	`unless` cannot have an `else` branch
+reg	BYN1007	UnlessNegated	Error	`unless` with a negated condition is a double negative
+reg	BYN1008	PostfixNotSimple	Error	a postfix `{0}` applies only to a simple statement
+reg	BYN1009	PostfixChained	Error	postfix conditions cannot be chained
+reg	BYN1010	Goto	Error	`goto` does not exist in Bayan
+reg	BYN1011	InvalidAssignmentTarget	Error	cannot assign to this expression
+reg	BYN1012	InvalidExpressionStatement	Error	this expression does nothing as a statement
+reg	BYN1013	TernaryInCollection	Error	a conditional expression inside a collection literal must be parenthesized
+reg	BYN1014	StackedCaseLabels	Error	stacked `case` labels
+reg	BYN1015	CStyleFor	Error	C-style `for` loops do not exist in Bayan
+reg	BYN1016	ModifierNotAllowed	Error	`{0}` is not allowed here
+reg	BYN1017	ParenthesizedCondition	Error	parentheses around a condition are an input form
+reg	BYN1018	BodyNeedsBraces	Error	the body of `{0}` must be a block
+reg	BYN1019	ForInputForm	Error	`for (let x in xs)` is an input form; write `for x in xs`
+reg	BYN1020	ErrdeferInput	Error	`errdefer` is now `defer failing`
+reg	BYN1021	FieldInitEquals	Error	`{0} = …` in a literal is an input form; write `{0}: …`
+reg	BYN1022	UnlessCompound	Error	`unless` with `&&`/`\|\|` reads as a double negative
+reg	BYN1023	UnlessNull	Error	`unless x is null` is not allowed; write `if x is not null`
+reg	BYN1025	CatchBinding	Error	`catch (e)` is an input form; bind the error in a `catch switch` arm
+reg	BYN1028	DelegateDecl	Error	`delegate` is not Bayan; write a function type `type {0} = {1}`
+reg	BYN1029	ErrorSetPipe	Error	an error set is declared `union error {0} = A, B`
+reg	BYN1030	RetiredCSharpTypeName	Error	retired: C# primitive names are accepted
+reg	BYN1031	FailsShorthand	Error	`T!E` is an input form; write `T f() fails E`
+reg	BYN1032	RetiredNegatedIfToUnless	Error	retired: `if !x` is no longer rewritten
+reg	BYN1033	UnlessLikelihood	Error	`unless` takes no likelihood word; write `if unlikely !…` or drop `{0}`
+reg	BYN1040	SemicolonInput	Error	`;` is an input form; a statement ends at the newline
+reg	BYN1041	ElseOnNewLine	Error	`else` must follow `}}` on the same line
+reg	BYN1042	OnNewLine	Error	`{0}` takes its value on the same line
+reg	BYN1043	TypeNameOrder	Error	`{0}` is an input form; write `{1}`
+reg	BYN1044	DeclarationKeywordOrder	Error	`{0}` is an input form; write `{1}`
+reg	BYN1045	BracketAttribute	Error	`[{0}]` is an input form; write `@{1}`
+reg	BYN1046	PatternOutsideConst	Error	`pattern` is allowed only after `=` in a `const`
+reg	BYN1047	BlockComment	Error	`/* */` is an input form; write `//` lines
+reg	BYN1048	CharInput	Error	`char` is now `rune`
+reg	BYN1049	RetiredUnlessNot	Error	retired: merged into BYN1007
+reg	BYN1050	RequiresValue	Error	`value` in `requires` is now `it`
+reg	BYN1051	ExceptInCase	Error	`except` is not allowed in a `case` pattern
+reg	BYN1052	ExceptNotPattern	Error	`except` takes a pattern, not a condition
+reg	BYN1053	OneLineDeclarations	Error	`{0}` declares its cases on one line; write one per line
+reg	BYN1054	TryCoversMore	Error	`try` covers `{0}`, which cannot fail
+reg	BYN1055	FatArrowFunctionType	Error	`=>` in a type is an input form; write `->`
+reg	BYN1056	ReturnErrorInput	Error	`return .{0}` returns an error; write `fail .{0}`
+reg	BYN1057	CastInput	Error	`({0})x` is an input form; write `{0}(x)`
+reg	BYN1058	RestInput	Error	`{0}` is an input form; write `rest ReadOnlySpan<{1}> {2}`
+reg	BYN1059	StateLineInput	Error	`state {0}` is an input form; declare the states in one `states {{ … }}` block
+reg	BYN1060	InterfaceGetInput	Error	`{0} {1} {{ get }}` is an input form; write `{0} {1}`
+reg	BYN1061	ReceiverWithoutState	Error	`this` without a state is the default receiver
+reg	BYN1062	TrustInput	Error	`trust(x, reason: …)` is now `x.trustUnchecked() because "…"`
+reg	BYN1063	RequiresOnFunction	Error	`requires` on a function is an input form; write `expects`
+reg	BYN1064	PayloadNeedsName	Error	payload `{0}` of `.{1}` needs a name
+reg	BYN1065	ClauseOrder	Error	`{0}` must come before `{1}`; the order is `where`, `expects`, `uses`, `becomes`, `fails`
+reg	BYN1066	PrefixPointerInput	Error	`{0}` is an input form; write `{1}`
+reg	BYN1067	PointerOutsideExtern	Error	pointer types are allowed only in `extern` declarations
+reg	BYN1068	CompactFormatSpec	Error	`{0}` is an input form; write `{1}`
+reg	BYN1069	StatementAttribute	Error	attribute `{0}` is not allowed before a statement
+reg	BYN1072	GuardsPostfix	Note	an early exit in a block can be a postfix guard
+reg	BYN1073	LambdasIt	Note	`{0} => {0}.…` reads one member and can use `it`
+reg	BYN1074	ConditionsNamed	Note	this condition wraps; name it with a `let`
+reg	BYN1075	NestingDepth	Note	blocks nested more than 4 deep; flatten them with early exits
+reg	BYN1076	FunctionsLength	Note	this function body is {0} lines; split it into named steps
+reg	BYN1077	SectionsBanner	Note	a banner comment ends at column {0}; fill it with `─` to column {1}
+reg	BYN1078	ConditionsPatterns	Note	`{0}` is tested against constants {1} times; write one pattern
+reg	BYN1079	LiteralsEmpty	Note	the type is known from the target; write `{0}`
+reg	BYN1080	OptionalsBind	Note	`{0} is {{ }} {1}` binds an optional with a pattern; {2}
+reg	BYN2001	UndefinedName	Error	`{0}` is not defined
+reg	BYN2002	UnknownType	Error	unknown type `{0}`
+reg	BYN2003	UnknownMember	Error	`{0}` is not a member of `{1}`
+reg	BYN2004	UnknownModule	Error	no module `{0}`
+reg	BYN2005	NotVisible	Error	`{0}` is not visible here
+reg	BYN2006	DuplicateDeclaration	Error	`{0}` is declared twice
+reg	BYN2007	Shadowing	Error	`{0}` is already a local here
+reg	BYN2008	TypeCasing	Error	type name `{0}` must be PascalCase
+reg	BYN2009	ValueCasing	Error	`{0}` must be camelCase
+reg	BYN2010	ImportCycle	Error	import cycle: {0}
+reg	BYN2011	CircularAlias	Error	type alias `{0}` refers to itself
+reg	BYN2012	CircularConstant	Error	constant `{0}` depends on itself
+reg	BYN2013	DuplicateMain	Error	the program has two entry points
+reg	BYN2014	NoMain	Error	the program has no entry point
+reg	BYN2015	StatementOutsideEntry	Error	top-level statements are allowed only in the entry module
+reg	BYN2017	InstanceMemberWithoutThis	Error	`{0}` needs an instance
+reg	BYN2018	ThisOutsideMethod	Error	`this` is only available inside instance methods
+reg	BYN2019	NotAValue	Error	`{0}` is a {1}, not a value
+reg	BYN2020	UnknownLabel	Error	no enclosing loop is labeled `{0}`
+reg	BYN2021	UnknownParameter	Error	`{0}` has no parameter `{1}`
+reg	BYN2022	Unsupported	Error	{0} is not supported in v0.1
+reg	BYN2023	WrongTypeArgumentCount	Error	`{0}` takes {1} type argument(s), not {2}
+reg	BYN2024	NestedOptional	Error	`{0}?` is already optional
+reg	BYN2025	VoidValue	Error	`void` is not a value type
+reg	BYN2026	DeclarationAsBody	Error	a declaration cannot be the whole body of a statement
+reg	BYN2027	NullEquality	Error	compare with `is null` / `is not null`, not `==`
+reg	BYN2028	SameTypeShadowing	Warning	`{0}` shadows an earlier `{0}` of the same type `{1}`
+reg	BYN2029	NestedIt	Error	`it` inside a lambda that already uses `it`; name one lambda
+reg	BYN2031	ToStringCall	Error	Bayan has no `toString()`; display is `format()` (derived from `formatInto(ref StrBuf)`)
+reg	BYN2032	UnknownStdModule	Error	no std module `{0}`
+reg	BYN2033	StdImportsPackage	Error	std module `{0}` imports `{1}`, which is not a std module
+reg	BYN2034	CircularFieldDefault	Error	the default of field `{0}` depends on itself
+reg	BYN2101	MissingInitializer	Error	`{0} {1}` needs a value
+reg	BYN2102	UseBeforeAssign	Error	`{0}` is used before it is assigned
+reg	BYN2103	OutNotAssigned	Error	`out` parameter `{0}` is not assigned on every path
+reg	BYN2104	ImmutableAssignment	Error	`{0}` is immutable
+reg	BYN2105	ReadonlyField	Error	field `{0}` is readonly
+reg	BYN2106	MutateTemporary	Error	cannot modify this value
+reg	BYN2107	GetterMutates	Error	property `{0}` modifies the value
+reg	BYN2108	RequiredWithDefault	Error	required field `{0}` has a default value
+reg	BYN2109	MissingFields	Error	`{0}` needs a value for `{1}`
+reg	BYN2110	DuplicateFieldInit	Error	field `{0}` is set twice
+reg	BYN2111	LiteralWithConstructor	Error	`{0}` has a constructor; call it instead of using a struct literal
+reg	BYN2112	NoConstructor	Error	`{0}` has no constructor
+reg	BYN2113	RecursiveStruct	Error	struct `{0}` contains itself
+reg	BYN2114	NotAStruct	Error	`{0}` is not a struct
+reg	BYN2115	MutatesWithoutRefThis	Error	`{0}` modifies `this` but is not declared `ref this`
+reg	BYN2116	RefThisOnOperator	Error	operators cannot take `ref this`
+reg	BYN2117	RefThisNotFirst	Error	`ref this` must be the first parameter
+reg	BYN2201	StringIndexer	Error	a `string` cannot be indexed
+reg	BYN2202	TypeMismatch	Error	expected `{1}`, found `{0}`
+reg	BYN2203	LiteralOutOfRange	Error	{0} does not fit in {1}
+reg	BYN2204	ConstantOverflow	Error	constant arithmetic overflows `{0}`
+reg	BYN2205	DivisionByZero	Error	division by zero
+reg	BYN2206	InvalidCast	Error	cannot convert `{0}` to `{1}`
+reg	BYN2207	BadUnaryOperand	Error	`{0}` cannot be applied to `{1}`
+reg	BYN2208	BadBinaryOperands	Error	`{0}` cannot be applied to `{1}` and `{2}`
+reg	BYN2209	StringConcatenation	Error	strings cannot be joined with `+`; use interpolation
+reg	BYN2210	CoalesceNotOptional	Error	`??` needs an optional value on the left, found `{0}`
+reg	BYN2211	MemberOfOptional	Error	`{0}` is not a member of `{1}`; the value may be null
+reg	BYN2212	NotIndexable	Error	`{0}` cannot be indexed
+reg	BYN2213	IndexOutOfRange	Error	index {0} is out of range for `{1}`
+reg	BYN2214	FromEndOutsideIndex	Error	`^` is only allowed inside an index or slice
+reg	BYN2215	OpenRange	Error	a range needs both ends here
+reg	BYN2216	BranchTypeMismatch	Error	branches have different types: `{0}` and `{1}`
+reg	BYN2217	CannotInferType	Error	cannot infer the type of `{0}`
+reg	BYN2218	NoTargetType	Error	`{0}` needs a known type here
+reg	BYN2219	NotConstant	Error	{0} must be a compile-time constant
+reg	BYN2220	NotCallable	Error	`{0}` cannot be called
+reg	BYN2221	NotIterable	Error	`{0}` cannot be iterated
+reg	BYN2222	ArrayLengthMismatch	Error	`{0}` needs exactly its length in elements, found {1}
+reg	BYN2223	TupleNameMismatch	Error	tuple element `{0}` is named `{1}` in the target type
+reg	BYN2224	InterpolationNotAllowed	Error	an interpolated string must be passed directly to an output
+reg	BYN2225	NotFormattable	Error	`{0}` cannot be formatted
+reg	BYN2226	NotDisposable	Error	`using` needs a value that owns memory, not `{0}`
+reg	BYN2227	AmbiguousVariant	Error	`.{0}` is ambiguous; it exists in `{1}`
+reg	BYN2228	UnknownVariant	Error	`{0}` is not a variant of `{1}`
+reg	BYN2229	InvalidConstArray	Error	module-level `const` array `{0}` must hold literal numbers, `bool`s, `rune`s or `string`s
+reg	BYN2230	RenamedMember	Error	`{0}` is now `{1}`
+reg	BYN2234	WhileLetNotOptional	Error	`while let` needs a `T?` value, got `{0}`
+reg	BYN2235	SpreadNotSequence	Error	`..{0}` spreads a `{1}`, which is not a sequence
+reg	BYN2236	MapLiteralMixed	Error	a map literal needs `key: value` in every element
+reg	BYN2301	MissingArgument	Error	missing argument `{0}` for `{1}`
+reg	BYN2302	TooManyArguments	Error	`{0}` takes {1} argument(s)
+reg	BYN2303	DuplicateArgument	Error	`{0}` is passed twice
+reg	BYN2304	PositionalAfterNamed	Error	a positional argument cannot follow a named one
+reg	BYN2305	ArgumentMustBeNamed	Error	argument for `{0}` must be named
+reg	BYN2306	ArgumentModifierMismatch	Error	argument for `{0}` must be passed as {1}
+reg	BYN2307	RetiredArgumentsSwapped	Error	retired: particles replace the same-type naming rule
+reg	BYN2310	SpanParameterNeverWritten	Warning	`{0}` is never written through; use `ReadOnlySpan<{1}>`
+reg	BYN2311	NeverReassignedVar	Warning	`{0}` is never reassigned; declare it with `let`
+reg	BYN2320	RequiresNotBool	Error	a `requires` clause must be `bool`, got `{0}`
+reg	BYN2321	RequiresViolated	Error	`{0}` violates `requires {1}` of `{2}`
+reg	BYN2322	RetiredRequiresNotHere	Error	retired: `requires` is checked at construction
+reg	BYN2401	MissingReturn	Error	`{0}` must return `{1}` on every path
+reg	BYN2402	MissingReturnValue	Error	this function returns `{0}`; `return` needs a value
+reg	BYN2403	ReturnValueInVoid	Error	`{0}` returns nothing, but `return` has a value
+reg	BYN2404	NeverReturns	Error	`{0}` returns `never` but can reach its end
+reg	BYN2405	UnreachableCode	Warning	unreachable code
+reg	BYN2406	JumpOutsideLoop	Error	`{0}` outside a loop
+reg	BYN2407	ContinueSwitch	Error	`continue {0}` refers to a `switch`, not a loop
+reg	BYN2408	LabelNotOnLoop	Error	label `{0}` must be on a loop or `switch`
+reg	BYN2409	DuplicateDefault	Error	`switch` has more than one `default` section
+reg	BYN2410	NonExhaustive	Error	`switch` does not handle every `{0}`
+reg	BYN2411	PatternMismatch	Error	{0} cannot match `{1}`
+reg	BYN2601	TryInDefer	Error	`try` is not allowed in `defer`
+reg	BYN2602	UnhandledFailure	Error	`{0}` can fail; handle the error or pass it on
+reg	BYN2603	UndeclaredError	Error	`{0}` is not in the `fails` clause of `{1}`
+reg	BYN2604	PropagateFromInfallible	Error	`{0}` cannot fail, so it cannot pass on `{1}`
+reg	BYN2605	NothingToHandle	Error	`{0}` needs a call that can fail
+reg	BYN2606	ErrdeferWithoutFails	Error	`defer failing` in a function that cannot fail
+reg	BYN2607	PublicInferredFails	Error	public function `{0}` must list its errors
+reg	BYN2608	NotAnErrorSet	Error	`{0}` is not an error enum
+reg	BYN2609	EmptyErrorSet	Error	error enum `{0}` has no variants
+reg	BYN2610	JumpOutOfDefer	Error	`{0}` cannot leave a `defer` or `defer failing` body
+reg	BYN2611	CatchBlockCompletes	Error	this `catch` block can complete normally; end it with `return`, `break`, `continue` or a panic
+reg	BYN2612	PanicHandlerRestricted	Error	{0} is not allowed in a panic handler
+reg	BYN2613	PanicHandlerReads	Error	a panic handler reads only `let` bindings and parameters
+reg	BYN2614	OnPanicPlacement	Error	`Panic.handler` may be set only as the first statement of `main`
+reg	BYN2615	PanicHandlerReadsMoved	Error	a panic handler reads `{0}`, which is moved after the handler is registered
+reg	BYN2700	UnknownUnionVariant	Error	`{0}` is not a variant of union `{1}`
+reg	BYN2701	DuplicateUnionVariant	Error	union `{0}` already has a variant `{1}`
+reg	BYN2702	EmptyUnion	Error	union `{0}` has no variants
+reg	BYN2703	VariantPatternArity	Error	variant `{0}` has {1} payload field(s), but the pattern lists {2}
+reg	BYN2704	PayloadNeedsPattern	Error	the payload of a `{0}` is read with a pattern, not `.{1}`
+reg	BYN2705	VariantNeedsPayload	Error	variant `{0}` carries a payload
+reg	BYN2706	VariantHasNoPayload	Error	variant `{0}` has no payload
+reg	BYN2707	RecursiveUnion	Error	union `{0}` contains itself
+reg	BYN2708	BorrowPayload	Error	a union payload cannot hold a borrowed `{0}`
+reg	BYN2709	UnionValueNotInteger	Error	a case value must be an integer constant
+reg	BYN2710	UnionValueOnPayload	Error	`{0}` carries data and cannot have a value
+reg	BYN2711	DuplicateUnionValue	Error	`{0}` and `{1}` share the value {2}
+reg	BYN2712	WildcardOnLocalUnion	Warning	`_` hides future cases of `{0}`, declared in this package
+reg	BYN2720	UnknownEnumMember	Error	`{0}` is not a member of `{1}`
+reg	BYN2721	DuplicateEnumMember	Error	enum `{0}` already has a member `{1}`
+reg	BYN2722	EmptyEnum	Error	enum `{0}` has no members
+reg	BYN2723	EnumArgumentNotConstant	Error	argument `{0}` of `{1}` must be a compile-time constant
+reg	BYN2724	InvalidEnumParameter	Error	enum parameter `{0}` must be a number, `bool`, `rune`, `string` or a plain enum
+reg	BYN2740	CannotInferTypeArgument	Error	cannot infer type argument `{0}` of `{1}`
+reg	BYN2741	ConflictingTypeArgument	Error	type argument `{0}` of `{1}` is inferred as both `{2}` and `{3}`
+reg	BYN2742	GenericArgumentCount	Error	`{0}` takes {1} type argument(s), not {2}
+reg	BYN2743	TypeParameterOperator	Error	`{0}` cannot be applied to a value of type parameter `{1}`
+reg	BYN2744	TypeParameterMember	Error	`{0}` is not a member of type parameter `{1}`
+reg	BYN2760	InvalidMapKey	Error	`{0}` cannot be a `Map` key
+reg	BYN2761	RecursiveByValue	Error	`{0}` contains itself by value: {1}
+reg	BYN2762	SharedStorageCopy	Error	a `{0}` cannot be copied
+reg	BYN2770	UnknownAttribute	Error	unknown attribute `{0}`
+reg	BYN2771	InvalidMainSignature	Error	`main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`
+reg	BYN2772	InvalidExitCode	Error	`@exitCode` needs one integer constant from 1 to 255
+reg	BYN2773	CasesArity	Error	`@cases` gives {0} values but the test takes {1} parameters
+reg	BYN2774	CasesNotConstant	Error	each `@cases` value must be a constant
+reg	BYN2775	AssertNotBool	Error	`assert` needs a `bool`, got `{0}`
+reg	BYN2780	ImplicitCopy	Error	implicit copy of a unique value: {0}
+reg	BYN2781	UseAfterMove	Error	`{0}` is used after it was moved
+reg	BYN2782	CannotMove	Error	cannot move out of {0}
+reg	BYN2783	MutateBorrow	Error	`{0}` borrows from what it was bound to and cannot be changed or moved
+reg	BYN2784	CopyUniqueElement	Error	a `{0}` holding `{1}` cannot be copied: the copy would share its storage
+reg	BYN2785	MapSlotNoDefault	Error	`slot` needs a default value, and `{0}` has none
+reg	BYN2786	UntrustedSink	Error	`{0}` cannot be passed to `{1}`: it is `Untrusted`
+reg	BYN2787	TrustReason	Error	`trust` needs a reason: a non-empty string literal
+reg	BYN2788	TakeUnsupported	Error	`take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `{0}`
+reg	BYN2789	SwitchMoveSubject	Error	`switch move …` needs a local or a `move` parameter, not {0}
+reg	BYN2790	OwningPatternOverlap	Error	pattern `{0}` binds the same storage more than once in `switch move …`
+reg	BYN2791	OwningBindingMutatedInGuard	Error	`{0}` is mutated in the guard of `switch move …`; a guard that fails gives the value back
+reg	BYN2800	InterfaceName	Error	`{0}` must start with `I` and an uppercase letter
+reg	BYN2801	MissingInterfaceMember	Error	`{0}` does not provide `{1}` required by `{2}`
+reg	BYN2802	InterfaceMemberMismatch	Error	`{0}.{1}` is `{2}` but `{3}` requires `{4}`
+reg	BYN2803	MissingAssociatedType	Error	`{0}` does not bind `type {1}` of `{2}`
+reg	BYN2804	NotAnInterface	Error	`{0}` is not an interface
+reg	BYN2805	DuplicateConformance	Error	`{0}` lists `{1}` twice
+reg	BYN2806	ConstraintMember	Error	`{0}` has no member `{1}` in its constraints ({2})
+reg	BYN2807	ConstraintNotSatisfied	Error	`{0}` does not conform to `{1}`: missing `{2}`
+reg	BYN2808	NotDynSafe	Error	`{0}` cannot be used with `dyn`: `{1}` {2}
+reg	BYN2809	DynByValue	Error	`dyn {0}` is not supported yet
+reg	BYN2810	StaticAbstract	Error	`static` interface members are not supported yet
+reg	BYN2811	ExtensionConformance	Error	`extension {0} : {1}` is not supported yet
+reg	BYN2812	WhereUnknownParameter	Error	`where` names `{0}`, which is not a type parameter
+reg	BYN2813	DynReadonlyMutation	Error	`{0}` takes `ref this`, but the receiver is `dyn ref readonly {1}`
+reg	BYN2814	RefThisMismatch	Error	`{0}.{1}` must match `{2}.{1}`, which {3} `ref this`
+reg	BYN2815	NonStructConformance	Error	`{0}` is {1}; only structs can conform yet
+reg	BYN2816	InterfaceAsType	Error	`{0}` is an interface, not a type
+reg	BYN2820	LambdaArity	Error	this lambda takes {0} parameter(s) but `{1}` takes {2}
+reg	BYN2821	CannotCapture	Error	`{0}` cannot be captured: {1}
+reg	BYN2822	FunctionTypeNotHere	Error	a function type is not supported as {0} yet
+reg	BYN2823	MemberNotLambda	Error	`.{0}` is a member, not a lambda
+reg	BYN2824	NotAFunctionValue	Error	`{0}` cannot be used as a value: {1}
+reg	BYN2830	HashMapNotSupported	Error	`HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
+reg	BYN2831	KeyPartNotHashable	Error	`{0}` cannot be a `Map` key: {1} `{2}` is a `{3}`
+reg	BYN2832	StringNotSymbol	Error	a `string` value is not a `Symbol`; only a string literal converts
+reg	BYN3001	BorrowField	Error	a struct field cannot hold a borrowed `{0}`
+reg	BYN3002	BorrowOutlivesSource	Error	{0} does not live as long as `{1}`, which borrows it
+reg	BYN3003	BorrowReturned	Error	cannot return a borrow of {0}, which is freed when `{1}` returns
+reg	BYN3004	ModifiedWhileBorrowed	Error	`{0}` is modified while {1} still borrows it
+reg	BYN3005	RefAndValue	Error	`{0}` is passed by `ref` and again in the same call
+reg	BYN3006	MovedWhileBorrowed	Error	`{0}` is moved while {1} still borrows it
+reg	BYN3100	ManifestNotData	Error	`package.byn` is data only: expected {0}
+reg	BYN3101	ManifestUnknownField	Error	`{0}` is not a field of `{1}`
+reg	BYN3102	ManifestInvalidValue	Error	`{0}` must be {1}
+reg	BYN3103	ManifestMissingField	Error	`package.byn` has no `{0}`
+reg	BYN3104	ManifestEquals	Error	`package.byn` uses `field: value`
+reg	BYN3201	UnusedValue	Error	the value of this `{0}` is unused
+reg	BYN3202	DuplicateErrorCase	Error	`{0}` and `{1}` both have a case `{2}`
+reg	BYN3204	BareLiteralForDistinct	Error	`{0}` is not a `{1}`
+reg	BYN3206	RuleTargetNotField	Error	`at .{0}` names no field of `{1}`
+reg	BYN3207	LiteralNeedsTry	Error	a literal of `{0}` can fail its `requires`; write `try {0} {{ … }}`
+reg	BYN3208	CheckedFieldAssignment	Error	fields of `{0}` cannot be assigned one at a time; its `requires` are checked at construction
+reg	BYN3209	UniqueConst	Error	a `unique` type cannot be `const`
+reg	BYN3213	OverlappingOverloads	Error	`{0}` and `{1}` both accept `{2}`
+reg	BYN3214	RestEscapes	Error	`{0}` is borrowed for the call and cannot be stored
+reg	BYN3215	AmbiguousOverloadReference	Error	`{0}` is overloaded; give the reference a function type
+reg	BYN3216	FieldWriteOutside	Error	`{0}.{1}` can be written only by `{0}`'s own methods or with `with`: `{0}` {2}
+reg	BYN3217	BorrowCrossesFiber	Error	`{0}` holds a reference into `{1}` and cannot be passed to a fiber that may outlive it
+reg	BYN3218	RequiresMixesFields	Error	this `requires` reads `it` and other fields
+reg	BYN3219	UnknownMutationOperator	Error	`{0}` is not a mutation operator
+reg	BYN4001	CCompilerRejected	Error	internal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler
+reg	BYN4002	ErrorNodeReachedLowering	Error	internal compiler error: a bound error expression reached lowering with no error reported; this is a bug in the Bayan compiler
+reg	BYN5001	ParticipleChangesThis	Error	`{0}` changes `this`; name it `{1}`
+reg	BYN5002	StateMemberMutates	Error	`{0}` reads as state but modifies `this`
+reg	BYN5003	TryWrongReturn	Error	`try{0}` must return `{1}?` or `bool`; it is derived from `{2}() fails`
+reg	BYN5004	ParticleRequired	Error	`{0}` has {1} unlabeled parameters; give each but one a particle
+reg	BYN5005	ArgumentNeedsParticle	Error	`{0}` is passed without its particle `{1}:`
+reg	BYN5006	ParameterNeedsParticle	Error	`{0}` is a required parameter besides the object and needs a particle
+reg	BYN5007	LogLevelAsVerb	Error	`Log.{0}` names a level, not the act; write `log(…, as: .{0})`
+reg	BYN5008	UnknownParticle	Error	`{0}` is not a particle
+reg	BYN5009	ParticleAsMemberName	Error	`{0}` is a particle; name the member with a verb or a noun
+reg	BYN5011	ExpectsSingleParameter	Warning	this `expects` reads only `{0}`; a type with `requires` checks it once
+reg	BYN5013	RepeatedParticle	Error	`{0}` uses the particle `{1}` twice
+reg	BYN5014	UnknownWord	Warning	`{0}` is not a known verb, noun or adjective
+reg	BYN5101	NounOnMutator	Warning	`{0}` is a noun on a `ref this` member; name the action
+reg	BYN5102	BoolWithoutPrefix	Warning	`{0}` is a `bool` state; prefix with `is`, `has` or `can`
+reg	BYN5103	LineJoinIndent	Warning	a line starting with `{0}` joins the statement above; indent it deeper
+reg	BYN5104	NumberAgreement	Warning	`{0}` holds a collection; name it with a plural, `{1}`
+reg	BYN5105	CountName	Warning	`{0}` counts items; name it `{1}`
+reg	BYN5106	DoerWithoutVerb	Warning	`{0}` is named for the act `{1}` but has no `{1}` member
+reg	BYN5107	InstrumentChangesThis	Warning	`{0}` is a tool; `{1}` must not change `this`
+reg	BYN6001	NoallocRemoved	Error	`{0}` is removed; a function without `uses` is already pure
+reg	BYN6002	EffectNotDeclared	Error	`{0}` uses `{1}` but does not declare it
+reg	BYN6003	UnknownEffect	Error	`{0}` is not an effect
+reg	BYN6004	CapabilityExceeded	Error	`{0}` uses `{1}`, which package `{2}` does not declare in `capabilities`
+reg	BYN6005	EffectBoundExceeded	Error	`{0}` uses `{1}`, beyond the bound `{2}` declared by `{3}`
+reg	BYN6006	ContextBlockInput	Error	`context (…) {{ }}` is now `provide … {{ }}`
+reg	BYN6007	UnknownHandler	Error	`{0}` is not a handler; `provide` takes `alloc`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console` or `log`
+reg	BYN7001	WrongState	Error	`{0}` needs `{1}` to be `.{2}`, but it is `{3}`
+reg	BYN7002	PayloadNotInState	Error	`{0}` is a payload of `.{1}`; `{2}` is not known to be `.{1}`
+reg	BYN7003	BecomeUndeclared	Error	`become` needs `becomes .{0}` on `{1}`
+reg	BYN7004	StateSwitchNotExhaustive	Error	the switch does not handle state `.{0}`
+reg	BYN7005	StateLiteralNeedsState	Error	`{0}` has states; a literal must name one: `{0}.{1} {{ … }}`
+reg	BYN7006	SingleStateInline	Error	`{0} is .{1}` is an input form; write `{2}`
+reg	BYN7007	UnknownState	Error	`{0}` has no state `.{1}`
+reg	BYN7008	StateShadowsStatic	Error	state `.{0}` has the same name as static member `{1}.{0}`
+reg	BYN7009	MissingBecome	Error	`{0}` declares `becomes .{1}` but returns here without `become`
+reg	BYN7010	BecomesNeedsRef	Error	`{0}` declares `becomes .{1}` but takes `{2}`; a transition needs `ref this`
+reg	BYN7011	BecomesOnRefParameter	Error	`{0}` changes the state of `{1}`, a `ref` parameter; a state changes in place only through `ref this`
+reg	BYN7012	AssignmentChangesState	Error	`{0}` would change state here; a state changes only through `become`
+reg	BYN8001	MissingBecause	Error	`{0}` bypasses a safety rule and needs `because "…"`
+reg	BYN8006	ExpectsReadsUntrusted	Error	`expects` reads `{0}`, which is `Untrusted`; a violation would trap on outside data
+retired	BYN1030	(design round 3 §28): the C# primitive names are accepted in type positions and `bayan format` respells them per `style.primitives`. Never reuse it.
+retired	BYN1032	(design round 3 §5): `if !x {}` and `if not x {}` are both accepted and nothing rewrites them. Never reuse it.
+retired	BYN1049	before it was raised: a round-3 draft gave `unless not` this code, which BYN1007 covers (and an earlier draft used it for a return-type order check, now covered by BYN1043 `TypeNameOrder`). Never reuse it.
+retired	BYN2026	a braceless body of `if`, `unless`, `while` or `for` is reported (BYN1018); a `defer` body may be a single statement, and only a declaration there is rejected (BYN1018), in design round 2. Never reuse it.
+retired	BYN2307	(design round 3 §15): particles replace the same-type naming rule, so a swapped pair is a particle mismatch (BYN5005). Never reuse it.
+retired	BYN2322	`requires` on fields and distinct types is checked at construction (round 3 step 5.3b, revision 0006). Never reuse it.
+retired	BYN2762	(a `Map` or `StrBuf` cannot be copied): replaced by BYN2780 in spec 002. Never reuse it.
+reserved	BYN3213	v0.1 overloads differ by particle set only. Its help, once reported: "change a parameter type or particle so the overloads cannot overlap".
+reserved	BYN3215	v0.1 has no references to overloaded names. Its help, once reported: "annotate it: `let f: A -> B = {0}`".
+reserved	BYN3217	v0.1 has no fibers. Its help, once reported: "copy the data first, or spawn the fiber in a scope that ends before `{1}`".
+round4	BYN1070	NegatedIsInput	`!(x is .s)`; round 4's draft says BYN1069, which spec 013 gives StatementAttribute. // target: 19xx input form
+round4	BYN1071	SwitchExpressionNeedsElse	subjectless `switch`. // target: 41xx switch
+round4	BYN2825	BorrowedClosureStored	closure escape rule. // target: 3xxx borrows
+round4	BYN7013	FinalStateNotReached	`final` states; round 4's draft says BYN7010, which is BecomesNeedsRef. // target: 7xxx typestate
+kw	actor	reserved	37
+kw	and	keyword	30
+kw	as	keyword	16
+kw	assert	keyword	34
+kw	async	keyword	29
+kw	attribute	contextual	13
+kw	await	keyword	29
+kw	because	keyword	40
+kw	become	keyword	39
+kw	break	keyword	23
+kw	case	keyword	21
+kw	catch	keyword	27
+kw	checked	keyword	34
+kw	comptime	keyword	33
+kw	const	keyword	18
+kw	context	keyword	26
+kw	continue	keyword	24
+kw	default	keyword	22
+kw	defer	keyword	25
+kw	delegate	keyword	12
+kw	derivation	contextual	13
+kw	distinct	contextual	15
+kw	do	keyword	23
+kw	effect	contextual	38
+kw	else	keyword	20
+kw	embed	contextual	19
+kw	enum	keyword	10
+kw	errdefer	keyword	25
+kw	error	contextual	14
+kw	except	keyword	41
+kw	extensible	contextual	11
+kw	extension	keyword	12
+kw	extern	keyword	19
+kw	fail	keyword	39
+kw	fails	keyword	26
+kw	false	keyword	33
+kw	flags	contextual	10
+kw	for	keyword	22
+kw	foreach	keyword	36
+kw	fuzz	keyword	36
+kw	goto	keyword	37
+kw	if	keyword	20
+kw	import	keyword	15
+kw	in	keyword	22
+kw	interface	keyword	11
+kw	is	keyword	29
+kw	law	contextual	39
+kw	let	keyword	18
+kw	macro	reserved	38
+kw	model	keyword	36
+kw	move	keyword	31
+kw	never	keyword	27
+kw	new	keyword	37
+kw	noalloc	keyword	27
+kw	nosuspend	keyword	28
+kw	not	keyword	30
+kw	null	keyword	32
+kw	open	contextual	10
+kw	or	keyword	30
+kw	out	keyword	32
+kw	private	keyword	16
+kw	property	keyword	35
+kw	provide	keyword	41
+kw	public	keyword	16
+kw	readonly	keyword	17
+kw	ref	keyword	31
+kw	required	keyword	18
+kw	requires	keyword	40
+kw	return	keyword	24
+kw	select	reserved	38
+kw	set	contextual	14
+kw	static	keyword	17
+kw	struct	keyword	9
+kw	suspends	keyword	28
+kw	switch	keyword	21
+kw	test	keyword	34
+kw	this	keyword	32
+kw	true	keyword	33
+kw	try	keyword	26
+kw	type	contextual	15
+kw	union	keyword	9
+kw	unique	keyword	9
+kw	unit	contextual	14
+kw	unless	keyword	21
+kw	unsafe	keyword	20
+kw	uses	keyword	40
+kw	using	keyword	25
+kw	var	keyword	19
+kw	while	keyword	23
+kw	with	keyword	31
+kw	yield	keyword	24
+mem	Arena	reset	method	115
+mem	Array	length	property	30
+mem	Array	mutableSpan	method	90
+mem	Array	span	property	31
+mem	Enum	name	property	52
+mem	Enum	ordinal	property	53
+mem	FormatSpec	align	property	45
+mem	FormatSpec	debug	property	42
+mem	FormatSpec	digits	property	46
+mem	FormatSpec	fill	property	44
+mem	FormatSpec	radix	property	41
+mem	FormatSpec	width	property	43
+mem	IoInput	readAll	method	131
+mem	IoInput	readAllBytes	method	137
+mem	IoStream	write	method	129
+mem	List	append	method	94
+mem	List	clear	method	95
+mem	List	copy	method	93
+mem	List	isEmpty	property	26
+mem	List	length	property	25
+mem	List	mutableSpan	method	89
+mem	List	remove	method	98
+mem	List	removeLast	method	96
+mem	List	replace	method	101
+mem	List	sort	method	105
+mem	List	span	property	28
+mem	List	take	method	107
+mem	List	tryGet	method	103
+mem	List<string>	joined	method	87
+mem	Map	clear	method	113
+mem	Map	contains	method	110
+mem	Map	copy	method	112
+mem	Map	length	property	29
+mem	Map	remove	method	111
+mem	Map	slot	method	109
+mem	Map	take	method	114
+mem	Map	tryGet	method	108
+mem	Optional	take	method	128
+mem	Owned	value	property	51
+mem	Panic	message	property	38
+mem	ProcessResult	exitCode	property	35
+mem	ProcessResult	stderr	property	37
+mem	ProcessResult	stdout	property	36
+mem	Result	err	property	50
+mem	Result	isOk	property	48
+mem	Result	value	property	49
+mem	Runes	skip	method	84
+mem	Runes	take	method	83
+mem	Runes	takeLast	method	85
+mem	Span	copy	method	92
+mem	Span	isEmpty	property	24
+mem	Span	length	property	23
+mem	Span<string>	joined	method	87
+mem	StrBuf	append	method	116
+mem	StrBuf	appendRepeated	method	119
+mem	StrBuf	clear	method	126
+mem	StrBuf	copy	method	123
+mem	StrBuf	finish	method	125
+mem	StrBuf	insert	method	121
+mem	StrBuf	length	property	32
+mem	StrBuf	take	method	127
+mem	StrBuf	view	property	33
+mem	Symbol	text	property	34
+mem	Time	nanos	property	39
+mem	Utf16	copy	method	86
+mem	rune	value	property	47
+mem	string	bytes	property	16
+mem	string	contains	method	63
+mem	string	copy	method	60
+mem	string	count	method	68
+mem	string	endsWith	method	62
+mem	string	equals	method	71
+mem	string	isAscii	property	19
+mem	string	isEmpty	property	17
+mem	string	lastPosition	method	66
+mem	string	length	property	15
+mem	string	lines	property	22
+mem	string	lowercased	method	73
+mem	string	padded	method	78
+mem	string	parts	method	81
+mem	string	position	method	64
+mem	string	repeated	method	77
+mem	string	replaced	method	75
+mem	string	runeCount	property	18
+mem	string	runes	property	20
+mem	string	startsWith	method	61
+mem	string	trimmed	method	70
+mem	string	uppercased	method	74
+mem	string	utf16	property	21

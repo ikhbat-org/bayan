@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Generates docs/DIAGNOSTICS.md, the diagnostics index: every code registered in
-# csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs, then the plan, reserved and retired lists. Retired and reserved
-# codes come from DiagnosticCodes.cs's comments (`// BYNnnnn is retired…`, `// BYNnnnn is reserved…` and the
-# `// Reserved: round 4` block); plan codes and reservations without a descriptor or comment come from the hand-kept
+# scripts/docs/data/csharp-facts.tsv (the descriptors and comments of the retired C# DiagnosticCodes.cs, extracted
+# once), then the plan, reserved and retired lists. Retired and reserved codes are its `retired`, `reserved` and
+# `round4` rows; plan codes and reservations without a descriptor or comment come from the hand-kept
 # docs/diagnostics-allocated.txt. Deterministic: sorted by code, LF, no dates.
 #   gen-diagnostics.sh            print it
 #   gen-diagnostics.sh --write    write docs/DIAGNOSTICS.md
@@ -11,9 +11,9 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 . "$root/scripts/release/version.sh"
 die() { echo "gen-diagnostics: $*" >&2; exit 1; }
-codes="$root/csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs"
+facts_tsv="$root/scripts/docs/data/csharp-facts.tsv"
 lists="$root/docs/diagnostics-allocated.txt"
-[ -f "$codes" ] || die "csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs not found"
+[ -f "$facts_tsv" ] || die "scripts/docs/data/csharp-facts.tsv not found"
 [ -f "$lists" ] || die "docs/diagnostics-allocated.txt not found"
 v="$(bayan_version "$root")"; rev="$(bayan_latest_revision "$root")"
 [ -n "$rev" ] || die "no docs/revisions/NNNN-*.md"
@@ -23,18 +23,11 @@ export LC_ALL=C
 # Markdown table cell: a literal | is escaped.
 cell() { sed -E 's/\|/\\|/g'; }
 
-# code, name, severity, message (C# \" unescaped)
-sed -nE 's/^ *public static readonly DiagnosticDescriptor ([A-Za-z0-9_]+) = (Error|Warning|Note)\("(BYN[0-9]{4})", "(.*)"\);$/\3	\1	\2	\4/p' "$codes" \
-  | sed -E 's/\\"/"/g; s/\\\\/\\/g' | cell | sort -k1,1 > "$t/reg"
-[ -s "$t/reg" ] || die "no descriptors in DiagnosticCodes.cs"
+# code, name, severity, message; code, note; code, name, note: the `reg`, `retired`, `reserved` and `round4` rows
+facts() { awk -F'\t' -v OFS='\t' -v k="$1" '$1 == k { $1 = ""; sub(/^\t/, ""); print }' "$facts_tsv"; }
+facts reg > "$t/reg"; facts retired > "$t/retired"; facts reserved > "$t/reserved"; facts round4 > "$t/round4"
+[ -s "$t/reg" ] || die "no reg rows in csharp-facts.tsv"
 dup="$(cut -f1 "$t/reg" | uniq -d)"; [ -z "$dup" ] || die "registered twice: $dup"
-# code, note: `// BYNnnnn [(…)] is retired…` and `// BYNnnnn is reserved…`
-for s in retired reserved; do
-  sed -nE "s/^ *\\/\\/ (BYN[0-9]{4})( \\([^)]*\\))? is $s(.*)\$/\\1	\\2\\3/p" "$codes" \
-    | sed -E 's/	 /	/; s/	: /	/' | cell | sort -k1,1 > "$t/$s"
-done
-# code, name, note: the `// Reserved: round 4` block, `// BYNnnnn Name: note. // target: …`
-sed -nE 's/^ *\/\/ (BYN[0-9]{4}) ([A-Z][A-Za-z0-9]*): (.*)$/\1	\2	\3/p' "$codes" | cell | sort -k1,1 > "$t/round4"
 # status, code, name, note from the hand-kept file
 grep -vE '^(#|[[:space:]]*$)' "$lists" | sed -E 's/^([a-z]+) (BYN[0-9]{4}) ([^ ]+) (.*)$/\1	\2	\3	\4/' > "$t/hand" || true
 awk -F'\t' 'NF != 4 || $1 !~ /^(plan|reserved|retired)$/ { print "docs/diagnostics-allocated.txt: bad line: " $0; bad = 1 } END { exit bad }' "$t/hand" >&2 \
