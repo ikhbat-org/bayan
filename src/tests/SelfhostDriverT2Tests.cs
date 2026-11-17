@@ -4,6 +4,22 @@ using Bayan.Cli;
 
 namespace Bayan.Tests;
 
+// Spec 019 T15c export counts (BAYAN_EXPORT_DIR=tmp/export-cli, cli/counts.tsv) against tests/inventory-019.tsv, class: tests / cases.
+// - SelfhostDriverT2Tests: 761 / 774. ACleanProgramAsCliApp writes 4 cases and ArgumentErrorsAsCliApp 13 (one per oracle call, +15);
+//   MaskKeepsVersionLikeLinesOnOtherStreams and RefusesWhatItDoesNotPort compare nothing with C# and write none (-2).
+// - SelfhostDriverT3Tests: 62 / 70. TargetHostFromIsTheTableName writes a probe case per table name and per no-host pair (11, +10);
+//   AnUnwritableScratchDirectory... and FindOnPathOnWindows... are no-oracle and write none (-2).
+// - SelfhostDriverT5Tests: 16 / 764. EmitC and RunAs write a case per run/ input (336 each); the others one per C# run;
+//   TheCsBuildsTheDriver compares two C# builds of the driver and writes none; EmitsAPackageAsCliApp (2 calls) and one
+//   FailuresAsCliApp call take the repo's own src/ as input and are rows of cli/UNEXPORTED.tsv.
+// - SelfhostDriverMutateTests: 46 / 58. MutateExternalAsCliAppDoes writes 7 and TestMutateAsCliAppDoes 8 (+13);
+//   RunsInTheSerialToolchainCollection compares nothing with C# and writes none (-1).
+// - SelfhostDriverStyleLintsTests: 13 / 12. CoversTheFolderCases is a guard over the folder list and writes none.
+// - SelfhostDriverApiTests: 2 / 1. EveryIndexedEntryPointExists checks the index against the source and writes none.
+// - SelfhostDriverRuntimeTests: 2 / 0. Both compare runtime.byn's constants with runtime/ files: no C# CLI run, no case.
+// - SelfhostDriverT8Tests (SelfhostDriverInventoryTests.cs): 5 / 0. They check C#-emitted C against the runtime inventory doc;
+//   nothing is compared with the self-hosted side, so there is no case.
+
 /// <summary>
 /// 012 T2: <c>lex</c>, <c>parse --ast</c>, <c>types</c> and <c>check</c> of the driver against <see cref="CliApp.Run"/> (R2).
 /// The expected exit code and streams come from the C# run in-process; only the elapsed seconds of <c>check</c>'s summary are masked.
