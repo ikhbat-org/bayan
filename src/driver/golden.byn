@@ -391,6 +391,48 @@ string? goldenRun(in GoldenCase c) uses alloc, clock, console, fs {
     return goldenCompare(goldenProduce(in c), for: c.input, at: goldenExpected(c.input, for: ending))
 }
 
+/// The first line of `path version` (`version` is `bayan --version`'s command); null when the file cannot be started or exits non-zero.
+string? goldenExeVersion(string path) uses alloc, process {
+    var args = List<string>()
+    args.append("version")
+    let r = Io.run(path, args.span) catch { return null }
+    return null if r.exitCode != 0
+    var end = r.stdout.length
+    for i in 0..r.stdout.length {
+        if r.stdout.bytes[i] == 0x0a {
+            end = i
+            break
+        }
+    }
+    return r.stdout[0..end]
+}
+
+/// The driver path of `value` (T2c, `$BAYAN_EXE`): `path` is it when it names a driver that starts, else empty and `failure` says why, naming
+/// `BAYAN_EXE`. Unset, empty and not executable are failures, never a skip. There is no executable-bit builtin, so a file that does not start is
+/// not executable.
+string goldenExeOf(string? value, through ref string failure) uses alloc, process {
+    let path = value ?? ""
+    if path.length == 0 {
+        failure = "BAYAN_EXE is not set: set it to the path of the bayan driver"
+        return ""
+    }
+    if goldenExeVersion(path) is null {
+        failure = $"BAYAN_EXE={path} is not an executable bayan driver"
+        return ""
+    }
+    return path
+}
+
+/// What T2b calls: the driver `$BAYAN_EXE` names; empty with `failure` set when it does not (each case that needs it fails with that text).
+string goldenExe(through ref string failure) uses alloc, env, process {
+    return goldenExeOf(Env.get("BAYAN_EXE"), through: ref failure)
+}
+
+/// The runner report's driver lines: the path and its version line.
+string goldenExeReport(string path) uses alloc, process {
+    return $"driver: {path}\n{goldenExeVersion(path) ?? ""}\n"
+}
+
 /// Writes `text` to `root`/`rel`, creating the directories above it.
 void goldenFixture(string root, for string rel) uses alloc, fs {
     let path = Path.combine(root, rel)
@@ -539,4 +581,54 @@ test "CR LF in an expected file reads as LF" {
     }
     deleteWorkDir(root)
     assert(failures == 0)
+}
+
+/// A shell script at `root`/`name` that prints `bayan 9.9 (fake)` for any arguments and exits with `code`; executable when `exec`.
+string goldenFakeDriver(string root, for string name, as bool exec, by i64 code = 0) uses alloc, fs, process {
+    goldenWrite(root, for: name, as: $"#!/bin/sh\necho \"bayan 9.9 (fake)\"\nexit {code}\n")
+    let path = Path.combine(root, name)
+    if exec {
+        var args = List<string>()
+        args.append("a+x")
+        args.append(path)
+        let _ = Io.run("chmod", args.span) catch { panic($"cannot make {path} executable") }
+    }
+    return path
+}
+
+test "BAYAN_EXE names a driver that starts, and the report prints its path and version line" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-exe")
+    deleteWorkDir(root)
+    let path = goldenFakeDriver(root, for: "ok", as: true)
+    var failure = ""
+    let found = goldenExeOf(path, through: ref failure)
+    let report = goldenExeReport(found)
+    deleteWorkDir(root)
+    assert(found == path)
+    assert(failure == "")
+    assert(report == $"driver: {path}\nbayan 9.9 (fake)\n")
+}
+
+test "an unset, empty or non-executable BAYAN_EXE fails naming BAYAN_EXE" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-exe-bad")
+    deleteWorkDir(root)
+    let plain = goldenFakeDriver(root, for: "plain", as: false)
+    let failing = goldenFakeDriver(root, for: "failing", as: true, by: 1)
+    var unset = ""
+    var empty = ""
+    var plainFailure = ""
+    var missing = ""
+    var exited = ""
+    let a = goldenExeOf(null, through: ref unset)
+    let b = goldenExeOf("", through: ref empty)
+    let c = goldenExeOf(plain, through: ref plainFailure)
+    let d = goldenExeOf(Path.combine(root, "none"), through: ref missing)
+    let e = goldenExeOf(failing, through: ref exited)
+    deleteWorkDir(root)
+    assert(a == "" && b == "" && c == "" && d == "" && e == "")
+    assert(unset.contains("BAYAN_EXE")
+        && empty.contains("BAYAN_EXE")
+        && plainFailure.contains("BAYAN_EXE")
+        && missing.contains("BAYAN_EXE") && exited.contains("BAYAN_EXE"))
+    assert(unset != plainFailure)
 }
