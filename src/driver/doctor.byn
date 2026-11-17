@@ -110,6 +110,66 @@ string t5Render(in List<T5Check> checks, by DStyle style) uses alloc {
     return $"{sb.finish()}"
 }
 
+/// `t5Render` of `checks` in each style against tests/cases/style/`shape` (StyleTests.cs:204 `DoctorShape`); null when all three match.
+string? t5RenderCompare(in List<T5Check> checks, for string shape) uses alloc, fs {
+    for ending in goldenStyleEndings() {
+        let text = goldenStyleMask(t5Render(in checks, by: goldenStyleOf(ending)), for: "", at: "")
+        if (goldenStyleCompare(
+            shape,
+            for: ending,
+            as: $"# Doctor.Render\n{goldenStreams(text, for: "")}",
+        ) is { } failure) {
+            return failure
+        }
+    }
+    return null
+}
+
+test "doctor-ok: passing checks render as tests/cases/style/doctor-ok in each style" {
+    // StyleTests.cs:142-149: the checks `Doctor.Render` gets.
+    var checks = List<T5Check>()
+    checks.append(T5Check { level: .ok, name: "bayan", detail: $"{version} (commit a1b2c3d4e5f6)" })
+    checks.append(T5Check { level: .ok, name: "host", detail: t5HostTarget() })
+    checks.append(T5Check { level: .ok, name: "C compiler", detail: "zig cc (0.14.1)" })
+    checks.append(T5Check { level: .ok, name: "zig", detail: "/usr/local/bin/zig (0.14.1)" })
+    checks.append(T5Check { level: .ok, name: "git", detail: "/usr/bin/git (git version 2.47.0)" })
+    checks.append(T5Check { level: .ok, name: "cache", detail: "~/.cache/bayan (writable, 3 programs, 1.2 MB)" })
+    assert(t5RenderCompare(in checks, for: "doctor-ok") is null)
+}
+
+test "doctor-fail: failing checks render as tests/cases/style/doctor-fail in each style" {
+    // StyleTests.cs:151-158; `Doctor.Level.Fail` is `.broken`.
+    var checks = List<T5Check>()
+    checks.append(T5Check { level: .ok, name: "bayan", detail: $"{version} (commit a1b2c3d4e5f6)" })
+    checks.append(T5Check { level: .ok, name: "host", detail: t5HostTarget() })
+    checks.append(
+        T5Check {
+            level: .broken,
+            name: "C compiler",
+            detail: "none found",
+            fix: "install zig (https://ziglang.org), or set BAYAN_CC to a C compiler",
+        },
+    )
+    checks.append(
+        T5Check {
+            level: .note,
+            name: "zig",
+            detail: "not found; building for other targets needs it",
+            fix: "install zig (https://ziglang.org)",
+        },
+    )
+    checks.append(T5Check { level: .ok, name: "git", detail: "/usr/bin/git (git version 2.47.0)" })
+    checks.append(
+        T5Check {
+            level: .broken,
+            name: "cache",
+            detail: "~/.cache/bayan isn't writable: Permission denied",
+            fix: "set BAYAN_CACHE to a writable directory",
+        },
+    )
+    assert(t5RenderCompare(in checks, for: "doctor-fail") is null)
+}
+
 /// Doctor.cs:50 `CCompiler`.
 T5Check t5CCompiler() uses alloc, env, fs, process {
     let fromEnv = (Env.get("BAYAN_CC") ?? "").length > 0
