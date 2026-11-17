@@ -63,9 +63,17 @@ touch "$t/tests/cases/fmt/c5.byn"
 expect "golden met" 0 "inventory-check: ok"
 printf 'ZetaTests\tz\tcli\t12\tgolden\ttests/cases\tr\n' >> "$t/tests/inventory-019.tsv"
 printf 'public class ZetaTests { [Fact] public void A() {} }\n' > "$t/src/tests/ZetaTests.cs"
-expect "golden tests/cases below" 1 "row ZetaTests has 6 cases across the kind folders of tests/cases, below its 12 tests"
+expect "golden tests/cases below" 1 "row ZetaTests has 8 cases across the kind folders of tests/cases, below its 12 tests"
 mkdir -p "$t/tests/cases/other"; for i in 1 2 3 4 5 6 7; do touch "$t/tests/cases/other/o$i.byn"; done
 expect "golden tests/cases met" 0 "inventory-check: ok"
+rm -rf "$t/tests/cases/other"
+sed -i.bak 's/^ZetaTests\(.*\)\t12\t/ZetaTests\1\t20\t/' "$t/tests/inventory-019.tsv"; rm "$t/tests/inventory-019.tsv.bak"
+mkdir -p "$t/tests/cases/emit-c/KlassA" "$t/tests/cases/emit-c/KlassB" "$t/tests/cases/multi/m"
+touch "$t/tests/cases/multi/m/main.byn"
+for i in 1 2 3 4; do mkdir "$t/tests/cases/emit-c/KlassA/t$i"; done; for i in 1 2 3 4 5; do mkdir "$t/tests/cases/emit-c/KlassB/t$i"; done
+expect "golden tests/cases per-test layout" 1 "row ZetaTests has 18 cases across"
+mkdir "$t/tests/cases/emit-c/KlassB/t6" "$t/tests/cases/emit-c/KlassB/t7"
+expect "golden tests/cases per-test layout met" 0 "inventory-check: ok"
 
 good
 printf 'class\tkind\ttests\tcases\treason\n' > "$t/tests/cases/EXPORT.tsv"

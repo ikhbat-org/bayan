@@ -93,7 +93,7 @@ SelfhostDefaultT5Tests	src/tests/SelfhostDefaultT5Tests.cs	selfhost-default	19	c
 SelfhostDefaultT9Tests	src/tests/SelfhostDefaultT9Tests.cs	selfhost-default	94	cli	cli	stage 2 command output equals the C# CLI
 SelfhostDriverApiTests	src/tests/SelfhostDriverApiTests.cs	selfhost-driver	2	cli	cli	stage 2 command output equals the C# CLI
 SelfhostDriverFixTests	src/tests/SelfhostDriverFixTests.cs	selfhost-driver	33	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverGoldenListTests	src/tests/SelfhostDriverGoldenListTests.cs	selfhost-driver	2	shell	shell	bayan test --list-cases of the stage-2 driver against the xUnit case lists: the golden runner's own listing check
+SelfhostDriverGoldenListTests	src/tests/SelfhostDriverGoldenListTests.cs	selfhost-driver	2	shell	shell	019 T1 list-cases contract; a script test of `bayan test --list-cases` replaces it
 SelfhostDriverGoldenTests	src/tests/SelfhostDriverGoldenTests.cs	selfhost-driver	187	golden	tests/cases	L028: the cases directory itself
 SelfhostDriverMutateTests	src/tests/SelfhostDriverMutateTests.cs	selfhost-driver	46	cli	cli	stage 2 command output equals the C# CLI
 SelfhostDriverRuntimeTests	src/tests/SelfhostDriverRuntimeTests.cs	selfhost-driver	2	cli	cli	stage 2 command output equals the C# CLI

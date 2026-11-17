@@ -10,7 +10,8 @@
 # A golden row (disposition golden, target tests/cases/<dir>) counts the cases in that flat folder, one per distinct file stem
 # or subdirectory, against the summed tests of all golden rows sharing the folder; with a tests/cases/<dir>/<Class>/ folder,
 # it counts the directories under tests/cases/<dir>/<Class>/ against the row alone. A row with target tests/cases itself counts
-# the cases of every kind folder under tests/cases (stems as above) against the row alone.
+# the cases of every kind folder under tests/cases (stems as above; in a <kind>/<Class>/<test> layout, one per test, a directory
+# with main.byn or without subdirectories being one case) against the row alone.
 #   bash scripts/ci/inventory-check.sh [root]   (root defaults to the repo; the inventory is <root>/tests/inventory-019.tsv)
 set -uo pipefail
 root="${1:-$(cd "$(dirname "$0")/../.." && pwd)}"
@@ -50,7 +51,11 @@ while IFS="$(printf '\037')" read -r class file family tests disp target reason;
       n=0
       for k in "$root"/tests/cases/*/; do
         [ -d "$k" ] || continue
-        c="$(find "$k" -mindepth 1 -maxdepth 1 | sed 's|.*/||; s|\..*||' | sort -u | wc -l | tr -d ' ')"; n=$((n + c))
+        c="$(for e in "$k"*; do
+          if [ -d "$e" ] && [ ! -f "$e/main.byn" ] && [ -n "$(find "$e" -mindepth 1 -maxdepth 1 -type d)" ]; then
+            find "$e" -mindepth 1 -maxdepth 1 | sed "s|.*/\\(.*\\)|$(basename "$e")/\\1|; s|\\..*||"   # <kind>/<Class>/<test>: one case per test
+          else basename "$e" | sed 's|\..*||'; fi
+        done | sort -u | wc -l | tr -d ' ')"; n=$((n + c))
       done
       [ "$n" -ge "$tests" ] || offend "row $class has $n cases across the kind folders of tests/cases, below its $tests tests"
       continue
