@@ -7,8 +7,8 @@ cd "$(dirname "$0")/../.."
 seed=evals/llm/tasks
 root=$PWD/tmp/llm-eval-test
 rm -rf "$root"; mkdir -p "$root/tasks" "$root/cand" "$root/out" "$root/rec"
-stamp=
-trap 'rm -rf "$root"; [ -z "$stamp" ] || rm -f "$stamp"' EXIT
+trap 'rm -rf "$root"' EXIT
+export LLM_EVAL_STAMP_DIR=$root/stamps
 
 pass=0 fail=0
 ok() { pass=$((pass + 1)); echo "ok   $1"; }
@@ -303,7 +303,7 @@ status() { sed -n "s/^$1: //p" "$root/rec/net.status"; }
 check "run: completes inside the network denial" "$(status exit) $(status sandbox) $(get net tokens) $(cmp -s "$root/rec/net.prompt" "$root/want-plain" && echo same)" "0 $sandbox 7 same"
 
 # Stamp and heldout guard (T9). A git repository holding a set with one `dev` and one `Split: heldout` task, both
-# synthetic. The stamp goes to tmp/llm-eval/recheck/stamps/ under the repo root; the trap removes it.
+# synthetic. The stamp goes to $LLM_EVAL_STAMP_DIR, under $root.
 good held small-900-salam small
 good held small-901-kept small
 hs=$root/sets/held
@@ -311,7 +311,7 @@ sed -i.bak 's/^Split: dev$/Split: heldout/' "$hs/small-901-kept/task.md"; rm "$h
 g() { git -C "$hs" -c user.name=test -c user.email=test@example.invalid -c commit.gpgsign=false -c core.hooksPath=/dev/null "$@"; }
 g init -q && g add -A && g commit -qm tasks
 hcommit=$(g rev-parse HEAD)
-stamp=$PWD/tmp/llm-eval/recheck/stamps/$hcommit-$ccommit
+stamp=$LLM_EVAL_STAMP_DIR/$hcommit-$ccommit
 # hrun <name> [run args...]: run over the set with a stub that answers right; output in $root/rec/<name>, summary in $flat.
 hrun() {
   local n=$1; shift
@@ -356,6 +356,46 @@ hrun held-machine --machine "test machine"
 check "run: heldout with --machine runs" "$code $(holds '"machine":"testmachine"')" "0 holds"
 bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model true > /dev/null 2>&1
 check "run: dev without --machine or --remote is refused" "$?" "2"
+
+# records.jsonl is appended to per sample (R37): the stub model counts the lines already there when it is called, so a
+# full rewrite at the end shows 0 0 0, not 0 1 2.
+cat > "$root/appended.sh" <<'EOF'
+cat > /dev/null
+if [ -f "$1/out/appended/1/records.jsonl" ]; then wc -l < "$1/out/appended/1/records.jsonl" | tr -d ' ' >> "$1/appended.log"; else echo 0 >> "$1/appended.log"; fi
+cat "$1/cand/right.byn"
+EOF
+bash scripts/bayan-tool.sh llm-eval run "$st" --model "sh $root/appended.sh $root" --only small-901-a --samples 3 --machine m \
+  --out "$root/out/appended" > "$root/rec/appended" 2>&1
+check "run: records.jsonl grows by one line per sample, not rewritten at the end" "$? $(tr '\n' ' ' < "$root/appended.log")" "0 0 1 2 "
+
+# Marker check (T10b, R24). A synthetic marker made now; no marker string is kept in the repository. Set `mk` holds a
+# `dev` task without the marker and two `heldout` tasks, one marked in every file that is not exempt, one not.
+marker=TESTMARK-$RANDOM-$(date +%s)-$RANDOM
+good mk small-900-dev small
+good mk small-901-marked small
+good mk small-902-bare small
+mk=$root/sets/mk
+for t in small-901-marked small-902-bare; do
+  sed 's/^Split: dev$/Split: heldout/' "$mk/$t/task.md" > "$root/m.tmp"; mv "$root/m.tmp" "$mk/$t/task.md"
+done
+# markit <task>: the marker in every file that is not exempt (a comment line first in the `.byn` file).
+markit() {
+  local t=$mk/$1 f
+  for f in task.md prompt.md; do printf '\n%s\n' "$marker" >> "$t/$f"; done
+  { printf '// %s\n' "$marker"; cat "$t/reference/solution.byn"; } > "$root/m.tmp"; mv "$root/m.tmp" "$t/reference/solution.byn"
+}
+markit small-901-marked
+recheck mk
+check "recheck: no MARKER file, the marker check is skipped" "$code $(grep -c '^PASS' "$root/rec/rc-mk")" "0 3"
+printf '%s\n' "$marker" > "$mk/MARKER"
+recheck mk
+check "recheck: MARKER present, a heldout file without the string fails" \
+  "$code $(grep -c '^FAIL small-902-bare: no marker in ' "$root/rec/rc-mk") $(grep '^FAIL small-902-bare' "$root/rec/rc-mk" | grep -o 'task.md\|prompt.md\|reference/solution.byn' | wc -l | tr -d ' ')" "1 1 3"
+check "recheck: MARKER present, every non-exempt file marked passes; exempt files and dev tasks need none" \
+  "$(grep -c '^PASS small-901-marked' "$root/rec/rc-mk") $(grep -c '^PASS small-900-dev' "$root/rec/rc-mk") $(grep -c "$marker" "$mk/small-901-marked/checks/expected.stdout")" "1 1 0"
+markit small-902-bare
+recheck mk
+check "recheck: MARKER present, every heldout task marked passes" "$code $(grep -c '^PASS' "$root/rec/rc-mk")" "0 3"
 
 echo "llm-eval.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]

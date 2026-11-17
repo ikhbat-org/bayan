@@ -17,7 +17,8 @@
 // starter fails `bayan check` with only the code its `Title:` names (R13), and that `prompt.md` of a `stdout` task does
 // not hold its whole `checks/expected.stdout`. It prints `PASS <task>` or `FAIL <task>: <reasons>` and the slowest run.
 // When every task passed, without --only, and nothing under the tasks directory is uncommitted, it writes a stamp named
-// by the task-set commit and the compiler commit, tmp/llm-eval/recheck/stamps/<task-set>-<compiler> under the repo root,
+// by the task-set commit and the compiler commit, tmp/llm-eval/recheck/stamps/<task-set>-<compiler> under the repo root
+// (or under $LLM_EVAL_STAMP_DIR when set, for tests),
 // and prints `stamp: <path>`; otherwise it prints `no stamp: <reason>` (R29).
 // Exit 0 when every task passed, 1 when one failed or the recheck could not start, 2 on bad usage.
 //
@@ -511,8 +512,38 @@ string? starterProblem(string dir, for string title, by string bayan) {
     return $"starter/solution.byn fails with {got}, not only {code}"
 }
 
+/// Every file under `dir`, as a path relative to `base` (`dir` is `base` or a directory under it).
+List<string> filesUnder(string base, at string dir) {
+    var found = List<string>()
+    let entries = Io.listDir(dir) catch return found
+    for e in entries {
+        let path = Path.combine(dir, e)
+        if isDirectory(path) {
+            for f in filesUnder(base, at: path) {
+                found.append(f)
+            }
+        } else {
+            found.append(path[base.length + 1..])
+        }
+    }
+    return found
+}
+
+/// The files of the `heldout` task in `dir` that lack `marker` (R24). `checks/stdin`, `checks/expected.stdout` and
+/// `checks/exitcode` are exempt: they are fed or compared byte for byte.
+List<string> unmarked(string dir, for string marker) {
+    var missing = List<string>()
+    for f in filesUnder(dir, at: dir) {
+        continue if f == "checks/stdin" || f == "checks/expected.stdout" || f == "checks/exitcode"
+        let text = Io.readText(Path.combine(dir, f)) catch ""
+        missing.append(f) if !text.contains(marker)
+    }
+    return missing
+}
+
 /// What is wrong with the task `name` in `tasksDir` apart from its reference's scoring: its name and number (R1), its
-/// files (R1), its header (R2, R26), its starter (R13) and the leak guard (plan 025). `names` is every task directory.
+/// files (R1), its header (R2, R26), its starter (R13), the marker (R24) and the leak guard (plan 025). `names` is every
+/// task directory.
 List<string> taskProblems(string tasksDir, at string name, from List<string> names, by string bayan) {
     var problems = List<string>()
     let dir = Path.combine(tasksDir, name)
@@ -545,6 +576,14 @@ List<string> taskProblems(string tasksDir, at string name, from List<string> nam
     let split = field(head, for: "Split") ?? ""
     problems.append($"`Split: {split}` is neither dev nor heldout") if !split.isEmpty && split != "dev"
         && split != "heldout"
+    // The marker is read from <tasksDir>/MARKER when that file exists; without it the check is skipped.
+    if split == "heldout" {
+        let marker = (Io.readText(Path.combine(tasksDir, "MARKER")) catch "").trimmed()
+        if !marker.isEmpty {
+            let missing = unmarked(dir, for: marker)
+            problems.append($"no marker in {joined(missing, by: ", ")}") if !missing.isEmpty
+        }
+    }
     let revision = field(head, for: "Revision") ?? ""
     problems.append($"`Revision: {revision}` is not a four-digit revision") if !revision.isEmpty
         && !digits(revision, for: 4)
@@ -634,7 +673,8 @@ string? committedSet(string tasksDir) {
 
 /// The stamp of a passing recheck of task-set commit `taskCommit` with compiler commit `compilerCommit` (R29).
 string stampPath(string root, for string taskCommit, by string compilerCommit) {
-    return Path.combine(root, $"tmp/llm-eval/recheck/stamps/{taskCommit}-{compilerCommit}")
+    let stamps = Env.get("LLM_EVAL_STAMP_DIR") ?? Path.combine(root, "tmp/llm-eval/recheck/stamps")
+    return Path.combine(stamps, $"{taskCommit}-{compilerCommit}")
 }
 
 /// Re-checks every task directory in `tasksDir`, or only the one named `only`: prints `PASS <task>` or
