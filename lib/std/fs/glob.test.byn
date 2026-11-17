@@ -18,7 +18,9 @@ void touch(string root, at string rel) uses fs, alloc {
 string joined(List<string> found) uses alloc {
     var sb = StrBuf()
     for f in found {
-        if sb.length > 0 { sb.append(" ") }
+        if sb.length > 0 {
+            sb.append(" ")
+        }
         sb.append(f)
     }
     return sb.finish()
@@ -33,13 +35,19 @@ test "glob lists the matching files, sorted, with / separators" {
     touch(root, at: "src/x/e.cs")
     touch(root, at: "lib/f.byn")
     let all = glob("tmp/glob-test/src/**/*.byn")
-    assert joined(all) == "tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn tmp/glob-test/src/x/c.byn tmp/glob-test/src/x/y/d.byn"
+    assert joined(
+        all,
+    ) == "tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn tmp/glob-test/src/x/c.byn tmp/glob-test/src/x/y/d.byn"
     assert joined(glob("tmp/glob-test/src/*.byn")) == "tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn"
-    assert joined(glob("tmp/glob-test/{src,lib}/*.byn")) == "tmp/glob-test/lib/f.byn tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn"
+    assert joined(
+        glob("tmp/glob-test/{src,lib}/*.byn"),
+    ) == "tmp/glob-test/lib/f.byn tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn"
     assert joined(glob("tmp/glob-test/src/x/?.cs")) == "tmp/glob-test/src/x/e.cs"
     assert joined(glob("tmp/glob-test/src/[ab].byn")) == "tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn"
     assert joined(glob("tmp/glob-test/src/a.byn")) == "tmp/glob-test/src/a.byn"
-    for f in all { assert Glob.matches("tmp/glob-test/src/**/*.byn", for: f) }
+    for f in all {
+        assert Glob.matches("tmp/glob-test/src/**/*.byn", for: f)
+    }
 }
 
 test "glob finds nothing for a directory, a missing base or a pattern no file fits" {
@@ -57,7 +65,9 @@ test "glob skips a directory it cannot read, and does not list it" {
     let lock: string[2] = ["-c", "chmod 000 tmp/glob-locked/locked.byn"]
     // No `sh` (Windows): nothing to test.
     let _ = Io.run("sh", lock.span) catch { return }
-    let found = unreadable("tmp/glob-locked/locked.byn") ? joined(glob("tmp/glob-locked/**/*.byn")) : "tmp/glob-locked/a.byn"
+    let found = unreadable(
+        "tmp/glob-locked/locked.byn",
+    ) ? joined(glob("tmp/glob-locked/**/*.byn")) : "tmp/glob-locked/a.byn"
     let unlock: string[2] = ["-c", "chmod 755 tmp/glob-locked/locked.byn"]
     let _ = Io.run("sh", unlock.span) catch { panic("chmod 755 failed") }
     assert found == "tmp/glob-locked/a.byn"
@@ -69,18 +79,20 @@ bool unreadable(string dir) uses fs, alloc {
     return false
 }
 
-/// Runs `ln -sfn target link` in `sh`; false when there is no `sh` or no links (Windows).
+/// Runs `ln -sfn target link` and `test -L link` in `sh`; false when there is no `sh` or the link was not made (Windows, or `ln` that copies).
 bool link(string target, at string path) uses fs, alloc, process {
-    let args: string[2] = ["-c", $"ln -sfn {target} {path}"]
-    let _ = Io.run("sh", args.span) catch { return false }
-    return true
+    let args: string[2] = ["-c", $"ln -sfn {target} {path} && test -L {path}"]
+    let r = Io.run("sh", args.span) catch { return false }
+    return r.exitCode == 0
 }
 
 test "glob lists each file once through a link back up the tree" {
     let root = "tmp/glob-loop"
     touch(root, at: "a/f.byn")
     touch(root, at: "a/g.byn")
-    if !link("..", at: "tmp/glob-loop/a/loop") { return }
+    if !link("..", at: "tmp/glob-loop/a/loop") {
+        return
+    }
     assert joined(glob("tmp/glob-loop/**/*.byn")) == "tmp/glob-loop/a/f.byn tmp/glob-loop/a/g.byn"
 }
 
@@ -88,8 +100,22 @@ test "glob lists each file once through two links into each other's trees" {
     let root = "tmp/glob-cross"
     touch(root, at: "a/f.byn")
     touch(root, at: "b/g.byn")
-    if !link("../b", at: "tmp/glob-cross/a/x") { return }
-    if !link("../a", at: "tmp/glob-cross/b/y") { return }
-    // Which of a file's paths is listed depends on the order the directories are read in, so only the count is fixed.
-    assert glob("tmp/glob-cross/**/*.byn").length == 2
+    if !link("../b", at: "tmp/glob-cross/a/x") {
+        return
+    }
+    if !link("../a", at: "tmp/glob-cross/b/y") {
+        return
+    }
+    assert joined(
+        glob("tmp/glob-cross/**/*.byn"),
+    ) == "tmp/glob-cross/a/f.byn tmp/glob-cross/a/x/g.byn tmp/glob-cross/b/g.byn tmp/glob-cross/b/y/f.byn"
+}
+
+test "glob finds a file through a link that a first visit by another path would hide" {
+    let root = "tmp/glob-twice"
+    touch(root, at: "a/f.byn")
+    if !link("a", at: "tmp/glob-twice/b") {
+        return
+    }
+    assert joined(glob("tmp/glob-twice/[b]/*.byn")) == "tmp/glob-twice/b/f.byn"
 }
