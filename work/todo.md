@@ -921,3 +921,5 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (same review) pinned formatter splits a generic argument list at its comma: `through ref Map<string,\n    bool> seen` in `lib/std/fs/glob.byn` `walk`. Formatter bug; fix it there, not by hand in the file.
 - LOW (025 T1 gate) `scripts/evals/llm-sandbox.test.sh:74`: without python3 or curl the network-denied case is skipped and the test still passes.
 - LOW (025 T1 gate) `scripts/evals/llm-sandbox.sh:37`: HOME is set to TMPDIR, but the profile denies writes outside `--write`, so the child cannot write HOME or TMPDIR.
+- LOW (025 T3, 2026-11-18): `tools/llm-eval.byn:512` an empty `expected.stdout` makes `bare` "" and `prompt.contains("")` fails the task as a leak.
+- LOW (025 T3, 2026-11-18): macOS first exec of a fresh binary took ~4.8 s at load 26-36, so `score` can report `limit` for a correct candidate under heavy load (T2 scoring).
