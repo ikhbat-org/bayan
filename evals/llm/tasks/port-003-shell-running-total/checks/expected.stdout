@@ -1,0 +1,7 @@
+after 50: 50
+after 120: 170
+after 7: 177
+after 0: 177
+after 300: 477
+after 85: 562
+sum=562 max=300

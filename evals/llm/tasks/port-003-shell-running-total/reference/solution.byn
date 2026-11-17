@@ -1,0 +1,20 @@
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var sum: i64 = 0
+    var largest: i64 = 0
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        let amount = i64.tryParse(text) ?? 0
+        sum += amount
+        if amount > largest {
+            largest = amount
+        }
+        print($"after {amount}: {sum}")
+    }
+    print($"sum={sum} max={largest}")
+}
