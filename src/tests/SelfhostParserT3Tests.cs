@@ -126,6 +126,12 @@ public sealed class SelfhostParserT3Tests(ITestOutputHelper output)
     [Fact]
     public void PatternsParse()
     {
+        // Export run (T16c, parse/counts.tsv): 2 tests, 0 case dirs. The expected text is typed in the test, not computed by the C# compiler, so the compare is listed in parse/UNEXPORTED.tsv.
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT3Tests), nameof(PatternsParse), "typed expected text, no C# value to compare");
+            return;
+        }
         var stdout = RunProgram(Prelude + """
             void main() {
                 using let arena = Arena()
@@ -171,6 +177,11 @@ public sealed class SelfhostParserT3Tests(ITestOutputHelper output)
     [Fact]
     public void RecoveryAndLineStructure()
     {
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT3Tests), nameof(RecoveryAndLineStructure), "typed expected text, no C# value to compare");
+            return;
+        }
         var stdout = RunProgram(Prelude + """
             void main() {
                 using let arena = Arena()

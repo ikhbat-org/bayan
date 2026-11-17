@@ -116,6 +116,7 @@ public sealed class SelfhostParserT5Tests(ITestOutputHelper output)
         return (p.ExitCode, stdout.Result, stderr.Result);
     }
 
+    // Export run (T16c, parse/counts.tsv): 1 test, 1 case dir (the one generated program).
     [Fact]
     public void DeclarationsMatchTheCSharpParser()
     {

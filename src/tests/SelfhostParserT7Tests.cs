@@ -110,6 +110,7 @@ public sealed class SelfhostParserT7Tests(ITestOutputHelper output)
     /// <summary>Under the export (spec 019 R10): writes <c>parse/SelfhostParserT7Tests/&lt;test&gt;[-n]</c> with <paramref name="input"/> and the
     /// C# side's <paramref name="expected"/> as <c>expected.shapes</c>, and returns true, so the caller returns without running the port;
     /// otherwise false.</summary>
+    // Export run (T16b, parse/counts.tsv): 31 tests, 31 case dirs (one per row).
     private static bool Export(string input, string expected, [CallerMemberName] string test = "")
     {
         if (SelfhostExport.Dir is not { } root) return false;

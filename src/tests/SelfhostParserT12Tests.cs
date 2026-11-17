@@ -60,6 +60,12 @@ public sealed class SelfhostParserT12Tests(ITestOutputHelper output)
     [Fact]
     public void DumpExprTypePatternAndCheckSpans()
     {
+        // Export run (T16c, parse/counts.tsv): 2 tests, 0 case dirs. The expected text is typed in the test, not computed by the C# compiler, so the compare is listed in parse/UNEXPORTED.tsv.
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT12Tests), nameof(DumpExprTypePatternAndCheckSpans), "typed expected text, no C# value to compare");
+            return;
+        }
         const string main = """
             import lexer
             void main() {
@@ -142,6 +148,11 @@ public sealed class SelfhostParserT12Tests(ITestOutputHelper output)
     [Fact]
     public void DumpCoversEveryExprTypeAndPatternCase()
     {
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT12Tests), nameof(DumpCoversEveryExprTypeAndPatternCase), "typed expected text, no C# value to compare");
+            return;
+        }
         const string main = """
             import lexer
             Expr mkName(i64 pos) => Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: pos, length: 1 }, name: TextSpan { start: pos, length: 1 }, typeArgs: List<TypeSyntax>() }))

@@ -239,6 +239,7 @@ public sealed class SelfhostParserT9Tests(ITestOutputHelper output)
 
     private static string Quote(string s) => "\"" + s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n") + "\"";
 
+    // Export run (T16c, parse/counts.tsv): 1 test, 1 case dir (the one generated program).
     [Fact]
     public void ExpressionsAgreeWithTheCSharpParser()
     {

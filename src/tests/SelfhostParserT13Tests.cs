@@ -8,6 +8,12 @@ public sealed class SelfhostParserT13Tests(ITestOutputHelper output)
     [Fact]
     public void MissingPathExitsFour()
     {
+        // Export run (T16b, parse/counts.tsv): 5 tests, 0 case dirs. Each asserts typed exit codes and output of the port, with no C# value, so each is listed in parse/UNEXPORTED.tsv.
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT13Tests), nameof(MissingPathExitsFour), "typed expected text, no C# value to compare");
+            return;
+        }
         var (exit, stdout, stderr) = SelfhostParserTests.Run(SelfhostParserTests.Built, Path.Combine(Golden.RepoRoot, "tmp", "no-such-file.byn"));
         Assert.Equal(4, exit);
         Assert.Empty(stdout);
@@ -17,6 +23,11 @@ public sealed class SelfhostParserT13Tests(ITestOutputHelper output)
     [Fact]
     public void UnknownOptionExitsTwo()
     {
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT13Tests), nameof(UnknownOptionExitsTwo), "typed expected text, no C# value to compare");
+            return;
+        }
         var (exit, stdout, stderr) = SelfhostParserTests.Run(SelfhostParserTests.Built, "--bogus");
         Assert.Equal(2, exit);
         Assert.Empty(stdout);
@@ -26,6 +37,11 @@ public sealed class SelfhostParserT13Tests(ITestOutputHelper output)
     [Fact]
     public void ManyPrintsHeadersInNameOrderAndSkipsNonByn()
     {
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT13Tests), nameof(ManyPrintsHeadersInNameOrderAndSkipsNonByn), "typed expected text, no C# value to compare");
+            return;
+        }
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "selfhost-parser-t13", "many");
         Directory.CreateDirectory(dir);
         File.WriteAllText(Path.Combine(dir, "b.byn"), "let b = 1;");
@@ -43,6 +59,11 @@ public sealed class SelfhostParserT13Tests(ITestOutputHelper output)
     [Fact]
     public void ManyOnAMissingDirectoryExitsTwo()
     {
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT13Tests), nameof(ManyOnAMissingDirectoryExitsTwo), "typed expected text, no C# value to compare");
+            return;
+        }
         var (exit, stdout, stderr) = SelfhostParserTests.Run(SelfhostParserTests.Built, "--many", Path.Combine(Golden.RepoRoot, "tmp", "no-such-dir"));
         Assert.Equal(2, exit);
         Assert.Empty(stdout);
@@ -53,6 +74,11 @@ public sealed class SelfhostParserT13Tests(ITestOutputHelper output)
     [Trait("Snapshot", "skip")]
     public void TimePrintsANumberAndExitsZero()
     {
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT13Tests), nameof(TimePrintsANumberAndExitsZero), "typed expected text, no C# value to compare");
+            return;
+        }
         var path = Path.Combine(Golden.RepoRoot, "tmp", "selfhost-parser-t13", "time.byn");
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllText(path, "let x = 1;");

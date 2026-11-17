@@ -12,6 +12,7 @@ namespace Bayan.Tests;
 /// </summary>
 public sealed class SelfhostParserO3Tests(ITestOutputHelper output)
 {
+    // Export run (T16b, parse/counts.tsv): 7 tests, 7 case dirs (one per row). T16b total, with T13 (5 tests, 0 cases): 109 tests, 104 case dirs.
     [Theory]
     [InlineData("names-field", "struct Range {\n    i64 lo\n    i64 hi requires hi >= lo\n}\n")]
     [InlineData("at-field", "struct Range {\n    i64 lo\n    i64 hi requires it >= 0 at .hi\n}\n")]
