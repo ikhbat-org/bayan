@@ -341,14 +341,16 @@ public static class SelfhostSemanticsHarness
     public static Dictionary<string, List<string>> RunSections(string mainSource, params string[] args)
     {
         // The files and directories the arguments name, copied before the run (which may rewrite them), for the case's `input/`.
-        var staged = ExportDir is null ? null : SelfhostDriverT1Tests.StageInputs(args.Where(a => a.Length > 0 && SelfhostDriverT1Tests.IsPath(a)));
+        // One staging per argument, so each copy keeps the argument's own path for `input/` (two arguments may share a file name).
+        var staged = ExportDir is null ? null : args.Where(a => a.Length > 0 && SelfhostDriverT1Tests.IsPath(a))
+            .SelectMany(a => SelfhostDriverT1Tests.StageInputs([a]).Inputs.Select(p => (Arg: a, Path: p))).ToList();
         var (exit, stdout, stderr) = SelfhostParserTests.Run(Build(mainSource), args);
         Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
         var sections = Sections(stdout);
         if (ExportDir is not null)
         {
             var input = new ExportInput(mainSource, string.Concat(args.Select(a => (Path.IsPathRooted(a) && a.StartsWith(Golden.RepoRoot, StringComparison.Ordinal)
-                ? Path.GetRelativePath(Golden.RepoRoot, a) : a) + "\n")), staged?.Inputs ?? []);
+                ? Path.GetRelativePath(Golden.RepoRoot, a) : a) + "\n")), staged ?? []);
             ExportInputs.AddOrUpdate(sections, input);
             // Each section's lines too, so a dictionary merged from several runs still finds the program that printed one.
             foreach (var lines in sections.Values) ExportLines.AddOrUpdate(lines, input);
@@ -369,7 +371,7 @@ public static class SelfhostSemanticsHarness
     private static string Portable(string text) => text.Replace(Path.TrimEndingDirectorySeparator(Golden.RepoRoot) + Path.DirectorySeparatorChar, "");
 
     /// <summary>A generated program and its arguments (one per line, a repo path made relative to the repo root).</summary>
-    private sealed record ExportInput(string Program, string Args, IReadOnlyList<string> Staged);
+    private sealed record ExportInput(string Program, string Args, IReadOnlyList<(string Arg, string Path)> Staged);
 
     private static readonly ConditionalWeakTable<Dictionary<string, List<string>>, ExportInput> ExportInputs = new();
 
@@ -398,9 +400,14 @@ public static class SelfhostSemanticsHarness
         }
         var dir = SelfhostExport.Case(export, "sem", cls, test);
         File.WriteAllText(Path.Combine(dir, "input.byn"), Portable(input.Program));
-        foreach (var path in input.Staged)
+        foreach (var (arg, copy) in input.Staged)
         {
-            var target = Path.Combine(dir, "input", Path.GetFileName(path));
+            // The argument's path from the repo root, as `args` names it; a `main.byn` stands for its directory.
+            var rel = Portable(Path.GetFullPath(arg)).TrimStart(Path.DirectorySeparatorChar);
+            if (Path.IsPathRooted(rel)) rel = Path.GetFileName(rel);
+            var main = File.Exists(copy) && Path.GetFileName(copy) == "main.byn";
+            var path = main ? Path.GetDirectoryName(copy)! : copy;
+            var target = Path.Combine(dir, "input", main ? Path.GetDirectoryName(rel)! : rel);
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             if (!Directory.Exists(path)) File.Copy(path, target, overwrite: true);
             else
