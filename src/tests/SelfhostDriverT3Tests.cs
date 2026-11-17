@@ -569,8 +569,8 @@ public sealed class SelfhostDriverT3Tests
         NativeBuild expected;
         try { expected = Toolchain.Build("int main(void){return 0;}", BuildMode.Safe, null, "linux-x64"); }
         finally { Environment.SetEnvironmentVariable("BAYAN_CC", saved); }
-        if (RecordProbe(["refusal", "linux-x64", "/nonexistent/zig.exe", "cc"], "\n", "BAYAN_CC=/nonexistent/zig.exe cc")) return;
         Assert.StartsWith("cannot run the C compiler `/nonexistent/zig.exe cc`", expected.Errors);
+        if (RecordProbe(["refusal", "linux-x64", "/nonexistent/zig.exe", "cc"], "\n", "BAYAN_CC=/nonexistent/zig.exe cc")) return;
         var (exit, stdout, _) = Start(Probe(), Fresh("bin-zigexe"), ["refusal", "linux-x64", "/nonexistent/zig.exe", "cc"]);
         Assert.Equal(0, exit);
         Assert.Equal("\n", stdout);
