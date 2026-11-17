@@ -3,14 +3,16 @@
 // real offset). A label bound to a symbol (external, or in another section) and every `adrp` / `@PAGEOFF` become
 // relocation records, with the instruction encoded at offset 0. `finish` names any label still unbound.
 
-/// The Mach-O relocation kinds the encoder needs (`ARM64_RELOC_BRANCH26`, `PAGE21`, `PAGEOFF12`).
+/// The Mach-O relocation kinds: `ARM64_RELOC_BRANCH26`, `PAGE21`, `PAGEOFF12` from the encoder, `UNSIGNED` (a 64-bit
+/// pointer in data) from the caller.
 public enum RelocKind {
     branch26
     page21
     pageoff12
+    unsigned
 }
 
-/// A relocation of the word at `offset` in the section, against `symbol`. The macho writer maps it to its own record.
+/// A relocation at `offset` bytes into its section, against `symbol`. The macho writer takes it as is.
 public struct Reloc {
     public i64 offset
     public string symbol

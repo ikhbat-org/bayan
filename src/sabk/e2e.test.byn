@@ -1,0 +1,125 @@
+// The end-to-end entry of spec 024 (T13; R4, R5, R8): the R8 program is built in SIR, allocated, checked by
+// `checkAllocation` (zero findings), lowered into one Assembler, finished and written by `writeObject` to
+// tmp/sabk/salam.o. `SabkTests` (c) runs this test, links the object with the runtime through `clang` and runs it.
+//
+// `runtime/bayan-rt.c` defines no `main` (the C emitter writes it for a Bayān program), so the object defines `_main`
+// itself and the C startup calls it. `lower` uses SIR names as given, so the SIR here carries Mach-O's leading
+// underscore (`_main`, `_byn_print`, `_counter`); string constant N is the local symbol `str<N>`. The symbols mirror what
+// `clang -c` writes for testdata/salam.s, including its section-start locals `ltmp0`..`ltmp2`.
+
+import sabk.enc
+import sabk.sir
+import sabk.ra
+import sabk.check
+import sabk.macho
+
+type Assembler = enc.Assembler
+type Section = macho.Section
+type ObjSymbol = macho.ObjSymbol
+type Segment = check.Segment
+type Module = sir.Module
+type Global = sir.Global
+
+/// main(): print "Salam, world!" on stdout, flush, add 7 to the global `_counter` (35), return it: exit code 42. Its
+/// string constant and global are added to `m`.
+sir.Function salam(ref Module m) uses alloc {
+    let msg = sir.internString(ref m, as: "Salam, world!")
+    m.globals.append(Global { name: "_counter", init: 35 })
+    var f = sir.newFunction("_main", by: 0)
+    let b = sir.newBlock(ref f)
+    // byn_print(byn_builtin_Stream stream, byn_str s): the stream (0, stdout) in w0, the string as {ptr, len} in x1/x2.
+    let stream = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(stream, 0))
+    let ptr = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .addrStr(ptr, msg))
+    let len = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(len, 13))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "_byn_print", [stream, ptr, len]))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "_byn_stdout_flush", List<sir.VReg>()))
+    let old = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .load(old, "_counter"))
+    let seven = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(seven, 7))
+    let sum = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(sum, old, seven))
+    sir.emit(ref f, to: b, as: .store("_counter", sum))
+    let code = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .load(code, "_counter"))
+    sir.terminate(ref f, at: b, as: .ret(code))
+    return f
+}
+
+/// One segment per vreg over its live interval, at the location the allocator chose (as check/sound.test.byn).
+List<Segment> segmentsOf(sir.Function f, from ra.Allocation a) uses alloc {
+    var r = List<Segment>()
+    let live = ra.liveIntervals(f)
+    for iv in live.intervals {
+        switch a.locations[iv.vreg] {
+            case .none: continue
+            case .reg(let n): r.append(Segment { vreg: iv.vreg, from: iv.start, until: iv.end, location: .reg(n) })
+            case .stack(let k): r.append(Segment { vreg: iv.vreg, from: iv.start, until: iv.end, location: .slot(k) })
+        }
+    }
+    return r
+}
+
+/// The object of `f` with the string constants and globals of `m`.
+List<u8> objectOf(sir.Function f, for Module m) uses alloc {
+    let a = ra.allocate(f) catch switch {
+        .tooManyCallArgs(let n) => panic("allocate"),
+        .frameTooLarge(let n) => panic("allocate"),
+    }
+    assert check.checkAllocation(f, as: segmentsOf(f, from: a)).length == 0
+    var asm = Assembler {}
+    ra.lower(ref asm, from: f, by: a) catch { panic("lower") }
+    var text = asm.finish() catch { panic("finish") }
+
+    var symbols = List<ObjSymbol>()
+    symbols.append(ObjSymbol { name: "ltmp0", section: "__text", offset: 0, external: false })
+    symbols.append(ObjSymbol { name: "ltmp1", section: "__cstring", offset: 0, external: false })
+    var cstring = List<u8>()
+    for i in 0..m.strings.length {
+        symbols.append(ObjSymbol { name: $"str{i}", section: "__cstring", offset: cstring.length, external: false })
+        for c in m.strings[i].bytes {
+            cstring.append(c)
+        }
+        cstring.append(u8(0))
+    }
+    symbols.append(ObjSymbol { name: "ltmp2", section: "__data", offset: 0, external: false })
+    var data = List<u8>()
+    for g in m.globals {
+        symbols.append(ObjSymbol { name: g.name, section: "__data", offset: data.length, external: false })
+        for shift in 0..8 {
+            data.append(u8((g.init >> (8 * shift)) & 0xFF))
+        }
+    }
+    symbols.append(ObjSymbol { name: f.name, section: "__text", offset: 0, external: true })
+    // Every relocation target not defined above is an undefined external (the runtime's functions).
+    var defined = Map<string, bool>()
+    for s in symbols {
+        defined[s.name] = true
+    }
+    for r in text.relocs {
+        if defined.tryGet(at: r.symbol) is null {
+            symbols.append(ObjSymbol { name: r.symbol, section: null, offset: 0, external: true })
+            defined[r.symbol] = true
+        }
+    }
+
+    // The Assembler's relocations are the writer's type: no conversion.
+    var sections = List<Section>()
+    sections.append(Section { name: "__text", bytes: text.bytes.take(), relocs: text.relocs.take(), align: 4 })
+    sections.append(Section { name: "__cstring", bytes: move cstring, relocs: List<macho.Reloc>(), align: 1 })
+    sections.append(Section { name: "__data", bytes: move data, relocs: List<macho.Reloc>(), align: 8 })
+    return macho.writeObject(sections, for: symbols) catch { panic("writeObject") }
+}
+
+test "salam.o: the R8 program is written to tmp/sabk" {
+    return if Target.os != "macos"
+    var m = Module { functions: List<sir.Function>(), strings: List<string>(), globals: List<Global>() }
+    let f = salam(ref m)
+    let obj = objectOf(f, for: m)
+    Io.createDirectory("tmp") catch {}
+    Io.createDirectory("tmp/sabk") catch {}
+    Io.writeFile("tmp/sabk/salam.o", obj) catch { assert false }
+}

@@ -4,19 +4,11 @@
 // ordered local, defined external, undefined, and names are written as given: the caller supplies the leading underscore.
 // The output buffer is sized from the input and no pass recurses over it.
 
-public enum RelocKind {
-    branch26
-    page21
-    pageoff12
-    unsigned
-}
+import sabk.enc
 
-/// A relocation at `offset` bytes into its section against the symbol named `symbol`.
-public struct Reloc {
-    public i64 offset
-    public string symbol
-    public RelocKind kind
-}
+/// The relocation record is the encoder's, so an `Assembled` section's relocations feed `writeObject` unchanged.
+public type Reloc = enc.Reloc
+public type RelocKind = enc.RelocKind
 
 /// `align` is in bytes (a power of two). `name` is `__text`, `__cstring` or `__data`.
 public struct Section {
@@ -38,6 +30,7 @@ public union error MachoError {
     unknownSection(string name)
     unknownObjSymbol(string name)
     badAlign(string section)
+    duplicateSymbol(string name)
 }
 
 const headerSize: i64 = 32
@@ -135,6 +128,11 @@ public List<u8> writeObject(List<Section> sections, for List<ObjSymbol> symbols)
     let relocOff = alignUp(dataEnd, to: 4)
     let symOff = alignUp(relocOff + relocCount * relocSize, to: 8)
     let strOff = symOff + symbols.length * nlistSize
+    var seen = Map<string, bool>()
+    for s in symbols {
+        fail .duplicateSymbol(s.name) if seen.tryGet(at: s.name) is not null
+        seen[s.name] = true
+    }
 
     // ObjSymbol order: local, defined external, undefined; each group keeps the input order.
     var order = List<i64>()
