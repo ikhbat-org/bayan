@@ -89,10 +89,13 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
     unless takeGlobalOptions(args, to: ref kept, through: ref d) {
         return exitUsage
     }
-    // no-builtin: Q1117 the `Terminal` of CliApp.cs:27 is what `Run(args, stdout, stderr)` gives: neither stream a tty, width 0
-    d.styleOut = decideStyle(d.color, by: d.ascii, through: false, for: 0)
-    d.styleErr = decideStyle(d.color, by: d.ascii, through: false, for: 0)
-    d.stderrTty = false
+    // no-builtin: Q1117 the `Terminal` of CliApp.cs:27 is what `Run(args, stdout, stderr)` gives: neither stream a tty, width 0.
+    // `BAYAN_TERMINAL=<width>`, a positive integer, makes both streams a terminal of that width (019 T2a); any other value is ignored.
+    let width = i64.tryParse(Env.get("BAYAN_TERMINAL") ?? "") ?? 0
+    let tty = width > 0
+    d.styleOut = decideStyle(d.color, by: d.ascii, through: tty, for: width)
+    d.styleErr = decideStyle(d.color, by: d.ascii, through: tty, for: width)
+    d.stderrTty = tty
     if kept.length == 0 {
         Io.stderr.write($"{usageText}\n")
         return exitUsage
