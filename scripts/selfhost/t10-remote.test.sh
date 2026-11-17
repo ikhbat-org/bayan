@@ -54,7 +54,7 @@ ok "vm dry run: fetch and removal" "$(echo "$out" | grep -cxF "ssh ghosthive 'ti
 r --host wp1 --dry-run
 ok "wp1 dry run: exit 0, no ssh" "$rc $(wc -l < "$A/calls" | tr -d ' ')" "0 0"
 ok "wp1 dry run: scp the bundle" "$(echo "$out" | grep -cxF "scp -q tmp/t10-remote/$s8/wp1.bundle wp1:/C:/home/code/extrode.com/bayan/tmp/t10-$s8.bundle")" "1"
-ok "wp1 dry run: clone and the compare under Git Bash" "$(echo "$out" | grep -c "^ssh wp1 \"Set-Location 'C:/home/code/extrode.com/bayan/tmp';.* git clone -q -b base t10-$s8.bundle t10-$s8;.*\$env:LANG = 'C.UTF-8'; & 'C:\\\\Program Files\\\\Git\\\\bin\\\\bash.exe' scripts/selfhost/t10-compare.sh; exit \$LASTEXITCODE\" > tmp/t10-remote/$s8/wp1.log$")" "1"
+ok "wp1 dry run: clone and the compare under Git Bash" "$(echo "$out" | grep -c "^ssh wp1 \"Set-Location 'C:/home/code/extrode.com/bayan/tmp';.* git clone -q -b base t10-$s8.bundle t10-$s8;.*\$env:LANG = 'C.UTF-8'; & 'C:\\\\home\\\\apps\\\\Git\\\\bin\\\\bash.exe' scripts/selfhost/t10-compare.sh; exit \$LASTEXITCODE\" > tmp/t10-remote/$s8/wp1.log$")" "1"
 ok "wp1 dry run: fetch" "$(echo "$out" | grep -cxF "scp -r -q wp1:/C:/home/code/extrode.com/bayan/tmp/t10-$s8/tmp/t10 tmp/t10-remote/$s8/wp1")" "1"
 r --host mac --dry-run; ok "unknown host refused" "$rc $out" "2 t10-remote: --host vm or --host wp1"
 

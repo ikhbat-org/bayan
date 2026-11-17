@@ -12,7 +12,7 @@
 # after 1 hour (exit 5). /home/bt/t10/<sha8> and the pushed bundle are removed at the end.
 # wp1: as wp1-test.sh (WIN_HOST, default wp1). The bundle is scp'd to C:/home/code/extrode.com/bayan/tmp/, cloned there into
 # t10-<sha8> (replaced only when its t10-<sha8>.t10-remote marker says this script made it, else exit 3; exit 4 when the clone
-# is not the sha), and the compare run under Git Bash (WIN_BASH, default C:\Program Files\Git\bin\bash.exe) with
+# is not the sha), and the compare run under Git Bash (WIN_BASH, default C:\home\apps\Git\bin\bash.exe) with
 # PowerShell's PATH (dotnet) and LANG=C.UTF-8; tmp/t10/ is fetched with scp -r and the remote clone removed.
 # --dry-run prints the commands and runs none of them.
 set -u
@@ -123,7 +123,7 @@ run() {
   [ -n "$br" ] || br=$(git symbolic-ref --short -q HEAD) || { echo "t10-remote: detached HEAD, pass --branch"; exit 2; }
   local sha; sha=$(git rev-parse --verify -q "$br^{commit}") || { echo "t10-remote: no branch $br"; exit 2; }
   local s=${sha:0:8} base=tmp/t10-remote/${sha:0:8} hn=$host
-  H=${WIN_HOST:-wp1}; WB=${WIN_BASH:-'C:\Program Files\Git\bin\bash.exe'}
+  H=${WIN_HOST:-wp1}; WB=${WIN_BASH:-'C:\home\apps\Git\bin\bash.exe'}
   [ "$host" = vm ] || hn=$H
   case $H in ''|*[!A-Za-z0-9_-]*) echo "t10-remote: bad WIN_HOST $H"; exit 2;; esac
   local dest=$base/$hn log=$base/$hn.log b=$base/$hn.bundle D=/home/bt/t10/$s
