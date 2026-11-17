@@ -707,6 +707,10 @@ i32 goldenTest(
             mine.append(move r)
         }
     }
+    // each case clears its work directory when it starts (docs/memory-leaks.md rule 7); the run removes them all when it ends
+    for sub in ["run", "run-build", "style", "style-cache", "scaffold", "output"] {
+        deleteWorkDir(Path.combine(Path.fullPath("tmp"), sub))
+    }
     var failed = false
     for i in 0..mine.length {
         let status = mine[i].status
@@ -2112,6 +2116,72 @@ test "--jobs 8 fails the changed case naming its path and the expected and actua
     for name in ["lex/bad-chars", "lex/bad-interpolation", "run/a-passes", "run/c-passes"] {
         assert(eight.stdout.contains($"\npassed {name}\n"))
     }
+}
+
+// The bound of a run over the full cases tree (spec 019 T9a, R9; docs/memory-leaks.md rule 8). The run takes minutes, past the 60 s of a test
+// block, so the block is pending unless `$BAYAN_TEST_TIMEOUT_MS` gives it 10 minutes, as the release memory gate does (T9b).
+
+/// `sh -c` text: runs `BAYAN_EXE=$1 $1 test $2`, output dropped, writing its exit code to the file `$4` when it ends; until then, every 50 ms,
+/// the resident set (`ps`, KB) of it and of each `$1 test --golden-worker $3…`. Prints `<exit> <runner peak KB> <largest worker peak KB>`.
+const goldenPeakScript: string = "( BAYAN_EXE=\"$1\" \"$1\" test \"$2\" >/dev/null 2>&1; echo $? > \"$4\" ) & t=0; w=0; while [ ! -s \"$4\" ]; do s=$(ps -A -ww -o rss=,args= | awk -v p=\"$1 test $2\" -v q=\"$1 test --golden-worker $3\" '{ k = $1 + 0; sub(/^ *[0-9]+ /, \"\") } $0 == p && k > a { a = k } index($0, q) == 1 && k > b { b = k } END { print a + 0, b + 0 }'); a=${s% *}; b=${s#* }; [ \"$a\" -gt \"$t\" ] && t=$a; [ \"$b\" -gt \"$w\" ] && w=$b; sleep 0.05; done; echo \"$(cat \"$4\") $t $w\""
+
+test "a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let limit = testTimeout()
+    if limit < 600000 {
+        todo("the run takes minutes: set BAYAN_TEST_TIMEOUT_MS to 600000 or more")
+    }
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(exe != "")
+    let tmp = Path.fullPath("tmp")
+    let root = Path.combine(tmp, "golden-bound")
+    deleteWorkDir(root)
+    Io.createDirectory(root) catch { panic($"cannot create {root}") }
+    let before = Io.listDir(tmp) catch List<string>()
+    var args = List<string>()
+    for a in [
+        "-c",
+        goldenPeakScript,
+        "sh",
+        exe,
+        "tests/cases",
+        Path.combine(tmp, "golden-jobs-"),
+        Path.combine(root, "exit"),
+    ] {
+        args.append(a)
+    }
+    let r = Io.run("sh", args.span, timeout: Millis(limit - 10000)) catch { panic("the sampled run did not end") }
+    deleteWorkDir(root)
+    let after = Io.listDir(tmp) catch List<string>()
+    var fields = List<string>()
+    for f in r.stdout.trimmed(from: .end).parts(by: " ") {
+        fields.append(f)
+    }
+    assert(fields.length == 3 && fields[0] == "0")
+    let runner = t9Digits(fields[1], until: 9223372036854775807) ?? 0
+    let worker = t9Digits(fields[2], until: 9223372036854775807) ?? 0
+    // measured 2026-11-17 on macOS arm64 (10 CPUs, shared), default --jobs 4, four runs: runner 9,296 to 9,984 KB, largest worker 9,568 to
+    // 9,792 KB; the bounds are 1.5 times that. The runner lists the cases, starts the workers and reads their results; each worker runs its
+    // share of the cases in itself, so it is sampled on its own. The drivers a worker starts to build or run a case are not counted.
+    var left = List<string>()
+    for name in after {
+        var old = false
+        for b in before {
+            old = old || b == name
+        }
+        if !old || name is "run" or "run-build" or "style" or "style-cache" or "scaffold" or "output" {
+            left.append(name)
+        }
+    }
+    print(
+        $"runner {runner} KB, largest worker {worker} KB (measured 9,984 and 9,792), left in {tmp}: {t5Join(in left)}",
+    )
+    assert(runner > 0 && runner < 15 * 1024)
+    assert(worker > 0 && worker < 15 * 1024)
+    assert(left.length == 0)
 }
 
 /// A cases directory `root` for update mode (R5): `lex/a-same` matching; `lex/b-changed`, and `lex/c-pending` with a `.pending` file, their third
