@@ -15,7 +15,7 @@ Check: tests
 - `reference/solution.byn`: a solution that passes every check.
 
 ## Notes
-The hidden tests parse amounts, read gift lines that fail in each way (including lines where two failures apply), compare the receipt text for every outcome and check the tally of a mixed list.
+The hidden tests parse amounts, read gift lines that fail in each way (including lines where two failures apply), compare the receipt text for every outcome and check the countGifts of a mixed list.
 
 ## Check command
 ```sh

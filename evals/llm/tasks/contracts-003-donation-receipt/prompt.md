@@ -11,9 +11,9 @@ Declare:
 
 ```
 Donation donation(string donor, for i64 amount) fails ValidationError<Donation>
-string receipt(Donation d)
+string slipFor(Donation d)
 ```
 
-`donation` builds a `Donation` and fails when a rule is broken. `receipt` returns `<donor> gave <amount>`.
+`donation` builds a `Donation` and fails when a rule is broken. `slipFor` returns `<donor> gave <amount>`.
 
-Examples: `receipt(donation("Aisha", for: 50))` is `Aisha gave 50`. `donation("", for: 50)` fails.
+Examples: `slipFor(donation("Aisha", for: 50))` is `Aisha gave 50`. `donation("", for: 50)` fails.

@@ -65,19 +65,19 @@ test "giftFrom refuses a gift over the limit" {
     ("Aisha 0", "bad amount"),
     ("Aisha ten", "bad amount"),
 )
-test "receipt says what happened" (string line, string expected) {
-    assert receipt(donors(), for: line) == expected
+test "noteFor says what happened" (string line, string expected) {
+    assert noteFor(donors(), for: line) == expected
 }
 
-test "tally counts accepted and refused lines" {
-    let s = tally(donors(), for: mixed())
+test "countGifts counts accepted and refused lines" {
+    let s = countGifts(donors(), for: mixed())
     assert s.accepted == 2
     assert s.refused == 1
     assert s.total == 50
 }
 
-test "tally of nothing is zero" {
-    let s = tally(donors(), for: List<string>())
+test "countGifts of nothing is zero" {
+    let s = countGifts(donors(), for: List<string>())
     assert s.accepted == 0
     assert s.refused == 0
     assert s.total == 0

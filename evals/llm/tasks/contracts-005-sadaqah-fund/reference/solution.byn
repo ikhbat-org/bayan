@@ -31,7 +31,7 @@ Fund donateAll(Fund fund, from List<i64> gifts) fails ValidationError<Amount>, V
 }
 
 /// Two funds run as one.
-Fund joined(Fund a, to Fund b) fails ValidationError<Fund> {
+Fund mergeFunds(Fund a, to Fund b) fails ValidationError<Fund> {
     return try Fund {
         name: $"{a.name} and {b.name}",
         target: a.target + b.target,

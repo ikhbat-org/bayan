@@ -11,4 +11,4 @@ Donation donation(string donor, for i64 amount) fails ValidationError<Donation> 
 }
 
 /// The line written on the receipt.
-string receipt(Donation d) => $"{d.donor} gave {d.amount}"
+string slipFor(Donation d) => $"{d.donor} gave {d.amount}"

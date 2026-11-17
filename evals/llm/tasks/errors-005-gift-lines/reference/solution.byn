@@ -65,7 +65,7 @@ string leadingName(string line) {
 }
 
 /// One line of thanks, or the reason the gift is refused.
-string receipt(List<Donor> donors, for string line) {
+string noteFor(List<Donor> donors, for string line) {
     let amount = giftFrom(donors, for: line) catch switch {
         .badLine                => return "bad line",
         .unknownDonor(let name) => return $"unknown donor {name}",
@@ -78,7 +78,7 @@ string receipt(List<Donor> donors, for string line) {
 }
 
 /// Counts and sums the gifts in `lines`.
-Summary tally(List<Donor> donors, for List<string> lines) {
+Summary countGifts(List<Donor> donors, for List<string> lines) {
     var summary = Summary { accepted: 0, refused: 0, total: 0 }
     for line in lines {
         let amount = giftFrom(donors, for: line) catch {

@@ -14,7 +14,7 @@ test "an invalid donation is refused" (string donor, i64 amount) {
     assert donation(donor, for: amount) fails ValidationError<Donation>
 }
 
-test "receipt writes one line" {
-    assert receipt(try donation("Aisha", for: 50)) == "Aisha gave 50"
-    assert receipt(try donation("Bilal", for: 1)) == "Bilal gave 1"
+test "slipFor writes one line" {
+    assert slipFor(try donation("Aisha", for: 50)) == "Aisha gave 50"
+    assert slipFor(try donation("Bilal", for: 1)) == "Bilal gave 1"
 }

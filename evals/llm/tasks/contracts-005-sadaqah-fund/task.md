@@ -15,7 +15,7 @@ Check: tests
 - `reference/solution.byn`: a solution that passes every check.
 
 ## Notes
-The hidden tests open funds, donate to them up to and past the target, join two funds whose joined name is too long or whose total passes the sum rule, and check amounts at the edges of their range.
+The hidden tests open funds, donate to them up to and past the target, join two funds whose mergeFunds name is too long or whose total passes the sum rule, and check amounts at the edges of their range.
 
 ## Check command
 ```sh

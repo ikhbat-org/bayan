@@ -80,17 +80,17 @@ test "donateAll reports the fund first when it fails first" {
     assert donateAll(p, from: gifts(600, to: 0)) fails ValidationError<Fund>
 }
 
-test "joined adds the targets and the raised amounts" {
+test "mergeFunds adds the targets and the raised amounts" {
     let a = try donate(try openFund("Well", for: 500), by: Amount(120))
     let b = try donate(try openFund("School", for: 300), by: Amount(30))
-    let both = try joined(a, to: b)
+    let both = try mergeFunds(a, to: b)
     assert both.name == "Well and School"
     assert both.target == 800
     assert both.raised == 150
 }
 
-test "joined re-checks the name" {
+test "mergeFunds re-checks the name" {
     let a = try openFund("Water well in Dhaka", for: 500)
     let b = try openFund("School", for: 300)
-    assert joined(a, to: b) fails ValidationError<Fund>
+    assert mergeFunds(a, to: b) fails ValidationError<Fund>
 }
