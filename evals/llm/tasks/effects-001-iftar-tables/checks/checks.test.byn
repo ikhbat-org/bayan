@@ -1,0 +1,32 @@
+test "tableSizes fills tables in order under a provided arena" {
+    using var arena = Arena()
+    provide allocator: arena {
+        let sizes = tableSizes(10, by: 4)
+        assert sizes.length == 3
+        assert sizes[0] == 4
+        assert sizes[1] == 4
+        assert sizes[2] == 2
+    }
+}
+
+test "tableSizes fills every table when the guests divide evenly" {
+    let sizes = tableSizes(6, by: 3)
+    assert sizes.length == 2
+    assert sizes[0] == 3
+    assert sizes[1] == 3
+}
+
+test "tableSizes gives one table to fewer guests than seats" {
+    let sizes = tableSizes(3, by: 8)
+    assert sizes.length == 1
+    assert sizes[0] == 3
+}
+
+test "tableSizes gives no tables to no guests" {
+    assert tableSizes(0, by: 5).length == 0
+}
+
+test "tableSizes declares no effect beyond alloc" {
+    let seat: (i64, i64) -> List<i64> uses alloc = tableSizes
+    assert seat(1, 1).length == 1
+}
