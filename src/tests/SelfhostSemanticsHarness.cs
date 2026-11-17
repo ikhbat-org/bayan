@@ -354,16 +354,14 @@ public static class SelfhostSemanticsHarness
         return sections;
     }
 
-    /// <summary>The export directory a test sets for its own async flow, ahead of <c>BAYAN_EXPORT_DIR</c>.</summary>
-    internal static readonly AsyncLocal<string?> ExportOverride = new();
+    /// <summary>The export directory a test sets for its own async flow, ahead of <c>BAYAN_EXPORT_DIR</c> (<see cref="SelfhostExport.Override"/>).</summary>
+    internal static AsyncLocal<string?> ExportOverride => SelfhostExport.Override;
 
-    /// <summary>The class and test a case is filed under when a test runs another class's test, ahead of the caller's.</summary>
-    internal static readonly AsyncLocal<(string Cls, string Test)?> ExportCaller = new();
+    /// <summary>The class and test a case is filed under when a test runs another class's test, ahead of the caller's (<see cref="SelfhostExport.Caller"/>).</summary>
+    internal static AsyncLocal<(string Cls, string Test)?> ExportCaller => SelfhostExport.Caller;
 
-    /// <summary>The export directory (spec 019 R10): <see cref="ExportOverride"/>, else <c>BAYAN_EXPORT_DIR</c> when
-    /// set, else null; a relative path is taken from the repo root.</summary>
-    public static string? ExportDir =>
-        (ExportOverride.Value ?? Environment.GetEnvironmentVariable("BAYAN_EXPORT_DIR")) is { Length: > 0 } dir ? Path.GetFullPath(dir, Golden.RepoRoot) : null;
+    /// <summary>The export directory (spec 019 R10), <see cref="SelfhostExport.Dir"/>.</summary>
+    public static string? ExportDir => SelfhostExport.Dir;
 
     /// <summary>A generated program and its arguments (one per line, a repo path made relative to the repo root).</summary>
     private sealed record ExportInput(string Program, string Args);
@@ -371,12 +369,6 @@ public static class SelfhostSemanticsHarness
     private static readonly ConditionalWeakTable<Dictionary<string, List<string>>, ExportInput> ExportInputs = new();
 
     private static readonly ConditionalWeakTable<List<string>, ExportInput> ExportLines = new();
-
-    private static readonly Lock ExportLock = new();
-
-    private static readonly HashSet<string> ExportWritten = new(StringComparer.Ordinal);
-
-    private static readonly HashSet<string> ExportUnexported = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Under <c>BAYAN_EXPORT_DIR</c>: writes <c>sem/&lt;cls&gt;/&lt;test&gt;/</c> (a repeat gets <c>-2</c>, <c>-3</c>,
@@ -394,29 +386,12 @@ public static class SelfhostSemanticsHarness
         var input = noExport is not null ? null
             : ExportLines.TryGetValue(run[printed], out var found) ? found
             : ExportInputs.TryGetValue(run, out found) ? found : null;
-        var sem = Path.Combine(export, "sem");
         if (input is null)
         {
-            lock (ExportLock)
-            {
-                Directory.CreateDirectory(sem);
-                var path = Path.Combine(sem, "UNEXPORTED.tsv");
-                if (ExportUnexported.Add(path)) File.Delete(path);
-                File.AppendAllText(path, $"{cls}\t{test}\t{section}\t{noExport ?? "no program printed the section"}\n");
-            }
+            SelfhostExport.NotExported(export, "sem", cls, test, section, noExport ?? "no program printed the section");
             return;
         }
-        static string Safe(string s) => string.Concat(s.Select(ch => ch < ' ' || "<>:\"/\\|?*".Contains(ch) ? '_' : ch));
-        var root = Path.Combine(sem, cls);
-        var name = Safe(test);
-        string dir;
-        lock (ExportLock)
-        {
-            if (ExportWritten.Count == 0) AppDomain.CurrentDomain.ProcessExit += (_, _) => WriteExportCounts();
-            dir = Path.Combine(root, name);
-            for (var k = 2; !ExportWritten.Add(dir); k++) dir = Path.Combine(root, $"{name}-{k}");
-        }
-        Directory.CreateDirectory(dir);
+        var dir = SelfhostExport.Case(export, "sem", cls, test);
         File.WriteAllText(Path.Combine(dir, "input.byn"), input.Program);
         if (input.Args.Length > 0) File.WriteAllText(Path.Combine(dir, "args"), input.Args);
         File.WriteAllText(Path.Combine(dir, "section"), section + "\n");
@@ -441,18 +416,8 @@ public static class SelfhostSemanticsHarness
         Export(export, run ?? actual, printed ?? section, expected, test, cls ?? Path.GetFileNameWithoutExtension(file), section, compare, noExport);
     }
 
-    /// <summary>Writes each export directory's <c>sem/counts.tsv</c>: each class and the cases this process wrote for it.</summary>
-    internal static void WriteExportCounts()
-    {
-        lock (ExportLock)
-        {
-            foreach (var sem in ExportWritten.GroupBy(d => Path.GetDirectoryName(Path.GetDirectoryName(d))!))
-            {
-                var counts = sem.GroupBy(d => Path.GetFileName(Path.GetDirectoryName(d))!).OrderBy(g => g.Key, StringComparer.Ordinal);
-                File.WriteAllText(Path.Combine(sem.Key, "counts.tsv"), string.Concat(counts.Select(g => $"{g.Key}\t{g.Count()}\n")));
-            }
-        }
-    }
+    /// <summary>Writes each export directory's <c>sem/counts.tsv</c> (and every other kind's), <see cref="SelfhostExport.WriteCounts"/>.</summary>
+    internal static void WriteExportCounts() => SelfhostExport.WriteCounts();
 
     /// <summary>
     /// Splits output at lines <c>== name</c>; lines before the first header go to section <c>""</c>.
