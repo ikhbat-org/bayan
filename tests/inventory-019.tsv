@@ -1,226 +1,226 @@
-class	file	family	tests	disposition	target	reason
-BootstrapTests	csharp/tests/Bayan.Tests/BootstrapTests.cs	runtime-c	7	shell	shell	bootstrap fixpoint is L027 and the R26/R27 jobs
-BuiltinResultsTests	csharp/tests/Bayan.Tests/BuiltinResultsTests.cs	csharp-internals	13	sem	sem	region-analysis builtin results table through sem sections
-CInventoryTests	csharp/tests/Bayan.Tests/CInventoryTests.cs	csharp-internals	14	bayan-test	lib/std bound tests	extension inventory scan; a Bayan test over runtime C and cprint/*.byn literals
-CacheTests	csharp/tests/Bayan.Tests/CacheTests.cs	cli	24	cli	tests/parity	changes BAYAN_CACHE; parity case sets it up
-CliEnvironmentTests	csharp/tests/Bayan.Tests/CliEnvironmentTests.cs;csharp/tests/Bayan.Tests/CliSummaryTests.cs	cli	28	cli	tests/parity	changes environment variables; parity case sets them up (two files, one partial class)
-CliMemoryBoundsTests	csharp/tests/Bayan.Tests/CliMemoryBoundsTests.cs	cli	25	bayan-test	lib/std bound tests	bounds on memory and disk; a Bayan test builds a large tree and measures
-CliTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	64	cli	cli	exit code and text of bayan commands
-CliToolchainTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	7	cli	tests/parity	needs toolchain set-up
-CollectionLiteralTests	csharp/tests/Bayan.Tests/CollectionLiteralTests.cs	csharp-internals	3	emit-c	emit-c	span literals on stack, checked in emitted C
-ContrastTests	csharp/tests/Bayan.Tests/ContrastTests.cs	cli	6	shell	shell	WCAG contrast over docs table; no compiler involved
-CoverageReportTests	csharp/tests/Bayan.Tests/CoverageReportTests.cs	cli	8	cli	cli	coverage report through bayan test
-CoverageSummaryTests	csharp/tests/Bayan.Tests/CoverageSummaryTests.cs	cli	4	cli	cli	one-line summary through bayan test
-CoverageTests	csharp/tests/Bayan.Tests/CoverageTests.cs	golden-folder	350	golden	tests/cases/coverage	folder runner reads the same files
-DiagJsonTests	csharp/tests/Bayan.Tests/DiagJsonTests.cs	golden-folder	3	golden	tests/cases/diag-json	folder runner reads the same files
-DiagTests	csharp/tests/Bayan.Tests/DiagTests.cs	golden-folder	642	golden	tests/cases/diag	folder runner reads the same files
-DiagnosticCodesTests	csharp/tests/Bayan.Tests/DiagnosticCodesTests.cs	csharp-internals	11	check	check	diagnostic-code table against cases; becomes a check: command
-DiagnosticRendererTests	csharp/tests/Bayan.Tests/DiagnosticRendererTests.cs	csharp-internals	19	cli	cli	renderer output reached by bayan check text; covering case per row in T18
-DynRefEmitTests	csharp/tests/Bayan.Tests/DynRefEmitTests.cs	csharp-internals	3	emit-c	emit-c	vtables in emitted C
-ErrorUnionTypeTests	csharp/tests/Bayan.Tests/ErrorUnionTypeTests.cs	csharp-internals	1	sem	sem	type model through sem sections
-ExternalModeTests	csharp/tests/Bayan.Tests/ExternalModeTests.cs	cli	11	cli	tests/parity	BAYAN_MUTANT command run per site; stub tools
-FormatTests	csharp/tests/Bayan.Tests/FormatTests.cs	golden-folder	76	golden	tests/cases/format	folder runner reads the same files
-FunctionTypeTests	csharp/tests/Bayan.Tests/FunctionTypeTests.cs	csharp-internals	12	sem	sem	function-type model through sem sections
-GatesTests	csharp/tests/Bayan.Tests/GatesTests.cs	cli	8	cli	cli	manifest minimums through the command
-GenericsTests	csharp/tests/Bayan.Tests/GenericsTests.cs	csharp-internals	2	emit-c	emit-c	monomorphization checked in emitted C
-GoldenTests	csharp/tests/Bayan.Tests/GoldenTests.cs	infrastructure	7	dropped		harness-only: tests of the C# golden runner; the new runner has its own checks (R1)
-GrammarDictionaryTests	csharp/tests/Bayan.Tests/GrammarDictionaryTests.cs	csharp-internals	8	check	check	grammar dictionary freshness; check: command
-HashSeedTests	csharp/tests/Bayan.Tests/HashSeedTests.cs	cli	2	run	run	map hashing seed under --test
-HelpLanguageTests	csharp/tests/Bayan.Tests/HelpLanguageTests.cs	cli	2	cli	cli	help text
-InstrumentedRunLawTests	csharp/tests/Bayan.Tests/InstrumentedRunLawTests.cs	law	1	check	check:L019	law proof becomes a check: command (R18)
-InterfaceDeclarationTests	csharp/tests/Bayan.Tests/InterfaceDeclarationTests.cs	csharp-internals	4	sem	sem	interface declaration model
-InterfaceUseTests	csharp/tests/Bayan.Tests/InterfaceUseTests.cs	csharp-internals	2	diag	diag	constraint checks and dyn ref conversions as diagnostics
-L004UnionSwitchTests	csharp/tests/Bayan.Tests/L004UnionSwitchTests.cs	law	38	check	check:L004	law proof becomes a check: command (R18)
-L005RunBatchTests	csharp/tests/Bayan.Tests/L005RunBatchTests.cs	law	23	check	check:L005	law proof becomes a check: command (R18)
-L006OwnershipGuardTests	csharp/tests/Bayan.Tests/L006OwnershipGuardTests.cs	law	69	check	check:L006	law proof becomes a check: command (R18)
-L007UntrustedSinkTests	csharp/tests/Bayan.Tests/L007UntrustedSinkTests.cs	law	24	check	check:L007	law proof becomes a check: command (R18)
-L008OwnershipRuntimeTests	csharp/tests/Bayan.Tests/L008OwnershipRuntimeTests.cs	law	3	check	check:L008	law proof becomes a check: command (R18)
-L010Utf8DecodeTests	csharp/tests/Bayan.Tests/L010Utf8DecodeTests.cs	law	1	check	check:L010	law proof becomes a check: command (R18)
-L011ColourAddsOnlyEscapesTests	csharp/tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs	law	23	check	check:L011	law proof becomes a check: command (R18)
-L012InterfaceDispatchTests	csharp/tests/Bayan.Tests/L012InterfaceDispatchTests.cs	law	2	check	check:L012	law proof becomes a check: command (R18)
-L013DirectAndIndirectCallsAgreeTests	csharp/tests/Bayan.Tests/L013DirectAndIndirectCallsAgreeTests.cs	law	2	check	check:L013	law proof becomes a check: command (R18)
-L014CaptureByCopyTests	csharp/tests/Bayan.Tests/L014CaptureByCopyTests.cs	law	13	check	check:L014	law proof becomes a check: command (R18)
-LambdaEmitTests	csharp/tests/Bayan.Tests/LambdaEmitTests.cs	csharp-internals	2	emit-c	emit-c	emitted C for lambdas
-LanguageServerLeakTests	csharp/tests/Bayan.Tests/LanguageServerLeakTests.cs	language-server	22	shell	sessions + bayan-test	protocol parts become recorded sessions, bound parts Bayan tests; belongs to the server port
-LanguageServerWorkspaceTests	csharp/tests/Bayan.Tests/LanguageServerWorkspaceTests.cs	language-server	20	shell	sessions	recorded sessions; belongs to the server port
-LayoutTests	csharp/tests/Bayan.Tests/LayoutTests.cs	csharp-internals	1393	golden	tests/cases/format	Layout.Apply rows become format cases (many theory rows)
-LexDiffTests	csharp/tests/Bayan.Tests/LexDiffTests.cs	infrastructure	5	shell	shell	tools/lex-diff against bayan lex and lex goldens
-LexerCaseSnapshotRecordingTests	src/tests/SelfhostLexerCaseTests.cs	selfhost-lexer	1	dropped		mutation snapshot recording hook; goes with xUnit
-LexerSnapshotRecordingTests	src/tests/SelfhostLexerTests.cs	selfhost-lexer	1	dropped		mutation snapshot recording hook; goes with xUnit
-LexerTests	csharp/tests/Bayan.Tests/LexerTests.cs	golden-folder	29	golden	tests/cases/lex	folder runner reads the same files; allocation fact becomes a Bayan bound test
-LfOutputTests	csharp/tests/Bayan.Tests/LfOutputTests.cs	cli	2	run	run	output carries no CR; runs on every platform
-LineDirectiveTests	csharp/tests/Bayan.Tests/LineDirectiveTests.cs	cli	7	emit-c	emit-c	#line directives in emitted C
-LoweringInvariantTests	csharp/tests/Bayan.Tests/LoweringInvariantTests.cs	csharp-internals	5	no counterpart		asserts on C# bound nodes mutated in memory; the self-hosted lowerer raises no such error (src/driver/cc.byn:373-374); BYN4002 rendering covered by tests/cases/style/lower-ice.*; owner approved 2026-11-17 on Fable's reading (OQ4)
-ManifestTests	csharp/tests/Bayan.Tests/ManifestTests.cs	cli	70	cli	cli	reads cases; command output
-MapKeyEmitTests	csharp/tests/Bayan.Tests/MapKeyEmitTests.cs	csharp-internals	5	emit-c	emit-c	key hash helpers in emitted C
-MapKeyLawTests	csharp/tests/Bayan.Tests/MapKeyLawTests.cs	law	13	check	check:L016	law proof becomes a check: command (R18)
-MapModelTests	csharp/tests/Bayan.Tests/MapModelTests.cs	csharp-internals	49	bayan-test	lib/std map model test	reference model becomes a Bayan test; run/map-model.byn already golden (L003)
-MessagesTests	csharp/tests/Bayan.Tests/MessagesTests.cs	csharp-internals	4	bayan-test	lib/std bound tests	scans compiler string literals for prose; a Bayan test over src/*.byn literals
-MutantSchemataTests	csharp/tests/Bayan.Tests/MutantSchemataTests.cs	golden-folder	362	golden	tests/cases/mutate	folder runner reads the same files
-MutationRunnerTests	csharp/tests/Bayan.Tests/MutationRunnerTests.cs	cli	6	cli	cli	mutation statuses through bayan mutate
-MutatorTests	csharp/tests/Bayan.Tests/MutatorTests.cs	csharp-internals	17	cli	cli	mutation sites through bayan mutate --list
-NamingGrammarTests	csharp/tests/Bayan.Tests/NamingGrammarTests.cs	csharp-internals	25	diag	diag	BYN5001 verb-form diagnostics
-NamingPackageGrammarTests	csharp/tests/Bayan.Tests/NamingPackageGrammarTests.cs	csharp-internals	2	diag	diag	package.byn dictionary through BYN5001
-NeverReassignedVarLintTests	csharp/tests/Bayan.Tests/NeverReassignedVarLintTests.cs	cli	24	diag	diag	BYN2311 diagnostics
-NotEmittedLawTests	csharp/tests/Bayan.Tests/NotEmittedLawTests.cs	law	2	check	check:L021	law proof becomes a check: command (R18)
-OutputTests	csharp/tests/Bayan.Tests/OutputTests.cs	cli	14	cli	cli	command output text
-OwnershipCheckerTests	csharp/tests/Bayan.Tests/OwnershipCheckerTests.cs	golden-folder	368	golden	tests/cases/ownership	folder runner reads the same files
-OwnershipGeneratorTests	csharp/tests/Bayan.Tests/OwnershipGeneratorTests.cs	runtime-c	3	shell	runtime/tests/*.c	generated ownership C harness; generator goes with .NET, harness case stays
-OwnershipTableTests	csharp/tests/Bayan.Tests/OwnershipTableTests.cs	runtime-c	3	shell	runtime/tests/*.c	C harness over bayan-rt.c
-ParserPerfTests	csharp/tests/Bayan.Tests/ParserTests.cs	csharp-internals	2	bayan-test	lib/std bound tests	parser time bound measured by a Bayan test
-ParserTests	csharp/tests/Bayan.Tests/ParserTests.cs	golden-folder	217	golden	tests/cases/parse	folder runner reads the same files
-PeakSamplerTests	csharp/tests/Bayan.Tests/PeakSamplerTests.cs	infrastructure	1	dropped		harness-only: goes with the harness; the runner bound test (T9a) must report a peak for a process shorter than its sampling interval
-PowerAssertTests	csharp/tests/Bayan.Tests/PowerAssertTests.cs	cli	8	cli	cli	failed-assert diagram through bayan test
-ProgressTests	csharp/tests/Bayan.Tests/ProgressTests.cs	cli	11	cli	cli	progress line through the command; TTY width case needs parity set-up
-QualityReportTests	csharp/tests/Bayan.Tests/QualityReportTests.cs	cli	8	cli	quality	report JSON and summary through the command
-RegionAnalysisPerfTests	csharp/tests/Bayan.Tests/RegionAnalysisPerfTests.cs	csharp-internals	1	check	check	timed bayan check of the generated 200-method struct, 5 s bound, minimum of 3 runs (a wall-clock bound, expressible from source; Fable 2026-11-17)
-RunTests	csharp/tests/Bayan.Tests/RunTests.cs	golden-folder	346	golden	tests/cases/run	folder runner reads the same files
-RuntimeNativeTests	csharp/tests/Bayan.Tests/RuntimeNativeTests.cs	runtime-c	15	shell	runtime/tests/*.c	shell runner over C harness; Windows runBatch fact becomes a run case
-RuntimeSizeOverflowTests	csharp/tests/Bayan.Tests/RuntimeSizeOverflowTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime behaviour
-ScaffoldTests	csharp/tests/Bayan.Tests/ScaffoldTests.cs	cli	17	cli	cli	bayan new and init output
-SelfhostCoverageTests	src/tests/SelfhostCoverageTests.cs	selfhost-coverage	4	cli	quality	coverage output (plan says kind quality)
-SelfhostDefaultBoundsTests	src/tests/SelfhostDefaultBoundsTests.cs	selfhost-default	17	bayan-test	lib/std bound tests	bounds; Bayan test builds a large tree
-SelfhostDefaultJsonCountTests	src/tests/SelfhostDefaultJsonCountTests.cs	selfhost-default	1	cli	cli	generated-docs/JSON counts through the command
-SelfhostDefaultP2Tests	src/tests/SelfhostDefaultP2Tests.cs	selfhost-default	3	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDefaultSpeedTests	src/tests/SelfhostDefaultSpeedTests.cs	selfhost-default	1	bayan-test	lib/std bound tests	speed bound; Bayan test measures
-SelfhostDefaultT10Tests	src/tests/SelfhostDefaultT10Tests.cs	selfhost-default	701	cli	emit-c	stage 2 command output equals the C# CLI
-SelfhostDefaultT12Tests	src/tests/SelfhostDefaultT12Tests.cs	selfhost-default	86	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDefaultT1Tests	src/tests/SelfhostDefaultT1Tests.cs	selfhost-default	32	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDefaultT2Tests	src/tests/SelfhostDefaultT2Tests.cs	selfhost-default	25	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDefaultT3Tests	src/tests/SelfhostDefaultT3Tests.cs	selfhost-default	31	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDefaultT4Tests	src/tests/SelfhostDefaultT4Tests.cs	selfhost-default	65	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDefaultT5Tests	src/tests/SelfhostDefaultT5Tests.cs	selfhost-default	19	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDefaultT9Tests	src/tests/SelfhostDefaultT9Tests.cs	selfhost-default	94	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverApiTests	src/tests/SelfhostDriverApiTests.cs	selfhost-driver	2	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverFixTests	src/tests/SelfhostDriverFixTests.cs	selfhost-driver	33	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverGoldenListTests	src/tests/SelfhostDriverGoldenListTests.cs	selfhost-driver	2	shell	shell	019 T1 list-cases contract; a script test of `bayan test --list-cases` replaces it
-SelfhostDriverGoldenTests	src/tests/SelfhostDriverGoldenTests.cs	selfhost-driver	187	golden	tests/cases	L028: the cases directory itself
-SelfhostDriverMutateTests	src/tests/SelfhostDriverMutateTests.cs	selfhost-driver	46	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverRuntimeTests	src/tests/SelfhostDriverRuntimeTests.cs	selfhost-driver	2	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverStage2FormatTests	src/tests/SelfhostDriverTests.cs	selfhost-driver	139	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverStyleCaseTests	src/tests/SelfhostDriverTests.cs	selfhost-driver	147	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverStyleEnvironmentTests	src/tests/SelfhostDriverTests.cs	selfhost-driver	84	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverStyleLintsTests	src/tests/SelfhostDriverStyleLintsTests.cs	selfhost-driver	13	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverT1Tests	src/tests/SelfhostDriverTests.cs	selfhost-driver	181	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverT2Tests	src/tests/SelfhostDriverT2Tests.cs	selfhost-driver	761	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverT3Tests	src/tests/SelfhostDriverT3Tests.cs	selfhost-driver	62	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverT5Tests	src/tests/SelfhostDriverT5Tests.cs	selfhost-driver	16	cli	cli	stage 2 command output equals the C# CLI
-SelfhostDriverT8Tests	src/tests/SelfhostDriverInventoryTests.cs	selfhost-driver	5	cli	cli	stage 2 command output equals the C# CLI
-SelfhostEmitterApiTests	src/tests/SelfhostEmitterApiTests.cs	selfhost-emitter	2	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterEquivalenceLawTests	src/tests/SelfhostEmitterEquivalenceLawTests.cs	selfhost-emitter	7	check	check:L024	law proof becomes a check: command (R18)
-SelfhostEmitterHarnessTests	src/tests/SelfhostEmitterParityTests.cs	selfhost-emitter	1422	emit-c	emit-c	bayan-emit error inputs and CLI shape over the diag, lex, parse, typed, diag-json and manifest corpora against the C# CLI
-SelfhostEmitterNoPanicLawTests	src/tests/SelfhostEmitterNoPanicLawTests.cs	selfhost-emitter	3	check	check:L025	law proof becomes a check: command (R18)
-SelfhostEmitterParityTests	src/tests/SelfhostEmitterParityTests.cs	selfhost-emitter	353	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterPrinterBoundaryTests	src/tests/SelfhostEmitterPrinterBoundaryTests.cs	selfhost-emitter	9	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterSpeedTests	src/tests/SelfhostEmitterSpeedTests.cs	selfhost-emitter	1	bayan-test	lib/std bound tests	speed bound; Bayan test measures
-SelfhostEmitterT10Tests	src/tests/SelfhostEmitterT10Tests.cs	selfhost-emitter	7	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT11Tests	src/tests/SelfhostEmitterT11Tests.cs	selfhost-emitter	6	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT13Tests	src/tests/SelfhostEmitterT13Tests.cs	selfhost-emitter	1	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT21Tests	src/tests/SelfhostEmitterT21Tests.cs	selfhost-emitter	2	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT22Tests	src/tests/SelfhostEmitterT22Tests.cs	selfhost-emitter	5	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT2Tests	src/tests/SelfhostEmitterT2Tests.cs	selfhost-emitter	10	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT3Tests	src/tests/SelfhostEmitterT3Tests.cs	selfhost-emitter	11	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT4Tests	src/tests/SelfhostEmitterT4Tests.cs	selfhost-emitter	26	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT5Tests	src/tests/SelfhostEmitterT5Tests.cs	selfhost-emitter	5	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT6Tests	src/tests/SelfhostEmitterT6Tests.cs	selfhost-emitter	32	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT7Tests	src/tests/SelfhostEmitterT7Tests.cs	selfhost-emitter	13	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT8Tests	src/tests/SelfhostEmitterT8Tests.cs	selfhost-emitter	7	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterT9Tests	src/tests/SelfhostEmitterT9Tests.cs	selfhost-emitter	3	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostEmitterTests	src/tests/SelfhostEmitterTests.cs	selfhost-emitter	3	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job
-SelfhostLexerCaseTests	src/tests/SelfhostLexerCaseTests.cs	selfhost-lexer	1	lex	lex	token dump equals the C# lexer
-SelfhostLexerTests	src/tests/SelfhostLexerTests.cs	selfhost-lexer	31	lex	lex	token dump equals the C# lexer; carries L001 and L002
-SelfhostParserEquivalenceLawTests	src/tests/SelfhostParserEquivalenceLawTests.cs	selfhost-parser	1	check	check:L017	law proof becomes a check: command (R18)
-SelfhostParserGeneratorTests	src/tests/SelfhostParserGeneratorTests.cs	selfhost-parser	6	dropped		tests the C# corpus generator (R7); generator goes with .NET, the seeds are exported into parse cases
-SelfhostParserNoPanicLawTests	src/tests/SelfhostParserNoPanicLawTests.cs	selfhost-parser	1	check	check:L018	law proof becomes a check: command (R18)
-SelfhostParserO3Tests	src/tests/SelfhostParserO3Tests.cs	selfhost-parser	7	parse	parse	tree dump equals the C# parser
-SelfhostParserT10Tests	src/tests/SelfhostParserT10Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser
-SelfhostParserT11Tests	src/tests/SelfhostParserT11Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser
-SelfhostParserT12Tests	src/tests/SelfhostParserT12Tests.cs	selfhost-parser	2	parse	parse	tree dump equals the C# parser
-SelfhostParserT13Tests	src/tests/SelfhostParserT13Tests.cs	selfhost-parser	5	parse	parse	tree dump equals the C# parser
-SelfhostParserT3Tests	src/tests/SelfhostParserT3Tests.cs	selfhost-parser	2	parse	parse	tree dump equals the C# parser
-SelfhostParserT4Tests	src/tests/SelfhostParserT4Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser
-SelfhostParserT5Tests	src/tests/SelfhostParserT5Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser
-SelfhostParserT6Tests	src/tests/SelfhostParserT6Tests.cs	selfhost-parser	66	parse	parse	tree dump equals the C# parser
-SelfhostParserT7Tests	src/tests/SelfhostParserT7Tests.cs	selfhost-parser	31	parse	parse	tree dump equals the C# parser
-SelfhostParserT8Tests	src/tests/SelfhostParserT8Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser
-SelfhostParserT9Tests	src/tests/SelfhostParserT9Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser
-SelfhostParserTests	src/tests/SelfhostParserTests.cs	selfhost-parser	264	parse	parse	tree dump equals the C# parser
-SelfhostPathT4Tests	src/tests/SelfhostPathT4Tests.cs	selfhost-path	1029	bayan-test	lib/std test blocks	path functions against tables as @cases
-SelfhostPathT5Tests	src/tests/SelfhostPathT5Tests.cs	selfhost-path	10	bayan-test	lib/std test blocks	path functions against tables as @cases
-SelfhostPathT7Tests	src/tests/SelfhostPathT7Tests.cs	selfhost-path	10	bayan-test	lib/std test blocks	path functions against tables as @cases
-SelfhostPathT8Tests	src/tests/SelfhostPathT8Tests.cs	selfhost-path	3	bayan-test	lib/std test blocks	path functions against tables as @cases
-SelfhostRevisionT2Tests	src/tests/SelfhostRevisionT2Tests.cs	selfhost-revision	20	run	run	revision examples; diag where they assert errors
-SelfhostRevisionT4Tests	src/tests/SelfhostRevisionT4Tests.cs	selfhost-revision	24	run	run	revision examples; diag where they assert errors
-SelfhostRevisionT7Tests	src/tests/SelfhostRevisionT7Tests.cs	selfhost-revision	14	run	run	revision examples; diag where they assert errors
-SelfhostRevisionT8Tests	src/tests/SelfhostRevisionT8Tests.cs	selfhost-revision	9	run	run	revision examples; diag where they assert errors
-SelfhostSemanticsApiTests	src/tests/SelfhostSemanticsApiTests.cs	selfhost-semantics	1	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsCorpusParityTests	src/tests/SelfhostSemanticsGeneratorTests.cs	selfhost-semantics	2	sem	sem	generated corpus compared with bayan-check; export keeps the inputs
-SelfhostSemanticsEquivalenceLawTests	src/tests/SelfhostSemanticsEquivalenceLawTests.cs	selfhost-semantics	1	check	check:L022	law proof becomes a check: command (R18)
-SelfhostSemanticsGeneratorTests	src/tests/SelfhostSemanticsGeneratorTests.cs	selfhost-semantics	6	dropped		tests the C# program generator (verdict per generated program); generator goes with .NET, generated inputs are exported into diag cases
-SelfhostSemanticsHarnessTests	src/tests/SelfhostSemanticsHarnessTests.cs	selfhost-semantics	5	dropped		self-test of SelfhostSemanticsHarness section splitting; goes with the harness
-SelfhostSemanticsHostTests	src/tests/SelfhostSemanticsHostTests.cs	selfhost-semantics	5	sem	sem	Binder.Host answers read by reflection on a hand-built shape; answers exported from the C#
-SelfhostSemanticsNoPanicLawTests	src/tests/SelfhostSemanticsNoPanicLawTests.cs	selfhost-semantics	2	check	check:L023	law proof becomes a check: command (R18)
-SelfhostSemanticsParityTests	src/tests/SelfhostSemanticsTests.cs	selfhost-semantics	1302	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT10Tests	src/tests/SelfhostSemanticsT10Tests.cs	selfhost-semantics	94	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT11Tests	src/tests/SelfhostSemanticsT11Tests.cs	selfhost-semantics	35	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT12Tests	src/tests/SelfhostSemanticsT12Tests.cs	selfhost-semantics	11	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT13Tests	src/tests/SelfhostSemanticsT13Tests.cs	selfhost-semantics	18	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT14Tests	src/tests/SelfhostSemanticsT14Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT15Tests	src/tests/SelfhostSemanticsT15Tests.cs	selfhost-semantics	47	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT16Tests	src/tests/SelfhostSemanticsT16Tests.cs	selfhost-semantics	25	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT17Tests	src/tests/SelfhostSemanticsT17Tests.cs	selfhost-semantics	118	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT18Tests	src/tests/SelfhostSemanticsT18Tests.cs	selfhost-semantics	125	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT19Tests	src/tests/SelfhostSemanticsT19Tests.cs	selfhost-semantics	220	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT20Tests	src/tests/SelfhostSemanticsT20Tests.cs	selfhost-semantics	98	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT21Tests	src/tests/SelfhostSemanticsT21Tests.cs	selfhost-semantics	98	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT22Tests	src/tests/SelfhostSemanticsT22Tests.cs	selfhost-semantics	45	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT23Tests	src/tests/SelfhostSemanticsT23Tests.cs	selfhost-semantics	51	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT24Tests	src/tests/SelfhostSemanticsT24Tests.cs	selfhost-semantics	100	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT25Tests	src/tests/SelfhostSemanticsT25Tests.cs	selfhost-semantics	152	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT2Tests	src/tests/SelfhostSemanticsT2Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT34Tests	src/tests/SelfhostSemanticsT34Tests.cs	selfhost-semantics	95	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT35Tests	src/tests/SelfhostSemanticsT35Tests.cs	selfhost-semantics	161	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT36Tests	src/tests/SelfhostSemanticsT36Tests.cs	selfhost-semantics	29	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT37Tests	src/tests/SelfhostSemanticsT37Tests.cs	selfhost-semantics	98	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT38Tests	src/tests/SelfhostSemanticsT38Tests.cs	selfhost-semantics	4	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT39Tests	src/tests/SelfhostSemanticsT39Tests.cs	selfhost-semantics	48	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT3Tests	src/tests/SelfhostSemanticsT3Tests.cs	selfhost-semantics	5	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT40Tests	src/tests/SelfhostSemanticsT40Tests.cs	selfhost-semantics	5	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT41Tests	src/tests/SelfhostSemanticsT41Tests.cs	selfhost-semantics	993	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT4Tests	src/tests/SelfhostSemanticsT4Tests.cs	selfhost-semantics	5	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT5Tests	src/tests/SelfhostSemanticsT5Tests.cs	selfhost-semantics	3	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT6Tests	src/tests/SelfhostSemanticsT6Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT7Tests	src/tests/SelfhostSemanticsT7Tests.cs	selfhost-semantics	39	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT8Tests	src/tests/SelfhostSemanticsT8Tests.cs	selfhost-semantics	6	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsT9Tests	src/tests/SelfhostSemanticsT9Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSemanticsTests	src/tests/SelfhostSemanticsTests.cs	selfhost-semantics	36	sem	sem	sections printed by the built program compared with C# lines
-SelfhostSnapshotTests	src/tests/SelfhostSnapshotTests.cs	selfhost-snapshot	10	emit-c	emit-c	snapshot of emitted output (plan says kind emit)
-SelfhostStdImportTests	src/tests/SelfhostStdImportTests.cs	selfhost-std	17	run	run	library programs
-SelfhostStdSourceTests	src/tests/SelfhostStdSourceTests.cs	selfhost-std	2	shell	shell	lib/std source equals generated file: freshness check
-SipHashTests	csharp/tests/Bayan.Tests/SipHashTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime hash vectors
-SnapshotSkipTraitTests	csharp/tests/Bayan.Tests/SnapshotSkipTraitTests.cs	infrastructure	10	dropped		harness-only: Snapshot=skip traits on xUnit classes go with xUnit
-StateLiteralTests	csharp/tests/Bayan.Tests/StateLiteralTests.cs	cli	1	run	run	state literal requires checks
-StdEnvTests	csharp/tests/Bayan.Tests/StdEnvTests.cs	std	6	bayan-test	lib/std test blocks	library behaviour as @cases tables
-StdFsTests	csharp/tests/Bayan.Tests/StdFsTests.cs	std	17	bayan-test	lib/std test blocks	library behaviour
-StdImportTests	csharp/tests/Bayan.Tests/StdImportTests.cs	std	13	run	run	import std table through programs
-StdPathLawTests	csharp/tests/Bayan.Tests/StdPathLawTests.cs	law	2	check	check:L026	law proof becomes a check: command (R18)
-StdPathTests	csharp/tests/Bayan.Tests/StdPathTests.cs	std	5	bayan-test	lib/std test blocks	path functions against tables
-StdTestFilesTests	csharp/tests/Bayan.Tests/StdTestFilesTests.cs	std	3	shell	shell	*.test.byn files pass under bayan test: the std suite itself
-StyleGuideExamplesTests	csharp/tests/Bayan.Tests/StyleGuideExamplesTests.cs	cli	34	diag	diag	style-guide examples through bayan check
-StyleLintSeverityTests	csharp/tests/Bayan.Tests/StyleLintSeverityTests.cs	cli	5	diag	diag	lints at package.byn severity in bayan check output
-StyleTests	csharp/tests/Bayan.Tests/StyleTests.cs	golden-folder	22	golden	tests/cases/style	folder runner reads the same files
-SymbolEmitTests	csharp/tests/Bayan.Tests/SymbolEmitTests.cs	csharp-internals	3	emit-c	emit-c	symbol table in emitted C
-SymbolLawTests	csharp/tests/Bayan.Tests/SymbolLawTests.cs	law	2	check	check:L015	law proof becomes a check: command (R18)
-SymbolLoweringTests	csharp/tests/Bayan.Tests/SymbolLoweringTests.cs	csharp-internals	1	run	run	interpolated Symbol text by program output
-SyntaxFuzzTests	csharp/tests/Bayan.Tests/SyntaxFuzzTests.cs	infrastructure	1	dropped		subject tools/Bayan.SyntaxFuzz is removed (OQ5, R33); the no-panic property it drove is L002 (lexer) and L018 (parser, enacted, check: command); the one fact (empty cases dir exits 2) has no law and goes with the tool
-TargetTests	csharp/tests/Bayan.Tests/TargetTests.cs	cli	8	run	run	Target.os and Target.arch literals in program output
-TempSweepTests	csharp/tests/Bayan.Tests/TempSweepTests.cs	infrastructure	1	dropped		harness-only: temp sweep of the xUnit run
-TestDirsTests	csharp/tests/Bayan.Tests/TestDirsTests.cs	infrastructure	2	dropped		harness-only: scratch directories go with the harness
-TestTimeTests	csharp/tests/Bayan.Tests/TestTimeTests.cs	infrastructure	9	dropped		harness-only: timeout scaling goes with the harness (R17 sets the new one)
-ToolchainSanitizerTests	csharp/tests/Bayan.Tests/ToolchainSanitizerTests.cs	runtime-c	5	run	run	sanitizer probe and failed-start message
-TypedDumpTests	csharp/tests/Bayan.Tests/TypedDumpTests.cs	golden-folder	401	golden	tests/cases/typed	folder runner reads the same files
-UnionValueTests	csharp/tests/Bayan.Tests/UnionValueTests.cs	csharp-internals	1	run	run	declared union tag values by program output
-UnobservableBindingTests	csharp/tests/Bayan.Tests/UnobservableBindingTests.cs	cli	4	diag	diag	unobservable marks reach the report
-UserIterationTests	csharp/tests/Bayan.Tests/UserIterationTests.cs	csharp-internals	2	run	run	for-in over user types by program output
-WarmUpTests	csharp/tests/Bayan.Tests/WarmUpTests.cs	infrastructure	2	dropped		harness-only: theory warm-up builds go with the harness
-ZigVersionPinTests	csharp/tests/Bayan.Tests/ZigVersionPinTests.cs	infrastructure	6	shell	shell	freshness check of .zig-version against workflows
+class	file	family	tests	disposition	target	reason	memberdata
+BootstrapTests	csharp/tests/Bayan.Tests/BootstrapTests.cs	runtime-c	7	shell	shell	bootstrap fixpoint is L027 and the R26/R27 jobs	
+BuiltinResultsTests	csharp/tests/Bayan.Tests/BuiltinResultsTests.cs	csharp-internals	13	sem	sem	region-analysis builtin results table through sem sections	
+CInventoryTests	csharp/tests/Bayan.Tests/CInventoryTests.cs	csharp-internals	14	bayan-test	lib/std bound tests	extension inventory scan; a Bayan test over runtime C and cprint/*.byn literals	
+CacheTests	csharp/tests/Bayan.Tests/CacheTests.cs	cli	24	cli	tests/parity	changes BAYAN_CACHE; parity case sets it up	
+CliEnvironmentTests	csharp/tests/Bayan.Tests/CliEnvironmentTests.cs;csharp/tests/Bayan.Tests/CliSummaryTests.cs	cli	28	cli	tests/parity	changes environment variables; parity case sets them up (two files, one partial class)	
+CliMemoryBoundsTests	csharp/tests/Bayan.Tests/CliMemoryBoundsTests.cs	cli	25	bayan-test	lib/std bound tests	bounds on memory and disk; a Bayan test builds a large tree and measures	
+CliTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	64	cli	cli	exit code and text of bayan commands	
+CliToolchainTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	7	cli	tests/parity	needs toolchain set-up	
+CollectionLiteralTests	csharp/tests/Bayan.Tests/CollectionLiteralTests.cs	csharp-internals	3	emit-c	emit-c	span literals on stack, checked in emitted C	
+ContrastTests	csharp/tests/Bayan.Tests/ContrastTests.cs	cli	6	shell	shell	WCAG contrast over docs table; no compiler involved	
+CoverageReportTests	csharp/tests/Bayan.Tests/CoverageReportTests.cs	cli	8	cli	cli	coverage report through bayan test	
+CoverageSummaryTests	csharp/tests/Bayan.Tests/CoverageSummaryTests.cs	cli	4	cli	cli	one-line summary through bayan test	
+CoverageTests	csharp/tests/Bayan.Tests/CoverageTests.cs	golden-folder	350	golden	tests/cases/coverage	folder runner reads the same files	no export: typed rows
+DiagJsonTests	csharp/tests/Bayan.Tests/DiagJsonTests.cs	golden-folder	3	golden	tests/cases/diag-json	folder runner reads the same files	no export: typed rows
+DiagTests	csharp/tests/Bayan.Tests/DiagTests.cs	golden-folder	642	golden	tests/cases/diag	folder runner reads the same files	no export: typed rows
+DiagnosticCodesTests	csharp/tests/Bayan.Tests/DiagnosticCodesTests.cs	csharp-internals	11	check	check	diagnostic-code table against cases; becomes a check: command	
+DiagnosticRendererTests	csharp/tests/Bayan.Tests/DiagnosticRendererTests.cs	csharp-internals	19	cli	cli	renderer output reached by bayan check text; covering case per row in T18	
+DynRefEmitTests	csharp/tests/Bayan.Tests/DynRefEmitTests.cs	csharp-internals	3	emit-c	emit-c	vtables in emitted C	
+ErrorUnionTypeTests	csharp/tests/Bayan.Tests/ErrorUnionTypeTests.cs	csharp-internals	1	sem	sem	type model through sem sections	
+ExternalModeTests	csharp/tests/Bayan.Tests/ExternalModeTests.cs	cli	11	cli	tests/parity	BAYAN_MUTANT command run per site; stub tools	
+FormatTests	csharp/tests/Bayan.Tests/FormatTests.cs	golden-folder	76	golden	tests/cases/format	folder runner reads the same files	no export: typed rows
+FunctionTypeTests	csharp/tests/Bayan.Tests/FunctionTypeTests.cs	csharp-internals	12	sem	sem	function-type model through sem sections	
+GatesTests	csharp/tests/Bayan.Tests/GatesTests.cs	cli	8	cli	cli	manifest minimums through the command	
+GenericsTests	csharp/tests/Bayan.Tests/GenericsTests.cs	csharp-internals	2	emit-c	emit-c	monomorphization checked in emitted C	
+GoldenTests	csharp/tests/Bayan.Tests/GoldenTests.cs	infrastructure	7	dropped		harness-only: tests of the C# golden runner; the new runner has its own checks (R1)	
+GrammarDictionaryTests	csharp/tests/Bayan.Tests/GrammarDictionaryTests.cs	csharp-internals	8	check	check	grammar dictionary freshness; check: command	
+HashSeedTests	csharp/tests/Bayan.Tests/HashSeedTests.cs	cli	2	run	run	map hashing seed under --test	
+HelpLanguageTests	csharp/tests/Bayan.Tests/HelpLanguageTests.cs	cli	2	cli	cli	help text	
+InstrumentedRunLawTests	csharp/tests/Bayan.Tests/InstrumentedRunLawTests.cs	law	1	check	check:L019	law proof becomes a check: command (R18)	
+InterfaceDeclarationTests	csharp/tests/Bayan.Tests/InterfaceDeclarationTests.cs	csharp-internals	4	sem	sem	interface declaration model	
+InterfaceUseTests	csharp/tests/Bayan.Tests/InterfaceUseTests.cs	csharp-internals	2	diag	diag	constraint checks and dyn ref conversions as diagnostics	
+L004UnionSwitchTests	csharp/tests/Bayan.Tests/L004UnionSwitchTests.cs	law	38	check	check:L004	law proof becomes a check: command (R18)	no export: typed rows
+L005RunBatchTests	csharp/tests/Bayan.Tests/L005RunBatchTests.cs	law	23	check	check:L005	law proof becomes a check: command (R18)	
+L006OwnershipGuardTests	csharp/tests/Bayan.Tests/L006OwnershipGuardTests.cs	law	69	check	check:L006	law proof becomes a check: command (R18)	no export: typed rows
+L007UntrustedSinkTests	csharp/tests/Bayan.Tests/L007UntrustedSinkTests.cs	law	24	check	check:L007	law proof becomes a check: command (R18)	no export: typed rows
+L008OwnershipRuntimeTests	csharp/tests/Bayan.Tests/L008OwnershipRuntimeTests.cs	law	3	check	check:L008	law proof becomes a check: command (R18)	
+L010Utf8DecodeTests	csharp/tests/Bayan.Tests/L010Utf8DecodeTests.cs	law	1	check	check:L010	law proof becomes a check: command (R18)	
+L011ColourAddsOnlyEscapesTests	csharp/tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs	law	23	check	check:L011	law proof becomes a check: command (R18)	no export: typed rows
+L012InterfaceDispatchTests	csharp/tests/Bayan.Tests/L012InterfaceDispatchTests.cs	law	2	check	check:L012	law proof becomes a check: command (R18)	
+L013DirectAndIndirectCallsAgreeTests	csharp/tests/Bayan.Tests/L013DirectAndIndirectCallsAgreeTests.cs	law	2	check	check:L013	law proof becomes a check: command (R18)	
+L014CaptureByCopyTests	csharp/tests/Bayan.Tests/L014CaptureByCopyTests.cs	law	13	check	check:L014	law proof becomes a check: command (R18)	no export: typed rows
+LambdaEmitTests	csharp/tests/Bayan.Tests/LambdaEmitTests.cs	csharp-internals	2	emit-c	emit-c	emitted C for lambdas	
+LanguageServerLeakTests	csharp/tests/Bayan.Tests/LanguageServerLeakTests.cs	language-server	22	shell	sessions + bayan-test	protocol parts become recorded sessions, bound parts Bayan tests; belongs to the server port	
+LanguageServerWorkspaceTests	csharp/tests/Bayan.Tests/LanguageServerWorkspaceTests.cs	language-server	20	shell	sessions	recorded sessions; belongs to the server port	
+LayoutTests	csharp/tests/Bayan.Tests/LayoutTests.cs	csharp-internals	1393	golden	tests/cases/format	Layout.Apply rows become format cases (many theory rows)	no export: typed rows
+LexDiffTests	csharp/tests/Bayan.Tests/LexDiffTests.cs	infrastructure	5	shell	shell	tools/lex-diff against bayan lex and lex goldens	
+LexerCaseSnapshotRecordingTests	src/tests/SelfhostLexerCaseTests.cs	selfhost-lexer	1	dropped		mutation snapshot recording hook; goes with xUnit	
+LexerSnapshotRecordingTests	src/tests/SelfhostLexerTests.cs	selfhost-lexer	1	dropped		mutation snapshot recording hook; goes with xUnit	owned by T16d
+LexerTests	csharp/tests/Bayan.Tests/LexerTests.cs	golden-folder	29	golden	tests/cases/lex	folder runner reads the same files; allocation fact becomes a Bayan bound test	no export: typed rows
+LfOutputTests	csharp/tests/Bayan.Tests/LfOutputTests.cs	cli	2	run	run	output carries no CR; runs on every platform	
+LineDirectiveTests	csharp/tests/Bayan.Tests/LineDirectiveTests.cs	cli	7	emit-c	emit-c	#line directives in emitted C	
+LoweringInvariantTests	csharp/tests/Bayan.Tests/LoweringInvariantTests.cs	csharp-internals	5	no counterpart		asserts on C# bound nodes mutated in memory; the self-hosted lowerer raises no such error (src/driver/cc.byn:373-374); BYN4002 rendering covered by tests/cases/style/lower-ice.*; owner approved 2026-11-17 on Fable's reading (OQ4)	
+ManifestTests	csharp/tests/Bayan.Tests/ManifestTests.cs	cli	70	cli	cli	reads cases; command output	no export: typed rows
+MapKeyEmitTests	csharp/tests/Bayan.Tests/MapKeyEmitTests.cs	csharp-internals	5	emit-c	emit-c	key hash helpers in emitted C	
+MapKeyLawTests	csharp/tests/Bayan.Tests/MapKeyLawTests.cs	law	13	check	check:L016	law proof becomes a check: command (R18)	no export: typed rows
+MapModelTests	csharp/tests/Bayan.Tests/MapModelTests.cs	csharp-internals	49	bayan-test	lib/std map model test	reference model becomes a Bayan test; run/map-model.byn already golden (L003)	no export: typed rows
+MessagesTests	csharp/tests/Bayan.Tests/MessagesTests.cs	csharp-internals	4	bayan-test	lib/std bound tests	scans compiler string literals for prose; a Bayan test over src/*.byn literals	
+MutantSchemataTests	csharp/tests/Bayan.Tests/MutantSchemataTests.cs	golden-folder	362	golden	tests/cases/mutate	folder runner reads the same files	no export: typed rows
+MutationRunnerTests	csharp/tests/Bayan.Tests/MutationRunnerTests.cs	cli	6	cli	cli	mutation statuses through bayan mutate	
+MutatorTests	csharp/tests/Bayan.Tests/MutatorTests.cs	csharp-internals	17	cli	cli	mutation sites through bayan mutate --list	
+NamingGrammarTests	csharp/tests/Bayan.Tests/NamingGrammarTests.cs	csharp-internals	25	diag	diag	BYN5001 verb-form diagnostics	
+NamingPackageGrammarTests	csharp/tests/Bayan.Tests/NamingPackageGrammarTests.cs	csharp-internals	2	diag	diag	package.byn dictionary through BYN5001	
+NeverReassignedVarLintTests	csharp/tests/Bayan.Tests/NeverReassignedVarLintTests.cs	cli	24	diag	diag	BYN2311 diagnostics	
+NotEmittedLawTests	csharp/tests/Bayan.Tests/NotEmittedLawTests.cs	law	2	check	check:L021	law proof becomes a check: command (R18)	
+OutputTests	csharp/tests/Bayan.Tests/OutputTests.cs	cli	14	cli	cli	command output text	
+OwnershipCheckerTests	csharp/tests/Bayan.Tests/OwnershipCheckerTests.cs	golden-folder	368	golden	tests/cases/ownership	folder runner reads the same files	no export: typed rows
+OwnershipGeneratorTests	csharp/tests/Bayan.Tests/OwnershipGeneratorTests.cs	runtime-c	3	shell	runtime/tests/*.c	generated ownership C harness; generator goes with .NET, harness case stays	
+OwnershipTableTests	csharp/tests/Bayan.Tests/OwnershipTableTests.cs	runtime-c	3	shell	runtime/tests/*.c	C harness over bayan-rt.c	
+ParserPerfTests	csharp/tests/Bayan.Tests/ParserTests.cs	csharp-internals	2	bayan-test	lib/std bound tests	parser time bound measured by a Bayan test	no export: typed rows
+ParserTests	csharp/tests/Bayan.Tests/ParserTests.cs	golden-folder	217	golden	tests/cases/parse	folder runner reads the same files	no export: typed rows
+PeakSamplerTests	csharp/tests/Bayan.Tests/PeakSamplerTests.cs	infrastructure	1	dropped		harness-only: goes with the harness; the runner bound test (T9a) must report a peak for a process shorter than its sampling interval	
+PowerAssertTests	csharp/tests/Bayan.Tests/PowerAssertTests.cs	cli	8	cli	cli	failed-assert diagram through bayan test	
+ProgressTests	csharp/tests/Bayan.Tests/ProgressTests.cs	cli	11	cli	cli	progress line through the command; TTY width case needs parity set-up	
+QualityReportTests	csharp/tests/Bayan.Tests/QualityReportTests.cs	cli	8	cli	quality	report JSON and summary through the command	
+RegionAnalysisPerfTests	csharp/tests/Bayan.Tests/RegionAnalysisPerfTests.cs	csharp-internals	1	check	check	timed bayan check of the generated 200-method struct, 5 s bound, minimum of 3 runs (a wall-clock bound, expressible from source; Fable 2026-11-17)	
+RunTests	csharp/tests/Bayan.Tests/RunTests.cs	golden-folder	346	golden	tests/cases/run	folder runner reads the same files	no export: typed rows
+RuntimeNativeTests	csharp/tests/Bayan.Tests/RuntimeNativeTests.cs	runtime-c	15	shell	runtime/tests/*.c	shell runner over C harness; Windows runBatch fact becomes a run case	
+RuntimeSizeOverflowTests	csharp/tests/Bayan.Tests/RuntimeSizeOverflowTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime behaviour	
+ScaffoldTests	csharp/tests/Bayan.Tests/ScaffoldTests.cs	cli	17	cli	cli	bayan new and init output	
+SelfhostCoverageTests	src/tests/SelfhostCoverageTests.cs	selfhost-coverage	4	cli	quality	coverage output (plan says kind quality)	
+SelfhostDefaultBoundsTests	src/tests/SelfhostDefaultBoundsTests.cs	selfhost-default	17	bayan-test	lib/std bound tests	bounds; Bayan test builds a large tree	
+SelfhostDefaultJsonCountTests	src/tests/SelfhostDefaultJsonCountTests.cs	selfhost-default	1	cli	cli	generated-docs/JSON counts through the command	
+SelfhostDefaultP2Tests	src/tests/SelfhostDefaultP2Tests.cs	selfhost-default	3	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDefaultSpeedTests	src/tests/SelfhostDefaultSpeedTests.cs	selfhost-default	1	bayan-test	lib/std bound tests	speed bound; Bayan test measures	
+SelfhostDefaultT10Tests	src/tests/SelfhostDefaultT10Tests.cs	selfhost-default	701	cli	emit-c	stage 2 command output equals the C# CLI	owned by T15g
+SelfhostDefaultT12Tests	src/tests/SelfhostDefaultT12Tests.cs	selfhost-default	86	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDefaultT1Tests	src/tests/SelfhostDefaultT1Tests.cs	selfhost-default	32	cli	cli	stage 2 command output equals the C# CLI	owned by T15e
+SelfhostDefaultT2Tests	src/tests/SelfhostDefaultT2Tests.cs	selfhost-default	25	cli	cli	stage 2 command output equals the C# CLI	owned by T15e
+SelfhostDefaultT3Tests	src/tests/SelfhostDefaultT3Tests.cs	selfhost-default	31	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDefaultT4Tests	src/tests/SelfhostDefaultT4Tests.cs	selfhost-default	65	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDefaultT5Tests	src/tests/SelfhostDefaultT5Tests.cs	selfhost-default	19	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDefaultT9Tests	src/tests/SelfhostDefaultT9Tests.cs	selfhost-default	94	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDriverApiTests	src/tests/SelfhostDriverApiTests.cs	selfhost-driver	2	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDriverFixTests	src/tests/SelfhostDriverFixTests.cs	selfhost-driver	33	cli	cli	stage 2 command output equals the C# CLI	owned by T15d
+SelfhostDriverGoldenListTests	src/tests/SelfhostDriverGoldenListTests.cs	selfhost-driver	2	shell	shell	019 T1 list-cases contract; a script test of `bayan test --list-cases` replaces it	
+SelfhostDriverGoldenTests	src/tests/SelfhostDriverGoldenTests.cs	selfhost-driver	187	golden	tests/cases	L028: the cases directory itself	no export: typed rows
+SelfhostDriverMutateTests	src/tests/SelfhostDriverMutateTests.cs	selfhost-driver	46	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDriverRuntimeTests	src/tests/SelfhostDriverRuntimeTests.cs	selfhost-driver	2	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDriverStage2FormatTests	src/tests/SelfhostDriverTests.cs	selfhost-driver	139	cli	cli	stage 2 command output equals the C# CLI	owned by T15b
+SelfhostDriverStyleCaseTests	src/tests/SelfhostDriverTests.cs	selfhost-driver	147	cli	cli	stage 2 command output equals the C# CLI	owned by T15b
+SelfhostDriverStyleEnvironmentTests	src/tests/SelfhostDriverTests.cs	selfhost-driver	84	cli	cli	stage 2 command output equals the C# CLI	owned by T15b
+SelfhostDriverStyleLintsTests	src/tests/SelfhostDriverStyleLintsTests.cs	selfhost-driver	13	cli	cli	stage 2 command output equals the C# CLI	owned by T15c
+SelfhostDriverT1Tests	src/tests/SelfhostDriverTests.cs	selfhost-driver	181	cli	cli	stage 2 command output equals the C# CLI	owned by T15b
+SelfhostDriverT2Tests	src/tests/SelfhostDriverT2Tests.cs	selfhost-driver	761	cli	cli	stage 2 command output equals the C# CLI	owned by T15c
+SelfhostDriverT3Tests	src/tests/SelfhostDriverT3Tests.cs	selfhost-driver	62	cli	cli	stage 2 command output equals the C# CLI	owned by T15c
+SelfhostDriverT5Tests	src/tests/SelfhostDriverT5Tests.cs	selfhost-driver	16	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDriverT8Tests	src/tests/SelfhostDriverInventoryTests.cs	selfhost-driver	5	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostEmitterApiTests	src/tests/SelfhostEmitterApiTests.cs	selfhost-emitter	2	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterEquivalenceLawTests	src/tests/SelfhostEmitterEquivalenceLawTests.cs	selfhost-emitter	7	check	check:L024	law proof becomes a check: command (R18)	
+SelfhostEmitterHarnessTests	src/tests/SelfhostEmitterParityTests.cs	selfhost-emitter	1422	emit-c	emit-c	bayan-emit error inputs and CLI shape over the diag, lex, parse, typed, diag-json and manifest corpora against the C# CLI	owned by T14
+SelfhostEmitterNoPanicLawTests	src/tests/SelfhostEmitterNoPanicLawTests.cs	selfhost-emitter	3	check	check:L025	law proof becomes a check: command (R18)	
+SelfhostEmitterParityTests	src/tests/SelfhostEmitterParityTests.cs	selfhost-emitter	353	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	owned by T14
+SelfhostEmitterPrinterBoundaryTests	src/tests/SelfhostEmitterPrinterBoundaryTests.cs	selfhost-emitter	9	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterSpeedTests	src/tests/SelfhostEmitterSpeedTests.cs	selfhost-emitter	1	bayan-test	lib/std bound tests	speed bound; Bayan test measures	
+SelfhostEmitterT10Tests	src/tests/SelfhostEmitterT10Tests.cs	selfhost-emitter	7	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT11Tests	src/tests/SelfhostEmitterT11Tests.cs	selfhost-emitter	6	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT13Tests	src/tests/SelfhostEmitterT13Tests.cs	selfhost-emitter	1	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT21Tests	src/tests/SelfhostEmitterT21Tests.cs	selfhost-emitter	2	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT22Tests	src/tests/SelfhostEmitterT22Tests.cs	selfhost-emitter	5	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT2Tests	src/tests/SelfhostEmitterT2Tests.cs	selfhost-emitter	10	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT3Tests	src/tests/SelfhostEmitterT3Tests.cs	selfhost-emitter	11	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT4Tests	src/tests/SelfhostEmitterT4Tests.cs	selfhost-emitter	26	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT5Tests	src/tests/SelfhostEmitterT5Tests.cs	selfhost-emitter	5	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT6Tests	src/tests/SelfhostEmitterT6Tests.cs	selfhost-emitter	32	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT7Tests	src/tests/SelfhostEmitterT7Tests.cs	selfhost-emitter	13	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT8Tests	src/tests/SelfhostEmitterT8Tests.cs	selfhost-emitter	7	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterT9Tests	src/tests/SelfhostEmitterT9Tests.cs	selfhost-emitter	3	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterTests	src/tests/SelfhostEmitterTests.cs	selfhost-emitter	3	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostLexerCaseTests	src/tests/SelfhostLexerCaseTests.cs	selfhost-lexer	1	lex	lex	token dump equals the C# lexer	
+SelfhostLexerTests	src/tests/SelfhostLexerTests.cs	selfhost-lexer	31	lex	lex	token dump equals the C# lexer; carries L001 and L002	owned by T16d
+SelfhostParserEquivalenceLawTests	src/tests/SelfhostParserEquivalenceLawTests.cs	selfhost-parser	1	check	check:L017	law proof becomes a check: command (R18)	
+SelfhostParserGeneratorTests	src/tests/SelfhostParserGeneratorTests.cs	selfhost-parser	6	dropped		tests the C# corpus generator (R7); generator goes with .NET, the seeds are exported into parse cases	
+SelfhostParserNoPanicLawTests	src/tests/SelfhostParserNoPanicLawTests.cs	selfhost-parser	1	check	check:L018	law proof becomes a check: command (R18)	
+SelfhostParserO3Tests	src/tests/SelfhostParserO3Tests.cs	selfhost-parser	7	parse	parse	tree dump equals the C# parser	
+SelfhostParserT10Tests	src/tests/SelfhostParserT10Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
+SelfhostParserT11Tests	src/tests/SelfhostParserT11Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
+SelfhostParserT12Tests	src/tests/SelfhostParserT12Tests.cs	selfhost-parser	2	parse	parse	tree dump equals the C# parser	
+SelfhostParserT13Tests	src/tests/SelfhostParserT13Tests.cs	selfhost-parser	5	parse	parse	tree dump equals the C# parser	
+SelfhostParserT3Tests	src/tests/SelfhostParserT3Tests.cs	selfhost-parser	2	parse	parse	tree dump equals the C# parser	
+SelfhostParserT4Tests	src/tests/SelfhostParserT4Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
+SelfhostParserT5Tests	src/tests/SelfhostParserT5Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
+SelfhostParserT6Tests	src/tests/SelfhostParserT6Tests.cs	selfhost-parser	66	parse	parse	tree dump equals the C# parser	
+SelfhostParserT7Tests	src/tests/SelfhostParserT7Tests.cs	selfhost-parser	31	parse	parse	tree dump equals the C# parser	
+SelfhostParserT8Tests	src/tests/SelfhostParserT8Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
+SelfhostParserT9Tests	src/tests/SelfhostParserT9Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
+SelfhostParserTests	src/tests/SelfhostParserTests.cs	selfhost-parser	264	parse	parse	tree dump equals the C# parser	owned by T16a
+SelfhostPathT4Tests	src/tests/SelfhostPathT4Tests.cs	selfhost-path	1029	bayan-test	lib/std test blocks	path functions against tables as @cases	owned by T13c
+SelfhostPathT5Tests	src/tests/SelfhostPathT5Tests.cs	selfhost-path	10	bayan-test	lib/std test blocks	path functions against tables as @cases	owned by T13c
+SelfhostPathT7Tests	src/tests/SelfhostPathT7Tests.cs	selfhost-path	10	bayan-test	lib/std test blocks	path functions against tables as @cases	
+SelfhostPathT8Tests	src/tests/SelfhostPathT8Tests.cs	selfhost-path	3	bayan-test	lib/std test blocks	path functions against tables as @cases	
+SelfhostRevisionT2Tests	src/tests/SelfhostRevisionT2Tests.cs	selfhost-revision	20	run	run	revision examples; diag where they assert errors	owned by T13c
+SelfhostRevisionT4Tests	src/tests/SelfhostRevisionT4Tests.cs	selfhost-revision	24	run	run	revision examples; diag where they assert errors	owned by T13c
+SelfhostRevisionT7Tests	src/tests/SelfhostRevisionT7Tests.cs	selfhost-revision	14	run	run	revision examples; diag where they assert errors	owned by T13c
+SelfhostRevisionT8Tests	src/tests/SelfhostRevisionT8Tests.cs	selfhost-revision	9	run	run	revision examples; diag where they assert errors	owned by T13c
+SelfhostSemanticsApiTests	src/tests/SelfhostSemanticsApiTests.cs	selfhost-semantics	1	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsCorpusParityTests	src/tests/SelfhostSemanticsGeneratorTests.cs	selfhost-semantics	2	sem	sem	generated corpus compared with bayan-check; export keeps the inputs	
+SelfhostSemanticsEquivalenceLawTests	src/tests/SelfhostSemanticsEquivalenceLawTests.cs	selfhost-semantics	1	check	check:L022	law proof becomes a check: command (R18)	
+SelfhostSemanticsGeneratorTests	src/tests/SelfhostSemanticsGeneratorTests.cs	selfhost-semantics	6	dropped		tests the C# program generator (verdict per generated program); generator goes with .NET, generated inputs are exported into diag cases	
+SelfhostSemanticsHarnessTests	src/tests/SelfhostSemanticsHarnessTests.cs	selfhost-semantics	5	dropped		self-test of SelfhostSemanticsHarness section splitting; goes with the harness	
+SelfhostSemanticsHostTests	src/tests/SelfhostSemanticsHostTests.cs	selfhost-semantics	5	sem	sem	Binder.Host answers read by reflection on a hand-built shape; answers exported from the C#	exported by T13
+SelfhostSemanticsNoPanicLawTests	src/tests/SelfhostSemanticsNoPanicLawTests.cs	selfhost-semantics	2	check	check:L023	law proof becomes a check: command (R18)	
+SelfhostSemanticsParityTests	src/tests/SelfhostSemanticsTests.cs	selfhost-semantics	1302	sem	sem	sections printed by the built program compared with C# lines	owned by T13b
+SelfhostSemanticsT10Tests	src/tests/SelfhostSemanticsT10Tests.cs	selfhost-semantics	94	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT11Tests	src/tests/SelfhostSemanticsT11Tests.cs	selfhost-semantics	35	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT12Tests	src/tests/SelfhostSemanticsT12Tests.cs	selfhost-semantics	11	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT13Tests	src/tests/SelfhostSemanticsT13Tests.cs	selfhost-semantics	18	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT14Tests	src/tests/SelfhostSemanticsT14Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT15Tests	src/tests/SelfhostSemanticsT15Tests.cs	selfhost-semantics	47	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT16Tests	src/tests/SelfhostSemanticsT16Tests.cs	selfhost-semantics	25	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT17Tests	src/tests/SelfhostSemanticsT17Tests.cs	selfhost-semantics	118	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT18Tests	src/tests/SelfhostSemanticsT18Tests.cs	selfhost-semantics	125	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT19Tests	src/tests/SelfhostSemanticsT19Tests.cs	selfhost-semantics	220	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT20Tests	src/tests/SelfhostSemanticsT20Tests.cs	selfhost-semantics	98	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT21Tests	src/tests/SelfhostSemanticsT21Tests.cs	selfhost-semantics	98	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT22Tests	src/tests/SelfhostSemanticsT22Tests.cs	selfhost-semantics	45	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT23Tests	src/tests/SelfhostSemanticsT23Tests.cs	selfhost-semantics	51	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT24Tests	src/tests/SelfhostSemanticsT24Tests.cs	selfhost-semantics	100	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT25Tests	src/tests/SelfhostSemanticsT25Tests.cs	selfhost-semantics	152	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT2Tests	src/tests/SelfhostSemanticsT2Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsT34Tests	src/tests/SelfhostSemanticsT34Tests.cs	selfhost-semantics	95	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT35Tests	src/tests/SelfhostSemanticsT35Tests.cs	selfhost-semantics	161	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT36Tests	src/tests/SelfhostSemanticsT36Tests.cs	selfhost-semantics	29	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT37Tests	src/tests/SelfhostSemanticsT37Tests.cs	selfhost-semantics	98	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT38Tests	src/tests/SelfhostSemanticsT38Tests.cs	selfhost-semantics	4	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT39Tests	src/tests/SelfhostSemanticsT39Tests.cs	selfhost-semantics	48	sem	sem	sections printed by the built program compared with C# lines	exported by T13
+SelfhostSemanticsT3Tests	src/tests/SelfhostSemanticsT3Tests.cs	selfhost-semantics	5	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsT40Tests	src/tests/SelfhostSemanticsT40Tests.cs	selfhost-semantics	5	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsT41Tests	src/tests/SelfhostSemanticsT41Tests.cs	selfhost-semantics	993	sem	sem	sections printed by the built program compared with C# lines	owned by T13
+SelfhostSemanticsT4Tests	src/tests/SelfhostSemanticsT4Tests.cs	selfhost-semantics	5	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsT5Tests	src/tests/SelfhostSemanticsT5Tests.cs	selfhost-semantics	3	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsT6Tests	src/tests/SelfhostSemanticsT6Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsT7Tests	src/tests/SelfhostSemanticsT7Tests.cs	selfhost-semantics	39	sem	sem	sections printed by the built program compared with C# lines	owned by T13
+SelfhostSemanticsT8Tests	src/tests/SelfhostSemanticsT8Tests.cs	selfhost-semantics	6	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsT9Tests	src/tests/SelfhostSemanticsT9Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsTests	src/tests/SelfhostSemanticsTests.cs	selfhost-semantics	36	sem	sem	sections printed by the built program compared with C# lines	owned by T13b
+SelfhostSnapshotTests	src/tests/SelfhostSnapshotTests.cs	selfhost-snapshot	10	emit-c	emit-c	snapshot of emitted output (plan says kind emit)	
+SelfhostStdImportTests	src/tests/SelfhostStdImportTests.cs	selfhost-std	17	run	run	library programs	owned by T13c
+SelfhostStdSourceTests	src/tests/SelfhostStdSourceTests.cs	selfhost-std	2	shell	shell	lib/std source equals generated file: freshness check	
+SipHashTests	csharp/tests/Bayan.Tests/SipHashTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime hash vectors	
+SnapshotSkipTraitTests	csharp/tests/Bayan.Tests/SnapshotSkipTraitTests.cs	infrastructure	10	dropped		harness-only: Snapshot=skip traits on xUnit classes go with xUnit	no export: typed rows
+StateLiteralTests	csharp/tests/Bayan.Tests/StateLiteralTests.cs	cli	1	run	run	state literal requires checks	
+StdEnvTests	csharp/tests/Bayan.Tests/StdEnvTests.cs	std	6	bayan-test	lib/std test blocks	library behaviour as @cases tables	
+StdFsTests	csharp/tests/Bayan.Tests/StdFsTests.cs	std	17	bayan-test	lib/std test blocks	library behaviour	
+StdImportTests	csharp/tests/Bayan.Tests/StdImportTests.cs	std	13	run	run	import std table through programs	
+StdPathLawTests	csharp/tests/Bayan.Tests/StdPathLawTests.cs	law	2	check	check:L026	law proof becomes a check: command (R18)	
+StdPathTests	csharp/tests/Bayan.Tests/StdPathTests.cs	std	5	bayan-test	lib/std test blocks	path functions against tables	
+StdTestFilesTests	csharp/tests/Bayan.Tests/StdTestFilesTests.cs	std	3	shell	shell	*.test.byn files pass under bayan test: the std suite itself	no export: typed rows
+StyleGuideExamplesTests	csharp/tests/Bayan.Tests/StyleGuideExamplesTests.cs	cli	34	diag	diag	style-guide examples through bayan check	no export: typed rows
+StyleLintSeverityTests	csharp/tests/Bayan.Tests/StyleLintSeverityTests.cs	cli	5	diag	diag	lints at package.byn severity in bayan check output	
+StyleTests	csharp/tests/Bayan.Tests/StyleTests.cs	golden-folder	22	golden	tests/cases/style	folder runner reads the same files	no export: typed rows
+SymbolEmitTests	csharp/tests/Bayan.Tests/SymbolEmitTests.cs	csharp-internals	3	emit-c	emit-c	symbol table in emitted C	
+SymbolLawTests	csharp/tests/Bayan.Tests/SymbolLawTests.cs	law	2	check	check:L015	law proof becomes a check: command (R18)	
+SymbolLoweringTests	csharp/tests/Bayan.Tests/SymbolLoweringTests.cs	csharp-internals	1	run	run	interpolated Symbol text by program output	
+SyntaxFuzzTests	csharp/tests/Bayan.Tests/SyntaxFuzzTests.cs	infrastructure	1	dropped		subject tools/Bayan.SyntaxFuzz is removed (OQ5, R33); the no-panic property it drove is L002 (lexer) and L018 (parser, enacted, check: command); the one fact (empty cases dir exits 2) has no law and goes with the tool	
+TargetTests	csharp/tests/Bayan.Tests/TargetTests.cs	cli	8	run	run	Target.os and Target.arch literals in program output	
+TempSweepTests	csharp/tests/Bayan.Tests/TempSweepTests.cs	infrastructure	1	dropped		harness-only: temp sweep of the xUnit run	
+TestDirsTests	csharp/tests/Bayan.Tests/TestDirsTests.cs	infrastructure	2	dropped		harness-only: scratch directories go with the harness	
+TestTimeTests	csharp/tests/Bayan.Tests/TestTimeTests.cs	infrastructure	9	dropped		harness-only: timeout scaling goes with the harness (R17 sets the new one)	
+ToolchainSanitizerTests	csharp/tests/Bayan.Tests/ToolchainSanitizerTests.cs	runtime-c	5	run	run	sanitizer probe and failed-start message	
+TypedDumpTests	csharp/tests/Bayan.Tests/TypedDumpTests.cs	golden-folder	401	golden	tests/cases/typed	folder runner reads the same files	no export: typed rows
+UnionValueTests	csharp/tests/Bayan.Tests/UnionValueTests.cs	csharp-internals	1	run	run	declared union tag values by program output	
+UnobservableBindingTests	csharp/tests/Bayan.Tests/UnobservableBindingTests.cs	cli	4	diag	diag	unobservable marks reach the report	
+UserIterationTests	csharp/tests/Bayan.Tests/UserIterationTests.cs	csharp-internals	2	run	run	for-in over user types by program output	
+WarmUpTests	csharp/tests/Bayan.Tests/WarmUpTests.cs	infrastructure	2	dropped		harness-only: theory warm-up builds go with the harness	
+ZigVersionPinTests	csharp/tests/Bayan.Tests/ZigVersionPinTests.cs	infrastructure	6	shell	shell	freshness check of .zig-version against workflows	
