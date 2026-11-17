@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bayan.Backend.C;
@@ -40,6 +41,25 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
             if (path is null) Assert.Fail($"src/lexer/main.byn did not build:\n{error}");
             return path!;
         }
+    }
+
+    /// <summary>Under the export (spec 019 R10): writes <c>lex/SelfhostLexerTests/&lt;test&gt;[-n]</c> with the input (the file at
+    /// <paramref name="path"/>, else <paramref name="bytes"/> as <c>input.byn</c>), the C# side's <paramref name="expected"/> as
+    /// <c>expected.&lt;what&gt;</c> and its <paramref name="exit"/> as <c>expected.exitcode</c>, and returns true, so the caller
+    /// returns without running the port; otherwise false.
+    /// Export run (T16d, <c>lex/counts.tsv</c>): SelfhostLexerTests 31 tests, 20064 case dirs: LexGolden 21 (one per row),
+    /// JsonOnStdinMatchesTheReferenceLexer 21 (one per <c>lex/</c> input), CorpusMatchesTheReferenceLexer 10000 (one per corpus input),
+    /// BayanLexJsonEqualsTheReferenceLexerOnEveryInput 10021 (21 inputs and 10000 corpus), RunOnStdinRunsAPromptProgramOnce 1; the other
+    /// tests compare nothing with C# or are timing. SelfhostLexerCaseTests 1 test, 1 case dir.</summary>
+    private static bool Export(string? path, byte[]? bytes, string what, string expected, int? exit = null, [CallerMemberName] string test = "")
+    {
+        if (SelfhostExport.Dir is not { } root) return false;
+        var dir = SelfhostExport.Case(root, "lex", nameof(SelfhostLexerTests), test);
+        if (path is not null) SelfhostExport.WriteInput(dir, [path]);
+        else File.WriteAllBytes(Path.Combine(dir, "input.byn"), bytes!);
+        SelfhostExport.WriteExpected(dir, "expected." + what, expected);
+        if (exit is { } code) SelfhostExport.WriteExpected(dir, "expected.exitcode", $"{code}\n");
+        return true;
     }
 
     /// <summary>Runs <paramref name="program"/>; under <c>BAYAN_SNAPSHOT</c> the run is recorded (spec 013 R14).</summary>
@@ -95,8 +115,31 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
     public void LexGolden(string name)
     {
         var input = Path.Combine(Golden.CasesRoot, name);
+        if (Export(input, null, "tokens", File.ReadAllText(Path.ChangeExtension(input, ".tokens")))) return;
         var (_, stdout, _) = Run(Built, input);
         if (Golden.Compare(Path.ChangeExtension(input, ".tokens"), stdout, update: false).Failure is { } failure) Assert.Fail(failure);
+    }
+
+    [Fact]
+    public void ExportWritesTheInputAndTheGoldenAsTheCase()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-lex");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var name = (string)((IEnumerable<object[]>)Golden.Cases("lex")).First()[0];
+        var old = SelfhostExport.Override.Value;
+        try
+        {
+            SelfhostExport.Override.Value = root;
+            LexGolden(name);
+        }
+        finally
+        {
+            SelfhostExport.Override.Value = old;
+        }
+        var dir = Path.Combine(root, "lex", nameof(SelfhostLexerTests), nameof(LexGolden));
+        var input = Path.Combine(Golden.CasesRoot, name);
+        Assert.Equal(File.ReadAllText(input).Replace("\r\n", "\n"), File.ReadAllText(Path.Combine(dir, "input.byn")));
+        Assert.Equal(File.ReadAllText(Path.ChangeExtension(input, ".tokens")).Replace("\r\n", "\n"), File.ReadAllText(Path.Combine(dir, "expected.tokens")));
     }
 
     [Fact]
@@ -114,8 +157,9 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
         foreach (var input in Directory.GetFiles(Path.Combine(Golden.CasesRoot, "lex"), "*.byn").Order(StringComparer.Ordinal))
         {
             var bytes = File.ReadAllBytes(input);
-            var (exit, stdout, stderr) = RunBytes(Built, bytes, "--json");
             var result = Lexer.Lex(new SourceText(input, bytes));
+            if (Export(input, null, "json", TokenDump.ToJson(result), result.Diagnostics.Any(d => d.IsError) ? 1 : 0)) continue;
+            var (exit, stdout, stderr) = RunBytes(Built, bytes, "--json");
             var expected = Encoding.UTF8.GetBytes(TokenDump.ToJson(result));
             Assert.True(expected.AsSpan().SequenceEqual(stdout),
                 $"{input}: --json differs\nexpected: {Encoding.UTF8.GetString(expected)}\nactual:   {Encoding.UTF8.GetString(stdout)}\n{stderr}");
@@ -261,6 +305,12 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
             File.WriteAllBytes(Path.Combine(dir, names[i]), corpus[i]);
         }
 
+        if (SelfhostExport.Dir is not null)
+        {
+            for (var i = 0; i < names.Length; i++)
+                Export(Path.Combine(dir, names[i]), null, "tokens", TokenDump.Dump(Lexer.Lex(new SourceText(names[i], corpus[i]))));
+            return;
+        }
         var (exit, bytes, stderr) = RunBytes(Built, "--many", dir);
 
         var cursor = 0;
@@ -284,12 +334,14 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
         Assert.True(exit == 0 && !stderr.Contains("panic:"), $"exit {exit}\n{stderr}");
     }
 
+    private static byte[][] StdinInputs() => Directory.GetFiles(Path.Combine(Golden.CasesRoot, "lex"), "*.byn").Order(StringComparer.Ordinal)
+        .Select(File.ReadAllBytes).Concat(GenerateCorpus()).ToArray();
+
     /// <summary>Every corpus input and <c>lex/</c> case with its <c>bayan-lex --json</c> run on stdin, made once for L001 and L002.</summary>
     private static readonly Lazy<(byte[] Input, int Exit, byte[] Out, string Err, bool TimedOut)[]> StdinRuns = new(() =>
     {
         var built = Built;
-        var inputs = Directory.GetFiles(Path.Combine(Golden.CasesRoot, "lex"), "*.byn").Order(StringComparer.Ordinal)
-            .Select(File.ReadAllBytes).Concat(GenerateCorpus()).ToArray();
+        var inputs = StdinInputs();
         var runs = new (byte[], int, byte[], string, bool)[inputs.Length];
         // sequential: concurrent Process.Start calls leak stdin pipe ends into each other's children, which then never see EOF
         Parallel.For(0, inputs.Length, new ParallelOptions { MaxDegreeOfParallelism = 1 }, i =>
@@ -348,6 +400,8 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
     public void RunOnStdinRunsAPromptProgramOnce()
     {
         var input = "x\n"u8.ToArray();
+        var json = TokenDump.ToJson(Lexer.Lex(new SourceText("<stdin>", input)));
+        if (Export(null, input, "json", json)) return;
         var (exit, stdout, _, timedOut, attempts) = RunOnStdin(Built, ["--json"], input, 30_000);
         Assert.False(timedOut);
         Assert.Equal(1, attempts);
@@ -360,6 +414,12 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
     [Trait("Law", "L001")]
     public void BayanLexJsonEqualsTheReferenceLexerOnEveryInput()
     {
+        if (SelfhostExport.Dir is not null)
+        {
+            foreach (var input in StdinInputs())
+                Export(null, input, "json", TokenDump.ToJson(Lexer.Lex(new SourceText("<stdin>", input))));
+            return;
+        }
         var runs = StdinRuns.Value;
         for (var i = 0; i < runs.Length; i++)
         {
