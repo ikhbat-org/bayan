@@ -1,6 +1,6 @@
 # 026 — Extensible error sets
 Status: approved (owner 2026-11-17: Fable's recommendation)
-Release: 0.4 (lands before spec 015 T15 part 2b)
+Release: unscheduled (planned for 0.4, lands before spec 015 T15 part 2b)
 Sources: owner 2026-11-17 (chose Rule 1 as `docs/bayan-spec.md` §3.13 states it); Fable's report `tmp/fable-e/out.log` (design source, not in the repository); `docs/bayan-spec.md` §3.13 (line 462) and §8 (line 1417); decision 006 §2 (C# outputs frozen at `v0.3.2`); decision 008 D5 (the freeze covers captured outputs, not C# source; the file is in commit da6ff94e, not yet on this branch); spec 019 R10, R12, R13, R14; spec 023 R1, R5 and item #6; spec 015 T15 and its plan section "The wave-brief lock (U4, Q1140)"; commits fe0ef3f1 and 11b3ca88
 Created: 2026-11-17
 
