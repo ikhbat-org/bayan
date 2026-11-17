@@ -16,10 +16,13 @@
 // tmp/llm-eval/recheck/), and checks the task itself: name and number (R1), files (R1), header (R2, R26), that a repair
 // starter fails `bayan check` with only the code its `Title:` names (R13), and that `prompt.md` of a `stdout` task does
 // not hold its whole `checks/expected.stdout`. It prints `PASS <task>` or `FAIL <task>: <reasons>` and the slowest run.
+// When every task passed, without --only, and nothing under the tasks directory is uncommitted, it writes a stamp named
+// by the task-set commit and the compiler commit, tmp/llm-eval/recheck/stamps/<task-set>-<compiler> under the repo root,
+// and prints `stamp: <path>`; otherwise it prints `no stamp: <reason>` (R29).
 // Exit 0 when every task passed, 1 when one failed or the recheck could not start, 2 on bad usage.
 //
-//   bash scripts/bayan-tool.sh llm-eval run <tasks-dir> --model '<command>' [--samples <k>] [--context <file>]
-//        [--label <text>] [--settings <text>] [--machine <text> | --remote <provider>] [--only <task>] [--out <dir>]
+//   bash scripts/bayan-tool.sh llm-eval run <tasks-dir> --model '<command>' (--machine <text> | --remote <provider>)
+//        [--samples <k>] [--context <file>] [--label <text>] [--settings <text>] [--only <task>] [--out <dir>]
 //
 // `run` sends each task's prompt to the model command k times (--samples, default 1) and scores each reply as `score`
 // does, in <out>/<n>/work/<task>/<sample>/ (<n> the first free number; --out defaults to tmp/llm-eval/run/). The prompt is
@@ -27,13 +30,16 @@
 // `sh -c`, the prompt on its standard input; its standard output is the reply and a `tokens: <n>` line on its standard
 // error is read (R33). The code is the contents of the last fenced code block of the reply, or the whole reply when it
 // has none (R16). It prints one record per task and sample, with `wallMs`, `tokens` (when printed) and `reply`, and
-// writes them to <out>/<n>/records.jsonl (R37). <out>/<n>/summary.json holds pass@1, pass@k, compile, lint-clean and
-// format-stable as counts and rates, overall, per category, per tier and per revision (R30); pass@k counts the tasks
-// where at least one of the k samples passed, as R30 defines it. It names the task-set commit, the compiler, the
-// revisions, the context file, the label, the settings, k, the limits, the sandbox and the machine or `remote` with the
-// provider (R27, R32), and the speed: total wall time, and tokens per second only when every sample printed `tokens:`
-// (R31). The runner opens no socket (R34). Exit 0 when the summary is written, 1 when the run could not start or the
-// model command failed, 2 on bad usage.
+// appends each to <out>/<n>/records.jsonl as it is scored (R37). <out>/<n>/summary.json holds one block per split, each
+// with pass@1, pass@k, compile, lint-clean and format-stable as counts and rates, overall, per category, per tier and per
+// revision (R21, R30); pass@k counts the tasks where at least one of the k samples passed, as R30 defines it. It names
+// the task-set commit, the compiler, the revisions, the context file, the label, the settings, k, the limits, the
+// sandbox and the machine or `remote` with the provider (R27, R32), and the speed: total wall time, and tokens per second
+// only when every sample printed `tokens:` (R31). --machine or --remote is required, so speed is never unnamed (R32).
+// `verified` says whether the task set is committed and recheck's stamp for its commit and the compiler's is there; the
+// `headline`, pass@1 over the `heldout` tasks, is written only when they are verified (R21, R29). The runner opens no
+// socket (R34). Exit 0 when the summary is written, 1 when the run could not start or the model command failed, 2 on
+// bad usage.
 
 import std.json
 
@@ -41,7 +47,7 @@ type JsonValue  = json.JsonValue
 type JsonMember = json.JsonMember
 type Json       = json.Json
 
-const usage: string = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]\n       llm-eval recheck <tasks-dir> [--only <task>] [--out <dir>]\n       llm-eval run <tasks-dir> --model '<command>' [--samples <k>] [--context <file>] [--label <text>] [--settings <text>]\n            [--machine <text> | --remote <provider>] [--only <task>] [--out <dir>]"
+const usage: string = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]\n       llm-eval recheck <tasks-dir> [--only <task>] [--out <dir>]\n       llm-eval run <tasks-dir> --model '<command>' (--machine <text> | --remote <provider>) [--samples <k>] [--context <file>]\n            [--label <text>] [--settings <text>] [--only <task>] [--out <dir>]"
 const buildMs: i64 = 120000
 const runMs: i64 = 10000
 const outputBytes: i64 = 1048576
@@ -580,12 +586,13 @@ List<string> taskProblems(string tasksDir, at string name, from List<string> nam
     return problems
 }
 
-/// The task directories in `tasksDir`; fails when `only` is given and is not one of them.
+/// The task directories in `tasksDir`, leaving out dot-directories such as `.git`; fails when `only` is given and is not
+/// one of them.
 List<string> taskNames(string tasksDir, for string? only) fails EvalError {
     let entries = Io.listDir(tasksDir) catch fail .failed(message: $"cannot list {tasksDir}")
     var names = List<string>()
     for e in entries {
-        names.append(e) if isDirectory(Path.combine(tasksDir, e))
+        names.append(e) if !e.startsWith(".") && isDirectory(Path.combine(tasksDir, e))
     }
     if only is not null {
         fail .failed(message: $"no task {only} in {tasksDir}") if !has(names, for: only)
@@ -603,12 +610,42 @@ string freshDir(string outDir) {
     return Path.combine(outDir, $"{n}")
 }
 
+/// The compiler's version line, from `bayan --version`, or "unknown".
+string compilerVersion(string bayan, at string root) => firstLine(bayan, for: ["--version"], at: root) ?? "unknown"
+
+/// The commit in a version line `bayan <version> (commit <commit>)`, or "unknown".
+string commitOf(string version) {
+    let at = version.position("(commit ") ?? -1
+    return at < 0 ? "unknown" : version[at + 8..(version.position(")") ?? version.length)]
+}
+
+/// The commit of the task set in `tasksDir`: HEAD of its git repository, or null when it is in none or when a file under
+/// it is changed, untracked or ignored, so that HEAD does not hold what is there (R29).
+string? committedSet(string tasksDir) {
+    let commit = firstLine("git", for: ["rev-parse", "HEAD"], at: tasksDir) ?? return null
+    var args = List<string>()
+    for a in ["status", "--porcelain", "--ignored", "--untracked-files=all", "--", "."] {
+        args.append(a)
+    }
+    let r = Io.run("git", args.span, directory: tasksDir) catch return null
+    return null if r.exitCode != 0 || !r.stdout.trimmed().isEmpty
+    return commit
+}
+
+/// The stamp of a passing recheck of task-set commit `taskCommit` with compiler commit `compilerCommit` (R29).
+string stampPath(string root, for string taskCommit, by string compilerCommit) {
+    return Path.combine(root, $"tmp/llm-eval/recheck/stamps/{taskCommit}-{compilerCommit}")
+}
+
 /// Re-checks every task directory in `tasksDir`, or only the one named `only`: prints `PASS <task>` or
-/// `FAIL <task>: <reasons>`, then the slowest run. Returns whether every task passed (R29).
+/// `FAIL <task>: <reasons>`, then the slowest run, then the stamp when one is written. Returns whether every task passed
+/// (R29).
 bool recheck(string tasksDir, for string? only, to string outDir) fails EvalError {
     let root = try repoRoot()
     let bayan = try pinnedBayan(root)
     let names = try taskNames(tasksDir, for: only)
+    // Taken before scoring, so the stamp names what was checked.
+    let taskCommit = committedSet(tasksDir)
     let runDir = freshDir(outDir)
     var allPassed = true
     // The slowest program run, and apart from it the slowest `bayan test`, whose time holds a build.
@@ -647,7 +684,27 @@ bool recheck(string tasksDir, for string? only, to string outDir) fails EvalErro
     if slowestTest >= 0 {
         print($"slowest test, build included: {slowestTest / 1000000} ms ({slowestTestTask})")
     }
-    return allPassed
+    return false if !allPassed
+    let version = compilerVersion(bayan, at: root)
+    let compilerCommit = commitOf(version)
+    if only is not null {
+        print("no stamp: --only checks part of the set")
+    } else if taskCommit is null {
+        print("no stamp: the tasks directory has uncommitted changes or is not in a git repository")
+    } else if compilerCommit == "unknown" {
+        print($"no stamp: `bayan --version` names no commit: {version}")
+    } else {
+        let commit = taskCommit
+        let path = stampPath(root, for: commit, by: compilerCommit)
+        let dir = Path.directoryName(path) ?? path
+        if !isDirectory(dir) {
+            Io.createDirectory(dir) catch fail .failed(message: $"cannot make {dir}")
+        }
+        let stamp = $"taskSetCommit: {commit}\ncompiler: {version}\ntasks: {tasksDir}\n"
+        Io.writeFile(path, stamp.bytes) catch fail .failed(message: $"cannot write {path}")
+        print($"stamp: {path}")
+    }
+    return true
 }
 
 /// The code in a model's reply (R16): the contents of the last fenced code block when there is one, otherwise the whole
@@ -778,6 +835,25 @@ JsonValue grouped(List<Counted> counts, by string kind) {
     return .object(members: move m)
 }
 
+/// The tasks of `counts` in `split`.
+List<Counted> ofSplit(List<Counted> counts, for string split) {
+    var part = List<Counted>()
+    for c in counts {
+        part.append(c) if c.split == split
+    }
+    return part
+}
+
+/// Appends `text` to the file at `path`, made when missing.
+void appendText(string text, to string path) fails EvalError {
+    var args = List<string>()
+    for a in ["-c", "cat >> \"$1\"", "sh", path] {
+        args.append(a)
+    }
+    let r = Io.run("sh", args.span, input: text.bytes) catch fail .failed(message: $"cannot append to {path}")
+    fail .failed(message: $"cannot append to {path}: {r.stderr.trimmed()}") if r.exitCode != 0
+}
+
 /// The first line of standard output of `program args` in `directory`, or null when it cannot run or exits non-zero.
 string? firstLine(string program, for List<string> args, at string directory) {
     let r = Io.run(program, args.span, directory: directory) catch return null
@@ -804,7 +880,6 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
     let runDir = freshDir(outDir)
     Io.createDirectory(runDir) catch fail .failed(message: $"cannot make {runDir}")
     let recordsPath = Path.combine(runDir, "records.jsonl")
-    var records = ""
     var counts = List<Counted>()
     var revisions = List<string>()
     var splits = List<string>()
@@ -853,8 +928,7 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
             let reply = Reply { wallMs: wallMs, tokens: tokens, text: r.stdout }
             let scored = try scoreSample(dir, for: candidate, from: bayan, to: runDir, at: reply, as: s)
             print(scored.record)
-            records = $"{records}{scored.record}\n"
-            Io.writeFile(recordsPath, records.bytes) catch fail .failed(message: $"cannot write {recordsPath}")
+            try appendText($"{scored.record}\n", to: recordsPath)
             samples += 1
             wallTotal += wallMs
             if tokens is not null {
@@ -874,9 +948,15 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
         counts.append(counted)
     }
 
-    let compiler = firstLine(bayan, for: ["--version"], at: root) ?? "unknown"
-    let at = compiler.position("(commit ") ?? -1
-    let compilerCommit = at < 0 ? "unknown" : compiler[at + 8..(compiler.position(")") ?? compiler.length)]
+    let compiler = compilerVersion(bayan, at: root)
+    let compilerCommit = commitOf(compiler)
+    // Verified: the set is committed and recheck passed on that commit with this compiler (R29).
+    let taskCommit = committedSet(tasksDir)
+    var verified = false
+    if taskCommit is not null && compilerCommit != "unknown" {
+        let stamp = Io.readText(stampPath(root, for: taskCommit, by: compilerCommit)) catch ""
+        verified = (field(stamp, for: "tasks") ?? "") == tasksDir
+    }
     var revisionList = List<JsonValue>()
     for r in revisions {
         revisionList.append(.text(value: r))
@@ -891,12 +971,40 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
             speed.append(JsonMember { key: "tokensPerSecond", value: rate(tokensTotal * 1000, by: wallTotal) })
         }
     }
+    // One block per split, never one number over both; a `dev` block says so (R21).
+    var blocks = List<JsonValue>()
+    var headline: i64 = -1
+    var heldoutTasks: i64 = 0
+    for split in splits {
+        let part = ofSplit(counts, for: split)
+        if split == "heldout" && verified {
+            headline = 0
+            for c in part {
+                headline += 1 if c.passedFirst
+            }
+            heldoutTasks = part.length
+        }
+        var b = List<JsonMember>()
+        b.append(JsonMember { key: "split", value: .text(value: split) })
+        b.append(JsonMember { key: "overall", value: metrics(part, by: "all", at: "") })
+        b.append(JsonMember { key: "byCategory", value: grouped(part, by: "category") })
+        b.append(JsonMember { key: "byTier", value: grouped(part, by: "tier") })
+        b.append(JsonMember { key: "byRevision", value: grouped(part, by: "revision") })
+        blocks.append(.object(members: move b))
+    }
     var m = List<JsonMember>()
-    m.append(JsonMember { key: "split", value: .text(value: joined(splits, by: ", ")) })
     m.append(JsonMember {
         key: "taskSetCommit",
         value: .text(value: firstLine("git", for: ["rev-parse", "HEAD"], at: tasksDir) ?? "none"),
     })
+    m.append(JsonMember { key: "verified", value: .flag(value: verified) })
+    if headline >= 0 {
+        var h = List<JsonMember>()
+        h.append(JsonMember { key: "split", value: .text(value: "heldout") })
+        h.append(JsonMember { key: "tasks", value: number(heldoutTasks) })
+        h.append(JsonMember { key: "pass@1", value: countAndRate(headline, by: heldoutTasks) })
+        m.append(JsonMember { key: "headline", value: .object(members: move h) })
+    }
     m.append(JsonMember { key: "compiler", value: .text(value: compiler) })
     m.append(JsonMember { key: "compilerCommit", value: .text(value: compilerCommit) })
     m.append(JsonMember { key: "revisions", value: .list(items: move revisionList) })
@@ -910,13 +1018,10 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
         m.append(JsonMember { key: "machine", value: .text(value: "remote") })
         m.append(JsonMember { key: "provider", value: .text(value: o.remote ?? "") })
     } else {
-        m.append(JsonMember { key: "machine", value: .text(value: o.machine ?? "not given") })
+        m.append(JsonMember { key: "machine", value: .text(value: o.machine ?? "") })
     }
     m.append(JsonMember { key: "speed", value: .object(members: move speed) })
-    m.append(JsonMember { key: "overall", value: metrics(counts, by: "all", at: "") })
-    m.append(JsonMember { key: "byCategory", value: grouped(counts, by: "category") })
-    m.append(JsonMember { key: "byTier", value: grouped(counts, by: "tier") })
-    m.append(JsonMember { key: "byRevision", value: grouped(counts, by: "revision") })
+    m.append(JsonMember { key: "splits", value: .list(items: move blocks) })
     let summary = Json.encode(
         .object(members: move m),
         indent: 2,
@@ -987,6 +1092,12 @@ i32 main(ReadOnlySpan<string> argv) {
     let k = samples ?? 0
     let badRun = command == "run" && (modelCommand is null || k < 1 || (machine is not null && remote is not null))
     if rest.length != (command == "score" ? 2 : 1) || badRun {
+        print(usage, to: .stderr)
+        return 2
+    }
+    // Speed numbers name the machine or say remote (R32); a `heldout` run is never anonymous (spec, Open questions).
+    if command == "run" && machine is null && remote is null {
+        print("llm-eval: run needs --machine <text> or --remote <provider>", to: .stderr)
         print(usage, to: .stderr)
         return 2
     }

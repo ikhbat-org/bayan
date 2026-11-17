@@ -925,5 +925,3 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (025 T3, 2026-11-18): macOS first exec of a fresh binary took ~4.8 s at load 26-36, so `score` can report `limit` for a correct candidate under heavy load (T2 scoring).
 - 025 T12 (LOW, 2026-11-18): `effects-001-iftar-tables` passes a candidate that drops both `public` and `uses` (private functions infer effects); the prompt asks for `public` but no check enforces it.
 - 025 T7 (LOW, 2026-11-18): on macOS the "run completes inside the network denial" test checks only that the run finishes; the scorer's nested launches fail inside sandbox-exec, so a sandboxed macOS run scores nothing. Decide in T8/T31 whether scoring runs outside the model sandbox.
-- 025 T8 LOW (gate 735f2a8e): `tools/llm-eval.byn` `run` without `--machine` writes `"machine": "not given"` and still reports speed; R32 wants local speed numbers to name the machine. Fix in T9 or T11.
-- 025 T8 LOW (gate 735f2a8e): `tools/llm-eval.byn` `run` rewrites `records.jsonl` in full after every sample (quadratic in records). Fix in T9 or T11.
