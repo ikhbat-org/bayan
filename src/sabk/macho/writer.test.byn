@@ -1,0 +1,219 @@
+// Tests of the Mach-O writer (spec 024 T6). The expected values are in testdata/macho-expected.txt, recorded by
+// scripts/sabk/record-macho.sh from a `clang -c` object of testdata/macho.s. The test builds the same module through
+// `writeObject`, reads its own bytes back (header, load commands, sections, relocations, symbols) into the recorder's
+// line format and compares line by line. Not compared: n_strx and the string table size, whose order is the assembler's.
+
+const expectedPath: string = "src/sabk/testdata/macho-expected.txt"
+
+/// The module of testdata/macho.s: section sizes, relocation sites and symbol order are those of the `clang -c` object.
+/// The bytes are zeros; the writer does not look at them.
+List<Section> moduleSections() uses alloc {
+    var sections = List<Section>()
+    var text = List<u8>()
+    var i = 0
+    while i < 28 {
+        text.append(u8(0))
+        i += 1
+    }
+    var textRelocs = List<Reloc>()
+    textRelocs.append(Reloc { offset: 4, symbol: "_msg", kind: .page21 })
+    textRelocs.append(Reloc { offset: 8, symbol: "_msg", kind: .pageoff12 })
+    textRelocs.append(Reloc { offset: 12, symbol: "_byn_print", kind: .branch26 })
+    sections.append(Section { name: "__text", bytes: move text, relocs: move textRelocs, align: 4 })
+    var cstring = "Salam, world!".bytes.copy()
+    cstring.append(u8(0))
+    sections.append(Section { name: "__cstring", bytes: move cstring, relocs: List<Reloc>(), align: 1 })
+    var data = List<u8>()
+    i = 0
+    while i < 8 {
+        data.append(u8(0))
+        i += 1
+    }
+    var dataRelocs = List<Reloc>()
+    dataRelocs.append(Reloc { offset: 0, symbol: "_byn_print", kind: .unsigned })
+    sections.append(Section { name: "__data", bytes: move data, relocs: move dataRelocs, align: 8 })
+    return sections
+}
+
+List<ObjSymbol> moduleSymbols() uses alloc {
+    var symbols = List<ObjSymbol>()
+    symbols.append(ObjSymbol { name: "ltmp0", section: "__text", offset: 0, external: false })
+    symbols.append(ObjSymbol { name: "_msg", section: "__cstring", offset: 0, external: false })
+    symbols.append(ObjSymbol { name: "_helper", section: "__text", offset: 24, external: false })
+    symbols.append(ObjSymbol { name: "ltmp1", section: "__cstring", offset: 0, external: false })
+    symbols.append(ObjSymbol { name: "ltmp2", section: "__data", offset: 0, external: false })
+    symbols.append(ObjSymbol { name: "_ptr", section: "__data", offset: 0, external: false })
+    symbols.append(ObjSymbol { name: "_main", section: "__text", offset: 0, external: true })
+    symbols.append(ObjSymbol { name: "_byn_print", section: null, offset: 0, external: true })
+    return symbols
+}
+
+i64 rd(List<u8> b, at i64 pos, through i64 count) {
+    var v = 0
+    var i = count - 1
+    while i >= 0 {
+        v = (v << 8) | i64(b[pos + i])
+        i -= 1
+    }
+    return v
+}
+
+i64 rd32(List<u8> b, at i64 pos) {
+    return rd(b, at: pos, through: 4)
+}
+
+/// The NUL-terminated text at `pos`, at most `limit` bytes (a field of 16 bytes may have no NUL).
+string text(List<u8> b, at i64 pos, through i64 limit) uses alloc {
+    var chars = List<u8>()
+    var i = 0
+    while i < limit && b[pos + i] != 0 {
+        chars.append(b[pos + i])
+        i += 1
+    }
+    return Utf8.decode(chars) catch ""
+}
+
+string commandName(i64 cmd) {
+    return "LC_SEGMENT_64" if cmd == 0x19
+    return "LC_BUILD_VERSION" if cmd == 0x32
+    return "LC_SYMTAB" if cmd == 2
+    return "LC_DYSYMTAB" if cmd == 0xB
+    return "LC_UNKNOWN"
+}
+
+/// The recorder's lines for the object `b`, parsed from its bytes, each ending in a newline.
+string describe(List<u8> b) uses alloc {
+    var sb = StrBuf()
+    sb.append($"header\t{rd32(b, at: 4)}\t{rd32(b, at: 8)}\t{rd32(b, at: 12)}\t{rd32(b, at: 16)}\t{rd32(b, at: 20)}\t{rd32(b, at: 24)}\n")
+    var segs = List<string>()
+    var sects = List<string>()
+    var relocOffs = List<i64>()
+    var relocCounts = List<i64>()
+    var strOff = 0
+    var symOff = 0
+    var symCount = 0
+    var p = 32
+    var c = 0
+    while c < rd32(b, at: 16) {
+        let cmd = rd32(b, at: p)
+        sb.append($"lc\t{commandName(cmd)}\t{rd32(b, at: p + 4)}\n")
+        if cmd == 0x19 {
+            sb.append($"segment\t{rd(b, at: p + 24, through: 8)}\t{rd(b, at: p + 32, through: 8)}\t{rd(b, at: p + 40, through: 8)}\t{rd(b, at: p + 48, through: 8)}\t{rd32(b, at: p + 56)}\t{rd32(b, at: p + 60)}\t{rd32(b, at: p + 64)}\t{rd32(b, at: p + 68)}\n")
+            var s = 0
+            while s < rd32(b, at: p + 64) {
+                let q = p + 72 + 80 * s
+                let name = text(b, at: q, through: 16)
+                let seg = text(b, at: q + 16, through: 16)
+                sb.append($"section\t{name}\t{seg}\t{rd(b, at: q + 32, through: 8)}\t{rd(b, at: q + 40, through: 8)}\t{rd32(b, at: q + 48)}\t{rd32(b, at: q + 52)}\t{rd32(b, at: q + 56)}\t{rd32(b, at: q + 60)}\t{rd32(b, at: q + 64)}\n")
+                segs.append(seg)
+                sects.append(name)
+                relocOffs.append(rd32(b, at: q + 56))
+                relocCounts.append(rd32(b, at: q + 60))
+                s += 1
+            }
+        } else if cmd == 0x32 {
+            let minos = rd32(b, at: p + 12)
+            let sdk = rd32(b, at: p + 16)
+            let sdkText = sdk == 0 ? "n/a" : $"{(sdk >> 16) & 0xFFFF}.{(sdk >> 8) & 0xFF}"
+            sb.append($"build\t{rd32(b, at: p + 8)}\t{(minos >> 16) & 0xFFFF}.{(minos >> 8) & 0xFF}\t{sdkText}\t{rd32(b, at: p + 20)}\n")
+        } else if cmd == 2 {
+            symOff = rd32(b, at: p + 8)
+            symCount = rd32(b, at: p + 12)
+            strOff = rd32(b, at: p + 16)
+            sb.append($"symtab\t{symOff}\t{symCount}\t{strOff}\n")
+        } else if cmd == 0xB {
+            sb.append("dysymtab")
+            var f = 0
+            while f < 18 {
+                sb.append($"\t{rd32(b, at: p + 8 + 4 * f)}")
+                f += 1
+            }
+            sb.append("\n")
+        }
+        p += rd32(b, at: p + 4)
+        c += 1
+    }
+    var s = 0
+    while s < sects.length {
+        var r = 0
+        while r < relocCounts[s] {
+            let at = relocOffs[s] + 8 * r
+            let w = rd32(b, at: at + 4)
+            let sym = w & 0xFFFFFF
+            let name = text(b, at: strOff + rd32(b, at: symOff + 16 * sym), through: 256)
+            sb.append($"reloc\t{segs[s]},{sects[s]}\t{rd32(b, at: at)}\t{(w >> 24) & 1}\t{(w >> 25) & 3}\t{(w >> 27) & 1}\t{w >> 28}\t0\t{name}\n")
+            r += 1
+        }
+        s += 1
+    }
+    var j = 0
+    while j < symCount {
+        let at = symOff + 16 * j
+        let name = text(b, at: strOff + rd32(b, at: at), through: 256)
+        sb.append($"sym\t{name}\t{b[at + 4]}\t{b[at + 5]}\t{rd(b, at: at + 6, through: 2)}\t{rd(b, at: at + 8, through: 8)}\n")
+        j += 1
+    }
+    return sb.finish()
+}
+
+/// The recorded file without its comment lines.
+string recorded() uses alloc, fs {
+    let all = Io.readText(expectedPath) catch ""
+    var sb = StrBuf()
+    for line in all.parts(by: "\n") {
+        if line.length > 0 && !line.startsWith("#") {
+            sb.append(line)
+            sb.append("\n")
+        }
+    }
+    return sb.finish()
+}
+
+test "the object matches the clang object field by field" {
+    let sections = moduleSections()
+    let symbols = moduleSymbols()
+    let obj = try writeObject(sections, for: symbols)
+    let expected = recorded()
+    assert expected.length > 0
+    let actual = describe(obj)
+    var want = List<string>()
+    for line in expected.parts(by: "\n") { want.append(line) }
+    var got = List<string>()
+    for line in actual.parts(by: "\n") { got.append(line) }
+    assert got.length == want.length
+    var i = 0
+    while i < want.length {
+        assert got[i] == want[i]
+        i += 1
+    }
+}
+
+test "the buffer is exactly as long as its layout" {
+    let sections = moduleSections()
+    let symbols = moduleSymbols()
+    let obj = try writeObject(sections, for: symbols)
+    // stroff + strsize: the symbol table ends at 688 and the string table holds a NUL and every name with its NUL.
+    assert obj.length == 688 + 1 + 6 + 5 + 8 + 6 + 6 + 5 + 6 + 11
+}
+
+test "an unknown relocation target, section or alignment is refused" {
+    let sections = moduleSections()
+    let symbols = moduleSymbols()
+    var bad = List<ObjSymbol>()
+    bad.append(ObjSymbol { name: "_x", section: "__bss", offset: 0, external: false })
+    let missing = writeObject(sections, for: bad) catch List<u8>()
+    assert missing.length == 0
+}
+
+test "the object is written to tmp/sabk and otool -l accepts it" {
+    return if Target.os != "macos"
+    let sections = moduleSections()
+    let symbols = moduleSymbols()
+    let obj = try writeObject(sections, for: symbols)
+    Io.createDirectory("tmp") catch {}
+    Io.createDirectory("tmp/sabk") catch {}
+    Io.writeFile("tmp/sabk/macho.o", obj) catch { assert false }
+    let run = Io.run("otool", ["-l", "tmp/sabk/macho.o"].span) catch { panic("otool did not run") }
+    assert run.exitCode == 0
+    assert run.stdout.contains("LC_BUILD_VERSION")
+}

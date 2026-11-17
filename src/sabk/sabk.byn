@@ -2,3 +2,4 @@
 // `bayan test --package src src/sabk` reaches them all; nothing outside `src/sabk` imports it.
 
 import sabk.enc
+import sabk.macho
