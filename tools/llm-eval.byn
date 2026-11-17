@@ -658,6 +658,16 @@ string commitOf(string version) {
     return at < 0 ? "unknown" : version[at + 8..(version.position(")") ?? version.length)]
 }
 
+/// The commit the compiler is taken from: the one its version line names, else the one the pin's ref (PINNED_BAYAN_REF,
+/// default dev) resolves to in the repository, else "unknown". A self-hosted compiler's version line names no commit.
+string compilerCommitOf(string version, at string root) {
+    let named = commitOf(version)
+    return named if named != "unknown"
+    let suffix = "^{commit}"
+    let pin = Env.get("PINNED_BAYAN_REF") ?? "dev"
+    return firstLine("git", for: ["rev-parse", "-q", "--verify", $"{pin}{suffix}"], at: root) ?? "unknown"
+}
+
 /// The commit of the task set in `tasksDir`: HEAD of its git repository, or null when it is in none or when a file under
 /// it is changed, untracked or ignored, so that HEAD does not hold what is there (R29).
 string? committedSet(string tasksDir) {
@@ -726,13 +736,13 @@ bool recheck(string tasksDir, for string? only, to string outDir) fails EvalErro
     }
     return false if !allPassed
     let version = compilerVersion(bayan, at: root)
-    let compilerCommit = commitOf(version)
+    let compilerCommit = compilerCommitOf(version, at: root)
     if only is not null {
         print("no stamp: --only checks part of the set")
     } else if taskCommit is null {
         print("no stamp: the tasks directory has uncommitted changes or is not in a git repository")
     } else if compilerCommit == "unknown" {
-        print($"no stamp: `bayan --version` names no commit: {version}")
+        print($"no stamp: neither `bayan --version` nor the compiler pin's ref names a commit: {version}")
     } else {
         let commit = taskCommit
         let path = stampPath(root, for: commit, by: compilerCommit)
@@ -740,7 +750,7 @@ bool recheck(string tasksDir, for string? only, to string outDir) fails EvalErro
         if !isDirectory(dir) {
             Io.createDirectory(dir) catch fail .failed(message: $"cannot make {dir}")
         }
-        let stamp = $"taskSetCommit: {commit}\ncompiler: {version}\ntasks: {tasksDir}\n"
+        let stamp = $"taskSetCommit: {commit}\ncompiler: {version}\ncompilerCommit: {compilerCommit}\ntasks: {tasksDir}\n"
         Io.writeFile(path, stamp.bytes) catch fail .failed(message: $"cannot write {path}")
         print($"stamp: {path}")
     }
@@ -989,7 +999,7 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
     }
 
     let compiler = compilerVersion(bayan, at: root)
-    let compilerCommit = commitOf(compiler)
+    let compilerCommit = compilerCommitOf(compiler, at: root)
     // Verified: the set is committed and recheck passed on that commit with this compiler (R29).
     let taskCommit = committedSet(tasksDir)
     var verified = false
