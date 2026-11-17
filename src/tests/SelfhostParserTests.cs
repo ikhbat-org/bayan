@@ -48,7 +48,12 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
 
     /// <summary>Under the export (spec 019 R10): writes <c>parse/SelfhostParserTests/&lt;test&gt;[-n]</c> with <paramref name="input"/> (none for
     /// null), the C# side's <paramref name="expected"/> as <c>expected.&lt;what&gt;</c> and its <paramref name="exit"/> as <c>expected.exitcode</c>,
-    /// and returns true, so the caller returns without running the port; otherwise false.</summary>
+    /// and returns true, so the caller returns without running the port; otherwise false.
+    /// Export run (T16a, <c>parse/counts.tsv</c>): 264 tests, 603 case dirs. The tests write one case per row, except
+    /// <c>CollectorsMatchAstDumpOnTheRunPrograms</c>, one test that compares 346 programs (every <c>run/</c> case and the shapes file) and so
+    /// writes 346. Rows: ParseGolden 64, CollectorsMatchAstDump 64, DiagGolden 106, BodyAndNameEdges 12, Truncated 6, StatementSpans 3,
+    /// EmptyFile 1, CodesMatchDiagnosticCodes 1. No case, no C# value to compare: NodeShapesBuildAndReadBack and OneMegabyteWithinTenTimes;
+    /// SpanTakenBeforeTheLastChildLeavesItOutside (3 rows) compares typed expected text and is listed in <c>UNEXPORTED.tsv</c>.</summary>
     private static bool Export(string? input, string what, string expected, int? exit = null, [CallerMemberName] string test = "")
     {
         if (SelfhostExport.Dir is not { } root) return false;
@@ -606,6 +611,11 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
     [InlineData("block-property", "struct S {\n    i32 n { return 1 }\n}\n", "blockStmt 21+12 outside 15+5")]
     public void SpanTakenBeforeTheLastChildLeavesItOutside(string name, string source, string expected)
     {
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserTests), nameof(SpanTakenBeforeTheLastChildLeavesItOutside), name);
+            return;
+        }
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "parser-span-order", name);
         Directory.CreateDirectory(dir);
         File.WriteAllText(Path.Combine(dir, name + ".byn"), source);

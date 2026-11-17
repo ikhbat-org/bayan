@@ -46,7 +46,11 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
     /// <summary>Under the export (spec 019 R10): writes <c>lex/SelfhostLexerTests/&lt;test&gt;[-n]</c> with the input (the file at
     /// <paramref name="path"/>, else <paramref name="bytes"/> as <c>input.byn</c>), the C# side's <paramref name="expected"/> as
     /// <c>expected.&lt;what&gt;</c> and its <paramref name="exit"/> as <c>expected.exitcode</c>, and returns true, so the caller
-    /// returns without running the port; otherwise false.</summary>
+    /// returns without running the port; otherwise false.
+    /// Export run (T16d, <c>lex/counts.tsv</c>): SelfhostLexerTests 31 tests, 20064 case dirs: LexGolden 21 (one per row),
+    /// JsonOnStdinMatchesTheReferenceLexer 21 (one per <c>lex/</c> input), CorpusMatchesTheReferenceLexer 10000 (one per corpus input),
+    /// BayanLexJsonEqualsTheReferenceLexerOnEveryInput 10021 (21 inputs and 10000 corpus), RunOnStdinRunsAPromptProgramOnce 1; the other
+    /// tests compare nothing with C# or are timing. SelfhostLexerCaseTests 1 test, 1 case dir.</summary>
     private static bool Export(string? path, byte[]? bytes, string what, string expected, int? exit = null, [CallerMemberName] string test = "")
     {
         if (SelfhostExport.Dir is not { } root) return false;
