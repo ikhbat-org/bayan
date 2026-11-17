@@ -915,3 +915,6 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (019 T2b gate) `src/driver/golden.byn:894-905`: T2c test "BAYAN_EXE names a driver that starts…" failed once in a full run (`assert(found == path)`, :903), passed alone twice and in two later full runs; flaky, maybe from the new style tests running alongside.
 - LOW (019 T2b gate) `src/driver/golden.byn:991-1021`: the ICE crash test writes a `/bin/sh` script and calls `chmod`, so it cannot run on Windows; settle before T10.
 - LOW (019 T2b gate) `src/driver/cc.byn:376`: the BYN4002 message copies the `.errorNodeReachedLowering` text from `codes.byn` instead of referencing it; the two can drift.
+- LOW (019 T5 gate) `src/driver/golden.byn:1075`: `--jobs` workers all share `BAYAN_CACHE=tmp/cache`; concurrent builds may race on one cache entry. Give each worker its own cache dir or check the cache's write path is atomic.
+- LOW (019 T5 gate) `src/driver/golden.byn:590`: on Windows (no `sh`) or with `BAYAN_EXE` unset, `--jobs N` runs cases one at a time without saying so; print one line, settle with T10.
+- LOW (019 T5) `src/driver/main.byn` help text does not mention cases directories, `--jobs` or `--only`.
