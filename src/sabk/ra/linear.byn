@@ -99,7 +99,7 @@ public Allocation allocate(Function f) uses alloc fails AllocError {
     var slots = 0
 
     for iv in live.intervals {
-        // Expire the intervals that ended before this one starts; a value read at p and one defined at p may share.
+        // Expire the intervals that ended before this one starts (intervals are inclusive, so a value read at p and one defined at p do not share); the one exception is x0 freed by a value last read at a call whose result is defined there.
         var keep = List<Active>()
         for a in active {
             if a.end < iv.start || (a.reg == 0 && a.end == iv.start && isResult[iv.vreg]) {
