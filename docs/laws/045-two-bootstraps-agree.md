@@ -1,7 +1,8 @@
 ---
 id: L045
 title: Two bootstraps agree
-status: proposed
+status: retired
+retired: 2026-11-18 unenacted: folded into L027 (D8)
 release: unscheduled
 sources: spec 019 R27; restates L027 without a live C# compiler and may be enacted as its amendment
 kind: property

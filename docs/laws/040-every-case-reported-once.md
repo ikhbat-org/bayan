@@ -1,8 +1,9 @@
 ---
 id: L040
 title: Every case is reported once
-status: proposed
+status: enacted
 release: unscheduled
+enacted: 2026-11-18
 sources: spec 019 R1, R2, R3
 kind: invariant
 scope: src/driver/golden.byn, src/driver/test.byn

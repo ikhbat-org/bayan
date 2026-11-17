@@ -1,8 +1,9 @@
 ---
 id: L042
 title: A run without update writes nothing
-status: proposed
+status: enacted
 release: unscheduled
+enacted: 2026-11-18
 sources: spec 019 R5
 kind: guard
 scope: src/driver/golden.byn

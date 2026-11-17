@@ -2,6 +2,7 @@
 id: L027
 title: Bootstrap fixpoint
 status: enacted
+amended: 2026-11-18
 release: 0.2.0
 sources: none recorded
 kind: property
@@ -12,7 +13,7 @@ timeout: 900
 ---
 
 ## Statement
-For the driver's sources and each of `safe` and `debug`, the C the C# compiler emits, the C stage 1 emits and the C stage 2 emits are byte-identical, and contain no absolute path and no timestamp, all stages built on the same host.
+For the driver's sources and each of `safe` and `debug`, the C stage 1 emits and the C stage 2 emits are byte-identical, and contain no absolute path and no timestamp, all stages built on the same host; this is a no-.NET check on every push. For the frozen tree, the C the C# compiler built from the frozen ref emits is byte-identical to that C too; this half runs in the ddc job against the frozen ref (`v0.3.2` until `csharp-final` exists).
 
 ## Counterexample looks like
 A mode and the first differing byte offset between two stages' emitted C (for example stage 1 vs stage 2 in `debug`), with the C# source line each side came from; or an absolute path or timestamp found in one stage's C.
