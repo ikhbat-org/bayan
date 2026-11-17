@@ -1,0 +1,165 @@
+// sabk phase 1 (spec 024, R6, R10): linear-scan register allocation over SIR for AAPCS64 (T9), after Poletto and Sarkar.
+// Intervals come from `liveIntervals`, sorted by start; the active list is kept sorted by end. The pool is x9-x15
+// (temporaries) then x19-x28 (callee-saved, saved in the prologue only when used). x0-x7 are precoloured, not pooled:
+// parameter i takes x<i> and a call result takes x0 when the value does not cross a call (a result may reuse the x0 of an
+// argument that ends at the call). A parameter or result that crosses a call falls back to the pool and T10 moves it out of
+// x0-x7. T10 marshals call arguments into x0-x7. x16/x17 are reserved for T10's spill reloads and veneers,
+// x18 is never touched (Apple reserved), x29/x30 are the frame record. A value live across a call may only take x19-x28,
+// else it spills. When no register is free the interval with the furthest end (among those whose register fits) spills.
+//
+// Frame layout, from sp upward: x29/x30 (16 bytes), the used callee-saved registers (8 each, ascending), then the spill
+// slots (8 each): slot k lives at sp + 16 + 8 * usedCalleeSaved.length + 8 * k. The size is rounded up to 16. All buffers are
+// sized from the function; nothing recurses over the input.
+
+import sabk.sir
+
+/// The largest frame a single `sub sp, sp, #imm12` (unshifted) reaches, rounded down to 16. The plan names no limit, so
+/// this is the one `enc` can express with one instruction; saves and spills then stay within `stp`/`ldp`/`ldr` offsets.
+public i64 maxFrameSize() => 4080
+
+/// The most call arguments AAPCS64 passes in registers (x0-x7).
+public i64 maxCallArgs() => 8
+
+public union error AllocError {
+    tooManyCallArgs(i64 count)
+    frameTooLarge(i64 bytes)
+}
+
+public union Location {
+    /// The value is never defined or used.
+    none
+    reg(i64 number)
+    stack(i64 slot)
+}
+
+public struct Allocation {
+    /// One location per virtual register, indexed by vreg.
+    public List<Location> locations
+    /// The callee-saved registers (x19-x28) the function uses, ascending.
+    public List<i64>      usedCalleeSaved
+    /// Bytes to reserve below the caller's sp: 16-aligned, includes x29/x30, the callee-saved area and the spill slots.
+    public i64            frameSize
+}
+
+struct Active {
+    i64 vreg
+    i64 end
+    i64 reg
+}
+
+/// The first free register an interval may take, or -1: temporaries first unless it crosses a call.
+i64 pickReg(in List<bool> busy, for bool crossing) {
+    if !crossing {
+        for r in 9..16 {
+            return r if !busy[r]
+        }
+    }
+    for r in 19..29 {
+        return r if !busy[r]
+    }
+    return -1
+}
+
+public Allocation allocate(in Function f) uses alloc fails AllocError {
+    for b in f.blocks {
+        for inst in b.insts {
+            switch inst {
+                case .call(let dst, let symbol, let args):
+                    fail .tooManyCallArgs(args.length) if args.length > maxCallArgs()
+                default: continue
+            }
+        }
+    }
+
+    var isResult = List<bool>()
+    for v in 0..f.nextVReg {
+        isResult.append(false)
+    }
+    for b in f.blocks {
+        for inst in b.insts {
+            switch inst {
+                case .call(let dst, let symbol, let args): isResult[dst] = true if dst != sir.noReg()
+                default: continue
+            }
+        }
+    }
+
+    let live = liveIntervals(f)
+    var locations = List<Location>()
+    for v in 0..f.nextVReg {
+        locations.append(.none)
+    }
+    var busy = List<bool>()
+    var usedReg = List<bool>()
+    for r in 0..32 {
+        busy.append(false)
+        usedReg.append(false)
+    }
+    var active = List<Active>()
+    var slots = 0
+
+    for iv in live.intervals {
+        // Expire the intervals that ended before this one starts; a value read at p and one defined at p may share.
+        var keep = List<Active>()
+        for a in active {
+            if a.end < iv.start || (a.reg == 0 && a.end == iv.start && isResult[iv.vreg]) {
+                busy[a.reg] = false
+            } else {
+                keep.append(a)
+            }
+        }
+        active = move keep
+
+        let crossing = crossesCall(live, at: iv)
+        var reg = -1
+        if !crossing {
+            for i in 0..f.params.length {
+                reg = i if i < 8 && f.params[i] == iv.vreg && !busy[i]
+            }
+            reg = 0 if isResult[iv.vreg] && !busy[0]
+        }
+        reg = pickReg(busy, for: crossing) if reg < 0
+        if reg < 0 {
+            // Spill the eligible active interval that ends last, when it ends after this one; else spill this one.
+            var victim = -1
+            for i in 0..active.length {
+                continue if crossing && active[i].reg < 19
+                victim = i if victim < 0 || active[i].end >= active[victim].end
+            }
+            if victim >= 0 && active[victim].end > iv.end {
+                reg = active[victim].reg
+                locations[active[victim].vreg] = .stack(slots)
+                slots = slots + 1
+                var rest = List<Active>()
+                for i in 0..active.length {
+                    rest.append(active[i]) if i != victim
+                }
+                active = move rest
+            }
+        }
+        if reg < 0 {
+            locations[iv.vreg] = .stack(slots)
+            slots = slots + 1
+            continue
+        }
+        busy[reg] = true
+        usedReg[reg] = true
+        locations[iv.vreg] = .reg(reg)
+        var at = active.length
+        active.append(Active { vreg: iv.vreg, end: iv.end, reg: reg })
+        while at > 0 && active[at - 1].end > iv.end {
+            active[at] = active[at - 1]
+            at = at - 1
+        }
+        active[at] = Active { vreg: iv.vreg, end: iv.end, reg: reg }
+    }
+
+    var saved = List<i64>()
+    for r in 19..29 {
+        saved.append(r) if usedReg[r]
+    }
+    let bytes = 16 + 8 * saved.length + 8 * slots
+    let size = (bytes + 15) / 16 * 16
+    fail .frameTooLarge(size) if size > maxFrameSize()
+    return Allocation { locations: move locations, usedCalleeSaved: move saved, frameSize: size }
+}
