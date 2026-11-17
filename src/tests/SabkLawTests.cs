@@ -162,7 +162,7 @@ public sealed class SabkEncoderLawTests
     public void EncodeMatchesTheReferenceAssembler()
     {
         if (!SabkLaw.Supported) { Console.WriteLine(SabkLaw.Skip); return; }
-        var (exit, o, e) = SabkLaw.RunInRoot("bash", "-c", "zig=zig; command -v zig >/dev/null 2>&1 || zig=/Users/sy/.local/bin/zig; \"$zig\" version");
+        var (exit, o, e) = SabkLaw.RunInRoot("bash", "-c", "zig=zig; command -v zig >/dev/null 2>&1 || zig=\"$HOME/.local/bin/zig\"; \"$zig\" version");
         var pinned = File.ReadAllText(Path.Combine(Golden.RepoRoot, ".zig-version")).Trim();
         Assert.True(exit == 0 && o.Trim() == pinned, $"the reference assembler is zig {pinned} (.zig-version); found {o.Trim()} {e}");
 

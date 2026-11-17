@@ -7,6 +7,8 @@ release: unscheduled
 sources: spec 024 R7
 kind: property
 scope: src/sabk/ra/linear.byn, src/sabk/ra/liveness.byn, src/sabk/check/sound.byn
+proof: src/tests/SabkLawTests.cs
+check: dotnet test -v q --filter "Law=L047"
 ---
 
 ## Statement
@@ -22,4 +24,6 @@ Functions the allocator refuses are not covered. Lowering (`ra/lower.byn`: argum
 A function where a parameter is read after a call at position 0, and `allocate` puts it in `x9`: the call clobbers `x9`, so the read after it sees the callee's value (the bug fixed in df753ad2). Or two values assigned spill slot `[sp, #24]` where the second's store lands between the first's store and its reload.
 
 ## Proof notes
-Not proven. `/prove` (task T18) runs `checkAllocation` (`src/sabk/check/sound.byn`), a forward dataflow that shares no code with `ra/`, over every SIR test function and a generated set (straight-line, loop and call shapes, 0–40 live values), tagged `Law=L047`. The proof asserts that the generated set is accepted (a law over accepted functions holds vacuously if every one is refused). The `Allocation` to `Segment` translation (`segmentsOf` in `sound.test.byn`) is trusted test code.
+Proven 2026-11-17 by `SabkAllocationLawTests` (`src/tests/SabkLawTests.cs`), which runs the two Bayān tests "L047:" in `src/sabk/check/sound.test.byn`: the 17 SIR builders there plus pressure 1–60, 68, 100 and 514 (none refused), and 492 generated functions (3 shapes × 41 live counts × 4, seed 47; all accepted). "Every SIR test function" means the builders in `sound.test.byn`; the ones in `ra/`, `sir/` and the e2e tests are not reachable from the `check` module, and the builders cover the `ra/` shapes. Mutation: `crossesCall` in `liveness.byn` reverted to `iv.start < p && p < iv.end` (before df753ad2) failed both tests (`b0.1 clobbered v0`, allocation `v0:x0`, `func keeps(v0)`); edits to `linear.byn` failed with `v9 in x28 is not in usedCalleeSaved` and `v10 in slot 0 ends at 104, past frameSize 96`. Runs on arm64 macOS only.
+
+Plan before the proof: `/prove` (task T18) runs `checkAllocation` (`src/sabk/check/sound.byn`), a forward dataflow that shares no code with `ra/`, over every SIR test function and a generated set (straight-line, loop and call shapes, 0–40 live values), tagged `Law=L047`. The proof asserts that the generated set is accepted (a law over accepted functions holds vacuously if every one is refused). The `Allocation` to `Segment` translation (`segmentsOf` in `sound.test.byn`) is trusted test code.

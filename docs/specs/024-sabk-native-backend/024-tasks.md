@@ -34,6 +34,6 @@ Order: T1–T4 (encoder) → T5 (labels) → T6 (Mach-O) → T7–T10 (SIR, allo
 
 ## Laws (numbers after 019's L040–L045)
 - [x] T15 enact L046 Encoder agrees with the reference assembler — files: docs/laws/046-sabk-encoder-matches-assembler.md — covers: R3 — done when: drafted `proposed` with `/laws new` and the user has set `status: enacted`.
-- [ ] T16 prove L046 via /prove — depends on T3, T12 — done when: the TSV test plus the generated sweep is tagged `Law=L046` and `laws-check.js --run` holds.
+- [x] T16 prove L046 via /prove — depends on T3, T12 — done when: the TSV test plus the generated sweep is tagged `Law=L046` and `laws-check.js --run` holds.
 - [x] T17 enact L047 Allocation is sound — files: docs/laws/047-sabk-allocation-sound.md — covers: R7 — done when: drafted `proposed` with `/laws new` and the user has set `status: enacted`.
-- [ ] T18 prove L047 via /prove — depends on T11 — done when: `check` over every SIR test function and a generated set (straight-line, loop and call shapes, 0–40 live values) reports zero findings, tagged `Law=L047`, and `laws-check.js --run` holds.
+- [x] T18 prove L047 via /prove — depends on T11 — done when: `check` over every SIR test function and a generated set (straight-line, loop and call shapes, 0–40 live values) reports zero findings, tagged `Law=L047`, and `laws-check.js --run` holds.

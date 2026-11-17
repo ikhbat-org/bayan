@@ -8,7 +8,7 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 src="${1:-$root/src/sabk/testdata/encodings.s}"
 out="${2:-$root/src/sabk/testdata/encodings.tsv}"
-zig=zig; command -v zig >/dev/null 2>&1 || zig=/Users/sy/.local/bin/zig
+zig=zig; command -v zig >/dev/null 2>&1 || zig="$HOME/.local/bin/zig"
 t="$root/tmp/sabk-record-$$"
 mkdir -p "$t"
 trap 'rm -rf "$t"' EXIT
