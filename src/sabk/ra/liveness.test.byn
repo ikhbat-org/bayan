@@ -4,7 +4,7 @@ import sabk.sir
 
 
 /// The intervals as "v:start-end" joined by spaces.
-string show(in Liveness l) uses alloc {
+string show(Liveness l) uses alloc {
     var sb = StrBuf()
     for i in 0..l.intervals.length {
         sb.append(" ") if i > 0

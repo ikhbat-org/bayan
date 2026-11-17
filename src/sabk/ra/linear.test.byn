@@ -1,0 +1,214 @@
+// Tests of `allocate` (spec 024 T9, R6, R10): AAPCS64 register classes, call crossing, spills, frame size and typed errors.
+import sabk.sir
+
+/// "v:loc" joined by spaces: x9, x19, s0 (spill slot 0) or - (unused).
+string showLocs(Allocation a) uses alloc {
+    var sb = StrBuf()
+    for i in 0..a.locations.length {
+        sb.append(" ") if i > 0
+        switch a.locations[i] {
+            case .none: sb.append($"v{i}:-")
+            case .reg(let n): sb.append($"v{i}:x{n}")
+            case .stack(let s): sb.append($"v{i}:s{s}")
+        }
+    }
+    return sb.finish()
+}
+
+i64 countSpills(Allocation a) {
+    var n = 0
+    for loc in a.locations {
+        switch loc {
+            case .stack(let s): n = n + 1
+            default: n = n
+        }
+    }
+    return n
+}
+
+/// `count` constants all live at once, then summed: the pressure is `count` values.
+Function pressure(by i64 count) uses alloc {
+    var f = sir.newFunction("pressure", by: 0)
+    let b = sir.newBlock(ref f)
+    var vs = List<VReg>()
+    for i in 0..count {
+        let v = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .imm(v, i))
+        vs.append(v)
+    }
+    var acc = vs[0]
+    for i in 1..count {
+        let s = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .add(s, acc, vs[i]))
+        acc = s
+    }
+    sir.terminate(ref f, at: b, as: .ret(acc))
+    return f
+}
+
+/// "ok", or the error `allocate` fails with.
+string outcome(Function f) uses alloc {
+    let _ = allocate(f) catch switch {
+        .tooManyCallArgs(let n) => return $"args {n}",
+        .frameTooLarge(let n) => return $"frame {n}",
+    }
+    return "ok"
+}
+
+test "straight-line code takes temporaries only and no frame beyond x29/x30" {
+    var f = sir.newFunction("calc", by: 2)
+    let b = sir.newBlock(ref f)
+    let c = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(c, 7))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], c))
+    let d = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .sub(d, s, f.params[1]))
+    sir.terminate(ref f, at: b, as: .ret(d))
+    let a = allocate(f) catch switch {
+        AllocError e => panic("unexpected"),
+    }
+    // intervals v0:0-1 v1:0-2 v2:0-1 v3:1-2 v4:2-3; the parameters keep x0 and x1, the rest are temporaries
+    assert showLocs(a) == "v0:x0 v1:x1 v2:x9 v3:x10 v4:x9"
+    assert a.usedCalleeSaved.length == 0
+    assert a.frameSize == 16
+}
+
+test "a value live across a call takes a callee-saved register and marks it used" {
+    var h = sir.newFunction("spans", by: 1)
+    let hb = sir.newBlock(ref h)
+    let y = sir.newVReg(ref h)
+    sir.emit(ref h, to: hb, as: .imm(y, 1))
+    sir.emit(ref h, to: hb, as: .call(sir.noReg(), "side", List<VReg>()))
+    sir.emit(ref h, to: hb, as: .add(y, y, h.params[0]))
+    sir.terminate(ref h, at: hb, as: .ret(y))
+    let a = allocate(h) catch switch {
+        AllocError e => panic("unexpected"),
+    }
+    // v0:0-2 and y:0-3 both span the call at position 1
+    assert showLocs(a) == "v0:x19 v1:x20"
+    assert a.usedCalleeSaved.length == 2
+    assert a.usedCalleeSaved[0] == 19
+    assert a.usedCalleeSaved[1] == 20
+    assert a.frameSize == 32
+}
+
+test "parameters and call results that do not cross a call use x0-x7" {
+    var f = sir.newFunction("caller", by: 1)
+    let b = sir.newBlock(ref f)
+    let r = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .call(r, "helper", [f.params[0]]))
+    sir.terminate(ref f, at: b, as: .ret(r))
+    let a = allocate(f) catch switch {
+        AllocError e => panic("unexpected"),
+    }
+    // the parameter arrives in x0, the result comes back in x0 (the argument ends at the call)
+    assert showLocs(a) == "v0:x0 v1:x0"
+    assert a.usedCalleeSaved.length == 0
+}
+
+test "more live values than registers spill, never to x18, x16, x17 or x0-x7" {
+    let f = pressure(by: 20)
+    let a = allocate(f) catch switch {
+        AllocError e => panic("unexpected"),
+    }
+    // 7 temporaries + 10 callee-saved = 17 registers; 20 constants and the first sum (the strict expiry keeps its operands) make 21
+    assert countSpills(a) == 4
+    assert a.usedCalleeSaved.length == 10
+    assert a.frameSize == 128
+    for loc in a.locations {
+        switch loc {
+            case .reg(let n): assert (n >= 9 && n <= 15) || (n >= 19 && n <= 28)
+            default: assert true
+        }
+    }
+}
+
+test "pressure across a call spills what cannot take a callee-saved register" {
+    var f = sir.newFunction("wide", by: 0)
+    let b = sir.newBlock(ref f)
+    var vs = List<VReg>()
+    for i in 0..12 {
+        let v = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .imm(v, i))
+        vs.append(v)
+    }
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "side", List<VReg>()))
+    var acc = vs[0]
+    for i in 1..12 {
+        let s = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .add(s, acc, vs[i]))
+        acc = s
+    }
+    sir.terminate(ref f, at: b, as: .ret(acc))
+    let a = allocate(f) catch switch {
+        AllocError e => panic("unexpected"),
+    }
+    // 12 values cross the call but only x19-x28 (10) may hold them
+    assert countSpills(a) == 2
+    for i in 0..12 {
+        switch a.locations[vs[i]] {
+            case .reg(let n): assert n >= 19 && n <= 28
+            default: assert true
+        }
+    }
+    assert a.frameSize % 16 == 0
+}
+
+test "a call with more than 8 arguments is a typed error" {
+    var f = sir.newFunction("many", by: 0)
+    let b = sir.newBlock(ref f)
+    var args = List<VReg>()
+    for i in 0..9 {
+        let v = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .imm(v, i))
+        args.append(v)
+    }
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "nine", move args))
+    sir.terminate(ref f, at: b, as: .ret(sir.noReg()))
+    assert outcome(f) == "args 9"
+
+    var g = sir.newFunction("eight", by: 0)
+    let gb = sir.newBlock(ref g)
+    var eight = List<VReg>()
+    for i in 0..8 {
+        let v = sir.newVReg(ref g)
+        sir.emit(ref g, to: gb, as: .imm(v, i))
+        eight.append(v)
+    }
+    sir.emit(ref g, to: gb, as: .call(sir.noReg(), "eight", move eight))
+    sir.terminate(ref g, at: gb, as: .ret(sir.noReg()))
+    assert outcome(g) == "ok"
+}
+
+test "an oversized frame is a typed error and the limit is exact" {
+    // count + 1 live at the peak, 17 registers: 16 + 80 + 8 * (count - 16) bytes, rounded to 16
+    assert outcome(pressure(by: 600)) == "frame 4768"
+    // 514: 16 + 80 + 8 * 498 = 4080 fits; one more slot rounds to 4096 and does not
+    assert outcome(pressure(by: 514)) == "ok"
+    assert outcome(pressure(by: 515)) == "frame 4096"
+}
+
+test "the frame is 16-aligned for every spill count" {
+    for n in 1..60 {
+        let a = allocate(pressure(by: n)) catch switch {
+            AllocError e => panic("unexpected"),
+        }
+        assert a.frameSize % 16 == 0
+        assert a.frameSize >= 16 + 8 * a.usedCalleeSaved.length + 8 * countSpills(a)
+    }
+}
+
+test "only the first 8 parameters are precoloured" {
+    var f = sir.newFunction("ten", by: 10)
+    let b = sir.newBlock(ref f)
+    sir.terminate(ref f, at: b, as: .ret(f.params[9]))
+    let a = allocate(f) catch switch {
+        AllocError e => panic("unexpected"),
+    }
+    for i in 0..8 {
+        assert a.locations[i] == .reg(i)
+    }
+    assert a.locations[8] == .reg(9)
+    assert a.locations[9] == .reg(10)
+}
