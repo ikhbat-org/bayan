@@ -12,6 +12,7 @@ namespace Bayan.Tests;
 /// </summary>
 public sealed class SelfhostParserO3Tests(ITestOutputHelper output)
 {
+    // Export run (T16b, parse/counts.tsv): 7 tests, 7 case dirs (one per row). T16b total, with T13 (5 tests, 0 cases): 109 tests, 104 case dirs.
     [Theory]
     [InlineData("names-field", "struct Range {\n    i64 lo\n    i64 hi requires hi >= lo\n}\n")]
     [InlineData("at-field", "struct Range {\n    i64 lo\n    i64 hi requires it >= 0 at .hi\n}\n")]
@@ -30,6 +31,14 @@ public sealed class SelfhostParserO3Tests(ITestOutputHelper output)
         var refPath = Path.Combine(Golden.RepoRoot, "tmp", "parser-ref", "o3_" + name + ".ast");
         Directory.CreateDirectory(Path.GetDirectoryName(refPath)!);
         File.WriteAllText(refPath, AstDump.Dump(tree));
+        if (SelfhostExport.Dir is { } root)
+        {
+            var export = SelfhostExport.Case(root, "parse", nameof(SelfhostParserO3Tests), nameof(FieldRulesSplitAsTheCSharpParser));
+            SelfhostExport.WriteInput(export, [input]);
+            SelfhostExport.WriteExpected(export, "expected.ast", AstDump.Dump(tree));
+            SelfhostExport.WriteExpected(export, "expected.exitcode", tree.Diagnostics.Any(d => d.IsError) ? "1\n" : "0\n");
+            return;
+        }
         var (exit, stdout, stderr) = SelfhostParserTests.Run(SelfhostParserTests.Built, input);
         output.WriteLine(stderr);
         if (Golden.Compare(refPath, stdout, update: false).Failure is { } failure) Assert.Fail(failure);
