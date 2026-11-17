@@ -1,0 +1,50 @@
+List<Pledge> pledges() {
+    var list = List<Pledge>()
+    list.append(Pledge { donor: "Aisha", amount: 30 })
+    list.append(Pledge { donor: "Bilal", amount: 12 })
+    return list
+}
+
+test "describePledge names the donor and the amount" {
+    let pledge = Pledge { donor: "Zaynab", amount: 5 }
+    assert describePledge(pledge) == "Zaynab pledged 5"
+}
+
+test "describePledge runs under a provided arena" {
+    using var arena = Arena()
+    provide allocator: arena {
+        let pledge = Pledge { donor: "Aisha", amount: 30 }
+        assert describePledge(pledge) == "Aisha pledged 30"
+    }
+}
+
+test "describeAll keeps the order of the pledges" {
+    let lines = describeAll(pledges())
+    assert lines.length == 2
+    assert lines[0] == "Aisha pledged 30"
+    assert lines[1] == "Bilal pledged 12"
+    assert describeAll(List<Pledge>()).length == 0
+}
+
+test "pledgedTotal adds the amounts" {
+    assert pledgedTotal(pledges()) == 42
+    assert pledgedTotal(List<Pledge>()) == 0
+}
+
+test "the printing functions can be called" {
+    announcePledge(Pledge { donor: "Bilal", amount: 1 })
+    announceAll(pledges())
+}
+
+test "each function declares no more than it needs" {
+    let describe: Pledge -> string uses alloc = describePledge
+    let describeMany: List<Pledge> -> List<string> uses alloc = describeAll
+    let total: List<Pledge> -> i64 = pledgedTotal
+    let announce: Pledge -> void uses alloc, console = announcePledge
+    let announceMany: List<Pledge> -> void uses alloc, console = announceAll
+    assert describe(Pledge { donor: "A", amount: 1 }) == "A pledged 1"
+    assert describeMany(pledges()).length == 2
+    assert total(pledges()) == 42
+    announce(Pledge { donor: "A", amount: 1 })
+    announceMany(pledges())
+}

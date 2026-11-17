@@ -1,0 +1,9 @@
+debt hex: fe
+capacity hex: fff
+empty hex: 0
+rows binary: 1010
+masjid Quba: 120
+masjid Nabawi: 900
+masjid Aqsa: 400
+masjid Haram: 1500
+masjid total: 2920

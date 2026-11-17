@@ -1,0 +1,4 @@
+/// Prints one line of thanks for a gift.
+public void thankDonor(string donor, for i64 amount) uses console {
+    print($"Thank you {donor}, we received {amount} dirhams")
+}
