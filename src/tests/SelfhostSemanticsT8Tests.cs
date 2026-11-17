@@ -353,17 +353,18 @@ public sealed class SelfhostSemanticsT8Tests
         finally { TestDirs.Delete(root); }
     }
 
-    private static void Compare(string name)
+    private static void Compare(string name, [System.Runtime.CompilerServices.CallerMemberName] string test = "")
     {
         var (fields, diagnostics) = Oracle(name);
-        SelfhostSemanticsHarness.AssertSection(Sections.Value, name, fields);
+        SelfhostSemanticsHarness.AssertSection(Sections.Value, name, fields, test);
         var printed = Sections.Value[$"{name} diagnostics"].Order(StringComparer.Ordinal).ToList();
         if (diagnostics.Count == 0)
         {
             Assert.Empty(printed);
             return;
         }
-        SelfhostSemanticsHarness.AssertSection(new() { [name] = printed }, name, diagnostics.Order(StringComparer.Ordinal).ToList());
+        SelfhostSemanticsHarness.AssertSection(new() { [name] = printed }, name, diagnostics.Order(StringComparer.Ordinal).ToList(), test,
+            run: Sections.Value, printed: $"{name} diagnostics", compare: "sorted");
     }
 
     [Fact]

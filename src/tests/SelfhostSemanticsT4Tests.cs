@@ -613,6 +613,7 @@ public sealed class SelfhostSemanticsT4Tests
                 .Where(l => !l.TrimStart().StartsWith("///", StringComparison.Ordinal))
                 .Select(l => l.Split(" = ")[0].Trim().Split(' ')[^1])));
         var actual = expected.Select(e => e[..e.IndexOf(':')]).Select(n => structs.TryGetValue(n, out var f) ? $"{n}: {f}" : $"{n}: <missing>").ToList();
-        SelfhostSemanticsHarness.AssertSection(new() { ["records"] = actual }, "records", expected);
+        SelfhostSemanticsHarness.AssertSection(new() { ["records"] = actual }, "records", expected,
+            noExport: "compares bound.byn's struct fields, not a program's output");
     }
 }

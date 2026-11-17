@@ -181,12 +181,13 @@ public sealed class SelfhostSemanticsT7Tests
     public void PackageFileIsFound() =>
         SelfhostSemanticsHarness.AssertSection(Output.Value, "package-file", ["-1 1", "0 0"]);
 
-    private static void Compare(string name)
+    private static void Compare(string name, [System.Runtime.CompilerServices.CallerMemberName] string test = "")
     {
         // Both sides are sorted (C# reports in walk order) and end with `end`, so a clean case still compares a line.
         Assert.True(Output.Value.TryGetValue(name, out var lines), $"section '{name}' was not printed");
         var actual = new Dictionary<string, List<string>> { [name] = [.. lines!.Order(StringComparer.Ordinal), "end"] };
-        SelfhostSemanticsHarness.AssertSection(actual, name, [.. Cases.Value.Expected[name], "end"]);
+        SelfhostSemanticsHarness.AssertSection(actual, name, [.. Cases.Value.Expected[name], "end"], test,
+            run: Output.Value, printed: name, compare: "sorted-end");
     }
 
     // ── The oracle and the generated main ─────────────────────────────────────────────────

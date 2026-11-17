@@ -691,9 +691,13 @@ public sealed class SelfhostSemanticsT41Tests
         var section = $"diags.{name}";
         var expected = Sorted(Expected(Dir(name), Flag(name)));
         var actual = new Dictionary<string, List<string>> { [section] = Sorted(Sections.Value[section]) };
-        // A program with no diagnostic and no summary prints nothing on either side.
-        if (expected.Count == 0) Assert.Empty(actual[section]);
-        else SelfhostSemanticsHarness.AssertSection(actual, section, expected);
+        // A program with no diagnostic and no summary prints nothing on either side; the export still writes its case.
+        if (expected.Count == 0)
+        {
+            SelfhostSemanticsHarness.ExportSection(actual, section, expected, run: Sections.Value, printed: section, compare: "t41");
+            if (SelfhostSemanticsHarness.ExportDir is null) Assert.Empty(actual[section]);
+        }
+        else SelfhostSemanticsHarness.AssertSection(actual, section, expected, run: Sections.Value, printed: section, compare: "t41");
     }
 
     /// <summary>
@@ -703,7 +707,19 @@ public sealed class SelfhostSemanticsT41Tests
     [Theory]
     [InlineData("outlives")]
     [InlineData("outlives.none")]
-    public void CheckOutlivesIsTheCSharps(string name) => new SelfhostSemanticsT37Tests().CaseMatches(name);
+    public void CheckOutlivesIsTheCSharps(string name)
+    {
+        // The export files T37's case under this test, not as a second copy of T37's own.
+        SelfhostSemanticsHarness.ExportCaller.Value = (nameof(SelfhostSemanticsT41Tests), nameof(CheckOutlivesIsTheCSharps));
+        try
+        {
+            new SelfhostSemanticsT37Tests().CaseMatches(name);
+        }
+        finally
+        {
+            SelfhostSemanticsHarness.ExportCaller.Value = null;
+        }
+    }
 
     /// <summary>
     /// The diagnostics in order, then the summary lines sorted: the selfhost prints them by function id, the C#

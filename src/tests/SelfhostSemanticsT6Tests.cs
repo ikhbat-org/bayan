@@ -51,7 +51,8 @@ public sealed class SelfhostSemanticsT6Tests
     [Fact]
     public void EvaluateMatchesCSharp() => Check("evaluate");
 
-    private static void Check(string section) => SelfhostSemanticsHarness.AssertSection(Actual.Value, section, Cases.Value.Expected[section]);
+    private static void Check(string section, [System.Runtime.CompilerServices.CallerMemberName] string test = "") =>
+        SelfhostSemanticsHarness.AssertSection(Actual.Value, section, Cases.Value.Expected[section], test);
 
     // ── The oracle's helpers ─────────────────────────────────────────────────────
 
