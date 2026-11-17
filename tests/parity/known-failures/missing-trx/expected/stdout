@@ -1,1 +1,0 @@
-known-failures: cannot read nope.trx: [Errno 2] No such file or directory: 'nope.trx'

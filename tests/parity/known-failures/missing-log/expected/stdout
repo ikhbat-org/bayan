@@ -1,0 +1,1 @@
+known-failures: cannot read tmp/logs/golden.log: No such file or directory

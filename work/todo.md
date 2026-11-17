@@ -941,3 +941,5 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - 019 T24b (LOW, found 2026-11-18): in docker `mcr.microsoft.com/dotnet/sdk:10.0` the C# restore fails on NU1903 (vulnerability advisory on Microsoft.DotNet.ILCompiler 10.0.13, warnings as errors); the export run used `-p:NuGetAudit=false`. Check the advisory and bump the pin or record why not.
 - 019 T24b (LOW): `src/tests/SelfhostEmitterHarness.cs` sets `BAYAN_EXPORT_DIR` on the process instead of the AsyncLocal override the export brief asks for.
 - 019 T24b (LOW, 2026-11-18): `runtime/tests/run.sh` replaces `@CWD@` anywhere in a line with sed, not only at the start of a field; harmless today (60/60 match).
+- 019 T42 (LOW): `scripts/ci/known-failures.py` now reads the saved output of `scripts/test.sh`; it can be ported to shell (spec 015 shell port).
+- 019 T41: `.github/workflows/ci.yml:79` still calls `known-failures.py LIST TestResults/windows.trx`; T41 must call `known-failures.py tests/windows-known-failures.txt <saved test.sh output>` (`bash scripts/test.sh | tee report.txt`).

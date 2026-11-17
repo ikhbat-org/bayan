@@ -1,0 +1,1 @@
+test: golden   FAIL    3s  x (exit 1; log: /nonexistent/logs/golden.log)

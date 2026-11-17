@@ -1,0 +1,4 @@
+passed run/ok
+failed run/one
+    expected
+failed diag/new
