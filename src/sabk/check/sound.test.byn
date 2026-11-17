@@ -1,0 +1,140 @@
+// Tests of `checkAllocation` (spec 024 T11, R7). Each allocation is written by hand; the corrupted ones are the same
+// functions with one location changed.
+import sabk.sir
+
+Loc r(i64 n) => .reg(n)
+
+/// The findings as "block.position kind vN" joined by spaces.
+string show(in List<Finding> found) uses alloc {
+    var sb = StrBuf()
+    for i in 0..found.length {
+        sb.append(" ") if i > 0
+        let x = found[i]
+        var k = "conflict"
+        k = "unwritten" if x.kind == .readBeforeWrite
+        k = "clobbered" if x.kind == .clobbered
+        k = "unassigned" if x.kind == .unassigned
+        sb.append($"b{x.block}.{x.position} {k} v{x.vreg}")
+    }
+    return sb.finish()
+}
+
+/// calc(v0, v1): v2 = 7; v3 = v0 + v2; v4 = v3 - v1; ret v4
+sir.Function straight() uses alloc {
+    var f = sir.newFunction("calc", by: 2)
+    let b = sir.newBlock(ref f)
+    let c = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(c, 7))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], c))
+    let d = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .sub(d, s, f.params[1]))
+    sir.terminate(ref f, at: b, as: .ret(d))
+    return f
+}
+
+/// countdown(v0): v1 = 1; v2 = 0; loop: v3 = v0 - v1; br gt v3, v2 -> loop, done. v0 is redefined per iteration by v3's register.
+sir.Function loopFn() uses alloc {
+    var f = sir.newFunction("countdown", by: 1)
+    let entry = sir.newBlock(ref f)
+    let loop = sir.newBlock(ref f)
+    let done = sir.newBlock(ref f)
+    let one = sir.newVReg(ref f)
+    let zero = sir.newVReg(ref f)
+    sir.emit(ref f, to: entry, as: .imm(one, 1))
+    sir.emit(ref f, to: entry, as: .imm(zero, 0))
+    sir.terminate(ref f, at: entry, as: .jump(loop))
+    let next = sir.newVReg(ref f)
+    sir.emit(ref f, to: loop, as: .sub(next, f.params[0], one))
+    sir.terminate(ref f, at: loop, as: .br(.gt, next, zero, loop, done))
+    sir.terminate(ref f, at: done, as: .ret(sir.noReg()))
+    return f
+}
+
+/// caller(v0): v1 = call helper(v0); v2 = v0 + v1; ret v2. v0 is live across the call.
+sir.Function callFn() uses alloc {
+    var f = sir.newFunction("caller", by: 1)
+    let b = sir.newBlock(ref f)
+    let r1 = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .call(r1, "helper", [f.params[0]]))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], r1))
+    sir.terminate(ref f, at: b, as: .ret(s))
+    return f
+}
+
+/// main(): the R8 program.
+sir.Function r8Fn() uses alloc {
+    var f = sir.newFunction("main", by: 0)
+    let b = sir.newBlock(ref f)
+    let stream = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(stream, 0))
+    let ptr = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .addrStr(ptr, 0))
+    let len = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(len, 13))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "byn_print", [stream, ptr, len]))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "byn_stdout_flush", []))
+    let code = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(code, 7))
+    sir.terminate(ref f, at: b, as: .ret(code))
+    return f
+}
+
+test "straight-line allocation is sound" {
+    let locs: List<Loc> = [r(0), r(1), r(2), r(3), r(4)]
+    assert show(checkAllocation(straight(), as: move locs)) == ""
+}
+
+test "loop allocation is sound" {
+    let locs: List<Loc> = [r(0), r(1), r(2), r(3)]
+    assert show(checkAllocation(loopFn(), as: move locs)) == ""
+}
+
+test "call allocation with the live value in a callee-saved register and a slot is sound" {
+    assert show(checkAllocation(callFn(), as: [r(19), r(0), r(1)])) == ""
+    assert show(checkAllocation(callFn(), as: [.slot(0), r(0), r(1)])) == ""
+}
+
+test "the R8 program allocation is sound" {
+    assert show(checkAllocation(r8Fn(), as: [r(0), r(1), r(2), r(3)])) == ""
+}
+
+test "two simultaneously live vregs sharing a register are a conflict" {
+    // v2 (the constant) shares x0 with v0, but v0 is read after v2 is written.
+    let locs: List<Loc> = [r(0), r(1), r(0), r(3), r(4)]
+    assert show(checkAllocation(straight(), as: move locs)) == "b0.1 conflict v0"
+}
+
+test "a read before any write is found" {
+    // v1 is never defined; the add reads it from x1, which nothing wrote.
+    var f = sir.newFunction("undef", by: 1)
+    let b = sir.newBlock(ref f)
+    let ghost = sir.newVReg(ref f)
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], ghost))
+    sir.terminate(ref f, at: b, as: .ret(s))
+    assert show(checkAllocation(f, as: [r(0), r(1), r(2)])) == "b0.0 unwritten v1"
+}
+
+test "a value in a caller-saved register across a call is flagged" {
+    assert show(checkAllocation(callFn(), as: [r(5), r(0), r(1)])) == "b0.1 clobbered v0"
+}
+
+test "a conflict at a join of two paths is found" {
+    // b0: br -> b1, b2; b1: v2 = 1 in x2; b2: v3 = 2 in x2; b3: ret v2. Reading v2 after the join is not sound.
+    var f = sir.newFunction("join", by: 1)
+    let b0 = sir.newBlock(ref f)
+    let b1 = sir.newBlock(ref f)
+    let b2 = sir.newBlock(ref f)
+    let b3 = sir.newBlock(ref f)
+    let v2 = sir.newVReg(ref f)
+    let v3 = sir.newVReg(ref f)
+    sir.terminate(ref f, at: b0, as: .br(.eq, f.params[0], f.params[0], b1, b2))
+    sir.emit(ref f, to: b1, as: .imm(v2, 1))
+    sir.terminate(ref f, at: b1, as: .jump(b3))
+    sir.emit(ref f, to: b2, as: .imm(v3, 2))
+    sir.terminate(ref f, at: b2, as: .jump(b3))
+    sir.terminate(ref f, at: b3, as: .ret(v2))
+    assert show(checkAllocation(f, as: [r(0), r(2), r(2)])) == "b3.0 conflict v1"
+}

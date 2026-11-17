@@ -1,0 +1,242 @@
+// sabk phase 1 (spec 024, R7, R10): an independent soundness check of a register allocation (T11). It shares no code with
+// `ra/`: its input is a SIR function plus a per-vreg location map. A forward dataflow over the CFG (iterative worklist, no
+// recursion over the input, every buffer sized from the function) tracks, for each location, which vreg it currently holds:
+// a vreg, "unwritten", "mixed" (paths disagree at a join) or "clobbered" (a call destroyed a caller-saved register). Every
+// operand must be the current occupant of its location; anything else is a finding. A final pass over the fixpoint reports.
+
+import sabk.sir
+
+type VReg    = sir.VReg
+type BlockId = sir.BlockId
+
+/// Where a vreg lives: a register number (x0..) or a stack slot index.
+public union Loc {
+    reg(i64 number)
+    slot(i64 index)
+}
+
+public enum FindingKind {
+    /// The location holds a different vreg, or paths disagree about what it holds.
+    conflict
+    /// The location was never written on some path to the read.
+    readBeforeWrite
+    /// A call destroyed the caller-saved register since the vreg was written.
+    clobbered
+    /// The location map has no entry for the vreg.
+    unassigned
+}
+
+public struct Finding {
+    public string      function
+    public BlockId     block
+    /// The instruction index in the block; the terminator is at `insts.length`.
+    public i64         position
+    public FindingKind kind
+    public VReg        vreg
+    public Loc         location
+}
+
+/// Caller-saved registers: x0..x17 are clobbered by a call.
+const callerSavedCount: i64 = 18
+const minRegCount: i64 = 32
+
+const unwritten: i64 = -1
+const mixed: i64 = -2
+const clobbered: i64 = -3
+
+struct Ctx {
+    string        name
+    List<Loc>     locs
+    i64           regCount
+    /// Slots follow the registers: location index of slot k is `regCount + k`.
+    i64           width
+    List<i64>     state
+    List<Finding> found
+    bool          report
+    BlockId       block
+    i64           pos
+}
+
+i64 locIndex(in Ctx c, for Loc l) {
+    switch l {
+        case .reg(let n): return n
+        case .slot(let k): return c.regCount + k
+    }
+}
+
+void read(ref Ctx c, for VReg v) uses alloc {
+    return if v == sir.noReg()
+    if v >= c.locs.length || v < 0 {
+        report(ref c, for: v, as: .unassigned, at: .reg(0))
+        return
+    }
+    let l = c.locs[v]
+    let occupant = c.state[locIndex(c, for: l)]
+    return if occupant == v
+    var kind = FindingKind.conflict
+    kind = .readBeforeWrite if occupant == unwritten
+    kind = .clobbered if occupant == clobbered
+    report(ref c, for: v, as: kind, at: l)
+}
+
+void report(ref Ctx c, for VReg v, as FindingKind kind, at Loc l) uses alloc {
+    return if !c.report
+    c.found.append(Finding { function: c.name, block: c.block, position: c.pos, kind: kind, vreg: v, location: l })
+}
+
+void write(ref Ctx c, for VReg v) {
+    return if v == sir.noReg() || v >= c.locs.length || v < 0
+    c.state[locIndex(c, for: c.locs[v])] = v
+}
+
+void clobberCalls(ref Ctx c) {
+    for r in 0..callerSavedCount {
+        c.state[r] = clobbered
+    }
+}
+
+/// Runs block `b` over `c.state`, reporting when `c.report` is set.
+void step(ref Ctx c, from in sir.Function f, at BlockId b) uses alloc {
+    c.block = b
+    for i in 0..f.blocks[b].insts.length {
+        c.pos = i
+        switch f.blocks[b].insts[i] {
+            case .imm(let dst, let value): write(ref c, for: dst)
+            case .add(let dst, let a, let b2):
+                read(ref c, for: a)
+                read(ref c, for: b2)
+                write(ref c, for: dst)
+            case .sub(let dst, let a, let b2):
+                read(ref c, for: a)
+                read(ref c, for: b2)
+                write(ref c, for: dst)
+            case .mul(let dst, let a, let b2):
+                read(ref c, for: a)
+                read(ref c, for: b2)
+                write(ref c, for: dst)
+            case .div(let dst, let a, let b2):
+                read(ref c, for: a)
+                read(ref c, for: b2)
+                write(ref c, for: dst)
+            case .addrStr(let dst, let index): write(ref c, for: dst)
+            case .addrGlobal(let dst, let name): write(ref c, for: dst)
+            case .load(let dst, let name): write(ref c, for: dst)
+            case .store(let name, let src): read(ref c, for: src)
+            case .call(let dst, let symbol, let args):
+                for a in args {
+                    read(ref c, for: a)
+                }
+                clobberCalls(ref c)
+                write(ref c, for: dst)
+        }
+    }
+    c.pos = f.blocks[b].insts.length
+    switch f.blocks[b].terminator {
+        case .open: return
+        case .jump(let target): return
+        case .br(let cond, let a, let b2, let yes, let no):
+            read(ref c, for: a)
+            read(ref c, for: b2)
+        case .ret(let value): read(ref c, for: value)
+    }
+}
+
+/// The blocks control can pass to from the end of `blk`.
+List<BlockId> successors(in sir.Function f, at BlockId b) uses alloc {
+    var r = List<BlockId>()
+    switch f.blocks[b].terminator {
+        case .open: return r
+        case .jump(let target): r.append(target)
+        case .br(let cond, let a, let bb, let yes, let no):
+            r.append(yes)
+            r.append(no)
+        case .ret(let value): return r
+    }
+    return r
+}
+
+/// Joins `other` into the in-state at `base`; true when the in-state changed. Locations that disagree become `mixed`.
+bool join(ref List<i64> into, at i64 base, from in List<i64> other, by i64 n) {
+    var changed = false
+    for i in 0..n {
+        let have = into[base + i]
+        if have != other[i] && have != mixed {
+            into[base + i] = mixed
+            changed = true
+        }
+    }
+    return changed
+}
+
+/// Checks the allocation `locs` (indexed by vreg) of `f`. An empty result means every read sees the vreg it names.
+public List<Finding> checkAllocation(in sir.Function f, as move List<Loc> locs) uses alloc {
+    var maxReg = minRegCount - 1
+    var maxSlot = -1
+    for l in locs {
+        switch l {
+            case .reg(let n): maxReg = n if n > maxReg
+            case .slot(let k): maxSlot = k if k > maxSlot
+        }
+    }
+    let regCount = maxReg + 1
+    let width = regCount + maxSlot + 1
+    var c = Ctx { name: f.name, locs: move locs, regCount: regCount, width: width, state: List<i64>(), found: List<Finding>(),
+                  report: false, block: 0, pos: 0 }
+    let n = f.blocks.length
+    if n == 0 {
+        return c.found.take()
+    }
+    var inState = List<i64>()
+    var visited = List<bool>()
+    var queued = List<bool>()
+    for i in 0..n * width {
+        inState.append(unwritten)
+    }
+    for i in 0..n {
+        visited.append(false)
+        queued.append(false)
+    }
+    for p in f.params {
+        if p >= 0 && p < c.locs.length {
+            inState[locIndex(c, for: c.locs[p])] = p
+        }
+    }
+    var work = List<BlockId>()
+    work.append(0)
+    visited[0] = true
+    queued[0] = true
+    var head = 0
+    while head < work.length {
+        let b = work[head]
+        head = head + 1
+        queued[b] = false
+        c.state = List<i64>()
+        for i in 0..width {
+            c.state.append(inState[b * width + i])
+        }
+        step(ref c, from: f, at: b)
+        for s in successors(f, at: b) {
+            if !visited[s] {
+                visited[s] = true
+                for i in 0..width {
+                    inState[s * width + i] = c.state[i]
+                }
+                queued[s] = true
+                work.append(s)
+            } else if join(ref inState, at: s * width, from: c.state, by: width) && !queued[s] {
+                queued[s] = true
+                work.append(s)
+            }
+        }
+    }
+    c.report = true
+    for b in 0..n {
+        continue if !visited[b]
+        c.state = List<i64>()
+        for i in 0..width {
+            c.state.append(inState[b * width + i])
+        }
+        step(ref c, from: f, at: b)
+    }
+    return c.found.take()
+}
