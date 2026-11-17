@@ -922,6 +922,8 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (024 branch review) `src/sabk/enc/encode.byn:213-220` accepts unpredictable ldp/stp forms (writeback with Rt == Rn, or Rt == Rt2 on load); refuse them.
 - LOW (024 branch review) `src/sabk/enc/encode.test.byn:239,250,257,294` `?? 0` / `catch => 0` turn a parse failure into a value; fail the test instead.
 - LOW (024 branch review) `labels.test.byn`, `writer.test.byn` still hold hand-typed hex words (spec 024 R3); take them from encodings.tsv.
-- LOW (024 branch review) `src/sabk/obj/writer.byn:117-126,282` does not refuse duplicate section names or symbol offsets past their section's end.
+- LOW (024 branch review) `src/sabk/macho/writer.byn:117-126,282` does not refuse duplicate section names or symbol offsets past their section's end.
 - LOW (024 branch review) CI time: the sabk tests build four stage-2 packages; share one build.
 - LOW (024 branch review) `scripts/sabk/record-macho.sh` uses the host's unpinned Apple clang/otool/nm; a second toolchain (CLT clang-2100.3.34.2, SDK 27.0) gave identical bytes (refuted as MEDIUM), but the symbol and reloc order still depend on the assembler version.
+- LOW (024 fix re-review) `src/sabk/enc/labels.test.byn:129-148`: the cbz-refusal test does not prove "changes nothing"; a `symbols[id]` set before the refusal still passes. Call `bind(l)` after the refusal and assert `finish` succeeds.
+- LOW (024 fix re-review) `scripts/sabk/record-skip.test.sh:14-22` covers only the not-macOS and no-otool skips; not-arm64, the zig check and the clang/nm loop are untested, and a skip counts as a pass in `script-tests.sh:28`, so nothing shows the arm64 macOS job ran the recorders.
