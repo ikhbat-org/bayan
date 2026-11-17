@@ -48,6 +48,7 @@ In each entry, *Current choice* or *Conservative option* is the option in force,
 | Q1279 | Spec 022: the `functions.length` bound is fixed at 60 lines | see the entry | the bound stays fixed at 60. | the user (designer) |
 | Q1280 | Spec 022: should a parameter list take a trailing comma? | see the entry | grammar unchanged; a wrapped parameter list has no trailing comma. | the user (designer) |
 | Q1281 | Spec 022: the proposal §3.1 After block cannot be a formatter test as written | see the entry | the formatter inserts no paragraph breaks; the test uses the width-100 run. | the user (designer) |
+| Q1284 | 019 T8: how golden cases and test blocks share one report (R8) | one kind per run, or golden cases in package runs or several paths; `results.json` of a cases directory under the current directory, its parent, or none | decided for 019 T8 (user, 2026-11-17): one kind per run, no new CLI form, no implicit `tests/cases` in a package run (Q1 (a)); a cases-directory run writes `out/test/results.json` under the current directory, never under the cases directory, `/out/` ignored (Q2 (b)). Its JSON entries add `kind`, `caseKind` and `path` and its summary `testBlocks` and `goldenCases`, and its summary line states both counts; a run of test blocks keeps the C# output unchanged, since L028 (enacted) compares it with the frozen C# CLI, until L028 is amended or retired. | the user (designer) |
 
 ### Q60
 

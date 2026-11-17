@@ -11,7 +11,8 @@ enum TestStatus {
     pending
 }
 
-/// `TestResult` (TestReport.cs:9): `elapsedNanos` is `Elapsed`.
+/// `TestResult` (TestReport.cs:9): `elapsedNanos` is `Elapsed`. `kind` is `test` for a test block or `golden` for a golden case (spec 019
+/// R8), whose `caseKind` is its kind directory (`run`, `diag`, ...) and `path` its input file.
 struct TestResult {
     string     name
     string     file
@@ -19,9 +20,14 @@ struct TestResult {
     TestStatus status
     i64        elapsedNanos
     string     output
+    string     kind     = "test"
+    string     caseKind = ""
+    string     path     = ""
 }
 
 /// `TestReport` (TestReport.cs:17): `package` null outside a project, `elapsedNanos` is `Elapsed`, `skipped` the tests `--changed` left out.
+/// `golden` is a run over a cases directory (spec 019 R8): its JSON adds each entry's `kind`, `caseKind` and `path` and the summary's
+/// `testBlocks` and `goldenCases`; a run of test blocks writes what TestReport.cs writes (L028).
 struct TestReport {
     string? package
     string  mode
@@ -29,6 +35,7 @@ struct TestReport {
     List<TestResult> tests = []
     i64     elapsedNanos = 0
     i64     skipped      = 0
+    bool    golden       = false
 }
 
 /// TestReport.cs:19 `Count`.
@@ -73,6 +80,11 @@ string testReportJson(in TestReport r) uses alloc {
         t11JsonValue(ref w, for: "status", by: t11JsonString(testStatusName(t.status)))
         t11JsonValue(ref w, for: "durationMs", by: t11JsonMilliseconds(t.elapsedNanos))
         t11JsonValue(ref w, for: "output", by: t11JsonString(t.output))
+        if r.golden {
+            t11JsonValue(ref w, for: "kind", by: t11JsonString(t.kind))
+            t11JsonValue(ref w, for: "caseKind", by: t11JsonString(t.caseKind))
+            t11JsonValue(ref w, for: "path", by: t11JsonString(t.path))
+        }
         t11JsonClose(ref w, by: "}")
     }
     t11JsonClose(ref w, by: "]")
@@ -84,6 +96,16 @@ string testReportJson(in TestReport r) uses alloc {
     t11JsonValue(ref w, for: "timedOut", by: $"{testReportCount(in r, for: .timedOut)}")
     t11JsonValue(ref w, for: "pending", by: $"{testReportCount(in r, for: .pending)}")
     t11JsonValue(ref w, for: "skipped", by: $"{r.skipped}")
+    if r.golden {
+        var cases: i64 = 0
+        for t in r.tests {
+            if t.kind == "golden" {
+                cases += 1
+            }
+        }
+        t11JsonValue(ref w, for: "testBlocks", by: $"{r.tests.length - cases}")
+        t11JsonValue(ref w, for: "goldenCases", by: $"{cases}")
+    }
     t11JsonValue(ref w, for: "durationMs", by: t11JsonMilliseconds(r.elapsedNanos))
     t11JsonClose(ref w, by: "}")
     t11JsonClose(ref w, by: "}")

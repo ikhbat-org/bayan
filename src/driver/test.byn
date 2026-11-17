@@ -230,17 +230,7 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     }
     let o = t11ParseBuildOptions(in args) ?? return exitUsage
     // A cases directory (spec 019 T4): each golden case is one test with the time limit of a test block; golden.byn.
-    if goldenIsCasesDir(o.path) {
-        var wanted = List<string>()
-        if (o.only is { } only) {
-            for s in only {
-                wanted.append(s)
-            }
-        }
-        var results = List<GoldenResult>()
-        // `--jobs` defaults to 4, the `maxParallelThreads` of csharp/tests/Bayan.Tests/xunit.runner.json.
-        return goldenTest(o.path, by: wanted, for: testTimeout(), to: ref results, jobs: o.jobs ?? 4)
-    }
+    return t11Golden(in o, by: ref d) if goldenIsCasesDir(o.path)
     if o.jobs is not null {
         Io.stderr.write("bayan: unexpected argument `--jobs`\n")
         return exitUsage
@@ -365,7 +355,6 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     let count = selected.length
     let human = !o.testJson
     let symbols = semantics.t26Symbols(d.styleOut.ascii)
-    let separator = d.styleOut.ascii ? "-" : "·"
     var moduleSet: Map<string, bool> = []
     for i in selected {
         moduleSet[moduleOf(in compiled, for: program.tests[i], by: entry)] = true
@@ -479,19 +468,9 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     let passed = testReportCount(in report, for: .passed)
     let pending = testReportCount(in report, for: .pending)
     let failed = count - passed - pending
-    let seconds = t11Seconds(totalNanos)
-    let dot = t11Paint(3, by: d.styleOut, for: symbols.dot)
     if human {
         print("")
-        if failed > 0 {
-            print(
-                $"{dot} {passed} passed {separator} {t11Paint(0, by: d.styleOut, for: symbols.cross)} {failed} failed {separator} {pending} pending {separator} {seconds}",
-            )
-        } else if pending > 0 {
-            print($"{dot} {passed} passed {separator} {pending} pending {separator} {seconds}")
-        } else {
-            print($"{dot} {passed} passed {separator} {seconds}")
-        }
+        print(t11Summary(passed, by: failed, for: pending, at: totalNanos, as: "", through: in d.styleOut))
         if failureNames.length > 0 && failureNames.length <= 3 {
             var command = StrBuf()
             command.append("bayan test")
@@ -539,6 +518,103 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
         deleteWorkDir(cd)
     }
     return failed > 0 || gated ? exitTestFailure : exitOk
+}
+
+/// The summary line of a run (`Messages.TestSummary`): `passed`, `failed` and `pending` counts and the seconds, with `counts` (a run of golden
+/// cases states its test blocks and golden cases, spec 019 R8) before the seconds when it is not empty.
+string t11Summary(i64 passed, by i64 failed, for i64 pending, at i64 nanos, as string counts, through in DStyle style)
+        uses alloc {
+    let symbols = semantics.t26Symbols(style.ascii)
+    let separator = style.ascii ? "-" : "·"
+    let dot = t11Paint(3, by: style, for: symbols.dot)
+    let tail = counts.length > 0 ? $"{counts} {separator} {t11Seconds(nanos)}" : t11Seconds(nanos)
+    if failed > 0 {
+        let cross = t11Paint(0, by: style, for: symbols.cross)
+        return $"{dot} {passed} passed {separator} {cross} {failed} failed {separator} {pending} pending {separator} {tail}"
+    }
+    return $"{dot} {passed} passed {separator} {pending} pending {separator} {tail}" if pending > 0
+    return $"{dot} {passed} passed {separator} {tail}"
+}
+
+/// `bayan test <cases dir>` (spec 019 R8): `goldenTest`, then the report a run of test blocks gives, each case an entry of kind `golden` with
+/// its kind directory and input path; a skipped case is `pending`, a timed-out one `timedOut`. The summary line states the test blocks (none)
+/// and the golden cases that ran; `--json` writes the report to stdout instead of the text. The report is also written to
+/// `out/test/results.json` under the current directory, never under the cases directory (R5).
+i32 t11Golden(in T11Options o, by ref DCtx d) uses alloc, clock, console, env, fs, process, random {
+    var wanted = List<string>()
+    if (o.only is { } only) {
+        for s in only {
+            wanted.append(s)
+        }
+    }
+    var results = List<GoldenResult>()
+    let total = Io.monotonicNanos()
+    // `--jobs` defaults to 4, the `maxParallelThreads` of csharp/tests/Bayan.Tests/xunit.runner.json.
+    let exit = goldenTest(o.path, by: wanted, for: testTimeout(), to: ref results, jobs: o.jobs ?? 4, quiet: o.testJson)
+    return exit if exit == exitUsage
+    let totalNanos = Io.monotonicNanos() - total
+    var report = TestReport {
+        package: null,
+        mode: o.mode,
+        target: t5HostTarget(),
+        elapsedNanos: totalNanos,
+        golden: true,
+    }
+    var passed: i64 = 0
+    var failed: i64 = 0
+    var pending: i64 = 0
+    for r in results {
+        var status = TestStatus.failed
+        if r.status == "passed" {
+            status = .passed
+            passed += 1
+        } else if r.status == "skipped" {
+            status = .pending
+            pending += 1
+        } else if r.status == "timed out" {
+            status = .timedOut
+            failed += 1
+        } else {
+            failed += 1
+        }
+        let slash = goldenOffset(r.name, for: "/")
+        report.tests.append(
+            TestResult {
+                name: r.name,
+                file: r.input,
+                line: 0,
+                status: status,
+                elapsedNanos: 0,
+                output: status == .passed ? "" : r.detail,
+                kind: "golden",
+                caseKind: slash < 0 ? "" : r.name[0..slash],
+                path: r.input,
+            },
+        )
+    }
+    let cases = results.length == 1 ? "1 golden case" : $"{results.length} golden cases"
+    let json = testReportJson(in report)
+    if o.testJson {
+        Io.stdout.write(json)
+    } else {
+        print("")
+        print(
+            t11Summary(
+                passed,
+                by: failed,
+                for: pending,
+                at: totalNanos,
+                as: $"0 test blocks, {cases}",
+                through: in d.styleOut,
+            ),
+        )
+    }
+    let testDir = Path.combine(Path.combine(Path.fullPath("."), "out"), "test")
+    // coverage-exempt: Q1219 through `t11ReplaceText(resultsPath` IO failures, as a run of test blocks
+    Io.createDirectory(testDir) catch { panic($"cannot create the directory {testDir}") }
+    let resultsPath = Path.combine(testDir, "results.json")
+    t11ReplaceText(resultsPath, from: json, through: ref d) catch { panic($"cannot write {resultsPath}") }
+    return exit
 }
 
 /// Toolchain.cs:262 `ReplaceFile(path, temp => File.WriteAllText(temp, json))` (CliApp.cs:775): cache.byn's `replaceFile` with the text
@@ -873,4 +949,91 @@ Map<i64, u64>? readCounters(string path) uses alloc, fs {
         counts[id] = u64(n)
     }
     return counts
+}
+
+/// `bayan test <args>` through `$BAYAN_EXE` in the directory `dir`, its stdout with the seconds masked (golden.byn `goldenTestSeconds`).
+GoldenOutcome t11Through(string dir, by in List<string> args) uses alloc, clock, env, fs, process {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    var o = goldenChild(exe, by: in args, at: dir, from: in List<u8>(), through: ref failure)
+    o.stdout = goldenTestSeconds(goldenLf(o.stdout))
+    return o
+}
+
+/// The one test block of `t11ReportFixture`'s package.
+const t11ReportBlock: string = "\ntest \"one plus one\" {\n    assert(1 + 1 == 2)\n}\n"
+
+/// A work directory `root` holding the cases directory `cases` with the `run` cases `a-passes` and `b-fails` (its `.stdout` changed), and the
+/// package `pkg` with one passing test block.
+void t11ReportFixture(string root) uses alloc, fs {
+    deleteWorkDir(root)
+    let program = "void main() uses console {\n    print(\"hi\")\n}\n"
+    goldenWrite(root, for: "cases/run/a-passes.byn", as: program)
+    goldenWrite(root, for: "cases/run/a-passes.stdout", as: "hi\n")
+    goldenWrite(root, for: "cases/run/b-fails.byn", as: program)
+    goldenWrite(root, for: "cases/run/b-fails.stdout", as: "bye\n")
+    goldenWrite(root, for: "pkg/package.byn", as: "Package {\n    name: \"local/tally\",\n    version: \"0.1.0\",\n}\n")
+    goldenWrite(root, for: "pkg/src/app/main.byn", as: $"{program}{t11ReportBlock}")
+}
+
+test "a golden run's summary states both counts and its results.json lists each case with kind and path, exiting as a failing test" {
+    let root = Path.combine(Path.fullPath("tmp"), "t11-report")
+    t11ReportFixture(root)
+    var args = List<string>()
+    for a in ["test", "cases", "--jobs", "1"] {
+        args.append(a)
+    }
+    let o = t11Through(root, by: in args)
+    let results = Io.readText(Path.combine(root, "out/test/results.json")) catch ""
+    let written = Fs.fileExists(Path.combine(root, "cases/out/test/results.json"))
+    deleteWorkDir(root)
+    assert(o.exitCode == exitTestFailure)
+    assert(o.stdout.contains("\n◆ 1 passed · ✗ 1 failed · 0 pending · 0 test blocks, 2 golden cases · Ts\n"))
+    assert(!written)
+    assert(results.contains(
+        "\"name\": \"run/b-fails\",\n      \"file\": \"cases/run/b-fails.byn\",\n      \"line\": 0,\n      \"status\": \"fail\",",
+    ))
+    assert(results.contains(
+        "\"output\": \"cases/run/b-fails.stdout\\nexpected line 1: bye\\nactual line 1: hi\",\n      \"kind\": \"golden\",\n      \"caseKind\": \"run\",\n      \"path\": \"cases/run/b-fails.byn\"",
+    ))
+    assert(results.contains(
+        "\"kind\": \"golden\",\n      \"caseKind\": \"run\",\n      \"path\": \"cases/run/a-passes.byn\"",
+    ))
+    assert(results.contains("\"total\": 2,\n    \"passed\": 1,\n    \"failed\": 1,"))
+    assert(results.contains("\"testBlocks\": 0,\n    \"goldenCases\": 2,"))
+}
+
+test "a golden run with --json writes only the report, the same entries as results.json" {
+    let root = Path.combine(Path.fullPath("tmp"), "t11-report-json")
+    t11ReportFixture(root)
+    var args = List<string>()
+    for a in ["test", "cases", "--json", "--jobs", "2"] {
+        args.append(a)
+    }
+    let o = t11Through(root, by: in args)
+    let results = Io.readText(Path.combine(root, "out/test/results.json")) catch ""
+    deleteWorkDir(root)
+    assert(o.exitCode == exitTestFailure)
+    assert(o.stdout.startsWith("{\n  \"package\": null,") && o.stdout.endsWith("}\n"))
+    assert(goldenOutMask(o.stdout, by: false) == goldenOutMask(results, by: false))
+    assert(o.stdout.contains(
+        "\"status\": \"pass\",\n      \"durationMs\": 0,\n      \"output\": \"\",\n      \"kind\": \"golden\"",
+    ))
+    assert(o.stdout.contains("\"caseKind\": \"run\",\n      \"path\": \"cases/run/b-fails.byn\""))
+    assert(!o.stdout.contains("running ") && !o.stdout.contains("golden cases ·"))
+}
+
+test "a run of test blocks keeps the C# summary and results.json (L028): no golden fields" {
+    let root = Path.combine(Path.fullPath("tmp"), "t11-report-blocks")
+    t11ReportFixture(root)
+    var args = List<string>()
+    args.append("test")
+    let o = t11Through(Path.combine(root, "pkg"), by: in args)
+    let results = Io.readText(Path.combine(root, "pkg/out/test/results.json")) catch ""
+    deleteWorkDir(root)
+    assert(o.exitCode == exitOk)
+    assert(o.stdout.contains("\n◆ 1 passed · Ts\n"))
+    assert(results.contains("\"name\": \"one plus one\",")
+        && !results.contains("\"kind\"")
+        && !results.contains("goldenCases"))
 }
