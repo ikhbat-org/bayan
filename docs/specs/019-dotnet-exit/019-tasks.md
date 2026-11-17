@@ -10,7 +10,7 @@ The golden runner (T1–T10) comes first and T10 is a gate: nothing from T11 on 
 
 ## 019a: golden runner
 
-- [ ] T1 Case discovery in `bayan test` — files: src/driver/golden.byn (new), src/driver/test.byn — covers: R1 — done when: given `tests/cases`, the driver lists every case of all 12 kinds with its name `<kind>/<case>`, subdirectory cases counted once; the per-kind counts equal the ones in the plan's table.
+- [x] T1 Case discovery in `bayan test` — files: src/driver/golden.byn (new), src/driver/test.byn — covers: R1 — done when: given `tests/cases`, the driver lists every case of all 12 kinds with its name `<kind>/<case>`, subdirectory cases counted once; the per-kind counts equal the ones in the plan's table.
 - [ ] T2 Compare the text kinds — files: src/driver/golden.byn — covers: R1, R2, R6 — done when: `diag`, `parse`, `lex`, `typed`, `manifest`, `diag-json` and `style` cases pass; a changed expected line fails with the input path and the first differing line; CR LF reads as LF.
 - [ ] T3 Compare the `run` kind and the rest — files: src/driver/golden.byn — covers: R1, R6 — done when: `run` cases honour `// mode:`, `// os:`, `.args`, `.stdin`, `.exitcode`, optional `.stderr`, `.test.byn` and an empty working directory per case; `new`, `out`, `emit` and `quality` cases pass.
 - [ ] T4 One result per case, `--only`, time limit — files: src/driver/test.byn, src/driver/golden.byn — covers: R2, R3 — done when: a failing case and a case that never exits are each reported and the cases after them still run; `--only run/<name>` runs one case.
