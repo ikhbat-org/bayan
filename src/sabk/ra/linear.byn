@@ -1,8 +1,9 @@
 // sabk phase 1 (spec 024, R6, R10): linear-scan register allocation over SIR for AAPCS64 (T9), after Poletto and Sarkar.
 // Intervals come from `liveIntervals`, sorted by start; the active list is kept sorted by end. The pool is x9-x15
-// (temporaries) then x19-x28 (callee-saved, saved in the prologue only when used). x0-x7 are not in the pool: parameters
-// arrive in them and call arguments and results travel through them, so T10 moves parameters out of x0-x7 into their
-// allocated locations and call results out of x0 (no precolouring). x16/x17 are reserved for T10's spill reloads and veneers,
+// (temporaries) then x19-x28 (callee-saved, saved in the prologue only when used). x0-x7 are precoloured, not pooled:
+// parameter i takes x<i> and a call result takes x0 when the value does not cross a call (a result may reuse the x0 of an
+// argument that ends at the call). A parameter or result that crosses a call falls back to the pool and T10 moves it out of
+// x0-x7. T10 marshals call arguments into x0-x7. x16/x17 are reserved for T10's spill reloads and veneers,
 // x18 is never touched (Apple reserved), x29/x30 are the frame record. A value live across a call may only take x19-x28,
 // else it spills. When no register is free the interval with the furthest end (among those whose register fits) spills.
 //
@@ -70,6 +71,19 @@ public Allocation allocate(in Function f) uses alloc fails AllocError {
         }
     }
 
+    var isResult = List<bool>()
+    for v in 0..f.nextVReg {
+        isResult.append(false)
+    }
+    for b in f.blocks {
+        for inst in b.insts {
+            switch inst {
+                case .call(let dst, let symbol, let args): isResult[dst] = true if dst != sir.noReg()
+                default: continue
+            }
+        }
+    }
+
     let live = liveIntervals(f)
     var locations = List<Location>()
     for v in 0..f.nextVReg {
@@ -88,7 +102,7 @@ public Allocation allocate(in Function f) uses alloc fails AllocError {
         // Expire the intervals that ended before this one starts; a value read at p and one defined at p may share.
         var keep = List<Active>()
         for a in active {
-            if a.end < iv.start {
+            if a.end < iv.start || (a.reg == 0 && a.end == iv.start && isResult[iv.vreg]) {
                 busy[a.reg] = false
             } else {
                 keep.append(a)
@@ -97,7 +111,14 @@ public Allocation allocate(in Function f) uses alloc fails AllocError {
         active = move keep
 
         let crossing = crossesCall(live, at: iv)
-        var reg = pickReg(busy, for: crossing)
+        var reg = -1
+        if !crossing {
+            for i in 0..f.params.length {
+                reg = i if i < 8 && f.params[i] == iv.vreg && !busy[i]
+            }
+            reg = 0 if isResult[iv.vreg] && !busy[0]
+        }
+        reg = pickReg(busy, for: crossing) if reg < 0
         if reg < 0 {
             // Spill the eligible active interval that ends last, when it ends after this one; else spill this one.
             var victim = -1
