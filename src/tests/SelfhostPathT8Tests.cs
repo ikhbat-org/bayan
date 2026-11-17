@@ -97,14 +97,16 @@ public sealed class SelfhostPathT8Tests
     {
         var all = Inputs().Concat(Extra()).ToList();
         var expected = all.Select(p => $"pathof {p} {PathOf(Base, p)}").ToList();
-        SelfhostSemanticsHarness.AssertSection(new() { ["pathof"] = Lines("pathof") }, "pathof", expected);
+        SelfhostSemanticsHarness.AssertSection(new() { ["pathof"] = Lines("pathof") }, "pathof", expected,
+            run: new() { ["all"] = Run.Value }, printed: "all", compare: "prefix:pathof");
     }
 
     [Fact]
     public void ProgramNameMatchesCSharp()
     {
         var expected = Inputs().Select(p => $"name {p} {ProgramName(p)}").ToList();
-        SelfhostSemanticsHarness.AssertSection(new() { ["name"] = Lines("name") }, "name", expected);
+        SelfhostSemanticsHarness.AssertSection(new() { ["name"] = Lines("name") }, "name", expected,
+            run: new() { ["all"] = Run.Value }, printed: "all", compare: "prefix:name");
     }
 
     [Fact]

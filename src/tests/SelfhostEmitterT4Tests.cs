@@ -288,7 +288,7 @@ public sealed class SelfhostEmitterT4Tests
     {
         var (exit, stdout, stderr) = Run(mode, fn, decl, path);
         Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
-        return SelfhostSemanticsHarness.Sections(stdout);
+        return SelfhostEmitterHarness.Sections(stdout, mode, fn, decl, path);
     }
 
     // ── the C# side ─────────────────────────────────────────────────────────────
@@ -447,7 +447,7 @@ public sealed class SelfhostEmitterT4Tests
     }
 
     private static void SameExprs(string source, string fn, string only = "*", string mode = "expr") => WithFixture(source, path =>
-        SelfhostSemanticsHarness.AssertSection(RunMode(mode, fn, only, path), "expr", ExprOracle(Compile(path), fn, only, mode)));
+        SelfhostEmitterHarness.AssertSection(RunMode(mode, fn, only, path), "expr", ExprOracle(Compile(path), fn, only, mode)));
 
     private static List<string> BecomeOracle(Compilation c, string fnName)
     {
@@ -849,7 +849,7 @@ public sealed class SelfhostEmitterT4Tests
     [InlineData("pay")]
     [InlineData("pay2")]
     public void Become_MatchesCSharp(string fn) => WithFixture(More, path =>
-        SelfhostSemanticsHarness.AssertSection(RunMode("become", fn, "*", path), "become", BecomeOracle(Compile(path), fn)));
+        SelfhostEmitterHarness.AssertSection(RunMode("become", fn, "*", path), "become", BecomeOracle(Compile(path), fn)));
 
     private const string Claims = """
         union V {
@@ -914,7 +914,7 @@ public sealed class SelfhostEmitterT4Tests
     [InlineData("sw")]
     [InlineData("sw2")]
     public void Claim_MatchesCSharp(string fn) => WithFixture(Claims, path =>
-        SelfhostSemanticsHarness.AssertSection(RunMode("claim", fn, "*", path), "claim", ClaimOracle(Compile(path), fn)));
+        SelfhostEmitterHarness.AssertSection(RunMode("claim", fn, "*", path), "claim", ClaimOracle(Compile(path), fn)));
 
     /// `LowerExpr`'s two panics and `Call`'s: a spread outside a collection, a node that is already lowered, and a failing
     /// call outside `try`/`catch`; `Expr` is called on the node directly, as no statement reaches it.

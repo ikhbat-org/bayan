@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bayan.Cli;
@@ -78,10 +79,13 @@ public sealed class SelfhostDriverStyleLintsTests
     [MemberData(nameof(Cases))]
     public void CheckProjectAsStage2(string folder) => Compare(folder, BootstrapTests.Stage2Executable());
 
-    private static void Compare(string folder, string program)
+    private static void Compare(string folder, string program, [CallerMemberName] string test = "")
     {
         var dir = Project(folder);
         var expected = Start("dotnet", [typeof(CliApp).Assembly.Location], dir, "check", ".");
+        // spec 019 R10: the C# run with the project as input/, the seconds masked
+        if (SelfhostExport.Cli(["check", "."], expected.Exit, Mask(expected.Out), Mask(expected.Err), [dir],
+            new Dictionary<string, string> { ["compare"] = "seconds-masked\n" }, test: test)) return;
         var actual = Start(program, [], dir, "check", ".");
         Assert.Equal(expected.Exit, actual.Exit);
         SelfhostEmitterHarness.AssertSame($"stdout of `check .` in {folder}", Mask(expected.Out), Mask(actual.Out));

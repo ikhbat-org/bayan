@@ -44,6 +44,12 @@ public sealed class SelfhostParserT11Tests(ITestOutputHelper output)
     [Fact]
     public void DumpWritesDeclarationsAndStatements()
     {
+        // Export run (T16c, parse/counts.tsv): 1 test, 0 case dirs. The expected text is typed in the test, not computed by the C# compiler, so the compare is listed in parse/UNEXPORTED.tsv.
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT11Tests), nameof(DumpWritesDeclarationsAndStatements), "typed expected text, no C# value to compare");
+            return;
+        }
         const string program = """
             import lexer
 

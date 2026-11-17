@@ -39,7 +39,11 @@ public sealed class SelfhostDriverApiTests
         var main = File.ReadAllText(Path.Combine(SelfhostDriverHarness.DriverDir, "main.byn"));
         var version = Regex.Match(main, @"^const version: string = ""([^""]+)""$", RegexOptions.Multiline).Groups[1].Value;
         var stdout = new StringWriter();
-        Assert.Equal(CliApp.ExitOk, CliApp.Run(["--version"], stdout, new StringWriter()));
+        var stderr = new StringWriter();
+        Assert.Equal(CliApp.ExitOk, CliApp.Run(["--version"], stdout, stderr));
+        // spec 019 R10: the C# version line, its parenthesised part masked as SelfhostDriverT1Tests does
+        if (SelfhostExport.Cli(["--version"], CliApp.ExitOk, Regex.Replace(stdout.ToString().ReplaceLineEndings("\n"), @"^(bayan \S+) \(.*\)$", "$1 (masked)", RegexOptions.Multiline),
+            stderr.ToString().ReplaceLineEndings("\n"), extra: new Dictionary<string, string> { ["compare"] = "version-masked\n" })) return;
         Assert.StartsWith($"bayan {version} (", stdout.ToString());
     }
 }

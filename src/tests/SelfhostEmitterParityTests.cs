@@ -45,7 +45,7 @@ public sealed class SelfhostEmitterParityTests
         Toolchain.TryParseMode(mode, out var buildMode);
         var (exit, output, error) = SelfhostEmitterHarness.Run("--mode", mode, "--package", Path.GetDirectoryName(input)!, input);
         Assert.True(exit == 0, $"{name}: exit {exit}\n{error}");
-        SelfhostEmitterHarness.AssertSame(name, CliApp.EmitC(c, buildMode), output, input);
+        SelfhostEmitterHarness.AssertSame(name, CliApp.EmitC(c, buildMode), output, input, args: ["--mode", mode, "--package", Path.GetDirectoryName(input)!, input]);
     }
 
     /// <summary>Every <c>*.test.byn</c> as <c>bayan test -v</c> builds it: alone in a work directory, the directory compiled with tests, no <c>--mode</c> (Safe).</summary>
@@ -60,7 +60,7 @@ public sealed class SelfhostEmitterParityTests
         if (SelfhostEmitterHarness.TestRunC(input, work) is not { } expected) return;
         var (exit, output, error) = SelfhostEmitterHarness.Run("--tests", work);
         Assert.True(exit == 0, $"{name}: exit {exit}\n{error}");
-        SelfhostEmitterHarness.AssertSame(name, expected, output, input);
+        SelfhostEmitterHarness.AssertSame(name, expected, output, work, args: ["--tests", work]);
     }
 
     /// <summary>The inputs <c>CliTests.BuildEmitsC</c> and <c>CacheTests</c> pass to <c>--emit-c</c>, over every example project.</summary>
@@ -143,9 +143,16 @@ public sealed class SelfhostEmitterHarnessTests
     [Fact]
     public void AssertSameReadsCrlfAsLf()
     {
-        SelfhostEmitterHarness.AssertSame("crlf", "a\r\n\r\nb\n", "a\n\nb\n");
-        var e = Assert.ThrowsAny<Exception>(() => SelfhostEmitterHarness.AssertSame("crlf", "a\r\nb\n", "a\nc\n"));
-        Assert.Contains("crlf: line 2 differs", e.Message);
+        // The harness's own comparison, not a C# one: it asserts with the export on too (an empty override clears it).
+        var old = SelfhostExport.Override.Value;
+        try
+        {
+            SelfhostExport.Override.Value = "";
+            SelfhostEmitterHarness.AssertSame("crlf", "a\r\n\r\nb\n", "a\n\nb\n");
+            var e = Assert.ThrowsAny<Exception>(() => SelfhostEmitterHarness.AssertSame("crlf", "a\r\nb\n", "a\nc\n"));
+            Assert.Contains("crlf: line 2 differs", e.Message);
+        }
+        finally { SelfhostExport.Override.Value = old; }
     }
 
     /// <summary>A project without its entry module, an app and a library; a script with an error; the cap on reported errors.</summary>

@@ -189,6 +189,12 @@ public sealed class SelfhostParserT10Tests(ITestOutputHelper output)
     [Fact]
     public void PrimariesParseAsInCSharp()
     {
+        // Export run (T16c, parse/counts.tsv): 1 test, 0 case dirs. The expected text is typed in the test, not computed by the C# compiler, so the compare is listed in parse/UNEXPORTED.tsv.
+        if (SelfhostExport.Dir is { } root)
+        {
+            SelfhostExport.NotExported(root, "parse", nameof(SelfhostParserT10Tests), nameof(PrimariesParseAsInCSharp), "typed expected text, no C# value to compare");
+            return;
+        }
         var sources = Directory.GetFiles(ParserDir, "*.byn")
             .Where(f => Path.GetFileName(f) != "main.byn").Order(StringComparer.Ordinal)
             .Select(f => SourceText.FromFile(f)).Append(SourceText.FromString(Path.Combine(ParserDir, "t10-test.byn"), Program)).ToList();

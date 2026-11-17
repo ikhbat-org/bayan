@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Bayan.Backend.C;
 using Bayan.Cli;
 using Bayan.Semantics;
@@ -106,6 +107,19 @@ public sealed class SelfhostParserT7Tests(ITestOutputHelper output)
         return string.Join("\n", lines) + "\n";
     }
 
+    /// <summary>Under the export (spec 019 R10): writes <c>parse/SelfhostParserT7Tests/&lt;test&gt;[-n]</c> with <paramref name="input"/> and the
+    /// C# side's <paramref name="expected"/> as <c>expected.shapes</c>, and returns true, so the caller returns without running the port;
+    /// otherwise false.</summary>
+    // Export run (T16b, parse/counts.tsv): 31 tests, 31 case dirs (one per row).
+    private static bool Export(string input, string expected, [CallerMemberName] string test = "")
+    {
+        if (SelfhostExport.Dir is not { } root) return false;
+        var dir = SelfhostExport.Case(root, "parse", nameof(SelfhostParserT7Tests), test);
+        SelfhostExport.WriteInput(dir, [input]);
+        SelfhostExport.WriteExpected(dir, "expected.shapes", expected);
+        return true;
+    }
+
     private static string Range(Node n) => $"{n.Span.Start}..{n.Span.End}";
 
     private static string Shape(Stmt? s) => s switch
@@ -174,15 +188,37 @@ public sealed class SelfhostParserT7Tests(ITestOutputHelper output)
     [InlineData("x = 1\nelse")]
     public void StatementsMatchTheCSharpParser(string body)
     {
-        var (path, error) = Built.Value;
-        if (path is null) Assert.Fail($"stmts.byn did not build:\n{error}");
         var input = Path.Combine(Golden.RepoRoot, "tmp", "selfhost-parser-t7", $"{Convert.ToHexString(System.Text.Encoding.UTF8.GetBytes(body))[..Math.Min(48, body.Length * 2)]}-{body.GetHashCode():x8}.byn");
         Directory.CreateDirectory(Path.GetDirectoryName(input)!);
         var text = $"void f() {{\n    {body.Replace("\n", "\n    ")}\n}}\n";
         File.WriteAllText(input, text);
+        if (Export(input, Expected(SourceText.FromFile(input)))) return;
+        var (path, error) = Built.Value;
+        if (path is null) Assert.Fail($"stmts.byn did not build:\n{error}");
         var (exit, stdout, stderr) = Run(path!, input);
         output.WriteLine(stderr);
         Assert.Equal(0, exit);
         Assert.Equal(Expected(SourceText.FromFile(input)), stdout);
+    }
+
+    [Fact]
+    public void ExportWritesTheInputAndTheCSharpShapesAsTheCase()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-parse-t7");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var old = SelfhostExport.Override.Value;
+        try
+        {
+            SelfhostExport.Override.Value = root;
+            StatementsMatchTheCSharpParser("while x {\n}");
+        }
+        finally
+        {
+            SelfhostExport.Override.Value = old;
+        }
+        var dir = Path.Combine(root, "parse", nameof(SelfhostParserT7Tests), nameof(StatementsMatchTheCSharpParser));
+        var input = Path.Combine(dir, "input.byn");
+        Assert.Equal("void f() {\n    while x {\n    }\n}\n", File.ReadAllText(input));
+        Assert.Equal(Expected(SourceText.FromFile(input)), File.ReadAllText(Path.Combine(dir, "expected.shapes")));
     }
 }

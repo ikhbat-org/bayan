@@ -186,7 +186,8 @@ public sealed class SelfhostPathT7Tests
     {
         var expected = Cases().Where(c => c.Kind == kind).Select(Expected).ToList();
         var actual = Run.Value["all"].Where(l => l.StartsWith(kind + " ", StringComparison.Ordinal)).ToList();
-        SelfhostSemanticsHarness.AssertSection(new() { [kind] = actual }, kind, expected);
+        SelfhostSemanticsHarness.AssertSection(new() { [kind] = actual }, kind, expected,
+            run: new() { ["all"] = Run.Value["all"] }, printed: "all", compare: $"prefix:{kind}");
     }
 
     [Fact] public void DirectoryNameMatchesCSharp() => AssertKind("dir");
