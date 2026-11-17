@@ -205,6 +205,10 @@ i64 t11Line(in List<u8> text, at i64 offset) {
 /// CliApp.cs:639 `Test`. `kept` is the command and its arguments.
 i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process, random {
     let args = t2Rest(kept)
+    // `--list-cases <dir>` (spec 019 T1): list the golden cases under `dir` and stop; golden.byn.
+    if args.length == 2 && args[0] == "--list-cases" {
+        return goldenList(args[1])
+    }
     let o = t11ParseBuildOptions(in args) ?? return exitUsage
     let symbolsErr = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()

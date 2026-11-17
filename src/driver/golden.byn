@@ -1,0 +1,206 @@
+// Case discovery of the golden runner (spec 019 T1). `goldenDiscover` lists the cases under a cases directory as `<kind>/<case>`; comparison is T2 on.
+// The rules are the ones the xUnit classes apply today (T10 gate), and each cites the line it comes from:
+//
+//   `.byn` kinds `diag`, `diag-json`, `lex`, `manifest`, `parse`, `run`, `typed`: one case per `*.byn` directly in `<kind>/`, and one per `main.byn`
+//     at any depth below it (a multi-module case, named for its directory); a `.test.byn` is a `*.byn` and counts. A missing `<kind>/` has no cases.
+//     Golden.cs:20-27 `Cases`, called at DiagTests.cs:13, DiagJsonTests.cs:9, LexerTests.cs:12, ManifestTests.cs:12, ParserTests.cs:10,
+//     RunTests.cs:21 and TypedDumpTests.cs:10. `.pending`, `.args`, `.stdin` and the expected files are not cases (RunTests.cs:52, :98, :102).
+//   `style`: one case per shape, the stem of a `<shape>.color` file; its `.plain` and `.ascii` files belong to it. StyleTests.cs:24-30 `Shapes`
+//     and :46-48 (the three renderings); L011ColourAddsOnlyEscapesTests.cs:21-23 counts the `.color` files against `Shapes`.
+//   `new`: one case per `<layout>.tree`. ScaffoldTests.cs:48 (`app`, `lib`, `script`).
+//   `out`: one case per file, `out.tree`, `dist.tree`, `results-fail.json`. OutputTests.cs:73, :127, :115.
+//   `emit`: one case, `run-c.sha256`. MutantSchemataTests.cs:308.
+//   `quality`: one case, `mutation-report.json`. QualityReportTests.cs:58.
+//   For `new`, `out`, `emit` and `quality` the xUnit classes name each file; here every regular file directly in the kind directory is a case, named
+//   for the file without its last extension.
+//
+// The walk is `bynFiles` of walk.byn: bounded to the kind directory's real path, so a link that leads out is not entered (docs/memory-leaks.md
+// rule 1; walk.byn has no file budget of its own, T9a bounds the whole run).
+
+/// One case: `kind` is the directory under the cases root, `name` the case below it (`/`-separated, no extension) and `input` the path of its
+/// input file (the `.byn` or `main.byn`, the `.color` file of a style shape, or the one file of a file kind).
+struct GoldenCase {
+    string kind
+    string name
+    string input
+}
+
+/// `name` without its last extension (the whole name when it has none, or only a leading dot).
+string goldenStem(string name) {
+    var dot: i64 = -1
+    for i in 0..name.length {
+        if name.bytes[i] == 0x2e {
+            dot = i
+        }
+    }
+    return dot > 0 ? name[0..dot] : name
+}
+
+/// `path` with `\` read as `/` (Windows paths from `Path.relative`).
+string goldenSlashed(string path) uses alloc {
+    return path if Target.os != "windows"
+    var text = ""
+    for i in 0..path.length {
+        text = $"{text}{path.bytes[i] == 0x5c ? "/" : path[i..i + 1]}"
+    }
+    return text
+}
+
+/// The cases of one `.byn` kind (Golden.cs:25-27), sorted by name.
+void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit) uses alloc, console, fs {
+    let dir = Path.combine(root, kind)
+    return unless t6DirectoryExists(dir)
+    let real = realPath(dir) catch switch {
+        IoError e => {
+            Io.stderr.write($"bayan: {dir}: {e}\n")
+            exit = 1
+            return
+        }
+    }
+    var found = List<GoldenCase>()
+    for file in bynFiles(dir, through: ref exit, by: real) {
+        let rel = goldenSlashed(Path.relative(dir, to: file))
+        let base = Path.fileName(file)
+        if base == "main.byn" && rel != "main.byn" {
+            found.append(GoldenCase { kind: kind, name: rel[0..rel.length - "/main.byn".length], input: file })
+        } else if !rel.contains("/") {
+            found.append(GoldenCase { kind: kind, name: rel[0..rel.length - ".byn".length], input: file })
+        }
+    }
+    var names = List<string>()
+    for c in found {
+        names.append(c.name)
+    }
+    names.sort()
+    for name in names {
+        for c in found {
+            if c.name == name {
+                cases.append(c)
+                break
+            }
+        }
+    }
+}
+
+/// The cases of a kind named by the files of its directory: with an `ending`, the stems of the files that end in it (`style`); else every regular
+/// file. Sorted by name.
+void goldenFileCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit, by string ending = "")
+        uses alloc, console, fs {
+    let dir = Path.combine(root, kind)
+    return unless t6DirectoryExists(dir)
+    let listed = Io.listDir(dir) catch switch {
+        IoError e => {
+            Io.stderr.write($"bayan: {dir}: {e}\n")
+            exit = 1
+            return
+        }
+    }
+    var names = List<string>()
+    for name in listed {
+        continue unless Fs.fileExists(Path.combine(dir, name))
+        continue if !(ending == "" || name.endsWith(ending))
+        names.append(name)
+    }
+    names.sort()
+    for name in names {
+        cases.append(GoldenCase { kind: kind, name: goldenStem(name), input: Path.combine(dir, name) })
+    }
+}
+
+/// Every case under `root` (a cases directory), kind by kind in name order. A listing error is reported and sets `exit` to 1.
+List<GoldenCase> goldenDiscover(string root, through ref i32 exit) uses alloc, console, fs {
+    var cases = List<GoldenCase>()
+    // Alphabetical, so the listing is in `<kind>/<case>` order.
+    let kinds = ["diag", "diag-json", "emit", "lex", "manifest", "new", "out", "parse", "quality", "run", "style", "typed"]
+    for kind in kinds {
+        if kind == "style" {
+            goldenFileCases(root, for: kind, to: ref cases, through: ref exit, by: ".color")
+        } else if kind is "emit" or "new" or "out" or "quality" {
+            goldenFileCases(root, for: kind, to: ref cases, through: ref exit)
+        } else {
+            goldenBynCases(root, for: kind, to: ref cases, through: ref exit)
+        }
+    }
+    return cases
+}
+
+/// `bayan test --list-cases <dir>`: one `<kind>/<case>` line per case. 1 when `dir` is not a directory or a listing failed.
+i32 goldenList(string root) uses alloc, console, fs {
+    unless t6DirectoryExists(root) {
+        Io.stderr.write($"bayan: not found: {root}\n")
+        return 1
+    }
+    var exit = 0
+    for c in goldenDiscover(root, through: ref exit) {
+        Io.stdout.write($"{c.kind}/{c.name}\n")
+    }
+    return exit
+}
+
+/// Writes `text` to `root`/`rel`, creating the directories above it.
+void goldenFixture(string root, for string rel) uses alloc, fs {
+    let path = Path.combine(root, rel)
+    Io.createDirectory(Path.directoryName(path) ?? root) catch return
+    Io.writeFile(path, "x\n".bytes) catch return
+}
+
+/// The listing of `root` as one string of `<kind>/<case>` lines.
+string goldenListing(string root) uses alloc, console, fs {
+    var exit = 0
+    var text = ""
+    for c in goldenDiscover(root, through: ref exit) {
+        text = $"{text}{c.kind}/{c.name}\n"
+    }
+    return text
+}
+
+test "discovery finds each kind and ignores what is not a case" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-discover")
+    deleteWorkDir(root)
+    // `.byn` kinds: top-level files, a `.test.byn`, a subdirectory case, a deeper `main.byn`, a nested non-main file, and non-inputs.
+    goldenFixture(root, for: "diag/a.byn")
+    goldenFixture(root, for: "diag/a.diag")
+    goldenFixture(root, for: "diag/b.test.byn")
+    goldenFixture(root, for: "diag/pkg/main.byn")
+    goldenFixture(root, for: "diag/pkg/helper.byn")
+    goldenFixture(root, for: "diag/pkg/main.diag")
+    goldenFixture(root, for: "diag/deep/one/main.byn")
+    goldenFixture(root, for: "run/r.byn")
+    goldenFixture(root, for: "run/r.stdout")
+    goldenFixture(root, for: "run/r.pending")
+    goldenFixture(root, for: "run/r.args")
+    goldenFixture(root, for: "lex/l.byn")
+    goldenFixture(root, for: "parse/p.byn")
+    goldenFixture(root, for: "typed/t.byn")
+    goldenFixture(root, for: "manifest/m.byn")
+    goldenFixture(root, for: "diag-json/j.byn")
+    // style: one case per `.color` stem; new, out, emit, quality: one per file.
+    goldenFixture(root, for: "style/s1.color")
+    goldenFixture(root, for: "style/s1.plain")
+    goldenFixture(root, for: "style/s1.ascii")
+    goldenFixture(root, for: "style/s2.color")
+    goldenFixture(root, for: "new/app.tree")
+    goldenFixture(root, for: "out/out.tree")
+    goldenFixture(root, for: "out/results-fail.json")
+    goldenFixture(root, for: "emit/run-c.sha256")
+    goldenFixture(root, for: "quality/report.json")
+    // not a kind, and a hidden directory under a kind
+    goldenFixture(root, for: "other/z.byn")
+    goldenFixture(root, for: "README.md")
+    goldenFixture(root, for: "lex/.hidden/h.byn")
+    let first = "diag/a\ndiag/b.test\ndiag/deep/one\ndiag/pkg\ndiag-json/j\nemit/run-c\nlex/l\nmanifest/m\nnew/app\nout/out\nout/results-fail\n"
+    let second = "parse/p\nquality/report\nrun/r\nstyle/s1\nstyle/s2\ntyped/t\n"
+    let actual = goldenListing(root)
+    deleteWorkDir(root)
+    assert(actual == $"{first}{second}")
+}
+
+test "a missing kind directory and a missing root list nothing" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-discover-empty")
+    deleteWorkDir(root)
+    Io.createDirectory(root) catch return
+    let empty = goldenListing(root)
+    deleteWorkDir(root)
+    assert(empty == "")
+    assert(goldenList(Path.combine(root, "missing")) == 1)
+}
