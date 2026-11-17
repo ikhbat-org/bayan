@@ -23,16 +23,47 @@ done
 t="$(mktemp -d)"; trap 'rm -rf "$t"' EXIT
 export LC_ALL=C
 
-# keyword, kind, line and receiver, member, kind, line: the `kw` and `mem` rows
+# C#-only facts from the TSV: kw (keyword, line in the retired Keywords.cs) and mem (receiver, member, line in the retired
+# BuiltinMembers.cs)
 facts() { awk -F'\t' -v OFS='\t' -v k="$1" '$1 == k { $1 = ""; sub(/^\t/, ""); print }' "$facts_tsv"; }
-facts kw > "$t/kw"
-[ -s "$t/kw" ] || die "no kw rows in csharp-facts.tsv"
+
+# keyword, kind, line. The keywords are the `xKeyword` kinds of src/lexer/tokens.byn (`x` is the text); reserved ones run
+# from isReservedKeyword's lower bound to its upper bound, contextual ones are those src/parser/recover.byn's
+# isContextualKeyword names; the line is the TSV's `kw` row (the keyword's line in the retired Keywords.cs).
+facts kw > "$t/kwline"
+awk '/^(public )?bool isContextualKeyword\(/ { on = 1 }
+  on { s = $0; while (match(s, /\.[A-Za-z]+Keyword/)) { print substr(s, RSTART + 1, RLENGTH - 8); s = substr(s, RSTART + RLENGTH) } }
+  on && /^}/ { exit }' "$root/src/parser/recover.byn" > "$t/ctx"
+awk '/^(public )?bool isReservedKeyword\(/ { r = 1 }
+  r && match($0, /ordinal >= TokenKind\.[A-Za-z]+/) { print "lo " substr($0, RSTART + 21, RLENGTH - 21 - 7) }
+  r && match($0, /ordinal <= TokenKind\.[A-Za-z]+/) { print "hi " substr($0, RSTART + 21, RLENGTH - 21 - 7); r = 0 }
+  /^(public )?enum TokenKind/ { e = 1; next } e && /^}/ { e = 0 }
+  e { n = $0; gsub(/[ \t]/, "", n); if (n ~ /Keyword$/) { sub(/Keyword$/, "", n); print "kw " n } }' "$root/src/lexer/tokens.byn" > "$t/enum"
+awk -v ctxf="$t/ctx" -v linef="$t/kwline" '
+  BEGIN { while ((getline cw < ctxf) > 0) ctx[cw] = 1; while ((getline l < linef) > 0) { split(l, a, "\t"); line[a[1]] = a[2] } }
+  $1 == "lo" { lo = $2 } $1 == "hi" { hi = $2 }
+  $1 == "kw" { w[++n] = $2 }
+  END { for (i = 1; i <= n; i++) { k = w[i]; if (k == lo) on = 1
+          print k "\t" (on ? "reserved" : (k in ctx ? "contextual" : "keyword")) "\t" line[k]
+          if (k == hi) on = 0 } }' "$t/enum" | sort -k1,1 > "$t/kw"
+[ -s "$t/kw" ] || die "no keywords in src/lexer/tokens.byn"
+[ "$(wc -l < "$t/kw" | tr -d ' ')" = "$(facts kw | wc -l | tr -d ' ')" ] || die "csharp-facts.tsv kw rows and src/lexer/tokens.byn keywords differ"
 { printf '| keyword | kind | evidence |\n|---|---|---|\n'
   while IFS=$'\t' read -r w k n; do printf '| `%s` | %s | `Keywords.cs:%s` |\n' "$w" "$k" "$n"; done < "$t/kw"
 } > "$t/kw.md"
 
-facts mem > "$t/mem"
-[ -s "$t/mem" ] || die "no mem rows in csharp-facts.tsv"
+# receiver, member, kind, line. The kind is where src/semantics/builtins.byn handles the member name: builtinProperty
+# (property) or method and the helpers after it (method); the receiver and line are the TSV's `mem` row (the retired BuiltinMembers.cs).
+awk '/^PropertyResult\? builtinProperty\(/ { kind = "property" } /^BuiltinMethod\? method\(/ { kind = "method" }
+  kind != "" { s = $0; while (match(s, /(case |name == )"[A-Za-z0-9]+"/)) {
+    p = substr(s, RSTART, RLENGTH); s = substr(s, RSTART + RLENGTH); split(p, a, "\""); print a[2] "\t" kind } }
+  /^List<string> names\(/ { kind = "" }' \
+  "$root/src/semantics/builtins.byn" | sort -u > "$t/kinds"
+facts mem | awk -F'\t' -v OFS='\t' -v kf="$t/kinds" '
+  BEGIN { while ((getline l < kf) > 0) { split(l, a, "\t"); kind[a[1]] = a[2] } }
+  { if (!($2 in kind)) { print "gen-status: member " $2 " is not in src/semantics/builtins.byn" > "/dev/stderr"; bad = 1 }
+    print $1, $2, kind[$2], $3 } END { exit bad }' > "$t/mem" || die "csharp-facts.tsv mem rows and src/semantics/builtins.byn differ"
+[ -s "$t/mem" ] || die "no members in csharp-facts.tsv"
 { printf '| receiver | member | kind | evidence |\n|---|---|---|---|\n'
   while IFS=$'\t' read -r r m k n; do printf '| %s | `%s` | %s | `BuiltinMembers.cs:%s` |\n' "$r" "$m" "$k" "$n"; done < "$t/mem"
 } > "$t/mem.md"

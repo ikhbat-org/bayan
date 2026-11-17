@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Generates docs/DIAGNOSTICS.md, the diagnostics index: every code registered in
-# scripts/docs/data/csharp-facts.tsv (the descriptors and comments of the retired C# DiagnosticCodes.cs, extracted
-# once), then the plan, reserved and retired lists. Retired and reserved codes are its `retired`, `reserved` and
-# `round4` rows; plan codes and reservations without a descriptor or comment come from the hand-kept
+# the self-hosted message tables (src/lexer/diagnostics.byn, src/parser/codes.byn, src/semantics/codes.byn), then the
+# plan, reserved and retired lists. Retired and reserved codes, the round-4 block and the few names and severities the
+# tables do not give are the rows of scripts/docs/data/csharp-facts.tsv (read once from the retired C# DiagnosticCodes.cs); plan codes and reservations without a descriptor or comment come from the hand-kept
 # docs/diagnostics-allocated.txt. Deterministic: sorted by code, LF, no dates.
 #   gen-diagnostics.sh            print it
 #   gen-diagnostics.sh --write    write docs/DIAGNOSTICS.md
@@ -23,10 +23,40 @@ export LC_ALL=C
 # Markdown table cell: a literal | is escaped.
 cell() { sed -E 's/\|/\\|/g'; }
 
-# code, name, severity, message; code, note; code, name, note: the `reg`, `retired`, `reserved` and `round4` rows
+# C#-only facts from the TSV: desc (code, .byn member, C# name), severity (code, severity), retired and reserved
+# (code, note), round4 (code, name, note)
 facts() { awk -F'\t' -v OFS='\t' -v k="$1" '$1 == k { $1 = ""; sub(/^\t/, ""); print }' "$facts_tsv"; }
-facts reg > "$t/reg"; facts retired > "$t/retired"; facts reserved > "$t/reserved"; facts round4 > "$t/round4"
-[ -s "$t/reg" ] || die "no reg rows in csharp-facts.tsv"
+facts desc > "$t/desc"; facts severity > "$t/sev"
+facts retired | cell | sort -k1,1 > "$t/retired"; facts reserved | cell | sort -k1,1 > "$t/reserved"; facts round4 | cell | sort -k1,1 > "$t/round4"
+# code, member, message, warning-or-empty for every case of the three message tables (lexer, parser, semantics), in
+# declaration order; a lexer code is its ordinal + 1 (blockComment is BYN1047), the others are `codeText`'s strings.
+for f in lexer/diagnostics parser/codes semantics/codes; do
+  awk -v lex="$([ "$f" = lexer/diagnostics ] && echo 1 || echo 0)" '
+    /^(public )?enum / { en = 1; n = 0; next }
+    en && /^}/ { en = 0; next }
+    en { gsub(/[ \t]/, ""); if ($0 != "" && $0 !~ /^\/\//) { order[++n] = $0; ord[$0] = n } next }
+    /^string codeText\(/ { fn = "code"; next }
+    /^string messageFormat\(/ { fn = "msg"; next }
+    /^bool isWarning\(/ { fn = "warn"; next }
+    /^}/ { fn = ""; next }
+    fn == "warn" { s = $0; while (match(s, /\.[A-Za-z0-9]+/)) { warn[substr(s, RSTART + 1, RLENGTH - 1)] = 1; s = substr(s, RSTART + RLENGTH) } }
+    (fn == "code" || fn == "msg") && match($0, /^ *\.[A-Za-z0-9]+ +=> +"/) {
+      m = substr($0, RSTART, RLENGTH); sub(/^ *\./, "", m); sub(/ .*/, "", m)
+      v = substr($0, RSTART + RLENGTH); sub(/",? *$/, "", v)
+      if (fn == "code") code[m] = v; else msg[m] = v }
+    END { for (i = 1; i <= n; i++) { m = order[i]
+            if (lex) code[m] = (m == "blockComment") ? "BYN1047" : sprintf("BYN%04d", i)
+            if (m in code && m in msg) print code[m] "\t" m "\t" msg[m] "\t" ((m in warn) ? "Warning" : "") } }' "$root/src/$f.byn"
+done > "$t/byn"
+[ -s "$t/byn" ] || die "no message tables in src/lexer, src/parser, src/semantics"
+# code, name, severity, message: the first case of a code, unless a desc row names another; the name is the member with
+# its first letter raised, unless a desc row gives it
+awk -F'\t' -v OFS='\t' 'FILENAME == d { want[$1] = $2; nm[$1] = $3; next } FILENAME == v { sv[$1] = $2; next }
+  { c = $1; if (c in want ? $2 != want[c] : seen[c]++) next; seen[c] = 1
+    n = (c in nm) ? nm[c] : toupper(substr($2, 1, 1)) substr($2, 2)
+    print c, n, (c in sv) ? sv[c] : ($4 != "" ? $4 : "Error"), $3 }' d="$t/desc" v="$t/sev" "$t/desc" "$t/sev" "$t/byn" \
+  | sed -E 's/\\"/"/g; s/\\\\/\\/g' | cell | sort -k1,1 > "$t/reg"
+[ -s "$t/reg" ] || die "no descriptors in the message tables"
 dup="$(cut -f1 "$t/reg" | uniq -d)"; [ -z "$dup" ] || die "registered twice: $dup"
 # status, code, name, note from the hand-kept file
 grep -vE '^(#|[[:space:]]*$)' "$lists" | sed -E 's/^([a-z]+) (BYN[0-9]{4}) ([^ ]+) (.*)$/\1	\2	\3	\4/' > "$t/hand" || true
