@@ -738,17 +738,17 @@ public sealed class SelfhostDriverT1Tests
         SelfhostEmitterHarness.AssertSame("manifestFor", string.Join("\n", expected) + "\n", stdout);
     }
 
-    /// <summary>A file under a directory link into a second package takes that package's manifest (the real path), not the root's: <c>root/link -> ../second</c>. The C# <c>ManifestFor</c> starts from the alias and finds the root's, so the expected lines are the driver's own.</summary>
+    /// <summary>A file under a directory link into a second package takes that package's manifest and `style` (the real path), not the root's: <c>root/link -> ../second</c>. The C# <c>ManifestFor</c> starts from the alias and finds the root's, so the expected lines are the driver's own.</summary>
     [Fact]
     public void ManifestForFollowsADirectoryLink()
     {
         if (OperatingSystem.IsWindows()) return;
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "t6-manifest-link");
         if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
-        foreach (var (pkg, kind) in new[] { ("root", "app"), ("second", "library") })
+        foreach (var (pkg, booleans) in new[] { ("root", "symbols"), ("second", "words") })
         {
             Directory.CreateDirectory(Path.Combine(dir, pkg));
-            File.WriteAllText(Path.Combine(dir, pkg, "package.byn"), $"Package {{\n    name: \"local/{pkg}\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .{kind},\n}}\n");
+            File.WriteAllText(Path.Combine(dir, pkg, "package.byn"), $"Package {{\n    name: \"local/{pkg}\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .app,\n    style: Style {{\n        booleans: .{booleans},\n    }},\n}}\n");
         }
         File.WriteAllText(Path.Combine(dir, "root", "own.byn"), "");
         File.WriteAllText(Path.Combine(dir, "second", "x.byn"), "");
@@ -757,6 +757,10 @@ public sealed class SelfhostDriverT1Tests
         var (code, stdout, _) = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), "manifest", Path.Combine(dir, "root", "own.byn"), Path.Combine(dir, "root", "link", "x.byn"));
         Assert.Equal(0, code);
         SelfhostEmitterHarness.AssertSame("manifestFor", $"{Path.Combine(dir, "root")}\n{real}\n2\n", stdout);
+        // The second package's `booleans: .words`, not the root's `.symbols`.
+        var (wordsCode, words, _) = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), "words", Path.Combine(dir, "root", "own.byn"), Path.Combine(dir, "root", "link", "x.byn"));
+        Assert.Equal(0, wordsCode);
+        SelfhostEmitterHarness.AssertSame("manifestFor style", "false\ntrue\n", words);
     }
 
     /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (files holding only a comment, an unreadable one, a missing directory).</summary>
