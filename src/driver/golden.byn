@@ -510,11 +510,12 @@ i64 goldenLimitMs(i64 deadline) uses clock {
 string goldenLimitText(i64 ms) uses alloc => ms % 1000 == 0 ? $"{ms / 1000} s" : $"{ms} ms"
 
 /// One case's result (R2): `name` is `<kind>/<case>`, `status` one of `passed`, `failed`, `skipped` and `timed out`, `detail` the failure, skip
-/// or time-out text (empty when it passed).
+/// or time-out text (empty when it passed), `input` the case's input path (set by `goldenTest`).
 struct GoldenResult {
     string name
     string status
     string detail = ""
+    string input  = ""
 }
 
 /// `bayan test --golden-case <kind> <name> <input>`: case `c` produced and compared in this process, as the child of `goldenInChild`; its failure
@@ -652,10 +653,17 @@ bool goldenIsCasesDir(string path) uses alloc, fs {
 
 /// `bayan test <cases dir>` (R2, R3, R4): the cases of `root` whose `<kind>/<case>` name contains one of `only` (all of them when it is empty;
 /// test.byn `t11Matches`, CliApp.cs `TestSymbol.Name.Contains`), up to `jobs` at once (`goldenJobs`), each with the time limit `limitMs`. A line
-/// `<status> <kind>/<case>` per case in case order, whatever order they end in, with its detail indented below, then the counts; each result is
-/// also added to `results`. A failed or timed-out case never stops the ones after it. `exitTestFailure` when one failed or timed out or a listing
-/// failed; `exitUsage` when `only` selects nothing (test.byn:281).
-i32 goldenTest(string root, by List<string> only, for i64 limitMs, to ref List<GoldenResult> results, i64 jobs = 1)
+/// `<status> <kind>/<case>` per case in case order, whatever order they end in, with its detail indented below (none of it when `quiet`); each
+/// result is also added to `results` with its input. test.byn prints the counts (spec 019 R8). A failed or timed-out case never stops the ones
+/// after it. `exitTestFailure` when one failed or timed out or a listing failed; `exitUsage` when `only` selects nothing (test.byn:281).
+i32 goldenTest(
+    string root,
+    by List<string> only,
+    for i64 limitMs,
+    to ref List<GoldenResult> results,
+    i64 jobs = 1,
+    bool quiet = false
+)
         uses alloc, clock, console, env, fs, process {
     var exit = 0
     var cases = List<GoldenCase>()
@@ -673,11 +681,12 @@ i32 goldenTest(string root, by List<string> only, for i64 limitMs, to ref List<G
         return exitUsage
     }
     let exe = Env.get("BAYAN_EXE") ?? ""
-    if exe != "" {
+    if exe != "" && !quiet {
         Io.stdout.write(goldenExeReport(exe))
     }
-    print($"running {cases.length} {cases.length == 1 ? "case" : "cases"} of {root}")
-    let total = Io.monotonicNanos()
+    unless quiet {
+        print($"running {cases.length} {cases.length == 1 ? "case" : "cases"} of {root}")
+    }
     var mine = List<GoldenResult>()
     // Workers need a driver that starts (T2c); without one the cases run here, each failing with the T2c text as under `--jobs 1`.
     var unusable = ""
@@ -685,38 +694,28 @@ i32 goldenTest(string root, by List<string> only, for i64 limitMs, to ref List<G
     if jobs > 1 && cases.length > 1 && driver != "" && Target.os != "windows" {
         goldenJobs(in cases, by: exe, for: limitMs, as: jobs, to: ref mine)
         for r in mine {
-            goldenPrint(in r)
+            unless quiet {
+                goldenPrint(in r)
+            }
         }
     } else {
         for c in cases {
             let r = goldenResult(c, for: limitMs)
-            goldenPrint(in r)
+            unless quiet {
+                goldenPrint(in r)
+            }
             mine.append(move r)
         }
     }
-    var passed: i64 = 0
-    var failed: i64 = 0
-    var skipped: i64 = 0
-    var timedOut: i64 = 0
-    for r in mine {
-        switch r.status {
-            case "passed":
-                passed += 1
-            case "skipped":
-                skipped += 1
-            case "timed out":
-                timedOut += 1
-            default:
-                failed += 1
-        }
+    var failed = false
+    for i in 0..mine.length {
+        let status = mine[i].status
+        failed = failed || status == "failed" || status == "timed out"
+        results.append(
+            GoldenResult { name: mine[i].name, status: status, detail: mine[i].detail, input: cases[i].input },
+        )
     }
-    for r in mine {
-        results.append(GoldenResult { name: r.name, status: r.status, detail: r.detail })
-    }
-    print(
-        $"{passed} passed · {failed} failed · {skipped} skipped · {timedOut} timed out · {t11Seconds(Io.monotonicNanos() - total)}",
-    )
-    return failed > 0 || timedOut > 0 || exit != 0 ? exitTestFailure : exitOk
+    return failed || exit != 0 ? exitTestFailure : exitOk
 }
 
 /// The report lines of result `r`: `<status> <kind>/<case>`, then its detail indented.
@@ -2087,7 +2086,7 @@ test "--jobs 1 and --jobs 4 print the same report in case order, times masked, a
     assert(one.exitCode == exitTestFailure && four.exitCode == one.exitCode && exit == exitTestFailure)
     assert(four.stdout == one.stdout)
     assert(one.stdout.contains("running 5 cases of ")
-        && one.stdout.contains("4 passed · 1 failed · 0 skipped · 0 timed out · Ts"))
+        && one.stdout.contains("◆ 4 passed · ✗ 1 failed · 0 pending · 0 test blocks, 5 golden cases · Ts"))
     assert(results.length == 5)
     var names = List<string>()
     for r in results {
@@ -2310,8 +2309,8 @@ test "a .pending case with BAYAN_EXE unset or naming a missing file fails naming
             $"\nfailed {stem}\n    {input}\n    BAYAN_EXE={none} is not an executable bayan driver\n",
         ))
     }
-    assert(unset.stdout.contains("\n0 passed · 3 failed · 0 skipped · ")
-        && missing.stdout.contains("\n0 passed · 3 failed · 0 skipped · "))
+    assert(unset.stdout.contains("\n◆ 0 passed · ✗ 3 failed · 0 pending · 0 test blocks, 3 golden cases · ")
+        && missing.stdout.contains("\n◆ 0 passed · ✗ 3 failed · 0 pending · 0 test blocks, 3 golden cases · "))
 }
 
 test "new, out, emit and quality cases pass over tests/cases" {
