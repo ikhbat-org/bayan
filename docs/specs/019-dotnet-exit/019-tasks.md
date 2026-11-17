@@ -50,7 +50,7 @@ The golden runner (T1–T10) comes first and T10 is a gate: nothing from T11 on 
 - [ ] T18 Inventory check — files: scripts/ci/inventory-check.sh (new), its `.test.sh` — covers: R11 — done when: the check fails on a class with no row, a dropped row with no reason, and a golden row whose case count is below the class's test count.
 - [ ] T19 Divergence list — files: tests/cases/DIVERGENCES.tsv (new) — covers: R12 — done when: every case where the two compilers differ at the tag has a row with a question number and the side that was right, and its expected file holds that side's output.
 - [ ] T20 Freeze manifest and check — files: tests/cases/FREEZE.tsv (new), scripts/ci/freeze-check.sh (new) — covers: R13 — done when: the manifest names the tag, commit, export branch head and per-kind counts; the check fails on a hand-edited frozen file and names it.
-- [ ] T21 Golden-update commit check — files: scripts/ci/golden-commit-check.sh (new), scripts/ci/pre-push.sh — covers: R14 — done when: a range with a commit mixing an expected file and another file is refused, as is a golden-only commit whose message names no cause.
+- [x] T21 Golden-update commit check — files: scripts/ci/golden-commit-check.sh (new), scripts/ci/pre-push.sh — covers: R14 — done when: a range with a commit mixing an expected file and another file is refused, as is a golden-only commit whose message names no cause.
 
 ## 019a: the suite without .NET
 
