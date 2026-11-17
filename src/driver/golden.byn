@@ -16,6 +16,21 @@
 //
 // The walk is `bynFiles` of walk.byn: bounded to the kind directory's real path, so a link that leads out is not entered (docs/memory-leaks.md
 // rule 1; walk.byn has no file budget of its own, T9a bounds the whole run).
+//
+// Comparison (spec 019 T2): `goldenRun` produces a case's text in this process and `goldenCompare` sets it against the expected file beside the
+// input, as Golden.cs:35 `Compare` does: CR LF reads as LF, and the first differing line is reported. Per kind the producer is the one the C# class
+// calls (named on each function). `style` and the file kinds are T3.
+
+import lexer
+import parser
+import semantics
+
+type GoldenOptions = semantics.CompilationOptions
+type GoldenDiag = semantics.Diag
+type GoldenRelated = semantics.Related
+type GoldenStd = semantics.StdSource
+type GoldenCtx = semantics.Ctx
+type GoldenFile = semantics.SourceFile
 
 /// One case: `kind` is the directory under the cases root, `name` the case below it (`/`-separated, no extension) and `input` the path of its
 /// input file (the `.byn` or `main.byn`, the `.color` file of a style shape, or the one file of a file kind).
@@ -137,6 +152,228 @@ i32 goldenList(string root) uses alloc, console, fs {
     return exit
 }
 
+/// `text` with CR LF read as LF (Golden.cs:73 `Normalize`).
+string goldenLf(string text) uses alloc => text.replaced("\r\n", by: "\n")
+
+/// The expected file of `input`: its name without its last extension, then `ending` (`Path.ChangeExtension`, Golden.cs:58).
+string goldenExpected(string input, for string ending) uses alloc {
+    let name = Path.fileName(input)
+    return $"{input[0..input.length - name.length]}{goldenStem(name)}{ending}"
+}
+
+/// The lines of `text` (split at LF; a final LF leaves an empty last line, as `Split('\n')` does, Golden.cs:78).
+List<string> goldenLines(string text) uses alloc {
+    var lines = List<string>()
+    for line in text.parts(by: "\n") {
+        lines.append($"{line}")
+    }
+    return lines
+}
+
+/// Golden.cs:35 `Compare` outside update mode: null when `actual` equals the expected file at `expected` (CR LF read as LF), else the failure text,
+/// which names the input path and the first differing line, expected and actual (spec 019 R2).
+string? goldenCompare(string actual, for string input, at string expected) uses alloc, fs {
+    let text = Io.readText(expected) catch return $"{input}\nmissing expected file {expected}"
+    let want = goldenLines(goldenLf(text))
+    let got = goldenLines(goldenLf(actual))
+    var line = 0
+    while line < want.length && line < got.length && want[line] == got[line] {
+        line += 1
+    }
+    return null if line == want.length && line == got.length
+    let wantLine = line < want.length ? want[line] : "<end of file>"
+    let gotLine = line < got.length ? got[line] : "<end of file>"
+    return $"{input}\nexpected line {line + 1}: {wantLine}\nactual line {line + 1}: {gotLine}"
+}
+
+/// The text of `input`, named by its bare file name as `Golden.Load` names it (so rendered paths do not depend on the checkout).
+lexer.SourceText goldenLoad(string input) uses alloc, fs fails IoError {
+    return lexer.SourceText.create(Path.fileName(input), from: try Io.readFile(input))
+}
+
+/// LexerTests.cs:15: `TokenDump.Dump(Lexer.Lex(...))`.
+string goldenLex(string input) uses alloc, fs {
+    let bytes = Io.readFile(input) catch return ""
+    var sb = StrBuf()
+    let _ = lexer.dumpFile(Path.fileName(input), from: move bytes, by: lexer.Keywords.build(), to: ref sb, json: false)
+    return sb.finish()
+}
+
+/// ParserTests.cs:12: `AstDump.Dump(SyntaxTree.Parse(...))`.
+string goldenParse(string input) uses alloc, fs {
+    let bytes = Io.readFile(input) catch return ""
+    var p = parser.Parser.create(
+        lexer.lex(lexer.SourceText.create(Path.fileName(input), from: move bytes), by: lexer.Keywords.build()),
+    )
+    let unit = parser.parseCompilationUnit(ref p)
+    var sb = StrBuf()
+    parser.dump(in unit, from: ref p, to: ref sb)
+    return sb.finish()
+}
+
+/// The compilation of one case file as `Compilation.Create([Golden.Load(path)], dir, options)`.
+semantics.Ctx goldenCompile(string input, by in semantics.CompilationOptions options) uses alloc, clock, fs {
+    var sources = List<lexer.SourceText>()
+    sources.append(goldenLoad(input) catch lexer.SourceText.create(Path.fileName(input), from: List<u8>()))
+    return semantics.create(from: move sources, at: Path.directoryName(Path.fullPath(input)) ?? "", by: in options)
+}
+
+/// TypedDumpTests.cs:17: `TypedDump.ToJson`; the C# asserts there is no error, here the rendered errors are the text, so the case fails.
+string goldenTyped(string input) uses alloc, clock, fs {
+    let options = GoldenOptions { includeTests: false }
+    var c = goldenCompile(input, by: in options)
+    var omitted: i64 = 0
+    if c.diagnostics.length > 0 {
+        return semantics.renderAll(in c, from: in c.diagnostics, by: true, until: 2147483647, to: ref omitted)
+    }
+    return semantics.typedDump(ref c)
+}
+
+/// A copy of `d`, which a list of diagnostics of two sources needs.
+semantics.Diag goldenCopyDiag(in semantics.Diag d) uses alloc {
+    var related = List<semantics.Related>()
+    for r in d.related {
+        related.append(GoldenRelated { span: r.span, label: r.label })
+    }
+    return GoldenDiag {
+        code: d.code,
+        file: d.file,
+        span: d.span,
+        message: d.message,
+        label: d.label,
+        help: d.help,
+        isWarning: d.isWarning,
+        isNote: d.isNote,
+        hasFix: d.hasFix,
+        fixSpan: d.fixSpan,
+        fixReplacement: d.fixReplacement,
+        related: move related,
+    }
+}
+
+/// The std library a package case ships in its `stdlib/` (DiagTests.cs:22): every file under it, by its path below it; null when it has none.
+List<semantics.StdSource>? goldenStd(string dir, through ref i32 exit) uses alloc, console, fs {
+    let stdlib = Path.combine(dir, "stdlib")
+    return null unless t6DirectoryExists(stdlib)
+    let real = realPath(stdlib) catch return null
+    var sources = List<semantics.StdSource>()
+    for file in bynFiles(stdlib, through: ref exit, by: real) {
+        let text = Io.readText(file) catch ""
+        sources.append(GoldenStd { path: goldenSlashed(Path.relative(stdlib, to: file)), text: text })
+    }
+    return sources
+}
+
+/// DiagTests.cs:16: `DiagnosticRenderer.RenderAll` of the front end's diagnostics (and, for a `style-*` case, the style lints), with the path
+/// when the case is a subdirectory package: its `package.byn` names the package and bounds its capabilities, its `stdlib/` replaces the shipped std.
+string goldenDiag(string input) uses alloc, clock, console, fs {
+    let dir = Path.directoryName(Path.fullPath(input)) ?? ""
+    let package = Path.fileName(dir) != "diag"
+    let manifestPath = Path.combine(dir, "package.byn")
+    var manifest: semantics.Manifest? = null
+    if Fs.fileExists(manifestPath) {
+        manifest = semantics.manifestRead(manifestPath) catch return "unreadable package.byn"
+    }
+    var exit = 0
+    var options = GoldenOptions { includeTests: input.endsWith(".test.byn"), std: goldenStd(dir, through: ref exit) }
+    if (manifest is { } m) {
+        options.packageName = m.name
+        if (m.capabilities is { } caps) {
+            var copy = List<string>()
+            for cap in caps {
+                copy.append(cap)
+            }
+            options.capabilities = move copy
+        }
+    }
+    let c = goldenCompile(input, by: in options)
+    let styleCase = Path.fileName(package ? dir : input).startsWith("style-")
+    var shown = List<semantics.Diag>()
+    for d in c.diagnostics {
+        shown.append(goldenCopyDiag(in d))
+    }
+    if styleCase {
+        for d in semantics.styleLintsAt(c, by: manifest) {
+            shown.append(goldenCopyDiag(in d))
+        }
+    }
+    var omitted: i64 = 0
+    return semantics.renderAll(in c, from: in shown, by: package, until: 2147483647, to: ref omitted)
+}
+
+/// ManifestTests.cs:16: the manifest's diagnostics rendered, or the fields it read when there are none. Those fields are `name`, `version`, `edition`, `kind`,
+/// `targets`, `mode`, `booleans` and `primitives`.
+string goldenManifest(string input) uses alloc, fs {
+    let m = semantics.manifestRead(input) catch return "unreadable manifest"
+    var targets = ""
+    for t in m.distTargets {
+        targets = targets == "" ? t : $"{targets} {t}"
+    }
+    if m.diagnostics.length == 0 {
+        let kind = m.kind == .lib ? "Lib" : "App"
+        let booleans = m.booleans == .words ? "Words" : "Symbols"
+        let primitives = m.primitives == .csharp ? "Csharp" : "Sized"
+        return $"name {m.name}\nversion {m.version}\nedition {m.edition}\nkind {kind}\ntargets {targets}\nmode {m.distMode}\nbooleans {booleans}\nprimitives {primitives}\n"
+    }
+    var c = GoldenCtx {
+        files: List<semantics.SourceFile>(),
+        modules: List<semantics.Mod>(),
+        diagnostics: List<GoldenDiag>(),
+        bags: List<semantics.DiagBag>(),
+    }
+    let text = Io.readFile(input) catch List<u8>()
+    let empty = List<u8>()
+    var p = parser.Parser.create(
+        lexer.lex(lexer.SourceText.create("package.byn", from: move empty), by: lexer.Keywords.build()),
+    )
+    let unit = parser.parseCompilationUnit(ref p)
+    c.files.append(
+        GoldenFile { path: "package.byn", displayPath: "package.byn", text: move text, unit: move unit, imports: Map<string, i64>() },
+    )
+    var shown = List<GoldenDiag>()
+    for d in m.diagnostics {
+        var copy = goldenCopyDiag(in d)
+        copy.file = 0
+        shown.append(move copy)
+    }
+    var omitted: i64 = 0
+    return semantics.renderAll(in c, from: in shown, by: false, until: 2147483647, to: ref omitted)
+}
+
+/// DiagJsonTests.cs:14: `DiagnosticJson.RenderAll(c.Diagnostics.Items)`.
+string goldenDiagJson(string input) uses alloc, clock, fs {
+    let options = GoldenOptions { includeTests: false }
+    let c = goldenCompile(input, by: in options)
+    return semantics.t26DiagnosticJsonAll(in c, from: in c.diagnostics)
+}
+
+/// The text of `kind`'s case `c`, produced in this process.
+string goldenProduce(in GoldenCase c) uses alloc, clock, console, fs {
+    switch c.kind {
+        case "lex":
+            return goldenLex(c.input)
+        case "parse":
+            return goldenParse(c.input)
+        case "typed":
+            return goldenTyped(c.input)
+        case "diag":
+            return goldenDiag(c.input)
+        case "manifest":
+            return goldenManifest(c.input)
+        case "diag-json":
+            return goldenDiagJson(c.input)
+        default:
+            return ""
+    }
+}
+
+/// Runs the text kinds of `c` (T2): null when it passes, else the failure text. Kinds not compared yet (`style`, T3's kinds) fail with that said.
+string? goldenRun(in GoldenCase c) uses alloc, clock, console, fs {
+    let ending = c.kind is "lex" ? ".tokens" : c.kind is "parse" ? ".ast" : c.kind is "typed" ? ".types" : c.kind is "diag" or "manifest" ? ".diag" : c.kind is "diag-json" ? ".jsonl" : ""
+    return $"{c.input}\nkind `{c.kind}` is not compared yet" if ending == ""
+    return goldenCompare(goldenProduce(in c), for: c.input, at: goldenExpected(c.input, for: ending))
+}
+
 /// Writes `text` to `root`/`rel`, creating the directories above it.
 void goldenFixture(string root, for string rel) uses alloc, fs {
     let path = Path.combine(root, rel)
@@ -203,4 +440,86 @@ test "a missing kind directory and a missing root list nothing" {
     deleteWorkDir(root)
     assert(empty == "")
     assert(goldenList(Path.combine(root, "missing")) == 1)
+}
+
+/// Failure texts of the cases of `kind` under `root`, and in `count` how many ran.
+List<string> goldenFailures(string root, for string kind, to ref i64 count) uses alloc, clock, console, fs {
+    var exit = 0
+    var failures = List<string>()
+    for c in goldenDiscover(root, through: ref exit) {
+        continue if c.kind != kind
+        count += 1
+        if (goldenRun(in c) is { } failure) {
+            failures.append(failure)
+        }
+    }
+    return failures
+}
+
+/// Writes `text` to `root`/`rel`, creating the directories above it.
+void goldenWrite(string root, for string rel, as string text) uses alloc, fs {
+    let path = Path.combine(root, rel)
+    Io.createDirectory(Path.directoryName(path) ?? root) catch return
+    Io.writeFile(path, text.bytes) catch return
+}
+
+test "lex, parse and typed cases pass over tests/cases" {
+    for kind in ["lex", "parse", "typed"] {
+        var count: i64 = 0
+        let failures = goldenFailures(Path.fullPath("tests/cases"), for: kind, to: ref count)
+        assert(count > 0)
+        assert(failures.length == 0)
+    }
+}
+
+test "diag, manifest and diag-json cases pass over tests/cases" {
+    var count: i64 = 0
+    assert(goldenFailures(Path.fullPath("tests/cases"), for: "diag", to: ref count).length == 0)
+    assert(count == 642)
+    count = 0
+    assert(goldenFailures(Path.fullPath("tests/cases"), for: "manifest", to: ref count).length == 0)
+    assert(count == 21)
+    count = 0
+    assert(goldenFailures(Path.fullPath("tests/cases"), for: "diag-json", to: ref count).length == 0)
+    assert(count == 2)
+}
+
+test "a changed expected line fails with the input path and the first differing line" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-compare")
+    deleteWorkDir(root)
+    let source = Io.readText(Path.fullPath("tests/cases/lex/bad-chars.byn")) catch ""
+    goldenWrite(root, for: "lex/a.byn", as: source)
+    let expected = Io.readText(Path.fullPath("tests/cases/lex/bad-chars.tokens")) catch ""
+    var changed = goldenLines(expected)
+    changed[2] = "changed line"
+    var text = ""
+    for i in 0..changed.length {
+        text = i == 0 ? changed[i] : $"{text}\n{changed[i]}"
+    }
+    goldenWrite(root, for: "lex/a.tokens", as: text)
+    var exit = 0
+    var failure = ""
+    for c in goldenDiscover(root, through: ref exit) {
+        failure = goldenRun(in c) ?? ""
+    }
+    deleteWorkDir(root)
+    let want = goldenLines(expected)
+    assert(failure.startsWith(Path.combine(root, "lex/a.byn")))
+    assert(failure.contains($"expected line 3: changed line\nactual line 3: {want[2]}"))
+}
+
+test "CR LF in an expected file reads as LF" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-crlf")
+    deleteWorkDir(root)
+    let source = Io.readText(Path.fullPath("tests/cases/lex/bad-chars.byn")) catch ""
+    let expected = Io.readText(Path.fullPath("tests/cases/lex/bad-chars.tokens")) catch ""
+    goldenWrite(root, for: "lex/a.byn", as: source)
+    goldenWrite(root, for: "lex/a.tokens", as: expected.replaced("\n", by: "\r\n"))
+    var exit = 0
+    var failures = 0
+    for c in goldenDiscover(root, through: ref exit) {
+        failures += goldenRun(in c) is null ? 0 : 1
+    }
+    deleteWorkDir(root)
+    assert(failures == 0)
 }

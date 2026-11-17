@@ -9,7 +9,7 @@
 
 import lexer
 
-enum PackageKind {
+public enum PackageKind {
     app
     lib
 }
@@ -53,11 +53,11 @@ struct Grammar {
 
 // The C# `Manifest`; `capabilities` is null when the package lists none.
 public struct Manifest {
-    string                           name           = ""
+    public string                    name           = ""
     public string                    version        = ""
-    i64                              edition        = 2027
-    PackageKind                      kind           = .app
-    List<string>?                    capabilities   = null
+    public i64                       edition        = 2027
+    public PackageKind               kind           = .app
+    public List<string>?             capabilities   = null
     public List<string>              distTargets    = []
     public string                    distMode       = "safe"
     public i64?                      minLines       = null
