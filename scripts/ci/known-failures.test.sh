@@ -1,34 +1,29 @@
 #!/usr/bin/env bash
-# Tests scripts/ci/known-failures.py and its wiring in .github/workflows/ci.yml.
+# Tests scripts/ci/known-failures.py against reports of scripts/test.sh (fixtures: summary lines and kept part logs).
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 script="$root/scripts/ci/known-failures.py"
-tmp="$root/tmp/known-failures-test"
-rm -rf "$tmp"
-mkdir -p "$tmp"
+mkdir -p "$root/tmp"
+tmp="$(mktemp -d "$root/tmp/known-failures-test.XXXXXX")"
 trap 'rm -rf "$tmp"' EXIT
 
-NS="http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
-DX='Bayan.Tests.P.Check(name: "diag/x/main.byn")'
-
-# trx FILE NAME=OUTCOME...
-trx() {
-  local f="$1"; shift
-  {
-    echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-    echo "<TestRun xmlns=\"$NS\"><Results>"
-    for kv in "$@"; do
-      local n="${kv%=*}" o="${kv##*=}"
-      n="$(printf '%s' "$n" | sed -e 's/&/\&amp;/g' -e 's/"/\&quot;/g' -e 's/</\&lt;/g')"
-      echo "<UnitTestResult testName=\"$n\" outcome=\"$o\"/>"
-    done
-    echo "</Results></TestRun>"
-  } > "$f"
+# report FILE PART... : a report whose parts fail, each with its log at $tmp/<part>.log (written by the caller); the others pass.
+report() {
+  local f="$1" p; shift
+  : > "$f"
+  for p in golden bayan; do
+    case " $* " in
+      (*" $p "*) printf 'test: %-8s %-4s %4ss  x (exit 1; log: %s/%s.log)\n' "$p" FAIL 3 "$tmp" "$p" >> "$f" ;;
+      (*) printf 'test: %-8s %-4s %4ss  x\n' "$p" pass 3 >> "$f" ;;
+    esac
+  done
+  case " $* " in
+    (*" scripts "*) printf 'test: %-8s %-4s %4ss  x (exit 1; log: %s/scripts.log)\n' scripts FAIL 3 "$tmp" >> "$f"
+                    echo "scripts: some script failed" > "$tmp/scripts.log" ;;
+  esac
+  echo "test: FAILED$(printf ' %s' "$@")" >> "$f"
 }
-
-list="$tmp/list.txt"
-printf '# comment\nBayan.Tests.A.One\n%s\n' "$DX" > "$list"
 
 # run NAME EXPECTED_CODE PATTERN ARGS...
 run() {
@@ -43,43 +38,48 @@ run() {
   fi
 }
 
-trx "$tmp/ok.trx" "Bayan.Tests.A.One=Failed" "$DX=Failed" "Bayan.Tests.A.Two=Passed"
-run listed-only 0 "0 new" "$list" "$tmp/ok.trx"
+list="$tmp/list.txt"
+printf '# comment\nrun/one\nstd/x: two\n' > "$list"
 
-trx "$tmp/new.trx" "Bayan.Tests.A.One=Failed" "$DX=Failed" "Bayan.Tests.A.Three=Failed"
-run new-failure 1 "Bayan.Tests.A.Three" "$list" "$tmp/new.trx"
+printf 'passed run/ok\n    detail\nfailed run/one\n    expected\ntimed out diag/slow\n' > "$tmp/golden.log"
+printf '== lib/std/x\n  \xe2\x9c\x97 std/x: two\n      boom\n' > "$tmp/bayan.log"
 
-trx "$tmp/pass.trx" "Bayan.Tests.A.One=Passed" "$DX=Failed"
-run now-passes 1 "Bayan.Tests.A.One" "$list" "$tmp/pass.trx"
+# a timed-out case is a failure too; both listed failures present, one unlisted
+report "$tmp/new.txt" golden bayan
+run new-failure 1 "new failure: diag/slow" "$list" "$tmp/new.txt"
 
-trx "$tmp/absent.trx" "$DX=Failed" "Bayan.Tests.A.Two=Passed"
-run not-run 0 "not run: Bayan.Tests.A.One" "$list" "$tmp/absent.trx"
+printf '# only comments\nrun/one\ndiag/slow\nstd/x: two\n' > "$tmp/all.txt"
+run all-listed 0 "0 new, 0 now passing" "$tmp/all.txt" "$tmp/new.txt"
 
-for o in Error Timeout Aborted; do
-  trx "$tmp/$o.trx" "Bayan.Tests.A.One=Failed" "$DX=Failed" "Bayan.Tests.A.Four=$o"
-  run "outcome-$o" 1 "new failure: Bayan.Tests.A.Four" "$list" "$tmp/$o.trx"
-  trx "$tmp/$o-known.trx" "Bayan.Tests.A.One=$o" "$DX=Failed"
-  run "outcome-$o-known" 0 "2 failed, 2 known" "$list" "$tmp/$o-known.trx"
-done
+printf 'failed run/one\n' > "$tmp/golden.log"
+report "$tmp/g.txt" golden
+run listed-passes 1 "now passes: remove it from $list: std/x: two" "$list" "$tmp/g.txt"
 
-# exact match of a display name with a (name: "...") suffix
-trx "$tmp/exact.trx" "Bayan.Tests.A.One=Failed" 'Bayan.Tests.P.Check(name: "diag/x/other.byn")=Failed'
-run exact-name 1 "new failure: Bayan.Tests.P.Check(name: \"diag/x/other.byn\")" "$list" "$tmp/exact.trx"
-run exact-name-listed 1 "not run: $DX" "$list" "$tmp/exact.trx"
+printf 'run/one\n' > "$tmp/one.txt"
+run only-listed 0 "0 new" "$tmp/one.txt" "$tmp/g.txt"
 
-run no-trx 2 "" "$list"
-echo "<TestRun" > "$tmp/bad.trx"
-run malformed 2 "" "$list" "$tmp/bad.trx"
-run missing-file 2 "" "$list" "$tmp/nope.trx"
-trx "$tmp/empty.trx"
-run zero-results 2 "" "$list" "$tmp/empty.trx"
+report "$tmp/s.txt" scripts
+run part-as-id 1 "new failure: scripts" "$list" "$tmp/s.txt"
+printf 'scripts\n' > "$tmp/sl.txt"
+run part-listed 0 "1 known" "$tmp/sl.txt" "$tmp/s.txt"
 
-# ci.yml wiring
-ci="$root/.github/workflows/ci.yml"
-grep -q "runner.os == 'Windows'" "$ci" || { echo "FAIL ci.yml: no Windows-only step"; exit 1; }
-grep -A3 "known-failures.py" "$ci" | grep -q "tests/windows-known-failures.txt" \
-  || { echo "FAIL ci.yml: script step lacks tests/windows-known-failures.txt"; exit 1; }
-grep -B3 -A3 "runner.os != 'Windows'" "$ci" | grep -q "dotnet test Bayan.slnx -c Release$" \
-  || { echo "FAIL ci.yml: non-Windows Test step changed"; exit 1; }
+printf 'driver build failed\n' > "$tmp/golden.log"
+report "$tmp/np.txt" golden
+run no-test-name 1 "new failure: golden" "$list" "$tmp/np.txt"
+
+printf 'test: golden   pass    1s  x\ntest: all passed\n' > "$tmp/pass.txt"
+run all-pass-listed 1 "now passes: remove it from $list: run/one" "$list" "$tmp/pass.txt"
+: > "$tmp/empty.txt"
+run all-pass-empty-list 0 "0 failed" "$tmp/empty.txt" "$tmp/pass.txt"
+
+run no-args 2 "usage"
+run one-arg 2 "usage" "$list"
+run extra-arg 2 "usage" "$list" "$tmp/pass.txt" "$tmp/pass.txt"
+run missing-list 2 "" "$tmp/nope.txt" "$tmp/pass.txt"
+run missing-report 2 "" "$list" "$tmp/nope.txt"
+echo "no summary here" > "$tmp/bad.txt"
+run no-summary 2 "no 'test:" "$list" "$tmp/bad.txt"
+printf 'test: golden   FAIL    1s  x (exit 1; log: %s/gone.log)\n' "$tmp" > "$tmp/nolog.txt"
+run missing-log 2 "" "$list" "$tmp/nolog.txt"
 
 echo PASS
