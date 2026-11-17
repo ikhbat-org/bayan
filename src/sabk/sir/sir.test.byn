@@ -72,3 +72,10 @@ test "the R8 program prints" {
     m.functions.append(move f)
     assert printModule(m) == "str0 \"Salam, world!\"\nfunc main() {\nb0:\n  v0 = const 0\n  v1 = addr str0\n  v2 = const 13\n  call byn_print(v0, v1, v2)\n  call byn_stdout_flush()\n  v3 = const 7\n  ret v3\n}\n"
 }
+
+test "string constants print with quotes, backslashes and newlines escaped" {
+    var m = emptyModule()
+    let _ = internString(ref m, as: "say \"hi\"\\n\nbye")
+    let _ = internString(ref m, as: "ok")
+    assert printModule(m) == "str0 \"say \\\"hi\\\"\\\\n\\nbye\"\nstr1 \"ok\"\n"
+}

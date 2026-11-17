@@ -183,11 +183,31 @@ public string printFunction(Function f) uses alloc {
     return sb.finish()
 }
 
-/// The module: `str N "text"` lines, `global @name = init` lines, then the functions, each section in order.
+/// `text` in double quotes, with `"`, `\` and a newline written `\"`, `\\` and `\n`.
+string quoted(string text) uses alloc {
+    var sb = StrBuf()
+    sb.append("\"")
+    for r in text.runes {
+        let v = i64(u32(r))
+        if v == 0x22 {
+            sb.append("\\\"")
+        } else if v == 0x5C {
+            sb.append("\\\\")
+        } else if v == 0x0A {
+            sb.append("\\n")
+        } else {
+            sb.append($"{r}")
+        }
+    }
+    sb.append("\"")
+    return sb.finish()
+}
+
+/// The module: `str N "text"` lines (escaped by `quoted`), `global @name = init` lines, then the functions, each section in order.
 public string printModule(Module m) uses alloc {
     var sb = StrBuf()
     for i in 0..m.strings.length {
-        sb.append($"str{i} \"{m.strings[i]}\"\n")
+        sb.append($"str{i} {quoted(m.strings[i])}\n")
     }
     for g in m.globals {
         sb.append($"global @{g.name} = {g.init}\n")
