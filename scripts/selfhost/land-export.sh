@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+# Spec 019 T17a: lands a C# export (BAYAN_EXPORT_DIR) as golden cases.
+#   bash scripts/selfhost/land-export.sh <export dir> <export worktree root> <dest tests/cases>
+# Copies every case directory <export>/<kind>/<Class>/<case>/ to <dest>/<kind>/<Class>/<case>/ byte for byte, except:
+#   (1) input/ becomes input.tsv, one line per entry sorted by name, `<name>\tfile:<sha256>`, `<name>\tfile+x:<sha256>` (user
+#       executable bit) or `<name>\ttree:<sha256>`; files are stored once at <dest>/inputs/files/<sha256>, directories at
+#       <dest>/inputs/trees/<sha256>.tsv (same format; a tree's hash is the sha256 of its .tsv text);
+#   (2) in every non-input text file, each occurrence of the export worktree root becomes `<repo>` (input/ and the top-level
+#       input and input.* files are inputs and are copied unmasked);
+#   (3) cli/SelfhostExport/ is dropped;
+#   (4) <dest>/EXPORT.tsv (class, kind, tests, cases, reason) is written: one row per class and kind with cases or with rows in
+#       <kind>/UNEXPORTED.tsv, tests from <dest>/../inventory-019.tsv, cases the case directories, reason the class's
+#       UNEXPORTED.tsv rows (root masked), empty when it has none.
+# A file is written only when its content differs, so a rerun over the same export writes nothing. A symlink or other special
+# file, or a name holding a tab, newline or backslash, under input/ stops the run. Prints the counts; exit 2 on bad arguments.
+set -euo pipefail
+[ $# = 3 ] || { echo "usage: land-export.sh <export dir> <export worktree root> <dest tests/cases>" >&2; exit 2; }
+src="${1%/}"; repo="${2%/}"; dest="${3%/}"
+[ -d "$src" ] || { echo "land-export: no export dir $src" >&2; exit 2; }
+[ -n "$repo" ] || { echo "land-export: empty export worktree root" >&2; exit 2; }
+mkdir -p "$dest"
+inv="$(cd "$dest/.." && pwd)/inventory-019.tsv"
+[ -f "$inv" ] || { echo "land-export: no $inv" >&2; exit 2; }
+if command -v sha256sum > /dev/null 2>&1; then sum="sha256sum"; else sum="shasum -a 256"; fi
+work="$(cd "$(mktemp -d "${TMPDIR:-/tmp}/land-export.XXXXXX")" && pwd)"   # absolute: the hashing runs from inside input/
+trap 'rm -rf "$work"' EXIT
+mkdir -p "$dest/inputs/files" "$dest/inputs/trees"
+esc="$(printf '%s' "$repo" | sed 's/[][\.*^$/]/\\&/g')"
+tab="$(printf '\t')"; nl='
+'
+cases=0; blobs=0; trees=0; written=0
+
+# put <candidate> <target>: copies when the target is missing or differs
+put() {
+  if ! cmp -s "$1" "$2" 2> /dev/null; then mkdir -p "$(dirname "$2")"; cp "$1" "$2"; written=$((written + 1)); fi
+}
+
+# land_input <case input dir> <target input.tsv>
+land_input() {
+  local in="$1" w="$work/in" p e h d n bad
+  rm -rf "$w"; mkdir -p "$w/lv"
+  bad="$(cd "$in" && find . \( ! -type f ! -type d \) -o -name "*$tab*" -o -name "*$nl*" -o -name '*\\*')"
+  [ -z "$bad" ] || { echo "land-export: unsupported input entry under $in: $bad" >&2; exit 1; }
+  (cd "$in" && find . -type f -print) > "$w/files"
+  (cd "$in" && find . -type f -perm -100 -print) > "$w/exec"
+  (cd "$in" && find . -type d -print) > "$w/dirs"
+  : > "$w/known"
+  if [ -s "$w/files" ]; then
+    (cd "$in" && tr '\n' '\0' < "$w/files" | xargs -0 $sum) |
+      awk -v ex="$w/exec" 'BEGIN { while ((getline l < ex) > 0) x[l] = 1 }
+        { h = substr($0, 1, 64); p = substr($0, 67); print p "\t" (p in x ? "file+x:" : "file:") h "\t" h }' > "$w/hashed"
+    while IFS="$tab" read -r p e h; do
+      if [ ! -f "$dest/inputs/files/$h" ]; then cp "$in/$p" "$dest/inputs/files/$h"; chmod 644 "$dest/inputs/files/$h"; blobs=$((blobs + 1)); fi
+    done < "$w/hashed"
+    cut -f1,2 "$w/hashed" > "$w/known"
+  fi
+  local depth max
+  max="$(awk -F/ 'NF - 1 > m { m = NF - 1 } END { print m + 0 }' "$w/dirs")"
+  depth="$max"
+  while [ "$depth" -ge 0 ]; do
+    rm -f "$w/lv/"*
+    # each directory at this depth gets lv/<n>.tsv of its children, sorted by name; lv/map holds <n>\t<dir>
+    awk -F'\t' -v d="$depth" -v lv="$w/lv" -v dirs="$w/dirs" '
+      function depth(p) { return gsub(/\//, "/", p) }
+      BEGIN { while ((getline l < dirs) > 0) if (depth(l) == d) { n++; idx[l] = n; f = lv "/" n ".tsv"; printf "" > f; close(f); print n "\t" l > (lv "/map") } }
+      { p = $1; par = p; sub(/\/[^\/]*$/, "", par); if (par in idx) { name = substr(p, length(par) + 2); print idx[par] "\t" name "\t" $2 } }
+    ' "$w/known" | LC_ALL=C sort -t"$tab" -k1,1n -k2,2 |
+      awk -F'\t' -v lv="$w/lv" '{ f = lv "/" $1 ".tsv"; if (f != last) { if (last != "") close(last); last = f }; print $2 "\t" $3 >> f }'
+    (cd "$w/lv" && find . -name '*.tsv' -print | tr '\n' '\0' | xargs -0 $sum) |
+      awk -v map="$w/lv/map" 'BEGIN { while ((getline l < map) > 0) { split(l, a, "\t"); dir[a[1]] = a[2] } }
+        { n = substr($0, 67); sub(/^\.\//, "", n); sub(/\.tsv$/, "", n); print dir[n] "\t" n "\t" substr($0, 1, 64) }' > "$w/level"
+    while IFS="$tab" read -r d n h; do
+      if [ "$d" = . ]; then
+        put "$w/lv/$n.tsv" "$2"
+      else
+        printf '%s\ttree:%s\n' "$d" "$h" >> "$w/known"
+        if [ ! -f "$dest/inputs/trees/$h.tsv" ]; then cp "$w/lv/$n.tsv" "$dest/inputs/trees/$h.tsv"; trees=$((trees + 1)); fi
+      fi
+    done < "$w/level"
+    depth=$((depth - 1))
+  done
+}
+
+# land_case <export case dir> <dest case dir>
+land_case() {
+  local c="$1" to="$2" f
+  [ ! -d "$c/input" ] || land_input "$c/input" "$to/input.tsv"
+  (cd "$c" && find . -type f ! -path './input/*' -print) > "$work/rest"
+  : > "$work/masked"
+  [ ! -s "$work/rest" ] || (cd "$c" && tr '\n' '\0' < "$work/rest" | xargs -0 grep -l -I -F -e "$repo" --) > "$work/masked" || true
+  while IFS= read -r f; do
+    f="${f#./}"
+    case "$f" in
+      (input|input.*) put "$c/$f" "$to/$f" ;;
+      (*) if grep -qx -F -e "./$f" "$work/masked"; then LC_ALL=C sed "s/$esc/<repo>/g" "$c/$f" > "$work/cand"; put "$work/cand" "$to/$f"
+          else put "$c/$f" "$to/$f"; fi ;;
+    esac
+  done < "$work/rest"
+  mkdir -p "$to"
+  cases=$((cases + 1))
+}
+
+: > "$work/counts"; : > "$work/unexported"
+for k in "$src"/*/; do
+  k="${k%/}"; kind="${k##*/}"
+  for cl in "$k"/*/; do
+    [ -d "$cl" ] || continue
+    cl="${cl%/}"; class="${cl##*/}"
+    [ "$kind/$class" != cli/SelfhostExport ] || continue
+    n=0
+    for c in "$cl"/*/; do
+      [ -d "$c" ] || continue
+      c="${c%/}"
+      land_case "$c" "$dest/$kind/$class/${c##*/}"
+      n=$((n + 1))
+    done
+    [ "$n" = 0 ] || printf '%s\t%s\t%s\n' "$class" "$kind" "$n" >> "$work/counts"
+  done
+  if [ -f "$k/UNEXPORTED.tsv" ]; then
+    LC_ALL=C sed "s/$esc/<repo>/g" "$k/UNEXPORTED.tsv" | awk -F'\t' -v k="$kind" 'k == "cli" && $1 == "SelfhostExport" { next }
+      { r = $3; for (i = 4; i <= NF; i++) r = r " " $i; print $1 "\t" k "\t" $2 " (" r ")" }' >> "$work/unexported"
+  fi
+done
+
+# EXPORT.tsv: reason "<n> not exported: <test> (<rest>); ...", the distinct rows sorted
+LC_ALL=C sort -u "$work/unexported" > "$work/unexported.sorted"
+awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" '
+  BEGIN {
+    while ((getline l < inv) > 0) { split(l, a, "\t"); if (a[1] != "class") tests[a[1]] = a[4] }
+    while ((getline l < un) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
+      reason[key] = (key in reason ? reason[key] "; " : "") a[3]; rows[key]++ }
+  }
+  { key = $1 "\t" $2; keys[key] = 1; cnt[key] = $3 }
+  END {
+    for (key in keys) { split(key, a, "\t")
+      print key "\t" (a[1] in tests ? tests[a[1]] : "") "\t" (key in cnt ? cnt[key] : 0) "\t" (key in rows ? rows[key] " not exported: " reason[key] : "") }
+  }
+' "$work/counts" | LC_ALL=C sort -t"$tab" -k1,1 -k2,2 > "$work/body"
+{ printf 'class\tkind\ttests\tcases\treason\n'; cat "$work/body"; } > "$work/EXPORT.tsv"
+put "$work/EXPORT.tsv" "$dest/EXPORT.tsv"
+echo "land-export: $cases cases, $blobs new input files, $trees new input trees, $written files written"
