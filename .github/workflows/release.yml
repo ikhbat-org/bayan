@@ -123,8 +123,12 @@ jobs:
   laws:
     uses: ./.github/workflows/laws-nightly.yml
 
+  # Diverse double-compiling from the frozen C# compiler (ddc.yml, also its weekly schedule; spec 019 R27).
+  ddc:
+    uses: ./.github/workflows/ddc.yml
+
   release:
-    needs: [build, memory-gate, editor-gate, laws]
+    needs: [build, memory-gate, editor-gate, laws, ddc]
     if: github.event_name == 'push' || !inputs.dry_run
     runs-on: ubuntu-24.04
     permissions:
