@@ -1,4 +1,4 @@
-// Tests of the label buffer (spec 024 T5). Expected words are rows of testdata/encodings.tsv, laid obj at the offsets
+// Tests of the label buffer (spec 024 T5). Expected words are rows of testdata/encodings.tsv, laid out at the offsets
 // the reference assembler used (b-fwd, b-back, bl-back, b-cond-eq, cbz-x-back, cbz-w-fwd, adr-fwd, adrp-reloc).
 
 Reg lx(u8 number) => Reg { kind: .general, number: number }
@@ -134,7 +134,7 @@ test "a branch out of range fails when its label is bound" {
             return
         },
     }
-    panic("bind succeeded obj of range")
+    panic("bind succeeded out of range")
 }
 
 test "a label cannot be bound twice" {
