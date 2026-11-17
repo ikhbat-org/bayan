@@ -48,8 +48,8 @@ for rel in ${targets[@]+"${targets[@]}"}; do
   fi
 done
 
-# 3. the probe written outside the project
-probe=/tmp/claude-cwd-probe
+# 3. scratch written outside the project (a cwd probe; the 024 T10 gate checker's round-1 copy)
+for probe in /tmp/claude-cwd-probe /tmp/t10gate.KNso; do
 if [ -e "$probe" ]; then
   if [ $execute = 1 ]; then
     rm -rf -- "$probe"
@@ -58,6 +58,7 @@ if [ -e "$probe" ]; then
     printf 'would remove: %s\n' "$probe"
   fi
 fi
+done
 
 if [ $failed = 1 ]; then exit 1; fi
 exit 0
