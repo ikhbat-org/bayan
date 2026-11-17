@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Bayan.Backend.C;
 using Bayan.Cli;
 using Bayan.Semantics;
@@ -40,9 +41,20 @@ public static class SelfhostEmitterHarness
     /// <summary>Runs the built <c>bayan-emit</c> with <paramref name="args"/>.</summary>
     public static (int Exit, string Out, string Err) Run(params string[] args) => SelfhostParserTests.Run(Build(), args);
 
-    /// <summary>Fails with the first line where <paramref name="actual"/> differs from <paramref name="expected"/>, CRLF read as LF.</summary>
-    public static void AssertSame(string name, string expected, string actual)
+    /// <summary>
+    /// Fails with the first line where <paramref name="actual"/> differs from <paramref name="expected"/>, CRLF read as LF. With
+    /// <c>BAYAN_EXPORT_DIR</c> set and an <paramref name="input"/> (the program the C# side compiled), writes the case instead (spec 019 R10).
+    /// </summary>
+    public static void AssertSame(string name, string expected, string actual, string? input = null,
+        [CallerMemberName] string test = "", [CallerFilePath] string file = "")
     {
+        if (input is not null && ExportDir is { } root)
+        {
+            var dir = ExportCase(root, name, test, file);
+            WriteInput(dir, [input]);
+            WriteExpected(dir, "expected.c", expected);
+            return;
+        }
         // The C# CLI on Windows ends some lines with Environment.NewLine; the self-hosted runtime writes LF (Q816).
         var e = expected.Replace("\r\n", "\n").Split('\n');
         var a = actual.Replace("\r\n", "\n").Split('\n');
@@ -122,16 +134,133 @@ public static class SelfhostEmitterHarness
     }
 
     /// <summary><c>CliApp.Run(cli)</c> against <c>bayan-emit self</c> (with <paramref name="namedBy"/> stripped from the C# text): stdout and stderr by <see cref="AssertSame"/>, then the exit code.</summary>
-    public static void SameAsCli(string name, string[] cli, string[] self, string? namedBy = null)
+    public static void SameAsCli(string name, string[] cli, string[] self, string? namedBy = null,
+        [CallerMemberName] string test = "", [CallerFilePath] string file = "")
     {
         var stdout = new StringWriter();
         var stderr = new StringWriter();
         var exit = CliApp.Run(cli, stdout, stderr);
-        var (actualExit, actualOut, actualErr) = Run(self);
         // `namedBy`: a directory whose prefix the C# prints on a source's name, which `--package` gives as the file name alone (RunTests.cs:80).
         string Named(string text) => namedBy is null ? text : text.Replace(namedBy.TrimEnd('/', '\\') + Path.DirectorySeparatorChar, "");
+        if (ExportDir is { } root)
+        {
+            var dir = ExportCase(root, name, test, file);
+            WriteInput(dir, cli.Where(a => File.Exists(a) || Directory.Exists(a)).ToList());
+            WriteExpected(dir, "args", string.Concat(cli.Select(a => a + "\n")));
+            WriteExpected(dir, "expected.c", Named(stdout.ToString()));
+            WriteExpected(dir, "expected.stderr", Named(stderr.ToString()));
+            WriteExpected(dir, "expected.exitcode", $"{exit}\n");
+            return;
+        }
+        var (actualExit, actualOut, actualErr) = Run(self);
         AssertSame($"{name} stderr", Named(stderr.ToString()), actualErr);
         AssertSame($"{name} stdout", Named(stdout.ToString()), actualOut);
         Assert.True(exit == actualExit, $"{name}: exit {actualExit}, expected {exit}");
     }
+
+    // ── Export (spec 019 R10) ────────────────────────────────────────────────────
+
+    /// <summary>The directory <c>BAYAN_EXPORT_DIR</c> names, read on every call; null when unset.</summary>
+    private static string? ExportDir => Environment.GetEnvironmentVariable("BAYAN_EXPORT_DIR") is { Length: > 0 } dir ? dir : null;
+
+    private static readonly Dictionary<string, int> ExportCalls = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Creates <c>emit-c/&lt;Class&gt;/&lt;test&gt;[-&lt;row&gt;]</c> under <paramref name="root"/>. Class and test come from the
+    /// <c>[Fact]</c>/<c>[Theory]</c> frame on the stack (a call through a private helper, or a class that does not match its file
+    /// as <c>SelfhostEmitterHarnessTests</c> in <c>SelfhostEmitterParityTests.cs</c>); off the test's thread (a <c>Parallel.ForEach</c>)
+    /// they fall back to the caller's file stem and member. The row is <paramref name="name"/> (the theory row, or the call's label, so
+    /// a <c>Parallel.ForEach</c> names its cases the same on every run); a second call with the same name adds <c>-2</c>, <c>-3</c>, … in call order.
+    /// </summary>
+    private static string ExportCase(string root, string name, string test, string file)
+    {
+        var frame = new System.Diagnostics.StackTrace().GetFrames().Select(f => f.GetMethod())
+            .FirstOrDefault(m => m is not null && m.IsDefined(typeof(FactAttribute), false));
+        var cls = frame?.DeclaringType?.Name ?? Path.GetFileNameWithoutExtension(file);
+        // A path in the name is kept from the repo root, or past a fixture's per-run directory under the temp root (T21's `bayan-t21-<guid>`).
+        var row = System.Text.RegularExpressions.Regex.Replace(name.Replace(Golden.RepoRoot + Path.DirectorySeparatorChar, ""),
+            System.Text.RegularExpressions.Regex.Escape(Path.GetTempPath()) + @"[^/\\]*[/\\]", "");
+        var baseName = $"{frame?.Name ?? test}-{row}";
+        var invalid = Path.GetInvalidFileNameChars().Concat(['/', '\\', ':', '*', '?', '"', '<', '>', '|']).ToHashSet();
+        baseName = new string(baseName.Select(ch => invalid.Contains(ch) || char.IsControl(ch) ? '_' : ch).ToArray());
+        var key = Path.Combine(root, "emit-c", cls, baseName);
+        int n;
+        lock (ExportCalls) n = ExportCalls[key] = ExportCalls.GetValueOrDefault(key) + 1;
+        var dir = n == 1 ? key : $"{key}-{n}";
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        return dir;
+    }
+
+    /// <summary>
+    /// The program the C# side compiled: one plain file as <c>input.&lt;ext&gt;</c>; a directory, or a <c>main.byn</c> (which the
+    /// C# compiles with its directory, as <see cref="Isolate"/> copies it), as the tree under <c>input/</c>; several paths each under
+    /// <c>input/&lt;name&gt;</c>.
+    /// </summary>
+    private static void WriteInput(string dir, IReadOnlyList<string> paths)
+    {
+        var trees = paths.Select(p => Directory.Exists(p) ? p : Path.GetFileName(p) == "main.byn" ? Path.GetDirectoryName(Path.GetFullPath(p))! : null).ToList();
+        if (paths.Count == 1 && trees[0] is null)
+        {
+            var fileName = Path.GetFileName(paths[0]);
+            var dot = fileName.IndexOf('.');
+            File.Copy(paths[0], Path.Combine(dir, "input" + (dot < 0 ? "" : fileName[dot..])));
+            return;
+        }
+        for (var i = 0; i < paths.Count; i++)
+        {
+            var target = paths.Count == 1 ? Path.Combine(dir, "input") : Path.Combine(dir, "input", Path.GetFileName(Path.TrimEndingDirectorySeparator(trees[i] ?? paths[i])));
+            if (trees[i] is not { } tree)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                File.Copy(paths[i], target, overwrite: true);
+                continue;
+            }
+            foreach (var f in Directory.EnumerateFiles(tree, "*", SearchOption.AllDirectories))
+            {
+                var to = Path.Combine(target, Path.GetRelativePath(tree, f));
+                Directory.CreateDirectory(Path.GetDirectoryName(to)!);
+                File.Copy(f, to, overwrite: true);
+            }
+        }
+    }
+
+    /// <summary>One value, UTF-8 without a BOM, LF line endings.</summary>
+    private static void WriteExpected(string dir, string fileName, string text) =>
+        File.WriteAllText(Path.Combine(dir, fileName), text.Replace("\r\n", "\n"), new System.Text.UTF8Encoding(false));
 }
+
+/// <summary>The export path itself: <see cref="SelfhostEmitterParityTests.CacheAppEmitsTheSameC"/> with <c>BAYAN_EXPORT_DIR</c> set writes its case.</summary>
+[Collection(nameof(SelfhostEmitterExport))]
+public sealed class SelfhostEmitterExportTests
+{
+    [Fact]
+    public void ACompareCallWritesItsInputAndTheCSharpC()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-emit-c");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var old = Environment.GetEnvironmentVariable("BAYAN_EXPORT_DIR");
+        try
+        {
+            Environment.SetEnvironmentVariable("BAYAN_EXPORT_DIR", root);
+            new SelfhostEmitterParityTests().CacheAppEmitsTheSameC();
+        }
+        finally { Environment.SetEnvironmentVariable("BAYAN_EXPORT_DIR", old); }
+        var dir = Path.Combine(root, "emit-c", nameof(SelfhostEmitterParityTests), "CacheAppEmitsTheSameC-copies");
+        var app = Path.Combine(Golden.RepoRoot, "tmp", "t12-tests", "cache-copies", "tally");
+        var stdout = new StringWriter();
+        var stderr = new StringWriter();
+        var exit = CliApp.Run(["build", "--emit-c", app], stdout, stderr);
+        Assert.Equal(["build", "--emit-c", app], File.ReadAllLines(Path.Combine(dir, "args")));
+        Assert.Equal(stdout.ToString(), File.ReadAllText(Path.Combine(dir, "expected.c")));
+        Assert.Equal(stderr.ToString(), File.ReadAllText(Path.Combine(dir, "expected.stderr")));
+        Assert.Equal($"{exit}\n", File.ReadAllText(Path.Combine(dir, "expected.exitcode")));
+        Assert.Equal(File.ReadAllText(Path.Combine(app, "src", "app", "main.byn")), File.ReadAllText(Path.Combine(dir, "input", "src", "app", "main.byn")));
+        Assert.Equal(File.ReadAllText(Path.Combine(app, "src", "keep", "keep.byn")), File.ReadAllText(Path.Combine(dir, "input", "src", "keep", "keep.byn")));
+        Assert.Single(Directory.GetDirectories(Path.Combine(root, "emit-c", nameof(SelfhostEmitterParityTests))));
+    }
+}
+
+/// <summary>Sets <c>BAYAN_EXPORT_DIR</c> for the whole process, so it runs alone.</summary>
+[CollectionDefinition(nameof(SelfhostEmitterExport), DisableParallelization = true)]
+public sealed class SelfhostEmitterExport;
