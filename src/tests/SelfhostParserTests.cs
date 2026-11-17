@@ -66,14 +66,17 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
 
     /// <summary>Runs <paramref name="program"/>; under <c>BAYAN_SNAPSHOT</c> the run is recorded (spec 013 R14). Stdout is returned as written:
     /// the runtime writes LF on every OS (Q742), so a <c>\r\n</c> in it is the program's own output, such as a dump of a CRLF input.</summary>
-    internal static (int Exit, string Out, string Err) Run(string program, params string[] args)
+    internal static (int Exit, string Out, string Err) Run(string program, params string[] args) => RunIn(AppContext.BaseDirectory, program, args);
+
+    /// <summary><see cref="Run"/> in <paramref name="workingDirectory"/>, for a caller whose arguments are relative to it (the repo root for a package build).</summary>
+    internal static (int Exit, string Out, string Err) RunIn(string workingDirectory, string program, params string[] args)
     {
         if (SelfhostSemanticsHarness.SnapshotDir is { } dir)
         {
             var (exit, o, e) = SelfhostSemanticsHarness.RunRecorded(dir, program, null, args);
             return (exit, Encoding.UTF8.GetString(o), Encoding.UTF8.GetString(e));
         }
-        var psi = new ProcessStartInfo(program) { RedirectStandardOutput = true, StandardOutputEncoding = System.Text.Encoding.UTF8, RedirectStandardError = true, StandardErrorEncoding = System.Text.Encoding.UTF8, UseShellExecute = false, WorkingDirectory = AppContext.BaseDirectory };
+        var psi = new ProcessStartInfo(program) { RedirectStandardOutput = true, StandardOutputEncoding = System.Text.Encoding.UTF8, RedirectStandardError = true, StandardErrorEncoding = System.Text.Encoding.UTF8, UseShellExecute = false, WorkingDirectory = workingDirectory };
         foreach (var a in args) psi.ArgumentList.Add(a);
         using var p = Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndAsync();

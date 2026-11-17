@@ -65,7 +65,7 @@ public sealed class SelfhostDefaultSpeedTests(ITestOutputHelper output)
                 Reset(s2Cache);
                 Environment.SetEnvironmentVariable("BAYAN_CACHE", s2Cache);
                 clock.Restart();
-                var (code, s2Out, err) = SelfhostParserTests.Run(stage2, args);
+                var (code, s2Out, err) = SelfhostParserTests.RunIn(Golden.RepoRoot, stage2, args);
                 selfhost.Add(clock.Elapsed.TotalSeconds);
                 Assert.True(code == 0, $"stage 2 exited {code}\n{err}");
                 Assert.DoesNotContain("from cache", s2Out, StringComparison.Ordinal);
