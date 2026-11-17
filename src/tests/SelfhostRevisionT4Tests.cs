@@ -296,7 +296,7 @@ public sealed class SelfhostRevisionT4Tests
         var actual = Sections.Value["lexicon"];
         Assert.Equal(expected.Count, actual.Count);
         SelfhostSemanticsHarness.AssertSection(new() { ["lexicon"] = actual.Order(StringComparer.Ordinal).ToList() }, "lexicon",
-            expected.Order(StringComparer.Ordinal).ToList());
+            expected.Order(StringComparer.Ordinal).ToList(), run: Sections.Value, compare: "sorted");
     }
 
     /// <summary>The program's (or manifest's) directory under <c>tmp/revision-t4/</c>, written on each call (the same text each time).</summary>
