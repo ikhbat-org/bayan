@@ -958,3 +958,5 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - 019 T16e: about 13 [MemberData] files read rows from folders (`Golden.Cases`, e.g. LexerTests.cs:12, RunTests.cs:21) but are marked "no export: typed rows" as the task wording requires; owner may widen the wording. Fix in T17.
 - 019 T16e: SelfhostPathT5Tests is in T13c's file list, but T15g says PathT5 is not exported; SelfhostDriverGoldenTests is in no T13–T16d list and is not exported. T17's count check settles both. Fix in T17.
 - 019 T16e: the export branch's tests/inventory-019.tsv now has an 8th column (memberdata); T17 carries it to feat and checks scripts/ci/inventory-check.sh accepts it. Fix in T17.
+- 019 T26 part 1 (LOW, fix in T26 part 2): lib/std/fs/fs.test.byn:72, :84, :86 return early when the read fails, so the test passes without checking anything; assert the read instead.
+- 019 T26 part 1 (LOW, fix in T26 part 2): lib/std/fs/fs.test.byn:117 compares against Path.fullPath, which differs from .NET's ResolveLinkTarget when the working directory contains a symlink; take the expected value from the v0.3.2 C# export.
