@@ -195,3 +195,6 @@ Checked 2026-11-18 with `bayan 0.3.3-dev` (commit `0530e92ea69c`) from `scripts/
 | `port-002-shell-numbered-lines` | 1 | stdout | a shell `read` loop |
 | `repair-001-missing-particle` | 1 | stdout | BYN5005, an argument without its particle; reads `checks/stdin` |
 | `repair-002-unhandled-failure` | 2 | stdout | BYN2602, where the offered `try` is not the fix the task needs; reads `checks/stdin` |
+
+### Cross-check against the self-hosted compiler (T32)
+Checked 2026-11-18. The default pin (`scripts/pinned-bayan.sh`) builds the C# CLI (`csharp/Bayan.Cli`), so the scorer is the C# compiler. The self-hosted `bayan` (`bayan 0.3.3-dev (selfhost)`) was built from the same pinned commit `46e65014bc6e` (the tip of `dev`) with `bayan build --mode safe --package src -o <out> src/driver`, and `PINNED_BAYAN` was set to it. `recheck evals/llm/tasks` over the 40 `dev` tasks (task-set commit `403385f85551`) gave 40 `PASS` and exit 0 under both compilers. The two result sets agree on every task, including the five repair starters (each fails with only the code its title names under both). No task differs, so no `work/todo.md` line was needed. The self-hosted run wrote no stamp, because its version line names no commit.
