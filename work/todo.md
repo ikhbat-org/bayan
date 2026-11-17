@@ -950,3 +950,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - 019 T22 LOW: `coverage.test.sh`, `converters.test.sh` and `mutate.test.sh` under `scripts/quality/` are not called by `scripts/ci/script-tests.sh`; wire them in (fixing task: T41).
 - 019 T16bc LOW (export branch): `//` count comments sit between the `///` summary and its method at `SelfhostParserT6Tests.cs:246` and `SelfhostParserT7Tests.cs:113`; export-only code, never merges (fixing task: none, drop at T17).
 - 019 T15c LOW (export output): `cli/UNEXPORTED.tsv` row `FailuresAsCliApp` holds absolute paths of the exporting machine; mask them with the other machine paths (fixing task: T17).
+- 019 T13c LOW (export branch): some `sem` cases write compare word `prefix:<kind>`, which T13 did not define; the case runner must define it or the export must use a defined word (fixing task: T17).
