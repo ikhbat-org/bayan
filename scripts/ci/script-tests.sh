@@ -10,7 +10,8 @@ unix=(scripts/ci/bash32-parse.test.sh scripts/ci/install-zig.test.sh scripts/ci/
   scripts/ci/golden-commit-check.test.sh scripts/ci/inventory-check.test.sh scripts/ci/bootstrap-check.test.sh scripts/ci/ddc.test.sh
   scripts/release/package.test.sh scripts/release/docs-pdf.test.sh scripts/release/memory-gate.test.sh scripts/release/editor-gate.test.sh
   scripts/release/refuse-draft.test.sh scripts/release/release-workflow.test.sh scripts/bayan-tool.test.sh
-  scripts/parity/run.test.sh scripts/test.test.sh scripts/bootstrap-build.test.sh)
+  scripts/parity/run.test.sh scripts/test.test.sh scripts/bootstrap-build.test.sh scripts/ci/std-test-files.test.sh
+  scripts/ci/std-source.test.sh)
 docs=(scripts/release/set-version.test.sh scripts/release/cut.test.sh scripts/docs/*.test.sh scripts/docs/check.sh)
 groups=("$@"); [ ${#groups[@]} -gt 0 ] || groups=(unix docs)
 run=()
