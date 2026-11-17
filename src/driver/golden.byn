@@ -180,9 +180,27 @@ List<string> goldenLines(string text) uses alloc {
     return lines
 }
 
+/// Whether `$BAYAN_UPDATE` is `1` or `true` (Golden.cs:13 `UpdateMode`).
+bool goldenUpdate() uses alloc, env {
+    let value = Env.get("BAYAN_UPDATE") ?? ""
+    return value == "1" || value == "true"
+}
+
+/// Golden.cs:35 `Compare`: in update mode (`goldenUpdate`, R5) a differing or missing expected file is rewritten with `actual` (LF) and null
+/// returned, unless a `.pending` file sits beside it (RunTests.cs:58); else `goldenDiffer`.
+string? goldenCompare(string actual, for string input, at string expected) uses alloc, env, fs {
+    if goldenUpdate() && !Fs.fileExists(goldenExpected(expected, for: ".pending")) {
+        let lf = goldenLf(actual)
+        return null if Fs.fileExists(expected) && goldenLf(Io.readText(expected) catch "") == lf
+        Io.writeFile(expected, lf.bytes) catch return $"{input}\ncannot write {expected}"
+        return null
+    }
+    return goldenDiffer(actual, for: input, at: expected)
+}
+
 /// Golden.cs:35 `Compare` outside update mode: null when `actual` equals the expected file at `expected` (CR LF read as LF), else the failure text,
 /// which names the input path and the first differing line, expected and actual (spec 019 R2).
-string? goldenCompare(string actual, for string input, at string expected) uses alloc, fs {
+string? goldenDiffer(string actual, for string input, at string expected) uses alloc, fs {
     let text = Io.readText(expected) catch return $"{input}\nmissing expected file {expected}"
     let want = goldenLines(goldenLf(text))
     let got = goldenLines(goldenLf(actual))
@@ -384,6 +402,31 @@ string goldenProduce(in GoldenCase c) uses alloc, clock, console, fs {
     }
 }
 
+/// The expected-file ending of a text kind; empty for the others.
+string goldenEnding(string kind) {
+    return kind is "lex" ? ".tokens" : kind is "parse" ? ".ast" : kind is "typed" ? ".types" : kind is "diag"
+        or "manifest" ? ".diag" : kind is "diag-json" ? ".jsonl" : ""
+}
+
+/// The expected files of the case of `kind` whose input is `input`, in the order they are compared: the files update mode may rewrite.
+List<string> goldenExpectedFiles(string kind, for string input) uses alloc {
+    var files = List<string>()
+    if kind == "run" {
+        for ending in [".stdout", ".stderr", ".exitcode"] {
+            files.append(goldenExpected(input, for: ending))
+        }
+    } else if kind == "style" {
+        for ending in goldenStyleEndings() {
+            files.append(goldenExpected(input, for: ending))
+        }
+    } else if goldenEnding(kind) != "" {
+        files.append(goldenExpected(input, for: goldenEnding(kind)))
+    } else {
+        files.append(input)
+    }
+    return files
+}
+
 /// Runs case `c`: null when it passes or is skipped (`goldenSkip`, a `run` case's `// os:`), else the failure text. The text kinds (T2),
 /// `emit` and `quality` (T3) are produced here; `style` (T2b), `run`, `new` and `out` (T3) run the driver `$BAYAN_EXE` names, each child
 /// killed at `deadline` (`goldenLimitMs`; T4).
@@ -403,8 +446,7 @@ string? goldenRun(in GoldenCase c, i64 deadline = 0) uses alloc, clock, console,
         return goldenCompare(goldenEmit(root), for: c.input, at: c.input)
     }
     return goldenCompare(goldenQuality(), for: c.input, at: c.input) if c.kind == "quality"
-    let ending = c.kind is "lex" ? ".tokens" : c.kind is "parse" ? ".ast" : c.kind is "typed" ? ".types" : c.kind is "diag"
-        or "manifest" ? ".diag" : c.kind is "diag-json" ? ".jsonl" : ""
+    let ending = goldenEnding(c.kind)
     return $"{c.input}\nkind `{c.kind}` is not compared yet" if ending == ""
     return goldenCompare(goldenProduce(in c), for: c.input, at: goldenExpected(c.input, for: ending))
 }
@@ -518,6 +560,11 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
     if c.kind == "run" && goldenOsSkip(c.input) {
         return GoldenResult { name: name, status: "skipped", detail: "skipped: its `// os:` line names another OS" }
     }
+    let files = goldenExpectedFiles(c.kind, for: c.input)
+    var before = List<string>()
+    for path in files {
+        before.append(goldenSnapshot(path))
+    }
     let deadline = Io.monotonicNanos() + limitMs * 1000000
     var failure: string? = null
     if c.kind is "style" or "run" or "new" or "out" {
@@ -527,18 +574,41 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
         let driver = exe ?? goldenExe(through: ref missing)
         failure = driver == "" ? $"{c.input}\n{missing}" : goldenInChild(in c, by: driver, until: deadline)
     }
+    var rewrote = ""
+    for i in 0..files.length {
+        if goldenSnapshot(files[i]) != before[i] {
+            rewrote = $"{rewrote}{rewrote == "" ? "" : "\n"}rewrote {files[i]}"
+        }
+    }
     if Io.monotonicNanos() >= deadline {
         let shown = failure ?? ""
         return GoldenResult {
             name: name,
             status: "timed out",
-            detail: $"timed out after {goldenLimitText(limitMs)}{shown.length > 0 ? $"\n{shown}" : ""}",
+            detail: $"timed out after {goldenLimitText(limitMs)}{shown.length > 0 ? $"\n{shown}" : ""}{rewrote == "" ? "" : $"\n{rewrote}"}",
+        }
+    }
+    let pending = goldenExpected(c.input, for: ".pending")
+    if Fs.fileExists(pending) {
+        if failure is not null {
+            return GoldenResult { name: name, status: "skipped", detail: $"pending: {pending}" }
+        }
+        return GoldenResult {
+            name: name,
+            status: "failed",
+            detail: $"{c.input}\nnow matches its expected output: remove {pending}",
         }
     }
     if (failure is { } f) {
-        return GoldenResult { name: name, status: "failed", detail: f }
+        return GoldenResult { name: name, status: "failed", detail: rewrote == "" ? f : $"{f}\n{rewrote}" }
     }
-    return GoldenResult { name: name, status: "passed" }
+    return GoldenResult { name: name, status: "passed", detail: rewrote }
+}
+
+/// What `goldenResult` sets before and after a case to see whether update mode rewrote `path`: `-` when it is absent, else `+` and its text.
+string goldenSnapshot(string path) uses alloc, fs {
+    return "-" unless Fs.fileExists(path)
+    return $"+{Io.readText(path) catch ""}"
 }
 
 /// Whether `path` is a cases directory for `bayan test`: a directory with no `package.byn` and no `.byn` file of its own that holds one of the
@@ -749,7 +819,7 @@ string goldenStreams(string stdout, for string stderr) uses alloc => $"--- stdou
 /// `text` set against the frozen tests/cases/style/`shape``ending`, read now: null when it matches, else the failure naming that file.
 string? goldenStyleCompare(string shape, for string ending, as string text) uses alloc, fs {
     let expected = Path.fullPath($"tests/cases/style/{shape}{ending}")
-    return goldenCompare(text, for: expected, at: expected)
+    return goldenDiffer(text, for: expected, at: expected)
 }
 
 /// The byte offset of the first `needle` in `text`; -1 when there is none.
@@ -1002,7 +1072,7 @@ string goldenStyleShape(string shape, for string ending, by string exe, through 
 
 /// A CLI `style` case through the driver `exe`: null when its `.color`, `.plain` and `.ascii` files all match, else the failure, naming the
 /// expected file and its first differing line, or the child that did not exit normally.
-string? goldenStyle(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, clock, fs, process {
+string? goldenStyle(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, clock, env, fs, process {
     for ending in goldenStyleEndings() {
         let expected = goldenExpected(c.input, for: ending)
         var failure = ""
@@ -1236,7 +1306,7 @@ GoldenOutcome goldenRunOutcome(in GoldenCase c, by string exe, through ref strin
 /// RunTests.cs:56 `Check`: `actual` against the expected file `ending` of `input`, the failure appended to `failures`. An `optional` one is
 /// not compared when `actual` is empty and the file is absent.
 void goldenCheck(string input, for string ending, as string actual, by bool optional, to ref List<string> failures)
-        uses alloc, fs {
+        uses alloc, env, fs {
     let expected = goldenExpected(input, for: ending)
     return if optional && actual == "" && !Fs.fileExists(expected)
     if (goldenCompare(actual, for: expected, at: expected) is { } f) {
@@ -1246,7 +1316,7 @@ void goldenCheck(string input, for string ending, as string actual, by bool opti
 
 /// RunTests.cs:43 `RunGolden` of a `run` case through the driver `exe`: null when it passes or its `// os:` skips it, else the failures of
 /// `.stdout`, `.stderr` and `.exitcode`, each naming its expected file and first differing line.
-string? goldenRunCase(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, clock, fs, process {
+string? goldenRunCase(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, clock, env, fs, process {
     return null if goldenOsSkip(c.input)
     var failure = ""
     let o = goldenRunOutcome(in c, by: exe, through: ref failure, deadline: deadline)
@@ -1317,7 +1387,7 @@ bool goldenFresh(string dir) uses alloc, fs {
 
 /// ScaffoldTests.cs:39 `NewWritesTheLayout` through the driver `exe`: `new tally --vcs none` with the layout's options in an empty
 /// tmp/scaffold/new-<layout>, then :26 `Tree` (every file and its text) against the case's `.tree`.
-string? goldenNew(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, clock, fs, process {
+string? goldenNew(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, clock, env, fs, process {
     let dir = Path.combine(Path.fullPath("tmp"), $"scaffold/new-{c.name}")
     return $"{c.input}\ncannot create {dir}" unless goldenFresh(dir)
     var args = List<string>()
@@ -1423,7 +1493,7 @@ void goldenOutStep(
 /// OutputTests.cs through the driver `exe`, in a new app `tally` under an empty tmp/output/<test>: `out` is :63
 /// `BuildRunAndTestWriteToOut`, `results-fail` :103 `FailingTestsAreReportedInTheResultsFile`, `dist` :111
 /// `DistWritesAVersionDirectoryAndLatest`; each tree or file against the case's file.
-string? goldenOut(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, clock, fs, process {
+string? goldenOut(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, clock, env, fs, process {
     let fact = c.name is "out" ? "out-layout" : c.name is "results-fail" ? "out-test-fail" : c.name is "dist" ? "dist-layout" : ""
     return $"{c.input}\nunknown out case `{c.name}`" if fact == ""
     let dir = Path.combine(Path.fullPath("tmp"), $"output/{fact}")
@@ -2017,6 +2087,119 @@ test "--jobs 8 fails the changed case naming its path and the expected and actua
     for name in ["lex/bad-chars", "lex/bad-interpolation", "run/a-passes", "run/c-passes"] {
         assert(eight.stdout.contains($"\npassed {name}\n"))
     }
+}
+
+/// A cases directory `root` for update mode (R5): `lex/a-same` matching; `lex/b-changed`, and `lex/c-pending` with a `.pending` file, their third
+/// `.tokens` line changed; `run/d-changed` its fourth `.stdout` line changed.
+void goldenUpdateFixture(string root) uses alloc, fs {
+    deleteWorkDir(root)
+    let source = Io.readText(Path.fullPath("tests/cases/lex/bad-chars.byn")) catch ""
+    let tokens = Io.readText(Path.fullPath("tests/cases/lex/bad-chars.tokens")) catch ""
+    for stem in ["a-same", "b-changed", "c-pending"] {
+        goldenWrite(root, for: $"lex/{stem}.byn", as: source)
+        goldenWrite(root, for: $"lex/{stem}.tokens", as: stem == "a-same" ? tokens : goldenChangeLine(tokens, at: 2))
+    }
+    goldenWrite(root, for: "lex/c-pending.pending", as: "T6\n")
+    goldenWrite(
+        root,
+        for: "run/d-changed.byn",
+        as: Io.readText(Path.fullPath("tests/cases/run/arithmetic.byn")) catch "",
+    )
+    let stdout = Io.readText(Path.fullPath("tests/cases/run/arithmetic.stdout")) catch ""
+    goldenWrite(root, for: "run/d-changed.stdout", as: goldenChangeLine(stdout, at: 3))
+}
+
+/// `bayan test root --jobs <jobs>` through `$BAYAN_EXE` with `$BAYAN_UPDATE` set to `update` (unset when null): its exit code and stdout.
+GoldenOutcome goldenUpdateRun(string root, as string jobs, by string? update) uses alloc, env, fs, process {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    var args = List<string>()
+    for a in ["test", root, "--jobs", jobs] {
+        args.append(a)
+    }
+    var env = goldenEnv()
+    env["BAYAN_UPDATE"] = update
+    let r = Io.run(exe, args.span, env: env) catch return GoldenOutcome { stdout: failure, exitCode: -1 }
+    return GoldenOutcome { stdout: goldenLf(r.stdout), stderr: r.stderr, exitCode: r.exitCode }
+}
+
+/// The modification time of `path` in nanoseconds; -1 when it cannot be read.
+i64 goldenModified(string path) uses fs {
+    let t = Fs.modified(path) catch return -1
+    return t.nanos
+}
+
+/// Every file under `root` with its modification time and text, one string.
+string goldenTree(string root) uses alloc, fs {
+    var sb = StrBuf()
+    for rel in goldenFiles(root) {
+        let path = Path.combine(root, rel)
+        sb.append($"{rel} {goldenModified(path)}\n{Io.readText(path) catch "<unreadable>"}\n")
+    }
+    return sb.finish()
+}
+
+test "BAYAN_UPDATE=1 with --jobs 4 rewrites only the differing expected files, lists them in case order, and leaves a .pending case alone" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-update")
+    goldenUpdateFixture(root)
+    let same = Path.combine(root, "lex/a-same.tokens")
+    let pending = Path.combine(root, "lex/c-pending.tokens")
+    let sameBefore = $"{goldenModified(same)} {Io.readText(same) catch ""}"
+    let pendingBefore = $"{goldenModified(pending)} {Io.readText(pending) catch ""}"
+    let four = goldenUpdateRun(root, as: "4", by: "1")
+    let again = goldenUpdateRun(root, as: "1", by: "1")
+    let changed = Io.readText(Path.combine(root, "lex/b-changed.tokens")) catch ""
+    let stdout = Io.readText(Path.combine(root, "run/d-changed.stdout")) catch ""
+    let sameAfter = $"{goldenModified(same)} {Io.readText(same) catch ""}"
+    let pendingAfter = $"{goldenModified(pending)} {Io.readText(pending) catch ""}"
+    deleteWorkDir(root)
+    assert(four.exitCode == exitOk && again.exitCode == exitOk)
+    let b = Path.combine(root, "lex/b-changed.tokens")
+    let d = Path.combine(root, "run/d-changed.stdout")
+    let c = Path.combine(root, "lex/c-pending.pending")
+    assert(four.stdout.contains(
+        $"\npassed lex/a-same\npassed lex/b-changed\n    rewrote {b}\nskipped lex/c-pending\n    pending: {c}\npassed run/d-changed\n    rewrote {d}\n",
+    ))
+    assert(again.stdout.contains("\npassed lex/a-same\npassed lex/b-changed\nskipped lex/c-pending\n"))
+    assert(!again.stdout.contains("rewrote"))
+    assert(changed == (Io.readText(Path.fullPath("tests/cases/lex/bad-chars.tokens")) catch "-"))
+    assert(stdout == goldenLf(Io.readText(Path.fullPath("tests/cases/run/arithmetic.stdout")) catch "-"))
+    assert(sameAfter == sameBefore && pendingAfter == pendingBefore)
+}
+
+test "a run without BAYAN_UPDATE leaves the cases directory byte for byte the same, with --jobs 1 and --jobs 4" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-no-update")
+    goldenUpdateFixture(root)
+    let before = goldenTree(root)
+    let one = goldenUpdateRun(root, as: "1", by: null)
+    let four = goldenUpdateRun(root, as: "4", by: null)
+    let after = goldenTree(root)
+    deleteWorkDir(root)
+    assert(one.exitCode == exitTestFailure && four.exitCode == exitTestFailure)
+    assert(one.stdout.contains("\nfailed lex/b-changed\n") && one.stdout.contains("\nskipped lex/c-pending\n"))
+    assert(!one.stdout.contains("rewrote") && !four.stdout.contains("rewrote"))
+    assert(before.contains("lex/b-changed.tokens") && after == before)
+}
+
+test "a .pending case that now matches fails saying to remove its .pending file" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-pending")
+    deleteWorkDir(root)
+    goldenCopy(root, for: "lex/bad-chars.byn")
+    goldenCopy(root, for: "lex/bad-chars.tokens")
+    goldenWrite(root, for: "lex/bad-chars.pending", as: "T6\n")
+    var exit = 0
+    var results = List<GoldenResult>()
+    for c in goldenDiscover(root, through: ref exit) {
+        results.append(goldenResult(c, for: 60000))
+    }
+    let tokens = Path.combine(root, "lex/bad-chars.tokens")
+    let kept = Io.readText(tokens) catch ""
+    deleteWorkDir(root)
+    assert(results.length == 1 && results[0].status == "failed")
+    let input = Path.combine(root, "lex/bad-chars.byn")
+    let pending = Path.combine(root, "lex/bad-chars.pending")
+    assert(results[0].detail == $"{input}\nnow matches its expected output: remove {pending}")
+    assert(kept == (Io.readText(Path.fullPath("tests/cases/lex/bad-chars.tokens")) catch "-"))
 }
 
 test "new, out, emit and quality cases pass over tests/cases" {
