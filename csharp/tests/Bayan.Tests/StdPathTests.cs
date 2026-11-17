@@ -282,7 +282,11 @@ public sealed class StdPathTests
             var os = Path.Combine(export, "runtime", OperatingSystem.IsWindows() ? "windows" : OperatingSystem.IsMacOS() ? "macos" : "linux");
             Directory.CreateDirectory(os);
             var utf8 = new UTF8Encoding(false);
-            File.WriteAllText(Path.Combine(os, "path-relative.in"), input.ToString(), utf8);
+            // A field that starts with the working directory holds `@CWD@` and the hex of the rest, so the file is the same on every host.
+            var cwdHex = Convert.ToHexStringLower(cwd);
+            var portable = string.Concat(input.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(line =>
+                string.Join(' ', line.Split(' ').Select(f => f.StartsWith(cwdHex, StringComparison.Ordinal) ? "@CWD@" + f[cwdHex.Length..] : f)) + "\n"));
+            File.WriteAllText(Path.Combine(os, "path-relative.in"), portable, utf8);
             File.WriteAllText(Path.Combine(os, "path-relative.expected"),
                 string.Concat(expected.Select(r => Convert.ToHexStringLower(Encoding.UTF8.GetBytes(r)) + "\n")), utf8);
         }
@@ -353,6 +357,10 @@ public sealed class StdPathTests
         // The first case is `/<FF>/a` to `/<FF>/b`.
         Assert.Equal("2fff2f61 2fff2f62", cases[0]);
         Assert.Equal(Convert.ToHexStringLower(Encoding.UTF8.GetBytes(Relative("/\uFFFD/a", "/\uFFFD/b")!)), lines[0]);
+        // The cases from the working directory carry the marker, not its bytes.
+        Assert.Contains(cases, l => l.StartsWith("@CWD@", StringComparison.Ordinal));
+        var cwdHex = Convert.ToHexStringLower(Encoding.UTF8.GetBytes(Directory.GetCurrentDirectory()));
+        Assert.DoesNotContain(cases.Concat(lines), l => l.Contains(cwdHex, StringComparison.Ordinal));
     }
 
     /// <summary>Runs <c>runtime/tests/path-relative-cases.c</c> on <paramref name="input"/> and returns its output lines.</summary>
