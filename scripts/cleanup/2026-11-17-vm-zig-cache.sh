@@ -29,14 +29,18 @@ state=$(ssh "$host" incus list "$vm" -c s -f csv) || { echo "refuse: cannot reac
 [ -n "$state" ] || { echo "refuse: $vm does not exist on $host"; exit 1; }
 echo "$vm is $state"
 
-if [ "$state" != RUNNING ]; then
+if [ "$state" != RUNNING ] && [ "$state" != STOPPED ]; then
+    echo "refuse: $vm is $state, neither RUNNING nor STOPPED; a paused or failed VM may hold a job"
+    exit 1
+elif [ "$state" = STOPPED ]; then
     if [ $execute -eq 0 ]; then
         echo "dry run: $vm is not running; would start it, measure, delete, then stop it"
         for t in "${targets[@]}"; do echo "would delete: $t"; done
         exit 0
     fi
+    # Armed before the start: a start that boots the VM and then reports failure still stops it.
+    trap 'if ssh "$host" incus stop "$vm"; then echo "$vm stopped (it stays stopped between jobs)"; else echo "FAILED to stop $vm; stop it by hand"; exit 1; fi' EXIT
     ssh "$host" incus start "$vm"
-    trap 'ssh "$host" incus stop "$vm" && echo "$vm stopped (it stays stopped between jobs)"' EXIT
 elif [ $execute -eq 1 ] && [ $delete -eq 1 ]; then
     echo "refuse: $vm was already running and may be serving a job; stop it first, then rerun"
     exit 1
