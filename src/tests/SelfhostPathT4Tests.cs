@@ -370,7 +370,7 @@ public sealed class SelfhostPathT4Tests
         var actual = new Dictionary<string, List<string>> { [section] = (List<string>)T41("Sorted").Invoke(null, [T41Sections.Value[section]])! };
         // A program with no diagnostic and no summary prints nothing on either side.
         if (expected.Count == 0) Assert.Empty(actual[section]);
-        else SelfhostSemanticsHarness.AssertSection(actual, section, expected, run: T41Sections.Value, compare: "sorted");
+        else SelfhostSemanticsHarness.AssertSection(actual, section, expected, run: T41Sections.Value, compare: "t41");
     }
 
     public static TheoryData<string> T41Names() => SelfhostSemanticsT41Tests.Names();
