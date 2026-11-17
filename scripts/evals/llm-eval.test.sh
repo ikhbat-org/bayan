@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test for tools/llm-eval.byn `score` and `recheck` (spec 025 T2, T3). Scratch is under the repo's tmp/. Builds small task sets there at run
+# Test for tools/llm-eval.byn `score`, `recheck` and `run` (spec 025 T2, T3, T7). Scratch is under the repo's tmp/. Builds small task sets there at run
 # time; the seed under evals/llm/tasks is only read.
 #   bash scripts/evals/llm-eval.test.sh
 set -uo pipefail
@@ -159,6 +159,56 @@ recheck leak --only repair-900-greeting
 check "recheck --only" "$code $(grep -c '^PASS\|^FAIL' "$root/rec/rc-leak") $(grep -c '^PASS repair-900-greeting$' "$root/rec/rc-leak")" "0 1 1"
 recheck leak --only small-999-none
 check "recheck --only an unknown task" "$code" "1"
+
+# run (T7). A stub model command records the prompt on its standard input, prints a canned reply, and prints
+# `tokens: <n>` on standard error when given <n>.
+#   sh model.sh <reply-file> <prompt-file> [<n>]
+good run small-900-salam small
+t=$root/sets/run/small-900-salam
+cat > "$root/model.sh" <<'EOF'
+cat > "$2"
+cat "$1"
+if [ -n "${3:-}" ]; then echo "tokens: $3" >&2; fi
+EOF
+printf 'Some words about Bayan.\n' > "$root/context.md"
+fence='```'
+{ printf 'First try:\n\n%sbayan\n' "$fence"; cat "$root/cand/wrong-code.byn"; printf '%s\n\nBetter:\n\n%sbayan\n' "$fence" "$fence"
+  cat "$root/cand/right.byn"; printf '%s\n' "$fence"; } > "$root/reply-two"
+cp "$root/cand/right.byn" "$root/reply-none"
+# run <name> <reply> [<n>] [run args...]: the stub's prompt goes to $root/rec/<name>.prompt, the record to $root/rec/<name>.
+run() {
+  local n=$1 reply=$2 tokens=$3; shift 3
+  bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model "sh $root/model.sh $root/$reply $root/rec/$n.prompt $tokens" \
+    --out "$root/out/run-$n" "$@" > "$root/rec/$n" 2> "$root/rec/$n.err"
+  code=$?
+}
+run two reply-two 42 --context "$root/context.md"
+{ cat evals/llm/preamble.md; echo; cat "$root/context.md"; echo; cat "$t/prompt.md"; } > "$root/want-context"
+check "run: prompt is preamble, context, prompt.md" "$code $(cmp -s "$root/rec/two.prompt" "$root/want-context" && echo same)" "0 same"
+cat "$t"/checks/* "$t"/reference/* | grep -v '^[[:space:]]*$' > "$root/hidden-lines"
+check "run: no line of checks/ or reference/ in the prompt" "$(grep -cFxf "$root/hidden-lines" "$root/rec/two.prompt")" "0"
+check "run: two code blocks, the last is scored" "$(get two outcome) $(get two passed)" '"pass" true'
+check "run: tokens read from standard error" "$(get two tokens)" "42"
+check "run: wall time and reply recorded" "$([ -n "$(get two wallMs)" ] && grep -c '"reply": "First try:' "$root/rec/two")" "1"
+
+run none reply-none ""
+{ cat evals/llm/preamble.md; echo; cat "$t/prompt.md"; } > "$root/want-plain"
+check "run: prompt without context is preamble, prompt.md" "$code $(cmp -s "$root/rec/none.prompt" "$root/want-plain" && echo same)" "0 same"
+check "run: no code block, the whole reply is scored" "$(get none outcome) $(get none passed)" '"pass" true'
+check "run: no tokens line, no tokens field" "$(grep -c '"tokens"' "$root/rec/none")" "0"
+bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" > /dev/null 2>&1
+check "run: no --model is usage" "$?" "2"
+
+# The whole run, the tool and the stub, inside the launcher's network denial (R34). Writes go only under $root. The pin is
+# found outside: pinned-bayan.sh touches the shared cache, which the sandbox denies. On macOS the scorer's own launches
+# fail there (sandbox-exec cannot apply a second, different profile), so this checks that the run completes, not the score.
+mkdir -p "$root/net-tmp" "$root/net-cache"
+pinned=$(bash scripts/pinned-bayan.sh)
+TMPDIR=$root/net-tmp BAYAN_CACHE=$root/net-cache bash scripts/evals/llm-sandbox.sh --write "$root" --stdout "$root/rec/net" \
+  --status "$root/rec/net.status" -- env "PINNED_BAYAN=$pinned" bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" \
+  --model "sh $root/model.sh $root/reply-two $root/rec/net.prompt 7" --out "$root/out/run-net" 2> "$root/rec/net.err"
+status() { sed -n "s/^$1: //p" "$root/rec/net.status"; }
+check "run: completes inside the network denial" "$(status exit) $(status sandbox) $(get net tokens) $(cmp -s "$root/rec/net.prompt" "$root/want-plain" && echo same)" "0 $sandbox 7 same"
 
 echo "llm-eval.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]
