@@ -921,3 +921,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (019 T6) in the `new`, `out`, `emit` and `quality` kinds every regular file is a case, so a `<stem>.pending` file there would be found as a case itself.
 - LOW (019 T6) `goldenStyleCompare` reads `tests/cases/style` under the working directory, not the cases root, and takes no part in update mode.
 - LOW (019 T5) `src/driver/main.byn` help text does not mention cases directories, `--jobs` or `--only`.
+- LOW (019 T7) building src/ with stage 0 warns BYN2311 at `src/semantics/types.byn:729` (`var sets` should be `let`) and suggests `let` near line 561 (`params = copyIds(...)`); fix the declarations in the next src/semantics pass.
