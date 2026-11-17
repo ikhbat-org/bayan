@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 # record-macho.sh: two runs give the same file, the committed macho-expected.txt equals a fresh run, it records the four load
-# commands, and an input the assembler rejects fails the script without writing output.
+# commands, and an input the assembler rejects fails the script without writing output. Off arm64 macOS, or without otool,
+# clang and nm, it says why and skips (exit 0).
 set -euo pipefail
+skip() { echo "record-macho.test: skipped: $1"; exit 0; }
+[ "$(uname -s)" = Darwin ] || skip "not macOS ($(uname -s))"
+[ "$(uname -m)" = arm64 ] || skip "not arm64 ($(uname -m))"
+for tool in otool clang nm; do command -v "$tool" >/dev/null 2>&1 || skip "$tool not on PATH"; done
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 t="$root/tmp/sabk-record-macho-test"
 rm -rf "$t" && mkdir -p "$t"

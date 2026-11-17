@@ -1,7 +1,8 @@
 // sabk phase 1 (spec 024): one section's code buffer. `emit` appends the word of an instruction; a label is bound to the
 // current offset, and a branch to a label not yet bound is patched when it is bound (re-encoded with `encodeAt` at the
-// real offset). A label bound to a symbol (external, or in another section) and every `adrp` / `@PAGEOFF` become
-// relocation records, with the instruction encoded at offset 0. `finish` names any label still unbound.
+// real offset). A label bound to a symbol (external, or in another section), whether its `b`/`bl` comes before or after the
+// binding, and every `adrp` / `@PAGEOFF` become relocation records, with the instruction encoded at offset 0. `finish`
+// names any label still unbound.
 
 /// The Mach-O relocation kinds: `ARM64_RELOC_BRANCH26`, `PAGE21`, `PAGEOFF12` from the encoder, `UNSIGNED` (a 64-bit
 /// pointer in data) from the caller.
@@ -31,11 +32,13 @@ public struct Assembled {
     public List<Reloc> relocs
 }
 
-/// An instruction at `at` waiting for `label` to be bound.
+/// An instruction at `at` waiting for `label` to be bound; `far` when it is `b`/`bl`, which a symbol can stand for.
 struct Fixup {
     i64 at
     Inst inst
     i64 label
+    string mnemonic
+    bool far
 }
 
 public struct Assembler {
@@ -70,12 +73,43 @@ public struct Assembler {
         pending = move rest
     }
 
-    /// Makes `label` stand for `symbol`: a branch to it becomes a relocation record.
+    /// Makes `label` stand for `symbol`: a branch to it, emitted before or after, becomes a relocation record. A waiting
+    /// branch that is not `b`/`bl` is refused and nothing changes.
     public void bindSymbol(ref this, Label label, to string symbol) uses alloc fails LabelError {
         let id = label.value
         if id < 0 || id >= offsets.length { fail .unbound(id) }
         if offsets[id] >= 0 || symbols[id] != "" { fail .rebound(id) }
+        for fix in pending {
+            if fix.label == id {
+                unless fix.far { fail .refused(fix.mnemonic, $"operand target: a relocation to {symbol} needs b or bl") }
+            }
+        }
         symbols[id] = symbol
+        // The waiting words already have a zero offset field; their records merge into `relocs` by offset.
+        var added = List<Reloc>()
+        var rest = List<Fixup>()
+        for fix in pending {
+            if fix.label == id {
+                added.append(Reloc { offset: fix.at, symbol: symbol, kind: .branch26 })
+            } else {
+                rest.append(fix)
+            }
+        }
+        pending = move rest
+        var merged = List<Reloc>()
+        var j = 0
+        for reloc in relocs {
+            while j < added.length && added[j].offset < reloc.offset {
+                merged.append(added[j])
+                j += 1
+            }
+            merged.append(reloc)
+        }
+        while j < added.length {
+            merged.append(added[j])
+            j += 1
+        }
+        relocs = move merged
     }
 
     public void emit(ref this, Inst inst) uses alloc fails LabelError {
@@ -122,7 +156,7 @@ public struct Assembler {
             add(try word(inst, at: offsets[id] - at))
         } else {
             add(try word(inst, at: 0))
-            pending.append(Fixup { at: at, inst: inst, label: id })
+            pending.append(Fixup { at: at, inst: inst, label: id, mnemonic: mnemonic, far: far })
         }
     }
 
