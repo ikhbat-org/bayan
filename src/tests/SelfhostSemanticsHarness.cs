@@ -365,6 +365,9 @@ public static class SelfhostSemanticsHarness
     /// <summary>The export directory (spec 019 R10), <see cref="SelfhostExport.Dir"/>.</summary>
     public static string? ExportDir => SelfhostExport.Dir;
 
+    /// <summary>A repo path made relative to the repo root, so that no case holds the machine's checkout path.</summary>
+    private static string Portable(string text) => text.Replace(Path.TrimEndingDirectorySeparator(Golden.RepoRoot) + Path.DirectorySeparatorChar, "");
+
     /// <summary>A generated program and its arguments (one per line, a repo path made relative to the repo root).</summary>
     private sealed record ExportInput(string Program, string Args, IReadOnlyList<string> Staged);
 
@@ -394,7 +397,7 @@ public static class SelfhostSemanticsHarness
             return;
         }
         var dir = SelfhostExport.Case(export, "sem", cls, test);
-        File.WriteAllText(Path.Combine(dir, "input.byn"), input.Program);
+        File.WriteAllText(Path.Combine(dir, "input.byn"), Portable(input.Program));
         foreach (var path in input.Staged)
         {
             var target = Path.Combine(dir, "input", Path.GetFileName(path));
@@ -411,7 +414,7 @@ public static class SelfhostSemanticsHarness
         if (input.Args.Length > 0) File.WriteAllText(Path.Combine(dir, "args"), input.Args);
         File.WriteAllText(Path.Combine(dir, "section"), section + "\n");
         if (compare is not null) File.WriteAllText(Path.Combine(dir, "compare"), compare + "\n");
-        File.WriteAllText(Path.Combine(dir, "expected.sections"), $"== {printed}\n" + string.Concat(expected.Select(l => l + "\n")));
+        File.WriteAllText(Path.Combine(dir, "expected.sections"), Portable($"== {printed}\n" + string.Concat(expected.Select(l => l + "\n"))));
     }
 
     /// <summary>

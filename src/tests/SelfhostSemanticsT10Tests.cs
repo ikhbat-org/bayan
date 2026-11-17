@@ -178,11 +178,24 @@ public sealed class SelfhostSemanticsT10Tests
         File.SetUnixFileMode(manifest, UnixFileMode.None);
         try
         {
-            try { _ = File.ReadAllBytes(manifest); return; } // root reads it anyway
+            try { _ = File.ReadAllBytes(manifest); if (SelfhostExport.Dir is null) return; } // root reads it anyway
             catch (UnauthorizedAccessException) { }
             var (exit, stdout, stderr) = SelfhostParserTests.Run(program, "--golden", "--package", dir, "--include-path", source);
             // The C# compiler on the same unreadable package (Naming.GrammarOf), rendered as `--golden --include-path` does.
             var expected = DiagnosticRenderer.RenderAll(Compilation.Create([Golden.Load(source)], dir, new CompilationOptions()).Diagnostics.Items, includePath: true);
+            if (SelfhostExport.Dir is { } root)
+            {
+                // The case holds the empty manifest (a copy cannot read the unreadable one) and its mode in `modes`.
+                string Portable(string text) => text.Replace(Path.TrimEndingDirectorySeparator(Golden.RepoRoot) + Path.DirectorySeparatorChar, "");
+                var caseDir = SelfhostExport.Case(root, "sem", nameof(SelfhostSemanticsT10Tests), nameof(MainReadsAnUnreadablePackageAsAnEmptyOne));
+                Directory.CreateDirectory(Path.Combine(caseDir, "input"));
+                File.Copy(source, Path.Combine(caseDir, "input", "main.byn"));
+                SelfhostExport.WriteExpected(Path.Combine(caseDir, "input"), "package.byn", "");
+                SelfhostExport.WriteExpected(caseDir, "modes", "package.byn None\n");
+                SelfhostExport.WriteExpected(caseDir, "args", string.Concat(new[] { "--golden", "--package", dir, "--include-path", source }.Select(a => Portable(a) + "\n")));
+                SelfhostExport.WriteExpected(caseDir, "expected.golden", Portable(expected));
+                return;
+            }
             Assert.Contains("BYN5104", expected);
             Assert.Equal(expected.TrimEnd(), stdout.TrimEnd());
             Assert.Equal(emptyExit, exit);
