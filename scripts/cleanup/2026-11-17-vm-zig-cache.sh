@@ -7,8 +7,9 @@
 #   bash scripts/cleanup/2026-11-17-vm-zig-cache.sh --execute --delete-zig-cache     # act
 #
 # Starts bayan-test01 if stopped, waits for its agent, and stops it on any exit
-# once its own start has succeeded (a failed start leaves the VM as it is). A VM that is already running may be serving a job: the script
-# then measures only, refuses to delete, and leaves it running.
+# once its own start has succeeded (a failed start leaves the VM as it is).
+# A VM that is already running may be serving a job: the script then measures
+# only, refuses to delete, and leaves it running.
 set -euo pipefail
 
 execute=0 delete=0
