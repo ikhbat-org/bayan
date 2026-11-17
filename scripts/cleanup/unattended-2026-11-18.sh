@@ -3,7 +3,8 @@
 # Worktrees and branches merged into dev go to scripts/cleanup/merged-worktree-backlog.sh, which computes its targets
 # at run time; this script runs it (same flags), then removes the session's scratch:
 #   repo tmp/: worker build output moved aside before land, the T24, T24b and T40 export and staging dirs,
-#     the release-workflow test scratch (tmp/rwt.*)
+#     the release-workflow test scratch (tmp/rwt.*),
+#   025 T32 staging (tmp/025-t32) and the per-task export dirs (tmp/export-t1*, tmp/export-t2*)
 #   ~/.cache/zig (broken 2026-11-18: libcompiler_rt.a FileNotFound), with --clear-zig-cache
 #   on wp1: C:\tmp\t24* and C:\tmp\t40*, with --remove-remote
 # Kept on purpose: tmp/export-parse and tmp/export-lex (T17 lands them).
@@ -34,7 +35,7 @@ shopt -s nullglob
 for p in "$repo"/tmp/*-build-out* "$repo"/tmp/t24-win "$repo"/tmp/t24b-win "$repo"/tmp/export-t24b* \
          "$repo"/tmp/t12 "$repo"/tmp/t13 "$repo"/tmp/gate-export-* "$repo"/tmp/std-path-export \
          "$repo"/tmp/l005-run-batch-export "$repo"/tmp/zig-global \
-         "$repo"/tmp/t40-linux "$repo"/tmp/t40-win "$repo"/tmp/rwt.*; do
+         "$repo"/tmp/t40-linux "$repo"/tmp/t40-win "$repo"/tmp/rwt.* "$repo"/tmp/025-t32 "$repo"/tmp/export-t1* "$repo"/tmp/export-t2*; do
   rel=${p#"$repo"/}
   if git -C "$repo" ls-files --error-unmatch -- "$rel" >/dev/null 2>&1; then
     printf 'refuse: %s is tracked by git. Propose it as a commit instead. Left alone.\n' "$rel"; failed=1; continue
