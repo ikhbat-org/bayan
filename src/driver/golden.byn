@@ -746,24 +746,30 @@ struct GoldenOutcome {
     i32    exitCode = 0
 }
 
-/// `program args` in `directory` with `env` and `input` on its stdin (then closed): a signal reads as 128 plus its number (the code .NET
+/// `program args` in `directory` with `goldenEnv` and `input` on its stdin (then closed): a signal reads as 128 plus its number (the code .NET
 /// reports) and Windows' panic code as 134 (TestSetup.cs:126 `PanicExit.Portable`). A child that cannot start or outlives two minutes
 /// (RunTests.cs:110) sets `failure`.
 GoldenOutcome goldenChild(
     string program,
     by in List<string> args,
-    for in Map<string, string?> env,
     at string directory,
     from in List<u8> input,
     through ref string failure
 )
-        uses alloc, process {
+        uses alloc, fs, process {
     var line = StrBuf()
     for a in args {
         line.append($" {a}")
     }
     let shown = line.finish()
-    let r = Io.run(program, args.span, directory: directory, input: input.span, env: env, timeout: Millis(120000)) catch switch {
+    let r = Io.run(
+        program,
+        args.span,
+        directory: directory,
+        input: input.span,
+        env: goldenEnv(),
+        timeout: Millis(120000),
+    ) catch switch {
         .signaled(let s, let streamOut, let streamErr) => return GoldenOutcome {
             stdout: streamOut,
             stderr: streamErr,
@@ -853,6 +859,18 @@ string goldenTestSeconds(string text) uses alloc {
     return sb.finish()
 }
 
+/// The driver arguments that build the `run` case `input` from `source` to `program`, in its `// mode:`.
+List<string> goldenBuildArgs(string input, as string program, from string source) uses alloc, fs {
+    var args = List<string>()
+    args.append("build")
+    args.append("--mode")
+    args.append(goldenMode(input))
+    args.append("-o")
+    args.append(program)
+    args.append(source)
+    return args
+}
+
 /// RunTests.cs:66 `Execute` of a `run` case through the driver `exe`: built in its `// mode:` and run with its `.args` and `.stdin` in an
 /// empty work directory tmp/run/<flat>; a `.test.byn` case is :126 `ExecuteTests`, `test -v` of a directory holding only it. A flat
 /// case is built from a copy alone in a directory named for its kind, since the driver compiles every file of a file's directory.
@@ -866,7 +884,6 @@ GoldenOutcome goldenRunOutcome(in GoldenCase c, by string exe, through ref strin
         failure = $"cannot create {work}"
         return GoldenOutcome {}
     }
-    let env = goldenEnv()
     let none = List<u8>()
     var args = List<string>()
     if c.input.endsWith(".test.byn") {
@@ -878,7 +895,7 @@ GoldenOutcome goldenRunOutcome(in GoldenCase c, by string exe, through ref strin
         args.append("test")
         args.append("-v")
         args.append(work)
-        var o = goldenChild(exe, by: in args, for: in env, at: Path.fullPath("."), from: in none, through: ref failure)
+        var o = goldenChild(exe, by: in args, at: Path.fullPath("."), from: in none, through: ref failure)
         o.stdout = goldenTestSeconds(goldenLf(o.stdout))
         return o
     }
@@ -892,7 +909,10 @@ GoldenOutcome goldenRunOutcome(in GoldenCase c, by string exe, through ref strin
             return GoldenOutcome {}
         }
     } else {
-        source = Path.combine(Path.combine(build, Path.fileName(Path.directoryName(c.input) ?? "")), Path.fileName(c.input))
+        source = Path.combine(
+            Path.combine(build, Path.fileName(Path.directoryName(c.input) ?? "")),
+            Path.fileName(c.input),
+        )
         let text = Io.readFile(c.input) catch List<u8>()
         Io.createDirectory(Path.directoryName(source) ?? build) catch {
             failure = $"cannot create {build}"
@@ -904,13 +924,8 @@ GoldenOutcome goldenRunOutcome(in GoldenCase c, by string exe, through ref strin
         }
     }
     let program = Path.combine(build, targetExecutableName(flat, for: t5HostTarget()))
-    args.append("build")
-    args.append("--mode")
-    args.append(goldenMode(c.input))
-    args.append("-o")
-    args.append(program)
-    args.append(source)
-    let built = goldenChild(exe, by: in args, for: in env, at: Path.fullPath("."), from: in none, through: ref failure)
+    args = goldenBuildArgs(c.input, as: program, from: source)
+    let built = goldenChild(exe, by: in args, at: Path.fullPath("."), from: in none, through: ref failure)
     return GoldenOutcome {} if failure != ""
     if built.exitCode != 0 {
         failure = $"{c.kind}/{c.name} did not build:\n{built.stdout}{built.stderr}"
@@ -919,7 +934,7 @@ GoldenOutcome goldenRunOutcome(in GoldenCase c, by string exe, through ref strin
     let stdinPath = goldenExpected(c.input, for: ".stdin")
     let stdin = Fs.fileExists(stdinPath) ? Io.readFile(stdinPath) catch List<u8>() : List<u8>()
     let programArgs = goldenArgs(c.input)
-    return goldenChild(program, by: in programArgs, for: in env, at: work, from: in stdin, through: ref failure)
+    return goldenChild(program, by: in programArgs, at: work, from: in stdin, through: ref failure)
 }
 
 /// RunTests.cs:56 `Check`: `actual` against the expected file `ending` of `input`, the failure appended to `failures`. An `optional` one is
@@ -976,9 +991,16 @@ List<string> goldenFiles(string root) uses alloc, fs {
 }
 
 /// `exe args` in the repo root with `goldenEnv`; its exit code must be `code`, else `failure` says so with both streams.
-GoldenOutcome goldenCli(string exe, by in List<string> args, as i32 code, through ref string failure) uses alloc, fs, process {
+GoldenOutcome goldenCli(string exe, by in List<string> args, as i32 code, through ref string failure)
+        uses alloc, fs, process {
     let none = List<u8>()
-    let o = goldenChild(exe, by: in args, for: in goldenEnv(), at: Path.fullPath("."), from: in none, through: ref failure)
+    let o = goldenChild(
+        exe,
+        by: in args,
+        at: Path.fullPath("."),
+        from: in none,
+        through: ref failure,
+    )
     if failure == "" && o.exitCode != code {
         var shown = ""
         for a in args {
@@ -1125,7 +1147,11 @@ string? goldenOut(in GoldenCase c, by string exe) uses alloc, fs, process {
         default:
             let manifest = Path.combine(p, "package.byn")
             let text = Io.readText(manifest) catch ""
-            goldenWrite(p, for: "package.byn", as: text.replaced("[.host]", by: "[.linuxX64, .macosArm64, .windowsX64]"))
+            goldenWrite(
+                p,
+                for: "package.byn",
+                as: text.replaced("[.host]", by: "[.linuxX64, .macosArm64, .windowsX64]"),
+            )
             goldenOutStep(exe, for: "dist", at: p, as: exitOk, through: ref failure)
             actual = goldenOutTree(Path.combine(p, "dist"), by: false)
     }
@@ -1584,8 +1610,10 @@ test "a changed run expected line or a missing .exitcode fails naming the expect
     let failures = goldenFailures(root, for: "run", to: ref count)
     deleteWorkDir(root)
     assert(failures.length == 2)
-    assert(failures[0].contains(Path.combine(root, "run/assert-and-right.exitcode")) && failures[0].contains("missing expected file"))
-    assert(failures[1].startsWith($"{stdout}\n") && failures[1].contains($"expected line 2: changed line\nactual line 2: {was}"))
+    assert(failures[0].contains(Path.combine(root, "run/assert-and-right.exitcode"))
+        && failures[0].contains("missing expected file"))
+    assert(failures[1].startsWith($"{stdout}\n")
+        && failures[1].contains($"expected line 2: changed line\nactual line 2: {was}"))
 }
 
 test "a changed new, emit or quality expected line fails naming the file and the first differing line" {
@@ -1593,13 +1621,18 @@ test "a changed new, emit or quality expected line fails naming the file and the
     deleteWorkDir(root)
     goldenCopy(root, for: "new/lib.tree")
     goldenCopy(root, for: "quality/mutation-report.json")
-    // emit over two copied run cases, expecting their two lines of the frozen run-c.sha256
-    goldenRunCopy(root, for: "arithmetic")
-    goldenRunCopy(root, for: "assert-fails.test")
+    // emit over four copied run cases, expecting their lines of the frozen run-c.sha256; switch-move-guard's `// mode: debug` changes
+    // its C, so a mode not read fails here
+    let stems = ["arithmetic", "assert-fails.test", "overflow-fast", "switch-move-guard"]
+    for stem in stems {
+        goldenRunCopy(root, for: stem)
+    }
     var lines = ""
     for line in goldenLines(Io.readText(Path.fullPath("tests/cases/emit/run-c.sha256")) catch "") {
-        if line.endsWith("  run/arithmetic.byn") || line.endsWith("  run/assert-fails.test.byn") {
-            lines = $"{lines}{line}\n"
+        for stem in stems {
+            if line.endsWith($"  run/{stem}.byn") {
+                lines = $"{lines}{line}\n"
+            }
         }
     }
     goldenWrite(root, for: "emit/run-c.sha256", as: lines)
@@ -1625,4 +1658,28 @@ test "a changed new, emit or quality expected line fails naming the file and the
         assert(failures[i].startsWith($"{Path.combine(root, rels[i])}\n"))
         assert(failures[i].contains($"expected line 2: changed line\nactual line 2: {wants[i]}"))
     }
+}
+
+test "a run case is built in its // mode:, the C of its build arguments matching its frozen emit digest" {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(failure == "")
+    let root = Path.combine(Path.fullPath("tmp"), "golden-mode")
+    deleteWorkDir(root)
+    // switch-move-guard is `// mode: debug`, whose C differs from the default safe mode's
+    goldenRunCopy(root, for: "switch-move-guard")
+    let input = Path.combine(root, "run/switch-move-guard.byn")
+    var args = goldenBuildArgs(input, as: Path.combine(root, "program"), from: input)
+    args.append("--emit-c")
+    let o = goldenChild(
+        exe,
+        by: in args,
+        at: Path.fullPath("."),
+        from: in List<u8>(),
+        through: ref failure,
+    )
+    deleteWorkDir(root)
+    assert(failure == "" && o.exitCode == 0)
+    let frozen = Io.readText(Path.fullPath("tests/cases/emit/run-c.sha256")) catch ""
+    assert(frozen.contains($"{t9Hash(o.stdout)}  run/switch-move-guard.byn\n"))
 }
