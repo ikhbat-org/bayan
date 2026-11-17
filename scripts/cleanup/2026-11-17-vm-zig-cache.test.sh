@@ -19,6 +19,7 @@ case "$1 $2" in
   "incus list") echo "$FAKE_STATE" ;;
   "incus exec") [ "${5:-}" != "${FAKE_FAIL:-}" ] || exit 1 ;;
   "incus stop") [ -z "${FAKE_STOP_FAIL:-}" ] || exit 1 ;;
+  "incus start") [ -z "${FAKE_START_FAIL:-}" ] || exit 1 ;;
 esac
 exit 0
 EOF
@@ -63,6 +64,9 @@ has "failure after start still stops" "incus stop"
 FAKE_STOP_FAIL=1 run "failed stop is reported" STOPPED "" 1 --execute --delete-zig-cache
 grep -q "FAILED to stop" "$tmp/out" || { echo "FAIL failed stop is reported: no message"; cat "$tmp/out"; exit 1; }
 
+FAKE_START_FAIL=1 run "failed start leaves the vm alone" STOPPED "" 1 --execute --delete-zig-cache
+hasnt "failed start leaves the vm alone" "incus stop"
+
 run "frozen vm refused" FROZEN "" 1 --execute --delete-zig-cache
 hasnt "frozen vm refused" "incus start"
 hasnt "frozen vm refused" "rm -rf"
@@ -70,4 +74,4 @@ hasnt "frozen vm refused" "rm -rf"
 run "dry run" STOPPED "" 0
 hasnt "dry run" "incus start"
 
-echo "ok: 7 cases"
+echo "ok: 8 cases"

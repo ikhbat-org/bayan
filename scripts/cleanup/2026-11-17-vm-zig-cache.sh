@@ -38,9 +38,9 @@ elif [ "$state" = STOPPED ]; then
         for t in "${targets[@]}"; do echo "would delete: $t"; done
         exit 0
     fi
-    # Armed before the start: a start that boots the VM and then reports failure still stops it.
-    trap 'if ssh "$host" incus stop "$vm"; then echo "$vm stopped (it stays stopped between jobs)"; else echo "FAILED to stop $vm; stop it by hand"; exit 1; fi' EXIT
+    # Armed only after this run's start succeeds: a failed start may mean a job started it first.
     ssh "$host" incus start "$vm"
+    trap 'if ssh "$host" incus stop "$vm"; then echo "$vm stopped (it stays stopped between jobs)"; else echo "FAILED to stop $vm; stop it by hand"; exit 1; fi' EXIT
 elif [ $execute -eq 1 ] && [ $delete -eq 1 ]; then
     echo "refuse: $vm was already running and may be serving a job; stop it first, then rerun"
     exit 1
