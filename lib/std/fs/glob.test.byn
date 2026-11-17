@@ -68,3 +68,28 @@ bool unreadable(string dir) uses fs, alloc {
     let _ = Io.listDir(dir) catch { return true }
     return false
 }
+
+/// Runs `ln -sfn target link` in `sh`; false when there is no `sh` or no links (Windows).
+bool link(string target, at string path) uses fs, alloc, process {
+    let args: string[2] = ["-c", $"ln -sfn {target} {path}"]
+    let _ = Io.run("sh", args.span) catch { return false }
+    return true
+}
+
+test "glob lists each file once through a link back up the tree" {
+    let root = "tmp/glob-loop"
+    touch(root, at: "a/f.byn")
+    touch(root, at: "a/g.byn")
+    if !link("..", at: "tmp/glob-loop/a/loop") { return }
+    assert joined(glob("tmp/glob-loop/**/*.byn")) == "tmp/glob-loop/a/f.byn tmp/glob-loop/a/g.byn"
+}
+
+test "glob lists each file once through two links into each other's trees" {
+    let root = "tmp/glob-cross"
+    touch(root, at: "a/f.byn")
+    touch(root, at: "b/g.byn")
+    if !link("../b", at: "tmp/glob-cross/a/x") { return }
+    if !link("../a", at: "tmp/glob-cross/b/y") { return }
+    // Which of a file's paths is listed depends on the order the directories are read in, so only the count is fixed.
+    assert glob("tmp/glob-cross/**/*.byn").length == 2
+}

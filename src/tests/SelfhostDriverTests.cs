@@ -738,6 +738,27 @@ public sealed class SelfhostDriverT1Tests
         SelfhostEmitterHarness.AssertSame("manifestFor", string.Join("\n", expected) + "\n", stdout);
     }
 
+    /// <summary>A file under a directory link into a second package takes that package's manifest (the real path), not the root's: <c>root/link -> ../second</c>. The C# <c>ManifestFor</c> starts from the alias and finds the root's, so the expected lines are the driver's own.</summary>
+    [Fact]
+    public void ManifestForFollowsADirectoryLink()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "t6-manifest-link");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        foreach (var (pkg, kind) in new[] { ("root", "app"), ("second", "library") })
+        {
+            Directory.CreateDirectory(Path.Combine(dir, pkg));
+            File.WriteAllText(Path.Combine(dir, pkg, "package.byn"), $"Package {{\n    name: \"local/{pkg}\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .{kind},\n}}\n");
+        }
+        File.WriteAllText(Path.Combine(dir, "root", "own.byn"), "");
+        File.WriteAllText(Path.Combine(dir, "second", "x.byn"), "");
+        Directory.CreateSymbolicLink(Path.Combine(dir, "root", "link"), Path.Combine(dir, "second"));
+        var real = Directory.ResolveLinkTarget(Path.Combine(dir, "root", "link"), true)!.FullName;
+        var (code, stdout, _) = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), "manifest", Path.Combine(dir, "root", "own.byn"), Path.Combine(dir, "root", "link", "x.byn"));
+        Assert.Equal(0, code);
+        SelfhostEmitterHarness.AssertSame("manifestFor", $"{Path.Combine(dir, "root")}\n{real}\n2\n", stdout);
+    }
+
     /// <summary><c>packageNames</c> against the private <c>Format.PackageNames</c> where the C# set is empty (files holding only a comment, an unreadable one, a missing directory).</summary>
     [Theory]
     [InlineData(false)]
