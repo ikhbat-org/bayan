@@ -590,8 +590,11 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
     }
     let pending = goldenExpected(c.input, for: ".pending")
     if Fs.fileExists(pending) {
-        if failure is not null {
-            return GoldenResult { name: name, status: "skipped", detail: $"pending: {pending}" }
+        if (failure is { } f) {
+            if goldenOnlyDiffers(f) {
+                return GoldenResult { name: name, status: "skipped", detail: $"pending: {pending}" }
+            }
+            return GoldenResult { name: name, status: "failed", detail: f }
         }
         return GoldenResult {
             name: name,
@@ -603,6 +606,26 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
         return GoldenResult { name: name, status: "failed", detail: rewrote == "" ? f : $"{f}\n{rewrote}" }
     }
     return GoldenResult { name: name, status: "passed", detail: rewrote }
+}
+
+/// Whether failure text `f` holds only what `goldenDiffer` reports, each an input line then `expected line`/`actual line` or `missing expected
+/// file`: the case built and ran and its output differs. A `.pending` case is skipped on that alone (RunTests.cs:52-63); one that did not build,
+/// could not run or names no driver (T2c) fails as any case does.
+bool goldenOnlyDiffers(string f) uses alloc {
+    let lines = goldenLines(f)
+    var i = 0
+    while i < lines.length {
+        if i + 1 < lines.length && lines[i + 1].startsWith("missing expected file ") {
+            i += 2
+        } else if i + 2 < lines.length
+                && lines[i + 1].startsWith("expected line ")
+                && lines[i + 2].startsWith("actual line ") {
+            i += 3
+        } else {
+            return false
+        }
+    }
+    return lines.length > 0
 }
 
 /// What `goldenResult` sets before and after a case to see whether update mode rewrote `path`: `-` when it is absent, else `+` and its text.
@@ -2200,6 +2223,84 @@ test "a .pending case that now matches fails saying to remove its .pending file"
     let pending = Path.combine(root, "lex/bad-chars.pending")
     assert(results[0].detail == $"{input}\nnow matches its expected output: remove {pending}")
     assert(kept == (Io.readText(Path.fullPath("tests/cases/lex/bad-chars.tokens")) catch "-"))
+}
+
+/// A cases directory `root` of `.pending` cases: `lex/p` and `run/q` build and differ (third `.tokens`, fourth `.stdout` line changed);
+/// `run/broken` does not build.
+void goldenPendingFixture(string root) uses alloc, fs {
+    deleteWorkDir(root)
+    goldenWrite(root, for: "lex/p.byn", as: Io.readText(Path.fullPath("tests/cases/lex/bad-chars.byn")) catch "")
+    goldenWrite(
+        root,
+        for: "lex/p.tokens",
+        as: goldenChangeLine(Io.readText(Path.fullPath("tests/cases/lex/bad-chars.tokens")) catch "", at: 2),
+    )
+    goldenWrite(root, for: "run/q.byn", as: Io.readText(Path.fullPath("tests/cases/run/arithmetic.byn")) catch "")
+    goldenWrite(
+        root,
+        for: "run/q.stdout",
+        as: goldenChangeLine(Io.readText(Path.fullPath("tests/cases/run/arithmetic.stdout")) catch "", at: 3),
+    )
+    goldenWrite(root, for: "run/broken.byn", as: "void main() {\n    print(nope)\n}\n")
+    goldenWrite(root, for: "run/broken.stdout", as: "x\n")
+    for stem in ["lex/p", "run/q", "run/broken"] {
+        goldenWrite(root, for: $"{stem}.pending", as: "T6\n")
+    }
+}
+
+test "a .pending case that does not build fails with its build error, and one that builds and differs is skipped" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-pending-build")
+    goldenPendingFixture(root)
+    var exit = 0
+    var results = List<GoldenResult>()
+    for c in goldenDiscover(root, through: ref exit) {
+        results.append(goldenResult(c, for: 60000))
+    }
+    deleteWorkDir(root)
+    assert(results.length == 3
+        && results[0].name == "lex/p"
+        && results[1].name == "run/broken"
+        && results[2].name == "run/q")
+    assert(results[0].status == "skipped" && results[2].status == "skipped")
+    assert(results[1].status == "failed")
+    let input = Path.combine(root, "run/broken.byn")
+    assert(results[1].detail.startsWith($"{input}\nrun/broken did not build:\n")
+        && results[1].detail.contains("error BYN2001: `nope` is not defined"))
+}
+
+/// `bayan test root --jobs 1` through `$BAYAN_EXE` with the child's `$BAYAN_EXE` set to `value` (unset when null): its exit code and stdout.
+GoldenOutcome goldenExeRun(string root, by string? value) uses alloc, env, fs, process {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    var args = List<string>()
+    for a in ["test", root, "--jobs", "1"] {
+        args.append(a)
+    }
+    var env = goldenEnv()
+    env["BAYAN_EXE"] = value
+    let r = Io.run(exe, args.span, env: env) catch return GoldenOutcome { stdout: failure, exitCode: -1 }
+    return GoldenOutcome { stdout: goldenLf(r.stdout), stderr: r.stderr, exitCode: r.exitCode }
+}
+
+test "a .pending case with BAYAN_EXE unset or naming a missing file fails naming BAYAN_EXE" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-pending-exe")
+    goldenPendingFixture(root)
+    let none = Path.combine(root, "none")
+    let unset = goldenExeRun(root, by: null)
+    let missing = goldenExeRun(root, by: none)
+    deleteWorkDir(root)
+    assert(unset.exitCode == exitTestFailure && missing.exitCode == exitTestFailure)
+    for stem in ["lex/p", "run/broken", "run/q"] {
+        let input = Path.combine(root, $"{stem}.byn")
+        assert(unset.stdout.contains(
+            $"\nfailed {stem}\n    {input}\n    BAYAN_EXE is not set: set it to the path of the bayan driver\n",
+        ))
+        assert(missing.stdout.contains(
+            $"\nfailed {stem}\n    {input}\n    BAYAN_EXE={none} is not an executable bayan driver\n",
+        ))
+    }
+    assert(unset.stdout.contains("\n0 passed · 3 failed · 0 skipped · ")
+        && missing.stdout.contains("\n0 passed · 3 failed · 0 skipped · "))
 }
 
 test "new, out, emit and quality cases pass over tests/cases" {
