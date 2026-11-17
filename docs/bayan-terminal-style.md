@@ -195,3 +195,4 @@ A check that cannot pass starts with `✗` and gets a `help:` line; an optional 
 | `COLORTERM`, `BAYAN_THEME`, `COLORFGBG` | Truecolour or 16 colours, and the light or dark column (§2). |
 | `LC_ALL`, `LC_CTYPE`, `LANG` | Locale check for the ASCII fallback (§3). |
 | `CI` | Non-empty: no progress line (§6). |
+| `BAYAN_TERMINAL` | A positive integer: stdout and stderr are treated as a terminal of that width, as when a test runs `bayan` as a child with its output piped. Colour is still decided by `--color` and the variables above. Unset, empty, `0`, negative or non-numeric: ignored. |
