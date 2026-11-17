@@ -1,0 +1,199 @@
+// sabk phase 1 (spec 024, R6): SIR, sabk's own small test form: functions of blocks over virtual registers.
+// The register allocator (T8) and the end-to-end program (R8) consume it; it is independent of the frontend's
+// lowered tree. Build with the `new*`, `emit` and `terminate` functions, print with `printModule`.
+
+public type VReg    = i64
+public type BlockId = i64
+
+/// "No register": a `call` without a result, a `ret` without a value.
+public VReg noReg() => -1
+
+public enum SCond {
+    eq
+    ne
+    lt
+    le
+    gt
+    ge
+}
+
+public union SInst {
+    /// `dst = const value`
+    imm(VReg dst, i64 value)
+    add(VReg dst, VReg a, VReg b)
+    sub(VReg dst, VReg a, VReg b)
+    mul(VReg dst, VReg a, VReg b)
+    div(VReg dst, VReg a, VReg b)
+    /// `dst = addr str N` (string constant N of the module) and `dst = addr @name` (a global).
+    addrStr(VReg dst, i64 index)
+    addrGlobal(VReg dst, string name)
+    /// `dst = load @name` and `store @name, src`.
+    load(VReg dst, string name)
+    store(string name, VReg src)
+    /// `dst = call sym(args)`; `dst` is `noReg` for a call without a result.
+    call(VReg dst, string symbol, List<VReg> args)
+}
+
+public union Terminator {
+    /// A block still being built.
+    open
+    jump(BlockId target)
+    /// `br cond a, b -> then, otherwise`
+    br(SCond cond, VReg a, VReg b, BlockId then, BlockId otherwise)
+    /// `ret value`; `value` is `noReg` for a bare `ret`.
+    ret(VReg value)
+}
+
+public struct Block {
+    public BlockId       id
+    public List<SInst>   insts
+    public Terminator    terminator
+}
+
+public struct Function {
+    public string      name
+    public List<VReg>  params
+    public List<Block> blocks
+    public i64         nextVReg
+}
+
+/// A 64-bit global with its initial value.
+public struct Global {
+    public string name
+    public i64    init
+}
+
+public struct Module {
+    public List<Function> functions
+    public List<string>   strings
+    public List<Global>   globals
+}
+
+// ── Builder ──────────────────────────────────────────────────────────────────
+
+/// A function with `paramCount` parameters `v0..`.
+public Function newFunction(string name, by i64 paramCount) uses alloc {
+    var f = Function { name: name, params: List<VReg>(), blocks: List<Block>(), nextVReg: 0 }
+    for i in 0..paramCount {
+        f.params.append(newVReg(ref f))
+    }
+    return f
+}
+
+public VReg newVReg(ref Function f) {
+    let v = f.nextVReg
+    f.nextVReg = f.nextVReg + 1
+    return v
+}
+
+public BlockId newBlock(ref Function f) uses alloc {
+    let id = f.blocks.length
+    f.blocks.append(Block { id: id, insts: List<SInst>(), terminator: .open })
+    return id
+}
+
+/// Appends `inst` to block `b`.
+public void emit(ref Function f, to BlockId b, as move SInst inst) uses alloc {
+    f.blocks[b].insts.append(move inst)
+}
+
+/// Sets the terminator of block `b`.
+public void terminate(ref Function f, at BlockId b, as Terminator t) {
+    f.blocks[b].terminator = t
+}
+
+/// The index of string constant `text`, added on first use.
+public i64 internString(ref Module m, as string text) uses alloc {
+    for i in 0..m.strings.length {
+        return i if m.strings[i] == text
+    }
+    m.strings.append(text)
+    return m.strings.length - 1
+}
+
+// ── Printer ──────────────────────────────────────────────────────────────────
+
+string condName(SCond c) {
+    switch c {
+        case .eq: return "eq"
+        case .ne: return "ne"
+        case .lt: return "lt"
+        case .le: return "le"
+        case .gt: return "gt"
+        case .ge: return "ge"
+    }
+}
+
+string vr(VReg v) uses alloc => $"v{v}"
+
+string bl(BlockId b) uses alloc => $"b{b}"
+
+string printInst(in SInst inst) uses alloc {
+    switch inst {
+        case .imm(let dst, let value): return $"{vr(dst)} = const {value}"
+        case .add(let dst, let a, let b): return $"{vr(dst)} = add {vr(a)}, {vr(b)}"
+        case .sub(let dst, let a, let b): return $"{vr(dst)} = sub {vr(a)}, {vr(b)}"
+        case .mul(let dst, let a, let b): return $"{vr(dst)} = mul {vr(a)}, {vr(b)}"
+        case .div(let dst, let a, let b): return $"{vr(dst)} = div {vr(a)}, {vr(b)}"
+        case .addrStr(let dst, let index): return $"{vr(dst)} = addr str{index}"
+        case .addrGlobal(let dst, let name): return $"{vr(dst)} = addr @{name}"
+        case .load(let dst, let name): return $"{vr(dst)} = load @{name}"
+        case .store(let name, let src): return $"store @{name}, {vr(src)}"
+        case .call(let dst, let symbol, let args):
+            var sb = StrBuf()
+            for i in 0..args.length {
+                sb.append(", ") if i > 0
+                sb.append(vr(args[i]))
+            }
+            let call = $"call {symbol}({sb.finish()})"
+            return call if dst == noReg()
+            return $"{vr(dst)} = {call}"
+    }
+}
+
+string printTerminator(in Terminator t) uses alloc {
+    switch t {
+        case .open: return "open"
+        case .jump(let target): return $"jump {bl(target)}"
+        case .br(let cond, let a, let b, let yes, let no):
+            return $"br {condName(cond)} {vr(a)}, {vr(b)} -> {bl(yes)}, {bl(no)}"
+        case .ret(let value):
+            return "ret" if value == noReg()
+            return $"ret {vr(value)}"
+    }
+}
+
+/// One function: `func name(v0, v1) {`, each block as `bN:` then its instructions and terminator indented by two, `}`.
+public string printFunction(in Function f) uses alloc {
+    var sb = StrBuf()
+    sb.append($"func {f.name}(")
+    for i in 0..f.params.length {
+        sb.append(", ") if i > 0
+        sb.append(vr(f.params[i]))
+    }
+    sb.append(") {\n")
+    for b in f.blocks {
+        sb.append($"{bl(b.id)}:\n")
+        for inst in b.insts {
+            sb.append($"  {printInst(inst)}\n")
+        }
+        sb.append($"  {printTerminator(b.terminator)}\n")
+    }
+    sb.append("}\n")
+    return sb.finish()
+}
+
+/// The module: `str N "text"` lines, `global @name = init` lines, then the functions, each section in order.
+public string printModule(in Module m) uses alloc {
+    var sb = StrBuf()
+    for i in 0..m.strings.length {
+        sb.append($"str{i} \"{m.strings[i]}\"\n")
+    }
+    for g in m.globals {
+        sb.append($"global @{g.name} = {g.init}\n")
+    }
+    for f in m.functions {
+        sb.append(printFunction(f))
+    }
+    return sb.finish()
+}
