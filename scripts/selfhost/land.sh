@@ -81,14 +81,19 @@ fi
   grep -q '^GUARD PASS' "../guard-land-$t.txt" || { echo "LAND REFUSED: guard failed"; exit 1; }
 )
 # bootstrap/ follows the compiler (012 T6, user 2026-11-05): a change under src/ or runtime/ (their tests/ excepted) regenerates
-# bootstrap/bayan.c and the runtime copies in the checked worktree before the merge; the tick commit carries them
+# bootstrap/bayan.c and the runtime copies in the checked worktree before the merge; the tick commit carries them. No .NET
+# (019 R26, R36): stage 0 is $BASE's bootstrap (scripts/pinned-bayan.sh), it builds the branch's src/driver (stage 1), and
+# stage 1's safe C is the new bootstrap/bayan.c, the chain scripts/ci/bootstrap-check.sh checks
 REGEN=0
-if [ -f "$WT/csharp/tests/Bayan.Tests/BootstrapTests.cs" ] && [ -n "$(git diff --name-only "$BASE...$SHA" -- src/ runtime/ ':!src/tests' ':!runtime/tests')" ]; then
+if [ -n "$(git diff --name-only "$BASE...$SHA" -- src/ runtime/ ':!src/tests' ':!runtime/tests')" ]; then
   [ -z "$(git diff --name-only "$SHA...$BASE" -- src/ runtime/ ':!src/tests' ':!runtime/tests')" ] \
     || { echo "LAND REFUSED: $BASE changed src/ or runtime/ after $BR branched, so bootstrap/ regenerated on $BR would not be the merged tree's; merge $BASE into $BR and land again"; exit 1; }
   REGEN=1; mkdir -p tmp
-  ( cd "$WT" && BAYAN_UPDATE=1 nice dotnet test -v q --filter FullyQualifiedName~BootstrapTests ) > "tmp/land-$t-bootstrap.txt" 2>&1 \
-    || { tail -20 "tmp/land-$t-bootstrap.txt"; echo "LAND REFUSED: BAYAN_UPDATE=1 BootstrapTests failed (tmp/land-$t-bootstrap.txt)"; exit 1; }
+  { S0=$(PINNED_BAYAN_REF=$BASE bash "$(dirname "$0")/../pinned-bayan.sh") && ( cd "$WT" && mkdir -p tmp/bootstrap/stage1 \
+      && nice "$S0" build --package src -o tmp/bootstrap/stage1/bayan src/driver \
+      && nice tmp/bootstrap/stage1/bayan build --emit-c --mode safe --package src src/driver > tmp/bootstrap/stage1/bayan.c \
+      && cp tmp/bootstrap/stage1/bayan.c bootstrap/bayan.c && cp runtime/bayan-rt.h runtime/bayan-rt.c bootstrap/ ); } > "tmp/land-$t-bootstrap.txt" 2>&1 \
+    || { tail -20 "tmp/land-$t-bootstrap.txt"; echo "LAND REFUSED: regenerating bootstrap/ from $BASE's bootstrap failed (tmp/land-$t-bootstrap.txt)"; exit 1; }
 fi
 
 COVREPORT=$WT/tmp/guard-run/coverage/bayan-quality.json
