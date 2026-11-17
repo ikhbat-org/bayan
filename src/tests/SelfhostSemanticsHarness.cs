@@ -411,12 +411,14 @@ public static class SelfhostSemanticsHarness
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             if (!Directory.Exists(path)) File.Copy(path, target, overwrite: true);
             else
+            {
+                // Every directory, so an empty one is kept.
+                Directory.CreateDirectory(target);
+                foreach (var d in Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories))
+                    Directory.CreateDirectory(Path.Combine(target, Path.GetRelativePath(path, d)));
                 foreach (var f in Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories))
-                {
-                    var to = Path.Combine(target, Path.GetRelativePath(path, f));
-                    Directory.CreateDirectory(Path.GetDirectoryName(to)!);
-                    File.Copy(f, to, overwrite: true);
-                }
+                    File.Copy(f, Path.Combine(target, Path.GetRelativePath(path, f)), overwrite: true);
+            }
         }
         if (input.Args.Length > 0) File.WriteAllText(Path.Combine(dir, "args"), input.Args);
         File.WriteAllText(Path.Combine(dir, "section"), section + "\n");
