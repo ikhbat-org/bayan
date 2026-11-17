@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test for tools/llm-eval.byn `score`, `recheck` and `run` (spec 025 T2, T3, T7, T8). Scratch is under the repo's tmp/. Builds small task sets there at run
+# Test for tools/llm-eval.byn `score`, `recheck` and `run` (spec 025 T2, T3, T7, T8, T9). Scratch is under the repo's tmp/. Builds small task sets there at run
 # time; the seed under evals/llm/tasks is only read.
 #   bash scripts/evals/llm-eval.test.sh
 set -uo pipefail
@@ -7,7 +7,8 @@ cd "$(dirname "$0")/../.."
 seed=evals/llm/tasks
 root=$PWD/tmp/llm-eval-test
 rm -rf "$root"; mkdir -p "$root/tasks" "$root/cand" "$root/out" "$root/rec"
-trap 'rm -rf "$root"' EXIT
+stamp=
+trap 'rm -rf "$root"; [ -z "$stamp" ] || rm -f "$stamp"' EXIT
 
 pass=0 fail=0
 ok() { pass=$((pass + 1)); echo "ok   $1"; }
@@ -179,7 +180,7 @@ cp "$root/cand/right.byn" "$root/reply-none"
 run() {
   local n=$1 reply=$2 tokens=$3; shift 3
   bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model "sh $root/model.sh $root/$reply $root/rec/$n.prompt $tokens" \
-    --out "$root/out/run-$n" "$@" > "$root/rec/$n" 2> "$root/rec/$n.err"
+    --out "$root/out/run-$n" --machine "test machine" "$@" > "$root/rec/$n" 2> "$root/rec/$n.err"
   code=$?
 }
 run two reply-two 42 --context "$root/context.md"
@@ -200,7 +201,7 @@ bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" > /dev/null 2>&1
 check "run: no --model is usage" "$?" "2"
 bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model true --machine m --remote p > /dev/null 2>&1
 check "run: --machine with --remote is usage" "$?" "2"
-bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model true --samples 0 > /dev/null 2>&1
+bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model true --machine m --samples 0 > /dev/null 2>&1
 check "run: --samples 0 is usage" "$?" "2"
 
 # Samples, records and summary (T8). Four stdout tasks, each prompt tagged; a stub model command answers sample <n> of
@@ -285,7 +286,7 @@ check "summary: remote with provider, tokens per second when printed" \
 
 # A run over the seed leaves git status of the tasks directory clean (R37).
 seedTask=$(basename "$(ls -d "$seed"/*/ | head -1)")
-bash scripts/bayan-tool.sh llm-eval run "$seed" --model "cat $root/cand/broken.byn" --only "$seedTask" --out "$root/out/seed-run" \
+bash scripts/bayan-tool.sh llm-eval run "$seed" --model "cat $root/cand/broken.byn" --only "$seedTask" --machine m --out "$root/out/seed-run" \
   > "$root/rec/seed-run" 2>&1
 check "run: git status shows nothing written under the tasks directory" \
   "$? $(git status --porcelain --ignored --untracked-files=all -- "$seed" | wc -l | tr -d ' ') $(grep -c '"outcome": "no-compile"' "$root/out/seed-run/1/records.jsonl")" "0 0 1"
@@ -297,9 +298,64 @@ mkdir -p "$root/net-tmp" "$root/net-cache"
 pinned=$(bash scripts/pinned-bayan.sh)
 TMPDIR=$root/net-tmp BAYAN_CACHE=$root/net-cache bash scripts/evals/llm-sandbox.sh --write "$root" --stdout "$root/rec/net" \
   --status "$root/rec/net.status" -- env "PINNED_BAYAN=$pinned" bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" \
-  --model "sh $root/model.sh $root/reply-two $root/rec/net.prompt 7" --out "$root/out/run-net" 2> "$root/rec/net.err"
+  --model "sh $root/model.sh $root/reply-two $root/rec/net.prompt 7" --machine m --out "$root/out/run-net" 2> "$root/rec/net.err"
 status() { sed -n "s/^$1: //p" "$root/rec/net.status"; }
 check "run: completes inside the network denial" "$(status exit) $(status sandbox) $(get net tokens) $(cmp -s "$root/rec/net.prompt" "$root/want-plain" && echo same)" "0 $sandbox 7 same"
+
+# Stamp and heldout guard (T9). A git repository holding a set with one `dev` and one `Split: heldout` task, both
+# synthetic. The stamp goes to tmp/llm-eval/recheck/stamps/ under the repo root; the trap removes it.
+good held small-900-salam small
+good held small-901-kept small
+hs=$root/sets/held
+sed -i.bak 's/^Split: dev$/Split: heldout/' "$hs/small-901-kept/task.md"; rm "$hs/small-901-kept/task.md.bak"
+g() { git -C "$hs" -c user.name=test -c user.email=test@example.invalid -c commit.gpgsign=false -c core.hooksPath=/dev/null "$@"; }
+g init -q && g add -A && g commit -qm tasks
+hcommit=$(g rev-parse HEAD)
+stamp=$PWD/tmp/llm-eval/recheck/stamps/$hcommit-$ccommit
+# hrun <name> [run args...]: run over the set with a stub that answers right; output in $root/rec/<name>, summary in $flat.
+hrun() {
+  local n=$1; shift
+  bash scripts/bayan-tool.sh llm-eval run "$hs" --model "cat $root/cand/right.byn" --out "$root/out/$n" "$@" > "$root/rec/$n" 2>&1
+  code=$?
+  flat=$({ tr -d ' \n' < "$root/out/$n/1/summary.json"; } 2> /dev/null)
+}
+
+# Uncommitted changes: recheck passes, writes no stamp.
+printf '\n' >> "$hs/small-900-salam/prompt.md"
+recheck held
+check "recheck: uncommitted changes, no stamp" "$code $(grep -c '^PASS' "$root/rec/rc-held") $(grep -c '^no stamp: the tasks directory has uncommitted changes' "$root/rec/rc-held") $([ -e "$stamp" ] && echo stamp || echo none)" "0 2 1 none"
+g checkout -q -- .
+
+# No stamp: verified false, no headline; both splits give two blocks, never one number over both.
+hrun held-none --remote example-provider
+check "run: heldout without a stamp is not verified and has no headline" "$code $(holds '"verified":false') $(grep -c '"headline"' "$root/out/held-none/1/summary.json")" "0 holds 0"
+check "run: both splits give two blocks" \
+  "$(holds '"splits":[{"split":"') $(holds '"split":"dev","overall":{"tasks":1,') $(holds '"split":"heldout","overall":{"tasks":1,') $(grep -c '"tasks": 2' "$root/out/held-none/1/summary.json")" \
+  "holds holds holds 0"
+
+# A committed set: a passing recheck writes the stamp named by both commits; run then writes the headline.
+recheck held
+check "recheck: committed set writes the stamp named by both commits" \
+  "$code $(grep -c "^stamp: $stamp\$" "$root/rec/rc-held") $(sed -n 's/^taskSetCommit: //p' "$stamp" 2> /dev/null)" "0 1 $hcommit"
+recheck held --only small-900-salam
+check "recheck --only writes no stamp" "$code $(grep -c '^no stamp: --only' "$root/rec/rc-held")" "0 1"
+hrun held-stamped --remote example-provider
+check "run: heldout with the stamp is verified and has the headline" \
+  "$code $(holds '"verified":true') $(holds '"headline":{"split":"heldout","tasks":1,"pass@1":{"count":1,"rate":1.0000}}')" "0 holds holds"
+# The stamp does not verify the same commit once a file is changed.
+printf '\n' >> "$hs/small-900-salam/prompt.md"
+hrun held-dirty --remote example-provider
+check "run: uncommitted changes are not verified" "$code $(holds '"verified":false') $(grep -c '"headline"' "$root/out/held-dirty/1/summary.json")" "0 holds 0"
+g checkout -q -- .
+
+# --remote is required for a heldout run without --machine (and --machine or --remote for any run, R32).
+hrun held-anon
+check "run: heldout without --machine or --remote is refused" \
+  "$code $(grep -c 'needs --machine <text> or --remote <provider>' "$root/rec/held-anon") $([ -e "$root/out/held-anon" ] && echo out || echo none)" "2 1 none"
+hrun held-machine --machine "test machine"
+check "run: heldout with --machine runs" "$code $(holds '"machine":"testmachine"')" "0 holds"
+bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model true > /dev/null 2>&1
+check "run: dev without --machine or --remote is refused" "$?" "2"
 
 echo "llm-eval.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]
