@@ -861,10 +861,15 @@ string? goldenStyleCompare(string shape, for string ending, as string text) uses
     return goldenDiffer(text, for: expected, at: expected)
 }
 
-/// The byte offset of the first `needle` in `text`; -1 when there is none.
+/// The byte offset of the first `needle` in `text`; -1 when there is none. Compared byte by byte, so a text with non-ASCII code points
+/// (the `✓` of a test report) does not split one.
 i64 goldenOffset(string text, for string needle) {
     for i in 0..text.length - needle.length + 1 {
-        return i if text[i..i + needle.length] == needle
+        var k = 0
+        while k < needle.length && text.bytes[i + k] == needle.bytes[k] {
+            k += 1
+        }
+        return i if k == needle.length
     }
     return -1
 }
