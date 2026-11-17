@@ -244,10 +244,12 @@ public sealed class SelfhostDriverGoldenTests
     /// <summary>
     /// L028's mask for <c>test</c>: the elapsed seconds, the timings of <c>results.json</c> and <c>bayan-quality.json</c>, and the
     /// <c>timing:</c> line of a mutation summary (017 T13), every value on it, 0 included (a fast host rounds a mean to 0 on one side and
-    /// not the other, 008 W6); a JSON timing that is exactly 0 (<c>mutate --binary</c>'s build and share) is compared.
+    /// not the other, 008 W6); <c>build_s</c> or <c>mutant_share_of_build</c> that is exactly 0 (<c>mutate --binary</c>'s build and share)
+    /// is compared. <c>durationMs</c> is masked at 0 too: a run of only skipped tests takes 0 ms on one side and not the other (Windows CI).
     /// </summary>
     private static string MaskTest(string text) =>
-        Regex.Replace(Regex.Replace(Mask(text), @"""(durationMs|build_s|total_s|mean_mutant_s|max_mutant_s|mutant_share_of_build)"": (?!0[,\r\n])[0-9.E+-]+", "\"$1\": <t>"),
+        Regex.Replace(Regex.Replace(Regex.Replace(Mask(text), @"""(durationMs|total_s|mean_mutant_s|max_mutant_s)"": [0-9.E+-]+", "\"$1\": <t>"),
+                @"""(build_s|mutant_share_of_build)"": (?!0[,\r\n])[0-9.E+-]+", "\"$1\": <t>"),
             @"^timing: build .*$", m => Regex.Replace(m.Value, @"(?<= )[0-9.]+(?= s|%)", "<t>"), RegexOptions.Multiline);
 
     /// <summary>
@@ -999,6 +1001,8 @@ public sealed class SelfhostDriverGoldenTests
         Assert.NotEqual(MaskStream("bayan 1.2.3-dev (commit abc123)\n", "", "check"), MaskStream("bayan 1.2.3-dev (selfhost)\n", "", "check"));
         Assert.NotEqual(MaskStream("see bayan 1.2.3-dev (commit abc123)\n", "", "doctor"), MaskStream("see bayan 1.2.3-dev (selfhost)\n", "", "doctor"));
         Assert.Equal(MaskStream("\"durationMs\": 5\n", "", "test"), MaskStream("\"durationMs\": 7\n", "", "test"));
+        Assert.Equal(MaskStream("\"durationMs\": 0,\n", "", "test"), MaskStream("\"durationMs\": 7,\n", "", "test"));
+        Assert.NotEqual(MaskStream("\"build_s\": 0,\n", "", "test"), MaskStream("\"build_s\": 1.5,\n", "", "test"));
         Assert.NotEqual(MaskStream("\"durationMs\": 5\n", "", "format"), MaskStream("\"durationMs\": 7\n", "", "format"));
         Assert.Equal(MaskStream("built in 1.25s\n", "", "format"), MaskStream("built in 9.00s\n", "", "format"));
     }
