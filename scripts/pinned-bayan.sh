@@ -7,7 +7,6 @@
 #   PINNED_BAYAN_REF  the ref to pin (default dev; CI's mutation run, checked out at the dev commit it measures, passes HEAD)
 #   PINNED_BAYAN      tests only: the binary to print instead; it must be executable
 set -euo pipefail
-export MSBUILDDISABLENODEREUSE=1 DOTNET_CLI_USE_MSBUILD_SERVER=0  # no MSBuild worker or build server outlives the build
 
 if [ -n "${PINNED_BAYAN:-}" ]; then
   [ -x "$PINNED_BAYAN" ] || { echo "pinned-bayan: PINNED_BAYAN=$PINNED_BAYAN is not an executable" >&2; exit 1; }
@@ -28,13 +27,13 @@ if [ -e "$cache" ] && [ ! -x "$cache/bin/$exe" ]; then
 fi
 if [ ! -x "$cache/bin/$exe" ]; then
   # Built from a fresh `git clone --shared` checked out at the commit: the caller's tree, index and worktrees are never
-  # touched, and the CLI's version line (git rev-parse HEAD in the project) names the pinned commit.
+  # touched. The compiler is the commit's bootstrap/bayan.c, built with the C compiler and the safe-mode flags of
+  # bootstrap/README.md (no .NET); its version line is the selfhost one, so the cache key alone names the pinned commit.
   build="$main/.cache/bayan/.build-$sha-$$"
-  mkdir -p "$build/src"
+  mkdir -p "$build/src" "$build/bin"
   trap 'rm -rf "$build"; exit 1' INT TERM
   log="$build/build.log"
-  # The C# compiler sits in csharp/ since plan 017 and in src/ before it; the pin may predate the move.
-  if ! { git clone -q --shared --no-checkout "$main" "$build/src" && git -C "$build/src" checkout -q --detach "$sha" && cli="$build/src/csharp/Bayan.Cli" && { [ -d "$cli" ] || cli="$build/src/src/Bayan.Cli"; } && dotnet build "$cli" -c Debug -o "$build/bin" -v q --nologo -p:UseSharedCompilation=false; } > "$log" 2>&1; then
+  if ! { git clone -q --shared --no-checkout "$main" "$build/src" && git -C "$build/src" checkout -q --detach "$sha" && "${CC:-cc}" -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off "$build/src/bootstrap/bayan.c" "$build/src/bootstrap/bayan-rt.c" -lm -o "$build/bin/$exe"; } > "$log" 2>&1; then
     echo "pinned-bayan: building bayan at $sha ($ref) failed; log: $log" >&2; exit 1
   fi
   rm -rf "$build/src"  # only bin/ is used (the version is stamped at build time); nothing reads the checkout afterwards
