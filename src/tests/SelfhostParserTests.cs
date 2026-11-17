@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Bayan.Backend.C;
 using Bayan.Cli;
@@ -43,6 +44,19 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
             if (path is null) Assert.Fail($"src/parser did not build:\n{error}");
             return path!;
         }
+    }
+
+    /// <summary>Under the export (spec 019 R10): writes <c>parse/SelfhostParserTests/&lt;test&gt;[-n]</c> with <paramref name="input"/> (none for
+    /// null), the C# side's <paramref name="expected"/> as <c>expected.&lt;what&gt;</c> and its <paramref name="exit"/> as <c>expected.exitcode</c>,
+    /// and returns true, so the caller returns without running the port; otherwise false.</summary>
+    private static bool Export(string? input, string what, string expected, int? exit = null, [CallerMemberName] string test = "")
+    {
+        if (SelfhostExport.Dir is not { } root) return false;
+        var dir = SelfhostExport.Case(root, "parse", nameof(SelfhostParserTests), test);
+        if (input is not null) SelfhostExport.WriteInput(dir, [input]);
+        SelfhostExport.WriteExpected(dir, "expected." + what, expected);
+        if (exit is { } code) SelfhostExport.WriteExpected(dir, "expected.exitcode", $"{code}\n");
+        return true;
     }
 
     private const string SpanLine = "span out of range: ";
@@ -116,6 +130,7 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
         var path = Path.Combine(Golden.RepoRoot, "tmp", "selfhost-parser", "empty.byn");
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllBytes(path, []);
+        if (Export(path, "ast", AstDump.Dump(SyntaxTree.Parse(SourceText.FromFile(path))))) return;
         var (exit, stdout, stderr) = Run(Built, path);
         output.WriteLine(stderr);
         Assert.Equal(0, exit);
@@ -352,12 +367,13 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
     [InlineData("diag/statement-attribute-semicolon.byn")]
     public void StatementSpansMatchTheCSharpParser(string name)
     {
-        var (path, error) = StatementSpans.Value;
-        if (path is null) Assert.Fail($"the statement spans program did not build:\n{error}");
         var input = Path.Combine(Golden.CasesRoot, name);
         var tree = SyntaxTree.Parse(SourceText.FromFile(input));
         var expected = new List<string>();
         foreach (var f in tree.Root.Members.OfType<FunctionDecl>()) CSharpStatementSpans(f.Body, expected);
+        if (Export(input, "spans", string.Join("", expected.Select(l => l + "\n")))) return;
+        var (path, error) = StatementSpans.Value;
+        if (path is null) Assert.Fail($"the statement spans program did not build:\n{error}");
         var (exit, stdout, stderr) = Run(path!, input);
         output.WriteLine(stderr);
         Assert.Equal(0, exit);
@@ -393,12 +409,13 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
     [MemberData(nameof(ParseCases))]
     public void CollectorsMatchAstDump(string name)
     {
-        var (path, error) = Collectors.Value;
-        if (path is null) Assert.Fail($"the collectors program did not build:\n{error}");
         var input = Path.Combine(Golden.CasesRoot, name);
         var tree = SyntaxTree.Parse(SourceText.FromFile(input));
         var expected = string.Concat(AstDump.TypeNames(tree).Select(n => $"type {n.Span.Start} {n.Span.Length}\n"))
             + string.Concat(AstDump.CalleeAndReceiverNames(tree).Select(n => $"callee {n.Span.Start} {n.Span.Length}\n"));
+        if (Export(input, "collectors", expected)) return;
+        var (path, error) = Collectors.Value;
+        if (path is null) Assert.Fail($"the collectors program did not build:\n{error}");
         var (exit, stdout, stderr) = Run(path!, input);
         output.WriteLine(stderr);
         Assert.Equal(0, exit);
@@ -438,8 +455,6 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
     [Fact]
     public void CollectorsMatchAstDumpOnTheRunPrograms()
     {
-        var (path, error) = Collectors.Value;
-        if (path is null) Assert.Fail($"the collectors program did not build:\n{error}");
         var differ = new List<string>();
         var shapes = Path.Combine(Golden.RepoRoot, "tmp", "t20-collectors", "shapes.byn");
         Directory.CreateDirectory(Path.GetDirectoryName(shapes)!);
@@ -449,6 +464,9 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
             var tree = SyntaxTree.Parse(SourceText.FromFile(input));
             var expected = string.Concat(AstDump.TypeNames(tree).Select(n => $"type {n.Span.Start} {n.Span.Length}\n"))
                 + string.Concat(AstDump.CalleeAndReceiverNames(tree).Select(n => $"callee {n.Span.Start} {n.Span.Length}\n"));
+            if (Export(input, "collectors", expected)) continue;
+            var (path, error) = Collectors.Value;
+            if (path is null) Assert.Fail($"the collectors program did not build:\n{error}");
             var (exit, stdout, _) = Run(path!, input);
             if (exit != 0 || stdout != expected) differ.Add(Path.GetFileName(input));
         }
@@ -482,10 +500,34 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
     {
         var input = Path.Combine(Golden.CasesRoot, name);
         var tree = SyntaxTree.Parse(SourceText.FromFile(input));
+        if (Export(input, "ast", File.ReadAllText(Path.ChangeExtension(input, ".ast")), tree.Diagnostics.Any(d => d.IsError) ? 1 : 0)) return;
         var (exit, stdout, stderr) = Run(Built, input);
         output.WriteLine(stderr);
         if (Golden.Compare(Path.ChangeExtension(input, ".ast"), stdout, update: false).Failure is { } failure) Assert.Fail(failure);
         Assert.Equal(tree.Diagnostics.Any(d => d.IsError) ? 1 : 0, exit);
+    }
+
+    [Fact]
+    public void ExportWritesTheInputTheGoldenAndTheExitCodeAsTheCase()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-parse");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var name = (string)((IEnumerable<object[]>)ParseCases).First()[0];
+        var old = SelfhostExport.Override.Value;
+        try
+        {
+            SelfhostExport.Override.Value = root;
+            ParseGolden(name);
+        }
+        finally
+        {
+            SelfhostExport.Override.Value = old;
+        }
+        var dir = Path.Combine(root, "parse", nameof(SelfhostParserTests), nameof(ParseGolden));
+        var input = Path.Combine(Golden.CasesRoot, name);
+        Assert.Equal(File.ReadAllText(input).Replace("\r\n", "\n"), File.ReadAllText(Path.Combine(dir, "input.byn")));
+        Assert.Equal(File.ReadAllText(Path.ChangeExtension(input, ".ast")).Replace("\r\n", "\n"), File.ReadAllText(Path.Combine(dir, "expected.ast")));
+        Assert.Equal(SyntaxTree.Parse(SourceText.FromFile(input)).Diagnostics.Any(d => d.IsError) ? "1\n" : "0\n", File.ReadAllText(Path.Combine(dir, "expected.exitcode")));
     }
 
     /// <summary>
@@ -502,6 +544,7 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
         var refPath = Path.Combine(Golden.RepoRoot, "tmp", "parser-ref", name.Replace('/', '_') + ".ast");
         Directory.CreateDirectory(Path.GetDirectoryName(refPath)!);
         File.WriteAllText(refPath, AstDump.Dump(tree));
+        if (Export(input, "ast", AstDump.Dump(tree), tree.Diagnostics.Any(d => d.IsError) ? 1 : 0)) return;
         var (exit, stdout, stderr) = Run(Built, input);
         output.WriteLine(stderr);
         if (Golden.Compare(refPath, stdout, update: false).Failure is { } failure) Assert.Fail(failure);
@@ -517,7 +560,7 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
     [InlineData("if-control-at-end", "if(\u0017")]
     [InlineData("while-control-at-end", "while(\u0017")]
     [InlineData("unless-unclosed-group", "unless ((((((((((((((((((()")]
-    public void TruncatedInputDumpsAsTheCSharpParser(string name, string source) => DumpsAsTheCSharpParser("truncated", name, source);
+    public void TruncatedInputDumpsAsTheCSharpParser(string name, string source) => DumpsAsTheCSharpParser("truncated", name, source, nameof(TruncatedInputDumpsAsTheCSharpParser));
 
     /// <summary>010 T45: the rest of <c>expectName</c> and <c>parseBody</c>: a C# primitive name past the first token, after a
     /// <c>.</c> or not, and a braceless body that is itself an error.</summary>
@@ -534,11 +577,11 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
     [InlineData("braceless-goto-case-body", "while (a) goto case 1\nf()\n")]
     [InlineData("braceless-empty-body-if", "void main() {\n    if (x) }\n")]
     [InlineData("braceless-empty-body-unless", "void main() {\n    unless (!x) }\n")]
-    public void BodyAndNameEdgesDumpAsTheCSharpParser(string name, string source) => DumpsAsTheCSharpParser("body-name", name, source);
+    public void BodyAndNameEdgesDumpAsTheCSharpParser(string name, string source) => DumpsAsTheCSharpParser("body-name", name, source, nameof(BodyAndNameEdgesDumpAsTheCSharpParser));
 
     /// <summary><paramref name="source"/>, written under <c>tmp/parser-&lt;kind&gt;/</c>, dumps as the C# parser dumps it (written under
     /// <c>tmp/parser-ref/</c>), and the exit codes agree.</summary>
-    private void DumpsAsTheCSharpParser(string kind, string name, string source)
+    private void DumpsAsTheCSharpParser(string kind, string name, string source, string test)
     {
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "parser-" + kind);
         Directory.CreateDirectory(dir);
@@ -548,6 +591,7 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
         var refPath = Path.Combine(Golden.RepoRoot, "tmp", "parser-ref", kind + "_" + name + ".ast");
         Directory.CreateDirectory(Path.GetDirectoryName(refPath)!);
         File.WriteAllText(refPath, AstDump.Dump(tree));
+        if (Export(input, "ast", AstDump.Dump(tree), tree.Diagnostics.Any(d => d.IsError) ? 1 : 0, test)) return;
         var (exit, stdout, stderr) = Run(Built, input);
         output.WriteLine(stderr);
         if (Golden.Compare(refPath, stdout, update: false).Failure is { } failure) Assert.Fail(failure);
@@ -575,6 +619,7 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
     [Fact]
     public void CodesMatchDiagnosticCodes()
     {
+        if (Export(null, "codes", string.Concat(DiagnosticCodes.All.Select(d => $"{d.Code}\t{d.MessageFormat}\n")), test: nameof(CodesMatchDiagnosticCodes))) return;
         var (exit, stdout, stderr) = Run(Built, "--codes");
         output.WriteLine(stderr);
         Assert.Equal(0, exit);

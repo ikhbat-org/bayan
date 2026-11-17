@@ -23,11 +23,28 @@ public sealed class SelfhostLexerCaseTests(ITestOutputHelper output)
     [Fact]
     public void FirstScalarCaseMatchesCSharpCharIsUpperAndIsLower()
     {
+        var expected = string.Concat(Inputs.Select(s => $"{(s.Length > 0 && char.IsUpper(s[0]) ? "true" : "false")} {(s.Length > 0 && char.IsLower(s[0]) ? "true" : "false")}\n"));
+        if (SelfhostExport.Dir is { } root)
+        {
+            var dir = SelfhostExport.Case(root, "lex", nameof(SelfhostLexerCaseTests), nameof(FirstScalarCaseMatchesCSharpCharIsUpperAndIsLower));
+            SelfhostExport.WriteExpected(dir, "input.byn", ProgramText());
+            SelfhostExport.WriteExpected(dir, "expected.stdout", expected);
+            return;
+        }
         var (exit, text) = RunCases(SelfhostSemanticsHarness.SnapshotDir, SelfhostSemanticsHarness.CoverageDir);
         output.WriteLine(text);
         Assert.Equal(0, exit);
-        var expected = string.Concat(Inputs.Select(s => $"{(s.Length > 0 && char.IsUpper(s[0]) ? "true" : "false")} {(s.Length > 0 && char.IsLower(s[0]) ? "true" : "false")}\n"));
         Assert.Equal(expected, text);
+    }
+
+    /// <summary>The test <c>main</c>: one line per input with <c>lexer.firstIsUpper</c> and <c>lexer.firstIsLower</c>.</summary>
+    private static string ProgramText()
+    {
+        var program = new StringBuilder("import lexer\n\nvoid main() {\n");
+        foreach (var s in Inputs)
+            program.Append($"    print($\"{{lexer.firstIsUpper(\"{s}\".bytes)}} {{lexer.firstIsLower(\"{s}\".bytes)}}\")\n");
+        program.Append("}\n");
+        return program.ToString();
     }
 
     /// <summary>The test <c>main</c> built and run. Under <paramref name="snapshot"/> its build is listed in <c>manifest.json</c>
@@ -37,11 +54,7 @@ public sealed class SelfhostLexerCaseTests(ITestOutputHelper output)
     {
         Environment.SetEnvironmentVariable("BAYAN_CACHE", Path.Combine(Golden.RepoRoot, "tmp", "cache"));
         var selfhost = Path.Combine(Golden.RepoRoot, "src");
-        var program = new StringBuilder("import lexer\n\nvoid main() {\n");
-        foreach (var s in Inputs)
-            program.Append($"    print($\"{{lexer.firstIsUpper(\"{s}\".bytes)}} {{lexer.firstIsLower(\"{s}\".bytes)}}\")\n");
-        program.Append("}\n");
-        var c = Compilation.Create([SourceText.FromString(Path.Combine(selfhost, "t-case.byn"), program.ToString())], packageRoot: selfhost);
+        var c = Compilation.Create([SourceText.FromString(Path.Combine(selfhost, "t-case.byn"), ProgramText())], packageRoot: selfhost);
         if (c.Diagnostics.HasErrors) Assert.Fail($"did not build:\n{DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true)}");
         var build = SelfhostSemanticsHarness.BuildFast(c, new HashSet<string>(StringComparer.Ordinal), snapshot, coverage, Environment.GetEnvironmentVariable("BAYAN_COVERAGE_FILES"));
         if (!build.Succeeded) Assert.Fail($"did not build:\n{build.Errors}");
