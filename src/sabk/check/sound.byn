@@ -71,7 +71,7 @@ struct Ctx {
     i64           pos
 }
 
-i64 locIndex(in Ctx c, for Loc l) {
+i64 locIndex(Ctx c, for Loc l) {
     switch l {
         case .reg(let n): return n
         case .slot(let k): return c.regCount + k
@@ -95,7 +95,7 @@ void read(ref Ctx c, for VReg v) uses alloc {
 }
 
 /// The index of the segment of `v` covering the current position, or -1.
-i64 segmentAt(in Ctx c, for VReg v) {
+i64 segmentAt(Ctx c, for VReg v) {
     for i in 0..c.segs.length {
         return i if c.segs[i].vreg == v && c.segs[i].from <= c.gpos && c.gpos <= c.segs[i].until
     }
@@ -121,7 +121,7 @@ void clobberCalls(ref Ctx c) {
 }
 
 /// Runs block `b` over `c.state`, reporting when `c.report` is set.
-void step(ref Ctx c, from in sir.Function f, at BlockId b) uses alloc {
+void step(ref Ctx c, from sir.Function f, at BlockId b) uses alloc {
     c.block = b
     for i in 0..f.blocks[b].insts.length {
         c.pos = i
@@ -169,7 +169,7 @@ void step(ref Ctx c, from in sir.Function f, at BlockId b) uses alloc {
 }
 
 /// The blocks control can pass to from the end of `blk`.
-List<BlockId> successors(in sir.Function f, at BlockId b) uses alloc {
+List<BlockId> successors(sir.Function f, at BlockId b) uses alloc {
     var r = List<BlockId>()
     switch f.blocks[b].terminator {
         case .open: return r
@@ -183,7 +183,7 @@ List<BlockId> successors(in sir.Function f, at BlockId b) uses alloc {
 }
 
 /// Joins `other` into the in-state at `base`; true when the in-state changed. Locations that disagree become `mixed`.
-bool join(ref List<i64> into, at i64 base, from in List<i64> other, by i64 n) {
+bool join(ref List<i64> into, at i64 base, from List<i64> other, by i64 n) {
     var changed = false
     for i in 0..n {
         let have = into[base + i]
@@ -196,7 +196,7 @@ bool join(ref List<i64> into, at i64 base, from in List<i64> other, by i64 n) {
 }
 
 /// Checks the allocation `segs` of `f`. An empty result means every read sees the vreg it names.
-public List<Finding> checkAllocation(in sir.Function f, as move List<Segment> segs) uses alloc {
+public List<Finding> checkAllocation(sir.Function f, as move List<Segment> segs) uses alloc {
     var maxReg = minRegCount - 1
     var maxSlot = -1
     for sg in segs {

@@ -5,7 +5,7 @@ import sabk.sir
 import sabk.ra
 
 /// The findings as "bN.position kind vN" joined by spaces.
-string show(in List<Finding> found) uses alloc {
+string show(List<Finding> found) uses alloc {
     var sb = StrBuf()
     for i in 0..found.length {
         sb.append(" ") if i > 0
@@ -21,8 +21,8 @@ string show(in List<Finding> found) uses alloc {
 
 Segment seg(VReg v, from i64 a, through i64 b, at Loc l) => Segment { vreg: v, from: a, until: b, location: l }
 
-/// One segment per vreg, spanning its live interval, in the location the allocator chose.
-List<Segment> segmentsOf(in sir.Function f, from in ra.Allocation a) uses alloc {
+/// One segment per vreg, spanning its live interval, the location the allocator chose.
+List<Segment> segmentsOf(sir.Function f, from ra.Allocation a) uses alloc {
     var r = List<Segment>()
     let live = ra.liveIntervals(f)
     for iv in live.intervals {
@@ -35,7 +35,7 @@ List<Segment> segmentsOf(in sir.Function f, from in ra.Allocation a) uses alloc 
     return r
 }
 
-List<Segment> allocated(in sir.Function f) uses alloc {
+List<Segment> allocated(sir.Function f) uses alloc {
     let a = ra.allocate(f) catch switch {
         .tooManyCallArgs(let n) => panic("unexpected"),
         .frameTooLarge(let n) => panic("unexpected"),
@@ -44,10 +44,10 @@ List<Segment> allocated(in sir.Function f) uses alloc {
 }
 
 /// The findings of the allocator's own allocation of `f`.
-string audit(in sir.Function f) uses alloc => show(checkAllocation(f, as: allocated(f)))
+string audit(sir.Function f) uses alloc => show(checkAllocation(f, as: allocated(f)))
 
 /// The index of the segment of `v`.
-i64 indexOf(in List<Segment> segs, for VReg v) {
+i64 indexOf(List<Segment> segs, for VReg v) {
     for i in 0..segs.length {
         return i if segs[i].vreg == v
     }
