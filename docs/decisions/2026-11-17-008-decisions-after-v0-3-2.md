@@ -2,6 +2,7 @@
 
 Status: decided (the user accepted every recommendation on 2026-11-17)
 Date: 2026-11-17
+Release: unscheduled
 Sources: two independent Fable reviews (think workers, keys `fable-decisions-a` and `fable-decisions-b`), each given the claims and asked to check them against the code; the user's answer "go with the recommended".
 
 ## Summary

@@ -1,7 +1,7 @@
 # 026 — Plan
 
 Status: approved (not started)
-Release: 0.4 (before spec 015 T15 part 2b)
+Release: unscheduled (planned for 0.4, before spec 015 T15 part 2b)
 Sources: `./026-spec.md`; Fable's report `tmp/fable-e/out.log`; commits fe0ef3f1 and 11b3ca88 (the held `alreadyExists` change and its revert)
 
 Spec: ./026-spec.md

@@ -1,7 +1,7 @@
 # 026 — Tasks
 
 Status: approved (not started)
-Release: 0.4 (before spec 015 T15 part 2b)
+Release: unscheduled (planned for 0.4, before spec 015 T15 part 2b)
 Sources: `./026-spec.md`
 
 Plan: ./026-plan.md
