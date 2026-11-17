@@ -196,3 +196,4 @@ A check that cannot pass starts with `✗` and gets a `help:` line; an optional 
 | `LC_ALL`, `LC_CTYPE`, `LANG` | Locale check for the ASCII fallback (§3). |
 | `CI` | Non-empty: no progress line (§6). |
 | `BAYAN_TERMINAL` | A positive integer: stdout and stderr are treated as a terminal of that width, as when a test runs `bayan` as a child with its output piped. Colour is still decided by `--color` and the variables above. Unset, empty, `0`, negative or non-numeric: ignored. |
+| `BAYAN_EXE` | The path of the `bayan` driver the golden runner (`bayan test` over `tests/cases`) starts as a child, and whose `version` line it prints in its report. Unset, empty or not an executable driver: each case that needs it fails, naming `BAYAN_EXE`; never skipped. |
