@@ -60,7 +60,7 @@ An evaluation set answers that, provided it measures every model the same way an
 - R12 A task is passed when the candidate compiles and passes. Lint-clean and format-stable are reported beside it and never change whether a task is passed.
 - R13 A repair task also requires that its starter file fails `bayan check` with the diagnostic code the task names. This is a property of the task, checked with the reference, not of the candidate.
 - R14 Each build and each run has a time limit and an output limit, the same for every model and stated in the result. Reaching a limit is a fail, never a retry, and is reported as its own outcome, `limit`. The limits are 120 seconds to build, 10 seconds to run and 1 MiB of output, loose enough that only a program that does not stop reaches them.
-- R15 A candidate is a program written by a model and is run as one. The runner starts it in the scratch directory as a process with no secrets in its environment, under an OS sandbox that denies network access, denies reading the task set and allows writes only in the scratch directory (macOS first). Where no sandbox is available the runner says so in the result.
+- R15 A candidate is a program written by a model and is run as one. The runner starts it in the scratch directory as a process with no secrets in its environment, under an OS sandbox that denies network access, denies reading the task set and allows writes only in the scratch directory (macOS first). A `tests` candidate runs inside `bayan test`, which builds it first, so that call may also write the scoring's own build, cache and temporary directories beside the scratch directory, and nothing shared. Where no sandbox is available the runner says so in the result.
 - R16 The code is taken from the model's reply by one fixed rule, the same for every model: the contents of the last fenced code block when there is one, otherwise the whole reply.
 
 ### Categories
@@ -137,6 +137,7 @@ Facts about the compiler at `bayan 0.3.3-dev` (commit `5810cf25b398`) that the f
 - `bayan test` does not report lints. Style lints come from `bayan check` with severity `note`.
 - A constant argument to a type with `requires` is checked at compile time, so a hidden test cannot assert that `Percent(101)` fails; it must pass the value through a function.
 - A violated `expects` ends the process with exit code 134. A test cannot assert it, so a task about `expects` needs a `stdout` check with `checks/exitcode`. The seed has none.
+- A test that prints without end does not grow `bayan test` without bound (`bayan 0.3.3-dev`, commit `0530e92ea69c`, macOS, 2026-11-18). It is stopped at the 10-second test limit with status `timeout`, its `output` field keeps the first and last 64 KiB (the whole `--json` report was 132 KiB), and the peak resident memory of `bayan test` and its children was 80.5 MiB, against 69.6 MiB for the same test printing one line.
 
 ## Acceptance criteria
 - Given the seed, when the *Check command* of each `task.md` is run from the repository root, then each prints `PASS <task>` (R8). Recorded 2026-11-17: 12 of 12.

@@ -1,0 +1,349 @@
+#!/usr/bin/env bayan
+// The LLM evaluation set's scorer and runner (spec 025, plan 025 Data / interfaces).
+//
+//   bash scripts/bayan-tool.sh llm-eval score <task-dir> <candidate-file> [--out <dir>]
+//
+// `score` scores one candidate against one task and prints one JSON record: the four results of R11 in order, the outcome,
+// whether the task is passed (R12), the sandbox and the limits (R14). The candidate is scored in a new sample directory,
+// <out>/work/<task>/1/, with `src/` (the scratch directory of R10), `bin/`, `cache/` and `tmp/`; an existing one is refused.
+// --out defaults to tmp/llm-eval/score/ under the repo root. Every compiler call and the candidate's run go through
+// scripts/evals/llm-sandbox.sh (R15), with the pinned compiler (R35). Nothing is written under the tasks directory.
+// `recheck` (T3) and `run` (T7, T8) are not written yet.
+// Exit 0 when the record is printed (whatever the candidate scored), 1 when scoring could not start, 2 on bad usage.
+
+import std.json
+
+type JsonValue  = json.JsonValue
+type JsonMember = json.JsonMember
+type Json       = json.Json
+
+const usage: string    = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]"
+const buildMs: i64     = 120000
+const runMs: i64       = 10000
+const outputBytes: i64 = 1048576
+
+union error EvalError {
+    /// Scoring could not start; the message says why.
+    failed(string message)
+}
+
+/// The header of `task.md` (R2), with the directory name as the task's name.
+struct Task {
+    string name
+    string category
+    i64    tier
+    string split
+    string revision
+    string check
+}
+
+/// Where a scoring runs: the pinned compiler, the launcher, the tasks directory it may not read, and the sample directory.
+struct Places {
+    string bayan
+    string launcher
+    string tasks
+    string sample
+}
+
+/// One process run through the launcher: its exit code, and whether it reached the time or the output limit.
+struct Step {
+    i64    exitCode = -1
+    bool   limit    = false
+    string sandbox  = ""
+    string stderr   = ""
+}
+
+/// The value after `key: ` on a line of `text`, or null.
+string? field(string text, for string key) {
+    for raw in text.parts(by: "\n") {
+        let line = raw.trimmed()
+        return line[key.length + 2..].trimmed() if line.startsWith($"{key}: ")
+    }
+    return null
+}
+
+/// The header lines of `task.md` before its first section (R2).
+Task readTask(string dir) fails EvalError {
+    let path = Path.combine(dir, "task.md")
+    let text = Io.readText(path) catch fail .failed(message: $"cannot read {path}")
+    let end = text.position("\n## ") ?? text.length
+    let head = text[..end]
+    var values = List<string>()
+    for key in ["Category", "Tier", "Split", "Revision", "Check"] {
+        values.append(field(head, for: key) ?? fail .failed(message: $"{path} has no `{key}:` line"))
+    }
+    let tier = i64.tryParse(values[1]) ?? fail .failed(message: $"{path}: `Tier:` is not a number")
+    fail .failed(message: $"{path}: `Check:` is neither stdout nor tests") if values[4] != "stdout"
+        && values[4] != "tests"
+    return Task {
+        name: Path.fileName(dir),
+        category: values[0],
+        tier: tier,
+        split: values[2],
+        revision: values[3],
+        check: values[4],
+    }
+}
+
+/// Runs `command` (tab-separated) through the launcher in `src`, writable only under `write`, with standard input from `stdin` (empty when
+/// null) and standard output to `outPath`. The launcher is stopped after `limitMs`, which is the time limit.
+Step launch(string command, at Places p, to string outPath, from string? stdin, for string write, until i64 limitMs)
+        fails EvalError {
+    let status = $"{outPath}.status"
+    var args = List<string>()
+    for a in [p.launcher, "--write", write, "--deny-read", p.tasks, "--stdout", outPath, "--status", status] {
+        args.append(a)
+    }
+    if stdin is not null {
+        args.append("--stdin")
+        args.append(stdin)
+    }
+    args.append("--")
+    for a in command.parts(by: "\t") {
+        args.append(a)
+    }
+    var env: Map<string, string?> = []
+    env["BAYAN_CACHE"] = Path.combine(p.sample, "cache")
+    env["TMPDIR"] = Path.combine(p.sample, "tmp")
+    env["BAYAN_TEST_TIMEOUT_MS"] = $"{runMs}"
+    env["NO_COLOR"] = "1"
+    let r = Io.run(
+        "bash",
+        args.span,
+        directory: Path.combine(p.sample, "src"),
+        env: env,
+        timeout: Millis(limitMs),
+    ) catch switch {
+        .timeout(_, _, _) => return Step { limit: true },
+        IoError e         => fail .failed(message: $"cannot start {p.launcher}: {e}"),
+    }
+    fail .failed(message: $"{p.launcher} exited {r.exitCode}: {r.stderr.trimmed()}") if r.exitCode != 0
+    let text = Io.readText(status) catch fail .failed(message: $"cannot read {status}")
+    let code = i64.tryParse(field(text, for: "exit") ?? "") ?? fail .failed(message: $"{status} has no exit code")
+    return Step {
+        exitCode: code,
+        limit: (field(text, for: "limit") ?? "") == "true",
+        sandbox: field(text, for: "sandbox") ?? "",
+        stderr: r.stderr,
+    }
+}
+
+/// Whether a `--diagnostics json` line in `stderr` names a file called `solution.byn` (R11, lint-clean).
+bool namesSolution(string stderr) {
+    for line in stderr.parts(by: "\n") {
+        let k = line.position("\"file\":\"") ?? -1
+        continue if k < 0
+        let rest = line[k + 8..]
+        let file = rest[..(rest.position("\"") ?? rest.length)]
+        return true if file == "solution.byn" || file.endsWith("/solution.byn") || file.endsWith("\\\\solution.byn")
+    }
+    return false
+}
+
+bool isDirectory(string path) {
+    let _ = Io.listDir(path) catch return false
+    return true
+}
+
+bool sameBytes(List<u8> a, to List<u8> b) {
+    return false if a.length != b.length
+    for i in 0..a.length {
+        return false if a[i] != b[i]
+    }
+    return true
+}
+
+/// A result of R11 as JSON: true, false, or "not reached".
+JsonValue result(bool value, at bool reached) => reached ? .flag(value: value) : .text(value: "not reached")
+
+JsonValue number(i64 n) => .number(value: f64(n), text: $"{n}")
+
+/// Scores `candidate` against the task in `taskDir` and prints its record.
+void score(string taskDir, for string candidate, to string outDir) fails EvalError {
+    let root = Env.get("BAYAN_REPO_ROOT")
+        ?? fail .failed(message: "BAYAN_REPO_ROOT is not set; run through scripts/bayan-tool.sh")
+    let task = try readTask(taskDir)
+    let source = Io.readFile(candidate) catch fail .failed(message: $"cannot read {candidate}")
+
+    var script = List<string>()
+    script.append("scripts/pinned-bayan.sh")
+    let pinned = Io.run(
+        "bash",
+        script.span,
+        directory: root,
+    ) catch fail .failed(message: "cannot run scripts/pinned-bayan.sh")
+    fail .failed(message: $"scripts/pinned-bayan.sh exited {pinned.exitCode}") if pinned.exitCode != 0
+    let sample = Path.combine(outDir, $"work/{task.name}/1")
+    fail .failed(message: $"{sample} exists; give another --out") if isDirectory(sample)
+    let p = Places {
+        bayan: pinned.stdout.trimmed(),
+        launcher: Path.combine(root, "scripts/evals/llm-sandbox.sh"),
+        tasks: Path.directoryName(taskDir) ?? taskDir,
+        sample: sample,
+    }
+    let src = Path.combine(sample, "src")
+    for part in ["src", "bin", "cache", "tmp"] {
+        Io.createDirectory(Path.combine(sample, part)) catch fail .failed(message: $"cannot make {sample}/{part}")
+    }
+    Io.writeFile(
+        Path.combine(src, "solution.byn"),
+        source.span,
+    ) catch fail .failed(message: $"cannot write {src}/solution.byn")
+    let checks = Path.combine(taskDir, "checks")
+    let names = Io.listDir(checks) catch fail .failed(message: $"cannot list {checks}")
+    for name in names {
+        continue if !name.endsWith(".byn")
+        Fs.copy(
+            Path.combine(checks, name),
+            to: Path.combine(src, name),
+        ) catch fail .failed(message: $"cannot copy {checks}/{name}")
+    }
+
+    // The sandbox in use, from a run that does nothing, so the record names it even when the first real step is stopped.
+    let probe = try launch("true", at: p, to: Path.combine(sample, "probe.stdout"), from: null, for: src, until: runMs)
+
+    // compiles; lint-clean comes from the same run (R11).
+    let check = try launch(
+        $"{p.bayan}\tcheck\t--diagnostics\tjson\t{src}",
+        at: p,
+        to: Path.combine(sample, "check.stdout"),
+        from: null,
+        for: sample,
+        until: buildMs,
+    )
+    let compiles = check.exitCode == 0 && !check.limit
+    var passes = false
+    var limit = check.limit
+    var formatStable = false
+    if compiles {
+        if task.check == "stdout" {
+            let exe = Path.combine(sample, "bin/solution")
+            let build = try launch(
+                $"{p.bayan}\tbuild\t{src}\t-o\t{exe}",
+                at: p,
+                to: Path.combine(sample, "build.stdout"),
+                from: null,
+                for: sample,
+                until: buildMs,
+            )
+            limit = build.limit
+            if build.exitCode == 0 && !build.limit {
+                let stdinPath = Path.combine(checks, "stdin")
+                let outFile = Path.combine(sample, "run.stdout")
+                let run = try launch(
+                    exe,
+                    at: p,
+                    to: outFile,
+                    from: Fs.fileExists(stdinPath) ? stdinPath : null,
+                    for: src,
+                    until: runMs,
+                )
+                limit = run.limit
+                let expectedPath = Path.combine(checks, "expected.stdout")
+                let expected = Io.readFile(expectedPath) catch fail .failed(message: $"cannot read {expectedPath}")
+                let actual = Io.readFile(outFile) catch fail .failed(message: $"cannot read {outFile}")
+                let codePath = Path.combine(checks, "exitcode")
+                var wantCode: i64 = 0
+                if Fs.fileExists(codePath) {
+                    let codeText = Io.readText(codePath) catch fail .failed(message: $"cannot read {codePath}")
+                    wantCode = i64.tryParse(codeText.trimmed()) ?? fail .failed(message: $"{codePath} is not a number")
+                }
+                passes = !run.limit && run.exitCode == wantCode && sameBytes(actual, to: expected)
+            }
+        } else {
+            let outFile = Path.combine(sample, "test.json")
+            let tested = try launch(
+                $"{p.bayan}\ttest\t--json\t{src}",
+                at: p,
+                to: outFile,
+                from: null,
+                for: sample,
+                until: buildMs,
+            )
+            let report = Io.readText(outFile) catch ""
+            limit = tested.limit || report.contains("\"status\": \"timeout\"")
+            passes = tested.exitCode == 0 && !tested.limit
+        }
+        let format = try launch(
+            $"{p.bayan}\tformat\t--check\t{src}/solution.byn",
+            at: p,
+            to: Path.combine(sample, "format.stdout"),
+            from: null,
+            for: sample,
+            until: buildMs,
+        )
+        formatStable = format.exitCode == 0 && !format.limit
+    }
+    let outcome = compiles ? (passes ? "pass" : (limit ? "limit" : "fail")) : (limit ? "limit" : "no-compile")
+
+    var limits = List<JsonMember>()
+    limits.append(JsonMember { key: "buildSeconds", value: number(buildMs / 1000) })
+    limits.append(JsonMember { key: "runSeconds", value: number(runMs / 1000) })
+    limits.append(JsonMember { key: "outputBytes", value: number(outputBytes) })
+    var m = List<JsonMember>()
+    m.append(JsonMember { key: "task", value: .text(value: task.name) })
+    m.append(JsonMember { key: "category", value: .text(value: task.category) })
+    m.append(JsonMember { key: "tier", value: number(task.tier) })
+    m.append(JsonMember { key: "split", value: .text(value: task.split) })
+    m.append(JsonMember { key: "revision", value: .text(value: task.revision) })
+    m.append(JsonMember { key: "check", value: .text(value: task.check) })
+    m.append(JsonMember { key: "sample", value: number(1) })
+    m.append(JsonMember { key: "compiles", value: .flag(value: compiles) })
+    m.append(JsonMember { key: "passes", value: result(value: passes, at: compiles) })
+    m.append(JsonMember { key: "lintClean", value: result(value: !namesSolution(check.stderr), at: compiles) })
+    m.append(JsonMember { key: "formatStable", value: result(value: formatStable, at: compiles) })
+    m.append(JsonMember { key: "outcome", value: .text(value: outcome) })
+    m.append(JsonMember { key: "passed", value: .flag(value: compiles && passes) })
+    m.append(JsonMember { key: "sandbox", value: .text(value: probe.sandbox) })
+    m.append(JsonMember { key: "limits", value: .object(members: move limits) })
+    let record = Json.encode(.object(members: move m)) catch fail .failed(message: "cannot encode the record")
+    print(record)
+}
+
+i32 main(ReadOnlySpan<string> argv) {
+    var args: List<string> = List<string>()
+    for a in argv {
+        args.append(a)
+    }
+    if args.isEmpty {
+        print(usage, to: .stderr)
+        return 2
+    }
+    let command = args[0]
+    if command is "recheck" or "run" {
+        // recheck: T3; run: T7, T8.
+        print($"llm-eval: `{command}` is not written yet", to: .stderr)
+        return 2
+    }
+    if command != "score" {
+        print(usage, to: .stderr)
+        return 2
+    }
+    var outDir = Path.combine(Env.get("BAYAN_REPO_ROOT") ?? ".", "tmp/llm-eval/score")
+    var rest = List<string>()
+    var i: i64 = 1
+    while i < args.length {
+        if args[i] == "--out" {
+            if i + 1 >= args.length {
+                print(usage, to: .stderr)
+                return 2
+            }
+            outDir = args[i + 1]
+            i += 2
+        } else {
+            rest.append(args[i])
+            i += 1
+        }
+    }
+    if rest.length != 2 {
+        print(usage, to: .stderr)
+        return 2
+    }
+    score(Path.fullPath(rest[0]), for: Path.fullPath(rest[1]), to: Path.fullPath(outDir)) catch switch {
+        .failed(let message) => {
+            print($"llm-eval: {message}", to: .stderr)
+            return 1
+        },
+    }
+    return 0
+}
