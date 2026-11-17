@@ -40,4 +40,4 @@ Fund mergeFunds(Fund a, to Fund b) fails ValidationError<Fund> {
 }
 
 /// How much is left to raise.
-i64 remaining(Fund fund) => fund.target - fund.raised
+i64 roomLeft(Fund fund) => fund.target - fund.raised

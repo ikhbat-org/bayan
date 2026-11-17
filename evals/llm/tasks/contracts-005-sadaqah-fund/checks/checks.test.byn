@@ -10,7 +10,7 @@ test "openFund starts empty" {
     assert p.name == "Water well"
     assert p.target == 500
     assert p.raised == 0
-    assert remaining(p) == 500
+    assert roomLeft(p) == 500
 }
 
 @cases(("", 500), ("Water well", 0), ("Water well", -1), ("012345678901234567890", 500))
@@ -21,13 +21,13 @@ test "openFund refuses a broken rule" (string name, i64 target) {
 test "donate adds the gift" {
     let p = try donate(try openFund("Well", for: 500), by: Amount(200))
     assert p.raised == 200
-    assert remaining(p) == 300
+    assert roomLeft(p) == 300
 }
 
 test "a fund can be filled exactly" {
     let p = try openFund("Well", for: 500)
     let full = try donate(p, by: Amount(500))
-    assert remaining(full) == 0
+    assert roomLeft(full) == 0
 }
 
 test "a fund cannot be filled past its target" {
