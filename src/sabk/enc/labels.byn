@@ -1,0 +1,148 @@
+// sabk phase 1 (spec 024): one section's code buffer. `emit` appends the word of an instruction; a label is bound to the
+// current offset, and a branch to a label not yet bound is patched when it is bound (re-encoded with `encodeAt` at the
+// real offset). A label bound to a symbol (external, or in another section) and every `adrp` / `@PAGEOFF` become
+// relocation records, with the instruction encoded at offset 0. `finish` names any label still unbound.
+
+/// The Mach-O relocation kinds the encoder needs (`ARM64_RELOC_BRANCH26`, `PAGE21`, `PAGEOFF12`).
+public enum RelocKind {
+    branch26
+    page21
+    pageoff12
+}
+
+/// A relocation of the word at `offset` in the section, against `symbol`. The macho writer maps it to its own record.
+public struct Reloc {
+    public i64 offset
+    public string symbol
+    public RelocKind kind
+}
+
+public union error LabelError {
+    unbound(i64 label)
+    rebound(i64 label)
+    refused(string mnemonic, string reason)
+}
+
+/// The finished section: its bytes and the relocations against them.
+public struct Assembled {
+    public List<u8> bytes
+    public List<Reloc> relocs
+}
+
+/// An instruction at `at` waiting for `label` to be bound.
+struct Fixup {
+    i64 at
+    Inst inst
+    i64 label
+}
+
+public struct Assembler {
+    List<u8> bytes = []
+    List<Reloc> relocs = []
+    /// Indexed by label id: the bound offset, or -1.
+    List<i64> offsets = []
+    /// Indexed by label id: the symbol the label stands for, or "".
+    List<string> symbols = []
+    List<Fixup> pending = []
+
+    public Label newLabel(ref this) uses alloc {
+        offsets.append(-1)
+        symbols.append("")
+        return Label(offsets.length - 1)
+    }
+
+    /// Binds `label` to the current offset and patches the branches waiting for it.
+    public void bind(ref this, Label label) uses alloc fails LabelError {
+        let id = label.value
+        if id < 0 || id >= offsets.length { fail .unbound(id) }
+        if offsets[id] >= 0 || symbols[id] != "" { fail .rebound(id) }
+        offsets[id] = bytes.length
+        var rest = List<Fixup>()
+        for fix in pending {
+            if fix.label == id {
+                put(try word(fix.inst, at: offsets[id] - fix.at), at: fix.at)
+            } else {
+                rest.append(fix)
+            }
+        }
+        pending = move rest
+    }
+
+    /// Makes `label` stand for `symbol`: a branch to it becomes a relocation record.
+    public void bindSymbol(ref this, Label label, to string symbol) uses alloc fails LabelError {
+        let id = label.value
+        if id < 0 || id >= offsets.length { fail .unbound(id) }
+        if offsets[id] >= 0 || symbols[id] != "" { fail .rebound(id) }
+        symbols[id] = symbol
+    }
+
+    public void emit(ref this, Inst inst) uses alloc fails LabelError {
+        let at = bytes.length
+        switch inst {
+            case .adrp(let _, let symbol):
+                relocs.append(Reloc { offset: at, symbol: symbol, kind: .page21 })
+                add(try word(inst, at: 0))
+            case .addPageOff(let _, let _, let symbol):
+                relocs.append(Reloc { offset: at, symbol: symbol, kind: .pageoff12 })
+                add(try word(inst, at: 0))
+            case .b(let target):
+                try branch(inst, to: target, at: at, for: "b", by: true)
+            case .bl(let target):
+                try branch(inst, to: target, at: at, for: "bl", by: true)
+            case .bCond(let _, let target):
+                try branch(inst, to: target, at: at, for: "b.cond", by: false)
+            case .cbz(let _, let _, let target):
+                try branch(inst, to: target, at: at, for: "cbz", by: false)
+            case .cbnz(let _, let _, let target):
+                try branch(inst, to: target, at: at, for: "cbnz", by: false)
+            case .adr(let _, let target):
+                try branch(inst, to: target, at: at, for: "adr", by: false)
+            default:
+                add(try word(inst, at: 0))
+        }
+    }
+
+    /// The bytes and relocations, or the first label still unbound.
+    public Assembled finish(ref this) fails LabelError {
+        if pending.length > 0 { fail .unbound(pending[0].label) }
+        return Assembled { bytes: bytes.take(), relocs: relocs.take() }
+    }
+
+    /// A label form: patched now when `target` is bound, a relocation when it is a symbol (`b`/`bl` only), else pending.
+    void branch(ref this, Inst inst, to Label target, at i64 at, for string mnemonic, by bool far) uses alloc fails LabelError {
+        let id = target.value
+        if id < 0 || id >= offsets.length { fail .unbound(id) }
+        if symbols[id] != "" {
+            unless far { fail .refused(mnemonic, $"operand target: a relocation to {symbols[id]} needs b or bl") }
+            relocs.append(Reloc { offset: at, symbol: symbols[id], kind: .branch26 })
+            add(try word(inst, at: 0))
+        } else if offsets[id] >= 0 {
+            add(try word(inst, at: offsets[id] - at))
+        } else {
+            add(try word(inst, at: 0))
+            pending.append(Fixup { at: at, inst: inst, label: id })
+        }
+    }
+
+    /// Appends a little-endian word.
+    void add(ref this, u32 value) {
+        for shift in [0, 8, 16, 24] {
+            bytes.append(u8((value >> shift) & 0xFF))
+        }
+    }
+
+    void put(ref this, u32 value, at i64 at) {
+        var i = 0
+        for shift in [0, 8, 16, 24] {
+            bytes[at + i] = u8((value >> shift) & 0xFF)
+            i += 1
+        }
+    }
+}
+
+/// `encodeAt` with its error carried as a `LabelError`.
+u32 word(Inst inst, at i64 offset) uses alloc fails LabelError {
+    return encodeAt(inst, at: offset) catch switch {
+        .refused(let mnemonic, let reason) => fail .refused(mnemonic, reason),
+    }
+}
