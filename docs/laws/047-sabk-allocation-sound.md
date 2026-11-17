@@ -1,7 +1,8 @@
 ---
 id: L047
 title: Allocation is sound
-status: proposed
+status: enacted
+enacted: 2026-11-17
 release: unscheduled
 sources: spec 024 R7
 kind: property

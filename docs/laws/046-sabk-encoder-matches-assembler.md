@@ -1,7 +1,8 @@
 ---
 id: L046
 title: Encoder agrees with the reference assembler
-status: proposed
+status: enacted
+enacted: 2026-11-17
 release: unscheduled
 sources: spec 024 R3
 kind: property
