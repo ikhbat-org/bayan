@@ -138,7 +138,7 @@ public sealed class SelfhostDefaultT10Tests
         Assert.NotEmpty(inputs);
         var (exit, output, error) = RunInBatches("coverage", inputs);
         Assert.True(exit == 0, $"exit {exit}\n{error}");
-        SelfhostEmitterHarness.AssertSame("coverage counters", Expected(inputs, RunDir), output);
+        SelfhostEmitterHarness.AssertSame("coverage counters", Expected(inputs, RunDir), output, RunDir, args: ["coverage", RunDir, .. inputs]);
     }
 
     [Fact]
@@ -148,7 +148,7 @@ public sealed class SelfhostDefaultT10Tests
         Assert.NotEmpty(inputs);
         var (exit, output, error) = RunInBatches("mutate", inputs);
         Assert.True(exit == 0, $"exit {exit}\n{error}");
-        SelfhostEmitterHarness.AssertSame("sites json", Expected(inputs, RunDir, mutate: true), output);
+        SelfhostEmitterHarness.AssertSame("sites json", Expected(inputs, RunDir, mutate: true), output, RunDir, args: ["mutate", RunDir, .. inputs]);
     }
 
     /// <summary>
@@ -165,14 +165,14 @@ public sealed class SelfhostDefaultT10Tests
         {
             var (exit, output, error) = SelfhostParserTests.Run(Build(), ["mutate", RunDir, input]);
             Assert.True(exit == 0, $"exit {exit}\n{error}");
-            SelfhostEmitterHarness.AssertSame("std-json sites json", expected, output);
+            SelfhostEmitterHarness.AssertSame("std-json sites json", expected, output, input, args: ["mutate", RunDir, input]);
             return;
         }
         var psi = new System.Diagnostics.ProcessStartInfo(Build()) { StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8 };
         foreach (var a in new[] { "mutate", RunDir, input }) psi.ArgumentList.Add(a);
         var run = PeakSampler.Run(psi);
         Assert.True(run.Exit == 0, $"exit {run.Exit}\n{run.Err}");
-        SelfhostEmitterHarness.AssertSame("std-json sites json", expected, run.Out);
+        SelfhostEmitterHarness.AssertSame("std-json sites json", expected, run.Out, input, args: ["mutate", RunDir, input]);
         Assert.True(run.Peak > 0, "no sample");
         Assert.True(run.Peak < MutatePeakBoundMb * 1024L * 1024, $"peak working set {run.Peak / 1024 / 1024} MB, bound {MutatePeakBoundMb} MB (before the arena: {MutatePeakBeforeMb} MB)");
     }
@@ -200,7 +200,7 @@ public sealed class SelfhostDefaultT10Tests
             Assert.Contains("\"emitted\": false", expected);
             var (exit, output, error) = SelfhostParserTests.Run(Build(), ["mutate", dir, .. inputs]);
             Assert.True(exit == 0, $"exit {exit}\n{error}");
-            SelfhostEmitterHarness.AssertSame("mutate failure path", expected, output);
+            SelfhostEmitterHarness.AssertSame("mutate failure path", expected, output, dir, args: ["mutate", dir, .. inputs]);
         }
         finally
         {
@@ -226,7 +226,7 @@ public sealed class SelfhostDefaultT10Tests
             Assert.Contains(" error ", expected);
             var (exit, output, error) = SelfhostParserTests.Run(Build(), ["coverage", dir, .. inputs]);
             Assert.True(exit == 0, $"exit {exit}\n{error}");
-            SelfhostEmitterHarness.AssertSame("coverage failure path", expected, output);
+            SelfhostEmitterHarness.AssertSame("coverage failure path", expected, output, dir, args: ["coverage", dir, .. inputs]);
         }
         finally
         {
@@ -252,7 +252,7 @@ public sealed class SelfhostDefaultT10Tests
                 if (mode == "coverage-skip") Assert.Contains("count 0 ", expected);
                 var (exit, output, error) = SelfhostParserTests.Run(Build(), [mode, dir, .. inputs]);
                 Assert.True(exit == 0, $"exit {exit}\n{error}");
-                SelfhostEmitterHarness.AssertSame($"wide {mode}", expected, output);
+                SelfhostEmitterHarness.AssertSame($"wide {mode}", expected, output, dir, args: [mode, dir, .. inputs]);
             }
         }
         finally
@@ -279,7 +279,7 @@ public sealed class SelfhostDefaultT10Tests
                 if (mode == "mutate") Assert.Contains("\"unobservable\": \"x is clamped by the caller\"", expected);
                 var (exit, output, error) = SelfhostParserTests.Run(Build(), [mode, dir, .. inputs]);
                 Assert.True(exit == 0, $"exit {exit}\n{error}");
-                SelfhostEmitterHarness.AssertSame($"edge {mode}", expected, output);
+                SelfhostEmitterHarness.AssertSame($"edge {mode}", expected, output, dir, args: [mode, dir, .. inputs]);
             }
             var c = Compilation.Create([Golden.Load(input)], dir);
             Assert.False(c.Diagnostics.HasErrors);
@@ -288,7 +288,7 @@ public sealed class SelfhostDefaultT10Tests
                 var expected = ExpectedC(c, BuildMode.Safe, mutate: flag == "--mutate");
                 var (exit, output, error) = SelfhostEmitterHarness.Run(flag, "--package", dir, input);
                 Assert.True(exit == 0, $"{flag}: exit {exit}\n{error}");
-                SelfhostEmitterHarness.AssertSame($"edge {flag}", expected, output);
+                SelfhostEmitterHarness.AssertSame($"edge {flag}", expected, output, input, args: [flag, "--package", dir, input]);
             }
         }
         finally
@@ -318,7 +318,7 @@ public sealed class SelfhostDefaultT10Tests
         var expected = ExpectedC(c, buildMode, mutate: flag == "--mutate");
         var (exit, output, error) = SelfhostEmitterHarness.Run(flag, "--mode", mode, "--package", dir, input);
         Assert.True(exit == 0, $"{input}: exit {exit}\n{error}");
-        SelfhostEmitterHarness.AssertSame($"{Path.GetFileName(input)} {flag}", expected, output);
+        SelfhostEmitterHarness.AssertSame($"{Path.GetFileName(input)} {flag}", expected, output, input, args: [flag, "--mode", mode, "--package", dir, input]);
     }
 
     /// <summary><c>bayan-emit --coverage</c> on every <c>run/</c> input emits the C# coverage build's C.</summary>
@@ -361,14 +361,14 @@ public sealed class SelfhostDefaultT10Tests
                     Assert.Contains(flag == "--mutate" ? "byn_mutant_is(" : "byn_cov[", expected);
                     var (exit, output, error) = SelfhostEmitterHarness.Run(flag, "--package", dir, input);
                     Assert.True(exit == 0, $"{file} {flag}: exit {exit}\n{error}");
-                    SelfhostEmitterHarness.AssertSame($"{file} {flag}", expected, output);
+                    SelfhostEmitterHarness.AssertSame($"{file} {flag}", expected, output, input, args: [flag, "--package", dir, input]);
                 }
                 // Both flags: `Lowerer.Lower` given the switches and the probes, so a statement under a mutant switch has one probe.
                 var both = Compilation.Create([Golden.Load(input)], dir);
                 var bothC = CEmitter.Emit(Lowerer.Lower(both, Schemata.Build(both).Switches, CoverageInstrumenter.Instrument(both).Probes));
                 var bothRun = SelfhostEmitterHarness.Run("--coverage", "--mutate", "--package", dir, input);
                 Assert.True(bothRun.Exit == 0, $"{file} both: exit {bothRun.Exit}\n{bothRun.Err}");
-                SelfhostEmitterHarness.AssertSame($"{file} --coverage --mutate", bothC, bothRun.Out);
+                SelfhostEmitterHarness.AssertSame($"{file} --coverage --mutate", bothC, bothRun.Out, input, args: ["--coverage", "--mutate", "--package", dir, input]);
             }
             foreach (var flag in new[] { "--coverage", "--mutate" })
                 SelfhostEmitterHarness.SameAsCli($"errors {flag}", ["build", "--emit-c", bad], [flag, bad]);
@@ -399,7 +399,7 @@ public sealed class SelfhostDefaultT10Tests
                 var (exit, output, error) = SelfhostParserTests.Run(Build(), [mode, dir, .. inputs]);
                 Assert.True(exit == 0, $"exit {exit}\n{error}");
                 var expected = Expected(inputs, dir, mutate: mode.StartsWith("mutate"), tests: mode.EndsWith("-tests"));
-                SelfhostEmitterHarness.AssertSame($"rich {mode}", expected, output);
+                SelfhostEmitterHarness.AssertSame($"rich {mode}", expected, output, dir, args: [mode, dir, .. inputs]);
             }
             var c = Compilation.Create([Golden.Load(input)], dir);
             Assert.False(c.Diagnostics.HasErrors);
@@ -419,7 +419,7 @@ public sealed class SelfhostDefaultT10Tests
             {
                 var (exit, output, error) = SelfhostEmitterHarness.Run(args);
                 Assert.True(exit == 0, $"{string.Join(' ', args)}: exit {exit}\n{error}");
-                SelfhostEmitterHarness.AssertSame($"rich {string.Join(' ', args[..^1])}", expected, output);
+                SelfhostEmitterHarness.AssertSame($"rich {string.Join(' ', args[..^1])}".Replace(dir, "."), expected, output, input, args: args);
             }
             Assert.Equal(2, SelfhostEmitterHarness.Run("--coverage", "--package", dir).Exit); // no-oracle: Q814 `--package` without a file is usage
         }
@@ -770,5 +770,27 @@ public sealed class SelfhostDefaultT10Tests
         if (c.Diagnostics.HasErrors) return (null, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
         var build = SelfhostSemanticsHarness.BuildFast(c, new HashSet<string>(StringComparer.Ordinal) { sources[^1].Path });
         return build.Succeeded ? (build.ExecutablePath, "") : (null, build.Errors);
+    }
+}
+
+/// <summary>The export path of <see cref="SelfhostEmitterHarness.AssertSame"/> in this class, the directory set through <see cref="SelfhostExport.Override"/>.</summary>
+public sealed class SelfhostDefaultT10ExportTests
+{
+    [Fact]
+    public void ACompareCallWritesItsInputArgsAndTheCSharpC()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-t10");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var old = SelfhostExport.Override.Value;
+        try
+        {
+            SelfhostExport.Override.Value = root;
+            new SelfhostDefaultT10Tests().MutateCMatchesTheCSharpOnEveryRunInput("run/arithmetic.byn");
+        }
+        finally { SelfhostExport.Override.Value = old; }
+        var dir = Path.Combine(root, "emit-c", nameof(SelfhostDefaultT10Tests), "MutateCMatchesTheCSharpOnEveryRunInput-arithmetic.byn --mutate");
+        Assert.Equal("--mutate\n--mode\nsafe\n--package\n.\ninput.byn\n", File.ReadAllText(Path.Combine(dir, "args")));
+        Assert.Equal(File.ReadAllText(Path.Combine(Golden.CasesRoot, "run", "arithmetic.byn")), File.ReadAllText(Path.Combine(dir, "input.byn")));
+        Assert.Contains("byn_mutant_is(", File.ReadAllText(Path.Combine(dir, "expected.c")));
     }
 }

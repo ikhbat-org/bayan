@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -174,6 +175,19 @@ public sealed class SelfhostDefaultT9Tests
         return dir;
     }
 
+    /// <summary>Under the export, lists the compare of a library call with the probe's output in <c>cli/UNEXPORTED.tsv</c> and returns true (nothing is compared).</summary>
+    private static bool Skipped(string label, [CallerMemberName] string test = "")
+    {
+        if (SelfhostExport.Dir is not { } root) return false;
+        SelfhostExport.NotExported(root, "cli", nameof(SelfhostDefaultT9Tests), test, $"{label} (not exported: API-level compare, port as bayan-test)");
+        return true;
+    }
+
+    private static void SameTree(string label, string expected, string actual, [CallerMemberName] string test = "")
+    {
+        if (!Skipped(label, test)) SelfhostEmitterHarness.AssertSame(label, expected, actual);
+    }
+
     private static string Hex(byte[] bytes) => Convert.ToHexStringLower(SHA256.HashData(bytes));
 
     // ── sha256 (plan D5) ────────────────────────────────────────────────────────────────────
@@ -198,6 +212,7 @@ public sealed class SelfhostDefaultT9Tests
         File.WriteAllBytes(abc, "abc"u8.ToArray());
         files.Add(abc);
         expected.Append(Hex("abc"u8.ToArray())).Append('\n');
+        if (Skipped("sha256")) return;
         Assert.Equal(expected.ToString(), Driver(null, ["sha256", .. files]));
     }
 
@@ -228,6 +243,7 @@ public sealed class SelfhostDefaultT9Tests
         var cache = Path.Combine(dir, "cache");
         var built = With("BAYAN_CC", null, () => With("BAYAN_CACHE", cache, () => Toolchain.Build(cSource, buildMode, target: target)));
         Assert.True(built.Succeeded, built.Errors);
+        if (Skipped($"key {mode} {target}")) return;
         Assert.Equal($"{built.Key}\n", Driver(cache, ["key", cFile, mode, .. target is null ? Array.Empty<string>() : [target]]));
     }
 
@@ -242,6 +258,7 @@ public sealed class SelfhostDefaultT9Tests
         File.WriteAllText(script, "#:mode fast\nvoid main() { print(\"hi\") }\n");
         Assert.True(Toolchain.TryParseMode(mode, out var buildMode));
         var expected = With("BAYAN_CC", null, () => Toolchain.ScriptKey(File.ReadAllBytes(script), buildMode, build));
+        if (Skipped($"scriptkey {mode}")) return;
         Assert.Equal($"{expected}\n", Driver(null, "scriptkey", script, mode, build));
     }
 
@@ -272,6 +289,7 @@ public sealed class SelfhostDefaultT9Tests
         Assert.Equal(Key + "\n" + Path.Combine(bin, "zig") + ":" + new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks + "\n", expected.Pointer);
         Assert.NotEqual("null\n", expected.Hit);
         Assert.Equal("null\n", expected.Miss);
+        if (Skipped("pointer")) return;
         Assert.Equal(expected, Remembered(true));
     }
 
@@ -301,7 +319,8 @@ public sealed class SelfhostDefaultT9Tests
         {
             File.SetLastWriteTimeUtc(Script(bin, "fakecc", $"echo '{version}'\n"), new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc));
             var expected = (string)compute.Invoke(null, [command])!;
-            Assert.Equal(expected + "\n", Driver(null, ["identity", .. command]));
+            if (!Skipped($"identity {version} {year}", nameof(ALaunchersCompilerIsInTheIdentityAsToolchain)))
+                Assert.Equal(expected + "\n", Driver(null, ["identity", .. command]));
             return expected;
         }
         var first = Identity("fakecc 1", 2020);
@@ -330,7 +349,7 @@ public sealed class SelfhostDefaultT9Tests
         foreach (var command in commands)
         {
             var expected = With("PATH", bin, () => Toolchain.CompilerStamp(command));
-            Assert.Equal(expected + "\n", Driver(null, [("PATH", bin)], ["stamp", .. command]));
+            if (!Skipped($"stamp {string.Join(' ', command.Select(Path.GetFileName))}")) Assert.Equal(expected + "\n", Driver(null, [("PATH", bin)], ["stamp", .. command]));
         }
     }
 
@@ -385,6 +404,7 @@ public sealed class SelfhostDefaultT9Tests
         var driver = Driver(Entry(dir, shape), "lookup", Key, "program");
         // The C# `Discard`s a damaged entry, so it runs second, on a fresh copy of the layout.
         var cache = Entry(dir, shape);
+        if (Skipped($"lookup {shape}")) return;
         Assert.Equal(CSharpLookup(cache, () => Toolchain.Lookup(Key, "program")), driver);
     }
 
@@ -400,7 +420,8 @@ public sealed class SelfhostDefaultT9Tests
         File.SetUnixFileMode(sum, UnixFileMode.None);
         try
         {
-            Assert.Equal(CSharpLookup(cache, () => Toolchain.Lookup(Key, "program")), Driver(cache, "lookup", Key, "program"));
+            if (!Skipped($"lookup of unreadable {name}"))
+                Assert.Equal(CSharpLookup(cache, () => Toolchain.Lookup(Key, "program")), Driver(cache, "lookup", Key, "program"));
         }
         finally
         {
@@ -453,7 +474,8 @@ public sealed class SelfhostDefaultT9Tests
             var driver = Driver(Layout(), "lookup", Key, "program");
             Restore();
             var cache = Layout();
-            Assert.Equal(CSharpLookup(cache, () => Toolchain.Lookup(Key, "program")), driver);
+            if (!Skipped($"lookup with mode {shape}"))
+                Assert.Equal(CSharpLookup(cache, () => Toolchain.Lookup(Key, "program")), driver);
         }
         finally
         {
@@ -504,7 +526,8 @@ public sealed class SelfhostDefaultT9Tests
         }
         var driver = Driver(Layout(), [("PATH", bin)], "lookupscript", "skey", "program");
         var cache = Layout();
-        Assert.Equal(With("BAYAN_CC", null, () => With("PATH", bin, () => CSharpLookup(cache, () => Toolchain.LookupScript("skey", "program")))), driver);
+        if (!Skipped($"lookupscript {shape} {pointer}"))
+            Assert.Equal(With("BAYAN_CC", null, () => With("PATH", bin, () => CSharpLookup(cache, () => Toolchain.LookupScript("skey", "program")))), driver);
         if (pointer is "stamped" or "stale" or "oldformat") Assert.Equal(pointer != "stamped", driver == "null\n");
         if (pointer == "unreadable") File.SetUnixFileMode(Path.Combine(cache, "v1", "scripts", "skey"), UnixFileMode.UserRead | UnixFileMode.UserWrite);
     }
@@ -562,7 +585,7 @@ public sealed class SelfhostDefaultT9Tests
         {
             With("BAYAN_CACHE", Path.Combine(cs, "cache"), () => { Toolchain.Evict(keep, long.MaxValue, entries, TimeSpan.FromMinutes(10)); return 0; });
             Driver(Path.Combine(self, "cache"), "evict", keep, long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture), entries.ToString(System.Globalization.CultureInfo.InvariantCulture), "600");
-            SelfhostEmitterHarness.AssertSame($"cache after evicting to {entries} keeping {keep}", Names(cs), Names(self));
+            SameTree($"cache after evicting to {entries} keeping {keep}", Names(cs), Names(self));
         }
         Assert.Equal("cache/\ncache/v1/\ncache/v1/programs/\ncache/v1/programs/k5/\ncache/v1/programs/k5/program\ncache/v1/scripts/\ncache/v1/scripts/new\ncache/v1/tmp/", Names(self));
     }
@@ -585,7 +608,7 @@ public sealed class SelfhostDefaultT9Tests
         {
             With("BAYAN_CACHE", Path.Combine(cs, "cache"), () => { Toolchain.Evict("none", long.MaxValue, entries, TimeSpan.FromMinutes(10)); return 0; });
             Driver(Path.Combine(self, "cache"), "evict", "none", long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture), entries.ToString(System.Globalization.CultureInfo.InvariantCulture), "600");
-            SelfhostEmitterHarness.AssertSame($"cache after evicting to {entries}", Names(cs), Names(self));
+            SameTree($"cache after evicting to {entries}", Names(cs), Names(self));
         }
         Assert.Equal("cache/\ncache/v1/\ncache/v1/programs/\ncache/v1/programs/k1/\ncache/v1/programs/k1/program\ncache/v1/runtime/\ncache/v1/tmp/", Names(self));
     }
@@ -601,7 +624,7 @@ public sealed class SelfhostDefaultT9Tests
             ("cache/v1/programs/b", minutes), ("cache/v1/programs/c", minutes * 2));
         With("BAYAN_CACHE", Path.Combine(cs, "cache"), () => { Toolchain.Evict("a", long.Parse(maxBytes, System.Globalization.CultureInfo.InvariantCulture), 4000, TimeSpan.FromMinutes(10)); return 0; });
         Driver(Path.Combine(self, "cache"), "evict", "a", maxBytes, "4000", "600");
-        SelfhostEmitterHarness.AssertSame("cache after evicting", Names(cs), Names(self));
+        SameTree("cache after evicting", Names(cs), Names(self));
     }
 
     /// <summary>
@@ -624,7 +647,7 @@ public sealed class SelfhostDefaultT9Tests
         }, ("cache/v1/programs/k0", 120), ("cache/v1/programs/k1", 60));
         With("BAYAN_CACHE", Path.Combine(cs, "cache"), () => { Toolchain.Evict("k1", long.MaxValue, 1, TimeSpan.FromMinutes(10)); return 0; });
         Driver(Path.Combine(self, "cache"), "evict", "k1", long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture), "1", "600");
-        SelfhostEmitterHarness.AssertSame("cache after evicting", Names(cs), Names(self));
+        SameTree("cache after evicting", Names(cs), Names(self));
         Assert.False(Directory.Exists(Path.Combine(self, "cache", "v1", "programs", "k0")));
     }
 
@@ -646,7 +669,7 @@ public sealed class SelfhostDefaultT9Tests
         {
             foreach (var d in locked) File.SetUnixFileMode(d, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
         }
-        SelfhostEmitterHarness.AssertSame("cache after evicting", Names(cs), Names(self));
+        SameTree("cache after evicting", Names(cs), Names(self));
     }
 
     /// <summary>
@@ -675,7 +698,7 @@ public sealed class SelfhostDefaultT9Tests
             return 0;
         }));
         Driver(Path.Combine(self, "cache"), timeout is null ? [] : [("BAYAN_CC_TIMEOUT_S", timeout)], "sweep", Path.Combine(self, "tmp"), "3600");
-        SelfhostEmitterHarness.AssertSame("tree after the sweep", Names(cs), Names(self));
+        SameTree("tree after the sweep", Names(cs), Names(self));
         Assert.Equal(timeout == "7200", Directory.Exists(Path.Combine(self, "cache", "v1", "tmp", "key-running")));
     }
 
@@ -708,7 +731,7 @@ public sealed class SelfhostDefaultT9Tests
             {
                 With("BAYAN_CACHE", Path.Combine(cs, "cache"), () => { Toolchain.SweepStale(Path.Combine(cs, temp), TimeSpan.FromHours(1)); return 0; });
                 Driver(Path.Combine(self, "cache"), "sweep", Path.Combine(self, temp), "3600");
-                SelfhostEmitterHarness.AssertSame($"tree after the sweep of {temp}", Names(cs), Names(self));
+                SameTree($"tree after the sweep of {temp}", Names(cs), Names(self));
             }
         }
         finally
@@ -739,7 +762,7 @@ public sealed class SelfhostDefaultT9Tests
             return 0;
         })));
         Assert.Equal("", Driver(Path.Combine(dir, "self", "cache"), [("TMPDIR", temp), ("TMP", temp)], "sweeponce", Late("self")));
-        SelfhostEmitterHarness.AssertSame("cache after two sweeps", Names(Path.Combine(dir, "cs")), Names(Path.Combine(dir, "self")));
+        SameTree("cache after two sweeps", Names(Path.Combine(dir, "cs")), Names(Path.Combine(dir, "self")));
         Assert.True(Directory.Exists(Late("self")));
     }
 
@@ -750,6 +773,7 @@ public sealed class SelfhostDefaultT9Tests
     public void TheTempPathIsTheCSharpPath(string tmpdir)
     {
         if (OperatingSystem.IsWindows()) return;
+        if (Skipped($"temppath {tmpdir}")) return;
         Assert.Equal(With("TMPDIR", tmpdir, Path.GetTempPath) + "\n", Driver(null, [("TMPDIR", tmpdir)], "temppath"));
     }
 
@@ -770,7 +794,8 @@ public sealed class SelfhostDefaultT9Tests
             }
         With("BAYAN_CC", null, () => With("BAYAN_CACHE", cs, () => { Toolchain.RememberScript("skey", Key); return 0; }));
         Driver(self, "remember", "skey", Key);
-        SelfhostEmitterHarness.AssertSame("cache after remembering", Names(cs), Names(self));
+        SameTree("cache after remembering", Names(cs), Names(self));
+        if (Skipped("remembered files")) return;
         if (!scriptsIsAFile) Assert.Equal(File.ReadAllText(Path.Combine(cs, "v1", "scripts", "skey")), File.ReadAllText(Path.Combine(self, "v1", "scripts", "skey")));
         Assert.Equal(File.ReadAllText(Path.Combine(cs, "v1", "CACHEDIR.TAG")), File.ReadAllText(Path.Combine(self, "v1", "CACHEDIR.TAG")));
     }
@@ -803,7 +828,7 @@ public sealed class SelfhostDefaultT9Tests
     // ── through stage 2 against the C# (L028; CacheTests.cs, CliMemoryBoundsTests.cs M5) ────
 
     /// <summary>One argv run on both trees; <see cref="Before"/> runs on each tree first, <see cref="Env"/> adds variables (null unsets).</summary>
-    private sealed record Step(string[] Args, Action<string>? Before = null, (string Name, string? Value)[]? Env = null);
+    private sealed record Step(string[] Args, Action<string>? Before = null, (string Name, string? Value)[]? Env = null, [CallerMemberName] string Test = "");
 
     /// <summary>The C# <c>bayan</c> (its assembly under <c>dotnet</c>) or the stage-2 driver, in <paramref name="cwd"/>, <c>BAYAN_CACHE</c> = <c>&lt;cwd&gt;/cache</c> and <c>BAYAN_CC</c> unset.</summary>
     private static (int Exit, string Out, string Err) Bayan(bool driver, string cwd, (string Name, string? Value)[] env, string[] args)
@@ -832,9 +857,15 @@ public sealed class SelfhostDefaultT9Tests
             @"(cannot write the build output or cache \(<root>[^)]*\)): .*", "$1: <message>"), @"(cannot run the C compiler `[^`]*`): .*", "$1: <message>"),
             @"scripts/[0-9a-f]{64}", "scripts/<skey>"), @"\(commit [^)]*\)", "(commit <c>)");
 
+    /// <summary>For the export: the repo root dropped from a path and the home directory (where <c>doctor</c> finds zig) as <c>&lt;home&gt;</c>.</summary>
+    private static string Machineless(string text) =>
+        text.Replace(Golden.RepoRoot + Path.DirectorySeparatorChar, "").Replace(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "<home>");
+
     /// <summary>
     /// The steps on two trees seeded alike (the C#'s first); exit code and masked streams compared per step, the names of both trees
-    /// after the last. The C#'s masked stdout per step.
+    /// after the last. The C#'s masked stdout per step. Under the export each step writes <c>cli/SelfhostDefaultT9Tests/&lt;test&gt;-&lt;name&gt;[-n]</c>:
+    /// the tree it ran in without <c>cache/</c> and <c>cc.log</c> as <c>input/</c>, <c>args</c>, <c>env</c> (<c>-NAME</c> unsets; the inherited <c>PATH</c> as <c>$PATH</c>), the C#'s masked
+    /// <c>expected.exitcode</c>, <c>expected.stdout</c>, <c>expected.stderr</c>, and the last also <c>expected.names</c>; nothing is compared.
     /// </summary>
     private static List<string> Same(string name, Action<string> seed, params Step[] steps)
     {
@@ -847,21 +878,49 @@ public sealed class SelfhostDefaultT9Tests
             Directory.CreateDirectory(root);
             seed(root);
         }
+        string? last = null;
         foreach (var step in steps)
         {
             // `<root>` in a variable's value is the tree's root.
             (string, string?)[] Env(string root) => [.. (step.Env ?? []).Select(e => (e.Name, e.Value?.Replace("<root>", root)))];
             step.Before?.Invoke(a);
+            var snapshot = Path.Combine(dir, "snapshot");
+            if (SelfhostExport.Dir is not null)
+            {
+                TestDirs.Delete(snapshot);
+                Directory.CreateDirectory(snapshot);
+                foreach (var f in Directory.EnumerateFiles(a, "*", SearchOption.AllDirectories).Where(f => Path.GetRelativePath(a, f).Split(Path.DirectorySeparatorChar)[0] != "cache" && Path.GetFileName(f) != "cc.log"))
+                {
+                    var to = Path.Combine(snapshot, Path.GetRelativePath(a, f));
+                    Directory.CreateDirectory(Path.GetDirectoryName(to)!);
+                    File.Copy(f, to);
+                }
+            }
             var expected = Bayan(false, a, Env(a), step.Args);
             step.Before?.Invoke(b);
             var actual = Bayan(true, b, Env(b), step.Args);
             var label = $"{name}: {string.Join(' ', step.Args)}";
-            Assert.True(expected.Exit == actual.Exit, $"exit of `{label}`: C# {expected.Exit}, driver {actual.Exit}\n{expected.Err}\n{actual.Err}");
-            SelfhostEmitterHarness.AssertSame($"stdout of `{label}`", Masked(expected.Out, a), Masked(actual.Out, b));
-            SelfhostEmitterHarness.AssertSame($"stderr of `{label}`", Masked(expected.Err, a), Masked(actual.Err, b));
+            if (SelfhostExport.Dir is { } export)
+            {
+                last = SelfhostExport.Case(export, "cli", nameof(SelfhostDefaultT9Tests), $"{step.Test}-{name}");
+                SelfhostExport.WriteInput(last, [snapshot]);
+                SelfhostExport.WriteExpected(last, "args", string.Concat(step.Args.Select(x => x + "\n")));
+                if (step.Env is { Length: > 0 } env)
+                    SelfhostExport.WriteExpected(last, "env", string.Concat(env.Select(e => (e.Value is null ? "-" + e.Name : $"{e.Name}={e.Value.Replace(Environment.GetEnvironmentVariable("PATH") ?? "\0", "$PATH").Replace(Golden.RepoRoot + Path.DirectorySeparatorChar, "")}") + "\n")));
+                SelfhostExport.WriteExpected(last, "expected.exitcode", $"{expected.Exit}\n");
+                SelfhostExport.WriteExpected(last, "expected.stdout", Machineless(Masked(expected.Out, a)));
+                SelfhostExport.WriteExpected(last, "expected.stderr", Machineless(Masked(expected.Err, a)));
+            }
+            else
+            {
+                Assert.True(expected.Exit == actual.Exit, $"exit of `{label}`: C# {expected.Exit}, driver {actual.Exit}\n{expected.Err}\n{actual.Err}");
+                SelfhostEmitterHarness.AssertSame($"stdout of `{label}`", Masked(expected.Out, a), Masked(actual.Out, b));
+                SelfhostEmitterHarness.AssertSame($"stderr of `{label}`", Masked(expected.Err, a), Masked(actual.Err, b));
+            }
             outs.Add(Masked(expected.Out, a));
         }
-        SelfhostEmitterHarness.AssertSame($"names of `{name}`", Masked(Names(a), a), Masked(Names(b), b));
+        if (last is not null) SelfhostExport.WriteExpected(last, "expected.names", Machineless(Masked(Names(a), a)));
+        else SelfhostEmitterHarness.AssertSame($"names of `{name}`", Masked(Names(a), a), Masked(Names(b), b));
         return outs;
     }
 
@@ -1277,7 +1336,7 @@ public sealed class SelfhostDefaultT9Tests
             new Step(["build", "arithmetic.byn"], Env: [("TMPDIR", "<root>-tmp"), ("TMP", "<root>-tmp"), ("BAYAN_CC_TIMEOUT_S", timeout)]));
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "t9-cache", $"sweep-build-{timeout}");
         string Left(string side) => string.Join("\n", seeded.Where(n => Path.Exists(Path.Combine(dir, side + "-tmp", n.TrimEnd('/')))));
-        SelfhostEmitterHarness.AssertSame("seeded names left in TMPDIR", Left("cs"), Left("s2"));
+        SameTree("seeded names left in TMPDIR", Left("cs"), Left("s2"));
         Assert.Equal("bayan-coverage-new/\nother-old/\nbayan-coverage-file", Left("s2"));
         Assert.Equal(timeout == "7200", Directory.Exists(Path.Combine(dir, "s2", "cache", "v1", "tmp", "key-running")));
         Assert.False(Directory.Exists(Path.Combine(dir, "s2", "cache", "v1", "tmp", "key-old")));
@@ -1310,4 +1369,28 @@ public sealed class SelfhostDefaultT9Tests
     //   driver row (Q1149).
     // - CacheTests.ReplaceFileRetriesWhileDestinationIsOpen: no sleep between the tries of `replaceFile`, and a held destination
     //   needs Windows (Q1149).
+}
+
+/// <summary>The export path of <see cref="SelfhostDefaultT9Tests.Same"/>: a one-step row writes its case, the directory set through <see cref="SelfhostExport.Override"/>.</summary>
+public sealed class SelfhostDefaultT9ExportTests
+{
+    [Fact]
+    public void AStepWritesItsArgsStreamsAndNames()
+    {
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-t9");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var old = SelfhostExport.Override.Value;
+        try
+        {
+            SelfhostExport.Override.Value = root;
+            new SelfhostDefaultT9Tests().ACommandReachesItsArm("features");
+        }
+        finally { SelfhostExport.Override.Value = old; }
+        var dir = Path.Combine(root, "cli", nameof(SelfhostDefaultT9Tests), "ACommandReachesItsArm-arm-features");
+        Assert.Equal("features\n", File.ReadAllText(Path.Combine(dir, "args")));
+        Assert.Matches(@"^[0-9]+\n$", File.ReadAllText(Path.Combine(dir, "expected.exitcode")));
+        Assert.True(File.Exists(Path.Combine(dir, "expected.stdout")));
+        Assert.NotEqual("", File.ReadAllText(Path.Combine(dir, "expected.stderr")));
+        Assert.Equal("", File.ReadAllText(Path.Combine(dir, "expected.names")));
+    }
 }
