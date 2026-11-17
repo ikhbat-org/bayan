@@ -212,6 +212,116 @@ sir.Function r8Fn() uses alloc {
     return f
 }
 
+/// countdown(v0): v1 = 1; v2 = 0; loop: v3 = v0 - v1; br gt v3, v2 -> loop, done
+sir.Function countdownFn() uses alloc {
+    var f = sir.newFunction("countdown", by: 1)
+    let entry = sir.newBlock(ref f)
+    let loop = sir.newBlock(ref f)
+    let done = sir.newBlock(ref f)
+    let one = sir.newVReg(ref f)
+    let zero = sir.newVReg(ref f)
+    sir.emit(ref f, to: entry, as: .imm(one, 1))
+    sir.emit(ref f, to: entry, as: .imm(zero, 0))
+    sir.terminate(ref f, at: entry, as: .jump(loop))
+    let next = sir.newVReg(ref f)
+    sir.emit(ref f, to: loop, as: .sub(next, f.params[0], one))
+    sir.terminate(ref f, at: loop, as: .br(.gt, next, zero, loop, done))
+    sir.terminate(ref f, at: done, as: .ret(sir.noReg()))
+    return f
+}
+
+/// A value live across a call, plus a global load and store (the T10 `calls`).
+sir.Function callsFn() uses alloc {
+    var f = sir.newFunction("caller", by: 2)
+    let b = sir.newBlock(ref f)
+    let r = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .call(r, "helper", [f.params[1], f.params[0]]))
+    let g = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .load(g, "counter"))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, r, g))
+    sir.emit(ref f, to: b, as: .store("counter", s))
+    let p = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .addrGlobal(p, "counter"))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "side", List<sir.VReg>()))
+    let t = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(t, s, f.params[0]))
+    sir.terminate(ref f, at: b, as: .ret(t))
+    return f
+}
+
+/// three(v0, v1, v2): a constant, a call, then v0 + v1 + v2; the three parameters cross the call.
+sir.Function threeFn() uses alloc {
+    var f = sir.newFunction("three", by: 3)
+    let b = sir.newBlock(ref f)
+    let c = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(c, 1))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "side", List<sir.VReg>()))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], f.params[1]))
+    let t = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(t, s, f.params[2]))
+    sir.terminate(ref f, at: b, as: .ret(t))
+    return f
+}
+
+/// swap(a, b) calls g(b, a).
+sir.Function swapFn() uses alloc {
+    var f = sir.newFunction("swap", by: 2)
+    let b = sir.newBlock(ref f)
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "g", [f.params[1], f.params[0]]))
+    sir.terminate(ref f, at: b, as: .ret(sir.noReg()))
+    return f
+}
+
+/// shift(a, b, c) calls g(b, c, a).
+sir.Function shiftFn() uses alloc {
+    var h = sir.newFunction("shift", by: 3)
+    let hb = sir.newBlock(ref h)
+    sir.emit(ref h, to: hb, as: .call(sir.noReg(), "g", [h.params[1], h.params[2], h.params[0]]))
+    sir.terminate(ref h, at: hb, as: .ret(sir.noReg()))
+    return h
+}
+
+/// Eight constants passed to one call: every argument register is used.
+sir.Function eightFn() uses alloc {
+    var g = sir.newFunction("eight", by: 0)
+    let gb = sir.newBlock(ref g)
+    var eight = List<sir.VReg>()
+    for i in 0..8 {
+        let v = sir.newVReg(ref g)
+        sir.emit(ref g, to: gb, as: .imm(v, i))
+        eight.append(v)
+    }
+    sir.emit(ref g, to: gb, as: .call(sir.noReg(), "eight", move eight))
+    sir.terminate(ref g, at: gb, as: .ret(sir.noReg()))
+    return g
+}
+
+/// ten(v0..v9): returns v9; only the first 8 parameters are precoloured.
+sir.Function tenFn() uses alloc {
+    var f = sir.newFunction("ten", by: 10)
+    let b = sir.newBlock(ref f)
+    sir.terminate(ref f, at: b, as: .ret(f.params[9]))
+    return f
+}
+
+test "the allocator's output is sound on the remaining T7-T10 shapes" {
+    assert audit(countdownFn()) == ""
+    assert audit(callsFn()) == ""
+    assert audit(threeFn()) == ""
+    assert audit(swapFn()) == ""
+    assert audit(shiftFn()) == ""
+    assert audit(eightFn()) == ""
+    assert audit(tenFn()) == ""
+}
+
+test "the allocator's output is sound under heavy spilling" {
+    assert audit(pressure(by: 68)) == ""
+    assert audit(pressure(by: 100)) == ""
+    assert audit(pressure(by: 514)) == ""
+}
+
 test "the allocator's output is sound on straight-line code and calc" {
     assert audit(straight()) == ""
     assert audit(fullCalc()) == ""
