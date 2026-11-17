@@ -1,0 +1,7 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@","capabilities":{}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/a.byn","languageId":"bayan","version":1,"text":"struct Bilal {}\n"}}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/a.byn","version":2},"contentChanges":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"text":"// iftar\n"}]}}
+{"jsonrpc":"2.0","id":2,"method":"textDocument/documentSymbol","params":{"textDocument":{"uri":"file://@WS@/a.byn"}}}
+{"fs":"delete","path":"a.byn"}
+{"jsonrpc":"2.0","method":"textDocument/didClose","params":{"textDocument":{"uri":"file://@WS@/a.byn"}}}
+{"jsonrpc":"2.0","id":3,"method":"workspace/symbol","params":{"query":""}}

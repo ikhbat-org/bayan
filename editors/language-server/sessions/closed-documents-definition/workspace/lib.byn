@@ -1,0 +1,6 @@
+struct Sadaqah {
+  i64 total
+}
+void give(Sadaqah s) {
+  let x = s
+}
