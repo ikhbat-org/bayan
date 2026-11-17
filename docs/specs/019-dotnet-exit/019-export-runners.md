@@ -8,7 +8,7 @@ Shared programs:
 
 - **GenEmit(Main)**: all `src/emitter/*.byn` except `main.byn`, ordinal-sorted, plus the class's C# `const string Main` as `src/emitter/main.byn`. Package root `src/`, fast mode (`SelfhostSemanticsHarness.BuildFast`), `BAYAN_CACHE=tmp/cache`.
 - **bayan-emit**: all `src/emitter/*.byn` including `main.byn`, root `src/`, fast (`SelfhostEmitterHarness.cs:29-42`, `Run(args)` :42).
-- **GenSem(input)**: all `src/semantics/*.byn` except `main.byn`, plus the case `input.byn` as `src/semantics/main.byn`, root `src/`, fast (`SelfhostSemanticsHarness.cs:27-52`, `RunSections` :392-426). Stdout is split on `== name` lines (`Sections` ~:433). `section` is the name the C# asked for. `expected.sections` holds the printed header.
+- **GenSem(input)**: all `src/semantics/*.byn` except `main.byn`, plus the case `input.byn` as `src/semantics/main.byn`, root `src/`, fast (`SelfhostSemanticsHarness.cs:27-52`, `RunSections` :392-426). Stdout is split on `== name` lines (`Sections` :453). `section` is the name the C# asked for. `expected.sections` holds the printed header.
 - **bayan-check**: all `src/semantics/*.byn` including `main.byn`, root `src/`, fast (`SemanticsTests:31-43`).
 - **bayan-parse**: all `src/parser/*.byn` including `main.byn`, root `src/`, fast (`ParserTests:26-39`, `BuildParser` :30-37).
 - **bayan-lex**: `Compilation.FromPath(src/lexer/main.byn)`, fast (`LexerTests:21-33`).
@@ -21,19 +21,19 @@ Default compare when the `compare` file is absent: exact, line by line (CRLF rea
 |---|---|---|---|---|---|---|
 | DefaultT10 | coverage/mutate words (AnInputWithErrors, CoverageCounters, SitesJson, MutateOfALargeInput, MutateSkips, FoldsFloatsAndEscapes, EdgeFixture main, RichFixture main) | GenEmit(T10 Main, DefaultT10:23) | `args` file: `coverage\|mutate [-skip\|-tests] ...` | stdout vs `expected.c` | default | DefaultT10:141, :151, :168, :175, :203, :229, :255, :282, :402 |
 | DefaultT10 | args start with `-` (`--coverage`, `--mutate`, `--package`, `--mode`; CoverageC/MutateC theory, FixtureC, EdgeFixture, RichFixture) | bayan-emit | `args` file; plain-file input maps `--package` dir to `.`, directory input is `input/` | stdout vs `expected.c` | default | DefaultT10:291, :321, :364, :371, :422 |
-| DefaultT10 | FixtureC SameAsCli cases (2) | bayan-emit | `args` file | stderr, stdout (`expected.c`), exit (`expected.exitcode`) | default | DefaultT10:374 |
-| Harness | BadArgumentsFailLikeBuild (8) | bayan-emit | `args` = C# CLI args; self argv = args minus `build --emit-c`; map by case label | stderr, `expected.c`, `expected.exitcode` | default | EmitterParity:308 |
-| Harness | CacheAppWithAStoringCalleeFailsLikeBuild (1) | bayan-emit | as above | as above | default | EmitterParity:227 |
-| Harness | CorpusErrorInputsAgree (105) | bayan-emit | as above | as above | default | EmitterParity:85 (class), EmitterHarness.cs:149-173 (`SameAsCli`) |
-| Harness | DiagnosticOptionsAgree (1284) | bayan-emit | as above | as above | default | EmitterParity:85, EmitterHarness.cs:149-173 |
-| Harness | ErrorInputsAgree (642) | bayan-emit | as above; input is `Isolate(name)` copy | as above | default | EmitterParity:~104-120 |
-| Harness | GlobalOptionsFailLikeBuildOnAnErrorInput (3) | bayan-emit | as above; `--color` global | as above | default | EmitterParity:264-269 |
-| Harness | ManifestErrorsAgree (21) | bayan-emit | as above | as above | default | EmitterParity:131-141 |
-| Harness | ModeAndTimeFailLikeBuildOnAnErrorInput (2) | bayan-emit | as above; `--mode fast\|turbo`, `--time` map differently | as above | default | EmitterParity:235-239 |
-| Harness | PackageAndTestsFailLikeBuildOnAnErrorInput (4) | bayan-emit | as above; `test` becomes `--tests`, `--package <dir>` | as above | default | EmitterParity:295-303 |
-| Harness | ProjectAndScriptErrorsAgree (12) | bayan-emit | as above | as above | default | EmitterParity:160 |
-| Harness | ProjectDirectoriesAgree (13) | bayan-emit | as above | as above | default | EmitterParity:193 |
-| Harness | WarningsDoNotStopEmission (2) | bayan-emit | as above | as above | default | EmitterParity:209, :222 |
+| DefaultT10 | FixtureC SameAsCli cases (2) | bayan-emit | `args` = `build --emit-c <bad>`; self argv `[<flag>, <bad>]` (label `errors <flag>`) | stderr, stdout (`expected.c`), exit (`expected.exitcode`) | default | DefaultT10:374 (SameAsCli, EmitterHarness.cs:149-173) |
+| Harness | BadArgumentsFailLikeBuild (8) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv per label: `<flag>` -> `[copy, flag]` (:312); `--mode turbo` -> `["--mode","turbo",copy]` (:313); `missing` -> `[missing]` (:315); `missing --time` -> `["--time",missing]` (:316; `--time` is not in `args`) | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:308-316; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | CacheAppWithAStoringCalleeFailsLikeBuild (1) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv `[app]` (label `stores`) | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:227-230; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | CorpusErrorInputsAgree (105) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv `[copy]` = `Isolate(name)` (`SameOnFailure`) | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:116-118, :104-106; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | DiagnosticOptionsAgree (1284 = 642 x 2) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv `[copy, --diagnostics, json]` (label `<name> --diagnostics json`) or `[copy, --all]` (label `<name> --all`); same as `args` minus `build --emit-c` | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:121-128; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | ErrorInputsAgree (642) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv `[copy]` = `Isolate(name)` (`SameOnFailure`) | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:111-113, :104-106; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | GlobalOptionsFailLikeBuildOnAnErrorInput (3) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv = `args` minus `build --emit-c`: `[--color, never, copy]`, `[--color=never, copy]`, `[--color=blue, copy]` | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:264-269; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | ManifestErrorsAgree (21) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv `[dir]` (`dir` is the generated project with `package.byn`) | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:131-141; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | ModeAndTimeFailLikeBuildOnAnErrorInput (2) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv label `--mode fast` -> `[--mode, fast, copy]` (cli has `build --mode fast --emit-c copy`, drop `build --emit-c`); label `--time` -> `[--time, copy]` (`--time` is added by the C#, not in `args`) | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:235-239; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | PackageAndTestsFailLikeBuildOnAnErrorInput (4) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv label `--package` -> `[--package, dir, copy]` (:299, `--package <dir>` not in `args`); `--tests` -> `[--tests, copy]` (:300; cli `test copy`); `test.byn --tests` -> `[--tests, tests]` (:302); `test.byn --package --tests` -> `[--package, dirname(tests), --tests, tests]` (:303) | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:295-303; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | ProjectAndScriptErrorsAgree (12) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv = `args` minus `build --emit-c`, one per label: `[dir path]` (:168), `script` `[script]` (:172), `many errors` `[many]` (:175), `--all` (:176), `--diagnostics text` (:177), `bad format` `--diagnostics xml` (:178), `second path` `[many, script]` (:179), `no path` `[]` (:180), `-- args` (:181), `-- --color` (:183), `-- --mode` (:184) | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:160-184; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | ProjectDirectoriesAgree (13) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv `[project]` (:208), `<dir> --tests` -> `[--tests, project]` (:209), `clean lib` `[clean]` (:217), `no manifest` `[plain]` (:221), `no manifest --tests` -> `[--tests, plain]` (:222) | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:193-222; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
+| Harness | WarningsDoNotStopEmission (2) | bayan-emit | `args` = C# CLI args (`build --emit-c ...`); self argv label `default` -> `[path]` (:330); label `--package` -> `[--package, dir, path]` (:331, `--package <dir>` not in `args`) | stderr (`expected.stderr`), stdout (`expected.c`), exit (`expected.exitcode`), in that order via `AssertSame` + exit check | default | EmitterParity:321-331; EmitterHarness.cs:149-173 (`SameAsCli`, compare :171-173) |
 | Parity | RunInputsEmitTheSameC (346) | bayan-emit | `args` file: `--mode <ModeOf> --package <dir> <input>`; `*.test.byn` uses `--tests` form | stdout vs `expected.c` | default | EmitterParity:46-48 |
 | Parity | RunTestInputsEmitTheSameC (4) | bayan-emit | `--tests <work>` | `expected.c` | default | EmitterParity:60-63 |
 | Parity | ExamplesEmitTheSameC (2) | bayan-emit | SameAsCli; `args` = `build --emit-c <path>`, self argv `[path]` | stderr, `expected.c`, `expected.exitcode` | default | EmitterParity:72 |
@@ -73,7 +73,7 @@ Class file is `SemanticsT<N>` = `SelfhostSemanticsT<N>Tests.cs`. "RS" is the `Ru
 | RevisionT8 (7) | * | GenSem | `args` | section | default | RevisionT8:403, :417 |
 | SemanticsHost (5) | * | GenSem | no `args`; argv in RS | section | default | SemanticsHost:77, :99 |
 | T10 (91) | * | GenSem | `args` | section | default | SemanticsT10:135 RS, :470, :494-504 |
-| T10 (1) | MainReadsAnUnreadablePackageAsAnEmptyOne | GenSem; `modes` file `package.byn None` | `args` | `expected.golden` | default | SemanticsT10:~170-197 |
+| T10 (1) | MainReadsAnUnreadablePackageAsAnEmptyOne | all `src/semantics/*.byn` including `main.byn` ordinal-sorted, root `src/`, fast (`SemanticsT10:165-168`); case holds `input/main.byn` plus empty `input/package.byn`, mode in `modes` (`package.byn None`, :192-193) | fixed argv, `args` file: `--golden --package <dir> --include-path <source>` (:195, :194) | stdout vs `expected.golden`; the C# also asserts equal to the empty-manifest run (:201-203) | default (`expected.TrimEnd()` equals `stdout.TrimEnd()`) | SemanticsT10:160-206 |
 | T11 (35) | * | GenSem | `args` | section | default | SemanticsT11:263, :290 |
 | T12 (11) | * | GenSem | `args` | section | default | SemanticsT12:265, :292 |
 | T13 (17) | * | GenSem | no `args`; argv in RS | section | default | SemanticsT13:1160, :1389 |
@@ -95,8 +95,9 @@ Class file is `SemanticsT<N>` = `SelfhostSemanticsT<N>Tests.cs`. "RS" is the `Ru
 | T37 (98) | * | GenSem | `args` | section | default | SemanticsT37:530, :542 |
 | T38 (4) | * | GenSem | `args` | section | default | SemanticsT38:219, :246 |
 | T39 (48) | * | GenSem | `args` | section | default | SemanticsT39:450, :464 |
-| T40 (3) | sections cases | GenSem | `args` | section | default | SemanticsT40:54, :72, :81 |
-| T40 (1+1) | golden case, exitcode/stderr case | GenSem | `args` | `expected.golden`; `expected.exitcode`, `expected.stderr` | default | SemanticsT40:54-81 (the exitcode case body was not read; see cannot-cover) |
+| T40 (3) | SpansAreTheCSharps (2), AddDiagMapsFixAndRelated (1) | GenSem (`Sections` Lazy: `RunSections(MainSource(), ...)`) | `args`: the program dir paths (`RunSections` call) | section vs `expected.sections` (`AssertSection`) | default | SemanticsT40:53-54 (Lazy), :64-73, :80-81 |
+| T40 (1) | CheckReportsAtTheIterable | bayan-check (`SemanticsTests.Built`, :45; `CheckSame`, `Case` = `diag/for-try-next-not-visible/main.byn`) | `args`: `<copy>` (one path, `bayan-check copy`, :612) | stderr (`expected.stderr`) via `AssertSameLines`, exit (`expected.exitcode`) | default | SemanticsT40:15, :58; SemanticsTests:583-614 |
+| T40 (1) | GoldenRendersAtTheIterable | bayan-check (`Built`; `GoldenSame`) | `args`: `--golden --package <dir> [--tests] [--include-path] <path>` (:554) | stdout vs `expected.golden`; exit 0 and empty stderr | default | SemanticsT40:62; SemanticsTests:546-567 |
 | T41 (992) | * | GenSem | `args` | section | `t41` (990 cases) | SemanticsT41:661 RS, :697, :700, :713 (ExportCaller), :728 (Sorted) |
 | T4 (4) | * | GenSem | no `args`; argv in RS | section | default | SemanticsT4:337, :544-616 |
 | T6 (8) | * | GenSem | no `args`; argv in RS | section | default | SemanticsT6:28, :55 |
@@ -104,19 +105,19 @@ Class file is `SemanticsT<N>` = `SelfhostSemanticsT<N>Tests.cs`. "RS" is the `Ru
 | T8 (10) | * | GenSem | no `args`; argv in RS | section | `sorted` (5 cases), else default | SemanticsT8:321, :359, :366 |
 | T9 (8) | * | GenSem | no `args`; argv in RS | section | default | SemanticsT9:175, :381-448 |
 | StdImport (16) | * | GenSem | `args` | section | default | StdImport:130, :158 |
-| SemanticsTests (51) | SameAsCli cases | bayan-check | `args` with `check` word dropped; `types` becomes `--types` | stdout (`expected.stdout`), stderr, exit | `untimed` | SemanticsTests:198, :206-215, :219-238, :278 |
+| SemanticsTests (51) | SameAsCli cases | bayan-check (`Built`, :45) | `args` = C# CLI args; self argv = `SelfArgs(cli)`: drop the `check` word, `types` becomes `--types` (:226-240); some tests pass an explicit self argv (e.g. :294 `--spans`) not in `args` | stderr, stdout (both `Untimed`) via `AssertSameLines`, exit | `untimed` | SemanticsTests:200 (`Untimed`), :206 (`AssertSameLines`), :268-289, :274 (writes `compare`) |
 | SemanticsTests (7) | RunSections cases | GenSem | `args` | section | default | SemanticsTests:147-153 |
-| SemanticsTests (5) | GoldenAgrees | bayan-check build (`Built`) | `args` | `expected.golden` | default | SemanticsTests:~546-567 |
-| Parity (18) | TypesParity | bayan-check | `args` | `expected.stdout`, stderr, `expected.exitcode` | `untimed` | SemanticsTests:820 (class), :198 |
-| Parity (642) | GoldenParity | bayan-check | `--golden --package <dir> [--tests] [--include-path] <path>` | stdout vs `expected.golden`; exit 0, empty stderr | default | SemanticsTests:~546-567 (GoldenSame) |
-| Parity (642) | CheckParity | bayan-check | `bayan-check <copy>` | `expected.stderr`, `expected.exitcode` | default | SemanticsTests:~573-597 (CheckSame) |
+| SemanticsTests (5) | GoldenAgrees | bayan-check (`Built`, :45) | `args`: `--golden --package <dir> [--tests] [--include-path] <path>` (:554) | stdout vs `expected.golden`; exit 0 and empty stderr | default (`AssertSameLines`, :567) | SemanticsTests:546-567 |
+| Parity (18) | TypesParity | bayan-check (`Built`) | `args` = `types <path>` CLI args (paths unmasked); self argv `SelfArgs` -> `--types <path>` | stdout (`expected.stdout`), stderr, exit (`expected.exitcode`) via `SameAsCli` | `untimed` | SemanticsTests:826 (test), :820 (class), :200, :268-289 |
+| Parity (642) | GoldenParity | bayan-check (`Built`) | `args`: `--golden --package <dir> [--tests] [--include-path] <path>` (:554; paths unmasked) | stdout vs `expected.golden`; exit 0 and empty stderr | default (`AssertSameLines`, :567) | SemanticsTests:832 (test), :546-567 (`GoldenSame`) |
+| Parity (642) | CheckParity | bayan-check (`Built`) | `args`: `<copy>` (one path, :612; unmasked) | stderr (`expected.stderr`) via `AssertSameLines`, exit (`expected.exitcode`) | default | SemanticsTests:835-837 (test), :583-614 (`CheckSame`) |
 
 ## parse
 
 | class | test-name prefix | program | call (argv / stdin) | compared output | compare | C# file:line |
 |---|---|---|---|---|---|---|
-| ParserTests (64 files) | ParseGolden | bayan-parse | `Run(Built, input)`: argv `input` | `expected.ast`, `expected.exitcode` | byte-for-byte | ParserTests:~140-160 |
-| ParserTests (106) | DiagGolden | bayan-parse | argv `input` | `expected.ast` (from `tmp/parser-ref/*.ast`), exit | `Golden.Compare` | ParserTests:~160-190 (not read in detail) |
+| ParserTests (64 files) | ParseGolden | bayan-parse | `Run(Built, input)`: argv `input` (:508) | stdout vs `expected.ast`; exit equals 1 if any error diagnostic else 0 (`expected.exitcode`) | `Golden.Compare` (CRLF normalised to LF, then string equality; Golden.cs:35-47, :64) | ParserTests:501-512 |
+| ParserTests (106) | DiagGolden | bayan-parse | argv `input` (:553) | stdout vs `expected.ast` (the C# `AstDump.Dump`, written to `tmp/parser-ref/*.ast`); exit 1 if any error diagnostic else 0 | `Golden.Compare` (as ParseGolden) | ParserTests:545-555 |
 | ParserTests (1) | EmptyFile | bayan-parse | argv `input` | `expected.ast`, exit | default | ParserTests:138 |
 | ParserTests (64) | CollectorsMatchAstDump | parser files minus `main.byn` plus `collectors-test.byn` (`CollectorsProgram`) | argv `input` | `expected.collectors` | default | ParserTests:407, :421 |
 | ParserTests (346) | CollectorsMatchAstDumpOnTheRunPrograms | same collectors program | argv `input` | `expected.collectors` | default | ParserTests:472 |
@@ -136,9 +137,9 @@ Class file is `SemanticsT<N>` = `SelfhostSemanticsT<N>Tests.cs`. "RS" is the `Ru
 
 | class | test-name prefix | program | call (argv / stdin) | compared output | compare | C# file:line |
 |---|---|---|---|---|---|---|
-| LexerTests | LexGolden (21) | bayan-lex | argv: input path | `expected.tokens` | `Golden.Compare`, no exit compare | LexerTests:113-121 |
-| LexerTests | JsonOnStdinMatchesTheReferenceLexer (21) | bayan-lex | stdin = input bytes; argv `--json` | `expected.json`, `expected.exitcode` | byte-equal | LexerTests:154-168 |
-| LexerTests | CorpusMatchesTheReferenceLexer (10000) | bayan-lex | argv: input path (the C# ran `--many <dir>` and split on `== NNNNN.byn` headers; the exported case is one file) | `expected.tokens` | `Golden.Compare` | LexerTests:294-330 |
+| LexerTests | LexGolden (21) | bayan-lex | argv: input path (`Run(Built, input)`, :119) | stdout vs `expected.tokens`; exit not compared | `Golden.Compare` (CRLF to LF, string equality; Golden.cs:35-47, :64) | LexerTests:113-121 |
+| LexerTests | JsonOnStdinMatchesTheReferenceLexer (21) | bayan-lex | stdin = input bytes; argv `--json` (:162) | stdout bytes vs `expected.json`; exit 1 if any error diagnostic else 0 (`expected.exitcode`) | byte-equal (`SequenceEqual`, :163) | LexerTests:154-168 |
+| LexerTests | CorpusMatchesTheReferenceLexer (10000) | bayan-lex | the C# ran `--many <dir>` once and split stdout on `== NNNNN.byn` headers (:322-326); the exported case is one file, so the port passes the input path as argv | stdout slice vs `expected.tokens` | byte-equal (`SequenceEqual`, :327); `Golden.Compare` only for the failure message (:331) | LexerTests:294-333 |
 | LexerTests | BayanLexJsonEqualsTheReferenceLexerOnEveryInput (10021) | bayan-lex | stdin = input; argv `--json` | `expected.json` | byte-equal, no exit compare | LexerTests:413-432 |
 | LexerTests | RunOnStdinRunsAPromptProgramOnce (1) | bayan-lex | stdin `x\n`; argv `--json` | `expected.json` | byte-equal | LexerTests:399-409 |
 | LexerCaseTests (1) | * | `input.byn` is the generated program, built as `src/t-case.byn` with `Compilation.Create([...], packageRoot: src)`, fast | no argv | stdout vs `expected.stdout` | default | LexerCaseTests:20-70 (program), :24-38 (test) |
@@ -157,18 +158,18 @@ Class file is `SemanticsT<N>` = `SelfhostSemanticsT<N>Tests.cs`. "RS" is the `Ru
 | `t41` | `Sorted`: diagnostics in order, then `store ` and `returns ` summary lines ordinal-sorted; `returns` indices sorted numerically | SemanticsT41:728 (`Sorted`), used :697, :700; PathT4:365-373 (reflection `T41("Sorted")`) |
 | `sorted` | both sides ordinal-sorted | RevisionT4:298-299; SemanticsT8:366-367 |
 | `sorted-end` | actual sorted ordinal, plus an appended `end` line | SemanticsT7:185-190 |
-| `untimed` | ` in [0-9]+\.[0-9]{2}s(?=\r?$)` (multiline) becomes ` in <time>` on both sides before comparing | SemanticsTests:198 (regex), :278 (writes `compare`), :648 |
+| `untimed` | ` in [0-9]+\.[0-9]{2}s(?=\r?$)` (multiline) becomes ` in <time>` on both sides before comparing | SemanticsTests:200 (regex), :274 (writes `compare`), :648 |
 | `prefix:<name>` | keep only printed lines starting `<name> ` from section `all` (PathT7 kinds `dir`, `full`, `combine`, `rel`, `relslash`; PathT8 `pathof`, `name`) | PathT7:189-190; PathT8:100-101, :108-109 |
 
 ## Cannot cover or needs porting care
 
 - Generated `Main` sources (emit-c T2-T10, T21, T22, DefaultT10) live only in the C# `const string Main`; no case carries them. The port must keep them elsewhere.
 - Emit-c T7, T21, T22 and sem classes without `args` (SemanticsHost, T4, T6, T7, T8, T9, T13, T14, T15, T16, T17, T23, T24) have no argv in the case. Argv comes from the cited C# call and the case name only.
-- Emit-c HarnessTests `args` hold the C# CLI args (`build --emit-c ...`), not the bayan-emit argv. The mapping from CLI to self argv is by case label and was not tabulated per case.
+- Emit-c HarnessTests `args` hold the C# CLI args (`build --emit-c ...`), not the bayan-emit argv. The self argv per test and label is in the Harness rows; `--time` and `--package <dir>` are added by the C# and are not in `args`.
 - Sem Parity `args` hold unmasked repo-relative paths (e.g. `tmp/t26-tests/cli/diag_x.byn/x.byn`, `tests/cases/diag`). The runner must substitute `input.byn` or `input/`.
 - Lex Corpus and BayanLexJson cases: the C# call form (`--many <dir>`) does not match the one-file case. The port uses the single-file form.
 - Parse T4, T5, T9: programs and cases are embedded in the C# (`Program()`, `Cases`); one case each.
-- `DiagGolden` and `Golden.Compare` bodies were not read. The sem T40 exitcode/stderr case body was not read.
+- Golden.cs is `csharp/tests/Bayan.Tests/Golden.cs` on the export branch (`Compare` :35).
 - `UNEXPORTED.tsv` rows have no case: emit-c PathT5, DriverT1, EmitterEquivalenceLaw; sem T4 `records`; parse T13 (4 tests) and SpanTakenBeforeTheLastChildLeavesItOutside (:614); lex `batch-cmdline.*` and `path-relative.*`.
 - Tests that call `Run(...)` directly (ModeFlagsWantTheirArguments, CleanInputsExitLike...) and T22 `Corpus_LocalsMatchCSharp` (:184) are plain asserts and are not exported.
 - runtime/macos was not sampled.
