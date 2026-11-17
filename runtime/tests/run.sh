@@ -68,36 +68,52 @@ refused
 '
 check batch-cmdline "$want"
 
-# batch-cmdline-cases.c reads hex cases from stdin; the .NET model is not available here, so a few fixed cases stand in.
+# batch-cmdline-cases.c reads hex cases from stdin (`-` is an empty argument). Cases are the L005RunBatchTests.cs rows that pair
+# a path and arguments with the exact command line (ModelReadsKnownCommandLines, lines 113-119), the same on every OS; the
+# generated corpus is T24b.
 if build batch-cmdline-cases; then
+    P='cmd.exe /d /e:ON /v:OFF /s /c '
     in="$(hex '.\echo.cmd') $(hex 'a b')
-$(hex 'notbatch.exe') $(hex 'a')
+$(hex '.\echo.cmd') -
+$(hex '.\echo.cmd') $(hex '^&|<>()!')
+$(hex '.\echo.cmd') $(hex 'a\')
+$(hex '.\echo.cmd') $(hex x) $(hex 'y z')
+$(hex '.\echo.cmd')
+$(hex 'C:\dir\X.CMD') $(hex a)
 "
-    want="$(hex 'cmd.exe /d /e:ON /v:OFF /s /c "".\echo.cmd" "a b""')
-refused
-"
-    printf '%s' "$in" | "$work/batch-cmdline-cases.exe" >"$work/bcc.out" 2>&1
-    rc=$?
+    want="$(hex "$P"'"".\echo.cmd" "a b""')"'
+'"$(hex "$P"'"".\echo.cmd" """')"'
+'"$(hex "$P"'"".\echo.cmd" "^&|<>()!""')"'
+'"$(hex "$P"'"".\echo.cmd" "a\""')"'
+'"$(hex "$P"'"".\echo.cmd" "x" "y z""')"'
+'"$(hex "$P"'"".\echo.cmd""')"'
+'"$(hex "$P"'""C:\dir\X.CMD" "a""')"'
+'
+    printf '%s' "$in" | "$work/batch-cmdline-cases.exe" 2>&1 | tr -d '\r' >"$work/bcc.out"
+    rc=${PIPESTATUS[1]}
     printf '%s' "$want" >"$work/bcc.want"
     if [ $rc -eq 0 ] && cmp -s "$work/bcc.out" "$work/bcc.want"; then ok batch-cmdline-cases.c
     else bad batch-cmdline-cases.c "exit $rc: $(cat "$work/bcc.out")"; fi
 else bad batch-cmdline-cases.c "build failed: $(cat "$work/batch-cmdline-cases.build")"; fi
 
-# path-relative-cases.c reads hex cases from stdin; fixed cases stand in for the .NET GetRelativePath oracle.
+# path-relative-cases.c reads hex cases from stdin. StdPathTests.cs holds no expected result for any pair (the expected text
+# comes from Path.GetRelativePath at run time), so the pairs of StdPathTests.cs:60-61 are fed and only the exit code and one
+# output line per case are checked; the compared results are T24b.
 if build path-relative-cases; then
-    in="$(hex /a/b) $(hex /a/c)
-$(hex /a/b) $(hex /a/b)
-$(hex /a/b/c) $(hex /a)
+    in="$(hex /a/b) $(hex /a/b/c)
+$(hex /a/b) $(hex /a/B/c)
+$(hex /A/b) $(hex /a/b)
+$(hex /a/b) $(hex /a/c)
+$(hex /a/b) $(hex /x)
+$(hex /a/b/) $(hex /a/b)
+$(hex /a) $(hex /a/./b/../c)
+$(hex /) $(hex /a)
 "
-    want="$(hex ../c)
-$(hex .)
-$(hex ../..)
-"
-    printf '%s' "$in" | "$work/path-relative-cases.exe" >"$work/prc.out" 2>&1
-    rc=$?
-    printf '%s' "$want" >"$work/prc.want"
-    if [ $rc -eq 0 ] && cmp -s "$work/prc.out" "$work/prc.want"; then ok path-relative-cases.c
-    else bad path-relative-cases.c "exit $rc: $(cat "$work/prc.out")"; fi
+    printf '%s' "$in" | "$work/path-relative-cases.exe" 2>&1 | tr -d '\r' >"$work/prc.out"
+    rc=${PIPESTATUS[1]}
+    lines=$(wc -l <"$work/prc.out" | tr -d ' ')
+    if [ $rc -eq 0 ] && [ "$lines" = 8 ]; then ok path-relative-cases.c
+    else bad path-relative-cases.c "exit $rc, $lines output lines for 8 cases"; fi
 else bad path-relative-cases.c "build failed: $(cat "$work/path-relative-cases.build")"; fi
 
 # io-run-posix.c
