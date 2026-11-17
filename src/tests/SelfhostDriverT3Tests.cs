@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Bayan.Backend.C;
 using Bayan.Semantics;
 using Bayan.Syntax.Diagnostics;
@@ -223,8 +224,41 @@ public sealed class SelfhostDriverT3Tests
         return string.Join("\n", lines);
     }
 
-    /// <summary>The C# side: <c>bayan build</c> under <paramref name="bin"/>; the Bayan side: the probe with the same <c>PATH</c>.</summary>
-    private static ((int Exit, string Err) Cs, (int Exit, string Err) Byn, string CsArgv, string BynArgv) Both(string bin, string mode, string target, string name)
+    /// <summary>
+    /// Under the export (spec 019 R10): writes the C# <c>bayan build</c> run as <c>cli/SelfhostDriverT3Tests/&lt;test&gt;[-n]</c> with
+    /// <paramref name="inputs"/> (the program and the <c>PATH</c> directories of fake compilers), <c>PATH</c> as <c>env</c>, and the
+    /// compiler's masked argv as <c>expected.argv</c> when given; returns true, so the caller returns without asserting.
+    /// </summary>
+    private static bool Record(List<string> args, (int Exit, string Out, string Err) cs, string path, string[] inputs, string? argv,
+        string? compare = null, [CallerMemberName] string test = "")
+    {
+        var extra = new Dictionary<string, string> { ["env"] = $"PATH={path}\n" };
+        if (argv is not null) extra["expected.argv"] = argv;
+        if (compare is not null) extra["compare"] = compare + "\n";
+        return SelfhostExport.Cli(args, cs.Exit, cs.Out, cs.Err, inputs, extra, nameof(SelfhostDriverT3Tests), test);
+    }
+
+    /// <summary>
+    /// Under the export: writes a C# library value the probe's stdout is compared with as <c>cli/SelfhostDriverT3Tests/&lt;test&gt;[-n]</c>,
+    /// the probe's arguments as <c>probe</c> (one per line), <paramref name="env"/> as <c>env</c> and the value as <c>expected.stdout</c>;
+    /// returns true, so the caller returns without asserting.
+    /// </summary>
+    private static bool RecordProbe(string[] probe, string expected, string? env = null, [CallerMemberName] string test = "")
+    {
+        if (SelfhostExport.Dir is not { } root) return false;
+        var dir = SelfhostExport.Case(root, "cli", nameof(SelfhostDriverT3Tests), test);
+        SelfhostExport.WriteExpected(dir, "probe", string.Concat(probe.Select(a => a + "\n")));
+        if (env is not null) SelfhostExport.WriteExpected(dir, "env", env + "\n");
+        SelfhostExport.WriteExpected(dir, "expected.stdout", expected);
+        return true;
+    }
+
+    /// <summary>
+    /// The C# side: <c>bayan build</c> under <paramref name="bin"/>; the Bayan side: the probe with the same <c>PATH</c>. Under the export
+    /// only the C# side runs and is recorded (<see cref="Record"/>, compare <c>argv-masked</c>), and both sides are its result.
+    /// </summary>
+    private static ((int Exit, string Err) Cs, (int Exit, string Err) Byn, string CsArgv, string BynArgv) Both(string bin, string mode, string target, string name,
+        [CallerMemberName] string test = "")
     {
         var scratch = Fresh(name);
         // The C# compiles `-o program` in its work directory; the port gets the same name and runs in the scratch directory.
@@ -237,6 +271,8 @@ public sealed class SelfhostDriverT3Tests
         var cs = Start(Cli, bin, csArgs, scratch);
         var csArgv = File.Exists(argv) ? File.ReadAllText(argv).ReplaceLineEndings("\n") : "";
         File.Delete(argv);
+        if (Record(csArgs, cs, bin, [Hello, bin], Masked(csArgv, scratch), "argv-masked", test))
+            return ((cs.Exit, cs.Err), (cs.Exit, cs.Err), Masked(csArgv, scratch), Masked(csArgv, scratch));
         var byn = Start(Probe(), bin, ["compile", scratch, "int main(void){return 0;}", output, mode, target], scratch);
         var bynArgv = File.Exists(argv) ? File.ReadAllText(argv).ReplaceLineEndings("\n") : "";
         if (cs.Exit == 0) Assert.True(File.Exists(csOut));
@@ -262,6 +298,7 @@ public sealed class SelfhostDriverT3Tests
     {
         var bin = Bin("bin-zig", Recording, "zig", "cc");
         var r = Both(bin, mode, target, $"args-{mode}-{target}");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(0, r.Cs.Exit);
         Assert.NotEqual("", r.CsArgv);
         SelfhostEmitterHarness.AssertSame($"argv of {mode} {target}", r.CsArgv, r.BynArgv);
@@ -274,6 +311,7 @@ public sealed class SelfhostDriverT3Tests
     {
         var bin = Bin("bin-cc", Recording, "cc");
         var r = Both(bin, "safe", "", "args-cc");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(0, r.Cs.Exit);
         Assert.NotEqual("", r.CsArgv);
         SelfhostEmitterHarness.AssertSame("argv with cc only", r.CsArgv, r.BynArgv);
@@ -284,6 +322,7 @@ public sealed class SelfhostDriverT3Tests
     {
         var bin = Bin("bin-clang", Recording, "clang", "gcc");
         var r = Both(bin, "debug", "", "args-clang");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(0, r.Cs.Exit);
         SelfhostEmitterHarness.AssertSame("argv with clang and gcc", r.CsArgv, r.BynArgv);
     }
@@ -296,6 +335,7 @@ public sealed class SelfhostDriverT3Tests
     {
         var bin = Bin($"bin-{first}-{second}", Recording, first, second);
         var r = Both(bin, "safe", "", $"order-{first}-{second}");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(0, r.Cs.Exit);
         Assert.StartsWith(first + "\n", r.CsArgv);
         SelfhostEmitterHarness.AssertSame($"compiler chosen from {first} and {second}", r.CsArgv, r.BynArgv);
@@ -306,6 +346,7 @@ public sealed class SelfhostDriverT3Tests
     {
         var bin = Bin("bin-gcc", Recording, "gcc");
         var r = Both(bin, "fast", "", "args-gcc");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(0, r.Cs.Exit);
         SelfhostEmitterHarness.AssertSame("argv with gcc only", r.CsArgv, r.BynArgv);
     }
@@ -318,6 +359,7 @@ public sealed class SelfhostDriverT3Tests
         var host = Targets.Host;
         var bin = Bin("bin-refuse", Recording, "cc");
         var r = Both(bin, "safe", target == host ? "wasm32" : target, $"refuse-{target}");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(4, r.Cs.Exit);
         Assert.Equal(4, r.Byn.Exit);
         Assert.StartsWith("bayan: ", r.Cs.Err);
@@ -335,6 +377,8 @@ public sealed class SelfhostDriverT3Tests
         try { expected = Toolchain.Build("int main(void){return 0;}", BuildMode.Safe, null, "not-a-target"); }
         finally { Environment.SetEnvironmentVariable("BAYAN_CC", saved); }
         Assert.StartsWith("unknown target `not-a-target`; targets are linux-x64, ", expected.Errors);
+        if (RecordProbe(["compile", Path.Combine(Golden.RepoRoot, "tmp", "t3", "unknown"), "int main(void){return 0;}", "program", "safe", "not-a-target"],
+            $"bayan: {expected.Errors}\n", $"BAYAN_CC={Path.Combine(zig, Tool("zig"))} cc")) return;
         var (exit, _, err) = Start(Probe(), zig, ["compile", Fresh("unknown"), "int main(void){return 0;}", "program", "safe", "not-a-target"]);
         Assert.Equal(4, exit);
         SelfhostEmitterHarness.AssertSame("stderr of an unknown target", $"bayan: {expected.Errors}\n", err);
@@ -345,6 +389,7 @@ public sealed class SelfhostDriverT3Tests
     {
         var empty = Fresh("bin-none");
         var r = Both(empty, "safe", "", "none");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(4, r.Cs.Exit);
         Assert.Equal("bayan: no C compiler found: install zig (https://ziglang.org) or set BAYAN_CC\n", r.Cs.Err);
         Assert.Equal(4, r.Byn.Exit);
@@ -367,8 +412,12 @@ public sealed class SelfhostDriverT3Tests
         var scratch = Fresh($"null-args-{mode}");
         var argv = Path.Combine(bin, "argv");
         File.Delete(argv);
-        Assert.Equal(0, Start(Cli, bin, ["build", Hello, "-o", Path.Combine(scratch, "cs-out"), "--mode", mode], scratch).Exit);
+        List<string> csArgs = ["build", Hello, "-o", Path.Combine(scratch, "cs-out"), "--mode", mode];
+        var cs = Start(Cli, bin, csArgs, scratch);
+        Assert.Equal(0, cs.Exit);
         var expected = Masked(File.ReadAllText(argv).ReplaceLineEndings("\n"), scratch).Split('\n')[1..];
+        if (SelfhostExport.Dir is not null) File.Delete(argv);
+        if (Record(csArgs, cs, bin, [Hello, bin], string.Join("\n", expected), "argv-masked-arguments")) return;
         var (exit, stdout, _) = Start(Probe(), bin, ["arguments", scratch, Targets.ExecutableName("program", Targets.Host ?? ""), mode], scratch);
         Assert.Equal(0, exit);
         SelfhostEmitterHarness.AssertSame($"arguments of {mode} without a target", string.Join("\n", expected), Masked(stdout, scratch));
@@ -379,6 +428,7 @@ public sealed class SelfhostDriverT3Tests
     {
         var bin = Bin("bin-reject", Rejecting, "cc");
         var r = Both(bin, "safe", "", "rejected");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(4, r.Cs.Exit);
         Assert.StartsWith("error BYN4001: internal compiler error", r.Cs.Err);
         Assert.Contains("main.c:2:5: error: injected\n", r.Cs.Err);
@@ -393,9 +443,11 @@ public sealed class SelfhostDriverT3Tests
         var plain = Fresh("bin-no-exec");
         File.WriteAllText(Path.Combine(plain, Tool("cc")), "#!/bin/sh\nexit 0\n");
         if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(Path.Combine(plain, "cc"), UnixFileMode.UserRead | UnixFileMode.UserWrite);
-        var cs = Start(Cli, plain, ["build", Hello, "-o", Path.Combine(Fresh("no-exec"), "cs-out")]);
+        List<string> csArgs = ["build", Hello, "-o", Path.Combine(Fresh("no-exec"), "cs-out")];
+        var cs = Start(Cli, plain, csArgs);
         Assert.Equal(4, cs.Exit);
         Assert.StartsWith($"bayan: cannot run the C compiler `{Path.Combine(plain, Tool("cc"))}`: ", cs.Err);
+        if (Record(csArgs, (cs.Exit, cs.Out, cs.Err[..(cs.Err.IndexOf("`:", StringComparison.Ordinal) + 1)] + "\n"), plain, [Hello, plain], null, "stderr-prefix")) return;
         var (exit, _, err) = Start(Probe(), plain, ["compile", Fresh("no-exec-byn"), "int main(void){return 0;}", "program", "safe", ""]);
         Assert.Equal(4, exit);
         Assert.Equal(cs.Err[..(cs.Err.IndexOf("`:", StringComparison.Ordinal) + 1)] + "\n", err);
@@ -407,6 +459,7 @@ public sealed class SelfhostDriverT3Tests
         // exit 0 and no output: the C# `!File.Exists(exe)` branch
         var bin = Bin("bin-nothing", "exit 0\n", "cc");
         var r = Both(bin, "safe", "", "nothing");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(4, r.Cs.Exit);
         Assert.Contains("C compiler failed (exit 0):", r.Cs.Err);
         SelfhostEmitterHarness.AssertSame("stderr of a compiler that builds nothing", r.Cs.Err, r.Byn.Err);
@@ -418,6 +471,7 @@ public sealed class SelfhostDriverT3Tests
         if (OperatingSystem.IsWindows()) return;
         var bin = Bin("bin-killed", "kill -9 $$\n", "cc");
         var r = Both(bin, "safe", "", "killed");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(4, r.Cs.Exit);
         Assert.Contains("C compiler failed (exit ", r.Cs.Err);
         SelfhostEmitterHarness.AssertSame("stderr of a compiler killed by a signal", r.Cs.Err, r.Byn.Err);
@@ -439,6 +493,7 @@ public sealed class SelfhostDriverT3Tests
     {
         var bin = Bin("bin-bare", RejectingBare, "cc");
         var r = Both(bin, "safe", "", "bare");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(4, r.Cs.Exit);
         Assert.EndsWith("C compiler failed (exit 1):\nno newline\n", r.Cs.Err);
         SelfhostEmitterHarness.AssertSame("stderr of a rejection without a newline", r.Cs.Err, r.Byn.Err);
@@ -456,6 +511,7 @@ public sealed class SelfhostDriverT3Tests
     public void TargetsAsCSharp(string name)
     {
         var expected = $"{Targets.Triple(name) ?? "null"} {Targets.ExecutableName("tally", name)} {Targets.IsKnown(name)}\n".Replace("True", "true").Replace("False", "false");
+        if (RecordProbe(["triple", name], expected)) return;
         var (exit, stdout, _) = Start(Probe(), Fresh("bin-triple"), ["triple", name]);
         Assert.Equal(0, exit);
         SelfhostEmitterHarness.AssertSame($"triple and executable of {name}", expected, stdout);
@@ -474,6 +530,7 @@ public sealed class SelfhostDriverT3Tests
         try { expected = Toolchain.Build("int main(void){return 0;}", BuildMode.Safe, null, target == Targets.Host ? "wasm32" : target); }
         finally { Environment.SetEnvironmentVariable("BAYAN_CC", saved); }
         Assert.False(expected.Succeeded);
+        if (RecordProbe(["refusal", target == Targets.Host ? "wasm32" : target, .. compiler.Split(' ')], expected.Errors + "\n", $"BAYAN_CC={compiler}")) return;
         var (exit, stdout, _) = Start(Probe(), Fresh("bin-refusal"), ["refusal", target == Targets.Host ? "wasm32" : target, .. compiler.Split(' ')]);
         Assert.Equal(0, exit);
         SelfhostEmitterHarness.AssertSame($"refusal for {target} with {compiler}", expected.Errors + "\n", stdout);
@@ -497,6 +554,7 @@ public sealed class SelfhostDriverT3Tests
         try { expected = (NativeBuild)buildCached!.Invoke(null, ["int main(void){return 0;}", BuildMode.Safe, null, null, false])!; }
         finally { Environment.SetEnvironmentVariable("BAYAN_CC", saved); }
         Assert.StartsWith("unknown target ``; targets are linux-x64, ", expected.Errors);
+        if (RecordProbe(["refusal", "-", .. compiler.Split(' ')], expected.Errors + "\n", $"BAYAN_CC={compiler}")) return;
         var (exit, stdout, _) = Start(Probe(), Fresh("bin-null-target"), ["refusal", "-", .. compiler.Split(' ')]);
         Assert.Equal(0, exit);
         SelfhostEmitterHarness.AssertSame($"refusal for no target with {compiler}", expected.Errors + "\n", stdout);
@@ -512,6 +570,7 @@ public sealed class SelfhostDriverT3Tests
         try { expected = Toolchain.Build("int main(void){return 0;}", BuildMode.Safe, null, "linux-x64"); }
         finally { Environment.SetEnvironmentVariable("BAYAN_CC", saved); }
         Assert.StartsWith("cannot run the C compiler `/nonexistent/zig.exe cc`", expected.Errors);
+        if (RecordProbe(["refusal", "linux-x64", "/nonexistent/zig.exe", "cc"], "\n", "BAYAN_CC=/nonexistent/zig.exe cc")) return;
         var (exit, stdout, _) = Start(Probe(), Fresh("bin-zigexe"), ["refusal", "linux-x64", "/nonexistent/zig.exe", "cc"]);
         Assert.Equal(0, exit);
         Assert.Equal("\n", stdout);
@@ -524,6 +583,7 @@ public sealed class SelfhostDriverT3Tests
         if (Targets.Host is not { } host) { Assert.Fail("this machine has no Bayan target, so the host-name case cannot run"); return; }
         var bin = Bin("bin-host-name", Recording, "cc");
         var r = Both(bin, "safe", host, "host-name");
+        if (SelfhostExport.Dir is not null) return;
         Assert.Equal(0, r.Cs.Exit);
         Assert.DoesNotContain("-target", r.CsArgv);
         SelfhostEmitterHarness.AssertSame("argv of the host name", r.CsArgv, r.BynArgv);
@@ -532,6 +592,7 @@ public sealed class SelfhostDriverT3Tests
     [Fact]
     public void TargetHostAsTargetsHost()
     {
+        if (RecordProbe(["host"], (Targets.Host ?? "none") + "\n")) return;
         var (exit, stdout, _) = Start(Probe(), Fresh("bin-host"), ["host"]);
         Assert.Equal(0, exit);
         Assert.Equal((Targets.Host ?? "none") + "\n", stdout);
@@ -541,6 +602,16 @@ public sealed class SelfhostDriverT3Tests
     [Fact]
     public void TargetHostFromIsTheTableName()
     {
+        if (SelfhostExport.Dir is not null)
+        {
+            foreach (var name in Targets.All)
+            {
+                var parts = name == "wasm32" ? new[] { "wasi", "wasm32" } : name.Split('-');
+                RecordProbe(["hostfrom", parts[0], parts[1]], name + "\n");
+            }
+            foreach (var (os, arch) in new[] { ("", ""), ("linux", ""), ("windows", ""), ("", "x64") }) RecordProbe(["hostfrom", os, arch], "none\n");
+            return;
+        }
         foreach (var name in Targets.All)
         {
             var parts = name == "wasm32" ? new[] { "wasi", "wasm32" } : name.Split('-');
@@ -572,10 +643,17 @@ public sealed class SelfhostDriverT3Tests
         Script(Path.Combine(third, "cc"), Recording);
         var path = string.Join(Path.PathSeparator, first, "", second, third);
         var csScratch = Fresh("path-cs");
-        var cs = Start(Cli, path, ["build", Hello, "-o", Path.Combine(csScratch, "out")], csScratch);
+        List<string> csArgs = ["build", Hello, "-o", Path.Combine(csScratch, "out")];
+        var cs = Start(Cli, path, csArgs, csScratch);
         Assert.Equal(0, cs.Exit);
         Assert.True(File.Exists(Path.Combine(second, "argv")));
         Assert.False(File.Exists(Path.Combine(third, "argv")));
+        if (SelfhostExport.Dir is not null)
+        {
+            File.Delete(Path.Combine(second, "argv"));
+            Record(csArgs, cs, path, [Hello, root], null, "exit");
+            return;
+        }
         var byn = Start(Probe(), path, ["compile", Fresh("path-byn"), "int main(void){return 0;}", "program", "safe", ""], Fresh("path-byn-cwd"));
         Assert.Equal(0, byn.Exit);
         Assert.StartsWith("cc\n", File.ReadAllText(Path.Combine(second, "argv")).ReplaceLineEndings("\n"));

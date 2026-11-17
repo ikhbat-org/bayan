@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Bayan.Backend.C;
 using Bayan.Cli;
 using Bayan.Semantics;
@@ -43,23 +44,55 @@ public sealed class SelfhostDriverMutateTests
     /// <summary>
     /// 017 T13: <paramref name="args"/> through <c>CliApp.Run</c> and the driver with <paramref name="env"/> and a cache of each
     /// side's own; stdout and <paramref name="report"/> (when given, deleted before each side) masked by <see cref="MaskMutation"/>.
+    /// Under the export (spec 019 R10) only the C# side runs: its run is recorded with the paths under the repo it names as inputs, the
+    /// environment as <c>env</c>, the report's path as <c>report</c> and its masked text (or <c>(none)</c>) as <c>expected.report</c>.
     /// </summary>
-    private static void AssertMutateAsCs(string? report, (string, string?)[] env, params string[] args)
+    private static void AssertMutateAsCs(string? report, (string, string?)[] env, string[] args, [CallerMemberName] string test = "")
     {
         string Side(bool driver)
         {
             var cache = Path.Combine(Golden.RepoRoot, "tmp", "t13-mutate-cache", driver ? "driver" : "csharp");
             var text = "";
+            (string Name, string? Value)[] vars = [("CI", "1"), ("BAYAN_CACHE", cache), .. env];
             CliEnvironmentTests.WithTerminalEnv(() =>
             {
                 if (report is not null && File.Exists(report)) File.Delete(report);
+                if (!driver && SelfhostExport.Dir is not null)
+                {
+                    Record(report, vars, args, test);
+                    return;
+                }
                 var (exit, stdout, stderr) = driver ? SelfhostDriverHarness.Run(args) : Oracle(args);
                 text = $"exit: {exit}\n--- stdout ---\n{MaskMutation(stdout)}--- stderr ---\n{stderr}";
                 if (report is not null) text += $"--- report ---\n{(File.Exists(report) ? MaskMutation(File.ReadAllText(report)) : "(none)")}";
-            }, [("CI", "1"), ("BAYAN_CACHE", cache), .. env]);
+            }, vars);
             return text;
         }
-        SelfhostEmitterHarness.AssertSame($"`{string.Join(' ', args)}`", Side(driver: false), Side(driver: true));
+        var expected = Side(driver: false);
+        if (SelfhostExport.Dir is not null) return;
+        SelfhostEmitterHarness.AssertSame($"`{string.Join(' ', args)}`", expected, Side(driver: true));
+    }
+
+    /// <summary>The C# side of <see cref="AssertMutateAsCs"/> under the export: <c>CliApp.Run</c>, recorded through <see cref="SelfhostExport.Cli"/>.</summary>
+    private static void Record(string? report, (string Name, string? Value)[] vars, string[] args, string test)
+    {
+        var staged = SelfhostDriverT1Tests.StageInputs(args.Where(a => a.StartsWith(Golden.RepoRoot, StringComparison.Ordinal) && SelfhostDriverT1Tests.IsPath(a)));
+        var stdout = new StringWriter();
+        var stderr = new StringWriter();
+        var exit = CliApp.Run(args, stdout, stderr);
+        var extra = new Dictionary<string, string>(staged.Extra)
+        {
+            ["compare"] = "mutation-masked\n",
+            ["env"] = string.Concat(vars.Select(v => v.Value is null ? $"{v.Name}\n" : $"{v.Name}={v.Value}\n")),
+        };
+        if (report is not null)
+        {
+            extra["report"] = report + "\n";
+            extra["expected.report"] = File.Exists(report) ? MaskMutation(File.ReadAllText(report)) : "(none)";
+        }
+        SelfhostExport.Cli(args, exit, MaskMutation(stdout.ToString().ReplaceLineEndings("\n")), stderr.ToString().ReplaceLineEndings("\n"), staged.Inputs, extra,
+            nameof(SelfhostDriverMutateTests), test);
+        Directory.Delete(staged.Root, recursive: true);
     }
 
 
@@ -96,7 +129,7 @@ public sealed class SelfhostDriverMutateTests
         var sites = bin + ".sites.json";
         File.WriteAllText(bin, "");
         File.WriteAllText(sites, map);
-        AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], "mutate", "--binary", bin, "--sites", sites, "--", "true");
+        AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], ["mutate", "--binary", bin, "--sites", sites, "--", "true"]);
     }
 
     /// <summary>
@@ -162,7 +195,7 @@ public sealed class SelfhostDriverMutateTests
             "utf32be-invalid" => [.. utf32be.GetPreamble(), .. Split(utf32be.GetBytes(Map("a.byn")), "\0\0\0.\0\0\0b", [0x00, 0x11, 0x00, 0x00, 0x00, 0x00, 0xD8, 0x00])],
             _ => utf16le.GetBytes(good),
         });
-        AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], "mutate", "--binary", bin, "--sites", sites, "--", "true");
+        AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], ["mutate", "--binary", bin, "--sites", sites, "--", "true"]);
     }
 
     /// <summary>
@@ -179,7 +212,7 @@ public sealed class SelfhostDriverMutateTests
         var sites = bin + ".sites.json";
         File.WriteAllText(bin, "");
         File.WriteAllText(sites, "{ \"version\": 1, \"sites\": [], \"x\": " + new string('[', depth - 1) + new string(']', depth - 1) + " }");
-        AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], "mutate", "--binary", bin, "--sites", sites, "--", "true");
+        AssertMutateAsCs(Path.Combine(dir, "bayan-quality.json"), [], ["mutate", "--binary", bin, "--sites", sites, "--", "true"]);
     }
 
     /// <summary>017 T13: MutationRunner.cs:85 `RunExternal` through `mutate`: each status, `BAYAN_BINARY`, and a baseline that fails or cannot start.</summary>
@@ -198,7 +231,7 @@ public sealed class SelfhostDriverMutateTests
         AssertMutateAsCs(report, [], Mutate("exit 3"));
         AssertMutateAsCs(report, [], Mutate("[ \"$BAYAN_MUTANT\" = 0 ] && sleep 3; exit 0"));
         AssertMutateAsCs(report, [("BAYAN_TEST_TIMEOUT_MS", "300")], Mutate("[ \"$BAYAN_MUTANT\" = 0 ] && sleep 3; exit 0"));
-        AssertMutateAsCs(report, [], "mutate", "--binary", bin, "--sites", sites, "--", "nosuchcmd-xyz");
+        AssertMutateAsCs(report, [], ["mutate", "--binary", bin, "--sites", sites, "--", "nosuchcmd-xyz"]);
         AssertMutateAsCs(report, [], Mutate("kill -9 $$"));
         // each operator's suggestion (QualityReport.cs:47 `Suggest`): every site survives
         File.WriteAllText(sites, "{ \"version\": 1, \"sites\": [ { \"id\": 1, \"file\": \"c.byn\", \"line\": 1, \"column\": 1, \"operator\": \"boundary\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 2, \"file\": \"c.byn\", \"line\": 2, \"column\": 1, \"operator\": \"relational\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 3, \"file\": \"c.byn\", \"line\": 3, \"column\": 1, \"operator\": \"logical\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 4, \"file\": \"c.byn\", \"line\": 4, \"column\": 1, \"operator\": \"condition\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 5, \"file\": \"c.byn\", \"line\": 5, \"column\": 1, \"operator\": \"bool\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 6, \"file\": \"c.byn\", \"line\": 6, \"column\": 1, \"operator\": \"arithmetic\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 7, \"file\": \"c.byn\", \"line\": 7, \"column\": 1, \"operator\": \"literal\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 8, \"file\": \"c.byn\", \"line\": 8, \"column\": 1, \"operator\": \"negation\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 9, \"file\": \"c.byn\", \"line\": 9, \"column\": 1, \"operator\": \"statement\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 10, \"file\": \"c.byn\", \"line\": 10, \"column\": 1, \"operator\": \"emptyReturn\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 11, \"file\": \"c.byn\", \"line\": 11, \"column\": 1, \"operator\": \"variant\", \"original\": \"a\", \"mutated\": \"b\" }, { \"id\": 12, \"file\": \"c.byn\", \"line\": 12, \"column\": 1, \"operator\": \"mystery\", \"original\": \"a\", \"mutated\": \"b\" } ] }");
@@ -254,18 +287,18 @@ public sealed class SelfhostDriverMutateTests
             }
 
             """);
-        AssertMutateAsCs(null, [], "test", "--mutate", dir);
+        AssertMutateAsCs(null, [], ["test", "--mutate", dir]);
         var loose = MutateDir("run");
         File.WriteAllText(Path.Combine(loose, "a.test.byn"), "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n");
         var report = Path.Combine(loose, "out", "test", "bayan-quality.json");
-        AssertMutateAsCs(report, [], "test", "--mutate", "--run", "\"$BAYAN_BINARY\" --test 0 >/dev/null", loose);
-        AssertMutateAsCs(report, [], "test", "--mutate", "--run", "exit 0", Path.Combine(loose, "a.test.byn"));
+        AssertMutateAsCs(report, [], ["test", "--mutate", "--run", "\"$BAYAN_BINARY\" --test 0 >/dev/null", loose]);
+        AssertMutateAsCs(report, [], ["test", "--mutate", "--run", "exit 0", Path.Combine(loose, "a.test.byn")]);
         var project = MutateDir("project");
         File.WriteAllText(Path.Combine(project, "package.byn"), "Package {\n    name: \"local/inc\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .lib,\n}\n");
         Directory.CreateDirectory(Path.Combine(project, "src", "inc"));
         File.WriteAllText(Path.Combine(project, "src", "inc", "a.test.byn"), "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n");
-        AssertMutateAsCs(Path.Combine(project, "out", "test", "bayan-quality.json"), [], "test", "--mutate", "--run", "exit 1", project);
-        AssertMutateAsCs(null, [], "test", "--mutate", project);
+        AssertMutateAsCs(Path.Combine(project, "out", "test", "bayan-quality.json"), [], ["test", "--mutate", "--run", "exit 1", project]);
+        AssertMutateAsCs(null, [], ["test", "--mutate", project]);
         // CliApp.cs:878-879: the mutation gate under a manifest minimum, missed (a survivor) and met.
         var gated = MutateDir("gated");
         Directory.CreateDirectory(Path.Combine(gated, "src", "inc"));
@@ -273,9 +306,9 @@ public sealed class SelfhostDriverMutateTests
         foreach (var min in new[] { 100, 0 })
         {
             File.WriteAllText(Path.Combine(gated, "package.byn"), $"Package {{\n    name: \"local/inc\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .lib,\n    test: Tests {{ mutation: {min} }},\n}}\n");
-            AssertMutateAsCs(null, [], "test", "--mutate", gated);
+            AssertMutateAsCs(null, [], ["test", "--mutate", gated]);
         }
         var noCc = MutateDir("no-cc");
-        AssertMutateAsCs(null, [("PATH", noCc), ("BAYAN_CACHE", noCc)], "test", "--mutate", loose);
+        AssertMutateAsCs(null, [("PATH", noCc), ("BAYAN_CACHE", noCc)], ["test", "--mutate", loose]);
     }
 }
