@@ -17,12 +17,6 @@ Check: stdout
 The input covers: at, below and above the nisab, a blank line, surrounding spaces, three fields, one field, a word for the amount, a negative amount.
 
 ## Check command
-Run from the repository root. It prints `PASS small-001-zakat-due` when the reference compiles with no diagnostic, is unchanged by `bayan format`, and passes its checks.
-
 ```sh
-B=$(bash scripts/pinned-bayan.sh); t=evals/llm/tasks/small-001-zakat-due; d=tmp/llm-eval/small-001-zakat-due
-mkdir -p "$d" && cp "$t/reference/solution.byn" "$d/"
-[ -z "$("$B" check --diagnostics json "$d" 2>&1)" ] && "$B" format --check "$d" &&
-  "$B" run "$d/solution.byn" < "$t/checks/stdin" > "$d/actual.stdout" && diff "$d/actual.stdout" "$t/checks/expected.stdout" &&
-  echo "PASS small-001-zakat-due"
+bash scripts/bayan-tool.sh llm-eval recheck evals/llm/tasks --only small-001-zakat-due
 ```
