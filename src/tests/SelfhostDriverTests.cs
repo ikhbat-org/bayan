@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Bayan.Backend.C;
 using Bayan.Cli;
 using Bayan.Semantics;
@@ -17,18 +18,117 @@ public sealed class SelfhostDriverT1Tests
 {
     private static string Mask(string text) => Regex.Replace(text, @"^(bayan \S+) \(.*\)$", "$1 (masked)", RegexOptions.Multiline);
 
-    /// <summary><see cref="CliApp.Run(string[], TextWriter, TextWriter)"/> in-process, the oracle of R2 (no terminal), line ends read as LF.</summary>
-    internal static (int Exit, string Out, string Err) Oracle(string[] args)
+    /// <summary>
+    /// <see cref="CliApp.Run(string[], TextWriter, TextWriter)"/> in-process, the oracle of R2 (no terminal), line ends read as LF. Under
+    /// the export it records the run as a case (see <see cref="Record"/>), filed under <paramref name="cls"/>.
+    /// </summary>
+    internal static (int Exit, string Out, string Err) Oracle(string[] args, string? cls = null, ExportForm? form = null,
+        [CallerMemberName] string test = "", [CallerFilePath] string file = "")
     {
+        var staged = SelfhostExport.Dir is null ? null : StageInputs(args.Where(IsPath));
         var stdout = new StringWriter();
         var stderr = new StringWriter();
         var exit = CliApp.Run(args, stdout, stderr);
-        return (exit, stdout.ToString().ReplaceLineEndings("\n"), stderr.ToString().ReplaceLineEndings("\n"));
+        var result = (exit, stdout.ToString().ReplaceLineEndings("\n"), stderr.ToString().ReplaceLineEndings("\n"));
+        if (staged is not null) Record(args, result, staged, form, cls, test, file);
+        return result;
     }
 
-    private static void AssertSameAsCs(params string[] args)
+    /// <summary>
+    /// How a case is written: the <c>compare</c> word naming the normal form, stdout and stderr put in it, and the files after the run
+    /// (<c>expected.tree</c>) as the test lists them.
+    /// </summary>
+    internal sealed record ExportForm(string? Compare = null, Func<string, string>? Out = null, Func<string, string>? Err = null, Func<string>? Tree = null);
+
+    /// <summary>The inputs a C# run read, copied before it ran, with the <c>links</c> and <c>modes</c> the copy leaves out.</summary>
+    internal sealed record Staged(string Root, List<string> Inputs, Dictionary<string, string> Extra);
+
+    /// <summary>An argument naming a file, a directory or a link.</summary>
+    internal static bool IsPath(string arg) => File.Exists(arg) || Directory.Exists(arg) || new FileInfo(arg).LinkTarget is not null;
+
+    /// <summary>
+    /// A copy of each of <paramref name="paths"/> under <c>tmp/export-stage/</c>, taken before the C# side runs (which may rewrite them),
+    /// as <see cref="SelfhostExport.Cli"/>'s inputs; a <c>main.byn</c> is copied with its directory. A link is not copied but listed in
+    /// <c>links</c> (<c>path -&gt; target</c>), and an entry without user read and write (and search, for a directory) is copied and
+    /// listed in <c>modes</c> (<c>path mode</c>), each path from the input's parent directory.
+    /// </summary>
+    internal static Staged StageInputs(IEnumerable<string> paths)
     {
-        var expected = Oracle(args);
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-stage", Guid.NewGuid().ToString("N"));
+        var inputs = new List<string>();
+        var links = new List<string>();
+        var modes = new List<string>();
+        void Copy(string from, string to, string rel)
+        {
+            var isDir = Directory.Exists(from);
+            var open = UnixFileMode.UserRead | UnixFileMode.UserWrite | (isDir ? UnixFileMode.UserExecute : UnixFileMode.None);
+            UnixFileMode? mode = OperatingSystem.IsWindows() ? null : File.GetUnixFileMode(from);
+            if (mode is { } locked && (locked & open) != open && !OperatingSystem.IsWindows())
+            {
+                modes.Add($"{rel} {locked}\n");
+                File.SetUnixFileMode(from, locked | open);
+            }
+            try
+            {
+                if (!isDir)
+                {
+                    File.Copy(from, to);
+                    return;
+                }
+                Directory.CreateDirectory(to);
+                foreach (var entry in new DirectoryInfo(from).EnumerateFileSystemInfos().OrderBy(e => e.Name, StringComparer.Ordinal))
+                {
+                    if (entry.LinkTarget is { } target) links.Add($"{rel}/{entry.Name} -> {target}\n");
+                    else Copy(entry.FullName, Path.Combine(to, entry.Name), $"{rel}/{entry.Name}");
+                }
+            }
+            finally
+            {
+                if (mode is { } locked2 && (locked2 & open) != open && !OperatingSystem.IsWindows()) File.SetUnixFileMode(from, locked2);
+            }
+        }
+        foreach (var path in paths)
+        {
+            var full = Path.GetFullPath(path);
+            if (new FileInfo(full).LinkTarget is { } target)
+            {
+                links.Add($"{Path.GetFileName(full)} -> {target}\n");
+                continue;
+            }
+            var main = File.Exists(full) && Path.GetFileName(full) == "main.byn";
+            var from = main ? Path.GetDirectoryName(full)! : full;
+            var to = Path.Combine(root, inputs.Count.ToString(System.Globalization.CultureInfo.InvariantCulture), Path.GetFileName(from));
+            Directory.CreateDirectory(Path.GetDirectoryName(to)!);
+            Copy(from, to, Path.GetFileName(from));
+            inputs.Add(main ? Path.Combine(to, "main.byn") : to);
+        }
+        var extra = new Dictionary<string, string>();
+        if (links.Count > 0) extra["links"] = string.Concat(links);
+        if (modes.Count > 0) extra["modes"] = string.Concat(modes);
+        return new Staged(root, inputs, extra);
+    }
+
+    /// <summary>
+    /// Writes the case of a C# run through <see cref="SelfhostExport.Cli"/>: its <paramref name="staged"/> inputs, stdout and stderr in
+    /// <paramref name="form"/>'s normal form with its <c>compare</c> word, the files after as <c>expected.tree</c>, and each <paramref name="env"/>
+    /// variable (<c>NAME=value</c>, unset when null) set for the run as <c>env</c>; then deletes the copy.
+    /// </summary>
+    internal static void Record(string[] args, (int Exit, string Out, string Err) result, Staged staged, ExportForm? form, string? cls, string test, string file,
+        IEnumerable<(string Name, string? Value)>? env = null)
+    {
+        var extra = new Dictionary<string, string>(staged.Extra);
+        if (form?.Compare is { } compare) extra["compare"] = compare + "\n";
+        if (form?.Tree is { } tree) extra["expected.tree"] = tree();
+        if (env is not null) extra["env"] = string.Concat(env.Select(v => v.Value is null ? $"{v.Name}\n" : $"{v.Name}={v.Value}\n"));
+        SelfhostExport.Cli(args, result.Exit, form?.Out?.Invoke(result.Out) ?? result.Out, form?.Err?.Invoke(result.Err) ?? result.Err,
+            staged.Inputs, extra, cls, test, file);
+        if (Directory.Exists(staged.Root)) Directory.Delete(staged.Root, recursive: true);
+    }
+
+    private static void AssertSameAsCs(string[] args, [CallerMemberName] string test = "")
+    {
+        var expected = Oracle(args, nameof(SelfhostDriverT1Tests), new ExportForm("version-masked", Out: Mask), test);
+        if (SelfhostExport.Dir is not null) return;
         var actual = SelfhostDriverHarness.Run(args);
         var label = string.Join(' ', args);
         Assert.Equal(expected.Exit, actual.Exit);
@@ -42,7 +142,8 @@ public sealed class SelfhostDriverT1Tests
     public void DiagnosticsJsonAsCliAppDoes(string command, string name)
     {
         var path = Path.Combine(Golden.CasesRoot, "diag-json", name + ".byn");
-        AssertSameAsCs(command, "--diagnostics", "json", path);
+        AssertSameAsCs([command, "--diagnostics", "json", path]);
+        if (SelfhostExport.Dir is not null) return;
         var expected = Oracle([command, "--diagnostics", "json", path]);
         Assert.Equal(CliApp.ExitFailure, expected.Exit);
         Assert.StartsWith("{\"code\":\"BYN", expected.Err);
@@ -61,12 +162,12 @@ public sealed class SelfhostDriverT1Tests
         Directory.CreateDirectory(dir);
         var bad = Path.Combine(dir, "bad.byn");
         File.WriteAllText(bad, "i32 x = \"no\"\nvar y = 1\n");
-        AssertSameAsCs("run", "--diagnostics", "json", bad);
-        AssertSameAsCs("check", "--diagnostics", "text", bad);
-        AssertSameAsCs("check", "--diagnostics", "xml", bad);
-        AssertSameAsCs("check", "--diagnostics");
-        AssertSameAsCs("build", "--diagnostics", "xml", bad);
-        AssertSameAsCs("run", "--diagnostics", "xml", bad);
+        AssertSameAsCs(["run", "--diagnostics", "json", bad]);
+        AssertSameAsCs(["check", "--diagnostics", "text", bad]);
+        AssertSameAsCs(["check", "--diagnostics", "xml", bad]);
+        AssertSameAsCs(["check", "--diagnostics"]);
+        AssertSameAsCs(["build", "--diagnostics", "xml", bad]);
+        AssertSameAsCs(["run", "--diagnostics", "xml", bad]);
     }
 
     public static IEnumerable<object[]> Corpus() => new[]
@@ -326,8 +427,8 @@ public sealed class SelfhostDriverT1Tests
     public void DispatchesBuildAndRun()
     {
         var missing = Path.Combine(Golden.RepoRoot, "tmp", "t1-driver", "missing.byn");
-        AssertSameAsCs("build", missing);
-        AssertSameAsCs("run", missing);
+        AssertSameAsCs(["build", missing]);
+        AssertSameAsCs(["run", missing]);
     }
 
     /// <summary>`test` reaches its command (017 T11): a missing path, an unknown argument and `--run` without `--mutate` fail as the C# does.</summary>
@@ -335,9 +436,9 @@ public sealed class SelfhostDriverT1Tests
     public void DispatchesTest()
     {
         var missing = Path.Combine(Golden.RepoRoot, "tmp", "t1-driver", "missing.byn");
-        AssertSameAsCs("test", missing);
-        AssertSameAsCs("test", "--bogus");
-        AssertSameAsCs("test", "--only");
+        AssertSameAsCs(["test", missing]);
+        AssertSameAsCs(["test", "--bogus"]);
+        AssertSameAsCs(["test", "--only"]);
     }
 
     [Fact]
@@ -350,11 +451,12 @@ public sealed class SelfhostDriverT1Tests
         // the script runs (T6); `--color bad` after it is its own argument (CliApp.cs:97, :328)
         // (the C# program inherits the test process's stdout, so only the exit code is comparable)
         string[] runArgs = ["--ascii", script, "--color", "bad"];
-        Assert.Equal(Oracle(runArgs).Exit, SelfhostDriverHarness.Run(runArgs).Exit);
-        AssertSameAsCs(dir);
+        var ran = Oracle(runArgs, nameof(SelfhostDriverT1Tests), new ExportForm("exit"));
+        if (SelfhostExport.Dir is null) Assert.Equal(ran.Exit, SelfhostDriverHarness.Run(runArgs).Exit);
+        AssertSameAsCs([dir]);
         // a directory named like a script is not one (`File.Exists`)
         Directory.CreateDirectory(Path.Combine(dir, "d.byn"));
-        AssertSameAsCs(Path.Combine(dir, "d.byn"));
+        AssertSameAsCs([Path.Combine(dir, "d.byn")]);
     }
 
     private static string StyleLine(Style? out_, Style? err, bool tty) =>
@@ -604,7 +706,8 @@ public sealed class SelfhostDriverT1Tests
         {
             try { _ = Directory.Exists(target) ? Directory.GetFiles(target) : [File.ReadAllText(target)]; return; }
             catch (UnauthorizedAccessException) { }
-            var expected = Oracle(args);
+            var expected = Oracle(args, nameof(SelfhostDriverT1Tests), new ExportForm("stderr-prefix", Err: _ => $"bayan: {target}: "));
+            if (SelfhostExport.Dir is not null) return;
             var actual = SelfhostDriverHarness.Run(args);
             Assert.Equal(CliApp.ExitFailure, expected.Exit);
             Assert.Equal(expected.Exit, actual.Exit);
@@ -631,7 +734,8 @@ public sealed class SelfhostDriverT1Tests
         File.WriteAllText(Path.Combine(dir, "sub", "b.byn"), "unsafe void peek() {\n}\n");
         File.CreateSymbolicLink(Path.Combine(dir, "loop.byn"), "loop.byn");
         string[] args = ["audit", dir];
-        var expected = Oracle(args);
+        var expected = Oracle(args, nameof(SelfhostDriverT1Tests), new ExportForm("stderr-prefix", Err: _ => $"bayan: {Path.Combine(dir, "loop.byn")}: "));
+        if (SelfhostExport.Dir is not null) return;
         var actual = SelfhostDriverHarness.Run(args);
         Assert.Equal(CliApp.ExitFailure, expected.Exit);
         Assert.Equal(expected.Exit, actual.Exit);
@@ -647,7 +751,8 @@ public sealed class SelfhostDriverT1Tests
     {
         if (OperatingSystem.IsWindows()) return;
         var args = AuditRow("dangling-link");
-        var expected = Oracle(args);
+        var expected = Oracle(args, nameof(SelfhostDriverT1Tests), new ExportForm("stderr-prefix", Err: _ => $"bayan: {Path.Combine(args[1], "broken.byn")}: "));
+        if (SelfhostExport.Dir is not null) return;
         var actual = SelfhostDriverHarness.Run(args);
         Assert.Equal(CliApp.ExitFailure, expected.Exit);
         Assert.Equal(expected.Exit, actual.Exit);
@@ -793,7 +898,8 @@ public sealed class SelfhostDriverT1Tests
         File.WriteAllText(Path.Combine(plain, "main.byn"), "i32 main() => 0\n");
         foreach (var (path, refused) in new[] { (lib, true), (plain, false) })
         {
-            var expected = Oracle(["build", "--emit-c", path]);
+            var expected = Oracle(["build", "--emit-c", path], nameof(SelfhostDriverT1Tests), new ExportForm("stderr"));
+            if (SelfhostExport.Dir is not null) continue;
             Assert.Equal(refused ? CliApp.ExitUsage : CliApp.ExitOk, expected.Exit);
             var (exit, stdout, stderr) = SelfhostDriverHarness.RunProbe(new Dictionary<string, string>(), "library", path, "build");
             Assert.Equal(0, exit);
@@ -1096,12 +1202,17 @@ public sealed class SelfhostDriverT1Tests
     public void FormatAsCliApp(string name) => FormatRowMatches(name, "t8-format", SelfhostDriverHarness.Run);
 
     /// <summary>The body of <see cref="FormatAsCliApp"/> with <paramref name="run"/> as the driver, the tree under <c>tmp/</c><paramref name="root"/>.</summary>
-    internal static void FormatRowMatches(string name, string root, Func<string[], (int Exit, string Out, string Err)> run)
+    internal static void FormatRowMatches(string name, string root, Func<string[], (int Exit, string Out, string Err)> run,
+        string cls = nameof(SelfhostDriverT1Tests), [CallerMemberName] string test = "")
     {
         if (OperatingSystem.IsWindows() && (name is "outward-links" or "package-link-outside" || s_linkRows.Contains(name))) return;
         var runs = FormatRow(name, out var dir, root);
-        var expected = runs.Select(Oracle).ToList();
+        var form = name == "loop-link"
+            ? new ExportForm("stderr-prefix", Err: _ => $"bayan: {Path.Combine(dir, "loop.byn")}: ", Tree: () => Tree(dir))
+            : new ExportForm(Tree: () => Tree(dir));
+        var expected = runs.Select(args => Oracle(args, cls, form, test)).ToList();
         var expectedTree = Tree(dir);
+        if (SelfhostExport.Dir is not null) return;
         FormatRow(name, out _, root);
         for (var i = 0; i < runs.Length; i++)
         {
@@ -1133,7 +1244,8 @@ public sealed class SelfhostDriverT1Tests
     public void FormatReportsAnUnreadablePathAsCliApp(string name, string locked) => UnreadablePathMatches(name, locked, "t8-format", SelfhostDriverHarness.Run);
 
     /// <summary>The body of <see cref="FormatReportsAnUnreadablePathAsCliApp"/> with <paramref name="run"/> as the driver.</summary>
-    internal static void UnreadablePathMatches(string name, string locked, string root, Func<string[], (int Exit, string Out, string Err)> run)
+    internal static void UnreadablePathMatches(string name, string locked, string root, Func<string[], (int Exit, string Out, string Err)> run,
+        string cls = nameof(SelfhostDriverT1Tests), [CallerMemberName] string test = "")
     {
         if (OperatingSystem.IsWindows()) return;
         var args = FormatRow(name, out var dir, root)[0];
@@ -1150,7 +1262,9 @@ public sealed class SelfhostDriverT1Tests
                 return; // root reads it anyway
             }
             catch (UnauthorizedAccessException) { }
-            var expected = Oracle(args);
+            var expected = Oracle(args, cls, new ExportForm("stderr-prefix", Err: _ => $"bayan: {(name == "unreadable-package" ? Path.Combine(dir, "main.byn") : target)}: ",
+                Tree: () => { if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(target, open); return Tree(dir); }), test);
+            if (SelfhostExport.Dir is not null) return;
             File.SetUnixFileMode(target, open);
             var expectedTree = Tree(dir);
             FormatRow(name, out _, root);
@@ -1174,7 +1288,8 @@ public sealed class SelfhostDriverT1Tests
     public void FormatReportsALoopingFileLinkAsCliApp() => LoopingFileLinkMatches("t8-loop", SelfhostDriverHarness.Run);
 
     /// <summary>The body of <see cref="FormatReportsALoopingFileLinkAsCliApp"/> with <paramref name="run"/> as the driver.</summary>
-    internal static void LoopingFileLinkMatches(string root, Func<string[], (int Exit, string Out, string Err)> run)
+    internal static void LoopingFileLinkMatches(string root, Func<string[], (int Exit, string Out, string Err)> run,
+        string cls = nameof(SelfhostDriverT1Tests), [CallerMemberName] string test = "")
     {
         if (OperatingSystem.IsWindows()) return;
         var dir = Path.Combine(Golden.RepoRoot, "tmp", root);
@@ -1183,7 +1298,8 @@ public sealed class SelfhostDriverT1Tests
         var loop = Path.Combine(dir, "loop.byn");
         File.CreateSymbolicLink(loop, "loop.byn");
         string[] args = ["format", loop];
-        var expected = Oracle(args);
+        var expected = Oracle(args, cls, new ExportForm("stderr-prefix", Err: _ => $"bayan: {loop}: "), test);
+        if (SelfhostExport.Dir is not null) return;
         var actual = run(args);
         Assert.Equal(CliApp.ExitFailure, expected.Exit);
         Assert.Equal(expected.Exit, actual.Exit);
@@ -1200,7 +1316,8 @@ public sealed class SelfhostDriverT1Tests
     public void FormatReportsAnUnwritableFileAsCliApp() => UnwritableFileMatches("t8-format", SelfhostDriverHarness.Run);
 
     /// <summary>The body of <see cref="FormatReportsAnUnwritableFileAsCliApp"/> with <paramref name="run"/> as the driver.</summary>
-    internal static void UnwritableFileMatches(string root, Func<string[], (int Exit, string Out, string Err)> run)
+    internal static void UnwritableFileMatches(string root, Func<string[], (int Exit, string Out, string Err)> run,
+        string cls = nameof(SelfhostDriverT1Tests), [CallerMemberName] string test = "")
     {
         if (OperatingSystem.IsWindows()) return;
         var args = FormatRow("a-fix", out var dir, root)[^1];
@@ -1226,7 +1343,8 @@ public sealed class SelfhostDriverT1Tests
                 return; // root writes it anyway
             }
             catch (UnauthorizedAccessException) { }
-            var expected = Oracle(args);
+            var expected = Oracle(args, cls, new ExportForm("stderr-prefix", Err: _ => $"bayan: {target}: ", Tree: () => { Unlock(); return Tree(dir); }), test);
+            if (SelfhostExport.Dir is not null) return;
             Unlock();
             var expectedTree = Tree(dir);
             FormatRow("a-fix", out _, root);
@@ -1254,6 +1372,43 @@ public sealed class SelfhostDriverT1Tests
         var bayan = pinned.Out.Trim().Split('\n')[^1].Trim();
         var (exit, stdout, stderr) = Run(bayan, "format", "--check", SelfhostDriverHarness.DriverDir);
         Assert.True(exit == 0, $"bayan format --check src/driver:\n{stdout}{stderr}");
+    }
+
+    /// <summary>The export path of <see cref="Oracle"/> (spec 019 R10): a one-run test and a two-run format row write their cases, the row's input as the tree before each run.</summary>
+    [Fact]
+    public void OracleExportsEachRunAsACase()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        var root = Path.Combine(Golden.RepoRoot, "tmp", "export-test-driver");
+        if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
+        var old = SelfhostExport.Override.Value;
+        (int Exit, string Out, string Err) expected;
+        try
+        {
+            SelfhostExport.Override.Value = root;
+            MatchesTheCSharpCli(["frobnicate"]);
+            FormatAsCliApp("a-fix");
+            SelfhostExport.Override.Value = "";
+            expected = Oracle(["frobnicate"]);
+        }
+        finally { SelfhostExport.Override.Value = old; }
+        var cases = Path.Combine(root, "cli", nameof(SelfhostDriverT1Tests));
+        var one = Path.Combine(cases, nameof(MatchesTheCSharpCli));
+        Assert.Equal("frobnicate\n", File.ReadAllText(Path.Combine(one, "args")));
+        Assert.Equal($"{expected.Exit}\n", File.ReadAllText(Path.Combine(one, "expected.exitcode")));
+        Assert.Equal(Mask(expected.Out), File.ReadAllText(Path.Combine(one, "expected.stdout")));
+        Assert.Equal(expected.Err, File.ReadAllText(Path.Combine(one, "expected.stderr")));
+        Assert.Equal("version-masked\n", File.ReadAllText(Path.Combine(one, "compare")));
+        var check = Path.Combine(cases, nameof(FormatAsCliApp));
+        var write = check + "-2";
+        Assert.Equal("let a = true\nif (a) { print(\"x\") }\n", File.ReadAllText(Path.Combine(check, "input", "main.byn")));
+        Assert.Equal("let a = true\nif (a) { print(\"x\") }\n", File.ReadAllText(Path.Combine(write, "input", "main.byn")));
+        Assert.Contains("--check", File.ReadAllText(Path.Combine(check, "args")));
+        Assert.DoesNotContain("--check", File.ReadAllText(Path.Combine(write, "args")));
+        Assert.StartsWith("== main.byn ", File.ReadAllText(Path.Combine(write, "expected.tree")));
+        Assert.Contains("\nif a {\n", File.ReadAllText(Path.Combine(write, "expected.tree")));
+        Assert.Contains("\nif (a) {", File.ReadAllText(Path.Combine(check, "expected.tree")));
+        Assert.False(Directory.Exists(check + "-3"));
     }
 
     internal static (int Exit, string Out, string Err) Run(string program, params string[] args)
@@ -1286,7 +1441,8 @@ public sealed class SelfhostDriverStage2FormatTests
     {
         if (OperatingSystem.IsWindows()) return;
         var dir = Path.Combine(Golden.RepoRoot, tree);
-        var expected = SelfhostDriverT1Tests.Oracle(["format", "--check", dir]);
+        var expected = SelfhostDriverT1Tests.Oracle(["format", "--check", dir], nameof(SelfhostDriverStage2FormatTests));
+        if (SelfhostExport.Dir is not null) return;
         var (exit, stdout, stderr) = SelfhostDriverT1Tests.Run(BootstrapTests.Stage2Executable(), "format", "--check", dir);
         Assert.Equal(expected.Exit, exit);
         SelfhostEmitterHarness.AssertSame($"stdout of format --check {tree}", expected.Out, stdout.ReplaceLineEndings("\n"));
@@ -1324,7 +1480,9 @@ public sealed class SelfhostDriverStage2FormatTests
         static string Mask(string text, string dir) =>
             Regex.Replace(text.ReplaceLineEndings("\n").Replace(dir, "{D}"), @"\d+\.\d+s", "0.00s");
         var cs = Copy("cs");
-        var expected = SelfhostDriverT1Tests.Oracle(["format", cs]);
+        var expected = SelfhostDriverT1Tests.Oracle(["format", cs], nameof(SelfhostDriverStage2FormatTests),
+            new SelfhostDriverT1Tests.ExportForm("dir-seconds-masked", Out: t => Mask(t, cs), Err: t => Mask(t, cs), Tree: () => Tree(cs)));
+        if (SelfhostExport.Dir is not null) return;
         var stage2 = Copy("stage2");
         var (exit, stdout, stderr) = SelfhostDriverT1Tests.Run(BootstrapTests.Stage2Executable(), "format", stage2);
         string[] Listed(string dir) => [.. Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories).Select(f => Path.GetRelativePath(dir, f)).Order(StringComparer.Ordinal)];
@@ -1437,7 +1595,8 @@ public sealed class SelfhostDriverStage2FormatTests
             File.WriteAllText(file, source);
         }
         Write();
-        var expected = SelfhostDriverT1Tests.Oracle(["format", file]);
+        var expected = SelfhostDriverT1Tests.Oracle(["format", file], nameof(SelfhostDriverStage2FormatTests), new SelfhostDriverT1Tests.ExportForm(Tree: () => Tree(dir)));
+        if (SelfhostExport.Dir is not null) return;
         var expectedTree = Tree(dir);
         Write();
         var (exit, stdout, stderr) = SelfhostDriverT1Tests.Run(BootstrapTests.Stage2Executable(), "format", file);
@@ -1475,27 +1634,27 @@ public sealed class SelfhostDriverStage2FormatTests
     /// </summary>
     [Theory]
     [MemberData(nameof(FormatTreeRows))]
-    public void FormatTreesAsCliApp(string name) => SelfhostDriverT1Tests.FormatRowMatches(name, "t8-format2", Stage2);
+    public void FormatTreesAsCliApp(string name) => SelfhostDriverT1Tests.FormatRowMatches(name, "t8-format2", Stage2, nameof(SelfhostDriverStage2FormatTests));
 
     /// <summary>FormatTests.cs's unreadable file, directory and package (:524, :550), with stage 2 as the driver.</summary>
     [Theory]
     [MemberData(nameof(UnreadablePathRows))]
-    public void UnreadablePathsAsCliApp(string name, string locked) => SelfhostDriverT1Tests.UnreadablePathMatches(name, locked, "t8-format2", Stage2);
+    public void UnreadablePathsAsCliApp(string name, string locked) => SelfhostDriverT1Tests.UnreadablePathMatches(name, locked, "t8-format2", Stage2, nameof(SelfhostDriverStage2FormatTests));
 
     /// <summary><c>format loop.byn</c> with <c>loop.byn -&gt; loop.byn</c>, with stage 2 as the driver.</summary>
     [Fact]
-    public void ALoopingFileLinkAsCliApp() => SelfhostDriverT1Tests.LoopingFileLinkMatches("t8-loop2", Stage2);
+    public void ALoopingFileLinkAsCliApp() => SelfhostDriverT1Tests.LoopingFileLinkMatches("t8-loop2", Stage2, nameof(SelfhostDriverStage2FormatTests));
 
     /// <summary>A read-only file in a read-only directory, with stage 2 as the driver.</summary>
     [Fact]
-    public void AnUnwritableFileAsCliApp() => SelfhostDriverT1Tests.UnwritableFileMatches("t8-format2", Stage2);
+    public void AnUnwritableFileAsCliApp() => SelfhostDriverT1Tests.UnwritableFileMatches("t8-format2", Stage2, nameof(SelfhostDriverStage2FormatTests));
 
     /// <summary>
     /// Writes <paramref name="inputs"/> as <c>caseNNN.byn</c> under <c>tmp/t8-layout/</c><paramref name="dirName"/> (with a
     /// <c>package.byn</c> holding <paramref name="style"/> unless empty), and asserts stage 2's <c>format</c> of it equals the C#'s in exit,
     /// stdout, stderr and the files after.
     /// </summary>
-    private static void FormatsAsCliApp(string label, string dirName, string style, IReadOnlyList<string> inputs)
+    private static void FormatsAsCliApp(string label, string dirName, string style, IReadOnlyList<string> inputs, [CallerMemberName] string test = "")
     {
         var dir = Path.Combine(Golden.RepoRoot, "tmp", "t8-layout", dirName);
         void Write()
@@ -1510,7 +1669,8 @@ public sealed class SelfhostDriverStage2FormatTests
             for (var i = 0; i < inputs.Count; i++) File.WriteAllText(Path.Combine(dir, $"case{i:D3}.byn"), inputs[i]);
         }
         Write();
-        var expected = SelfhostDriverT1Tests.Oracle(["format", dir]);
+        var expected = SelfhostDriverT1Tests.Oracle(["format", dir], nameof(SelfhostDriverStage2FormatTests), new SelfhostDriverT1Tests.ExportForm(Tree: () => Tree(dir)), test);
+        if (SelfhostExport.Dir is not null) return;
         var expectedTree = Tree(dir);
         Write();
         var (exit, stdout, stderr) = SelfhostDriverT1Tests.Run(BootstrapTests.Stage2Executable(), "format", dir);
@@ -1624,12 +1784,16 @@ public sealed class SelfhostDriverStyleEnvironmentTests
         return (exit, stdout[..stdout.LastIndexOf("\nout ", StringComparison.Ordinal)], stderr);
     }
 
-    private static (int Exit, string Out, string Err) Oracle(string[] args)
+    /// <summary><c>CliApp.Run</c> under the environment <paramref name="env"/> sets; under the export it records the run with <paramref name="env"/>.</summary>
+    private static (int Exit, string Out, string Err) Oracle(string[] args, (string Name, string? Value)[] env, [CallerMemberName] string test = "")
     {
+        var staged = SelfhostExport.Dir is null ? null : SelfhostDriverT1Tests.StageInputs(args.Where(SelfhostDriverT1Tests.IsPath));
         var stdout = new StringWriter();
         var stderr = new StringWriter();
         var exit = CliApp.Run(args, stdout, stderr);
-        return (exit, stdout.ToString().ReplaceLineEndings("\n"), stderr.ToString().ReplaceLineEndings("\n"));
+        var result = (exit, stdout.ToString().ReplaceLineEndings("\n"), stderr.ToString().ReplaceLineEndings("\n"));
+        if (staged is not null) SelfhostDriverT1Tests.Record(args, result, staged, null, nameof(SelfhostDriverStyleEnvironmentTests), test, "", env);
+        return result;
     }
 
     /// <summary>
@@ -1685,7 +1849,8 @@ public sealed class SelfhostDriverStyleEnvironmentTests
         CliEnvironmentTests.WithTerminalEnv(() =>
         {
             string[] args = ["--color", color, .. s_audit];
-            var expected = Oracle(args);
+            var expected = Oracle(args, pairs);
+            if (SelfhostExport.Dir is not null) return;
             var actual = Probe(args);
             Assert.Equal(expected.Exit, actual.Exit);
             Assert.Equal(expected.Out, actual.Out);
@@ -2065,25 +2230,35 @@ public sealed partial class SelfhostDriverStyleCaseTests
             var cache = Path.Combine(Golden.RepoRoot, "tmp", "t7-style-cache", shape + "-" + rendering + (driver ? "-driver" : "-csharp"));
             if (Directory.Exists(cache)) Directory.Delete(cache, recursive: true);
             var text = "";
+            (string, string?)[] vars = [.. env, ("BAYAN_CACHE", cache), .. shape == "build-ice" ? new (string, string?)[] { ("PATH", fakeBin) } : []];
             CliEnvironmentTests.WithTerminalEnv(() =>
             {
                 foreach (var run in runs)
                 {
                     string[] args = [.. flags, .. run];
-                    var (exit, stdout, stderr) = driver ? SelfhostDriverHarness.Run(args) : Oracle(args);
+                    var (exit, stdout, stderr) = driver ? SelfhostDriverHarness.Run(args) : Oracle(args, vars);
                     text = $"exit: {exit}\n--- stdout ---\n{Text(stdout)}--- stderr ---\n{Text(stderr)}";
                 }
-            }, [.. env, ("BAYAN_CACHE", cache), .. shape == "build-ice" ? new (string, string?)[] { ("PATH", fakeBin) } : []]);
+            }, vars);
             return text;
         }
-        Assert.Equal(Side(driver: false), Side(driver: true));
+        var expected = Side(driver: false);
+        if (SelfhostExport.Dir is not null) return;
+        Assert.Equal(expected, Side(driver: true));
     }
 
-    private static (int Exit, string Out, string Err) Oracle(string[] args)
+    /// <summary><c>CliApp.Run</c> under the environment <paramref name="env"/> sets; under the export it records the run with <paramref name="env"/>, seconds masked.</summary>
+    private static (int Exit, string Out, string Err) Oracle(string[] args, (string Name, string? Value)[] env, [CallerMemberName] string test = "")
     {
+        var staged = SelfhostExport.Dir is null ? null : SelfhostDriverT1Tests.StageInputs(args.Where(SelfhostDriverT1Tests.IsPath));
         var stdout = new StringWriter();
         var stderr = new StringWriter();
         var exit = CliApp.Run(args, stdout, stderr);
+        if (staged is not null)
+        {
+            SelfhostDriverT1Tests.Record(args, (exit, stdout.ToString(), stderr.ToString()), staged, new SelfhostDriverT1Tests.ExportForm("seconds-masked", Out: Mask, Err: Mask),
+                nameof(SelfhostDriverStyleCaseTests), test, "", env);
+        }
         return (exit, stdout.ToString(), stderr.ToString());
     }
 }

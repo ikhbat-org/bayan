@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Bayan.Cli;
 
@@ -100,7 +101,8 @@ public sealed class SelfhostDriverFixTests
     [MemberData(nameof(Cases))]
     public void FixAsStage2(string kind, string name) => Compare(kind, name, "stage2", BootstrapTests.Stage2Executable());
 
-    private static void Compare(string kind, string name, string side, string program)
+    /// <summary>Under the export, each C# pass is a case: the tree before the pass as <c>input/</c>, streams with the case directory masked and <c>main.byn</c> after as <c>expected.tree</c>.</summary>
+    private static void Compare(string kind, string name, string side, string program, [CallerMemberName] string test = "")
     {
         var expectedPath = Layout(kind, name, "cs-" + side);
         var actualPath = Layout(kind, name, side);
@@ -109,7 +111,16 @@ public sealed class SelfhostDriverFixTests
         string[] Args(string path) => kind == "twice" ? ["fix", path, Path.Combine(path, ".")] : ["fix", path];
         for (var pass = 1; pass <= 2; pass++)
         {
+            var staged = SelfhostExport.Dir is null ? null : SelfhostDriverT1Tests.StageInputs(Directory.Exists(expectedDir) ? [expectedDir] : []);
             var expected = Start("dotnet", [typeof(CliApp).Assembly.Location], Args(expectedPath));
+            if (staged is not null)
+            {
+                var file = Path.Combine(expectedDir, "main.byn");
+                SelfhostDriverT1Tests.Record(Args(expectedPath), expected, staged, new SelfhostDriverT1Tests.ExportForm("dir-masked",
+                    Out: t => t.Replace(expectedDir, "<dir>"), Err: t => t.Replace(expectedDir, "<dir>"),
+                    Tree: () => File.Exists(file) ? $"== main.byn\n{File.ReadAllText(file)}" : ""), nameof(SelfhostDriverFixTests), test, "");
+                continue;
+            }
             var actual = Start(program, [], Args(actualPath));
             Assert.Equal(expected.Exit, actual.Exit);
             SelfhostEmitterHarness.AssertSame($"stdout of fix pass {pass} on {kind}/{name}", expected.Out.Replace(expectedDir, "<dir>"), actual.Out.Replace(actualDir, "<dir>"));
