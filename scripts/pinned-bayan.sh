@@ -29,6 +29,11 @@ fi
 if [ ! -x "$cache/bin/$exe" ]; then
   # Built from a fresh `git clone --shared` checked out at the commit: the caller's tree, index and worktrees are never
   # touched, and the CLI's version line (git rev-parse HEAD in the project) names the pinned commit.
+  # dotnet-install.sh's default location, for sessions whose PATH misses it (a non-interactive shell skips the profile).
+  if ! command -v dotnet >/dev/null 2>&1; then
+    if [ -x "$HOME/.dotnet/dotnet" ]; then export PATH="$HOME/.dotnet:$PATH" DOTNET_ROOT="${DOTNET_ROOT:-$HOME/.dotnet}"
+    else echo "pinned-bayan: dotnet not found (not on PATH, not at \$HOME/.dotnet); it builds bayan at $sha ($ref)" >&2; exit 1; fi
+  fi
   build="$main/.cache/bayan/.build-$sha-$$"
   mkdir -p "$build/src"
   trap 'rm -rf "$build"; exit 1' INT TERM
