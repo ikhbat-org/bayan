@@ -18,12 +18,6 @@ Check: tests
 The hidden tests call both functions with valid times, malformed times and out-of-range times, and assert the case each failure carries.
 
 ## Check command
-Run from the repository root. It prints `PASS errors-001-prayer-time` when the reference compiles with no diagnostic, is unchanged by `bayan format`, and passes its checks.
-
 ```sh
-B=$(bash scripts/pinned-bayan.sh); t=evals/llm/tasks/errors-001-prayer-time; d=tmp/llm-eval/errors-001-prayer-time
-mkdir -p "$d" && cp "$t/reference/solution.byn" "$t"/checks/*.byn "$d/"
-[ -z "$("$B" check --diagnostics json "$d" 2>&1)" ] && "$B" format --check "$d" &&
-  "$B" test "$d" &&
-  echo "PASS errors-001-prayer-time"
+bash scripts/bayan-tool.sh llm-eval recheck evals/llm/tasks --only errors-001-prayer-time
 ```
