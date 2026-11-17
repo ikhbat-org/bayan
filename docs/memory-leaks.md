@@ -87,7 +87,7 @@ or by luck; LOW = small or one-shot. Source reports: `tmp/leak-audit/*.out` (scr
 | LOW | Arena resize always copies (≤ 2× geometric) | accepted |
 | LOW | Caught panic skips `byn_arena_free` of unwound frames | open, todo |
 | LOW | Owned payload in an error `Result` never dropped (Q311) | open |
-| MEDIUM | Golden runner (`bayan test tests/cases`, spec 019): the runner and its `--golden-worker` children over the full cases tree, child output, scratch dirs | bounded, 019 T9a/T9b: runner and each worker under 15 MB, no scratch dir left in `tmp/` (macOS arm64, 2026-11-17: runner 9.3–10.0 MB, largest worker 9.6–9.8 MB; Linux not yet measured); in the *Release gate* |
+| MEDIUM | Golden runner (`bayan test tests/cases`, spec 019): the runner and its `--golden-worker` children over the full cases tree, child output, scratch dirs | bounded, 019 T9a/T9b: runner and each worker under 15 MB, no scratch dir left in `tmp/` (macOS arm64, 2026-11-17: runner 9.3–10.0 MB, largest worker 9.6–9.8 MB; Linux x64 VM, one run: runner 9.4 MB, largest worker 9.6 MB; `tmp/cache` is the program cache, kept, not scratch); in the *Release gate* |
 
 ### Tests and tooling
 
@@ -118,7 +118,7 @@ env BAYAN_TEST_TIMEOUT_MS=600000 "$BAYAN_EXE" test --package src src/driver --on
 The last line is the `src/driver/golden.byn` test block "a run over tests/cases keeps the runner and each worker
 under 15 MB and leaves no scratch directory" (spec 019 R9): a run of `$BAYAN_EXE test tests/cases` keeps the runner and
 each `--golden-worker` under 15 MB of resident set and leaves no scratch directory in `tmp/`. Measured on macOS arm64
-(2026-11-17, four runs): runner 9.3–10.0 MB, largest worker 9.6–9.8 MB; Linux is not yet measured. Without
+(2026-11-17, four runs): runner 9.3–10.0 MB, largest worker 9.6–9.8 MB; Linux x64 (bayan-test01, 2026-11-17, one run from a fresh clone): runner 9.4 MB, largest worker 9.6 MB. `tmp/cache` (the program cache the runner names, CACHEDIR.TAG) is kept between runs and is not counted as scratch. Without
 `BAYAN_TEST_TIMEOUT_MS` (it needs minutes) or on Windows (no `sh` or `ps`) the block reports pending; the gate fails a
 pending result on Linux and macOS. `BAYAN_EXE` is the self-hosted driver; when it is unset, the gate builds `src/driver`
 with the pinned bayan at `HEAD` into `tmp/memory-gate/`.
