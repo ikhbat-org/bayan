@@ -340,13 +340,15 @@ public static class SelfhostSemanticsHarness
     /// <c>BAYAN_EXPORT_DIR</c> the program and arguments are kept for <see cref="AssertSection"/>'s case.</summary>
     public static Dictionary<string, List<string>> RunSections(string mainSource, params string[] args)
     {
+        // The files and directories the arguments name, copied before the run (which may rewrite them), for the case's `input/`.
+        var staged = ExportDir is null ? null : SelfhostDriverT1Tests.StageInputs(args.Where(SelfhostDriverT1Tests.IsPath));
         var (exit, stdout, stderr) = SelfhostParserTests.Run(Build(mainSource), args);
         Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
         var sections = Sections(stdout);
         if (ExportDir is not null)
         {
             var input = new ExportInput(mainSource, string.Concat(args.Select(a => (Path.IsPathRooted(a) && a.StartsWith(Golden.RepoRoot, StringComparison.Ordinal)
-                ? Path.GetRelativePath(Golden.RepoRoot, a) : a) + "\n")));
+                ? Path.GetRelativePath(Golden.RepoRoot, a) : a) + "\n")), staged?.Inputs ?? []);
             ExportInputs.AddOrUpdate(sections, input);
             // Each section's lines too, so a dictionary merged from several runs still finds the program that printed one.
             foreach (var lines in sections.Values) ExportLines.AddOrUpdate(lines, input);
@@ -364,7 +366,7 @@ public static class SelfhostSemanticsHarness
     public static string? ExportDir => SelfhostExport.Dir;
 
     /// <summary>A generated program and its arguments (one per line, a repo path made relative to the repo root).</summary>
-    private sealed record ExportInput(string Program, string Args);
+    private sealed record ExportInput(string Program, string Args, IReadOnlyList<string> Staged);
 
     private static readonly ConditionalWeakTable<Dictionary<string, List<string>>, ExportInput> ExportInputs = new();
 
@@ -393,6 +395,19 @@ public static class SelfhostSemanticsHarness
         }
         var dir = SelfhostExport.Case(export, "sem", cls, test);
         File.WriteAllText(Path.Combine(dir, "input.byn"), input.Program);
+        foreach (var path in input.Staged)
+        {
+            var target = Path.Combine(dir, "input", Path.GetFileName(path));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            if (!Directory.Exists(path)) File.Copy(path, target, overwrite: true);
+            else
+                foreach (var f in Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories))
+                {
+                    var to = Path.Combine(target, Path.GetRelativePath(path, f));
+                    Directory.CreateDirectory(Path.GetDirectoryName(to)!);
+                    File.Copy(f, to, overwrite: true);
+                }
+        }
         if (input.Args.Length > 0) File.WriteAllText(Path.Combine(dir, "args"), input.Args);
         File.WriteAllText(Path.Combine(dir, "section"), section + "\n");
         if (compare is not null) File.WriteAllText(Path.Combine(dir, "compare"), compare + "\n");
