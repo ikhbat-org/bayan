@@ -218,3 +218,7 @@ A session is a directory: a workspace tree, `in.jsonl` (client messages in order
 | R35 | 6 | T69a–T69c, T70 |
 | R36 | 5 | T45 |
 | R37 | 5 | T43 |
+
+## Plan change 2026-11-17: `style` needs a child process
+
+T2's writer found that `style` cannot be compared from `golden.byn` alone: `StyleTests.cs` runs `CliApp.Run` in process with a fake terminal, and the self-hosted command functions write straight to `Io.stdout`/`Io.stderr`. Fable compared four options (in-process capture, a child process, hand-porting the five renderer-only shapes, deferring); the owner took the child process (option a). T2a adds the executable-path builtin and the documented `BAYAN_TERMINAL=<width>` override; T2b compares `style` through a child. The same child path serves T3's kinds and T4's time limit.
