@@ -934,3 +934,4 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (019 T21 gate) `scripts/ci/pre-push.test.sh`: no case covers the golden-commit-check step in `pre-push.sh`.
 - LOW (019 T21 gate) `scripts/ci/golden-commit-check.sh:25`: any 7–40 hex run with a digit counts as a cause, so a date like `20261117` passes as a sha.
 - LOW (019 T23, 2026-11-18): golden case `out/dist` hit its 60 s timeout once under a loaded Mac (4 writers), passed on rerun; `scripts/test.sh` real run 511 s (golden 203, bayan 91, scripts 183, runtime 34).
+- LOW (019 T47, 2026-11-18): `scripts/pinned-bayan.sh` on Windows (MINGW) now needs `cc` on PATH or `CC` set (e.g. `CC="zig cc"`); check the Windows CI job sets it before the C# build goes.
