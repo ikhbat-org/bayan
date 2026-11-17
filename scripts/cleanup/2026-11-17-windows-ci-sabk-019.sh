@@ -27,7 +27,7 @@ bash "$(dirname "${BASH_SOURCE[0]}")/merged-worktree-backlog.sh" ${pass[@]+"${pa
 # 2. session scratch (main checkout)
 targets=()
 for rel in tmp/cwd-probe tmp/t18.cs tmp/selfhost-tests.out tmp/wp1-t18.out tmp/ci-win-dev.log tmp/pre-push-dev.out \
-           tmp/sa-fix.out tmp/dev-subjects.txt tmp/dev-subj-only.txt tmp/docs-024.out; do
+           tmp/sa-fix.out tmp/dev-subjects.txt tmp/dev-subj-only.txt tmp/docs-024.out tmp/wp1-fix.out; do
   [ -e "$repo/$rel" ] && targets+=("$rel")
 done
 for p in "$repo"/tmp/w-024-*.out "$repo"/tmp/w-019-*.out "$repo"/tmp/g-024-*.out "$repo"/tmp/g-019-*.out; do
