@@ -217,9 +217,9 @@ aside.note > :last-child { margin-bottom: 0; }
 @media (prefers-reduced-motion: no-preference) {
   .art .r { animation: wipe-r .55s ease-out var(--d) both; }
   .art .l { animation: wipe-l .55s ease-out var(--d) both; }
-  .art .perch { animation: perch .01s linear 6.7s both; }
-  .art .fly { animation: land 1.3s cubic-bezier(.2,.7,.3,1) 5.4s both; }
-  .m-line { animation: settle 1s ease-out 6.9s both; }
+  .art .perch { animation: perch .01s linear 4.05s both; }
+  .art .fly { animation: land 1.3s cubic-bezier(.2,.7,.3,1) 2.75s both; }
+  .m-line { animation: settle 1s ease-out 4.25s both; }
 }
 @keyframes wipe-r { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
 @keyframes wipe-l { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
