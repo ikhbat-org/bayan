@@ -557,12 +557,12 @@ bool goldenIsCasesDir(string path) uses alloc, fs {
     return false
 }
 
-/// `bayan test <cases dir>` (R2, R3): the cases of `root` whose `<kind>/<case>` name contains one of `only` (all of them when it is empty;
-/// test.byn `t11Matches`, CliApp.cs `TestSymbol.Name.Contains`), one at a time, each with the time limit `limitMs`. A line `<status>
-/// <kind>/<case>` per case as it ends, with its detail indented below, then the counts; each result is also added to `results`. A failed or
-/// timed-out case never stops the ones after it. `exitTestFailure` when one failed or timed out or a listing failed; `exitUsage` when `only`
-/// selects nothing (test.byn:281).
-i32 goldenTest(string root, by List<string> only, for i64 limitMs, to ref List<GoldenResult> results)
+/// `bayan test <cases dir>` (R2, R3, R4): the cases of `root` whose `<kind>/<case>` name contains one of `only` (all of them when it is empty;
+/// test.byn `t11Matches`, CliApp.cs `TestSymbol.Name.Contains`), up to `jobs` at once (`goldenJobs`), each with the time limit `limitMs`. A line
+/// `<status> <kind>/<case>` per case in case order, whatever order they end in, with its detail indented below, then the counts; each result is
+/// also added to `results`. A failed or timed-out case never stops the ones after it. `exitTestFailure` when one failed or timed out or a listing
+/// failed; `exitUsage` when `only` selects nothing (test.byn:281).
+i32 goldenTest(string root, by List<string> only, for i64 limitMs, to ref List<GoldenResult> results, i64 jobs = 1)
         uses alloc, clock, console, env, fs, process {
     var exit = 0
     var cases = List<GoldenCase>()
@@ -585,18 +585,24 @@ i32 goldenTest(string root, by List<string> only, for i64 limitMs, to ref List<G
     }
     print($"running {cases.length} {cases.length == 1 ? "case" : "cases"} of {root}")
     let total = Io.monotonicNanos()
+    var mine = List<GoldenResult>()
+    if jobs > 1 && cases.length > 1 && exe != "" && Target.os != "windows" {
+        goldenJobs(in cases, by: exe, for: limitMs, as: jobs, to: ref mine)
+        for r in mine {
+            goldenPrint(in r)
+        }
+    } else {
+        for c in cases {
+            let r = goldenResult(c, for: limitMs)
+            goldenPrint(in r)
+            mine.append(move r)
+        }
+    }
     var passed: i64 = 0
     var failed: i64 = 0
     var skipped: i64 = 0
     var timedOut: i64 = 0
-    for c in cases {
-        let r = goldenResult(c, for: limitMs)
-        print($"{r.status} {r.name}")
-        if r.detail.length > 0 {
-            for line in r.detail.parts(by: "\n") {
-                print($"    {line}")
-            }
-        }
+    for r in mine {
         switch r.status {
             case "passed":
                 passed += 1
@@ -607,12 +613,113 @@ i32 goldenTest(string root, by List<string> only, for i64 limitMs, to ref List<G
             default:
                 failed += 1
         }
-        results.append(move r)
+    }
+    for r in mine {
+        results.append(GoldenResult { name: r.name, status: r.status, detail: r.detail })
     }
     print(
         $"{passed} passed · {failed} failed · {skipped} skipped · {timedOut} timed out · {t11Seconds(Io.monotonicNanos() - total)}",
     )
     return failed > 0 || timedOut > 0 || exit != 0 ? exitTestFailure : exitOk
+}
+
+/// The report lines of result `r`: `<status> <kind>/<case>`, then its detail indented.
+void goldenPrint(in GoldenResult r) uses alloc, console {
+    print($"{r.status} {r.name}")
+    if r.detail.length > 0 {
+        for line in r.detail.parts(by: "\n") {
+            print($"    {line}")
+        }
+    }
+}
+
+// `--jobs N` (spec 019 T5, R4). The runtime runs one child at a time (`Io.run` waits; spec §13: 0.x has no thread or task), so the N at once
+// are N processes `exe test --golden-worker` that one `sh` starts and waits for, as xUnit runs test classes on up to `maxParallelThreads`
+// threads (csharp/tests/Bayan.Tests/xunit.runner.json: 4). Worker k runs the cases whose index is k modulo N, each through `goldenResult`, and
+// writes each result to a file named for its index; the parent reads them back in case order. Windows has no `sh`, so there the cases run one at
+// a time. Each case keeps its own work directory under tmp/ (`goldenFlat`, the style shape, the scaffold and output fact), so two never share one.
+
+/// `sh -c` text: starts `$1 test --golden-worker $3 <k> $2 $4` for k from 0 to `$2 - 1`, in the background, output dropped, and waits for all.
+const goldenWorkersScript: string = "k=0; while [ \"$k\" -lt \"$2\" ]; do \"$1\" test --golden-worker \"$3\" \"$k\" \"$2\" \"$4\" >/dev/null 2>&1 & k=$((k + 1)); done; wait"
+
+/// `cases` run by `jobs` workers through the driver `exe`, each with the time limit `limitMs`: one result per case added to `results`, in case
+/// order. A case whose worker wrote no result (it could not start or stopped) fails saying so.
+void goldenJobs(
+    in List<GoldenCase> cases,
+    by string exe,
+    for i64 limitMs,
+    as i64 jobs,
+    to ref List<GoldenResult> results
+)
+        uses alloc, clock, fs, process {
+    let dir = Path.combine(Path.fullPath("tmp"), $"golden-jobs-{Io.monotonicNanos()}")
+    deleteWorkDir(dir)
+    var list = StrBuf()
+    for c in cases {
+        list.append($"{c.kind}\t{c.name}\t{c.input}\n")
+    }
+    let n = jobs < cases.length ? jobs : cases.length
+    if goldenWrote(Path.combine(dir, "cases"), as: list.finish()) {
+        var args = List<string>()
+        for a in ["-c", goldenWorkersScript, "sh", exe, $"{n}", dir, $"{limitMs}"] {
+            args.append(a)
+        }
+        goldenWorkers(in args)
+    }
+    for i in 0..cases.length {
+        let name = $"{cases[i].kind}/{cases[i].name}"
+        let text = Io.readText(Path.combine(dir, $"{i}")) catch ""
+        let at = goldenOffset(text, for: "\n")
+        if at < 0 {
+            results.append(
+                GoldenResult {
+                    name: name,
+                    status: "failed",
+                    detail: $"{cases[i].input}\nits worker (`{exe} test --golden-worker`) wrote no result",
+                },
+            )
+            continue
+        }
+        results.append(GoldenResult { name: name, status: text[0..at], detail: text[at + 1..text.length] })
+    }
+    deleteWorkDir(dir)
+}
+
+/// Writes `text` to `path`, creating its directory; whether it was written.
+bool goldenWrote(string path, as string text) uses alloc, fs {
+    Io.createDirectory(Path.directoryName(path) ?? ".") catch return false
+    Io.writeFile(path, text.bytes) catch return false
+    return true
+}
+
+/// `sh` with `args`, waited for; a failure to start leaves every result unwritten, which `goldenJobs` reports per case.
+void goldenWorkers(in List<string> args) uses alloc, process {
+    let _ = Io.run("sh", args.span) catch return
+}
+
+/// `bayan test --golden-worker <dir> <k> <n> <limitMs>`: the cases of `dir`/cases (`<kind>\t<case>\t<input>` lines) whose index is `k` modulo
+/// `n`, each through `goldenResult` with the time limit `limitMs`, its status line and detail written to `dir`/<index>. `exitUsage` on a bad number.
+i32 goldenWorker(string dir, at string k, for string n, by string limit) uses alloc, clock, console, env, fs, process {
+    let index = t9Digits(k, until: 2147483647) ?? return exitUsage
+    let count = t9Digits(n, until: 2147483647) ?? return exitUsage
+    let limitMs = t9Digits(limit, until: 9223372036854775807) ?? return exitUsage
+    return exitUsage if count == 0
+    let text = Io.readText(Path.combine(dir, "cases")) catch return exitFailure
+    var lines = List<string>()
+    for line in text.parts(by: "\n") {
+        lines.append(line)
+    }
+    for i in 0..lines.length {
+        continue if i % count != index
+        var fields = List<string>()
+        for f in lines[i].parts(by: "\t") {
+            fields.append(f)
+        }
+        continue if fields.length != 3
+        let r = goldenResult(GoldenCase { kind: fields[0], name: fields[1], input: fields[2] }, for: limitMs)
+        let _ = goldenWrote(Path.combine(dir, $"{i}"), as: $"{r.status}\n{r.detail}")
+    }
+    return exitOk
 }
 
 // The `style` kind (spec 019 T2b). StyleTests.cs:44-210 renders each shape three ways; 17 shapes are a `bayan` command, run here as a child of the
@@ -1841,6 +1948,75 @@ test "--only run/<name> runs that one case, in the runner and through bayan test
     assert(failure == "" && o.exitCode == exitOk)
     assert(o.stdout.contains("running 1 case of ") && o.stdout.contains("\npassed run/c-passes\n"))
     assert(!o.stdout.contains("a-fails") && !o.stdout.contains("b-loops"))
+}
+
+/// A cases directory `root` with the `run` cases `a-passes`, `b-fails` (its `.stdout` fourth line changed) and `c-passes`, and the `lex`
+/// cases `bad-chars` and `bad-interpolation`.
+void goldenJobsFixture(string root) uses alloc, fs {
+    deleteWorkDir(root)
+    let source = Io.readText(Path.fullPath("tests/cases/run/arithmetic.byn")) catch ""
+    let stdout = Io.readText(Path.fullPath("tests/cases/run/arithmetic.stdout")) catch ""
+    for stem in ["a-passes", "b-fails", "c-passes"] {
+        goldenWrite(root, for: $"run/{stem}.byn", as: source)
+        goldenWrite(root, for: $"run/{stem}.stdout", as: stem == "b-fails" ? goldenChangeLine(stdout, at: 3) : stdout)
+    }
+    for stem in ["bad-chars", "bad-interpolation"] {
+        goldenCopy(root, for: $"lex/{stem}.byn")
+        goldenCopy(root, for: $"lex/{stem}.tokens")
+    }
+}
+
+/// `bayan test root --jobs <jobs>` through `$BAYAN_EXE`, its stdout with the seconds masked (`goldenTestSeconds`).
+GoldenOutcome goldenJobsRun(string root, as string jobs) uses alloc, clock, env, fs, process {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    var args = List<string>()
+    for a in ["test", root, "--jobs", jobs] {
+        args.append(a)
+    }
+    var o = goldenChild(exe, by: in args, at: Path.fullPath("."), from: in List<u8>(), through: ref failure)
+    o.stdout = goldenTestSeconds(goldenLf(o.stdout))
+    return o
+}
+
+test "--jobs 1 and --jobs 4 print the same report in case order, times masked, and exit the same" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-jobs")
+    goldenJobsFixture(root)
+    let one = goldenJobsRun(root, as: "1")
+    let four = goldenJobsRun(root, as: "4")
+    var results = List<GoldenResult>()
+    let none = List<string>()
+    let exit = goldenTest(root, by: none, for: 60000, to: ref results, jobs: 4)
+    deleteWorkDir(root)
+    assert(one.exitCode == exitTestFailure && four.exitCode == one.exitCode && exit == exitTestFailure)
+    assert(four.stdout == one.stdout)
+    assert(one.stdout.contains("running 5 cases of ")
+        && one.stdout.contains("4 passed · 1 failed · 0 skipped · 0 timed out · Ts"))
+    assert(results.length == 5)
+    var names = List<string>()
+    for r in results {
+        names.append(r.name)
+    }
+    assert(names[0] == "lex/bad-chars" && names[1] == "lex/bad-interpolation" && names[2] == "run/a-passes")
+    assert(names[3] == "run/b-fails" && names[4] == "run/c-passes")
+    assert(results[3].status == "failed" && results[4].status == "passed")
+}
+
+test "--jobs 8 fails the changed case naming its path and the expected and actual fourth line, the others passing" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-jobs-8")
+    goldenJobsFixture(root)
+    let stdout = Io.readText(Path.fullPath("tests/cases/run/arithmetic.stdout")) catch ""
+    let fourth = goldenLines(goldenLf(stdout))[3]
+    let eight = goldenJobsRun(root, as: "8")
+    let expected = Path.combine(root, "run/b-fails.stdout")
+    deleteWorkDir(root)
+    assert(eight.exitCode == exitTestFailure)
+    assert(eight.stdout.contains(
+        $"\nfailed run/b-fails\n    {expected}\n    expected line 4: changed line\n    actual line 4: {fourth}\n",
+    ))
+    for name in ["lex/bad-chars", "lex/bad-interpolation", "run/a-passes", "run/c-passes"] {
+        assert(eight.stdout.contains($"\npassed {name}\n"))
+    }
 }
 
 test "new, out, emit and quality cases pass over tests/cases" {

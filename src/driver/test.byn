@@ -30,6 +30,7 @@ struct T11Options {
     bool          coverage    = false
     string?       run         = null
     string?       package     = null
+    i64?          jobs        = null
 }
 
 /// CliApp.cs:168 `ParseBuildOptions` as `Test` calls it (CliApp.cs:641: `allowOutput: false, allowTestJson: true, allowVerbose:
@@ -47,6 +48,7 @@ T11Options? t11ParseBuildOptions(in List<string> args) uses alloc, console, fs {
     var baseRef: string? = null
     var run: string? = null
     var package: string? = null
+    var jobs: i64? = null
     var only = List<string>()
     var programArgs = List<string>()
     var i: i64 = 0
@@ -94,6 +96,14 @@ T11Options? t11ParseBuildOptions(in List<string> args) uses alloc, console, fs {
         } else if a == "--only" && i + 1 < args.length {
             i += 1
             only.append(args[i])
+        } else if a == "--jobs" && i + 1 < args.length {
+            i += 1
+            let n = t9Digits(args[i], until: 2147483647) ?? 0
+            if n == 0 {
+                Io.stderr.write($"bayan: `--jobs` expects a positive whole number, got `{args[i]}`\n")
+                return null
+            }
+            jobs = n
         } else if a is "-v" or "--verbose" {
             verbose = true
         } else if a == "--package" && i + 1 < args.length {
@@ -138,6 +148,7 @@ T11Options? t11ParseBuildOptions(in List<string> args) uses alloc, console, fs {
         coverage: coverage,
         run: run,
         package: package,
+        jobs: jobs,
     }
 }
 
@@ -213,6 +224,10 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     if args.length == 4 && args[0] == "--golden-case" {
         return goldenCaseChild(args[1], for: args[2], at: args[3])
     }
+    // `--golden-worker <dir> <k> <n> <limitMs>` (spec 019 T5): worker `k` of `n` of a `--jobs` run; golden.byn.
+    if args.length == 5 && args[0] == "--golden-worker" {
+        return goldenWorker(args[1], at: args[2], for: args[3], by: args[4])
+    }
     let o = t11ParseBuildOptions(in args) ?? return exitUsage
     // A cases directory (spec 019 T4): each golden case is one test with the time limit of a test block; golden.byn.
     if goldenIsCasesDir(o.path) {
@@ -223,7 +238,12 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
             }
         }
         var results = List<GoldenResult>()
-        return goldenTest(o.path, by: wanted, for: testTimeout(), to: ref results)
+        // `--jobs` defaults to 4, the `maxParallelThreads` of csharp/tests/Bayan.Tests/xunit.runner.json.
+        return goldenTest(o.path, by: wanted, for: testTimeout(), to: ref results, jobs: o.jobs ?? 4)
+    }
+    if o.jobs is not null {
+        Io.stderr.write("bayan: unexpected argument `--jobs`\n")
+        return exitUsage
     }
     let symbolsErr = t19Symbols(in d.styleErr)
     var reported = List<semantics.T26Reported>()
