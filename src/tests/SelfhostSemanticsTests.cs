@@ -253,6 +253,17 @@ public sealed class SelfhostSemanticsTests
         return SelfhostExport.Case(root, "sem", cls ?? Path.GetFileNameWithoutExtension(file), test);
     }
 
+    /// <summary>A repo path made relative to the repo root, as <see cref="SelfhostSemanticsHarness.RunSections"/> writes its arguments.</summary>
+    private static string Portable(string text) => text.Replace(Path.TrimEndingDirectorySeparator(Golden.RepoRoot) + Path.DirectorySeparatorChar, "");
+
+    /// <summary>
+    /// The paths <paramref name="cli"/> reads for the export: a <c>.byn</c> file that is not a <c>#!</c> script and has sibling <c>.byn</c>
+    /// files is compiled with its directory (CliApp.cs:274), so the directory stands for it.
+    /// </summary>
+    private static List<string> ExportInputs(string[] cli) => cli.Where(a => File.Exists(a) || Directory.Exists(a)).Select(a =>
+        File.Exists(a) && a.EndsWith(".byn", StringComparison.Ordinal) && !File.ReadAllText(a).StartsWith("#!", StringComparison.Ordinal)
+        && Directory.EnumerateFiles(Path.GetDirectoryName(Path.GetFullPath(a))!, "*.byn").Count() > 1 ? Path.GetDirectoryName(Path.GetFullPath(a))! : a).ToList();
+
     /// <summary><c>bayan-check self</c> against <c>CliApp.Run(cli)</c>, for a Bayan-only flag such as <c>--spans</c>.</summary>
     internal static string SameAsCli(string input, string[] cli, string[] self, string? cls = null, [CallerMemberName] string test = "", [CallerFilePath] string file = "")
     {
@@ -262,11 +273,11 @@ public sealed class SelfhostSemanticsTests
         if (SelfhostExport.Dir is { } root)
         {
             var dir = ExportCase(root, cls, test, file);
-            SelfhostExport.WriteInput(dir, cli.Where(a => File.Exists(a) || Directory.Exists(a)).ToList());
-            SelfhostExport.WriteExpected(dir, "args", string.Concat(cli.Select(a => a + "\n")));
+            SelfhostExport.WriteInput(dir, ExportInputs(cli));
+            SelfhostExport.WriteExpected(dir, "args", string.Concat(cli.Select(a => Portable(a) + "\n")));
             SelfhostExport.WriteExpected(dir, "compare", "untimed\n");
-            SelfhostExport.WriteExpected(dir, "expected.stdout", Untimed(stdout.ToString()));
-            SelfhostExport.WriteExpected(dir, "expected.stderr", Untimed(stderr.ToString()));
+            SelfhostExport.WriteExpected(dir, "expected.stdout", Portable(Untimed(stdout.ToString())));
+            SelfhostExport.WriteExpected(dir, "expected.stderr", Portable(Untimed(stderr.ToString())));
             SelfhostExport.WriteExpected(dir, "expected.exitcode", $"{exit}\n");
             return stdout.ToString();
         }
@@ -547,8 +558,8 @@ public sealed class SelfhostSemanticsTests
         {
             var outDir = ExportCase(root, cls, test, file);
             SelfhostExport.WriteInput(outDir, [package ? dir : path]);
-            SelfhostExport.WriteExpected(outDir, "args", string.Concat(args.Select(a => a + "\n")));
-            SelfhostExport.WriteExpected(outDir, "expected.golden", expected);
+            SelfhostExport.WriteExpected(outDir, "args", string.Concat(args.Select(a => Portable(a) + "\n")));
+            SelfhostExport.WriteExpected(outDir, "expected.golden", Portable(expected));
             return;
         }
         var (exit, output, error) = SelfhostParserTests.Run(Built, args);
@@ -593,8 +604,8 @@ public sealed class SelfhostSemanticsTests
         {
             var outDir = ExportCase(root, cls, test, file);
             SelfhostExport.WriteInput(outDir, [Path.GetFileName(caseDir) == "diag" ? copy : dir]);
-            SelfhostExport.WriteExpected(outDir, "args", copy + "\n");
-            SelfhostExport.WriteExpected(outDir, "expected.stderr", stderr.ToString());
+            SelfhostExport.WriteExpected(outDir, "args", Portable(copy) + "\n");
+            SelfhostExport.WriteExpected(outDir, "expected.stderr", Portable(stderr.ToString()));
             SelfhostExport.WriteExpected(outDir, "expected.exitcode", $"{exit}\n");
             return;
         }
@@ -631,7 +642,7 @@ public sealed class SelfhostSemanticsTests
             SelfhostExport.Override.Value = old;
         }
         var made = Path.Combine(root, "sem", nameof(SelfhostSemanticsTests), nameof(ExportWritesTheSemCase));
-        Assert.Equal($"check\n{Path.Combine(dir, "hello.byn")}\n", File.ReadAllText(Path.Combine(made, "args")));
+        Assert.Equal($"check\n{Portable(Path.Combine(dir, "hello.byn"))}\n", File.ReadAllText(Path.Combine(made, "args")));
         Assert.Equal(Hello, File.ReadAllText(Path.Combine(made, "input.byn")));
         Assert.Equal("0\n", File.ReadAllText(Path.Combine(made, "expected.exitcode")));
         Assert.Equal("untimed\n", File.ReadAllText(Path.Combine(made, "compare")));
