@@ -128,7 +128,7 @@ string vr(VReg v) uses alloc => $"v{v}"
 
 string bl(BlockId b) uses alloc => $"b{b}"
 
-string printInst(in SInst inst) uses alloc {
+string printInst(SInst inst) uses alloc {
     switch inst {
         case .imm(let dst, let value): return $"{vr(dst)} = const {value}"
         case .add(let dst, let a, let b): return $"{vr(dst)} = add {vr(a)}, {vr(b)}"
@@ -151,7 +151,7 @@ string printInst(in SInst inst) uses alloc {
     }
 }
 
-string printTerminator(in Terminator t) uses alloc {
+string printTerminator(Terminator t) uses alloc {
     switch t {
         case .open: return "open"
         case .jump(let target): return $"jump {bl(target)}"
@@ -164,7 +164,7 @@ string printTerminator(in Terminator t) uses alloc {
 }
 
 /// One function: `func name(v0, v1) {`, each block as `bN:` then its instructions and terminator indented by two, `}`.
-public string printFunction(in Function f) uses alloc {
+public string printFunction(Function f) uses alloc {
     var sb = StrBuf()
     sb.append($"func {f.name}(")
     for i in 0..f.params.length {
@@ -184,7 +184,7 @@ public string printFunction(in Function f) uses alloc {
 }
 
 /// The module: `str N "text"` lines, `global @name = init` lines, then the functions, each section in order.
-public string printModule(in Module m) uses alloc {
+public string printModule(Module m) uses alloc {
     var sb = StrBuf()
     for i in 0..m.strings.length {
         sb.append($"str{i} \"{m.strings[i]}\"\n")

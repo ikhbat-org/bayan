@@ -2,7 +2,7 @@
 import sabk.sir
 
 /// "v:loc" joined by spaces: x9, x19, s0 (spill slot 0) or - (unused).
-string showLocs(in Allocation a) uses alloc {
+string showLocs(Allocation a) uses alloc {
     var sb = StrBuf()
     for i in 0..a.locations.length {
         sb.append(" ") if i > 0
@@ -15,7 +15,7 @@ string showLocs(in Allocation a) uses alloc {
     return sb.finish()
 }
 
-i64 countSpills(in Allocation a) {
+i64 countSpills(Allocation a) {
     var n = 0
     for loc in a.locations {
         switch loc {
@@ -47,7 +47,7 @@ Function pressure(by i64 count) uses alloc {
 }
 
 /// "ok", or the error `allocate` fails with.
-string outcome(in Function f) uses alloc {
+string outcome(Function f) uses alloc {
     let _ = allocate(f) catch switch {
         .tooManyCallArgs(let n) => return $"args {n}",
         .frameTooLarge(let n) => return $"frame {n}",

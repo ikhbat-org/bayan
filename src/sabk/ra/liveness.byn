@@ -26,7 +26,7 @@ public struct Liveness {
 }
 
 /// True when the value is live across the call at some position: defined before it and still needed after it.
-public bool crossesCall(in Liveness live, at Interval iv) {
+public bool crossesCall(Liveness live, at Interval iv) {
     for p in live.calls {
         return true if iv.start < p && p < iv.end
     }
@@ -34,7 +34,7 @@ public bool crossesCall(in Liveness live, at Interval iv) {
 }
 
 /// The operands `inst` reads.
-List<VReg> instUses(in SInst inst) uses alloc {
+List<VReg> instUses(SInst inst) uses alloc {
     var r = List<VReg>()
     switch inst {
         case .imm(let dst, let value): return r
@@ -63,7 +63,7 @@ List<VReg> instUses(in SInst inst) uses alloc {
 }
 
 /// The value `inst` writes, or `noReg`.
-VReg instDef(in SInst inst) {
+VReg instDef(SInst inst) {
     switch inst {
         case .imm(let dst, let value): return dst
         case .add(let dst, let a, let b): return dst
@@ -78,7 +78,7 @@ VReg instDef(in SInst inst) {
     }
 }
 
-List<VReg> termUses(in Terminator t) uses alloc {
+List<VReg> termUses(Terminator t) uses alloc {
     var r = List<VReg>()
     switch t {
         case .open: return r
@@ -91,7 +91,7 @@ List<VReg> termUses(in Terminator t) uses alloc {
     return r
 }
 
-List<BlockId> termSuccs(in Terminator t) uses alloc {
+List<BlockId> termSuccs(Terminator t) uses alloc {
     var r = List<BlockId>()
     switch t {
         case .open: return r
@@ -123,7 +123,7 @@ void touch(ref Ranges r, for VReg v, at i64 p) {
     r.hi[v] = p if p > r.hi[v]
 }
 
-public Liveness liveIntervals(in Function f) uses alloc {
+public Liveness liveIntervals(Function f) uses alloc {
     let nv = f.nextVReg
     let nb = f.blocks.length
 

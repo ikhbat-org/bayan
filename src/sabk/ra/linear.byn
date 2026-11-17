@@ -48,7 +48,7 @@ struct Active {
 }
 
 /// The first free register an interval may take, or -1: temporaries first unless it crosses a call.
-i64 pickReg(in List<bool> busy, for bool crossing) {
+i64 pickReg(List<bool> busy, for bool crossing) {
     if !crossing {
         for r in 9..16 {
             return r if !busy[r]
@@ -60,7 +60,7 @@ i64 pickReg(in List<bool> busy, for bool crossing) {
     return -1
 }
 
-public Allocation allocate(in Function f) uses alloc fails AllocError {
+public Allocation allocate(Function f) uses alloc fails AllocError {
     for b in f.blocks {
         for inst in b.insts {
             switch inst {
