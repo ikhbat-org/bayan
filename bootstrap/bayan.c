@@ -152009,27 +152009,29 @@ bynt_list_semantics__StdSource byn_semantics__stdShippedSources(void) {
 #line 7 "semantics/stdsource.byn"
     (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("encoding/base64.test.byn", 24), BYN_STR("// Tests of std.encoding. Expected encodings for non-RFC vectors are recorded from a run of\012// `python3 -c 'import base64,sys; print(base64.b64encode(...).decode())'`, not written by hand.\012\012/// `ok`, or the error `Base64.decode(text)` fails with.\012string errorOf(string text) uses alloc {\012    let _ = Base64.decode(text) catch switch {\012        .badDigit(let at) => return $\042badDigit @{at}\042,\012        .overflow         => return \042overflow\042,\012    }\012    return \042ok\042\012}\012\012@cases(\012    (\042\042, \042\042),\012    (\042f\042, \042Zg==\042),\012    (\042fo\042, \042Zm8=\042),\012    (\042foo\042, \042Zm9v\042),\012    (\042foob\042, \042Zm9vYg==\042),\012    (\042fooba\042, \042Zm9vYmE=\042),\012    (\042foobar\042, \042Zm9vYmFy\042),\012)\012test \042RFC 4648 \302\24710 vectors encode and decode\042 (string input, string expected) {\012    assert Base64.encode(input.bytes) == expected\012    let decoded = try Base64.decode(expected)\012    assert (try Utf8.decode(decoded.span)) == input\012}\012\012test \042all 256 byte values round-trip and match recorded b64encode output\042 {\012    var all = List<u8>()\012    for i in 0..256 {\012        all.append(u8(i))\012        var single = List<u8>()\012        single.append(u8(i))\012        let back = try Base64.decode(Base64.encode(single.span))\012        assert back.length == 1 && back[0] == u8(i)\012    }\012    let expected = \042AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==\042\012    let encoded = Base64.encode(all.span)\012    assert encoded == expected\012    let decoded = try Base64.decode(encoded)\012    assert Hex.encode(decoded.span) == Hex.encode(all.span)\012}\012\012@cases(\012    (\04200\042, \042AA==\042),\012    (\0420000\042, \042AAA=\042),\012    (\042000000\042, \042AAAA\042),\012    (\042fbefbe\042, \042++++\042),\012    (\042ffffff\042, \042////\042),\012    (\042fbffbf\042, \042+/+/\042),\012)\012test \042non-RFC byte vectors encode and decode\042 (string hex, string expected) {\012    let raw = try Hex.decode(hex)\012    assert Base64.encode(raw.span) == expected\012    let decoded = try Base64.decode(expected)\012    assert Hex.encode(decoded.span) == hex\012}\012\012@cases(\012    (\042Zg=\042, \042badDigit @3\042),\012    (\042Z\042, \042badDigit @1\042),\012    (\042Zg\042, \042badDigit @2\042),\012    (\042Zm8\042, \042badDigit @3\042),\012    (\042Zm9!\042, \042badDigit @3\042),\012    (\042!m9v\042, \042badDigit @0\042),\012    (\042Z!9v\042, \042badDigit @1\042),\012    (\042Zm!v\042, \042badDigit @2\042),\012    (\042Zg==Zg==\042, \042badDigit @2\042),\012    (\042Zm8=Zg==\042, \042badDigit @3\042),\012    (\042=g==\042, \042badDigit @0\042),\012    (\042Z===\042, \042badDigit @1\042),\012    (\042Zg=A\042, \042badDigit @3\042),\012    (\042Zh==\042, \042badDigit @1\042),\012    (\042Zm9=\042, \042badDigit @2\042),\012    (\042Zm9v\134n\042, \042badDigit @4\042),\012    (\042 Zm9v\042, \042badDigit @0\042),\012    (\042Zm 9v\042, \042badDigit @2\042),\012)\012test \042decode refuses broken text with the bad byte offset\042 (string input, string expected) {\012    assert errorOf(input) == expected\012}\012", 2809)}));
 #line 8 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("fs/glob.byn", 11), BYN_STR("// std.fs glob (spec 015 S5, T13): the files under the working directory a pattern names.\012\012import std.path\012\012type Glob = path.Glob\012\012/// The depth below the base directory a walk stops at when the pattern has `**` or `{}` (its length is unknown).\012const maxDepth: i64 = 64\012\012/// The files whose path matches `pattern` (`**`, `*`, `\077`, `[\342\200\246]`, `{a,b}` as `Glob.matches` reads them), sorted by byte\012/// order, written with `/` separators and starting as `pattern` does. Directories are walked but not listed; a base\012/// directory that is missing or unreadable gives an empty list, and a directory below it that cannot be read is\012/// skipped. Names starting with `.` are listed and dot-directories\012/// are entered, as any other name (the Go and Rust rule); a caller that wants them hidden filters the result. A\012/// pattern with `**` or `{` is walked 64 directory levels below its base directory; matches deeper than that are not\012/// returned.\012public List<string> glob(string pattern) uses fs, alloc {\012    var found = List<string>()\012    let base = baseOf(pattern)\012    let depth = (pattern.contains(\042**\042) || pattern.contains(\042{\042)) \077 maxDepth : count(pattern, for: \042/\042) + 1\012    walk(pattern, from: base, until: depth, to: ref found)\012    var j = 0\012    while j < found.length {\012        var k = j\012        while k > 0 && found[k] < found[k - 1] {\012            let t = found[k]\012            found[k] = found[k - 1]\012            found[k - 1] = t\012            k -= 1\012        }\012        j += 1\012    }\012    return found\012}\012\012/// The directory a walk for `pattern` starts in: its leading segments with no `*`, `\077`, `[` or `{`.\012string baseOf(string pattern) {\012    var i = 0\012    var slash = -1\012    while i < pattern.length {\012        let b = pattern.bytes[i]\012        if b == '*' || b == '\077' || b == '[' || b == '{' { break }\012        if b == '/' { slash = i }\012        i += 1\012    }\012    if slash < 0 { return \042\042 }\012    return slash == 0 \077 \042/\042 : pattern[0..slash]\012}\012\012/// The number of times `part` occurs in `text`.\012i64 count(string text, for string part) {\012    var n = 0\012    for _ in text.parts(by: part) { n += 1 }\012    return n - 1\012}\012\012/// Adds every file under `dir` (to `depth` levels) whose path matches `pattern`.\012void walk(string pattern, from string dir, until i64 depth, to ref List<string> found) uses fs, alloc {\012    let names = Io.listDir(dir.isEmpty \077 \042.\042 : dir) catch { return }\012    for name in names {\012        let entry = dir.isEmpty \077 $\042{name}\042 : (dir.endsWith(\042/\042) \077 $\042{dir}{name}\042 : $\042{dir}/{name}\042)\012        if Fs.fileExists(entry) {\012            if Glob.matches(pattern, for: entry) { found.append(entry) }\012        } else if depth > 1 {\012            walk(pattern, from: entry, until: depth - 1, to: ref found)\012        }\012    }\012}\012", 2708)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("fs/fs.test.byn", 14), BYN_STR("// Tests of Fs.copy, Fs.modified, Fs.setModified and Fs.realPath, over files the tests build in tmp/ below the working\012// directory. Ported from StdFsTests; the expected values are the literals of that class.\012\012/// Makes `dir` an empty directory: removes what an earlier run left (with `rm`; none on Windows, where the leftovers stay).\012void fresh(string dir) uses fs, alloc, process {\012    let args: string[2] = [\042-rf\042, dir]\012    let _ = Io.run(\042rm\042, args.span) catch {\012        Io.createDirectory(dir) catch {}\012        return\012    }\012    Io.createDirectory(dir) catch {}\012}\012\012/// What `Fs.copy(path, to: dest)` did, as the name of its failure, `ok` when it succeeded.\012string copied(string path, to string dest) uses fs {\012    Fs.copy(path, to: dest) catch switch {\012        .notFound => return \042notFound\042,\012        .invalidInput => return \042invalidInput\042,\012        .isDirectory => return \042isDirectory\042,\012        _ => return \042fail\042,\012    }\012    return \042ok\042\012}\012\012/// What `Fs.setModified(path, to: nanos)` did, as the name of its failure, `ok` when it succeeded.\012string stamped(string path, to i64 nanos) uses fs {\012    Fs.setModified(path, to: Time.fromNanos(nanos)) catch switch {\012        .notFound => return \042notFound\042,\012        .invalidInput => return \042invalidInput\042,\012        _ => return \042fail\042,\012    }\012    return \042ok\042\012}\012\012/// The write time of `path` in nanoseconds, -1 when it cannot be read.\012i64 modifiedNanos(string path) uses fs {\012    let t = Fs.modified(path) catch { return -1 }\012    return t.nanos\012}\012\012/// What `Fs.realPath(path)` gave: the path, or the name of its failure.\012string resolved(string path) uses fs, alloc {\012    let r = Fs.realPath(path) catch switch {\012        .notFound => return \042notFound\042,\012        .invalidInput => return \042invalidInput\042,\012        _ => return \042fail\042,\012    }\012    return r\012}\012\012/// Makes `link` a symbolic link to `target` with `ln`; false where there is none (Windows).\012bool link(string link, to string target) uses fs, alloc, process {\012    let args: string[3] = [\042-s\042, target, link]\012    let _ = Io.run(\042ln\042, args.span) catch { return false }\012    return true\012}\012\012test \042copy-onto-itself-fails-invalid-input\042 {\012    let work = \042tmp/fs-copy-self\042\012    fresh(work)\012    Io.createDirectory(\042tmp/fs-copy-self/dir\042) catch { assert false }\012    let file = \042tmp/fs-copy-self/dir/f.txt\042\012    Io.writeFile(file, \042kept\042.bytes) catch { assert false }\012    // The same file by another spelling is found by file identity.\012    assert copied(file, to: \042tmp/fs-copy-self/dir/../dir/f.txt\042) == \042invalidInput\042\012    // No `ln` (Windows): the symlink rows have nothing to test.\012    if link(\042tmp/fs-copy-self/link.txt\042, to: \042dir/f.txt\042) {\012        assert copied(\042tmp/fs-copy-self/link.txt\042, to: file) == \042invalidInput\042\012        assert copied(file, to: \042tmp/fs-copy-self/link.txt\042) == \042invalidInput\042\012    }\012    let text = Io.readText(file) catch { return }\012    assert text == \042kept\042\012}\012\012test \042copy-has-a-new-write-time\042 {\012    let work = \042tmp/fs-copy-time\042\012    fresh(work)\012    let file = \042tmp/fs-copy-time/old.txt\042\012    Io.writeFile(file, \042old\042.bytes) catch { assert false }\012    // 2001-01-01T00:00:00Z\012    let old: i64 = 978307200000000000\012    assert stamped(file, to: old) == \042ok\042\012    assert copied(file, to: \042tmp/fs-copy-time/copy.txt\042) == \042ok\042\012    let source = Fs.modified(file) catch { return }\012    assert source.nanos == old\012    let copy = Fs.modified(\042tmp/fs-copy-time/copy.txt\042) catch { return }\012    let age = Time.now().nanos - copy.nanos\012    // Written within a minute of now.\012    assert age > -60000000000\012    assert age < 60000000000\012}\012\012test \042write-times-match-dotnet\042 {\012    let work = \042tmp/fs-times\042\012    fresh(work)\012    let file = \042tmp/fs-times/file.txt\042\012    Io.writeFile(file, \042x\042.bytes) catch { assert false }\012    // 2001-01-01T00:00:00.1234567Z\012    let nanos: i64 = 978307200123456700\012    assert stamped(file, to: nanos) == \042ok\042\012    // To the second at least.\012    assert modifiedNanos(file) / 1000000000 == 978307200\012    // A missing path fails both, as File.SetLastWriteTimeUtc does.\012    assert stamped(\042tmp/fs-times/missing\042, to: nanos) == \042notFound\042\012    assert modifiedNanos(\042tmp/fs-times/missing\042) == -1\012}\012\012test \042real-path-matches-dotnet\042 {\012    let work = \042tmp/fs-real\042\012    fresh(work)\012    Io.writeFile(\042tmp/fs-real/real.txt\042, \042x\042.bytes) catch { assert false }\012    // No `ln` (Windows): nothing to resolve.\012    if !link(\042tmp/fs-real/l2\042, to: \042real.txt\042) { return }\012    assert link(\042tmp/fs-real/l1\042, to: \042l2\042)\012    assert link(\042tmp/fs-real/loop\042, to: \042loop\042)\012    // A chain of links resolves to the file it ends at.\012    assert resolved(\042tmp/fs-real/l1\042) == Path.fullPath(\042tmp/fs-real/real.txt\042)\012    // A missing path is notFound; a link cycle fails.\012    assert resolved(\042tmp/fs-real/missing\042) == \042notFound\042\012    assert resolved(\042tmp/fs-real/loop\042) == \042fail\042\012}\012", 4753)}));
 #line 9 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("fs/glob.test.byn", 16), BYN_STR("// Tests of std.fs glob, over a tree the tests build in tmp/ below the working directory.\012\012/// Writes `rel` (and its parent directories) under `root`, empty.\012void touch(string root, at string rel) uses fs, alloc {\012    var dir = $\042{root}\042\012    for part in rel.parts(by: \042/\042) {\012        let at = Path.combine(dir, part)\012        if part.contains(\042.\042) {\012            Io.writeFile(at, \042\042.bytes) catch { assert false }\012        } else {\012            Io.createDirectory(at) catch { assert false }\012        }\012        dir = at\012    }\012}\012\012/// `found` as one line, entries separated by a space.\012string joined(List<string> found) uses alloc {\012    var sb = StrBuf()\012    for f in found {\012        if sb.length > 0 { sb.append(\042 \042) }\012        sb.append(f)\012    }\012    return sb.finish()\012}\012\012test \042glob lists the matching files, sorted, with / separators\042 {\012    let root = \042tmp/glob-test\042\012    touch(root, at: \042src/b.byn\042)\012    touch(root, at: \042src/a.byn\042)\012    touch(root, at: \042src/x/c.byn\042)\012    touch(root, at: \042src/x/y/d.byn\042)\012    touch(root, at: \042src/x/e.cs\042)\012    touch(root, at: \042lib/f.byn\042)\012    let all = glob(\042tmp/glob-test/src/**/*.byn\042)\012    assert joined(all) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn tmp/glob-test/src/x/c.byn tmp/glob-test/src/x/y/d.byn\042\012    assert joined(glob(\042tmp/glob-test/src/*.byn\042)) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/{src,lib}/*.byn\042)) == \042tmp/glob-test/lib/f.byn tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/src/x/\077.cs\042)) == \042tmp/glob-test/src/x/e.cs\042\012    assert joined(glob(\042tmp/glob-test/src/[ab].byn\042)) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/src/a.byn\042)) == \042tmp/glob-test/src/a.byn\042\012    for f in all { assert Glob.matches(\042tmp/glob-test/src/**/*.byn\042, for: f) }\012}\012\012test \042glob finds nothing for a directory, a missing base or a pattern no file fits\042 {\012    assert glob(\042tmp/glob-test/src\042).length == 0\012    assert glob(\042tmp/glob-test/none/*.byn\042).length == 0\012    assert glob(\042tmp/glob-test/src/*.rs\042).length == 0\012    assert glob(\042tmp/glob-test/src/\077.byn/x\042).length == 0\012}\012\012test \042glob skips a directory it cannot read, and does not list it\042 {\012    let root = \042tmp/glob-locked\042\012    Io.createDirectory(\042tmp/glob-locked/locked.byn\042) catch { assert false }\012    touch(root, at: \042a.byn\042)\012    touch(\042tmp/glob-locked/locked.byn\042, at: \042b.byn\042)\012    let lock: string[2] = [\042-c\042, \042chmod 000 tmp/glob-locked/locked.byn\042]\012    // No `sh` (Windows): nothing to test.\012    let _ = Io.run(\042sh\042, lock.span) catch { return }\012    let found = unreadable(\042tmp/glob-locked/locked.byn\042) \077 joined(glob(\042tmp/glob-locked/**/*.byn\042)) : \042tmp/glob-locked/a.byn\042\012    let unlock: string[2] = [\042-c\042, \042chmod 755 tmp/glob-locked/locked.byn\042]\012    let _ = Io.run(\042sh\042, unlock.span) catch { panic(\042chmod 755 failed\042) }\012    assert found == \042tmp/glob-locked/a.byn\042\012}\012\012/// Whether listing `dir` fails (false when running as root, which reads it anyway).\012bool unreadable(string dir) uses fs, alloc {\012    let _ = Io.listDir(dir) catch { return true }\012    return false\012}\012", 3088)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("fs/glob.byn", 11), BYN_STR("// std.fs glob (spec 015 S5, T13): the files under the working directory a pattern names.\012\012import std.path\012\012type Glob = path.Glob\012\012/// The depth below the base directory a walk stops at when the pattern has `**` or `{}` (its length is unknown).\012const maxDepth: i64 = 64\012\012/// The files whose path matches `pattern` (`**`, `*`, `\077`, `[\342\200\246]`, `{a,b}` as `Glob.matches` reads them), sorted by byte\012/// order, written with `/` separators and starting as `pattern` does. Directories are walked but not listed; a base\012/// directory that is missing or unreadable gives an empty list, and a directory below it that cannot be read is\012/// skipped. Names starting with `.` are listed and dot-directories\012/// are entered, as any other name (the Go and Rust rule); a caller that wants them hidden filters the result. A\012/// pattern with `**` or `{` is walked 64 directory levels below its base directory; matches deeper than that are not\012/// returned.\012public List<string> glob(string pattern) uses fs, alloc {\012    var found = List<string>()\012    let base = baseOf(pattern)\012    let depth = (pattern.contains(\042**\042) || pattern.contains(\042{\042)) \077 maxDepth : count(pattern, for: \042/\042) + 1\012    walk(pattern, from: base, until: depth, to: ref found)\012    var j = 0\012    while j < found.length {\012        var k = j\012        while k > 0 && found[k] < found[k - 1] {\012            let t = found[k]\012            found[k] = found[k - 1]\012            found[k - 1] = t\012            k -= 1\012        }\012        j += 1\012    }\012    return found\012}\012\012/// The directory a walk for `pattern` starts in: its leading segments with no `*`, `\077`, `[` or `{`.\012string baseOf(string pattern) {\012    var i = 0\012    var slash = -1\012    while i < pattern.length {\012        let b = pattern.bytes[i]\012        if b == '*' || b == '\077' || b == '[' || b == '{' { break }\012        if b == '/' { slash = i }\012        i += 1\012    }\012    if slash < 0 { return \042\042 }\012    return slash == 0 \077 \042/\042 : pattern[0..slash]\012}\012\012/// The number of times `part` occurs in `text`.\012i64 count(string text, for string part) {\012    var n = 0\012    for _ in text.parts(by: part) { n += 1 }\012    return n - 1\012}\012\012/// Adds every file under `dir` (to `depth` levels) whose path matches `pattern`.\012void walk(string pattern, from string dir, until i64 depth, to ref List<string> found) uses fs, alloc {\012    let names = Io.listDir(dir.isEmpty \077 \042.\042 : dir) catch { return }\012    for name in names {\012        let entry = dir.isEmpty \077 $\042{name}\042 : (dir.endsWith(\042/\042) \077 $\042{dir}{name}\042 : $\042{dir}/{name}\042)\012        if Fs.fileExists(entry) {\012            if Glob.matches(pattern, for: entry) { found.append(entry) }\012        } else if depth > 1 {\012            walk(pattern, from: entry, until: depth - 1, to: ref found)\012        }\012    }\012}\012", 2708)}));
 #line 10 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("json/json.test.byn", 18), BYN_STR("// Tests of std.json. The \042parse then encode\042 table's expected encodings are python3 `json.dumps` output (indent 0 is\012// `json.dumps(v)`, N is `json.dumps(v, indent=N)`) for `json.loads` of the input, recorded from a run, not written by hand.\012// Number text is kept as read (`1e400`, `1E2`; spec 016), so the cases with such numbers are not python's output.\012\012/// The tree of `text`, trusted for the test.\012JsonValue tree(string text) uses alloc fails JsonError {\012    return (try Json.parse(text)).trustUnchecked() because \042test input is a literal\042\012}\012\012/// `ok`, or the error `Json.parse(text)` fails with, as `describe` writes it.\012string errorOf(string text) uses alloc {\012    let _ = Json.parse(text) catch switch {\012        JsonError e => return describe(e),\012    }\012    return \042ok\042\012}\012\012/// `ok`, or the error `Json.encode(v)` fails with, as `describe` writes it.\012string encodeErrorOf(JsonValue v) uses alloc {\012    let _ = Json.encode(v) catch switch {\012        JsonError e => return describe(e),\012    }\012    return \042ok\042\012}\012\012/// `e` as `kind message @offset line:column`, or its kind alone when it has no position.\012string describe(JsonError e) uses alloc => e switch {\012    .syntax s      => $\042syntax {s.message} @{s.offset} {s.line}:{s.column}\042,\012    .tooDeep d     => $\042tooDeep @{d.offset} {d.line}:{d.column}\042,\012    .nonFinite     => \042nonFinite\042,\012    .nestedTooDeep => \042nestedTooDeep\042,\012}\012\012/// `depth` lists, each holding the next, around `null`.\012JsonValue nested(i64 depth) uses alloc {\012    var v = JsonValue.nothing\012    for _ in 0..depth {\012        var items = List<JsonValue>()\012        items.append(move v)\012        v = .list(items: move items)\012    }\012    return v\012}\012\012/// The tokens of `text`, one word each.\012string tokensOf(string text) uses alloc fails JsonError {\012    var reader = JsonReader.over(text)\012    var sb = StrBuf()\012    while true {\012        let token = (try reader.next()) \077\077 break\012        let word = token switch {\012            .startObject     => \042{\042,\012            .endObject       => \042}\042,\012            .startList       => \042[\042,\012            .endList         => \042]\042,\012            .key(let name)   => $\042key:{name}\042,\012            .text(let value) => $\042text:{value}\042,\012            .number(let value, let digits) => $\042number:{value}/{digits}\042,\012            .flag(let value) => $\042flag:{value}\042,\012            .nothing         => \042null\042,\012        }\012        sb.append($\042{word} \042)\012    }\012    return $\042{sb.finish()}\042\012}\012\012@cases(\012    (\042null\042, 0, \042null\042),\012    (\042null\042, 2, \042null\042),\012    (\042null\042, 4, \042null\042),\012    (\042true\042, 0, \042true\042),\012    (\042true\042, 2, \042true\042),\012    (\042true\042, 4, \042true\042),\012    (\042false\042, 0, \042false\042),\012    (\042false\042, 2, \042false\042),\012    (\042false\042, 4, \042false\042),\012    (\0420\042, 0, \0420\042),\012    (\0420\042, 2, \0420\042),\012    (\0420\042, 4, \0420\042),\012    (\042-12\042, 0, \042-12\042),\012    (\042-12\042, 2, \042-12\042),\012    (\042-12\042, 4, \042-12\042),\012    (\0421.5\042, 0, \0421.5\042),\012    (\0421.5\042, 2, \0421.5\042),\012    (\0421.5\042, 4, \0421.5\042),\012    (\042\134\042hi\134\042\042, 0, \042\134\042hi\134\042\042),\012    (\042\134\042hi\134\042\042, 2, \042\134\042hi\134\042\042),\012    (\042\134\042hi\134\042\042, 4, \042\134\042hi\134\042\042),\012    (\042[]\042, 0, \042[]\042),\012    (\042[]\042, 2, \042[]\042),\012    (\042[]\042, 4, \042[]\042),\012    (\042{}\042, 0, \042{}\042),\012    (\042{}\042, 2, \042{}\042),\012    (\042{}\042, 4, \042{}\042),\012    (\042[1, 2, 3]\042, 0, \042[1, 2, 3]\042),\012    (\042[1, 2, 3]\042, 2, \042[\134n  1,\134n  2,\134n  3\134n]\042),\012    (\042[1, 2, 3]\042, 4, \042[\134n    1,\134n    2,\134n    3\134n]\042),\012    (\042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042, 0, \042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042),\012    (\042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042, 2, \042{\134n  \134\042a\134\042: 1,\134n  \134\042b\134\042: [\134n    1,\134n    2\134n  ]\134n}\042),\012    (\042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042, 4, \042{\134n    \134\042a\134\042: 1,\134n    \134\042b\134\042: [\134n        1,\134n        2\134n    ]\134n}\042),\012    (\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042,\012        0,\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042\012    ),\012    (\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042,\012        2,\012        \042{\134n  \134\042a\134\042: {\134n    \134\042b\134\042: {\134n      \134\042c\134\042: []\134n    }\134n  },\134n  \134\042d\134\042: [\134n    {},\134n    [],\134n    [\134n      null,\134n      true,\134n      false\134n    ]\134n  ],\134n  \134\042e\134\042: \134\042x\134\042\134n}\042\012    ),\012    (\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042,\012        4,\012        \042{\134n    \134\042a\134\042: {\134n        \134\042b\134\042: {\134n            \134\042c\134\042: []\134n        }\134n    },\134n    \134\042d\134\042: [\134n        {},\134n        [],\134n        [\134n            null,\134n            true,\134n            false\134n        ]\134n    ],\134n    \134\042e\134\042: \134\042x\134\042\134n}\042\012    ),\012    (\042 \134t\134r\134n [ 1 , { \134\042x\134\042 : \134\042y\134\042 } ] \134n\042, 0, \042[1, {\134\042x\134\042: \134\042y\134\042}]\042),\012    (\042 \134t\134r\134n [ 1 , { \134\042x\134\042 : \134\042y\134\042 } ] \134n\042, 2, \042[\134n  1,\134n  {\134n    \134\042x\134\042: \134\042y\134\042\134n  }\134n]\042),\012    (\042 \134t\134r\134n [ 1 , { \134\042x\134\042 : \134\042y\134\042 } ] \134n\042, 4, \042[\134n    1,\134n    {\134n        \134\042x\134\042: \134\042y\134\042\134n    }\134n]\042),\012    (\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042,\012        0,\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042\012    ),\012    (\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042,\012        2,\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042\012    ),\012    (\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042,\012        4,\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042\012    ),\012    (\042\134\042caf\303\251 \344\270\255 \360\237\230\200\134\042\042, 0, \042\134\042caf\134\134u00e9 \134\134u4e2d \134\134ud83d\134\134ude00\134\042\042),\012    (\042\134\042caf\303\251 \344\270\255 \360\237\230\200\134\042\042, 2, \042\134\042caf\134\134u00e9 \134\134u4e2d \134\134ud83d\134\134ude00\134\042\042),\012    (\042\134\042caf\303\251 \344\270\255 \360\237\230\200\134\042\042, 4, \042\134\042caf\134\134u00e9 \134\134u4e2d \134\134ud83d\134\134ude00\134\042\042),\012    (\042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042, 0, \042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042),\012    (\012        \042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042,\012        2,\012        \042[\134n  0,\134n  10,\134n  -3.25,\134n  0.5,\134n  2.0,\134n  1e+21,\134n  -1.5e-07\134n]\042\012    ),\012    (\012        \042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042,\012        4,\012        \042[\134n    0,\134n    10,\134n    -3.25,\134n    0.5,\134n    2.0,\134n    1e+21,\134n    -1.5e-07\134n]\042\012    ),\012)\012test \042parse then encode is json.dumps\042 (string input, i32 indent, string expected) {\012    assert (try Json.encode(try tree(input), indent: indent)) == expected\012}\012\012test \042the reader gives every token kind, then null\042 {\012    assert (\012        try tokensOf(\042{\134\042a\134\042: [1.5e1, true, false, null, \134\042x\134\042, {}]}\042)\012    ) == \042{ key:a [ number:15/1.5e1 flag:true flag:false null text:x { } ] } \042\012}\012\012test \042next stays null after the end\042 {\012    var reader = JsonReader.over(\042 7 \042)\012    assert (try reader.next()) is .number(let value, _) && value == 7.0\012    assert (try reader.next()) is null\012    assert (try reader.next()) is null\012}\012\012test \042a number keeps its text and its value\042 {\012    assert (try Json.encode(try tree(\042[1E5, 1.0, -0, 1e400]\042))) == \042[1E5, 1.0, -0, 1e400]\042\012    assert (try tree(\0422.5e-1\042)) is .number(let value, _) && value == 0.25\012}\012\012test \042duplicate keys are kept in order\042 {\012    let v = try tree(\042{\134\042k\134\042: 1, \134\042j\134\042: 2, \134\042k\134\042: 3}\042)\012    assert v is .object(let members) && members.length == 3 && members[0].key == \042k\042 && members[2].key == \042k\042\012}\012\012test \042escapes decode to their runes\042 {\012    assert (try tree(\042\134\042\134\134u00e9\134\134ud83d\134\134ude00\134\134n\134\134/\134\042\042)) is .text(let value) && value == \042\303\251\360\237\230\200\134n/\042\012    assert (try tree(\042\134\042\134\134u00C9\134\134uE000\134\042\042)) is .text(let upper) && upper == \042\303\211\134u{E000}\042\012}\012\012test \042encode writes a built tree as json.dumps does\042 {\012    var members = List<JsonMember>()\012    members.append(JsonMember { key: \042name\042, value: .text(value: \042Bay\304\201n\042) })\012    members.append(JsonMember { key: \042tags\042, value: .list(items: List<JsonValue>()) })\012    members.append(JsonMember { key: \042meta\042, value: .object(members: List<JsonMember>()) })\012    members.append(JsonMember { key: \042n\042, value: .number(value: 3.0, text: \0423\042) })\012    members.append(JsonMember { key: \042ok\042, value: .nothing })\012    let v = JsonValue.object(members: move members)\012    assert (try Json.encode(v)) == \042{\134\042name\134\042: \134\042Bay\134\134u0101n\134\042, \134\042tags\134\042: [], \134\042meta\134\042: {}, \134\042n\134\042: 3, \134\042ok\134\042: null}\042\012    assert (\012        try Json.encode(v, indent: 2)\012    ) == \042{\134n  \134\042name\134\042: \134\042Bay\134\134u0101n\134\042,\134n  \134\042tags\134\042: [],\134n  \134\042meta\134\042: {},\134n  \134\042n\134\042: 3,\134n  \134\042ok\134\042: null\134n}\042\012}\012\012test \042encode writes a built number's text only when it is a JSON number\042 {\012    let inf = f64.tryParse(\0421e400\042) \077\077 0.0\012    assert inf > 1e308\012    assert (try Json.encode(JsonValue.number(value: 1.0, text: \0421, \134\042admin\134\042: true\042))) == \0421\042\012    assert (try Json.encode(JsonValue.number(value: 2.5, text: \042\042))) == \0422.5\042\012    assert (try Json.encode(JsonValue.number(value: 3.0, text: \042nan\042))) == \0423\042\012    assert (try Json.encode(JsonValue.number(value: 0.25, text: \042true\042))) == \0420.25\042\012    assert (try Json.encode(JsonValue.number(value: 100000.0, text: \0421E5\042))) == \0421E5\042\012    assert (try Json.encode(JsonValue.number(value: -0.0005, text: \042-0.5e-3\042))) == \042-0.5e-3\042\012    assert Json.encode(JsonValue.number(value: inf, text: \042inf\042)) fails JsonError.nonFinite\012    assert Json.encode(JsonValue.number(value: -inf, text: \042\042)) fails JsonError.nonFinite\012    assert encodeErrorOf(JsonValue.number(value: inf - inf, text: \042nan\042)) == \042nonFinite\042\012    assert (try Json.encode(JsonValue.number(value: inf, text: \0421e400\042))) == \0421e400\042\012}\012\012test \042encode refuses a tree nested past 128 levels\042 {\012    assert (try Json.encode(nested(128))) == $\042{\042[\042.repeated(128)}null{\042]\042.repeated(128)}\042\012    assert encodeErrorOf(nested(129)) == \042nestedTooDeep\042\012    var members = List<JsonMember>()\012    members.append(JsonMember { key: \042a\042, value: nested(128) })\012    assert Json.encode(JsonValue.object(members: move members)) fails JsonError.nestedTooDeep\012    assert encodeErrorOf(nested(1000000)) == \042nestedTooDeep\042\012    var deep = JsonValue.object(members: List<JsonMember>())\012    for _ in 0..128 {\012        var items = List<JsonValue>()\012        items.append(move deep)\012        deep = .list(items: move items)\012    }\012    assert Json.encode(deep) fails JsonError.nestedTooDeep\012}\012\012@cases(\012    (\042\042, \042syntax unexpected end of input @0 1:1\042),\012    (\042  \042, \042syntax unexpected end of input @2 1:3\042),\012    (\042[1,\042, \042syntax unexpected end of input @3 1:4\042),\012    (\0421 2\042, \042syntax unexpected content after the value @2 1:3\042),\012    (\042[1 2]\042, \042syntax expected `,` or `]` @3 1:4\042),\012    (\042{\134\042a\134\042: 1 \134\042b\134\042: 2}\042, \042syntax expected `,` or `}` @8 1:9\042),\012    (\042{\134\042a\134\042 1}\042, \042syntax expected `:` @5 1:6\042),\012    (\042{1: 2}\042, \042syntax expected a string key @1 1:2\042),\012    (\042{\134\042a\134\042: 1,}\042, \042syntax expected a string key @8 1:9\042),\012    (\042[1,]\042, \042syntax expected a value @3 1:4\042),\012    (\042NaN\042, \042syntax expected a value @0 1:1\042),\012    (\042Infinity\042, \042syntax expected a value @0 1:1\042),\012    (\042-Infinity\042, \042syntax invalid number @0 1:1\042),\012    (\042+1\042, \042syntax expected a value @0 1:1\042),\012    (\042.5\042, \042syntax expected a value @0 1:1\042),\012    (\04201\042, \042syntax leading zero in a number @0 1:1\042),\012    (\042-01\042, \042syntax leading zero in a number @0 1:1\042),\012    (\0421.\042, \042syntax invalid number @0 1:1\042),\012    (\0421.e5\042, \042syntax invalid number @0 1:1\042),\012    (\0421e\042, \042syntax invalid number @0 1:1\042),\012    (\0421e+\042, \042syntax invalid number @0 1:1\042),\012    (\042-\042, \042syntax invalid number @0 1:1\042),\012    (\042tru\042, \042syntax expected a value @0 1:1\042),\012    (\042\134\042abc\042, \042syntax unterminated string @0 1:1\042),\012    (\042\134\042a\134u{1}\134\042\042, \042syntax control character in a string @2 1:3\042),\012    (\042\134\042a\134\134x\134\042\042, \042syntax invalid escape @2 1:3\042),\012    (\042\134\042\134\134u12g4\134\042\042, \042syntax invalid \134\134u escape @1 1:2\042),\012    (\042\134\042\134\134u12G4\134\042\042, \042syntax invalid \134\134u escape @1 1:2\042),\012    (\042\134\042\134\134u-123\134\042\042, \042syntax invalid \134\134u escape @1 1:2\042),\012    (\042\134\042\134\134ud83d\134\134ue000\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042\134\042\134\134ud83d\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042\134\042\134\134ud83d\134\134u0041\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042\134\042\134\134ude00\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042[\134\042\134\134ud83d\134\134u12\134\042]\042, \042syntax invalid \134\134u escape @8 1:9\042),\012    (\042[\134n  \134\042\303\251\134\042, x]\042, \042syntax expected a value @10 2:8\042),\012    (\042[1] x\042, \042syntax unexpected content after the value @4 1:5\042),\012)\012test \042parse refuses broken text\042 (string input, string expected) {\012    assert errorOf(input) == expected\012}\012\012test \042line and column are reported past one line\042 {\012    assert errorOf($\042[1,\134n{\042 \042.repeated(70000)}x\042) == \042syntax expected a value @70004 2:70001\042\012}\012\012test \042line and column hold values past i32\042 {\012    assert describe(\012        JsonError.syntax(message: \042m\042, offset: 0, line: 3000000000, column: 4000000000),\012    ) == \042syntax m @0 3000000000:4000000000\042\012    assert describe(\012        JsonError.tooDeep(offset: 0, line: 3000000000, column: 4000000000),\012    ) == \042tooDeep @0 3000000000:4000000000\042\012}\012\012test \042nesting past 128 levels is tooDeep\042 {\012    assert errorOf(\042[\042.repeated(128)) == \042syntax unexpected end of input @128 1:129\042\012    assert errorOf(\042[\042.repeated(129)) == \042tooDeep @128 1:129\042\012    assert errorOf($\042{\042{\134\042a\134\042:\042.repeated(128)}{{\042) == \042tooDeep @640 1:641\042\012    assert Json.parse(\042[\042.repeated(100000)) fails JsonError.tooDeep\012}\012\012test \042a reader error is the parse error\042 {\012    var reader = JsonReader.over(\042[}\042)\012    assert (try reader.next()) is .startList\012    assert reader.next() fails JsonError.syntax\012}\012", 12637)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("fs/glob.test.byn", 16), BYN_STR("// Tests of std.fs glob, over a tree the tests build in tmp/ below the working directory.\012\012/// Writes `rel` (and its parent directories) under `root`, empty.\012void touch(string root, at string rel) uses fs, alloc {\012    var dir = $\042{root}\042\012    for part in rel.parts(by: \042/\042) {\012        let at = Path.combine(dir, part)\012        if part.contains(\042.\042) {\012            Io.writeFile(at, \042\042.bytes) catch { assert false }\012        } else {\012            Io.createDirectory(at) catch { assert false }\012        }\012        dir = at\012    }\012}\012\012/// `found` as one line, entries separated by a space.\012string joined(List<string> found) uses alloc {\012    var sb = StrBuf()\012    for f in found {\012        if sb.length > 0 { sb.append(\042 \042) }\012        sb.append(f)\012    }\012    return sb.finish()\012}\012\012test \042glob lists the matching files, sorted, with / separators\042 {\012    let root = \042tmp/glob-test\042\012    touch(root, at: \042src/b.byn\042)\012    touch(root, at: \042src/a.byn\042)\012    touch(root, at: \042src/x/c.byn\042)\012    touch(root, at: \042src/x/y/d.byn\042)\012    touch(root, at: \042src/x/e.cs\042)\012    touch(root, at: \042lib/f.byn\042)\012    let all = glob(\042tmp/glob-test/src/**/*.byn\042)\012    assert joined(all) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn tmp/glob-test/src/x/c.byn tmp/glob-test/src/x/y/d.byn\042\012    assert joined(glob(\042tmp/glob-test/src/*.byn\042)) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/{src,lib}/*.byn\042)) == \042tmp/glob-test/lib/f.byn tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/src/x/\077.cs\042)) == \042tmp/glob-test/src/x/e.cs\042\012    assert joined(glob(\042tmp/glob-test/src/[ab].byn\042)) == \042tmp/glob-test/src/a.byn tmp/glob-test/src/b.byn\042\012    assert joined(glob(\042tmp/glob-test/src/a.byn\042)) == \042tmp/glob-test/src/a.byn\042\012    for f in all { assert Glob.matches(\042tmp/glob-test/src/**/*.byn\042, for: f) }\012}\012\012test \042glob finds nothing for a directory, a missing base or a pattern no file fits\042 {\012    assert glob(\042tmp/glob-test/src\042).length == 0\012    assert glob(\042tmp/glob-test/none/*.byn\042).length == 0\012    assert glob(\042tmp/glob-test/src/*.rs\042).length == 0\012    assert glob(\042tmp/glob-test/src/\077.byn/x\042).length == 0\012}\012\012test \042glob skips a directory it cannot read, and does not list it\042 {\012    let root = \042tmp/glob-locked\042\012    Io.createDirectory(\042tmp/glob-locked/locked.byn\042) catch { assert false }\012    touch(root, at: \042a.byn\042)\012    touch(\042tmp/glob-locked/locked.byn\042, at: \042b.byn\042)\012    let lock: string[2] = [\042-c\042, \042chmod 000 tmp/glob-locked/locked.byn\042]\012    // No `sh` (Windows): nothing to test.\012    let _ = Io.run(\042sh\042, lock.span) catch { return }\012    let found = unreadable(\042tmp/glob-locked/locked.byn\042) \077 joined(glob(\042tmp/glob-locked/**/*.byn\042)) : \042tmp/glob-locked/a.byn\042\012    let unlock: string[2] = [\042-c\042, \042chmod 755 tmp/glob-locked/locked.byn\042]\012    let _ = Io.run(\042sh\042, unlock.span) catch { panic(\042chmod 755 failed\042) }\012    assert found == \042tmp/glob-locked/a.byn\042\012}\012\012/// Whether listing `dir` fails (false when running as root, which reads it anyway).\012bool unreadable(string dir) uses fs, alloc {\012    let _ = Io.listDir(dir) catch { return true }\012    return false\012}\012", 3088)}));
 #line 11 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("json/reader.byn", 15), BYN_STR("// std.json pull reader (spec 016 T4, 015 S7): RFC 8259 text as a stream of tokens, one per `next()`.\012\012/// One step of a JSON text: a container bound, an object key, or a scalar.\012public union JsonToken {\012    startObject\012    endObject\012    startList\012    endList\012    key(string name)\012    text(string value)\012    number(f64 value, string text)\012    flag(bool value)\012    nothing\012}\012\012/// Why a JSON text was refused (at a byte offset, with the 1-based line and column in runes of that offset), or why\012/// `Json.encode` refused a tree.\012public union error JsonError {\012    syntax(string message, i64 offset, i64 line, i64 column)\012    tooDeep(i64 offset, i64 line, i64 column)\012    /// A number to encode is NaN or infinite and its text is not a JSON number.\012    nonFinite\012    /// A tree to encode nests deeper than `maxDepth`.\012    nestedTooDeep\012}\012\012/// Lists and objects nest at most this deep: a deeper text is `tooDeep` and a deeper tree to encode `nestedTooDeep`,\012/// never a stack overflow in a caller that recurses per level (docs/memory-leaks.md rule 5). 128 is the decoder default\012/// of spec \302\24715.4.\012const maxDepth: i64 = 128\012\012/// What the reader accepts next.\012union ReadState {\012    begin\012    listFirst\012    listValue\012    listNext\012    objectFirst\012    objectKey\012    objectColon\012    objectValue\012    objectNext\012    done\012}\012\012/// A pull reader over one JSON text: `next()` gives the next token, `null` after the value and its trailing\012/// whitespace, and fails on the first byte that breaks RFC 8259.\012public struct JsonReader {\012    string     text\012    i64        pos       = 0\012    i64        line      = 1\012    i64        lineStart = 0\012    ReadState  state     = .begin\012    /// One entry per open container, `true` for an object.\012    List<bool> open\012\012    /// A reader at the start of `text`.\012    public static JsonReader over(string text) uses alloc {\012        return JsonReader { text: text, open: List<bool>() }\012    }\012\012    /// The next token, or `null` once the value has been read and only whitespace follows it.\012    public JsonToken\077 next(ref this) uses alloc fails JsonError {\012        skipSpace()\012        if state is .done {\012            fail .syntax(\012                message: \042unexpected content after the value\042,\012                offset: pos,\012                line: line,\012                column: columnAt(pos),\012            ) if pos < text.length\012            return null\012        }\012        fail .syntax(\012            message: \042unexpected end of input\042,\012            offset: pos,\012            line: line,\012            column: columnAt(pos),\012        ) if pos >= text.length\012        if state is .listNext {\012            return close(as: .endList) if peek() == ']'\012            fail .syntax(\012                message: \042expected `,` or `]`\042,\012                offset: pos,\012                line: line,\012                column: columnAt(pos),\012            ) if peek() != ','\012            pos += 1\012            skipSpace()\012            state = .listValue\012        } else if state is .objectNext {\012            return close(as: .endObject) if peek() == '}'\012            fail .syntax(\012                message: \042expected `,` or `}`\042,\012                offset: pos,\012                line: line,\012                column: columnAt(pos),\012            ) if peek() != ','\012            pos += 1\012            skipSpace()\012            state = .objectKey\012        } else if state is .objectColon {\012            fail .syntax(message: \042expected `:`\042, offset: pos, line: line, column: columnAt(pos)) if peek() != ':'\012            pos += 1\012            skipSpace()\012            state = .objectValue\012        }\012        fail .syntax(\012            message: \042unexpected end of input\042,\012            offset: pos,\012            line: line,\012            column: columnAt(pos),\012        ) if pos >= text.length\012        let b = peek()\012        return close(as: .endList) if state is .listFirst && b == ']'\012        return close(as: .endObject) if state is .objectFirst && b == '}'\012        if state is .objectFirst or .objectKey {\012            fail .syntax(message: \042expected a string key\042, offset: pos, line: line, column: columnAt(pos)) if b != '\042'\012            let name = try readString()\012            state = .objectColon\012            return .key(name: name)\012        }\012        return try readValue()\012    }\012\012    /// The byte at `pos`, or 0 at the end.\012    u8 peek() => pos < text.length \077 text.bytes[pos] : 0\012\012    void skipSpace(ref this) {\012        while pos < text.length {\012            let b = text.bytes[pos]\012            if b == '\134n' {\012                line += 1\012                lineStart = pos + 1\012            } else if b != ' ' && b != '\134t' && b != '\134r' {\012                return\012            }\012            pos += 1\012        }\012    }\012\012    /// The 1-based column of `at` on the current line, counted in runes.\012    i64 columnAt(i64 at) => text[lineStart..at].runeCount + 1\012\012    /// After a value: what the enclosing container accepts next.\012    void finishValue(ref this) {\012        if open.length == 0 {\012            state = .done\012        } else if open[open.length - 1] {\012            state = .objectNext\012        } else {\012            state = .listNext\012        }\012    }\012\012    JsonToken close(ref this, as JsonToken token) {\012        pos += 1\012        let _ = open.removeLast()\012        finishValue()\012        return token\012    }\012\012    JsonToken openContainer(ref this, bool object) uses alloc fails JsonError {\012        fail .tooDeep(offset: pos, line: line, column: columnAt(pos)) if open.length >= maxDepth\012        pos += 1\012        open.append(object)\012        state = object \077 .objectFirst : .listFirst\012        return object \077 .startObject : .startList\012    }\012\012    JsonToken readValue(ref this) uses alloc fails JsonError {\012        let b = peek()\012        return try openContainer(object: true) if b == '{'\012        return try openContainer(object: false) if b == '['\012        if b == '\042' {\012            let value = try readString()\012            finishValue()\012            return .text(value: value)\012        }\012        return try readNumber() if b == '-' || (b >= '0' && b <= '9')\012        if literal(\042true\042) {\012            finishValue()\012            return .flag(value: true)\012        }\012        if literal(\042false\042) {\012            finishValue()\012            return .flag(value: false)\012        }\012        if literal(\042null\042) {\012            finishValue()\012            return .nothing\012        }\012        fail .syntax(message: \042expected a value\042, offset: pos, line: line, column: columnAt(pos))\012    }\012\012    /// Whether `word` starts at `pos`; if so, steps over it.\012    bool literal(ref this, string word) {\012        return false if !text[pos..].startsWith(word)\012        pos += word.length\012        return true\012    }\012\012    /// RFC 8259 \302\2476: `-`\077 (`0` | [1-9] digits) (`.` digits)\077 ([eE] [+-]\077 digits)\077\012    JsonToken readNumber(ref this) fails JsonError {\012        let start = pos\012        if peek() == '-' {\012            pos += 1\012        }\012        if peek() == '0' {\012            pos += 1\012            fail .syntax(\012                message: \042leading zero in a number\042,\012                offset: start,\012                line: line,\012                column: columnAt(start),\012            ) if isDigit(peek())\012        } else if isDigit(peek()) {\012            while isDigit(peek()) {\012                pos += 1\012            }\012        } else {\012            fail .syntax(message: \042invalid number\042, offset: start, line: line, column: columnAt(start))\012        }\012        if peek() == '.' {\012            pos += 1\012            fail .syntax(\012                message: \042invalid number\042,\012                offset: start,\012                line: line,\012                column: columnAt(start),\012            ) if !isDigit(peek())\012            while isDigit(peek()) {\012                pos += 1\012            }\012        }\012        if peek() == 'e' || peek() == 'E' {\012            pos += 1\012            if peek() == '+' || peek() == '-' {\012                pos += 1\012            }\012            fail .syntax(\012                message: \042invalid number\042,\012                offset: start,\012                line: line,\012                column: columnAt(start),\012            ) if !isDigit(peek())\012            while isDigit(peek()) {\012                pos += 1\012            }\012        }\012        let digits = text[start..pos]\012        let value = f64.tryParse(digits)\012            \077\077 fail .syntax(message: \042invalid number\042, offset: start, line: line, column: columnAt(start))\012        finishValue()\012        return .number(value: value, text: digits)\012    }\012\012    /// The string at `pos` (its opening `\042`), unescaped; a text without escapes is a slice of the input.\012    string readString(ref this) uses alloc fails JsonError {\012        let start = pos\012        pos += 1\012        var sb = StrBuf()\012        var escaped = false\012        var run = pos\012        while true {\012            fail .syntax(\012                message: \042unterminated string\042,\012                offset: start,\012                line: line,\012                column: columnAt(start),\012            ) if pos >= text.length\012            let b = text.bytes[pos]\012            if b == '\042' {\012                pos += 1\012                return text[run..pos - 1] if !escaped\012                sb.append(text[run..pos - 1])\012                return $\042{sb.finish()}\042\012            }\012            fail .syntax(\012                message: \042control character in a string\042,\012                offset: pos,\012                line: line,\012                column: columnAt(pos),\012            ) if b < 0x20\012            if b != '\134\134' {\012                pos += 1\012                continue\012            }\012            escaped = true\012            sb.append(text[run..pos])\012            let at = pos\012            pos += 1\012            let e = peek()\012            if e == '\042' || e == '\134\134' || e == '/' {\012                sb.append(text[pos..pos + 1])\012                pos += 1\012            } else if e == 'b' {\012                sb.append(\042\134u{8}\042)\012                pos += 1\012            } else if e == 'f' {\012                sb.append(\042\134u{C}\042)\012                pos += 1\012            } else if e == 'n' {\012                sb.append(\042\134n\042)\012                pos += 1\012            } else if e == 'r' {\012                sb.append(\042\134r\042)\012                pos += 1\012            } else if e == 't' {\012                sb.append(\042\134t\042)\012                pos += 1\012            } else if e == 'u' {\012                pos += 1\012                var cp = try hex4(escapeAt: at)\012                if cp is 0xD800..=0xDBFF {\012                    fail .syntax(\012                        message: \042lone surrogate\042,\012                        offset: at,\012                        line: line,\012                        column: columnAt(at),\012                    ) if !text[pos..].startsWith(\042\134\134u\042)\012                    let second = pos\012                    pos += 2\012                    let low = try hex4(escapeAt: second)\012                    fail .syntax(\012                        message: \042lone surrogate\042,\012                        offset: at,\012                        line: line,\012                        column: columnAt(at),\012                    ) if low is < 0xDC00\012                        or > 0xDFFF\012                    cp = 0x10000 + (cp - 0xD800) * 0x400 + (low - 0xDC00)\012                } else if cp is 0xDC00..=0xDFFF {\012                    fail .syntax(message: \042lone surrogate\042, offset: at, line: line, column: columnAt(at))\012                }\012                sb.append($\042{rune(cp)}\042)\012            } else {\012                fail .syntax(message: \042invalid escape\042, offset: at, line: line, column: columnAt(at))\012            }\012            run = pos\012        }\012    }\012\012    /// Four hex digits at `pos` as a code unit; `escapeAt` is the `\134` of the escape, for the error.\012    u32 hex4(ref this, i64 escapeAt) fails JsonError {\012        var value: u32 = 0\012        for _ in 0..4 {\012            let b = peek()\012            var d: u32 = 0\012            if b >= '0' && b <= '9' {\012                d = u32(b - '0')\012            } else if b >= 'a' && b <= 'f' {\012                d = u32(b - 'a') + 10\012            } else if b >= 'A' && b <= 'F' {\012                d = u32(b - 'A') + 10\012            } else {\012                fail .syntax(message: \042invalid \134\134u escape\042, offset: escapeAt, line: line, column: columnAt(escapeAt))\012            }\012            value = value * 16 + d\012            pos += 1\012        }\012        return value\012    }\012}\012\012bool isDigit(u8 b) => b >= '0' && b <= '9'\012", 12186)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("json/json.test.byn", 18), BYN_STR("// Tests of std.json. The \042parse then encode\042 table's expected encodings are python3 `json.dumps` output (indent 0 is\012// `json.dumps(v)`, N is `json.dumps(v, indent=N)`) for `json.loads` of the input, recorded from a run, not written by hand.\012// Number text is kept as read (`1e400`, `1E2`; spec 016), so the cases with such numbers are not python's output.\012\012/// The tree of `text`, trusted for the test.\012JsonValue tree(string text) uses alloc fails JsonError {\012    return (try Json.parse(text)).trustUnchecked() because \042test input is a literal\042\012}\012\012/// `ok`, or the error `Json.parse(text)` fails with, as `describe` writes it.\012string errorOf(string text) uses alloc {\012    let _ = Json.parse(text) catch switch {\012        JsonError e => return describe(e),\012    }\012    return \042ok\042\012}\012\012/// `ok`, or the error `Json.encode(v)` fails with, as `describe` writes it.\012string encodeErrorOf(JsonValue v) uses alloc {\012    let _ = Json.encode(v) catch switch {\012        JsonError e => return describe(e),\012    }\012    return \042ok\042\012}\012\012/// `e` as `kind message @offset line:column`, or its kind alone when it has no position.\012string describe(JsonError e) uses alloc => e switch {\012    .syntax s      => $\042syntax {s.message} @{s.offset} {s.line}:{s.column}\042,\012    .tooDeep d     => $\042tooDeep @{d.offset} {d.line}:{d.column}\042,\012    .nonFinite     => \042nonFinite\042,\012    .nestedTooDeep => \042nestedTooDeep\042,\012}\012\012/// `depth` lists, each holding the next, around `null`.\012JsonValue nested(i64 depth) uses alloc {\012    var v = JsonValue.nothing\012    for _ in 0..depth {\012        var items = List<JsonValue>()\012        items.append(move v)\012        v = .list(items: move items)\012    }\012    return v\012}\012\012/// The tokens of `text`, one word each.\012string tokensOf(string text) uses alloc fails JsonError {\012    var reader = JsonReader.over(text)\012    var sb = StrBuf()\012    while true {\012        let token = (try reader.next()) \077\077 break\012        let word = token switch {\012            .startObject     => \042{\042,\012            .endObject       => \042}\042,\012            .startList       => \042[\042,\012            .endList         => \042]\042,\012            .key(let name)   => $\042key:{name}\042,\012            .text(let value) => $\042text:{value}\042,\012            .number(let value, let digits) => $\042number:{value}/{digits}\042,\012            .flag(let value) => $\042flag:{value}\042,\012            .nothing         => \042null\042,\012        }\012        sb.append($\042{word} \042)\012    }\012    return $\042{sb.finish()}\042\012}\012\012@cases(\012    (\042null\042, 0, \042null\042),\012    (\042null\042, 2, \042null\042),\012    (\042null\042, 4, \042null\042),\012    (\042true\042, 0, \042true\042),\012    (\042true\042, 2, \042true\042),\012    (\042true\042, 4, \042true\042),\012    (\042false\042, 0, \042false\042),\012    (\042false\042, 2, \042false\042),\012    (\042false\042, 4, \042false\042),\012    (\0420\042, 0, \0420\042),\012    (\0420\042, 2, \0420\042),\012    (\0420\042, 4, \0420\042),\012    (\042-12\042, 0, \042-12\042),\012    (\042-12\042, 2, \042-12\042),\012    (\042-12\042, 4, \042-12\042),\012    (\0421.5\042, 0, \0421.5\042),\012    (\0421.5\042, 2, \0421.5\042),\012    (\0421.5\042, 4, \0421.5\042),\012    (\042\134\042hi\134\042\042, 0, \042\134\042hi\134\042\042),\012    (\042\134\042hi\134\042\042, 2, \042\134\042hi\134\042\042),\012    (\042\134\042hi\134\042\042, 4, \042\134\042hi\134\042\042),\012    (\042[]\042, 0, \042[]\042),\012    (\042[]\042, 2, \042[]\042),\012    (\042[]\042, 4, \042[]\042),\012    (\042{}\042, 0, \042{}\042),\012    (\042{}\042, 2, \042{}\042),\012    (\042{}\042, 4, \042{}\042),\012    (\042[1, 2, 3]\042, 0, \042[1, 2, 3]\042),\012    (\042[1, 2, 3]\042, 2, \042[\134n  1,\134n  2,\134n  3\134n]\042),\012    (\042[1, 2, 3]\042, 4, \042[\134n    1,\134n    2,\134n    3\134n]\042),\012    (\042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042, 0, \042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042),\012    (\042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042, 2, \042{\134n  \134\042a\134\042: 1,\134n  \134\042b\134\042: [\134n    1,\134n    2\134n  ]\134n}\042),\012    (\042{\134\042a\134\042: 1, \134\042b\134\042: [1, 2]}\042, 4, \042{\134n    \134\042a\134\042: 1,\134n    \134\042b\134\042: [\134n        1,\134n        2\134n    ]\134n}\042),\012    (\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042,\012        0,\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042\012    ),\012    (\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042,\012        2,\012        \042{\134n  \134\042a\134\042: {\134n    \134\042b\134\042: {\134n      \134\042c\134\042: []\134n    }\134n  },\134n  \134\042d\134\042: [\134n    {},\134n    [],\134n    [\134n      null,\134n      true,\134n      false\134n    ]\134n  ],\134n  \134\042e\134\042: \134\042x\134\042\134n}\042\012    ),\012    (\012        \042{\134\042a\134\042: {\134\042b\134\042: {\134\042c\134\042: []}}, \134\042d\134\042: [{}, [], [null, true, false]], \134\042e\134\042: \134\042x\134\042}\042,\012        4,\012        \042{\134n    \134\042a\134\042: {\134n        \134\042b\134\042: {\134n            \134\042c\134\042: []\134n        }\134n    },\134n    \134\042d\134\042: [\134n        {},\134n        [],\134n        [\134n            null,\134n            true,\134n            false\134n        ]\134n    ],\134n    \134\042e\134\042: \134\042x\134\042\134n}\042\012    ),\012    (\042 \134t\134r\134n [ 1 , { \134\042x\134\042 : \134\042y\134\042 } ] \134n\042, 0, \042[1, {\134\042x\134\042: \134\042y\134\042}]\042),\012    (\042 \134t\134r\134n [ 1 , { \134\042x\134\042 : \134\042y\134\042 } ] \134n\042, 2, \042[\134n  1,\134n  {\134n    \134\042x\134\042: \134\042y\134\042\134n  }\134n]\042),\012    (\042 \134t\134r\134n [ 1 , { \134\042x\134\042 : \134\042y\134\042 } ] \134n\042, 4, \042[\134n    1,\134n    {\134n        \134\042x\134\042: \134\042y\134\042\134n    }\134n]\042),\012    (\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042,\012        0,\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042\012    ),\012    (\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042,\012        2,\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042\012    ),\012    (\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042,\012        4,\012        \042\134\042\134\134u00e9 \134\134ud83d\134\134ude00 \134\134n\134\134\134\042\134\134\134\134/\134\134b\134\134f\134\134r\134\134t \134\134u001f \134\134u007f\134\042\042\012    ),\012    (\042\134\042caf\303\251 \344\270\255 \360\237\230\200\134\042\042, 0, \042\134\042caf\134\134u00e9 \134\134u4e2d \134\134ud83d\134\134ude00\134\042\042),\012    (\042\134\042caf\303\251 \344\270\255 \360\237\230\200\134\042\042, 2, \042\134\042caf\134\134u00e9 \134\134u4e2d \134\134ud83d\134\134ude00\134\042\042),\012    (\042\134\042caf\303\251 \344\270\255 \360\237\230\200\134\042\042, 4, \042\134\042caf\134\134u00e9 \134\134u4e2d \134\134ud83d\134\134ude00\134\042\042),\012    (\042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042, 0, \042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042),\012    (\012        \042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042,\012        2,\012        \042[\134n  0,\134n  10,\134n  -3.25,\134n  0.5,\134n  2.0,\134n  1e+21,\134n  -1.5e-07\134n]\042\012    ),\012    (\012        \042[0, 10, -3.25, 0.5, 2.0, 1e+21, -1.5e-07]\042,\012        4,\012        \042[\134n    0,\134n    10,\134n    -3.25,\134n    0.5,\134n    2.0,\134n    1e+21,\134n    -1.5e-07\134n]\042\012    ),\012)\012test \042parse then encode is json.dumps\042 (string input, i32 indent, string expected) {\012    assert (try Json.encode(try tree(input), indent: indent)) == expected\012}\012\012test \042the reader gives every token kind, then null\042 {\012    assert (\012        try tokensOf(\042{\134\042a\134\042: [1.5e1, true, false, null, \134\042x\134\042, {}]}\042)\012    ) == \042{ key:a [ number:15/1.5e1 flag:true flag:false null text:x { } ] } \042\012}\012\012test \042next stays null after the end\042 {\012    var reader = JsonReader.over(\042 7 \042)\012    assert (try reader.next()) is .number(let value, _) && value == 7.0\012    assert (try reader.next()) is null\012    assert (try reader.next()) is null\012}\012\012test \042a number keeps its text and its value\042 {\012    assert (try Json.encode(try tree(\042[1E5, 1.0, -0, 1e400]\042))) == \042[1E5, 1.0, -0, 1e400]\042\012    assert (try tree(\0422.5e-1\042)) is .number(let value, _) && value == 0.25\012}\012\012test \042duplicate keys are kept in order\042 {\012    let v = try tree(\042{\134\042k\134\042: 1, \134\042j\134\042: 2, \134\042k\134\042: 3}\042)\012    assert v is .object(let members) && members.length == 3 && members[0].key == \042k\042 && members[2].key == \042k\042\012}\012\012test \042escapes decode to their runes\042 {\012    assert (try tree(\042\134\042\134\134u00e9\134\134ud83d\134\134ude00\134\134n\134\134/\134\042\042)) is .text(let value) && value == \042\303\251\360\237\230\200\134n/\042\012    assert (try tree(\042\134\042\134\134u00C9\134\134uE000\134\042\042)) is .text(let upper) && upper == \042\303\211\134u{E000}\042\012}\012\012test \042encode writes a built tree as json.dumps does\042 {\012    var members = List<JsonMember>()\012    members.append(JsonMember { key: \042name\042, value: .text(value: \042Bay\304\201n\042) })\012    members.append(JsonMember { key: \042tags\042, value: .list(items: List<JsonValue>()) })\012    members.append(JsonMember { key: \042meta\042, value: .object(members: List<JsonMember>()) })\012    members.append(JsonMember { key: \042n\042, value: .number(value: 3.0, text: \0423\042) })\012    members.append(JsonMember { key: \042ok\042, value: .nothing })\012    let v = JsonValue.object(members: move members)\012    assert (try Json.encode(v)) == \042{\134\042name\134\042: \134\042Bay\134\134u0101n\134\042, \134\042tags\134\042: [], \134\042meta\134\042: {}, \134\042n\134\042: 3, \134\042ok\134\042: null}\042\012    assert (\012        try Json.encode(v, indent: 2)\012    ) == \042{\134n  \134\042name\134\042: \134\042Bay\134\134u0101n\134\042,\134n  \134\042tags\134\042: [],\134n  \134\042meta\134\042: {},\134n  \134\042n\134\042: 3,\134n  \134\042ok\134\042: null\134n}\042\012}\012\012test \042encode writes a built number's text only when it is a JSON number\042 {\012    let inf = f64.tryParse(\0421e400\042) \077\077 0.0\012    assert inf > 1e308\012    assert (try Json.encode(JsonValue.number(value: 1.0, text: \0421, \134\042admin\134\042: true\042))) == \0421\042\012    assert (try Json.encode(JsonValue.number(value: 2.5, text: \042\042))) == \0422.5\042\012    assert (try Json.encode(JsonValue.number(value: 3.0, text: \042nan\042))) == \0423\042\012    assert (try Json.encode(JsonValue.number(value: 0.25, text: \042true\042))) == \0420.25\042\012    assert (try Json.encode(JsonValue.number(value: 100000.0, text: \0421E5\042))) == \0421E5\042\012    assert (try Json.encode(JsonValue.number(value: -0.0005, text: \042-0.5e-3\042))) == \042-0.5e-3\042\012    assert Json.encode(JsonValue.number(value: inf, text: \042inf\042)) fails JsonError.nonFinite\012    assert Json.encode(JsonValue.number(value: -inf, text: \042\042)) fails JsonError.nonFinite\012    assert encodeErrorOf(JsonValue.number(value: inf - inf, text: \042nan\042)) == \042nonFinite\042\012    assert (try Json.encode(JsonValue.number(value: inf, text: \0421e400\042))) == \0421e400\042\012}\012\012test \042encode refuses a tree nested past 128 levels\042 {\012    assert (try Json.encode(nested(128))) == $\042{\042[\042.repeated(128)}null{\042]\042.repeated(128)}\042\012    assert encodeErrorOf(nested(129)) == \042nestedTooDeep\042\012    var members = List<JsonMember>()\012    members.append(JsonMember { key: \042a\042, value: nested(128) })\012    assert Json.encode(JsonValue.object(members: move members)) fails JsonError.nestedTooDeep\012    assert encodeErrorOf(nested(1000000)) == \042nestedTooDeep\042\012    var deep = JsonValue.object(members: List<JsonMember>())\012    for _ in 0..128 {\012        var items = List<JsonValue>()\012        items.append(move deep)\012        deep = .list(items: move items)\012    }\012    assert Json.encode(deep) fails JsonError.nestedTooDeep\012}\012\012@cases(\012    (\042\042, \042syntax unexpected end of input @0 1:1\042),\012    (\042  \042, \042syntax unexpected end of input @2 1:3\042),\012    (\042[1,\042, \042syntax unexpected end of input @3 1:4\042),\012    (\0421 2\042, \042syntax unexpected content after the value @2 1:3\042),\012    (\042[1 2]\042, \042syntax expected `,` or `]` @3 1:4\042),\012    (\042{\134\042a\134\042: 1 \134\042b\134\042: 2}\042, \042syntax expected `,` or `}` @8 1:9\042),\012    (\042{\134\042a\134\042 1}\042, \042syntax expected `:` @5 1:6\042),\012    (\042{1: 2}\042, \042syntax expected a string key @1 1:2\042),\012    (\042{\134\042a\134\042: 1,}\042, \042syntax expected a string key @8 1:9\042),\012    (\042[1,]\042, \042syntax expected a value @3 1:4\042),\012    (\042NaN\042, \042syntax expected a value @0 1:1\042),\012    (\042Infinity\042, \042syntax expected a value @0 1:1\042),\012    (\042-Infinity\042, \042syntax invalid number @0 1:1\042),\012    (\042+1\042, \042syntax expected a value @0 1:1\042),\012    (\042.5\042, \042syntax expected a value @0 1:1\042),\012    (\04201\042, \042syntax leading zero in a number @0 1:1\042),\012    (\042-01\042, \042syntax leading zero in a number @0 1:1\042),\012    (\0421.\042, \042syntax invalid number @0 1:1\042),\012    (\0421.e5\042, \042syntax invalid number @0 1:1\042),\012    (\0421e\042, \042syntax invalid number @0 1:1\042),\012    (\0421e+\042, \042syntax invalid number @0 1:1\042),\012    (\042-\042, \042syntax invalid number @0 1:1\042),\012    (\042tru\042, \042syntax expected a value @0 1:1\042),\012    (\042\134\042abc\042, \042syntax unterminated string @0 1:1\042),\012    (\042\134\042a\134u{1}\134\042\042, \042syntax control character in a string @2 1:3\042),\012    (\042\134\042a\134\134x\134\042\042, \042syntax invalid escape @2 1:3\042),\012    (\042\134\042\134\134u12g4\134\042\042, \042syntax invalid \134\134u escape @1 1:2\042),\012    (\042\134\042\134\134u12G4\134\042\042, \042syntax invalid \134\134u escape @1 1:2\042),\012    (\042\134\042\134\134u-123\134\042\042, \042syntax invalid \134\134u escape @1 1:2\042),\012    (\042\134\042\134\134ud83d\134\134ue000\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042\134\042\134\134ud83d\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042\134\042\134\134ud83d\134\134u0041\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042\134\042\134\134ude00\134\042\042, \042syntax lone surrogate @1 1:2\042),\012    (\042[\134\042\134\134ud83d\134\134u12\134\042]\042, \042syntax invalid \134\134u escape @8 1:9\042),\012    (\042[\134n  \134\042\303\251\134\042, x]\042, \042syntax expected a value @10 2:8\042),\012    (\042[1] x\042, \042syntax unexpected content after the value @4 1:5\042),\012)\012test \042parse refuses broken text\042 (string input, string expected) {\012    assert errorOf(input) == expected\012}\012\012test \042line and column are reported past one line\042 {\012    assert errorOf($\042[1,\134n{\042 \042.repeated(70000)}x\042) == \042syntax expected a value @70004 2:70001\042\012}\012\012test \042line and column hold values past i32\042 {\012    assert describe(\012        JsonError.syntax(message: \042m\042, offset: 0, line: 3000000000, column: 4000000000),\012    ) == \042syntax m @0 3000000000:4000000000\042\012    assert describe(\012        JsonError.tooDeep(offset: 0, line: 3000000000, column: 4000000000),\012    ) == \042tooDeep @0 3000000000:4000000000\042\012}\012\012test \042nesting past 128 levels is tooDeep\042 {\012    assert errorOf(\042[\042.repeated(128)) == \042syntax unexpected end of input @128 1:129\042\012    assert errorOf(\042[\042.repeated(129)) == \042tooDeep @128 1:129\042\012    assert errorOf($\042{\042{\134\042a\134\042:\042.repeated(128)}{{\042) == \042tooDeep @640 1:641\042\012    assert Json.parse(\042[\042.repeated(100000)) fails JsonError.tooDeep\012}\012\012test \042a reader error is the parse error\042 {\012    var reader = JsonReader.over(\042[}\042)\012    assert (try reader.next()) is .startList\012    assert reader.next() fails JsonError.syntax\012}\012", 12637)}));
 #line 12 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("json/value.byn", 14), BYN_STR("// std.json tree (spec 016 T4, 015 S7): `JsonValue` built on `JsonReader`, and `Json.encode`.\012\012/// A JSON value. A number keeps its text, so `Json.encode` writes it back as read (a built one whose text is not a\012/// JSON number is written from its value, and refused when that is not finite); an object keeps its members in text order, duplicate keys included.\012public union JsonValue {\012    nothing\012    flag(bool value)\012    number(f64 value, string text)\012    text(string value)\012    list(List<JsonValue> items)\012    object(List<JsonMember> members)\012}\012\012/// One `key: value` of an object.\012public struct JsonMember {\012    public string    key\012    public JsonValue value\012}\012\012/// Parsing JSON text into a tree and writing a tree as text.\012public struct Json {\012    /// The value `text` holds, read with `JsonReader`; outside data, so `Untrusted`.\012    public static Untrusted<JsonValue> parse(string text) uses alloc fails JsonError {\012        var reader = JsonReader.over(text)\012        let first = (try reader.next()) \077\077 panic(\042std.json: a reader gives a token before its end\042)\012        let value = try treeOf(ref reader, from: first)\012        let _ = try reader.next()\012        return Untrusted(move value)\012    }\012\012    /// `v` as text, the layout of Python's `json.dumps(v, indent=indent)` with `ensure_ascii`: compact with `, ` and\012    /// `: ` when `indent` is 0 or less, else one item per line, `indent` spaces per level. A number is its text when that\012    /// is a JSON number (RFC 8259 \302\2476), else its value as shortest digits, so a built number never writes invalid JSON or\012    /// text outside itself; NaN and \302\261infinity fail `nonFinite` (spec \302\2476.6). Lists and objects nesting deeper than\012    /// `maxDepth` fail `nestedTooDeep`, before the recursion goes past that depth.\012    public static string encode(JsonValue v, i32 indent = 0) uses alloc fails JsonError {\012        var sb = StrBuf()\012        try encodeInto(ref sb, from: v, by: i64(indent), at: 0)\012        return $\042{sb.finish()}\042\012    }\012}\012\012/// The value that starts with `first`; the reader's depth limit bounds the recursion.\012JsonValue treeOf(ref JsonReader reader, from JsonToken first) uses alloc fails JsonError {\012    switch first {\012        case .startList:\012            var items = List<JsonValue>()\012            while true {\012                let token = (try reader.next()) \077\077 panic(\042std.json: a reader gives a token before its end\042)\012                return .list(items: move items) if token is .endList\012                items.append(try treeOf(ref reader, from: token))\012            }\012        case .startObject:\012            var members = List<JsonMember>()\012            while true {\012                let token = (try reader.next()) \077\077 panic(\042std.json: a reader gives a token before its end\042)\012                switch token {\012                    case .endObject: return .object(members: move members)\012                    case .key(let name):\012                        let next = (try reader.next()) \077\077 panic(\042std.json: a reader gives a token before its end\042)\012                        members.append(JsonMember { key: name, value: try treeOf(ref reader, from: next) })\012                    default: panic(\042std.json: a reader gives a key or `}` in an object\042)\012                }\012            }\012        case .text(let value): return .text(value: value)\012        case .number(let value, let text): return .number(value: value, text: text)\012        case .flag(let value): return .flag(value: value)\012        case .nothing: return .nothing\012        default: panic(\042std.json: a reader starts a value with a value token\042)\012    }\012}\012\012/// `v` at nesting `level` (the number of lists and objects around it); a list or object at `maxDepth` fails.\012void encodeInto(ref StrBuf sb, from JsonValue v, by i64 indent, at i64 level) uses alloc fails JsonError {\012    switch v {\012        case .nothing: sb.append(\042null\042)\012        case .flag(let value): sb.append(value \077 \042true\042 : \042false\042)\012        case .number(let value, let text): try numberInto(ref sb, from: value, as: text)\012        case .text(let value): quoteInto(ref sb, from: value)\012        case .list(let items):\012            fail .nestedTooDeep if level >= maxDepth\012            if items.length == 0 {\012                sb.append(\042[]\042)\012                return\012            }\012            sb.append(\042[\042)\012            for i in 0..items.length {\012                separate(ref sb, by: indent, at: level + 1, first: i == 0)\012                try encodeInto(ref sb, from: items[i], by: indent, at: level + 1)\012            }\012            newline(ref sb, by: indent, at: level)\012            sb.append(\042]\042)\012        case .object(let members):\012            fail .nestedTooDeep if level >= maxDepth\012            if members.length == 0 {\012                sb.append(\042{}\042)\012                return\012            }\012            sb.append(\042{\042)\012            for i in 0..members.length {\012                separate(ref sb, by: indent, at: level + 1, first: i == 0)\012                quoteInto(ref sb, from: members[i].key)\012                sb.append(\042: \042)\012                try encodeInto(ref sb, from: members[i].value, by: indent, at: level + 1)\012            }\012            newline(ref sb, by: indent, at: level)\012            sb.append(\042}\042)\012    }\012}\012\012/// `text` when it is one whole JSON number, else `value`, which fails `nonFinite` when it is not finite (only then is\012/// `value - value` not 0).\012void numberInto(ref StrBuf sb, from f64 value, as string text) uses alloc fails JsonError {\012    if isNumberText(text) {\012        sb.append(text)\012        return\012    }\012    fail .nonFinite if value - value != 0.0\012    sb.append($\042{value}\042)\012}\012\012/// Whether `text` is exactly one JSON number, as `JsonReader` reads it.\012bool isNumberText(string text) uses alloc {\012    var reader = JsonReader.over(text)\012    let token = reader.next() catch { return false }\012    return token is .number(_, let digits) && digits.length == text.length\012}\012\012/// Before an item: `, ` (compact) or `,` and a new line (indented); the first item has no comma.\012void separate(ref StrBuf sb, by i64 indent, at i64 level, bool first) {\012    if !first {\012        sb.append(indent > 0 \077 \042,\042 : \042, \042)\012    }\012    newline(ref sb, by: indent, at: level)\012}\012\012void newline(ref StrBuf sb, by i64 indent, at i64 level) {\012    return if indent <= 0\012    sb.append(\042\134n\042)\012    sb.appendRepeated(' ', by: indent * level)\012}\012\012/// `s` as a JSON string with Python's `ensure_ascii` escapes: `\134uXXXX` (lowercase, a surrogate pair above U+FFFF)\012/// for every rune outside `' '..'~'` that has no short escape.\012void quoteInto(ref StrBuf sb, from string s) {\012    sb.append(\042\134\042\042)\012    for r in s.runes {\012        let cp = r.value\012        if r == '\042' {\012            sb.append(\042\134\134\134\042\042)\012        } else if r == '\134\134' {\012            sb.append(\042\134\134\134\134\042)\012        } else if r == '\134n' {\012            sb.append(\042\134\134n\042)\012        } else if r == '\134r' {\012            sb.append(\042\134\134r\042)\012        } else if r == '\134t' {\012            sb.append(\042\134\134t\042)\012        } else if cp == 0x8 {\012            sb.append(\042\134\134b\042)\012        } else if cp == 0xC {\012            sb.append(\042\134\134f\042)\012        } else if cp is 0x20..=0x7E {\012            sb.append($\042{r}\042)\012        } else if cp > 0xFFFF {\012            let v = cp - 0x10000\012            unitInto(ref sb, from: 0xD800 + v / 0x400)\012            unitInto(ref sb, from: 0xDC00 + v % 0x400)\012        } else {\012            unitInto(ref sb, from: cp)\012        }\012    }\012    sb.append(\042\134\042\042)\012}\012\012void unitInto(ref StrBuf sb, from u32 unit) {\012    sb.append(\042\134\134u\042)\012    let digits = string(unit, as: .hex)\012    sb.appendRepeated('0', by: 4 - digits.length)\012    sb.append(digits)\012}\012", 7491)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("json/reader.byn", 15), BYN_STR("// std.json pull reader (spec 016 T4, 015 S7): RFC 8259 text as a stream of tokens, one per `next()`.\012\012/// One step of a JSON text: a container bound, an object key, or a scalar.\012public union JsonToken {\012    startObject\012    endObject\012    startList\012    endList\012    key(string name)\012    text(string value)\012    number(f64 value, string text)\012    flag(bool value)\012    nothing\012}\012\012/// Why a JSON text was refused (at a byte offset, with the 1-based line and column in runes of that offset), or why\012/// `Json.encode` refused a tree.\012public union error JsonError {\012    syntax(string message, i64 offset, i64 line, i64 column)\012    tooDeep(i64 offset, i64 line, i64 column)\012    /// A number to encode is NaN or infinite and its text is not a JSON number.\012    nonFinite\012    /// A tree to encode nests deeper than `maxDepth`.\012    nestedTooDeep\012}\012\012/// Lists and objects nest at most this deep: a deeper text is `tooDeep` and a deeper tree to encode `nestedTooDeep`,\012/// never a stack overflow in a caller that recurses per level (docs/memory-leaks.md rule 5). 128 is the decoder default\012/// of spec \302\24715.4.\012const maxDepth: i64 = 128\012\012/// What the reader accepts next.\012union ReadState {\012    begin\012    listFirst\012    listValue\012    listNext\012    objectFirst\012    objectKey\012    objectColon\012    objectValue\012    objectNext\012    done\012}\012\012/// A pull reader over one JSON text: `next()` gives the next token, `null` after the value and its trailing\012/// whitespace, and fails on the first byte that breaks RFC 8259.\012public struct JsonReader {\012    string     text\012    i64        pos       = 0\012    i64        line      = 1\012    i64        lineStart = 0\012    ReadState  state     = .begin\012    /// One entry per open container, `true` for an object.\012    List<bool> open\012\012    /// A reader at the start of `text`.\012    public static JsonReader over(string text) uses alloc {\012        return JsonReader { text: text, open: List<bool>() }\012    }\012\012    /// The next token, or `null` once the value has been read and only whitespace follows it.\012    public JsonToken\077 next(ref this) uses alloc fails JsonError {\012        skipSpace()\012        if state is .done {\012            fail .syntax(\012                message: \042unexpected content after the value\042,\012                offset: pos,\012                line: line,\012                column: columnAt(pos),\012            ) if pos < text.length\012            return null\012        }\012        fail .syntax(\012            message: \042unexpected end of input\042,\012            offset: pos,\012            line: line,\012            column: columnAt(pos),\012        ) if pos >= text.length\012        if state is .listNext {\012            return close(as: .endList) if peek() == ']'\012            fail .syntax(\012                message: \042expected `,` or `]`\042,\012                offset: pos,\012                line: line,\012                column: columnAt(pos),\012            ) if peek() != ','\012            pos += 1\012            skipSpace()\012            state = .listValue\012        } else if state is .objectNext {\012            return close(as: .endObject) if peek() == '}'\012            fail .syntax(\012                message: \042expected `,` or `}`\042,\012                offset: pos,\012                line: line,\012                column: columnAt(pos),\012            ) if peek() != ','\012            pos += 1\012            skipSpace()\012            state = .objectKey\012        } else if state is .objectColon {\012            fail .syntax(message: \042expected `:`\042, offset: pos, line: line, column: columnAt(pos)) if peek() != ':'\012            pos += 1\012            skipSpace()\012            state = .objectValue\012        }\012        fail .syntax(\012            message: \042unexpected end of input\042,\012            offset: pos,\012            line: line,\012            column: columnAt(pos),\012        ) if pos >= text.length\012        let b = peek()\012        return close(as: .endList) if state is .listFirst && b == ']'\012        return close(as: .endObject) if state is .objectFirst && b == '}'\012        if state is .objectFirst or .objectKey {\012            fail .syntax(message: \042expected a string key\042, offset: pos, line: line, column: columnAt(pos)) if b != '\042'\012            let name = try readString()\012            state = .objectColon\012            return .key(name: name)\012        }\012        return try readValue()\012    }\012\012    /// The byte at `pos`, or 0 at the end.\012    u8 peek() => pos < text.length \077 text.bytes[pos] : 0\012\012    void skipSpace(ref this) {\012        while pos < text.length {\012            let b = text.bytes[pos]\012            if b == '\134n' {\012                line += 1\012                lineStart = pos + 1\012            } else if b != ' ' && b != '\134t' && b != '\134r' {\012                return\012            }\012            pos += 1\012        }\012    }\012\012    /// The 1-based column of `at` on the current line, counted in runes.\012    i64 columnAt(i64 at) => text[lineStart..at].runeCount + 1\012\012    /// After a value: what the enclosing container accepts next.\012    void finishValue(ref this) {\012        if open.length == 0 {\012            state = .done\012        } else if open[open.length - 1] {\012            state = .objectNext\012        } else {\012            state = .listNext\012        }\012    }\012\012    JsonToken close(ref this, as JsonToken token) {\012        pos += 1\012        let _ = open.removeLast()\012        finishValue()\012        return token\012    }\012\012    JsonToken openContainer(ref this, bool object) uses alloc fails JsonError {\012        fail .tooDeep(offset: pos, line: line, column: columnAt(pos)) if open.length >= maxDepth\012        pos += 1\012        open.append(object)\012        state = object \077 .objectFirst : .listFirst\012        return object \077 .startObject : .startList\012    }\012\012    JsonToken readValue(ref this) uses alloc fails JsonError {\012        let b = peek()\012        return try openContainer(object: true) if b == '{'\012        return try openContainer(object: false) if b == '['\012        if b == '\042' {\012            let value = try readString()\012            finishValue()\012            return .text(value: value)\012        }\012        return try readNumber() if b == '-' || (b >= '0' && b <= '9')\012        if literal(\042true\042) {\012            finishValue()\012            return .flag(value: true)\012        }\012        if literal(\042false\042) {\012            finishValue()\012            return .flag(value: false)\012        }\012        if literal(\042null\042) {\012            finishValue()\012            return .nothing\012        }\012        fail .syntax(message: \042expected a value\042, offset: pos, line: line, column: columnAt(pos))\012    }\012\012    /// Whether `word` starts at `pos`; if so, steps over it.\012    bool literal(ref this, string word) {\012        return false if !text[pos..].startsWith(word)\012        pos += word.length\012        return true\012    }\012\012    /// RFC 8259 \302\2476: `-`\077 (`0` | [1-9] digits) (`.` digits)\077 ([eE] [+-]\077 digits)\077\012    JsonToken readNumber(ref this) fails JsonError {\012        let start = pos\012        if peek() == '-' {\012            pos += 1\012        }\012        if peek() == '0' {\012            pos += 1\012            fail .syntax(\012                message: \042leading zero in a number\042,\012                offset: start,\012                line: line,\012                column: columnAt(start),\012            ) if isDigit(peek())\012        } else if isDigit(peek()) {\012            while isDigit(peek()) {\012                pos += 1\012            }\012        } else {\012            fail .syntax(message: \042invalid number\042, offset: start, line: line, column: columnAt(start))\012        }\012        if peek() == '.' {\012            pos += 1\012            fail .syntax(\012                message: \042invalid number\042,\012                offset: start,\012                line: line,\012                column: columnAt(start),\012            ) if !isDigit(peek())\012            while isDigit(peek()) {\012                pos += 1\012            }\012        }\012        if peek() == 'e' || peek() == 'E' {\012            pos += 1\012            if peek() == '+' || peek() == '-' {\012                pos += 1\012            }\012            fail .syntax(\012                message: \042invalid number\042,\012                offset: start,\012                line: line,\012                column: columnAt(start),\012            ) if !isDigit(peek())\012            while isDigit(peek()) {\012                pos += 1\012            }\012        }\012        let digits = text[start..pos]\012        let value = f64.tryParse(digits)\012            \077\077 fail .syntax(message: \042invalid number\042, offset: start, line: line, column: columnAt(start))\012        finishValue()\012        return .number(value: value, text: digits)\012    }\012\012    /// The string at `pos` (its opening `\042`), unescaped; a text without escapes is a slice of the input.\012    string readString(ref this) uses alloc fails JsonError {\012        let start = pos\012        pos += 1\012        var sb = StrBuf()\012        var escaped = false\012        var run = pos\012        while true {\012            fail .syntax(\012                message: \042unterminated string\042,\012                offset: start,\012                line: line,\012                column: columnAt(start),\012            ) if pos >= text.length\012            let b = text.bytes[pos]\012            if b == '\042' {\012                pos += 1\012                return text[run..pos - 1] if !escaped\012                sb.append(text[run..pos - 1])\012                return $\042{sb.finish()}\042\012            }\012            fail .syntax(\012                message: \042control character in a string\042,\012                offset: pos,\012                line: line,\012                column: columnAt(pos),\012            ) if b < 0x20\012            if b != '\134\134' {\012                pos += 1\012                continue\012            }\012            escaped = true\012            sb.append(text[run..pos])\012            let at = pos\012            pos += 1\012            let e = peek()\012            if e == '\042' || e == '\134\134' || e == '/' {\012                sb.append(text[pos..pos + 1])\012                pos += 1\012            } else if e == 'b' {\012                sb.append(\042\134u{8}\042)\012                pos += 1\012            } else if e == 'f' {\012                sb.append(\042\134u{C}\042)\012                pos += 1\012            } else if e == 'n' {\012                sb.append(\042\134n\042)\012                pos += 1\012            } else if e == 'r' {\012                sb.append(\042\134r\042)\012                pos += 1\012            } else if e == 't' {\012                sb.append(\042\134t\042)\012                pos += 1\012            } else if e == 'u' {\012                pos += 1\012                var cp = try hex4(escapeAt: at)\012                if cp is 0xD800..=0xDBFF {\012                    fail .syntax(\012                        message: \042lone surrogate\042,\012                        offset: at,\012                        line: line,\012                        column: columnAt(at),\012                    ) if !text[pos..].startsWith(\042\134\134u\042)\012                    let second = pos\012                    pos += 2\012                    let low = try hex4(escapeAt: second)\012                    fail .syntax(\012                        message: \042lone surrogate\042,\012                        offset: at,\012                        line: line,\012                        column: columnAt(at),\012                    ) if low is < 0xDC00\012                        or > 0xDFFF\012                    cp = 0x10000 + (cp - 0xD800) * 0x400 + (low - 0xDC00)\012                } else if cp is 0xDC00..=0xDFFF {\012                    fail .syntax(message: \042lone surrogate\042, offset: at, line: line, column: columnAt(at))\012                }\012                sb.append($\042{rune(cp)}\042)\012            } else {\012                fail .syntax(message: \042invalid escape\042, offset: at, line: line, column: columnAt(at))\012            }\012            run = pos\012        }\012    }\012\012    /// Four hex digits at `pos` as a code unit; `escapeAt` is the `\134` of the escape, for the error.\012    u32 hex4(ref this, i64 escapeAt) fails JsonError {\012        var value: u32 = 0\012        for _ in 0..4 {\012            let b = peek()\012            var d: u32 = 0\012            if b >= '0' && b <= '9' {\012                d = u32(b - '0')\012            } else if b >= 'a' && b <= 'f' {\012                d = u32(b - 'a') + 10\012            } else if b >= 'A' && b <= 'F' {\012                d = u32(b - 'A') + 10\012            } else {\012                fail .syntax(message: \042invalid \134\134u escape\042, offset: escapeAt, line: line, column: columnAt(escapeAt))\012            }\012            value = value * 16 + d\012            pos += 1\012        }\012        return value\012    }\012}\012\012bool isDigit(u8 b) => b >= '0' && b <= '9'\012", 12186)}));
 #line 13 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("path/glob.byn", 13), BYN_STR("// std.path glob matching (spec 015 S5, T13): shell-style patterns over `/`-separated paths, compared character by\012// character (UTF-8).\012\012/// Matching `/`-separated paths against shell-style glob patterns.\012public struct Glob {\012    /// Whether the whole of `path` matches `pattern`. `\077` is one character and `*` any characters, neither crossing a\012    /// `/`; a `**` segment (`a/**/b`, `**/b`, `a/**`) is any number of segments, `a/**/b` matching `a/b`; `[abc]`,\012    /// `[a-z]` and `[!abc]` (or `[^abc]`) are one character of a set, a `[` without a closing `]` is itself; `{a,b}`\012    /// alternatives nest and may hold `/`; an unclosed `{` is itself. A character is one UTF-8 code point (`\303\251` is one,\012    /// in a path and in a set); where the bytes are not well-formed UTF-8, each such byte counts as one character\012    /// that equals only the same byte.\012    public static bool matches(string pattern, for string path) uses alloc {\012        for alternative in expand(pattern) {\012            if matchFrom(alternative, from: 0, for: path, at: 0) { return true }\012        }\012        return false\012    }\012}\012\012/// `pattern` with its first `{a,b}` group replaced by each option in turn, expanded again until no group is left.\012List<string> expand(string pattern) uses alloc {\012    var result = List<string>()\012    let open = pattern.position(\042{\042) \077\077 -1\012    var close = -1\012    var starts = List<i64>()\012    if open >= 0 {\012        var depth = 0\012        var i = open\012        starts.append(open)\012        while i < pattern.length && close < 0 {\012            let b = pattern.bytes[i]\012            if b == '{' {\012                depth += 1\012            } else if b == '}' {\012                depth -= 1\012                if depth == 0 { close = i }\012            } else if b == ',' && depth == 1 {\012                starts.append(i)\012            }\012            i += 1\012        }\012    }\012    if close < 0 {\012        result.append($\042{pattern}\042)\012        return result\012    }\012    starts.append(close)\012    let head = pattern[0..open]\012    let tail = pattern[close + 1..pattern.length]\012    for k in 0..(starts.length - 1) {\012        let option = pattern[starts[k] + 1..starts[k + 1]]\012        for e in expand($\042{head}{option}{tail}\042) { result.append(e) }\012    }\012    return result\012}\012\012/// Whether `pattern` from `pi` matches `path` from `si` to its end.\012bool matchFrom(string pattern, from i64 pi, for string path, at i64 si) {\012    var i = pi\012    var j = si\012    while i < pattern.length {\012        let c = pattern.bytes[i]\012        if c == '*' {\012            if i + 1 < pattern.length && pattern.bytes[i + 1] == '*' && (i == 0 || pattern.bytes[i - 1] == '/') {\012                let k = i + 2\012                if k == pattern.length { return true }\012                if pattern.bytes[k] == '/' {\012                    if matchFrom(pattern, from: k + 1, for: path, at: j) { return true }\012                    var m = j\012                    while m < path.length {\012                        if path.bytes[m] == '/' && matchFrom(pattern, from: k + 1, for: path, at: m + 1) { return true }\012                        m += 1\012                    }\012                    return false\012                }\012            }\012            var m = j\012            while m <= path.length {\012                if matchFrom(pattern, from: i + 1, for: path, at: m) { return true }\012                if m == path.length || path.bytes[m] == '/' { return false }\012                m += charLength(charAt(path, at: m))\012            }\012            return false\012        }\012        if c == '\077' {\012            if j >= path.length || path.bytes[j] == '/' { return false }\012            i += 1\012            j += charLength(charAt(path, at: j))\012        } else if c == '[' && classEnd(pattern, at: i) > 0 {\012            let end = classEnd(pattern, at: i)\012            if j >= path.length || path.bytes[j] == '/' { return false }\012            let ch = charAt(path, at: j)\012            if !inClass(pattern, from: i, to: end, for: ch) { return false }\012            i = end\012            j += charLength(ch)\012        } else {\012            if j >= path.length || path.bytes[j] != c { return false }\012            i += 1\012            j += 1\012        }\012    }\012    return j == path.length\012}\012\012/// The index just past the `]` closing the class that opens at `open`, or -1.\012i64 classEnd(string pattern, at i64 open) {\012    var i = open + 1\012    if i < pattern.length && (pattern.bytes[i] == '!' || pattern.bytes[i] == '^') { i += 1 }\012    if i < pattern.length && pattern.bytes[i] == ']' { i += 1 }\012    while i < pattern.length {\012        if pattern.bytes[i] == ']' { return i + 1 }\012        i += 1\012    }\012    return -1\012}\012\012/// Whether the character `ch` (as `charAt` gives it) is in the class `pattern[open..end]`.\012bool inClass(string pattern, from i64 open, to i64 end, for i64 ch) {\012    var i = open + 1\012    var negated = false\012    if pattern.bytes[i] == '!' || pattern.bytes[i] == '^' {\012        negated = true\012        i += 1\012    }\012    let close = end - 1\012    var hit = false\012    while i < close {\012        let low = charAt(pattern, at: i)\012        let next = i + charLength(low)\012        if next + 1 < close && pattern.bytes[next] == '-' {\012            let high = charAt(pattern, at: next + 1)\012            if ch >= low && ch <= high { hit = true }\012            i = next + 1 + charLength(high)\012        } else {\012            if ch == low { hit = true }\012            i = next\012        }\012    }\012    return hit != negated\012}\012\012/// The character at `i` in `text`: its code point, or 0x110000 plus the byte at `i` when the bytes there are not\012/// well-formed UTF-8 (truncated, overlong, a surrogate or past U+10FFFF).\012i64 charAt(string text, at i64 i) {\012    let b = i64(text.bytes[i])\012    if b < 0x80 { return b }\012    var more = 0\012    var cp = 0\012    var least = 0\012    if b >= 0xC2 && b <= 0xDF {\012        more = 1\012        cp = b & 0x1F\012        least = 0x80\012    } else if b >= 0xE0 && b <= 0xEF {\012        more = 2\012        cp = b & 0x0F\012        least = 0x800\012    } else if b >= 0xF0 && b <= 0xF4 {\012        more = 3\012        cp = b & 0x07\012        least = 0x10000\012    }\012    if more == 0 || i + more >= text.length { return 0x110000 + b }\012    var k = 1\012    while k <= more {\012        let t = i64(text.bytes[i + k])\012        if t < 0x80 || t > 0xBF { return 0x110000 + b }\012        cp = cp * 0x40 + (t & 0x3F)\012        k += 1\012    }\012    if cp < least || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF) { return 0x110000 + b }\012    return cp\012}\012\012/// The number of bytes the character `ch` (as `charAt` gives it) takes.\012i64 charLength(i64 ch) {\012    if ch < 0x80 || ch >= 0x110000 { return 1 }\012    if ch < 0x800 { return 2 }\012    return ch < 0x10000 \077 3 : 4\012}\012", 6571)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("json/value.byn", 14), BYN_STR("// std.json tree (spec 016 T4, 015 S7): `JsonValue` built on `JsonReader`, and `Json.encode`.\012\012/// A JSON value. A number keeps its text, so `Json.encode` writes it back as read (a built one whose text is not a\012/// JSON number is written from its value, and refused when that is not finite); an object keeps its members in text order, duplicate keys included.\012public union JsonValue {\012    nothing\012    flag(bool value)\012    number(f64 value, string text)\012    text(string value)\012    list(List<JsonValue> items)\012    object(List<JsonMember> members)\012}\012\012/// One `key: value` of an object.\012public struct JsonMember {\012    public string    key\012    public JsonValue value\012}\012\012/// Parsing JSON text into a tree and writing a tree as text.\012public struct Json {\012    /// The value `text` holds, read with `JsonReader`; outside data, so `Untrusted`.\012    public static Untrusted<JsonValue> parse(string text) uses alloc fails JsonError {\012        var reader = JsonReader.over(text)\012        let first = (try reader.next()) \077\077 panic(\042std.json: a reader gives a token before its end\042)\012        let value = try treeOf(ref reader, from: first)\012        let _ = try reader.next()\012        return Untrusted(move value)\012    }\012\012    /// `v` as text, the layout of Python's `json.dumps(v, indent=indent)` with `ensure_ascii`: compact with `, ` and\012    /// `: ` when `indent` is 0 or less, else one item per line, `indent` spaces per level. A number is its text when that\012    /// is a JSON number (RFC 8259 \302\2476), else its value as shortest digits, so a built number never writes invalid JSON or\012    /// text outside itself; NaN and \302\261infinity fail `nonFinite` (spec \302\2476.6). Lists and objects nesting deeper than\012    /// `maxDepth` fail `nestedTooDeep`, before the recursion goes past that depth.\012    public static string encode(JsonValue v, i32 indent = 0) uses alloc fails JsonError {\012        var sb = StrBuf()\012        try encodeInto(ref sb, from: v, by: i64(indent), at: 0)\012        return $\042{sb.finish()}\042\012    }\012}\012\012/// The value that starts with `first`; the reader's depth limit bounds the recursion.\012JsonValue treeOf(ref JsonReader reader, from JsonToken first) uses alloc fails JsonError {\012    switch first {\012        case .startList:\012            var items = List<JsonValue>()\012            while true {\012                let token = (try reader.next()) \077\077 panic(\042std.json: a reader gives a token before its end\042)\012                return .list(items: move items) if token is .endList\012                items.append(try treeOf(ref reader, from: token))\012            }\012        case .startObject:\012            var members = List<JsonMember>()\012            while true {\012                let token = (try reader.next()) \077\077 panic(\042std.json: a reader gives a token before its end\042)\012                switch token {\012                    case .endObject: return .object(members: move members)\012                    case .key(let name):\012                        let next = (try reader.next()) \077\077 panic(\042std.json: a reader gives a token before its end\042)\012                        members.append(JsonMember { key: name, value: try treeOf(ref reader, from: next) })\012                    default: panic(\042std.json: a reader gives a key or `}` in an object\042)\012                }\012            }\012        case .text(let value): return .text(value: value)\012        case .number(let value, let text): return .number(value: value, text: text)\012        case .flag(let value): return .flag(value: value)\012        case .nothing: return .nothing\012        default: panic(\042std.json: a reader starts a value with a value token\042)\012    }\012}\012\012/// `v` at nesting `level` (the number of lists and objects around it); a list or object at `maxDepth` fails.\012void encodeInto(ref StrBuf sb, from JsonValue v, by i64 indent, at i64 level) uses alloc fails JsonError {\012    switch v {\012        case .nothing: sb.append(\042null\042)\012        case .flag(let value): sb.append(value \077 \042true\042 : \042false\042)\012        case .number(let value, let text): try numberInto(ref sb, from: value, as: text)\012        case .text(let value): quoteInto(ref sb, from: value)\012        case .list(let items):\012            fail .nestedTooDeep if level >= maxDepth\012            if items.length == 0 {\012                sb.append(\042[]\042)\012                return\012            }\012            sb.append(\042[\042)\012            for i in 0..items.length {\012                separate(ref sb, by: indent, at: level + 1, first: i == 0)\012                try encodeInto(ref sb, from: items[i], by: indent, at: level + 1)\012            }\012            newline(ref sb, by: indent, at: level)\012            sb.append(\042]\042)\012        case .object(let members):\012            fail .nestedTooDeep if level >= maxDepth\012            if members.length == 0 {\012                sb.append(\042{}\042)\012                return\012            }\012            sb.append(\042{\042)\012            for i in 0..members.length {\012                separate(ref sb, by: indent, at: level + 1, first: i == 0)\012                quoteInto(ref sb, from: members[i].key)\012                sb.append(\042: \042)\012                try encodeInto(ref sb, from: members[i].value, by: indent, at: level + 1)\012            }\012            newline(ref sb, by: indent, at: level)\012            sb.append(\042}\042)\012    }\012}\012\012/// `text` when it is one whole JSON number, else `value`, which fails `nonFinite` when it is not finite (only then is\012/// `value - value` not 0).\012void numberInto(ref StrBuf sb, from f64 value, as string text) uses alloc fails JsonError {\012    if isNumberText(text) {\012        sb.append(text)\012        return\012    }\012    fail .nonFinite if value - value != 0.0\012    sb.append($\042{value}\042)\012}\012\012/// Whether `text` is exactly one JSON number, as `JsonReader` reads it.\012bool isNumberText(string text) uses alloc {\012    var reader = JsonReader.over(text)\012    let token = reader.next() catch { return false }\012    return token is .number(_, let digits) && digits.length == text.length\012}\012\012/// Before an item: `, ` (compact) or `,` and a new line (indented); the first item has no comma.\012void separate(ref StrBuf sb, by i64 indent, at i64 level, bool first) {\012    if !first {\012        sb.append(indent > 0 \077 \042,\042 : \042, \042)\012    }\012    newline(ref sb, by: indent, at: level)\012}\012\012void newline(ref StrBuf sb, by i64 indent, at i64 level) {\012    return if indent <= 0\012    sb.append(\042\134n\042)\012    sb.appendRepeated(' ', by: indent * level)\012}\012\012/// `s` as a JSON string with Python's `ensure_ascii` escapes: `\134uXXXX` (lowercase, a surrogate pair above U+FFFF)\012/// for every rune outside `' '..'~'` that has no short escape.\012void quoteInto(ref StrBuf sb, from string s) {\012    sb.append(\042\134\042\042)\012    for r in s.runes {\012        let cp = r.value\012        if r == '\042' {\012            sb.append(\042\134\134\134\042\042)\012        } else if r == '\134\134' {\012            sb.append(\042\134\134\134\134\042)\012        } else if r == '\134n' {\012            sb.append(\042\134\134n\042)\012        } else if r == '\134r' {\012            sb.append(\042\134\134r\042)\012        } else if r == '\134t' {\012            sb.append(\042\134\134t\042)\012        } else if cp == 0x8 {\012            sb.append(\042\134\134b\042)\012        } else if cp == 0xC {\012            sb.append(\042\134\134f\042)\012        } else if cp is 0x20..=0x7E {\012            sb.append($\042{r}\042)\012        } else if cp > 0xFFFF {\012            let v = cp - 0x10000\012            unitInto(ref sb, from: 0xD800 + v / 0x400)\012            unitInto(ref sb, from: 0xDC00 + v % 0x400)\012        } else {\012            unitInto(ref sb, from: cp)\012        }\012    }\012    sb.append(\042\134\042\042)\012}\012\012void unitInto(ref StrBuf sb, from u32 unit) {\012    sb.append(\042\134\134u\042)\012    let digits = string(unit, as: .hex)\012    sb.appendRepeated('0', by: 4 - digits.length)\012    sb.append(digits)\012}\012", 7491)}));
 #line 14 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("path/glob.test.byn", 18), BYN_STR("// Tests of std.path Glob. The expected results are not recorded from another implementation: S5 settles the\012// semantics (`*` and `\077` stop at `/`, `**` crosses it), so the table is written from the rules in `Glob.matches`.\012\012@cases(\012    (\042a.byn\042, \042a.byn\042, true),\012    (\042a.byn\042, \042b.byn\042, false),\012    (\042*.byn\042, \042a.byn\042, true),\012    (\042*.byn\042, \042a.cs\042, false),\012    (\042*.byn\042, \042.byn\042, true),\012    (\042*.byn\042, \042d/a.byn\042, false),\012    (\042src/*.byn\042, \042src/a.byn\042, true),\012    (\042src/*.byn\042, \042src/d/a.byn\042, false),\012    (\042a\077c\042, \042abc\042, true),\012    (\042a\077c\042, \042ac\042, false),\012    (\042a\077c\042, \042a/c\042, false),\012    (\042[ab]x\042, \042ax\042, true),\012    (\042[ab]x\042, \042cx\042, false),\012    (\042[a-c]x\042, \042bx\042, true),\012    (\042[a-c]x\042, \042dx\042, false),\012    (\042[!a-c]x\042, \042dx\042, true),\012    (\042[!a-c]x\042, \042bx\042, false),\012    (\042[^a]x\042, \042bx\042, true),\012    (\042[]a]x\042, \042]x\042, true),\012    (\042[a\042, \042[a\042, true),\012    (\042[a\042, \042a\042, false),\012    (\042[a-]x\042, \042-x\042, true),\012    (\042{a,b}.cs\042, \042a.cs\042, true),\012    (\042{a,b}.cs\042, \042b.cs\042, true),\012    (\042{a,b}.cs\042, \042c.cs\042, false),\012    (\042s/{a,b/c}/x\042, \042s/a/x\042, true),\012    (\042s/{a,b/c}/x\042, \042s/b/c/x\042, true),\012    (\042{a,{b,c}d}\042, \042cd\042, true),\012    (\042{a,{b,c}d}\042, \042bd\042, true),\012    (\042{a,{b,c}d}\042, \042b\042, false),\012    (\042{a\042, \042{a\042, true),\012    (\042{}\042, \042\042, true),\012    (\042src/**/*.byn\042, \042src/a.byn\042, true),\012    (\042src/**/*.byn\042, \042src/x/y/a.byn\042, true),\012    (\042src/**/*.byn\042, \042lib/a.byn\042, false),\012    (\042src/**/*.byn\042, \042src/x/a.cs\042, false),\012    (\042**/a.byn\042, \042a.byn\042, true),\012    (\042**/a.byn\042, \042x/y/a.byn\042, true),\012    (\042**/a.byn\042, \042x/ya.byn\042, false),\012    (\042src/**\042, \042src/x/y\042, true),\012    (\042src/**\042, \042lib/x\042, false),\012    (\042**\042, \042a/b/c\042, true),\012    (\042a**b\042, \042axb\042, true),\012    (\042a**b\042, \042a/b\042, false),\012    (\042*\042, \042\042, true),\012    (\042\042, \042\042, true),\012    (\042\042, \042a\042, false),\012    (\042\077\042, \042\303\251\042, true),\012    (\042a\077\042, \042a\303\251\042, true),\012    (\042a\077\077\042, \042a\303\251\042, false),\012    (\042[\303\251]\042, \042\303\251\042, true),\012    (\042[\303\251a]x\042, \042\303\251x\042, true),\012    (\042[!\303\251]\042, \042\303\251\042, false),\012    (\042[!\303\251]\042, \042\303\250\042, true),\012    (\042*[!\303\251]\042, \042\303\251\042, false),\012    (\042[\303\240-\303\253]\042, \042\303\251\042, true),\012    (\042\077\042, \042\342\202\254\042, true),\012    (\042\077\042, \042\360\237\230\200\042, true),\012)\012test \042patterns against paths\042 (string pattern, string path, bool expected) {\012    assert Glob.matches(pattern, for: path) == expected\012}\012", 2104)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("path/glob.byn", 13), BYN_STR("// std.path glob matching (spec 015 S5, T13): shell-style patterns over `/`-separated paths, compared character by\012// character (UTF-8).\012\012/// Matching `/`-separated paths against shell-style glob patterns.\012public struct Glob {\012    /// Whether the whole of `path` matches `pattern`. `\077` is one character and `*` any characters, neither crossing a\012    /// `/`; a `**` segment (`a/**/b`, `**/b`, `a/**`) is any number of segments, `a/**/b` matching `a/b`; `[abc]`,\012    /// `[a-z]` and `[!abc]` (or `[^abc]`) are one character of a set, a `[` without a closing `]` is itself; `{a,b}`\012    /// alternatives nest and may hold `/`; an unclosed `{` is itself. A character is one UTF-8 code point (`\303\251` is one,\012    /// in a path and in a set); where the bytes are not well-formed UTF-8, each such byte counts as one character\012    /// that equals only the same byte.\012    public static bool matches(string pattern, for string path) uses alloc {\012        for alternative in expand(pattern) {\012            if matchFrom(alternative, from: 0, for: path, at: 0) { return true }\012        }\012        return false\012    }\012}\012\012/// `pattern` with its first `{a,b}` group replaced by each option in turn, expanded again until no group is left.\012List<string> expand(string pattern) uses alloc {\012    var result = List<string>()\012    let open = pattern.position(\042{\042) \077\077 -1\012    var close = -1\012    var starts = List<i64>()\012    if open >= 0 {\012        var depth = 0\012        var i = open\012        starts.append(open)\012        while i < pattern.length && close < 0 {\012            let b = pattern.bytes[i]\012            if b == '{' {\012                depth += 1\012            } else if b == '}' {\012                depth -= 1\012                if depth == 0 { close = i }\012            } else if b == ',' && depth == 1 {\012                starts.append(i)\012            }\012            i += 1\012        }\012    }\012    if close < 0 {\012        result.append($\042{pattern}\042)\012        return result\012    }\012    starts.append(close)\012    let head = pattern[0..open]\012    let tail = pattern[close + 1..pattern.length]\012    for k in 0..(starts.length - 1) {\012        let option = pattern[starts[k] + 1..starts[k + 1]]\012        for e in expand($\042{head}{option}{tail}\042) { result.append(e) }\012    }\012    return result\012}\012\012/// Whether `pattern` from `pi` matches `path` from `si` to its end.\012bool matchFrom(string pattern, from i64 pi, for string path, at i64 si) {\012    var i = pi\012    var j = si\012    while i < pattern.length {\012        let c = pattern.bytes[i]\012        if c == '*' {\012            if i + 1 < pattern.length && pattern.bytes[i + 1] == '*' && (i == 0 || pattern.bytes[i - 1] == '/') {\012                let k = i + 2\012                if k == pattern.length { return true }\012                if pattern.bytes[k] == '/' {\012                    if matchFrom(pattern, from: k + 1, for: path, at: j) { return true }\012                    var m = j\012                    while m < path.length {\012                        if path.bytes[m] == '/' && matchFrom(pattern, from: k + 1, for: path, at: m + 1) { return true }\012                        m += 1\012                    }\012                    return false\012                }\012            }\012            var m = j\012            while m <= path.length {\012                if matchFrom(pattern, from: i + 1, for: path, at: m) { return true }\012                if m == path.length || path.bytes[m] == '/' { return false }\012                m += charLength(charAt(path, at: m))\012            }\012            return false\012        }\012        if c == '\077' {\012            if j >= path.length || path.bytes[j] == '/' { return false }\012            i += 1\012            j += charLength(charAt(path, at: j))\012        } else if c == '[' && classEnd(pattern, at: i) > 0 {\012            let end = classEnd(pattern, at: i)\012            if j >= path.length || path.bytes[j] == '/' { return false }\012            let ch = charAt(path, at: j)\012            if !inClass(pattern, from: i, to: end, for: ch) { return false }\012            i = end\012            j += charLength(ch)\012        } else {\012            if j >= path.length || path.bytes[j] != c { return false }\012            i += 1\012            j += 1\012        }\012    }\012    return j == path.length\012}\012\012/// The index just past the `]` closing the class that opens at `open`, or -1.\012i64 classEnd(string pattern, at i64 open) {\012    var i = open + 1\012    if i < pattern.length && (pattern.bytes[i] == '!' || pattern.bytes[i] == '^') { i += 1 }\012    if i < pattern.length && pattern.bytes[i] == ']' { i += 1 }\012    while i < pattern.length {\012        if pattern.bytes[i] == ']' { return i + 1 }\012        i += 1\012    }\012    return -1\012}\012\012/// Whether the character `ch` (as `charAt` gives it) is in the class `pattern[open..end]`.\012bool inClass(string pattern, from i64 open, to i64 end, for i64 ch) {\012    var i = open + 1\012    var negated = false\012    if pattern.bytes[i] == '!' || pattern.bytes[i] == '^' {\012        negated = true\012        i += 1\012    }\012    let close = end - 1\012    var hit = false\012    while i < close {\012        let low = charAt(pattern, at: i)\012        let next = i + charLength(low)\012        if next + 1 < close && pattern.bytes[next] == '-' {\012            let high = charAt(pattern, at: next + 1)\012            if ch >= low && ch <= high { hit = true }\012            i = next + 1 + charLength(high)\012        } else {\012            if ch == low { hit = true }\012            i = next\012        }\012    }\012    return hit != negated\012}\012\012/// The character at `i` in `text`: its code point, or 0x110000 plus the byte at `i` when the bytes there are not\012/// well-formed UTF-8 (truncated, overlong, a surrogate or past U+10FFFF).\012i64 charAt(string text, at i64 i) {\012    let b = i64(text.bytes[i])\012    if b < 0x80 { return b }\012    var more = 0\012    var cp = 0\012    var least = 0\012    if b >= 0xC2 && b <= 0xDF {\012        more = 1\012        cp = b & 0x1F\012        least = 0x80\012    } else if b >= 0xE0 && b <= 0xEF {\012        more = 2\012        cp = b & 0x0F\012        least = 0x800\012    } else if b >= 0xF0 && b <= 0xF4 {\012        more = 3\012        cp = b & 0x07\012        least = 0x10000\012    }\012    if more == 0 || i + more >= text.length { return 0x110000 + b }\012    var k = 1\012    while k <= more {\012        let t = i64(text.bytes[i + k])\012        if t < 0x80 || t > 0xBF { return 0x110000 + b }\012        cp = cp * 0x40 + (t & 0x3F)\012        k += 1\012    }\012    if cp < least || cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF) { return 0x110000 + b }\012    return cp\012}\012\012/// The number of bytes the character `ch` (as `charAt` gives it) takes.\012i64 charLength(i64 ch) {\012    if ch < 0x80 || ch >= 0x110000 { return 1 }\012    if ch < 0x800 { return 2 }\012    return ch < 0x10000 \077 3 : 4\012}\012", 6571)}));
 #line 15 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("regex/regex.byn", 15), BYN_STR("// std.regex (spec 015 S3, T14): RE2-style patterns run by a Pike VM over the runes of UTF-8 text, so matching takes\012// time linear in the text times the program, never backtracking; no backreferences, no lookaround.\012\012/// A `{m,n}` count above this is refused, as in RE2.\012const maxRepeat: i64 = 1000\012\012/// A compiled program longer than this many instructions is refused (`tooLarge`).\012const maxProgram: i64 = 100000\012\012/// Groups nest at most this deep, so parsing never recurses past it (docs/memory-leaks.md rule 5).\012const maxDepth: i64 = 1000\012\012/// Why `Regex.parse` refused a pattern, at a byte offset of the pattern.\012public union error RegexError {\012    /// The pattern breaks the syntax at `offset`.\012    syntax(string message, i64 offset)\012    /// A backreference or lookaround (or another construct that linear-time matching leaves out) starts at `offset`.\012    unsupported(string message, i64 offset)\012    /// The compiled program would exceed `maxProgram` instructions; `offset` is where the pattern grew past it.\012    tooLarge(i64 offset)\012}\012\012/// What one instruction does.\012enum Op {\012    rune\012    set\012    any\012    split\012    jump\012    save\012    lineStart\012    lineEnd\012    wordBoundary\012    notWordBoundary\012    done\012}\012\012/// One instruction. `rune`: `x` is the code point. `set`: the range pairs `ranges[x..y]` and `flags` (1 negated, 2 any\012/// non-digit, 4 any non-space, 8 any non-word). `split`: try `pc + x` first, then `pc + y`. `jump`: go to `pc + x`.\012/// `save`: slot `x` takes the position. Targets are relative, so a fragment can be copied anywhere.\012struct Inst {\012    Op  op\012    i64 x     = 0\012    i64 y     = 0\012    i64 flags = 0\012}\012\012/// A compiled RE2-style pattern: literals, `.`, classes `[...]` and `[^...]`, `\134d \134s \134w` and `\134D \134S \134W` (ASCII, as in\012/// RE2), anchors `^ $ \134b \134B`, groups `(...)` and `(\077:...)`, `\077 * + {m} {m,} {m,n}` with lazy forms (`\077\077`, `*\077`, ...),\012/// and alternation `|`. `^` and `$` match at the start and end of the whole text; `.` matches any rune but `\134n`. A\012/// match is leftmost-first (Perl order); matching is linear in the length of the text.\012public struct Regex {\012    List<Inst> program\012    List<u32>  ranges\012    i64        groups\012\012    /// The pattern compiled, failing `unsupported` for a backreference (`\1341`, `\134k<\342\200\246>`), lookaround (`(\077=`, `(\077!`,\012    /// `(\077<=`, `(\077<!`), flags or named groups, `syntax` at the first byte that breaks the syntax, and `tooLarge` when\012    /// the program would exceed `maxProgram` instructions.\012    public static Regex parse(string pattern) uses alloc fails RegexError {\012        var p = Parser { pattern: pattern, ranges: List<u32>() }\012        let body = try p.parseBranches()\012        fail .syntax(message: \042unmatched `)`\042, offset: p.pos) if p.pos < pattern.length\012        var program = List<Inst>()\012        program.append(Inst { op: .save, x: 0 })\012        for inst in body {\012            program.append(inst)\012        }\012        program.append(Inst { op: .save, x: 1 })\012        program.append(Inst { op: .done })\012        return Regex { program: move program, ranges: p.ranges.copy(), groups: p.groups }\012    }\012\012    /// Whether the pattern matches the whole of `text`, as Python's `re.fullmatch` (not only a part; `find` is that).\012    public bool matches(string text) uses alloc {\012        return search(text, from: 0, whole: true) is not null\012    }\012\012    /// The leftmost-first match in `text`, or `null` when there is none.\012    public Match\077 find(string text) uses alloc {\012        let slots = search(text, from: 0, whole: false) \077\077 return null\012        return Match { text: text, slots: move slots }\012    }\012\012    /// Every match in `text`, left to right and not overlapping. As in RE2 and Go, an empty match right where the\012    /// previous match ended is skipped, and the search steps one rune past an empty match.\012    public List<Match> findAll(string text) uses alloc {\012        var all = List<Match>()\012        var pos = 0\012        var previousEnd = -1\012        while pos <= text.length {\012            let slots = search(text, from: pos, whole: false) \077\077 break\012            let start = slots[0]\012            let end = slots[1]\012            var accept = true\012            if end == pos {\012                accept = start != previousEnd\012                pos += pos < text.length \077 runeAt(text, at: pos).width : 1\012            } else {\012                pos = end\012            }\012            previousEnd = end\012            if accept {\012                all.append(Match { text: text, slots: move slots })\012            }\012        }\012        return all\012    }\012\012    /// `text` with every match `findAll` gives replaced by `replacement`, taken literally (no `$1` or `\1341`).\012    public string replaced(string text, by string replacement) uses alloc {\012        let all = findAll(text)\012        var sb = StrBuf()\012        var last = 0\012        for m in all {\012            let span = m.span\012            sb.append(text[last..span.start])\012            sb.append(replacement)\012            last = span.end\012        }\012        sb.append(text[last..])\012        return $\042{sb.finish()}\042\012    }\012\012    /// `text` with `\134` before each of `\134 . + * \077 ( ) | [ ] { } ^ $` (Go's `QuoteMeta` set), so `Regex.parse` of the\012    /// result matches `text` literally; the pattern for outside text (spec \302\24715.1).\012    public static string escaped(string text) uses alloc {\012        var sb = StrBuf()\012        var run = 0\012        for i in 0..text.length {\012            let b = text.bytes[i]\012            if isMeta(b) {\012                sb.append(text[run..i])\012                sb.append(\042\134\134\042)\012                run = i\012            }\012        }\012        sb.append(text[run..])\012        return $\042{sb.finish()}\042\012    }\012\012    /// The slots of the first match at or after `from` (start and end of the match, then of each group, -1 when a\012    /// group took no part), or `null`. `whole` anchors the match at `from` and accepts it only when it ends at the\012    /// text's end.\012    List<i64>\077 search(string text, from i64 from, bool whole) uses alloc {\012        let slotCount = 2 * (groups + 1)\012        var vm = Vm { marks: List<i64>(), stack: List<Frame>(), current: List<i64>(), slotCount: slotCount }\012        for _ in 0..program.length {\012            vm.marks.append(0)\012        }\012        for _ in 0..slotCount {\012            vm.current.append(-1)\012        }\012        var now = Threads { pcs: List<i64>(), slots: List<i64>() }\012        var next = Threads { pcs: List<i64>(), slots: List<i64>() }\012        var best = List<i64>()\012        var matched = false\012        var generation = 1\012        var nowGeneration = 1\012        var pos = from\012        while true {\012            if !matched && (!whole || pos == from) {\012                for k in 0..slotCount {\012                    vm.current[k] = -1\012                }\012                vm.pos = pos\012                vm.generation = nowGeneration\012                vm.add(text, at: 0, to: ref now, from: program.span)\012            }\012            break if now.pcs.length == 0 && (matched || whole)\012            var value: u32 = 0\012            var width = 0\012            if pos < text.length {\012                let r = runeAt(text, at: pos)\012                value = r.value\012                width = r.width\012            }\012            generation += 1\012            for i in 0..now.pcs.length {\012                let pc = now.pcs[i]\012                let inst = program[pc]\012                if inst.op == .done {\012                    continue if whole && pos != text.length\012                    best.clear()\012                    for k in 0..slotCount {\012                        best.append(now.slots[i * slotCount + k])\012                    }\012                    matched = true\012                    break\012                }\012                continue if pos >= text.length\012                var hit = false\012                if inst.op == .rune {\012                    hit = i64(value) == inst.x\012                } else if inst.op == .any {\012                    hit = value != 0x0A\012                } else if inst.op == .set {\012                    hit = isInClass(value, by: inst)\012                }\012                continue if !hit\012                for k in 0..slotCount {\012                    vm.current[k] = now.slots[i * slotCount + k]\012                }\012                vm.pos = pos + width\012                vm.generation = generation\012                vm.add(text, at: pc + 1, to: ref next, from: program.span)\012            }\012            let swap = move now\012            now = move next\012            next = move swap\012            next.pcs.clear()\012            next.slots.clear()\012            nowGeneration = generation\012            break if pos >= text.length\012            pos += width\012        }\012        return null if !matched\012        return best\012    }\012\012    /// Whether rune `value` is in the class of `inst`.\012    bool isInClass(u32 value, by Inst inst) {\012        var hit = false\012        var i = inst.x\012        while i < inst.y {\012            if value >= ranges[i] && value <= ranges[i + 1] {\012                hit = true\012            }\012            i += 2\012        }\012        hit = hit || ((inst.flags & 2) != 0 && !isDigit(value))\012        hit = hit || ((inst.flags & 4) != 0 && !isSpace(value))\012        hit = hit || ((inst.flags & 8) != 0 && !isWord(value))\012        return hit != ((inst.flags & 1) != 0)\012    }\012}\012\012/// One match: its span and the text of each group.\012public struct Match {\012    string    text\012    List<i64> slots\012\012    /// The byte offsets of the whole match in the text searched, `start` inclusive and `end` exclusive.\012    public (i64 start, i64 end) span => (start: slots[0], end: slots[1])\012\012    /// The text group `index` matched (0 is the whole match, then each `(...)` by its opening parenthesis), or `null`\012    /// when the group took no part in the match or there is no group `index`.\012    public string\077 group(i64 index) {\012        return null if index < 0 || 2 * index + 1 >= slots.length\012        let start = slots[2 * index]\012        return null if start < 0\012        return text[start..slots[2 * index + 1]]\012    }\012}\012\012/// A recursive-descent parser that emits program fragments.\012struct Parser {\012    string    pattern\012    i64       pos    = 0\012    i64       groups = 0\012    i64       depth  = 0\012    List<u32> ranges\012\012    /// `concat ('|' concat)*`.\012    List<Inst> parseBranches(ref this) uses alloc fails RegexError {\012        fail .syntax(message: \042groups nest too deep\042, offset: pos) if depth >= maxDepth\012        depth += 1\012        var branches = List<List<Inst>>()\012        branches.append(try parseConcat())\012        while pos < pattern.length && pattern.bytes[pos] == '|' {\012            pos += 1\012            branches.append(try parseConcat())\012        }\012        depth -= 1\012        if branches.length == 1 {\012            return branches.removeLast()\012        }\012        var total = 2 * (branches.length - 1)\012        for b in branches {\012            total += b.length\012        }\012        fail .tooLarge(offset: pos) if total > maxProgram\012        var frag = List<Inst>()\012        for i in 0..branches.length {\012            let last = i == branches.length - 1\012            if !last {\012                frag.append(Inst { op: .split, x: 1, y: branches[i].length + 2 })\012            }\012            for inst in branches[i] {\012                frag.append(inst)\012            }\012            if !last {\012                frag.append(Inst { op: .jump, x: total - frag.length })\012            }\012        }\012        return frag\012    }\012\012    /// A run of repeated atoms, up to `|`, `)` or the end.\012    List<Inst> parseConcat(ref this) uses alloc fails RegexError {\012        var frag = List<Inst>()\012        while pos < pattern.length && pattern.bytes[pos] != '|' && pattern.bytes[pos] != ')' {\012            let piece = try parseRepeat()\012            fail .tooLarge(offset: pos) if frag.length + piece.length > maxProgram\012            for inst in piece {\012                frag.append(inst)\012            }\012        }\012        return frag\012    }\012\012    /// An atom and at most one quantifier, with its lazy `\077`.\012    List<Inst> parseRepeat(ref this) uses alloc fails RegexError {\012        let atom = try parseItem()\012        let at = pos\012        var min = 0\012        var max = -1\012        let b = peek()\012        if b == '*' {\012            pos += 1\012        } else if b == '+' {\012            min = 1\012            pos += 1\012        } else if b == '\077' {\012            max = 1\012            pos += 1\012        } else if b == '{' && hasCountNext() {\012            pos += 1\012            min = number()\012            max = min\012            if peek() == ',' {\012                pos += 1\012                max = peek() == '}' \077 -1 : number()\012            }\012            pos += 1\012            fail .syntax(message: \042repetition count above 1000\042, offset: at) if min > maxRepeat || max > maxRepeat\012            fail .syntax(message: \042repetition maximum below its minimum\042, offset: at) if max >= 0 && max < min\012        } else {\012            return atom\012        }\012        var greedy = true\012        if peek() == '\077' {\012            greedy = false\012            pos += 1\012        }\012        fail .syntax(message: \042repetition of a repetition\042, offset: pos) if hasRepeatNext()\012        return try repeated(atom.span, from: min, through: max, greedy: greedy, at: at)\012    }\012\012    /// `e` repeated `min` to `max` times (`max` -1: no bound), each optional copy nested in the one before it. `e*` is\012    /// `(e+)\077`, as in RE2, so an `e` that matches empty still sets its groups (`(a*)*` on `b`).\012    List<Inst> repeated(ReadOnlySpan<Inst> e, from i64 min, through i64 max, bool greedy, at i64 at)\012            uses alloc fails RegexError {\012        let n = e.length\012        var size = min * n\012        if max < 0 {\012            size += min == 0 \077 n + 2 : 1\012        } else {\012            size += (max - min) * (n + 1)\012        }\012        fail .tooLarge(offset: at) if size > maxProgram\012        var frag = List<Inst>()\012        let copies = max < 0 && min > 0 \077 min - 1 : min\012        for _ in 0..copies {\012            for inst in e {\012                frag.append(inst)\012            }\012        }\012        if max < 0 && min == 0 {\012            frag.append(greedy \077 Inst { op: .split, x: 1, y: n + 2 } : Inst { op: .split, x: n + 2, y: 1 })\012            for inst in e {\012                frag.append(inst)\012            }\012            frag.append(greedy \077 Inst { op: .split, x: -n, y: 1 } : Inst { op: .split, x: 1, y: -n })\012        } else if max < 0 {\012            for inst in e {\012                frag.append(inst)\012            }\012            frag.append(greedy \077 Inst { op: .split, x: -n, y: 1 } : Inst { op: .split, x: 1, y: -n })\012        } else {\012            for k in 0..max - min {\012                let skip = (max - min - k) * (n + 1)\012                frag.append(greedy \077 Inst { op: .split, x: 1, y: skip } : Inst { op: .split, x: skip, y: 1 })\012                for inst in e {\012                    frag.append(inst)\012                }\012            }\012        }\012        return frag\012    }\012\012    /// One atom: a group, a class, `.`, an anchor, an escape or a literal rune.\012    List<Inst> parseItem(ref this) uses alloc fails RegexError {\012        let start = pos\012        var frag = List<Inst>()\012        let b = pattern.bytes[pos]\012        if b == '(' {\012            pos += 1\012            var index = -1\012            if peek() == '\077' {\012                let rest = pattern[pos..]\012                let lookaround = rest.startsWith(\042\077=\042) || rest.startsWith(\042\077!\042) || rest.startsWith(\042\077<=\042)\012                    || rest.startsWith(\042\077<!\042)\012                fail .unsupported(message: \042lookaround\042, offset: start) if lookaround\012                fail .unsupported(message: \042group flags and named groups\042, offset: start) if !rest.startsWith(\042\077:\042)\012                pos += 2\012            } else {\012                groups += 1\012                index = groups\012                frag.append(Inst { op: .save, x: 2 * index })\012            }\012            let body = try parseBranches()\012            fail .syntax(message: \042missing `)`\042, offset: start) if peek() != ')'\012            pos += 1\012            for inst in body {\012                frag.append(inst)\012            }\012            if index >= 0 {\012                frag.append(Inst { op: .save, x: 2 * index + 1 })\012            }\012            return frag\012        }\012        fail .syntax(message: \042missing argument to repetition operator\042, offset: start) if hasRepeatNext()\012        pos += 1\012        if b == '[' {\012            frag.append(try classSet(start))\012        } else if b == '.' {\012            frag.append(Inst { op: .any })\012        } else if b == '^' {\012            frag.append(Inst { op: .lineStart })\012        } else if b == '$' {\012            frag.append(Inst { op: .lineEnd })\012        } else if b == '\134\134' {\012            let code = try escape(start)\012            if code >= 0 {\012                frag.append(Inst { op: .rune, x: code })\012            } else if code == -7 {\012                frag.append(Inst { op: .wordBoundary })\012            } else if code == -8 {\012                frag.append(Inst { op: .notWordBoundary })\012            } else {\012                let from = ranges.length\012                let flags = addClass(code)\012                frag.append(Inst { op: .set, x: from, y: ranges.length, flags: flags })\012            }\012        } else {\012            pos = start\012            let r = runeAt(pattern, at: pos)\012            pos += r.width\012            frag.append(Inst { op: .rune, x: i64(r.value) })\012        }\012        return frag\012    }\012\012    /// The class whose `[` is at `start` (`pos` is past it), as a `set` instruction.\012    Inst classSet(ref this, i64 start) uses alloc fails RegexError {\012        var flags = 0\012        if peek() == '^' {\012            flags = 1\012            pos += 1\012        }\012        let from = ranges.length\012        var first = true\012        while true {\012            fail .syntax(message: \042missing `]`\042, offset: start) if pos >= pattern.length\012            let b = pattern.bytes[pos]\012            if b == ']' && !first {\012                pos += 1\012                return Inst { op: .set, x: from, y: ranges.length, flags: flags }\012            }\012            first = false\012            fail .unsupported(message: \042POSIX class\042, offset: pos) if pattern[pos..].startsWith(\042[:\042)\012            let at = pos\012            let lo = try classRune()\012            if lo < 0 {\012                flags = flags | addClass(lo)\012                continue\012            }\012            var hi = lo\012            if hasRangeNext() {\012                pos += 1\012                let endAt = pos\012                hi = try classRune()\012                fail .syntax(message: \042class escape as a range end\042, offset: endAt) if hi < 0\012                fail .syntax(message: \042range end before its start\042, offset: at) if hi < lo\012            }\012            ranges.append(u32(lo))\012            ranges.append(u32(hi))\012        }\012    }\012\012    /// A rune of a class, or a negative builtin code for `\134d \134D \134s \134S \134w \134W` (as `escape` gives them).\012    i64 classRune(ref this) fails RegexError {\012        let start = pos\012        if pattern.bytes[pos] == '\134\134' {\012            pos += 1\012            let code = try escape(start)\012            fail .syntax(message: \042`\134\134b` or `\134\134B` in a class\042, offset: start) if code == -7 || code == -8\012            return code\012        }\012        let r = runeAt(pattern, at: pos)\012        pos += r.width\012        return i64(r.value)\012    }\012\012    /// The escape whose `\134` is at `start` (`pos` is past it): a rune, or -1..-6 for `\134d \134D \134s \134S \134w \134W`, -7 for `\134b`,\012    /// -8 for `\134B`.\012    i64 escape(ref this, i64 start) fails RegexError {\012        fail .syntax(message: \042trailing `\134\134`\042, offset: start) if pos >= pattern.length\012        let e = pattern.bytes[pos]\012        pos += 1\012        fail .unsupported(message: \042backreference\042, offset: start) if (e >= '1' && e <= '9') || e == 'k'\012        return -1 if e == 'd'\012        return -2 if e == 'D'\012        return -3 if e == 's'\012        return -4 if e == 'S'\012        return -5 if e == 'w'\012        return -6 if e == 'W'\012        return -7 if e == 'b'\012        return -8 if e == 'B'\012        return 0x0A if e == 'n'\012        return 0x09 if e == 't'\012        return 0x0D if e == 'r'\012        return 0x0C if e == 'f'\012        return 0x0B if e == 'v'\012        return i64(e) if e >= 0x21 && e <= 0x7E && !isWord(u32(e))\012        fail .syntax(message: \042unknown escape\042, offset: start)\012    }\012\012    /// Appends the ranges of builtin `code` (-1..-6) and gives the `set` flags it needs: a negated builtin adds no\012    /// ranges and sets its flag.\012    i64 addClass(ref this, i64 code) uses alloc {\012        if code == -1 {\012            addRange(0x30, through: 0x39)\012        } else if code == -3 {\012            addRange(0x09, through: 0x0A)\012            addRange(0x0C, through: 0x0D)\012            addRange(0x20, through: 0x20)\012        } else if code == -5 {\012            addRange(0x30, through: 0x39)\012            addRange(0x41, through: 0x5A)\012            addRange(0x5F, through: 0x5F)\012            addRange(0x61, through: 0x7A)\012        }\012        return 2 if code == -2\012        return 4 if code == -4\012        return 8 if code == -6\012        return 0\012    }\012\012    void addRange(ref this, u32 lo, through u32 hi) uses alloc {\012        ranges.append(lo)\012        ranges.append(hi)\012    }\012\012    /// The byte at `pos`, or 0 at the end.\012    u8 peek() => pos < pattern.length \077 pattern.bytes[pos] : 0\012\012    /// Whether a `-` at `pos` makes a range (it is not the last byte before `]`).\012    bool hasRangeNext() => peek() == '-' && pos + 1 < pattern.length && pattern.bytes[pos + 1] != ']'\012\012    /// Whether a quantifier starts at `pos`.\012    bool hasRepeatNext() {\012        let b = peek()\012        return b == '*' || b == '+' || b == '\077' || (b == '{' && hasCountNext())\012    }\012\012    /// Whether `{m}`, `{m,}` or `{m,n}` starts at `pos`; any other `{` is a literal, as in RE2.\012    bool hasCountNext() {\012        var i = pos + 1\012        let digitsStart = i\012        while i < pattern.length && isDigit(u32(pattern.bytes[i])) {\012            i += 1\012        }\012        return false if i == digitsStart || i >= pattern.length\012        return true if pattern.bytes[i] == '}'\012        return false if pattern.bytes[i] != ','\012        i += 1\012        while i < pattern.length && isDigit(u32(pattern.bytes[i])) {\012            i += 1\012        }\012        return i < pattern.length && pattern.bytes[i] == '}'\012    }\012\012    /// The decimal number at `pos`, capped above `maxRepeat` so a long one cannot overflow.\012    i64 number(ref this) {\012        var value = 0\012        while isDigit(u32(peek())) {\012            value = value * 10 + i64(peek() - '0')\012            if value > maxRepeat {\012                value = maxRepeat + 1\012            }\012            pos += 1\012        }\012        return value\012    }\012}\012\012/// The threads of one step: the pc of each, in priority order, and its `slotCount` slots.\012struct Threads {\012    List<i64> pcs\012    List<i64> slots\012}\012\012/// A pending step of `Vm.add`: follow `pc`, or (`pc` -1) put `value` back into slot `slot`.\012struct Frame {\012    i64 pc\012    i64 slot  = 0\012    i64 value = 0\012}\012\012/// The work space of `Regex.search`.\012struct Vm {\012    /// The generation that last added each pc to a list, so a pc joins a list once.\012    List<i64>   marks\012    List<Frame> stack\012    /// The slots of the thread being added.\012    List<i64>   current\012    i64         slotCount\012    /// The text position and list generation of the threads being added.\012    i64         pos        = 0\012    i64         generation = 0\012\012    /// Adds the thread at `pc` (with `current` slots) to `list` at text position `pos`, marking with `generation`,\012    /// following jumps, splits, saves and assertions in priority order with an explicit stack.\012    void add(ref this, string text, at i64 pc, to ref Threads list, from ReadOnlySpan<Inst> program) uses alloc {\012        stack.append(Frame { pc: pc })\012        while stack.length > 0 {\012            let f = stack.removeLast()\012            if f.pc < 0 {\012                current[f.slot] = f.value\012                continue\012            }\012            continue if marks[f.pc] == generation\012            marks[f.pc] = generation\012            let inst = program[f.pc]\012            switch inst.op {\012                case .jump:\012                    stack.append(Frame { pc: f.pc + inst.x })\012                case .split:\012                    stack.append(Frame { pc: f.pc + inst.y })\012                    stack.append(Frame { pc: f.pc + inst.x })\012                case .save:\012                    stack.append(Frame { pc: -1, slot: inst.x, value: current[inst.x] })\012                    current[inst.x] = pos\012                    stack.append(Frame { pc: f.pc + 1 })\012                case .lineStart:\012                    stack.append(Frame { pc: f.pc + 1 }) if pos == 0\012                case .lineEnd:\012                    stack.append(Frame { pc: f.pc + 1 }) if pos == text.length\012                case .wordBoundary:\012                    stack.append(Frame { pc: f.pc + 1 }) if isBoundary(text, at: pos)\012                case .notWordBoundary:\012                    stack.append(Frame { pc: f.pc + 1 }) if !isBoundary(text, at: pos)\012                default:\012                    list.pcs.append(f.pc)\012                    for k in 0..slotCount {\012                        list.slots.append(current[k])\012                    }\012            }\012        }\012    }\012}\012\012/// The rune at byte `at` of `text` and its width in bytes.\012(u32 value, i64 width) runeAt(string text, at i64 at) {\012    let b0 = u32(text.bytes[at])\012    return (value: b0, width: 1) if b0 < 0x80\012    let b1 = u32(text.bytes[at + 1]) & 0x3F\012    return (value: ((b0 & 0x1F) << 6) | b1, width: 2) if b0 < 0xE0\012    let b2 = u32(text.bytes[at + 2]) & 0x3F\012    return (value: ((b0 & 0x0F) << 12) | (b1 << 6) | b2, width: 3) if b0 < 0xF0\012    let b3 = u32(text.bytes[at + 3]) & 0x3F\012    return (value: ((b0 & 0x07) << 18) | (b1 << 12) | (b2 << 6) | b3, width: 4)\012}\012\012/// Whether `\134b` holds at byte `at`: a word byte on exactly one side.\012bool isBoundary(string text, at i64 at) {\012    let before = at > 0 && isWord(u32(text.bytes[at - 1]))\012    let after = at < text.length && isWord(u32(text.bytes[at]))\012    return before != after\012}\012\012bool isDigit(u32 r) => r >= 0x30 && r <= 0x39\012\012/// `\134s`: tab, newline, form feed, carriage return, space (RE2's set).\012bool isSpace(u32 r) => r == 0x09 || r == 0x0A || r == 0x0C || r == 0x0D || r == 0x20\012\012/// `\134w`: ASCII letters, digits and `_`.\012bool isWord(u32 r) => isDigit(r) || (r >= 0x41 && r <= 0x5A) || (r >= 0x61 && r <= 0x7A) || r == 0x5F\012\012/// Whether `Regex.escaped` puts a `\134` before byte `b`.\012bool isMeta(u8 b) {\012    return b == '\134\134' || b == '.' || b == '+' || b == '*' || b == '\077' || b == '(' || b == ')' || b == '|' || b == '['\012        || b == ']' || b == '{' || b == '}' || b == '^' || b == '$'\012}\012", 26334)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("path/glob.test.byn", 18), BYN_STR("// Tests of std.path Glob. The expected results are not recorded from another implementation: S5 settles the\012// semantics (`*` and `\077` stop at `/`, `**` crosses it), so the table is written from the rules in `Glob.matches`.\012\012@cases(\012    (\042a.byn\042, \042a.byn\042, true),\012    (\042a.byn\042, \042b.byn\042, false),\012    (\042*.byn\042, \042a.byn\042, true),\012    (\042*.byn\042, \042a.cs\042, false),\012    (\042*.byn\042, \042.byn\042, true),\012    (\042*.byn\042, \042d/a.byn\042, false),\012    (\042src/*.byn\042, \042src/a.byn\042, true),\012    (\042src/*.byn\042, \042src/d/a.byn\042, false),\012    (\042a\077c\042, \042abc\042, true),\012    (\042a\077c\042, \042ac\042, false),\012    (\042a\077c\042, \042a/c\042, false),\012    (\042[ab]x\042, \042ax\042, true),\012    (\042[ab]x\042, \042cx\042, false),\012    (\042[a-c]x\042, \042bx\042, true),\012    (\042[a-c]x\042, \042dx\042, false),\012    (\042[!a-c]x\042, \042dx\042, true),\012    (\042[!a-c]x\042, \042bx\042, false),\012    (\042[^a]x\042, \042bx\042, true),\012    (\042[]a]x\042, \042]x\042, true),\012    (\042[a\042, \042[a\042, true),\012    (\042[a\042, \042a\042, false),\012    (\042[a-]x\042, \042-x\042, true),\012    (\042{a,b}.cs\042, \042a.cs\042, true),\012    (\042{a,b}.cs\042, \042b.cs\042, true),\012    (\042{a,b}.cs\042, \042c.cs\042, false),\012    (\042s/{a,b/c}/x\042, \042s/a/x\042, true),\012    (\042s/{a,b/c}/x\042, \042s/b/c/x\042, true),\012    (\042{a,{b,c}d}\042, \042cd\042, true),\012    (\042{a,{b,c}d}\042, \042bd\042, true),\012    (\042{a,{b,c}d}\042, \042b\042, false),\012    (\042{a\042, \042{a\042, true),\012    (\042{}\042, \042\042, true),\012    (\042src/**/*.byn\042, \042src/a.byn\042, true),\012    (\042src/**/*.byn\042, \042src/x/y/a.byn\042, true),\012    (\042src/**/*.byn\042, \042lib/a.byn\042, false),\012    (\042src/**/*.byn\042, \042src/x/a.cs\042, false),\012    (\042**/a.byn\042, \042a.byn\042, true),\012    (\042**/a.byn\042, \042x/y/a.byn\042, true),\012    (\042**/a.byn\042, \042x/ya.byn\042, false),\012    (\042src/**\042, \042src/x/y\042, true),\012    (\042src/**\042, \042lib/x\042, false),\012    (\042**\042, \042a/b/c\042, true),\012    (\042a**b\042, \042axb\042, true),\012    (\042a**b\042, \042a/b\042, false),\012    (\042*\042, \042\042, true),\012    (\042\042, \042\042, true),\012    (\042\042, \042a\042, false),\012    (\042\077\042, \042\303\251\042, true),\012    (\042a\077\042, \042a\303\251\042, true),\012    (\042a\077\077\042, \042a\303\251\042, false),\012    (\042[\303\251]\042, \042\303\251\042, true),\012    (\042[\303\251a]x\042, \042\303\251x\042, true),\012    (\042[!\303\251]\042, \042\303\251\042, false),\012    (\042[!\303\251]\042, \042\303\250\042, true),\012    (\042*[!\303\251]\042, \042\303\251\042, false),\012    (\042[\303\240-\303\253]\042, \042\303\251\042, true),\012    (\042\077\042, \042\342\202\254\042, true),\012    (\042\077\042, \042\360\237\230\200\042, true),\012)\012test \042patterns against paths\042 (string pattern, string path, bool expected) {\012    assert Glob.matches(pattern, for: path) == expected\012}\012", 2104)}));
 #line 16 "semantics/stdsource.byn"
-    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("regex/regex.test.byn", 20), BYN_STR("// Tests of std.regex. The expected `findAll`, `matches`, `replaced` and `escaped` values are recorded from a run of\012// Go's `regexp` (RE2 syntax and semantics: `FindAllStringSubmatchIndex`, `MatchString` of `^(\077:p)$`,\012// `ReplaceAllLiteralString`, `QuoteMeta`), not written by hand. The error kinds and offsets are this module's own; Go\012// rejects each of those patterns too, except `(\077P<n>a)`, `(\077i)a` and `[[:alpha:]]`, which S3 leaves out.\012\012/// The regex of `pattern`, which the test knows to be valid.\012Regex compiled(string pattern) uses alloc => Regex.parse(pattern) catch panic($\042bad test pattern {pattern}\042)\012\012/// `m` as `start:end` and groups 1 to 3, each its text or `-`.\012string describe(Match m) uses alloc {\012    let span = m.span\012    var sb = StrBuf()\012    sb.append($\042{span.start}:{span.end}\042)\012    for i in 1..4 {\012        sb.append($\042|{m.group(i) \077\077 \042-\042}\042)\012    }\012    return $\042{sb.finish()}\042\012}\012\012/// Every match of `pattern` in `text`, described and joined by spaces.\012string allOf(string pattern, for string text) uses alloc {\012    let re = compiled(pattern)\012    var sb = StrBuf()\012    for m in re.findAll(text) {\012        if sb.view.length > 0 {\012            sb.append(\042 \042)\012        }\012        sb.append(describe(m))\012    }\012    return $\042{sb.finish()}\042\012}\012\012/// `ok`, or the error `Regex.parse(pattern)` fails with as `kind message @offset`.\012string errorOf(string pattern) uses alloc {\012    let _ = Regex.parse(pattern) catch switch {\012        .syntax(let message, let offset)      => return $\042syntax {message} @{offset}\042,\012        .unsupported(let message, let offset) => return $\042unsupported {message} @{offset}\042,\012        .tooLarge(let offset)                 => return $\042tooLarge @{offset}\042,\012    }\012    return \042ok\042\012}\012\012@cases(\012    (\042abc\042, \042xabcyabc\042, \0421:4|-|-|- 5:8|-|-|-\042, false),\012    (\042a.c\042, \042abc a\134nc a.c\042, \0420:3|-|-|- 8:11|-|-|-\042, false),\012    (\042\303\251.\042, \042\303\251a \303\251\303\251\042, \0420:3|-|-|- 4:8|-|-|-\042, false),\012    (\042[a-c]+\042, \042xxabcbazz\042, \0422:7|-|-|-\042, false),\012    (\042[^a-c]+\042, \042abxyzc\042, \0422:5|-|-|-\042, false),\012    (\042[]a]+\042, \042a]]b\042, \0420:3|-|-|-\042, false),\012    (\042[a-]+\042, \042-a-b\042, \0420:3|-|-|-\042, false),\012    (\042[\134\134d.]+\042, \042v1.20 x\042, \0421:5|-|-|-\042, false),\012    (\042[^\134\134D]+\042, \042ab12c3\042, \0422:4|-|-|- 5:6|-|-|-\042, false),\012    (\042[\134\134W]+\042, \042a, b\042, \0421:3|-|-|-\042, false),\012    (\042[\303\240-\303\277]+\042, \042caf\303\251 ol\303\251\042, \0423:5|-|-|- 8:10|-|-|-\042, false),\012    (\042[^\134\134n]+\042, \042ab\134ncd\042, \0420:2|-|-|- 3:5|-|-|-\042, false),\012    (\042\134\134d+\042, \042a12b345\042, \0421:3|-|-|- 4:7|-|-|-\042, false),\012    (\042\134\134D+\042, \042a12b\042, \0420:1|-|-|- 3:4|-|-|-\042, false),\012    (\042\134\134s+\042, \042a \134t\134nb\134u{B}c\042, \0421:4|-|-|-\042, false),\012    (\042\134\134S+\042, \042ab cd\042, \0420:2|-|-|- 3:5|-|-|-\042, false),\012    (\042\134\134w+\042, \042h\303\251llo_w0rld x\042, \0420:1|-|-|- 3:12|-|-|- 13:14|-|-|-\042, false),\012    (\042\134\134W+\042, \042a, b!\042, \0421:3|-|-|- 4:5|-|-|-\042, false),\012    (\042^a\042, \042aa\042, \0420:1|-|-|-\042, false),\012    (\042a$\042, \042aa\042, \0421:2|-|-|-\042, false),\012    (\042^$\042, \042\042, \0420:0|-|-|-\042, true),\012    (\042^\042, \042abc\042, \0420:0|-|-|-\042, false),\012    (\042$\042, \042ab\042, \0422:2|-|-|-\042, false),\012    (\042\134\134bfoo\134\134b\042, \042foo foobar a.foo\042, \0420:3|-|-|- 13:16|-|-|-\042, false),\012    (\042\134\134Boo\134\134B\042, \042foo boot\042, \0425:7|-|-|-\042, false),\012    (\042\134\134b\042, \042ab cd\042, \0420:0|-|-|- 2:2|-|-|- 3:3|-|-|- 5:5|-|-|-\042, false),\012    (\042(a)(b)\077\042, \042ab a\042, \0420:2|a|b|- 3:4|a|-|-\042, false),\012    (\042(\077:ab)+(c)\042, \042ababc\042, \0420:5|c|-|-\042, true),\012    (\042((a)|b)+\042, \042ab\042, \0420:2|b|a|-\042, true),\012    (\042(a|ab)(c|bcd)(d*)\042, \042abcd\042, \0420:4|a|bcd|\042, true),\012    (\042a\077\042, \042baa\042, \0420:0|-|-|- 1:2|-|-|- 2:3|-|-|-\042, false),\012    (\042a*\042, \042baaac\042, \0420:0|-|-|- 1:4|-|-|- 5:5|-|-|-\042, false),\012    (\042a+\042, \042baaac\042, \0421:4|-|-|-\042, false),\012    (\042a{2}\042, \042aaaaa\042, \0420:2|-|-|- 2:4|-|-|-\042, false),\012    (\042a{2,}\042, \042aaaaa b aa\042, \0420:5|-|-|- 8:10|-|-|-\042, false),\012    (\042a{2,3}\042, \042aaaaaaa\042, \0420:3|-|-|- 3:6|-|-|-\042, false),\012    (\042a{0}b\042, \042ab\042, \0421:2|-|-|-\042, false),\012    (\042x{\042, \042x{ x{1\042, \0420:2|-|-|- 3:5|-|-|-\042, false),\012    (\042a{,2}\042, \042a{,2}\042, \0420:5|-|-|-\042, true),\012    (\042a{1,2\042, \042a{1,2\042, \0420:5|-|-|-\042, true),\012    (\042a+\077\042, \042aaa\042, \0420:1|-|-|- 1:2|-|-|- 2:3|-|-|-\042, true),\012    (\042a*\077b\042, \042aaab\042, \0420:4|-|-|-\042, true),\012    (\042a\077\077\042, \042aa\042, \0420:0|-|-|- 1:1|-|-|- 2:2|-|-|-\042, false),\012    (\042<.*\077>\042, \042<a><bb>\042, \0420:3|-|-|- 3:7|-|-|-\042, true),\012    (\042a{2,3}\077\042, \042aaaaa\042, \0420:2|-|-|- 2:4|-|-|-\042, false),\012    (\042a{2,}\077\042, \042aaaaa\042, \0420:2|-|-|- 2:4|-|-|-\042, true),\012    (\042cat|dog\042, \042hotdog cat\042, \0423:6|-|-|- 7:10|-|-|-\042, false),\012    (\042a|ab\042, \042ab\042, \0420:1|-|-|-\042, true),\012    (\042ab|a\042, \042ab\042, \0420:2|-|-|-\042, true),\012    (\042|a\042, \042ab\042, \0420:0|-|-|- 1:1|-|-|- 2:2|-|-|-\042, false),\012    (\042a|\042, \042ab\042, \0420:1|-|-|- 2:2|-|-|-\042, false),\012    (\042(|x)y\042, \042xy y\042, \0420:2|x|-|- 3:4||-|-\042, false),\012    (\042\134\134.\134\134*\134\134+\134\134\077\134\134(\134\134)\134\134[\134\134]\134\134{\134\134}\134\134|\134\134^\134\134$\134\134\134\134\042, \042x.*+\077()[]{}|^$\134\134\042, \0421:15|-|-|-\042, false),\012    (\042\134\134n\134\134t\042, \042a\134n\134tb\042, \0421:3|-|-|-\042, false),\012    (\042a\134\134-b\042, \042a-b\042, \0420:3|-|-|-\042, true),\012    (\042(a*)*\042, \042b\042, \0420:0||-|- 1:1||-|-\042, false),\012    (\042(a*)+\042, \042b\042, \0420:0||-|- 1:1||-|-\042, false),\012    (\042(a|b)*c\042, \042abac\042, \0420:4|a|-|-\042, true),\012    (\042(a*)*b\042, \042aab\042, \0420:3|aa|-|-\042, true),\012    (\042\134\134d+\042, \04212a\042, \0420:2|-|-|-\042, false),\012    (\042x*\042, \042\042, \0420:0|-|-|-\042, true),\012)\012test \042findAll, find and matches agree with RE2\042 (string pattern, string text, string expected, bool whole) {\012    assert allOf(pattern, for: text) == expected\012    let re = compiled(pattern)\012    let first = re.find(text)\012    if (first is { } m) {\012        assert expected.startsWith(describe(m))\012    } else {\012        assert expected == \042\042\012    }\012    assert re.matches(text) == whole\012}\012\012test \042find gives null and findAll nothing when there is no match\042 {\012    let re = compiled(\042x+\042)\012    assert re.find(\042abc\042) is null\012    assert re.findAll(\042abc\042).length == 0\012    assert !re.matches(\042abc\042)\012}\012\012test \042Match.group is null for a group that took no part or does not exist\042 {\012    let re = compiled(\042(a)|(b)\042)\012    let m = re.find(\042b\042) \077\077 panic(\042no match\042)\012    assert m.group(0) == \042b\042\012    assert m.group(1) is null\012    assert m.group(2) == \042b\042\012    assert m.group(3) is null\012    assert m.group(-1) is null\012}\012\012test \042Match.span gives byte offsets in the text searched\042 {\012    let re = compiled(\042\303\266+\042)\012    let m = re.find(\042a\303\266\303\266!\042) \077\077 panic(\042no match\042)\012    let span = m.span\012    assert span.start == 1 && span.end == 5\012}\012\012@cases(\012    (\042a+\042, \042baaacaa\042, \042-\042, \042b-c-\042),\012    (\042a*\042, \042baaac\042, \042-\042, \042-b-c-\042),\012    (\042\134\134s+\042, \042a  b\134tc\042, \042 \042, \042a b c\042),\012    (\042x\042, \042abc\042, \042y\042, \042abc\042),\012    (\042(b)\042, \042abc\042, \042$1\042, \042a$1c\042),\012    (\042\042, \042abc\042, \042.\042, \042.a.b.c.\042),\012    (\042\303\251\042, \042\303\251a\303\251\042, \042e\042, \042eae\042),\012    (\042\134\134([^()]*\134\134)\042, \042f(a) g(b(c))\042, \042\042, \042f g(b)\042),\012)\012test \042replaced puts the replacement, taken literally, at every match\042 (\012    string pattern,\012    string text,\012    string by,\012    string expected\012) {\012    assert compiled(pattern).replaced(text, by: by) == expected\012}\012\012@cases(\012    (\042\042, \042\042),\012    (\042abc\042, \042abc\042),\012    (\042a.b*c\042, \042a\134\134.b\134\134*c\042),\012    (\042\134\134.+*\077()|[]{}^$\042, \042\134\134\134\134\134\134.\134\134+\134\134*\134\134\077\134\134(\134\134)\134\134|\134\134[\134\134]\134\134{\134\134}\134\134^\134\134$\042),\012    (\042x-y #\303\251\042, \042x-y #\303\251\042),\012    (\0421+1=2\042, \0421\134\134+1=2\042),\012)\012test \042escaped quotes every metacharacter and the result matches the text literally\042 (string text, string expected) {\012    assert Regex.escaped(text) == expected\012    let re = compiled(Regex.escaped(text))\012    assert re.matches(text)\012    assert !re.matches($\042{text}x\042)\012}\012\012@cases(\012    (\042(\077=a)\042, \042unsupported lookaround @0\042),\012    (\042(\077!a)\042, \042unsupported lookaround @0\042),\012    (\042a(\077<=b)\042, \042unsupported lookaround @1\042),\012    (\042(\077<!b)a\042, \042unsupported lookaround @0\042),\012    (\042(a)\134\1341\042, \042unsupported backreference @3\042),\012    (\042[\134\1342]\042, \042unsupported backreference @1\042),\012    (\042\134\134k<x>\042, \042unsupported backreference @0\042),\012    (\042(\077P<n>a)\042, \042unsupported group flags and named groups @0\042),\012    (\042(\077i)a\042, \042unsupported group flags and named groups @0\042),\012    (\042[[:alpha:]]\042, \042unsupported POSIX class @1\042),\012    (\042(a\042, \042syntax missing `)` @0\042),\012    (\042(\077:\042, \042syntax missing `)` @0\042),\012    (\042a)\042, \042syntax unmatched `)` @1\042),\012    (\042[a\042, \042syntax missing `]` @0\042),\012    (\042[]\042, \042syntax missing `]` @0\042),\012    (\042*a\042, \042syntax missing argument to repetition operator @0\042),\012    (\042|*\042, \042syntax missing argument to repetition operator @1\042),\012    (\042a**\042, \042syntax repetition of a repetition @2\042),\012    (\042a{1001}\042, \042syntax repetition count above 1000 @1\042),\012    (\042a{3,2}\042, \042syntax repetition maximum below its minimum @1\042),\012    (\042[z-a]\042, \042syntax range end before its start @1\042),\012    (\042[a-\134\134d]\042, \042syntax class escape as a range end @3\042),\012    (\042a\134\134\042, \042syntax trailing `\134\134` @1\042),\012    (\042\134\134q\042, \042syntax unknown escape @0\042),\012    (\042[\134\134b]\042, \042syntax `\134\134b` or `\134\134B` in a class @1\042),\012    (\042(a{1000}){1000}\042, \042tooLarge @9\042),\012)\012test \042parse refuses backreferences, lookaround and broken patterns with RegexError\042 (string pattern, string expected) {\012    assert errorOf(pattern) == expected\012}\012\012test \042parse refuses groups nested deeper than 1000\042 {\012    var sb = StrBuf()\012    sb.appendRepeated('(', by: 1001)\012    sb.appendRepeated(')', by: 1001)\012    assert errorOf(sb.view) == \042syntax groups nest too deep @1000\042\012}\012\012test \042(a*)*b and (a\077){n}a{n} run in linear time on long input\042 {\012    var sb = StrBuf()\012    sb.appendRepeated('a', by: 20000)\012    let text = sb.view\012    assert compiled(\042(a*)*b\042).find(text) is null\012    assert compiled(\042(x+x+)+y\042).find(text) is null\012    let m = compiled(\042(a|aa)+$\042).find(text) \077\077 panic(\042no match\042)\012    assert m.span.end == 20000\012    let re = compiled(\042(a\077){100}a{100}\042)\012    var n = StrBuf()\012    n.appendRepeated('a', by: 200)\012    assert re.matches(n.view)\012    n.append(\042a\042)\012    assert !re.matches(n.view)\012    assert (re.find(n.view) \077\077 panic(\042no match\042)).span.end == 200\012}\012", 9191)}));
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("regex/regex.byn", 15), BYN_STR("// std.regex (spec 015 S3, T14): RE2-style patterns run by a Pike VM over the runes of UTF-8 text, so matching takes\012// time linear in the text times the program, never backtracking; no backreferences, no lookaround.\012\012/// A `{m,n}` count above this is refused, as in RE2.\012const maxRepeat: i64 = 1000\012\012/// A compiled program longer than this many instructions is refused (`tooLarge`).\012const maxProgram: i64 = 100000\012\012/// Groups nest at most this deep, so parsing never recurses past it (docs/memory-leaks.md rule 5).\012const maxDepth: i64 = 1000\012\012/// Why `Regex.parse` refused a pattern, at a byte offset of the pattern.\012public union error RegexError {\012    /// The pattern breaks the syntax at `offset`.\012    syntax(string message, i64 offset)\012    /// A backreference or lookaround (or another construct that linear-time matching leaves out) starts at `offset`.\012    unsupported(string message, i64 offset)\012    /// The compiled program would exceed `maxProgram` instructions; `offset` is where the pattern grew past it.\012    tooLarge(i64 offset)\012}\012\012/// What one instruction does.\012enum Op {\012    rune\012    set\012    any\012    split\012    jump\012    save\012    lineStart\012    lineEnd\012    wordBoundary\012    notWordBoundary\012    done\012}\012\012/// One instruction. `rune`: `x` is the code point. `set`: the range pairs `ranges[x..y]` and `flags` (1 negated, 2 any\012/// non-digit, 4 any non-space, 8 any non-word). `split`: try `pc + x` first, then `pc + y`. `jump`: go to `pc + x`.\012/// `save`: slot `x` takes the position. Targets are relative, so a fragment can be copied anywhere.\012struct Inst {\012    Op  op\012    i64 x     = 0\012    i64 y     = 0\012    i64 flags = 0\012}\012\012/// A compiled RE2-style pattern: literals, `.`, classes `[...]` and `[^...]`, `\134d \134s \134w` and `\134D \134S \134W` (ASCII, as in\012/// RE2), anchors `^ $ \134b \134B`, groups `(...)` and `(\077:...)`, `\077 * + {m} {m,} {m,n}` with lazy forms (`\077\077`, `*\077`, ...),\012/// and alternation `|`. `^` and `$` match at the start and end of the whole text; `.` matches any rune but `\134n`. A\012/// match is leftmost-first (Perl order); matching is linear in the length of the text.\012public struct Regex {\012    List<Inst> program\012    List<u32>  ranges\012    i64        groups\012\012    /// The pattern compiled, failing `unsupported` for a backreference (`\1341`, `\134k<\342\200\246>`), lookaround (`(\077=`, `(\077!`,\012    /// `(\077<=`, `(\077<!`), flags or named groups, `syntax` at the first byte that breaks the syntax, and `tooLarge` when\012    /// the program would exceed `maxProgram` instructions.\012    public static Regex parse(string pattern) uses alloc fails RegexError {\012        var p = Parser { pattern: pattern, ranges: List<u32>() }\012        let body = try p.parseBranches()\012        fail .syntax(message: \042unmatched `)`\042, offset: p.pos) if p.pos < pattern.length\012        var program = List<Inst>()\012        program.append(Inst { op: .save, x: 0 })\012        for inst in body {\012            program.append(inst)\012        }\012        program.append(Inst { op: .save, x: 1 })\012        program.append(Inst { op: .done })\012        return Regex { program: move program, ranges: p.ranges.copy(), groups: p.groups }\012    }\012\012    /// Whether the pattern matches the whole of `text`, as Python's `re.fullmatch` (not only a part; `find` is that).\012    public bool matches(string text) uses alloc {\012        return search(text, from: 0, whole: true) is not null\012    }\012\012    /// The leftmost-first match in `text`, or `null` when there is none.\012    public Match\077 find(string text) uses alloc {\012        let slots = search(text, from: 0, whole: false) \077\077 return null\012        return Match { text: text, slots: move slots }\012    }\012\012    /// Every match in `text`, left to right and not overlapping. As in RE2 and Go, an empty match right where the\012    /// previous match ended is skipped, and the search steps one rune past an empty match.\012    public List<Match> findAll(string text) uses alloc {\012        var all = List<Match>()\012        var pos = 0\012        var previousEnd = -1\012        while pos <= text.length {\012            let slots = search(text, from: pos, whole: false) \077\077 break\012            let start = slots[0]\012            let end = slots[1]\012            var accept = true\012            if end == pos {\012                accept = start != previousEnd\012                pos += pos < text.length \077 runeAt(text, at: pos).width : 1\012            } else {\012                pos = end\012            }\012            previousEnd = end\012            if accept {\012                all.append(Match { text: text, slots: move slots })\012            }\012        }\012        return all\012    }\012\012    /// `text` with every match `findAll` gives replaced by `replacement`, taken literally (no `$1` or `\1341`).\012    public string replaced(string text, by string replacement) uses alloc {\012        let all = findAll(text)\012        var sb = StrBuf()\012        var last = 0\012        for m in all {\012            let span = m.span\012            sb.append(text[last..span.start])\012            sb.append(replacement)\012            last = span.end\012        }\012        sb.append(text[last..])\012        return $\042{sb.finish()}\042\012    }\012\012    /// `text` with `\134` before each of `\134 . + * \077 ( ) | [ ] { } ^ $` (Go's `QuoteMeta` set), so `Regex.parse` of the\012    /// result matches `text` literally; the pattern for outside text (spec \302\24715.1).\012    public static string escaped(string text) uses alloc {\012        var sb = StrBuf()\012        var run = 0\012        for i in 0..text.length {\012            let b = text.bytes[i]\012            if isMeta(b) {\012                sb.append(text[run..i])\012                sb.append(\042\134\134\042)\012                run = i\012            }\012        }\012        sb.append(text[run..])\012        return $\042{sb.finish()}\042\012    }\012\012    /// The slots of the first match at or after `from` (start and end of the match, then of each group, -1 when a\012    /// group took no part), or `null`. `whole` anchors the match at `from` and accepts it only when it ends at the\012    /// text's end.\012    List<i64>\077 search(string text, from i64 from, bool whole) uses alloc {\012        let slotCount = 2 * (groups + 1)\012        var vm = Vm { marks: List<i64>(), stack: List<Frame>(), current: List<i64>(), slotCount: slotCount }\012        for _ in 0..program.length {\012            vm.marks.append(0)\012        }\012        for _ in 0..slotCount {\012            vm.current.append(-1)\012        }\012        var now = Threads { pcs: List<i64>(), slots: List<i64>() }\012        var next = Threads { pcs: List<i64>(), slots: List<i64>() }\012        var best = List<i64>()\012        var matched = false\012        var generation = 1\012        var nowGeneration = 1\012        var pos = from\012        while true {\012            if !matched && (!whole || pos == from) {\012                for k in 0..slotCount {\012                    vm.current[k] = -1\012                }\012                vm.pos = pos\012                vm.generation = nowGeneration\012                vm.add(text, at: 0, to: ref now, from: program.span)\012            }\012            break if now.pcs.length == 0 && (matched || whole)\012            var value: u32 = 0\012            var width = 0\012            if pos < text.length {\012                let r = runeAt(text, at: pos)\012                value = r.value\012                width = r.width\012            }\012            generation += 1\012            for i in 0..now.pcs.length {\012                let pc = now.pcs[i]\012                let inst = program[pc]\012                if inst.op == .done {\012                    continue if whole && pos != text.length\012                    best.clear()\012                    for k in 0..slotCount {\012                        best.append(now.slots[i * slotCount + k])\012                    }\012                    matched = true\012                    break\012                }\012                continue if pos >= text.length\012                var hit = false\012                if inst.op == .rune {\012                    hit = i64(value) == inst.x\012                } else if inst.op == .any {\012                    hit = value != 0x0A\012                } else if inst.op == .set {\012                    hit = isInClass(value, by: inst)\012                }\012                continue if !hit\012                for k in 0..slotCount {\012                    vm.current[k] = now.slots[i * slotCount + k]\012                }\012                vm.pos = pos + width\012                vm.generation = generation\012                vm.add(text, at: pc + 1, to: ref next, from: program.span)\012            }\012            let swap = move now\012            now = move next\012            next = move swap\012            next.pcs.clear()\012            next.slots.clear()\012            nowGeneration = generation\012            break if pos >= text.length\012            pos += width\012        }\012        return null if !matched\012        return best\012    }\012\012    /// Whether rune `value` is in the class of `inst`.\012    bool isInClass(u32 value, by Inst inst) {\012        var hit = false\012        var i = inst.x\012        while i < inst.y {\012            if value >= ranges[i] && value <= ranges[i + 1] {\012                hit = true\012            }\012            i += 2\012        }\012        hit = hit || ((inst.flags & 2) != 0 && !isDigit(value))\012        hit = hit || ((inst.flags & 4) != 0 && !isSpace(value))\012        hit = hit || ((inst.flags & 8) != 0 && !isWord(value))\012        return hit != ((inst.flags & 1) != 0)\012    }\012}\012\012/// One match: its span and the text of each group.\012public struct Match {\012    string    text\012    List<i64> slots\012\012    /// The byte offsets of the whole match in the text searched, `start` inclusive and `end` exclusive.\012    public (i64 start, i64 end) span => (start: slots[0], end: slots[1])\012\012    /// The text group `index` matched (0 is the whole match, then each `(...)` by its opening parenthesis), or `null`\012    /// when the group took no part in the match or there is no group `index`.\012    public string\077 group(i64 index) {\012        return null if index < 0 || 2 * index + 1 >= slots.length\012        let start = slots[2 * index]\012        return null if start < 0\012        return text[start..slots[2 * index + 1]]\012    }\012}\012\012/// A recursive-descent parser that emits program fragments.\012struct Parser {\012    string    pattern\012    i64       pos    = 0\012    i64       groups = 0\012    i64       depth  = 0\012    List<u32> ranges\012\012    /// `concat ('|' concat)*`.\012    List<Inst> parseBranches(ref this) uses alloc fails RegexError {\012        fail .syntax(message: \042groups nest too deep\042, offset: pos) if depth >= maxDepth\012        depth += 1\012        var branches = List<List<Inst>>()\012        branches.append(try parseConcat())\012        while pos < pattern.length && pattern.bytes[pos] == '|' {\012            pos += 1\012            branches.append(try parseConcat())\012        }\012        depth -= 1\012        if branches.length == 1 {\012            return branches.removeLast()\012        }\012        var total = 2 * (branches.length - 1)\012        for b in branches {\012            total += b.length\012        }\012        fail .tooLarge(offset: pos) if total > maxProgram\012        var frag = List<Inst>()\012        for i in 0..branches.length {\012            let last = i == branches.length - 1\012            if !last {\012                frag.append(Inst { op: .split, x: 1, y: branches[i].length + 2 })\012            }\012            for inst in branches[i] {\012                frag.append(inst)\012            }\012            if !last {\012                frag.append(Inst { op: .jump, x: total - frag.length })\012            }\012        }\012        return frag\012    }\012\012    /// A run of repeated atoms, up to `|`, `)` or the end.\012    List<Inst> parseConcat(ref this) uses alloc fails RegexError {\012        var frag = List<Inst>()\012        while pos < pattern.length && pattern.bytes[pos] != '|' && pattern.bytes[pos] != ')' {\012            let piece = try parseRepeat()\012            fail .tooLarge(offset: pos) if frag.length + piece.length > maxProgram\012            for inst in piece {\012                frag.append(inst)\012            }\012        }\012        return frag\012    }\012\012    /// An atom and at most one quantifier, with its lazy `\077`.\012    List<Inst> parseRepeat(ref this) uses alloc fails RegexError {\012        let atom = try parseItem()\012        let at = pos\012        var min = 0\012        var max = -1\012        let b = peek()\012        if b == '*' {\012            pos += 1\012        } else if b == '+' {\012            min = 1\012            pos += 1\012        } else if b == '\077' {\012            max = 1\012            pos += 1\012        } else if b == '{' && hasCountNext() {\012            pos += 1\012            min = number()\012            max = min\012            if peek() == ',' {\012                pos += 1\012                max = peek() == '}' \077 -1 : number()\012            }\012            pos += 1\012            fail .syntax(message: \042repetition count above 1000\042, offset: at) if min > maxRepeat || max > maxRepeat\012            fail .syntax(message: \042repetition maximum below its minimum\042, offset: at) if max >= 0 && max < min\012        } else {\012            return atom\012        }\012        var greedy = true\012        if peek() == '\077' {\012            greedy = false\012            pos += 1\012        }\012        fail .syntax(message: \042repetition of a repetition\042, offset: pos) if hasRepeatNext()\012        return try repeated(atom.span, from: min, through: max, greedy: greedy, at: at)\012    }\012\012    /// `e` repeated `min` to `max` times (`max` -1: no bound), each optional copy nested in the one before it. `e*` is\012    /// `(e+)\077`, as in RE2, so an `e` that matches empty still sets its groups (`(a*)*` on `b`).\012    List<Inst> repeated(ReadOnlySpan<Inst> e, from i64 min, through i64 max, bool greedy, at i64 at)\012            uses alloc fails RegexError {\012        let n = e.length\012        var size = min * n\012        if max < 0 {\012            size += min == 0 \077 n + 2 : 1\012        } else {\012            size += (max - min) * (n + 1)\012        }\012        fail .tooLarge(offset: at) if size > maxProgram\012        var frag = List<Inst>()\012        let copies = max < 0 && min > 0 \077 min - 1 : min\012        for _ in 0..copies {\012            for inst in e {\012                frag.append(inst)\012            }\012        }\012        if max < 0 && min == 0 {\012            frag.append(greedy \077 Inst { op: .split, x: 1, y: n + 2 } : Inst { op: .split, x: n + 2, y: 1 })\012            for inst in e {\012                frag.append(inst)\012            }\012            frag.append(greedy \077 Inst { op: .split, x: -n, y: 1 } : Inst { op: .split, x: 1, y: -n })\012        } else if max < 0 {\012            for inst in e {\012                frag.append(inst)\012            }\012            frag.append(greedy \077 Inst { op: .split, x: -n, y: 1 } : Inst { op: .split, x: 1, y: -n })\012        } else {\012            for k in 0..max - min {\012                let skip = (max - min - k) * (n + 1)\012                frag.append(greedy \077 Inst { op: .split, x: 1, y: skip } : Inst { op: .split, x: skip, y: 1 })\012                for inst in e {\012                    frag.append(inst)\012                }\012            }\012        }\012        return frag\012    }\012\012    /// One atom: a group, a class, `.`, an anchor, an escape or a literal rune.\012    List<Inst> parseItem(ref this) uses alloc fails RegexError {\012        let start = pos\012        var frag = List<Inst>()\012        let b = pattern.bytes[pos]\012        if b == '(' {\012            pos += 1\012            var index = -1\012            if peek() == '\077' {\012                let rest = pattern[pos..]\012                let lookaround = rest.startsWith(\042\077=\042) || rest.startsWith(\042\077!\042) || rest.startsWith(\042\077<=\042)\012                    || rest.startsWith(\042\077<!\042)\012                fail .unsupported(message: \042lookaround\042, offset: start) if lookaround\012                fail .unsupported(message: \042group flags and named groups\042, offset: start) if !rest.startsWith(\042\077:\042)\012                pos += 2\012            } else {\012                groups += 1\012                index = groups\012                frag.append(Inst { op: .save, x: 2 * index })\012            }\012            let body = try parseBranches()\012            fail .syntax(message: \042missing `)`\042, offset: start) if peek() != ')'\012            pos += 1\012            for inst in body {\012                frag.append(inst)\012            }\012            if index >= 0 {\012                frag.append(Inst { op: .save, x: 2 * index + 1 })\012            }\012            return frag\012        }\012        fail .syntax(message: \042missing argument to repetition operator\042, offset: start) if hasRepeatNext()\012        pos += 1\012        if b == '[' {\012            frag.append(try classSet(start))\012        } else if b == '.' {\012            frag.append(Inst { op: .any })\012        } else if b == '^' {\012            frag.append(Inst { op: .lineStart })\012        } else if b == '$' {\012            frag.append(Inst { op: .lineEnd })\012        } else if b == '\134\134' {\012            let code = try escape(start)\012            if code >= 0 {\012                frag.append(Inst { op: .rune, x: code })\012            } else if code == -7 {\012                frag.append(Inst { op: .wordBoundary })\012            } else if code == -8 {\012                frag.append(Inst { op: .notWordBoundary })\012            } else {\012                let from = ranges.length\012                let flags = addClass(code)\012                frag.append(Inst { op: .set, x: from, y: ranges.length, flags: flags })\012            }\012        } else {\012            pos = start\012            let r = runeAt(pattern, at: pos)\012            pos += r.width\012            frag.append(Inst { op: .rune, x: i64(r.value) })\012        }\012        return frag\012    }\012\012    /// The class whose `[` is at `start` (`pos` is past it), as a `set` instruction.\012    Inst classSet(ref this, i64 start) uses alloc fails RegexError {\012        var flags = 0\012        if peek() == '^' {\012            flags = 1\012            pos += 1\012        }\012        let from = ranges.length\012        var first = true\012        while true {\012            fail .syntax(message: \042missing `]`\042, offset: start) if pos >= pattern.length\012            let b = pattern.bytes[pos]\012            if b == ']' && !first {\012                pos += 1\012                return Inst { op: .set, x: from, y: ranges.length, flags: flags }\012            }\012            first = false\012            fail .unsupported(message: \042POSIX class\042, offset: pos) if pattern[pos..].startsWith(\042[:\042)\012            let at = pos\012            let lo = try classRune()\012            if lo < 0 {\012                flags = flags | addClass(lo)\012                continue\012            }\012            var hi = lo\012            if hasRangeNext() {\012                pos += 1\012                let endAt = pos\012                hi = try classRune()\012                fail .syntax(message: \042class escape as a range end\042, offset: endAt) if hi < 0\012                fail .syntax(message: \042range end before its start\042, offset: at) if hi < lo\012            }\012            ranges.append(u32(lo))\012            ranges.append(u32(hi))\012        }\012    }\012\012    /// A rune of a class, or a negative builtin code for `\134d \134D \134s \134S \134w \134W` (as `escape` gives them).\012    i64 classRune(ref this) fails RegexError {\012        let start = pos\012        if pattern.bytes[pos] == '\134\134' {\012            pos += 1\012            let code = try escape(start)\012            fail .syntax(message: \042`\134\134b` or `\134\134B` in a class\042, offset: start) if code == -7 || code == -8\012            return code\012        }\012        let r = runeAt(pattern, at: pos)\012        pos += r.width\012        return i64(r.value)\012    }\012\012    /// The escape whose `\134` is at `start` (`pos` is past it): a rune, or -1..-6 for `\134d \134D \134s \134S \134w \134W`, -7 for `\134b`,\012    /// -8 for `\134B`.\012    i64 escape(ref this, i64 start) fails RegexError {\012        fail .syntax(message: \042trailing `\134\134`\042, offset: start) if pos >= pattern.length\012        let e = pattern.bytes[pos]\012        pos += 1\012        fail .unsupported(message: \042backreference\042, offset: start) if (e >= '1' && e <= '9') || e == 'k'\012        return -1 if e == 'd'\012        return -2 if e == 'D'\012        return -3 if e == 's'\012        return -4 if e == 'S'\012        return -5 if e == 'w'\012        return -6 if e == 'W'\012        return -7 if e == 'b'\012        return -8 if e == 'B'\012        return 0x0A if e == 'n'\012        return 0x09 if e == 't'\012        return 0x0D if e == 'r'\012        return 0x0C if e == 'f'\012        return 0x0B if e == 'v'\012        return i64(e) if e >= 0x21 && e <= 0x7E && !isWord(u32(e))\012        fail .syntax(message: \042unknown escape\042, offset: start)\012    }\012\012    /// Appends the ranges of builtin `code` (-1..-6) and gives the `set` flags it needs: a negated builtin adds no\012    /// ranges and sets its flag.\012    i64 addClass(ref this, i64 code) uses alloc {\012        if code == -1 {\012            addRange(0x30, through: 0x39)\012        } else if code == -3 {\012            addRange(0x09, through: 0x0A)\012            addRange(0x0C, through: 0x0D)\012            addRange(0x20, through: 0x20)\012        } else if code == -5 {\012            addRange(0x30, through: 0x39)\012            addRange(0x41, through: 0x5A)\012            addRange(0x5F, through: 0x5F)\012            addRange(0x61, through: 0x7A)\012        }\012        return 2 if code == -2\012        return 4 if code == -4\012        return 8 if code == -6\012        return 0\012    }\012\012    void addRange(ref this, u32 lo, through u32 hi) uses alloc {\012        ranges.append(lo)\012        ranges.append(hi)\012    }\012\012    /// The byte at `pos`, or 0 at the end.\012    u8 peek() => pos < pattern.length \077 pattern.bytes[pos] : 0\012\012    /// Whether a `-` at `pos` makes a range (it is not the last byte before `]`).\012    bool hasRangeNext() => peek() == '-' && pos + 1 < pattern.length && pattern.bytes[pos + 1] != ']'\012\012    /// Whether a quantifier starts at `pos`.\012    bool hasRepeatNext() {\012        let b = peek()\012        return b == '*' || b == '+' || b == '\077' || (b == '{' && hasCountNext())\012    }\012\012    /// Whether `{m}`, `{m,}` or `{m,n}` starts at `pos`; any other `{` is a literal, as in RE2.\012    bool hasCountNext() {\012        var i = pos + 1\012        let digitsStart = i\012        while i < pattern.length && isDigit(u32(pattern.bytes[i])) {\012            i += 1\012        }\012        return false if i == digitsStart || i >= pattern.length\012        return true if pattern.bytes[i] == '}'\012        return false if pattern.bytes[i] != ','\012        i += 1\012        while i < pattern.length && isDigit(u32(pattern.bytes[i])) {\012            i += 1\012        }\012        return i < pattern.length && pattern.bytes[i] == '}'\012    }\012\012    /// The decimal number at `pos`, capped above `maxRepeat` so a long one cannot overflow.\012    i64 number(ref this) {\012        var value = 0\012        while isDigit(u32(peek())) {\012            value = value * 10 + i64(peek() - '0')\012            if value > maxRepeat {\012                value = maxRepeat + 1\012            }\012            pos += 1\012        }\012        return value\012    }\012}\012\012/// The threads of one step: the pc of each, in priority order, and its `slotCount` slots.\012struct Threads {\012    List<i64> pcs\012    List<i64> slots\012}\012\012/// A pending step of `Vm.add`: follow `pc`, or (`pc` -1) put `value` back into slot `slot`.\012struct Frame {\012    i64 pc\012    i64 slot  = 0\012    i64 value = 0\012}\012\012/// The work space of `Regex.search`.\012struct Vm {\012    /// The generation that last added each pc to a list, so a pc joins a list once.\012    List<i64>   marks\012    List<Frame> stack\012    /// The slots of the thread being added.\012    List<i64>   current\012    i64         slotCount\012    /// The text position and list generation of the threads being added.\012    i64         pos        = 0\012    i64         generation = 0\012\012    /// Adds the thread at `pc` (with `current` slots) to `list` at text position `pos`, marking with `generation`,\012    /// following jumps, splits, saves and assertions in priority order with an explicit stack.\012    void add(ref this, string text, at i64 pc, to ref Threads list, from ReadOnlySpan<Inst> program) uses alloc {\012        stack.append(Frame { pc: pc })\012        while stack.length > 0 {\012            let f = stack.removeLast()\012            if f.pc < 0 {\012                current[f.slot] = f.value\012                continue\012            }\012            continue if marks[f.pc] == generation\012            marks[f.pc] = generation\012            let inst = program[f.pc]\012            switch inst.op {\012                case .jump:\012                    stack.append(Frame { pc: f.pc + inst.x })\012                case .split:\012                    stack.append(Frame { pc: f.pc + inst.y })\012                    stack.append(Frame { pc: f.pc + inst.x })\012                case .save:\012                    stack.append(Frame { pc: -1, slot: inst.x, value: current[inst.x] })\012                    current[inst.x] = pos\012                    stack.append(Frame { pc: f.pc + 1 })\012                case .lineStart:\012                    stack.append(Frame { pc: f.pc + 1 }) if pos == 0\012                case .lineEnd:\012                    stack.append(Frame { pc: f.pc + 1 }) if pos == text.length\012                case .wordBoundary:\012                    stack.append(Frame { pc: f.pc + 1 }) if isBoundary(text, at: pos)\012                case .notWordBoundary:\012                    stack.append(Frame { pc: f.pc + 1 }) if !isBoundary(text, at: pos)\012                default:\012                    list.pcs.append(f.pc)\012                    for k in 0..slotCount {\012                        list.slots.append(current[k])\012                    }\012            }\012        }\012    }\012}\012\012/// The rune at byte `at` of `text` and its width in bytes.\012(u32 value, i64 width) runeAt(string text, at i64 at) {\012    let b0 = u32(text.bytes[at])\012    return (value: b0, width: 1) if b0 < 0x80\012    let b1 = u32(text.bytes[at + 1]) & 0x3F\012    return (value: ((b0 & 0x1F) << 6) | b1, width: 2) if b0 < 0xE0\012    let b2 = u32(text.bytes[at + 2]) & 0x3F\012    return (value: ((b0 & 0x0F) << 12) | (b1 << 6) | b2, width: 3) if b0 < 0xF0\012    let b3 = u32(text.bytes[at + 3]) & 0x3F\012    return (value: ((b0 & 0x07) << 18) | (b1 << 12) | (b2 << 6) | b3, width: 4)\012}\012\012/// Whether `\134b` holds at byte `at`: a word byte on exactly one side.\012bool isBoundary(string text, at i64 at) {\012    let before = at > 0 && isWord(u32(text.bytes[at - 1]))\012    let after = at < text.length && isWord(u32(text.bytes[at]))\012    return before != after\012}\012\012bool isDigit(u32 r) => r >= 0x30 && r <= 0x39\012\012/// `\134s`: tab, newline, form feed, carriage return, space (RE2's set).\012bool isSpace(u32 r) => r == 0x09 || r == 0x0A || r == 0x0C || r == 0x0D || r == 0x20\012\012/// `\134w`: ASCII letters, digits and `_`.\012bool isWord(u32 r) => isDigit(r) || (r >= 0x41 && r <= 0x5A) || (r >= 0x61 && r <= 0x7A) || r == 0x5F\012\012/// Whether `Regex.escaped` puts a `\134` before byte `b`.\012bool isMeta(u8 b) {\012    return b == '\134\134' || b == '.' || b == '+' || b == '*' || b == '\077' || b == '(' || b == ')' || b == '|' || b == '['\012        || b == ']' || b == '{' || b == '}' || b == '^' || b == '$'\012}\012", 26334)}));
 #line 17 "semantics/stdsource.byn"
+    (void)bynh_add_list_semantics__StdSource(&l0_sources, ((bynt_semantics__StdSource){BYN_STR("regex/regex.test.byn", 20), BYN_STR("// Tests of std.regex. The expected `findAll`, `matches`, `replaced` and `escaped` values are recorded from a run of\012// Go's `regexp` (RE2 syntax and semantics: `FindAllStringSubmatchIndex`, `MatchString` of `^(\077:p)$`,\012// `ReplaceAllLiteralString`, `QuoteMeta`), not written by hand. The error kinds and offsets are this module's own; Go\012// rejects each of those patterns too, except `(\077P<n>a)`, `(\077i)a` and `[[:alpha:]]`, which S3 leaves out.\012\012/// The regex of `pattern`, which the test knows to be valid.\012Regex compiled(string pattern) uses alloc => Regex.parse(pattern) catch panic($\042bad test pattern {pattern}\042)\012\012/// `m` as `start:end` and groups 1 to 3, each its text or `-`.\012string describe(Match m) uses alloc {\012    let span = m.span\012    var sb = StrBuf()\012    sb.append($\042{span.start}:{span.end}\042)\012    for i in 1..4 {\012        sb.append($\042|{m.group(i) \077\077 \042-\042}\042)\012    }\012    return $\042{sb.finish()}\042\012}\012\012/// Every match of `pattern` in `text`, described and joined by spaces.\012string allOf(string pattern, for string text) uses alloc {\012    let re = compiled(pattern)\012    var sb = StrBuf()\012    for m in re.findAll(text) {\012        if sb.view.length > 0 {\012            sb.append(\042 \042)\012        }\012        sb.append(describe(m))\012    }\012    return $\042{sb.finish()}\042\012}\012\012/// `ok`, or the error `Regex.parse(pattern)` fails with as `kind message @offset`.\012string errorOf(string pattern) uses alloc {\012    let _ = Regex.parse(pattern) catch switch {\012        .syntax(let message, let offset)      => return $\042syntax {message} @{offset}\042,\012        .unsupported(let message, let offset) => return $\042unsupported {message} @{offset}\042,\012        .tooLarge(let offset)                 => return $\042tooLarge @{offset}\042,\012    }\012    return \042ok\042\012}\012\012@cases(\012    (\042abc\042, \042xabcyabc\042, \0421:4|-|-|- 5:8|-|-|-\042, false),\012    (\042a.c\042, \042abc a\134nc a.c\042, \0420:3|-|-|- 8:11|-|-|-\042, false),\012    (\042\303\251.\042, \042\303\251a \303\251\303\251\042, \0420:3|-|-|- 4:8|-|-|-\042, false),\012    (\042[a-c]+\042, \042xxabcbazz\042, \0422:7|-|-|-\042, false),\012    (\042[^a-c]+\042, \042abxyzc\042, \0422:5|-|-|-\042, false),\012    (\042[]a]+\042, \042a]]b\042, \0420:3|-|-|-\042, false),\012    (\042[a-]+\042, \042-a-b\042, \0420:3|-|-|-\042, false),\012    (\042[\134\134d.]+\042, \042v1.20 x\042, \0421:5|-|-|-\042, false),\012    (\042[^\134\134D]+\042, \042ab12c3\042, \0422:4|-|-|- 5:6|-|-|-\042, false),\012    (\042[\134\134W]+\042, \042a, b\042, \0421:3|-|-|-\042, false),\012    (\042[\303\240-\303\277]+\042, \042caf\303\251 ol\303\251\042, \0423:5|-|-|- 8:10|-|-|-\042, false),\012    (\042[^\134\134n]+\042, \042ab\134ncd\042, \0420:2|-|-|- 3:5|-|-|-\042, false),\012    (\042\134\134d+\042, \042a12b345\042, \0421:3|-|-|- 4:7|-|-|-\042, false),\012    (\042\134\134D+\042, \042a12b\042, \0420:1|-|-|- 3:4|-|-|-\042, false),\012    (\042\134\134s+\042, \042a \134t\134nb\134u{B}c\042, \0421:4|-|-|-\042, false),\012    (\042\134\134S+\042, \042ab cd\042, \0420:2|-|-|- 3:5|-|-|-\042, false),\012    (\042\134\134w+\042, \042h\303\251llo_w0rld x\042, \0420:1|-|-|- 3:12|-|-|- 13:14|-|-|-\042, false),\012    (\042\134\134W+\042, \042a, b!\042, \0421:3|-|-|- 4:5|-|-|-\042, false),\012    (\042^a\042, \042aa\042, \0420:1|-|-|-\042, false),\012    (\042a$\042, \042aa\042, \0421:2|-|-|-\042, false),\012    (\042^$\042, \042\042, \0420:0|-|-|-\042, true),\012    (\042^\042, \042abc\042, \0420:0|-|-|-\042, false),\012    (\042$\042, \042ab\042, \0422:2|-|-|-\042, false),\012    (\042\134\134bfoo\134\134b\042, \042foo foobar a.foo\042, \0420:3|-|-|- 13:16|-|-|-\042, false),\012    (\042\134\134Boo\134\134B\042, \042foo boot\042, \0425:7|-|-|-\042, false),\012    (\042\134\134b\042, \042ab cd\042, \0420:0|-|-|- 2:2|-|-|- 3:3|-|-|- 5:5|-|-|-\042, false),\012    (\042(a)(b)\077\042, \042ab a\042, \0420:2|a|b|- 3:4|a|-|-\042, false),\012    (\042(\077:ab)+(c)\042, \042ababc\042, \0420:5|c|-|-\042, true),\012    (\042((a)|b)+\042, \042ab\042, \0420:2|b|a|-\042, true),\012    (\042(a|ab)(c|bcd)(d*)\042, \042abcd\042, \0420:4|a|bcd|\042, true),\012    (\042a\077\042, \042baa\042, \0420:0|-|-|- 1:2|-|-|- 2:3|-|-|-\042, false),\012    (\042a*\042, \042baaac\042, \0420:0|-|-|- 1:4|-|-|- 5:5|-|-|-\042, false),\012    (\042a+\042, \042baaac\042, \0421:4|-|-|-\042, false),\012    (\042a{2}\042, \042aaaaa\042, \0420:2|-|-|- 2:4|-|-|-\042, false),\012    (\042a{2,}\042, \042aaaaa b aa\042, \0420:5|-|-|- 8:10|-|-|-\042, false),\012    (\042a{2,3}\042, \042aaaaaaa\042, \0420:3|-|-|- 3:6|-|-|-\042, false),\012    (\042a{0}b\042, \042ab\042, \0421:2|-|-|-\042, false),\012    (\042x{\042, \042x{ x{1\042, \0420:2|-|-|- 3:5|-|-|-\042, false),\012    (\042a{,2}\042, \042a{,2}\042, \0420:5|-|-|-\042, true),\012    (\042a{1,2\042, \042a{1,2\042, \0420:5|-|-|-\042, true),\012    (\042a+\077\042, \042aaa\042, \0420:1|-|-|- 1:2|-|-|- 2:3|-|-|-\042, true),\012    (\042a*\077b\042, \042aaab\042, \0420:4|-|-|-\042, true),\012    (\042a\077\077\042, \042aa\042, \0420:0|-|-|- 1:1|-|-|- 2:2|-|-|-\042, false),\012    (\042<.*\077>\042, \042<a><bb>\042, \0420:3|-|-|- 3:7|-|-|-\042, true),\012    (\042a{2,3}\077\042, \042aaaaa\042, \0420:2|-|-|- 2:4|-|-|-\042, false),\012    (\042a{2,}\077\042, \042aaaaa\042, \0420:2|-|-|- 2:4|-|-|-\042, true),\012    (\042cat|dog\042, \042hotdog cat\042, \0423:6|-|-|- 7:10|-|-|-\042, false),\012    (\042a|ab\042, \042ab\042, \0420:1|-|-|-\042, true),\012    (\042ab|a\042, \042ab\042, \0420:2|-|-|-\042, true),\012    (\042|a\042, \042ab\042, \0420:0|-|-|- 1:1|-|-|- 2:2|-|-|-\042, false),\012    (\042a|\042, \042ab\042, \0420:1|-|-|- 2:2|-|-|-\042, false),\012    (\042(|x)y\042, \042xy y\042, \0420:2|x|-|- 3:4||-|-\042, false),\012    (\042\134\134.\134\134*\134\134+\134\134\077\134\134(\134\134)\134\134[\134\134]\134\134{\134\134}\134\134|\134\134^\134\134$\134\134\134\134\042, \042x.*+\077()[]{}|^$\134\134\042, \0421:15|-|-|-\042, false),\012    (\042\134\134n\134\134t\042, \042a\134n\134tb\042, \0421:3|-|-|-\042, false),\012    (\042a\134\134-b\042, \042a-b\042, \0420:3|-|-|-\042, true),\012    (\042(a*)*\042, \042b\042, \0420:0||-|- 1:1||-|-\042, false),\012    (\042(a*)+\042, \042b\042, \0420:0||-|- 1:1||-|-\042, false),\012    (\042(a|b)*c\042, \042abac\042, \0420:4|a|-|-\042, true),\012    (\042(a*)*b\042, \042aab\042, \0420:3|aa|-|-\042, true),\012    (\042\134\134d+\042, \04212a\042, \0420:2|-|-|-\042, false),\012    (\042x*\042, \042\042, \0420:0|-|-|-\042, true),\012)\012test \042findAll, find and matches agree with RE2\042 (string pattern, string text, string expected, bool whole) {\012    assert allOf(pattern, for: text) == expected\012    let re = compiled(pattern)\012    let first = re.find(text)\012    if (first is { } m) {\012        assert expected.startsWith(describe(m))\012    } else {\012        assert expected == \042\042\012    }\012    assert re.matches(text) == whole\012}\012\012test \042find gives null and findAll nothing when there is no match\042 {\012    let re = compiled(\042x+\042)\012    assert re.find(\042abc\042) is null\012    assert re.findAll(\042abc\042).length == 0\012    assert !re.matches(\042abc\042)\012}\012\012test \042Match.group is null for a group that took no part or does not exist\042 {\012    let re = compiled(\042(a)|(b)\042)\012    let m = re.find(\042b\042) \077\077 panic(\042no match\042)\012    assert m.group(0) == \042b\042\012    assert m.group(1) is null\012    assert m.group(2) == \042b\042\012    assert m.group(3) is null\012    assert m.group(-1) is null\012}\012\012test \042Match.span gives byte offsets in the text searched\042 {\012    let re = compiled(\042\303\266+\042)\012    let m = re.find(\042a\303\266\303\266!\042) \077\077 panic(\042no match\042)\012    let span = m.span\012    assert span.start == 1 && span.end == 5\012}\012\012@cases(\012    (\042a+\042, \042baaacaa\042, \042-\042, \042b-c-\042),\012    (\042a*\042, \042baaac\042, \042-\042, \042-b-c-\042),\012    (\042\134\134s+\042, \042a  b\134tc\042, \042 \042, \042a b c\042),\012    (\042x\042, \042abc\042, \042y\042, \042abc\042),\012    (\042(b)\042, \042abc\042, \042$1\042, \042a$1c\042),\012    (\042\042, \042abc\042, \042.\042, \042.a.b.c.\042),\012    (\042\303\251\042, \042\303\251a\303\251\042, \042e\042, \042eae\042),\012    (\042\134\134([^()]*\134\134)\042, \042f(a) g(b(c))\042, \042\042, \042f g(b)\042),\012)\012test \042replaced puts the replacement, taken literally, at every match\042 (\012    string pattern,\012    string text,\012    string by,\012    string expected\012) {\012    assert compiled(pattern).replaced(text, by: by) == expected\012}\012\012@cases(\012    (\042\042, \042\042),\012    (\042abc\042, \042abc\042),\012    (\042a.b*c\042, \042a\134\134.b\134\134*c\042),\012    (\042\134\134.+*\077()|[]{}^$\042, \042\134\134\134\134\134\134.\134\134+\134\134*\134\134\077\134\134(\134\134)\134\134|\134\134[\134\134]\134\134{\134\134}\134\134^\134\134$\042),\012    (\042x-y #\303\251\042, \042x-y #\303\251\042),\012    (\0421+1=2\042, \0421\134\134+1=2\042),\012)\012test \042escaped quotes every metacharacter and the result matches the text literally\042 (string text, string expected) {\012    assert Regex.escaped(text) == expected\012    let re = compiled(Regex.escaped(text))\012    assert re.matches(text)\012    assert !re.matches($\042{text}x\042)\012}\012\012@cases(\012    (\042(\077=a)\042, \042unsupported lookaround @0\042),\012    (\042(\077!a)\042, \042unsupported lookaround @0\042),\012    (\042a(\077<=b)\042, \042unsupported lookaround @1\042),\012    (\042(\077<!b)a\042, \042unsupported lookaround @0\042),\012    (\042(a)\134\1341\042, \042unsupported backreference @3\042),\012    (\042[\134\1342]\042, \042unsupported backreference @1\042),\012    (\042\134\134k<x>\042, \042unsupported backreference @0\042),\012    (\042(\077P<n>a)\042, \042unsupported group flags and named groups @0\042),\012    (\042(\077i)a\042, \042unsupported group flags and named groups @0\042),\012    (\042[[:alpha:]]\042, \042unsupported POSIX class @1\042),\012    (\042(a\042, \042syntax missing `)` @0\042),\012    (\042(\077:\042, \042syntax missing `)` @0\042),\012    (\042a)\042, \042syntax unmatched `)` @1\042),\012    (\042[a\042, \042syntax missing `]` @0\042),\012    (\042[]\042, \042syntax missing `]` @0\042),\012    (\042*a\042, \042syntax missing argument to repetition operator @0\042),\012    (\042|*\042, \042syntax missing argument to repetition operator @1\042),\012    (\042a**\042, \042syntax repetition of a repetition @2\042),\012    (\042a{1001}\042, \042syntax repetition count above 1000 @1\042),\012    (\042a{3,2}\042, \042syntax repetition maximum below its minimum @1\042),\012    (\042[z-a]\042, \042syntax range end before its start @1\042),\012    (\042[a-\134\134d]\042, \042syntax class escape as a range end @3\042),\012    (\042a\134\134\042, \042syntax trailing `\134\134` @1\042),\012    (\042\134\134q\042, \042syntax unknown escape @0\042),\012    (\042[\134\134b]\042, \042syntax `\134\134b` or `\134\134B` in a class @1\042),\012    (\042(a{1000}){1000}\042, \042tooLarge @9\042),\012)\012test \042parse refuses backreferences, lookaround and broken patterns with RegexError\042 (string pattern, string expected) {\012    assert errorOf(pattern) == expected\012}\012\012test \042parse refuses groups nested deeper than 1000\042 {\012    var sb = StrBuf()\012    sb.appendRepeated('(', by: 1001)\012    sb.appendRepeated(')', by: 1001)\012    assert errorOf(sb.view) == \042syntax groups nest too deep @1000\042\012}\012\012test \042(a*)*b and (a\077){n}a{n} run in linear time on long input\042 {\012    var sb = StrBuf()\012    sb.appendRepeated('a', by: 20000)\012    let text = sb.view\012    assert compiled(\042(a*)*b\042).find(text) is null\012    assert compiled(\042(x+x+)+y\042).find(text) is null\012    let m = compiled(\042(a|aa)+$\042).find(text) \077\077 panic(\042no match\042)\012    assert m.span.end == 20000\012    let re = compiled(\042(a\077){100}a{100}\042)\012    var n = StrBuf()\012    n.appendRepeated('a', by: 200)\012    assert re.matches(n.view)\012    n.append(\042a\042)\012    assert !re.matches(n.view)\012    assert (re.find(n.view) \077\077 panic(\042no match\042)).span.end == 200\012}\012", 9191)}));
+#line 18 "semantics/stdsource.byn"
     return l0_sources;
 }
-#line 152033 "main.c"
+#line 152035 "main.c"
 
 int64_t byn_semantics__newStruct(bynt_semantics__Ctx* p_c, bynt_semantics__StructSymbol p_s) {
 #line 411 "semantics/symbols.byn"
@@ -152037,7 +152039,7 @@ int64_t byn_semantics__newStruct(bynt_semantics__Ctx* p_c, bynt_semantics__Struc
 #line 412 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).structs.len, INT64_C(1), byn_file_60, 412);
 }
-#line 152041 "main.c"
+#line 152043 "main.c"
 
 int64_t byn_semantics__newField(bynt_semantics__Ctx* p_c, bynt_semantics__FieldSymbol p_s) {
 #line 416 "semantics/symbols.byn"
@@ -152045,7 +152047,7 @@ int64_t byn_semantics__newField(bynt_semantics__Ctx* p_c, bynt_semantics__FieldS
 #line 417 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).fields.len, INT64_C(1), byn_file_60, 417);
 }
-#line 152049 "main.c"
+#line 152051 "main.c"
 
 int64_t byn_semantics__newProperty(bynt_semantics__Ctx* p_c, bynt_semantics__PropertySymbol p_s) {
 #line 421 "semantics/symbols.byn"
@@ -152053,7 +152055,7 @@ int64_t byn_semantics__newProperty(bynt_semantics__Ctx* p_c, bynt_semantics__Pro
 #line 422 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).properties.len, INT64_C(1), byn_file_60, 422);
 }
-#line 152057 "main.c"
+#line 152059 "main.c"
 
 int64_t byn_semantics__newFunction(bynt_semantics__Ctx* p_c, bynt_semantics__FunctionSymbol p_s) {
 #line 426 "semantics/symbols.byn"
@@ -152061,7 +152063,7 @@ int64_t byn_semantics__newFunction(bynt_semantics__Ctx* p_c, bynt_semantics__Fun
 #line 427 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).functions.len, INT64_C(1), byn_file_60, 427);
 }
-#line 152065 "main.c"
+#line 152067 "main.c"
 
 int64_t byn_semantics__newInterface(bynt_semantics__Ctx* p_c, bynt_semantics__InterfaceSymbol p_s) {
 #line 431 "semantics/symbols.byn"
@@ -152069,7 +152071,7 @@ int64_t byn_semantics__newInterface(bynt_semantics__Ctx* p_c, bynt_semantics__In
 #line 432 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).interfaces.len, INT64_C(1), byn_file_60, 432);
 }
-#line 152073 "main.c"
+#line 152075 "main.c"
 
 int64_t byn_semantics__newConformance(bynt_semantics__Ctx* p_c, bynt_semantics__Conformance p_s) {
 #line 436 "semantics/symbols.byn"
@@ -152077,7 +152079,7 @@ int64_t byn_semantics__newConformance(bynt_semantics__Ctx* p_c, bynt_semantics__
 #line 437 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).conformances.len, INT64_C(1), byn_file_60, 437);
 }
-#line 152081 "main.c"
+#line 152083 "main.c"
 
 int64_t byn_semantics__newLocal(bynt_semantics__Ctx* p_c, bynt_semantics__LocalSymbol p_s) {
 #line 441 "semantics/symbols.byn"
@@ -152085,7 +152087,7 @@ int64_t byn_semantics__newLocal(bynt_semantics__Ctx* p_c, bynt_semantics__LocalS
 #line 442 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).locals.len, INT64_C(1), byn_file_60, 442);
 }
-#line 152089 "main.c"
+#line 152091 "main.c"
 
 int64_t byn_semantics__newConst(bynt_semantics__Ctx* p_c, bynt_semantics__ConstSymbol p_s) {
 #line 446 "semantics/symbols.byn"
@@ -152093,7 +152095,7 @@ int64_t byn_semantics__newConst(bynt_semantics__Ctx* p_c, bynt_semantics__ConstS
 #line 447 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).consts.len, INT64_C(1), byn_file_60, 447);
 }
-#line 152097 "main.c"
+#line 152099 "main.c"
 
 int64_t byn_semantics__newErrorSet(bynt_semantics__Ctx* p_c, bynt_semantics__ErrorSetSymbol p_s) {
 #line 451 "semantics/symbols.byn"
@@ -152101,7 +152103,7 @@ int64_t byn_semantics__newErrorSet(bynt_semantics__Ctx* p_c, bynt_semantics__Err
 #line 452 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).errorSets.len, INT64_C(1), byn_file_60, 452);
 }
-#line 152105 "main.c"
+#line 152107 "main.c"
 
 int64_t byn_semantics__newErrorVariant(bynt_semantics__Ctx* p_c, bynt_semantics__ErrorVariantSymbol p_s) {
 #line 456 "semantics/symbols.byn"
@@ -152109,7 +152111,7 @@ int64_t byn_semantics__newErrorVariant(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 457 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).errorVariants.len, INT64_C(1), byn_file_60, 457);
 }
-#line 152113 "main.c"
+#line 152115 "main.c"
 
 int64_t byn_semantics__newTest(bynt_semantics__Ctx* p_c, bynt_semantics__TestSymbol p_s) {
 #line 461 "semantics/symbols.byn"
@@ -152117,7 +152119,7 @@ int64_t byn_semantics__newTest(bynt_semantics__Ctx* p_c, bynt_semantics__TestSym
 #line 462 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).tests.len, INT64_C(1), byn_file_60, 462);
 }
-#line 152121 "main.c"
+#line 152123 "main.c"
 
 int64_t byn_semantics__newEnum(bynt_semantics__Ctx* p_c, bynt_semantics__EnumSymbol p_s) {
 #line 466 "semantics/symbols.byn"
@@ -152125,7 +152127,7 @@ int64_t byn_semantics__newEnum(bynt_semantics__Ctx* p_c, bynt_semantics__EnumSym
 #line 467 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).enums.len, INT64_C(1), byn_file_60, 467);
 }
-#line 152129 "main.c"
+#line 152131 "main.c"
 
 int64_t byn_semantics__newEnumField(bynt_semantics__Ctx* p_c, bynt_semantics__EnumFieldSymbol p_s) {
 #line 471 "semantics/symbols.byn"
@@ -152133,7 +152135,7 @@ int64_t byn_semantics__newEnumField(bynt_semantics__Ctx* p_c, bynt_semantics__En
 #line 472 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).enumFields.len, INT64_C(1), byn_file_60, 472);
 }
-#line 152137 "main.c"
+#line 152139 "main.c"
 
 int64_t byn_semantics__newEnumMember(bynt_semantics__Ctx* p_c, bynt_semantics__EnumMemberSymbol p_s) {
 #line 476 "semantics/symbols.byn"
@@ -152141,7 +152143,7 @@ int64_t byn_semantics__newEnumMember(bynt_semantics__Ctx* p_c, bynt_semantics__E
 #line 477 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).enumMembers.len, INT64_C(1), byn_file_60, 477);
 }
-#line 152145 "main.c"
+#line 152147 "main.c"
 
 int64_t byn_semantics__newUnion(bynt_semantics__Ctx* p_c, bynt_semantics__UnionSymbol p_s) {
 #line 481 "semantics/symbols.byn"
@@ -152149,7 +152151,7 @@ int64_t byn_semantics__newUnion(bynt_semantics__Ctx* p_c, bynt_semantics__UnionS
 #line 482 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).unions.len, INT64_C(1), byn_file_60, 482);
 }
-#line 152153 "main.c"
+#line 152155 "main.c"
 
 int64_t byn_semantics__newUnionVariant(bynt_semantics__Ctx* p_c, bynt_semantics__UnionVariantSymbol p_s) {
 #line 486 "semantics/symbols.byn"
@@ -152157,7 +152159,7 @@ int64_t byn_semantics__newUnionVariant(bynt_semantics__Ctx* p_c, bynt_semantics_
 #line 487 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).unionVariants.len, INT64_C(1), byn_file_60, 487);
 }
-#line 152161 "main.c"
+#line 152163 "main.c"
 
 int64_t byn_semantics__newTypeParam(bynt_semantics__Ctx* p_c, bynt_semantics__TypeParam p_s) {
 #line 491 "semantics/symbols.byn"
@@ -152165,7 +152167,7 @@ int64_t byn_semantics__newTypeParam(bynt_semantics__Ctx* p_c, bynt_semantics__Ty
 #line 492 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).typeParams.len, INT64_C(1), byn_file_60, 492);
 }
-#line 152169 "main.c"
+#line 152171 "main.c"
 
 int64_t byn_semantics__newAlias(bynt_semantics__Ctx* p_c, bynt_semantics__AliasPlaceholder p_s) {
 #line 496 "semantics/symbols.byn"
@@ -152173,43 +152175,43 @@ int64_t byn_semantics__newAlias(bynt_semantics__Ctx* p_c, bynt_semantics__AliasP
 #line 497 "semantics/symbols.byn"
     return byn_sub_i64((*p_c).aliases.len, INT64_C(1), byn_file_60, 497);
 }
-#line 152177 "main.c"
+#line 152179 "main.c"
 
 int64_t byn_semantics__structTypeOf(int64_t p_s) {
 #line 502 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)20), p_s);
 }
-#line 152183 "main.c"
+#line 152185 "main.c"
 
 int64_t byn_semantics__interfaceTypeOf(int64_t p_i) {
 #line 504 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)21), p_i);
 }
-#line 152189 "main.c"
+#line 152191 "main.c"
 
 int64_t byn_semantics__enumTypeOf(int64_t p_e) {
 #line 506 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)22), p_e);
 }
-#line 152195 "main.c"
+#line 152197 "main.c"
 
 int64_t byn_semantics__unionTypeOf(int64_t p_u) {
 #line 508 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)23), p_u);
 }
-#line 152201 "main.c"
+#line 152203 "main.c"
 
 int64_t byn_semantics__errorSetTypeOf(int64_t p_e) {
 #line 510 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)24), p_e);
 }
-#line 152207 "main.c"
+#line 152209 "main.c"
 
 int64_t byn_semantics__typeParamTypeOf(int64_t p_tp) {
 #line 512 "semantics/symbols.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)3), p_tp);
 }
-#line 152213 "main.c"
+#line 152215 "main.c"
 
 byn_str byn_semantics__qualify(bynt_semantics__Ctx* p_c, int64_t p_module, byn_str p_name) {
     byn_writer t0 = {0};
@@ -152236,7 +152238,7 @@ byn_str byn_semantics__qualify(bynt_semantics__Ctx* p_c, int64_t p_module, byn_s
 #line 519 "semantics/symbols.byn"
     return t1;
 }
-#line 152240 "main.c"
+#line 152242 "main.c"
 
 byn_str byn_semantics__structDisplayName(bynt_semantics__Ctx* p_c, int64_t p_s) {
     byn_str l0_name = {0};
@@ -152369,7 +152371,7 @@ byn_str byn_semantics__structDisplayName(bynt_semantics__Ctx* p_c, int64_t p_s) 
 #line 552 "semantics/symbols.byn"
     return l2_q;
 }
-#line 152373 "main.c"
+#line 152375 "main.c"
 
 byn_str byn_semantics__interfaceDisplayName(bynt_semantics__Ctx* p_c, int64_t p_i) {
     byn_str l0_name = {0};
@@ -152502,7 +152504,7 @@ byn_str byn_semantics__interfaceDisplayName(bynt_semantics__Ctx* p_c, int64_t p_
 #line 586 "semantics/symbols.byn"
     return l2_q;
 }
-#line 152506 "main.c"
+#line 152508 "main.c"
 
 byn_str byn_semantics__enumDisplayName(bynt_semantics__Ctx* p_c, int64_t p_e) {
     int64_t l0_fieldsOf = {0};
@@ -152539,7 +152541,7 @@ byn_str byn_semantics__enumDisplayName(bynt_semantics__Ctx* p_c, int64_t p_e) {
 #line 599 "semantics/symbols.byn"
     return byn_semantics__qualify(&(*p_c), l4_module, l5_name);
 }
-#line 152543 "main.c"
+#line 152545 "main.c"
 
 byn_str byn_semantics__unionDisplayName(bynt_semantics__Ctx* p_c, int64_t p_u) {
     byn_str l0_name = {0};
@@ -152672,7 +152674,7 @@ byn_str byn_semantics__unionDisplayName(bynt_semantics__Ctx* p_c, int64_t p_u) {
 #line 633 "semantics/symbols.byn"
     return l2_q;
 }
-#line 152676 "main.c"
+#line 152678 "main.c"
 
 byn_str byn_semantics__errorSetDisplayName(bynt_semantics__Ctx* p_c, int64_t p_e) {
     byn_str l0_name = {0};
@@ -152705,7 +152707,7 @@ byn_str byn_semantics__errorSetDisplayName(bynt_semantics__Ctx* p_c, int64_t p_e
 #line 642 "semantics/symbols.byn"
     return byn_strbuf_str(t3);
 }
-#line 152709 "main.c"
+#line 152711 "main.c"
 
 byn_str byn_semantics__displayNameAmong(bynt_semantics__Ctx* p_c, int64_t p_e, bynt_list_i64 p_among) {
     byn_str l0_own = {0};
@@ -152760,7 +152762,7 @@ break_1:;
 #line 660 "semantics/symbols.byn"
     return l6_result;
 }
-#line 152764 "main.c"
+#line 152766 "main.c"
 
 byn_str byn_semantics__functionDisplaySignature(bynt_semantics__Ctx* p_c, int64_t p_f) {
     byn_str l0_name = {0};
@@ -152847,7 +152849,7 @@ break_1:;
 #line 681 "semantics/symbols.byn"
     return byn_strbuf_str(t8);
 }
-#line 152851 "main.c"
+#line 152853 "main.c"
 
 byn_str byn_semantics__errorVariantSummary(bynt_semantics__Ctx* p_c, int64_t p_v) {
     bynt_opt_str l0_doc = {0};
@@ -152872,7 +152874,7 @@ byn_str byn_semantics__errorVariantSummary(bynt_semantics__Ctx* p_c, int64_t p_v
 #line 694 "semantics/symbols.byn"
     return (*bynh_at_list_semantics__ErrorVariantSymbol((*p_c).errorVariants, (int64_t)p_v, false, byn_file_60, 694)).name;
 }
-#line 152876 "main.c"
+#line 152878 "main.c"
 
 int64_t byn_semantics__findField(bynt_semantics__Ctx* p_c, int64_t p_s, byn_str p_name) {
     int64_t l0_f = {0};
@@ -152904,7 +152906,7 @@ break_1:;
 #line 704 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 152908 "main.c"
+#line 152910 "main.c"
 
 int64_t byn_semantics__findProperty(bynt_semantics__Ctx* p_c, int64_t p_s, byn_str p_name) {
     int64_t l0_p = {0};
@@ -152936,7 +152938,7 @@ break_1:;
 #line 712 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 152940 "main.c"
+#line 152942 "main.c"
 
 bynt_list_i64 byn_semantics__findMethods(bynt_semantics__Ctx* p_c, int64_t p_s, byn_str p_name) {
     bynt_list_i64 l0_result = {0};
@@ -152971,7 +152973,7 @@ break_1:;
 #line 723 "semantics/symbols.byn"
     return l0_result;
 }
-#line 152975 "main.c"
+#line 152977 "main.c"
 
 bynt_list_i64 byn_semantics__findInterfaceMethods(bynt_semantics__Ctx* p_c, int64_t p_i, byn_str p_name) {
     bynt_list_i64 l0_result = {0};
@@ -153006,7 +153008,7 @@ break_1:;
 #line 734 "semantics/symbols.byn"
     return l0_result;
 }
-#line 153010 "main.c"
+#line 153012 "main.c"
 
 int64_t byn_semantics__findInterfaceProperty(bynt_semantics__Ctx* p_c, int64_t p_i, byn_str p_name) {
     int64_t l0_p = {0};
@@ -153038,7 +153040,7 @@ break_1:;
 #line 742 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 153042 "main.c"
+#line 153044 "main.c"
 
 int64_t byn_semantics__findErrorVariant(bynt_semantics__Ctx* p_c, int64_t p_e, byn_str p_name) {
     int64_t l0_v = {0};
@@ -153070,7 +153072,7 @@ break_1:;
 #line 750 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 153074 "main.c"
+#line 153076 "main.c"
 
 int64_t byn_semantics__findEnumMember(bynt_semantics__Ctx* p_c, int64_t p_e, byn_str p_name) {
     int64_t l0_m = {0};
@@ -153102,7 +153104,7 @@ break_1:;
 #line 758 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 153106 "main.c"
+#line 153108 "main.c"
 
 int64_t byn_semantics__findEnumField(bynt_semantics__Ctx* p_c, int64_t p_e, byn_str p_name) {
     int64_t l0_f = {0};
@@ -153134,7 +153136,7 @@ break_1:;
 #line 766 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 153138 "main.c"
+#line 153140 "main.c"
 
 int64_t byn_semantics__findUnionVariant(bynt_semantics__Ctx* p_c, int64_t p_u, byn_str p_name) {
     int64_t l0_v = {0};
@@ -153166,7 +153168,7 @@ break_1:;
 #line 774 "semantics/symbols.byn"
     return INT64_C(-1);
 }
-#line 153170 "main.c"
+#line 153172 "main.c"
 
 bool byn_semantics__structIsGeneric(bynt_semantics__Ctx* p_c, int64_t p_s) {
     bynt_list_i64 l0_args = {0};
@@ -153206,7 +153208,7 @@ break_1:;
 #line 786 "semantics/symbols.byn"
     return false;
 }
-#line 153210 "main.c"
+#line 153212 "main.c"
 
 bool byn_semantics__interfaceIsGeneric(bynt_semantics__Ctx* p_c, int64_t p_i) {
     bynt_list_i64 l0_args = {0};
@@ -153246,7 +153248,7 @@ break_1:;
 #line 796 "semantics/symbols.byn"
     return false;
 }
-#line 153250 "main.c"
+#line 153252 "main.c"
 
 bool byn_semantics__unionIsGeneric(bynt_semantics__Ctx* p_c, int64_t p_u) {
     bynt_list_i64 l0_args = {0};
@@ -153286,7 +153288,7 @@ break_1:;
 #line 806 "semantics/symbols.byn"
     return false;
 }
-#line 153290 "main.c"
+#line 153292 "main.c"
 
 bool byn_semantics__functionIsGeneric(bynt_semantics__Ctx* p_c, int64_t p_f) {
     int64_t l0_owner = {0};
@@ -153350,7 +153352,7 @@ break_1:;
 #line 822 "semantics/symbols.byn"
     return false;
 }
-#line 153354 "main.c"
+#line 153356 "main.c"
 
 bool byn_semantics__functionIsInstance(bynt_semantics__Ctx* p_c, int64_t p_f) {
     int64_t l0_template = {0};
@@ -153380,7 +153382,7 @@ bool byn_semantics__functionIsInstance(bynt_semantics__Ctx* p_c, int64_t p_f) {
 #line 833 "semantics/symbols.byn"
     return false;
 }
-#line 153384 "main.c"
+#line 153386 "main.c"
 
 bool byn_semantics__functionHasThis(bynt_semantics__Ctx* p_c, int64_t p_f) {
     int64_t l0_owner = {0};
@@ -153405,7 +153407,7 @@ bool byn_semantics__functionHasThis(bynt_semantics__Ctx* p_c, int64_t p_f) {
 #line 843 "semantics/symbols.byn"
     return (((l2_kind == ((byn_semantics_FunctionKind)1)) || (l2_kind == ((byn_semantics_FunctionKind)3))) || (l2_kind == ((byn_semantics_FunctionKind)2)));
 }
-#line 153409 "main.c"
+#line 153411 "main.c"
 
 bool byn_semantics__structIsDefaultable(bynt_semantics__Ctx* p_c, int64_t p_s) {
     bynt_list_i64 l0_fields = {0};
@@ -153440,19 +153442,19 @@ break_1:;
 #line 852 "semantics/symbols.byn"
     return true;
 }
-#line 153444 "main.c"
+#line 153446 "main.c"
 
 bool byn_semantics__fieldIsRequired(bynt_semantics__Ctx* p_c, int64_t p_f) {
 #line 856 "semantics/symbols.byn"
     return (!(((int64_t)((*bynh_at_list_semantics__FieldSymbol((*p_c).fields, (int64_t)p_f, false, byn_file_60, 856)).modifiers & INT64_C(16))) == INT64_C(0)));
 }
-#line 153450 "main.c"
+#line 153452 "main.c"
 
 bool byn_semantics__fieldIsReadonly(bynt_semantics__Ctx* p_c, int64_t p_f) {
 #line 859 "semantics/symbols.byn"
     return (!(((int64_t)((*bynh_at_list_semantics__FieldSymbol((*p_c).fields, (int64_t)p_f, false, byn_file_60, 859)).modifiers & INT64_C(8))) == INT64_C(0)));
 }
-#line 153456 "main.c"
+#line 153458 "main.c"
 
 bool byn_semantics__localIsMutable(bynt_semantics__Ctx* p_c, int64_t p_l) {
     byn_semantics_LocalKind t0 = {0};
@@ -153461,7 +153463,7 @@ bool byn_semantics__localIsMutable(bynt_semantics__Ctx* p_c, int64_t p_l) {
 #line 863 "semantics/symbols.byn"
     return ((t0 == ((byn_semantics_LocalKind)1)) || (t0 == ((byn_semantics_LocalKind)6)));
 }
-#line 153465 "main.c"
+#line 153467 "main.c"
 
 bool byn_semantics__paramIsByRef(bynt_semantics__Ctx* p_c, int64_t p_l) {
     byn_parser_ParamModifier t0 = {0};
@@ -153478,13 +153480,13 @@ bool byn_semantics__paramIsByRef(bynt_semantics__Ctx* p_c, int64_t p_l) {
 #line 867 "semantics/symbols.byn"
     return t1;
 }
-#line 153482 "main.c"
+#line 153484 "main.c"
 
 byn_str byn_semantics__typeParamDisplayName(bynt_semantics__Ctx* p_c, int64_t p_tp) {
 #line 870 "semantics/symbols.byn"
     return (*bynh_at_list_semantics__TypeParam((*p_c).typeParams, (int64_t)p_tp, false, byn_file_60, 870)).name;
 }
-#line 153488 "main.c"
+#line 153490 "main.c"
 
 byn_str byn_semantics__typedDump(bynt_semantics__Ctx* p_c) {
     byn_writer l0_sb = {0};
@@ -153739,7 +153741,7 @@ break_1:;
 #line 62 "semantics/typed.byn"
     return byn_strbuf_str(t24);
 }
-#line 153743 "main.c"
+#line 153745 "main.c"
 
 void byn_semantics__t26OrderFunctions(bynt_semantics__Ctx* p_c, int64_t p_module, bynt_list_i64* p_functions) {
     int64_t l0_i = {0};
@@ -153789,7 +153791,7 @@ void byn_semantics__t26OrderFunctions(bynt_semantics__Ctx* p_c, int64_t p_module
     }
 break_1:;
 }
-#line 153793 "main.c"
+#line 153795 "main.c"
 
 bool byn_semantics__t26FunctionBefore(bynt_semantics__Ctx* p_c, int64_t p_module, int64_t p_a, int64_t p_b) {
     int64_t l0_fa = {0};
@@ -153820,7 +153822,7 @@ bool byn_semantics__t26FunctionBefore(bynt_semantics__Ctx* p_c, int64_t p_module
 #line 87 "semantics/typed.byn"
     return (t4 < byn_lexer__TextSpan__get_end(&l3_sb));
 }
-#line 153824 "main.c"
+#line 153826 "main.c"
 
 int64_t byn_semantics__t26FileIndex(bynt_semantics__Ctx* p_c, int64_t p_module, int64_t p_file) {
     int64_t l0_i = {0};
@@ -153852,7 +153854,7 @@ break_1:;
 #line 95 "semantics/typed.byn"
     return INT64_C(-1);
 }
-#line 153856 "main.c"
+#line 153858 "main.c"
 
 void byn_semantics__t26WriteCaptures(bynt_semantics__Ctx* p_c, int64_t p_lambda, byn_writer* p_sb) {
     int64_t l0_bound = {0};
@@ -153951,7 +153953,7 @@ void byn_semantics__t26WriteCaptures(bynt_semantics__Ctx* p_c, int64_t p_lambda,
 #line 123 "semantics/typed.byn"
     (void)byn_w_str(&(*p_sb), (l5_any ? BYN_STR("\012      ]", 8) : BYN_STR("]", 1)));
 }
-#line 153955 "main.c"
+#line 153957 "main.c"
 
 int64_t byn_semantics__t26Outermost(bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -153975,7 +153977,7 @@ break_1:;
 #line 132 "semantics/typed.byn"
     return l0_f;
 }
-#line 153979 "main.c"
+#line 153981 "main.c"
 
 void byn_semantics__t26WriteSpan(byn_writer* p_sb, bynt_lexer__TextSpan p_span, byn_str p_indent) {
 #line 137 "semantics/typed.byn"
@@ -154015,7 +154017,7 @@ void byn_semantics__t26WriteSpan(byn_writer* p_sb, bynt_lexer__TextSpan p_span, 
         byn_w_str(w, BYN_STR("}", 1));
     }
 }
-#line 154019 "main.c"
+#line 154021 "main.c"
 
 byn_str byn_semantics__t26PathOf(bynt_semantics__Ctx* p_c, byn_str p_path) {
     byn_str l0_shown = {0};
@@ -154080,7 +154082,7 @@ break_1:;
 #line 158 "semantics/typed.byn"
     return byn_strbuf_str(t8);
 }
-#line 154084 "main.c"
+#line 154086 "main.c"
 
 byn_str byn_semantics__t26KindOf(bynt_semantics__Ctx* p_c, int64_t p_local) {
     byn_semantics_LocalKind t0 = {0};
@@ -154125,7 +154127,7 @@ byn_str byn_semantics__t26KindOf(bynt_semantics__Ctx* p_c, int64_t p_local) {
     return ((*bynh_at_list_semantics__LocalSymbol((*p_c).locals, (int64_t)p_local, false, byn_file_61, 169)).isCatch ? BYN_STR("catch", 5) : BYN_STR("let", 3));
 switch_end_1:;
 }
-#line 154129 "main.c"
+#line 154131 "main.c"
 
 byn_str byn_semantics__t26JsonString(byn_str p_s) {
     byn_writer l0_sb = {0};
@@ -154248,7 +154250,7 @@ break_1:;
 #line 209 "semantics/typed.byn"
     return byn_strbuf_str(t7);
 }
-#line 154252 "main.c"
+#line 154254 "main.c"
 
 byn_str byn_semantics__t26Hex4(int64_t p_v) {
     byn_str l0_digits = {0};
@@ -154290,19 +154292,19 @@ break_1:;
 #line 222 "semantics/typed.byn"
     return byn_strbuf_str(t4);
 }
-#line 154294 "main.c"
+#line 154296 "main.c"
 
 int64_t byn_semantics__t8AliasType(int64_t p_alias) {
 #line 23 "semantics/typeresolve.byn"
     return ((int64_t)(INT64_C(107374182400) | p_alias));
 }
-#line 154300 "main.c"
+#line 154302 "main.c"
 
 bool byn_semantics__t8IsAlias(int64_t p_t) {
 #line 25 "semantics/typeresolve.byn"
     return (byn_shr_i64(p_t, (int64_t)(((int32_t)32))) == INT64_C(25));
 }
-#line 154306 "main.c"
+#line 154308 "main.c"
 
 byn_str byn_semantics__t8Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -154321,7 +154323,7 @@ byn_str byn_semantics__t8Text(bynt_semantics__Ctx p_c, int64_t p_f, bynt_lexer__
 #line 29 "semantics/typeresolve.byn"
     return byn_strbuf_str(t0);
 }
-#line 154325 "main.c"
+#line 154327 "main.c"
 
 bynt_lexer__TextSpan byn_semantics__t8TypeSpan(byn_parser_TypeSyntax p_t) {
     bynt_parser__NamedType* l0_n = {0};
@@ -154397,7 +154399,7 @@ bynt_lexer__TextSpan byn_semantics__t8TypeSpan(byn_parser_TypeSyntax p_t) {
     }
 switch_end_1:;
 }
-#line 154401 "main.c"
+#line 154403 "main.c"
 
 byn_parser_Decl byn_semantics__t8TakeDecl(bynt_semantics__Ctx* p_c, int64_t p_f, int64_t p_i, byn_parser_Decl p_put) {
     bynt_list_parser__Decl l0_members = {0};
@@ -154445,7 +154447,7 @@ break_3:;
 #line 60 "semantics/typeresolve.byn"
     return l3_old;
 }
-#line 154449 "main.c"
+#line 154451 "main.c"
 
 bynt_list_i64 byn_semantics__t8SetsOf(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_i64 l0_sets = {0};
@@ -154461,19 +154463,19 @@ bynt_list_i64 byn_semantics__t8SetsOf(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 68 "semantics/typeresolve.byn"
     return l0_sets;
 }
-#line 154465 "main.c"
+#line 154467 "main.c"
 
 bynt_semantics__Binder byn_semantics__t8Binder(bynt_semantics__TypeResolver p_r) {
 #line 72 "semantics/typeresolve.byn"
     return ((bynt_semantics__Binder){p_r.file, INT64_C(-1), p_r.container, INT64_C(-1), INT64_C(0), ((bynt_list_map_str_i64){NULL, 0, 0, byn_context}), ((bynt_list_semantics__JumpTarget){NULL, 0, 0, byn_context}), INT64_C(0), false, INT64_C(-1), false, ((bynt_list_tup2_i64_list_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), INT64_C(0), INT64_C(0), ((bynt_list_tup2_i64_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_list_tup2_i64_i64){NULL, 0, 0, byn_context}), ((bynt_list_tup3_i64_i64_i64){NULL, 0, 0, byn_context}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_map_str_i64){0}), INT64_C(-1), ((bynt_opt_i64){0}), ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL}), false, ((bynt_list_i64){NULL, 0, 0, byn_context}), INT64_C(0), INT64_C(-1), ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), ((bynt_opt_lexer__TextSpan){0}), INT64_C(-1), false, ((bynt_opt_str){0}), ((bynt_opt_semantics__CalleeOf){0}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_map_i64_i64){{.alloc = byn_context}, NULL, NULL}), ((bynt_opt_list_semantics__CoveredCall){0}), false, ((bynt_list_tup3_bool_lexer__TextSpan_lexer__TextSpan){NULL, 0, 0, byn_context})});
 }
-#line 154471 "main.c"
+#line 154473 "main.c"
 
 bool byn_semantics__t8MembersDeclared(bynt_semantics__Ctx p_c) {
 #line 89 "semantics/typeresolve.byn"
     return p_c.membersDeclared;
 }
-#line 154477 "main.c"
+#line 154479 "main.c"
 
 int64_t byn_semantics__t8BuiltinSet(bynt_semantics__Ctx p_c, byn_str p_name) {
     int64_t l0_i = {0};
@@ -154505,7 +154507,7 @@ break_1:;
 #line 96 "semantics/typeresolve.byn"
     return byn_semantics__errorType();
 }
-#line 154509 "main.c"
+#line 154511 "main.c"
 
 int64_t byn_semantics__t8BuiltinUnion(bynt_semantics__Ctx p_c, byn_str p_name) {
     int64_t l0_i = {0};
@@ -154537,13 +154539,13 @@ break_1:;
 #line 104 "semantics/typeresolve.byn"
     return byn_semantics__errorType();
 }
-#line 154541 "main.c"
+#line 154543 "main.c"
 
 bool byn_semantics__t8IsBuiltinFile(bynt_semantics__Ctx p_c, int64_t p_f) {
 #line 107 "semantics/typeresolve.byn"
     return ((p_f < INT64_C(0)) || byn_str_eq((*bynh_at_list_semantics__SourceFile(p_c.files, (int64_t)p_f, false, byn_file_62, 107)).path, BYN_STR("<builtin>", 9)));
 }
-#line 154547 "main.c"
+#line 154549 "main.c"
 
 int64_t byn_semantics__resolve(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, byn_parser_TypeSyntax p_syntax, bool p_allowVoid) {
     int64_t l0_t = {0};
@@ -154587,13 +154589,13 @@ int64_t byn_semantics__resolve(bynt_semantics__Ctx* p_c, bynt_semantics__TypeRes
 #line 130 "semantics/typeresolve.byn"
     return l0_t;
 }
-#line 154591 "main.c"
+#line 154593 "main.c"
 
 int64_t byn_semantics__resolveBound(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_syntax) {
 #line 135 "semantics/typeresolve.byn"
     return byn_semantics__resolveNamed(&(*p_c), p_r, p_syntax);
 }
-#line 154597 "main.c"
+#line 154599 "main.c"
 
 int64_t byn_semantics__resolveCore(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, byn_parser_TypeSyntax p_syntax) {
     int64_t l0_inner = {0};
@@ -154922,7 +154924,7 @@ int64_t byn_semantics__resolveCore(bynt_semantics__Ctx* p_c, bynt_semantics__Typ
     return byn_semantics__errorType();
 switch_end_1:;
 }
-#line 154926 "main.c"
+#line 154928 "main.c"
 
 int64_t byn_semantics__resolveNamed(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_n) {
     bynt_lexer__TextSpan l0_name = {0};
@@ -155388,7 +155390,7 @@ int64_t byn_semantics__resolveNamed(bynt_semantics__Ctx* p_c, bynt_semantics__Ty
 #line 490 "semantics/typeresolve.byn"
     return byn_semantics__errorType();
 }
-#line 155392 "main.c"
+#line 155394 "main.c"
 
 int64_t byn_semantics__resolveMap(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_n) {
     int64_t l0_key = {0};
@@ -155442,7 +155444,7 @@ int64_t byn_semantics__resolveMap(bynt_semantics__Ctx* p_c, bynt_semantics__Type
 #line 522 "semantics/typeresolve.byn"
     return byn_semantics__internMap(&(*p_c), l0_key, l1_value);
 }
-#line 155446 "main.c"
+#line 155448 "main.c"
 
 bool byn_semantics__t8CheckKey(bynt_semantics__Ctx* p_c, int64_t p_key, int64_t p_f, bynt_lexer__TextSpan p_span) {
     byn_str l0_shown = {0};
@@ -155473,7 +155475,7 @@ bool byn_semantics__t8CheckKey(bynt_semantics__Ctx* p_c, int64_t p_key, int64_t 
 #line 551 "semantics/typeresolve.byn"
     return false;
 }
-#line 155477 "main.c"
+#line 155479 "main.c"
 
 byn_str byn_semantics__t8JoinPath(bynt_semantics__Ctx p_c, int64_t p_f, bynt_list_lexer__TextSpan p_path) {
     byn_writer l0_sb = {0};
@@ -155520,7 +155522,7 @@ break_1:;
 #line 562 "semantics/typeresolve.byn"
     return byn_strbuf_str(t4);
 }
-#line 155524 "main.c"
+#line 155526 "main.c"
 
 int64_t byn_semantics__resolveStates(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, int64_t p_owner, bynt_list_lexer__TextSpan p_names) {
     int64_t l0_states = {0};
@@ -155607,7 +155609,7 @@ break_1:;
 #line 593 "semantics/typeresolve.byn"
     return byn_semantics__internState(&(*p_c), byn_semantics__typeIndex(p_owner), l2_found);
 }
-#line 155611 "main.c"
+#line 155613 "main.c"
 
 int64_t byn_semantics__resolveDyn(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__DynType p_d) {
     int64_t l0_inner = {0};
@@ -155768,7 +155770,7 @@ switch_end_1:;
 #line 670 "semantics/typeresolve.byn"
     return byn_semantics__internDynRef(&(*p_c), l5_i, p_d.isReadOnly);
 }
-#line 155772 "main.c"
+#line 155774 "main.c"
 
 bool byn_semantics__t8DeclaresType(bynt_semantics__Ctx p_c, int64_t p_i, byn_str p_name) {
     int64_t l0_f = {0};
@@ -155832,7 +155834,7 @@ bool byn_semantics__t8DeclaresType(bynt_semantics__Ctx p_c, int64_t p_i, byn_str
     return false;
 switch_end_1:;
 }
-#line 155836 "main.c"
+#line 155838 "main.c"
 
 int64_t byn_semantics__resolveAssociated(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_n, int64_t p_owner) {
     byn_str l0_name = {0};
@@ -155934,13 +155936,13 @@ int64_t byn_semantics__resolveAssociated(bynt_semantics__Ctx* p_c, bynt_semantic
 #line 718 "semantics/typeresolve.byn"
     return byn_semantics__errorType();
 }
-#line 155938 "main.c"
+#line 155940 "main.c"
 
 bynt_opt_i64 byn_semantics__lookup(bynt_semantics__Ctx p_c, int64_t p_module, byn_str p_name) {
 #line 721 "semantics/typeresolve.byn"
     return bynh_try_get_map_str_i64((*bynh_at_list_semantics__Mod(p_c.modules, (int64_t)p_module, false, byn_file_62, 721)).types, p_name);
 }
-#line 155944 "main.c"
+#line 155946 "main.c"
 
 void byn_semantics__checkVisible(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, int64_t p_t, bynt_lexer__TextSpan p_name) {
     byn_semantics_Accessibility l0_access = {0};
@@ -156035,13 +156037,13 @@ void byn_semantics__checkVisible(bynt_semantics__Ctx* p_c, bynt_semantics__TypeR
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)7), p_r.file, p_name, t10, BYN_STR("not `public`", 12), byn_strbuf_str(t9), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 156039 "main.c"
+#line 156041 "main.c"
 
 int64_t byn_semantics__expandAlias(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, int64_t p_alias) {
 #line 753 "semantics/typeresolve.byn"
     return byn_semantics__expand(&(*p_c), p_r, byn_semantics__t8AliasType(p_alias));
 }
-#line 156045 "main.c"
+#line 156047 "main.c"
 
 int64_t byn_semantics__expand(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, int64_t p_t) {
     int64_t l0_a = {0};
@@ -156130,7 +156132,7 @@ switch_end_1:;
 #line 788 "semantics/typeresolve.byn"
     return (*bynh_at_list_semantics__AliasPlaceholder((*p_c).aliases, (int64_t)l0_a, false, byn_file_62, 788)).target;
 }
-#line 156134 "main.c"
+#line 156136 "main.c"
 
 int64_t byn_semantics__errorSet(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__ErrorSetDecl p_decl) {
     bynt_list_i64 l0_sets = {0};
@@ -156412,13 +156414,13 @@ break_13:;
 #line 858 "semantics/typeresolve.byn"
     return byn_semantics__errorUnionOf(&(*p_c), l0_sets, l1_excluded);
 }
-#line 156416 "main.c"
+#line 156418 "main.c"
 
 bool byn_semantics__t8IsEffectPrimitive(byn_str p_name) {
 #line 868 "semantics/typeresolve.byn"
     return ((((((((byn_str_eq(p_name, BYN_STR("alloc", 5)) || byn_str_eq(p_name, BYN_STR("suspend", 7))) || byn_str_eq(p_name, BYN_STR("net", 3))) || byn_str_eq(p_name, BYN_STR("fs", 2))) || byn_str_eq(p_name, BYN_STR("clock", 5))) || byn_str_eq(p_name, BYN_STR("random", 6))) || byn_str_eq(p_name, BYN_STR("env", 3))) || byn_str_eq(p_name, BYN_STR("process", 7))) || byn_str_eq(p_name, BYN_STR("console", 7)));
 }
-#line 156422 "main.c"
+#line 156424 "main.c"
 
 void byn_semantics__t8AddEffect(bynt_list_semantics__T8EffectAlias p_aliases, byn_str p_name, bynt_list_str* p_result, bynt_list_str* p_seen) {
     bynt_semantics__T8EffectAlias l0_a = {0};
@@ -156485,7 +156487,7 @@ void byn_semantics__t8AddEffect(bynt_list_semantics__T8EffectAlias p_aliases, by
     }
 break_1:;
 }
-#line 156489 "main.c"
+#line 156491 "main.c"
 
 bynt_list_str byn_semantics__effectsOf(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__UsesClause p_clause) {
     bynt_list_semantics__T8EffectAlias l0_aliases = {0};
@@ -156672,7 +156674,7 @@ break_12:;
 #line 935 "semantics/typeresolve.byn"
     return l23_distinct;
 }
-#line 156676 "main.c"
+#line 156678 "main.c"
 
 int64_t byn_semantics__construct(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_n, int64_t p_t, bynt_lexer__TextSpan p_last) {
     bynt_list_i64 l0_parameters = {0};
@@ -156848,7 +156850,7 @@ break_7:;
 #line 987 "semantics/typeresolve.byn"
     return byn_semantics__instantiateType(&(*p_c), p_t, l7_args, p_r.file, p_n.span);
 }
-#line 156852 "main.c"
+#line 156854 "main.c"
 
 void byn_semantics__noTypeArgs(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, bynt_parser__NamedType p_n, bynt_lexer__TextSpan p_last) {
     byn_str l0_text = {0};
@@ -156860,7 +156862,7 @@ void byn_semantics__noTypeArgs(bynt_semantics__Ctx* p_c, bynt_semantics__TypeRes
         (void)byn_semantics__report__o1(&(*p_c), ((byn_semantics_SemaCode)24), p_r.file, p_n.span, ((bynt_tup5_str_str_str_str_str){l0_text, BYN_STR("0", 1), byn_int_string((int64_t)p_n.args.len, 64, true, ((byn_builtin_Radix)2), byn_context), BYN_STR("", 0), BYN_STR("", 0)}), BYN_STR("", 0), BYN_STR("", 0), false, ((bynt_opt_lexer__TextSpan){0}), BYN_STR("", 0));
     }
 }
-#line 156864 "main.c"
+#line 156866 "main.c"
 
 byn_str byn_semantics__t8Lower(byn_str p_s) {
     bynt_list_u8 l0_bytes = {0};
@@ -156902,7 +156904,7 @@ break_1:;
 #line 1009 "semantics/typeresolve.byn"
     return byn_strbuf_str(t4);
 }
-#line 156906 "main.c"
+#line 156908 "main.c"
 
 bynt_opt_str byn_semantics__suggestType(bynt_semantics__Ctx* p_c, bynt_semantics__TypeResolver p_r, byn_str p_text) {
     byn_str l0_lower = {0};
@@ -156999,13 +157001,13 @@ break_3:;
 #line 1049 "semantics/typeresolve.byn"
     return ((bynt_opt_str){0});
 }
-#line 157003 "main.c"
+#line 157005 "main.c"
 
 int64_t byn_semantics__makeType(byn_semantics_TypeKind p_kind, int64_t p_index) {
 #line 107 "semantics/types.byn"
     return ((int64_t)(byn_shl_i64(((int64_t)((int32_t)p_kind)), (int64_t)(((int32_t)32))) | p_index));
 }
-#line 157009 "main.c"
+#line 157011 "main.c"
 
 byn_semantics_TypeKind byn_semantics__kindOf(int64_t p_t) {
     int64_t t0 = {0};
@@ -157190,7 +157192,7 @@ byn_semantics_TypeKind byn_semantics__kindOf(int64_t p_t) {
     return ((byn_semantics_TypeKind)25);
 switch_end_1:;
 }
-#line 157194 "main.c"
+#line 157196 "main.c"
 
 byn_semantics_PrimitiveKind byn_semantics__primKindOf(int64_t p_i) {
 #line 142 "semantics/types.byn"
@@ -157309,7 +157311,7 @@ byn_semantics_PrimitiveKind byn_semantics__primKindOf(int64_t p_i) {
     return ((byn_semantics_PrimitiveKind)16);
 switch_end_1:;
 }
-#line 157313 "main.c"
+#line 157315 "main.c"
 
 byn_semantics_TextViewKind byn_semantics__textViewKindOf(int64_t p_i) {
 #line 164 "semantics/types.byn"
@@ -157337,7 +157339,7 @@ byn_semantics_TextViewKind byn_semantics__textViewKindOf(int64_t p_i) {
     return ((byn_semantics_TextViewKind)3);
 switch_end_1:;
 }
-#line 157341 "main.c"
+#line 157343 "main.c"
 
 byn_semantics_BuiltinKind byn_semantics__builtinKindOf(int64_t p_i) {
 #line 173 "semantics/types.byn"
@@ -157456,7 +157458,7 @@ byn_semantics_BuiltinKind byn_semantics__builtinKindOf(int64_t p_i) {
     return ((byn_semantics_BuiltinKind)11);
 switch_end_1:;
 }
-#line 157460 "main.c"
+#line 157462 "main.c"
 
 bool byn_semantics__listContains(bynt_list_i64 p_xs, int64_t p_x) {
     int64_t l0_e = {0};
@@ -157488,7 +157490,7 @@ break_1:;
 #line 197 "semantics/types.byn"
     return false;
 }
-#line 157492 "main.c"
+#line 157494 "main.c"
 
 bool byn_semantics__listContainsString(bynt_list_str p_xs, byn_str p_x) {
     byn_str l0_e = {0};
@@ -157520,49 +157522,49 @@ break_1:;
 #line 204 "semantics/types.byn"
     return false;
 }
-#line 157524 "main.c"
+#line 157526 "main.c"
 
 int64_t byn_semantics__typeIndex(int64_t p_t) {
 #line 207 "semantics/types.byn"
     return ((int64_t)(p_t & INT64_C(4294967295)));
 }
-#line 157530 "main.c"
+#line 157532 "main.c"
 
 bool byn_semantics__typeEquals(int64_t p_a, int64_t p_b) {
 #line 209 "semantics/types.byn"
     return (p_a == p_b);
 }
-#line 157536 "main.c"
+#line 157538 "main.c"
 
 int64_t byn_semantics__prim(byn_semantics_PrimitiveKind p_k) {
 #line 213 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)0), ((int64_t)((int32_t)p_k)));
 }
-#line 157542 "main.c"
+#line 157544 "main.c"
 
 int64_t byn_semantics__errorType(void) {
 #line 215 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)1), INT64_C(0));
 }
-#line 157548 "main.c"
+#line 157550 "main.c"
 
 int64_t byn_semantics__nullType(void) {
 #line 217 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)2), INT64_C(0));
 }
-#line 157554 "main.c"
+#line 157556 "main.c"
 
 int64_t byn_semantics__textViewType(byn_semantics_TextViewKind p_k) {
 #line 219 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)6), ((int64_t)((int32_t)p_k)));
 }
-#line 157560 "main.c"
+#line 157562 "main.c"
 
 int64_t byn_semantics__builtinType(byn_semantics_BuiltinKind p_k) {
 #line 221 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)18), ((int64_t)((int32_t)p_k)));
 }
-#line 157566 "main.c"
+#line 157568 "main.c"
 
 bynt_opt_i64 byn_semantics__primitiveByName(byn_str p_name) {
 #line 226 "semantics/types.byn"
@@ -157772,7 +157774,7 @@ switch_end_1:;
 #line 256 "semantics/types.byn"
     return ((bynt_opt_i64){0});
 }
-#line 157776 "main.c"
+#line 157778 "main.c"
 
 byn_str byn_semantics__primitiveName(byn_semantics_PrimitiveKind p_k) {
 #line 262 "semantics/types.byn"
@@ -157896,7 +157898,7 @@ byn_str byn_semantics__primitiveName(byn_semantics_PrimitiveKind p_k) {
     }
 switch_end_1:;
 }
-#line 157900 "main.c"
+#line 157902 "main.c"
 
 int64_t byn_semantics__primitiveBits(byn_semantics_PrimitiveKind p_k) {
 #line 285 "semantics/types.byn"
@@ -158020,37 +158022,37 @@ int64_t byn_semantics__primitiveBits(byn_semantics_PrimitiveKind p_k) {
     }
 switch_end_1:;
 }
-#line 158024 "main.c"
+#line 158026 "main.c"
 
 bool byn_semantics__isError(int64_t p_t) {
 #line 307 "semantics/types.byn"
     return (byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)1));
 }
-#line 158030 "main.c"
+#line 158032 "main.c"
 
 bool byn_semantics__isNever(int64_t p_t) {
 #line 309 "semantics/types.byn"
     return (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)16)));
 }
-#line 158036 "main.c"
+#line 158038 "main.c"
 
 bool byn_semantics__isVoid(int64_t p_t) {
 #line 311 "semantics/types.byn"
     return (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)15)));
 }
-#line 158042 "main.c"
+#line 158044 "main.c"
 
 bool byn_semantics__isBool(int64_t p_t) {
 #line 313 "semantics/types.byn"
     return (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)12)));
 }
-#line 158048 "main.c"
+#line 158050 "main.c"
 
 bool byn_semantics__isString(int64_t p_t) {
 #line 315 "semantics/types.byn"
     return (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)14)));
 }
-#line 158054 "main.c"
+#line 158056 "main.c"
 
 bool byn_semantics__isInteger(int64_t p_t) {
     int64_t l0_i = {0};
@@ -158064,7 +158066,7 @@ bool byn_semantics__isInteger(int64_t p_t) {
 #line 320 "semantics/types.byn"
     return ((l0_i >= INT64_C(0)) && (l0_i <= INT64_C(9)));
 }
-#line 158068 "main.c"
+#line 158070 "main.c"
 
 bool byn_semantics__isFloat(int64_t p_t) {
     int64_t l0_i = {0};
@@ -158078,13 +158080,13 @@ bool byn_semantics__isFloat(int64_t p_t) {
 #line 326 "semantics/types.byn"
     return ((l0_i == INT64_C(10)) || (l0_i == INT64_C(11)));
 }
-#line 158082 "main.c"
+#line 158084 "main.c"
 
 bool byn_semantics__isNumeric(int64_t p_t) {
 #line 329 "semantics/types.byn"
     return (byn_semantics__isInteger(p_t) || byn_semantics__isFloat(p_t));
 }
-#line 158088 "main.c"
+#line 158090 "main.c"
 
 bool byn_semantics__isSignedInteger(int64_t p_t) {
     int64_t l0_i = {0};
@@ -158098,13 +158100,13 @@ bool byn_semantics__isSignedInteger(int64_t p_t) {
 #line 334 "semantics/types.byn"
     return (((((l0_i == INT64_C(0)) || (l0_i == INT64_C(1))) || (l0_i == INT64_C(2))) || (l0_i == INT64_C(3))) || (l0_i == INT64_C(8)));
 }
-#line 158102 "main.c"
+#line 158104 "main.c"
 
 bool byn_semantics__isUnsignedInteger(int64_t p_t) {
 #line 337 "semantics/types.byn"
     return (byn_semantics__isInteger(p_t) && (!byn_semantics__isSignedInteger(p_t)));
 }
-#line 158108 "main.c"
+#line 158110 "main.c"
 
 bool byn_semantics__isBorrow(bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -158196,7 +158198,7 @@ bool byn_semantics__isBorrow(bynt_semantics__Ctx* p_c, int64_t p_t) {
     return false;
 switch_end_1:;
 }
-#line 158200 "main.c"
+#line 158202 "main.c"
 
 bynt_semantics__TypeRange byn_semantics__range(byn_semantics_PrimitiveKind p_k) {
     bynt_semantics__Big t0 = {0};
@@ -158306,7 +158308,7 @@ bynt_semantics__TypeRange byn_semantics__range(byn_semantics_PrimitiveKind p_k) 
     return ((bynt_semantics__TypeRange){t10, byn_semantics__bigZero()});
 switch_end_1:;
 }
-#line 158310 "main.c"
+#line 158312 "main.c"
 
 bynt_list_i64 byn_semantics__copyIds(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -158338,7 +158340,7 @@ break_1:;
 #line 391 "semantics/types.byn"
     return l0_r;
 }
-#line 158342 "main.c"
+#line 158344 "main.c"
 
 bynt_list_str byn_semantics__copyStrings(bynt_list_str p_xs) {
     bynt_list_str l0_r = {0};
@@ -158370,7 +158372,7 @@ break_1:;
 #line 399 "semantics/types.byn"
     return l0_r;
 }
-#line 158374 "main.c"
+#line 158376 "main.c"
 
 bynt_list_semantics__TupleField byn_semantics__copyTupleFields(bynt_list_semantics__TupleField p_xs) {
     bynt_list_semantics__TupleField l0_r = {0};
@@ -158402,7 +158404,7 @@ break_1:;
 #line 407 "semantics/types.byn"
     return l0_r;
 }
-#line 158406 "main.c"
+#line 158408 "main.c"
 
 byn_str byn_semantics__joinIds(bynt_list_i64 p_xs) {
     byn_writer l0_sb = {0};
@@ -158449,7 +158451,7 @@ break_1:;
 #line 418 "semantics/types.byn"
     return byn_strbuf_str(t4);
 }
-#line 158453 "main.c"
+#line 158455 "main.c"
 
 byn_str byn_semantics__joinUses(bynt_list_str p_xs) {
     byn_writer l0_sb = {0};
@@ -158498,7 +158500,7 @@ break_1:;
 #line 427 "semantics/types.byn"
     return byn_strbuf_str(t4);
 }
-#line 158502 "main.c"
+#line 158504 "main.c"
 
 byn_str byn_semantics__tupleKey(bynt_list_semantics__TupleField p_fields) {
     byn_writer l0_sb = {0};
@@ -158558,7 +158560,7 @@ break_1:;
 #line 441 "semantics/types.byn"
     return byn_strbuf_str(t5);
 }
-#line 158562 "main.c"
+#line 158564 "main.c"
 
 int64_t byn_semantics__internOptional(bynt_semantics__Ctx* p_c, int64_t p_inner) {
     byn_str l0_key = {0};
@@ -158582,7 +158584,7 @@ int64_t byn_semantics__internOptional(bynt_semantics__Ctx* p_c, int64_t p_inner)
 #line 453 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)4), l2_id);
 }
-#line 158586 "main.c"
+#line 158588 "main.c"
 
 int64_t byn_semantics__internSpan(bynt_semantics__Ctx* p_c, int64_t p_element, bool p_readOnly) {
     byn_str l0_key = {0};
@@ -158618,7 +158620,7 @@ int64_t byn_semantics__internSpan(bynt_semantics__Ctx* p_c, int64_t p_element, b
 #line 463 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)5), l3_id);
 }
-#line 158622 "main.c"
+#line 158624 "main.c"
 
 int64_t byn_semantics__internDynRef(bynt_semantics__Ctx* p_c, int64_t p_iface, bool p_readOnly) {
     byn_str l0_key = {0};
@@ -158654,7 +158656,7 @@ int64_t byn_semantics__internDynRef(bynt_semantics__Ctx* p_c, int64_t p_iface, b
 #line 473 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)7), l3_id);
 }
-#line 158658 "main.c"
+#line 158660 "main.c"
 
 int64_t byn_semantics__internList(bynt_semantics__Ctx* p_c, int64_t p_element) {
     byn_str l0_key = {0};
@@ -158678,7 +158680,7 @@ int64_t byn_semantics__internList(bynt_semantics__Ctx* p_c, int64_t p_element) {
 #line 483 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)8), l2_id);
 }
-#line 158682 "main.c"
+#line 158684 "main.c"
 
 int64_t byn_semantics__internMap(bynt_semantics__Ctx* p_c, int64_t p_key, int64_t p_value) {
     byn_str l0_k = {0};
@@ -158714,7 +158716,7 @@ int64_t byn_semantics__internMap(bynt_semantics__Ctx* p_c, int64_t p_key, int64_
 #line 493 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)9), l3_id);
 }
-#line 158718 "main.c"
+#line 158720 "main.c"
 
 int64_t byn_semantics__internOwned(bynt_semantics__Ctx* p_c, int64_t p_inner) {
     byn_str l0_key = {0};
@@ -158738,7 +158740,7 @@ int64_t byn_semantics__internOwned(bynt_semantics__Ctx* p_c, int64_t p_inner) {
 #line 503 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)10), l2_id);
 }
-#line 158742 "main.c"
+#line 158744 "main.c"
 
 int64_t byn_semantics__internUntrusted(bynt_semantics__Ctx* p_c, int64_t p_inner) {
     byn_str l0_key = {0};
@@ -158762,7 +158764,7 @@ int64_t byn_semantics__internUntrusted(bynt_semantics__Ctx* p_c, int64_t p_inner
 #line 513 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)11), l2_id);
 }
-#line 158766 "main.c"
+#line 158768 "main.c"
 
 int64_t byn_semantics__internArray(bynt_semantics__Ctx* p_c, int64_t p_element, int64_t p_length) {
     byn_str l0_key = {0};
@@ -158798,7 +158800,7 @@ int64_t byn_semantics__internArray(bynt_semantics__Ctx* p_c, int64_t p_element, 
 #line 523 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)12), l3_id);
 }
-#line 158802 "main.c"
+#line 158804 "main.c"
 
 int64_t byn_semantics__internRange(bynt_semantics__Ctx* p_c, int64_t p_element) {
     byn_str l0_key = {0};
@@ -158822,7 +158824,7 @@ int64_t byn_semantics__internRange(bynt_semantics__Ctx* p_c, int64_t p_element) 
 #line 533 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)13), l2_id);
 }
-#line 158826 "main.c"
+#line 158828 "main.c"
 
 int64_t byn_semantics__internTuple(bynt_semantics__Ctx* p_c, bynt_list_semantics__TupleField p_fields) {
     byn_str l0_key = {0};
@@ -158846,7 +158848,7 @@ int64_t byn_semantics__internTuple(bynt_semantics__Ctx* p_c, bynt_list_semantics
 #line 543 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)14), l2_id);
 }
-#line 158850 "main.c"
+#line 158852 "main.c"
 
 int64_t byn_semantics__internFunction(bynt_semantics__Ctx* p_c, bynt_list_i64 p_parameters, int64_t p_ret, bynt_list_i64 p_errorSets, bynt_list_str p_effects) {
     bynt_list_i64 l0_sortedFails = {0};
@@ -158905,7 +158907,7 @@ int64_t byn_semantics__internFunction(bynt_semantics__Ctx* p_c, bynt_list_i64 p_
 #line 566 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)15), l7_id);
 }
-#line 158909 "main.c"
+#line 158911 "main.c"
 
 int64_t byn_semantics__internResult(bynt_semantics__Ctx* p_c, int64_t p_value, int64_t p_error) {
     byn_str l0_key = {0};
@@ -158941,7 +158943,7 @@ int64_t byn_semantics__internResult(bynt_semantics__Ctx* p_c, int64_t p_value, i
 #line 576 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)16), l3_id);
 }
-#line 158945 "main.c"
+#line 158947 "main.c"
 
 int64_t byn_semantics__internState(bynt_semantics__Ctx* p_c, int64_t p_s, bynt_list_i64 p_states) {
     bynt_list_i64 l0_distinct = {0};
@@ -159008,7 +159010,7 @@ break_1:;
 #line 593 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)17), l7_id);
 }
-#line 159012 "main.c"
+#line 159014 "main.c"
 
 int64_t byn_semantics__errorUnionOf(bynt_semantics__Ctx* p_c, bynt_list_i64 p_sets, bynt_list_i64 p_excluded) {
     byn_str l0_key = {0};
@@ -159055,7 +159057,7 @@ int64_t byn_semantics__errorUnionOf(bynt_semantics__Ctx* p_c, bynt_list_i64 p_se
 #line 605 "semantics/types.byn"
     return byn_semantics__makeType(((byn_semantics_TypeKind)19), l4_id);
 }
-#line 159059 "main.c"
+#line 159061 "main.c"
 
 byn_str byn_semantics__textViewName(byn_semantics_TextViewKind p_k) {
 #line 613 "semantics/types.byn"
@@ -159083,7 +159085,7 @@ byn_str byn_semantics__textViewName(byn_semantics_TextViewKind p_k) {
     return BYN_STR("PartView", 8);
 switch_end_1:;
 }
-#line 159087 "main.c"
+#line 159089 "main.c"
 
 byn_str byn_semantics__builtinName(byn_semantics_BuiltinKind p_k) {
 #line 623 "semantics/types.byn"
@@ -159202,7 +159204,7 @@ byn_str byn_semantics__builtinName(byn_semantics_BuiltinKind p_k) {
     return BYN_STR("Path", 4);
 switch_end_1:;
 }
-#line 159206 "main.c"
+#line 159208 "main.c"
 
 byn_str byn_semantics__tupleDisplay(bynt_semantics__Ctx* p_c, int64_t p_idx) {
     int64_t l0_len = {0};
@@ -159273,7 +159275,7 @@ break_1:;
 #line 659 "semantics/types.byn"
     return byn_strbuf_str(t7);
 }
-#line 159277 "main.c"
+#line 159279 "main.c"
 
 byn_str byn_semantics__functionDisplay(bynt_semantics__Ctx* p_c, int64_t p_idx) {
     int64_t l0_plen = {0};
@@ -159425,7 +159427,7 @@ byn_str byn_semantics__functionDisplay(bynt_semantics__Ctx* p_c, int64_t p_idx) 
 #line 706 "semantics/types.byn"
     return byn_strbuf_str(t14);
 }
-#line 159429 "main.c"
+#line 159431 "main.c"
 
 byn_str byn_semantics__stateDisplay(bynt_semantics__Ctx* p_c, int64_t p_idx) {
     int64_t l0_s = {0};
@@ -159512,7 +159514,7 @@ break_1:;
 #line 722 "semantics/types.byn"
     return byn_strbuf_str(t8);
 }
-#line 159516 "main.c"
+#line 159518 "main.c"
 
 byn_str byn_semantics__errorUnionDisplay(bynt_semantics__Ctx* p_c, int64_t p_idx) {
     int64_t l0_setLen = {0};
@@ -159612,7 +159614,7 @@ break_1:;
 #line 746 "semantics/types.byn"
     return byn_strbuf_str(t10);
 }
-#line 159616 "main.c"
+#line 159618 "main.c"
 
 byn_str byn_semantics__typeDisplay(bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -159993,7 +159995,7 @@ byn_str byn_semantics__typeDisplay(bynt_semantics__Ctx* p_c, int64_t p_t) {
     }
 switch_end_1:;
 }
-#line 159997 "main.c"
+#line 159999 "main.c"
 
 int64_t byn_semantics__mapEntry(bynt_semantics__Ctx* p_c, int64_t p_map) {
     bynt_semantics__MapData l0_m = {0};
@@ -160009,7 +160011,7 @@ int64_t byn_semantics__mapEntry(bynt_semantics__Ctx* p_c, int64_t p_map) {
 #line 801 "semantics/types.byn"
     return byn_semantics__internTuple(&(*p_c), l1_fields);
 }
-#line 160013 "main.c"
+#line 160015 "main.c"
 
 int64_t byn_semantics__rangeLayout(bynt_semantics__Ctx* p_c, int64_t p_range) {
     int64_t l0_e = {0};
@@ -160027,7 +160029,7 @@ int64_t byn_semantics__rangeLayout(bynt_semantics__Ctx* p_c, int64_t p_range) {
 #line 811 "semantics/types.byn"
     return byn_semantics__internTuple(&(*p_c), l1_fields);
 }
-#line 160031 "main.c"
+#line 160033 "main.c"
 
 int64_t byn_semantics__textViewElement(byn_semantics_TextViewKind p_k) {
 #line 817 "semantics/types.byn"
@@ -160048,7 +160050,7 @@ int64_t byn_semantics__textViewElement(byn_semantics_TextViewKind p_k) {
     return byn_semantics__prim(((byn_semantics_PrimitiveKind)14));
 switch_end_1:;
 }
-#line 160052 "main.c"
+#line 160054 "main.c"
 
 bool byn_semantics__isValidKey(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_i64 l0_path = {0};
@@ -160057,7 +160059,7 @@ bool byn_semantics__isValidKey(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 828 "semantics/types.byn"
     return byn_semantics__isValidKeyInner(&(*p_c), p_t, &l0_path);
 }
-#line 160061 "main.c"
+#line 160063 "main.c"
 
 bool byn_semantics__isValidKeyInner(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_list_i64* p_path) {
     byn_semantics_TypeKind t0 = {0};
@@ -160161,7 +160163,7 @@ bool byn_semantics__isValidKeyInner(bynt_semantics__Ctx* p_c, int64_t p_t, bynt_
     return (((((byn_semantics__isInteger(p_t) || byn_semantics__isString(p_t)) || (p_t == byn_semantics__prim(((byn_semantics_PrimitiveKind)13)))) || byn_semantics__isBool(p_t)) || (p_t == byn_semantics__builtinType(((byn_semantics_BuiltinKind)10)))) || ((byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)22)) && ((*bynh_at_list_semantics__EnumSymbol((*p_c).enums, (int64_t)byn_semantics__typeIndex(p_t), false, byn_file_63, 857)).fields.len == INT64_C(0))));
 switch_end_1:;
 }
-#line 160165 "main.c"
+#line 160167 "main.c"
 
 byn_str byn_semantics__fieldPartName(bynt_semantics__TupleField p_f, int64_t p_i) {
     byn_str l0_nm = {0};
@@ -160173,7 +160175,7 @@ byn_str byn_semantics__fieldPartName(bynt_semantics__TupleField p_f, int64_t p_i
 #line 871 "semantics/types.byn"
     return byn_int_string((int64_t)byn_add_i64(p_i, INT64_C(1), byn_file_63, 871), 64, true, ((byn_builtin_Radix)2), byn_context);
 }
-#line 160177 "main.c"
+#line 160179 "main.c"
 
 bynt_opt_semantics__InvalidKeyPart byn_semantics__invalidKeyPart(bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -160263,7 +160265,7 @@ bynt_opt_semantics__InvalidKeyPart byn_semantics__invalidKeyPart(bynt_semantics_
     return ((bynt_opt_semantics__InvalidKeyPart){0});
 switch_end_1:;
 }
-#line 160267 "main.c"
+#line 160269 "main.c"
 
 bool byn_semantics__occurs(bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_semantics_TypeKind t0 = {0};
@@ -160426,7 +160428,7 @@ bool byn_semantics__occurs(bynt_semantics__Ctx* p_c, int64_t p_t) {
     return false;
 switch_end_1:;
 }
-#line 160430 "main.c"
+#line 160432 "main.c"
 
 int64_t byn_semantics__tupleIndexOf(bynt_semantics__Ctx* p_c, int64_t p_tuple, byn_str p_name) {
     int64_t l0_len = {0};
@@ -160492,19 +160494,19 @@ break_1:;
 #line 945 "semantics/types.byn"
     return INT64_C(-1);
 }
-#line 160496 "main.c"
+#line 160498 "main.c"
 
 int64_t byn_emitter_ltree__lNode(byn_emitter_ltree_LKind p_kind, int64_t p_index) {
 #line 74 "emitter/ltree/ltree.byn"
     return ((int64_t)(byn_shl_i64(byn_add_i64(INT64_C(100), ((int64_t)((int32_t)p_kind)), byn_file_64, 74), (int64_t)(((int32_t)32))) | p_index));
 }
-#line 160502 "main.c"
+#line 160504 "main.c"
 
 bool byn_emitter_ltree__isLowered(int64_t p_n) {
 #line 77 "emitter/ltree/ltree.byn"
     return ((p_n >= INT64_C(0)) && (byn_shr_i64(p_n, (int64_t)(((int32_t)32))) >= INT64_C(100)));
 }
-#line 160508 "main.c"
+#line 160510 "main.c"
 
 byn_emitter_ltree_LKind byn_emitter_ltree__lKindOf(int64_t p_n) {
     bynt_opt_emitter_ltree__LKind t0 = {0};
@@ -160513,13 +160515,13 @@ byn_emitter_ltree_LKind byn_emitter_ltree__lKindOf(int64_t p_n) {
 #line 79 "emitter/ltree/ltree.byn"
     return (t0.has ? t0.value : ((byn_emitter_ltree_LKind)27));
 }
-#line 160517 "main.c"
+#line 160519 "main.c"
 
 int64_t byn_emitter_ltree__lIndexOf(int64_t p_n) {
 #line 81 "emitter/ltree/ltree.byn"
     return ((int64_t)(p_n & INT64_C(4294967295)));
 }
-#line 160523 "main.c"
+#line 160525 "main.c"
 
 int64_t byn_emitter_ltree__addLLabel(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LLabel p_n) {
 #line 367 "emitter/ltree/ltree.byn"
@@ -160527,7 +160529,7 @@ int64_t byn_emitter_ltree__addLLabel(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 368 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)0), byn_sub_i64((*p_t).labels.len, INT64_C(1), byn_file_64, 368));
 }
-#line 160531 "main.c"
+#line 160533 "main.c"
 
 int64_t byn_emitter_ltree__addLGoto(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LGoto p_n) {
 #line 372 "emitter/ltree/ltree.byn"
@@ -160535,7 +160537,7 @@ int64_t byn_emitter_ltree__addLGoto(bynt_emitter_ltree__LTree* p_t, bynt_emitter
 #line 373 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)1), byn_sub_i64((*p_t).gotoStmts.len, INT64_C(1), byn_file_64, 373));
 }
-#line 160539 "main.c"
+#line 160541 "main.c"
 
 int64_t byn_emitter_ltree__addLLoop(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LLoop p_n) {
 #line 377 "emitter/ltree/ltree.byn"
@@ -160543,7 +160545,7 @@ int64_t byn_emitter_ltree__addLLoop(bynt_emitter_ltree__LTree* p_t, bynt_emitter
 #line 378 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)2), byn_sub_i64((*p_t).loops.len, INT64_C(1), byn_file_64, 378));
 }
-#line 160547 "main.c"
+#line 160549 "main.c"
 
 int64_t byn_emitter_ltree__addLReturn(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LReturn p_n) {
 #line 382 "emitter/ltree/ltree.byn"
@@ -160551,7 +160553,7 @@ int64_t byn_emitter_ltree__addLReturn(bynt_emitter_ltree__LTree* p_t, bynt_emitt
 #line 383 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)3), byn_sub_i64((*p_t).returnStmts.len, INT64_C(1), byn_file_64, 383));
 }
-#line 160555 "main.c"
+#line 160557 "main.c"
 
 int64_t byn_emitter_ltree__addLReturnError(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LReturnError p_n) {
 #line 387 "emitter/ltree/ltree.byn"
@@ -160559,7 +160561,7 @@ int64_t byn_emitter_ltree__addLReturnError(bynt_emitter_ltree__LTree* p_t, bynt_
 #line 388 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)4), byn_sub_i64((*p_t).returnErrors.len, INT64_C(1), byn_file_64, 388));
 }
-#line 160563 "main.c"
+#line 160565 "main.c"
 
 int64_t byn_emitter_ltree__addLFailingCall(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LFailingCall p_n) {
 #line 392 "emitter/ltree/ltree.byn"
@@ -160567,7 +160569,7 @@ int64_t byn_emitter_ltree__addLFailingCall(bynt_emitter_ltree__LTree* p_t, bynt_
 #line 393 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)5), byn_sub_i64((*p_t).failingCalls.len, INT64_C(1), byn_file_64, 393));
 }
-#line 160571 "main.c"
+#line 160573 "main.c"
 
 int64_t byn_emitter_ltree__addLWrite(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LWrite p_n) {
 #line 397 "emitter/ltree/ltree.byn"
@@ -160575,7 +160577,7 @@ int64_t byn_emitter_ltree__addLWrite(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 398 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)6), byn_sub_i64((*p_t).writes.len, INT64_C(1), byn_file_64, 398));
 }
-#line 160579 "main.c"
+#line 160581 "main.c"
 
 int64_t byn_emitter_ltree__addLPanic(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LPanic p_n) {
 #line 402 "emitter/ltree/ltree.byn"
@@ -160583,7 +160585,7 @@ int64_t byn_emitter_ltree__addLPanic(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 403 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)7), byn_sub_i64((*p_t).panics.len, INT64_C(1), byn_file_64, 403));
 }
-#line 160587 "main.c"
+#line 160589 "main.c"
 
 int64_t byn_emitter_ltree__addLSetContext(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LSetContext p_n) {
 #line 407 "emitter/ltree/ltree.byn"
@@ -160591,7 +160593,7 @@ int64_t byn_emitter_ltree__addLSetContext(bynt_emitter_ltree__LTree* p_t, bynt_e
 #line 408 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)8), byn_sub_i64((*p_t).setContexts.len, INT64_C(1), byn_file_64, 408));
 }
-#line 160595 "main.c"
+#line 160597 "main.c"
 
 int64_t byn_emitter_ltree__addLFreeArena(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LFreeArena p_n) {
 #line 412 "emitter/ltree/ltree.byn"
@@ -160599,7 +160601,7 @@ int64_t byn_emitter_ltree__addLFreeArena(bynt_emitter_ltree__LTree* p_t, bynt_em
 #line 413 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)9), byn_sub_i64((*p_t).freeArenas.len, INT64_C(1), byn_file_64, 413));
 }
-#line 160603 "main.c"
+#line 160605 "main.c"
 
 int64_t byn_emitter_ltree__addLPushPanicHandler(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LPushPanicHandler p_n) {
 #line 417 "emitter/ltree/ltree.byn"
@@ -160607,7 +160609,7 @@ int64_t byn_emitter_ltree__addLPushPanicHandler(bynt_emitter_ltree__LTree* p_t, 
 #line 418 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)10), byn_sub_i64((*p_t).pushPanicHandlers.len, INT64_C(1), byn_file_64, 418));
 }
-#line 160611 "main.c"
+#line 160613 "main.c"
 
 int64_t byn_emitter_ltree__addLPopPanicHandler(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LPopPanicHandler p_n) {
 #line 422 "emitter/ltree/ltree.byn"
@@ -160615,7 +160617,7 @@ int64_t byn_emitter_ltree__addLPopPanicHandler(bynt_emitter_ltree__LTree* p_t, b
 #line 423 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)11), byn_sub_i64((*p_t).popPanicHandlers.len, INT64_C(1), byn_file_64, 423));
 }
-#line 160619 "main.c"
+#line 160621 "main.c"
 
 int64_t byn_emitter_ltree__addLClaim(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LClaim p_n) {
 #line 427 "emitter/ltree/ltree.byn"
@@ -160623,7 +160625,7 @@ int64_t byn_emitter_ltree__addLClaim(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 428 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)12), byn_sub_i64((*p_t).claims.len, INT64_C(1), byn_file_64, 428));
 }
-#line 160627 "main.c"
+#line 160629 "main.c"
 
 int64_t byn_emitter_ltree__addLOptionalHas(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LOptionalHas p_n) {
 #line 432 "emitter/ltree/ltree.byn"
@@ -160631,7 +160633,7 @@ int64_t byn_emitter_ltree__addLOptionalHas(bynt_emitter_ltree__LTree* p_t, bynt_
 #line 433 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)13), byn_sub_i64((*p_t).optionalHass.len, INT64_C(1), byn_file_64, 433));
 }
-#line 160635 "main.c"
+#line 160637 "main.c"
 
 int64_t byn_emitter_ltree__addLOptionalValue(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LOptionalValue p_n) {
 #line 437 "emitter/ltree/ltree.byn"
@@ -160639,7 +160641,7 @@ int64_t byn_emitter_ltree__addLOptionalValue(bynt_emitter_ltree__LTree* p_t, byn
 #line 438 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)14), byn_sub_i64((*p_t).optionalValues.len, INT64_C(1), byn_file_64, 438));
 }
-#line 160643 "main.c"
+#line 160645 "main.c"
 
 int64_t byn_emitter_ltree__addLUnionTag(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LUnionTag p_n) {
 #line 442 "emitter/ltree/ltree.byn"
@@ -160647,7 +160649,7 @@ int64_t byn_emitter_ltree__addLUnionTag(bynt_emitter_ltree__LTree* p_t, bynt_emi
 #line 443 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)15), byn_sub_i64((*p_t).unionTags.len, INT64_C(1), byn_file_64, 443));
 }
-#line 160651 "main.c"
+#line 160653 "main.c"
 
 int64_t byn_emitter_ltree__addLUnionField(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LUnionField p_n) {
 #line 447 "emitter/ltree/ltree.byn"
@@ -160655,7 +160657,7 @@ int64_t byn_emitter_ltree__addLUnionField(bynt_emitter_ltree__LTree* p_t, bynt_e
 #line 448 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)16), byn_sub_i64((*p_t).unionFields.len, INT64_C(1), byn_file_64, 448));
 }
-#line 160659 "main.c"
+#line 160661 "main.c"
 
 int64_t byn_emitter_ltree__addLErrorCode(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LErrorCode p_n) {
 #line 452 "emitter/ltree/ltree.byn"
@@ -160663,7 +160665,7 @@ int64_t byn_emitter_ltree__addLErrorCode(bynt_emitter_ltree__LTree* p_t, bynt_em
 #line 453 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)17), byn_sub_i64((*p_t).errorCodes.len, INT64_C(1), byn_file_64, 453));
 }
-#line 160667 "main.c"
+#line 160669 "main.c"
 
 int64_t byn_emitter_ltree__addLErrorField(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LErrorField p_n) {
 #line 457 "emitter/ltree/ltree.byn"
@@ -160671,7 +160673,7 @@ int64_t byn_emitter_ltree__addLErrorField(bynt_emitter_ltree__LTree* p_t, bynt_e
 #line 458 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)18), byn_sub_i64((*p_t).errorFields.len, INT64_C(1), byn_file_64, 458));
 }
-#line 160675 "main.c"
+#line 160677 "main.c"
 
 int64_t byn_emitter_ltree__addLAssignExpr(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LAssignExpr p_n) {
 #line 462 "emitter/ltree/ltree.byn"
@@ -160679,7 +160681,7 @@ int64_t byn_emitter_ltree__addLAssignExpr(bynt_emitter_ltree__LTree* p_t, bynt_e
 #line 463 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)19), byn_sub_i64((*p_t).assignExprs.len, INT64_C(1), byn_file_64, 463));
 }
-#line 160683 "main.c"
+#line 160685 "main.c"
 
 int64_t byn_emitter_ltree__addLSequence(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LSequence p_n) {
 #line 467 "emitter/ltree/ltree.byn"
@@ -160687,7 +160689,7 @@ int64_t byn_emitter_ltree__addLSequence(bynt_emitter_ltree__LTree* p_t, bynt_emi
 #line 468 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)20), byn_sub_i64((*p_t).sequences.len, INT64_C(1), byn_file_64, 468));
 }
-#line 160691 "main.c"
+#line 160693 "main.c"
 
 int64_t byn_emitter_ltree__addLIndexUnchecked(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LIndexUnchecked p_n) {
 #line 472 "emitter/ltree/ltree.byn"
@@ -160695,7 +160697,7 @@ int64_t byn_emitter_ltree__addLIndexUnchecked(bynt_emitter_ltree__LTree* p_t, by
 #line 473 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)21), byn_sub_i64((*p_t).indexUncheckeds.len, INT64_C(1), byn_file_64, 473));
 }
-#line 160699 "main.c"
+#line 160701 "main.c"
 
 int64_t byn_emitter_ltree__addLNextChar(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LNextChar p_n) {
 #line 477 "emitter/ltree/ltree.byn"
@@ -160703,7 +160705,7 @@ int64_t byn_emitter_ltree__addLNextChar(bynt_emitter_ltree__LTree* p_t, bynt_emi
 #line 478 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)22), byn_sub_i64((*p_t).nextChars.len, INT64_C(1), byn_file_64, 478));
 }
-#line 160707 "main.c"
+#line 160709 "main.c"
 
 int64_t byn_emitter_ltree__addLNever(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LNever p_n) {
 #line 482 "emitter/ltree/ltree.byn"
@@ -160711,7 +160713,7 @@ int64_t byn_emitter_ltree__addLNever(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 483 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)23), byn_sub_i64((*p_t).neverValues.len, INT64_C(1), byn_file_64, 483));
 }
-#line 160715 "main.c"
+#line 160717 "main.c"
 
 int64_t byn_emitter_ltree__addLFunctionValue(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LFunctionValue p_n) {
 #line 487 "emitter/ltree/ltree.byn"
@@ -160719,7 +160721,7 @@ int64_t byn_emitter_ltree__addLFunctionValue(bynt_emitter_ltree__LTree* p_t, byn
 #line 488 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)24), byn_sub_i64((*p_t).functionValues.len, INT64_C(1), byn_file_64, 488));
 }
-#line 160723 "main.c"
+#line 160725 "main.c"
 
 int64_t byn_emitter_ltree__addLMutantIs(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LMutantIs p_n) {
 #line 492 "emitter/ltree/ltree.byn"
@@ -160727,7 +160729,7 @@ int64_t byn_emitter_ltree__addLMutantIs(bynt_emitter_ltree__LTree* p_t, bynt_emi
 #line 493 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)25), byn_sub_i64((*p_t).mutantIss.len, INT64_C(1), byn_file_64, 493));
 }
-#line 160731 "main.c"
+#line 160733 "main.c"
 
 int64_t byn_emitter_ltree__addLCount(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LCount p_n) {
 #line 497 "emitter/ltree/ltree.byn"
@@ -160735,7 +160737,7 @@ int64_t byn_emitter_ltree__addLCount(bynt_emitter_ltree__LTree* p_t, bynt_emitte
 #line 498 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)26), byn_sub_i64((*p_t).counts.len, INT64_C(1), byn_file_64, 498));
 }
-#line 160739 "main.c"
+#line 160741 "main.c"
 
 int64_t byn_emitter_ltree__addLVoid(bynt_emitter_ltree__LTree* p_t, bynt_emitter_ltree__LVoid p_n) {
 #line 502 "emitter/ltree/ltree.byn"
@@ -160743,7 +160745,7 @@ int64_t byn_emitter_ltree__addLVoid(bynt_emitter_ltree__LTree* p_t, bynt_emitter
 #line 503 "emitter/ltree/ltree.byn"
     return byn_emitter_ltree__lNode(((byn_emitter_ltree_LKind)27), byn_sub_i64((*p_t).voidValues.len, INT64_C(1), byn_file_64, 503));
 }
-#line 160747 "main.c"
+#line 160749 "main.c"
 
 int64_t byn_emitter_ltree__typeOf(bynt_semantics__Ctx p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_i = {0};
@@ -160866,7 +160868,7 @@ int64_t byn_emitter_ltree__typeOf(bynt_semantics__Ctx p_c, bynt_emitter_ltree__L
     return byn_semantics__errorType();
 switch_end_1:;
 }
-#line 160870 "main.c"
+#line 160872 "main.c"
 
 bynt_lexer__TextSpan byn_emitter_ltree__spanOf(bynt_semantics__Ctx p_c, bynt_emitter_ltree__LTree p_t, int64_t p_n) {
     int64_t l0_i = {0};
@@ -161078,13 +161080,13 @@ bynt_lexer__TextSpan byn_emitter_ltree__spanOf(bynt_semantics__Ctx p_c, bynt_emi
     }
 switch_end_1:;
 }
-#line 161082 "main.c"
+#line 161084 "main.c"
 
 byn_str byn_emitter_cprint__t11Expr(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
 #line 11 "emitter/cprint/builtin.byn"
     return byn_emitter_cprint__emitExpr(&(*p_cc), &(*p_f), &(*p_c), p_t, p_e);
 }
-#line 161088 "main.c"
+#line 161090 "main.c"
 
 byn_str byn_emitter_cprint__emitBuiltin(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_call) {
     int64_t l0_bi = {0};
@@ -164273,7 +164275,7 @@ break_1:;
     }
 switch_end_3:;
 }
-#line 164277 "main.c"
+#line 164279 "main.c"
 
 byn_str byn_emitter_cprint__csName(byn_str p_name) {
     byn_writer t0 = {0};
@@ -164290,7 +164292,7 @@ byn_str byn_emitter_cprint__csName(byn_str p_name) {
 #line 483 "emitter/cprint/builtin.byn"
     return byn_strbuf_str(t0);
 }
-#line 164294 "main.c"
+#line 164296 "main.c"
 
 byn_str byn_emitter_cprint__unary(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_u = {0};
@@ -164419,7 +164421,7 @@ byn_str byn_emitter_cprint__unary(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_
     }
 switch_end_1:;
 }
-#line 164423 "main.c"
+#line 164425 "main.c"
 
 bool byn_emitter_cprint__bareCase(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -164451,7 +164453,7 @@ bool byn_emitter_cprint__bareCase(bynt_semantics__Ctx p_c, int64_t p_e) {
     return false;
 switch_end_1:;
 }
-#line 164455 "main.c"
+#line 164457 "main.c"
 
 byn_str byn_emitter_cprint__binary(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_bi = {0};
@@ -165023,7 +165025,7 @@ byn_str byn_emitter_cprint__binary(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter
     return byn_strbuf_str(t35);
 switch_end_2:;
 }
-#line 165027 "main.c"
+#line 165029 "main.c"
 
 byn_str byn_emitter_cprint__opText(byn_parser_BinaryOp p_op) {
     byn_writer t0 = {0};
@@ -165138,7 +165140,7 @@ byn_str byn_emitter_cprint__opText(byn_parser_BinaryOp p_op) {
     }
 switch_end_1:;
 }
-#line 165142 "main.c"
+#line 165144 "main.c"
 
 byn_str byn_emitter_cprint__conversion(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_ci = {0};
@@ -165520,7 +165522,7 @@ switch_end_1:;
     }
 switch_end_2:;
 }
-#line 165524 "main.c"
+#line 165526 "main.c"
 
 byn_str byn_emitter_cprint__index(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_ii = {0};
@@ -165673,7 +165675,7 @@ byn_str byn_emitter_cprint__index(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_
 #line 669 "emitter/cprint/builtin.byn"
     return byn_strbuf_str(t20);
 }
-#line 165677 "main.c"
+#line 165679 "main.c"
 
 byn_str byn_emitter_cprint__slice(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_si = {0};
@@ -165939,7 +165941,7 @@ byn_str byn_emitter_cprint__slice(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_
 #line 710 "emitter/cprint/builtin.byn"
     return byn_strbuf_str(t34);
 }
-#line 165943 "main.c"
+#line 165945 "main.c"
 
 bynt_list_str byn_emitter_cprint__cKeywords(void) {
     bynt_list_str l0_k = {0};
@@ -165971,7 +165973,7 @@ break_1:;
 #line 72 "emitter/cprint/cctx.byn"
     return l0_k;
 }
-#line 165975 "main.c"
+#line 165977 "main.c"
 
 byn_str byn_emitter_cprint__cType(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     int64_t l0_i = {0};
@@ -166274,7 +166276,7 @@ byn_str byn_emitter_cprint__cType(bynt_emitter_cprint__CCtx* p_cc, bynt_semantic
     return byn_emitter_cprint__named(&(*p_cc), &(*p_c), p_t, ((bynt_opt_str){0}));
 switch_end_1:;
 }
-#line 166278 "main.c"
+#line 166280 "main.c"
 
 byn_str byn_emitter_cprint__errorCType(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c) {
     bynt_list_i64 l0_sets = {0};
@@ -166286,7 +166288,7 @@ byn_str byn_emitter_cprint__errorCType(bynt_emitter_cprint__CCtx* p_cc, bynt_sem
 #line 72 "emitter/cprint/common.byn"
     return byn_emitter_cprint__cType(&(*p_cc), &(*p_c), byn_semantics__errorUnionOf(&(*p_c), l0_sets, l1_excluded));
 }
-#line 166290 "main.c"
+#line 166292 "main.c"
 
 byn_str byn_emitter_cprint__key(bynt_semantics__Ctx* p_c, int64_t p_t) {
     int64_t l0_i = {0};
@@ -166913,7 +166915,7 @@ byn_str byn_emitter_cprint__key(bynt_semantics__Ctx* p_c, int64_t p_t) {
     }
 switch_end_1:;
 }
-#line 166917 "main.c"
+#line 166919 "main.c"
 
 byn_str byn_emitter_cprint__named(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t, bynt_opt_str p_name) {
     byn_str l0_n = {0};
@@ -166949,7 +166951,7 @@ byn_str byn_emitter_cprint__named(bynt_emitter_cprint__CCtx* p_cc, bynt_semantic
 #line 174 "emitter/cprint/common.byn"
     return l0_n;
 }
-#line 166953 "main.c"
+#line 166955 "main.c"
 
 byn_str byn_emitter_cprint__t2TypeArgs(bynt_semantics__Ctx* p_c, bynt_list_i64 p_args) {
     byn_writer l0_sb = {0};
@@ -166997,7 +166999,7 @@ break_1:;
 #line 183 "emitter/cprint/common.byn"
     return byn_strbuf_str(t4);
 }
-#line 167001 "main.c"
+#line 167003 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__t2Copy(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -167029,7 +167031,7 @@ break_1:;
 #line 192 "emitter/cprint/common.byn"
     return l0_r;
 }
-#line 167033 "main.c"
+#line 167035 "main.c"
 
 byn_str byn_emitter_cprint__helper(bynt_emitter_cprint__CCtx* p_cc, byn_str p_name, byn_str p_proto, byn_str p_body) {
     byn_str l0__ = {0};
@@ -167041,7 +167043,7 @@ byn_str byn_emitter_cprint__helper(bynt_emitter_cprint__CCtx* p_cc, byn_str p_na
 #line 203 "emitter/cprint/common.byn"
     return p_name;
 }
-#line 167045 "main.c"
+#line 167047 "main.c"
 
 void byn_emitter_cprint__line(byn_writer* p_sb, bynt_emitter_cprint__CFunc p_f, byn_str p_text) {
     int64_t l0_k = {0};
@@ -167072,7 +167074,7 @@ break_1:;
 #line 214 "emitter/cprint/common.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR("\012", 1));
 }
-#line 167076 "main.c"
+#line 167078 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__lineStartsOf(bynt_semantics__Ctx p_c, int64_t p_file) {
     bynt_list_i64 l0_starts = {0};
@@ -167109,7 +167111,7 @@ break_1:;
 #line 226 "emitter/cprint/common.byn"
     return l0_starts;
 }
-#line 167113 "main.c"
+#line 167115 "main.c"
 
 int64_t byn_emitter_cprint__lineOf(bynt_semantics__Ctx p_c, bynt_emitter_cprint__CFunc p_f, bynt_lexer__TextSpan p_span) {
     int64_t l0_file = {0};
@@ -167153,7 +167155,7 @@ break_1:;
 #line 246 "emitter/cprint/common.byn"
     return l1_lo;
 }
-#line 167157 "main.c"
+#line 167159 "main.c"
 
 byn_str byn_emitter_cprint__loc(bynt_semantics__Ctx p_c, bynt_emitter_cprint__CFunc p_f, bynt_lexer__TextSpan p_span) {
     byn_writer t0 = {0};
@@ -167171,7 +167173,7 @@ byn_str byn_emitter_cprint__loc(bynt_semantics__Ctx p_c, bynt_emitter_cprint__CF
 #line 251 "emitter/cprint/common.byn"
     return byn_strbuf_str(t0);
 }
-#line 167175 "main.c"
+#line 167177 "main.c"
 
 void byn_emitter_cprint__mapLine(byn_writer* p_sb, bynt_semantics__Ctx p_c, bynt_emitter_cprint__CFunc* p_f, bynt_lexer__TextSpan p_span) {
     byn_str l0_path = {0};
@@ -167213,7 +167215,7 @@ void byn_emitter_cprint__mapLine(byn_writer* p_sb, bynt_semantics__Ctx p_c, bynt
 #line 261 "emitter/cprint/common.byn"
     (*p_f).lastLineEnd = t3;
 }
-#line 167217 "main.c"
+#line 167219 "main.c"
 
 bool byn_emitter_cprint__helperReserve(bynt_emitter_cprint__CCtx* p_cc, byn_str p_name, byn_str p_proto) {
     bynt_emitter_cprint__CHelper t0 = {0};
@@ -167231,7 +167233,7 @@ bool byn_emitter_cprint__helperReserve(bynt_emitter_cprint__CCtx* p_cc, byn_str 
 #line 269 "emitter/cprint/common.byn"
     return true;
 }
-#line 167235 "main.c"
+#line 167237 "main.c"
 
 byn_str byn_emitter_cprint__helperFill(bynt_emitter_cprint__CCtx* p_cc, byn_str p_name, byn_str p_proto, byn_str p_body) {
     byn_writer t0 = {0};
@@ -167254,7 +167256,7 @@ byn_str byn_emitter_cprint__helperFill(bynt_emitter_cprint__CCtx* p_cc, byn_str 
 #line 275 "emitter/cprint/common.byn"
     return p_name;
 }
-#line 167258 "main.c"
+#line 167260 "main.c"
 
 bool byn_emitter_cprint__t6StaticReserve(bynt_emitter_cprint__CCtx* p_cc, byn_str p_name) {
 #line 10 "emitter/cprint/data.byn"
@@ -167269,7 +167271,7 @@ bool byn_emitter_cprint__t6StaticReserve(bynt_emitter_cprint__CCtx* p_cc, byn_st
 #line 13 "emitter/cprint/data.byn"
     return true;
 }
-#line 167273 "main.c"
+#line 167275 "main.c"
 
 byn_str byn_emitter_cprint__enumNames(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_e) {
     byn_str l0_name = {0};
@@ -167353,7 +167355,7 @@ break_1:;
 #line 27 "emitter/cprint/data.byn"
     return l0_name;
 }
-#line 167357 "main.c"
+#line 167359 "main.c"
 
 byn_str byn_emitter_cprint__enumValues(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_e) {
     byn_str l0_name = {0};
@@ -167450,7 +167452,7 @@ break_1:;
 #line 47 "emitter/cprint/data.byn"
     return l0_name;
 }
-#line 167454 "main.c"
+#line 167456 "main.c"
 
 byn_str byn_emitter_cprint__enumField(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_field) {
     int64_t l0_owner = {0};
@@ -167572,7 +167574,7 @@ break_1:;
 #line 69 "emitter/cprint/data.byn"
     return l2_name;
 }
-#line 167576 "main.c"
+#line 167578 "main.c"
 
 byn_str byn_emitter_cprint__staticArray(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_k) {
     byn_str l0_at = {0};
@@ -167686,7 +167688,7 @@ byn_str byn_emitter_cprint__staticArray(bynt_emitter_cprint__CCtx* p_cc, bynt_se
 #line 90 "emitter/cprint/data.byn"
     return byn_strbuf_str(t11);
 }
-#line 167690 "main.c"
+#line 167692 "main.c"
 
 byn_str byn_emitter_cprint__cString(byn_str p_s) {
     byn_writer t0 = {0};
@@ -167704,7 +167706,7 @@ byn_str byn_emitter_cprint__cString(byn_str p_s) {
 #line 96 "emitter/cprint/data.byn"
     return byn_strbuf_str(t0);
 }
-#line 167708 "main.c"
+#line 167710 "main.c"
 
 byn_str byn_emitter_cprint__stringLiteral(byn_str p_s) {
     byn_writer t0 = {0};
@@ -167727,7 +167729,7 @@ byn_str byn_emitter_cprint__stringLiteral(byn_str p_s) {
 #line 99 "emitter/cprint/data.byn"
     return byn_strbuf_str(t0);
 }
-#line 167731 "main.c"
+#line 167733 "main.c"
 
 byn_str byn_emitter_cprint__escape(byn_str p_text) {
     byn_writer l0_sb = {0};
@@ -167786,7 +167788,7 @@ break_1:;
 #line 112 "emitter/cprint/data.byn"
     return byn_strbuf_str(t5);
 }
-#line 167790 "main.c"
+#line 167792 "main.c"
 
 byn_str byn_emitter_cprint__constant(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_semantics__Constant p_k, int64_t p_type) {
     byn_writer t0 = {0};
@@ -167932,7 +167934,7 @@ byn_str byn_emitter_cprint__constant(bynt_emitter_cprint__CCtx* p_cc, bynt_seman
     }
 switch_end_1:;
 }
-#line 167936 "main.c"
+#line 167938 "main.c"
 
 byn_str byn_emitter_cprint__t6FloatLiteral(double p_d, bool p_single) {
     byn_str l0_head = {0};
@@ -168037,7 +168039,7 @@ byn_str byn_emitter_cprint__t6FloatLiteral(double p_d, bool p_single) {
 #line 151 "emitter/cprint/data.byn"
     return t9;
 }
-#line 168041 "main.c"
+#line 168043 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__t6Copy(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -168069,7 +168071,7 @@ break_1:;
 #line 162 "emitter/cprint/data.byn"
     return l0_r;
 }
-#line 168073 "main.c"
+#line 168075 "main.c"
 
 byn_str byn_emitter_cprint__t10Join(bynt_list_str p_parts) {
     byn_writer l0_sb = {0};
@@ -168116,7 +168118,7 @@ break_1:;
 #line 15 "emitter/cprint/expr.byn"
     return byn_strbuf_str(t4);
 }
-#line 168120 "main.c"
+#line 168122 "main.c"
 
 byn_str byn_emitter_cprint__t10LoweredName(byn_emitter_ltree_LKind p_k) {
     bynt_arr28_str l0_names = {0};
@@ -168135,7 +168137,7 @@ byn_str byn_emitter_cprint__t10LoweredName(byn_emitter_ltree_LKind p_k) {
 #line 50 "emitter/cprint/expr.byn"
     return byn_strbuf_str(t1);
 }
-#line 168139 "main.c"
+#line 168141 "main.c"
 
 byn_str byn_emitter_cprint__t10BoundName(byn_semantics_BoundKind p_k) {
     bynt_arr78_str l0_names = {0};
@@ -168154,7 +168156,7 @@ byn_str byn_emitter_cprint__t10BoundName(byn_semantics_BoundKind p_k) {
 #line 135 "emitter/cprint/expr.byn"
     return byn_strbuf_str(t1);
 }
-#line 168158 "main.c"
+#line 168160 "main.c"
 
 byn_str byn_emitter_cprint__emitExpr(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -169510,7 +169512,7 @@ byn_str byn_emitter_cprint__emitExpr(bynt_emitter_cprint__CCtx* p_cc, bynt_emitt
     }
 switch_end_4:;
 }
-#line 169514 "main.c"
+#line 169516 "main.c"
 
 byn_str byn_emitter_cprint__call(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e, bynt_opt_str p_result, byn_str p_detail) {
     int64_t l0_n = {0};
@@ -171604,7 +171606,7 @@ break_4:;
 #line 805 "emitter/cprint/expr.byn"
     return byn_strbuf_str(t224);
 }
-#line 171608 "main.c"
+#line 171610 "main.c"
 
 bynt_emitter_cprint__CFunc byn_emitter_cprint__functionEmitter(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LoweredFunction p_f) {
     int64_t l0_fn = {0};
@@ -171801,7 +171803,7 @@ break_7:;
 #line 48 "emitter/cprint/func.byn"
     return l1_fe;
 }
-#line 171805 "main.c"
+#line 171807 "main.c"
 
 bool byn_emitter_cprint__returnsValue(bynt_semantics__Ctx p_c, int64_t p_fn) {
     int64_t l0_r = {0};
@@ -171810,7 +171812,7 @@ bool byn_emitter_cprint__returnsValue(bynt_semantics__Ctx p_c, int64_t p_fn) {
 #line 55 "emitter/cprint/func.byn"
     return (((!byn_semantics__isVoid(l0_r)) && (!byn_semantics__isNever(l0_r))) && (!((*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_fn, false, byn_file_70, 55)).kind == ((byn_semantics_FunctionKind)2))));
 }
-#line 171814 "main.c"
+#line 171816 "main.c"
 
 byn_str byn_emitter_cprint__signature(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, bynt_emitter_ltree__LoweredFunction p_f) {
     bynt_emitter_cprint__CFunc l0_fe = {0};
@@ -171819,7 +171821,7 @@ byn_str byn_emitter_cprint__signature(bynt_emitter_cprint__CCtx* p_cc, bynt_sema
 #line 61 "emitter/cprint/func.byn"
     return byn_emitter_cprint__frameSignature(&(*p_cc), l0_fe, &(*p_c));
 }
-#line 171823 "main.c"
+#line 171825 "main.c"
 
 byn_str byn_emitter_cprint__frameSignature(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc p_fe, bynt_semantics__Ctx* p_c) {
     int64_t l0_fn = {0};
@@ -172003,7 +172005,7 @@ break_3:;
 #line 104 "emitter/cprint/func.byn"
     return byn_strbuf_str(t22);
 }
-#line 172007 "main.c"
+#line 172009 "main.c"
 
 byn_str byn_emitter_cprint__emitFunction(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, bynt_emitter_ltree__LoweredFunction p_f) {
     bynt_emitter_cprint__CFunc l0_fe = {0};
@@ -172364,7 +172366,7 @@ break_11:;
 #line 178 "emitter/cprint/func.byn"
     return byn_strbuf_str(t39);
 }
-#line 172368 "main.c"
+#line 172370 "main.c"
 
 bool byn_emitter_cprint__isOwner(bynt_semantics__Ctx p_c, int64_t p_l) {
     byn_semantics_LocalKind l0_k = {0};
@@ -172373,13 +172375,13 @@ bool byn_emitter_cprint__isOwner(bynt_semantics__Ctx p_c, int64_t p_l) {
 #line 186 "emitter/cprint/func.byn"
     return (((((l0_k == ((byn_semantics_LocalKind)0)) || (l0_k == ((byn_semantics_LocalKind)1))) || (l0_k == ((byn_semantics_LocalKind)5))) && (!(*bynh_at_list_semantics__LocalSymbol(p_c.locals, (int64_t)p_l, false, byn_file_70, 186)).borrowsSubject)) || ((*bynh_at_list_semantics__LocalSymbol(p_c.locals, (int64_t)p_l, false, byn_file_70, 187)).isParameter && ((*bynh_at_list_semantics__LocalSymbol(p_c.locals, (int64_t)p_l, false, byn_file_70, 187)).modifier == ((byn_parser_ParamModifier)2))));
 }
-#line 172377 "main.c"
+#line 172379 "main.c"
 
 bool byn_emitter_cprint__hasSlot(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, int64_t p_l) {
 #line 192 "emitter/cprint/func.byn"
     return (((*p_cc).ownershipChecks && byn_emitter_cprint__isOwner((*p_c), p_l)) && byn_semantics__isUnique(&(*p_c), (*bynh_at_list_semantics__LocalSymbol((*p_c).locals, (int64_t)p_l, false, byn_file_70, 192)).type));
 }
-#line 172383 "main.c"
+#line 172385 "main.c"
 
 byn_str byn_emitter_cprint__slot(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, int64_t p_l) {
     byn_writer t0 = {0};
@@ -172396,7 +172398,7 @@ byn_str byn_emitter_cprint__slot(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_c
 #line 197 "emitter/cprint/func.byn"
     return byn_strbuf_str(t0);
 }
-#line 172400 "main.c"
+#line 172402 "main.c"
 
 int64_t byn_emitter_cprint__ownerRoot(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -172435,7 +172437,7 @@ int64_t byn_emitter_cprint__ownerRoot(bynt_semantics__Ctx p_c, int64_t p_e) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 172439 "main.c"
+#line 172441 "main.c"
 
 int64_t byn_emitter_cprint__root(bynt_semantics__Ctx p_c, int64_t p_e) {
     int64_t l0_i = {0};
@@ -172474,7 +172476,7 @@ int64_t byn_emitter_cprint__root(bynt_semantics__Ctx p_c, int64_t p_e) {
     return INT64_C(-1);
 switch_end_1:;
 }
-#line 172478 "main.c"
+#line 172480 "main.c"
 
 byn_str byn_emitter_cprint__placeOf(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_e) {
     int64_t l0_i = {0};
@@ -172567,7 +172569,7 @@ byn_str byn_emitter_cprint__placeOf(bynt_emitter_cprint__CCtx* p_cc, bynt_emitte
 #line 241 "emitter/cprint/func.byn"
     return byn_emitter_cprint__emitExpr(&(*p_cc), &(*p_f), &(*p_c), p_t, p_e);
 }
-#line 172571 "main.c"
+#line 172573 "main.c"
 
 bynt_opt_str byn_emitter_cprint__checkedStore(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_target, int64_t p_value, bool p_claim) {
     int64_t l0_r = {0};
@@ -172659,7 +172661,7 @@ bynt_opt_str byn_emitter_cprint__checkedStore(bynt_emitter_cprint__CCtx* p_cc, b
 #line 268 "emitter/cprint/func.byn"
     return ((bynt_opt_str){true, byn_strbuf_str(t12)});
 }
-#line 172663 "main.c"
+#line 172665 "main.c"
 
 byn_str byn_emitter_cprint__claimed(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_str p_call, int64_t p_receiver, bynt_lexer__TextSpan p_span) {
     byn_str l0_claim = {0};
@@ -172694,7 +172696,7 @@ byn_str byn_emitter_cprint__claimed(bynt_emitter_cprint__CCtx* p_cc, bynt_emitte
 #line 284 "emitter/cprint/func.byn"
     return byn_strbuf_str(t2);
 }
-#line 172698 "main.c"
+#line 172700 "main.c"
 
 void byn_emitter_cprint__claimAfterCall(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_place, bynt_lexer__TextSpan p_span) {
     int64_t l0_r = {0};
@@ -172742,7 +172744,7 @@ void byn_emitter_cprint__claimAfterCall(bynt_emitter_cprint__CCtx* p_cc, bynt_em
 #line 307 "emitter/cprint/func.byn"
     (void)bynh_add_list_str(&(*p_f).afterCalls, byn_strbuf_str(t4));
 }
-#line 172746 "main.c"
+#line 172748 "main.c"
 
 void byn_emitter_cprint__claimMapEntry(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_a) {
     int64_t l0_target = {0};
@@ -172794,7 +172796,7 @@ void byn_emitter_cprint__claimMapEntry(bynt_emitter_cprint__CCtx* p_cc, bynt_emi
         (void)byn_emitter_cprint__line(&(*p_sb), (*p_f), byn_strbuf_str(t6));
     }
 }
-#line 172798 "main.c"
+#line 172800 "main.c"
 
 void byn_emitter_cprint__findUnsequenced(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_s) {
     bynt_map_i64_bool t0 = {0};
@@ -172895,7 +172897,7 @@ break_1:;
 #line 356 "emitter/cprint/func.byn"
     (*p_f).hasDryRun = false;
 }
-#line 172899 "main.c"
+#line 172901 "main.c"
 
 void byn_emitter_cprint__block(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_s) {
     bynt_list_i64 l0_inner = {0};
@@ -172935,7 +172937,7 @@ void byn_emitter_cprint__block(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cpr
 #line 373 "emitter/cprint/func.byn"
     (*p_f).indent = byn_sub_i64((*p_f).indent, INT64_C(1), byn_file_70, 373);
 }
-#line 172939 "main.c"
+#line 172941 "main.c"
 
 void byn_emitter_cprint__statement(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_s) {
     bool l0_lowered = {0};
@@ -173794,7 +173796,7 @@ break_9:;
         (*p_f).lastLineEnd = l7_lastLineEnd;
     }
 }
-#line 173798 "main.c"
+#line 173800 "main.c"
 
 void byn_emitter_cprint__afterCalls(byn_writer* p_sb, bynt_emitter_cprint__CFunc* p_f, bynt_list_str p_claims) {
     byn_str l0_x = {0};
@@ -173825,7 +173827,7 @@ break_1:;
 #line 622 "emitter/cprint/func.byn"
     (*p_f).indent = byn_sub_i64((*p_f).indent, INT64_C(1), byn_file_70, 622);
 }
-#line 173829 "main.c"
+#line 173831 "main.c"
 
 void byn_emitter_cprint__returnStmt(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_r) {
     int64_t l0_fn = {0};
@@ -173898,7 +173900,7 @@ void byn_emitter_cprint__returnStmt(bynt_emitter_cprint__CCtx* p_cc, bynt_emitte
         (void)byn_emitter_cprint__line(&(*p_sb), (*p_f), byn_strbuf_str(t4));
     }
 }
-#line 173902 "main.c"
+#line 173904 "main.c"
 
 byn_str byn_emitter_cprint__returned(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_value) {
     int64_t l0_type = {0};
@@ -173928,7 +173930,7 @@ byn_str byn_emitter_cprint__returned(bynt_emitter_cprint__CCtx* p_cc, bynt_emitt
 #line 659 "emitter/cprint/func.byn"
     return byn_emitter_cprint__emitExpr(&(*p_cc), &(*p_f), &(*p_c), p_t, p_value);
 }
-#line 173932 "main.c"
+#line 173934 "main.c"
 
 void byn_emitter_cprint__write(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, byn_writer* p_sb, int64_t p_s) {
     int64_t l0_i = {0};
@@ -174244,7 +174246,7 @@ break_1:;
 #line 733 "emitter/cprint/func.byn"
     (void)byn_emitter_cprint__line(&(*p_sb), (*p_f), BYN_STR("}", 1));
 }
-#line 174248 "main.c"
+#line 174250 "main.c"
 
 byn_str byn_emitter_cprint__formatWithSpec(bynt_emitter_cprint__CCtx* p_cc, bynt_emitter_cprint__CFunc* p_f, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, int64_t p_value, bynt_semantics__BFormatSpec p_spec) {
     int64_t l0_type = {0};
@@ -174358,7 +174360,7 @@ byn_str byn_emitter_cprint__formatWithSpec(bynt_emitter_cprint__CCtx* p_cc, bynt
 #line 791 "emitter/cprint/func.byn"
     return byn_strbuf_str(t14);
 }
-#line 174362 "main.c"
+#line 174364 "main.c"
 
 byn_str byn_emitter_cprint__formatInner(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_type, byn_str p_v, bynt_semantics__BFormatSpec p_spec, byn_str p_sw) {
     byn_str l0_negative = {0};
@@ -174437,7 +174439,7 @@ byn_str byn_emitter_cprint__formatInner(bynt_emitter_cprint__CCtx* p_cc, bynt_se
 #line 805 "emitter/cprint/func.byn"
     return byn_emitter_cprint__format(&(*p_cc), &(*p_c), p_type, p_v, p_sw);
 }
-#line 174441 "main.c"
+#line 174443 "main.c"
 
 byn_str byn_emitter_cprint__debug(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_type, byn_str p_v, byn_str p_w) {
     byn_str l0_quoted = {0};
@@ -174689,7 +174691,7 @@ byn_str byn_emitter_cprint__debug(bynt_emitter_cprint__CCtx* p_cc, bynt_semantic
 #line 860 "emitter/cprint/func.byn"
     return byn_strbuf_str(t27);
 }
-#line 174693 "main.c"
+#line 174695 "main.c"
 
 bynt_list_str byn_emitter_cprint__t9StmtNames(void) {
     bynt_list_str l0_r = {0};
@@ -174721,7 +174723,7 @@ break_1:;
 #line 925 "emitter/cprint/func.byn"
     return l0_r;
 }
-#line 174725 "main.c"
+#line 174727 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__t9Copy(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -174753,7 +174755,7 @@ break_1:;
 #line 934 "emitter/cprint/func.byn"
     return l0_r;
 }
-#line 174757 "main.c"
+#line 174759 "main.c"
 
 void byn_emitter_cprint__t9Truncate(byn_writer* p_sb, int64_t p_mark) {
     byn_str l0_keep = {0};
@@ -174777,7 +174779,7 @@ void byn_emitter_cprint__t9Truncate(byn_writer* p_sb, int64_t p_mark) {
 #line 941 "emitter/cprint/func.byn"
     (void)byn_w_str(&(*p_sb), l0_keep);
 }
-#line 174781 "main.c"
+#line 174783 "main.c"
 
 byn_str byn_emitter_cprint__t8Join(bynt_list_str p_parts, byn_str p_sep) {
     byn_writer l0_sb = {0};
@@ -174824,7 +174826,7 @@ break_1:;
 #line 18 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t4);
 }
-#line 174828 "main.c"
+#line 174830 "main.c"
 
 byn_str byn_emitter_cprint__equalHelper(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t, byn_str p_a, byn_str p_b) {
     int64_t l0_i = {0};
@@ -175304,7 +175306,7 @@ switch_end_1:;
 #line 97 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t50);
 }
-#line 175308 "main.c"
+#line 175310 "main.c"
 
 byn_str byn_emitter_cprint__t8EqBody(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     int64_t l0_i = {0};
@@ -175709,7 +175711,7 @@ switch_end_7:;
 #line 171 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t49);
 }
-#line 175713 "main.c"
+#line 175715 "main.c"
 
 byn_str byn_emitter_cprint__t8EqCase(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_v) {
     bynt_list_str l0_fields = {0};
@@ -175805,7 +175807,7 @@ break_1:;
 #line 182 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t12);
 }
-#line 175809 "main.c"
+#line 175811 "main.c"
 
 byn_str byn_emitter_cprint__t8KeyHash(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_k) {
     byn_str l0_name = {0};
@@ -176021,7 +176023,7 @@ break_6:;
 #line 237 "emitter/cprint/helpers.byn"
     return byn_emitter_cprint__helperFill(&(*p_cc), l0_name, l2_proto, byn_strbuf_str(t23));
 }
-#line 176025 "main.c"
+#line 176027 "main.c"
 
 byn_str byn_emitter_cprint__t8KeyEq(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_k) {
     byn_str l0_ct = {0};
@@ -176106,7 +176108,7 @@ byn_str byn_emitter_cprint__t8KeyEq(bynt_emitter_cprint__CCtx* p_cc, bynt_semant
 #line 247 "emitter/cprint/helpers.byn"
     return byn_emitter_cprint__helperFill(&(*p_cc), l1_name, l3_proto, byn_strbuf_str(t9));
 }
-#line 176110 "main.c"
+#line 176112 "main.c"
 
 byn_str byn_emitter_cprint__mapMethod(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, byn_semantics_BuiltinMember p_member, int64_t p_t, byn_str p_map, bynt_list_str p_args, byn_str p_loc) {
     int64_t l0_i = {0};
@@ -176547,7 +176549,7 @@ byn_str byn_emitter_cprint__mapMethod(bynt_emitter_cprint__CCtx* p_cc, bynt_sema
     return byn_strbuf_str(t46);
 switch_end_1:;
 }
-#line 176551 "main.c"
+#line 176553 "main.c"
 
 byn_str byn_emitter_cprint__format(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t, byn_str p_v, byn_str p_w) {
     int64_t l0_i = {0};
@@ -176878,7 +176880,7 @@ switch_end_1:;
 #line 355 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t23);
 }
-#line 176882 "main.c"
+#line 176884 "main.c"
 
 byn_str byn_emitter_cprint__t8Text(bynt_emitter_cprint__CCtx* p_cc, byn_str p_s) {
     byn_writer t0 = {0};
@@ -176896,7 +176898,7 @@ byn_str byn_emitter_cprint__t8Text(bynt_emitter_cprint__CCtx* p_cc, byn_str p_s)
 #line 360 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t0);
 }
-#line 176900 "main.c"
+#line 176902 "main.c"
 
 byn_str byn_emitter_cprint__t8FormatBody(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     int64_t l0_i = {0};
@@ -177259,7 +177261,7 @@ switch_end_1:;
 #line 436 "emitter/cprint/helpers.byn"
     return byn_strbuf_str(t30);
 }
-#line 177263 "main.c"
+#line 177265 "main.c"
 
 int64_t byn_emitter_cprint__formatInto(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_found = {0};
@@ -177303,7 +177305,7 @@ break_1:;
 #line 460 "emitter/cprint/helpers.byn"
     return l0_found;
 }
-#line 177307 "main.c"
+#line 177309 "main.c"
 
 int64_t byn_emitter_cprint__formatIntoWithSpec(bynt_semantics__Ctx* p_c, int64_t p_s) {
     int64_t l0_m = {0};
@@ -177338,7 +177340,7 @@ break_1:;
 #line 478 "emitter/cprint/helpers.byn"
     return INT64_C(-1);
 }
-#line 177342 "main.c"
+#line 177344 "main.c"
 
 void byn_emitter_cprint__t7StorageParts(bynt_semantics__Ctx* p_c, int64_t p_t, byn_str p_at, bynt_list_emitter_cprint__T7Part* p_parts) {
     int64_t l0_i = {0};
@@ -177635,7 +177637,7 @@ void byn_emitter_cprint__t7StorageParts(bynt_semantics__Ctx* p_c, int64_t p_t, b
     return;
 switch_end_1:;
 }
-#line 177639 "main.c"
+#line 177641 "main.c"
 
 bool byn_emitter_cprint__ownsStorage(bynt_semantics__Ctx* p_c, int64_t p_t) {
     bynt_list_emitter_cprint__T7Part l0_parts = {0};
@@ -177646,7 +177648,7 @@ bool byn_emitter_cprint__ownsStorage(bynt_semantics__Ctx* p_c, int64_t p_t) {
 #line 72 "emitter/cprint/own.byn"
     return (l0_parts.len > INT64_C(0));
 }
-#line 177650 "main.c"
+#line 177652 "main.c"
 
 byn_str byn_emitter_cprint__t7OwnStatements(bynt_semantics__Ctx* p_c, int64_t p_t, byn_str p_at, byn_emitter_cprint_T7OwnLine p_line) {
     bynt_list_emitter_cprint__T7Part l0_parts = {0};
@@ -177740,7 +177742,7 @@ break_1:;
 #line 87 "emitter/cprint/own.byn"
     return byn_strbuf_str(t5);
 }
-#line 177744 "main.c"
+#line 177746 "main.c"
 
 byn_str byn_emitter_cprint__ownClaim(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_str l0_ct = {0};
@@ -177792,7 +177794,7 @@ byn_str byn_emitter_cprint__ownClaim(bynt_emitter_cprint__CCtx* p_cc, bynt_seman
 #line 95 "emitter/cprint/own.byn"
     return byn_emitter_cprint__helper(&(*p_cc), l1_name, l3_proto, byn_strbuf_str(t5));
 }
-#line 177796 "main.c"
+#line 177798 "main.c"
 
 byn_str byn_emitter_cprint__ownSet(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_str l0_ct = {0};
@@ -177862,7 +177864,7 @@ byn_str byn_emitter_cprint__ownSet(bynt_emitter_cprint__CCtx* p_cc, bynt_semanti
 #line 119 "emitter/cprint/own.byn"
     return l1_name;
 }
-#line 177866 "main.c"
+#line 177868 "main.c"
 
 byn_str byn_emitter_cprint__ownMove(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_str l0_ct = {0};
@@ -177935,7 +177937,7 @@ byn_str byn_emitter_cprint__ownMove(bynt_emitter_cprint__CCtx* p_cc, bynt_semant
 #line 129 "emitter/cprint/own.byn"
     return byn_emitter_cprint__helper(&(*p_cc), l1_name, l3_proto, byn_strbuf_str(t8));
 }
-#line 177939 "main.c"
+#line 177941 "main.c"
 
 byn_str byn_emitter_cprint__ownReturn(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_t) {
     byn_str l0_ct = {0};
@@ -177989,7 +177991,7 @@ byn_str byn_emitter_cprint__ownReturn(bynt_emitter_cprint__CCtx* p_cc, bynt_sema
 #line 142 "emitter/cprint/own.byn"
     return byn_emitter_cprint__helper(&(*p_cc), l1_name, l3_proto, byn_strbuf_str(t5));
 }
-#line 177993 "main.c"
+#line 177995 "main.c"
 
 byn_str byn_emitter_cprint__intSuffix(int64_t p_t) {
     byn_semantics_PrimitiveKind l0_k = {0};
@@ -178025,7 +178027,7 @@ byn_str byn_emitter_cprint__intSuffix(int64_t p_t) {
     return byn_semantics__primitiveName(l0_k);
 switch_end_1:;
 }
-#line 178029 "main.c"
+#line 178031 "main.c"
 
 byn_str byn_emitter_cprint__emit(bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, bynt_emitter_ltree__LoweredProgram p_program, bool p_ownershipChecks) {
     bynt_emitter_cprint__CCtx l0_cc = {0};
@@ -178057,7 +178059,7 @@ break_1:;
 #line 14 "emitter/cprint/program.byn"
     return byn_emitter_cprint__t6Run(&l0_cc, &(*p_c), p_t, p_program);
 }
-#line 178061 "main.c"
+#line 178063 "main.c"
 
 byn_str byn_emitter_cprint__t6Run(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, bynt_emitter_ltree__LoweredProgram p_program) {
     byn_writer l0_bodies = {0};
@@ -178508,7 +178510,7 @@ break_21:;
 #line 118 "emitter/cprint/program.byn"
     return byn_emitter_cprint__t6ResolveResets(l47_text);
 }
-#line 178512 "main.c"
+#line 178514 "main.c"
 
 void byn_emitter_cprint__t6EmitFunction(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LTree p_t, bynt_emitter_ltree__LoweredFunction p_f, byn_writer* p_protos, byn_writer* p_bodies) {
 #line 130 "emitter/cprint/program.byn"
@@ -178520,7 +178522,7 @@ void byn_emitter_cprint__t6EmitFunction(bynt_emitter_cprint__CCtx* p_cc, bynt_se
 #line 133 "emitter/cprint/program.byn"
     (void)byn_w_str(&(*p_bodies), BYN_STR("\012", 1));
 }
-#line 178524 "main.c"
+#line 178526 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__t6SymbolTable(bynt_emitter_cprint__CCtx* p_cc, byn_writer* p_sb) {
     bynt_list_i64 l0_indexes = {0};
@@ -178658,7 +178660,7 @@ break_7:;
 #line 165 "emitter/cprint/program.byn"
     return l0_indexes;
 }
-#line 178662 "main.c"
+#line 178664 "main.c"
 
 byn_str byn_emitter_cprint__t6SymbolIndexes(byn_str p_text, bynt_list_i64 p_symbolIndex) {
     byn_writer l0_sb = {0};
@@ -178750,7 +178752,7 @@ break_1:;
 #line 194 "emitter/cprint/program.byn"
     return byn_strbuf_str(t9);
 }
-#line 178754 "main.c"
+#line 178756 "main.c"
 
 byn_str byn_emitter_cprint__t6ResolveResets(byn_str p_text) {
     byn_writer l0_sb = {0};
@@ -178835,7 +178837,7 @@ break_1:;
 #line 219 "emitter/cprint/program.byn"
     return byn_strbuf_str(t8);
 }
-#line 178839 "main.c"
+#line 178841 "main.c"
 
 byn_str byn_emitter_cprint__t6EmitMain(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_emitter_ltree__LoweredProgram p_program) {
     byn_writer l0_sb = {0};
@@ -179071,7 +179073,7 @@ byn_str byn_emitter_cprint__t6EmitMain(bynt_emitter_cprint__CCtx* p_cc, bynt_sem
 #line 299 "emitter/cprint/program.byn"
     return byn_strbuf_str(t18);
 }
-#line 179075 "main.c"
+#line 179077 "main.c"
 
 byn_str byn_emitter_cprint__symbolLiteral(bynt_emitter_cprint__CCtx* p_cc, byn_str p_text) {
     int64_t t0 = {0};
@@ -179106,7 +179108,7 @@ byn_str byn_emitter_cprint__symbolLiteral(bynt_emitter_cprint__CCtx* p_cc, byn_s
 #line 310 "emitter/cprint/program.byn"
     return byn_strbuf_str(t2);
 }
-#line 179110 "main.c"
+#line 179112 "main.c"
 
 byn_str byn_emitter_cprint__symbolText(bynt_emitter_cprint__CCtx* p_cc, byn_str p_s) {
     byn_writer t0 = {0};
@@ -179126,7 +179128,7 @@ byn_str byn_emitter_cprint__symbolText(bynt_emitter_cprint__CCtx* p_cc, byn_str 
 #line 316 "emitter/cprint/program.byn"
     return byn_strbuf_str(t0);
 }
-#line 179130 "main.c"
+#line 179132 "main.c"
 
 byn_str byn_emitter_cprint__symbolIntern(bynt_emitter_cprint__CCtx* p_cc, byn_str p_text) {
     byn_writer t0 = {0};
@@ -179146,7 +179148,7 @@ byn_str byn_emitter_cprint__symbolIntern(bynt_emitter_cprint__CCtx* p_cc, byn_st
 #line 322 "emitter/cprint/program.byn"
     return byn_strbuf_str(t0);
 }
-#line 179150 "main.c"
+#line 179152 "main.c"
 
 byn_str byn_emitter_cprint__functionName(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_fn) {
     byn_semantics_FunctionKind l0_kind = {0};
@@ -179362,7 +179364,7 @@ byn_str byn_emitter_cprint__functionName(bynt_emitter_cprint__CCtx* p_cc, bynt_s
 #line 356 "emitter/cprint/program.byn"
     return byn_strbuf_str(t25);
 }
-#line 179366 "main.c"
+#line 179368 "main.c"
 
 int64_t byn_emitter_cprint__t6IndexOf(bynt_list_i64 p_fns, int64_t p_f) {
     int64_t l0_i = {0};
@@ -179394,7 +179396,7 @@ break_1:;
 #line 364 "emitter/cprint/program.byn"
     return INT64_C(-1);
 }
-#line 179398 "main.c"
+#line 179400 "main.c"
 
 byn_str byn_emitter_cprint__t6Overload(bynt_list_i64 p_overloads, int64_t p_f) {
     int64_t l0_i = {0};
@@ -179423,7 +179425,7 @@ byn_str byn_emitter_cprint__t6Overload(bynt_list_i64 p_overloads, int64_t p_f) {
 #line 370 "emitter/cprint/program.byn"
     return t2;
 }
-#line 179427 "main.c"
+#line 179429 "main.c"
 
 byn_str byn_emitter_cprint__fieldName(byn_str p_name) {
     byn_str l0_w = {0};
@@ -179466,7 +179468,7 @@ break_1:;
 #line 378 "emitter/cprint/program.byn"
     return p_name;
 }
-#line 179470 "main.c"
+#line 179472 "main.c"
 
 byn_str byn_emitter_cprint__fileName(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_fn) {
     byn_str l0_relative = {0};
@@ -179494,7 +179496,7 @@ byn_str byn_emitter_cprint__fileName(bynt_emitter_cprint__CCtx* p_cc, bynt_seman
 #line 388 "emitter/cprint/program.byn"
     return bynh_index_map_str_str((*p_cc).files, l0_relative, byn_file_73, 388);
 }
-#line 179498 "main.c"
+#line 179500 "main.c"
 
 byn_str byn_emitter_cprint__filePath(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_fn) {
     int64_t l0_file = {0};
@@ -179525,7 +179527,7 @@ byn_str byn_emitter_cprint__filePath(bynt_emitter_cprint__CCtx* p_cc, bynt_seman
 #line 403 "emitter/cprint/program.byn"
     return l2_relative;
 }
-#line 179529 "main.c"
+#line 179531 "main.c"
 
 byn_str byn_emitter_cprint__t10CoverageCounters(int64_t p_count) {
     byn_writer t0 = {0};
@@ -179545,7 +179547,7 @@ byn_str byn_emitter_cprint__t10CoverageCounters(int64_t p_count) {
 #line 459 "emitter/cprint/program.byn"
     return byn_strbuf_str(t0);
 }
-#line 179549 "main.c"
+#line 179551 "main.c"
 
 byn_str byn_emitter_cprint__emitTypes(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c) {
     byn_writer l0_defs = {0};
@@ -179626,7 +179628,7 @@ break_3:;
 #line 22 "emitter/cprint/types.byn"
     return byn_strbuf_str(t8);
 }
-#line 179630 "main.c"
+#line 179632 "main.c"
 
 void byn_emitter_cprint__t7Define(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, byn_writer* p_defs, bynt_map_str_bool* p_done, byn_str p_name) {
     int64_t l0_t = {0};
@@ -180369,7 +180371,7 @@ break_24:;
 #line 189 "emitter/cprint/types.byn"
     (void)byn_w_str(&(*p_defs), BYN_STR("};\012\012", 4));
 }
-#line 180373 "main.c"
+#line 180375 "main.c"
 
 byn_str byn_emitter_cprint__t7VariantUnion(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, bynt_list_i64 p_variants, bool p_errors) {
     byn_writer l0_sb = {0};
@@ -180535,7 +180537,7 @@ break_1:;
 #line 219 "emitter/cprint/types.byn"
     return byn_strbuf_str(t19);
 }
-#line 180539 "main.c"
+#line 180541 "main.c"
 
 void byn_emitter_cprint__t7Payloads(bynt_semantics__Ctx* p_c, bynt_list_i64 p_variants, bynt_list_i64* p_payloads, bool p_errors) {
     int64_t l0_v = {0};
@@ -180610,7 +180612,7 @@ void byn_emitter_cprint__t7Payloads(bynt_semantics__Ctx* p_c, bynt_list_i64 p_va
     }
 break_1:;
 }
-#line 180614 "main.c"
+#line 180616 "main.c"
 
 bynt_list_i64 byn_emitter_cprint__t7Slots(bynt_semantics__Ctx p_c, int64_t p_i) {
     bynt_list_i64 l0_r = {0};
@@ -180665,7 +180667,7 @@ break_3:;
 #line 247 "emitter/cprint/types.byn"
     return l0_r;
 }
-#line 180669 "main.c"
+#line 180671 "main.c"
 
 byn_str byn_emitter_cprint__slotName(bynt_semantics__Ctx* p_c, int64_t p_m) {
     byn_writer t0 = {0};
@@ -180687,7 +180689,7 @@ byn_str byn_emitter_cprint__slotName(bynt_semantics__Ctx* p_c, int64_t p_m) {
 #line 253 "emitter/cprint/types.byn"
     return byn_emitter_cprint__fieldName((*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_m, false, byn_file_74, 253)).name);
 }
-#line 180691 "main.c"
+#line 180693 "main.c"
 
 byn_str byn_emitter_cprint__t7SlotSignature(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_m, byn_str p_declarator, bynt_list_str* p_args) {
     int64_t l0_ret = {0};
@@ -180824,7 +180826,7 @@ break_3:;
 #line 285 "emitter/cprint/types.byn"
     return byn_strbuf_str(t17);
 }
-#line 180828 "main.c"
+#line 180830 "main.c"
 
 byn_str byn_emitter_cprint__t7FunctionSignature(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_f, byn_str p_declarator, bynt_list_str* p_args) {
     int64_t l0_i = {0};
@@ -180954,7 +180956,7 @@ break_3:;
 #line 311 "emitter/cprint/types.byn"
     return byn_strbuf_str(t15);
 }
-#line 180958 "main.c"
+#line 180960 "main.c"
 
 byn_str byn_emitter_cprint__t7Join(bynt_list_str p_xs) {
     byn_writer l0_sb = {0};
@@ -181001,7 +181003,7 @@ break_1:;
 #line 323 "emitter/cprint/types.byn"
     return byn_strbuf_str(t4);
 }
-#line 181005 "main.c"
+#line 181007 "main.c"
 
 byn_str byn_emitter_cprint__functionThunk(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_fn, int64_t p_type) {
     byn_str l0_name = {0};
@@ -181068,7 +181070,7 @@ byn_str byn_emitter_cprint__functionThunk(bynt_emitter_cprint__CCtx* p_cc, bynt_
 #line 336 "emitter/cprint/types.byn"
     return byn_emitter_cprint__helper(&(*p_cc), l0_name, l3_proto, byn_strbuf_str(t9));
 }
-#line 181072 "main.c"
+#line 181074 "main.c"
 
 byn_str byn_emitter_cprint__vtable(bynt_emitter_cprint__CCtx* p_cc, bynt_semantics__Ctx* p_c, int64_t p_s, int64_t p_i) {
     int64_t l0_sType = {0};
@@ -181354,7 +181356,7 @@ break_3:;
 #line 384 "emitter/cprint/types.byn"
     return l2_name;
 }
-#line 181358 "main.c"
+#line 181360 "main.c"
 
 bynt_emitter__CoverageMap byn_emitter__instrument(bynt_semantics__Ctx* p_c, bynt_list_str p_skipFiles) {
     bynt_emitter__CoverageWalker l0_w = {0};
@@ -181457,7 +181459,7 @@ break_1:;
 #line 63 "emitter/coverage.byn"
     return ((bynt_emitter__CoverageMap){t12, ((bynt_emitter_ltree__CoverageProbes){l11_count, t13, t14, t15})});
 }
-#line 181461 "main.c"
+#line 181463 "main.c"
 
 bool byn_emitter__coverageInTest(bynt_semantics__Ctx p_c, int64_t p_fn) {
     int64_t l0_f = {0};
@@ -181486,7 +181488,7 @@ break_1:;
 #line 81 "emitter/coverage.byn"
     return false;
 }
-#line 181490 "main.c"
+#line 181492 "main.c"
 
 bool byn_emitter__t10Contains(bynt_list_str p_xs, byn_str p_x) {
     byn_str l0_y = {0};
@@ -181518,7 +181520,7 @@ break_1:;
 #line 89 "emitter/coverage.byn"
     return false;
 }
-#line 181522 "main.c"
+#line 181524 "main.c"
 
 byn_str byn_emitter__t10SyntaxKey(bynt_semantics__Ctx p_c, int64_t p_n, int64_t p_file) {
     bynt_opt_semantics__ExprSyntax t0 = {0};
@@ -181591,7 +181593,7 @@ byn_str byn_emitter__t10SyntaxKey(bynt_semantics__Ctx p_c, int64_t p_n, int64_t 
 #line 103 "emitter/coverage.byn"
     return byn_strbuf_str(t7);
 }
-#line 181595 "main.c"
+#line 181597 "main.c"
 
 bynt_lexer__TextSpan byn_emitter__t10SyntaxSpan(bynt_semantics__Ctx p_c, int64_t p_n) {
     bynt_opt_semantics__ExprSyntax t0 = {0};
@@ -181615,7 +181617,7 @@ bynt_lexer__TextSpan byn_emitter__t10SyntaxSpan(bynt_semantics__Ctx p_c, int64_t
 #line 115 "emitter/coverage.byn"
     return byn_semantics__nodeSpan(p_c, p_n);
 }
-#line 181619 "main.c"
+#line 181621 "main.c"
 
 bool byn_emitter__t10SyntaxIsStmt(bynt_semantics__Ctx p_c, int64_t p_n) {
     bynt_opt_semantics__NodeSyntax t0 = {0};
@@ -181633,7 +181635,7 @@ bool byn_emitter__t10SyntaxIsStmt(bynt_semantics__Ctx p_c, int64_t p_n) {
 #line 123 "emitter/coverage.byn"
     return false;
 }
-#line 181637 "main.c"
+#line 181639 "main.c"
 
 bool byn_emitter__t10SyntaxIs(bynt_semantics__Ctx p_c, int64_t p_n, byn_semantics_NodeSyntaxKind p_kind) {
     bynt_opt_semantics__NodeSyntax t0 = {0};
@@ -181648,7 +181650,7 @@ bool byn_emitter__t10SyntaxIs(bynt_semantics__Ctx p_c, int64_t p_n, byn_semantic
 #line 131 "emitter/coverage.byn"
     return false;
 }
-#line 181652 "main.c"
+#line 181654 "main.c"
 
 void byn_emitter__coverageFunction(bynt_semantics__Ctx p_c, bynt_emitter__CoverageWalker* p_w, int64_t p_fn, int64_t p_file) {
     bynt_list_u8 l0_bytes = {0};
@@ -181697,7 +181699,7 @@ void byn_emitter__coverageFunction(bynt_semantics__Ctx p_c, bynt_emitter__Covera
 #line 166 "emitter/coverage.byn"
     (void)byn_emitter__coverageVisit(p_c, &(*p_w), (*bynh_at_list_semantics__FunctionSymbol(p_c.functions, (int64_t)p_fn, false, byn_file_75, 166)).body);
 }
-#line 181701 "main.c"
+#line 181703 "main.c"
 
 void byn_emitter__coverageVisit(bynt_semantics__Ctx p_c, bynt_emitter__CoverageWalker* p_w, int64_t p_node) {
     byn_semantics_BoundKind l0_kind = {0};
@@ -181969,7 +181971,7 @@ switch_end_1:;
     }
 break_6:;
 }
-#line 181973 "main.c"
+#line 181975 "main.c"
 
 bool byn_emitter__t10IsLogical(bynt_semantics__Ctx p_c, int64_t p_e) {
     byn_parser_BinaryOp l0_op = {0};
@@ -181983,7 +181985,7 @@ bool byn_emitter__t10IsLogical(bynt_semantics__Ctx p_c, int64_t p_e) {
 #line 277 "emitter/coverage.byn"
     return ((l0_op == ((byn_parser_BinaryOp)22)) || (l0_op == ((byn_parser_BinaryOp)23)));
 }
-#line 181987 "main.c"
+#line 181989 "main.c"
 
 bynt_list_i64 byn_emitter__coverageVariants(bynt_semantics__Ctx p_c, bynt_list_i64 p_sets, bynt_list_i64 p_excluded, int64_t p_extra) {
     bynt_list_i64 l0_result = {0};
@@ -182094,7 +182096,7 @@ break_1:;
 #line 307 "emitter/coverage.byn"
     return l0_result;
 }
-#line 182098 "main.c"
+#line 182100 "main.c"
 
 void byn_emitter__coverageStatement(bynt_semantics__Ctx p_c, bynt_emitter__CoverageWalker* p_w, int64_t p_s) {
     byn_str l0_key = {0};
@@ -182120,7 +182122,7 @@ void byn_emitter__coverageStatement(bynt_semantics__Ctx p_c, bynt_emitter__Cover
 #line 318 "emitter/coverage.byn"
     (*bynh_slot_map_i64_emitter_ltree__BoundProbe(&(*p_w).statements, p_s, ((bynt_emitter_ltree__BoundProbe){0}))) = t4;
 }
-#line 182124 "main.c"
+#line 182126 "main.c"
 
 void byn_emitter__coverageCondition(bynt_semantics__Ctx p_c, bynt_emitter__CoverageWalker* p_w, int64_t p_cond) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -182168,7 +182170,7 @@ void byn_emitter__coverageCondition(bynt_semantics__Ctx p_c, bynt_emitter__Cover
 #line 332 "emitter/coverage.byn"
     (*bynh_slot_map_i64_emitter_ltree__BoundBranchProbe(&(*p_w).branches, p_cond, ((bynt_emitter_ltree__BoundBranchProbe){0}))) = t8;
 }
-#line 182172 "main.c"
+#line 182174 "main.c"
 
 void byn_emitter__coverageErrorOrigin(bynt_semantics__Ctx p_c, bynt_emitter__CoverageWalker* p_w, int64_t p_origin, byn_str p_kind, bynt_list_i64 p_variants) {
     int64_t l0_template = {0};
@@ -182282,7 +182284,7 @@ break_1:;
         (*bynh_slot_map_i64_emitter_ltree__BoundErrorProbe(&(*p_w).errors, p_origin, ((bynt_emitter_ltree__BoundErrorProbe){0}))) = t17;
     }
 }
-#line 182286 "main.c"
+#line 182288 "main.c"
 
 int64_t byn_emitter__coverageAdd(bynt_emitter__CoverageWalker* p_w, byn_str p_kind, bynt_lexer__TextSpan p_span, bynt_opt_str p_function, bynt_opt_str p_variant, bynt_opt_str p_origin, bynt_opt_bool p_outcome) {
     bynt_tup2_i64_i64 l0_pos = {0};
@@ -182293,7 +182295,7 @@ int64_t byn_emitter__coverageAdd(bynt_emitter__CoverageWalker* p_w, byn_str p_ki
 #line 388 "emitter/coverage.byn"
     return byn_sub_i64((*p_w).counters.len, INT64_C(1), byn_file_75, 388);
 }
-#line 182297 "main.c"
+#line 182299 "main.c"
 
 bynt_emitter_ltree__LoweredProgram byn_emitter__lower(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l) {
     bynt_semantics__Diag l0_d = {0};
@@ -182435,7 +182437,7 @@ break_3:;
 #line 63 "emitter/lower.byn"
     return ((bynt_emitter_ltree__LoweredProgram){l3_functions, (*bynh_at_list_semantics__Mod((*p_c).modules, (int64_t)(*p_c).entryModule, false, byn_file_76, 65)).main_, l4_tests, l5_testFunctions, (*p_l).mutating, (*p_l).covering, l18_coverage});
 }
-#line 182439 "main.c"
+#line 182441 "main.c"
 
 bynt_emitter_ltree__LoweredFunction byn_emitter__lowerFunction(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_fn) {
     bynt_list_list_i64 t0 = {0};
@@ -182622,7 +182624,7 @@ break_5:;
 #line 130 "emitter/lower.byn"
     return ((bynt_emitter_ltree__LoweredFunction){p_fn, l26_locals, (*p_l).contextSlots, (*p_l).panicSlots, l30_block});
 }
-#line 182626 "main.c"
+#line 182628 "main.c"
 
 bynt_list_i64 byn_emitter__copyStmts(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -182654,13 +182656,13 @@ break_1:;
 #line 145 "emitter/lower.byn"
     return l0_r;
 }
-#line 182658 "main.c"
+#line 182660 "main.c"
 
 void byn_emitter__emit(bynt_emitter__LCtx* p_l, int64_t p_s) {
 #line 152 "emitter/lower.byn"
     (void)bynh_add_list_i64(&(*bynh_at_list_list_i64((*p_l).outs, (int64_t)byn_sub_i64((*p_l).outs.len, INT64_C(1), byn_file_76, 152), false, byn_file_76, 152)), p_s);
 }
-#line 182664 "main.c"
+#line 182666 "main.c"
 
 void byn_emitter__note(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_local) {
     int64_t l0_x = {0};
@@ -182702,7 +182704,7 @@ break_1:;
         (void)bynh_add_list_i64(&(*p_l).locals, p_local);
     }
 }
-#line 182706 "main.c"
+#line 182708 "main.c"
 
 int64_t byn_emitter__newTemp(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_type) {
     int64_t l0_t = {0};
@@ -182715,7 +182717,7 @@ int64_t byn_emitter__newTemp(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 174 "emitter/lower.byn"
     return l0_t;
 }
-#line 182719 "main.c"
+#line 182721 "main.c"
 
 byn_str byn_emitter__newLabel(bynt_emitter__LCtx* p_l, byn_str p_kind) {
     byn_writer t0 = {0};
@@ -182735,19 +182737,19 @@ byn_str byn_emitter__newLabel(bynt_emitter__LCtx* p_l, byn_str p_kind) {
 #line 180 "emitter/lower.byn"
     return byn_strbuf_str(t0);
 }
-#line 182739 "main.c"
+#line 182741 "main.c"
 
 void byn_emitter__captureBegin(bynt_emitter__LCtx* p_l) {
 #line 185 "emitter/lower.byn"
     (void)bynh_add_list_list_i64(&(*p_l).outs, ((bynt_list_i64){NULL, 0, 0, byn_context}));
 }
-#line 182745 "main.c"
+#line 182747 "main.c"
 
 bynt_list_i64 byn_emitter__captureEnd(bynt_emitter__LCtx* p_l) {
 #line 190 "emitter/lower.byn"
     return bynh_pop_list_list_i64(&(*p_l).outs, byn_file_76, 190);
 }
-#line 182751 "main.c"
+#line 182753 "main.c"
 
 int64_t byn_emitter__captureExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e, bool p_lvalue, bynt_list_i64* p_pre) {
     int64_t l0_value = {0};
@@ -182763,13 +182765,13 @@ int64_t byn_emitter__captureExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
 #line 198 "emitter/lower.byn"
     return l0_value;
 }
-#line 182767 "main.c"
+#line 182769 "main.c"
 
 int64_t byn_emitter__block(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, bynt_list_i64 p_statements) {
 #line 203 "emitter/lower.byn"
     return byn_semantics__addBlock(&(*p_c), ((bynt_semantics__BBlock){p_span, p_statements}));
 }
-#line 182773 "main.c"
+#line 182775 "main.c"
 
 int64_t byn_emitter__boolLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, bool p_value) {
     int64_t l0_e = {0};
@@ -182780,7 +182782,7 @@ int64_t byn_emitter__boolLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan 
 #line 213 "emitter/lower.byn"
     return l0_e;
 }
-#line 182784 "main.c"
+#line 182786 "main.c"
 
 int64_t byn_emitter__i64Literal(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_value) {
     uint64_t l0_lo = {0};
@@ -182797,7 +182799,7 @@ int64_t byn_emitter__i64Literal(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p
 #line 229 "emitter/lower.byn"
     return l2_e;
 }
-#line 182801 "main.c"
+#line 182803 "main.c"
 
 int64_t byn_emitter__notExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
     bynt_lexer__TextSpan t0 = {0};
@@ -182806,7 +182808,7 @@ int64_t byn_emitter__notExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, i
 #line 234 "emitter/lower.byn"
     return byn_semantics__addUnary(&(*p_c), ((bynt_semantics__BUnary){t0, ((byn_parser_UnaryOp)2), p_e, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 182810 "main.c"
+#line 182812 "main.c"
 
 int64_t byn_emitter__andExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, int64_t p_a, int64_t p_b) {
     bynt_lexer__TextSpan t0 = {0};
@@ -182825,7 +182827,7 @@ int64_t byn_emitter__andExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, i
 #line 249 "emitter/lower.byn"
     return byn_semantics__addBinary(&(*p_c), ((bynt_semantics__BBinary){t0, ((byn_parser_BinaryOp)22), p_a, p_b, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 182829 "main.c"
+#line 182831 "main.c"
 
 bool byn_emitter__isTrueLiteral(bynt_semantics__Ctx p_c, int64_t p_e) {
     bynt_semantics__Constant l0_v = {0};
@@ -182839,7 +182841,7 @@ bool byn_emitter__isTrueLiteral(bynt_semantics__Ctx p_c, int64_t p_e) {
 #line 265 "emitter/lower.byn"
     return ((l0_v.kind == ((byn_semantics_ConstantKind)2)) && l0_v.flag);
 }
-#line 182843 "main.c"
+#line 182845 "main.c"
 
 int64_t byn_emitter__orExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, int64_t p_a, int64_t p_b) {
     bynt_lexer__TextSpan t0 = {0};
@@ -182848,7 +182850,7 @@ int64_t byn_emitter__orExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, in
 #line 270 "emitter/lower.byn"
     return byn_semantics__addBinary(&(*p_c), ((bynt_semantics__BBinary){t0, ((byn_parser_BinaryOp)23), p_a, p_b, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 182852 "main.c"
+#line 182854 "main.c"
 
 int64_t byn_emitter__localExpr(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_local) {
 #line 286 "emitter/lower.byn"
@@ -182856,31 +182858,31 @@ int64_t byn_emitter__localExpr(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_
 #line 287 "emitter/lower.byn"
     return byn_semantics__makeBound(((byn_semantics_BoundKind)4), byn_sub_i64((*p_c).bLocals.len, INT64_C(1), byn_file_76, 287));
 }
-#line 182860 "main.c"
+#line 182862 "main.c"
 
 bool byn_emitter__isNeverExpr(int64_t p_e) {
 #line 291 "emitter/lower.byn"
     return (byn_emitter_ltree__isLowered(p_e) && (byn_emitter_ltree__lKindOf(p_e) == ((byn_emitter_ltree_LKind)23)));
 }
-#line 182866 "main.c"
+#line 182868 "main.c"
 
 bool byn_emitter__isVoidExpr(int64_t p_e) {
 #line 294 "emitter/lower.byn"
     return (byn_emitter_ltree__isLowered(p_e) && (byn_emitter_ltree__lKindOf(p_e) == ((byn_emitter_ltree_LKind)27)));
 }
-#line 182872 "main.c"
+#line 182874 "main.c"
 
 int64_t byn_emitter__t2Type(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
 #line 297 "emitter/lower.byn"
     return byn_emitter_ltree__typeOf(p_c, p_l.tree, p_e);
 }
-#line 182878 "main.c"
+#line 182880 "main.c"
 
 bynt_lexer__TextSpan byn_emitter__t2Span(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_n) {
 #line 300 "emitter/lower.byn"
     return byn_emitter_ltree__spanOf(p_c, p_l.tree, p_n);
 }
-#line 182884 "main.c"
+#line 182886 "main.c"
 
 bynt_list_i64 byn_emitter__t2Children(bynt_semantics__Ctx p_c, int64_t p_n) {
 #line 304 "emitter/lower.byn"
@@ -182891,7 +182893,7 @@ bynt_list_i64 byn_emitter__t2Children(bynt_semantics__Ctx p_c, int64_t p_n) {
 #line 305 "emitter/lower.byn"
     return byn_semantics__children(p_c, p_n);
 }
-#line 182895 "main.c"
+#line 182897 "main.c"
 
 bool byn_emitter__t2IsExpr(int64_t p_n) {
     int32_t t0 = {0};
@@ -182905,7 +182907,7 @@ bool byn_emitter__t2IsExpr(int64_t p_n) {
 #line 311 "emitter/lower.byn"
     return byn_semantics__isExprKind(byn_semantics__boundKind(p_n));
 }
-#line 182909 "main.c"
+#line 182911 "main.c"
 
 bool byn_emitter__isTrivial(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -183033,7 +183035,7 @@ bool byn_emitter__isTrivial(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int
     return false;
 switch_end_2:;
 }
-#line 183037 "main.c"
+#line 183039 "main.c"
 
 bool byn_emitter__isRepeatable(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -183147,7 +183149,7 @@ bool byn_emitter__isRepeatable(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, 
     return byn_emitter__isTrivial(p_c, p_l, p_e);
 switch_end_2:;
 }
-#line 183151 "main.c"
+#line 183153 "main.c"
 
 bool byn_emitter__isLvalue(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
     byn_emitter_ltree_LKind t0 = {0};
@@ -183214,7 +183216,7 @@ bool byn_emitter__isLvalue(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int6
     return false;
 switch_end_2:;
 }
-#line 183218 "main.c"
+#line 183220 "main.c"
 
 bool byn_emitter__hasEffects(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e) {
     byn_emitter_ltree_LKind t0 = {0};
@@ -183279,7 +183281,7 @@ bool byn_emitter__hasEffects(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, in
 #line 423 "emitter/lower.byn"
     return ((byn_emitter_ltree__isLowered(p_e) && (byn_emitter_ltree__lKindOf(p_e) == ((byn_emitter_ltree_LKind)14))) && byn_emitter__hasEffects(p_c, p_l, (*bynh_at_list_emitter_ltree__LOptionalValue(p_l.tree.optionalValues, (int64_t)byn_emitter_ltree__lIndexOf(p_e), false, byn_file_76, 425)).optional));
 }
-#line 183283 "main.c"
+#line 183285 "main.c"
 
 int64_t byn_emitter__spill(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_t = {0};
@@ -183298,7 +183300,7 @@ int64_t byn_emitter__spill(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, in
 #line 434 "emitter/lower.byn"
     return byn_emitter__localExpr(&(*p_c), l1_span, l0_t);
 }
-#line 183302 "main.c"
+#line 183304 "main.c"
 
 void byn_emitter__lowerBecome(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_b) {
     int64_t l0_i = {0};
@@ -183419,7 +183421,7 @@ break_5:;
 #line 478 "emitter/lower.byn"
     (void)byn_emitter__emitAssign(&(*p_c), &(*p_l), byn_emitter_ltree__addLUnionTag(&(*p_l).tree, ((bynt_emitter_ltree__LUnionTag){l1_span, l13_self})), l21_tagValue);
 }
-#line 183423 "main.c"
+#line 183425 "main.c"
 
 void byn_emitter__emitAssign(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_target, int64_t p_value) {
 #line 488 "emitter/lower.byn"
@@ -183437,7 +183439,7 @@ void byn_emitter__emitAssign(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 493 "emitter/lower.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addAssign(&(*p_c), ((bynt_semantics__BAssign){byn_emitter__t2Span((*p_c), (*p_l), p_value), p_target, p_value, ((bynt_opt_parser__BinaryOp){0})})));
 }
-#line 183441 "main.c"
+#line 183443 "main.c"
 
 void byn_emitter__emitEffect(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_value) {
 #line 504 "emitter/lower.byn"
@@ -183448,7 +183450,7 @@ void byn_emitter__emitEffect(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 505 "emitter/lower.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addExprStmt(&(*p_c), ((bynt_semantics__BExprStmt){byn_emitter__t2Span((*p_c), (*p_l), p_value), p_value})));
 }
-#line 183452 "main.c"
+#line 183454 "main.c"
 
 bool byn_emitter__operands(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_list_i64 p_ops, bynt_list_bool p_lvalues, bynt_list_i64* p_values) {
     int64_t l0_n = {0};
@@ -183704,7 +183706,7 @@ break_13:;
 #line 580 "emitter/lower.byn"
     return true;
 }
-#line 183708 "main.c"
+#line 183710 "main.c"
 
 bool byn_emitter__t2Passes(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_x, byn_emitter_T2AnyTest p_probe) {
     int64_t l0_i = {0};
@@ -183741,7 +183743,7 @@ bool byn_emitter__t2Passes(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int6
     }
 switch_end_1:;
 }
-#line 183745 "main.c"
+#line 183747 "main.c"
 
 bool byn_emitter__anyNode(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_node, byn_emitter_T2AnyTest p_probe) {
     int64_t l0_i = {0};
@@ -183884,13 +183886,13 @@ break_4:;
 #line 634 "emitter/lower.byn"
     return false;
 }
-#line 183888 "main.c"
+#line 183890 "main.c"
 
 bool byn_emitter__moves(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_node, int64_t p_local) {
 #line 639 "emitter/lower.byn"
     return byn_emitter__anyNode(p_c, p_l, p_node, ((byn_emitter_T2AnyTest){.tag = 0, .u.movesLocal = {p_local}}));
 }
-#line 183894 "main.c"
+#line 183896 "main.c"
 
 int64_t byn_emitter__captureGuard(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_body) {
     int64_t l0_i = {0};
@@ -183915,7 +183917,7 @@ int64_t byn_emitter__captureGuard(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* 
 #line 651 "emitter/lower.byn"
     return byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){(*bynh_at_list_semantics__BIf((*p_c).bIfs, (int64_t)l0_i, false, byn_file_76, 652)).span, l2_condition, (*bynh_at_list_semantics__BIf((*p_c).bIfs, (int64_t)l0_i, false, byn_file_76, 654)).then, (*bynh_at_list_semantics__BIf((*p_c).bIfs, (int64_t)l0_i, false, byn_file_76, 655)).elseBranch, (*bynh_at_list_semantics__BIf((*p_c).bIfs, (int64_t)l0_i, false, byn_file_76, 656)).isNever, (*bynh_at_list_semantics__BIf((*p_c).bIfs, (int64_t)l0_i, false, byn_file_76, 657)).guarded}));
 }
-#line 183919 "main.c"
+#line 183921 "main.c"
 
 void byn_emitter__emitCleanups(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_depth, int64_t p_error) {
     int64_t l0_i = {0};
@@ -183951,7 +183953,7 @@ void byn_emitter__emitCleanups(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l
     }
 break_1:;
 }
-#line 183955 "main.c"
+#line 183957 "main.c"
 
 void byn_emitter__emitCleanup(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_scopeIndex, byn_emitter_LCleanup p_cleanup, int64_t p_error) {
     int64_t l0_body = {0};
@@ -184024,7 +184026,7 @@ void byn_emitter__emitCleanup(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l,
     }
 switch_end_1:;
 }
-#line 184028 "main.c"
+#line 184030 "main.c"
 
 void byn_emitter__lowerOutside(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_scopeIndex, int64_t p_body) {
     bynt_list_emitter__LScope l0_saved = {0};
@@ -184057,19 +184059,19 @@ break_1:;
     }
 break_3:;
 }
-#line 184061 "main.c"
+#line 184063 "main.c"
 
 bool byn_emitter__printable(int64_t p_t) {
 #line 21 "emitter/lowerassert.byn"
     return ((((byn_semantics__isInteger(p_t) || byn_semantics__isFloat(p_t)) || byn_semantics__isBool(p_t)) || byn_semantics__isString(p_t)) || (byn_semantics__kindOf(p_t) == ((byn_semantics_TypeKind)22)));
 }
-#line 184067 "main.c"
+#line 184069 "main.c"
 
 bool byn_emitter__t5IsBuiltin(bynt_semantics__Ctx p_c, int64_t p_e, byn_semantics_BuiltinMember p_member) {
 #line 30 "emitter/lowerassert.byn"
     return (((!byn_emitter_ltree__isLowered(p_e)) && (byn_semantics__boundKind(p_e) == ((byn_semantics_BoundKind)9))) && ((*bynh_at_list_semantics__BBuiltinCall(p_c.bBuiltinCalls, (int64_t)((int64_t)(p_e & INT64_C(4294967295))), false, byn_file_77, 30)).member == p_member));
 }
-#line 184073 "main.c"
+#line 184075 "main.c"
 
 int64_t byn_emitter__t5Copied(bynt_semantics__Ctx* p_c, int64_t p_old, int64_t p_copy) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -184093,7 +184095,7 @@ int64_t byn_emitter__t5Copied(bynt_semantics__Ctx* p_c, int64_t p_old, int64_t p
 #line 40 "emitter/lowerassert.byn"
     return p_copy;
 }
-#line 184097 "main.c"
+#line 184099 "main.c"
 
 int64_t byn_emitter__t5Builtin(bynt_semantics__Ctx* p_c, int64_t p_b, byn_semantics_BuiltinMember p_member, int64_t p_receiver, bynt_list_i64 p_arguments) {
     int64_t l0_i = {0};
@@ -184111,7 +184113,7 @@ int64_t byn_emitter__t5Builtin(bynt_semantics__Ctx* p_c, int64_t p_b, byn_semant
 #line 58 "emitter/lowerassert.byn"
     return byn_emitter__t5Copied(&(*p_c), p_b, l3_copy);
 }
-#line 184115 "main.c"
+#line 184117 "main.c"
 
 bynt_list_i64 byn_emitter__t5Arguments(bynt_semantics__Ctx p_c, int64_t p_b) {
     bynt_list_i64 l0_r = {0};
@@ -184143,7 +184145,7 @@ break_1:;
 #line 67 "emitter/lowerassert.byn"
     return l0_r;
 }
-#line 184147 "main.c"
+#line 184149 "main.c"
 
 bool byn_emitter__t5Mutating(byn_semantics_BuiltinMember p_m) {
 #line 73 "emitter/lowerassert.byn"
@@ -184178,13 +184180,13 @@ bool byn_emitter__t5Mutating(byn_semantics_BuiltinMember p_m) {
     return false;
 switch_end_1:;
 }
-#line 184182 "main.c"
+#line 184184 "main.c"
 
 int64_t byn_emitter__t5Literal(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type, bynt_semantics__Constant p_k) {
 #line 95 "emitter/lowerassert.byn"
     return byn_semantics__addLiteral(&(*p_c), ((bynt_semantics__BLiteral){p_span, p_type, p_k}));
 }
-#line 184188 "main.c"
+#line 184190 "main.c"
 
 int64_t byn_emitter__t5Check(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, bynt_lexer__TextSpan p_span, int64_t p_fits, byn_parser_BinaryOp p_op, int64_t p_value, int64_t p_bound) {
     int64_t l0_check = {0};
@@ -184198,7 +184200,7 @@ int64_t byn_emitter__t5Check(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, b
 #line 113 "emitter/lowerassert.byn"
     return byn_emitter__andExpr(&(*p_c), p_l, p_fits, l0_check);
 }
-#line 184202 "main.c"
+#line 184204 "main.c"
 
 byn_str byn_emitter__t5Source(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_start, int64_t p_end) {
     byn_writer t0 = {0};
@@ -184223,7 +184225,7 @@ byn_str byn_emitter__t5Source(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, i
 #line 118 "emitter/lowerassert.byn"
     return byn_strbuf_str(t0);
 }
-#line 184227 "main.c"
+#line 184229 "main.c"
 
 int64_t byn_emitter__t5After(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, bynt_lexer__TextSpan p_left, int64_t p_end) {
     bynt_span_u8 l0_bytes = {0};
@@ -184261,7 +184263,7 @@ break_1:;
 #line 127 "emitter/lowerassert.byn"
     return l2_at;
 }
-#line 184265 "main.c"
+#line 184267 "main.c"
 
 int64_t byn_emitter__t5Anchor(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, bynt_semantics__ExprSyntax p_node, int64_t p_end) {
 #line 133 "emitter/lowerassert.byn"
@@ -184317,7 +184319,7 @@ int64_t byn_emitter__t5Anchor(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, b
     return p_node.span.start;
 switch_end_1:;
 }
-#line 184321 "main.c"
+#line 184323 "main.c"
 
 void byn_emitter__lowerAssert(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_a = {0};
@@ -184734,7 +184736,7 @@ break_9:;
 #line 270 "emitter/lowerassert.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){l1_span, t69, byn_emitter__block(&(*p_c), l1_span, l68_body), INT64_C(-1), false, false})));
 }
-#line 184738 "main.c"
+#line 184740 "main.c"
 
 int64_t byn_emitter__t5Guard(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, bynt_emitter__PowerAssertPiece p_piece, bynt_lexer__TextSpan p_span, bynt_list_i64 p_flags) {
     int64_t l0_g = {0};
@@ -184838,7 +184840,7 @@ break_3:;
 #line 303 "emitter/lowerassert.byn"
     return l0_g;
 }
-#line 184842 "main.c"
+#line 184844 "main.c"
 
 int64_t byn_emitter__t5IsVariant(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_error, int64_t p_v) {
     int64_t l0_variant = {0};
@@ -184850,7 +184852,7 @@ int64_t byn_emitter__t5IsVariant(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan 
 #line 312 "emitter/lowerassert.byn"
     return byn_semantics__addBinary(&(*p_c), ((bynt_semantics__BBinary){p_span, ((byn_parser_BinaryOp)17), t1, l0_variant, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 184854 "main.c"
+#line 184856 "main.c"
 
 void byn_emitter__assertFails(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s, int64_t p_set) {
     int64_t l0_a = {0};
@@ -185065,7 +185067,7 @@ break_3:;
 #line 378 "emitter/lowerassert.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){l1_span, t33, byn_emitter__block(&(*p_c), l1_span, l32_body), INT64_C(-1), false, false})));
 }
-#line 185069 "main.c"
+#line 185071 "main.c"
 
 void byn_emitter__shown(bynt_semantics__Ctx p_c, bynt_emitter__LCtx p_l, int64_t p_e, bool p_mayNotRun, bynt_list_i64* p_exprs, bynt_list_bool* p_mayNotRuns) {
     bool l0_literal = {0};
@@ -185183,7 +185185,7 @@ switch_end_1:;
     }
 break_2:;
 }
-#line 185187 "main.c"
+#line 185189 "main.c"
 
 bool byn_emitter__isLiteral(bynt_semantics__Ctx p_c, bynt_semantics__ExprSyntax p_syntax) {
 #line 443 "emitter/lowerassert.byn"
@@ -185211,7 +185213,7 @@ bool byn_emitter__isLiteral(bynt_semantics__Ctx p_c, bynt_semantics__ExprSyntax 
     return false;
 switch_end_1:;
 }
-#line 185215 "main.c"
+#line 185217 "main.c"
 
 int64_t byn_emitter__lowerCallParts(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -185351,7 +185353,7 @@ break_3:;
 #line 510 "emitter/lowerassert.byn"
     return byn_emitter__t5Copied(&(*p_c), p_e, l24_copy);
 }
-#line 185355 "main.c"
+#line 185357 "main.c"
 
 int64_t byn_emitter__lowerBuiltinCall(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -185596,7 +185598,7 @@ break_5:;
 #line 612 "emitter/lowerassert.byn"
     return l37_copy;
 }
-#line 185600 "main.c"
+#line 185602 "main.c"
 
 int64_t byn_emitter__lowerStable(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_place) {
     int64_t l0_i = {0};
@@ -185740,13 +185742,13 @@ int64_t byn_emitter__lowerStable(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
 #line 687 "emitter/lowerassert.byn"
     return ((byn_emitter__isTrivial((*p_c), (*p_l), p_place) || byn_emitter__isLvalue((*p_c), (*p_l), p_place)) ? p_place : byn_emitter__spill(&(*p_c), &(*p_l), p_place));
 }
-#line 185744 "main.c"
+#line 185746 "main.c"
 
 int64_t byn_emitter__lowerWrite(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_call, byn_emitter_ltree_WriteSink p_sink, int64_t p_target, int64_t p_text) {
 #line 700 "emitter/lowerassert.byn"
     return byn_emitter__lowerWriteParts(&(*p_c), &(*p_l), p_call, p_sink, p_target, p_text, INT64_C(-1));
 }
-#line 185750 "main.c"
+#line 185752 "main.c"
 
 int64_t byn_emitter__lowerWriteParts(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_call, byn_emitter_ltree_WriteSink p_sink, int64_t p_target, int64_t p_text, int64_t p_level) {
     int64_t l0_ti = {0};
@@ -185910,7 +185912,7 @@ break_5:;
 #line 776 "emitter/lowerassert.byn"
     return byn_emitter_ltree__addLVoid(&(*p_l).tree, ((bynt_emitter_ltree__LVoid){l1_span}));
 }
-#line 185914 "main.c"
+#line 185916 "main.c"
 
 int64_t byn_emitter__lowerSwitchExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_si = {0};
@@ -186029,7 +186031,7 @@ break_1:;
 #line 847 "emitter/lowerassert.byn"
     return byn_emitter__localExpr(&(*p_c), l1_span, l5_result);
 }
-#line 186033 "main.c"
+#line 186035 "main.c"
 
 int64_t byn_emitter__lowerTryFrom(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_ti = {0};
@@ -186143,7 +186145,7 @@ int64_t byn_emitter__lowerTryFrom(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* 
 #line 936 "emitter/lowerassert.byn"
     return byn_emitter__lowerExpr(&(*p_c), &(*p_l), byn_semantics__addConditional(&(*p_c), ((bynt_semantics__BConditional){l1_span, l7_fits, l20_some, l21_none, l3_type})));
 }
-#line 186147 "main.c"
+#line 186149 "main.c"
 
 int64_t byn_emitter__lowerExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_value = {0};
@@ -186181,7 +186183,7 @@ int64_t byn_emitter__lowerExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l
 #line 58 "emitter/lowerexpr.byn"
     return l0_value;
 }
-#line 186185 "main.c"
+#line 186187 "main.c"
 
 int64_t byn_emitter__t4Keep(bynt_semantics__Ctx* p_c, int64_t p_e, int64_t p_copy) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -186196,7 +186198,7 @@ int64_t byn_emitter__t4Keep(bynt_semantics__Ctx* p_c, int64_t p_e, int64_t p_cop
 #line 66 "emitter/lowerexpr.byn"
     return p_copy;
 }
-#line 186200 "main.c"
+#line 186202 "main.c"
 
 bynt_list_i64 byn_emitter__t4Copy(bynt_list_i64 p_xs) {
     bynt_list_i64 l0_r = {0};
@@ -186228,7 +186230,7 @@ break_1:;
 #line 75 "emitter/lowerexpr.byn"
     return l0_r;
 }
-#line 186232 "main.c"
+#line 186234 "main.c"
 
 int64_t byn_emitter__t4Never(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     bynt_lexer__TextSpan t0 = {0};
@@ -186237,7 +186239,7 @@ int64_t byn_emitter__t4Never(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 80 "emitter/lowerexpr.byn"
     return byn_emitter_ltree__addLNever(&(*p_l).tree, ((bynt_emitter_ltree__LNever){t0, byn_emitter__t2Type((*p_c), (*p_l), p_e)}));
 }
-#line 186241 "main.c"
+#line 186243 "main.c"
 
 int64_t byn_emitter__lowerExprNode(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -187072,7 +187074,7 @@ int64_t byn_emitter__lowerExprNode(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx*
     }
 switch_end_1:;
 }
-#line 187076 "main.c"
+#line 187078 "main.c"
 
 byn_str byn_emitter__t4TypeName(int64_t p_e) {
     byn_emitter_ltree_LKind t0 = {0};
@@ -187265,13 +187267,13 @@ byn_str byn_emitter__t4TypeName(int64_t p_e) {
     return byn_strbuf_str(t3);
 switch_end_2:;
 }
-#line 187269 "main.c"
+#line 187271 "main.c"
 
 bool byn_emitter__mutantSwitch(bynt_emitter__LCtx p_l, int64_t p_node) {
 #line 586 "emitter/lowerexpr.byn"
     return ((p_l.mutating && (!bynh_has_map_i64_bool(p_l.plain, p_node))) && bynh_has_map_i64_emitter__BoundMutantSwitch(p_l.mutants, p_node));
 }
-#line 187275 "main.c"
+#line 187277 "main.c"
 
 int64_t byn_emitter__mutantExpr(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_key) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -187532,7 +187534,7 @@ break_11:;
 #line 674 "emitter/lowerexpr.byn"
     return l26_target;
 }
-#line 187536 "main.c"
+#line 187538 "main.c"
 
 void byn_emitter__mutantStatement(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_key) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -187628,7 +187630,7 @@ break_3:;
 #line 713 "emitter/lowerexpr.byn"
     l15__ = bynh_remove_map_i64_bool(&(*p_l).plain, l1_original);
 }
-#line 187632 "main.c"
+#line 187634 "main.c"
 
 int64_t byn_emitter__branchProbe(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_whenTrue = {0};
@@ -187666,7 +187668,7 @@ int64_t byn_emitter__branchProbe(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
 #line 736 "emitter/lowerexpr.byn"
     return l5_probe;
 }
-#line 187670 "main.c"
+#line 187672 "main.c"
 
 int64_t byn_emitter__t10Outcome(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_id, bool p_outcome) {
     bynt_list_i64 l0_effects = {0};
@@ -187677,7 +187679,7 @@ int64_t byn_emitter__t10Outcome(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_
 #line 743 "emitter/lowerexpr.byn"
     return byn_emitter_ltree__addLSequence(&(*p_l).tree, ((bynt_emitter_ltree__LSequence){p_span, l0_effects, byn_emitter__boolLiteral(&(*p_c), p_span, p_outcome)}));
 }
-#line 187681 "main.c"
+#line 187683 "main.c"
 
 void byn_emitter__countError(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_origin, int64_t p_error) {
     bynt_lexer__TextSpan l0_syntax = {0};
@@ -187762,7 +187764,7 @@ break_1:;
     }
 break_3:;
 }
-#line 187766 "main.c"
+#line 187768 "main.c"
 
 int64_t byn_emitter__lowerShortCircuit(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -187819,7 +187821,7 @@ int64_t byn_emitter__lowerShortCircuit(bynt_semantics__Ctx* p_c, bynt_emitter__L
 #line 837 "emitter/lowerexpr.byn"
     return byn_emitter__localExpr(&(*p_c), l1_span, l5_t);
 }
-#line 187823 "main.c"
+#line 187825 "main.c"
 
 int64_t byn_emitter__lowerConditional(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -187935,7 +187937,7 @@ break_3:;
 #line 903 "emitter/lowerexpr.byn"
     return l9_target;
 }
-#line 187939 "main.c"
+#line 187941 "main.c"
 
 int64_t byn_emitter__lowerCoalesce(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188038,7 +188040,7 @@ break_1:;
 #line 955 "emitter/lowerexpr.byn"
     return l12_target;
 }
-#line 188042 "main.c"
+#line 188044 "main.c"
 
 int64_t byn_emitter__lowerCollection(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188240,7 +188242,7 @@ int64_t byn_emitter__lowerCollection(bynt_semantics__Ctx* p_c, bynt_emitter__LCt
     return byn_emitter__t4Keep(&(*p_c), p_e, byn_semantics__addCollection(&(*p_c), ((bynt_semantics__BCollection){l1_span, l2_type, l28_elements})));
 switch_end_1:;
 }
-#line 188244 "main.c"
+#line 188246 "main.c"
 
 bool byn_emitter__t4AnySpread(bynt_semantics__Ctx p_c, bynt_list_i64 p_elements) {
     int64_t l0_x = {0};
@@ -188272,7 +188274,7 @@ break_1:;
 #line 1124 "emitter/lowerexpr.byn"
     return false;
 }
-#line 188276 "main.c"
+#line 188278 "main.c"
 
 bool byn_emitter__lowerExpanded(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_list_i64 p_elements, bynt_list_i64* p_values) {
     int64_t l0_element = {0};
@@ -188352,7 +188354,7 @@ break_1:;
 #line 1156 "emitter/lowerexpr.byn"
     return true;
 }
-#line 188356 "main.c"
+#line 188358 "main.c"
 
 void byn_emitter__lowerAddEach(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_spread, int64_t p_source, int64_t p_list, bynt_lexer__TextSpan p_outer) {
     int64_t l0_s = {0};
@@ -188448,7 +188450,7 @@ switch_end_1:;
 #line 1266 "emitter/lowerexpr.byn"
     (void)byn_emitter__emit(&(*p_l), byn_emitter_ltree__addLLabel(&(*p_l).tree, ((bynt_emitter_ltree__LLabel){l1_span, l6_done})));
 }
-#line 188452 "main.c"
+#line 188454 "main.c"
 
 int64_t byn_emitter__lowerSlice(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188527,7 +188529,7 @@ int64_t byn_emitter__lowerSlice(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_
 #line 1314 "emitter/lowerexpr.byn"
     return byn_emitter__t4Keep(&(*p_c), p_e, l13_n);
 }
-#line 188531 "main.c"
+#line 188533 "main.c"
 
 int64_t byn_emitter__lowerCall(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188616,7 +188618,7 @@ switch_end_1:;
 #line 1369 "emitter/lowerexpr.byn"
     return l5_lowered;
 }
-#line 188620 "main.c"
+#line 188622 "main.c"
 
 bynt_opt_tup2_i64_i64 byn_emitter__lowerFailingCall(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_operand) {
     int64_t l0_i = {0};
@@ -188685,7 +188687,7 @@ bynt_opt_tup2_i64_i64 byn_emitter__lowerFailingCall(bynt_semantics__Ctx* p_c, by
 #line 1427 "emitter/lowerexpr.byn"
     return ((bynt_opt_tup2_i64_i64){true, ((bynt_tup2_i64_i64){l10_error, byn_emitter__localExpr(&(*p_c), l1_span, l12_result)})});
 }
-#line 188689 "main.c"
+#line 188691 "main.c"
 
 int64_t byn_emitter__lowerFailed(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_error) {
     int64_t l0_code = {0};
@@ -188697,7 +188699,7 @@ int64_t byn_emitter__lowerFailed(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
 #line 1444 "emitter/lowerexpr.byn"
     return byn_semantics__addBinary(&(*p_c), ((bynt_semantics__BBinary){p_span, ((byn_parser_BinaryOp)18), l0_code, l1_zero, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 188701 "main.c"
+#line 188703 "main.c"
 
 bynt_list_i64 byn_emitter__lowerPropagate(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_error, int64_t p_origin) {
 #line 1454 "emitter/lowerexpr.byn"
@@ -188711,7 +188713,7 @@ bynt_list_i64 byn_emitter__lowerPropagate(bynt_semantics__Ctx* p_c, bynt_emitter
 #line 1464 "emitter/lowerexpr.byn"
     return byn_emitter__captureEnd(&(*p_l));
 }
-#line 188715 "main.c"
+#line 188717 "main.c"
 
 int64_t byn_emitter__lowerTry(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188746,7 +188748,7 @@ int64_t byn_emitter__lowerTry(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l,
 #line 1486 "emitter/lowerexpr.byn"
     return l2_r.item2;
 }
-#line 188750 "main.c"
+#line 188752 "main.c"
 
 int64_t byn_emitter__lowerCatch(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -188858,7 +188860,7 @@ int64_t byn_emitter__lowerCatch(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_
 #line 1564 "emitter/lowerexpr.byn"
     return l2_r.item2;
 }
-#line 188862 "main.c"
+#line 188864 "main.c"
 
 int64_t byn_emitter__lowerMatch(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_pattern, int64_t p_subject) {
     int64_t l0_value = {0};
@@ -189200,7 +189202,7 @@ int64_t byn_emitter__lowerMatch(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_
     }
 switch_end_1:;
 }
-#line 189204 "main.c"
+#line 189206 "main.c"
 
 int64_t byn_emitter__t4Inner(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_value) {
     int64_t l0_inner = {0};
@@ -189209,7 +189211,7 @@ int64_t byn_emitter__t4Inner(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 224 "emitter/lowerpat.byn"
     return byn_emitter_ltree__addLOptionalValue(&(*p_l).tree, ((bynt_emitter_ltree__LOptionalValue){p_span, p_value, l0_inner}));
 }
-#line 189213 "main.c"
+#line 189215 "main.c"
 
 int64_t byn_emitter__t4Bind(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_local, int64_t p_value) {
     bynt_list_i64 l0_effects = {0};
@@ -189223,7 +189225,7 @@ int64_t byn_emitter__t4Bind(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, b
 #line 237 "emitter/lowerpat.byn"
     return byn_emitter_ltree__addLSequence(&(*p_l).tree, ((bynt_emitter_ltree__LSequence){p_span, l0_effects, l1_yes}));
 }
-#line 189227 "main.c"
+#line 189229 "main.c"
 
 int64_t byn_emitter__t4All(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx p_l, bynt_list_i64 p_tests) {
     int64_t l0_all = {0};
@@ -189252,7 +189254,7 @@ break_1:;
 #line 248 "emitter/lowerpat.byn"
     return l0_all;
 }
-#line 189256 "main.c"
+#line 189258 "main.c"
 
 void byn_emitter__lowerClaim(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_p) {
     int64_t l0_i = {0};
@@ -189420,7 +189422,7 @@ void byn_emitter__lowerClaim(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
     goto switch_end_1;
 switch_end_1:;
 }
-#line 189424 "main.c"
+#line 189426 "main.c"
 
 int64_t byn_emitter__lowerStep(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_receiver, bynt_semantics__BMemberStep p_step) {
     int64_t l0_p = {0};
@@ -189445,13 +189447,13 @@ int64_t byn_emitter__lowerStep(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_
 #line 327 "emitter/lowerpat.byn"
     return byn_semantics__addTupleElement(&(*p_c), ((bynt_semantics__BTupleElement){p_span, p_receiver, p_step.tupleIndex, p_step.type}));
 }
-#line 189449 "main.c"
+#line 189451 "main.c"
 
 int64_t byn_emitter__lowerEqual(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_a, int64_t p_b) {
 #line 335 "emitter/lowerpat.byn"
     return byn_semantics__addBinary(&(*p_c), ((bynt_semantics__BBinary){p_span, ((byn_parser_BinaryOp)17), p_a, p_b, byn_semantics__prim(((byn_semantics_PrimitiveKind)12))}));
 }
-#line 189455 "main.c"
+#line 189457 "main.c"
 
 void byn_emitter__lowerStatement(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -189757,7 +189759,7 @@ void byn_emitter__lowerStatement(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
     }
 switch_end_1:;
 }
-#line 189761 "main.c"
+#line 189763 "main.c"
 
 void byn_emitter__lowerProvide(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -189816,7 +189818,7 @@ break_1:;
 #line 167 "emitter/lowerstmt.byn"
     (void)bynh_remove_through_list_emitter__LScope(&(*p_l).scopes, byn_sub_i64((*p_l).scopes.len, INT64_C(1), byn_file_80, 167), 0, 2, byn_file_80, 167);
 }
-#line 189820 "main.c"
+#line 189822 "main.c"
 
 void byn_emitter__lowerAssign(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -190032,7 +190034,7 @@ void byn_emitter__lowerAssign(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l,
 #line 294 "emitter/lowerstmt.byn"
     (void)byn_emitter__emitAssign(&(*p_c), &(*p_l), l9_target, l36_combined);
 }
-#line 190036 "main.c"
+#line 190038 "main.c"
 
 void byn_emitter__lowerReturn(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -190081,7 +190083,7 @@ void byn_emitter__lowerReturn(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l,
 #line 316 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_emitter_ltree__addLReturn(&(*p_l).tree, ((bynt_emitter_ltree__LReturn){l1_span, l3_value})));
 }
-#line 190085 "main.c"
+#line 190087 "main.c"
 
 bool byn_emitter__t3IsPlainValue(bynt_semantics__Ctx p_c, int64_t p_value) {
     byn_semantics_BoundKind t0 = {0};
@@ -190110,7 +190112,7 @@ bool byn_emitter__t3IsPlainValue(bynt_semantics__Ctx p_c, int64_t p_value) {
     return false;
 switch_end_1:;
 }
-#line 190114 "main.c"
+#line 190116 "main.c"
 
 bool byn_emitter__t3AnyCleanups(bynt_emitter__LCtx p_l) {
     bynt_emitter__LScope l0_scope = {0};
@@ -190142,7 +190144,7 @@ break_1:;
 #line 334 "emitter/lowerstmt.byn"
     return false;
 }
-#line 190146 "main.c"
+#line 190148 "main.c"
 
 void byn_emitter__lowerIf(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -190227,7 +190229,7 @@ void byn_emitter__lowerIf(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int
 #line 391 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){l1_span, l5_condition, l13_thenBlock, l14_elseBlock, false, false})));
 }
-#line 190231 "main.c"
+#line 190233 "main.c"
 
 bynt_tup2_str_str byn_emitter__enterLoop(bynt_emitter__LCtx* p_l, int64_t p_target) {
     byn_str l0_brk = {0};
@@ -190244,7 +190246,7 @@ bynt_tup2_str_str byn_emitter__enterLoop(bynt_emitter__LCtx* p_l, int64_t p_targ
 #line 405 "emitter/lowerstmt.byn"
     return ((bynt_tup2_str_str){l0_brk, l1_cont});
 }
-#line 190248 "main.c"
+#line 190250 "main.c"
 
 void byn_emitter__t3GotoIf(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_condition, byn_str p_label) {
     bynt_list_i64 l0_jump = {0};
@@ -190258,7 +190260,7 @@ void byn_emitter__t3GotoIf(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, by
 #line 413 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_semantics__addIf(&(*p_c), ((bynt_semantics__BIf){p_span, p_condition, l1_then, INT64_C(-1), false, false})));
 }
-#line 190262 "main.c"
+#line 190264 "main.c"
 
 void byn_emitter__t3GotoIfNot(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, int64_t p_condition, byn_str p_label) {
     int64_t l0_negated = {0};
@@ -190267,13 +190269,13 @@ void byn_emitter__t3GotoIfNot(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l,
 #line 419 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3GotoIf(&(*p_c), &(*p_l), p_span, l0_negated, p_label);
 }
-#line 190271 "main.c"
+#line 190273 "main.c"
 
 void byn_emitter__t3Label(bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, byn_str p_name) {
 #line 424 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_emitter_ltree__addLLabel(&(*p_l).tree, ((bynt_emitter_ltree__LLabel){p_span, p_name})));
 }
-#line 190277 "main.c"
+#line 190279 "main.c"
 
 void byn_emitter__t3Loop(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt_lexer__TextSpan p_span, bynt_list_i64 p_body) {
     int64_t l0_loopBody = {0};
@@ -190282,7 +190284,7 @@ void byn_emitter__t3Loop(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, bynt
 #line 430 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_emitter_ltree__addLLoop(&(*p_l).tree, ((bynt_emitter_ltree__LLoop){p_span, l0_loopBody})));
 }
-#line 190286 "main.c"
+#line 190288 "main.c"
 
 void byn_emitter__exitUnless(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_condition, byn_str p_label) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -190299,7 +190301,7 @@ void byn_emitter__exitUnless(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 438 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3GotoIfNot(&(*p_c), &(*p_l), l0_span, l1_lowered, p_label);
 }
-#line 190303 "main.c"
+#line 190305 "main.c"
 
 void byn_emitter__lowerWhile(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -190333,7 +190335,7 @@ void byn_emitter__lowerWhile(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 454 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3Label(&(*p_l), l1_span, l4_labels.item1);
 }
-#line 190337 "main.c"
+#line 190339 "main.c"
 
 void byn_emitter__lowerDoWhile(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_i = {0};
@@ -190367,7 +190369,7 @@ void byn_emitter__lowerDoWhile(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l
 #line 470 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3Label(&(*p_l), l1_span, l4_labels.item1);
 }
-#line 190371 "main.c"
+#line 190373 "main.c"
 
 void byn_emitter__lowerFor(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_fi = {0};
@@ -190823,7 +190825,7 @@ switch_end_1:;
 #line 758 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3Label(&(*p_l), l1_span, l83_labels.item1);
 }
-#line 190827 "main.c"
+#line 190829 "main.c"
 
 int64_t byn_emitter__t3Witness(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_subject, int64_t p_function, int64_t p_field, bynt_list_i64 p_arguments) {
 #line 770 "emitter/lowerstmt.byn"
@@ -190834,7 +190836,7 @@ int64_t byn_emitter__t3Witness(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_
 #line 774 "emitter/lowerstmt.byn"
     return byn_semantics__addCall(&(*p_c), ((bynt_semantics__BCall){p_span, p_function, p_subject, p_arguments, (*bynh_at_list_semantics__FunctionSymbol((*p_c).functions, (int64_t)p_function, false, byn_file_80, 781)).returnType}));
 }
-#line 190838 "main.c"
+#line 190840 "main.c"
 
 void byn_emitter__lowerUserFor(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s, int64_t p_variable, bynt_semantics__UserIteration p_user) {
     int64_t l0_fi = {0};
@@ -191010,7 +191012,7 @@ void byn_emitter__lowerUserFor(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l
 #line 873 "emitter/lowerstmt.byn"
     (void)byn_emitter__t3Label(&(*p_l), l1_span, l29_labels.item1);
 }
-#line 191014 "main.c"
+#line 191016 "main.c"
 
 int64_t byn_emitter__forItem(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s, int64_t p_item) {
     int64_t l0_fi = {0};
@@ -191055,7 +191057,7 @@ int64_t byn_emitter__forItem(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, 
 #line 901 "emitter/lowerstmt.byn"
     return byn_emitter__lowerExpr(&(*p_c), &(*p_l), l7_conversion);
 }
-#line 191059 "main.c"
+#line 191061 "main.c"
 
 int64_t byn_emitter__oneLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type) {
     int64_t l0_e = {0};
@@ -191066,7 +191068,7 @@ int64_t byn_emitter__oneLiteral(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p
 #line 911 "emitter/lowerstmt.byn"
     return l0_e;
 }
-#line 191070 "main.c"
+#line 191072 "main.c"
 
 void byn_emitter__lowerSwitch(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_s) {
     int64_t l0_si = {0};
@@ -191259,7 +191261,7 @@ break_1:;
 #line 973 "emitter/lowerstmt.byn"
     (void)byn_emitter__emit(&(*p_l), byn_emitter_ltree__addLLabel(&(*p_l).tree, ((bynt_emitter_ltree__LLabel){l1_span, l4_end})));
 }
-#line 191263 "main.c"
+#line 191265 "main.c"
 
 int64_t byn_emitter__lowerLvalue(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -191370,7 +191372,7 @@ int64_t byn_emitter__lowerLvalue(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p
     return byn_emitter__spill(&(*p_c), &(*p_l), byn_emitter__lowerExpr(&(*p_c), &(*p_l), p_e));
 switch_end_1:;
 }
-#line 191374 "main.c"
+#line 191376 "main.c"
 
 bool byn_emitter__isLvalueShape(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_l, int64_t p_e) {
     int64_t l0_i = {0};
@@ -191419,7 +191421,7 @@ bool byn_emitter__isLvalueShape(bynt_semantics__Ctx* p_c, bynt_emitter__LCtx* p_
     return false;
 switch_end_1:;
 }
-#line 191423 "main.c"
+#line 191425 "main.c"
 
 int32_t byn_emitter__usage(void) {
 #line 34 "emitter/main.byn"
@@ -191427,7 +191429,7 @@ int32_t byn_emitter__usage(void) {
 #line 37 "emitter/main.byn"
     return ((int32_t)2);
 }
-#line 191431 "main.c"
+#line 191433 "main.c"
 
 byn_str byn_emitter__t12Emit(bynt_semantics__Ctx* p_c, byn_str p_mode) {
     bynt_emitter__LCtx l0_l = {0};
@@ -191439,7 +191441,7 @@ byn_str byn_emitter__t12Emit(bynt_semantics__Ctx* p_c, byn_str p_mode) {
 #line 44 "emitter/main.byn"
     return byn_emitter_cprint__emit(&(*p_c), l0_l.tree, l1_program, byn_str_eq(p_mode, BYN_STR("debug", 5)));
 }
-#line 191443 "main.c"
+#line 191445 "main.c"
 
 byn_str byn_emitter__t10Emit(bynt_semantics__Ctx* p_c, byn_str p_mode, bool p_covering, bool p_mutating) {
     bynt_emitter__LCtx l0_l = {0};
@@ -191497,7 +191499,7 @@ byn_str byn_emitter__t10Emit(bynt_semantics__Ctx* p_c, byn_str p_mode, bool p_co
 #line 68 "emitter/main.byn"
     return byn_emitter_cprint__emit(&(*p_c), l0_l.tree, l9_program, byn_str_eq(p_mode, BYN_STR("debug", 5)));
 }
-#line 191501 "main.c"
+#line 191503 "main.c"
 
 bool byn_emitter__t12HasErrors(bynt_semantics__Ctx p_c) {
     bynt_semantics__Diag l0_d = {0};
@@ -191529,7 +191531,7 @@ break_1:;
 #line 75 "emitter/main.byn"
     return false;
 }
-#line 191533 "main.c"
+#line 191535 "main.c"
 
 bynt_semantics__Ctx byn_emitter__t12Compile(byn_str p_dir, bynt_list_u8 p_bytes, byn_str p_file, bool p_tests) {
     bynt_list_lexer__SourceText l0_sources = {0};
@@ -191543,7 +191545,7 @@ bynt_semantics__Ctx byn_emitter__t12Compile(byn_str p_dir, bynt_list_u8 p_bytes,
 #line 83 "emitter/main.byn"
     return byn_semantics__create(l0_sources, p_dir, l1_options, ((bynt_opt_str){0}));
 }
-#line 191547 "main.c"
+#line 191549 "main.c"
 
 int32_t byn_emitter__t12Finish(bynt_semantics__Ctx* p_c, bynt_semantics__T26Options p_o, bynt_semantics__T26Symbols p_symbols, byn_str p_mode, bool p_tests, bool p_covering, bool p_mutating) {
     bynt_list_semantics__T26Reported l0_reported = {0};
@@ -191574,7 +191576,7 @@ int32_t byn_emitter__t12Finish(bynt_semantics__Ctx* p_c, bynt_semantics__T26Opti
 #line 105 "emitter/main.byn"
     return ((int32_t)0);
 }
-#line 191578 "main.c"
+#line 191580 "main.c"
 
 int32_t byn_emitter__t12Package(byn_str p_dir, byn_str p_file, bool p_tests, byn_str p_mode, bynt_semantics__T26Symbols p_symbols, bool p_covering, bool p_mutating) {
     bynt_list_u8 l0_bytes = {0};
@@ -191615,7 +191617,7 @@ int32_t byn_emitter__t12Package(byn_str p_dir, byn_str p_file, bool p_tests, byn
 #line 123 "emitter/main.byn"
     return byn_emitter__t12Finish(&l5_c, l6_o, p_symbols, p_mode, p_tests, p_covering, p_mutating);
 }
-#line 191619 "main.c"
+#line 191621 "main.c"
 
 int32_t byn_emitter__t12Many(byn_str p_dir, byn_str p_mode, bynt_semantics__T26Symbols p_symbols) {
     bynt_list_str l0_names = {0};
@@ -191700,7 +191702,7 @@ break_1:;
 #line 140 "emitter/main.byn"
     return ((int32_t)0);
 }
-#line 191704 "main.c"
+#line 191706 "main.c"
 
 int32_t byn_emitter__t12Timed(byn_str p_path, byn_str p_mode, bool p_ascii) {
     bynt_semantics__T26Symbols l0_symbols = {0};
@@ -191790,7 +191792,7 @@ int32_t byn_emitter__t12Timed(byn_str p_path, byn_str p_mode, bool p_ascii) {
 #line 163 "emitter/main.byn"
     return ((int32_t)0);
 }
-#line 191794 "main.c"
+#line 191796 "main.c"
 
 int32_t byn_emitter__main(bynt_span_str p_args) {
     bool l0_ascii = {0};
@@ -192100,7 +192102,7 @@ break_1:;
 #line 264 "emitter/main.byn"
     return ((int32_t)0);
 }
-#line 192104 "main.c"
+#line 192106 "main.c"
 
 bynt_emitter__PowerAssertLine byn_emitter__powerAssertLine(byn_str p_text, int64_t p_start, bool p_first) {
     int64_t l0_end = {0};
@@ -192175,7 +192177,7 @@ bynt_emitter__PowerAssertLine byn_emitter__powerAssertLine(byn_str p_text, int64
 #line 50 "emitter/powerassert.byn"
     return ((bynt_emitter__PowerAssertLine){l5_from, l6_until, l1_next});
 }
-#line 192179 "main.c"
+#line 192181 "main.c"
 
 byn_str byn_emitter__powerAssertFlatten(byn_str p_text) {
     byn_writer l0_sb = {0};
@@ -192229,7 +192231,7 @@ break_1:;
 #line 70 "emitter/powerassert.byn"
     return byn_strbuf_str(t4);
 }
-#line 192233 "main.c"
+#line 192235 "main.c"
 
 int64_t byn_emitter__powerAssertColumn(byn_str p_before) {
     int64_t l0_count = {0};
@@ -192279,7 +192281,7 @@ break_1:;
 #line 90 "emitter/powerassert.byn"
     return l0_count;
 }
-#line 192283 "main.c"
+#line 192285 "main.c"
 
 void byn_emitter__powerAssertAdd(bynt_list_i64 p_columns, bynt_list_bool p_always, bynt_list_emitter__PowerAssertPiece* p_pieces, byn_str p_text, int64_t p_value, bynt_list_i64 p_whens, bynt_list_i64 p_unlesses, int64_t p_anyFrom) {
     int64_t l0_from = {0};
@@ -192379,13 +192381,13 @@ break_5:;
 #line 125 "emitter/powerassert.byn"
     (void)bynh_add_list_emitter__PowerAssertPiece(&(*p_pieces), ((bynt_emitter__PowerAssertPiece){p_text, p_value, l4_kept, l8_noneShown, l0_from}));
 }
-#line 192383 "main.c"
+#line 192385 "main.c"
 
 byn_str byn_emitter__powerAssertGap(bynt_list_i64 p_columns, int64_t p_k) {
 #line 132 "emitter/powerassert.byn"
     return byn_str_repeated(BYN_STR(" ", 1), byn_sub_i64((*bynh_at_list_i64(p_columns, (int64_t)p_k, false, byn_file_82, 132)), ((p_k == INT64_C(0)) ? INT64_C(0) : byn_add_i64((*bynh_at_list_i64(p_columns, (int64_t)byn_sub_i64(p_k, INT64_C(1), byn_file_82, 132), false, byn_file_82, 132)), INT64_C(1), byn_file_82, 132)), byn_file_82, 132), byn_context, byn_file_82, 132);
 }
-#line 192389 "main.c"
+#line 192391 "main.c"
 
 bynt_list_emitter__PowerAssertPiece byn_emitter__powerAssertDiagram(bynt_list_i64 p_columns, bynt_list_bool p_always) {
     bynt_list_emitter__PowerAssertPiece l0_pieces = {0};
@@ -192556,7 +192558,7 @@ break_3:;
 #line 217 "emitter/powerassert.byn"
     return l0_pieces;
 }
-#line 192560 "main.c"
+#line 192562 "main.c"
 
 bynt_list_str byn_emitter__mutatorOperators(void) {
     bynt_list_str l0_ops = {0};
@@ -192587,7 +192589,7 @@ bynt_list_str byn_emitter__mutatorOperators(void) {
 #line 36 "emitter/schemata.byn"
     return l0_ops;
 }
-#line 192591 "main.c"
+#line 192593 "main.c"
 
 bynt_emitter__Mutations byn_emitter__find(bynt_semantics__Ctx* p_c, bynt_list_str p_skipFiles) {
     bynt_emitter__MutatorWalker l0_w = {0};
@@ -192713,7 +192715,7 @@ break_3:;
 #line 114 "emitter/schemata.byn"
     return ((bynt_emitter__Mutations){t16, t17});
 }
-#line 192717 "main.c"
+#line 192719 "main.c"
 
 void byn_emitter__mutatorFunction(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_fn, int64_t p_file) {
     bynt_lexer__SourceText t0 = {0};
@@ -192796,7 +192798,7 @@ break_3:;
 #line 157 "emitter/schemata.byn"
     (void)byn_emitter__mutatorVisit(&(*p_c), &(*p_w), l3_body, INT64_C(-1));
 }
-#line 192800 "main.c"
+#line 192802 "main.c"
 
 int64_t byn_emitter__t10IndexLiteral(bynt_semantics__Ctx p_c, int64_t p_index) {
     int64_t l0_operand = {0};
@@ -192818,7 +192820,7 @@ int64_t byn_emitter__t10IndexLiteral(bynt_semantics__Ctx p_c, int64_t p_index) {
 #line 167 "emitter/schemata.byn"
     return INT64_C(-1);
 }
-#line 192822 "main.c"
+#line 192824 "main.c"
 
 void byn_emitter__mutatorVisit(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_node, int64_t p_parent) {
     byn_semantics_BoundKind l0_kind = {0};
@@ -193165,7 +193167,7 @@ switch_end_1:;
     }
 break_10:;
 }
-#line 193169 "main.c"
+#line 193171 "main.c"
 
 bool byn_emitter__t10AssignsUninitialized(bynt_semantics__Ctx p_c, bynt_emitter__MutatorWalker p_w, int64_t p_call) {
     int64_t l0_ci = {0};
@@ -193216,7 +193218,7 @@ break_1:;
 #line 301 "emitter/schemata.byn"
     return false;
 }
-#line 193220 "main.c"
+#line 193222 "main.c"
 
 void byn_emitter__mutatorOnBinary(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_b, bynt_semantics__ExprSyntax p_be) {
     int64_t l0_i = {0};
@@ -193303,7 +193305,7 @@ void byn_emitter__mutatorOnBinary(bynt_semantics__Ctx* p_c, bynt_emitter__Mutato
         }
     }
 }
-#line 193307 "main.c"
+#line 193309 "main.c"
 
 bynt_opt_semantics__Big byn_emitter__t10IntegerConstant(bynt_semantics__Ctx p_c, int64_t p_e) {
     bynt_opt_semantics__Constant t0 = {0};
@@ -193321,7 +193323,7 @@ bynt_opt_semantics__Big byn_emitter__t10IntegerConstant(bynt_semantics__Ctx p_c,
 #line 354 "emitter/schemata.byn"
     return ((bynt_opt_semantics__Big){0});
 }
-#line 193325 "main.c"
+#line 193327 "main.c"
 
 bool byn_emitter__t10HasIs(bynt_semantics__Ctx p_c, int64_t p_n) {
     int64_t l0_d = {0};
@@ -193353,7 +193355,7 @@ break_1:;
 #line 362 "emitter/schemata.byn"
     return false;
 }
-#line 193357 "main.c"
+#line 193359 "main.c"
 
 void byn_emitter__mutatorChangeOp(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, byn_str p_op, int64_t p_b, bynt_semantics__ExprSyntax p_be, byn_parser_BinaryOp p_to) {
     int64_t l0_i = {0};
@@ -193407,7 +193409,7 @@ void byn_emitter__mutatorChangeOp(bynt_semantics__Ctx* p_c, bynt_emitter__Mutato
 #line 385 "emitter/schemata.byn"
     (void)byn_emitter__mutatorAdd(&(*p_w), p_op, p_be.span, l6_mutated, p_b, l12_replacement);
 }
-#line 193411 "main.c"
+#line 193413 "main.c"
 
 void byn_emitter__mutatorOnLiteral(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_l, int64_t p_parent) {
     int64_t l0_i = {0};
@@ -193578,7 +193580,7 @@ void byn_emitter__mutatorOnLiteral(bynt_semantics__Ctx* p_c, bynt_emitter__Mutat
     }
 break_1:;
 }
-#line 193582 "main.c"
+#line 193584 "main.c"
 
 bool byn_emitter__mutatorFoldsInParent(bynt_semantics__Ctx p_c, int64_t p_l, bynt_semantics__Big p_value, int64_t p_parent, int64_t p_type) {
     bynt_semantics__BBinary l0_b = {0};
@@ -193615,7 +193617,7 @@ bool byn_emitter__mutatorFoldsInParent(bynt_semantics__Ctx p_c, int64_t p_l, byn
 #line 480 "emitter/schemata.byn"
     return ((l0_b.left == p_l) ? byn_emitter__mutatorFolds(l0_b.op, p_value, l2_o, p_type) : byn_emitter__mutatorFolds(l0_b.op, l2_o, p_value, p_type));
 }
-#line 193619 "main.c"
+#line 193621 "main.c"
 
 bool byn_emitter__mutatorInBounds(bynt_emitter__MutatorWalker p_w, int64_t p_l, bynt_semantics__Big p_value) {
     bynt_emitter__ArrayIndex l0_a = {0};
@@ -193645,7 +193647,7 @@ bool byn_emitter__mutatorInBounds(bynt_emitter__MutatorWalker p_w, int64_t p_l, 
 #line 495 "emitter/schemata.byn"
     return (((byn_semantics__bigCmp(l4_effective, l5_zero) >= ((int32_t)0)) && (byn_semantics__bigCmp(l4_effective, l3_length) < ((int32_t)0))) && (!(l0_a.fromEnd && (byn_semantics__bigCmp(p_value, l5_zero) == ((int32_t)0)))));
 }
-#line 193649 "main.c"
+#line 193651 "main.c"
 
 void byn_emitter__mutatorOnAssign(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_a) {
     int64_t l0_i = {0};
@@ -193788,7 +193790,7 @@ void byn_emitter__mutatorOnAssign(bynt_semantics__Ctx* p_c, bynt_emitter__Mutato
 #line 528 "emitter/schemata.byn"
     (void)byn_emitter__mutatorAdd(&(*p_w), BYN_STR("arithmetic", 10), l5_s.span, l19_mutated, p_a, l25_replacement);
 }
-#line 193792 "main.c"
+#line 193794 "main.c"
 
 void byn_emitter__mutatorRemove(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_s) {
     int64_t l0_replacement = {0};
@@ -193797,7 +193799,7 @@ void byn_emitter__mutatorRemove(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorW
 #line 534 "emitter/schemata.byn"
     (void)byn_emitter__mutatorAdd(&(*p_w), BYN_STR("statement", 9), byn_emitter__t10SyntaxSpan((*p_c), p_s), BYN_STR("", 0), p_s, l0_replacement);
 }
-#line 193801 "main.c"
+#line 193803 "main.c"
 
 void byn_emitter__mutatorOnReturn(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_value, bynt_lexer__TextSpan p_syntax) {
     int64_t l0_type = {0};
@@ -193833,7 +193835,7 @@ void byn_emitter__mutatorOnReturn(bynt_semantics__Ctx* p_c, bynt_emitter__Mutato
 #line 551 "emitter/schemata.byn"
     (void)byn_emitter__mutatorAdd(&(*p_w), BYN_STR("emptyReturn", 11), p_syntax, l1_empty, p_value, l5_replacement);
 }
-#line 193837 "main.c"
+#line 193839 "main.c"
 
 bynt_opt_str byn_emitter__mutatorEmptyText(int64_t p_t) {
 #line 556 "emitter/schemata.byn"
@@ -193864,7 +193866,7 @@ bynt_opt_str byn_emitter__mutatorEmptyText(int64_t p_t) {
 #line 561 "emitter/schemata.byn"
     return ((bynt_opt_str){0});
 }
-#line 193868 "main.c"
+#line 193870 "main.c"
 
 void byn_emitter__mutatorOnFail(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_f) {
     int64_t l0_error = {0};
@@ -193990,7 +193992,7 @@ void byn_emitter__mutatorOnFail(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorW
     }
 break_1:;
 }
-#line 193994 "main.c"
+#line 193996 "main.c"
 
 bool byn_emitter__t10SameFields(bynt_semantics__Ctx p_c, int64_t p_a, int64_t p_b) {
     int64_t t0 = {0};
@@ -194030,7 +194032,7 @@ break_1:;
 #line 606 "emitter/schemata.byn"
     return true;
 }
-#line 194034 "main.c"
+#line 194036 "main.c"
 
 bool byn_emitter__t10Has(bynt_list_i64 p_xs, int64_t p_x) {
     int64_t l0_y = {0};
@@ -194062,7 +194064,7 @@ break_1:;
 #line 614 "emitter/schemata.byn"
     return false;
 }
-#line 194066 "main.c"
+#line 194068 "main.c"
 
 void byn_emitter__mutatorOnCondition(bynt_semantics__Ctx* p_c, bynt_emitter__MutatorWalker* p_w, int64_t p_cond, bool p_loop) {
     bool l0_constantTrue = {0};
@@ -194114,7 +194116,7 @@ void byn_emitter__mutatorOnCondition(bynt_semantics__Ctx* p_c, bynt_emitter__Mut
 #line 639 "emitter/schemata.byn"
     (void)byn_emitter__mutatorAdd(&(*p_w), BYN_STR("condition", 9), l5_span, byn_strbuf_str(t8), p_cond, l6_replacement);
 }
-#line 194118 "main.c"
+#line 194120 "main.c"
 
 void byn_emitter__mutatorAdd(bynt_emitter__MutatorWalker* p_w, byn_str p_op, bynt_lexer__TextSpan p_span, byn_str p_mutated, int64_t p_original, int64_t p_replacement) {
     bynt_tup2_i64_i64 l0_pos = {0};
@@ -194123,7 +194125,7 @@ void byn_emitter__mutatorAdd(bynt_emitter__MutatorWalker* p_w, byn_str p_op, byn
 #line 659 "emitter/schemata.byn"
     (void)bynh_add_list_emitter__MutationSite(&(*p_w).sites, ((bynt_emitter__MutationSite){(*p_w).source.path, l0_pos.item1, l0_pos.item2, p_op, byn_lexer__SourceText__getText(&(*p_w).source, p_span), p_mutated, (*p_w).fn, p_original, p_replacement}));
 }
-#line 194127 "main.c"
+#line 194129 "main.c"
 
 int64_t byn_emitter__mutatorConstant(bynt_semantics__Ctx* p_c, bynt_lexer__TextSpan p_span, int64_t p_type, bynt_semantics__Constant p_value) {
     int64_t l0_n = {0};
@@ -194134,7 +194136,7 @@ int64_t byn_emitter__mutatorConstant(bynt_semantics__Ctx* p_c, bynt_lexer__TextS
 #line 671 "emitter/schemata.byn"
     return l0_n;
 }
-#line 194138 "main.c"
+#line 194140 "main.c"
 
 byn_str byn_emitter__mutatorOpText(byn_parser_BinaryOp p_op) {
 #line 677 "emitter/schemata.byn"
@@ -194239,7 +194241,7 @@ byn_str byn_emitter__mutatorOpText(byn_parser_BinaryOp p_op) {
     }
 switch_end_1:;
 }
-#line 194243 "main.c"
+#line 194245 "main.c"
 
 bool byn_emitter__mutatorFits(bynt_semantics__Big p_n, int64_t p_t) {
     int64_t l0_bits = {0};
@@ -194256,7 +194258,7 @@ bool byn_emitter__mutatorFits(bynt_semantics__Big p_n, int64_t p_t) {
 #line 702 "emitter/schemata.byn"
     return ((byn_semantics__bigCmp(p_n, byn_emitter__t10Big(INT64_C(0))) >= ((int32_t)0)) && (byn_semantics__bigCmp(p_n, byn_emitter__t10BigPow2(l0_bits)) < ((int32_t)0)));
 }
-#line 194260 "main.c"
+#line 194262 "main.c"
 
 bool byn_emitter__mutatorFolds(byn_parser_BinaryOp p_op, bynt_semantics__Big p_l, bynt_semantics__Big p_r, int64_t p_t) {
     bynt_semantics__Big l0_zero = {0};
@@ -194324,7 +194326,7 @@ switch_end_1:;
 #line 718 "emitter/schemata.byn"
     return byn_emitter__mutatorFits(l1_result, p_t);
 }
-#line 194328 "main.c"
+#line 194330 "main.c"
 
 bynt_semantics__Big byn_emitter__t10Big(int64_t p_v) {
     uint64_t l0_hi = {0};
@@ -194333,19 +194335,19 @@ bynt_semantics__Big byn_emitter__t10Big(int64_t p_v) {
 #line 726 "emitter/schemata.byn"
     return ((bynt_semantics__Big){((p_v >= INT64_C(0)) ? byn_cast_u64_i((int64_t)p_v, byn_file_83, 726) : ((uint64_t)~byn_cast_u64_i((int64_t)byn_neg_i64(byn_add_i64(p_v, INT64_C(1), byn_file_83, 726), byn_file_83, 726), byn_file_83, 726))), l0_hi});
 }
-#line 194337 "main.c"
+#line 194339 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigPow2(int64_t p_k) {
 #line 730 "emitter/schemata.byn"
     return ((p_k < INT64_C(64)) ? ((bynt_semantics__Big){byn_shl_u64(UINT64_C(1), (int64_t)(byn_cast_u64_i((int64_t)p_k, byn_file_83, 730))), UINT64_C(0)}) : ((bynt_semantics__Big){UINT64_C(0), UINT64_C(1)}));
 }
-#line 194343 "main.c"
+#line 194345 "main.c"
 
 bool byn_emitter__t10BigIsNeg(bynt_semantics__Big p_a) {
 #line 732 "emitter/schemata.byn"
     return (!(((uint64_t)(p_a.hi & UINT64_C(9223372036854775808))) == UINT64_C(0)));
 }
-#line 194349 "main.c"
+#line 194351 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigAdd(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     uint64_t l0_lo = {0};
@@ -194357,19 +194359,19 @@ bynt_semantics__Big byn_emitter__t10BigAdd(bynt_semantics__Big p_a, bynt_semanti
 #line 737 "emitter/schemata.byn"
     return ((bynt_semantics__Big){l0_lo, byn_addw_u64(byn_addw_u64(p_a.hi, p_b.hi), l1_carry)});
 }
-#line 194361 "main.c"
+#line 194363 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigNeg(bynt_semantics__Big p_a) {
 #line 740 "emitter/schemata.byn"
     return byn_emitter__t10BigAdd(((bynt_semantics__Big){((uint64_t)~p_a.lo), ((uint64_t)~p_a.hi)}), byn_emitter__t10Big(INT64_C(1)));
 }
-#line 194367 "main.c"
+#line 194369 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigSub(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
 #line 742 "emitter/schemata.byn"
     return byn_emitter__t10BigAdd(p_a, byn_emitter__t10BigNeg(p_b));
 }
-#line 194373 "main.c"
+#line 194375 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigMulU64(uint64_t p_x, uint64_t p_y) {
     uint64_t l0_x0 = {0};
@@ -194402,7 +194404,7 @@ bynt_semantics__Big byn_emitter__t10BigMulU64(uint64_t p_x, uint64_t p_y) {
 #line 755 "emitter/schemata.byn"
     return ((bynt_semantics__Big){((uint64_t)(((uint64_t)(l4_p00 & UINT64_C(4294967295))) | byn_shl_u64(((uint64_t)(l8_mid & UINT64_C(4294967295))), (int64_t)(((int32_t)32))))), byn_addw_u64(byn_addw_u64(byn_addw_u64(l7_p11, byn_shr_u64(l5_p01, (int64_t)(((int32_t)32)))), byn_shr_u64(l6_p10, (int64_t)(((int32_t)32)))), byn_shr_u64(l8_mid, (int64_t)(((int32_t)32))))});
 }
-#line 194406 "main.c"
+#line 194408 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigMul(bynt_semantics__Big p_a, bynt_semantics__Big p_b) {
     bynt_semantics__Big l0_low = {0};
@@ -194411,7 +194413,7 @@ bynt_semantics__Big byn_emitter__t10BigMul(bynt_semantics__Big p_a, bynt_semanti
 #line 764 "emitter/schemata.byn"
     return ((bynt_semantics__Big){l0_low.lo, byn_addw_u64(byn_addw_u64(l0_low.hi, byn_mulw_u64(p_a.lo, p_b.hi)), byn_mulw_u64(p_a.hi, p_b.lo))});
 }
-#line 194415 "main.c"
+#line 194417 "main.c"
 
 bynt_semantics__Big byn_emitter__t10BigDiv(bynt_semantics__Big p_a, bynt_semantics__Big p_b, bool p_remainder) {
     bool l0_na = {0};
@@ -194485,7 +194487,7 @@ break_1:;
 #line 791 "emitter/schemata.byn"
     return ((!(l0_na == l1_nb)) ? byn_emitter__t10BigNeg(l4_q) : l4_q);
 }
-#line 194489 "main.c"
+#line 194491 "main.c"
 
 int64_t byn_emitter__t10IndexOf(byn_str p_text, byn_str p_needle) {
     bynt_span_u8 l0_t = {0};
@@ -194551,7 +194553,7 @@ break_1:;
 #line 812 "emitter/schemata.byn"
     return INT64_C(-1);
 }
-#line 194555 "main.c"
+#line 194557 "main.c"
 
 int64_t byn_emitter__t10LastIndexOf(byn_str p_text, byn_str p_needle, int64_t p_start) {
     bynt_span_u8 l0_t = {0};
@@ -194620,7 +194622,7 @@ break_1:;
 #line 834 "emitter/schemata.byn"
     return INT64_C(-1);
 }
-#line 194624 "main.c"
+#line 194626 "main.c"
 
 byn_str byn_emitter__sitesPath(byn_str p_binary) {
     byn_writer t0 = {0};
@@ -194637,7 +194639,7 @@ byn_str byn_emitter__sitesPath(byn_str p_binary) {
 #line 840 "emitter/schemata.byn"
     return byn_strbuf_str(t0);
 }
-#line 194641 "main.c"
+#line 194643 "main.c"
 
 byn_str byn_emitter__sitesJson(bynt_emitter__Schema p_s) {
     byn_writer l0_sb = {0};
@@ -194745,7 +194747,7 @@ break_1:;
 #line 868 "emitter/schemata.byn"
     return byn_strbuf_str(t8);
 }
-#line 194749 "main.c"
+#line 194751 "main.c"
 
 byn_str byn_emitter__t10Json(byn_str p_s) {
     byn_writer l0_sb = {0};
@@ -194866,7 +194868,7 @@ break_1:;
 #line 904 "emitter/schemata.byn"
     return byn_strbuf_str(t9);
 }
-#line 194870 "main.c"
+#line 194872 "main.c"
 
 bynt_emitter__Schema byn_emitter__buildSchema(bynt_semantics__Ctx* p_c, bynt_list_str p_skipFiles) {
     bynt_emitter__Mutations l0_found = {0};
@@ -195137,7 +195139,7 @@ break_5:;
 #line 978 "emitter/schemata.byn"
     return ((bynt_emitter__Schema){l3_sites, l1_notEmitted, l22_switches});
 }
-#line 195141 "main.c"
+#line 195143 "main.c"
 
 bynt_opt_str byn_emitter__schemataMarkOf(bynt_semantics__Ctx p_c, bynt_emitter__MutationSite p_site) {
     int64_t l0_file = {0};
@@ -195206,7 +195208,7 @@ break_1:;
 #line 986 "emitter/schemata.byn"
     byn_arena_free(l1_arena);
 }
-#line 195210 "main.c"
+#line 195212 "main.c"
 
 bool byn_emitter__schemataRebinds(bynt_semantics__Ctx p_c, bynt_emitter__MutationSite p_site) {
     int64_t l0_file = {0};
@@ -195407,7 +195409,7 @@ break_9:;
 #line 1005 "emitter/schemata.byn"
     byn_arena_free(l1_arena);
 }
-#line 195411 "main.c"
+#line 195413 "main.c"
 
 int64_t byn_emitter__schemataOffset(bynt_lexer__SourceText* p_source, int64_t p_line, int64_t p_column) {
     int64_t l0_offset = {0};
@@ -195451,7 +195453,7 @@ break_1:;
 #line 1053 "emitter/schemata.byn"
     return l0_offset;
 }
-#line 195455 "main.c"
+#line 195457 "main.c"
 
 int64_t byn_emitter__schemataTransfer(bynt_semantics__Ctx* p_c, bynt_emitter__MutationSite p_site, int64_t p_node) {
     byn_semantics_BoundKind l0_kind = {0};
@@ -195550,13 +195552,13 @@ int64_t byn_emitter__schemataTransfer(bynt_semantics__Ctx* p_c, bynt_emitter__Mu
 #line 1137 "emitter/schemata.byn"
     return INT64_C(-1);
 }
-#line 195554 "main.c"
+#line 195556 "main.c"
 
 bool byn_std_json__isDigit(uint8_t p_b) {
 #line 366 "<std>/json/reader.byn"
     return ((p_b >= ((uint8_t)48)) && (p_b <= ((uint8_t)57)));
 }
-#line 195560 "main.c"
+#line 195562 "main.c"
 
 byn_err byn_std_json__treeOf(bynt_std_json__JsonReader* p_reader, byn_std_json_JsonToken p_first, byn_std_json_JsonValue* byn_out) {
     bynt_list_std_json__JsonValue l0_items = {0};
@@ -195743,7 +195745,7 @@ byn_err byn_std_json__treeOf(bynt_std_json__JsonReader* p_reader, byn_std_json_J
     (void)byn_panic_str(BYN_STR("std.json: a reader starts a value with a value token", 52), byn_file_85, 69);
 switch_end_1:;
 }
-#line 195747 "main.c"
+#line 195749 "main.c"
 
 byn_err byn_std_json__encodeInto(byn_writer* p_sb, byn_std_json_JsonValue p_v, int64_t p_indent, int64_t p_level) {
     bool l0_value = {0};
@@ -195907,7 +195909,7 @@ byn_err byn_std_json__encodeInto(byn_writer* p_sb, byn_std_json_JsonValue p_v, i
 switch_end_1:;
     return (byn_err){0};
 }
-#line 195911 "main.c"
+#line 195913 "main.c"
 
 byn_err byn_std_json__numberInto(byn_writer* p_sb, double p_value, byn_str p_text) {
     byn_err t0 = {0};
@@ -195934,7 +195936,7 @@ byn_err byn_std_json__numberInto(byn_writer* p_sb, double p_value, byn_str p_tex
     }
     return (byn_err){0};
 }
-#line 195938 "main.c"
+#line 195940 "main.c"
 
 bool byn_std_json__isNumberText(byn_str p_text) {
     bynt_std_json__JsonReader l0_reader = {0};
@@ -195967,7 +195969,7 @@ bool byn_std_json__isNumberText(byn_str p_text) {
 #line 126 "<std>/json/value.byn"
     return t6;
 }
-#line 195971 "main.c"
+#line 195973 "main.c"
 
 void byn_std_json__separate(byn_writer* p_sb, int64_t p_indent, int64_t p_level, bool p_first) {
 #line 131 "<std>/json/value.byn"
@@ -195978,7 +195980,7 @@ void byn_std_json__separate(byn_writer* p_sb, int64_t p_indent, int64_t p_level,
 #line 134 "<std>/json/value.byn"
     (void)byn_std_json__newline(&(*p_sb), p_indent, p_level);
 }
-#line 195982 "main.c"
+#line 195984 "main.c"
 
 void byn_std_json__newline(byn_writer* p_sb, int64_t p_indent, int64_t p_level) {
 #line 138 "<std>/json/value.byn"
@@ -195991,7 +195993,7 @@ void byn_std_json__newline(byn_writer* p_sb, int64_t p_indent, int64_t p_level) 
 #line 140 "<std>/json/value.byn"
     (void)bynh_strbuf_repeat(&(*p_sb), UINT32_C(32), byn_mul_i64(p_indent, p_level, byn_file_85, 140), byn_file_85, 140);
 }
-#line 195995 "main.c"
+#line 195997 "main.c"
 
 void byn_std_json__quoteInto(byn_writer* p_sb, byn_str p_s) {
     uint32_t l0_r = {0};
@@ -196087,7 +196089,7 @@ break_1:;
 #line 173 "<std>/json/value.byn"
     (void)byn_w_str(&(*p_sb), BYN_STR("\042", 1));
 }
-#line 196091 "main.c"
+#line 196093 "main.c"
 
 void byn_std_json__unitInto(byn_writer* p_sb, uint32_t p_unit) {
     byn_str l0_digits = {0};
@@ -196100,13 +196102,13 @@ void byn_std_json__unitInto(byn_writer* p_sb, uint32_t p_unit) {
 #line 180 "<std>/json/value.byn"
     (void)byn_w_str(&(*p_sb), l0_digits);
 }
-#line 196104 "main.c"
+#line 196106 "main.c"
 
 bynt_std_json__JsonReader byn_std_json__JsonReader__over(byn_str p_text) {
 #line 59 "<std>/json/reader.byn"
     return ((bynt_std_json__JsonReader){p_text, INT64_C(0), INT64_C(1), INT64_C(0), ((byn_std_json_ReadState){.tag = 0}), ((bynt_list_bool){NULL, 0, 0, byn_context})});
 }
-#line 196110 "main.c"
+#line 196112 "main.c"
 
 byn_err byn_std_json__JsonReader__next(bynt_std_json__JsonReader* self, bynt_opt_std_json__JsonToken* byn_out) {
     byn_err t0 = {0};
@@ -196274,13 +196276,13 @@ byn_err byn_std_json__JsonReader__next(bynt_std_json__JsonReader* self, bynt_opt
     *byn_out = ((bynt_opt_std_json__JsonToken){true, t16});
     return (byn_err){0};
 }
-#line 196278 "main.c"
+#line 196280 "main.c"
 
 uint8_t byn_std_json__JsonReader__peek(bynt_std_json__JsonReader* self) {
 #line 127 "<std>/json/reader.byn"
     return (((*self).pos < (*self).text.len) ? (*bynh_at_span_u8(bynh_str_bytes((*self).text), (int64_t)(*self).pos, false, byn_file_84, 127)) : ((uint8_t)0));
 }
-#line 196284 "main.c"
+#line 196286 "main.c"
 
 void byn_std_json__JsonReader__skipSpace(bynt_std_json__JsonReader* self) {
     uint8_t l0_b = {0};
@@ -196315,13 +196317,13 @@ void byn_std_json__JsonReader__skipSpace(bynt_std_json__JsonReader* self) {
     }
 break_1:;
 }
-#line 196319 "main.c"
+#line 196321 "main.c"
 
 int64_t byn_std_json__JsonReader__columnAt(bynt_std_json__JsonReader* self, int64_t p_at) {
 #line 143 "<std>/json/reader.byn"
     return byn_add_i64(byn_str_rune_count(bynh_slice_str((*self).text, (int64_t)(*self).lineStart, 0, (int64_t)p_at, 0, false, byn_file_84, 143)), INT64_C(1), byn_file_84, 143);
 }
-#line 196325 "main.c"
+#line 196327 "main.c"
 
 void byn_std_json__JsonReader__finishValue(bynt_std_json__JsonReader* self) {
     byn_std_json_ReadState t0 = {0};
@@ -196348,7 +196350,7 @@ void byn_std_json__JsonReader__finishValue(bynt_std_json__JsonReader* self) {
         }
     }
 }
-#line 196352 "main.c"
+#line 196354 "main.c"
 
 byn_std_json_JsonToken byn_std_json__JsonReader__close(bynt_std_json__JsonReader* self, byn_std_json_JsonToken p_token) {
     bool l0__ = {0};
@@ -196361,7 +196363,7 @@ byn_std_json_JsonToken byn_std_json__JsonReader__close(bynt_std_json__JsonReader
 #line 160 "<std>/json/reader.byn"
     return p_token;
 }
-#line 196365 "main.c"
+#line 196367 "main.c"
 
 byn_err byn_std_json__JsonReader__openContainer(bynt_std_json__JsonReader* self, bool p_object, byn_std_json_JsonToken* byn_out) {
     byn_err t0 = {0};
@@ -196385,7 +196387,7 @@ byn_err byn_std_json__JsonReader__openContainer(bynt_std_json__JsonReader* self,
     *byn_out = (p_object ? ((byn_std_json_JsonToken){.tag = 0}) : ((byn_std_json_JsonToken){.tag = 2}));
     return (byn_err){0};
 }
-#line 196389 "main.c"
+#line 196391 "main.c"
 
 byn_err byn_std_json__JsonReader__readValue(bynt_std_json__JsonReader* self, byn_std_json_JsonToken* byn_out) {
     uint8_t l0_b = {0};
@@ -196486,7 +196488,7 @@ byn_err byn_std_json__JsonReader__readValue(bynt_std_json__JsonReader* self, byn
 #line 193 "<std>/json/reader.byn"
     return t10;
 }
-#line 196490 "main.c"
+#line 196492 "main.c"
 
 bool byn_std_json__JsonReader__literal(bynt_std_json__JsonReader* self, byn_str p_word) {
     int64_t t0 = {0};
@@ -196505,7 +196507,7 @@ bool byn_std_json__JsonReader__literal(bynt_std_json__JsonReader* self, byn_str 
 #line 200 "<std>/json/reader.byn"
     return true;
 }
-#line 196509 "main.c"
+#line 196511 "main.c"
 
 byn_err byn_std_json__JsonReader__readNumber(bynt_std_json__JsonReader* self, byn_std_json_JsonToken* byn_out) {
     int64_t l0_start = {0};
@@ -196633,7 +196635,7 @@ byn_err byn_std_json__JsonReader__readNumber(bynt_std_json__JsonReader* self, by
     *byn_out = ((byn_std_json_JsonToken){.tag = 6, .u.number = {l6_value, l5_digits}});
     return (byn_err){0};
 }
-#line 196637 "main.c"
+#line 196639 "main.c"
 
 byn_err byn_std_json__JsonReader__readString(bynt_std_json__JsonReader* self, byn_str* byn_out) {
     int64_t l0_start = {0};
@@ -196855,7 +196857,7 @@ byn_err byn_std_json__JsonReader__readString(bynt_std_json__JsonReader* self, by
     }
 break_1:;
 }
-#line 196859 "main.c"
+#line 196861 "main.c"
 
 byn_err byn_std_json__JsonReader__hex4(bynt_std_json__JsonReader* self, int64_t p_escapeAt, uint32_t* byn_out) {
     uint32_t l0_value = {0};
@@ -196931,7 +196933,7 @@ break_1:;
     *byn_out = l0_value;
     return (byn_err){0};
 }
-#line 196935 "main.c"
+#line 196937 "main.c"
 
 byn_err byn_std_json__Json__parse(byn_str p_text, byn_std_json_JsonValue* byn_out) {
     bynt_std_json__JsonReader l0_reader = {0};
@@ -196986,7 +196988,7 @@ byn_err byn_std_json__Json__parse(byn_str p_text, byn_std_json_JsonValue* byn_ou
     *byn_out = l5_value;
     return (byn_err){0};
 }
-#line 196990 "main.c"
+#line 196992 "main.c"
 
 byn_err byn_std_json__Json__encode(byn_std_json_JsonValue p_v, int32_t p_indent, byn_str* byn_out) {
     byn_writer l0_sb = {0};
@@ -197014,7 +197016,7 @@ byn_err byn_std_json__Json__encode(byn_std_json_JsonValue p_v, int32_t p_indent,
     *byn_out = byn_strbuf_str(t2);
     return (byn_err){0};
 }
-#line 197018 "main.c"
+#line 197020 "main.c"
 
 byn_str byn_main__t6PaintWarning(bynt_main__DStyle p_style, byn_str p_text) {
     byn_writer t0 = {0};
@@ -197047,7 +197049,7 @@ byn_str byn_main__t6PaintWarning(bynt_main__DStyle p_style, byn_str p_text) {
 #line 28 "driver/audit.byn"
     return byn_strbuf_str(t1);
 }
-#line 197051 "main.c"
+#line 197053 "main.c"
 
 bool byn_main__t6DirectoryExists(byn_str p_path) {
     bynt_list_str l0__ = {0};
@@ -197080,7 +197082,7 @@ bool byn_main__t6DirectoryExists(byn_str p_path) {
 #line 37 "driver/audit.byn"
     return true;
 }
-#line 197084 "main.c"
+#line 197086 "main.c"
 
 int32_t byn_main__auditCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bynt_list_str l0_args = {0};
@@ -197374,7 +197376,7 @@ break_1:;
 #line 83 "driver/audit.byn"
     return l2_exit;
 }
-#line 197378 "main.c"
+#line 197380 "main.c"
 
 bynt_list_main__T6Bypass byn_main__t6Bypasses(bynt_lexer__LexResult* p_lexed) {
     bynt_list_main__T6Bypass l0_found = {0};
@@ -197456,7 +197458,7 @@ break_1:;
 #line 124 "driver/audit.byn"
     return l0_found;
 }
-#line 197460 "main.c"
+#line 197462 "main.c"
 
 bynt_main__T6Construct byn_main__t6Construct(bynt_lexer__LexResult* p_lexed, bynt_list_lexer__Token p_tokens, int64_t p_end) {
     int64_t l0_name = {0};
@@ -197534,7 +197536,7 @@ bynt_main__T6Construct byn_main__t6Construct(bynt_lexer__LexResult* p_lexed, byn
 #line 154 "driver/audit.byn"
     return ((bynt_main__T6Construct){l6_start, byn_lexer__SourceText__getText(&(*p_lexed).source, byn_lexer__TextSpan__fromBounds(l6_start, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token(p_tokens, (int64_t)p_end, false, byn_file_86, 156)))))});
 }
-#line 197538 "main.c"
+#line 197540 "main.c"
 
 bool byn_main__t5DirectoryExists(byn_str p_path) {
     bynt_list_str l0__ = {0};
@@ -197552,7 +197554,7 @@ bool byn_main__t5DirectoryExists(byn_str p_path) {
 #line 30 "driver/build.byn"
     return true;
 }
-#line 197556 "main.c"
+#line 197558 "main.c"
 
 bynt_opt_main__T5Options byn_main__t5ParseBuildOptions(bynt_list_str p_args, bool p_allowOutput, bool p_allowVerbose) {
     bynt_opt_str l0_path = {0};
@@ -197854,7 +197856,7 @@ break_1:;
 #line 115 "driver/build.byn"
     return ((bynt_opt_main__T5Options){true, ((bynt_main__T5Options){l30_p, l4_mode, l1_output, l8_emitC, l5_json, l9_programArgs, l2_target, l7_verbose, l6_all, l3_package})});
 }
-#line 197858 "main.c"
+#line 197860 "main.c"
 
 byn_str byn_main__t5Join(bynt_list_str p_xs) {
     byn_writer l0_sb = {0};
@@ -197901,13 +197903,13 @@ break_1:;
 #line 138 "driver/build.byn"
     return byn_strbuf_str(t4);
 }
-#line 197905 "main.c"
+#line 197907 "main.c"
 
 bynt_semantics__T26Options byn_main__t5T26(bynt_main__T5Options p_o) {
 #line 142 "driver/build.byn"
     return ((bynt_semantics__T26Options){p_o.path, p_o.json, p_o.all, false, p_o.target});
 }
-#line 197911 "main.c"
+#line 197913 "main.c"
 
 bool byn_main__t5HasErrors(bynt_semantics__Ctx p_c) {
     bynt_semantics__Diag l0_d = {0};
@@ -197939,7 +197941,7 @@ break_1:;
 #line 149 "driver/build.byn"
     return false;
 }
-#line 197943 "main.c"
+#line 197945 "main.c"
 
 bynt_list_str byn_main__t5ModuleFiles(byn_str p_dir, bool p_includeTests) {
     bynt_list_str l0_files = {0};
@@ -197989,7 +197991,7 @@ break_1:;
 #line 164 "driver/build.byn"
     return l0_files;
 }
-#line 197993 "main.c"
+#line 197995 "main.c"
 
 bynt_semantics__Ctx byn_main__t5Compile(bynt_main__T5Options p_o, bynt_semantics__T26Symbols p_symbols, bynt_list_semantics__T26Reported* p_reported, bool* p_ok, bool p_includeTests, bool p_ascii, int64_t p_width, bool p_isTty, bool p_styleLints) {
     bynt_main__DStyle l0_style = {0};
@@ -198127,13 +198129,13 @@ bynt_semantics__Ctx byn_main__t5Compile(bynt_main__T5Options p_o, bynt_semantics
 #line 240 "driver/build.byn"
     return l21_c;
 }
-#line 198131 "main.c"
+#line 198133 "main.c"
 
 byn_str byn_main__t5EmitC(bynt_semantics__Ctx* p_c, byn_str p_mode) {
 #line 244 "driver/build.byn"
     return byn_emitter__t12Emit(&(*p_c), p_mode);
 }
-#line 198137 "main.c"
+#line 198139 "main.c"
 
 bynt_opt_str byn_main__t5PrepareOut(bynt_semantics__Ctx p_compiled, byn_str p_mode, byn_str p_target, byn_str p_source) {
     byn_str l0_root = {0};
@@ -198174,7 +198176,7 @@ bynt_opt_str byn_main__t5PrepareOut(bynt_semantics__Ctx p_compiled, byn_str p_mo
 #line 259 "driver/build.byn"
     return ((bynt_opt_str){true, l1_dir});
 }
-#line 198178 "main.c"
+#line 198180 "main.c"
 
 void byn_main__t5WriteIfChanged(byn_str p_path, byn_str p_text) {
     byn_str l0_old = {0};
@@ -198201,7 +198203,7 @@ void byn_main__t5WriteIfChanged(byn_str p_path, byn_str p_text) {
         }
     }
 }
-#line 198205 "main.c"
+#line 198207 "main.c"
 
 byn_str byn_main__t5HostTarget(void) {
     bynt_opt_str t0 = {0};
@@ -198210,7 +198212,7 @@ byn_str byn_main__t5HostTarget(void) {
 #line 273 "driver/build.byn"
     return (t0.has ? t0.value : BYN_STR("host", 4));
 }
-#line 198214 "main.c"
+#line 198216 "main.c"
 
 int32_t byn_main__buildCommand(bynt_list_str p_kept, bynt_main__DCtx* p_d) {
     int64_t l0_clock = {0};
@@ -198490,7 +198492,7 @@ int32_t byn_main__buildCommand(bynt_list_str p_kept, bynt_main__DCtx* p_d) {
 #line 388 "driver/build.byn"
     return ((int32_t)0);
 }
-#line 198494 "main.c"
+#line 198496 "main.c"
 
 void byn_main__t5ReportToolchain(bynt_main__NativeBuild p_result, bool p_json, bynt_semantics__T26Symbols p_symbols) {
     bynt_semantics__Ctx l0_c = {0};
@@ -198511,7 +198513,7 @@ void byn_main__t5ReportToolchain(bynt_main__NativeBuild p_result, bool p_json, b
 #line 414 "driver/build.byn"
     (void)byn_semantics__t26Report(((bynt_semantics__T26Options){BYN_STR("", 0), true, false, false, ((bynt_opt_str){0})}), p_symbols, &l0_c, &l1_reported);
 }
-#line 198515 "main.c"
+#line 198517 "main.c"
 
 byn_str byn_main__t5Phase(byn_str p_name, byn_str p_value) {
     byn_writer l0_sb = {0};
@@ -198559,7 +198561,7 @@ break_1:;
 #line 426 "driver/build.byn"
     return byn_strbuf_str(t4);
 }
-#line 198563 "main.c"
+#line 198565 "main.c"
 
 int32_t byn_main__runProgram(bynt_list_str p_args, bynt_main__DCtx* p_d) {
     bynt_main__T5Options l0_o = {0};
@@ -198722,7 +198724,7 @@ int32_t byn_main__runProgram(bynt_list_str p_args, bynt_main__DCtx* p_d) {
 #line 494 "driver/build.byn"
     return byn_main__t5Start(l28_built.exe, l0_o.programArgs);
 }
-#line 198726 "main.c"
+#line 198728 "main.c"
 
 int32_t byn_main__t5Start(byn_str p_executable, bynt_list_str p_programArgs) {
     byn_process l0_r = {0};
@@ -198788,7 +198790,7 @@ int32_t byn_main__t5Start(byn_str p_executable, bynt_list_str p_programArgs) {
 #line 512 "driver/build.byn"
     return l0_r.exit_code;
 }
-#line 198792 "main.c"
+#line 198794 "main.c"
 
 byn_str byn_main__cacheDirectory(void) {
     byn_str l0_set = {0};
@@ -198835,13 +198837,13 @@ byn_str byn_main__cacheDirectory(void) {
 #line 24 "driver/cache.byn"
     return byn_path_combine(byn_path_combine(l3_home, BYN_STR(".cache", 6), byn_context), BYN_STR("bayan", 5), byn_context);
 }
-#line 198839 "main.c"
+#line 198841 "main.c"
 
 byn_str byn_main__cacheData(void) {
 #line 28 "driver/cache.byn"
     return byn_path_combine(byn_main__cacheDirectory(), BYN_STR("v1", 2), byn_context);
 }
-#line 198845 "main.c"
+#line 198847 "main.c"
 
 bool byn_main__t3DirectoryExists(byn_str p_path) {
     bynt_list_str l0__ = {0};
@@ -198859,7 +198861,7 @@ bool byn_main__t3DirectoryExists(byn_str p_path) {
 #line 33 "driver/cache.byn"
     return true;
 }
-#line 198863 "main.c"
+#line 198865 "main.c"
 
 bynt_list_str byn_main__t3Entries(byn_str p_dir) {
     bynt_list_str l0_names = {0};
@@ -198877,7 +198879,7 @@ bynt_list_str byn_main__t3Entries(byn_str p_dir) {
 #line 39 "driver/cache.byn"
     return l0_names;
 }
-#line 198881 "main.c"
+#line 198883 "main.c"
 
 bynt_main__CacheStats byn_main__cacheStats(void) {
     int64_t l0_programs = {0};
@@ -199022,7 +199024,7 @@ break_5:;
 #line 75 "driver/cache.byn"
     return ((bynt_main__CacheStats){byn_main__cacheDirectory(), l0_programs, l2_bytes, l1_scripts});
 }
-#line 199026 "main.c"
+#line 199028 "main.c"
 
 int32_t byn_main__cacheCommand(bynt_list_str p_kept) {
     bynt_main__CacheStats l0_s = {0};
@@ -199096,7 +199098,7 @@ int32_t byn_main__cacheCommand(bynt_list_str p_kept) {
 #line 90 "driver/cache.byn"
     return ((int32_t)0);
 }
-#line 199100 "main.c"
+#line 199102 "main.c"
 
 bool byn_main__t3Unlinked(byn_str p_path) {
     byn_err t0 = {0};
@@ -199110,7 +199112,7 @@ bool byn_main__t3Unlinked(byn_str p_path) {
 #line 96 "driver/cache.byn"
     return true;
 }
-#line 199114 "main.c"
+#line 199116 "main.c"
 
 void byn_main__t3RemoveEntry(byn_str p_path) {
     byn_err t0 = {0};
@@ -199155,7 +199157,7 @@ void byn_main__t3RemoveEntry(byn_str p_path) {
     switch_end_1:;
     }
 }
-#line 199159 "main.c"
+#line 199161 "main.c"
 
 void byn_main__t3RemoveTree(byn_str p_dir) {
     byn_str l0_name = {0};
@@ -199211,7 +199213,7 @@ break_1:;
     switch_end_3:;
     }
 }
-#line 199215 "main.c"
+#line 199217 "main.c"
 
 void byn_main__t3Remove(byn_str p_dir, byn_str p_name) {
     byn_writer t0 = {0};
@@ -199239,7 +199241,7 @@ void byn_main__t3Remove(byn_str p_dir, byn_str p_name) {
 #line 128 "driver/cache.byn"
     (void)byn_io_write(t1, byn_strbuf_str(t0));
 }
-#line 199243 "main.c"
+#line 199245 "main.c"
 
 int32_t byn_main__cleanCommand(bynt_list_str p_kept) {
     bynt_opt_str l0_path = {0};
@@ -199369,13 +199371,13 @@ break_1:;
 #line 167 "driver/cache.byn"
     return ((int32_t)0);
 }
-#line 199373 "main.c"
+#line 199375 "main.c"
 
 byn_str byn_main__t9Programs(void) {
 #line 179 "driver/cache.byn"
     return byn_path_combine(byn_main__cacheData(), BYN_STR("programs", 8), byn_context);
 }
-#line 199379 "main.c"
+#line 199381 "main.c"
 
 byn_str byn_main__t9Unique(bynt_main__DCtx* p_d) {
     byn_writer t0 = {0};
@@ -199405,7 +199407,7 @@ byn_str byn_main__t9Unique(bynt_main__DCtx* p_d) {
 #line 185 "driver/cache.byn"
     return byn_strbuf_str(t0);
 }
-#line 199409 "main.c"
+#line 199411 "main.c"
 
 void byn_main__tagCacheDirectory(bynt_main__DCtx* p_d) {
     byn_str l0_tag = {0};
@@ -199446,7 +199448,7 @@ void byn_main__tagCacheDirectory(bynt_main__DCtx* p_d) {
         }
     }
 }
-#line 199450 "main.c"
+#line 199452 "main.c"
 
 byn_err byn_main__t9WriteTag(byn_str p_tag, byn_str p_temp) {
     byn_err t0 = {0};
@@ -199475,31 +199477,31 @@ byn_err byn_main__t9WriteTag(byn_str p_tag, byn_str p_temp) {
     }
     return (byn_err){0};
 }
-#line 199479 "main.c"
+#line 199481 "main.c"
 
 byn_str byn_main__t9Scripts(void) {
 #line 207 "driver/cache.byn"
     return byn_path_combine(byn_main__cacheData(), BYN_STR("scripts", 7), byn_context);
 }
-#line 199485 "main.c"
+#line 199487 "main.c"
 
 byn_str byn_main__t9Staging(void) {
 #line 210 "driver/cache.byn"
     return byn_path_combine(byn_main__cacheData(), BYN_STR("tmp", 3), byn_context);
 }
-#line 199491 "main.c"
+#line 199493 "main.c"
 
 byn_str byn_main__t9ModeName(byn_str p_mode) {
 #line 213 "driver/cache.byn"
     return (byn_str_eq(p_mode, BYN_STR("debug", 5)) ? BYN_STR("Debug", 5) : (byn_str_eq(p_mode, BYN_STR("fast", 4)) ? BYN_STR("Fast", 4) : BYN_STR("Safe", 4)));
 }
-#line 199497 "main.c"
+#line 199499 "main.c"
 
 byn_str byn_main__t9Runtime(void) {
 #line 216 "driver/cache.byn"
     return byn_path_combine(byn_main__cacheData(), BYN_STR("runtime", 7), byn_context);
 }
-#line 199503 "main.c"
+#line 199505 "main.c"
 
 byn_str byn_main__t9CompilerIdentity(bynt_list_str p_compiler, bynt_main__DCtx* p_d) {
     byn_str l0_command = {0};
@@ -199522,7 +199524,7 @@ byn_str byn_main__t9CompilerIdentity(bynt_list_str p_compiler, bynt_main__DCtx* 
 #line 228 "driver/cache.byn"
     return (*p_d).identity;
 }
-#line 199526 "main.c"
+#line 199528 "main.c"
 
 byn_str byn_main__t9ComputeIdentity(bynt_list_str p_compiler) {
     byn_str l0_stamp = {0};
@@ -199648,7 +199650,7 @@ byn_str byn_main__t9ComputeIdentity(bynt_list_str p_compiler) {
 #line 257 "driver/cache.byn"
     return byn_strbuf_str(t15);
 }
-#line 199652 "main.c"
+#line 199654 "main.c"
 
 byn_str byn_main__t9CompilerStamp(bynt_list_str p_compiler) {
     bool l0_zig = {0};
@@ -199706,7 +199708,7 @@ break_1:;
 #line 279 "driver/cache.byn"
     return byn_strbuf_str(l1_sb);
 }
-#line 199710 "main.c"
+#line 199712 "main.c"
 
 byn_str byn_main__t9FileStamp(byn_str p_word) {
     bynt_opt_str l0_file = {0};
@@ -199758,7 +199760,7 @@ byn_str byn_main__t9FileStamp(byn_str p_word) {
 #line 301 "driver/cache.byn"
     return BYN_STR("", 0);
 }
-#line 199762 "main.c"
+#line 199764 "main.c"
 
 byn_str byn_main__t9Key(byn_str p_mode, bynt_opt_str p_target, bynt_list_str p_compiler, byn_str p_identity, bynt_list_str p_flags, byn_str p_cSource) {
     byn_writer l0_sb = {0};
@@ -199801,7 +199803,7 @@ byn_str byn_main__t9Key(byn_str p_mode, bynt_opt_str p_target, bynt_list_str p_c
 #line 332 "driver/cache.byn"
     return byn_main__t9Hash(byn_strbuf_str(l0_sb));
 }
-#line 199805 "main.c"
+#line 199807 "main.c"
 
 bynt_main__T9Built byn_main__t9Build(byn_str p_cSource, byn_str p_mode, bynt_opt_str p_output, bynt_opt_str p_target, bynt_main__DCtx* p_d) {
     bynt_main__T9Built l0_built = {0};
@@ -199847,7 +199849,7 @@ bynt_main__T9Built byn_main__t9Build(byn_str p_cSource, byn_str p_mode, bynt_opt
 #line 355 "driver/cache.byn"
     return l0_built;
 }
-#line 199851 "main.c"
+#line 199853 "main.c"
 
 byn_err byn_main__t9BuildCached(byn_str p_cSource, byn_str p_mode, bynt_opt_str p_output, bynt_opt_str p_target, bynt_main__DCtx* p_d, bynt_main__T9Built* byn_out) {
     bool l0_cross = {0};
@@ -199980,7 +199982,7 @@ byn_err byn_main__t9BuildCached(byn_str p_cSource, byn_str p_mode, bynt_opt_str 
     *byn_out = ((bynt_main__T9Built){l20_ok, l21_given, l10_hit, l9_key});
     return (byn_err){0};
 }
-#line 199984 "main.c"
+#line 199986 "main.c"
 
 byn_err byn_main__replaceFile(byn_str p_path, byn_str p_source, bynt_main__DCtx* p_d) {
     byn_str l0_temp = {0};
@@ -200056,7 +200058,7 @@ break_1:;
     (void)byn_main__t9DeleteFile(l0_temp);
     return (byn_err){0};
 }
-#line 200060 "main.c"
+#line 200062 "main.c"
 
 void byn_main__t9DeleteFile(byn_str p_path) {
     byn_err t0 = {0};
@@ -200071,7 +200073,7 @@ void byn_main__t9DeleteFile(byn_str p_path) {
         }
     }
 }
-#line 200075 "main.c"
+#line 200077 "main.c"
 
 byn_err byn_main__lookup(byn_str p_key, byn_str p_exeName, bynt_main__DCtx* p_d, bynt_opt_str* byn_out) {
     byn_err t0 = {0};
@@ -200087,7 +200089,7 @@ byn_err byn_main__lookup(byn_str p_key, byn_str p_exeName, bynt_main__DCtx* p_d,
     *byn_out = t1;
     return (byn_err){0};
 }
-#line 200091 "main.c"
+#line 200093 "main.c"
 
 byn_err byn_main__t9LookupRuntime(byn_str p_runtimeKey, bynt_main__DCtx* p_d, bynt_opt_str* byn_out) {
     byn_writer t0 = {0};
@@ -200117,7 +200119,7 @@ byn_err byn_main__t9LookupRuntime(byn_str p_runtimeKey, bynt_main__DCtx* p_d, by
     *byn_out = t3;
     return (byn_err){0};
 }
-#line 200121 "main.c"
+#line 200123 "main.c"
 
 byn_err byn_main__t9LookupEntry(byn_str p_dir, byn_str p_file, byn_str p_sumName, bynt_main__DCtx* p_d, bynt_opt_str* byn_out) {
     byn_str l0_exe = {0};
@@ -200167,7 +200169,7 @@ byn_err byn_main__t9LookupEntry(byn_str p_dir, byn_str p_file, byn_str p_sumName
     *byn_out = ((bynt_opt_str){0});
     return (byn_err){0};
 }
-#line 200171 "main.c"
+#line 200173 "main.c"
 
 bool byn_main__t9DirectoryExists(byn_str p_dir) {
     bynt_list_str l0__ = {0};
@@ -200207,7 +200209,7 @@ bool byn_main__t9DirectoryExists(byn_str p_dir) {
 #line 476 "driver/cache.byn"
     return true;
 }
-#line 200211 "main.c"
+#line 200213 "main.c"
 
 bynt_list_rune byn_main__t9Whitespace(void) {
     bynt_list_rune l0_ws = {0};
@@ -200269,7 +200271,7 @@ bynt_list_rune byn_main__t9Whitespace(void) {
 #line 486 "driver/cache.byn"
     return l0_ws;
 }
-#line 200273 "main.c"
+#line 200275 "main.c"
 
 byn_err byn_main__t9ReadTrimmed(byn_str p_path, byn_str* byn_out) {
     byn_str l0_text = {0};
@@ -200294,7 +200296,7 @@ byn_err byn_main__t9ReadTrimmed(byn_str p_path, byn_str* byn_out) {
     *byn_out = byn_str_copy(bynh_trimmed_by(l3_body, bynh_span_list_rune(l4_ws)), byn_context);
     return (byn_err){0};
 }
-#line 200298 "main.c"
+#line 200300 "main.c"
 
 byn_err byn_main__t9Intact(byn_str p_exe, byn_str p_sum, bool* byn_out) {
     byn_str l0_text = {0};
@@ -200377,7 +200379,7 @@ byn_err byn_main__t9Intact(byn_str p_exe, byn_str p_sum, bool* byn_out) {
     *byn_out = byn_str_eq(l0_text, l7_hash);
     return (byn_err){0};
 }
-#line 200381 "main.c"
+#line 200383 "main.c"
 
 byn_err byn_main__t9RuntimeObject(bynt_list_str p_compiler, bynt_list_str p_flags, byn_str p_identity, bynt_main__DCtx* p_d, bynt_main__T9Runtime* byn_out) {
     byn_writer l0_sb = {0};
@@ -200505,7 +200507,7 @@ byn_err byn_main__t9RuntimeObject(bynt_list_str p_compiler, bynt_list_str p_flag
     *byn_out = l10_result;
     return (byn_err){0};
 }
-#line 200509 "main.c"
+#line 200511 "main.c"
 
 byn_err byn_main__t9RuntimeIn(byn_str p_work, bynt_list_str p_compiler, bynt_list_str p_flags, byn_str p_rkey, bynt_main__DCtx* p_d, bynt_main__T9Runtime* byn_out) {
     byn_str t0 = {0};
@@ -200823,7 +200825,7 @@ break_6:;
     *byn_out = ((bynt_main__T9Runtime){((bynt_main__NativeBuild){true, BYN_STR("", 0), false}), byn_path_combine(byn_path_combine(byn_main__t9Runtime(), p_rkey, byn_context), BYN_STR("bayan-rt.o", 10), byn_context)});
     return (byn_err){0};
 }
-#line 200827 "main.c"
+#line 200829 "main.c"
 
 byn_err byn_main__t9Compile(bynt_list_str p_compiler, bynt_list_str p_flags, byn_str p_cSource, byn_str p_key, byn_str p_exeName, byn_str p_runtime, bool p_windows, bynt_main__DCtx* p_d, bynt_main__NativeBuild* byn_out) {
     byn_str l0_work = {0};
@@ -200904,7 +200906,7 @@ byn_err byn_main__t9Compile(bynt_list_str p_compiler, bynt_list_str p_flags, byn
     *byn_out = l4_result;
     return (byn_err){0};
 }
-#line 200908 "main.c"
+#line 200910 "main.c"
 
 byn_err byn_main__t9DiscardLeft(byn_str p_work, bynt_main__DCtx* p_d) {
     byn_err t0 = {0};
@@ -200920,7 +200922,7 @@ byn_err byn_main__t9DiscardLeft(byn_str p_work, bynt_main__DCtx* p_d) {
     }
     return (byn_err){0};
 }
-#line 200924 "main.c"
+#line 200926 "main.c"
 
 byn_err byn_main__t9CompileIn(byn_str p_work, bynt_list_str p_compiler, bynt_list_str p_flags, byn_str p_cSource, byn_str p_key, byn_str p_exeName, byn_str p_runtime, bool p_windows, bynt_main__DCtx* p_d, bynt_main__NativeBuild* byn_out) {
     byn_str t0 = {0};
@@ -201239,7 +201241,7 @@ break_6:;
     *byn_out = ((bynt_main__NativeBuild){true, BYN_STR("", 0), false});
     return (byn_err){0};
 }
-#line 201243 "main.c"
+#line 201245 "main.c"
 
 byn_err byn_main__t9MoveDirectory(byn_str p_dir, byn_str p_dest) {
     byn_err t0 = {0};
@@ -201260,7 +201262,7 @@ byn_err byn_main__t9MoveDirectory(byn_str p_dir, byn_str p_dest) {
     }
     return (byn_err){0};
 }
-#line 201264 "main.c"
+#line 201266 "main.c"
 
 void byn_main__touch(byn_str p_dir) {
     byn_err t0 = {0};
@@ -201272,7 +201274,7 @@ void byn_main__touch(byn_str p_dir) {
         return;
     }
 }
-#line 201276 "main.c"
+#line 201278 "main.c"
 
 void byn_main__evict(byn_str p_keep, bynt_main__DCtx* p_d) {
     int64_t l0_mb = {0};
@@ -201292,7 +201294,7 @@ void byn_main__evict(byn_str p_keep, bynt_main__DCtx* p_d) {
 #line 737 "driver/cache.byn"
     (void)byn_main__evictWith(p_keep, byn_mulw_i64(l0_mb, INT64_C(1048576)), INT64_C(4000), INT64_C(600000000000), &(*p_d));
 }
-#line 201296 "main.c"
+#line 201298 "main.c"
 
 bynt_opt_i64 byn_main__t9Digits(byn_str p_text, int64_t p_max) {
     int64_t l0_value = {0};
@@ -201345,7 +201347,7 @@ break_1:;
 #line 751 "driver/cache.byn"
     return ((bynt_opt_i64){true, l0_value});
 }
-#line 201349 "main.c"
+#line 201351 "main.c"
 
 void byn_main__evictWith(byn_str p_keep, int64_t p_maxBytes, int64_t p_maxEntries, int64_t p_minAgeNanos, bynt_main__DCtx* p_d) {
     byn_err t0 = {0};
@@ -201357,7 +201359,7 @@ void byn_main__evictWith(byn_str p_keep, int64_t p_maxBytes, int64_t p_maxEntrie
         return;
     }
 }
-#line 201361 "main.c"
+#line 201363 "main.c"
 
 byn_err byn_main__t9Evict(byn_str p_keep, int64_t p_maxBytes, int64_t p_maxEntries, int64_t p_minAgeNanos, bynt_main__DCtx* p_d) {
     byn_str l0_programs = {0};
@@ -201741,7 +201743,7 @@ break_13:;
 break_15:;
     return (byn_err){0};
 }
-#line 201745 "main.c"
+#line 201747 "main.c"
 
 void byn_main__sweepOnce(bynt_main__DCtx* p_d) {
 #line 842 "driver/cache.byn"
@@ -201754,7 +201756,7 @@ void byn_main__sweepOnce(bynt_main__DCtx* p_d) {
 #line 844 "driver/cache.byn"
     (void)byn_main__sweepStale(byn_main__t9TempPath(), INT64_C(3600000000000));
 }
-#line 201758 "main.c"
+#line 201760 "main.c"
 
 byn_str byn_main__t9TempPath(void) {
     byn_str l0_tmp = {0};
@@ -201796,7 +201798,7 @@ byn_str byn_main__t9TempPath(void) {
 #line 858 "driver/cache.byn"
     return ((l5_set.len > INT64_C(0)) ? l5_set : BYN_STR("/tmp/", 5));
 }
-#line 201800 "main.c"
+#line 201802 "main.c"
 
 int64_t byn_main__t9CompileTimeout(void) {
     int64_t l0_seconds = {0};
@@ -201811,7 +201813,7 @@ int64_t byn_main__t9CompileTimeout(void) {
 #line 864 "driver/cache.byn"
     return ((l0_seconds > INT64_C(0)) ? byn_mul_i64(l0_seconds, INT64_C(1000000000), byn_file_88, 864) : INT64_C(600000000000));
 }
-#line 201815 "main.c"
+#line 201817 "main.c"
 
 void byn_main__sweepStale(byn_str p_tempRoot, int64_t p_ageNanos) {
     int64_t l0_now = {0};
@@ -201975,7 +201977,7 @@ break_5:;
     }
 break_7:;
 }
-#line 201979 "main.c"
+#line 201981 "main.c"
 
 byn_err byn_main__t9DeleteTree(byn_str p_dir) {
     bynt_list_str l0_names = {0};
@@ -202049,7 +202051,7 @@ break_1:;
     }
     return (byn_err){0};
 }
-#line 202053 "main.c"
+#line 202055 "main.c"
 
 byn_err byn_main__discard(byn_str p_dir, bynt_main__DCtx* p_d) {
     byn_err t0 = {0};
@@ -202092,7 +202094,7 @@ byn_err byn_main__discard(byn_str p_dir, bynt_main__DCtx* p_d) {
     }
     return (byn_err){0};
 }
-#line 202096 "main.c"
+#line 202098 "main.c"
 
 byn_err byn_main__t9MoveAndDelete(byn_str p_dir, bynt_main__DCtx* p_d) {
     byn_str l0_trash = {0};
@@ -202152,7 +202154,7 @@ byn_err byn_main__t9MoveAndDelete(byn_str p_dir, bynt_main__DCtx* p_d) {
     }
     return (byn_err){0};
 }
-#line 202156 "main.c"
+#line 202158 "main.c"
 
 byn_err byn_main__t9PointerLine(byn_str p_path, bool p_stamp, byn_str* byn_out) {
     byn_str l0_text = {0};
@@ -202207,7 +202209,7 @@ break_1:;
     *byn_out = BYN_STR("", 0);
     return (byn_err){0};
 }
-#line 202211 "main.c"
+#line 202213 "main.c"
 
 bynt_opt_str byn_main__lookupScript(byn_str p_scriptKey, byn_str p_exeName, bynt_main__DCtx* p_d) {
     byn_str l0_pointer = {0};
@@ -202276,7 +202278,7 @@ bynt_opt_str byn_main__lookupScript(byn_str p_scriptKey, byn_str p_exeName, bynt
 #line 977 "driver/cache.byn"
     return l9_exe;
 }
-#line 202280 "main.c"
+#line 202282 "main.c"
 
 void byn_main__rememberScript(byn_str p_scriptKey, byn_str p_programKey, bynt_main__DCtx* p_d) {
     byn_err t0 = {0};
@@ -202290,7 +202292,7 @@ void byn_main__rememberScript(byn_str p_scriptKey, byn_str p_programKey, bynt_ma
         return;
     }
 }
-#line 202294 "main.c"
+#line 202296 "main.c"
 
 byn_err byn_main__t9Remember(byn_str p_scriptKey, byn_str p_programKey, bynt_main__DCtx* p_d) {
     byn_str l0_scripts = {0};
@@ -202357,7 +202359,7 @@ byn_err byn_main__t9Remember(byn_str p_scriptKey, byn_str p_programKey, bynt_mai
     }
     return (byn_err){0};
 }
-#line 202361 "main.c"
+#line 202363 "main.c"
 
 byn_str byn_main__scriptKey(bynt_span_u8 p_script, byn_str p_mode, bynt_opt_str p_build) {
     byn_writer l0_sb = {0};
@@ -202394,13 +202396,13 @@ byn_str byn_main__scriptKey(bynt_span_u8 p_script, byn_str p_mode, bynt_opt_str 
 #line 1015 "driver/cache.byn"
     return byn_main__t9Hash(byn_strbuf_str(l0_sb));
 }
-#line 202398 "main.c"
+#line 202400 "main.c"
 
 byn_str byn_main__compilerBuild(void) {
 #line 1022 "driver/cache.byn"
     return BYN_STR("0.3.3-dev", 9);
 }
-#line 202404 "main.c"
+#line 202406 "main.c"
 
 byn_str byn_main__t9Hash(byn_str p_text) {
     bynt_list_u8 t0 = {0};
@@ -202409,7 +202411,7 @@ byn_str byn_main__t9Hash(byn_str p_text) {
 #line 1026 "driver/cache.byn"
     return bynh_hex_encode(bynh_span_list_u8(t0));
 }
-#line 202413 "main.c"
+#line 202415 "main.c"
 
 byn_err byn_main__t9HashFile(byn_str p_path, byn_str* byn_out) {
     bynt_list_u8 l0_bytes = {0};
@@ -202431,7 +202433,7 @@ byn_err byn_main__t9HashFile(byn_str p_path, byn_str* byn_out) {
     *byn_out = bynh_hex_encode(bynh_span_list_u8(t3));
     return (byn_err){0};
 }
-#line 202435 "main.c"
+#line 202437 "main.c"
 
 bynt_list_str byn_main__targetNames(void) {
     bynt_list_str l0_names = {0};
@@ -202454,7 +202456,7 @@ bynt_list_str byn_main__targetNames(void) {
 #line 30 "driver/cc.byn"
     return l0_names;
 }
-#line 202458 "main.c"
+#line 202460 "main.c"
 
 bool byn_main__targetIsKnown(byn_str p_name) {
     bynt_opt_str t0 = {0};
@@ -202463,7 +202465,7 @@ bool byn_main__targetIsKnown(byn_str p_name) {
 #line 35 "driver/cc.byn"
     return (!(!t0.has));
 }
-#line 202467 "main.c"
+#line 202469 "main.c"
 
 bynt_opt_str byn_main__targetTriple(byn_str p_name) {
 #line 40 "driver/cc.byn"
@@ -202504,13 +202506,13 @@ bynt_opt_str byn_main__targetTriple(byn_str p_name) {
 #line 47 "driver/cc.byn"
     return ((bynt_opt_str){0});
 }
-#line 202508 "main.c"
+#line 202510 "main.c"
 
 bynt_opt_str byn_main__targetHost(void) {
 #line 52 "driver/cc.byn"
     return byn_main__targetHostFrom(BYN_HOST_OS, BYN_HOST_ARCH);
 }
-#line 202514 "main.c"
+#line 202516 "main.c"
 
 bynt_opt_str byn_main__targetHostFrom(byn_str p_os, byn_str p_arch) {
     byn_writer t0 = {0};
@@ -202546,7 +202548,7 @@ bynt_opt_str byn_main__targetHostFrom(byn_str p_os, byn_str p_arch) {
 #line 57 "driver/cc.byn"
     return t2;
 }
-#line 202550 "main.c"
+#line 202552 "main.c"
 
 byn_str byn_main__targetExecutableName(byn_str p_name, byn_str p_target) {
     byn_writer t0 = {0};
@@ -202594,7 +202596,7 @@ byn_str byn_main__targetExecutableName(byn_str p_name, byn_str p_target) {
 #line 64 "driver/cc.byn"
     return byn_strbuf_str(t2);
 }
-#line 202598 "main.c"
+#line 202600 "main.c"
 
 bynt_list_str byn_main__ccFindCompiler(void) {
     bynt_list_str l0_found = {0};
@@ -202648,7 +202650,7 @@ break_1:;
 #line 81 "driver/cc.byn"
     return l0_found;
 }
-#line 202652 "main.c"
+#line 202654 "main.c"
 
 bynt_opt_str byn_main__ccFindOnPath(byn_str p_name, byn_str p_os) {
     bynt_list_str l0_exts = {0};
@@ -202739,7 +202741,7 @@ break_1:;
 #line 102 "driver/cc.byn"
     return ((bynt_opt_str){0});
 }
-#line 202743 "main.c"
+#line 202745 "main.c"
 
 byn_str byn_main__ccJoin(bynt_list_str p_compiler) {
     byn_writer l0_joined = {0};
@@ -202776,7 +202778,7 @@ break_1:;
 #line 114 "driver/cc.byn"
     return byn_strbuf_str(l0_joined);
 }
-#line 202780 "main.c"
+#line 202782 "main.c"
 
 byn_str byn_main__ccRefusal(bynt_list_str p_compiler, bynt_opt_str p_target) {
     bool l0_cross = {0};
@@ -202875,7 +202877,7 @@ byn_str byn_main__ccRefusal(bynt_list_str p_compiler, bynt_opt_str p_target) {
 #line 144 "driver/cc.byn"
     return BYN_STR("", 0);
 }
-#line 202879 "main.c"
+#line 202881 "main.c"
 
 byn_str byn_main__ccWithoutExtension(byn_str p_fileName) {
     int64_t l0_dot = {0};
@@ -202887,7 +202889,7 @@ byn_str byn_main__ccWithoutExtension(byn_str p_fileName) {
 #line 150 "driver/cc.byn"
     return ((l0_dot < INT64_C(0)) ? p_fileName : bynh_slice_str(p_fileName, (int64_t)INT64_C(0), 0, (int64_t)l0_dot, 0, false, byn_file_89, 150));
 }
-#line 202891 "main.c"
+#line 202893 "main.c"
 
 bynt_list_str byn_main__ccFlags(byn_str p_mode, bynt_opt_str p_triple) {
     bynt_list_str l0_flags = {0};
@@ -202925,7 +202927,7 @@ bynt_list_str byn_main__ccFlags(byn_str p_mode, bynt_opt_str p_triple) {
 #line 172 "driver/cc.byn"
     return l0_flags;
 }
-#line 202929 "main.c"
+#line 202931 "main.c"
 
 bynt_list_str byn_main__ccCommon(bynt_list_str p_compiler, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_args = {0};
@@ -202997,7 +202999,7 @@ break_3:;
 #line 191 "driver/cc.byn"
     return l0_args;
 }
-#line 203001 "main.c"
+#line 203003 "main.c"
 
 bynt_list_str byn_main__ccRuntimeArguments(bynt_list_str p_compiler, byn_str p_dir, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_args = {0};
@@ -203032,7 +203034,7 @@ bynt_list_str byn_main__ccRuntimeArguments(bynt_list_str p_compiler, byn_str p_d
 #line 205 "driver/cc.byn"
     return l0_args;
 }
-#line 203036 "main.c"
+#line 203038 "main.c"
 
 bynt_list_str byn_main__ccArguments(bynt_list_str p_compiler, byn_str p_dir, byn_str p_output, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_args = {0};
@@ -203069,7 +203071,7 @@ bynt_list_str byn_main__ccArguments(bynt_list_str p_compiler, byn_str p_dir, byn
 #line 230 "driver/cc.byn"
     return l0_args;
 }
-#line 203073 "main.c"
+#line 203075 "main.c"
 
 void byn_main__ccReportToolchain(bynt_main__NativeBuild p_result) {
     bynt_semantics__T26Symbols l0_plain = {0};
@@ -203078,7 +203080,7 @@ void byn_main__ccReportToolchain(bynt_main__NativeBuild p_result) {
 #line 304 "driver/cc.byn"
     (void)byn_main__ccReportToolchainBy(p_result, l0_plain);
 }
-#line 203082 "main.c"
+#line 203084 "main.c"
 
 void byn_main__ccReportToolchainBy(bynt_main__NativeBuild p_result, bynt_semantics__T26Symbols p_symbols) {
     byn_writer t0 = {0};
@@ -203109,7 +203111,7 @@ void byn_main__ccReportToolchainBy(bynt_main__NativeBuild p_result, bynt_semanti
 #line 313 "driver/cc.byn"
     (void)byn_io_write(t2, byn_main__ccRejectedText(p_result, p_symbols));
 }
-#line 203113 "main.c"
+#line 203115 "main.c"
 
 byn_str byn_main__ccRejectedText(bynt_main__NativeBuild p_result, bynt_semantics__T26Symbols p_symbols) {
     byn_str l0_head = {0};
@@ -203149,7 +203151,7 @@ byn_str byn_main__ccRejectedText(bynt_main__NativeBuild p_result, bynt_semantics
 #line 325 "driver/cc.byn"
     return byn_strbuf_str(t1);
 }
-#line 203153 "main.c"
+#line 203155 "main.c"
 
 byn_str byn_main__ccIceText(byn_str p_code, byn_str p_message, byn_str p_help, bynt_semantics__T26Symbols p_symbols) {
     bynt_semantics__Ctx l0_c = {0};
@@ -203166,7 +203168,7 @@ byn_str byn_main__ccIceText(byn_str p_code, byn_str p_message, byn_str p_help, b
 #line 346 "driver/cc.byn"
     return byn_semantics__renderAllBy(l0_c, l0_c.diagnostics, true, INT64_C(2147483647), &l2_omitted, p_symbols);
 }
-#line 203170 "main.c"
+#line 203172 "main.c"
 
 bynt_list_str byn_main__t2Rest(bynt_list_str p_kept) {
     bynt_list_str l0_rest = {0};
@@ -203198,7 +203200,7 @@ break_1:;
 #line 15 "driver/commands.byn"
     return l0_rest;
 }
-#line 203202 "main.c"
+#line 203204 "main.c"
 
 bool byn_main__tryReadSingleFile(bynt_list_str p_args) {
     byn_writer t0 = {0};
@@ -203233,7 +203235,7 @@ bool byn_main__tryReadSingleFile(bynt_list_str p_args) {
 #line 28 "driver/commands.byn"
     return true;
 }
-#line 203237 "main.c"
+#line 203239 "main.c"
 
 int32_t byn_main__lexCommand(bynt_list_str p_kept) {
     bynt_list_str l0_args = {0};
@@ -203321,7 +203323,7 @@ break_1:;
 #line 53 "driver/commands.byn"
     return (l12_failed ? ((int32_t)1) : ((int32_t)0));
 }
-#line 203325 "main.c"
+#line 203327 "main.c"
 
 int32_t byn_main__parseCommand(bynt_list_str p_kept) {
     bool l0_printAst = {0};
@@ -203372,7 +203374,7 @@ break_1:;
 #line 75 "driver/commands.byn"
     return byn_main__refuse(BYN_STR("parse", 5));
 }
-#line 203376 "main.c"
+#line 203378 "main.c"
 
 bynt_semantics__T26Symbols byn_main__t19Symbols(bynt_main__DStyle p_style) {
     byn_str t0 = {0};
@@ -203392,7 +203394,7 @@ bynt_semantics__T26Symbols byn_main__t19Symbols(bynt_main__DStyle p_style) {
 #line 84 "driver/commands.byn"
     return byn_semantics__t26Symbols(p_style.ascii, true, p_style.width, t0, t1, t2, byn_main__t7Prefix(p_style.palette, INT64_C(4)));
 }
-#line 203396 "main.c"
+#line 203398 "main.c"
 
 int32_t byn_main__typesCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bynt_list_str l0_args = {0};
@@ -203438,7 +203440,7 @@ int32_t byn_main__typesCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
 #line 182 "driver/commands.byn"
     return ((int32_t)0);
 }
-#line 203442 "main.c"
+#line 203444 "main.c"
 
 int32_t byn_main__checkCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     int64_t l0_clock = {0};
@@ -203493,13 +203495,13 @@ int32_t byn_main__checkCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
 #line 220 "driver/commands.byn"
     return ((int32_t)0);
 }
-#line 203497 "main.c"
+#line 203499 "main.c"
 
 bynt_main__DCtx byn_main__newDCtx(void) {
 #line 58 "driver/dctx.byn"
     return ((bynt_main__DCtx){false, BYN_STR("auto", 4), ((bynt_main__DStyle){false, false, INT64_C(100), INT64_C(0)}), ((bynt_main__DStyle){false, false, INT64_C(100), INT64_C(0)}), false, INT64_C(10), false, INT64_C(0), false, BYN_STR("", 0), BYN_STR("", 0)});
 }
-#line 203503 "main.c"
+#line 203505 "main.c"
 
 bynt_opt_str byn_main__diagDoc(byn_str p_name) {
 #line 348 "driver/diagdocs.byn"
@@ -205893,7 +205895,7 @@ bynt_opt_str byn_main__diagDoc(byn_str p_name) {
     return ((bynt_opt_str){0});
 switch_end_1:;
 }
-#line 205897 "main.c"
+#line 205899 "main.c"
 
 bynt_main__ScaffoldGitResult byn_main__distGit(byn_str p_git, byn_str p_dir, bynt_list_str p_args) {
     bynt_list_str l0_all = {0};
@@ -205960,7 +205962,7 @@ break_1:;
 #line 24 "driver/dist.byn"
     return ((bynt_main__ScaffoldGitResult){t7, byn_str_trimmed(l4_r.out, 2)});
 }
-#line 205964 "main.c"
+#line 205966 "main.c"
 
 int32_t byn_main__distCommand(bynt_list_str p_kept, bynt_main__DCtx* p_d) {
     bynt_opt_str l0_path = {0};
@@ -206320,7 +206322,7 @@ break_1:;
 #line 150 "driver/dist.byn"
     return l46_code;
 }
-#line 206324 "main.c"
+#line 206326 "main.c"
 
 byn_err byn_main__distBuild(byn_str p_cSource, bynt_main__DistPlan p_plan, bynt_list_str p_targets, bynt_opt_main__DistSource p_source, bynt_main__DCtx* p_d, bynt_semantics__T26Symbols p_symbols, int32_t* byn_out) {
     byn_str l0_distDir = {0};
@@ -206616,7 +206618,7 @@ break_3:;
     *byn_out = ((int32_t)0);
     return (byn_err){0};
 }
-#line 206620 "main.c"
+#line 206622 "main.c"
 
 bynt_opt_list_str byn_main__distResolveTargets(bynt_opt_str p_arg, bynt_list_str p_manifestTargets) {
     bynt_list_str l0_names = {0};
@@ -206754,7 +206756,7 @@ break_3:;
 #line 260 "driver/dist.byn"
     return ((bynt_opt_list_str){true, l5_targets});
 }
-#line 206758 "main.c"
+#line 206760 "main.c"
 
 bynt_opt_main__DistSource byn_main__distReadSource(byn_str p_root) {
     byn_str l0_git = {0};
@@ -206825,7 +206827,7 @@ bynt_opt_main__DistSource byn_main__distReadSource(byn_str p_root) {
 #line 285 "driver/dist.byn"
     return ((bynt_opt_main__DistSource){true, ((bynt_main__DistSource){l6_commit, (!((l9_porcelain.code == ((int32_t)0)) && byn_str_eq(l9_porcelain.stdout_, BYN_STR("", 0))))})});
 }
-#line 206829 "main.c"
+#line 206831 "main.c"
 
 void byn_main__distStop(byn_str p_what, bynt_main__DistWalk* p_w) {
     byn_writer t0 = {0};
@@ -206848,7 +206850,7 @@ void byn_main__distStop(byn_str p_what, bynt_main__DistWalk* p_w) {
 #line 307 "driver/dist.byn"
     (void)byn_io_write(t1, byn_strbuf_str(t0));
 }
-#line 206852 "main.c"
+#line 206854 "main.c"
 
 bool byn_main__distIsLink(byn_str p_path) {
     byn_str l0_real = {0};
@@ -206866,7 +206868,7 @@ bool byn_main__distIsLink(byn_str p_path) {
 #line 314 "driver/dist.byn"
     return (!byn_str_eq(l0_real, p_path));
 }
-#line 206870 "main.c"
+#line 206872 "main.c"
 
 byn_err byn_main__distCollect(byn_str p_dir, byn_str p_rel, bynt_main__DistWalk* p_w, int64_t p_depth) {
     bynt_list_str l0_entries = {0};
@@ -206976,7 +206978,7 @@ byn_err byn_main__distCollect(byn_str p_dir, byn_str p_rel, bynt_main__DistWalk*
 break_1:;
     return (byn_err){0};
 }
-#line 206980 "main.c"
+#line 206982 "main.c"
 
 byn_err byn_main__distInputsHash(byn_str p_root, bynt_opt_str* byn_out) {
     bynt_main__DistWalk l0_w = {0};
@@ -207143,7 +207145,7 @@ break_1:;
     *byn_out = ((bynt_opt_str){true, byn_strbuf_str(t22)});
     return (byn_err){0};
 }
-#line 207147 "main.c"
+#line 207149 "main.c"
 
 byn_str byn_main__distBuildInfo(byn_str p_name, byn_str p_release, byn_str p_mode, bynt_list_str p_targets, bynt_opt_main__DistSource p_source, byn_str p_inputs) {
     byn_writer l0_sb = {0};
@@ -207282,7 +207284,7 @@ break_1:;
 #line 422 "driver/dist.byn"
     return byn_strbuf_str(t5);
 }
-#line 207286 "main.c"
+#line 207288 "main.c"
 
 byn_err byn_main__distRefreshLatest(byn_str p_distDir, bynt_main__DistWalk* p_w, bynt_opt_str* byn_out) {
     byn_str l0_newest = {0};
@@ -207408,7 +207410,7 @@ break_1:;
     *byn_out = ((bynt_opt_str){true, l0_newest});
     return (byn_err){0};
 }
-#line 207412 "main.c"
+#line 207414 "main.c"
 
 byn_err byn_main__distCopyDirectory(byn_str p_from, byn_str p_dest, bynt_main__DistWalk* p_w, int64_t p_depth) {
     byn_err t0 = {0};
@@ -207536,7 +207538,7 @@ break_1:;
 break_3:;
     return (byn_err){0};
 }
-#line 207540 "main.c"
+#line 207542 "main.c"
 
 byn_str byn_main__t5Paint(byn_main_T5Role p_role, bynt_main__DStyle p_style, byn_str p_text) {
     byn_writer t0 = {0};
@@ -207604,7 +207606,7 @@ switch_end_1:;
 #line 51 "driver/doctor.byn"
     return byn_strbuf_str(t3);
 }
-#line 207608 "main.c"
+#line 207610 "main.c"
 
 int32_t byn_main__doctorCommand(bynt_main__DCtx p_d) {
     bynt_list_main__T5Check l0_checks = {0};
@@ -207689,7 +207691,7 @@ break_1:;
 #line 81 "driver/doctor.byn"
     return ((int32_t)0);
 }
-#line 207693 "main.c"
+#line 207695 "main.c"
 
 byn_str byn_main__t5Render(bynt_list_main__T5Check p_checks, bynt_main__DStyle p_style) {
     bynt_semantics__T26Symbols l0_symbols = {0};
@@ -207856,7 +207858,7 @@ break_3:;
 #line 110 "driver/doctor.byn"
     return byn_strbuf_str(t18);
 }
-#line 207860 "main.c"
+#line 207862 "main.c"
 
 bynt_opt_str byn_main__t5RenderCompare(bynt_list_main__T5Check p_checks, byn_str p_shape) {
     byn_str l0_ending = {0};
@@ -207906,7 +207908,7 @@ break_1:;
 #line 125 "driver/doctor.byn"
     return ((bynt_opt_str){0});
 }
-#line 207910 "main.c"
+#line 207912 "main.c"
 
 bynt_main__T5Check byn_main__t5CCompiler(void) {
     bool l0_fromEnv = {0};
@@ -208020,7 +208022,7 @@ break_1:;
 #line 198 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)2), BYN_STR("C compiler", 10), byn_strbuf_str(t13), ((bynt_opt_str){true, BYN_STR("reinstall it, or set BAYAN_CC to a working C compiler", 53)})});
 }
-#line 208024 "main.c"
+#line 208026 "main.c"
 
 bynt_list_str byn_main__t5FindCompiler(void) {
     bynt_opt_str t0 = {0};
@@ -208080,7 +208082,7 @@ bynt_list_str byn_main__t5FindCompiler(void) {
 #line 221 "driver/doctor.byn"
     return byn_main__ccFindCompiler();
 }
-#line 208084 "main.c"
+#line 208086 "main.c"
 
 bynt_main__T5Check byn_main__t5Zig(void) {
     bynt_opt_str l0_found = {0};
@@ -208162,7 +208164,7 @@ bynt_main__T5Check byn_main__t5Zig(void) {
 #line 241 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)2), BYN_STR("zig", 3), t9, ((bynt_opt_str){true, byn_strbuf_str(t8)})});
 }
-#line 208166 "main.c"
+#line 208168 "main.c"
 
 bynt_main__T5Check byn_main__t5Git(void) {
     bynt_opt_str l0_found = {0};
@@ -208217,7 +208219,7 @@ bynt_main__T5Check byn_main__t5Git(void) {
 #line 261 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)1), BYN_STR("git", 3), byn_strbuf_str(t6), ((bynt_opt_str){true, BYN_STR("reinstall git", 13)})});
 }
-#line 208221 "main.c"
+#line 208223 "main.c"
 
 bynt_main__T5Check byn_main__t5Cache(void) {
     byn_str l0_dir = {0};
@@ -208353,7 +208355,7 @@ bynt_main__T5Check byn_main__t5Cache(void) {
 #line 275 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)0), BYN_STR("cache", 5), byn_strbuf_str(t17), ((bynt_opt_str){0})});
 }
-#line 208357 "main.c"
+#line 208359 "main.c"
 
 bynt_main__T5Check byn_main__t5CacheBroken(byn_str p_dir, byn_str p_message) {
     byn_writer t0 = {0};
@@ -208371,7 +208373,7 @@ bynt_main__T5Check byn_main__t5CacheBroken(byn_str p_dir, byn_str p_message) {
 #line 284 "driver/doctor.byn"
     return ((bynt_main__T5Check){((byn_main_T5Level)2), BYN_STR("cache", 5), byn_strbuf_str(t0), ((bynt_opt_str){true, BYN_STR("set BAYAN_CACHE to a writable directory", 39)})});
 }
-#line 208375 "main.c"
+#line 208377 "main.c"
 
 bynt_opt_str byn_main__t5Version(byn_str p_file, bynt_list_str p_args) {
     byn_process l0_r = {0};
@@ -208437,7 +208439,7 @@ break_1:;
 #line 303 "driver/doctor.byn"
     return ((bynt_opt_str){0});
 }
-#line 208441 "main.c"
+#line 208443 "main.c"
 
 int32_t byn_main__explainCommand(bynt_list_str p_kept) {
     bynt_list_str l0_args = {0};
@@ -208481,7 +208483,7 @@ int32_t byn_main__explainCommand(bynt_list_str p_kept) {
 #line 17 "driver/explain.byn"
     return ((int32_t)2);
 }
-#line 208485 "main.c"
+#line 208487 "main.c"
 
 bynt_opt_str byn_main__explainText(byn_str p_code) {
     byn_str l0_name = {0};
@@ -208524,7 +208526,7 @@ break_1:;
 #line 28 "driver/explain.byn"
     return byn_main__diagDoc(l0_name);
 }
-#line 208528 "main.c"
+#line 208530 "main.c"
 
 bool byn_main__t1IsWhiteSpace(int64_t p_cp) {
 #line 33 "driver/explain.byn"
@@ -208540,7 +208542,7 @@ bool byn_main__t1IsWhiteSpace(int64_t p_cp) {
 #line 35 "driver/explain.byn"
     return (((((((((p_cp == INT64_C(32)) || (p_cp == INT64_C(133))) || (p_cp == INT64_C(160))) || (p_cp == INT64_C(5760))) || (p_cp == INT64_C(8232))) || (p_cp == INT64_C(8233))) || (p_cp == INT64_C(8239))) || (p_cp == INT64_C(8287))) || (p_cp == INT64_C(12288)));
 }
-#line 208544 "main.c"
+#line 208546 "main.c"
 
 bynt_tup2_i64_i64 byn_main__t1Decode(byn_str p_text, int64_t p_i) {
     int64_t l0_b = {0};
@@ -208608,7 +208610,7 @@ break_1:;
 #line 55 "driver/explain.byn"
     return ((bynt_tup2_i64_i64){l2_cp, l1_size});
 }
-#line 208612 "main.c"
+#line 208614 "main.c"
 
 byn_str byn_main__t1Trim(byn_str p_text) {
     int64_t l0_start = {0};
@@ -208675,7 +208677,7 @@ break_3:;
 #line 80 "driver/explain.byn"
     return bynh_slice_str(p_text, (int64_t)l0_start, 0, (int64_t)l1_end, 0, false, byn_file_95, 80);
 }
-#line 208679 "main.c"
+#line 208681 "main.c"
 
 void byn_main__t2Add(byn_str p_item, bynt_list_str* p_items) {
     byn_str l0_x = {0};
@@ -208707,7 +208709,7 @@ break_1:;
 #line 18 "driver/features.byn"
     (void)bynh_add_list_str(&(*p_items), p_item);
 }
-#line 208711 "main.c"
+#line 208713 "main.c"
 
 void byn_main__t2Sorted(bynt_list_str* p_items) {
     int64_t l0_i = {0};
@@ -208757,7 +208759,7 @@ void byn_main__t2Sorted(bynt_list_str* p_items) {
     }
 break_1:;
 }
-#line 208761 "main.c"
+#line 208763 "main.c"
 
 byn_str byn_main__t2Pascal(byn_str p_name) {
     byn_writer t0 = {0};
@@ -208777,7 +208779,7 @@ byn_str byn_main__t2Pascal(byn_str p_name) {
 #line 35 "driver/features.byn"
     return byn_strbuf_str(t0);
 }
-#line 208781 "main.c"
+#line 208783 "main.c"
 
 byn_str byn_main__t2ExprName(byn_semantics_ExprSyntaxKind p_kind) {
 #line 40 "driver/features.byn"
@@ -209020,7 +209022,7 @@ byn_str byn_main__t2ExprName(byn_semantics_ExprSyntaxKind p_kind) {
     }
 switch_end_1:;
 }
-#line 209024 "main.c"
+#line 209026 "main.c"
 
 byn_str byn_main__t2NodeName(byn_semantics_NodeSyntaxKind p_kind) {
 #line 85 "driver/features.byn"
@@ -209326,7 +209328,7 @@ byn_str byn_main__t2NodeName(byn_semantics_NodeSyntaxKind p_kind) {
     }
 switch_end_1:;
 }
-#line 209330 "main.c"
+#line 209332 "main.c"
 
 void byn_main__t2Attributes(bynt_list_parser__AttributeSyntax p_attributes, bynt_list_str* p_nodes) {
     bynt_parser__AttributeSyntax l0_a = {0};
@@ -209358,7 +209360,7 @@ void byn_main__t2Attributes(bynt_list_parser__AttributeSyntax p_attributes, bynt
     }
 break_1:;
 }
-#line 209362 "main.c"
+#line 209364 "main.c"
 
 void byn_main__t2Declarations(bynt_list_parser__Decl p_decls, bynt_list_str* p_nodes) {
     byn_parser_Decl l0_decl = {0};
@@ -209577,7 +209579,7 @@ void byn_main__t2Declarations(bynt_list_parser__Decl p_decls, bynt_list_str* p_n
     }
 break_1:;
 }
-#line 209581 "main.c"
+#line 209583 "main.c"
 
 void byn_main__t2Function(bynt_semantics__Ctx p_c, int64_t p_fn, bynt_list_str* p_nodes, bynt_list_str* p_builtins) {
     int64_t l0_body = {0};
@@ -209683,7 +209685,7 @@ void byn_main__t2Function(bynt_semantics__Ctx p_c, int64_t p_fn, bynt_list_str* 
     }
 break_1:;
 }
-#line 209687 "main.c"
+#line 209689 "main.c"
 
 void byn_main__t2Array(byn_str p_name, byn_writer* p_sb, bynt_list_str p_items, bool p_last) {
     int64_t l0_i = {0};
@@ -209745,7 +209747,7 @@ void byn_main__t2Array(byn_str p_name, byn_writer* p_sb, bynt_list_str p_items, 
 #line 265 "driver/features.byn"
     (void)byn_w_str(&(*p_sb), (p_last ? BYN_STR("\012", 1) : BYN_STR(",\012", 2)));
 }
-#line 209749 "main.c"
+#line 209751 "main.c"
 
 byn_str byn_main__t2ToJson(bynt_semantics__Ctx p_c) {
     bynt_list_str l0_nodes = {0};
@@ -209932,7 +209934,7 @@ break_11:;
 #line 299 "driver/features.byn"
     return byn_strbuf_str(t22);
 }
-#line 209936 "main.c"
+#line 209938 "main.c"
 
 int32_t byn_main__featuresCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bool l0_used = {0};
@@ -210017,7 +210019,7 @@ break_1:;
 #line 335 "driver/features.byn"
     return ((int32_t)0);
 }
-#line 210021 "main.c"
+#line 210023 "main.c"
 
 int32_t byn_main__fixCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bynt_list_str l0_args = {0};
@@ -210479,7 +210481,7 @@ break_19:;
 #line 105 "driver/fix.byn"
     return l13_exit;
 }
-#line 210483 "main.c"
+#line 210485 "main.c"
 
 byn_err byn_main__fixModule(byn_str p_dir, bynt_list_str p_files, int64_t p_maxPasses, int32_t* p_exit) {
     bynt_list_i64 l0_counts = {0};
@@ -210791,7 +210793,7 @@ break_3:;
 break_11:;
     return (byn_err){0};
 }
-#line 210795 "main.c"
+#line 210797 "main.c"
 
 bynt_list_lexer__Diagnostic byn_main__fixBlocking(bynt_list_lexer__Diagnostic p_diagnostics) {
     bynt_list_lexer__Diagnostic l0_blocking = {0};
@@ -210826,7 +210828,7 @@ break_1:;
 #line 189 "driver/fix.byn"
     return l0_blocking;
 }
-#line 210830 "main.c"
+#line 210832 "main.c"
 
 byn_err byn_main__typedFixes(byn_str p_dir, bynt_list_main__T9PathFix* byn_out) {
     bynt_list_str l0_paths = {0};
@@ -210993,7 +210995,7 @@ break_3:;
     *byn_out = l22_fixes;
     return (byn_err){0};
 }
-#line 210997 "main.c"
+#line 210999 "main.c"
 
 int64_t byn_main__fixErrorCount(bynt_semantics__Ctx p_c) {
     int64_t l0_n = {0};
@@ -211028,7 +211030,7 @@ break_1:;
 #line 244 "driver/fix.byn"
     return l0_n;
 }
-#line 211032 "main.c"
+#line 211034 "main.c"
 
 bynt_list_str byn_main__fixRoots(byn_str p_dir) {
     bynt_list_str l0_roots = {0};
@@ -211116,7 +211118,7 @@ break_3:;
 #line 267 "driver/fix.byn"
     return l0_roots;
 }
-#line 211120 "main.c"
+#line 211122 "main.c"
 
 bool byn_main__inputForms(byn_str p_code) {
     bool t0 = {0};
@@ -211168,7 +211170,7 @@ switch_end_1:;
 #line 22 "driver/format.byn"
     return t0;
 }
-#line 211172 "main.c"
+#line 211174 "main.c"
 
 bynt_map_str_str byn_main__cSharpPrimitives(void) {
     bynt_map_str_str t0 = {0};
@@ -211201,7 +211203,7 @@ bynt_map_str_str byn_main__cSharpPrimitives(void) {
 #line 53 "driver/format.byn"
     return t0;
 }
-#line 211205 "main.c"
+#line 211207 "main.c"
 
 bynt_map_str_str byn_main__sizedPrimitives(void) {
     bynt_map_str_str l0_sized = {0};
@@ -211244,7 +211246,7 @@ break_1:;
 #line 74 "driver/format.byn"
     return l0_sized;
 }
-#line 211248 "main.c"
+#line 211250 "main.c"
 
 int32_t byn_main__formatCommand(bynt_list_str p_kept, bynt_main__DCtx p_d) {
     bynt_list_str l0_rest = {0};
@@ -211739,7 +211741,7 @@ break_4:;
 #line 198 "driver/format.byn"
     return l7_exit;
 }
-#line 211743 "main.c"
+#line 211745 "main.c"
 
 bool byn_main__t8SameBytes(bynt_list_u8 p_a, bynt_list_u8 p_b) {
     int64_t t0 = {0};
@@ -211779,7 +211781,7 @@ break_1:;
 #line 207 "driver/format.byn"
     return true;
 }
-#line 211783 "main.c"
+#line 211785 "main.c"
 
 byn_err byn_main__writeReplacing(byn_str p_file, bynt_list_u8 p_bytes) {
     byn_err t0 = {0};
@@ -211792,7 +211794,7 @@ byn_err byn_main__writeReplacing(byn_str p_file, bynt_list_u8 p_bytes) {
     }
     return (byn_err){0};
 }
-#line 211796 "main.c"
+#line 211798 "main.c"
 
 bynt_list_u8 byn_main__applyFixes(bynt_list_u8 p_bytes, bynt_list_main__T8Fix p_fixes) {
     int64_t l0_applied = {0};
@@ -211801,7 +211803,7 @@ bynt_list_u8 byn_main__applyFixes(bynt_list_u8 p_bytes, bynt_list_main__T8Fix p_
 #line 219 "driver/format.byn"
     return byn_main__applyFixesCounting(p_bytes, p_fixes, &l0_applied);
 }
-#line 211805 "main.c"
+#line 211807 "main.c"
 
 bynt_list_u8 byn_main__applyFixesCounting(bynt_list_u8 p_bytes, bynt_list_main__T8Fix p_fixes, int64_t* p_applied) {
     bynt_list_main__T8Fix l0_ordered = {0};
@@ -212003,7 +212005,7 @@ break_13:;
 #line 262 "driver/format.byn"
     return l11_result;
 }
-#line 212007 "main.c"
+#line 212009 "main.c"
 
 bynt_parser__Parser byn_main__t8Parser(byn_str p_file, bynt_list_u8 p_bytes) {
     bynt_list_u8 l0_copy = {0};
@@ -212038,7 +212040,7 @@ break_1:;
 #line 273 "driver/format.byn"
     return byn_parser__Parser__create(byn_lexer__lex(t4, byn_lexer__Keywords__build()));
 }
-#line 212042 "main.c"
+#line 212044 "main.c"
 
 byn_str byn_main__t8RenderAll(byn_str p_file, bynt_list_u8 p_bytes, bynt_list_lexer__Diagnostic p_diagnostics) {
     bynt_list_u8 l0_empty = {0};
@@ -212116,7 +212118,7 @@ break_3:;
 #line 312 "driver/format.byn"
     return byn_semantics__renderAll(l8_c, l9_diags, true, INT64_C(2147483647), &l13_omitted);
 }
-#line 212120 "main.c"
+#line 212122 "main.c"
 
 byn_str byn_main__t8RenderManifest(byn_str p_path, bynt_list_semantics__Diag p_diagnostics) {
     bynt_list_u8 l0_text = {0};
@@ -212180,7 +212182,7 @@ break_1:;
 #line 357 "driver/format.byn"
     return byn_semantics__renderAll(l7_c, l8_diags, true, INT64_C(2147483647), &l12_omitted);
 }
-#line 212184 "main.c"
+#line 212186 "main.c"
 
 bynt_opt_list_u8 byn_main__formatFile(byn_str p_file, bynt_list_u8 p_bytes, byn_semantics_BooleanStyle p_booleans, byn_semantics_PrimitiveStyle p_primitives, bynt_map_str_bool p_declared, int64_t p_maxPasses, bool* p_unfixable, bynt_main__LayoutOptions p_layout) {
     bool l0_converged = {0};
@@ -212482,7 +212484,7 @@ break_3:;
 #line 455 "driver/format.byn"
     return ((bynt_opt_list_u8){true, l1_current});
 }
-#line 212486 "main.c"
+#line 212488 "main.c"
 
 bynt_list_u8 byn_main__restyle(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p, byn_semantics_BooleanStyle p_booleans, byn_semantics_PrimitiveStyle p_primitives, bynt_map_str_bool p_declared) {
     bynt_map_str_str l0_names = {0};
@@ -212714,7 +212716,7 @@ break_9:;
 #line 532 "driver/format.byn"
     return l26_result;
 }
-#line 212718 "main.c"
+#line 212720 "main.c"
 
 bynt_map_i64_bool byn_main__t8Starts(bynt_list_lexer__TextSpan p_names) {
     bynt_map_i64_bool l0_starts = {0};
@@ -212746,7 +212748,7 @@ break_1:;
 #line 541 "driver/format.byn"
     return l0_starts;
 }
-#line 212750 "main.c"
+#line 212752 "main.c"
 
 bynt_map_str_bool byn_main__otherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
     bynt_list_u8 l0_copy = {0};
@@ -212832,13 +212834,13 @@ break_3:;
 #line 567 "driver/format.byn"
     return l9_found;
 }
-#line 212836 "main.c"
+#line 212838 "main.c"
 
 bool byn_main__t8IsSpace(uint8_t p_b) {
 #line 571 "driver/format.byn"
     return ((((p_b == ((uint8_t)32)) || (p_b == ((uint8_t)9))) || (p_b == ((uint8_t)10))) || (p_b == ((uint8_t)13)));
 }
-#line 212842 "main.c"
+#line 212844 "main.c"
 
 bynt_opt_main__T8Fix byn_main__operatorFix(bynt_list_u8 p_bytes, bynt_list_lexer__Token p_tokens, int64_t p_i, byn_semantics_BooleanStyle p_booleans) {
     bynt_lexer__Token l0_token = {0};
@@ -212993,7 +212995,7 @@ break_3:;
 #line 606 "driver/format.byn"
     return ((bynt_opt_main__T8Fix){true, ((bynt_main__T8Fix){byn_lexer__TextSpan__fromBounds(l0_token.start, l11_next.start), l9_symbol})});
 }
-#line 212997 "main.c"
+#line 212999 "main.c"
 
 byn_str byn_main__shape(bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
     byn_writer l0_sb = {0};
@@ -213121,7 +213123,7 @@ break_3:;
 #line 634 "driver/format.byn"
     return byn_strbuf_str(t15);
 }
-#line 213125 "main.c"
+#line 213127 "main.c"
 
 byn_str byn_main__goldenStem(byn_str p_name) {
     int64_t l0_dot = {0};
@@ -213156,7 +213158,7 @@ break_1:;
 #line 52 "driver/golden.byn"
     return ((l0_dot > INT64_C(0)) ? bynh_slice_str(p_name, (int64_t)INT64_C(0), 0, (int64_t)l0_dot, 0, false, byn_file_99, 52) : p_name);
 }
-#line 213160 "main.c"
+#line 213162 "main.c"
 
 byn_str byn_main__goldenSlashed(byn_str p_path) {
     byn_str l0_text = {0};
@@ -213207,7 +213209,7 @@ break_1:;
 #line 62 "driver/golden.byn"
     return l0_text;
 }
-#line 213211 "main.c"
+#line 213213 "main.c"
 
 void byn_main__goldenBynCases(byn_str p_root, byn_str p_kind, bynt_list_main__GoldenCase* p_cases, int32_t* p_exit) {
     byn_str l0_dir = {0};
@@ -213391,7 +213393,7 @@ break_4:;
     }
 break_6:;
 }
-#line 213395 "main.c"
+#line 213397 "main.c"
 
 void byn_main__goldenFileCases(byn_str p_root, byn_str p_kind, bynt_list_main__GoldenCase* p_cases, int32_t* p_exit, byn_str p_ending) {
     byn_str l0_dir = {0};
@@ -213515,7 +213517,7 @@ break_2:;
     }
 break_4:;
 }
-#line 213519 "main.c"
+#line 213521 "main.c"
 
 bynt_list_main__GoldenCase byn_main__goldenDiscover(byn_str p_root, int32_t* p_exit) {
     bynt_list_main__GoldenCase l0_cases = {0};
@@ -213559,7 +213561,7 @@ break_1:;
 #line 149 "driver/golden.byn"
     return l0_cases;
 }
-#line 213563 "main.c"
+#line 213565 "main.c"
 
 int32_t byn_main__goldenList(byn_str p_root) {
     byn_writer t0 = {0};
@@ -213629,13 +213631,13 @@ break_1:;
 #line 162 "driver/golden.byn"
     return l2_exit;
 }
-#line 213633 "main.c"
+#line 213635 "main.c"
 
 byn_str byn_main__goldenLf(byn_str p_text) {
 #line 166 "driver/golden.byn"
     return byn_str_replaced(p_text, BYN_STR("\015\012", 2), BYN_STR("\012", 1), byn_context, byn_file_99, 166);
 }
-#line 213639 "main.c"
+#line 213641 "main.c"
 
 byn_str byn_main__goldenExpected(byn_str p_input, byn_str p_ending) {
     byn_str l0_name = {0};
@@ -213662,7 +213664,7 @@ byn_str byn_main__goldenExpected(byn_str p_input, byn_str p_ending) {
 #line 171 "driver/golden.byn"
     return byn_strbuf_str(t1);
 }
-#line 213666 "main.c"
+#line 213668 "main.c"
 
 bynt_list_str byn_main__goldenLines(byn_str p_text) {
     bynt_list_str l0_lines = {0};
@@ -213702,7 +213704,7 @@ break_1:;
 #line 180 "driver/golden.byn"
     return l0_lines;
 }
-#line 213706 "main.c"
+#line 213708 "main.c"
 
 bool byn_main__goldenUpdate(void) {
     byn_str l0_value = {0};
@@ -213714,7 +213716,7 @@ bool byn_main__goldenUpdate(void) {
 #line 186 "driver/golden.byn"
     return (byn_str_eq(l0_value, BYN_STR("1", 1)) || byn_str_eq(l0_value, BYN_STR("true", 4)));
 }
-#line 213718 "main.c"
+#line 213720 "main.c"
 
 bynt_opt_str byn_main__goldenCompare(byn_str p_actual, byn_str p_input, byn_str p_expected) {
     byn_str l0_lf = {0};
@@ -213770,7 +213772,7 @@ bynt_opt_str byn_main__goldenCompare(byn_str p_actual, byn_str p_input, byn_str 
 #line 198 "driver/golden.byn"
     return byn_main__goldenDiffer(p_actual, p_input, p_expected);
 }
-#line 213774 "main.c"
+#line 213776 "main.c"
 
 bynt_opt_str byn_main__goldenDiffer(byn_str p_actual, byn_str p_input, byn_str p_expected) {
     byn_str l0_text = {0};
@@ -213850,7 +213852,7 @@ break_1:;
 #line 214 "driver/golden.byn"
     return ((bynt_opt_str){true, byn_strbuf_str(t9)});
 }
-#line 213854 "main.c"
+#line 213856 "main.c"
 
 byn_err byn_main__goldenLoad(byn_str p_input, bynt_lexer__SourceText* byn_out) {
     byn_err t0 = {0};
@@ -213869,7 +213871,7 @@ byn_err byn_main__goldenLoad(byn_str p_input, bynt_lexer__SourceText* byn_out) {
     *byn_out = byn_lexer__SourceText__create(t2, t1);
     return (byn_err){0};
 }
-#line 213873 "main.c"
+#line 213875 "main.c"
 
 byn_str byn_main__goldenLex(byn_str p_input) {
     bynt_list_u8 l0_bytes = {0};
@@ -213896,7 +213898,7 @@ byn_str byn_main__goldenLex(byn_str p_input) {
 #line 227 "driver/golden.byn"
     return byn_strbuf_str(l3_sb);
 }
-#line 213900 "main.c"
+#line 213902 "main.c"
 
 byn_str byn_main__goldenParse(byn_str p_input) {
     bynt_list_u8 l0_bytes = {0};
@@ -213928,7 +213930,7 @@ byn_str byn_main__goldenParse(byn_str p_input) {
 #line 239 "driver/golden.byn"
     return byn_strbuf_str(l6_sb);
 }
-#line 213932 "main.c"
+#line 213934 "main.c"
 
 bynt_semantics__Ctx byn_main__goldenCompile(byn_str p_input, bynt_semantics__CompilationOptions p_options) {
     bynt_list_lexer__SourceText l0_sources = {0};
@@ -213951,7 +213953,7 @@ bynt_semantics__Ctx byn_main__goldenCompile(byn_str p_input, bynt_semantics__Com
 #line 246 "driver/golden.byn"
     return byn_semantics__create(l0_sources, (t3.has ? t3.value : BYN_STR("", 0)), p_options, ((bynt_opt_str){0}));
 }
-#line 213955 "main.c"
+#line 213957 "main.c"
 
 byn_str byn_main__goldenTyped(byn_str p_input) {
     bynt_semantics__CompilationOptions l0_options = {0};
@@ -213971,7 +213973,7 @@ byn_str byn_main__goldenTyped(byn_str p_input) {
 #line 257 "driver/golden.byn"
     return byn_semantics__typedDump(&l1_c);
 }
-#line 213975 "main.c"
+#line 213977 "main.c"
 
 bynt_semantics__Diag byn_main__goldenCopyDiag(bynt_semantics__Diag p_d) {
     bynt_list_semantics__Related l0_related = {0};
@@ -214003,7 +214005,7 @@ break_1:;
 #line 266 "driver/golden.byn"
     return ((bynt_semantics__Diag){p_d.code, p_d.file, p_d.span, p_d.message, p_d.label, p_d.help, p_d.isWarning, p_d.isNote, p_d.hasFix, p_d.fixSpan, p_d.fixReplacement, l0_related});
 }
-#line 214007 "main.c"
+#line 214009 "main.c"
 
 bynt_opt_list_semantics__StdSource byn_main__goldenStd(byn_str p_dir, int32_t* p_exit) {
     byn_str l0_stdlib = {0};
@@ -214067,7 +214069,7 @@ break_1:;
 #line 292 "driver/golden.byn"
     return ((bynt_opt_list_semantics__StdSource){true, l4_sources});
 }
-#line 214071 "main.c"
+#line 214073 "main.c"
 
 byn_str byn_main__goldenDiag(byn_str p_input) {
     byn_str l0_dir = {0};
@@ -214219,7 +214221,7 @@ break_3:;
 #line 329 "driver/golden.byn"
     return byn_semantics__renderAll(l19_c, l21_shown, l2_package, INT64_C(2147483647), &l28_omitted);
 }
-#line 214223 "main.c"
+#line 214225 "main.c"
 
 byn_str byn_main__goldenManifest(byn_str p_input) {
     bynt_semantics__Manifest l0_m = {0};
@@ -214387,7 +214389,7 @@ break_3:;
 #line 375 "driver/golden.byn"
     return byn_semantics__renderAll(l13_c, l21_shown, false, INT64_C(2147483647), &l26_omitted);
 }
-#line 214391 "main.c"
+#line 214393 "main.c"
 
 byn_str byn_main__goldenDiagJson(byn_str p_input) {
     bynt_semantics__CompilationOptions l0_options = {0};
@@ -214399,7 +214401,7 @@ byn_str byn_main__goldenDiagJson(byn_str p_input) {
 #line 382 "driver/golden.byn"
     return byn_semantics__t26DiagnosticJsonAll(l1_c, l1_c.diagnostics);
 }
-#line 214403 "main.c"
+#line 214405 "main.c"
 
 byn_str byn_main__goldenProduce(bynt_main__GoldenCase p_c) {
 #line 388 "driver/golden.byn"
@@ -214448,13 +214450,13 @@ byn_str byn_main__goldenProduce(bynt_main__GoldenCase p_c) {
     return BYN_STR("", 0);
 switch_end_1:;
 }
-#line 214452 "main.c"
+#line 214454 "main.c"
 
 byn_str byn_main__goldenEnding(byn_str p_kind) {
 #line 407 "driver/golden.byn"
     return (byn_str_eq(p_kind, BYN_STR("lex", 3)) ? BYN_STR(".tokens", 7) : (byn_str_eq(p_kind, BYN_STR("parse", 5)) ? BYN_STR(".ast", 4) : (byn_str_eq(p_kind, BYN_STR("typed", 5)) ? BYN_STR(".types", 6) : ((byn_str_eq(p_kind, BYN_STR("diag", 4)) || byn_str_eq(p_kind, BYN_STR("manifest", 8))) ? BYN_STR(".diag", 5) : (byn_str_eq(p_kind, BYN_STR("diag-json", 9)) ? BYN_STR(".jsonl", 6) : BYN_STR("", 0))))));
 }
-#line 214458 "main.c"
+#line 214460 "main.c"
 
 bynt_list_str byn_main__goldenExpectedFiles(byn_str p_kind, byn_str p_input) {
     bynt_list_str l0_files = {0};
@@ -214525,7 +214527,7 @@ bynt_list_str byn_main__goldenExpectedFiles(byn_str p_kind, byn_str p_input) {
 #line 427 "driver/golden.byn"
     return l0_files;
 }
-#line 214529 "main.c"
+#line 214531 "main.c"
 
 bynt_opt_str byn_main__goldenRun(bynt_main__GoldenCase p_c, int64_t p_deadline) {
     bynt_opt_str t0 = {0};
@@ -214625,7 +214627,7 @@ bynt_opt_str byn_main__goldenRun(bynt_main__GoldenCase p_c, int64_t p_deadline) 
 #line 451 "driver/golden.byn"
     return byn_main__goldenCompare(t9, p_c.input, byn_main__goldenExpected(p_c.input, l7_ending));
 }
-#line 214629 "main.c"
+#line 214631 "main.c"
 
 bynt_opt_str byn_main__goldenExeVersion(byn_str p_path, int64_t p_limitMs) {
     bynt_list_str l0_args = {0};
@@ -214696,7 +214698,7 @@ break_1:;
 #line 468 "driver/golden.byn"
     return ((bynt_opt_str){true, bynh_slice_str(t8, (int64_t)INT64_C(0), 0, (int64_t)l4_end, 0, false, byn_file_99, 468)});
 }
-#line 214700 "main.c"
+#line 214702 "main.c"
 
 byn_str byn_main__goldenExeOf(bynt_opt_str p_value, byn_str* p_failure, int64_t p_limitMs) {
     byn_str l0_path = {0};
@@ -214737,13 +214739,13 @@ byn_str byn_main__goldenExeOf(bynt_opt_str p_value, byn_str* p_failure, int64_t 
 #line 484 "driver/golden.byn"
     return l0_path;
 }
-#line 214741 "main.c"
+#line 214743 "main.c"
 
 byn_str byn_main__goldenExe(byn_str* p_failure) {
 #line 489 "driver/golden.byn"
     return byn_main__goldenExeOf(bynh_env_get(BYN_STR("BAYAN_EXE", 9)), &(*p_failure), INT64_C(10000));
 }
-#line 214747 "main.c"
+#line 214749 "main.c"
 
 byn_str byn_main__goldenExeReport(byn_str p_path) {
     byn_writer t0 = {0};
@@ -214766,7 +214768,7 @@ byn_str byn_main__goldenExeReport(byn_str p_path) {
 #line 494 "driver/golden.byn"
     return byn_strbuf_str(t0);
 }
-#line 214770 "main.c"
+#line 214772 "main.c"
 
 int64_t byn_main__goldenLimitMs(int64_t p_deadline) {
     int64_t l0_left = {0};
@@ -214780,7 +214782,7 @@ int64_t byn_main__goldenLimitMs(int64_t p_deadline) {
 #line 506 "driver/golden.byn"
     return ((l0_left > INT64_C(0)) ? l0_left : INT64_C(1));
 }
-#line 214784 "main.c"
+#line 214786 "main.c"
 
 byn_str byn_main__goldenLimitText(int64_t p_ms) {
     byn_writer t0 = {0};
@@ -214817,7 +214819,7 @@ byn_str byn_main__goldenLimitText(int64_t p_ms) {
 #line 510 "driver/golden.byn"
     return t2;
 }
-#line 214821 "main.c"
+#line 214823 "main.c"
 
 int32_t byn_main__goldenCaseChild(byn_str p_kind, byn_str p_name, byn_str p_input) {
     bynt_main__GoldenCase l0_c = {0};
@@ -214837,7 +214839,7 @@ int32_t byn_main__goldenCaseChild(byn_str p_kind, byn_str p_name, byn_str p_inpu
 #line 529 "driver/golden.byn"
     return ((int32_t)0);
 }
-#line 214841 "main.c"
+#line 214843 "main.c"
 
 bynt_opt_str byn_main__goldenInChild(bynt_main__GoldenCase p_c, byn_str p_exe, int64_t p_deadline) {
     bynt_list_str l0_args = {0};
@@ -215008,7 +215010,7 @@ break_1:;
 #line 548 "driver/golden.byn"
     return ((bynt_opt_str){true, byn_strbuf_str(t19)});
 }
-#line 215012 "main.c"
+#line 215014 "main.c"
 
 bynt_main__GoldenResult byn_main__goldenResult(bynt_main__GoldenCase p_c, int64_t p_limitMs, bynt_opt_str p_exe) {
     byn_str l0_name = {0};
@@ -215294,7 +215296,7 @@ break_3:;
 #line 609 "driver/golden.byn"
     return ((bynt_main__GoldenResult){l0_name, BYN_STR("passed", 6), l16_rewrote, BYN_STR("", 0)});
 }
-#line 215298 "main.c"
+#line 215300 "main.c"
 
 bool byn_main__goldenOnlyDiffers(byn_str p_f) {
     bynt_list_str l0_lines = {0};
@@ -215330,7 +215332,7 @@ break_1:;
 #line 629 "driver/golden.byn"
     return (l0_lines.len > INT64_C(0));
 }
-#line 215334 "main.c"
+#line 215336 "main.c"
 
 byn_str byn_main__goldenSnapshot(byn_str p_path) {
     byn_writer t0 = {0};
@@ -215361,7 +215363,7 @@ byn_str byn_main__goldenSnapshot(byn_str p_path) {
 #line 635 "driver/golden.byn"
     return byn_strbuf_str(t0);
 }
-#line 215365 "main.c"
+#line 215367 "main.c"
 
 bool byn_main__goldenIsCasesDir(byn_str p_path) {
     bynt_list_str l0_names = {0};
@@ -215436,7 +215438,7 @@ break_3:;
 #line 651 "driver/golden.byn"
     return false;
 }
-#line 215440 "main.c"
+#line 215442 "main.c"
 
 int32_t byn_main__goldenTest(byn_str p_root, bynt_list_str p_only, int64_t p_limitMs, bynt_list_main__GoldenResult* p_results, int64_t p_jobs, bool p_quiet) {
     int32_t l0_exit = {0};
@@ -215716,7 +215718,7 @@ break_11:;
 #line 722 "driver/golden.byn"
     return ((l31_failed || (!(l0_exit == ((int32_t)0)))) ? ((int32_t)3) : ((int32_t)0));
 }
-#line 215720 "main.c"
+#line 215722 "main.c"
 
 void byn_main__goldenPrint(bynt_main__GoldenResult p_r) {
     byn_str l0_line = {0};
@@ -215761,7 +215763,7 @@ void byn_main__goldenPrint(bynt_main__GoldenResult p_r) {
     break_1:;
     }
 }
-#line 215765 "main.c"
+#line 215767 "main.c"
 
 void byn_main__goldenJobs(bynt_list_main__GoldenCase p_cases, byn_str p_exe, int64_t p_limitMs, int64_t p_jobs, bynt_list_main__GoldenResult* p_results) {
     byn_str l0_dir = {0};
@@ -215965,7 +215967,7 @@ break_5:;
 #line 784 "driver/golden.byn"
     (void)byn_main__deleteWorkDir(l0_dir);
 }
-#line 215969 "main.c"
+#line 215971 "main.c"
 
 bool byn_main__goldenWrote(byn_str p_path, byn_str p_text) {
     bynt_opt_str t0 = {0};
@@ -215990,7 +215992,7 @@ bool byn_main__goldenWrote(byn_str p_path, byn_str p_text) {
 #line 791 "driver/golden.byn"
     return true;
 }
-#line 215994 "main.c"
+#line 215996 "main.c"
 
 void byn_main__goldenWorkers(bynt_list_str p_args) {
     byn_process l0__ = {0};
@@ -216015,7 +216017,7 @@ void byn_main__goldenWorkers(bynt_list_str p_args) {
 #line 796 "driver/golden.byn"
     l0__ = t2;
 }
-#line 216019 "main.c"
+#line 216021 "main.c"
 
 int32_t byn_main__goldenWorker(byn_str p_dir, byn_str p_k, byn_str p_n, byn_str p_limit) {
     int64_t l0_index = {0};
@@ -216193,7 +216195,7 @@ break_3:;
 #line 821 "driver/golden.byn"
     return ((int32_t)0);
 }
-#line 216197 "main.c"
+#line 216199 "main.c"
 
 bynt_list_str byn_main__goldenStyleEndings(void) {
     bynt_list_str l0_endings = {0};
@@ -216208,7 +216210,7 @@ bynt_list_str byn_main__goldenStyleEndings(void) {
 #line 835 "driver/golden.byn"
     return l0_endings;
 }
-#line 216212 "main.c"
+#line 216214 "main.c"
 
 bynt_main__DStyle byn_main__goldenStyleOf(byn_str p_ending) {
 #line 841 "driver/golden.byn"
@@ -216219,7 +216221,7 @@ bynt_main__DStyle byn_main__goldenStyleOf(byn_str p_ending) {
 #line 842 "driver/golden.byn"
     return ((bynt_main__DStyle){true, byn_str_eq(p_ending, BYN_STR(".ascii", 6)), INT64_C(100), INT64_C(2)});
 }
-#line 216223 "main.c"
+#line 216225 "main.c"
 
 byn_str byn_main__goldenStreams(byn_str p_stdout, byn_str p_stderr) {
     byn_writer t0 = {0};
@@ -216238,7 +216240,7 @@ byn_str byn_main__goldenStreams(byn_str p_stdout, byn_str p_stderr) {
 #line 846 "driver/golden.byn"
     return byn_strbuf_str(t0);
 }
-#line 216242 "main.c"
+#line 216244 "main.c"
 
 bynt_opt_str byn_main__goldenStyleCompare(byn_str p_shape, byn_str p_ending, byn_str p_text) {
     byn_str l0_expected = {0};
@@ -216259,7 +216261,7 @@ bynt_opt_str byn_main__goldenStyleCompare(byn_str p_shape, byn_str p_ending, byn
 #line 851 "driver/golden.byn"
     return byn_main__goldenDiffer(p_text, l0_expected, l0_expected);
 }
-#line 216263 "main.c"
+#line 216265 "main.c"
 
 int64_t byn_main__goldenOffset(byn_str p_text, byn_str p_needle) {
     int64_t l0_i = {0};
@@ -216294,7 +216296,7 @@ break_1:;
 #line 859 "driver/golden.byn"
     return INT64_C(-1);
 }
-#line 216298 "main.c"
+#line 216300 "main.c"
 
 byn_str byn_main__goldenStyleMask(byn_str p_text, byn_str p_dir, byn_str p_cache) {
     byn_str l0_t = {0};
@@ -216453,7 +216455,7 @@ break_5:;
 #line 907 "driver/golden.byn"
     return byn_strbuf_str(l15_sb);
 }
-#line 216457 "main.c"
+#line 216459 "main.c"
 
 int64_t byn_main__goldenSecondsAt(byn_str p_text, int64_t p_start) {
     int64_t l0_i = {0};
@@ -216523,7 +216525,7 @@ break_3:;
 #line 923 "driver/golden.byn"
     return byn_add_i64(l0_i, INT64_C(1), byn_file_99, 923);
 }
-#line 216527 "main.c"
+#line 216529 "main.c"
 
 bynt_opt_str byn_main__goldenSkip(bynt_main__GoldenCase p_c) {
     byn_str l0_block = {0};
@@ -216601,7 +216603,7 @@ switch_end_1:;
 #line 948 "driver/golden.byn"
     return ((bynt_opt_str){true, byn_strbuf_str(t2)});
 }
-#line 216605 "main.c"
+#line 216607 "main.c"
 
 byn_str byn_main__goldenStyleRun(byn_str p_exe, bynt_list_str p_args, bynt_map_str_opt_str p_env, byn_str* p_failure, int64_t p_deadline) {
     byn_writer l0_line = {0};
@@ -216788,7 +216790,7 @@ break_1:;
 #line 982 "driver/golden.byn"
     return byn_strbuf_str(t22);
 }
-#line 216792 "main.c"
+#line 216794 "main.c"
 
 byn_str byn_main__goldenStyleShape(byn_str p_shape, byn_str p_ending, byn_str p_exe, byn_str* p_failure, int64_t p_deadline) {
     byn_str l0_tmp = {0};
@@ -217195,7 +217197,7 @@ switch_end_3:;
 #line 1099 "driver/golden.byn"
     return byn_main__goldenStyleMask(l44_text, l1_dir, l6_cache);
 }
-#line 217199 "main.c"
+#line 217201 "main.c"
 
 bynt_opt_str byn_main__goldenStyle(bynt_main__GoldenCase p_c, byn_str p_exe, int64_t p_deadline) {
     byn_str l0_ending = {0};
@@ -217257,7 +217259,7 @@ break_1:;
 #line 1114 "driver/golden.byn"
     return ((bynt_opt_str){0});
 }
-#line 217261 "main.c"
+#line 217263 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenChild(byn_str p_program, bynt_list_str p_args, byn_str p_directory, bynt_list_u8 p_input, byn_str* p_failure, int64_t p_deadline) {
     byn_writer l0_line = {0};
@@ -217406,7 +217408,7 @@ break_1:;
 #line 1168 "driver/golden.byn"
     return ((bynt_main__GoldenOutcome){t23, l6_r.err, l22_code});
 }
-#line 217410 "main.c"
+#line 217412 "main.c"
 
 bynt_map_str_opt_str byn_main__goldenEnv(void) {
     bynt_map_str_opt_str l0_env = {0};
@@ -217420,7 +217422,7 @@ bynt_map_str_opt_str byn_main__goldenEnv(void) {
 #line 1175 "driver/golden.byn"
     return l0_env;
 }
-#line 217424 "main.c"
+#line 217426 "main.c"
 
 bool byn_main__goldenOsSkip(byn_str p_input) {
     byn_str l0_other = {0};
@@ -217467,7 +217469,7 @@ break_1:;
 #line 1185 "driver/golden.byn"
     return false;
 }
-#line 217471 "main.c"
+#line 217473 "main.c"
 
 byn_str byn_main__goldenMode(byn_str p_input) {
     byn_str l0_first = {0};
@@ -217506,7 +217508,7 @@ byn_str byn_main__goldenMode(byn_str p_input) {
 #line 1194 "driver/golden.byn"
     return ((byn_str_eq(l3_mode, BYN_STR("debug", 5)) || byn_str_eq(l3_mode, BYN_STR("fast", 4))) ? l3_mode : BYN_STR("safe", 4));
 }
-#line 217510 "main.c"
+#line 217512 "main.c"
 
 byn_str byn_main__goldenFlat(bynt_main__GoldenCase p_c) {
     bool l0_sub = {0};
@@ -217528,7 +217530,7 @@ byn_str byn_main__goldenFlat(bynt_main__GoldenCase p_c) {
 #line 1200 "driver/golden.byn"
     return byn_str_replaced(byn_strbuf_str(t1), BYN_STR("/", 1), BYN_STR("_", 1), byn_context, byn_file_99, 1200);
 }
-#line 217532 "main.c"
+#line 217534 "main.c"
 
 bynt_list_str byn_main__goldenArgs(byn_str p_input) {
     byn_str l0_path = {0};
@@ -217585,7 +217587,7 @@ break_1:;
 #line 1213 "driver/golden.byn"
     return l1_args;
 }
-#line 217589 "main.c"
+#line 217591 "main.c"
 
 byn_str byn_main__goldenTestSeconds(byn_str p_text) {
     byn_writer l0_sb = {0};
@@ -217718,7 +217720,7 @@ break_1:;
 #line 1239 "driver/golden.byn"
     return byn_strbuf_str(l0_sb);
 }
-#line 217722 "main.c"
+#line 217724 "main.c"
 
 bynt_list_str byn_main__goldenBuildArgs(byn_str p_input, byn_str p_program, byn_str p_source) {
     bynt_list_str l0_args = {0};
@@ -217739,7 +217741,7 @@ bynt_list_str byn_main__goldenBuildArgs(byn_str p_input, byn_str p_program, byn_
 #line 1251 "driver/golden.byn"
     return l0_args;
 }
-#line 217743 "main.c"
+#line 217745 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenRunOutcome(bynt_main__GoldenCase p_c, byn_str p_exe, byn_str* p_failure, int64_t p_deadline) {
     byn_str l0_tmp = {0};
@@ -218025,7 +218027,7 @@ bynt_main__GoldenOutcome byn_main__goldenRunOutcome(bynt_main__GoldenCase p_c, b
 #line 1332 "driver/golden.byn"
     return byn_main__goldenChild(l36_program, l46_programArgs, l2_work, l42_stdin, &(*p_failure), p_deadline);
 }
-#line 218029 "main.c"
+#line 218031 "main.c"
 
 void byn_main__goldenCheck(byn_str p_input, byn_str p_ending, byn_str p_actual, bool p_optional, bynt_list_str* p_failures) {
     byn_str l0_expected = {0};
@@ -218046,7 +218048,7 @@ void byn_main__goldenCheck(byn_str p_input, byn_str p_ending, byn_str p_actual, 
         (void)bynh_add_list_str(&(*p_failures), l2_f);
     }
 }
-#line 218050 "main.c"
+#line 218052 "main.c"
 
 bynt_opt_str byn_main__goldenRunCase(bynt_main__GoldenCase p_c, byn_str p_exe, int64_t p_deadline) {
     byn_str l0_failure = {0};
@@ -218161,7 +218163,7 @@ break_1:;
 #line 1362 "driver/golden.byn"
     return ((bynt_opt_str){true, l6_text});
 }
-#line 218165 "main.c"
+#line 218167 "main.c"
 
 bynt_list_str byn_main__goldenFiles(byn_str p_root) {
     bynt_list_str l0_files = {0};
@@ -218263,7 +218265,7 @@ break_1:;
 #line 1385 "driver/golden.byn"
     return l0_files;
 }
-#line 218267 "main.c"
+#line 218269 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenCli(byn_str p_exe, bynt_list_str p_args, int32_t p_code, byn_str* p_failure, int64_t p_deadline) {
     bynt_list_u8 l0_none = {0};
@@ -218342,7 +218344,7 @@ bynt_main__GoldenOutcome byn_main__goldenCli(byn_str p_exe, bynt_list_str p_args
 #line 1407 "driver/golden.byn"
     return l1_o;
 }
-#line 218346 "main.c"
+#line 218348 "main.c"
 
 bool byn_main__goldenFresh(byn_str p_dir) {
     byn_err t0 = {0};
@@ -218358,7 +218360,7 @@ bool byn_main__goldenFresh(byn_str p_dir) {
 #line 1414 "driver/golden.byn"
     return true;
 }
-#line 218362 "main.c"
+#line 218364 "main.c"
 
 bynt_opt_str byn_main__goldenNew(bynt_main__GoldenCase p_c, byn_str p_exe, int64_t p_deadline) {
     byn_str l0_dir = {0};
@@ -218515,7 +218517,7 @@ break_2:;
 #line 1446 "driver/golden.byn"
     return byn_main__goldenCompare(byn_strbuf_str(l9_sb), p_c.input, p_c.input);
 }
-#line 218519 "main.c"
+#line 218521 "main.c"
 
 byn_str byn_main__goldenOutMask(byn_str p_text, bool p_host) {
     byn_str l0_key = {0};
@@ -218721,7 +218723,7 @@ break_5:;
 #line 1482 "driver/golden.byn"
     return byn_strbuf_str(l12_lines);
 }
-#line 218725 "main.c"
+#line 218727 "main.c"
 
 byn_str byn_main__goldenOutTree(byn_str p_dir, bool p_host) {
     byn_str l0_target = {0};
@@ -218845,7 +218847,7 @@ break_3:;
 #line 1502 "driver/golden.byn"
     return byn_strbuf_str(l10_sb);
 }
-#line 218849 "main.c"
+#line 218851 "main.c"
 
 void byn_main__goldenOutStep(byn_str p_exe, byn_str p_command, byn_str p_project, int32_t p_code, byn_str* p_failure, int64_t p_deadline) {
     bynt_list_str l0_args = {0};
@@ -218864,7 +218866,7 @@ void byn_main__goldenOutStep(byn_str p_exe, byn_str p_command, byn_str p_project
 #line 1519 "driver/golden.byn"
     l1__ = byn_main__goldenCli(p_exe, l0_args, p_code, &(*p_failure), p_deadline);
 }
-#line 218868 "main.c"
+#line 218870 "main.c"
 
 bynt_opt_str byn_main__goldenOut(bynt_main__GoldenCase p_c, byn_str p_exe, int64_t p_deadline) {
     byn_str l0_fact = {0};
@@ -219032,7 +219034,7 @@ switch_end_1:;
 #line 1562 "driver/golden.byn"
     return byn_main__goldenCompare(l10_actual, p_c.input, p_c.input);
 }
-#line 219036 "main.c"
+#line 219038 "main.c"
 
 byn_str byn_main__goldenEmit(byn_str p_root) {
     int32_t l0_exit = {0};
@@ -219123,7 +219125,7 @@ break_3:;
 #line 1586 "driver/golden.byn"
     return byn_strbuf_str(l6_sb);
 }
-#line 219127 "main.c"
+#line 219129 "main.c"
 
 byn_str byn_main__goldenQuality(void) {
     bynt_list_lexer__SourceText l0_files = {0};
@@ -219238,7 +219240,7 @@ break_3:;
 #line 1632 "driver/golden.byn"
     return byn_main__qualityMutationJson(l16_report);
 }
-#line 219242 "main.c"
+#line 219244 "main.c"
 
 void byn_main__goldenFixture(byn_str p_root, byn_str p_rel) {
     byn_str l0_path = {0};
@@ -219264,7 +219266,7 @@ void byn_main__goldenFixture(byn_str p_root, byn_str p_rel) {
         return;
     }
 }
-#line 219268 "main.c"
+#line 219270 "main.c"
 
 byn_str byn_main__goldenListing(byn_str p_root) {
     int32_t l0_exit = {0};
@@ -219316,7 +219318,7 @@ break_1:;
 #line 1649 "driver/golden.byn"
     return l1_text;
 }
-#line 219320 "main.c"
+#line 219322 "main.c"
 
 bynt_list_str byn_main__goldenFailures(byn_str p_root, byn_str p_kind, int64_t* p_count) {
     int32_t l0_exit = {0};
@@ -219365,7 +219367,7 @@ break_1:;
 #line 1715 "driver/golden.byn"
     return l1_failures;
 }
-#line 219369 "main.c"
+#line 219371 "main.c"
 
 void byn_main__goldenWrite(byn_str p_root, byn_str p_rel, byn_str p_text) {
     byn_str l0_path = {0};
@@ -219391,7 +219393,7 @@ void byn_main__goldenWrite(byn_str p_root, byn_str p_rel, byn_str p_text) {
         return;
     }
 }
-#line 219395 "main.c"
+#line 219397 "main.c"
 
 byn_str byn_main__goldenFakeDriver(byn_str p_root, byn_str p_name, bool p_exec, int64_t p_code, int64_t p_seconds) {
     byn_writer t0 = {0};
@@ -219455,7 +219457,7 @@ byn_str byn_main__goldenFakeDriver(byn_str p_root, byn_str p_name, bool p_exec, 
 #line 1797 "driver/golden.byn"
     return l1_path;
 }
-#line 219459 "main.c"
+#line 219461 "main.c"
 
 bynt_list_str byn_main__goldenStyleFailures(byn_str p_root, bynt_list_str* p_skips) {
     int32_t l0_exit = {0};
@@ -219525,7 +219527,7 @@ break_1:;
 #line 1852 "driver/golden.byn"
     return l1_failures;
 }
-#line 219529 "main.c"
+#line 219531 "main.c"
 
 void byn_main__goldenStyleCopy(byn_str p_root, byn_str p_shape) {
     byn_str l0_ending = {0};
@@ -219588,7 +219590,7 @@ void byn_main__goldenStyleCopy(byn_str p_root, byn_str p_shape) {
     }
 break_1:;
 }
-#line 219592 "main.c"
+#line 219594 "main.c"
 
 void byn_main__goldenCopy(byn_str p_root, byn_str p_rel) {
     byn_str l0_from = {0};
@@ -219645,7 +219647,7 @@ void byn_main__goldenCopy(byn_str p_root, byn_str p_rel) {
         return;
     }
 }
-#line 219649 "main.c"
+#line 219651 "main.c"
 
 void byn_main__goldenRunCopy(byn_str p_root, byn_str p_stem) {
     byn_str l0_ending = {0};
@@ -219684,7 +219686,7 @@ void byn_main__goldenRunCopy(byn_str p_root, byn_str p_stem) {
     }
 break_1:;
 }
-#line 219688 "main.c"
+#line 219690 "main.c"
 
 byn_str byn_main__goldenChangeLine(byn_str p_text, int64_t p_index) {
     bynt_list_str l0_changed = {0};
@@ -219742,7 +219744,7 @@ break_1:;
 #line 1954 "driver/golden.byn"
     return l1_joined;
 }
-#line 219746 "main.c"
+#line 219748 "main.c"
 
 void byn_main__goldenLoopFixture(byn_str p_root) {
     byn_str l0_source = {0};
@@ -219784,7 +219786,7 @@ void byn_main__goldenLoopFixture(byn_str p_root) {
 #line 1971 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("run/c-passes.stdout", 19), l3_stdout);
 }
-#line 219788 "main.c"
+#line 219790 "main.c"
 
 void byn_main__goldenJobsFixture(byn_str p_root) {
     byn_str l0_source = {0};
@@ -219915,7 +219917,7 @@ break_1:;
     }
 break_3:;
 }
-#line 219919 "main.c"
+#line 219921 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenJobsRun(byn_str p_root, byn_str p_jobs) {
     byn_str l0_failure = {0};
@@ -219961,7 +219963,7 @@ break_1:;
 #line 2078 "driver/golden.byn"
     return l6_o;
 }
-#line 219965 "main.c"
+#line 219967 "main.c"
 
 void byn_main__goldenUpdateFixture(byn_str p_root) {
     byn_str l0_source = {0};
@@ -219981,96 +219983,96 @@ void byn_main__goldenUpdateFixture(byn_str p_root) {
     byn_str l14_stdout = {0};
     byn_err t15 = {0};
     byn_str t16 = {0};
-#line 2190 "driver/golden.byn"
+#line 2194 "driver/golden.byn"
     (void)byn_main__deleteWorkDir(p_root);
-#line 2191 "driver/golden.byn"
-    t1 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/lex/bad-chars.byn", 29), byn_context, byn_file_99, 2191), &t2, byn_context) };
-#line 2191 "driver/golden.byn"
+#line 2195 "driver/golden.byn"
+    t1 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/lex/bad-chars.byn", 29), byn_context, byn_file_99, 2195), &t2, byn_context) };
+#line 2195 "driver/golden.byn"
     if ((!(t1.code == ((uint32_t)0)))) {
-#line 2191 "driver/golden.byn"
+#line 2195 "driver/golden.byn"
         t2 = BYN_STR("", 0);
     }
-#line 2191 "driver/golden.byn"
+#line 2195 "driver/golden.byn"
     l0_source = t2;
-#line 2192 "driver/golden.byn"
-    t4 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/lex/bad-chars.tokens", 32), byn_context, byn_file_99, 2192), &t5, byn_context) };
-#line 2192 "driver/golden.byn"
+#line 2196 "driver/golden.byn"
+    t4 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/lex/bad-chars.tokens", 32), byn_context, byn_file_99, 2196), &t5, byn_context) };
+#line 2196 "driver/golden.byn"
     if ((!(t4.code == ((uint32_t)0)))) {
-#line 2192 "driver/golden.byn"
+#line 2196 "driver/golden.byn"
         t5 = BYN_STR("", 0);
     }
-#line 2192 "driver/golden.byn"
+#line 2196 "driver/golden.byn"
     l3_tokens = t5;
-#line 2193 "driver/golden.byn"
+#line 2197 "driver/golden.byn"
     t7 = ((bynt_arr3_str){{BYN_STR("a-same", 6), BYN_STR("b-changed", 9), BYN_STR("c-pending", 9)}});
-#line 2193 "driver/golden.byn"
+#line 2197 "driver/golden.byn"
     t8 = INT64_C(0);
-#line 2193 "driver/golden.byn"
+#line 2197 "driver/golden.byn"
     for (;;) {
-#line 2193 "driver/golden.byn"
+#line 2197 "driver/golden.byn"
         if ((!(t8 < ((void)t7, INT64_C(3))))) {
-#line 2193 "driver/golden.byn"
+#line 2197 "driver/golden.byn"
             goto break_1;
         }
-#line 2193 "driver/golden.byn"
+#line 2197 "driver/golden.byn"
         l6_stem = t7.v[t8];
-#line 2194 "driver/golden.byn"
+#line 2198 "driver/golden.byn"
         t9 = byn_strbuf_grow(byn_context);
-#line 2194 "driver/golden.byn"
+#line 2198 "driver/golden.byn"
         {
             byn_writer* w = &t9;
             w->file = byn_file_99;
-            w->line = 2194;
+            w->line = 2198;
             byn_w_str(w, BYN_STR("lex/", 4));
             byn_w_str(w, l6_stem);
             byn_w_str(w, BYN_STR(".byn", 4));
         }
-#line 2194 "driver/golden.byn"
+#line 2198 "driver/golden.byn"
         (void)byn_main__goldenWrite(p_root, byn_strbuf_str(t9), l0_source);
-#line 2195 "driver/golden.byn"
+#line 2199 "driver/golden.byn"
         t10 = byn_strbuf_grow(byn_context);
-#line 2195 "driver/golden.byn"
+#line 2199 "driver/golden.byn"
         {
             byn_writer* w = &t10;
             w->file = byn_file_99;
-            w->line = 2195;
+            w->line = 2199;
             byn_w_str(w, BYN_STR("lex/", 4));
             byn_w_str(w, l6_stem);
             byn_w_str(w, BYN_STR(".tokens", 7));
         }
-#line 2195 "driver/golden.byn"
+#line 2199 "driver/golden.byn"
         t11 = byn_strbuf_str(t10);
-#line 2195 "driver/golden.byn"
+#line 2199 "driver/golden.byn"
         (void)byn_main__goldenWrite(p_root, t11, (byn_str_eq(l6_stem, BYN_STR("a-same", 6)) ? l3_tokens : byn_main__goldenChangeLine(l3_tokens, INT64_C(2))));
     continue_2:;
-#line 2193 "driver/golden.byn"
+#line 2197 "driver/golden.byn"
         t8 = byn_addw_i64(t8, INT64_C(1));
     }
 break_1:;
-#line 2197 "driver/golden.byn"
+#line 2201 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("lex/c-pending.pending", 21), BYN_STR("T6\012", 3));
-#line 2201 "driver/golden.byn"
-    t12 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/arithmetic.byn", 30), byn_context, byn_file_99, 2201), &t13, byn_context) };
-#line 2201 "driver/golden.byn"
+#line 2205 "driver/golden.byn"
+    t12 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/arithmetic.byn", 30), byn_context, byn_file_99, 2205), &t13, byn_context) };
+#line 2205 "driver/golden.byn"
     if ((!(t12.code == ((uint32_t)0)))) {
-#line 2201 "driver/golden.byn"
+#line 2205 "driver/golden.byn"
         t13 = BYN_STR("", 0);
     }
-#line 2198 "driver/golden.byn"
+#line 2202 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("run/d-changed.byn", 17), t13);
-#line 2203 "driver/golden.byn"
-    t15 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/arithmetic.stdout", 33), byn_context, byn_file_99, 2203), &t16, byn_context) };
-#line 2203 "driver/golden.byn"
+#line 2207 "driver/golden.byn"
+    t15 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/arithmetic.stdout", 33), byn_context, byn_file_99, 2207), &t16, byn_context) };
+#line 2207 "driver/golden.byn"
     if ((!(t15.code == ((uint32_t)0)))) {
-#line 2203 "driver/golden.byn"
+#line 2207 "driver/golden.byn"
         t16 = BYN_STR("", 0);
     }
-#line 2203 "driver/golden.byn"
+#line 2207 "driver/golden.byn"
     l14_stdout = t16;
-#line 2204 "driver/golden.byn"
+#line 2208 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("run/d-changed.stdout", 20), byn_main__goldenChangeLine(l14_stdout, INT64_C(3)));
 }
-#line 220074 "main.c"
+#line 220076 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenUpdateRun(byn_str p_root, byn_str p_jobs, bynt_opt_str p_update) {
     byn_str l0_failure = {0};
@@ -220085,37 +220087,37 @@ bynt_main__GoldenOutcome byn_main__goldenUpdateRun(byn_str p_root, byn_str p_job
     byn_process t9 = {0};
     byn_str t10 = {0};
     byn_str t11 = {0};
-#line 2209 "driver/golden.byn"
+#line 2213 "driver/golden.byn"
     l0_failure = BYN_STR("", 0);
-#line 2210 "driver/golden.byn"
+#line 2214 "driver/golden.byn"
     l1_exe = byn_main__goldenExe(&l0_failure);
-#line 2211 "driver/golden.byn"
+#line 2215 "driver/golden.byn"
     l2_args = ((bynt_list_str){NULL, 0, 0, byn_context});
-#line 2212 "driver/golden.byn"
+#line 2216 "driver/golden.byn"
     t4 = ((bynt_arr4_str){{BYN_STR("test", 4), p_root, BYN_STR("--jobs", 6), p_jobs}});
-#line 2212 "driver/golden.byn"
+#line 2216 "driver/golden.byn"
     t5 = INT64_C(0);
-#line 2212 "driver/golden.byn"
+#line 2216 "driver/golden.byn"
     for (;;) {
-#line 2212 "driver/golden.byn"
+#line 2216 "driver/golden.byn"
         if ((!(t5 < ((void)t4, INT64_C(4))))) {
-#line 2212 "driver/golden.byn"
+#line 2216 "driver/golden.byn"
             goto break_1;
         }
-#line 2212 "driver/golden.byn"
+#line 2216 "driver/golden.byn"
         l3_a = t4.v[t5];
-#line 2213 "driver/golden.byn"
+#line 2217 "driver/golden.byn"
         (void)bynh_add_list_str(&l2_args, l3_a);
     continue_2:;
-#line 2212 "driver/golden.byn"
+#line 2216 "driver/golden.byn"
         t5 = byn_addw_i64(t5, INT64_C(1));
     }
 break_1:;
-#line 2215 "driver/golden.byn"
+#line 2219 "driver/golden.byn"
     l6_env = byn_main__goldenEnv();
-#line 2216 "driver/golden.byn"
+#line 2220 "driver/golden.byn"
     (*bynh_slot_map_str_opt_str(&l6_env, BYN_STR("BAYAN_UPDATE", 12), ((bynt_opt_str){0}))) = p_update;
-#line 2217 "driver/golden.byn"
+#line 2221 "driver/golden.byn"
     {
         int64_t detail = 0;
         byn_process proc = {0};
@@ -220126,39 +220128,39 @@ break_1:;
         if (t8.code == UINT32_C(11)) t8.p.e11.after = (int64_t)detail;
         if (t8.code == UINT32_C(11)) { t8.p.e11.stdout_ = proc.out; t8.p.e11.stderr_ = proc.err; }
     }
-#line 2217 "driver/golden.byn"
+#line 2221 "driver/golden.byn"
     if ((!(t8.code == ((uint32_t)0)))) {
-#line 2217 "driver/golden.byn"
+#line 2221 "driver/golden.byn"
         return ((bynt_main__GoldenOutcome){l0_failure, BYN_STR("", 0), ((int32_t)-1)});
     }
-#line 2217 "driver/golden.byn"
+#line 2221 "driver/golden.byn"
     l7_r = t9;
-#line 2218 "driver/golden.byn"
+#line 2222 "driver/golden.byn"
     t10 = byn_main__goldenLf(l7_r.out);
-#line 2218 "driver/golden.byn"
+#line 2222 "driver/golden.byn"
     t11 = l7_r.err;
-#line 2218 "driver/golden.byn"
+#line 2222 "driver/golden.byn"
     return ((bynt_main__GoldenOutcome){t10, t11, l7_r.exit_code});
 }
-#line 220144 "main.c"
+#line 220146 "main.c"
 
 int64_t byn_main__goldenModified(byn_str p_path) {
     byn_time l0_t = {0};
     byn_err t1 = {0};
     byn_time t2 = {0};
-#line 2223 "driver/golden.byn"
+#line 2227 "driver/golden.byn"
     t1 = (byn_err){ .code = byn_fs_modified(p_path, &t2) };
-#line 2223 "driver/golden.byn"
+#line 2227 "driver/golden.byn"
     if ((!(t1.code == ((uint32_t)0)))) {
-#line 2223 "driver/golden.byn"
+#line 2227 "driver/golden.byn"
         return INT64_C(-1);
     }
-#line 2223 "driver/golden.byn"
+#line 2227 "driver/golden.byn"
     l0_t = t2;
-#line 2224 "driver/golden.byn"
+#line 2228 "driver/golden.byn"
     return l0_t.nanos;
 }
-#line 220162 "main.c"
+#line 220164 "main.c"
 
 byn_str byn_main__goldenTree(byn_str p_root) {
     byn_writer l0_sb = {0};
@@ -220169,37 +220171,37 @@ byn_str byn_main__goldenTree(byn_str p_root) {
     byn_err t5 = {0};
     byn_str t6 = {0};
     int64_t t7 = {0};
-#line 2229 "driver/golden.byn"
+#line 2233 "driver/golden.byn"
     l0_sb = byn_strbuf_grow(byn_context);
-#line 2230 "driver/golden.byn"
+#line 2234 "driver/golden.byn"
     t2 = byn_main__goldenFiles(p_root);
-#line 2230 "driver/golden.byn"
+#line 2234 "driver/golden.byn"
     t3 = INT64_C(0);
-#line 2230 "driver/golden.byn"
+#line 2234 "driver/golden.byn"
     for (;;) {
-#line 2230 "driver/golden.byn"
+#line 2234 "driver/golden.byn"
         if ((!(t3 < t2.len))) {
-#line 2230 "driver/golden.byn"
+#line 2234 "driver/golden.byn"
             goto break_1;
         }
-#line 2230 "driver/golden.byn"
+#line 2234 "driver/golden.byn"
         l1_rel = t2.ptr[t3];
-#line 2231 "driver/golden.byn"
+#line 2235 "driver/golden.byn"
         l4_path = byn_path_combine(p_root, l1_rel, byn_context);
-#line 2232 "driver/golden.byn"
+#line 2236 "driver/golden.byn"
         t7 = byn_main__goldenModified(l4_path);
-#line 2232 "driver/golden.byn"
+#line 2236 "driver/golden.byn"
         t5 = (byn_err){ .code = byn_io_read_text(l4_path, &t6, byn_context) };
-#line 2232 "driver/golden.byn"
+#line 2236 "driver/golden.byn"
         if ((!(t5.code == ((uint32_t)0)))) {
-#line 2232 "driver/golden.byn"
+#line 2236 "driver/golden.byn"
             t6 = BYN_STR("<unreadable>", 12);
         }
-#line 2232 "driver/golden.byn"
+#line 2236 "driver/golden.byn"
         {
             byn_writer* w = &l0_sb;
             w->file = byn_file_99;
-            w->line = 2232;
+            w->line = 2236;
             byn_w_str(w, l1_rel);
             byn_w_str(w, BYN_STR(" ", 1));
             byn_w_i64(w, (int64_t)(t7));
@@ -220208,14 +220210,14 @@ byn_str byn_main__goldenTree(byn_str p_root) {
             byn_w_str(w, BYN_STR("\012", 1));
         }
     continue_2:;
-#line 2230 "driver/golden.byn"
+#line 2234 "driver/golden.byn"
         t3 = byn_addw_i64(t3, INT64_C(1));
     }
 break_1:;
-#line 2234 "driver/golden.byn"
+#line 2238 "driver/golden.byn"
     return byn_strbuf_str(l0_sb);
 }
-#line 220219 "main.c"
+#line 220221 "main.c"
 
 void byn_main__goldenPendingFixture(byn_str p_root) {
     byn_err t0 = {0};
@@ -220230,80 +220232,80 @@ void byn_main__goldenPendingFixture(byn_str p_root) {
     bynt_arr3_str t9 = {0};
     int64_t t10 = {0};
     byn_writer t11 = {0};
-#line 2303 "driver/golden.byn"
+#line 2307 "driver/golden.byn"
     (void)byn_main__deleteWorkDir(p_root);
-#line 2304 "driver/golden.byn"
-    t0 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/lex/bad-chars.byn", 29), byn_context, byn_file_99, 2304), &t1, byn_context) };
-#line 2304 "driver/golden.byn"
+#line 2308 "driver/golden.byn"
+    t0 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/lex/bad-chars.byn", 29), byn_context, byn_file_99, 2308), &t1, byn_context) };
+#line 2308 "driver/golden.byn"
     if ((!(t0.code == ((uint32_t)0)))) {
-#line 2304 "driver/golden.byn"
+#line 2308 "driver/golden.byn"
         t1 = BYN_STR("", 0);
     }
-#line 2304 "driver/golden.byn"
+#line 2308 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("lex/p.byn", 9), t1);
-#line 2308 "driver/golden.byn"
-    t2 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/lex/bad-chars.tokens", 32), byn_context, byn_file_99, 2308), &t3, byn_context) };
-#line 2308 "driver/golden.byn"
+#line 2312 "driver/golden.byn"
+    t2 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/lex/bad-chars.tokens", 32), byn_context, byn_file_99, 2312), &t3, byn_context) };
+#line 2312 "driver/golden.byn"
     if ((!(t2.code == ((uint32_t)0)))) {
-#line 2308 "driver/golden.byn"
+#line 2312 "driver/golden.byn"
         t3 = BYN_STR("", 0);
     }
-#line 2305 "driver/golden.byn"
+#line 2309 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("lex/p.tokens", 12), byn_main__goldenChangeLine(t3, INT64_C(2)));
-#line 2310 "driver/golden.byn"
-    t4 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/arithmetic.byn", 30), byn_context, byn_file_99, 2310), &t5, byn_context) };
-#line 2310 "driver/golden.byn"
+#line 2314 "driver/golden.byn"
+    t4 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/arithmetic.byn", 30), byn_context, byn_file_99, 2314), &t5, byn_context) };
+#line 2314 "driver/golden.byn"
     if ((!(t4.code == ((uint32_t)0)))) {
-#line 2310 "driver/golden.byn"
+#line 2314 "driver/golden.byn"
         t5 = BYN_STR("", 0);
     }
-#line 2310 "driver/golden.byn"
+#line 2314 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("run/q.byn", 9), t5);
-#line 2314 "driver/golden.byn"
-    t6 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/arithmetic.stdout", 33), byn_context, byn_file_99, 2314), &t7, byn_context) };
-#line 2314 "driver/golden.byn"
+#line 2318 "driver/golden.byn"
+    t6 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/arithmetic.stdout", 33), byn_context, byn_file_99, 2318), &t7, byn_context) };
+#line 2318 "driver/golden.byn"
     if ((!(t6.code == ((uint32_t)0)))) {
-#line 2314 "driver/golden.byn"
+#line 2318 "driver/golden.byn"
         t7 = BYN_STR("", 0);
     }
-#line 2311 "driver/golden.byn"
+#line 2315 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("run/q.stdout", 12), byn_main__goldenChangeLine(t7, INT64_C(3)));
-#line 2316 "driver/golden.byn"
+#line 2320 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("run/broken.byn", 14), BYN_STR("void main() {\012    print(nope)\012}\012", 32));
-#line 2317 "driver/golden.byn"
+#line 2321 "driver/golden.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("run/broken.stdout", 17), BYN_STR("x\012", 2));
-#line 2318 "driver/golden.byn"
+#line 2322 "driver/golden.byn"
     t9 = ((bynt_arr3_str){{BYN_STR("lex/p", 5), BYN_STR("run/q", 5), BYN_STR("run/broken", 10)}});
-#line 2318 "driver/golden.byn"
+#line 2322 "driver/golden.byn"
     t10 = INT64_C(0);
-#line 2318 "driver/golden.byn"
+#line 2322 "driver/golden.byn"
     for (;;) {
-#line 2318 "driver/golden.byn"
+#line 2322 "driver/golden.byn"
         if ((!(t10 < ((void)t9, INT64_C(3))))) {
-#line 2318 "driver/golden.byn"
+#line 2322 "driver/golden.byn"
             goto break_1;
         }
-#line 2318 "driver/golden.byn"
+#line 2322 "driver/golden.byn"
         l8_stem = t9.v[t10];
-#line 2319 "driver/golden.byn"
+#line 2323 "driver/golden.byn"
         t11 = byn_strbuf_grow(byn_context);
-#line 2319 "driver/golden.byn"
+#line 2323 "driver/golden.byn"
         {
             byn_writer* w = &t11;
             w->file = byn_file_99;
-            w->line = 2319;
+            w->line = 2323;
             byn_w_str(w, l8_stem);
             byn_w_str(w, BYN_STR(".pending", 8));
         }
-#line 2319 "driver/golden.byn"
+#line 2323 "driver/golden.byn"
         (void)byn_main__goldenWrite(p_root, byn_strbuf_str(t11), BYN_STR("T6\012", 3));
     continue_2:;
-#line 2318 "driver/golden.byn"
+#line 2322 "driver/golden.byn"
         t10 = byn_addw_i64(t10, INT64_C(1));
     }
 break_1:;
 }
-#line 220307 "main.c"
+#line 220309 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenExeRun(byn_str p_root, bynt_opt_str p_value, byn_str p_jobs) {
     byn_str l0_failure = {0};
@@ -220315,28 +220317,28 @@ bynt_main__GoldenOutcome byn_main__goldenExeRun(byn_str p_root, bynt_opt_str p_v
     byn_process t6 = {0};
     byn_str t7 = {0};
     byn_str t8 = {0};
-#line 2346 "driver/golden.byn"
-    l0_failure = BYN_STR("", 0);
-#line 2347 "driver/golden.byn"
-    l1_exe = byn_main__goldenExe(&l0_failure);
-#line 2348 "driver/golden.byn"
-    l2_args = ((bynt_list_str){NULL, 0, 0, byn_context});
-#line 2349 "driver/golden.byn"
-    (void)bynh_add_list_str(&l2_args, BYN_STR("test", 4));
 #line 2350 "driver/golden.byn"
-    (void)bynh_add_list_str(&l2_args, p_root);
+    l0_failure = BYN_STR("", 0);
 #line 2351 "driver/golden.byn"
-    if ((!byn_str_eq(p_jobs, BYN_STR("", 0)))) {
+    l1_exe = byn_main__goldenExe(&l0_failure);
 #line 2352 "driver/golden.byn"
-        (void)bynh_add_list_str(&l2_args, BYN_STR("--jobs", 6));
+    l2_args = ((bynt_list_str){NULL, 0, 0, byn_context});
 #line 2353 "driver/golden.byn"
+    (void)bynh_add_list_str(&l2_args, BYN_STR("test", 4));
+#line 2354 "driver/golden.byn"
+    (void)bynh_add_list_str(&l2_args, p_root);
+#line 2355 "driver/golden.byn"
+    if ((!byn_str_eq(p_jobs, BYN_STR("", 0)))) {
+#line 2356 "driver/golden.byn"
+        (void)bynh_add_list_str(&l2_args, BYN_STR("--jobs", 6));
+#line 2357 "driver/golden.byn"
         (void)bynh_add_list_str(&l2_args, p_jobs);
     }
-#line 2355 "driver/golden.byn"
+#line 2359 "driver/golden.byn"
     l3_env = byn_main__goldenEnv();
-#line 2356 "driver/golden.byn"
+#line 2360 "driver/golden.byn"
     (*bynh_slot_map_str_opt_str(&l3_env, BYN_STR("BAYAN_EXE", 9), ((bynt_opt_str){0}))) = p_value;
-#line 2357 "driver/golden.byn"
+#line 2361 "driver/golden.byn"
     {
         int64_t detail = 0;
         byn_process proc = {0};
@@ -220347,21 +220349,21 @@ bynt_main__GoldenOutcome byn_main__goldenExeRun(byn_str p_root, bynt_opt_str p_v
         if (t5.code == UINT32_C(11)) t5.p.e11.after = (int64_t)detail;
         if (t5.code == UINT32_C(11)) { t5.p.e11.stdout_ = proc.out; t5.p.e11.stderr_ = proc.err; }
     }
-#line 2357 "driver/golden.byn"
+#line 2361 "driver/golden.byn"
     if ((!(t5.code == ((uint32_t)0)))) {
-#line 2357 "driver/golden.byn"
+#line 2361 "driver/golden.byn"
         return ((bynt_main__GoldenOutcome){l0_failure, BYN_STR("", 0), ((int32_t)-1)});
     }
-#line 2357 "driver/golden.byn"
+#line 2361 "driver/golden.byn"
     l4_r = t6;
-#line 2358 "driver/golden.byn"
+#line 2362 "driver/golden.byn"
     t7 = byn_main__goldenTestSeconds(byn_main__goldenLf(l4_r.out));
-#line 2358 "driver/golden.byn"
+#line 2362 "driver/golden.byn"
     t8 = l4_r.err;
-#line 2358 "driver/golden.byn"
+#line 2362 "driver/golden.byn"
     return ((bynt_main__GoldenOutcome){t7, t8, l4_r.exit_code});
 }
-#line 220365 "main.c"
+#line 220367 "main.c"
 
 bynt_main__GoldenOutcome byn_main__goldenRowsRun(byn_str p_dir, bynt_list_str p_extra) {
     byn_str l0_failure = {0};
@@ -220375,119 +220377,119 @@ bynt_main__GoldenOutcome byn_main__goldenRowsRun(byn_str p_dir, bynt_list_str p_
     int64_t t8 = {0};
     bynt_main__GoldenOutcome l9_o = {0};
     byn_str t10 = {0};
-#line 2514 "driver/golden.byn"
+#line 2518 "driver/golden.byn"
     l0_failure = BYN_STR("", 0);
-#line 2515 "driver/golden.byn"
+#line 2519 "driver/golden.byn"
     l1_exe = byn_main__goldenExe(&l0_failure);
-#line 2516 "driver/golden.byn"
+#line 2520 "driver/golden.byn"
     l2_args = ((bynt_list_str){NULL, 0, 0, byn_context});
-#line 2517 "driver/golden.byn"
+#line 2521 "driver/golden.byn"
     t4 = ((bynt_arr3_str){{BYN_STR("test", 4), BYN_STR("-v", 2), p_dir}});
-#line 2517 "driver/golden.byn"
+#line 2521 "driver/golden.byn"
     t5 = INT64_C(0);
-#line 2517 "driver/golden.byn"
+#line 2521 "driver/golden.byn"
     for (;;) {
-#line 2517 "driver/golden.byn"
+#line 2521 "driver/golden.byn"
         if ((!(t5 < ((void)t4, INT64_C(3))))) {
-#line 2517 "driver/golden.byn"
+#line 2521 "driver/golden.byn"
             goto break_1;
         }
-#line 2517 "driver/golden.byn"
+#line 2521 "driver/golden.byn"
         l3_a = t4.v[t5];
-#line 2518 "driver/golden.byn"
+#line 2522 "driver/golden.byn"
         (void)bynh_add_list_str(&l2_args, l3_a);
     continue_2:;
-#line 2517 "driver/golden.byn"
+#line 2521 "driver/golden.byn"
         t5 = byn_addw_i64(t5, INT64_C(1));
     }
 break_1:;
-#line 2520 "driver/golden.byn"
+#line 2524 "driver/golden.byn"
     t7 = p_extra;
-#line 2520 "driver/golden.byn"
+#line 2524 "driver/golden.byn"
     t8 = INT64_C(0);
-#line 2520 "driver/golden.byn"
+#line 2524 "driver/golden.byn"
     for (;;) {
-#line 2520 "driver/golden.byn"
+#line 2524 "driver/golden.byn"
         if ((!(t8 < t7.len))) {
-#line 2520 "driver/golden.byn"
+#line 2524 "driver/golden.byn"
             goto break_3;
         }
-#line 2520 "driver/golden.byn"
+#line 2524 "driver/golden.byn"
         l6_a = t7.ptr[t8];
-#line 2521 "driver/golden.byn"
+#line 2525 "driver/golden.byn"
         (void)bynh_add_list_str(&l2_args, l6_a);
     continue_4:;
-#line 2520 "driver/golden.byn"
+#line 2524 "driver/golden.byn"
         t8 = byn_addw_i64(t8, INT64_C(1));
     }
 break_3:;
-#line 2523 "driver/golden.byn"
-    l9_o = byn_main__goldenChild(l1_exe, l2_args, byn_path_full_path(BYN_STR(".", 1), byn_context, byn_file_99, 2523), ((bynt_list_u8){NULL, 0, 0, byn_context}), &l0_failure, INT64_C(0));
-#line 2524 "driver/golden.byn"
+#line 2527 "driver/golden.byn"
+    l9_o = byn_main__goldenChild(l1_exe, l2_args, byn_path_full_path(BYN_STR(".", 1), byn_context, byn_file_99, 2527), ((bynt_list_u8){NULL, 0, 0, byn_context}), &l0_failure, INT64_C(0));
+#line 2528 "driver/golden.byn"
     t10 = byn_main__goldenTestSeconds(byn_main__goldenLf(l9_o.stdout_));
-#line 2524 "driver/golden.byn"
+#line 2528 "driver/golden.byn"
     l9_o.stdout_ = t10;
-#line 2525 "driver/golden.byn"
+#line 2529 "driver/golden.byn"
     return l9_o;
 }
-#line 220434 "main.c"
+#line 220436 "main.c"
 
 bynt_list_str byn_main__goldenRowLines(byn_str p_stdout) {
     bynt_list_str l0_rows = {0};
     byn_str l1_line = {0};
     bynt_list_str t2 = {0};
     int64_t t3 = {0};
-#line 2530 "driver/golden.byn"
+#line 2534 "driver/golden.byn"
     l0_rows = ((bynt_list_str){NULL, 0, 0, byn_context});
-#line 2531 "driver/golden.byn"
+#line 2535 "driver/golden.byn"
     t2 = byn_main__goldenLines(p_stdout);
-#line 2531 "driver/golden.byn"
+#line 2535 "driver/golden.byn"
     t3 = INT64_C(0);
-#line 2531 "driver/golden.byn"
+#line 2535 "driver/golden.byn"
     for (;;) {
-#line 2531 "driver/golden.byn"
+#line 2535 "driver/golden.byn"
         if ((!(t3 < t2.len))) {
-#line 2531 "driver/golden.byn"
+#line 2535 "driver/golden.byn"
             goto break_1;
         }
-#line 2531 "driver/golden.byn"
+#line 2535 "driver/golden.byn"
         l1_line = t2.ptr[t3];
-#line 2532 "driver/golden.byn"
+#line 2536 "driver/golden.byn"
         if ((byn_str_starts_with(l1_line, BYN_STR("  \342\227\206 ", 6)) || byn_str_starts_with(l1_line, BYN_STR("  \342\234\227 ", 6)))) {
-#line 2533 "driver/golden.byn"
+#line 2537 "driver/golden.byn"
             (void)bynh_add_list_str(&l0_rows, l1_line);
         }
     continue_2:;
-#line 2531 "driver/golden.byn"
+#line 2535 "driver/golden.byn"
         t3 = byn_addw_i64(t3, INT64_C(1));
     }
 break_1:;
-#line 2536 "driver/golden.byn"
+#line 2540 "driver/golden.byn"
     return l0_rows;
 }
-#line 220469 "main.c"
+#line 220471 "main.c"
 
 byn_str byn_main__goldenRowsFixture(byn_str p_root) {
     byn_str l0_dir = {0};
     byn_err t1 = {0};
     byn_str t2 = {0};
-#line 2542 "driver/golden.byn"
+#line 2546 "driver/golden.byn"
     (void)byn_main__deleteWorkDir(p_root);
-#line 2543 "driver/golden.byn"
+#line 2547 "driver/golden.byn"
     l0_dir = byn_path_combine(p_root, BYN_STR("run_test-cases.test", 19), byn_context);
-#line 2547 "driver/golden.byn"
-    t1 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/test-cases.test.byn", 35), byn_context, byn_file_99, 2547), &t2, byn_context) };
-#line 2547 "driver/golden.byn"
+#line 2551 "driver/golden.byn"
+    t1 = (byn_err){ .code = byn_io_read_text(byn_path_full_path(BYN_STR("tests/cases/run/test-cases.test.byn", 35), byn_context, byn_file_99, 2551), &t2, byn_context) };
+#line 2551 "driver/golden.byn"
     if ((!(t1.code == ((uint32_t)0)))) {
-#line 2547 "driver/golden.byn"
+#line 2551 "driver/golden.byn"
         t2 = BYN_STR("", 0);
     }
-#line 2544 "driver/golden.byn"
+#line 2548 "driver/golden.byn"
     (void)byn_main__goldenWrite(l0_dir, BYN_STR("test-cases.test.byn", 19), t2);
-#line 2549 "driver/golden.byn"
+#line 2553 "driver/golden.byn"
     return l0_dir;
 }
-#line 220491 "main.c"
+#line 220493 "main.c"
 
 bynt_main__LayoutResult byn_main__layoutApply(bynt_list_u8 p_source, bynt_main__LayoutOptions p_options) {
     bynt_main__LayoutResult l0_spaced = {0};
@@ -220501,13 +220503,13 @@ bynt_main__LayoutResult byn_main__layoutApply(bynt_list_u8 p_source, bynt_main__
 #line 110 "driver/layout.byn"
     return byn_main__layoutApplyWith(p_source, p_options, false);
 }
-#line 220505 "main.c"
+#line 220507 "main.c"
 
 int64_t byn_main__layoutBom(bynt_list_u8 p_bytes) {
 #line 114 "driver/layout.byn"
     return (((((p_bytes.len >= INT64_C(3)) && ((*bynh_at_list_u8(p_bytes, (int64_t)INT64_C(0), false, byn_file_100, 114)) == ((uint8_t)239))) && ((*bynh_at_list_u8(p_bytes, (int64_t)INT64_C(1), false, byn_file_100, 114)) == ((uint8_t)187))) && ((*bynh_at_list_u8(p_bytes, (int64_t)INT64_C(2), false, byn_file_100, 114)) == ((uint8_t)191))) ? INT64_C(3) : INT64_C(0));
 }
-#line 220511 "main.c"
+#line 220513 "main.c"
 
 bynt_lexer__LexResult byn_main__layoutLex(bynt_list_u8 p_bytes, bynt_lexer__Keywords p_keywords) {
     bynt_list_u8 l0_copy = {0};
@@ -220516,7 +220518,7 @@ bynt_lexer__LexResult byn_main__layoutLex(bynt_list_u8 p_bytes, bynt_lexer__Keyw
 #line 119 "driver/layout.byn"
     return byn_lexer__lex(byn_lexer__SourceText__create(BYN_STR("layout", 6), l0_copy), p_keywords);
 }
-#line 220520 "main.c"
+#line 220522 "main.c"
 
 bynt_main__LayoutResult byn_main__layoutApplyWith(bynt_list_u8 p_source, bynt_main__LayoutOptions p_options, bool p_spaceProducts) {
     bynt_lexer__Keywords l0_keywords = {0};
@@ -220617,7 +220619,7 @@ break_1:;
 #line 170 "driver/layout.byn"
     return ((bynt_main__LayoutResult){l8_output, ((bynt_opt_str){0})});
 }
-#line 220621 "main.c"
+#line 220623 "main.c"
 
 bool byn_main__layoutGaps(bynt_list_u8 p_source, bynt_list_lexer__Token p_tokens, int64_t p_bom, bynt_list_main__LayoutGap* p_gaps) {
     int64_t l0_i = {0};
@@ -220770,7 +220772,7 @@ break_1:;
 #line 219 "driver/layout.byn"
     return true;
 }
-#line 220774 "main.c"
+#line 220776 "main.c"
 
 bynt_opt_str byn_main__layoutCheck(bynt_list_u8 p_source, bynt_list_lexer__Token p_tokens, bynt_list_main__LayoutGap p_gaps, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p, bynt_list_u8 p_output) {
     bynt_lexer__LexResult l0_lexed = {0};
@@ -221019,7 +221021,7 @@ break_11:;
 #line 275 "driver/layout.byn"
     return ((bynt_opt_str){0});
 }
-#line 221023 "main.c"
+#line 221025 "main.c"
 
 bool byn_main__layoutTrailing(bynt_list_lexer__Token p_tokens, int64_t p_i) {
     byn_lexer_TokenKind l0_next = {0};
@@ -221033,7 +221035,7 @@ bool byn_main__layoutTrailing(bynt_list_lexer__Token p_tokens, int64_t p_i) {
 #line 282 "driver/layout.byn"
     return (((l0_next == ((byn_lexer_TokenKind)16)) || (l0_next == ((byn_lexer_TokenKind)18))) || (l0_next == ((byn_lexer_TokenKind)20)));
 }
-#line 221037 "main.c"
+#line 221039 "main.c"
 
 bynt_list_main__LayoutTokenText byn_main__layoutSignificant(bynt_lexer__SourceText p_text, bynt_list_lexer__Token p_tokens) {
     bynt_list_main__LayoutTokenText l0_result = {0};
@@ -221070,7 +221072,7 @@ break_1:;
 #line 297 "driver/layout.byn"
     return l0_result;
 }
-#line 221074 "main.c"
+#line 221076 "main.c"
 
 bynt_list_i8 byn_main__layoutAdjacency(bynt_list_u8 p_bytes, bynt_list_lexer__Token p_tokens) {
     bynt_list_i8 l0_result = {0};
@@ -221113,7 +221115,7 @@ break_1:;
 #line 312 "driver/layout.byn"
     return l0_result;
 }
-#line 221117 "main.c"
+#line 221119 "main.c"
 
 bool byn_main__layoutTriviaMatters(bynt_list_u8 p_bytes, bynt_list_lexer__Token p_tokens, int64_t p_i) {
     byn_lexer_TokenKind l0_before = {0};
@@ -221130,7 +221132,7 @@ bool byn_main__layoutTriviaMatters(bynt_list_u8 p_bytes, bynt_list_lexer__Token 
 #line 321 "driver/layout.byn"
     return ((((((l0_before == ((byn_lexer_TokenKind)60)) && ((l1_kind == ((byn_lexer_TokenKind)60)) || (l1_kind == ((byn_lexer_TokenKind)61)))) || ((l0_before == ((byn_lexer_TokenKind)24)) && (l1_kind == ((byn_lexer_TokenKind)23)))) || byn_main__layoutStarGap(p_tokens, p_i)) || (l1_kind == ((byn_lexer_TokenKind)4))) || ((l0_before == ((byn_lexer_TokenKind)1)) && byn_main__layoutBytesAre(p_bytes, (*bynh_at_list_lexer__Token(p_tokens, (int64_t)byn_sub_i64(p_i, INT64_C(1), byn_file_100, 326), false, byn_file_100, 326)).start, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token(p_tokens, (int64_t)byn_sub_i64(p_i, INT64_C(1), byn_file_100, 326), false, byn_file_100, 326))), BYN_STR("unlikely", 8))));
 }
-#line 221134 "main.c"
+#line 221136 "main.c"
 
 bool byn_main__layoutBytesAre(bynt_list_u8 p_bytes, int64_t p_start, int64_t p_end, byn_str p_word) {
     bynt_span_u8 l0_w = {0};
@@ -221170,7 +221172,7 @@ break_1:;
 #line 336 "driver/layout.byn"
     return true;
 }
-#line 221174 "main.c"
+#line 221176 "main.c"
 
 bool byn_main__layoutStarGap(bynt_list_lexer__Token p_tokens, int64_t p_i) {
     byn_lexer_TokenKind l0_before = {0};
@@ -221182,13 +221184,13 @@ bool byn_main__layoutStarGap(bynt_list_lexer__Token p_tokens, int64_t p_i) {
 #line 343 "driver/layout.byn"
     return (((l1_kind == ((byn_lexer_TokenKind)37)) && (byn_main__layoutTypeEnd(l0_before) || (l0_before == ((byn_lexer_TokenKind)37)))) || ((l0_before == ((byn_lexer_TokenKind)37)) && (!byn_lexer__Token__get_hasTriviaBefore(&(*bynh_at_list_lexer__Token(p_tokens, (int64_t)byn_sub_i64(p_i, INT64_C(1), byn_file_100, 344), false, byn_file_100, 344))))));
 }
-#line 221186 "main.c"
+#line 221188 "main.c"
 
 bool byn_main__layoutTypeEnd(byn_lexer_TokenKind p_kind) {
 #line 349 "driver/layout.byn"
     return (((((p_kind == ((byn_lexer_TokenKind)1)) || (p_kind == ((byn_lexer_TokenKind)60))) || (p_kind == ((byn_lexer_TokenKind)27))) || (p_kind == ((byn_lexer_TokenKind)18))) || byn_parser__isContextualKeyword(p_kind));
 }
-#line 221192 "main.c"
+#line 221194 "main.c"
 
 bynt_list_str byn_main__layoutComments(bynt_list_u8 p_bytes, bynt_list_main__LayoutGap p_gaps) {
     bynt_list_str l0_result = {0};
@@ -221244,7 +221246,7 @@ break_1:;
 #line 365 "driver/layout.byn"
     return l0_result;
 }
-#line 221248 "main.c"
+#line 221250 "main.c"
 
 byn_str byn_main__layoutString(bynt_list_u8 p_bytes) {
     bynt_list_u8 l0_copy = {0};
@@ -221256,7 +221258,7 @@ byn_str byn_main__layoutString(bynt_list_u8 p_bytes) {
 #line 372 "driver/layout.byn"
     return byn_lexer__SourceText__getText(&l1_text, byn_lexer__TextSpan__fromBounds(INT64_C(0), p_bytes.len));
 }
-#line 221260 "main.c"
+#line 221262 "main.c"
 
 bynt_list_u8 byn_main__layoutCommentText(bynt_list_u8 p_bytes, bynt_main__LayoutGapItem p_item) {
     int64_t l0_slashes = {0};
@@ -221362,7 +221364,7 @@ break_7:;
 #line 398 "driver/layout.byn"
     return l6_spaced;
 }
-#line 221366 "main.c"
+#line 221368 "main.c"
 
 bynt_main__LayoutEngine byn_main__layoutEngine(bynt_list_u8 p_source, bynt_list_lexer__Token p_tokens, bynt_list_main__LayoutGap p_gaps, int64_t p_bom, bynt_main__LayoutOptions p_options, bool p_spaceProducts) {
     int64_t l0_n = {0};
@@ -221423,19 +221425,19 @@ break_1:;
 #line 451 "driver/layout.byn"
     return l1_engine;
 }
-#line 221427 "main.c"
+#line 221429 "main.c"
 
 bool byn_main__layoutIsOpener(byn_lexer_TokenKind p_kind) {
 #line 455 "driver/layout.byn"
     return ((((p_kind == ((byn_lexer_TokenKind)15)) || (p_kind == ((byn_lexer_TokenKind)17))) || (p_kind == ((byn_lexer_TokenKind)19))) || (p_kind == ((byn_lexer_TokenKind)12)));
 }
-#line 221433 "main.c"
+#line 221435 "main.c"
 
 bool byn_main__layoutIsCloser(byn_lexer_TokenKind p_kind) {
 #line 458 "driver/layout.byn"
     return ((((p_kind == ((byn_lexer_TokenKind)16)) || (p_kind == ((byn_lexer_TokenKind)18))) || (p_kind == ((byn_lexer_TokenKind)20))) || (p_kind == ((byn_lexer_TokenKind)13)));
 }
-#line 221439 "main.c"
+#line 221441 "main.c"
 
 bool byn_main__layoutAfterLa(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -221522,7 +221524,7 @@ switch_end_1:;
 #line 461 "driver/layout.byn"
     return t0;
 }
-#line 221526 "main.c"
+#line 221528 "main.c"
 
 bool byn_main__layoutExpressionBefore(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -221581,7 +221583,7 @@ switch_end_1:;
 #line 476 "driver/layout.byn"
     return t0;
 }
-#line 221585 "main.c"
+#line 221587 "main.c"
 
 bool byn_main__layoutPiece(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -221605,7 +221607,7 @@ switch_end_1:;
 #line 487 "driver/layout.byn"
     return t0;
 }
-#line 221609 "main.c"
+#line 221611 "main.c"
 
 bool byn_main__layoutOperandEnd(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -221636,7 +221638,7 @@ switch_end_1:;
 #line 497 "driver/layout.byn"
     return t0;
 }
-#line 221640 "main.c"
+#line 221642 "main.c"
 
 bool byn_main__layoutIsBinary(byn_lexer_TokenKind p_kind) {
     bool t0 = {0};
@@ -221702,7 +221704,7 @@ switch_end_1:;
 #line 504 "driver/layout.byn"
     return t0;
 }
-#line 221706 "main.c"
+#line 221708 "main.c"
 
 bynt_lexer__TextSpan byn_main__layoutDeclSpan(byn_parser_Decl p_decl) {
     bynt_lexer__TextSpan t0 = {0};
@@ -221863,7 +221865,7 @@ switch_end_1:;
 #line 516 "driver/layout.byn"
     return t0;
 }
-#line 221867 "main.c"
+#line 221869 "main.c"
 
 byn_str byn_main__layoutDeclType(byn_parser_Decl p_decl) {
     byn_str t0 = {0};
@@ -222006,7 +222008,7 @@ switch_end_1:;
 #line 539 "driver/layout.byn"
     return t0;
 }
-#line 222010 "main.c"
+#line 222012 "main.c"
 
 bynt_list_main__LayoutAttribute byn_main__layoutAttributes(byn_parser_Decl p_decl) {
     bynt_parser__ImportDecl* l0_n = {0};
@@ -222162,7 +222164,7 @@ bynt_list_main__LayoutAttribute byn_main__layoutAttributes(byn_parser_Decl p_dec
     }
 switch_end_1:;
 }
-#line 222166 "main.c"
+#line 222168 "main.c"
 
 bynt_list_main__LayoutAttribute byn_main__layoutAttributeSpans(bynt_list_parser__AttributeSyntax p_attributes) {
     bynt_list_main__LayoutAttribute l0_result = {0};
@@ -222214,7 +222216,7 @@ break_1:;
 #line 604 "driver/layout.byn"
     return l0_result;
 }
-#line 222218 "main.c"
+#line 222220 "main.c"
 
 void byn_main__layoutUnformatted(bynt_list_parser__Decl p_decls, bynt_list_u8 p_bytes, bynt_list_main__LayoutRegion* p_regions) {
     byn_parser_Decl l0_decl = {0};
@@ -222293,7 +222295,7 @@ void byn_main__layoutUnformatted(bynt_list_parser__Decl p_decls, bynt_list_u8 p_
     }
 break_1:;
 }
-#line 222297 "main.c"
+#line 222299 "main.c"
 
 bool byn_main__layoutOwnLineAttributes(byn_parser_Decl p_decl) {
     bool t0 = {0};
@@ -222331,7 +222333,7 @@ switch_end_1:;
 #line 626 "driver/layout.byn"
     return t0;
 }
-#line 222335 "main.c"
+#line 222337 "main.c"
 
 byn_str byn_main__layoutGroup(byn_parser_Decl p_decl) {
     bynt_parser__FieldDecl* l0_f = {0};
@@ -222376,7 +222378,7 @@ byn_str byn_main__layoutGroup(byn_parser_Decl p_decl) {
     return byn_main__layoutDeclType(p_decl);
 switch_end_1:;
 }
-#line 222380 "main.c"
+#line 222382 "main.c"
 
 byn_str byn_main__versionLine(void) {
     byn_writer t0 = {0};
@@ -222394,7 +222396,7 @@ byn_str byn_main__versionLine(void) {
 #line 84 "driver/main.byn"
     return byn_strbuf_str(t0);
 }
-#line 222398 "main.c"
+#line 222400 "main.c"
 
 int32_t byn_main__run(bynt_span_str p_args, bynt_main__DCtx* p_d) {
     bynt_list_str l0_kept = {0};
@@ -222715,7 +222717,7 @@ int32_t byn_main__run(bynt_span_str p_args, bynt_main__DCtx* p_d) {
     return ((int32_t)2);
 switch_end_1:;
 }
-#line 222719 "main.c"
+#line 222721 "main.c"
 
 bool byn_main__takeGlobalOptions(bynt_span_str p_args, bynt_list_str* p_kept, bynt_main__DCtx* p_d) {
     byn_str l0_color = {0};
@@ -222857,7 +222859,7 @@ break_1:;
 #line 217 "driver/main.byn"
     return true;
 }
-#line 222861 "main.c"
+#line 222863 "main.c"
 
 bynt_main__DStyle byn_main__decideStyle(byn_str p_colorFlag, bool p_ascii, bool p_isTty, int64_t p_width) {
     bool l0_dumb = {0};
@@ -222930,7 +222932,7 @@ switch_end_1:;
 #line 247 "driver/main.byn"
     return ((bynt_main__DStyle){l1_color, ((p_ascii || l0_dumb) || (!byn_main__t7Utf8())), ((p_isTty && (p_width > INT64_C(0))) ? p_width : INT64_C(100)), l4_palette});
 }
-#line 222934 "main.c"
+#line 222936 "main.c"
 
 bool byn_main__t7Light(void) {
     byn_str l0_theme = {0};
@@ -223023,7 +223025,7 @@ break_1:;
 #line 282 "driver/main.byn"
     return ((l4_bg == INT64_C(7)) || ((l4_bg >= INT64_C(9)) && (l4_bg <= INT64_C(15))));
 }
-#line 223027 "main.c"
+#line 223029 "main.c"
 
 byn_str byn_main__t7Prefix(int64_t p_palette, int64_t p_role) {
     bynt_arr5_str l0_rows = {0};
@@ -223048,7 +223050,7 @@ byn_str byn_main__t7Prefix(int64_t p_palette, int64_t p_role) {
 #line 308 "driver/main.byn"
     return (*bynh_at_arr5_str(&l2_rows, (int64_t)p_role, false, byn_file_101, 308));
 }
-#line 223052 "main.c"
+#line 223054 "main.c"
 
 bool byn_main__t7Utf8(void) {
     bynt_arr3_str l0_names = {0};
@@ -223093,7 +223095,7 @@ break_1:;
 #line 324 "driver/main.byn"
     return true;
 }
-#line 223097 "main.c"
+#line 223099 "main.c"
 
 bool byn_main__t1FileExists(byn_str p_path) {
     byn_arena* l0_arena = {0};
@@ -223144,7 +223146,7 @@ bool byn_main__t1FileExists(byn_str p_path) {
 #line 330 "driver/main.byn"
     byn_arena_free(l0_arena);
 }
-#line 223148 "main.c"
+#line 223150 "main.c"
 
 bool byn_main__t1IsScript(byn_str p_path) {
     bynt_list_u8 l0_bytes = {0};
@@ -223167,7 +223169,7 @@ bool byn_main__t1IsScript(byn_str p_path) {
 #line 347 "driver/main.byn"
     return (((l0_bytes.len >= INT64_C(2)) && ((*bynh_at_list_u8(l0_bytes, (int64_t)INT64_C(0), false, byn_file_101, 347)) == ((uint8_t)35))) && ((*bynh_at_list_u8(l0_bytes, (int64_t)INT64_C(1), false, byn_file_101, 347)) == ((uint8_t)33)));
 }
-#line 223171 "main.c"
+#line 223173 "main.c"
 
 bool byn_main__refuseLibrary(bynt_semantics__Ctx p_compiled, byn_str p_command) {
     byn_writer t0 = {0};
@@ -223197,7 +223199,7 @@ bool byn_main__refuseLibrary(bynt_semantics__Ctx p_compiled, byn_str p_command) 
 #line 358 "driver/main.byn"
     return true;
 }
-#line 223201 "main.c"
+#line 223203 "main.c"
 
 int32_t byn_main__refuse(byn_str p_what) {
     byn_writer t0 = {0};
@@ -223220,7 +223222,7 @@ int32_t byn_main__refuse(byn_str p_what) {
 #line 364 "driver/main.byn"
     return ((int32_t)2);
 }
-#line 223224 "main.c"
+#line 223226 "main.c"
 
 int32_t byn_main__main(bynt_span_str p_args) {
     bynt_main__DCtx l0_d = {0};
@@ -223229,7 +223231,7 @@ int32_t byn_main__main(bynt_span_str p_args) {
 #line 369 "driver/main.byn"
     return byn_main__run(p_args, &l0_d);
 }
-#line 223233 "main.c"
+#line 223235 "main.c"
 
 int32_t byn_main__mutateTests(bynt_main__T11Options p_o, bynt_semantics__Ctx* p_compiled, bynt_main__DCtx* p_d) {
     bynt_list_str l0_none = {0};
@@ -223554,7 +223556,7 @@ break_5:;
 #line 151 "driver/mutate.byn"
     return (l50_failed ? ((int32_t)3) : ((int32_t)0));
 }
-#line 223558 "main.c"
+#line 223560 "main.c"
 
 bynt_opt_i64 byn_main__t13MinMutation(bynt_semantics__Ctx p_compiled) {
     bynt_semantics__Manifest l0_manifest = {0};
@@ -223566,7 +223568,7 @@ bynt_opt_i64 byn_main__t13MinMutation(bynt_semantics__Ctx p_compiled) {
 #line 159 "driver/mutate.byn"
     return ((bynt_opt_i64){0});
 }
-#line 223570 "main.c"
+#line 223572 "main.c"
 
 int64_t byn_main__t13Index(byn_main_MutantStatus p_s) {
 #line 165 "driver/mutate.byn"
@@ -223613,7 +223615,7 @@ int64_t byn_main__t13Index(byn_main_MutantStatus p_s) {
     }
 switch_end_1:;
 }
-#line 223617 "main.c"
+#line 223619 "main.c"
 
 int32_t byn_main__mutateBinary(bynt_list_str p_args) {
     bynt_opt_str l0_binary = {0};
@@ -223835,7 +223837,7 @@ break_5:;
 #line 230 "driver/mutate.byn"
     return byn_main__runExternal(l23_map, l2_command, l26_full, BYN_STR("bayan mutate", 12), (t31.has ? t31.value : BYN_STR("", 0)), INT64_C(0), l27_min);
 }
-#line 223839 "main.c"
+#line 223841 "main.c"
 
 int32_t byn_main__t13BadSites(byn_str p_sites) {
     byn_writer t0 = {0};
@@ -223858,7 +223860,7 @@ int32_t byn_main__t13BadSites(byn_str p_sites) {
 #line 244 "driver/mutate.byn"
     return ((int32_t)2);
 }
-#line 223862 "main.c"
+#line 223864 "main.c"
 
 byn_str byn_main__t13ReadAllText(bynt_list_u8 p_b) {
     bynt_arr2_u8 t0 = {0};
@@ -223904,7 +223906,7 @@ byn_str byn_main__t13ReadAllText(bynt_list_u8 p_b) {
 #line 256 "driver/mutate.byn"
     return byn_main__t13DecodeUtf8(p_b, INT64_C(0));
 }
-#line 223908 "main.c"
+#line 223910 "main.c"
 
 byn_str byn_main__t13DecodeUtf8(bynt_list_u8 p_b, int64_t p_start) {
     bynt_list_u8 l0_utf8 = {0};
@@ -224034,7 +224036,7 @@ break_1:;
 #line 308 "driver/mutate.byn"
     return bynh_utf8_decode_replace(((bynt_span_u8){l0_utf8.ptr, l0_utf8.len}));
 }
-#line 224038 "main.c"
+#line 224040 "main.c"
 
 bool byn_main__t13Starts(bynt_list_u8 p_b, bynt_span_u8 p_prefix) {
     int64_t t0 = {0};
@@ -224074,7 +224076,7 @@ break_1:;
 #line 317 "driver/mutate.byn"
     return true;
 }
-#line 224078 "main.c"
+#line 224080 "main.c"
 
 byn_str byn_main__t13DecodeWide(bynt_list_u8 p_b, int64_t p_start, int64_t p_width, bool p_bigEndian) {
     bynt_list_u8 l0_utf8 = {0};
@@ -224138,7 +224140,7 @@ break_1:;
 #line 346 "driver/mutate.byn"
     return bynh_utf8_decode_replace(((bynt_span_u8){l0_utf8.ptr, l0_utf8.len}));
 }
-#line 224142 "main.c"
+#line 224144 "main.c"
 
 int64_t byn_main__t13Unit(bynt_list_u8 p_b, int64_t p_i, int64_t p_width, bool p_bigEndian) {
     int64_t l0_u = {0};
@@ -224173,7 +224175,7 @@ break_1:;
 #line 355 "driver/mutate.byn"
     return l0_u;
 }
-#line 224177 "main.c"
+#line 224179 "main.c"
 
 void byn_main__t13AppendUtf8(bynt_list_u8* p_utf8, int64_t p_cp) {
 #line 360 "driver/mutate.byn"
@@ -224209,7 +224211,7 @@ void byn_main__t13AppendUtf8(bynt_list_u8* p_utf8, int64_t p_cp) {
         }
     }
 }
-#line 224213 "main.c"
+#line 224215 "main.c"
 
 bynt_list_str byn_main__shellCommand(byn_str p_command) {
     bynt_list_str t0 = {0};
@@ -224238,7 +224240,7 @@ bynt_list_str byn_main__shellCommand(byn_str p_command) {
 #line 383 "driver/mutate.byn"
     return t1;
 }
-#line 224242 "main.c"
+#line 224244 "main.c"
 
 int32_t byn_main__runExternal(bynt_list_main__ExternalSite p_sites, bynt_list_str p_command, byn_str p_binary, byn_str p_tool, byn_str p_reportDir, int64_t p_buildNanos, bynt_opt_i64 p_minMutation) {
     int64_t l0_total = {0};
@@ -224306,7 +224308,7 @@ int32_t byn_main__runExternal(bynt_list_main__ExternalSite p_sites, bynt_list_st
 #line 407 "driver/mutate.byn"
     return (byn_main__reportGates(byn_main__gatesMutation(l4_report, p_minMutation)) ? ((int32_t)3) : ((int32_t)0));
 }
-#line 224310 "main.c"
+#line 224312 "main.c"
 
 int32_t byn_main__t13BaselineFailed(void) {
 #line 412 "driver/mutate.byn"
@@ -224314,7 +224316,7 @@ int32_t byn_main__t13BaselineFailed(void) {
 #line 413 "driver/mutate.byn"
     return ((int32_t)1);
 }
-#line 224318 "main.c"
+#line 224320 "main.c"
 
 bool byn_main__reportGates(bynt_list_main__GateFailure p_failures) {
     bynt_main__GateFailure l0_f = {0};
@@ -224399,13 +224401,13 @@ break_1:;
 #line 424 "driver/mutate.byn"
     return (p_failures.len > INT64_C(0));
 }
-#line 224403 "main.c"
+#line 224405 "main.c"
 
 byn_str byn_main__externalLine(bynt_main__ExternalResult p_r) {
 #line 428 "driver/mutate.byn"
     return byn_main__t13Line(p_r.site, p_r.status);
 }
-#line 224409 "main.c"
+#line 224411 "main.c"
 
 byn_str byn_main__statusName(byn_main_MutantStatus p_s) {
 #line 433 "driver/mutate.byn"
@@ -224452,13 +224454,13 @@ byn_str byn_main__statusName(byn_main_MutantStatus p_s) {
     }
 switch_end_1:;
 }
-#line 224456 "main.c"
+#line 224458 "main.c"
 
 byn_str byn_main__mutantLine(bynt_main__MutantResult p_m) {
 #line 449 "driver/mutate.byn"
     return byn_main__t13Line(p_m.site, p_m.status);
 }
-#line 224462 "main.c"
+#line 224464 "main.c"
 
 byn_str byn_main__t13Line(bynt_main__ExternalSite p_s, byn_main_MutantStatus p_status) {
     byn_writer t0 = {0};
@@ -224487,7 +224489,7 @@ byn_str byn_main__t13Line(bynt_main__ExternalSite p_s, byn_main_MutantStatus p_s
 #line 453 "driver/mutate.byn"
     return byn_strbuf_str(t0);
 }
-#line 224491 "main.c"
+#line 224493 "main.c"
 
 byn_str byn_main__shellQuote(byn_str p_text) {
     byn_str l0_c = {0};
@@ -224543,7 +224545,7 @@ break_1:;
 #line 461 "driver/mutate.byn"
     return byn_strbuf_str(t4);
 }
-#line 224547 "main.c"
+#line 224549 "main.c"
 
 bynt_main__MutationResult byn_main__mutationRun(byn_str p_executable, bynt_emitter__Schema p_schema, bynt_list_i64 p_tests, byn_str p_workDir, int64_t p_baselineMs) {
     int64_t l0_processes = {0};
@@ -224753,7 +224755,7 @@ break_7:;
 #line 516 "driver/mutate.byn"
     return ((bynt_main__MutationResult){l23_results, l3_excluded, l0_processes});
 }
-#line 224757 "main.c"
+#line 224759 "main.c"
 
 bynt_main__MutantResult byn_main__t13Mutant(byn_str p_executable, bynt_emitter__SchemaSite p_site, bynt_list_i64 p_tests, bynt_map_i64_map_i64_bool p_reach, bynt_map_i64_i64 p_time, int64_t* p_processes) {
     bynt_main__ExternalSite l0_s = {0};
@@ -224821,7 +224823,7 @@ break_1:;
 #line 549 "driver/mutate.byn"
     return ((bynt_main__MutantResult){l0_s, ((l1_runs == INT64_C(0)) ? ((byn_main_MutantStatus)3) : ((byn_main_MutantStatus)1)), l1_runs, ((bynt_opt_i64){0})});
 }
-#line 224825 "main.c"
+#line 224827 "main.c"
 
 int64_t byn_main__t13Limit(int64_t p_elapsedNanos) {
     int64_t l0_ticks = {0};
@@ -224833,7 +224835,7 @@ int64_t byn_main__t13Limit(int64_t p_elapsedNanos) {
 #line 557 "driver/mutate.byn"
     return byn_div_i64(l1_limit, INT64_C(10000), byn_file_102, 557);
 }
-#line 224837 "main.c"
+#line 224839 "main.c"
 
 bynt_opt_list_main__ExternalResult byn_main__mutationRunExternal(bynt_list_main__ExternalSite p_sites, bynt_list_str p_command, byn_str p_binary, int64_t p_baselineMs) {
     bynt_main__T13Outcome l0_baseline = {0};
@@ -224926,7 +224928,7 @@ break_1:;
 #line 586 "driver/mutate.byn"
     return ((bynt_opt_list_main__ExternalResult){true, l4_results});
 }
-#line 224930 "main.c"
+#line 224932 "main.c"
 
 bynt_opt_main__T13Outcome byn_main__t13RunCommand(bynt_list_str p_command, int64_t p_mutant, byn_str p_binary, int64_t p_limitMs) {
     bynt_list_str l0_args = {0};
@@ -224981,7 +224983,7 @@ break_1:;
 #line 599 "driver/mutate.byn"
     return byn_main__t13Run((*bynh_at_list_str(p_command, (int64_t)INT64_C(0), false, byn_file_102, 599)), l0_args, l4_env, p_limitMs);
 }
-#line 224985 "main.c"
+#line 224987 "main.c"
 
 bynt_main__T13Outcome byn_main__t13Exec(byn_str p_executable, int64_t p_index, int64_t p_mutant, bynt_opt_str p_reachPath, int64_t p_limitMs) {
     bynt_list_str l0_args = {0};
@@ -225043,7 +225045,7 @@ bynt_main__T13Outcome byn_main__t13Exec(byn_str p_executable, int64_t p_index, i
 #line 613 "driver/mutate.byn"
     return t6;
 }
-#line 225047 "main.c"
+#line 225049 "main.c"
 
 bynt_opt_main__T13Outcome byn_main__t13Run(byn_str p_program, bynt_list_str p_args, bynt_map_str_opt_str p_env, int64_t p_limitMs) {
     int64_t l0_clock = {0};
@@ -225108,13 +225110,13 @@ bynt_opt_main__T13Outcome byn_main__t13Run(byn_str p_program, bynt_list_str p_ar
 #line 633 "driver/mutate.byn"
     return ((bynt_opt_main__T13Outcome){true, ((bynt_main__T13Outcome){t10, false, byn_sub_i64(byn_io_monotonic_nanos(), l0_clock, byn_file_102, 633)})});
 }
-#line 225112 "main.c"
+#line 225114 "main.c"
 
 bynt_main__ExternalSite byn_main__externalSiteFrom(bynt_emitter__SchemaSite p_s) {
 #line 638 "driver/mutate.byn"
     return ((bynt_main__ExternalSite){p_s.id, p_s.site.file, p_s.site.line, p_s.site.column, p_s.site.op, p_s.site.original, p_s.site.mutated, p_s.emitted, p_s.unobservable});
 }
-#line 225118 "main.c"
+#line 225120 "main.c"
 
 bynt_opt_list_main__ExternalSite byn_main__externalSiteReadAll(byn_str p_text) {
     byn_std_json_JsonValue l0_parsed = {0};
@@ -225215,7 +225217,7 @@ bynt_opt_list_main__ExternalSite byn_main__externalSiteReadAll(byn_str p_text) {
     return ((bynt_opt_list_main__ExternalSite){0});
 switch_end_1:;
 }
-#line 225219 "main.c"
+#line 225221 "main.c"
 
 int64_t byn_main__t13Depth(byn_std_json_JsonValue p_v) {
     int64_t l0_deepest = {0};
@@ -225299,7 +225301,7 @@ int64_t byn_main__t13Depth(byn_std_json_JsonValue p_v) {
     return INT64_C(0);
 switch_end_1:;
 }
-#line 225303 "main.c"
+#line 225305 "main.c"
 
 bynt_opt_main__ExternalSite byn_main__t13Site(byn_std_json_JsonValue p_s) {
     int64_t l0_id = {0};
@@ -225475,7 +225477,7 @@ bynt_opt_main__ExternalSite byn_main__t13Site(byn_std_json_JsonValue p_s) {
     return ((bynt_opt_main__ExternalSite){0});
 switch_end_1:;
 }
-#line 225479 "main.c"
+#line 225481 "main.c"
 
 int64_t byn_main__t13Find(bynt_list_std_json__JsonMember p_members, byn_str p_key) {
     int64_t l0_found = {0};
@@ -225510,7 +225512,7 @@ break_1:;
 #line 760 "driver/mutate.byn"
     return l0_found;
 }
-#line 225514 "main.c"
+#line 225516 "main.c"
 
 bynt_opt_i64 byn_main__t13IntMember(bynt_list_std_json__JsonMember p_members, byn_str p_key) {
     int64_t l0_i = {0};
@@ -225524,7 +225526,7 @@ bynt_opt_i64 byn_main__t13IntMember(bynt_list_std_json__JsonMember p_members, by
 #line 767 "driver/mutate.byn"
     return byn_main__t13Int((*bynh_at_list_std_json__JsonMember(p_members, (int64_t)l0_i, false, byn_file_102, 767)).value);
 }
-#line 225528 "main.c"
+#line 225530 "main.c"
 
 bynt_opt_i64 byn_main__t13Int(byn_std_json_JsonValue p_v) {
     bool l0_negative = {0};
@@ -225558,7 +225560,7 @@ bynt_opt_i64 byn_main__t13Int(byn_std_json_JsonValue p_v) {
     return ((bynt_opt_i64){0});
 switch_end_1:;
 }
-#line 225562 "main.c"
+#line 225564 "main.c"
 
 bynt_opt_str byn_main__t13Str(bynt_list_std_json__JsonMember p_members, byn_str p_key) {
     int64_t l0_i = {0};
@@ -225584,7 +225586,7 @@ bynt_opt_str byn_main__t13Str(bynt_list_std_json__JsonMember p_members, byn_str 
     return ((bynt_opt_str){0});
 switch_end_1:;
 }
-#line 225588 "main.c"
+#line 225590 "main.c"
 
 int64_t byn_main__t7Utf8Length(int64_t p_scalar) {
 #line 25 "driver/progress.byn"
@@ -225605,13 +225607,13 @@ int64_t byn_main__t7Utf8Length(int64_t p_scalar) {
 #line 28 "driver/progress.byn"
     return INT64_C(4);
 }
-#line 225609 "main.c"
+#line 225611 "main.c"
 
 bool byn_main__t7Hidden(int64_t p_c) {
 #line 33 "driver/progress.byn"
     return (((((((p_c < INT64_C(32)) || ((p_c >= INT64_C(127)) && (p_c <= INT64_C(159)))) || (p_c == INT64_C(1564))) || (p_c == INT64_C(8206))) || (p_c == INT64_C(8207))) || ((p_c >= INT64_C(8234)) && (p_c <= INT64_C(8238)))) || ((p_c >= INT64_C(8294)) && (p_c <= INT64_C(8297))));
 }
-#line 225615 "main.c"
+#line 225617 "main.c"
 
 byn_str byn_main__visible(byn_str p_text) {
     bool l0_any = {0};
@@ -225710,7 +225712,7 @@ break_3:;
 #line 63 "driver/progress.byn"
     return byn_strbuf_str(t12);
 }
-#line 225714 "main.c"
+#line 225716 "main.c"
 
 int64_t byn_main__columns(int64_t p_scalar) {
 #line 68 "driver/progress.byn"
@@ -225726,7 +225728,7 @@ int64_t byn_main__columns(int64_t p_scalar) {
 #line 79 "driver/progress.byn"
     return INT64_C(1);
 }
-#line 225730 "main.c"
+#line 225732 "main.c"
 
 byn_str byn_main__fit(byn_str p_phase, int64_t p_room, byn_str p_ellipsis, int64_t p_length) {
     int64_t l0_width = {0};
@@ -225821,7 +225823,7 @@ break_3:;
 #line 97 "driver/progress.byn"
     return byn_strbuf_str(t14);
 }
-#line 225825 "main.c"
+#line 225827 "main.c"
 
 bynt_main__Progress byn_main__start(bynt_main__DStyle p_style, bool p_isTty, bool p_json, byn_str p_phase, int64_t p_after) {
     bool l0_off = {0};
@@ -225861,7 +225863,7 @@ bynt_main__Progress byn_main__start(bynt_main__DStyle p_style, bool p_isTty, boo
 #line 118 "driver/progress.byn"
     return l5_p;
 }
-#line 225865 "main.c"
+#line 225867 "main.c"
 
 void byn_main__tick(bynt_main__Progress* p_p) {
     bynt_list_str l0_frames = {0};
@@ -225926,7 +225928,7 @@ void byn_main__tick(bynt_main__Progress* p_p) {
 #line 131 "driver/progress.byn"
     (*p_p).shown = true;
 }
-#line 225930 "main.c"
+#line 225932 "main.c"
 
 void byn_main__done(bynt_main__Progress* p_p) {
     int64_t l0_elapsed = {0};
@@ -225982,7 +225984,7 @@ void byn_main__done(bynt_main__Progress* p_p) {
         (void)byn_io_write(INT32_C(2), ((*p_p).ascii ? BYN_STR("\012", 1) : BYN_STR("\015\033[2K", 5)));
     }
 }
-#line 225986 "main.c"
+#line 225988 "main.c"
 
 bynt_main__QualityReport byn_main__qualityCoverage(byn_str p_tool, bynt_emitter__CoverageMap p_map, bynt_map_i64_u64 p_hits, bool p_timedOut, int64_t p_buildNanos, int64_t p_totalNanos) {
     byn_str l0_unhit = {0};
@@ -226384,7 +226386,7 @@ break_17:;
 #line 150 "driver/quality.byn"
     return l1_report;
 }
-#line 226388 "main.c"
+#line 226390 "main.c"
 
 int64_t byn_main__qualityHitBranches(bynt_main__QualityFile p_f) {
     int64_t l0_n = {0};
@@ -226419,7 +226421,7 @@ break_1:;
 #line 161 "driver/quality.byn"
     return l0_n;
 }
-#line 226423 "main.c"
+#line 226425 "main.c"
 
 int64_t byn_main__qualityHitErrorPaths(bynt_main__QualityFile p_f) {
     int64_t l0_n = {0};
@@ -226454,7 +226456,7 @@ break_1:;
 #line 172 "driver/quality.byn"
     return l0_n;
 }
-#line 226458 "main.c"
+#line 226460 "main.c"
 
 byn_str byn_main__qualityJson(bynt_main__QualityReport p_r) {
     bynt_main__T11Json l0_w = {0};
@@ -226535,7 +226537,7 @@ break_1:;
 #line 200 "driver/quality.byn"
     return byn_strbuf_str(t4);
 }
-#line 226539 "main.c"
+#line 226541 "main.c"
 
 void byn_main__t11JsonTally(bynt_main__T11Json* p_w, byn_str p_name, bynt_main__QualityTally p_tally) {
     byn_writer t0 = {0};
@@ -226573,7 +226575,7 @@ void byn_main__t11JsonTally(bynt_main__T11Json* p_w, byn_str p_name, bynt_main__
 #line 208 "driver/quality.byn"
     (void)byn_main__t11JsonClose(&(*p_w), BYN_STR("}", 1));
 }
-#line 226577 "main.c"
+#line 226579 "main.c"
 
 void byn_main__qualityWriteCoverage(bynt_main__T11Json* p_w, bynt_main__QualityFile p_f) {
     byn_writer t0 = {0};
@@ -226879,7 +226881,7 @@ break_9:;
 #line 259 "driver/quality.byn"
     (void)byn_main__t11JsonClose(&(*p_w), BYN_STR("]", 1));
 }
-#line 226883 "main.c"
+#line 226885 "main.c"
 
 byn_str byn_main__qualityListing(bynt_main__QualityFile p_f, bynt_list_str p_sourceLines) {
     byn_writer l0_sb = {0};
@@ -226935,7 +226937,7 @@ break_1:;
 #line 273 "driver/quality.byn"
     return byn_strbuf_str(t6);
 }
-#line 226939 "main.c"
+#line 226941 "main.c"
 
 byn_str byn_main__qualityPercent(bynt_main__QualityTally p_t) {
     byn_writer t0 = {0};
@@ -226961,7 +226963,7 @@ byn_str byn_main__qualityPercent(bynt_main__QualityTally p_t) {
 #line 277 "driver/quality.byn"
     return t1;
 }
-#line 226965 "main.c"
+#line 226967 "main.c"
 
 byn_str byn_main__qualityCoverageSummary(bynt_main__QualityReport p_r) {
     byn_writer l0_sb = {0};
@@ -227156,7 +227158,7 @@ break_1:;
 #line 301 "driver/quality.byn"
     return byn_strbuf_str(t19);
 }
-#line 227160 "main.c"
+#line 227162 "main.c"
 
 bynt_list_main__GateFailure byn_main__gatesCoverage(bynt_main__QualityReport p_report, bynt_opt_i64 p_minLines, bynt_opt_i64 p_minBranches, bynt_opt_i64 p_minErrorPaths) {
     bynt_list_main__GateFailure l0_failures = {0};
@@ -227395,7 +227397,7 @@ break_9:;
 #line 343 "driver/quality.byn"
     return l0_failures;
 }
-#line 227399 "main.c"
+#line 227401 "main.c"
 
 void byn_main__gatesAdd(bynt_list_main__GateFailure* p_failures, byn_str p_name, bynt_opt_i64 p_min, int64_t p_covered, bynt_list_str p_missing, bynt_opt_i64 p_missingCount) {
     int64_t l0_total = {0};
@@ -227421,7 +227423,7 @@ void byn_main__gatesAdd(bynt_list_main__GateFailure* p_failures, byn_str p_name,
 #line 358 "driver/quality.byn"
     (void)bynh_add_list_main__GateFailure(&(*p_failures), ((bynt_main__GateFailure){p_name, p_covered, l0_total, l1_m, p_missing}));
 }
-#line 227425 "main.c"
+#line 227427 "main.c"
 
 bynt_list_main__GateFailure byn_main__gatesMutation(bynt_main__MutationReport p_report, bynt_opt_i64 p_minMutation) {
     bynt_list_main__GateFailure l0_failures = {0};
@@ -227504,7 +227506,7 @@ break_1:;
 #line 382 "driver/quality.byn"
     return l0_failures;
 }
-#line 227508 "main.c"
+#line 227510 "main.c"
 
 byn_str byn_main__gatesFmt(int64_t p_covered, int64_t p_total) {
     int64_t l0_thousandths = {0};
@@ -227614,7 +227616,7 @@ break_1:;
 #line 395 "driver/quality.byn"
     return byn_strbuf_str(t11);
 }
-#line 227618 "main.c"
+#line 227620 "main.c"
 
 bool byn_main__t11Has(bynt_list_i64 p_xs, int64_t p_x) {
     int64_t l0_y = {0};
@@ -227646,7 +227648,7 @@ break_1:;
 #line 403 "driver/quality.byn"
     return false;
 }
-#line 227650 "main.c"
+#line 227652 "main.c"
 
 bynt_list_str byn_main__qualityCounts(void) {
     bynt_list_str t0 = {0};
@@ -227667,7 +227669,7 @@ bynt_list_str byn_main__qualityCounts(void) {
 #line 441 "driver/quality.byn"
     return t0;
 }
-#line 227671 "main.c"
+#line 227673 "main.c"
 
 byn_str byn_main__qualitySuggest(byn_str p_op) {
 #line 446 "driver/quality.byn"
@@ -227751,7 +227753,7 @@ byn_str byn_main__qualitySuggest(byn_str p_op) {
     return BYN_STR("add a case that fails under this change", 39);
 switch_end_1:;
 }
-#line 227755 "main.c"
+#line 227757 "main.c"
 
 bynt_main__MutationReport byn_main__qualityMutationResult(byn_str p_tool, bynt_main__MutationResult p_result, bynt_emitter__Schema p_schema, int64_t p_buildNanos, bynt_list_f64 p_mutantSeconds, int64_t p_totalNanos) {
     bynt_list_main__MutationOperator l0_notEmitted = {0};
@@ -227789,7 +227791,7 @@ break_1:;
 #line 488 "driver/quality.byn"
     return byn_main__qualityMutationOf(p_tool, p_result.mutants, l0_notEmitted, p_buildNanos, p_mutantSeconds, p_totalNanos);
 }
-#line 227793 "main.c"
+#line 227795 "main.c"
 
 bynt_main__MutationReport byn_main__qualityMutation(byn_str p_tool, bynt_list_main__ExternalResult p_results, int64_t p_buildNanos, int64_t p_totalNanos) {
     bynt_list_main__MutationOperator l0_notEmitted = {0};
@@ -227839,7 +227841,7 @@ break_1:;
 #line 513 "driver/quality.byn"
     return byn_main__qualityMutationOf(p_tool, l2_mutants, l0_notEmitted, p_buildNanos, l1_seconds, p_totalNanos);
 }
-#line 227843 "main.c"
+#line 227845 "main.c"
 
 bynt_main__MutationReport byn_main__qualityMutationOf(byn_str p_tool, bynt_list_main__MutantResult p_mutants, bynt_list_main__MutationOperator p_notEmitted, int64_t p_buildNanos, bynt_list_f64 p_mutantSeconds, int64_t p_totalNanos) {
     bynt_main__MutationReport l0_report = {0};
@@ -228100,7 +228102,7 @@ break_11:;
 #line 583 "driver/quality.byn"
     return l0_report;
 }
-#line 228104 "main.c"
+#line 228106 "main.c"
 
 int64_t byn_main__qualityOperator(bynt_list_main__MutationOperator* p_operators, byn_str p_op) {
     int64_t l0_i = {0};
@@ -228149,7 +228151,7 @@ break_1:;
 #line 592 "driver/quality.byn"
     return byn_sub_i64((*p_operators).len, INT64_C(1), byn_file_104, 592);
 }
-#line 228153 "main.c"
+#line 228155 "main.c"
 
 int64_t byn_main__qualitySlot(byn_main_MutantStatus p_s) {
 #line 598 "driver/quality.byn"
@@ -228196,7 +228198,7 @@ int64_t byn_main__qualitySlot(byn_main_MutantStatus p_s) {
     }
 switch_end_1:;
 }
-#line 228200 "main.c"
+#line 228202 "main.c"
 
 byn_str byn_main__qualityMutationJson(bynt_main__MutationReport p_r) {
     bynt_main__T11Json l0_w = {0};
@@ -228419,7 +228421,7 @@ break_5:;
 #line 667 "driver/quality.byn"
     return byn_strbuf_str(t21);
 }
-#line 228423 "main.c"
+#line 228425 "main.c"
 
 void byn_main__qualityWriteCounts(bynt_main__T11Json* p_w, byn_str p_name, bynt_list_i64 p_counts) {
     bynt_list_str l0_names = {0};
@@ -228466,7 +228468,7 @@ break_1:;
 #line 677 "driver/quality.byn"
     (void)byn_main__t11JsonClose(&(*p_w), BYN_STR("}", 1));
 }
-#line 228470 "main.c"
+#line 228472 "main.c"
 
 byn_str byn_main__qualitySummary(bynt_main__MutationReport p_r, bynt_list_str p_warnings) {
     byn_writer l0_sb = {0};
@@ -228707,7 +228709,7 @@ break_9:;
 #line 712 "driver/quality.byn"
     return byn_strbuf_str(t24);
 }
-#line 228711 "main.c"
+#line 228713 "main.c"
 
 byn_str byn_main__qualityFmt(double p_v) {
     int64_t l0_thousandths = {0};
@@ -228817,7 +228819,7 @@ break_1:;
 #line 725 "driver/quality.byn"
     return byn_strbuf_str(t11);
 }
-#line 228821 "main.c"
+#line 228823 "main.c"
 
 byn_str byn_main__qualityJsonNumber(double p_v) {
     byn_str l0_text = {0};
@@ -229126,7 +229128,7 @@ break_3:;
 #line 787 "driver/quality.byn"
     return byn_strbuf_str(t37);
 }
-#line 229130 "main.c"
+#line 229132 "main.c"
 
 bynt_list_str byn_main__qualityWarnings(bynt_main__MutationResult p_result, bynt_emitter__Schema p_schema, bynt_semantics__Ctx p_c, bynt_list_lexer__SourceText p_sources) {
     bynt_list_str l0_warnings = {0};
@@ -229314,7 +229316,7 @@ break_3:;
 #line 830 "driver/quality.byn"
     return l0_warnings;
 }
-#line 229318 "main.c"
+#line 229320 "main.c"
 
 bool byn_main__qualityInMark(bynt_semantics__UnobservableMark p_mark, bynt_emitter__MutationSite p_site, bynt_lexer__SourceText* p_source) {
     int64_t l0_offset = {0};
@@ -229363,7 +229365,7 @@ break_1:;
 #line 848 "driver/quality.byn"
     return ((p_mark.span.start <= l0_offset) && (byn_add_i64(l0_offset, bynh_str_bytes(p_site.original).len, byn_file_104, 848) <= byn_add_i64(p_mark.span.start, p_mark.span.length, byn_file_104, 848)));
 }
-#line 229367 "main.c"
+#line 229369 "main.c"
 
 byn_str byn_main__qualityWhere(bynt_main__ExternalSite p_s) {
     byn_writer t0 = {0};
@@ -229383,7 +229385,7 @@ byn_str byn_main__qualityWhere(bynt_main__ExternalSite p_s) {
 #line 852 "driver/quality.byn"
     return byn_strbuf_str(t0);
 }
-#line 229387 "main.c"
+#line 229389 "main.c"
 
 int32_t byn_main__scaffoldNew(bynt_span_str p_args) {
     bynt_main__ScaffoldOptions l0_o = {0};
@@ -229602,7 +229604,7 @@ int32_t byn_main__scaffoldNew(bynt_span_str p_args) {
 #line 185 "driver/scaffold.byn"
     return ((int32_t)0);
 }
-#line 229606 "main.c"
+#line 229608 "main.c"
 
 int32_t byn_main__scaffoldInit(bynt_span_str p_args) {
     bynt_main__ScaffoldOptions l0_o = {0};
@@ -229679,7 +229681,7 @@ int32_t byn_main__scaffoldInit(bynt_span_str p_args) {
 #line 205 "driver/scaffold.byn"
     return ((int32_t)0);
 }
-#line 229683 "main.c"
+#line 229685 "main.c"
 
 byn_str byn_main__scaffoldTrimEnd(byn_str p_path) {
     byn_str l0_separator = {0};
@@ -229703,7 +229705,7 @@ break_1:;
 #line 216 "driver/scaffold.byn"
     return bynh_slice_str(p_path, (int64_t)INT64_C(0), 0, (int64_t)l1_end, 0, false, byn_file_105, 216);
 }
-#line 229707 "main.c"
+#line 229709 "main.c"
 
 int64_t byn_main__scaffoldEntryCount(byn_str p_full) {
     bynt_list_str l0_names = {0};
@@ -229728,7 +229730,7 @@ int64_t byn_main__scaffoldEntryCount(byn_str p_full) {
 #line 223 "driver/scaffold.byn"
     return l0_names.len;
 }
-#line 229732 "main.c"
+#line 229734 "main.c"
 
 bynt_opt_main__ScaffoldOptions byn_main__scaffoldParseOptions(bynt_span_str p_args, byn_str p_command) {
     bynt_opt_str l0_target = {0};
@@ -229845,7 +229847,7 @@ break_1:;
 #line 256 "driver/scaffold.byn"
     return ((bynt_opt_main__ScaffoldOptions){true, ((bynt_main__ScaffoldOptions){l0_target, l1_layout, l2_git, l3_ci})});
 }
-#line 229849 "main.c"
+#line 229851 "main.c"
 
 bynt_opt_main__ScaffoldNames byn_main__scaffoldNames(byn_str p_dirName, byn_main_ScaffoldLayout p_layout) {
     bynt_span_u8 l0_t = {0};
@@ -229965,7 +229967,7 @@ break_1:;
 #line 283 "driver/scaffold.byn"
     return ((bynt_opt_main__ScaffoldNames){true, ((bynt_main__ScaffoldNames){l5_kebab, l8_module})});
 }
-#line 229969 "main.c"
+#line 229971 "main.c"
 
 void byn_main__scaffoldWrite(bynt_map_str_str p_files, byn_str p_root, bool p_listing) {
     bynt_list_str l0_paths = {0};
@@ -230152,7 +230154,7 @@ break_1:;
     }
 break_3:;
 }
-#line 230156 "main.c"
+#line 230158 "main.c"
 
 void byn_main__scaffoldInitGit(byn_str p_dir, bynt_main__ScaffoldOptions p_o) {
     bynt_opt_str l0_found = {0};
@@ -230195,7 +230197,7 @@ void byn_main__scaffoldInitGit(byn_str p_dir, bynt_main__ScaffoldOptions p_o) {
         (void)byn_io_write(INT32_C(1), BYN_STR("note: `git init` failed, so no repository was created\012", 54));
     }
 }
-#line 230199 "main.c"
+#line 230201 "main.c"
 
 bynt_main__ScaffoldGitResult byn_main__scaffoldGit(byn_str p_git, byn_str p_dir, byn_str p_first, byn_str p_second) {
     bynt_list_str l0_args = {0};
@@ -230268,7 +230270,7 @@ bynt_main__ScaffoldGitResult byn_main__scaffoldGit(byn_str p_git, byn_str p_dir,
 #line 366 "driver/scaffold.byn"
     return ((bynt_main__ScaffoldGitResult){t10, byn_str_trimmed(l1_r.out, 2)});
 }
-#line 230272 "main.c"
+#line 230274 "main.c"
 
 bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main__ScaffoldOptions p_o) {
     bynt_map_str_str l0_files = {0};
@@ -230364,7 +230366,7 @@ bynt_map_str_str byn_main__scaffoldFiles(bynt_main__ScaffoldNames p_n, bynt_main
 #line 396 "driver/scaffold.byn"
     return l0_files;
 }
-#line 230368 "main.c"
+#line 230370 "main.c"
 
 bynt_list_u64 byn_main__t9RoundConstants(void) {
     bynt_list_u64 l0_k = {0};
@@ -230504,13 +230506,13 @@ bynt_list_u64 byn_main__t9RoundConstants(void) {
 #line 17 "driver/sha256.byn"
     return l0_k;
 }
-#line 230508 "main.c"
+#line 230510 "main.c"
 
 uint64_t byn_main__t9Rotr(uint64_t p_x, uint64_t p_n) {
 #line 21 "driver/sha256.byn"
     return ((uint64_t)(((uint64_t)(byn_shr_u64(p_x, (int64_t)(p_n)) | byn_shl_u64(p_x, (int64_t)(byn_sub_u64(UINT64_C(32), p_n, byn_file_106, 21))))) & UINT64_C(4294967295)));
 }
-#line 230514 "main.c"
+#line 230516 "main.c"
 
 void byn_main__t9Block(bynt_list_u64* p_h, bynt_span_u8 p_data, int64_t p_start, bynt_list_u64 p_k, bynt_list_u64* p_w) {
     int32_t l0_t = {0};
@@ -230718,7 +230720,7 @@ break_5:;
 #line 65 "driver/sha256.byn"
     (*bynh_at_list_u64((*p_h), (int64_t)INT64_C(7), false, byn_file_106, 65)) = t43;
 }
-#line 230722 "main.c"
+#line 230724 "main.c"
 
 bynt_list_u8 byn_main__sha256(bynt_span_u8 p_data) {
     bynt_list_u64 l0_k = {0};
@@ -230909,7 +230911,7 @@ break_13:;
 #line 107 "driver/sha256.byn"
     return l17_digest;
 }
-#line 230913 "main.c"
+#line 230915 "main.c"
 
 bynt_opt_main__T11Options byn_main__t11ParseBuildOptions(bynt_list_str p_args) {
     bynt_opt_str l0_path = {0};
@@ -231274,13 +231276,13 @@ break_1:;
 #line 136 "driver/test.byn"
     return ((bynt_opt_main__T11Options){true, ((bynt_main__T11Options){l38_p, l1_mode, ((bynt_opt_str){0}), false, l2_json, l14_programArgs, ((bynt_opt_str){0}), l3_testJson, l4_changed, l9_baseRef, l6_verbose, l5_all, l41_wanted, l7_mutate, l8_coverage, l10_run, l11_package, l12_jobs})});
 }
-#line 231278 "main.c"
+#line 231280 "main.c"
 
 bynt_main__T5Options byn_main__t11T5(bynt_main__T11Options p_o) {
 #line 157 "driver/test.byn"
     return ((bynt_main__T5Options){p_o.path, p_o.mode, p_o.output, p_o.emitC, p_o.json, ((bynt_list_str){NULL, 0, 0, byn_context}), p_o.target, p_o.verbose, p_o.all, p_o.package});
 }
-#line 231284 "main.c"
+#line 231286 "main.c"
 
 void byn_main__deleteWorkDir(byn_str p_dir) {
     byn_err t0 = {0};
@@ -231292,7 +231294,7 @@ void byn_main__deleteWorkDir(byn_str p_dir) {
         return;
     }
 }
-#line 231296 "main.c"
+#line 231298 "main.c"
 
 int64_t byn_main__testTimeout(void) {
     int64_t l0_ms = {0};
@@ -231307,7 +231309,7 @@ int64_t byn_main__testTimeout(void) {
 #line 178 "driver/test.byn"
     return ((l0_ms > INT64_C(0)) ? l0_ms : INT64_C(60000));
 }
-#line 231311 "main.c"
+#line 231313 "main.c"
 
 byn_str byn_main__t11Paint(int64_t p_role, bynt_main__DStyle p_style, byn_str p_text, bool p_bold) {
     byn_writer t0 = {0};
@@ -231341,7 +231343,7 @@ byn_str byn_main__t11Paint(int64_t p_role, bynt_main__DStyle p_style, byn_str p_
 #line 187 "driver/test.byn"
     return byn_strbuf_str(t1);
 }
-#line 231345 "main.c"
+#line 231347 "main.c"
 
 byn_str byn_main__t11Seconds(int64_t p_nanos) {
     int64_t l0_hundredths = {0};
@@ -231388,7 +231390,7 @@ byn_str byn_main__t11Seconds(int64_t p_nanos) {
 #line 194 "driver/test.byn"
     return t4;
 }
-#line 231392 "main.c"
+#line 231394 "main.c"
 
 bool byn_main__t11Matches(byn_str p_name, bynt_list_str p_wanted) {
     byn_str l0_s = {0};
@@ -231420,7 +231422,7 @@ break_1:;
 #line 202 "driver/test.byn"
     return false;
 }
-#line 231424 "main.c"
+#line 231426 "main.c"
 
 int64_t byn_main__t11Line(bynt_list_u8 p_text, int64_t p_offset) {
     int64_t l0_line = {0};
@@ -231455,7 +231457,7 @@ break_1:;
 #line 213 "driver/test.byn"
     return l0_line;
 }
-#line 231459 "main.c"
+#line 231461 "main.c"
 
 int32_t byn_main__testCommand(bynt_list_str p_kept, bynt_main__DCtx* p_d) {
     bynt_list_str l0_args = {0};
@@ -232657,7 +232659,7 @@ break_15:;
 #line 520 "driver/test.byn"
     return (((l145_failed > INT64_C(0)) || l160_gated) ? ((int32_t)3) : ((int32_t)0));
 }
-#line 232661 "main.c"
+#line 232663 "main.c"
 
 byn_str byn_main__t11Summary(int64_t p_passed, int64_t p_failed, int64_t p_pending, int64_t p_nanos, byn_str p_counts, bynt_main__DStyle p_style) {
     bynt_semantics__T26Symbols l0_symbols = {0};
@@ -232773,7 +232775,7 @@ byn_str byn_main__t11Summary(int64_t p_passed, int64_t p_failed, int64_t p_pendi
 #line 536 "driver/test.byn"
     return byn_strbuf_str(t9);
 }
-#line 232777 "main.c"
+#line 232779 "main.c"
 
 int32_t byn_main__t11Golden(bynt_main__T11Options p_o, bynt_main__DCtx* p_d) {
     bynt_list_str l0_wanted = {0};
@@ -232976,7 +232978,7 @@ break_3:;
 #line 617 "driver/test.byn"
     return l7_exit;
 }
-#line 232980 "main.c"
+#line 232982 "main.c"
 
 byn_err byn_main__t11ReplaceText(byn_str p_path, byn_str p_text, bynt_main__DCtx* p_d) {
     byn_str l0_temp = {0};
@@ -233052,7 +233054,7 @@ break_1:;
     (void)byn_main__t9DeleteFile(l0_temp);
     return (byn_err){0};
 }
-#line 233056 "main.c"
+#line 233058 "main.c"
 
 bool byn_main__mergeCounters(byn_str p_counterFile, bynt_map_i64_u64* p_hits) {
     bynt_map_i64_u64 l0_counts = {0};
@@ -233118,7 +233120,7 @@ break_1:;
 #line 645 "driver/test.byn"
     return true;
 }
-#line 233122 "main.c"
+#line 233124 "main.c"
 
 bool byn_main__writeCoverage(bynt_main__T11Options p_o, bynt_semantics__Ctx p_compiled, bynt_emitter__CoverageMap p_map, bynt_map_i64_u64 p_hits, bool p_unknown, bool p_partial, int64_t p_buildNanos, int64_t p_totalNanos, bool p_quiet) {
     bynt_main__QualityReport l0_report = {0};
@@ -233333,7 +233335,7 @@ break_1:;
 #line 707 "driver/test.byn"
     return false;
 }
-#line 233337 "main.c"
+#line 233339 "main.c"
 
 byn_str byn_main__t11Part(bynt_main__QualityTally p_x) {
     byn_writer t0 = {0};
@@ -233354,7 +233356,7 @@ byn_str byn_main__t11Part(bynt_main__QualityTally p_x) {
 #line 712 "driver/test.byn"
     return byn_strbuf_str(t0);
 }
-#line 233358 "main.c"
+#line 233360 "main.c"
 
 bynt_list_str byn_main__t11ReadAllLines(byn_str p_text) {
     bynt_list_str l0_lines = {0};
@@ -233390,7 +233392,7 @@ break_1:;
 #line 723 "driver/test.byn"
     return l0_lines;
 }
-#line 233394 "main.c"
+#line 233396 "main.c"
 
 byn_str byn_main__listingName(byn_str p_relative) {
     bool l0_windows = {0};
@@ -233454,7 +233456,7 @@ break_1:;
 #line 742 "driver/test.byn"
     return byn_strbuf_str(t8);
 }
-#line 233458 "main.c"
+#line 233460 "main.c"
 
 bynt_list_str byn_main__failureDetail(byn_str p_details, bool p_verbose, bynt_semantics__T26Symbols p_symbols, int64_t p_width) {
     byn_str l0_indent = {0};
@@ -233553,7 +233555,7 @@ break_1:;
 #line 780 "driver/test.byn"
     return l1_lines;
 }
-#line 233557 "main.c"
+#line 233559 "main.c"
 
 bynt_opt_main__T11ChangedSet byn_main__changedModules(bynt_semantics__Ctx p_compiled, bynt_main__T11Options p_o, byn_str p_entry) {
     byn_str l0_dir = {0};
@@ -233762,7 +233764,7 @@ break_5:;
 #line 838 "driver/test.byn"
     return ((bynt_opt_main__T11ChangedSet){true, l23_set});
 }
-#line 233766 "main.c"
+#line 233768 "main.c"
 
 byn_str byn_main__moduleOf(bynt_semantics__Ctx p_compiled, int64_t p_testIndex, byn_str p_entry) {
     int64_t l0_f = {0};
@@ -233779,7 +233781,7 @@ byn_str byn_main__moduleOf(bynt_semantics__Ctx p_compiled, int64_t p_testIndex, 
 #line 847 "driver/test.byn"
     return byn_main__moduleDirectory(p_compiled, (byn_path_is_rooted(l1_path) ? l1_path : byn_path_full_path(byn_path_combine(p_compiled.displayRoot, l1_path, byn_context), byn_context, byn_file_107, 849)), p_entry);
 }
-#line 233783 "main.c"
+#line 233785 "main.c"
 
 byn_str byn_main__moduleDirectory(bynt_semantics__Ctx p_compiled, byn_str p_file, byn_str p_entry) {
     byn_str l0_dir = {0};
@@ -233796,13 +233798,13 @@ byn_str byn_main__moduleDirectory(bynt_semantics__Ctx p_compiled, byn_str p_file
 #line 859 "driver/test.byn"
     return l0_dir;
 }
-#line 233800 "main.c"
+#line 233802 "main.c"
 
 byn_str byn_main__t11EntryModule(bynt_semantics__Ctx* p_compiled, byn_str p_path) {
 #line 864 "driver/test.byn"
     return ((*p_compiled).library ? byn_semantics__camelOf(byn_semantics__programName(&(*p_compiled), p_path)) : BYN_STR("app", 3));
 }
-#line 233806 "main.c"
+#line 233808 "main.c"
 
 bynt_main__T11Outcome byn_main__runTest(byn_str p_executable, int64_t p_index, bynt_opt_str p_coveragePrefix, int64_t p_timeoutMs) {
     bynt_list_str l0_args = {0};
@@ -233910,7 +233912,7 @@ bynt_main__T11Outcome byn_main__runTest(byn_str p_executable, int64_t p_index, b
 #line 907 "driver/test.byn"
     return ((bynt_main__T11Outcome){t16, false, t17, t18, byn_sub_i64(byn_io_monotonic_nanos(), l4_clock, byn_file_107, 911)});
 }
-#line 233914 "main.c"
+#line 233916 "main.c"
 
 void byn_main__deleteStale(byn_str p_prefix) {
     byn_str l0_dir = {0};
@@ -233993,7 +233995,7 @@ void byn_main__deleteStale(byn_str p_prefix) {
     }
 break_1:;
 }
-#line 233997 "main.c"
+#line 233999 "main.c"
 
 bynt_opt_map_i64_u64 byn_main__readCounters(byn_str p_path) {
     byn_str l0_text = {0};
@@ -234107,7 +234109,7 @@ break_1:;
 #line 951 "driver/test.byn"
     return ((bynt_opt_map_i64_u64){true, l4_counts});
 }
-#line 234111 "main.c"
+#line 234113 "main.c"
 
 bynt_main__GoldenOutcome byn_main__t11Through(byn_str p_dir, bynt_list_str p_args) {
     byn_str l0_failure = {0};
@@ -234127,7 +234129,7 @@ bynt_main__GoldenOutcome byn_main__t11Through(byn_str p_dir, bynt_list_str p_arg
 #line 960 "driver/test.byn"
     return l2_o;
 }
-#line 234131 "main.c"
+#line 234133 "main.c"
 
 void byn_main__t11ReportFixture(byn_str p_root) {
     byn_str l0_program = {0};
@@ -234159,7 +234161,7 @@ void byn_main__t11ReportFixture(byn_str p_root) {
 #line 976 "driver/test.byn"
     (void)byn_main__goldenWrite(p_root, BYN_STR("pkg/src/app/main.byn", 20), byn_strbuf_str(t1));
 }
-#line 234163 "main.c"
+#line 234165 "main.c"
 
 int64_t byn_main__testReportCount(bynt_main__TestReport p_r, byn_main_TestStatus p_status) {
     int64_t l0_n = {0};
@@ -234194,7 +234196,7 @@ break_1:;
 #line 49 "driver/testreport.byn"
     return l0_n;
 }
-#line 234198 "main.c"
+#line 234200 "main.c"
 
 byn_str byn_main__testStatusName(byn_main_TestStatus p_status) {
 #line 55 "driver/testreport.byn"
@@ -234234,7 +234236,7 @@ byn_str byn_main__testStatusName(byn_main_TestStatus p_status) {
     }
 switch_end_1:;
 }
-#line 234238 "main.c"
+#line 234240 "main.c"
 
 byn_str byn_main__testReportJson(bynt_main__TestReport p_r) {
     bynt_main__T11Json l0_w = {0};
@@ -234507,7 +234509,7 @@ break_1:;
 #line 112 "driver/testreport.byn"
     return byn_strbuf_str(t29);
 }
-#line 234511 "main.c"
+#line 234513 "main.c"
 
 byn_str byn_main__t11JsonMilliseconds(int64_t p_nanos) {
     int64_t l0_ticks = {0};
@@ -234558,7 +234560,7 @@ byn_str byn_main__t11JsonMilliseconds(int64_t p_nanos) {
 #line 126 "driver/testreport.byn"
     return t5;
 }
-#line 234562 "main.c"
+#line 234564 "main.c"
 
 byn_str byn_main__t11JsonSeconds(int64_t p_nanos) {
     int64_t l0_ticks = {0};
@@ -234654,7 +234656,7 @@ break_3:;
 #line 143 "driver/testreport.byn"
     return byn_strbuf_str(t9);
 }
-#line 234658 "main.c"
+#line 234660 "main.c"
 
 void byn_main__t11JsonItem(bynt_main__T11Json* p_w, bynt_opt_str p_name) {
     int64_t l0__ = {0};
@@ -234707,7 +234709,7 @@ void byn_main__t11JsonItem(bynt_main__T11Json* p_w, bynt_opt_str p_name) {
         (void)bynh_add_list_str(&(*p_w).parts, byn_strbuf_str(t3));
     }
 }
-#line 234711 "main.c"
+#line 234713 "main.c"
 
 void byn_main__t11JsonOpen(bynt_main__T11Json* p_w, bynt_opt_str p_name, byn_str p_bracket) {
 #line 172 "driver/testreport.byn"
@@ -234719,7 +234721,7 @@ void byn_main__t11JsonOpen(bynt_main__T11Json* p_w, bynt_opt_str p_name, byn_str
 #line 175 "driver/testreport.byn"
     (*p_w).first = true;
 }
-#line 234723 "main.c"
+#line 234725 "main.c"
 
 void byn_main__t11JsonClose(bynt_main__T11Json* p_w, byn_str p_bracket) {
     int64_t l0__ = {0};
@@ -234757,7 +234759,7 @@ void byn_main__t11JsonClose(bynt_main__T11Json* p_w, byn_str p_bracket) {
 #line 188 "driver/testreport.byn"
     (*p_w).first = false;
 }
-#line 234761 "main.c"
+#line 234763 "main.c"
 
 void byn_main__t11JsonValue(bynt_main__T11Json* p_w, bynt_opt_str p_name, byn_str p_value) {
 #line 193 "driver/testreport.byn"
@@ -234767,7 +234769,7 @@ void byn_main__t11JsonValue(bynt_main__T11Json* p_w, bynt_opt_str p_name, byn_st
 #line 195 "driver/testreport.byn"
     (*p_w).first = false;
 }
-#line 234771 "main.c"
+#line 234773 "main.c"
 
 byn_str byn_main__t11JsonString(byn_str p_s) {
     byn_writer l0_sb = {0};
@@ -234926,7 +234928,7 @@ break_1:;
 #line 237 "driver/testreport.byn"
     return byn_strbuf_str(t15);
 }
-#line 234930 "main.c"
+#line 234932 "main.c"
 
 byn_str byn_main__t11Hex4(int64_t p_v) {
     byn_str l0_digits = {0};
@@ -234968,7 +234970,7 @@ break_1:;
 #line 250 "driver/testreport.byn"
     return byn_strbuf_str(t4);
 }
-#line 234972 "main.c"
+#line 234974 "main.c"
 
 byn_str byn_main__t11JsonText(bynt_main__T11Json p_w) {
     byn_writer l0_sb = {0};
@@ -235010,13 +235012,13 @@ break_1:;
 #line 259 "driver/testreport.byn"
     return byn_strbuf_str(t4);
 }
-#line 235014 "main.c"
+#line 235016 "main.c"
 
 bool byn_main__t6IsSkippedDirectory(byn_str p_name, bool p_atRoot) {
 #line 16 "driver/walk.byn"
     return (((byn_str_starts_with(p_name, BYN_STR(".", 1)) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("node_modules", 12)) : byn_str_eq(p_name, BYN_STR("node_modules", 12)))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("obj", 3)) : byn_str_eq(p_name, BYN_STR("obj", 3)))) || (p_atRoot && (((((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("bin", 3)) : byn_str_eq(p_name, BYN_STR("bin", 3))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("dist", 4)) : byn_str_eq(p_name, BYN_STR("dist", 4)))) || (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(p_name, BYN_STR("tmp", 3)) : byn_str_eq(p_name, BYN_STR("tmp", 3))))));
 }
-#line 235020 "main.c"
+#line 235022 "main.c"
 
 bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within) {
     byn_str l0_bound = {0};
@@ -235054,7 +235056,7 @@ bool byn_main__t6Inside(byn_str p_real, bynt_opt_str p_within) {
 #line 30 "driver/walk.byn"
     return true;
 }
-#line 235058 "main.c"
+#line 235060 "main.c"
 
 bool byn_main__t6IsByn(byn_str p_name) {
     int64_t l0_n = {0};
@@ -235076,7 +235078,7 @@ bool byn_main__t6IsByn(byn_str p_name) {
 #line 41 "driver/walk.byn"
     return (((((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(4), byn_file_109, 41), false, byn_file_109, 41)) == ((uint8_t)46)) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(3), byn_file_109, 41), false, byn_file_109, 41)) | ((uint8_t)32))) == ((uint8_t)98))) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(2), byn_file_109, 41), false, byn_file_109, 41)) | ((uint8_t)32))) == ((uint8_t)121))) && (((uint8_t)((*bynh_at_span_u8(l1_b, (int64_t)byn_sub_i64(l0_n, INT64_C(1), byn_file_109, 41), false, byn_file_109, 41)) | ((uint8_t)32))) == ((uint8_t)110)));
 }
-#line 235080 "main.c"
+#line 235082 "main.c"
 
 byn_err byn_main__realPath(byn_str p_path, byn_str* byn_out) {
     byn_err t0 = {0};
@@ -235092,7 +235094,7 @@ byn_err byn_main__realPath(byn_str p_path, byn_str* byn_out) {
     *byn_out = t1;
     return (byn_err){0};
 }
-#line 235096 "main.c"
+#line 235098 "main.c"
 
 bynt_list_str byn_main__bynFiles(byn_str p_dir, int32_t* p_exit, bynt_opt_str p_within, bool p_silent) {
     bynt_list_str l0_files = {0};
@@ -235432,13 +235434,13 @@ break_2:;
 #line 119 "driver/walk.byn"
     return l0_files;
 }
-#line 235436 "main.c"
+#line 235438 "main.c"
 
 bynt_map_str_bool byn_main__t6OtherUses(byn_str p_file, bynt_list_u8 p_bytes, bynt_parser__CompilationUnit p_tree, bynt_parser__Parser* p_p) {
 #line 145 "driver/walk.byn"
     return byn_main__otherUses(p_file, p_bytes, p_tree, &(*p_p));
 }
-#line 235442 "main.c"
+#line 235444 "main.c"
 
 byn_err byn_main__manifestFor(byn_str p_file, bynt_map_str_opt_main__T6Found* p_cache, bynt_opt_main__T6Found* byn_out) {
     bynt_opt_str l0_dir = {0};
@@ -235544,7 +235546,7 @@ break_3:;
     *byn_out = l2_found;
     return (byn_err){0};
 }
-#line 235548 "main.c"
+#line 235550 "main.c"
 
 bynt_map_str_bool byn_main__packageNames(byn_str p_dir) {
     bynt_map_str_bool l0_names = {0};
@@ -235675,7 +235677,7 @@ break_1:;
 #line 202 "driver/walk.byn"
     return l0_names;
 }
-#line 235679 "main.c"
+#line 235681 "main.c"
 
 bynt_main__NativeBuild byn_main__ZigOrCc__compile(bynt_main__ZigOrCc* self, byn_str p_dir, byn_str p_source, byn_str p_output, byn_str p_mode, bynt_opt_str p_target) {
     bynt_list_str l0_compiler = {0};
@@ -235957,7 +235959,7 @@ break_1:;
 #line 297 "driver/cc.byn"
     return ((bynt_main__NativeBuild){true, BYN_STR("", 0), false});
 }
-#line 235961 "main.c"
+#line 235963 "main.c"
 
 bynt_list_u8 byn_main__LayoutEngine__render(bynt_main__LayoutEngine* self, bynt_parser__CompilationUnit p_tree) {
     int64_t l0_i = {0};
@@ -236091,7 +236093,7 @@ break_5:;
 #line 710 "driver/layout.byn"
     return bynh_copy_list_u8((*self).output, byn_context);
 }
-#line 236095 "main.c"
+#line 236097 "main.c"
 
 byn_lexer_TokenKind byn_main__LayoutEngine__kind(bynt_main__LayoutEngine* self, int64_t p_i) {
 #line 715 "driver/layout.byn"
@@ -236102,13 +236104,13 @@ byn_lexer_TokenKind byn_main__LayoutEngine__kind(bynt_main__LayoutEngine* self, 
 #line 716 "driver/layout.byn"
     return ((byn_lexer_TokenKind)0);
 }
-#line 236106 "main.c"
+#line 236108 "main.c"
 
 bool byn_main__LayoutEngine__textIs(bynt_main__LayoutEngine* self, int64_t p_i, byn_str p_word) {
 #line 720 "driver/layout.byn"
     return byn_main__layoutBytesAre((*self).source, (*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_100, 720)).start, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_100, 720))), p_word);
 }
-#line 236112 "main.c"
+#line 236114 "main.c"
 
 byn_str byn_main__LayoutEngine__text(bynt_main__LayoutEngine* self, int64_t p_i) {
     bynt_list_u8 l0_bytes = {0};
@@ -236140,13 +236142,13 @@ break_1:;
 #line 728 "driver/layout.byn"
     return byn_main__layoutString(l0_bytes);
 }
-#line 236144 "main.c"
+#line 236146 "main.c"
 
 bool byn_main__LayoutEngine__trivia(bynt_main__LayoutEngine* self, int64_t p_i) {
 #line 732 "driver/layout.byn"
     return byn_lexer__Token__get_hasTriviaBefore(&(*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_100, 732)));
 }
-#line 236150 "main.c"
+#line 236152 "main.c"
 
 int64_t byn_main__LayoutEngine__tokenAt(bynt_main__LayoutEngine* self, int64_t p_offset) {
     int64_t l0_lo = {0};
@@ -236182,7 +236184,7 @@ break_1:;
 #line 746 "driver/layout.byn"
     return l0_lo;
 }
-#line 236186 "main.c"
+#line 236188 "main.c"
 
 void byn_main__LayoutEngine__freeze(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     int64_t l0_depth = {0};
@@ -236269,7 +236271,7 @@ break_1:;
     }
 break_3:;
 }
-#line 236273 "main.c"
+#line 236275 "main.c"
 
 int64_t byn_main__LayoutEngine__originalIndent(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_at = {0};
@@ -236301,7 +236303,7 @@ break_1:;
 #line 785 "driver/layout.byn"
     return l1_n;
 }
-#line 236305 "main.c"
+#line 236307 "main.c"
 
 void byn_main__LayoutEngine__levels(bynt_main__LayoutEngine* self) {
     bynt_list_main__LayoutFrame l0_frames = {0};
@@ -236521,7 +236523,7 @@ void byn_main__LayoutEngine__levels(bynt_main__LayoutEngine* self) {
     }
 break_1:;
 }
-#line 236525 "main.c"
+#line 236527 "main.c"
 
 bool byn_main__LayoutEngine__isWasl(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -236530,7 +236532,7 @@ bool byn_main__LayoutEngine__isWasl(bynt_main__LayoutEngine* self, int64_t p_i) 
 #line 878 "driver/layout.byn"
     return (((((((((((((l0_k == ((byn_lexer_TokenKind)23)) || (l0_k == ((byn_lexer_TokenKind)30))) || (l0_k == ((byn_lexer_TokenKind)28))) || (l0_k == ((byn_lexer_TokenKind)49))) || (l0_k == ((byn_lexer_TokenKind)51))) || (l0_k == ((byn_lexer_TokenKind)130))) || (l0_k == ((byn_lexer_TokenKind)131))) || (l0_k == ((byn_lexer_TokenKind)122))) || (l0_k == ((byn_lexer_TokenKind)151))) || (l0_k == ((byn_lexer_TokenKind)148))) || (l0_k == ((byn_lexer_TokenKind)120))) || (l0_k == ((byn_lexer_TokenKind)150))) || byn_main__LayoutEngine__isClause(&(*self), p_i));
 }
-#line 236534 "main.c"
+#line 236536 "main.c"
 
 bool byn_main__LayoutEngine__isClause(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -236567,7 +236569,7 @@ bool byn_main__LayoutEngine__isClause(bynt_main__LayoutEngine* self, int64_t p_i
 #line 903 "driver/layout.byn"
     return false;
 }
-#line 236571 "main.c"
+#line 236573 "main.c"
 
 void byn_main__LayoutEngine__match(bynt_main__LayoutEngine* self) {
     bynt_list_i64 l0_open = {0};
@@ -236619,13 +236621,13 @@ void byn_main__LayoutEngine__match(bynt_main__LayoutEngine* self) {
     }
 break_1:;
 }
-#line 236623 "main.c"
+#line 236625 "main.c"
 
 bool byn_main__LayoutEngine__isIndex(bynt_main__LayoutEngine* self, int64_t p_o) {
 #line 927 "driver/layout.byn"
     return (((byn_main__LayoutEngine__kind(&(*self), p_o) == ((byn_lexer_TokenKind)17)) && (p_o > INT64_C(0))) && byn_main__layoutOperandEnd(byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(p_o, INT64_C(1), byn_file_100, 927))));
 }
-#line 236629 "main.c"
+#line 236631 "main.c"
 
 int64_t byn_main__LayoutEngine__columns(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_n = {0};
@@ -236660,7 +236662,7 @@ break_1:;
 #line 937 "driver/layout.byn"
     return l0_n;
 }
-#line 236664 "main.c"
+#line 236666 "main.c"
 
 bool byn_main__LayoutEngine__multiline(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_b = {0};
@@ -236692,7 +236694,7 @@ break_1:;
 #line 945 "driver/layout.byn"
     return false;
 }
-#line 236696 "main.c"
+#line 236698 "main.c"
 
 int64_t byn_main__LayoutEngine__lineStartOf(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_k = {0};
@@ -236713,7 +236715,7 @@ break_1:;
 #line 954 "driver/layout.byn"
     return l0_k;
 }
-#line 236717 "main.c"
+#line 236719 "main.c"
 
 int64_t byn_main__LayoutEngine__lineEnd(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_k = {0};
@@ -236739,7 +236741,7 @@ break_1:;
 #line 964 "driver/layout.byn"
     return byn_sub_i64((*self).tokens.len, INT64_C(1), byn_file_100, 964);
 }
-#line 236743 "main.c"
+#line 236745 "main.c"
 
 int64_t byn_main__LayoutEngine__width(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_e) {
     int64_t l0_width = {0};
@@ -236792,7 +236794,7 @@ break_1:;
 #line 978 "driver/layout.byn"
     return l0_width;
 }
-#line 236796 "main.c"
+#line 236798 "main.c"
 
 bool byn_main__LayoutEngine__editable(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end) {
     int64_t l0_k = {0};
@@ -236829,7 +236831,7 @@ break_1:;
 #line 988 "driver/layout.byn"
     return true;
 }
-#line 236833 "main.c"
+#line 236835 "main.c"
 
 bynt_list_i64 byn_main__LayoutEngine__items(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     bynt_list_i64 l0_result = {0};
@@ -236863,13 +236865,13 @@ break_1:;
 #line 1002 "driver/layout.byn"
     return l0_result;
 }
-#line 236867 "main.c"
+#line 236869 "main.c"
 
 bool byn_main__LayoutEngine__trailingComma(bynt_main__LayoutEngine* self, int64_t p_c) {
 #line 1006 "driver/layout.byn"
     return ((byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(p_c, INT64_C(1), byn_file_100, 1006)) == ((byn_lexer_TokenKind)22)) && (!(*bynh_at_list_bool((*self).dropComma, (int64_t)byn_sub_i64(p_c, INT64_C(1), byn_file_100, 1006), false, byn_file_100, 1006))));
 }
-#line 236873 "main.c"
+#line 236875 "main.c"
 
 bool byn_main__LayoutEngine__isStructLiteral(bynt_main__LayoutEngine* self, int64_t p_o) {
     byn_lexer_TokenKind l0_prev = {0};
@@ -236883,7 +236885,7 @@ bool byn_main__LayoutEngine__isStructLiteral(bynt_main__LayoutEngine* self, int6
 #line 1012 "driver/layout.byn"
     return (((((l0_prev == ((byn_lexer_TokenKind)1)) || (l0_prev == ((byn_lexer_TokenKind)60))) || (l0_prev == ((byn_lexer_TokenKind)133))) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_o, INT64_C(1), byn_file_100, 1012)) == ((byn_lexer_TokenKind)1))) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_o, INT64_C(2), byn_file_100, 1012)) == ((byn_lexer_TokenKind)26)));
 }
-#line 236887 "main.c"
+#line 236889 "main.c"
 
 bool byn_main__LayoutEngine__commaSafe(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     byn_lexer_TokenKind l0_k = {0};
@@ -236928,7 +236930,7 @@ bool byn_main__LayoutEngine__commaSafe(bynt_main__LayoutEngine* self, int64_t p_
 #line 1034 "driver/layout.byn"
     return (((*bynh_at_list_bool((*self).lineStart, (int64_t)l1_name, false, byn_file_100, 1034)) || byn_main__layoutExpressionBefore(byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(l1_name, INT64_C(1), byn_file_100, 1035)))) || ((byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(l1_name, INT64_C(1), byn_file_100, 1036)) == ((byn_lexer_TokenKind)27)) && byn_main__LayoutEngine__trivia(&(*self), byn_sub_i64(l1_name, INT64_C(1), byn_file_100, 1036))));
 }
-#line 236932 "main.c"
+#line 236934 "main.c"
 
 bool byn_main__LayoutEngine__inPattern(bynt_main__LayoutEngine* self, int64_t p_o) {
     int64_t l0_k = {0};
@@ -237003,7 +237005,7 @@ break_3:;
 #line 1063 "driver/layout.byn"
     return false;
 }
-#line 237007 "main.c"
+#line 237009 "main.c"
 
 bool byn_main__LayoutEngine__hasComment(bynt_main__LayoutEngine* self, int64_t p_k) {
     bynt_main__LayoutGapItem l0_x = {0};
@@ -237035,7 +237037,7 @@ break_1:;
 #line 1071 "driver/layout.byn"
     return false;
 }
-#line 237039 "main.c"
+#line 237041 "main.c"
 
 void byn_main__LayoutEngine__joins(bynt_main__LayoutEngine* self) {
     int64_t l0_c = {0};
@@ -237361,7 +237363,7 @@ break_7:;
     }
 break_11:;
 }
-#line 237365 "main.c"
+#line 237367 "main.c"
 
 int64_t byn_main__LayoutEngine__headerArrowAfter(bynt_main__LayoutEngine* self, int64_t p_c) {
     int64_t l0_k = {0};
@@ -237395,7 +237397,7 @@ break_1:;
 #line 1182 "driver/layout.byn"
     return INT64_C(-1);
 }
-#line 237399 "main.c"
+#line 237401 "main.c"
 
 bool byn_main__LayoutEngine__inUnbrokenTernary(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_o = {0};
@@ -237444,7 +237446,7 @@ break_1:;
 #line 1201 "driver/layout.byn"
     return false;
 }
-#line 237448 "main.c"
+#line 237450 "main.c"
 
 bool byn_main__LayoutEngine__joinable(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     bool l0_broken = {0};
@@ -237484,7 +237486,7 @@ break_1:;
 #line 1221 "driver/layout.byn"
     return (l0_broken && (!(*bynh_at_list_bool((*self).frozen, (int64_t)p_o, false, byn_file_100, 1221))));
 }
-#line 237488 "main.c"
+#line 237490 "main.c"
 
 bool byn_main__LayoutEngine__tryJoin(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end, bynt_list_i64 p_breaks) {
     bynt_list_i64 l0_cleared = {0};
@@ -237573,13 +237575,13 @@ break_5:;
 #line 1240 "driver/layout.byn"
     return false;
 }
-#line 237577 "main.c"
+#line 237579 "main.c"
 
 bool byn_main__LayoutEngine__isLink(bynt_main__LayoutEngine* self, int64_t p_j) {
 #line 1245 "driver/layout.byn"
     return (((byn_main__LayoutEngine__kind(&(*self), p_j) == ((byn_lexer_TokenKind)23)) || (byn_main__LayoutEngine__kind(&(*self), p_j) == ((byn_lexer_TokenKind)30))) && ((byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_j, INT64_C(1), byn_file_100, 1246)) == ((byn_lexer_TokenKind)1)) || byn_parser__isContextualKeyword(byn_main__LayoutEngine__kind(&(*self), byn_add_i64(p_j, INT64_C(1), byn_file_100, 1246)))));
 }
-#line 237583 "main.c"
+#line 237585 "main.c"
 
 bool byn_main__LayoutEngine__armLine(bynt_main__LayoutEngine* self, int64_t p_j) {
     int64_t l0_depth = {0};
@@ -237620,7 +237622,7 @@ break_1:;
 #line 1262 "driver/layout.byn"
     return false;
 }
-#line 237624 "main.c"
+#line 237626 "main.c"
 
 bynt_list_main__LayoutChain byn_main__LayoutEngine__chains(bynt_main__LayoutEngine* self) {
     bynt_list_main__LayoutChain l0_result = {0};
@@ -237790,7 +237792,7 @@ break_3:;
 #line 1329 "driver/layout.byn"
     return l0_result;
 }
-#line 237794 "main.c"
+#line 237796 "main.c"
 
 bool byn_main__LayoutEngine__hasLambda(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     int64_t l0_k = {0};
@@ -237822,7 +237824,7 @@ break_1:;
 #line 1337 "driver/layout.byn"
     return false;
 }
-#line 237826 "main.c"
+#line 237828 "main.c"
 
 void byn_main__LayoutEngine__breaks(bynt_main__LayoutEngine* self) {
     bynt_list_main__LayoutChain l0_all = {0};
@@ -238041,7 +238043,7 @@ break_7:;
     }
 break_11:;
 }
-#line 238045 "main.c"
+#line 238047 "main.c"
 
 void byn_main__LayoutEngine__breakList(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c) {
     bynt_list_i64 l0_starts = {0};
@@ -238118,7 +238120,7 @@ break_3:;
         (*bynh_at_list_bool((*self).addComma, (int64_t)byn_sub_i64(p_c, INT64_C(1), byn_file_100, 1414), false, byn_file_100, 1414)) = true;
     }
 }
-#line 238122 "main.c"
+#line 238124 "main.c"
 
 bool byn_main__LayoutEngine__scalars(bynt_main__LayoutEngine* self, int64_t p_o, int64_t p_c, bynt_list_i64 p_starts, bynt_list_i64* p_widths) {
     int64_t l0_k = {0};
@@ -238201,7 +238203,7 @@ break_3:;
 #line 1440 "driver/layout.byn"
     return true;
 }
-#line 238205 "main.c"
+#line 238207 "main.c"
 
 int64_t byn_main__LayoutEngine__rowOf(bynt_main__LayoutEngine* self, int64_t p_o, bynt_list_i64 p_starts, bynt_list_i64 p_widths) {
     int64_t l0_indent = {0};
@@ -238250,7 +238252,7 @@ break_3:;
 #line 1457 "driver/layout.byn"
     return INT64_C(1);
 }
-#line 238254 "main.c"
+#line 238256 "main.c"
 
 bool byn_main__LayoutEngine__rowFits(bynt_main__LayoutEngine* self, int64_t p_n, bynt_list_i64 p_widths, int64_t p_indent) {
     int64_t l0_at = {0};
@@ -238311,7 +238313,7 @@ break_1:;
 #line 1472 "driver/layout.byn"
     return true;
 }
-#line 238315 "main.c"
+#line 238317 "main.c"
 
 bool byn_main__LayoutEngine__breakLine(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_e, bynt_list_main__LayoutChain p_lineChains) {
     bool l0_changed = {0};
@@ -238833,7 +238835,7 @@ break_17:;
 #line 1647 "driver/layout.byn"
     return true;
 }
-#line 238837 "main.c"
+#line 238839 "main.c"
 
 bynt_list_i64 byn_main__LayoutEngine__lowestOperators(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_start, int64_t p_e) {
     bynt_list_i64 l0_found = {0};
@@ -239010,7 +239012,7 @@ break_5:;
 #line 1710 "driver/layout.byn"
     return l16_result;
 }
-#line 239014 "main.c"
+#line 239016 "main.c"
 
 void byn_main__LayoutEngine__topLevelBlanks(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     int64_t l0_d = {0};
@@ -239106,7 +239108,7 @@ void byn_main__LayoutEngine__topLevelBlanks(bynt_main__LayoutEngine* self, bynt_
     }
 break_1:;
 }
-#line 239110 "main.c"
+#line 239112 "main.c"
 
 bool byn_main__LayoutEngine__oneLine(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end) {
     int64_t l0_i = {0};
@@ -239138,7 +239140,7 @@ break_1:;
 #line 1740 "driver/layout.byn"
     return true;
 }
-#line 239142 "main.c"
+#line 239144 "main.c"
 
 byn_str byn_main__LayoutEngine__leadingKeywords(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_writer l0_words = {0};
@@ -239179,7 +239181,7 @@ break_1:;
 #line 1754 "driver/layout.byn"
     return byn_strbuf_str(t2);
 }
-#line 239183 "main.c"
+#line 239185 "main.c"
 
 void byn_main__LayoutEngine__guide(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     int64_t l0_o = {0};
@@ -239216,7 +239218,7 @@ void byn_main__LayoutEngine__guide(bynt_main__LayoutEngine* self, bynt_list_pars
     }
 break_1:;
 }
-#line 239220 "main.c"
+#line 239222 "main.c"
 
 void byn_main__LayoutEngine__guideDecls(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_decls) {
     byn_parser_Decl l0_decl = {0};
@@ -239360,7 +239362,7 @@ void byn_main__LayoutEngine__guideDecls(bynt_main__LayoutEngine* self, bynt_list
     }
 break_1:;
 }
-#line 239364 "main.c"
+#line 239366 "main.c"
 
 void byn_main__LayoutEngine__guideStmt(bynt_main__LayoutEngine* self, byn_parser_Stmt p_stmt) {
     int64_t l0_o = {0};
@@ -239562,7 +239564,7 @@ void byn_main__LayoutEngine__guideStmt(bynt_main__LayoutEngine* self, byn_parser
     }
 switch_end_1:;
 }
-#line 239566 "main.c"
+#line 239568 "main.c"
 
 int64_t byn_main__LayoutEngine__genericClose(bynt_main__LayoutEngine* self, int64_t p_o) {
     int64_t l0_depth = {0};
@@ -239616,7 +239618,7 @@ break_1:;
 #line 1882 "driver/layout.byn"
     return INT64_C(-1);
 }
-#line 239620 "main.c"
+#line 239622 "main.c"
 
 void byn_main__LayoutEngine__memberBlanks(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_decls) {
     bynt_list_parser__UnionVariant l0_none = {0};
@@ -239678,7 +239680,7 @@ void byn_main__LayoutEngine__memberBlanks(bynt_main__LayoutEngine* self, bynt_li
     }
 break_1:;
 }
-#line 239682 "main.c"
+#line 239684 "main.c"
 
 void byn_main__LayoutEngine__memberBlanksOf(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members, bynt_list_parser__UnionVariant p_states) {
     bynt_list_main__LayoutMember l0_found = {0};
@@ -239802,7 +239804,7 @@ break_3:;
     }
 break_7:;
 }
-#line 239806 "main.c"
+#line 239808 "main.c"
 
 int64_t byn_main__LayoutEngine__memberStart(bynt_main__LayoutEngine* self, byn_parser_Decl p_decl) {
     bynt_lexer__TextSpan l0_span = {0};
@@ -239819,7 +239821,7 @@ int64_t byn_main__LayoutEngine__memberStart(bynt_main__LayoutEngine* self, byn_p
 #line 1947 "driver/layout.byn"
     return byn_main__LayoutEngine__tokenAt(&(*self), l0_span.start);
 }
-#line 239823 "main.c"
+#line 239825 "main.c"
 
 int64_t byn_main__LayoutEngine__statesStart(bynt_main__LayoutEngine* self, int64_t p_first) {
     int64_t l0_o = {0};
@@ -239828,7 +239830,7 @@ int64_t byn_main__LayoutEngine__statesStart(bynt_main__LayoutEngine* self, int64
 #line 1953 "driver/layout.byn"
     return ((((byn_main__LayoutEngine__kind(&(*self), l0_o) == ((byn_lexer_TokenKind)19)) && (l0_o > INT64_C(0))) && byn_main__LayoutEngine__textIs(&(*self), byn_sub_i64(l0_o, INT64_C(1), byn_file_100, 1953), BYN_STR("states", 6))) ? byn_sub_i64(l0_o, INT64_C(1), byn_file_100, 1953) : INT64_C(-1));
 }
-#line 239832 "main.c"
+#line 239834 "main.c"
 
 void byn_main__LayoutEngine__align(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_members) {
     bynt_map_i64_main__LayoutShape l0_shapeMap = {0};
@@ -240009,7 +240011,7 @@ break_7:;
 #line 2007 "driver/layout.byn"
     (void)byn_main__LayoutEngine__alignComments(&(*self), l5_run);
 }
-#line 240013 "main.c"
+#line 240015 "main.c"
 
 void byn_main__LayoutEngine__shapes(bynt_main__LayoutEngine* self, bynt_list_parser__Decl p_decls, bool p_topLevel, bynt_map_i64_main__LayoutShape* p_shapeMap) {
     byn_parser_Decl l0_decl = {0};
@@ -240203,7 +240205,7 @@ void byn_main__LayoutEngine__shapes(bynt_main__LayoutEngine* self, bynt_list_par
     }
 break_1:;
 }
-#line 240207 "main.c"
+#line 240209 "main.c"
 
 void byn_main__LayoutEngine__arms(bynt_main__LayoutEngine* self, bynt_map_i64_main__LayoutShape* p_shapeMap) {
     int64_t l0_o = {0};
@@ -240320,7 +240322,7 @@ void byn_main__LayoutEngine__arms(bynt_main__LayoutEngine* self, bynt_map_i64_ma
     }
 break_1:;
 }
-#line 240324 "main.c"
+#line 240326 "main.c"
 
 int64_t byn_main__LayoutEngine__firstAt(bynt_main__LayoutEngine* self, byn_lexer_TokenKind p_wanted, int64_t p_start, int64_t p_e) {
     int64_t l0_k = {0};
@@ -240354,7 +240356,7 @@ break_1:;
 #line 2101 "driver/layout.byn"
     return INT64_C(-1);
 }
-#line 240358 "main.c"
+#line 240360 "main.c"
 
 bool byn_main__LayoutEngine__plain(bynt_main__LayoutEngine* self, int64_t p_s) {
     int64_t l0_e = {0};
@@ -240394,13 +240396,13 @@ break_1:;
 #line 2111 "driver/layout.byn"
     return true;
 }
-#line 240398 "main.c"
+#line 240400 "main.c"
 
 bool byn_main__LayoutEngine__padded(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_k) {
 #line 2116 "driver/layout.byn"
     return ((((p_k > p_s) && (p_k < byn_main__LayoutEngine__lineEnd(&(*self), p_s))) && byn_main__LayoutEngine__space(&(*self), p_k, byn_lexer__Token__get_end(&(*bynh_at_list_lexer__Token((*self).tokens, (int64_t)byn_sub_i64(p_k, INT64_C(1), byn_file_100, 2118), false, byn_file_100, 2118))))) && (!byn_main__layoutTriviaMatters((*self).source, (*self).tokens, p_k)));
 }
-#line 240404 "main.c"
+#line 240406 "main.c"
 
 bool byn_main__LayoutEngine__separated(bynt_main__LayoutEngine* self, int64_t p_s) {
     int64_t l0_k = {0};
@@ -240437,7 +240439,7 @@ break_1:;
 #line 2127 "driver/layout.byn"
     return false;
 }
-#line 240441 "main.c"
+#line 240443 "main.c"
 
 bool byn_main__LayoutEngine__doc(bynt_main__LayoutEngine* self, bynt_main__LayoutGapItem p_item) {
     int64_t l0_n = {0};
@@ -240451,7 +240453,7 @@ bool byn_main__LayoutEngine__doc(bynt_main__LayoutEngine* self, bynt_main__Layou
 #line 2137 "driver/layout.byn"
     return ((l0_n == INT64_C(3)) || (!((*bynh_at_list_u8((*self).source, (int64_t)byn_add_i64(p_item.start, INT64_C(3), byn_file_100, 2137), false, byn_file_100, 2137)) == ((uint8_t)47))));
 }
-#line 240455 "main.c"
+#line 240457 "main.c"
 
 int64_t byn_main__LayoutEngine__pads(bynt_main__LayoutEngine* self, int64_t p_s, int64_t p_e) {
     int64_t l0_n = {0};
@@ -240489,7 +240491,7 @@ break_1:;
 #line 2146 "driver/layout.byn"
     return l0_n;
 }
-#line 240493 "main.c"
+#line 240495 "main.c"
 
 int64_t byn_main__LayoutEngine__lineWidth(bynt_main__LayoutEngine* self, int64_t p_s) {
     int64_t t0 = {0};
@@ -240498,7 +240500,7 @@ int64_t byn_main__LayoutEngine__lineWidth(bynt_main__LayoutEngine* self, int64_t
 #line 2150 "driver/layout.byn"
     return byn_add_i64(t0, byn_main__LayoutEngine__pads(&(*self), p_s, byn_main__LayoutEngine__lineEnd(&(*self), p_s)), byn_file_100, 2150);
 }
-#line 240502 "main.c"
+#line 240504 "main.c"
 
 void byn_main__LayoutEngine__alignRun(bynt_main__LayoutEngine* self, bynt_list_i64 p_lines, bynt_map_i64_main__LayoutShape p_shapeMap) {
     bynt_list_i64 l0_run = {0};
@@ -240837,7 +240839,7 @@ void byn_main__LayoutEngine__alignRun(bynt_main__LayoutEngine* self, bynt_list_i
     }
 break_1:;
 }
-#line 240841 "main.c"
+#line 240843 "main.c"
 
 void byn_main__LayoutEngine__alignComments(bynt_main__LayoutEngine* self, bynt_list_i64 p_run) {
     bynt_list_i64 l0_at = {0};
@@ -240988,7 +240990,7 @@ break_5:;
     }
 break_9:;
 }
-#line 240992 "main.c"
+#line 240994 "main.c"
 
 void byn_main__LayoutEngine__emitGap(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_start = {0};
@@ -241247,7 +241249,7 @@ break_13:;
         (void)byn_main__LayoutEngine__indent(&(*self), (*bynh_at_list_i64((*self).levelOf, (int64_t)p_i, false, byn_file_100, 2344)));
     }
 }
-#line 241251 "main.c"
+#line 241253 "main.c"
 
 void byn_main__LayoutEngine__add(bynt_main__LayoutEngine* self, bynt_main__LayoutGapItem p_item) {
     uint8_t l0_b = {0};
@@ -241274,13 +241276,13 @@ void byn_main__LayoutEngine__add(bynt_main__LayoutEngine* self, bynt_main__Layou
     }
 break_1:;
 }
-#line 241278 "main.c"
+#line 241280 "main.c"
 
 void byn_main__LayoutEngine__indent(bynt_main__LayoutEngine* self, int64_t p_level) {
 #line 2356 "driver/layout.byn"
     (void)byn_main__LayoutEngine__spaces(&(*self), byn_mul_i64(p_level, (*self).options.indent, byn_file_100, 2356));
 }
-#line 241284 "main.c"
+#line 241286 "main.c"
 
 void byn_main__LayoutEngine__spaces(bynt_main__LayoutEngine* self, int64_t p_n) {
     int64_t l0_k = {0};
@@ -241307,7 +241309,7 @@ void byn_main__LayoutEngine__spaces(bynt_main__LayoutEngine* self, int64_t p_n) 
     }
 break_1:;
 }
-#line 241311 "main.c"
+#line 241313 "main.c"
 
 void byn_main__LayoutEngine__hygiene(bynt_main__LayoutEngine* self, int64_t p_start, int64_t p_end) {
     int64_t l0_blanks = {0};
@@ -241399,7 +241401,7 @@ break_1:;
     }
 break_5:;
 }
-#line 241403 "main.c"
+#line 241405 "main.c"
 
 bool byn_main__LayoutEngine__space(bynt_main__LayoutEngine* self, int64_t p_i, int64_t p_start) {
     bool l0_written = {0};
@@ -241452,7 +241454,7 @@ bool byn_main__LayoutEngine__space(bynt_main__LayoutEngine* self, int64_t p_i, i
 #line 2407 "driver/layout.byn"
     return (l3_spaced || (l0_written && byn_main__LayoutEngine__merges(&(*self), p_i)));
 }
-#line 241456 "main.c"
+#line 241458 "main.c"
 
 bool byn_main__LayoutEngine__merges(bynt_main__LayoutEngine* self, int64_t p_i) {
     bynt_list_u8 l0_joined = {0};
@@ -241515,7 +241517,7 @@ break_3:;
 #line 2422 "driver/layout.byn"
     return (((!(l7_lexed.tokens.len == INT64_C(3))) || (!((*bynh_at_list_lexer__Token(l7_lexed.tokens, (int64_t)INT64_C(0), false, byn_file_100, 2423)).kind == (*bynh_at_list_lexer__Token((*self).tokens, (int64_t)byn_sub_i64(p_i, INT64_C(1), byn_file_100, 2423), false, byn_file_100, 2423)).kind))) || (!((*bynh_at_list_lexer__Token(l7_lexed.tokens, (int64_t)INT64_C(1), false, byn_file_100, 2424)).kind == (*bynh_at_list_lexer__Token((*self).tokens, (int64_t)p_i, false, byn_file_100, 2424)).kind)));
 }
-#line 241519 "main.c"
+#line 241521 "main.c"
 
 bool byn_main__LayoutEngine__tightProduct(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_next = {0};
@@ -241529,13 +241531,13 @@ bool byn_main__LayoutEngine__tightProduct(bynt_main__LayoutEngine* self, int64_t
 #line 2436 "driver/layout.byn"
     return (((((((((l0_next == ((byn_lexer_TokenKind)1)) || (l0_next == ((byn_lexer_TokenKind)2))) || (l0_next == ((byn_lexer_TokenKind)3))) || (l0_next == ((byn_lexer_TokenKind)5))) || (l0_next == ((byn_lexer_TokenKind)15))) || (l0_next == ((byn_lexer_TokenKind)137))) || (l0_next == ((byn_lexer_TokenKind)10))) || byn_lexer__isStringLiteral(l0_next)) || byn_parser__isContextualKeyword(l0_next));
 }
-#line 241533 "main.c"
+#line 241535 "main.c"
 
 bool byn_main__LayoutEngine__isUnary(bynt_main__LayoutEngine* self, int64_t p_i) {
 #line 2448 "driver/layout.byn"
     return ((*bynh_at_list_bool((*self).lineStart, (int64_t)p_i, false, byn_file_100, 2448)) || (!byn_main__layoutOperandEnd(byn_main__LayoutEngine__kind(&(*self), byn_sub_i64(p_i, INT64_C(1), byn_file_100, 2448)))));
 }
-#line 241539 "main.c"
+#line 241541 "main.c"
 
 byn_main_LayoutSide byn_main__LayoutEngine__star(bynt_main__LayoutEngine* self, int64_t p_i, byn_main_LayoutSide p_prefix) {
 #line 2452 "driver/layout.byn"
@@ -241556,7 +241558,7 @@ byn_main_LayoutSide byn_main__LayoutEngine__star(bynt_main__LayoutEngine* self, 
 #line 2455 "driver/layout.byn"
     return (byn_main__LayoutEngine__trivia(&(*self), p_i) ? ((byn_main_LayoutSide)1) : ((byn_main_LayoutSide)3));
 }
-#line 241560 "main.c"
+#line 241562 "main.c"
 
 byn_main_LayoutSide byn_main__LayoutEngine__after(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -241620,7 +241622,7 @@ byn_main_LayoutSide byn_main__LayoutEngine__after(bynt_main__LayoutEngine* self,
 #line 2482 "driver/layout.byn"
     return ((byn_main_LayoutSide)0);
 }
-#line 241624 "main.c"
+#line 241626 "main.c"
 
 byn_main_LayoutSide byn_main__LayoutEngine__before(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -241712,7 +241714,7 @@ byn_main_LayoutSide byn_main__LayoutEngine__before(bynt_main__LayoutEngine* self
 #line 2515 "driver/layout.byn"
     return ((byn_main_LayoutSide)0);
 }
-#line 241716 "main.c"
+#line 241718 "main.c"
 
 bool byn_main__LayoutEngine__particleTuple(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind t0 = {0};
@@ -241739,7 +241741,7 @@ bool byn_main__LayoutEngine__particleTuple(bynt_main__LayoutEngine* self, int64_
 #line 2530 "driver/layout.byn"
     return (((l1_close > p_i) && (byn_add_i64(l1_close, INT64_C(1), byn_file_100, 2530) < (*self).matchOf.len)) && (byn_main__LayoutEngine__kind(&(*self), byn_add_i64(l1_close, INT64_C(1), byn_file_100, 2530)) == ((byn_lexer_TokenKind)1)));
 }
-#line 241743 "main.c"
+#line 241745 "main.c"
 
 bool byn_main__LayoutEngine__callLike(bynt_main__LayoutEngine* self, int64_t p_i) {
     byn_lexer_TokenKind l0_k = {0};
@@ -241753,7 +241755,7 @@ bool byn_main__LayoutEngine__callLike(bynt_main__LayoutEngine* self, int64_t p_i
 #line 2537 "driver/layout.byn"
     return ((l0_k == ((byn_lexer_TokenKind)1)) && (!((byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("where", 5)) || byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("expects", 7))) || byn_main__LayoutEngine__textIs(&(*self), p_i, BYN_STR("becomes", 7)))));
 }
-#line 241757 "main.c"
+#line 241759 "main.c"
 
 bool byn_main__LayoutEngine__spacedColon(bynt_main__LayoutEngine* self, int64_t p_i) {
     int64_t l0_depth = {0};
@@ -241815,7 +241817,7 @@ break_1:;
 #line 2565 "driver/layout.byn"
     return false;
 }
-#line 241819 "main.c"
+#line 241821 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};
