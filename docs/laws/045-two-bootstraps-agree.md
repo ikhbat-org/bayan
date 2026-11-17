@@ -3,7 +3,7 @@ id: L045
 title: Two bootstraps agree
 status: retired
 release: unscheduled
-sources: spec 019 R27; restates L027 without a live C# compiler and may be enacted as its amendment
+sources: spec 019 R27; retired 2026-11-18, folded into L027 (D8)
 kind: property
 scope: bootstrap/bayan.c, scripts/ci/ddc.sh
 ---
