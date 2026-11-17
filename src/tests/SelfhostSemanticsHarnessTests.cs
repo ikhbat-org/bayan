@@ -13,11 +13,11 @@ public sealed class SelfhostSemanticsHarnessTests
         }
         """;
 
-    /// <summary>The export directory this class's tests write to: the class is dropped from the export, so its cases
-    /// never land in <c>BAYAN_EXPORT_DIR</c>, while its assertions still run with an export active.</summary>
-    private static readonly string OwnExport = Path.Combine(Golden.RepoRoot, "tmp", "export-sem-harness");
+    /// <summary>The class is dropped from the export: its tests run with the export cleared, so they assert as without
+    /// <c>BAYAN_EXPORT_DIR</c> and write nothing into it.</summary>
+    private const string NoExport = "";
 
-    /// <summary>Runs <paramref name="body"/> with the export pointed at <paramref name="dir"/>.</summary>
+    /// <summary>Runs <paramref name="body"/> with the export pointed at <paramref name="dir"/> (cleared when empty).</summary>
     private static void ExportingTo(string dir, Action body)
     {
         var old = SelfhostSemanticsHarness.ExportOverride.Value;
@@ -34,7 +34,7 @@ public sealed class SelfhostSemanticsHarnessTests
     }
 
     [Fact]
-    public void RunsAndSplitsSections() => ExportingTo(OwnExport, () =>
+    public void RunsAndSplitsSections() => ExportingTo(NoExport, () =>
     {
         var s = SelfhostSemanticsHarness.RunSections(Main);
         Assert.Equal(["before"], s[""]);
@@ -42,8 +42,8 @@ public sealed class SelfhostSemanticsHarnessTests
         Assert.Empty(s["beta"]);
     });
 
-    /// <summary>With an export directory the section is still compared, and its program and C# lines are written as a
-    /// case; a derived comparison names its printed section and normal form, and a call with no program is listed.</summary>
+    /// <summary>With an export directory the section's program and C# lines are written as a case instead of compared;
+    /// a derived comparison names its printed section and normal form.</summary>
     [Fact]
     public void ExportWritesTheCase()
     {
@@ -53,9 +53,8 @@ public sealed class SelfhostSemanticsHarnessTests
         {
             var s = SelfhostSemanticsHarness.RunSections(Main);
             SelfhostSemanticsHarness.AssertSection(s, "alpha", ["a1", "a2"]);
-            Assert.ThrowsAny<Exception>(() => SelfhostSemanticsHarness.AssertSection(s, "alpha", ["again"], nameof(ExportWritesTheCase)));
+            SelfhostSemanticsHarness.AssertSection(s, "alpha", ["again"]);
             SelfhostSemanticsHarness.AssertSection(new() { ["sorted"] = ["a1", "a2"] }, "sorted", ["a1", "a2"], run: s, printed: "alpha", compare: "sorted");
-            SelfhostSemanticsHarness.AssertSection(new() { ["none"] = ["x"] }, "none", ["x"], noExport: "no program");
             SelfhostSemanticsHarness.WriteExportCounts();
         });
         var cases = Path.Combine(dir, "sem", nameof(SelfhostSemanticsHarnessTests));
@@ -70,12 +69,31 @@ public sealed class SelfhostSemanticsHarnessTests
         Assert.Equal("== alpha\na1\na2\n", File.ReadAllText(Path.Combine(cases, "ExportWritesTheCase-3", "expected.sections")));
         Assert.Equal("sorted\n", File.ReadAllText(Path.Combine(cases, "ExportWritesTheCase-3", "compare")));
         Assert.False(Directory.Exists(Path.Combine(cases, "ExportWritesTheCase-4")));
-        Assert.Equal($"{nameof(SelfhostSemanticsHarnessTests)}\tExportWritesTheCase\tnone\tno program\n", File.ReadAllText(Path.Combine(dir, "sem", "UNEXPORTED.tsv")));
+        Assert.False(File.Exists(Path.Combine(dir, "sem", "UNEXPORTED.tsv")));
         Assert.Equal($"{nameof(SelfhostSemanticsHarnessTests)}\t3\n", File.ReadAllText(Path.Combine(dir, "sem", "counts.tsv")));
     }
 
+    /// <summary>With an export directory a call with a no-export reason, or for a section the program does not print,
+    /// writes no case, lists one row each and does not assert, though its lines differ.</summary>
     [Fact]
-    public void FirstDifferingLineFails() => ExportingTo(OwnExport, () =>
+    public void ExportListsWithoutAsserting()
+    {
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", "export-sem-unexported");
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        ExportingTo(dir, () =>
+        {
+            var s = SelfhostSemanticsHarness.RunSections(Main);
+            SelfhostSemanticsHarness.AssertSection(s, "alpha", ["other"], noExport: "no program");
+            SelfhostSemanticsHarness.AssertSection(s, "gamma", ["g1"]);
+        });
+        Assert.False(Directory.Exists(Path.Combine(dir, "sem", nameof(SelfhostSemanticsHarnessTests))));
+        Assert.Equal($"{nameof(SelfhostSemanticsHarnessTests)}\tExportListsWithoutAsserting\talpha\tno program\n"
+            + $"{nameof(SelfhostSemanticsHarnessTests)}\tExportListsWithoutAsserting\tgamma\tsection 'gamma' was not printed\n",
+            File.ReadAllText(Path.Combine(dir, "sem", "UNEXPORTED.tsv")));
+    }
+
+    [Fact]
+    public void FirstDifferingLineFails() => ExportingTo(NoExport, () =>
     {
         var s = SelfhostSemanticsHarness.Sections("== x\nl1\nl2\n");
         var e = Assert.ThrowsAny<Exception>(() => SelfhostSemanticsHarness.AssertSection(s, "x", ["l1", "L2"]));
@@ -83,7 +101,7 @@ public sealed class SelfhostSemanticsHarnessTests
     });
 
     [Fact]
-    public void CountMismatchMissingAndEmptyFail() => ExportingTo(OwnExport, () =>
+    public void CountMismatchMissingAndEmptyFail() => ExportingTo(NoExport, () =>
     {
         var s = SelfhostSemanticsHarness.Sections("== x\nl1\n== empty\n");
         Assert.ThrowsAny<Exception>(() => SelfhostSemanticsHarness.AssertSection(s, "x", ["l1", "l2"]));
@@ -92,13 +110,13 @@ public sealed class SelfhostSemanticsHarnessTests
     });
 
     [Fact]
-    public void RepeatedSectionFails() =>
-        Assert.ThrowsAny<Exception>(() => SelfhostSemanticsHarness.Sections("== x\n== x\n"));
+    public void RepeatedSectionFails() => ExportingTo(NoExport, () =>
+        Assert.ThrowsAny<Exception>(() => SelfhostSemanticsHarness.Sections("== x\n== x\n")));
 
     [Fact]
-    public void BuildErrorFailsWithTheComplaint()
+    public void BuildErrorFailsWithTheComplaint() => ExportingTo(NoExport, () =>
     {
         var e = Assert.ThrowsAny<Exception>(() => SelfhostSemanticsHarness.Build("i32 main() => undefinedName"));
         Assert.Contains("BYN", e.Message);
-    }
+    });
 }

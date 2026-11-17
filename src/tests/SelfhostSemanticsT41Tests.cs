@@ -695,7 +695,7 @@ public sealed class SelfhostSemanticsT41Tests
         if (expected.Count == 0)
         {
             SelfhostSemanticsHarness.ExportSection(actual, section, expected, run: Sections.Value, printed: section, compare: "t41");
-            Assert.Empty(actual[section]);
+            if (SelfhostSemanticsHarness.ExportDir is null) Assert.Empty(actual[section]);
         }
         else SelfhostSemanticsHarness.AssertSection(actual, section, expected, run: Sections.Value, printed: section, compare: "t41");
     }

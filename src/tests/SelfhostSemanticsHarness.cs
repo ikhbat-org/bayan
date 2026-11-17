@@ -383,15 +383,16 @@ public static class SelfhostSemanticsHarness
     /// …) with <c>section</c> (<paramref name="section"/>), <c>input.byn</c> (and <c>args</c>) of the run that printed section
     /// <paramref name="printed"/> of <paramref name="run"/>, <c>expected.sections</c> (the <c>== printed</c> header and
     /// the C# lines) and, with <paramref name="compare"/>, a <c>compare</c> file naming the normal form both sides are
-    /// put in before comparing. A call with <paramref name="noExport"/>, or whose program is not found, writes no case
-    /// and appends a row to <c>sem/UNEXPORTED.tsv</c>. When the process exits, <c>sem/counts.tsv</c> lists the cases
-    /// written per class.
+    /// put in before comparing. A call with <paramref name="noExport"/>, whose section is not printed or whose program
+    /// is not found, writes no case and appends a row to <c>sem/UNEXPORTED.tsv</c>. When the process exits,
+    /// <c>sem/counts.tsv</c> lists the cases written per class.
     /// </summary>
     private static void Export(string export, Dictionary<string, List<string>> run, string printed, IReadOnlyList<string> expected,
         string test, string cls, string section, string? compare, string? noExport)
     {
+        if (noExport is null && !run.ContainsKey(printed)) noExport = $"section '{printed}' was not printed";
         var input = noExport is not null ? null
-            : run.TryGetValue(printed, out var lines) && ExportLines.TryGetValue(lines, out var found) ? found
+            : ExportLines.TryGetValue(run[printed], out var found) ? found
             : ExportInputs.TryGetValue(run, out found) ? found : null;
         var sem = Path.Combine(export, "sem");
         if (input is null)
@@ -478,13 +479,17 @@ public static class SelfhostSemanticsHarness
     /// <summary>
     /// <paramref name="actual"/>'s section <paramref name="section"/> against <paramref name="expected"/>,
     /// naming the first differing line; a missing section or a count mismatch fails too. Under
-    /// <c>BAYAN_EXPORT_DIR</c> it first writes the case (see <see cref="ExportSection"/>), then compares as without it.
+    /// <c>BAYAN_EXPORT_DIR</c> it writes the case (see <see cref="ExportSection"/>) instead, and asserts nothing.
     /// </summary>
     public static void AssertSection(Dictionary<string, List<string>> actual, string section, IReadOnlyList<string> expected,
         [CallerMemberName] string test = "", [CallerFilePath] string file = "", string? cls = null,
         Dictionary<string, List<string>>? run = null, string? printed = null, string? compare = null, string? noExport = null)
     {
-        ExportSection(actual, section, expected, test, file, cls, run, printed, compare, noExport);
+        if (ExportDir is not null)
+        {
+            ExportSection(actual, section, expected, test, file, cls, run, printed, compare, noExport);
+            return;
+        }
         Assert.True(actual.TryGetValue(section, out var lines), $"section '{section}' was not printed");
         var n = Math.Min(lines!.Count, expected.Count);
         for (var i = 0; i < n; i++)
