@@ -135,15 +135,23 @@ List<GoldenCase> goldenDiscover(string root, through ref i32 exit) uses alloc, c
     var cases = List<GoldenCase>()
     // Alphabetical, so the listing is in `<kind>/<case>` order.
     let kinds = [
-        "diag", "diag-json", "emit", "lex", "manifest", "new", "out", "parse", "quality", "run", "style", "typed",
+        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem", "style", "typed",
     ]
     for kind in kinds {
-        if kind == "style" {
+        // the exported kinds (T17b, goldenexport.byn): `cli` cases, and a class directory each of the others
+        if kind == "cli" {
+            goldenCliCases(root, to: ref cases)
+        } else if kind is "emit-c" or "sem" {
+            goldenExportClasses(root, for: kind, to: ref cases)
+        } else if kind == "style" {
             goldenFileCases(root, for: kind, to: ref cases, through: ref exit, by: ".color")
         } else if kind is "emit" or "new" or "out" or "quality" {
             goldenFileCases(root, for: kind, to: ref cases, through: ref exit)
         } else {
             goldenBynCases(root, for: kind, to: ref cases, through: ref exit)
+            if kind is "lex" or "parse" {
+                goldenExportClasses(root, for: kind, to: ref cases)
+            }
         }
     }
     return cases
@@ -410,6 +418,7 @@ string goldenEnding(string kind) {
 
 /// The expected files of the case of `kind` whose input is `input`, in the order they are compared: the files update mode may rewrite.
 List<string> goldenExpectedFiles(string kind, for string input) uses alloc {
+    return goldenCliExpectedFiles(input) if kind == "cli"
     var files = List<string>()
     if kind == "run" {
         for ending in [".stdout", ".stderr", ".exitcode"] {
@@ -431,11 +440,12 @@ List<string> goldenExpectedFiles(string kind, for string input) uses alloc {
 /// `emit` and `quality` (T3) are produced here; `style` (T2b), `run`, `new` and `out` (T3) run the driver `$BAYAN_EXE` names, each child
 /// killed at `deadline` (`goldenLimitMs`; T4).
 string? goldenRun(in GoldenCase c, i64 deadline = 0) uses alloc, clock, console, env, fs, process {
-    if c.kind is "style" or "run" or "new" or "out" {
+    if c.kind is "style" or "run" or "new" or "out" or "cli" {
         return null if goldenSkip(in c) is not null
         var failure = ""
         let exe = goldenExe(through: ref failure)
         return $"{c.input}\n{failure}" if exe == ""
+        return goldenCli(c.input, by: exe, deadline: deadline) if c.kind == "cli"
         return goldenRunCase(in c, by: exe, deadline: deadline) if c.kind == "run"
         return goldenNew(in c, by: exe, deadline: deadline) if c.kind == "new"
         return goldenOut(in c, by: exe, deadline: deadline) if c.kind == "out"
@@ -568,7 +578,7 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
     }
     let deadline = Io.monotonicNanos() + limitMs * 1000000
     var failure: string? = null
-    if c.kind is "style" or "run" or "new" or "out" {
+    if c.kind is "style" or "run" or "new" or "out" or "cli" {
         failure = goldenRun(in c, deadline: deadline)
     } else {
         var missing = ""
@@ -644,7 +654,7 @@ bool goldenIsCasesDir(string path) uses alloc, fs {
         return false if name.endsWith(".byn") && Fs.fileExists(Path.combine(path, name))
     }
     for kind in [
-        "diag", "diag-json", "emit", "lex", "manifest", "new", "out", "parse", "quality", "run", "style", "typed",
+        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem", "style", "typed",
     ] {
         return true if t6DirectoryExists(Path.combine(path, kind))
     }
@@ -708,7 +718,7 @@ i32 goldenTest(
         }
     }
     // each case clears its work directory when it starts (docs/memory-leaks.md rule 7); the run removes them all when it ends
-    for sub in ["run", "run-build", "style", "style-cache", "scaffold", "output"] {
+    for sub in ["run", "run-build", "style", "style-cache", "scaffold", "output", "cli"] {
         deleteWorkDir(Path.combine(Path.fullPath("tmp"), sub))
     }
     var failed = false
@@ -925,7 +935,7 @@ i64 goldenSecondsAt(string text, at i64 start) {
 
 /// The skip of a `style` case rendered in-process by StyleTests.cs:172-208: its covering `test` block, named; null for any other case.
 string? goldenSkip(in GoldenCase c) uses alloc {
-    return null if c.kind != "style"
+    return goldenCliSkip(c.kind, at: c.input) if c.kind != "style"
     var block = ""
     var file = "src/driver/cc.byn"
     switch c.name {
@@ -1124,8 +1134,8 @@ struct GoldenOutcome {
     i32    exitCode = 0
 }
 
-/// `program args` in `directory` with `goldenEnv` and `input` on its stdin (then closed): a signal reads as 128 plus its number (the code .NET
-/// reports) and Windows' panic code as 134 (TestSetup.cs:126 `PanicExit.Portable`). A child that cannot start or outlives
+/// `program args` in `directory` with `env` (`goldenEnv` when null) and `input` on its stdin (then closed): a signal reads as 128 plus its number
+/// (the code .NET reports) and Windows' panic code as 134 (TestSetup.cs:126 `PanicExit.Portable`). A child that cannot start or outlives
 /// `goldenLimitMs(deadline)` (RunTests.cs:110-116) sets `failure`.
 GoldenOutcome goldenChild(
     string program,
@@ -1133,7 +1143,8 @@ GoldenOutcome goldenChild(
     at string directory,
     from in List<u8> input,
     through ref string failure,
-    i64 deadline = 0
+    i64 deadline = 0,
+    Map<string, string?>? env = null
 )
         uses alloc, clock, fs, process {
     var line = StrBuf()
@@ -1147,7 +1158,7 @@ GoldenOutcome goldenChild(
         args.span,
         directory: directory,
         input: input.span,
-        env: goldenEnv(),
+        env: env ?? goldenEnv(),
         timeout: Millis(limit),
     ) catch switch {
         .signaled(let s, let streamOut, let streamErr) => return GoldenOutcome {
