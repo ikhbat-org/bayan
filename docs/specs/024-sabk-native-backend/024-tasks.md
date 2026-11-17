@@ -30,7 +30,7 @@ Order: T1–T4 (encoder) → T5 (labels) → T6 (Mach-O) → T7–T10 (SIR, allo
 - [x] T13 `SabkTests` (c), end to end — files: src/tests/SabkTests.cs, src/sabk/e2e.test.byn (or the module the plan's sabk test entry lives in) — covers: R4, R5, R8 — done when: a sabk entry writes `tmp/sabk/salam.o` (cross-section call to `_byn_print`, a `__cstring` "Salam, world!", a writable global), the test compiles `runtime/bayan-rt.c` with `clang -c -O2 -DBYN_NDEBUG`, links with `clang` with empty linker stderr, runs it, stdout is `Salam, world!` and the exit code is the expected one; `otool -l`/`nm -m` listings agree with a `clang -c` object of the same assembly.
 
 ## Docs
-- [ ] T14 Docs — files: docs/memory-leaks.md, docs/bayan-roadmap.md, docs/bayan-progress-log.md — covers: R10 — done when: the memory-leaks sabk row (buffers sized from input, no recursion over input), roadmap item 5 "sabk phase 1 started (spec 024)", and a progress-log entry with the suite counts before and after on mb1 (R9: only sabk's own tests added or skipped).
+- [x] T14 Docs — files: docs/memory-leaks.md, docs/bayan-roadmap.md, docs/bayan-progress-log.md — covers: R10 — done when: the memory-leaks sabk row (buffers sized from input, no recursion over input), roadmap item 5 "sabk phase 1 started (spec 024)", and a progress-log entry with the suite counts before and after on mb1 (R9: only sabk's own tests added or skipped).
 
 ## Laws (numbers after 019's L040–L045)
 - [ ] T15 enact L046 Encoder agrees with the reference assembler — files: docs/laws/046-sabk-encoder-matches-assembler.md — covers: R3 — done when: drafted `proposed` with `/laws new` and the user has set `status: enacted`.
