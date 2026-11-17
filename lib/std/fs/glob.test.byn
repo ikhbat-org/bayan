@@ -48,3 +48,23 @@ test "glob finds nothing for a directory, a missing base or a pattern no file fi
     assert glob("tmp/glob-test/src/*.rs").length == 0
     assert glob("tmp/glob-test/src/?.byn/x").length == 0
 }
+
+test "glob skips a directory it cannot read, and does not list it" {
+    let root = "tmp/glob-locked"
+    Io.createDirectory("tmp/glob-locked/locked.byn") catch { assert false }
+    touch(root, at: "a.byn")
+    touch("tmp/glob-locked/locked.byn", at: "b.byn")
+    let lock: string[2] = ["-c", "chmod 000 tmp/glob-locked/locked.byn"]
+    // No `sh` (Windows): nothing to test.
+    let _ = Io.run("sh", lock.span) catch { return }
+    let found = unreadable("tmp/glob-locked/locked.byn") ? joined(glob("tmp/glob-locked/**/*.byn")) : "tmp/glob-locked/a.byn"
+    let unlock: string[2] = ["-c", "chmod 755 tmp/glob-locked/locked.byn"]
+    let _ = Io.run("sh", unlock.span) catch { panic("chmod 755 failed") }
+    assert found == "tmp/glob-locked/a.byn"
+}
+
+/// Whether listing `dir` fails (false when running as root, which reads it anyway).
+bool unreadable(string dir) uses fs, alloc {
+    let _ = Io.listDir(dir) catch { return true }
+    return false
+}

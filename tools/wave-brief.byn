@@ -555,7 +555,8 @@ void run(List<string> args, for string spec, by Brief b) uses fs, env, process, 
             var classes = List<string>()
             for f in tests {
                 for c in try declared(f, at: wt) {
-                    if !has(classes, for: c) { classes.append($"FullyQualifiedName~{c}") }
+                    let entry = $"FullyQualifiedName~{c}"
+                    if !has(classes, for: entry) { classes.append(entry) }
                 }
             }
             if !classes.isEmpty { filt = joined(classes, by: "|") }
