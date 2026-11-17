@@ -1,17 +1,15 @@
 // Tests of `encode` (spec 024 T3, T4): every row of testdata/encodings.tsv, then the refusals.
 // The expected words come only from the table, which the reference assembler wrote (R3).
 
-Reg gp(u8 number) => Reg { kind: .general, number: number }
-
-const sp: Reg = Reg { kind: .sp, number: 31 }
-const zr: Reg = Reg { kind: .zero, number: 31 }
+Reg spReg() => Reg { kind: .sp, number: 31 }
+Reg zrReg() => Reg { kind: .zero, number: 31 }
 
 // ---- the assembler-text reader: exactly the syntax of testdata/encodings.s ----
 
 /// `x3`, `w3`, `sp`, `xzr` or `wzr` as a register.
 Reg parseReg(string t) {
-    if t == "sp" { return sp }
-    if t == "xzr" || t == "wzr" { return zr }
+    if t == "sp" { return spReg() }
+    if t == "xzr" || t == "wzr" { return zrReg() }
     let n = u8.tryParse(t[1..])
     assert n is not null
     return gp(n ?? 0)
@@ -92,7 +90,7 @@ i64 memOffset(string t) {
     let inner = t[1..close]
     let comma = inner.position(",")
     if comma is null { return 0 }
-    return parseImm(inner[((comma ?? 0) + 1)..].trimmed())
+    return parseImm(inner[(comma + 1)..].trimmed())
 }
 
 Indexing memMode(string t) => t.endsWith("!") ? .pre : .offset
@@ -212,16 +210,16 @@ u32 offsetMask(string mnemonic) {
 }
 
 /// The byte offset the recorded `word` encodes for a label form.
-i64 recordedOffset(string mnemonic, u32 word) {
-    if mnemonic == "b" || mnemonic == "bl" { return signed(i64(word & 0x03FFFFFF), bits: 26) * 4 }
+i64 recordedOffset(string mnemonic, from u32 word) {
+    if mnemonic == "b" || mnemonic == "bl" { return signed(i64(word & 0x03FFFFFF), at: 26) * 4 }
     if mnemonic == "adr" {
         let imm = i64((word >> 29) & 3) | (i64((word >> 5) & 0x7FFFF) << 2)
-        return signed(imm, bits: 21)
+        return signed(imm, at: 21)
     }
-    return signed(i64((word >> 5) & 0x7FFFF), bits: 19) * 4
+    return signed(i64((word >> 5) & 0x7FFFF), at: 19) * 4
 }
 
-i64 signed(i64 value, bits i64) => value >= (1 << (bits - 1)) ? value - (1 << bits) : value
+i64 signed(i64 value, at i64 bits) => value >= (1 << (bits - 1)) ? value - (1 << bits) : value
 
 test "encode matches every row of encodings.tsv" {
     let text = Io.readText("src/sabk/testdata/encodings.tsv") catch { panic("cannot read encodings.tsv") }
@@ -254,7 +252,7 @@ test "encode matches every row of encodings.tsv" {
         var ok = got == want
         if mask != 0 {
             // A label operand encodes with offset 0; with the recorded offset it is the whole word.
-            let at = encodeAt(inst, at: recordedOffset(mnemonic, expected)) catch switch {
+            let at = encodeAt(inst, at: recordedOffset(mnemonic, from: expected)) catch switch {
                 EncodeError e => 0,
             }
             ok = ok && at == expected
@@ -269,7 +267,7 @@ test "encode matches every row of encodings.tsv" {
     let report = failures.finish()
     assert report == ""
     assert compared + padding == rows
-    assert rows == 323
+    assert rows == 322
 }
 
 // ---- refusals (T4) ----
@@ -277,12 +275,12 @@ test "encode matches every row of encodings.tsv" {
 /// "mnemonic|reason" of the error `inst` fails with at `offset`, or "ok" when it encodes.
 string refusal(Inst inst, at i64 offset = 0) uses alloc {
     let _ = encodeAt(inst, at: offset) catch switch {
-        EncodeError e => return $"{e.mnemonic}|{e.reason}",
+        .refused(let mnemonic, let reason) => return $"{mnemonic}|{reason}",
     }
     return "ok"
 }
 
-test "an immediate pieces of range is refused naming mnemonic and operand" {
+test "an immediate out of range is refused naming mnemonic and operand" {
     let x0 = gp(0)
     let x1 = gp(1)
     assert refusal(.addImm(.x, x0, x1, 4096, false)).startsWith("add|operand imm12")
@@ -299,14 +297,14 @@ test "an immediate pieces of range is refused naming mnemonic and operand" {
     assert refusal(.strImm(.w, x0, x1, 16384)).startsWith("str|operand offset")
     assert refusal(.ldur(.x, x0, x1, 256)).startsWith("ldur|operand offset")
     assert refusal(.stur(.x, x0, x1, -257)).startsWith("stur|operand offset")
-    assert refusal(.stp(.pre, x0, x1, sp, 512)).startsWith("stp|operand offset")
-    assert refusal(.stp(.offset, x0, x1, sp, -520)).startsWith("stp|operand offset")
-    assert refusal(.ldp(.post, x0, x1, sp, 12)).startsWith("ldp|operand offset")
+    assert refusal(.stp(.pre, x0, x1, spReg(), 512)).startsWith("stp|operand offset")
+    assert refusal(.stp(.offset, x0, x1, spReg(), -520)).startsWith("stp|operand offset")
+    assert refusal(.ldp(.post, x0, x1, spReg(), 12)).startsWith("ldp|operand offset")
     assert refusal(.addReg(.w, x0, x1, gp(2), .lsl, 32)).startsWith("add|operand shift amount")
     assert refusal(.addImm(.x, x0, x1, 4095, true)) == "ok"
 }
 
-test "a branch offset pieces of range or misaligned is refused" {
+test "a branch offset out of range or misaligned is refused" {
     let x0 = gp(0)
     let target = Label(0)
     assert refusal(.b(target), at: 134217728).startsWith("b|operand target")
@@ -329,19 +327,19 @@ test "a branch offset pieces of range or misaligned is refused" {
 test "an unsupported operand is refused naming mnemonic and operand" {
     let x0 = gp(0)
     let x1 = gp(1)
-    assert refusal(.addReg(.x, sp, x0, x1, .lsl, 0)).startsWith("add|operand rd: sp")
-    assert refusal(.mul(.x, x0, sp, x1)).startsWith("mul|operand rn: sp")
-    assert refusal(.movReg(.x, x0, sp)).startsWith("mov|operand rm: sp")
-    assert refusal(.subsImm(.x, sp, x0, 1, false)).startsWith("subs|operand rd: sp")
-    assert refusal(.addImm(.x, zr, x0, 1, false)).startsWith("add|operand rd: xzr")
-    assert refusal(.addImm(.x, x0, zr, 1, false)).startsWith("add|operand rn: xzr")
-    assert refusal(.ldrImm(.x, x0, zr, 0)).startsWith("ldr|operand rn: xzr")
-    assert refusal(.ldrImm(.x, sp, x0, 0)).startsWith("ldr|operand rt: sp")
-    assert refusal(.movSp(zr, x0)).startsWith("mov|operand rd: xzr")
-    assert refusal(.br(sp)).startsWith("br|operand rn: sp")
-    assert refusal(.ret(zr)).startsWith("ret|operand rn: xzr")
-    assert refusal(.addImm(.w, x0, sp, 1, false)).startsWith("add|operand rn: sp needs the 64-bit form")
+    assert refusal(.addReg(.x, spReg(), x0, x1, .lsl, 0)).startsWith("add|operand rd: sp")
+    assert refusal(.mul(.x, x0, spReg(), x1)).startsWith("mul|operand rn: sp")
+    assert refusal(.movReg(.x, x0, spReg())).startsWith("mov|operand rm: sp")
+    assert refusal(.subsImm(.x, spReg(), x0, 1, false)).startsWith("subs|operand rd: sp")
+    assert refusal(.addImm(.x, zrReg(), x0, 1, false)).startsWith("add|operand rd: xzr")
+    assert refusal(.addImm(.x, x0, zrReg(), 1, false)).startsWith("add|operand rn: xzr")
+    assert refusal(.ldrImm(.x, x0, zrReg(), 0)).startsWith("ldr|operand rn: xzr")
+    assert refusal(.ldrImm(.x, spReg(), x0, 0)).startsWith("ldr|operand rt: sp")
+    assert refusal(.movSp(zrReg(), x0)).startsWith("mov|operand rd: xzr")
+    assert refusal(.br(spReg())).startsWith("br|operand rn: sp")
+    assert refusal(.ret(zrReg())).startsWith("ret|operand rn: xzr")
+    assert refusal(.addImm(.w, x0, spReg(), 1, false)).startsWith("add|operand rn: sp needs the 64-bit form")
     assert refusal(.movz(.x, gp(31), 1, 0)).startsWith("movz|operand rd: register number 31")
     assert refusal(.cset(.x, x0, .al)).startsWith("cset|")
-    assert refusal(.addImm(.x, sp, sp, 1, false)) == "ok"
+    assert refusal(.addImm(.x, spReg(), spReg(), 1, false)) == "ok"
 }

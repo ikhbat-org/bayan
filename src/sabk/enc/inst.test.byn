@@ -48,6 +48,5 @@ test "every Inst form constructs" {
         .adr(x0, target),
     ]
     assert all.length == 38
-    let err = EncodeError { mnemonic: "hlt", reason: "unsupported" }
-    assert err.mnemonic == "hlt"
+    let _ = EncodeError.refused("hlt", "unsupported")
 }
