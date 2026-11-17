@@ -23,8 +23,12 @@ fi
 export BAYAN_EXE # the golden runner bound reads the driver path from it
 
 run dotnet test -v q --filter "FullyQualifiedName~LanguageServer"
-run dotnet test -v q --filter "FullyQualifiedName~CliMemoryBounds"
-run dotnet test -v q --filter "FullyQualifiedName~SelfhostDefaultBounds"
+run "$BAYAN_EXE" test --package src src/driver --only 'bound: '
+# The bound blocks of src/driver/bounds.byn are pending only on Windows; anywhere else none passing means they did not run.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) ;;
+  *) if grep -qE '(^|[^0-9])0 passed' "$log"; then failed+=("the bound: blocks did not run (none passed)"); fi ;;
+esac
 run bash scripts/pinned-bayan.test.sh
 run env BAYAN_TEST_TIMEOUT_MS=600000 "$BAYAN_EXE" test --package src src/driver --only 'a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'
 # The block is pending only on Windows (no sh or ps); anywhere else pending, or a title that selects nothing, means it did

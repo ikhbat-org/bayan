@@ -109,11 +109,15 @@ these fail:
 
 ```sh
 dotnet test -v q --filter "FullyQualifiedName~LanguageServer"     # LSP walk, budgets, retention, depth, buffers
-dotnet test -v q --filter "FullyQualifiedName~CliMemoryBounds"    # CLI capture, cache eviction, walks, timeouts
-dotnet test -v q --filter "FullyQualifiedName~SelfhostDefaultBounds" # the same bounds through the self-hosted driver
+"$BAYAN_EXE" test --package src src/driver --only 'bound: '       # CLI capture, cache eviction, walks, timeouts
 bash scripts/pinned-bayan.test.sh                                  # pinned build cache eviction
 env BAYAN_TEST_TIMEOUT_MS=600000 "$BAYAN_EXE" test --package src src/driver --only 'a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'  # golden runner bound
 ```
+
+The second line runs the `bound: ` test blocks of `src/driver/bounds.byn` (spec 019 T28, R9, R15): the bounds
+`CliMemoryBoundsTests` and `SelfhostDefaultBoundsTests` checked, with the same numbers, measured by
+`scripts/release/peak-rss.sh`. They are pending on Windows (no `sh` or `ps`) and the Linux-only C-compiler row is pending
+elsewhere; on Linux and macOS the gate fails when none of them passed.
 
 The last line is the `src/driver/golden.byn` test block "a run over tests/cases keeps the runner and each worker
 under 15 MB and leaves no scratch directory" (spec 019 R9): a run of `$BAYAN_EXE test tests/cases` keeps the runner and

@@ -1,0 +1,421 @@
+// The memory and disk bounds of CliMemoryBoundsTests as SelfhostDefaultBoundsTests ran them through the driver (spec 019 T28, R9, R15), with
+// the C# bounds. Each block runs `$BAYAN_EXE` in its own tree under tmp/selfhost-bounds/ with `BAYAN_CACHE` there and `BAYAN_CC` unset
+// (`SelfhostDefaultBoundsTests.Start`); a peak resident set is sampled by scripts/release/peak-rss.sh as `PeakSampler` sampled it. The C#
+// rows also compared each argv with the C# `bayan`; with no .NET only the driver's side and its bound remain. The release memory gate runs
+// every block whose title starts `bound: ` (docs/memory-leaks.md, *Release gate*). Blocks need `sh` and `ps`, so they are pending on Windows.
+// Not here: the M4 and M5 evict rows delegate to SelfhostDefaultT12Tests and SelfhostDefaultT9Tests and are ported with them; the rows
+// SelfhostDefaultBoundsTests listed as skips (the M1 stream rows, Q1226; M2 and the F2 mutate row, Q1220; M7, Q1149) and the BAYAN_CC_JOBS
+// rows, which the driver does not read.
+
+/// `SelfhostDefaultBoundsTests.Run` on the driver: exit code, stdout, stderr and the peak resident set in KB (0 when no sample was taken).
+struct BoundRun {
+    i32    exit   = -1
+    string stdout = ""
+    string stderr = ""
+    i64    peakKb = 0
+}
+
+/// `xs` as a list.
+List<string> boundList(ReadOnlySpan<string> xs) uses alloc {
+    var list = List<string>()
+    for x in xs {
+        list.append(x)
+    }
+    return list
+}
+
+/// `SelfhostDefaultBoundsTests.Fresh`: tmp/selfhost-bounds/<name>, emptied and created.
+string boundFresh(string name) uses alloc, fs {
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "selfhost-bounds"), name)
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    return dir
+}
+
+/// `SelfhostDefaultBoundsTests.Start` on the driver: `cmd` (the driver and its arguments) in `dir` through
+/// `env -u BAYAN_CC <env> BAYAN_CACHE=<dir>/cache` (`env` holds `-u NAME` items, then `NAME=value` ones), sampled by scripts/release/peak-rss.sh.
+BoundRun boundStart(in List<string> cmd, at string dir, as in List<string> env) uses alloc, fs, process {
+    let result = $"{dir}.peak"
+    var all = boundList(["scripts/release/peak-rss.sh", result, dir, "env", "-u", "BAYAN_CC"])
+    for e in env {
+        all.append(e)
+    }
+    all.append($"BAYAN_CACHE={Path.combine(dir, "cache")}")
+    for a in cmd {
+        all.append(a)
+    }
+    let r = Io.run("sh", all.span) catch { panic($"cannot run sh scripts/release/peak-rss.sh in {dir}") }
+    let line = (Io.readText(result) catch "").trimmed()
+    Io.remove(result) catch {}
+    var fields = List<string>()
+    for f in line.parts(by: " ") {
+        fields.append(f)
+    }
+    let peak = fields.length == 2 ? t9Digits(fields[1], until: 9223372036854775807) ?? 0 : 0
+    return BoundRun { exit: r.exitCode, stdout: r.stdout, stderr: r.stderr, peakKb: peak }
+}
+
+/// `script` under `sh -c` with `$1` = `dir`: what C# did with `File.CreateSymbolicLink`, a fake compiler's mode and the like.
+void boundSh(string script, at string dir) uses alloc, console, process {
+    let r = Io.run("sh", boundList(["-c", script, "sh", dir]).span) catch { panic($"cannot run sh -c {script}") }
+    print(r.stderr) if r.exitCode != 0
+    assert(r.exitCode == 0)
+}
+
+/// Whether `path` is a directory that can be listed (`Directory.Exists`).
+bool boundIsDir(string path) uses alloc, fs {
+    let _ = Io.listDir(path) catch return false
+    return true
+}
+
+/// `text` has a line `… <digits> bytes omitted …` (the regex `… \d+ bytes omitted …` of the M1 row).
+bool boundOmitted(string text) uses alloc {
+    let head = "… "
+    let tail = " bytes omitted …"
+    for raw in text.parts(by: "\n") {
+        let line = raw.trimmed()
+        let framed = line.startsWith(head) && line.endsWith(tail) && line.length > head.length + tail.length
+        return true if framed
+            && t9Digits(line[head.length..line.length - tail.length], until: 9223372036854775807) is { }
+    }
+    return false
+}
+
+/// `path` (a directory) and the time `minutes` ago as its last write time (`Directory.SetLastWriteTimeUtc(..., UtcNow.AddMinutes(-minutes))`).
+void boundAged(string path, by i64 minutes) uses alloc, clock, fs {
+    Io.createDirectory(path) catch { panic($"cannot create {path}") }
+    Fs.setModified(
+        path,
+        to: Time.fromNanos(Time.now().nanos - minutes * 60 * 1000000000),
+    ) catch { panic($"cannot age {path}") }
+}
+
+/// The driver `$BAYAN_EXE`; the block fails when it is not one.
+string boundExe() uses alloc, console, env, process {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    print(failure) if exe == ""
+    assert(exe != "")
+    return exe
+}
+
+/// tests/cases/run/arithmetic.byn copied into `root` (`SelfhostDefaultBoundsTests.Arithmetic`).
+void boundArithmetic(string root) uses alloc, fs {
+    let text = Io.readText(
+        Path.fullPath("tests/cases/run/arithmetic.byn"),
+    ) catch { panic("cannot read tests/cases/run/arithmetic.byn") }
+    Io.writeFile(
+        Path.combine(root, "arithmetic.byn"),
+        text.bytes,
+    ) catch { panic($"cannot write {root}/arithmetic.byn") }
+}
+
+// ── M1 ───────────────────────────────────────────────────────────────────────
+
+test "bound: a test printing until killed stays under 300 MB and reports the elided bytes" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let root = boundFresh("spam-s2")
+    // 1 KiB lines and a 6 s timeout, as the C# row: at 100-byte lines and 3 s a starved test binary printed less than the
+    // 2 × 64 KiB kept, so nothing was omitted.
+    var line = ""
+    for i in 0..1024 {
+        line = $"{line}x"
+    }
+    let spam = $"void main() {{\n}}\n\ntest \"spam\" {{\n    while true {{\n        print(\"{line}\")\n    }}\n}}\n"
+    Io.writeFile(Path.combine(root, "main.byn"), spam.bytes) catch { panic("cannot write main.byn") }
+    let run = boundStart(boundList([exe, "test", "main.byn"]), at: root, as: boundList(["BAYAN_TEST_TIMEOUT_MS=6000"]))
+    deleteWorkDir(root)
+    print($"peak {run.peakKb} KB, exit {run.exit}")
+    assert(run.peakKb > 0)
+    assert(run.peakKb < 300 * 1024)
+    assert(run.exit == exitTestFailure)
+    assert(boundOmitted(run.stdout))
+}
+
+// ── M3 ───────────────────────────────────────────────────────────────────────
+
+test "bound: format skips scratch directories and outward links" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let root = boundFresh("format")
+    let unformatted = "let a = true\nunless !a { print(\"y\") }\n"
+    for rel in ["fixture/.worktrees/x/a.byn", "fixture/tmp/b.byn", "fixture/src/ok.byn", "outside/c.byn"] {
+        goldenWrite(root, for: rel, as: unformatted)
+    }
+    boundSh("ln -s \"$1/outside\" \"$1/fixture/link\" && ln -s \"$1/fixture/tmp\" \"$1/fixture/inner-link\"", at: root)
+    let run = boundStart(boundList([exe, "format", "--check", "fixture"]), at: root, as: List<string>())
+    deleteWorkDir(root)
+    let output = $"{run.stdout}{run.stderr}"
+    print(output)
+    assert(run.exit == exitFailure)
+    assert(output.contains("ok.byn") && output.endsWith("src/ok.byn\n"))
+    assert(!output.contains("a.byn")
+        && !output.contains("b.byn")
+        && !output.contains("c.byn")
+        && !output.contains("inner-link"))
+}
+
+test "bound: format and audit find files under nested build-named directories" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    var outputs = List<string>()
+    for command in ["format", "audit"] {
+        let root = boundFresh($"nested-bin-{command}")
+        goldenWrite(
+            root,
+            for: "src/bin/x.byn",
+            as: "unsafe void poke() {\n}\nlet a = true\nunless !a { print(\"y\") }\n",
+        )
+        let args = command == "format" ? boundList([exe, "format", "--check", "."]) : boundList([exe, "audit", "."])
+        let run = boundStart(args, at: root, as: List<string>())
+        deleteWorkDir(root)
+        outputs.append(command == "format" ? $"{run.stdout}{run.stderr}" : run.stdout)
+    }
+    print($"{outputs[0]}{outputs[1]}")
+    assert(outputs[0].contains("x.byn"))
+    assert(outputs[1].contains("unsafe void poke()"))
+}
+
+// ── M5 ───────────────────────────────────────────────────────────────────────
+
+test "bound: a build trims the cache to BAYAN_CACHE_MAX_MB" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let root = boundFresh("evict-build")
+    boundArithmetic(root)
+    let programs = Path.combine(root, "cache/v1/programs")
+    for i in 0..3 {
+        let entry = Path.combine(programs, $"old{i}")
+        Io.createDirectory(entry) catch { panic($"cannot create {entry}") }
+        boundSh("head -c 600000 /dev/zero > \"$1/program\"", at: entry)
+        boundAged(entry, by: (3 - i) * 60)
+    }
+    let run = boundStart(boundList([exe, "build", "arithmetic.byn"]), at: root, as: boundList(["BAYAN_CACHE_MAX_MB=1"]))
+    let left = Io.listDir(programs) catch List<string>()
+    deleteWorkDir(root)
+    print($"exit {run.exit}, left: {t5Join(in left)}\n{run.stderr}")
+    assert(run.exit == 0)
+    // CliMemoryBoundsTests.cs:304 `Assert.Contains(build.Key!, left)`: the entry just built is the one directory that is not an old one.
+    var built = 0
+    for name in left {
+        built += name.startsWith("old") ? 0 : 1
+        assert(name != "old0" && name != "old1")
+    }
+    assert(built == 1)
+}
+
+/// The names in `dir` that are files, not directories (`Directory.GetFiles`).
+List<string> boundFiles(string dir) uses alloc, fs {
+    var files = List<string>()
+    for name in Io.listDir(dir) catch List<string>() {
+        files.append(name) unless boundIsDir(Path.combine(dir, name))
+    }
+    return files
+}
+
+test "bound: a build tags the cache data it owns as a cache directory" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let root = boundFresh("cachedir-tag")
+    boundArithmetic(root)
+    goldenWrite(root, for: "sh/script.byn", as: "#!/usr/bin/env bayan\nprint(\"hi\")\n")
+    let cache = Path.combine(root, "cache")
+    let v1 = Path.combine(cache, "v1")
+    let tag = Path.combine(v1, "CACHEDIR.TAG")
+    let none = List<string>()
+    let built = boundStart(boundList([exe, "build", "arithmetic.byn"]), at: root, as: none)
+    print(built.stderr)
+    assert(built.exit == 0)
+    assert((Io.readText(tag) catch "").startsWith("Signature: 8a477f597d28d172789f06886806bc55\n"))
+    assert(boundFiles(cache).length == 0)
+    let remembered = boundStart(boundList([exe, "run", "sh/script.byn"]), at: root, as: none)
+    print(remembered.stderr)
+    assert(remembered.exit == 0)
+    assert(boundFiles(cache).length == 0)
+    assert(boundFiles(v1).length == 1)
+    Io.remove(tag) catch { panic($"cannot remove {tag}") }
+    let again = boundStart(boundList([exe, "build", "--verbose", "arithmetic.byn"]), at: root, as: none)
+    assert($"{again.stdout}{again.stderr}".contains("from cache"))
+    assert(Fs.fileExists(tag))
+    Io.remove(tag) catch { panic($"cannot remove {tag}") }
+    // A build hit writes the tag too; only a lookup hit leaves the script pointer alone (a miss remembers it again).
+    let pointers = boundFiles(Path.combine(v1, "scripts"))
+    assert(pointers.length == 1)
+    let pointer = Path.combine(Path.combine(v1, "scripts"), pointers[0])
+    let old = Time.fromNanos(1577836800 * 1000000000)
+    Fs.setModified(pointer, to: old) catch { panic($"cannot age {pointer}") }
+    assert(boundStart(boundList([exe, "run", "sh/script.byn"]), at: root, as: none).exit == 0)
+    let kept = (Fs.modified(pointer) catch Time.now()).nanos
+    let tagged = Fs.fileExists(tag)
+    deleteWorkDir(root)
+    assert(kept == old.nanos)
+    assert(tagged)
+}
+
+// ── M6, F13 ──────────────────────────────────────────────────────────────────
+
+test "bound: a build sweeps stale temporary and staging directories" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    for timeout in ["", "7200"] {
+        let root = boundFresh($"sweep-{timeout}")
+        boundArithmetic(root)
+        let temp = $"{root}-tmp"
+        deleteWorkDir(temp)
+        for name in ["bayan-coverage-old", "bayan-mutate-old", "bayan-asan-old"] {
+            boundAged(Path.combine(temp, name), by: 120)
+        }
+        boundAged(Path.combine(temp, "bayan-coverage-new"), by: 0)
+        let staging = Path.combine(root, "cache/v1/tmp")
+        boundAged(Path.combine(staging, "key-old"), by: 180)
+        boundAged(Path.combine(staging, "key-running"), by: 125)
+        boundAged(Path.combine(staging, "key-new"), by: 0)
+        var env = timeout == "" ? boundList(["-u", "BAYAN_CC_TIMEOUT_S"]) : boundList([$"BAYAN_CC_TIMEOUT_S={timeout}"])
+        for name in ["TMPDIR", "TMP", "TEMP"] {
+            env.append($"{name}={temp}")
+        }
+        let _ = boundStart(boundList([exe, "build", "arithmetic.byn"]), at: root, as: env)
+        var swept = true
+        for name in ["bayan-coverage-old", "bayan-mutate-old", "bayan-asan-old"] {
+            swept = swept && !boundIsDir(Path.combine(temp, name))
+        }
+        let fresh = boundIsDir(Path.combine(temp, "bayan-coverage-new"))
+        let running = boundIsDir(Path.combine(staging, "key-running"))
+        let old = boundIsDir(Path.combine(staging, "key-old"))
+        let young = boundIsDir(Path.combine(staging, "key-new"))
+        deleteWorkDir(root)
+        deleteWorkDir(temp)
+        print(
+            $"BAYAN_CC_TIMEOUT_S `{timeout}`: swept {swept}, fresh {fresh}, running {running}, old {old}, new {young}",
+        )
+        assert(swept && fresh)
+        assert(running == (timeout == "7200"))
+        assert(!old && young)
+    }
+}
+
+// ── F2 ───────────────────────────────────────────────────────────────────────
+
+/// `CliMemoryBoundsTests.RunWithSweptWorkDir`'s watcher: every `bayan-coverage-*` directory in `$T` is deleted as soon as it appears while
+/// the arguments run.
+const boundSweptScript: string = "( while :; do for d in \"$T\"/bayan-coverage-*; do [ -d \"$d\" ] && rm -rf \"$d\"; done; sleep 0.005; done ) & w=$!; \"$@\"; c=$?; kill $w; wait $w 2>/dev/null; exit $c"
+
+test "bound: a coverage work directory another process swept does not change the exit code" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let root = boundFresh("swept-coverage-s2")
+    goldenWrite(root, for: "main.byn", as: "void main() {\n}\n\ntest \"spin\" {\n    while true {\n    }\n}\n")
+    let temp = Path.combine(root, "tmp")
+    Io.createDirectory(temp) catch { panic($"cannot create {temp}") }
+    let env = boundList([$"TMPDIR={temp}", $"T={temp}", "BAYAN_TEST_TIMEOUT_MS=2000"])
+    let run = boundStart(
+        boundList(["sh", "-c", boundSweptScript, "sh", exe, "test", "--coverage", "main.byn"]),
+        at: root,
+        as: env,
+    )
+    deleteWorkDir(root)
+    print($"exit {run.exit}\n{run.stderr}")
+    assert(run.exit == exitTestFailure)
+}
+
+// ── Q31 (plans 013, 014) ──────────────────────────────────────────────────────
+
+// SelfhostDefaultBoundsTests `CheckPeakBoundMb`: plan 014's max RSS after both arenas plus about 80 MB, one per OS (macOS 480, Linux 560);
+// Windows was never measured after plan 014 and keeps plan 013's 1,700 MB.
+test "bound: check of the driver stays under its plan 014 bound" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let dir = boundFresh("check-driver")
+    let bound: i64 = Target.os == "macos" ? 480 : Target.os == "linux" ? 560 : 1700
+    let cmd = boundList([exe, "check", "--package", Path.fullPath("src"), Path.fullPath("src/driver")])
+    let run = boundStart(cmd, at: dir, as: List<string>())
+    deleteWorkDir(dir)
+    print($"check of src/driver peaked at {run.peakKb / 1024} MB, bound {bound} MB\n{run.stderr}")
+    assert(run.exit == 0)
+    assert(run.peakKb > 0)
+    assert(run.peakKb < bound * 1024)
+}
+
+/// SelfhostDefaultBoundsTests `BuildFreesTheFrontendBeforeTheCCompiler`'s fake `zig`: records its parent's (the driver's) resident set and fails.
+const boundRssZig: string = "#!/bin/sh\nps -o rss= -p $PPID >> \"$Q31_RSS_LOG\"\nexit 1\n"
+
+// measured on Linux (bayan-test01), the driver's resident set when the C compiler starts: 21 MB at `zig version`, 29 MB at the runtime
+// object (2026-11-14); without the frontend arena the whole compile is still resident, 788/801 MB (SelfhostDefaultBoundsTests `BuildAtCcBoundMb`).
+test "bound: build frees the frontend before the C compiler starts" {
+    if Target.os != "linux" {
+        todo("Linux only: macOS keeps freed memory charged to the process")
+    }
+    let exe = boundExe()
+    let dir = boundFresh("build-at-cc")
+    goldenWrite(dir, for: "bin/zig", as: boundRssZig)
+    boundSh("chmod 700 \"$1/bin/zig\"", at: dir)
+    let log = Path.combine(dir, "rss.log")
+    let env = boundList([$"PATH={Path.combine(dir, "bin")}:/usr/bin:/bin", $"Q31_RSS_LOG={log}"])
+    let cmd = boundList(
+        [
+            exe,
+            "build",
+            "--package",
+            Path.fullPath("src"),
+            "-o",
+            Path.combine(dir, "bayan"),
+            Path.fullPath("src/driver"),
+        ],
+    )
+    let run = boundStart(cmd, at: dir, as: env)
+    let text = Io.readText(log) catch ""
+    deleteWorkDir(dir)
+    var samples = List<i64>()
+    for line in text.parts(by: "\n") {
+        let kb = t9Digits(line.trimmed(), until: 9223372036854775807) ?? -1
+        samples.append(kb / 1024) if kb >= 0
+    }
+    var peak: i64 = 0
+    for mb in samples {
+        peak = mb > peak ? mb : peak
+    }
+    print(
+        $"the driver held {peak} MB at the most when the C compiler started ({samples.length} samples), bound 100 MB\n{run.stderr}",
+    )
+    assert(samples.length > 0)
+    assert(peak < 100)
+}
+
+// measured after the arenas, 64 files of 4 MB: doctor 33 MB on macOS, 15 MB on Linux; before: 543 MB and 514 MB. bound = 3x the larger,
+// rounded up (SelfhostDefaultBoundsTests `DoctorPeakBoundMb`).
+test "bound: doctor of a 256 MB cache stays under 100 MB" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let dir = boundFresh("doctor-cache")
+    let programs = Path.combine(dir, "cache/v1/programs/x")
+    Io.createDirectory(programs) catch { panic($"cannot create {programs}") }
+    boundSh(
+        "i=0; while [ $i -lt 64 ]; do head -c 4194304 /dev/zero > \"$1/f$i\" || exit 1; i=$((i + 1)); done",
+        at: programs,
+    )
+    let run = boundStart(boundList([exe, "doctor"]), at: dir, as: List<string>())
+    deleteWorkDir(dir)
+    print($"doctor peaked at {run.peakKb / 1024} MB, bound 100 MB\n{run.stdout}")
+    assert(run.stdout.contains("256.0 MB"))
+    assert(run.peakKb > 0)
+    assert(run.peakKb < 100 * 1024)
+}
