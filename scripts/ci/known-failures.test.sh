@@ -63,6 +63,12 @@ run part-as-id 1 "new failure: scripts" "$list" "$tmp/s.txt"
 printf 'scripts\n' > "$tmp/sl.txt"
 run part-listed 0 "1 known" "$tmp/sl.txt" "$tmp/s.txt"
 
+# a nested ✗ inside a test's detail is not an id
+printf '== lib/std/x\n  \xe2\x9c\x97 std/x: two\n      \xe2\x9c\x97 build failed: 1 error, 0 warnings\n' > "$tmp/bayan.log"
+report "$tmp/nest.txt" bayan
+printf 'std/x: two\n' > "$tmp/nl.txt"
+run nested-not-an-id 0 "1 known, 0 new" "$tmp/nl.txt" "$tmp/nest.txt"
+
 printf 'driver build failed\n' > "$tmp/golden.log"
 report "$tmp/np.txt" golden
 run no-test-name 1 "new failure: golden" "$list" "$tmp/np.txt"
