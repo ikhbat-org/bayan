@@ -1,0 +1,4 @@
+struct Bag {
+    i64 zorks => 1
+    i64 zork() => 1
+}

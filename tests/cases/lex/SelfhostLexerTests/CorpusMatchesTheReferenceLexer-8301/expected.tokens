@@ -1,0 +1,59 @@
+3:1 Identifier `_`
+4:1 Identifier `nt`
+4:6 Identifier `hidden`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+6:2 Identifier `é_`
+6:6 TestKeyword `test`
+6:11 AssertKeyword `assert`
+6:18 PropertyKeyword `property`
+6:27 FuzzKeyword `fuzz`
+6:32 ModelKeyword `model`
+6:38 ForeachKeyword `foreach`
+6:46 NewKeyword `new`
+6:50 GotoKeyword `goto`
+7:1 Identifier `r`
+7:3 Identifier `_x`
+7:6 Identifier `ca`
+7:9 Identifier `melCase2`
+7:18 Identifier `بيان`
+7:23 Identifier `μετρητής`
+7:32 Identifier `x_1`
+7:36 Identifier `é`
+8:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ nt � hidden
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ nt � hidden
+    │   │    -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ let x� = 1
+    │   │      -
+
+error BYN0005: identifier `é_` is not in Unicode normalization form C
+
+  6 │  é_ test assert property fuzz model foreach new goto
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │  é_ test assert property fuzz model foreach new goto
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  7 │ r _x ca�melCase2 بيان μετρητής x_1 é
+    │        ^

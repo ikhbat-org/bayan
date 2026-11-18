@@ -1,0 +1,3 @@
+== member.probes.-.v6
+builtinCall|i32|local:st|enumField|-|-|-|2677:7|literal:i32=0
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|

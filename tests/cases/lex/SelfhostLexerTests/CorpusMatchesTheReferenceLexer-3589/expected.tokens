@@ -1,0 +1,102 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+2:2 LetKeyword `let`
+2:6 Identifier `a`
+2:8 Equals `=`
+2:12 IntegerLiteral `1`
+5:1 ErrorKeyword `error`
+5:7 SetKeyword `set`
+5:11 UnitKeyword `unit`
+5:16 DistinctKeyword `distinct`
+5:25 TypeKeyword `type`
+5:30 ImportKeyword `import`
+5:37 AsKeyword `as`
+5:40 PublicKeyword `public`
+5:47 Identifier `privante`
+5:56 StaticKeyword `static`
+5:63 ReadonlyKeyword `readonly`
+5:72 RequiredKeyword `required`
+5:81 ConstKeyword `const`
+5:87 LetKeyword `let`
+5:91 VarKeyword `var`
+5:95 EmbedKeyword `embed`
+5:101 ExternKeyword `extern`
+5:108 Identifier `u`
+5:110 Identifier `safe`
+8:1 IntegerLiteral `0xFF`
+8:5 NumericSuffix `s`
+9:1 IntegerLiteral `0b1`
+9:4 NumericSuffix `ms`
+10:1 IntegerLiteral `0x_`
+11:1 IntegerLiteral `0b__`
+12:1 IntegerLiteral `1__0`
+12:5 NumericSuffix `b1ms`
+13:2 LetKeyword `let`
+13:6 Identifier `c`
+13:8 Equals `=`
+13:12 IntegerLiteral `3`
+15:3 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `$`
+
+  2 │  let a = $ 1
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │  // ok � in comme�nt
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE0)
+
+  5 │ error set unit distinct type import as public privante static readonly required const let var embed extern u�safe
+    │                                                                                                             ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  8 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  9 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  10 │ 0x_
+     │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  11 │ 0b__
+     │ ^^^^
+
+error BYN0002: unexpected character `\u{7}`
+
+  13 │  let c = � 3
+     │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  15 │ � 
+     │ ^

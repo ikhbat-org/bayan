@@ -1,0 +1,63 @@
+1:1 CharLiteral `'\q'`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 StringLiteral `"\u{D800}'`
+5:2 Identifier `u`
+5:3 OpenBrace `{`
+5:4 IntegerLiteral `110000`
+5:10 Percent `%`
+5:11 CharLiteral `'`
+6:1 CharLiteral `'x`
+7:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `̈́`
+
+  3 │ ̈́
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{"\u{D800}'
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{"\u{D800}'
+    │    ^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ $"{"\u{D800}'
+    │     ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `\`
+
+  5 │ \u{110000%'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  5 │ \u{110000%'
+    │           ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

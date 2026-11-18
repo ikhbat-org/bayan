@@ -1,0 +1,2 @@
+== expr.probes.m3
+collection:Map<string, i64>[1794:8]=-(literal:string[1795:3]="a"("a") literal:i64[1800:1]=1(1))

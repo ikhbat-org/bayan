@@ -1,0 +1,34 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `stray } here`
+1:16 InterpolatedStringEnd `"`
+2:1 StructKeyword `struct`
+2:8 UniqueKeyword `unique`
+2:15 UnionKeyword `union`
+2:21 EnumKeyword `enum`
+2:26 FlagsKeyword `flags`
+2:32 OpenKeyword `open`
+2:37 Identifier `ezxtensible`
+2:49 InterfaceKeyword `interface`
+2:59 DelegateKeyword `delegate`
+2:68 ExtensionKeyword `extension`
+2:78 Identifier `derivatCon`
+2:89 AttributeKeyword `attribute`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��$"stray } here"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��$"stray } here"
+    │  ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ ��$"stray } here"
+    │           ^
+    │
+    │ 1 │ ��$"stray }} here"
+    │   │            +

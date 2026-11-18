@@ -1,0 +1,8 @@
+== c15
+catchExpr|i64|5330:50
+operand call:i64 binding t:NetError:o:-:catch variant - handler switchExpr:i64
+switchExpr|i64|5345:35
+value local:NetError=t
+arm 5354:16 binaryPattern[5354:11]:NetError(and constantPattern[5354:11]:NetError(errorVariant:DiskError=full),bindPattern[5354:11]:NetError(e:DiskError:o:-:let)) guard - value literal:i64=1
+arm 5372:6 bindPattern[5372:1]:NetError_(-) guard - value literal:i64=0
+BYN2411 142:39 `DiskError` cannot match `NetError` |||

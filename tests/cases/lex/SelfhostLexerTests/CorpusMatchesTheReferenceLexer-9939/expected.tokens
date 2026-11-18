@@ -1,0 +1,40 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `uni`
+1:11 Identifier `que`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:1 Identifier `q`
+2:3 Identifier `escape`
+2:9 StringLiteral `"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""neve cloed\n\n`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ struct uni�que union enum flags open extensible interface delegate extension derivation attribute
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  2 │ q escape"
+    │         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """neve cloed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

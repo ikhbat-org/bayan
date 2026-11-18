@@ -1,0 +1,13 @@
+1:1 IntegerLiteral `0`
+1:2 NumericSuffix `ms`
+1:5 IntegerLiteral `4`
+1:6 NumericSuffix `KiB`
+1:10 IntegerLiteral `1`
+1:11 NumericSuffix `u`
+1:13 IntegerLiteral `0xFF`
+1:17 NumericSuffix `u`
+1:19 IntegerLiteral `0`
+1:20 NumericSuffix `b31ul`
+1:26 IntegerLiteral `7`
+1:27 NumericSuffix `l`
+2:2 EndOfFile

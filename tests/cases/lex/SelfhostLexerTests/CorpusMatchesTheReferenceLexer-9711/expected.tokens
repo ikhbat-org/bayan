@@ -1,0 +1,76 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `x`
+1:4 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 ErrorKeyword `error`
+1:15 SetKeyword `set`
+1:19 UnitKeyword `unit`
+1:24 DistinctKeyword `distinct`
+1:33 TypeKeyword `type`
+1:38 ImportKeyword `import`
+1:45 AsKeyword `as`
+1:48 PublicKeyword `public`
+1:55 Identifier `priate`
+1:62 StaticKeyword `static`
+1:69 ReadonlyKeyword `readonly`
+1:78 RequiredKeyword `required`
+1:87 ConstKeyword `const`
+1:93 LetKeyword `let`
+1:97 VarKeyword `var`
+1:101 EmbedKeyword `embed`
+1:107 ExternKeyword `extern`
+1:114 UnsafeKeyword `unsafe`
+2:1 IntegerLiteral `0x`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Arrow `->`
+4:32 At `@`
+4:34 Hash `#`
+6:1 Star `*`
+6:2 Slash `/`
+6:3 OpenBrace `{`
+6:4 Identifier `tray`
+6:9 CloseBrace `}`
+6:11 Identifier `here`
+6:15 StringLiteral `"`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `open `
+7:8 InterpolationStart `{`
+7:9 Identifier `x`
+7:10 StringLiteral `"`
+7:11 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  6 │ */{tray } here"
+    │               ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x"
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

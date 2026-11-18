@@ -1,0 +1,17 @@
+# BYN2611: catch block completes
+
+**Why.** When the call fails there is no value to use, so a `catch { … }` block on a call that returns a value has to leave: the code after it would otherwise read a value that was never produced. A call returning `void` has no value, so its block may simply end.
+
+**Example.**
+
+```
+union error ParseError {
+    bad
+}
+i64 parse(string s) fails ParseError => 1
+void log(string s) { }
+let s = "1"
+let n = parse(s) catch { log("x") }
+```
+
+**Fix.** End the block with `return`, `break`, `continue` or a panic, or give a value with the expression form: `parse(s) catch -1`.

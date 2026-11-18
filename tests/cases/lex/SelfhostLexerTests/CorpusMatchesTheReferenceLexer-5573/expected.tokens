@@ -1,0 +1,24 @@
+1:1 Identifier `_`
+1:2 Comma `,`
+1:4 Dot `.`
+1:6 DotDot `..`
+1:9 DotDotEquals `..=`
+1:13 Colon `:`
+1:15 Question `?`
+1:17 QuestionQuestion `??`
+1:20 QuestionQuestionEquals `??=`
+1:24 QuestionDot `?.`
+1:27 FatArrow `=>`
+1:30 Arrow `->`
+1:33 At `@`
+1:35 Hash `#`
+2:1 IntegerLiteral `0x`
+3:1 Identifier `b`
+4:1 IntegerLiteral `1`
+4:2 NumericSuffix `e`
+4:3 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^

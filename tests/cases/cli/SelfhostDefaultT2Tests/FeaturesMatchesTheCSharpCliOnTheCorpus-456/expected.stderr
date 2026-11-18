@@ -1,0 +1,15 @@
+error BYN3002: the `stackalloc` buffer on line 2 does not live as long as `dst`, which borrows it
+  --> <repo>/tests/cases/diag/borrow-stored-through-span.byn:5:14
+
+  5 │     dst[0] = sb.finish()
+    │              ^^^^^^^^^^^ the `stackalloc` buffer on line 2 is freed at the end of its block
+    │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+
+error BYN3002: the `stackalloc` buffer on line 12 does not live as long as `view`, which borrows it
+  --> <repo>/tests/cases/diag/borrow-stored-through-span.byn:20:15
+
+  20 │     view[0] = sb.finish()
+     │               ^^^^^^^^^^^ the `stackalloc` buffer on line 12 is freed at the end of its block
+     │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough

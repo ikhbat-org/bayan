@@ -1,0 +1,117 @@
+3:1 IntegerLiteral `0xFF`
+3:5 NumericSuffix `s`
+4:1 IntegerLiteral `3`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open `
+5:8 InterpolationStart `{`
+5:9 Identifier `x`
+5:10 StringLiteral `";`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:15 StringLiteral `"{$"`
+6:19 OpenBrace `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 InterpolatedStringStart `$"`
+6:49 InterpolationStart `{`
+6:50 InterpolatedStringStart `$"`
+6:52 InterpolationStart `{`
+6:53 StringLiteral `$"{x}"`
+6:59 InterpolationEnd `}`
+6:60 InterpolatedStringEnd `"`
+6:61 InterpolationEnd `}`
+6:62 InterpolatedStringEnd `"`
+6:63 InterpolationEnd `}`
+6:64 InterpolatedStringEnd `"`
+6:65 InterpolationEnd `}`
+6:66 InterpolatedStringEnd `"`
+6:67 InterpolationEnd `}`
+6:68 InterpolatedStringEnd `"`
+6:69 InterpolationEnd `}`
+6:70 InterpolatedStringEnd `"`
+6:71 InterpolationEnd `}`
+6:72 InterpolatedStringEnd `"`
+6:73 InterpolationEnd `}`
+6:74 InterpolatedStringEnd `"`
+6:75 InterpolationEnd `}`
+6:76 InterpolatedStringEnd `"`
+6:77 InterpolationEnd `}`
+6:78 InterpolatedStringEnd `"`
+6:79 InterpolationEnd `}`
+6:80 InterpolatedStringEnd `"`
+6:81 CloseBrace `}`
+6:82 StringLiteral `"}"`
+6:85 InterpolationEnd `}`
+6:86 InterpolatedStringEnd `"`
+6:87 InterpolationEnd `}`
+6:88 InterpolatedStringEnd `"`
+6:89 StringLiteral `"}"`
+6:92 Identifier `_x`
+6:95 Identifier `camelCase2`
+6:106 Identifier `بيان`
+6:111 Identifier `μετρητής`
+6:120 Identifier `x_`
+6:123 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  3 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}""}"_x camelCase2 بيان μετρητής x_�
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  6 │ $"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}""}"_x camelCase2 بيان μετρητής x_�
+    │             ^
+
+error BYN0002: unexpected character `\u{5}`
+
+  6 │ $"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}""}"_x camelCase2 بيان μετρητής x_�
+    │              ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}""}"_x camelCase2 بيان μετρητής x_�
+    │                                                     ^^
+
+error BYN0002: unexpected character `\u{1D}`
+
+  6 │ $"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}""}"_x camelCase2 بيان μετρητής x_�
+    │                                                                                                                          ^

@@ -1,0 +1,77 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actoar`
+1:12 Equals `=`
+1:14 IntegerLiteral `1`
+2:3 Identifier `u`
+2:4 OpenBrace `{`
+2:5 IntegerLiteral `1`
+2:6 NumericSuffix `F600`
+2:10 CloseBrace `}`
+2:11 CharLiteral `' '`
+2:15 CharLiteral `''`
+2:18 CharLiteral `'é'`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:12 IntegerLiteral `1`
+4:1 CharLiteral `'\q'`
+5:2 CharLiteral `'\q'`
+5:7 StringLiteral `"{`
+6:1 LetKeyword `let`
+6:5 Identifier `a`
+6:7 Equals `=`
+6:11 IntegerLiteral `1`
+8:1 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  2 │  \u{1F600}' '\'' 'é'
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  \u{1F600}' '\'' 'é'
+    │              ^
+
+error BYN0007: empty char literal
+
+  2 │  \u{1F600}' '\'' 'é'
+    │               ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ �1
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  3 │ let a = $ �1
+    │           ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │  '\q' "{
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  5 │  '\q' "{
+    │       ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  6 │ let a = $ 1
+    │         ^

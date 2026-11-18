@@ -1,0 +1,10 @@
+  raw "quoted"
+�
+ent ‮ hidden
+let x⁧ =1
+ 
+ \q escape"
+let c = """never close|d
+
+foo Bar _x camelCase2 بيان μ�*�τρητής x_1 é
+

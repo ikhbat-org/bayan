@@ -1,0 +1,13 @@
+== package.byn OtherRead, GroupRead, UserWrite, UserRead
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { primitives: .csharp },
+}
+== src/main.byn OtherRead, GroupRead, UserWrite, UserRead
+long twice(int n) => n * 2
+
+void main() {
+    let r: double = 0.5
+    print($"{twice(3)} {r}")
+}

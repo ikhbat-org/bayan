@@ -1,0 +1,22 @@
+1:1 StringLiteral `"tex�t "`
+1:8 Identifier `esc`
+1:13 StringLiteral `"<\" \\ \n"`
+1:25 RawStringLiteral `"""\n `
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  1 │ "tex�t "esc \"<\" \\ \n" """
+    │     ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ "tex�t "esc \"<\" \\ \n" """
+    │             ^
+
+error BYN0003: unterminated string literal
+
+  1 │ "tex�t "esc \"<\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

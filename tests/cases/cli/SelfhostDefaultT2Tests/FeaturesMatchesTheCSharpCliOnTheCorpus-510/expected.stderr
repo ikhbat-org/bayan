@@ -1,0 +1,5 @@
+error BYN2006: `f` is declared twice
+  --> <repo>/tests/cases/diag/duplicate-overload-types.byn:2:5
+
+  2 │ i64 f(string s) => s.length
+    │     ^ already declared on line 1

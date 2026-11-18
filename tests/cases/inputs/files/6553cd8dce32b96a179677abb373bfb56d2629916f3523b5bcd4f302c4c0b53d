@@ -1,0 +1,37 @@
+interface IShape { }
+interface IOther { }
+struct NotI { }
+struct S : IShape, IShape, IOther, Missing, NotI {
+    required i64 r = 5
+    required i64 r2
+    i64 x
+    i64 x
+    public i64 pub
+    private i64 priv
+    i64 area => 42
+    i64 area => 43
+    public string label => "s"
+    void m() { }
+    void m() { }
+    public static void sm() { }
+    void g<T>() { }
+    type Item = i64
+    S() { }
+    S() { }
+    i64 m
+    void Bad() { }
+    i64 Bad2
+}
+struct G<T> {
+    T v
+    void h() { }
+    void k<U>() { }
+    void t<T>() { }
+    List<T> all => [v]
+    G() { }
+}
+struct E { }
+interface IG<T> { }
+struct H : IG<i64>, IG<i64> {
+    public H() { }
+}

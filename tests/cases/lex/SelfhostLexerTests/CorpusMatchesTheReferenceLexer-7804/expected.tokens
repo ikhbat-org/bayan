@@ -1,0 +1,103 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+2:2 Identifier `_`
+3:1 IntegerLiteral `0b__`
+4:1 IntegerLiteral `1__`
+5:1 IntegerLiteral `0xF__`
+6:2 IfKeyword `if`
+6:5 ElseKeyword `else`
+6:10 UnlessKeyword `unless`
+6:17 SwitchKeyword `switch`
+6:24 CaseKeyword `case`
+6:29 DefaultKeyword `default`
+6:37 ForKeyword `for`
+6:41 InKeyword `in`
+6:44 WhileKeyword `while`
+6:50 DoKeyword `do`
+6:53 BreakKeyword `break`
+6:59 ContinueKeyword `continue`
+6:68 ReturnKeyword `return`
+6:75 YieldKeyword `yield`
+6:81 DeferKeyword `defer`
+6:87 ErrdeferKeyword `errdefer`
+6:96 UsingKeyword `using`
+6:102 ContextKeyword `context`
+7:2 Identifier `tor`
+7:6 Equals `=`
+7:8 IntegerLiteral `1`
+8:1 LetKeyword `let`
+8:5 EffectKeyword `effect`
+8:12 Equals `=`
+8:14 IntegerLiteral `2`
+9:1 Identifier `macro`
+9:7 Identifier `select`
+9:14 BecomeKeyword `become`
+10:1 LetKeyword `let`
+10:5 LawKeyword `law`
+10:9 Equals `=`
+10:11 IntegerLiteral `3`
+11:1 Identifier `b`
+13:1 IntegerLiteral `2`
+14:1 Identifier `mcro`
+14:6 Identifier `seect`
+14:12 Identifier `becom`
+14:18 Identifier `e`
+15:1 LetKeyword `let`
+15:5 LawKeyword `law`
+15:9 Equals `=`
+15:11 IntegerLiteral `3`
+16:1 TestKeyword `test`
+16:6 AssertKeyword `assert`
+16:13 PropertyKeyword `property`
+16:22 FuzzKeyword `fuzz`
+16:27 ModelKeyword `model`
+16:33 ForeachKeyword `foreach`
+16:41 NewKeyword `new`
+16:45 GotoKeyword `goto`
+17:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  9 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  9 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xD1)
+
+  14 │ mcro seect becom�e
+     │                 ^

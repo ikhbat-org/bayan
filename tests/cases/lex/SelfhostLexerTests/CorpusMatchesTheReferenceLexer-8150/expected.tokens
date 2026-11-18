@@ -1,0 +1,16 @@
+1:1 IntegerLiteral `3`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+4:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  2 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  �
+    │   │  -

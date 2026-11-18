@@ -1,0 +1,1 @@
+{"code":"BYN2801","severity":"error","file":"input.byn","span":{"start":51,"end":57,"line":5,"column":14,"endLine":5,"endColumn":20},"message":"`Box` does not provide `count` required by `ICount`","label":"needs `count`","help":"rename the field `count` and add `i64 count()` to `Box`; a field cannot provide a method","fixes":[]}

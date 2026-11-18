@@ -1,0 +1,65 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+2:2 Comma `,`
+2:4 Dot `.`
+2:6 DotDot `..`
+2:9 DotDotEquals `..=`
+2:13 Colon `:`
+2:15 Question `?`
+2:17 QuestionQuestion `??`
+2:20 QuestionQuestionEquals `??=`
+2:24 QuestionDot `?.`
+2:27 FatArrow `=>`
+2:30 Arrow `->`
+2:33 At `@`
+2:35 Hash `#`
+6:1 Identifier `x`
+7:1 Identifier `foo`
+7:5 Identifier `Bar`
+7:9 Identifier `_x`
+7:12 Identifier `cam`
+7:15 Identifier `elCase2`
+7:23 Identifier `بيان`
+7:28 Identifier `μετρητής`
+7:37 Identifier `x_1`
+7:41 Identifier `é`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 StringLiteral `"`
+9:5 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  4 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xB5)
+
+  7 │ foo Bar _x cam�elCase2 بيان μετρητής x_1 é
+    │               ^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

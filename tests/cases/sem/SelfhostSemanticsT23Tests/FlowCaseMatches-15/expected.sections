@@ -1,0 +1,2 @@
+== flow.caughtExcluded
+BYN2228 221:30 `closed` is not a variant of `NetError except .closed` |||

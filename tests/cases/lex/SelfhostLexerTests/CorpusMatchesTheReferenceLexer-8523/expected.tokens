@@ -1,0 +1,12 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"openO`
+1:15 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "openO
+    │         ^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

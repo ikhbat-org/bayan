@@ -1,0 +1,2 @@
+== diags.diag/duplicate-field-init
+BYN2110 5:23 field `x` is set twice

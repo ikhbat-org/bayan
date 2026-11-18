@@ -1,0 +1,11 @@
+string f(ReadOnlySpan<string> parts) {
+    using let arena = Arena()
+    provide allocator: arena {
+        return Path.directoryName("/a/b") ?? ""
+    }
+}
+
+void main() {
+    let parts = List<string>()
+    print(f(parts.span))
+}

@@ -1,0 +1,28 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+1:16 Identifier `a`
+6:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1; a /* never closed
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1; a /* never closed
+    │   │        +
+
+error BYN0004: unterminated block comment
+
+  1 │ let café = 1; a /* never closed
+    │                  ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ ' ̈́\u{11�� '\u{D800}'
+    │         ^

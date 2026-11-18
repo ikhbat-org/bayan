@@ -1,0 +1,3 @@
+== diags.forms-for-a-verb
+BYN5001 3:10 `upserted` changes `this`; name it `upsert`
+  help name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view

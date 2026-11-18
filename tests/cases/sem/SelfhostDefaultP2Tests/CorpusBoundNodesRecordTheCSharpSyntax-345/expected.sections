@@ -1,0 +1,36 @@
+== tests/cases/run/with-self-move.byn
+68..343 blockStmt
+74..97 localDecl
+86..97 callExpr
+102..117 exprStmt
+102..117 callExpr
+102..107 nameExpr
+115..116 literalExpr integer
+122..137 exprStmt
+122..137 callExpr
+122..127 nameExpr
+135..136 literalExpr integer
+142..199 localDecl
+155..199 structLiteralExpr
+171..178 literalExpr string
+187..191 moveExpr
+192..197 nameExpr
+204..245 assignStmt assign target 204..210 value 213..245
+204..210 nameExpr
+213..245 withExpr
+213..219 nameExpr
+234..243 literalExpr string
+250..290 assignStmt assign target 250..256 value 259..290
+250..256 nameExpr
+259..290 withExpr
+259..265 nameExpr
+280..288 literalExpr string
+295..341 exprStmt
+295..341 callExpr
+301..340 interpolatedExpr
+304..316 memberExpr
+304..310 nameExpr
+319..338 memberExpr
+319..331 memberExpr
+319..325 nameExpr
+295..341 callExpr

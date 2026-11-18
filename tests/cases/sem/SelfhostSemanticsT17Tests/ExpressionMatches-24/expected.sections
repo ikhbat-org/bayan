@@ -1,0 +1,3 @@
+== case fn-builtin
+errorExpr 1570..1575 : ?
+BYN2824 80:18 `print` cannot be used as a value: it is built in ||wrap it in a lambda: `text => print(text)`|

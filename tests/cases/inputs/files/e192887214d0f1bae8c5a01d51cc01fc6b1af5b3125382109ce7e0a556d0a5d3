@@ -1,0 +1,25 @@
+interface IB { }
+interface IA {
+    type Item
+    type Item
+    type bad
+    Item next()
+    i64 count
+    i64 twice => 2
+    void d() { }
+    i64 e() => 1
+    void g<T>(T x)
+    i64 count
+    void next()
+    void Bad()
+    void p(ref this)
+    public i64 f() fails
+    static void sm()
+    static i64 sg
+    static i64 sp => 1
+    (i64) -> i64 fr()
+    Missing mg
+}
+public interface IC {
+    void q() fails
+}

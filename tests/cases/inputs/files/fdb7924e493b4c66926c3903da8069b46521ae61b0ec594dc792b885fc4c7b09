@@ -1,0 +1,9 @@
+fails try catch never noalloc nosuspend suspendsºasync await
+ ‚Å©
+/* block
+  raw "quoted"
+  """ c"text"
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"b102
+0xFFs
+0b1ms
+0x_

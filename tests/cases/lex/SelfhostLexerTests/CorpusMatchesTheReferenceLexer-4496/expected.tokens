@@ -1,0 +1,20 @@
+1:1 IntegerLiteral `1_`
+3:1 StringLiteral `"text"`
+3:8 StringLiteral `"esc \"q\" \\ \n"`
+3:26 RawStringLiteral `"""\r\n\r\n( ) [ ] { }\r\n "{ `
+6:5 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  3 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

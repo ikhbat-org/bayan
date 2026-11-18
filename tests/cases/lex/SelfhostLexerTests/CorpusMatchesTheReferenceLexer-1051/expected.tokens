@@ -1,0 +1,25 @@
+1:2 Star `*`
+1:3 Identifier `a`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �*a /* never closed
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �*a /* never closed
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �*a /* never closed
+    │  ^
+
+error BYN0004: unterminated block comment
+
+  1 │ �*a /* never closed
+    │     ^^ comment starts here
+    │
+  help: close it with `*/`

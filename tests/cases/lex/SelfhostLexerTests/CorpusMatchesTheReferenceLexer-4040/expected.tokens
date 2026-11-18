@@ -1,0 +1,39 @@
+1:1 Identifier `Bar`
+1:5 Identifier `_x`
+1:8 Identifier `camelCase2`
+1:19 Identifier `بيان`
+1:24 Identifier `μετρητής`
+1:33 Identifier `x_1`
+1:37 Identifier `é`
+3:4 Identifier `comment`
+3:12 Star `*`
+3:13 Slash `/`
+3:16 Identifier `a`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `x`
+5:4 InterpolationStart `{`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+6:1 Identifier `é`
+6:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEE)
+
+  3 │    comment */� a
+    │              ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  6 │ é 
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ é 
+    │   │ +

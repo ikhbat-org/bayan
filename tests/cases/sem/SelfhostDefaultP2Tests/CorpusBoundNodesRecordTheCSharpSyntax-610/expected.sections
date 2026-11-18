@@ -1,0 +1,8 @@
+== tests/cases/diag/jump-out-of-defer.byn
+9..45 blockStmt
+15..20 deferStmt
+21..43 blockStmt
+31..37 returnStmt
+47..50 globalStatement
+47..50 exprStmt
+47..50 callExpr

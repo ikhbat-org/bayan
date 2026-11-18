@@ -1,0 +1,31 @@
+1:1 IntegerLiteral `0b__`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `op�n `
+3:7 InterpolationStart `{`
+3:8 Identifier `x`
+3:9 StringLiteral `";`
+4:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"op�n {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  3 │ $"op�n {x";
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"op�n {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

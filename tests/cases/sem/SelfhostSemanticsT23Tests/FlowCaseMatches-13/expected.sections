@@ -1,0 +1,2 @@
+== flow.exceptCaller
+BYN2603 226:13 `NetError.closed` is not in the `fails` clause of `exceptCaller` ||handle it with `catch (NetError.closed)`, or remove `.closed` from the `except` list|

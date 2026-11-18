@@ -1,0 +1,42 @@
+error BYN5004: `discount` has 2 unlabeled parameters; give each but one a particle
+  --> input.byn:1:5
+
+  1 │ i32 discount(i32 total, i32 percent)
+    │     ^^^^^^^^ 2 unlabeled parameters
+    │
+  help: keep one unlabeled parameter, the object
+
+error BYN5006: `percent` is a required parameter besides the object and needs a particle
+  --> input.byn:1:29
+
+  1 │ i32 discount(i32 total, i32 percent)
+    │                             ^^^^^^^ needs a particle
+    │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+warning BYN5011: this `expects` reads only `percent`; a type with `requires` checks it once
+  --> input.byn:2:5
+
+  2 │     expects percent in 0..=100
+    │     ^^^^^^^
+    │
+  help: declare a type with `requires` for `percent`
+
+warning BYN5011: this `expects` reads only `total`; a type with `requires` checks it once
+  --> input.byn:3:5
+
+  3 │     expects total >= 0
+    │     ^^^^^^^
+    │
+  help: declare a type with `requires` for `total`
+
+warning BYN5011: this `expects` reads only `n`; a type with `requires` checks it once
+  --> input.byn:6:19
+
+  6 │ void check(i32 n) expects n in 1..10 && n != 5 fails {
+    │                   ^^^^^^^
+    │
+  help: declare a type with `requires` for `n`
+
+✗ build failed: 2 errors, 3 warnings
+  explain: bayan explain BYN5004

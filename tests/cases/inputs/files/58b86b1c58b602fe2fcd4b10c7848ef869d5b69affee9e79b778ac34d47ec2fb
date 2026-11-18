@@ -1,0 +1,7 @@
+'\'
+'\u{110000}'
+
+let a = "open
+ a /* never closed
+"//// not a doc comment
+

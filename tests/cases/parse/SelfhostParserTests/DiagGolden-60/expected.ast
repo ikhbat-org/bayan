@@ -1,0 +1,7 @@
+CompilationUnit
+  Let s = (interp "value " x)
+
+error BYN1001: expected `}` to end the interpolated expression, found `y`
+
+  1 │ let s = $"value {x y}"
+    │                    ^

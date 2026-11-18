@@ -1,0 +1,47 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `u`
+1:4 IntegerLiteral `0xFF`
+1:8 NumericSuffix `u`
+1:10 IntegerLiteral `0b1`
+1:13 NumericSuffix `ul`
+1:16 IntegerLiteral `7`
+1:17 NumericSuffix `l`
+4:1 Dot `.`
+4:2 IntegerLiteral `2`
+4:4 IntegerLiteral `1`
+4:5 DotDotEquals `..=`
+4:8 IntegerLiteral `3`
+4:10 IntegerLiteral `5`
+4:11 NumericSuffix `e`
+4:13 Identifier `x`
+4:14 Dot `.`
+4:15 Identifier `y`
+4:17 FloatLiteral `2.5`
+4:20 NumericSuffix `f`
+6:1 OpenBrace `{`
+6:3 LetKeyword `let`
+6:7 LawKeyword `law`
+6:11 Equals `=`
+6:13 IntegerLiteral `3`
+    doc `/// Doc line one.`
+9:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ // commento� hdden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ // commento� hdden
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  7 │  // ok � �n comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  7 │  // ok � �n comment
+    │          ^

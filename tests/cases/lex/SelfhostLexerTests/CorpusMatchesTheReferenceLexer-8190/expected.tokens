@@ -1,0 +1,25 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 Identifier `n`
+1:19 Identifier `ver`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+2:1 Identifier `t`
+3:1 Identifier `uct`
+3:4 Identifier `S`
+5:1 Identifier `b`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  1 │ fails try catch n�ver noalloc nosuspend suspends async await
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  3 │ uct�S
+    │    ^

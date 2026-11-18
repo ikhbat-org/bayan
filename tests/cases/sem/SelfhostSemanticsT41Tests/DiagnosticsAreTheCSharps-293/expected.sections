@@ -1,0 +1,10 @@
+== diags.diag/dyn-ref-this-list-field-modified
+BYN3004 18:13 `items` is modified while `d` still borrows it
+  label `d` is used again on line 20
+  help finish using `d` first, or copy what it needs before changing `items`
+BYN3004 22:17 `items` is modified while `e` still borrows it
+  label `e` is used again on line 24
+  help finish using `e` first, or copy what it needs before changing `items`
+BYN3004 23:9 `items` is modified while `e` still borrows it
+  label `e` is used again on line 24
+  help finish using `e` first, or copy what it needs before changing `items`

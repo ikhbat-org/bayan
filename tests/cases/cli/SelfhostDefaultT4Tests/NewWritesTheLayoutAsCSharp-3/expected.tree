@@ -1,0 +1,57 @@
+dir a-1b
+=== a-1b/.editorconfig
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+=== a-1b/.gitattributes
+* text=auto eol=lf
+*.byn linguist-language=C#
+=== a-1b/.gitignore
+/out/
+/dist/
+/gen/
+=== a-1b/README.md
+# a-1b
+
+A Bayan library. Its code is in `src/a1b/`; other packages use it with `import a1b`.
+
+## Test
+
+```
+bayan test
+```
+dir a-1b/docs
+=== a-1b/docs/.gitkeep
+=== a-1b/package.byn
+Package {
+    name: "local/a-1b",      // `local/` until published under a verified namespace
+    version: "0.1.0",
+    edition: 2027,
+    kind: .lib,
+    capabilities: [],
+    deps: [],
+    dist: Dist {
+        targets: [.host],        // the machine that builds it
+        mode: .safe,
+    },
+}
+dir a-1b/src
+dir a-1b/src/a1b
+=== a-1b/src/a1b/a1b.byn
+/// Returns twice `x`.
+public i64 twice(i64 x) {
+    return x * 2
+}
+dir a-1b/testdata
+=== a-1b/testdata/.gitkeep
+dir a-1b/tests
+=== a-1b/tests/a1b.test.byn
+test "twice doubles" {
+    assert(twice(21) == 42)
+}

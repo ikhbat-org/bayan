@@ -1,0 +1,3 @@
+== c18
+catchExpr|i64|5512:18
+operand call:i64 binding - variant - handler blockExpr:never

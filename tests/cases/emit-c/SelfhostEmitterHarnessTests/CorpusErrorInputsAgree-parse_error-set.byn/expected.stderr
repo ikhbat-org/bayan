@@ -1,0 +1,20 @@
+error BYN2002: unknown type `EmailError`
+  --> input.byn:1:27
+
+  1 │ union error SignupError = EmailError, DbError
+    │                           ^^^^^^^^^^
+
+error BYN2002: unknown type `DbError`
+  --> input.byn:1:39
+
+  1 │ union error SignupError = EmailError, DbError
+    │                                       ^^^^^^^
+
+error BYN2002: unknown type `Form`
+  --> input.byn:4:12
+
+  4 │ i64 signUp(Form f) fails SignupError => 0
+    │            ^^^^
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2002

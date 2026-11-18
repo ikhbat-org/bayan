@@ -1,0 +1,4 @@
+== diags.diag/for-dyn-ref-span-index
+BYN2106 17:26 cannot modify this value
+  label a `ReadOnlySpan` cannot be written through
+returns view 0

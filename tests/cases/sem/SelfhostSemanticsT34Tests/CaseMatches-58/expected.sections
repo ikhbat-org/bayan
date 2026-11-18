@@ -1,0 +1,5 @@
+== s67
+switchExpr|i32|5100:51
+value moveExpr:Box
+arm 5119:17 unionPattern[5119:12]:Box(full;bindPattern[5125:3]:Ledger(l:Ledger:o:-:let)|-) guard - value literal:i32=1
+arm 5138:11 unionPattern[5138:6]:Box(empty;|-) guard - value literal:i32=0

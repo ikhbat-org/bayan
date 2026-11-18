@@ -1,0 +1,1 @@
+{"code":"BYN3002","severity":"error","file":"input.byn","span":{"start":140,"end":170,"line":8,"column":9,"endLine":8,"endColumn":39},"message":"the lambda on line 8 does not live as long as `last`, which borrows it","label":"the lambda on line 8 is freed at the end of its block","help":"copy the data with `.copy(to: alloc)` into an allocator that lives long enough","fixes":[]}

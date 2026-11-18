@@ -1,0 +1,17 @@
+struct unique U {
+    i64 fd
+}
+
+void main() {
+    var sb = StrBuf()
+    sb.append()
+    var m = Map<string, i64>()
+    sb.append(m)
+    var xs = List<string>()
+    xs.remove(from: 0)
+    xs.append()
+    m.slot()
+    let um = Map<U, i64>()
+    let uc = um.copy()
+    print(sb.finish())
+}

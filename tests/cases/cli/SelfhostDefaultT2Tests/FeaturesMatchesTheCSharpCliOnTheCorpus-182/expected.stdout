@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ContextStmt",
+    "EnumDecl",
+    "ExprStmt",
+    "FieldDecl",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IfStmt",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RangeExpr",
+    "StructDecl",
+    "StructLiteralExpr",
+    "TargetMemberExpr"
+  ],
+  "builtins": [
+    "ArenaNew",
+    "MapClear",
+    "MapContains",
+    "MapIndex",
+    "MapIndexSet",
+    "MapLength",
+    "MapRemove",
+    "MapTryGet",
+    "Print",
+    "StrBufAppend"
+  ],
+  "diagnostics": []
+}

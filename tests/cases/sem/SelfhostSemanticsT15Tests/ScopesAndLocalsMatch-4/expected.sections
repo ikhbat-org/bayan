@@ -1,0 +1,15 @@
+== scopes same-scope
+declared x 0
+declared x 1
+declared x 2
+declared x 3
+declared x 4
+local x 0 0
+local x 1 0
+local x 2 0
+local x 3 1
+local x 4 0
+requires 0 infers false
+BYN2028 2:4 `x` shadows an earlier `x` of the same type `i32` |`x` is declared on line 1|use the first one, or rename this one to say how it differs|
+BYN2007 4:4 `x` is already a local here |already declared on line 3|pick a different name; Bayan does not let a local hide another one|
+BYN2007 5:4 `x` is already a local here |already declared on line 4|pick a different name; Bayan does not let a local hide another one|

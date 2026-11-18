@@ -1,0 +1,12 @@
+error BYN2104: `c` is immutable
+  --> <repo>/tmp/t2/diag/ref-this-let-receiver/ref-this-let-receiver.byn:13:1
+
+  13 │ c.bump()
+     │ ^ `bump` modifies it; declared with `let` on line 11
+     │
+  help: declare it with `var` if it should change
+     │ 11 │ var c = Counter { n: 0 }
+     │    │ +++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2104

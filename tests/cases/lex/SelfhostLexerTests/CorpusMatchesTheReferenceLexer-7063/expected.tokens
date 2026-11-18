@@ -1,0 +1,82 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `uniRque`
+1:16 UnionKeyword `union`
+1:22 EnumKeyword `enum`
+1:27 FlagsKeyword `flags`
+1:33 OpenKeyword `open`
+1:38 ExtensibleKeyword `extensible`
+1:49 InterfaceKeyword `interface`
+1:59 DelegateKeyword `delegate`
+1:68 ExtensionKeyword `extension`
+1:78 DerivationKeyword `derivation`
+1:89 AttributeKeyword `attribute`
+2:2 CharLiteral `'x\r`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
+4:1 CharLiteral `'\q'`
+5:2 LetKeyword `let`
+5:6 Identifier `a`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+6:1 LetKeyword `let`
+6:7 Equals `=`
+6:9 IntegerLiteral `2`
+8:1 LetKeyword `let`
+8:5 Identifier `actor`
+8:11 Equals `=`
+8:13 IntegerLiteral `1`
+10:1 LetKeyword `let`
+10:5 Identifier `a`
+10:7 Equals `=`
+10:8 StringLiteral `"open`
+11:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │  'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ 1
+    │         ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  7 │ // ok � i n comment
+    │       ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  8 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  9 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  10 │ let a ="open
+     │        ^^^^^ string ends at the end of the line
+     │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

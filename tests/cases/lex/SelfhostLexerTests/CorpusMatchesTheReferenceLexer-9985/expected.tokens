@@ -1,0 +1,140 @@
+1:3 IntegerLiteral `2`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Arrow `->`
+4:32 At `@`
+4:34 Hash `#`
+5:1 CharLiteral `'\u{110000}'`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolatedStringText `$`
+6:20 InterpolatedStringEnd `"`
+6:21 OpenBrace `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 InterpolatedStringStart `$"`
+6:51 InterpolationStart `{`
+6:52 Identifier `x`
+6:53 InterpolationEnd `}`
+6:54 InterpolatedStringEnd `"`
+6:55 InterpolationEnd `}`
+6:56 InterpolatedStringEnd `"`
+6:58 StringLiteral `"}"`
+6:61 InterpolationEnd `}`
+6:62 InterpolatedStringEnd `"`
+6:63 InterpolationEnd `}`
+6:64 InterpolatedStringEnd `"`
+6:65 InterpolationEnd `}`
+6:66 InterpolatedStringEnd `"`
+6:67 InterpolationEnd `}`
+6:68 InterpolatedStringEnd `"`
+6:69 InterpolationEnd `}`
+6:70 InterpolatedStringEnd `"`
+6:71 InterpolationEnd `}`
+6:72 InterpolatedStringEnd `"`
+6:73 InterpolationEnd `}`
+6:74 InterpolatedStringEnd `"`
+6:75 InterpolationEnd `}`
+6:76 InterpolatedStringEnd `"`
+6:77 CloseBrace `}`
+6:78 StringLiteral `"}"`
+6:81 InterpolationEnd `}`
+6:82 InterpolatedStringEnd `"`
+8:1 IntegerLiteral `0b__`
+10:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ ` 2
+    │ ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  5 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"�"}"}"}"}"}"}"}"}"}"}"}"}"
+    │           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  6 │  $"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"�"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  7 │ � �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  7 │ � �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  7 │ � �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  7 │ � �
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  7 │ � �
+    │    ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  8 │ 0b__
+    │ ^^^^

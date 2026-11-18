@@ -1,0 +1,5 @@
+error BYN2607: public function `parse` must list its errors
+  --> <repo>/tests/cases/diag/public-inferred-fails.byn:1:28
+
+  1 │ public i64 parse(string s) fails {
+    │                            ^^^^^

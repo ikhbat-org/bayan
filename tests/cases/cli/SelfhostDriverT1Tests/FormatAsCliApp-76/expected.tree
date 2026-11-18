@@ -1,0 +1,8 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+bool f(bool a, bool b) => a and not b or not (a)
+== package.byn OtherRead, GroupRead, UserWrite, UserRead
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { booleans: .words },
+}

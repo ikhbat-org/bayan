@@ -1,0 +1,4 @@
+== call.value
+counts 1 0 1
+mut xs 1537..1539 false -
+BYN3005 96:22 `xs` is passed by `ref` and again in the same call |`xs` is also passed by `ref`|copy the value into a local first, or make two calls|

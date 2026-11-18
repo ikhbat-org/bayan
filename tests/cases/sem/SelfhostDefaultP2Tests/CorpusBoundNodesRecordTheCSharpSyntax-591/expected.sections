@@ -1,0 +1,54 @@
+== tests/cases/diag/interface-unique-field-witness-constraint.byn
+118..195 blockStmt
+124..142 localDecl
+135..142 memberExpr
+135..136 nameExpr
+147..193 forStmt
+156..162 rangeExpr
+156..157 literalExpr integer
+159..162 literalExpr integer
+163..193 blockStmt
+173..187 exprStmt
+173..187 callExpr
+173..177 nameExpr
+185..186 nameExpr
+185..186 nameExpr
+209..344 blockStmt
+215..234 localDecl
+223..234 callExpr
+239..250 exprStmt
+239..250 callExpr
+239..240 nameExpr
+248..249 literalExpr integer
+255..282 localDecl
+263..282 structLiteralExpr
+274..278 moveExpr
+279..280 nameExpr
+287..298 exprStmt
+287..298 callExpr
+296..297 nameExpr
+303..342 exprStmt
+303..342 callExpr
+309..341 interpolatedExpr
+312..322 indexExpr
+312..319 memberExpr
+312..313 nameExpr
+320..321 literalExpr integer
+325..339 memberExpr
+325..332 memberExpr
+325..326 nameExpr
+303..342 callExpr
+118..195 blockStmt
+124..142 localDecl
+135..142 memberExpr
+135..136 nameExpr
+147..193 forStmt
+156..162 rangeExpr
+156..157 literalExpr integer
+159..162 literalExpr integer
+163..193 blockStmt
+173..187 exprStmt
+173..187 callExpr
+173..177 nameExpr
+185..186 nameExpr
+185..186 nameExpr

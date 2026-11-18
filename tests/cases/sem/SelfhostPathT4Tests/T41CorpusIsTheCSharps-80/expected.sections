@@ -1,0 +1,7 @@
+== diags.diag/span-views
+BYN2106 5:5 cannot modify this value
+  label a `ReadOnlySpan` cannot be written through
+BYN2104 7:13 `ys` is immutable
+  label `mutableSpan` modifies it; declared with `let` on line 6
+  help declare it with `var` if it should change
+  fix 6:5-6:8 var

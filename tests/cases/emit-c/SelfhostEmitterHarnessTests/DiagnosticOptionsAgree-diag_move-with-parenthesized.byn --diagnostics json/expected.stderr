@@ -1,0 +1,1 @@
+{"code":"BYN2782","severity":"error","file":"input.byn","span":{"start":222,"end":247,"line":9,"column":22,"endLine":9,"endColumn":47},"message":"cannot move out of this expression","label":null,"help":"move a local variable or a `move` parameter instead","fixes":[]}

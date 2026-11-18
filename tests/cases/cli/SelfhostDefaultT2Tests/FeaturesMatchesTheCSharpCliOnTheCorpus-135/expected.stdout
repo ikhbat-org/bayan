@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "IndexExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "TryExpr"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "IoCreateDirectory",
+    "IoRun",
+    "IoWriteFile",
+    "ListAsSpan",
+    "MapIndexSet",
+    "Print",
+    "ProcessStdout"
+  ],
+  "diagnostics": []
+}

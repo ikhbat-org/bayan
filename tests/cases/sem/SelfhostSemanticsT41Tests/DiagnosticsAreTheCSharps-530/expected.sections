@@ -1,0 +1,5 @@
+== diags.diag/let-fat-arrow-function-type
+BYN1055 2:16 `=>` in a type is an input form; write `->`
+  label the input form
+  help write the function type with `->`
+  fix 2:16-2:18 ->

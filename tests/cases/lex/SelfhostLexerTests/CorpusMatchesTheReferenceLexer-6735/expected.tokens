@@ -1,0 +1,10 @@
+1:2 OpenBrace `{`
+1:4 Identifier `x`
+1:6 Equals `=`
+1:8 IntegerLiteral `1`
+1:10 CloseBrace `}`
+1:11 CloseBrace `}`
+1:12 Bang `!`
+1:13 StringLiteral `"  $"`
+1:18 OpenBrace `{`
+1:19 EndOfFile

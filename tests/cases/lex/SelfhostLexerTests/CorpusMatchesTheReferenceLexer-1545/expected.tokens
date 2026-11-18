@@ -1,0 +1,17 @@
+1:1 IntegerLiteral `0x`
+2:3 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x�
+    │ ^^
+
+error BYN0002: unexpected character `\u{1A}`
+
+  1 │ 0x�
+    │   ^
+
+error BYN0002: unexpected character `̊`
+
+  2 │ ̊ 
+    │ ^

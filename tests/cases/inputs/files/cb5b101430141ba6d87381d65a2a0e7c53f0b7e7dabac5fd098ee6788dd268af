@@ -1,0 +1,8 @@
+macro select become
+   raw "quoted"
+
+a = "open
+let b = "bad \q escape"
+let c =≥ """never closed
+'x
+‚Å© 

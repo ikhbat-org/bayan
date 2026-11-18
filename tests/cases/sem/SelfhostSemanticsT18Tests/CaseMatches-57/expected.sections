@@ -1,0 +1,3 @@
+== member.Box.g.g1
+errorExpr|?|-|-|-|-|-|940:11|-
+BYN2806 69:25 `T` has no member `nope` in its constraints (`IHasArea`) ||add an interface declaring `nope` to the `where` clause|

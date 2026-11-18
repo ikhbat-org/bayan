@@ -1,0 +1,23 @@
+1:1 CharLiteral `'\u{D800}'`
+2:2 Star `*`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+4:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ let café = 1
+    │   │        +

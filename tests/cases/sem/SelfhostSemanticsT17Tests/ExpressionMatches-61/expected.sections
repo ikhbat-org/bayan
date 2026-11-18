@@ -1,0 +1,3 @@
+== case conv-int-optional
+conversion 668..670 : i32?
+  literal 668..670 : i32 = 42

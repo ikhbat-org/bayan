@@ -1,0 +1,114 @@
+1:1 IntegerLiteral `0b10`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بيان`
+3:28 Identifier `μετρητής`
+3:37 Identifier `x_1`
+3:41 Identifier `é`
+4:2 Identifier `c`
+4:4 Greater `>`
+4:5 GreaterEquals `>=`
+4:8 IntegerLiteral `1`
+6:1 IntegerLiteral `0b102`
+7:1 IntegerLiteral `0xFF`
+7:5 NumericSuffix `s`
+8:1 IntegerLiteral `0b1`
+8:4 NumericSuffix `ms`
+9:1 IntegerLiteral `0x_`
+10:1 IntegerLiteral `0b__`
+11:1 IntegerLiteral `1_`
+    doc `/// Doc line one.`
+12:1 InterpolatedStringStart `$"`
+12:3 InterpolationStart `{`
+12:4 InterpolatedStringStart `$"`
+12:6 InterpolationStart `{`
+12:7 InterpolatedStringStart `$"`
+12:9 InterpolationStart `{`
+12:10 InterpolatedStringStart `$"`
+12:12 InterpolationStart `{`
+12:13 InterpolatedStringStart `$"`
+12:15 InterpolationStart `{`
+12:16 InterpolatedStringStart `$"`
+12:18 InterpolationStart `{`
+12:19 InterpolatedStringStart `$"`
+12:21 InterpolationStart `{`
+12:22 InterpolatedStringStart `$"`
+12:24 InterpolationStart `{`
+12:25 InterpolatedStringStart `$"`
+12:27 InterpolationStart `{`
+12:28 InterpolatedStringStart `$"`
+12:30 InterpolationStart `{`
+12:31 InterpolatedStringStart `$"`
+12:33 InterpolationStart `{`
+12:34 InterpolatedStringStart `$"`
+12:36 InterpolationStart `{`
+12:37 InterpolatedStringStart `$"`
+12:39 InterpolationStart `{`
+12:40 InterpolatedStringStart `$"`
+12:42 InterpolationStart `{`
+12:43 InterpolatedStringStart `$"`
+12:45 InterpolationStart `{`
+12:46 Identifier `x`
+12:47 InterpolationEnd `}`
+12:48 InterpolatedStringEnd `"`
+12:49 InterpolationEnd `}`
+12:50 InterpolatedStringEnd `"`
+12:51 InterpolationEnd `}`
+12:52 InterpolatedStringEnd `"`
+12:53 InterpolationEnd `}`
+12:54 InterpolatedStringEnd `"`
+12:55 InterpolationEnd `}`
+12:56 InterpolatedStringEnd `"`
+12:57 InterpolationEnd `}`
+12:58 InterpolatedStringEnd `"`
+12:59 InterpolationEnd `}`
+12:60 InterpolatedStringEnd `"`
+12:61 InterpolationEnd `}`
+12:62 InterpolatedStringEnd `"`
+12:64 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  6 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  7 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  8 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  9 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  10 │ 0b__
+     │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │ 1_/// Doc line one.
+     │  ^
+     │
+     │ 11 │ 1_/// Doc line one.
+     │    │  -
+
+error BYN0003: unterminated string literal
+
+  12 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" 
+     │                   ^^ this string never ends
+     │
+  help: close the `{` and the string

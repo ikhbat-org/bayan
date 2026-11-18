@@ -1,0 +1,3 @@
+== inst.i6
+null
+BYN2740 153:14 cannot infer type argument `T` of `zero` ||pass an argument it can be read from, or write it out: `zero<T>(…)`|

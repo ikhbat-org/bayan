@@ -1,0 +1,119 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 Identifier `a`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 StringLiteral `$"{$"`
+4:48 OpenBrace `{`
+4:49 StringLiteral `$"{$"`
+4:54 OpenBrace `{`
+4:55 StringLiteral `$"{$"`
+4:60 OpenBrace `{`
+4:61 Identifier `x`
+4:62 CloseBrace `}`
+4:63 StringLiteral `"}"`
+4:66 CloseBrace `}`
+4:67 StringLiteral `"}"`
+4:70 CloseBrace `}`
+4:71 StringLiteral `"}"`
+4:74 InterpolationEnd `}`
+4:75 InterpolatedStringEnd `"`
+4:76 InterpolationEnd `}`
+4:77 InterpolatedStringEnd `"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolationEnd `}`
+4:81 InterpolatedStringEnd `"`
+4:82 InterpolationEnd `}`
+4:83 InterpolatedStringEnd `"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 InterpolationEnd `}`
+4:87 InterpolatedStringEnd `"`
+4:88 InterpolationEnd `}`
+4:89 InterpolatedStringEnd `"`
+6:1 IntegerLiteral `1`
+6:2 Dot `.`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ // comment � hidden
+    │   │            -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ $"{ // comment � hidden
+    │                ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ $"{ // comment � hidden
+    │   │                -
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" �// ok � in comment
+    │                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" �// ok � in comment
+    │                                           ^^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" �// ok � in comment
+    │                                                                                           ^ invisible
+    │                                                                                             character
+    │                                                                                             that
+    │                                                                                             reorders
+    │                                                                                             how
+    │                                                                                             the
+    │                                                                                             text
+    │                                                                                             displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" �// ok � in comment
+    │   │                                                                                           -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" �// ok � in comment
+    │                                                                                                  ^

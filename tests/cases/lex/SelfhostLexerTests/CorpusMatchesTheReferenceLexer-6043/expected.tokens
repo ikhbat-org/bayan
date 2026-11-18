@@ -1,0 +1,43 @@
+1:1 CharLiteral `'\u{D800}'`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `{{`
+3:5 InterpolatedStringEnd `"`
+3:8 Identifier `foo`
+3:12 Identifier `Bar`
+3:16 Identifier `_x`
+3:19 Identifier `camelCase2`
+3:30 Identifier `بيان`
+3:35 Identifier `μετρητής`
+3:44 Identifier `x_1`
+3:48 Identifier `é`
+4:3 CloseBrace `}`
+5:1 IntegerLiteral `1`
+5:2 NumericSuffix `e`
+5:4 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ $"{{" �foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ $"{{" �foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │        ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │  �}
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  �}
+    │   │  -

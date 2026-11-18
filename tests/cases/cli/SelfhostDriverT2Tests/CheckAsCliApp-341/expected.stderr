@@ -1,0 +1,10 @@
+error BYN2770: unknown attribute `json`
+  --> <repo>/tmp/t2/diag/count-name-exempt/count-name-exempt.byn:3:6
+
+  3 │     @json(name: "numLines")
+    │      ^^^^
+    │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2770

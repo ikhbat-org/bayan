@@ -1,0 +1,5 @@
+42 1_00 0xF__
+   raw "quoted"
+ 1.'\u{110000}'
+//// not a doc comment
+

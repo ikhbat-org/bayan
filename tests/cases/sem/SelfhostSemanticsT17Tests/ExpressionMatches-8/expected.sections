@@ -1,0 +1,3 @@
+== case int-2p127-int-target
+errorExpr 2507..2546 : ?
+BYN2203 128:20 170141183460469231731687303715884105728 does not fit in `i8` ||use a value from -128 to 127, the range of `i8`|

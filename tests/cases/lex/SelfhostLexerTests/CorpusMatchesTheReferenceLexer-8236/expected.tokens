@@ -1,0 +1,158 @@
+1:1 IntegerLiteral `0b102`
+3:1 CharLiteral `'\u{110000}'`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 Identifier `x`
+5:44 InterpolationEnd `}`
+5:45 InterpolatedStringEnd `"`
+5:46 InterpolationEnd `}`
+5:47 InterpolatedStringEnd `"`
+5:48 InterpolationEnd `}`
+5:49 InterpolatedStringEnd `"`
+5:50 InterpolationEnd `}`
+5:51 InterpolatedStringEnd `"`
+5:52 InterpolationEnd `}`
+5:53 InterpolatedStringEnd `"`
+5:54 InterpolationEnd `}`
+5:55 InterpolatedStringEnd `"`
+5:56 InterpolationEnd `}`
+5:57 InterpolatedStringEnd `"`
+5:58 InterpolationEnd `}`
+5:59 InterpolatedStringEnd `"`
+5:60 InterpolationEnd `}`
+5:61 InterpolatedStringEnd `"`
+5:62 InterpolationEnd `}`
+5:63 InterpolatedStringEnd `"`
+5:64 InterpolationEnd `}`
+5:65 InterpolatedStringEnd `"`
+5:66 InterpolationEnd `}`
+5:67 InterpolatedStringEnd `"`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringEnd `"`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringEnd `"`
+5:72 CloseBrace `}`
+5:73 StringLiteral `" 'x`
+7:2 CloseBrace `}`
+7:4 Identifier `here`
+7:8 StringLiteral `"`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `open `
+8:8 InterpolationStart `{`
+8:9 Identifier `x`
+8:10 StringLiteral `";`
+10:1 IntegerLiteral `0b__`
+11:2 InterpolationEnd `}`
+11:3 InterpolatedStringEnd `"`
+11:5 InterpolatedStringStart `$"`
+11:7 InterpolatedStringText `a `
+11:9 InterpolationStart `{`
+11:10 Identifier `f`
+11:11 OpenParen `(`
+11:12 InterpolatedStringStart `$"`
+11:14 InterpolatedStringText `b `
+11:16 InterpolationStart `{`
+11:17 Identifier `c`
+11:18 InterpolationEnd `}`
+11:19 InterpolatedStringEnd `"`
+11:20 CloseParen `)`
+11:21 InterpolationEnd `}`
+11:22 InterpolatedStringText ` d`
+11:24 InterpolatedStringEnd `"`
+11:26 InterpolatedStringStart `$"`
+11:28 InterpolatedStringText `{{literal}}`
+11:39 InterpolatedStringEnd `"`
+11:41 InterpolatedStringStart `$"`
+11:43 InterpolationStart `{`
+11:44 Identifier `Point`
+11:50 OpenBrace `{`
+11:52 Identifier `x`
+11:54 Equals `=`
+11:56 IntegerLiteral `1`
+11:58 CloseBrace `}`
+11:59 InterpolationEnd `}`
+11:60 InterpolatedStringEnd
+11:60 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  ��
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 'x
+    │                                                                         ^^^^ string ends at
+    │                                                                              the end of the
+    │                                                                              line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │  } here"
+    │        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  8 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  10 │ 0b__
+     │ ^^^^
+
+error BYN0003: unterminated string literal
+
+  11 │  }" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}
+     │                                         ^^ this string never ends
+     │
+  help: close it with `"`

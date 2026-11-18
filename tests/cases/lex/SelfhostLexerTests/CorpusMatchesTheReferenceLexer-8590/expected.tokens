@@ -1,0 +1,51 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+    doc `/// Doc li�e one.\r`
+5:1 StructKeyword `struct`
+5:8 UniqueKeyword `unique`
+5:15 UnionKeyword `union`
+5:21 EnumKeyword `enum`
+5:26 FlagsKeyword `flags`
+5:32 OpenKeyword `open`
+5:37 ExtensibleKeyword `extensible`
+5:48 InterfaceKeyword `interface`
+5:58 DelegateKeyword `delegate`
+5:67 ExtensionKeyword `extension`
+5:77 DerivationKeyword `derivation`
+5:88 AttributeKeyword `attribute`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:10 Equals `=`
+6:12 IntegerLiteral `2`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  3 │ /// Doc li�e one.
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  5 │ struct unique union enum flags open extensible interface� delegate extension derivation attribute
+    │                                                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8E)
+
+  6 │ let café =� 2
+    │           ^

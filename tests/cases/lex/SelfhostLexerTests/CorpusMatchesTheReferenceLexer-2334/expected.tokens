@@ -1,0 +1,147 @@
+1:1 Identifier `ạ̇`
+3:1 CharLiteral `'ab'`
+4:1 CharLiteral `'\q'`
+4:6 CharLiteral `'\u{D800}'`
+5:1 CharLiteral `'\u{110000}'`
+6:1 CharLiteral `'x`
+7:2 OrKeyword `or`
+7:5 Equals `=`
+7:6 IntegerLiteral `1`
+8:1 LetKeyword `let`
+8:5 EffectKeyword `effect`
+8:12 Equals `=`
+8:14 IntegerLiteral `2`
+9:2 InterpolatedStringStart `$"`
+9:4 InterpolationStart `{`
+9:5 InterpolatedStringStart `$"`
+9:7 InterpolationStart `{`
+9:8 InterpolatedStringStart `$"`
+9:10 InterpolationStart `{`
+9:11 InterpolatedStringStart `$"`
+9:13 InterpolationStart `{`
+9:14 InterpolatedStringStart `$"`
+9:16 InterpolationStart `{`
+9:17 InterpolatedStringStart `$"`
+9:19 InterpolationStart `{`
+9:20 InterpolatedStringStart `$"`
+9:22 InterpolationStart `{`
+9:23 InterpolatedStringStart `$"`
+9:25 InterpolationStart `{`
+9:26 InterpolatedStringStart `$"`
+9:28 InterpolationStart `{`
+9:29 InterpolatedStringStart `$"`
+9:31 InterpolationStart `{`
+9:32 InterpolatedStringStart `$"`
+9:34 InterpolationStart `{`
+9:35 InterpolatedStringStart `$"`
+9:37 InterpolationStart `{`
+9:38 InterpolatedStringStart `$"`
+9:40 InterpolationStart `{`
+9:41 InterpolatedStringStart `$"`
+9:43 InterpolationStart `{`
+9:44 InterpolatedStringStart `$"`
+9:46 InterpolationStart `{`
+9:47 InterpolatedStringStart `$"`
+9:49 InterpolationStart `{`
+9:50 StringLiteral `$"{x}"`
+9:56 InterpolationEnd `}`
+9:57 InterpolatedStringEnd `"`
+9:58 InterpolationEnd `}`
+9:59 InterpolatedStringEnd `"`
+9:60 InterpolationEnd `}`
+9:61 InterpolatedStringEnd `"`
+9:62 InterpolationEnd `}`
+9:63 InterpolatedStringEnd `"`
+9:64 InterpolationEnd `}`
+9:65 InterpolatedStringEnd `"`
+9:66 InterpolationEnd `}`
+9:67 InterpolatedStringEnd `"`
+9:68 InterpolationEnd `}`
+9:69 InterpolatedStringEnd `"`
+9:70 InterpolationEnd `}`
+9:71 InterpolatedStringEnd `"`
+9:72 InterpolationEnd `}`
+9:73 InterpolatedStringEnd `"`
+9:74 InterpolationEnd `}`
+9:75 InterpolatedStringEnd `"`
+9:76 InterpolationEnd `}`
+9:77 InterpolatedStringEnd `"`
+9:78 InterpolationEnd `}`
+9:79 InterpolatedStringEnd `"`
+9:80 InterpolationEnd `}`
+9:81 InterpolatedStringEnd `"`
+9:82 InterpolationEnd `}`
+9:83 InterpolatedStringEnd `"`
+9:84 InterpolationEnd `}`
+9:85 InterpolatedStringEnd `"`
+9:86 InterpolationEnd `}`
+9:87 InterpolatedStringEnd `"`
+9:89 IntegerLiteral `0b1`
+9:92 NumericSuffix `ms`
+11:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇
+    │   │ ++
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\q'�'\u{D800}'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  4 │ '\q'�'\u{D800}'
+    │     ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\q'�'\u{D800}'
+    │       ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  5 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\`
+
+  9 │ \$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 0b1ms
+    │ ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ \$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 0b1ms
+    │                                                  ^^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  9 │ \$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 0b1ms
+    │                                                                                            ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

@@ -1,0 +1,44 @@
+1:1 OpenBrace `{`
+1:3 IntegerLiteral `0b__`
+3:1 Identifier `b`
+5:1 StructKeyword `struct`
+5:8 UniqueKeyword `unique`
+5:15 UnionKeyword `union`
+5:21 EnumKeyword `enum`
+5:26 FlagsKeyword `flags`
+5:32 OpenKeyword `open`
+5:37 ExtensibleKeyword `extensible`
+5:48 InterfaceKeyword `interface`
+5:58 DelegateKeyword `delegate`
+5:67 ExtensionKeyword `extension`
+5:77 DerivationKeyword `derivation`
+5:88 AttributeKeyword `attribute`
+7:1 Identifier `각`
+7:5 CharLiteral `'\q'`
+8:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ { 0b__
+    │   ^^^^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  7 │ 각�'\q'
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ 각�'\q'
+    │   │ +
+
+error BYN0002: unexpected character `\u{0}`
+
+  7 │ 각�'\q'
+    │    ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │ 각�'\q'
+    │      ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

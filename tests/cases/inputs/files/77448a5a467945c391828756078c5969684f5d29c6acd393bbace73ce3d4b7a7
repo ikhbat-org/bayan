@@ -1,0 +1,4 @@
+test assert property fuzz model foreach new goto
+ e
+let b = "bad \q escape"
+

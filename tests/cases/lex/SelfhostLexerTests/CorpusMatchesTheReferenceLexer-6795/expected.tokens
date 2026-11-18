@@ -1,0 +1,55 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+2:1 Identifier `S`
+2:2 Equals `=`
+2:4 MinusEquals `-=`
+2:7 StarEquals `*=`
+2:10 SlashEquals `/=`
+2:13 PercentEquals `%=`
+2:16 AmpEquals `&=`
+2:19 BarEquals `|=`
+2:22 CaretEquals `^=`
+2:25 LessLessEquals `<<=`
+4:1 StringLiteral `"a\u{2067}b"`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolationEnd `}`
+4:14 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // comment � hidden
+    │   │            -
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ "a�b" ��� $"{}"
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ "a�b" ��� $"{}"
+    │   │       -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ "a�b" ��� $"{}"
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ "a�b" ��� $"{}"
+    │         ^

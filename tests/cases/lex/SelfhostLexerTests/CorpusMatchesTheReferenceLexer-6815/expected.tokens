@@ -1,0 +1,14 @@
+1:2 Equals `=`
+2:1 StringLiteral `"a\u{2067}b"`
+2:6 CloseBrace `}`
+2:8 Identifier `d`
+2:9 StringLiteral `" $"`
+2:13 OpenBrace `{`
+2:14 Identifier `literal`
+2:21 CloseBrace `}`
+2:23 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ "a�b"} d" $"{literal}� 
+    │                      ^

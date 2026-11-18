@@ -1,0 +1,3 @@
+== expr.probes.i4
+interpolated:string[3496:7]=-(v:local:List<i64>[3499:2]=-(xs))
+BYN2225 146:17 `List<i64>` cannot be formatted |||

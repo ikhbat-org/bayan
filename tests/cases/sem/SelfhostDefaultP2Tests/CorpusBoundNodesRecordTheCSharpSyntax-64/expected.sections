@@ -1,0 +1,29 @@
+== tests/cases/run/for-dyn-ref-array.byn
+174..216 globalStatement
+174..216 localDecl
+190..216 collectionExpr
+191..202 structLiteralExpr
+199..200 literalExpr integer
+204..215 structLiteralExpr
+212..213 literalExpr integer
+217..228 localDecl
+227..228 literalExpr integer
+229..289 forStmt
+263..265 nameExpr
+266..289 blockStmt
+272..287 assignStmt add target 272..275 value 279..287
+272..275 nameExpr
+279..287 callExpr
+279..280 nameExpr
+290..305 exprStmt
+290..305 callExpr
+296..304 interpolatedExpr
+299..302 nameExpr
+290..305 callExpr
+165..170 binaryExpr mul right 169..170
+165..170 binaryExpr mul right 169..170
+165..170 binaryExpr mul right 169..170
+165..166 nameExpr
+165..166 nameExpr
+169..170 nameExpr
+169..170 nameExpr

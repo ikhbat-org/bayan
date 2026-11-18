@@ -1,0 +1,63 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:2 Identifier `tor`
+3:6 Equals `=`
+3:8 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 EffectKeyword `effect`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 BecomeKeyword `become`
+6:1 IntegerLiteral `0b1`
+6:4 NumericSuffix `ms`
+8:1 LetKeyword `let`
+8:5 Identifier `b`
+8:7 Equals `=`
+8:9 StringLiteral `"bad \q escape"`
+9:1 Identifier `_`
+9:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  6 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0006: invalid escape sequence `\q`
+
+  8 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

@@ -1,0 +1,26 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  4 │ �//// not a doc c7omment
+    │ ^

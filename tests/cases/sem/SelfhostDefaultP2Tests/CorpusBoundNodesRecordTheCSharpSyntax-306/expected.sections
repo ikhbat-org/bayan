@@ -1,0 +1,511 @@
+== tests/cases/run/suq-packing.byn
+521..711 switchExpr
+521..711 switchExpr
+521..711 switchExpr
+521..522 nameExpr
+536..537 constantPattern
+536..537 literalExpr integer
+541..589 structLiteralExpr
+557..560 literalExpr string
+572..576 literalExpr integer
+584..587 literalExpr integer
+595..596 constantPattern
+595..596 literalExpr integer
+600..648 structLiteralExpr
+616..619 literalExpr string
+631..635 literalExpr integer
+643..646 literalExpr integer
+654..655 discardPattern
+659..708 structLiteralExpr
+675..678 literalExpr string
+690..695 literalExpr integer
+703..706 literalExpr integer
+913..1025 blockStmt
+919..1009 forStmt
+928..932 rangeExpr
+928..929 literalExpr integer
+931..932 literalExpr integer
+933..1009 blockStmt
+943..1003 guardedStmt
+955..1003 binaryExpr ge right 998..1003
+955..994 binaryExpr sub right 978..994
+955..975 memberExpr
+955..966 callExpr
+964..965 nameExpr
+964..965 nameExpr
+978..994 memberExpr
+978..989 callExpr
+987..988 nameExpr
+987..988 nameExpr
+998..1003 nameExpr
+943..951 returnStmt value 950..951
+950..951 nameExpr
+1014..1023 returnStmt value 1021..1023
+1021..1023 unaryExpr negate operand 1022..1023
+1361..2345 blockStmt
+1367..1387 localDecl
+1375..1387 memberExpr
+1375..1380 nameExpr
+1392..1439 forStmt
+1401..1405 rangeExpr
+1401..1402 literalExpr integer
+1404..1405 nameExpr
+1406..1439 blockStmt
+1416..1433 assignStmt assign target 1416..1424 value 1427..1433
+1416..1424 indexExpr
+1416..1421 nameExpr
+1422..1423 nameExpr
+1427..1433 callExpr
+1431..1432 nameExpr
+1510..1749 forStmt
+1519..1523 rangeExpr
+1519..1520 literalExpr integer
+1522..1523 nameExpr
+1524..1749 blockStmt
+1534..1556 localDecl
+1548..1556 indexExpr
+1548..1553 nameExpr
+1554..1555 nameExpr
+1565..1574 localDecl
+1573..1574 nameExpr
+1583..1716 whileStmt
+1589..1646 binaryExpr logicalAnd right 1598..1646
+1589..1594 binaryExpr gt right 1593..1594
+1589..1590 nameExpr
+1593..1594 literalExpr integer
+1598..1646 binaryExpr lt right 1626..1646
+1598..1623 memberExpr
+1598..1617 indexExpr
+1598..1603 nameExpr
+1604..1616 indexExpr
+1604..1616 indexExpr
+1604..1609 nameExpr
+1610..1615 binaryExpr sub right 1614..1615
+1610..1611 nameExpr
+1614..1615 literalExpr integer
+1626..1646 memberExpr
+1626..1640 indexExpr
+1626..1631 nameExpr
+1632..1639 nameExpr
+1632..1639 nameExpr
+1647..1716 blockStmt
+1661..1684 assignStmt assign target 1661..1669 value 1672..1684
+1661..1669 indexExpr
+1661..1666 nameExpr
+1667..1668 nameExpr
+1672..1684 indexExpr
+1672..1677 nameExpr
+1678..1683 binaryExpr sub right 1682..1683
+1678..1679 nameExpr
+1682..1683 literalExpr integer
+1697..1706 assignStmt assign target 1697..1698 value 1701..1706
+1697..1698 nameExpr
+1701..1706 binaryExpr sub right 1705..1706
+1701..1702 nameExpr
+1705..1706 literalExpr integer
+1725..1743 assignStmt assign target 1725..1733 value 1736..1743
+1725..1733 indexExpr
+1725..1730 nameExpr
+1731..1732 nameExpr
+1736..1743 nameExpr
+1755..1768 localDecl
+1767..1768 literalExpr integer
+1773..2326 forStmt
+1782..1786 rangeExpr
+1782..1783 literalExpr integer
+1785..1786 nameExpr
+1787..2326 blockStmt
+1797..1813 localDecl
+1805..1813 indexExpr
+1805..1810 nameExpr
+1811..1812 nameExpr
+1822..1848 localDecl
+1834..1848 memberExpr
+1834..1842 indexExpr
+1834..1839 nameExpr
+1840..1841 nameExpr
+1840..1841 nameExpr
+1857..1890 localDecl
+1868..1890 callExpr
+1884..1889 nameExpr
+1899..1925 guardedStmt
+1917..1925 binaryExpr lt right 1924..1925
+1917..1921 nameExpr
+1924..1925 literalExpr integer
+1899..1903 failStmt
+1904..1913 targetMemberExpr
+1934..1946 localDecl
+1944..1946 unaryExpr negate operand 1945..1946
+1955..2108 forStmt
+1964..1972 rangeExpr
+1964..1965 literalExpr integer
+1967..1972 nameExpr
+1973..2108 blockStmt
+1987..2098 ifStmt
+1990..2058 binaryExpr logicalAnd right 2001..2058
+1990..1997 binaryExpr lt right 1996..1997
+1990..1993 nameExpr
+1996..1997 literalExpr integer
+2001..2058 binaryExpr le right 2026..2058
+2001..2022 binaryExpr add right 2017..2022
+2001..2014 memberExpr
+2001..2009 indexExpr
+2001..2006 nameExpr
+2007..2008 nameExpr
+2007..2008 nameExpr
+2017..2022 nameExpr
+2026..2058 memberExpr
+2026..2049 callExpr
+2035..2048 memberExpr
+2035..2048 memberExpr
+2035..2043 indexExpr
+2035..2040 nameExpr
+2041..2042 nameExpr
+2041..2042 nameExpr
+2059..2098 blockStmt
+2077..2084 assignStmt assign target 2077..2080 value 2083..2084
+2077..2080 nameExpr
+2083..2084 nameExpr
+2117..2270 ifStmt
+2120..2127 binaryExpr lt right 2126..2127
+2120..2123 nameExpr
+2126..2127 literalExpr integer
+2128..2270 blockStmt
+2142..2153 assignStmt assign target 2142..2145 value 2148..2153
+2142..2145 nameExpr
+2148..2153 nameExpr
+2166..2230 assignStmt assign target 2166..2176 value 2179..2230
+2166..2176 indexExpr
+2166..2171 nameExpr
+2172..2175 nameExpr
+2172..2175 nameExpr
+2179..2230 structLiteralExpr
+2197..2201 nameExpr
+2209..2228 memberExpr
+2209..2223 callExpr
+2218..2222 nameExpr
+2218..2222 nameExpr
+2243..2260 assignStmt assign target 2243..2248 value 2251..2260
+2243..2248 nameExpr
+2251..2260 binaryExpr add right 2259..2260
+2251..2256 nameExpr
+2259..2260 literalExpr integer
+2279..2320 assignStmt assign target 2279..2294 value 2297..2320
+2279..2294 memberExpr
+2279..2289 indexExpr
+2279..2284 nameExpr
+2285..2288 nameExpr
+2285..2288 nameExpr
+2297..2320 binaryExpr add right 2315..2320
+2297..2312 memberExpr
+2297..2307 indexExpr
+2297..2302 nameExpr
+2303..2306 nameExpr
+2303..2306 nameExpr
+2315..2320 nameExpr
+2331..2343 returnStmt value 2338..2343
+2338..2343 nameExpr
+2463..2782 blockStmt
+2469..2527 forStmt
+2478..2493 rangeExpr
+2478..2479 literalExpr integer
+2481..2493 memberExpr
+2481..2486 nameExpr
+2494..2527 blockStmt
+2504..2521 assignStmt assign target 2504..2512 value 2515..2521
+2504..2512 indexExpr
+2504..2509 nameExpr
+2510..2511 nameExpr
+2515..2521 callExpr
+2519..2520 nameExpr
+2532..2780 forStmt
+2541..2556 rangeExpr
+2541..2542 literalExpr integer
+2544..2556 memberExpr
+2544..2549 nameExpr
+2557..2780 blockStmt
+2567..2589 localDecl
+2581..2589 indexExpr
+2581..2586 nameExpr
+2587..2588 nameExpr
+2598..2607 localDecl
+2606..2607 nameExpr
+2616..2747 whileStmt
+2622..2677 binaryExpr logicalAnd right 2631..2677
+2622..2627 binaryExpr gt right 2626..2627
+2622..2623 nameExpr
+2626..2627 literalExpr integer
+2631..2677 callExpr
+2631..2650 indexExpr
+2631..2636 nameExpr
+2637..2649 indexExpr
+2637..2649 indexExpr
+2637..2642 nameExpr
+2643..2648 binaryExpr sub right 2647..2648
+2643..2644 nameExpr
+2647..2648 literalExpr integer
+2662..2676 indexExpr
+2662..2667 nameExpr
+2668..2675 nameExpr
+2668..2675 nameExpr
+2678..2747 blockStmt
+2692..2715 assignStmt assign target 2692..2700 value 2703..2715
+2692..2700 indexExpr
+2692..2697 nameExpr
+2698..2699 nameExpr
+2703..2715 indexExpr
+2703..2708 nameExpr
+2709..2714 binaryExpr sub right 2713..2714
+2709..2710 nameExpr
+2713..2714 literalExpr integer
+2728..2737 assignStmt assign target 2728..2729 value 2732..2737
+2728..2729 nameExpr
+2732..2737 binaryExpr sub right 2736..2737
+2732..2733 nameExpr
+2736..2737 literalExpr integer
+2756..2774 assignStmt assign target 2756..2764 value 2767..2774
+2756..2764 indexExpr
+2756..2761 nameExpr
+2762..2763 nameExpr
+2767..2774 nameExpr
+2903..3019 blockStmt
+2909..2932 localDecl
+2922..2932 literalExpr integer
+2937..2995 forStmt
+2946..2950 nameExpr
+2951..2995 blockStmt
+2961..2989 assignStmt assign target 2961..2962 value 2965..2989
+2961..2962 nameExpr
+2965..2989 binaryExpr mulWrap right 2981..2989
+2966..2976 binaryExpr bitXor right 2970..2976
+2966..2967 nameExpr
+2970..2976 callExpr
+2974..2975 nameExpr
+2981..2989 literalExpr integer
+3000..3017 returnStmt value 3007..3017
+3007..3017 callExpr
+3010..3016 binaryExpr rem right 3014..3016
+3010..3011 nameExpr
+3014..3016 literalExpr integer
+3079..3444 blockStmt
+3085..3126 localDecl
+3108..3126 stackallocExpr
+3131..3184 localDecl
+3160..3184 stackallocExpr
+3189..3298 localDecl
+3201..3298 catchExpr
+3201..3234 callExpr
+3206..3211 nameExpr
+3217..3222 nameExpr
+3228..3233 nameExpr
+3241..3298 blockExpr
+3241..3298 blockStmt
+3251..3277 exprStmt
+3251..3277 callExpr
+3257..3276 interpolatedExpr
+3260..3264 nameExpr
+3251..3277 callExpr
+3286..3292 returnStmt
+3303..3334 exprStmt
+3303..3334 callExpr
+3309..3333 interpolatedExpr
+3312..3316 nameExpr
+3320..3325 nameExpr
+3303..3334 callExpr
+3339..3442 forStmt
+3348..3356 rangeExpr
+3348..3349 literalExpr integer
+3351..3356 nameExpr
+3357..3442 blockStmt
+3367..3436 exprStmt
+3367..3436 callExpr
+3373..3435 interpolatedExpr
+3382..3383 nameExpr
+3387..3415 memberExpr
+3387..3410 callExpr
+3396..3409 memberExpr
+3396..3409 memberExpr
+3396..3404 indexExpr
+3396..3401 nameExpr
+3402..3403 nameExpr
+3402..3403 nameExpr
+3418..3431 memberExpr
+3418..3426 indexExpr
+3418..3423 nameExpr
+3424..3425 nameExpr
+3424..3425 nameExpr
+3367..3436 callExpr
+3446..3670 globalStatement
+3446..3670 localDecl
+3474..3670 collectionExpr
+3480..3539 structLiteralExpr
+3496..3506 literalExpr string
+3515..3519 literalExpr integer
+3528..3529 literalExpr integer
+3536..3537 literalExpr integer
+3545..3603 structLiteralExpr
+3561..3571 literalExpr string
+3580..3583 literalExpr integer
+3592..3593 literalExpr integer
+3600..3601 literalExpr integer
+3609..3667 structLiteralExpr
+3625..3635 literalExpr string
+3644..3647 literalExpr integer
+3656..3657 literalExpr integer
+3664..3665 literalExpr integer
+3671..3759 localDecl
+3697..3759 collectionExpr
+3698..3758 structLiteralExpr
+3714..3724 literalExpr string
+3733..3738 literalExpr integer
+3747..3748 literalExpr integer
+3755..3756 literalExpr integer
+3761..3792 localDecl
+3790..3792 collectionExpr
+3793..3935 forStmt
+3802..3807 rangeExpr
+3802..3803 literalExpr integer
+3805..3807 literalExpr integer
+3808..3935 blockStmt
+3814..3933 exprStmt
+3814..3933 callExpr
+3814..3820 nameExpr
+3828..3932 structLiteralExpr
+3844..3861 interpolatedExpr
+3851..3859 binaryExpr add right 3858..3859
+3851..3855 literalExpr integer
+3858..3859 nameExpr
+3870..3890 binaryExpr add right 3876..3890
+3870..3890 binaryExpr add right 3876..3890
+3870..3873 literalExpr integer
+3876..3890 binaryExpr rem right 3887..3890
+3877..3883 binaryExpr mul right 3881..3883
+3877..3878 nameExpr
+3881..3883 literalExpr integer
+3887..3890 literalExpr integer
+3899..3912 callExpr
+3902..3911 binaryExpr add right 3906..3911
+3902..3903 literalExpr integer
+3906..3911 binaryExpr rem right 3910..3911
+3906..3907 nameExpr
+3910..3911 literalExpr integer
+3919..3930 callExpr
+3923..3929 binaryExpr rem right 3927..3929
+3923..3924 nameExpr
+3927..3929 literalExpr integer
+3937..3968 exprStmt
+3937..3968 callExpr
+3944..3954 memberExpr
+3944..3949 nameExpr
+3960..3967 literalExpr string
+3969..3996 exprStmt
+3969..3996 callExpr
+3976..3984 memberExpr
+3976..3979 nameExpr
+3990..3995 literalExpr string
+3997..4030 exprStmt
+3997..4030 callExpr
+4004..4015 memberExpr
+4004..4010 nameExpr
+4021..4029 literalExpr string
+4032..4073 localDecl
+4055..4073 stackallocExpr
+4074..4107 exprStmt
+4074..4107 callExpr
+4084..4095 memberExpr
+4084..4090 nameExpr
+4101..4106 nameExpr
+4108..4128 localDecl
+4120..4128 callExpr
+4129..4207 forStmt
+4138..4142 rangeExpr
+4138..4139 literalExpr integer
+4141..4142 literalExpr integer
+4143..4207 blockStmt
+4149..4166 exprStmt
+4149..4166 callExpr
+4149..4154 nameExpr
+4162..4165 literalExpr string
+4171..4205 exprStmt
+4171..4205 callExpr
+4171..4176 nameExpr
+4184..4204 memberExpr
+4184..4200 indexExpr
+4184..4190 nameExpr
+4191..4199 indexExpr
+4191..4199 indexExpr
+4191..4196 nameExpr
+4197..4198 nameExpr
+4197..4198 nameExpr
+4208..4246 exprStmt
+4208..4246 callExpr
+4214..4245 interpolatedExpr
+4229..4243 callExpr
+4229..4234 nameExpr
+4208..4246 callExpr
+4248..4321 exprStmt
+4248..4321 callExpr
+4254..4320 interpolatedExpr
+4284..4318 callExpr
+4302..4317 literalExpr string
+4248..4321 callExpr
+4322..4381 exprStmt
+4322..4381 callExpr
+4328..4380 interpolatedExpr
+4351..4378 callExpr
+4369..4377 literalExpr string
+4322..4381 callExpr
+4382..4402 localDecl
+4397..4402 literalExpr integer
+4403..4417 assignStmt assign target 4403..4406 value 4409..4417
+4403..4406 nameExpr
+4409..4417 binaryExpr addWrap right 4416..4417
+4409..4412 nameExpr
+4416..4417 literalExpr integer
+4418..4432 assignStmt assign target 4418..4421 value 4424..4432
+4418..4421 nameExpr
+4424..4432 binaryExpr addWrap right 4431..4432
+4424..4427 nameExpr
+4431..4432 literalExpr integer
+4433..4467 exprStmt
+4433..4467 callExpr
+4439..4466 interpolatedExpr
+4461..4464 nameExpr
+4433..4467 callExpr
+4468..4487 localDecl
+4484..4487 literalExpr integer
+4488..4539 exprStmt
+4488..4539 callExpr
+4494..4538 interpolatedExpr
+4525..4536 binaryExpr subSat right 4533..4536
+4525..4529 nameExpr
+4533..4536 literalExpr integer
+4488..4539 callExpr
+4540..4565 localDecl
+4562..4565 literalExpr integer
+4566..4623 exprStmt
+4566..4623 callExpr
+4572..4622 interpolatedExpr
+4603..4620 binaryExpr subSat right 4617..4620
+4603..4613 nameExpr
+4617..4620 literalExpr integer
+4566..4623 callExpr
+332..396 binaryExpr logicalOr right 355..396
+332..396 binaryExpr logicalOr right 355..396
+332..396 binaryExpr logicalOr right 355..396
+332..351 binaryExpr gt right 340..351
+332..337 nameExpr
+332..337 nameExpr
+340..351 memberExpr
+340..345 nameExpr
+356..395 binaryExpr logicalAnd right 380..395
+356..376 binaryExpr eq right 365..376
+356..361 nameExpr
+356..361 nameExpr
+365..376 memberExpr
+365..370 nameExpr
+380..395 binaryExpr gt right 386..395
+380..383 nameExpr
+380..383 nameExpr
+386..395 memberExpr
+386..391 nameExpr

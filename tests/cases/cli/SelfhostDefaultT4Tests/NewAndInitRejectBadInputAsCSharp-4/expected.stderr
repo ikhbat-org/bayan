@@ -1,0 +1,2 @@
+bayan: `struct` is a keyword, so `import struct` couldn't name the library
+  help: pick another name, e.g. `struct-lib`

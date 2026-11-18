@@ -1,0 +1,6 @@
+== s66
+switchExpr|i32|5038:47
+value local:NetError=ne
+arm 5050:25 bindPattern[5050:20]:NetError(-) guard - value local:?=k
+arm 5077:6 bindPattern[5077:1]:NetError_(-) guard - value literal:i32=0
+BYN2228 137:36 `nope` is not a variant of `NetError` |||

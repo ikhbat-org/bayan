@@ -1,0 +1,4 @@
+--color=never
+build
+--emit-c
+input.byn

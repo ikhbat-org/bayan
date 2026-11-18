@@ -1,0 +1,31 @@
+1:1 OpenBrace `{`
+1:3 Slash `/`
+1:5 Slash `/`
+1:7 Identifier `comment`
+1:17 Identifier `idde`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE6)
+
+  1 │ { /�/ comment � �idde�
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ { /�/ comment � �idde�
+    │               ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ { /�/ comment � �idde�
+    │   │               -
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ { /�/ comment � �idde�
+    │                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  1 │ { /�/ comment � �idde�
+    │                      ^

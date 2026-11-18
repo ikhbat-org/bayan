@@ -1,0 +1,9 @@
+"
+let actor = 1
+& && | || ^ ~ ! = == != < <= > >= << >> >>=
+
+struct S
+/// Doc line two.
+ let a = $ 1
+   raK "quoted"
+

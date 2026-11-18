@@ -1,0 +1,10 @@
+error BYN2802: `A.area` is `static i64 area()` but `IShape` requires `i64 area()`
+  --> input.byn:6:16
+
+  6 │     static i64 area() => 1
+    │                ^^^^ does not match `IShape`
+    │
+  help: change the signature to `i64 area()`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2802

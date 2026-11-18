@@ -1,0 +1,145 @@
+1:1 CloseBrace `}`
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `stray } here`
+1:16 InterpolatedStringEnd `"`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 CharLiteral `''`
+5:1 StringLiteral `"total {x}"`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolatedStringText `a4var xs: List<Li�st<i64>>`
+5:41 InterpolatedStringEnd
+6:2 LetKeyword `let`
+6:6 Identifier `s`
+6:8 Equals `=`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolatedStringText `�`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 InterpolatedStringStart `$"`
+6:51 InterpolationStart `{`
+6:52 InterpolatedStringStart `$"`
+6:54 InterpolationStart `{`
+6:55 InterpolatedStringStart `$"`
+6:57 InterpolationStart `{`
+6:58 StringLiteral `$"{$"`
+6:63 OpenBrace `{`
+6:64 StringLiteral `$"{$"`
+6:69 OpenBrace `{`
+6:70 Identifier `x`
+6:71 CloseBrace `}`
+6:72 StringLiteral `"}"`
+6:75 CloseBrace `}`
+6:76 StringLiteral `"}"`
+6:79 InterpolationEnd `}`
+6:80 InterpolatedStringEnd `"`
+6:81 InterpolationEnd `}`
+6:82 InterpolatedStringEnd `"`
+6:83 InterpolationEnd `}`
+6:84 InterpolatedStringEnd `"`
+6:85 InterpolationEnd `}`
+6:86 InterpolatedStringEnd `"`
+6:87 InterpolationEnd `}`
+6:88 InterpolatedStringEnd `"`
+6:89 InterpolationEnd `}`
+6:90 InterpolatedStringEnd `"`
+6:91 InterpolationEnd `}`
+6:92 InterpolatedStringEnd `"`
+6:93 InterpolationEnd `}`
+6:94 InterpolatedStringEnd `"`
+6:95 InterpolationEnd `}`
+6:96 InterpolatedStringEnd `"`
+6:97 InterpolationEnd `}`
+6:98 InterpolatedStringEnd `"`
+6:99 InterpolationEnd `}`
+6:100 InterpolatedStringEnd `"`
+6:101 InterpolationEnd `}`
+6:102 InterpolatedStringEnd `"`
+6:103 InterpolationEnd `}`
+6:104 InterpolatedStringEnd `"`
+6:105 InterpolationEnd `}`
+6:106 InterpolatedStringEnd `"`
+6:107 InterpolationEnd `}`
+6:108 InterpolatedStringEnd `"`
+6:109 InterpolationEnd `}`
+6:110 InterpolatedStringEnd `"`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `x`
+7:4 InterpolationStart `{`
+7:6 InterpolatedStringStart `$"`
+7:8 InterpolationStart `{`
+8:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ }$"stray } here"
+    │          ^
+    │
+    │ 1 │ }$"stray }} here"
+    │   │           +
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0007: empty char literal
+
+  4 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  5 │ "total {x}" $"a4var xs: List<Li�st<i64>>
+    │             ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  5 │ "total {x}" $"a4var xs: List<Li�st<i64>>
+    │                                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  6 │  let s = $"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                 ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │  let s = $"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                           ^^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

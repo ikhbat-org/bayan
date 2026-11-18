@@ -1,0 +1,4 @@
+== member.probes.-.v30
+errorExpr|?|-|-|-|-|-|3151:7|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2704 158:18 the payload of a `Blob` is read with a pattern, not `.size` ||match the variant and bind the field, as in `case .Variant(let x):`|

@@ -1,0 +1,76 @@
+1:1 Identifier `ault`
+1:6 ForKeyword `for`
+1:10 InKeyword `in`
+1:13 Identifier `wh`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolatedStringText `total `
+2:11 InterpolationStart `{`
+2:12 Identifier `x`
+2:13 InterpolationEnd `}`
+2:14 InterpolatedStringEnd `"`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolatedStringText `a `
+2:20 InterpolationStart `{`
+2:21 Identifier `f`
+2:22 OpenParen `(`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolatedStringText `b `
+2:27 InterpolationStart `{`
+2:28 Identifier `c`
+2:29 InterpolationEnd `}`
+2:30 InterpolatedStringEnd `"`
+2:31 CloseParen `)`
+2:32 InterpolationEnd `}`
+2:33 InterpolatedStringText ` d`
+2:35 InterpolatedStringEnd `"`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolatedStringText `{{literal}}`
+2:50 InterpolatedStringEnd `"`
+2:52 InterpolatedStringStart `$"`
+2:54 InterpolationStart `{`
+2:55 Identifier `Point`
+2:61 OpenBrace `{`
+2:63 Identifier `x`
+2:65 Equals `=`
+2:67 IntegerLiteral `1`
+2:69 CloseBrace `}`
+2:70 InterpolationEnd `}`
+2:71 InterpolatedStringText `!`
+2:72 InterpolatedStringEnd `"`
+2:74 InterpolatedStringStart `$"`
+2:76 InterpolatedStringEnd `"`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 IntegerLiteral `3`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ ���� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ ���� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ // comment � hidden
+    │   │            -

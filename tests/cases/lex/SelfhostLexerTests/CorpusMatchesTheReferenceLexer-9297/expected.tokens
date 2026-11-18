@@ -1,0 +1,37 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 PlusPlus `++`
+2:32 MinusMinus `--`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quoted"`
+4:2 Identifier `a`
+6:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+
+error BYN0004: unterminated block comment
+
+  4 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

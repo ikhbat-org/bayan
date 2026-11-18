@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/function-type-unknown-effect.byn
+--package
+<repo>/tests/cases/diag

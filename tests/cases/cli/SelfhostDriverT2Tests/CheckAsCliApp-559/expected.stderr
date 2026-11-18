@@ -1,0 +1,10 @@
+error BYN1015: C-style `for` loops do not exist in Bayan
+  --> <repo>/tmp/t2/diag/c-style-for/c-style-for.byn:2:16
+
+  2 │     for (var i = 0; i < 10; i++) {
+    │                ^ expected `in`
+    │
+  help: loop over a range instead: `for i in 0..n { … }`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1015

@@ -1,0 +1,4 @@
+== diags.diag/unknown-enum-member
+BYN2720 7:15 `gren` is not a member of `Color`
+  help did you mean `green`?
+BYN2720 8:17 `purple` is not a member of `Color`

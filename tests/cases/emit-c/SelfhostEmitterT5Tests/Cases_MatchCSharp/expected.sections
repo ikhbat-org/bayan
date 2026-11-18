@@ -1,0 +1,507 @@
+== cases
+case calls:0:callParts
+  result call(id;-;local(k):i64@627+1;):i64@624+5
+  temps 0
+case calls:1:callParts
+  result call(pair;-;local(temp):i64@648+5;call(id;-;local(k):i64@662+1;):i64@659+5;):i64@643+22
+  out assign(local(temp):i64@648+5;call(id;-;local(k):i64@651+1;):i64@648+5)
+  temps 1
+case calls:2:callParts
+  result call(get;local(temp):main__P@679+4;):i64@679+10
+  out assign(local(temp):main__P@679+4;call(mk;-;):main__P@679+4)
+  temps 1
+case calls:3:callParts
+  result call(get;local(p):main__P@703+1;):i64@703+7
+  temps 0
+case calls:4:callParts
+  result call(invoke;local(fv):fn1_i64_i64@724+2;local(k):i64@727+1;):i64@724+5
+  temps 0
+case calls:5:callParts
+  result call(bump;builtin(mapIndexSet;local(m):map_str_main__P@734+1;sa#k:str@736+3;):main__P@734+6;):void@734+13
+  out expr(builtin(mapIndex;local(m):map_str_main__P@734+1;sa#k:str@736+3;):main__P@734+6)
+  temps 0
+case calls:6:callParts
+  result call(bump;local(p):main__P@752+1;):void@752+8
+  temps 0
+case calls:8:callParts
+  result call(inc;-;local(kk):i64@788+2;):void@780+11
+  temps 0
+case calls:9:callParts
+  result call(get;local(temp):main__P@805+15;):i64@805+21
+  out assign(local(temp):main__P@805+15;builtin(listRemoveLast;local(ps):list_main__P@805+2;):main__P@805+15)
+  temps 1
+case calls:10:callParts
+  result call(add;index(local(ps):list_main__P@831+2;local(k):i64@834+1):main__P@831+5;local(temp):i64@841+5;call(id;-;local(k):i64@855+1;):i64@852+5;):void@831+27
+  out assign(local(temp):i64@841+5;call(id;-;local(k):i64@844+1;):i64@841+5)
+  temps 1
+case builtins:1:builtin
+  result void:void@1013+12
+  out expr(builtin(listAdd;local(xs):list_i64@1013+2;conv(widen;local(k):i32@1023+1):i64@1023+1;):void@1013+12)
+  temps 0
+case builtins:2:builtin
+  result builtin(listRemoveLast;local(xs):list_i64@1038+2;):i64@1038+15
+  temps 0
+case builtins:3:builtin
+  result local(temp):list_i64@1067+2
+  out assign(local(temp):list_i64@1067+2;local(xs):list_i64@1067+2)
+  out assign(local(xs):list_i64@1067+2;default:list_i64@1067+9)
+  temps 1
+case builtins:4:builtin
+  result void:void@1081+19
+  out write(strBuf;local(sb):strbuf@1081+2;t'a',local(k):i32@1095+1,t'b',)
+  temps 0
+case builtins:5:builtin
+  result local(temp):strbuf@1114+2
+  out assign(local(temp):strbuf@1114+2;local(sb):strbuf@1114+2)
+  out assign(local(sb):strbuf@1114+2;call(StrBuf;-;):strbuf@1114+9)
+  temps 1
+case builtins:6:builtin
+  result builtin(strBufAsString;local(sb):strbuf@1136+2;):str@1136+11
+  temps 0
+case builtins:7:builtin
+  result builtin(mapRemove;local(m):map_str_main__P@1161+1;sa#k:str@1170+3;):bool@1161+13
+  temps 0
+case builtins:8:builtin
+  result builtin(mapSlot;local(m):map_str_main__P@1188+1;sq#k:str@1195+3;struct(i0.0#k:i64@23+1;sx#k:str@40+3;):main__P@1188+11;):main__P@1188+11
+  temps 0
+case builtins:9:builtin
+  result builtin(mapSlot;local(mi):map_str_i64@1213+2;sq#k:str@1221+3;default:i64@1213+12;):i64@1213+12
+  temps 0
+case builtins:10:builtin
+  result local(temp):map_str_main__P@1239+1
+  out assign(local(temp):map_str_main__P@1239+1;local(m):map_str_main__P@1239+1)
+  out assign(local(m):map_str_main__P@1239+1;default:map_str_main__P@1239+8)
+  temps 1
+case builtins:11:builtin
+  result builtin(listAsSpan;local(xs):list_i64@1261+2;):span_i64@1261+7
+  temps 0
+case builtins:12:builtin
+  result void:void@1273+16
+  out expr(builtin(listAdd;local(xs):list_i64@1273+2;call(id;-;conv(widen;local(k):i32@1286+1):i64@1286+1;):i64@1283+5;):void@1273+16)
+  temps 0
+case builtins:14:builtin
+  result builtin(listAsSpan;local(temp):list_i64@1353+5;):span_i64@1353+10
+  out assign(local(temp):list_i64@1353+5;call(mkl;-;):list_i64@1353+5)
+  temps 1
+case builtins:15:builtin
+  result builtin(strBufAsString;local(temp):strbuf@1377+6;):str@1377+15
+  out assign(local(temp):strbuf@1377+6;call(mksb;-;):strbuf@1377+6)
+  temps 1
+case builtins:13:switch
+  result local(temp):i32@1303+35
+  out assign(local(temp):i64@1304+5;call(id;-;conv(widen;local(k):i32@1307+1):i64@1307+1;):i64@1304+5)
+  out if(binary(eq;local(temp):i64@1304+5;i1.0#k:i64@1320+1):bool@1320+1;block[assign(local(temp):i32@1320+7;i10.0#k:i32@1325+2) goto(switch_end_1) ])
+  out if(btrue#k:bool@1329+1;block[assign(local(temp):i32@1329+7;i20.0#k:i32@1334+2) goto(switch_end_1) ])
+  out panic(no switch arm matched)
+  out label(switch_end_1)
+  temps 2
+case builtins:16:builtin
+  result void:void@1397+15
+  out expr(builtin(strBufAppend;local(sb):strbuf@1397+2;local(name):str@1407+4;):void@1397+15)
+  temps 0
+case builtins:17:builtin
+  result builtin(listLength;call(mkl;-;):list_i64@1426+5;):i64@1426+12
+  temps 0
+case builtins:18:builtin
+  result void:void@1443+9
+  out expr(builtin(listSort;local(xs):list_i64@1443+2;):void@1443+9)
+  temps 0
+case builtins:19:builtin
+  result void:void@1457+28
+  out expr(builtin(listReplace;local(xs):list_i64@1457+2;bound?:tup3_i64_i64_bool@1472+4;conv(listToSpan;local(xs):list_i64@1482+2):span_i64@1482+2;):void@1457+28)
+  temps 0
+case opts:0:builtin
+  result local(temp):opt_own_main__P@1634+1
+  out assign(local(temp):opt_own_main__P@1634+1;local(o):opt_own_main__P@1634+1)
+  out assign(local(o):opt_own_main__P@1634+1;default:opt_own_main__P@1634+8)
+  temps 1
+case opts:1:builtin
+  result local(temp):list_i64@1656+7
+  out assign(local(temp):list_i64@1656+7;builtin(mapIndex;local(ml):map_str_list_i64@1656+2;sa#k:str@1659+3;):list_i64@1656+7)
+  out assign(builtin(mapIndexSet;local(ml):map_str_list_i64@1656+2;sa#k:str@1659+3;):list_i64@1656+7;default:list_i64@1656+14)
+  temps 1
+case opts:2:builtin
+  result local(temp):opt_own_main__P@1684+12
+  out assign(local(temp):opt_own_main__P@1684+12;builtin(mapSlot;local(mo):map_str_opt_own_main__P@1684+2;sb#k:str@1692+3;default:opt_own_main__P@1684+12;):opt_own_main__P@1684+12)
+  out assign(builtin(mapSlot;local(mo):map_str_opt_own_main__P@1684+2;sb#k:str@1692+3;default:opt_own_main__P@1684+12;):opt_own_main__P@1684+12;default:opt_own_main__P@1684+19)
+  temps 1
+case opts:3:callParts
+  result call(bump;builtin(mapSlot;local(m):map_str_main__P@1708+1;sc#k:str@1715+3;struct(i0.0#k:i64@23+1;sx#k:str@40+3;):main__P@1708+11;):main__P@1708+11;):void@1708+18
+  temps 0
+case compound:0:assign
+  result null
+  out assign(local(temp):i64@1817+7;builtin(mapIndex;local(mi):map_str_i64@1817+2;sa#k:str@1820+3;):i64@1817+7)
+  out assign(builtin(mapIndexSet;local(mi):map_str_i64@1817+2;sa#k:str@1820+3;):i64@1817+7;binary(add;local(temp):i64@1817+7;i1.0#k:i64@1828+1):i64@1817+12)
+  temps 1
+case compound:1:assign
+  result null
+  out assign(local(temp):str@1837+8;call(ids;-;sa#k:str@1841+3;):str@1837+8)
+  out assign(local(temp):i64@1834+12;builtin(mapIndex;local(mi):map_str_i64@1834+2;local(temp):str@1837+8;):i64@1834+12)
+  out assign(builtin(mapIndexSet;local(mi):map_str_i64@1834+2;local(temp):str@1837+8;):i64@1834+12;binary(add;local(temp):i64@1834+12;local(k):i64@1850+1):i64@1834+17)
+  temps 2
+case compound:2:assign
+  result null
+  out assign(local(temp):i64@1859+5;call(id;-;local(k):i64@1862+1;):i64@1859+5)
+  out assign(index(local(xs):list_i64@1856+2;local(temp):i64@1859+5):i64@1856+9;binary(add;index(local(xs):list_i64@1856+2;local(temp):i64@1859+5):i64@1856+9;i1.0#k:i64@1869+1):i64@1856+14)
+  temps 1
+case compound:3:assign
+  result null
+  out assign(index(local(xs):list_i64@1875+2;local(k):i64@1878+1):i64@1875+5;binary(add;index(local(xs):list_i64@1875+2;local(k):i64@1878+1):i64@1875+5;i1.0#k:i64@1884+1):i64@1875+10)
+  temps 0
+case compound:4:assign
+  result null
+  out assign(index(local(xs):list_i64@1890+2;i0.0#k:i64@1893+1):i64@1890+5;i1.0#k:i64@1898+1)
+  temps 0
+case compound:5:assign
+  result null
+  out assign(builtin(mapSlot;local(mi):map_str_i64@1904+2;sd#k:str@1912+3;default:i64@1904+12;):i64@1904+12;binary(add;builtin(mapSlot;local(mi):map_str_i64@1904+2;sd#k:str@1912+3;default:i64@1904+12;):i64@1904+12;i1.0#k:i64@1920+1):i64@1904+17)
+  temps 0
+case compound:6:assign
+  result null
+  out assign(local(temp):str@1934+8;call(ids;-;se#k:str@1938+3;):str@1934+8)
+  out assign(builtin(mapSlot;local(mi):map_str_i64@1926+2;local(temp):str@1934+8;default:i64@1926+17;):i64@1926+17;binary(add;builtin(mapSlot;local(mi):map_str_i64@1926+2;local(temp):str@1934+8;default:i64@1926+17;):i64@1926+17;local(k):i64@1947+1):i64@1926+22)
+  temps 1
+case builtins:2:stable
+  result local(temp):i64@1038+15
+  out assign(local(temp):i64@1038+15;builtin(listRemoveLast;local(xs):list_i64@1038+2;):i64@1038+15)
+  temps 1
+case builtins:8:stable
+  result builtin(mapSlot;local(m):map_str_main__P@1188+1;sq#k:str@1195+3;):main__P@1188+11
+  temps 0
+case builtins:9:stable
+  result builtin(mapSlot;local(mi):map_str_i64@1213+2;sq#k:str@1221+3;):i64@1213+12
+  temps 0
+case arrs:1:stable
+  result index(local(arr):arr3_i64@1998+3;i1.0#k:i64@2002+1):i64@1998+6
+  temps 0
+case arrs:2:stable
+  result index(local(arr):arr3_i64@2013+3;local(temp):i64@2017+5):i64@2013+10
+  out assign(local(temp):i64@2017+5;call(id;-;conv(widen;local(k):i32@2020+1):i64@2020+1;):i64@2017+5)
+  temps 1
+case writes:0:write
+  result void:void@2105+18
+  out write(print;-;t'a',local(k):i64@2115+1,t'b',local(s):str@2119+1,)
+  temps 0
+case writes:1:write
+  result void:void@2128+15
+  out write(print;-;t'x',builtin(symbolText;local(sy):sym@2138+2;):str@2138+2,)
+  temps 0
+case writes:2:write
+  result void:void@2148+24
+  out assign(local(temp):i64@2157+5;call(id;-;local(k):i64@2160+1;):i64@2157+5)
+  out write(print;-;local(temp):i64@2157+5,call(id;-;local(k):i64@2167+1;):i64@2164+5,)
+  temps 1
+case writes:0:levelTrivial
+  result void:void@2105+18
+  out write(log;local(k):i64@2105+18;t'a',local(k):i64@2115+1,t'b',local(s):str@2119+1,)
+  temps 0
+case writes:2:levelTrivial
+  result void:void@2148+24
+  out assign(local(temp):i64@2157+5;call(id;-;local(k):i64@2160+1;):i64@2157+5)
+  out write(log;local(k):i64@2148+24;local(temp):i64@2157+5,call(id;-;local(k):i64@2167+1;):i64@2164+5,)
+  temps 1
+case writes:0:levelCall
+  result void:void@2105+18
+  out assign(local(temp):i64@624+5;call(id;-;local(k):i64@627+1;):i64@624+5)
+  out write(log;local(temp):i64@624+5;t'a',local(k):i64@2115+1,t'b',local(s):str@2119+1,)
+  temps 1
+case writes:2:levelCall
+  result void:void@2148+24
+  out assign(local(temp):i64@2157+5;call(id;-;local(k):i64@2160+1;):i64@2157+5)
+  out assign(local(temp):i64@2164+5;call(id;-;local(k):i64@2167+1;):i64@2164+5)
+  out assign(local(temp):i64@624+5;call(id;-;local(k):i64@627+1;):i64@624+5)
+  out write(log;local(temp):i64@624+5;local(temp):i64@2157+5,local(temp):i64@2164+5,)
+  temps 3
+case writes:3:levelCall
+  result void:void@2177+17
+  out assign(local(temp):i64@2186+5;binary(add;local(k):i64@2186+1;i1.0#k:i64@2190+1):i64@2186+5)
+  out assign(local(temp):i64@624+5;call(id;-;local(k):i64@627+1;):i64@624+5)
+  out write(log;local(temp):i64@624+5;local(temp):i64@2186+5,)
+  temps 2
+case places:1:stable
+  result field(a;index(local(ps):list_main__P@2317+2;local(temp):i64@2320+5):main__P@2317+9):i64@2317+11
+  out assign(local(temp):i64@2320+5;call(id;-;conv(widen;local(k):i32@2323+1):i64@2323+1;):i64@2320+5)
+  temps 1
+case places:2:stable
+  result builtin(mapIndexSet;local(m):map_str_main__P@2337+1;sa#k:str@2339+3;):main__P@2337+6
+  temps 0
+case places:3:stable
+  result index(local(xs):list_i64@2355+2;local(temp):i64@2358+5):i64@2355+9
+  out assign(local(temp):i64@2358+5;call(id;-;conv(widen;local(k):i32@2361+1):i64@2361+1;):i64@2358+5)
+  temps 1
+case places:4:stable
+  result tuple(0;local(t):tup2_i64_i64@2373+1):i64@2373+3
+  temps 0
+case places:5:stable
+  result index(local(xs):list_i64@2385+2;local(temp):i64@2388+1):i64@2385+5
+  out assign(local(temp):i64@2388+1;conv(widen;local(k):i32@2388+1):i64@2388+1)
+  temps 1
+case places:6:stable
+  result builtin(mapIndexSet;local(m):map_str_main__P@2399+1;local(temp):str@2401+8;):main__P@2399+11
+  out assign(local(temp):str@2401+8;call(ids;-;sa#k:str@2405+3;):str@2401+8)
+  temps 1
+case tries:0:tryFrom
+  result cond(binary(logicalAnd;binary(ge;local(k):i64@2506+1;i0.0:i64@2495+13):bool@2495+13;binary(le;local(k):i64@2506+1;i255.0:i64@2495+13):bool@2495+13):bool@2495+13;conv(toOptional;conv(numericCast;local(k):i64@2506+1):u8@2495+13):opt_u8@2495+13;default:opt_u8@2495+13):opt_u8@2495+13
+  temps 0
+case tries:1:tryFrom
+  result conv(toOptional;local(k):i64@2534+1):opt_i64@2522+14
+  temps 0
+case tries:2:tryFrom
+  result conv(toOptional;local(b):u8@2561+1):opt_u8@2550+13
+  temps 0
+case tries:3:tryFrom
+  result cond(binary(logicalAnd;binary(ge;local(d):f64@2589+1;r-2147483648.0:f64@2577+14):bool@2577+14;binary(lt;local(d):f64@2589+1;r2147483648.0:f64@2577+14):bool@2577+14):bool@2577+14;conv(toOptional;conv(numericCast;local(d):f64@2589+1):i64@2577+14):opt_i64@2577+14;default:opt_i64@2577+14):opt_i64@2577+14
+  temps 0
+case tries:4:tryFrom
+  result cond(binary(logicalAnd;binary(gt;local(d):f64@2617+1;r0.-2147483649:f64@2605+14):bool@2605+14;binary(lt;local(d):f64@2617+1;r0.2147483648:f64@2605+14):bool@2605+14):bool@2605+14;conv(toOptional;conv(numericCast;local(d):f64@2617+1):i32@2605+14):opt_i32@2605+14;default:opt_i32@2605+14):opt_i32@2605+14
+  temps 0
+case tries:5:tryFrom
+  result cond(binary(logicalAnd;binary(ge;local(f):f32@2645+1;r0.-2147483648:f32@2633+14):bool@2633+14;binary(lt;local(f):f32@2645+1;r0.2147483648:f32@2633+14):bool@2633+14):bool@2633+14;conv(toOptional;conv(numericCast;local(f):f32@2645+1):i32@2633+14):opt_i32@2633+14;default:opt_i32@2633+14):opt_i32@2633+14
+  temps 0
+case tries:6:tryFrom
+  result cond(binary(logicalAnd;binary(gt;local(d):f64@2673+1;r0.-1:f64@2661+14):bool@2661+14;binary(lt;local(d):f64@2673+1;r4294967296.0:f64@2661+14):bool@2661+14):bool@2661+14;conv(toOptional;conv(numericCast;local(d):f64@2673+1):u64@2661+14):opt_u64@2661+14;default:opt_u64@2661+14):opt_u64@2661+14
+  temps 0
+case tries:7:tryFrom
+  result conv(toOptional;conv(numericCast;local(b):u8@2701+1):i64@2689+14):opt_i64@2689+14
+  temps 0
+case tries:8:tryFrom
+  result cond(binary(ge;local(k):i64@2729+1;i0.0:i64@2717+14):bool@2717+14;conv(toOptional;conv(numericCast;local(k):i64@2729+1):u64@2717+14):opt_u64@2717+14;default:opt_u64@2717+14):opt_u64@2717+14
+  temps 0
+case tries:9:tryFrom
+  result cond(binary(le;local(u):u64@2758+1;i9223372036854775807.0:u64@2746+14):bool@2746+14;conv(toOptional;conv(numericCast;local(u):u64@2758+1):i64@2746+14):opt_i64@2746+14;default:opt_i64@2746+14):opt_i64@2746+14
+  temps 0
+case tries:10:tryFrom
+  result cond(binary(logicalAnd;binary(ge;local(temp):i64@2786+5;i0.0:i64@2775+17):bool@2775+17;binary(le;local(temp):i64@2786+5;i255.0:i64@2775+17):bool@2775+17):bool@2775+17;conv(toOptional;conv(numericCast;local(temp):i64@2786+5):u8@2775+17):opt_u8@2775+17;default:opt_u8@2775+17):opt_u8@2775+17
+  out assign(local(temp):i64@2786+5;call(id;-;local(k):i64@2789+1;):i64@2786+5)
+  temps 1
+case tries:11:tryFrom
+  result cond(binary(logicalAnd;binary(gt;local(f):f32@2818+1;r0.-1:f32@2807+13):bool@2807+13;binary(lt;local(f):f32@2818+1;r0.256:f32@2807+13):bool@2807+13):bool@2807+13;conv(toOptional;conv(numericCast;local(f):f32@2818+1):u8@2807+13):opt_u8@2807+13;default:opt_u8@2807+13):opt_u8@2807+13
+  temps 0
+case tries:12:switch
+  result local(temp):i32@2834+29
+  out if(binary(eq;local(k):i64@2834+1;i1.0#k:i64@2845+1):bool@2845+1;block[assign(local(temp):i32@2845+7;i10.0#k:i32@2850+2) goto(switch_end_1) ])
+  out if(btrue#k:bool@2854+1;block[assign(local(temp):i32@2854+7;i20.0#k:i32@2859+2) goto(switch_end_1) ])
+  out panic(no switch arm matched)
+  out label(switch_end_1)
+  temps 1
+case tries:13:tryFrom
+  result conv(toOptional;conv(numericCast;local(k):i64@2890+1):f64@2878+14):opt_f64@2878+14
+  temps 0
+case narrows:1:callParts
+  result call(get;optval(local(op):opt_main__P@2970+2):main__P@2970+2;):i64@2970+8
+  temps 0
+case narrows:2:switch
+  result local(temp):i64@2992+42
+  out if(binary(logicalAnd;seq(set(local(x):i64@3003+3;local(k):i64@2992+1):i64@3003+3;btrue#k:bool@3003+3):bool@3003+3;binary(gt;local(x):i64@3014+1;i3.0#k:i64@3018+1):bool@3014+5):bool@3003+3;block[assign(local(temp):i64@3003+21;local(x):i64@3023+1) goto(switch_end_1) ])
+  out if(btrue#k:bool@3026+1;block[assign(local(temp):i64@3026+6;i0.0#k:i64@3031+1) goto(switch_end_1) ])
+  out panic(no switch arm matched)
+  out label(switch_end_1)
+  temps 1
+case narrows:3:switch
+  result local(temp):i64@3048+73
+  out if(seq(set(local(x):i64@3059+3;local(k):i64@3048+1):i64@3059+3;btrue#k:bool@3059+3):bool@3059+3;block[if(binary(eq;local(x):i64@3071+1;i1.0#k:i64@3082+1):bool@3082+1;block[assign(local(temp):bool@3082+9;btrue#k:bool@3087+4) goto(switch_end_2) ]) if(btrue#k:bool@3093+1;block[assign(local(temp):bool@3093+10;bfalse#k:bool@3098+5) goto(switch_end_2) ]) panic(no switch arm matched) label(switch_end_2) if(local(temp):bool@3071+34;block[assign(local(temp):i64@3059+52;local(x):i64@3110+1) goto(switch_end_1) ]) ])
+  out if(btrue#k:bool@3113+1;block[assign(local(temp):i64@3113+6;i0.0#k:i64@3118+1) goto(switch_end_1) ])
+  out panic(no switch arm matched)
+  out label(switch_end_1)
+  temps 2
+case nevers:0:switch
+  result never:never@3227+45
+  out if(binary(eq;local(k):i64@3227+1;i1.0#k:i64@3238+1):bool@3238+1;block[expr(call(panic;-;sa#k:str@3249+3;):never@3243+10) goto(switch_end_1) ])
+  out if(btrue#k:bool@3255+1;block[expr(call(panic;-;sb#k:str@3266+3;):never@3260+10) goto(switch_end_1) ])
+  out panic(no switch arm matched)
+  out label(switch_end_1)
+  temps 0
+case spans:0:builtin
+  result builtin(arrayAsSpan;local(temp):arr3_i64@3179+5;):span_i64@3179+10
+  out assign(local(temp):arr3_i64@3179+5;call(mka;-;):arr3_i64@3179+5)
+  temps 1
+case unions:0:switch
+  result local(temp):i32@3522+35
+  out if(binary(eq;uniontag(local(m):main__Mode@3522+1):i32@3533+5;i1.0#k:i32@3533+5):bool@3533+5;block[assign(local(temp):i32@3533+10;i1.0#k:i32@3542+1) goto(switch_end_1) ])
+  out if(binary(eq;uniontag(local(m):main__Mode@3522+1):i32@3545+5;i18446744073709551615.18446744073709551615#k:i32@3545+5):bool@3545+5;block[assign(local(temp):i32@3545+10;i2.0#k:i32@3554+1) goto(switch_end_1) ])
+  out panic(no switch arm matched)
+  out label(switch_end_1)
+  temps 1
+case unions:1:assert
+  result null
+  out assign(local(temp):i64@3572+1;local(k):i64@3572+1)
+  out assign(local(temp):i64@3569+12;unionfield(card;0;call(mk;-;local(temp):i64@3572+1;):main__Bill@3569+5):i64@3569+12)
+  out assign(local(temp):bool@3569+17;binary(eq;local(temp):i64@3569+12;i3.0#k:i64@3585+1):bool@3569+17)
+  out if(unary(not;local(temp):bool@3569+17):bool@3569+17;block[write(panic;-;t'assert mk(k).amount == 3\n                 │  │      │\n                 │  │      ',local(temp):bool@3569+17,t'\n                 │  ',local(temp):i64@3569+12,t'\n                 ',local(temp):i64@3572+1,) ])
+  temps 3
+case asserts:0:assert
+  result null
+  out assign(local(temp):i64@4023+1;local(k):i64@4023+1)
+  out assign(local(temp):bool@4023+6;binary(eq;local(temp):i64@4023+1;i1.0#k:i64@4028+1):bool@4023+6)
+  out if(unary(not;local(temp):bool@4023+6):bool@4023+6;block[write(panic;-;t'assert k == 1\n              │ │\n              │ ',local(temp):bool@4023+6,t'\n              ',local(temp):i64@4023+1,) ])
+  temps 2
+case asserts:1:assert
+  result null
+  out assign(local(temp):bool@4046+1;bfalse#k:bool@4046+1)
+  out assign(local(temp):bool@4046+5;bfalse#k:bool@4046+5)
+  out assign(local(temp):bool@4041+1;local(f):bool@4041+1)
+  out assign(local(temp):bool@4041+10;local(temp):bool@4041+1)
+  out if(local(temp):bool@4041+10;block[assign(local(temp):i64@4046+1;local(k):i64@4046+1) assign(local(temp):bool@4046+1;btrue#k:bool@4046+1) assign(local(temp):bool@4046+5;binary(gt;local(temp):i64@4046+1;i2.0#k:i64@4050+1):bool@4046+5) assign(local(temp):bool@4046+5;btrue#k:bool@4046+5) assign(local(temp):bool@4041+10;local(temp):bool@4046+5) ])
+  out assign(local(temp):bool@4041+10;local(temp):bool@4041+10)
+  out if(unary(not;local(temp):bool@4041+10):bool@4041+10;block[write(panic;-;t'assert f && k > 2\n              │ │',t'  │',t'   ',t' │',t'\n       ',t'       │',t' │',t'  │',t'   ',t' ',local(temp):bool@4046+5,t'\n       ',t'       │',t' │',t'  ',local(temp):i64@4046+1,t'\n              │ ',local(temp):bool@4041+10,t'\n              ',local(temp):bool@4041+1,;g:-,local(temp):bool@4034+17,binary(logicalAnd;unary(not;local(temp):bool@4034+17):bool@4034+17;local(temp):bool@4034+17):bool@4034+17,local(temp):bool@4034+17,local(temp):bool@4034+17,local(temp):bool@4034+17,local(temp):bool@4034+17,binary(logicalAnd;local(temp):bool@4034+17;local(temp):bool@4034+17):bool@4034+17,binary(logicalAnd;local(temp):bool@4034+17;unary(not;local(temp):bool@4034+17):bool@4034+17):bool@4034+17,local(temp):bool@4034+17,local(temp):bool@4034+17,local(temp):bool@4034+17,local(temp):bool@4034+17,local(temp):bool@4034+17,local(temp):bool@4034+17,local(temp):bool@4034+17,-,-,-,-,) ])
+  temps 7
+case asserts:2:assert
+  result null
+  out assign(local(temp):bool@4068+5;bfalse#k:bool@4068+5)
+  out assign(local(temp):bool@4071+1;bfalse#k:bool@4071+1)
+  out assign(local(temp):bool@4068+10;bfalse#k:bool@4068+10)
+  out assign(local(temp):bool@4063+1;local(f):bool@4063+1)
+  out assign(local(temp):bool@4063+15;local(temp):bool@4063+1)
+  out if(unary(not;local(temp):bool@4063+15):bool@4063+15;block[assign(local(temp):i64@4071+1;local(k):i64@4071+1) assign(local(temp):bool@4071+1;btrue#k:bool@4071+1) assign(local(temp):i64@4068+5;call(id;-;local(temp):i64@4071+1;):i64@4068+5) assign(local(temp):bool@4068+5;btrue#k:bool@4068+5) assign(local(temp):bool@4068+10;binary(eq;local(temp):i64@4068+5;i3.0#k:i64@4077+1):bool@4068+10) assign(local(temp):bool@4068+10;btrue#k:bool@4068+10) assign(local(temp):bool@4063+15;local(temp):bool@4068+10) ])
+  out assign(local(temp):bool@4063+15;local(temp):bool@4063+15)
+  out if(unary(not;local(temp):bool@4063+15):bool@4063+15;block[write(panic;-;t'assert f || id(k) == 3\n              │ │',t'  │',t'   ',t'  │',t'   ',t'  │',t'\n       ',t'       │',t' │',t'  │',t'   ',t'  │',t'   ',t'  ',local(temp):bool@4068+10,t'\n       ',t'       │',t' │',t'  │',t'   ',t'  ',local(temp):i64@4071+1,t'\n       ',t'       │',t' │',t'  ',local(temp):i64@4068+5,t'\n              │ ',local(temp):bool@4063+15,t'\n              ',local(temp):bool@4063+1,;g:-,local(temp):bool@4056+22,binary(logicalAnd;unary(not;local(temp):bool@4056+22):bool@4056+22;binary(logicalOr;local(temp):bool@4056+22;local(temp):bool@4056+22):bool@4056+22):bool@4056+22,local(temp):bool@4056+22,binary(logicalAnd;unary(not;local(temp):bool@4056+22):bool@4056+22;local(temp):bool@4056+22):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,binary(logicalAnd;local(temp):bool@4056+22;local(temp):bool@4056+22):bool@4056+22,binary(logicalAnd;local(temp):bool@4056+22;unary(not;local(temp):bool@4056+22):bool@4056+22):bool@4056+22,binary(logicalAnd;local(temp):bool@4056+22;local(temp):bool@4056+22):bool@4056+22,binary(logicalAnd;local(temp):bool@4056+22;unary(not;local(temp):bool@4056+22):bool@4056+22):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,binary(logicalAnd;local(temp):bool@4056+22;local(temp):bool@4056+22):bool@4056+22,binary(logicalAnd;local(temp):bool@4056+22;unary(not;local(temp):bool@4056+22):bool@4056+22):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,local(temp):bool@4056+22,-,-,-,-,) ])
+  temps 9
+case asserts:3:assert
+  result null
+  out assign(local(temp):bool@4095+1;bfalse#k:bool@4095+1)
+  out assign(local(temp):bool@4091+1;local(f):bool@4091+1)
+  out if(local(temp):bool@4091+1;block[assign(local(temp):i64@4095+1;local(k):i64@4095+1) assign(local(temp):bool@4095+1;btrue#k:bool@4095+1) assign(local(temp):i64@4091+9;local(temp):i64@4095+1) ])
+  out assign(local(temp):i64@4091+9;local(temp):i64@4091+9)
+  out assign(local(temp):bool@4090+16;binary(eq;local(temp):i64@4091+9;i3.0#k:i64@4105+1):bool@4090+16)
+  out if(unary(not;local(temp):bool@4090+16):bool@4090+16;block[write(panic;-;t'assert (f ? k : 2) == 3\n               │ │',t' │',t'  ',t'      │\n               │ │',t' │',t'  ',t'      ',local(temp):bool@4090+16,t'\n       ',t'        │',t' │',t' ',local(temp):i64@4095+1,t'\n               │ ',local(temp):i64@4091+9,t'\n               ',local(temp):bool@4091+1,;g:-,local(temp):bool@4083+23,unary(not;local(temp):bool@4083+23):bool@4083+23,-,local(temp):bool@4083+23,unary(not;local(temp):bool@4083+23):bool@4083+23,-,-,local(temp):bool@4083+23,local(temp):bool@4083+23,local(temp):bool@4083+23,local(temp):bool@4083+23,local(temp):bool@4083+23,-,-,-,-,) ])
+  temps 6
+case asserts:4:assert
+  result null
+  out assign(local(temp):i64@4119+6;cond(has(local(o):opt_i64@4119+1):bool@4119+6;optval(local(o):opt_i64@4119+1):i64@4119+6;i4.0#k:i64@4124+1):i64@4119+6)
+  out assign(local(temp):i64@4130+1;local(k):i64@4130+1)
+  out assign(local(temp):bool@4118+13;binary(eq;local(temp):i64@4119+6;local(temp):i64@4130+1):bool@4118+13)
+  out if(unary(not;local(temp):bool@4118+13):bool@4118+13;block[write(panic;-;t'assert (o ?? 4) == k\n                 │     │  │\n                 │     │  ',local(temp):i64@4130+1,t'\n                 │     ',local(temp):bool@4118+13,t'\n                 ',local(temp):i64@4119+6,) ])
+  temps 3
+case asserts:5:assert
+  result null
+  out assign(local(temp):i64@4143+7;call(get;local(q):main__Q@4143+1;):i64@4143+7)
+  out assign(local(temp):i64@4157+1;local(k):i64@4157+1)
+  out assign(local(temp):i64@4154+5;index(local(xs):list_i64@4154+2;local(temp):i64@4157+1):i64@4154+5)
+  out assign(local(temp):bool@4143+16;binary(eq;local(temp):i64@4143+7;local(temp):i64@4154+5):bool@4143+16)
+  out if(unary(not;local(temp):bool@4143+16):bool@4143+16;block[write(panic;-;t'assert q.get() == xs[k]\n                │     │    ││\n                │     │    │',local(temp):i64@4157+1,t'\n                │     │    ',local(temp):i64@4154+5,t'\n                │     ',local(temp):bool@4143+16,t'\n                ',local(temp):i64@4143+7,) ])
+  temps 4
+case asserts:6:assert
+  result null
+  out assign(local(temp):bool@4176+4;unary(not;has(local(o):opt_i64@4171+1):bool@4176+4):bool@4176+4)
+  out if(unary(not;local(temp):bool@4176+4):bool@4176+4;block[write(panic;-;t'assert o is null\n                │\n                ',local(temp):bool@4176+4,) ])
+  temps 1
+case asserts:7:assert
+  result null
+  out assign(local(temp):i64@4199+1;local(k):i64@4199+1)
+  out assign(local(temp):bool@4192+9;binary(eq;i18446744073709551615.18446744073709551615#k:i64@4192+2;local(temp):i64@4199+1):bool@4192+9)
+  out if(unary(not;local(temp):bool@4192+9):bool@4192+9;block[write(panic;-;t'assert -1 == (k)\n                 │   │\n                 │   ',local(temp):i64@4199+1,t'\n                 ',local(temp):bool@4192+9,) ])
+  temps 2
+case asserts:8:assert
+  result null
+  out if(unary(not;btrue#k:bool@4213+4):bool@4213+4;block[panic(assert true) ])
+  temps 0
+case asserts:9:assert
+  result null
+  out assign(local(temp):bool@4254+1;bfalse#k:bool@4254+1)
+  out assign(local(temp):bool@4254+16;bfalse#k:bool@4254+16)
+  out assign(local(temp):str@4229+1;local(s):str@4229+1)
+  out assign(local(temp):bool@4229+13;binary(eq;local(temp):str@4229+1;s日本#k:str@4234+8):bool@4229+13)
+  out assign(local(temp):bool@4229+41;local(temp):bool@4229+13)
+  out if(local(temp):bool@4229+41;block[assign(local(temp):i64@4254+1;local(k):i64@4254+1) assign(local(temp):bool@4254+1;btrue#k:bool@4254+1) assign(local(temp):bool@4254+16;binary(gt;local(temp):i64@4254+1;unary(plus;i0.0#k:i64@4269+1):i64@4268+2):bool@4254+16) assign(local(temp):bool@4254+16;btrue#k:bool@4254+16) assign(local(temp):bool@4229+41;local(temp):bool@4254+16) ])
+  out assign(local(temp):bool@4229+41;local(temp):bool@4229+41)
+  out if(unary(not;local(temp):bool@4229+41):bool@4229+41;block[write(panic;-;t'assert s == "日本" && k > +0\n              │ │       │',t'  │',t'   ',t' │',t'\n       ',t'       │',t' │',t'       │',t'  │',t'   ',t' ',local(temp):bool@4254+16,t'\n       ',t'       │',t' │',t'       │',t'  ',local(temp):i64@4254+1,t'\n              │ │       ',local(temp):bool@4229+41,t'\n              │ ',local(temp):bool@4229+13,t'\n              ',local(temp):str@4229+1,;g:-,local(temp):bool@4222+48,binary(logicalAnd;unary(not;local(temp):bool@4222+48):bool@4222+48;local(temp):bool@4222+48):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,binary(logicalAnd;local(temp):bool@4222+48;local(temp):bool@4222+48):bool@4222+48,binary(logicalAnd;local(temp):bool@4222+48;unary(not;local(temp):bool@4222+48):bool@4222+48):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,local(temp):bool@4222+48,-,-,-,-,-,-,) ])
+  temps 8
+case asserts:10:assert
+  result null
+  out failcall(temp;call(failing;-;local(k):i64@4290+1;):i64@4282+10;temp)
+  out if(unary(not;binary(logicalOr;binary(eq;local(temp):err@4275+26;errvar(bad):err@4275+26):bool@4275+26;binary(eq;local(temp):err@4275+26;errvar(worse):err@4275+26):bool@4275+26):bool@4275+26):bool@4275+26;block[write(panic;-;t'assert failing(k) fails AE\n              │\n              ',t'returned',t'failed with AE.bad',t'failed with AE.worse',t' ',local(temp):i64@4282+10,;g:-,unary(not;binary(ne;errcode(local(temp):err@4275+26):u32@4275+26;i0.0:u32@4275+26):bool@4275+26):bool@4275+26,binary(eq;local(temp):err@4275+26;errvar(bad):err@4275+26):bool@4275+26,binary(eq;local(temp):err@4275+26;errvar(worse):err@4275+26):bool@4275+26,unary(not;binary(ne;errcode(local(temp):err@4275+26):u32@4275+26;i0.0:u32@4275+26):bool@4275+26):bool@4275+26,unary(not;binary(ne;errcode(local(temp):err@4275+26):u32@4275+26;i0.0:u32@4275+26):bool@4275+26):bool@4275+26,) ])
+  temps 2
+case asserts:11:assert
+  result null
+  out failcall(temp;call(failing;-;local(k):i64@4321+1;):i64@4313+10;temp)
+  out if(unary(not;binary(eq;local(temp):err@4306+30;errvar(bad):err@4306+30):bool@4306+30):bool@4306+30;block[write(panic;-;t'assert failing(k) fails AE.bad\n              │\n              ',t'returned',t'failed with AE.bad',t'failed with AE.worse',t' ',local(temp):i64@4313+10,;g:-,unary(not;binary(ne;errcode(local(temp):err@4306+30):u32@4306+30;i0.0:u32@4306+30):bool@4306+30):bool@4306+30,binary(eq;local(temp):err@4306+30;errvar(bad):err@4306+30):bool@4306+30,binary(eq;local(temp):err@4306+30;errvar(worse):err@4306+30):bool@4306+30,unary(not;binary(ne;errcode(local(temp):err@4306+30):u32@4306+30;i0.0:u32@4306+30):bool@4306+30):bool@4306+30,unary(not;binary(ne;errcode(local(temp):err@4306+30):u32@4306+30;i0.0:u32@4306+30):bool@4306+30):bool@4306+30,) ])
+  temps 2
+case asserts:12:assert
+  result null
+  out failcall(temp;call(voidFailing;-;local(k):i64@4360+1;):void@4348+14;-)
+  out if(unary(not;binary(logicalOr;binary(eq;local(temp):err@4341+30;errvar(bad):err@4341+30):bool@4341+30;binary(eq;local(temp):err@4341+30;errvar(worse):err@4341+30):bool@4341+30):bool@4341+30):bool@4341+30;block[write(panic;-;t'assert voidFailing(k) fails AE\n              │\n              ',t'returned',t'failed with AE.bad',t'failed with AE.worse',t'failed with BE.other',;g:-,unary(not;binary(ne;errcode(local(temp):err@4341+30):u32@4341+30;i0.0:u32@4341+30):bool@4341+30):bool@4341+30,binary(eq;local(temp):err@4341+30;errvar(bad):err@4341+30):bool@4341+30,binary(eq;local(temp):err@4341+30;errvar(worse):err@4341+30):bool@4341+30,binary(eq;local(temp):err@4341+30;errvar(other):err@4341+30):bool@4341+30,) ])
+  temps 1
+case asserts:13:assert
+  result null
+  out failcall(temp;call(load;local(q):main__Q@4383+1;):i64@4383+8;temp)
+  out if(unary(not;binary(logicalOr;binary(eq;local(temp):err@4376+24;errvar(bad):err@4376+24):bool@4376+24;binary(eq;local(temp):err@4376+24;errvar(worse):err@4376+24):bool@4376+24):bool@4376+24):bool@4376+24;block[write(panic;-;t'assert q.load() fails AE\n                │\n                ',t'returned',t'failed with AE.bad',t'failed with AE.worse',t' ',local(temp):i64@4383+8,;g:-,unary(not;binary(ne;errcode(local(temp):err@4376+24):u32@4376+24;i0.0:u32@4376+24):bool@4376+24):bool@4376+24,binary(eq;local(temp):err@4376+24;errvar(bad):err@4376+24):bool@4376+24,binary(eq;local(temp):err@4376+24;errvar(worse):err@4376+24):bool@4376+24,unary(not;binary(ne;errcode(local(temp):err@4376+24):u32@4376+24;i0.0:u32@4376+24):bool@4376+24):bool@4376+24,unary(not;binary(ne;errcode(local(temp):err@4376+24):u32@4376+24;i0.0:u32@4376+24):bool@4376+24):bool@4376+24,) ])
+  temps 2
+case asserts:14:assert
+  result null
+  out assign(local(temp):i64@4412+1;local(k):i64@4412+1)
+  out assign(local(temp):i64@4417+1;conv(widen;local(n):i32@4417+1):i64@4417+1)
+  out assign(local(temp):bool@4412+6;binary(eq;local(temp):i64@4412+1;local(temp):i64@4417+1):bool@4412+6)
+  out if(unary(not;local(temp):bool@4412+6):bool@4412+6;block[write(panic;-;t'assert k == n\n              │ │  │\n              │ │  ',local(temp):i64@4417+1,t'\n              │ ',local(temp):bool@4412+6,t'\n              ',local(temp):i64@4412+1,) ])
+  temps 3
+case asserts:15:assert
+  result null
+  out assign(local(temp):i64@4430+1;local(k):i64@4430+1)
+  out assign(local(temp):bool@4430+8;binary(eq;local(temp):i64@4430+1;i1.0#k:i64@4436+1):bool@4430+8)
+  out if(unary(not;local(temp):bool@4430+8):bool@4430+8;block[write(panic;-;t'assert k == (1)\n              │ │\n              │ ',local(temp):bool@4430+8,t'\n              ',local(temp):i64@4430+1,) ])
+  temps 2
+case asserts:16:assert
+  result null
+  out assign(local(temp):i64@4450+1;local(k):i64@4450+1)
+  out assign(local(temp):bool@4450+6;binary(eq;local(temp):i64@4450+1;i1.0#k:i64@4455+1):bool@4450+6)
+  out if(unary(not;local(temp):bool@4450+6):bool@4450+6;block[write(panic;-;t'assert k	== 1\n              │ │\n              │ ',local(temp):bool@4450+6,t'\n              ',local(temp):i64@4450+1,) ])
+  temps 2
+case asserts:17:assert
+  result null
+  out assign(local(temp):i64@4468+1;local(k):i64@4468+1)
+  out assign(local(temp):bool@4468+6;binary(eq;local(temp):i64@4468+1;i1.0#k:i64@4473+1):bool@4468+6)
+  out if(unary(not;local(temp):bool@4468+6):bool@4468+6;block[write(panic;-;t'assert k== 1\n              │ │\n              │ ',local(temp):bool@4468+6,t'\n              ',local(temp):i64@4468+1,) ])
+  temps 2
+case asserts:18:assert
+  result null
+  out assign(local(temp):bool@4487+1;local(f):bool@4487+1)
+  out assign(local(temp):fn1_i64_i64@4487+9;cond(local(temp):bool@4487+1;local(g):fn1_i64_i64@4491+1;local(g):fn1_i64_i64@4495+1):fn1_i64_i64@4487+9)
+  out assign(local(temp):i64@4498+1;local(k):i64@4498+1)
+  out assign(local(temp):i64@4486+14;call(invoke;local(temp):fn1_i64_i64@4487+9;local(temp):i64@4498+1;):i64@4486+14)
+  out assign(local(temp):bool@4486+19;binary(eq;local(temp):i64@4486+14;i3.0#k:i64@4504+1):bool@4486+19)
+  out if(unary(not;local(temp):bool@4486+19):bool@4486+19;block[write(panic;-;t'assert (f ? g : g)(k) == 3\n               │ │        │  │\n               │ │        │  ',local(temp):bool@4486+19,t'\n               │ │        ',local(temp):i64@4498+1,t'\n               │ ',local(temp):i64@4486+14,t'\n               ',local(temp):bool@4487+1,) ])
+  temps 5
+case asserts:19:assert
+  result null
+  out assign(local(temp):bool@4523+2;bfalse#k:bool@4523+2)
+  out assign(local(temp):bool@4524+1;bfalse#k:bool@4524+1)
+  out assign(local(temp):bool@4523+10;bfalse#k:bool@4523+10)
+  out assign(local(temp):bool@4518+1;local(f):bool@4518+1)
+  out assign(local(temp):bool@4517+2;unary(not;local(temp):bool@4518+1):bool@4517+2)
+  out assign(local(temp):bool@4517+16;local(temp):bool@4517+2)
+  out if(unary(not;local(temp):bool@4517+16):bool@4517+16;block[assign(local(temp):i64@4524+1;local(k):i64@4524+1) assign(local(temp):bool@4524+1;btrue#k:bool@4524+1) assign(local(temp):i64@4523+2;unary(negate;local(temp):i64@4524+1):i64@4523+2) assign(local(temp):bool@4523+2;btrue#k:bool@4523+2) assign(local(temp):bool@4523+10;binary(eq;local(temp):i64@4523+2;unary(negate;i1.0#k:i64@4531+1):i64@4529+4):bool@4523+10) assign(local(temp):bool@4523+10;btrue#k:bool@4523+10) assign(local(temp):bool@4517+16;local(temp):bool@4523+10) ])
+  out assign(local(temp):bool@4517+16;local(temp):bool@4517+16)
+  out if(unary(not;local(temp):bool@4517+16):bool@4517+16;block[write(panic;-;t'assert !f || -k == -(1)\n              ││ │',t'  │',t'   ',t'│',t' ',t' │',t'\n       ',t'       │',t'│',t' │',t'  │',t'   ',t'│',t' ',t' ',local(temp):bool@4523+10,t'\n       ',t'       │',t'│',t' │',t'  │',t'   ',t'',local(temp):i64@4524+1,t'\n       ',t'       │',t'│',t' │',t'  ',local(temp):i64@4523+2,t'\n              ││ ',local(temp):bool@4517+16,t'\n              │',local(temp):bool@4518+1,t'\n              ',local(temp):bool@4517+2,;g:-,local(temp):bool@4510+23,binary(logicalAnd;unary(not;local(temp):bool@4510+23):bool@4510+23;binary(logicalOr;local(temp):bool@4510+23;local(temp):bool@4510+23):bool@4510+23):bool@4510+23,local(temp):bool@4510+23,binary(logicalAnd;unary(not;local(temp):bool@4510+23):bool@4510+23;local(temp):bool@4510+23):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,binary(logicalAnd;local(temp):bool@4510+23;local(temp):bool@4510+23):bool@4510+23,binary(logicalAnd;local(temp):bool@4510+23;unary(not;local(temp):bool@4510+23):bool@4510+23):bool@4510+23,binary(logicalAnd;local(temp):bool@4510+23;local(temp):bool@4510+23):bool@4510+23,binary(logicalAnd;local(temp):bool@4510+23;unary(not;local(temp):bool@4510+23):bool@4510+23):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,binary(logicalAnd;local(temp):bool@4510+23;local(temp):bool@4510+23):bool@4510+23,binary(logicalAnd;local(temp):bool@4510+23;unary(not;local(temp):bool@4510+23):bool@4510+23):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,local(temp):bool@4510+23,-,-,-,-,-,-,) ])
+  temps 10
+case asserts:20:assert
+  result null
+  out assign(local(temp):str@4545+1;local(s):str@4545+1)
+  out assign(local(temp):bool@4545+9;builtin(stringIsEmpty;local(temp):str@4545+1;):bool@4545+9)
+  out assign(local(temp):bool@4558+1;local(f):bool@4558+1)
+  out assign(local(temp):bool@4545+14;binary(eq;local(temp):bool@4545+9;local(temp):bool@4558+1):bool@4545+14)
+  out if(unary(not;local(temp):bool@4545+14):bool@4545+14;block[write(panic;-;t'assert s.isEmpty == f\n              │ │       │  │\n              │ │       │  ',local(temp):bool@4558+1,t'\n              │ │       ',local(temp):bool@4545+14,t'\n              │ ',local(temp):bool@4545+9,t'\n              ',local(temp):str@4545+1,) ])
+  temps 4
+case asserts:21:assert
+  result null
+  out assign(local(temp):bool@4576+14;bfalse#k:bool@4576+14)
+  out assign(local(temp):bool@4579+10;bfalse#k:bool@4579+10)
+  out assign(local(temp):bool@4576+19;bfalse#k:bool@4576+19)
+  out assign(local(temp):bool@4571+1;local(f):bool@4571+1)
+  out assign(local(temp):bool@4571+24;local(temp):bool@4571+1)
+  out if(unary(not;local(temp):bool@4571+24):bool@4571+24;block[expr(call(panic;-;sx#k:str@4585+3;):never@4579+10) ])
+  out assign(local(temp):bool@4571+24;local(temp):bool@4571+24)
+  out if(unary(not;local(temp):bool@4571+24):bool@4571+24;block[write(panic;-;t'assert f || id(panic("x")) == 3\n              │ │\n              │ ',local(temp):bool@4571+24,t'\n              ',local(temp):bool@4571+1,) ])
+  temps 6
+case asserts:22:assert
+  result null
+  out expr(call(panic;-;sx#k:str@4613+3;):never@4607+10)
+  temps 0
+case assertsNever:0:assert
+  result null
+  out expr(call(panic;-;sx#k:str@4668+3;):never@4662+10)
+  temps 0
+case asserts:0:stmt
+  result null
+  out assign(local(temp):i64@4023+1;local(k):i64@4023+1)
+  out assign(local(temp):bool@4023+6;binary(eq;local(temp):i64@4023+1;i1.0#k:i64@4028+1):bool@4023+6)
+  out if(unary(not;local(temp):bool@4023+6):bool@4023+6;block[write(panic;-;t'assert k == 1\n              │ │\n              │ ',local(temp):bool@4023+6,t'\n              ',local(temp):i64@4023+1,) ])
+  temps 2

@@ -1,0 +1,55 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `open `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 StringLiteral `";`
+2:1 Identifier `Eay`
+2:5 Identifier `A`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText ` here`
+2:12 InterpolatedStringEnd `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+4:3 StarEquals `*=`
+4:6 SlashEquals `/=`
+4:9 PercentEquals `%=`
+4:12 AmpEquals `&=`
+4:15 BarEquals `|=`
+4:18 CaretEquals `^=`
+4:21 LessLessEquals `<<=`
+5:1 StringLiteral `"}"`
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `﻿`
+
+  6 │ ﻿
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │ �
+    │ ^

@@ -1,0 +1,30 @@
+== tests/cases/run/for-indexable-count-once.byn
+155..195 blockStmt
+161..180 exprStmt
+161..180 callExpr
+167..179 literalExpr string
+161..180 callExpr
+185..193 returnStmt value 192..193
+192..193 nameExpr
+209..304 blockStmt
+215..246 localDecl
+228..246 structLiteralExpr
+243..244 literalExpr integer
+251..302 forStmt
+260..266 nameExpr
+267..302 blockStmt
+277..296 exprStmt
+277..296 callExpr
+283..295 interpolatedExpr
+292..293 nameExpr
+277..296 callExpr
+81..94 callExpr
+81..94 callExpr
+81..94 callExpr
+89..93 nameExpr
+89..93 nameExpr
+122..132 binaryExpr mul right 130..132
+122..132 binaryExpr mul right 130..132
+122..132 binaryExpr mul right 130..132
+122..127 nameExpr
+130..132 literalExpr integer

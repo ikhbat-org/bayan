@@ -1,0 +1,150 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolatedStringText `total `
+3:13 InterpolationStart `{`
+3:14 Identifier `x`
+3:15 InterpolationEnd `}`
+3:16 InterpolatedStringEnd `"`
+3:18 InterpolatedStringStart `$"`
+3:20 InterpolatedStringText `a `
+3:22 InterpolationStart `{`
+3:23 Identifier `f`
+3:24 OpenParen `(`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolatedStringText `b `
+3:29 InterpolationStart `{`
+3:30 Identifier `c`
+3:31 InterpolationEnd `}`
+3:32 InterpolatedStringText `X`
+3:33 InterpolatedStringEnd `"`
+3:34 CloseParen `)`
+3:35 InterpolationEnd `}`
+3:36 InterpolatedStringText ` d`
+3:38 InterpolatedStringEnd `"`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolatedStringText `{{literal}} $`
+3:55 InterpolatedStringEnd `"`
+3:56 OpenBrace `{`
+3:57 Identifier `Point`
+3:63 OpenBrace `{`
+3:65 Identifier `x`
+3:67 Equals `=`
+3:69 IntegerLiteral `1`
+3:71 CloseBrace `}`
+3:72 CloseBrace `}`
+3:73 Bang `!`
+3:74 StringLiteral `" $"`
+3:78 StringLiteral `"`
+5:3 LetKeyword `let`
+5:7 Identifier `c`
+5:9 Equals `=`
+5:13 IntegerLiteral `3`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 StringLiteral `$"{$"`
+6:52 OpenBrace `{`
+6:53 StringLiteral `$"{$"`
+6:58 OpenBrace `{`
+6:59 StringLiteral `$"{$"`
+6:64 OpenBrace `{`
+6:65 Identifier `x`
+6:66 CloseBrace `}`
+6:67 StringLiteral `"}"`
+6:70 CloseBrace `}`
+6:71 StringLiteral `"}"`
+6:75 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ �
+    │  ^
+
+error BYN0002: unexpected character `̈́`
+
+  3 │ ̈́ ��� $"total {x}" $"a {f($"b {c}X")} d" $"{{literal}} $"{Point { x = 1 }}!" $""
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ̈́ ��� $"total {x}" $"a {f($"b {c}X")} d" $"{{literal}} $"{Point { x = 1 }}!" $""
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ̈́ ��� $"total {x}" $"a {f($"b {c}X")} d" $"{{literal}} $"{Point { x = 1 }}!" $""
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ̈́ ��� $"total {x}" $"a {f($"b {c}X")} d" $"{{literal}} $"{Point { x = 1 }}!" $""
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ ̈́ ��� $"total {x}" $"a {f($"b {c}X")} d" $"{{literal}} $"{Point { x = 1 }}!" $""
+    │                                                                                ^ string ends
+    │                                                                                  at the end of
+    │                                                                                  the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  5 │ � let c = � 3
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ � let c = � 3
+    │   │ -
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ � let c = � 3
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 
+    │                                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 
+    │                                               ^^

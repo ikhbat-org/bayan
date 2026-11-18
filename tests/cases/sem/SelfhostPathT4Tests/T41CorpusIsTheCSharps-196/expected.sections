@@ -1,0 +1,4 @@
+== diags.diag/panic-handler-reads
+BYN2613 4:67 a panic handler reads only `let` bindings and parameters
+  label `count` is not a `let` or a parameter
+  help copy the value into a `let` before the handler and read that

@@ -1,0 +1,55 @@
+1:1 StringLiteral `"{$"`
+1:5 OpenBrace `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 Identifier `x`
+1:31 InterpolationEnd `}`
+1:32 InterpolatedStringEnd `"`
+1:34 IntegerLiteral `0x_`
+2:1 IntegerLiteral `1`
+2:2 Dot `.`
+2:3 Identifier `aw`
+2:6 StringLiteral `"quoted"`
+3:3 RawStringLiteral `""" c"text" u16\n̈́��   """`
+4:10 CStringLiteral `c"text"`
+4:18 U16StringLiteral `u16"wide"`
+4:28 StringLiteral `"\u{202E} allowed in strings"`
+4:51 StringLiteral `""`
+4:54 StringLiteral `"\u{48}i"`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" 0x_
+    │                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ "{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" 0x_
+    │                                  ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │ ̈́��   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ̈́��   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^

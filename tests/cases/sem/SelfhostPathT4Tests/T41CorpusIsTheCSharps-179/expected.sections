@@ -1,0 +1,9 @@
+== diags.diag/interface-generic-bases
+BYN2801 5:12 `S` does not provide `rank` required by `IOrder<i64>`
+  label needs `rank`
+  help add `i64 rank(i64 x)` to `S`
+  fix 7:1-7:1     i64 rank(i64 x) => todo("rank")
+BYN2801 5:25 `S` does not provide `rank` required by `IOrder<string>`
+  label needs `rank`
+  help add `i64 rank(string x)` to `S`
+  fix 7:1-7:1     i64 rank(string x) => todo("rank")

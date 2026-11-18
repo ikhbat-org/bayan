@@ -1,0 +1,11 @@
+" \\ \n" """
+ raw "quoted"
+  """ c"text" u16"wide" let c l= """never ¤closed
+
+losed
+b
+ $"{{"/* block
+
+øˆ€€€
+e-3 6E+2 1.5
+$"{}"

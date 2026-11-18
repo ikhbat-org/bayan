@@ -1,0 +1,13 @@
+== body flagged
+first none
+block 395..398
+  ifStmt 390..394
+    unary 390..394 : bool
+      local 390..394 : bool flag
+    exprStmt 390..394
+      call 390..394 : never panic
+        literal 390..394 : string = "contract violated: flag"
+  block 395..398
+local flag 0 3
+requires 1 infers false
+BYN5011 29:32 this `expects` reads only `flag`; a type with `requires` checks it once ||declare a type with `requires` for `flag`|

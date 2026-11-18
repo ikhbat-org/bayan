@@ -1,0 +1,5 @@
+== call.refelem
+counts 1 0 2
+mut xs 2041..2043 false -
+BYN3005 118:26 `xs` is passed by `ref` and again in the same call |`xs` is also passed by `ref`|copy the value into a local first, or make two calls|
+BYN3005 118:14 `xs` is passed by `ref` and again in the same call |`xs` is also passed by `ref`|copy the value into a local first, or make two calls|

@@ -1,0 +1,67 @@
+== tests/cases/diag/unique-move-errdefer-failing-exit.byn
+151..154 blockStmt
+188..217 blockStmt
+194..215 exprStmt
+194..215 callExpr
+200..214 interpolatedExpr
+203..212 memberExpr
+203..205 nameExpr
+194..215 callExpr
+245..372 blockStmt
+251..271 localDecl
+260..271 callExpr
+276..289 deferStmt
+290..311 exprStmt
+290..311 callExpr
+296..310 interpolatedExpr
+299..308 memberExpr
+299..301 nameExpr
+290..311 callExpr
+316..332 exprStmt
+316..332 callExpr
+324..331 argument
+329..331 nameExpr
+337..347 exprStmt
+337..347 tryExpr
+341..347 callExpr
+352..370 returnStmt value 359..370
+359..370 callExpr
+450..567 blockStmt
+456..476 localDecl
+465..476 callExpr
+481..494 deferStmt
+495..516 exprStmt
+495..516 callExpr
+501..515 interpolatedExpr
+504..513 memberExpr
+504..506 nameExpr
+495..516 callExpr
+521..537 exprStmt
+521..537 callExpr
+529..536 argument
+534..536 nameExpr
+542..565 guardedStmt
+555..565 nameExpr
+542..546 failStmt
+547..551 targetMemberExpr
+622..623 literalExpr integer
+622..623 literalExpr integer
+622..623 literalExpr integer
+716..837 blockStmt
+722..742 localDecl
+731..742 callExpr
+747..760 deferStmt
+761..782 exprStmt
+761..782 callExpr
+767..781 interpolatedExpr
+770..779 memberExpr
+770..772 nameExpr
+761..782 callExpr
+787..803 exprStmt
+787..803 callExpr
+795..802 argument
+800..802 nameExpr
+808..835 returnStmt value 815..835
+815..835 catchExpr
+815..821 callExpr
+834..835 literalExpr integer

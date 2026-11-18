@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/import-cycle
+--include-path
+<repo>/tests/cases/diag/import-cycle/main.byn

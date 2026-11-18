@@ -1,0 +1,36 @@
+1:1 Identifier `각`
+1:5 LetKeyword `let`
+1:9 Identifier `café`
+1:15 Equals `=`
+1:17 IntegerLiteral `1`
+4:1 EndOfFile
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  1 │ 각 let café = 1
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각 let café = 1
+    │   │ +
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ 각 let café = 1
+    │         ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각 let café = 1
+    │   │            +
+
+error BYN0004: unterminated block comment
+
+  2 │  /* /// Doc line two.
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │  let � = 2
+    │      ^

@@ -1,0 +1,20 @@
+== tests/cases/diag/fs-set-modified-needs-fs.byn
+157..209 blockStmt
+163..207 exprStmt
+163..207 tryExpr
+167..207 callExpr
+182..183 nameExpr
+189..206 callExpr
+204..205 literalExpr integer
+264..316 blockStmt
+270..314 exprStmt
+270..314 tryExpr
+274..314 callExpr
+289..290 nameExpr
+296..313 callExpr
+311..312 literalExpr integer
+330..349 blockStmt
+336..347 exprStmt
+336..347 callExpr
+342..346 literalExpr string
+336..347 callExpr

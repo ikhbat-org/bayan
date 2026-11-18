@@ -1,0 +1,5 @@
+== check.declared
+counts 1 1 1
+mut xs 2105..2108 false -
+loan xs h 0 0
+BYN3004 123:5 `xs` is modified while `h` still borrows it |`h` is used again on line 126|finish using `h` first, or copy what it needs before changing `xs`|

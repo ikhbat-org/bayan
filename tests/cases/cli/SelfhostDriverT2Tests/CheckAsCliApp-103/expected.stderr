@@ -1,0 +1,14 @@
+error BYN1003: expected a type, found `,`
+  --> <repo>/tmp/t2/diag/expected-member/expected-member.byn:1:15
+
+  1 │ void f(i64 a, , i64 b) {}
+    │               ^
+
+error BYN1004: expected a field, property, constructor or method, found `+`
+  --> <repo>/tmp/t2/diag/expected-member/expected-member.byn:4:5
+
+  4 │     +
+    │     ^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1003

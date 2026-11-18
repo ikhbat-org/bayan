@@ -1,0 +1,34 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 NumericSuffix `er`
+1:17 Identifier `clos`
+1:22 StringLiteral `" /// not a �oc comment`
+2:1 Identifier `b`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `{{`
+3:6 InterpolatedStringEnd `"`
+3:7 Identifier `_`
+3:9 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1er clos " /// not a �oc comment
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1er clos " /// not a �oc comment
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  1 │ let café = 1er clos " /// not a �oc comment
+    │                      ^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x9D)
+
+  1 │ let café = 1er clos " /// not a �oc comment
+    │                                  ^

@@ -1,0 +1,91 @@
+2:1 CharLiteral `'\u{D800}'`
+3:1 CharLiteral `'\u{110000}'`
+4:1 CharLiteral `'x`
+6:1 Identifier `Å`
+7:1 CharLiteral `'x`
+8:1 CharLiteral `'a'`
+8:5 CharLiteral `'\n'`
+8:10 CharLiteral `'\u{1F600}'`
+8:22 CharLiteral `'\''`
+8:27 CharLiteral `'é'`
+8:31 CharLiteral `'\\'`
+8:36 CharLiteral `'\0'`
+11:1 CharLiteral `'\u{202E}'`
+11:5 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  6 │ Å ﻿
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ Å ﻿
+    │   │ +
+
+error BYN0002: unexpected character `﻿`
+
+  6 │ Å ﻿
+    │    ^
+
+error BYN0008: unterminated char literal
+
+  7 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  10 │ ��
+     │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  10 │ ��
+     │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  10 │ ��
+     │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  10 │ ��
+     │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  10 │ ��
+     │   ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  11 │ '�' 
+     │  ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 11 │ '�' 
+     │    │  -

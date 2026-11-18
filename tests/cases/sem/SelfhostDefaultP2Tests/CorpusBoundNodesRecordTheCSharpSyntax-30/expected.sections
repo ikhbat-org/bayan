@@ -1,0 +1,11 @@
+== tests/cases/run/division-by-zero.byn
+0..17 globalStatement
+0..17 localDecl
+16..17 literalExpr integer
+18..39 exprStmt
+18..39 callExpr
+24..38 interpolatedExpr
+27..36 binaryExpr div right 32..36
+27..29 literalExpr integer
+32..36 nameExpr
+18..39 callExpr

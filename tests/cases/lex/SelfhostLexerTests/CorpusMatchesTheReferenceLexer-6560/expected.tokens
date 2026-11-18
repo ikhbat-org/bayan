@@ -1,0 +1,19 @@
+1:1 Equals `=`
+1:3 StringLiteral `"bad \q es\u{1D}ape"`
+2:1 Identifier `le`
+2:3 Dot `.`
+2:4 IntegerLiteral `5`
+2:5 NumericSuffix `f`
+4:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ = "bad \q es�ape"
+    │        ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │  �
+    │  ^

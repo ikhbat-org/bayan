@@ -1,0 +1,17 @@
+== tests/cases/diag/try-in-defer.byn
+61..88 blockStmt
+67..86 guardedStmt
+81..86 literalExpr falseKeyword
+67..71 failStmt
+72..77 targetMemberExpr
+116..141 blockStmt
+122..127 deferStmt
+128..139 exprStmt
+128..139 tryExpr
+132..139 callExpr
+143..162 globalStatement
+143..162 exprStmt
+143..162 catchExpr
+143..149 callExpr
+156..162 jumpExpr
+156..162 returnStmt

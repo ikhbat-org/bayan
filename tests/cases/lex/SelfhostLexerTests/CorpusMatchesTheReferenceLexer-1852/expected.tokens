@@ -1,0 +1,64 @@
+3:1 VarKeyword `var`
+3:5 Identifier `xs`
+3:7 Colon `:`
+3:9 Identifier `List`
+3:13 Less `<`
+3:14 Identifier `List`
+3:18 Less `<`
+3:19 Identifier `i64`
+3:22 Greater `>`
+3:23 Greater `>`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 StringLiteral `$"{$"`
+4:55 OpenBrace `{`
+4:56 StringLiteral `$"{x}"`
+4:62 CloseBrace `}`
+4:63 StringLiteral `"}"`
+4:66 InterpolationEnd `}`
+4:67 InterpolatedStringEnd `"`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+    │                                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+    │                                                  ^^

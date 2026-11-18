@@ -1,0 +1,7 @@
+$"{"'ab'
+'\q'
+let a = 1
+   """ c"text" u16"ide" "â€® allowed in strings" "" "\u{48}i"
+/	 ok þ in comment
+
+

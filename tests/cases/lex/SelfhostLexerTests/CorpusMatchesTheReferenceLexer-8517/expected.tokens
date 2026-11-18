@@ -1,0 +1,32 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+2:2 Identifier `pe`
+2:4 StringLiteral `"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""never closed\nx\n `macro select become\n`
+6:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  2 │  pe"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,4 @@
+created library `local/tally` in `<D>/tally`
+
+  cd <D>/tally
+  bayan test

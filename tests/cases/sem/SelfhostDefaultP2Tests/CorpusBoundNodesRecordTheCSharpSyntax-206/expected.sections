@@ -1,0 +1,69 @@
+== tests/cases/run/move-narrowed.byn
+137..247 blockStmt
+143..167 ifStmt
+146..151 binaryExpr lt right 150..151
+146..147 nameExpr
+150..151 literalExpr integer
+152..167 blockStmt
+154..165 returnStmt value 161..165
+161..165 literalExpr nullKeyword
+172..191 localDecl
+180..191 callExpr
+196..207 exprStmt
+196..207 callExpr
+196..197 nameExpr
+205..206 nameExpr
+212..227 exprStmt
+212..227 callExpr
+212..213 nameExpr
+221..226 binaryExpr add right 225..226
+221..222 nameExpr
+225..226 literalExpr integer
+232..245 returnStmt value 239..243
+239..243 moveExpr
+239..243 moveExpr
+244..245 nameExpr
+261..522 blockStmt
+267..285 localDecl
+275..285 callExpr
+283..284 literalExpr integer
+290..366 ifStmt
+293..306 isExpr
+293..294 nameExpr
+298..301 notPattern
+302..306 constantPattern
+302..306 literalExpr nullKeyword
+307..366 blockStmt
+317..331 localDecl
+330..331 nameExpr
+325..329 moveExpr
+330..331 nameExpr
+340..360 exprStmt
+340..360 callExpr
+346..359 interpolatedExpr
+349..357 memberExpr
+349..350 nameExpr
+340..360 callExpr
+371..389 localDecl
+379..389 callExpr
+387..388 literalExpr integer
+394..520 ifStmt
+397..410 isExpr
+397..398 nameExpr
+402..405 notPattern
+406..410 constantPattern
+406..410 literalExpr nullKeyword
+411..520 blockStmt
+421..514 switchStmt
+428..432 moveExpr
+433..434 nameExpr
+454..459 propertyPattern
+477..504 exprStmt
+477..504 callExpr
+483..503 interpolatedExpr
+486..494 memberExpr
+486..487 nameExpr
+497..501 indexExpr
+497..498 nameExpr
+499..500 literalExpr integer
+477..504 callExpr

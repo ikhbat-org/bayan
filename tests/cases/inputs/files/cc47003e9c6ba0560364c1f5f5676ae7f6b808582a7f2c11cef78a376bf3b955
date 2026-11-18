@@ -1,0 +1,11 @@
+'\q'
+ '\u{110000}'
+
+foo Bar _x camelCas�e2 بيان μετρητής x_1 é
+  = 2
+// ok � in comment
+ _
+0xF__
+ fai4ls try catch never noalloc nosuspend suspends async await
+
+let café = 1;

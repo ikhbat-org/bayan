@@ -1,0 +1,97 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolatedStringText `total `
+1:11 InterpolationStart `{`
+1:12 Identifier `x`
+1:13 InterpolationEnd `}`
+1:14 InterpolatedStringEnd `"`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolatedStringText `a `
+1:20 InterpolationStart `{`
+1:21 Identifier `f`
+1:22 OpenParen `(`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolatedStringText `b `
+1:27 InterpolationStart `{`
+1:28 Identifier `c`
+1:29 InterpolationEnd `}`
+1:30 InterpolatedStringEnd `"`
+1:31 CloseParen `)`
+1:32 InterpolationEnd `}`
+1:33 InterpolatedStringText ` d`
+1:35 InterpolatedStringEnd `"`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolatedStringText `{{literal}}`
+1:50 InterpolatedStringEnd `"`
+1:52 InterpolatedStringStart `$"`
+1:54 InterpolationStart `{`
+1:55 Identifier `Point`
+1:61 OpenBrace `{`
+1:63 Identifier `x`
+1:65 Equals `=`
+1:67 IntegerLiteral `1`
+1:69 CloseBrace `}`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringText `!`
+1:72 InterpolatedStringEnd `"`
+1:74 InterpolatedStringStart `$"`
+1:76 InterpolatedStringEnd `"`
+4:1 StructKeyword `struct`
+4:8 UniqueKeyword `unique`
+4:15 UnionKeyword `union`
+4:21 EnumKeyword `enum`
+4:26 FlagsKeyword `flags`
+4:32 OpenKeyword `open`
+4:37 ExtensibleKeyword `extensible`
+4:48 InterfaceKeyword `interface`
+4:58 Identifier `dDelegate`
+4:68 ExtensionKeyword `extension`
+4:78 DerivationKeyword `derivation`
+4:89 Identifier `attribut`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:11 IntegerLiteral `2`
+6:2 Identifier `b`
+7:2 Identifier `efer`
+7:7 Identifier `e`
+7:8 Plus `+`
+7:10 Minus `-`
+7:12 Star `*`
+7:14 Slash `/`
+7:16 Percent `%`
+7:18 PlusPercent `+%`
+7:21 MinusPercent `-%`
+7:24 StarPercent `*%`
+7:27 PlusBar `+|`
+7:30 MinusBar `-|`
+7:33 StarBar `*|`
+7:36 PlusPlus `++`
+7:39 MinusMinus `--`
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF5)
+
+  4 │ struct unique union enum flags open extensible interface dDelegate extension derivation attribut�
+    │                                                                                                 ^
+
+error BYN0002: unexpected character ```
+
+  5 │ let b = ` 2
+    │         ^

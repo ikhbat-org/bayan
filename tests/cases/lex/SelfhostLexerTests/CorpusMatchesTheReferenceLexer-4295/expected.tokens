@@ -1,0 +1,21 @@
+1:1 Greater `>`
+1:2 GreaterEquals `>=`
+1:5 IntegerLiteral `1`
+2:2 IntegerLiteral `0x`
+2:5 StringLiteral `"a\u{2067}b"`
+2:10 StringLiteral `"text"`
+2:17 StringLiteral `"esc \"q\" \\ \n"`
+2:35 RawStringLiteral `"""\r\n\r\n/// $"{{"b macro select become\r\n// \u{202E}x\r\n`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x "a�b""text" "esc \"q\" \\ \n" """
+    │  ^^
+
+error BYN0003: unterminated string literal
+
+  2 │  0x "a�b""text" "esc \"q\" \\ \n" """
+    │                                   ^^^ raw string starts here
+    │
+  help: close it with `"""`

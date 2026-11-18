@@ -1,0 +1,16 @@
+union error E {
+    a
+}
+union error F {
+    b
+}
+union error G {
+    c
+}
+interface IShape {
+    i64 area()
+}
+i64!E g<T>(T x) fails F where T : IShape expects true {
+    print("g")
+    return 1
+}

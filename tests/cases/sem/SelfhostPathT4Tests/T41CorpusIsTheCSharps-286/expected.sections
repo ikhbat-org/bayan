@@ -1,0 +1,3 @@
+== diags.generic-iface-default
+returns get -1
+returns twice -1

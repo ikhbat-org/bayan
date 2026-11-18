@@ -1,0 +1,110 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+1:4 LetKeyword `let`
+1:8 Identifier `café`
+1:14 Equals `=`
+1:16 IntegerLiteral `1`
+1:17 Semicolon `;`
+1:20 Identifier `각`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 InterpolatedStringStart `$"`
+1:59 InterpolationStart `{`
+1:60 InterpolatedStringStart `$"`
+1:62 InterpolationStart `{`
+1:63 InterpolatedStringStart `$"`
+1:65 InterpolationStart `{`
+1:66 InterpolatedStringStart `$"`
+1:68 InterpolationStart `{`
+1:69 InterpolatedStringStart `$"`
+1:71 InterpolationStart `{`
+1:72 StringLiteral `$"{$"`
+1:77 OpenBrace `{`
+1:78 Identifier `x`
+1:79 StringLiteral `"}"`
+1:82 CloseBrace `}`
+1:83 StringLiteral `"}"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:90 InterpolationEnd `}`
+1:91 InterpolatedStringEnd `"`
+1:92 InterpolationEnd `}`
+1:93 InterpolatedStringEnd `"`
+1:95 InterpolationEnd `}`
+1:96 InterpolatedStringEnd `"`
+1:97 InterpolationEnd `}`
+1:98 InterpolatedStringEnd `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `stray } ere`
+2:14 InterpolatedStringEnd `"`
+3:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ 1. let café = 1;� 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x"}"}"}"}"}"}"}"`}"}"
+    │        ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 1. let café = 1;� 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x"}"}"}"}"}"}"}"`}"}"
+    │   │           +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ 1. let café = 1;� 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x"}"}"}"}"}"}"}"`}"}"
+    │                  ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  1 │ 1. let café = 1;� 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x"}"}"}"}"}"}"}"`}"}"
+    │                    ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 1. let café = 1;� 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x"}"}"}"}"}"}"}"`}"}"
+    │   │                    +
+
+error BYN0003: unterminated string literal
+
+  1 │ 1. let café = 1;� 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x"}"}"}"}"}"}"}"`}"}"
+    │                                                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ 1. let café = 1;� 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x"}"}"}"}"}"}"}"`}"}"
+    │                                                                        ^^
+
+error BYN0002: unexpected character ```
+
+  1 │ 1. let café = 1;� 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x"}"}"}"}"}"}"}"`}"}"
+    │                                                                                              ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ $"stray } ere"
+    │         ^
+    │
+    │ 2 │ $"stray }} ere"
+    │   │          +

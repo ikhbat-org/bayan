@@ -1,0 +1,101 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:1 Identifier `ver`
+2:5 Identifier `closed`
+3:1 Identifier `b`
+5:1 FloatLiteral `3.14`
+5:6 FloatLiteral `1e5`
+5:10 FloatLiteral `2.5e-3`
+5:17 FloatLiteral `6E+2`
+5:22 FloatLiteral `1.50`
+5:26 NumericSuffix `dec`
+5:30 IntegerLiteral `1`
+5:31 DotDot `..`
+5:33 IntegerLiteral `2`
+5:35 IntegerLiteral `1`
+5:36 DotDotEquals `..=`
+5:39 IntegerLiteral `3`
+5:41 IntegerLiteral `5`
+5:42 NumericSuffix `e`
+5:44 Identifier `x`
+5:45 Dot `.`
+5:46 Identifier `y`
+5:48 FloatLiteral `2.5`
+5:51 NumericSuffix `f`
+9:2 InterpolatedStringStart `$"`
+9:4 InterpolationStart `{`
+9:5 InterpolatedStringStart `$"`
+9:7 InterpolationStart `{`
+9:8 InterpolatedStringStart `$"`
+9:10 InterpolatedStringText `\u{1D}$`
+9:12 InterpolatedStringEnd `"`
+9:13 OpenBrace `{`
+9:14 InterpolatedStringStart `$"`
+9:16 InterpolationStart `{`
+9:17 InterpolatedStringStart `$"`
+9:19 InterpolationStart `{`
+9:20 InterpolatedStringStart `$"`
+9:22 InterpolationStart `{`
+9:23 InterpolatedStringStart `$"`
+9:25 InterpolationStart `{`
+9:26 InterpolatedStringStart `$"`
+9:28 InterpolationStart `{`
+9:29 InterpolatedStringStart `$"`
+9:31 InterpolationStart `{`
+9:32 InterpolatedStringStart `$"`
+9:34 InterpolationStart `{`
+9:35 InterpolatedStringStart `$"`
+9:37 InterpolationStart `{`
+9:38 InterpolatedStringStart `$"`
+9:40 InterpolationStart `{`
+9:41 InterpolatedStringStart `$"`
+9:43 InterpolationStart `{`
+9:44 InterpolatedStringStart `$"`
+9:46 InterpolationStart `{`
+9:47 InterpolatedStringStart `$"`
+9:49 InterpolationStart `{`
+9:50 InterpolatedStringStart `$"`
+9:52 InterpolationStart `{`
+9:53 InterpolatedStringStart `$"`
+9:55 InterpolationStart `{`
+9:56 StringLiteral `$"{$"`
+9:61 OpenBrace `{`
+9:62 StringLiteral `$"{x`
+10:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  7 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ �
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  8 │ // ok � in comment
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  9 │  $"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │  $"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                                        ^^
+
+error BYN0003: unterminated string literal
+
+  9 │  $"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                                              ^^^^ string ends at the end of
+    │                                                                   the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

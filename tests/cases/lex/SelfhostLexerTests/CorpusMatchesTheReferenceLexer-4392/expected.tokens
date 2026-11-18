@@ -1,0 +1,64 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `x`
+1:5 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:11 IntegerLiteral `2`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolationEnd `}`
+5:5 InterpolatedStringEnd `"`
+5:6 Identifier `here`
+5:10 StringLiteral `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `open `
+6:8 InterpolationStart `{`
+6:9 Identifier `x`
+6:10 StringLiteral `";`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �$"x{ $"{
+    │ ^
+
+error BYN0002: unexpected character ```
+
+  2 │ let b = ` 2
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{}"here"
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

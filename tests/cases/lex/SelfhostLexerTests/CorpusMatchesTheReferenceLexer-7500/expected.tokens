@@ -1,0 +1,16 @@
+1:1 CloseBrace `}`
+1:2 StringLiteral `"}"`
+1:5 CloseBrace `}`
+1:6 CloseBrace `}`
+1:7 StringLiteral `"}"`
+1:10 CloseBrace `}`
+1:11 StringLiteral `"}"`
+1:14 CloseBrace `}`
+1:15 StringLiteral `"}"`
+1:18 StringLiteral `"}"`
+1:21 CloseBrace `}`
+1:23 LetKeyword `let`
+1:27 Identifier `afé`
+1:31 Equals `=`
+1:33 IntegerLiteral `2`
+2:1 EndOfFile

@@ -1,0 +1,4 @@
+== bind.probes.i8
+flags 0
+errorExpr:?[3498:13]=-()
+BYN2208 186:19 `..` cannot be applied to `string` and `string` ||make both range ends integers or chars of the same type|

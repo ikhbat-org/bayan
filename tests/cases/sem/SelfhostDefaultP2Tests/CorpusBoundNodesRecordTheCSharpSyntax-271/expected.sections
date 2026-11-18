@@ -1,0 +1,27 @@
+== tests/cases/run/strbuf-insert-splits-rune.byn
+0..18 globalStatement
+0..18 localDecl
+10..18 callExpr
+19..35 exprStmt
+19..35 callExpr
+19..22 nameExpr
+30..34 literalExpr string
+36..58 exprStmt
+36..58 callExpr
+36..39 nameExpr
+47..50 literalExpr string
+56..57 literalExpr integer
+59..74 exprStmt
+59..74 callExpr
+65..73 memberExpr
+65..68 nameExpr
+59..74 callExpr
+75..97 exprStmt
+75..97 callExpr
+75..78 nameExpr
+86..89 literalExpr string
+95..96 literalExpr integer
+98..118 exprStmt
+98..118 callExpr
+104..117 literalExpr string
+98..118 callExpr

@@ -1,0 +1,25 @@
+1:1 Identifier `ετρητής`
+1:9 ErrorKeyword `error`
+1:15 SetKeyword `set`
+1:19 UnitKeyword `unit`
+1:24 Identifier `distict`
+1:32 TypeKeyword `type`
+1:37 ImportKeyword `import`
+1:44 AsKeyword `as`
+1:47 PublicKeyword `public`
+1:54 Identifier `pivate`
+1:61 StaticKeyword `static`
+1:68 ReadonlyKeyword `readonly`
+1:77 RequiredKeyword `required`
+1:86 Identifier `cont`
+1:91 LetKeyword `let`
+1:95 VarKeyword `var`
+1:99 EmbedKeyword `embed`
+1:105 ExternKeyword `extern`
+1:112 UnsafeKeyword `unsafe`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  1 │ �ετρητής error set unit distict type import as public pivate static readonly required cont let var embed extern unsafe
+    │ ^

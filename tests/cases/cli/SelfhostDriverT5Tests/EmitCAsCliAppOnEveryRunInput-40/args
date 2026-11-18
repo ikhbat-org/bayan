@@ -1,0 +1,3 @@
+build
+--emit-c
+dyn-ref-unique.byn

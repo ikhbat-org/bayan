@@ -1,0 +1,3 @@
+== diags.diag/validation-error-unknown-variant
+BYN2228 19:35 `boom` is not a variant of `ValidationError<Signup> | ValidationError<Address>`
+  help use a variant of `ValidationError<Signup>`, `ValidationError<Address>`, the sets `register` fails with

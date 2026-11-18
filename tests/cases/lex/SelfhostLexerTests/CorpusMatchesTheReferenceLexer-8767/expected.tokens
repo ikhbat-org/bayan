@@ -1,0 +1,12 @@
+1:1 StringLiteral `"text"`
+1:7 Semicolon `;`
+1:9 StringLiteral `"esc \"q\" \\ \n"`
+1:27 RawStringLiteral `"""\n\nvar xs: List<List<i64>>\nb\n ̈́\n/// oDoc line one.\n _\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text"; "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

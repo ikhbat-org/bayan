@@ -1,0 +1,6 @@
+== tests/cases/diag/log-level-as-verb.byn
+12..78 blockStmt
+18..41 exprStmt
+18..41 callExpr
+46..76 exprStmt
+46..76 callExpr

@@ -1,0 +1,6 @@
+== s36
+switchExpr|i32|3376:30
+value local:i64=n
+arm 3387:9 rangePattern[3387:4]:i64(literal:i64=1,local:i64=n,false) guard - value literal:i32=1
+arm 3398:6 bindPattern[3398:1]:i64_(-) guard - value literal:i32=0
+BYN2219 107:29 a pattern must be a compile-time constant ||bind it with `var x` and compare in a `when` guard|

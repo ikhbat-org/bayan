@@ -1,0 +1,65 @@
+2:1 OpenParen `(`
+2:3 CloseParen `)`
+2:5 OpenBracket `[`
+2:7 CloseBracket `]`
+2:9 OpenBrace `{`
+2:11 CloseBrace `}`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 Identifier `x`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:60 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 
+    │                                   ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,5 @@
+error BYN2304: a positional argument cannot follow a named one
+  --> <repo>/tests/cases/diag/positional-after-named.byn:2:20
+
+  2 │ print($"{add(a: 1, "x")}")
+    │                    ^^^

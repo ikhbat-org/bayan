@@ -1,0 +1,20 @@
+== tests/cases/diag/non-exhaustive-catch-switch.byn
+261..305 blockStmt
+267..290 guardedStmt
+284..290 binaryExpr eq right 289..290
+284..285 nameExpr
+289..290 literalExpr integer
+267..271 failStmt
+272..280 targetMemberExpr
+295..303 returnStmt value 302..303
+302..303 nameExpr
+307..367 globalStatement
+307..367 localDecl
+315..367 catchExpr
+315..324 callExpr
+322..323 literalExpr integer
+331..367 switchExpr
+331..337 caughtErrorExpr
+344..359 constantPattern
+344..359 memberExpr
+363..364 literalExpr integer

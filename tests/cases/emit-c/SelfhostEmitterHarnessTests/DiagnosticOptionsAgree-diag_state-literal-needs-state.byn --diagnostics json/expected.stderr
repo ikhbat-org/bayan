@@ -1,0 +1,2 @@
+{"code":"BYN7005","severity":"error","file":"input.byn","span":{"start":100,"end":105,"line":9,"column":13,"endLine":9,"endColumn":18},"message":"`Order` has states; a literal must name one: `Order.draft { … }`","label":null,"help":"name the state the value starts in","fixes":[]}
+{"code":"BYN7005","severity":"error","file":"input.byn","span":{"start":128,"end":133,"line":10,"column":13,"endLine":10,"endColumn":18},"message":"`Order` has states; a literal must name one: `Order.draft { … }`","label":null,"help":"name the state the value starts in","fixes":[]}

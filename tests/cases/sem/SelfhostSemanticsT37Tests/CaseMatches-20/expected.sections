@@ -1,0 +1,4 @@
+== into.local
+counts 0 1 1
+loan b xs 1525 0
+BYN3002 95:21 `a` does not live as long as `xs`, which borrows it |`a` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

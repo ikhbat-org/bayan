@@ -1,0 +1,41 @@
+i64 folds(i64 x) {
+    let a = 6 * 7
+    let b = 9 / 3
+    let r = 10 % 4
+    let k = 3037000499 * 3037000499
+    let d = -7 / 2
+    let e = -7 % 3
+    let z = 5 - 5
+    let o = 4611686018427387904 / 2
+    var u: i64
+    u = x
+    var n = 0
+    do {
+        n += 1
+    } while n < 3
+    return a + b + r + u + n + -x + d + e + z + k / 3037000499 + -5 + o / 2305843009213693952
+}
+
+f64 half(f64 v) => v / 2.0 + 1.5
+
+f64 twice(f64 v) {
+    return v * 2.0 + -5.0
+}
+
+string quoted() => "tab\there \"q\" back\\slash"
+
+i64 plusNever(i64 x) => x + panic("no")
+
+bool andNever(bool a) => a && panic("no")
+
+void ifNever(i64 x) {
+    if panic("no") { print("a") }
+}
+
+void main() {
+    print($"{folds(2)} {half(3.0)} {twice(1.0)} {quoted()}")
+    if folds(0) < 0 {
+        print($"{plusNever(1)} {andNever(a: true)}")
+        ifNever(1)
+    }
+}

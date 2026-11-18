@@ -1,0 +1,84 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετ`
+1:32 Identifier `ρητής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+2:2 IntegerLiteral `0xF__`
+3:2 OpenParen `(`
+3:4 CloseParen `)`
+3:6 OpenBracket `[`
+3:8 CloseBracket `]`
+3:10 OpenBrace `{`
+3:12 CloseBrace `}`
+4:1 CloseBrace `}`
+4:2 LetKeyword `let`
+4:6 Identifier `ffect`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
+6:1 Identifier `각`
+6:5 Identifier `FFs`
+7:1 IntegerLiteral `0b1`
+7:4 NumericSuffix `ms`
+8:1 IntegerLiteral `0x_`
+9:1 IntegerLiteral `0b__`
+10:1 IntegerLiteral `1__`
+11:1 IntegerLiteral `0x`
+11:3 Caret `^`
+11:4 Identifier `__`
+13:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  1 │ foo Bar _x camelCase2 بيان μετ�ρητής x_1 é
+    │                               ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  0xF__
+    │     ^^
+    │
+    │ 2 │  0xF__
+    │   │     --
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  6 │ 각 FFs
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ 각 FFs
+    │   │ +
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  9 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 1__
+     │  ^^
+     │
+     │ 10 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  11 │ 0x^__
+     │ ^^

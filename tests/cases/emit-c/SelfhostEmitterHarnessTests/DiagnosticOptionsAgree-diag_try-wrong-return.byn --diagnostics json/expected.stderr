@@ -1,0 +1,1 @@
+{"code":"BYN5003","severity":"error","file":"input.byn","span":{"start":130,"end":133,"line":10,"column":5,"endLine":10,"endColumn":8},"message":"`tryParse` must return `i64?` or `bool`; it is derived from `parse() fails`","label":"returns `i64`","help":"change it to return `i64?` or `bool`, or remove `tryParse` and call `try parse()`","fixes":[]}

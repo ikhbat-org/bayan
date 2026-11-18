@@ -1,0 +1,1 @@
+bool f(bool a, bool b) => a and not b or not (a)

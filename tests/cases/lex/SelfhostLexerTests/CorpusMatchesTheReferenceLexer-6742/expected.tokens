@@ -1,0 +1,22 @@
+2:1 Semicolon `;`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  1 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ ��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ ;�
+    │  ^

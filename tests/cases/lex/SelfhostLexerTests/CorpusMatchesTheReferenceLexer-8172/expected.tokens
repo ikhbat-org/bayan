@@ -1,0 +1,17 @@
+1:1 Identifier `FFu`
+1:5 IntegerLiteral `0b1`
+1:8 NumericSuffix `ul`
+1:11 IntegerLiteral `7`
+1:12 NumericSuffix `l`
+2:2 LetKeyword `let`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:10 RawStringLiteral `"""never closed\n\nlet law = 3\n<List<i64>>\na >> b\nc >>= 1\n let a = $ 1\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  let c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

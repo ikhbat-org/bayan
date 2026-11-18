@@ -1,0 +1,44 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 Identifier `his`
+1:37 NullKeyword `null`
+1:42 TrueKeyword `true`
+1:47 FalseKeyword `false`
+1:53 ComptimeKeyword `comptime`
+1:62 CheckedKeyword `checked`
+2:2 LetKeyword `let`
+2:8 Equals `=`
+2:10 IntegerLiteral `2`
+4:2 LetKeyword `let`
+4:6 Identifier `a`
+4:8 Equals `=`
+4:10 StringLiteral `"open`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9C)
+
+  1 │ is and or not with move ref out �his null true false comptime checked
+    │                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │  let � = 2
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  4 │  let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

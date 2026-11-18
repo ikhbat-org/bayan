@@ -1,0 +1,7 @@
+b
+ let law = 3
+  b = ` 2
+let c =  3
+
+$"{{literal}}" $"{Point { x = 1 }}!" $""
+À€

@@ -1,0 +1,38 @@
+1:1 CloseBrace `}`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 OrKeyword `or`
+2:11 NotKeyword `not`
+2:15 WithKeyword `with`
+2:20 MoveKeyword `move`
+2:25 RefKeyword `ref`
+2:29 OutKeyword `out`
+2:33 ThisKeyword `this`
+2:38 NullKeyword `null`
+2:43 TrueKeyword `true`
+2:48 FalseKeyword `false`
+2:54 ComptimeKeyword `comptime`
+2:63 CheckedKeyword `checked`
+    doc `/// Doc line two.`
+5:2 IsKeyword `is`
+5:5 AndKeyword `and`
+5:9 OrKeyword `or`
+5:12 NotKeyword `not`
+5:16 WithKeyword `with`
+5:21 MoveKeyword `move`
+5:26 RefKeyword `ref`
+5:30 OutKeyword `out`
+5:34 ThisKeyword `this`
+5:39 NullKeyword `null`
+5:44 TrueKeyword `true`
+5:49 FalseKeyword `false`
+5:55 ComptimeKeyword `comptime`
+5:64 CheckedKeyword `checked`
+8:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  6 │  /* 3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

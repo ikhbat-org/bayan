@@ -1,0 +1,84 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+3:1 LetKeyword `let`
+3:5 Identifier `actor`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+6:3 CharLiteral `'`
+8:1 CharLiteral `''`
+8:4 Identifier `u`
+8:5 OpenBrace `{`
+8:6 IntegerLiteral `110000`
+8:12 CloseBrace `}`
+8:13 CharLiteral `'`
+9:1 Identifier `b`
+12:1 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  6 │ ��'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  6 │ ��'
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  6 │ ��'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0007: empty char literal
+
+  8 │ ''\u{110000}'
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `\`
+
+  8 │ ''\u{110000}'
+    │   ^
+
+error BYN0008: unterminated char literal
+
+  8 │ ''\u{110000}'
+    │             ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  10 │  // ok � in comment
+     │        ^

@@ -1,0 +1,3 @@
+== diags.diag/lambda-capture-rule-it
+BYN2821 4:51 `it` cannot be captured: the checked value is read through `this`, which a lambda does not capture
+  help copy the fields you need into `let` values first

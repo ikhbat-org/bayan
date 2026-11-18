@@ -1,0 +1,17 @@
+1:2 Identifier `Q`
+1:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  1 │ �Q�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  1 │ �Q�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  1 │ �Q�
+    │   ^

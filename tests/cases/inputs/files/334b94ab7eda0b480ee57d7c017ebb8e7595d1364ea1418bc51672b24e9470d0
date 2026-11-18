@@ -1,0 +1,19 @@
+// os: unix
+// A null `env:` value removes the inherited variable of its name; a string still adds or overrides one, and the others
+// stay visible (plan 007).
+void main() fails IoError {
+    let show: string[2] = ["-c", "printf '%s|%s|%s\\n' \"${HOME-unset}\" \"${BAYAN_T5_ADDED-unset}\" \"${PATH:+path inherited}\""]
+    var env = Map<string, string?>()
+    env["HOME"] = null
+    env["BAYAN_T5_ADDED"] = "added"
+    print((try Io.run("sh", show.span, env: env)).stdout)
+    // The same name overridden instead, and a removed entry is not passed at all.
+    env["HOME"] = "/overridden"
+    let _ = env.remove("BAYAN_T5_ADDED")
+    print((try Io.run("sh", show.span, env: env)).stdout)
+    // Unsetting a name the environment does not have changes nothing.
+    var absent = Map<string, string?>()
+    absent["BAYAN_T5_ABSENT"] = null
+    let probe: string[2] = ["-c", "printf '[%s]\\n' \"${BAYAN_T5_ABSENT-unset}\""]
+    print((try Io.run("sh", probe.span, env: absent)).stdout)
+}

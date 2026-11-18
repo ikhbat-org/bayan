@@ -1,0 +1,47 @@
+1:1 Identifier `l`
+1:2 Identifier `et`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:3 Identifier `u`
+2:4 OpenBrace `{`
+2:5 IntegerLiteral `1`
+2:6 NumericSuffix `F600`
+2:11 CharLiteral `' ₀let a = "op�n`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ l�et café = 1
+    │  ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ l�et café = 1
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ l�et café = 1
+    │   │         +
+
+error BYN0002: unexpected character `\`
+
+  2 │  \u{1F600�' ₀let a = "op�n
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │  \u{1F600�' ₀let a = "op�n
+    │          ^
+
+error BYN0008: unterminated char literal
+
+  2 │  \u{1F600�' ₀let a = "op�n
+    │           ^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  2 │  \u{1F600�' ₀let a = "op�n
+    │                         ^

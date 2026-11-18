@@ -1,0 +1,3 @@
+} 
+glet b = "bad \q escape"
+let c ­= """never cˆlosed

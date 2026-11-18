@@ -1,0 +1,7 @@
+0x_
+ is and or not with move ref out ths null true false comptime checked
+
+et c =  3
+a /* never closed
+ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}} $"{Point { x = 1 }}!" $""
+

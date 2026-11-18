@@ -1,0 +1,49 @@
+1:1 CharLiteral `'ab'`
+3:1 IntegerLiteral `000`
+3:4 CloseBrace `}`
+3:5 CharLiteral `'`
+4:1 CharLiteral `'x`
+5:1 NeverKeyword `never`
+5:7 Identifier `closed`
+6:1 Identifier `b`
+7:2 Identifier `macro`
+7:8 Identifier `seect`
+7:14 BecomeKeyword `become`
+8:1 PlusEquals `+=`
+8:4 MinusEquals `-=`
+8:7 StarEquals `*=`
+8:10 SlashEquals `/=`
+8:13 PercentEquals `%=`
+8:16 AmpEquals `&=`
+8:19 BarEquals `|=`
+8:22 CaretEquals `^=`
+8:25 LessLessEquals `<<=`
+10:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0008: unterminated char literal
+
+  3 │ 000}'
+    │     ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  7 │  macro seect become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

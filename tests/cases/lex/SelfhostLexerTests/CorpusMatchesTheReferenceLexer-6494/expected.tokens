@@ -1,0 +1,46 @@
+1:1 Identifier `ạ̇`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 StringLiteral `"`
+2:1 RawStringLiteral `"""\n// line comment\n10000}'\n'x\n`
+6:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇ �� $"{"
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇ �� $"{"
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ạ̇ �� $"{"
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ạ̇ �� $"{"
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ạ̇ �� $"{"
+    │        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ ạ̇ �� $"{"
+    │           ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

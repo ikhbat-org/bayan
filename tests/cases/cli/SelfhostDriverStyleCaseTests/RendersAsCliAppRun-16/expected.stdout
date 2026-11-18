@@ -1,0 +1,6 @@
+  parse      [38;2;180;178;169m0.00s[0m
+  check      [38;2;180;178;169m0.00s[0m
+  emit       [38;2;180;178;169m0.00s[0m
+  compile    [38;2;180;178;169m0.00s[0m
+  [38;2;180;178;169m<repo>/tmp/t7-style/build-ok-verbose-force/tally/tally[0m
+[38;2;143;214;148m◆ built tally (safe, macos-arm64) in 0.00s[0m

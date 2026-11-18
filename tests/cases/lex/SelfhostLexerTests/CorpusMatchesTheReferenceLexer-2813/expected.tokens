@@ -1,0 +1,79 @@
+1:1 CharLiteral `'\q'`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:9 StringLiteral `"bad \q escape"`
+5:1 IntegerLiteral `1_`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 Identifier `x`
+6:50 InterpolationEnd `}`
+6:51 InterpolatedStringEnd `"`
+6:53 StringLiteral `"{`
+7:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" "{
+    │                                           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" "{
+    │                                                     ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

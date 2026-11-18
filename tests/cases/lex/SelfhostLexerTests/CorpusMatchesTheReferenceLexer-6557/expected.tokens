@@ -1,0 +1,18 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esPc \"q\" \ \n"`
+1:26 RawStringLiteral `"""\n0b102\nạ̇ `
+3:5 EndOfFile
+
+error BYN0006: invalid escape sequence `\ `
+
+  1 │ "text" "esPc \"q\" \ \n" """
+    │                    ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esPc \"q\" \ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

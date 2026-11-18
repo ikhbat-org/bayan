@@ -1,0 +1,100 @@
+    doc `/// D�c line one.`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 Identifier `l`
+4:44 InterpolationEnd `}`
+4:45 InterpolatedStringEnd `"`
+4:46 InterpolationEnd `}`
+4:47 InterpolatedStringEnd `"`
+4:48 InterpolationEnd `}`
+4:49 InterpolatedStringEnd `"`
+4:50 InterpolationEnd `}`
+4:51 InterpolatedStringEnd `"`
+4:52 InterpolationEnd `}`
+4:53 InterpolatedStringEnd `"`
+4:54 InterpolationEnd `}`
+4:55 InterpolatedStringEnd `"`
+4:56 InterpolationEnd `}`
+4:57 InterpolatedStringEnd `"`
+4:58 InterpolationEnd `}`
+4:59 InterpolatedStringEnd `"`
+4:60 InterpolationEnd `}`
+4:61 InterpolatedStringEnd `"`
+4:62 InterpolationEnd `}`
+4:63 InterpolatedStringEnd `"`
+4:64 InterpolationEnd `}`
+4:65 InterpolatedStringEnd `"`
+4:66 InterpolationEnd `}`
+4:67 InterpolatedStringEnd `"`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringEnd `"`
+5:1 IntegerLiteral `0xFF`
+5:5 NumericSuffix `s`
+6:2 StringLiteral `" // \u{202E}x`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB3)
+
+  1 │ /// D�c line one.
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │  �
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{l}"�}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{l}"�}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                              ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  5 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  6 │  " // �x
+    │  ^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,38 @@
+1:1 Identifier `F__`
+2:1 Comma `,`
+2:3 Dot `.`
+2:5 DotDot `..`
+2:8 DotDot `..`
+2:10 Identifier `g`
+2:12 Colon `:`
+2:16 QuestionQuestion `??`
+2:19 QuestionQuestionEquals `??=`
+2:23 QuestionDot `?.`
+2:26 FatArrow `=>`
+2:29 Arrow `->`
+2:32 At `@`
+2:34 Hash `#`
+4:1 ErrorKeyword `error`
+4:7 SetKeyword `set`
+4:11 UnitKeyword `unit`
+4:16 DistinctKeyword `distinct`
+4:25 TypeKeyword `type`
+4:30 ImportKeyword `import`
+4:37 AsKeyword `as`
+4:40 PublicKeyword `public`
+4:47 PrivateKeyword `private`
+4:55 StaticKeyword `static`
+4:62 ReadonlyKeyword `readonly`
+4:71 RequiredKeyword `required`
+4:80 ConstKeyword `const`
+4:86 LetKeyword `let`
+4:90 VarKeyword `var`
+4:94 EmbedKeyword `embed`
+4:100 ExternKeyword `extern`
+4:107 UnsafeKeyword `unsafe`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD3)
+
+  2 │ , . .. ..g : � ?? ??= ?. => -> @ #
+    │              ^

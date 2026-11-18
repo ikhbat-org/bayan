@@ -1,0 +1,16 @@
+== tests/cases/run/struct-default-forward-struct.byn
+47..59 globalStatement
+47..59 localDecl
+55..59 structLiteralExpr
+17..21 structLiteralExpr
+43..44 literalExpr integer
+60..77 exprStmt
+60..77 callExpr
+66..76 interpolatedExpr
+69..74 memberExpr
+69..72 memberExpr
+69..70 nameExpr
+60..77 callExpr
+17..21 structLiteralExpr
+43..44 literalExpr integer
+43..44 literalExpr integer

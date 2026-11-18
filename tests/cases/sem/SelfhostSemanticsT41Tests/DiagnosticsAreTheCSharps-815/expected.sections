@@ -1,0 +1,3 @@
+== diags.diag/validation-error-undeclared
+BYN2603 13:13 `ValidationError<Signup>` is not in the `fails` clause of `register`
+  help add it to the signature: `fails ValidationError<Address>, ValidationError<Signup>`

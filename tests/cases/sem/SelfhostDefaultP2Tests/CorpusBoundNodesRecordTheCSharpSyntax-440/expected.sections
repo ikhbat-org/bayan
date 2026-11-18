@@ -1,0 +1,41 @@
+== tests/cases/diag/dyn-ref-local-argument-modified.byn
+313..326 blockStmt
+315..324 exprStmt
+315..324 callExpr
+315..316 nameExpr
+339..489 blockStmt
+345..377 localDecl
+353..377 structLiteralExpr
+364..375 callExpr
+382..399 exprStmt
+382..399 callExpr
+382..389 memberExpr
+382..383 nameExpr
+397..398 literalExpr integer
+404..424 localDecl
+412..424 memberExpr
+412..419 memberExpr
+412..413 nameExpr
+429..454 localDecl
+453..454 nameExpr
+453..454 nameExpr
+459..466 exprStmt
+459..466 callExpr
+464..465 nameExpr
+471..487 exprStmt
+471..487 callExpr
+477..486 interpolatedExpr
+480..484 indexExpr
+480..481 nameExpr
+482..483 literalExpr integer
+471..487 callExpr
+229..282 blockStmt
+239..252 exprStmt
+239..252 callExpr
+239..244 nameExpr
+239..244 nameExpr
+261..276 exprStmt
+261..276 callExpr
+261..266 nameExpr
+261..266 nameExpr
+274..275 literalExpr integer

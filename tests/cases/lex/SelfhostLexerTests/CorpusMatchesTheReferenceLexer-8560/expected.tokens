@@ -1,0 +1,14 @@
+1:2 Identifier `select`
+1:9 BecomeKeyword `become`
+2:1 LetKeyword `let`
+2:5 Identifier `lw`
+2:8 Equals `=`
+2:10 IntegerLiteral `3`
+3:2 EndOfFile
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │  select become
+    │  ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

@@ -1,0 +1,131 @@
+1:1 Identifier `Å`
+1:6 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:11 IntegerLiteral `0xF__`
+3:1 CharLiteral `'\u{202E}'`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 StringLiteral `$"{$"`
+3:58 OpenBrace `{`
+3:59 StringLiteral `$"{$"`
+3:64 OpenBrace `{`
+3:65 Identifier `x`
+3:66 CloseBrace `}`
+3:67 StringLiteral `"}"`
+3:70 CloseBrace `}`
+3:71 StringLiteral `"}"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:81 IntegerLiteral `0`
+3:83 IntegerLiteral `42`
+3:86 IntegerLiteral `1_000_000`
+3:96 IntegerLiteral `0xFF`
+3:101 IntegerLiteral `0x_ff`
+3:107 IntegerLiteral `0b1010`
+3:114 IntegerLiteral `0B11`
+3:119 IntegerLiteral `5`
+3:120 NumericSuffix `s`
+3:122 IntegerLiteral `250`
+3:125 NumericSuffix `ms`
+3:128 IntegerLiteral `4`
+3:129 NumericSuffix `KiB`
+3:133 IntegerLiteral `1`
+3:134 NumericSuffix `u`
+3:136 IntegerLiteral `0xFF`
+3:140 NumericSuffix `u`
+3:142 IntegerLiteral `0b1`
+3:145 NumericSuffix `ul`
+3:148 IntegerLiteral `7`
+3:149 NumericSuffix `l`
+4:1 Identifier `ase2`
+4:8 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å  $ 1
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å  $ 1
+    │   │ +
+
+error BYN0002: unexpected character `$`
+
+  1 │ Å  $ 1
+    │    ^
+
+error BYN0002: unexpected character ```
+
+  2 │ let b = ` 0xF__
+    │         ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ let b = ` 0xF__
+    │              ^^
+    │
+    │ 2 │ let b = ` 0xF__
+    │   │              --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ '�' $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ '�' $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  3 │ '�' $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ '�' $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                                                     ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  4 │ ase2 � 
+    │      ^

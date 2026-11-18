@@ -1,0 +1,5 @@
+== case inline/style-width-int-max
+errors 1
+error BYN3102: `style.indent` must be a positive integer, e.g. `4`
+  1 │ Package { name: "local/a", version: "0.1.0", style: Style { width: 2147483647, indent: 2147483648 } }
+    │                                                                                        ^^^^^^^^^^

@@ -1,0 +1,24 @@
+== tests/cases/run/strbuf-finish-then-append.byn
+0..17 globalStatement
+0..17 localDecl
+9..17 callExpr
+18..37 exprStmt
+18..37 callExpr
+18..20 nameExpr
+28..36 literalExpr string
+38..57 localDecl
+46..57 callExpr
+46..48 nameExpr
+58..77 exprStmt
+58..77 callExpr
+58..60 nameExpr
+68..76 literalExpr string
+78..86 exprStmt
+78..86 callExpr
+84..85 nameExpr
+78..86 callExpr
+87..105 exprStmt
+87..105 callExpr
+93..104 callExpr
+93..95 nameExpr
+87..105 callExpr

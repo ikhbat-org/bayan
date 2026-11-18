@@ -1,0 +1,4 @@
+1:1 IntegerLiteral `1`
+    doc `/// Doc line two.`
+4:2 CloseBrace `}`
+5:1 EndOfFile

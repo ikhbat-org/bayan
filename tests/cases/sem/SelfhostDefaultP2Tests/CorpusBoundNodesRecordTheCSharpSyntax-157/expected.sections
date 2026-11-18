@@ -1,0 +1,78 @@
+== tests/cases/run/lambda-generic.byn
+34..38 callExpr
+34..38 callExpr
+34..38 callExpr
+34..35 nameExpr
+36..37 nameExpr
+77..109 callExpr
+77..109 callExpr
+77..109 callExpr
+83..101 lambdaExpr
+88..92 nameExpr
+107..108 nameExpr
+123..203 blockStmt
+129..161 exprStmt
+129..161 callExpr
+135..160 interpolatedExpr
+138..158 callExpr
+144..145 literalExpr integer
+151..157 binaryExpr mul right 156..157
+129..161 callExpr
+166..201 exprStmt
+166..201 callExpr
+172..200 callExpr
+178..181 literalExpr string
+187..199 lambdaExpr
+166..201 callExpr
+88..101 callExpr
+88..101 callExpr
+88..101 callExpr
+88..92 nameExpr
+93..100 callExpr
+93..97 nameExpr
+98..99 nameExpr
+77..109 callExpr
+77..109 callExpr
+77..109 callExpr
+83..101 lambdaExpr
+88..92 nameExpr
+107..108 nameExpr
+151..157 binaryExpr mul right 156..157
+151..157 binaryExpr mul right 156..157
+151..157 binaryExpr mul right 156..157
+151..153 nameExpr
+156..157 literalExpr integer
+77..109 callExpr
+77..109 callExpr
+77..109 callExpr
+83..101 lambdaExpr
+88..92 nameExpr
+107..108 nameExpr
+192..199 interpolatedExpr
+192..199 interpolatedExpr
+192..199 interpolatedExpr
+195..196 nameExpr
+34..38 callExpr
+34..38 callExpr
+34..38 callExpr
+34..35 nameExpr
+36..37 nameExpr
+88..101 callExpr
+88..101 callExpr
+88..101 callExpr
+88..92 nameExpr
+93..100 callExpr
+93..97 nameExpr
+98..99 nameExpr
+34..38 callExpr
+34..38 callExpr
+34..38 callExpr
+34..35 nameExpr
+36..37 nameExpr
+88..101 callExpr
+88..101 callExpr
+88..101 callExpr
+88..92 nameExpr
+93..100 callExpr
+93..97 nameExpr
+98..99 nameExpr

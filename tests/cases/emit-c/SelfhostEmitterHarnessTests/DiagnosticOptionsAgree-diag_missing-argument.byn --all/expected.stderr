@@ -1,0 +1,8 @@
+error BYN2301: missing argument `by` for `area`
+  --> input.byn:2:10
+
+  2 │ print($"{area(width: 3)}")
+    │          ^^^^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2301

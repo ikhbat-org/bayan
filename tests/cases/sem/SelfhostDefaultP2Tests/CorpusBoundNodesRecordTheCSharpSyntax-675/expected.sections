@@ -1,0 +1,9 @@
+== tests/cases/diag/never-returns.byn
+13..31 blockStmt
+19..29 exprStmt
+19..29 callExpr
+25..28 literalExpr string
+19..29 callExpr
+33..39 globalStatement
+33..39 exprStmt
+33..39 callExpr

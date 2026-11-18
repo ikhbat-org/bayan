@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/error-set-same-name
+--include-path
+<repo>/tests/cases/diag/error-set-same-name/main.byn

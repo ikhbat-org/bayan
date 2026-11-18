@@ -1,0 +1,15 @@
+== tests/cases/diag/panic-handler-strbuf-over.byn
+22..94 blockStmt
+28..65 localDecl
+36..65 callExpr
+48..64 stackallocExpr
+70..92 exprStmt
+70..92 callExpr
+70..71 nameExpr
+79..91 literalExpr string
+108..155 blockStmt
+114..137 assignStmt assign target 114..127 value 130..137
+142..153 exprStmt
+142..153 callExpr
+148..152 literalExpr string
+142..153 callExpr

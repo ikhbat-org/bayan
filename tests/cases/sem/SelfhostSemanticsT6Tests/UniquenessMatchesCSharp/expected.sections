@@ -1,0 +1,71 @@
+== unique
+0 false - -
+1 false - -
+2 false - -
+3 false - -
+4 false - -
+5 false - -
+6 false - -
+7 false - -
+8 false - -
+9 false - -
+10 false - -
+11 false - -
+12 false - -
+13 false - -
+14 false - -
+15 false - -
+16 false - -
+17 false - -
+18 false - -
+19 false - -
+20 false - -
+21 false - -
+22 true List<i32> `List<i32>` is unique: it owns its storage
+23 true List<u8> `List<u8>` is unique: it owns its storage
+24 false - -
+25 false - -
+26 false - -
+27 false - -
+28 false - -
+29 false - -
+30 false - -
+31 false - -
+32 true List<i32> `Result<List<i32>, Err>` is unique because it holds a `List<i32>`
+33 false - -
+34 false - -
+35 false - -
+36 false - -
+37 true Map<i32, string> `Map<i32, string>` is unique: it owns its storage
+38 true Owned<i32> `Owned<i32>` is unique: it owns its storage
+39 true List<i32> `Untrusted<List<i32>>` is unique because it holds a `List<i32>`
+40 false - -
+41 true List<i32> `(i32, List<i32>)` is unique because it holds a `List<i32>`
+42 false - -
+43 true StrBuf `StrBuf` is unique: it owns its storage
+44 false - -
+45 false - -
+46 true List<i32> `Holder` is unique because field `items` is a `List<i32>`
+47 true Handle `Handle` is declared `unique struct`
+48 true List<i32> `Nest` is unique because field `h` is a `Holder`
+49 false - -
+50 false - -
+51 false - -
+52 true List<u8> `Msg` is unique because variant `data` holds a `List<u8>`
+53 false - -
+54 false - -
+55 true List<i32> `Holder` is unique because field `items` is a `List<i32>`
+56 false - -
+57 true List<i32> `Nest` is unique because field `h` is a `Holder`
+58 false - -
+59 false - -
+60 false - -
+61 true T type parameter `T` may stand for a unique type
+62 true U type parameter `U` may stand for a unique type
+63 false - -
+64 false - -
+65 true List<i32> `List<i32>?` is unique because it holds a `List<i32>`
+66 true Owned<Handle> `Owned<Handle>` is unique: it owns its storage
+67 true Handle `Handle[2]` is unique because it holds a `Handle`
+68 false - -
+69 false - -

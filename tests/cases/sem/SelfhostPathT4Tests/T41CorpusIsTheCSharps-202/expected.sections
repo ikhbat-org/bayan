@@ -1,0 +1,3 @@
+== diags.diag/for-dyn-ref-conditional
+BYN2106 15:26 cannot modify this value
+  label it is borrowed element by element as `dyn ref IC`

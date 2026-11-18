@@ -1,0 +1,38 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `x`
+1:4 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:10 CharLiteral `'ab'`
+    doc `/// Dc line one.`
+4:3 Identifier `z1__`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"x{ $"{ 'ab'
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ $"x{ $"{ 'ab'
+    │          ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `‏`
+
+  4 │  ‏z1__
+    │  ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  5 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │  �
+    │   │  -

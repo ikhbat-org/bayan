@@ -1,0 +1,46 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+2:1 Identifier `b1ms`
+3:1 IntegerLiteral `0x_`
+4:1 IntegerLiteral `0b__`
+5:1 IntegerLiteral `1__`
+6:1 IntegerLiteral `0xF_`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1__
+    │  ^^
+    │
+    │ 5 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 0xF_��
+    │    ^
+    │
+    │ 6 │ 0xF_��
+    │   │    -
+
+error BYN0002: unexpected character `\u{1C}`
+
+  6 │ 0xF_��
+    │     ^
+
+error BYN0002: unexpected character `\u{14}`
+
+  6 │ 0xF_��
+    │      ^

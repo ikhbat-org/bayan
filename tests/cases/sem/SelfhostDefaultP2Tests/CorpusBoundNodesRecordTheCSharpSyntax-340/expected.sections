@@ -1,0 +1,193 @@
+== tests/cases/run/validation-violations.byn
+410..476 blockStmt
+416..474 returnStmt value 423..474
+423..474 tryExpr
+427..474 structLiteralExpr
+427..474 structLiteralExpr
+442..446 nameExpr
+453..456 nameExpr
+468..472 nameExpr
+526..810 blockStmt
+532..572 exprStmt
+532..572 callExpr
+538..571 interpolatedExpr
+541..558 memberExpr
+541..551 nameExpr
+532..572 callExpr
+577..808 forStmt
+586..596 nameExpr
+597..808 blockStmt
+607..764 localDecl
+618..764 switchExpr
+618..624 memberExpr
+618..619 nameExpr
+646..665 variantPattern
+654..657 varPattern
+669..677 literalExpr string
+691..709 variantPattern
+698..701 varPattern
+713..720 literalExpr string
+734..741 constantPattern
+745..753 literalExpr string
+773..802 exprStmt
+773..802 callExpr
+779..801 interpolatedExpr
+784..791 memberExpr
+784..785 nameExpr
+795..799 nameExpr
+773..802 callExpr
+853..1043 blockStmt
+859..1008 localDecl
+867..1008 catchExpr
+867..888 callExpr
+874..878 nameExpr
+884..887 nameExpr
+895..1008 switchExpr
+895..901 caughtErrorExpr
+912..936 variantPattern
+921..924 varPattern
+940..1001 blockExpr
+940..1001 blockExpr
+940..1001 blockStmt
+954..972 exprStmt
+954..972 callExpr
+961..971 nameExpr
+985..991 returnStmt
+1013..1041 exprStmt
+1013..1041 callExpr
+1019..1040 interpolatedExpr
+1032..1038 memberExpr
+1032..1033 nameExpr
+1013..1041 callExpr
+1083..1261 blockStmt
+1089..1226 localDecl
+1097..1226 catchExpr
+1097..1118 callExpr
+1104..1108 nameExpr
+1114..1117 nameExpr
+1125..1226 switchExpr
+1125..1131 caughtErrorExpr
+1142..1152 variantPattern
+1142..1152 variantPattern
+1142..1152 variantPattern
+1156..1219 blockExpr
+1156..1219 blockExpr
+1156..1219 blockStmt
+1170..1190 exprStmt
+1170..1190 callExpr
+1177..1189 memberExpr
+1177..1178 nameExpr
+1203..1209 returnStmt
+1231..1259 exprStmt
+1231..1259 callExpr
+1237..1258 interpolatedExpr
+1250..1256 memberExpr
+1250..1251 nameExpr
+1231..1259 callExpr
+1275..1663 blockStmt
+1395..1418 exprStmt
+1395..1418 callExpr
+1406..1410 literalExpr string
+1416..1417 literalExpr integer
+1539..1565 exprStmt
+1539..1565 callExpr
+1547..1555 literalExpr string
+1561..1564 literalExpr integer
+1637..1661 exprStmt
+1637..1661 callExpr
+1645..1652 literalExpr string
+1658..1660 literalExpr integer
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+159..189 requiresRule
+159..189 requiresRule
+168..189 inExpr
+168..180 memberExpr
+168..170 nameExpr
+168..170 nameExpr
+184..189 rangeExpr
+184..185 literalExpr integer
+188..189 literalExpr integer
+159..189 requiresRule
+159..189 requiresRule
+159..189 requiresRule
+159..189 requiresRule
+159..189 requiresRule
+159..189 requiresRule
+159..189 requiresRule
+168..189 inExpr
+184..185 literalExpr integer
+188..189 literalExpr integer
+159..189 requiresRule
+159..189 requiresRule
+159..189 requiresRule
+210..233 requiresRule
+210..233 requiresRule
+219..233 inExpr
+219..221 nameExpr
+219..221 nameExpr
+225..233 rangeExpr
+225..227 literalExpr integer
+230..233 literalExpr integer
+210..233 requiresRule
+210..233 requiresRule
+210..233 requiresRule
+210..233 requiresRule
+210..233 requiresRule
+210..233 requiresRule
+210..233 requiresRule
+219..233 inExpr
+225..227 literalExpr integer
+230..233 literalExpr integer
+210..233 requiresRule
+210..233 requiresRule
+210..233 requiresRule
+262..285 requiresRule
+262..285 requiresRule
+271..285 binaryExpr ne right 277..285
+271..273 nameExpr
+271..273 nameExpr
+277..285 literalExpr string
+262..285 requiresRule
+262..285 requiresRule
+262..285 requiresRule
+262..285 requiresRule
+262..285 requiresRule
+262..285 requiresRule
+262..285 requiresRule
+262..285 requiresRule
+262..285 requiresRule
+262..285 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+300..316 binaryExpr ne right 308..316
+300..304 nameExpr
+300..304 nameExpr
+308..316 nameExpr
+308..316 nameExpr
+291..330 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+291..330 requiresRule
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl
+112..332 structDecl

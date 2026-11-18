@@ -1,0 +1,206 @@
+1:1 Identifier `b`
+3:1 Identifier `t`
+3:3 Identifier `a`
+3:5 Equals `=`
+3:7 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:7 Equals `=`
+4:9 IntegerLiteral `2`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 StringLiteral `$"{$"`
+7:54 OpenBrace `{`
+7:55 StringLiteral `$"{x}"`
+7:61 CloseBrace `}`
+7:62 StringLiteral `"}"`
+7:65 InterpolationEnd `}`
+7:66 InterpolatedStringEnd `"`
+7:67 InterpolationEnd `}`
+7:68 InterpolatedStringEnd `"`
+7:69 InterpolationEnd `}`
+7:70 InterpolatedStringEnd `"`
+7:71 InterpolationEnd `}`
+7:72 InterpolatedStringEnd `"`
+7:73 InterpolationEnd `}`
+7:74 InterpolatedStringEnd `"`
+7:75 InterpolationEnd `}`
+7:76 InterpolatedStringEnd `"`
+7:77 InterpolationEnd `}`
+7:78 InterpolatedStringEnd `"`
+7:79 InterpolationEnd `}`
+7:80 InterpolatedStringEnd `"`
+7:81 InterpolationEnd `}`
+7:82 InterpolatedStringEnd `"`
+7:83 InterpolationEnd `}`
+7:84 InterpolatedStringEnd `"`
+7:85 InterpolationEnd `}`
+7:86 InterpolatedStringEnd `"`
+7:87 InterpolationEnd `}`
+7:88 InterpolatedStringEnd `"`
+7:89 InterpolationEnd `}`
+7:90 InterpolatedStringEnd `"`
+7:92 InterpolatedStringStart `$"`
+7:94 InterpolationStart `{`
+7:95 InterpolatedStringStart `$"`
+7:97 InterpolationStart `{`
+7:98 InterpolatedStringStart `$"`
+7:100 InterpolationStart `{`
+7:101 InterpolatedStringStart `$"`
+7:103 InterpolationStart `{`
+7:104 InterpolatedStringStart `$"`
+7:106 InterpolationStart `{`
+7:107 InterpolatedStringStart `$"`
+7:109 InterpolationStart `{`
+7:110 InterpolatedStringStart `$"`
+7:112 InterpolationStart `{`
+7:113 InterpolatedStringStart `$"`
+7:115 InterpolationStart `{`
+7:116 InterpolatedStringStart `$"`
+7:118 InterpolationStart `{`
+7:119 InterpolatedStringStart `$"`
+7:121 InterpolationStart `{`
+7:122 InterpolatedStringStart `$"`
+7:124 InterpolationStart `{`
+7:125 InterpolatedStringStart `$"`
+7:127 InterpolationStart `{`
+7:128 InterpolatedStringStart `$"`
+7:130 InterpolationStart `{`
+7:131 StringLiteral `$"{$"`
+7:136 OpenBrace `{`
+7:137 StringLiteral `$"{$"`
+7:142 OpenBrace `{`
+7:143 StringLiteral `$"{$"`
+7:148 OpenBrace `{`
+7:149 Identifier `x`
+7:150 CloseBrace `}`
+7:151 StringLiteral `"}"`
+7:154 CloseBrace `}`
+7:155 StringLiteral `"}"`
+7:158 CloseBrace `}`
+7:159 StringLiteral `" �����`
+8:1 Identifier `b`
+9:1 LetKeyword `let`
+9:5 Identifier `a`
+9:7 Equals `=`
+9:9 StringLiteral `"open`
+10:1 FloatLiteral `3.14`
+10:6 FloatLiteral `1e5`
+10:10 FloatLiteral `2.5e-3`
+10:17 FloatLiteral `6E+2`
+10:22 FloatLiteral `1.50`
+10:26 NumericSuffix `dec`
+10:30 IntegerLiteral `1`
+10:31 DotDot `..`
+10:33 IntegerLiteral `2`
+10:35 IntegerLiteral `1`
+10:36 DotDotEquals `..=`
+10:39 IntegerLiteral `3`
+10:41 IntegerLiteral `5`
+10:42 NumericSuffix `e`
+10:44 Identifier `x`
+10:45 Dot `.`
+10:46 Identifier `y`
+10:48 FloatLiteral `2.5`
+10:51 NumericSuffix `f`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ // ok � in comment
+    │       ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" �����
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" �����
+    │                                                                                                                                ^^ this
+    │                                                                                                                                   string
+    │                                                                                                                                   never
+    │                                                                                                                                   ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" �����
+    │                                                                                                                                                               ^^^^^^^ string
+    │                                                                                                                                                                       ends
+    │                                                                                                                                                                       at
+    │                                                                                                                                                                       the
+    │                                                                                                                                                                       end
+    │                                                                                                                                                                       of
+    │                                                                                                                                                                       the
+    │                                                                                                                                                                       line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" �����
+    │                                                                                                                                                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" �����
+    │                                                                                                                                                                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" �����
+    │                                                                                                                                                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" �����
+    │                                                                                                                                                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" �����
+    │                                                                                                                                                                     ^
+
+error BYN0003: unterminated string literal
+
+  9 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

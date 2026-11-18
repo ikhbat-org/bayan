@@ -1,0 +1,24 @@
+1:1 StringLiteral `"txt"`
+1:7 StringLiteral `"esc \"q\" \\ \n"`
+1:25 StringLiteral `""`
+2:1 IntegerLiteral `0x`
+    doc `/// Doc line two.`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolatedStringText `{{`
+4:6 InterpolatedStringEnd `"`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 Identifier `a`
+4:13 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{{" $"{a 
+    │        ^^ this string never ends
+    │
+  help: close the `{` and the string

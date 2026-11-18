@@ -1,0 +1,10 @@
+let b = "bad \q escape"v
+let x⁧ = 1
+et café = 1
+let caf� = 2
+
+// ‮x
+ /* block
+1e c >>= 1
+
+let b = "bad \q escape"

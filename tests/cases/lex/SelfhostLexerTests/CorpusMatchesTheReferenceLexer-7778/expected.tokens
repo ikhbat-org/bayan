@@ -1,0 +1,63 @@
+1:1 CharLiteral `'x`
+3:1 FailsKeyword `fails`
+3:7 TryKeyword `try`
+3:11 CatchKeyword `catch`
+3:17 NeverKeyword `never`
+3:23 NoallocKeyword `noalloc`
+3:31 NosuspendKeyword `nosuspend`
+3:41 SuspendsKeyword `suspends`
+3:50 AsyncKeyword `async`
+3:56 AwaitKeyword `await`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolatedStringText `$`
+4:20 InterpolatedStringEnd `"`
+4:21 OpenBrace `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 StringLiteral `"{$"`
+4:47 OpenBrace `{`
+4:48 InterpolatedStringStart `$"`
+4:50 InterpolationStart `{`
+4:51 InterpolatedStringStart `$"`
+4:53 InterpolationStart `{`
+4:54 Identifier `x`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+    doc `/// `
+5:5 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{x}"
+    │                                                ^^ this string never ends
+    │
+  help: close the `{` and the string

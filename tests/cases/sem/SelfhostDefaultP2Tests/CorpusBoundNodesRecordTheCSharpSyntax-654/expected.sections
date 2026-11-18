@@ -1,0 +1,32 @@
+== tests/cases/diag/method-group-not-a-value.byn
+77..102 blockStmt
+83..100 exprStmt
+83..100 callExpr
+89..99 interpolatedExpr
+92..97 nameExpr
+83..100 callExpr
+142..174 blockStmt
+148..172 exprStmt
+148..172 callExpr
+154..171 interpolatedExpr
+157..169 memberExpr
+157..162 nameExpr
+148..172 callExpr
+176..202 globalStatement
+176..202 localDecl
+186..202 structLiteralExpr
+199..200 literalExpr integer
+203..219 exprStmt
+203..219 callExpr
+208..218 memberExpr
+220..249 localDecl
+243..249 collectionExpr
+244..245 literalExpr integer
+247..248 literalExpr integer
+250..269 exprStmt
+250..269 callExpr
+258..268 memberExpr
+47..52 nameExpr
+47..52 nameExpr
+47..52 nameExpr
+47..52 nameExpr

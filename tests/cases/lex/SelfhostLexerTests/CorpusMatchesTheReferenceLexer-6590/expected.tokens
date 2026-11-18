@@ -1,0 +1,123 @@
+1:1 Identifier `각`
+1:4 OpenBrace `{`
+1:6 IntegerLiteral `0`
+1:8 IntegerLiteral `42`
+1:11 IntegerLiteral `1_000_000`
+1:21 IntegerLiteral `0xFF`
+1:26 IntegerLiteral `0x_ff`
+1:32 IntegerLiteral `0b1010`
+1:39 IntegerLiteral `0B11`
+1:44 IntegerLiteral `5`
+1:45 NumericSuffix `s`
+1:47 IntegerLiteral `250`
+1:50 NumericSuffix `ms`
+1:53 IntegerLiteral `4`
+1:54 NumericSuffix `KiB`
+1:58 IntegerLiteral `1`
+1:59 NumericSuffix `u`
+1:61 IntegerLiteral `0xFF`
+1:65 NumericSuffix `u`
+1:67 IntegerLiteral `0b1`
+1:70 NumericSuffix `ul`
+1:73 IntegerLiteral `7`
+1:74 NumericSuffix `l`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `total `
+2:10 InterpolationStart `{`
+2:11 Identifier `x`
+2:12 InterpolationEnd `}`
+2:13 InterpolatedStringEnd `"`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolatedStringText `a `
+2:19 InterpolationStart `{`
+2:20 Identifier `f`
+2:21 OpenParen `(`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolatedStringText `b `
+2:26 InterpolationStart `{`
+2:27 Identifier `c`
+2:28 InterpolationEnd `}`
+2:29 InterpolatedStringEnd `"`
+2:30 CloseParen `)`
+2:31 InterpolationEnd `}`
+2:32 InterpolatedStringText ` d`
+2:34 InterpolatedStringEnd `"`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolatedStringText `{{literal}}`
+2:49 InterpolatedStringEnd `"`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 Identifier `Point`
+2:60 OpenBrace `{`
+2:62 Identifier `x`
+2:64 Equals `=`
+2:66 IntegerLiteral `1`
+2:68 CloseBrace `}`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringText `!`
+2:71 InterpolatedStringEnd `"`
+2:73 InterpolatedStringStart `$"`
+2:75 InterpolatedStringEnd `"`
+3:1 Identifier `ạ̇macro`
+3:10 Identifier `select`
+3:17 BecomeKeyword `become`
+5:1 Identifier `tens`
+6:1 IntegerLiteral `0`
+6:3 IntegerLiteral `42`
+6:6 IntegerLiteral `1_000_000`
+6:16 IntegerLiteral `0xFF`
+6:21 IntegerLiteral `0x_ff`
+6:27 IntegerLiteral `0b1010`
+6:34 IntegerLiteral `0B11`
+6:39 IntegerLiteral `5`
+6:40 NumericSuffix `s`
+6:42 IntegerLiteral `250`
+6:45 NumericSuffix `ms`
+6:48 IntegerLiteral `4`
+6:49 NumericSuffix `KiB`
+6:53 IntegerLiteral `1`
+6:54 NumericSuffix `u`
+6:56 IntegerLiteral `0xFF`
+6:60 NumericSuffix `uE0b`
+6:65 IntegerLiteral `1`
+6:66 NumericSuffix `ul`
+6:69 IntegerLiteral `7`
+6:70 NumericSuffix `l`
+7:1 EndOfFile
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  1 │ 각{ 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각{ 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │   │ +
+
+error BYN0005: identifier `ạ̇macro` is not in Unicode normalization form C
+
+  3 │ ạ̇macro select become
+    │ ^^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇macro select become
+    │   │ ++
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ ạ̇macro select become
+    │          ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0011: unit suffix `uE0b` is not allowed on a hexadecimal literal
+
+  6 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFuE0b�1ul 7l
+    │                                                            ^^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `\u{12}`
+
+  6 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFuE0b�1ul 7l
+    │                                                                ^

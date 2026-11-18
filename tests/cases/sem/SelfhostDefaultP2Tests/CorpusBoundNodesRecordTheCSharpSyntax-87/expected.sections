@@ -1,0 +1,75 @@
+== tests/cases/run/format-specs.byn
+0..11 globalStatement
+0..11 localDecl
+8..11 literalExpr integer
+12..23 localDecl
+21..23 literalExpr integer
+24..42 localDecl
+39..42 unaryExpr negate operand 40..42
+43..117 exprStmt
+43..117 callExpr
+49..116 interpolatedExpr
+52..53 nameExpr
+66..67 nameExpr
+83..84 nameExpr
+99..100 nameExpr
+43..117 callExpr
+118..186 exprStmt
+118..186 callExpr
+124..185 interpolatedExpr
+127..130 nameExpr
+143..145 nameExpr
+170..172 nameExpr
+118..186 callExpr
+187..293 exprStmt
+187..293 callExpr
+193..292 interpolatedExpr
+197..201 literalExpr string
+216..220 literalExpr string
+248..252 literalExpr string
+187..293 callExpr
+294..357 exprStmt
+294..357 callExpr
+300..356 interpolatedExpr
+304..308 literalExpr string
+334..343 literalExpr string
+294..357 callExpr
+358..373 localDecl
+366..373 literalExpr floatKeyword
+374..388 localDecl
+382..388 unaryExpr negate operand 383..388
+389..460 exprStmt
+389..460 callExpr
+395..459 interpolatedExpr
+398..399 nameExpr
+413..414 nameExpr
+428..429 nameExpr
+443..446 literalExpr floatKeyword
+389..460 callExpr
+461..532 exprStmt
+461..532 callExpr
+467..531 interpolatedExpr
+470..482 literalExpr string
+497..500 literalExpr char
+515..517 nameExpr
+461..532 callExpr
+533..551 localDecl
+543..551 callExpr
+552..601 exprStmt
+552..601 callExpr
+552..555 nameExpr
+563..600 interpolatedExpr
+566..567 nameExpr
+602..617 exprStmt
+602..617 callExpr
+608..616 memberExpr
+608..611 nameExpr
+602..617 callExpr
+618..653 localDecl
+626..653 interpolatedExpr
+629..630 nameExpr
+654..669 exprStmt
+654..669 callExpr
+660..668 interpolatedExpr
+664..665 nameExpr
+654..669 callExpr

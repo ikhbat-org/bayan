@@ -1,0 +1,55 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 Identifier `ope`
+1:36 ExtensibleKeyword `extensible`
+1:47 InterfaceKeyword `interface`
+1:57 DelegateKeyword `delegate`
+1:66 ExtensionKeyword `extension`
+1:76 DerivationKeyword `derivation`
+1:87 Identifier `a`
+1:88 Identifier `ttribute`
+3:2 VarKeyword `var`
+3:6 Identifier `xs`
+3:8 Colon `:`
+3:10 Identifier `L`
+3:12 Identifier `ist`
+3:15 Less `<`
+3:16 Identifier `List`
+3:20 Less `<`
+3:21 Identifier `i64`
+3:24 Greater `>`
+3:25 Greater `>`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x91)
+
+  1 │ struct unique union enum flags ope� extensible interface delegate extension derivation a�ttribute
+    │                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8B)
+
+  1 │ struct unique union enum flags ope� extensible interface delegate extension derivation a�ttribute
+    │                                                                                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ �var xs: L�ist<List<i64>>
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ �var xs: L�ist<List<i64>>
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ �var xs: L�ist<List<i64>>
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ �var xs: L�ist<List<i64>>
+    │           ^

@@ -1,0 +1,13 @@
+== tests/cases/diag/unhandled-failure.byn
+75..120 blockStmt
+81..105 guardedStmt
+96..105 memberExpr
+96..97 nameExpr
+81..85 failStmt
+86..92 targetMemberExpr
+110..118 returnStmt value 117..118
+117..118 literalExpr integer
+122..140 globalStatement
+122..140 localDecl
+130..140 callExpr
+136..139 literalExpr string

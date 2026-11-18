@@ -1,0 +1,74 @@
+ 0+25 2
+ 0+11 1
+BYN1001 0+1 expected a declaration or statement, found `}` |  | remove this `}`; it has no matching `{`
+ 0+23 1
+BYN1016 7+6 `public` is not allowed here |  | remove the repeated modifier
+BYN1016 0+6 `public` is not allowed here |  | 
+ 0+28 1
+BYN1016 9+6 `static` is not allowed here |  | 
+ 0+7 0
+BYN1001 7+0 expected a declaration after the modifiers, found end of file |  | 
+ 0+40 0
+BYN1028 0+39 `delegate` is not Bayan; write a function type `type Handler = (i64, string) -> void` | a C# delegate | declare it as `type Handler = (i64, string) -> void` fix 0+39 [type Handler = (i64, string) -> void]
+ 0+22 0
+BYN1028 0+21 `delegate` is not Bayan; write a function type `type Name = (Param) -> Result` | a C# delegate | declare it as `type Name = (Param) -> Result`
+ 0+16 1
+BYN8001 0+6 `@allow` bypasses a safety rule and needs `because "…"` | bypasses a safety rule | explain the bypass in a `because` clause
+ 0+27 1
+BYN8001 0+6 `@allow` bypasses a safety rule and needs `because "…"` | bypasses a safety rule | explain the bypass in a `because` clause
+ 0+18 1
+BYN1045 0+1 `[Inline]` is an input form; write `@inline` |  | write the attribute with `@` and a camelCase name fix 0+8 [@inline]
+f 0+1 2
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+f 0+1 1
+BYN2117 9+8 `ref this` must be the first parameter | after other parameters | move `ref this` to the start of the parameter list
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+f 0+1 0
+BYN1061 2+4 `this` without a state is the default receiver | the default receiver | remove `this`, or add a state: `this is .s` fix 2+4 []
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+f 0+1 1
+BYN1061 2+4 `this` without a state is the default receiver | the default receiver | remove `this`, or add a state: `this is .s` fix 2+6 []
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+f 0+1 1
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+f 0+1 1
+BYN7006 8+2 `i64 x is .small` is an input form; write `i64.small x` | one state | write the state type `i64.small` fix 2+15 [i64.small x]
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+f 0+1 1
+BYN1058 5+3 `i64... xs` is an input form; write `rest ReadOnlySpan<i64> xs` | the input form | declare the variadic parameter with `rest` fix 2+6 [rest ReadOnlySpan<i64>]
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+f 0+1 2
+BYN1001 15+5 expected a named optional parameter after `rest`, found `i64 y` | a positional parameter after `rest` | give it a default value, or move it before the `rest` parameter
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+f 0+1 0
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+BYN1065 10+4 `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`, `fails` | out of order | move `uses` before `fails` fix 4+33 [where T : I uses alloc, net fails]
+f 0+1 0
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+BYN1065 10+7 `becomes` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`, `fails` | out of order | move `becomes` before `fails` fix 4+19 [becomes .open fails]
+f 0+1 0
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+BYN6001 10+7 `noalloc` is removed; a function without `uses` is already pure | removed | remove `noalloc` fix 9+8 []
+f 0+1 0
+BYN1043 0+1 `f(…)` is an input form; write `void f(…)` | no return type | put `void` before the name when the function returns nothing fix 0+0 [void ]
+S 0+40 0
+S 0+42 2
+BYN1059 15+10 `state open` is an input form; declare the states in one `states { … }` block | the input form | move each state into the struct's `states` block fix 11+30 [    states {
+        open
+        shut
+    }
+]
+BYN1059 30+10 `state shut` is an input form; declare the states in one `states { … }` block | the input form | move each state into the struct's `states` block fix 11+30 [    states {
+        open
+        shut
+    }
+]
+S 0+34 1
+BYN1059 15+10 `state open` is an input form; declare the states in one `states { … }` block | the input form | move each state into the struct's `states` block
+S 0+51 2
+S 0+46 1
+BYN2006 32+6 `states` is declared twice | a second `states` block | declare every state in the first `states` block
+S 0+41 2
+BYN1059 32+7 `state b` is an input form; declare the states in one `states { … }` block | the input form | move each state into the struct's `states` block
+S 0+10 0
+BYN1001 10+0 expected `}`, found end of file |  | close the struct opened on line 1

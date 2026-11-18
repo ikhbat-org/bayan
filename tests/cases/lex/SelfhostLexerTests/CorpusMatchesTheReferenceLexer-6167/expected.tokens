@@ -1,0 +1,34 @@
+1:1 IntegerLiteral `1__`
+2:2 CStringLiteral `c"a{b}c( ) [ ] { }`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:9 StringLiteral `"open`
+4:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0002: unexpected character `$`
+
+  2 │ $c"a{b}c( ) [ ] { }
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $c"a{b}c( ) [ ] { }
+    │  ^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

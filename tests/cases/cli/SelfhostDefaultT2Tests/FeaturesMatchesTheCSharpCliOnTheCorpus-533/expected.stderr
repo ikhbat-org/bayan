@@ -1,0 +1,7 @@
+error BYN2702: union `Nothing` has no variants
+  --> <repo>/tests/cases/diag/empty-union.byn:1:7
+
+  1 │ union Nothing { }
+    │       ^^^^^^^
+    │
+  help: add the variants, or remove the union

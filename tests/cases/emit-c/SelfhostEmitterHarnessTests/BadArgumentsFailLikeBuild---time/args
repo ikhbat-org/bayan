@@ -1,0 +1,4 @@
+build
+--emit-c
+input.byn
+--time

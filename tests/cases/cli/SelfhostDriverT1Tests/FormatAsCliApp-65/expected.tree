@@ -1,0 +1,4 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+struct Order { i64 total }
+delegate bool OrderFilter(Order order)
+type F = i32 => bool

@@ -1,0 +1,16 @@
+union error E {
+    a
+}
+union error F {
+    b
+}
+union error G {
+    c
+}
+interface IShape {
+    i64 area()
+}
+i32!E g() fails F uses console fails G, E {
+    print("g")
+    return 1
+}

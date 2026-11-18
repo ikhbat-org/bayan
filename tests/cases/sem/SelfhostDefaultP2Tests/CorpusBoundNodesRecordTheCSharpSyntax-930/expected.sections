@@ -1,0 +1,17 @@
+== tests/cases/diag/unique-param-store.byn
+159..182 structLiteralExpr
+159..182 structLiteralExpr
+159..182 structLiteralExpr
+175..180 nameExpr
+216..236 blockStmt
+222..234 returnStmt value 229..234
+229..234 nameExpr
+276..304 structLiteralExpr
+276..304 structLiteralExpr
+276..304 structLiteralExpr
+292..296 moveExpr
+297..302 nameExpr
+336..348 memberExpr
+336..348 memberExpr
+336..348 memberExpr
+336..341 nameExpr

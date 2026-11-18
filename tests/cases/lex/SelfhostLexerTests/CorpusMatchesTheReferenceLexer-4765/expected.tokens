@@ -1,0 +1,24 @@
+1:1 Identifier `x́́`
+2:1 Identifier `Q`
+2:4 OpenParen `(`
+2:6 CloseParen `)`
+2:8 OpenBracket `[`
+2:10 CloseBracket `]`
+2:12 OpenBrace `{`
+2:14 CloseBrace `}`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │ Q� ( ) [ ] { }
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │ Q� ( ) [ ] { }
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ Q� ( ) [ ] { }
+    │   ^

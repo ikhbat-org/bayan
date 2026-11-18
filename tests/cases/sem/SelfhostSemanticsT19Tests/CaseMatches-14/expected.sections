@@ -1,0 +1,3 @@
+== bind.probes.k2
+flags 0
+conversion:u8[3872:5]=-(numericCast local:i32[3876:1]=-(a))

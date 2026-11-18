@@ -1,0 +1,9 @@
+1:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\nre"\n$"ope///let law = 3\n a /* never closed\n `
+5:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │    """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`

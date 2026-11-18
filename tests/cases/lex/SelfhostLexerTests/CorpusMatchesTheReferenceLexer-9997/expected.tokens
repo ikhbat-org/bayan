@@ -1,0 +1,12 @@
+2:1 IntegerLiteral `0b__`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `⮂`
+
+  1 │ ⮂
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ 0b__
+    │ ^^^^

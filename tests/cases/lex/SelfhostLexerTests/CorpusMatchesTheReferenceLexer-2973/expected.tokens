@@ -1,0 +1,34 @@
+1:8 CloseBrace `}`
+1:9 StringLiteral `"}"`
+1:12 CloseBrace `}`
+1:13 StringLiteral `"}"`
+2:2 IntegerLiteral `0xFF`
+2:6 NumericSuffix `s`
+4:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */}"}"}"}"
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │ }"}"}"}"
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */}"}"}"}"
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */}"}"}"}"
+    │   │    -
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │  0xFFs
+    │      ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

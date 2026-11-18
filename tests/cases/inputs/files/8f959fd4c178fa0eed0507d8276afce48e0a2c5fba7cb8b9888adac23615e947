@@ -1,0 +1,6 @@
+/* block
+// lzne comment
+   raw "quoted"
+
+// comment ‮ hidden
+$"{}" 

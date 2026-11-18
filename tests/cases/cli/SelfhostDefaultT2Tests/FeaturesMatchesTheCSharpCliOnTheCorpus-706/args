@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/line-join-and.byn
+--package
+<repo>/tests/cases/diag

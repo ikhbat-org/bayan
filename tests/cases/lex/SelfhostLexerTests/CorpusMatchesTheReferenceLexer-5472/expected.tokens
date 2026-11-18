@@ -1,0 +1,45 @@
+1:1 Identifier `ms`
+2:1 IntegerLiteral `0x_`
+3:1 IntegerLiteral `0b__`
+3:5 CharLiteral `''`
+4:2 Plus `+`
+4:4 Minus `-`
+4:6 Star `*`
+4:8 Slash `/`
+4:10 Percent `%`
+4:12 PlusPercent `+%`
+4:15 MinusPercent `-%`
+4:18 StarPercent `*%`
+4:21 PlusBar `+|`
+4:24 MinusBar `-|`
+4:27 StarBar `*|`
+4:30 PlusPlus `++`
+4:33 MinusMinus `--`
+5:4 Identifier `comment`
+5:12 Star `*`
+5:13 Slash `/`
+5:15 Identifier `a`
+8:1 StringLiteral `"a\u{2067}b"`
+8:6 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__''
+    │ ^^^^
+
+error BYN0007: empty char literal
+
+  3 │ 0b__''
+    │     ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ �
+    │ ^

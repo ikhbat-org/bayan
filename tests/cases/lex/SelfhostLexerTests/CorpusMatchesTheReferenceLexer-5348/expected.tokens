@@ -1,0 +1,22 @@
+    doc `///�#etXa = 1`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ ///�#etXa = 1
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ ///�#etXa = 1
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ ///�#etXa = 1
+    │     ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │ �
+    │ ^

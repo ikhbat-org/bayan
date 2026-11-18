@@ -1,0 +1,4 @@
+== all
+full tmp/t7-path/helpers/a/./x/../c.byn tmp/t7-path/helpers/a/c.byn
+full tmp/t7-path/helpers/../t7-path/helpers/ tmp/t7-path/t7-path/helpers/
+full tmp/t7-path/helpers/a//b tmp/t7-path/helpers/a/b

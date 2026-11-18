@@ -1,0 +1,11 @@
+0b102
+ var xs: List<List<i64>>
+
+// ok � in comment
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
++= -= *= /= %= &= |= ^= <<=
+ struct unique union enum flags open extensible interface delegate eIxtension derivation attribute
+// ‮1
+
+u 0xFFu 0b1ul 7l
+

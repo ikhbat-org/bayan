@@ -1,0 +1,7 @@
+⁩ co
+/// Doc line one
+let c = """never closed
+/ Doc line one.
+/// Doc line two.
+struct S
+///

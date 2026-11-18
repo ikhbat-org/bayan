@@ -1,0 +1,35 @@
+1:1 Identifier `ar`
+1:4 Identifier `_x`
+1:7 Identifier `camelCase2`
+1:18 Identifier `بيان`
+1:23 Identifier `μετρητής`
+1:32 Identifier `x_1`
+1:36 Identifier `é`
+4:5 Identifier `comment`
+4:13 Star `*`
+4:14 Slash `/`
+4:16 Identifier `a`
+6:1 StringLiteral `"̈́`
+6:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  ��
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  6 │ "̈́
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

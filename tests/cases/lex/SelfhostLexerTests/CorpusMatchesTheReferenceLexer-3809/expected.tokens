@@ -1,0 +1,39 @@
+1:1 CharLiteral `'x`
+2:1 IntegerLiteral `1__`
+3:1 Comma `,`
+3:3 Dot `.`
+3:5 DotDot `..`
+3:8 DotDotEquals `..=`
+3:12 Colon `:`
+3:14 Question `?`
+3:16 QuestionQuestion `??`
+3:19 QuestionQuestionEquals `??=`
+3:23 QuestionDot `?.`
+3:26 FatArrow `=>`
+3:29 Arrow `->`
+3:32 At `@`
+3:34 Hash `#`
+4:1 CharLiteral `''`
+5:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1__
+    │  ^^
+    │
+    │ 2 │ 1__
+    │   │  --
+
+error BYN0007: empty char literal
+
+  4 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

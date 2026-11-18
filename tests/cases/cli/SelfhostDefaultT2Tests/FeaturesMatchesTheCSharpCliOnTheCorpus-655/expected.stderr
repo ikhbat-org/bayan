@@ -1,0 +1,7 @@
+error BYN2401: `big` must return `i64` on every path
+  --> <repo>/tests/cases/diag/interface-default-missing-return.byn:8:5
+
+  8 │     }
+    │     ^
+    │
+  help: add a `return` (or `panic(…)`) on the paths that reach the end

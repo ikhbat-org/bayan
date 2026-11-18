@@ -1,0 +1,59 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolationEnd `}`
+1:5 InterpolatedStringEnd `"`
+2:1 Identifier `l`
+2:2 Identifier `t`
+2:4 Identifier `b`
+2:6 Equals `=`
+2:10 IntegerLiteral `2`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Greater `>`
+4:31 At `@`
+4:33 Hash `#`
+5:1 Identifier `s`
+5:2 StringLiteral `" "`
+5:5 StringLiteral `" "`
+5:9 Identifier `us`
+5:11 OpenBrace `{`
+5:12 IntegerLiteral `48`
+5:14 CloseBrace `}`
+5:15 Identifier `i`
+5:16 StringLiteral `"`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  2 │ l�t b = ` 2
+    │  ^
+
+error BYN0002: unexpected character ```
+
+  2 │ l�t b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `̈́`
+
+  3 │  ̈́
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ s" "" "\us{48}i"
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  5 │ s" "" "\us{48}i"
+    │                ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

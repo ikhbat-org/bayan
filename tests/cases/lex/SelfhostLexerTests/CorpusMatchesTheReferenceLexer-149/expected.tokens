@@ -1,0 +1,28 @@
+1:2 Identifier `U`
+1:5 Tilde `~`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ ���U �~�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ ���U �~�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���U �~�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ ���U �~�
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ ���U �~�
+    │        ^

@@ -1,0 +1,70 @@
+1:1 Identifier `ar`
+1:4 Identifier `_x`
+1:7 Identifier `camelCase2`
+1:18 Identifier `بيان`
+1:23 Identifier `μετ`
+1:27 IntegerLiteral `0xFF`
+1:31 NumericSuffix `s`
+2:1 ErrorKeyword `error`
+2:7 SetKeyword `set`
+2:11 UnitKeyword `unit`
+2:16 DistinctKeyword `distinct`
+2:25 TypeKeyword `type`
+2:30 ImportKeyword `import`
+2:37 AsKeyword `as`
+2:40 PublicKeyword `public`
+2:47 PrivateKeyword `private`
+2:55 StaticKeyword `static`
+2:62 ReadonlyKeyword `readonly`
+2:71 RequiredKeyword `required`
+2:80 ConstKeyword `const`
+2:86 LetKeyword `let`
+2:90 VarKeyword `var`
+2:94 EmbedKeyword `embed`
+2:100 ExternKeyword `extern`
+2:107 UnsafeKeyword `unsafe`
+4:1 LetKeyword `let`
+4:5 EffectKeyword `effect`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
+6:1 IntegerLiteral `0b102`
+7:2 Identifier `é`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:8 StringLiteral `"`
+7:9 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ ar _x camelCase2 بيان μετ 0xFFs
+    │                               ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  6 │ 0b102
+    │     ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  7 │  é $"{"
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │  é $"{"
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  7 │  é $"{"
+    │     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │  é $"{"
+    │        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

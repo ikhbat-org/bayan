@@ -1,0 +1,93 @@
+1:1 Identifier `é`
+1:4 CloseBrace `}`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolatedStringText `x`
+2:6 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+3:1 Identifier `Å_`
+4:1 IntegerLiteral `0b102`
+5:1 IntegerLiteral `0xFF`
+5:5 NumericSuffix `s`
+6:1 IntegerLiteral `0b1`
+6:4 NumericSuffix `ms`
+7:1 IntegerLiteral `0x_`
+8:1 IntegerLiteral `0b__`
+9:1 IntegerLiteral `1__`
+10:1 IntegerLiteral `0xF__`
+11:2 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é }
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é }
+    │   │ +
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │ � $"x{ $"{
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ � $"x{ $"{
+    │        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0005: identifier `Å_` is not in Unicode normalization form C
+
+  3 │ Å_
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ Å_
+    │   │ +
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  5 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  6 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  8 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 1__
+    │  ^^
+    │
+    │ 9 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 0xF__
+     │    ^^
+     │
+     │ 10 │ 0xF__
+     │    │    --

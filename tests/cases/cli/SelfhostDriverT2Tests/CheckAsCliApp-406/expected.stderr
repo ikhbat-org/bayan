@@ -1,0 +1,19 @@
+error BYN3002: arena `arena` does not live as long as `name`, which borrows it
+  --> <repo>/tmp/t2/diag/path-escapes-context/path-escapes-context.byn:9:20
+
+  9 │             name = Path.fileName("/a/b.txt")
+    │                    ^^^^^^^^^^^^^^^^^^^^^^^^^ arena `arena` is freed at the end of its block
+    │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+
+error BYN3002: arena `arena` does not live as long as `rel`, which borrows it
+  --> <repo>/tmp/t2/diag/path-escapes-context/path-escapes-context.byn:10:19
+
+  10 │             rel = Path.relative(from: "/a", to: "/a/b")
+     │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ arena `arena` is freed at the end of
+     │                                                         its block
+     │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3002

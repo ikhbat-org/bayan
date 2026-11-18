@@ -1,0 +1,11 @@
+error BYN3216: `SignupForm.password` can be written only by `SignupForm`'s own methods or with
+`with`: `SignupForm` has `requires`
+  --> input.byn:7:5
+
+  7 │     form.password = "x"
+    │     ^^^^^^^^^^^^^^^^^^^
+    │
+  help: add a `ref this` method to `SignupForm`, or build a new value with `with`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3216

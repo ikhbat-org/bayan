@@ -1,0 +1,49 @@
+1:1 Identifier `e`
+1:2 StringLiteral `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+4:2 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:11 IntegerLiteral `2`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ e"
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `‏`
+
+  3 │  ‏
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ � 1
+    │ ^
+
+error BYN0002: unexpected character ```
+
+  5 │ let b = ` 2
+    │         ^

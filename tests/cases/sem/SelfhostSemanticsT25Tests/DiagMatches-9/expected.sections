@@ -1,0 +1,3 @@
+== dyn-ref-returned-local
+BYN3003 22:12 cannot return a borrow of `s`, which is freed when `make` returns ||let the caller pass the buffer or allocator in, and borrow or allocate from that|
+BYN3003 16:16 cannot return a borrow of `s`, which is freed when `fresh` returns ||let the caller pass the buffer or allocator in, and borrow or allocate from that|

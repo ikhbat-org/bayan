@@ -1,0 +1,6 @@
+
+ a
+/// Doc line one.
+/// Doc l
+ c"text" u16"
+struct S

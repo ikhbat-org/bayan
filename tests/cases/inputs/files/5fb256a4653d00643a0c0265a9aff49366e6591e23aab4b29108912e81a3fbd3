@@ -1,0 +1,11 @@
+// line comment
+~ ! = == != < <= > >= << >>w>>=
++= -= *= /= %= &= |= ^= <
+0xF__
+ 1
+let b = ` 2
+let c =  3
+ 2.5ea /* never closed
+
+_let a =  1
+

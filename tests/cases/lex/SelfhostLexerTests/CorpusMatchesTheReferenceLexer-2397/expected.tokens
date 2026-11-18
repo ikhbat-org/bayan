@@ -1,0 +1,93 @@
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 Identifier `x`
+3:44 InterpolationEnd `}`
+3:45 InterpolatedStringEnd `"`
+3:46 InterpolationEnd `}`
+3:47 InterpolatedStringEnd `"`
+3:48 InterpolationEnd `}`
+3:49 InterpolatedStringText `}`
+3:50 InterpolatedStringEnd `"`
+3:51 InterpolationEnd `}`
+3:52 InterpolatedStringEnd `"`
+3:53 InterpolationEnd `}`
+3:54 InterpolatedStringEnd `"`
+3:55 InterpolationEnd `}`
+3:56 InterpolatedStringEnd `"`
+3:57 InterpolationEnd `}`
+3:58 InterpolatedStringEnd `"`
+3:59 InterpolationEnd `}`
+3:60 InterpolatedStringEnd `"`
+3:61 InterpolationEnd `}`
+3:62 InterpolatedStringEnd `"`
+3:63 InterpolationEnd `}`
+3:64 InterpolatedStringEnd `"`
+3:65 InterpolationEnd `}`
+3:66 InterpolatedStringEnd `"`
+3:68 InterpolatedStringStart `$"`
+3:70 InterpolatedStringText `{{`
+3:72 InterpolatedStringEnd `"`
+3:73 StructKeyword `struct`
+3:80 UniqueKeyword `unique`
+3:87 UnionKeyword `union`
+3:93 EnumKeyword `enum`
+3:98 FlagsKeyword `flags`
+3:104 OpenKeyword `open`
+3:109 ExtensibleKeyword `extensible`
+3:120 InterfaceKeyword `interface`
+3:130 DelegateKeyword `delegate`
+3:139 ExtensionKeyword `extension`
+3:149 DerivationKeyword `derivation`
+3:160 AttributeKeyword `attribute`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}}"}"}"}"}"}"}"}"}" $"{{"struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}}"}"}"}"}"}"}"}"}" $"{{"struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │                                                 ^
+    │
+    │ 3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}}}"}"}"}"}"}"}"}"}" $"{{"struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │   │                                                  +

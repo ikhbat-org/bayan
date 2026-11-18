@@ -1,0 +1,13 @@
+1:3 IntegerLiteral `2`
+2:1 Identifier `Ͷ`
+2:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  2 │ Ͷ��
+    │  ^
+
+error BYN0002: unexpected character `\u{1C}`
+
+  2 │ Ͷ��
+    │   ^

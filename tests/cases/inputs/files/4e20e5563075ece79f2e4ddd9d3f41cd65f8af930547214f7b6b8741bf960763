@@ -1,0 +1,7 @@
+type A = i64
+type Bb = string
+
+struct S {
+    i32 a // x
+    string bb // y
+}

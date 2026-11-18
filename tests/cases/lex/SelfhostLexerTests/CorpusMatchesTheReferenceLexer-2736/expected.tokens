@@ -1,0 +1,63 @@
+1:1 IntegerLiteral `0b__`
+4:1 VarKeyword `var`
+4:5 Identifier `xs`
+4:7 Colon `:`
+4:9 Identifier `List`
+4:13 Less `<`
+4:14 Identifier `List`
+4:18 Less `<`
+4:19 Identifier `i64`
+4:22 Greater `>`
+4:23 Greater `>`
+6:1 LetKeyword `let`
+6:5 LawKeyword `law`
+6:9 Equals `=`
+6:11 IntegerLiteral `3`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolationEnd `}`
+9:5 InterpolatedStringEnd `"`
+9:6 Identifier `et`
+9:9 EffectKeyword `effect`
+9:16 Equals `=`
+9:18 IntegerLiteral `2`
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │  /* � */
+    │  ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │  // �
+    │   │   +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  2 │  /* � */
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  /* � */
+    │   │     -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  4 │ var xs: �List<List<i64>>
+    │         ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  8 │ �
+    │ ^

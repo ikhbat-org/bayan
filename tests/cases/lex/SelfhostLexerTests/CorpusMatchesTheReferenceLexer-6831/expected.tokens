@@ -1,0 +1,33 @@
+1:1 CharLiteral `'ab'`
+2:2 Identifier `b`
+3:1 IntegerLiteral `0x`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolationStart `{`
+3:6 StringLiteral `" += -= *= /= %= &= |= ^= <<=`
+5:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x$"{" += -= *= /= %= &= |= ^= <<=
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ 0x$"{" += -= *= /= %= &= |= ^= <<=
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ 0x$"{" += -= *= /= %= &= |= ^= <<=
+    │      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

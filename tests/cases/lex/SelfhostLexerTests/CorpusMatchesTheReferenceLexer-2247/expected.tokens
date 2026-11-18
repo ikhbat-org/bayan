@@ -1,0 +1,93 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:44 Identifier `rue`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+3:1 Identifier `Å`
+4:1 IntegerLiteral `1_`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `open `
+5:9 InterpolationStart `{`
+5:10 Identifier `x`
+5:11 StringLiteral `";`
+7:1 Identifier `ent`
+7:4 Star `*`
+7:5 Slash `/`
+7:7 Identifier `a`
+    doc `/// Doc line one.\n/// Doc line t0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 01ul 7l`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  1 │ is and or not with move ref out this null �rue false comptime checked
+    │                                           ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ Å �����
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ Å �����
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ Å �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │ Å �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ Å �����
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ Å �����
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ Å �����
+    │        ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1_
+    │  ^
+    │
+    │ 4 │ 1_
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  5 │  $"open {x";
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  11 │ �
+     │ ^

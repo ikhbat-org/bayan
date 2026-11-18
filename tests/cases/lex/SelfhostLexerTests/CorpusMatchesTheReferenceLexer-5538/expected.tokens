@@ -1,0 +1,85 @@
+3:1 Identifier `b`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
+6:2 IntegerLiteral `0b1`
+6:5 NumericSuffix `ms`
+7:2 PlusEquals `+=`
+7:5 MinusEquals `-=`
+7:8 StarEquals `*=`
+7:11 SlashEquals `/=`
+7:14 PercentEquals `%=`
+7:17 AmpEquals `&=`
+7:20 BarEquals `|=`
+7:23 CaretEquals `^=`
+7:26 LessLessEquals `<<=`
+8:1 IntegerLiteral `0xFF`
+8:5 NumericSuffix `s`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolationEnd `}`
+9:5 InterpolatedStringEnd `"`
+9:6 Dot `.`
+9:8 InterpolatedStringStart `$"`
+9:10 InterpolatedStringText `total `
+9:16 InterpolationStart `{`
+9:17 Identifier `x`
+9:18 InterpolationEnd `}`
+9:19 InterpolatedStringEnd `"`
+9:21 InterpolatedStringStart `$"`
+9:23 InterpolatedStringText `a `
+9:25 InterpolationStart `{`
+9:26 Identifier `f`
+9:27 OpenParen `(`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolatedStringText `b `
+9:32 InterpolationStart `{`
+9:33 Identifier `c`
+9:34 InterpolationEnd `}`
+9:35 InterpolatedStringEnd `"`
+9:36 CloseParen `)`
+9:37 InterpolationEnd `}`
+9:38 InterpolatedStringText ` d`
+9:40 InterpolatedStringEnd `"`
+9:42 InterpolatedStringStart `$"`
+9:44 InterpolatedStringText `{{literal}}`
+9:55 InterpolatedStringEnd `"`
+9:57 InterpolatedStringStart `$"`
+9:59 InterpolationStart `{`
+9:60 Identifier `Point`
+9:66 OpenBrace `{`
+9:68 Identifier `x`
+9:70 Equals `=`
+9:72 IntegerLiteral `1`
+9:74 CloseBrace `}`
+9:75 InterpolationEnd `}`
+9:76 InterpolatedStringText `!`
+9:77 InterpolatedStringEnd `"`
+9:79 InterpolatedStringStart `$"`
+9:81 InterpolatedStringEnd `"`
+10:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  6 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  8 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

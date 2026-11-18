@@ -1,0 +1,11 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/patterns/patterns.byn diagnostics
+BYN5004 17:5 `sw` has 4 unlabeled parameters; give each but one a particle
+BYN5006 17:26 `t` is a required parameter besides the object and needs a particle
+BYN5006 17:35 `o` is a required parameter besides the object and needs a particle
+BYN5006 17:40 `q` is a required parameter besides the object and needs a particle
+BYN2022 20:14 list patterns is not supported in v0.1
+BYN2411 21:14 `P` cannot match `i64`
+BYN2022 22:14 positional patterns on `i64` is not supported in v0.1
+BYN2022 23:14 deconstruction patterns is not supported in v0.1
+BYN2022 24:14 deconstruction patterns is not supported in v0.1
+BYN7007 33:15 `Order` has no state `.nope`

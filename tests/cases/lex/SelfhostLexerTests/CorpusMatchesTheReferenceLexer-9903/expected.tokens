@@ -1,0 +1,98 @@
+1:1 CharLiteral `'\u{D800}'`
+3:1 LetKeyword `let`
+3:5 Identifier `actor`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+    doc `/// Doc line two.`
+6:1 IfKeyword `if`
+6:4 ElseKeyword `else`
+6:9 UnlessKeyword `unless`
+6:16 SwitchKeyword `switch`
+6:23 CaseKeyword `case`
+6:28 DefaultKeyword `default`
+6:36 ForKeyword `for`
+6:40 InKeyword `in`
+6:43 WhileKeyword `while`
+6:49 DoKeyword `do`
+6:52 BreakKeyword `break`
+6:58 ContinueKeyword `continue`
+6:67 ReturnKeyword `return`
+6:74 YieldKeyword `yield`
+6:80 DeferKeyword `defer`
+6:86 ErrdeferKeyword `errdefer`
+6:95 UsingKeyword `using`
+6:101 ContextKeyword `context`
+7:3 Identifier `μετρητής`
+7:12 Identifier `x_1`
+7:16 Identifier `é`
+9:2 InterpolatedStringStart `$"`
+9:4 InterpolationStart `{`
+9:5 InterpolatedStringStart `$"`
+9:7 InterpolationStart `{`
+9:8 InterpolatedStringStart `$"`
+9:10 InterpolationStart `{`
+9:11 InterpolatedStringStart `$"`
+9:13 InterpolationStart `{`
+9:14 InterpolatedStringStart `$"`
+9:16 InterpolationStart `{`
+9:17 InterpolatedStringStart `$"`
+9:19 InterpolationStart `{`
+9:20 InterpolatedStringStart `$"`
+9:22 InterpolationStart `{`
+9:23 InterpolatedStringStart `$"`
+9:25 InterpolationStart `{`
+9:26 InterpolatedStringStart `$"`
+9:28 InterpolationStart `{`
+9:29 InterpolatedStringStart `$"`
+9:31 InterpolationStart `{`
+9:32 InterpolatedStringStart `$"`
+9:34 InterpolationStart `{`
+9:35 InterpolatedStringStart `$"`
+9:37 InterpolationStart `{`
+9:38 InterpolatedStringStart `$"`
+9:40 InterpolationStart `{`
+9:41 InterpolatedStringStart `$"`
+9:43 InterpolationStart `{`
+9:44 Identifier `x`
+9:45 InterpolationEnd `}`
+9:46 InterpolatedStringEnd `"`
+9:47 InterpolationEnd `}`
+9:48 InterpolatedStringEnd `"`
+9:49 InterpolationEnd `}`
+9:50 InterpolatedStringEnd `"`
+9:51 InterpolationEnd `}`
+9:52 InterpolatedStringEnd `"`
+10:1 IntegerLiteral `1`
+10:3 Identifier `é`
+11:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  9 │ ��$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ ��$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  9 │ ��$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+    │                              ^^ this string never ends
+    │
+  help: close the `{` and the string

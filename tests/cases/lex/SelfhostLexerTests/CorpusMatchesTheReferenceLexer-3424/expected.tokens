@@ -1,0 +1,17 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+3:3 RawStringLiteral `""" c"text" u16"wi3e" "\u{202E} allowed in strings" "" "\u{48}i"\n 0b1ms\n`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"wi3e" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

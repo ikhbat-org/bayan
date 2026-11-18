@@ -1,0 +1,69 @@
+1:1 Identifier `ạ̇`
+1:7 Identifier `comment`
+1:15 Star `*`
+1:16 Slash `/`
+1:18 Identifier `a`
+2:2 IfKeyword `if`
+2:5 ElseKeyword `else`
+2:10 UnlessKeyword `unless`
+2:17 SwitchKeyword `switch`
+2:24 CaseKeyword `case`
+2:29 DefaultKeyword `default`
+2:37 ForKeyword `for`
+2:41 InKeyword `in`
+2:44 WhileKeyword `while`
+2:50 DoKeyword `do`
+2:53 BreakKeyword `break`
+2:59 ContinueKeyword `continue`
+2:68 ReturnKeyword `return`
+2:75 YieldKeyword `yield`
+2:81 DeferKeyword `defer`
+2:87 ErrdeferKeyword `errdefer`
+2:96 UsingKeyword `using`
+2:102 ContextKeyword `context`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:10 StringLiteral `"open`
+7:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇   comment */ a
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇   comment */ a
+    │   │ ++
+
+error BYN0003: unterminated string literal
+
+  3 │  let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �
+    │ ^

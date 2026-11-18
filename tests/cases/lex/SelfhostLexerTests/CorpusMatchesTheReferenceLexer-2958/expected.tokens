@@ -1,0 +1,46 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 OrKeyword `or`
+2:11 NotKeyword `not`
+2:15 WithKeyword `with`
+2:20 MoveKeyword `move`
+2:25 RefKeyword `ref`
+2:29 OutKeyword `out`
+2:33 ThisKeyword `this`
+2:38 NullKeyword `null`
+2:43 TrueKeyword `true`
+2:48 FalseKeyword `false`
+2:54 ComptimeKeyword `comptime`
+2:63 CheckedKeyword `checked`
+5:1 LetKeyword `let`
+5:5 EffectKeyword `effect`
+5:12 Equals `=`
+5:14 IntegerLiteral `2`
+6:2 CharLiteral `'ab'`
+7:1 StringLiteral `"a\u{2067}b"`
+8:1 IntegerLiteral `0xF__`
+9:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = � 3
+    │         ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 0xF__
+    │    ^^
+    │
+    │ 8 │ 0xF__
+    │   │    --

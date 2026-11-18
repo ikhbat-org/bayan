@@ -1,0 +1,64 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+3:1 FailsKeyword `fails`
+3:7 TryKeyword `try`
+3:11 CatchKeyword `catch`
+3:17 NeverKeyword `never`
+3:23 NoallocKeyword `noalloc`
+3:31 NosuspendKeyword `nosuspend`
+3:41 SuspendsKeyword `suspends`
+3:50 AsyncKeyword `async`
+3:56 Identifier `awai`
+4:2 Identifier `macro`
+4:8 Identifier `select`
+4:15 Identifier `beco`
+4:19 Less `<`
+4:20 Identifier `me`
+6:4 Identifier `comment`
+6:12 Star `*`
+6:13 Slash `/`
+6:15 Identifier `a`
+7:1 LetKeyword `let`
+7:4 Equals `=`
+7:6 Identifier `b`
+7:8 Equals `=`
+7:10 StringLiteral `"bad \q escape"`
+8:1 CharLiteral `'\u{110000}'`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │  macro select beco<me
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │  macro select beco<me
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │ let= b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  8 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

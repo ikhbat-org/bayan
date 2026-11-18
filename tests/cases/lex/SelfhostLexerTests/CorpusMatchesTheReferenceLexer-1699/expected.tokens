@@ -1,0 +1,40 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+2:1 IntegerLiteral `1__`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `a`
+3:5 InterpolationStart `{`
+3:6 Identifier `b`
+3:7 InterpolationEnd `}`
+3:8 InterpolatedStringText `c'\u{D800}'`
+3:19 InterpolatedStringEnd
+4:1 Identifier `s`
+5:1 IntegerLiteral `0x`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1__
+    │  ^^
+    │
+    │ 2 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  3 │ �$"a{b}c'\u{D800}'
+    │  ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ �$"a{b}c'\u{D800}'
+    │          ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x
+    │ ^^

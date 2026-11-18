@@ -1,0 +1,40 @@
+== tests/cases/diag/error-set-same-name
+58..74 blockStmt
+60..64 failStmt
+65..72 memberExpr
+60..78 blockStmt
+62..66 failStmt
+67..76 memberExpr
+48..81 blockStmt
+54..64 exprStmt
+54..64 tryExpr
+58..64 callExpr
+69..79 exprStmt
+69..79 tryExpr
+73..79 callExpr
+118..151 blockStmt
+124..134 exprStmt
+124..134 tryExpr
+128..134 callExpr
+139..149 exprStmt
+139..149 tryExpr
+143..149 callExpr
+165..259 blockStmt
+171..195 exprStmt
+171..195 catchExpr
+171..178 callExpr
+176..177 literalExpr integer
+185..195 callExpr
+191..194 literalExpr string
+185..195 callExpr
+200..257 exprStmt
+200..257 catchExpr
+200..206 callExpr
+204..205 literalExpr integer
+213..257 switchExpr
+213..219 caughtErrorExpr
+230..234 constantPattern
+230..234 targetMemberExpr
+238..250 callExpr
+244..249 literalExpr string
+238..250 callExpr

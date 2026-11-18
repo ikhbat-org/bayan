@@ -1,0 +1,3 @@
+== bind.probes.b31
+flags 0
+binary:i64[2296:5]=-(add conversion:i64[2296:1]=-(widen local:u32[2296:1]=-(u)) local:i64[2300:1]=-(n))

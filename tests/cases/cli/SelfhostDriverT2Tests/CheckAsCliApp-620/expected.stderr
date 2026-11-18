@@ -1,0 +1,50 @@
+error BYN7007: `Order` has no state `.lost`
+  --> <repo>/tmp/t2/diag/unknown-state/unknown-state.byn:7:28
+
+  7 │     void ship(ref this is .lost) becomes .gone {
+    │                            ^^^^
+    │
+  help: check the states declared in `Order`
+
+error BYN7007: `Order` has no state `.gone`
+  --> <repo>/tmp/t2/diag/unknown-state/unknown-state.byn:7:43
+
+  7 │     void ship(ref this is .lost) becomes .gone {
+    │                                           ^^^^
+    │
+  help: check the states declared in `Order`
+
+error BYN7007: `Order` has no state `.gone`
+  --> <repo>/tmp/t2/diag/unknown-state/unknown-state.byn:8:17
+
+  8 │         become .gone
+    │                 ^^^^
+    │
+  help: check the states declared in `Order`
+
+error BYN7007: `Order` has no state `.refunded`
+  --> <repo>/tmp/t2/diag/unknown-state/unknown-state.byn:12:19
+
+  12 │ void refund(Order.refunded order) {
+     │                   ^^^^^^^^
+     │
+  help: check the states declared in `Order`
+
+error BYN7007: `Order` has no state `.archived`
+  --> <repo>/tmp/t2/diag/unknown-state/unknown-state.byn:15:39
+
+  15 │ void archive(Order order is .paid or .archived) {
+     │                                       ^^^^^^^^
+     │
+  help: check the states declared in `Order`
+
+error BYN7007: `Order` has no state `.missing`
+  --> <repo>/tmp/t2/diag/unknown-state/unknown-state.byn:18:19
+
+  18 │ let order = Order.missing { id: 1 }
+     │                   ^^^^^^^
+     │
+  help: check the states declared in `Order`
+
+✗ build failed: 6 errors, 0 warnings
+  explain: bayan explain BYN7007

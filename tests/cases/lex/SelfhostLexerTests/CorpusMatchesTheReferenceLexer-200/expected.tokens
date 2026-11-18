@@ -1,0 +1,16 @@
+1:1 IntegerLiteral `0x_`
+3:1 Slash `/`
+3:3 Identifier `ok`
+3:8 InKeyword `in`
+3:11 Identifier `comment`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ / ok � in comment
+    │      ^

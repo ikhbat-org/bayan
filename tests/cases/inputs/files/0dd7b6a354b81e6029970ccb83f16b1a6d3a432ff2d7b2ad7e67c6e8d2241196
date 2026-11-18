@@ -1,0 +1,7 @@
+$"{{"let a = $ 1
+ let a = "open
+
+a /* never closed
+ ðŸ˜test assert property fuzz model foreach new goto
+
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"

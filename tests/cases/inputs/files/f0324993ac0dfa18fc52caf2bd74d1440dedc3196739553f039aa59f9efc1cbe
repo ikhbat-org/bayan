@@ -1,0 +1,7 @@
+var xs: List<List<i64>>
+'\u{11000/}'
+
+let c = """never closed
+'a'� '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+
+Å

@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"StringLiteral","start":0,"end":12,"text":"\"{ let a = \"","doc":null},{"kind":"OpenKeyword","start":12,"end":16,"text":"open","doc":null},{"kind":"EndOfFile","start":20,"end":20,"text":"","doc":null}],"diagnostics":[{"code":"BYN0015","severity":"error","start":18,"end":19,"message":"source is not valid UTF-8 (byte 0xC3)","label":null,"help":null,"fixes":[]}]}

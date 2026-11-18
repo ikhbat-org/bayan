@@ -1,0 +1,18 @@
+error BYN2410: `switch` does not handle every `Suit`
+  --> tmp/t26-tests/cli/diag_non-exhaustive-enum.byn/non-exhaustive-enum.byn:8:25
+
+  8 │ string color(Suit s) => s switch {
+    │                         ^ not covered: .spades
+    │
+  help: add the missing arms, or `_ => …` for the rest
+
+error BYN2410: `switch` does not handle every `Suit`
+  --> tmp/t26-tests/cli/diag_non-exhaustive-enum.byn/non-exhaustive-enum.byn:14:12
+
+  14 │     switch s {
+     │            ^ not covered: .clubs, .diamonds, .spades
+     │
+  help: add the missing cases or a `default:` section
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2410

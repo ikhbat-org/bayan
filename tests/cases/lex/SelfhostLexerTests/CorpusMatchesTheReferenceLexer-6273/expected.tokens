@@ -1,0 +1,156 @@
+1:2 Identifier `é`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 IntegerLiteral `6`
+3:11 IntegerLiteral `3`
+5:1 Identifier `يان`
+5:5 Identifier `μετρητής`
+5:14 Identifier `x_1`
+5:18 Identifier `é`
+6:3 Equals `=`
+6:5 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:5 Identifier `café`
+7:10 Equals `=`
+7:12 IntegerLiteral `2`
+9:1 LetKeyword `let`
+9:5 Identifier `s`
+9:7 Equals `=`
+9:9 InterpolatedStringStart `$"`
+9:11 InterpolationStart `{`
+9:12 InterpolatedStringStart `$"`
+9:14 InterpolationStart `{`
+9:15 InterpolatedStringStart `$"`
+9:17 InterpolationStart `{`
+9:18 InterpolatedStringStart `$"`
+9:20 InterpolationStart `{`
+9:21 InterpolatedStringStart `$"`
+9:23 InterpolationStart `{`
+9:24 InterpolatedStringStart `$"`
+9:26 InterpolationStart `{`
+9:27 InterpolatedStringStart `$"`
+9:29 InterpolationStart `{`
+9:30 InterpolatedStringStart `$"`
+9:32 InterpolationStart `{`
+9:33 InterpolatedStringStart `$"`
+9:35 InterpolationStart `{`
+9:36 InterpolatedStringStart `$"`
+9:38 InterpolationStart `{`
+9:39 InterpolatedStringStart `$"`
+9:41 InterpolationStart `{`
+9:42 InterpolatedStringStart `$"`
+9:44 InterpolationStart `{`
+9:46 OpenBrace `{`
+9:47 InterpolatedStringStart `$"`
+9:49 InterpolationStart `{`
+9:50 InterpolatedStringStart `$"`
+9:52 InterpolationStart `{`
+9:53 InterpolatedStringStart `$"`
+9:55 InterpolationStart `{`
+9:56 InterpolatedStringStart `$"`
+9:58 InterpolationStart `{`
+9:59 StringLiteral `$"{$"`
+9:64 OpenBrace `{`
+9:65 StringLiteral `$"{x}"`
+9:71 CloseBrace `}`
+9:72 StringLiteral `"}"`
+9:75 InterpolationEnd `}`
+9:76 InterpolatedStringEnd `"`
+9:77 InterpolationEnd `}`
+9:78 InterpolatedStringEnd `"`
+9:79 InterpolationEnd `}`
+9:80 InterpolatedStringEnd `"`
+9:81 InterpolationEnd `}`
+9:82 InterpolatedStringEnd `"`
+9:83 CloseBrace `}`
+9:84 StringLiteral `"}"`
+9:87 InterpolationEnd `}`
+9:88 InterpolatedStringEnd `"`
+9:89 InterpolationEnd `}`
+9:90 InterpolatedStringEnd `"`
+9:91 InterpolationEnd `}`
+9:92 InterpolatedStringEnd `"`
+9:93 InterpolationEnd `}`
+9:94 InterpolatedStringEnd `"`
+9:95 InterpolationEnd `}`
+9:96 InterpolatedStringEnd `"`
+9:97 InterpolationEnd `}`
+9:98 InterpolatedStringEnd `"`
+9:99 InterpolationEnd `}`
+9:100 InterpolatedStringEnd `"`
+9:101 InterpolationEnd `}`
+9:102 InterpolatedStringEnd `"`
+9:103 InterpolationEnd `}`
+9:104 InterpolatedStringEnd `"`
+9:105 InterpolationEnd `}`
+9:106 InterpolatedStringEnd `"`
+9:107 InterpolationEnd `}`
+9:108 InterpolatedStringEnd `"`
+10:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����é
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����é
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����é
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����é
+    │    ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ ����é
+    │     ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ����é
+    │   │     +
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  2 │ � ﻿
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ � ﻿
+    │   │ -
+
+error BYN0002: unexpected character `﻿`
+
+  2 │ � ﻿
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  6 │  � = 1
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  9 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  9 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                             ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                           ^^

@@ -1,0 +1,18 @@
+1:1 Identifier `ȧO`
+1:5 StructKeyword `struct`
+1:12 Identifier `S`
+2:2 EndOfFile
+
+error BYN0005: identifier `ȧO` is not in Unicode normalization form C
+
+  1 │ ȧO� struct S
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ȧO� struct S
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  1 │ ȧO� struct S
+    │    ^

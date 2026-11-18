@@ -1,0 +1,7 @@
+== tests/cases/diag/panic-handler-env.byn
+91..125 blockStmt
+97..123 localDecl
+108..123 callExpr
+116..122 literalExpr string
+139..170 blockStmt
+145..168 assignStmt assign target 145..158 value 161..168

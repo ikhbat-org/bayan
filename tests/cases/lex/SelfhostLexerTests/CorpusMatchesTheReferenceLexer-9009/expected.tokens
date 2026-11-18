@@ -1,0 +1,116 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCse2`
+3:22 Identifier `بيان`
+3:28 Identifier `μετρητή`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 InterpolatedStringStart `$"`
+3:51 InterpolationStart `{`
+3:52 InterpolatedStringStart `$"`
+3:54 InterpolationStart `{`
+3:55 InterpolatedStringStart `$"`
+3:57 InterpolationStart `{`
+3:58 InterpolatedStringStart `$"`
+3:60 InterpolationStart `{`
+3:61 InterpolatedStringStart `$"`
+3:63 InterpolationStart `{`
+3:64 InterpolatedStringStart `$"`
+3:66 InterpolationStart `{`
+3:67 InterpolatedStringStart `$"`
+3:69 InterpolationStart `{`
+3:70 InterpolatedStringStart `$"`
+3:72 InterpolationStart `{`
+3:73 InterpolatedStringStart `$"`
+3:75 InterpolationStart `{`
+3:76 InterpolatedStringStart `$"`
+3:78 InterpolationStart `{`
+3:79 InterpolatedStringStart `$"`
+3:81 InterpolationStart `{`
+3:82 InterpolatedStringStart `$"`
+3:84 InterpolationStart `{`
+3:85 StringLiteral `$"{x}"`
+3:91 InterpolationEnd `}`
+3:92 InterpolatedStringEnd `"`
+3:93 InterpolationEnd `}`
+3:94 InterpolatedStringEnd `"`
+3:95 Identifier `U`
+3:96 StringLiteral `"}"`
+3:99 InterpolationEnd `}`
+3:100 InterpolatedStringEnd `"`
+3:101 InterpolationEnd `}`
+3:102 InterpolatedStringEnd `"`
+3:103 InterpolationEnd `}`
+3:104 InterpolatedStringEnd `"`
+3:105 InterpolationEnd `}`
+3:106 InterpolatedStringEnd `"`
+3:107 InterpolationEnd `}`
+3:108 InterpolatedStringEnd `"`
+3:109 InterpolationEnd `}`
+3:110 InterpolatedStringEnd `"`
+3:111 InterpolationEnd `}`
+3:112 InterpolatedStringEnd `"`
+3:113 InterpolationEnd `}`
+3:114 InterpolatedStringEnd `"`
+3:115 InterpolationEnd `}`
+3:116 InterpolatedStringEnd `"`
+3:117 InterpolationEnd `}`
+3:118 InterpolatedStringEnd `"`
+3:119 InterpolationEnd `}`
+3:120 InterpolatedStringEnd `"`
+3:121 InterpolationEnd `}`
+3:122 InterpolatedStringEnd `"`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:10 Equals `=`
+4:12 IntegerLiteral `2`
+5:2 IntegerLiteral `1`
+5:3 Dot `.`
+5:5 LetKeyword `let`
+5:9 Identifier `a`
+5:11 Equals `=`
+5:15 IntegerLiteral `1`
+6:2 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{2}`
+
+  3 │ foo Bar _x camelCse2 بيان �μετρητή� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"U"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  3 │ foo Bar _x camelCse2 بيان �μετρητή� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"U"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                   ^
+
+error BYN0003: unterminated string literal
+
+  3 │ foo Bar _x camelCse2 بيان �μετρητή� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"U"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ foo Bar _x camelCse2 بيان �μετρητή� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"U"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                     ^^
+
+error BYN0002: unexpected character `$`
+
+  5 │  1. let a = $ 1
+    │             ^

@@ -1,0 +1,63 @@
+1:1 IntegerLiteral `2`
+1:3 Identifier `بي`
+1:6 Identifier `sن`
+1:9 Identifier `μετρητής`
+1:18 Identifier `x_1`
+1:22 Identifier `é`
+3:2 Identifier `a`
+3:4 Greater `>`
+3:5 Greater `>`
+3:7 Identifier `b`
+4:2 IntegerLiteral `0b102`
+5:2 CharLiteral `'x`
+6:2 ErrorKeyword `error`
+6:8 SetKeyword `set`
+6:12 UnitKeyword `unit`
+6:17 DistinctKeyword `distinct`
+6:26 TypeKeyword `type`
+6:31 ImportKeyword `import`
+6:38 AsKeyword `as`
+6:41 PublicKeyword `public`
+6:48 PrivateKeyword `private`
+6:56 StaticKeyword `static`
+6:63 ReadonlyKeyword `readonly`
+6:72 RequiredKeyword `required`
+6:81 ConstKeyword `const`
+6:87 LetKeyword `let`
+6:91 VarKeyword `var`
+6:95 EmbedKeyword `embed`
+6:101 ExternKeyword `extern`
+6:108 UnsafeKeyword `unsafe`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  1 │ 2 بي�sن μετρητής x_1 é
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ���a >> b
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ���a >> b
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ���a >> b
+    │   ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │  0b102
+    │      ^
+
+error BYN0008: unterminated char literal
+
+  5 │  'x
+    │  ^^
+    │
+  help: close it with `'`

@@ -1,0 +1,4 @@
+== marks
+tmp/t26-tests/unobservable/marks.byn 19 40 * all
+tmp/t26-tests/unobservable/marks.byn 90 143 boundary first
+tmp/t26-tests/unobservable/marks.byn 90 143 relational third

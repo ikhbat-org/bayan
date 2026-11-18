@@ -1,0 +1,5 @@
+== unit sink
+sink bag 2 main 1 outer none
+bag unknown attribute `a`
+bag unknown attribute `b`
+main unknown attribute `c`

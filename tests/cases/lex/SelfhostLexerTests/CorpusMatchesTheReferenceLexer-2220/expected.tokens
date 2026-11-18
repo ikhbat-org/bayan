@@ -1,0 +1,25 @@
+1:1 Identifier `각`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolatedStringText `a`
+1:7 InterpolationStart `{`
+1:8 Identifier `b`
+1:9 InterpolationEnd `}`
+1:10 InterpolatedStringText `c `
+1:12 InterpolatedStringEnd
+1:12 EndOfFile
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  1 │ 각$"a{b}c 
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각$"a{b}c 
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  1 │ 각$"a{b}c 
+    │    ^^ this string never ends
+    │
+  help: close it with `"`

@@ -1,0 +1,13 @@
+/// Doc lineú two.
+
+0b1ms
+
+test assert property fuzz model foreach new goto
+'x
+ w "quoted"
+  """ c"text" u16"wide" "‚ÄÆ allowed in s 
+let x‚Åß = 1
+ + - * / % +% -% *% +| -| *| ++ --
+
+'\q'ı
+

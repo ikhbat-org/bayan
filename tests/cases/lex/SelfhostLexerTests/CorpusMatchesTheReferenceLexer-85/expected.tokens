@@ -1,0 +1,25 @@
+1:2 IntegerLiteral `0b1`
+1:5 NumericSuffix `ms`
+    doc `/// Doc line two.`
+2:2 LetKeyword `let`
+2:6 Identifier `café`
+2:11 Equals `=`
+2:13 IntegerLiteral `2`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏0b1ms� /// Doc line two.
+    │ ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ ‏0b1ms� /// Doc line two.
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `\u{F}`
+
+  1 │ ‏0b1ms� /// Doc line two.
+    │       ^

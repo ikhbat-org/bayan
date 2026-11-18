@@ -1,0 +1,2 @@
+{"code":"BYN2804","severity":"error","file":"input.byn","span":{"start":98,"end":103,"line":9,"column":34,"endLine":9,"endColumn":39},"message":"`Point` is not an interface","label":"a struct","help":"list an `interface` here","fixes":[]}
+{"code":"BYN2804","severity":"error","file":"input.byn","span":{"start":44,"end":49,"line":5,"column":17,"endLine":5,"endColumn":22},"message":"`Point` is not an interface","label":"a struct","help":"list an `interface` here","fixes":[]}

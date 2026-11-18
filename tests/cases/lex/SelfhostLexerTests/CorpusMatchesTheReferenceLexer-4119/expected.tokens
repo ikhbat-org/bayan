@@ -1,0 +1,12 @@
+1:1 Identifier `_ff`
+1:5 IntegerLiteral `0b1010`
+1:12 IntegerLiteral `0B11`
+1:17 IntegerLiteral `5`
+1:18 NumericSuffix `s`
+1:20 IntegerLiteral `2`
+1:21 Percent `%`
+1:22 IntegerLiteral `0`
+1:23 NumericSuffix `ms`
+1:26 IntegerLiteral `4`
+1:27 NumericSuffix `KiB`
+1:31 EndOfFile

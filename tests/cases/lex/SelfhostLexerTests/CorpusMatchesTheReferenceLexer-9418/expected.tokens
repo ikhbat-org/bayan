@@ -1,0 +1,61 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+2:1 IntegerLiteral `1`
+2:2 NumericSuffix `e`
+3:1 IntegerLiteral `0b__`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `stray } here`
+4:15 InterpolatedStringEnd `"`
+5:2 Identifier `macro`
+5:8 Identifier `select`
+5:15 Identifier `becoe`
+7:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"stray } here"
+    │         ^
+    │
+    │ 4 │ $"stray }} here"
+    │   │          +
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │  macro select becoe
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │  macro select becoe
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0004: unterminated block comment
+
+  6 │ /*& && | || ^ ~ ! = == != < <=> >= << >> >>=
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

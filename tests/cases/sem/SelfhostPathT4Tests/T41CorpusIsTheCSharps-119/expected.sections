@@ -1,0 +1,4 @@
+== diags.diag/ternary-in-collection
+BYN1013 1:11 a conditional expression inside a collection literal must be parenthesized
+  help wrap it in parentheses
+  fix 1:11-1:20 (a ? 1 : 2)

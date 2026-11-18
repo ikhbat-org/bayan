@@ -1,0 +1,25 @@
+== tests/cases/diag/function-type-placement-declarations.byn
+46..51 binaryExpr gt right 50..51
+46..51 binaryExpr gt right 50..51
+46..51 binaryExpr gt right 50..51
+46..47 nameExpr
+50..51 literalExpr integer
+224..264 blockStmt
+230..246 localDecl
+242..246 literalExpr nullKeyword
+251..262 returnStmt value 258..262
+258..262 literalExpr trueKeyword
+284..288 callExpr
+284..288 callExpr
+284..288 callExpr
+286..287 nameExpr
+302..305 blockStmt
+88..93 nameExpr
+88..93 nameExpr
+88..93 nameExpr
+224..264 blockStmt
+230..246 localDecl
+242..246 literalExpr nullKeyword
+251..262 returnStmt value 258..262
+258..262 literalExpr trueKeyword
+202..207 nameExpr

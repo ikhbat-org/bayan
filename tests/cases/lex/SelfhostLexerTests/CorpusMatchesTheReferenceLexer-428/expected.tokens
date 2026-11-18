@@ -1,0 +1,107 @@
+1:1 CharLiteral `'x`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 Identifier `P`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 StringLiteral `$"{$"`
+2:56 OpenBrace `{`
+2:57 Identifier `x`
+2:58 CloseBrace `}`
+2:59 StringLiteral `"}"`
+2:62 InterpolationEnd `}`
+2:63 InterpolatedStringEnd `"`
+2:64 InterpolationEnd `}`
+2:65 InterpolatedStringEnd `"`
+2:66 InterpolationEnd `}`
+2:67 InterpolatedStringEnd `"`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringEnd `"`
+2:70 InterpolationEnd `}`
+2:71 InterpolatedStringEnd `"`
+2:72 InterpolationEnd `}`
+2:73 InterpolatedStringEnd `"`
+2:74 InterpolationEnd `}`
+2:75 InterpolatedStringText ` /// Doc line one.`
+2:93 InterpolatedStringEnd
+3:1 LetKeyword `let`
+3:5 Identifier `actor`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+4:1 StringLiteral `" 0xF__`
+5:1 Slash `/`
+5:3 NotKeyword `not`
+5:7 Identifier `a`
+5:9 Identifier `doc`
+5:13 Identifier `comment`
+6:1 Identifier `b`
+8:1 StringLiteral `"a\u{2067}b\r"`
+8:8 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{P$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"} /// Doc line one.
+    │                           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{P$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"} /// Doc line one.
+    │                              ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$"{$"{$"{P$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"} /// Doc line one.
+    │                                                   ^^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  4 │ " 0xF__
+    │ ^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

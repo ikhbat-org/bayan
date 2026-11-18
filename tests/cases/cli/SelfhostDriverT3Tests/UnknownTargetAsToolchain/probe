@@ -1,0 +1,6 @@
+compile
+<repo>/tmp/t3/unknown
+int main(void){return 0;}
+program
+safe
+not-a-target

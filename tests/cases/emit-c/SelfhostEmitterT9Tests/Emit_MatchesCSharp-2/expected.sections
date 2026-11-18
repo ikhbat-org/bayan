@@ -1,0 +1,158 @@
+== helpers
+bynh_hash_i64 static uint64_t bynh_hash_i64(int64_t k)
+static uint64_t bynh_hash_i64(int64_t k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_keq_i64 static bool bynh_keq_i64(const void* a, const void* b)
+static bool bynh_keq_i64(const void* a, const void* b) {
+    return (*(const int64_t*)a == *(const int64_t*)b);
+}
+bynh_slot_map_i64_i64 static int64_t* bynh_slot_map_i64_i64(bynt_map_i64_i64* m, int64_t k, int64_t d)
+static int64_t* bynh_slot_map_i64_i64(bynt_map_i64_i64* m, int64_t k, int64_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(int64_t), (void**)&m->vals, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_at_list_i64 static int64_t* bynh_at_list_i64(bynt_list_i64 s, int64_t i, bool from_end, const char* file, int line)
+static int64_t* bynh_at_list_i64(bynt_list_i64 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_hex_decode static uint32_t bynh_hex_decode(byn_str text, bynt_list_u8* out, int64_t* detail)
+static uint32_t bynh_hex_decode(byn_str text, bynt_list_u8* out, int64_t* detail) {
+    uint8_t* p = NULL;
+    int64_t at = byn_hex_decode(text, &p, byn_context);
+    if (at >= 0) {
+        if (detail) *detail = at;
+        return UINT32_C(15);
+    }
+    if (out) *out = (bynt_list_u8){p, text.len / 2, text.len / 2, byn_context};
+    return 0;
+}
+bynh_parse_i64 static uint32_t bynh_parse_i64(byn_str s, byn_builtin_Radix radix, int64_t* out, int64_t* detail)
+static uint32_t bynh_parse_i64(byn_str s, byn_builtin_Radix radix, int64_t* out, int64_t* detail) {
+    int64_t v = 0;
+    int64_t at = byn_int_parse_at(s, 64, true, radix, &v);
+    if (at == -2) return UINT32_C(16);
+    if (at >= 0) {
+        if (detail) *detail = at;
+        return UINT32_C(15);
+    }
+    if (out) *out = (int64_t)v;
+    return 0;
+}
+bynh_utf8_decode static uint32_t bynh_utf8_decode(bynt_span_u8 bytes, byn_str* out, int64_t* detail)
+static uint32_t bynh_utf8_decode(bynt_span_u8 bytes, byn_str* out, int64_t* detail) {
+    int64_t at = byn_utf8_invalid_at(bytes.ptr, bytes.len);
+    if (at >= 0) {
+        if (detail) *detail = at;
+        return BYN_UTF8_INVALID_SEQUENCE;
+    }
+    if (out) *out = byn_str_copy((byn_str){bytes.ptr, bytes.len}, byn_context);
+    return 0;
+}
+bynh_w_padded static void bynh_w_padded(byn_writer* w, byn_str s, int64_t width, uint32_t fill, int align)
+static void bynh_w_padded(byn_writer* w, byn_str s, int64_t width, uint32_t fill, int align) {
+    if (s.len > 0) {
+        int64_t k = s.len - 1;
+        while (k > 0 && (s.ptr[k] & 0xC0) == 0x80) k--;
+        uint8_t c = s.ptr[k];
+        int64_t need = c < 0x80 ? 1 : (c & 0xE0) == 0xC0 ? 2 : (c & 0xF0) == 0xE0 ? 3 : 4;
+        if (k + need > s.len) s.len = k;
+    }
+    int64_t runes = 0;
+    for (int64_t i = 0; i < s.len; i++) runes += (s.ptr[i] & 0xC0) != 0x80;
+    int64_t gap = width > runes ? width - runes : 0, before = align == 1 ? gap : align == 2 ? gap / 2 : 0;
+    for (int64_t i = 0; i < before; i++) byn_w_char(w, fill);
+    byn_w_str(w, s);
+    for (int64_t i = before; i < gap; i++) byn_w_char(w, fill);
+}
+bynh_w_radix static void bynh_w_radix(byn_writer* w, uint64_t v, bool negative, int base)
+static void bynh_w_radix(byn_writer* w, uint64_t v, bool negative, int base) {
+    uint8_t d[64];
+    int n = 0;
+    if (negative) {
+        byn_w_char(w, '-');
+        v = 0 - v;
+    }
+    do {
+        d[n++] = (uint8_t)"0123456789abcdef"[v % (uint64_t)base];
+        v /= (uint64_t)base;
+    } while (v > 0);
+    while (n > 0) byn_w_bytes(w, &d[--n], 1);
+}
+bynh_w_digits static void bynh_w_digits(byn_writer* w, double v, int digits)
+static void bynh_w_digits(byn_writer* w, double v, int digits) {
+    double p = 1;
+    for (int i = 0; i < digits; i++) p *= 10;
+    double s = v * p;
+    if (!(s > -9.0e15 && s < 9.0e15)) {
+        byn_w_f64(w, v);
+        return;
+    }
+    int64_t n = (int64_t)(s < 0 ? s - 0.5 : s + 0.5);
+    if (n < 0 || (n == 0 && v < 0)) byn_w_char(w, '-');
+    uint64_t m = n < 0 ? (uint64_t)-n : (uint64_t)n, q = (uint64_t)p;
+    byn_w_u64(w, m / q);
+    if (digits == 0) return;
+    byn_w_char(w, '.');
+    uint64_t f = m % q;
+    for (uint64_t k = q / 10; k > 0; k /= 10) byn_w_char(w, (uint32_t)('0' + f / k % 10));
+}
+bynh_w_quoted static void bynh_w_quoted(byn_writer* w, byn_str s, uint32_t quote)
+static void bynh_w_quoted(byn_writer* w, byn_str s, uint32_t quote) {
+    byn_w_char(w, quote);
+    for (int64_t i = 0; i < s.len; i++) {
+        uint8_t c = s.ptr[i];
+        if (c == quote || c == '\\') byn_w_char(w, '\\');
+        if (c == '\n') byn_w_str(w, (byn_str){(const uint8_t*)"\\n", 2});
+        else byn_w_bytes(w, &c, 1);
+    }
+    byn_w_char(w, quote);
+}
+bynh_w_rune_quoted static void bynh_w_rune_quoted(byn_writer* w, uint32_t c)
+static void bynh_w_rune_quoted(byn_writer* w, uint32_t c) {
+    byn_w_char(w, '\'');
+    if (c == '\'' || c == '\\') byn_w_char(w, '\\');
+    if (c == '\n') byn_w_str(w, (byn_str){(const uint8_t*)"\\n", 2});
+    else byn_w_char(w, c);
+    byn_w_char(w, '\'');
+}
+bynh_debug_main__P static void bynh_debug_main__P(byn_writer* w, bynt_main__P v)
+static void bynh_debug_main__P(byn_writer* w, bynt_main__P v) {
+    byn_w_str(w, BYN_STR("P { ", 4));
+    byn_w_str(w, BYN_STR("x: ", 3));
+    byn_w_i64(w, (int64_t)(v.x));
+    byn_w_str(w, BYN_STR(", y: ", 5));
+    byn_w_i64(w, (int64_t)(v.y));
+    byn_w_str(w, BYN_STR(" }", 2));
+}
+bynh_debug_main__Q static void bynh_debug_main__Q(byn_writer* w, bynt_main__Q v)
+static void bynh_debug_main__Q(byn_writer* w, bynt_main__Q v) {
+    byn_w_str(w, BYN_STR("Q {}", 4));
+}
+bynh_debug_main__K static void bynh_debug_main__K(byn_writer* w, bynt_main__K v)
+static void bynh_debug_main__K(byn_writer* w, bynt_main__K v) {
+    byn_w_str(w, BYN_STR("K { ", 4));
+    byn_w_str(w, BYN_STR("kf: ", 4));
+    bynh_fmt_main__F(w, v.kf);
+    byn_w_str(w, BYN_STR(", kg: ", 6));
+    bynh_debug_main__G(w, v.kg);
+    byn_w_str(w, BYN_STR(" }", 2));
+}
+bynh_fmt_main__F static void bynh_fmt_main__F(byn_writer* w, bynt_main__F v)
+static void bynh_fmt_main__F(byn_writer* w, bynt_main__F v) {
+    byn_main__F__formatInto(&v, w, ((byn_format_spec){2, false, 0, ' ', 0, -1}));
+}
+bynh_debug_main__G static void bynh_debug_main__G(byn_writer* w, bynt_main__G v)
+static void bynh_debug_main__G(byn_writer* w, bynt_main__G v) {
+    byn_w_str(w, BYN_STR("G { ", 4));
+    byn_w_str(w, BYN_STR("ga: ", 4));
+    byn_w_i64(w, (int64_t)(v.ga));
+    byn_w_str(w, BYN_STR(" }", 2));
+}

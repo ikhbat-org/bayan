@@ -1,0 +1,19 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+3:11 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ /* �Э?*/� 
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ // �Э?� 
+    │   │  +++++
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ /* �Э?*/� 
+    │    ^

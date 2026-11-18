@@ -1,0 +1,12 @@
+error BYN1061: `this` without a state is the default receiver
+  --> tmp/t26-tests/cli/diag_receiver-without-state.byn/receiver-without-state.byn:4:14
+
+  4 │     i64 read(this) => n
+    │              ^^^^ the default receiver
+    │
+  help: remove `this`, or add a state: `this is .s`
+    │ 4 │     i64 read(this) => n
+    │   │              ----
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1061

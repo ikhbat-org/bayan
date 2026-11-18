@@ -1,0 +1,117 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolationEnd `}`
+1:5 InterpolatedStringEnd `"`
+2:1 ErrorKeyword `error`
+2:7 SetKeyword `set`
+2:11 UnitKeyword `unit`
+2:16 DistinctKeyword `distinct`
+2:25 TypeKeyword `type`
+2:30 Identifier `impCort`
+2:38 AsKeyword `as`
+2:41 PublicKeyword `public`
+2:48 PrivateKeyword `private`
+2:56 StaticKeyword `static`
+2:63 ReadonlyKeyword `readonly`
+2:72 RequiredKeyword `required`
+2:81 ConstKeyword `const`
+2:87 LetKeyword `let`
+2:91 VarKeyword `var`
+2:95 EmbedKeyword `embed`
+2:101 ExternKeyword `extern`
+2:108 Identifier `u`
+2:109 Identifier `safe`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 Identifier `F`
+4:20 StringLiteral `"{$"`
+4:24 OpenBrace `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 InterpolatedStringStart `$"`
+4:54 InterpolationStart `{`
+4:55 StringLiteral `$"{$"`
+4:60 OpenBrace `{`
+4:61 Identifier `x`
+4:62 CloseBrace `}`
+4:63 StringLiteral `"}"`
+4:66 InterpolationEnd `}`
+4:67 InterpolatedStringEnd `"`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringEnd `"`
+4:70 InterpolationEnd `}`
+4:71 InterpolatedStringEnd `"`
+4:72 InterpolationEnd `}`
+4:73 InterpolatedStringEnd `"`
+4:74 InterpolationEnd `}`
+4:75 InterpolatedStringEnd `"`
+4:76 InterpolationEnd `}`
+4:77 InterpolatedStringEnd `"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolationEnd `}`
+4:81 InterpolatedStringEnd `"`
+4:82 InterpolationEnd `}`
+4:83 InterpolatedStringEnd `"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 CloseBrace `}`
+4:87 StringLiteral `"}"`
+4:90 InterpolationEnd `}`
+4:91 InterpolatedStringEnd `"`
+4:92 InterpolationEnd `}`
+4:93 InterpolatedStringEnd `"`
+4:94 InterpolationEnd `}`
+4:95 InterpolatedStringEnd `"`
+4:96 InterpolationEnd `}`
+4:97 InterpolatedStringEnd `"`
+4:98 InterpolationEnd `}`
+4:99 InterpolatedStringEnd `"`
+4:104 Identifier `comment`
+4:112 Star `*`
+4:113 Slash `/`
+4:115 Identifier `a`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAB)
+
+  2 │ error set unit distinct type impCort as public private static readonly required const let var embed extern u�safe
+    │                                                                                                             ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{F"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"    comment */ a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{F"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"    comment */ a
+    │                                                       ^^

@@ -1,0 +1,2 @@
+== flow.Order.early
+BYN7009 27:16 `early` declares `becomes .paid` but returns here without `become` ||add `become .paid(…)` before returning, or fail|

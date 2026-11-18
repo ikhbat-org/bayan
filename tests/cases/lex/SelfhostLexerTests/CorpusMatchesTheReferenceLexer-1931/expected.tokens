@@ -1,0 +1,112 @@
+1:1 IntegerLiteral `0xF__`
+1:7 IntegerLiteral `0b__`
+2:2 PlusEquals `+=`
+2:5 MinusEquals `-=`
+2:8 StarEquals `*=`
+2:11 SlashEquals `/=`
+2:14 PercentEquals `%=`
+2:17 AmpEquals `&=`
+2:20 BarEquals `|=`
+2:23 CaretEquals `^=`
+2:26 LessLessEquals `<<=`
+4:1 StringLiteral `"{$"`
+4:5 OpenBrace `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolationStart `{`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolationStart `{`
+4:12 InterpolatedStringStart `$"`
+4:14 InterpolationStart `{`
+4:15 InterpolatedStringStart `$"`
+4:17 InterpolationStart `{`
+4:18 Identifier `x`
+4:19 InterpolationEnd `}`
+4:20 InterpolatedStringEnd `"`
+4:21 InterpolationEnd `}`
+4:22 InterpolatedStringEnd `"`
+4:23 InterpolationEnd `}`
+4:24 InterpolatedStringEnd `"`
+4:25 InterpolationEnd `}`
+4:26 InterpolatedStringEnd `"`
+4:27 CloseBrace `}`
+4:28 StringLiteral `"}"`
+4:31 CloseBrace `}`
+4:32 StringLiteral `"}"`
+4:35 CloseBrace `}`
+4:36 StringLiteral `"}"`
+4:39 CloseBrace `}`
+4:40 StringLiteral `"}"`
+4:43 CloseBrace `}`
+4:45 CloseBrace `}`
+4:46 StringLiteral `"}"`
+4:49 CloseBrace `}`
+4:50 StringLiteral `"}"`
+4:53 CloseBrace `}`
+4:54 StringLiteral `"}"`
+4:57 CloseBrace `}`
+4:58 StringLiteral `"`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolatedStringText `a`
+9:4 InterpolationStart `{`
+9:5 Identifier `b`
+9:6 InterpolationEnd `}`
+9:7 InterpolatedStringText `c `
+9:9 InterpolatedStringEnd
+9:9 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__ 0b__
+    │    ^^
+    │
+    │ 1 │ 0xF__ 0b__
+    │   │    --
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0xF__ 0b__
+    │       ^^^^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  3 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  �
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xD7)
+
+  4 │ "{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"}"}"
+    │                                            ^
+
+error BYN0003: unterminated string literal
+
+  4 │ "{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"}"}"
+    │                                                          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  7 │  // ok � in comment
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"a{b}c 
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

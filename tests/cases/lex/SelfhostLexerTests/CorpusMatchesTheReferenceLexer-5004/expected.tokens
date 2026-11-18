@@ -1,0 +1,133 @@
+3:1 IntegerLiteral `0xFF`
+3:5 NumericSuffix `s`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `open `
+6:8 InterpolationStart `{`
+6:9 Identifier `x`
+6:10 StringLiteral `";`
+8:1 LetKeyword `let`
+8:7 Equals `=`
+8:9 IntegerLiteral `2`
+10:2 IfKeyword `if`
+10:5 ElseKeyword `else`
+10:10 UnlessKeyword `unless`
+10:17 SwitchKeyword `switch`
+10:24 CaseKeyword `case`
+10:29 DefaultKeyword `default`
+10:37 ForKeyword `for`
+10:41 InKeyword `in`
+10:44 WhileKeyword `while`
+10:50 DoKeyword `do`
+10:53 Identifier `brea`
+10:59 ContinueKeyword `continue`
+10:68 ReturnKeyword `return`
+10:75 YieldKeyword `yield`
+10:81 DeferKeyword `defer`
+10:87 ErrdeferKeyword `errdefer`
+10:96 UsingKeyword `using`
+10:102 ContextKeyword `context`
+12:1 StructKeyword `struct`
+12:8 Identifier `S`
+13:1 InterpolatedStringStart `$"`
+13:3 InterpolationStart `{`
+13:4 InterpolatedStringStart `$"`
+13:6 InterpolationStart `{`
+13:7 InterpolatedStringStart `$"`
+13:9 InterpolationStart `{`
+13:10 InterpolatedStringStart `$"`
+13:12 InterpolationStart `{`
+13:13 InterpolatedStringStart `$"`
+13:15 InterpolationStart `{`
+13:16 InterpolatedStringStart `$"`
+13:18 InterpolationStart `{`
+13:19 InterpolatedStringStart `$"`
+13:21 InterpolationStart `{`
+13:22 InterpolatedStringStart `$"`
+13:24 InterpolationStart `{`
+13:25 InterpolatedStringStart `$"`
+13:27 InterpolationStart `{`
+13:28 InterpolatedStringStart `$"`
+13:30 InterpolationStart `{`
+13:31 InterpolatedStringStart `$"`
+13:33 InterpolationStart `{`
+13:34 InterpolatedStringStart `$"`
+13:36 InterpolationStart `{`
+13:37 InterpolatedStringStart `$"`
+13:39 InterpolationStart `{`
+13:40 InterpolatedStringStart `$"`
+13:42 InterpolationStart `{`
+13:43 InterpolatedStringStart `$"`
+13:45 InterpolationStart `{`
+13:46 StringLiteral `$"{x}"`
+13:52 InterpolationEnd `}`
+13:53 InterpolatedStringEnd `"`
+13:54 InterpolationEnd `}`
+13:55 InterpolatedStringEnd `"`
+13:56 InterpolationEnd `}`
+13:57 InterpolatedStringEnd `"`
+13:58 InterpolationEnd `}`
+13:59 InterpolatedStringEnd `"`
+13:60 InterpolationEnd `}`
+13:61 InterpolatedStringEnd `"`
+13:62 InterpolationEnd `}`
+13:63 InterpolatedStringEnd `"`
+13:64 InterpolationEnd `}`
+13:65 InterpolatedStringEnd `"`
+13:67 InterpolationEnd `}`
+13:68 InterpolatedStringEnd `"`
+13:69 InterpolationEnd `}`
+13:70 InterpolatedStringEnd `"`
+13:71 InterpolationEnd `}`
+13:72 InterpolatedStringEnd `"`
+13:73 InterpolationEnd `}`
+13:74 InterpolatedStringEnd `"`
+13:75 InterpolationEnd `}`
+13:76 InterpolatedStringEnd `"`
+13:77 InterpolationEnd `}`
+13:78 InterpolatedStringEnd `"`
+13:79 InterpolationEnd `}`
+13:80 InterpolatedStringEnd `"`
+13:81 InterpolationEnd `}`
+13:82 InterpolatedStringEnd `"`
+13:83 InterpolationEnd `}`
+13:84 InterpolatedStringEnd `"`
+13:85 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  3 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  8 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  9 │ // ok � in comment
+    │       ^
+
+error BYN0002: unexpected character `\u{6}`
+
+  10 │  if else unless switch case default for in while do brea� continue return yield defer errdefer using context
+     │                                                         ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  13 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�}"}"}"}"}"}"}"}"}"
+     │                                              ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  13 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�}"}"}"}"}"}"}"}"}"
+     │                                                                  ^

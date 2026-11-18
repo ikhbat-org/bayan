@@ -1,0 +1,5 @@
+== diags.diag/goto
+BYN1010 3:9 `goto` does not exist in Bayan
+  label not a keyword in Bayan
+  help label the loop (`outer: for x in xs { … }`) and use `break outer` to leave it early
+  fix 3:9-3:13 break

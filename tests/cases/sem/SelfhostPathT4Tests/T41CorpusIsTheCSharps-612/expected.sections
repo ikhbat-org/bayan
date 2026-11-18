@@ -1,0 +1,3 @@
+== diags.diag/expects-reads-untrusted
+BYN8006 1:55 `expects` reads `name`, which is `Untrusted`; a violation would trap on outside data
+  help validate `name` with a type that has `requires` before the call

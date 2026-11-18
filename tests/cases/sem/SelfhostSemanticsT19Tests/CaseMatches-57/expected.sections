@@ -1,0 +1,4 @@
+== bind.probes.u5
+flags 2
+errorExpr:?[1361:2]=-()
+BYN2207 95:14 `!` cannot be applied to `i32` |||

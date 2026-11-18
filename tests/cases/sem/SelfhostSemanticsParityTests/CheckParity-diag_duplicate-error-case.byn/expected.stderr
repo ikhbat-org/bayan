@@ -1,0 +1,10 @@
+error BYN3202: `CarrierError` and `StockError` both have a case `rejected`
+  --> tmp/t26-tests/cli/diag_duplicate-error-case.byn/duplicate-error-case.byn:11:1
+
+  11 │ union error ShipError = CarrierError, StockError
+     │ ^^^^^^^^^^^ two cases `rejected`
+     │
+  help: rename one case, or compose fewer sets
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3202

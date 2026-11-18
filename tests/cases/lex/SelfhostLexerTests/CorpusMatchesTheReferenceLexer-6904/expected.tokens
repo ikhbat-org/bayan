@@ -1,0 +1,76 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:1 Identifier `c`
+2:3 Greater `>`
+2:4 GreaterEquals `>=`
+2:7 IntegerLiteral `1`
+4:1 CharLiteral `'\u{D800}'`
+5:1 CharLiteral `'\u{110000}'`
+6:1 CharLiteral `'x`
+7:2 LetKeyword `let`
+7:6 Identifier `café`
+7:12 Equals `=`
+7:14 IntegerLiteral `1`
+9:1 StructKeyword `struct`
+9:8 UniqueKeyword `unique`
+9:15 UnionKeyword `union`
+9:21 EnumKeyword `enum`
+9:26 FlagsKeyword `flags`
+9:32 OpenKeyword `open`
+9:37 ExtensibleKeyword `extensible`
+9:48 InterfaceKeyword `interface`
+9:58 DelegateKeyword `delegate`
+9:67 ExtensionKeyword `extension`
+9:77 DerivationKeyword `derivation`
+9:88 AttributeKeyword `attribute`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ �
+    │ ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  5 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ � let café = 1
+    │ ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  7 │ � let café = 1
+    │       ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ � let café = 1
+    │   │          +

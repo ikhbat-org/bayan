@@ -1,0 +1,3 @@
+== narrow restore
+in check a=true v=false p=true r=false q=false n=false
+check a=true v=false p=false r=false q=false n=false

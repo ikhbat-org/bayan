@@ -1,0 +1,1 @@
+{"code":"BYN3004","severity":"error","file":"input.byn","span":{"start":478,"end":510,"line":17,"column":5,"endLine":17,"endColumn":37},"message":"`expenses` is modified while `shares` still borrows it","label":"`shares` is used again on line 18","help":"finish using `shares` first, or copy what it needs before changing `expenses`","fixes":[]}

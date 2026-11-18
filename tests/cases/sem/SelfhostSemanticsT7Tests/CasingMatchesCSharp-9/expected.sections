@@ -1,0 +1,3 @@
+== value-io
+BYN2009 5+2 `IO` must be camelCase |  | rename it `io`; only types are PascalCase | 5+2=io
+end

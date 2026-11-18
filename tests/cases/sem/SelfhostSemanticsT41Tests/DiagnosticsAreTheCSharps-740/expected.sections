@@ -1,0 +1,3 @@
+== diags.diag/recursive-union
+BYN2761 1:7 `Expr` contains itself by value: Expr → Expr
+  help store the inner one as `Owned<Expr>` (or in a `List<Expr>`); a value cannot contain itself

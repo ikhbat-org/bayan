@@ -1,0 +1,131 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+1:16 CharLiteral `'x`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:15 OpenBrace `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 Identifier `x`
+5:50 InterpolationEnd `}`
+5:51 InterpolatedStringEnd `"`
+5:52 InterpolationEnd `}`
+5:53 InterpolatedStringEnd `"`
+5:54 InterpolationEnd `}`
+5:55 InterpolatedStringEnd `"`
+5:56 IntegerLiteral `3`
+5:57 InterpolationEnd `}`
+5:58 InterpolatedStringEnd `"`
+5:59 InterpolationEnd `}`
+5:60 InterpolatedStringEnd `"`
+5:61 InterpolationEnd `}`
+5:62 InterpolatedStringEnd `"`
+5:63 InterpolationEnd `}`
+5:64 InterpolatedStringEnd `"`
+5:65 InterpolationEnd `}`
+5:66 InterpolatedStringEnd `"`
+5:67 InterpolationEnd `}`
+5:68 InterpolatedStringEnd `"`
+5:69 InterpolationEnd `}`
+5:70 InterpolatedStringEnd `"`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringEnd `"`
+5:73 CloseBrace `}`
+5:74 StringLiteral `"}"`
+5:77 InterpolationEnd `}`
+5:78 InterpolatedStringEnd `"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolatedStringStart `$"`
+5:83 InterpolatedStringText `open `
+5:88 InterpolationStart `{`
+5:89 Identifier `x`
+5:90 StringLiteral `";`
+6:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1; 'x
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1; 'x
+    │   │        +
+
+error BYN0008: unterminated char literal
+
+  1 │ let café = 1; 'x
+    │                ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `$`
+
+  5 │ $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"3}"}"}"}"}"}"}"}"}�"}"}"}"$"open {x";
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  5 │ $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"3}"}"}"}"}"}"}"}"}�"}"}"}"$"open {x";
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │ $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"3}"}"}"}"}"}"}"}"}�"}"}"}"$"open {x";
+    │                                                                          ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"3}"}"}"}"}"}"}"}"}�"}"}"}"$"open {x";
+    │                                                                                  ^^ this
+    │                                                                                     string
+    │                                                                                     never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"3}"}"}"}"}"}"}"}"}�"}"}"}"$"open {x";
+    │                                                                                           ^^ string
+    │                                                                                              ends
+    │                                                                                              at
+    │                                                                                              the
+    │                                                                                              end
+    │                                                                                              of
+    │                                                                                              the
+    │                                                                                              line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

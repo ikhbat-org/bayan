@@ -1,0 +1,4 @@
+== diags.log-constant
+BYN2009 1:7 `Log` must be camelCase
+  help rename it `log`; only types are PascalCase
+BYN2003 4:9 `debug` is not a member of `i32`

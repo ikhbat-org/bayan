@@ -1,0 +1,12 @@
+union error E {
+    a
+}
+union error F {
+    b
+}
+i32!E g() // keep me
+    fails F
+    uses console {
+    print("g")
+    return 1
+}

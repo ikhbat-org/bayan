@@ -1,0 +1,33 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 Identifier `Sove`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 Identifier `coptime`
+1:62 CheckedKeyword `checked`
+2:2 IntegerLiteral `0`
+2:3 CloseBrace `}`
+2:4 CharLiteral `' '`
+2:8 CharLiteral `''`
+2:11 CharLiteral `'é'`
+2:15 CharLiteral `'\\'`
+2:20 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  2 │  0}' '\'' 'é' '\\' 
+    │       ^
+
+error BYN0007: empty char literal
+
+  2 │  0}' '\'' 'é' '\\' 
+    │        ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

@@ -1,0 +1,53 @@
+== tests/cases/run/lambda-uses-provide.byn
+61..65 callExpr
+61..65 callExpr
+61..65 callExpr
+61..62 nameExpr
+63..64 nameExpr
+79..410 blockStmt
+85..110 localDecl
+103..110 callExpr
+115..128 localDecl
+127..128 literalExpr integer
+133..308 localDecl
+167..171 lambdaExpr
+253..258 nameExpr
+313..408 contextStmt
+328..333 nameExpr
+334..408 blockStmt
+344..363 exprStmt
+344..363 callExpr
+350..362 interpolatedExpr
+353..360 callExpr
+353..357 nameExpr
+358..359 literalExpr integer
+344..363 callExpr
+372..402 exprStmt
+372..402 callExpr
+378..401 interpolatedExpr
+381..399 callExpr
+387..388 literalExpr integer
+394..398 nameExpr
+372..402 callExpr
+172..308 blockStmt
+182..202 localDecl
+191..202 callExpr
+211..269 forStmt
+220..224 rangeExpr
+220..221 literalExpr integer
+223..224 nameExpr
+225..269 blockStmt
+239..259 exprStmt
+239..259 callExpr
+239..241 nameExpr
+249..258 binaryExpr add right 253..258
+249..250 nameExpr
+253..258 nameExpr
+253..258 nameExpr
+278..302 returnStmt value 285..302
+285..302 binaryExpr add right 297..302
+285..294 memberExpr
+285..287 nameExpr
+297..302 indexExpr
+297..299 nameExpr
+300..301 literalExpr integer

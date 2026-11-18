@@ -1,0 +1,45 @@
+1:1 Identifier `et`
+1:4 Identifier `café`
+1:9 Equals `=`
+1:11 IntegerLiteral `2`
+2:2 Identifier `x́́aw`
+2:8 Equals `=`
+2:10 IntegerLiteral `3`
+3:1 BarBar `||`
+3:4 Caret `^`
+3:6 Tilde `~`
+3:8 Bang `!`
+3:10 Equals `=`
+3:12 EqualsEquals `==`
+3:15 BangEquals `!=`
+3:18 Less `<`
+3:20 LessEquals `<=`
+3:23 Greater `>`
+3:25 GreaterEquals `>=`
+3:28 LessLess `<<`
+3:31 Greater `>`
+3:32 Greater `>`
+3:34 Greater `>`
+3:35 GreaterEquals `>=`
+4:1 PlusEquals `+=`
+4:4 MinusEquals `-=`
+4:7 StarEquals `*=`
+4:10 SlashEquals `/=`
+4:13 PercentEquals `%=`
+4:16 LetKeyword `let`
+4:20 Identifier `c`
+4:22 Equals `=`
+4:24 RawStringLiteral `"""never closed\n$"total {x" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" �""\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ += -= *= /= %= let c = """never closed
+    │                        ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  5 │ $"total {x" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" �""
+    │                                                                       ^

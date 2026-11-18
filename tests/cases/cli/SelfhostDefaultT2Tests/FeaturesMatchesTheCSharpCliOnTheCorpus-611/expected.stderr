@@ -1,0 +1,7 @@
+error BYN2107: property `latest` modifies the value
+  --> <repo>/tests/cases/diag/getter-mutates.byn:5:19
+
+  5 │     i64 latest => record()
+    │                   ^^^^^^
+    │
+  help: make it a method if it needs to change the value

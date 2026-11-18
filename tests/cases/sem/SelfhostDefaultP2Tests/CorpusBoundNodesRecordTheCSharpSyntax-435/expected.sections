@@ -1,0 +1,3 @@
+== tests/cases/diag/dyn-not-dyn-safe.byn
+116..119 blockStmt
+159..162 blockStmt

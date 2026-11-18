@@ -1,0 +1,44 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+3:1 IntegerLiteral `0b102`
+4:2 Plus `+`
+4:4 Minus `-`
+4:6 Star `*`
+4:8 Slash `/`
+4:10 Percent `%`
+4:12 PlusPercent `+%`
+4:15 MinusPercent `-%`
+4:18 StarPercent `*%`
+4:21 PlusBar `+|`
+4:24 MinusBar `-|`
+4:27 StarBar `*|`
+4:30 PlusPlus `++`
+4:33 MinusMinus `--`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 BecomeKeyword `become`
+6:2 Identifier `بيان`
+6:7 Identifier `μετρητής`
+6:16 Identifier `x_1__`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  3 │ 0b102
+    │     ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

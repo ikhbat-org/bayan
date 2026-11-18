@@ -1,0 +1,44 @@
+== tests/cases/diag/format-spec-errors.byn
+12..276 blockStmt
+18..30 localDecl
+26..30 literalExpr string
+35..44 localDecl
+43..44 literalExpr integer
+49..54 assignStmt assign target 49..50 value 53..54
+49..50 nameExpr
+53..54 literalExpr integer
+59..82 exprStmt
+59..82 callExpr
+65..81 interpolatedExpr
+68..69 nameExpr
+59..82 callExpr
+87..114 exprStmt
+87..114 callExpr
+93..113 interpolatedExpr
+96..99 literalExpr floatKeyword
+87..114 callExpr
+119..143 exprStmt
+119..143 callExpr
+125..142 interpolatedExpr
+128..129 literalExpr integer
+119..143 callExpr
+148..171 exprStmt
+148..171 callExpr
+154..170 interpolatedExpr
+157..158 nameExpr
+148..171 callExpr
+176..205 exprStmt
+176..205 callExpr
+182..204 interpolatedExpr
+185..186 nameExpr
+176..205 callExpr
+210..236 exprStmt
+210..236 callExpr
+216..235 interpolatedExpr
+219..220 nameExpr
+210..236 callExpr
+241..274 exprStmt
+241..274 callExpr
+247..273 interpolatedExpr
+250..251 nameExpr
+241..274 callExpr

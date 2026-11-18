@@ -1,0 +1,8 @@
+error BYN7003: `become` needs `becomes .paid` on `charge`
+
+  12 │         become .paid(amount)
+     │         ^^^^^^
+     │
+  help: add `becomes .paid` to the signature of `charge`
+     │ 10 │     void charge(ref this is .draft, i64 amount) uses console becomes .paid fails E {
+     │    │                 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

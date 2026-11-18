@@ -1,0 +1,90 @@
+1:1 Identifier `ạ̇`
+1:5 LetKeyword `let`
+1:9 Identifier `a`
+1:11 Comma `,`
+1:13 StringLiteral `"open`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quoted"`
+5:3 CharLiteral `' '`
+5:7 IntegerLiteral `0`
+5:8 CharLiteral `'`
+7:3 InterpolatedStringStart `$"`
+7:5 InterpolatedStringText `stra�y } here`
+7:18 InterpolatedStringEnd `"`
+9:1 Identifier `ạ̇`
+9:4 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇ let a , "open
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇ let a , "open
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  1 │ ạ̇ let a , "open
+    │             ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `̈́`
+
+  2 │  ̈́
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\' '\0'
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\' '\0'
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\' '\0'
+    │      ^
+
+error BYN0008: unterminated char literal
+
+  5 │ \\' '\0'
+    │        ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  7 │ � $"stra�y } here"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  7 │ � $"stra�y } here"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  7 │ � $"stra�y } here"
+    │         ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  7 │ � $"stra�y } here"
+    │            ^
+    │
+    │ 7 │ � $"stra�y }} here"
+    │   │             +
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  9 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 9 │ ạ̇
+    │   │ ++

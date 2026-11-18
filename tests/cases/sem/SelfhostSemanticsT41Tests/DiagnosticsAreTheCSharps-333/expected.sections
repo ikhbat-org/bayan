@@ -1,0 +1,5 @@
+== diags.diag/else-on-new-line
+BYN1041 5:5 `else` must follow `}` on the same line
+  label on a new line
+  help move `else` up to the line of `}`
+  fix 4:6-5:5  

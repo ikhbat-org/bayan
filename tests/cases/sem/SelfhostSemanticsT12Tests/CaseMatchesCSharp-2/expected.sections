@@ -1,0 +1,60 @@
+== enums
+diag BYN2721 4:5 enum `Color` already has a member `red` | already declared on line 2 | 
+diag BYN2009 5:5 `Blue` must be camelCase |  | rename it `blue`; only types are PascalCase
+diag BYN2722 7:6 enum `Empty` has no members |  | add the members, or remove the enum
+diag BYN2724 8:13 enum parameter `a` must be a number, `bool`, `rune`, `string` or a plain enum | `ref` is not allowed here | use a number type, `bool`, `rune`, `string` or a plain enum; enum data is stored in static tables
+diag BYN2724 8:32 enum parameter `b` must be a number, `bool`, `rune`, `string` or a plain enum | a default value is not allowed here | use a number type, `bool`, `rune`, `string` or a plain enum; enum data is stored in static tables
+diag BYN2724 8:35 enum parameter `c` must be a number, `bool`, `rune`, `string` or a plain enum | `List<i64>` has no static form | use a number type, `bool`, `rune`, `string` or a plain enum; enum data is stored in static tables
+diag BYN2721 8:59 enum `Planet` already has a member `d` | already declared on line 8 | 
+diag BYN2721 8:66 enum `Planet` already has a member `name` | every enum has it | rename the parameter
+diag BYN2721 8:76 enum `Planet` already has a member `ordinal` | every enum has it | rename the parameter
+diag BYN2724 8:96 enum parameter `p2` must be a number, `bool`, `rune`, `string` or a plain enum | `Planet2` has no static form | use a number type, `bool`, `rune`, `string` or a plain enum; enum data is stored in static tables
+diag BYN2002 8:142 unknown type `Missing` |  | 
+diag BYN2724 19:12 enum parameter `a` must be a number, `bool`, `rune`, `string` or a plain enum | `move` is not allowed here | use a number type, `bool`, `rune`, `string` or a plain enum; enum data is stored in static tables
+diag BYN2724 19:24 enum parameter `b` must be a number, `bool`, `rune`, `string` or a plain enum | `out` is not allowed here | use a number type, `bool`, `rune`, `string` or a plain enum; enum data is stored in static tables
+enum Color
+  member red ordinal=0 at=2:5 doc=none
+  member green ordinal=1 at=3:5 doc=none
+  member Blue ordinal=2 at=5:5 doc=none
+  fromOrdinal fromOrdinal builtin public static=True at=1:6 map=[] ret=Color? (ordinal:i64@none#0) enumfromordinal
+  parse parse builtin public static=True at=1:6 map=[] ret=Color? (name:string@none#0) enumparse
+enum Empty
+  fromOrdinal fromOrdinal builtin public static=True at=7:6 map=[] ret=Empty? (ordinal:i64@none#0) enumfromordinal
+  parse parse builtin public static=True at=7:6 map=[] ret=Empty? (name:string@none#0) enumparse
+enum Planet
+  member earth ordinal=0 at=9:5 doc=none
+  field a ? index=0 at=8:21
+  field b ? index=1 at=8:28
+  field c ? index=2 at=8:45
+  field d i64 index=3 at=8:52
+  field d ? index=4 at=8:59
+  field name ? index=5 at=8:66
+  field ordinal ? index=6 at=8:76
+  field col Color index=7 at=8:91
+  field p2 ? index=8 at=8:104
+  field ok bool index=9 at=8:113
+  field r rune index=10 at=8:122
+  field s string index=11 at=8:132
+  field f f64 index=12 at=8:139
+  field m ? index=13 at=8:150
+  field n u8 index=14 at=8:156
+  fromOrdinal fromOrdinal builtin public static=True at=8:6 map=[] ret=Planet? (ordinal:i64@none#0) enumfromordinal
+  parse parse builtin public static=True at=8:6 map=[] ret=Planet? (name:string@none#0) enumparse
+enum Planet2
+  member x ordinal=0 at=12:5 doc=none
+  field mass i64 index=0 at=11:18
+  fromOrdinal fromOrdinal builtin public static=True at=11:6 map=[] ret=Planet2? (ordinal:i64@none#0) enumfromordinal
+  parse parse builtin public static=True at=11:6 map=[] ret=Planet2? (name:string@none#0) enumparse
+enum R_Field
+  member x ordinal=0 at=15:9 doc=none
+  member Y ordinal=1 at=17:9 doc=none
+  fromOrdinal fromOrdinal builtin public static=True at=14:8 map=[] ret=R.Field? (ordinal:i64@none#0) enumfromordinal
+  parse parse builtin public static=True at=14:8 map=[] ret=R.Field? (name:string@none#0) enumparse
+enum Modes
+  member z ordinal=0 at=20:5 doc=none
+  field a ? index=0 at=19:21
+  field b ? index=1 at=19:32
+  field rf R.Field index=2 at=19:43
+  fromOrdinal fromOrdinal builtin public static=True at=19:6 map=[] ret=Modes? (ordinal:i64@none#0) enumfromordinal
+  parse parse builtin public static=True at=19:6 map=[] ret=Modes? (name:string@none#0) enumparse
+struct R

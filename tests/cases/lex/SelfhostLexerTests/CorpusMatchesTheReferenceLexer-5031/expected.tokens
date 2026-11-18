@@ -1,0 +1,44 @@
+1:1 StringLiteral `"\t`
+3:2 StringLiteral `"esc \"q\" \\ \n"`
+3:20 RawStringLiteral `"""\n  raw "quoted"\n  """`
+5:8 LetKeyword `let`
+5:12 Identifier `b`
+5:14 Equals `=`
+5:18 IntegerLiteral `2`
+7:1 Identifier `_`
+8:1 Identifier `a`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "	
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character ```
+
+  5 │   """  let b = ` 2
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���
+    │   ^
+
+error BYN0004: unterminated block comment
+
+  8 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

@@ -1,0 +1,55 @@
+1:1 IntegerLiteral `1__`
+2:2 StringLiteral `"{let a = "`
+2:13 OpenKeyword `open`
+5:1 StructKeyword `struct`
+5:8 Identifier `S`
+6:2 LetKeyword `let`
+6:6 Identifier `jctor`
+6:12 Equals `=`
+6:14 IntegerLiteral `1`
+8:1 IntegerLiteral `00_000`
+8:8 IntegerLiteral `0xFF`
+8:13 IntegerLiteral `0x_ff`
+8:19 IntegerLiteral `0b1010`
+8:26 IntegerLiteral `0B11`
+8:31 IntegerLiteral `5`
+8:32 NumericSuffix `s`
+8:34 IntegerLiteral `250`
+8:37 NumericSuffix `ms`
+8:40 IntegerLiteral `4`
+8:41 NumericSuffix `KiB`
+8:45 IntegerLiteral `1`
+8:46 NumericSuffix `u`
+8:48 IntegerLiteral `0xFF`
+8:52 NumericSuffix `u`
+8:54 IntegerLiteral `0b1`
+8:57 NumericSuffix `u`
+8:59 Identifier `Å`
+8:62 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �
+    │   │ -
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  8 │ 00_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1u Å 
+    │                                                           ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ 00_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1u Å 
+    │   │                                                           +

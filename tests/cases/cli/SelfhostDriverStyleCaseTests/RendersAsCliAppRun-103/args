@@ -1,0 +1,7 @@
+--ascii
+--color
+always
+build
+-o
+<repo>/tmp/t7-style/build-ice-ascii/tally/tally
+<repo>/tmp/t7-style/build-ice-ascii/tally/main.byn

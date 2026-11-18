@@ -1,0 +1,50 @@
+1:1 IntegerLiteral `0x`
+1:3 NumericSuffix `let`
+1:7 EffectKeyword `effect`
+1:14 Equals `=`
+1:16 IntegerLiteral `2`
+2:5 Identifier `commenc`
+2:13 Star `*`
+2:14 Slash `/`
+2:16 Identifier `a`
+3:1 Identifier `b`
+4:1 IntegerLiteral `0xF__`
+5:1 ErrorKeyword `error`
+5:7 SetKeyword `set`
+5:11 UnitKeyword `unit`
+5:16 DistinctKeyword `distinct`
+5:25 TypeKeyword `type`
+5:30 ImportKeyword `import`
+5:37 AsKeyword `as`
+5:40 PublicKeyword `public`
+5:47 PrivateKeyword `private`
+5:55 StaticKeyword `static`
+5:62 ReadonlyKeyword `readonly`
+5:71 RequiredKeyword `required`
+5:80 ConstKeyword `const`
+5:86 LetKeyword `let`
+5:90 VarKeyword `var`
+5:94 EmbedKeyword `embed`
+5:100 ExternKeyword `extern`
+5:107 UnsafeKeyword `unsafe`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0xlet effect = 2
+    │ ^^
+
+error BYN0011: unit suffix `let` is not allowed on a hexadecimal literal
+
+  1 │ 0xlet effect = 2
+    │   ^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0xF__
+    │    ^^
+    │
+    │ 4 │ 0xF__
+    │   │    --

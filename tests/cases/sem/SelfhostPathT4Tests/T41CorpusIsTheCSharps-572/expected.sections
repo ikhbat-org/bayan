@@ -1,0 +1,9 @@
+== diags.diag/requires-value
+BYN1050 1:38 `value` in `requires` is now `it`
+  label the input form
+  help rename `value` to `it`
+  fix 1:38-1:43 it
+BYN1050 5:18 `value` in `requires` is now `it`
+  label the input form
+  help rename `value` to `it`
+  fix 5:18-5:23 it

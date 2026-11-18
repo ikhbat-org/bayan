@@ -1,0 +1,8 @@
+error BYN2106: cannot modify this value
+  --> input.byn:16:26
+
+  16 │     for x: dyn ref IC in k["a"] { x.bump() }
+     │                          ^^^^^^ it is borrowed element by element as `dyn ref IC`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2106

@@ -1,0 +1,8 @@
+error BYN2023: `ValidationError` takes 1 type argument(s), not 0
+  --> input.byn:5:29
+
+  5 │ bool load((() -> Form fails ValidationError) p) => true
+    │                             ^^^^^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2023

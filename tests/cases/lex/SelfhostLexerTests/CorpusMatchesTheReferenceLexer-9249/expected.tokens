@@ -1,0 +1,38 @@
+2:2 StringLiteral `"text"`
+2:9 StringLiteral `"esc `
+3:1 CloseBrace `}`
+3:2 Identifier `x`
+3:3 StringLiteral `")} d"`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolatedStringText `{{literal}}`
+3:23 InterpolatedStringEnd `"`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 Identifier `Point`
+3:34 OpenBrace `{`
+3:36 Identifier `x`
+3:38 Equals `=`
+3:40 IntegerLiteral `1`
+3:42 CloseBrace `}`
+3:43 InterpolationEnd `}`
+3:44 InterpolatedStringText `!`
+3:45 InterpolatedStringEnd `"`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolatedStringEnd `"`
+5:1 PlusEquals `+=`
+5:4 MinusEquals `-=`
+5:7 StarEquals `*=`
+5:10 SlashEquals `/=`
+5:13 PercentEquals `%=`
+5:16 AmpEquals `&=`
+5:19 BarEquals `|=`
+5:22 CaretEquals `^=`
+5:25 LessLessEquals `<<=`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  "text" "esc 
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

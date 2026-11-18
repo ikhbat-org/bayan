@@ -1,0 +1,67 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+5:1 Identifier `각let`
+5:8 EffectKeyword `effect`
+5:15 Equals `=`
+5:17 IntegerLiteral `2`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:11 IntegerLiteral `3`
+8:2 StringLiteral `"{�"`
+8:5 OpenBrace `{`
+8:6 InterpolatedStringStart `$"`
+8:8 InterpolationStart `{`
+8:9 InterpolatedStringStart `$"`
+8:11 InterpolationStart `{`
+8:13 Identifier `Å0xFFs`
+9:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0005: identifier `각let` is not in Unicode normalization form C
+
+  5 │ 각let effect = 2
+    │ ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ 각let effect = 2
+    │   │ +
+
+error BYN0002: unexpected character `\u{7}`
+
+  7 │ let c = � 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  8 │  "{�"{$"{$"{$Å0xFFs
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  8 │  "{�"{$"{$"{$Å0xFFs
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  8 │  "{�"{$"{$"{$Å0xFFs
+    │             ^
+
+error BYN0005: identifier `Å0xFFs` is not in Unicode normalization form C
+
+  8 │  "{�"{$"{$"{$Å0xFFs
+    │              ^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │  "{�"{$"{$"{$Å0xFFs
+    │   │              +

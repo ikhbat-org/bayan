@@ -1,0 +1,120 @@
+1:1 IntegerLiteral `0b102`
+2:2 OpenBrace `{`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolationStart `{`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolationStart `{`
+2:9 InterpolatedStringStart `$"`
+2:11 InterpolationStart `{`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 StringLiteral `$"{$"`
+2:56 OpenBrace `{`
+2:57 StringLiteral `$"{ $"`
+2:63 OpenBrace `{`
+2:64 StringLiteral `$"{$"`
+2:69 OpenBrace `{`
+2:70 StringLiteral `$"{$"`
+2:75 OpenBrace `{`
+2:76 StringLiteral `$"{$"`
+2:81 OpenBrace `{`
+2:82 StringLiteral `$"{$"`
+2:87 OpenBrace `{`
+2:88 StringLiteral `$"{$"`
+2:93 OpenBrace `{`
+2:94 StringLiteral `$"{$"`
+2:99 OpenBrace `{`
+2:100 StringLiteral `$"{$"`
+2:105 OpenBrace `{`
+2:106 StringLiteral `$"{$"`
+2:111 OpenBrace `{`
+2:112 StringLiteral `$"{$"`
+2:117 OpenBrace `{`
+2:118 Identifier `x`
+2:119 CloseBrace `}`
+2:120 StringLiteral `"}"`
+2:123 CloseBrace `}`
+2:124 StringLiteral `"}"`
+2:127 CloseBrace `}`
+2:128 StringLiteral `"}"`
+2:131 CloseBrace `}`
+2:132 StringLiteral `"}"`
+2:135 CloseBrace `}`
+2:136 StringLiteral `"}"`
+2:139 CloseBrace `}`
+2:140 StringLiteral `"}"`
+2:143 CloseBrace `}`
+2:144 StringLiteral `"}"`
+2:148 StringLiteral `$"{}"`
+3:3 PlusEquals `+=`
+3:6 MinusEquals `-=`
+3:9 StarEquals `*=`
+3:12 SlashEquals `/=`
+3:15 PercentEquals `%=`
+3:18 AmpEquals `&=`
+3:21 BarEquals `|=`
+3:24 CaretEquals `^=`
+3:27 LessLessEquals `<<=`
+5:1 StringLiteral `$"{{"`
+5:7 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  2 │  {$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{}"�
+    │                                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  {$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{}"�
+    │                                                   ^^
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │  {$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{}"�
+    │                                                                                                                                                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ � += -= *= /= %= &= |= ^= <<=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ � += -= *= /= %= &= |= ^= <<=
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ � += -= *= /= %= &= |= ^= <<=
+    │  ^

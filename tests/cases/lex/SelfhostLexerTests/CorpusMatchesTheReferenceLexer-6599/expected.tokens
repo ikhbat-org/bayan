@@ -1,0 +1,41 @@
+1:1 Identifier `ment`
+3:15 Identifier `a`
+    doc `/// Doc� line one.\n/// Doc line t 0x`
+6:2 IntegerLiteral `0`
+6:4 IntegerLiteral `4`
+6:6 IntegerLiteral `1_000_000`
+6:16 IntegerLiteral `0xFF`
+6:21 IntegerLiteral `0x_ff`
+6:27 IntegerLiteral `0b1010`
+6:34 IntegerLiteral `0B11`
+6:39 IntegerLiteral `5`
+6:41 IntegerLiteral `250`
+6:44 NumericSuffix `ms`
+6:47 IntegerLiteral `4`
+6:48 NumericSuffix `KiB`
+6:52 IntegerLiteral `1`
+6:53 NumericSuffix `u`
+6:55 IntegerLiteral `0xFF`
+6:59 NumericSuffix `u`
+6:61 IntegerLiteral `0b1`
+6:64 NumericSuffix `ul`
+6:67 IntegerLiteral `7`
+6:68 NumericSuffix `l`
+7:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │ // block
+    │   │  +++++++
+    │ 3 │ // comment
+    │   │ ++++++++++
+    │ 4 │  a
+
+error BYN0015: source is not valid UTF-8 (byte 0xEA)
+
+  4 │ /// Doc� line one.
+    │        ^

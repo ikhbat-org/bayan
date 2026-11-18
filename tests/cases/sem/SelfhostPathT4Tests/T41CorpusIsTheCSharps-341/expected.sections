@@ -1,0 +1,4 @@
+== diags.diag/dyn-ref-local-argument-modified
+BYN3004 16:10 `b` is modified while `s` still borrows it
+  label `s` is used again on line 17
+  help finish using `s` first, or copy what it needs before changing `b`

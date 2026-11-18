@@ -1,0 +1,126 @@
+1:1 Identifier `ed`
+2:1 Identifier `b`
+3:1 Identifier `Å`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolatedStringText `open `
+3:11 InterpolationStart `{`
+3:12 Identifier `x`
+3:13 StringLiteral `";`
+7:1 Comma `,`
+7:3 Dot `.`
+7:5 DotDot `..`
+7:8 DotDotEquals `..=`
+7:12 Colon `:`
+7:14 Question `?`
+7:16 QuestionQuestion `??`
+7:19 QuestionQuestionEquals `??=`
+7:23 QuestionDot `?.`
+7:26 FatArrow `=>`
+7:29 Arrow `->`
+7:32 At `@`
+7:34 Hash `#`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 InterpolatedStringStart `$"`
+8:7 InterpolationStart `{`
+8:8 InterpolatedStringStart `$"`
+8:10 InterpolationStart `{`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolationStart `{`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolationStart `{`
+8:17 InterpolatedStringStart `$"`
+8:19 InterpolationStart `{`
+8:20 InterpolatedStringStart `$"`
+8:22 InterpolationStart `{`
+8:23 InterpolatedStringStart `$"`
+8:25 InterpolationStart `{`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolationStart `{`
+8:29 InterpolatedStringStart `$"`
+8:31 InterpolationStart `{`
+8:32 InterpolatedStringStart `$"`
+8:34 InterpolationStart `{`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolationStart `{`
+8:38 InterpolatedStringStart `$"`
+8:40 InterpolationStart `{`
+8:41 InterpolatedStringStart `$"`
+8:43 InterpolationStart `{`
+8:44 InterpolatedStringStart `$"`
+8:46 InterpolationStart `{`
+8:47 StringLiteral `$"{$"`
+8:52 OpenBrace `{`
+8:53 Identifier `x`
+8:54 CloseBrace `}`
+8:55 StringLiteral `"}"`
+8:58 InterpolationEnd `}`
+8:59 InterpolatedStringEnd `"`
+8:60 InterpolationEnd `}`
+8:61 InterpolatedStringEnd `"`
+8:62 InterpolationEnd `}`
+8:63 InterpolatedStringEnd `"`
+8:64 InterpolationEnd `}`
+8:65 InterpolatedStringEnd `"`
+8:66 InterpolationEnd `}`
+8:67 InterpolatedStringEnd `"`
+8:68 InterpolationEnd `}`
+8:69 InterpolatedStringEnd `"`
+8:70 InterpolationEnd `}`
+8:71 InterpolatedStringEnd `"`
+8:72 InterpolationEnd `}`
+8:73 InterpolatedStringEnd `"`
+8:74 InterpolationEnd `}`
+8:75 InterpolatedStringEnd `"`
+9:1 Identifier `ạ̇`
+9:4 Comma `,`
+9:6 Dot `.`
+9:8 DotDot `..`
+9:11 DotDotEquals `..=`
+9:15 Colon `:`
+9:17 Question `?`
+9:19 QuestionQuestion `??`
+9:22 QuestionQuestionEquals `??=`
+9:25 QuestionDot `?.`
+9:28 FatArrow `=>`
+9:31 Arrow `->`
+9:34 At `@`
+9:36 Hash `#`
+10:2 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ Å $"open {x";
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ Å $"open {x";
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  3 │ Å $"open {x";
+    │             ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  8 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                                               ^^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  9 │ ạ̇, . .. ..= : ? ?? ??=?. => -> @ #
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 9 │ ạ̇, . .. ..= : ? ?? ??=?. => -> @ #
+    │   │ ++

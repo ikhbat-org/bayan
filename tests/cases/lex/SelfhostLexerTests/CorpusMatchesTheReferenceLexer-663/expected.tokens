@@ -1,0 +1,72 @@
+1:1 Identifier `et`
+1:4 Identifier `actor`
+5:1 CharLiteral `'\u{D800}'`
+7:1 StringLiteral `"$"`
+7:4 OpenBrace `{`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:9 StringLiteral `"{$"`
+7:13 OpenBrace `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:22 Identifier `s`
+7:24 Identifier `trings`
+7:30 StringLiteral `" "`
+7:33 StringLiteral `" "`
+7:37 Identifier `u`
+7:38 OpenBrace `{`
+7:39 IntegerLiteral `48`
+7:41 CloseBrace `}`
+7:42 Identifier `i`
+7:43 StringLiteral `"`
+8:1 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ et actor
+    │    ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  5 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `$`
+
+  7 │ "$"{$"{$�"{$"{$"{$"{  s�trings" "" "\u{48}i"
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  7 │ "$"{$"{$�"{$"{$"{$"{  s�trings" "" "\u{48}i"
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  7 │ "$"{$"{$�"{$"{$"{$"{  s�trings" "" "\u{48}i"
+    │                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF1)
+
+  7 │ "$"{$"{$�"{$"{$"{$"{  s�trings" "" "\u{48}i"
+    │                        ^
+
+error BYN0002: unexpected character `\`
+
+  7 │ "$"{$"{$�"{$"{$"{$"{  s�trings" "" "\u{48}i"
+    │                                     ^
+
+error BYN0003: unterminated string literal
+
+  7 │ "$"{$"{$�"{$"{$"{$"{  s�trings" "" "\u{48}i"
+    │                                            ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

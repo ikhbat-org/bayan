@@ -1,0 +1,12 @@
+1:1 IntegerLiteral `1__`
+2:1 IntegerLiteral `1`
+2:2 Dot `.`
+3:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --

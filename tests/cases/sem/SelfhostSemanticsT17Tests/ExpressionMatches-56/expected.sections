@@ -1,0 +1,2 @@
+== case conv-int-i64
+literal 668..670 : i64 = 42

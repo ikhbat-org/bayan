@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/dyn-ref-local-argument-modified.byn
+--package
+<repo>/tests/cases/diag

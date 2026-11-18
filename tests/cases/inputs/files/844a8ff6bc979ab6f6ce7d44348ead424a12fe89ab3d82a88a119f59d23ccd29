@@ -1,0 +1,8 @@
+macro select become
+
+Ã struct unique union enum flags open extensible interface delegate extension derivation attribute
+ b
+ let b = "bad \q escape"
+let a = 1
+// ok þ in comment
+/* block

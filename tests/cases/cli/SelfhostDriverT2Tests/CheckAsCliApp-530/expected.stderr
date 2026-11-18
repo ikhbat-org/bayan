@@ -1,0 +1,10 @@
+error BYN2831: `Weight` cannot be a `Map` key: field `grams` is a `f64`
+  --> <repo>/tmp/t2/diag/map-key-struct-instantiation/map-key-struct-instantiation.byn:3:17
+
+  3 │ struct Holder { Box<Weight> b }
+    │                 ^^^^^^^^^^^ the generic code needs this of its type arguments
+    │
+  help: use a field that identifies the value as the key, such as an id or a `Symbol`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2831

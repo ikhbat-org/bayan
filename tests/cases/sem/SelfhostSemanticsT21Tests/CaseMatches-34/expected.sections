@@ -1,0 +1,2 @@
+== call.k18
+builtinCall|string|local:ReadOnlySpan<u8>=bytes|bytesToString|1105:13|

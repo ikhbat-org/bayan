@@ -1,0 +1,6 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `f_`
+3:1 Identifier `b1ms`
+4:2 Identifier `M`
+4:3 Dot `.`
+4:5 EndOfFile

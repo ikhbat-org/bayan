@@ -1,0 +1,70 @@
+1:1 Identifier `Å`
+3:2 IntegerLiteral `0xFF`
+3:6 NumericSuffix `s`
+5:1 IntegerLiteral `1`
+5:2 Dot `.`
+5:3 StructKeyword `struct`
+5:10 UniqueKeyword `unique`
+5:17 UnionKeyword `union`
+5:23 EnumKeyword `enum`
+5:28 FlagsKeyword `flags`
+5:34 OpenKeyword `open`
+5:39 ExtensibleKeyword `extensible`
+5:50 Identifier `inter`
+5:55 Identifier `ac`
+5:58 Identifier `e`
+5:60 DelegateKeyword `delegate`
+5:69 ExtensionKeyword `extension`
+5:79 DerivationKeyword `derivation`
+5:90 AttributeKeyword `attribute`
+6:2 LetKeyword `let`
+6:6 Identifier `a`
+6:8 Equals `=`
+6:10 IntegerLiteral `1`
+    doc `/// Doc line two.`
+8:2 FailsKeyword `fails`
+8:8 TryKeyword `try`
+8:12 CatchKeyword `catch`
+8:18 NeverKeyword `never`
+8:24 NoallocKeyword `noalloc`
+8:32 NosuspendKeyword `nosuspend`
+8:42 SuspendsKeyword `suspends`
+8:51 AsyncKeyword `async`
+8:57 AwaitKeyword `await`
+10:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å
+    │   │ +
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ // comment � hidden
+    │   │            -
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  3 │  0xFFs
+    │      ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xBE)
+
+  5 │ 1.struct unique union enum flags open extensible inter�ac�e delegate extension derivation attribute
+    │                                                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  5 │ 1.struct unique union enum flags open extensible inter�ac�e delegate extension derivation attribute
+    │                                                          ^

@@ -1,0 +1,67 @@
+struct P {
+    i64 x
+}
+
+union U {
+    a(i64 v)
+    b
+}
+
+union error E {
+    bad(i64 code)
+}
+
+struct Order {
+    i64 id
+    states {
+        draft
+        paid(i64 payment)
+    }
+    void pay(ref this is .draft, i64 amount) becomes .paid {
+        become .paid(amount)
+    }
+    void repay(ref this is .paid) becomes .paid {
+        become .paid(5)
+    }
+    void reset(ref this is .paid) becomes .draft {
+        become .draft
+    }
+}
+
+i64 h() => 1
+
+i64 take(move string v) => 0
+
+void g(i64 k, from move string s, to ref Map<string, i64> m, by ref List<i64> ys) {
+    let a = k
+    let b = 1
+    let c = h()
+    let d = take(move s)
+    let p = P { x: 1 }
+    let e = p.x
+    let t: (i64 q, i64 r) = (1, 2)
+    let f = t.q
+    let o: i64? = 2
+    let u = U.a(1)
+    let er: E = .bad(3)
+    let str = "x"
+    let xs = List<i64>()
+    let el = xs[0]
+    let yi = ys[0]
+    let hv: () -> i64 = h
+    let lam: i64 -> i64 = z => z + a
+    let w = o ?? return
+    m["a"] = 1
+    m.slot(key: "b") += 2
+}
+
+void gd(bool f) {
+    defer print("x") if f
+    defer print("w") unless f
+    defer if f { print("y") }
+    defer if f { print("y") } else { print("v") }
+    defer print("z")
+    unless f { print("u") }
+}
+
+void main() { }

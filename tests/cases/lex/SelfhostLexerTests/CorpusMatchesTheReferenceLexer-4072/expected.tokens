@@ -1,0 +1,22 @@
+1:1 Identifier `et`
+1:5 Equals `=`
+1:7 StringLiteral `"bad \q erscape"`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never clo\n$"{alet café =! 1;\n`
+4:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ et  = "bad \q erscape"
+    │            ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """never clo
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

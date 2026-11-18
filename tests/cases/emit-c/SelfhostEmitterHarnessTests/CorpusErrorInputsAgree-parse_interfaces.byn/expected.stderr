@@ -1,0 +1,40 @@
+error BYN2006: `IEnumerator` is declared twice
+  --> input.byn:10:11
+
+  10 │ interface IEnumerator {
+     │           ^^^^^^^^^^^ already declared as a built-in interface
+
+error BYN2744: `less` is not a member of type parameter `T`
+  --> input.byn:18:33
+
+  18 │     bool more(T other) => other.less(this)
+     │                                 ^^^^
+     │
+  help: add `where T : …` naming an interface that declares `less`, or use a concrete type
+
+error BYN2810: `static` interface members are not supported yet
+  --> input.byn:22:14
+
+  22 │     static T parse(string text)
+     │              ^^^^^ declared `static`
+     │
+  help: remove `static` or make it a free function
+
+error BYN2811: `extension Money : IShape, IOrder<Money>` is not supported yet
+  --> input.byn:26:1
+
+  26 │ extension Money : IShape, IOrder<Money> {
+     │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ retroactive conformance
+     │
+  help: list `IShape, IOrder<Money>` on `Money`'s declaration
+
+error BYN2811: `extension Cents : IShape` is not supported yet
+  --> input.byn:30:1
+
+  30 │ extension Cents : IShape
+     │ ^^^^^^^^^^^^^^^^^^^^^^^^ retroactive conformance
+     │
+  help: list `IShape` on `Cents`'s declaration
+
+✗ build failed: 5 errors, 0 warnings
+  explain: bayan explain BYN2006

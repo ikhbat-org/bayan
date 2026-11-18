@@ -1,0 +1,38 @@
+== tests/cases/run/for-dyn-ref-temporary-index.byn
+241..356 blockStmt
+247..264 localDecl
+255..264 callExpr
+269..289 exprStmt
+269..289 callExpr
+269..270 nameExpr
+278..288 structLiteralExpr
+285..286 literalExpr integer
+294..318 localDecl
+303..318 callExpr
+323..340 exprStmt
+323..340 callExpr
+323..325 nameExpr
+333..339 argument
+338..339 nameExpr
+345..354 returnStmt value 352..354
+352..354 nameExpr
+369..456 blockStmt
+375..454 forStmt
+396..405 indexExpr
+396..402 callExpr
+403..404 literalExpr integer
+406..454 blockStmt
+416..424 exprStmt
+416..424 callExpr
+416..417 nameExpr
+433..448 exprStmt
+433..448 callExpr
+439..447 interpolatedExpr
+442..445 memberExpr
+442..443 nameExpr
+433..448 callExpr
+207..217 blockStmt
+209..215 assignStmt add target 209..210 value 214..215
+209..210 nameExpr
+209..210 nameExpr
+214..215 literalExpr integer

@@ -1,0 +1,42 @@
+2:1 CharLiteral `'\u{110000}'`
+3:2 Identifier `le`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:9 IntegerLiteral `1`
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:6 Bar `|`
+5:8 Bar `|`
+5:10 Caret `^`
+5:12 Tilde `~`
+5:14 Bang `!`
+5:16 Equals `=`
+5:18 EqualsEquals `==`
+5:21 BangEquals `!=`
+5:24 Less `<`
+5:26 LessEquals `<=`
+5:29 Greater `>`
+5:31 GreaterEquals `>=`
+5:34 LessLess `<<`
+5:37 Greater `>`
+5:38 Greater `>`
+5:40 Greater `>`
+5:41 GreaterEquals `>=`
+6:1 EndOfFile
+
+error BYN0002: unexpected character `̈́`
+
+  1 │ ̈́
+    │ ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  5 │ & && | �| ^ ~ ! = == != < <= > >= << >> >>=
+    │        ^

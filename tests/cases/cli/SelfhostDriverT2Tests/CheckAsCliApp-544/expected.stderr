@@ -1,0 +1,19 @@
+error BYN2802: `Square.area` is `string area()` but `IShape` requires `i64 area()`
+  --> <repo>/tmp/t2/diag/interface-member-mismatch/interface-member-mismatch.byn:13:12
+
+  13 │     string area() => "big"
+     │            ^^^^ does not match `IShape`
+     │
+  help: change the signature to `i64 area()`
+
+error BYN2802: `Square.parse` is `i64 parse(string text)` but `IShape` requires
+`i64 parse(string text) fails ParseError`
+  --> <repo>/tmp/t2/diag/interface-member-mismatch/interface-member-mismatch.byn:15:9
+
+  15 │     i64 parse(string text) => 0
+     │         ^^^^^ does not match `IShape`
+     │
+  help: change the signature to `i64 parse(string text) fails ParseError`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2802

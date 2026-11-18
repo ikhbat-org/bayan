@@ -1,0 +1,10 @@
+error BYN2601: `try` is not allowed in `defer`
+  --> <repo>/tmp/t2/diag/try-in-defer/try-in-defer.byn:10:11
+
+  10 │     defer try flush()
+     │           ^^^^^^^^^^^
+     │
+  help: handle the error here with `catch`; cleanup cannot fail
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2601

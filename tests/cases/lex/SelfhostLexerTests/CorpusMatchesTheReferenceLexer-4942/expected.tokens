@@ -1,0 +1,74 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:12 UnitKeyword `unit`
+1:17 DistinctKeyword `distinct`
+1:26 TypeKeyword `type`
+1:31 ImportKeyword `import`
+1:38 AsKeyword `as`
+1:41 PublicKeyword `public`
+1:48 PrivateKeyword `private`
+1:56 StaticKeyword `static`
+1:63 ReadonlyKeyword `readonly`
+1:72 Identifier `requir`
+1:79 Identifier `d`
+1:81 ConstKeyword `const`
+1:87 LetKeyword `let`
+1:91 VarKeyword `var`
+1:95 EmbedKeyword `embed`
+1:101 ExternKeyword `extern`
+1:108 Identifier `nsafe`
+2:1 IntegerLiteral `0b__`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolatedStringEnd
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ error set �unit distinct type import as public private static readonly requir$d const let var embed extern nsafe
+    │           ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ error set �unit distinct type import as public private static readonly requir$d const let var embed extern nsafe
+    │                                                                              ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ 0b__
+    │ ^^^^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"
+    │                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"
+    │                                   ^^ this string never ends
+    │
+  help: close it with `"`

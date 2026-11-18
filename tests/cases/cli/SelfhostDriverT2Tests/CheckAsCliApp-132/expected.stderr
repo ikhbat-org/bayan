@@ -1,0 +1,10 @@
+error BYN2802: `S.area` is `IA.area` but `IB` requires `i64 area()`
+  --> <repo>/tmp/t2/diag/interface-default-abstract-conflict/interface-default-abstract-conflict.byn:9:16
+
+  9 │ struct S : IA, IB {
+    │                ^^ `area` has a default in `IA`
+    │
+  help: add `i64 area()` to `S` to choose one
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2802

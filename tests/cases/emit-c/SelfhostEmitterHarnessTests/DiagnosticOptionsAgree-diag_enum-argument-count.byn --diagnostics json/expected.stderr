@@ -1,0 +1,6 @@
+{"code":"BYN2301","severity":"error","file":"input.byn","span":{"start":40,"end":55,"line":2,"column":5,"endLine":2,"endColumn":20},"message":"missing argument `radius` for `Planet.mercury`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2302","severity":"error","file":"input.byn","span":{"start":81,"end":84,"line":3,"column":26,"endLine":3,"endColumn":29},"message":"`Planet.venus` takes 2 argument(s)","label":null,"help":null,"fixes":[]}
+{"code":"BYN2301","severity":"error","file":"input.byn","span":{"start":90,"end":95,"line":4,"column":5,"endLine":4,"endColumn":10},"message":"missing argument `mass`, `radius` for `Planet.earth`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2021","severity":"error","file":"input.byn","span":{"start":119,"end":123,"line":5,"column":24,"endLine":5,"endColumn":28},"message":"`Planet.mars` has no parameter `size`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2202","severity":"error","file":"input.byn","span":{"start":144,"end":149,"line":6,"column":13,"endLine":6,"endColumn":18},"message":"expected `f64`, found `string`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2302","severity":"error","file":"input.byn","span":{"start":182,"end":183,"line":10,"column":9,"endLine":10,"endColumn":10},"message":"`Color.red` takes 0 argument(s)","label":null,"help":null,"fixes":[]}

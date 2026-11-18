@@ -1,0 +1,5 @@
+== diags.diag/time-now-needs-clock
+BYN6002 3:12 `undeclared` uses `clock` but does not declare it
+  label uses `clock`
+  help add `clock` to the `uses` clause, or remove the call
+  fix 2:24-2:24  uses clock

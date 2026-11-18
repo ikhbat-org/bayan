@@ -1,0 +1,9 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+// one
+// two
+bool isA(rune c) => c == 'a'
+
+@cases(1, 2)
+test "positive" (i32 n) {
+    assert(n > 0)
+}

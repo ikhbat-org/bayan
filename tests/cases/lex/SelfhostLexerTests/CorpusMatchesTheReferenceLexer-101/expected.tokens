@@ -1,0 +1,76 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `Lis`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+4:2 Equals `=`
+4:6 IntegerLiteral `1`
+5:1 Identifier `le`
+5:4 Identifier `tb`
+5:7 Equals `=`
+5:11 IntegerLiteral `2`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:11 IntegerLiteral `3`
+7:1 IntegerLiteral `1__`
+9:1 IntegerLiteral `2`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEC)
+
+  1 │ var xs: Lis�<List<i64>>
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ �
+    │  ^
+
+error BYN0002: unexpected character `$`
+
+  4 │  = $ 1
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  5 │ le�tb = ` 2
+    │   ^
+
+error BYN0002: unexpected character ```
+
+  5 │ le�tb = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  6 │ let c = � 3
+    │         ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 1__
+    │  ^^
+    │
+    │ 7 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  10 │ // ok � in comment
+     │       ^

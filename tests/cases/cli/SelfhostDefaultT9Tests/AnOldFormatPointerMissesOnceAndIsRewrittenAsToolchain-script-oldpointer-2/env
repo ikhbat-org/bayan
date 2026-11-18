@@ -1,0 +1,2 @@
+PATH=tmp/t9-cache/script-oldpointer-bin:$PATH
+CCLOG=<root>/cc.log

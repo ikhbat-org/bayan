@@ -1,0 +1,6 @@
+@allow(BYN2230) because "kept for the C ABI"
+void toHex() {
+}
+
+unsafe void poke() {
+}

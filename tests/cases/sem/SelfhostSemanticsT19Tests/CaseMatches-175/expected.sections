@@ -1,0 +1,4 @@
+== bind.probes.i2
+flags 0
+errorExpr:?[3352:8]=-()
+BYN2208 180:14 `in` cannot be applied to `i32` and `string` ||write a range after `in`: `x in a..=b`|

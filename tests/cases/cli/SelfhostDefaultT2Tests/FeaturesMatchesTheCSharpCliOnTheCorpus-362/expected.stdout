@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "FunctionDecl",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "MapSlot"
+  ],
+  "diagnostics": []
+}

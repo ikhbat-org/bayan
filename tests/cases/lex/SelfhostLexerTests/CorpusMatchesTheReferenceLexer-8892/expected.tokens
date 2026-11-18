@@ -1,0 +1,120 @@
+1:1 Identifier `r`
+1:3 Identifier `close`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"{$"`
+4:54 OpenBrace `{`
+4:55 StringLiteral `$"{x}"`
+4:61 CloseBrace `}`
+4:62 StringLiteral `"}"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringText `Z`
+4:67 InterpolatedStringEnd `"`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringText `�`
+4:69 InterpolatedStringEnd `"`
+4:70 InterpolationEnd `}`
+4:71 InterpolatedStringEnd `"`
+4:72 InterpolationEnd `}`
+4:73 InterpolatedStringEnd `"`
+4:74 InterpolationEnd `}`
+4:75 InterpolatedStringEnd `"`
+4:76 InterpolationEnd `}`
+4:77 InterpolatedStringEnd `"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolationEnd `}`
+4:81 InterpolatedStringEnd `"`
+4:82 InterpolationEnd `}`
+4:83 InterpolatedStringEnd `"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 InterpolationEnd `}`
+4:87 InterpolatedStringEnd `"`
+4:88 InterpolationEnd `}`
+4:89 InterpolatedStringEnd `"`
+4:90 InterpolationEnd `}`
+4:91 InterpolatedStringEnd `"`
+4:92 InterpolationEnd `}`
+4:93 InterpolatedStringEnd `"`
+4:94 InterpolationEnd `}`
+4:95 InterpolatedStringEnd `"`
+4:96 InterpolationEnd `}`
+4:97 InterpolatedStringEnd `"`
+4:98 CloseBrace `}`
+4:99 StringLiteral `"`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���
+    │   ^
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ ﻿
+    │ ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}Z"}�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}Z"}�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}Z"}�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                                    ^ string
+    │                                                                                                      ends
+    │                                                                                                      at
+    │                                                                                                      the
+    │                                                                                                      end
+    │                                                                                                      of
+    │                                                                                                      the
+    │                                                                                                      line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,5 @@
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+a /* never closed
+b
+   comment */ a
+Ã 

@@ -1,0 +1,91 @@
+1:1 Identifier `ch`
+1:4 CaseKeyword `case`
+1:9 DefaultKeyword `default`
+1:17 Identifier `fo`
+1:20 Identifier `n`
+1:22 Identifier `comment`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:2 ErrorKeyword `error`
+4:8 SetKeyword `set`
+4:12 UnitKeyword `unit`
+4:17 DistinctKeyword `distinct`
+4:26 TypeKeyword `type`
+4:31 ImportKeyword `import`
+4:38 AsKeyword `as`
+4:41 PublicKeyword `public`
+4:48 PrivateKeyword `private`
+4:56 StaticKeyword `static`
+4:63 ReadonlyKeyword `readonly`
+4:72 RequiredKeyword `required`
+4:81 ConstKeyword `const`
+4:87 LetKeyword `let`
+4:91 VarKeyword `var`
+4:95 EmbedKeyword `embed`
+4:101 ExternKeyword `extern`
+4:108 UnsafeKeyword `unsafe`
+5:2 IntegerLiteral `1__`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+8:1 Identifier `u`
+8:2 OpenBrace `{`
+8:3 IntegerLiteral `1`
+8:4 NumericSuffix `F600`
+8:8 CloseBrace `}`
+8:9 CharLiteral `'  `
+8:12 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │  1__
+    │   ^^
+    │
+    │ 5 │  1__
+    │   │   --
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{
+    │                                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0008: unterminated char literal
+
+  8 │ u{1F600}'  
+    │         ^^^
+    │
+  help: close it with `'`

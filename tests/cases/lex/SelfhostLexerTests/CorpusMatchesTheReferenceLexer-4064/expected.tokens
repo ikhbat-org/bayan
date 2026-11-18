@@ -1,0 +1,18 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 IntegerLiteral `0b_`
+2:2 TestKeyword `test`
+2:7 Identifier `assedrt`
+2:15 PropertyKeyword `property`
+2:24 FuzzKeyword `fuzz`
+2:29 ModelKeyword `model`
+2:35 ForeachKeyword `foreach`
+2:43 NewKeyword `new`
+2:47 GotoKeyword `goto`
+3:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ let b = 0b_
+    │         ^^^

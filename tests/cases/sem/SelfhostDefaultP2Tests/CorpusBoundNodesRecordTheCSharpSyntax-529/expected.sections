@@ -1,0 +1,61 @@
+== tests/cases/diag/generic-guard-mutate-rebind.byn
+240..370 blockStmt
+246..355 switchStmt
+253..257 moveExpr
+258..259 nameExpr
+275..287 variantPattern
+281..284 varPattern
+293..305 binaryExpr gt right 304..305
+293..301 callExpr
+293..294 nameExpr
+304..305 literalExpr integer
+319..332 exprStmt
+319..332 callExpr
+325..331 literalExpr string
+319..332 callExpr
+360..368 returnStmt value 367..368
+367..368 literalExpr integer
+407..442 blockStmt
+413..440 localDecl
+421..440 callExpr
+426..436 memberExpr
+438..439 literalExpr integer
+460..462 blockStmt
+479..568 blockStmt
+485..519 localDecl
+493..519 structLiteralExpr
+506..517 callExpr
+524..533 localDecl
+532..533 literalExpr integer
+538..554 localDecl
+546..554 callExpr
+546..547 nameExpr
+559..566 exprStmt
+559..566 callExpr
+564..565 nameExpr
+75..144 blockStmt
+85..105 exprStmt
+85..105 callExpr
+85..95 memberExpr
+85..89 thisExpr
+103..104 literalExpr integer
+114..138 returnStmt value 121..138
+121..138 memberExpr
+121..131 memberExpr
+121..125 thisExpr
+240..370 blockStmt
+246..355 switchStmt
+253..257 moveExpr
+258..259 nameExpr
+275..287 variantPattern
+281..284 varPattern
+293..305 binaryExpr gt right 304..305
+293..301 callExpr
+293..294 nameExpr
+304..305 literalExpr integer
+319..332 exprStmt
+319..332 callExpr
+325..331 literalExpr string
+319..332 callExpr
+360..368 returnStmt value 367..368
+367..368 literalExpr integer

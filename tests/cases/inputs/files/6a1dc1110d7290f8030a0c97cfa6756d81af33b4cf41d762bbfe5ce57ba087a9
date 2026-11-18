@@ -1,0 +1,25 @@
+union error E1 {
+    a
+    b
+}
+union error E2 {
+    c
+}
+void f1(i64 a, by string a) { }
+i64 f2() fails { return 1 }
+public void f3() fails { }
+void f4() fails E1, E1 { }
+union error R1 = E1 except .a
+union error R2 = E1 except .b
+void f5() fails R1, E1 { }
+void f6() fails R1, R2 { }
+void f7() fails E1, R1 { }
+void f8() fails i64 { }
+void f9() fails Missing { }
+void f10(ref this) { }
+void f11(Missing x) { }
+void f12(i64 Bad) { }
+void f13() fails R1, E2, R1 { }
+void f14(move i64 m, out i64 o, ref i64 r) { }
+(i64) -> i64 f15() { }
+void f16(i64 a, by i64 b, for i64 a) { }

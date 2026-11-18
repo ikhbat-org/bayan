@@ -1,0 +1,45 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:10 Equals `=`
+4:12 IntegerLiteral `2`
+5:2 VarKeyword `var`
+5:6 Identifier `xs`
+5:8 Colon `:`
+5:10 Identifier `List`
+5:14 Less `<`
+5:15 Identifier `List`
+5:19 Less `<`
+5:20 Identifier `i64`
+5:23 Greater `>`
+5:24 Greater `>`
+8:1 Identifier `tyfuzz`
+8:8 ModelKeyword `model`
+8:14 ForeachKeyword `foreach`
+8:22 NewKeyword `new`
+8:26 GotoKeyword `goto`
+9:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `$`
+
+  2 │ let a = $ 
+    │         ^

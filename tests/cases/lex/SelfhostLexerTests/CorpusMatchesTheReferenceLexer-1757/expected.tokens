@@ -1,0 +1,94 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+3:1 VarKeyword `var`
+3:5 Identifier `xs`
+3:7 Colon `:`
+3:9 Identifier `List`
+3:13 Less `<`
+3:14 Identifier `List`
+3:18 Less `<`
+3:19 Identifier `i64`
+3:22 Greater `>`
+3:23 Greater `>`
+5:2 Identifier `_x`
+5:5 Identifier `camelCase2`
+5:16 Identifier `بيان`
+5:21 Identifier `μετ`
+5:26 Identifier `ητής`
+5:31 Identifier `x_1`
+5:35 Identifier `é`
+6:1 CharLiteral `'\u{D800}'`
+7:1 CharLiteral `'\u{110000}'`
+8:1 CharLiteral `'x`
+9:3 Identifier `raw`
+9:7 StringLiteral `"quoted"`
+12:1 CharLiteral `'\u{110000}'`
+14:2 InterpolatedStringStart `$"`
+14:4 InterpolationStart `{`
+14:5 Identifier `Point`
+14:11 OpenBrace `{`
+14:13 Identifier `x`
+14:15 Equals `=`
+14:17 IntegerLiteral `1`
+14:19 CloseBrace `}`
+14:20 InterpolationEnd `}`
+14:21 InterpolatedStringText `!`
+14:22 InterpolatedStringEnd `"`
+14:24 InterpolatedStringStart `$"`
+14:26 InterpolatedStringEnd `"`
+15:2 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  5 │  _x camelCase2 بيان μετ���ητής x_1 é
+    │                        ^
+
+error BYN0002: unexpected character `\u{1}`
+
+  5 │  _x camelCase2 بيان μετ���ητής x_1 é
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  5 │  _x camelCase2 بيان μετ���ητής x_1 é
+    │                          ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  6 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  7 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  8 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{0}`
+
+  11 │ �
+     │ ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  12 │ '\u{110000}'
+     │  ^^^^^^^^^^
+     │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

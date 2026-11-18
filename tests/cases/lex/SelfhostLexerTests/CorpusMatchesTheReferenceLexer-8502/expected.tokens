@@ -1,0 +1,24 @@
+1:1 CharLiteral `' 0b1ms`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
+4:2 IntegerLiteral `0b102`
+5:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ ' 0b1ms
+    │ ^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ 1
+    │         ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │  0b102
+    │      ^

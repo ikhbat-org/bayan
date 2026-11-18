@@ -1,0 +1,77 @@
+1:3 IsKeyword `is`
+1:6 AndKeyword `and`
+1:10 OrKeyword `or`
+1:13 Identifier `nottwith`
+1:22 MoveKeyword `move`
+1:27 RefKeyword `ref`
+1:31 OutKeyword `out`
+1:35 ThisKeyword `this`
+1:40 NullKeyword `null`
+1:45 TrueKeyword `true`
+1:50 Identifier `f`
+1:51 Identifier `lse`
+1:55 ComptimeKeyword `comptime`
+1:64 CheckedKeyword `checked`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `x`
+5:4 InterpolationStart `{`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:5 ErrorKeyword `error`
+6:11 SetKeyword `set`
+6:15 UnitKeyword `unit`
+6:20 DistinctKeyword `distinct`
+6:29 TypeKeyword `type`
+6:34 ImportKeyword `import`
+6:41 AsKeyword `as`
+6:44 PublicKeyword `public`
+6:51 PrivateKeyword `private`
+6:59 StaticKeyword `static`
+6:66 ReadonlyKeyword `readonly`
+6:75 RequiredKeyword `required`
+6:84 ConstKeyword `const`
+6:90 LetKeyword `let`
+6:94 VarKeyword `var`
+6:98 EmbedKeyword `embed`
+6:104 ExternKeyword `extern`
+6:111 UnsafeKeyword `unsafe`
+7:2 CharLiteral `'ab'`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ��� is and or nottwith move ref out this null true f�lse comptime checked
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ��� is and or nottwith move ref out this null true f�lse comptime checked
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��� is and or nottwith move ref out this null true f�lse comptime checked
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  1 │ ��� is and or nottwith move ref out this null true f�lse comptime checked
+    │                                                     ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  7 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text

@@ -1,0 +1,139 @@
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+5:1 Comma `,`
+5:3 Dot `.`
+5:5 DotDot `..`
+5:8 DotDotEquals `..=`
+5:12 Colon `:`
+5:14 Question `?`
+5:16 QuestionQuestion `??`
+5:19 QuestionQuestionEquals `??=`
+5:23 QuestionDot `?.`
+5:26 FatArrow `=>`
+5:29 Arrow `->`
+5:32 At `@`
+5:34 Hash `#`
+7:1 IntegerLiteral `0xF__`
+9:1 LetKeyword `let`
+9:5 Identifier `s`
+9:7 Equals `=`
+9:9 InterpolatedStringStart `$"`
+9:11 InterpolationStart `{`
+9:12 InterpolatedStringStart `$"`
+9:14 InterpolationStart `{`
+9:15 InterpolatedStringStart `$"`
+9:17 InterpolationStart `{`
+9:18 InterpolatedStringStart `$"`
+9:20 InterpolationStart `{`
+9:21 InterpolatedStringStart `$"`
+9:23 InterpolationStart `{`
+9:24 InterpolatedStringStart `$"`
+9:26 InterpolationStart `{`
+9:27 InterpolatedStringStart `$"`
+9:29 InterpolationStart `{`
+9:30 InterpolatedStringStart `$"`
+9:32 InterpolationStart `{`
+9:33 InterpolatedStringStart `$"`
+9:35 InterpolationStart `{`
+9:36 InterpolatedStringStart `$"`
+9:38 InterpolationStart `{`
+9:39 InterpolatedStringStart `$"`
+9:41 InterpolationStart `{`
+9:42 InterpolatedStringStart `$"`
+9:44 InterpolationStart `{`
+9:45 InterpolatedStringStart `$"`
+9:47 InterpolationStart `{`
+9:48 InterpolatedStringStart `$"`
+9:50 InterpolationStart `{`
+9:51 InterpolatedStringStart `$"`
+9:53 InterpolationStart `{`
+9:54 InterpolatedStringStart `$"`
+9:56 InterpolationStart `{`
+9:57 StringLiteral `$"{$"`
+9:62 OpenBrace `{`
+9:63 StringLiteral `$"{$"`
+9:68 OpenBrace `{`
+9:69 Identifier `x`
+9:70 CloseBrace `}`
+9:71 StringLiteral `"}"`
+9:74 CloseBrace `}`
+9:75 StringLiteral `"}"`
+9:78 InterpolationEnd `}`
+9:79 InterpolatedStringEnd `"`
+9:80 InterpolationEnd `}`
+9:81 InterpolatedStringEnd `"`
+9:82 InterpolationEnd `}`
+9:83 InterpolatedStringEnd `"`
+9:84 InterpolationEnd `}`
+9:85 InterpolatedStringEnd `"`
+9:86 InterpolationEnd `}`
+9:87 InterpolatedStringEnd `"`
+9:88 InterpolationEnd `}`
+9:89 InterpolatedStringEnd `"`
+9:90 InterpolationEnd `}`
+9:91 InterpolatedStringEnd `"`
+9:92 InterpolationEnd `}`
+9:93 InterpolatedStringEnd `"`
+9:94 InterpolationEnd `}`
+9:95 InterpolatedStringEnd `"`
+9:96 InterpolationEnd `}`
+9:97 InterpolatedStringEnd `"`
+9:98 InterpolationEnd `}`
+9:99 InterpolatedStringEnd `"`
+9:100 InterpolationEnd `}`
+9:101 InterpolatedStringEnd `"`
+9:102 InterpolationEnd `}`
+9:103 InterpolatedStringEnd `"`
+9:104 InterpolationEnd `}`
+9:105 InterpolatedStringEnd `"`
+9:106 InterpolationEnd `}`
+9:107 InterpolatedStringEnd `"`
+9:108 InterpolationEnd `}`
+9:109 InterpolatedStringEnd `"`
+11:1 Identifier `café`
+11:7 Equals `=`
+11:9 IntegerLiteral `1`
+12:1 LetKeyword `let`
+12:5 Identifier `café`
+12:10 Equals `=`
+12:12 IntegerLiteral `2`
+13:2 CharLiteral `'a'`
+13:6 CharLiteral `'\n'`
+13:11 CharLiteral `'\u{1F600}'`
+13:23 CharLiteral `'\''`
+13:28 CharLiteral `'é'`
+13:32 CharLiteral `'\\'`
+13:37 CharLiteral `'\0'`
+14:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  11 │ café = 1
+     │ ^^^^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 11 │ café = 1
+     │    │    +

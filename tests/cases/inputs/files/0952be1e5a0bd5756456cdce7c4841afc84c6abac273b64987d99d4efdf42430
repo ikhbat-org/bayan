@@ -1,0 +1,30 @@
+public struct Box {
+    public i64 grams
+}
+
+public struct Shelf {
+    public List<Box> criterion
+    public Box criteria
+    public List<Box> sku
+    public Box skus
+    public List<Box> box
+    public Box boxes
+    public List<Box> ledger
+    public i64 numCriteria
+    public i64 skusCount
+    public i64 numberOfBoxes
+    public List<Box> quiz
+    public List<Box> batch
+    public List<Box> wish
+    public List<Box> story
+    public List<Box> tray
+    public List<Box> torch
+    public Box stories
+    public Box batches
+    public Box quizzes
+    public Box trays
+    public string shipped
+    public i64 numStories
+}
+
+print("ok")

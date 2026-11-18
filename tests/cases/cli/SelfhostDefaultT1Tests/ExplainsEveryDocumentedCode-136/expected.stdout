@@ -1,0 +1,12 @@
+# BYN2202: type mismatch
+
+**Why.** Bayan converts implicitly only when nothing can be lost: widening integers, `T` to `T?`. Everything else needs an explicit cast.
+
+**Example.**
+
+```
+let big: i64 = 3
+let small: i32 = big
+```
+
+**Fix.** Convert explicitly with a cast (the fix inserts one), or change the declared type.

@@ -1,0 +1,47 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+3:2 Identifier `ạ̇`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+6:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1;
+    │   │        +
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │  ạ̇
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  ạ̇
+    │   │  ++
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � �
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ let c = � �
+    │           ^

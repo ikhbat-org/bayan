@@ -1,0 +1,3 @@
+block 9..43 < do 15..41 while 18..33 block 26..33 < > >
+BYN1018 18+15 the body of `do` must be a block fix 17+16 ' { while x {
+    } }'

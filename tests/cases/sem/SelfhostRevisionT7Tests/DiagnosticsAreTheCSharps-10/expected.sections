@@ -1,0 +1,31 @@
+== diags.members-older
+BYN2770 74:6 unknown attribute `json`
+  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+BYN2002 61:12 unknown type `Missing`
+BYN5101 9:17 `total` is a noun on a `ref this` member; name the action
+  help rename it with the verb for what it does to `this`
+BYN5101 13:17 `sizeUp` is a noun on a `ref this` member; name the action
+  help rename it with the verb for what it does to `this`
+BYN5001 21:17 `sorted` changes `this`; name it `sort`
+  help name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view
+BYN5002 25:17 `isEmpty` reads as state but modifies `this`
+  label declared `ref this`
+  help remove `ref this` so it only reads, or name the action with a verb
+BYN5102 35:17 `empty` is a `bool` state; prefix with `is`, `has` or `can`
+  help rename it `isEmpty`
+  fix 35:17-35:22 isEmpty
+BYN5003 41:12 `tryParse` must return `i64?` or `bool`; it is derived from `parse() fails`
+  label returns `i64`
+  help change it to return `i64?` or `bool`, or remove `tryParse` and call `try parse()`
+BYN5102 66:17 `ready` is a `bool` state; prefix with `is`, `has` or `can`
+  help rename it `isReady`
+  fix 66:17-66:22 isReady
+BYN5014 68:10 `hidden` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `adjectives: ["hidden"]`, `verbs: ["hidden"]` or `nouns: ["hidden"]`
+BYN5014 72:27 `notebook` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `nouns: ["notebook"]`, `verbs: ["notebook"]` or `adjectives: ["notebook"]`
+BYN5014 77:16 `num` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `nouns: ["num"]`, `verbs: ["num"]` or `adjectives: ["num"]`
+BYN5105 77:16 `numLines` counts items; name it `lineCount`
+  help rename it `lineCount`
+  fix 77:16-77:24 lineCount

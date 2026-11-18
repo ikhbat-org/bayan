@@ -1,0 +1,18 @@
+1:1 LetKeyword `let`
+1:5 Identifier `efect`
+1:11 Equals `=`
+1:13 IntegerLiteral `2`
+2:2 IntegerLiteral `3`
+4:1 IntegerLiteral `1`
+4:2 Dot `.`
+4:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │  �
+    │   ^

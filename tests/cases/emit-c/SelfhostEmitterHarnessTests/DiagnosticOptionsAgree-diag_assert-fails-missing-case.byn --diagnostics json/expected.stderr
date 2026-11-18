@@ -1,0 +1,1 @@
+{"code":"BYN2411","severity":"error","file":"input.byn","span":{"start":149,"end":165,"line":11,"column":20,"endLine":11,"endColumn":36},"message":"`ParseError.blank` cannot match `ParseError`","label":null,"help":null,"fixes":[]}

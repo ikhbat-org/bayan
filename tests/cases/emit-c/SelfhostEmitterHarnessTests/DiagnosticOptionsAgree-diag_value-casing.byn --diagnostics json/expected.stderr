@@ -1,0 +1,1 @@
+{"code":"BYN2009","severity":"error","file":"input.byn","span":{"start":4,"end":9,"line":1,"column":5,"endLine":1,"endColumn":10},"message":"`Total` must be camelCase","label":null,"help":"rename it `total`; only types are PascalCase","fixes":[{"span":{"start":4,"end":9,"line":1,"column":5,"endLine":1,"endColumn":10},"replacement":"total"}]}

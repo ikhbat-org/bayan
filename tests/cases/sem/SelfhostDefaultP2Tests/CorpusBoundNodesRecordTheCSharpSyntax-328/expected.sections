@@ -1,0 +1,15 @@
+== tests/cases/run/type-alias-static-call.byn
+85..130 blockStmt
+91..108 localDecl
+99..108 callExpr
+106..107 literalExpr integer
+113..128 exprStmt
+113..128 callExpr
+119..127 interpolatedExpr
+122..125 memberExpr
+122..123 nameExpr
+113..128 callExpr
+49..59 structLiteralExpr
+49..59 structLiteralExpr
+49..59 structLiteralExpr
+56..57 nameExpr

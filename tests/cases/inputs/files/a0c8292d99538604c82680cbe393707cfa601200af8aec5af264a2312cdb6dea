@@ -1,0 +1,11 @@
+let a = "open
+
+r xs: List<List<i64>>
+a >> b
+c >>= 1
+
+" \\ \n" """
+  raw "quoted"
+  """ c"text" u16 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" í €er closed
+ is and or not with move ref out this null true false comptime checked
+ 

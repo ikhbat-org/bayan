@@ -1,0 +1,146 @@
+1:2 Identifier `xs`
+1:4 Colon `:`
+1:6 IntegerLiteral `1__`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 BarBar `||`
+3:11 Caret `^`
+3:13 Tilde `~`
+3:16 Equals `=`
+3:18 EqualsEquals `==`
+3:21 BangEquals `!=`
+3:24 Less `<`
+3:26 LessEquals `<=`
+3:29 Greater `>`
+3:31 GreaterEquals `>=`
+3:34 LessLess `<<`
+3:37 Greater `>`
+3:40 Greater `>`
+3:41 GreaterEquals `>=`
+4:1 IntegerLiteral `1_`
+6:1 CharLiteral `'\u{D800}'`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 StringLiteral `$"{$"`
+7:54 OpenBrace `{`
+7:55 StringLiteral `$"{$"`
+7:60 OpenBrace `{`
+7:61 StringLiteral `$"{x}"`
+7:67 CloseBrace `}`
+7:68 StringLiteral `"}"`
+7:71 CloseBrace `}`
+7:72 StringLiteral `"}"`
+7:75 InterpolationEnd `}`
+7:76 InterpolatedStringEnd `"`
+7:77 InterpolationEnd `}`
+7:78 InterpolatedStringEnd `"`
+7:79 InterpolationEnd `}`
+7:80 InterpolatedStringEnd `"`
+7:81 InterpolationEnd `}`
+7:82 InterpolatedStringEnd `"`
+7:83 InterpolationEnd `}`
+7:84 InterpolatedStringEnd `"`
+7:85 InterpolationEnd `}`
+7:86 InterpolatedStringEnd `"`
+8:1 IntegerLiteral `0x_`
+9:1 IntegerLiteral `0b__`
+10:1 IntegerLiteral `1__`
+11:1 IntegerLiteral `0xF__`
+13:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │  xs: 1__
+    │       ^^
+    │
+    │ 1 │  xs: 1__
+    │   │       --
+
+error BYN0015: source is not valid UTF-8 (byte 0xF9)
+
+  3 │ & && | || ^ ~  = == != < <= > >= << >� >>=
+    │                                      ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1_
+    │  ^
+    │
+    │ 4 │ 1_
+    │   │  -
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  6 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  9 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 1__
+     │  ^^
+     │
+     │ 10 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │ 0xF__
+     │    ^^
+     │
+     │ 11 │ 0xF__
+     │    │    --

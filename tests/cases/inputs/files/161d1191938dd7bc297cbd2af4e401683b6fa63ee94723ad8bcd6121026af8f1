@@ -1,0 +1,10 @@
+/* block
+
+\" \\ \n" """
+  raw "quoted"
+  " ( ) [ ] { }
+
+ c =  3
+ /* block
+'x
+

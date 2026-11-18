@@ -1,0 +1,14 @@
+1:1 Identifier `letcafé`
+1:10 Equals `=`
+1:12 IntegerLiteral `1`
+1:13 Semicolon `;`
+1:17 EndOfFile
+
+error BYN0005: identifier `letcafé` is not in Unicode normalization form C
+
+  1 │ letcafé = 1; � 
+    │ ^^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ letcafé = 1; � 
+    │   │       +

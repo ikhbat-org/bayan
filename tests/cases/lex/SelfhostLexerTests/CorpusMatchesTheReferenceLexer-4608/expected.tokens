@@ -1,0 +1,31 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:8 StringLiteral `"bad \q escape"`
+3:1 IntegerLiteral `0`
+3:3 IntegerLiteral `42`
+3:6 IntegerLiteral `1_000_000`
+3:16 IntegerLiteral `0xFF`
+3:21 IntegerLiteral `0x_ff`
+3:27 IntegerLiteral `0b1010`
+3:34 IntegerLiteral `0B11`
+3:39 IntegerLiteral `5`
+3:40 NumericSuffix `s`
+3:42 IntegerLiteral `250`
+3:45 NumericSuffix `ms`
+3:48 IntegerLiteral `4`
+3:49 NumericSuffix `KiB`
+3:53 Identifier `l1u`
+3:57 IntegerLiteral `0xFF`
+3:61 NumericSuffix `u`
+3:63 IntegerLiteral `0b1`
+3:66 NumericSuffix `ul`
+3:69 IntegerLiteral `7`
+3:70 NumericSuffix `l`
+5:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b  "bad \q escape"
+    │             ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

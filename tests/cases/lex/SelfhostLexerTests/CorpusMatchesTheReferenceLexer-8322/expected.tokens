@@ -1,0 +1,30 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `ea`
+8:4 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ 1ea /* never closed
+    │     ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ error set unit distinct type import as public private stat�c readonly required co�nst let var embed extern unsafe
+    │                                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  8 │  � 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  8 │  � 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  8 │  � 
+    │   ^

@@ -1,0 +1,130 @@
+1:2 LetKeyword `let`
+1:6 Identifier `actor`
+1:12 Equals `=`
+3:1 IntegerLiteral `0x`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"{x}"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 StringLiteral `"}"`
+4:60 InterpolationEnd `}`
+4:61 InterpolatedStringEnd `"`
+4:62 InterpolationEnd `}`
+4:63 InterpolatedStringEnd `"`
+4:64 InterpolationEnd `}`
+4:65 InterpolatedStringEnd `"`
+4:66 InterpolationEnd `}`
+4:67 InterpolatedStringText `\u{2}}`
+4:69 InterpolatedStringEnd `"`
+4:70 InterpolationEnd `}`
+4:71 InterpolatedStringEnd `"`
+4:73 InterpolatedStringStart `$"`
+4:75 InterpolatedStringText `stray } here`
+4:87 InterpolatedStringEnd `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolationEnd `}`
+6:5 InterpolatedStringEnd `"`
+6:6 IntegerLiteral `0x`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����let actor = 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����let actor = 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����let actor = 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����let actor = 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����let actor = 
+    │     ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ �����let actor = 
+    │          ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}""}"}"}"}"}�}"}" $"stray } here"
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}""}"}"}"}"}�}"}" $"stray } here"
+    │                                                 ^^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}""}"}"}"}"}�}"}" $"stray } here"
+    │                                                                    ^
+    │
+    │ 4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}""}"}"}"}"}�}}"}" $"stray } here"
+    │   │                                                                     +
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}""}"}"}"}"}�}"}" $"stray } here"
+    │                                                                                 ^
+    │
+    │ 4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}""}"}"}"}"}�}"}" $"stray }} here"
+    │   │                                                                                  +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ $"{}"0x
+    │      ^^

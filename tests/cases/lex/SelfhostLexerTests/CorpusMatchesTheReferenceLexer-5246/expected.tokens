@@ -1,0 +1,36 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+2:2 Identifier `s`
+3:1 IntegerLiteral `0x_`
+4:1 IntegerLiteral `0b__`
+5:1 IntegerLiteral `1__`
+6:1 IntegerLiteral `06`
+6:3 NumericSuffix `xF__`
+7:2 Percent `%`
+7:3 Colon `:`
+7:5 MinusPercent `-%`
+7:8 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ let a = $ 
+    │         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1__
+    │  ^^
+    │
+    │ 5 │ 1__
+    │   │  --

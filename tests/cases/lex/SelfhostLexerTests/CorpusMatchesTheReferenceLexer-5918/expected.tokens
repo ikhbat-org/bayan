@@ -1,0 +1,104 @@
+1:1 Identifier `ay`
+1:4 CloseBrace `}`
+1:6 Identifier `here`
+1:10 StringLiteral `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+3:2 VarKeyword `var`
+3:6 Identifier `xs`
+3:8 Colon `:`
+3:10 Identifier `List`
+3:14 Less `<`
+3:15 Identifier `List`
+3:19 Less `<`
+3:20 Identifier `i64`
+3:23 Greater `>`
+3:24 Greater `>`
+4:5 Identifier `macro`
+4:11 Identifier `select`
+4:18 BecomeKeyword `become`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 Identifier `a`
+5:6 Slash `/`
+5:8 Identifier `line`
+5:13 Identifier `comment`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ ay } here"
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │  � ����macro select become
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │  � ����macro select become
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │  � ����macro select become
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │  � ����macro select become
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │  � ����macro select become
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  � ����macro select become
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  � ����macro select become
+    │       ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │  � ����macro select become
+    │        ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │  � ����macro select become
+    │              ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{a/� line comment
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  5 │  $"{a/� line comment
+    │       ^

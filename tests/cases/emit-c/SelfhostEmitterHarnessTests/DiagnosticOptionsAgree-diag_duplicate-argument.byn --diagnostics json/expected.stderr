@@ -1,0 +1,1 @@
+{"code":"BYN2303","severity":"error","file":"input.byn","span":{"start":47,"end":51,"line":2,"column":22,"endLine":2,"endColumn":26},"message":"`x` is passed twice","label":null,"help":null,"fixes":[]}

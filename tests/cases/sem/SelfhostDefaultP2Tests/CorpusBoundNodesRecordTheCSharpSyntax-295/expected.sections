@@ -1,0 +1,232 @@
+== tests/cases/run/style-fix-conditions-patterns-fixed.byn
+187..216 blockStmt
+193..214 returnStmt value 200..214
+200..214 isExpr
+200..201 nameExpr
+205..214 constantPattern
+205..208 literalExpr char
+211..214 literalExpr char
+236..263 blockStmt
+242..261 returnStmt value 249..261
+249..261 isExpr
+249..250 nameExpr
+254..261 constantPattern
+254..256 unaryExpr negate operand 255..256
+259..261 literalExpr integer
+286..337 blockStmt
+292..320 localDecl
+302..320 isExpr
+302..304 nameExpr
+308..320 binaryPattern
+308..312 constantPattern
+308..312 targetMemberExpr
+316..320 constantPattern
+316..320 targetMemberExpr
+325..335 returnStmt value 332..335
+332..335 nameExpr
+357..393 blockStmt
+363..391 returnStmt value 370..391
+370..391 isExpr
+370..371 nameExpr
+375..391 binaryPattern
+375..385 binaryPattern
+375..376 constantPattern
+375..376 literalExpr integer
+380..385 constantPattern
+380..381 literalExpr integer
+384..385 literalExpr integer
+389..391 constantPattern
+389..391 literalExpr integer
+416..446 blockStmt
+422..444 returnStmt value 429..444
+429..444 isExpr
+429..430 nameExpr
+434..444 binaryPattern
+434..437 constantPattern
+434..437 literalExpr string
+441..444 constantPattern
+441..444 literalExpr string
+466..501 blockStmt
+472..499 returnStmt value 479..499
+479..499 isExpr
+479..483 memberExpr
+479..480 nameExpr
+487..499 binaryPattern
+487..491 constantPattern
+487..491 targetMemberExpr
+495..499 constantPattern
+495..499 targetMemberExpr
+540..570 blockStmt
+546..568 returnStmt value 553..568
+553..568 isExpr
+553..558 indexExpr
+553..555 nameExpr
+556..557 nameExpr
+556..557 nameExpr
+562..568 binaryPattern
+562..563 constantPattern
+562..563 literalExpr integer
+567..568 constantPattern
+567..568 literalExpr integer
+592..642 blockStmt
+598..640 returnStmt value 605..640
+605..640 isExpr
+605..606 nameExpr
+610..640 binaryPattern
+610..631 binaryPattern
+610..616 relationalPattern
+612..616 literalExpr integer
+620..631 constantPattern
+620..624 literalExpr integer
+627..631 literalExpr integer
+635..640 constantPattern
+635..640 literalExpr integer
+664..760 blockStmt
+729..758 returnStmt value 736..758
+736..758 isExpr
+736..737 nameExpr
+741..758 binaryPattern
+741..747 relationalPattern
+743..747 literalExpr integer
+751..758 relationalPattern
+754..758 literalExpr integer
+779..845 blockStmt
+828..843 returnStmt value 835..843
+835..843 binaryExpr lt right 839..843
+835..836 nameExpr
+839..843 literalExpr integer
+867..970 blockStmt
+947..968 returnStmt value 954..968
+954..968 binaryExpr logicalAnd right 963..968
+954..959 binaryExpr gt right 958..959
+954..955 nameExpr
+958..959 literalExpr integer
+963..968 binaryExpr lt right 967..968
+963..964 nameExpr
+967..968 literalExpr integer
+995..1011 blockStmt
+1001..1009 returnStmt value 1008..1009
+1008..1009 literalExpr integer
+1038..1130 blockStmt
+1091..1128 returnStmt value 1098..1128
+1098..1128 binaryExpr logicalOr right 1115..1128
+1098..1111 binaryExpr eq right 1110..1111
+1098..1106 callExpr
+1103..1105 nameExpr
+1110..1111 literalExpr integer
+1115..1128 binaryExpr eq right 1127..1128
+1115..1123 callExpr
+1120..1122 nameExpr
+1127..1128 literalExpr integer
+1163..1227 blockStmt
+1197..1225 returnStmt value 1204..1225
+1204..1225 binaryExpr logicalOr right 1224..1225
+1204..1220 binaryExpr logicalOr right 1214..1220
+1204..1210 binaryExpr eq right 1209..1210
+1204..1205 nameExpr
+1209..1210 literalExpr integer
+1214..1220 binaryExpr eq right 1219..1220
+1214..1215 nameExpr
+1219..1220 literalExpr integer
+1224..1225 nameExpr
+1248..1269 blockStmt
+1254..1267 returnStmt value 1261..1267
+1261..1267 binaryExpr eq right 1266..1267
+1261..1262 nameExpr
+1266..1267 literalExpr integer
+1292..1323 blockStmt
+1298..1321 returnStmt value 1305..1321
+1305..1321 binaryExpr logicalAnd right 1315..1321
+1305..1311 binaryExpr ge right 1310..1311
+1305..1306 nameExpr
+1310..1311 literalExpr integer
+1315..1321 binaryExpr le right 1320..1321
+1315..1316 nameExpr
+1320..1321 literalExpr integer
+1344..1379 blockStmt
+1350..1377 returnStmt value 1357..1377
+1357..1377 binaryExpr logicalOr right 1369..1377
+1357..1365 binaryExpr eq right 1362..1365
+1357..1358 nameExpr
+1362..1365 literalExpr floatKeyword
+1369..1377 binaryExpr eq right 1374..1377
+1369..1370 nameExpr
+1374..1377 literalExpr floatKeyword
+1403..1434 blockStmt
+1409..1432 returnStmt value 1416..1432
+1416..1432 binaryExpr logicalOr right 1426..1432
+1416..1422 binaryExpr eq right 1421..1422
+1416..1417 nameExpr
+1421..1422 literalExpr integer
+1421..1422 literalExpr integer
+1426..1432 binaryExpr eq right 1431..1432
+1426..1427 nameExpr
+1431..1432 literalExpr integer
+1431..1432 literalExpr integer
+1448..1860 blockStmt
+1454..1480 localDecl
+1474..1480 collectionExpr
+1475..1476 literalExpr integer
+1478..1479 literalExpr integer
+1485..1515 localDecl
+1493..1515 structLiteralExpr
+1503..1507 targetMemberExpr
+1512..1513 literalExpr integer
+1520..1620 exprStmt
+1520..1620 callExpr
+1526..1619 interpolatedExpr
+1529..1539 callExpr
+1535..1538 literalExpr char
+1541..1549 callExpr
+1547..1548 literalExpr integer
+1551..1565 callExpr
+1560..1564 targetMemberExpr
+1567..1575 callExpr
+1573..1574 literalExpr integer
+1577..1587 callExpr
+1583..1586 literalExpr string
+1589..1597 callExpr
+1595..1596 nameExpr
+1599..1617 callExpr
+1607..1609 nameExpr
+1615..1616 literalExpr integer
+1520..1620 callExpr
+1625..1722 exprStmt
+1625..1722 callExpr
+1631..1721 interpolatedExpr
+1634..1643 callExpr
+1640..1642 nameExpr
+1645..1666 callExpr
+1653..1654 literalExpr integer
+1660..1665 literalExpr falseKeyword
+1668..1677 callExpr
+1675..1676 literalExpr integer
+1679..1690 callExpr
+1688..1689 literalExpr integer
+1692..1703 callExpr
+1699..1702 literalExpr floatKeyword
+1705..1719 callExpr
+1714..1718 literalExpr nullKeyword
+1625..1722 callExpr
+1727..1858 exprStmt
+1727..1858 callExpr
+1733..1857 interpolatedExpr
+1736..1746 callExpr
+1744..1745 literalExpr integer
+1748..1761 callExpr
+1756..1760 literalExpr integer
+1763..1777 callExpr
+1771..1776 literalExpr integer
+1779..1792 callExpr
+1787..1791 literalExpr integer
+1794..1804 callExpr
+1802..1803 literalExpr integer
+1806..1819 callExpr
+1814..1818 literalExpr integer
+1821..1834 callExpr
+1829..1833 literalExpr integer
+1836..1843 callExpr
+1841..1842 literalExpr integer
+1845..1855 callExpr
+1853..1854 literalExpr integer
+1727..1858 callExpr

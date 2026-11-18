@@ -1,0 +1,79 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 Identifier `Abecome`
+2:2 Comma `,`
+2:4 Dot `.`
+2:6 DotDot `..`
+2:9 DotDotEquals `..=`
+2:14 Question `?`
+2:16 QuestionQuestion `??`
+2:19 QuestionQuestionEquals `??=`
+2:23 Identifier `e`
+2:24 Dot `.`
+2:26 FatArrow `=>`
+2:29 Arrow `->`
+2:32 At `@`
+2:34 Hash `#`
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:6 Bar `|`
+5:8 BarBar `||`
+5:11 Caret `^`
+5:13 Tilde `~`
+5:15 Bang `!`
+5:17 Equals `=`
+5:19 EqualsEquals `==`
+5:22 BangEquals `!=`
+5:25 Less `<`
+5:27 LessEquals `<=`
+5:30 Greater `>`
+5:32 GreaterEquals `>=`
+5:35 LessLess `<<`
+5:38 Greater `>`
+5:39 Greater `>`
+5:41 Greater `>`
+5:42 GreaterEquals `>=`
+6:1 IntegerLiteral `0xF__`
+8:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select Abecome
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select Abecome
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ � �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ � �
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ � �
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  4 │ � �
+    │    ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 0xF__
+    │    ^^
+    │
+    │ 6 │ 0xF__
+    │   │    --

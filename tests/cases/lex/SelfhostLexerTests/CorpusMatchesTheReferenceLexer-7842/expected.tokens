@@ -1,0 +1,17 @@
+1:1 Identifier `uspends`
+1:9 AsyncKeyword `async`
+1:15 AwaitKeyword `await`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 OrKeyword `or`
+2:11 NotKeyword `not`
+2:15 Identifier `wi`
+2:17 CharLiteral `'h move ref out th""" `
+2:39 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ is and or not wi'h move ref out th""" 
+    │                 ^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`

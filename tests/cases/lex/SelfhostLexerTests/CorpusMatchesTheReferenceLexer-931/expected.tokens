@@ -1,0 +1,24 @@
+1:4 Identifier `cment`
+1:10 Star `*`
+1:11 Slash `/`
+1:13 Identifier `a`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `stray } here`
+2:16 InterpolatedStringEnd `"`
+3:2 StringLiteral `"a\u{2067}b"`
+4:1 IntegerLiteral `0b102`
+6:1 Star `*`
+6:2 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │  $"stray } here"
+    │          ^
+    │
+    │ 2 │  $"stray }} here"
+    │   │           +
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │ 0b102
+    │     ^

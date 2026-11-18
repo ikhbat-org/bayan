@@ -1,0 +1,2 @@
+== diags.diag/index-out-of-range
+BYN2213 2:12 index 3 is out of range for `i64[3]`

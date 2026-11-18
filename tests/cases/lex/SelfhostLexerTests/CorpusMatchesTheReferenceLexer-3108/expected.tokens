@@ -1,0 +1,19 @@
+1:1 Identifier `lt`
+1:4 Identifier `actor`
+1:10 Equals `=`
+1:11 Identifier `M1`
+5:1 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ lt actor =M1
+    │    ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0004: unterminated block comment
+
+  2 │ /*Å
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

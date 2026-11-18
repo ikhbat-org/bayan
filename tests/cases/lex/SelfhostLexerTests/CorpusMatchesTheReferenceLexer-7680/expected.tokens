@@ -1,0 +1,145 @@
+1:3 IfKeyword `if`
+1:6 ElseKeyword `else`
+1:11 UnlessKeyword `unless`
+1:18 SwitchKeyword `switch`
+1:25 CaseKeyword `case`
+1:30 DefaultKeyword `default`
+1:38 ForKeyword `for`
+1:42 InKeyword `in`
+1:45 WhileKeyword `while`
+1:51 DoKeyword `do`
+1:54 BreakKeyword `break`
+1:60 ContinueKeyword `continue`
+1:69 ReturnKeyword `return`
+1:76 YieldKeyword `yield`
+1:82 DeferKeyword `defer`
+1:88 ErrdeferKeyword `errdefer`
+1:97 UsingKeyword `using`
+1:103 ContextKeyword `context`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 BarBar `||`
+3:11 Caret `^`
+3:13 Tilde `~`
+3:15 Bang `!`
+3:17 Equals `=`
+3:19 EqualsEquals `==`
+3:22 BangEquals `!=`
+3:25 Less `<`
+3:27 LessEquals `<=`
+3:30 Greater `>`
+3:32 GreaterEquals `>=`
+3:35 LessLess `<<`
+3:38 Greater `>`
+3:39 Greater `>`
+3:41 Greater `>`
+3:42 GreaterEquals `>=`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:12 OpenBrace `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 StringLiteral `$"{x}"`
+4:58 InterpolationEnd `}`
+4:59 InterpolatedStringEnd `"`
+4:60 InterpolationEnd `}`
+4:61 InterpolatedStringEnd `"`
+4:62 Identifier `Å`
+4:66 IntegerLiteral `0xFF`
+4:70 NumericSuffix `s`
+6:1 Identifier `ver`
+6:5 Identifier `closed`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ � if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │   │ -
+
+error BYN0002: unexpected character `$`
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"Å ��� 0xFFs
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"Å ��� 0xFFs
+    │            ^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"Å ��� 0xFFs
+    │                                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"Å ��� 0xFFs
+    │                                                     ^^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"Å ��� 0xFFs
+    │                                                               ^ same letters, different
+    │                                                                 encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"Å ��� 0xFFs
+    │   │                                                               +
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"Å ��� 0xFFs
+    │                                                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"Å ��� 0xFFs
+    │                                                                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"Å ��� 0xFFs
+    │                                                                   ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"Å ��� 0xFFs
+    │                                                                         ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

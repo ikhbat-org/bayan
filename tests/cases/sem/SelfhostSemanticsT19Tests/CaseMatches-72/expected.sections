@@ -1,0 +1,3 @@
+== bind.probes.b32
+flags 0
+binary:bool[2316:12]=-(logicalOr local:bool[2316:4]=-(flag) literal:bool[2324:4]=true(true))

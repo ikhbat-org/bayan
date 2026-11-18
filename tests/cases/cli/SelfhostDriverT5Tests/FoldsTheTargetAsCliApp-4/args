@@ -1,0 +1,5 @@
+build
+--emit-c
+--target
+windows-x64
+<repo>/tmp/t5/self/project/target

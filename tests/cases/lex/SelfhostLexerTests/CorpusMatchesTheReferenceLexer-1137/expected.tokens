@@ -1,0 +1,7 @@
+1:2 OpenBrace `{`
+1:4 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ ${ 
+    │ ^

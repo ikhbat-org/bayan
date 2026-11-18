@@ -1,0 +1,78 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:1 ErrorKeyword `error`
+2:7 SetKeyword `set`
+2:11 UnitKeyword `unit`
+2:16 DistinctKeyword `distinct`
+2:25 TypeKeyword `type`
+2:30 ImportKeyword `import`
+2:37 AsKeyword `as`
+2:40 PublicKeyword `public`
+2:47 PrivateKeyword `private`
+2:55 StaticKeyword `static`
+2:62 ReadonlyKeyword `readonly`
+2:71 RequiredKeyword `required`
+2:80 ConstKeyword `const`
+2:86 LetKeyword `let`
+2:90 VarKeyword `var`
+2:94 EmbedKeyword `embed`
+2:100 ExternKeyword `extern`
+2:107 UnsafeKeyword `unsafe`
+3:2 Identifier `x_1`
+3:6 Identifier `é`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:9 StringLiteral `""`
+4:11 NeverKeyword `never`
+4:17 Identifier `c`
+4:18 CloseBrace `}`
+4:19 Identifier `losed`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 Identifier `a`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ � x_1 é
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │  $"{a��� $"{
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │  $"{a��� $"{
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  $"{a��� $"{
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{a��� $"{
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  6 │ // ok � in comment
+    │       ^

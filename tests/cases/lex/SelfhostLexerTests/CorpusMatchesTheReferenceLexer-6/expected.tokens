@@ -1,0 +1,15 @@
+1:1 Identifier `c`
+1:3 Greater `>`
+1:4 GreaterEquals `>=`
+1:7 IntegerLiteral `1`
+2:1 StringLiteral `"text"`
+2:8 StringLiteral `"esc \"q\" \\ \n"`
+2:26 RawStringLiteral `"""\nlet café = 2\n\n`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

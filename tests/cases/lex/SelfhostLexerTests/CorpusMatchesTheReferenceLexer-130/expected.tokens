@@ -1,0 +1,14 @@
+2:2 Identifier `a`
+    doc `/// Doc line one.\n/// Doc l`
+5:2 CStringLiteral `c"text"`
+5:10 U16StringLiteral `u16"`
+6:1 StructKeyword `struct`
+6:8 Identifier `S`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │  c"text" u16"
+    │          ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

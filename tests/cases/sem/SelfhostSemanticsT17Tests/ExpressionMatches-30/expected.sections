@@ -1,0 +1,3 @@
+== case fn-error-sets
+errorExpr 1487..1491 : ?
+BYN2202 76:17 expected `i64 -> bool fails LexError`, found `bool bare(i64) fails` ||declare the error sets of `bare`: `fails LexError`|

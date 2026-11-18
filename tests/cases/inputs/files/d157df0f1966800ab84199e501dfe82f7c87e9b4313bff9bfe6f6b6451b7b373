@@ -1,0 +1,7 @@
+let actor = 1
+ é
+�/// Doc line one.
+let effect = 2
+   """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+''
+ 

@@ -1,0 +1,6 @@
+
+let b = "bad \q escape"
+let c = """never closed
+
+Å
+let law = 3

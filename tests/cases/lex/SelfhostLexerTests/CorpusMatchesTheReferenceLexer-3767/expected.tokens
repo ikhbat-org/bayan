@@ -1,0 +1,30 @@
+    doc `///*Do line two.\r`
+2:2 PlusEquals `+=`
+2:5 MinusEquals `-=`
+2:8 StarEquals `*=`
+2:11 SlashEquals `/=`
+2:14 PercentEquals `%=`
+2:17 AmpEquals `&=`
+2:20 BarEquals `|=`
+2:23 CaretEquals `^=`
+2:26 LessLessEquals `<<=`
+5:1 LetKeyword `let`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:11 IntegerLiteral `1`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  // comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  // comment � hidden
+    │   │             -
+
+error BYN0002: unexpected character `$`
+
+  5 │ let a = $ 1
+    │         ^

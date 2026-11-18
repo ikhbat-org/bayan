@@ -1,0 +1,6 @@
+== bag moved-while-borrowed
+BYN3006 30:13 `s` is moved while `d` still borrows it |`d` is used again on line 32|finish using `d` first, or copy what it needs before moving `s`|
+BYN3006 38:10 `s` is moved while `d` still borrows it |`d` is used again on line 39|finish using `d` first, or copy what it needs before moving `s`|
+BYN3006 45:13 `s` is moved while `sp` still borrows it |`sp` is used again on line 47|finish using `sp` first, or copy what it needs before moving `s`|
+BYN3006 57:12 `slot` is moved while `sp` still borrows it |`sp` is used again on line 62|finish using `sp` first, or copy what it needs before moving `slot`|
+BYN3006 69:14 `xs` is moved while `sp` still borrows it |`sp` is used again on line 71|finish using `sp` first, or copy what it needs before moving `xs`|

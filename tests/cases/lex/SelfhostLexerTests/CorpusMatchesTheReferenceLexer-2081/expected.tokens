@@ -1,0 +1,16 @@
+1:1 Identifier `nt`
+1:4 Star `*`
+1:5 Identifier `P`
+1:7 Identifier `a`
+2:1 Slash `/`
+4:1 IntegerLiteral `1__`
+5:1 IntegerLiteral `0xF`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --

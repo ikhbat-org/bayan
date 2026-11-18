@@ -1,0 +1,15 @@
+1:1 IntegerLiteral `0x`
+2:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n + -U* / % +% -% *% +| -| *| ++ --}`
+3:36 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  2 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

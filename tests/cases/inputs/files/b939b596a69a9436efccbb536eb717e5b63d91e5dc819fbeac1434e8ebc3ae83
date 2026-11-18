@@ -1,0 +1,3 @@
+i32 main(ReadOnlySpan<string> args) {
+    return i32(args.length)
+}

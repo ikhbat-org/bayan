@@ -1,0 +1,10 @@
+error BYN2117: `ref this` must be the first parameter
+  --> input.byn:4:22
+
+  4 │     void add(i64 by, ref this) {
+    │                      ^^^^^^^^ after other parameters
+    │
+  help: move `ref this` to the start of the parameter list
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2117

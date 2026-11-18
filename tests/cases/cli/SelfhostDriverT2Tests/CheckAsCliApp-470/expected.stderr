@@ -1,0 +1,10 @@
+error BYN2802: `Box.count` is `i32 count` but `ICount` requires `i64 count { get }`
+  --> <repo>/tmp/t2/diag/interface-field-type-mismatch/interface-field-type-mismatch.byn:6:9
+
+  6 │     i32 count
+    │         ^^^^^ does not match `ICount`
+    │
+  help: change the field's type to `i64`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2802

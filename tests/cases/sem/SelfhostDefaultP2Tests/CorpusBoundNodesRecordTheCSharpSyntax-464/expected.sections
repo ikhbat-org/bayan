@@ -1,0 +1,38 @@
+== tests/cases/diag/error-payload-mismatch.byn
+95..116 blockStmt
+101..105 failStmt
+150..173 blockStmt
+156..160 failStmt
+207..239 blockStmt
+213..217 failStmt
+218..237 callExpr
+218..237 callExpr
+272..308 blockStmt
+278..282 failStmt
+283..306 callExpr
+299..305 literalExpr string
+341..380 blockStmt
+347..351 failStmt
+352..378 callExpr
+373..374 literalExpr integer
+395..434 blockStmt
+401..432 localDecl
+423..432 callExpr
+451..522 blockStmt
+457..487 localDecl
+479..487 targetMemberExpr
+492..520 localDecl
+500..520 memberExpr
+550..552 blockStmt
+574..596 blockStmt
+580..594 exprStmt
+580..594 callExpr
+585..593 targetMemberExpr
+624..647 blockStmt
+630..645 returnStmt value 637..645
+637..645 targetMemberExpr
+682..695 binaryExpr eq right 687..695
+682..695 binaryExpr eq right 687..695
+682..695 binaryExpr eq right 687..695
+682..683 nameExpr
+687..695 targetMemberExpr

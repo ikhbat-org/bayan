@@ -1,0 +1,6 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+3:1 OpenBrace `{`
+3:2 EndOfFile

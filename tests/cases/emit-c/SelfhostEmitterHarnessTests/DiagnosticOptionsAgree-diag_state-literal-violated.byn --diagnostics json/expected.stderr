@@ -1,0 +1,2 @@
+{"code":"BYN2321","severity":"error","file":"input.byn","span":{"start":134,"end":136,"line":9,"column":31,"endLine":9,"endColumn":33},"message":"`-1` violates `requires it > 0` of `Order`","label":"fails the contract","help":"pass a value that meets `requires it > 0`","fixes":[]}
+{"code":"BYN2321","severity":"error","file":"input.byn","span":{"start":167,"end":168,"line":10,"column":29,"endLine":10,"endColumn":30},"message":"`0` violates `requires it > 0` of `Order`","label":"fails the contract","help":"pass a value that meets `requires it > 0`","fixes":[]}

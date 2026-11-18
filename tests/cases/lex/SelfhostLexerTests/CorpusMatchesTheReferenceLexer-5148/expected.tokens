@@ -1,0 +1,67 @@
+2:3 OrKeyword `or`
+2:6 NotKeyword `not`
+2:10 WithKeyword `with`
+2:15 MoveKeyword `move`
+2:20 RefKeyword `ref`
+2:24 OutKeyword `out`
+2:28 ThisKeyword `this`
+2:33 NullKeyword `null`
+2:38 TrueKeyword `true`
+2:43 Identifier `fale`
+2:48 Identifier `compti`
+3:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �  or not with move ref out this null true fale compti � ̈́��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │ �  or not with move ref out this null true fale compti � ̈́��
+    │                                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │ �  or not with move ref out this null true fale compti � ̈́��
+    │                                                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ �  or not with move ref out this null true fale compti � ̈́��
+    │                                                         ^
+
+error BYN0002: unexpected character `̈́`
+
+  2 │ �  or not with move ref out this null true fale compti � ̈́��
+    │                                                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │ �  or not with move ref out this null true fale compti � ̈́��
+    │                                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �  or not with move ref out this null true fale compti � ̈́��
+    │                                                            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ � 
+    │ ^

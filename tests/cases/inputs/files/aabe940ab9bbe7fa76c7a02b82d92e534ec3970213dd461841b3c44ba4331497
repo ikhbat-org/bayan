@@ -1,0 +1,5 @@
+let reminders = orders
+    .where(it.placedAt < cutoff && it.total > minimum)
+    .sorted(by: it.placedAt)
+    .take(50)
+    .map(Reminder(it.id, for: it.customer))

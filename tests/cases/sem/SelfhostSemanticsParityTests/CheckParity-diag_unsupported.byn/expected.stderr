@@ -1,0 +1,8 @@
+error BYN2022: `?.` is not supported in v0.1
+  --> tmp/t26-tests/cli/diag_unsupported.byn/unsupported.byn:6:9
+
+  6 │ let v = b?.value
+    │         ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2022

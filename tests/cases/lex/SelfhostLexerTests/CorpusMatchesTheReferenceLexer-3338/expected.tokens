@@ -1,0 +1,16 @@
+1:1 LetKeyword `let`
+1:5 Identifier `caé`
+1:9 Equals `=`
+1:11 IntegerLiteral `2`
+3:1 Identifier `__`
+4:1 IntegerLiteral `1_`
+5:1 Identifier `xF__`
+6:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1_
+    │  ^
+    │
+    │ 4 │ 1_
+    │   │  -

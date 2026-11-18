@@ -1,0 +1,141 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+2:2 CharLiteral `'a'`
+2:6 CharLiteral `'\n'`
+2:11 CharLiteral `'\u{1F600}'`
+2:23 CharLiteral `'\''`
+2:28 CharLiteral `'é'`
+2:32 CharLiteral `'\\'`
+2:37 CharLiteral `'\0'`
+4:1 LetKeyword `let`
+4:5 Identifier `s`
+4:7 Equals `=`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolationStart `{`
+4:12 InterpolatedStringStart `$"`
+4:14 InterpolationStart `{`
+4:15 InterpolatedStringStart `$"`
+4:17 InterpolationStart `{`
+4:18 InterpolatedStringStart `$"`
+4:20 InterpolationStart `{`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolationStart `{`
+4:24 StringLiteral `"{${$"`
+4:30 OpenBrace `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 InterpolatedStringStart `$"`
+4:54 InterpolationStart `{`
+4:55 InterpolatedStringStart `$"`
+4:57 InterpolationStart `{`
+4:58 InterpolatedStringStart `$"`
+4:60 InterpolationStart `{`
+4:61 InterpolatedStringStart `$"`
+4:63 InterpolationStart `{`
+4:64 StringLiteral `$"{x}"`
+4:70 InterpolationEnd `}`
+4:71 InterpolatedStringEnd `"`
+4:72 InterpolationEnd `}`
+4:73 InterpolatedStringEnd `"`
+4:74 InterpolationEnd `}`
+4:75 InterpolatedStringEnd `"`
+4:76 InterpolationEnd `}`
+4:77 InterpolatedStringEnd `"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolationEnd `}`
+4:81 InterpolatedStringEnd `"`
+4:82 InterpolationEnd `}`
+4:83 InterpolatedStringEnd `"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 InterpolationEnd `}`
+4:87 InterpolatedStringEnd `"`
+4:88 InterpolationEnd `}`
+4:89 InterpolatedStringEnd `"`
+4:90 InterpolationEnd `}`
+4:91 InterpolatedStringEnd `"`
+4:92 CloseBrace `}`
+4:93 StringLiteral `"}"`
+4:96 InterpolationEnd `}`
+4:97 InterpolatedStringEnd `"`
+4:98 InterpolationEnd `}`
+4:99 InterpolatedStringEnd `"`
+4:100 InterpolationEnd `}`
+4:101 InterpolatedStringEnd `"`
+4:102 InterpolationEnd `}`
+4:103 InterpolatedStringEnd `"`
+4:104 InterpolationEnd `}`
+4:105 InterpolatedStringEnd `"`
+4:106 CloseBrace `}`
+4:107 StringLiteral `"`
+5:1 IntegerLiteral `0xF__`
+6:1 LetKeyword `let`
+6:5 EffectKeyword `effect`
+6:12 Equals `=`
+6:14 IntegerLiteral `2`
+8:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │ ��'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ��'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │  ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ let s = $"{$"{$"{$"{$"{"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                ^^
+
+error BYN0003: unterminated string literal
+
+  4 │ let s = $"{$"{$"{$"{$"{"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                                           ^ string
+    │                                                                                                             ends
+    │                                                                                                             at
+    │                                                                                                             the
+    │                                                                                                             end
+    │                                                                                                             of
+    │                                                                                                             the
+    │                                                                                                             line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --

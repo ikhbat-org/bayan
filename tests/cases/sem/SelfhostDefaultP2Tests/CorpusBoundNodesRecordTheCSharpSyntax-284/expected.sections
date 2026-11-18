@@ -1,0 +1,60 @@
+== tests/cases/run/string-position.byn
+105..411 blockStmt
+111..130 localDecl
+119..130 literalExpr string
+135..228 exprStmt
+135..228 callExpr
+141..227 interpolatedExpr
+144..166 binaryExpr coalesce right 164..166
+144..160 callExpr
+144..145 nameExpr
+155..159 literalExpr string
+164..166 unaryExpr negate operand 165..166
+169..200 binaryExpr coalesce right 198..200
+169..194 callExpr
+169..170 nameExpr
+180..184 literalExpr string
+192..193 literalExpr integer
+198..200 unaryExpr negate operand 199..200
+203..225 binaryExpr coalesce right 223..225
+203..219 callExpr
+203..204 nameExpr
+214..218 literalExpr string
+223..225 unaryExpr negate operand 224..225
+135..228 callExpr
+233..299 exprStmt
+233..299 callExpr
+239..298 interpolatedExpr
+242..267 binaryExpr coalesce right 265..267
+242..261 callExpr
+242..243 nameExpr
+257..260 literalExpr string
+265..267 unaryExpr negate operand 266..267
+270..296 binaryExpr coalesce right 294..296
+270..290 callExpr
+270..271 nameExpr
+285..289 literalExpr string
+294..296 unaryExpr negate operand 295..296
+233..299 callExpr
+304..364 exprStmt
+304..364 callExpr
+310..363 interpolatedExpr
+313..326 callExpr
+313..314 nameExpr
+321..325 literalExpr string
+329..347 callExpr
+329..335 literalExpr string
+342..346 literalExpr string
+350..361 callExpr
+350..351 nameExpr
+358..360 literalExpr string
+304..364 callExpr
+369..409 exprStmt
+369..409 callExpr
+375..408 interpolatedExpr
+378..406 binaryExpr coalesce right 404..406
+378..400 callExpr
+378..386 literalExpr string
+396..399 literalExpr string
+404..406 unaryExpr negate operand 405..406
+369..409 callExpr

@@ -1,0 +1,45 @@
+1:3 Identifier `café`
+1:8 Equals `=`
+1:10 IntegerLiteral `2`
+2:1 FloatLiteral `3.14`
+2:6 FloatLiteral `1e5`
+2:10 FloatLiteral `2.5e-3`
+2:17 FloatLiteral `6E+2`
+2:22 FloatLiteral `1.50`
+2:26 NumericSuffix `dec`
+2:30 LetKeyword `let`
+2:34 Identifier `a`
+2:36 Equals `=`
+2:40 IntegerLiteral `1`
+3:1 Identifier `b`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 Identifier `a`
+4:7 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��  café = 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��  café = 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �3.14 1e5 2.5e-3 6E+2 1.50dec let a = $ 1
+    │ ^
+
+error BYN0002: unexpected character `$`
+
+  2 │ �3.14 1e5 2.5e-3 6E+2 1.50dec let a = $ 1
+    │                                       ^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{a 
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

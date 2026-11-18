@@ -1,0 +1,12 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{`
+1:5 InterpolatedStringEnd `"`
+1:6 StringLiteral `"text"`
+1:13 StringLiteral `"esc \"q\" \\ \n� "`
+1:32 StringLiteral `""`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ $"{{""text" "esc \"q\" \\ \n� """
+    │                             ^

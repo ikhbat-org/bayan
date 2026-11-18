@@ -1,0 +1,39 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:9 Equals `=`
+1:11 Star `*`
+1:12 IntegerLiteral `2`
+4:3 Identifier `w`
+4:5 Equals `=`
+4:7 IntegerLiteral `3`
+5:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ ��w = 3
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  4 │ ��w = 3
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ � 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ � 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ � 
+    │  ^

@@ -1,0 +1,13 @@
+1:1 Identifier `atio`
+1:6 AttributeKeyword `attribute`
+2:1 ErrorKeyword `error`
+2:7 Identifier `s`
+2:8 Identifier `et`
+2:11 Identifier `uni`
+2:16 Identifier `dist1__`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ error s�et uni	 dist1__
+    │        ^

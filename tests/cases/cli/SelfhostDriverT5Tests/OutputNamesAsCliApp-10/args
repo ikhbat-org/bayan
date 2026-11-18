@@ -1,0 +1,5 @@
+build
+--mode
+safe
+--verbose
+arithmetic.byn

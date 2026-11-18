@@ -1,0 +1,3 @@
+build
+--emit-c
+interface-bare-fails-member.byn

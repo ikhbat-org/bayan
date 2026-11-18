@@ -1,0 +1,124 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+3:1 OpenBrace `{`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 Identifier `x`
+3:6 InterpolationEnd `}`
+3:7 InterpolatedStringEnd `"`
+3:8 CloseBrace `}`
+3:9 StringLiteral `"}"`
+3:12 InterpolationEnd `}`
+3:13 InterpolatedStringEnd `"`
+3:14 InterpolationEnd `}`
+3:15 InterpolatedStringEnd `"`
+3:16 InterpolationEnd `}`
+3:17 InterpolatedStringEnd `"`
+3:18 InterpolationEnd `}`
+3:19 InterpolatedStringEnd `"`
+3:20 InterpolationEnd `}`
+3:21 InterpolatedStringEnd `"`
+3:22 InterpolationEnd `}`
+3:23 InterpolatedStringEnd `"`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 InterpolatedStringStart `$"`
+3:51 InterpolationStart `{`
+3:52 InterpolatedStringStart `$"`
+3:54 InterpolationStart `{`
+3:55 StringLiteral `$"{$"`
+3:60 OpenBrace `{`
+3:61 StringLiteral `$"{$"`
+3:66 OpenBrace `{`
+3:67 StringLiteral `$"{x}"`
+3:73 CloseBrace `}`
+3:74 StringLiteral `"}"`
+3:77 CloseBrace `}`
+3:78 StringLiteral `"}"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+5:1 LetKeyword `let`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:11 IntegerLiteral `1`
+5:13 Identifier `D8`
+6:1 Identifier `ent`
+8:15 Identifier `a`
+    doc `/// Doc line one.\r`
+10:4 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  3 │ {$"{x}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │                                                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ {$"{x}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │                                                       ^^
+
+error BYN0002: unexpected character `$`
+
+  5 │ let a = $ 1 D8
+    │         ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  7 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 7 │ // block
+    │   │  +++++++
+    │ 8 │ // comment
+    │   │ ++++++++++
+    │ 9 │  a

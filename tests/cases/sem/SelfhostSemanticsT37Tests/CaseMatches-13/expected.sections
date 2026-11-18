@@ -1,0 +1,6 @@
+== types.union
+type sl true true true
+type mk false false false
+type tk false true false
+type ce false true false
+counts 0 0 0

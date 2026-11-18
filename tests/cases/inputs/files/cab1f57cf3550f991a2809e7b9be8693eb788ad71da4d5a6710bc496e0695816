@@ -1,0 +1,16 @@
+union error E {
+    bad
+}
+
+i64 p() fails E => 1
+
+i64 d(i64 x = p() catch switch { _ => return 2 }) => x
+
+i64 e(i64 x = p() catch switch { _ => fail E.bad }) fails E => x
+
+i64 g() fails E => try e()
+
+void main() {
+    let a = d()
+    print($"{a}")
+}

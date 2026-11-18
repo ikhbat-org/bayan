@@ -1,0 +1,31 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_xt`
+1:13 Identifier `camlCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+2:1 IntegerLiteral `5`
+2:2 NumericSuffix `struct`
+2:9 Identifier `S`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �
+    │   │ -

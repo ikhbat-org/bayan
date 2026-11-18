@@ -1,0 +1,13 @@
+type distinct CustomerId = i64
+type distinct Sku        = string requires it.length <= 16
+
+effect db = net, fs
+
+union error QuoteError {
+    noTaxRegion
+    discontinued(Sku sku)
+}
+
+public Money quote(Cart cart, for Customer customer) {
+    return cart.total
+}

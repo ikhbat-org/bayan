@@ -1,0 +1,89 @@
+1:1 Identifier `_000`
+1:7 Identifier `xFF`
+1:11 IntegerLiteral `0x_ff`
+1:17 IntegerLiteral `0b10`
+1:22 IntegerLiteral `0`
+1:24 IntegerLiteral `0B11`
+1:29 IntegerLiteral `5`
+1:30 NumericSuffix `s`
+1:32 IntegerLiteral `250`
+1:35 NumericSuffix `ms`
+1:38 IntegerLiteral `4`
+1:39 NumericSuffix `KiB`
+1:43 IntegerLiteral `1`
+1:44 NumericSuffix `u`
+1:46 IntegerLiteral `0xFF`
+1:50 NumericSuffix `u`
+1:52 IntegerLiteral `0b1`
+1:55 NumericSuffix `let`
+1:59 Identifier `c`
+1:61 Equals `=`
+1:65 IntegerLiteral `3`
+2:1 StringLiteral `"a\u{2067}b"`
+2:7 FailsKeyword `fails`
+2:13 TryKeyword `try`
+2:17 CatchKeyword `catch`
+2:23 NeverKeyword `never`
+2:29 NoallocKeyword `noalloc`
+2:37 NosuspendKeyword `nosuspend`
+2:47 SuspendsKeyword `suspends`
+2:56 AsyncKeyword `async`
+2:62 AwaitKeyword `await`
+3:2 Identifier `here`
+3:6 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+6:3 Identifier `raw`
+6:7 StringLiteral `"quoted"`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  1 │ _000 �xFF 0x_ff 0b10�0 0B11 5s 250ms 4KiB 1u 0xFFu 0b1let c = � 3
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC8)
+
+  1 │ _000 �xFF 0x_ff 0b10�0 0B11 5s 250ms 4KiB 1u 0xFFu 0b1let c = � 3
+    │                     ^
+
+error BYN0011: unit suffix `let` is not allowed on a binary literal
+
+  1 │ _000 �xFF 0x_ff 0b10�0 0B11 5s 250ms 4KiB 1u 0xFFu 0b1let c = � 3
+    │                                                       ^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ _000 �xFF 0x_ff 0b10�0 0B11 5s 250ms 4KiB 1u 0xFFu 0b1let c = � 3
+    │                                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB0)
+
+  2 │ "a�b" fails try catch never noalloc nosuspend suspends async �await
+    │                                                              ^
+
+error BYN0003: unterminated string literal
+
+  3 │  here"
+    │      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,99 @@
+2:3 Comma `,`
+2:5 Dot `.`
+2:7 DotDot `..`
+2:10 DotDotEquals `..=`
+2:14 Colon `:`
+2:16 Question `?`
+2:18 QuestionQuestion `??`
+2:21 QuestionQuestionEquals `??=`
+2:25 QuestionDot `?.`
+2:28 FatArrow `=>`
+2:31 Arrow `->`
+2:34 At `@`
+2:36 Hash `#`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `stray } here`
+4:15 InterpolatedStringEnd `"`
+6:1 IfKeyword `if`
+6:4 ElseKeyword `else`
+6:9 UnlessKeyword `unless`
+6:16 SwitchKeyword `switch`
+6:23 CaseKeyword `case`
+6:28 DefaultKeyword `default`
+6:36 ForKeyword `for`
+6:40 InKeyword `in`
+6:43 WhileKeyword `while`
+6:49 DoKeyword `do`
+6:52 BreakKeyword `break`
+6:58 Identifier `ontinue`
+6:66 ReturnKeyword `return`
+6:73 YieldKeyword `yield`
+6:79 DeferKeyword `defer`
+6:85 ErrdeferKeyword `errdefer`
+6:94 UsingKeyword `using`
+6:100 ContextKeyword `context`
+7:1 Identifier `n`
+8:1 LetKeyword `let`
+8:5 Identifier `x`
+8:8 Equals `=`
+8:9 IntegerLiteral `1`
+9:2 LetKeyword `let`
+9:6 Identifier `b`
+9:8 Equals `=`
+9:10 StringLiteral `"bad \q escape"`
+10:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ ���� , . .. ..= : ? ?? ??= ?. => -> @ #
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ ���� , . .. ..= : ? ?? ??= ?. => -> @ #
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���� , . .. ..= : ? ?? ??= ?. => -> @ #
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���� , . .. ..= : ? ?? ??= ?. => -> @ #
+    │    ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"stray } here"
+    │         ^
+    │
+    │ 4 │ $"stray }} here"
+    │   │          +
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  8 │ let x� =1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ let x� =1
+    │   │      -
+
+error BYN0006: invalid escape sequence `\q`
+
+  9 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

@@ -1,0 +1,4 @@
+== member.probes.-.v12
+errorExpr|?|-|-|-|-|-|2787:8|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2230 143:20 `add` is now `append` |the old name|rename it `append`|fix 2792..2795 append

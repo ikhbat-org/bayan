@@ -1,0 +1,19 @@
+1:1 Identifier `wide`
+1:5 StringLiteral `" "`
+1:10 Identifier `allowe`
+1:18 Identifier `comment`
+1:26 Star `*`
+1:27 Slash `/`
+1:29 Identifier `a`
+    doc `/// Doc line one.\n///`
+4:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ wide" "� allowe  comment */ a
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ wide" "� allowe  comment */ a
+    │   │        -

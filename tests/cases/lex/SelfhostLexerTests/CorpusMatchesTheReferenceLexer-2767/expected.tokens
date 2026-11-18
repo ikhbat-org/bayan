@@ -1,0 +1,10 @@
+    doc `/// not a doc comment\r`
+2:1 TestKeyword `test`
+2:6 AssertKeyword `assert`
+2:13 PropertyKeyword `property`
+2:22 FuzzKeyword `fuzz`
+2:27 ModelKeyword `model`
+2:33 Identifier `foeach`
+2:40 NewKeyword `new`
+2:44 GotoKeyword `goto`
+4:1 EndOfFile

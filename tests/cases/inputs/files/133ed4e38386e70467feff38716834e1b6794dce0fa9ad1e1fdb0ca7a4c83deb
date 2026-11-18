@@ -1,0 +1,3 @@
+bool hidden(i64 c) {
+    return c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C || (c >= 0x202A && c <= 0x202E)
+}

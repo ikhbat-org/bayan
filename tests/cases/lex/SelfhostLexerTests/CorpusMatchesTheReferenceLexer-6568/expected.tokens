@@ -1,0 +1,24 @@
+1:3 Identifier `co`
+    doc `/// Doc line one\r`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""never closed\r\n/ Doc line one.\r\n/// Doc line two.\r\nstruct S\r\n///\r\n`
+8:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  1 │ � co
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � co
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

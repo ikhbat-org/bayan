@@ -1,0 +1,91 @@
+1:1 CloseBrace `}`
+2:1 IntegerLiteral `1`
+2:2 NumericSuffix `e`
+3:1 Identifier `x́́`
+4:1 IntegerLiteral `0x`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolatedStringText `p$`
+5:26 InterpolatedStringEnd `"`
+5:27 OpenBrace `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:38 OpenBrace `{`
+5:39 InterpolatedStringStart `$"`
+5:41 InterpolatedStringText `�$`
+5:43 InterpolatedStringEnd `"`
+5:44 OpenBrace `{`
+5:45 InterpolatedStringStart `$"`
+5:47 InterpolationStart `{`
+5:48 InterpolatedStringStart `$"`
+5:50 InterpolationStart `{`
+5:51 Identifier `x`
+5:52 InterpolationEnd `}`
+5:53 InterpolatedStringEnd `"`
+5:54 InterpolationEnd `}`
+5:55 InterpolatedStringEnd `"`
+5:56 CloseBrace `}`
+5:57 StringLiteral `"}"`
+5:60 CloseBrace `}`
+5:61 StringLiteral `"}"`
+5:64 InterpolationEnd `}`
+5:65 InterpolatedStringEnd `"`
+5:66 InterpolationEnd `}`
+5:67 InterpolatedStringEnd `"`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringEnd `"`
+5:70 CloseBrace `}`
+5:71 StringLiteral `"}"`
+5:74 InterpolationEnd `}`
+5:75 InterpolatedStringEnd `"`
+6:1 IntegerLiteral `0b__`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ x́́ �
+    │     ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"p$"{$"{$"{$"{${$"�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"
+    │                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"p$"{$"{$"{$"{${$"�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"p$"{$"{$"{$"{${$"�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  6 │ 0b__
+    │ ^^^^

@@ -1,0 +1,24 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:2 Identifier `b`
+3:2 CharLiteral `'a'`
+3:6 CharLiteral `'\n'`
+3:11 CharLiteral `'\u{1F600}'`
+3:23 CharLiteral `'\''`
+3:28 CharLiteral `'é'`
+3:32 CharLiteral `'\\'`
+3:37 CharLiteral `'\0'`
+4:1 StringLiteral `"a\u{2067}b"`
+7:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  4 │ "a�b" /* block
+    │       ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  5 │  let c = �� 3
+    │           ^

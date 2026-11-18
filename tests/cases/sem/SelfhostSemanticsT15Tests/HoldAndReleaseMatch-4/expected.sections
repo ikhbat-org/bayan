@@ -1,0 +1,4 @@
+== hold chain
+bag 1 reported 0
+seed 30 u16
+BYN2219 4:5 d must be a compile-time constant |the generic code needs this of its type arguments||

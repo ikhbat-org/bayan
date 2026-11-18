@@ -1,0 +1,49 @@
+3:2 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:11 IntegerLiteral `2`
+5:1 Identifier `letc`
+5:6 Equals `=`
+5:10 IntegerLiteral `3`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ �
+    │ ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ letc = � 3
+    │        ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ // �x
+    │   │    -

@@ -1,0 +1,101 @@
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolatedStringText `\u{8}`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 StringLiteral `$"{$"`
+1:57 OpenBrace `{`
+1:58 StringLiteral `$"{�}"`
+1:63 CloseBrace `}`
+1:64 StringLiteral `"}"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{�}"}"}"}"}"}"}"}"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{�}"}"}"}"}"}"}"}"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{�}"}"}"}"}"}"}"}"
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{�}"}"}"}"}"}"}"}"
+    │                                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{�}"}"}"}"}"}"}"}"
+    │                                                      ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  1 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{�}"}"}"}"}"}"}"}"
+    │                                                               ^
+
+error BYN0004: unterminated block comment
+
+  2 │ /* $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"'�'open {x";
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ /* $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"'�'open {x";
+    │                                                                           ^ invisible
+    │                                                                             character that
+    │                                                                             reorders how the
+    │                                                                             text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ /* $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"'�'open {x";
+    │   │                                                                           -

@@ -1,0 +1,5 @@
+error BYN2022: `?.` is not supported in v0.1
+  --> <repo>/tests/cases/diag/unsupported.byn:6:9
+
+  6 │ let v = b?.value
+    │         ^^^

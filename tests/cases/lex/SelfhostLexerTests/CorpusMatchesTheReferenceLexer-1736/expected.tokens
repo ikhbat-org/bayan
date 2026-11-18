@@ -1,0 +1,36 @@
+1:1 Identifier `b`
+2:5 Identifier `comment`
+2:13 Star `*`
+2:14 Slash `/`
+2:16 Identifier `a`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+3:12 NumericSuffix `W`
+3:14 IntegerLiteral `0x`
+4:2 IntegerLiteral `1_`
+5:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  3 │ let law �= 3W 0x
+    │         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ let law �= 3W 0x
+    │               ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │  1_
+    │   ^
+    │
+    │ 4 │  1_
+    │   │   -
+
+error BYN0002: unexpected character `‏`
+
+  5 │  ‏ 
+    │  ^

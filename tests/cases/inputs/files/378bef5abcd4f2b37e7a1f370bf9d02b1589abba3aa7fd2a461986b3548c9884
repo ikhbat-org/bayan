@@ -1,0 +1,8 @@
+if else unless switch case default for in while do break continue return yield defer errdefer using context
+
+ a
+/// Doc line one.
+/// Doc line two.
+struct S
+//// "$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"0xvar xs: List<List<i64>>
+

@@ -1,0 +1,6 @@
+void main() {
+    let xs: u8[2] = [1, 2]
+    let u = Untrusted(xs.span)
+    let s = u.trustUnchecked() because "ok"
+    print($"{s.length}")
+}

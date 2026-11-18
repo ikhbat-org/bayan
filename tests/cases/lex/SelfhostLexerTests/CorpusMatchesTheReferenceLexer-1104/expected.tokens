@@ -1,0 +1,17 @@
+1:1 StringLiteral `"{ 'x`
+2:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\r\n "{ // \u{202E}x\r\n\r\n`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{ 'x
+    │ ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

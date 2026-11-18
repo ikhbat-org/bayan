@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"RawStringLiteral","start":0,"end":32,"text":"\"\"\"\n$\"open {x\";\nlet effect = 2\n ","doc":null},{"kind":"EndOfFile","start":32,"end":32,"text":"","doc":null}],"diagnostics":[{"code":"BYN0003","severity":"error","start":0,"end":3,"message":"unterminated string literal","label":"raw string starts here","help":"close it with `\"\"\"`","fixes":[]}]}

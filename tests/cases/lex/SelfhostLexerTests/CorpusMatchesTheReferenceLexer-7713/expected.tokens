@@ -1,0 +1,67 @@
+1:1 IntegerLiteral `3`
+2:1 Identifier `et`
+2:4 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `1`
+2:13 Semicolon `;`
+3:1 LetKeyword `let`
+3:5 Identifier `ca`
+3:7 Identifier `fé`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+5:2 DerivationKeyword `derivation`
+5:13 AttributeKeyword `attribute`
+6:1 Identifier `erro`
+6:6 Identifier `r`
+6:8 SetKeyword `set`
+6:12 UnitKeyword `unit`
+6:17 DistinctKeyword `distinct`
+6:26 TypeKeyword `type`
+6:31 Identifier `imporlet`
+6:40 Identifier `café`
+6:46 Equals `=`
+6:48 IntegerLiteral `1`
+8:1 Identifier `Å`
+8:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  2 │ �et café = 1;
+    │ ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  2 │ �et café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ �et café = 1;
+    │   │        +
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  3 │ let ca�fé = 2
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFB)
+
+  6 │ erro�r set unit distinct type imporlet café = 1
+    │     ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  6 │ erro�r set unit distinct type imporlet café = 1
+    │                                        ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ erro�r set unit distinct type imporlet café = 1
+    │   │                                           +
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  8 │ Å 
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ Å 
+    │   │ +

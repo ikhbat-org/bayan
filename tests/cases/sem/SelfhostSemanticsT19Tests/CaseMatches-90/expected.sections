@@ -1,0 +1,4 @@
+== bind.probes.s6
+flags 0
+errorExpr:?[4299:14]=-()
+BYN2114 217:14 `Color` is not a struct |||

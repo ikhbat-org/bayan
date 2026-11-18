@@ -1,0 +1,83 @@
+1:1 CharLiteral `''`
+    doc `/// Doc line two.�struct S`
+3:4 Identifier `comment`
+3:12 Star `*`
+3:13 Slash `/`
+3:15 Identifier `a`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 Identifier `x`
+4:47 InterpolationEnd `}`
+4:48 InterpolatedStringEnd `"`
+4:49 InterpolationEnd `}`
+4:50 InterpolatedStringEnd `"`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:59 InterpolationEnd `}`
+4:60 InterpolatedStringText `}`
+4:61 InterpolatedStringEnd `"`
+4:62 InterpolationEnd `}`
+4:63 InterpolatedStringEnd `"`
+    doc `/// Doc line one.`
+7:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD3)
+
+  2 │  /// Doc line two.�struct S
+    │                   ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}}"}"
+    │                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}}"}"
+    │                                                            ^
+    │
+    │ 4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}}}"}"
+    │   │                                                             +

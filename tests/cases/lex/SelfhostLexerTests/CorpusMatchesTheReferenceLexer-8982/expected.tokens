@@ -1,0 +1,24 @@
+1:1 IntegerLiteral `1__`
+2:2 IntegerLiteral `0b__`
+4:1 Identifier `a`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │  0b__
+    │  ^^^^
+
+error BYN0004: unterminated block comment
+
+  4 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

@@ -1,0 +1,4 @@
+void main() {
+    let n: i32 = "éé"
+    print($"{n}")
+}

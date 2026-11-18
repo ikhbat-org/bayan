@@ -1,0 +1,11 @@
+void f(ReadOnlySpan<string> parts) {
+    defer panicking {
+        let d = Path.directoryName("/a/b") ?? ""
+        print(d)
+    }
+}
+
+void main() {
+    let parts = List<string>()
+    f(parts.span)
+}

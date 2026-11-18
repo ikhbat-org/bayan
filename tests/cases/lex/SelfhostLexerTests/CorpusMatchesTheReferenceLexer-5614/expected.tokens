@@ -1,0 +1,73 @@
+1:1 Identifier `b`
+3:1 CharLiteral `'ab'`
+    doc `/// Doc line two.`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 StringLiteral `$"{$"`
+7:54 OpenBrace `{`
+7:55 StringLiteral `$"{$"`
+7:60 OpenBrace `{`
+7:61 Identifier `x`
+7:62 CloseBrace `}`
+7:63 StringLiteral `"}"`
+7:66 CloseBrace `}`
+7:67 StringLiteral `"}"`
+7:70 InterpolationEnd `}`
+7:71 InterpolatedStringEnd `"`
+7:72 InterpolationEnd `}`
+7:73 InterpolatedStringEnd `"`
+7:74 InterpolationEnd `}`
+7:75 InterpolatedStringEnd `"`
+8:1 StringLiteral `"open {x"`
+8:10 Semicolon `;`
+9:2 Identifier `l`
+10:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                                                 ^^

@@ -1,0 +1,55 @@
+error BYN2822: a function type is not supported as a property yet
+  --> <repo>/tests/cases/diag/function-type-placement-declarations.byn:7:5
+
+  7 │     Pred p => isBig
+    │     ^^^^
+    │
+  help: take the function as a parameter instead
+
+error BYN2019: `isBig` is a function, not a value
+  --> <repo>/tests/cases/diag/function-type-placement-declarations.byn:7:15
+
+  7 │     Pred p => isBig
+    │               ^^^^^
+    │
+  help: call it: `isBig(…)`
+
+error BYN2822: a function type is not supported as an error payload yet
+  --> <repo>/tests/cases/diag/function-type-placement-declarations.byn:11:9
+
+  11 │     bad(Pred p)
+     │         ^^^^
+     │
+  help: take the function as a parameter instead
+
+error BYN2822: a function type is not supported as a union payload yet
+  --> <repo>/tests/cases/diag/function-type-placement-declarations.byn:15:12
+
+  15 │     circle(Pred p)
+     │            ^^^^
+     │
+  help: take the function as a parameter instead
+
+error BYN2822: a function type is not supported as a constant yet
+  --> <repo>/tests/cases/diag/function-type-placement-declarations.byn:19:10
+
+  19 │ const k: Pred = isBig
+     │          ^^^^
+     │
+  help: take the function as a parameter instead
+
+error BYN2019: `isBig` is a function, not a value
+  --> <repo>/tests/cases/diag/function-type-placement-declarations.byn:19:17
+
+  19 │ const k: Pred = isBig
+     │                 ^^^^^
+     │
+  help: call it: `isBig(…)`
+
+error BYN2822: a function type is not supported as the value of an optional yet
+  --> <repo>/tests/cases/diag/function-type-placement-declarations.byn:26:19
+
+  26 │ bool f(Pred p) => h(p)
+     │                   ^^^^ the generic code needs this of its type arguments
+     │
+  help: take the function as a parameter instead

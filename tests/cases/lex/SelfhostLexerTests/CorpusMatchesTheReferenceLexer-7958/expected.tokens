@@ -1,0 +1,26 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+2:2 OpenBrace `{`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolatedStringText `x`
+2:6 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+3:1 Identifier `é`
+3:3 Equals `=`
+3:5 IntegerLiteral `2`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  {$"x{ $"{ 
+    │        ^^ this string never ends
+    │
+  help: close the `{` and the string

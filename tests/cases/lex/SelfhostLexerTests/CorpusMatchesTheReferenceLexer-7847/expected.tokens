@@ -1,0 +1,74 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:4 Identifier `Å`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 StructKeyword `struct`
+3:8 Identifier `uniqe`
+3:14 UnionKeyword `union`
+3:20 EnumKeyword `enum`
+3:25 FlagsKeyword `flags`
+3:31 OpenKeyword `open`
+3:36 ExtensibleKeyword `extensible`
+3:47 InterfaceKeyword `interface`
+3:57 DelegateKeyword `delegate`
+3:66 Identifier `extens`
+3:72 Identifier `ion`
+3:76 DerivationKeyword `derivation`
+3:87 AttributeKeyword `attribute`
+4:1 IntegerLiteral `0`
+4:3 IntegerLiteral `42`
+4:6 IntegerLiteral `1_000_000`
+4:16 IntegerLiteral `0xFF`
+4:21 IntegerLiteral `0x_ff`
+4:27 IntegerLiteral `0b1010`
+4:34 IntegerLiteral `0B11`
+4:39 IntegerLiteral `5`
+4:40 NumericSuffix `s`
+4:42 IntegerLiteral `250`
+4:45 NumericSuffix `ms`
+4:48 IntegerLiteral `4`
+4:49 NumericSuffix `KiB`
+4:54 IntegerLiteral `1`
+4:55 NumericSuffix `u`
+4:57 IntegerLiteral `0xFF`
+4:61 NumericSuffix `u`
+4:63 IntegerLiteral `0b1`
+4:66 NumericSuffix `ul`
+4:69 IntegerLiteral `7`
+4:70 NumericSuffix `l`
+5:1 Star `*`
+5:2 Slash `/`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:9 RawStringLiteral `"""never closed\n\n`
+8:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ */ Å
+    │    ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ */ Å
+    │   │    +
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  3 │ struct uniqe union enum flags open extensible interface delegate extens�ion derivation attribute
+    │                                                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEB)
+
+  4 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB� 1u 0xFFu 0b1ul 7l
+    │                                                    ^
+
+error BYN0003: unterminated string literal
+
+  6 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,4 @@
+== diags.diag/unique-move-in-branch
+BYN2781 13:14 `a` is used after it was moved
+  label moved on line 9
+  help assign `a` a new value before using it again, or move a `.copy(to: alloc)` of it instead

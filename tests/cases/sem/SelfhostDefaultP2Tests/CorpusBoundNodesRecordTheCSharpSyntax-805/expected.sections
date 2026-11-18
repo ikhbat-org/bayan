@@ -1,0 +1,2 @@
+== tests/cases/diag/required-with-default.byn
+38..40 literalExpr integer

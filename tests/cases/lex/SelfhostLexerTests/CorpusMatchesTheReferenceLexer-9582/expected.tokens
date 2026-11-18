@@ -1,0 +1,14 @@
+2:2 StructKeyword `struct`
+2:9 Identifier `S`
+4:3 Identifier `raw`
+4:7 StringLiteral `"quoted"`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:10 Equals `=`
+5:12 IntegerLiteral `2`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  4 │   raw �"quoted"
+    │       ^

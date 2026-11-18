@@ -1,0 +1,5 @@
+'ab'
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+ "tet" "esc \"q\" \\ \n" """
+

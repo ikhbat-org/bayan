@@ -1,0 +1,7 @@
+== path capability
+module std.probe <std>/probe std_probe
+file <std>/probe/probe.byn
+module main tmp/std-cases/capability main
+file tmp/std-cases/capability/main.byn
+import probe std.probe
+diag BYN6004 <std>/probe/probe.byn 9:31 `save` uses `fs`, which package `local/p` does not declare in `capabilities` | uses `fs` | add `.fs` to `capabilities`, or remove the use

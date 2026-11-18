@@ -1,0 +1,27 @@
+1:2 LetKeyword `let`
+1:6 Identifier `a`
+1:8 Equals `=`
+1:10 StringLiteral `"o�en`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  1 │ �let� a = "o�en
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  1 │ �let� a = "o�en
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �let� a = "o�en
+    │           ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC8)
+
+  1 │ �let� a = "o�en
+    │             ^

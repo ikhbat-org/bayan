@@ -1,0 +1,67 @@
+1:2 Identifier `a`
+1:4 Equals `=`
+1:6 StringLiteral `"oen`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q escape"`
+4:3 CharLiteral `'`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 Identifier `belcome`
+5:23 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │  a = "oen
+    │      ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ � '
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ � '
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ � '
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  4 │ � '
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select belcome� 
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select belcome� 
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\u{15}`
+
+  5 │ macro select belcome� 
+    │                     ^

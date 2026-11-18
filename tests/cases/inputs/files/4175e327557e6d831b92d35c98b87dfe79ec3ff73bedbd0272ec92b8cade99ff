@@ -1,0 +1,24 @@
+public struct Table {
+    public i64 rowCount
+}
+
+// The last word of the type name decides: `CsvParser` is a parser, so it needs a `parse` member.
+public struct CsvParser {
+    public Table read(ref this) => Table { rowCount: 0 }
+}
+
+// A member the module keeps to itself does not count.
+public struct RowBuilder {
+    Table build() => Table { rowCount: 0 }
+}
+
+public interface ITableWriter {
+    void flush(ref this)
+}
+
+// `codec` needs `encode` or `decode`.
+public struct TableCodec {
+    public string name() => "csv"
+}
+
+print("ok")

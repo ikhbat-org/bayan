@@ -1,0 +1,1 @@
+{"code":"BYN2023","severity":"error","file":"input.byn","span":{"start":8,"end":22,"line":1,"column":9,"endLine":1,"endColumn":23},"message":"`List` takes 1 type argument(s), not 2","label":null,"help":null,"fixes":[]}

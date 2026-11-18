@@ -1,0 +1,3 @@
+build
+--emit-c
+generic-ref-known-state.byn

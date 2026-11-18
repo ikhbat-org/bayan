@@ -1,0 +1,16 @@
+1:4 Identifier `coment`
+1:10 Star `*`
+1:11 Slash `/`
+1:12 Identifier `a`
+3:1 LetKeyword `let`
+3:5 Identifier `actor`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+4:1 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

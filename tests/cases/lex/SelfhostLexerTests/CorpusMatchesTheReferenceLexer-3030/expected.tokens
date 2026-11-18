@@ -1,0 +1,53 @@
+1:3 Identifier `Åd`
+1:7 ConstKeyword `const`
+1:13 LetKeyword `let`
+1:17 VarKeyword `var`
+1:21 EmbedKeyword `embed`
+1:27 ExternKeyword `extern`
+1:34 UnsafeKeyword `unsafe`
+2:1 Identifier `ifsed`
+4:1 OpenBrace `{`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open `
+5:8 InterpolationStart `{`
+5:9 Identifier `x`
+5:10 StringLiteral `";`
+7:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ �� Åd const let var embed extern unsafe
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� Åd const let var embed extern unsafe
+    │  ^
+
+error BYN0005: identifier `Åd` is not in Unicode normalization form C
+
+  1 │ �� Åd const let var embed extern unsafe
+    │    ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ �� Åd const let var embed extern unsafe
+    │   │    +
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ � 
+    │ ^

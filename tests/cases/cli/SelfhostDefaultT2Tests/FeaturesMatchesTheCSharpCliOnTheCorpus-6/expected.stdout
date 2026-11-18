@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssertStmt",
+    "BinaryExpr",
+    "FieldDecl",
+    "GlobalStatement",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "StructDecl",
+    "StructLiteralExpr"
+  ],
+  "builtins": [],
+  "diagnostics": []
+}

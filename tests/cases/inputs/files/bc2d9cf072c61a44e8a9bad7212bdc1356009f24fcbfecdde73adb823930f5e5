@@ -1,0 +1,8 @@
+a = "open
+let b = "bad \q escape"
+let c = """never clsed
+í €
+0xF__
+ var xs: List<Lst<i64>>
+a /* never closed
+

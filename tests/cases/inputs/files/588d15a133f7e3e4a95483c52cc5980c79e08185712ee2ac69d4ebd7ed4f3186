@@ -1,0 +1,6 @@
+/// Doc line two.
+	$"{a//// not a doc comment
+
+0b102
+ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+

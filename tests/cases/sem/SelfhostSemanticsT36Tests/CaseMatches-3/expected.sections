@@ -1,0 +1,44 @@
+== x-return
+BYN1056 12:12 `return .empty` returns an error; write `fail .empty` |this leaves with an error|leave with the error: `fail .empty`|fix 143..149 fail
+BYN1056 13:12 `return .tooLong` returns an error; write `fail .tooLong` |this leaves with an error|leave with the error: `fail .tooLong`|fix 170..176 fail
+BYN2402 23:5 this function returns `i64`; `return` needs a value |||
+BYN2403 28:12 `v` returns nothing, but `return` has a value ||declare a return type instead of `void`, or remove the value|
+BYN2403 32:12 `main` returns nothing, but `return` has a value ||declare a return type instead of `void`, or remove the value|
+fn classify
+block 256..304
+  ifStmt 262..284
+    local 265..266 : bool
+    block 267..284
+      failStmt 269..273
+        errorVariant 274..282 : ParseError
+  returnStmt 289..302
+    enumMember 296..302 : Outcome
+fn main
+block 409..425
+  returnStmt 415..423
+fn none
+block 317..331
+  returnStmt 323..329
+fn parse
+block 130..212
+  ifStmt 136..158
+    local 139..140 : bool
+    block 141..158
+      failStmt 143..156
+        errorVariant 150..156 : ParseError
+  ifStmt 163..197
+    local 166..167 : bool
+    block 168..197
+      failStmt 170..195
+        errorVariant 177..195 : ParseError
+  returnStmt 202..210
+    literal 209..210 : i64
+fn v
+block 348..395
+  ifStmt 354..380
+    local 357..358 : bool
+    block 359..380
+      exprStmt 361..378
+        call 368..378 : never
+          literal 374..377 : string
+  returnStmt 385..393

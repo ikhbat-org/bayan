@@ -1,0 +1,17 @@
+1:2 Identifier `ab`
+1:4 CharLiteral `'`
+2:1 Question `?`
+2:2 Star `*`
+2:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �ab'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  1 │ �ab'
+    │    ^
+    │
+  help: close it with `'`

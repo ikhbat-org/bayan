@@ -1,0 +1,9 @@
+warning BYN2311: `b` is never reassigned; declare it with `let`
+  --> <repo>/tmp/t5/run/run_pending-peers-q74/pending-peers-q74.byn:2:5
+
+  2 │ var b = 0
+    │     ^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 2 │ let b = 0
+    │   │ +++

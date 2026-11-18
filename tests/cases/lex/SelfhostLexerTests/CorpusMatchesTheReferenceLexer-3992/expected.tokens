@@ -1,0 +1,90 @@
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `I$`
+4:5 InterpolatedStringEnd `"`
+4:6 OpenBrace `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 StringLiteral `"{$"`
+4:23 OpenBrace `{`
+4:24 InterpolatedStringStart `$"`
+4:26 InterpolationStart `{`
+4:27 InterpolatedStringStart `$"`
+4:29 InterpolationStart `{`
+4:30 InterpolatedStringStart `$"`
+4:32 InterpolationStart `{`
+4:33 InterpolatedStringStart `$"`
+4:35 InterpolationStart `{`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolationStart `{`
+4:39 InterpolatedStringStart `$"`
+4:41 InterpolatedStringText `$`
+4:42 InterpolatedStringEnd `"`
+4:43 OpenBrace `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 Identifier `x`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+7:3 Equals `=`
+7:7 IntegerLiteral `2`
+8:1 LetKeyword `let`
+8:5 Identifier `c`
+8:7 Equals `=`
+8:11 IntegerLiteral `3`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"I$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"
+    │                                    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  7 │ � = ` 2
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ � = ` 2
+    │   │ -
+
+error BYN0002: unexpected character ```
+
+  7 │ � = ` 2
+    │     ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  8 │ let c = � 3
+    │         ^

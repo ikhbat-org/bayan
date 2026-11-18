@@ -1,0 +1,44 @@
+3:3 Identifier `hidden`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+7:1 RawStringLiteral `"""\nerror set unit distinct type import as public private static readonly required const let var embed extern unsafe\n\n'\u{202E}'\n`
+11:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ � hidden
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � hidden
+    │   │ -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │  // comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │  // comment � hidden
+    │   │             -
+
+error BYN0003: unterminated string literal
+
+  7 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

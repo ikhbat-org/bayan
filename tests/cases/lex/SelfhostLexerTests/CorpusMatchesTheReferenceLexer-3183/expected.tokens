@@ -1,0 +1,37 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+2:2 CharLiteral `''`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:2 StringLiteral `"text"`
+4:9 StringLiteral `"esc \"q\" \\ \n"`
+4:27 RawStringLiteral `"""\n `
+5:2 EndOfFile
+
+error BYN0007: empty char literal
+
+  2 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `♂`
+
+  4 │ ♂"text" "esc \"q\" \\ \n" """
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  4 │ ♂"text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

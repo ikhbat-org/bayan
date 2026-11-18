@@ -1,0 +1,17 @@
+1:1 Identifier `Ze`
+1:4 Identifier `c`
+1:6 Greater `>`
+1:7 GreaterEquals `>=`
+1:10 IntegerLiteral `1`
+2:3 Identifier `x`
+2:4 Dot `.`
+2:5 Identifier `y`
+2:7 FloatLiteral `2.5`
+2:10 NumericSuffix `f`
+4:1 IntegerLiteral `0x_`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^

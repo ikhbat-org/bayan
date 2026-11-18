@@ -1,0 +1,22 @@
+1:1 IntegerLiteral `1_`
+    doc `///    comment */ a`
+4:2 Equals `=`
+4:4 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:10 Equals `=`
+5:12 IntegerLiteral `2`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  4 │ � = 1
+    │ ^

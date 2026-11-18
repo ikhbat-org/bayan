@@ -1,0 +1,36 @@
+1:1 IntegerLiteral `0xF__`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:1 OpenBrace `{`
+4:2 Identifier `oc`
+4:5 Identifier `line`
+4:10 Identifier `one`
+4:13 Dot `.`
+    doc `/// Doc line two.`
+6:1 StructKeyword `struct`
+6:8 Identifier `S`
+8:1 Identifier `mment`
+8:7 Star `*`
+8:8 Slash `/`
+8:10 Identifier `a`
+    doc `/// Doc line one.`
+11:1 IntegerLiteral `0xF__`
+13:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │ 0xF__
+     │    ^^
+     │
+     │ 11 │ 0xF__
+     │    │    --

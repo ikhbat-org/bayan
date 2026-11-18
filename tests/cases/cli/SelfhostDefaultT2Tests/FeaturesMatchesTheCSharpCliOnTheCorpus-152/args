@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/lambda-capture-by-copy.byn
+--package
+<repo>/tests/cases/run

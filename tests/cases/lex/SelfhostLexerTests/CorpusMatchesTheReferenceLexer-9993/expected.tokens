@@ -1,0 +1,55 @@
+1:1 Plus `+`
+1:3 Minus `-`
+1:5 Star `*`
+1:7 Slash `/`
+1:9 Percent `%`
+1:11 PlusPercent `+%`
+1:14 MinusPercent `-%`
+1:17 StarPercent `*%`
+1:20 PlusBar `+|`
+1:23 MinusBar `-|`
+1:26 StarBar `*|`
+1:29 PlusPlus `++`
+1:32 MinusMinus `--`
+2:2 CharLiteral `'a'`
+2:6 CharLiteral `'\n'`
+2:11 CharLiteral `'\u{1F600}'`
+2:23 CharLiteral `'\''`
+2:28 CharLiteral `'é'`
+2:32 CharLiteral `'\\'`
+2:37 CharLiteral `'\0'`
+3:2 TestKeyword `test`
+3:7 AssertKeyword `assert`
+3:15 PropertyKeyword `property`
+3:24 FuzzKeyword `fuzz`
+3:29 ModelKeyword `model`
+3:35 ForeachKeyword `foreach`
+3:43 NewKeyword `new`
+3:47 GotoKeyword `goto`
+4:2 IntegerLiteral `0b__`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEA)
+
+  3 │  test assert� property fuzz model foreach new goto
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ ���0b__
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ ���0b__
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ���0b__
+    │   ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ ���0b__
+    │    ^^^^

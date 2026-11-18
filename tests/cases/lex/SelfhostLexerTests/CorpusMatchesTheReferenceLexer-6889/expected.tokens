@@ -1,0 +1,31 @@
+1:1 Identifier `scape`
+1:6 StringLiteral `"`
+2:1 LetKeyword `let`
+2:6 StringLiteral `"text"`
+2:13 StringLiteral `"esc \"q\" \\ \n"`
+2:31 RawStringLiteral `"""\n\n� {$"{x"}"}"}"�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"\n  raw "quoted"\nmacro select become\n `
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ scape"
+    │      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ let  "text" "esc \"q\" \\ \n" """
+    │                               ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ � {$"{x"}"}"}"�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  4 │ � {$"{x"}"}"}"�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │               ^

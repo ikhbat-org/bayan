@@ -1,0 +1,2 @@
+== diags.diag/millis-bare-literal
+BYN2202 3:21 expected `Millis`, found `i32`

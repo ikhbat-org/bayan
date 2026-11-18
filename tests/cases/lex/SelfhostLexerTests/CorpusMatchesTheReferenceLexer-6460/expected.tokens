@@ -1,0 +1,56 @@
+    doc `/// Doc line two.`
+2:4 IntegerLiteral `1__`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+    doc `/// Doc line two.`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���/// Doc line two.
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���/// Doc line two.
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���/// Doc line two.
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │  ���� 1__
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │  ���� 1__
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���� 1__
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���� 1__
+    │     ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  ���� 1__
+    │        ^^
+    │
+    │ 2 │  ���� 1__
+    │   │        --
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^

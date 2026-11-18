@@ -1,0 +1,560 @@
+import lexer
+import parser
+
+string b(bool v) => v ? "true" : "false"
+
+string sp(TextSpan s) => $"{s.start}:{s.length}"
+
+string fnLine(ref Ctx c, for string label, at FuncId f) {
+    if f < 0 { return $"{label} null" }
+    var sb = StrBuf()
+    let ret = typeDisplay(ref c, by: c.functions[f].returnType)
+    sb.append($"{label} {c.functions[f].name} {c.functions[f].builtin.ordinal} {ret} (")
+    for i in 0..c.functions[f].parameters.length {
+        let l = c.functions[f].parameters[i]
+        let t = typeDisplay(ref c, by: c.locals[l].type)
+        if i > 0 { sb.append(", ") }
+        sb.append($"{c.locals[l].name}: {t}")
+    }
+    sb.append($") fails={b(v: c.functions[f].hasFails)} sets=")
+    for i in 0..c.functions[f].errorSets.length {
+        if i > 0 { sb.append(",") }
+        sb.append(c.errorSets[c.functions[f].errorSets[i]].name)
+    }
+    return $"{sb.finish()}"
+}
+
+void members(ref Ctx c, for string label, at Type t, by in List<string> all) {
+    for n in all {
+        if (builtinProperty(ref c, for: t, by: n) is { } p) {
+            let d = typeDisplay(ref c, by: p.type)
+            print($"{label}.{n} property {p.member.ordinal} {d}")
+        }
+        let found = method(ref c, for: t, by: n)
+        if (found is { } m) {
+            var sb = StrBuf()
+            sb.append($"{label}.{n} method {m.member.ordinal} (")
+            for i in 0..m.parameters.length {
+                let d = typeDisplay(ref c, by: m.parameters[i].type)
+                if i > 0 { sb.append(", ") }
+                sb.append($"{m.parameters[i].name}: {d}")
+            }
+            let r = typeDisplay(ref c, by: m.returns)
+            sb.append($") {r} mutating={b(v: m.mutating)} optional={m.optional}")
+            print(sb.finish())
+        }
+        if hasMethod(ref c, for: t, by: n) { print($"{label}.{n} has") }
+    }
+}
+
+void namesLine(ref Ctx c, for string label, at Type t) {
+    var sb = StrBuf()
+    sb.append($"{label}:")
+    for n in names(ref c, for: t) { sb.append($" {n}") }
+    print(sb.finish())
+}
+
+void enumLine(ref Ctx c, for string name) {
+    let e = typeIndex(t9Type(ref c, for: name))
+    var sb = StrBuf()
+    sb.append($"{c.enums[e].name} {sp(c.enums[e].span)} decl={c.enums[e].declIndex}")
+    for m in c.enums[e].members {
+        sb.append($" {c.enumMembers[m].name}@{sp(c.enumMembers[m].span)}#{c.enumMembers[m].ordinal}")
+    }
+    print(sb.finish())
+}
+
+void errorSetLine(ref Ctx c, for string name) {
+    let e = typeIndex(t9Type(ref c, for: name))
+    let decl = t9Text(ref c, for: c.errorSets[e].file, at: t9DeclName(ref c, for: c.errorSets[e].file, at: 0))
+    print($"{c.errorSets[e].name} {sp(c.errorSets[e].span)} decl={decl}")
+}
+
+i32 main() {
+    var c = Ctx { files: List<SourceFile>(), modules: List<Mod>(), diagnostics: List<Diag>(), bags: List<DiagBag>() }
+    print("== functions")
+    let f0 = find(ref c, for: "print") ?? -1
+    print(fnLine(ref c, for: "find print", at: f0))
+    let f1 = find(ref c, for: "log") ?? -1
+    print(fnLine(ref c, for: "find log", at: f1))
+    let f2 = find(ref c, for: "panic") ?? -1
+    print(fnLine(ref c, for: "find panic", at: f2))
+    let f3 = find(ref c, for: "todo") ?? -1
+    print(fnLine(ref c, for: "find todo", at: f3))
+    let f4 = find(ref c, for: "Owned") ?? -1
+    print(fnLine(ref c, for: "find Owned", at: f4))
+    let f5 = find(ref c, for: "Untrusted") ?? -1
+    print(fnLine(ref c, for: "find Untrusted", at: f5))
+    let f6 = find(ref c, for: "trust") ?? -1
+    print(fnLine(ref c, for: "find trust", at: f6))
+    let f7 = find(ref c, for: "Arena") ?? -1
+    print(fnLine(ref c, for: "find Arena", at: f7))
+    let f8 = find(ref c, for: "nope") ?? -1
+    print(fnLine(ref c, for: "find nope", at: f8))
+    let f9 = findIo(ref c, for: "readFile")
+    print(fnLine(ref c, for: "io readFile", at: f9))
+    let f10 = findIo(ref c, for: "readText")
+    print(fnLine(ref c, for: "io readText", at: f10))
+    let f11 = findIo(ref c, for: "writeFile")
+    print(fnLine(ref c, for: "io writeFile", at: f11))
+    let f12 = findIo(ref c, for: "remove")
+    print(fnLine(ref c, for: "io remove", at: f12))
+    let f13 = findIo(ref c, for: "createDirectory")
+    print(fnLine(ref c, for: "io createDirectory", at: f13))
+    let f14 = findIo(ref c, for: "removeDirectory")
+    print(fnLine(ref c, for: "io removeDirectory", at: f14))
+    let f15 = findIo(ref c, for: "listDir")
+    print(fnLine(ref c, for: "io listDir", at: f15))
+    let f16 = findIo(ref c, for: "run")
+    print(fnLine(ref c, for: "io run", at: f16))
+    let f17 = findIo(ref c, for: "runBatch")
+    print(fnLine(ref c, for: "io runBatch", at: f17))
+    let f18 = findIo(ref c, for: "monotonicNanos")
+    print(fnLine(ref c, for: "io monotonicNanos", at: f18))
+    let f19 = findIo(ref c, for: "stdout")
+    print(fnLine(ref c, for: "io stdout", at: f19))
+    let f20 = findIo(ref c, for: "stderr")
+    print(fnLine(ref c, for: "io stderr", at: f20))
+    let f21 = findIo(ref c, for: "stdin")
+    print(fnLine(ref c, for: "io stdin", at: f21))
+    let f22 = findIo(ref c, for: "print")
+    print(fnLine(ref c, for: "io print", at: f22))
+    let f23 = findString(ref c, for: "invalidUtf8At")
+    print(fnLine(ref c, for: "string invalidUtf8At", at: f23))
+    let f24 = findString(ref c, for: "decode")
+    print(fnLine(ref c, for: "string decode", at: f24))
+    let f25 = findUtf8(ref c, for: "decode")
+    print(fnLine(ref c, for: "utf8 decode", at: f25))
+    let f26 = findUtf8(ref c, for: "tryDecode")
+    print(fnLine(ref c, for: "utf8 tryDecode", at: f26))
+    let f27 = findUtf8(ref c, for: "encode")
+    print(fnLine(ref c, for: "utf8 encode", at: f27))
+    let f28 = intParse(ref c, for: .i32)
+    print(fnLine(ref c, for: "parse i32", at: f28))
+    let f29 = intParse(ref c, for: .u8)
+    print(fnLine(ref c, for: "parse u8", at: f29))
+    let f30 = t9Function(ref c, for: "Arena")
+    print(fnLine(ref c, for: "Arena", at: f30))
+    let f31 = t9Function(ref c, for: "StrBuf(buffer)")
+    print(fnLine(ref c, for: "StrBuf(buffer)", at: f31))
+    let f32 = t9Function(ref c, for: "StrBuf")
+    print(fnLine(ref c, for: "StrBuf", at: f32))
+    let f33 = t9Function(ref c, for: "StrBuf.over")
+    print(fnLine(ref c, for: "StrBuf.over", at: f33))
+    let f34 = t9Function(ref c, for: "Utf8.decode(invalid)")
+    print(fnLine(ref c, for: "Utf8.decode(invalid)", at: f34))
+    let f35 = t9Function(ref c, for: "Hex.encode")
+    print(fnLine(ref c, for: "Hex.encode", at: f35))
+    let f36 = t9Function(ref c, for: "Hex.decode")
+    print(fnLine(ref c, for: "Hex.decode", at: f36))
+    let f37 = findPath(ref c, for: "isRooted")
+    print(fnLine(ref c, for: "path isRooted", at: f37))
+    let f38 = findPath(ref c, for: "relative")
+    print(fnLine(ref c, for: "path relative", at: f38))
+    let f39 = findPath(ref c, for: "fileName")
+    print(fnLine(ref c, for: "path fileName", at: f39))
+    let f40 = findPath(ref c, for: "directoryName")
+    print(fnLine(ref c, for: "path directoryName", at: f40))
+    let f41 = findPath(ref c, for: "combine")
+    print(fnLine(ref c, for: "path combine", at: f41))
+    let f42 = findPath(ref c, for: "fullPath")
+    print(fnLine(ref c, for: "path fullPath", at: f42))
+    let f43 = t9Function(ref c, for: "Path.combine(paths)")
+    print(fnLine(ref c, for: "Path.combine(paths)", at: f43))
+    let f44 = t9Function(ref c, for: "Symbol.intern")
+    print(fnLine(ref c, for: "Symbol.intern", at: f44))
+    let f45 = findEnv(ref c, for: "get")
+    print(fnLine(ref c, for: "env get", at: f45))
+    let f46 = findEnv(ref c, for: "nope")
+    print(fnLine(ref c, for: "env nope", at: f46))
+    let f47 = findFs(ref c, for: "fileExists")
+    print(fnLine(ref c, for: "fs fileExists", at: f47))
+    let f48 = findFs(ref c, for: "nope")
+    print(fnLine(ref c, for: "fs nope", at: f48))
+    let f49 = t9Function(ref c, for: "Env.get")
+    print(fnLine(ref c, for: "Env.get", at: f49))
+    let f50 = t9Function(ref c, for: "Fs.fileExists")
+    print(fnLine(ref c, for: "Fs.fileExists", at: f50))
+    let f51 = findFs(ref c, for: "rename")
+    print(fnLine(ref c, for: "fs rename", at: f51))
+    let f52 = findFs(ref c, for: "copy")
+    print(fnLine(ref c, for: "fs copy", at: f52))
+    let f53 = findFs(ref c, for: "modified")
+    print(fnLine(ref c, for: "fs modified", at: f53))
+    let f54 = findFs(ref c, for: "setModified")
+    print(fnLine(ref c, for: "fs setModified", at: f54))
+    let f55 = findFs(ref c, for: "realPath")
+    print(fnLine(ref c, for: "fs realPath", at: f55))
+    let f56 = findTime(ref c, for: "now")
+    print(fnLine(ref c, for: "time now", at: f56))
+    let f57 = findTime(ref c, for: "fromNanos")
+    print(fnLine(ref c, for: "time fromNanos", at: f57))
+    let f58 = findTime(ref c, for: "nope")
+    print(fnLine(ref c, for: "time nope", at: f58))
+    let f59 = t9Function(ref c, for: "Fs.rename")
+    print(fnLine(ref c, for: "Fs.rename", at: f59))
+    let f60 = t9Function(ref c, for: "Fs.copy")
+    print(fnLine(ref c, for: "Fs.copy", at: f60))
+    let f61 = t9Function(ref c, for: "Fs.modified")
+    print(fnLine(ref c, for: "Fs.modified", at: f61))
+    let f62 = t9Function(ref c, for: "Fs.setModified")
+    print(fnLine(ref c, for: "Fs.setModified", at: f62))
+    let f63 = t9Function(ref c, for: "Fs.realPath")
+    print(fnLine(ref c, for: "Fs.realPath", at: f63))
+    let f64 = t9Function(ref c, for: "Time.now")
+    print(fnLine(ref c, for: "Time.now", at: f64))
+    let f65 = t9Function(ref c, for: "Time.fromNanos")
+    print(fnLine(ref c, for: "Time.fromNanos", at: f65))
+    let again = intParse(ref c, for: .i32)
+    print($"parse i32 again {b(v: again == f28)}")
+    print("== types")
+    enumLine(ref c, for: "Stream")
+    enumLine(ref c, for: "Radix")
+    enumLine(ref c, for: "Edge")
+    enumLine(ref c, for: "Align")
+    enumLine(ref c, for: "Comparison")
+    enumLine(ref c, for: "LogLevel")
+    enumLine(ref c, for: "Utf8Invalid")
+    errorSetLine(ref c, for: "IoError")
+    errorSetLine(ref c, for: "Utf8Error")
+    errorSetLine(ref c, for: "ValidationError")
+    errorSetLine(ref c, for: "ParseError")
+    let rule = typeIndex(t9Type(ref c, for: "Rule"))
+    let ruleFile = c.unions[rule].file
+    let violation = t9DeclName(ref c, for: ruleFile, at: 1)
+    print($"{c.unions[rule].name} {sp(c.unions[rule].span)} violation={t9Text(ref c, for: ruleFile, at: violation)}@{sp(violation)}")
+    var variants = List<TextSpan>()
+    switch c.files[ruleFile].unit.members[0] {
+        case .unionDecl(let d):
+            for v in d.value.variants { variants.append(v.name) }
+        default: print("no union")
+    }
+    for v in variants { print($"Rule.{t9Text(ref c, for: ruleFile, at: v)} {sp(v)}") }
+    let ifaces: List<string> = ["IEnumerator", "IIndexable", "nope"]
+    for name in ifaces {
+        let i = findInterface(ref c, for: name)
+        if i < 0 { print($"{name} null") } else { print($"{c.interfaces[i].name} {sp(c.interfaces[i].span)} decl={c.interfaces[i].declIndex}") }
+    }
+    print($"modules {c.modules.length}")
+    let all: List<string> = [
+        "length",
+        "bytes",
+        "isEmpty",
+        "runeCount",
+        "isAscii",
+        "runes",
+        "utf16",
+        "lines",
+        "value",
+        "copy",
+        "startsWith",
+        "endsWith",
+        "contains",
+        "position",
+        "lastPosition",
+        "count",
+        "trimmed",
+        "equals",
+        "lowercased",
+        "uppercased",
+        "replaced",
+        "repeated",
+        "padded",
+        "parts",
+        "skip",
+        "takeLast",
+        "joined",
+        "span",
+        "mutableSpan",
+        "clear",
+        "removeLast",
+        "replace",
+        "sort",
+        "tryGet",
+        "slot",
+        "remove",
+        "reset",
+        "append",
+        "appendRepeated",
+        "insert",
+        "finish",
+        "view",
+        "take",
+        "write",
+        "readAll",
+        "readAllBytes",
+        "name",
+        "ordinal",
+        "exitCode",
+        "stdout",
+        "stderr",
+        "message",
+        "radix",
+        "debug",
+        "width",
+        "fill",
+        "align",
+        "digits",
+        "nanos",
+        "isOk",
+        "err",
+        "nope"
+    ]
+    let t0 = prim(.string)
+    let t1 = prim(.i64)
+    let t2 = prim(.char)
+    let t3 = internSpan(ref c, by: prim(.u8), readOnly: true)
+    let t4 = internSpan(ref c, by: prim(.string), readOnly: false)
+    let t5 = internList(ref c, by: prim(.i64))
+    let t6 = internList(ref c, by: prim(.string))
+    let t7 = internList(ref c, by: prim(.bool))
+    let t8 = internList(ref c, by: prim(.char))
+    let t9 = internMap(ref c, by: prim(.string), to: prim(.i64))
+    let t10 = internArray(ref c, by: prim(.i32), at: 3)
+    let t11 = builtinType(.arena)
+    let t12 = builtinType(.strBuf)
+    let t13 = builtinType(.symbol)
+    let t14 = builtinType(.time)
+    let t15 = builtinType(.processResult)
+    let t16 = builtinType(.panic)
+    let t17 = builtinType(.formatSpec)
+    let t18 = builtinType(.ioStream)
+    let t19 = builtinType(.ioInput)
+    let t20 = builtinType(.io)
+    let t21 = internResult(ref c, by: prim(.i64), to: t9Type(ref c, for: "IoError"))
+    let t22 = internOwned(ref c, by: prim(.i64))
+    let t23 = internOptional(ref c, by: prim(.i64))
+    let t24 = internList(ref c, by: internList(ref c, by: prim(.i64)))
+    let t25 = internList(ref c, by: builtinType(.strBuf))
+    let t26 = internOptional(ref c, by: builtinType(.strBuf))
+    let t27 = internOptional(ref c, by: internList(ref c, by: prim(.i64)))
+    let t28 = t9Type(ref c, for: "Stream")
+    let t29 = textViewType(.runes)
+    let t30 = textViewType(.utf16)
+    let t31 = textViewType(.lines)
+    let t32 = textViewType(.parts)
+    print("== members")
+    members(ref c, for: "string", at: t0, by: all)
+    members(ref c, for: "i64", at: t1, by: all)
+    members(ref c, for: "rune", at: t2, by: all)
+    members(ref c, for: "roBytes", at: t3, by: all)
+    members(ref c, for: "spanStr", at: t4, by: all)
+    members(ref c, for: "listI64", at: t5, by: all)
+    members(ref c, for: "listStr", at: t6, by: all)
+    members(ref c, for: "listBool", at: t7, by: all)
+    members(ref c, for: "listRune", at: t8, by: all)
+    members(ref c, for: "map", at: t9, by: all)
+    members(ref c, for: "array", at: t10, by: all)
+    members(ref c, for: "arena", at: t11, by: all)
+    members(ref c, for: "strBuf", at: t12, by: all)
+    members(ref c, for: "symbol", at: t13, by: all)
+    members(ref c, for: "time", at: t14, by: all)
+    members(ref c, for: "processResult", at: t15, by: all)
+    members(ref c, for: "panic", at: t16, by: all)
+    members(ref c, for: "formatSpec", at: t17, by: all)
+    members(ref c, for: "ioStream", at: t18, by: all)
+    members(ref c, for: "ioInput", at: t19, by: all)
+    members(ref c, for: "io", at: t20, by: all)
+    members(ref c, for: "result", at: t21, by: all)
+    members(ref c, for: "owned", at: t22, by: all)
+    members(ref c, for: "optional", at: t23, by: all)
+    members(ref c, for: "listList", at: t24, by: all)
+    members(ref c, for: "listStrBuf", at: t25, by: all)
+    members(ref c, for: "optStrBuf", at: t26, by: all)
+    members(ref c, for: "optList", at: t27, by: all)
+    members(ref c, for: "enum", at: t28, by: all)
+    members(ref c, for: "runes", at: t29, by: all)
+    members(ref c, for: "utf16", at: t30, by: all)
+    members(ref c, for: "lines", at: t31, by: all)
+    members(ref c, for: "parts", at: t32, by: all)
+    print("== kinds")
+    print($"{builtinKindOf(typeIndex(builtinType(.path))).ordinal} {typeDisplay(ref c, by: builtinType(.path))}")
+    print($"{builtinKindOf(typeIndex(builtinType(.target))).ordinal} {typeDisplay(ref c, by: builtinType(.target))}")
+    print($"{builtinKindOf(typeIndex(builtinType(.env))).ordinal} {typeDisplay(ref c, by: builtinType(.env))}")
+    print($"{builtinKindOf(typeIndex(builtinType(.fs))).ordinal} {typeDisplay(ref c, by: builtinType(.fs))}")
+    print($"{builtinKindOf(typeIndex(builtinType(.millis))).ordinal} {typeDisplay(ref c, by: builtinType(.millis))}")
+    print("== target")
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "void main() {\n    let a = Target.os\n    let b = Target.arch\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        let compiled = create(from: move files, at: "tmp/t18-target", by: in CompilationOptions { includeTests: false, target: "linux-x64" })
+        var sb = StrBuf()
+        sb.append($"[linux-x64] diagnostics={compiled.diagnostics.length} host={compiled.bHostTargets.length} literals=")
+        for lit in compiled.bLiterals { sb.append($"[{lit.value.text}]") }
+        print(sb.finish())
+    }
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "void main() {\n    let a = Target.os\n    let b = Target.arch\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        let compiled = create(from: move files, at: "tmp/t18-target", by: in CompilationOptions { includeTests: false, target: "macos-arm64" })
+        var sb = StrBuf()
+        sb.append($"[macos-arm64] diagnostics={compiled.diagnostics.length} host={compiled.bHostTargets.length} literals=")
+        for lit in compiled.bLiterals { sb.append($"[{lit.value.text}]") }
+        print(sb.finish())
+    }
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "void main() {\n    let a = Target.os\n    let b = Target.arch\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        let compiled = create(from: move files, at: "tmp/t18-target", by: in CompilationOptions { includeTests: false, target: "windows-x64" })
+        var sb = StrBuf()
+        sb.append($"[windows-x64] diagnostics={compiled.diagnostics.length} host={compiled.bHostTargets.length} literals=")
+        for lit in compiled.bLiterals { sb.append($"[{lit.value.text}]") }
+        print(sb.finish())
+    }
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "void main() {\n    let a = Target.os\n    let b = Target.arch\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        let compiled = create(from: move files, at: "tmp/t18-target", by: in CompilationOptions { includeTests: false, target: "wasm32" })
+        var sb = StrBuf()
+        sb.append($"[wasm32] diagnostics={compiled.diagnostics.length} host={compiled.bHostTargets.length} literals=")
+        for lit in compiled.bLiterals { sb.append($"[{lit.value.text}]") }
+        print(sb.finish())
+    }
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "void main() {\n    let a = Target.os\n    let b = Target.arch\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        let compiled = create(from: move files, at: "tmp/t18-target", by: in CompilationOptions { includeTests: false, target: "nodash" })
+        var sb = StrBuf()
+        sb.append($"[nodash] diagnostics={compiled.diagnostics.length} host={compiled.bHostTargets.length} literals=")
+        for lit in compiled.bLiterals { sb.append($"[{lit.value.text}]") }
+        print(sb.finish())
+    }
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "void main() {\n    let a = Target.os\n    let b = Target.arch\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        let compiled = create(from: move files, at: "tmp/t18-target", by: in CompilationOptions { includeTests: false, target: "" })
+        var sb = StrBuf()
+        sb.append($"[] diagnostics={compiled.diagnostics.length} host={compiled.bHostTargets.length} literals=")
+        for lit in compiled.bLiterals { sb.append($"[{lit.value.text}]") }
+        print(sb.finish())
+    }
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "void main() {\n    let a = Target.os\n    let b = Target.arch\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        let compiled = create(from: move files, at: "tmp/t18-target", by: in CompilationOptions { includeTests: false })
+        var sb = StrBuf()
+        sb.append($"host diagnostics={compiled.diagnostics.length} host={compiled.bHostTargets.length} literals=")
+        for lit in compiled.bLiterals { sb.append($"[{lit.value.text}]") }
+        print(sb.finish())
+    }
+    print("== alias")
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "struct L {\n    i64 a\n    static L make(i64 a) => L { a: a }\n}\ntype M = L\nvoid main() {\n    let m = M.make(2)\n    print($\"{m.a}\")\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        var compiled = create(from: move files, at: "tmp/t21-alias", by: in CompilationOptions { includeTests: false })
+        var sb = StrBuf()
+        sb.append("static-call modules=")
+        for m in compiled.moduleOrder { sb.append($"{compiled.modules[m].name}/") }
+        let entry = compiled.entryModule
+        let aliased = compiled.modules[entry].types.contains("M") && kindOf(compiled.modules[entry].types["M"]) == .alias
+        let shown = aliased ? typeDisplay(ref compiled, by: compiled.modules[entry].types["M"]) : "-"
+        sb.append($" diagnostics={compiled.diagnostics.length} errors={compiled.bErrorExprs.length} structs={compiled.bStructLiterals.length} alias={shown}")
+        print(sb.finish())
+        for d in compiled.diagnostics { print($"  {d.code} {sp(d.span)} {d.message}") }
+    }
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "import sub\n\n// `LTree {}` in a field default needs `sub.L`'s own defaults, bound first because `sub` precedes its importer.\npublic type LTree = sub.L\n\nstruct Holder {\n    LTree inner = LTree {}\n}\n\nvoid main() {\n    let h = Holder {}\n    print($\"{h.inner.a}\")\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        var compiled = create(from: move files, at: "tests/cases/run/alias-field-default-import", by: in CompilationOptions { includeTests: false })
+        var sb = StrBuf()
+        sb.append("field-default-import modules=")
+        for m in compiled.moduleOrder { sb.append($"{compiled.modules[m].name}/") }
+        let entry = compiled.entryModule
+        let aliased = compiled.modules[entry].types.contains("LTree") && kindOf(compiled.modules[entry].types["LTree"]) == .alias
+        let shown = aliased ? typeDisplay(ref compiled, by: compiled.modules[entry].types["LTree"]) : "-"
+        sb.append($" diagnostics={compiled.diagnostics.length} errors={compiled.bErrorExprs.length} structs={compiled.bStructLiterals.length} alias={shown}")
+        print(sb.finish())
+        for d in compiled.diagnostics { print($"  {d.code} {sp(d.span)} {d.message}") }
+    }
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "struct L {\n    i64 a\n}\ntype M = L\nvoid main() {\n    let m = M.nope\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        var compiled = create(from: move files, at: "tmp/t21-alias", by: in CompilationOptions { includeTests: false })
+        var sb = StrBuf()
+        sb.append("unknown-member modules=")
+        for m in compiled.moduleOrder { sb.append($"{compiled.modules[m].name}/") }
+        let entry = compiled.entryModule
+        let aliased = compiled.modules[entry].types.contains("M") && kindOf(compiled.modules[entry].types["M"]) == .alias
+        let shown = aliased ? typeDisplay(ref compiled, by: compiled.modules[entry].types["M"]) : "-"
+        sb.append($" diagnostics={compiled.diagnostics.length} errors={compiled.bErrorExprs.length} structs={compiled.bStructLiterals.length} alias={shown}")
+        print(sb.finish())
+        for d in compiled.diagnostics { print($"  {d.code} {sp(d.span)} {d.message}") }
+    }
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "struct L {\n    i64 a\n    static L make(i64 a) => L { a: a }\n}\nvoid main() {\n    let m = L.make(2)\n    print($\"{m.a}\")\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        var compiled = create(from: move files, at: "tmp/t21-alias", by: in CompilationOptions { includeTests: false })
+        var sb = StrBuf()
+        sb.append("struct-itself modules=")
+        for m in compiled.moduleOrder { sb.append($"{compiled.modules[m].name}/") }
+        let entry = compiled.entryModule
+        let aliased = compiled.modules[entry].types.contains("L") && kindOf(compiled.modules[entry].types["L"]) == .alias
+        let shown = aliased ? typeDisplay(ref compiled, by: compiled.modules[entry].types["L"]) : "-"
+        sb.append($" diagnostics={compiled.diagnostics.length} errors={compiled.bErrorExprs.length} structs={compiled.bStructLiterals.length} alias={shown}")
+        print(sb.finish())
+        for d in compiled.diagnostics { print($"  {d.code} {sp(d.span)} {d.message}") }
+    }
+    print("== detail")
+    {
+        var files = List<lexer.SourceText>()
+        var bytes = List<u8>()
+        for ch in "void main() {\n    let a = Target.os\n    let b = Target.arch\n}\n".bytes { bytes.append(ch) }
+        files.append(lexer.SourceText.create("main.byn", from: move bytes))
+        var compiled = create(from: move files, at: "tmp/t18-target", by: in CompilationOptions { includeTests: false })
+        for v in detailVariants(ref compiled) {
+            let field = compiled.errorVariants[v].fields[0]
+            let d = typeDisplay(ref compiled, by: compiled.locals[field].type)
+            print($"{compiled.errorSets[compiled.errorVariants[v].set].name}.{compiled.errorVariants[v].name} {compiled.errorVariants[v].code} {compiled.locals[field].name}: {d}")
+        }
+    }
+    print("== names")
+    namesLine(ref c, for: "string", at: t0)
+    namesLine(ref c, for: "i64", at: t1)
+    namesLine(ref c, for: "rune", at: t2)
+    namesLine(ref c, for: "roBytes", at: t3)
+    namesLine(ref c, for: "spanStr", at: t4)
+    namesLine(ref c, for: "listI64", at: t5)
+    namesLine(ref c, for: "listStr", at: t6)
+    namesLine(ref c, for: "listBool", at: t7)
+    namesLine(ref c, for: "listRune", at: t8)
+    namesLine(ref c, for: "listList", at: t24)
+    namesLine(ref c, for: "listStrBuf", at: t25)
+    namesLine(ref c, for: "map", at: t9)
+    namesLine(ref c, for: "array", at: t10)
+    namesLine(ref c, for: "strBuf", at: t12)
+    namesLine(ref c, for: "symbol", at: t13)
+    namesLine(ref c, for: "processResult", at: t15)
+    namesLine(ref c, for: "formatSpec", at: t17)
+    namesLine(ref c, for: "result", at: t21)
+    namesLine(ref c, for: "owned", at: t22)
+    namesLine(ref c, for: "optional", at: t23)
+    namesLine(ref c, for: "optStrBuf", at: t26)
+    namesLine(ref c, for: "optList", at: t27)
+    namesLine(ref c, for: "enum", at: t28)
+    namesLine(ref c, for: "runes", at: t29)
+    namesLine(ref c, for: "utf16", at: t30)
+    namesLine(ref c, for: "ioInput", at: t19)
+    return 0
+}

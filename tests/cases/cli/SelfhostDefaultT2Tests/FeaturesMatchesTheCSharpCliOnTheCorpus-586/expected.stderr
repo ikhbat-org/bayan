@@ -1,0 +1,9 @@
+error BYN6002: `undeclaredExists` uses `fs` but does not declare it
+  --> <repo>/tests/cases/diag/fs-file-exists-needs-fs.byn:3:12
+
+  3 │     return Fs.fileExists(p)
+    │            ^^^^^^^^^^^^^^^^ uses `fs`
+    │
+  help: add `fs` to the `uses` clause, or remove the call
+    │ 2 │ public bool undeclaredExists(string p) uses fs {
+    │   │                                       ++++++++

@@ -1,0 +1,24 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+struct Box { long weight }
+
+long add(int a, int b) {
+    return a + b
+}
+
+void main() {
+    let a = true
+    if a and not false {
+        print("x")
+    }
+    if a {
+        print("y")
+    }
+    let t: int = add(1, 2)
+    print($"{t}") if not a or t is not 0
+}
+== package.byn OtherRead, GroupRead, UserWrite, UserRead
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { booleans: .words, primitives: .csharp },
+}

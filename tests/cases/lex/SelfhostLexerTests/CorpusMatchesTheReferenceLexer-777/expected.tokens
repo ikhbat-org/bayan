@@ -1,0 +1,30 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+2:2 Identifier `b`
+3:2 Slash `/`
+4:1 Slash `/`
+4:3 Identifier `line`
+4:8 Identifier `comment`
+6:1 Identifier `ạ̇`
+6:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x92)
+
+  1 │ �0b1ms
+    │ ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ �0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  6 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ ạ̇
+    │   │ +

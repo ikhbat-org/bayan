@@ -1,0 +1,53 @@
+1:2 Identifier `é`
+1:4 CharLiteral `'\u{202E}'`
+1:7 FailsKeyword `fails`
+1:13 TryKeyword `try`
+1:17 Identifier `atch`
+1:22 NeverKeyword `never`
+1:28 NoallocKeyword `noalloc`
+1:36 NosuspendKeyword `nosuspend`
+1:46 SuspendsKeyword `suspends`
+1:55 Identifier `sync`
+1:60 AwaitKeyword `await`
+    doc `///`
+3:2 StringLiteral `""`
+3:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �é'�'fails try atch never noalloc nosuspend suspends sync await
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �é'�'fails try atch never noalloc nosuspend suspends sync await
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �é'�'fails try atch never noalloc nosuspend suspends sync await
+    │  ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ �é'�'fails try atch never noalloc nosuspend suspends sync await
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ �é'�'fails try atch never noalloc nosuspend suspends sync await
+    │   │  +
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �é'�'fails try atch never noalloc nosuspend suspends sync await
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �é'�'fails try atch never noalloc nosuspend suspends sync await
+    │   │     -
+
+error BYN0002: unexpected character `\u{10}`
+
+  3 │ �"" 
+    │ ^

@@ -1,0 +1,38 @@
+== tests/cases/run/io-stdout-stderr.byn
+82..378 blockStmt
+88..111 exprStmt
+88..111 callExpr
+88..97 memberExpr
+104..110 literalExpr string
+116..138 exprStmt
+116..138 callExpr
+116..125 memberExpr
+132..137 literalExpr string
+143..158 exprStmt
+143..158 callExpr
+149..157 literalExpr string
+143..158 callExpr
+163..193 exprStmt
+163..193 callExpr
+163..172 memberExpr
+179..192 literalExpr string
+198..227 exprStmt
+198..227 callExpr
+198..207 memberExpr
+214..226 literalExpr string
+232..267 exprStmt
+232..267 callExpr
+232..241 memberExpr
+248..266 literalExpr string
+272..308 localDecl
+289..308 callExpr
+313..347 localDecl
+328..347 callExpr
+352..376 guardedStmt
+365..376 binaryExpr lt right 371..376
+365..368 nameExpr
+371..376 nameExpr
+352..361 exprStmt
+352..361 callExpr
+358..360 literalExpr string
+352..361 callExpr

@@ -1,0 +1,233 @@
+import lexer
+import parser
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 2 < args.length {
+        let name = args[i]
+        let dir = args[i + 1]
+        let flags = args[i + 2]
+        print($"== {name}")
+        var c = loadOnly(dir)
+        let m = c.entryModule
+        for f in copyIds(in c.modules[m].files) { declareFile(ref c, for: f) }
+        for k in 0..flags.length {
+            let flag = flags[k..k + 1]
+            if flag == "e" {
+                for e in copyIds(in c.modules[m].errorSets) { declareVariants(ref c, for: e) }
+            } else if flag == "u" {
+                for u in copyIds(in c.modules[m].unions) { declareUnionVariants(ref c, for: u) }
+            } else if flag == "m" {
+                for s in copyIds(in c.modules[m].structs) { declareMembers(ref c, for: s) }
+            } else if flag == "s" {
+                freeSignatures(ref c, for: m)
+            } else if flag == "i" {
+                for x in copyIds(in c.modules[m].interfaces) { declareInterfaceMembers(ref c, for: x) }
+            } else if flag == "t" {
+                for s in copyIds(in c.modules[m].structs) { checkStateNames(ref c, for: s) }
+            } else if flag == "h" {
+                for s in copyIds(in c.modules[m].structs) { checkStructShape(ref c, for: s) }
+                for u in copyIds(in c.modules[m].unions) { checkUnionShape(ref c, for: u) }
+            }
+        }
+        dump(ref c, for: m)
+        i += 3
+    }
+    return 0
+}
+
+Ctx loadOnly(string dir) {
+    var sources = List<lexer.SourceText>()
+    for f in t11ModuleFiles(dir, includeTests: false) { sources.append(lexer.SourceText.create(f, from: t11ReadAllBytes(f))) }
+    var c = Ctx {
+        files: List<SourceFile>(),
+        modules: List<Mod>(),
+        diagnostics: List<Diag>(),
+        bags: List<DiagBag>(),
+        packageRoot: dir,
+        displayRoot: dir,
+    }
+    c.entryModule = loadModule(ref c, for: "main", at: dir, from: move sources, by: -1)
+    return c
+}
+
+void freeSignatures(ref Ctx c, for ModId m) {
+    for f in copyIds(in c.modules[m].allFunctions) {
+        if c.functions[f].kind != .function { continue }
+        let file = c.functions[f].file
+        switch c.files[file].unit.members[c.functions[f].declIndex] {
+            case .functionDecl(let n):
+                declareSignature(ref c, for: f, from: in n.value, by: file)
+            default:
+                panic("a free function is declared by a `FunctionDecl`")
+        }
+    }
+}
+
+string spot(in Ctx c, from FileId f, by TextSpan span) {
+    let pos = linePosition(c.files[f].text.span, at: span.start)
+    return $"{pos.line}:{pos.column}"
+}
+
+string lowerKind(FunctionKind k) {
+    switch k {
+        case .function: return "function"
+        case .method: return "method"
+        case .constructor: return "constructor"
+        case .getter: return "getter"
+        case .main: return "main"
+        case .testKeyword: return "test"
+        case .builtin: return "builtin"
+        case .lambda: return "lambda"
+        case .invoke: return "invoke"
+    }
+}
+
+string lowerAccess(Accessibility a) {
+    switch a {
+        case .publicKeyword: return "public"
+        case .privateKeyword: return "private"
+        case .module: return "module"
+    }
+}
+
+string lowerModifier(parser.ParamModifier p) {
+    switch p {
+        case .none: return "none"
+        case .refKeyword: return "ref"
+        case .moveKeyword: return "move"
+        case .outKeyword: return "out"
+        case .inKeyword: return "in"
+    }
+}
+
+string truth(bool on) => on ? "True" : "False"
+
+/// Each parameter's location is in file `f`.
+string paramList(ref Ctx c, for in List<LocalId> ps, from FileId f) {
+    var sb = StrBuf()
+    for k in 0..ps.length {
+        if k > 0 { sb.append(",") }
+        let p = ps[k]
+        let type = typeDisplay(ref c, by: c.locals[p].type)
+        let ordinal = c.locals[p].isParameter ? $"#{c.locals[p].ordinal}:{lowerModifier(c.locals[p].modifier)}" : ""
+        sb.append($"{c.locals[p].name}:{type}@{spot(in c, from: f, by: c.locals[p].span)}{ordinal}")
+    }
+    return $"{sb.finish()}"
+}
+
+string setText(ref Ctx c, for ErrorSetId set) {
+    var sb = StrBuf()
+    sb.append(c.errorSets[set].name)
+    sb.append("{")
+    var first = true
+    for v in copyIds(in c.errorSets[set].variants) {
+        if !first { sb.append(",") }
+        first = false
+        let ps = paramList(ref c, for: in copyIds(in c.errorVariants[v].fields), from: c.errorVariants[v].file)
+        sb.append($"{c.errorVariants[v].name}({ps})")
+        for p in copyIds(in c.errorVariants[v].fields) {
+            let t = c.locals[p].type
+            if kindOf(t) != .list || kindOf(c.listTypes[typeIndex(t)]) != .structType { continue }
+            let w = typeIndex(c.listTypes[typeIndex(t)])
+            sb.append("[")
+            var firstField = true
+            for f in copyIds(in c.structs[w].fields) {
+                if !firstField { sb.append(",") }
+                firstField = false
+                let type = typeDisplay(ref c, by: c.fields[f].type)
+                sb.append($"{c.fields[f].name}:{type}@{spot(in c, from: c.fields[f].file, by: c.fields[f].span)}")
+            }
+            sb.append("]")
+        }
+    }
+    sb.append("}")
+    return $"{sb.finish()}"
+}
+
+string fnLine(ref Ctx c, for FuncId f) {
+    let file = c.functions[f].file
+    var keys = StrBuf()
+    var first = true
+    for (k, _) in c.functions[f].typeMap {
+        if !first { keys.append(",") }
+        keys.append(k)
+        first = false
+    }
+    let keyList = keys.finish()
+    var sets = StrBuf()
+    first = true
+    for s in copyIds(in c.functions[f].errorSets) {
+        if !first { sets.append(",") }
+        first = false
+        sets.append(setText(ref c, for: s))
+    }
+    let setList = sets.finish()
+    var excluded = StrBuf()
+    first = true
+    for v in copyIds(in c.functions[f].excludedErrors) {
+        if !first { excluded.append(",") }
+        first = false
+        excluded.append($"{c.errorSets[c.errorVariants[v].set].name}.{c.errorVariants[v].name}")
+    }
+    let excludedList = excluded.finish()
+    var tparams = StrBuf()
+    first = true
+    for t in copyIds(in c.functions[f].typeParams) {
+        if !first { tparams.append(",") }
+        first = false
+        tparams.append(c.typeParams[t].name)
+    }
+    let tparamList = tparams.finish()
+    let fn = c.functions[f].name
+    let kind = lowerKind(c.functions[f].kind)
+    let access = lowerAccess(c.functions[f].access)
+    let ret = typeDisplay(ref c, by: c.functions[f].returnType)
+    let ps = paramList(ref c, for: in copyIds(in c.functions[f].parameters), from: file)
+    return $"{fn} {kind} {access} static={truth(on: c.functions[f].isStatic)} abstract={truth(on: c.functions[f].isAbstract)} at={spot(in c, from: file, by: c.functions[f].span)} ret={ret} ({ps}) fails={truth(on: c.functions[f].hasFails)} infers={truth(on: c.functions[f].infersErrors)} mutating={truth(on: c.functions[f].isMutating)} sets=[{setList}] excluded=[{excludedList}] tparams=[{tparamList}] map=[{keyList}]"
+}
+
+void dump(ref Ctx c, for ModId m) {
+    for d in c.diagnostics {
+        let fix = d.hasFix ? $"{spot(in c, from: d.file, by: d.fixSpan)}+{d.fixSpan.length} \"{d.fixReplacement}\"" : "none"
+        print($"diag {d.code} {spot(in c, from: d.file, by: d.span)} {d.message} | {d.label} | {d.help} | {fix}")
+    }
+    for x in copyIds(in c.modules[m].interfaces) {
+        print($"interface {c.interfaces[x].name}")
+        for t in copyIds(in c.interfaces[x].associatedTypes) { print($"  associated {c.typeParams[t].name}") }
+        for f in copyIds(in c.interfaces[x].methods) {
+            let line = fnLine(ref c, for: f)
+            print($"  method {line}")
+        }
+        for f in copyIds(in c.interfaces[x].properties) {
+            let line = fnLine(ref c, for: f)
+            print($"  property {line}")
+        }
+    }
+    for s in copyIds(in c.modules[m].structs) {
+        print($"struct {c.structs[s].name}")
+        for f in copyIds(in c.structs[s].methods) {
+            let line = fnLine(ref c, for: f)
+            print($"  method {line}")
+        }
+        if (c.checksOf.tryGet(at: s) is { } ci) {
+            let line = fnLine(ref c, for: c.checks[ci].check)
+            print($"  check {line}")
+        }
+        if (c.states.tryGet(at: s) is { } u) {
+            var names = StrBuf()
+            var first = true
+            for v in copyIds(in c.unions[u].variants) {
+                if !first { names.append(",") }
+                first = false
+                names.append(c.unionVariants[v].name)
+            }
+            print($"  states {names.finish()}")
+        }
+    }
+    print($"states {c.states.length}")
+    for f in copyIds(in c.modules[m].allFunctions) {
+        let line = fnLine(ref c, for: f)
+        print($"all {line}")
+    }
+}

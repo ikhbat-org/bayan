@@ -1,0 +1,4 @@
+== c4
+catchExpr|void|1106:22
+operand call:void binding - variant - handler blockExpr:void
+BYN2104 64:29 `n` is immutable |parameters are immutable|copy it into a local `var`, or take it by `ref` if the caller's value should change|

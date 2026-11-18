@@ -1,0 +1,15 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+2:4 Identifier `comment`
+2:12 Star `*`
+2:13 Slash `/`
+2:15 Identifier `a`
+    doc `/// Doc line two.`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

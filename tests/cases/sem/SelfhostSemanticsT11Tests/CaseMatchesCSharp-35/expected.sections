@@ -1,0 +1,3 @@
+== path dirs
+module main tmp/t11-cases/dirs/src/app main
+file tmp/t11-cases/dirs/src/app/main.byn source

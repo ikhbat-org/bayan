@@ -1,0 +1,6 @@
+--coverage
+--mode
+safe
+--package
+input
+input/main.byn

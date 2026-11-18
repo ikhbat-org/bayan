@@ -1,0 +1,11 @@
+1:1 LetKeyword `let`
+1:6 Equals `=`
+1:8 RawStringLiteral `"""never closed\n 1.\nle< x\u{2067} = 1\n\n0x_\n$"open {x";\n\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let  = """never closed
+    │        ^^^ raw string starts here
+    │
+  help: close it with `"""`

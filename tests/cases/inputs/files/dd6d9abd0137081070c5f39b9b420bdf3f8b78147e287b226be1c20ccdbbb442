@@ -1,0 +1,4 @@
+0xFFs
+   """ c"text" u16"wide" "â€® allowed in stings" "$ "\u{48}i"
+'a' '\n' '\u{1F600}' '\'' 'Ã©' '\\' '\0'
+ô€€

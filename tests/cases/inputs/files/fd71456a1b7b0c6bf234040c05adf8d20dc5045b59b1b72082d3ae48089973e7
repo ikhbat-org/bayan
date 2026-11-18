@@ -1,0 +1,8 @@
+fails try catch never noalloc nosuspend suspends async await
+ is and or not with move ref out this null true false comptime checked
+
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+00}'
+ is and or not with move ref out this null true false comptime checked
+let café = 1; "text" "esc \"q\" \\ \n" """

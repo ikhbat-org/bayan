@@ -1,0 +1,40 @@
+2:2 Slash `/`
+2:3 LetKeyword `let`
+2:7 Identifier `a`
+2:8 Equals `=`
+2:10 StringLiteral `"open`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `a`
+3:5 InterpolationStart `{`
+3:6 Identifier `b`
+3:7 InterpolationEnd `}`
+3:8 InterpolatedStringText `n\r`
+3:10 InterpolatedStringEnd
+4:1 CharLiteral `'\q'`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  2 │  /let a�= "open
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  2 │  /let a�= "open
+    │           ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │  $"a{b}n
+    │  ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

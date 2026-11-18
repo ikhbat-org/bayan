@@ -1,0 +1,157 @@
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 Identifier `x`
+3:50 InterpolationEnd `}`
+3:51 InterpolatedStringEnd `"`
+3:52 InterpolationEnd `}`
+3:53 InterpolatedStringEnd `"`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringEnd `"`
+3:58 InterpolationEnd `}`
+3:59 InterpolatedStringEnd `"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:62 InterpolationEnd `}`
+3:63 InterpolatedStringEnd `"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+3:66 InterpolationEnd `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 InterpolationEnd `}`
+3:81 InterpolatedStringEnd `"`
+4:1 Identifier `mment`
+4:9 Identifier `hidden`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 Identifier `P`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 Identifier `x`
+6:48 InterpolationEnd `}`
+6:49 InterpolatedStringEnd `"`
+6:50 InterpolationEnd `}`
+6:51 InterpolatedStringEnd `"`
+6:52 InterpolationEnd `}`
+6:53 InterpolatedStringEnd `"`
+6:54 InterpolationEnd `}`
+6:55 InterpolatedStringEnd `"`
+6:56 InterpolationEnd `}`
+6:57 InterpolatedStringEnd `"`
+6:58 InterpolationEnd `}`
+6:59 InterpolatedStringEnd `"`
+6:60 InterpolationEnd `}`
+6:61 InterpolatedStringEnd `"`
+6:62 InterpolationEnd `}`
+6:63 InterpolatedStringEnd `"`
+6:64 InterpolationEnd `}`
+6:65 InterpolatedStringEnd `"`
+6:66 InterpolationEnd `}`
+6:67 InterpolatedStringEnd `"`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringEnd `"`
+6:70 InterpolationEnd `}`
+6:71 InterpolatedStringEnd `"`
+6:72 InterpolationEnd `}`
+6:73 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ mment � hidden
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ mment � hidden
+    │   │       -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ let x� = 1
+    │   │      -
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{P$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string

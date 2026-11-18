@@ -1,0 +1,17 @@
+== tests/cases/run/format-debug-rune-escapes.byn
+0..18 globalStatement
+0..18 localDecl
+14..18 literalExpr char
+19..37 localDecl
+33..37 literalExpr char
+38..56 localDecl
+52..56 literalExpr char
+57..151 exprStmt
+57..151 callExpr
+63..150 interpolatedExpr
+66..67 nameExpr
+82..83 nameExpr
+98..99 nameExpr
+114..118 literalExpr char
+133..136 literalExpr char
+57..151 callExpr

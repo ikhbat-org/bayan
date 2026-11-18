@@ -1,0 +1,10 @@
+== main
+first 1097..1120
+block 1097..1120
+  block 1097..1120
+    localDecl 1103..1118
+      errorExpr 1117..1118 : ?
+  block 1122..1125
+local q 0 0
+requires 0 infers true
+BYN2202 83:19 expected `bool`, found `i32` |||

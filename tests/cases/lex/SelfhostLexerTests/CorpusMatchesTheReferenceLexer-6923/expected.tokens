@@ -1,0 +1,24 @@
+1:1 Identifier `wait`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 Identifier `No`
+2:11 Identifier `r`
+2:13 NotKeyword `not`
+2:17 WithKeyword `with`
+2:22 MoveKeyword `move`
+2:27 RefKeyword `ref`
+2:31 Identifier `o`
+2:32 Identifier `t`
+2:34 ThisKeyword `this`
+2:39 NullKeyword `null`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC9)
+
+  2 │ is and No�r not with move ref o�t this null 
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  2 │ is and No�r not with move ref o�t this null 
+    │                                ^

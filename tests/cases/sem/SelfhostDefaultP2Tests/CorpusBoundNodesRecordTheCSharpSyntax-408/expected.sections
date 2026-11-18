@@ -1,0 +1,67 @@
+== tests/cases/diag/constraint-not-satisfied.byn
+262..274 callExpr
+262..274 callExpr
+262..274 callExpr
+262..267 nameExpr
+322..344 binaryExpr mul right 343..344
+322..344 binaryExpr mul right 343..344
+322..344 binaryExpr mul right 343..344
+322..340 callExpr
+334..339 nameExpr
+343..344 literalExpr integer
+375..393 callExpr
+375..393 callExpr
+375..393 callExpr
+387..392 nameExpr
+407..640 blockStmt
+413..436 localDecl
+421..436 structLiteralExpr
+433..434 literalExpr integer
+441..467 localDecl
+449..467 structLiteralExpr
+464..465 literalExpr integer
+472..515 exprStmt
+472..515 callExpr
+478..514 interpolatedExpr
+481..495 callExpr
+493..494 nameExpr
+498..512 callExpr
+510..511 nameExpr
+472..515 callExpr
+520..544 exprStmt
+520..544 callExpr
+526..543 interpolatedExpr
+529..541 callExpr
+539..540 nameExpr
+520..544 callExpr
+549..558 localDecl
+557..558 literalExpr integer
+563..589 exprStmt
+563..589 callExpr
+569..588 interpolatedExpr
+572..586 callExpr
+584..585 nameExpr
+563..589 callExpr
+594..638 localDecl
+615..638 structLiteralExpr
+635..636 nameExpr
+91..100 binaryExpr mul right 99..100
+91..100 binaryExpr mul right 99..100
+91..100 binaryExpr mul right 99..100
+91..96 binaryExpr mul right 95..96
+91..92 literalExpr integer
+95..96 nameExpr
+95..96 nameExpr
+99..100 nameExpr
+99..100 nameExpr
+152..163 binaryExpr mul right 159..163
+152..163 binaryExpr mul right 159..163
+152..163 binaryExpr mul right 159..163
+152..156 nameExpr
+152..156 nameExpr
+159..163 nameExpr
+159..163 nameExpr
+262..274 callExpr
+262..274 callExpr
+262..274 callExpr
+262..267 nameExpr

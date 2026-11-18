@@ -1,0 +1,2 @@
+== bag dyn-ref-borrow
+BYN3002 23:16 `inner` does not live as long as `late`, which borrows it |`inner` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

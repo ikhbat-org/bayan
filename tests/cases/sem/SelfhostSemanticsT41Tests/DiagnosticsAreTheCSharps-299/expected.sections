@@ -1,0 +1,7 @@
+== diags.diag/map-slot-no-default
+BYN2785 18:5 `slot` needs a default value, and `Color` has none
+  help read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`
+BYN2785 20:5 `slot` needs a default value, and `Point` has none
+  help read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`
+BYN2785 22:5 `slot` needs a default value, and `List<i64>` has none
+  help read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`

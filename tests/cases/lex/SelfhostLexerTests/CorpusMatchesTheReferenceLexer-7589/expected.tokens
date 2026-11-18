@@ -1,0 +1,170 @@
+1:1 IntegerLiteral `0b102`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 AsKeyword `as`
+3:40 PublicKeyword `public`
+3:47 PrivateKeyword `private`
+3:55 StaticKeyword `static`
+3:62 ReadonlyKeyword `readonly`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 VarKeyword `var`
+3:94 Identifier `em`
+3:97 Identifier `ed`
+3:100 ExternKeyword `extern`
+3:107 UnsafeKeyword `unsafe`
+4:3 IntegerLiteral `0`
+4:4 CharLiteral `'`
+5:3 Identifier `rlet`
+5:8 Identifier `s`
+5:10 Equals `=`
+5:11 Identifier `_`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 InterpolatedStringStart `$"`
+5:51 InterpolationStart `{`
+5:52 InterpolatedStringStart `$"`
+5:54 InterpolationStart `{`
+5:55 InterpolatedStringStart `$"`
+5:57 InterpolationStart `{`
+5:58 InterpolatedStringStart `$"`
+5:60 InterpolationStart `{`
+5:61 StringLiteral `$"{$"`
+5:66 OpenBrace `{`
+5:67 StringLiteral `$"{$"`
+5:72 OpenBrace `{`
+5:73 Identifier `x`
+5:74 CloseBrace `}`
+5:75 StringLiteral `"}"`
+5:78 CloseBrace `}`
+5:79 StringLiteral `"}"`
+5:82 InterpolationEnd `}`
+5:83 InterpolatedStringEnd `"`
+5:84 InterpolationEnd `}`
+5:85 InterpolatedStringEnd `"`
+5:86 InterpolationEnd `}`
+5:87 InterpolatedStringEnd `"`
+5:88 InterpolationEnd `}`
+5:89 InterpolatedStringEnd `"`
+5:90 InterpolationEnd `}`
+5:91 InterpolatedStringEnd `"`
+5:92 InterpolationEnd `}`
+5:93 InterpolatedStringEnd `"`
+5:94 InterpolationEnd `}`
+5:95 InterpolatedStringEnd `"`
+5:96 InterpolationEnd `}`
+5:97 InterpolatedStringEnd `"`
+5:98 InterpolationEnd `}`
+5:99 InterpolatedStringEnd `"`
+5:100 InterpolationEnd `}`
+5:101 InterpolatedStringEnd `"`
+5:102 InterpolationEnd `}`
+5:103 InterpolatedStringEnd `"`
+5:104 InterpolationEnd `}`
+5:105 InterpolatedStringEnd `"`
+5:106 InterpolationEnd `}`
+5:107 InterpolatedStringEnd `"`
+5:108 InterpolationEnd `}`
+5:109 InterpolatedStringEnd `"`
+5:110 InterpolationEnd `}`
+5:111 InterpolatedStringEnd `"`
+5:112 InterpolationEnd `}`
+5:113 InterpolatedStringEnd `"`
+7:1 FloatLiteral `3.14`
+7:6 FloatLiteral `1e5`
+7:10 FloatLiteral `2.5e-3`
+7:17 FloatLiteral `6E+2`
+7:22 FloatLiteral `1.50`
+7:26 NumericSuffix `dec`
+7:30 IntegerLiteral `1`
+7:31 DotDot `..`
+7:33 IntegerLiteral `2`
+7:35 IntegerLiteral `1`
+7:36 DotDotEquals `..=`
+7:39 IntegerLiteral `3`
+7:41 IntegerLiteral `5`
+7:42 NumericSuffix `e`
+7:44 Identifier `x`
+7:45 Dot `.`
+7:46 Identifier `y`
+7:48 FloatLiteral `2.5`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `open `
+8:8 InterpolationStart `{`
+8:9 Identifier `x`
+8:10 StringLiteral `";`
+10:1 IntegerLiteral `0x_`
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC6)
+
+  3 │ error set unit distinct type import as public private static readonly required const let var em�ed extern unsafe
+    │                                                                                                ^
+
+error BYN0002: unexpected character `\`
+
+  4 │  \0'
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  4 │  \0'
+    │    ^
+    │
+  help: close it with `'`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │   rlet s =_ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                             ^^
+
+error BYN0003: unterminated string literal
+
+  8 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  8 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  10 │ 0x_
+     │ ^^^

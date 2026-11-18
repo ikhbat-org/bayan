@@ -1,0 +1,37 @@
+== tests/cases/diag/ref-this-store-through-later-method.byn
+292..464 blockStmt
+298..326 localDecl
+306..326 structLiteralExpr
+315..317 literalExpr string
+322..324 literalExpr string
+331..447 blockStmt
+341..366 localDecl
+359..366 callExpr
+375..407 localDecl
+386..407 callExpr
+386..391 literalExpr string
+401..406 nameExpr
+416..441 exprStmt
+416..441 callExpr
+416..417 nameExpr
+422..425 literalExpr string
+436..440 nameExpr
+452..462 exprStmt
+452..462 callExpr
+458..461 memberExpr
+458..459 nameExpr
+452..462 callExpr
+182..219 blockStmt
+192..197 assignStmt assign target 192..193 value 196..197
+192..193 nameExpr
+192..193 nameExpr
+196..197 nameExpr
+206..213 exprStmt
+206..213 callExpr
+206..210 nameExpr
+211..212 nameExpr
+255..276 blockStmt
+265..270 assignStmt assign target 265..266 value 269..270
+265..266 nameExpr
+265..266 nameExpr
+269..270 nameExpr

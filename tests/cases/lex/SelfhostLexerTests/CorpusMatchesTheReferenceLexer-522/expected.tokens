@@ -1,0 +1,49 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 Identifier `p`
+1:49 Identifier `rivate`
+1:56 StaticKeyword `static`
+1:63 ReadonlyKeyword `readonly`
+1:72 RequiredKeyword `required`
+1:81 Identifier `cnst`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 Identifier `eYbed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+3:1 CharLiteral `'\q'`
+4:2 IntegerLiteral `0b__`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  1 │ error set unit distinct type import as public p�rivate static readonly required cnst let var eYbed extern unsafe
+    │                                                ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ �0b__
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �0b__
+    │   │ -
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ �0b__
+    │  ^^^^

@@ -1,0 +1,43 @@
+== tests/cases/run/interface-default-bare-name.byn
+161..162 literalExpr integer
+161..162 literalExpr integer
+161..162 literalExpr integer
+375..409 globalStatement
+375..409 exprStmt
+375..409 callExpr
+381..408 interpolatedExpr
+384..406 callExpr
+384..398 structLiteralExpr
+395..396 literalExpr integer
+375..409 callExpr
+410..449 exprStmt
+410..449 callExpr
+416..448 interpolatedExpr
+419..446 callExpr
+419..438 structLiteralExpr
+433..436 literalExpr string
+410..449 callExpr
+284..285 literalExpr integer
+284..285 literalExpr integer
+284..285 literalExpr integer
+304..307 literalExpr integer
+304..307 literalExpr integer
+304..307 literalExpr integer
+370..371 literalExpr integer
+370..371 literalExpr integer
+370..371 literalExpr integer
+217..227 binaryExpr mul right 226..227
+217..227 binaryExpr mul right 226..227
+217..227 binaryExpr mul right 226..227
+217..223 callExpr
+226..227 literalExpr integer
+217..227 binaryExpr mul right 226..227
+217..227 binaryExpr mul right 226..227
+217..227 binaryExpr mul right 226..227
+217..223 callExpr
+226..227 literalExpr integer
+217..227 binaryExpr mul right 226..227
+217..227 binaryExpr mul right 226..227
+217..227 binaryExpr mul right 226..227
+217..223 callExpr
+226..227 literalExpr integer

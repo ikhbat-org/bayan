@@ -1,0 +1,145 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{$"`
+3:54 OpenBrace `{`
+3:55 StringLiteral `$"{$"`
+3:60 OpenBrace `{`
+3:61 Identifier `x`
+3:62 CloseBrace `}`
+3:63 StringLiteral `"}"`
+3:66 CloseBrace `}`
+3:67 StringLiteral `"}"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 InterpolationEnd `}`
+3:81 InterpolatedStringEnd `"`
+3:83 Identifier `ere`
+3:86 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:11 OpenBrace `{`
+4:12 Identifier `x`
+4:13 StringLiteral `";`
+5:1 Identifier `éstruct`
+5:10 UniqueKeyword `unique`
+5:17 UnionKeyword `union`
+5:23 EnumKeyword `enum`
+5:28 FlagsKeyword `flags`
+5:34 OpenKeyword `open`
+5:39 ExtensibleKeyword `extensible`
+5:50 InterfaceKeyword `interface`
+5:60 DelegateKeyword `delegate`
+5:69 ExtensionKeyword `extension`
+5:79 DerivationKeyword `derivation`
+5:90 AttributeKeyword `attribute`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolatedStringText `a`
+6:5 InterpolationStart `{`
+6:6 Identifier `b`
+6:7 InterpolationEnd `}`
+6:8 InterpolatedStringText `c`
+6:9 InterpolatedStringEnd
+7:1 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" ere"
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" ere"
+    │                                                                                      ^ string
+    │                                                                                        ends at
+    │                                                                                        the end
+    │                                                                                        of the
+    │                                                                                        line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x {x";
+    │             ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `éstruct` is not in Unicode normalization form C
+
+  5 │ éstruct unique union enum flags open extensible interface delegate extension derivation attribute
+    │ ^^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ éstruct unique union enum flags open extensible interface delegate extension derivation attribute
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ �$"a{b}c
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  6 │ �$"a{b}c
+    │  ^^ this string never ends
+    │
+  help: close it with `"`

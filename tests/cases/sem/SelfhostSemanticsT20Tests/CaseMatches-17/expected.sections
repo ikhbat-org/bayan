@@ -1,0 +1,3 @@
+== inst.i25
+null
+BYN2741 172:24 type argument `T` of `pairB` is inferred as both `string` and `i64` ||make the arguments agree, or write it out: `pairB<…>(…)`|

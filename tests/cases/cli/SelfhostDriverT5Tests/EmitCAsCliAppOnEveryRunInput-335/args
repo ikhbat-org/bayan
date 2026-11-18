@@ -1,0 +1,3 @@
+build
+--emit-c
+with-self-move.byn

@@ -1,0 +1,9 @@
+0xF__
+3
+
+ '\'' 'é' '\\' '\0'
+110 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 
+let café = 1
+
+$"total {x}" $"a {f($"b {c}")} d" $"{{litera�}}" $"{Point { x = 1 }}!" $""
+b

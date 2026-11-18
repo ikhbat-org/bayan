@@ -1,0 +1,49 @@
+== tests/cases/diag/instrument-changes-this-clean.byn
+952..963 globalStatement
+952..963 exprStmt
+952..963 callExpr
+958..962 literalExpr string
+952..963 callExpr
+161..184 binaryExpr add right 168..184
+161..184 binaryExpr add right 168..184
+161..184 binaryExpr add right 168..184
+161..165 nameExpr
+161..165 nameExpr
+168..184 callExpr
+172..183 memberExpr
+172..177 nameExpr
+256..258 literalExpr string
+256..258 literalExpr string
+256..258 literalExpr string
+299..317 structLiteralExpr
+299..317 structLiteralExpr
+299..317 structLiteralExpr
+314..315 literalExpr integer
+477..513 blockStmt
+487..507 assignStmt add target 487..492 value 496..507
+487..492 nameExpr
+487..492 nameExpr
+496..507 memberExpr
+496..501 nameExpr
+542..564 structLiteralExpr
+542..564 structLiteralExpr
+542..564 structLiteralExpr
+557..562 nameExpr
+557..562 nameExpr
+705..716 memberExpr
+705..716 memberExpr
+705..716 memberExpr
+705..710 nameExpr
+742..768 blockStmt
+752..762 assignStmt add target 752..757 value 761..762
+752..757 nameExpr
+752..757 nameExpr
+761..762 literalExpr integer
+901..948 blockStmt
+911..921 assignStmt add target 911..916 value 920..921
+911..916 nameExpr
+911..916 nameExpr
+920..921 literalExpr integer
+930..942 returnStmt value 937..942
+937..942 nameExpr
+937..942 nameExpr

@@ -1,0 +1,20 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+2:2 LetKeyword `let`
+2:6 Identifier `b`
+2:8 Equals `=`
+2:10 StringLiteral `"bad \q escape"`
+4:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

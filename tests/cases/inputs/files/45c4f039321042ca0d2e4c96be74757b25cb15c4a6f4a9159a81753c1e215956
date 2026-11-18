@@ -1,0 +1,172 @@
+enum Color {
+    red
+    green
+}
+
+union U {
+    a(i64 v)
+    b
+}
+
+union error E {
+    bad(i64 code)
+    gone
+}
+
+struct P { }
+
+struct R {
+    i64 x
+
+    R(i64 x) {
+        this.x = x
+    }
+}
+
+struct Q {
+    i64 x
+
+    i64 get() => x
+
+    void bump(ref this) {
+        x += 1
+    }
+}
+
+const tbl: i64[3] = [1, 2, 3]
+
+interface ISized {
+    i64 size()
+}
+
+struct Sq : ISized {
+    i64 side
+
+    i64 size() => side
+}
+
+struct St {
+    i64 id
+    states {
+        draft
+        paid(i64 payment)
+    }
+}
+
+void g(i64 k, from move string s, to ref i64 ys, at (i64 q, i64 r) pair, by i64 -> i64 fv, for bool flag, as ReadOnlySpan<u8> bytes, through ReadOnlySpan<string> argv) uses alloc, clock, console, fs, process fails {
+    var a = k
+    var v = a
+    var mv = move s
+    var pr = ys
+    var tp = (k, a)
+    var te = pair.q
+    var cd = flag ? k : a
+    var c0 = Color.red
+    var u0 = U.b
+    var er: E = .bad(k)
+    var fc = fv(k)
+    var ar = Arena()
+    var p0 = P {}
+    var lst: List<i64> = List<i64>()
+    var nn = flag
+    var o: i64? = a
+    var str = "x"
+    var arr: i64[2] = [a, v]
+    var sb = StrBuf(capacity: k)
+    var on = Owned(a)
+    var un = Untrusted(str)
+    var mn = Io.monotonicNanos()
+    var hx = Hex.encode(bytes)
+    var fo = Color.fromOrdinal(k)
+    var q0 = Q { x: k }
+    var mp = Map<string, i64>()
+    var o2: i64? = null
+    var e2: E = .gone
+    var buf = stackalloc u8[4]
+    var sbn = StrBuf(buf)
+    var sbo = StrBuf.over(buf)
+    var rf = try Io.readFile(str)
+    var rt = try Io.readText(str)
+    var ld = try Io.listDir(str)
+    var rn = try Io.run(str, argv)
+    var rb = try Io.runBatch(str, argv)
+    var ud = try Utf8.decode(bytes)
+    var ut = Utf8.tryDecode(bytes)
+    var ur = Utf8.decode(bytes, invalid: .replace)
+    var hd = try Hex.decode(str)
+    var ip = try i64.parse(str)
+    var pi = Path.isRooted(str)
+    var pre = Path.relative(str, str)
+    var pf = Path.fileName(str)
+    var iu = string.invalidUtf8At(bytes)
+    var so = Io.stdout
+    var se = Io.stderr
+    var si = Io.stdin
+    var tr = un.trustUnchecked() because "a fixture"
+    var itp = $"{a}"
+    var sd = St.draft { id: k }
+    var ea: i64[0] = []
+    var sb0 = StrBuf()
+    var up = try u8.parse(str)
+    var vc = total(k, a)
+    var li = 5
+    var lb = true
+    var lf = 1.5
+    var ls = "lit"
+    let kc = 3
+    var kd = kc
+    var cs = 2 + 3
+    var sy: Symbol = "sym"
+    var qx = q0.x
+    var sp = St.paid { id: k, payment: a }
+    var ua = U.a(k)
+    var cv = Color.values
+    var sa = tbl
+    var sn = Symbol.intern(str)
+    var cp = Color.parse(str)
+    var hc = h(k)
+    var qg = q0.get()
+    var ap = apply(x => x)
+    inc(ref a)
+    put(out v)
+    q0.bump()
+    put(out q0.x)
+    fill(out lst)
+    var rc = R(k)
+    var lg = 2.5
+    var bn = lf - lg
+    var ng = -lf
+    var nt = !flag
+    var cvn = f64(a)
+    var ix = lst[a]
+    var sl = str[a..v]
+    var sw = str.startsWith(ls)
+    var sq = Sq { side: k }
+    let dr: dyn ref ISized = sq
+    var dz = dr.size()
+    try Io.writeFile(str, bytes)
+    print(str)
+    log(str)
+    panic(str)
+    todo(str)
+}
+
+i64 total(rest ReadOnlySpan<i64> xs) => 0
+
+i64 h(i64 x) => x
+
+i64 apply(i64 -> i64 fn) => fn(1)
+
+void inc(ref i64 x) {
+    x += 1
+}
+
+void put(out i64 x) {
+    x = 1
+}
+
+void fill(out List<i64> xs) {
+    xs = List<i64>()
+}
+
+void main() { }

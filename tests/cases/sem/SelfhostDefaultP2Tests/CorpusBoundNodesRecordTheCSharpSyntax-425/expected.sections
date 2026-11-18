@@ -1,0 +1,14 @@
+== tests/cases/diag/duplicate-declaration.byn
+19..20 nameExpr
+19..20 nameExpr
+19..20 nameExpr
+42..43 nameExpr
+42..43 nameExpr
+42..43 nameExpr
+69..88 globalStatement
+69..88 exprStmt
+69..88 callExpr
+75..87 interpolatedExpr
+78..85 callExpr
+83..84 literalExpr integer
+69..88 callExpr

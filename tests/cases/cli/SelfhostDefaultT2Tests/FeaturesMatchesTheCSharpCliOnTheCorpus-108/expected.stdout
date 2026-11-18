@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssociatedTypeDecl",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "GlobalStatement",
+    "InterfaceDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "StructDecl",
+    "StructLiteralExpr",
+    "TypeAliasDecl"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

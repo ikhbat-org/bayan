@@ -1,0 +1,30 @@
+1:1 Identifier `Å`
+2:1 Slash `/`
+2:2 Identifier `a`
+2:3 Slash `/`
+2:6 Identifier `x`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  1 │ �Å
+    │ ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ �Å
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ �Å
+    │   │  +
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ /a/ �x
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ /a/ �x
+    │   │     -

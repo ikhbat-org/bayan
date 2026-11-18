@@ -1,0 +1,33 @@
+union U {
+    a
+    b = 10
+    c = -5
+    d = 0x20
+    e = 10
+    f(i64 x) = 1
+    g = "text"
+    h(i64 p, string p, Missing q)
+    a
+    i = 2147483648
+    j = -2147483649
+    k = 2147483647
+    l = -2147483648
+    m = 7u
+    n = -x
+    o = !1
+    p2 = 40
+    q = 39
+    r
+    Bad
+}
+union Empty { }
+union G<T> {
+    one(T v)
+    two(List<T> vs)
+}
+union W {
+    a = 2147483647
+    b
+    c = -2147483648
+    d
+}

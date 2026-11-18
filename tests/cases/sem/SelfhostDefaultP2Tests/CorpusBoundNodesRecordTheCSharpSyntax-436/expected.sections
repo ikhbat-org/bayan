@@ -1,0 +1,25 @@
+== tests/cases/diag/dyn-readonly-mutation.byn
+143..221 blockStmt
+149..169 exprStmt
+149..169 callExpr
+155..168 interpolatedExpr
+158..166 callExpr
+158..159 nameExpr
+149..169 callExpr
+174..194 exprStmt
+174..194 callExpr
+180..193 interpolatedExpr
+183..191 callExpr
+174..194 callExpr
+199..219 exprStmt
+199..219 callExpr
+205..218 interpolatedExpr
+208..216 callExpr
+199..219 callExpr
+85..100 binaryExpr add right 94..100
+85..100 binaryExpr add right 94..100
+85..100 binaryExpr add right 94..100
+85..91 callExpr
+85..89 nameExpr
+94..100 callExpr
+94..98 nameExpr

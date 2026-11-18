@@ -1,0 +1,3 @@
+== bind.probes.b19
+flags 0
+coalesce:i32[2015:7]=-(local:i32?[2015:2]=-(oi) literal:i32[2021:1]=0(0))

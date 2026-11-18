@@ -1,0 +1,21 @@
+1:1 Identifier `ạ̇macro`
+1:10 Identifier `select`
+1:17 Identifier `becme`
+    doc `/// Doc line one.`
+4:1 EndOfFile
+
+error BYN0005: identifier `ạ̇macro` is not in Unicode normalization form C
+
+  1 │ ạ̇macro select becme
+    │ ^^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇macro select becme
+    │   │ +
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ ạ̇macro select becme
+    │          ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

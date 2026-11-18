@@ -1,0 +1,12 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+void main() {
+    let x: i32? = null
+    let a = true
+    if x is not null and not a {
+        print("x")
+    }
+    if a || not
+    a {
+        print("y")
+    }
+}

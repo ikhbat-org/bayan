@@ -1,0 +1,29 @@
+== tests/cases/run/errors-main-fails.byn
+126..159 blockStmt
+132..157 guardedStmt
+149..157 unaryExpr notKeyword operand 150..157
+150..157 nameExpr
+132..136 failStmt
+137..145 targetMemberExpr
+191..335 blockStmt
+197..202 deferStmt
+203..224 exprStmt
+203..224 callExpr
+209..223 literalExpr string
+203..224 callExpr
+229..252 exprStmt
+229..252 tryExpr
+233..252 callExpr
+247..251 literalExpr trueKeyword
+257..279 exprStmt
+257..279 callExpr
+263..278 literalExpr string
+257..279 callExpr
+284..308 exprStmt
+284..308 tryExpr
+288..308 callExpr
+302..307 literalExpr falseKeyword
+313..333 exprStmt
+313..333 callExpr
+319..332 literalExpr string
+313..333 callExpr

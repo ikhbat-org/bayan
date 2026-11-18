@@ -1,0 +1,11 @@
+== test dup
+block 1005..1008
+  localDecl 991..996
+    literal 972..973 : i32 = 1
+  localDecl 998..1003
+    literal 975..976 : i32 = 2
+  block 1005..1008
+local n 0 0
+local n 1 0
+requires 0 infers true
+BYN2028 71:24 `n` shadows an earlier `n` of the same type `i32` |`n` is declared on line 71|use the first one, or rename this one to say how it differs|

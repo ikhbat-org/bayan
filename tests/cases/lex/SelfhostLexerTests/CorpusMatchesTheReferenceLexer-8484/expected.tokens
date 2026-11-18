@@ -1,0 +1,40 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+2:2 IsKeyword `is`
+2:5 AndKeyword `and`
+2:9 OrKeyword `or`
+2:12 NotKeyword `not`
+2:16 WithKeyword `with`
+2:21 MoveKeyword `move`
+2:26 RefKeyword `ref`
+2:30 OutKeyword `out`
+2:34 ThisKeyword `this`
+2:39 NullKeyword `null`
+2:44 TrueKeyword `true`
+2:49 FalseKeyword `false`
+2:55 ComptimeKeyword `comptime`
+2:64 CheckedKeyword `checked`
+4:1 FailsKeyword `fails`
+4:7 TryKeyword `try`
+4:11 CatchKeyword `catch`
+4:17 Identifier `nev`
+4:20 Identifier `er`
+4:23 NoallocKeyword `noalloc`
+4:31 NosuspendKeyword `nosuspend`
+4:41 SuspendsKeyword `suspends`
+4:50 Identifier `asy`
+4:53 Bang `!`
+4:54 Identifier `nc`
+4:57 AwaitKeyword `await`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ fails try catch nev�er noalloc nosuspend suspends asy!nc await
+    │                    ^

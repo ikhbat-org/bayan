@@ -1,0 +1,36 @@
+1:1 Identifier `ạ̇`
+1:6 Equals `=`
+1:8 IntegerLiteral `2`
+4:1 FailsKeyword `fails`
+4:7 TryKeyword `try`
+4:11 CatchKeyword `catch`
+4:17 Identifier `nkver`
+4:23 Identifier `noaloc`
+4:30 NosuspendKeyword `nosuspend`
+4:40 SuspendsKeyword `suspends`
+4:49 AsyncKeyword `async`
+4:55 AwaitKeyword `await`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:11 IntegerLiteral `3`
+7:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇  = 2
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇  = 2
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ // ok � in comment
+    │       ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  6 │ let c = � 3
+    │         ^

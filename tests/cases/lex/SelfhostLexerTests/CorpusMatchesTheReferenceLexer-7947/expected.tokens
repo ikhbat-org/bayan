@@ -1,0 +1,61 @@
+1:1 Identifier `_`
+1:2 CharLiteral `'a'`
+1:6 CharLiteral `'\n'`
+1:11 CharLiteral `'\u{1F600}'`
+1:23 CharLiteral `'\''`
+1:28 CharLiteral `'é'`
+1:32 CharLiteral `'\\'`
+1:37 CharLiteral `'\0'`
+3:1 Greater `>`
+3:2 GreaterEquals `>=`
+3:5 IntegerLiteral `1`
+3:6 NumericSuffix `is`
+3:9 AndKeyword `and`
+3:13 OrKeyword `or`
+3:16 NotKeyword `not`
+3:20 WithKeyword `with`
+3:25 MoveKeyword `move`
+3:30 RefKeyword `ref`
+3:34 OutKeyword `out`
+3:38 ThisKeyword `this`
+3:43 NullKeyword `null`
+3:48 TrueKeyword `true`
+3:53 FalseKeyword `false`
+3:59 ComptimeKeyword `comptime`
+3:68 Identifier `check`
+3:73 Less `<`
+3:74 Identifier `ed`
+4:1 IntegerLiteral `0x`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD7)
+
+  1 │ _'a' '\n' '\u{1F600}' '\''�'é' '\\' '\0'
+    │                           ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x
+    │ ^^
+
+error BYN0004: unterminated block comment
+
+  5 │ /* �
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ /* �
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ /* �
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ /* �
+    │     ^

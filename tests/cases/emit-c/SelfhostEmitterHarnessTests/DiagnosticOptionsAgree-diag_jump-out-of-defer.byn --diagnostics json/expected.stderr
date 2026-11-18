@@ -1,0 +1,1 @@
+{"code":"BYN2610","severity":"error","file":"input.byn","span":{"start":31,"end":37,"line":3,"column":9,"endLine":3,"endColumn":15},"message":"`return` cannot leave a `defer` or `defer failing` body","label":null,"help":null,"fixes":[]}

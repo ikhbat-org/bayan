@@ -1,0 +1,74 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+4:1 CharLiteral `'x`
+5:3 StringLiteral `" ᄀ\u{8}�ᆨ �/* \u{202D} */`
+6:2 CharLiteral `''`
+6:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\`
+
+  5 │  \" ᄀ��ᆨ �/* � */
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │  \" ᄀ��ᆨ �/* � */
+    │   ^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  5 │  \" ᄀ��ᆨ �/* � */
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │  \" ᄀ��ᆨ �/* � */
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │  \" ᄀ��ᆨ �/* � */
+    │           ^
+
+error BYN0007: empty char literal
+
+  6 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

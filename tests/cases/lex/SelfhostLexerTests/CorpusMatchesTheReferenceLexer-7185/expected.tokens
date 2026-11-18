@@ -1,0 +1,24 @@
+1:1 RawStringLiteral `""" _0x "x{ $"{\n\r\n// \u{202E}x\n\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"\n��� b\n`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """ _0x "x{ $"{
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ��� b
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ��� b
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ��� b
+    │   ^

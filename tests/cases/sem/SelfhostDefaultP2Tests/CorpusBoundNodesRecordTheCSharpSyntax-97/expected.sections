@@ -1,0 +1,27 @@
+== tests/cases/run/generic-ref-known-state.byn
+226..227 literalExpr integer
+226..227 literalExpr integer
+226..227 literalExpr integer
+229..276 globalStatement
+229..276 localDecl
+244..276 structLiteralExpr
+261..262 literalExpr integer
+273..274 literalExpr integer
+277..362 ifStmt
+280..290 isExpr
+280..281 nameExpr
+285..290 constantPattern
+291..362 blockStmt
+297..360 exprStmt
+297..360 callExpr
+303..359 interpolatedExpr
+306..345 callExpr
+312..333 structLiteralExpr
+330..331 literalExpr integer
+343..344 nameExpr
+348..357 memberExpr
+348..349 nameExpr
+297..360 callExpr
+226..227 literalExpr integer
+226..227 literalExpr integer
+226..227 literalExpr integer

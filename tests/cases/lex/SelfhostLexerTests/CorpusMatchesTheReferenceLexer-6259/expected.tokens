@@ -1,0 +1,50 @@
+1:4 Identifier `Å`
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+3:2 TestKeyword `test`
+3:7 Identifier `ass`
+3:11 Identifier `ert`
+3:15 PropertyKeyword `property`
+3:24 FuzzKeyword `fuzz`
+3:29 Identifier `mod`
+3:32 Identifier `l`
+3:34 ForeachKeyword `foreach`
+3:42 NewKeyword `new`
+3:46 GotoKeyword `goto`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ �� �Å
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� �Å
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �� �Å
+    │    ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ �� �Å
+    │     ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ �� �Å
+    │   │     +
+
+error BYN0002: unexpected character `\u{18}`
+
+  3 │  test ass�ert property fuzz mod�l foreach new goto
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  3 │  test ass�ert property fuzz mod�l foreach new goto
+    │                                ^

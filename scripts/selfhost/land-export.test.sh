@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tests scripts/selfhost/land-export.sh on a fixture export under tmp/: byte-for-byte copies, input/ as input.tsv with the
 # files and trees stored once by content (executable bit kept), the root masked in non-input text files only, cli/SelfhostExport
-# dropped, EXPORT.tsv from UNEXPORTED.tsv, the case counts and the inventory, a rerun writing nothing, and the refusals.
+# dropped, the doctor and cc masks, a binary input naming the machine left out, a removed case, EXPORT.tsv from UNEXPORTED.tsv, the case counts
+# and the inventory, a rerun writing nothing, and the refusals.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 tool="$root/scripts/selfhost/land-export.sh"
@@ -29,6 +30,16 @@ printf "NO_COLOR\nLANG=C\n" > "$D/Plain/env"
 printf "◆ cache       %s/tmp/p (writable)\n◆ git         /opt/homebrew/bin/git\n" "$R" > "$D/Seeded/expected.stdout"
 printf "BAYAN_CACHE=%s/tmp/p\n" "$R" > "$D/Seeded/env"
 printf "%s[32m◆%s[0m host        macos-arm64\n* zig         /opt/z\n" "$E" "$E" > "$D/Color/expected.stdout"
+printf 'doctor\n' | tee "$D/Plain/args" "$D/Seeded/args" > "$D/Color/args"
+mkdir -p "$D/Build" "$x/cli/SelfhostDefaultT9Tests/Arm"                             # doctor by args, not by class
+printf 'build\n' > "$D/Build/args"; printf "◆ host        macos-arm64\n" > "$D/Build/expected.stdout"
+printf -- '--ascii\ndoctor\n' > "$x/cli/SelfhostDefaultT9Tests/Arm/args"
+printf "* host        macos-arm64\n* git         /opt/homebrew/bin/git\n" > "$x/cli/SelfhostDefaultT9Tests/Arm/expected.stdout"
+G=$x/sem/GammaTests/Three; mkdir -p "$G/input"                                       # a binary input naming the machine is left out
+printf 'k\n' > "$G/input/keep.txt"; printf 'o\000/Users/q/a.c\n' > "$G/input/host.o"
+F=$x/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-14; mkdir -p "$F/input"
+printf 'features\n.\n' > "$F/args"; printf 'dll\n' > "$F/input/x.dll"
+W=$x/cli/SelfhostDriverT5Tests/CannotWriteTheOutputAsCliApp-5; mkdir -p "$W"; printf 'build\n' > "$W/args"   # (2d) removed
 printf "x\nC compiler failed (exit 1):\nIn file /Users/q/zig/a.h:2\n  error\n" > "$x/cli/SelfhostDefaultT12Tests/Cc/expected.stderr"
 printf "keep\n" > "$x/cli/SelfhostDefaultT12Tests/Cc/expected.stdout"
 printf 'lex\n' > "$x/cli/SelfhostExport/Probe/args"
@@ -39,10 +50,10 @@ chmod +x "$x/sem/GammaTests/Two/input/run.sh"
 printf 's\n' > "$x/sem/GammaTests/Two/section"
 printf 'path\n' > "$x/runtime/macos/path-relative.in"
 { printf 'class\tfile\tfamily\ttests\tdisposition\ttarget\treason\tmemberdata\n'
-  printf 'AlphaTests\ta\tcli\t3\tcli\tcli\tr\t\nBetaTests\tb\tcli\t1\tcli\tcli\tr\t\nGammaTests\tg\tsem\t1\tsem\tsem\tr\t\n'; } > "$t/tests/inventory-019.tsv"
+  printf 'AlphaTests\ta\tcli\t3\tcli\tcli\tr\t\nBetaTests\tb\tcli\t1\tcli\tcli\tr\t\nGammaTests\tg\tsem\t2\tsem\tsem\tr\t\n'; } > "$t/tests/inventory-019.tsv"
 
 out="$(bash "$tool" "$x" "$R/" "$d")" || fail "first run failed: $out"
-[ "$out" = "land-export: 7 cases, 3 new input files, 2 new input trees, 17 files written" ] || fail "first run counts: $out"
+[ "$(tail -n1 <<<"$out")" = "land-export: 11 cases, 4 new input files, 2 new input trees, 26 files written" ] || fail "first run counts: $out"
 
 # (1) input/ as input.tsv; files and trees once by content
 o="$d/cli/AlphaTests/One"
@@ -53,7 +64,7 @@ sub="$(printf 'b.txt\tfile:%s\nrun.sh\tfile+x:%s\n' "$hx" "$hr")"; hs="$(printf 
 [ "$(cat "$d/inputs/trees/$hs.tsv")" = "$sub" ] || fail "sub tree file"
 [ -f "$d/inputs/trees/$he.tsv" ] && [ ! -s "$d/inputs/trees/$he.tsv" ] || fail "empty tree file"
 [ "$(cat "$d/sem/GammaTests/Two/input.tsv")" = "$sub" ] || fail "the same tree in another case lists the same lines"
-[ "$(ls "$d/inputs/files" | wc -l | tr -d ' ')" = 3 ] || fail "files stored more than once: $(ls "$d/inputs/files")"
+[ "$(ls "$d/inputs/files" | wc -l | tr -d ' ')" = 4 ] || fail "files stored more than once: $(ls "$d/inputs/files")"
 cmp -s "$d/inputs/files/$hr" "$c/input/sub/run.sh" || fail "stored file differs"
 # byte for byte, and (2) the root masked in non-input text only
 cmp -s "$o/expected.exitcode" "$c/expected.exitcode" || fail "expected.exitcode not byte for byte"
@@ -68,6 +79,13 @@ printf "◆ cache       <repo>/tmp/p (writable)\n◆ git         <host>\n" | cmp
 printf "%s[32m◆%s[0m host        <host>\n* zig         <host>\n" "$(printf "\033")" "$(printf "\033")" | cmp -s - "$D/Color/expected.stdout" || fail "coloured doctor mask"
 printf "x\nC compiler failed (exit 1):\n<cc output>\n" | cmp -s - "$d/cli/SelfhostDefaultT12Tests/Cc/expected.stderr" || fail "cc output mask"
 printf "keep\n" | cmp -s - "$d/cli/SelfhostDefaultT12Tests/Cc/expected.stdout" || fail "cc mask touched a stdout without the line"
+printf "◆ host        macos-arm64\n" | cmp -s - "$D/Build/expected.stdout" || fail "doctor mask on a case that runs no doctor"
+printf "* host        <host>\n* git         <host>\n" | cmp -s - "$d/cli/SelfhostDefaultT9Tests/Arm/expected.stdout" || fail "doctor mask in another class"
+[ "$(cat "$d/sem/GammaTests/Three/input.tsv")" = "$(printf 'keep.txt\tfile:%s' "$(printf 'k\n' | h)")" ] || fail "binary naming the machine kept: $(cat "$d/sem/GammaTests/Three/input.tsv")"
+grep -q "^land-export: sem/GammaTests/Three: left out host.o" <<<"$out" || fail "left-out file not printed: $out"
+[ ! -e "$d/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-14/input.tsv" ] && [ -f "$d/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-14/args" ] || fail "FeaturesMatchesTheCSharpCli-14 input"
+[ ! -e "$d/cli/SelfhostDriverT5Tests" ] || fail "a removed case landed"
+grep -q "^land-export: cli/SelfhostDriverT5Tests/CannotWriteTheOutputAsCliApp-5: removed (" <<<"$out" || fail "removed case not printed: $out"
 [ "$(cat "$o/args")" = "$(printf 'build\n<repo>/tmp/a.byn')" ] || fail "args not masked: $(cat "$o/args")"
 printf 'error at <repo>/src/x.byn and <repo>/y' | cmp -s - "$o/expected.stdout" || fail "stdout not masked or final newline added"
 cmp -s "$d/sem/GammaTests/Two/section" "$x/sem/GammaTests/Two/section" || fail "section"
@@ -75,13 +93,13 @@ cmp -s "$d/sem/GammaTests/Two/section" "$x/sem/GammaTests/Two/section" || fail "
 [ ! -e "$d/cli/SelfhostExport" ] || fail "cli/SelfhostExport landed"
 [ ! -e "$d/cli/UNEXPORTED.tsv" ] && [ ! -e "$d/cli/counts.tsv" ] && [ ! -e "$d/runtime" ] || fail "a non-case file landed"
 # (4) EXPORT.tsv
-want="$(printf 'class\tkind\ttests\tcases\treason\nAlphaTests\tcli\t3\t2\t1 not exported: One (build <repo>/tmp/b.byn)\nBetaTests\tcli\t1\t0\t1 not exported: NoCase (cache after evicting (not exported: API-level))\nGammaTests\tsem\t1\t1\t\nSelfhostDefaultT12Tests\tcli\t\t1\t\nSelfhostDefaultT5Tests\tcli\t\t3\t')"
+want="$(printf 'class\tkind\ttests\tcases\treason\nAlphaTests\tcli\t3\t2\t1 not exported: One (build <repo>/tmp/b.byn)\nBetaTests\tcli\t1\t0\t1 not exported: NoCase (cache after evicting (not exported: API-level))\nGammaTests\tsem\t2\t2\t\nSelfhostDefaultT12Tests\tcli\t\t1\t\nSelfhostDefaultT2Tests\tcli\t\t1\t\nSelfhostDefaultT5Tests\tcli\t\t4\t\nSelfhostDefaultT9Tests\tcli\t\t1\t\nSelfhostDriverT5Tests\tcli\t\t0\t1 removed: CannotWriteTheOutputAsCliApp-5 (its input out/safe/macos-arm64/read-only named the export machine and was left out)')"
 [ "$(cat "$d/EXPORT.tsv")" = "$want" ] || fail "EXPORT.tsv: $(cat "$d/EXPORT.tsv")"
 
 # a rerun over the same input writes nothing
 touch "$t/marker"
 out="$(bash "$tool" "$x" "$R" "$d")" || fail "rerun failed: $out"
-[ "$out" = "land-export: 7 cases, 0 new input files, 0 new input trees, 0 files written" ] || fail "rerun counts: $out"
+[ "$(tail -n1 <<<"$out")" = "land-export: 11 cases, 0 new input files, 0 new input trees, 0 files written" ] || fail "rerun counts: $out"
 [ -z "$(find "$d" -newer "$t/marker")" ] || fail "rerun touched: $(find "$d" -newer "$t/marker")"
 
 # refusals

@@ -1,0 +1,69 @@
+note BYN1079: the type is known from the target; write `[]`
+  --> tmp/t26-tests/cli/diag_style-literals-empty.byn/style-literals-empty.byn:8:23
+
+  8 │     List<i32> items = List<i32>()
+    │                       ^^^^^^^^^^^ spells out the declared type
+    │
+  help: write `[]`
+    │ 8 │     List<i32> items = []
+    │   │                       ++
+
+note BYN1079: the type is known from the target; write `[]`
+  --> tmp/t26-tests/cli/diag_style-literals-empty.byn/style-literals-empty.byn:9:31
+
+  9 │     Map<string, i32> counts = Map<string, i32>()
+    │                               ^^^^^^^^^^^^^^^^^^ spells out the declared type
+    │
+  help: write `[]`
+    │ 9 │     Map<string, i32> counts = []
+    │   │                               ++
+
+note BYN1079: the type is known from the target; write `{}`
+  --> tmp/t26-tests/cli/diag_style-literals-empty.byn/style-literals-empty.byn:10:20
+
+  10 │     Point origin = Point {}
+     │                    ^^^^^^^^ spells out the declared type
+     │
+  help: write `{}`
+     │ 10 │     Point origin = Point {}
+     │    │                    ------
+
+note BYN1079: the type is known from the target; write `[]`
+  --> tmp/t26-tests/cli/diag_style-literals-empty.byn/style-literals-empty.byn:14:25
+
+  14 │     let xs: List<i32> = List<i32>()
+     │                         ^^^^^^^^^^^ spells out the declared type
+     │
+  help: write `[]`
+     │ 14 │     let xs: List<i32> = []
+     │    │                         ++
+
+note BYN1079: the type is known from the target; write `[]`
+  --> tmp/t26-tests/cli/diag_style-literals-empty.byn/style-literals-empty.byn:15:31
+
+  15 │     let m: Map<string, i32> = Map<string, i32>()
+     │                               ^^^^^^^^^^^^^^^^^^ spells out the declared type
+     │
+  help: write `[]`
+     │ 15 │     let m: Map<string, i32> = []
+     │    │                               ++
+
+note BYN1079: the type is known from the target; write `{}`
+  --> tmp/t26-tests/cli/diag_style-literals-empty.byn/style-literals-empty.byn:16:20
+
+  16 │     let p: Point = Point {}
+     │                    ^^^^^^^^ spells out the declared type
+     │
+  help: write `{}`
+     │ 16 │     let p: Point = Point {}
+     │    │                    ------
+
+note BYN1079: the type is known from the target; write `[]`
+  --> tmp/t26-tests/cli/diag_style-literals-empty.byn/style-literals-empty.byn:19:28
+
+  19 │     let other: List<i64> = List<i64>()
+     │                            ^^^^^^^^^^^ spells out the declared type
+     │
+  help: write `[]`
+     │ 19 │     let other: List<i64> = []
+     │    │                            ++

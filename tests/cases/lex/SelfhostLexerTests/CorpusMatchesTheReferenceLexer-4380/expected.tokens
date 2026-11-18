@@ -1,0 +1,48 @@
+2:2 LetKeyword `let`
+2:6 LawKeyword `law`
+2:10 Equals `=`
+2:12 IntegerLiteral `3`
+3:3 CharLiteral `''`
+4:2 Identifier `a`
+5:1 FloatLiteral `3.14`
+5:6 FloatLiteral `1e5`
+5:10 FloatLiteral `2.5e-3`
+5:17 IntegerLiteral `6`
+5:18 NumericSuffix `E`
+5:19 Plus `+`
+5:21 FloatLiteral `1.50`
+5:25 NumericSuffix `dec`
+5:29 IntegerLiteral `1`
+5:30 DotDot `..`
+5:32 IntegerLiteral `2`
+5:34 IntegerLiteral `1`
+5:35 DotDotEquals `..=`
+5:38 IntegerLiteral `3`
+5:40 IntegerLiteral `5`
+5:41 NumericSuffix `e`
+5:43 Identifier `x`
+5:44 Dot `.`
+5:45 Identifier `y`
+5:47 FloatLiteral `2.5`
+5:50 NumericSuffix `f`
+6:1 CharLiteral `''`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │  �''
+    │  ^
+
+error BYN0007: empty char literal
+
+  3 │  �''
+    │   ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0007: empty char literal
+
+  6 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

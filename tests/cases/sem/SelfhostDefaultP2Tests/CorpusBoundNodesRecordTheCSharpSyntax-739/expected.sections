@@ -1,0 +1,3 @@
+== tests/cases/diag/particle-required.byn
+165..179 blockStmt
+171..177 returnStmt

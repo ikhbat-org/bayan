@@ -1,0 +1,18 @@
+1:1 Comma `,`
+1:3 Dot `.`
+1:5 DotDot `..`
+1:8 DotDotEquals `..=`
+1:12 Colon `:`
+1:14 Question `?`
+1:16 QuestionQuestion `??`
+1:19 QuestionQuestionEquals `??=`
+1:23 QuestionDot `?.`
+1:26 FatArrow `=>`
+1:29 Arrow `->`
+1:32 At `@`
+1:34 Hash `#`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 EndOfFile

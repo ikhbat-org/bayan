@@ -1,0 +1,4 @@
+== tests/cases/diag/missing-interface-member.byn
+107..108 literalExpr integer
+107..108 literalExpr integer
+107..108 literalExpr integer

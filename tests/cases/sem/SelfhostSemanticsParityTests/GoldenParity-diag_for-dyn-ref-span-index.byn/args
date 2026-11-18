@@ -1,0 +1,4 @@
+--golden
+--package
+<repo>/tests/cases/diag
+<repo>/tests/cases/diag/for-dyn-ref-span-index.byn

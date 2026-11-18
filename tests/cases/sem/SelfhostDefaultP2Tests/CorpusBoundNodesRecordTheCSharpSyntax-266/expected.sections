@@ -1,0 +1,169 @@
+== tests/cases/run/static-arrays.byn
+269..543 blockStmt
+275..290 localDecl
+289..290 literalExpr integer
+295..316 localDecl
+304..316 memberExpr
+304..309 nameExpr
+321..482 whileStmt
+327..334 binaryExpr lt right 332..334
+327..329 nameExpr
+332..334 nameExpr
+335..482 blockStmt
+345..373 localDecl
+355..373 binaryExpr add right 360..373
+355..357 nameExpr
+360..373 binaryExpr div right 372..373
+361..368 binaryExpr sub right 366..368
+361..363 nameExpr
+366..368 nameExpr
+372..373 literalExpr integer
+382..476 ifStmt
+385..401 binaryExpr lt right 398..401
+385..395 indexExpr
+385..390 nameExpr
+391..394 nameExpr
+398..401 nameExpr
+402..438 blockStmt
+416..428 assignStmt assign target 416..418 value 421..428
+416..418 nameExpr
+421..428 binaryExpr add right 427..428
+421..424 nameExpr
+427..428 literalExpr integer
+444..476 blockStmt
+458..466 assignStmt assign target 458..460 value 463..466
+458..460 nameExpr
+463..466 nameExpr
+487..541 returnStmt value 494..541
+494..541 conditionalExpr
+494..531 binaryExpr logicalAnd right 515..531
+494..511 binaryExpr lt right 499..511
+494..496 nameExpr
+499..511 memberExpr
+499..504 nameExpr
+515..531 binaryExpr eq right 528..531
+515..524 indexExpr
+515..520 nameExpr
+521..523 nameExpr
+528..531 nameExpr
+534..536 nameExpr
+539..541 unaryExpr negate operand 540..541
+573..585 indexExpr
+573..585 indexExpr
+573..585 indexExpr
+573..579 nameExpr
+580..581 literalExpr integer
+583..584 literalExpr integer
+587..628 globalStatement
+587..628 localDecl
+606..628 collectionExpr
+607..608 literalExpr integer
+610..611 literalExpr integer
+613..614 literalExpr integer
+616..618 literalExpr integer
+620..622 literalExpr integer
+624..627 literalExpr integer
+629..698 forStmt
+640..644 nameExpr
+645..698 blockStmt
+651..696 exprStmt
+651..696 callExpr
+657..695 interpolatedExpr
+660..663 nameExpr
+669..693 callExpr
+676..682 nameExpr
+676..682 nameExpr
+689..692 nameExpr
+651..696 callExpr
+699..767 exprStmt
+699..767 callExpr
+705..766 interpolatedExpr
+715..728 memberExpr
+715..721 nameExpr
+736..746 indexExpr
+736..742 nameExpr
+744..745 literalExpr integer
+755..764 indexExpr
+755..761 nameExpr
+762..763 literalExpr integer
+699..767 callExpr
+768..793 localDecl
+781..793 indexExpr
+781..787 nameExpr
+788..789 literalExpr integer
+791..792 literalExpr integer
+794..863 exprStmt
+794..863 callExpr
+800..862 interpolatedExpr
+809..822 memberExpr
+809..815 nameExpr
+825..834 indexExpr
+825..831 nameExpr
+832..833 literalExpr integer
+837..860 callExpr
+844..850 nameExpr
+857..859 literalExpr integer
+794..863 callExpr
+864..926 exprStmt
+864..926 callExpr
+870..925 interpolatedExpr
+878..887 indexExpr
+878..884 callExpr
+885..886 literalExpr integer
+895..923 callExpr
+902..913 memberExpr
+902..908 nameExpr
+920..922 literalExpr integer
+864..926 callExpr
+927..971 exprStmt
+927..971 callExpr
+933..970 interpolatedExpr
+936..943 indexExpr
+936..940 nameExpr
+941..942 literalExpr integer
+946..956 indexExpr
+946..953 nameExpr
+954..955 literalExpr integer
+959..968 indexExpr
+959..965 nameExpr
+966..967 literalExpr integer
+927..971 callExpr
+972..988 localDecl
+987..988 literalExpr integer
+989..1021 forStmt
+998..1004 nameExpr
+1005..1021 blockStmt
+1011..1019 assignStmt add target 1011..1014 value 1018..1019
+1011..1014 nameExpr
+1018..1019 nameExpr
+1018..1019 nameExpr
+1022..1041 exprStmt
+1022..1041 callExpr
+1028..1040 interpolatedExpr
+1035..1038 nameExpr
+1022..1041 callExpr
+19..21 literalExpr integer
+46..101 collectionExpr
+47..48 literalExpr integer
+50..51 literalExpr integer
+53..54 literalExpr integer
+56..57 literalExpr integer
+59..61 literalExpr integer
+63..65 literalExpr integer
+67..69 literalExpr integer
+71..73 literalExpr integer
+75..77 literalExpr integer
+79..81 literalExpr integer
+83..85 literalExpr integer
+87..100 binaryExpr add right 99..100
+124..143 collectionExpr
+125..129 literalExpr trueKeyword
+131..136 literalExpr falseKeyword
+138..142 literalExpr trueKeyword
+169..184 collectionExpr
+170..173 literalExpr char
+175..178 literalExpr char
+180..183 literalExpr char
+208..218 collectionExpr
+209..212 literalExpr floatKeyword
+214..217 literalExpr floatKeyword

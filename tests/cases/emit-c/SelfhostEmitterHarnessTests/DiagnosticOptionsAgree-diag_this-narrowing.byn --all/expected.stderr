@@ -1,0 +1,145 @@
+error BYN7002: `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  --> input.byn:30:24
+
+  30 │     i64 unchecked() => payment
+     │                        ^^^^^^^
+     │
+  help: match `.paid` with `is` or `switch` before reading `payment`
+
+error BYN7002: `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  --> input.byn:35:16
+
+  35 │         return payment
+     │                ^^^^^^^
+     │
+  help: match `.paid` with `is` or `switch` before reading `payment`
+
+error BYN7003: `again` calls `reset`, which changes the state; declare `becomes` on `again`
+  --> input.byn:61:13
+
+  61 │             reset()
+     │             ^^^^^^^
+     │
+  help: add `becomes .draft` to the signature of `again`
+     │ 59 │     void again(ref this) becomes .draft {
+     │    │                         +++++++++++++++
+
+error BYN7002: `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  --> input.byn:62:22
+
+  62 │             print($"{payment}")
+     │                      ^^^^^^^
+     │
+  help: match `.paid` with `is` or `switch` before reading `payment`
+
+error BYN7002: `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  --> input.byn:70:18
+
+  70 │         print($"{payment}")
+     │                  ^^^^^^^
+     │
+  help: match `.paid` with `is` or `switch` before reading `payment`
+
+error BYN7001: `onlyPaid` needs `this` to be `.paid`, but it is `Order`
+  --> input.byn:71:18
+
+  71 │         print($"{onlyPaid()}")
+     │                  ^^^^^^^^
+     │
+  help: check the state with `is` or `switch` first
+
+error BYN7002: `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  --> input.byn:78:18
+
+  78 │         print($"{payment}")
+     │                  ^^^^^^^
+     │
+  help: match `.paid` with `is` or `switch` before reading `payment`
+
+error BYN7001: `onlyPaid` needs `this` to be `.paid`, but it is `Order`
+  --> input.byn:79:18
+
+  79 │         print($"{onlyPaid()}")
+     │                  ^^^^^^^^
+     │
+  help: check the state with `is` or `switch` first
+
+error BYN7002: `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  --> input.byn:85:22
+
+  85 │             print($"{payment}")
+     │                      ^^^^^^^
+     │
+  help: match `.paid` with `is` or `switch` before reading `payment`
+
+error BYN7010: `total` declares `becomes .draft` but takes `move this is .paid`; a transition needs
+`ref this`
+  --> input.byn:91:15
+
+  91 │     i64 total(move this is .paid) becomes .draft {
+     │               ^^^^^^^^^^^^^^^^^^
+     │
+  help: change the receiver of `total` to `ref this`, or return the new state as a value
+     │ 91 │     i64 total(ref this is .paid) becomes .draft {
+     │    │               +++
+
+error BYN7002: `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  --> input.byn:99:20
+
+  99 │             sum += payment
+     │                    ^^^^^^^
+     │
+  help: match `.paid` with `is` or `switch` before reading `payment`
+
+error BYN7001: `onlyPaid` needs `this` to be `.paid`, but it is `Order`
+  --> input.byn:100:20
+
+  100 │             sum += onlyPaid()
+      │                    ^^^^^^^^
+      │
+  help: check the state with `is` or `switch` first
+
+error BYN7003: `erase` calls `reset`, which changes the state; declare `becomes` on `erase`
+  --> input.byn:117:9
+
+  117 │         reset()
+      │         ^^^^^^^
+      │
+  help: add `becomes .draft` to the signature of `erase`
+      │ 116 │     void erase(ref this) becomes .draft {
+      │     │                         +++++++++++++++
+
+error BYN7003: `eraseTo` calls `reset`, which changes the state; declare `becomes` on `eraseTo`
+  --> input.byn:120:9
+
+  120 │         reset()
+      │         ^^^^^^^
+      │
+  help: add `becomes .draft` to the signature of `eraseTo`
+
+error BYN7009: `handleCharge` declares `becomes .paid` but returns here without `become`
+  --> input.byn:134:5
+
+  134 │     }
+      │     ^
+      │
+  help: add `become .paid(…)` before returning, or fail
+
+error BYN7002: `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  --> input.byn:147:26
+
+  147 │                 print($"{payment}")
+      │                          ^^^^^^^
+      │
+  help: match `.paid` with `is` or `switch` before reading `payment`
+
+error BYN7012: `o` would change state here; a state changes only through `become`
+  --> input.byn:155:5
+
+  155 │     o = Order.draft { id: o.id }
+      │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │
+  help: assign a value in the same state, or move the transition into a `becomes` method
+
+✗ build failed: 17 errors, 0 warnings
+  explain: bayan explain BYN7002

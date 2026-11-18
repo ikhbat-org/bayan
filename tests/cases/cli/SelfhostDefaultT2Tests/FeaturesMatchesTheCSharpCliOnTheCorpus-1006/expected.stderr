@@ -1,0 +1,7 @@
+error BYN2032: no std module `std.nope`
+  --> <repo>/tests/cases/diag/unknown-std-module.byn:1:8
+
+  1 │ import std.nope
+    │        ^^^^^^^^
+    │
+  help: import one of `std.json`

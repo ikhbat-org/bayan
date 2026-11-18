@@ -1,0 +1,60 @@
+1:1 Identifier `x́́let`
+1:8 Identifier `café`
+1:14 Equals `=`
+1:16 IntegerLiteral `1`
+2:10 IntegerLiteral `0x`
+2:13 Amp `&`
+2:15 AmpAmp `&&`
+2:18 Bar `|`
+2:20 BarBar `||`
+2:23 Caret `^`
+2:25 Tilde `~`
+2:27 Bang `!`
+2:29 Equals `=`
+2:31 EqualsEquals `==`
+2:34 BangEquals `!=`
+2:37 Less `<`
+2:39 LessEquals `<=`
+2:42 Greater `>`
+2:44 GreaterEquals `>=`
+2:47 LessLess `<<`
+2:50 Greater `>`
+2:51 Greater `>`
+2:53 Greater `>`
+2:54 GreaterEquals `>=`
+3:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ x́́let café = 1
+    │        ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ x́́let café = 1
+    │   │           +
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │  �/* � */0x & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │   ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │  �// �
+    │   │    +++
+    │ 3 │  0x & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │   │ +
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  2 │  �/* � */0x & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  �/* � */0x & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │   │      -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  �/* � */0x & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │          ^^

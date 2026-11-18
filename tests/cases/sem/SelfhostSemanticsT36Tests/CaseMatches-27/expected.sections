@@ -1,0 +1,16 @@
+== x-switch
+BYN2409 6:9 `switch` has more than one `default` section |||
+fn main
+block 12..130
+  localDecl 18..27
+    literal 26..27 : i32
+  switchStmt 32..128
+    local 39..40 : i32
+    exprStmt 72..82
+      call 72..82 : void
+        literal 78..81 : string
+        enumMember 72..82 : Stream
+    exprStmt 112..122
+      call 112..122 : void
+        literal 118..121 : string
+        enumMember 112..122 : Stream

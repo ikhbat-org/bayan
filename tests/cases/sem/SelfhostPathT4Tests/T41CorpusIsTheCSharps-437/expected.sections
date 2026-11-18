@@ -1,0 +1,3 @@
+== diags.diag/mutate-temporary
+BYN2106 2:1 cannot modify this value
+  label a `ReadOnlySpan` cannot be written through

@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "hello.byn",
+      "name": "main",
+      "span": {
+        "start": 5,
+        "end": 9
+      },
+      "bindings": []
+    }
+  ]
+}

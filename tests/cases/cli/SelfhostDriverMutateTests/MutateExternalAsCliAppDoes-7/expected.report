@@ -1,0 +1,281 @@
+{
+  "version": 1,
+  "kind": "mutation",
+  "tool": "bayan mutate",
+  "timing": {
+    "build_s": 0,
+    "mean_mutant_s": <t>,
+    "max_mutant_s": <t>,
+    "total_s": <t>,
+    "mutant_share_of_build": 0
+  },
+  "files": [
+    {
+      "path": "c.byn",
+      "mutants": [
+        {
+          "site": {
+            "id": 1,
+            "file": "c.byn",
+            "line": 1,
+            "column": 1,
+            "operator": "boundary",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "add a case at the boundary value"
+        },
+        {
+          "site": {
+            "id": 2,
+            "file": "c.byn",
+            "line": 2,
+            "column": 1,
+            "operator": "relational",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "add a case where the two operands are equal and one where they differ"
+        },
+        {
+          "site": {
+            "id": 3,
+            "file": "c.byn",
+            "line": 3,
+            "column": 1,
+            "operator": "logical",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "add a case where exactly one operand holds"
+        },
+        {
+          "site": {
+            "id": 4,
+            "file": "c.byn",
+            "line": 4,
+            "column": 1,
+            "operator": "condition",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "add a case where the condition is false and one where it is true, and assert the difference"
+        },
+        {
+          "site": {
+            "id": 5,
+            "file": "c.byn",
+            "line": 5,
+            "column": 1,
+            "operator": "bool",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "add a case that depends on this value"
+        },
+        {
+          "site": {
+            "id": 6,
+            "file": "c.byn",
+            "line": 6,
+            "column": 1,
+            "operator": "arithmetic",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "add a case whose result differs under the changed operator"
+        },
+        {
+          "site": {
+            "id": 7,
+            "file": "c.byn",
+            "line": 7,
+            "column": 1,
+            "operator": "literal",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "add a case that depends on this exact number"
+        },
+        {
+          "site": {
+            "id": 8,
+            "file": "c.byn",
+            "line": 8,
+            "column": 1,
+            "operator": "negation",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "add a case with a non-zero operand and assert the sign"
+        },
+        {
+          "site": {
+            "id": 9,
+            "file": "c.byn",
+            "line": 9,
+            "column": 1,
+            "operator": "statement",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "assert the effect of this statement"
+        },
+        {
+          "site": {
+            "id": 10,
+            "file": "c.byn",
+            "line": 10,
+            "column": 1,
+            "operator": "emptyReturn",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "assert the returned value is not the empty value"
+        },
+        {
+          "site": {
+            "id": 11,
+            "file": "c.byn",
+            "line": 11,
+            "column": 1,
+            "operator": "variant",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "add a case that asserts which error variant is returned"
+        },
+        {
+          "site": {
+            "id": 12,
+            "file": "c.byn",
+            "line": 12,
+            "column": 1,
+            "operator": "mystery",
+            "original": "a",
+            "mutated": "b"
+          },
+          "status": "survived",
+          "suggestion": "add a case that fails under this change"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "killed": 0,
+    "survived": 12,
+    "timeout": 0,
+    "marked": 0,
+    "not_reached": 0,
+    "not_emitted": 0
+  },
+  "operators": {
+    "boundary": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "relational": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "logical": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "condition": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "bool": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "arithmetic": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "literal": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "negation": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "statement": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "emptyReturn": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "variant": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "mystery": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    }
+  }
+}

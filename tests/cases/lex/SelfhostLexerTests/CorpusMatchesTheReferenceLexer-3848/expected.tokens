@@ -1,0 +1,52 @@
+2:16 Identifier `a`
+3:1 IntegerLiteral `0x`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `ope `
+5:7 InterpolationStart `{`
+5:8 Identifier `x`
+5:9 StringLiteral `";`
+8:1 IntegerLiteral `1`
+8:2 NumericSuffix `e`
+    doc `/// Doc line one`
+10:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // block
+    │   │  +++++++
+    │ 2 │ // comment
+    │   │ ++++++++++
+    │ 3 │  a
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"ope {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"ope {x";
+    │         ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  6 │  // ok � in comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  8 │ 1e � /// Doc line one
+    │    ^

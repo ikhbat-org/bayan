@@ -1,0 +1,96 @@
+1:1 CharLiteral `''`
+3:1 IntegerLiteral `1_`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:20 OpenBrace `{`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolationStart `{`
+4:24 InterpolatedStringStart `$"`
+4:26 InterpolationStart `{`
+4:27 InterpolatedStringStart `$"`
+4:29 InterpolationStart `{`
+4:30 InterpolatedStringStart `$"`
+4:32 InterpolationStart `{`
+4:33 InterpolatedStringStart `$"`
+4:35 InterpolationStart `{`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolationStart `{`
+4:39 InterpolatedStringStart `$"`
+4:41 InterpolationStart `{`
+4:42 InterpolatedStringStart `$"`
+4:44 InterpolationStart `{`
+4:45 InterpolatedStringStart `$"`
+4:47 InterpolationStart `{`
+4:48 InterpolatedStringStart `$"`
+4:50 InterpolationStart `{`
+4:51 StringLiteral `$"{$"`
+4:56 OpenBrace `{`
+4:57 StringLiteral `$"{$"`
+4:62 OpenBrace `{`
+4:63 Identifier `x`
+4:65 Identifier `f`
+4:67 Identifier `ele`
+4:71 UnlessKeyword `unless`
+4:78 Identifier `swi`
+4:83 Identifier `a`
+4:85 Greater `>`
+4:86 Greater `>`
+4:88 Identifier `b`
+5:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1_
+    │  ^
+    │
+    │ 3 │ 1_
+    │   │  -
+
+error BYN0002: unexpected character `$`
+
+  4 │ $"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x f ele unless swi ���a >> b
+    │                   ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x f ele unless swi ���a >> b
+    │                                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x f ele unless swi ���a >> b
+    │                                                   ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ $"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x f ele unless swi ���a >> b
+    │                                                                                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ $"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x f ele unless swi ���a >> b
+    │                                                                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ $"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x f ele unless swi ���a >> b
+    │                                                                                    ^

@@ -1,0 +1,1 @@
+{"code":"BYN3218","severity":"error","file":"input.byn","span":{"start":40,"end":68,"line":3,"column":14,"endLine":3,"endColumn":42},"message":"this `requires` reads `it` and other fields","label":null,"help":"split it: an `it` rule under the field, and a struct-level rule with `at .field`","fixes":[]}

@@ -1,0 +1,10 @@
+1:1 IntegerLiteral `0b102`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `{{`
+3:5 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^

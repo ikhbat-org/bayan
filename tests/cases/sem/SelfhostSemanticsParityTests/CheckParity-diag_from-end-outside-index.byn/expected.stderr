@@ -1,0 +1,8 @@
+error BYN2214: `^` is only allowed inside an index or slice
+  --> tmp/t26-tests/cli/diag_from-end-outside-index.byn/from-end-outside-index.byn:1:9
+
+  1 │ let i = ^1
+    │         ^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2214

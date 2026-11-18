@@ -1,0 +1,40 @@
+1:1 IntegerLiteral `0`
+1:2 Identifier `b__`
+3:1 CharLiteral `'\u{110000}'`
+4:2 IntegerLiteral `64`
+4:4 Greater `>`
+4:5 Greater `>`
+5:1 Identifier `a`
+5:3 Greater `>`
+5:4 Greater `>`
+5:6 Identifier `b`
+6:1 Identifier `c`
+6:3 Greater `>`
+6:4 GreaterEquals `>=`
+6:7 IntegerLiteral `1`
+7:2 Identifier `a`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  1 │ 0�b__
+    │  ^
+
+error BYN0002: unexpected character `̈́`
+
+  2 │ ̈́
+    │ ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0004: unterminated block comment
+
+  7 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

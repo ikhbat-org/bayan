@@ -1,0 +1,32 @@
+1:1 Star `*`
+1:2 Slash `/`
+2:1 StringLiteral `"a\u{2067}b"`
+2:7 Identifier `u`
+2:8 OpenBrace `{`
+2:9 IntegerLiteral `48`
+2:11 CloseBrace `}`
+2:12 Identifier `i`
+2:13 StringLiteral `"%`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `a`
+4:4 InterpolationStart `{`
+4:5 Identifier `b`
+4:6 InterpolationEnd `}`
+4:7 InterpolatedStringText `c`
+4:8 InterpolatedStringEnd
+5:1 OpenBrace `{`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ "a�b" u{48}i"%
+    │             ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

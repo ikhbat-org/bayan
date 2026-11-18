@@ -1,0 +1,30 @@
+interface IShape { }
+interface IOrder<T> { }
+struct Point {
+    i64 x
+}
+struct Box<T> where T : IShape, IOrder<T> where U : IShape {
+    i64 n
+}
+struct NoParams where T : IShape {
+    i64 n
+}
+enum Color where T : IShape {
+    red
+}
+union Maybe<T> where T : Point {
+    none
+}
+interface IWrap<T> where T : Missing { }
+void f<T>(T a) where T : IShape, T { }
+void g() where Q : IShape { }
+struct Key {
+    i64 x
+}
+struct Bad {
+    f64 x
+}
+struct Holder {
+    Map<Key, i64> good
+    Map<Bad, i64> bad
+}

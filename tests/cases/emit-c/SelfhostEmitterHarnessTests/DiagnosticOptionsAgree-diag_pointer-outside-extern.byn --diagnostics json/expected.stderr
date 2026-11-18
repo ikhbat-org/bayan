@@ -1,0 +1,1 @@
+{"code":"BYN1067","severity":"error","file":"input.byn","span":{"start":10,"end":13,"line":1,"column":11,"endLine":1,"endColumn":14},"message":"pointer types are allowed only in `extern` declarations","label":"a pointer type","help":"wrap the C call in an `extern` declaration","fixes":[]}

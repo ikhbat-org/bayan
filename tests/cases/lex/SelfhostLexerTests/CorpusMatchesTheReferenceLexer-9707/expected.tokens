@@ -1,0 +1,11 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\n 0b1ms\n\nfails try catch never noalloc nosuspend suspends async await\nlet effect = 2\né\n& && | || ^ ~ ! = == != < <= > >= << >> >>=\n I\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

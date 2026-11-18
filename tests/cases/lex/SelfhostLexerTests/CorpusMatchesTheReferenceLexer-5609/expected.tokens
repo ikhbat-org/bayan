@@ -1,0 +1,43 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 Identifier `ext`
+1:40 Identifier `nsible`
+1:47 InterfaceKeyword `interface`
+1:57 DelegateKeyword `delegate`
+1:66 Identifier `extensijn`
+1:76 DerivationKeyword `derivation`
+1:87 AttributeKeyword `attribute`
+2:1 IntegerLiteral `0b1`
+2:4 NumericSuffix `ms`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8E)
+
+  1 │ struct unique union enum flags open ext�nsible interface delegate extensijn derivation attribute
+    │                                        ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  2 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  3 │  ///// �omment � hidden
+    │        ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  ///// �omment � hidden
+    │                ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  ///// �omment � hidden
+    │   │                -

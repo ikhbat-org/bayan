@@ -1,0 +1,12 @@
+error BYN1043: `é tab` is an input form; write `var tab: é`
+  --> input.byn:31:1
+
+  31 │ é 	tab
+     │ ^^^^^^ type before name
+     │
+  help: write `var tab: é`; local bindings put the name first
+     │ 31 │ var tab: é
+     │    │ ++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1043

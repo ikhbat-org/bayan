@@ -1,0 +1,15 @@
+== tests/cases/run/test-output.test.byn
+28..92 blockStmt
+34..53 exprStmt
+34..53 callExpr
+40..52 literalExpr string
+34..53 callExpr
+58..73 exprStmt
+58..73 callExpr
+62..72 literalExpr string
+58..73 callExpr
+78..90 assertStmt
+85..89 literalExpr trueKeyword
+107..127 blockStmt
+113..125 assertStmt
+120..124 literalExpr trueKeyword

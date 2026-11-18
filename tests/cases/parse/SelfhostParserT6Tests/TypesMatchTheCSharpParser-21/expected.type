@@ -1,0 +1,2 @@
+(fn 0..8 (named 1..2 1..2 < >) -> (named 6..7 6..7 < >)) at 5
+BYN1055 3+2 `=>` in a type is an input form; write `->` [the input form] [write the function type with `->`] fix 3+2 '->'

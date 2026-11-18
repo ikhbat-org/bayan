@@ -1,0 +1,22 @@
+1:1 IntegerLiteral `0x`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolationEnd `}`
+3:5 InterpolatedStringEnd `"`
+4:1 CharLiteral `'\u{202E}'`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ '�'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ '�'
+    │   │  -

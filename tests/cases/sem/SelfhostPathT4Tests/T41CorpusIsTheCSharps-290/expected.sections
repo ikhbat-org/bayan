@@ -1,0 +1,9 @@
+== diags.diag/rest-input
+BYN1058 1:9 `params i32[] xs` is an input form; write `rest ReadOnlySpan<i32> xs`
+  label the input form
+  help declare the variadic parameter with `rest`
+  fix 1:9-1:21 rest ReadOnlySpan<i32>
+BYN1058 4:14 `i32... xs` is an input form; write `rest ReadOnlySpan<i32> xs`
+  label the input form
+  help declare the variadic parameter with `rest`
+  fix 4:11-4:17 rest ReadOnlySpan<i32>

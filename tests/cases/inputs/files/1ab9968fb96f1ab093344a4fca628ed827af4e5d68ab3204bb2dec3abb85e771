@@ -1,0 +1,333 @@
+import lexer
+import parser
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 3 < args.length {
+        let kind = args[i]
+        let name = args[i + 1]
+        let path = args[i + 2]
+        let flags = args[i + 3]
+        print($"== {kind} {name}")
+        var options = CompilationOptions { library: flags.contains("l") }
+        if flags.contains("t") { options.includeTests = true }
+        if kind == "path" {
+            let c = fromPath(path, by: in options, wholeDirectory: flags.contains("w"))
+            dumpLoad(in c)
+        } else if kind == "project" {
+            let c = fromProject(path, for: "app", by: in options)
+            dumpLoad(in c)
+        } else if kind == "declfile" {
+            var c = loadOnly(path, by: in options)
+            for m in copyIds(in c.moduleOrder) {
+                for f in copyIds(in c.modules[m].files) { declareFile(ref c, for: f) }
+            }
+            dumpLoad(in c)
+            dumpDecls(ref c)
+        } else if kind == "declare" {
+            var c = loadOnly(path, by: in options)
+            declare(ref c)
+            dumpLoad(in c)
+            dumpDeclare(ref c)
+        } else if kind == "mainsig" {
+            mainSignature(path, by: in options, for: flags)
+        } else if name == "assoc" {
+            var c = loadOnly(path, by: in options)
+            let t0 = newTypeParam(ref c, by: TypeParam { name: "T" })
+            let t1 = newTypeParam(ref c, by: TypeParam { name: "T" })
+            let a = associatedType(ref c, for: t0, by: "Item")
+            let b = associatedType(ref c, for: t0, by: "Item")
+            let d = associatedType(ref c, for: t1, by: "Item")
+            let e = associatedType(ref c, for: t0, by: "Other")
+            print($"assoc {c.typeParams[a].name} {same(a, by: b)} {c.typeParams[d].name} {same(a, by: d)} {c.typeParams[e].name} {same(a, by: e)}")
+        } else if name == "isinstance" {
+            var c = loadOnly(path, by: in options)
+            for f in copyIds(in c.modules[c.entryModule].files) { declareFile(ref c, for: f) }
+            let s = c.modules[c.entryModule].structs[0]
+            let instance = newStruct(ref c, by: StructSymbol { name: "S", template: s })
+            // First, so FuncId 0 is an enclosing instance function (C# `enclosing != -1`, not `> 0`).
+            let instanceMethod = newFunction(ref c, by: FunctionSymbol { name: "f", owner: instance })
+            let plain = newFunction(ref c, by: FunctionSymbol { name: "f" })
+            let copy = newFunction(ref c, by: FunctionSymbol { name: "f", template: plain })
+            let method = newFunction(ref c, by: FunctionSymbol { name: "f", owner: s })
+            let inInstance = newFunction(ref c, by: FunctionSymbol { name: "f", enclosing: instanceMethod })
+            let inTemplate = newFunction(ref c, by: FunctionSymbol { name: "f", enclosing: method })
+            var sb = StrBuf()
+            sb.append("isinstance")
+            for f in [plain, copy, method, instanceMethod, inInstance, inTemplate] {
+                let answer = functionIsInstance(ref c, by: f) ? "yes" : "no"
+                sb.append($" {answer}")
+            }
+            print(sb.finish())
+        } else if name == "keysite" {
+            var c = loadOnly(path, by: in options)
+            c.hasInstantiationSite = true
+            c.instantiationSiteFile = 0
+            c.instantiationSiteSpan = TextSpan { start: 0, length: 3 }
+            resolveLocal(ref c, at: 0)
+            c.hasInstantiationSite = false
+            declare(ref c)
+            dumpLoad(in c)
+        } else if name == "constraint" {
+            var c = loadOnly(path, by: in options)
+            declare(ref c)
+            resolveLocal(ref c, at: 3)
+            print($"pending {c.pendingConstraints.length}")
+            for k in 0..c.pendingConstraints.length {
+                let work = t11CopyWork(in c.pendingConstraints[k])
+                runWork(ref c, for: in work)
+            }
+            dumpLoad(in c)
+        } else if name == "sink" {
+            var c = loadOnly(path, by: in options)
+            c.diagnostics = List<Diag>()
+            let outer = c.sink
+            c.bags.append(DiagBag { items: List<Diag>() })
+            let bag = c.bags.length - 1
+            reportInto(ref c, to: bag)
+            report(ref c, for: .unknownAttribute, from: 0, at: TextSpan { start: 0, length: 1 }, by: ("a", "", "", "", ""))
+            report(ref c, for: .unknownAttribute, from: 0, at: TextSpan { start: 0, length: 1 }, by: ("b", "", "", "", ""))
+            reportInto(ref c, to: outer)
+            report(ref c, for: .unknownAttribute, from: 0, at: TextSpan { start: 0, length: 1 }, by: ("c", "", "", "", ""))
+            let shown = outer < 0 ? "none" : "bag"
+            print($"sink bag {c.bags[bag].items.length} main {c.diagnostics.length} outer {shown}")
+            for d in c.bags[bag].items { print($"bag {d.message}") }
+            for d in c.diagnostics { print($"main {d.message}") }
+        } else if name == "fullpath" {
+            for p in ["/a/./b/../c.byn", "/a//b/", "/..", "/../x", "/a/b/..", "/a/b/../", "/a/.", "/.", "//", "/a/..b/.c/", "/a/b/c/../../d", "/a/b/../.."] {
+                print($"fullpath {p} {t11FullPath(p)}")
+            }
+        } else if name == "cname" {
+            for n in ["café", "𝑥y", "a.b-c", "日本"] { print($"cname {n} {t11CNameOf(n)}") }
+        }
+        i += 4
+    }
+    return 0
+}
+
+/// Resolves the declared type of the first `var` in the body of the entry file's function at `member`.
+void resolveLocal(ref Ctx c, at i64 member) {
+    switch c.files[0].unit.members[member] {
+        case .functionDecl(let fn):
+            switch fn.value.body {
+                case .blockStmt(let block):
+                    switch block.value.statements[0] {
+                        case .localDecl(let l):
+                            let r = TypeResolver { file: 0 }
+                            let _ = resolve(ref c, through: in r, for: in l.value.type)
+                        default:
+                            panic("a `var`")
+                    }
+                default:
+                    panic("a block body")
+            }
+        default:
+            panic("a function")
+    }
+}
+
+string same(i64 a, by i64 b) => a == b ? "same" : "new"
+
+Ctx loadOnly(string dir, by in CompilationOptions options) {
+    var sources = List<lexer.SourceText>()
+    for f in t11ModuleFiles(dir, includeTests: options.includeTests) { sources.append(lexer.SourceText.create(f, from: t11ReadAllBytes(f))) }
+    var c = Ctx {
+        files: List<SourceFile>(),
+        modules: List<Mod>(),
+        diagnostics: List<Diag>(),
+        bags: List<DiagBag>(),
+        packageRoot: dir,
+        displayRoot: dir,
+        includeTests: options.includeTests,
+    }
+    c.entryModule = loadModule(ref c, for: "main", at: dir, from: move sources, by: -1)
+    return c
+}
+
+string diagLine(in Ctx c, for in Diag d) {
+    let pos = linePosition(c.files[d.file].text.span, at: d.span.start)
+    return $"diag {d.code} {c.files[d.file].displayPath} {pos.line}:{pos.column} {d.message} | {d.label} | {d.help}"
+}
+
+void dumpLoad(in Ctx c) {
+    for m in c.moduleOrder {
+        print($"module {c.modules[m].name} {c.modules[m].directory} {c.modules[m].cName}")
+        for f in c.modules[m].files {
+            let kind = c.files[f].isTestFile ? "test" : "source"
+            print($"file {c.files[f].displayPath} {kind}")
+            for (alias, imported) in c.files[f].imports { print($"import {alias} {c.modules[imported].name}") }
+        }
+    }
+    for d in c.diagnostics { print(diagLine(in c, for: in d)) }
+}
+
+string kindName(Type t) {
+    if t8IsAlias(t) { return "alias" }
+    switch kindOf(t) {
+        case .structType: return "struct"
+        case .enumType: return "enum"
+        case .unionType: return "union"
+        case .interfaceType: return "interface"
+        case .errorSet: return "errorset"
+        default: return "other"
+    }
+}
+
+string paramNames(in Ctx c, for in List<TypeParamId> ps) {
+    var sb = StrBuf()
+    for i in 0..ps.length {
+        if i > 0 { sb.append(",") }
+        sb.append(c.typeParams[ps[i]].name)
+    }
+    return $"{sb.finish()}"
+}
+
+string functionKind(FunctionKind k) {
+    switch k {
+        case .main: return "Main"
+        case .testKeyword: return "Test"
+        case .function: return "Function"
+        default: return "Other"
+    }
+}
+
+void dumpDecls(ref Ctx c) {
+    for m in copyIds(in c.moduleOrder) {
+        print($"decls {c.modules[m].name}")
+        for (n, t) in c.modules[m].types { print($"type {n} {kindName(t)}") }
+        // `functions` in insertion order: every accepted function is in `allFunctions` too (a `for` over the map copies its lists).
+        var seen = List<string>()
+        for f in c.modules[m].allFunctions {
+            let n = c.functions[f].name
+            if c.functions[f].kind == .function && !listContainsString(in seen, by: n) {
+                seen.append(n)
+                print($"fn {n} {c.modules[m].functions[n].length}")
+            }
+        }
+        for (n, k) in c.modules[m].constants { print($"const {n}") }
+        var sb = StrBuf()
+        sb.append("structs")
+        for s in c.modules[m].structs {
+            sb.append($" {c.structs[s].name}<{paramNames(in c, for: in c.structs[s].typeParams)}>")
+            if c.structs[s].fieldEnum >= 0 { sb.append($"/{c.enums[c.structs[s].fieldEnum].name}") }
+        }
+        print(sb.finish())
+        var eb = StrBuf()
+        eb.append("enums")
+        for e in c.modules[m].enums { eb.append($" {c.enums[e].name}") }
+        print(eb.finish())
+        var ub = StrBuf()
+        ub.append("unions")
+        for u in c.modules[m].unions { ub.append($" {c.unions[u].name}<{paramNames(in c, for: in c.unions[u].typeParams)}>") }
+        print(ub.finish())
+        var ib = StrBuf()
+        ib.append("interfaces")
+        for x in c.modules[m].interfaces { ib.append($" {c.interfaces[x].name}<{paramNames(in c, for: in c.interfaces[x].typeParams)}>") }
+        print(ib.finish())
+        var sets = StrBuf()
+        sets.append("errorsets")
+        for x in c.modules[m].errorSets { sets.append($" {c.errorSets[x].name}") }
+        print(sets.finish())
+        for f in c.modules[m].allFunctions {
+            let pos = linePosition(c.files[c.functions[f].file].text.span, at: c.functions[f].span.start)
+            print($"all {c.functions[f].name} {functionKind(c.functions[f].kind)} {pos.line}:{pos.column} <{paramNames(in c, for: in c.functions[f].typeParams)}>")
+        }
+        for t in c.modules[m].tests { print($"test {c.tests[t].title}") }
+        let main = c.modules[m].main
+        let mainKind = main < 0 ? "none" : functionKind(c.functions[main].kind)
+        print($"main {mainKind}")
+    }
+    var ab = StrBuf()
+    ab.append("aliases")
+    for a in c.aliasOrder { ab.append($" {c.aliases[a].name}") }
+    print(ab.finish())
+    var db = StrBuf()
+    db.append("distinct")
+    for (s, _) in c.distinct { db.append($" {c.structs[s].name}") }
+    print(db.finish())
+    print($"positional {c.positional.length}")
+    print($"wheres {c.wheres.length}")
+    print($"testcases {c.testCases.length}")
+    print($"mainstatements {c.mainStatements.length}")
+    var withValues = 0
+    for (_, tb) in c.testBodies {
+        if tb.hasValues { withValues += 1 }
+    }
+    print($"testbodies {c.testBodies.length} withvalues {withValues}")
+}
+
+void dumpDeclare(ref Ctx c) {
+    for m in copyIds(in c.moduleOrder) {
+        for s in c.modules[m].structs { dumpWhere(in c, for: c.structs[s].name, by: in c.structs[s].typeParams) }
+        for u in c.modules[m].unions { dumpWhere(in c, for: c.unions[u].name, by: in c.unions[u].typeParams) }
+        for x in c.modules[m].interfaces { dumpWhere(in c, for: c.interfaces[x].name, by: in c.interfaces[x].typeParams) }
+        for f in c.modules[m].allFunctions { dumpWhere(in c, for: c.functions[f].name, by: in c.functions[f].typeParams) }
+    }
+    for v in 0..c.errorVariants.length {
+        print($"variant {c.errorSets[c.errorVariants[v].set].name}.{c.errorVariants[v].name} {c.errorVariants[v].code} {fieldList(ref c, for: copyIds(in c.errorVariants[v].fields))}")
+    }
+    let rule = typeIndex(t9Type(ref c, for: "Rule"))
+    for v in copyIds(in c.unions[rule].variants) {
+        print($"rule {c.unionVariants[v].name} {c.unionVariants[v].tag} {fieldList(ref c, for: copyIds(in c.unionVariants[v].fields))}")
+    }
+    let declaredMembers = c.membersDeclared ? "True" : "False"
+    print($"members declared {declaredMembers}")
+}
+
+void dumpWhere(in Ctx c, for string owner, by in List<TypeParamId> ps) {
+    for p in ps {
+        var sb = StrBuf()
+        sb.append($"where {owner} {c.typeParams[p].name}:")
+        for x in c.typeParams[p].constraints { sb.append($" {c.interfaces[x].name}") }
+        print(sb.finish())
+    }
+}
+
+string fieldList(ref Ctx c, for List<LocalId> fields) {
+    var sb = StrBuf()
+    for i in 0..fields.length {
+        if i > 0 { sb.append(",") }
+        sb.append($"{c.locals[fields[i]].name}:{typeDisplay(ref c, by: c.locals[fields[i]].type)}")
+    }
+    return $"{sb.finish()}"
+}
+
+/// `main`'s signature built by hand as `DeclareSignature` (T38) builds it: `flags` is `ret:param,param`.
+void mainSignature(string dir, by in CompilationOptions options, for string flags) {
+    var c = loadOnly(dir, by: in options)
+    for f in copyIds(in c.modules[c.entryModule].files) { declareFile(ref c, for: f) }
+    let main = c.modules[c.entryModule].main
+    let colon = flags.position(":") ?? 0
+    c.functions[main].returnType = typeNamed(ref c, for: flags[0..colon])
+    var rest = flags[colon + 1..flags.length]
+    while rest.length > 0 {
+        let comma = rest.position(",") ?? rest.length
+        let part = rest[0..comma]
+        var modifier = parser.ParamModifier.none
+        var type = typeNamed(ref c, for: part)
+        if part == "refros" {
+            modifier = .refKeyword
+            type = typeNamed(ref c, for: "ros")
+        }
+        let p = newLocal(ref c, by: LocalSymbol { name: "args", type: type, kind: .parameter, isParameter: true, modifier: modifier })
+        c.functions[main].parameters.append(p)
+        rest = comma < rest.length ? rest[comma + 1..rest.length] : ""
+    }
+    c.diagnostics = List<Diag>()
+    t11CheckMainSignature(ref c, for: main)
+    print("main checked")
+    for d in c.diagnostics { print(diagLine(in c, for: in d)) }
+}
+
+Type typeNamed(ref Ctx c, for string name) {
+    switch name {
+        case "i32": return prim(.i32)
+        case "void": return prim(.void)
+        case "string": return prim(.string)
+        case "i64": return prim(.i64)
+        case "ros": return internSpan(ref c, by: prim(.string), readOnly: true)
+        case "span": return internSpan(ref c, by: prim(.string), readOnly: false)
+        case "roi64": return internSpan(ref c, by: prim(.i64), readOnly: true)
+    }
+    return errorType()
+}

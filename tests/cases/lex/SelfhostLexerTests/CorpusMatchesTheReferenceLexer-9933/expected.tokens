@@ -1,0 +1,28 @@
+1:1 CloseBrace `}`
+3:4 Identifier `comment`
+3:12 Star `*`
+3:13 Slash `/`
+3:15 Identifier `a`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 BecomeKeyword `become`
+6:1 EndOfFile
+
+error BYN0002: unexpected character `̈́`
+
+  2 │ ̈́
+    │ ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

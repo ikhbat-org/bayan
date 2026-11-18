@@ -1,0 +1,30 @@
+1:1 Identifier `b1ul`
+1:6 IntegerLiteral `7`
+1:7 NumericSuffix `l`
+2:1 FailsKeyword `fails`
+2:7 TryKeyword `try`
+2:11 CatchKeyword `catch`
+2:17 NeverKeyword `never`
+2:23 NoallocKeyword `noalloc`
+2:31 NosuspendKeyword `nosuspend`
+2:41 SuspendsKeyword `suspends`
+2:50 AsyncKeyword `async`
+2:56 AwaitKeyword `await`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  4 │ �/* block
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �/* block
+    │   │ -
+
+error BYN0004: unterminated block comment
+
+  4 │ �/* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

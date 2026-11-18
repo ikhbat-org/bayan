@@ -1,0 +1,2 @@
+== become
+become: exprStmt(call panic:never(literal "no":string="no")) locals=0

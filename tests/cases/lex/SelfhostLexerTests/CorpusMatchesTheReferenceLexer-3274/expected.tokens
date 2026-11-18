@@ -1,0 +1,33 @@
+1:1 CharLiteral `''`
+3:2 Identifier `c`
+3:4 Equals `=`
+3:8 IntegerLiteral `3`
+4:1 Identifier `J`
+5:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │  c = � 3
+    │      ^
+
+error BYN0002: unexpected character `﻿`
+
+  4 │ J﻿�
+    │  ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  4 │ J﻿�
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ J﻿�
+    │   │   -

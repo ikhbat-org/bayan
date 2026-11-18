@@ -1,0 +1,46 @@
+1:1 Identifier `é`
+    doc `///�mment`
+3:15 Identifier `a`
+    doc `/// Doc line one.`
+6:2 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é///�mment
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é///�mment
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ é///�mment
+    │      ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │ // block
+    │   │  +++++++
+    │ 3 │ // comment
+    │   │ ++++++++++
+    │ 4 │  a
+
+error BYN0002: unexpected character `\u{0}`
+
+  4 │ �/// Doc line one.
+    │ ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ // let x� = 1
+    │         ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ // let x� = 1
+    │   │         -

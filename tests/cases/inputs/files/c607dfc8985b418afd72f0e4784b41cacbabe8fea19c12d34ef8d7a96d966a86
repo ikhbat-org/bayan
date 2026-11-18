@@ -1,0 +1,106 @@
+import lexer
+
+void summary(ref Parser p, at TextSpan span, for TextSpan name, by i64 count) {
+    print($"{p.lexed.source.getText(name)} {span.start}+{span.length} {count}")
+    for d in p.lexed.diagnostics {
+        let fix = d.hasFix ? $" fix {d.fixSpan.start}+{d.fixSpan.length} [{d.fixReplacement}]" : ""
+        print($"{d.code} {d.span.start}+{d.span.length} {d.message} | {d.label} | {d.help}{fix}")
+    }
+}
+
+Parser makeParser(string text, by Keywords keywords) {
+    var bytes = List<u8>()
+    for b in text.bytes { bytes.append(b) }
+    return Parser.create(lexer.lex(SourceText.create("t5.byn", from: move bytes), by: keywords))
+}
+void main() {
+    let keywords = Keywords.build()
+    using let arena = Arena()
+    provide allocator: arena {
+        {
+            var p = makeParser("enum Color {\n    red\n    green\n    blue\n}\n", by: keywords)
+            let d = parseEnum(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.members.length)
+        }
+        {
+            var p = makeParser("enum Color { red, green, blue }", by: keywords)
+            let d = parseEnum(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.members.length)
+        }
+        {
+            var p = makeParser("enum E {\n    a,\n    b\n}\n", by: keywords)
+            let d = parseEnum(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.members.length)
+        }
+        {
+            var p = makeParser("enum E { a, /* x */ b }", by: keywords)
+            let d = parseEnum(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.members.length)
+        }
+        {
+            var p = makeParser("enum E { a", by: keywords)
+            let d = parseEnum(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.members.length)
+        }
+        {
+            var p = makeParser("union Mode { read, write }", by: keywords)
+            let d = parseUnion(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.variants.length)
+        }
+        {
+            var p = makeParser("union error E { bad, worse }", by: keywords)
+            let d = parseErrorUnion(ref p, at: 0, by: modifierNone, through: List<AttributeSyntax>())
+            switch d {
+                case .errorEnumDecl(let n):
+                    summary(ref p, at: n.value.span, for: n.value.name, by: n.value.variants.length)
+                default:
+                    print("not an error enum")
+            }
+        }
+        {
+            var p = makeParser("union error E { bad, }", by: keywords)
+            let d = parseErrorUnion(ref p, at: 0, by: modifierNone, through: List<AttributeSyntax>())
+            switch d {
+                case .errorEnumDecl(let n):
+                    summary(ref p, at: n.value.span, for: n.value.name, by: n.value.variants.length)
+                default:
+                    print("not an error enum")
+            }
+        }
+        {
+            var p = makeParser("error union E { bad }", by: keywords)
+            let d = parseErrorUnion(ref p, at: 0, by: modifierNone, through: List<AttributeSyntax>())
+            switch d {
+                case .errorEnumDecl(let n):
+                    summary(ref p, at: n.value.span, for: n.value.name, by: n.value.variants.length)
+                default:
+                    print("not an error enum")
+            }
+        }
+        {
+            var p = makeParser("extension Foo\n", by: keywords)
+            let d = parseExtension(ref p, at: 0)
+            summary(ref p, at: d.span, for: d.name, by: d.members.length)
+        }
+        {
+            var p = makeParser("extension Foo { }", by: keywords)
+            let d = parseExtension(ref p, at: 0)
+            summary(ref p, at: d.span, for: d.name, by: d.members.length)
+        }
+        {
+            var p = makeParser("interface I { type Item }", by: keywords)
+            let d = parseInterface(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.members.length)
+        }
+        {
+            var p = makeParser("interface I {\n    5\n}", by: keywords)
+            let d = parseInterface(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.members.length)
+        }
+        {
+            var p = makeParser("effect io = net, fs", by: keywords)
+            let d = parseEffect(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.effects.length)
+        }
+    }
+}

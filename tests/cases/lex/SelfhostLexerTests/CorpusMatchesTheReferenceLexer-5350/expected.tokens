@@ -1,0 +1,64 @@
+1:2 Identifier `macro`
+1:8 Identifier `s`
+1:9 Percent `%`
+1:10 Identifier `elect`
+1:16 BecomeKeyword `become`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `open `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 StringLiteral `";`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `stray } here`
+3:15 InterpolatedStringEnd `"`
+3:24 IntegerLiteral `1`
+4:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ �macro s%elect become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  2 │  $"open {x";
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"stray } here" /* � */1
+    │         ^
+    │
+    │ 3 │ $"stray }} here" /* � */1
+    │   │          +
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ $"stray } here" /* � */1
+    │                 ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ $"stray } here" // �
+    │   │                  +++
+    │ 4 │ 1
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  3 │ $"stray } here" /* � */1
+    │                    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ $"stray } here" /* � */1
+    │   │                    -

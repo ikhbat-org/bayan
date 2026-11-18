@@ -1,0 +1,6 @@
+== diags.diag/line-join-enum-shorthand
+BYN5103 11:1 a line starting with `.` joins the statement above; indent it deeper
+  label joins the statement on line 10
+  help indent it deeper than the line its statement starts on
+  fix 11:1-11:1     
+BYN2003 11:2 `green` is not a member of `Color`

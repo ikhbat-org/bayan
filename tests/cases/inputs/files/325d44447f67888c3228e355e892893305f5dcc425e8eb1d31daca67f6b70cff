@@ -1,0 +1,3 @@
+void f() {
+    let root = (move parsed).trustUnchecked() because "a site map only names sites; each field is checked below"
+}

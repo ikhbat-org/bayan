@@ -1,0 +1,2 @@
+== bag for-this-list-field-modified
+BYN3004 11:13 `items` is modified while the `for` loop still borrows it |the loop over `items` is still running|collect the changes in another list and apply them to `items` after the loop|

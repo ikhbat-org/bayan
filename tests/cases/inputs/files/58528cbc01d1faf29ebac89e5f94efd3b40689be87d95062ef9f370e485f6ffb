@@ -1,0 +1,8 @@
+b = "bad \q escape"
+let c = """
+0xF__
+
+'\u{D800}'
+ÿ
+let cafÃ© = 2
+$"{{"// line comment

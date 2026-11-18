@@ -1,0 +1,71 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 Identifier `ạ̇`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 Identifier `x`
+2:49 InterpolationEnd `}`
+2:50 InterpolatedStringEnd `"`
+2:51 IntegerLiteral `2`
+2:53 Identifier `بيان`
+2:58 Identifier `μ`
+2:60 Identifier `τρητ`
+2:64 Caret `^`
+2:65 Identifier `ής`
+2:68 Identifier `x_1`
+2:72 Identifier `é`
+3:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  2 │  ạ̇$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{x}"2 بيان μ�τρητ^ής x_1 é
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  ạ̇$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{x}"2 بيان μ�τρητ^ής x_1 é
+    │   │  ++
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │  ạ̇$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{x}"2 بيان μ�τρητ^ής x_1 é
+    │                                         ^
+
+error BYN0003: unterminated string literal
+
+  2 │  ạ̇$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{x}"2 بيان μ�τρητ^ής x_1 é
+    │                                          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  2 │  ạ̇$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{x}"2 بيان μ�τρητ^ής x_1 é
+    │                                                           ^

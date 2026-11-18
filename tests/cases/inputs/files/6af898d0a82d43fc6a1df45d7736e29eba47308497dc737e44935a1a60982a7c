@@ -1,0 +1,5 @@
+Package {
+    name: "local/esc",
+    version: "0.1.0",
+    grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+}

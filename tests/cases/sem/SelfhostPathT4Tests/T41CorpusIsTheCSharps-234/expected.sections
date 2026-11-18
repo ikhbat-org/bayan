@@ -1,0 +1,2 @@
+== diags.diag/circular-constant
+BYN2012 1:7 constant `first` depends on itself

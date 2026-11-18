@@ -1,0 +1,8 @@
+"{
+1__
+ '\u{D800}'
+4 1e5 2.5e- ̈́
+ = ` 2
+let c =  3
+let c = """never closed
+

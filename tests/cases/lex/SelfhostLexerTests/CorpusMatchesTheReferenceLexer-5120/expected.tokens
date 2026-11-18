@@ -1,0 +1,32 @@
+1:1 IntegerLiteral `110000`
+1:7 CloseBrace `}`
+1:8 CharLiteral `'`
+2:1 CharLiteral `'x`
+4:1 Identifier `foo`
+4:5 Identifier `Bar`
+4:9 Identifier `_x`
+4:12 Identifier `camelCase2`
+4:23 Identifier `بيان`
+4:28 Identifier `μετρητής`
+4:37 Identifier `x_1`
+4:41 Identifier `é`
+5:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 110000}'
+    │        ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^

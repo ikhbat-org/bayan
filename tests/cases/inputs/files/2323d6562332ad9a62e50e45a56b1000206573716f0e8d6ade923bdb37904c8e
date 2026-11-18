@@ -1,0 +1,34 @@
+struct S {
+    i64 a
+    i64 p => a
+
+    void inst() {}
+    static void st() {}
+}
+
+void main() {
+    let a = List
+    let b = Map
+    let c = Span
+    let d = ReadOnlySpan
+    let e = Arena
+    let f = StrBuf
+    let g = IoError
+    let h = Utf8Error
+    let i = ParseError
+    let j = ValidationError
+    let k = ProcessResult
+    let l = IoError.Notfond
+    let m = IoError.zzzzqq
+    let n = S.inst
+    let o = S.a
+    let q = S.p
+    let r = S.zzzzqq
+    let s = S.st
+    let t = Symbol.inter
+    let u = Symbol.zzzzqq
+    let v = Symbol.intern
+    let w = Io.readFil
+    let x = Arena.x
+    let y = StrBuf.x
+}

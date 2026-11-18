@@ -1,0 +1,18 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Identifier `b`
+3:1 Identifier `ssert`
+3:7 PropertyKeyword `property`
+3:16 Identifier `uzz`
+3:20 ModelKeyword `model`
+3:26 ForeachKeyword `foreach`
+3:34 Identifier `n`
+3:35 Identifier `w`
+3:37 GotoKeyword `goto`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  3 │ ssert property uzz model foreach n�w goto
+    │                                   ^

@@ -1,0 +1,4 @@
+== bind.probes.r4
+flags 0
+errorExpr:?[3159:4]=-()
+BYN2208 171:14 `..` cannot be applied to `f64` and `f64` ||make both range ends integers or chars of the same type|

@@ -1,0 +1,11 @@
+test "ok\u{1b}]0;PWNED\u{7}" {
+    assert(true);
+}
+
+test "later\u{1b}[2J" {
+    todo("soon");
+}
+
+test "y\u{1b}]0;PWNED\u{7}\u{1b}[2J" {
+    panic("boom\u{1b}[2J\u{9b}31m");
+}

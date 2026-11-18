@@ -1,0 +1,10 @@
+== tests/cases/diag/take-unsupported.byn
+205..300 blockStmt
+211..229 localDecl
+219..229 callExpr
+234..252 localDecl
+242..252 callExpr
+257..275 localDecl
+265..275 callExpr
+280..298 localDecl
+288..298 callExpr

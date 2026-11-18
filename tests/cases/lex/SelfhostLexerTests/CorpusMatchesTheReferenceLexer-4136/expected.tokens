@@ -1,0 +1,38 @@
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �
+    │  ^
+
+error BYN0004: unterminated block comment
+
+  2 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  3 │ ////�not a doc comment
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ��
+    │  ^

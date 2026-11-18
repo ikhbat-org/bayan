@@ -1,0 +1,24 @@
+1:1 RawStringLiteral `"""\n$"a{b}c let effect = 2\n� fails try catch never noalloc nosuspend suspends async await\n$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!"�$""\n\n///\n`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ � fails try catch never noalloc nosuspend suspends async await
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ � fails try catch never noalloc nosuspend suspends async await
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9E)
+
+  4 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!"�$""
+    │                                                                       ^

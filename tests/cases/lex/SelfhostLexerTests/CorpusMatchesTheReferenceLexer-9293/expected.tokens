@@ -1,0 +1,91 @@
+1:1 OpenBrace `{`
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:6 ErrorKeyword `error`
+1:12 SetKeyword `set`
+1:16 UnitKeyword `unit`
+1:21 DistinctKeyword `distinct`
+1:30 TypeKeyword `type`
+1:35 ImportKeyword `import`
+1:42 AsKeyword `as`
+1:45 PublicKeyword `public`
+1:52 PrivateKeyword `private`
+1:60 StaticKeyword `static`
+1:67 ReadonlyKeyword `readonly`
+1:76 RequiredKeyword `required`
+1:85 ConstKeyword `const`
+1:91 LetKeyword `let`
+1:95 VarKeyword `var`
+1:99 EmbedKeyword `embed`
+1:105 ExternKeyword `extern`
+1:112 UnsafeKeyword `unsafe`
+3:1 StringLiteral `"{ $"`
+3:6 OpenBrace `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolatedStringText `;`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 StringLiteral `$"{$"`
+3:58 OpenBrace `{`
+3:59 StringLiteral `$"{x}"`
+3:65 CloseBrace `}`
+3:66 StringLiteral `"}"`
+3:69 InterpolationEnd `}`
+3:70 InterpolatedStringEnd `"`
+3:71 InterpolationEnd `}`
+3:72 InterpolatedStringEnd `"`
+3:73 InterpolationEnd `}`
+3:74 InterpolatedStringEnd `"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+4:1 InterpolationEnd `}`
+4:2 InterpolatedStringEnd
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ "{ $"{$";{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"
+    │                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ "{ $"{$";{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"
+    │                                   ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ "{ $"{$";{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"
+    │                                                     ^^

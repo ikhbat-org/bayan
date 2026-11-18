@@ -1,0 +1,127 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+4:1 Identifier `foo`
+4:5 Identifier `Bar`
+4:9 Identifier `_x`
+4:12 Identifier `camelCa`
+4:19 At `@`
+4:20 Identifier `se2`
+4:24 Identifier `بيان`
+4:29 Identifier `μετρητής`
+4:38 Identifier `x_1`
+4:42 Identifier `é`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 Identifier `x`
+6:50 InterpolationEnd `}`
+6:51 InterpolatedStringEnd `"`
+6:52 InterpolationEnd `}`
+6:53 InterpolatedStringEnd `"`
+6:54 InterpolationEnd `}`
+6:55 InterpolatedStringEnd `"`
+6:56 InterpolationEnd `}`
+6:57 InterpolatedStringEnd `"`
+6:58 InterpolationEnd `}`
+6:59 InterpolatedStringEnd `"`
+6:60 InterpolationEnd `}`
+6:61 InterpolatedStringEnd `"`
+6:62 InterpolationEnd `}`
+6:63 InterpolatedStringEnd `"`
+6:64 InterpolationEnd `}`
+6:65 InterpolatedStringEnd `"`
+6:66 InterpolationEnd `}`
+6:67 InterpolatedStringEnd `"`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringEnd `"`
+6:70 InterpolationEnd `}`
+6:71 InterpolatedStringEnd `"`
+7:1 StringLiteral `"a\u{2067}b"`
+7:7 IntegerLiteral `0b1`
+7:10 NumericSuffix `ms`
+8:2 Identifier `t`
+10:15 Identifier `a`
+    doc `/// Doc line one.\n/// Doc line tw`
+12:16 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  // �x
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  // �x
+    │   │     -
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │ "a�b" 0b1ms
+    │          ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  8 │ �t
+    │ ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+   9 │ /* block
+     │ ^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │  9 │ // block
+     │    │  +++++++
+     │ 10 │ // comment
+     │    │ ++++++++++
+     │ 11 │  a

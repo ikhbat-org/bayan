@@ -1,0 +1,9 @@
+== other/h.byn OtherRead, GroupRead, UserWrite, UserRead
+let c = true
+if (c) { print("z") }
+== proj/g.byn OtherRead, GroupRead, UserWrite, UserRead
+let b = true
+if (b) { print("y") }
+== real/g.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+if (a) { print("x") }

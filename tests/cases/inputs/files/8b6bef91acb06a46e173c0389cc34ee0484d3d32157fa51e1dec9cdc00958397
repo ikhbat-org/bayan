@@ -1,0 +1,4 @@
+  raw "quoted"
+ 42 1_000_000 0xFFŸ 0x_ff 0b1010 0B11 5s 2¦50ms 4KiB 1u 0xF__
+let a = $ 1
+ 

@@ -1,0 +1,18 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+2:2 Identifier `a`
+8:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

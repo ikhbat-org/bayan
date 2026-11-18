@@ -1,0 +1,133 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+3:1 IsKeyword `is`
+3:4 AndKeyword `and`
+3:8 OrKeyword `or`
+3:11 NotKeyword `not`
+3:15 WithKeyword `with`
+3:20 MoveKeyword `move`
+3:25 RefKeyword `ref`
+3:29 OutKeyword `out`
+3:33 ThisKeyword `this`
+3:38 NullKeyword `null`
+3:43 Identifier `tru`
+3:47 FalseKeyword `false`
+3:53 ComptimeKeyword `comptime`
+3:62 CheckedKeyword `checked`
+5:3 Identifier `raw`
+5:7 StringLiteral `"quoted"`
+6:4 StringLiteral `"a {f($"`
+6:12 Identifier `b`
+6:14 OpenBrace `{`
+6:15 Identifier `c`
+6:16 CloseBrace `}`
+6:17 StringLiteral `")} d"`
+6:24 InterpolatedStringStart `$"`
+6:26 InterpolatedStringText `{{literal}}`
+6:37 InterpolatedStringEnd `"`
+6:39 InterpolatedStringStart `$"`
+6:41 InterpolationStart `{`
+6:42 Identifier `Poi`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 InterpolatedStringStart `$"`
+8:7 InterpolationStart `{`
+8:8 InterpolatedStringStart `$"`
+8:10 InterpolationStart `{`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolationStart `{`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolationStart `{`
+8:17 InterpolatedStringStart `$"`
+8:19 InterpolationStart `{`
+8:20 InterpolatedStringStart `$"`
+8:22 InterpolationStart `{`
+8:23 InterpolatedStringStart `$"`
+8:25 InterpolationStart `{`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolationStart `{`
+8:29 InterpolatedStringStart `$"`
+8:31 InterpolationStart `{`
+8:32 InterpolatedStringStart `$"`
+8:34 InterpolationStart `{`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolationStart `{`
+8:38 InterpolatedStringStart `$"`
+8:40 InterpolationStart `{`
+8:41 InterpolatedStringStart `$"`
+8:43 InterpolationStart `{`
+8:44 InterpolatedStringStart `$"`
+8:46 InterpolationStart `{`
+8:47 StringLiteral `$"{$"`
+8:52 OpenBrace `{`
+8:53 Identifier `x`
+8:54 CloseBrace `}`
+8:55 StringLiteral `"}"`
+8:58 InterpolationEnd `}`
+8:59 InterpolatedStringEnd `"`
+8:60 InterpolationEnd `}`
+8:61 InterpolatedStringEnd `"`
+8:62 InterpolationEnd `}`
+8:63 InterpolatedStringEnd `"`
+8:64 InterpolationEnd `}`
+8:65 InterpolatedStringEnd `"`
+8:66 InterpolationEnd `}`
+8:67 InterpolatedStringEnd `"`
+8:68 InterpolationEnd `}`
+8:69 InterpolatedStringEnd `"`
+8:70 InterpolationEnd `}`
+8:71 InterpolatedStringEnd `"`
+8:72 InterpolationEnd `}`
+8:73 InterpolatedStringEnd `"`
+8:74 InterpolationEnd `}`
+8:75 InterpolatedStringEnd `"`
+8:76 InterpolationEnd `}`
+8:77 InterpolatedStringEnd `"`
+8:78 InterpolationEnd `}`
+8:79 InterpolatedStringEnd `"`
+8:80 InterpolationEnd `}`
+8:81 InterpolatedStringEnd `"`
+8:82 InterpolationEnd `}`
+8:83 InterpolatedStringEnd `"`
+8:84 InterpolationEnd `}`
+8:85 InterpolatedStringEnd `"`
+8:86 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  3 │ is and or not with move ref out this null tru� false comptime checked
+    │                                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │ �// �x
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ �// �x
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ �// �x
+    │   │     -
+
+error BYN0003: unterminated string literal
+
+  8 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                               ^^

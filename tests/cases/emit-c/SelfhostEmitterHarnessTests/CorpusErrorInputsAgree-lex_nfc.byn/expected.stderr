@@ -1,0 +1,12 @@
+error BYN0005: identifier `café` is not in Unicode normalization form C
+  --> input.byn:1:5
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN0005

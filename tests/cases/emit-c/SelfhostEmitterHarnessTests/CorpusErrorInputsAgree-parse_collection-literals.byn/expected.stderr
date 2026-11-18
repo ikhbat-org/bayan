@@ -1,0 +1,80 @@
+warning BYN2311: `prices` is never reassigned; declare it with `let`
+  --> input.byn:2:5
+
+  2 │ var prices: Map<Sku, Money> = []
+    │     ^^^^^^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 2 │ let prices: Map<Sku, Money> = []
+    │   │ +++
+
+error BYN2002: unknown type `Sku`
+  --> input.byn:2:17
+
+  2 │ var prices: Map<Sku, Money> = []
+    │                 ^^^
+
+error BYN2002: unknown type `Money`
+  --> input.byn:2:22
+
+  2 │ var prices: Map<Sku, Money> = []
+    │                      ^^^^^
+
+error BYN2001: `xs` is not defined
+  --> input.byn:3:14
+
+  3 │ let all = [..xs, ..more, 4]
+    │              ^^
+
+error BYN2022: spreads (`..xs`) outside a collection literal is not supported in v0.1
+  --> input.byn:3:18
+
+  3 │ let all = [..xs, ..more, 4]
+    │                  ^^^^^^
+
+error BYN2001: `a` is not defined
+  --> input.byn:5:34
+
+  5 │ let nested = ["k": [1, 2], "j": (a ? b : c)]
+    │                                  ^
+
+error BYN2001: `b` is not defined
+  --> input.byn:5:38
+
+  5 │ let nested = ["k": [1, 2], "j": (a ? b : c)]
+    │                                      ^
+
+error BYN2001: `c` is not defined
+  --> input.byn:5:42
+
+  5 │ let nested = ["k": [1, 2], "j": (a ? b : c)]
+    │                                          ^
+
+error BYN2002: unknown type `Money`
+  --> input.byn:6:25
+
+  6 │ let prices: Map<string, Money> = ["tea": Money { cents: 250 }, "jam": { cents: 99 }]
+    │                         ^^^^^
+
+error BYN2002: unknown type `Money`
+  --> input.byn:6:42
+
+  6 │ let prices: Map<string, Money> = ["tea": Money { cents: 250 }, "jam": { cents: 99 }]
+    │                                          ^^^^^
+
+error BYN2218: `{ … }` needs a known type here
+  --> input.byn:6:71
+
+  6 │ let prices: Map<string, Money> = ["tea": Money { cents: 250 }, "jam": { cents: 99 }]
+    │                                                                       ^^^^^^^^^^^^^
+    │
+  help: name the type: `Point { x: 1 }`
+
+error BYN2002: unknown type `Money`
+  --> input.byn:7:22
+
+  7 │ let typed = ["cake": Money { cents: 300 }]
+    │                      ^^^^^
+
+✗ build failed: 11 errors, 1 warning
+  explain: bayan explain BYN2002

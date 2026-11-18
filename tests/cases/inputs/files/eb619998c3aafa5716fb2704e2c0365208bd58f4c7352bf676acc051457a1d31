@@ -1,0 +1,30 @@
+struct Point {
+    i64 x
+    i64 y
+    requires x >= 0
+}
+
+enum Color {
+    red
+    green
+}
+
+union error E {
+    bad
+}
+
+i64 first(Point p) fails E {
+    fail .bad if p.x < 0
+    return p.x
+}
+
+void main() {
+    var s = "abc"
+    let p = Point { x: 1, y: 2 }
+    let n = first(p) catch 0
+    for i in 0..3 { print($"{s.length} {i} {n}") }
+    switch Color.red {
+        case .red: print("r")
+        default: print("o")
+    }
+}

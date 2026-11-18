@@ -1,0 +1,47 @@
+== tests/cases/run/target-host.byn
+117..157 globalStatement
+117..157 localDecl
+128..157 collectionExpr
+129..136 literalExpr string
+138..145 literalExpr string
+147..156 literalExpr string
+158..187 localDecl
+171..187 collectionExpr
+172..177 literalExpr string
+179..186 literalExpr string
+188..207 localDecl
+202..207 literalExpr falseKeyword
+208..272 forStmt
+220..224 nameExpr
+225..272 blockStmt
+231..270 ifStmt
+234..251 binaryExpr eq right 247..251
+234..243 memberExpr
+247..251 nameExpr
+252..270 blockStmt
+254..268 assignStmt assign target 254..261 value 264..268
+254..261 nameExpr
+264..268 literalExpr trueKeyword
+273..294 localDecl
+289..294 literalExpr falseKeyword
+295..365 forStmt
+307..313 nameExpr
+314..365 blockStmt
+320..363 ifStmt
+323..342 binaryExpr eq right 338..342
+323..334 memberExpr
+338..342 nameExpr
+343..363 blockStmt
+345..361 assignStmt assign target 345..354 value 357..361
+345..354 nameExpr
+357..361 literalExpr trueKeyword
+366..395 exprStmt
+366..395 callExpr
+372..394 interpolatedExpr
+385..392 nameExpr
+366..395 callExpr
+396..429 exprStmt
+396..429 callExpr
+402..428 interpolatedExpr
+417..426 nameExpr
+396..429 callExpr

@@ -1,0 +1,7 @@
+error BYN2215: a range needs both ends here
+  --> <repo>/tests/cases/diag/open-range.byn:1:10
+
+  1 │ for i in 0.. {
+    │          ^^^
+    │
+  help: use open ranges (`a..`, `..b`) only inside `[ ]`

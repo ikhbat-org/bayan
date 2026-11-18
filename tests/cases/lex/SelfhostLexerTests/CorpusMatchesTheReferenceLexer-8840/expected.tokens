@@ -1,0 +1,144 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+3:3 StringLiteral `" $"`
+3:7 OpenBrace `{`
+3:8 Identifier `Point`
+3:14 OpenBrace `{`
+3:16 Identifier `x`
+3:18 Equals `=`
+3:20 IntegerLiteral `1`
+3:22 CloseBrace `}`
+3:23 CloseBrace `}`
+3:24 Bang `!`
+3:25 StringLiteral `" $"`
+3:29 StringLiteral `"`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 StringLiteral `$"{x}"`
+4:56 InterpolationEnd `}`
+4:57 InterpolatedStringEnd `"`
+4:58 InterpolationEnd `}`
+4:59 InterpolatedStringEnd `"`
+4:60 InterpolationEnd `}`
+4:61 InterpolatedStringEnd `"`
+4:62 InterpolationEnd `}`
+4:63 InterpolatedStringEnd `"`
+4:64 InterpolationEnd `}`
+4:65 InterpolatedStringEnd `"`
+4:66 InterpolationEnd `}`
+4:67 InterpolatedStringEnd `"`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringEnd `"`
+4:70 InterpolationEnd `}`
+4:71 InterpolatedStringEnd `"`
+4:72 InterpolationEnd `}`
+4:73 InterpolatedStringEnd `"`
+4:74 InterpolationEnd `}`
+4:75 InterpolatedStringEnd `"`
+4:76 InterpolationEnd `}`
+4:77 InterpolatedStringEnd `"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolationEnd `}`
+4:81 InterpolatedStringEnd `"`
+4:82 InterpolationEnd `}`
+4:83 InterpolatedStringEnd `"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 InterpolationEnd `}`
+4:87 InterpolatedStringEnd `"`
+4:88 CloseBrace `}`
+4:89 StringLiteral `"`
+5:1 TestKeyword `test`
+5:6 AssertKeyword `assert`
+5:13 PropertyKeyword `property`
+5:22 FuzzKeyword `fuzz`
+5:27 ModelKeyword `model`
+5:33 ForeachKeyword `foreach`
+5:41 NewKeyword `new`
+5:45 GotoKeyword `goto`
+7:1 Identifier `two`
+7:4 Dot `.`
+8:1 StructKeyword `struct`
+8:8 Identifier `S`
+10:1 Identifier `a`
+10:3 Greater `>`
+10:4 Greater `>`
+10:6 Identifier `b`
+12:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  3 │ � " $"{Point { x = 1 }}!" $""
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � " $"{Point { x = 1 }}!" $""
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  3 │ � " $"{Point { x = 1 }}!" $""
+    │                             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                  ^^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                         ^ string
+    │                                                                                           ends
+    │                                                                                           at
+    │                                                                                           the
+    │                                                                                           end
+    │                                                                                           of
+    │                                                                                           the
+    │                                                                                           line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

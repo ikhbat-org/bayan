@@ -1,0 +1,7 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 Identifier `fuzzmodelforeach`
+1:39 NewKeyword `new`
+1:43 GotoKeyword `goto`
+2:1 EndOfFile

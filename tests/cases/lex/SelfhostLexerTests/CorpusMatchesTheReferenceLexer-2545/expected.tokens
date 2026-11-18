@@ -1,0 +1,52 @@
+1:2 QuestionQuestionEquals `??=`
+1:6 QuestionDot `?.`
+1:9 FatArrow `=>`
+1:12 Arrow `->`
+1:15 At `@`
+1:17 Hash `#`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 Percent `%`
+2:19 PlusBar `+|`
+2:22 MinusBar `-|`
+2:25 StarBar `*|`
+2:28 PlusPlus `++`
+2:31 MinusMinus `--`
+3:1 Amp `&`
+3:4 Identifier `_`
+4:1 Identifier `Å`
+4:3 Equals `=`
+4:5 IntegerLiteral `1`
+4:7 CloseBrace `}`
+4:8 CloseBrace `}`
+4:9 Bang `!`
+4:10 StringLiteral `" $"`
+4:14 StringLiteral `"`
+    doc `/// Doc line onge.`
+6:3 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │ Å = 1 }}!" $""
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ Å = 1 }}!" $""
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  4 │ Å = 1 }}!" $""
+    │              ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `﻿`
+
+  6 │ ﻿ 
+    │ ^

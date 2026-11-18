@@ -1,0 +1,45 @@
+1:1 CharLiteral `''`
+2:1 CharLiteral `' */`
+3:1 IntegerLiteral `0x`
+3:3 Slash `/`
+3:5 Identifier `ok`
+3:10 InKeyword `in`
+3:13 Identifier `comment`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:9 Percent `%`
+4:11 PlusPercent `+%`
+4:14 MinusPercent `-%`
+4:17 StarPercent `*%`
+4:20 PlusBar `+|`
+4:23 MinusBar `-|`
+4:26 StarBar `*|`
+4:29 PlusPlus `++`
+4:32 MinusMinus `--`
+6:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0008: unterminated char literal
+
+  2 │ ' */
+    │ ^^^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x/ ok � in comment
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ 0x/ ok � in comment
+    │        ^

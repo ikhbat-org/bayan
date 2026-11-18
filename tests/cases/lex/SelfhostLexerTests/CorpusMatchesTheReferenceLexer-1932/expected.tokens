@@ -1,0 +1,17 @@
+1:1 Identifier `_0x`
+1:5 Identifier `acro`
+1:10 Identifier `select`
+1:17 BecomeKeyword `become`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+3:2 CharLiteral `'\u{11000}'`
+4:2 EndOfFile
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ _0x acro select become
+    │          ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

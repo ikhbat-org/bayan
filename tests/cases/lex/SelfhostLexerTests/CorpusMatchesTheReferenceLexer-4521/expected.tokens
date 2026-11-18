@@ -1,0 +1,97 @@
+1:1 Identifier `b`
+2:1 VarKeyword `var`
+2:5 Identifier `xs`
+2:7 Colon `:`
+2:9 Identifier `List`
+2:13 Less `<`
+2:14 Identifier `List`
+2:18 Less `<`
+2:19 Identifier `i64`
+2:22 Greater `>`
+2:23 Greater `>`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 Identifier `x`
+3:48 Comma `,`
+3:51 DotDot `..`
+3:54 DotDotEquals `..=`
+3:58 Colon `:`
+3:60 Question `?`
+3:62 QuestionQuestion `??`
+3:65 QuestionQuestionEquals `??=`
+3:69 QuestionDot `?.`
+3:72 FatArrow `=>`
+3:75 Arrow `->`
+3:78 At `@`
+3:80 Hash `#`
+5:1 LetKeyword `let`
+5:5 Identifier `actor`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+6:1 IntegerLiteral `1`
+6:2 Dot `.`
+7:1 Identifier `b`
+8:2 LetKeyword `let`
+8:6 Identifier `a`
+8:8 Equals `=`
+8:10 StringLiteral `"open`
+9:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  2 │ var xs: List<List<i64>>�
+    │                        ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x ,  .. ..= : ? ?? ??= ?. => -> @ #
+    │                                           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  5 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0x95)
+
+  6 │ �1.
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  8 │  let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

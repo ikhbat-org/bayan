@@ -1,0 +1,16 @@
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style {
+        indent: "4",
+        braces: .nextLine,
+        maxLine: 100,
+        width: 0,
+        align: .left,
+        trailingCommas: true,
+        lints: ["guards.prefix": .warning, "lambdas.it": .loud],
+        booleans: .both,
+        primitives: .int,
+        tabs: true,
+    },
+}

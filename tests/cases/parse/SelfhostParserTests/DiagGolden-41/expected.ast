@@ -1,0 +1,23 @@
+CompilationUnit
+  TypeAlias F = A -> B
+  Function check(i32 -> bool p) -> bool => (call p 3)
+  Function main() -> void
+    Block
+
+error BYN1055: `=>` in a type is an input form; write `->`
+
+  1 │ type F = A => B
+    │            ^^ the input form
+    │
+  help: write the function type with `->`
+    │ 1 │ type F = A -> B
+    │   │            +
+
+error BYN1055: `=>` in a type is an input form; write `->`
+
+  3 │ bool check((i32 => bool) p) => p(3)
+    │                 ^^ the input form
+    │
+  help: write the function type with `->`
+    │ 3 │ bool check((i32 -> bool) p) => p(3)
+    │   │                 +

@@ -1,0 +1,86 @@
+1:1 Identifier `t`
+1:3 Identifier `café`
+1:9 Equals `=`
+1:11 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 OrKeyword `or`
+3:4 Equals `=`
+3:6 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 EffectKeyword `effect`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 BecomeKeyword `become`
+6:1 LetKeyword `let`
+6:5 LawKeyword `law`
+6:9 InterpolatedStringStart `$"`
+6:11 InterpolationStart `{`
+6:12 StringLiteral `"`
+7:3 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ t café = 1
+    │   ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ t café = 1
+    │   │      +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  3 │ or�= 1
+    │   ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  6 │ let law $"{"
+    │         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ let law $"{"
+    │            ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  7 │ ���� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  7 │ ���� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ���� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ���� 
+    │    ^

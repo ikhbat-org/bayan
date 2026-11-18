@@ -1,0 +1,4 @@
+== expr
+a: => binary op22:bool(binary op17:bool(errorCode:u32(local err#-:E) literal 0:14:u32=0:14) sequence:bool(assignExpr:i64(local n#0:i64 errorField 0:i64(local err#-:E)) literal true:bool=true)) locals=1
+b: => binary op22:bool(binary op17:bool(errorCode:u32(local err#-:E) literal 0:14:u32=0:14) binary op17:bool(errorField 0:i64(local err#-:E) literal 0:1:i64=0:1)) locals=0
+c: => binary op17:bool(local err#-:E errorVariant:E) locals=0

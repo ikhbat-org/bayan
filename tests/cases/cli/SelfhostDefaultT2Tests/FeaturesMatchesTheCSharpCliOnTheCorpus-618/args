@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/index-out-of-range.byn
+--package
+<repo>/tests/cases/diag

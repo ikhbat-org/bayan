@@ -1,0 +1,6 @@
+== invokeSymbol
+invoke same yes kind Invoke module main returns bool fails no sets 
+param _0 i64 0 None Parameter
+param _1 string 1 None Parameter
+invoke same yes kind Invoke module main returns i64 fails yes sets E
+param _0 i64 0 None Parameter

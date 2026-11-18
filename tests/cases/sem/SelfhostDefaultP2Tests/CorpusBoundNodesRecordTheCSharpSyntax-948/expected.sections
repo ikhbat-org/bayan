@@ -1,0 +1,28 @@
+== tests/cases/diag/unknown-word.byn
+302..313 globalStatement
+302..313 exprStmt
+302..313 callExpr
+308..312 literalExpr string
+302..313 callExpr
+61..87 blockStmt
+71..81 assignStmt add target 71..76 value 80..81
+71..76 nameExpr
+71..76 nameExpr
+80..81 literalExpr integer
+109..114 nameExpr
+109..114 nameExpr
+109..114 nameExpr
+109..114 nameExpr
+215..220 nameExpr
+215..220 nameExpr
+215..220 nameExpr
+215..220 nameExpr
+252..256 nameExpr
+252..256 nameExpr
+252..256 nameExpr
+274..277 literalExpr floatKeyword
+274..277 literalExpr floatKeyword
+274..277 literalExpr floatKeyword
+295..298 literalExpr floatKeyword
+295..298 literalExpr floatKeyword
+295..298 literalExpr floatKeyword

@@ -1,0 +1,189 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 StringLiteral `$"{$"`
+3:51 OpenBrace `{`
+3:52 Identifier `x`
+3:53 CloseBrace `}`
+3:54 StringLiteral `"}"`
+3:57 InterpolationEnd `}`
+3:58 InterpolatedStringEnd `"`
+3:59 InterpolationEnd `}`
+3:60 InterpolatedStringEnd `"`
+3:61 InterpolationEnd `}`
+3:62 InterpolatedStringEnd `"`
+3:63 InterpolationEnd `}`
+3:64 InterpolatedStringEnd `"`
+3:65 InterpolationEnd `}`
+3:66 InterpolatedStringEnd `"`
+3:67 InterpolationEnd `}`
+3:68 InterpolatedStringEnd `"`
+3:69 StringLiteral `"}"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 InterpolationEnd `}`
+3:81 InterpolatedStringEnd `"`
+3:82 InterpolationEnd `}`
+3:83 InterpolatedStringEnd `"`
+3:84 InterpolationEnd `}`
+3:85 InterpolatedStringEnd `"`
+3:86 InterpolationEnd `}`
+3:87 InterpolatedStringEnd `"`
+3:88 CharLiteral `'\\'`
+4:1 Identifier `ent`
+4:7 Identifier `hidden`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:5 Identifier `a`
+7:7 Equals `=`
+7:11 IntegerLiteral `1`
+8:2 InterpolationEnd `}`
+8:3 InterpolatedStringEnd
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolationStart `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 InterpolatedStringStart `$"`
+9:24 InterpolationStart `{`
+9:25 InterpolatedStringStart `$"`
+9:27 InterpolationStart `{`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolationStart `{`
+9:31 InterpolatedStringStart `$"`
+9:33 InterpolationStart `{`
+9:34 InterpolatedStringStart `$"`
+9:36 InterpolationStart `{`
+9:37 InterpolatedStringStart `$"`
+9:39 InterpolationStart `{`
+9:40 InterpolatedStringStart `$"`
+9:42 InterpolationStart `{`
+9:43 InterpolatedStringStart `$"`
+9:45 InterpolationStart `{`
+9:46 StringLiteral `$"{$"`
+9:51 OpenBrace `{`
+9:52 Identifier `x`
+9:53 CloseBrace `}`
+9:54 StringLiteral `"}"`
+9:57 InterpolationEnd `}`
+9:58 InterpolatedStringEnd `"`
+9:59 InterpolationEnd `}`
+9:60 InterpolatedStringEnd `"`
+9:61 InterpolationEnd `}`
+9:62 InterpolatedStringEnd `"`
+9:63 InterpolationEnd `}`
+9:64 InterpolatedStringEnd `"`
+9:65 InterpolationEnd `}`
+9:66 InterpolatedStringEnd `"`
+9:67 InterpolationEnd `}`
+9:68 InterpolatedStringEnd `"`
+9:69 InterpolationEnd `}`
+9:70 InterpolatedStringEnd `"`
+9:71 InterpolationEnd `}`
+9:72 InterpolatedStringEnd `"`
+9:73 InterpolationEnd `}`
+9:74 InterpolatedStringEnd `"`
+9:75 InterpolationEnd `}`
+9:76 InterpolatedStringEnd `"`
+9:77 InterpolationEnd `}`
+9:78 InterpolatedStringEnd `"`
+9:79 InterpolationEnd `}`
+9:80 InterpolatedStringEnd `"`
+9:81 InterpolationEnd `}`
+9:82 InterpolatedStringEnd `"`
+9:83 InterpolationEnd `}`
+9:84 InterpolatedStringEnd `"`
+9:85 InterpolationEnd `}`
+9:86 InterpolatedStringEnd `"`
+9:87 InterpolationEnd `}`
+9:88 InterpolatedStringEnd `"`
+9:89 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}"}"}"}"}"}"'\\' 
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}"}"}"}"}"}"'\\' 
+    │                                              ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}"}"}"}"}"}"'\\' 
+    │                                                                     ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ ent � hidden
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ ent � hidden
+    │   │     -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ let x� = 1
+    │   │      -
+
+error BYN0002: unexpected character `$`
+
+  7 │ let a = $ 1
+    │         ^

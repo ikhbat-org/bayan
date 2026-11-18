@@ -1,0 +1,18 @@
+CompilationUnit
+  While a
+    Expr <error>
+  Expr (call f)
+
+error BYN1017: parentheses around a condition are an input form
+
+  1 │ while (a) ]
+    │       ^^^ not needed
+    │
+  help: remove the parentheses
+    │ 1 │ while a {  } ]
+    │   │       ++++++
+
+error BYN1002: expected an expression, found `]`
+
+  1 │ while (a) ]
+    │           ^

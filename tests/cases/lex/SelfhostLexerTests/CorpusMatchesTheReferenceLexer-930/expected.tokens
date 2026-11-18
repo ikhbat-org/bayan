@@ -1,0 +1,67 @@
+1:2 CharLiteral `'x`
+2:2 LetKeyword `let`
+2:8 IntegerLiteral `0`
+2:9 Equals `=`
+2:11 IntegerLiteral `2`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 Identifier `a`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:7 Identifier `M`
+4:9 Equals `=`
+4:11 IntegerLiteral `1`
+5:1 Identifier `c`
+5:3 Greater `>`
+5:4 GreaterEquals `>=`
+5:7 IntegerLiteral `1`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �'x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �'x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �'x
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  1 │ �'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │  let � 0= 2
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ let x�M� = 1
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  4 │ let x�M� = 1
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  4 │ let x�M� = 1
+    │        ^

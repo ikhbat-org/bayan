@@ -1,0 +1,88 @@
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `Lis`
+2:18 Less `<`
+2:19 Identifier `i64`
+2:22 Greater `>`
+2:23 Greater `>`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 StringLiteral `"{$"`
+3:47 OpenBrace `{`
+3:48 InterpolatedStringStart `$"`
+3:50 InterpolationStart `{`
+3:51 InterpolatedStringStart `$"`
+3:53 InterpolationStart `{`
+3:54 Identifier `x`
+3:55 InterpolationEnd `}`
+3:56 InterpolatedStringEnd `"`
+3:57 InterpolationEnd `}`
+3:58 InterpolatedStringEnd `"`
+3:59 LetKeyword `let`
+3:63 Identifier `b`
+3:65 Equals `=`
+3:67 StringLiteral `"bad \q escape"`
+5:1 VarKeyword `var`
+5:5 Identifier `xs`
+5:7 Colon `:`
+5:9 Identifier `List`
+5:13 Less `<`
+5:14 Identifier `List`
+5:18 Less `<`
+5:19 Identifier `i64`
+5:22 Greater `>`
+5:23 Greater `>`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in omment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  2 │  var xs: List<Lis�<i64>>
+    │                  ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{x}"}"let b = "bad \q escape"
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{x}"}"let b = "bad \q escape"
+    │                                                                        ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

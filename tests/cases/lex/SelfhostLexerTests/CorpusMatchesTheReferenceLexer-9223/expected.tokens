@@ -1,0 +1,23 @@
+1:1 CharLiteral `'\q'`
+2:2 LetKeyword `let`
+2:6 Identifier `aw`
+2:10 Equals `=`
+2:12 IntegerLiteral `3`
+4:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xEA)
+
+  2 │  let aw� = 3
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ �
+    │ ^

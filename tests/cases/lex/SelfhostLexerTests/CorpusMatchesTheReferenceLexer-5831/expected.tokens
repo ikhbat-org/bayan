@@ -1,0 +1,8 @@
+8:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ /*0b__
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

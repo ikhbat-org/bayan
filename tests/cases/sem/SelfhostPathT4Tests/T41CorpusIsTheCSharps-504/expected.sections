@@ -1,0 +1,4 @@
+== diags.diag/non-exhaustive-catch-switch
+BYN2410 20:25 `switch` does not handle every `EmailError | DbError`
+  label not covered: EmailError, DbError.lost
+  help add the missing arms, or `_ => …` for the rest

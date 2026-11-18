@@ -1,0 +1,15 @@
+error BYN2800: `I` must start with `I` and an uppercase letter
+  --> <repo>/tests/cases/parse/fails-bare-line-end.byn:1:11
+
+  1 │ interface I {
+    │           ^ an interface name
+    │
+  help: rename it to `II`
+    │ 1 │ interface II {
+    │   │            +
+
+error BYN2002: unknown type `Token`
+  --> <repo>/tests/cases/parse/fails-bare-line-end.byn:3:5
+
+  3 │     Token next()
+    │     ^^^^^

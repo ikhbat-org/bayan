@@ -1,0 +1,5 @@
+error BYN2024: `i64??` is already optional
+  --> <repo>/tests/cases/diag/nested-optional.byn:2:8
+
+  2 │ let x: MaybeCount? = null
+    │        ^^^^^^^^^^^

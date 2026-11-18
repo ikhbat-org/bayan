@@ -1,0 +1,6 @@
+'\q'
+ E+2 1.50dec 1..2    """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+ let café = 1;
+struct S
++ - * / % +% -% *% +| -| *| ++ --
+ '\q'

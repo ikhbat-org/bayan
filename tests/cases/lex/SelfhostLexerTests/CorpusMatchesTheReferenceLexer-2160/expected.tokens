@@ -1,0 +1,129 @@
+1:2 IntegerLiteral `0b102`
+3:1 CharLiteral `',ab'`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:13 OpenBrace `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 Identifier `x`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:59 InterpolationEnd `}`
+4:60 InterpolatedStringEnd `"`
+4:61 InterpolationEnd `}`
+4:62 InterpolatedStringEnd `"`
+4:63 InterpolationEnd `}`
+4:64 InterpolatedStringEnd `"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:69 InterpolationEnd `}`
+4:70 InterpolatedStringEnd `"`
+4:71 InterpolationEnd `}`
+4:72 InterpolatedStringEnd `"`
+4:73 InterpolationEnd `}`
+4:74 InterpolatedStringEnd `"`
+4:75 CloseBrace `}`
+4:76 StringLiteral `"}"`
+4:79 InterpolationEnd `}`
+4:80 InterpolatedStringEnd `"`
+4:81 InterpolationEnd `}`
+4:82 InterpolatedStringEnd `"`
+4:83 InterpolationEnd `}`
+4:84 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����0b102
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����0b102
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����0b102
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����0b102
+    │    ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ ����0b102
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │  ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │  ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���
+    │    ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │ ',ab'
+    │ ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `$`
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC1)
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  4 │  $"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                   ^

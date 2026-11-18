@@ -1,0 +1,24 @@
+== diags.diag/borrow-own-field-mutated
+BYN3001 41:5 a struct field cannot hold a borrowed `StrBuf`
+  help store a `List` copied with `.copy(to: alloc)` instead; storing borrows in structs arrives in a later version
+BYN3002 35:16 `inner` does not live as long as `kept`, which borrows it
+  label `inner` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+BYN3004 26:5 `lexer` is modified while `all` still borrows it
+  label `all` is used again on line 28
+  help finish using `all` first, or copy what it needs before changing `lexer`
+BYN3004 27:5 `lexer` is modified while `all` still borrows it
+  label `all` is used again on line 28
+  help finish using `all` first, or copy what it needs before changing `lexer`
+BYN3004 30:9 `lexer` is modified while the `for` loop still borrows it
+  label the loop over `lexer` is still running
+  help collect the changes in another list and apply them to `lexer` after the loop
+BYN3003 14:50 cannot return a borrow of the temporary on line 14, which is freed when `spanAndCount` returns
+  help let the caller pass the buffer or allocator in, and borrow or allocate from that
+BYN3003 19:16 cannot return a borrow of `local`, which is freed when `scratch` returns
+  help let the caller pass the buffer or allocator in, and borrow or allocate from that
+BYN3003 43:22 cannot return a borrow of the temporary on line 43, which is freed when `view` returns
+  help let the caller pass the buffer or allocator in, and borrow or allocate from that
+returns spanAndCount -1
+returns tokens -1
+returns view -1

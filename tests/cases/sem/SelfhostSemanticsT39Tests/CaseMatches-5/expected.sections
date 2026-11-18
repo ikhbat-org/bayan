@@ -1,0 +1,3 @@
+== diag.bad-binary-operands
+BYN2208 3:9 `+` cannot be applied to `i64` and `u64` ||convert one side explicitly, e.g. `(u64)…`; mixed signedness never converts implicitly|
+BYN2208 4:9 `+` cannot be applied to `bool` and `i32` |||

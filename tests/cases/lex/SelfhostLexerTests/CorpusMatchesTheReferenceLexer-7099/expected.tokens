@@ -1,0 +1,121 @@
+3:1 Identifier `é`
+4:1 LetKeyword `let`
+4:5 Identifier `actor`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:14 StringLiteral `"{$"`
+6:18 OpenBrace `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 Identifier `x`
+6:50 InterpolationEnd `}`
+6:51 InterpolatedStringEnd `"`
+6:52 InterpolationEnd `}`
+6:53 InterpolatedStringEnd `"`
+6:54 InterpolationEnd `}`
+6:55 InterpolatedStringEnd `"`
+6:56 InterpolationEnd `}`
+6:57 InterpolatedStringEnd `"`
+6:58 InterpolationEnd `}`
+6:59 InterpolatedStringEnd `"`
+6:60 InterpolationEnd `}`
+6:61 InterpolatedStringEnd `"`
+6:62 InterpolationEnd `}`
+6:63 InterpolatedStringEnd `"`
+6:64 InterpolationEnd `}`
+6:65 InterpolatedStringEnd `"`
+6:66 InterpolationEnd `}`
+6:67 InterpolatedStringEnd `"`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringEnd `"`
+6:70 CloseBrace `}`
+6:71 StringLiteral `"}"`
+6:74 InterpolationEnd `}`
+6:75 InterpolatedStringEnd `"`
+7:1 Identifier `ạ̇`
+8:2 CharLiteral `'a'`
+8:6 CharLiteral `'\n'`
+8:11 CharLiteral `'\u{1F600}'`
+8:23 CharLiteral `'\''`
+8:28 CharLiteral `'é'`
+8:32 CharLiteral `'\\'`
+8:37 CharLiteral `'\0'`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  3 │ é
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ é
+    │   │ +
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  4 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  6 │ $"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB1)
+
+  6 │ $"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │              ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  7 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ ạ̇
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  8 │ �'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^

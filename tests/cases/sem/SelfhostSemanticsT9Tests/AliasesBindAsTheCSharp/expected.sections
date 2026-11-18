@@ -1,0 +1,6 @@
+== alias
+static-call modules=main/ diagnostics=0 errors=0 structs=1 alias=M
+field-default-import modules=sub/main/ diagnostics=0 errors=0 structs=2 alias=LTree
+unknown-member modules=main/ diagnostics=1 errors=1 structs=0 alias=M
+  BYN2003 62:4 `nope` is not a member of `L`
+struct-itself modules=main/ diagnostics=0 errors=0 structs=1 alias=-

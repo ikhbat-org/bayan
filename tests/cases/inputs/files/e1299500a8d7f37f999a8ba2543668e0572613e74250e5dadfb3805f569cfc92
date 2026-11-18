@@ -1,0 +1,10 @@
+void show(List< Sku > skus) {
+    let total = price*quantity
+    let port = config.port??8080
+    let span = 0 .. n
+    let origin = Point {x:1, y:2}
+    let sizes = [ 1, 2 ]
+    let label = format( total )
+    let done = ! finished
+    let w : Grams = - weight
+}

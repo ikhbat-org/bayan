@@ -1,0 +1,8 @@
+// liMe comment
+/* block
+   comment */ a
+//
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+str
+/*   comment */ a
+foo Bar _x camelCase2 بيان μετρητής x_1 é

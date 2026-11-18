@@ -1,0 +1,148 @@
+== tests/cases/run/memory-arena.byn
+70..163 blockStmt
+76..96 localDecl
+85..96 callExpr
+101..147 forStmt
+110..114 rangeExpr
+110..111 literalExpr integer
+113..114 nameExpr
+115..147 blockStmt
+125..141 exprStmt
+125..141 callExpr
+125..127 nameExpr
+135..140 binaryExpr mul right 139..140
+135..136 nameExpr
+139..140 nameExpr
+152..161 returnStmt value 159..161
+159..161 nameExpr
+177..1060 blockStmt
+183..208 localDecl
+201..208 callExpr
+213..921 contextStmt
+232..237 nameExpr
+238..921 blockStmt
+248..267 localDecl
+257..267 callExpr
+265..266 literalExpr integer
+276..318 exprStmt
+276..318 callExpr
+282..317 interpolatedExpr
+285..294 memberExpr
+285..287 nameExpr
+297..302 indexExpr
+297..299 nameExpr
+300..301 literalExpr integer
+305..315 memberExpr
+305..307 nameExpr
+276..318 callExpr
+327..341 exprStmt
+327..341 callExpr
+327..329 nameExpr
+337..340 literalExpr integer
+350..376 localDecl
+361..376 callExpr
+361..363 nameExpr
+385..413 exprStmt
+385..413 callExpr
+391..412 interpolatedExpr
+394..398 nameExpr
+401..410 memberExpr
+401..403 nameExpr
+385..413 callExpr
+422..446 localDecl
+434..446 callExpr
+455..497 exprStmt
+455..497 callExpr
+455..460 nameExpr
+468..496 structLiteralExpr
+481..486 literalExpr string
+493..494 literalExpr integer
+506..548 exprStmt
+506..548 callExpr
+506..511 nameExpr
+519..547 structLiteralExpr
+532..537 literalExpr string
+544..545 literalExpr integer
+557..571 localDecl
+570..571 literalExpr integer
+580..631 forStmt
+590..595 nameExpr
+596..631 blockStmt
+610..621 assignStmt add target 610..611 value 615..621
+610..611 nameExpr
+615..621 memberExpr
+615..617 nameExpr
+640..684 exprStmt
+640..684 callExpr
+646..683 interpolatedExpr
+649..661 memberExpr
+649..654 nameExpr
+664..665 nameExpr
+668..681 memberExpr
+668..676 indexExpr
+668..673 nameExpr
+674..675 literalExpr integer
+640..684 callExpr
+693..733 localDecl
+704..733 callExpr
+704..717 indexExpr
+704..711 memberExpr
+704..706 nameExpr
+712..713 literalExpr integer
+715..716 literalExpr integer
+727..732 nameExpr
+742..785 exprStmt
+742..785 callExpr
+748..784 interpolatedExpr
+751..762 memberExpr
+751..755 nameExpr
+765..772 indexExpr
+765..769 nameExpr
+770..771 literalExpr integer
+775..782 indexExpr
+775..779 nameExpr
+780..781 literalExpr integer
+742..785 callExpr
+794..804 exprStmt
+794..804 callExpr
+794..796 nameExpr
+813..848 exprStmt
+813..848 callExpr
+819..847 interpolatedExpr
+822..831 memberExpr
+822..824 nameExpr
+834..845 memberExpr
+834..838 nameExpr
+813..848 callExpr
+857..895 localDecl
+868..895 callExpr
+868..879 literalExpr string
+889..894 nameExpr
+904..915 exprStmt
+904..915 callExpr
+910..914 nameExpr
+904..915 callExpr
+926..948 localDecl
+937..948 callExpr
+953..1000 forStmt
+962..969 rangeExpr
+962..963 literalExpr integer
+965..969 literalExpr integer
+970..1000 blockStmt
+980..994 exprStmt
+980..994 callExpr
+980..984 nameExpr
+992..993 nameExpr
+992..993 nameExpr
+1005..1040 exprStmt
+1005..1040 callExpr
+1011..1039 interpolatedExpr
+1014..1025 memberExpr
+1014..1018 nameExpr
+1028..1037 indexExpr
+1028..1032 nameExpr
+1033..1036 literalExpr integer
+1005..1040 callExpr
+1045..1058 exprStmt
+1045..1058 callExpr
+1045..1050 nameExpr

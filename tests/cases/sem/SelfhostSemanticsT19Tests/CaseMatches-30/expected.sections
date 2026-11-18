@@ -1,0 +1,3 @@
+== fold.probes.d4
+errorExpr:?[6269:14]=-()
+BYN2204 298:14 constant arithmetic overflows `i32` |||

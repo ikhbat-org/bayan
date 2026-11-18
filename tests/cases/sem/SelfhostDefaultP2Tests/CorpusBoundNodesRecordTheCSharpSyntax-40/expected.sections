@@ -1,0 +1,52 @@
+== tests/cases/run/dyn-ref-this-region.byn
+584..591 memberExpr
+584..591 memberExpr
+584..591 memberExpr
+584..591 memberExpr
+584..585 nameExpr
+604..657 blockStmt
+610..643 localDecl
+618..643 structLiteralExpr
+631..641 structLiteralExpr
+638..639 literalExpr integer
+648..655 exprStmt
+648..655 callExpr
+648..649 nameExpr
+211..212 nameExpr
+211..212 nameExpr
+211..212 nameExpr
+211..212 nameExpr
+277..282 nameExpr
+277..282 nameExpr
+277..282 nameExpr
+277..282 nameExpr
+277..282 nameExpr
+306..547 blockStmt
+316..338 localDecl
+328..338 structLiteralExpr
+335..336 literalExpr integer
+347..379 localDecl
+374..379 nameExpr
+374..379 nameExpr
+388..433 blockStmt
+402..423 assignStmt assign target 402..406 value 409..423
+402..406 nameExpr
+409..423 callExpr
+418..422 thisExpr
+442..464 exprStmt
+442..464 callExpr
+448..463 interpolatedExpr
+451..461 callExpr
+451..455 nameExpr
+442..464 callExpr
+473..510 blockStmt
+487..500 assignStmt assign target 487..491 value 494..500
+487..491 nameExpr
+494..500 callExpr
+494..498 nameExpr
+519..541 exprStmt
+519..541 callExpr
+525..540 interpolatedExpr
+528..538 callExpr
+528..532 nameExpr
+519..541 callExpr

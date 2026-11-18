@@ -1,0 +1,8 @@
+  raw "quoted"
+
+et b = ` 2let c =  3
+
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+â‚//// not a doc comment
+ 'â€®' defer errdefer using context
+fails try catch neve

@@ -1,0 +1,1 @@
+{"code":"BYN1064","severity":"error","file":"input.byn","span":{"start":25,"end":28,"line":2,"column":12,"endLine":2,"endColumn":15},"message":"payload `f64` of `.circle` needs a name","label":"no name","help":"name the payload: `.circle(f64 name)`","fixes":[]}

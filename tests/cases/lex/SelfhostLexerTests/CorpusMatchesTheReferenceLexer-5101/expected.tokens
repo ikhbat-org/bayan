@@ -1,0 +1,18 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:2 CharLiteral `'\u{110000}B'`
+4:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │  '\u{110000}B'
+    │  ^^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │  '\u{110000}B'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

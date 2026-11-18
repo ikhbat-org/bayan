@@ -1,0 +1,5 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+1:4 Identifier `struNt`
+1:11 Identifier `S`
+3:1 EndOfFile

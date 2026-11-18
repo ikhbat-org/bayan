@@ -1,0 +1,3 @@
+== case stmt-string
+literal 1277..1281 : string = "hi"
+BYN3201 66:16 the value of this `"hi"` is unused |value dropped|assign it with `let _ = …`, or remove the expression|

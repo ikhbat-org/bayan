@@ -1,0 +1,46 @@
+== body loops
+block 554..829
+  whileStmt 560..575 target - true
+    local 566..567 : bool p
+    block 568..575
+  doWhile 580..598 target - true
+    block 583..590
+    local 597..598 : bool p
+  whileStmt 610..625 target outer true
+    local 616..617 : bool p
+    block 618..625
+  doWhile 637..659 target inner true
+    block 640..647
+    literal 654..659 : bool = false
+  block 669..676
+  whileStmt 686..737 target top true
+    literal 692..696 : bool = true
+    block 697..737
+      whileStmt 712..731 target top true
+        local 718..719 : bool p
+        block 720..731
+  whileStmt 742..757 target - true
+    isExpr 742..757 : bool
+      local 756..757 : bool p
+      propertyPattern 752..753
+    block 758..765
+  whileStmt 775..790 target tag true
+    isExpr 775..790 : bool
+      local 789..790 : bool p
+      propertyPattern 785..786
+    block 791..798
+  whileStmt 803..819 target - true
+    isExpr 803..819 : bool
+      errorExpr 817..819 : ?
+      propertyPattern 813..814
+    block 820..827
+local p 0 3 bool using false keyword - const -
+local x 1 5 bool using false keyword - const -
+local y 2 5 bool using false keyword - const -
+local z 3 5 ? using false keyword - const -
+BYN2408 53:5 label `lab` must be on a loop or `switch` |||
+BYN2006 56:9 `top` is declared twice |an enclosing statement has this label||
+BYN2234 59:19 `while let` needs a `T?` value, got `bool` ||loop with `while` and a condition, or bind it once: `let x = …`|
+BYN2234 61:24 `while let` needs a `T?` value, got `bool` ||loop with `while` and a condition, or bind it once: `let y = …`|
+BYN2001 63:19 `zz` is not defined |||
+handled -

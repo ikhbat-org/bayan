@@ -1,0 +1,8 @@
+error BYN2301: missing argument `by` for `area`
+  --> tmp/t26-tests/cli/diag_missing-argument.byn/missing-argument.byn:2:10
+
+  2 │ print($"{area(width: 3)}")
+    │          ^^^^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2301

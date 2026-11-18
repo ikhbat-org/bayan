@@ -1,0 +1,8 @@
+ï»¿
+let c = """never closed
+$"{a /// Doc line two.
+b
+ "open {x";
+
+/* block
+ â‚ 

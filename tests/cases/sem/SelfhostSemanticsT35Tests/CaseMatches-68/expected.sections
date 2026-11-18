@@ -1,0 +1,3 @@
+== expr.probes.t3
+tuple:(i64 x, i64 y)[2283:12]=-(literal:i64[2287:1]=1(1) literal:i64[2293:1]=2(2))
+BYN2223 109:37 tuple element `z` is named `y` in the target type |||

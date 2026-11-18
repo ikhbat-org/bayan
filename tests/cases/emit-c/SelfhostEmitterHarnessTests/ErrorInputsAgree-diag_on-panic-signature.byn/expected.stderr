@@ -1,0 +1,10 @@
+error BYN2202: expected `void f(Panic p)`, found `void report(string)`
+  --> input.byn:6:21
+
+  6 │     Panic.handler = report
+    │                     ^^^^^^
+    │
+  help: name a function declared `void f(Panic p)`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202

@@ -1,0 +1,10 @@
+1:2 Equals `=`
+1:4 IntegerLiteral `3`
+5:2 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  4 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

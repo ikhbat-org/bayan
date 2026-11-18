@@ -1,0 +1,7 @@
+== s55
+switchExpr|i32|4392:36
+value local:Shape=sh
+arm 4404:14 constantPattern[4404:9]:Shape(errorExpr:?) guard - value literal:i32=1
+arm 4420:6 bindPattern[4420:1]:Shape_(-) guard - value literal:i32=0
+BYN2202 126:27 expected `Shape`, found `Box` |||
+BYN2712 126:43 `_` hides future cases of `Shape`, declared in this package |matches every case added later|list the cases instead: .circle, .square, .empty|

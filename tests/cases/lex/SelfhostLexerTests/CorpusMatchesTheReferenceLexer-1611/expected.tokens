@@ -1,0 +1,87 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:4 Identifier `raw`
+2:8 StringLiteral `"quoted"`
+3:2 LetKeyword `let`
+3:6 Identifier `actor`
+3:12 Equals `=`
+3:14 IntegerLiteral `1`
+4:2 StringLiteral `"�fairls try catch never noalloc nosuspend suspends async await`
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:6 Bar `|`
+5:8 BarBar `||`
+5:11 Caret `^`
+5:13 Tilde `~`
+5:15 Bang `!`
+5:17 Equals `=`
+5:19 EqualsEquals `==`
+5:22 BangEquals `!=`
+5:25 Less `<`
+5:27 LessEquals `<=`
+5:30 Greater `>`
+5:32 GreaterEquals `>=`
+5:35 LessLess `<<`
+5:38 Greater `>`
+5:39 Greater `>`
+5:41 Greater `>`
+5:42 GreaterEquals `>=`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `stray } here`
+7:15 InterpolatedStringEnd `"`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolationStart `{`
+8:4 StringLiteral `"`
+8:5 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  4 │  "�fairls try catch never noalloc nosuspend suspends async await
+    │  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the
+    │                                                                  line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │  "�fairls try catch never noalloc nosuspend suspends async await
+    │   ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  7 │ $"stray } here"
+    │         ^
+    │
+    │ 7 │ $"stray }} here"
+    │   │          +
+
+error BYN0003: unterminated string literal
+
+  8 │ $"{"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  8 │ $"{"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

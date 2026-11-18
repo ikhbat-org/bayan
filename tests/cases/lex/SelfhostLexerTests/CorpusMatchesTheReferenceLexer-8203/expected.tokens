@@ -1,0 +1,17 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+3:2 LetKeyword `let`
+3:6 EffectKeyword `effect`
+3:13 Equals `=`
+3:15 IntegerLiteral `2`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ �let effect = 2
+    │ ^

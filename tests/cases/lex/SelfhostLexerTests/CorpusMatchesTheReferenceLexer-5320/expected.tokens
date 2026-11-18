@@ -1,0 +1,54 @@
+1:1 CharLiteral `' let a = "open`
+2:1 Slash `/`
+2:3 Identifier `comment`
+2:13 Identifier `h`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 BecomeKeyword `become`
+6:3 RawStringLiteral `""" c"text" u16"wid�e" "\u{202E} allowed in strings" "" "\u{48}i"\n\' '\0'\n + - * / % +% -% *% +| -| *| ++ --\n\n`
+10:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ ' let a = "open
+    │ ^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ / comment � h
+    │           ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ / comment � h
+    │   │           -
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  6 │   """ c"text" u16"wid�e" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  6 │   """ c"text" u16"wid�e" "� allowed in strings" "" "\u{48}i"
+    │                      ^

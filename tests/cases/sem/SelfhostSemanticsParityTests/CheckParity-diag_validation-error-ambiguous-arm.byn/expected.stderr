@@ -1,0 +1,9 @@
+error BYN2227: `.invalid` is ambiguous; it exists in `ValidationError<Signup>`,
+`ValidationError<Address>`
+  --> tmp/t26-tests/cli/diag_validation-error-ambiguous-arm.byn/validation-error-ambiguous-arm.byn:19:5
+
+  19 │     .invalid e => print("rejected"),
+     │     ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2227

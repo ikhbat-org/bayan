@@ -1,0 +1,8 @@
+test assert property fuzz mode]l freach new goto
+ /* block
+ $ 1
+let a = ` 2
+
+/*
+‚Äè √ let c = """never closed
+

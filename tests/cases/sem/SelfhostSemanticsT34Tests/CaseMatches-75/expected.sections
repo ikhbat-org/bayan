@@ -1,0 +1,4 @@
+== s10
+switchExpr|i64|2015:35
+value local:Ledger=lg
+arm 2027:21 propertyPattern[2027:16]:Ledger(Ledger;total:i64=bindPattern[2036:3]:i64(t:i64:b:-:let)|-) guard - value local:i64=t

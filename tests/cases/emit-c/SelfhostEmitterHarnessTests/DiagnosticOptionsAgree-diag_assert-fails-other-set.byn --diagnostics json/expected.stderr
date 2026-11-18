@@ -1,0 +1,1 @@
+{"code":"BYN2411","severity":"error","file":"input.byn","span":{"start":171,"end":178,"line":14,"column":20,"endLine":14,"endColumn":27},"message":"`DbError` cannot match `ParseError`","label":null,"help":null,"fixes":[]}

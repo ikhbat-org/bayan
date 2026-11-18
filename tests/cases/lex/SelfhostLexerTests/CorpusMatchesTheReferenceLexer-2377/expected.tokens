@@ -1,0 +1,104 @@
+3:1 LetKeyword `let`
+3:7 Equals `=`
+3:9 IntegerLiteral `2`
+4:2 IntegerLiteral `50`
+4:4 NumericSuffix `dc`
+4:7 IntegerLiteral `1`
+4:8 DotDot `..`
+4:10 IntegerLiteral `2`
+4:12 IntegerLiteral `1`
+4:13 DotDotEquals `..=`
+4:16 IntegerLiteral `3`
+4:18 IntegerLiteral `5`
+5:1 IntegerLiteral `0b1`
+5:4 NumericSuffix `H02`
+6:2 LetKeyword `let`
+6:6 Identifier `a`
+6:8 Equals `=`
+6:10 StringLiteral `"open`
+7:2 CharLiteral `'\u{D800}'`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolationStart `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 InterpolatedStringStart `$"`
+9:24 InterpolationStart `{`
+9:25 InterpolatedStringStart `$"`
+9:27 InterpolationStart `{`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolationStart `{`
+9:31 InterpolatedStringStart `$"`
+9:33 InterpolationStart `{`
+9:34 InterpolatedStringStart `$"`
+9:36 InterpolationStart `{`
+9:37 InterpolatedStringStart `$"`
+9:39 InterpolationStart `{`
+9:40 InterpolatedStringStart `$"`
+9:42 InterpolationStart `{`
+9:43 InterpolatedStringStart `$"`
+9:45 InterpolationStart `{`
+9:46 InterpolatedStringStart `$"`
+9:48 InterpolationStart `{`
+9:49 StringLiteral `$"{x}"`
+9:55 InterpolationEnd `}`
+9:56 InterpolatedStringEnd `"`
+9:57 InterpolationEnd `}`
+9:58 InterpolatedStringEnd `"`
+9:59 InterpolationEnd `}`
+9:60 InterpolatedStringEnd `"`
+9:61 InterpolationEnd `}`
+9:62 InterpolatedStringEnd `"`
+9:64 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ let � = 2
+    │     ^
+
+error BYN0011: unit suffix `H02` is not allowed on a binary literal
+
+  5 │ 0b1H02
+    │    ^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  6 │  let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  7 │  '\u{D800}'
+    │   ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" 
+    │                                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" 
+    │                                                 ^^

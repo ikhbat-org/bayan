@@ -1,0 +1,1 @@
+{"code":"BYN1009","severity":"error","file":"input.byn","span":{"start":41,"end":43,"line":2,"column":17,"endLine":2,"endColumn":19},"message":"postfix conditions cannot be chained","label":"a second condition","help":"combine the conditions with `&&` in one postfix `if`","fixes":[]}

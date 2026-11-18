@@ -1,0 +1,73 @@
+2:1 StringLiteral `"{$"`
+2:5 OpenBrace `{`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolationStart `{`
+2:9 InterpolatedStringStart `$"`
+2:11 InterpolatedStringText `\t$`
+2:13 InterpolatedStringEnd `"`
+2:14 OpenBrace `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 Identifier `x`
+2:49 InterpolationEnd `}`
+2:50 InterpolatedStringEnd `"`
+2:51 InterpolationEnd `}`
+2:52 InterpolatedStringEnd `"`
+2:53 InterpolationEnd `}`
+2:54 InterpolatedStringEnd `"`
+2:55 InterpolationEnd `}`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 InterpolationEnd `}`
+2:62 InterpolatedStringEnd `"`
+2:63 InterpolationEnd `}`
+2:64 InterpolatedStringEnd `"`
+2:65 InterpolationEnd `}`
+2:66 InterpolatedStringEnd `"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 CloseBrace `}`
+2:72 StringLiteral `"}"`
+2:75 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  2 │ "{$"{$"{$"	$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

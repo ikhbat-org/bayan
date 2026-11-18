@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/parse/particles.byn
+--package
+<repo>/tests/cases/parse

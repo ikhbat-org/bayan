@@ -1,0 +1,20 @@
+1:2 Identifier `camelCase2`
+1:13 Identifier `بيان`
+1:18 Identifier `μετρητής`
+1:27 Identifier `x_1`
+1:31 Identifier `é`
+2:4 Identifier `comment`
+2:12 Star `*`
+2:13 Slash `/`
+2:15 Identifier `a`
+4:1 StringLiteral `"text"`
+4:8 StringLiteral `"esc \"q\" \\ \n"`
+4:26 RawStringLiteral `"""\n xs: List<List<i64>>\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

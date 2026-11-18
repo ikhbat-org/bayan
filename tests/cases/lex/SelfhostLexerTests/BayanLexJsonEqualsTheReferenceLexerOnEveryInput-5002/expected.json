@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"Greater","start":1,"end":2,"text":">","doc":null},{"kind":"Identifier","start":4,"end":5,"text":"b","doc":null},{"kind":"EndOfFile","start":26,"end":26,"text":"","doc":{"start":8,"end":25}}],"diagnostics":[{"code":"BYN0002","severity":"error","start":2,"end":3,"message":"unexpected character `\\u{2}`","label":null,"help":null,"fixes":[]}]}

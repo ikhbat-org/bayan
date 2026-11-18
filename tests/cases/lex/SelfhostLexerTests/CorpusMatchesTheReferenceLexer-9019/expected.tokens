@@ -1,0 +1,24 @@
+1:1 LetKeyword `let`
+1:6 Equals `=`
+1:8 IntegerLiteral `2`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""never closed\n\n$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{${x}"}"}"}"}"}"}"\n0b102\n\u{0}\n`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let �= 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

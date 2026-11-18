@@ -1,0 +1,35 @@
+1:2 StringLiteral `"bad \q escape"`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""neve�r� `
+2:20 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │  "bad \q escape"
+    │       ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """neve�r� 
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  2 │ let c = """neve�r� 
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ let c = """neve�r� 
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ let c = """neve�r� 
+    │                   ^

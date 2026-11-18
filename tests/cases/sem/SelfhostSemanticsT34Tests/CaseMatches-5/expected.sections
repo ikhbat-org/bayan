@@ -1,0 +1,6 @@
+== c14
+catchExpr|i64|5276:39
+operand call:i64 binding t:NetError:o:-:catch variant - handler switchExpr:i64
+switchExpr|i64|5291:24
+value local:NetError=t
+arm 5300:13 binaryPattern[5300:8]:NetError(or constantPattern[5300:8]:NetError(errorVariant:NetError=timeout),constantPattern[5300:8]:NetError(errorVariant:NetError=closed)) guard - value literal:i64=1

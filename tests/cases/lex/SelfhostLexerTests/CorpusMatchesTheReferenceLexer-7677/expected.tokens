@@ -1,0 +1,73 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+2:1 StringLiteral `"{$"`
+2:5 OpenBrace `{`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolationStart `{`
+2:9 InterpolatedStringStart `$"`
+2:11 InterpolationStart `{`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 Identifier `x`
+2:19 InterpolationEnd `}`
+2:20 InterpolatedStringEnd `"`
+2:21 InterpolationEnd `}`
+2:22 InterpolatedStringEnd `"`
+2:23 InterpolationEnd `}`
+2:24 InterpolatedStringEnd `"`
+2:25 InterpolationEnd `}`
+2:26 InterpolatedStringEnd `"`
+2:27 CloseBrace `}`
+2:28 StringLiteral `"}"`
+2:31 CloseBrace `}`
+2:32 StringLiteral `"}"`
+2:35 CloseBrace `}`
+2:36 StringLiteral `"}"`
+2:39 CloseBrace `}`
+2:40 StringLiteral `"}"`
+2:43 CloseBrace `}`
+2:44 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 Identifier `a`
+4:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ "{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                            ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

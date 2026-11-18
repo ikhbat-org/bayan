@@ -1,0 +1,8 @@
+error BYN2411: `DbError` cannot match `ParseError`
+  --> input.byn:18:5
+
+  18 │     DbError e => 1,
+     │     ^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2411

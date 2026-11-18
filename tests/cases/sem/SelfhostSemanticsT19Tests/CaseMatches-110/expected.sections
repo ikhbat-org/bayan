@@ -1,0 +1,4 @@
+== bind.probes.b17
+flags 0
+errorExpr:?[1968:11]=-()
+BYN2208 124:15 `<` cannot be applied to `bool` and `bool` |||

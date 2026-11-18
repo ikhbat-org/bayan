@@ -1,0 +1,114 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+3:1 TestKeyword `test`
+3:6 Identifier `asseert`
+3:14 PropertyKeyword `property`
+3:23 FuzzKeyword `fuzz`
+3:28 ModelKeyword `model`
+3:34 ForeachKeyword `foreach`
+3:42 NewKeyword `new`
+3:46 GotoKeyword `goto`
+5:1 Identifier `b`
+5:3 Equals `=`
+5:7 IntegerLiteral `2`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:11 IntegerLiteral `3`
+7:2 CharLiteral `'�u{D800}'`
+8:2 NeverKeyword `never`
+8:8 Identifier `closed`
+9:1 Identifier `b`
+10:2 LetKeyword `let`
+10:6 Identifier `c`
+10:8 Equals `=`
+10:12 IntegerLiteral `3`
+12:1 InterpolatedStringStart `$"`
+12:3 InterpolatedStringText `a`
+12:4 InterpolationStart `{`
+12:5 Identifier `b`
+12:6 InterpolationEnd `}`
+12:7 InterpolatedStringText `c $`
+12:10 InterpolatedStringEnd `"`
+12:11 OpenBrace `{`
+12:12 InterpolatedStringStart `$"`
+12:14 InterpolationStart `{`
+12:15 InterpolatedStringStart `$"`
+12:17 InterpolationStart `{`
+12:18 InterpolatedStringStart `$"`
+12:20 InterpolationStart `{`
+12:21 InterpolatedStringStart `$"`
+12:23 InterpolationStart `{`
+12:24 InterpolatedStringStart `$"`
+12:26 InterpolationStart `{`
+12:27 InterpolatedStringStart `$"`
+12:29 InterpolationStart `{`
+12:30 InterpolatedStringStart `$"`
+12:32 InterpolationStart `{`
+12:33 InterpolatedStringStart `$"`
+12:35 InterpolationStart `{`
+12:36 InterpolatedStringStart `$"`
+12:38 InterpolationStart `{`
+12:39 InterpolatedStringStart `$"`
+12:41 InterpolationStart `{`
+12:42 InterpolatedStringStart `$"`
+12:44 InterpolationStart `{`
+12:45 InterpolatedStringStart `$"`
+12:47 InterpolationStart `{`
+12:48 InterpolatedStringStart `$"`
+12:50 InterpolationStart `{`
+12:51 InterpolatedStringStart `$"`
+12:53 InterpolationStart `{`
+12:54 Identifier `x`
+12:55 InterpolationEnd `}`
+12:56 InterpolatedStringEnd `"`
+12:57 InterpolationEnd `}`
+12:58 InterpolatedStringEnd `"`
+12:59 InterpolationEnd `}`
+12:60 InterpolatedStringEnd `"`
+12:61 InterpolationEnd `}`
+12:62 InterpolatedStringEnd `"`
+12:63 InterpolationEnd `}`
+12:64 InterpolatedStringEnd `"`
+13:1 EndOfFile
+
+error BYN0002: unexpected character `\u{1C}`
+
+  1 │ let c = � 3
+    │         ^
+
+error BYN0002: unexpected character ```
+
+  5 │ b = ` 2
+    │     ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  6 │ let c = � 3
+    │         ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  7 │  '�u{D800}'
+    │  ^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  7 │  '�u{D800}'
+    │   ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  10 │  let c = � 3
+     │          ^
+
+error BYN0003: unterminated string literal
+
+  12 │ $"a{b}c $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+     │                                    ^^ this string never ends
+     │
+  help: close the `{` and the string

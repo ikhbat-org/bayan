@@ -1,0 +1,25 @@
+1:1 Identifier `café`
+1:6 Equals `=`
+1:8 IntegerLiteral `2`
+1:10 InKeyword `in`
+1:13 Identifier `comment`
+3:1 LetKeyword `let`
+3:5 Identifier `x`
+3:8 Equals `=`
+3:10 IntegerLiteral `1`
+4:4 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ let x� = 1
+    │   │      -
+
+error BYN0002: unexpected character `\u{0}`
+
+  4 │  � 
+    │  ^

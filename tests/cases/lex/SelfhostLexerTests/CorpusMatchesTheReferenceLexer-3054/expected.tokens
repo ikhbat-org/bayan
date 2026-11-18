@@ -1,0 +1,51 @@
+1:1 IntegerLiteral `0xF__`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText `c e`
+2:10 InterpolatedStringEnd
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:9 StringLiteral `"bad \q escape"`
+4:1 Identifier `lJt`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:9 RawStringLiteral `"""never closed\n `
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__�
+    │    ^^
+    │
+    │ 1 │ 0xF__�
+    │   │    --
+
+error BYN0002: unexpected character `\u{11}`
+
+  1 │ 0xF__�
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b}c e
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  4 │ lJt c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

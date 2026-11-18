@@ -1,0 +1,36 @@
+1:1 Identifier `τρητής`
+1:8 Identifier `x_1`
+1:12 Identifier `é`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText ` /* \u{202D} */.1_`
+2:18 InterpolatedStringEnd
+4:2 LetKeyword `let`
+4:8 Equals `=`
+4:10 IntegerLiteral `2`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b} /* � */.1_
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ ﻿
+    │ ^
+
+error BYN0002: unexpected character `̈́`
+
+  4 │ ̈́let � = 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ ̈́let � = 2
+    │      ^

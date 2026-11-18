@@ -1,0 +1,57 @@
+== tests/cases/run/overloads.byn
+234..239 binaryExpr add right 238..239
+234..239 binaryExpr add right 238..239
+234..239 binaryExpr add right 238..239
+234..235 nameExpr
+238..239 nameExpr
+282..291 binaryExpr add right 290..291
+282..291 binaryExpr add right 290..291
+282..291 binaryExpr add right 290..291
+282..287 binaryExpr sub right 286..287
+282..283 nameExpr
+286..287 nameExpr
+290..291 nameExpr
+293..313 globalStatement
+293..313 localDecl
+301..313 structLiteralExpr
+310..311 literalExpr integer
+314..368 exprStmt
+314..368 callExpr
+320..367 interpolatedExpr
+323..338 memberExpr
+323..336 callExpr
+323..324 nameExpr
+334..335 literalExpr integer
+341..365 memberExpr
+341..363 callExpr
+341..342 nameExpr
+354..355 literalExpr integer
+361..362 literalExpr integer
+314..368 callExpr
+369..423 exprStmt
+369..423 callExpr
+375..422 interpolatedExpr
+378..393 callExpr
+384..385 literalExpr integer
+391..392 literalExpr integer
+396..420 callExpr
+402..403 literalExpr integer
+411..412 literalExpr integer
+418..419 literalExpr integer
+369..423 callExpr
+125..141 structLiteralExpr
+125..141 structLiteralExpr
+125..141 structLiteralExpr
+134..139 binaryExpr add right 138..139
+134..135 nameExpr
+134..135 nameExpr
+138..139 nameExpr
+180..200 structLiteralExpr
+180..200 structLiteralExpr
+180..200 structLiteralExpr
+189..198 binaryExpr add right 197..198
+189..194 binaryExpr sub right 193..194
+189..190 nameExpr
+189..190 nameExpr
+193..194 nameExpr
+197..198 nameExpr

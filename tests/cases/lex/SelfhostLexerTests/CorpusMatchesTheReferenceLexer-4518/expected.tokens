@@ -1,0 +1,75 @@
+1:1 Identifier `_`
+2:1 IntegerLiteral `000`
+2:4 CloseBrace `}`
+2:5 CharLiteral `'`
+3:1 CharLiteral `'x`
+5:1 Identifier `x́́`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolatedStringText `total `
+5:12 InterpolationStart `{`
+5:13 Identifier `x`
+5:14 InterpolationEnd `}`
+5:15 InterpolatedStringEnd `"`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolatedStringText `a `
+5:21 InterpolationStart `{`
+5:22 Identifier `f`
+5:23 OpenParen `(`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolatedStringText `b `
+5:28 InterpolationStart `{`
+5:29 Identifier `c`
+5:30 InterpolationEnd `}`
+5:31 InterpolatedStringEnd `"`
+5:32 CloseParen `)`
+5:33 InterpolationEnd `}`
+5:34 InterpolatedStringText ` d`
+5:36 InterpolatedStringEnd `"`
+5:38 InterpolatedStringStart `$"`
+5:40 InterpolatedStringText `{{literal}}`
+5:51 InterpolatedStringEnd `"`
+5:53 InterpolatedStringStart `$"`
+5:55 InterpolationStart `{`
+5:56 Identifier `Point`
+5:62 OpenBrace `{`
+5:64 Identifier `x`
+5:66 Equals `=`
+5:68 IntegerLiteral `1`
+5:70 CloseBrace `}`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringText `!`
+5:73 InterpolatedStringEnd `"`
+5:75 InterpolatedStringStart `$"`
+5:77 InterpolatedStringEnd `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 StringLiteral `"`
+6:5 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ 000}'
+    │     ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

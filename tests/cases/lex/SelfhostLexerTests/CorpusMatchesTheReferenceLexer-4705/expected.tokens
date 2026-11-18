@@ -1,0 +1,82 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:38 OpenBrace `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 StringLiteral `$"{$"`
+2:56 OpenBrace `{`
+2:57 StringLiteral `$"{x}"`
+2:63 CloseBrace `}`
+2:64 StringLiteral `"}"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringEnd `"`
+2:75 CloseBrace `}`
+2:76 StringLiteral `"}"`
+2:79 InterpolationEnd `}`
+2:80 InterpolatedStringEnd `"`
+2:81 InterpolationEnd `}`
+2:82 InterpolatedStringEnd `"`
+2:83 InterpolationEnd `}`
+2:84 InterpolatedStringEnd `"`
+2:85 InterpolationEnd `}`
+2:86 InterpolatedStringEnd `"`
+2:87 IntegerLiteral `0x_`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"0x_
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"0x_
+    │                                     ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"0x_
+    │                                                   ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"0x_
+    │                                                                                       ^^^

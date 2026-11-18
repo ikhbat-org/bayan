@@ -1,0 +1,2 @@
+== flow.swPartial
+BYN2102 213:13 `x` is used before it is assigned |declared without a value on line 208|assign it on every path before this, or give the declaration a value|

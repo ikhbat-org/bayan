@@ -1,0 +1,54 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `x`
+3:8 Equals `=`
+3:10 IntegerLiteral `1`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 Identifier `a`
+6:6 Identifier `b`
+8:1 StringLiteral `"}"`
+8:4 InterpolationEnd `}`
+8:5 InterpolatedStringEnd `"`
+8:6 CloseBrace `}`
+8:7 StringLiteral `"`
+9:1 IntegerLiteral `1_`
+12:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ let x� �= 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ let x� �= 1
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  3 │ let x� �= 1
+    │        ^
+
+error BYN0002: unexpected character `﻿`
+
+  5 │ ﻿
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  8 │ "}"}"}"
+    │       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 1_
+    │  ^
+    │
+    │ 9 │ 1_
+    │   │  -

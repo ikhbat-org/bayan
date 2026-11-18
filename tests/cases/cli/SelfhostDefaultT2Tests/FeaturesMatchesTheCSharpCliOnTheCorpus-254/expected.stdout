@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "ArenaNew",
+    "Print",
+    "StringCopy"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,25 @@
+# BYN2027: `==` with `null`
+
+**What.** `x == null`, `x != null` or `null == x`.
+
+**Why.** Absence is tested with a pattern: `x is null`, `x is not null`. The pattern also narrows `x` in the branch where it is present.
+
+**Example.**
+
+```
+let name: string? = null
+void greet(string? name) { }
+if name != null {
+    greet(name)
+}
+```
+
+**Fix.** Write the pattern (the machine fix does this):
+
+```
+let name: string? = null
+void greet(string name) { }
+if name is not null {
+    greet(name)
+}
+```

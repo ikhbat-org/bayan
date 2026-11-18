@@ -1,0 +1,163 @@
+import lexer
+import parser
+
+struct T8Pending {
+    i64 kind
+    i64 index
+    TextSpan span
+    TextSpan name
+    List<TextSpan> variants
+}
+
+struct T8Field {
+    string name
+    i64 index
+}
+
+SourceFile makeFile(string text, from ModId module) {
+    var bytes = List<u8>()
+    for b in text.bytes { bytes.append(b) }
+    var copy = List<u8>()
+    for b in text.bytes { copy.append(b) }
+    let source = lexer.SourceText.create("t8.byn", from: move bytes)
+    var p = parser.Parser.create(lexer.lex(move source, by: lexer.Keywords.build()))
+    let unit = parser.parseCompilationUnit(ref p)
+    return SourceFile { path: "t8.byn", displayPath: "t8.byn", text: move copy, unit: move unit, module: module, imports: Map<string, i64>() }
+}
+
+string lineCol(string text, at i64 offset) {
+    var line = 1
+    var col = 1
+    let b = text.bytes
+    for i in 0..offset {
+        if b[i] == 0x0A {
+            line += 1
+            col = 1
+        } else {
+            col += 1
+        }
+    }
+    return $"{line}:{col}"
+}
+
+/// Registers a file's error enums as sets, its interfaces, and its aliases and `union error` compositions as aliases.
+List<AliasId> t8Declare(ref Ctx c, from FileId file) {
+    let module = c.files[file].module
+    var pending = List<T8Pending>()
+    for i in 0..c.files[file].unit.members.length {
+        switch c.files[file].unit.members[i] {
+            case .errorEnumDecl(let d):
+                var vs = List<TextSpan>()
+                for v in d.value.variants { vs.append(v.name) }
+                pending.append(T8Pending { kind: 0, index: i, span: d.value.span, name: d.value.name, variants: move vs })
+            case .errorSetDecl(let d):
+                pending.append(T8Pending { kind: 1, index: i, span: d.value.span, name: d.value.name, variants: List<TextSpan>() })
+            case .typeAliasDecl(let d):
+                pending.append(T8Pending { kind: 1, index: i, span: d.value.span, name: d.value.name, variants: List<TextSpan>() })
+            case .interfaceDecl(let d):
+                pending.append(T8Pending { kind: 2, index: i, span: d.value.span, name: d.value.name, variants: List<TextSpan>() })
+            default:
+                continue
+        }
+    }
+    var aliases = List<AliasId>()
+    for p in pending {
+        let name = t8Text(in c, from: file, at: p.name)
+        var access: Accessibility = .module
+        if p.span.length >= 6 && t8Text(in c, from: file, at: TextSpan { start: p.span.start, length: 6 }) == "public" { access = .publicKeyword }
+        if p.kind == 2 {
+            let i = newInterface(ref c, by: InterfaceSymbol { name: name, nameSpan: p.name, module: module, file: file, declIndex: p.index, access: access })
+            c.modules[module].types[name] = interfaceTypeOf(i)
+        } else if p.kind == 0 {
+            let s = newErrorSet(ref c, by: ErrorSetSymbol { name: name, nameSpan: p.name, module: module, file: file, declIndex: p.index, access: access })
+            for v in p.variants {
+                let vName = t8Text(in c, from: file, at: v)
+                let id = newErrorVariant(ref c, by: ErrorVariantSymbol { name: vName, nameSpan: v, set: s, file: file })
+                c.errorSets[s].variants.append(id)
+            }
+            c.modules[module].types[name] = errorSetTypeOf(s)
+        } else {
+            let a = newAlias(ref c, by: AliasPlaceholder { name: name, nameSpan: p.name, file: file, declIndex: p.index })
+            c.modules[module].types[name] = t8AliasType(a)
+            aliases.append(a)
+        }
+    }
+    return aliases
+}
+
+/// Resolves each `Probe` field (a `bound…` field through `resolveBound`) and prints `name: display`.
+void t8Probe(ref Ctx c) {
+    var at: i64 = -1
+    for i in 0..c.files[0].unit.members.length {
+        switch c.files[0].unit.members[i] {
+            case .structDecl(let d): at = i
+            default: continue
+        }
+    }
+    let r = TypeResolver { file: 0 }
+    let decl = t8TakeDecl(ref c, from: 0, at: at, by: .none)
+    var lines = List<string>()
+    switch decl {
+        case .structDecl(let d):
+            for m in d.value.members {
+                switch m {
+                    case .fieldDecl(let f):
+                        let name = t8Text(in c, from: 0, at: f.value.name)
+                        var t = errorType()
+                        if name.startsWith("bound") {
+                            switch f.value.type {
+                                case .namedType(let n): t = resolveBound(ref c, through: in r, for: in n.value)
+                                default: t = errorType()
+                            }
+                        } else {
+                            t = resolve(ref c, through: in r, for: in f.value.type)
+                        }
+                        let shown = typeDisplay(ref c, by: t)
+                        lines.append($"{name}: {shown}")
+                    default:
+                        continue
+                }
+            }
+        default:
+            print("no Probe")
+    }
+    let back = t8TakeDecl(ref c, from: 0, at: at, by: move decl)
+    for l in lines { print(l) }
+}
+
+void t8Run(string section, by string text, from string other) {
+    var c = Ctx { files: List<SourceFile>(), modules: List<Mod>(), diagnostics: List<Diag>(), bags: List<DiagBag>() }
+    c.files.append(makeFile(text, from: 0))
+    var files = List<FileId>()
+    files.append(0)
+    c.modules.append(Mod { name: "t8", files: move files })
+    if other != "" {
+        c.files.append(makeFile(other, from: 1))
+        var geoFiles = List<FileId>()
+        geoFiles.append(1)
+        c.modules.append(Mod { name: "geo", files: move geoFiles })
+        c.files[0].imports["geo"] = 1
+        let geoAliases = t8Declare(ref c, from: 1)
+    }
+    let aliases = t8Declare(ref c, from: 0)
+    print($"== {section}")
+    t8Probe(ref c)
+    let r = TypeResolver { file: 0 }
+    for a in aliases {
+        let t = expandAlias(ref c, through: in r, for: a)
+    }
+    print($"== {section} diagnostics")
+    for d in c.diagnostics {
+        let help = d.help == "" ? "" : $" help: {d.help}"
+        print($"{d.code} {lineCol(text, at: d.span.start)} {d.message}{help}")
+    }
+}
+
+i32 main() {
+    t8Run("named", by: "type Cents = i64\nunion error FileError {\n    missing\n    denied\n}\nunion error NetError {\n    timeout\n    refused\n}\nunion error AnyError = FileError, NetError except .denied\ntype Pair = (i32, string name)\ntype Fn = (i64) -> string\neffect io = fs, console\ntype Eff = (i32) -> void uses io, alloc\nstruct Probe {\n    i32? a\n    Pair b\n    Map<string, i32> c\n    Fn d\n    Eff e\n    List<Cents> f\n    Result<i32, AnyError> g\n    Span<u8> h\n    ReadOnlySpan<u8> i\n    Owned<string> j\n    Untrusted<string> k\n    Arena l\n    StrBuf m\n    Map<(i32, bool), Cents> n\n    Panic o\n    ProcessResult p\n    FormatSpec q\n    Symbol r\n    i64 boundX\n}", from: "")
+    t8Run("errors", by: "type Loop = Loop2\ntype Loop2 = Loop\ntype Opt = i32?\ntype Cents = i64\nunion error FileError {\n    missing\n}\nunion error Odd = FileError except .nope\nunion error Gone = FileError except .missing\nstruct Probe {\n    Opt? a\n    String b\n    void c\n    List<i32, i32> d\n    Map<f64, i32> e\n    HashMap<string, i32> f\n    Loop g\n    Odd h\n    Gone i\n    Result<i32, i64> j\n    Foo.Bar k\n    dec l\n    i32<i64> m\n    cents n\n    Map<string> o\n    Result<void, FileError> p\n}", from: "")
+    t8Run("compose", by: "union error A {\n    x\n    y\n}\nunion error B {\n    z\n}\nunion error AB = A, B except .x\nunion error Again = AB, A\nunion error Twice = AB, AB\neffect io = fs, console\neffect loopy = loopy, net\ntype Fx = () -> void uses io, loopy, fs, io\nstruct Probe {\n    Again a\n    AB b\n    Fx c\n    Result<i32, AB> d\n    Map<List<i32>, i32> e\n    Strbuf f\n    boolean g\n    str h\n    dyn ref Missing i\n    a.b.c j\n    Twice k\n    Result<i32, A> l\n}", from: "")
+    t8Run("dyn", by: "interface IPlain {\n    i64 area()\n}\ninterface IShape {\n    T pick<T>(T x)\n}\ninterface ISized {\n    type Item\n}\nstruct Probe {\n    dyn ref IPlain a\n    dyn ref readonly IPlain b\n    dyn ref IShape c\n    dyn ref ISized d\n    dyn IPlain e\n    dyn ref i64 f\n}", from: "")
+    t8Run("imports", by: "import geo\nstruct Probe {\n    geo.Code a\n    geo.Hidden b\n    geo.Nope c\n    nogeo.Code d\n}", from: "public union error Code {\n    bad\n}\nunion error Hidden {\n    x\n}")
+    return 0
+}

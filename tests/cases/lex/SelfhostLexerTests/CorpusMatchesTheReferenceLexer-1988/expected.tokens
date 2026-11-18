@@ -1,0 +1,20 @@
+1:1 StringLiteral `"a\u{2067}b"`
+1:8 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+4:1 Identifier `é`
+5:1 IntegerLiteral `0`
+5:2 NumericSuffix `ox_`
+6:2 Identifier `l`
+6:3 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  4 │ é
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ é
+    │   │ +

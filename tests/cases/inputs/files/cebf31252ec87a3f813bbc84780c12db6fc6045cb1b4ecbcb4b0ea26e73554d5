@@ -1,0 +1,6 @@
+$"total {x}" $"a {f($"b {c})} d" $"{{literal}B}" $"{Point { x = 1 }}!" $""
+/// Doc line two.
+ /////// not a doc comment
+ í €
+let b = "bad \q escape"
+ 

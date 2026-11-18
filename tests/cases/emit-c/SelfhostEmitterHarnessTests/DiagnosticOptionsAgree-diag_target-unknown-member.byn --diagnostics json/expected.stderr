@@ -1,0 +1,1 @@
+{"code":"BYN2003","severity":"error","file":"input.byn","span":{"start":96,"end":99,"line":2,"column":14,"endLine":2,"endColumn":17},"message":"`osx` is not a member of `Target`","label":null,"help":"did you mean `os`?","fixes":[]}

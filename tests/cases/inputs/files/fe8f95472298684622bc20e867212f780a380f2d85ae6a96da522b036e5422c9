@@ -1,0 +1,10 @@
+let x⁧ = 1
+let a = $ 1
+//// not a doc comment
+
+
+struct unique union enum flags open extensible interface delegate extension derivation attribute
+ is and or notwith move ref out this null true false comptime checked
+
+c >>= 1
+ 

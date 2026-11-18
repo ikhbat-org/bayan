@@ -1,0 +1,4 @@
+@allow(unusedValue) because "warm"
+@cases(1)
+void warm() {
+}

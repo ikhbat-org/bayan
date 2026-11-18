@@ -1,0 +1,59 @@
+1:1 CharLiteral `'\u{110000}'`
+2:2 IntegerLiteral `1`
+2:3 DotDot `..`
+2:5 IntegerLiteral `2`
+2:7 IntegerLiteral `1`
+2:8 DotDotEquals `..=`
+2:11 IntegerLiteral `3`
+2:13 IntegerLiteral `5`
+2:14 NumericSuffix `eb`
+3:1 Identifier `A`
+5:1 Identifier `comment`
+7:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  3 │ A��//� Doc linexone.
+    │  ^
+
+error BYN0002: unexpected character `\u{6}`
+
+  3 │ A��//� Doc linexone.
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEE)
+
+  3 │ A��//� Doc linexone.
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  6 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  6 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │     ^

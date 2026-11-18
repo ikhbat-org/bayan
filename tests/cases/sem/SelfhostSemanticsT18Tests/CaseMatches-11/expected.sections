@@ -1,0 +1,4 @@
+== member.probes.-.v22
+errorExpr|?|-|-|-|-|-|2980:7|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2003 151:18 `nope` is not a member of `dyn ref IHasArea` |||

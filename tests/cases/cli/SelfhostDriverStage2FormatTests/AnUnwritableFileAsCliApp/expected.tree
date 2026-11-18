@@ -1,0 +1,3 @@
+== main.byn UserWrite, UserRead
+let a = true
+if (a) { print("x") }

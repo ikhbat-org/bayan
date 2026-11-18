@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/interface-default-method.byn
+--package
+<repo>/tests/cases/run

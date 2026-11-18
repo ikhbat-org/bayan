@@ -1,0 +1,171 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+2:2 LetKeyword `let`
+2:6 Identifier `a`
+2:8 Equals `=`
+2:10 StringLiteral `"open`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 StringLiteral `$"{$"`
+3:55 OpenBrace `{`
+3:56 StringLiteral `$"{x}"`
+3:62 CloseBrace `}`
+3:63 StringLiteral `"}"`
+3:66 InterpolationEnd `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringText `�}`
+3:74 InterpolatedStringEnd `"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringText `�}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolationEnd `}`
+3:84 InterpolatedStringEnd `"`
+4:1 IntegerLiteral `0x`
+4:4 Amp `&`
+4:6 AmpAmp `&&`
+4:9 Bar `|`
+4:11 BarBar `||`
+4:14 Caret `^`
+4:16 Tilde `~`
+4:18 Bang `!`
+4:20 Equals `=`
+4:22 EqualsEquals `==`
+4:25 BangEquals `!=`
+4:28 Less `<`
+4:30 LessEquals `<=`
+4:33 Greater `>`
+4:35 GreaterEquals `>=`
+4:38 LessLess `<<`
+4:41 Greater `>`
+4:42 Greater `>`
+4:44 Greater `>`
+4:45 GreaterEquals `>=`
+6:1 LetKeyword `let`
+6:5 Identifier `x`
+6:8 Equals `=`
+6:10 IntegerLiteral `1`
+8:1 LetKeyword `let`
+8:5 EffectKeyword `effect`
+8:12 Equals `=`
+8:14 IntegerLiteral `2`
+9:2 InterpolatedStringStart `$"`
+9:4 InterpolatedStringText `a`
+9:5 InterpolationStart `{`
+9:6 Identifier `b`
+9:7 InterpolationEnd `}`
+9:8 InterpolatedStringText `c `
+9:10 InterpolatedStringEnd
+9:10 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}�}"}"}�}"}"}"
+    │                       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}�}"}"}�}"}"}"
+    │                                                  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}�}"}"}�}"}"}"
+    │                                                                         ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}�}"}"}�}"}"}"
+    │                                                                          ^
+    │
+    │ 3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}�}}"}"}�}"}"}"
+    │   │                                                                           +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}�}"}"}�}"}"}"
+    │                                                                               ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}�}"}"}�}"}"}"
+    │                                                                                ^
+    │
+    │ 3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}�}"}"}�}}"}"}"
+    │   │                                                                                 +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x &�&& | || ^ ~ ! = == != < <= > >= << >> >>=
+    │ ^^
+
+error BYN0002: unexpected character `\u{15}`
+
+  4 │ 0x &�&& | || ^ ~ ! = == != < <= > >= << >> >>=
+    │     ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  6 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ let x� = 1
+    │   │      -
+
+error BYN0003: unterminated string literal
+
+  9 │  $"a{b}c 
+    │  ^^ this string never ends
+    │
+  help: close it with `"`

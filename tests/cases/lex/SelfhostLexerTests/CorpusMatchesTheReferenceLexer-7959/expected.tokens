@@ -1,0 +1,71 @@
+2:1 IntegerLiteral `1`
+2:2 Dot `.`
+2:4 OpenParen `(`
+2:6 CloseParen `)`
+2:8 OpenBracket `[`
+2:10 CloseBracket `]`
+2:12 OpenBrace `{`
+2:14 CloseBrace `}`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بيان`
+3:28 Identifier `μετρητής`
+3:37 Identifier `x_1`
+3:41 Identifier `é`
+4:1 Identifier `eror`
+4:6 SetKeyword `set`
+4:10 UnitKeyword `unit`
+4:15 DistinctKeyword `distinct`
+4:24 TypeKeyword `type`
+4:29 Identifier `impo`
+4:34 Identifier `rt`
+4:37 AsKeyword `as`
+4:40 PublicKeyword `public`
+4:47 PrivateKeyword `private`
+4:55 StaticKeyword `static`
+4:62 ReadonlyKeyword `readonly`
+4:71 Identifier `reqsuired`
+4:81 ConstKeyword `const`
+4:87 LetKeyword `let`
+4:91 VarKeyword `var`
+4:95 EmbedKeyword `embed`
+4:101 ExternKeyword `extern`
+4:108 UnsafeKeyword `unsafe`
+5:2 Greater `>`
+6:2 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  4 │ eror set unit distinct type impo�rt as public private static readonly reqsuired const let var embed extern unsafe
+    │                                 ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  5 │ �>
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ �>
+    │   │ -

@@ -1,0 +1,15 @@
+1:1 DoKeyword `do`
+1:4 Identifier `brea`
+1:9 ContinueKeyword `continue`
+1:18 ReturnKeyword `return`
+1:25 Identifier `yi`
+    doc `/// Doc line one.`
+2:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\nal}}" $"{Point { x = 1 }}!" $""\nlet s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"\n3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f\n ''\n `
+8:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │    """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`

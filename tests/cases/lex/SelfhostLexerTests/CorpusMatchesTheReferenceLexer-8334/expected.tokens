@@ -1,0 +1,35 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Identifier `b`
+2:3 Equals `=`
+2:5 IntegerLiteral `3`
+3:2 FailsKeyword `fails`
+3:8 TryKeyword `try`
+3:12 CatchKeyword `catch`
+3:18 Identifier `neve`
+3:23 NoallocKeyword `noalloc`
+3:31 NosuspendKeyword `nosuspend`
+3:41 SuspendsKeyword `suspends`
+3:50 AsyncKeyword `async`
+3:56 AwaitKeyword `await`
+5:1 FailsKeyword `fails`
+5:7 TryKeyword `try`
+5:11 CatchKeyword `catch`
+5:17 NeverKeyword `never`
+5:23 NoallocKeyword `noalloc`
+5:31 NosuspendKeyword `nosuspend`
+5:41 SuspendsKeyword `suspends`
+5:50 AsyncKeyword `async`
+5:56 AwaitKeyword `await`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │  ��= 3
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ��= 3
+    │   ^

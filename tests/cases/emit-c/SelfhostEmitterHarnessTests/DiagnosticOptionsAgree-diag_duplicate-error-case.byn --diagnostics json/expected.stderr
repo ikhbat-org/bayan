@@ -1,0 +1,1 @@
+{"code":"BYN3202","severity":"error","file":"input.byn","span":{"start":111,"end":122,"line":11,"column":1,"endLine":11,"endColumn":12},"message":"`CarrierError` and `StockError` both have a case `rejected`","label":"two cases `rejected`","help":"rename one case, or compose fewer sets","fixes":[]}

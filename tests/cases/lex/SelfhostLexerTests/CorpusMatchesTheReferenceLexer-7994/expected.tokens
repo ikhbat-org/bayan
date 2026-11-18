@@ -1,0 +1,21 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+2:2 CloseBrace `}`
+2:3 Identifier `letc`
+2:8 Equals `=`
+2:10 RawStringLiteral `"""never closed\n ation attribute\nerror set unit distinct type import as public pra >> b\n\n`
+6:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b = ` 2
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  2 │  }letc = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

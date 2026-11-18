@@ -1,0 +1,117 @@
+1:1 CharLiteral `'\u{110000}'`
+2:2 CharLiteral `'\u{202E}'`
+2:6 Identifier `u`
+2:7 OpenBrace `{`
+2:8 IntegerLiteral `1`
+2:9 NumericSuffix `F600`
+2:13 CloseBrace `}`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 StringLiteral `$"{x}"`
+5:55 InterpolationEnd `}`
+5:56 InterpolatedStringEnd `"`
+5:57 InterpolationEnd `}`
+5:58 InterpolatedStringText `~}`
+5:60 InterpolatedStringEnd `"`
+5:61 InterpolationEnd `}`
+5:62 InterpolatedStringEnd `"`
+5:63 InterpolationEnd `}`
+5:64 InterpolatedStringEnd `"`
+5:65 InterpolationEnd `}`
+5:66 InterpolatedStringEnd `"`
+5:67 InterpolationEnd `}`
+5:68 InterpolatedStringEnd `"`
+5:69 InterpolationEnd `}`
+5:70 InterpolatedStringEnd `"`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringEnd `"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+5:75 InterpolationEnd `}`
+5:76 InterpolatedStringEnd `"`
+5:77 InterpolationEnd `}`
+5:78 InterpolatedStringEnd `"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:82 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  '�'\u{1F600}
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  '�'\u{1F600}
+    │   │   -
+
+error BYN0002: unexpected character `\`
+
+  2 │  '�'\u{1F600}
+    │     ^
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ 1
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}~}"}"}"}"}"}"}"}"}"}"}" 
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}~}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                 ^^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}~}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                           ^
+    │
+    │ 5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}~}}"}"}"}"}"}"}"}"}"}"}" 
+    │   │                                                            +

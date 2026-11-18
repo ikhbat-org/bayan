@@ -1,0 +1,12 @@
+1:2 CloseParen `)`
+1:4 Identifier `C`
+1:5 OpenBracket `[`
+1:7 CloseBracket `]`
+1:9 OpenBrace `{`
+1:11 CloseBrace `}`
+2:2 EndOfFile
+
+error BYN0002: unexpected character `\u{1E}`
+
+  1 │ �) C[ ] { }
+    │ ^

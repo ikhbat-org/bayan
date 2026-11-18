@@ -1,0 +1,2 @@
+CI=1
+BAYAN_CACHE=<repo>/tmp/t7-style-cache/test-fail-always-csharp

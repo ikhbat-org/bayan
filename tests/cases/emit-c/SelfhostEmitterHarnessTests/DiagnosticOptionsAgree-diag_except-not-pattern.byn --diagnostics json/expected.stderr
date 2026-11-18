@@ -1,0 +1,1 @@
+{"code":"BYN1052","severity":"error","file":"input.byn","span":{"start":41,"end":46,"line":2,"column":22,"endLine":2,"endColumn":27},"message":"`except` takes a pattern, not a condition","label":"a condition","help":"use `where` for a condition","fixes":[]}

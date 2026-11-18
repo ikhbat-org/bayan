@@ -1,0 +1,50 @@
+1:8 StringLiteral `"�{ tray } her�ej`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:11 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */"�{ tray } her�ej
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │ "�{ tray } her�ej
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */"�{ tray } her�ej
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */"�{ tray } her�ej
+    │   │    -
+
+error BYN0003: unterminated string literal
+
+  1 │ /* � */"�{ tray } her�ej
+    │        ^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xD2)
+
+  1 │ /* � */"�{ tray } her�ej
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB7)
+
+  1 │ /* � */"�{ tray } her�ej
+    │                      ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x 
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

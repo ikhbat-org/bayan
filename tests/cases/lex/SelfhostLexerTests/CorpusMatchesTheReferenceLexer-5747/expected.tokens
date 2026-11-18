@@ -1,0 +1,39 @@
+1:1 StringLiteral `"{`
+2:1 Identifier `x́́`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+4:1 CharLiteral `'a'`
+4:5 CharLiteral `'\n�'`
+4:11 CharLiteral `'\u{1F600}'`
+4:23 CharLiteral `'\''`
+4:28 CharLiteral `'é'`
+4:32 CharLiteral `'\\'`
+4:37 CharLiteral `'\0'`
+5:2 Identifier `_`
+5:4 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ 'a' '\n�' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │     ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  4 │ 'a' '\n�' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  5 │  _�
+    │   ^

@@ -1,0 +1,9 @@
+' let a = "open
+/ comment ‮ h
+struct S
+
+macro select become
+  """ c"text" u16"wid�e" "‮ allowed in strings" "" "\u{48}i"
+\' '\0'
+ + - * / % +% -% *% +| -| *| ++ --
+

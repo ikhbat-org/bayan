@@ -1,0 +1,92 @@
+2:2 IntegerLiteral `1_`
+4:1 IntegerLiteral `1_`
+5:1 IntegerLiteral `0b102`
+6:1 IntegerLiteral `0xFF`
+7:1 IntegerLiteral `0b1`
+7:4 NumericSuffix `ms`
+8:1 IntegerLiteral `0x_`
+9:1 IntegerLiteral `0b__`
+10:1 IntegerLiteral `1__`
+11:1 IntegerLiteral `0xF__`
+13:1 Amp `&`
+13:3 AmpAmp `&&`
+13:6 Bar `|`
+13:8 BarBar `||`
+13:11 Caret `^`
+13:13 Tilde `~`
+13:15 Bang `!`
+13:17 Equals `=`
+13:19 EqualsEquals `==`
+13:22 BangEquals `!=`
+13:25 Less `<`
+13:27 LessEquals `<=`
+13:30 Greater `>`
+13:32 GreaterEquals `>=`
+13:35 LessLess `<<`
+13:38 Greater `>`
+13:39 Greater `>`
+13:41 Greater `>`
+13:42 GreaterEquals `>=`
+15:1 RawStringLiteral `"""\n$1e`
+16:4 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1_
+    │   ^
+    │
+    │ 2 │  1_
+    │   │   -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1_
+    │  ^
+    │
+    │ 4 │ 1_
+    │   │  -
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  9 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 1__
+     │  ^^
+     │
+     │ 10 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │ 0xF__
+     │    ^^
+     │
+     │ 11 │ 0xF__
+     │    │    --
+
+error BYN0003: unterminated string literal
+
+  15 │ """
+     │ ^^^ raw string starts here
+     │
+  help: close it with `"""`

@@ -1,0 +1,33 @@
+<repo>/tmp/t13-mutate/tests/a.test.byn:3:5 statement `@unobservable because "no test can see it"
+    y += 0` -> ``: marked
+<repo>/tmp/t13-mutate/tests/a.test.byn:3:5 arithmetic `@unobservable because "no test can see it"
+    y += 0` -> `@unobservable because "no test can see it"
+    y -= 0`: marked
+<repo>/tmp/t13-mutate/tests/a.test.byn:4:10 literal `0` -> `1`: marked
+<repo>/tmp/t13-mutate/tests/a.test.byn:4:10 literal `0` -> `-1`: marked
+<repo>/tmp/t13-mutate/tests/a.test.byn:5:12 emptyReturn `n + 1` -> `0`: killed
+<repo>/tmp/t13-mutate/tests/a.test.byn:5:12 arithmetic `n + 1` -> `n - 1`: killed
+<repo>/tmp/t13-mutate/tests/a.test.byn:5:16 literal `1` -> `2`: survived
+<repo>/tmp/t13-mutate/tests/a.test.byn:5:16 literal `1` -> `0`: survived
+<repo>/tmp/t13-mutate/tests/a.test.byn:9:18 literal `0` -> `1`: survived
+<repo>/tmp/t13-mutate/tests/a.test.byn:9:18 literal `0` -> `-1`: survived
+<repo>/tmp/t13-mutate/tests/a.test.byn:10:11 condition `i < n` -> `!(i < n)`: killed
+<repo>/tmp/t13-mutate/tests/a.test.byn:10:11 boundary `i < n` -> `i <= n`: killed
+<repo>/tmp/t13-mutate/tests/a.test.byn:10:11 relational `i < n` -> `i >= n`: killed
+<repo>/tmp/t13-mutate/tests/a.test.byn:11:9 statement `i += 1` -> ``: timeout (counted as killed)
+<repo>/tmp/t13-mutate/tests/a.test.byn:11:9 arithmetic `i += 1` -> `i -= 1`: timeout (counted as killed)
+<repo>/tmp/t13-mutate/tests/a.test.byn:11:14 literal `1` -> `2`: survived
+<repo>/tmp/t13-mutate/tests/a.test.byn:11:14 literal `1` -> `0`: timeout (counted as killed)
+<repo>/tmp/t13-mutate/tests/a.test.byn:13:12 emptyReturn `i` -> `0`: killed
+<repo>/tmp/t13-mutate/tests/a.test.byn:16:22 arithmetic `n * 2` -> `n / 2`: not reached
+<repo>/tmp/t13-mutate/tests/a.test.byn:16:26 literal `2` -> `3`: not reached
+<repo>/tmp/t13-mutate/tests/a.test.byn:16:26 literal `2` -> `1`: not reached
+<repo>/tmp/t13-mutate/tests/a.test.byn:19:12 emptyReturn `(250 + 4) + 1` -> `0`: not reached
+<repo>/tmp/t13-mutate/tests/a.test.byn:19:12 arithmetic `(250 + 4) + 1` -> `(250 + 4) - 1`: not reached
+<repo>/tmp/t13-mutate/tests/a.test.byn:19:13 arithmetic `250 + 4` -> `250 - 4`: not reached
+<repo>/tmp/t13-mutate/tests/a.test.byn:19:13 literal `250` -> `251`: not emitted
+<repo>/tmp/t13-mutate/tests/a.test.byn:19:13 literal `250` -> `249`: not reached
+<repo>/tmp/t13-mutate/tests/a.test.byn:19:19 literal `4` -> `5`: not emitted
+<repo>/tmp/t13-mutate/tests/a.test.byn:19:19 literal `4` -> `3`: not reached
+<repo>/tmp/t13-mutate/tests/a.test.byn:19:24 literal `1` -> `0`: not reached
+6 killed, 5 survived, 3 timeout, 9 not reached, 4 marked, 2 not emitted

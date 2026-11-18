@@ -1,0 +1,5 @@
+test
+--mutate
+--run
+"$BAYAN_BINARY" --test 0 >/dev/null
+<repo>/tmp/t13-mutate/run

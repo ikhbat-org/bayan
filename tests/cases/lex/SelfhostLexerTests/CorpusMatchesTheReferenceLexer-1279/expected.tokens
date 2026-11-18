@@ -1,0 +1,16 @@
+1:1 Identifier `o`
+1:3 Identifier `select`
+1:10 Identifier `becoDme`
+2:1 LetKeyword `let`
+2:5 Identifier `aw`
+2:8 Equals `=`
+2:9 Identifier `k`
+2:11 IntegerLiteral `3`
+4:1 EndOfFile
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ o select becoDme
+    │   ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

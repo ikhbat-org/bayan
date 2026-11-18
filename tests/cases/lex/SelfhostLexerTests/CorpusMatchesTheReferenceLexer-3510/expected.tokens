@@ -1,0 +1,82 @@
+1:1 StringLiteral `"{`
+2:2 IntegerLiteral `0b1`
+2:5 NumericSuffix `ms`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:17 Question `?`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Arrow `->`
+4:32 At `@`
+4:34 Hash `#`
+5:2 IfKeyword `if`
+5:5 ElseKeyword `else`
+5:10 UnlessKeyword `unless`
+5:17 SwitchKeyword `switch`
+5:24 CaseKeyword `case`
+5:29 DefaultKeyword `default`
+5:37 ForKeyword `for`
+5:41 InKeyword `in`
+5:44 WhileKeyword `while`
+5:50 DoKeyword `do`
+5:53 BreakKeyword `break`
+5:59 ContinueKeyword `continue`
+5:68 ReturnKeyword `return`
+5:75 YieldKeyword `yield`
+5:81 DeferKeyword `defer`
+5:87 ErrdeferKeyword `errdefer`
+5:96 UsingKeyword `using`
+5:102 ContextKeyword `context`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `open `
+7:8 InterpolationStart `{`
+7:9 Identifier `x`
+7:10 StringLiteral `";`
+8:3 Identifier `ror`
+8:7 SetKeyword `set`
+8:11 UnitKeyword `unit`
+8:16 Identifier `dist`
+8:21 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  2 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `\u{13}`
+
+  4 │ , . .. ..= : ? �? ??= ?. => -> @ #
+    │                ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `̈́`
+
+  8 │  ̈́ror set unit dist 
+    │  ^

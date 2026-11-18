@@ -1,0 +1,13 @@
+== tests/cases/diag/cases-misplaced.byn
+25..28 blockStmt
+182..203 blockStmt
+175..180 param
+148..149 literalExpr integer
+182..203 blockStmt
+188..201 assertStmt
+195..200 binaryExpr gt right 199..200
+195..196 nameExpr
+199..200 literalExpr integer
+217..231 blockStmt
+223..229 exprStmt
+223..229 callExpr

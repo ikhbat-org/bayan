@@ -1,0 +1,16 @@
+cache/
+cache/v1/
+cache/v1/CACHEDIR.TAG
+cache/v1/programs/
+cache/v1/programs/2690a29f6d48adae9ec14c18617ccfb0ccffa135787f80db9c63072af131f95f/
+cache/v1/programs/2690a29f6d48adae9ec14c18617ccfb0ccffa135787f80db9c63072af131f95f/program
+cache/v1/programs/2690a29f6d48adae9ec14c18617ccfb0ccffa135787f80db9c63072af131f95f/program.sha256
+cache/v1/runtime/
+cache/v1/runtime/44dd49575ff4699a34a580a6ccef0b25d31c6ecc154b44dfcc2034ec341351ff/
+cache/v1/runtime/44dd49575ff4699a34a580a6ccef0b25d31c6ecc154b44dfcc2034ec341351ff/bayan-rt.o
+cache/v1/runtime/44dd49575ff4699a34a580a6ccef0b25d31c6ecc154b44dfcc2034ec341351ff/bayan-rt.o.sha256
+cache/v1/scripts/
+cache/v1/scripts/<skey>
+cache/v1/tmp/
+cc.log
+hello.byn

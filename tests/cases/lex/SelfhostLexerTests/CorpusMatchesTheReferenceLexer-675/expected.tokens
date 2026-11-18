@@ -1,0 +1,69 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+2:2 StringLiteral `"{ '�\u{D800}`
+4:2 Identifier `q`
+4:3 CharLiteral `'`
+5:1 CharLiteral `'\u{D800}'`
+6:1 CharLiteral `'\u{11`
+7:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  2 │  "{ '�\u{D800}
+    │  ^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  2 │  "{ '�\u{D800}
+    │      ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │  "{ '�\u{D800}
+    │       ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `\`
+
+  4 │ \q'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  4 │ \q'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  5 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ '\u{11
+    │ ^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{11`
+
+  6 │ '\u{11
+    │  ^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`

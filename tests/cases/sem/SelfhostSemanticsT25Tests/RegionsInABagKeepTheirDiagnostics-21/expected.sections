@@ -1,0 +1,2 @@
+== bag loop-item-iterable-cleared
+BYN3004 17:5 `expenses` is modified while `shares` still borrows it |`shares` is used again on line 18|finish using `shares` first, or copy what it needs before changing `expenses`|

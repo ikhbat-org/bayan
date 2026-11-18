@@ -1,0 +1,129 @@
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 InterpolatedStringStart `$"`
+2:51 InterpolationStart `{`
+2:52 StringLiteral `$"{$"`
+2:57 OpenBrace `{`
+2:58 StringLiteral `$"{x}"`
+2:64 CloseBrace `}`
+2:65 StringLiteral `"�"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringEnd `"`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringEnd `"`
+2:77 InterpolationEnd `}`
+2:78 InterpolatedStringEnd `"`
+2:79 InterpolationEnd `}`
+2:80 InterpolatedStringEnd `"`
+2:81 InterpolationEnd `}`
+2:82 InterpolatedStringEnd `"`
+2:83 InterpolationEnd `}`
+2:84 InterpolatedStringEnd `"`
+2:85 InterpolationEnd `}`
+2:86 InterpolatedStringEnd `"`
+2:88 BangEquals `!=`
+2:91 Less `<`
+2:93 LessEquals `<=`
+2:95 Identifier `D`
+2:97 Greater `>`
+2:99 GreaterEquals `>=`
+2:102 LessLess `<<`
+2:105 Greater `>`
+2:106 Greater `>`
+2:108 Greater `>`
+2:109 GreaterEquals `>=`
+3:1 PlusEquals `+=`
+3:4 MinusEquals `-=`
+3:7 StarEquals `*=`
+3:10 SlashEquals `/=`
+3:13 Percent `%`
+3:14 Comma `,`
+3:16 Dot `.`
+3:18 DotDot `..`
+3:21 DotDotEquals `..=`
+3:25 Colon `:`
+3:27 Question `?`
+3:29 QuestionQuestion `??`
+3:32 QuestionQuestionEquals `??=`
+3:36 QuestionDot `?.`
+3:39 FatArrow `=>`
+3:42 Arrow `->`
+3:45 At `@`
+3:47 Hash `#`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"�"}"}"}"}"}"}"}"}"}"}" != < <=D > >= << >> >>=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"�"}"}"}"}"}"}"}"}"}"}" != < <=D > >= << >> >>=
+    │  ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  2 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"�"}"}"}"}"}"}"}"}"}"}" != < <=D > >= << >> >>=
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"�"}"}"}"}"}"}"}"}"}"}" != < <=D > >= << >> >>=
+    │   │   -
+
+error BYN0003: unterminated string literal
+
+  2 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"�"}"}"}"}"}"}"}"}"}"}" != < <=D > >= << >> >>=
+    │                    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"�"}"}"}"}"}"}"}"}"}"}" != < <=D > >= << >> >>=
+    │                                                     ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x91)
+
+  2 │ ��� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"�"}"}"}"}"}"}"}"}"}"}" != < <=D > >= << >> >>=
+    │                                                                   ^

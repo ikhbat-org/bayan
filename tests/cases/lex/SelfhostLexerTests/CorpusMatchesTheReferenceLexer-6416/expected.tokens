@@ -1,0 +1,214 @@
+2:2 LetKeyword `let`
+2:6 Identifier `s`
+2:8 Equals `=`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 InterpolatedStringStart `$"`
+2:51 InterpolationStart `{`
+2:52 InterpolatedStringStart `$"`
+2:54 InterpolationStart `{`
+2:55 InterpolatedStringStart `$"`
+2:57 InterpolationStart `{`
+2:58 StringLiteral `$"{$"`
+2:63 OpenBrace `{`
+2:64 StringLiteral `$"{$"`
+2:69 OpenBrace `{`
+2:70 Identifier `x`
+2:71 CloseBrace `}`
+2:72 StringLiteral `"}"`
+2:75 CloseBrace `}`
+2:76 InterpolationEnd `}`
+2:77 InterpolatedStringEnd `"`
+2:78 InterpolationEnd `}`
+2:79 InterpolatedStringEnd `"`
+2:80 InterpolationEnd `}`
+2:81 InterpolatedStringEnd `"`
+2:82 InterpolationEnd `}`
+2:83 InterpolatedStringEnd `"`
+2:84 InterpolationEnd `}`
+2:85 InterpolatedStringEnd `"`
+2:86 InterpolationEnd `}`
+2:87 InterpolatedStringEnd `"`
+2:88 InterpolationEnd `}`
+2:89 InterpolatedStringEnd `"`
+2:90 InterpolationEnd `}`
+2:91 InterpolatedStringEnd `"`
+2:92 InterpolationEnd `}`
+2:93 InterpolatedStringEnd `"`
+2:94 InterpolationEnd `}`
+2:95 InterpolatedStringEnd `"`
+2:96 InterpolationEnd `}`
+2:97 InterpolatedStringEnd `"`
+2:98 InterpolationEnd `}`
+2:99 InterpolatedStringEnd `"`
+2:100 InterpolationEnd `}`
+2:101 InterpolatedStringEnd `"`
+2:102 InterpolationEnd `}`
+2:103 InterpolatedStringEnd `"`
+2:104 InterpolationEnd `}`
+2:105 InterpolatedStringEnd `"`
+2:106 InterpolationEnd `}`
+2:107 InterpolatedStringEnd `"`
+2:108 CloseBrace `}`
+2:109 StringLiteral `"`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+5:1 OpenBrace `{`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:9 InterpolatedStringStart `$"`
+5:11 InterpolationStart `{`
+5:12 InterpolatedStringStart `$"`
+5:14 InterpolationStart `{`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolationStart `{`
+5:18 InterpolatedStringStart `$"`
+5:20 InterpolationStart `{`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolationStart `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:39 InterpolatedStringStart `$"`
+5:41 InterpolationStart `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:45 StringLiteral `"{$"`
+5:49 OpenBrace `{`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolatedStringEnd
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `total `
+6:9 InterpolationStart `{`
+6:10 Identifier `x`
+6:11 InterpolationEnd `}`
+6:12 InterpolatedStringEnd `"`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolatedStringText `a `
+6:18 InterpolationStart `{`
+6:19 Identifier `f`
+6:20 OpenParen `(`
+6:21 InterpolatedStringStart `$"`
+6:23 InterpolatedStringText `b `
+6:25 InterpolationStart `{`
+6:26 Identifier `c`
+6:27 InterpolationEnd `}`
+6:28 InterpolatedStringEnd `"`
+6:29 CloseParen `)`
+6:30 InterpolationEnd `}`
+6:31 InterpolatedStringText ` d`
+6:33 InterpolatedStringEnd `"`
+6:36 InterpolatedStringStart `$"`
+6:38 InterpolatedStringText `{{literal}}`
+6:49 InterpolatedStringEnd `"`
+6:51 InterpolatedStringStart `$"`
+6:53 InterpolationStart `{`
+6:54 Identifier `Point`
+6:60 OpenBrace `{`
+6:62 Identifier `x`
+6:64 Equals `=`
+6:66 IntegerLiteral `1`
+6:68 CloseBrace `}`
+6:69 InterpolationEnd `}`
+6:70 InterpolatedStringText `!`
+6:71 InterpolatedStringEnd `"`
+6:73 InterpolatedStringStart `$"`
+6:75 InterpolatedStringEnd `"`
+8:3 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                          ^^
+
+error BYN0003: unterminated string literal
+
+  2 │  let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                                             ^ string
+    │                                                                                                               ends
+    │                                                                                                               at
+    │                                                                                                               the
+    │                                                                                                               end
+    │                                                                                                               of
+    │                                                                                                               the
+    │                                                                                                               line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ let café = 1
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  5 │ {$"{$"{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"
+    │                                          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ {$"{$"{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"
+    │                                                  ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  6 │ $"total {x}" $"a {f($"b {c}")} d" �$"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                   ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  7 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  8 │ � 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  8 │ � 
+    │  ^

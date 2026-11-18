@@ -1,0 +1,85 @@
+== tests/cases/run/for-constraint.byn
+418..490 blockStmt
+424..433 localDecl
+432..433 literalExpr integer
+438..475 forStmt
+447..452 nameExpr
+453..475 blockStmt
+463..469 assignStmt add target 463..464 value 468..469
+463..464 nameExpr
+468..469 literalExpr integer
+480..488 returnStmt value 487..488
+487..488 nameExpr
+540..612 blockStmt
+546..555 localDecl
+554..555 literalExpr integer
+560..597 forStmt
+569..574 nameExpr
+575..597 blockStmt
+585..591 assignStmt add target 585..586 value 590..591
+585..586 nameExpr
+590..591 literalExpr integer
+602..610 returnStmt value 609..610
+609..610 nameExpr
+614..642 globalStatement
+614..642 exprStmt
+614..642 callExpr
+620..641 interpolatedExpr
+623..639 callExpr
+629..638 structLiteralExpr
+614..642 callExpr
+643..666 localDecl
+651..666 structLiteralExpr
+662..664 unaryExpr negate operand 663..664
+667..698 exprStmt
+667..698 callExpr
+673..697 interpolatedExpr
+676..688 callExpr
+686..687 nameExpr
+691..695 memberExpr
+691..692 nameExpr
+667..698 callExpr
+175..176 literalExpr integer
+175..176 literalExpr integer
+175..176 literalExpr integer
+203..213 binaryExpr mul right 211..213
+203..213 binaryExpr mul right 211..213
+203..213 binaryExpr mul right 211..213
+203..208 nameExpr
+211..213 literalExpr integer
+295..297 nameExpr
+295..297 nameExpr
+295..297 nameExpr
+295..297 nameExpr
+326..371 blockStmt
+336..343 assignStmt add target 336..338 value 342..343
+336..338 nameExpr
+336..338 nameExpr
+342..343 literalExpr integer
+352..365 returnStmt value 359..365
+359..365 binaryExpr lt right 364..365
+359..361 nameExpr
+359..361 nameExpr
+364..365 literalExpr integer
+418..490 blockStmt
+424..433 localDecl
+432..433 literalExpr integer
+438..475 forStmt
+447..452 nameExpr
+453..475 blockStmt
+463..469 assignStmt add target 463..464 value 468..469
+463..464 nameExpr
+468..469 literalExpr integer
+480..488 returnStmt value 487..488
+487..488 nameExpr
+540..612 blockStmt
+546..555 localDecl
+554..555 literalExpr integer
+560..597 forStmt
+569..574 nameExpr
+575..597 blockStmt
+585..591 assignStmt add target 585..586 value 590..591
+585..586 nameExpr
+590..591 literalExpr integer
+602..610 returnStmt value 609..610
+609..610 nameExpr

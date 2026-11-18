@@ -1,0 +1,1 @@
+{"code":"BYN2111","severity":"error","file":"input.byn","span":{"start":143,"end":167,"line":11,"column":9,"endLine":11,"endColumn":33},"message":"`Ratio` has a constructor; call it instead of using a struct literal","label":null,"help":"call the constructor: `Ratio(num: …, den: …)`","fixes":[]}

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "BreakStmt",
+    "CallExpr",
+    "CatchExpr",
+    "ContinueStmt",
+    "DeferStmt",
+    "ErrorEnumDecl",
+    "ExprStmt",
+    "FailStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "GuardedStmt",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr",
+    "RangeExpr",
+    "ReturnStmt",
+    "TargetMemberExpr",
+    "TryExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

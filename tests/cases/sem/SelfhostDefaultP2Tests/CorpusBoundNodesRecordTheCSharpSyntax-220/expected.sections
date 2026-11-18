@@ -1,0 +1,5 @@
+== tests/cases/run/panic-message-utf8-cut.byn
+120..1159 globalStatement
+120..1159 exprStmt
+120..1159 callExpr
+126..1158 literalExpr string

@@ -1,0 +1,26 @@
+1:2 CloseBracket `]`
+1:4 OpenBrace `{`
+1:6 CloseBrace `}`
+2:1 Comma `,`
+2:3 Dot `.`
+2:5 DotDot `..`
+2:8 DotDotEquals `..=`
+2:12 Colon `:`
+2:14 Question `?`
+2:16 QuestionQuestion `??`
+2:19 QuestionQuestion `??`
+2:21 Question `?`
+2:22 Equals `=`
+2:24 QuestionDot `?.`
+2:27 Equals `=`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 Identifier `ase`
+2:35 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ , . .. ..= : ? ?? ???= ?. = $"{ase
+    │                             ^^ this string never ends
+    │
+  help: close the `{` and the string

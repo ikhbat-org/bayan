@@ -1,0 +1,28 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""nev\u{5}r closed\n\n\u{2069}\n\u{2069} `
+5:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ 1. $"{
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0x83)
+
+  2 │ let c =� """nev�r closed
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  2 │ let c =� """nev�r closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

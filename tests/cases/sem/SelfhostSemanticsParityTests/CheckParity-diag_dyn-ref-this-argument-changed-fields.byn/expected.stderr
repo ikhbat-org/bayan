@@ -1,0 +1,10 @@
+error BYN3004: `items` is modified while `s` still borrows it
+  --> tmp/t26-tests/cli/diag_dyn-ref-this-argument-changed-fields.byn/dyn-ref-this-argument-changed-fields.byn:15:9
+
+  15 │         pass()
+     │         ^^^^^^ `s` is used again on line 16
+     │
+  help: finish using `s` first, or copy what it needs before changing `items`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3004

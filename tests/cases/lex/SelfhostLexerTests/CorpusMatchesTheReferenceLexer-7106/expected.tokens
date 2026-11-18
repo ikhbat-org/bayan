@@ -1,0 +1,24 @@
+    doc `/// Doc line one.\n/// Doc `
+4:1 Identifier `Å`
+10:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ Å
+    │   │ +
+
+error BYN0004: unterminated block comment
+
+  5 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xEC)
+
+  8 │ test assert property uzz model forea�h new goto
+    │                                     ^

@@ -1,0 +1,5 @@
+{"code":"BYN2202","severity":"error","file":"input.byn","span":{"start":96,"end":97,"line":6,"column":17,"endLine":6,"endColumn":18},"message":"expected `string`, found `Untrusted<string>`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2202","severity":"error","file":"input.byn","span":{"start":125,"end":128,"line":7,"column":28,"endLine":7,"endColumn":31},"message":"expected `Untrusted<string>`, found `string`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2202","severity":"error","file":"input.byn","span":{"start":134,"end":135,"line":8,"column":6,"endLine":8,"endColumn":7},"message":"expected `string`, found `Untrusted<string>`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2225","severity":"error","file":"input.byn","span":{"start":146,"end":147,"line":9,"column":10,"endLine":9,"endColumn":11},"message":"`Untrusted<string>` cannot be formatted","label":null,"help":null,"fixes":[]}
+{"code":"BYN2202","severity":"error","file":"input.byn","span":{"start":157,"end":160,"line":10,"column":7,"endLine":10,"endColumn":10},"message":"expected `Untrusted<string>`, found `string`","label":null,"help":null,"fixes":[]}

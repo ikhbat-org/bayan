@@ -1,0 +1,9 @@
+warning BYN2311: `x` is never reassigned; declare it with `let`
+  --> <repo>/tmp/t2-features/warned/main.byn:2:9
+
+  2 │     var x = 1
+    │         ^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 2 │     let x = 1
+    │   │     +++

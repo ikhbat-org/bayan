@@ -1,0 +1,47 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `x`
+3:5 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:11 IntegerLiteral `0x`
+6:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1;
+    │   │        +
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  3 │  $"x{ $"{ 0x
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  $"x{ $"{ 0x
+    │           ^^
+
+error BYN0002: unexpected character `‏`
+
+  5 │ ‏
+    │ ^

@@ -1,0 +1,11 @@
+error BYN2780: implicit copy of a unique value: `List<i64>` is unique: it owns its storage
+  --> tmp/t26-tests/cli/diag_interface-unique-field-witness-dyn.byn/interface-unique-field-witness-dyn.byn:6:15
+
+  6 │     List<i64> items
+    │               ^^^^^ cannot stand for `IHas.items`
+    │
+  help: rename the field and write the getter `List<i64> items => …` in `H`, returning a copy or a
+        fresh value
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2780

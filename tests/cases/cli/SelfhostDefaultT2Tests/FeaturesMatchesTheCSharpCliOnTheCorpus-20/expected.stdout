@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "ForStmt",
+    "GlobalStatement",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "ArrayLength",
+    "Print"
+  ],
+  "diagnostics": []
+}

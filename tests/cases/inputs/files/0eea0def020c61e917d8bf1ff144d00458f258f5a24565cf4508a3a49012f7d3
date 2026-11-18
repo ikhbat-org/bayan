@@ -1,0 +1,9 @@
+//// not a doc comment
+ â‚
+"text" "esc \"q\" \\ \n" """
+˜let b = ` 2
+ ô€€ 1_
+
+0x*
+"
+ 

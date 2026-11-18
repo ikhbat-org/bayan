@@ -1,0 +1,3 @@
+== field.probes.-.f5
+errorExpr|1782:10
+BYN7002 72:14 `tracking` is a payload of `.shipped`; `o` is not known to be `.shipped` ||match `.shipped` with `is` or `switch` before reading `tracking`|

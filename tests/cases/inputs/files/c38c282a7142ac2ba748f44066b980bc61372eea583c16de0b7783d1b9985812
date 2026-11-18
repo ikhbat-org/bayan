@@ -1,0 +1,17 @@
+( ) [ ] { }
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+let law = 3
+
+  raw "quoted"
+ test assert property fuzz model foreach new goto
+
+
+1_
+0b102
+0xFFs
+0b1ms
+0x_
+0b__
+'ab'
+ 

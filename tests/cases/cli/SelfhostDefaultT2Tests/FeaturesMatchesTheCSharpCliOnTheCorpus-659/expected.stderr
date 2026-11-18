@@ -1,0 +1,9 @@
+error BYN1060: `i64 length { get }` is an input form; write `i64 length`
+  --> <repo>/tests/cases/diag/interface-get-input.byn:2:16
+
+  2 │     i64 length { get }
+    │                ^^^^^^^ the input form
+    │
+  help: remove `{ get }`: a field-shaped interface member is a read-only property
+    │ 2 │     i64 length { get }
+    │   │               --------

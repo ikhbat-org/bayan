@@ -1,0 +1,33 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `stray �} here`
+2:16 InterpolatedStringEnd `"`
+3:2 Identifier `S`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ $"stray �} here"
+    │         ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ $"stray �} here"
+    │          ^
+    │
+    │ 2 │ $"stray �}} here"
+    │   │           +
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ //// n'�' 1 é
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ //// n'�' 1 é
+    │   │        -

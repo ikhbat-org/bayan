@@ -1,0 +1,4 @@
+if (alpha || beta) && gamma
+        && delta {
+    go()
+}

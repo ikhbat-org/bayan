@@ -1,0 +1,28 @@
+== tests/cases/diag/out-not-assigned.byn
+45..127 blockStmt
+51..95 ifStmt
+54..66 memberExpr
+54..58 nameExpr
+67..95 blockStmt
+77..89 returnStmt value 84..89
+84..89 literalExpr falseKeyword
+100..109 assignStmt assign target 100..105 value 108..109
+100..105 nameExpr
+108..109 literalExpr integer
+114..125 returnStmt value 121..125
+121..125 literalExpr trueKeyword
+174..194 blockStmt
+180..192 returnStmt value 187..192
+187..192 literalExpr falseKeyword
+196..206 globalStatement
+196..206 localDecl
+207..269 exprStmt
+207..269 callExpr
+213..268 interpolatedExpr
+216..240 callExpr
+225..228 literalExpr string
+238..239 nameExpr
+243..266 callExpr
+252..254 literalExpr string
+264..265 nameExpr
+207..269 callExpr

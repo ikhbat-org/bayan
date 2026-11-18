@@ -1,0 +1,5 @@
+error BYN2402: this function returns `i64`; `return` needs a value
+  --> <repo>/tests/cases/diag/missing-return-value.byn:2:5
+
+  2 │     return
+    │     ^^^^^^

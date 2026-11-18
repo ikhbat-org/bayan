@@ -1,0 +1,1 @@
+bayan: `local/shop` is an app, so its code goes in `src/app/`, which doesn't exist

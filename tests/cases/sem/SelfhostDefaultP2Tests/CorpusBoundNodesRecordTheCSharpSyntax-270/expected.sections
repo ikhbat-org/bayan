@@ -1,0 +1,96 @@
+== tests/cases/run/strbuf-grow.byn
+37..259 blockStmt
+43..59 localDecl
+58..59 literalExpr integer
+64..242 forStmt
+73..77 rangeExpr
+73..74 literalExpr integer
+76..77 nameExpr
+78..242 blockStmt
+88..236 ifStmt
+91..101 binaryExpr eq right 100..101
+91..96 binaryExpr rem right 95..96
+91..92 nameExpr
+95..96 literalExpr integer
+100..101 literalExpr integer
+102..163 blockStmt
+116..132 exprStmt
+116..132 callExpr
+116..118 nameExpr
+126..131 literalExpr string
+145..153 assignStmt add target 145..148 value 152..153
+145..148 nameExpr
+152..153 literalExpr integer
+169..236 blockStmt
+183..205 exprStmt
+183..205 callExpr
+183..185 nameExpr
+193..204 interpolatedExpr
+196..202 binaryExpr rem right 200..202
+196..197 nameExpr
+200..202 literalExpr integer
+218..226 assignStmt add target 218..221 value 225..226
+218..221 nameExpr
+225..226 literalExpr integer
+247..257 returnStmt value 254..257
+254..257 nameExpr
+273..755 blockStmt
+279..644 blockStmt
+289..314 localDecl
+307..314 callExpr
+323..638 contextStmt
+342..347 nameExpr
+348..638 blockStmt
+362..379 localDecl
+371..379 callExpr
+392..429 localDecl
+402..429 callExpr
+411..413 nameExpr
+422..428 literalExpr integer
+442..488 exprStmt
+442..488 callExpr
+448..487 interpolatedExpr
+451..460 memberExpr
+451..453 nameExpr
+463..466 nameExpr
+469..485 binaryExpr eq right 482..485
+469..478 memberExpr
+469..471 nameExpr
+482..485 nameExpr
+442..488 callExpr
+501..526 exprStmt
+501..526 callExpr
+507..525 indexExpr
+507..518 callExpr
+507..509 nameExpr
+519..520 literalExpr integer
+522..524 literalExpr integer
+501..526 callExpr
+539..549 exprStmt
+539..549 callExpr
+539..541 nameExpr
+562..580 exprStmt
+562..580 callExpr
+562..564 nameExpr
+572..579 literalExpr string
+593..628 exprStmt
+593..628 callExpr
+599..627 interpolatedExpr
+602..613 callExpr
+602..604 nameExpr
+616..625 memberExpr
+616..618 nameExpr
+593..628 callExpr
+649..671 localDecl
+663..671 callExpr
+676..716 localDecl
+686..716 callExpr
+695..702 nameExpr
+711..715 literalExpr integer
+721..753 exprStmt
+721..753 callExpr
+727..752 interpolatedExpr
+730..744 memberExpr
+730..737 nameExpr
+747..750 nameExpr
+721..753 callExpr

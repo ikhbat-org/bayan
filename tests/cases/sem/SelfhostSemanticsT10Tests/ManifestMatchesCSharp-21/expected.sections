@@ -1,0 +1,9 @@
+== case inline/empty-file
+errors 1
+error BYN3100: `package.byn` is data only: expected a string, an integer, `true`, `false`, `.name`,
+`[…]` or `Type { … }`
+  1 │ 
+    │ ^
+    │
+  help: write strings, integers, `true`/`false`, `.names`, `[lists]` or `Type { field: value }`; no
+        calls or expressions

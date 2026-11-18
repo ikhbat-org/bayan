@@ -1,0 +1,4 @@
+== diags.diag/on-panic-not-entry
+BYN2614 6:5 `Panic.handler` may be set only as the first statement of `main`
+  label `setUp` is not the program's entry function
+  help set it once, as the first statement of `main`

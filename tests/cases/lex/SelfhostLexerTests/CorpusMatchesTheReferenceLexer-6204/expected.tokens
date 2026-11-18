@@ -1,0 +1,120 @@
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:46 OpenBrace `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 InterpolatedStringStart `$"`
+1:52 InterpolationStart `{`
+1:53 StringLiteral `$"{$"`
+1:58 OpenBrace `{`
+1:59 StringLiteral `$"{$"`
+1:64 OpenBrace `{`
+1:65 Identifier `x`
+1:66 CloseBrace `}`
+1:67 StringLiteral `"}"`
+1:70 CloseBrace `}`
+1:71 StringLiteral `"}"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 CloseBrace `}`
+1:79 StringLiteral `"}"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 StringLiteral `"}"`
+1:89 InterpolationEnd `}`
+1:90 InterpolatedStringEnd `"`
+1:92 InterpolatedStringStart `$"`
+1:94 InterpolatedStringText `total `
+1:100 InterpolationStart `{`
+1:101 Identifier `x`
+1:102 InterpolationEnd `}`
+1:103 InterpolatedStringEnd `"`
+1:105 InterpolatedStringStart `$"`
+1:107 InterpolatedStringText `a `
+1:109 InterpolationStart `{`
+1:110 Identifier `f`
+1:111 OpenParen `(`
+1:112 InterpolatedStringStart `$"`
+1:114 InterpolatedStringText `b `
+1:116 InterpolationStart `{`
+1:117 Identifier `c`
+1:118 InterpolationEnd `}`
+1:119 InterpolatedStringEnd `"`
+1:120 CloseParen `)`
+1:121 InterpolationEnd `}`
+1:122 InterpolatedStringText ` d`
+1:124 InterpolatedStringEnd `"`
+1:126 InterpolatedStringStart `$"`
+1:128 InterpolatedStringText `{{literal}}`
+1:139 InterpolatedStringEnd `"`
+1:141 InterpolatedStringStart `$"`
+1:143 InterpolationStart `{`
+1:144 Identifier `Point`
+1:150 OpenBrace `{`
+1:152 Identifier `x`
+1:154 Equals `=`
+1:156 IntegerLiteral `1`
+1:158 CloseBrace `}`
+1:159 InterpolationEnd `}`
+1:160 InterpolatedStringText `!`
+1:161 InterpolatedStringEnd `"`
+1:163 InterpolatedStringStart `$"`
+1:165 InterpolatedStringEnd `"`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}""}"}" $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}""}"}" $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}""}"}" $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}""}"}" $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                              ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}""}"}" $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                                      ^^

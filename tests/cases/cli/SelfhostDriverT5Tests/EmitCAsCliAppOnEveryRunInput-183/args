@@ -1,0 +1,3 @@
+build
+--emit-c
+map-index-panic.byn

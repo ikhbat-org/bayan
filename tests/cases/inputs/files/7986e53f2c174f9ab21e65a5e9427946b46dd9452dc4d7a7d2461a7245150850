@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "main.byn:2:5: error: use of undeclared identifier 'l0_y'" >&2
+exit 1

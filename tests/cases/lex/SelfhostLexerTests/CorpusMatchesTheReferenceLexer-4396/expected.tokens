@@ -1,0 +1,46 @@
+1:1 IntegerLiteral `0xF`
+1:4 NumericSuffix `s`
+2:1 IntegerLiteral `0xF`
+2:4 NumericSuffix `s`
+6:1 Identifier `ed`
+6:3 StringLiteral `"`
+7:3 StringLiteral `" `
+7:5 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFs
+    │    ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFs
+    │    ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ // comment � hidden
+    │   │            -
+
+error BYN0003: unterminated string literal
+
+  6 │ ed"
+    │   ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │   " 
+    │   ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,69 @@
+1:1 Identifier `Å`
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolatedStringText `{{`
+1:7 InterpolatedStringEnd `"`
+1:8 TestKeyword `test`
+1:13 Identifier `asser`
+1:19 PropertyKeyword `property`
+1:28 FuzzKeyword `fuzz`
+1:33 ModelKeyword `model`
+1:39 ForeachKeyword `foreach`
+1:47 NewKeyword `new`
+1:51 GotoKeyword `goto`
+3:1 LetKeyword `let`
+3:7 Equals `=`
+3:9 IntegerLiteral `2`
+4:1 Identifier `n`
+4:3 EnumKeyword `enum`
+4:8 FlagsKeyword `flags`
+4:14 OpenKeyword `open`
+4:19 ExtensibleKeyword `extensible`
+4:30 InterfaceKeyword `interface`
+4:40 DelegateKeyword `delegate`
+4:49 ExtensionKeyword `extension`
+4:59 CharLiteral `'x`
+5:1 StructKeyword `struct`
+5:8 UniqueKeyword `unique`
+5:15 UnionKeyword `union`
+5:21 EnumKeyword `enum`
+5:26 FlagsKeyword `flags`
+5:32 OpenKeyword `open`
+5:37 ExtensibleKeyword `extensible`
+5:48 InterfaceKeyword `interface`
+5:58 Identifier `d`
+5:60 Identifier `legate`
+5:67 ExtensionKeyword `extension`
+5:77 DerivationKeyword `derivation`
+5:88 AttributeKeyword `attribute`
+6:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å$"{{"test asser property fuzz model�foreach new goto
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å$"{{"test asser property fuzz model�foreach new goto
+    │   │ +
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ Å$"{{"test asser property fuzz model�foreach new goto
+    │                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ let � = 2
+    │     ^
+
+error BYN0008: unterminated char literal
+
+  4 │ n enum flags open extensible interface delegate extension 'x
+    │                                                           ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{18}`
+
+  5 │ struct unique union enum flags open extensible interface d�legate extension derivation attribute
+    │                                                           ^

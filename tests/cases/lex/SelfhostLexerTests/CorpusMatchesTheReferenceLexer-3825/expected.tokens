@@ -1,0 +1,97 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 Identifier `che`
+1:66 Identifier `cked`
+2:2 IntegerLiteral `0xF__`
+4:9 FloatLiteral `3.14`
+4:14 FloatLiteral `1e5`
+4:18 FloatLiteral `2.5`
+4:21 NumericSuffix `e`
+4:22 Minus `-`
+4:23 IntegerLiteral `3`
+4:25 FloatLiteral `6E+2`
+4:30 FloatLiteral `1.50`
+4:34 NumericSuffix `dec`
+4:38 IntegerLiteral `1`
+4:39 DotDot `..`
+4:41 IntegerLiteral `2`
+4:43 IntegerLiteral `1`
+4:44 DotDotEquals `..=`
+4:47 IntegerLiteral `3`
+4:49 IntegerLiteral `5`
+4:50 NumericSuffix `e`
+4:52 Identifier `x`
+4:53 Dot `.`
+4:54 Identifier `y`
+4:56 FloatLiteral `2.5`
+4:59 NumericSuffix `f`
+6:1 Identifier `b`
+7:2 IntegerLiteral `0b__`
+9:1 Identifier `ist`
+9:4 Less `<`
+9:5 Identifier `i64`
+9:8 Greater `>`
+9:9 Greater `>`
+10:1 Identifier `a`
+10:3 Greater `>`
+10:4 Greater `>`
+10:6 Identifier `b`
+11:1 Identifier `c`
+11:3 Greater `>`
+11:4 GreaterEquals `>=`
+11:7 IntegerLiteral `1`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB0)
+
+  1 │ is and or not with move ref out this null true false comptime che�cked
+    │                                                                  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  0xF__
+    │     ^^
+    │
+    │ 2 │  0xF__
+    │   │     --
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  4 │ /* � */ 3.14 1e5 2.5e-�3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 4 │ // �
+    │   │  +++
+    │ 5 │  3.14 1e5 2.5e-�3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  4 │ /* � */ 3.14 1e5 2.5e-�3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ /* � */ 3.14 1e5 2.5e-�3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  4 │ /* � */ 3.14 1e5 2.5e-�3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │                       ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  7 │  0b__
+    │  ^^^^

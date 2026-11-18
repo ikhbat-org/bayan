@@ -1,0 +1,32 @@
+1:1 Identifier `ạ̇1`
+1:5 Dot `.`
+2:2 EndOfFile
+
+error BYN0005: identifier `ạ̇1` is not in Unicode normalization form C
+
+  1 │ ạ̇1�.// comment � h�tdden
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇1�.// comment � h�tdden
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  1 │ ạ̇1�.// comment � h�tdden
+    │     ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ ạ̇1�.// comment � h�tdden
+    │                  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ ạ̇1�.// comment � h�tdden
+    │   │                  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  1 │ ạ̇1�.// comment � h�tdden
+    │                     ^

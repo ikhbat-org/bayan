@@ -1,0 +1,29 @@
+1:1 Identifier `en`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q esc`
+3:1 Equals `=`
+3:3 MinusEquals `-=`
+3:6 StarEquals `*=`
+3:9 SlashEquals `/=`
+3:12 PercentEquals `%=`
+3:15 AmpEquals `&=`
+3:18 BarEquals `|=`
+3:21 CaretEquals `^=`
+3:24 LessLessEquals `<<=`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ let b = "bad \q esc
+    │         ^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q esc
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

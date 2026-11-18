@@ -1,0 +1,9 @@
+error BYN2305: argument for `verbose` must be named
+  --> <repo>/tests/cases/diag/argument-must-be-named.byn:6:6
+
+  6 │ show(true)
+    │      ^^^^
+    │
+  help: write `verbose: …`; a `bool` argument says nothing at the call site
+    │ 6 │ show(verbose: true)
+    │   │      +++++++++

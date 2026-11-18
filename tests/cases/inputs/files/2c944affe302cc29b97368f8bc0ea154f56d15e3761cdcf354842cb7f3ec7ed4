@@ -1,0 +1,12 @@
+string f() {
+    var s = ""
+    using let arena = Arena()
+    provide allocator: arena {
+        s = Path.fileName("/a/b")
+    }
+    return Path.directoryName(s) ?? ""
+}
+
+void main() {
+    print(f())
+}

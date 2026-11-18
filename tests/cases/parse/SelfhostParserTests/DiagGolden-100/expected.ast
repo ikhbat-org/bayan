@@ -1,0 +1,21 @@
+CompilationUnit
+  Function main() -> void
+    Block
+      Let f = (lambda () x)
+      Let g = (lambda () x)
+
+error BYN1001: expected a lambda parameter name, found `i32 x`
+
+  2 │     let f = (i32 x) => x
+    │              ^^^^^ not a bare name
+    │
+  help: write the parameter's name only; a lambda takes its parameter types from the function type
+        it is passed to
+
+error BYN1001: expected a lambda parameter name, found `by x`
+
+  3 │     let g = (by x) => x
+    │              ^^^^ not a bare name
+    │
+  help: write the parameter's name only; a lambda takes its parameter types from the function type
+        it is passed to

@@ -1,0 +1,24 @@
+1:2 Identifier `ok`
+1:7 InKeyword `in`
+1:10 Identifier `comment`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │  ok � in comment
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  �
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  �
+    │   ^

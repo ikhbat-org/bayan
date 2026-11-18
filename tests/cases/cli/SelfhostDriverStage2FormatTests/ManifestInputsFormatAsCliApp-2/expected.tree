@@ -1,0 +1,10 @@
+== main.byn
+void main() {
+  let t = g(
+    argumentNumberOne,
+    argumentNumberTwo
+  )
+  let s = f(a, b)
+}
+== package.byn
+Package { name: "local/t", version: "0.1.0", style: Style { indent: 2, width: 30, trailingCommas: .never } }

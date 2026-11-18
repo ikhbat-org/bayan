@@ -1,0 +1,76 @@
+1:2 Identifier `caf`
+1:6 Equals `=`
+1:8 IntegerLiteral `2`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 StringLiteral `"`
+3:1 IntegerLiteral `0x`
+4:1 OpenParen `(`
+4:3 CloseParen `)`
+4:5 OpenBracket `[`
+4:7 CloseBracket `]`
+4:9 OpenBrace `{`
+4:11 CloseBrace `}`
+6:1 ErrorKeyword `error`
+6:7 SetKeyword `set`
+6:11 UnitKeyword `unit`
+6:16 Identifier `dist`
+6:21 Identifier `inct`
+6:26 TypeKeyword `type`
+6:31 ImportKeyword `import`
+6:38 AsKeyword `as`
+6:41 PublicKeyword `public`
+6:48 PrivateKeyword `private`
+6:56 StaticKeyword `static`
+6:63 ReadonlyKeyword `readonly`
+6:72 RequiredKeyword `required`
+6:81 ConstKeyword `const`
+6:87 LetKeyword `let`
+6:91 VarKeyword `var`
+6:95 EmbedKeyword `embed`
+6:101 Identifier `ext`
+6:104 Identifier `rn`
+6:107 UnsafeKeyword `unsafe`
+7:2 BarEquals `|=`
+7:5 CaretEquals `^=`
+7:8 LessLessEquals `<<=`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  1 │  caf� = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{"
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ error set unit dist�inct type import as public private static readonly required const let var embed ext�rn unsafe
+    │                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  6 │ error set unit dist�inct type import as public private static readonly required const let var embed ext�rn unsafe
+    │                                                                                                        ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  9 │ �
+    │ ^

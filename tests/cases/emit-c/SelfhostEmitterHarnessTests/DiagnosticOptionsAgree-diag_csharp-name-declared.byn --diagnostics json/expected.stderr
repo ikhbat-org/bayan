@@ -1,0 +1,2 @@
+{"code":"BYN0012","severity":"error","file":"input.byn","span":{"start":14,"end":17,"line":1,"column":15,"endLine":1,"endColumn":18},"message":"`int` is reserved and cannot be used as an identifier","label":"a C# primitive type name","help":"choose another name","fixes":[]}
+{"code":"BYN0012","severity":"error","file":"input.byn","span":{"start":29,"end":33,"line":2,"column":9,"endLine":2,"endColumn":13},"message":"`long` is reserved and cannot be used as an identifier","label":"a C# primitive type name","help":"choose another name","fixes":[]}

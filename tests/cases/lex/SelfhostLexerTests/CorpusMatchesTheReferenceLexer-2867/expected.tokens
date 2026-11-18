@@ -1,0 +1,58 @@
+1:1 Identifier `et`
+1:4 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+4:1 StructKeyword `struct`
+4:8 UniqueKeyword `unique`
+4:15 UnionKeyword `union`
+4:21 Identifier `e`
+4:22 Identifier `num`
+4:26 FlagsKeyword `flags`
+4:32 OpenKeyword `open`
+4:37 ExtensibleKeyword `extensible`
+4:48 InterfaceKeyword `interface`
+4:58 DelegateKeyword `delegate`
+4:67 ExtensionKeyword `extension`
+4:77 DerivationKeyword `derivation`
+4:88 AttributeKeyword `attribute`
+6:3 Identifier `raw`
+6:7 StringLiteral `"quoted"`
+8:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ et café = 1
+    │    ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ et café = 1
+    │   │       +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9E)
+
+  4 │ struct unique union e�num flags open extensible interface delegate extension derivation attribute
+    │                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │  �
+    │  ^

@@ -1,0 +1,10 @@
+error BYN2101: `let total` needs a value
+  --> <repo>/tmp/t2/diag/missing-initializer/missing-initializer.byn:1:5
+
+  1 │ let total
+    │     ^^^^^
+    │
+  help: give it a value, or declare it with `var` and assign it on every path before use
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2101

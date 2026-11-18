@@ -1,0 +1,181 @@
+import lexer
+import parser
+
+const world: string = "union error MyError {\n    notFound\n    badInput(i32 code)\n}\n\nunion error OtherError {\n    other\n}\n\nunion error Both = MyError, OtherError\n\nconst kc: i32 = 5\n\nunion error Bad {\n    plain\n    withList(List<i32> xs)\n}\n\nunion error BadBoth = Bad, OtherError\n\nunion error Rec {\n    leaf\n    nest(Owned<Rec> inner)\n}\n\nenum Color {\n    red\n    green\n}\n\nunion Shape {\n    circle(f64 radius)\n    point\n}\n\nstruct Holder {\n    List<i32> xs\n}\n\nunion Bag {\n    full(List<i32> xs)\n    empty\n}\n\nunion Tree {\n    leaf\n    node(Owned<Tree> next)\n}\n\nstruct Point {\n    i32 x = 10\n    i32 y = 20\n}\n\nstruct Req {\n    required i32 a\n    i32 b\n    i32 c = 3\n}\n\nstruct One {\n    required i32 a\n}\n\nstruct Ratio {\n    i64 num\n    i64 den\n\n    // No parameters: T38's `declareSignature` is a stub, so a Bayan constructor has none (Q612).\n    public Ratio() {\n        this.num = 1\n        this.den = 1\n    }\n}\n\nstruct Node {\n    i32 v\n    Owned<Node>? next\n}\n\nvoid gen<T>(T x, T? ox, i32 k) {\n    let g1 = -x\n    let g2 = x + x\n    let g3 = ox < ox\n    let g4 = x == x\n    let g5 = k + x\n    let e1: T = x\n}\n\nvoid probes(i32 a, i32 b, u32 u, i64 n, f64 f, bool flag, string str, rune ch, i32? oi, Point p, Point? op, Untrusted<i32> ui, MyError me, u8 small, Symbol sym, Bad bad, BadBoth bb, i64? on) {\n    let u1 = -5\n    let u2: i8 = -200\n    let u3 = ^1\n    let u4 = !flag\n    let u5 = !a\n    let u6 = -u\n    let u7 = ~a\n    let u8v = +f\n    let u9 = -(a)\n    let u10 = -nope\n    let u11 = ~5\n    let u12: i8 = -(-128)\n    let u13 = -1.5\n    let u14 = !true\n    let u15 = +str\n    let u16: i64 = -5\n    let u17 = -flag\n    let b1 = a + b\n    let b2 = 1 + 2\n    let b3 = flag && flag\n    let b4 = true && false\n    let b5 = oi == null\n    let b6 = null != oi\n    let b7 = a == null\n    let b8 = a << 2\n    let b9 = f << 1\n    let b10 = \"a\" + \"b\"\n    let b11 = str + str\n    let b12 = a + u\n    let b13 = ch + a\n    let b14 = 1 / 0\n    let b15 = 2147483647 + 1\n    let b16 = a < b\n    let b17 = flag < flag\n    let b18 = p == p\n    let b19 = oi ?? 0\n    let b20 = a ?? 0\n    let b21 = nope ?? 1\n    let b22 = oi ?? oi\n    let b23 = ui < 3\n    let b24 = 1 + a\n    let b25 = \"x\" == str\n    let b26 = MyError.notFound == me\n    let b27 = nope + 1\n    let b28 = 7 % 0\n    let b29: i64 = 3 * 4\n    let b30 = n + u\n    let b31 = u + n\n    let b32 = flag || true\n    let b33 = 1 << 2\n    let b34 = a < str\n    let b35: i64? = oi ?? 1\n    let b36 = flag & flag\n    let b37 = small +% small\n    let b38 = oi != null && oi > 0\n    let b39 = oi == null || oi > 0\n    let b40 = nope + nada\n    let b41 = 1 + f\n    let b42 = 1 + small\n    let b43 = 300 + small\n    let b44 = small + 300\n    let b45 = \"a\" + str\n    let b46 = Bad.plain == bad\n    let b47 = bad == bad\n    let b48 = Bad.plain < bad\n    let b49 = \"x\" == sym\n    let b50 = (\"x\") == sym\n    let b51 = (str) == sym\n    let b52 = \"\"\"x\"\"\" == sym\n    let b53 = \"\"\"a\"\"\" + \"b\"\n    let b54 = (\"x\") == str\n    let b55 = kc + small\n    let b56 = small + kc\n    let b57 = (flag ? 1 : 2) == small\n    let b58 = bb == Bad.plain\n    let b60: i64 = null ?? 5\n    let b61 = oi ?? on\n    let r1 = 1..10\n    let r2 = a..=b\n    let r3 = 1..n\n    let r4 = f..f\n    let r5 = nope..1\n    let r6 = ..5\n    let r7 = 'a'..'z'\n    let r8 = a..n\n    let r9 = 1..\n    let r10 = (flag ? 1 : 2)..n\n    let r11: i64 = 1..2\n    let i1 = a in 1..=5\n    let i2 = a in str\n    let i3 = f in 1..2\n    let i4 = ch in 'a'..='z'\n    let i5 = nope in 1..2\n    let i6 = n in a..b\n    let i7 = a in nope\n    let i8 = a in str..str\n    let i9 = small in 1..300\n    let c1 = flag ? 1 : 2\n    let c2 = true ? 1 : 2\n    let c3 = flag ? 1 : str\n    let c4 = flag ? null : null\n    let c5: i64 = flag ? a : 2\n    let c6 = flag ? oi : null\n    let c7 = false ? a : b\n    let c8 = flag ? small : 1\n    let c9: i64? = flag ? a : 2\n    let c10: string = flag ? 1 : 2\n    let k1 = (u8)300\n    let k2 = (u8)a\n    let k3 = (string)a\n    let k4 = (i32)a\n    let k5 = (f64)5\n    let k6 = (Nope)a\n    let k7 = (u8)-1\n    let k8 = (i32?)null\n    let k9 = (i64)a\n    let k10 = (u8)nope\n    let k11 = (u8)n\n    let v1: u8 = u8(a)\n    let v2: u8 = u8(300)\n    let v3: string = string(a)\n    let s1 = Point { x: 1 }\n    let s2 = Point { x: 1, x: 2 }\n    let s3 = Point { z: 1 }\n    let s4 = Req { c: 1 }\n    let s5 = { x: 1 }\n    let s6 = Color { x: 1 }\n    let s7 = Ratio { num: 1, den: 0 }\n    let s8 = Nope { x: 1 }\n    let s9: Point? = { x: 1 }\n    let s10 = One { }\n    let s11 = Req { a: 1 }\n    let s12: Point = { y: 2 }\n    let s13 = Point { x: nope }\n    let s14 = Req { b: 1, q: 2 }\n    let w1 = p with { x: 1 }\n    let w2 = a with { x: 1 }\n    let w3 = p with { nope: 1 }\n    let w4 = p with { x: 1, x: 2 }\n    let w5 = nope with { x: 1 }\n    let w6 = p with { x: str }\n    let f1 = ui\n    let f2 = a\n    let f3 = nope\n    let e1: Point = p\n    let e2: List<i32> = p\n    let e3: MyError = p\n    let e4: Shape = p\n    let e5: (i32, string) = p\n    let e6: i32[2] = p\n    let e7: Untrusted<i32> = p\n    let e8: Owned<Point> = p\n    let e9: Both = p\n    let e10: Color = p\n    let e11: Symbol = p\n    let e12: f64? = p\n    let e13: Node = p\n    let e14: Map<string, i32> = p\n    let e15: (Point, List<i32>) = p\n    let e16: ReadOnlySpan<i32> = p\n    let e17: never = p\n    let e18: void = p\n    let e19: Result<i32, Bad> = p\n    let e20: Rec = p\n    let e21: BadBoth = p\n    let e22: Holder = p\n    let e23: Bag = p\n    let e24: Tree = p\n    let o1: string = a < b\n    let o2: bool = a & b\n    let o3: rune = a < b\n    let o4: Symbol = a < b\n    let o5: f64 = a +% b\n    let o6: Point = a == b\n    let o7: i32 = a ?? b\n    let o8: f64 = a - b\n    let o9: bool = a ^ b\n    let o10: u8 = a *| b\n    let o11: List<i32> = a != b\n    let t1 = a + b\n    let t2 = a - b\n    let t3 = a * b\n    let t4 = a / b\n    let t5 = a % b\n    let t6 = a +% b\n    let t7 = a -% b\n    let t8 = a *% b\n    let t9 = a +| b\n    let t10 = a -| b\n    let t11 = a *| b\n    let t12 = a << b\n    let t13 = a >> b\n    let t14 = a < b\n    let t15 = a > b\n    let t16 = a <= b\n    let t17 = a >= b\n    let t18 = a == b\n    let t19 = a != b\n    let t20 = a & b\n    let t21 = a | b\n    let t22 = a ^ b\n    let t23 = a && b\n    let t24 = a || b\n    let t25 = a ?? b\n    let d1 = 7 / 0\n    let d2 = a + b\n    let d3 = 3 * 4\n    let d4 = 2147483647 * 2\n    let d5 = 7 % 0\n    let d6 = 7 / 2\n    let d7 = 5 - a\n    let d8 = 1.5 + 0\n}\n\nvoid pend1() {\n    var v = 1\n    let w: i64 = v + 1\n}\n\nvoid pend2() {\n    var v = 1\n    let w: i64 = 1 + v\n}\n"
+
+string tcConst(in Ctx c, for BExpr e) {
+    if (exprConstant(in c, for: e) is { } k) { return constantText(in k) }
+    return "-"
+}
+
+string tcDump(ref Ctx c, for BNode e) {
+    if e == -1 { return "null" }
+    let k = boundKind(e)
+    let i = boundIndex(e)
+    if k == .rangePattern {
+        let p = c.bRangePatterns[i]
+        return $"rangePattern:-[{p.span.start}:{p.span.length}]=-({p.inclusive} {tcDump(ref c, for: p.start)} {tcDump(ref c, for: p.end)})"
+    }
+    let sp = nodeSpan(in c, for: e)
+    let kindName = k == .isExpr ? "is" : $"{k}"
+    let head = $"{kindName}:{typeDisplay(ref c, by: exprType(in c, for: e))}[{sp.start}:{sp.length}]={tcConst(in c, for: e)}"
+    var kids = ""
+    switch k {
+        case .unary: kids = $"{c.bUnaries[i].op == .notKeyword ? "not" : $"{c.bUnaries[i].op}"} {tcDump(ref c, for: c.bUnaries[i].operand)}"
+        case .binary: kids = $"{c.bBinaries[i].op} {tcDump(ref c, for: c.bBinaries[i].left)} {tcDump(ref c, for: c.bBinaries[i].right)}"
+        case .conversion: kids = $"{c.bConversions[i].kind} {tcDump(ref c, for: c.bConversions[i].operand)}"
+        case .conditional: kids = $"{tcDump(ref c, for: c.bConditionals[i].condition)} {tcDump(ref c, for: c.bConditionals[i].whenTrue)} {tcDump(ref c, for: c.bConditionals[i].whenFalse)}"
+        case .coalesce: kids = $"{tcDump(ref c, for: c.bCoalesces[i].left)} {tcDump(ref c, for: c.bCoalesces[i].right)}"
+        case .range: kids = $"{c.bRanges[i].inclusive} {tcDump(ref c, for: c.bRanges[i].start)} {tcDump(ref c, for: c.bRanges[i].end)}"
+        case .isExpr: kids = $"{tcDump(ref c, for: c.bIses[i].value)} {tcDump(ref c, for: c.bIses[i].pattern)}"
+        case .local: kids = c.locals[c.bLocals[i].local].name
+        case .literal: kids = constantText(in c.bLiterals[i].value)
+        default: {}
+    }
+    return $"{head}({kids})"
+}
+
+void tcDiags(ref Ctx c, from i64 start) {
+    for i in start..c.diagnostics.length {
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        let fixText = c.diagnostics[i].hasFix ? $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" : ""
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fixText}")
+    }
+}
+
+BExpr runBind(ref Binder b, through ref Ctx c, for in parser.Expr init, to Type expected) {
+    switch init {
+        case .unaryExpr(let u): return bindUnary(ref b, through: ref c, for: in u.value, to: expected)
+        case .binaryExpr(let x): return bindBinary(ref b, through: ref c, for: in x.value, to: expected)
+        case .rangeExpr(let r): return bindRange(ref b, through: ref c, for: in r.value, to: expected)
+        case .inExpr(let x): return bindIn(ref b, through: ref c, for: in x.value)
+        case .conditionalExpr(let x): return bindConditional(ref b, through: ref c, for: in x.value, to: expected)
+        case .castExpr(let x): return bindCast(ref b, through: ref c, for: in x.value, from: init)
+        case .structLiteralExpr(let s): return bindStructLiteral(ref b, through: ref c, for: in s.value, from: init, to: expected)
+        case .withExpr(let w): return bindWith(ref b, through: ref c, for: in w.value, from: init)
+        default: panic("unexpected initializer")
+    }
+}
+
+void runInit(ref Binder b, through ref Ctx c, for in parser.Expr init, from in parser.TypeSyntax declType, by string op) {
+    var expected: Type = -1
+    switch declType {
+        case .none: {}
+        default: expected = resolveType(ref b, through: ref c, for: in declType)
+    }
+    if op == "bind" {
+        let bound = runBind(ref b, through: ref c, for: in init, to: expected)
+        print($"flags {bound == -1 ? 0 : syntaxFlags(in c, for: bound) & 7}")
+        print(tcDump(ref c, for: bound))
+    }
+    if op == "structd" || op == "withd" {
+        let _ = runBind(ref b, through: ref c, for: in init, to: expected)
+        print("bound")
+    }
+    if op == "fact" {
+        let bound = bindExpr(ref b, through: ref c, for: in init)
+        print(tcDump(ref c, for: fact(ref c, for: bound)))
+    }
+    if op == "eq" { print(isEquatable(ref c, for: expected) ? "true" : "false") }
+    switch init {
+        case .binaryExpr(let x):
+            if op == "applies" { print(operatorApplies(ref c, for: x.value.op, as: expected) ? "true" : "false") }
+            if op == "text" { print(binaryText(x.value.op)) }
+            if op == "fold" {
+                let l = bindExpr(ref b, through: ref c, for: in x.value.left)
+                let r = bindExpr(ref b, through: ref c, for: in x.value.right)
+                let lt = exprType(in c, for: l)
+                let node = addBinary(ref c, from: BBinary { span: x.value.span, op: x.value.op, left: l, right: r, type: lt })
+                print(tcDump(ref c, for: fold(ref b, through: ref c, for: node, from: l, by: r, as: lt)))
+            }
+        case .callExpr(let call):
+            if op == "conv" { print(tcDump(ref c, for: bindConversion(ref b, through: ref c, for: in init, to: expected, from: in call.value.args[0].value))) }
+        default: {}
+    }
+}
+
+void runCase(ref Ctx c, for string op, from string fnName, by string name) {
+    let file = c.modules[c.entryModule].files[0]
+    var b = Binder {
+        file: file,
+        fn: -1,
+        owner: -1,
+        scopes: [],
+        targets: [],
+        lambdas: [],
+        lambdaCount: [],
+        seeds: [],
+        pending: [],
+        constraints: [],
+        peers: [],
+        nonNullLocals: [],
+        stateFacts: [],
+        errorNarrowed: [],
+    }
+    pushScope(ref b)
+    let start = c.diagnostics.length
+    for i in 0..c.files[file].unit.members.length {
+        switch c.files[file].unit.members[i] {
+            case .functionDecl(let fd):
+                if t18Text(in c, from: file, at: fd.value.name) == fnName {
+                    b.fn = c.modules[c.entryModule].functions[fnName][0]
+                    for p in fd.value.params {
+                        let t = resolveType(ref b, through: ref c, for: in p.type)
+                        let _ = declareLocal(ref b, through: ref c, at: p.name, as: t, for: .parameter)
+                    }
+                    switch fd.value.body {
+                        case .blockStmt(let blk):
+                            if op == "seq" {
+                                let _ = hold(ref b, through: ref c)
+                                for s in blk.value.statements { let _ = bindStatement(ref b, through: ref c, for: in s) }
+                                for s in blk.value.statements {
+                                    switch s {
+                                        case .localDecl(let ld):
+                                            let at = ld.value.span.start
+                                            if b.constraints.contains(at) { print($"cons {at} {typeDisplay(ref c, by: b.constraints[at])}") }
+                                        default: {}
+                                    }
+                                }
+                                print("seq")
+                            }
+                            for s in blk.value.statements {
+                                switch s {
+                                    case .localDecl(let ld):
+                                        if t18Text(in c, from: file, at: ld.value.name) == name { runInit(ref b, through: ref c, for: in ld.value.init, from: in ld.value.type, by: op) }
+                                    default: {}
+                                }
+                            }
+                        default: {}
+                    }
+                }
+            default: {}
+        }
+    }
+    tcDiags(ref c, from: start)
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 2 < args.length {
+        var bytes = List<u8>()
+        for x in world.bytes { bytes.append(x) }
+        var sources = List<lexer.SourceText>()
+        sources.append(lexer.SourceText.create("tmp/t19-cases/main.byn", from: move bytes))
+        var c = Ctx {
+            files: List<SourceFile>(),
+            modules: List<Mod>(),
+            diagnostics: List<Diag>(),
+            bags: List<DiagBag>(),
+            library: true,
+            packageRoot: "tmp/t19-cases",
+            displayRoot: "tmp/t19-cases",
+        }
+        c.entryModule = loadModule(ref c, for: "main", at: "tmp/t19-cases", from: move sources, by: -1)
+        buildLexicon(ref c)
+        declare(ref c)
+        print($"== {args[i]}.{args[i + 1]}.{args[i + 2]}")
+        runCase(ref c, for: args[i], from: args[i + 1], by: args[i + 2])
+        i += 3
+    }
+    return 0
+}

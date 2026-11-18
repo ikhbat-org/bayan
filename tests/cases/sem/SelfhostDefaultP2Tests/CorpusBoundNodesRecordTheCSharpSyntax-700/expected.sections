@@ -1,0 +1,9 @@
+== tests/cases/diag/not-formattable.byn
+0..20 globalStatement
+0..20 localDecl
+9..20 callExpr
+21..35 exprStmt
+21..35 callExpr
+27..34 interpolatedExpr
+30..32 nameExpr
+21..35 callExpr

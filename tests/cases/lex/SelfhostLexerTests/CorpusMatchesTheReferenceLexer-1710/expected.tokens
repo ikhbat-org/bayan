@@ -1,0 +1,49 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 Identifier `inwhile`
+1:48 DoKeyword `do`
+1:51 BreakKeyword `break`
+1:57 ContinueKeyword `continue`
+1:66 ReturnKeyword `return`
+1:73 YieldKeyword `yield`
+1:79 DeferKeyword `defer`
+1:85 ErrdeferKeyword `errdefer`
+1:94 UsingKeyword `using`
+1:100 ContextKeyword `context`
+3:1 Identifier `x́́`
+4:1 CharLiteral `''`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `stray } here`
+5:15 InterpolatedStringEnd `"`
+6:2 LetKeyword `let`
+6:6 Identifier `c`
+6:8 Equals `=`
+6:10 RawStringLiteral `"""never closed\n_\n`
+8:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  4 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │ $"stray } here"
+    │         ^
+    │
+    │ 5 │ $"stray }} here"
+    │   │          +
+
+error BYN0003: unterminated string literal
+
+  6 │  let c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

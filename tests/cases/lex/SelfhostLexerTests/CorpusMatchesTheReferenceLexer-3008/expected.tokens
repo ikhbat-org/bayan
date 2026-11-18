@@ -1,0 +1,68 @@
+    doc `/// \r`
+2:2 Identifier `et`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+5:1 CharLiteral `'a'`
+5:5 CharLiteral `'\n'`
+5:10 CharLiteral `'\u{1F600}'`
+5:22 CharLiteral `'\''`
+5:27 CharLiteral `'é'`
+5:31 CharLiteral `'\\'`
+5:36 CharLiteral `'\0'`
+6:1 LetKeyword `let`
+6:5 Identifier `a`
+6:7 Equals `=`
+6:11 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:5 Identifier `b`
+7:7 Equals `=`
+7:11 IntegerLiteral `2`
+8:1 LetKeyword `let`
+8:5 Identifier `c`
+8:7 Equals `=`
+8:11 IntegerLiteral `3`
+9:1 StructKeyword `struct`
+9:8 Identifier `uni`
+9:11 Identifier `que`
+9:15 UnionKeyword `union`
+9:21 EnumKeyword `enum`
+9:26 FlagsKeyword `flags`
+9:32 OpenKeyword `open`
+9:37 ExtensibleKeyword `extensible`
+9:48 InterfaceKeyword `interface`
+9:58 DelegateKeyword `delegate`
+9:67 ExtensionKeyword `extension`
+9:77 DerivationKeyword `derivation`
+9:88 AttributeKeyword `attribute`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  2 │ �et effect = 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^
+
+error BYN0002: unexpected character `$`
+
+  6 │ let a = $ 1
+    │         ^
+
+error BYN0002: unexpected character ```
+
+  7 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  8 │ let c = � 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  9 │ struct uni�que union enum flags open extensible interface delegate extension derivation attribute
+    │           ^

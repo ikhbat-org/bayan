@@ -1,0 +1,48 @@
+1:1 IntegerLiteral `0x`
+4:1 LetKeyword `let`
+4:5 Identifier `aw`
+4:8 Equals `=`
+4:10 IntegerLiteral `3`
+6:1 IntegerLiteral `0B11`
+6:6 IntegerLiteral `5`
+6:7 NumericSuffix `s`
+6:9 IntegerLiteral `250`
+6:12 NumericSuffix `ms`
+6:15 IntegerLiteral `4`
+6:16 NumericSuffix `KiB`
+6:20 IntegerLiteral `1`
+6:21 NumericSuffix `u`
+6:23 IntegerLiteral `0xFF`
+6:27 NumericSuffix `u`
+6:29 Identifier `b3`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `‏`
+
+  2 │ ‏
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����
+    │    ^

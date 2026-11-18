@@ -1,0 +1,4 @@
+== expr.probes.l13
+errorExpr:?[3039:6]=-()
+BYN2822 131:14 a function type is not supported as the value of an optional yet ||take the function as a parameter instead|
+BYN2218 131:30 `x => x` needs a known type here ||write the function type it has, such as `let f: i64 -> i64 = x => x`|

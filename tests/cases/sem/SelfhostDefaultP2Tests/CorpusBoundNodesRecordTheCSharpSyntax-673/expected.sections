@@ -1,0 +1,13 @@
+== tests/cases/diag/narrowing-ends-with-block.byn
+17..83 blockStmt
+23..64 blockStmt
+33..58 ifStmt
+36..45 isExpr
+36..37 nameExpr
+41..45 constantPattern
+41..45 literalExpr nullKeyword
+46..58 blockStmt
+48..56 returnStmt value 55..56
+55..56 literalExpr integer
+69..81 returnStmt value 76..81
+76..81 binaryExpr add right 80..81

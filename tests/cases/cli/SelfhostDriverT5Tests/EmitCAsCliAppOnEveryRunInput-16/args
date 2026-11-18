@@ -1,0 +1,3 @@
+build
+--emit-c
+collection-copy.byn

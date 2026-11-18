@@ -1,0 +1,116 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `a`
+1:4 InterpolationStart `{`
+1:5 Identifier `b`
+1:6 InterpolationEnd `}`
+1:7 InterpolatedStringText `c �����`
+1:10 InterpolatedStringEnd
+2:1 StringLiteral `"{$"`
+2:5 Identifier `a`
+2:6 OpenBrace `{`
+2:7 Identifier `b`
+2:8 CloseBrace `}`
+2:9 Identifier `c`
+3:1 IntegerLiteral `0b102`
+4:2 Equals `=`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 StringLiteral `$"{$ let x\u{2067} = 1`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"a{b}c �����
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ $"a{b}c �����
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ $"a{b}c �����
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ $"a{b}c �����
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ $"a{b}c �����
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ $"a{b}c �����
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ "{$"a{b}c �
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  2 │ "{$"a{b}c �
+    │            ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  3 │ 0b102
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │  = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$ let x� = 1
+    │                                                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │  = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$ let x� = 1
+    │                                                    ^^
+
+error BYN0003: unterminated string literal
+
+  4 │  = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$ let x� = 1
+    │                                                    ^^^^^^^^^^^^^^^ string ends at the end of
+    │                                                                    the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

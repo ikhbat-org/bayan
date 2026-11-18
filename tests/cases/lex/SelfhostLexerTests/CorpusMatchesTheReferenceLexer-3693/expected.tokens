@@ -1,0 +1,52 @@
+2:1 LetKeyword `let`
+2:7 Equals `=`
+2:9 IntegerLiteral `2`
+4:3 IfKeyword `if`
+4:6 ElseKeyword `else`
+4:11 Identifier `unlessIswitch`
+4:25 CaseKeyword `case`
+4:30 DefaultKeyword `default`
+4:38 ForKeyword `for`
+4:42 InKeyword `in`
+4:45 WhileKeyword `while`
+4:51 DoKeyword `do`
+4:54 BreakKeyword `break`
+4:60 ContinueKeyword `continue`
+4:69 ReturnKeyword `return`
+4:76 YieldKeyword `yield`
+4:82 Identifier `defeSr`
+4:89 ErrdeferKeyword `errdefer`
+4:98 UsingKeyword `using`
+4:104 Identifier `contet`
+5:1 CloseBrace `}`
+5:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ let � = 2
+    │     ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // comment � hidden
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │  �if else unlessIswitch case default for in while do break continue return yield defeSr errdefer using contet
+    │  ^

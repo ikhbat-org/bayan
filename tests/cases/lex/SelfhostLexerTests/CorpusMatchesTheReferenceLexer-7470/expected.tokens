@@ -1,0 +1,130 @@
+1:1 Identifier `t`
+1:3 Identifier `café`
+1:9 Equals `=`
+1:11 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:12 IntegerLiteral `1`
+4:1 PlusEquals `+=`
+4:4 MinusEquals `-=`
+4:7 StarEquals `*=`
+4:10 SlashEquals `/=`
+4:13 PercentEquals `%=`
+4:16 AmpEquals `&=`
+4:19 BarEquals `|=`
+4:22 CaretEquals `^=`
+4:25 LessLessEquals `<<=`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 Identifier `x`
+5:15 InterpolationEnd `}`
+5:16 InterpolatedStringEnd `"`
+5:17 InterpolationEnd `}`
+5:18 InterpolatedStringEnd `"`
+5:19 InterpolationEnd `}`
+5:20 InterpolatedStringText `\r`
+5:21 InterpolatedStringEnd
+6:2 IntegerLiteral `0xF__`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `open `
+7:8 InterpolationStart `{`
+7:9 Identifier `x`
+7:10 StringLiteral `";`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 InterpolatedStringStart `$"`
+8:7 InterpolationStart `{`
+8:8 InterpolatedStringStart `$"`
+8:10 InterpolationStart `{`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolationStart `{`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolationStart `{`
+8:17 InterpolatedStringStart `$"`
+8:19 InterpolationStart `{`
+8:20 InterpolatedStringStart `$"`
+8:22 InterpolationStart `{`
+8:23 InterpolatedStringStart `$"`
+8:25 InterpolationStart `{`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolationStart `{`
+8:29 InterpolatedStringStart `$"`
+8:31 InterpolationStart `{`
+8:32 InterpolatedStringStart `$"`
+8:34 InterpolationStart `{`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolationStart `{`
+8:38 InterpolatedStringStart `$"`
+8:40 InterpolationStart `{`
+8:41 InterpolatedStringStart `$"`
+8:43 InterpolationStart `{`
+8:44 StringLiteral `$"{x}"`
+8:50 InterpolationEnd `}`
+8:51 InterpolatedStringEnd `"`
+8:52 InterpolationEnd `}`
+8:53 InterpolatedStringEnd `"`
+8:55 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ t café = 1
+    │   ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ t café = 1
+    │   │      +
+
+error BYN0002: unexpected character `$`
+
+  3 │  let a = $ 1
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{$"{$"{$"{x}"}"}
+    │     ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ �0xF__
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ �0xF__
+    │     ^^
+    │
+    │ 6 │ �0xF__
+    │   │     --
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  8 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" 
+    │                                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" 
+    │                                            ^^

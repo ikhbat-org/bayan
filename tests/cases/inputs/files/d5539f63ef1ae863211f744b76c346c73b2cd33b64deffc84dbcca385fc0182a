@@ -1,0 +1,5 @@
+shown.append(
+    compiled.manifest is not null
+        ? Path.relative(compiled.root, to: output).replaced("\\", by: "/")
+        : output,
+)

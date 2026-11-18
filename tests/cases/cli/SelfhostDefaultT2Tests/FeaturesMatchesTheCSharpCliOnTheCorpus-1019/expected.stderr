@@ -1,0 +1,15 @@
+error BYN3201: the value of this `one()` is unused
+  --> <repo>/tests/cases/diag/unused-value.byn:4:5
+
+  4 │     one()
+    │     ^^^^^ value dropped
+    │
+  help: assign it with `let _ = …`, or remove the expression
+
+error BYN3201: the value of this `xs.removeLast()` is unused
+  --> <repo>/tests/cases/diag/unused-value.byn:8:5
+
+  8 │     xs.removeLast()
+    │     ^^^^^^^^^^^^^^^ value dropped
+    │
+  help: assign it with `let _ = …`, or remove the expression

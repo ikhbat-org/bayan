@@ -1,0 +1,7 @@
+/* one
+   two */
+bool isA(char c) => c == 'a'
+[Cases(1, 2)]
+test "positive" (i32 n) {
+    assert(n > 0)
+}

@@ -1,0 +1,154 @@
+1:3 StringLiteral `"�"`
+1:5 StringLiteral `" c"`
+1:9 Identifier `text`
+1:13 StringLiteral `" u16"`
+1:19 Identifier `wide`
+1:23 StringLiteral `" "`
+1:28 Identifier `allowed`
+1:36 InKeyword `in`
+1:39 Identifier `strings`
+1:46 StringLiteral `" "`
+1:49 StringLiteral `" "`
+1:53 Identifier `u`
+1:54 OpenBrace `{`
+1:55 IntegerLiteral `48`
+1:57 CloseBrace `}`
+1:58 Identifier `i`
+1:59 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 Identifier `x`
+3:47 InterpolationEnd `}`
+3:48 InterpolatedStringEnd `"`
+3:49 StringLiteral `"}"`
+3:52 InterpolationEnd `}`
+3:53 InterpolatedStringEnd `"`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringEnd `"`
+3:58 InterpolationEnd `}`
+3:59 InterpolatedStringEnd `"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:62 InterpolationEnd `}`
+3:63 InterpolatedStringEnd `"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+3:66 InterpolationEnd `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+4:4 Equals `=`
+4:6 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:10 Equals `=`
+5:12 IntegerLiteral `2`
+6:2 IntegerLiteral `0`
+6:4 IntegerLiteral `42`
+6:7 IntegerLiteral `1_00`
+6:12 IntegerLiteral `0_000`
+6:18 IntegerLiteral `0xFF`
+6:23 IntegerLiteral `0x_ff`
+6:29 IntegerLiteral `0b1010`
+6:36 IntegerLiteral `0B11`
+6:41 IntegerLiteral `5`
+6:42 NumericSuffix `s`
+6:44 IntegerLiteral `250`
+6:47 NumericSuffix `ms`
+6:50 IntegerLiteral `4`
+6:51 NumericSuffix `KiB`
+6:55 IntegerLiteral `1`
+6:56 NumericSuffix `u`
+6:58 IntegerLiteral `0xFF`
+6:62 NumericSuffix `u`
+6:64 IntegerLiteral `0b1`
+6:67 NumericSuffix `ul`
+6:70 IntegerLiteral `7`
+6:71 NumericSuffix `l`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │   "�"" c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │   "�"" c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                           ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │   "�"" c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   │                           -
+
+error BYN0002: unexpected character `\`
+
+  1 │   "�"" c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                                     ^
+
+error BYN0003: unterminated string literal
+
+  1 │   "�"" c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                                            ^ string ends at the end of the
+    │                                                              line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}""}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ � �  = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ � �  = 1
+    │   ^
+
+error BYN0002: unexpected character `\u{12}`
+
+  6 │  0 42 1_00�0_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │           ^

@@ -1,0 +1,23 @@
+== tests/cases/diag/hashmap-not-supported.byn
+184..197 memberExpr
+184..197 memberExpr
+184..197 memberExpr
+184..190 nameExpr
+211..367 blockStmt
+217..253 localDecl
+251..253 collectionExpr
+258..272 assignStmt assign target 258..268 value 271..272
+258..268 indexExpr
+258..263 nameExpr
+264..267 literalExpr string
+271..272 literalExpr integer
+277..320 localDecl
+318..320 collectionExpr
+325..365 exprStmt
+325..365 callExpr
+331..364 interpolatedExpr
+334..346 callExpr
+340..345 nameExpr
+349..362 memberExpr
+349..355 nameExpr
+325..365 callExpr

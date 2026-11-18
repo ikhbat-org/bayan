@@ -1,0 +1,10 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+i32!Foo? f() {
+    return 1
+}
+
+i32!Bar? g() {
+    return 1
+}
+let a = true
+let b = a && a

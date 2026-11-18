@@ -1,0 +1,12 @@
+== case000.byn
+@unformatted because "a table"
+void t() {  
+  let grid = [
+  1,   0,	
+  0,   1,
+  ]
+}
+
+void f() {
+    let a = 1
+}

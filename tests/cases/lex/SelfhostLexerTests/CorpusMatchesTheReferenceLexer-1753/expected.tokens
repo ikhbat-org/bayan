@@ -1,0 +1,66 @@
+1:1 IntegerLiteral `0xF__`
+2:1 Question `?`
+2:3 QuestionQuestionEquals `??=`
+2:7 QuestionDot `?.`
+2:10 FatArrow `=>`
+2:13 Arrow `->`
+2:16 At `@`
+2:18 Hash `#`
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 MinusPercent `-%`
+3:17 StarPercent `*%`
+3:20 Comma `,`
+3:22 Dot `.`
+3:24 DotDot `..`
+3:27 DotDotEquals `..=`
+3:31 Colon `:`
+3:33 Question `?`
+3:35 QuestionQuestion `??`
+3:38 QuestionQuestion `??`
+3:41 QuestionDot `?.`
+3:44 FatArrow `=>`
+3:47 Arrow `->`
+3:50 At `@`
+3:52 Hash `#`
+3:53 Less `<`
+4:2 Identifier `x́́`
+5:1 IntegerLiteral `110000`
+5:7 CloseBrace `}`
+5:8 CharLiteral `'\r`
+6:1 CharLiteral `'x\r`
+7:1 CharLiteral `'ab'`
+8:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0008: unterminated char literal
+
+  5 │ 110000}'
+    │        ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  7 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text

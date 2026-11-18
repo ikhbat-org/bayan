@@ -1,0 +1,176 @@
+== tests/cases/run/struct-requires.byn
+200..236 tryExpr
+200..236 tryExpr
+200..236 tryExpr
+204..236 structLiteralExpr
+204..236 structLiteralExpr
+213..214 nameExpr
+219..220 nameExpr
+229..234 literalExpr string
+297..342 blockStmt
+303..340 returnStmt value 310..340
+310..340 tryExpr
+314..340 withExpr
+314..340 withExpr
+314..315 nameExpr
+326..338 binaryExpr add right 332..338
+326..329 memberExpr
+326..327 nameExpr
+332..338 nameExpr
+392..452 blockStmt
+398..418 localDecl
+406..418 tryExpr
+410..418 callExpr
+410..418 callExpr
+414..417 nameExpr
+423..450 returnStmt value 430..450
+430..450 tryExpr
+434..450 callExpr
+434..450 callExpr
+438..449 binaryExpr mul right 448..449
+438..445 memberExpr
+438..439 nameExpr
+448..449 literalExpr integer
+454..506 globalStatement
+454..506 localDecl
+469..506 structLiteralExpr
+478..479 literalExpr integer
+484..485 literalExpr integer
+494..504 literalExpr string
+507..545 localDecl
+515..545 catchExpr
+515..530 callExpr
+521..522 literalExpr integer
+528..529 literalExpr integer
+537..545 nameExpr
+546..571 exprStmt
+546..571 callExpr
+552..570 interpolatedExpr
+555..558 memberExpr
+555..556 nameExpr
+561..568 memberExpr
+561..562 nameExpr
+546..571 callExpr
+572..612 localDecl
+582..612 catchExpr
+582..597 callExpr
+588..589 literalExpr integer
+595..596 literalExpr integer
+604..612 nameExpr
+613..634 exprStmt
+613..634 callExpr
+619..633 interpolatedExpr
+622..631 memberExpr
+622..625 nameExpr
+613..634 callExpr
+635..673 localDecl
+643..673 catchExpr
+643..658 callExpr
+649..650 nameExpr
+656..657 literalExpr integer
+665..673 nameExpr
+674..689 exprStmt
+674..689 callExpr
+680..688 interpolatedExpr
+683..686 memberExpr
+683..684 nameExpr
+674..689 callExpr
+690..729 localDecl
+698..729 catchExpr
+698..714 callExpr
+704..705 nameExpr
+711..713 literalExpr integer
+721..729 nameExpr
+730..749 exprStmt
+730..749 callExpr
+736..748 interpolatedExpr
+739..746 memberExpr
+739..740 nameExpr
+730..749 callExpr
+750..791 localDecl
+764..791 withExpr
+764..765 nameExpr
+780..789 literalExpr string
+792..817 exprStmt
+792..817 callExpr
+798..816 interpolatedExpr
+801..814 memberExpr
+801..808 nameExpr
+792..817 callExpr
+818..849 localDecl
+826..849 catchExpr
+826..836 callExpr
+834..835 literalExpr integer
+843..849 callExpr
+847..848 literalExpr integer
+850..869 exprStmt
+850..869 callExpr
+856..868 interpolatedExpr
+859..866 memberExpr
+859..860 nameExpr
+850..869 callExpr
+870..902 localDecl
+878..902 catchExpr
+878..889 callExpr
+886..888 unaryExpr negate operand 887..888
+896..902 callExpr
+900..901 literalExpr integer
+903..922 exprStmt
+903..922 callExpr
+909..921 interpolatedExpr
+912..919 memberExpr
+912..913 nameExpr
+903..922 callExpr
+0..39 structDecl
+24..39 requiresRule
+24..39 requiresRule
+33..39 binaryExpr gt right 38..39
+33..35 nameExpr
+33..35 nameExpr
+38..39 literalExpr integer
+24..39 requiresRule
+24..39 requiresRule
+41..141 structDecl
+41..141 structDecl
+41..141 structDecl
+41..141 structDecl
+41..141 structDecl
+72..87 requiresRule
+72..87 requiresRule
+81..87 binaryExpr gt right 86..87
+81..83 nameExpr
+81..83 nameExpr
+86..87 literalExpr integer
+72..87 requiresRule
+72..87 requiresRule
+72..87 requiresRule
+72..87 requiresRule
+72..87 requiresRule
+72..87 requiresRule
+72..87 requiresRule
+72..87 requiresRule
+72..87 requiresRule
+72..87 requiresRule
+119..139 requiresRule
+119..139 requiresRule
+119..139 requiresRule
+119..139 requiresRule
+119..139 requiresRule
+128..133 binaryExpr lt right 132..133
+128..129 nameExpr
+128..129 nameExpr
+132..133 nameExpr
+132..133 nameExpr
+119..139 requiresRule
+119..139 requiresRule
+119..139 requiresRule
+119..139 requiresRule
+119..139 requiresRule
+119..139 requiresRule
+41..141 structDecl
+41..141 structDecl
+41..141 structDecl
+41..141 structDecl
+41..141 structDecl
+41..141 structDecl
+41..141 structDecl

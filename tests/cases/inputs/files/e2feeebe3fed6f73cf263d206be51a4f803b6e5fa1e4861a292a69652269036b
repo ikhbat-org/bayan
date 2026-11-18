@@ -1,0 +1,89 @@
+struct S<T, T> {
+    i64 x
+}
+struct R {
+    i64 x requires it > 0
+}
+struct Q {
+    i64 y
+    requires y >= 0
+}
+struct G<T> {
+    i64 x requires it > 0
+}
+@positional
+struct P {
+    i64 x
+}
+@positional(strict)
+struct P2 {
+    i64 x
+}
+@positional
+struct Door {
+    string label
+
+    states {
+        open
+        closed
+    }
+}
+@sealed because "x"
+struct Sealed {
+    @exitCode(1)
+    i64 x
+}
+@sealed
+struct Sealed2 {
+    i64 x
+}
+@sealed
+enum Color {
+    red
+}
+@exitCode(2)
+struct E2 { }
+@whatever
+union U<A> : IShape {
+    a
+}
+enum Color2 : IShape, IShape where T : IShape {
+    red
+}
+interface IShape { }
+interface IEnumerator { }
+interface IBox<B, B> { }
+extension Cents
+extension Money : IShape, IBox<Money> {
+    i64 area() => 0
+}
+type distinct Sku = string
+type distinct Sku = i64
+type Alias1 = i64
+struct Alias2 { }
+type Alias2 = string
+union error Errs {
+    boom
+}
+union error Errs2 = Errs, IoError
+enum Errs3 {
+    a
+}
+union error Errs3 = Errs
+void f(i64 x) { }
+void f(string s) { }
+struct f { }
+const k = 1
+const k = 2
+void k() { }
+void g<A, A>() { }
+void main() { }
+void main() { }
+let x = 1
+test "plain" { }
+test "cased" (i64 n, bool b) { }
+@cases(1, 2) test "two" (i64 n) { }
+@cases((1, true), (2), n, a.b, (3, x), (-4, false), (+5.5, null), ((6), .a), (-x, true), (!true, false)) test "pairs" (i64 n, bool b) { }
+@cases(1) @cases(2) test "dup" (i64 n) { }
+@cases(1) test "noparams" { }
+@cases((1, 2)) test "one" (i64 n) { }

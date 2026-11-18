@@ -1,0 +1,113 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:29 StringLiteral `"{$"`
+4:33 OpenBrace `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolatedStringText `�$`
+4:38 InterpolatedStringEnd `"`
+4:39 OpenBrace `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 Identifier `x`
+4:47 InterpolationEnd `}`
+4:48 InterpolatedStringEnd `"`
+4:49 InterpolationEnd `}`
+4:50 InterpolatedStringEnd `"`
+4:51 CloseBrace `}`
+4:52 StringLiteral `"}"`
+4:55 CloseBrace `}`
+4:56 StringLiteral `"}"`
+4:59 InterpolationEnd `}`
+4:60 InterpolatedStringEnd `"`
+4:61 InterpolationEnd `}`
+4:62 InterpolatedStringEnd `"`
+4:63 InterpolationEnd `}`
+4:64 InterpolatedStringEnd `"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:69 InterpolationEnd `}`
+4:70 InterpolatedStringEnd `"`
+4:71 InterpolationEnd `}`
+4:72 InterpolatedStringEnd `"`
+4:73 InterpolationEnd `}`
+4:74 InterpolatedStringText `[}`
+4:76 InterpolatedStringEnd `"`
+4:77 InterpolationEnd `}`
+4:78 InterpolatedStringEnd `"`
+5:1 Identifier `sed`
+6:1 Identifier `b`
+8:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����
+    │    ^
+
+error BYN0002: unexpected character `$`
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}[}"}"
+    │                            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}[}"}"
+    │                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE6)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}[}"}"
+    │                                     ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}[}"}"
+    │                                                                            ^
+    │
+    │ 4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}[}}"}"
+    │   │                                                                             +

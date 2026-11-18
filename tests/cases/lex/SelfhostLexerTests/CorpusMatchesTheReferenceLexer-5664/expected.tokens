@@ -1,0 +1,20 @@
+1:1 Identifier `et`
+1:4 Identifier `b`
+1:6 Equals `=`
+1:10 IntegerLiteral `2`
+2:1 Identifier `leto`
+2:6 Identifier `c`
+2:11 IntegerLiteral `3`
+3:2 StringLiteral `"a\u{2067}b"`
+    doc `///+ - * / % +% -% *% +| -| *| ++ --\n/// 1__`
+5:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ et b = ` 2
+    │        ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ leto c  � 3
+    │         ^

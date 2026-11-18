@@ -1,0 +1,19 @@
+== diags.diag/invalid-enum-parameter
+BYN2724 3:12 enum parameter `corner` must be a number, `bool`, `rune`, `string` or a plain enum
+  label `Point` has no static form
+  help use a number type, `bool`, `rune`, `string` or a plain enum; enum data is stored in static tables
+BYN2724 3:26 enum parameter `sides` must be a number, `bool`, `rune`, `string` or a plain enum
+  label `ref` is not allowed here
+  help use a number type, `bool`, `rune`, `string` or a plain enum; enum data is stored in static tables
+BYN2724 3:53 enum parameter `depth` must be a number, `bool`, `rune`, `string` or a plain enum
+  label a default value is not allowed here
+  help use a number type, `bool`, `rune`, `string` or a plain enum; enum data is stored in static tables
+BYN2724 9:13 enum parameter `scale` must be a number, `bool`, `rune`, `string` or a plain enum
+  label `Unit` has no static form
+  help use a number type, `bool`, `rune`, `string` or a plain enum; enum data is stored in static tables
+BYN2721 11:19 enum `Label` already has a member `name`
+  label every enum has it
+  help rename the parameter
+BYN2721 11:29 enum `Label` already has a member `ordinal`
+  label every enum has it
+  help rename the parameter

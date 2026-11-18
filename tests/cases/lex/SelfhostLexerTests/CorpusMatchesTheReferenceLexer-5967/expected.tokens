@@ -1,0 +1,38 @@
+1:1 Identifier `t`
+1:3 Identifier `a`
+1:4 Identifier `tor`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `e`
+2:7 Identifier `ffect`
+2:13 Equals `=`
+2:15 IntegerLiteral `2`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 Identifier `becomeB`
+3:21 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  1 │ t a�tor = 1
+    │    ^
+
+error BYN0002: unexpected character `\u{1D}`
+
+  2 │ let e�ffect = 2
+    │      ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select becomeB
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select becomeB
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

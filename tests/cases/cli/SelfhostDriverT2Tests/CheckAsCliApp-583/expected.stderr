@@ -1,0 +1,18 @@
+error BYN2815: `Shape` is a union; only structs can conform yet
+  --> <repo>/tmp/t2/diag/non-struct-conformance/non-struct-conformance.byn:5:15
+
+  5 │ union Shape : IShape {
+    │               ^^^^^^ listed here
+    │
+  help: wrap it in a struct that conforms
+
+error BYN2815: `Color` is an enum; only structs can conform yet
+  --> <repo>/tmp/t2/diag/non-struct-conformance/non-struct-conformance.byn:10:14
+
+  10 │ enum Color : IShape {
+     │              ^^^^^^ listed here
+     │
+  help: wrap it in a struct that conforms
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2815

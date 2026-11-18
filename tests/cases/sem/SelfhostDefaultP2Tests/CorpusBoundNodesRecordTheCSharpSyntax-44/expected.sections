@@ -1,0 +1,29 @@
+== tests/cases/run/env-get.byn
+159..278 blockStmt
+165..244 ifStmt
+169..195 isExpr
+169..182 callExpr
+177..181 nameExpr
+186..195 propertyPattern
+197..244 blockStmt
+199..242 returnStmt value 206..242
+206..242 interpolatedExpr
+209..213 nameExpr
+224..240 binaryExpr gt right 239..240
+224..236 memberExpr
+224..229 nameExpr
+239..240 literalExpr integer
+249..276 returnStmt value 256..276
+256..276 interpolatedExpr
+259..263 nameExpr
+279..298 globalStatement
+279..298 exprStmt
+279..298 callExpr
+285..297 callExpr
+290..296 literalExpr string
+279..298 callExpr
+299..339 exprStmt
+299..339 callExpr
+305..338 callExpr
+310..337 literalExpr string
+299..339 callExpr

@@ -1,0 +1,22 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never closed\n  = 3\n if else unless switch case default for in while do break continue return yield defer errdefer using context\n\n''\n, . .. ..= : ? ?? ??= ?. => -> @ #\n/P/ ok � in comment\n� 0xF__\n\n`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  7 │ /P/ ok � in comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ � 0xF__
+    │ ^

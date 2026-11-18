@@ -1,0 +1,3 @@
+== call.q2
+call|Qty|structLiteral|requires|2318:10|
+BYN2602 101:14 `Qty` can fail; handle the error or pass it on ||propagate the error with `try`, or handle it with `catch`|fix 2318..2318 try 

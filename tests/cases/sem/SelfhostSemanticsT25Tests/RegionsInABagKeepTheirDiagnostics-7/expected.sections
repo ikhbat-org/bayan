@@ -1,0 +1,2 @@
+== bag dyn-ref-local-argument-modified
+BYN3004 16:10 `b` is modified while `s` still borrows it |`s` is used again on line 17|finish using `s` first, or copy what it needs before changing `b`|

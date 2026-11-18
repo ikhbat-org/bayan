@@ -1,0 +1,12 @@
+error BYN1010: `goto` does not exist in Bayan
+  --> tmp/t26-tests/cli/diag_goto.byn/goto.byn:3:9
+
+  3 │         goto done
+    │         ^^^^ not a keyword in Bayan
+    │
+  help: label the loop (`outer: for x in xs { … }`) and use `break outer` to leave it early
+    │ 3 │         break done
+    │   │         +++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1010

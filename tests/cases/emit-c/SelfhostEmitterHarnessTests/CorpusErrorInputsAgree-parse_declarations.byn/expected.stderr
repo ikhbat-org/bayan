@@ -1,0 +1,19 @@
+error BYN2004: no module `money`
+  --> input.byn:1:8
+
+  1 │ import money
+    │        ^^^^^
+    │
+  help: put the module's `.byn` files in `money/` next to the entry file; a module is a directory
+
+error BYN2004: no module `app.users`
+  --> input.byn:2:8
+
+  2 │ import app.users as u
+    │        ^^^^^^^^^
+    │
+  help: put the module's `.byn` files in `app/users/` next to the entry file; a module is a
+        directory
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2004

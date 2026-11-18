@@ -1,0 +1,81 @@
+2:1 IntegerLiteral `1`
+2:2 Dot `.`
+2:4 CloseBrace `}`
+    doc `/// Doc line two.`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 Identifier `W`
+3:47 StringLiteral `"{$"`
+3:51 OpenBrace `{`
+3:52 Identifier `x`
+3:53 CloseBrace `}`
+3:54 StringLiteral `"}"`
+3:57 InterpolationEnd `}`
+3:58 InterpolatedStringEnd `"`
+3:59 InterpolationEnd `}`
+3:60 InterpolatedStringEnd `"`
+3:61 InterpolationEnd `}`
+3:62 InterpolatedStringEnd `"`
+3:63 InterpolationEnd `}`
+3:64 InterpolatedStringEnd `"`
+3:65 InterpolationEnd `}`
+3:66 InterpolatedStringEnd `"`
+3:67 InterpolationEnd `}`
+3:68 InterpolatedStringEnd `"`
+3:69 InterpolationEnd `}`
+3:70 InterpolatedStringEnd `"`
+3:71 InterpolationEnd `}`
+3:72 InterpolatedStringEnd `"`
+3:73 InterpolationEnd `}`
+3:74 InterpolatedStringEnd `"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+3:79 InterpolationEnd `}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolationEnd `}`
+3:84 InterpolatedStringEnd `"`
+3:85 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{W"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

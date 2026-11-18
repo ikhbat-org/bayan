@@ -1,0 +1,4 @@
+block 9..46 < for 15..44 letKeyword v names 0 while 29..44 block 37..44 < > >
+BYN1019 19+9 `for (let x in xs)` is an input form; write `for x in xs` fix 19+25 'v in xs { while y {
+    } }'
+BYN1018 29+15 the body of `for` must be a block

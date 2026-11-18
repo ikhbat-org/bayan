@@ -1,0 +1,42 @@
+1:1 Identifier `Å`
+2:1 Identifier `b`
+2:3 OpenBrace `{`
+2:4 Identifier `c`
+2:5 CloseBrace `}`
+2:6 Identifier `x`
+2:7 StringLiteral `")} d"`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolatedStringText `{{literal}}`
+2:27 InterpolatedStringEnd `"`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 Identifier `Point`
+2:38 OpenBrace `{`
+2:40 Identifier `x`
+2:42 Equals `=`
+2:44 IntegerLiteral `1`
+2:46 CloseBrace `}`
+2:47 InterpolationEnd `}`
+2:48 InterpolatedStringText `!`
+2:49 InterpolatedStringEnd `"`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolatedStringEnd `"`
+3:2 LetKeyword `let`
+3:6 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `2`
+4:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å�
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å�
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ Å�
+    │  ^

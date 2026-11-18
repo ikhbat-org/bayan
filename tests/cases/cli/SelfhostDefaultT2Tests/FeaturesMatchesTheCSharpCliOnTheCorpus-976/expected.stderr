@@ -1,0 +1,7 @@
+error BYN2708: a union payload cannot hold a borrowed `ReadOnlySpan<u8>`
+  --> <repo>/tests/cases/diag/union-borrow-payload.byn:2:28
+
+  2 │     bytes(ReadOnlySpan<u8> data)
+    │                            ^^^^
+    │
+  help: store a `List` copied with `.copy(to: alloc)` instead

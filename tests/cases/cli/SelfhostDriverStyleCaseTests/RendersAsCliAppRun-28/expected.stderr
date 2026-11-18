@@ -1,0 +1,9 @@
+error BYN2104: `x` is immutable
+  --> <repo>/tmp/t7-style/types-fail-no-color/tally/main.byn:3:5
+
+  3 │     x = 2
+    │     ^ declared with `let` on line 2
+    │
+  help: declare it with `var` if it should change
+    │ 2 │     var x = 1
+    │   │     +++

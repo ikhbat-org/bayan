@@ -1,0 +1,12 @@
+error BYN6006: `context (…) { }` is now `provide … { }`
+  --> tmp/t26-tests/cli/diag_context-block-input.byn/context-block-input.byn:2:5
+
+  2 │     context (allocator: arena) {
+    │     ^^^^^^^ the input form
+    │
+  help: write `provide allocator: arena { }` without the parentheses
+    │ 2 │     provide allocator: arena {
+    │   │     ++++++++++++++++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6006

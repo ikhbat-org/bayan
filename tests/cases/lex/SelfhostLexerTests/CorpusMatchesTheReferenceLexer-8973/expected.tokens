@@ -1,0 +1,15 @@
+1:1 Identifier `Å`
+1:4 LetKeyword `let`
+1:8 Identifier `café`
+1:13 Equals `=`
+1:15 IntegerLiteral `2`
+2:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å let café = 2
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å let café = 2
+    │   │ +

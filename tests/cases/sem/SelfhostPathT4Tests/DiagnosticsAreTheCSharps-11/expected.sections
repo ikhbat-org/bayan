@@ -1,0 +1,2 @@
+== diags.log-import
+BYN2003 4:9 `debug` is not a member of `module Log`

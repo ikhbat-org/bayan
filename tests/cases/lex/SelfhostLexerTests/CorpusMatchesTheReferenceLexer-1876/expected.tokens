@@ -1,0 +1,86 @@
+1:1 Identifier `Ålet`
+1:6 Identifier `x`
+1:9 Equals `=`
+1:11 IntegerLiteral `1`
+3:1 Identifier `n`
+3:2 CharLiteral `' '`
+3:6 Identifier `u`
+3:7 OpenBrace `{`
+3:8 IntegerLiteral `1`
+3:9 NumericSuffix `F600`
+3:13 CloseBrace `}`
+3:14 CharLiteral `' '`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolatedStringText `total `
+3:27 InterpolationStart `{`
+3:28 Identifier `x`
+3:29 InterpolationEnd `}`
+3:30 InterpolatedStringEnd `"`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolatedStringText `a `
+3:36 InterpolationStart `{`
+3:37 Identifier `f`
+3:38 OpenParen `(`
+3:39 InterpolatedStringStart `$"`
+3:41 InterpolatedStringText `b `
+3:43 InterpolationStart `{`
+3:44 Identifier `c`
+3:45 InterpolationEnd `}`
+3:46 InterpolatedStringEnd `"`
+3:47 CloseParen `)`
+3:48 InterpolationEnd `}`
+3:49 InterpolatedStringText ` d`
+3:51 InterpolatedStringEnd `"`
+3:53 InterpolatedStringStart `$"`
+3:55 InterpolatedStringText `{{literal}}`
+3:66 InterpolatedStringEnd `"`
+3:68 InterpolatedStringStart `$"`
+3:70 InterpolationStart `{`
+3:71 Identifier `Point`
+3:77 OpenBrace `{`
+3:79 Identifier `x`
+3:81 Equals `=`
+3:83 IntegerLiteral `1`
+3:85 CloseBrace `}`
+3:86 InterpolationEnd `}`
+3:87 InterpolatedStringText `!`
+3:88 InterpolatedStringEnd `"`
+3:90 InterpolatedStringStart `$"`
+3:92 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0005: identifier `Ålet` is not in Unicode normalization form C
+
+  1 │ Ålet x� = 1
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Ålet x� = 1
+    │   │ +
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ Ålet x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ Ålet x� = 1
+    │   │       -
+
+error BYN0002: unexpected character `\`
+
+  3 │ n' '\u{1F600}' '\ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │     ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ n' '\u{1F600}' '\ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                 ^
+
+error BYN0004: unterminated block comment
+
+  4 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

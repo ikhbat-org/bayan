@@ -1,0 +1,66 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:23 Identifier `p`
+1:24 OpenBrace `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolatedStringText `$`
+1:28 InterpolatedStringEnd `"`
+1:29 OpenBrace `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 Identifier `x`
+1:43 InterpolationEnd `}`
+1:44 InterpolatedStringEnd `"`
+1:45 InterpolationEnd `}`
+1:46 InterpolatedStringEnd `"`
+1:47 InterpolationEnd `}`
+1:48 InterpolatedStringEnd `"`
+1:49 InterpolationEnd `}`
+1:50 InterpolatedStringEnd `"`
+1:51 CloseBrace `}`
+1:52 StringLiteral `"}"`
+1:55 CloseBrace `}`
+1:56 StringLiteral `"}"`
+1:59 InterpolationEnd `}`
+1:60 InterpolatedStringEnd `"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+2:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$p{$"$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$p{$"$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                      ^

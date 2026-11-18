@@ -1,0 +1,16 @@
+1:1 Slash `/`
+1:2 CharLiteral `'//`
+2:1 IntegerLiteral `0x`
+3:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ /'//
+    │  ^^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^

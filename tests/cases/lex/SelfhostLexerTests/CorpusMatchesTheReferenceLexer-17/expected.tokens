@@ -1,0 +1,89 @@
+2:1 Identifier `xFFs`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 IntegerLiteral `0x_`
+5:1 IntegerLiteral `0b__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF__`
+7:7 IntegerLiteral `0b102`
+9:3 Equals `=`
+9:5 Colon `:`
+9:7 Question `?`
+9:9 QuestionQuestion `??`
+9:12 QuestionQuestionEquals `??=`
+9:16 QuestionDot `?.`
+9:19 FatArrow `=>`
+9:22 Arrow `->`
+9:25 At `@`
+9:27 Hash `#`
+10:1 Plus `+`
+10:3 Minus `-`
+10:5 Star `*`
+10:7 Slash `/`
+10:9 Percent `%`
+10:11 PlusPercent `+%`
+10:14 MinusPercent `-%`
+10:17 StarPercent `*%`
+10:20 PlusBar `+|`
+10:23 MinusBar `-|`
+10:26 StarBar `*|`
+10:29 PlusPlus `++`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__� 0b102
+    │    ^^
+    │
+    │ 7 │ 0xF__� 0b102
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  7 │ 0xF__� 0b102
+    │      ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  7 │ 0xF__� 0b102
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  9 │ �� = : ? ?? ??= ?. => -> @ #
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ �� = : ? ?? ??= ?. => -> @ #
+    │  ^

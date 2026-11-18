@@ -1,0 +1,3 @@
+CI=1
+BAYAN_CACHE=<repo>/tmp/t13-mutate-cache/csharp
+BAYAN_TEST_TIMEOUT_MS=300

@@ -1,0 +1,9 @@
+ 1.50dec 1..2$"stray } here"
+
+/// Doc line one.
+'\u{D800}'
+ /// Doc line two.
+
+   comment */ a
+/// ÿoc line one.
+

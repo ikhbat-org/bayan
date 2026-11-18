@@ -1,0 +1,3 @@
+== diags.diag/var-not-narrowed
+BYN2211 10:16 `v` is not a member of `Box?`; the value may be null
+  help check it first: `if (b is { } value) { … value.v … }`

@@ -1,0 +1,4 @@
+== diags.diag/goto-case
+BYN1010 4:13 `goto` does not exist in Bayan
+  label `goto case` does not exist
+  help combine patterns with `or`, or move shared code into a function; switch sections never fall through

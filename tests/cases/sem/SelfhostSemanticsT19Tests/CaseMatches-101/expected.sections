@@ -1,0 +1,4 @@
+== bind.probes.b27
+flags 0
+errorExpr:?[2208:8]=-()
+BYN2001 134:15 `nope` is not defined ||did you mean `Node`?|fix 2208..2212 Node

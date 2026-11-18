@@ -1,0 +1,8 @@
+error BYN2022: a named pattern is not supported in v0.1
+  --> <repo>/tmp/t2/diag/pattern-const-not-bound/pattern-const-not-bound.byn:5:15
+
+  5 │ const empty = pattern Line { qty: 0 }
+    │               ^^^^^^^^^^^^^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2022

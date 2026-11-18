@@ -1,0 +1,26 @@
+1:1 Identifier `cl`
+2:1 Identifier `K`
+2:2 RawStringLiteral `""" ��C�`
+2:8 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ K""" ��C�
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ K""" ��C�
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ K""" ��C�
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ K""" ��C�
+    │         ^

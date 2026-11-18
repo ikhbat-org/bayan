@@ -1,0 +1,10 @@
+1:1 Identifier `co`
+2:1 StringLiteral `"a\u{2067}b"`
+4:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  3 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

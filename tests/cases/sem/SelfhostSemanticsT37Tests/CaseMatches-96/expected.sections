@@ -1,0 +1,10 @@
+== types.more
+type s true true false
+type u true true false
+type ul true true true
+type rs true true false
+type rl true true true
+type ai false true false
+type al true true true
+type tv false true false
+counts 0 0 0

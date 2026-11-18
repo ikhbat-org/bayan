@@ -1,0 +1,19 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 Identifier `fla`
+1:30 Identifier `s`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  1 │ struct unique union enum fla�s open extensible interface delegate extension derivation attribute
+    │                             ^

@@ -1,0 +1,90 @@
+1:1 Identifier `al`
+1:4 OpenBrace `{`
+1:5 Identifier `x`
+1:6 CloseBrace `}`
+1:7 StringLiteral `" $"`
+1:11 Identifier `a`
+1:13 OpenBrace `{`
+1:14 Identifier `f`
+1:15 OpenParen `(`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolatedStringText `b `
+1:20 InterpolationStart `{`
+1:21 Identifier `c`
+1:22 InterpolationEnd `}`
+1:23 InterpolatedStringEnd `"`
+1:24 CloseParen `)`
+1:25 CloseBrace `}`
+1:27 Identifier `d`
+1:28 StringLiteral `" $"`
+1:32 OpenBrace `{`
+1:33 OpenBrace `{`
+1:34 Identifier `literal`
+1:41 CloseBrace `}`
+1:42 CloseBrace `}`
+1:43 StringLiteral `" $"`
+1:47 OpenBrace `{`
+1:48 Identifier `Point`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolatedStringText `x`
+2:6 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:12 ErrorKeyword `error`
+2:18 SetKeyword `set`
+2:22 UnitKeyword `unit`
+2:27 DistinctKeyword `distinct`
+2:36 TypeKeyword `type`
+2:41 ImportKeyword `import`
+2:48 AsKeyword `as`
+2:51 PublicKeyword `public`
+2:58 PrivateKeyword `private`
+2:66 StaticKeyword `static`
+2:73 ReadonlyKeyword `readonly`
+2:82 RequiredKeyword `required`
+2:91 ConstKeyword `const`
+2:97 LetKeyword `let`
+2:101 VarKeyword `var`
+2:105 EmbedKeyword `embed`
+2:111 ExternKeyword `extern`
+2:118 UnsafeKeyword `unsafe`
+3:1 CharLiteral `' foo Bar _x camelCase2 بيان μετρητής x_1 é`
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:6 Bar `|`
+5:8 BarBar `||`
+5:11 Caret `^`
+5:13 Tilde `~`
+5:15 Bang `!`
+5:17 Equals `=`
+5:19 EqualsEquals `==`
+5:22 BangEquals `!=`
+5:25 Less `<`
+5:27 LessEquals `<=`
+5:30 Greater `>`
+5:32 GreaterEquals `>=`
+5:35 LessLess `<<`
+5:38 Greater `>`
+5:39 Greater `>`
+5:41 Greater `>`
+5:42 GreaterEquals `>=`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ � $"x{ $"{ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ � $"x{ $"{ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0008: unterminated char literal
+
+  3 │ ' foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`

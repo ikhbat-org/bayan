@@ -1,0 +1,4 @@
+== diags.diag/duplicate-conformance
+BYN2805 5:25 `Square` lists `IShape` twice
+  label already listed
+  help remove the second `IShape`

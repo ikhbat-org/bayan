@@ -1,0 +1,4 @@
+    doc `/// Doc line one.`
+2:1 StructKeyword `struct`
+2:8 Identifier `S`
+3:1 EndOfFile

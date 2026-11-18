@@ -1,0 +1,25 @@
+== tests/cases/run/generics-var-literal-rollback.byn
+21..22 nameExpr
+21..22 nameExpr
+21..22 nameExpr
+24..33 globalStatement
+24..33 localDecl
+32..33 literalExpr integer
+34..48 localDecl
+47..48 nameExpr
+49..62 localDecl
+57..62 callExpr
+60..61 nameExpr
+63..68 assignStmt assign target 63..64 value 67..68
+63..64 nameExpr
+67..68 literalExpr integer
+69..90 exprStmt
+69..90 callExpr
+75..89 interpolatedExpr
+78..79 nameExpr
+82..83 nameExpr
+86..87 nameExpr
+69..90 callExpr
+21..22 nameExpr
+21..22 nameExpr
+21..22 nameExpr

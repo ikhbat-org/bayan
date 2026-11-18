@@ -1,0 +1,161 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 StringLiteral `"{$"`
+1:23 OpenBrace `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 Identifier `x`
+1:43 InterpolationEnd `}`
+1:44 InterpolatedStringEnd `"`
+1:45 InterpolationEnd `}`
+1:46 InterpolatedStringEnd `"`
+1:47 InterpolationEnd `}`
+1:48 InterpolatedStringEnd `"`
+1:49 InterpolationEnd `}`
+1:50 InterpolatedStringEnd `"`
+1:51 InterpolationEnd `}`
+1:52 InterpolatedStringEnd `"`
+1:53 InterpolationEnd `}`
+1:54 InterpolatedStringEnd `"`
+1:55 CloseBrace `}`
+1:56 StringLiteral `"}"`
+1:59 InterpolationEnd `}`
+1:60 InterpolatedStringEnd `"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringText `'`
+1:65 InterpolatedStringEnd
+2:1 CharLiteral `'\u{110000}'`
+3:1 CharLiteral `'x`
+4:2 Identifier `ak`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolatedStringText `�$`
+5:41 InterpolatedStringEnd `"`
+5:42 OpenBrace `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 StringLiteral `$"{$"`
+5:51 OpenBrace `{`
+5:52 StringLiteral `$"{x}"`
+5:58 CloseBrace `}`
+5:59 StringLiteral `"}"`
+5:62 InterpolationEnd `}`
+5:63 InterpolatedStringEnd `"`
+5:64 CloseBrace `}`
+5:65 StringLiteral `"}"`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringEnd `"`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringText `�`
+5:71 InterpolatedStringEnd `"`
+5:72 InterpolationEnd `}`
+5:73 InterpolatedStringEnd `"`
+5:74 InterpolationEnd `}`
+5:75 InterpolatedStringEnd `"`
+5:76 InterpolationEnd `}`
+5:77 InterpolatedStringEnd `"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+5:82 InterpolationEnd `}`
+5:83 InterpolatedStringEnd `"`
+5:84 InterpolationEnd `}`
+5:85 InterpolatedStringEnd `"`
+5:86 InterpolationEnd `}`
+5:87 InterpolatedStringEnd `"`
+5:88 InterpolationEnd `}`
+5:89 InterpolatedStringEnd `"`
+5:90 InterpolationEnd `}`
+5:91 InterpolatedStringEnd `"`
+5:92 InterpolationEnd `}`
+5:93 InterpolatedStringEnd `"`
+5:94 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}'
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}'
+    │          ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC7)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}�"}"}"}"}"}"}"}"}"}"}"}"
+    │                                       ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}�"}"}"}"}"}"}"}"}"}"}"}"
+    │                                              ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}�"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                       ^

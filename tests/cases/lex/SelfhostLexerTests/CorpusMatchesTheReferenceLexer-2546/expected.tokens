@@ -1,0 +1,167 @@
+1:1 FloatLiteral `3.1`
+1:5 FloatLiteral `1e5`
+1:9 FloatLiteral `2.5e-3`
+1:16 FloatLiteral `6E+2`
+1:21 FloatLiteral `1.50`
+1:25 NumericSuffix `dec`
+1:29 IntegerLiteral `1`
+1:30 DotDot `..`
+1:32 IntegerLiteral `2`
+1:34 IntegerLiteral `1`
+1:35 DotDotEquals `..=`
+1:38 IntegerLiteral `3`
+1:40 IntegerLiteral `5`
+1:41 NumericSuffix `e`
+1:43 Identifier `x`
+1:44 Dot `.`
+1:45 Identifier `y`
+1:47 FloatLiteral `2.5`
+1:50 NumericSuffix `f`
+2:2 CharLiteral `'\u{110000}'`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"{$"`
+4:54 OpenBrace `{`
+4:55 StringLiteral `$"{$"`
+4:60 OpenBrace `{`
+4:61 Identifier `x`
+4:62 CloseBrace `}`
+4:63 StringLiteral `"}"`
+4:66 CloseBrace `}`
+4:67 StringLiteral `"}"`
+4:70 InterpolationEnd `}`
+4:71 InterpolatedStringEnd `"`
+4:72 InterpolationEnd `}`
+4:73 InterpolatedStringEnd `"`
+4:74 InterpolationEnd `}`
+4:75 InterpolatedStringEnd `"`
+4:76 InterpolationEnd `}`
+4:77 InterpolatedStringEnd `"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolationEnd `}`
+4:81 InterpolatedStringEnd `"`
+4:82 InterpolationEnd `}`
+4:83 InterpolatedStringEnd `"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 InterpolationEnd `}`
+4:87 InterpolatedStringEnd `"`
+4:88 InterpolationEnd `}`
+4:89 InterpolatedStringEnd `"`
+4:90 InterpolationEnd `}`
+4:91 InterpolatedStringEnd `"`
+4:92 InterpolationEnd `}`
+4:93 InterpolatedStringEnd `"`
+4:94 LetKeyword `let`
+4:98 Identifier `x`
+4:101 Equals `=`
+4:103 IntegerLiteral `1`
+6:2 IntegerLiteral `0x`
+7:1 IntegerLiteral `0xF__`
+8:1 Identifier `comment`
+8:9 Star `*`
+8:10 Slash `/`
+8:12 Identifier `a`
+    doc `/// Doc line one.\r\n/// D7c line two.\r`
+11:1 Identifier `s`
+11:2 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let x� = 1
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let x� = 1
+    │                                                 ^^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let x� = 1
+    │                                                                                                   ^ invisible
+    │                                                                                                     character
+    │                                                                                                     that
+    │                                                                                                     reorders
+    │                                                                                                     how
+    │                                                                                                     the
+    │                                                                                                     text
+    │                                                                                                     displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let x� = 1
+    │   │                                                                                                   -
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ���0x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ���0x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���0x
+    │   ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ ���0x
+    │    ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  8 │ comment *�/ a
+    │          ^

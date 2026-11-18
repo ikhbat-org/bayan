@@ -1,0 +1,101 @@
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 StringLiteral `$"{$"`
+1:56 OpenBrace `{`
+1:57 StringLiteral `$"r{$"`
+1:63 OpenBrace `{`
+1:64 StringLiteral `$"{xlet effect = 2`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q escap"`
+4:1 IntegerLiteral `0x`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"r{$"{$"{xlet effect = 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"r{$"{$"{xlet effect = 2
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"r{$"{$"{xlet effect = 2
+    │                                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"r{$"{$"{xlet effect = 2
+    │                                                   ^^
+
+error BYN0003: unterminated string literal
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"r{$"{$"{xlet effect = 2
+    │                                                                ^^^^^^^^^^^^^^^^^^ string ends
+    │                                                                                   at the end
+    │                                                                                   of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q escap"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ �
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x�
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF9)
+
+  4 │ 0x�
+    │   ^

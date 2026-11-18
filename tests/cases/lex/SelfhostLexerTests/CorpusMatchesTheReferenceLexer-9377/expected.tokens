@@ -1,0 +1,111 @@
+2:1 CharLiteral `'x\r`
+4:1 FloatLiteral `3.14`
+4:6 FloatLiteral `1e5`
+4:10 FloatLiteral `2.5e-3`
+4:17 FloatLiteral `6E+2`
+4:22 FloatLiteral `1.50`
+4:26 NumericSuffix `dec`
+4:30 IntegerLiteral `1`
+4:31 DotDot `..`
+4:33 IntegerLiteral `2`
+4:35 IntegerLiteral `1`
+4:36 DotDotEquals `..=`
+4:39 IntegerLiteral `3`
+4:41 IntegerLiteral `5`
+4:42 NumericSuffix `e`
+4:44 Identifier `x`
+4:45 Dot `.`
+4:46 Identifier `y`
+4:48 FloatLiteral `2.5`
+4:51 NumericSuffix `f`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 IntegerLiteral `0x_ff`
+5:11 IntegerLiteral `0b1010`
+5:18 IntegerLiteral `0B11`
+5:23 IntegerLiteral `5`
+5:24 NumericSuffix `s`
+5:26 IntegerLiteral `250`
+5:29 NumericSuffix `ms`
+5:32 IntegerLiteral `4`
+5:33 NumericSuffix `KiB`
+5:37 IntegerLiteral `1`
+5:38 NumericSuffix `u`
+5:40 IntegerLiteral `0xFF`
+5:44 NumericSuffix `u`
+5:46 IntegerLiteral `0b1`
+6:1 FloatLiteral `3.14`
+6:6 FloatLiteral `1e5`
+6:10 FloatLiteral `2.5e-3`
+6:17 FloatLiteral `6E+2`
+6:22 FloatLiteral `1.50`
+6:26 NumericSuffix `dec`
+6:30 IntegerLiteral `1`
+6:31 DotDot `..`
+6:33 IntegerLiteral `2`
+6:35 IntegerLiteral `1`
+6:36 DotDotEquals `..=`
+6:39 IntegerLiteral `3`
+6:41 IntegerLiteral `5`
+6:42 NumericSuffix `e`
+6:44 Identifier `x`
+6:45 Dot `.`
+6:46 Identifier `y`
+6:48 FloatLiteral `2.5`
+6:51 NumericSuffix `f`
+8:3 Identifier `é`
+8:6 Equals `=`
+8:8 IntegerLiteral `1`
+9:1 LetKeyword `let`
+9:5 Identifier `café`
+9:10 Equals `=`
+9:12 IntegerLiteral `2`
+10:1 Identifier `é`
+10:3 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xB7)
+
+  4 │ 3.14 1e5 �2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  8 │ �� é = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ �� é = 1
+    │  ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  8 │ �� é = 1
+    │    ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ �� é = 1
+    │   │    +
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  10 │ é
+     │ ^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 10 │ é
+     │    │ +

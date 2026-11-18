@@ -1,0 +1,22 @@
+3:1 CloseBrace `}`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `{{`
+3:6 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0004: unterminated block comment
+
+  3 │ }$"{{" /* block
+    │        ^^ comment starts here
+    │
+  help: close it with `*/`

@@ -1,0 +1,119 @@
+1:1 IntegerLiteral `0b102`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 IntegerLiteral `0x_`
+5:1 IntegerLiteral `0b__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF`
+7:5 Identifier `__`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 InterpolatedStringStart `$"`
+8:7 InterpolationStart `{`
+8:8 InterpolatedStringStart `$"`
+8:10 InterpolationStart `{`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolationStart `{`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolationStart `{`
+8:17 InterpolatedStringStart `$"`
+8:19 InterpolationStart `{`
+8:20 InterpolatedStringStart `$"`
+8:22 InterpolationStart `{`
+8:23 InterpolatedStringStart `$"`
+8:25 InterpolationStart `{`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolationStart `{`
+8:29 InterpolatedStringStart `$"`
+8:31 InterpolationStart `{`
+8:32 InterpolatedStringStart `$"`
+8:34 InterpolationStart `{`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolationStart `{`
+8:38 InterpolatedStringStart `$"`
+8:40 InterpolationStart `{`
+8:41 InterpolatedStringStart `$"`
+8:43 InterpolationStart `{`
+8:44 InterpolatedStringStart `$"`
+8:46 InterpolationStart `{`
+8:47 InterpolatedStringStart `$"`
+8:49 InterpolationStart `{`
+8:50 Identifier `x`
+8:51 InterpolationEnd `}`
+8:52 InterpolatedStringEnd `"`
+8:53 InterpolationEnd `}`
+8:54 InterpolatedStringEnd `"`
+9:1 Identifier `x́́`
+10:1 LetKeyword `let`
+10:5 Identifier `café`
+10:11 IntegerLiteral `2`
+11:3 Identifier `select`
+11:10 BecomeKeyword `become`
+12:1 LetKeyword `let`
+12:5 LawKeyword `law`
+12:9 Equals `=`
+12:11 IntegerLiteral `3`
+13:1 InterpolatedStringStart `$"`
+13:3 InterpolatedStringText `x`
+13:4 InterpolationStart `{`
+13:6 InterpolatedStringStart `$"`
+13:8 InterpolationStart `{`
+13:9 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xE7)
+
+  7 │ 0xF�__
+    │    ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  11 │   select become
+     │   ^^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  13 │ $"x{ $"{
+     │      ^^ this string never ends
+     │
+  help: close the `{` and the string

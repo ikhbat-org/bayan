@@ -1,0 +1,26 @@
+1:1 Identifier `x́́`
+1:4 Plus `+`
+1:6 Minus `-`
+1:8 Star `*`
+1:10 Slash `/`
+1:12 Percent `%`
+1:14 Identifier `O`
+1:15 PlusPercent `+%`
+1:18 MinusPercent `-%`
+1:21 StarPercent `*%`
+1:24 PlusBar `+|`
+1:27 MinusBar `-|`
+1:30 StarBar `*|`
+1:33 PlusPlus `++`
+1:36 MinusMinus `--`
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+4:1 EndOfFile

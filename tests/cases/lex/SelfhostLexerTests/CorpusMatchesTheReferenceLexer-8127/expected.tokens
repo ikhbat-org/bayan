@@ -1,0 +1,111 @@
+1:2 Equals `=`
+1:4 IntegerLiteral `2`
+2:1 IntegerLiteral `0b__`
+    doc `/// Doc line two.`
+4:1 FloatLiteral `3.14`
+4:6 FloatLiteral `1e5`
+4:10 FloatLiteral `2.5e-3`
+4:17 FloatLiteral `6E+2`
+4:22 FloatLiteral `1.50`
+4:26 NumericSuffix `dec`
+4:30 IntegerLiteral `1`
+4:31 DotDot `..`
+4:33 IntegerLiteral `2`
+4:35 IntegerLiteral `1`
+4:36 DotDotEquals `..=`
+4:39 IntegerLiteral `3`
+4:41 IntegerLiteral `5`
+4:42 NumericSuffix `e`
+4:44 Identifier `x`
+4:45 Dot `.`
+4:46 Identifier `y`
+4:48 FloatLiteral `2.5`
+4:51 NumericSuffix `f`
+5:2 NeverKeyword `never`
+5:8 Identifier `closed`
+6:1 Identifier `b`
+8:1 Identifier `b`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolationStart `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 InterpolatedStringStart `$"`
+9:24 InterpolationStart `{`
+9:25 InterpolatedStringStart `$"`
+9:27 InterpolationStart `{`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolationStart `{`
+9:31 InterpolatedStringStart `$"`
+9:33 InterpolationStart `{`
+9:34 InterpolatedStringStart `$"`
+9:36 InterpolationStart `{`
+9:37 InterpolatedStringStart `$"`
+9:39 InterpolationStart `{`
+9:40 InterpolatedStringStart `$"`
+9:42 InterpolationStart `{`
+9:43 InterpolatedStringStart `$"`
+9:45 InterpolationStart `{`
+9:46 InterpolatedStringStart `$"`
+9:48 InterpolationStart `{`
+9:49 StringLiteral `$"{$"`
+9:54 OpenBrace `{`
+9:55 Identifier `x`
+9:56 CloseBrace `}`
+9:57 StringLiteral `"}"`
+9:60 InterpolationEnd `}`
+9:61 InterpolatedStringEnd `"`
+9:62 InterpolationEnd `}`
+9:63 InterpolatedStringEnd `"`
+9:64 InterpolationEnd `}`
+9:65 InterpolatedStringEnd `"`
+9:66 InterpolationEnd `}`
+9:67 InterpolatedStringEnd `"`
+9:68 InterpolationEnd `}`
+9:69 InterpolatedStringEnd `"`
+9:70 InterpolationEnd `}`
+9:71 InterpolatedStringEnd `"`
+9:72 InterpolationEnd `}`
+9:73 InterpolatedStringEnd `"`
+9:74 InterpolationEnd `}`
+9:75 InterpolatedStringEnd `"`
+9:76 InterpolationEnd `}`
+9:77 InterpolatedStringEnd `"`
+10:1 Identifier `F600`
+10:5 InterpolationEnd `}`
+10:6 InterpolatedStringText `' '\'' 'é' '\\' '`
+10:23 InterpolatedStringEnd
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ 0b__
+    │ ^^^^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                   ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^^

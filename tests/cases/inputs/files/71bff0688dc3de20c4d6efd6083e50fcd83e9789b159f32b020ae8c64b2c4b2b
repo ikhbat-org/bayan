@@ -1,0 +1,6 @@
+long twice(int n) => n * 2
+
+void main() {
+    let r: double = 0.5
+    print($"{twice(3)} {r}")
+}

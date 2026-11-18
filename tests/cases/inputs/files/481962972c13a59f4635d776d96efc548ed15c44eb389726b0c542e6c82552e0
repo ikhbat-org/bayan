@@ -1,0 +1,7 @@
+$"{"if else unless switch case default for in while do break continue return yield defer errdefer using context
+ let c = """never closed
++= -= *= /= %= &= |= ^= <<=
+ $"{{"
+48}i"
+1__
+ 

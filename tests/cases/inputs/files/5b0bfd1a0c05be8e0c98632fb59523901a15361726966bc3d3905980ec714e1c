@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "sites": [
+    {
+      "id": 1,
+      "file": "src/inc/a.test.byn",
+      "line": 2,
+      "column": 12,
+      "operator": "emptyReturn",
+      "original": "n + 1",
+      "mutated": "0"
+    },
+    {
+      "id": 2,
+      "file": "src/inc/a.test.byn",
+      "line": 2,
+      "column": 12,
+      "operator": "arithmetic",
+      "original": "n + 1",
+      "mutated": "n - 1"
+    },
+    {
+      "id": 3,
+      "file": "src/inc/a.test.byn",
+      "line": 2,
+      "column": 16,
+      "operator": "literal",
+      "original": "1",
+      "mutated": "2"
+    },
+    {
+      "id": 4,
+      "file": "src/inc/a.test.byn",
+      "line": 2,
+      "column": 16,
+      "operator": "literal",
+      "original": "1",
+      "mutated": "0"
+    }
+  ]
+}

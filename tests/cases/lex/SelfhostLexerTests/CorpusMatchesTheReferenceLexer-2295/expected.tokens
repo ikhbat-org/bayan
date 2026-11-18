@@ -1,0 +1,45 @@
+1:1 Identifier `macr`
+1:6 Identifier `o`
+1:8 Identifier `select`
+1:15 BecomeKeyword `become`
+2:1 Identifier `b`
+    doc `/// Doc line two�\r`
+4:2 LetKeyword `let`
+4:6 Identifier `café`
+4:13 IntegerLiteral `1`
+4:14 Semicolon `;`
+4:16 CharLiteral `'x\r`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ macr�o select become
+    │     ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macr�o select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  3 │ /// Doc line two�
+    │                 ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  4 │  let café  1; 'x
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  let café  1; 'x
+    │   │         +
+
+error BYN0008: unterminated char literal
+
+  4 │  let café  1; 'x
+    │                ^^
+    │
+  help: close it with `'`

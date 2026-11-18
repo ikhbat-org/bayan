@@ -1,0 +1,72 @@
+2:1 IntegerLiteral `0b__`
+4:4 Identifier `hidden`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+6:1 Identifier `Å`
+7:1 VarKeyword `var`
+7:5 Identifier `xs`
+7:7 Colon `:`
+7:9 Identifier `Lst`
+7:12 Less `<`
+7:13 Identifier `List`
+7:17 Less `<`
+7:18 Identifier `i64`
+7:21 Greater `>`
+7:22 Greater `>`
+8:2 Identifier `각`
+8:6 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �
+    │   │ -
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ 0b__
+    │ ^^^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │  � hidden
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  � hidden
+    │   │  -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ let x� = 1
+    │   │      -
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  6 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ Å
+    │   │ +
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  8 │  각 
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │  각 
+    │   │  +

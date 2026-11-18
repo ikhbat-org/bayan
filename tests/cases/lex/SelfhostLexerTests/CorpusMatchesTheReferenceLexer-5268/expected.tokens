@@ -1,0 +1,76 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 Identifier `publicjprivate`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 Identifier `exern`
+1:106 UnsafeKeyword `unsafe`
+2:2 Identifier `café`
+2:7 Equals `=`
+2:9 IntegerLiteral `2`
+3:2 LetKeyword `let`
+3:6 Identifier `b`
+3:8 Equals `=`
+3:10 StringLiteral `"bad \q escape"`
+4:2 CharLiteral `'x`
+5:2 Identifier `ype`
+5:6 Identifier `impoSrt`
+5:14 AsKeyword `as`
+5:17 PublicKeyword `public`
+5:24 PrivateKeyword `private`
+5:32 StaticKeyword `static`
+6:1 IntegerLiteral `0b102`
+7:1 FloatLiteral `3.14`
+7:6 FloatLiteral `1e5`
+7:10 FloatLiteral `2.5e-3`
+7:17 FloatLiteral `6E+2`
+7:22 FloatLiteral `1.50`
+7:26 NumericSuffix `dec`
+7:30 IntegerLiteral `1`
+7:31 DotDot `..`
+7:33 IntegerLiteral `2`
+7:35 IntegerLiteral `1`
+7:36 DotDotEquals `..=`
+7:39 IntegerLiteral `3`
+7:41 IntegerLiteral `5`
+7:42 NumericSuffix `e`
+7:44 Identifier `x`
+7:45 Dot `.`
+7:46 Identifier `y`
+7:48 FloatLiteral `2.5`
+7:51 NumericSuffix `f`
+8:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0008: unterminated char literal
+
+  4 │  'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �0b102
+    │ ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  6 │ �0b102
+    │      ^

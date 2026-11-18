@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/for-user-modified-while-iterating.byn
+--package
+<repo>/tests/cases/diag

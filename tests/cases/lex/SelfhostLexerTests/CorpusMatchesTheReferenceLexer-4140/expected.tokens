@@ -1,0 +1,111 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `x`
+3:4 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+4:1 StringLiteral `"{110000}'`
+5:1 CharLiteral `'x`
+7:1 IntegerLiteral `0b__`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `=`
+8:4 InterpolationStart `{`
+8:5 InterpolatedStringStart `$"`
+8:7 InterpolationStart `{`
+8:8 InterpolatedStringStart `$"`
+8:10 InterpolationStart `{`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolationStart `{`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolationStart `{`
+8:17 InterpolatedStringStart `$"`
+8:19 InterpolationStart `{`
+8:20 InterpolatedStringStart `$"`
+8:22 InterpolationStart `{`
+8:23 InterpolatedStringStart `$"`
+8:25 InterpolationStart `{`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolationStart `{`
+8:29 InterpolatedStringStart `$"`
+8:31 InterpolationStart `{`
+8:32 InterpolatedStringStart `$"`
+8:34 InterpolationStart `{`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolationStart `{`
+8:38 InterpolatedStringStart `$"`
+8:40 InterpolationStart `{`
+8:41 InterpolatedStringStart `$"`
+8:43 InterpolationStart `{`
+8:44 StringLiteral `$"{$"`
+8:49 OpenBrace `{`
+8:50 StringLiteral `$"{$"`
+8:55 OpenBrace `{`
+8:56 StringLiteral `$"{x}"`
+8:62 CloseBrace `}`
+8:63 StringLiteral `"}"`
+8:66 CharLiteral `'ab'`
+9:3 RawStringLiteral `""" c"te�t" u16"wide" "\u{202E} allowed in �trings" "" "\u{48}i"\n\n`
+11:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  4 │ "{110000}'
+    │ ^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  7 │ 0b__
+    │ ^^^^
+
+error BYN0003: unterminated string literal
+
+  8 │ $"={$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"'ab'
+    │                                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │ $"={$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"'ab'
+    │                                            ^^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  8 │ $"={$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"'ab'
+    │                                                                  ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0003: unterminated string literal
+
+  9 │   """ c"te�t" u16"wide" "� allowed in �trings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  9 │   """ c"te�t" u16"wide" "� allowed in �trings" "" "\u{48}i"
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  9 │   """ c"te�t" u16"wide" "� allowed in �trings" "" "\u{48}i"
+    │                                       ^

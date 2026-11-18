@@ -1,0 +1,35 @@
+1:1 CloseBrace `}`
+2:2 Amp `&`
+2:4 AmpAmp `&&`
+2:7 Bar `|`
+2:9 BarBar `||`
+2:12 Caret `^`
+2:14 Tilde `~`
+2:16 Bang `!`
+2:18 Equals `=`
+2:20 EqualsEquals `==`
+2:23 BangEquals `!=`
+2:26 Less `<`
+2:28 LessEquals `<=`
+2:31 Greater `>`
+2:33 GreaterEquals `>=`
+2:36 LessLess `<<`
+2:39 Greater `>`
+2:40 Greater `>`
+2:42 Greater `>`
+2:43 GreaterEquals `>=`
+3:1 IntegerLiteral `0xF__`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ �& && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --

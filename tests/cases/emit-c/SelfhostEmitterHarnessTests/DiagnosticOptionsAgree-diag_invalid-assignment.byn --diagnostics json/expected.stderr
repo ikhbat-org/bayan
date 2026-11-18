@@ -1,0 +1,2 @@
+{"code":"BYN1011","severity":"error","file":"input.byn","span":{"start":15,"end":18,"line":2,"column":5,"endLine":2,"endColumn":8},"message":"cannot assign to this expression","label":null,"help":"assign to a variable, a field or an indexed element","fixes":[]}
+{"code":"BYN1011","severity":"error","file":"input.byn","span":{"start":27,"end":32,"line":3,"column":5,"endLine":3,"endColumn":10},"message":"cannot assign to this expression","label":null,"help":"assign to a variable, a field or an indexed element","fixes":[]}

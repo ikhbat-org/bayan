@@ -1,0 +1,10 @@
+== tests/cases/diag/rest-escapes.byn
+50..67 blockStmt
+56..65 returnStmt value 63..65
+63..65 nameExpr
+135..172 blockStmt
+141..154 localDecl
+152..154 nameExpr
+159..170 assignStmt assign target 159..163 value 166..170
+159..163 nameExpr
+166..170 nameExpr

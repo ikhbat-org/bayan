@@ -1,0 +1,41 @@
+1:8 Identifier `select`
+1:15 BecomeKeyword `become`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+3:2 CharLiteral `'\0'`
+4:2 Identifier `b`
+8:3 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */select become
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │ select become
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */select become
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */select become
+    │   │    -
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ /* � */select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\u{0}`
+
+  8 │ � 
+    │ ^

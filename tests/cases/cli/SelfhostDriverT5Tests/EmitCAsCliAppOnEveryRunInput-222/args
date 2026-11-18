@@ -1,0 +1,3 @@
+build
+--emit-c
+path-is-rooted.byn

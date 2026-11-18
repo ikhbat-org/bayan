@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "GlobalStatement",
+    "LiteralExpr",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "StructDecl",
+    "StructLiteralExpr"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

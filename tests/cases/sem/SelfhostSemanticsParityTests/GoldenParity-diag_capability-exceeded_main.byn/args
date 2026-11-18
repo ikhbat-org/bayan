@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/capability-exceeded
+--include-path
+<repo>/tests/cases/diag/capability-exceeded/main.byn

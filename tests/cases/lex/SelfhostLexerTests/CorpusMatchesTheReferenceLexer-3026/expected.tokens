@@ -1,0 +1,14 @@
+1:2 Identifier `comment`
+1:10 Star `*`
+1:11 Slash `/`
+1:13 Identifier `a`
+2:1 Slash `/`
+2:2 Semicolon `;`
+2:3 Slash `/`
+2:5 Identifier `Doc`
+2:9 Identifier `l`
+3:4 Identifier `coment`
+3:11 Star `*`
+3:12 Slash `/`
+3:14 Identifier `a`
+5:1 EndOfFile

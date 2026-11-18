@@ -1,0 +1,55 @@
+1:1 OpenBrace `{`
+1:3 TestKeyword `test`
+1:8 AssertKeyword `assert`
+1:15 PropertyKeyword `property`
+1:24 FuzzKeyword `fuzz`
+1:29 ModelKeyword `model`
+1:35 Identifier `foreac`
+1:41 Bang `!`
+1:42 Identifier `h`
+1:44 NewKeyword `new`
+1:48 GotoKeyword `goto`
+2:1 Identifier `e`
+2:3 Identifier `u`
+2:4 OpenBrace `{`
+2:5 Identifier `D800`
+2:9 CloseBrace `}`
+2:10 CharLiteral `'`
+3:1 CharLiteral `'\u{110000}'`
+4:1 CharLiteral `'x`
+5:1 IntegerLiteral `1_`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ e u{D800}'
+    │          ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  5 │ �1_
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ �1_
+    │   ^
+    │
+    │ 5 │ �1_
+    │   │   -

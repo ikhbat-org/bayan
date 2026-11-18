@@ -1,0 +1,83 @@
+1:1 StringLiteral `"  } here"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+3:2 StructKeyword `struct`
+3:9 Identifier `uniq`
+3:14 Identifier `e`
+3:16 UnionKeyword `union`
+3:22 EnumKeyword `enum`
+3:27 Identifier `flais`
+3:33 OpenKeyword `open`
+3:38 ExtensibleKeyword `extensible`
+3:49 InterfaceKeyword `interface`
+3:59 DelegateKeyword `delegate`
+3:68 ExtensionKeyword `extension`
+3:78 DerivationKeyword `derivation`
+3:89 AttributeKeyword `attribute`
+6:1 InterpolationEnd `}`
+6:2 InterpolatedStringText `}`
+6:3 InterpolatedStringEnd `"`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 Identifier `Point`
+6:14 OpenBrace `{`
+6:16 Identifier `x`
+6:18 Equals `=`
+6:20 IntegerLiteral `1`
+6:22 CloseBrace `}`
+6:23 InterpolationEnd `}`
+6:24 InterpolatedStringText `!`
+6:25 InterpolatedStringEnd `"`
+6:27 InterpolatedStringStart `$"`
+6:29 InterpolatedStringEnd
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC4)
+
+  3 │  struct uniq�e union enum flais open extensible interface delegate extension derivation attribute
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����
+    │    ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  6 │ }}" $"{Point { x = 1 }}!" $"
+    │  ^
+    │
+    │ 6 │ }}}" $"{Point { x = 1 }}!" $"
+    │   │   +
+
+error BYN0003: unterminated string literal
+
+  6 │ }}" $"{Point { x = 1 }}!" $"
+    │                           ^^ this string never ends
+    │
+  help: close it with `"`

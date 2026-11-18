@@ -1,0 +1,4 @@
+== bool-without-prefix
+BYN5102 52+4 `ajar` is a `bool` state; prefix with `is`, `has` or `can` |  | rename it `isAjar` | 52+4=isAjar
+BYN5102 83+6 `locked` is a `bool` state; prefix with `is`, `has` or `can` |  | rename it `isLocked` | 83+6=isLocked
+end

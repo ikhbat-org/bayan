@@ -1,0 +1,23 @@
+    doc `/// Doc line two.\r`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+3:1 CharLiteral `'ab'`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolationEnd `}`
+4:5 InterpolatedStringEnd `"`
+4:7 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text

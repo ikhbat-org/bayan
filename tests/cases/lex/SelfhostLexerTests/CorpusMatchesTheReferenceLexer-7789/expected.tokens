@@ -1,0 +1,28 @@
+2:2 PlusEquals `+=`
+2:5 MinusEquals `-=`
+2:8 StarEquals `*=`
+2:11 SlashEquals `/=`
+2:14 PercentEquals `%=`
+2:17 AmpEquals `&=`
+2:20 BarEquals `|=`
+2:23 CaretEquals `^=`
+2:26 LessLessEquals `<<=`
+3:2 Identifier `a`
+8:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0004: unterminated block comment
+
+  3 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

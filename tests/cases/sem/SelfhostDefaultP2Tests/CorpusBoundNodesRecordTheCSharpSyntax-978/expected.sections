@@ -1,0 +1,15 @@
+== tests/cases/diag/variant-has-no-payload.byn
+56..159 blockStmt
+62..82 localDecl
+70..82 callExpr
+87..107 localDecl
+102..107 targetMemberExpr
+112..157 ifStmt
+115..127 isExpr
+115..116 nameExpr
+120..127 variantPattern
+128..157 blockStmt
+138..151 exprStmt
+138..151 callExpr
+144..150 literalExpr string
+138..151 callExpr

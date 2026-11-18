@@ -1,0 +1,29 @@
+1:1 IntegerLiteral `0b__`
+8:4 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0004: unterminated block comment
+
+  2 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  7 │ �� � 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ �� � 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ �� � 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │    ^

@@ -1,0 +1,26 @@
+1:1 IntegerLiteral `0b102`
+    doc `///Å`
+5:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n `
+6:2 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  4 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  5 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

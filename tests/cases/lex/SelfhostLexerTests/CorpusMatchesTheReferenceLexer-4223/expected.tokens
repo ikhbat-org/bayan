@@ -1,0 +1,19 @@
+1:1 Identifier `a`
+4:2 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ a /* never c�osed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  1 │ a /* never c�osed
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  2 │ "%"}"}"}"}"}"�
+    │              ^

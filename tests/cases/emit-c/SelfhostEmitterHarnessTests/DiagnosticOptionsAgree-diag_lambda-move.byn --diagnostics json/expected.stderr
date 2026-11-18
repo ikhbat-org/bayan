@@ -1,0 +1,1 @@
+{"code":"BYN2782","severity":"error","file":"input.byn","span":{"start":42,"end":49,"line":2,"column":29,"endLine":2,"endColumn":36},"message":"cannot move out of a fresh value","label":null,"help":"remove the `move`; a fresh value needs none","fixes":[]}

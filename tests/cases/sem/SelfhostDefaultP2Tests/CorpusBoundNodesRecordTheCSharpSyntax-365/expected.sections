@@ -1,0 +1,5 @@
+== tests/cases/diag/become-without-ref-this.byn
+113..141 blockStmt
+123..135 becomeStmt
+180..208 blockStmt
+190..202 becomeStmt

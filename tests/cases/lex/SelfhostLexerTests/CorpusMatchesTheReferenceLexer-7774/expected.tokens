@@ -1,0 +1,22 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `{{`
+2:6 InterpolatedStringEnd `"`
+2:8 VarKeyword `var`
+2:12 Identifier `xs`
+2:14 Colon `:`
+2:16 Identifier `List`
+2:20 Less `<`
+2:21 Identifier `List`
+2:25 Less `<`
+2:26 Identifier `i64`
+2:29 Greater `>`
+2:30 Greater `>`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^

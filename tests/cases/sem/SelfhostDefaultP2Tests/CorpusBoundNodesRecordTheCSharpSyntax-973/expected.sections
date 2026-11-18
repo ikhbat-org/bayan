@@ -1,0 +1,78 @@
+== tests/cases/diag/validation-error-unknown-variant.byn
+259..339 blockStmt
+265..298 localDecl
+273..298 tryExpr
+277..298 structLiteralExpr
+277..298 structLiteralExpr
+292..296 nameExpr
+303..337 localDecl
+311..337 tryExpr
+315..337 structLiteralExpr
+315..337 structLiteralExpr
+331..335 nameExpr
+353..413 blockStmt
+359..411 exprStmt
+359..411 catchExpr
+359..381 callExpr
+368..372 literalExpr string
+378..380 literalExpr string
+401..411 callExpr
+407..410 literalExpr string
+401..411 callExpr
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+40..66 requiresRule
+40..66 requiresRule
+49..66 binaryExpr ge right 65..66
+49..61 memberExpr
+49..51 nameExpr
+49..51 nameExpr
+65..66 literalExpr integer
+40..66 requiresRule
+40..66 requiresRule
+40..66 requiresRule
+40..66 requiresRule
+40..66 requiresRule
+40..66 requiresRule
+40..66 requiresRule
+40..66 requiresRule
+40..66 requiresRule
+40..66 requiresRule
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+70..130 structDecl
+70..130 structDecl
+70..130 structDecl
+70..130 structDecl
+70..130 structDecl
+111..128 requiresRule
+111..128 requiresRule
+120..128 binaryExpr ne right 126..128
+120..122 nameExpr
+120..122 nameExpr
+126..128 literalExpr string
+111..128 requiresRule
+111..128 requiresRule
+111..128 requiresRule
+111..128 requiresRule
+111..128 requiresRule
+111..128 requiresRule
+111..128 requiresRule
+111..128 requiresRule
+111..128 requiresRule
+111..128 requiresRule
+70..130 structDecl
+70..130 structDecl
+70..130 structDecl
+70..130 structDecl
+70..130 structDecl
+70..130 structDecl
+70..130 structDecl

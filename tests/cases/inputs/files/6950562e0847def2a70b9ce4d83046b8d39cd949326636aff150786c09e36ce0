@@ -1,0 +1,5 @@
+let c =  3
+
+let b = "bad \q escape"
+ let x⁧ = 1
+ 

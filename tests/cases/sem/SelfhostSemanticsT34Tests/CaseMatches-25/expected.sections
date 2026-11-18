@@ -1,0 +1,6 @@
+== s61
+switchExpr|i32|4764:61
+value moveExpr:Ledger
+arm 4783:40 binaryPattern[4783:35]:Ledger(or propertyPattern[4783:16]:Ledger(Ledger;items:List<i64>=bindPattern[4792:3]:List<i64>(a:List<i64>:o:-:let)|-),propertyPattern[4803:15]:Ledger(Ledger;more:List<i64>=bindPattern[4811:3]:List<i64>(a:List<i64>:o:-:let)|-)) guard - value literal:i32=1
+BYN2007 132:66 `a` is already a local here |already declared on line 132|pick a different name; Bayan does not let a local hide another one|
+BYN2022 132:34 variables inside `or` patterns is not supported in v0.1 |||

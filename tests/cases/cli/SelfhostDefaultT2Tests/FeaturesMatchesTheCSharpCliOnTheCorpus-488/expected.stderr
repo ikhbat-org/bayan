@@ -1,0 +1,41 @@
+error BYN2807: `T` does not conform to `IShape`: missing `area`
+  --> <repo>/tests/cases/diag/constraint-not-satisfied.byn:25:30
+
+  25 │ i64 loose<T>(ref T shape) => measure(ref shape)
+     │                              ^^^^^^^^^^^^^^^^^^ the generic code needs this of its type
+     │                                                 arguments
+     │
+  help: add `where T : IShape` to the declaration of `T`
+
+error BYN2807: `Square` does not conform to `IShape`: missing `area`
+  --> <repo>/tests/cases/diag/constraint-not-satisfied.byn:30:31
+
+  30 │     print($"{measure(ref c)} {measure(ref s)}")
+     │                               ^^^^^^^^^^^^^^ the generic code needs this of its type
+     │                                              arguments
+     │
+  help: add `: IShape` to `Square` and provide `area`
+
+error BYN2807: `Square` does not conform to `IShape`: missing `area`
+  --> <repo>/tests/cases/diag/constraint-not-satisfied.byn:31:14
+
+  31 │     print($"{twice(ref s)}")
+     │              ^^^^^^^^^^^^ the generic code needs this of its type arguments
+     │
+  help: add `: IShape` to `Square` and provide `area`
+
+error BYN2807: `i32` does not conform to `IShape`: missing `area`
+  --> <repo>/tests/cases/diag/constraint-not-satisfied.byn:33:14
+
+  33 │     print($"{measure(ref n)}")
+     │              ^^^^^^^^^^^^^^ the generic code needs this of its type arguments
+     │
+  help: pass a struct that conforms to `IShape`; primitives do not conform to interfaces
+
+error BYN2807: `Square` does not conform to `IShape`: missing `area`
+  --> <repo>/tests/cases/diag/constraint-not-satisfied.byn:34:12
+
+  34 │     let b: Box<Square> = Box<Square> { item: s }
+     │            ^^^^^^^^^^^ the generic code needs this of its type arguments
+     │
+  help: add `: IShape` to `Square` and provide `area`

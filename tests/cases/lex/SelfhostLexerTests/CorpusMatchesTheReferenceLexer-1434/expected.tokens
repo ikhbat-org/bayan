@@ -1,0 +1,33 @@
+4:72 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ /* � 7/( ) [ ] { }
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � 7/( ) [ ] { }
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � 7/( ) [ ] { }
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ � $"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}" '\ 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  4 │ � $"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}" '\ 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  4 │ � $"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}" '\ 
+    │          ^

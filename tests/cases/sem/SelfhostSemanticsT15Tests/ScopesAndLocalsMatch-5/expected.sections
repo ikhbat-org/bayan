@@ -1,0 +1,16 @@
+== scopes held
+declared Bad 0
+declared Bad 1
+reported 0
+declared z 2
+declared x 3
+declared x 4
+local Bad 0 0
+local Bad 1 0
+local z 2 2
+local x 3 1
+local x 4 1
+requires 0 infers false
+BYN2009 8:4 `Bad` must be camelCase ||rename it `bad`; only types are PascalCase|fix 38..41 bad
+BYN2009 9:4 `Bad` must be camelCase ||rename it `bad`; only types are PascalCase|fix 45..48 bad
+BYN2028 9:4 `Bad` shadows an earlier `Bad` of the same type `i32` |`Bad` is declared on line 8|use the first one, or rename this one to say how it differs|

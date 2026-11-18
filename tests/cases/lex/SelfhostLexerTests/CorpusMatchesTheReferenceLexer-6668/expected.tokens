@@ -1,0 +1,19 @@
+1:1 OpenBrace `{`
+2:1 PlusEquals `+=`
+2:4 MinusEquals `-=`
+2:7 StarEquals `*=`
+2:10 SlashEquals `/=`
+2:13 PercentEquals `%=`
+2:16 AmpEquals `&=`
+2:19 BarEquals `|=`
+2:22 CaretEquals `^=`
+2:25 LessLessEquals `<<=`
+3:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n1e`
+4:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

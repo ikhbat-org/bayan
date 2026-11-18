@@ -1,0 +1,10 @@
+is and or not with move ref out this null true false comptime checked
+
+""" 0b1ms
+  closed
+b
+
+ar xs: List<List<i64>>
+a >> b
+c >>= 1
+

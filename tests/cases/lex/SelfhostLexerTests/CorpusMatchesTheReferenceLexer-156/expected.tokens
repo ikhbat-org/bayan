@@ -1,0 +1,15 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+5:2 IntegerLiteral `2`
+6:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^

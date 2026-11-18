@@ -1,0 +1,8 @@
+== load
+module main tmp/t7-path/load/src/app main
+file tmp/t7-path/load/src/app/main.byn source
+diag BYN2004 tmp/t7-path/load/src/app/main.byn 1:8 no module `a.b` |  | put the module's `.byn` files in `a/b/` next to the entry file; a module is a directory
+diag BYN2004 tmp/t7-path/load/src/app/main.byn 2:8 no module `nope.deep` |  | put the module's `.byn` files in `nope/deep/` next to the entry file; a module is a directory
+diag BYN2004 tmp/t7-path/load/src/app/main.byn 3:8 no module `a.b` |  | put the module's `.byn` files in `a/b/` next to the entry file; a module is a directory
+diag BYN2004 tmp/t7-path/load/src/app/main.byn 4:8 no module `a.c` |  | put the module's `.byn` files in `a/c/` next to the entry file; a module is a directory
+diag BYN2004 tmp/t7-path/load/src/app/main.byn 5:8 no module `a.c` |  | put the module's `.byn` files in `a/c/` next to the entry file; a module is a directory

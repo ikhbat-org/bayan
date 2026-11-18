@@ -1,0 +1,20 @@
+== exit codes
+exit x1 3
+exit x2 1
+BYN2772 97:11 `@exitCode` needs one integer constant from 1 to 255 ||pick a code from 1 to 255; 0 means success, and exit codes above 255 do not survive the operating system|
+exit x3 1
+BYN2772 101:11 `@exitCode` needs one integer constant from 1 to 255 ||pick a code from 1 to 255; 0 means success, and exit codes above 255 do not survive the operating system|
+exit x4 1
+BYN2772 105:1 `@exitCode` needs one integer constant from 1 to 255 |||
+exit x5 1
+BYN2772 109:1 `@exitCode` needs one integer constant from 1 to 255 |||
+exit x6 1
+BYN2772 113:11 `@exitCode` needs one integer constant from 1 to 255 |||
+exit x7 1
+BYN2001 117:11 `zz` is not defined |||
+exit x8 255
+exit x9 1
+BYN2772 125:11 `@exitCode` needs one integer constant from 1 to 255 |||
+exit x10 1
+BYN2772 129:11 `@exitCode` needs one integer constant from 1 to 255 ||pick a code from 1 to 255; 0 means success, and exit codes above 255 do not survive the operating system|
+exit x11 1

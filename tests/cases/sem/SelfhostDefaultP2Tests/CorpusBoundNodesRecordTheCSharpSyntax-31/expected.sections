@@ -1,0 +1,40 @@
+== tests/cases/run/dyn-ref-argument-plain-field.byn
+277..289 blockStmt
+279..287 exprStmt
+279..287 callExpr
+279..280 nameExpr
+302..447 blockStmt
+308..355 localDecl
+316..355 structLiteralExpr
+327..338 callExpr
+343..353 structLiteralExpr
+350..351 literalExpr integer
+360..377 exprStmt
+360..377 callExpr
+360..367 memberExpr
+360..361 nameExpr
+375..376 literalExpr integer
+382..402 localDecl
+390..402 memberExpr
+390..397 memberExpr
+390..391 nameExpr
+407..416 exprStmt
+407..416 callExpr
+412..415 memberExpr
+412..415 memberExpr
+412..413 nameExpr
+421..445 exprStmt
+421..445 callExpr
+427..444 interpolatedExpr
+430..434 indexExpr
+430..431 nameExpr
+432..433 literalExpr integer
+437..442 memberExpr
+437..440 memberExpr
+437..438 nameExpr
+421..445 callExpr
+199..209 blockStmt
+201..207 assignStmt add target 201..202 value 206..207
+201..202 nameExpr
+201..202 nameExpr
+206..207 literalExpr integer

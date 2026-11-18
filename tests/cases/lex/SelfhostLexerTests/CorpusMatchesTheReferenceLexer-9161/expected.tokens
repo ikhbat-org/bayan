@@ -1,0 +1,62 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `x`
+1:5 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 Equals `=`
+1:12 Colon `:`
+1:14 Question `?`
+1:16 QuestionQuestion `??`
+1:19 QuestionQuestionEquals `??=`
+1:23 QuestionDot `?.`
+1:26 FatArrow `=>`
+1:28 Arrow `->`
+1:31 At `@`
+1:33 Hash `#`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 Star `*`
+2:27 Identifier `l`
+2:28 Bar `|`
+2:30 Plus `+`
+2:31 Dot `.`
+2:32 Equals `=`
+2:33 Identifier `y`
+2:35 FloatLiteral `2.5`
+2:38 NumericSuffix `f`
+3:2 Identifier `ạ̇`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �$"x{ $"{= : ? ?? ??= ?. =>-> @ #
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �$"x{ $"{= : ? ?? ??= ?. =>-> @ #
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │  ạ̇ �
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  ạ̇ �
+    │   │  +
+
+error BYN0002: unexpected character `\u{0}`
+
+  3 │  ạ̇ �
+    │      ^

@@ -1,0 +1,3 @@
+== bind.probes.b3
+flags 0
+binary:bool[1645:12]=-(logicalAnd local:bool[1645:4]=-(flag) local:bool[1653:4]=-(flag))

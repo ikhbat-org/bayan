@@ -1,0 +1,67 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+2:1 IntegerLiteral `1`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:6 Bar `|`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 EqualsEquals `==`
+4:23 Equals `=`
+4:25 Less `<`
+4:27 LessEquals `<=`
+4:30 Greater `>`
+4:32 GreaterEquals `>=`
+4:35 LessLess `<<`
+4:38 Greater `>`
+4:39 Greater `>`
+4:41 Greater `>`
+4:42 GreaterEquals `>=`
+5:3 Plus `+`
+5:4 Identifier `u`
+5:6 MinusEquals `-=`
+5:9 StarEquals `*=`
+5:12 SlashEquals `/=`
+5:15 PercentEquals `%=`
+5:18 AmpEquals `&=`
+5:21 BarEquals `|=`
+5:24 CaretEquals `^=`
+5:27 LessLessEquals `<<=`
+6:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xD3)
+
+  4 │ & && | || ^ ~ ! = == �= < <= > >= << >> >>=
+    │                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ � +u -= *= /= %= &= |= ^= <<=
+    │ ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  6 │  � � 
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │  � � 
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  � � 
+    │    ^

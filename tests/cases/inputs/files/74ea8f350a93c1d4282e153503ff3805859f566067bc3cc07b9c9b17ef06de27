@@ -1,0 +1,3 @@
+let a = true
+unless !a { print("y") }
+if (a) { print("x") }

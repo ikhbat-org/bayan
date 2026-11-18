@@ -1,0 +1,24 @@
+1:1 StringLiteral `" $"`
+1:5 CloseBrace `}`
+1:6 StringLiteral `"`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+4:1 IntegerLiteral `0x_`
+5:2 LetKeyword `let`
+5:6 LawKeyword `law`
+5:10 Equals `=`
+5:12 IntegerLiteral `3`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ " $"}"
+    │      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^

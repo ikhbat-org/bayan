@@ -1,0 +1,10 @@
+created .editorconfig
+created .gitattributes
+created .gitignore
+created README.md
+created docs/.gitkeep
+created package.byn
+created src/app/main.byn
+created testdata/.gitkeep
+created tests/app.test.byn
+note: `git init` failed, so no repository was created

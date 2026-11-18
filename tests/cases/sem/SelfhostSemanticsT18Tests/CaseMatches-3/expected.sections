@@ -1,0 +1,4 @@
+== member.probes.-.v39
+errorExpr|?|-|-|-|-|-|3389:6|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2003 167:17 `size` is not a member of `Point` ||use `length` for the size of anything|

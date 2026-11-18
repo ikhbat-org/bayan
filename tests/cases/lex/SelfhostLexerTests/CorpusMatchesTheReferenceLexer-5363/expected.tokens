@@ -1,0 +1,79 @@
+    doc `///`
+2:4 Identifier `comment`
+2:12 Star `*`
+2:13 Slash `/`
+2:15 Identifier `a`
+3:4 Identifier `raw`
+3:8 StringLiteral `"quoted"`
+4:2 IntegerLiteral `1`
+4:3 Dot `.`
+4:9 Identifier `n`
+4:10 CharLiteral `' '`
+4:14 Identifier `u`
+4:15 OpenBrace `{`
+4:16 IntegerLiteral `1`
+4:17 NumericSuffix `F600`
+4:21 CloseBrace `}`
+4:22 CharLiteral `' '`
+4:26 CharLiteral `''`
+4:29 CharLiteral `'é'`
+4:33 CharLiteral `'\\'`
+4:38 CharLiteral `'\0'`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  3 │    �raw "quoted"�
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDA)
+
+  3 │    �raw "quoted"�
+    │                 ^
+
+error BYN0002: unexpected character `\`
+
+  4 │  1. �  \n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │        ^
+
+error BYN0002: unexpected character `\`
+
+  4 │  1. �  \n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │             ^
+
+error BYN0002: unexpected character `\`
+
+  4 │  1. �  \n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                         ^
+
+error BYN0007: empty char literal
+
+  4 │  1. �  \n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                          ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����
+    │     ^

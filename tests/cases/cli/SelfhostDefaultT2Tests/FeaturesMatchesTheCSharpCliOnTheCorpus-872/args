@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/renamed-call-shape.byn
+--package
+<repo>/tests/cases/diag

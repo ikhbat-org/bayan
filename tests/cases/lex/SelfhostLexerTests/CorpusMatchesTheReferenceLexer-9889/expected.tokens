@@ -1,0 +1,90 @@
+1:1 CloseBrace `}`
+1:2 StringLiteral `"}"`
+1:5 CloseBrace `}`
+1:6 StringLiteral `"}"`
+1:9 CloseBrace `}`
+1:10 StringLiteral `"}"`
+1:13 CloseBrace `}`
+1:14 StringLiteral `"}"`
+1:17 CloseBrace `}`
+1:18 StringLiteral `"}"`
+1:21 CloseBrace `}`
+1:22 StringLiteral `"}"`
+1:25 CloseBrace `}`
+1:26 StringLiteral `"`
+3:2 IntegerLiteral `0b1`
+3:5 NumericSuffix `ms`
+4:4 PlusEquals `+=`
+4:7 MinusEquals `-=`
+4:10 StarEquals `*=`
+4:13 SlashEquals `/=`
+4:16 PercentEquals `%=`
+4:19 AmpEquals `&=`
+4:22 BarEquals `|=`
+4:25 CaretEquals `^=`
+4:28 LessLessEquals `<<=`
+5:2 Identifier `t`
+7:15 Identifier `a`
+    doc `/// Doc line one.\n/// Doc li'ab'`
+10:1 CharLiteral `'\q'`
+11:1 CharLiteral `'\u{D800}'`
+12:1 CharLiteral `'\u{11000}'`
+13:1 CharLiteral `'x`
+14:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ }"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ �0b1ms
+    │ ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ �0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │  � += -= *= /= %= &= |= ^= <<=
+    │  ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  6 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │ // block
+    │   │  +++++++
+    │ 7 │ // comment
+    │   │ ++++++++++
+    │ 8 │  a
+
+error BYN0006: invalid escape sequence `\q`
+
+  10 │ '\q'
+     │  ^^
+     │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  11 │ '\u{D800}'
+     │  ^^^^^^^^
+     │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  13 │ 'x
+     │ ^^
+     │
+  help: close it with `'`

@@ -1,0 +1,11 @@
+error BYN2611: this `catch` block can complete normally; end it with `return`, `break`, `continue`
+or a panic
+  --> tmp/t26-tests/cli/diag_catch-block-completes.byn/catch-block-completes.byn:19:36
+
+  19 │ let n = parse("") catch { log("x") }
+     │                                    ^
+     │
+  help: leave the block instead of falling through; `parse` returns a value
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2611

@@ -1,0 +1,29 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolationEnd `}`
+1:5 InterpolatedStringEnd `"`
+2:1 Identifier `ạ̇let`
+2:8 EffectKeyword `effect`
+2:15 Equals `=`
+2:17 IntegerLiteral `2`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `stray } here`
+4:15 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0005: identifier `ạ̇let` is not in Unicode normalization form C
+
+  2 │ ạ̇let effect = 2
+    │ ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ ạ̇let effect = 2
+    │   │ ++
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"stray } here"
+    │         ^
+    │
+    │ 4 │ $"stray }} here"
+    │   │          +

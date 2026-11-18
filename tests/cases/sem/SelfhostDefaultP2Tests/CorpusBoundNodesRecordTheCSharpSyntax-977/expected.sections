@@ -1,0 +1,31 @@
+== tests/cases/diag/var-not-narrowed.byn
+45..72 conditionalExpr
+45..72 conditionalExpr
+45..72 conditionalExpr
+45..50 binaryExpr gt right 49..50
+45..46 nameExpr
+49..50 literalExpr integer
+53..65 structLiteralExpr
+53..65 structLiteralExpr
+62..63 nameExpr
+68..72 literalExpr nullKeyword
+74..88 globalStatement
+74..88 localDecl
+82..88 callExpr
+86..87 literalExpr integer
+89..144 ifStmt
+92..105 isExpr
+92..93 nameExpr
+97..100 notPattern
+101..105 constantPattern
+101..105 literalExpr nullKeyword
+106..144 blockStmt
+112..122 assignStmt assign target 112..113 value 116..122
+112..113 nameExpr
+116..122 callExpr
+120..121 literalExpr integer
+127..142 exprStmt
+127..142 callExpr
+133..141 interpolatedExpr
+136..139 memberExpr
+127..142 callExpr

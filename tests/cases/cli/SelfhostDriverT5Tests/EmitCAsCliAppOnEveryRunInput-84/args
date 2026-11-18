@@ -1,0 +1,3 @@
+build
+--emit-c
+format-into-both-forms.byn

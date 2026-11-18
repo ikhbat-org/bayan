@@ -1,0 +1,5 @@
+let actor = 1
+let effect = 2
+macro selecSt become
+let  """ c"text" u16"wide" "‮ allowed �n strings" "" "\u{S48}i"
+ ⁦ $"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"

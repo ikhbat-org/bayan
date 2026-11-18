@@ -1,0 +1,11 @@
+== tests/cases/diag/owned-read-only.byn
+42..96 blockStmt
+48..79 localDecl
+56..79 callExpr
+62..78 structLiteralExpr
+75..76 literalExpr integer
+84..94 assignStmt assign target 84..90 value 93..94
+84..90 memberExpr
+84..85 nameExpr
+84..85 nameExpr
+93..94 literalExpr integer

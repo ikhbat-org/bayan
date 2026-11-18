@@ -1,0 +1,5 @@
+struct S
+ 1.ne.
+/// Do¨c line two.
+struct S
+//// not a doc 

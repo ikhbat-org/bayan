@@ -1,0 +1,66 @@
+1:2 IntegerLiteral `0_000`
+1:8 IntegerLiteral `0xFF`
+1:13 IntegerLiteral `0x_ff`
+1:19 IntegerLiteral `0b1010`
+1:26 IntegerLiteral `0B11`
+1:31 IntegerLiteral `5`
+1:32 NumericSuffix `s`
+1:34 IntegerLiteral `250`
+1:37 NumericSuffix `ms`
+1:40 IntegerLiteral `4`
+1:41 NumericSuffix `K`
+2:3 Identifier `raw`
+2:7 StringLiteral `"quoted"`
+4:1 Identifier `foo`
+4:5 Identifier `Bar`
+4:9 Identifier `_x`
+4:12 Identifier `camelCase2`
+4:23 Identifier `بيان`
+4:28 Identifier `μετρητής`
+4:37 Identifier `x_1`
+4:41 Identifier `é`
+5:2 ErrorKeyword `error`
+5:8 SetKeyword `set`
+5:12 UnitKeyword `unit`
+5:17 DistinctKeyword `distinct`
+5:26 TypeKeyword `type`
+5:31 ImportKeyword `import`
+5:38 AsKeyword `as`
+5:41 PublicKeyword `public`
+5:48 PrivateKeyword `private`
+5:56 StaticKeyword `static`
+5:63 ReadonlyKeyword `readonly`
+5:72 RequiredKeyword `required`
+5:81 ConstKeyword `const`
+5:87 LetKeyword `let`
+5:91 VarKeyword `var`
+5:95 EmbedKeyword `embed`
+5:101 ExternKeyword `extern`
+5:108 UnsafeKeyword `unsafe`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:9 RawStringLiteral `"""never closed\r\nlet b = "bad \q escape"\r\n\r\n`
+10:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  1 │ �0_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4K
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �0_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4K
+    │   │ -
+
+error BYN0002: unexpected character `̈́`
+
+  6 │ ̈́
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  7 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

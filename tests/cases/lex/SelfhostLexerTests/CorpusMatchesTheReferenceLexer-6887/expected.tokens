@@ -1,0 +1,98 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 StringLiteral `$"{$"`
+1:55 OpenBrace `{`
+1:56 Identifier `x`
+1:57 CloseBrace `}`
+1:58 StringLiteral `"}"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 InterpolationEnd `}`
+1:88 InterpolatedStringEnd `"`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\u{B}`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                              ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���
+    │   ^

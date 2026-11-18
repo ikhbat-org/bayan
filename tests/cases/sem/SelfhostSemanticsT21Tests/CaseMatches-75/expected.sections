@@ -1,0 +1,4 @@
+== call.b17
+builtinCall|Plain|local:Map<string, Plain>=mplain|mapSlot|2264:20|errorExpr:?
+BYN2021 99:27 `slot` has no parameter `at` |||
+BYN2785 99:15 `slot` needs a default value, and `Plain` has none ||read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`|

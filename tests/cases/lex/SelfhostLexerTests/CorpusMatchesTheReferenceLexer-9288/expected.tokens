@@ -1,0 +1,17 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `stray } here`
+1:16 InterpolatedStringEnd `"`
+2:1 EndOfFile
+
+error BYN0002: unexpected character `\u{12}`
+
+  1 │ �$"stray } here"
+    │ ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ �$"stray } here"
+    │          ^
+    │
+    │ 1 │ �$"stray }} here"
+    │   │           +

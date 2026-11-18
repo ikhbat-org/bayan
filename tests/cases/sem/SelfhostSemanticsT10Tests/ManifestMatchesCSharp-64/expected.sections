@@ -1,0 +1,5 @@
+== case inline/other-root
+errors 1
+error BYN3100: `package.byn` is data only: expected `Package { … }`
+  1 │ Project { name: "local/a" }
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^

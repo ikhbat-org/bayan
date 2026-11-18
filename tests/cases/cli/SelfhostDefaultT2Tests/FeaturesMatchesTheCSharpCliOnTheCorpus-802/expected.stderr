@@ -1,0 +1,7 @@
+error BYN2612: allocation is not allowed in a panic handler
+  --> <repo>/tests/cases/diag/panic-handler-strbuf-over.byn:2:13
+
+  2 │     var s = StrBuf.over(stackalloc u8[2])
+    │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: remove it; panic handlers can't recover

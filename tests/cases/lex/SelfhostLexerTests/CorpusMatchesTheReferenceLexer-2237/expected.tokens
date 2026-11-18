@@ -1,0 +1,34 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 Identifier `atch`
+1:16 NeverKeyword `never`
+1:22 NoallocKeyword `noalloc`
+1:30 NosuspendKeyword `nosuspend`
+1:40 SuspendsKeyword `suspends`
+1:49 AsyncKeyword `async`
+1:55 AwaitKeyword `await`
+2:2 LetKeyword `let`
+2:6 Identifier `a`
+2:8 Equals `=`
+2:10 IntegerLiteral `1`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ // ok � in comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���
+    │   ^

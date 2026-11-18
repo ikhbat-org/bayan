@@ -1,0 +1,95 @@
+2:1 Identifier `e`
+2:3 Identifier `c`
+2:5 Equals `=`
+2:9 IntegerLiteral `3`
+3:5 Colon `:`
+3:7 Question `?`
+3:9 QuestionQuestion `??`
+3:12 QuestionQuestionEquals `??=`
+3:16 QuestionDot `?.`
+3:19 Equals `=`
+3:21 Arrow `->`
+3:24 At `@`
+3:26 Hash `#`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 Identifier `x`
+5:50 InterpolationEnd `}`
+5:51 InterpolatedStringEnd `"`
+5:52 InterpolationEnd `}`
+5:53 InterpolatedStringEnd `"`
+6:1 Identifier `a`
+6:3 Greater `>`
+6:4 Greater `>`
+6:6 Identifier `b`
+8:1 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ �
+    │ ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ e c = � 3
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │  ��� : ? ?? ??= ?. = -> @ #
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │  ��� : ? ?? ??= ?. = -> @ #
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ��� : ? ?? ??= ?. = -> @ #
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  4 │ +�- *
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string

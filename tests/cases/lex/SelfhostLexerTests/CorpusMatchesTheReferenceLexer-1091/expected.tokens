@@ -1,0 +1,35 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 Identifier `mport`
+1:36 AsKeyword `as`
+1:39 PublicKeyword `public`
+1:46 PrivateKeyword `private`
+1:54 StaticKeyword `static`
+1:61 ReadonlyKeyword `readonly`
+1:70 RequiredKeyword `required`
+1:79 ConstKeyword `const`
+1:85 LetKeyword `let`
+1:89 VarKeyword `var`
+1:93 EmbedKeyword `embed`
+1:99 ExternKeyword `extern`
+1:106 UnsafeKeyword `unsafe`
+3:1 Identifier `et`
+3:4 Identifier `a`
+3:5 Equals `=`
+3:7 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:7 Equals `=`
+4:9 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB7)
+
+  3 │ et a�= 1
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ let � = 
+    │     ^

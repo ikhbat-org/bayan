@@ -1,0 +1,20 @@
+1:1 IntegerLiteral `0xF__`
+2:2 StringLiteral `"text"`
+2:9 StringLiteral `"esc \"q\" \\ \n"`
+2:27 RawStringLiteral `"""\n 'ab'\ner closed\n// comment \u{202E} hidden\ntest assert property fuzz model foreach new goto\n\n+ - * / % + -% *% +| -| *| ++ --\n\n`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  2 │  "text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

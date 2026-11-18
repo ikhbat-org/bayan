@@ -1,0 +1,6 @@
+
+‏ /// Doc line one.
+ 0x
+macro select become
+
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""

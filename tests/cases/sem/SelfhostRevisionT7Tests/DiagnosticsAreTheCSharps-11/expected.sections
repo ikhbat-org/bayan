@@ -1,0 +1,10 @@
+== diags.number-agreement-forms
+BYN5104 14:17 `criteria` holds one `Rule`; name it with a singular noun
+  help rename it `criterion`
+  fix 14:17-14:25 criterion
+BYN5104 15:23 `criterion` holds a collection; name it with a plural, `criteria`
+  help rename it `criteria`
+  fix 15:23-15:32 criteria
+BYN5104 18:24 `stamp` holds a collection; name it with a plural, `stamps`
+  help rename it `stamps`
+  fix 18:24-18:29 stamps

@@ -1,0 +1,13 @@
+2:6 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏ /* $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │ ^
+
+error BYN0004: unterminated block comment
+
+  1 │ ‏ /* $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

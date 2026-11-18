@@ -1,0 +1,31 @@
+1:2 StringLiteral `"text"`
+1:9 StringLiteral `"esc \"q\" \\ \n"`
+1:27 RawStringLiteral `"""\n� 1__\n\nlet a = $ 1\n\nlet a = "�pen\n\n`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �"text" "esc \"q\" \\ \n" """
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �"text" "esc \"q\" \\ \n" """
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �"text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ � 1__
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  6 │ let a = "�pen
+    │          ^

@@ -1,0 +1,73 @@
+== tests/cases/diag/generic-instantiation-rules.byn
+22..86 blockStmt
+28..49 localDecl
+36..49 callExpr
+54..64 assignStmt assign target 54..60 value 63..64
+54..60 indexExpr
+54..55 nameExpr
+56..59 nameExpr
+63..64 literalExpr integer
+69..84 returnStmt value 76..84
+76..84 memberExpr
+76..77 nameExpr
+117..123 binaryExpr eq right 122..123
+117..123 binaryExpr eq right 122..123
+117..123 binaryExpr eq right 122..123
+117..118 nameExpr
+122..123 nameExpr
+147..153 interpolatedExpr
+147..153 interpolatedExpr
+147..153 interpolatedExpr
+150..151 nameExpr
+201..225 globalStatement
+201..225 exprStmt
+201..225 callExpr
+207..224 interpolatedExpr
+210..222 callExpr
+218..221 literalExpr floatKeyword
+201..225 callExpr
+226..253 exprStmt
+226..253 callExpr
+232..252 interpolatedExpr
+235..250 callExpr
+243..249 literalExpr string
+226..253 callExpr
+254..274 localDecl
+263..274 callExpr
+275..303 exprStmt
+275..303 callExpr
+281..302 interpolatedExpr
+284..300 callExpr
+289..291 nameExpr
+297..299 nameExpr
+275..303 callExpr
+304..324 exprStmt
+304..324 callExpr
+310..323 callExpr
+315..322 callExpr
+304..324 callExpr
+325..344 localDecl
+22..86 blockStmt
+28..49 localDecl
+36..49 callExpr
+54..64 assignStmt assign target 54..60 value 63..64
+69..84 returnStmt value 76..84
+76..84 memberExpr
+22..86 blockStmt
+28..49 localDecl
+36..49 callExpr
+54..64 assignStmt assign target 54..60 value 63..64
+54..60 indexExpr
+54..55 nameExpr
+56..59 nameExpr
+63..64 literalExpr integer
+69..84 returnStmt value 76..84
+76..84 memberExpr
+76..77 nameExpr
+117..123 binaryExpr eq right 122..123
+117..123 binaryExpr eq right 122..123
+117..123 binaryExpr eq right 122..123
+147..153 interpolatedExpr
+147..153 interpolatedExpr
+147..153 interpolatedExpr
+150..151 nameExpr

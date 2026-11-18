@@ -1,0 +1,23 @@
+import shapes
+
+struct Box<T> { T[] items; List<i32>[] more; ReadOnlySpan<i32> view; (i32) -> void uses io, fs run; (i32, string) -> i32 fails A, B twice; dyn ref readonly Shape shape }
+
+void apply((i32) -> void uses io, fs cb) {
+    let g: (i32) -> void uses io, fs = cb
+}
+
+void main(Box<i32> xs) {
+    for i in 0..3 {
+        let a = f(i) ?? break outer
+        let b = f(i) ?? continue outer
+        let c = f(i) ?? break
+        let d = f(i) ?? continue
+        let e = f(i) ?? return
+        let g = f(i) ?? return 1
+        let h = f(i) ?? fail Boom
+        let m = xs.map<i32>(f)
+        let r = (..5, 2.., ..=3)
+        let s = move xs
+        print($"{m:5} {r:hex} {s, as: .hex}")
+    }
+}

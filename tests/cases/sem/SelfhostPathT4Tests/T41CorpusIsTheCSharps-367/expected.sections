@@ -1,0 +1,4 @@
+== diags.diag/union-case-casing
+BYN2009 2:5 `Circle` must be camelCase
+  help rename it `circle`; only types are PascalCase
+  fix 2:5-2:11 circle

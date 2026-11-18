@@ -1,0 +1,18 @@
+1:1 Identifier `U`
+1:2 CharLiteral `'\q'`
+2:1 CharLiteral `''`
+3:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ U'\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0007: empty char literal
+
+  2 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

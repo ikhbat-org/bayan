@@ -1,0 +1,9 @@
+== diags.diag/unless-negated
+BYN1007 2:5 `unless` with a negated condition is a double negative
+  label `unless` already negates
+  help use `if` with the condition as written
+  fix 2:5-2:15 if ok
+BYN1007 3:12 `unless` with a negated condition is a double negative
+  label `unless` already negates
+  help use `if` with the condition as written
+  fix 3:12-3:22 if ok

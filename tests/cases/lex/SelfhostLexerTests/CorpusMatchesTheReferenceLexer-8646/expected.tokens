@@ -1,0 +1,87 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+4:3 InterpolatedStringStart `$"`
+4:5 InterpolationStart `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolationStart `{`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolationStart `{`
+4:12 InterpolatedStringStart `$"`
+4:14 InterpolationStart `{`
+4:15 InterpolatedStringStart `$"`
+4:17 InterpolationStart `{`
+4:18 InterpolatedStringStart `$"`
+4:20 InterpolationStart `{`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolationStart `{`
+4:24 InterpolatedStringStart `$"`
+4:26 InterpolatedStringText `�`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 StringLiteral `$"$"`
+4:56 OpenBrace `{`
+4:57 StringLiteral `$"{x}"`
+4:63 CloseBrace `}`
+4:64 StringLiteral `"}"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:69 Percent `%`
+4:70 StringLiteral `"}"`
+4:73 InterpolationEnd `}`
+4:74 InterpolatedStringEnd `"`
+4:75 InterpolationEnd `}`
+4:76 InterpolatedStringEnd `"`
+4:77 InterpolationEnd `}`
+4:78 InterpolatedStringEnd `"`
+4:79 InterpolationEnd `}`
+4:80 InterpolatedStringEnd `"`
+4:81 InterpolationEnd `}`
+4:82 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  // comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  // comment � hidden
+    │   │             -
+
+error BYN0002: unexpected character `̈́`
+
+  4 │ ̈́ $"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{x}"}"}"}"%"}"}"}"}"}"}"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  4 │ ̈́ $"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{x}"}"}"}"%"}"}"}"}"}"}"
+    │                          ^
+
+error BYN0003: unterminated string literal
+
+  4 │ ̈́ $"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{x}"}"}"}"%"}"}"}"}"}"}"
+    │                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ ̈́ $"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{x}"}"}"}"%"}"}"}"}"}"}"
+    │                                                    ^^

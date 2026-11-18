@@ -1,0 +1,38 @@
+4:44 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����/*+ block
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����/*+ block
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����/*+ block
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����/*+ block
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����/*+ block
+    │     ^
+
+error BYN0004: unterminated block comment
+
+  1 │ �����/*+ block
+    │      ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  struct unique union enum flag� open extensible interface delegate extnsion derivation attribute
+    │                               ^

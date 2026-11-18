@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/state-literal-needs-state.byn
+--package
+<repo>/tests/cases/diag

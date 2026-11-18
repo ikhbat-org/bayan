@@ -1,0 +1,30 @@
+== tests/cases/diag/validation-error-clash.byn
+174..242 structDecl
+174..242 structDecl
+174..242 structDecl
+174..242 structDecl
+174..242 structDecl
+214..240 requiresRule
+214..240 requiresRule
+223..240 binaryExpr ge right 239..240
+223..235 memberExpr
+223..225 nameExpr
+223..225 nameExpr
+239..240 literalExpr integer
+214..240 requiresRule
+214..240 requiresRule
+214..240 requiresRule
+214..240 requiresRule
+214..240 requiresRule
+214..240 requiresRule
+214..240 requiresRule
+214..240 requiresRule
+214..240 requiresRule
+214..240 requiresRule
+174..242 structDecl
+174..242 structDecl
+174..242 structDecl
+174..242 structDecl
+174..242 structDecl
+174..242 structDecl
+174..242 structDecl

@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"EndOfFile","start":25,"end":25,"text":"","doc":null}],"diagnostics":[{"code":"BYN0015","severity":"error","start":15,"end":16,"message":"source is not valid UTF-8 (byte 0xC2)","label":null,"help":null,"fixes":[]}]}

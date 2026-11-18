@@ -1,0 +1,4 @@
+== target.probes.-.t13
+errorExpr|?|-|-|-|-|-|3805:6|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2003 183:23 `clear` is not a member of `Point` |||

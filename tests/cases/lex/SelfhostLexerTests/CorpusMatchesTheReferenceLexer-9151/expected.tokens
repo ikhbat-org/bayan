@@ -1,0 +1,109 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 Identifier `distinc1`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 Identifier `aspublic`
+1:46 PrivateKeyword `private`
+1:54 StaticKeyword `static`
+1:61 ReadonlyKeyword `readonly`
+1:70 RequiredKeyword `required`
+1:79 ConstKeyword `const`
+1:85 LetKeyword `let`
+1:89 VarKeyword `var`
+1:93 EmbedKeyword `embed`
+1:99 ExternKeyword `extern`
+1:106 UnsafeKeyword `unsafe`
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 MinusPercent `-%`
+3:17 StarPercent `*%`
+3:20 PlusBar `+|`
+3:23 MinusBar `-|`
+3:26 StarBar `*|`
+3:29 PlusPlus `++`
+3:32 MinusMinus `--`
+4:2 LetKeyword `let`
+4:6 Identifier `café`
+4:11 Equals `=`
+4:13 IntegerLiteral `2`
+6:1 VarKeyword `var`
+6:5 Identifier `xs`
+6:7 Colon `:`
+6:9 Identifier `List`
+6:13 Less `<`
+6:14 Identifier `List`
+6:18 Less `<`
+6:19 Identifier `i64`
+6:22 Greater `>`
+6:23 Greater `>`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:9 InterpolatedStringStart `$"`
+7:11 InterpolationStart `{`
+7:12 InterpolatedStringStart `$"`
+7:14 InterpolationStart `{`
+7:15 InterpolatedStringStart `$"`
+7:17 InterpolationStart `{`
+7:18 InterpolatedStringStart `$"`
+7:20 InterpolationStart `{`
+7:21 InterpolatedStringStart `$"`
+7:23 InterpolationStart `{`
+7:24 InterpolatedStringStart `$"`
+7:26 InterpolationStart `{`
+7:27 InterpolatedStringStart `$"`
+7:29 InterpolationStart `{`
+7:30 InterpolatedStringStart `$"`
+7:32 InterpolationStart `{`
+7:33 InterpolatedStringStart `$"`
+7:35 InterpolationStart `{`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolationStart `{`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolationStart `{`
+7:42 InterpolatedStringStart `$"`
+7:44 InterpolationStart `{`
+7:45 InterpolatedStringStart `$"`
+7:47 InterpolationStart `{`
+7:48 InterpolatedStringStart `$"`
+7:50 InterpolationStart `{`
+7:51 StringLiteral `$"{$"`
+7:56 OpenBrace `{`
+7:57 Identifier `x`
+7:58 CloseBrace `}`
+7:59 StringLiteral `"}"`
+7:62 InterpolationEnd `}`
+7:63 InterpolatedStringEnd `"`
+7:64 InterpolationEnd `}`
+7:65 InterpolatedStringEnd `"`
+7:66 InterpolationEnd `}`
+7:67 InterpolatedStringEnd `"`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringEnd `"`
+7:70 InterpolationEnd `}`
+7:71 InterpolatedStringEnd `"`
+7:73 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  7 │  $"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 
+    │                                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │  $"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 
+    │                                                   ^^

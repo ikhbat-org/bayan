@@ -1,0 +1,16 @@
+1:1 Identifier `le2t`
+1:6 Identifier `a`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 Identifier `a`
+2:7 Identifier `b`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{a b
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

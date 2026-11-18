@@ -1,0 +1,116 @@
+== tests/cases/run/var-literal-inference.byn
+23..27 moveExpr
+23..27 moveExpr
+23..27 moveExpr
+28..29 nameExpr
+79..102 conditionalExpr
+79..102 conditionalExpr
+79..102 conditionalExpr
+79..84 nameExpr
+87..91 moveExpr
+92..93 nameExpr
+96..100 moveExpr
+101..102 nameExpr
+134..265 blockStmt
+140..153 localDecl
+152..153 literalExpr integer
+158..167 localDecl
+166..167 literalExpr integer
+172..240 whileStmt
+178..191 binaryExpr lt right 182..191
+178..179 nameExpr
+182..191 memberExpr
+182..184 nameExpr
+192..240 blockStmt
+202..216 assignStmt add target 202..207 value 211..216
+202..207 nameExpr
+211..216 indexExpr
+211..213 nameExpr
+214..215 nameExpr
+225..234 assignStmt assign target 225..226 value 229..234
+225..226 nameExpr
+229..234 binaryExpr add right 233..234
+229..230 nameExpr
+233..234 literalExpr integer
+245..263 returnStmt value 252..263
+252..263 callExpr
+257..262 nameExpr
+283..284 nameExpr
+283..284 nameExpr
+283..284 nameExpr
+286..306 globalStatement
+286..306 localDecl
+295..306 callExpr
+307..328 exprStmt
+307..328 callExpr
+307..309 nameExpr
+317..327 literalExpr integer
+329..350 exprStmt
+329..350 callExpr
+329..331 nameExpr
+339..349 literalExpr integer
+351..370 exprStmt
+351..370 callExpr
+357..369 interpolatedExpr
+360..367 callExpr
+364..366 nameExpr
+364..366 nameExpr
+351..370 callExpr
+372..385 localDecl
+384..385 literalExpr integer
+386..396 assignStmt add target 386..391 value 395..396
+386..391 nameExpr
+395..396 literalExpr integer
+397..419 exprStmt
+397..419 callExpr
+403..418 interpolatedExpr
+406..416 callExpr
+410..415 nameExpr
+397..419 callExpr
+421..435 localDecl
+434..435 literalExpr integer
+436..460 exprStmt
+436..460 callExpr
+442..459 interpolatedExpr
+445..457 callExpr
+450..456 nameExpr
+436..460 callExpr
+461..480 assignStmt assign target 461..467 value 470..480
+461..467 nameExpr
+470..480 binaryExpr mul right 479..480
+470..476 nameExpr
+479..480 literalExpr integer
+481..543 exprStmt
+481..543 callExpr
+487..542 interpolatedExpr
+490..540 binaryExpr add right 530..540
+490..527 callExpr
+500..506 nameExpr
+512..513 literalExpr integer
+522..526 literalExpr trueKeyword
+530..540 literalExpr integer
+481..543 callExpr
+545..563 localDecl
+553..563 literalExpr integer
+564..574 assignStmt assign target 564..565 value 568..574
+564..565 nameExpr
+568..574 binaryExpr addWrap right 573..574
+568..569 nameExpr
+573..574 literalExpr integer
+575..588 exprStmt
+575..588 callExpr
+581..587 interpolatedExpr
+584..585 nameExpr
+575..588 callExpr
+23..27 moveExpr
+23..27 moveExpr
+23..27 moveExpr
+28..29 nameExpr
+79..102 conditionalExpr
+79..102 conditionalExpr
+79..102 conditionalExpr
+79..84 nameExpr
+87..91 moveExpr
+92..93 nameExpr
+96..100 moveExpr
+101..102 nameExpr

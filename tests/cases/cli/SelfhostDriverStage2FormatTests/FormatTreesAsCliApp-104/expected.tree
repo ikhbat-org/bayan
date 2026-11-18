@@ -1,0 +1,5 @@
+== src/bin/x.byn OtherRead, GroupRead, UserWrite, UserRead
+unsafe void poke() {
+}
+let a = true
+unless !a { print("y") }

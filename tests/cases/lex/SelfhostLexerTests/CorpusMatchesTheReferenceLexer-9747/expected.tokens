@@ -1,0 +1,17 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+3:2 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ /*  raw "quoted"
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

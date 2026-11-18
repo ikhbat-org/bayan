@@ -1,0 +1,63 @@
+== tests/cases/diag/dyn-ref-this-list-field-modified.byn
+548..629 blockStmt
+554..584 localDecl
+562..584 structLiteralExpr
+573..582 callExpr
+589..615 exprStmt
+589..615 callExpr
+589..596 memberExpr
+589..590 nameExpr
+604..614 structLiteralExpr
+611..612 literalExpr integer
+620..627 exprStmt
+620..627 callExpr
+620..621 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+257..532 blockStmt
+267..299 localDecl
+291..299 indexExpr
+291..299 indexExpr
+291..296 nameExpr
+291..296 nameExpr
+297..298 literalExpr integer
+308..372 forStmt
+317..323 rangeExpr
+317..318 literalExpr integer
+320..323 literalExpr integer
+324..372 blockStmt
+338..362 exprStmt
+338..362 callExpr
+338..343 nameExpr
+338..343 nameExpr
+351..361 structLiteralExpr
+358..359 nameExpr
+358..359 nameExpr
+381..400 exprStmt
+381..400 callExpr
+387..399 interpolatedExpr
+390..397 callExpr
+390..391 nameExpr
+381..400 callExpr
+409..441 localDecl
+433..441 indexExpr
+433..441 indexExpr
+433..438 nameExpr
+433..438 nameExpr
+439..440 literalExpr integer
+450..476 localDecl
+458..476 callExpr
+458..463 nameExpr
+458..463 nameExpr
+485..498 exprStmt
+485..498 callExpr
+485..490 nameExpr
+485..490 nameExpr
+507..526 exprStmt
+507..526 callExpr
+513..525 interpolatedExpr
+516..523 callExpr
+516..517 nameExpr
+507..526 callExpr

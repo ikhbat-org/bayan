@@ -1,0 +1,37 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+3:1 Identifier `le`
+3:3 Bar `|`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+4:1 CloseBrace `}`
+4:2 CharLiteral `'`
+5:1 CharLiteral `'x`
+6:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character ```
+
+  3 │ le| b = ` 2
+    │         ^
+
+error BYN0008: unterminated char literal
+
+  4 │ }'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

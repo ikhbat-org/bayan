@@ -1,0 +1,1 @@
+{"code":"BYN1014","severity":"error","file":"input.byn","span":{"start":58,"end":62,"line":4,"column":9,"endLine":4,"endColumn":13},"message":"stacked `case` labels","label":"a second label for the same statements","help":"combine the patterns into one label, e.g. `case .sat or .sun:`","fixes":[]}

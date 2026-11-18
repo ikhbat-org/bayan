@@ -1,0 +1,7 @@
+pen
+let b = "bad \q escape"
+let c = """never-closed
+
+ğŸ˜
+'\u{110000}'
+

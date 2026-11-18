@@ -1,0 +1,3 @@
+build
+--emit-c
+print-stderr.byn

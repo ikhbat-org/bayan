@@ -1,0 +1,44 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+3:1 Identifier `s`
+3:2 Colon `:`
+3:4 Identifier `List`
+3:8 Less `<`
+3:9 Identifier `List`
+3:13 Less `<`
+3:14 Identifier `i64`
+3:17 Greater `>`
+3:18 Greater `>`
+4:1 Identifier `a`
+4:3 Greater `>`
+4:4 Greater `>`
+4:6 Identifier `b`
+5:1 Identifier `c`
+5:3 Greater `>`
+5:4 GreaterEquals `>=`
+5:7 IntegerLiteral `1`
+6:1 Identifier `macro`
+6:7 Identifier `select`
+6:14 BecomeKeyword `become`
+7:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  6 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  6 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

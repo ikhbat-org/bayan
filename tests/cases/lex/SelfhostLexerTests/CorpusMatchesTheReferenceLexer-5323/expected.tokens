@@ -1,0 +1,10 @@
+1:1 Identifier `c`
+1:3 RawStringLiteral `"""never closed\n\n}\n`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ c """never closed
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

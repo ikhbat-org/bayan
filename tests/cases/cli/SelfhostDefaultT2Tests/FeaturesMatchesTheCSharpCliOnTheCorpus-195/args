@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/memory-arena-repeated-too-large.byn
+--package
+<repo>/tests/cases/run

@@ -1,0 +1,26 @@
+== tests/cases/diag/for-this-list-field-modified.byn
+259..340 blockStmt
+265..295 localDecl
+273..295 structLiteralExpr
+284..293 callExpr
+300..326 exprStmt
+300..326 callExpr
+300..307 memberExpr
+300..301 nameExpr
+315..325 structLiteralExpr
+322..323 literalExpr integer
+331..338 exprStmt
+331..338 callExpr
+331..332 nameExpr
+162..243 blockStmt
+172..237 forStmt
+181..186 nameExpr
+181..186 nameExpr
+187..237 blockStmt
+201..227 exprStmt
+201..227 callExpr
+201..206 nameExpr
+201..206 nameExpr
+214..226 structLiteralExpr
+221..224 memberExpr
+221..222 nameExpr

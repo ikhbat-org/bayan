@@ -1,0 +1,49 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 Semicolon `;`
+3:1 VarKeyword `var`
+3:5 Identifier `xs`
+3:7 Colon `:`
+3:9 Identifier `List`
+3:13 Less `<`
+3:14 Identifier `List`
+3:18 Less `<`
+3:19 Identifier `i64`
+3:22 Greater `>`
+3:23 Greater `>`
+4:2 IntegerLiteral `0x`
+5:2 PlusEquals `+=`
+5:5 MinusEquals `-=`
+5:8 StarEquals `*=`
+5:11 SlashEquals `/=`
+5:13 Hash `#`
+5:15 PercentEquals `%=`
+5:18 AmpEquals `&=`
+5:21 BarEquals `|=`
+5:24 CaretEquals `^=`
+5:27 LessLessEquals `<<=`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  1 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x;
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │  0x
+    │  ^^

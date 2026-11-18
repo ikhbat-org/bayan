@@ -1,0 +1,48 @@
+1:1 IntegerLiteral `0x_`
+2:1 OpenParen `(`
+2:3 CloseParen `)`
+2:5 OpenBracket `[`
+2:7 CloseBracket `]`
+2:9 OpenBrace `{`
+2:11 CloseBrace `}`
+4:2 Identifier `u`
+4:3 OpenBrace `{`
+4:4 Identifier `D800`
+4:8 CloseBrace `}`
+4:9 CharLiteral `'\r`
+6:3 Comma `,`
+6:5 Dot `.`
+6:7 DotDot `..`
+6:10 DotDotEquals `..=`
+6:14 Colon `:`
+6:16 Question `?`
+6:18 QuestionQuestion `??`
+6:21 QuestionQuestionEquals `??=`
+6:25 QuestionDot `?.`
+6:28 FatArrow `=>`
+6:31 Minus `-`
+6:33 At `@`
+6:35 Hash `#`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0002: unexpected character `\`
+
+  4 │ \u{D800}'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  4 │ \u{D800}'
+    │         ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  6 │ � , . .. ..= : ? ?? ??= ?. => - @ #
+    │ ^

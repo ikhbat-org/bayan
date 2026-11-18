@@ -1,0 +1,46 @@
+1:1 Identifier `ạ̇`
+1:4 Star `*`
+1:5 Slash `/`
+1:7 LetKeyword `let`
+1:11 Identifier `actor`
+1:17 Equals `=`
+1:19 IntegerLiteral `1`
+2:1 Identifier `b`
+4:1 IntegerLiteral `0xF__`
+5:1 Identifier `_`
+5:3 IntegerLiteral `0b102`
+6:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇*/ let actor = 1
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇*/ let actor = 1
+    │   │ +
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ ạ̇*/ let actor = 1
+    │           ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0xF__
+    │    ^^
+    │
+    │ 4 │ 0xF__
+    │   │    --
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │ _ 0b102�
+    │       ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ _ 0b102�
+    │        ^

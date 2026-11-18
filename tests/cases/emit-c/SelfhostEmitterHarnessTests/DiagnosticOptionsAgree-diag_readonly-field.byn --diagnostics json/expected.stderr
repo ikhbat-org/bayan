@@ -1,0 +1,1 @@
+{"code":"BYN2105","severity":"error","file":"input.byn","span":{"start":63,"end":71,"line":6,"column":1,"endLine":6,"endColumn":9},"message":"field `value` is readonly","label":null,"help":"set `readonly` fields only in a constructor or a struct literal","fixes":[]}

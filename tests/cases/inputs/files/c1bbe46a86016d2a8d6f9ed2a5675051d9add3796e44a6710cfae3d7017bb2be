@@ -1,0 +1,4 @@
+void f(bool c) {
+    if c { return }
+    let x = (1 +
+}

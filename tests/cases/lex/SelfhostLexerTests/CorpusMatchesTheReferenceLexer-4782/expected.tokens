@@ -1,0 +1,42 @@
+1:1 Plus `+`
+1:2 Minus `-`
+1:4 Star `*`
+1:6 Slash `/`
+1:8 Percent `%`
+1:10 PlusPercent `+%`
+1:13 MinusPercent `-%`
+1:16 StarPercent `*%`
+1:19 PlusBar `+|`
+1:22 MinusBar `-|`
+1:25 StarBar `*|`
+1:28 PlusPlus `++`
+1:31 MinusMinus `--`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 Identifier `ạ`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolationEnd `}`
+3:9 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0005: identifier `ạ` is not in Unicode normalization form C
+
+  3 │ ạ� $"{}"�
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ� $"{}"�
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  3 │ ạ� $"{}"�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ạ� $"{}"�
+    │          ^

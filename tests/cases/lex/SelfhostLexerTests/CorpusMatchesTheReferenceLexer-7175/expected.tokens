@@ -1,0 +1,61 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 Identifier `com`
+1:57 Identifier `time`
+1:62 CheckedKeyword `checked`
+2:1 IntegerLiteral `0xF__`
+3:2 Identifier `Å`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+5:1 Identifier `i`
+6:1 IntegerLiteral `1`
+6:2 Dot `.`
+6:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAF)
+
+  1 │ is and or not with move ref out this null true false com�time checked
+    │                                                         ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │  Å
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  Å
+    │   │  +
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  4 │ let café = 1�
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ let café = 1�
+    │   │        +
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  4 │ let café = 1�
+    │              ^

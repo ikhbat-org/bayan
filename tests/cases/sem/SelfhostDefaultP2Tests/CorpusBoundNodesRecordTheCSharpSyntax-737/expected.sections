@@ -1,0 +1,35 @@
+== tests/cases/diag/particle-as-member-name.byn
+404..415 globalStatement
+404..415 exprStmt
+404..415 callExpr
+410..414 literalExpr string
+404..415 callExpr
+55..68 binaryExpr add right 63..68
+55..68 binaryExpr add right 63..68
+55..68 binaryExpr add right 63..68
+55..60 nameExpr
+55..60 nameExpr
+63..68 nameExpr
+89..94 nameExpr
+89..94 nameExpr
+89..94 nameExpr
+89..94 nameExpr
+115..120 nameExpr
+115..120 nameExpr
+115..120 nameExpr
+115..120 nameExpr
+147..149 literalExpr string
+147..149 literalExpr string
+147..149 literalExpr string
+289..311 structLiteralExpr
+289..311 structLiteralExpr
+289..311 structLiteralExpr
+304..309 nameExpr
+352..374 structLiteralExpr
+352..374 structLiteralExpr
+352..374 structLiteralExpr
+367..372 nameExpr
+395..400 nameExpr
+395..400 nameExpr
+395..400 nameExpr
+395..400 nameExpr

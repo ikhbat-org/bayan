@@ -1,0 +1,10 @@
+error BYN2782: cannot move out of this expression
+  --> tmp/t26-tests/cli/diag_move-with-parenthesized.byn/move-with-parenthesized.byn:9:22
+
+  9 │     let copy = move (tx with { label: "copy" })
+    │                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: move a local variable or a `move` parameter instead
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2782

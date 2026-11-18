@@ -1,0 +1,2 @@
+== analyzeOwnership.readsMoved
+BYN2615 129:10 a panic handler reads `ys`, which is moved after the handler is registered |the `defer panicking` on line 128 reads it after a later panic|move `ys` before the `defer panicking`, or read a `let` copied from it there|

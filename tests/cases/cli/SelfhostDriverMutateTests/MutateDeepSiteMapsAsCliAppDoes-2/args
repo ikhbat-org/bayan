@@ -1,0 +1,7 @@
+mutate
+--binary
+<repo>/tmp/t13-mutate/deep-65/prog
+--sites
+<repo>/tmp/t13-mutate/deep-65/prog.sites.json
+--
+true

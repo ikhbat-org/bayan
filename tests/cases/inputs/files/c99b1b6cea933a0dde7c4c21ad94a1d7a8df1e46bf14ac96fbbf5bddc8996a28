@@ -1,0 +1,12 @@
+�
+1_
+ let b = "bad \q escape"
+''
+
+é = 1
+let café = 2
+
+* block
+   comment */ a
+/// Doc line one.
+/// Doc li "text" "esc \"q\" \\ \n" """

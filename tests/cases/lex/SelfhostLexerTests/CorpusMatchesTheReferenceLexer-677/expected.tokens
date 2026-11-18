@@ -1,0 +1,43 @@
+1:1 Identifier `d`
+1:3 Identifier `jconst`
+1:10 LetKeyword `let`
+1:14 VarKeyword `var`
+1:18 EmbedKeyword `embed`
+1:24 ExternKeyword `extern`
+1:31 UnsafeKeyword `unsafe`
+2:1 IfKeyword `if`
+2:4 ElseKeyword `else`
+2:9 Identifier `unle`
+2:14 IsKeyword `is`
+2:17 AndKeyword `and`
+2:21 OrKeyword `or`
+2:24 NotKeyword `not`
+2:28 WithKeyword `with`
+2:33 MoveKeyword `move`
+2:38 RefKeyword `ref`
+2:42 OutKeyword `out`
+2:46 ThisKeyword `this`
+2:51 NullKeyword `null`
+2:56 TrueKeyword `true`
+2:61 FalseKeyword `false`
+2:67 ComptimeKeyword `comptime`
+2:76 CheckedKeyword `checked`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │  �
+    │   ^

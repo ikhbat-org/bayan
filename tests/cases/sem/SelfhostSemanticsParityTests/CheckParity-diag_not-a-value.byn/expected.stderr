@@ -1,0 +1,8 @@
+error BYN2019: `Money` is a type, not a value
+  --> tmp/t26-tests/cli/diag_not-a-value.byn/not-a-value.byn:5:9
+
+  5 │ let m = Money
+    │         ^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2019

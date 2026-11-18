@@ -1,0 +1,12 @@
+error BYN1043: `for i32 x` is an input form; write `for x: i32`
+  --> <repo>/tmp/t2/diag/for-type-first/for-type-first.byn:2:9
+
+  2 │     for i32 x in xs {
+    │         ^^^^^ type before name
+    │
+  help: write `for x: i32`; loop variables put the name first
+    │ 2 │     for x: i32 in xs {
+    │   │         ++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1043

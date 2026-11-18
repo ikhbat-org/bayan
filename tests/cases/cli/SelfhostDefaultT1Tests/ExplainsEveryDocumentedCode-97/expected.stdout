@@ -1,0 +1,12 @@
+# BYN2012: circular constant
+
+**Why.** Constants are evaluated at compile time; a cycle has no value.
+
+**Example.**
+
+```
+const a: i64 = b + 1
+const b: i64 = a
+```
+
+**Fix.** Break the cycle by giving one constant a literal value.

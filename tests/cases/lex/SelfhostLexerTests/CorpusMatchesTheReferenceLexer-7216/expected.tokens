@@ -1,0 +1,30 @@
+1:1 CharLiteral `'\u{110000}'`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never closed\nạ̇\n$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"`}"}"}"}"}"}"}"}"�\n`
+5:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF3)
+
+  4 │ $"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"`}"}"}"}"}"}"}"}"�
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ $"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"`}"}"}"}"}"}"}"}"�
+    │                                                                                     ^

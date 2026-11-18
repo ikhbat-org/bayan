@@ -1,0 +1,10 @@
+1:2 Identifier `μετρητής`
+1:11 Identifier `x_1`
+1:15 Identifier `é`
+2:1 OpenBrace `{`
+2:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  1 │ � μετρητής x_1 é
+    │ ^

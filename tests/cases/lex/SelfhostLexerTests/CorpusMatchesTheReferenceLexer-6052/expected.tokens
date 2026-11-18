@@ -1,0 +1,69 @@
+1:1 OpenKeyword `open`
+1:6 OpenBrace `{`
+1:7 Identifier `x`
+1:8 StringLiteral `";`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolationStart `{`
+2:6 Identifier `a`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolatedStringText `total `
+2:16 InterpolationStart `{`
+2:17 Identifier `x`
+2:18 InterpolationEnd `}`
+2:19 InterpolatedStringEnd `"`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolatedStringText `a `
+2:25 InterpolationStart `{`
+2:26 Identifier `f`
+2:27 OpenParen `(`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolatedStringText `b `
+2:32 InterpolationStart `{`
+2:33 Identifier `c`
+2:34 InterpolationEnd `}`
+2:35 InterpolatedStringEnd `"`
+2:36 CloseParen `)`
+2:37 InterpolationEnd `}`
+2:38 InterpolatedStringText ` d`
+2:40 InterpolatedStringEnd `"`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolatedStringText `{{literal}}`
+2:55 InterpolatedStringEnd `"`
+2:57 InterpolatedStringStart `$"`
+2:59 InterpolationStart `{`
+2:60 Identifier `Point`
+2:66 OpenBrace `{`
+2:68 Identifier `x`
+2:70 Equals `=`
+2:72 IntegerLiteral `1`
+2:74 CloseBrace `}`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringText `!`
+2:77 InterpolatedStringEnd `"`
+2:79 InterpolatedStringStart `$"`
+2:81 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ open {x";
+    │        ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │  �$"{a $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │  �$"{a $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │  �$"{a $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string

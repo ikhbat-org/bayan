@@ -1,0 +1,13 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+void main() {
+    let y = 1
+    let a = int.tryFrom(y)
+    let b = long.max
+    let c = sbyte(y)
+}
+== package.byn OtherRead, GroupRead, UserWrite, UserRead
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { primitives: .csharp },
+}

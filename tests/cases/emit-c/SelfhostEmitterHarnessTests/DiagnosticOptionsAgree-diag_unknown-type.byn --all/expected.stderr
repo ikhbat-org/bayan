@@ -1,0 +1,8 @@
+error BYN2002: unknown type `Mony`
+  --> input.byn:1:12
+
+  1 │ var price: Mony
+    │            ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2002

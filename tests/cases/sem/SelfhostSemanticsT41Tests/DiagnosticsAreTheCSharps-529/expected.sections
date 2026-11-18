@@ -1,0 +1,2 @@
+== diags.diag/wrong-type-argument-count
+BYN2023 1:9 `List` takes 1 type argument(s), not 2

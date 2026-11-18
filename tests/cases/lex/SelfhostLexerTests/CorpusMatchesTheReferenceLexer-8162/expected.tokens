@@ -1,0 +1,19 @@
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:2 Comma `,`
+4:4 Dot `.`
+4:6 DotDot `..`
+4:9 DotDotEquals `..=`
+4:13 Colon `:`
+4:15 Question `?`
+4:17 QuestionQuestion `??`
+4:20 QuestionQuestionEquals `??=`
+4:24 QuestionDot `?.`
+4:27 FatArrow `=>`
+4:30 Arrow `->`
+4:33 At `@`
+4:35 Hash `#`
+5:2 StringLiteral `"a\u{2067}b"`
+5:8 EndOfFile

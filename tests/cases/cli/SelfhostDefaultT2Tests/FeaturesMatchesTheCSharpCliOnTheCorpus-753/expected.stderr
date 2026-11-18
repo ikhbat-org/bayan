@@ -1,0 +1,7 @@
+error BYN2410: `switch` does not handle every `ParseError`
+  --> <repo>/tests/cases/diag/non-exhaustive-catch.byn:13:26
+
+  13 │ let n = parse("x") catch switch {
+     │                          ^^^^^^ not covered: .notDigit
+     │
+  help: add the missing arms, or `_ => …` for the rest

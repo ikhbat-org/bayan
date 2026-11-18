@@ -1,0 +1,2 @@
+== expr
+a: exprStmt(call panic:never(literal "x":string="x")) => neverValue:R locals=0

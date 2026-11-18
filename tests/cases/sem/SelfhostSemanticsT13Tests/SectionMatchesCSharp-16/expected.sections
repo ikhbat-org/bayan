@@ -1,0 +1,7 @@
+== noMain
+app
+BYN2014 1:1 the program has no entry point |  | 
+library
+tests
+errors
+BYN2006 5:8 `P` is declared twice | already declared on line 1 | 

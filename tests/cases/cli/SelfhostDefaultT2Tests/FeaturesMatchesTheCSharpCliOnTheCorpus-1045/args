@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/wrong-state-member-test.byn
+--package
+<repo>/tests/cases/diag

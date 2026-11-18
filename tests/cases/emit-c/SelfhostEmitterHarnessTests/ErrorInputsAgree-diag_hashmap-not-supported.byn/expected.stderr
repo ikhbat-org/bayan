@@ -1,0 +1,42 @@
+error BYN2830: `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
+  --> input.byn:3:5
+
+  3 │     HashMap<string, i32> counts
+    │     ^^^^^^^
+    │
+  help: write `Map<string, i32>`
+    │ 3 │     HashMap<string, i32> counts
+    │   │     ----
+
+error BYN2830: `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
+  --> input.byn:6:11
+
+  6 │ i64 total(HashMap<string, i32> counts) => counts.length
+    │           ^^^^^^^
+    │
+  help: write `Map<string, i32>`
+    │ 6 │ i64 total(HashMap<string, i32> counts) => counts.length
+    │   │           ----
+
+error BYN2830: `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
+  --> input.byn:9:16
+
+  9 │     var local: HashMap<string, i32> = []
+    │                ^^^^^^^
+    │
+  help: write `Map<string, i32>`
+    │ 9 │     var local: HashMap<string, i32> = []
+    │   │                ----
+
+error BYN2830: `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
+  --> input.byn:11:22
+
+  11 │     let nested: List<HashMap<string, i32>> = []
+     │                      ^^^^^^^
+     │
+  help: write `Map<string, i32>`
+     │ 11 │     let nested: List<HashMap<string, i32>> = []
+     │    │                      ----
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2830

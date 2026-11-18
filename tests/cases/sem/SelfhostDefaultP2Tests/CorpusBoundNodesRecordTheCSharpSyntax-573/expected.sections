@@ -1,0 +1,4 @@
+== tests/cases/diag/instance-member-without-this.byn
+58..67 binaryExpr mul right 66..67
+58..67 binaryExpr mul right 66..67
+58..67 binaryExpr mul right 66..67

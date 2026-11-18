@@ -1,0 +1,1 @@
+{"code":"BYN2403","severity":"error","file":"input.byn","span":{"start":24,"end":25,"line":2,"column":12,"endLine":2,"endColumn":13},"message":"`log` returns nothing, but `return` has a value","label":null,"help":"declare a return type instead of `void`, or remove the value","fixes":[]}

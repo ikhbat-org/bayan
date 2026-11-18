@@ -1,0 +1,3 @@
+== case conv-mismatch-string
+errorExpr 668..670 : ?
+BYN2202 40:16 expected `string`, found `i32` |||

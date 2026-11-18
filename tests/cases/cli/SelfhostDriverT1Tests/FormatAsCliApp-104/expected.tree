@@ -1,0 +1,6 @@
+== outer/dir/main.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+if (a) { print("x") }
+== outer/outside.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+if (a) { print("x") }

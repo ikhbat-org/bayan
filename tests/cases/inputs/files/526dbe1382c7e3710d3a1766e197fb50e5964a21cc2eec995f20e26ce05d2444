@@ -1,0 +1,9 @@
+import shade
+
+enum Mood {
+    calm
+    busy
+}
+
+let m = Mood.busy
+print($"{shade.depth(.dark)} {m == .busy}")

@@ -1,0 +1,12 @@
+== tests/cases/diag/spread-not-sequence.byn
+0..9 globalStatement
+0..9 localDecl
+8..9 literalExpr integer
+10..38 localDecl
+30..38 collectionExpr
+39..77 localDecl
+69..77 collectionExpr
+70..73 literalExpr string
+75..76 literalExpr integer
+78..110 localDecl
+98..110 collectionExpr

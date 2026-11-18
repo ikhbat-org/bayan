@@ -1,0 +1,47 @@
+== tests/cases/diag/for-dyn-ref-get-or.byn
+252..487 blockStmt
+258..288 localDecl
+266..288 callExpr
+293..310 localDecl
+301..310 callExpr
+315..335 exprStmt
+315..335 callExpr
+315..316 nameExpr
+324..334 structLiteralExpr
+331..332 literalExpr integer
+340..355 assignStmt assign target 340..346 value 349..353
+340..346 indexExpr
+340..341 nameExpr
+342..345 literalExpr string
+349..353 moveExpr
+354..355 nameExpr
+360..374 localDecl
+368..372 moveExpr
+373..374 nameExpr
+379..396 localDecl
+387..396 callExpr
+401..457 forStmt
+422..444 binaryExpr coalesce right 443..444
+422..439 callExpr
+422..423 nameExpr
+435..438 literalExpr string
+443..444 nameExpr
+445..457 blockStmt
+447..455 exprStmt
+447..455 callExpr
+447..448 nameExpr
+462..485 exprStmt
+462..485 callExpr
+468..484 interpolatedExpr
+471..482 memberExpr
+471..480 indexExpr
+471..477 indexExpr
+471..472 nameExpr
+473..476 literalExpr string
+478..479 literalExpr integer
+462..485 callExpr
+227..237 blockStmt
+229..235 assignStmt add target 229..230 value 234..235
+229..230 nameExpr
+229..230 nameExpr
+234..235 literalExpr integer

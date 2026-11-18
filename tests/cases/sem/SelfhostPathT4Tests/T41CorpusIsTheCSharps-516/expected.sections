@@ -1,0 +1,3 @@
+== diags.diag/positional-off-struct
+BYN1016 1:1 `@positional` is not allowed here
+  help put `@positional` on a struct

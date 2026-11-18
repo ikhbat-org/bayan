@@ -1,0 +1,10 @@
+//// not a doc comment
+
+‮ hidden
+let x⁧ = 1
+ // comment ‮ hidden
+
+"""
+error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+
+'‮'

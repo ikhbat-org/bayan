@@ -1,0 +1,25 @@
+== tests/cases/diag/ref-out-escape-local-alias.byn
+37..64 blockStmt
+43..52 localDecl
+51..52 nameExpr
+57..62 assignStmt assign target 57..58 value 61..62
+57..58 nameExpr
+61..62 nameExpr
+78..235 blockStmt
+84..97 localDecl
+95..97 literalExpr string
+102..217 blockStmt
+112..137 localDecl
+130..137 callExpr
+146..178 localDecl
+157..178 callExpr
+157..162 literalExpr string
+172..177 nameExpr
+187..211 exprStmt
+187..211 callExpr
+192..196 nameExpr
+206..210 nameExpr
+222..233 exprStmt
+222..233 callExpr
+228..232 nameExpr
+222..233 callExpr

@@ -1,0 +1,2 @@
+{"code":"BYN3201","severity":"error","file":"input.byn","span":{"start":34,"end":39,"line":4,"column":5,"endLine":4,"endColumn":10},"message":"the value of this `one()` is unused","label":"value dropped","help":"assign it with `let _ = …`, or remove the expression","fixes":[]}
+{"code":"BYN3201","severity":"error","file":"input.byn","span":{"start":104,"end":119,"line":8,"column":5,"endLine":8,"endColumn":20},"message":"the value of this `xs.removeLast()` is unused","label":"value dropped","help":"assign it with `let _ = …`, or remove the expression","fixes":[]}

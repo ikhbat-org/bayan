@@ -1,0 +1,70 @@
+1:3 Equals `=`
+1:5 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+5:1 Identifier `ạ̇`
+5:5 IntegerLiteral `0xF_`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolationEnd `}`
+6:6 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ � = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ � = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ ����� 	
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ ����� 	
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����� 	
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����� 	
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����� 	
+    │     ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │ ạ̇ 0xF_�
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ ạ̇ 0xF_�
+    │   │ +
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ ạ̇ 0xF_�
+    │        ^
+    │
+    │ 5 │ ạ̇ 0xF_�
+    │   │        -
+
+error BYN0002: unexpected character `\u{1E}`
+
+  5 │ ạ̇ 0xF_�
+    │         ^

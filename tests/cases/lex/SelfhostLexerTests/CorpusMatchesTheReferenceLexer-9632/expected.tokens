@@ -1,0 +1,30 @@
+2:3 StructKeyword `struct`
+2:10 Identifier `S`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quoted"`
+4:1 StructKeyword `struct`
+4:8 Identifier `C`
+6:1 Star `*`
+6:2 Slash `/`
+7:1 Identifier `ine`
+7:5 Identifier `two`
+7:8 Dot `.`
+8:1 StructKeyword `struct`
+8:8 Identifier `S`
+10:1 Identifier `b`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ � struct S
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ � struct S
+    │   │ -

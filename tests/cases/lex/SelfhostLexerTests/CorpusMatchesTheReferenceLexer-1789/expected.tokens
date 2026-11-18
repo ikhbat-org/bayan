@@ -1,0 +1,143 @@
+1:1 CloseBrace `}`
+1:3 Identifier `d`
+1:4 StringLiteral `" $"`
+1:8 OpenBrace `{`
+1:9 OpenBrace `{`
+1:10 Identifier `litera`
+1:16 Less `<`
+1:17 CloseBrace `}`
+1:18 CloseBrace `}`
+1:19 StringLiteral `" $"`
+1:23 OpenBrace `{`
+1:24 Identifier `Point`
+1:30 OpenBrace `{`
+1:32 Identifier `x`
+1:34 Equals `=`
+1:36 IntegerLiteral `1`
+1:38 CloseBrace `}`
+1:39 CloseBrace `}`
+1:40 Bang `!`
+1:41 StringLiteral `" $"`
+1:45 StringLiteral `"`
+3:1 Identifier `ạ̇`
+3:4 StringLiteral `"{}`
+5:2 LetKeyword `let`
+5:6 Identifier `c`
+5:8 Equals `=`
+5:12 IntegerLiteral `3`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 Identifier `G`
+7:38 StringLiteral `"{$"`
+7:42 OpenBrace `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 Identifier `x`
+7:50 InterpolationEnd `}`
+7:51 InterpolatedStringEnd `"`
+7:52 InterpolationEnd `}`
+7:53 InterpolatedStringEnd `"`
+7:54 CloseBrace `}`
+7:55 StringLiteral `"}"`
+7:58 InterpolationEnd `}`
+7:59 InterpolatedStringEnd `"`
+7:60 InterpolationEnd `}`
+7:61 InterpolatedStringEnd `"`
+7:62 InterpolationEnd `}`
+7:63 InterpolatedStringEnd `"`
+7:64 InterpolationEnd `}`
+7:65 InterpolatedStringEnd `"`
+7:66 InterpolationEnd `}`
+7:67 InterpolatedStringEnd `"`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringEnd `"`
+7:70 Identifier `W`
+7:71 InterpolationEnd `}`
+7:72 InterpolatedStringEnd `"`
+7:73 InterpolationEnd `}`
+7:74 InterpolatedStringEnd `"`
+7:75 InterpolationEnd `}`
+7:76 InterpolatedStringEnd `"`
+7:78 Identifier `scape`
+7:83 StringLiteral `"`
+8:1 LetKeyword `let`
+8:5 Identifier `c`
+8:7 Equals `=`
+8:9 RawStringLiteral `"""never closed\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ } d" $"{{litera<}}" $"{Point { x = 1 }}!" $""
+    │                                             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇"{}
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇"{}
+    │   │ ++
+
+error BYN0003: unterminated string literal
+
+  3 │ ạ̇"{}
+    │    ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │  let c = � 3
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{G"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"W}"}"}" scape"
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{G"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"W}"}"}" scape"
+    │                                                                                   ^ string
+    │                                                                                     ends at
+    │                                                                                     the end of
+    │                                                                                     the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  8 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

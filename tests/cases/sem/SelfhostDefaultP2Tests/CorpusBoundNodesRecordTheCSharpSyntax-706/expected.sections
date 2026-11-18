@@ -1,0 +1,8 @@
+== tests/cases/diag/null-equality-no-fix.byn
+12..81 blockStmt
+18..32 localDecl
+31..32 literalExpr integer
+37..54 localDecl
+45..54 binaryExpr eq right 50..54
+59..79 localDecl
+67..79 binaryExpr eq right 75..79

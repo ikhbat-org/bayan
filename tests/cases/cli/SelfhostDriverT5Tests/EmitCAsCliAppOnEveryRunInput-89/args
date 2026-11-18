@@ -1,0 +1,3 @@
+build
+--emit-c
+fs-file-exists.byn

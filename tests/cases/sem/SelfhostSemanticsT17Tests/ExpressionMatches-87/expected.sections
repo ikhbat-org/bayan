@@ -1,0 +1,3 @@
+== case conv-distinct
+errorExpr 1277..1281 : ?
+BYN3204 66:16 `"hi"` is not a `Sku` ||wrap it: `Sku("hi")`|fix 1277..1281 Sku("hi")

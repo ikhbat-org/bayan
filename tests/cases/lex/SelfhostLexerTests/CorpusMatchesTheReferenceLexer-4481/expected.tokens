@@ -1,0 +1,88 @@
+1:9 ErrorKeyword `error`
+1:15 SetKeyword `set`
+1:19 UnitKeyword `unit`
+1:24 DistinctKeyword `distinct`
+1:33 TypeKeyword `type`
+1:38 ImportKeyword `import`
+1:45 AsKeyword `as`
+1:48 PublicKeyword `public`
+1:55 PrivateKeyword `private`
+1:63 StaticKeyword `static`
+1:70 ReadonlyKeyword `readonly`
+1:79 RequiredKeyword `required`
+1:88 ConstKeyword `const`
+1:94 LetKeyword `let`
+1:98 VarKeyword `var`
+1:102 EmbedKeyword `embed`
+1:108 ExternKeyword `extern`
+1:115 UnsafeKeyword `unsafe`
+4:1 Identifier `Å`
+4:3 PlusEquals `+=`
+4:6 MinusEquals `-=`
+4:9 StarEquals `*=`
+4:11 Equals `=`
+4:13 SlashEquals `/=`
+4:16 PercentEquals `%=`
+4:19 AmpEquals `&=`
+4:22 BarEquals `|=`
+4:25 CaretEquals `^=`
+4:28 LessLessEquals `<<=`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `a`
+5:5 InterpolationStart `{`
+5:6 Identifier `b`
+5:7 InterpolationEnd `}`
+5:8 InterpolatedStringText `c`
+5:9 InterpolatedStringEnd
+6:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │  error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ �
+    │  ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │ Å+= -= *== /= %= &= |= ^= <<=
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ Å+= -= *== /= %= &= |= ^= <<=
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  5 │  $"a{b}c
+    │  ^^ this string never ends
+    │
+  help: close it with `"`

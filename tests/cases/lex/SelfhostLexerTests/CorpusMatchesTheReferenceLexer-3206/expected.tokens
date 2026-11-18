@@ -1,0 +1,50 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+2:1 Greater `>`
+2:2 GreaterEquals `>=`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:10 Equals `=`
+4:12 IntegerLiteral `2`
+5:1 Identifier `ạ̇`
+6:2 AmpAmp `&&`
+6:5 Bar `|`
+6:7 BarBar `||`
+6:10 Caret `^`
+6:12 Tilde `~`
+6:14 Bang `!`
+6:16 Equals `=`
+6:18 EqualsEquals `==`
+6:21 BangEquals `!=`
+6:24 Less `<`
+6:26 LessEquals `<=`
+6:29 Greater `>`
+6:31 GreaterEquals `>=`
+6:34 LessLess `<<`
+6:37 Greater `>`
+6:38 Greater `>`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �>>=//// not a doc comment
+    │ ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │ ạ̇�
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ ạ̇�
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │ ạ̇�
+    │    ^

@@ -1,0 +1,127 @@
+1:1 IntegerLiteral `0b__`
+2:3 IntegerLiteral `1__`
+3:5 Identifier `comment`
+3:13 Star `*`
+3:14 Slash `/`
+3:16 Identifier `a`
+5:1 IntegerLiteral `0x_`
+6:2 CharLiteral `'\u{110000}'`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolationStart `{`
+8:4 InterpolatedStringStart `$"`
+8:6 InterpolationStart `{`
+8:7 InterpolatedStringStart `$"`
+8:9 InterpolationStart `{`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:13 InterpolatedStringStart `$"`
+8:15 InterpolationStart `{`
+8:16 InterpolatedStringStart `$"`
+8:18 InterpolationStart `{`
+8:19 InterpolatedStringStart `$"`
+8:21 InterpolationStart `{`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolationStart `{`
+8:25 InterpolatedStringStart `$"`
+8:27 InterpolationStart `{`
+8:28 InterpolatedStringStart `$"`
+8:30 InterpolationStart `{`
+8:31 InterpolatedStringStart `$"`
+8:33 InterpolationStart `{`
+8:34 InterpolatedStringStart `$"`
+8:36 InterpolationStart `{`
+8:37 InterpolatedStringStart `$"`
+8:39 InterpolationStart `{`
+8:40 InterpolatedStringStart `$"`
+8:42 InterpolationStart `{`
+8:43 InterpolatedStringStart `$"`
+8:45 InterpolationStart `{`
+8:46 InterpolatedStringStart `$"`
+8:48 InterpolationStart `{`
+8:49 StringLiteral `$"{$"`
+8:54 OpenBrace `{`
+8:55 StringLiteral `$"{$"`
+8:60 OpenBrace `{`
+8:61 StringLiteral `$"{x}"`
+8:67 CloseBrace `}`
+8:68 StringLiteral `"}"`
+8:71 CloseBrace `}`
+8:72 StringLiteral `"}"`
+8:75 InterpolationEnd `}`
+8:76 InterpolatedStringEnd `"`
+8:77 InterpolationEnd `}`
+8:78 InterpolatedStringEnd `"`
+8:79 InterpolationEnd `}`
+8:80 InterpolatedStringEnd `"`
+8:81 InterpolationEnd `}`
+8:82 InterpolatedStringEnd `"`
+8:83 InterpolationEnd `}`
+8:84 InterpolatedStringEnd `"`
+8:85 InterpolationEnd `}`
+8:86 InterpolatedStringEnd `"`
+8:87 InterpolationEnd `}`
+8:88 InterpolatedStringEnd `"`
+8:89 InterpolationEnd `}`
+8:90 InterpolatedStringEnd `"`
+8:91 InterpolationEnd `}`
+8:92 InterpolatedStringEnd `"`
+8:93 InterpolationEnd `}`
+8:94 InterpolatedStringEnd `"`
+8:95 InterpolationEnd `}`
+8:96 InterpolatedStringEnd `"`
+8:97 InterpolationEnd `}`
+8:98 InterpolatedStringEnd `"`
+8:99 InterpolationEnd `}`
+8:100 InterpolatedStringEnd `"`
+8:101 InterpolationEnd `}`
+8:102 InterpolatedStringEnd `"`
+8:103 InterpolationEnd `}`
+8:104 InterpolatedStringEnd `"`
+8:105 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ � 1__
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ � 1__
+    │  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ � 1__
+    │    ^^
+    │
+    │ 2 │ � 1__
+    │   │    --
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x_
+    │ ^^^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  6 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^^

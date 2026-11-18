@@ -1,0 +1,4 @@
+1:2 CharLiteral `'é'`
+1:6 CharLiteral `'\\'`
+1:11 CharLiteral `'\0'`
+3:1 EndOfFile

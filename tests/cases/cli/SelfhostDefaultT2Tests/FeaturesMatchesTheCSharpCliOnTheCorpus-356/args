@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/typed/pending-peers-chain.byn
+--package
+<repo>/tests/cases/typed

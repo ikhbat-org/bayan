@@ -1,0 +1,32 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q escape"`
+4:1 Identifier `ver`
+4:5 Identifier `closed`
+6:1 IntegerLiteral `0xF__`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 0xF__
+    │    ^^
+    │
+    │ 6 │ 0xF__
+    │   │    --

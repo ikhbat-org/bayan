@@ -1,0 +1,36 @@
+public struct Row {
+    public i64 id
+}
+
+public type TableParser = string -> i64
+
+@json
+public struct CsvParser {
+    public i64 id
+}
+
+struct RowBuilder {
+    i64 n
+}
+
+interface ITableWriter {
+    void flush(Row row)
+}
+
+public struct CsvPärser {
+    i64 n
+}
+
+public struct Pointer {
+    i64 n
+}
+
+public struct HashOp {
+    i64 n
+}
+
+public struct __ {
+    i64 n
+}
+
+print("ok")

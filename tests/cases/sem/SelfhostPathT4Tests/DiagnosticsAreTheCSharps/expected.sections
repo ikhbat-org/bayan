@@ -1,0 +1,3 @@
+== diags.combine-arity
+BYN2302 2:34 `combine` takes 2 argument(s)
+BYN2301 3:11 missing argument `path1`, `path2` for `combine`

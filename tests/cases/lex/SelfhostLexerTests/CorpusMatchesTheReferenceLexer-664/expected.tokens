@@ -1,0 +1,27 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+2:1 IntegerLiteral `0xF__`
+3:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --

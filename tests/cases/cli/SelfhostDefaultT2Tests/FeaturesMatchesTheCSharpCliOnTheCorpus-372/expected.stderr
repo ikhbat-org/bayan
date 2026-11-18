@@ -1,0 +1,78 @@
+error BYN5004: `parse` has 2 unlabeled parameters; give each but one a particle
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:1:3
+
+  1 │ T parse<T>(string s, i64 limit)
+    │   ^^^^^ 2 unlabeled parameters
+    │
+  help: keep one unlabeled parameter, the object
+
+error BYN5006: `limit` is a required parameter besides the object and needs a particle
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:1:26
+
+  1 │ T parse<T>(string s, i64 limit)
+    │                          ^^^^^ needs a particle
+    │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+error BYN2002: unknown type `IParse`
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:2:15
+
+  2 │     where T : IParse<T>
+    │               ^^^^^^
+
+warning BYN5011: this `expects` reads only `s`; a type with `requires` checks it once
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:3:5
+
+  3 │     expects s.length > 0
+    │     ^^^^^^^
+    │
+  help: declare a type with `requires` for `s`
+
+warning BYN5011: this `expects` reads only `limit`; a type with `requires` checks it once
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:4:5
+
+  4 │     expects limit > 0
+    │     ^^^^^^^
+    │
+  help: declare a type with `requires` for `limit`
+
+error BYN2001: `T` is not defined
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:7:12
+
+  7 │     return T.parse(s)
+    │            ^
+    │
+  help: did you mean `s`?
+    │ 7 │     return s.parse(s)
+    │   │            +
+
+error BYN2202: expected `string`, found `i32`
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:15:11
+
+  15 │     print(expects)
+     │           ^^^^^^^
+
+error BYN7007: `close` has no state `.closed`
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:16:13
+
+  16 │     become .closed
+     │             ^^^^^^
+     │
+  help: check the states declared in `close`
+
+error BYN2002: unknown type `IParse`
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:21:19
+
+  21 │         where T : IParse<T>
+     │                   ^^^^^^
+
+error BYN7010: `close` declares `becomes .closed` but takes `move this is .open`; a transition needs
+`ref this`
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:25:16
+
+  25 │     void close(move this is .open)
+     │                ^^^^^^^^^^^^^^^^^^
+     │
+  help: change the receiver of `close` to `ref this`, or return the new state as a value
+     │ 25 │     void close(ref this is .open)
+     │    │                +++

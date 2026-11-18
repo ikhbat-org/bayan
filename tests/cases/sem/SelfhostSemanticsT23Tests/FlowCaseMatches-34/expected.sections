@@ -1,0 +1,2 @@
+== flow.outEarly
+BYN2103 97:9 `out` parameter `r` is not assigned on every path ||assign `r` before every `return`|

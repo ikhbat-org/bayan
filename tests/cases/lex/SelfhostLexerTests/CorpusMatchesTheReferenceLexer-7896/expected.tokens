@@ -1,0 +1,46 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+1:4 LetKeyword `let`
+1:8 Identifier `b`
+1:10 Equals `=`
+1:12 StringLiteral `"bad \q escae"`
+3:2 Hash `#`
+3:3 Identifier `stray`
+3:9 CloseBrace `}`
+3:10 Identifier `here`
+3:14 StringLiteral `"`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ 1e���let b = "bad \q escae"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ 1e���let b = "bad \q escae"
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ 1e���let b = "bad \q escae"
+    │     ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ 1e���let b = "bad \q escae"
+    │                   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `$`
+
+  3 │ $#stray }here"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $#stray }here"
+    │              ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

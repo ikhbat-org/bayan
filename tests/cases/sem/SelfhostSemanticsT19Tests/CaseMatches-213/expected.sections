@@ -1,0 +1,4 @@
+== bind.probes.k10
+flags 0
+errorExpr:?[4040:8]=-()
+BYN2001 207:19 `nope` is not defined ||did you mean `Node`?|fix 4044..4048 Node

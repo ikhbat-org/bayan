@@ -1,0 +1,78 @@
+error BYN0010: invalid numeric literal: expected digits after `0x`
+  --> input.byn:1:1
+
+  1 │ 0x
+    │ ^^
+
+error BYN1012: this expression does nothing as a statement
+  --> input.byn:1:1
+
+  1 │ 0x
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+  --> input.byn:2:2
+
+  2 │ 1_
+    │  ^
+    │
+    │ 2 │ 1_
+    │   │  -
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+  --> input.byn:3:5
+
+  3 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+  --> input.byn:4:5
+
+  4 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+  --> input.byn:5:4
+
+  5 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+  --> input.byn:6:1
+
+  6 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+  --> input.byn:7:1
+
+  7 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+  --> input.byn:8:2
+
+  8 │ 1__
+    │  ^^
+    │
+    │ 8 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+  --> input.byn:9:4
+
+  9 │ 0xF__
+    │    ^^
+    │
+    │ 9 │ 0xF__
+    │   │    --
+
+✗ build failed: 10 errors, 0 warnings
+  explain: bayan explain BYN0010

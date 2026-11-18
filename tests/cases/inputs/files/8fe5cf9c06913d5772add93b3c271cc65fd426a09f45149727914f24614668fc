@@ -1,0 +1,9 @@
+ime checked
+test assert propert
+a /* never closed
+fails try catch never noalloc nosuspend suspends async await
+let c =  3
+let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"@"}"}"}"}"}"
+ $"{Point { x = 1 }}!" $""
+ let x⁧ = 1
+

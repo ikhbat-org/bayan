@@ -1,0 +1,153 @@
+1:1 Identifier `camelCase2`
+1:12 Identifier `بيان`
+1:17 Identifier `μ`
+1:19 Identifier `ετρητής`
+1:27 Identifier `x_1`
+1:31 Identifier `é`
+3:1 IfKeyword `if`
+3:4 ElseKeyword `else`
+3:9 UnlessKeyword `unless`
+3:16 Identifier `swi`
+3:20 Identifier `ch`
+3:23 CaseKeyword `case`
+3:28 DefaultKeyword `default`
+3:36 ForKeyword `for`
+3:40 InKeyword `in`
+3:43 WhileKeyword `while`
+3:49 DoKeyword `do`
+3:52 BreakKeyword `break`
+3:58 ContinueKeyword `continue`
+3:67 ReturnKeyword `return`
+3:74 YieldKeyword `yield`
+3:80 DeferKeyword `defer`
+3:86 ErrdeferKeyword `errdefer`
+3:95 UsingKeyword `using`
+3:101 ContextKeyword `context`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 StringLiteral `$"{$"`
+5:54 OpenBrace `{`
+5:55 Identifier `x`
+5:56 CloseBrace `}`
+5:57 StringLiteral `"}"`
+5:60 InterpolationEnd `}`
+5:61 InterpolatedStringEnd `"`
+5:62 InterpolationEnd `}`
+5:63 InterpolatedStringEnd `"`
+5:64 InterpolationEnd `}`
+5:65 InterpolatedStringEnd `"`
+5:66 InterpolationEnd `}`
+5:67 InterpolatedStringEnd `"`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringEnd `"`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringEnd `"`
+5:72 InterpolationEnd `}`
+5:73 InterpolatedStringEnd `"`
+5:74 InterpolationEnd `}`
+5:75 InterpolatedStringEnd `"`
+5:76 InterpolationEnd `}`
+5:77 InterpolatedStringEnd `"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+5:82 InterpolationEnd `}`
+5:83 InterpolatedStringEnd `"`
+5:84 InterpolationEnd `}`
+5:85 InterpolatedStringEnd `"`
+5:86 LetKeyword `let`
+5:90 Identifier `c`
+5:92 Equals `=`
+5:94 StringLiteral `""`
+6:1 NeverKeyword `never`
+6:7 Identifier `closed`
+7:3 Identifier `s`
+8:1 IntegerLiteral `0x_`
+9:1 IntegerLiteral `0b__`
+10:1 IntegerLiteral `1__`
+11:1 IntegerLiteral `0xF__`
+13:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD1)
+
+  1 │ camelCase2 بيان μ�ετρητής x_1 é
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  3 │ if else unless swi�ch case default for in while do break continue return yield defer errdefer using context
+    │                   ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let c = ""
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let c = ""
+    │                                                 ^^
+
+error BYN0002: unexpected character `\u{0}`
+
+  7 │ � s
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  9 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 1__
+     │  ^^
+     │
+     │ 10 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │ 0xF__
+     │    ^^
+     │
+     │ 11 │ 0xF__
+     │    │    --

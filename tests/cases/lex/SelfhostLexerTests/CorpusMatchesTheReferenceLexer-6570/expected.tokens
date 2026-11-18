@@ -1,0 +1,113 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{$"`
+3:54 OpenBrace `{`
+3:55 StringLiteral `$"{$"`
+3:60 OpenBrace `{`
+3:61 StringLiteral `$"{x}"`
+3:67 CloseBrace `}`
+3:68 StringLiteral `"}"`
+3:71 CloseBrace `}`
+3:72 StringLiteral `"}"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+3:79 InterpolationEnd `}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolationEnd `}`
+3:84 InterpolatedStringEnd `"`
+3:85 IntegerLiteral `1_`
+4:2 Identifier `_000`
+4:8 Identifier `xFF`
+4:12 IntegerLiteral `0x_ff`
+4:18 IntegerLiteral `0`
+4:19 NumericSuffix `blet`
+4:24 EffectKeyword `effect`
+4:31 Equals `=`
+4:33 IntegerLiteral `2`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  1 │ struct� S
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"1_
+    │                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"1_
+    │                                                 ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"1_
+    │                                                                                      ^
+    │
+    │ 3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"1_
+    │   │                                                                                      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ ����_000 �xFF 0x_ff 0blet effect = 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ ����_000 �xFF 0x_ff 0blet effect = 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����_000 �xFF 0x_ff 0blet effect = 2
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����_000 �xFF 0x_ff 0blet effect = 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  4 │ ����_000 �xFF 0x_ff 0blet effect = 2
+    │          ^

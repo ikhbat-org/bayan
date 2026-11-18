@@ -1,0 +1,6 @@
+== path dir
+module std.probe <std>/probe std_probe
+file <std>/probe/probe.byn
+module main tmp/std-cases/file main
+file tmp/std-cases/file/main.byn
+import probe std.probe

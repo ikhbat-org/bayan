@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"IntegerLiteral","start":3,"end":4,"text":"1","doc":null},{"kind":"NumericSuffix","start":4,"end":5,"text":"e","doc":null},{"kind":"EndOfFile","start":5,"end":5,"text":"","doc":null}],"diagnostics":[{"code":"BYN0002","severity":"error","start":0,"end":2,"message":"unexpected character `̈́`","label":null,"help":null,"fixes":[]}]}

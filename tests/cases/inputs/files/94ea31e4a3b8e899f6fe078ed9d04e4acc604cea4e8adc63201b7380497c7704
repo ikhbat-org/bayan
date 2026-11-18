@@ -1,0 +1,10 @@
+bool f(bool a, bool b, i32 n) => a && !b || n is not 0
+
+void main() {
+    let x: isize = 3
+    switch x {
+        case 1 or 2: print("a")
+        default: print("b")
+    }
+    print("s") if !f(true, false, 1) && x > 0
+}

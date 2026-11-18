@@ -1,0 +1,12 @@
+== tests/cases/diag/circular-field-default-generic.byn
+48..65 globalStatement
+48..65 localDecl
+56..65 structLiteralExpr
+31..45 callExpr
+31..45 callExpr
+37..44 structLiteralExpr
+37..44 structLiteralExpr
+31..45 callExpr
+31..45 callExpr
+37..44 structLiteralExpr
+37..44 structLiteralExpr

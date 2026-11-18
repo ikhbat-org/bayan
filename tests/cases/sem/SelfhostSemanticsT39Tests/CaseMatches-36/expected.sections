@@ -1,0 +1,3 @@
+== exh.e5
+result true
+BYN2712 53:5 `_` hides future cases of `Shape`, declared in this package |matches every case added later|remove the `_` arm|

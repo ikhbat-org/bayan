@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/number-agreement-caps.byn
+--package
+<repo>/tests/cases/diag

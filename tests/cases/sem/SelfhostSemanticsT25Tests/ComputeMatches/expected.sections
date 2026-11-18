@@ -1,0 +1,13 @@
+== compute
+interp-ctx [2:ctx] [a] -
+interp-none [] [] -
+list-ctx [2:ctx] [a] -
+list-none [] [] -
+local-set [1:a-data] [a] a=3
+local-unset [] [] -
+literal [] [] -
+lower-ctx [2:ctx] [a] -
+lower-none [] [] -
+copy-ctx [2:ctx] [a] -
+to-string-ctx [2:ctx] [a] -
+contains-ctx [] [] -

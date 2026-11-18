@@ -1,0 +1,27 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+3:1 OpenParen `(`
+3:3 CloseParen `)`
+3:5 OpenBracket `[`
+3:7 CloseBracket `]`
+3:9 OpenBrace `{`
+3:11 CloseBrace `}`
+4:1 Identifier `U`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  1 │ let b =�` 2
+    │        ^
+
+error BYN0002: unexpected character ```
+
+  1 │ let b =�` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{13}`
+
+  3 │ ( ) [ ] {�}
+    │          ^

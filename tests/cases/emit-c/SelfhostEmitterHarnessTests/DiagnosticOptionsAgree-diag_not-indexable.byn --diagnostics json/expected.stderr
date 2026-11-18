@@ -1,0 +1,1 @@
+{"code":"BYN2212","severity":"error","file":"input.byn","span":{"start":18,"end":19,"line":2,"column":9,"endLine":2,"endColumn":10},"message":"`i32` cannot be indexed","label":null,"help":null,"fixes":[]}

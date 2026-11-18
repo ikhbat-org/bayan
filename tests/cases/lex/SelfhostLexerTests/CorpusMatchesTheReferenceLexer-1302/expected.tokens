@@ -1,0 +1,81 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 Identifier `dervation`
+1:87 AttributeKeyword `attribute`
+2:2 LetKeyword `let`
+2:6 Identifier `actor`
+2:12 Equals `=`
+2:14 IntegerLiteral `1`
+4:1 Identifier `t`
+4:2 StringLiteral `" "`
+4:5 Identifier `esc`
+4:10 StringLiteral `"q\" \\ \n"`
+4:22 RawStringLiteral `"""\r\n  raw "quoed"\r\n  """`
+6:7 CStringLiteral `c"text"`
+6:15 U16StringLiteral `u16"wide & && | || ^ ~ ! = == != < <= > >= << >> >>=`
+9:1 CharLiteral `'\q'`
+10:1 CharLiteral `'\u{D800}'`
+11:1 CharLiteral `'\u{110000}'`
+12:1 CharLiteral `'x\r`
+13:2 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  2 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ t" "esc \"q\" \\ \n" """
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  6 │   """ c"text" u16"wide & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of
+    │                                                                    the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  9 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  10 │ '\u{D800}'
+     │  ^^^^^^^^
+     │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  11 │ '\u{110000}'
+     │  ^^^^^^^^^^
+     │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  12 │ 'x
+     │ ^^
+     │
+  help: close it with `'`

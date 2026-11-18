@@ -1,0 +1,5 @@
+== bind.probes.b40
+flags 0
+errorExpr:?[2539:11]=-()
+BYN2001 147:15 `nope` is not defined ||did you mean `Node`?|fix 2539..2543 Node
+BYN2001 147:22 `nada` is not defined |||

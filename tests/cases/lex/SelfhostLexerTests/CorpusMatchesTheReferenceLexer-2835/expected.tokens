@@ -1,0 +1,29 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText `\u{7}c`
+2:9 InterpolatedStringEnd
+3:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b}�c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

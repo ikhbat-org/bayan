@@ -1,0 +1,18 @@
+3:5 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ /* bl�o$ck
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF3)
+
+  1 │ /* bl�o$ck
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  2 │  '\u{1�10000}'
+    │       ^

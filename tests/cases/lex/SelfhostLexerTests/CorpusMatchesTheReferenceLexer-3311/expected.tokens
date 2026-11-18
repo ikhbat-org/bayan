@@ -1,0 +1,5 @@
+1:2 AmpEquals `&=`
+1:5 BarEquals `|=`
+1:8 Equals `=`
+1:10 LessLessEquals `<<=`
+3:1 EndOfFile

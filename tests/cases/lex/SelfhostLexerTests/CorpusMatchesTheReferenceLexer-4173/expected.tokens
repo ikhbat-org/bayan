@@ -1,0 +1,38 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+3:1 StringLiteral `"a\u{2067}b"`
+3:6 Plus `+`
+3:8 Minus `-`
+3:10 Star `*`
+3:12 Slash `/`
+3:14 Percent `%`
+3:16 PlusPercent `+%`
+3:19 MinusPercent `-%`
+3:22 StarPercent `*%`
+3:25 PlusBar `+|`
+3:28 MinusBar `-|`
+3:31 StarBar `*|`
+3:34 PlusPlus `++`
+3:37 MinusMinus `--`
+4:1 LetKeyword `let`
+4:7 Equals `=`
+4:9 IntegerLiteral `2`
+6:1 Identifier `ro`
+6:4 Identifier `select`
+6:11 BecomeKeyword `become`
+7:1 LetKeyword `let`
+7:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ let � = 2
+    │     ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  6 │ ro select become
+    │    ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

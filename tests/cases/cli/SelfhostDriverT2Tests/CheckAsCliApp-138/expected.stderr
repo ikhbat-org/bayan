@@ -1,0 +1,18 @@
+error BYN2786: `Untrusted<string>` cannot be passed to `Io.run`: it is `Untrusted`
+  --> <repo>/tmp/t2/diag/run-untrusted/run-untrusted.byn:4:24
+
+  4 │     let _ = try Io.run(program, ["status"])
+    │                        ^^^^^^^
+    │
+  help: check the value, then clear the mark with `x.trustUnchecked() because "…"`
+
+error BYN2786: `Untrusted<string>` cannot be passed to `Io.run`: it is `Untrusted`
+  --> <repo>/tmp/t2/diag/run-untrusted/run-untrusted.byn:5:39
+
+  5 │     let _ = try Io.run("git", ["log", name])
+    │                                       ^^^^
+    │
+  help: check the value, then clear the mark with `x.trustUnchecked() because "…"`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2786

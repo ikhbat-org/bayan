@@ -1,0 +1,40 @@
+== tests/cases/run/call-result-ref-plain-struct.byn
+248..278 blockStmt
+254..262 assignStmt add target 254..257 value 261..262
+254..257 memberExpr
+254..255 nameExpr
+261..262 literalExpr integer
+267..276 returnStmt value 274..276
+274..276 nameExpr
+292..439 blockStmt
+298..318 localDecl
+307..318 callExpr
+323..335 exprStmt
+323..335 callExpr
+323..325 nameExpr
+333..334 literalExpr integer
+340..358 localDecl
+348..358 structLiteralExpr
+355..356 literalExpr integer
+363..397 localDecl
+371..397 callExpr
+380..381 nameExpr
+389..396 memberExpr
+389..391 nameExpr
+402..410 exprStmt
+402..410 callExpr
+402..403 nameExpr
+415..437 exprStmt
+415..437 callExpr
+421..436 interpolatedExpr
+424..428 indexExpr
+424..425 nameExpr
+426..427 literalExpr integer
+431..434 memberExpr
+431..432 nameExpr
+415..437 callExpr
+175..185 blockStmt
+177..183 assignStmt add target 177..178 value 182..183
+177..178 nameExpr
+177..178 nameExpr
+182..183 literalExpr integer

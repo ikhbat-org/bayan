@@ -1,0 +1,4 @@
+== diags.diag/rule-target-not-field
+BYN3206 4:30 `at .top` names no field of `Range`
+  label `.top`
+  help name a field of `Range`

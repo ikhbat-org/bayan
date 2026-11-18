@@ -1,0 +1,58 @@
+1:1 NotKeyword `not`
+1:5 Identifier `a`
+1:7 Identifier `doc`
+1:11 Identifier `c`
+1:12 Amp `&`
+1:14 AmpAmp `&&`
+1:17 Bar `|`
+1:19 BarBar `||`
+1:22 Caret `^`
+1:24 Tilde `~`
+1:26 Bang `!`
+1:28 Equals `=`
+1:30 EqualsEquals `==`
+1:33 BangEquals `!=`
+1:36 Less `<`
+1:38 LessEquals `<=`
+1:41 Greater `>`
+1:43 GreaterEquals `>=`
+1:46 LessLess `<<`
+1:49 Greater `>`
+1:50 Greater `>`
+1:52 Greater `>`
+1:53 GreaterEquals `>=`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:24 Identifier `m`
+3:25 Identifier `يان`
+3:29 Identifier `μετρητής`
+3:38 Identifier `x_1`
+3:42 Identifier `é`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 Identifier `a`
+6:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  3 │ foo Bar _x camelCase2 �m�يان μετρητής x_1 é
+    │                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  3 │ foo Bar _x camelCase2 �m�يان μετρητής x_1 é
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  6 │ �$"{a 
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  6 │ �$"{a 
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

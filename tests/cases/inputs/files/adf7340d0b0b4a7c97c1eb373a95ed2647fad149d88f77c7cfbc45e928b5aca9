@@ -1,0 +1,10 @@
+1__
+let a = "open
+   raw "quoted"
+
+$"{}"
+$"{a
+t a = 1
+let ÿ = 2
+// ok ş in comment
+"aâ§b" 

@@ -1,0 +1,71 @@
+1:1 Identifier `Å0b1ms`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 Identifier `x`
+5:47 InterpolationEnd `}`
+5:48 InterpolatedStringEnd `"`
+5:49 InterpolationEnd `}`
+5:50 InterpolatedStringEnd `"`
+5:51 InterpolationEnd `}`
+5:52 InterpolatedStringEnd `"`
+5:53 InterpolationEnd `}`
+5:54 InterpolatedStringEnd `"`
+5:55 InterpolationEnd `}`
+5:56 InterpolatedStringEnd `"`
+6:1 CharLiteral `'a'`
+6:5 CharLiteral `'\n'`
+6:10 CharLiteral `'\u{1F600}'`
+6:22 CharLiteral `'\''`
+6:27 CharLiteral `'é'`
+6:31 CharLiteral `'\\'`
+6:36 CharLiteral `'\0'`
+    doc `/// Doc line one.`
+8:1 EndOfFile
+
+error BYN0005: identifier `Å0b1ms` is not in Unicode normalization form C
+
+  1 │ Å0b1ms
+    │ ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å0b1ms
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string

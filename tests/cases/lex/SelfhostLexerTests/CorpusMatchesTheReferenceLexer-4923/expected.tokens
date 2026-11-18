@@ -1,0 +1,40 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Arrow `->`
+4:32 At `@`
+4:34 Hash `#`
+5:4 Identifier `a`
+5:6 Greater `>`
+5:7 Greater `>`
+5:9 Identifier `b`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │  �� a >> b
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  �� a >> b
+    │   ^

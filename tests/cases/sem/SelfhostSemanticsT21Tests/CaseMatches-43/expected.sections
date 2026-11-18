@@ -1,0 +1,3 @@
+== call.b10
+builtinCall|string|local:string=s|stringTrimmedBy|2053:19|errorExpr:?
+BYN2202 92:29 expected `ReadOnlySpan<rune>`, found `string` |||

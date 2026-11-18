@@ -1,0 +1,25 @@
+1:2 Identifier `Doc`
+1:6 Identifier `line`
+1:11 Identifier `one`
+1:14 Dot `.`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quoted"`
+5:1 CharLiteral `' & && | || ^ ~ ! = == != < <= > >= << >> >>=`
+7:1 Identifier `ạ̇`
+7:4 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  5 │ ' & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  7 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ ạ̇
+    │   │ +

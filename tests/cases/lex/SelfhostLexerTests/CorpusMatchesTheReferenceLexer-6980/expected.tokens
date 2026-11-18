@@ -1,0 +1,8 @@
+1:1 StringLiteral `"{ let a = "`
+1:13 OpenKeyword `open`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ �
+    │ ^

@@ -1,0 +1,10 @@
+struct Wrap {
+    i64 handler
+}
+
+void main() {
+    var Panic = Wrap { handler: 0 }
+    Panic.handler = 1
+    var other = Wrap { handler: 0 }
+    other.handler = 2
+}

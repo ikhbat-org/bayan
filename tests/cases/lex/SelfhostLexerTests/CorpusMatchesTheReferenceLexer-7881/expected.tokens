@@ -1,0 +1,21 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:4 StringLiteral `"a\u{2067}b"`
+2:2 LetKeyword `let`
+2:6 LawKeyword `law`
+2:10 Equals `=`
+2:12 IntegerLiteral `3`
+4:1 RawStringLiteral `"""$"{"�& && | || ^ ~ ! = == != < <= > >= << >> >>=\n`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ """$"{"�& && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ """$"{"�& && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │        ^

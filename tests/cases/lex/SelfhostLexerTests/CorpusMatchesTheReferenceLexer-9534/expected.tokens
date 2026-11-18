@@ -1,0 +1,71 @@
+1:2 OpenParen `(`
+1:4 CloseParen `)`
+1:6 OpenBracket `[`
+1:8 CloseBracket `]`
+1:10 OpenBrace `{`
+1:12 CloseBrace `}`
+4:3 InKeyword `in`
+4:6 Identifier `comment`
+5:1 Identifier `foo`
+5:5 Identifier `Bar`
+5:9 Identifier `_x`
+5:12 Identifier `camelCase2`
+5:23 Identifier `بيان`
+5:28 Identifier `μετρητής`
+5:37 Identifier `x_1`
+5:41 Identifier `é`
+7:1 IfKeyword `if`
+7:4 ElseKeyword `else`
+7:9 UnlessKeyword `unless`
+7:16 SwitchKeyword `switch`
+7:23 CaseKeyword `case`
+7:28 DefaultKeyword `default`
+7:36 ForKeyword `for`
+7:40 InKeyword `in`
+7:43 WhileKeyword `while`
+7:49 DoKeyword `do`
+7:52 BreakKeyword `break`
+7:58 ContinueKeyword `continue`
+7:67 ReturnKeyword `return`
+7:74 YieldKeyword `yield`
+7:80 DeferKeyword `defer`
+7:86 ErrdeferKeyword `errdefer`
+7:95 UsingKeyword `using`
+7:101 ContextKeyword `context`
+9:1 Amp `&`
+9:3 AmpAmp `&&`
+9:6 Bar `|`
+9:8 BarBar `||`
+9:11 Caret `^`
+9:13 Tilde `~`
+9:15 Bang `!`
+9:17 Equals `=`
+9:19 EqualsEquals `==`
+9:22 BangEquals `!=`
+9:25 Less `<`
+9:27 LessEquals `<=`
+9:30 Greater `>`
+9:32 GreaterEquals `>=`
+9:35 LessLess `<<`
+9:38 Greater `>`
+9:39 Greater `>`
+9:41 Greater `>`
+9:42 GreaterEquals `>=`
+10:1 CharLiteral `'\\'`
+10:6 CharLiteral `'\0'`
+11:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��( ) [ ] { }
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��( ) [ ] { }
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ � in comment
+    │ ^

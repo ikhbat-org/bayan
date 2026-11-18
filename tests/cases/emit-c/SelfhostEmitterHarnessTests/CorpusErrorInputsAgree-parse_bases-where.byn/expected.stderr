@@ -1,0 +1,161 @@
+error BYN2002: unknown type `IShape`
+  --> input.byn:1:17
+
+  1 │ struct Circle : IShape {
+    │                 ^^^^^^
+
+error BYN2002: unknown type `IShape`
+  --> input.byn:7:21
+
+  7 │ struct Wrapper<T> : IShape, m.IDescribe where T : IShape, IOrder<T> {
+    │                     ^^^^^^
+
+error BYN2002: unknown type `m.IDescribe`
+  --> input.byn:7:29
+
+  7 │ struct Wrapper<T> : IShape, m.IDescribe where T : IShape, IOrder<T> {
+    │                             ^^^^^^^^^^^
+    │
+  help: add `import m`; `m` is not an imported module
+
+error BYN2002: unknown type `IShape`
+  --> input.byn:7:51
+
+  7 │ struct Wrapper<T> : IShape, m.IDescribe where T : IShape, IOrder<T> {
+    │                                                   ^^^^^^
+
+error BYN2002: unknown type `IOrder`
+  --> input.byn:7:59
+
+  7 │ struct Wrapper<T> : IShape, m.IDescribe where T : IShape, IOrder<T> {
+    │                                                           ^^^^^^
+
+error BYN2801: `Stream` does not provide `moveNext` required by `IEnumerator`
+  --> input.byn:11:17
+
+  11 │ struct Stream : IEnumerator {
+     │                 ^^^^^^^^^^^ needs `moveNext`
+     │
+  help: add `bool moveNext(ref this)` to `Stream`
+     │ 14 │     bool moveNext(ref this) => todo("moveNext")
+     │    │ +++++++++++++++++++++++++++++++++++++++++++++++
+     │ 15 │ }
+
+error BYN2801: `Stream` does not provide `current` required by `IEnumerator`
+  --> input.byn:11:17
+
+  11 │ struct Stream : IEnumerator {
+     │                 ^^^^^^^^^^^ needs `current`
+     │
+  help: add `? current { get }` to `Stream`
+     │ 14 │     ? current => todo("current")
+     │    │ ++++++++++++++++++++++++++++++++
+     │ 15 │ }
+
+error BYN2002: unknown type `Token`
+  --> input.byn:12:17
+
+  12 │     type Item = Token
+     │                 ^^^^^
+
+error BYN2815: `Shape` is a union; only structs can conform yet
+  --> input.byn:16:15
+
+  16 │ union Shape : IShape {
+     │               ^^^^^^ listed here
+     │
+  help: wrap it in a struct that conforms
+
+error BYN2815: `Box` is a union; only structs can conform yet
+  --> input.byn:21:16
+
+  21 │ union Box<T> : IShape where T : IShape {
+     │                ^^^^^^ listed here
+     │
+  help: wrap it in a struct that conforms
+
+error BYN2002: unknown type `IShape`
+  --> input.byn:21:33
+
+  21 │ union Box<T> : IShape where T : IShape {
+     │                                 ^^^^^^
+
+error BYN2815: `Color` is an enum; only structs can conform yet
+  --> input.byn:26:14
+
+  26 │ enum Color : IShape {
+     │              ^^^^^^ listed here
+     │
+  help: wrap it in a struct that conforms
+
+error BYN2815: `Planet` is an enum; only structs can conform yet
+  --> input.byn:31:25
+
+  31 │ enum Planet(f64 mass) : IShape where T : IShape {
+     │                         ^^^^^^ listed here
+     │
+  help: wrap it in a struct that conforms
+
+error BYN2812: `where` names `T`, which is not a type parameter
+  --> input.byn:31:38
+
+  31 │ enum Planet(f64 mass) : IShape where T : IShape {
+     │                                      ^ not a type parameter of `Planet`
+     │
+  help: remove the `where` clause; `Planet` has no type parameters
+
+error BYN5004: `max` has 2 unlabeled parameters; give each but one a particle
+  --> input.byn:36:3
+
+  36 │ T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+     │   ^^^ 2 unlabeled parameters
+     │
+  help: keep one unlabeled parameter, the object
+
+error BYN5006: `b` is a required parameter besides the object and needs a particle
+  --> input.byn:36:17
+
+  36 │ T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+     │                 ^ needs a particle
+     │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+error BYN2002: unknown type `IOrder`
+  --> input.byn:36:30
+
+  36 │ T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+     │                              ^^^^^^
+
+error BYN2780: implicit copy of a unique value: type parameter `T` may stand for a unique type
+  --> input.byn:36:43
+
+  36 │ T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+     │                                           ^^^^^^^^^^^^^^^^^
+     │
+  help: pass it by `ref` to share it instead
+
+error BYN2744: `less` is not a member of type parameter `T`
+  --> input.byn:36:45
+
+  36 │ T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+     │                                             ^^^^
+     │
+  help: add `where T : …` naming an interface that declares `less`, or use a concrete type
+
+error BYN2002: unknown type `IParse`
+  --> input.byn:38:32
+
+  38 │ T parse<T>(string s) where T : IParse<T> fails {
+     │                                ^^^^^^
+
+warning BYN5011: this `expects` reads only `s`; a type with `requires` checks it once
+  --> input.byn:42:66
+
+  42 │ T read<T>(string s) where T : IParse<T>, IShape where U : IShape expects s.length > 0 fails IoError {
+     │                                                                  ^^^^^^^
+     │
+  help: declare a type with `requires` for `s`
+… and 5 more errors (use --all to show them)
+
+✗ build failed: 25 errors, 1 warning
+  explain: bayan explain BYN2002

@@ -1,0 +1,6 @@
+== bindAllConstantsAndDefaults
+const a state 2 type i64
+const b state 2 type i64
+field x default set
+field y default null
+BYN2101 2:7 `const b` needs a value |  | 

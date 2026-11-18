@@ -1,0 +1,29 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:4 VarKeyword `var`
+2:8 Identifier `xs`
+2:10 Colon `:`
+2:12 Identifier `List`
+2:16 Less `<`
+2:17 Identifier `List`
+2:21 Less `<`
+2:22 Identifier `i64`
+2:25 Greater `>`
+2:26 Greater `>`
+4:1 Identifier `c`
+4:3 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 IntegerLiteral `1`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │  � var xs: List<List<i64>>
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │  � var xs: List<List<i64>>
+    │   ^

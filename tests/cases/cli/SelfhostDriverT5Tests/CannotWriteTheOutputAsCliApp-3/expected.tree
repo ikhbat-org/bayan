@@ -1,0 +1,16 @@
+.editorconfig
+.gitattributes
+.gitignore
+README.md
+docs
+docs/.gitkeep
+out
+out/safe
+package.byn
+src
+src/app
+src/app/main.byn
+testdata
+testdata/.gitkeep
+tests
+tests/app.test.byn

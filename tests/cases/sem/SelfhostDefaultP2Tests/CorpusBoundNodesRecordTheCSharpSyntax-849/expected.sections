@@ -1,0 +1,42 @@
+== tests/cases/diag/strbuf-loan-refusals.byn
+116..223 blockStmt
+122..139 localDecl
+131..139 callExpr
+144..158 exprStmt
+144..158 callExpr
+144..146 nameExpr
+154..157 literalExpr string
+163..182 localDecl
+171..182 callExpr
+171..173 nameExpr
+187..208 exprStmt
+187..208 callExpr
+187..189 nameExpr
+197..200 literalExpr string
+206..207 literalExpr integer
+213..221 exprStmt
+213..221 callExpr
+219..220 nameExpr
+213..221 callExpr
+246..345 blockStmt
+252..269 localDecl
+261..269 callExpr
+274..288 exprStmt
+274..288 callExpr
+274..276 nameExpr
+284..287 literalExpr string
+293..308 localDecl
+301..308 memberExpr
+301..303 nameExpr
+313..330 localDecl
+321..330 callExpr
+321..323 nameExpr
+335..343 exprStmt
+335..343 callExpr
+341..342 nameExpr
+335..343 callExpr
+359..406 blockStmt
+365..384 exprStmt
+365..384 callExpr
+389..404 exprStmt
+389..404 callExpr

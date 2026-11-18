@@ -1,0 +1,50 @@
+    doc `/// Doc line one.`
+2:2 Colon `:`
+2:3 Identifier `et`
+2:6 Identifier `b`
+2:8 Equals `=`
+2:10 StringLiteral `"bad \q escape"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 StringLiteral `"`
+5:1 IntegerLiteral `0xF__`
+6:1 PlusEquals `+=`
+6:4 MinusEquals `-=`
+6:7 StarEquals `*=`
+6:10 SlashEquals `/=`
+6:13 PercentEquals `%=`
+6:16 AmpEquals `&=`
+6:18 BarEquals `|=`
+6:21 CaretEquals `^=`
+6:24 LessLessEquals `<<=`
+    doc `/// Doc line two.`
+8:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ 	:et b = "bad \q escape"
+    │ 	             ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --

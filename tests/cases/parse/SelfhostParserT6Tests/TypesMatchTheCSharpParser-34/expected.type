@@ -1,0 +1,2 @@
+(ptr 0..7 false (named 5..7 5..7 < >)) at 3
+BYN1066 0+1 `*mut u8` is an input form; write `u8*` [the input form] [write the pointer after the type: `u8*`] fix 0+7 'u8*'

@@ -1,0 +1,63 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 Identifier `nosspend`
+1:40 SuspendsKeyword `suspends`
+1:49 AsyncKeyword `async`
+1:55 AwaitKeyword `await`
+2:2 Equals `=`
+2:4 IntegerLiteral `1`
+3:1 LetKeyword `let`
+3:5 EffectKeyword `effect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+4:1 Identifier `macro`
+4:7 Identifier `select`
+4:14 BecomeKeyword `become`
+5:1 Identifier `le`
+6:1 IntegerLiteral `0xFF`
+6:5 NumericSuffix `s`
+8:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  6 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  7 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  7 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  7 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ �
+    │ ^

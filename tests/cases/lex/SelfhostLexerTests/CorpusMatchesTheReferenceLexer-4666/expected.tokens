@@ -1,0 +1,27 @@
+    doc `/// let b = "bad \q escape"`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 OrKeyword `or`
+2:11 NotKeyword `not`
+2:15 WithKeyword `with`
+2:20 MoveKeyword `move`
+2:25 RefKeyword `ref`
+2:29 OutKeyword `out`
+2:33 ThisKeyword `this`
+2:38 NullKeyword `null`
+2:43 TrueKeyword `true`
+2:48 FalseKeyword `false`
+2:54 ComptimeKeyword `comptime`
+2:63 CheckedKeyword `checked`
+3:1 OpenParen `(`
+3:3 CloseParen `)`
+3:5 OpenBracket `[`
+3:7 CloseBracket `]`
+3:9 OpenBrace `{`
+3:11 CloseBrace `}`
+4:1 Identifier `ne`
+4:4 Identifier `two`
+4:7 Dot `.`
+5:1 StructKeyword `struct`
+5:8 Identifier `S`
+6:13 EndOfFile

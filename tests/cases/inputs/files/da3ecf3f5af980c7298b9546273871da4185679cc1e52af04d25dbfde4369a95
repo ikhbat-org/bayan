@@ -1,0 +1,7 @@
+let c = """never closed
+
+0}' '\'' 'é' '\\' '\0'
+
+﻿
+macro select become
+ 

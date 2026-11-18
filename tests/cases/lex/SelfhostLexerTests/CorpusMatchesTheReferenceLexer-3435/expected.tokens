@@ -1,0 +1,56 @@
+1:1 CharLiteral `''`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `stray } here`
+3:15 InterpolatedStringEnd `"`
+6:1 StringLiteral `"�a\u{2067}b"`
+7:1 CharLiteral `'\u{202E}'`
+8:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"stray } here"
+    │         ^
+    │
+    │ 3 │ $"stray }} here"
+    │   │          +
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  5 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 5 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  5 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ /* � */
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  6 │ "�a�b"
+    │  ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ '�'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ '�'
+    │   │  -

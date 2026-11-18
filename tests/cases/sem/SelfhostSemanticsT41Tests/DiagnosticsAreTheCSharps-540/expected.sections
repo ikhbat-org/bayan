@@ -1,0 +1,3 @@
+== diags.diag/never-returns
+BYN2404 3:1 `halt` returns `never` but can reach its end
+  help end every path with `panic(…)` or a call that never returns

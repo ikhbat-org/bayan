@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/doer-project-verb
+--include-path
+<repo>/tests/cases/diag/doer-project-verb/main.byn

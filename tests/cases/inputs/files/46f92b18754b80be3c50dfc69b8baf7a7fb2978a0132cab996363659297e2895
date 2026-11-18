@@ -1,0 +1,8 @@
+var xs: List<List<i64>>
+ '
+fails try catch never noalloc nosuspend suspends async await
+test assert property fuzz model foreach new goto
+
+0b__
+ 0x_
+ ///

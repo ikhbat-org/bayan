@@ -1,0 +1,12 @@
+error BYN6001: `noalloc` is removed; a function without `uses` is already pure
+  --> input.byn:1:18
+
+  1 │ i32 twice(i32 n) noalloc => n * 2
+    │                  ^^^^^^^ removed
+    │
+  help: remove `noalloc`
+    │ 1 │ i32 twice(i32 n) noalloc => n * 2
+    │   │                 --------
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6001

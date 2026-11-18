@@ -1,0 +1,34 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:2 IntegerLiteral `1`
+2:3 NumericSuffix `e`
+2:4 StringLiteral `"text"`
+2:11 StringLiteral `"esc \"q\ \\ \n"`
+2:28 RawStringLiteral `"""\r\n\r\n각\r\n�\u{FEFF}}\r\n$"{a\r\n`
+7:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\ `
+
+  2 │  1e"text" "esc \"q\ \\ \n" """
+    │                   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  2 │  1e"text" "esc \"q\ \\ \n" """
+    │                            ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ �﻿}
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ �﻿}
+    │  ^

@@ -1,0 +1,35 @@
+2:2 LetKeyword `let`
+2:6 LawKeyword `law`
+2:10 Equals `=`
+2:12 IntegerLiteral `3`
+5:2 IntegerLiteral `1`
+5:3 Dot `.`
+5:5 Identifier `ạ̇`
+6:1 Identifier `comment`
+11:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ // comment � hidden
+    │   │            -
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │  1. ạ̇
+    │     ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │  1. ạ̇
+    │   │     +
+
+error BYN0004: unterminated block comment
+
+  8 │ /* blocDk
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

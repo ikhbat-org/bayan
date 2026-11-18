@@ -1,0 +1,141 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F\r`
+2:1 IntegerLiteral `600`
+2:4 CloseBrace `}`
+2:5 CharLiteral `' '`
+2:9 CharLiteral `''`
+2:12 CharLiteral `'é'`
+2:16 CharLiteral `'\\'`
+2:21 CharLiteral `'\0'`
+3:3 IntegerLiteral `2`
+4:1 Identifier `macro`
+4:7 Identifier `select`
+4:14 Identifier `be`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolatedStringText `�$`
+5:40 InterpolatedStringEnd `"`
+5:41 OpenBrace `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:45 InterpolatedStringStart `$"`
+5:47 InterpolationStart `{`
+5:48 InterpolatedStringStart `$"`
+5:50 InterpolationStart `{`
+5:51 InterpolatedStringStart `$"`
+5:53 InterpolationStart `{`
+5:54 StringLiteral `$"{x}"`
+5:60 InterpolationEnd `}`
+5:61 InterpolatedStringEnd `"`
+5:62 InterpolationEnd `}`
+5:63 InterpolatedStringEnd `"`
+5:64 InterpolationEnd `}`
+5:65 InterpolatedStringEnd `"`
+5:66 InterpolationEnd `}`
+5:67 InterpolatedStringEnd `"`
+5:68 CloseBrace `}`
+5:69 StringLiteral `"}"`
+5:72 InterpolationEnd `}`
+5:73 InterpolatedStringEnd `"`
+5:74 InterpolationEnd `}`
+5:75 InterpolatedStringEnd `"`
+5:76 InterpolationEnd `}`
+5:77 InterpolatedStringEnd `"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+5:82 InterpolationEnd `}`
+5:83 InterpolatedStringEnd `"`
+5:84 InterpolationEnd `}`
+5:85 InterpolatedStringEnd `"`
+5:86 InterpolationEnd `}`
+5:87 InterpolatedStringEnd `"`
+5:88 InterpolationEnd `}`
+5:89 InterpolatedStringEnd `"`
+5:90 InterpolationEnd `}`
+5:91 InterpolatedStringEnd `"`
+5:92 InterpolationEnd `}`
+5:93 InterpolatedStringEnd `"`
+5:94 InterpolationEnd `}`
+5:95 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'a' '\n' '\u{1F
+    │          ^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{1F`
+
+  1 │ 'a' '\n' '\u{1F
+    │           ^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0002: unexpected character `\`
+
+  2 │ 600}' '\'' 'é' '\\' '\0'
+    │        ^
+
+error BYN0007: empty char literal
+
+  2 │ 600}' '\'' 'é' '\\' '\0'
+    │         ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │ macro select be
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ macro select be
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" // ok � in comment
+    │                                       ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" // ok � in comment
+    │                                                       ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" // ok � in comment
+    │                                                                                                        ^

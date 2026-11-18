@@ -1,0 +1,53 @@
+1:1 Identifier `struc`
+1:7 UniqueKeyword `unique`
+1:14 UnionKeyword `union`
+1:20 EnumKeyword `enum`
+1:25 FlagsKeyword `flags`
+1:31 OpenKeyword `open`
+1:36 ExtensibleKeyword `extensible`
+1:47 InterfaceKeyword `interface`
+1:57 DelegateKeyword `delegate`
+1:66 ExtensionKeyword `extension`
+1:76 DerivationKeyword `derivation`
+1:87 Identifier `att`
+1:90 CloseBracket `]`
+1:91 Identifier `ibute`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+4:2 CharLiteral `'  \u{202E} hidden`
+5:1 Identifier `le0b102`
+7:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ �'  � hidden
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �'  � hidden
+    │   │ -
+
+error BYN0008: unterminated char literal
+
+  4 │ �'  � hidden
+    │  ^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ �'  � hidden
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �'  � hidden
+    │   │     -

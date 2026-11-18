@@ -1,0 +1,10 @@
+bool f(bool a, bool b, int n) => a and not b or n is not 0
+
+void main() {
+    let x: nint = 3
+    switch x {
+        case 1 or 2: print("a")
+        default: print("b")
+    }
+    print("s") if not f(true, false, 1) and x > 0
+}

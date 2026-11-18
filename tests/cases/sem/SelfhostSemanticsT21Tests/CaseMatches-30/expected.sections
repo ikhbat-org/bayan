@@ -1,0 +1,2 @@
+== call.b4
+builtinCall|void|local:StrBuf=buf|strBufAppend|1895:13|local:string=s

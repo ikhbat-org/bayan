@@ -1,0 +1,3 @@
+build
+--emit-c
+symbol-debug-field.byn

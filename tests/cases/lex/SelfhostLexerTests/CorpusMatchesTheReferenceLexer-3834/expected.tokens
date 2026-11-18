@@ -1,0 +1,109 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+3:1 Identifier `Å`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+5:1 CharLiteral `'a'`
+5:5 CharLiteral `'\n'`
+5:10 CharLiteral `'\u{1F600}'`
+5:22 CharLiteral `'\''`
+5:27 CharLiteral `'é'`
+5:31 CharLiteral `'\\'`
+5:36 CharLiteral `'\0'`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 StringLiteral `$"{$"`
+6:52 OpenBrace `{`
+6:53 StringLiteral `$"{$"`
+6:58 OpenBrace `{`
+6:59 StringLiteral `$"{x}"`
+6:65 CloseBrace `}`
+6:66 StringLiteral `"}"`
+6:69 CloseBrace `}`
+6:70 StringLiteral `"}"`
+6:73 InterpolationEnd `}`
+6:74 InterpolatedStringEnd `"`
+6:75 InterpolationEnd `}`
+6:76 InterpolatedStringEnd `"`
+6:77 InterpolationEnd `}`
+6:78 InterpolatedStringEnd `"`
+6:79 InterpolationEnd `}`
+6:80 InterpolatedStringEnd `"`
+6:81 InterpolationEnd `}`
+6:82 InterpolatedStringEnd `"`
+6:83 InterpolationEnd `}`
+6:84 InterpolatedStringEnd `"`
+6:85 InterpolationEnd `}`
+6:86 InterpolatedStringEnd `"`
+6:87 InterpolationEnd `}`
+6:88 InterpolatedStringEnd `"`
+6:89 InterpolationEnd `}`
+6:90 InterpolatedStringEnd `"`
+6:91 Comma `,`
+6:92 InterpolationEnd `}`
+6:93 InterpolatedStringEnd `"`
+6:94 InterpolationEnd `}`
+6:95 InterpolatedStringEnd `"`
+6:96 InterpolationEnd `}`
+6:97 InterpolatedStringEnd `"`
+6:98 InterpolationEnd `}`
+6:99 InterpolatedStringEnd `"`
+6:100 InterpolationEnd `}`
+6:101 InterpolatedStringEnd `"`
+6:102 InterpolationEnd `}`
+6:103 InterpolatedStringEnd `"`
+6:104 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ Å
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}",}"}"}"}"}"}"
+    │                                               ^^

@@ -1,0 +1,70 @@
+1:1 StringLiteral `"open {x"`
+1:10 Semicolon `;`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 Identifier `x`
+2:48 InterpolationEnd `}`
+2:49 InterpolatedStringEnd `"`
+2:50 InterpolationEnd `}`
+2:51 InterpolatedStringEnd `"`
+2:52 InterpolationEnd `}`
+2:53 InterpolatedStringEnd `"`
+2:54 InterpolationEnd `}`
+2:55 InterpolatedStringEnd `"`
+2:56 InterpolationEnd `}`
+2:57 InterpolatedStringEnd `"`
+2:58 InterpolationEnd `}`
+2:59 InterpolatedStringEnd `"`
+2:60 InterpolationEnd `}`
+2:61 InterpolatedStringEnd `"`
+2:62 InterpolationEnd `}`
+2:63 InterpolatedStringEnd `"`
+2:64 InterpolationEnd `}`
+2:65 InterpolatedStringEnd `"`
+2:66 InterpolationEnd `}`
+2:67 InterpolatedStringEnd `"`
+    doc `/// let b = "bad \q escape"`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:10 CharLiteral `'\u{1F600}'`
+3:22 CharLiteral `'\''`
+3:27 CharLiteral `'é'`
+3:31 CharLiteral `'\\'`
+3:36 CharLiteral `'\0'`
+    doc `///`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" /// let b = "bad \q escape"
+    │              ^^ this string never ends
+    │
+  help: close the `{` and the string

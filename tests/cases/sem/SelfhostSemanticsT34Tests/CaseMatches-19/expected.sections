@@ -1,0 +1,6 @@
+== s39
+switchExpr|i32|3522:30
+value local:i64=n
+arm 3533:9 constantPattern[3533:4]:i64(defaultValue:i64) guard - value literal:i32=1
+arm 3544:6 bindPattern[3544:1]:i64_(-) guard - value literal:i32=0
+BYN2411 110:26 `null` cannot match `i64` |||

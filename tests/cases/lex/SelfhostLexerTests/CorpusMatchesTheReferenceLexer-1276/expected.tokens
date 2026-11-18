@@ -1,0 +1,53 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+2:1 LetKeyword `let`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:12 IntegerLiteral `3`
+3:2 LetKeyword `let`
+3:6 Identifier `café`
+3:12 Equals `=`
+3:14 IntegerLiteral `1`
+5:2 InterpolationEnd `}`
+5:3 InterpolatedStringText ` `
+5:4 InterpolationStart `{`
+5:6 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+5:12 InterpolationEnd `}`
+5:13 InterpolatedStringText `}!`
+5:15 InterpolatedStringEnd `"`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolatedStringEnd `"`
+6:1 IntegerLiteral `00`
+6:4 IntegerLiteral `0xFF`
+6:9 IntegerLiteral `0x_ff`
+6:15 IntegerLiteral `0b101`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE4)
+
+  2 │ let �c = � 3
+    │     ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let �c = � 3
+    │          ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │  let café = 1
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  let café = 1
+    │   │         +
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │  } { x = 1 }}!" $""
+    │             ^
+    │
+    │ 5 │  } { x = 1 }}}!" $""
+    │   │              +

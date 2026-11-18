@@ -1,0 +1,2 @@
+Point moved(Point p, Point by = Point { x: 0, y: 0 }) =>
+    p.plus(by)

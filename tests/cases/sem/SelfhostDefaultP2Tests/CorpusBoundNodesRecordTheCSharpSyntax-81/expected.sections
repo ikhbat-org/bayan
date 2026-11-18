@@ -1,0 +1,84 @@
+== tests/cases/run/for-try.byn
+404..588 blockStmt
+410..421 localDecl
+420..421 literalExpr integer
+426..571 forStmt
+426..571 forStmt
+442..486 structLiteralExpr
+453..454 literalExpr integer
+463..468 nameExpr
+478..484 nameExpr
+426..571 forStmt
+426..571 forStmt
+441..487 tryExpr
+441..487 callExpr
+441..487 nameExpr
+434..437 name
+488..571 blockStmt
+498..517 exprStmt
+498..517 callExpr
+504..516 interpolatedExpr
+511..514 nameExpr
+498..517 callExpr
+526..546 guardedStmt
+538..546 binaryExpr eq right 545..546
+538..541 nameExpr
+545..546 literalExpr integer
+526..526 continueStmt
+555..565 assignStmt add target 555..558 value 562..565
+555..558 nameExpr
+562..565 nameExpr
+576..586 returnStmt value 583..586
+583..586 nameExpr
+590..636 globalStatement
+590..636 exprStmt
+590..636 callExpr
+596..635 interpolatedExpr
+605..633 tryExpr
+609..633 callExpr
+624..625 literalExpr integer
+631..632 literalExpr integer
+590..636 callExpr
+637..683 localDecl
+650..683 catchExpr
+650..674 callExpr
+665..666 literalExpr integer
+672..673 literalExpr integer
+681..683 unaryExpr negate operand 682..683
+684..709 exprStmt
+684..709 callExpr
+690..708 interpolatedExpr
+700..706 nameExpr
+684..709 callExpr
+205..340 blockStmt
+215..261 ifStmt
+218..244 binaryExpr logicalAnd right 232..244
+218..228 binaryExpr gt right 227..228
+218..224 nameExpr
+218..224 nameExpr
+227..228 literalExpr integer
+232..244 binaryExpr eq right 238..244
+232..234 nameExpr
+232..234 nameExpr
+238..244 nameExpr
+238..244 nameExpr
+245..261 blockStmt
+247..251 failStmt
+252..259 targetMemberExpr
+270..300 ifStmt
+273..284 binaryExpr ge right 279..284
+273..275 nameExpr
+273..275 nameExpr
+279..284 nameExpr
+279..284 nameExpr
+285..300 blockStmt
+287..298 returnStmt value 294..298
+294..298 literalExpr nullKeyword
+309..316 assignStmt add target 309..311 value 315..316
+309..311 nameExpr
+309..311 nameExpr
+315..316 literalExpr integer
+325..334 returnStmt value 332..334
+332..334 nameExpr
+332..334 nameExpr
+332..334 nameExpr

@@ -1,0 +1,15 @@
+== tests/cases/diag/clause-order-uses-fix.byn
+69..89 blockStmt
+55..60 binaryExpr gt right 59..60
+55..60 binaryExpr gt right 59..60
+55..60 binaryExpr gt right 59..60
+55..56 nameExpr
+59..60 literalExpr integer
+55..60 binaryExpr gt right 59..60
+55..60 binaryExpr gt right 59..60
+55..60 binaryExpr gt right 59..60
+69..89 blockStmt
+75..87 exprStmt
+75..87 callExpr
+81..86 literalExpr string
+75..87 callExpr

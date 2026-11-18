@@ -1,0 +1,9 @@
+error BYN6002: `undeclared` uses `fs` but does not declare it
+  --> <repo>/tests/cases/diag/io-create-directory-needs-fs.byn:3:9
+
+  3 │     try Io.createDirectory(p)
+    │         ^^^^^^^^^^^^^^^^^^^^^ uses `fs`
+    │
+  help: add `fs` to the `uses` clause, or remove the call
+    │ 2 │ public void undeclared(string p) uses fs fails IoError {
+    │   │                                 ++++++++

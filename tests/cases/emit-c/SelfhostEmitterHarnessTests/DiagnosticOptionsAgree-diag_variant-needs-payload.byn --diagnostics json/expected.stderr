@@ -1,0 +1,2 @@
+{"code":"BYN2705","severity":"error","file":"input.byn","span":{"start":70,"end":82,"line":7,"column":13,"endLine":7,"endColumn":25},"message":"variant `circle` carries a payload","label":null,"help":"pass it: `Shape.circle(r)`","fixes":[]}
+{"code":"BYN2705","severity":"error","file":"input.byn","span":{"start":102,"end":109,"line":8,"column":20,"endLine":8,"endColumn":27},"message":"variant `circle` carries a payload","label":null,"help":"pass it: `Shape.circle(r)`","fixes":[]}

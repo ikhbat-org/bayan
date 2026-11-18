@@ -1,0 +1,8 @@
+1:2 Identifier `closed`
+2:1 Identifier `b`
+3:3 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  3 │  ‏
+    │  ^

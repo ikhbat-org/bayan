@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"RawStringLiteral","start":0,"end":124,"text":"\"\"\"\nlet effect = 2\n line comm?ent\n/* block\n   \n$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{$\"{x}\"}\"}\"}\"}\"}\"\n\"\"\"","doc":null},{"kind":"EndOfFile","start":124,"end":124,"text":"","doc":null}],"diagnostics":[]}

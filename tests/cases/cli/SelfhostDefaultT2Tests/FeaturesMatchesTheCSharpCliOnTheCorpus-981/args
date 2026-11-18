@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/union-value-on-payload.byn
+--package
+<repo>/tests/cases/diag

@@ -1,0 +1,9 @@
+1:1 CharLiteral `'var xs: Lis<Lis<i64>>`
+2:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'var xs: Lis<Lis<i64>>
+    │ ^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`

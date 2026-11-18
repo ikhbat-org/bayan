@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockExpr",
+    "BlockStmt",
+    "BreakStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CaughtErrorExpr",
+    "CollectionExpr",
+    "ConditionalExpr",
+    "ContinueStmt",
+    "DeclarationPattern",
+    "ErrorEnumDecl",
+    "ExprStmt",
+    "FailStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "GuardedStmt",
+    "IfStmt",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "SwitchExpr",
+    "TargetMemberExpr",
+    "TryExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "Panic",
+    "Print",
+    "StringBytes",
+    "StringIsEmpty"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,19 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+union error E {
+    a
+}
+union error F {
+    b
+}
+union error G {
+    c
+}
+interface IShape {
+    i64 area()
+}
+i32 g()
+fails F
+uses console {
+    print("g")
+    return 1
+}

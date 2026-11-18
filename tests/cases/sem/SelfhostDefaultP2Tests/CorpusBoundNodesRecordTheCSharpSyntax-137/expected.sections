@@ -1,0 +1,87 @@
+== tests/cases/run/io-run-omitted.byn
+305..1022 blockStmt
+311..505 localDecl
+335..505 collectionExpr
+336..340 literalExpr string
+342..504 literalExpr string
+510..577 localDecl
+524..577 tryExpr
+528..577 callExpr
+535..539 literalExpr string
+541..552 memberExpr
+541..547 nameExpr
+528..577 callExpr
+528..577 callExpr
+528..577 callExpr
+563..576 callExpr
+563..576 callExpr
+570..575 literalExpr integer
+582..604 localDecl
+590..604 memberExpr
+590..597 nameExpr
+609..643 localDecl
+621..643 binaryExpr coalesce right 641..643
+621..637 callExpr
+621..622 nameExpr
+632..636 literalExpr string
+641..643 unaryExpr negate operand 642..643
+648..685 localDecl
+659..685 binaryExpr coalesce right 683..685
+659..679 callExpr
+659..660 nameExpr
+674..678 literalExpr string
+683..685 unaryExpr negate operand 684..685
+690..807 exprStmt
+690..807 callExpr
+696..806 interpolatedExpr
+704..720 memberExpr
+704..711 nameExpr
+724..738 memberExpr
+724..731 memberExpr
+724..725 nameExpr
+753..758 nameExpr
+773..798 binaryExpr sub right 797..798
+773..794 binaryExpr sub right 790..794
+773..787 memberExpr
+773..780 memberExpr
+773..774 nameExpr
+790..794 nameExpr
+797..798 literalExpr integer
+690..807 callExpr
+812..875 exprStmt
+812..875 callExpr
+818..874 callExpr
+830..854 indexExpr
+830..837 memberExpr
+830..831 nameExpr
+838..847 binaryExpr add right 846..847
+838..843 nameExpr
+846..847 literalExpr integer
+849..853 nameExpr
+865..873 targetMemberExpr
+812..875 callExpr
+880..920 exprStmt
+880..920 callExpr
+886..919 interpolatedExpr
+898..917 callExpr
+898..899 nameExpr
+906..916 literalExpr string
+880..920 callExpr
+925..966 localDecl
+937..966 tryExpr
+941..966 callExpr
+948..952 literalExpr string
+954..965 memberExpr
+954..960 nameExpr
+941..966 callExpr
+941..966 callExpr
+941..966 callExpr
+941..966 callExpr
+971..1020 exprStmt
+971..1020 callExpr
+977..1019 interpolatedExpr
+986..1011 memberExpr
+986..1004 memberExpr
+986..998 memberExpr
+986..991 nameExpr
+971..1020 callExpr

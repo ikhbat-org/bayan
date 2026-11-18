@@ -1,0 +1,4 @@
+--color
+always
+audit
+<repo>/tmp/t6-audit/color

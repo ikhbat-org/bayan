@@ -1,0 +1,31 @@
+1:3 IsKeyword `is`
+1:6 AndKeyword `and`
+1:10 OrKeyword `or`
+1:13 NotKeyword `not`
+1:17 WithKeyword `with`
+1:22 MoveKeyword `move`
+1:27 RefKeyword `ref`
+1:31 Identifier `ut`
+1:34 Identifier `thiE`
+1:39 NullKeyword `null`
+1:44 TrueKeyword `true`
+1:49 FalseKeyword `false`
+1:55 ComptimeKeyword `comptime`
+1:64 CheckedKeyword `checked`
+2:2 CloseBrace `}`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 Identifier `a`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │  }�
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

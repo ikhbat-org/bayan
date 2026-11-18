@@ -1,0 +1,49 @@
+    doc `/// Doc line two.\u{1D}`
+2:1 IntegerLiteral `0x`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
+5:1 CharLiteral `'x`
+6:2 CloseBrace `}`
+6:4 Identifier `er`
+6:7 Identifier `closed`
+7:1 Identifier `b`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ 1
+    │         ^
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `‏`
+
+  8 │ ‏��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  8 │ ‏��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  8 │ ‏��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  8 │ ‏��
+    │    ^

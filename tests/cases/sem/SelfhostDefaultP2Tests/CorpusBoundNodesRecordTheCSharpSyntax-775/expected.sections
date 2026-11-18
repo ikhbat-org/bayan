@@ -1,0 +1,50 @@
+== tests/cases/diag/ref-out-escape-mutual-recursion.byn
+44..91 blockStmt
+50..89 ifStmt
+53..58 binaryExpr gt right 57..58
+53..54 nameExpr
+57..58 literalExpr integer
+59..89 blockStmt
+61..87 exprStmt
+61..87 callExpr
+63..64 nameExpr
+74..75 nameExpr
+81..86 binaryExpr sub right 85..86
+81..82 nameExpr
+85..86 literalExpr integer
+137..199 blockStmt
+143..197 ifStmt
+146..151 binaryExpr gt right 150..151
+146..147 nameExpr
+150..151 literalExpr integer
+152..182 blockStmt
+154..180 exprStmt
+154..180 callExpr
+156..157 nameExpr
+167..168 nameExpr
+174..179 binaryExpr sub right 178..179
+174..175 nameExpr
+178..179 literalExpr integer
+188..197 blockStmt
+190..195 assignStmt assign target 190..191 value 194..195
+190..191 nameExpr
+194..195 nameExpr
+213..374 blockStmt
+219..232 localDecl
+230..232 literalExpr string
+237..356 blockStmt
+247..272 localDecl
+265..272 callExpr
+281..313 localDecl
+292..313 callExpr
+292..297 literalExpr string
+307..312 nameExpr
+322..350 exprStmt
+322..350 callExpr
+324..328 nameExpr
+338..342 nameExpr
+348..349 literalExpr integer
+361..372 exprStmt
+361..372 callExpr
+367..371 nameExpr
+361..372 callExpr

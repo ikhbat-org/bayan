@@ -1,0 +1,62 @@
+1:1 StringLiteral `"{`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+    doc `/// Doc line one.`
+5:2 IntegerLiteral `0b__`
+8:2 LetKeyword `let`
+8:6 Identifier `a`
+8:8 Equals `=`
+8:12 IntegerLiteral `1`
+10:3 MinusBar `-|`
+10:6 StarBar `*|`
+10:9 PlusPlus `++`
+10:12 MinusMinus `--`
+11:1 Amp `&`
+11:3 AmpAmp `&&`
+11:6 Bar `|`
+11:8 BarBar `||`
+11:11 Caret `^`
+11:13 Tilde `~`
+11:15 Bang `!`
+11:17 Equals `=`
+11:19 EqualsEquals `==`
+11:22 BangEquals `!=`
+11:25 Less `<`
+11:27 LessEquals `<=`
+11:30 Greater `>`
+11:32 GreaterEquals `>=`
+11:35 LessLess `<<`
+11:38 Greater `>`
+11:39 Greater `>`
+11:41 Greater `>`
+11:42 Greater `>`
+12:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │  0b__
+    │  ^^^^
+
+error BYN0002: unexpected character `$`
+
+  8 │  let a = $ 1
+    │          ^
+
+error BYN0002: unexpected character `‏`
+
+  10 │ ‏ -| *| ++ --
+     │ ^

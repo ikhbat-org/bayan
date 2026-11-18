@@ -1,0 +1,9 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+struct Order {
+    i64 total
+
+    states {
+        draft
+        paid(i64 payment)
+    }
+}

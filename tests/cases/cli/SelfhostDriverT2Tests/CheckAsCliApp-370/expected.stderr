@@ -1,0 +1,18 @@
+error BYN3004: `xs` is modified while `s` still borrows it
+  --> <repo>/tmp/t2/diag/strbuf-finish-non-local/strbuf-finish-non-local.byn:7:5
+
+  7 │     xs[0].clear()
+    │     ^^^^^^^^^^^^^ `s` is used again on line 8
+    │
+  help: finish using `s` first, or copy what it needs before changing `xs`
+
+error BYN3004: `t` is modified while `s` still borrows it
+  --> <repo>/tmp/t2/diag/strbuf-finish-non-local/strbuf-finish-non-local.byn:15:5
+
+  15 │     t.buf.clear()
+     │     ^^^^^^^^^^^^^ `s` is used again on line 16
+     │
+  help: finish using `s` first, or copy what it needs before changing `t`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3004

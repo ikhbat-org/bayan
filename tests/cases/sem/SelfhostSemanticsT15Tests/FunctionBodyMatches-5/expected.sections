@@ -1,0 +1,6 @@
+== body single
+first none
+block 498..501
+local n 0 3
+requires 0 infers false
+BYN2320 35:32 a `requires` clause must be `bool`, got `i32` ||write a condition the arguments must meet, such as `count > 0`|

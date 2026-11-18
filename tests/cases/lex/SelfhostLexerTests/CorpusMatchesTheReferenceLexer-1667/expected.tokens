@@ -1,0 +1,105 @@
+1:1 Identifier `é`
+2:1 Identifier `r`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{$"`
+3:54 OpenBrace `{`
+3:55 StringLiteral `$"{x}"`
+3:61 CloseBrace `}`
+3:62 StringLiteral `"}"`
+3:65 InterpolationEnd `}`
+3:66 InterpolatedStringEnd `"`
+3:67 InterpolationEnd `}`
+3:68 InterpolatedStringEnd `"`
+3:69 InterpolationEnd `}`
+3:70 InterpolatedStringEnd `"`
+3:72 IfKeyword `if`
+3:75 ElseKeyword `else`
+3:80 UnlessKeyword `unless`
+3:87 SwitchKeyword `switch`
+3:94 CaseKeyword `case`
+3:99 DefaultKeyword `default`
+3:107 ForKeyword `for`
+3:111 InKeyword `in`
+3:114 WhileKeyword `while`
+3:120 DoKeyword `do`
+3:123 BreakKeyword `break`
+3:129 ContinueKeyword `continue`
+3:138 ReturnKeyword `return`
+3:145 YieldKeyword `yield`
+3:151 DeferKeyword `defer`
+3:157 ErrdeferKeyword `errdefer`
+3:165 At `@`
+3:167 UsingKeyword `using`
+3:173 ContextKeyword `context`
+4:2 IntegerLiteral `0B11`
+4:7 IntegerLiteral `5`
+4:8 NumericSuffix `s`
+4:10 IntegerLiteral `250`
+4:13 NumericSuffix `ms`
+4:16 IntegerLiteral `4`
+4:17 NumericSuffix `KiB`
+4:21 IntegerLiteral `1`
+4:22 NumericSuffix `u`
+4:24 IntegerLiteral `0xFF`
+4:28 NumericSuffix `u`
+4:30 IntegerLiteral `0b1`
+4:33 NumericSuffix `ul`
+4:36 IntegerLiteral `7`
+4:37 NumericSuffix `l`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `{{`
+6:5 InterpolatedStringEnd `"`
+6:7 Identifier `x́́`
+7:1 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}" if else unless switch case default for in while do break continue return yield defer errdefer@ using context
+    │                                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}" if else unless switch case default for in while do break continue return yield defer errdefer@ using context
+    │                                                 ^^

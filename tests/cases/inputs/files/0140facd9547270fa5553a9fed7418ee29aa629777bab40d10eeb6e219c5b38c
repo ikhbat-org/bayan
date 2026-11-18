@@ -1,0 +1,4 @@
+1.   """ c"text" u16"w†ide" "â€® allowed in strings" "" "\u{48}i"
+
+macro select become
+ 

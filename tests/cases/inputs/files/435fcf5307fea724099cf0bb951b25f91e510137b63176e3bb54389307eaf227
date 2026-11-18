@@ -1,0 +1,19 @@
+interface Gate {
+    bool isPaid => this is .paid
+}
+
+struct Order : Gate {
+    i64 id
+    states {
+        draft
+        paid(i64 payment)
+    }
+    i64 ship(this is .paid) => id
+}
+
+i64 run(Order order) {
+    if order.isPaid {
+        return order.ship()
+    }
+    return 0
+}

@@ -1,0 +1,30 @@
+1:1 Identifier `Å`
+2:1 OpenParen `(`
+2:3 CloseParen `)`
+2:5 OpenBracket `[`
+2:7 CloseBracket `]`
+2:9 OpenBrace `{`
+2:11 CloseBrace `}`
+3:2 LetKeyword `let`
+3:6 Identifier `cfé`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+4:1 Identifier `c`
+4:3 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 IntegerLiteral `1`
+5:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  3 │  let cfé = 2�
+    │             ^

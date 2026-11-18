@@ -1,0 +1,52 @@
+== tests/cases/run/errors-catch-block-assign.byn
+59..96 blockStmt
+65..81 guardedStmt
+78..81 unaryExpr notKeyword operand 79..81
+79..81 nameExpr
+65..69 failStmt
+70..74 targetMemberExpr
+86..94 returnStmt value 93..94
+93..94 literalExpr integer
+132..156 blockStmt
+138..154 guardedStmt
+151..154 unaryExpr notKeyword operand 152..154
+152..154 nameExpr
+138..142 failStmt
+143..147 targetMemberExpr
+175..287 blockStmt
+181..199 localDecl
+194..199 literalExpr falseKeyword
+204..272 localDecl
+212..272 catchExpr
+212..218 callExpr
+215..217 nameExpr
+225..272 blockExpr
+225..272 blockStmt
+235..248 assignStmt assign target 235..241 value 244..248
+235..241 nameExpr
+244..248 literalExpr trueKeyword
+257..266 returnStmt value 264..266
+264..266 unaryExpr negate operand 265..266
+277..285 returnStmt value 284..285
+284..285 nameExpr
+289..304 globalStatement
+289..304 localDecl
+299..304 literalExpr falseKeyword
+305..342 exprStmt
+305..342 catchExpr
+305..321 callExpr
+315..320 literalExpr falseKeyword
+328..342 blockExpr
+328..342 blockStmt
+330..340 assignStmt assign target 330..333 value 336..340
+330..333 nameExpr
+336..340 literalExpr trueKeyword
+343..391 exprStmt
+343..391 callExpr
+349..390 interpolatedExpr
+352..365 callExpr
+360..364 literalExpr trueKeyword
+368..382 callExpr
+376..381 literalExpr falseKeyword
+385..388 nameExpr
+343..391 callExpr

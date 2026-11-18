@@ -1,0 +1,92 @@
+2:2 IntegerLiteral `0xF__`
+3:2 LetKeyword `let`
+3:6 LawKeyword `law`
+3:10 Equals `=`
+3:12 IntegerLiteral `3`
+6:1 Identifier `Å`
+6:4 CharLiteral `'x`
+8:1 Identifier `ạ̇3`
+8:5 Dot `.`
+8:6 IntegerLiteral `14`
+8:9 FloatLiteral `1e5`
+8:13 IntegerLiteral `2`
+8:15 FloatLiteral `5e-3`
+8:20 FloatLiteral `6E+2`
+8:25 FloatLiteral `1.50`
+8:29 NumericSuffix `dec`
+8:33 IntegerLiteral `1`
+8:34 DotDot `..`
+8:36 IntegerLiteral `2`
+8:38 IntegerLiteral `1`
+8:39 DotDotEquals `..=`
+8:42 IntegerLiteral `3`
+8:44 IntegerLiteral `5`
+8:45 NumericSuffix `e`
+8:47 Identifier `x`
+8:48 Dot `.`
+8:51 FloatLiteral `2.5`
+8:54 NumericSuffix `f`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  0xF__
+    │     ^^
+    │
+    │ 2 │  0xF__
+    │   │     --
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ �
+    │  ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  6 │ Å 'x
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ Å 'x
+    │   │ +
+
+error BYN0008: unterminated char literal
+
+  6 │ Å 'x
+    │    ^^
+    │
+  help: close it with `'`
+
+error BYN0005: identifier `ạ̇3` is not in Unicode normalization form C
+
+  8 │ ạ̇3.14 1e5 2�5e-3 6E+2 1.50dec 1..2 1..=3 5e x.� 2.5f
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ ạ̇3.14 1e5 2�5e-3 6E+2 1.50dec 1..2 1..=3 5e x.� 2.5f
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  8 │ ạ̇3.14 1e5 2�5e-3 6E+2 1.50dec 1..2 1..=3 5e x.� 2.5f
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  8 │ ạ̇3.14 1e5 2�5e-3 6E+2 1.50dec 1..2 1..=3 5e x.� 2.5f
+    │                                                 ^

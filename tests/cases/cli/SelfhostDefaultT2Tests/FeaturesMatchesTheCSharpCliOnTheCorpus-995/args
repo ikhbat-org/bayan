@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/unique-use-after-move.byn
+--package
+<repo>/tests/cases/diag

@@ -1,0 +1,17 @@
+1:1 CharLiteral `''`
+2:1 StringLiteral `" `
+2:3 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  2 │ " 
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,1 @@
+let ok = ready && check(firstArgument, secondArgument) && done

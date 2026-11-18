@@ -1,0 +1,107 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 PlusPlus `++`
+2:32 MinusMinus `--`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 StringLiteral `"`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+5:2 LetKeyword `let`
+5:6 Identifier `a`
+5:8 Equals `=`
+5:12 IntegerLiteral `1`
+    doc `/// Doc line one.`
+9:1 IntegerLiteral `0b1`
+9:4 NumericSuffix `ms`
+10:1 IntegerLiteral `0x_`
+11:1 IntegerLiteral `0b__`
+12:1 IntegerLiteral `1__`
+13:1 IntegerLiteral `0xF__`
+14:1 StringLiteral `"text"`
+14:8 StringLiteral `"esc \"q\" \\ \n"`
+14:26 RawStringLiteral `"""\n`
+15:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  5 │  let a = $ 1
+    │          ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  9 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  10 │ 0x_
+     │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  11 │ 0b__
+     │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  12 │ 1__
+     │  ^^
+     │
+     │ 12 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  13 │ 0xF__
+     │    ^^
+     │
+     │ 13 │ 0xF__
+     │    │    --
+
+error BYN0003: unterminated string literal
+
+  14 │ "text" "esc \"q\" \\ \n" """
+     │                          ^^^ raw string starts here
+     │
+  help: close it with `"""`

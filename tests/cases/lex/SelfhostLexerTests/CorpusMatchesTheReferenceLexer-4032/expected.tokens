@@ -1,0 +1,21 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+1:6 RawStringLiteral `""" c"text" u16"wid�" "\u{202E} allowed in stringsf" "" "\u{48}i"\n�\u{}F600}' '\'' 'é' '\\' '\0'\n`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ 1.   """ c"text" u16"wid�" "� allowed in stringsf" "" "\u{48}i"
+    │      ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ 1.   """ c"text" u16"wid�" "� allowed in stringsf" "" "\u{48}i"
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ �\u{}F600}' '\'' 'é' '\\' '\0'
+    │ ^

@@ -1,0 +1,10 @@
+error BYN2604: `f` cannot fail, so it cannot pass on `ParseError`
+  --> tmp/t26-tests/cli/diag_fail-from-infallible.byn/fail-from-infallible.byn:6:10
+
+  6 │     fail ParseError.empty if s.isEmpty
+    │          ^^^^^^^^^^^^^^^^
+    │
+  help: declare the error in a `fails` clause, or handle it here
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2604

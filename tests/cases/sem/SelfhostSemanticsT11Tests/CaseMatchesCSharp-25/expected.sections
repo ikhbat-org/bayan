@@ -1,0 +1,4 @@
+== project dirs
+module main tmp/t11-cases/dirs/src main
+file src/app/main.byn source
+file tests/t.test.byn test

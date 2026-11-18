@@ -1,0 +1,21 @@
+== diags.diag/input-body-needs-braces
+BYN1017 3:8 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 3:8-4:24 x > 2 { print("big") }
+    else { print("small") }
+BYN1018 3:16 the body of `if` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1018 4:10 the body of `else` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1017 5:11 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 5:11-6:23 x > 5 {
+        print("never")
+    }
+BYN1018 6:9 the body of `while` must be a block
+  label a single statement
+  help wrap the statement in `{ }`

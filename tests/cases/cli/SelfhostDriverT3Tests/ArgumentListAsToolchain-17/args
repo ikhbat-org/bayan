@@ -1,0 +1,8 @@
+build
+<repo>/examples/hello/main.byn
+-o
+<repo>/tmp/t3/args-safe-windows-arm64/cs-out
+--mode
+safe
+--target
+windows-arm64

@@ -1,0 +1,31 @@
+1:1 Star `*`
+1:2 Slash `/`
+3:2 Identifier `Å`
+4:1 ErrorKeyword `error`
+4:7 SetKeyword `set`
+4:11 UnitKeyword `unit`
+4:16 DistinctKeyword `distinct`
+4:25 TypeKeyword `type`
+4:30 ImportKeyword `import`
+4:37 AsKeyword `as`
+4:40 PublicKeyword `public`
+4:47 PrivateKeyword `private`
+4:55 StaticKeyword `static`
+4:62 ReadonlyKeyword `readonly`
+4:71 RequiredKeyword `required`
+4:80 Identifier `cons`
+4:85 LetKeyword `let`
+4:89 VarKeyword `var`
+4:93 EmbedKeyword `embed`
+4:99 ExternKeyword `extern`
+4:106 Identifier `unafe`
+5:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │  Å
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  Å
+    │   │  +

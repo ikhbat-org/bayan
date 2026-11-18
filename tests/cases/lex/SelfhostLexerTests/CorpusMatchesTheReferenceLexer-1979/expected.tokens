@@ -1,0 +1,35 @@
+1:1 IntegerLiteral `1__`
+2:2 OpenParen `(`
+2:4 CloseParen `)`
+2:6 OpenBracket `[`
+2:8 CloseBracket `]`
+2:10 OpenBrace `{`
+2:12 CloseBrace `}`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:6 Bar `|`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 EqualsEquals `==`
+4:22 BangEquals `!=`
+4:25 Less `<`
+4:27 LessEquals `<=`
+4:30 Greater `>`
+4:32 GreaterEquals `>=`
+4:35 LessLess `<<`
+4:38 OpenParen `(`
+4:39 Greater `>`
+4:41 Greater `>`
+4:42 GreaterEquals `>=`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --

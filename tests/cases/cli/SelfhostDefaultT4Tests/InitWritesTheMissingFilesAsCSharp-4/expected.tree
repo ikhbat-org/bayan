@@ -1,0 +1,72 @@
+dir my-proj
+=== my-proj/.editorconfig
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+=== my-proj/.gitattributes
+* text=auto eol=lf
+*.byn linguist-language=C#
+dir my-proj/.github
+dir my-proj/.github/workflows
+=== my-proj/.github/workflows/bayan.yml
+name: bayan
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # Install zig and bayan here; neither has an official setup action yet.
+      - run: bayan check
+      - run: bayan test
+=== my-proj/.gitignore
+/out/
+/dist/
+/gen/
+=== my-proj/README.md
+# my-proj
+
+A Bayan library. Its code is in `src/myProj/`; other packages use it with `import myProj`.
+
+## Test
+
+```
+bayan test
+```
+dir my-proj/docs
+=== my-proj/docs/.gitkeep
+=== my-proj/package.byn
+Package {
+    name: "local/my-proj",      // `local/` until published under a verified namespace
+    version: "0.1.0",
+    edition: 2027,
+    kind: .lib,
+    capabilities: [],
+    deps: [],
+    dist: Dist {
+        targets: [.host],        // the machine that builds it
+        mode: .safe,
+    },
+}
+dir my-proj/src
+dir my-proj/src/myProj
+=== my-proj/src/myProj/myProj.byn
+/// Returns twice `x`.
+public i64 twice(i64 x) {
+    return x * 2
+}
+dir my-proj/testdata
+=== my-proj/testdata/.gitkeep
+dir my-proj/tests
+=== my-proj/tests/myProj.test.byn
+test "twice doubles" {
+    assert(twice(21) == 42)
+}

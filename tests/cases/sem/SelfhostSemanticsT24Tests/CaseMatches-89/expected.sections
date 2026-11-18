@@ -1,0 +1,2 @@
+== analyzeOwnership.copyParam
+BYN2780 30:14 implicit copy of a unique value: `List<i64>` is unique: it owns its storage ||make an independent copy with `xs.copy(to: alloc)`; declare the parameter `move xs` to take ownership; pass it by `ref` to share it instead|fix 339..339 .copy(to: alloc)

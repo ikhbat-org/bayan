@@ -1,0 +1,3 @@
+== exh.e20
+result false
+BYN2410 124:26 `switch` does not handle every `DbError` |not covered: .lost|add the missing arms, or `_ => …` for the rest|

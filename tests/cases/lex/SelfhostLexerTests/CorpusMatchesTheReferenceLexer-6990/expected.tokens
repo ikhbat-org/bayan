@@ -1,0 +1,126 @@
+1:1 IntegerLiteral `0`
+1:3 IntegerLiteral `42`
+1:6 IntegerLiteral `1_000`
+1:11 NumericSuffix `L_000`
+1:17 IntegerLiteral `0xFF`
+1:22 IntegerLiteral `0x_ff`
+1:28 IntegerLiteral `0b1010`
+1:35 IntegerLiteral `0B11`
+1:40 IntegerLiteral `5`
+1:41 NumericSuffix `s`
+1:43 IntegerLiteral `250`
+1:46 NumericSuffix `ms`
+1:49 IntegerLiteral `4`
+1:50 NumericSuffix `KiB`
+1:54 IntegerLiteral `1`
+1:55 NumericSuffix `u`
+1:57 IntegerLiteral `0xFF`
+1:61 NumericSuffix `u`
+1:63 IntegerLiteral `0b1`
+1:66 NumericSuffix `ul`
+1:69 IntegerLiteral `7`
+1:70 NumericSuffix `l`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 Identifier `x`
+3:50 InterpolationEnd `}`
+3:51 InterpolatedStringEnd `"`
+3:52 InterpolationEnd `}`
+3:53 InterpolatedStringEnd `"`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringEnd `"`
+3:58 InterpolationEnd `}`
+3:59 InterpolatedStringEnd `"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:62 InterpolationEnd `}`
+3:63 InterpolatedStringEnd `"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+3:66 InterpolationEnd `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:75 ErrorKeyword `error`
+3:81 SetKeyword `set`
+3:85 UnitKeyword `unit`
+3:90 DistinctKeyword `distinct`
+3:99 TypeKeyword `type`
+3:104 ImportKeyword `import`
+3:111 AsKeyword `as`
+3:114 PublicKeyword `public`
+3:121 PrivateKeyword `private`
+3:129 StaticKeyword `static`
+3:136 ReadonlyKeyword `readonly`
+3:145 RequiredKeyword `required`
+3:154 ConstKeyword `const`
+3:160 LetKeyword `let`
+3:164 VarKeyword `var`
+3:168 EmbedKeyword `embed`
+3:174 ExternKeyword `extern`
+3:181 UnsafeKeyword `unsafe`
+4:2 OpenBrace `{`
+4:4 Identifier `le`
+4:7 Identifier `a`
+4:9 Equals `=`
+4:11 IntegerLiteral `1`
+4:13 IntegerLiteral `0b__`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}" error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │  { le a = 1 0b__
+    │             ^^^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ // comment � hidden
+    │   │            -

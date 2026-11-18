@@ -1,0 +1,23 @@
+== case000.byn
+union error E {
+    a
+}
+
+union error F {
+    b
+}
+
+union error G {
+    c
+}
+
+interface IShape {
+    i64 area()
+}
+
+i32 g()
+        uses console
+        fails E, F {
+    print("g")
+    return 1
+}

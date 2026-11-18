@@ -1,0 +1,17 @@
+== tests/cases/diag/coalesce-break-outside-loop.byn
+20..36 conditionalExpr
+20..36 conditionalExpr
+20..36 conditionalExpr
+20..25 binaryExpr gt right 24..25
+20..21 nameExpr
+24..25 literalExpr integer
+28..29 nameExpr
+28..29 nameExpr
+32..36 literalExpr nullKeyword
+38..62 globalStatement
+38..62 localDecl
+46..62 binaryExpr coalesce right 57..62
+46..53 callExpr
+51..52 literalExpr integer
+57..62 jumpExpr
+57..62 breakStmt

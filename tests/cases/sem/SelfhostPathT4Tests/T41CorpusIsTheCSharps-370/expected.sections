@@ -1,0 +1,5 @@
+== diags.diag/single-state-inline
+BYN7006 9:23 `Order order is .paid` is an input form; write `Order.paid order`
+  label one state
+  help write the state type `Order.paid`
+  fix 9:11-9:31 Order.paid order

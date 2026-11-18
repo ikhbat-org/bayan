@@ -1,0 +1,186 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 StringLiteral `$"{x}"`
+1:61 CloseBrace `}`
+1:62 StringLiteral `"}"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 InterpolationEnd `}`
+1:88 InterpolatedStringEnd `"`
+1:89 InterpolationEnd `}`
+1:90 InterpolatedStringEnd `"`
+1:91 InterpolationEnd `}`
+1:92 InterpolatedStringEnd `"`
+1:93 InterpolationEnd `}`
+1:94 InterpolatedStringEnd `"`
+1:95 InterpolationEnd `}`
+1:96 InterpolatedStringEnd `"`
+1:97 CloseBrace `}`
+1:98 StringLiteral `"let a = 1`
+2:1 Identifier `_`
+3:1 VarKeyword `var`
+3:5 Identifier `xs`
+3:7 Colon `:`
+3:9 Identifier `List`
+3:13 Less `<`
+3:14 Identifier `List`
+3:18 Less `<`
+3:19 Identifier `i64`
+3:22 Greater `>`
+3:23 Greater `>`
+4:1 LetKeyword `let`
+4:5 Identifier `s`
+4:7 Equals `=`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolationStart `{`
+4:12 InterpolatedStringStart `$"`
+4:14 InterpolationStart `{`
+4:15 InterpolatedStringStart `$"`
+4:17 InterpolationStart `{`
+4:18 InterpolatedStringStart `$"`
+4:20 InterpolationStart `{`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolationStart `{`
+4:24 InterpolatedStringStart `$"`
+4:26 InterpolationStart `{`
+4:27 InterpolatedStringStart `$"`
+4:29 InterpolationStart `{`
+4:30 InterpolatedStringStart `$"`
+4:32 InterpolationStart `{`
+4:33 InterpolatedStringStart `$"`
+4:35 InterpolationStart `{`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolationStart `{`
+4:39 InterpolatedStringStart `$"`
+4:41 InterpolationStart `{`
+4:42 InterpolatedStringStart `$"`
+4:44 InterpolationStart `{`
+4:45 InterpolatedStringStart `$"`
+4:47 InterpolationStart `{`
+4:48 InterpolatedStringStart `$"`
+4:50 InterpolationStart `{`
+4:51 InterpolatedStringStart `$"`
+4:53 InterpolationStart `{`
+4:54 InterpolatedStringStart `$"`
+4:56 InterpolationStart `{`
+4:57 StringLiteral `$"{$"`
+4:62 OpenBrace `{`
+4:63 StringLiteral `$"{$"`
+4:68 OpenBrace `{`
+4:69 Identifier `x`
+4:70 CloseBrace `}`
+4:71 StringLiteral `"}"`
+4:74 CloseBrace `}`
+4:75 StringLiteral `"}"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolationEnd `}`
+4:81 InterpolatedStringEnd `"`
+4:82 InterpolationEnd `}`
+4:83 InterpolatedStringEnd `"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 InterpolationEnd `}`
+4:87 InterpolatedStringEnd `"`
+4:88 InterpolationEnd `}`
+4:89 InterpolatedStringEnd `"`
+4:90 InterpolationEnd `}`
+4:91 InterpolatedStringEnd `"`
+4:92 InterpolationEnd `}`
+4:93 InterpolatedStringEnd `"`
+4:94 InterpolationEnd `}`
+4:95 InterpolatedStringEnd `"`
+4:96 InterpolationEnd `}`
+4:97 InterpolatedStringEnd `"`
+4:98 InterpolationEnd `}`
+4:99 InterpolatedStringEnd `"`
+4:100 InterpolationEnd `}`
+4:101 InterpolatedStringEnd `"`
+4:102 InterpolationEnd `}`
+4:103 InterpolatedStringEnd `"`
+4:104 InterpolationEnd `}`
+4:105 InterpolatedStringEnd `"`
+4:106 InterpolationEnd `}`
+4:107 InterpolatedStringEnd `"`
+4:108 InterpolationEnd `}`
+4:109 InterpolatedStringEnd `"`
+6:1 LetKeyword `let`
+6:7 Equals `=`
+6:9 IntegerLiteral `2`
+7:1 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let a = 1
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let a = 1
+    │                                                                                                  ^^^^^^^^^^ string
+    │                                                                                                             ends
+    │                                                                                                             at
+    │                                                                                                             the
+    │                                                                                                             end
+    │                                                                                                             of
+    │                                                                                                             the
+    │                                                                                                             line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ let � = 2
+    │     ^

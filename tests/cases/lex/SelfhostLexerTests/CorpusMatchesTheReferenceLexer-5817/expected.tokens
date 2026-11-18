@@ -1,0 +1,31 @@
+1:2 Identifier `ᅡᆨ`
+2:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  1 │ �ᅡᆨ /* � */
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  1 │ �ᅡᆨ /* � */
+    │  ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ �ᅡᆨ /* � */
+    │     ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ �ᅡᆨ // �
+    │   │      +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ �ᅡᆨ /* � */
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �ᅡᆨ /* � */
+    │   │        -

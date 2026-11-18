@@ -1,0 +1,5 @@
+À€â¦ et b = "bad \q escape"
+let c = """never closed
+
+ô€€ â‚// ok ş in comment
+ €

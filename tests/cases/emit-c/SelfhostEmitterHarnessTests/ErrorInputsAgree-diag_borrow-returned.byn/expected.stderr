@@ -1,0 +1,19 @@
+error BYN3003: cannot return a borrow of the `stackalloc` buffer on line 2, which is freed when
+`scratch` returns
+  --> input.byn:3:12
+
+  3 │     return buf[1..]
+    │            ^^^^^^^^
+    │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that
+
+error BYN3003: cannot return a borrow of `values`, which is freed when `firstTwo` returns
+  --> input.byn:6:46
+
+  6 │ ReadOnlySpan<i64> firstTwo(i64[4] values) => values.span[..2]
+    │                                              ^^^^^^^^^^^^^^^^
+    │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3003

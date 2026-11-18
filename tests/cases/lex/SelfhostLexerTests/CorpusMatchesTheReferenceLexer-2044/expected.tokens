@@ -1,0 +1,86 @@
+1:3 Identifier `raw`
+1:7 StringLiteral `"quoted"`
+3:1 Identifier `et`
+3:4 Identifier `b`
+3:6 Equals `=`
+3:10 IntegerLiteral `2`
+3:11 NumericSuffix `let`
+3:15 Identifier `c`
+3:17 Equals `=`
+3:21 IntegerLiteral `3`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 Identifier `x`
+7:2 CharLiteral `'\u{202E}'`
+7:6 DeferKeyword `defer`
+7:12 ErrdeferKeyword `errdefer`
+7:21 UsingKeyword `using`
+7:27 ContextKeyword `context`
+8:1 FailsKeyword `fails`
+8:7 TryKeyword `try`
+8:11 CatchKeyword `catch`
+8:17 Identifier `neve`
+8:21 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  3 │ et b = ` 2let c = � 3
+    │        ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ et b = ` 2let c = � 3
+    │                   ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �//// not a doc comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ �//// not a doc comment
+    │  ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │  '�' defer errdefer using context
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  '�' defer errdefer using context
+    │   │   -

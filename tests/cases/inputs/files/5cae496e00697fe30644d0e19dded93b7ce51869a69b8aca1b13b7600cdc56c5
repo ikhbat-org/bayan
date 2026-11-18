@@ -1,0 +1,5 @@
+let café = 1
++ - * / % +% -% *% +| -| *| ++ --
+  raw "quoted"
+ a /* never closed
+' '\\' '\0'

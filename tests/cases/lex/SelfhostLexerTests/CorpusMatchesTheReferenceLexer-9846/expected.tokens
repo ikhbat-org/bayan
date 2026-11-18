@@ -1,0 +1,20 @@
+1:1 StructKeyword `struct`
+1:8 At `@`
+1:9 UniqueKeyword `unique`
+1:16 UnionKeyword `union`
+1:22 EnumKeyword `enum`
+1:27 FlagsKeyword `flags`
+1:33 OpenKeyword `open`
+1:38 ExtensibleKeyword `extensible`
+1:49 InterfaceKeyword `interface`
+1:59 DelegateKeyword `delegate`
+1:68 ExtensionKeyword `extension`
+1:78 DerivationKeyword `derivation`
+1:89 AttributeKeyword `attribute`
+2:2 IntegerLiteral `0b__`
+3:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │  0b__
+    │  ^^^^

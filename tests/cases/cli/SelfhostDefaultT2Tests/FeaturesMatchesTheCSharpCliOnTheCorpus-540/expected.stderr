@@ -1,0 +1,7 @@
+error BYN2003: `gett` is not a member of `Env`
+  --> <repo>/tests/cases/diag/env-unknown-member.byn:2:11
+
+  2 │ print(Env.gett("HOME") ?? "")
+    │           ^^^^
+    │
+  help: did you mean `get`?

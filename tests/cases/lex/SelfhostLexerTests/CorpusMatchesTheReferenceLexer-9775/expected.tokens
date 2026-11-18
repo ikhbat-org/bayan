@@ -1,0 +1,178 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 PlusPlus `++`
+2:32 MinusMinus `--`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 StringLiteral `$"{$"`
+3:55 OpenBrace `{`
+3:56 Identifier `x`
+3:57 CloseBrace `}`
+3:58 StringLiteral `"}"`
+3:61 InterpolationEnd `}`
+3:62 InterpolatedStringEnd `"`
+3:63 InterpolationEnd `}`
+3:64 InterpolatedStringEnd `"`
+3:65 InterpolationEnd `}`
+3:66 InterpolatedStringEnd `"`
+3:67 InterpolationEnd `}`
+3:68 InterpolatedStringEnd `"`
+3:69 InterpolationEnd `}`
+3:70 InterpolatedStringEnd `"`
+3:71 InterpolationEnd `}`
+3:72 InterpolatedStringEnd `"`
+3:73 InterpolationEnd `}`
+3:74 InterpolatedStringEnd `"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+3:79 InterpolationEnd `}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolationEnd `}`
+3:84 InterpolatedStringEnd `"`
+3:85 InterpolationEnd `}`
+3:86 InterpolatedStringEnd `"`
+3:87 InterpolationEnd `}`
+3:88 InterpolatedStringEnd `"`
+3:89 InterpolationEnd `}`
+3:90 InterpolatedStringEnd `"`
+3:91 InterpolationEnd `}`
+3:92 InterpolatedStringEnd `"`
+3:93 Identifier `ạ̇`
+3:101 Identifier `raw`
+3:105 StringLiteral `"q�oted"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"{$"`
+4:54 OpenBrace `{`
+4:55 StringLiteral `$"{$"`
+4:60 OpenBrace `{`
+4:61 Identifier `x`
+4:62 CloseBrace `}`
+4:63 StringLiteral `" `
+4:65 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"ạ̇ 𵟘   raw "q�oted"
+    │                                                  ^^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"ạ̇ 𵟘   raw "q�oted"
+    │                                                                                             ^^^ same
+    │                                                                                                 letters,
+    │                                                                                                 different
+    │                                                                                                 encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"ạ̇ 𵟘   raw "q�oted"
+    │   │                                                                                             +
+
+error BYN0002: unexpected character `𵟘`
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"ạ̇ 𵟘   raw "q�oted"
+    │                                                                                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"ạ̇ 𵟘   raw "q�oted"
+    │                                                                                                           ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" 
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" 
+    │                                                               ^^ string ends at the end of the
+    │                                                                  line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,65 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q scape"`
+3:1 Identifier `_`
+4:1 IntegerLiteral `0b102`
+5:1 IntegerLiteral `0xFF`
+5:5 NumericSuffix `s`
+6:1 IntegerLiteral `0b1`
+6:4 NumericSuffix `ms`
+7:1 Amp `&`
+7:3 AmpAmp `&&`
+7:6 Bar `|`
+7:8 BarBar `||`
+7:11 Caret `^`
+7:13 Tilde `~`
+7:15 Bang `!`
+7:17 Equals `=`
+7:19 EqualsEquals `==`
+7:22 BangEquals `!=`
+7:25 Less `<`
+7:27 LessEquals `<=`
+7:30 Greater `>`
+7:32 GreaterEquals `>=`
+7:35 LessLess `<<`
+7:38 Greater `>`
+7:39 Greater `>`
+7:41 Greater `>`
+7:42 GreaterEquals `>=`
+8:1 Identifier `c`
+8:3 Greater `>`
+8:4 GreaterEquals `>=`
+8:7 IntegerLiteral `1`
+9:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q scape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0x9D)
+
+  3 │ �_
+    │ ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  5 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  6 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

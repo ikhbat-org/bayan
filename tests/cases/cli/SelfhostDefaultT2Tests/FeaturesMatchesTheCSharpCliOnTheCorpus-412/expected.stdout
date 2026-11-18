@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BlockStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "LiteralExpr",
+    "NameExpr",
+    "StructDecl"
+  ],
+  "builtins": [],
+  "diagnostics": []
+}

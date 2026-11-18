@@ -1,0 +1,58 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+2:4 IntegerLiteral `3`
+3:2 Identifier `Å`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolatedStringText `x`
+3:6 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │  ����� 3
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │  ����� 3
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����� 3
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����� 3
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����� 3
+    │      ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │  Å$"x{ $"{
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  Å$"x{ $"{
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  3 │  Å$"x{ $"{
+    │        ^^ this string never ends
+    │
+  help: close the `{` and the string

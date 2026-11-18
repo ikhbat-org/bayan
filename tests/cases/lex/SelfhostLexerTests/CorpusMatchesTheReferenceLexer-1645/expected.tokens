@@ -1,0 +1,90 @@
+1:1 CharLiteral `''`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `total `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 InterpolationEnd `}`
+2:12 InterpolatedStringEnd `"`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolatedStringText `a `
+2:18 InterpolationStart `{`
+2:19 Identifier `f`
+2:20 OpenParen `(`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolatedStringText `Ub `
+2:26 InterpolationStart `{`
+2:27 Identifier `c`
+2:28 InterpolationEnd `}`
+2:29 InterpolatedStringEnd `"`
+2:30 CloseParen `)`
+2:31 InterpolationEnd `}`
+2:32 InterpolatedStringText ` d`
+2:34 InterpolatedStringEnd `"`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolatedStringText `{{literal}}`
+2:49 InterpolatedStringEnd `"`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 Identifier `Point`
+2:60 OpenBrace `{`
+2:62 Identifier `x`
+2:64 Equals `=`
+2:66 IntegerLiteral `1`
+2:68 CloseBrace `}`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringText `!`
+2:71 InterpolatedStringEnd `"`
+2:73 InterpolatedStringStart `$"`
+2:75 InterpolatedStringEnd `"`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 StringLiteral `"`
+4:1 IntegerLiteral `0x`
+5:1 FailsKeyword `fails`
+5:7 TryKeyword `try`
+5:11 CatchKeyword `catch`
+5:17 NeverKeyword `never`
+5:23 NoallocKeyword `noalloc`
+5:31 NosuspendKeyword `nosuspend`
+5:41 SuspendsKeyword `suspends`
+5:50 AsyncKeyword `async`
+5:56 AwaitKeyword `await`
+6:2 Identifier `é`
+6:4 StringLiteral `"a\u{2067}b"`
+6:10 Identifier `b`
+8:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{"
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x
+    │ ^^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  6 │  é"a�b" b
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │  é"a�b" b
+    │   │  +

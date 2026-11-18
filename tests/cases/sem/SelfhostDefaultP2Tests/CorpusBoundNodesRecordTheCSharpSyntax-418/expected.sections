@@ -1,0 +1,4 @@
+== tests/cases/diag/division-by-zero.byn
+0..14 globalStatement
+0..14 localDecl
+8..14 binaryExpr div right 13..14

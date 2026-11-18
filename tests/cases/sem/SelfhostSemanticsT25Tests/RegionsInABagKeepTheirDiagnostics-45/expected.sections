@@ -1,0 +1,2 @@
+== bag for-dyn-ref-span-variable-borrows
+BYN3004 22:5 `xs` is modified while `d` still borrows it |`d` is used again on line 23|finish using `d` first, or copy what it needs before changing `xs`|

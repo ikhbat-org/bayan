@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/unique-move-after-defer.byn
+--package
+<repo>/tests/cases/diag

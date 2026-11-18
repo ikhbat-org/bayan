@@ -1,0 +1,29 @@
+== tests/cases/run/errors-defer-return-value.byn
+36..96 blockStmt
+42..61 localDecl
+53..61 structLiteralExpr
+58..59 literalExpr integer
+66..71 deferStmt
+72..79 assignStmt assign target 72..75 value 78..79
+72..75 memberExpr
+72..73 nameExpr
+78..79 literalExpr integer
+84..94 returnStmt value 91..94
+91..94 memberExpr
+91..92 nameExpr
+110..161 blockStmt
+116..130 localDecl
+129..130 literalExpr integer
+135..140 deferStmt
+141..146 assignStmt assign target 141..142 value 145..146
+141..142 nameExpr
+145..146 literalExpr integer
+151..159 returnStmt value 158..159
+158..159 nameExpr
+163..192 globalStatement
+163..192 exprStmt
+163..192 callExpr
+169..191 interpolatedExpr
+172..179 callExpr
+182..189 callExpr
+163..192 callExpr

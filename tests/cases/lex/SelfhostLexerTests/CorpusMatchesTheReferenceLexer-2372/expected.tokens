@@ -1,0 +1,39 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+    doc `/// Doc line one.\r`
+5:3 Identifier `raw`
+5:7 StringLiteral `"quoted8`
+    doc `/// 0x/* block\r`
+7:1 ErrorKeyword `error`
+7:7 SetKeyword `set`
+7:11 UnitKeyword `unit`
+7:16 DistinctKeyword `distinct`
+7:25 TypeKeyword `type`
+7:30 ImportKeyword `import`
+7:37 AsKeyword `as`
+7:40 PublicKeyword `public`
+7:47 PrivateKeyword `private`
+7:55 StaticKeyword `static`
+7:62 ReadonlyKeyword `readonly`
+7:71 RequiredKeyword `required`
+7:80 ConstKeyword `const`
+7:86 LetKeyword `let`
+7:90 VarKeyword `var`
+7:94 EmbedKeyword `embed`
+7:100 ExternKeyword `extern`
+7:107 UnsafeKeyword `unsafe`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │  �
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │   raw "quoted8
+    │       ^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

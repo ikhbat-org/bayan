@@ -1,0 +1,121 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+2:2 Identifier `Bar`
+2:6 Identifier `_x`
+2:9 Identifier `camelCase2`
+2:20 Identifier `بيان`
+2:25 Identifier `μετρητής`
+2:34 Identifier `x_1`
+2:38 Identifier `é`
+3:2 LetKeyword `let`
+3:6 LawKeyword `law`
+3:10 Equals `=`
+3:12 IntegerLiteral `3`
+5:2 CharLiteral `'x`
+7:2 Equals `=`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 InterpolatedStringStart `$"`
+7:51 InterpolationStart `{`
+7:52 StringLiteral `$"{$ ''`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ �����'x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ �����'x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����'x
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����'x
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����'x
+    │     ^
+
+error BYN0008: unterminated char literal
+
+  5 │ �����'x
+    │      ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  7 │  = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$ ''
+    │                                                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │  = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$ ''
+    │                                                    ^^
+
+error BYN0003: unterminated string literal
+
+  7 │  = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$ ''
+    │                                                    ^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

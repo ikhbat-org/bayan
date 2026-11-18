@@ -1,0 +1,86 @@
+1:1 IntegerLiteral `0x`
+1:4 IntegerLiteral `1_`
+3:1 Identifier `strsuct`
+3:9 Identifier `S`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolatedStringText `$`
+4:38 InterpolatedStringEnd `"`
+4:39 OpenBrace `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 InterpolatedStringStart `$"`
+4:54 InterpolationStart `{`
+4:55 Identifier `xstruct`
+4:63 UniqueKeyword `unique`
+4:70 UnionKeyword `union`
+4:76 EnumKeyword `enum`
+4:81 FlagsKeyword `flags`
+4:87 OpenKeyword `open`
+4:92 ExtensibleKeyword `extensible`
+4:103 InterfaceKeyword `interface`
+4:113 DelegateKeyword `delegate`
+4:122 ExtensionKeyword `extension`
+4:132 DerivationKeyword `derivation`
+4:143 AttributeKeyword `attribute`
+6:1 StringLiteral `$"{`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x 1_
+    │ ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0x 1_
+    │     ^
+    │
+    │ 1 │ 0x 1_
+    │   │     -
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{xstruct unique union enum flags open extensible interface delegate extension derivation attribute
+    │                                                    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{
+    │ ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

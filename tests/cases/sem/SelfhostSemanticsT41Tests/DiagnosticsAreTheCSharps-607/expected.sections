@@ -1,0 +1,7 @@
+== diags.diag/instrument-changes-this
+BYN5107 8:16 `OrderHasher` is a tool; `hash` must not change `this`
+  help remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step
+BYN5107 15:16 `OrderComparer` is a tool; `compare` must not change `this`
+  help remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step
+BYN5107 19:12 `IOrderCodec` is a tool; `encode` must not change `this`
+  help remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step

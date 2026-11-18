@@ -1,0 +1,40 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+2:1 Amp `&`
+2:3 AmpAmp `&&`
+2:6 Bar `|`
+2:8 BarBar `||`
+2:11 Caret `^`
+2:13 Tilde `~`
+2:15 Bang `!`
+2:17 Equals `=`
+2:19 EqualsEquals `==`
+2:22 BangEquals `!=`
+2:25 Less `<`
+2:27 LessEquals `<=`
+2:30 Greater `>`
+2:32 GreaterEquals `>=`
+2:35 LessLess `<<`
+2:38 Greater `>`
+2:39 Greater `>`
+2:41 Greater `>`
+2:42 GreaterEquals `>=`
+4:1 OpenParen `(`
+4:3 CloseParen `)`
+4:5 OpenBracket `[`
+4:7 CloseBracket `]`
+4:9 OpenBrace `{`
+4:11 CloseBrace `}`
+5:4 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1;
+    │   │        +

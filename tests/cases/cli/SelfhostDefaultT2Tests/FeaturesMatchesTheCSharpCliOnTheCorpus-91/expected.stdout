@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CaughtErrorExpr",
+    "ConstantPattern",
+    "DiscardPattern",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr",
+    "SwitchExpr",
+    "TargetMemberExpr",
+    "TryExpr"
+  ],
+  "builtins": [
+    "FsRealPath",
+    "IoCreateDirectory",
+    "IoRemoveDirectory",
+    "PathFileName",
+    "PathIsRooted",
+    "Print"
+  ],
+  "diagnostics": []
+}

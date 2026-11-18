@@ -1,0 +1,11 @@
+error se unit distinct type import as public private static readonly required const let var embed extern unsafe
+
+error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+ let café = 2
+ macro select become
+1_
+let c = """never closed
+ /// List<i64>>
+a >> b
+c >>= 1
+ 

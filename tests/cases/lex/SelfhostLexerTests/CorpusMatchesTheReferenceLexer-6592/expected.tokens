@@ -1,0 +1,45 @@
+1:1 StringLiteral `"{3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f`
+2:2 LetKeyword `let`
+2:6 Identifier `a`
+2:8 Equals `=`
+2:12 IntegerLiteral `1`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolationEnd `}`
+3:6 InterpolatedStringEnd `"`
+4:2 IntegerLiteral `1`
+4:3 NumericSuffix `e`
+4:4 StringLiteral `"a�b"`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  2 │  let a = $ 1
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │  $"{}" �// line comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │  $"{}" �// line comment
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │  1e"a�b"
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  4 │  1e"a�b"
+    │       ^

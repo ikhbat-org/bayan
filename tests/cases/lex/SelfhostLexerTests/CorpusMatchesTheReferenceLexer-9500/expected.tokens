@@ -1,0 +1,41 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+2:1 TestKeyword `test`
+2:6 AssertKeyword `assert`
+2:13 PropertyKeyword `property`
+2:22 FuzzKeyword `fuzz`
+2:27 ModelKeyword `model`
+2:33 ForeachKeyword `foreach`
+2:41 NewKeyword `new`
+2:45 GotoKeyword `goto`
+4:4 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+6:4 Identifier `comment`
+6:12 Star `*`
+6:13 Slash `/`
+6:15 Identifier `a`
+8:1 Star `*`
+8:2 Slash `/`
+8:3 CharLiteral `'`
+8:4 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ let a = $ 1
+    │         ^
+
+error BYN0002: unexpected character `$`
+
+  4 │  $ 1
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  8 │ */'
+    │   ^
+    │
+  help: close it with `'`

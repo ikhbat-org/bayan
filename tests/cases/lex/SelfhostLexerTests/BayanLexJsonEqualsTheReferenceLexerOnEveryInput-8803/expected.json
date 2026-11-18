@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"Star","start":1,"end":2,"text":"*","doc":null},{"kind":"Slash","start":2,"end":3,"text":"/","doc":null},{"kind":"Identifier","start":4,"end":5,"text":"a","doc":null},{"kind":"EndOfFile","start":39,"end":39,"text":"","doc":{"start":7,"end":39}}],"diagnostics":[]}

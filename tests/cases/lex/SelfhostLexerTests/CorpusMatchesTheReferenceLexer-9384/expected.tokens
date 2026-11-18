@@ -1,0 +1,14 @@
+1:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} alowed in strings" "" "\u�{48}i"\r\n\u{2069}\r\n‏\r\n// comment \u{202E} hidden\r\n''\r\n\r\nn while do break continue return  `
+7:35 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │   """ c"text" u16"wide" "� alowed in strings" "" "\u�{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  1 │   """ c"text" u16"wide" "� alowed in strings" "" "\u�{48}i"
+    │                                                     ^

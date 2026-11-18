@@ -1,0 +1,17 @@
+1:1 CharLiteral `'\\u{12}'`
+2:2 Identifier `a`
+4:7 EndOfFile
+
+error BYN0006: invalid escape sequence `\`
+
+  1 │ '\�'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0004: unterminated block comment
+
+  2 │  a /* neverclosed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

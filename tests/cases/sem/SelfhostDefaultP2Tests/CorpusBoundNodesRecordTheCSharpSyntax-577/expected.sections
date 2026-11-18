@@ -1,0 +1,7 @@
+== tests/cases/diag/interface-as-type.byn
+57..82 blockStmt
+63..80 localDecl
+79..80 nameExpr
+96..133 blockStmt
+102..131 localDecl
+129..131 collectionExpr

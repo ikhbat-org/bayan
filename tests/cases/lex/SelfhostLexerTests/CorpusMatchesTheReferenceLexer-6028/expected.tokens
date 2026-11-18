@@ -1,0 +1,119 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+3:1 IfKeyword `if`
+3:4 ElseKeyword `else`
+3:9 UnlessKeyword `unless`
+3:16 SwitchKeyword `switch`
+3:23 CaseKeyword `case`
+3:28 DefaultKeyword `default`
+3:36 ForKeyword `for`
+3:40 InKeyword `in`
+3:43 WhileKeyword `while`
+3:49 DoKeyword `do`
+3:52 BreakKeyword `break`
+3:58 Identifier `cntinue`
+3:66 ReturnKeyword `return`
+3:73 YieldKeyword `yield`
+3:79 DeferKeyword `defer`
+3:85 Identifier `errdeer`
+3:93 UsingKeyword `using`
+3:99 ContextKeyword `context`
+4:2 LetKeyword `let`
+4:6 Identifier `s`
+4:8 Equals `=`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 InterpolatedStringStart `$"`
+4:54 InterpolationStart `{`
+4:55 InterpolatedStringStart `$"`
+4:57 InterpolationStart `{`
+4:58 StringLiteral `$"{$"`
+4:63 OpenBrace `{`
+4:64 StringLiteral `$"{$"`
+4:69 OpenBrace `{`
+4:70 Identifier `x`
+4:71 CloseBrace `}`
+4:72 StringLiteral `"}"`
+4:75 CloseBrace `}`
+4:76 StringLiteral `"}"`
+4:79 InterpolationEnd `}`
+4:80 InterpolatedStringEnd `"`
+4:81 InterpolationEnd `}`
+4:82 InterpolatedStringEnd `"`
+4:83 InterpolationEnd `}`
+4:84 InterpolatedStringEnd `"`
+4:85 InterpolationEnd `}`
+4:86 InterpolatedStringEnd `"`
+4:87 InterpolationEnd `}`
+4:88 InterpolatedStringEnd `"`
+4:89 InterpolationEnd `}`
+4:90 InterpolatedStringEnd `"`
+4:91 InterpolationEnd `}`
+4:92 InterpolatedStringEnd `"`
+4:93 InterpolationEnd `}`
+4:94 InterpolatedStringEnd `"`
+4:95 InterpolationEnd `}`
+4:96 InterpolatedStringEnd `"`
+4:97 InterpolationEnd `}`
+4:98 InterpolatedStringEnd `"`
+4:99 InterpolationEnd `}`
+4:100 InterpolatedStringEnd `"`
+4:101 InterpolationEnd `}`
+4:102 InterpolatedStringEnd `"`
+4:103 InterpolationEnd `}`
+4:104 InterpolatedStringEnd `"`
+4:105 InterpolationEnd `}`
+4:106 InterpolatedStringEnd `"`
+4:107 InterpolationEnd `}`
+4:108 InterpolatedStringEnd `"`
+4:109 InterpolationEnd `}`
+4:110 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │  let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                          ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ �
+    │  ^

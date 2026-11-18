@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "CallExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "ArenaNew",
+    "Print",
+    "StrBufAppend",
+    "StrBufAppendRepeated",
+    "StrBufAsString",
+    "StrBufCopy",
+    "StrBufGrow",
+    "StrBufLength"
+  ],
+  "diagnostics": []
+}

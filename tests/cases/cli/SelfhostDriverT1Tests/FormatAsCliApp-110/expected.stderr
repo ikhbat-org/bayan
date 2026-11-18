@@ -1,0 +1,5 @@
+error BYN1001: expected `)`, found `;`
+  --> <repo>/tmp/t8-format/error-dir/a.byn:2:19
+
+  2 │ if (a) { print("x"; }
+    │                   ^

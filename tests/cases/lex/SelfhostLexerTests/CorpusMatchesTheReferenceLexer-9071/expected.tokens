@@ -1,0 +1,49 @@
+1:1 OpenBrace `{`
+1:4 Identifier `wait`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 OrKeyword `or`
+2:11 NotKeyword `not`
+2:15 WithKeyword `with`
+2:20 MoveKeyword `move`
+2:25 RefKeyword `ref`
+2:29 OutKeyword `out`
+2:33 ThisKeyword `this`
+2:38 NullKeyword `null`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolatedStringText `stray } here`
+2:56 InterpolatedStringEnd `"`
+3:2 IntegerLiteral `0xFF`
+3:6 NumericSuffix `s`
+4:2 IntegerLiteral `0b__`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ { �wait
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ { �wait
+    │    ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ is and or not with move ref out this null$"stray } here"
+    │                                                  ^
+    │
+    │ 2 │ is and or not with move ref out this null$"stray }} here"
+    │   │                                                   +
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  3 │  0xFFs
+    │      ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │  0b__
+    │  ^^^^

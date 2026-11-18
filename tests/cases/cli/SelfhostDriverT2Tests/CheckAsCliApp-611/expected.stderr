@@ -1,0 +1,10 @@
+error BYN2603: `ParseError` is not in the `fails` clause of `total`
+  --> <repo>/tmp/t2/diag/undeclared-error/undeclared-error.byn:15:12
+
+  15 │     return try parse(s)
+     │            ^^^^^^^^^^^^
+     │
+  help: add it to the signature: `fails MoneyError, ParseError`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2603

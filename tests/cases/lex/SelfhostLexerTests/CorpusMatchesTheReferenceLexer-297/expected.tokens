@@ -1,0 +1,160 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:1 ErrorKeyword `error`
+2:7 SetKeyword `set`
+2:11 UnitKeyword `unit`
+2:16 DistinctKeyword `distinct`
+2:25 TypeKeyword `type`
+2:30 ImportKeyword `import`
+2:37 AsKeyword `as`
+2:40 PublicKeyword `public`
+2:47 PrivateKeyword `private`
+2:55 StaticKeyword `static`
+2:62 ReadonlyKeyword `readonly`
+2:71 RequiredKeyword `required`
+2:80 ConstKeyword `const`
+2:86 LetKeyword `let`
+2:90 VarKeyword `var`
+2:94 EmbedKeyword `embed`
+2:100 ExternKeyword `extern`
+2:107 UnsafeKeyword `unsafe`
+3:3 Equals `=`
+3:5 IntegerLiteral `2`
+4:1 Identifier `macro`
+4:7 Identifier `select`
+4:14 BecomeKeyword `become`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 StringLiteral `$"{$"`
+6:54 OpenBrace `{`
+6:55 StringLiteral `$"{$"`
+6:60 OpenBrace `{`
+6:61 StringLiteral `$"{x`
+7:1 StringLiteral `$"{$"`
+7:6 OpenBrace `{`
+7:7 StringLiteral `$"{$"`
+7:12 OpenBrace `{`
+7:13 StringLiteral `$"{$"`
+7:18 OpenBrace `{`
+7:19 StringLiteral `$"{$"`
+7:24 OpenBrace `{`
+7:25 StringLiteral `$"{$"`
+7:30 OpenBrace `{`
+7:31 StringLiteral `$"{$"`
+7:36 OpenBrace `{`
+7:37 StringLiteral `$"{$"`
+7:42 OpenBrace `{`
+7:43 StringLiteral `$"{$"`
+7:48 OpenBrace `{`
+7:49 StringLiteral `$"{$"`
+7:54 OpenBrace `{`
+7:55 StringLiteral `$"{x}"`
+7:61 CloseBrace `}`
+7:62 StringLiteral `"}"`
+7:65 CloseBrace `}`
+7:66 StringLiteral `" `
+9:1 LetKeyword `let`
+9:5 Identifier `b`
+9:7 Equals `=`
+9:11 IntegerLiteral `2`
+10:2 Identifier `macro`
+10:8 Identifier `select`
+10:15 BecomeKeyword `become`
+11:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                                             ^^^^ string ends at the end of the
+    │                                                                  line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 
+    │                                                                  ^^ string ends at the end of
+    │                                                                     the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character ```
+
+  9 │ let b = ` 2
+    │         ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  10 │  macro select become
+     │  ^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  10 │  macro select become
+     │        ^^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name

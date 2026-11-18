@@ -1,0 +1,7 @@
+== diags.local-names
+BYN2009 2:9 `StrBuf` must be camelCase
+  help rename it `strBuf`; only types are PascalCase
+BYN2009 3:9 `Log` must be camelCase
+  help rename it `log`; only types are PascalCase
+BYN2003 4:20 `over` is not a member of `i32`
+BYN2003 5:17 `debug` is not a member of `i32`

@@ -1,0 +1,13 @@
+CompilationUnit
+  ErrorEnum StepError
+    Variant timedOut @retry 3 doc `The step timed out.`
+  Attribute @inline
+  Function step() -> void
+    Block
+  Attribute @exitCode 2
+  Function other() -> void
+    Block
+  Function main() -> void
+    Block
+      Expr (call step)
+      Expr (call other)

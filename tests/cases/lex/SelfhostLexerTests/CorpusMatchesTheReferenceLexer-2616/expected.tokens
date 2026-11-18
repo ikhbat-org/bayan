@@ -1,0 +1,2 @@
+1:1 StringLiteral `"a\u{2067}b"`
+1:6 EndOfFile

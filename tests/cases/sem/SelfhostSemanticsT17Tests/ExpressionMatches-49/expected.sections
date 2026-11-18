@@ -1,0 +1,2 @@
+== case int-2p127-float-target
+literal 2507..2546 : f64 = 1.7014118346046923E+38

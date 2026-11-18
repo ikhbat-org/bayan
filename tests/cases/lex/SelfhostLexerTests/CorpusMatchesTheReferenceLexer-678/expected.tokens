@@ -1,0 +1,71 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 Identifier `prope`
+1:19 Identifier `ty`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+3:4 Identifier `comment`
+3:12 Star `*`
+3:13 Slash `/`
+3:15 Identifier `a`
+4:2 IntegerLiteral `0b__`
+5:2 CloseBrace `}`
+6:1 PlusEquals `+=`
+6:4 MinusEquals `-=`
+6:7 StarEquals `*=`
+6:10 SlashEquals `/=`
+6:13 PercentEquals `%=`
+6:16 AmpEquals `&=`
+6:19 BarEquals `|=`
+6:22 CaretEquals `^=`
+6:25 LessLessEquals `<<=`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 StringLiteral `"`
+8:1 IsKeyword `is`
+8:4 AndKeyword `and`
+8:8 OrKeyword `or`
+8:11 NotKeyword `not`
+8:15 WithKeyword `with`
+8:20 MoveKeyword `move`
+8:25 RefKeyword `ref`
+8:29 OutKeyword `out`
+8:33 ThisKeyword `this`
+8:38 NullKeyword `null`
+8:43 TrueKeyword `true`
+8:48 FalseKeyword `false`
+8:54 ComptimeKeyword `comptime`
+8:63 CheckedKeyword `checked`
+10:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  1 │ �test assert prope�ty fuzz model foreach new goto
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  1 │ �test assert prope�ty fuzz model foreach new goto
+    │                   ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │  0b__
+    │  ^^^^
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{"
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,58 @@
+1:1 IntegerLiteral `0xF__`
+2:2 Arrow `->`
+2:5 At `@`
+2:7 Hash `#`
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 Plus `+`
+3:12 InterpolatedStringStart `$"`
+3:14 InterpolationStart `{`
+3:15 Identifier `a`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolatedStringText `stray } here`
+3:31 InterpolatedStringEnd `"`
+4:2 ErrorKeyword `error`
+4:8 SetKeyword `set`
+4:12 UnitKeyword `unit`
+4:17 DistinctKeyword `distinct`
+4:26 TypeKeyword `type`
+4:31 ImportKeyword `import`
+4:38 AsKeyword `as`
+4:41 PublicKeyword `public`
+4:48 PrivateKeyword `private`
+4:56 StaticKeyword `static`
+4:63 ReadonlyKeyword `readonly`
+4:72 RequiredKeyword `required`
+4:81 ConstKeyword `const`
+4:87 LetKeyword `let`
+4:91 VarKeyword `var`
+4:95 EmbedKeyword `embed`
+4:101 ExternKeyword `extern`
+4:108 UnsafeKeyword `unsafe`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  3 │ + - * / % +$"{a $"stray } here"
+    │            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ + - * / % +$"{a $"stray } here"
+    │                         ^
+    │
+    │ 3 │ + - * / % +$"{a $"stray }} here"
+    │   │                          +

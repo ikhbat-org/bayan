@@ -1,0 +1,49 @@
+1:3 IntegerLiteral `0000`
+1:7 CloseBrace `}`
+1:8 CharLiteral `'`
+2:1 CharLiteral `'x`
+5:2 RawStringLiteral `"""\n  raw %"quoted"\n  """`
+7:7 CStringLiteral `c"text"`
+7:15 U16StringLiteral `u16"wide"`
+7:25 StringLiteral `"\u{202E} a`
+8:1 Identifier `a`
+8:3 Greater `>`
+8:4 Greater `>`
+8:6 Identifier `e`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ��� 0000}'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ��� 0000}'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��� 0000}'
+    │   ^
+
+error BYN0008: unterminated char literal
+
+  1 │ ��� 0000}'
+    │          ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  7 │   """ c"text" u16"wide" "� a
+    │                         ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

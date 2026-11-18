@@ -1,0 +1,23 @@
+1:1 IntegerLiteral `0x`
+2:1 Identifier `line`
+2:6 Identifier `comment`
+4:15 Identifier `a`
+    doc `/// Doc line one.\n/// Doc`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ /* blo$k
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ // blo$k
+    │   │  +++++++
+    │ 4 │ // comment
+    │   │ ++++++++++
+    │ 5 │  a

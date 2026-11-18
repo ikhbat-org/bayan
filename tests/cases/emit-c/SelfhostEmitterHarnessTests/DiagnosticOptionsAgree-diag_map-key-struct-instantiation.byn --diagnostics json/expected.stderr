@@ -1,0 +1,1 @@
+{"code":"BYN2831","severity":"error","file":"input.byn","span":{"start":76,"end":87,"line":3,"column":17,"endLine":3,"endColumn":28},"message":"`Weight` cannot be a `Map` key: field `grams` is a `f64`","label":"the generic code needs this of its type arguments","help":"use a field that identifies the value as the key, such as an id or a `Symbol`","fixes":[]}

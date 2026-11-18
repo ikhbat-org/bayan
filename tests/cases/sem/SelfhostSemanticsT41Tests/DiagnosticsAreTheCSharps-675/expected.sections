@@ -1,0 +1,11 @@
+== diags.diag/immutable-assignment
+BYN2104 5:5 `n` is immutable
+  label parameters are immutable
+  help copy it into a local `var`, or take it by `ref` if the caller's value should change
+BYN2104 2:1 `total` is immutable
+  label declared with `let` on line 1
+  help declare it with `var` if it should change
+  fix 1:1-1:4 var
+BYN2104 9:5 `i` is immutable
+  label loop variables are immutable
+  help copy it into a local `var` to change it

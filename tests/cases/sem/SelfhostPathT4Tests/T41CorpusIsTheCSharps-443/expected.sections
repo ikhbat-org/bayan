@@ -1,0 +1,7 @@
+== diags.diag/unused-value
+BYN3201 4:5 the value of this `one()` is unused
+  label value dropped
+  help assign it with `let _ = …`, or remove the expression
+BYN3201 8:5 the value of this `xs.removeLast()` is unused
+  label value dropped
+  help assign it with `let _ = …`, or remove the expression

@@ -1,0 +1,52 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 Identifier `dist`
+1:21 Identifier `nct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+2:2 Identifier `d`
+2:5 Identifier `q`
+2:7 Identifier `escape`
+2:13 StringLiteral `"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""never closed\n fails try catch never noalloc nosuspend suspends async await\n  : ?b\n\n'\u{202E}' '\'' /é' '\\' '\0'\n\n`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  1 │ error set unit dist�nct type import as public private static readonly required const let var embed extern unsafe
+    │                    ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  d \q escape"
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  2 │  d \q escape"
+    │             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

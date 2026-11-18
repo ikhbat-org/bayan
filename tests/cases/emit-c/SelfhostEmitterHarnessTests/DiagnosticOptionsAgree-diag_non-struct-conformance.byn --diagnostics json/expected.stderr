@@ -1,0 +1,2 @@
+{"code":"BYN2815","severity":"error","file":"input.byn","span":{"start":51,"end":57,"line":5,"column":15,"endLine":5,"endColumn":21},"message":"`Shape` is a union; only structs can conform yet","label":"listed here","help":"wrap it in a struct that conforms","fixes":[]}
+{"code":"BYN2815","severity":"error","file":"input.byn","span":{"start":103,"end":109,"line":10,"column":14,"endLine":10,"endColumn":20},"message":"`Color` is an enum; only structs can conform yet","label":"listed here","help":"wrap it in a struct that conforms","fixes":[]}

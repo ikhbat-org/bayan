@@ -1,0 +1,13 @@
+== symbols
+((byn_sym){0})
+((byn_sym){1})
+((byn_sym){0})
+((byn_sym){2})
+((byn_sym){3})
+byn_sym_text(x)
+byn_sym_intern(y)
+true
+text b
+text a
+text 
+text é

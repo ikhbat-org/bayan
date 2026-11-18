@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CaughtErrorExpr",
+    "CollectionExpr",
+    "EnumDecl",
+    "ErrorEnumDecl",
+    "ExprStmt",
+    "FailStmt",
+    "FieldDecl",
+    "ForStmt",
+    "FunctionDecl",
+    "GuardedStmt",
+    "IfStmt",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LambdaExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "StructDecl",
+    "StructLiteralExpr",
+    "SwitchExpr",
+    "TargetMemberExpr",
+    "TryExpr",
+    "UnaryExpr",
+    "VariantPattern",
+    "WhileStmt"
+  ],
+  "builtins": [
+    "Print",
+    "SpanLength",
+    "StringIsEmpty"
+  ],
+  "diagnostics": [
+    "BYN2310"
+  ]
+}

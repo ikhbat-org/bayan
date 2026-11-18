@@ -1,0 +1,52 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 StringLiteral `"open`
+4:1 CharLiteral `'a'`
+4:5 CharLiteral `'\n'`
+4:10 CharLiteral `'\u{1F600}'`
+4:22 CharLiteral `'\''`
+4:27 CharLiteral `'é'`
+4:31 CharLiteral `'\\'`
+4:36 CharLiteral `'\0'`
+5:2 Identifier `en`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:8 ErrorKeyword `error`
+6:14 SetKeyword `set`
+6:18 UnitKeyword `unit`
+6:23 DistinctKeyword `distinct`
+6:32 TypeKeyword `type`
+6:37 ImportKeyword `import`
+6:44 AsKeyword `as`
+6:47 PublicKeyword `public`
+6:54 PrivateKeyword `private`
+6:62 StaticKeyword `static`
+6:69 ReadonlyKeyword `readonly`
+6:78 RequiredKeyword `required`
+6:87 ConstKeyword `const`
+6:93 LetKeyword `let`
+6:97 VarKeyword `var`
+6:101 EmbedKeyword `embed`
+6:107 ExternKeyword `extern`
+6:114 UnsafeKeyword `unsafe`
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0004: unterminated block comment
+
+  7 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

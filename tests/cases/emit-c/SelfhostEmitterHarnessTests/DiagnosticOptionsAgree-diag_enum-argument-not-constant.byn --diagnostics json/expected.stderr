@@ -1,0 +1,1 @@
+{"code":"BYN2723","severity":"error","file":"input.byn","span":{"start":73,"end":83,"line":5,"column":11,"endLine":5,"endColumn":21},"message":"argument `bytes` of `Size.large` must be a compile-time constant","label":"computed at run time","help":"use literals and `const`s only; enum data is static","fixes":[]}

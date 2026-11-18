@@ -1,0 +1,4 @@
+== diags.run/lambda-generic
+returns apply 0 1
+returns twice 0 1
+returns twice$lambda1 0

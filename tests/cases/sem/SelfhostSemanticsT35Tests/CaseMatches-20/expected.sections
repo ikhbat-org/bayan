@@ -1,0 +1,3 @@
+== expr.probes.i2
+interpolated:string[3444:6]=-(v:local:Point[3447:1]=-(p))
+BYN2225 144:17 `Point` cannot be formatted ||add `formatInto(ref StrBuf)` to `Point`, or use `{x, as: .debug}`|

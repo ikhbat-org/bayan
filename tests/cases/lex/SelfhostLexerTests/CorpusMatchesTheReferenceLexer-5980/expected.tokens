@@ -1,0 +1,12 @@
+2:1 Identifier `leGt`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:10 RawStringLiteral `"""never closed\n\nest assert property fuzz model foreach new goto\nn\nb\n$"open {x";\nif else unless switch case default for in while do break continue return yield defer errdefer using context\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ leGt c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

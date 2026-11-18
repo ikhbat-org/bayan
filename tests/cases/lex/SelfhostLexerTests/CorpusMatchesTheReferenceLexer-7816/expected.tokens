@@ -1,0 +1,75 @@
+1:1 OpenBrace `{`
+1:3 Identifier `macro`
+1:9 Identifier `select`
+1:16 BecomeKeyword `become`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 Identifier `x`
+3:47 InterpolationEnd `}`
+3:48 InterpolatedStringEnd `"`
+3:49 InterpolationEnd `}`
+3:50 InterpolatedStringEnd `"`
+3:51 InterpolationEnd `}`
+3:52 InterpolatedStringEnd `"`
+3:53 InterpolationEnd `}`
+3:54 InterpolatedStringEnd `"`
+4:1 StringLiteral `"text"`
+4:8 StringLiteral `"esc \"q\" \\ \n"`
+4:26 RawStringLiteral `"""\nstruct unique union enum flags open extensible interface delegate extension derivation atribute\n 0b1ms\n\n$"open {x";\nlet café = 1; `
+9:16 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ { macro select become
+    │   ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ { macro select become
+    │         ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+    │                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

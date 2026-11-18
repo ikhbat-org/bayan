@@ -1,0 +1,93 @@
+1:1 Plus `+`
+1:2 IntegerLiteral `2`
+1:4 FloatLiteral `1.50`
+1:8 NumericSuffix `dec`
+1:12 IntegerLiteral `1`
+1:13 DotDot `..`
+1:15 IntegerLiteral `2`
+1:17 IntegerLiteral `1`
+1:18 Dot `.`
+1:20 BangEquals `!=`
+1:23 Less `<`
+1:25 LessEquals `<=`
+1:28 Greater `>`
+1:30 GreaterEquals `>=`
+1:33 LessLess `<<`
+1:36 Greater `>`
+1:37 Greater `>`
+1:39 Greater `>`
+1:40 GreaterEquals `>=`
+2:1 PlusEquals `+=`
+2:4 MinusEquals `-=`
+2:7 StarEquals `*=`
+2:10 SlashEquals `/=`
+2:13 PercentEquals `%=`
+2:16 AmpEquals `&=`
+2:19 BarEquals `|=`
+2:22 CaretEquals `^=`
+2:25 LessLessEquals `<<=`
+4:1 IntegerLiteral `0b102`
+6:1 Identifier `closed`
+7:1 Identifier `b`
+8:2 InKeyword `in`
+8:5 Identifier `strings`
+8:12 StringLiteral `" "`
+8:15 StringLiteral `" "`
+8:19 Identifier `u`
+8:20 OpenBrace `{`
+8:21 IntegerLiteral `48`
+8:23 CloseBrace `}`
+8:24 Identifier `i`
+8:25 StringLiteral `"`
+10:1 Amp `&`
+10:3 AmpAmp `&&`
+10:6 Bar `|`
+10:8 BarBar `||`
+10:11 Caret `^`
+10:13 Tilde `~`
+10:15 Bang `!`
+10:17 Equals `=`
+10:19 EqualsEquals `==`
+10:22 BangEquals `!=`
+10:25 Less `<`
+10:27 LessEquals `<=`
+10:30 Greater `>`
+10:32 GreaterEquals `>=`
+10:35 Less `<`
+10:37 Greater `>`
+10:38 Greater `>`
+10:40 Greater `>`
+10:41 GreaterEquals `>=`
+12:4 IntegerLiteral `2`
+13:1 LetKeyword `let`
+13:5 Identifier `c`
+13:7 Equals `=`
+13:11 IntegerLiteral `3`
+14:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │ 0b102
+    │     ^
+
+error BYN0002: unexpected character `\`
+
+  8 │  in strings" "" "\u{48}i"
+    │                  ^
+
+error BYN0003: unterminated string literal
+
+  8 │  in strings" "" "\u{48}i"
+    │                         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character ```
+
+  12 │  ` 2
+     │  ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  13 │ let c = � 3
+     │         ^

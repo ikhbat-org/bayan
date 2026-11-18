@@ -1,0 +1,4 @@
+== member.probes.-.m8
+errorExpr|?|-|-|-|-|-|1618:11|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2230 95:21 `string.from` is now `Utf8.decode` |the old name|write `Utf8.decode`|fix 1618..1629 Utf8.decode

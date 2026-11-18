@@ -1,0 +1,4 @@
+== path unless
+module main tmp/t11-cases/unless main
+file tmp/t11-cases/unless/main.byn source
+diag BYN1022 tmp/t11-cases/unless/main.byn 2:5 `unless` with `&&`/`||` reads as a double negative | a compound condition | use `if` with the negated condition

@@ -1,0 +1,2 @@
+type MaybeCount = i64?
+let x: MaybeCount? = null

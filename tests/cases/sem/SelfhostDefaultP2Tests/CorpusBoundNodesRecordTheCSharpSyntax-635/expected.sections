@@ -1,0 +1,15 @@
+== tests/cases/diag/line-join-enum-shorthand.byn
+162..171 memberExpr
+162..171 memberExpr
+162..171 memberExpr
+173..190 globalStatement
+173..190 localDecl
+181..190 memberExpr
+191..208 assignStmt assign target 191..192 value 195..208
+191..192 nameExpr
+195..208 memberExpr
+209..222 exprStmt
+209..222 callExpr
+215..221 memberExpr
+215..216 nameExpr
+209..222 callExpr

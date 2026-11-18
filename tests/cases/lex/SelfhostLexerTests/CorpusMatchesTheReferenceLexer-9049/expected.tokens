@@ -1,0 +1,61 @@
+1:1 CharLiteral `'\u{D800}'`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+5:2 FailsKeyword `fails`
+5:8 TryKeyword `try`
+5:12 CatchKeyword `catch`
+5:18 NeverKeyword `never`
+5:24 NoallocKeyword `noalloc`
+5:32 NosuspendKeyword `nosuspend`
+5:42 SuspendsKeyword `suspends`
+5:51 AsyncKeyword `async`
+5:57 Identifier `aait`
+6:3 Identifier `raw`
+6:7 StringLiteral `"quoted"`
+7:4 Identifier `x`
+7:7 Equals `=`
+7:9 IntegerLiteral `1`
+8:2 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  7 │  � x� = 1
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  � x� = 1
+    │   │  -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │  � x� = 1
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  � x� = 1
+    │   │     -

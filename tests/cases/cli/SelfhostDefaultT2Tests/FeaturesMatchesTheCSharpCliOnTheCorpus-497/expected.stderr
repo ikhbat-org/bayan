@@ -1,0 +1,9 @@
+error BYN3204: `7` is not a `Id`
+  --> <repo>/tests/cases/diag/distinct-bare-literal.byn:4:17
+
+  4 │     let i: Id = 7
+    │                 ^
+    │
+  help: wrap it: `Id(7)`
+    │ 4 │     let i: Id = Id(7)
+    │   │                 +++++

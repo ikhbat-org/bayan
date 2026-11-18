@@ -1,0 +1,18 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+struct Box { i64 weight }
+
+i64 add(i32 a, i32 b) {
+    return a + b
+}
+
+void main() {
+    let a = true
+    if a && !false {
+        print("x")
+    }
+    if a {
+        print("y")
+    }
+    let t: i32 = add(1, 2)
+    print($"{t}") if !a || t is not 0
+}

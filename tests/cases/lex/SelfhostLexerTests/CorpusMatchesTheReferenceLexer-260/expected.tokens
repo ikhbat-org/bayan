@@ -1,0 +1,61 @@
+1:1 IntegerLiteral `0x`
+2:2 LetKeyword `let`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:12 IntegerLiteral `3`
+3:5 IntegerLiteral `1`
+3:6 NumericSuffix `e`
+3:10 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings"` "" "\u{48}i"\r\n\r\n��`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │  let c = � 3
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAB)
+
+  3 │  ���� 1e�   """ c"text" u16"wide" "� allowed in strings"` "" "\u{48}i"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │  ���� 1e�   """ c"text" u16"wide" "� allowed in strings"` "" "\u{48}i"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │  ���� 1e�   """ c"text" u16"wide" "� allowed in strings"` "" "\u{48}i"
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ���� 1e�   """ c"text" u16"wide" "� allowed in strings"` "" "\u{48}i"
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ���� 1e�   """ c"text" u16"wide" "� allowed in strings"` "" "\u{48}i"
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  3 │  ���� 1e�   """ c"text" u16"wide" "� allowed in strings"` "" "\u{48}i"
+    │             ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ��
+    │  ^

@@ -1,0 +1,69 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+4:1 Star `*`
+4:2 Slash `/`
+4:3 InterpolatedStringStart `$"`
+4:5 InterpolationStart `{`
+4:6 StringLiteral `"}$"`
+4:10 OpenBrace `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolatedStringText `$`
+4:17 InterpolatedStringEnd `"`
+4:18 OpenBrace `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 Identifier `x`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:60 Identifier `c`
+4:62 Equals `=`
+4:66 IntegerLiteral `3`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  4 │ */$"{"}$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" c = � 3
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ */$"{"}$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" c = � 3
+    │                                                                ^

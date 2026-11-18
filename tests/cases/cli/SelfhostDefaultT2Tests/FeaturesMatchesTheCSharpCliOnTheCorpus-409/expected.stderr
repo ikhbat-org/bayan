@@ -1,0 +1,15 @@
+error BYN7007: `run` has no state `.done`
+  --> <repo>/tests/cases/parse/provide-become.byn:5:13
+
+  5 │     become .done
+    │             ^^^^
+    │
+  help: check the states declared in `run`
+
+error BYN7007: `run` has no state `.retry`
+  --> <repo>/tests/cases/parse/provide-become.byn:6:13
+
+  6 │     become .retry(1)
+    │             ^^^^^
+    │
+  help: check the states declared in `run`

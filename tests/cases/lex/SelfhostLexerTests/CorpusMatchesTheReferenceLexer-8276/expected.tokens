@@ -1,0 +1,22 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 Identifier `noaloc`
+1:30 NosuspendKeyword `nosuspend`
+1:40 SuspendsKeyword `suspends`
+1:49 AsyncKeyword `async`
+1:55 AwaitKeyword `await`
+5:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  4 │ /�// Doc line two.
+    │  ^

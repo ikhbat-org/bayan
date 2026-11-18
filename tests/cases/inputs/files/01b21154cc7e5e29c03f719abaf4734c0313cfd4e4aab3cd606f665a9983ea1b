@@ -1,0 +1,5 @@
+let b = "bad \q escape"
+0xFFs
+
+$"stray } here"
+"{

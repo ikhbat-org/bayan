@@ -1,0 +1,22 @@
+1:1 OpenBrace `{`
+1:5 Identifier `comment`
+1:13 Star `*`
+1:14 Slash `/`
+1:16 Identifier `a`
+2:2 LetKeyword `let`
+2:6 EffectKeyword `effect`
+2:13 Equals `=`
+2:15 IntegerLiteral `2`
+3:2 Star `*`
+3:3 Slash `/`
+3:5 CharLiteral `'\'`
+4:2 IntegerLiteral `1`
+4:3 NumericSuffix `e`
+5:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  3 │  */ '\'
+    │     ^^^
+    │
+  help: close it with `'`

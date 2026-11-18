@@ -1,0 +1,1 @@
+{"code":"BYN2114","severity":"error","file":"input.byn","span":{"start":18,"end":19,"line":2,"column":9,"endLine":2,"endColumn":10},"message":"`i32` is not a struct","label":null,"help":null,"fixes":[]}

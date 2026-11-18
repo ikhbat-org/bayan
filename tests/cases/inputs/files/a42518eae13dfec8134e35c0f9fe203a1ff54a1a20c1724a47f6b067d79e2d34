@@ -1,0 +1,6 @@
+var xs: List<List<i64>>
+'\q'
+
+   comment */ a
+ """"text" "esc \ž"q\"\\ \n" """
+ 

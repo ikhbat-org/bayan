@@ -1,0 +1,123 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 StringLiteral `$"{$"`
+2:56 OpenBrace `{`
+2:57 StringLiteral `$"{x}"`
+2:63 CloseBrace `}`
+2:64 StringLiteral `"}"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بيا`
+3:27 Identifier `μετρητής`
+3:36 Identifier `x_1`
+3:40 Identifier `é`
+7:2 IntegerLiteral `0xFF`
+7:6 NumericSuffix `s`
+9:1 IntegerLiteral `0`
+9:3 IntegerLiteral `42`
+9:6 IntegerLiteral `1_000_000`
+9:16 IntegerLiteral `0xFF`
+9:21 IntegerLiteral `0x_ff`
+9:27 IntegerLiteral `0b1010`
+9:34 IntegerLiteral `0B11`
+9:39 IntegerLiteral `5`
+9:40 NumericSuffix `s`
+9:42 IntegerLiteral `250`
+9:45 NumericSuffix `ms`
+9:48 IntegerLiteral `4`
+9:49 NumericSuffix `KiB`
+9:53 IntegerLiteral `1`
+9:54 NumericSuffix `u`
+9:56 IntegerLiteral `0xFF`
+9:60 NumericSuffix `u`
+9:62 IntegerLiteral `0b1`
+9:65 NumericSuffix `ul`
+9:68 IntegerLiteral `7`
+9:69 NumericSuffix `l`
+10:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │                             ^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │                                       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │                                                   ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  3 │ foo Bar _x camelCase2 بيا� μετρητής x_1 é
+    │                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ �0xFFs
+    │ ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  7 │ �0xFFs
+    │      ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xB7)
+
+  9 │ 0 42 1_000_000� 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │               ^

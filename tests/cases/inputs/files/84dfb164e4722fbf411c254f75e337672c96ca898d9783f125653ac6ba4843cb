@@ -1,0 +1,29 @@
+// BYN1072, BYN1073 and the typed BYN1078 with a `//` comment in the span the fix would replace: the lint stays, with no fix, and
+// `bayan fix` leaves the file.
+struct Customer {
+    bool isActive
+}
+
+bool any(List<Customer> customers, by (Customer -> bool) p) {
+    var found = false
+    for c in customers {
+        found = found or p(c)
+    }
+    return found
+}
+
+bool few(i32 n) {
+    return n == 0 || // none or one
+        n == 1
+}
+
+void main() {
+    let customers: List<Customer> = [Customer { isActive: true }]
+    if customers.isEmpty // why
+    {
+        return
+    }
+    let wrapped = any(customers, by: c => // why
+        c.isActive)
+    print($"{wrapped}{few(1)}")
+}

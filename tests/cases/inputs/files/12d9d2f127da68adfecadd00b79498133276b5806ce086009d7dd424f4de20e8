@@ -1,0 +1,12 @@
+// `Fs.realPath` reads the file system and allocates its result, so a public function calling it declares `fs` and `alloc` (BYN6002).
+public string undeclared(string p) fails IoError {
+    return try Fs.realPath(p)
+}
+
+public string declared(string p) uses fs, alloc fails IoError {
+    return try Fs.realPath(p)
+}
+
+void main() {
+    print("ok")
+}

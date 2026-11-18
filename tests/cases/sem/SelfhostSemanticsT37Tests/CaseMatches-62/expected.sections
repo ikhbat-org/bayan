@@ -1,0 +1,4 @@
+== check.loopnoext
+counts 1 1 0
+mut xs 2127..2132 false -
+loan xs x 0 0

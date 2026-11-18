@@ -1,0 +1,148 @@
+1:1 Identifier `ment`
+1:8 Identifier `hiddeFn`
+2:1 LetKeyword `let`
+2:5 Identifier `x`
+2:8 Identifier `_000`
+2:13 IntegerLiteral `0xFF`
+2:18 IntegerLiteral `0x_ff`
+2:24 IntegerLiteral `0b1010`
+2:31 IntegerLiteral `0B11`
+2:36 IntegerLiteral `5`
+2:37 NumericSuffix `s`
+2:39 IntegerLiteral `250`
+2:42 NumericSuffix `ms`
+2:45 IntegerLiteral `4`
+2:46 NumericSuffix `KiB`
+2:50 IntegerLiteral `1`
+2:51 NumericSuffix `u`
+2:53 IntegerLiteral `0xFF`
+2:57 NumericSuffix `u`
+2:59 IntegerLiteral `0b1`
+2:62 NumericSuffix `ul`
+2:65 IntegerLiteral `7`
+2:66 NumericSuffix `l`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 Identifier `x`
+3:48 InterpolationEnd `}`
+3:49 InterpolatedStringEnd `"`
+3:50 InterpolationEnd `}`
+3:51 InterpolatedStringEnd `"`
+3:52 InterpolationEnd `}`
+3:53 InterpolatedStringEnd `"`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringEnd `"`
+3:58 InterpolationEnd `}`
+3:59 InterpolatedStringEnd `"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:62 InterpolationEnd `}`
+3:63 InterpolatedStringEnd `"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+3:66 InterpolationEnd `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:6 Bar `|`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 EqualsEquals `==`
+4:22 BangEquals `!=`
+4:25 Less `<`
+4:27 LessEquals `<=`
+4:30 Greater `>`
+4:32 GreaterEquals `>=`
+4:35 LessLess `<<`
+4:38 Greater `>`
+4:39 Greater `>`
+4:41 Greater `>`
+4:42 GreaterEquals `>=`
+5:1 IntegerLiteral `1`
+5:2 NumericSuffix `eb`
+5:5 Equals `=`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:11 IntegerLiteral `3`
+8:1 LetKeyword `let`
+8:5 Identifier `café`
+8:10 Equals `=`
+8:12 IntegerLiteral `2`
+9:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ ment � hiddeFn
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ ment � hiddeFn
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ let x� _000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character ```
+
+  5 │ 1eb = ` �
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD7)
+
+  5 │ 1eb = ` �
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  6 │ let c = � 3
+    │         ^

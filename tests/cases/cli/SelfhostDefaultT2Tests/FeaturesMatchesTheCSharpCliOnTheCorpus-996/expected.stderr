@@ -1,0 +1,23 @@
+error BYN2770: unknown attribute `retry`
+  --> <repo>/tests/cases/diag/unknown-attribute.byn:2:6
+
+  2 │     @retry(3)
+    │      ^^^^^
+    │
+  help: use `@exitCode(n)`; it is the only attribute an error variant takes
+
+error BYN2770: unknown attribute `inline`
+  --> <repo>/tests/cases/diag/unknown-attribute.byn:7:2
+
+  7 │ @inline
+    │  ^^^^^^
+    │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+
+error BYN1016: `@exitCode` is not allowed here
+  --> <repo>/tests/cases/diag/unknown-attribute.byn:10:1
+
+  10 │ @exitCode(2)
+     │ ^^^^^^^^^^^^
+     │
+  help: put `@exitCode` on an error enum variant

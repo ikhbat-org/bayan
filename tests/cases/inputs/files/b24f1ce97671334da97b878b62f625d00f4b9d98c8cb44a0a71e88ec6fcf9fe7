@@ -1,0 +1,4 @@
+public Money quote(Cart cart, for Customer customer)
+        expects cart.lines.length > 0
+        uses db
+        fails QuoteError {

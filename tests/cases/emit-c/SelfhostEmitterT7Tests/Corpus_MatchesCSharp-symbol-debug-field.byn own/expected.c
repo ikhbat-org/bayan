@@ -1,0 +1,72 @@
+false bynh_chk_claim_void bynh_chk_set_void bynh_chk_move_void bynh_chk_ret_void
+false bynh_chk_claim_sym bynh_chk_set_sym bynh_chk_move_sym bynh_chk_ret_sym
+false bynh_chk_claim_main__P bynh_chk_set_main__P bynh_chk_move_main__P bynh_chk_ret_main__P
+helper bynh_chk_claim_void
+static void bynh_chk_claim_void(void* p, const char* file, int line) {
+}
+helper bynh_chk_set_void
+static void bynh_chk_set_void(void* p, void v, byn_own_slot* s, bool claim, const char* file, int line) {
+    *p = v;
+    if (s) s->line = 0;
+    if (claim) bynh_chk_claim_void(p, file, line);
+    return v;
+}
+helper bynh_chk_move_void
+static void* bynh_chk_move_void(void* p, byn_own_slot* s, const char* file, int line) {
+    if (s) byn_own_read(s, "void", file, line);
+    if (s) {
+        s->file = file;
+        s->line = line;
+    }
+    return p;
+}
+helper bynh_chk_ret_void
+static void bynh_chk_ret_void(void v) {
+    return v;
+}
+helper bynh_chk_claim_sym
+static void bynh_chk_claim_sym(byn_sym* p, const char* file, int line) {
+}
+helper bynh_chk_set_sym
+static byn_sym bynh_chk_set_sym(byn_sym* p, byn_sym v, byn_own_slot* s, bool claim, const char* file, int line) {
+    *p = v;
+    if (s) s->line = 0;
+    if (claim) bynh_chk_claim_sym(p, file, line);
+    return v;
+}
+helper bynh_chk_move_sym
+static byn_sym* bynh_chk_move_sym(byn_sym* p, byn_own_slot* s, const char* file, int line) {
+    if (s) byn_own_read(s, "Symbol", file, line);
+    if (s) {
+        s->file = file;
+        s->line = line;
+    }
+    return p;
+}
+helper bynh_chk_ret_sym
+static byn_sym bynh_chk_ret_sym(byn_sym v) {
+    return v;
+}
+helper bynh_chk_claim_main__P
+static void bynh_chk_claim_main__P(bynt_main__P* p, const char* file, int line) {
+}
+helper bynh_chk_set_main__P
+static bynt_main__P bynh_chk_set_main__P(bynt_main__P* p, bynt_main__P v, byn_own_slot* s, bool claim, const char* file, int line) {
+    *p = v;
+    if (s) s->line = 0;
+    if (claim) bynh_chk_claim_main__P(p, file, line);
+    return v;
+}
+helper bynh_chk_move_main__P
+static bynt_main__P* bynh_chk_move_main__P(bynt_main__P* p, byn_own_slot* s, const char* file, int line) {
+    if (s) byn_own_read(s, "P", file, line);
+    if (s) {
+        s->file = file;
+        s->line = line;
+    }
+    return p;
+}
+helper bynh_chk_ret_main__P
+static bynt_main__P bynh_chk_ret_main__P(bynt_main__P v) {
+    return v;
+}

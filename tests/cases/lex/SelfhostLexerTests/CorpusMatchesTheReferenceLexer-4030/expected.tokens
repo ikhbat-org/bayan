@@ -1,0 +1,48 @@
+    doc `///"""`
+2:1 CharLiteral `'\q'`
+3:2 IsKeyword `is`
+3:5 AndKeyword `and`
+3:9 OrKeyword `or`
+3:12 NotKeyword `not`
+3:16 WithKeyword `with`
+3:21 MoveKeyword `move`
+3:26 RefKeyword `ref`
+3:30 OutKeyword `out`
+3:34 ThisKeyword `this`
+3:39 NullKeyword `null`
+3:44 TrueKeyword `true`
+3:49 FalseKeyword `false`
+3:55 ComptimeKeyword `comptime`
+3:64 CheckedKeyword `checked`
+5:1 ErrorKeyword `error`
+5:7 SetKeyword `set`
+5:11 UnitKeyword `unit`
+5:16 DistinctKeyword `distinct`
+5:25 TypeKeyword `type`
+5:30 ImportKeyword `import`
+5:37 AsKeyword `as`
+5:40 PublicKeyword `public`
+5:47 PrivateKeyword `private`
+5:55 StaticKeyword `static`
+5:62 ReadonlyKeyword `readonly`
+5:71 RequiredKeyword `required`
+5:80 ConstKeyword `const`
+5:86 LetKeyword `let`
+5:90 VarKeyword `var`
+5:94 EmbedKeyword `embed`
+5:100 ExternKeyword `extern`
+5:107 UnsafeKeyword `unsafe`
+6:2 IntegerLiteral `0x`
+7:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │  0x
+    │  ^^

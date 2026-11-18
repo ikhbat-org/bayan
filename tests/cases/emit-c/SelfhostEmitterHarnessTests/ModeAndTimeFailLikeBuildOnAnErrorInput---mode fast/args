@@ -1,0 +1,5 @@
+build
+--mode
+fast
+--emit-c
+input.byn

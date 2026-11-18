@@ -1,0 +1,27 @@
+1:2 Identifier `q`
+1:4 Identifier `escape`
+1:10 StringLiteral `"`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""nevr c}\n= \u{7} 3\n\n`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ \q escape"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  1 │ \q escape"
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """nevr c}
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

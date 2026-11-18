@@ -1,0 +1,84 @@
+1:1 Identifier `mment`
+3:1 FloatLiteral `3.14`
+3:6 FloatLiteral `1e5`
+3:10 FloatLiteral `2.5e-3`
+3:17 FloatLiteral `6E+2`
+3:22 FloatLiteral `1.50`
+3:26 NumericSuffix `dec`
+3:30 IntegerLiteral `1`
+3:31 Dot `.`
+3:32 Star `*`
+3:33 IntegerLiteral `2`
+3:35 IntegerLiteral `1`
+3:36 DotDotEquals `..=`
+3:39 IntegerLiteral `3`
+3:41 IntegerLiteral `5`
+3:42 NumericSuffix `e`
+3:44 Identifier `x`
+3:45 Dot `.`
+3:46 Identifier `y`
+3:48 FloatLiteral `2.5`
+3:51 NumericSuffix `f`
+4:2 CloseParen `)`
+4:5 CloseBracket `]`
+4:7 OpenBrace `{`
+4:9 CloseBrace `}`
+5:1 Comma `,`
+5:3 Dot `.`
+5:5 DotDot `..`
+5:8 DotDotEquals `..=`
+5:12 Colon `:`
+5:14 Question `?`
+5:16 QuestionQuestion `??`
+5:19 QuestionQuestionEquals `??=`
+5:23 QuestionDot `?.`
+5:26 FatArrow `=>`
+5:29 Arrow `->`
+5:33 Hash `#`
+6:1 Plus `+`
+6:3 Minus `-`
+6:5 Star `*`
+6:7 Slash `/`
+6:9 Percent `%`
+6:11 PlusPercent `+%`
+6:14 MinusPercent `-%`
+7:1 IntegerLiteral `1_`
+9:1 CharLiteral `'\q'`
+11:1 OpenParen `(`
+11:3 CloseParen `)`
+11:5 OpenBracket `[`
+11:7 CloseBracket `]`
+11:9 OpenBrace `{`
+11:11 CloseBrace `}`
+12:1 IntegerLiteral `0x`
+13:1 Identifier `é`
+13:3 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 1_
+    │  ^
+    │
+    │ 7 │ 1_
+    │   │  -
+
+error BYN0006: invalid escape sequence `\q`
+
+  9 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  12 │ 0x
+     │ ^^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  13 │ é
+     │ ^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 13 │ é
+     │    │ +

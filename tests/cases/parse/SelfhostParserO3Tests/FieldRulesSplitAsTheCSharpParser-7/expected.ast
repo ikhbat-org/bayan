@@ -1,0 +1,4 @@
+CompilationUnit
+  Struct Range requires (>= hi lo)
+    Field i64 lo
+    Field i64 hi

@@ -1,0 +1,5 @@
+i32 main(ReadOnlySpan<string> args) {
+    print("== json")
+    for a in args { print(t26JsonString(a)) }
+    return 0
+}

@@ -1,0 +1,11 @@
+== tests/cases/run/memory-slice-mid-codepoint.byn
+0..19 globalStatement
+0..19 localDecl
+11..19 literalExpr string
+20..37 exprStmt
+20..37 callExpr
+26..36 indexExpr
+26..30 nameExpr
+31..32 literalExpr integer
+34..35 literalExpr integer
+20..37 callExpr

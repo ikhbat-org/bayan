@@ -1,0 +1,9 @@
+text" 16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+$"x{ $"{ struct S
+/// Doc line two.
+let b = "bad \q escape"
+$"x{ $"{
+f
+macro select become
+ 

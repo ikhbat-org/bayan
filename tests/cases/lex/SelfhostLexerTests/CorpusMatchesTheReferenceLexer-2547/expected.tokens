@@ -1,0 +1,120 @@
+1:1 Identifier `ής`
+1:4 Identifier `x_1`
+1:8 Identifier `é`
+2:1 CharLiteral `'a'`
+2:5 CharLiteral `'\n'`
+2:10 CharLiteral `'\u{1F6000}'`
+2:23 CharLiteral `'\''`
+2:28 CharLiteral `'é'`
+2:32 CharLiteral `'\\'`
+2:37 CharLiteral `'\0'`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:14 StringLiteral `"{$"`
+3:18 OpenBrace `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 Identifier `x`
+3:44 InterpolationEnd `}`
+3:45 InterpolatedStringEnd `"`
+3:46 InterpolationEnd `}`
+3:47 InterpolatedStringEnd `"`
+3:48 InterpolationEnd `}`
+3:49 InterpolatedStringEnd `"`
+4:1 FloatLiteral `3.14`
+4:6 FloatLiteral `1e5`
+4:10 FloatLiteral `2.5e-3`
+4:17 FloatLiteral `6E+2`
+4:22 FloatLiteral `1.50`
+4:26 NumericSuffix `dec`
+4:30 IntegerLiteral `1`
+4:31 DotDot `..`
+4:33 IntegerLiteral `2`
+4:35 IntegerLiteral `1`
+4:36 DotDotEquals `..=`
+4:39 IntegerLiteral `3`
+4:41 IntegerLiteral `5`
+4:42 NumericSuffix `e`
+4:44 Identifier `x`
+4:45 Dot `.`
+4:46 Identifier `y`
+4:48 FloatLiteral `2.5`
+4:51 NumericSuffix `f`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:9 StringLiteral `"bad \q escape"`
+8:1 LetKeyword `let`
+8:5 Identifier `b`
+8:7 Equals `=`
+8:9 StringLiteral `"bad \q escape"`
+9:3 Identifier `P`
+10:1 EndOfFile
+
+error BYN0013: `\u{1F6000}` is not a Unicode scalar value
+
+  2 │ 'a' '\n' '\u{1F6000}' '\'' 'é' '\\' '\0'
+    │           ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  3 │ $"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │             ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `﻿`
+
+  7 │ ﻿
+    │ ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  8 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  9 │  �P�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  9 │  �P�
+    │    ^

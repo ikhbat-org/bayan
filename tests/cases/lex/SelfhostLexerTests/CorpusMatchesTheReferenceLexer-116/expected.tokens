@@ -1,0 +1,93 @@
+1:4 Equals `=`
+1:7 OpenBrace `{`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 InterpolatedStringStart `$"`
+1:19 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolationStart `{`
+1:26 InterpolatedStringStart `$"`
+1:28 InterpolationStart `{`
+1:29 InterpolatedStringStart `$"`
+1:31 InterpolatedStringText `$`
+1:32 InterpolatedStringEnd `"`
+1:33 OpenBrace `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:47 Bar `|`
+1:48 OpenBrace `{`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���  = ${$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$|{$�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���  = ${$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$|{$�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���  = ${$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$|{$�
+    │   ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ ���  = ${$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$|{$�
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ���  = ${$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$|{$�
+    │                                             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ ���  = ${$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$|{$�
+    │                                                ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ ���  = ${$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$|{$�
+    │                                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ ���  = ${$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$|{$�
+    │                                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ ���  = ${$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$|{$�
+    │                                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ ���  = ${$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$|{$�
+    │                                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ��
+    │  ^

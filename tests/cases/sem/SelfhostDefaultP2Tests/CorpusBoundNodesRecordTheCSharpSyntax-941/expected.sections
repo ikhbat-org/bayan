@@ -1,0 +1,14 @@
+== tests/cases/diag/unknown-parameter.byn
+38..52 binaryExpr mul right 46..52
+38..52 binaryExpr mul right 46..52
+38..52 binaryExpr mul right 46..52
+38..43 nameExpr
+46..52 nameExpr
+53..86 globalStatement
+53..86 exprStmt
+53..86 callExpr
+59..85 interpolatedExpr
+62..83 callExpr
+62..83 callExpr
+81..82 literalExpr integer
+53..86 callExpr

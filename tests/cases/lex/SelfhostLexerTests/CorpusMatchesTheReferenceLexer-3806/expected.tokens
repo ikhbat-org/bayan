@@ -1,0 +1,51 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 Identifier `r`
+1:10 NotKeyword `not`
+1:14 WithKeyword `with`
+1:19 MoveKeyword `move`
+1:24 RefKeyword `ref`
+1:28 OutKeyword `out`
+1:32 ThisKeyword `this`
+1:37 IntegerLiteral `7`
+1:38 NumericSuffix `ull`
+1:42 TrueKeyword `true`
+1:47 Identifier `fVlse`
+1:53 ComptimeKeyword `comptime`
+1:62 CheckedKeyword `checked`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:2 IntegerLiteral `1`
+3:3 NumericSuffix `e`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+5:3 IntegerLiteral `1`
+7:2 IntegerLiteral `1__`
+8:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │  1__
+    │   ^^
+    │
+    │ 7 │  1__
+    │   │   --

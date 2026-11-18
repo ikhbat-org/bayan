@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/return-value-in-void.byn
+--package
+<repo>/tests/cases/diag

@@ -1,0 +1,23 @@
+== tests/cases/run/main-fails-exit-code.byn
+276..309 blockStmt
+282..307 guardedStmt
+301..307 nameExpr
+282..286 failStmt
+287..297 targetMemberExpr
+341..449 blockStmt
+347..370 exprStmt
+347..370 tryExpr
+351..370 callExpr
+364..369 literalExpr falseKeyword
+375..395 exprStmt
+375..395 callExpr
+381..394 literalExpr string
+375..395 callExpr
+400..422 exprStmt
+400..422 tryExpr
+404..422 callExpr
+417..421 literalExpr trueKeyword
+427..447 exprStmt
+427..447 callExpr
+433..446 literalExpr string
+427..447 callExpr

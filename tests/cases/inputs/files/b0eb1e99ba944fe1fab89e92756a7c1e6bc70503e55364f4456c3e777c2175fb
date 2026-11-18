@@ -1,0 +1,3 @@
+let a = "Ôopen
+l›et b = "bad \q escape"
+let c = """never cl'ðŸ˜ '­a' '\n' '\u{1F600}' '\'' 'Ã©' '\\' '\0'

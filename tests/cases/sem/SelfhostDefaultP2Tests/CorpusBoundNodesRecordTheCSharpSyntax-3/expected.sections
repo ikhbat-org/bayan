@@ -1,0 +1,18 @@
+== tests/cases/run/assert-and-right.byn
+17..37 blockStmt
+23..35 returnStmt value 30..35
+30..35 binaryExpr mul right 34..35
+30..31 nameExpr
+34..35 literalExpr integer
+39..53 globalStatement
+39..53 localDecl
+52..53 literalExpr integer
+54..83 assertStmt
+61..83 binaryExpr logicalAnd right 70..83
+61..66 binaryExpr gt right 65..66
+61..62 nameExpr
+65..66 literalExpr integer
+70..83 binaryExpr eq right 82..83
+70..78 callExpr
+76..77 nameExpr
+82..83 literalExpr integer

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "nodes": [
+    "AttributeSyntax",
+    "CallExpr",
+    "ExprStmt",
+    "FieldDecl",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "StructDecl"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,4 @@
+== bind.probes.u3
+flags 2
+errorExpr:?[1326:2]=-()
+BYN2214 93:14 `^` is only allowed inside an index or slice |||

@@ -1,0 +1,9 @@
+1:1 StringLiteral `"{`
+2:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

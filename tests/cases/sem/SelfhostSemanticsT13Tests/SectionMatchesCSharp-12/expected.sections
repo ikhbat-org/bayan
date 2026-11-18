@@ -1,0 +1,9 @@
+== defaults
+instance doc A box.
+instance item null
+instance n bound
+plain k set
+plain j null
+param a null
+param b bound
+again same

@@ -1,0 +1,40 @@
+== tests/cases/diag/interface-default-missing-return-conformers.byn
+273..283 globalStatement
+273..283 exprStmt
+273..283 callExpr
+279..282 literalExpr string
+273..283 callExpr
+209..213 nameExpr
+209..213 nameExpr
+209..213 nameExpr
+209..213 nameExpr
+268..269 literalExpr integer
+268..269 literalExpr integer
+268..269 literalExpr integer
+90..152 blockStmt
+100..146 ifStmt
+103..113 binaryExpr gt right 112..113
+103..109 callExpr
+103..107 nameExpr
+112..113 literalExpr integer
+114..146 blockStmt
+128..136 returnStmt value 135..136
+135..136 literalExpr integer
+90..152 blockStmt
+100..146 ifStmt
+103..113 binaryExpr gt right 112..113
+103..109 callExpr
+103..107 nameExpr
+112..113 literalExpr integer
+114..146 blockStmt
+128..136 returnStmt value 135..136
+135..136 literalExpr integer
+90..152 blockStmt
+100..146 ifStmt
+103..113 binaryExpr gt right 112..113
+103..109 callExpr
+103..107 nameExpr
+112..113 literalExpr integer
+114..146 blockStmt
+128..136 returnStmt value 135..136
+135..136 literalExpr integer

@@ -1,0 +1,6 @@
+== member copy
+first none
+block 233..237
+  returnStmt 233..237
+    thisRef 233..237 : Point
+requires 0 infers false

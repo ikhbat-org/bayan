@@ -1,0 +1,16 @@
+== tests/cases/diag/fs-modified-needs-fs.byn
+154..188 blockStmt
+160..186 localDecl
+168..186 tryExpr
+172..186 callExpr
+184..185 nameExpr
+243..277 blockStmt
+249..275 localDecl
+257..275 tryExpr
+261..275 callExpr
+273..274 nameExpr
+291..310 blockStmt
+297..308 exprStmt
+297..308 callExpr
+303..307 literalExpr string
+297..308 callExpr

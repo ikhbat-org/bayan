@@ -1,0 +1,23 @@
+== tests/cases/run/io-stdin-bytes-move.byn
+105..251 blockStmt
+111..159 localDecl
+123..159 catchExpr
+123..146 callExpr
+153..159 jumpExpr
+153..159 returnStmt
+164..182 exprStmt
+164..182 callExpr
+164..169 nameExpr
+177..181 literalExpr integer
+187..249 exprStmt
+187..249 callExpr
+193..248 interpolatedExpr
+196..208 memberExpr
+196..201 nameExpr
+223..246 indexExpr
+223..228 nameExpr
+229..245 binaryExpr sub right 244..245
+229..241 memberExpr
+229..234 nameExpr
+244..245 literalExpr integer
+187..249 callExpr

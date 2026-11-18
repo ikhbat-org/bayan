@@ -1,0 +1,19 @@
+1:1 StringLiteral `"{a "`
+1:6 Identifier `text`
+1:10 StringLiteral `" "`
+1:13 Identifier `esc`
+1:18 StringLiteral `"q\" \\ \n"`
+1:30 RawStringLiteral `"""\n+ - * /% +% -% *% +| -| *| + --\n_ $"stray } here"\n\n1e Å ''\n`
+6:1 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ "{a "text" "esc \"q\" \\ \n" """
+    │                 ^
+
+error BYN0003: unterminated string literal
+
+  1 │ "{a "text" "esc \"q\" \\ \n" """
+    │                              ^^^ raw string starts here
+    │
+  help: close it with `"""`

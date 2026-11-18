@@ -1,0 +1,10 @@
+== tests/cases/run/log-backslash.byn
+108..144 blockStmt
+114..126 exprStmt
+114..126 callExpr
+118..125 literalExpr string
+114..126 callExpr
+131..142 exprStmt
+131..142 callExpr
+135..141 literalExpr string
+131..142 callExpr

@@ -1,0 +1,10 @@
+foo Bar _x camelCase2 بيان μετρητής x_1 é
+//� ok � in comment
+a /* never �losed
+ b
+
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+0x_
+ 0b__
+ 

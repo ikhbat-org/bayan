@@ -1,0 +1,103 @@
+1:1 IntegerLiteral `0x`
+2:2 LetKeyword `let`
+2:6 Identifier `cafe`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+2:14 Semicolon `;`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolatedStringText `a`
+2:18 InterpolationStart `{`
+2:19 Identifier `b`
+2:20 InterpolationEnd `}`
+2:21 InterpolatedStringText `c`
+2:22 InterpolatedStringEnd
+3:1 CharLiteral `'\u{202E}'`
+4:1 IfKeyword `if`
+4:4 ElseKeyword `else`
+4:9 UnlessKeyword `unless`
+4:16 SwitchKeyword `switch`
+4:23 CaseKeyword `case`
+4:28 Identifier `d`
+4:30 Identifier `fault`
+4:36 ForKeyword `for`
+4:40 InKeyword `in`
+4:43 WhileKeyword `while`
+4:49 DoKeyword `do`
+4:52 BreakKeyword `break`
+4:58 Identifier `cont`
+4:63 Identifier `inue`
+4:68 ReturnKeyword `return`
+4:75 YieldKeyword `yield`
+4:81 DeferKeyword `defer`
+4:87 ErrdeferKeyword `errdefer`
+4:96 UsingKeyword `using`
+4:102 ContextKeyword `context`
+5:1 Dot `.`
+5:2 IntegerLiteral `50`
+5:4 NumericSuffix `dec`
+5:8 IntegerLiteral `1`
+5:9 DotDot `..`
+5:11 IntegerLiteral `2`
+5:13 IntegerLiteral `1`
+5:14 DotDotEquals `..=`
+5:17 IntegerLiteral `3`
+5:19 IntegerLiteral `5`
+5:20 NumericSuffix `e`
+5:22 Identifier `x`
+5:23 Dot `.`
+5:24 Identifier `y`
+5:26 FloatLiteral `2.5`
+5:29 NumericSuffix `f`
+6:2 Identifier `ạ̇`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  2 │  let cafe�� = 1;$"a{b}c
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  2 │  let cafe�� = 1;$"a{b}c
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  2 │  let cafe�� = 1;$"a{b}c
+    │                 ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ '�'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ '�'
+    │   │  -
+
+error BYN0002: unexpected character `\u{18}`
+
+  4 │ if else unless switch case d�fault for in while do break cont\inue return yield defer errdefer using context
+    │                             ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ if else unless switch case d�fault for in while do break cont\inue return yield defer errdefer using context
+    │                                                              ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  6 │  ạ̇
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │  ạ̇
+    │   │  ++

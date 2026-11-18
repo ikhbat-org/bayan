@@ -1,0 +1,17 @@
+== diags.diag/codec-renames
+BYN2230 4:24 `string.from` is now `Utf8.decode`
+  label the old name
+  help write `Utf8.decode`
+  fix 4:17-4:28 Utf8.decode
+BYN2230 5:24 `string.fromUtf8` is now `Utf8.decode`
+  label the old name
+  help write `Utf8.decode`
+  fix 5:17-5:32 Utf8.decode
+BYN2230 6:20 `string.tryFrom` is now `Utf8.tryDecode`
+  label the old name
+  help write `Utf8.tryDecode`
+  fix 6:13-6:27 Utf8.tryDecode
+BYN2230 7:17 `try string(bytes)` is now `try Utf8.decode(bytes)`
+  label the old name
+  help write `Utf8.decode`
+  fix 7:17-7:23 Utf8.decode

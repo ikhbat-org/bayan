@@ -1,0 +1,7 @@
+== diags.diag/non-exhaustive-union
+BYN2410 7:22 `switch` does not handle every `Shape`
+  label not covered: .rect, .none
+  help add the missing arms: .rect, .none
+BYN2410 12:12 `switch` does not handle every `Shape`
+  label not covered: .circle, .none
+  help add the missing cases or a `default:` section

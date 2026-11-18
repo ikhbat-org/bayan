@@ -1,0 +1,87 @@
+1:1 StringLiteral `"{$"`
+1:5 OpenBrace `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 Identifier `x`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 InterpolationEnd `}`
+1:58 InterpolatedStringEnd `"`
+1:59 InterpolationEnd `}`
+1:60 InterpolatedStringEnd `"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+2:1 CharLiteral `'a'`
+2:5 CharLiteral `'\n'`
+2:10 CharLiteral `'\u{1F600}'`
+2:22 CharLiteral `'\''`
+2:27 CharLiteral `'é'`
+2:31 CharLiteral `'\\'`
+2:36 CharLiteral `'\0'`
+4:1 IntegerLiteral `0b102`
+5:2 CharLiteral `'ab'`
+6:1 PlusEquals `+=`
+6:4 MinusEquals `-=`
+6:7 StarEquals `*=`
+6:10 SlashEquals `/=`
+6:13 PercentEquals `%=`
+6:16 AmpEquals `&=`
+6:19 BarEquals `|=`
+6:22 Equals `=`
+6:24 LessLessEquals `<<=`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │ 0b102
+    │     ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text

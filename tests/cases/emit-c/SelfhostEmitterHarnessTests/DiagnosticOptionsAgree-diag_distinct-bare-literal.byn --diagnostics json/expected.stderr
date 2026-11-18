@@ -1,0 +1,1 @@
+{"code":"BYN3204","severity":"error","file":"input.byn","span":{"start":70,"end":71,"line":4,"column":17,"endLine":4,"endColumn":18},"message":"`7` is not a `Id`","label":null,"help":"wrap it: `Id(7)`","fixes":[{"span":{"start":70,"end":71,"line":4,"column":17,"endLine":4,"endColumn":18},"replacement":"Id(7)"}]}

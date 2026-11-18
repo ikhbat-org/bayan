@@ -1,0 +1,28 @@
+1:1 Identifier `c`
+1:3 Greater `>`
+1:4 GreaterEquals `>=`
+1:7 IntegerLiteral `1`
+3:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n 1_�\n$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{�"{x}"}"}"}"}"}"}"}"}"}"}"\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  4 │  1_�
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{�"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{�"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                                         ^

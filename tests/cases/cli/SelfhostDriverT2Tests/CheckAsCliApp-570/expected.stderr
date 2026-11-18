@@ -1,0 +1,10 @@
+error BYN2105: field `value` is readonly
+  --> <repo>/tmp/t2/diag/readonly-field/readonly-field.byn:6:1
+
+  6 │ id.value = 2
+    │ ^^^^^^^^
+    │
+  help: set `readonly` fields only in a constructor or a struct literal
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2105

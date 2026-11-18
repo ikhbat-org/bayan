@@ -1,0 +1,29 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc^ \"q\" \\ \n"`
+1:27 Identifier `_`
+1:28 StringLiteral `""`
+5:1 Identifier `J`
+6:1 Identifier `Fu`
+6:4 IntegerLiteral `0b1`
+6:7 NumericSuffix `ul`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ �
+    │  ^
+
+error BYN0002: unexpected character `﻿`
+
+  4 │ ﻿
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ J�
+    │  ^

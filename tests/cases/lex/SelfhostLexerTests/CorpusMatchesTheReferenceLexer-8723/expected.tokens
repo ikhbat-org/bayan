@@ -1,0 +1,57 @@
+2:1 Comma `,`
+2:3 Dot `.`
+2:5 DotDot `..`
+2:8 DotDotEquals `..=`
+2:12 Colon `:`
+2:14 Question `?`
+2:16 Question `?`
+2:19 QuestionQuestionEquals `??=`
+2:23 QuestionDot `?.`
+2:26 FatArrow `=>`
+2:29 Arrow `->`
+2:32 At `@`
+2:34 Hash `#`
+3:1 OpenBrace `{`
+3:2 Identifier `ab`
+3:4 CharLiteral `'`
+4:1 CharLiteral `'\q'`
+5:1 CharLiteral `'\u{`
+5:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  2 │ , . .. ..= : ? ?� ??= ?. => -> @ #
+    │                 ^
+
+error BYN0008: unterminated char literal
+
+  3 │ {ab'
+    │    ^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0008: unterminated char literal
+
+  5 │ '\u{
+    │ ^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{`
+
+  5 │ '\u{
+    │  ^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`

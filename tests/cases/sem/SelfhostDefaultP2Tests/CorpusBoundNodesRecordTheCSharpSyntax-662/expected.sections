@@ -1,0 +1,3 @@
+== tests/cases/diag/missing-initializer.byn
+0..9 globalStatement
+0..9 localDecl

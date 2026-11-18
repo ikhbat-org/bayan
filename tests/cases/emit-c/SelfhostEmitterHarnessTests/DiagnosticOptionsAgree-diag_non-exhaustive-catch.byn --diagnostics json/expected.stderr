@@ -1,0 +1,1 @@
+{"code":"BYN2410","severity":"error","file":"input.byn","span":{"start":213,"end":219,"line":13,"column":26,"endLine":13,"endColumn":32},"message":"`switch` does not handle every `ParseError`","label":"not covered: .notDigit","help":"add the missing arms, or `_ => …` for the rest","fixes":[]}

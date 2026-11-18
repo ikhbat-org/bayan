@@ -1,0 +1,68 @@
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 StringLiteral `"{$"`
+4:27 OpenBrace `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 Identifier `x`
+4:44 InterpolationEnd `}`
+4:45 InterpolatedStringEnd `"`
+4:46 InterpolationEnd `}`
+4:47 InterpolatedStringEnd `"`
+4:48 InterpolationEnd `}`
+4:49 InterpolatedStringEnd `"`
+6:1 FailsKeyword `fails`
+6:7 TryKeyword `try`
+6:11 CatchKeyword `catch`
+6:17 NeverKeyword `never`
+6:23 NoallocKeyword `noalloc`
+6:31 NosuspendKeyword `nosuspend`
+6:41 SuspendsKeyword `suspends`
+6:50 AsyncKeyword `async`
+6:56 AwaitKeyword `await`
+7:1 LetKeyword `let`
+7:5 Identifier `b`
+7:7 Equals `=`
+7:11 IntegerLiteral `2`
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  1 │ ﻿ //� Doc lin6 one.
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character ```
+
+  7 │ let b = ` 2
+    │         ^

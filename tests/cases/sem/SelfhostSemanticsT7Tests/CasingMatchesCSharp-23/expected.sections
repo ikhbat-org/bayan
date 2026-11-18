@@ -1,0 +1,3 @@
+== type-uncased
+BYN2008 7+10 type name `café_shop` must be PascalCase |  | rename it `CaféShop` | 7+10=CaféShop
+end

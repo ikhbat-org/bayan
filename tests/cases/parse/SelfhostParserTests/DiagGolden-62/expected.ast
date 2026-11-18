@@ -1,0 +1,66 @@
+CompilationUnit
+  Struct Customer
+    Field bool isActive
+  Function any(List<Customer> customers, by Customer -> bool p) -> bool
+    Block
+      Var found = false
+      For Let c in customers
+        Block
+          Assign found = (|| found (call p c))
+      Return found
+  Function main() -> void
+    Block
+      Let customers: List<Customer> = (list (struct Customer (isActive true)))
+      If (. customers isEmpty)
+        Block
+          Return
+      If (. customers isEmpty)
+        Block
+          Return
+      Let before = (call any customers (by: (lambda (c) (. c isActive))))
+      Let after = (call any customers (by: (lambda (c) (. c isActive))))
+      Expr (call print (interp before after))
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  16 │     if customers.isEmpty /* why */ {
+     │                          ^^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 16 │     if customers.isEmpty // why
+     │    │                           +++++
+     │ 17 │      {
+     │    │ ++++
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  19 │     if /* why */ customers.isEmpty {
+     │        ^^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 19 │     if // why
+     │    │         +++++
+     │ 20 │      customers.isEmpty {
+     │    │ ++++
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  22 │     let before = any(customers, by: c => /* why */ c.isActive)
+     │                                          ^^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 22 │     let before = any(customers, by: c => // why
+     │    │                                           +++++
+     │ 23 │      c.isActive)
+     │    │ ++++
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  23 │     let after = any(customers, by: c /* q */ => c.isActive)
+     │                                      ^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 23 │     let after = any(customers, by: c // q
+     │    │                                       +++
+     │ 24 │      => c.isActive)
+     │    │ ++++

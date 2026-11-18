@@ -1,0 +1,7 @@
+== body vd
+first none
+block 516..517
+  exprStmt 516..517
+    literal 516..517 : i32 = 1
+requires 0 infers false
+BYN3201 38:14 the value of this `1` is unused |value dropped|assign it with `let _ = …`, or remove the expression|

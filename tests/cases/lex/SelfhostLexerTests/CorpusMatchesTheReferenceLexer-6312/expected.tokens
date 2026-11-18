@@ -1,0 +1,50 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `u`
+1:7 IntegerLiteral `0b1`
+1:10 NumericSuffix `u`
+1:11 Identifier `l`
+1:13 IntegerLiteral `7`
+1:14 NumericSuffix `l`
+3:1 Equals `=`
+3:3 PercentEquals `%=`
+3:6 AmpEquals `&=`
+3:9 BarEquals `|=`
+3:12 CaretEquals `^=`
+3:16 LessEquals `<=`
+4:1 CharLiteral `''`
+6:1 RawStringLiteral `"""\n�1_\n/* \u{202D} */`
+8:8 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  1 │ 0xFFu 0b1u�l 7l
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD2)
+
+  3 │ = %= &= |= ^= �<=
+    │               ^
+
+error BYN0007: empty char literal
+
+  4 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  6 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  7 │ �1_
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  7 │ �1_
+    │  ^

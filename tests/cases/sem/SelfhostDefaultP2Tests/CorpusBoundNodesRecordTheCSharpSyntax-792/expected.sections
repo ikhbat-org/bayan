@@ -1,0 +1,23 @@
+== tests/cases/diag/ref-this-let-collection.byn
+83..112 globalStatement
+83..112 localDecl
+94..112 collectionExpr
+95..111 structLiteralExpr
+108..109 literalExpr integer
+113..129 exprStmt
+113..129 callExpr
+113..120 indexExpr
+113..117 nameExpr
+118..119 literalExpr integer
+131..162 localDecl
+143..162 callExpr
+163..184 exprStmt
+163..184 callExpr
+163..175 indexExpr
+163..168 nameExpr
+169..174 literalExpr string
+54..79 blockStmt
+64..73 assignStmt add target 64..68 value 72..73
+64..68 nameExpr
+64..68 nameExpr
+72..73 literalExpr integer

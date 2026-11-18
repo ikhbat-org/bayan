@@ -1,0 +1,6 @@
+== tests/cases/diag/map-literal-mixed.byn
+0..44 globalStatement
+0..44 localDecl
+30..44 collectionExpr
+45..82 localDecl
+59..82 collectionExpr

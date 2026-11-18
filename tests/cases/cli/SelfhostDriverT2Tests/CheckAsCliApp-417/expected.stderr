@@ -1,0 +1,50 @@
+error BYN1047: `/* */` is an input form; write `//` lines
+  --> <repo>/tmp/t2/diag/style-fix-keeps-comments/style-fix-keeps-comments.byn:16:26
+
+  16 │     if customers.isEmpty /* why */ {
+     │                          ^^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 16 │     if customers.isEmpty // why
+     │    │                           +++++
+     │ 17 │      {
+     │    │ ++++
+
+error BYN1047: `/* */` is an input form; write `//` lines
+  --> <repo>/tmp/t2/diag/style-fix-keeps-comments/style-fix-keeps-comments.byn:19:8
+
+  19 │     if /* why */ customers.isEmpty {
+     │        ^^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 19 │     if // why
+     │    │         +++++
+     │ 20 │      customers.isEmpty {
+     │    │ ++++
+
+error BYN1047: `/* */` is an input form; write `//` lines
+  --> <repo>/tmp/t2/diag/style-fix-keeps-comments/style-fix-keeps-comments.byn:22:42
+
+  22 │     let before = any(customers, by: c => /* why */ c.isActive)
+     │                                          ^^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 22 │     let before = any(customers, by: c => // why
+     │    │                                           +++++
+     │ 23 │      c.isActive)
+     │    │ ++++
+
+error BYN1047: `/* */` is an input form; write `//` lines
+  --> <repo>/tmp/t2/diag/style-fix-keeps-comments/style-fix-keeps-comments.byn:23:38
+
+  23 │     let after = any(customers, by: c /* q */ => c.isActive)
+     │                                      ^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 23 │     let after = any(customers, by: c // q
+     │    │                                       +++
+     │ 24 │      => c.isActive)
+     │    │ ++++
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN1047

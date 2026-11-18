@@ -1,0 +1,3 @@
+== expr.p3
+call|Pos|structLiteral|requires|2394:12|
+BYN3207 104:14 a literal of `Pos` can fail its `requires`; write `try Pos { … }` ||add `try` before the literal and handle the `ValidationError<Pos>`|fix 2394..2394 try 

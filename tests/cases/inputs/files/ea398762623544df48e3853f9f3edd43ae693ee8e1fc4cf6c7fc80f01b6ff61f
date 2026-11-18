@@ -1,0 +1,10 @@
+error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+
++= -= *= /= %= &= |= ^= <<=
+ /* block
+
+let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+foo Bar _x camelCase2 ب�يان μετρητής x_1 é
+ $"{{" 0000}'
+ et � = 2
+// oik � in comment

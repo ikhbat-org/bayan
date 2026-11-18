@@ -1,0 +1,52 @@
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+    doc `/// Doc line one.\r`
+5:1 FailsKeyword `fails`
+5:7 TryKeyword `try`
+5:11 CatchKeyword `catch`
+5:17 NeverKeyword `never`
+5:23 NoallocKeyword `noalloc`
+5:31 NosuspendKeyword `nosuspend`
+5:41 SuspendsKeyword `suspends`
+5:50 AsyncKeyword `async`
+5:56 Identifier `aw`
+5:60 Identifier `ait`
+7:1 IntegerLiteral `0x`
+8:2 CharLiteral `'x\r`
+11:2 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC1)
+
+  5 │ fails try catch never noalloc nosuspend suspends async aw��ait
+    │                                                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  5 │ fails try catch never noalloc nosuspend suspends async aw��ait
+    │                                                           ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x
+    │ ^^
+
+error BYN0008: unterminated char literal
+
+  8 │  'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0004: unterminated block comment
+
+  10 │ /* block
+     │ ^^ comment starts here
+     │
+  help: close it with `*/`

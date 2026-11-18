@@ -1,0 +1,169 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{x}}"`
+1:56 InterpolationEnd `}`
+1:57 InterpolatedStringEnd `"`
+1:58 InterpolationEnd `}`
+1:59 InterpolatedStringEnd `"`
+1:60 InterpolationEnd `}`
+1:61 InterpolatedStringEnd `"`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+1:64 InterpolationEnd `}`
+1:65 InterpolatedStringEnd `"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringEnd `"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:81 IntegerLiteral `0x`
+1:84 InterpolatedStringStart `$"`
+1:86 InterpolatedStringText `total `
+1:92 InterpolationStart `{`
+1:93 Identifier `x`
+1:94 InterpolationEnd `}`
+1:95 InterpolatedStringEnd `"`
+1:97 InterpolatedStringStart `$"`
+1:99 InterpolatedStringText `a `
+1:101 InterpolationStart `{`
+1:102 Identifier `f`
+1:103 OpenParen `(`
+1:104 InterpolatedStringStart `$"`
+1:106 InterpolatedStringText `b `
+1:108 InterpolationStart `{`
+1:109 Identifier `c`
+1:110 InterpolationEnd `}`
+1:111 InterpolatedStringEnd `"`
+1:112 CloseParen `)`
+1:113 InterpolationEnd `}`
+1:114 InterpolatedStringText ` d`
+1:116 InterpolatedStringEnd `"`
+1:118 InterpolatedStringStart `$"`
+1:120 InterpolatedStringText `{{literal}}`
+1:131 InterpolatedStringEnd `"`
+1:133 InterpolatedStringStart `$"`
+1:135 InterpolationStart `{`
+1:136 Identifier `Point`
+1:142 OpenBrace `{`
+1:144 Identifier `x`
+1:147 Equals `=`
+1:149 IntegerLiteral `1`
+1:151 CloseBrace `}`
+1:152 InterpolationEnd `}`
+1:153 InterpolatedStringText `!`
+1:154 InterpolatedStringEnd `"`
+1:156 InterpolatedStringStart `$"`
+1:158 InterpolatedStringEnd `"`
+2:2 Identifier `_`
+3:1 IntegerLiteral `0xF__`
+5:1 CharLiteral `'\u{202E}'`
+5:6 InterpolationEnd `}`
+5:7 InterpolatedStringEnd `"`
+5:8 InterpolationEnd `}`
+5:9 InterpolatedStringEnd `"`
+5:10 InterpolationEnd `}`
+5:11 InterpolatedStringEnd `"`
+5:12 InterpolationEnd `}`
+5:13 InterpolatedStringEnd `"`
+5:14 CloseBrace `}`
+5:15 StringLiteral `"}"`
+5:18 CloseBrace `}`
+5:19 StringLiteral `"}"`
+5:22 CloseBrace `}`
+5:24 StringLiteral `"}"`
+5:27 CloseBrace `}`
+5:28 StringLiteral `"}"`
+5:31 CloseBrace `}`
+5:32 StringLiteral `"}"`
+5:35 CloseBrace `}`
+5:36 StringLiteral `"`
+7:1 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}}"}"}"}"}"}"}"}"}"}"}"}"}" 0x $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x �= 1 }}!" $""
+    │                                                 ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}}"}"}"}"}"}"}"}"}"}"}"}"}" 0x $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x �= 1 }}!" $""
+    │                                                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC1)
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}}"}"}"}"}"}"}"}"}"}"}"}"}" 0x $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x �= 1 }}!" $""
+    │                                                                                                                                                  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ '�' �}"}"}"}"}"}"}"}"}�"}"}"}"}"}"}"
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ '�' �}"}"}"}"}"}"}"}"}�"}"}"}"}"}"}"
+    │   │  -
+
+error BYN0002: unexpected character `\u{0}`
+
+  5 │ '�' �}"}"}"}"}"}"}"}"}�"}"}"}"}"}"}"
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  5 │ '�' �}"}"}"}"}"}"}"}"}�"}"}"}"}"}"}"
+    │                       ^
+
+error BYN0003: unterminated string literal
+
+  5 │ '�' �}"}"}"}"}"}"}"}"}�"}"}"}"}"}"}"
+    │                                    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

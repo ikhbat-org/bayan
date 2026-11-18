@@ -1,0 +1,2 @@
+== case string-symbol-target
+symbolLiteral 1277..1281 : Symbol = "hi"

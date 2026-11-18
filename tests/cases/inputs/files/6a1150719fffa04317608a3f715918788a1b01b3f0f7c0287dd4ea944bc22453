@@ -1,0 +1,1 @@
+i64 g<T>(T x) where T : IShape expects true fails E, F {

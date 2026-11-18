@@ -1,0 +1,2 @@
+i64 area(i64 width, by i64 height) => width * height
+print($"{area(widht: 3, by: 4)}")

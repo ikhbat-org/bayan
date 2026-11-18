@@ -1,0 +1,21 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+1:15 NumericSuffix `acro`
+1:20 Identifier `select`
+1:27 BecomeKeyword `become`
+2:1 Identifier `l`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  1 │ let� effect = 2acro select become
+    │    ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ let� effect = 2acro select become
+    │                     ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

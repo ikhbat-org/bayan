@@ -1,0 +1,28 @@
+1:1 CloseBrace `}`
+1:2 Identifier `q`
+1:4 Identifier `Å`
+1:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  1 │ ��}q� Å
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ��}q� Å
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��}q� Å
+    │     ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ ��}q� Å
+    │       ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ��}q� Å
+    │   │       +

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ConstantPattern",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "IfStmt",
+    "InterpolatedExpr",
+    "IsExpr",
+    "LiteralExpr",
+    "NameExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "FloatTryParse",
+    "Print"
+  ],
+  "diagnostics": []
+}

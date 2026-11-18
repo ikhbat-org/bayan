@@ -1,0 +1,26 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\nfoo Bar _x camelCas\u{B}e2 ب"يان μετρητ�ς x_1 é\n a = 1\nlet � = 2\n// ok � in comment\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  2 │ foo Bar _x camelCas�e2 ب"يان μετρητ�ς x_1 é
+    │                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ // ok � in comment
+    │       ^

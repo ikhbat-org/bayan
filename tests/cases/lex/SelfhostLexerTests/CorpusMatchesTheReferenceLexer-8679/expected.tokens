@@ -1,0 +1,83 @@
+1:1 IntegerLiteral `1_`
+2:1 OpenParen `(`
+2:3 CloseParen `)`
+2:5 OpenBracket `[`
+2:7 CloseBracket `]`
+2:9 OpenBrace `{`
+2:11 CloseBrace `}`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `x`
+3:4 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 StringLiteral `"`
+4:1 OpenParen `(`
+4:3 CloseParen `)`
+4:5 OpenBracket `[`
+4:7 CloseBracket `]`
+4:9 OpenBrace `{`
+4:11 CloseBrace `}`
+6:3 StructKeyword `struct`
+6:10 UniqueKeyword `unique`
+6:17 UnionKeyword `union`
+6:23 EnumKeyword `enum`
+6:28 FlagsKeyword `flags`
+6:34 OpenKeyword `open`
+6:39 ExtensibleKeyword `extensible`
+6:50 InterfaceKeyword `interface`
+6:60 Identifier `elegafte`
+6:69 Identifier `e`
+6:70 Semicolon `;`
+6:71 Identifier `tension`
+6:79 DerivationKeyword `derivation`
+6:90 AttributeKeyword `attribute`
+7:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  3 │ $"x{ $"{ $"{"
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"x{ $"{ $"{"
+    │             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  6 │ � struct unique union enum flags open extensible interface elegafte e;tension derivation attribute
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  6 │ � struct unique union enum flags open extensible interface elegafte e;tension derivation attribute
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  6 │ � struct unique union enum flags open extensible interface elegafte e;tension derivation attribute
+    │  ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ �
+    │   │ -

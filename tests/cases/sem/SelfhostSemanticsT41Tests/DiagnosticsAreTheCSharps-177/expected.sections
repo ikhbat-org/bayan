@@ -1,0 +1,9 @@
+== diags.diag/input-forms-one-line
+BYN1021 7:19 `x = …` in a literal is an input form; write `x: …`
+  label the input form
+  help write `:` after the field name
+  fix 7:18-7:20 :
+BYN1021 8:19 `x = …` in a literal is an input form; write `x: …`
+  label the input form
+  help write `:` after the field name
+  fix 8:18-8:20 :

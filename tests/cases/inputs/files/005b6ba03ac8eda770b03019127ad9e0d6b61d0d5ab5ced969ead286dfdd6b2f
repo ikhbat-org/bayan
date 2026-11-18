@@ -1,0 +1,9 @@
+# tally
+
+A Bayan library. Its code is in `src/tally/`; other packages use it with `import tally`.
+
+## Test
+
+```
+bayan test
+```

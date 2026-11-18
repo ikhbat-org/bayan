@@ -1,0 +1,137 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 InterpolatedStringStart `$"`
+1:19 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolationStart `{`
+1:26 InterpolatedStringStart `$"`
+1:28 InterpolationStart `{`
+1:29 InterpolatedStringStart `$"`
+1:31 InterpolationStart `{`
+1:32 InterpolatedStringStart `$"`
+1:34 InterpolationStart `{`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolationStart `{`
+1:39 OpenBrace `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 InterpolatedStringStart `$"`
+1:54 InterpolationStart `{`
+1:55 InterpolatedStringStart `$"`
+1:57 InterpolationStart `{`
+1:58 InterpolatedStringStart `$"`
+1:60 InterpolationStart `{`
+1:61 InterpolatedStringStart `$"`
+1:63 InterpolationStart `{`
+1:64 StringLiteral `$"{$"`
+1:69 OpenBrace `{`
+1:70 Identifier `x`
+1:71 CloseBrace `}`
+1:72 StringLiteral `"}"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringText `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:90 InterpolationEnd `}`
+1:91 InterpolatedStringEnd `"`
+1:92 CloseBrace `}`
+1:93 StringLiteral `" '\q'`
+3:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}"}"}" '\q'
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}"}"}" '\q'
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  1 │ let café = 1$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}"}"}" '\q'
+    │                                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ let café = 1$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}"}"}" '\q'
+    │                                      ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ let café = 1$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}"}"}" '\q'
+    │                                                                ^^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ let café = 1$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}"}"}" '\q'
+    │                                                                                      ^
+    │
+    │ 1 │ let café = 1$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}}"}"}"}" '\q'
+    │   │                                                                                       +
+
+error BYN0003: unterminated string literal
+
+  1 │ let café = 1$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}"}"}" '\q'
+    │                                                                                             ^^^^^^ string
+    │                                                                                                    ends
+    │                                                                                                    at
+    │                                                                                                    the
+    │                                                                                                    end
+    │                                                                                                    of
+    │                                                                                                    the
+    │                                                                                                    line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let café = 1$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}"}"}" '\q'
+    │                                                                                                ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │  ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │  ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����
+    │     ^

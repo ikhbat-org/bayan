@@ -1,0 +1,5 @@
+error BYN2608: `i64` is not an error enum
+  --> <repo>/tests/cases/diag/not-an-error-set.byn:1:15
+
+  1 │ i64 f() fails i64 {
+    │               ^^^

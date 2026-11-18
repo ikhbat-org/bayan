@@ -1,0 +1,34 @@
+== tests/cases/diag/path-escapes-context.byn
+140..447 blockStmt
+146..159 localDecl
+157..159 literalExpr string
+164..176 localDecl
+174..176 literalExpr string
+181..414 blockStmt
+191..216 localDecl
+209..216 callExpr
+225..408 contextStmt
+244..249 nameExpr
+250..408 blockStmt
+264..297 exprStmt
+264..297 callExpr
+270..296 callExpr
+284..295 literalExpr string
+264..297 callExpr
+310..342 assignStmt assign target 310..314 value 317..342
+310..314 nameExpr
+317..342 callExpr
+331..341 literalExpr string
+355..398 assignStmt assign target 355..358 value 361..398
+355..358 nameExpr
+361..398 callExpr
+381..385 literalExpr string
+391..397 literalExpr string
+419..430 exprStmt
+419..430 callExpr
+425..429 nameExpr
+419..430 callExpr
+435..445 exprStmt
+435..445 callExpr
+441..444 nameExpr
+435..445 callExpr

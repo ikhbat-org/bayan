@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "LiteralExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

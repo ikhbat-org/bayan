@@ -1,0 +1,14 @@
+1:1 Identifier `uk`
+1:5 InKeyword `in`
+1:9 Identifier `comment`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ uk �in �comment
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF3)
+
+  1 │ uk �in �comment
+    │        ^

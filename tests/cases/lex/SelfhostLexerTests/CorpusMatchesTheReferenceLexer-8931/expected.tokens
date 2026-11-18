@@ -1,0 +1,96 @@
+1:1 LetKeyword `let`
+1:5 Identifier `cafe`
+1:10 Equals `=`
+1:12 IntegerLiteral `1`
+2:3 CharLiteral `'\q'`
+3:1 CharLiteral `'\u{D800}'`
+4:1 CharLiteral `'\u{1100�0}'`
+5:1 CharLiteral `'x`
+6:3 LetKeyword `let`
+6:7 Identifier `a`
+6:12 IntegerLiteral `1`
+7:1 StringLiteral `", . .. ..= : ? ?? ??= ?. => -> @ #`
+8:1 Identifier `osed`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ let cafe� = 1
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │ � '\q'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │ � '\q'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ � '\q'
+    │  ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ � '\q'
+    │    ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ '\u{1100�0}'
+    │ ^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u{1100`
+
+  4 │ '\u{1100�0}'
+    │  ^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0015: source is not valid UTF-8 (byte 0xB0)
+
+  4 │ '\u{1100�0}'
+    │         ^
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  6 │  ��let a  $ 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  ��let a  $ 1
+    │   ^
+
+error BYN0002: unexpected character `$`
+
+  6 │  ��let a  $ 1
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  7 │ ", . .. ..= : ? ?? ??= ?. => -> @ #
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

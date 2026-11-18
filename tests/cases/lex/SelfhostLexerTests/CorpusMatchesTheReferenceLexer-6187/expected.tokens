@@ -1,0 +1,75 @@
+1:1 Identifier `t`
+1:3 Identifier `café`
+1:8 Equals `=`
+1:10 IntegerLiteral `2`
+    doc `/// Doc line one.`
+4:1 Identifier `Å`
+5:1 Identifier `ffect`
+5:7 Equals `=`
+5:9 IntegerLiteral `2`
+6:1 Identifier `macro`
+6:7 Identifier `sele`
+6:12 StructKeyword `struct`
+6:19 Identifier `S`
+8:2 StarEquals `*=`
+8:5 SlashEquals `/=`
+8:8 PercentEquals `%=`
+8:11 Amp `&`
+8:14 BarEquals `|=`
+8:17 CaretEquals `^=`
+8:20 LessLessEquals `<<=`
+9:4 Identifier `comment`
+9:12 Star `*`
+9:13 Slash `/`
+9:15 Identifier `a`
+10:2 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  2 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ /* � */
+    │   │    -
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ Å
+    │   │ +
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  6 │ macro sele struct`S
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character ```
+
+  6 │ macro sele struct`S
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  8 │  *= /= %= &� |= ^= <<=
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │    comment */ a�
+    │                ^

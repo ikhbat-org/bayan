@@ -1,0 +1,34 @@
+== tests/cases/diag/field-write-outside.byn
+113..140 blockStmt
+119..138 assignStmt assign target 119..132 value 135..138
+0..79 structDecl
+0..79 structDecl
+0..79 structDecl
+0..79 structDecl
+0..79 structDecl
+48..77 requiresRule
+48..77 requiresRule
+57..77 inExpr
+57..66 memberExpr
+57..59 nameExpr
+57..59 nameExpr
+70..77 rangeExpr
+70..71 literalExpr integer
+74..77 literalExpr integer
+48..77 requiresRule
+48..77 requiresRule
+48..77 requiresRule
+48..77 requiresRule
+48..77 requiresRule
+48..77 requiresRule
+48..77 requiresRule
+48..77 requiresRule
+48..77 requiresRule
+48..77 requiresRule
+0..79 structDecl
+0..79 structDecl
+0..79 structDecl
+0..79 structDecl
+0..79 structDecl
+0..79 structDecl
+0..79 structDecl

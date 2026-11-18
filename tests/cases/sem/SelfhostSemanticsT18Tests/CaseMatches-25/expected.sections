@@ -1,0 +1,4 @@
+== member.probes.-.v16
+errorExpr|?|-|-|-|-|-|2860:12|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2230 146:21 `toList()` is now `span.copy()` |the old name|rename it `span.copy`|fix 2866..2872 span.copy

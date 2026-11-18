@@ -1,0 +1,7 @@
+error BYN2802: `S.name` is `IA.name` but `IB` requires `string name()`
+  --> <repo>/tests/cases/diag/interface-default-conflict.byn:9:16
+
+  9 │ struct S : IA, IB {
+    │                ^^ `name` also has a default in `IA`
+    │
+  help: add `string name()` to `S` to choose one

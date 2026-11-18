@@ -1,0 +1,16 @@
+@derive(Json, Row)
+public struct Customer {
+    CustomerId id
+    Email email
+    string name
+    Region region
+    Tier tier = .standard
+    Instant createdAt
+
+    public bool isVip => tier is .gold or .platinum
+    public string displayName => $"{name} <{email}>"
+
+    public void promote(ref this, to Tier next) {
+        tier = next
+    }
+}

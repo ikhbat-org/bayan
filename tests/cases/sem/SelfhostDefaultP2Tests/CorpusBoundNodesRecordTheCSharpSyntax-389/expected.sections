@@ -1,0 +1,32 @@
+== tests/cases/diag/catch-switch-block-arm.byn
+62..102 blockStmt
+68..87 guardedStmt
+81..87 binaryExpr eq right 86..87
+81..82 nameExpr
+86..87 literalExpr integer
+68..72 failStmt
+73..77 targetMemberExpr
+92..100 returnStmt value 99..100
+99..100 nameExpr
+125..206 catchExpr
+125..206 catchExpr
+125..206 catchExpr
+125..133 callExpr
+131..132 nameExpr
+140..206 switchExpr
+140..146 caughtErrorExpr
+153..158 constantPattern
+153..158 memberExpr
+162..178 blockExpr
+162..178 blockExpr
+162..178 blockStmt
+164..176 exprStmt
+164..176 callExpr
+170..175 literalExpr string
+164..176 callExpr
+184..191 constantPattern
+184..191 memberExpr
+195..204 jumpExpr
+195..204 jumpExpr
+195..204 returnStmt value 202..204
+202..204 unaryExpr negate operand 203..204

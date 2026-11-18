@@ -1,0 +1,5 @@
+void main() uses alloc {
+    let parts: ReadOnlySpan<string> = ["/a", "b", "c"]
+    print(Path.combine(parts))
+    print(Path.combine(["a", "b"]))
+}

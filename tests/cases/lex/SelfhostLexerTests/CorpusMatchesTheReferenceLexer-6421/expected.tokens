@@ -1,0 +1,67 @@
+1:1 IntegerLiteral `0b102`
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+5:1 CharLiteral `'a'`
+5:5 CharLiteral `'\n'`
+5:10 CharLiteral `'\u{1F600}'`
+5:22 CharLiteral `'\''`
+5:27 CharLiteral `'é'`
+5:31 CharLiteral `'\\'`
+5:36 CharLiteral `'\0'`
+6:1 PlusEquals `+=`
+6:4 MinusEquals `-=`
+6:7 StarEquals `*=`
+6:10 SlashEquals `/=`
+6:13 PercentEquals `%=`
+6:16 AmpEquals `&=`
+6:19 BarEquals `|=`
+6:22 CaretEquals `^=`
+6:25 LessLessEquals `<<=`
+7:2 StructKeyword `struct`
+7:9 UniqueKeyword `unique`
+7:16 UnionKeyword `union`
+7:22 EnumKeyword `enum`
+7:27 FlagsKeyword `flags`
+7:33 OpenKeyword `open`
+7:38 ExtensibleKeyword `extensible`
+7:49 InterfaceKeyword `interface`
+7:59 DelegateKeyword `delegate`
+7:68 Identifier `eIxtension`
+7:79 DerivationKeyword `derivation`
+7:90 AttributeKeyword `attribute`
+10:1 Identifier `u`
+10:3 IntegerLiteral `0xFF`
+10:7 NumericSuffix `u`
+10:9 IntegerLiteral `0b1`
+10:12 NumericSuffix `ul`
+10:15 IntegerLiteral `7`
+10:16 NumericSuffix `l`
+12:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ // ok � in comment
+    │       ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  8 │ // �1
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ // �1
+    │   │    -

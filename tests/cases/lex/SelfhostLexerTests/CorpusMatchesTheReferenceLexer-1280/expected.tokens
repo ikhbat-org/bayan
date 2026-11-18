@@ -1,0 +1,22 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:4 VarKeyword `var`
+2:8 Identifier `xs`
+2:10 Colon `:`
+2:12 Identifier `List`
+2:16 Less `<`
+2:17 Identifier `List`
+2:21 Less `<`
+2:22 Identifier `i64`
+2:25 Greater `>`
+2:26 Greater `>`
+4:3 Identifier `raw`
+4:7 StringLiteral `"quoted"`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  3 │ //// not a �oc comment
+    │            ^

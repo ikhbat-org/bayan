@@ -1,0 +1,14 @@
+== tests/cases/diag/cases-arity.byn
+83..119 blockStmt
+60..69 param
+8..9 literalExpr integer
+71..81 param
+11..16 literalExpr falseKeyword
+83..119 blockStmt
+89..117 assertStmt
+96..116 binaryExpr eq right 105..116
+96..101 nameExpr
+106..115 binaryExpr gt right 114..115
+106..111 nameExpr
+114..115 literalExpr integer
+195..198 blockStmt

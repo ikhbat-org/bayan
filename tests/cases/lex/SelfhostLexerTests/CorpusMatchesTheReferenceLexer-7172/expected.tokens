@@ -1,0 +1,54 @@
+1:1 CloseBrace `}`
+1:2 FloatLiteral `3.14`
+1:7 FloatLiteral `1e5`
+1:11 FloatLiteral `2.5e-3`
+1:18 FloatLiteral `6E+2`
+1:23 FloatLiteral `1.50`
+1:27 NumericSuffix `dec`
+1:31 IntegerLiteral `1`
+1:32 DotDot `..`
+1:34 IntegerLiteral `2`
+1:36 IntegerLiteral `1`
+1:37 DotDotEquals `..=`
+1:40 IntegerLiteral `3`
+1:42 IntegerLiteral `5`
+1:43 NumericSuffix `e`
+1:45 Identifier `x`
+1:46 Dot `.`
+1:47 Identifier `y`
+1:49 FloatLiteral `2.5`
+1:52 NumericSuffix `f`
+3:1 LetKeyword `let`
+3:5 Identifier `x`
+3:8 Equals `=`
+3:10 IntegerLiteral `1`
+4:2 IntegerLiteral `0b1`
+4:5 NumericSuffix `m`
+5:3 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ let x� = 1
+    │   │      -
+
+error BYN0011: unit suffix `m` is not allowed on a binary literal
+
+  4 │  0b1m�
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │  0b1m�
+    │      ^
+
+error BYN0002: unexpected character `‏`
+
+  5 │  ‏
+    │  ^

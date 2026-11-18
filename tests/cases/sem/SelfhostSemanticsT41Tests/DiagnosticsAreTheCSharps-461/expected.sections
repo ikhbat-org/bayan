@@ -1,0 +1,3 @@
+== diags.diag/symbol-user-struct
+BYN2003 6:25 `id` is not a member of `Symbol`
+BYN2114 9:13 `Symbol` is not a struct

@@ -1,0 +1,6 @@
+== s48
+switchExpr|i32|4045:32
+value local:i64=n
+arm 4056:11 bindPattern[4056:6]:i64(-) guard - value literal:i32=1
+arm 4069:6 bindPattern[4069:1]:i64_(-) guard - value literal:i32=0
+BYN2022 119:26 list patterns is not supported in v0.1 |||

@@ -1,0 +1,6 @@
+== tests/cases/diag/count-name-exempt.byn
+338..349 globalStatement
+338..349 exprStmt
+338..349 callExpr
+344..348 literalExpr string
+338..349 callExpr

@@ -1,0 +1,17 @@
+1:1 IntegerLiteral `0b102`
+2:2 StringLiteral `"text"`
+2:9 StringLiteral `"esc \"q\" \\,\n"`
+2:27 RawStringLiteral `"""\r\n `
+3:2 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  2 │  "text" "esc \"q\" \\,\n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

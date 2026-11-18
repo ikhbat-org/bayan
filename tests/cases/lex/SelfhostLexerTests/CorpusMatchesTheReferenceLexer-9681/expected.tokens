@@ -1,0 +1,55 @@
+1:3 CharLiteral `' '`
+1:7 CharLiteral `''`
+1:10 CharLiteral `'é'`
+1:14 CharLiteral `'\\'`
+1:19 CharLiteral `'\/// Doc line one.\r`
+2:2 Comma `,`
+2:4 Dot `.`
+2:6 DotDot `..`
+2:9 DotDotEquals `..=`
+2:13 Colon `:`
+2:15 Question `?`
+2:17 QuestionQuestion `??`
+2:20 QuestionQuestionEquals `??=`
+2:24 QuestionDot `?.`
+2:27 FatArrow `=>`
+2:30 Arrow `->`
+2:33 At `@`
+2:35 Hash `#`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ �� ' '\'' 'é' '\\' '\/// Doc line one.
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� ' '\'' 'é' '\\' '\/// Doc line one.
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ �� ' '\'' 'é' '\\' '\/// Doc line one.
+    │       ^
+
+error BYN0007: empty char literal
+
+  1 │ �� ' '\'' 'é' '\\' '\/// Doc line one.
+    │        ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0008: unterminated char literal
+
+  1 │ �� ' '\'' 'é' '\\' '\/// Doc line one.
+    │                    ^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\/`
+
+  1 │ �� ' '\'' 'é' '\\' '\/// Doc line one.
+    │                     ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

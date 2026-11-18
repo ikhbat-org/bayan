@@ -1,0 +1,23 @@
+== diags.diag/input-paren-negation
+BYN1017 3:8 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 3:8-3:12 !x
+BYN1007 6:5 `unless` with a negated condition is a double negative
+  label `unless` already negates
+  help use `if` with the condition as written
+  fix 6:5-6:27 if x { print("b") }
+BYN1018 6:17 the body of `unless` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1022 7:5 `unless` with `&&`/`||` reads as a double negative
+  label a compound condition
+  help use `if` with the negated condition
+  fix 7:5-7:31 if !(x && x) { print("c") }
+BYN1018 7:21 the body of `unless` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1017 8:8 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 8:8-8:12 !x

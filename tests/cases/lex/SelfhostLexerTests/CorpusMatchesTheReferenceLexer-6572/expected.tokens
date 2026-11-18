@@ -1,0 +1,38 @@
+1:1 IntegerLiteral `1__`
+2:2 CharLiteral `'q'`
+4:1 ErrorKeyword `error`
+4:7 SetKeyword `set`
+4:11 UnitKeyword `unit`
+4:16 DistinctKeyword `distinct`
+4:25 TypeKeyword `type`
+4:30 ImportKeyword `import`
+4:37 AsKeyword `as`
+4:40 PublicKeyword `public`
+4:47 PrivateKeyword `private`
+4:55 StaticKeyword `static`
+4:62 ReadonlyKeyword `readonly`
+4:71 RequiredKeyword `required`
+4:80 ConstKeyword `const`
+4:86 LetKeyword `let`
+4:90 VarKeyword `var`
+4:93 CloseParen `)`
+4:94 Identifier `emb`
+4:97 Identifier `ed`
+4:100 ExternKeyword `extern`
+4:107 UnsafeKeyword `unsafe`
+6:1 StructKeyword `struct`
+6:8 Identifier `S`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  4 │ error set unit distinct type import as public private static readonly required const let var)emb�ed extern unsafe
+    │                                                                                                 ^

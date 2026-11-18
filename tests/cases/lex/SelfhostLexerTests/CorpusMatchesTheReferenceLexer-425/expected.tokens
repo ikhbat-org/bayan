@@ -1,0 +1,31 @@
+1:1 IntegerLiteral `1__`
+3:2 LetKeyword `let`
+3:6 Identifier `x`
+3:9 Equals `=`
+3:11 IntegerLiteral `1`
+4:1 StructKeyword `struct`
+4:8 Identifier `S`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0002: unexpected character `‏`
+
+  3 │ ‏let x� = 1
+    │ ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ ‏let x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ ‏let x� = 1
+    │   │       -

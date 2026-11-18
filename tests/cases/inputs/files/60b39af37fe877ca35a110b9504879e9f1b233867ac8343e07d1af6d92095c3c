@@ -1,0 +1,11 @@
+  raw "quoted"
+ let a = "open
+
+0b1ms
+ 102
+0xFFs
+0b1ms
+0x_
+0b__
+1__
+xF__

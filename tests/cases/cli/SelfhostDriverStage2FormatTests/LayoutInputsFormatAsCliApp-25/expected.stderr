@@ -1,0 +1,341 @@
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case000.byn:1:1
+
+  1 │ tmp
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case001.byn:1:1
+
+  1 │ layout
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case002.byn:1:1
+
+  1 │ main.byn
+    │ ^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1067: pointer types are allowed only in `extern` declarations
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case044.byn:2:1
+
+  2 │ u8* p = q
+    │ ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+error BYN1002: expected an expression, found keyword `case`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case057.byn:2:5
+
+  2 │     case .red => 1
+    │     ^^^^
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case057.byn:4:1
+
+  4 │ }
+    │ ^
+    │
+  help: remove this `}`; it has no matching `{`
+error BYN1001: expected a declaration or statement, found `}`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case073.byn:12:1
+
+  12 │ }
+     │ ^
+     │
+  help: remove this `}`; it has no matching `{`
+error BYN1001: expected `}`, found end of file
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case074.byn:2:1
+
+  2 │ 
+    │ ^
+    │
+  help: close the block opened on line 1
+error BYN1001: expected `}`, found end of file
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case075.byn:5:1
+
+  5 │ 
+    │ ^
+    │
+  help: close the block opened on line 4
+error BYN1001: expected `]`, found `,`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case114.byn:5:31
+
+  5 │             by: grid[rowNumber, columnNumber],
+    │                               ^
+
+error BYN1001: expected `)`, found `]`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case114.byn:5:45
+
+  5 │             by: grid[rowNumber, columnNumber],
+    │                                             ^
+error BYN1001: expected `]`, found `,`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case115.byn:3:78
+
+  3 │         case .pair(let first, let second): return f(first, by: grid[rowNumber, columnNumber])
+    │                                                                              ^
+
+error BYN1001: expected `)`, found `]`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case115.byn:3:92
+
+  3 │         case .pair(let first, let second): return f(first, by: grid[rowNumber, columnNumber])
+    │                                                                                            ^
+error BYN1067: pointer types are allowed only in `extern` declarations
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case142.byn:2:5
+
+  2 │     u8* p
+    │     ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case145.byn:1:1
+
+  1 │ Package { name: "local/t", version: "0.1.0", style: Style { align: .none } }
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the value is
+    │                                                                              computed and
+    │                                                                              discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case146.byn:1:1
+
+  1 │ align
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case147.byn:1:1
+
+  1 │ package.byn
+    │ ^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case148.byn:1:1
+
+  1 │ format
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case149.byn:1:1
+
+  1 │ skipped
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1067: pointer types are allowed only in `extern` declarations
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case155.byn:1:8
+
+  1 │ void f(u8*p) {
+    │        ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+error BYN1002: expected an expression, found `.`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case229.byn:1:99
+
+  1 │ Package { name: "local/t", version: "0.1.0", style: Style { indent: 2, width: 30, trailingCommas: .never } }
+    │                                                                                                   ^
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case229.byn:1:106
+
+  1 │ Package { name: "local/t", version: "0.1.0", style: Style { indent: 2, width: 30, trailingCommas: .never } }
+    │                                                                                                          ^
+    │
+  help: remove this `}`; it has no matching `{`
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case229.byn:1:108
+
+  1 │ Package { name: "local/t", version: "0.1.0", style: Style { indent: 2, width: 30, trailingCommas: .never } }
+    │                                                                                                            ^
+    │
+  help: remove this `}`; it has no matching `{`
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case230.byn:1:1
+
+  1 │ knobs
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case235.byn:1:1
+
+  1 │ tokens
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case237.byn:1:1
+
+  1 │ the tokens changed
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case237.byn:1:4
+
+  1 │ the tokens changed
+    │    ^ found `tokens`
+    │
+  help: put the next statement on its own line
+    │ 1 │ the
+    │ 2 │ tokens changed
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case238.byn:1:1
+
+  1 │ diagnostics
+    │ ^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case239.byn:1:10
+
+  1 │ let a = 1 let b = 2
+    │          ^ found keyword `let`
+    │
+  help: put the next statement on its own line
+    │ 1 │ let a = 1
+    │ 2 │ let b = 2
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case240.byn:1:1
+
+  1 │ the diagnostics changed
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case240.byn:1:4
+
+  1 │ the diagnostics changed
+    │    ^ found `diagnostics`
+    │
+  help: put the next statement on its own line
+    │ 1 │ the
+    │ 2 │ diagnostics changed
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case241.byn:1:1
+
+  1 │ comments
+    │ ^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case244.byn:1:1
+
+  1 │ the comments changed
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case244.byn:1:4
+
+  1 │ the comments changed
+    │    ^ found `comments`
+    │
+  help: put the next statement on its own line
+    │ 1 │ the
+    │ 2 │ comments changed
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case245.byn:1:1
+
+  1 │ adjacency
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found `>`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case247.byn:2:13
+
+  2 │ let b = x > > 2
+    │             ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case248.byn:1:1
+
+  1 │ the spacing the parser reads changed
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case248.byn:1:4
+
+  1 │ the spacing the parser reads changed
+    │    ^ found `spacing`
+    │
+  help: put the next statement on its own line
+    │ 1 │ the
+    │ 2 │ spacing the parser reads changed
+error BYN1002: expected an expression, found `=`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case249.byn:1:1
+
+  1 │ =
+    │ ^
+
+error BYN1002: expected an expression, found end of file
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case249.byn:1:2
+
+  1 │ =
+    │  ^
+error BYN1002: expected an expression, found `=`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case250.byn:1:3
+
+  1 │   =  
+    │   ^
+
+error BYN1002: expected an expression, found end of file
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case250.byn:1:6
+
+  1 │   =  
+    │      ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case251.byn:1:1
+
+  1 │ src
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case252.byn:1:1
+
+  1 │ lib
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found `*`
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case253.byn:1:1
+
+  1 │ *.byn
+    │ ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/LayoutTests-8/case256.byn:1:1
+
+  1 │ corpus
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone

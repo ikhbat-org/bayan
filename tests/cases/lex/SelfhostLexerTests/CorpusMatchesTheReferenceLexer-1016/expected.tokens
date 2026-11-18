@@ -1,0 +1,24 @@
+1:1 CloseBracket `]`
+1:2 IntegerLiteral `0x`
+1:6 LetKeyword `let`
+1:10 Identifier `a`
+1:12 Equals `=`
+1:14 StringLiteral `"ope.`
+2:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ ]0x� let a = "ope.
+    │  ^^
+
+error BYN0002: unexpected character `\u{1C}`
+
+  1 │ ]0x� let a = "ope.
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ]0x� let a = "ope.
+    │              ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

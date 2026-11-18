@@ -1,0 +1,5 @@
+error BYN2605: `catch` needs a call that can fail
+  --> <repo>/tests/cases/diag/line-join-quiet.byn:38:25
+
+  38 │ i64 viaSwitch(i64 n) => n switch {
+     │                         ^^^^^^^^^^

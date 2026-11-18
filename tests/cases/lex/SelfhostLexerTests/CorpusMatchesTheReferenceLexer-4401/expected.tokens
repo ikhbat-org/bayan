@@ -1,0 +1,58 @@
+1:3 IntegerLiteral `00`
+1:5 CloseBrace `}`
+1:6 CharLiteral `' '`
+1:10 CharLiteral `''`
+1:13 CharLiteral `'é'`
+1:17 CharLiteral `'`
+2:1 Identifier `b`
+2:3 CharLiteral `'a'`
+2:7 CharLiteral `'\n'`
+2:12 CharLiteral `'\u{1F600}'`
+2:24 CharLiteral `'\''`
+2:29 CharLiteral `'é'`
+2:33 CharLiteral `'\\'`
+2:38 CharLiteral `'\0'`
+3:2 IntegerLiteral `1`
+3:3 NumericSuffix `elet`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+4:1 Star `*`
+4:2 Slash `/`
+4:4 Identifier `a`
+    doc `/// Dloc line one.\n/// Doc`
+7:1 StringLiteral `"a\u{2067}b"`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ � 00}' '\'' 'é' '
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ � 00}' '\'' 'é' '
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ � 00}' '\'' 'é' '
+    │         ^
+
+error BYN0007: empty char literal
+
+  1 │ � 00}' '\'' 'é' '
+    │          ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0008: unterminated char literal
+
+  1 │ � 00}' '\'' 'é' '
+    │                 ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │  1elet � = 2
+    │        ^

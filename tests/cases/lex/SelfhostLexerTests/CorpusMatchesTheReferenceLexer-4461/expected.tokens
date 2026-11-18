@@ -1,0 +1,52 @@
+2:1 Identifier `t`
+2:3 Identifier `café`
+2:8 Equals `=`
+2:10 IntegerLiteral `2`
+4:1 IntegerLiteral `0b__`
+6:2 LetKeyword `let`
+6:6 Identifier `actor`
+6:12 Equals `=`
+6:14 IntegerLiteral `1`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ 0b__
+    │ ^^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │  // ok � in comment
+    │        ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  6 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │  ��
+    │   ^

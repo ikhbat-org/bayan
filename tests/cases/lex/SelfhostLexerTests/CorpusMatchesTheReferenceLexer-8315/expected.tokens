@@ -1,0 +1,7 @@
+1:2 Star `*`
+1:4 EndOfFile
+
+error BYN0002: unexpected character `\u{4}`
+
+  1 │ �*	
+    │ ^

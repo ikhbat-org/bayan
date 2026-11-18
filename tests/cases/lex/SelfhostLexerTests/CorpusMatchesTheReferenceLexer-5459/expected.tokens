@@ -1,0 +1,156 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 Identifier `x`
+1:56 CloseBrace `}`
+1:57 StringLiteral `"}"`
+1:60 InterpolationEnd `}`
+1:61 InterpolatedStringEnd `"`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+1:64 InterpolationEnd `}`
+1:65 InterpolatedStringEnd `"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:69 CharLiteral `'\u{202E}'`
+1:73 LetKeyword `let`
+1:77 Identifier `a`
+1:79 Equals `=`
+1:81 IntegerLiteral `1`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 StringLiteral `$"{$"`
+2:21 OpenBrace `{`
+2:22 StringLiteral `$"{$"`
+2:27 OpenBrace `{`
+2:28 StringLiteral `$"{$"`
+2:33 OpenBrace `{`
+2:34 StringLiteral `$"{$"`
+2:39 OpenBrace `{`
+2:40 StringLiteral `$"{$"`
+2:45 OpenBrace `{`
+2:46 StringLiteral `$"\u{1}{x}"`
+    doc `/// Doc line two.`
+4:1 IntegerLiteral `0b__`
+5:1 StringLiteral `$"{$"`
+5:6 OpenBrace `{`
+5:7 StringLiteral `$"{$"`
+5:12 OpenBrace `{`
+5:13 StringLiteral `$"{$"`
+5:18 OpenBrace `{`
+5:19 StringLiteral `$"{$"`
+5:24 OpenBrace `{`
+5:25 StringLiteral `$"{$"`
+5:30 OpenBrace `{`
+5:31 StringLiteral `$"{$"`
+5:36 OpenBrace `{`
+5:37 StringLiteral `$"{$"`
+5:42 OpenBrace `{`
+5:43 StringLiteral `$"{$"`
+5:48 OpenBrace `{`
+5:49 StringLiteral `$"�{$"`
+5:55 OpenBrace `{`
+5:56 Identifier `x`
+5:57 CloseBrace `}`
+5:58 StringLiteral `"}"`
+5:61 CloseBrace `}`
+5:62 StringLiteral `"}"`
+5:65 CloseBrace `}`
+5:66 StringLiteral `"}"`
+5:69 CloseBrace `}`
+5:70 StringLiteral `"}"`
+5:73 CloseBrace `}`
+5:74 StringLiteral `"}"`
+5:77 CloseBrace `}`
+5:78 StringLiteral `" `
+5:80 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}" '�' let a = 1
+    │                                                 ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}" '�' let a = 1
+    │                                                                      ^ invisible character
+    │                                                                        that reorders how the
+    │                                                                        text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}" '�' let a = 1
+    │   │                                                                      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │  �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{x}"/// Doc line two.
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{x}"/// Doc line two.
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │  �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{x}"/// Doc line two.
+    │              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ 0b__
+    │ ^^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE4)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{x}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                   ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{x}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                                              ^^ string ends at
+    │                                                                                 the end of the
+    │                                                                                 line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

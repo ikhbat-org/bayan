@@ -1,0 +1,9 @@
+error BYN3102: `grammar.adjectives` must be free of `x`, which `grammar.nouns` lists; only a verb
+that is also a noun may be in two lists
+  --> package.byn:7:22
+
+  7 │         adjectives: ["x"],
+    │                      ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3102

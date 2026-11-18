@@ -1,0 +1,22 @@
+error BYN1045: `[Cases(1, 2)]` is an input form; write `@cases(1, 2)`
+  --> tmp/t26-tests/cli/diag_bracket-attribute.byn/bracket-attribute.byn:1:1
+
+  1 │ [Cases(1, 2)]
+    │ ^
+    │
+  help: write the attribute with `@` and a camelCase name
+    │ 1 │ @cases(1, 2)
+    │   │ ++++++++++++
+
+error BYN1045: `[ExitCode(3)]` is an input form; write `@exitCode(3)`
+  --> tmp/t26-tests/cli/diag_bracket-attribute.byn/bracket-attribute.byn:7:5
+
+  7 │     [ExitCode(3)]
+    │     ^
+    │
+  help: write the attribute with `@` and a camelCase name
+    │ 7 │     @exitCode(3)
+    │   │     ++++++++++++
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1045

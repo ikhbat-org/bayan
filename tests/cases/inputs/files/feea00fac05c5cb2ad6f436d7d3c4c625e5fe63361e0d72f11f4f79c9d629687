@@ -1,0 +1,8 @@
+c >>= 1
+ ạ̇ 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+
+a /* never closed
+*/
+foo Bar _x camelCase2 بيان μετρη?�ής x_1 é
+ $"open {x";
+ 

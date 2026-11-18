@@ -1,0 +1,25 @@
+1:1 Identifier `Å`
+2:1 IntegerLiteral `100`
+2:5 IntegerLiteral `0B11`
+2:10 IntegerLiteral `5`
+2:11 NumericSuffix `s250ms`
+2:18 IntegerLiteral `4`
+2:19 NumericSuffix `KiB`
+2:23 IntegerLiteral `1`
+2:24 NumericSuffix `u`
+2:26 IntegerLiteral `0xFF`
+2:30 NumericSuffix `u`
+2:32 IntegerLiteral `0b1`
+2:35 NumericSuffix `ul`
+2:38 IntegerLiteral `7`
+2:39 NumericSuffix `l`
+3:2 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å
+    │   │ +

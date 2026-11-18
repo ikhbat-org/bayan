@@ -1,0 +1,7 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+void main() {
+    let y = 1
+    let z: long = long(y)
+    let a = int.tryFrom(y)
+    let b = long.max
+}

@@ -1,0 +1,73 @@
+1:1 Identifier `ạ̇`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 StringLiteral `"open`
+4:1 Identifier `x́́`
+5:1 Plus `+`
+5:3 Minus `-`
+5:5 Star `*`
+5:7 Slash `/`
+5:9 Percent `%`
+5:11 PlusPercent `+%`
+5:15 MinusPercent `-%`
+5:18 StarPercent `*%`
+5:21 PlusBar `+|`
+5:24 MinusBar `-|`
+5:27 StarBar `*|`
+5:30 PlusPlus `++`
+5:33 MinusMinus `--`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 Identifier `a`
+7:7 IntegerLiteral `2`
+8:1 Identifier `macro`
+8:7 Identifier `select`
+8:14 BecomeKeyword `become`
+9:1 LetKeyword `let`
+9:5 LawKeyword `law`
+9:9 Equals `=`
+9:11 IntegerLiteral `3`
+10:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇
+    │   │ ++
+
+error BYN0003: unterminated string literal
+
+  2 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  5 │ + - * / % +%� -% *% +| -| *| ++ --
+    │             ^
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{a 2
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  8 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  8 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

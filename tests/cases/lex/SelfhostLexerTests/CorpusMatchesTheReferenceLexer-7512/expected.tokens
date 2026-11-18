@@ -1,0 +1,28 @@
+1:1 Identifier `Å`
+10:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å /* block
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å /* block
+    │   │ +
+
+error BYN0004: unterminated block comment
+
+  1 │ Å /* block
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  7 │  // ok � in comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  8 │  fails try catch never no�alloc nosuspend suspends async await
+    │                          ^

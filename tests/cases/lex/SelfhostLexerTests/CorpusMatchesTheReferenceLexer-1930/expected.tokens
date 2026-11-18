@@ -1,0 +1,32 @@
+1:1 Identifier `x`
+1:3 Identifier `с`
+2:1 PlusEquals `+=`
+2:4 MinusEquals `-=`
+2:7 StarEquals `*=`
+2:9 SlashEquals `/=`
+2:12 PercentEquals `%=`
+2:15 AmpEquals `&=`
+2:18 BarEquals `|=`
+2:21 CaretEquals `^=`
+2:24 LessLessEquals `<<=`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ x�с��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ x�с��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ x�с��
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ x�с��
+    │     ^

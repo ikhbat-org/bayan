@@ -1,0 +1,14 @@
+1:1 Identifier `_x`
+1:4 Identifier `camelCse2`
+1:14 Identifier `بيان`
+1:19 Identifier `μετρητής`
+1:28 Identifier `x_1`
+1:32 Identifier `é`
+4:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  3 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

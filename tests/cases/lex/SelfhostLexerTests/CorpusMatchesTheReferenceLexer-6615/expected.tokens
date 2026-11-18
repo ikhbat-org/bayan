@@ -1,0 +1,4 @@
+1:1 StringLiteral `"\u{202E} allowed in trings"`
+1:23 StringLiteral `""`
+1:26 StringLiteral `"\u{48}i"`
+2:2 EndOfFile

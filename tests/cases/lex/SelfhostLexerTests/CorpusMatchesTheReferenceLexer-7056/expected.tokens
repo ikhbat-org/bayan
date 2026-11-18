@@ -1,0 +1,66 @@
+1:1 Identifier `b`
+1:2 CharLiteral `'`
+2:1 CharLiteral `'\q'`
+3:1 CharLiteral `'\u{D800}'`
+4:1 CharLiteral `'\u \r   """ c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"`
+5:4 IntegerLiteral `2`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:11 IntegerLiteral `3`
+7:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ b'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  4 │ '\u �   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u`
+
+  4 │ '\u �   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ '\u �   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ '\u �   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   │                                -
+
+error BYN0002: unexpected character `\u{0}`
+
+  5 │ �  2
+    │ ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  6 │ let c = � 3
+    │         ^

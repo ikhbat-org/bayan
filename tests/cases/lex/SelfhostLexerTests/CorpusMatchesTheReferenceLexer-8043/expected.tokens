@@ -1,0 +1,39 @@
+1:1 Identifier `F600`
+1:5 CloseBrace `}`
+1:6 CharLiteral `' '`
+1:10 CharLiteral `''`
+1:13 CharLiteral `'é'`
+1:17 StructKeyword `struct`
+1:24 Identifier `S`
+3:1 CharLiteral `'\u{110000}'`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:9 StringLiteral `"bad \q escape"`
+7:1 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ F600}' '\'' 'é' struct S
+    │         ^
+
+error BYN0007: empty char literal
+
+  1 │ F600}' '\'' 'é' struct S
+    │          ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

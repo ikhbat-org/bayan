@@ -1,0 +1,7 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+4:2 EndOfFile

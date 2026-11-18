@@ -1,0 +1,16 @@
+== tests/cases/diag/fs-real-path-needs-fs.byn
+183..216 blockStmt
+189..214 returnStmt value 196..214
+196..214 tryExpr
+200..214 callExpr
+212..213 nameExpr
+280..313 blockStmt
+286..311 returnStmt value 293..311
+293..311 tryExpr
+297..311 callExpr
+309..310 nameExpr
+327..346 blockStmt
+333..344 exprStmt
+333..344 callExpr
+339..343 literalExpr string
+333..344 callExpr

@@ -1,0 +1,72 @@
+1:1 Identifier `x́`
+2:1 OpenBrace `{`
+3:1 Identifier `fé`
+3:4 Equals `=`
+3:6 IntegerLiteral `2`
+5:3 TestKeyword `test`
+5:8 AssertKeyword `assert`
+5:15 PropertyKeyword `property`
+5:24 FuzzKeyword `fuzz`
+5:29 ModelKeyword `model`
+5:35 ForeachKeyword `foreach`
+5:43 NewKeyword `new`
+5:47 GotoKeyword `goto`
+6:2 Identifier `é`
+6:5 Identifier `ạ̇`
+7:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}"\n`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x95)
+
+  1 │ x́�́
+    │   ^
+
+error BYN0002: unexpected character `́`
+
+  1 │ x́�́
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │ ���� test assert property fuzz model foreach new goto
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ ���� test assert property fuzz model foreach new goto
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ���� test assert property fuzz model foreach new goto
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ���� test assert property fuzz model foreach new goto
+    │    ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  6 │  é ạ̇
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │  é ạ̇
+    │   │  +
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  6 │  é ạ̇
+    │     ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │  é ạ̇
+    │   │     ++
+
+error BYN0003: unterminated string literal
+
+  7 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

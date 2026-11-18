@@ -1,0 +1,41 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:2 Comma `,`
+2:4 Dot `.`
+2:6 DotDot `..`
+2:9 Dot `.`
+2:11 Equals `=`
+2:13 Colon `:`
+2:15 Question `?`
+2:17 QuestionQuestion `??`
+2:20 QuestionQuestionEquals `??=`
+2:24 QuestionDot `?.`
+2:27 FatArrow `=>`
+2:30 Arrow `->`
+2:33 At `@`
+2:35 Hash `#`
+4:1 CharLiteral `'x`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ �, . .. .�= : ? ?? ??= ?. => -> @ #
+    │ ^
+
+error BYN0002: unexpected character `\u{1B}`
+
+  2 │ �, . .. .�= : ? ?? ??= ?. => -> @ #
+    │          ^
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

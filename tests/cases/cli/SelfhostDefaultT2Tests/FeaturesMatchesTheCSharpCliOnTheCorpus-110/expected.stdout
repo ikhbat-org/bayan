@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "InterfaceDecl",
+    "LiteralExpr",
+    "StructDecl"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

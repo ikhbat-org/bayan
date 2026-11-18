@@ -1,0 +1,23 @@
+1:1 IntegerLiteral `1_`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+2:8 Identifier `x`
+2:9 Dot `.`
+2:10 Identifier `y`
+2:12 FloatLiteral `2.5`
+2:15 NumericSuffix `f`
+5:1 LetKeyword `let`
+5:5 Identifier `la`
+5:8 Equals `=`
+5:10 IntegerLiteral `3`
+6:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -

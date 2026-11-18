@@ -1,0 +1,24 @@
+1:1 Identifier `macro`
+1:7 Identifier `s`
+1:9 Identifier `l`
+1:11 Identifier `ct`
+1:13 OpenBrace `{`
+1:15 BecomeKeyword `become`
+2:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro s�l�ct{ become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xC1)
+
+  1 │ macro s�l�ct{ become
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  1 │ macro s�l�ct{ become
+    │          ^

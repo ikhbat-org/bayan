@@ -1,0 +1,32 @@
+== tests/cases/diag/unique-move-in-branch.byn
+116..145 blockStmt
+122..143 exprStmt
+122..143 callExpr
+128..142 interpolatedExpr
+131..140 memberExpr
+131..133 nameExpr
+122..143 callExpr
+184..326 blockStmt
+190..209 localDecl
+198..209 callExpr
+214..299 ifStmt
+217..232 binaryExpr gt right 231..232
+217..228 memberExpr
+217..221 nameExpr
+231..232 literalExpr integer
+233..264 blockStmt
+243..258 exprStmt
+243..258 callExpr
+251..257 argument
+256..257 nameExpr
+270..299 blockStmt
+280..293 exprStmt
+280..293 callExpr
+286..292 literalExpr string
+280..293 callExpr
+304..324 exprStmt
+304..324 callExpr
+310..323 interpolatedExpr
+313..321 memberExpr
+313..314 nameExpr
+304..324 callExpr

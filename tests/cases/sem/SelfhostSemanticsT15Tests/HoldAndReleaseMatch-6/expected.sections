@@ -1,0 +1,5 @@
+== hold narrow
+bag 2 reported 0
+seeds none
+BYN2219 1:5 a must be a compile-time constant |||
+BYN2219 2:5 b must be a compile-time constant |the generic code needs this of its type arguments||

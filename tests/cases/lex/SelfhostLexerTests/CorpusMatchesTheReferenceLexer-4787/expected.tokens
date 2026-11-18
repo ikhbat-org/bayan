@@ -1,0 +1,21 @@
+1:1 Identifier `ape`
+1:4 StringLiteral `"`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never c\n\t$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"\n s= $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$''\n\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ ape"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """never c
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

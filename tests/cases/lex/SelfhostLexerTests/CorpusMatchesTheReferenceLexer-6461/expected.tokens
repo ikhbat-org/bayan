@@ -1,0 +1,49 @@
+1:1 IntegerLiteral `1`
+1:2 DotDot `..`
+1:4 IntegerLiteral `2`
+1:6 IntegerLiteral `1`
+1:7 DotDotEquals `..=`
+1:10 IntegerLiteral `3`
+1:12 IntegerLiteral `5`
+1:13 NumericSuffix `e`
+1:15 Identifier `x`
+1:16 Dot `.`
+1:17 Identifier `y`
+1:19 FloatLiteral `2.5`
+1:22 NumericSuffix `f`
+3:1 IntegerLiteral `0b__`
+5:1 LetKeyword `let`
+5:5 EffectKeyword `effect`
+5:12 Equals `=`
+5:14 IntegerLiteral `2`
+6:1 Star `*`
+6:2 Slash `/`
+6:3 LetKeyword `let`
+6:7 Identifier `a`
+6:9 Equals `=`
+6:13 IntegerLiteral `1`
+7:1 Identifier `two`
+7:4 Dot `.`
+8:1 StructKeyword `struct`
+8:8 LetKeyword `let`
+8:12 Identifier `a`
+8:14 Equals `=`
+8:16 StringLiteral `"open`
+9:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0002: unexpected character `$`
+
+  6 │ */let a = $ 1
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  8 │ struct let a = "open
+    │                ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

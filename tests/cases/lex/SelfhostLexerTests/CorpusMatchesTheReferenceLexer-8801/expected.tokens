@@ -1,0 +1,121 @@
+    doc `/// 'ab'\r`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 StringLiteral `$"{$"`
+2:55 OpenBrace `{`
+3:1 Comma `,`
+3:3 Dot `.`
+3:5 DotDot `..`
+3:8 DotDotEquals `..=`
+3:12 Colon `:`
+3:14 Question `?`
+3:16 QuestionQuestion `??`
+3:19 QuestionQuestionEquals `??=`
+3:23 QuestionDot `?.`
+3:26 FatArrow `=>`
+3:29 Arrow `->`
+3:32 At `@`
+3:34 Hash `#`
+5:3 StringLiteral `$"{$"`
+5:8 OpenBrace `{`
+5:9 StringLiteral `$"{$"`
+5:14 OpenBrace `{`
+5:15 StringLiteral `$"{$"`
+5:20 OpenBrace `{`
+5:21 StringLiteral `$"{$"`
+5:26 OpenBrace `{`
+5:27 StringLiteral `$"{$"`
+5:32 OpenBrace `{`
+5:33 StringLiteral `$"{$"`
+5:38 OpenBrace `{`
+5:39 StringLiteral `$"{$"`
+5:44 OpenBrace `{`
+5:45 StringLiteral `$"{$"`
+5:50 OpenBrace `{`
+5:51 StringLiteral `$"{$"`
+5:56 OpenBrace `{`
+5:57 Identifier `x`
+5:58 CloseBrace `}`
+5:59 StringLiteral `"}"`
+5:62 CloseBrace `}`
+5:63 StringLiteral `"}"`
+5:66 CloseBrace `}`
+5:67 StringLiteral `"}"`
+5:70 CloseBrace `}`
+5:71 StringLiteral `"}"`
+5:74 CloseBrace `}`
+5:75 StringLiteral `"}"`
+5:78 CloseBrace `}`
+5:79 StringLiteral `"}"`
+5:82 CloseBrace `}`
+5:83 StringLiteral `" `
+6:1 Identifier `b`
+7:2 InKeyword `in`
+7:5 Identifier `strings`
+7:12 StringLiteral `"  `
+7:15 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{
+    │                                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{
+    │                                                  ^^
+
+error BYN0002: unexpected character `‏`
+
+  5 │ ‏ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  5 │ ‏ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                                                   ^^ string
+    │                                                                                      ends at
+    │                                                                                      the end
+    │                                                                                      of the
+    │                                                                                      line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │  in strings"  
+    │            ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

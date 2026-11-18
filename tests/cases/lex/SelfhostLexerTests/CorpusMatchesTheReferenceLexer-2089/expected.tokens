@@ -1,0 +1,43 @@
+1:1 IntegerLiteral `0xF__`
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 MinusPercent `-%`
+3:17 StarPercent `*%`
+3:20 PlusBar `+|`
+3:23 MinusBar `-|`
+3:26 StarBar `*|`
+3:29 PlusPlus `++`
+3:32 MinusMinus `--`
+5:2 StringLiteral `"text"`
+5:9 StringLiteral `"esc \"q\" \\ \n"`
+5:27 RawStringLiteral `"""\nerror set unit distinct type import as public private static �readonly required const let var embed extern unsafe\n\n, . .. .�= : ? ?? ??= ?. => -> @ #\n`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  5 │ �"text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  6 │ error set unit distinct type import as public private static �readonly required const let var embed extern unsafe
+    │                                                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  8 │ , . .. .�= : ? ?? ??= ?. => -> @ #
+    │         ^

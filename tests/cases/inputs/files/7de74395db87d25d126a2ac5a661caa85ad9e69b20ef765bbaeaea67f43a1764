@@ -1,0 +1,5 @@
+�+ - * / % +% -% *% +| -| *| ++ --
+ 각is and or not with move ref out this null true false comptime checked
+
+let effect = 2
+macro select become

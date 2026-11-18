@@ -1,0 +1,10 @@
+error BYN2702: union `Nothing` has no variants
+  --> tmp/t26-tests/cli/diag_empty-union.byn/empty-union.byn:1:7
+
+  1 │ union Nothing { }
+    │       ^^^^^^^
+    │
+  help: add the variants, or remove the union
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2702

@@ -1,0 +1,4 @@
+== bind.probes.i5
+flags 0
+errorExpr:?[3426:12]=-()
+BYN2001 183:14 `nope` is not defined ||did you mean `Node`?|fix 3426..3430 Node

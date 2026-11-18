@@ -1,0 +1,3 @@
+== index.probes.-.i11
+slice|Span<i32>|local:list|-|-|-|false:true|4074:11|literal:i64=1;literal:i64=1;false
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|

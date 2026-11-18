@@ -1,0 +1,89 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:26 Identifier `q`
+1:27 StringLiteral `"{$"`
+1:31 OpenBrace `{`
+1:32 InterpolatedStringStart `$"`
+1:34 InterpolationStart `{`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolationStart `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 Identifier `x`
+1:48 InterpolationEnd `}`
+1:49 InterpolatedStringEnd `"`
+1:50 InterpolationEnd `}`
+1:51 InterpolatedStringEnd `"`
+1:52 InterpolationEnd `}`
+1:53 InterpolatedStringEnd `"`
+1:54 InterpolationEnd `}`
+1:55 InterpolatedStringEnd `"`
+1:56 InterpolationEnd `}`
+1:57 InterpolatedStringEnd `"`
+1:58 CloseBrace `}`
+1:59 StringLiteral `"}"`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+1:65 IntegerLiteral `1`
+1:66 Dot `.`
+1:67 LetKeyword `let`
+1:71 EffectKeyword `effect`
+1:78 Equals `=`
+1:80 IntegerLiteral `2`
+2:5 Slash `/`
+2:7 Percent `%`
+2:9 Plus `+`
+2:12 MinusPercent `-%`
+2:15 StarPercent `*%`
+2:18 PlusBar `+|`
+2:21 MinusBar `-|`
+2:24 StarBar `*|`
+2:27 PlusPlus `++`
+2:30 MinusMinus `--`
+3:1 Amp `&`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$q"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" 1.let effect = 2
+    │                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$q"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" 1.let effect = 2
+    │                         ^
+
+error BYN0002: unexpected character `̈́`
+
+  2 │  ̈́� / % +� -% *% +| -| *| ++ --
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │  ̈́� / % +� -% *% +| -| *| ++ --
+    │   ^
+
+error BYN0002: unexpected character `\u{17}`
+
+  2 │  ̈́� / % +� -% *% +| -| *| ++ --
+    │          ^

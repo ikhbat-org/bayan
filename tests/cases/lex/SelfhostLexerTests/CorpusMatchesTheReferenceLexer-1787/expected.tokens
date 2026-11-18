@@ -1,0 +1,117 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:2 IntegerLiteral `0b__`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+5:2 CharLiteral `'ab'`
+7:1 CharLiteral `'\u{D800}'`
+8:1 CharLiteral `'\u{110000}'`
+9:1 CharLiteral `'x`
+11:1 InterpolatedStringStart `$"`
+11:3 InterpolatedStringText `)$`
+11:5 InterpolatedStringEnd `"`
+11:6 OpenBrace `{`
+11:7 InterpolatedStringStart `$"`
+11:9 InterpolationStart `{`
+11:10 InterpolatedStringStart `$"`
+11:12 InterpolationStart `{`
+11:13 InterpolatedStringStart `$"`
+11:15 InterpolationStart `{`
+11:16 InterpolatedStringStart `$"`
+11:18 InterpolationStart `{`
+11:19 InterpolatedStringStart `$"`
+11:21 InterpolationStart `{`
+11:22 InterpolatedStringStart `$"`
+11:24 InterpolationStart `{`
+11:25 InterpolatedStringStart `$"`
+11:27 InterpolationStart `{`
+11:28 InterpolatedStringStart `$"`
+11:30 InterpolatedStringText `\u{1F}`
+11:31 InterpolationStart `{`
+11:32 InterpolatedStringStart `$"`
+11:34 InterpolationStart `{`
+11:35 InterpolatedStringStart `$"`
+11:37 InterpolationStart `{`
+11:38 InterpolatedStringStart `$"`
+11:40 InterpolationStart `{`
+11:41 InterpolatedStringStart `$"`
+11:43 InterpolationStart `{`
+11:44 InterpolatedStringStart `$"`
+11:46 InterpolationStart `{`
+11:47 Identifier `x`
+11:48 InterpolationEnd `}`
+11:49 InterpolatedStringEnd `"`
+11:50 InterpolationEnd `}`
+11:51 InterpolatedStringEnd `"`
+12:1 StringLiteral `"{`
+12:3 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │  0b__
+    │  ^^^^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  7 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  8 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  9 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  11 │ $")$"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{x}"}"�
+     │                                      ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  11 │ $")$"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{x}"}"�
+     │                                                    ^
+
+error BYN0003: unterminated string literal
+
+  12 │ "{
+     │ ^^ string ends at the end of the line
+     │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

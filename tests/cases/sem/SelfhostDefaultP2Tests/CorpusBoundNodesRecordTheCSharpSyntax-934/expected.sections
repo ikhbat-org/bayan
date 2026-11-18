@@ -1,0 +1,8 @@
+== tests/cases/diag/unknown-attribute.byn
+102..105 blockStmt
+133..136 blockStmt
+150..176 blockStmt
+156..162 exprStmt
+156..162 callExpr
+167..174 exprStmt
+167..174 callExpr

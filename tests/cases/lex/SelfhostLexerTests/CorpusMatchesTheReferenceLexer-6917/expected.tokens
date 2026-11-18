@@ -1,0 +1,28 @@
+2:1 LetKeyword `let`
+2:7 Equals `=`
+2:9 IntegerLiteral `2`
+2:10 OpenParen `(`
+3:2 LetKeyword `let`
+3:6 Identifier `café`
+3:12 Equals `=`
+3:14 IntegerLiteral `1`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ let � = 2(// Sk � in comment
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ let � = 2(// Sk � in comment
+    │                 ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │  let café = 1
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  let café = 1
+    │   │         +

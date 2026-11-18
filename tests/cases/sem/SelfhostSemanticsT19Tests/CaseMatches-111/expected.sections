@@ -1,0 +1,4 @@
+== bind.probes.b28
+flags 4
+errorExpr:?[2231:5]=-()
+BYN2205 135:15 division by zero |||

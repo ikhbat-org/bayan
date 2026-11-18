@@ -1,0 +1,9 @@
+== tests/cases/diag/missing-return-value.byn
+8..22 blockStmt
+14..20 returnStmt
+24..39 globalStatement
+24..39 exprStmt
+24..39 callExpr
+30..38 interpolatedExpr
+33..36 callExpr
+24..39 callExpr

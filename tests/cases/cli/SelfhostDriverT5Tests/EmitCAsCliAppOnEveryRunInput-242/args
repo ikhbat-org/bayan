@@ -1,0 +1,3 @@
+build
+--emit-c
+ref-out-lambda-block.byn

@@ -1,0 +1,23 @@
+== tests/cases/diag/lambda-void-body-value.byn
+44..84 blockStmt
+50..82 forStmt
+59..61 nameExpr
+62..82 blockStmt
+72..76 exprStmt
+72..76 callExpr
+72..73 nameExpr
+74..75 nameExpr
+98..161 blockStmt
+104..130 localDecl
+124..130 collectionExpr
+125..126 literalExpr integer
+128..129 literalExpr integer
+135..159 exprStmt
+135..159 callExpr
+140..142 nameExpr
+148..158 lambdaExpr
+153..158 binaryExpr add right 157..158
+153..158 binaryExpr add right 157..158
+153..158 binaryExpr add right 157..158
+153..154 nameExpr
+157..158 literalExpr integer

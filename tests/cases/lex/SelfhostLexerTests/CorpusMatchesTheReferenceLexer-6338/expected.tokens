@@ -1,0 +1,17 @@
+1:1 CharLiteral `'x`
+2:1 Identifier `letlaw`
+2:8 Equals `=`
+2:10 IntegerLiteral `3`
+3:3 CharLiteral `'\0'`
+4:4 Identifier `comment`
+4:12 Star `*`
+4:13 Slash `/`
+4:15 Identifier `a`
+5:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

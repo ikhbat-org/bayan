@@ -1,0 +1,9 @@
+{  5 250ms 4KB 1u 0xFFu 0b1ul 
+'\u{D800}'
+// ok þ in comment
+
++ - * / % +% -% *% | -| *| ++ --
+ let xâ§ = 1
+
+c >>= 1
+let effect = 2

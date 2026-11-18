@@ -1,0 +1,4 @@
+== diags.diag/try-wrong-return
+BYN5003 10:5 `tryParse` must return `i64?` or `bool`; it is derived from `parse() fails`
+  label returns `i64`
+  help change it to return `i64?` or `bool`, or remove `tryParse` and call `try parse()`

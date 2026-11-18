@@ -1,0 +1,4 @@
+build
+-o
+nodir/sub/prog
+arithmetic.byn

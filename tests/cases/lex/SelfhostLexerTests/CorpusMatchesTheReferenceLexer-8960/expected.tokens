@@ -1,0 +1,141 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:4 Identifier `idden`
+3:1 LetKeyword `let`
+3:5 Identifier `x`
+3:9 LetKeyword `let`
+3:13 Identifier `s`
+3:15 Equals `=`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:24 Identifier `I`
+3:25 OpenBrace `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 InterpolatedStringStart `$"`
+3:55 InterpolationStart `{`
+3:56 InterpolatedStringStart `$"`
+3:58 InterpolationStart `{`
+3:59 InterpolatedStringStart `$"`
+3:61 InterpolationStart `{`
+3:62 InterpolatedStringStart `$"`
+3:64 InterpolationStart `{`
+3:65 InterpolatedStringStart `$"`
+3:67 InterpolationStart `{`
+3:68 StringLiteral `$"{$"`
+3:73 OpenBrace `{`
+3:74 StringLiteral `$"{x}"`
+3:80 CloseBrace `}`
+3:81 StringLiteral `"}"`
+3:84 InterpolationEnd `}`
+3:85 InterpolatedStringEnd `"`
+3:86 InterpolationEnd `}`
+3:87 InterpolatedStringEnd `"`
+3:88 InterpolationEnd `}`
+3:89 InterpolatedStringEnd `"`
+3:90 InterpolationEnd `}`
+3:91 InterpolatedStringEnd `"`
+3:92 InterpolationEnd `}`
+3:93 InterpolatedStringEnd `"`
+3:94 InterpolationEnd `}`
+3:95 InterpolatedStringEnd `"`
+3:96 InterpolationEnd `}`
+3:97 InterpolatedStringEnd `"`
+3:98 InterpolationEnd `}`
+3:99 InterpolatedStringEnd `"`
+3:100 InterpolationEnd `}`
+3:101 InterpolatedStringEnd `"`
+3:102 InterpolationEnd `}`
+3:103 InterpolatedStringEnd `"`
+3:104 InterpolationEnd `}`
+3:105 InterpolatedStringEnd `"`
+3:106 InterpolationEnd `}`
+3:107 InterpolatedStringEnd `"`
+3:108 InterpolationEnd `}`
+3:109 InterpolatedStringEnd `"`
+3:110 InterpolationEnd `}`
+3:111 InterpolatedStringEnd `"`
+3:112 CloseBrace `}`
+3:113 StringLiteral `"}"`
+3:116 InterpolationEnd `}`
+3:117 InterpolatedStringEnd `"`
+4:2 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │  ���� idden
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │  ���� idden
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���� idden
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���� idden
+    │     ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ let x� � let s = $"{$"{$I{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ let x� � let s = $"{$"{$I{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  3 │ let x� � let s = $"{$"{$I{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  3 │ let x� � let s = $"{$"{$I{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  3 │ let x� � let s = $"{$"{$I{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                        ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ let x� � let s = $"{$"{$I{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                     ^^

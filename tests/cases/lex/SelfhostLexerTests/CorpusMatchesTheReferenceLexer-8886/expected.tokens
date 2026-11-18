@@ -1,0 +1,155 @@
+1:1 IntegerLiteral `0x_`
+2:2 Identifier `u`
+2:3 OpenBrace `{`
+2:4 IntegerLiteral `110000`
+2:10 CloseBrace `}`
+2:11 CharLiteral `'`
+3:1 CharLiteral `'xr closed`
+4:1 Identifier `b`
+5:1 IntegerLiteral `0x_`
+6:2 TestKeyword `test`
+6:7 AssertKeyword `assert`
+6:14 PropertyKeyword `property`
+6:23 FuzzKeyword `fuzz`
+6:28 ModelKeyword `model`
+6:34 ForeachKeyword `foreach`
+6:42 NewKeyword `new`
+6:46 GotoKeyword `goto`
+7:4 Identifier `comment`
+7:12 Star `*`
+7:13 Slash `/`
+7:15 Identifier `a`
+8:1 CharLiteral `'\u{D800}'`
+9:2 InterpolatedStringStart `$"`
+9:4 InterpolationStart `{`
+9:6 OpenBrace `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 InterpolatedStringStart `$"`
+9:24 InterpolationStart `{`
+9:27 OpenBrace `{`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolationStart `{`
+9:31 InterpolatedStringStart `$"`
+9:33 InterpolationStart `{`
+9:34 InterpolatedStringStart `$"`
+9:36 InterpolationStart `{`
+9:37 InterpolatedStringStart `$"`
+9:39 InterpolationStart `{`
+9:40 InterpolatedStringStart `$"`
+9:42 InterpolationStart `{`
+9:43 InterpolatedStringStart `$"`
+9:45 InterpolationStart `{`
+9:46 InterpolatedStringStart `$"`
+9:48 InterpolationStart `{`
+9:49 InterpolatedStringStart `$"`
+9:51 InterpolationStart `{`
+9:52 InterpolatedStringStart `$"`
+9:54 InterpolationStart `{`
+9:57 OpenBrace `{`
+9:58 StringLiteral `$"{x}"`
+9:64 CloseBrace `}`
+9:65 StringLiteral `"}"`
+9:68 InterpolationEnd `}`
+9:69 InterpolatedStringEnd `"`
+9:70 InterpolationEnd `}`
+9:71 InterpolatedStringEnd `"`
+9:72 InterpolationEnd `}`
+9:73 InterpolatedStringEnd `"`
+9:74 InterpolationEnd `}`
+9:75 InterpolatedStringEnd `"`
+9:76 InterpolationEnd `}`
+9:77 InterpolatedStringEnd `"`
+9:78 InterpolationEnd `}`
+9:79 InterpolatedStringEnd `"`
+9:80 InterpolationEnd `}`
+9:81 InterpolatedStringEnd `"`
+9:82 InterpolationEnd `}`
+9:83 InterpolatedStringEnd `"`
+9:84 InterpolationEnd `}`
+9:85 InterpolatedStringEnd `"`
+9:86 CloseBrace `}`
+9:87 StringLiteral `"}"`
+9:90 InterpolationEnd `}`
+9:91 InterpolatedStringEnd `"`
+9:92 InterpolationEnd `}`
+9:93 InterpolatedStringEnd `"`
+9:94 InterpolationEnd `}`
+9:95 InterpolatedStringEnd `"`
+9:97 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0008: unterminated char literal
+
+  2 │  u{110000}'
+    │           ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  3 │ 'xr closed
+    │ ^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x_
+    │ ^^^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  8 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `$`
+
+  9 │  $"{${$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  9 │  $"{${$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  9 │  $"{${$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  9 │  $"{${$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                          ^
+
+error BYN0002: unexpected character `$`
+
+  9 │  $"{${$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD7)
+
+  9 │  $"{${$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                        ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │  $"{${$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                          ^^

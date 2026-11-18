@@ -1,0 +1,10 @@
+macro select become
+ let b = ` 2
+
+
+ $"’a  S
+//// not a doc comment
+b
+
+â‚// ok þ in comment
+

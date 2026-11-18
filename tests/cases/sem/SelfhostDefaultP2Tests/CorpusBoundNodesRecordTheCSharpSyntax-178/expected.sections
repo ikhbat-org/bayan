@@ -1,0 +1,65 @@
+== tests/cases/run/loop-item-ledger.byn
+240..336 blockStmt
+246..270 localDecl
+256..270 callExpr
+275..319 forStmt
+284..289 nameExpr
+290..319 blockStmt
+300..313 exprStmt
+300..313 callExpr
+300..303 nameExpr
+311..312 nameExpr
+324..334 returnStmt value 331..334
+331..334 nameExpr
+391..418 blockStmt
+397..416 exprStmt
+397..416 callExpr
+397..403 nameExpr
+411..415 nameExpr
+482..663 blockStmt
+488..515 localDecl
+501..515 callExpr
+520..643 forStmt
+529..537 nameExpr
+538..643 blockStmt
+548..637 forStmt
+560..584 callExpr
+569..583 memberExpr
+569..583 memberExpr
+569..570 nameExpr
+585..637 blockStmt
+599..627 exprStmt
+599..627 callExpr
+606..610 nameExpr
+620..626 nameExpr
+648..661 returnStmt value 655..661
+655..661 nameExpr
+665..688 globalStatement
+665..688 localDecl
+674..688 callExpr
+689..705 exprStmt
+689..705 callExpr
+689..691 nameExpr
+699..704 literalExpr string
+706..722 exprStmt
+706..722 callExpr
+706..708 nameExpr
+716..721 literalExpr string
+723..747 localDecl
+732..747 callExpr
+748..797 exprStmt
+748..797 callExpr
+748..750 nameExpr
+758..796 structLiteralExpr
+767..771 literalExpr string
+787..791 moveExpr
+792..794 nameExpr
+798..838 forStmt
+807..821 callExpr
+813..820 memberExpr
+813..815 nameExpr
+822..838 blockStmt
+828..836 exprStmt
+828..836 callExpr
+834..835 nameExpr
+828..836 callExpr

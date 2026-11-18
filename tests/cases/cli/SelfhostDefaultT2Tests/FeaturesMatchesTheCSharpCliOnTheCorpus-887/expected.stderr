@@ -1,0 +1,7 @@
+error BYN2403: `log` returns nothing, but `return` has a value
+  --> <repo>/tests/cases/diag/return-value-in-void.byn:2:12
+
+  2 │     return 1
+    │            ^
+    │
+  help: declare a return type instead of `void`, or remove the value

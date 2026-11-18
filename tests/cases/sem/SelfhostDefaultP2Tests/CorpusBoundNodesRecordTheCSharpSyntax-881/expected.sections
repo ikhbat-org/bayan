@@ -1,0 +1,13 @@
+== tests/cases/diag/symbol-user-struct.byn
+127..131 memberExpr
+127..131 memberExpr
+127..131 memberExpr
+145..201 blockStmt
+151..175 localDecl
+159..175 structLiteralExpr
+180..199 exprStmt
+180..199 callExpr
+186..198 interpolatedExpr
+189..196 callExpr
+194..195 nameExpr
+180..199 callExpr

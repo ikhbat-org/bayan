@@ -1,0 +1,40 @@
+1:1 Less `<`
+1:2 Identifier `List`
+1:6 Less `<`
+1:7 Identifier `i64`
+1:10 Greater `>`
+1:11 Greater `>`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:1 StringLiteral `"a {f($"`
+4:9 Identifier `b`
+4:11 OpenBrace `{`
+4:12 Identifier `c`
+4:13 CloseBrace `}`
+4:14 StringLiteral `")} d"`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolatedStringText `{{ let law = 3`
+4:37 InterpolatedStringEnd
+6:1 IntegerLiteral `1__`
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ "a {f($"b {c}")} d" $"{{ let law = 3
+    │                     ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --

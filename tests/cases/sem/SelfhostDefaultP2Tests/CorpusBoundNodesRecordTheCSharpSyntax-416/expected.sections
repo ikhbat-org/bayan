@@ -1,0 +1,10 @@
+== tests/cases/diag/defer-failing-without-fails.byn
+9..41 blockStmt
+15..28 deferStmt
+29..39 exprStmt
+29..39 callExpr
+35..38 literalExpr string
+29..39 callExpr
+43..46 globalStatement
+43..46 exprStmt
+43..46 callExpr

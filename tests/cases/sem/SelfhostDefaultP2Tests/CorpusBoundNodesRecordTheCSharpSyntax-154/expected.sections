@@ -1,0 +1,22 @@
+== tests/cases/run/lambda-capture-no-alloc.byn
+39..43 callExpr
+39..43 callExpr
+39..43 callExpr
+39..40 nameExpr
+41..42 nameExpr
+57..122 blockStmt
+63..76 localDecl
+74..76 literalExpr integer
+81..120 exprStmt
+81..120 callExpr
+87..119 interpolatedExpr
+90..117 callExpr
+96..97 literalExpr integer
+103..116 lambdaExpr
+112..116 nameExpr
+81..120 callExpr
+108..116 binaryExpr add right 112..116
+108..116 binaryExpr add right 112..116
+108..116 binaryExpr add right 112..116
+108..109 nameExpr
+112..116 nameExpr

@@ -1,0 +1,49 @@
+warning BYN5104: `line` holds a collection; name it with a plural, `lines`
+  --> <repo>/tests/cases/diag/number-agreement.byn:6:23
+
+  6 │     public List<Line> line
+    │                       ^^^^
+    │
+  help: rename it `lines`
+    │ 6 │     public List<Line> lines
+    │   │                           +
+
+warning BYN5104: `lines` holds one `Line`; name it with a singular noun
+  --> <repo>/tests/cases/diag/number-agreement.byn:7:17
+
+  7 │     public Line lines
+    │                 ^^^^^
+    │
+  help: rename it `line`
+    │ 7 │     public Line lines
+    │   │                     -
+
+warning BYN5104: `weight` holds a collection; name it with a plural, `weights`
+  --> <repo>/tests/cases/diag/number-agreement.byn:8:29
+
+  8 │     public Map<string, i64> weight
+    │                             ^^^^^^
+    │
+  help: rename it `weights`
+    │ 8 │     public Map<string, i64> weights
+    │   │                                   +
+
+warning BYN5104: `lineByName` holds a collection; name it with a plural, `linesByName`
+  --> <repo>/tests/cases/diag/number-agreement.byn:12:30
+
+  12 │     public Map<string, Line> lineByName
+     │                              ^^^^^^^^^^
+     │
+  help: rename it `linesByName`
+     │ 12 │     public Map<string, Line> linesByName
+     │    │                                  +
+
+warning BYN5104: `items` holds one `Line`; name it with a singular noun
+  --> <repo>/tests/cases/diag/number-agreement.byn:14:36
+
+  14 │     public void add(ref this, Line items) uses alloc {
+     │                                    ^^^^^
+     │
+  help: rename it `item`
+     │ 14 │     public void add(ref this, Line items) uses alloc {
+     │    │                                        -

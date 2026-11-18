@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "nodes": [
+    "Argument",
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ContextStmt",
+    "ExprStmt",
+    "FieldDecl",
+    "ForStmt",
+    "FunctionDecl",
+    "IfStmt",
+    "InterpolatedExpr",
+    "IsExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "MoveExpr",
+    "NameExpr",
+    "NotPattern",
+    "PropertyPattern",
+    "RangeExpr",
+    "ReturnStmt",
+    "StructDecl",
+    "StructLiteralExpr"
+  ],
+  "builtins": [
+    "ArenaNew",
+    "ListAdd",
+    "OwnedNew",
+    "OwnedValue",
+    "Print",
+    "StrBufAppend"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,51 @@
+1:1 StringLiteral `"'a' '\n' '\u{1F600}' '\'' 'é' '\' \0'`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `tota� `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 InterpolationEnd `}`
+2:12 InterpolatedStringEnd `"`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolatedStringText `a `
+2:18 InterpolationStart `{`
+2:19 Identifier `f`
+2:20 OpenParen `(`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolatedStringText `b `
+2:25 InterpolationStart `{`
+2:26 Identifier `c`
+2:27 InterpolationEnd `}`
+2:28 InterpolatedStringEnd `"`
+2:29 CloseParen `)`
+2:30 InterpolationEnd `}`
+2:31 InterpolatedStringText ` d`
+2:33 InterpolatedStringEnd `"`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolatedStringText `{{literal}}`
+2:48 InterpolatedStringEnd `"`
+2:50 InterpolatedStringStart `$"`
+2:52 InterpolationStart `{`
+2:53 Identifier `Point`
+2:59 OpenBrace `{`
+2:61 Identifier `x`
+2:63 Equals `=`
+2:65 IntegerLiteral `1`
+2:67 CloseBrace `}`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringText `!`
+2:70 InterpolatedStringEnd `"`
+2:72 InterpolatedStringStart `$"`
+2:74 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "'a' '\n' '\u{1F600}' '\'' 'é' '\' \0'
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x8B)
+
+  2 │  $"tota� {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │        ^

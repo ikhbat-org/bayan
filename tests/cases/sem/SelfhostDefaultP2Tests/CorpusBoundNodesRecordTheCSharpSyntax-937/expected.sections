@@ -1,0 +1,21 @@
+== tests/cases/diag/unknown-handler.byn
+12..210 blockStmt
+18..37 localDecl
+30..37 callExpr
+64..90 blockStmt
+74..84 exprStmt
+74..84 callExpr
+80..83 literalExpr string
+74..84 callExpr
+118..144 blockStmt
+128..138 exprStmt
+128..138 callExpr
+134..137 literalExpr string
+128..138 callExpr
+149..208 contextStmt
+164..169 nameExpr
+182..208 blockStmt
+192..202 exprStmt
+192..202 callExpr
+198..201 literalExpr string
+192..202 callExpr

@@ -1,0 +1,6 @@
+// `Time.fromNanos` makes the instant that many nanoseconds after 1970, and `.nanos` gives them back.
+void main() {
+    let t = Time.fromNanos(978307200123456789)
+    print($"{t.nanos}")
+    print($"{Time.fromNanos(-1).nanos}")
+}

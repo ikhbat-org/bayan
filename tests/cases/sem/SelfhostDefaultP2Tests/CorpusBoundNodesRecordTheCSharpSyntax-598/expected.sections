@@ -1,0 +1,4 @@
+== tests/cases/diag/invalid-cast.byn
+0..17 globalStatement
+0..17 localDecl
+8..17 callExpr

@@ -1,0 +1,72 @@
+== tests/cases/diag/var-literal-inferred-range.byn
+21..25 moveExpr
+21..25 moveExpr
+21..25 moveExpr
+26..27 nameExpr
+312..413 blockStmt
+318..327 localDecl
+326..327 literalExpr integer
+332..374 whileStmt
+338..351 binaryExpr lt right 342..351
+338..339 nameExpr
+342..351 memberExpr
+342..344 nameExpr
+352..374 blockStmt
+362..368 assignStmt add target 362..363 value 367..368
+362..363 nameExpr
+367..368 literalExpr integer
+379..398 localDecl
+403..411 returnStmt value 410..411
+410..411 nameExpr
+29..40 globalStatement
+29..40 localDecl
+37..40 literalExpr integer
+41..47 assignStmt add target 41..42 value 46..47
+41..42 nameExpr
+46..47 literalExpr integer
+48..65 exprStmt
+48..65 callExpr
+54..64 interpolatedExpr
+57..62 callExpr
+60..61 nameExpr
+48..65 callExpr
+66..79 localDecl
+78..79 nameExpr
+81..91 localDecl
+90..91 literalExpr integer
+92..98 assignStmt sub target 92..93 value 97..98
+92..93 nameExpr
+97..98 literalExpr integer
+99..113 localDecl
+112..113 literalExpr integer
+114..141 ifStmt
+117..122 binaryExpr lt right 121..122
+117..118 nameExpr
+121..122 nameExpr
+123..141 blockStmt
+125..139 exprStmt
+125..139 callExpr
+131..138 literalExpr string
+125..139 callExpr
+143..157 localDecl
+154..157 literalExpr integer
+158..167 assignStmt sub target 158..162 value 166..167
+158..162 nameExpr
+166..167 literalExpr integer
+168..184 localDecl
+180..184 nameExpr
+186..195 localDecl
+194..195 literalExpr integer
+196..202 assignStmt add target 196..197 value 201..202
+196..197 nameExpr
+201..202 literalExpr integer
+203..217 localDecl
+216..217 nameExpr
+216..217 nameExpr
+218..232 localDecl
+231..232 nameExpr
+231..232 nameExpr
+21..25 moveExpr
+21..25 moveExpr
+21..25 moveExpr
+26..27 nameExpr

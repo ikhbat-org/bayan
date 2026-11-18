@@ -1,0 +1,1 @@
+{"code":"BYN2024","severity":"error","file":"input.byn","span":{"start":30,"end":41,"line":2,"column":8,"endLine":2,"endColumn":19},"message":"`i64??` is already optional","label":null,"help":null,"fixes":[]}

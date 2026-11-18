@@ -1,0 +1,50 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"b�ad \q escape"`
+3:1 CharLiteral `'x`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  1 │ let b = "b�ad \q escape"
+    │           ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "b�ad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����
+    │     ^
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

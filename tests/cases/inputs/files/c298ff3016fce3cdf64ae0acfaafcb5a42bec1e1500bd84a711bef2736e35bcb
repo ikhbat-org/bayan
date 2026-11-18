@@ -1,0 +1,10 @@
+t" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+let b = ` 2
+ macro select become
+ ext" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+let � = 2
+
+0b1ms
+0xF__
+
+{

@@ -1,0 +1,12 @@
+error BYN1029: an error set is declared `union error SignupError = A, B`
+  --> input.byn:11:1
+
+  11 │ error set SignupError = EmailError | DbError
+     │ ^^^^^^^^^ the input form
+     │
+  help: write `union error`, with `,` between the members
+     │ 11 │ union error SignupError = EmailError, DbError
+     │    │ +++++++++++++++++++++++++++++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1029

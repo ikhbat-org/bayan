@@ -1,0 +1,71 @@
+1:1 OpenBrace `{`
+1:2 Identifier `b`
+3:2 CharLiteral `' '`
+3:6 IntegerLiteral `0`
+3:7 CharLiteral `'`
+5:1 StructKeyword `struct`
+5:8 Identifier `S`
+7:1 CharLiteral `'`
+8:1 CharLiteral `'x`
+9:1 LetKeyword `let`
+9:5 Identifier `actor`
+9:11 Equals `=`
+9:13 IntegerLiteral `1`
+12:1 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  3 │ \' '\0'
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ \' '\0'
+    │     ^
+
+error BYN0008: unterminated char literal
+
+  3 │ \' '\0'
+    │       ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  7 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  8 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  9 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  11 │ /* � */
+     │ ^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 11 │ // �
+     │    │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  11 │ /* � */
+     │    ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 11 │ /* � */
+     │    │    -

@@ -1,0 +1,8 @@
+ÿ
+/// Doc line two.
+comment
+''
+'\u{110000}'
+/// Doc line one.
+ a /* never closed
+ 

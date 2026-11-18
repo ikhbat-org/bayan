@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `""" fails try catch never noalloc nosuspend suspends async await\n\n�+ - * / % +% -% *% +| -| *| ++ --\n\u{C}""\u{19}"\n`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """ fails try catch never noalloc nosuspend suspends async await
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ �+ - * / % +% -% *% +| -| *| ++ --
+    │ ^

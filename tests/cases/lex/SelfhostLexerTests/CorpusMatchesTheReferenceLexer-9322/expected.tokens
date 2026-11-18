@@ -1,0 +1,36 @@
+1:1 IntegerLiteral `1_`
+2:1 FailsKeyword `fails`
+2:7 TryKeyword `try`
+2:11 CatchKeyword `catch`
+2:17 NeverKeyword `never`
+2:23 NoallocKeyword `noalloc`
+2:31 NosuspendKeyword `nosuspend`
+2:41 SuspendsKeyword `suspends`
+2:50 AsyncKeyword `async`
+2:56 AwaitKeyword `await`
+3:4 StarEquals `*=`
+3:7 SlashEquals `/=`
+3:10 PercentEquals `%=`
+3:13 AmpEquals `&=`
+3:16 BarEquals `|=`
+3:19 CaretEquals `^=`
+3:22 Less `<`
+3:23 IntegerLiteral `0xFF`
+3:27 NumericSuffix `s`
+4:1 OpenBrace `{`
+4:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  3 │  	 *= /= %= &= |= ^= <0xFFs
+    │  	                        ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

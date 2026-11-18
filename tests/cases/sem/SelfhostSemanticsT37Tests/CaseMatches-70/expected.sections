@@ -1,0 +1,5 @@
+== check.moved
+counts 1 1 1
+mut xs 2143..2148 true -
+loan xs h 2105 0
+BYN3006 126:5 `xs` is moved while `h` still borrows it |`h` is used again on line 126|finish using `h` first, or copy what it needs before moving `xs`|

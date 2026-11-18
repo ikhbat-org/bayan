@@ -1,0 +1,17 @@
+1:1 IntegerLiteral `0x_`
+3:1 StringLiteral `"text"`
+3:8 StringLiteral `"esc \"q\" \\ \n"`
+3:26 RawStringLiteral `"""\na /* never closed\n\n`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0003: unterminated string literal
+
+  3 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,106 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolatedStringText `$`
+1:46 InterpolatedStringEnd `"`
+1:47 OpenBrace `{`
+1:48 StringLiteral `"{$"`
+1:52 OpenBrace `{`
+1:53 Identifier `x`
+1:54 CloseBrace `}`
+1:55 StringLiteral `"}"`
+1:58 CloseBrace `}`
+1:59 StringLiteral `"}"`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+1:64 InterpolationEnd `}`
+1:65 InterpolatedStringEnd `"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringEnd `"`
+1:70 LetKeyword `let`
+1:74 EffectKeyword `effect`
+1:81 Equals `=`
+1:83 IntegerLiteral `2`
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+4:1 Identifier `_`
+4:4 PlusEquals `+=`
+4:7 MinusEquals `-=`
+4:10 StarEquals `*=`
+4:13 SlashEquals `/=`
+4:16 PercentEquals `%=`
+4:19 AmpEquals `&=`
+4:22 BarEquals `|=`
+4:25 CaretEquals `^=`
+4:28 LessLessEquals `<<=`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{"{$"{x}"}"}"}"}"}"}"}"let effect = 2
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ _ � += -= *= /= %= &= |= ^= <<=
+    │   ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  5 │ � ﻿
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ � ﻿
+    │   │ -
+
+error BYN0002: unexpected character `﻿`
+
+  5 │ � ﻿
+    │   ^

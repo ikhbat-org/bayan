@@ -1,0 +1,1 @@
+{"code":"BYN2234","severity":"error","file":"input.byn","span":{"start":31,"end":37,"line":3,"column":15,"endLine":3,"endColumn":21},"message":"`while let` needs a `T?` value, got `i64`","label":null,"help":"loop with `while` and a condition, or bind it once: `let n = …`","fixes":[]}

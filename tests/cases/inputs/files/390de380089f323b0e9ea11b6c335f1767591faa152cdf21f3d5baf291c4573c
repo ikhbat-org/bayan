@@ -1,0 +1,30 @@
+union error Bad {
+    bad
+}
+
+interface IProbe {
+    void fill(ref List<i64> xs)
+    void put(to out i64 g)
+    i64 trying(i64 x) fails Bad
+    never stop()
+}
+
+struct Probe : IProbe {
+    void fill(ref List<i64> xs) { }
+    void put(to out i64 g) { g = 1 }
+    i64 trying(i64 x) fails Bad => x
+    never stop() { panic("stop") }
+}
+
+struct Door {
+    i64 id
+    states {
+        open
+        shut
+    }
+}
+
+i64 f1(Door d, from Untrusted<string> u, by Probe p) => 0
+
+void main() {
+}

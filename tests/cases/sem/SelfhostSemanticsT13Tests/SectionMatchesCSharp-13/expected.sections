@@ -1,0 +1,7 @@
+== requires
+one
+BYN2321 5:18 `0` violates `requires n > 0 && n < 1000` of `positive` | fails the contract | pass a value that meets `requires n > 0 && n < 1000`
+BYN2321 7:9 `pair(1)` violates `requires b > 0` of `pair` | fails the contract | pass a value that meets `requires b > 0`
+BYN2321 9:21 `0` violates `requires b > 0` of `pair` | fails the contract | pass a value that meets `requires b > 0`
+two
+BYN2321 2:9 `pair(1)` violates `requires b > 0` of `pair` | fails the contract | pass a value that meets `requires b > 0`

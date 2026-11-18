@@ -1,0 +1,20 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = �
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  1 │ let � = �
+    │         ^
+
+error BYN0004: unterminated block comment
+
+  3 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

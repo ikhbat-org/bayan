@@ -1,0 +1,24 @@
+== tests/cases/diag/lambda-capture-unique-nested.byn
+29..33 callExpr
+29..33 callExpr
+29..33 callExpr
+29..30 nameExpr
+31..32 literalExpr integer
+46..124 blockStmt
+52..72 localDecl
+61..72 callExpr
+77..122 localDecl
+85..122 callExpr
+91..121 lambdaExpr
+111..113 nameExpr
+96..121 callExpr
+96..121 callExpr
+96..121 callExpr
+102..120 lambdaExpr
+111..113 nameExpr
+107..120 binaryExpr add right 111..120
+107..120 binaryExpr add right 111..120
+107..120 binaryExpr add right 111..120
+107..108 nameExpr
+111..120 memberExpr
+111..113 nameExpr

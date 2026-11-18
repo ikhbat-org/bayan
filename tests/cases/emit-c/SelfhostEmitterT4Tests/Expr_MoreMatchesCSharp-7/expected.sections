@@ -1,0 +1,12 @@
+== expr
+t1: => conditional:u8?(binary op22:bool(binary op16:bool(local k#-:i64 literal 0:0:i64) binary op15:bool(local k#-:i64 literal 0:255:i64)) conversion:u8?(conversion:u8(local k#-:i64)) defaultValue:u8?) locals=0
+t2: => call useSpan:i64(conversion:ReadOnlySpan<i64>(local arr#-:i64[3])) locals=0
+t3: assign(local t#0:List<i64> call mkList:List<i64>) => call useSpan:i64(conversion:ReadOnlySpan<i64>(local t#0:List<i64>)) locals=1
+t4: assign(local t#0:StrBuf call StrBuf:StrBuf) write => builtinCall m73:string(local t#0:StrBuf) locals=1
+stmt: write => voidValue:void locals=0
+stmt: write => voidValue:void locals=0
+t5: failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(assign(local t#2:E local t#0:E) ifStmt(binary op17:bool(local t#2:E errorVariant:E) block(assign(local t#3:i64 literal 0:1:i64=0:1) gotoStmt switch_end_1)) ifStmt(binary op17:bool(local t#2:E errorVariant:E) block(assign(local t#3:i64 literal 0:2:i64=0:2) gotoStmt switch_end_1)) panic label switch_end_1 assign(local t#1:i64 local t#3:i64))) => local t#1:i64 locals=4
+t6: assign(local t#0:StrBuf call StrBuf:StrBuf) exprStmt(call panic:never(literal "x":string="x")) => neverValue:string locals=1
+stmt: write => neverValue:never locals=0
+t7: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i64 locals=0
+t8: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i64 locals=0

@@ -1,0 +1,77 @@
+1:1 CharLiteral `'ab'`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+4:2 Amp `&`
+4:4 AmpAmp `&&`
+4:7 Bar `|`
+4:9 Bar `|`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 EqualsEquals `==`
+4:22 BangEquals `!=`
+4:25 Less `<`
+4:27 LessEquals `<=`
+4:30 Greater `>`
+4:32 GreaterEquals `>=`
+4:35 LessLess `<<`
+4:38 Greater `>`
+4:39 Greater `>`
+4:40 Identifier `W`
+4:42 Greater `>`
+4:43 GreaterEquals `>=`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `stray } here`
+6:15 InterpolatedStringEnd `"`
+6:16 IntegerLiteral `1`
+6:17 NumericSuffix `let`
+6:23 Equals `=`
+6:25 IntegerLiteral `2`
+8:1 FailsKeyword `fails`
+8:7 TryKeyword `try`
+8:11 CatchKeyword `catch`
+8:17 NeverKeyword `never`
+8:23 NoallocKeyword `noalloc`
+8:31 NosuspendKeyword `nosuspend`
+8:41 SuspendsKeyword `suspends`
+8:50 AsyncKeyword `async`
+8:56 AwaitKeyword `await`
+9:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  6 │ $"stray } here"1let � = 2
+    │         ^
+    │
+    │ 6 │ $"stray }} here"1let � = 2
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ $"stray } here"1let � = 2
+    │                     ^

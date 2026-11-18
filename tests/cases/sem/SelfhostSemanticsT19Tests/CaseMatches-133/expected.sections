@@ -1,0 +1,4 @@
+== bind.probes.b61
+flags 0
+coalesce:i32[3081:8]=-(local:i32?[3081:2]=-(oi) errorExpr:?[3087:2]=-())
+BYN2202 167:21 expected `i32`, found `i64?` |||

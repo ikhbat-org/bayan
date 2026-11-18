@@ -1,0 +1,23 @@
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏
+    │ ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

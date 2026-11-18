@@ -1,0 +1,2 @@
+== diags.diag/narrowing-ends-with-block
+BYN2208 5:12 `+` cannot be applied to `i64?` and `i64`

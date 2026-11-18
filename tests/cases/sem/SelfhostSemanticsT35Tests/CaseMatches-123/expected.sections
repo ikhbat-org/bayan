@@ -1,0 +1,3 @@
+== expr.probes.i25
+interpolated:string[4169:16]=-(v:local:i64[4172:1]=-(n)/0,false,0,32,-1,-1)
+BYN2021 167:21 `i64` has no parameter `bogus` |||

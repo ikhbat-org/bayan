@@ -1,0 +1,5 @@
+== check.loopmoved
+counts 1 1 1
+mut xs 2127..2128 true -
+loan xs - 2105 2161
+BYN3006 124:9 `xs` is moved while the `for` loop still borrows it |the loop over `xs` is still running|finish using the `for` loop first, or copy what it needs before moving `xs`|

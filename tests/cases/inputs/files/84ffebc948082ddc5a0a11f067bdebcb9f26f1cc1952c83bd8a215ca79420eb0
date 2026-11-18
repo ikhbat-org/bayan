@@ -1,0 +1,3 @@
+let actor = 1
+$"total {x}" $"a {[($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $"C
+

@@ -1,0 +1,87 @@
+1:1 IntegerLiteral `5`
+1:2 NumericSuffix `f`
+    doc `///`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:12 StringLiteral `"{$"`
+4:16 OpenBrace `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:30 StringLiteral `"{$"`
+4:34 OpenBrace `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 Identifier `x`
+4:48 InterpolationEnd `}`
+4:49 InterpolatedStringEnd `"`
+4:50 InterpolationEnd `}`
+4:51 InterpolatedStringEnd `"`
+4:52 InterpolationEnd `}`
+4:53 InterpolatedStringEnd `"`
+4:54 InterpolationEnd `}`
+4:55 InterpolatedStringEnd `"`
+4:56 CloseBrace `}`
+4:57 StringLiteral `"}"`
+4:60 InterpolationEnd `}`
+4:61 InterpolatedStringEnd `"`
+4:62 InterpolationEnd `}`
+4:63 InterpolatedStringEnd `"`
+4:64 InterpolationEnd `}`
+4:65 InterpolatedStringEnd `"`
+4:66 InterpolationEnd `}`
+4:67 InterpolatedStringEnd `"`
+4:68 CloseBrace `}`
+4:69 StringLiteral `"\u{2069} /* block`
+5:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$�"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"� /* block
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  4 │ $"{$"{$"{$�"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"� /* block
+    │          ^
+
+error BYN0002: unexpected character `\u{1E}`
+
+  4 │ $"{$"{$"{$�"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"� /* block
+    │           ^
+
+error BYN0002: unexpected character `$`
+
+  4 │ $"{$"{$"{$�"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"� /* block
+    │                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  4 │ $"{$"{$"{$�"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"� /* block
+    │                              ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$�"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"� /* block
+    │                                                                      ^^^^^^^^^^^ string ends
+    │                                                                                  at the end of
+    │                                                                                  the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

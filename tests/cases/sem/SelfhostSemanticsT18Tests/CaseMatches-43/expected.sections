@@ -1,0 +1,4 @@
+== target.probes.-.t9
+errorExpr|?|-|-|-|-|-|3693:9|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2227 179:20 `.notFound` is ambiguous; it exists in `MyError`, `OtherError` |||

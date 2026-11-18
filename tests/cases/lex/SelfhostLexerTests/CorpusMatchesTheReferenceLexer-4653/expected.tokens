@@ -1,0 +1,44 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 MinusPercent `-%`
+3:17 StarPercent `*%`
+3:20 PlusBar `+|`
+3:23 MinusBar `-|`
+3:26 StarBar `*|`
+3:29 PlusPlus `++`
+3:32 MinusMinus `--`
+4:2 TestKeyword `test`
+4:7 AssertKeyword `assert`
+4:14 PropertyKeyword `property`
+4:23 FuzzKeyword `fuzz`
+4:28 ModelKeyword `model`
+4:34 ForeachKeyword `foreach`
+4:42 NewKeyword `new`
+4:46 GotoKeyword `goto`
+5:5 Identifier `comment`
+5:13 Star `*`
+5:14 Slash `/`
+5:16 Identifier `r`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = �2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ let � = �2
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  5 │     comment */ r�
+    │                 ^

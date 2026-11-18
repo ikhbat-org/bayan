@@ -1,0 +1,29 @@
+== tests/cases/diag/invalid-const-array.byn
+18..21 literalExpr string
+18..21 literalExpr string
+18..21 literalExpr string
+42..47 binaryExpr mul right 46..47
+42..47 binaryExpr mul right 46..47
+42..47 binaryExpr mul right 46..47
+42..43 nameExpr
+46..47 literalExpr integer
+192..204 globalStatement
+192..204 assignStmt assign target 192..200 value 203..204
+192..200 indexExpr
+192..197 nameExpr
+198..199 literalExpr integer
+203..204 literalExpr integer
+74..88 collectionExpr
+75..78 literalExpr string
+80..87 callExpr
+114..130 collectionExpr
+115..116 literalExpr integer
+118..126 callExpr
+124..125 literalExpr integer
+128..129 literalExpr integer
+155..161 collectionExpr
+156..157 literalExpr integer
+159..160 literalExpr integer
+184..190 collectionExpr
+185..186 literalExpr integer
+188..189 literalExpr integer

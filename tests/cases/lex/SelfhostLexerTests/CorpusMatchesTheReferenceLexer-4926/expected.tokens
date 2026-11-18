@@ -1,0 +1,23 @@
+1:1 CharLiteral `'\q'`
+1:5 Identifier `lt`
+1:8 Identifier `café`
+1:14 Equals `=`
+1:16 IntegerLiteral `1`
+1:17 Semicolon `;`
+1:19 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'lt café = 1; 
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ '\q'lt café = 1; 
+    │        ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ '\q'lt café = 1; 
+    │   │           +

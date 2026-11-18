@@ -1,0 +1,13 @@
+2:1 Identifier `b`
+3:2 CloseBrace `}`
+3:4 EndOfFile
+
+error BYN0002: unexpected character `̈́`
+
+  1 │ ̈́
+    │ ^
+
+error BYN0002: unexpected character `﻿`
+
+  3 │  }﻿
+    │   ^

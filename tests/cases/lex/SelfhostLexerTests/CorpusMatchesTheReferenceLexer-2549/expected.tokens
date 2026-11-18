@@ -1,0 +1,52 @@
+1:1 CloseBrace `}`
+1:3 CharLiteral `'a'`
+1:7 CharLiteral `'\n'`
+1:12 CharLiteral `'\u{1F600}'`
+1:24 CharLiteral `'\''`
+1:29 CharLiteral `'é'`
+1:33 CharLiteral `'\\'`
+1:38 CharLiteral `'\0'`
+2:2 IntegerLiteral `0x`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+4:1 CloseBrace `}`
+4:2 CharLiteral `' '`
+4:6 CharLiteral `''`
+4:9 CharLiteral `'é'`
+4:13 CharLiteral `'\\'`
+4:18 CharLiteral `'\0'`
+6:1 StringLiteral `"text"`
+6:8 StringLiteral `"esc \"q\" \\ \n"`
+6:26 RawStringLiteral `"""\n`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x
+    │  ^^
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ }' '\'' 'é' '\\' '\0'
+    │     ^
+
+error BYN0007: empty char literal
+
+  4 │ }' '\'' 'é' '\\' '\0'
+    │      ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  6 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,70 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:2 CharLiteral `'\r`
+3:1 Plus `+`
+3:2 Identifier `P`
+3:4 MinusEquals `-=`
+3:7 StarEquals `*=`
+3:10 SlashEquals `/=`
+3:13 PercentEquals `%=`
+3:16 AmpEquals `&=`
+3:19 BarEquals `|=`
+3:22 CaretEquals `^=`
+3:25 LessLessEquals `<<=`
+5:1 VarKeyword `var`
+5:5 Identifier `xs`
+5:7 Colon `:`
+5:9 Identifier `zist`
+5:13 Less `<`
+5:14 Identifier `List`
+5:18 Less `<`
+5:19 Identifier `i64`
+5:22 Greater `>`
+5:23 Greater `>`
+6:1 CharLiteral `'ab'`
+8:2 IntegerLiteral `1_`
+9:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0008: unterminated char literal
+
+  2 │  '
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ // �x
+    │   │    -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │  1_
+    │   ^
+    │
+    │ 8 │  1_
+    │   │   -

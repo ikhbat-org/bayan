@@ -1,0 +1,3 @@
+== store.rest
+counts 0 0 1
+BYN3214 106:5 `ro` is borrowed for the call and cannot be stored ||copy it first: `ro.copy()`|

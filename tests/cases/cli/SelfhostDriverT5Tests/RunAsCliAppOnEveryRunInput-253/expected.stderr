@@ -1,0 +1,39 @@
+warning BYN2310: `ts` is never written through; use `ReadOnlySpan<Token>`
+  --> <repo>/tmp/t5/run/run_self-hosting-lambdas/self-hosting-lambdas.byn:18:10
+
+  18 │ bool any(Span<Token> ts, by (Token -> bool) p) {
+     │          ^^^^^^^^^^^
+     │
+  help: take a `ReadOnlySpan`; it also accepts strings and read-only views
+     │ 18 │ bool any(ReadOnlySpan<Token> ts, by (Token -> bool) p) {
+     │    │          ++++++++
+
+warning BYN2310: `ts` is never written through; use `ReadOnlySpan<Token>`
+  --> <repo>/tmp/t5/run/run_self-hosting-lambdas/self-hosting-lambdas.byn:27:16
+
+  27 │ i64 indexWhere(Span<Token> ts, by (Token -> bool) p) {
+     │                ^^^^^^^^^^^
+     │
+  help: take a `ReadOnlySpan`; it also accepts strings and read-only views
+     │ 27 │ i64 indexWhere(ReadOnlySpan<Token> ts, by (Token -> bool) p) {
+     │    │                ++++++++
+
+warning BYN2310: `ts` is never written through; use `ReadOnlySpan<Token>`
+  --> <repo>/tmp/t5/run/run_self-hosting-lambdas/self-hosting-lambdas.byn:38:16
+
+  38 │ i64 countWhere(Span<Token> ts, by (Token -> bool) p) {
+     │                ^^^^^^^^^^^
+     │
+  help: take a `ReadOnlySpan`; it also accepts strings and read-only views
+     │ 38 │ i64 countWhere(ReadOnlySpan<Token> ts, by (Token -> bool) p) {
+     │    │                ++++++++
+
+warning BYN2310: `ts` is never written through; use `ReadOnlySpan<Token>`
+  --> <repo>/tmp/t5/run/run_self-hosting-lambdas/self-hosting-lambdas.byn:54:14
+
+  54 │ bool ordered(Span<Token> ts, by ((Token, Token) -> bool) before) {
+     │              ^^^^^^^^^^^
+     │
+  help: take a `ReadOnlySpan`; it also accepts strings and read-only views
+     │ 54 │ bool ordered(ReadOnlySpan<Token> ts, by ((Token, Token) -> bool) before) {
+     │    │              ++++++++

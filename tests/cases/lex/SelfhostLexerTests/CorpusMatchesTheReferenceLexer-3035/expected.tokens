@@ -1,0 +1,12 @@
+1:1 OpenBrace `{`
+2:1 CharLiteral `'\u{D800}'`
+3:1 StringLiteral `"a\u{2067}b"`
+3:7 StringLiteral `"a\u{2067}b"`
+3:13 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

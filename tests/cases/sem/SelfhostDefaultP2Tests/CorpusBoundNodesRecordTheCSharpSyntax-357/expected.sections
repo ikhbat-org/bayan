@@ -1,0 +1,11 @@
+== tests/cases/diag/assert-fails-other-set.byn
+105..150 blockStmt
+111..135 guardedStmt
+126..135 memberExpr
+126..127 nameExpr
+111..115 failStmt
+116..122 targetMemberExpr
+140..148 returnStmt value 147..148
+147..148 literalExpr integer
+152..183 globalStatement
+152..183 assertStmt

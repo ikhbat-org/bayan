@@ -1,0 +1,42 @@
+1:2 AndKeyword `and`
+1:6 OrKeyword `or`
+1:9 NotKeyword `not`
+1:13 WithKeyword `with`
+1:18 MoveKeyword `move`
+1:23 RefKeyword `ref`
+1:27 OutKeyword `out`
+1:31 ThisKeyword `this`
+1:36 NullKeyword `null`
+1:41 TrueKeyword `true`
+1:46 Identifier `falÅ`
+1:52 IntegerLiteral `1`
+1:53 Dot `.`
+1:55 FloatLiteral `3.14`
+1:60 FloatLiteral `1e5`
+1:64 FloatLiteral `2.5e-3`
+1:71 FloatLiteral `6E+2`
+1:76 FloatLiteral `1.50`
+1:80 NumericSuffix `dec`
+1:84 IntegerLiteral `1`
+1:85 DotDot `..`
+1:87 IntegerLiteral `2`
+1:89 IntegerLiteral `1`
+1:90 DotDotEquals `..=`
+1:93 IntegerLiteral `3`
+1:95 IntegerLiteral `5`
+1:96 NumericSuffix `e`
+1:98 Identifier `x`
+1:99 Dot `.`
+1:100 Identifier `y`
+1:102 FloatLiteral `2.5`
+1:105 NumericSuffix `f`
+3:1 EndOfFile
+
+error BYN0005: identifier `falÅ` is not in Unicode normalization form C
+
+  1 │  and or not with move ref out this null true falÅ 1. 3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │                                              ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │  and or not with move ref out this null true falÅ 1. 3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │   │                                                 +

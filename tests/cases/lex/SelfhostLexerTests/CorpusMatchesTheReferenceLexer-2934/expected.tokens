@@ -1,0 +1,44 @@
+    doc `/// Doc line two.`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:6 Bar `|`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 EqualsEquals `==`
+4:22 BangEquals `!=`
+4:25 Less `<`
+4:27 LessEquals `<=`
+4:30 Greater `>`
+4:32 GreaterEquals `>=`
+4:35 LessLess `<<`
+4:38 Greater `>`
+4:39 Greater `>`
+4:41 Greater `>`
+6:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  3 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ /* � */
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ & && | || ^ ~ ! = == != < <= > >= << >> >�
+    │                                          ^

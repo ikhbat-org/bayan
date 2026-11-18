@@ -1,0 +1,4 @@
+== bind.probes.s5
+flags 0
+errorExpr:?[4277:8]=-()
+BYN2218 216:14 `{ … }` needs a known type here ||name the type: `Point { x: 1 }`|

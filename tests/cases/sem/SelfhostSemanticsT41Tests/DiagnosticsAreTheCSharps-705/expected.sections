@@ -1,0 +1,5 @@
+== diags.diag/doer-without-verb-exempt
+BYN2770 14:2 unknown attribute `json`
+  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+BYN2822 10:12 a function type is not supported as a field yet
+  help take the function as a parameter instead

@@ -1,0 +1,3 @@
+== diags.diag/not-formattable-struct
+BYN2225 7:10 `Point` cannot be formatted
+  help add `formatInto(ref StrBuf)` to `Point`, or use `{x, as: .debug}`

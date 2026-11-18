@@ -1,0 +1,48 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 Identifier `suspend`
+1:48 Identifier `s`
+1:50 Identifier `asyncawait`
+3:1 OpenParen `(`
+3:3 CloseParen `)`
+3:5 OpenBracket `[`
+3:7 CloseBracket `]`
+3:9 OpenBrace `{`
+3:11 CloseBrace `}`
+4:1 StringLiteral `""`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `stray } here`
+5:15 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  1 │ fails try catch never noalloc nosuspend suspend�s asyncawait
+    │                                                ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ // comment � hidden
+    │   │            -
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │ $"stray } here"
+    │         ^
+    │
+    │ 5 │ $"stray }} here"
+    │   │          +
+
+error BYN0002: unexpected character `\u{0}`
+
+  6 │ �
+    │ ^

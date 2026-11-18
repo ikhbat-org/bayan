@@ -1,0 +1,25 @@
+1:1 Amp `&`
+1:3 AmpAmp `&&`
+1:6 Bar `|`
+1:8 BarBar `||`
+1:11 Caret `^`
+1:13 Tilde `~`
+1:15 Bang `!`
+1:17 Equals `=`
+1:19 EqualsEquals `==`
+1:22 BangEquals `!=`
+1:25 Less `<`
+1:27 LessEquals `<=`
+1:30 Greater `>`
+1:32 GreaterEquals `>=`
+1:35 LessLess `<<`
+1:38 Greater `>`
+1:39 Greater `>`
+1:41 Greater `>`
+1:42 GreaterEquals `>=`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  1 │ & && | || ^ ~ ! �= == != < <= > >= << >> >>=
+    │                 ^

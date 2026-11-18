@@ -1,0 +1,3 @@
+== iface-plain
+BYN2800 10+5 `Shape` must start with `I` and an uppercase letter | an interface name | rename it to `IShape` | 10+5=IShape
+end

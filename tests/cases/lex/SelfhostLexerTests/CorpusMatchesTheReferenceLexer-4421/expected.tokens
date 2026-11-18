@@ -1,0 +1,17 @@
+1:1 Identifier `τρητής`
+1:8 Identifier `x_1`
+1:12 Identifier `é`
+2:2 RawStringLiteral `"""dden\r\nlet x\u{2067} = 1\r\n\r\n} �\r\nif else unless switch case default for in while do break continue return yield defer errdefer using context\r\n\r\n"{"`
+8:4 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  """dden
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ } �
+    │   ^

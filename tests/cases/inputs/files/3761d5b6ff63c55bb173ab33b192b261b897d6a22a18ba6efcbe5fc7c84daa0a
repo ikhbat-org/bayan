@@ -1,0 +1,7 @@
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+& && | || ^ ~ ! = =ù != < <= > >= << >> >>=
+\u{48}let c =  3
+ // lin comment
+fails try catch never noalloc nosuspend suspendsasync await
+0xF__
+ 

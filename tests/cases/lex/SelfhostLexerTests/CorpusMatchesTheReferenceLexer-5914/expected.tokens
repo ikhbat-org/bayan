@@ -1,0 +1,22 @@
+1:1 Identifier `c`
+1:3 Greater `>`
+1:4 GreaterEquals `>=`
+1:7 IntegerLiteral `1`
+2:89 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │  �/* $"{"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │  �/* $"{"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │   ^
+
+error BYN0004: unterminated block comment
+
+  2 │  �/* $"{"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

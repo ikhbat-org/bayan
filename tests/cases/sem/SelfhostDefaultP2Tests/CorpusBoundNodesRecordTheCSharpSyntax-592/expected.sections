@@ -1,0 +1,41 @@
+== tests/cases/diag/interface-unique-field-witness-dyn.byn
+107..184 blockStmt
+113..131 localDecl
+124..131 memberExpr
+124..125 nameExpr
+136..182 forStmt
+145..151 rangeExpr
+145..146 literalExpr integer
+148..151 literalExpr integer
+152..182 blockStmt
+162..176 exprStmt
+162..176 callExpr
+162..166 nameExpr
+174..175 nameExpr
+174..175 nameExpr
+198..329 blockStmt
+204..223 localDecl
+212..223 callExpr
+228..239 exprStmt
+228..239 callExpr
+228..229 nameExpr
+237..238 literalExpr integer
+244..271 localDecl
+252..271 structLiteralExpr
+263..267 moveExpr
+268..269 nameExpr
+276..283 exprStmt
+276..283 callExpr
+281..282 nameExpr
+281..282 nameExpr
+288..327 exprStmt
+288..327 callExpr
+294..326 interpolatedExpr
+297..307 indexExpr
+297..304 memberExpr
+297..298 nameExpr
+305..306 literalExpr integer
+310..324 memberExpr
+310..317 memberExpr
+310..311 nameExpr
+288..327 callExpr

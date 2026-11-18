@@ -1,0 +1,9 @@
+    doc `/// ‏foo Bar _x camelCase2 بيان μετρητής x_1 é`
+3:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

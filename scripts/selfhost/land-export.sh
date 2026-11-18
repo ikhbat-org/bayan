@@ -9,14 +9,18 @@
 #       <dest>/inputs/files (T17a2, D5);
 #   (2) in every non-input text file, each occurrence of the export worktree root becomes `<repo>`; in input text (input/ files,
 #       input.byn, before hashing) too; other top-level input and input.* files are copied unmasked;
-#   (2b) land-time masks: in class SelfhostDefaultT5Tests expected.stdout, the value of an ok row (marker, plain or coloured)
-#       labelled host, C compiler, zig or git becomes `<host>`, the cache row too when the case env sets no BAYAN_CACHE (`not found`
-#       rows, failure rows and seeded-cache rows stay); in SelfhostDefaultT12Tests expected.stdout/expected.stderr everything after a
-#       line `C compiler failed (exit N):` becomes the one line `<cc output>`;
+#   (2b) land-time masks: in the expected.stdout of a cli case one of whose args lines is `doctor`, the value of an ok row (marker,
+#       plain or coloured) labelled host, C compiler, zig or git becomes `<host>`, the cache row too when the case env sets no
+#       BAYAN_CACHE (`not found` rows, failure rows and seeded-cache rows stay); in SelfhostDefaultT12Tests expected.stdout/expected.stderr
+#       everything after a line `C compiler failed (exit N):` becomes the one line `<cc output>`;
+#   (2c) a non-text file under input/ that still names the export machine (HOME, /Users/, /opt/homebrew) after (2) is left out,
+#       and its case and name printed; cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-14 lands with no input.tsv (T17c);
+#   (2d) a case that fails only because (2c) left out its input (the list `removed` below) is not landed: it is printed and
+#       counted in its class's EXPORT.tsv reason as "<n> removed: <case> (<why>)" (T17c ruling 2);
 #   (3) cli/SelfhostExport/ is dropped;
 #   (4) <dest>/EXPORT.tsv (class, kind, tests, cases, reason) is written: one row per class and kind with cases or with rows in
 #       <kind>/UNEXPORTED.tsv, tests from <dest>/../inventory-019.tsv, cases the case directories, reason the class's
-#       UNEXPORTED.tsv rows (root masked), empty when it has none.
+#       UNEXPORTED.tsv rows (root masked) and its (2d) removals, empty when it has none.
 # A file is written only when its content differs, so a rerun over the same export writes nothing. A symlink or other special
 # file, or a name holding a tab, newline or backslash, under input/ stops the run. After landing, any file under <dest> holding
 # this machine's HOME, /Users/ or /opt/homebrew stops the run (exit 1). Prints the counts; exit 2 on bad arguments.
@@ -36,6 +40,7 @@ esc="$(printf '%s' "$repo" | sed 's/[][\.*^$/]/\\&/g')"
 tab="$(printf '\t')"; nl='
 '
 cases=0; blobs=0; trees=0; written=0
+pats=(-e /Users/ -e /opt/homebrew); [ "${#HOME}" -le 1 ] || pats+=(-e "$HOME")   # what names the export machine
 
 # put <candidate> <target>: copies when the target is missing or differs
 put() {
@@ -48,7 +53,7 @@ store() {
   if [ ! -f "$dest/inputs/files/$stored" ]; then cp "$1" "$dest/inputs/files/$stored"; chmod 644 "$dest/inputs/files/$stored"; blobs=$((blobs + 1)); fi
 }
 
-# land_input <case input dir> <target input.tsv>
+# land_input <case input dir> <target input.tsv> <case name>
 land_input() {
   local in="$1" w="$work/in" p e h d n bad hit
   rm -rf "$w"; mkdir -p "$w/lv"
@@ -59,6 +64,16 @@ land_input() {
   if [ -s "$w/hits" ]; then
     rm -rf "$work/inmask"; cp -Rp "$in" "$work/inmask"; in="$work/inmask"
     while IFS= read -r hit; do LC_ALL=C sed "s/$esc/<repo>/g" "$in/$hit" > "$work/cand"; cat "$work/cand" > "$in/$hit"; done < "$w/hits"
+  fi
+  # (d) a non-text file that still names the export machine is left out (T17c), its case and name printed
+  (cd "$in" && find . -type f -print0 | xargs -0 grep -l -F "${pats[@]}" -- 2> /dev/null) > "$w/named" || true
+  if [ -s "$w/named" ]; then
+    (cd "$in" && tr '\n' '\0' < "$w/named" | xargs -0 grep -l -I -F "${pats[@]}" -- 2> /dev/null) > "$w/text" || true
+    grep -vx -F -f "$w/text" "$w/named" > "$w/drop" || true
+    if [ -s "$w/drop" ]; then
+      if [ "$in" != "$work/inmask" ]; then rm -rf "$work/inmask"; cp -Rp "$in" "$work/inmask"; in="$work/inmask"; fi
+      while IFS= read -r p; do rm -f "$in/$p"; echo "land-export: $3: left out ${p#./} (names the export machine)"; done < "$w/drop"
+    fi
   fi
   (cd "$in" && find . -type f -print) > "$w/files"
   (cd "$in" && find . -type f -perm -100 -print) > "$w/exec"
@@ -102,6 +117,10 @@ land_input() {
 
 ESC="$(printf '\033')"
 
+# (2d) <kind>/<class>/<case>\t<why>: cases not landed because (2c) left out the input they test
+removed="cli/SelfhostDriverT5Tests/CannotWriteTheOutputAsCliApp-5${tab}its input out/safe/macos-arm64/read-only named the export machine and was left out
+cli/SelfhostDriverT5Tests/CannotWriteTheOutputAsCliApp-6${tab}its input out/safe/macos-arm64/read-only named the export machine and was left out"
+
 # (a) mask_doctor <export case dir>: in $work/cand, the value of an ok row (marker, optionally in colour) labelled host, C compiler,
 # zig or git becomes <host>, the cache row too when the case env sets no BAYAN_CACHE; `not found` rows, failure rows stay
 mask_doctor() {
@@ -120,7 +139,12 @@ mask_cc() {
 # land_case <export case dir> <dest case dir>
 land_case() {
   local c="$1" to="$2" f
-  [ ! -d "$c/input" ] || land_input "$c/input" "$to/input.tsv"
+  if [ "$kind/$class/${c##*/}" = cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-14 ]; then
+    # its input was the C# test host's bin folder and the case is a usage error: it lands with no input.tsv (T17c ruling 2)
+    echo "land-export: cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-14: left out input/ (the test host's bin folder)"
+  elif [ -d "$c/input" ]; then
+    land_input "$c/input" "$to/input.tsv" "$kind/$class/${c##*/}"
+  fi
   (cd "$c" && find . -type f ! -path './input/*' -print) > "$work/rest"
   : > "$work/masked"
   [ ! -s "$work/rest" ] || (cd "$c" && tr '\n' '\0' < "$work/rest" | xargs -0 grep -l -I -F -e "$repo" --) > "$work/masked" || true
@@ -133,8 +157,9 @@ land_case() {
       (input|input.*) put "$c/$f" "$to/$f" ;;
       (*) if grep -qx -F -e "./$f" "$work/masked"; then LC_ALL=C sed "s/$esc/<repo>/g" "$c/$f" > "$work/cand"
           else cp "$c/$f" "$work/cand"; fi
+          # a cli doctor run (a line of args is `doctor`): mask_doctor on its stdout
+          [ "$kind/$f" != cli/expected.stdout ] || ! grep -qx -F doctor "$c/args" 2> /dev/null || mask_doctor "$c"
           case "$class" in
-            (SelfhostDefaultT5Tests) [ "$f" != expected.stdout ] || mask_doctor "$c" ;;
             (SelfhostDefaultT12Tests) case "$f" in (expected.stdout|expected.stderr) mask_cc ;; esac ;;
           esac
           put "$work/cand" "$to/$f" ;;
@@ -144,7 +169,7 @@ land_case() {
   cases=$((cases + 1))
 }
 
-: > "$work/counts"; : > "$work/unexported"
+: > "$work/counts"; : > "$work/unexported"; : > "$work/removed"
 for k in "$src"/*/; do
   k="${k%/}"; kind="${k##*/}"
   for cl in "$k"/*/; do
@@ -155,6 +180,11 @@ for k in "$src"/*/; do
     for c in "$cl"/*/; do
       [ -d "$c" ] || continue
       c="${c%/}"
+      why="$(printf '%s\n' "$removed" | awk -F'\t' -v id="$kind/$class/${c##*/}" '$1 == id { print $2 }')"
+      if [ -n "$why" ]; then
+        echo "land-export: $kind/$class/${c##*/}: removed ($why)"
+        printf '%s\t%s\t%s (%s)\n' "$class" "$kind" "${c##*/}" "$why" >> "$work/removed"; continue
+      fi
       land_case "$c" "$dest/$kind/$class/${c##*/}"
       n=$((n + 1))
     done
@@ -166,24 +196,28 @@ for k in "$src"/*/; do
   fi
 done
 
-# EXPORT.tsv: reason "<n> not exported: <test> (<rest>); ...", the distinct rows sorted
+# EXPORT.tsv: reason "<n> not exported: <test> (<rest>); ...", the distinct rows sorted, then "<n> removed: <case> (<why>); ..."
 LC_ALL=C sort -u "$work/unexported" > "$work/unexported.sorted"
-awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" '
+LC_ALL=C sort -u "$work/removed" > "$work/removed.sorted"
+awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" -v rm="$work/removed.sorted" '
   BEGIN {
     while ((getline l < inv) > 0) { split(l, a, "\t"); if (a[1] != "class") tests[a[1]] = a[4] }
     while ((getline l < un) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
       reason[key] = (rows[key] ? reason[key] "; " : "") a[3]; rows[key]++ }
+    while ((getline l < rm) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
+      gone[key] = (nrm[key] ? gone[key] "; " : "") a[3]; nrm[key]++ }
   }
   { key = $1 "\t" $2; keys[key] = 1; cnt[key] = $3 }
   END {
     for (key in keys) { split(key, a, "\t")
-      print key "\t" (a[1] in tests ? tests[a[1]] : "") "\t" (key in cnt ? cnt[key] : 0) "\t" (key in rows ? rows[key] " not exported: " reason[key] : "") }
+      r = (key in rows ? rows[key] " not exported: " reason[key] : "")
+      if (key in nrm) r = (r == "" ? "" : r "; ") nrm[key] " removed: " gone[key]
+      print key "\t" (a[1] in tests ? tests[a[1]] : "") "\t" (key in cnt ? cnt[key] : 0) "\t" r }
   }
 ' "$work/counts" | LC_ALL=C sort -t"$tab" -k1,1 -k2,2 > "$work/body"
 { printf 'class\tkind\ttests\tcases\treason\n'; cat "$work/body"; } > "$work/EXPORT.tsv"
 put "$work/EXPORT.tsv" "$dest/EXPORT.tsv"
-# nothing under dest may name the export machine: its HOME, /Users/ or /opt/homebrew
-pats=(-e /Users/ -e /opt/homebrew); [ "${#HOME}" -le 1 ] || pats+=(-e "$HOME")
+# nothing under dest may name the export machine: its HOME, /Users/ or /opt/homebrew (pats)
 leaks="$(grep -rl -F "${pats[@]}" -- "$dest" 2> /dev/null | head -20 || true)"
 [ -z "$leaks" ] || { echo "land-export: the landed tree names the export machine (HOME, /Users/ or /opt/homebrew) in:" >&2; echo "$leaks" >&2; exit 1; }
 echo "land-export: $cases cases, $blobs new input files, $trees new input trees, $written files written"

@@ -1,0 +1,150 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 Identifier `x`
+1:44 InterpolationEnd `}`
+1:45 InterpolatedStringEnd `"`
+1:46 InterpolationEnd `}`
+1:47 InterpolatedStringEnd `"`
+1:48 InterpolationEnd `}`
+1:49 InterpolatedStringEnd `"`
+1:50 InterpolationEnd `}`
+1:51 InterpolatedStringEnd `"`
+    doc `/// Doc line one.`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 StringLiteral `$"{$"`
+4:24 OpenBrace `{`
+4:25 StringLiteral `$"{$"`
+4:30 OpenBrace `{`
+4:31 StringLiteral `$"{$"`
+4:36 OpenBrace `{`
+4:37 StringLiteral `$"{$"`
+4:42 OpenBrace `{`
+4:43 StringLiteral `$"{$"`
+4:48 OpenBrace `{`
+4:49 StringLiteral `$"{x}"`
+4:55 CloseBrace `}`
+4:56 StringLiteral `"}"`
+4:59 CloseBrace `}`
+4:60 StringLiteral `"}"`
+4:63 CloseBrace `}`
+4:64 StringLiteral `"}"`
+4:67 CloseBrace `}`
+4:68 StringLiteral `"}"`
+4:71 CloseBrace `}`
+4:72 StringLiteral `"}"`
+4:75 InterpolationEnd `}`
+4:76 InterpolatedStringEnd `"`
+4:77 InterpolationEnd `}`
+4:78 InterpolatedStringEnd `"`
+4:79 InterpolationEnd `}`
+4:80 InterpolatedStringEnd `"`
+4:82 Identifier `Å`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `total `
+5:9 InterpolationStart `{`
+5:10 Identifier `x`
+5:11 InterpolationEnd `}`
+5:12 InterpolatedStringEnd `"`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolatedStringText `a `
+5:18 InterpolationStart `{`
+5:19 Identifier `f`
+5:20 OpenParen `(`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolatedStringText `b `
+5:25 InterpolationStart `{`
+5:26 Identifier `c`
+5:27 InterpolationEnd `}`
+5:28 InterpolatedStringEnd `"`
+5:29 CloseParen `)`
+5:30 InterpolationEnd `}`
+5:31 InterpolatedStringText ` d`
+5:33 InterpolatedStringEnd `"`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolatedStringText `{{literal}}`
+5:48 InterpolatedStringEnd `"`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolationStart `{`
+5:53 Identifier `Point`
+5:59 OpenBrace `{`
+5:61 Identifier `x`
+5:63 Equals `=`
+5:65 IntegerLiteral `1`
+5:67 CloseBrace `}`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringText `!`
+5:70 InterpolatedStringEnd `"`
+5:72 InterpolatedStringStart `$"`
+5:74 InterpolatedStringEnd `"`
+6:1 StringLiteral `"text"`
+6:8 StringLiteral `"esc \"q\" \\ \n"`
+6:26 RawStringLiteral `"""\n + - * / % +% -% *% +| -| *| ++ --\n\nowe\n`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" Å
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" Å
+    │                   ^^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" Å
+    │                                                                                  ^^ same
+    │                                                                                     letters,
+    │                                                                                     different
+    │                                                                                     encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" Å
+    │   │                                                                                  +
+
+error BYN0003: unterminated string literal
+
+  6 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

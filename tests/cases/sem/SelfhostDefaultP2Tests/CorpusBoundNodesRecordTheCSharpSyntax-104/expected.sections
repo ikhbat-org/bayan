@@ -1,0 +1,32 @@
+== tests/cases/run/if-never-return.byn
+16..102 blockStmt
+22..87 ifStmt
+31..36 binaryExpr lt right 35..36
+31..32 nameExpr
+35..36 literalExpr integer
+37..87 blockStmt
+47..64 exprStmt
+47..64 callExpr
+53..63 literalExpr string
+47..64 callExpr
+73..81 returnStmt value 80..81
+80..81 literalExpr integer
+92..100 returnStmt value 99..100
+99..100 nameExpr
+104..123 globalStatement
+104..123 exprStmt
+104..123 callExpr
+110..122 interpolatedExpr
+113..120 callExpr
+118..119 literalExpr integer
+104..123 callExpr
+124..144 exprStmt
+124..144 callExpr
+130..143 interpolatedExpr
+133..141 callExpr
+138..140 unaryExpr negate operand 139..140
+124..144 callExpr
+145..165 exprStmt
+145..165 callExpr
+151..164 literalExpr string
+145..165 callExpr

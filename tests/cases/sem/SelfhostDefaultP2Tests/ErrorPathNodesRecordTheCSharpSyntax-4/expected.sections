@@ -1,0 +1,63 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/patterns/patterns.byn
+185..585 blockStmt
+191..400 switchStmt
+198..199 nameExpr
+215..219 constantPattern
+215..216 literalExpr integer
+218..219 literalExpr integer
+221..229 returnStmt value 228..229
+228..229 literalExpr integer
+243..249 listPattern
+251..259 returnStmt value 258..259
+258..259 literalExpr integer
+273..276 declarationPattern
+278..286 returnStmt value 285..286
+285..286 literalExpr integer
+300..306 positionalPattern
+308..316 returnStmt value 315..316
+315..316 literalExpr integer
+330..334 positionalPattern
+336..344 returnStmt value 343..344
+343..344 literalExpr integer
+358..364 positionalPattern
+366..374 returnStmt value 373..374
+373..374 literalExpr integer
+392..394 blockStmt
+405..471 switchStmt
+412..413 nameExpr
+429..435 positionalPattern
+430..431 constantPattern
+430..431 literalExpr integer
+433..434 constantPattern
+433..434 literalExpr integer
+437..445 returnStmt value 444..445
+444..445 literalExpr integer
+463..465 blockStmt
+476..570 switchStmt
+483..484 nameExpr
+500..505 constantPattern
+507..515 returnStmt value 514..515
+514..515 literalExpr integer
+529..534 constantPattern
+536..544 returnStmt value 543..544
+543..544 literalExpr integer
+562..564 blockStmt
+575..583 returnStmt value 582..583
+582..583 literalExpr integer
+615..616 nameExpr
+615..616 nameExpr
+615..616 nameExpr
+639..678 catchExpr
+639..678 catchExpr
+639..678 catchExpr
+639..647 callExpr
+645..646 nameExpr
+654..678 switchExpr
+654..660 caughtErrorExpr
+667..670 declarationPattern
+667..670 declarationPattern
+667..670 declarationPattern
+667..670 declarationPattern
+674..675 literalExpr integer
+692..694 blockStmt
+23..24 literalExpr integer

@@ -1,0 +1,3 @@
+== bind.probes.c8
+flags 0
+conditional:u8[3754:16]=-(local:bool[3754:4]=-(flag) local:u8[3761:5]=-(small) literal:u8[3769:1]=1(1))

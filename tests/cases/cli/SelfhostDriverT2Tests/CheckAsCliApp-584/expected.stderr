@@ -1,0 +1,8 @@
+error BYN2225: `Q` cannot be formatted
+  --> <repo>/tmp/t2/diag/format-debug-struct-field/format-debug-struct-field.byn:6:10
+
+  6 │ print($"{q, as: .debug}")
+    │          ^ field `xs` is `List<i64>`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2225

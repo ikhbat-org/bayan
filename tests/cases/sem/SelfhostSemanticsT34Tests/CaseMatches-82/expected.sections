@@ -1,0 +1,8 @@
+== s35
+switchExpr|i32|3331:30
+value local:string=s
+arm 3342:9 rangePattern[3342:4]:string(errorExpr:?,errorExpr:?,false) guard - value literal:i32=1
+arm 3353:6 bindPattern[3353:1]:string_(-) guard - value literal:i32=0
+BYN2202 106:26 expected `string`, found `i32` |||
+BYN2202 106:29 expected `string`, found `i32` |||
+BYN2411 106:26 a range cannot match `string` |||

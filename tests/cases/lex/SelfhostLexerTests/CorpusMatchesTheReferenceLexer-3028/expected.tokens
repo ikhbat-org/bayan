@@ -1,0 +1,71 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+1:25 FailsKeyword `fails`
+1:31 TryKeyword `try`
+1:36 Identifier `atch`
+1:41 NeverKeyword `never`
+1:47 NoallocKeyword `noalloc`
+1:55 NosuspendKeyword `nosuspend`
+1:65 SuspendsKeyword `suspends`
+1:74 AsyncKeyword `async`
+1:80 Identifier `awa`
+1:84 Identifier `t`
+3:1 IntegerLiteral `0xF__`
+5:1 IntegerLiteral `0`
+5:3 IntegerLiteral `42`
+5:6 IntegerLiteral `1_000_000`
+5:16 IntegerLiteral `0xFF`
+5:21 IntegerLiteral `0x_ff`
+5:27 IntegerLiteral `0b1010`
+5:34 IntegerLiteral `0B11`
+5:39 IntegerLiteral `5`
+5:40 NumericSuffix `s`
+5:42 IntegerLiteral `250`
+5:45 NumericSuffix `ms`
+5:48 IntegerLiteral `4`
+5:49 NumericSuffix `KiB`
+5:53 IntegerLiteral `1`
+5:54 NumericSuffix `u`
+5:56 IntegerLiteral `0xFF`
+5:60 NumericSuffix `u`
+5:62 IntegerLiteral `0b1`
+5:65 NumericSuffix `ul`
+5:68 IntegerLiteral `7`
+5:69 NumericSuffix `l`
+6:1 IntegerLiteral `1`
+6:2 NumericSuffix `e`
+6:4 CharLiteral `'""" b`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  1 │ var xs: List<List<i64>> fails try �atch never noalloc nosuspend suspends async awa�t
+    │                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  1 │ var xs: List<List<i64>> fails try �atch never noalloc nosuspend suspends async awa�t
+    │                                                                                   ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --
+
+error BYN0008: unterminated char literal
+
+  6 │ 1e '""" b
+    │    ^^^^^^
+    │
+  help: close it with `'`

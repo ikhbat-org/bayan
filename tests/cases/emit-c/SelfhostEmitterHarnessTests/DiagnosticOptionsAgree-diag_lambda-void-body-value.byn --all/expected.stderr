@@ -1,0 +1,10 @@
+error BYN3201: the value of this `x + 1` is unused
+  --> input.byn:9:23
+
+  9 │     each(xs, by: x => x + 1)
+    │                       ^^^^^ value dropped
+    │
+  help: assign it with `let _ = …`, or remove the expression
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3201

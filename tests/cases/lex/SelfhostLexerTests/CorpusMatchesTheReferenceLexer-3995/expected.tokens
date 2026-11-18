@@ -1,0 +1,71 @@
+    doc `/// Doc line two.`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 Identifier `distiEct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 AsKeyword `as`
+3:40 PublicKeyword `public`
+3:47 PrivateKeyword `private`
+3:55 StaticKeyword `static`
+3:62 ReadonlyKeyword `readonly`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 VarKeyword `var`
+3:94 EmbedKeyword `embed`
+3:100 ExternKeyword `extern`
+3:107 UnsafeKeyword `unsafe`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 DefaultKeyword `default`
+5:36 ForKeyword `for`
+5:40 InKeyword `in`
+5:43 WhileKeyword `while`
+5:49 DoKeyword `do`
+5:52 BreakKeyword `break`
+5:58 ContinueKeyword `continue`
+5:67 ReturnKeyword `return`
+5:74 YieldKeyword `yield`
+5:80 DeferKeyword `defer`
+5:86 ErrdeferKeyword `errdefer`
+5:95 UsingKeyword `using`
+5:101 ContextKeyword `context`
+7:3 RawStringLiteral `""" c"text" u16"wide"s"\u{202E} allowed in strings" "" "\u{48}i"\n`
+8:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ � /// Doc line two.
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � /// Doc line two.
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │  ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │  ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  ���
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  7 │   """ c"text" u16"wide"s"� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

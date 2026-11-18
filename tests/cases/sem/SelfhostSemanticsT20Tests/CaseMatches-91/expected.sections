@@ -1,0 +1,2 @@
+== diag.argument-must-be-named
+BYN2305 6:6 argument for `verbose` must be named ||write `verbose: …`; a `bool` argument says nothing at the call site|fix 114..114 verbose: 

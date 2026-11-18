@@ -1,0 +1,42 @@
+1:1 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:11 IntegerLiteral `2`
+2:12 NumericSuffix `z`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+4:1 CharLiteral `''`
+6:1 IntegerLiteral `1`
+6:2 NumericSuffix `e`
+7:1 TestKeyword `test`
+7:6 AssertKeyword `assert`
+7:13 PropertyKeyword `property`
+7:22 FuzzKeyword `fuzz`
+7:27 ModelKeyword `model`
+7:33 ForeachKeyword `foreach`
+7:41 NewKeyword `new`
+7:45 GotoKeyword `goto`
+8:2 Star `*`
+8:3 Slash `/`
+9:1 Identifier `x́́`
+10:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  2 │ let b = ` 2z
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^
+
+error BYN0007: empty char literal
+
+  4 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

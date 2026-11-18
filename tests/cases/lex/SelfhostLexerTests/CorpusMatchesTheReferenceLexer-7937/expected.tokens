@@ -1,0 +1,135 @@
+1:2 CharLiteral `'x`
+2:2 IntegerLiteral `1_`
+5:1 Identifier `losed`
+6:1 Identifier `b`
+7:2 CharLiteral `'\u{202E}'`
+7:6 InterpolatedStringStart `$"`
+7:8 InterpolationStart `{`
+7:9 InterpolatedStringStart `$"`
+7:11 InterpolationStart `{`
+7:12 InterpolatedStringStart `$"`
+7:14 InterpolationStart `{`
+7:15 InterpolatedStringStart `$"`
+7:17 InterpolationStart `{`
+7:18 InterpolatedStringStart `$"`
+7:20 InterpolationStart `{`
+7:21 InterpolatedStringStart `$"`
+7:23 InterpolationStart `{`
+7:24 InterpolatedStringStart `$"`
+7:26 InterpolatedStringText `$`
+7:27 InterpolatedStringEnd `"`
+7:28 OpenBrace `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 InterpolatedStringStart `$"`
+7:46 InterpolationStart `{`
+7:47 InterpolatedStringStart `$"`
+7:49 InterpolationStart `{`
+7:50 InterpolatedStringStart `$"`
+7:52 InterpolationStart `{`
+7:53 InterpolatedStringStart `$"`
+7:55 InterpolationStart `{`
+7:56 Identifier `x`
+7:57 InterpolationEnd `}`
+7:58 InterpolatedStringEnd `"`
+7:59 InterpolationEnd `}`
+7:60 InterpolatedStringEnd `"`
+7:61 InterpolationEnd `}`
+7:62 InterpolatedStringEnd `"`
+7:63 InterpolationEnd `}`
+7:64 InterpolatedStringEnd `"`
+7:65 InterpolationEnd `}`
+7:66 InterpolatedStringEnd `"`
+7:67 InterpolationEnd `}`
+7:68 InterpolatedStringEnd `"`
+7:69 InterpolationEnd `}`
+7:70 InterpolatedStringEnd `"`
+7:71 InterpolationEnd `}`
+7:72 InterpolatedStringText `}`
+7:73 InterpolatedStringEnd `"`
+7:74 InterpolationEnd `}`
+7:75 InterpolatedStringEnd `"`
+7:79 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �'x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �'x
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  1 │ �'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1_
+    │   ^
+    │
+    │ 2 │  1_
+    │   │   -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │  '�' $"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}" ﻿ 
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  '�' $"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}" ﻿ 
+    │   │   -
+
+error BYN0003: unterminated string literal
+
+  7 │  '�' $"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}" ﻿ 
+    │                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  7 │  '�' $"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}" ﻿ 
+    │                                                                        ^
+    │
+    │ 7 │  '�' $"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}}"}" ﻿ 
+    │   │                                                                         +
+
+error BYN0002: unexpected character `﻿`
+
+  7 │  '�' $"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}}"}" ﻿ 
+    │                                                                             ^

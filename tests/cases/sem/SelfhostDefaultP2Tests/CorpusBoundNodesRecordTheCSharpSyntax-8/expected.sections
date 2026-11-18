@@ -1,0 +1,25 @@
+== tests/cases/run/assert-or-skipped.byn
+20..47 blockStmt
+26..32 assignStmt add target 26..27 value 31..32
+26..27 nameExpr
+31..32 literalExpr integer
+37..45 returnStmt value 44..45
+44..45 nameExpr
+49..63 globalStatement
+49..63 localDecl
+62..63 literalExpr integer
+64..82 localDecl
+81..82 literalExpr integer
+83..134 assertStmt
+90..134 binaryExpr logicalAnd right 124..134
+91..119 binaryExpr logicalOr right 100..119
+91..96 binaryExpr gt right 95..96
+91..92 nameExpr
+95..96 literalExpr integer
+100..119 binaryExpr gt right 118..119
+100..115 callExpr
+109..114 nameExpr
+118..119 literalExpr integer
+124..134 binaryExpr eq right 133..134
+124..129 nameExpr
+133..134 literalExpr integer

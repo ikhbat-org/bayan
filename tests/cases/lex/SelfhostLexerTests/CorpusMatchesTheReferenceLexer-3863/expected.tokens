@@ -1,0 +1,122 @@
+1:1 Identifier `foo`
+1:5 Identifier `Ba`
+1:8 Identifier `r`
+1:10 Identifier `_x`
+1:13 Identifier `camelCase2`
+1:24 Identifier `بيان`
+1:29 Identifier `μετρητής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+2:3 OpenParen `(`
+2:5 CloseParen `)`
+2:7 OpenBracket `[`
+2:9 CloseBracket `]`
+2:11 OpenBrace `{`
+2:13 CloseBrace `}`
+3:1 Identifier `_`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:9 InterpolatedStringStart `$"`
+3:11 InterpolationStart `{`
+3:12 StringLiteral `"{$"`
+3:16 OpenBrace `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 Identifier `x`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringText ` }`
+3:59 InterpolatedStringEnd `"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:62 InterpolationEnd `}`
+3:63 InterpolatedStringEnd `"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+3:66 InterpolationEnd `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 CloseBrace `}`
+3:81 StringLiteral `"}"`
+3:84 InterpolationEnd `}`
+3:85 InterpolatedStringEnd `"`
+3:86 InterpolationEnd `}`
+3:87 InterpolatedStringEnd `"`
+3:88 InterpolationEnd `}`
+3:89 InterpolatedStringEnd `"`
+4:1 StringLiteral `"a\u{2067}b"`
+4:6 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ foo Ba`r _x camelCase2 بيان μετρητής x_1 é
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  �( ) [ ] { }
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  �( ) [ ] { }
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  �( ) [ ] { }
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  3 │ _ $"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"} }"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │            ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ _ $"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"} }"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │                                                           ^
+    │
+    │ 3 │ _ $"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"} }}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │   │                                                            +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ _ $"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"} }"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │                                                                                            ^

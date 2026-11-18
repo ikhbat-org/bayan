@@ -1,0 +1,4 @@
+== diags.diag/dyn-ref-this-field-outlived
+BYN3002 22:16 `b` does not live as long as `late`, which borrows it
+  label `b` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough

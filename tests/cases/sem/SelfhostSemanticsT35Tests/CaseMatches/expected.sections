@@ -1,0 +1,3 @@
+== expr.probes.i22
+interpolated:string[4062:20]=-(v:local:i64[4065:1]=-(n)/0,false,0,32,-1,-1)
+BYN2720 164:28 `left` is not a member of `align` |||

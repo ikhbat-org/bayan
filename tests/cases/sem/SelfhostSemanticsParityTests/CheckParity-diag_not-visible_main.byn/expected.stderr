@@ -1,0 +1,10 @@
+error BYN2005: `round` is not visible here
+  --> tmp/t26-tests/cli/diag_not-visible_main.byn/main.byn:2:15
+
+  2 │ let c = money.round(1)
+    │               ^^^^^ not `public`
+    │
+  help: mark `round` `public` to use it from another module
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2005

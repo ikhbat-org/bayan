@@ -1,0 +1,1 @@
+{"code":"BYN2605","severity":"error","file":"input.byn","span":{"start":38,"end":46,"line":2,"column":13,"endLine":2,"endColumn":21},"message":"`try` needs a call that can fail","label":null,"help":null,"fixes":[{"span":{"start":34,"end":38,"line":2,"column":9,"endLine":2,"endColumn":13},"replacement":""}]}

@@ -1,0 +1,2 @@
+{"code":"BYN2207","severity":"error","file":"input.byn","span":{"start":23,"end":25,"line":2,"column":9,"endLine":2,"endColumn":11},"message":"`-` cannot be applied to `u32`","label":null,"help":"convert to a signed type first; unsigned values cannot be negative","fixes":[]}
+{"code":"BYN2207","severity":"error","file":"input.byn","span":{"start":34,"end":36,"line":3,"column":9,"endLine":3,"endColumn":11},"message":"`!` cannot be applied to `u32`","label":null,"help":null,"fixes":[]}

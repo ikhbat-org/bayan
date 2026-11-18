@@ -1,0 +1,71 @@
+== tests/cases/run/switch-move-loop.byn
+207..236 blockStmt
+213..234 exprStmt
+213..234 callExpr
+219..233 interpolatedExpr
+222..231 memberExpr
+222..224 nameExpr
+213..234 callExpr
+250..769 blockStmt
+256..537 forStmt
+265..269 rangeExpr
+265..266 literalExpr integer
+268..269 literalExpr integer
+270..537 blockStmt
+280..300 localDecl
+289..300 callExpr
+309..339 forStmt
+318..322 rangeExpr
+318..319 literalExpr integer
+321..322 nameExpr
+323..339 blockStmt
+325..337 exprStmt
+325..337 callExpr
+325..327 nameExpr
+335..336 nameExpr
+335..336 nameExpr
+348..374 localDecl
+356..374 callExpr
+366..373 argument
+371..373 nameExpr
+383..531 switchStmt
+390..394 moveExpr
+395..396 nameExpr
+416..432 variantPattern
+422..425 varPattern
+450..469 exprStmt
+450..469 callExpr
+458..468 argument
+463..468 nameExpr
+507..521 exprStmt
+507..521 callExpr
+513..520 literalExpr string
+507..521 callExpr
+542..551 localDecl
+550..551 literalExpr integer
+556..767 whileStmt
+562..567 binaryExpr lt right 566..567
+562..563 nameExpr
+566..567 literalExpr integer
+568..767 blockStmt
+578..608 localDecl
+586..608 callExpr
+596..607 callExpr
+617..724 localDecl
+625..724 switchExpr
+626..630 moveExpr
+631..632 nameExpr
+655..671 variantPattern
+661..664 varPattern
+675..687 memberExpr
+675..680 nameExpr
+701..707 constantPattern
+711..713 unaryExpr negate operand 712..713
+733..746 exprStmt
+733..746 callExpr
+739..745 interpolatedExpr
+742..743 nameExpr
+733..746 callExpr
+755..761 assignStmt add target 755..756 value 760..761
+755..756 nameExpr
+760..761 literalExpr integer

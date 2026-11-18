@@ -1,0 +1,66 @@
+1:1 IntegerLiteral `0b__`
+2:2 LetKeyword `let`
+2:6 Identifier `b`
+2:8 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 CloseBrace `}`
+3:12 StringLiteral `")} d"`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolatedStringText `{{litera $`
+3:31 InterpolatedStringEnd `"`
+3:32 OpenBrace `{`
+3:33 StringLiteral `"$"`
+3:36 Identifier `x`
+3:37 OpenBrace `{`
+3:39 InterpolatedStringStart `$"`
+3:41 InterpolationStart `{`
+3:43 Identifier `a`
+3:45 Greater `>`
+3:46 Greater `>`
+3:48 Identifier `b`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │ �let b = ` 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │ �let b = ` 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ �let b = ` 2
+    │  ^
+
+error BYN0002: unexpected character ```
+
+  2 │ �let b = ` 2
+    │          ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � }")} d" �$"{{litera $"{"$"x{ $"{ a >> b
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB7)
+
+  3 │ let c = � }")} d" �$"{{litera $"{"$"x{ $"{ a >> b
+    │                   ^
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = � }")} d" �$"{{litera $"{"$"x{ $"{ a >> b
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string

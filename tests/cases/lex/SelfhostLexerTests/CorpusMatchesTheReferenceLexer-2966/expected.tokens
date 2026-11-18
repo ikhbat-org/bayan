@@ -1,0 +1,187 @@
+2:2 LetKeyword `let`
+2:6 Identifier `s`
+2:8 Equals `=`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:32 OpenBrace `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolatedStringText `$`
+2:36 InterpolatedStringEnd `"`
+2:37 OpenBrace `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 InterpolatedStringStart `$"`
+2:52 InterpolationStart `{`
+2:53 InterpolatedStringStart `$"`
+2:55 InterpolationStart `{`
+2:56 InterpolatedStringStart `$"`
+2:58 InterpolationStart `{`
+2:59 InterpolatedStringStart `$"`
+2:61 InterpolationStart `{`
+2:62 InterpolatedStringStart `$"`
+2:64 InterpolationStart `{`
+2:65 StringLiteral `$"{x}"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringText `\u{12}`
+2:75 InterpolatedStringEnd `"`
+2:76 InterpolationEnd `}`
+2:77 InterpolatedStringEnd `"`
+2:78 InterpolationEnd `}`
+2:79 InterpolatedStringEnd `"`
+2:80 InterpolationEnd `}`
+2:81 InterpolatedStringEnd `"`
+2:82 InterpolationEnd `}`
+2:83 InterpolatedStringEnd `"`
+2:84 InterpolationEnd `}`
+2:85 InterpolatedStringEnd `"`
+2:86 InterpolationEnd `}`
+2:87 InterpolatedStringEnd `"`
+2:88 InterpolationEnd `}`
+2:89 InterpolatedStringEnd `"`
+2:90 CloseBrace `}`
+2:91 StringLiteral `"}"`
+2:94 CloseBrace `}`
+2:95 StringLiteral `"}"`
+2:98 InterpolationEnd `}`
+2:99 InterpolatedStringEnd `"`
+2:100 InterpolationEnd `}`
+2:101 InterpolatedStringEnd `"`
+2:102 InterpolationEnd `}`
+2:103 InterpolatedStringEnd `"`
+2:104 InterpolationEnd `}`
+2:105 InterpolatedStringEnd `"`
+2:106 InterpolationEnd `}`
+2:107 InterpolatedStringEnd `"`
+2:108 InterpolationEnd `}`
+2:109 InterpolatedStringEnd `"`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:12 IntegerLiteral `1`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 StringLiteral `$"{$"`
+4:52 OpenBrace `{`
+4:53 StringLiteral `$"{x}"`
+4:59 CloseBrace `}`
+4:60 StringLiteral `"}"`
+4:63 InterpolationEnd `}`
+4:64 InterpolatedStringEnd `"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:69 InterpolationEnd `}`
+4:70 InterpolatedStringEnd `"`
+4:72 ErrorKeyword `error`
+4:78 SetKeyword `set`
+4:82 UnitKeyword `unit`
+4:87 DistinctKeyword `distinct`
+4:96 TypeKeyword `type`
+4:101 ImportKeyword `import`
+4:108 AsKeyword `as`
+4:111 PublicKeyword `public`
+4:118 PrivateKeyword `private`
+4:126 StaticKeyword `static`
+4:133 ReadonlyKeyword `readonly`
+4:142 RequiredKeyword `required`
+4:151 ConstKeyword `const`
+4:157 LetKeyword `let`
+4:161 VarKeyword `var`
+4:165 EmbedKeyword `embed`
+4:171 ExternKeyword `extern`
+4:178 UnsafeKeyword `unsafe`
+6:1 Identifier `x́́3`
+6:6 IntegerLiteral `5`
+6:7 NumericSuffix `e`
+6:9 Identifier `x`
+6:10 Dot `.`
+6:11 Identifier `y`
+6:13 FloatLiteral `2.5`
+6:16 NumericSuffix `f`
+7:4 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  2 │  let s = $"{$"{$"{$"{$"{$"{$"{${$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                               ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  let s = $"{$"{$"{$"{$"{$"{$"{${$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                 ^^
+
+error BYN0002: unexpected character `$`
+
+  3 │  let a = $ 1
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  7 │  � 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  7 │  � 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  7 │  � 
+    │   ^

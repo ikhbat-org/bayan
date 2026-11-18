@@ -1,0 +1,4 @@
+== effects.caps
+BYN6004 1:6 `readAll` uses `fs`, which package `main` does not declare in `capabilities` |uses `fs`|add `.fs` to `capabilities`, or remove the use|
+BYN6004 1:6 `readAll` uses `process`, which package `main` does not declare in `capabilities` |uses `process`|add `.process` to `capabilities`, or remove the use|
+BYN6004 7:24 `save` uses `fs`, which package `main` does not declare in `capabilities` |uses `fs`|add `.fs` to `capabilities`, or remove the use|

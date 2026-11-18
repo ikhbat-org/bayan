@@ -1,0 +1,4 @@
+== c2
+catchExpr|i64|1027:27
+operand call:i64 binding - variant timeout handler literal:i64=0
+variantSpan 1043:8

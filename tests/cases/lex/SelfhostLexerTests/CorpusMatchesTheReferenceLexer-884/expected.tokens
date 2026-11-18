@@ -1,0 +1,26 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+1:10 StructKeyword `struct`
+1:17 UniqueKeyword `unique`
+1:24 UnionKeyword `union`
+1:30 EnumKeyword `enum`
+1:35 FlagsKeyword `flags`
+1:41 OpenKeyword `open`
+1:46 ExtensibleKeyword `extensible`
+1:57 InterfaceKeyword `interface`
+1:67 DelegateKeyword `delegate`
+1:76 ExtensionKeyword `extension`
+1:86 DerivationKeyword `derivation`
+1:97 AttributeKeyword `attribute`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2�struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9D)
+
+  1 │ let � = 2�struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │          ^

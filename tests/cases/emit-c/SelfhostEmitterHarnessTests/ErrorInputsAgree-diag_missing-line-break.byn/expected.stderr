@@ -1,0 +1,12 @@
+error BYN1005: expected a line break after the statement
+  --> input.byn:1:10
+
+  1 │ let a = 1 let b = 2
+    │          ^ found keyword `let`
+    │
+  help: put the next statement on its own line
+    │ 1 │ let a = 1
+    │ 2 │ let b = 2
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1005

@@ -1,0 +1,3 @@
+build
+--emit-c
+<repo>/tmp/t5/modules/empty/e.byn

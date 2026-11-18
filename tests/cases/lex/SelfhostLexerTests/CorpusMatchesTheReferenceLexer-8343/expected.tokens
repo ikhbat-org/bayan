@@ -1,0 +1,22 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+2:1 CharLiteral `'\u{202E}'`
+2:5 Star `*`
+3:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ '�' *
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ '�' *
+    │   │  -

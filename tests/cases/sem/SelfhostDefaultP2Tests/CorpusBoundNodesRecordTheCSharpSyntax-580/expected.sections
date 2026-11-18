@@ -1,0 +1,17 @@
+== tests/cases/diag/interface-default-conflict.byn
+119..143 globalStatement
+119..143 exprStmt
+119..143 callExpr
+125..142 callExpr
+125..135 structLiteralExpr
+132..133 literalExpr integer
+119..143 callExpr
+36..39 literalExpr string
+36..39 literalExpr string
+36..39 literalExpr string
+79..82 literalExpr string
+79..82 literalExpr string
+79..82 literalExpr string
+36..39 literalExpr string
+36..39 literalExpr string
+36..39 literalExpr string

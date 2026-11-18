@@ -1,0 +1,5 @@
+== s29
+switchExpr|?|3047:22
+value local:i64=n
+arm 3058:9 bindPattern[3058:1]:i64_(-) guard - value literal:null="null"
+BYN2217 100:15 cannot infer the type of `null` |||

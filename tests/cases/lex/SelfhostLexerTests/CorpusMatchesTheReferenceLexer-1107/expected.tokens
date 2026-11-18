@@ -1,0 +1,18 @@
+1:1 Identifier `b`
+2:3 LetKeyword `let`
+2:7 Identifier `c`
+2:9 Equals `=`
+2:11 RawStringLiteral `"""never closed\nlet actor = 1\n  r�w "quoted"\n\n"text" "esc \"q\" \\ \n" """`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC1)
+
+  4 │   r�w "quoted"
+    │    ^
+
+error BYN0004: unterminated block comment
+
+  7 │ /*�
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

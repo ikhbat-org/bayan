@@ -1,0 +1,10 @@
+error BYN2218: `x => x` needs a known type here
+  --> tmp/t26-tests/cli/diag_lambda-no-target-type.byn/lambda-no-target-type.byn:2:13
+
+  2 │     let f = x => x
+    │             ^^^^^^
+    │
+  help: write the function type it has, such as `let f: i64 -> i64 = x => x`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2218

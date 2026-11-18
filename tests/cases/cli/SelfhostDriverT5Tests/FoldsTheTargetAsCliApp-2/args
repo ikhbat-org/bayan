@@ -1,0 +1,7 @@
+build
+--emit-c
+--target
+windows-x64
+--package
+<repo>/tmp/t5/target
+<repo>/tmp/t5/target/app

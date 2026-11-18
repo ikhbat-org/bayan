@@ -1,0 +1,41 @@
+2:1 Equals `=`
+2:3 IntegerLiteral `2`
+3:2 StringLiteral `"{"`
+4:1 Identifier `i`
+4:3 ElseKeyword `else`
+4:8 UnlessKeyword `unless`
+4:15 Identifier `witch`
+4:21 CaseKeyword `case`
+4:26 DefaultKeyword `default`
+4:34 ForKeyword `for`
+4:38 InKeyword `in`
+4:41 WhileKeyword `while`
+4:47 DoKeyword `do`
+4:50 BreakKeyword `break`
+4:56 ContinueKeyword `continue`
+4:65 ReturnKeyword `return`
+4:72 YieldKeyword `yield`
+4:78 DeferKeyword `defer`
+4:84 ErrdeferKeyword `errdefer`
+4:93 UsingKeyword `using`
+4:99 ContextKeyword `context`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:10 Equals `=`
+6:12 IntegerLiteral `2`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��// ok � in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��// ok � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ ��// ok � in comment
+    │         ^

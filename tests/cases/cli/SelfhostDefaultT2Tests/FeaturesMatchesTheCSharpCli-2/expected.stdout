@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "ConstantPattern",
+    "EnumDecl",
+    "ErrorEnumDecl",
+    "ExprStmt",
+    "FailStmt",
+    "FieldDecl",
+    "ForStmt",
+    "FunctionDecl",
+    "GuardedStmt",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RangeExpr",
+    "RequiresRule",
+    "ReturnStmt",
+    "StructDecl",
+    "StructLiteralExpr",
+    "SwitchStmt",
+    "TargetMemberExpr"
+  ],
+  "builtins": [
+    "ListAdd",
+    "ListIsEmpty",
+    "Print",
+    "StringLength"
+  ],
+  "diagnostics": [
+    "BYN2311"
+  ]
+}

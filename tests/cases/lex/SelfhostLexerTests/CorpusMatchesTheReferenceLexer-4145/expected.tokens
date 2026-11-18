@@ -1,0 +1,73 @@
+    doc `/// Doc line one.\r`
+2:2 LetKeyword `let`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:12 IntegerLiteral `3`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+7:1 LetKeyword `let`
+7:5 Identifier `b`
+7:7 Equals `=`
+7:9 StringLiteral `"bad \q escape"`
+8:2 StructKeyword `struct`
+8:9 UniqueKeyword `unique`
+8:16 UnionKeyword `union`
+8:22 EnumKeyword `enum`
+8:27 Identifier `f`
+8:29 Identifier `lags`
+8:34 OpenKeyword `open`
+8:39 ExtensibleKeyword `extensible`
+8:50 InterfaceKeyword `interface`
+8:60 DelegateKeyword `delegate`
+8:69 ExtensionKeyword `extension`
+8:79 DerivationKeyword `derivation`
+8:90 AttributeKeyword `attribute`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����/// Doc line one.
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����/// Doc line one.
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����/// Doc line one.
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����/// Doc line one.
+    │    ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │  let c = � 3
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  6 │ �
+    │ ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xD5)
+
+  8 │  struct unique union enum f�lags open extensible interface delegate extension derivation attribute
+    │                            ^

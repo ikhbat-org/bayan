@@ -1,0 +1,92 @@
+1:1 IntegerLiteral `0`
+1:3 IntegerLiteral `42`
+1:6 Identifier `_000_000`
+1:15 IntegerLiteral `0xFF`
+1:20 IntegerLiteral `0x_ff`
+1:26 IntegerLiteral `0b1010`
+1:33 IntegerLiteral `0B11`
+1:38 IntegerLiteral `5`
+1:39 NumericSuffix `s`
+1:41 IntegerLiteral `250`
+1:44 NumericSuffix `ms`
+1:47 IntegerLiteral `4`
+1:48 NumericSuffix `KiB`
+1:52 IntegerLiteral `1`
+1:53 NumericSuffix `u`
+1:55 IntegerLiteral `0xFF`
+1:59 NumericSuffix `u`
+1:61 IntegerLiteral `0b1`
+1:64 NumericSuffix `ul`
+1:67 IntegerLiteral `7`
+1:68 NumericSuffix `l`
+2:2 Identifier `x́́`
+    doc `/// 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250\u{13}� 4KiB 1u 0xFFu 0b1ul 7l`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 Identifier `x`
+4:45 InterpolationEnd `}`
+4:46 InterpolatedStringEnd `"`
+4:47 InterpolationEnd `}`
+4:48 InterpolatedStringEnd `"`
+4:49 InterpolationEnd `}`
+4:50 InterpolatedStringEnd `"`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:59 InterpolationEnd `}`
+4:60 InterpolatedStringEnd `"`
+4:61 InterpolationEnd `}`
+4:62 InterpolatedStringEnd `"`
+4:63 InterpolationEnd `}`
+4:64 InterpolatedStringEnd `"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE5)
+
+  2 │  x́́/// 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250�� 4KiB 1u 0xFFu 0b1ul 7l
+    │                                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  4 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │         ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,63 @@
+1:5 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+4:2 Identifier `b`
+6:1 LetKeyword `let`
+6:5 LawKeyword `law`
+6:9 Equals `=`
+6:11 IntegerLiteral `3`
+7:2 IntegerLiteral `0x`
+8:4 RawStringLiteral `""" c"�ext" uK16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\r\n `
+9:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ � $ 1
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � $ 1
+    │   │ -
+
+error BYN0002: unexpected character `$`
+
+  1 │ � $ 1
+    │   ^
+
+error BYN0002: unexpected character ```
+
+  2 │ let b = ` �
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  2 │ let b = ` �
+    │           ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │  0x
+    │  ^^
+
+error BYN0003: unterminated string literal
+
+  8 │    """ c"�ext" uK16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  8 │    """ c"�ext" uK16"wide" "� allowed in strings" "" "\u{48}i"
+    │          ^

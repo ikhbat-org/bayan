@@ -1,0 +1,42 @@
+1:1 Identifier `ever`
+1:6 Identifier `closed`
+2:1 Identifier `b`
+4:1 Identifier `x_1`
+4:5 Identifier `é`
+6:1 CharLiteral `'a'`
+6:5 CharLiteral `'\n'`
+6:10 CharLiteral `'\u{1F600}'`
+6:22 CharLiteral `'\''`
+6:27 CharLiteral `'é'`
+6:31 CharLiteral `'\\'`
+6:36 CharLiteral `'\0'`
+8:1 IntegerLiteral `0b1`
+8:4 NumericSuffix `ms`
+    doc `///`
+10:2 Equals `=`
+10:4 IntegerLiteral `1`
+11:1 LetKeyword `let`
+11:7 Equals `=`
+11:9 IntegerLiteral `2`
+11:10 PlusEquals `+=`
+11:13 MinusEquals `-=`
+11:16 StarEquals `*=`
+11:19 SlashEquals `/=`
+11:22 PercentEquals `%=`
+11:25 AmpEquals `&=`
+11:28 BarEquals `|=`
+11:31 CaretEquals `^=`
+11:34 LessLessEquals `<<=`
+12:2 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  8 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  11 │ let � = 2+= -= *= /= %= &= |= ^= <<=
+     │     ^

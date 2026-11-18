@@ -1,0 +1,7 @@
+1:1 Identifier `e`
+2:1 EndOfFile
+
+error BYN0002: unexpected character `\u{11}`
+
+  1 │ e�
+    │  ^

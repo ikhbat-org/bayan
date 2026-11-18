@@ -1,0 +1,1 @@
+{"code":"BYN5011","severity":"warning","file":"input.byn","span":{"start":23,"end":30,"line":1,"column":24,"endLine":1,"endColumn":31},"message":"this `expects` reads only `value`; a type with `requires` checks it once","label":null,"help":"declare a type with `requires` for `value`","fixes":[]}

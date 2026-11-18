@@ -1,0 +1,61 @@
+1:1 StringLiteral `"{$"`
+1:5 OpenBrace `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:16 Identifier `F`
+1:18 IntegerLiteral `0x_ff`
+1:24 IntegerLiteral `0b1010`
+1:31 IntegerLiteral `0B11`
+1:36 IntegerLiteral `5`
+1:37 NumericSuffix `s`
+1:39 IntegerLiteral `250`
+1:42 NumericSuffix `ms`
+1:45 IntegerLiteral `4`
+1:46 NumericSuffix `KiB`
+1:50 IntegerLiteral `1`
+1:51 NumericSuffix `u`
+1:53 IntegerLiteral `0xFF`
+1:57 NumericSuffix `u`
+1:59 IntegerLiteral `0b1`
+1:62 NumericSuffix `ul`
+1:65 IntegerLiteral `7`
+1:66 NumericSuffix `l`
+6:2 CharLiteral `'a'`
+6:6 CharLiteral `'\n'`
+6:11 CharLiteral `'\u{1F600}'`
+6:23 CharLiteral `'\''`
+6:28 CharLiteral `'é'`
+6:32 CharLiteral `'\\'`
+6:37 CharLiteral `'\0'`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{$"{$"{$"{$"{$F 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ "{$"{$"{$"{$"{$F 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │               ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ // ok � in comment
+    │       ^

@@ -1,0 +1,39 @@
+1:1 StringLiteral `"{ � � �  co�ment */ a`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{ � � �  co�ment */ a
+    │ ^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ "{ � � �  co�ment */ a
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ "{ � � �  co�ment */ a
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ "{ � � �  co�ment */ a
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ "{ � � �  co�ment */ a
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ "{ � � �  co�ment */ a
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  1 │ "{ � � �  co�ment */ a
+    │             ^

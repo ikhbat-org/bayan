@@ -1,0 +1,18 @@
+== tests/cases/diag/strbuf-finish-then-clear.byn
+12..108 blockStmt
+18..35 localDecl
+27..35 callExpr
+40..54 exprStmt
+40..54 callExpr
+40..42 nameExpr
+50..53 literalExpr string
+59..78 localDecl
+67..78 callExpr
+67..69 nameExpr
+83..93 exprStmt
+83..93 callExpr
+83..85 nameExpr
+98..106 exprStmt
+98..106 callExpr
+104..105 nameExpr
+98..106 callExpr

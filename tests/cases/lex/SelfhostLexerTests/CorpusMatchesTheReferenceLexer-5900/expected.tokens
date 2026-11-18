@@ -1,0 +1,65 @@
+1:1 Identifier `tray`
+1:6 CloseBrace `}`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `total `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 InterpolationEnd `}`
+2:12 InterpolatedStringEnd `"`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolatedStringText `a `
+2:18 InterpolationStart `{`
+2:19 Identifier `f`
+2:20 OpenParen `(`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolatedStringText `b `
+2:25 InterpolationStart `{`
+2:26 Identifier `c`
+2:27 InterpolationEnd `}`
+2:28 InterpolatedStringEnd `"`
+2:29 CloseParen `)`
+2:30 InterpolationEnd `}`
+2:31 InterpolatedStringText ` `
+2:32 InterpolatedStringEnd `"`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolatedStringText `{{literal}}`
+2:47 InterpolatedStringEnd `"`
+2:49 InterpolatedStringStart `$"`
+2:51 InterpolationStart `{`
+2:52 Identifier `Point`
+2:58 OpenBrace `{`
+2:60 Identifier `x`
+2:62 Equals `=`
+2:64 IntegerLiteral `1`
+2:66 CloseBrace `}`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringText `!`
+2:69 InterpolatedStringEnd `"`
+2:71 InterpolatedStringStart `$"`
+2:73 InterpolatedStringEnd `"`
+3:4 Identifier `hidden`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  � hidden
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  � hidden
+    │   │  -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -

@@ -1,0 +1,61 @@
+1:1 Identifier `s`
+2:1 IntegerLiteral `0b1`
+2:4 NumericSuffix `ms`
+3:1 IntegerLiteral `0x_`
+4:1 IntegerLiteral `0b__`
+5:1 IntegerLiteral `1_`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `a`
+6:4 InterpolationStart `{`
+6:5 Identifier `b`
+6:6 InterpolationEnd `}`
+6:7 InterpolatedStringText `c// cmment \u{202E} hidden`
+6:26 InterpolatedStringEnd
+7:1 Identifier `b`
+9:1 IsKeyword `is`
+9:4 AndKeyword `and`
+9:8 OrKeyword `or`
+9:11 NotKeyword `not`
+9:15 WithKeyword `with`
+9:20 MoveKeyword `move`
+9:25 RefKeyword `ref`
+9:29 OutKeyword `out`
+9:33 ThisKeyword `this`
+9:38 NullKeyword `null`
+9:43 TrueKeyword `true`
+9:48 FalseKeyword `false`
+9:54 ComptimeKeyword `comptime`
+9:63 CheckedKeyword `checked`
+11:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  2 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  6 │ $"a{b}c// cmment � hidden
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

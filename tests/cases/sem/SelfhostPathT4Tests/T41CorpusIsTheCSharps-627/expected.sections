@@ -1,0 +1,4 @@
+== diags.diag/repeated-particle
+BYN5013 2:28 `copy` uses the particle `from` twice
+  label used again
+  help group the values in a struct, or choose another particle

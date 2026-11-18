@@ -1,0 +1,4 @@
+void f() {
+    foreach (var v in xs) {
+    }
+}

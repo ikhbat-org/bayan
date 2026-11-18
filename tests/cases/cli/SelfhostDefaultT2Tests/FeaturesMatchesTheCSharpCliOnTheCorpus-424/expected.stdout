@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "ConstantPattern",
+    "DiscardPattern",
+    "FunctionDecl",
+    "LiteralExpr",
+    "NameExpr",
+    "PositionalPattern",
+    "SwitchExpr",
+    "UnionDecl",
+    "VarPattern",
+    "VariantPattern"
+  ],
+  "builtins": [],
+  "diagnostics": [
+    "BYN2311"
+  ]
+}

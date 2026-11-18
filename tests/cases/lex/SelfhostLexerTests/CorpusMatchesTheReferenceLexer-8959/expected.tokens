@@ -1,0 +1,98 @@
+1:1 IntegerLiteral `0`
+1:3 IntegerLiteral `42`
+1:6 IntegerLiteral `1_000_000`
+1:17 IntegerLiteral `0xFF`
+1:22 IntegerLiteral `0x_ff`
+1:28 IntegerLiteral `0b1010`
+1:35 IntegerLiteral `0B11`
+1:40 IntegerLiteral `5`
+1:41 NumericSuffix `s`
+1:43 IntegerLiteral `250`
+1:46 NumericSuffix `ms`
+1:49 IntegerLiteral `4`
+1:50 NumericSuffix `KiB`
+1:54 IntegerLiteral `1`
+1:55 NumericSuffix `u`
+1:57 IntegerLiteral `0xFF`
+1:61 NumericSuffix `u`
+1:63 IntegerLiteral `0b1`
+1:66 NumericSuffix `ul`
+1:69 IntegerLiteral `7`
+1:70 NumericSuffix `l`
+2:2 Identifier `ạ̇`
+3:1 CharLiteral `'x`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"$"`
+4:53 OpenBrace `{`
+4:54 StringLiteral `$"{$"`
+4:59 OpenBrace `{`
+4:60 Identifier `x`
+4:61 CloseBrace `}`
+4:62 StringLiteral `"}"`
+4:65 CloseBrace `}`
+4:66 StringLiteral `"}"`
+4:69 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDA)
+
+  1 │ 0 42 1_000_000� 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │               ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  2 │  ạ̇
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  ạ̇
+    │   │  ++
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"
+    │                                                 ^^

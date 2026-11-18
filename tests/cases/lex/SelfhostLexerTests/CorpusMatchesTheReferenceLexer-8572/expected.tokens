@@ -1,0 +1,2 @@
+1:1 RawStringLiteral `"""\nlet effect = 2\n line comm?ent\n/* block\n   \n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"\n"""`
+7:4 EndOfFile

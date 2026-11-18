@@ -1,0 +1,5 @@
+CompilationUnit
+  Function log(string msg) -> void uses allocator, io
+    Block
+      Expr (call print msg)
+  Function next(i32 n) -> i32 uses allocator becomes .done fails ParseError => n

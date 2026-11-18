@@ -1,0 +1,3 @@
+build
+--emit-c
+for-indexable-count-once.byn

@@ -1,0 +1,10 @@
+_
+"}"}}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+ t|ruct S
+//// not a doc comment
+b
+
+let law = 3
+
+var xs: List<List<i64>>
+

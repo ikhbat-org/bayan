@@ -1,0 +1,102 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 StringLiteral `$"{$"`
+2:54 OpenBrace `{`
+2:55 StringLiteral `$"{$"`
+2:60 OpenBrace `{`
+2:61 StringLiteral `$"{x}"`
+2:67 CloseBrace `}`
+2:68 StringLiteral `"}"`
+2:71 CloseBrace `}`
+2:72 StringLiteral `"}"`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringEnd `"`
+2:77 InterpolationEnd `}`
+2:78 InterpolatedStringEnd `"`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+5:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����// �x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����// �x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����// �x
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����// �x
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ ����// �x
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ ����// �x
+    │   │        -
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                                                 ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ � 
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ � 
+    │   │ -

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "Print",
+    "TimeFromNanos",
+    "TimeNanos"
+  ],
+  "diagnostics": []
+}

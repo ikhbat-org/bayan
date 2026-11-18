@@ -1,0 +1,42 @@
+1:1 CloseBrace `}`
+1:2 StringLiteral `"}"`
+1:5 CloseBrace `}`
+1:6 StringLiteral `"}"`
+1:9 CloseBrace `}`
+1:10 StringLiteral `"}"`
+1:13 CloseBrace `}`
+1:14 StringLiteral `"`
+2:1 Identifier `D800`
+2:5 CloseBrace `}`
+2:6 CharLiteral `'`
+3:1 CharLiteral `'\u{110000}'`
+4:1 CharLiteral `'x`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ }"}"}"}"}"}"}"
+    │              ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  2 │ D800}'
+    │      ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "CallExpr",
+    "ConstantPattern",
+    "DiscardPattern",
+    "ExprStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "NameExpr",
+    "SwitchExpr",
+    "TargetMemberExpr",
+    "UnionDecl",
+    "VarPattern",
+    "VariantPattern"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": [
+    "BYN2712"
+  ]
+}

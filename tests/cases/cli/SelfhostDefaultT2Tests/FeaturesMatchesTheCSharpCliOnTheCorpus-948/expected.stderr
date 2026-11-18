@@ -1,0 +1,9 @@
+error BYN1013: a conditional expression inside a collection literal must be parenthesized
+  --> <repo>/tests/cases/diag/ternary-in-collection.byn:1:11
+
+  1 │ let xs = [a ? 1 : 2, 3]
+    │           ^^^^^^^^^
+    │
+  help: wrap it in parentheses
+    │ 1 │ let xs = [(a ? 1 : 2), 3]
+    │   │           +++++++++++

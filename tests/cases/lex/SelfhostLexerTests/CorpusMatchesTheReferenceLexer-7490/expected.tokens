@@ -1,0 +1,121 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 Identifier `alet`
+3:9 Identifier `café`
+3:14 Equals `=`
+3:16 IntegerLiteral `2`
+4:2 Identifier `x́́`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:47 StringLiteral `"{$"`
+5:51 OpenBrace `{`
+5:52 InterpolatedStringStart `$"`
+5:54 InterpolationStart `{`
+5:55 StringLiteral `$"{$"`
+5:60 OpenBrace `{`
+5:61 StringLiteral `$"{x}"`
+5:67 CloseBrace `}`
+5:68 StringLiteral `"}"`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringText `}`
+5:73 InterpolatedStringEnd `"`
+5:74 CloseBrace `}`
+5:75 StringLiteral `"}"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+5:82 InterpolationEnd `}`
+5:83 InterpolatedStringEnd `"`
+5:84 InterpolationEnd `}`
+5:85 InterpolatedStringEnd `"`
+5:86 InterpolationEnd `}`
+5:87 InterpolatedStringEnd `"`
+5:88 InterpolationEnd `}`
+5:89 InterpolatedStringEnd `"`
+5:90 InterpolationEnd `}`
+5:91 InterpolatedStringEnd `"`
+5:93 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}"}"}"}"}"}" 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}"}"}"}"}"}" 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}"}"}"}"}"}" 
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}"}"}"}"}"}" 
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  5 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}"}"}"}"}"}" 
+    │                                              ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}"}"}"}"}"}" 
+    │                                                       ^^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}"}"}"}"}"}" 
+    │                                                                        ^
+    │
+    │ 5 │ �� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{x}"}"}"}}}"}"}"}"}"}"}"}"}"}" 
+    │   │                                                                         +

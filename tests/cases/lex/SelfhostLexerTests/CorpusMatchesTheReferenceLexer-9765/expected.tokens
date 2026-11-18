@@ -1,0 +1,89 @@
+1:2 Identifier `allowed`
+1:10 InKeyword `in`
+1:13 Identifier `strings`
+1:20 StringLiteral `" "`
+1:23 StringLiteral `" "`
+1:27 Identifier `u`
+1:28 OpenBrace `{`
+1:29 IntegerLiteral `48`
+1:31 CloseBrace `}`
+1:32 Identifier `i`
+1:33 StringLiteral `"`
+3:2 Equals `=`
+3:6 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:11 IntegerLiteral `2`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:7 Equals `=`
+5:11 IntegerLiteral `3`
+7:1 Amp `&`
+7:3 AmpAmp `&&`
+7:6 Bar `|`
+7:8 BarBar `||`
+7:11 Caret `^`
+7:13 Tilde `~`
+7:15 Bang `!`
+7:17 Equals `=`
+7:19 EqualsEquals `==`
+7:22 BangEquals `!=`
+7:25 Less `<`
+7:27 LessEquals `<=`
+7:30 Greater `>`
+7:32 GreaterEquals `>=`
+7:35 LessLess `<<`
+7:38 Greater `>`
+7:39 Greater `>`
+7:41 Greater `>`
+7:42 GreaterEquals `>=`
+8:1 Identifier `foo`
+8:5 Identifier `Bar`
+8:9 Identifier `_x`
+8:12 Identifier `camelCase2`
+8:23 Identifier `بيان`
+8:28 Identifier `μετρητής`
+8:37 Identifier `x_1`
+8:41 Identifier `é`
+10:1 CharLiteral `'x`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ � allowed in strings" "" "\u{48}i"
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ � allowed in strings" "" "\u{48}i"
+    │                           ^
+
+error BYN0003: unterminated string literal
+
+  1 │ � allowed in strings" "" "\u{48}i"
+    │                                  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  3 │  = $ 1
+    │    ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ let c = � 3
+    │         ^
+
+error BYN0008: unterminated char literal
+
+  10 │ 'x
+     │ ^^
+     │
+  help: close it with `'`

@@ -1,0 +1,4 @@
+== diags.diag/for-dyn-ref-readonly-still-lint
+BYN2311 10:9 `a` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 10:5-10:8 let

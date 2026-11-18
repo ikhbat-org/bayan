@@ -1,0 +1,2 @@
+{"code":"BYN2770","severity":"error","file":"input.byn","span":{"start":377,"end":381,"line":14,"column":2,"endLine":14,"endColumn":6},"message":"unknown attribute `json`","label":null,"help":"use `@exitCode(n)` on an error variant or `@cases(...)` on a test","fixes":[]}
+{"code":"BYN2822","severity":"error","file":"input.byn","span":{"start":305,"end":315,"line":10,"column":12,"endLine":10,"endColumn":22},"message":"a function type is not supported as a field yet","label":null,"help":"take the function as a parameter instead","fixes":[]}

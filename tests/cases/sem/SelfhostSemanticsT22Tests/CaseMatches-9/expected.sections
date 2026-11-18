@@ -1,0 +1,3 @@
+== pat.probes.-.q5
+bindPattern|-
+BYN2228 59:21 `gone` is not a variant of `NetError` |||

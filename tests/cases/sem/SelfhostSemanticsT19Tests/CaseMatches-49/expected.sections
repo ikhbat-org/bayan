@@ -1,0 +1,4 @@
+== bind.probes.w2
+flags 0
+errorExpr:?[4595:15]=-()
+BYN2114 227:14 `i32` is not a struct |||

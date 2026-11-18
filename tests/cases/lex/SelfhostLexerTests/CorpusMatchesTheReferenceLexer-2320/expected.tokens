@@ -1,0 +1,108 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 Identifier `X`
+1:35 StringLiteral `"{$"`
+1:39 OpenBrace `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 InterpolatedStringStart `$"`
+1:54 InterpolationStart `{`
+1:55 StringLiteral `"{$"`
+1:59 OpenBrace `{`
+1:60 StringLiteral `$"{x}"`
+1:66 CloseBrace `}`
+1:67 StringLiteral `"}"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 CloseBrace `}`
+1:81 StringLiteral `"}"`
+1:84 FailsKeyword `fails`
+1:90 TryKeyword `try`
+1:94 CatchKeyword `catch`
+1:100 NeverKeyword `never`
+1:106 NoallocKeyword `noalloc`
+1:114 NosuspendKeyword `nosuspend`
+1:124 SuspendsKeyword `suspends`
+1:133 AsyncKeyword `async`
+1:139 AwaitKeyword `await`
+3:1 InterpolationEnd `}`
+3:2 InterpolatedStringEnd `"`
+3:3 InterpolationEnd `}`
+3:4 InterpolatedStringEnd `"`
+3:5 InterpolationEnd `}`
+3:6 InterpolatedStringEnd `"`
+3:7 InterpolationEnd `}`
+3:8 InterpolatedStringEnd `"`
+3:9 InterpolationEnd `}`
+3:10 InterpolatedStringEnd `"`
+3:11 InterpolationEnd `}`
+3:12 InterpolatedStringEnd `"`
+3:13 InterpolationEnd `}`
+3:14 InterpolatedStringEnd `"`
+3:15 InterpolationEnd `}`
+3:16 InterpolatedStringEnd `"`
+3:17 InterpolationEnd `}`
+3:18 InterpolatedStringEnd `"`
+3:19 InterpolationEnd `}`
+3:20 InterpolatedStringEnd `"`
+3:21 InterpolationEnd `}`
+3:22 InterpolatedStringEnd `"`
+3:23 CloseBrace `}`
+3:24 StringLiteral `"}"`
+3:27 CloseBrace `}`
+3:28 StringLiteral `"}"`
+3:31 CloseBrace `}`
+3:32 StringLiteral `"}"`
+3:35 CloseBrace `}`
+3:36 StringLiteral `"}"`
+3:39 CloseBrace `}`
+5:1 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{X"{$"{$"{$"{$"{$"{$"{"{$"{$"{x}"}"}"}"}"}"}"}"}"}"fails try catch never noalloc nosuspend suspends async await
+    │                                                            ^^
+
+error BYN0002: unexpected character `\u{0}`
+
+  3 │ }"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�
+    │                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ �
+    │ ^

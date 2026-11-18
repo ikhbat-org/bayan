@@ -1,0 +1,1 @@
+i32!Foo? f() { return 1 }

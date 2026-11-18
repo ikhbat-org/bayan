@@ -1,0 +1,118 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 IntegerLiteral `0`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 StringLiteral `$"{$"`
+1:55 OpenBrace `{`
+1:56 StringLiteral `$"{$"`
+1:61 OpenBrace `{`
+1:62 StringLiteral `$"{x}"`
+1:68 CloseBrace `}`
+1:69 StringLiteral `"}"`
+1:72 CloseBrace `}`
+1:73 StringLiteral `" =`
+2:1 Identifier `ings`
+2:5 StringLiteral `" "`
+2:8 StringLiteral `" "`
+2:12 Identifier `u`
+2:13 OpenBrace `{`
+2:14 IntegerLiteral `48`
+2:16 CloseBrace `}`
+2:17 Identifier `i`
+2:18 StringLiteral `"`
+3:2 IntegerLiteral `1__`
+4:4 InKeyword `in`
+4:7 Identifier `comment`
+4:15 CharLiteral `'\q'`
+5:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{0$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" =
+    │                                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{0$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" =
+    │                                                  ^^
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{0$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" =
+    │                                                                         ^^^ string ends at the
+    │                                                                             end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\`
+
+  2 │ ings" "" "\u{48}i"
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ings" "" "\u{48}i"
+    │                  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │  1__
+    │   ^^
+    │
+    │ 3 │  1__
+    │   │   --
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │  � in comment�'\q'
+    │  ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │  � in comment�'\q'
+    │              ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  � in comment�'\q'
+    │   │              -
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │  � in comment�'\q'
+    │                ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

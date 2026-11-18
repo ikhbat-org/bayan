@@ -1,0 +1,1 @@
+let s = $"{n,as:.hex} and { a+1 }"

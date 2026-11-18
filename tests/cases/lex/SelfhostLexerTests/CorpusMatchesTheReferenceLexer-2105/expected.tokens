@@ -1,0 +1,56 @@
+1:1 Identifier `leta`
+1:6 Equals `=`
+1:10 IntegerLiteral `1`
+    doc `/// Doc line two.`
+3:2 CharLiteral `'\q'`
+5:1 LetKeyword `let`
+5:5 Identifier `actor`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+7:2 IntegerLiteral `0xFF`
+7:7 IntegerLiteral `0x_ff`
+7:13 IntegerLiteral `0b1010`
+7:20 IntegerLiteral `0`
+7:21 NumericSuffix `B`
+8:1 CharLiteral `'\u{110000}'`
+9:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ leta = $ 1
+    │        ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │  '\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  5 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  8 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ �
+    │ ^

@@ -1,0 +1,57 @@
+== tests/cases/diag/style-nesting-depth.byn
+91..497 blockStmt
+97..106 localDecl
+105..106 literalExpr integer
+111..272 ifStmt
+114..119 binaryExpr gt right 118..119
+114..115 nameExpr
+118..119 literalExpr integer
+120..272 blockStmt
+130..266 ifStmt
+133..138 binaryExpr gt right 137..138
+133..134 nameExpr
+137..138 literalExpr integer
+139..266 blockStmt
+153..256 ifStmt
+156..161 binaryExpr gt right 160..161
+156..157 nameExpr
+160..161 literalExpr integer
+162..256 blockStmt
+180..242 ifStmt
+183..188 binaryExpr gt right 187..188
+183..184 nameExpr
+187..188 literalExpr integer
+189..242 blockStmt
+211..224 exprStmt
+211..224 callExpr
+217..223 literalExpr string
+211..224 callExpr
+277..495 ifStmt
+280..285 binaryExpr gt right 284..285
+280..281 nameExpr
+284..285 literalExpr integer
+286..495 blockStmt
+296..489 ifStmt
+299..304 binaryExpr gt right 303..304
+299..300 nameExpr
+303..304 literalExpr integer
+305..489 blockStmt
+319..479 ifStmt
+322..327 binaryExpr gt right 326..327
+322..323 nameExpr
+326..327 literalExpr integer
+328..479 blockStmt
+346..465 ifStmt
+349..354 binaryExpr gt right 353..354
+349..350 nameExpr
+353..354 literalExpr integer
+355..465 blockStmt
+377..447 ifStmt
+380..385 binaryExpr gt right 384..385
+380..381 nameExpr
+384..385 literalExpr integer
+386..447 blockStmt
+412..425 exprStmt
+412..425 callExpr
+418..424 literalExpr string
+412..425 callExpr

@@ -1,0 +1,85 @@
+1:2 LetKeyword `let`
+1:6 Identifier `b`
+1:8 Equals `=`
+1:10 StringLiteral `"bad \q escape"`
+3:1 CharLiteral `'\u{202E}'`
+3:4 Identifier `et`
+3:7 Identifier `c`
+3:9 Equals `=`
+3:13 IntegerLiteral `3`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `a`
+6:4 InterpolationStart `{`
+6:5 Identifier `b`
+6:6 InterpolationEnd `}`
+6:7 InterpolatedStringText `c`
+6:8 InterpolatedStringEnd
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����let b = "bad \q escape"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����let b = "bad \q escape"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����let b = "bad \q escape"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����let b = "bad \q escape"
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����let b = "bad \q escape"
+    │     ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ �����let b = "bad \q escape"
+    │                   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ '�'et c = � 3
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ '�'et c = � 3
+    │   │  -
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ '�'et c = � 3
+    │           ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0003: unterminated string literal
+
+  6 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

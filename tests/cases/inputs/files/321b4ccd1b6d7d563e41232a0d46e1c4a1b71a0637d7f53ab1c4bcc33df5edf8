@@ -1,0 +1,6 @@
+e" "‮ allowed in string 7l
+
+$"{a
+  """ "text" u16"wide" "‮ allowed in strings" "" "u{48}i"
+$"stray } here"
+

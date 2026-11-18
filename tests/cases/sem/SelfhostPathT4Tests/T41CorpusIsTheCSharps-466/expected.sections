@@ -1,0 +1,9 @@
+== diags.diag/to-string-call
+BYN2031 6:13 Bayan has no `toString()`; display is `format()` (derived from `formatInto(ref StrBuf)`)
+  label not a Bayan method
+  help call `format()`, or interpolate the value: `$"{x}"`
+  fix 6:13-6:21 format
+BYN2031 7:13 Bayan has no `toString()`; display is `format()` (derived from `formatInto(ref StrBuf)`)
+  label not a Bayan method
+  help call `format()`, or interpolate the value: `$"{x}"`
+  fix 7:13-7:21 format

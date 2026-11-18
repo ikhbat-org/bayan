@@ -1,0 +1,18 @@
+error BYN2217: cannot infer the type of `null`
+  --> tmp/t26-tests/cli/diag_cannot-infer-type.byn/cannot-infer-type.byn:1:9
+
+  1 │ let x = null
+    │         ^^^^
+    │
+  help: write the type: `i64? x = null`
+
+error BYN2217: cannot infer the type of `y`
+  --> tmp/t26-tests/cli/diag_cannot-infer-type.byn/cannot-infer-type.byn:2:5
+
+  2 │ var y
+    │     ^
+    │
+  help: write the type: `var i64 y`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2217

@@ -1,0 +1,13 @@
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `x`
+3:4 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:9 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

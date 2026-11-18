@@ -1,0 +1,55 @@
+== tests/cases/run/range-binds-looser-than-arithmetic.byn
+0..9 globalStatement
+0..9 localDecl
+8..9 literalExpr integer
+10..23 localDecl
+22..23 literalExpr integer
+24..61 forStmt
+33..42 rangeExpr
+33..34 literalExpr integer
+37..42 binaryExpr sub right 41..42
+37..38 nameExpr
+41..42 literalExpr integer
+43..61 blockStmt
+49..59 assignStmt add target 49..54 value 58..59
+49..54 nameExpr
+58..59 literalExpr integer
+62..75 localDecl
+74..75 literalExpr integer
+76..115 forStmt
+85..96 rangeExpr
+85..86 literalExpr integer
+90..95 binaryExpr sub right 94..95
+90..91 nameExpr
+94..95 literalExpr integer
+97..115 blockStmt
+103..113 assignStmt add target 103..108 value 112..113
+103..108 nameExpr
+112..113 literalExpr integer
+116..158 exprStmt
+116..158 callExpr
+122..157 interpolatedExpr
+125..130 nameExpr
+133..138 nameExpr
+141..155 binaryExpr eq right 150..155
+141..146 nameExpr
+150..155 nameExpr
+116..158 callExpr
+159..169 localDecl
+168..169 literalExpr integer
+170..218 forStmt
+179..196 rangeExpr
+179..185 binaryExpr add right 184..185
+179..181 nameExpr
+184..185 literalExpr integer
+187..196 binaryExpr sub right 195..196
+187..192 binaryExpr mul right 191..192
+187..188 nameExpr
+191..192 literalExpr integer
+195..196 literalExpr integer
+197..218 blockStmt
+203..216 exprStmt
+203..216 callExpr
+209..215 interpolatedExpr
+212..213 nameExpr
+203..216 callExpr

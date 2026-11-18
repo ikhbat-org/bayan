@@ -1,0 +1,38 @@
+1:1 LetKeyword `let`
+1:5 Identifier `caf`
+1:8 Identifier `é`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+1:16 IntegerLiteral `0x_`
+2:2 LetKeyword `let`
+2:6 Identifier `caé`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+3:7 Dot `.`
+3:9 Identifier `closed`
+4:1 Identifier `b`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9E)
+
+  1 │ let caf�é = 1; 0x_
+    │        ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ let caf�é = 1; 0x_
+    │         ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let caf�é = 1; 0x_
+    │   │         +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ let caf�é = 1; 0x_
+    │                 ^^^

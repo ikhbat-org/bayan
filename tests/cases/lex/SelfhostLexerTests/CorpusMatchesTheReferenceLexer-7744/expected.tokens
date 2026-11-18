@@ -1,0 +1,13 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `elet`
+1:7 Identifier `c`
+1:9 Equals `=`
+1:11 RawStringLiteral `"""never closed\n$"{error set unit distinct type import as public private static readonly required const let var embed extern unsafe\n\nvar xs: List<List<i64>>\n $"open x";\n    comment */ a\n\ner closed\nb\n`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ 1elet c = """never closed
+    │           ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,53 @@
+import lexer
+import parser
+
+string hostName(Binder b, through Ctx c) {
+    let h = host(b, through: c)
+    return h == -1 ? "none" : c.functions[h].name
+}
+
+i32 main() {
+    var c = Ctx {
+        files: List<SourceFile>(),
+        modules: List<Mod>(),
+        diagnostics: List<Diag>(),
+        bags: List<DiagBag>(),
+    }
+    let m = newFunction(ref c, by: FunctionSymbol { name: "m", kind: .method })
+    let l1 = newFunction(ref c, by: FunctionSymbol { name: "l1", kind: .lambda, enclosing: m })
+    let l2 = newFunction(ref c, by: FunctionSymbol { name: "l2", kind: .lambda, enclosing: l1 })
+    let s = newFunction(ref c, by: FunctionSymbol { name: "s", kind: .function, isStatic: true })
+
+    var b = Binder {
+        file: 0,
+        fn: -1,
+        owner: -1,
+        scopes: [],
+        targets: [],
+        lambdas: [],
+        lambdaCount: [],
+        seeds: [],
+        pending: [],
+        constraints: [],
+        peers: [],
+        nonNullLocals: [],
+        stateFacts: [],
+        errorNarrowed: [],
+    }
+    b.fn = m
+    print("== plain")
+    print(hostName(b, through: c))
+    b.fn = l1
+    print("== lambda")
+    print(hostName(b, through: c))
+    b.fn = l2
+    print("== nested")
+    print(hostName(b, through: c))
+    b.fn = s
+    print("== static")
+    print(hostName(b, through: c))
+    b.fn = -1
+    print("== none")
+    print(hostName(b, through: c))
+    return 0
+}

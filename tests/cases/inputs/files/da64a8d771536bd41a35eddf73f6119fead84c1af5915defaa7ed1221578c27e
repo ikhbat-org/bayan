@@ -1,0 +1,4 @@
+/// Returns twice `x`.
+public i64 twice(i64 x) {
+    return x * 2
+}

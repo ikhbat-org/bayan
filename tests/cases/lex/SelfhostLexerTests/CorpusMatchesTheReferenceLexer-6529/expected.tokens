@@ -1,0 +1,35 @@
+1:1 IntegerLiteral `0b__`
+2:1 Identifier `otal`
+2:6 OpenBrace `{`
+2:7 Identifier `x`
+2:8 CloseBrace `}`
+2:9 StringLiteral `" $"`
+2:13 Identifier `a`
+2:15 OpenBrace `{`
+2:16 Identifier `f`
+2:17 OpenParen `(`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolatedStringText `b `
+2:22 InterpolationStart `{`
+2:23 Identifier `c`
+2:24 InterpolationEnd `}`
+2:25 InterpolatedStringEnd `"`
+2:26 CloseParen `)`
+2:27 CloseBrace `}`
+2:29 Identifier `d`
+2:30 StringLiteral `" $"`
+2:34 OpenBrace `{`
+2:35 OpenBrace `{`
+2:36 Identifier `literal`
+2:43 CloseBrace `}`
+2:44 CloseBrace `}`
+2:45 Identifier `z`
+2:46 StringLiteral `" $"`
+2:50 OpenBrace `{`
+2:51 Identifier `Po`
+3:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^

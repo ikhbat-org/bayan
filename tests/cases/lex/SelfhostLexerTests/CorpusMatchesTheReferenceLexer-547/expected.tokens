@@ -1,0 +1,36 @@
+1:1 CharLiteral `'x`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:9 IntegerLiteral `1`
+5:1 IntegerLiteral `0x_`
+7:1 Star `*`
+7:3 Identifier `i64`
+7:6 Greater `>`
+7:7 Greater `>`
+8:1 Identifier `a`
+8:3 Greater `>`
+8:4 Greater `>`
+8:5 Identifier `b`
+9:1 Identifier `c`
+9:3 Greater `>`
+9:4 Greater `>`
+9:6 IntegerLiteral `1`
+10:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x_
+    │ ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  7 │ �* i64>>
+    │ ^

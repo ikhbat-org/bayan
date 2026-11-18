@@ -1,0 +1,97 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+3:1 Identifier `xF__`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"{$"`
+4:54 OpenBrace `{`
+4:55 StringLiteral `$"{$�"`
+4:61 OpenBrace `{`
+4:62 StringLiteral `$"{x}"`
+4:68 CloseBrace `}`
+4:69 StringLiteral `"}"`
+4:72 CloseBrace `}`
+4:73 StringLiteral `"}"`
+4:76 InterpolationEnd `}`
+4:77 InterpolatedStringEnd `"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolationEnd `}`
+4:81 InterpolatedStringEnd `"`
+4:82 InterpolationEnd `}`
+4:83 InterpolatedStringEnd `"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 InterpolationEnd `}`
+4:87 InterpolatedStringEnd `"`
+4:89 CharLiteral `'a'`
+4:93 CharLiteral `'\n'`
+4:98 CharLiteral `'\u{1F600}'`
+4:110 CharLiteral `'\''`
+4:115 CharLiteral `'�'`
+4:119 CharLiteral `'\\'`
+4:124 CharLiteral `'\0'`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  3 │ xF__�
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' '�' '\\' '\0'
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' '�' '\\' '\0'
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' '�' '\\' '\0'
+    │                                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' '�' '\\' '\0'
+    │                                                                                                                    ^

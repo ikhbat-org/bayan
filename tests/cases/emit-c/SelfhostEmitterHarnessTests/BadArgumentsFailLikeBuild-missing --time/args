@@ -1,0 +1,3 @@
+build
+--emit-c
+<repo>/tmp/t12-tests/diag_goto.byn/missing.byn

@@ -1,0 +1,47 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+4:1 Identifier `b`
+6:1 OpenParen `(`
+6:3 CloseParen `)`
+6:5 OpenBracket `[`
+6:7 CloseBracket `]`
+6:9 OpenBrace `{`
+6:11 CloseBrace `}`
+6:12 Identifier `N`
+7:1 Identifier `a`
+7:3 Greater `>`
+7:4 Greater `>`
+7:6 Identifier `b`
+9:1 StringLiteral `"a\u{2067}b�"`
+9:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  9 │ "a�b�"
+    │     ^

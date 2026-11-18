@@ -1,0 +1,12 @@
+1:2 Identifier `actor`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │  actor = 1
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

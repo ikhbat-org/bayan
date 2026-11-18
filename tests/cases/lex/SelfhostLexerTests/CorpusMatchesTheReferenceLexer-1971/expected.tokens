@@ -1,0 +1,61 @@
+1:1 StringLiteral `"`
+2:1 IntegerLiteral `0xF__`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:9 Percent `%`
+4:11 PlusPercent `+%`
+4:14 MinusPercent `-%`
+4:16 StarPercent `*%`
+4:19 PlusBar `+|`
+4:22 MinusBar `-|`
+4:25 StarBar `*|`
+4:28 PlusPlus `++`
+4:31 MinusMinus `--`
+5:2 LetKeyword `let`
+5:6 Identifier `b`
+5:8 Equals `=`
+5:10 StringLiteral `"bad \q escape"`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `a`
+7:4 InterpolationStart `{`
+7:5 Identifier `b`
+7:6 InterpolationEnd `}`
+7:7 InterpolatedStringText `c b`
+7:10 InterpolatedStringEnd
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  5 │  let �b = "bad \q escape"
+    │      ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │  let �b = "bad \q escape"
+    │                ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  7 │ $"a{b}c b
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

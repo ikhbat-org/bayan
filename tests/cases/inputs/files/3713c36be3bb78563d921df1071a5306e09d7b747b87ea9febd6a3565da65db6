@@ -1,0 +1,1185 @@
+import lexer
+import parser
+
+type GlobalStatement = parser.GlobalStatement
+type BlockStmt = parser.BlockStmt
+
+Ctx tcCtx(string text) {
+    var bytes = List<u8>()
+    for x in text.bytes { bytes.append(x) }
+    var copy = List<u8>()
+    for x in text.bytes { copy.append(x) }
+    let source = lexer.SourceText.create("t15.byn", from: move bytes)
+    var p = parser.Parser.create(lexer.lex(move source, by: lexer.Keywords.build()))
+    let unit = parser.parseCompilationUnit(ref p)
+    var c = Ctx { files: List<SourceFile>(), modules: List<Mod>(), diagnostics: List<Diag>(), bags: List<DiagBag>() }
+    c.files.append(SourceFile { path: "t15.byn", displayPath: "t15.byn", text: move copy, unit: move unit, module: 0, isEntry: true, imports: Map<string, ModId>() })
+    var files = List<FileId>()
+    files.append(0)
+    c.modules.append(Mod { name: "t15", files: move files, directory: ".", cName: "t15" })
+    return c
+}
+
+Ctx tcSource() => tcCtx("struct Point {\n    i32 x = 4\n    bool on = true\n    bool bad = 3\n    void m2(bool k = true) expects k {\n    }\n    i32 twice => 8\n    i32 blocky {\n    }\n    bool wrong => 3\n    Point(i32 a = 1, i32 b = zz) {\n    }\n    Point copy() => this\n}\n\ninterface IShape {\n    void touch() => this\n}\n\nstruct Holder {\n    i32 v\n}\n\nvoid empty() {\n}\n\ni32 one() => 1\n\nvoid flagged(bool flag = true) expects flag {\n}\n\nvoid two(bool a = true, bool b = false) expects a expects 5 {\n}\n\nvoid single(i32 n = 0) expects n {\n}\n\nvoid vd() => 1\n\nvoid guarded(bool d = true) {\n    return if d\n}\n\nvoid defaults(i32 x = 3, i32 y = zz) {\n}\n\nvoid negs(rune r = 'r', f64 d = 1.5, string t = \"t\") {\n}\n\nvoid g(T a, List<i32> b, Zyzzyva c, U d) {\n}\n\nconst K: i32 = 5\nconst S: string = \"s\"\nconst W: i32 = zz\nconst M: i64\n\nconst SA: i32[3] = zz\nconst SB: i32[0] = zz\nconst SC: i32[zz] = zz\nconst SE: i32[99999999999999999999] = zz\n\ntest \"plain\" {\n}\n\n@cases((1, true))\ntest \"cased\" (i32 n, bool f) {\n}\n\n@cases((1, 2))\ntest \"dup\" (i32 n, i32 n) {\n}\n\n@cases((true, 1))\ntest \"mism\" (i32 n, bool f) {\n}\n\n@cases(5)\ntest \"lone\" (bool f) {\n}\n\n{\n    let q: bool = 3\n}\n\n{\n}\n")
+
+Binder tcBinder(FuncId fn, by StructId owner) => Binder {
+    file: 0,
+    fn: fn,
+    owner: owner,
+    scopes: [],
+    targets: [],
+    lambdas: [],
+    lambdaCount: [],
+    seeds: [],
+    pending: [],
+    constraints: [],
+    peers: [],
+    nonNullLocals: [],
+    stateFacts: [],
+    errorNarrowed: [],
+}
+
+void tcParam(ref Ctx c, for FuncId f, by string name, at TextSpan span, as Type type) {
+    let ordinal = c.functions[f].parameters.length
+    let p = newLocal(ref c, by: LocalSymbol { name: name, nameSpan: span, span: span, type: type, kind: .parameter, isParameter: true, ordinal: ordinal })
+    c.functions[f].parameters.append(p)
+}
+
+void tcDiags(in Ctx c, from i64 mark) {
+    for i in mark..c.diagnostics.length {
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        var fix = ""
+        if c.diagnostics[i].hasFix { fix = $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" }
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fix}")
+    }
+}
+
+void tcDump(ref Ctx c, for BNode n, at i64 depth) {
+    var sb = StrBuf()
+    for i in 0..depth { sb.append("  ") }
+    if n == -1 {
+        sb.append("none")
+        print($"{sb.finish()}")
+        return
+    }
+    let k = boundKind(n)
+    let span = nodeSpan(in c, for: n)
+    sb.append($"{k} {span.start}..{span.end}")
+    if isExprKind(k) {
+        sb.append($" : {typeDisplay(ref c, by: exprType(in c, for: n))}")
+        if (exprConstant(in c, for: n) is { } v) { sb.append($" = {constantText(in v)}") }
+    }
+    if k == .local { sb.append($" {c.locals[c.bLocals[boundIndex(n)].local].name}") }
+    if k == .call { sb.append($" {c.functions[c.bCalls[boundIndex(n)].function].name}") }
+    print($"{sb.finish()}")
+    for ch in children(in c, for: n) { tcDump(ref c, for: ch, at: depth + 1) }
+}
+
+void tcLocals(ref Ctx c, for FuncId f) {
+    for l in c.functions[f].locals { print($"local {c.locals[l].name} {c.locals[l].id} {c.locals[l].kind.ordinal}") }
+    print($"requires {c.functions[f].requirements.length} infers {c.functions[f].infersErrors}")
+}
+
+void tcFirst(in Binder b) {
+    if b.firstStatementFile == -1 {
+        print("first none")
+    } else {
+        print($"first {b.firstStatementSpan.start}..{b.firstStatementSpan.end}")
+    }
+}
+
+void tcBody(ref Ctx c, for FuncId f) {
+    tcDump(ref c, for: c.functions[f].body, at: 0)
+    tcLocals(ref c, for: f)
+    tcDiags(in c, from: 0)
+}
+void holdWide() {
+    var c = tcCtx("var a = 1\nvar b = 2\nvar c = 3\nvar d = 4\n")
+    var b = tcBinder(-1, by: -1)
+    let bag = hold(ref b, through: ref c)
+    report(ref b, through: ref c, for: .notConstant, at: TextSpan { start: 4, length: 1 }, by: ("a", "", "", "", ""), label: "")
+    report(ref b, through: ref c, for: .notConstant, at: TextSpan { start: 14, length: 1 }, by: ("b", "", "", "", ""), label: "the generic code needs this of its type arguments")
+    print("== hold wide")
+    print($"bag {c.bags[bag].items.length} reported {c.diagnostics.length}")
+    b.pending[100] = 0
+    b.pending[101] = 10
+    b.constraints[0] = prim(.i64)
+    let seeds = release(ref b, through: ref c)
+    if seeds.length == 0 { print("seeds none") }
+    for (d, t) in seeds { print($"seed {d} {typeDisplay(ref c, by: t)}") }
+    tcDiags(in c, from: 0)
+}
+void holdNarrow() {
+    var c = tcCtx("var a = 1\nvar b = 2\nvar c = 3\nvar d = 4\n")
+    var b = tcBinder(-1, by: -1)
+    let bag = hold(ref b, through: ref c)
+    report(ref b, through: ref c, for: .notConstant, at: TextSpan { start: 4, length: 1 }, by: ("a", "", "", "", ""), label: "")
+    report(ref b, through: ref c, for: .notConstant, at: TextSpan { start: 14, length: 1 }, by: ("b", "", "", "", ""), label: "the generic code needs this of its type arguments")
+    print("== hold narrow")
+    print($"bag {c.bags[bag].items.length} reported {c.diagnostics.length}")
+    b.pending[100] = 0
+    b.constraints[0] = prim(.i32)
+    let seeds = release(ref b, through: ref c)
+    if seeds.length == 0 { print("seeds none") }
+    for (d, t) in seeds { print($"seed {d} {typeDisplay(ref c, by: t)}") }
+    tcDiags(in c, from: 0)
+}
+void holdPeer() {
+    var c = tcCtx("var a = 1\nvar b = 2\nvar c = 3\nvar d = 4\n")
+    var b = tcBinder(-1, by: -1)
+    let bag = hold(ref b, through: ref c)
+    report(ref b, through: ref c, for: .notConstant, at: TextSpan { start: 24, length: 1 }, by: ("c", "", "", "", ""), label: "the generic code needs this of its type arguments")
+    report(ref b, through: ref c, for: .notConstant, at: TextSpan { start: 34, length: 1 }, by: ("d", "", "", "", ""), label: "")
+    print("== hold peer")
+    print($"bag {c.bags[bag].items.length} reported {c.diagnostics.length}")
+    b.pending[100] = 0
+    b.pending[102] = 20
+    b.constraints[10] = prim(.u8)
+    b.constraints[20] = prim(.string)
+    b.peers[10] = 0
+    let seeds = release(ref b, through: ref c)
+    if seeds.length == 0 { print("seeds none") }
+    for (d, t) in seeds { print($"seed {d} {typeDisplay(ref c, by: t)}") }
+    tcDiags(in c, from: 0)
+}
+void holdFloatMember() {
+    var c = tcCtx("var a = 1\nvar b = 2\nvar c = 3\nvar d = 4\n")
+    var b = tcBinder(-1, by: -1)
+    let bag = hold(ref b, through: ref c)
+    report(ref b, through: ref c, for: .notConstant, at: TextSpan { start: 4, length: 1 }, by: ("a", "", "", "", ""), label: "")
+    print("== hold float-member")
+    print($"bag {c.bags[bag].items.length} reported {c.diagnostics.length}")
+    b.pending[100] = 0
+    b.constraints[0] = prim(.i64)
+    b.constraints[10] = prim(.f64)
+    b.peers[10] = 0
+    let seeds = release(ref b, through: ref c)
+    if seeds.length == 0 { print("seeds none") }
+    for (d, t) in seeds { print($"seed {d} {typeDisplay(ref c, by: t)}") }
+    tcDiags(in c, from: 0)
+}
+void holdFirstWins() {
+    var c = tcCtx("var a = 1\nvar b = 2\nvar c = 3\nvar d = 4\n")
+    var b = tcBinder(-1, by: -1)
+    let bag = hold(ref b, through: ref c)
+    print("== hold first-wins")
+    print($"bag {c.bags[bag].items.length} reported {c.diagnostics.length}")
+    b.pending[100] = 0
+    b.pending[101] = 10
+    b.constraints[0] = prim(.i16)
+    b.constraints[10] = prim(.i64)
+    b.peers[10] = 0
+    let seeds = release(ref b, through: ref c)
+    if seeds.length == 0 { print("seeds none") }
+    for (d, t) in seeds { print($"seed {d} {typeDisplay(ref c, by: t)}") }
+    tcDiags(in c, from: 0)
+}
+void holdChain() {
+    var c = tcCtx("var a = 1\nvar b = 2\nvar c = 3\nvar d = 4\n")
+    var b = tcBinder(-1, by: -1)
+    let bag = hold(ref b, through: ref c)
+    report(ref b, through: ref c, for: .notConstant, at: TextSpan { start: 34, length: 1 }, by: ("d", "", "", "", ""), label: "the generic code needs this of its type arguments")
+    print("== hold chain")
+    print($"bag {c.bags[bag].items.length} reported {c.diagnostics.length}")
+    b.pending[103] = 30
+    b.constraints[10] = prim(.u16)
+    b.peers[30] = 20
+    b.peers[20] = 10
+    let seeds = release(ref b, through: ref c)
+    if seeds.length == 0 { print("seeds none") }
+    for (d, t) in seeds { print($"seed {d} {typeDisplay(ref c, by: t)}") }
+    tcDiags(in c, from: 0)
+}
+void holdNone() {
+    var c = tcCtx("var a = 1\nvar b = 2\nvar c = 3\nvar d = 4\n")
+    var b = tcBinder(-1, by: -1)
+    let bag = hold(ref b, through: ref c)
+    report(ref b, through: ref c, for: .notConstant, at: TextSpan { start: 4, length: 1 }, by: ("a", "", "", "", ""), label: "")
+    print("== hold none")
+    print($"bag {c.bags[bag].items.length} reported {c.diagnostics.length}")
+    let seeds = release(ref b, through: ref c)
+    if seeds.length == 0 { print("seeds none") }
+    for (d, t) in seeds { print($"seed {d} {typeDisplay(ref c, by: t)}") }
+    tcDiags(in c, from: 0)
+}
+void holdAll() {
+    holdWide()
+    holdNarrow()
+    holdPeer()
+    holdFloatMember()
+    holdFirstWins()
+    holdChain()
+    holdNone()
+}
+void scopesSameScope() {
+    var c = tcCtx("// x\n// x\n// x\n// x\n// x\n// _\n// _\n// Bad\n// Bad\n// y\n// y\n// z\n")
+    let f = newFunction(ref c, by: FunctionSymbol { name: "f", module: 0 })
+    var b = tcBinder(f, by: -1)
+    print("== scopes same-scope")
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 3, length: 1 }, as: prim(.i32), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 8, length: 1 }, as: prim(.i32), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 13, length: 1 }, as: prim(.string), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 18, length: 1 }, as: prim(.i32), for: .varKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    pushScope(ref b)
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 23, length: 1 }, as: prim(.i32), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    popScope(ref b)
+    tcLocals(ref c, for: f)
+    tcDiags(in c, from: 0)
+}
+void scopesDiscardAndNames() {
+    var c = tcCtx("// x\n// x\n// x\n// x\n// x\n// _\n// _\n// Bad\n// Bad\n// y\n// y\n// z\n")
+    let f = -1
+    var b = tcBinder(f, by: -1)
+    print("== scopes discard-and-names")
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 28, length: 1 }, as: prim(.i32), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 33, length: 1 }, as: prim(.i32), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    pushScope(ref b)
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 38, length: 3 }, as: prim(.i32), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 45, length: 3 }, as: prim(.bool), for: .temp)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    popScope(ref b)
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 52, length: 1 }, as: errorType(), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 57, length: 1 }, as: errorType(), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    tcDiags(in c, from: 0)
+}
+void scopesHeld() {
+    var c = tcCtx("// x\n// x\n// x\n// x\n// x\n// _\n// _\n// Bad\n// Bad\n// y\n// y\n// z\n")
+    let f = newFunction(ref c, by: FunctionSymbol { name: "f", module: 0 })
+    var b = tcBinder(f, by: -1)
+    print("== scopes held")
+    let _ = hold(ref b, through: ref c)
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 38, length: 3 }, as: prim(.i32), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 45, length: 3 }, as: prim(.i32), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    print($"reported {c.diagnostics.length}")
+    let _ = release(ref b, through: ref c)
+    pushScope(ref b)
+    pushScope(ref b)
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 62, length: 1 }, as: prim(.i64), for: .constKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    popScope(ref b)
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 3, length: 1 }, as: prim(.i64), for: .varKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    popScope(ref b)
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 8, length: 1 }, as: prim(.i64), for: .varKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    tcLocals(ref c, for: f)
+    tcDiags(in c, from: 0)
+}
+void scopesOuterFirst() {
+    var c = tcCtx("// x\n// x\n// x\n// x\n// x\n// _\n// _\n// Bad\n// Bad\n// y\n// y\n// z\n")
+    let f = -1
+    var b = tcBinder(f, by: -1)
+    print("== scopes outer-first")
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 3, length: 1 }, as: prim(.i32), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    pushScope(ref b)
+    {
+        let l = declareLocal(ref b, through: ref c, at: TextSpan { start: 8, length: 1 }, as: prim(.i32), for: .letKeyword)
+        print($"declared {c.locals[l].name} {c.locals[l].id}")
+    }
+    popScope(ref b)
+    tcDiags(in c, from: 0)
+}
+void scopesIdentity() {
+    var c = tcCtx("// x\n// x\n// x\n// x\n// x\n// _\n// _\n// Bad\n// Bad\n// y\n// y\n// z\n")
+    let f = -1
+    var b = tcBinder(f, by: -1)
+    print("== scopes identity")
+    var seen = List<i64>()
+    {
+        let _ = t15Scope(ref b)
+        let id = b.scopeIds[b.scopeIds.length - 1]
+        var at = -1
+        for j in 0..seen.length { if seen[j] == id { at = j } }
+        if at < 0 {
+            at = seen.length
+            seen.append(id)
+        }
+        print($"scope {at}")
+    }
+    pushScope(ref b)
+    {
+        let _ = t15Scope(ref b)
+        let id = b.scopeIds[b.scopeIds.length - 1]
+        var at = -1
+        for j in 0..seen.length { if seen[j] == id { at = j } }
+        if at < 0 {
+            at = seen.length
+            seen.append(id)
+        }
+        print($"scope {at}")
+    }
+    popScope(ref b)
+    {
+        let _ = t15Scope(ref b)
+        let id = b.scopeIds[b.scopeIds.length - 1]
+        var at = -1
+        for j in 0..seen.length { if seen[j] == id { at = j } }
+        if at < 0 {
+            at = seen.length
+            seen.append(id)
+        }
+        print($"scope {at}")
+    }
+    pushScope(ref b)
+    {
+        let _ = t15Scope(ref b)
+        let id = b.scopeIds[b.scopeIds.length - 1]
+        var at = -1
+        for j in 0..seen.length { if seen[j] == id { at = j } }
+        if at < 0 {
+            at = seen.length
+            seen.append(id)
+        }
+        print($"scope {at}")
+    }
+    pushScope(ref b)
+    {
+        let _ = t15Scope(ref b)
+        let id = b.scopeIds[b.scopeIds.length - 1]
+        var at = -1
+        for j in 0..seen.length { if seen[j] == id { at = j } }
+        if at < 0 {
+            at = seen.length
+            seen.append(id)
+        }
+        print($"scope {at}")
+    }
+    popScope(ref b)
+    {
+        let _ = t15Scope(ref b)
+        let id = b.scopeIds[b.scopeIds.length - 1]
+        var at = -1
+        for j in 0..seen.length { if seen[j] == id { at = j } }
+        if at < 0 {
+            at = seen.length
+            seen.append(id)
+        }
+        print($"scope {at}")
+    }
+    popScope(ref b)
+    {
+        let _ = t15Scope(ref b)
+        let id = b.scopeIds[b.scopeIds.length - 1]
+        var at = -1
+        for j in 0..seen.length { if seen[j] == id { at = j } }
+        if at < 0 {
+            at = seen.length
+            seen.append(id)
+        }
+        print($"scope {at}")
+    }
+    tcDiags(in c, from: 0)
+}
+void scopesAll() {
+    scopesSameScope()
+    scopesDiscardAndNames()
+    scopesHeld()
+    scopesOuterFirst()
+    scopesIdentity()
+}
+void resolveTypeArgs() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Holder", module: 0, file: 0, declIndex: 2, typeMap: ["T": prim(.i64)] })
+    let f = newFunction(ref c, by: FunctionSymbol { name: "f", module: 0, kind: .method, typeMap: ["T": prim(.bool)] })
+    var b = tcBinder(f, by: s)
+    b.typeArgs = ["T": prim(.string)]
+    print("== resolve type-args")
+    switch c.files[0].unit.members[12] {
+        case .functionDecl(let d):
+            for i in 0..d.value.params.length {
+                let t = resolveType(ref b, through: ref c, for: in d.value.params[i].type)
+                print($"resolve {i} {typeDisplay(ref c, by: t)}")
+            }
+        default:
+            break
+    }
+    tcDiags(in c, from: 0)
+}
+void resolveFunctionMap() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Holder", module: 0, file: 0, declIndex: 2, typeMap: ["T": prim(.i64)] })
+    let f = newFunction(ref c, by: FunctionSymbol { name: "f", module: 0, kind: .method, typeMap: ["T": prim(.bool)] })
+    var b = tcBinder(f, by: s)
+    print("== resolve function-map")
+    switch c.files[0].unit.members[12] {
+        case .functionDecl(let d):
+            for i in 0..d.value.params.length {
+                let t = resolveType(ref b, through: ref c, for: in d.value.params[i].type)
+                print($"resolve {i} {typeDisplay(ref c, by: t)}")
+            }
+        default:
+            break
+    }
+    tcDiags(in c, from: 0)
+}
+void resolveStructMap() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Holder", module: 0, file: 0, declIndex: 2, typeMap: ["T": prim(.i64)] })
+    let f = newFunction(ref c, by: FunctionSymbol { name: "f", module: 0, kind: .method, typeMap: [] })
+    var b = tcBinder(f, by: s)
+    print("== resolve struct-map")
+    switch c.files[0].unit.members[12] {
+        case .functionDecl(let d):
+            for i in 0..d.value.params.length {
+                let t = resolveType(ref b, through: ref c, for: in d.value.params[i].type)
+                print($"resolve {i} {typeDisplay(ref c, by: t)}")
+            }
+        default:
+            break
+    }
+    tcDiags(in c, from: 0)
+}
+void resolveFunctionMapFirst() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Holder", module: 0, file: 0, declIndex: 2, typeMap: ["T": prim(.i64)] })
+    let f = newFunction(ref c, by: FunctionSymbol { name: "f", module: 0, kind: .method, typeMap: ["U": prim(.u8)] })
+    var b = tcBinder(f, by: s)
+    print("== resolve function-map-first")
+    switch c.files[0].unit.members[12] {
+        case .functionDecl(let d):
+            for i in 0..d.value.params.length {
+                let t = resolveType(ref b, through: ref c, for: in d.value.params[i].type)
+                print($"resolve {i} {typeDisplay(ref c, by: t)}")
+            }
+        default:
+            break
+    }
+    tcDiags(in c, from: 0)
+}
+void resolveNoMap() {
+    var c = tcSource()
+    let s = -1
+    let f = -1
+    var b = tcBinder(f, by: s)
+    print("== resolve no-map")
+    switch c.files[0].unit.members[12] {
+        case .functionDecl(let d):
+            for i in 0..d.value.params.length {
+                let t = resolveType(ref b, through: ref c, for: in d.value.params[i].type)
+                print($"resolve {i} {typeDisplay(ref c, by: t)}")
+            }
+        default:
+            break
+    }
+    tcDiags(in c, from: 0)
+}
+void resolveHeld() {
+    var c = tcSource()
+    let s = -1
+    let f = -1
+    var b = tcBinder(f, by: s)
+    let bag = hold(ref b, through: ref c)
+    print("== resolve held")
+    switch c.files[0].unit.members[12] {
+        case .functionDecl(let d):
+            for i in 0..d.value.params.length {
+                let t = resolveType(ref b, through: ref c, for: in d.value.params[i].type)
+                print($"resolve {i} {typeDisplay(ref c, by: t)}")
+            }
+        default:
+            break
+    }
+    print($"held {c.bags[bag].items.length}")
+    let _ = release(ref b, through: ref c)
+    tcDiags(in c, from: 0)
+}
+void resolveLambdaKeepsMap() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Holder", module: 0, file: 0, declIndex: 2, typeMap: ["T": prim(.i64)] })
+    let f = newFunction(ref c, by: FunctionSymbol { name: "f", module: 0, kind: .method, typeMap: ["T": prim(.bool)] })
+    var b = tcBinder(f, by: s)
+    print("== resolve lambda-keeps-map")
+    switch c.files[0].unit.members[12] {
+        case .functionDecl(let d):
+            for i in 0..d.value.params.length {
+                let t = resolveType(ref b, through: ref c, for: in d.value.params[i].type)
+                print($"resolve {i} {typeDisplay(ref c, by: t)}")
+            }
+            b.fn = newFunction(ref c, by: FunctionSymbol { name: "$lambda0", module: 0, kind: .lambda })
+            for i in 0..d.value.params.length {
+                let t = resolveType(ref b, through: ref c, for: in d.value.params[i].type)
+                print($"lambda {i} {typeDisplay(ref c, by: t)}")
+            }
+        default:
+            break
+    }
+    tcDiags(in c, from: 0)
+}
+void resolveAll() {
+    resolveTypeArgs()
+    resolveFunctionMap()
+    resolveStructMap()
+    resolveFunctionMapFirst()
+    resolveNoMap()
+    resolveHeld()
+    resolveLambdaKeepsMap()
+}
+void bodyEmpty() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "empty", module: 0, kind: .function, file: 0, declIndex: 3, memberIndex: -1, owner: -1, returnType: prim(.void) })
+    var b = tcBinder(f, by: -1)
+    print("== body empty")
+    switch c.files[0].unit.members[3] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void bodyOne() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "one", module: 0, kind: .function, file: 0, declIndex: 4, memberIndex: -1, owner: -1, returnType: prim(.i32) })
+    var b = tcBinder(f, by: -1)
+    print("== body one")
+    switch c.files[0].unit.members[4] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void bodyFlagged() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "flagged", module: 0, kind: .function, file: 0, declIndex: 5, memberIndex: -1, owner: -1, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "flag", at: TextSpan { start: 369, length: 4 }, as: prim(.bool))
+    var b = tcBinder(f, by: -1)
+    print("== body flagged")
+    switch c.files[0].unit.members[5] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void bodyTwo() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "two", module: 0, kind: .function, file: 0, declIndex: 6, memberIndex: -1, owner: -1, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "a", at: TextSpan { start: 414, length: 1 }, as: prim(.bool))
+    tcParam(ref c, for: f, by: "b", at: TextSpan { start: 429, length: 1 }, as: prim(.bool))
+    var b = tcBinder(f, by: -1)
+    print("== body two")
+    switch c.files[0].unit.members[6] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void bodySingle() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "single", module: 0, kind: .function, file: 0, declIndex: 7, memberIndex: -1, owner: -1, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "n", at: TextSpan { start: 481, length: 1 }, as: prim(.i32))
+    var b = tcBinder(f, by: -1)
+    print("== body single")
+    switch c.files[0].unit.members[7] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void bodyVd() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "vd", module: 0, kind: .function, file: 0, declIndex: 8, memberIndex: -1, owner: -1, returnType: prim(.void) })
+    var b = tcBinder(f, by: -1)
+    print("== body vd")
+    switch c.files[0].unit.members[8] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void bodiesAll() {
+    bodyEmpty()
+    bodyOne()
+    bodyFlagged()
+    bodyTwo()
+    bodySingle()
+    bodyVd()
+}
+void memberTwice() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Point", module: 0, file: 0, declIndex: 0 })
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "x", owner: s, file: 0, declIndex: 0, memberIndex: 0, type: prim(.i32), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "on", owner: s, file: 0, declIndex: 0, memberIndex: 1, type: prim(.bool), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "bad", owner: s, file: 0, declIndex: 0, memberIndex: 2, type: prim(.bool), hasDefault: true }))
+    let f = newFunction(ref c, by: FunctionSymbol { name: "twice", module: 0, kind: .getter, file: 0, declIndex: 0, memberIndex: 4, owner: s, returnType: prim(.i32) })
+    var b = tcBinder(f, by: s)
+    print("== member twice")
+    switch c.files[0].unit.members[0] {
+        case .structDecl(let sd):
+            switch sd.value.members[4] {
+                case .propertyDecl(let d):
+                    bindGetter(ref b, through: ref c, for: in d.value)
+                case .constructorDecl(let d):
+                    bindConstructor(ref b, through: ref c, for: in d.value)
+                case .functionDecl(let d):
+                    bindFunctionBody(ref b, through: ref c, for: in d.value)
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void memberBlocky() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Point", module: 0, file: 0, declIndex: 0 })
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "x", owner: s, file: 0, declIndex: 0, memberIndex: 0, type: prim(.i32), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "on", owner: s, file: 0, declIndex: 0, memberIndex: 1, type: prim(.bool), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "bad", owner: s, file: 0, declIndex: 0, memberIndex: 2, type: prim(.bool), hasDefault: true }))
+    let f = newFunction(ref c, by: FunctionSymbol { name: "blocky", module: 0, kind: .getter, file: 0, declIndex: 0, memberIndex: 5, owner: s, returnType: prim(.i32) })
+    var b = tcBinder(f, by: s)
+    print("== member blocky")
+    switch c.files[0].unit.members[0] {
+        case .structDecl(let sd):
+            switch sd.value.members[5] {
+                case .propertyDecl(let d):
+                    bindGetter(ref b, through: ref c, for: in d.value)
+                case .constructorDecl(let d):
+                    bindConstructor(ref b, through: ref c, for: in d.value)
+                case .functionDecl(let d):
+                    bindFunctionBody(ref b, through: ref c, for: in d.value)
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void memberWrong() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Point", module: 0, file: 0, declIndex: 0 })
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "x", owner: s, file: 0, declIndex: 0, memberIndex: 0, type: prim(.i32), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "on", owner: s, file: 0, declIndex: 0, memberIndex: 1, type: prim(.bool), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "bad", owner: s, file: 0, declIndex: 0, memberIndex: 2, type: prim(.bool), hasDefault: true }))
+    let f = newFunction(ref c, by: FunctionSymbol { name: "wrong", module: 0, kind: .getter, file: 0, declIndex: 0, memberIndex: 6, owner: s, returnType: prim(.bool) })
+    var b = tcBinder(f, by: s)
+    print("== member wrong")
+    switch c.files[0].unit.members[0] {
+        case .structDecl(let sd):
+            switch sd.value.members[6] {
+                case .propertyDecl(let d):
+                    bindGetter(ref b, through: ref c, for: in d.value)
+                case .constructorDecl(let d):
+                    bindConstructor(ref b, through: ref c, for: in d.value)
+                case .functionDecl(let d):
+                    bindFunctionBody(ref b, through: ref c, for: in d.value)
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void memberPoint() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Point", module: 0, file: 0, declIndex: 0 })
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "x", owner: s, file: 0, declIndex: 0, memberIndex: 0, type: prim(.i32), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "on", owner: s, file: 0, declIndex: 0, memberIndex: 1, type: prim(.bool), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "bad", owner: s, file: 0, declIndex: 0, memberIndex: 2, type: prim(.bool), hasDefault: true }))
+    let f = newFunction(ref c, by: FunctionSymbol { name: "Point", module: 0, kind: .constructor, file: 0, declIndex: 0, memberIndex: 7, owner: s, returnType: structTypeOf(s) })
+    tcParam(ref c, for: f, by: "a", at: TextSpan { start: 186, length: 1 }, as: prim(.i32))
+    tcParam(ref c, for: f, by: "b", at: TextSpan { start: 197, length: 1 }, as: prim(.i32))
+    var b = tcBinder(f, by: s)
+    print("== member Point")
+    switch c.files[0].unit.members[0] {
+        case .structDecl(let sd):
+            switch sd.value.members[7] {
+                case .propertyDecl(let d):
+                    bindGetter(ref b, through: ref c, for: in d.value)
+                case .constructorDecl(let d):
+                    bindConstructor(ref b, through: ref c, for: in d.value)
+                case .functionDecl(let d):
+                    bindFunctionBody(ref b, through: ref c, for: in d.value)
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void memberM2() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Point", module: 0, file: 0, declIndex: 0 })
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "x", owner: s, file: 0, declIndex: 0, memberIndex: 0, type: prim(.i32), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "on", owner: s, file: 0, declIndex: 0, memberIndex: 1, type: prim(.bool), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "bad", owner: s, file: 0, declIndex: 0, memberIndex: 2, type: prim(.bool), hasDefault: true }))
+    let f = newFunction(ref c, by: FunctionSymbol { name: "m2", module: 0, kind: .method, file: 0, declIndex: 0, memberIndex: 3, owner: s, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "k", at: TextSpan { start: 82, length: 1 }, as: prim(.bool))
+    var b = tcBinder(f, by: s)
+    print("== member m2")
+    switch c.files[0].unit.members[0] {
+        case .structDecl(let sd):
+            switch sd.value.members[3] {
+                case .propertyDecl(let d):
+                    bindGetter(ref b, through: ref c, for: in d.value)
+                case .constructorDecl(let d):
+                    bindConstructor(ref b, through: ref c, for: in d.value)
+                case .functionDecl(let d):
+                    bindFunctionBody(ref b, through: ref c, for: in d.value)
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void memberCopy() {
+    var c = tcSource()
+    let s = newStruct(ref c, by: StructSymbol { name: "Point", module: 0, file: 0, declIndex: 0 })
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "x", owner: s, file: 0, declIndex: 0, memberIndex: 0, type: prim(.i32), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "on", owner: s, file: 0, declIndex: 0, memberIndex: 1, type: prim(.bool), hasDefault: true }))
+    c.structs[s].fields.append(newField(ref c, by: FieldSymbol { name: "bad", owner: s, file: 0, declIndex: 0, memberIndex: 2, type: prim(.bool), hasDefault: true }))
+    let f = newFunction(ref c, by: FunctionSymbol { name: "copy", module: 0, kind: .method, file: 0, declIndex: 0, memberIndex: 8, owner: s, returnType: structTypeOf(s) })
+    var b = tcBinder(f, by: s)
+    print("== member copy")
+    switch c.files[0].unit.members[0] {
+        case .structDecl(let sd):
+            switch sd.value.members[8] {
+                case .propertyDecl(let d):
+                    bindGetter(ref b, through: ref c, for: in d.value)
+                case .constructorDecl(let d):
+                    bindConstructor(ref b, through: ref c, for: in d.value)
+                case .functionDecl(let d):
+                    bindFunctionBody(ref b, through: ref c, for: in d.value)
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void membersAll() {
+    memberTwice()
+    memberBlocky()
+    memberWrong()
+    memberPoint()
+    memberM2()
+    memberCopy()
+}
+void mainBody() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "main", module: 0, kind: .main })
+    var b = tcBinder(f, by: -1)
+    var statements = List<SyntaxRef>()
+    statements.append(SyntaxRef { file: 0, declIndex: 26 })
+    statements.append(SyntaxRef { file: 0, declIndex: 27 })
+    print("== main")
+    bindMain(ref b, through: ref c, for: in statements)
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void ifaceTouch() {
+    var c = tcSource()
+    let i = newInterface(ref c, by: InterfaceSymbol { name: "IShape", module: 0, file: 0, declIndex: 1 })
+    let f = newFunction(ref c, by: FunctionSymbol { name: "touch", module: 0, kind: .method, file: 0, declIndex: 1, memberIndex: 0, iface: i, returnType: prim(.void) })
+    var b = tcBinder(f, by: -1)
+    print("== iface touch")
+    switch c.files[0].unit.members[1] {
+        case .interfaceDecl(let x):
+            switch x.value.members[0] {
+                case .functionDecl(let d):
+                    bindFunctionBody(ref b, through: ref c, for: in d.value)
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    tcFirst(in b)
+    tcBody(ref c, for: f)
+}
+void firstGuarded() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "guarded", module: 0, kind: .function, file: 0, declIndex: 9, memberIndex: -1, owner: -1, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "d", at: TextSpan { start: 537, length: 1 }, as: prim(.bool))
+    var b = tcBinder(f, by: -1)
+    print("== first guarded")
+    switch c.files[0].unit.members[9] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcFirst(in b)
+}
+void casePlain() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "test", module: 0, kind: .testKeyword })
+    var b = tcBinder(f, by: -1)
+    print("== test plain")
+    bindTest(ref b, through: ref c, for: TestBody { decl: SyntaxRef { file: 0, declIndex: 21 }, hasValues: false, caseArgument: SyntaxRef {} })
+    tcBody(ref c, for: f)
+}
+void caseCased() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "test", module: 0, kind: .testKeyword })
+    var b = tcBinder(f, by: -1)
+    print("== test cased")
+    bindTest(ref b, through: ref c, for: TestBody { decl: SyntaxRef { file: 0, declIndex: 22 }, hasValues: true, caseArgument: SyntaxRef { file: 0, declIndex: 22, memberIndex: 0, itemIndex: 0 } })
+    tcBody(ref c, for: f)
+}
+void caseDup() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "test", module: 0, kind: .testKeyword })
+    var b = tcBinder(f, by: -1)
+    print("== test dup")
+    bindTest(ref b, through: ref c, for: TestBody { decl: SyntaxRef { file: 0, declIndex: 23 }, hasValues: true, caseArgument: SyntaxRef { file: 0, declIndex: 23, memberIndex: 0, itemIndex: 0 } })
+    tcBody(ref c, for: f)
+}
+void caseMism() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "test", module: 0, kind: .testKeyword })
+    var b = tcBinder(f, by: -1)
+    print("== test mism")
+    bindTest(ref b, through: ref c, for: TestBody { decl: SyntaxRef { file: 0, declIndex: 24 }, hasValues: true, caseArgument: SyntaxRef { file: 0, declIndex: 24, memberIndex: 0, itemIndex: 0 } })
+    tcBody(ref c, for: f)
+}
+void caseLone() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "test", module: 0, kind: .testKeyword })
+    var b = tcBinder(f, by: -1)
+    print("== test lone")
+    bindTest(ref b, through: ref c, for: TestBody { decl: SyntaxRef { file: 0, declIndex: 25 }, hasValues: true, caseArgument: SyntaxRef { file: 0, declIndex: 25, memberIndex: 0, itemIndex: 0 } })
+    tcBody(ref c, for: f)
+}
+void defaultsAll() {
+    var c = tcSource()
+    print("== defaults")
+    var mark = 0
+    let s = newStruct(ref c, by: StructSymbol { name: "Point", module: 0, file: 0, declIndex: 0 })
+    {
+    let f = newFunction(ref c, by: FunctionSymbol { name: "defaults", module: 0, kind: .function, file: 0, declIndex: 10, memberIndex: -1, owner: -1, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "x", at: TextSpan { start: 586, length: 1 }, as: prim(.i32))
+    tcParam(ref c, for: f, by: "y", at: TextSpan { start: 597, length: 1 }, as: prim(.i32))
+    var ps = List<LocalId>()
+    for p in c.functions[f].parameters { ps.append(p) }
+    for p in ps {
+        var b = tcBinder(-1, by: -1)
+        print($"parameter defaults {c.locals[p].name}")
+        tcDump(ref c, for: bindParameterDefault(ref b, through: ref c, for: p), at: 0)
+        tcDiags(in c, from: mark)
+        mark = c.diagnostics.length
+    }
+    }
+    {
+    let f = newFunction(ref c, by: FunctionSymbol { name: "negs", module: 0, kind: .function, file: 0, declIndex: 11, memberIndex: -1, owner: -1, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "r", at: TextSpan { start: 625, length: 1 }, as: prim(.char))
+    tcParam(ref c, for: f, by: "d", at: TextSpan { start: 638, length: 1 }, as: prim(.f64))
+    tcParam(ref c, for: f, by: "t", at: TextSpan { start: 654, length: 1 }, as: prim(.string))
+    var ps = List<LocalId>()
+    for p in c.functions[f].parameters { ps.append(p) }
+    for p in ps {
+        var b = tcBinder(-1, by: -1)
+        print($"parameter negs {c.locals[p].name}")
+        tcDump(ref c, for: bindParameterDefault(ref b, through: ref c, for: p), at: 0)
+        tcDiags(in c, from: mark)
+        mark = c.diagnostics.length
+    }
+    }
+    {
+    let f = newFunction(ref c, by: FunctionSymbol { name: "Point", module: 0, kind: .constructor, file: 0, declIndex: 0, memberIndex: 7, owner: s, returnType: structTypeOf(s) })
+    tcParam(ref c, for: f, by: "a", at: TextSpan { start: 186, length: 1 }, as: prim(.i32))
+    tcParam(ref c, for: f, by: "b", at: TextSpan { start: 197, length: 1 }, as: prim(.i32))
+    var ps = List<LocalId>()
+    for p in c.functions[f].parameters { ps.append(p) }
+    for p in ps {
+        var b = tcBinder(-1, by: s)
+        print($"parameter Point {c.locals[p].name}")
+        tcDump(ref c, for: bindParameterDefault(ref b, through: ref c, for: p), at: 0)
+        tcDiags(in c, from: mark)
+        mark = c.diagnostics.length
+    }
+    }
+    {
+    let f = newFunction(ref c, by: FunctionSymbol { name: "m2", module: 0, kind: .method, file: 0, declIndex: 0, memberIndex: 3, owner: s, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "k", at: TextSpan { start: 82, length: 1 }, as: prim(.bool))
+    var ps = List<LocalId>()
+    for p in c.functions[f].parameters { ps.append(p) }
+    for p in ps {
+        var b = tcBinder(-1, by: s)
+        print($"parameter m2 {c.locals[p].name}")
+        tcDump(ref c, for: bindParameterDefault(ref b, through: ref c, for: p), at: 0)
+        tcDiags(in c, from: mark)
+        mark = c.diagnostics.length
+    }
+    }
+    {
+    let x = newField(ref c, by: FieldSymbol { name: "x", owner: s, file: 0, declIndex: 0, memberIndex: 0, type: prim(.i32), hasDefault: true })
+    var b = tcBinder(-1, by: s)
+    print("field x")
+    tcDump(ref c, for: bindFieldDefault(ref b, through: ref c, for: x), at: 0)
+    tcDiags(in c, from: mark)
+    mark = c.diagnostics.length
+    }
+    {
+    let x = newField(ref c, by: FieldSymbol { name: "on", owner: s, file: 0, declIndex: 0, memberIndex: 1, type: prim(.bool), hasDefault: true })
+    var b = tcBinder(-1, by: s)
+    print("field on")
+    tcDump(ref c, for: bindFieldDefault(ref b, through: ref c, for: x), at: 0)
+    tcDiags(in c, from: mark)
+    mark = c.diagnostics.length
+    }
+    {
+    let x = newField(ref c, by: FieldSymbol { name: "bad", owner: s, file: 0, declIndex: 0, memberIndex: 2, type: prim(.bool), hasDefault: true })
+    var b = tcBinder(-1, by: s)
+    print("field bad")
+    tcDump(ref c, for: bindFieldDefault(ref b, through: ref c, for: x), at: 0)
+    tcDiags(in c, from: mark)
+    mark = c.diagnostics.length
+    }
+}
+void constK() {
+    var c = tcSource()
+    let k = newConst(ref c, by: ConstSymbol { name: "K", module: 0, file: 0, declIndex: 13 })
+    var b = tcBinder(-1, by: -1)
+    print("== const K")
+    bindModuleConstant(ref b, through: ref c, for: k)
+    var value = "-"
+    if (c.consts[k].value is { } v) { value = constantText(in v) }
+    print($"const {c.consts[k].name} {typeDisplay(ref c, by: c.consts[k].type)} value {value} static {c.consts[k].isStaticArray} elements {c.consts[k].elements.length}")
+    tcDump(ref c, for: c.consts[k].bound, at: 0)
+    tcDiags(in c, from: 0)
+}
+void constS() {
+    var c = tcSource()
+    let k = newConst(ref c, by: ConstSymbol { name: "S", module: 0, file: 0, declIndex: 14 })
+    var b = tcBinder(-1, by: -1)
+    print("== const S")
+    bindModuleConstant(ref b, through: ref c, for: k)
+    var value = "-"
+    if (c.consts[k].value is { } v) { value = constantText(in v) }
+    print($"const {c.consts[k].name} {typeDisplay(ref c, by: c.consts[k].type)} value {value} static {c.consts[k].isStaticArray} elements {c.consts[k].elements.length}")
+    tcDump(ref c, for: c.consts[k].bound, at: 0)
+    tcDiags(in c, from: 0)
+}
+void constW() {
+    var c = tcSource()
+    let k = newConst(ref c, by: ConstSymbol { name: "W", module: 0, file: 0, declIndex: 15 })
+    var b = tcBinder(-1, by: -1)
+    print("== const W")
+    bindModuleConstant(ref b, through: ref c, for: k)
+    var value = "-"
+    if (c.consts[k].value is { } v) { value = constantText(in v) }
+    print($"const {c.consts[k].name} {typeDisplay(ref c, by: c.consts[k].type)} value {value} static {c.consts[k].isStaticArray} elements {c.consts[k].elements.length}")
+    tcDump(ref c, for: c.consts[k].bound, at: 0)
+    tcDiags(in c, from: 0)
+}
+void constM() {
+    var c = tcSource()
+    let k = newConst(ref c, by: ConstSymbol { name: "M", module: 0, file: 0, declIndex: 16 })
+    var b = tcBinder(-1, by: -1)
+    print("== const M")
+    bindModuleConstant(ref b, through: ref c, for: k)
+    var value = "-"
+    if (c.consts[k].value is { } v) { value = constantText(in v) }
+    print($"const {c.consts[k].name} {typeDisplay(ref c, by: c.consts[k].type)} value {value} static {c.consts[k].isStaticArray} elements {c.consts[k].elements.length}")
+    tcDump(ref c, for: c.consts[k].bound, at: 0)
+    tcDiags(in c, from: 0)
+}
+void constSA() {
+    var c = tcSource()
+    let k = newConst(ref c, by: ConstSymbol { name: "SA", module: 0, file: 0, declIndex: 17 })
+    var b = tcBinder(-1, by: -1)
+    print("== const SA")
+    bindModuleConstant(ref b, through: ref c, for: k)
+    var value = "-"
+    if (c.consts[k].value is { } v) { value = constantText(in v) }
+    print($"const {c.consts[k].name} {typeDisplay(ref c, by: c.consts[k].type)} value {value} static {c.consts[k].isStaticArray} elements {c.consts[k].elements.length}")
+    tcDump(ref c, for: c.consts[k].bound, at: 0)
+    tcDiags(in c, from: 0)
+}
+void constantsAll() {
+    constK()
+    constS()
+    constW()
+    constM()
+    constSA()
+}
+void sizesAll() {
+    var c = tcSource()
+    print("== sizes")
+    var mark = 0
+    switch c.files[0].unit.members[17] {
+        case .globalStatement(let g):
+            switch g.value.statement {
+                case .localDecl(let d):
+                    switch d.value.type {
+                        case .arrayType(let a):
+                            var b = tcBinder(-1, by: -1)
+                            print($"size SA {bindArraySize(ref b, through: ref c, for: in a.value.size)}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    switch c.files[0].unit.members[18] {
+        case .globalStatement(let g):
+            switch g.value.statement {
+                case .localDecl(let d):
+                    switch d.value.type {
+                        case .arrayType(let a):
+                            var b = tcBinder(-1, by: -1)
+                            print($"size SB {bindArraySize(ref b, through: ref c, for: in a.value.size)}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    switch c.files[0].unit.members[19] {
+        case .globalStatement(let g):
+            switch g.value.statement {
+                case .localDecl(let d):
+                    switch d.value.type {
+                        case .arrayType(let a):
+                            var b = tcBinder(-1, by: -1)
+                            print($"size SC {bindArraySize(ref b, through: ref c, for: in a.value.size)}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    switch c.files[0].unit.members[20] {
+        case .globalStatement(let g):
+            switch g.value.statement {
+                case .localDecl(let d):
+                    switch d.value.type {
+                        case .arrayType(let a):
+                            var b = tcBinder(-1, by: -1)
+                            print($"size SE {bindArraySize(ref b, through: ref c, for: in a.value.size)}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+}
+void bodyNobody() {
+    var c = tcCtx("void nobody()\n\nvoid other() {\n}\n")
+    let f = newFunction(ref c, by: FunctionSymbol { name: "nobody", module: 0, file: 0, declIndex: 0 })
+    var b = tcBinder(f, by: -1)
+    print("== body nobody")
+    switch c.files[0].unit.members[0] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcBody(ref c, for: f)
+}
+i32 main() {
+    holdAll()
+    scopesAll()
+    resolveAll()
+    bodiesAll()
+    membersAll()
+    mainBody()
+    ifaceTouch()
+    firstGuarded()
+    casePlain()
+    caseCased()
+    caseDup()
+    caseMism()
+    caseLone()
+    defaultsAll()
+    constantsAll()
+    sizesAll()
+    bodyNobody()
+    return 0
+}

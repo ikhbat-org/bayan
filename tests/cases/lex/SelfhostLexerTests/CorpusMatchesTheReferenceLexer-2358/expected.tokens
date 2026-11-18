@@ -1,0 +1,155 @@
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 StringLiteral `$"{<"`
+1:57 OpenBrace `{`
+1:58 Identifier `x`
+1:59 CloseBrace `}`
+1:60 StringLiteral `"}"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q escape"`
+3:1 Identifier `ent`
+3:7 Identifier `hidden`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+6:1 Identifier `ent`
+6:7 Identifier `hidden`
+7:1 Identifier `lt`
+7:4 Identifier `x`
+7:7 Equals `=`
+7:9 IntegerLiteral `1`
+8:1 StringLiteral `"text"`
+8:8 StringLiteral `"esc \"q\" \\ \n"`
+8:26 RawStringLiteral `"""\nstruct unique union enum flags open extensible interface delegate extension derivation attribute\n`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{<"{x}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\u{E}`
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{<"{x}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │                                             ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{<"{x}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │                                                    ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{<"{x}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │                                                                                      ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ ent � hidden
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ ent � hidden
+    │   │     -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ ent � hidden
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ ent � hidden
+    │   │     -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │ lt x� = 1
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ lt x� = 1
+    │   │     -
+
+error BYN0003: unterminated string literal
+
+  8 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

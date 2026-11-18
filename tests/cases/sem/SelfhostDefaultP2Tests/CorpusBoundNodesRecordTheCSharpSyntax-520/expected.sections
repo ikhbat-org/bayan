@@ -1,0 +1,4 @@
+== tests/cases/diag/function-type-uses-fails-display.byn
+12..70 blockStmt
+18..68 localDecl
+67..68 literalExpr integer

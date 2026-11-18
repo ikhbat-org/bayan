@@ -1,0 +1,59 @@
+2:1 Identifier `b`
+3:2 Identifier `Å`
+3:6 Identifier `et`
+3:9 Identifier `x`
+3:12 Equals `=`
+3:13 IntegerLiteral `1`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:10 Percent `%`
+4:12 PlusPercent `+%`
+4:15 MinusPercent `-%`
+4:18 StarPercent `*%`
+4:21 PlusBar `+|`
+4:24 MinusBar `-|`
+4:27 StarBar `*|`
+4:30 PlusPlus `++`
+4:33 MinusMinus `--`
+5:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │  Å ��� et x� =1
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  Å ��� et x� =1
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │  Å ��� et x� =1
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │  Å ��� et x� =1
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  Å ��� et x� =1
+    │      ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │  Å ��� et x� =1
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  Å ��� et x� =1
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ + - * / �% +% -% *% +| -| *| ++ --
+    │         ^

@@ -1,0 +1,48 @@
+1:1 OpenParen `(`
+1:2 Identifier `Å`
+3:1 LetKeyword `let`
+3:5 Identifier `ef`
+3:7 Tilde `~`
+3:8 Identifier `ect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+5:3 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ (Å
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ (Å
+    │   │  +
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  2 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ ���
+    │    ^

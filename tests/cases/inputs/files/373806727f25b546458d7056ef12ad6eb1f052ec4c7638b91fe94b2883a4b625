@@ -1,0 +1,6 @@
+i64 twice(i64 x) {
+    let f: (i64 -> i64) = (y) => y * 2
+    return f(x)
+}
+
+i64 ten() => 10

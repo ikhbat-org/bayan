@@ -1,0 +1,133 @@
+1:1 Slash `/`
+1:3 Identifier `comme`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 Identifier `x`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 InterpolationEnd `}`
+1:58 InterpolatedStringEnd `"`
+1:59 InterpolationEnd `}`
+1:60 InterpolatedStringEnd `"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:68 InterpolatedStringStart `$"`
+1:70 InterpolationStart `{`
+1:71 InterpolatedStringStart `$"`
+1:73 InterpolationStart `{`
+1:74 InterpolatedStringStart `$"`
+1:76 InterpolationStart `{`
+1:77 InterpolatedStringStart `$"`
+1:79 InterpolationStart `{`
+1:80 InterpolatedStringStart `$"`
+1:82 InterpolationStart `{`
+1:83 InterpolatedStringStart `$"`
+1:85 InterpolationStart `{`
+1:86 InterpolatedStringStart `$"`
+1:88 InterpolationStart `{`
+1:89 StringLiteral `$"{$"`
+1:94 OpenBrace `{`
+1:95 StringLiteral `$"{$"`
+1:100 OpenBrace `{`
+1:101 StringLiteral `$"{$"`
+1:106 OpenBrace `{`
+1:107 StringLiteral `$"{$"`
+1:112 OpenBrace `{`
+1:113 Identifier `x`
+1:114 CloseBrace `}`
+1:115 StringLiteral `" let b + ` 2`
+2:2 LetKeyword `let`
+2:6 Identifier `b`
+2:8 Equals `=`
+2:12 IntegerLiteral `2`
+4:4 Identifier `comment`
+4:12 Star `*`
+4:13 Slash `/`
+4:15 Identifier `a`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ / comme $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" let b + ` 2
+    │                                                                                      ^^ this
+    │                                                                                         string
+    │                                                                                         never
+    │                                                                                         ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ / comme $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" let b + ` 2
+    │                                                                                         ^^
+
+error BYN0003: unterminated string literal
+
+  1 │ / comme $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" let b + ` 2
+    │                                                                                                                   ^^^^^^^^^^^^^ string
+    │                                                                                                                                 ends
+    │                                                                                                                                 at
+    │                                                                                                                                 the
+    │                                                                                                                                 end
+    │                                                                                                                                 of
+    │                                                                                                                                 the
+    │                                                                                                                                 line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character ```
+
+  2 │  let b = ` 2
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │  ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │  ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  ����
+    │     ^

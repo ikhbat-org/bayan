@@ -1,0 +1,64 @@
+== tests/cases/run/path-combine.byn
+234..252 callExpr
+234..252 callExpr
+234..252 callExpr
+247..248 nameExpr
+250..251 nameExpr
+254..422 globalStatement
+254..422 localDecl
+266..422 collectionExpr
+267..278 tupleExpr
+268..272 literalExpr string
+274..277 literalExpr string
+280..292 tupleExpr
+281..286 literalExpr string
+288..291 literalExpr string
+294..304 tupleExpr
+295..298 literalExpr string
+300..303 literalExpr string
+306..318 tupleExpr
+307..311 literalExpr string
+313..317 literalExpr string
+320..329 tupleExpr
+321..323 literalExpr string
+325..328 literalExpr string
+331..340 tupleExpr
+332..335 literalExpr string
+337..339 literalExpr string
+342..350 tupleExpr
+343..345 literalExpr string
+347..349 literalExpr string
+352..362 tupleExpr
+353..356 literalExpr string
+358..361 literalExpr string
+364..376 tupleExpr
+365..370 literalExpr string
+372..375 literalExpr string
+378..391 tupleExpr
+379..383 literalExpr string
+385..390 literalExpr string
+393..406 tupleExpr
+394..397 literalExpr string
+399..405 literalExpr string
+408..421 tupleExpr
+409..414 literalExpr string
+416..420 literalExpr string
+423..494 forStmt
+437..442 nameExpr
+443..494 blockStmt
+428..429 name
+428..429 name
+428..429 name
+431..432 name
+431..432 name
+431..432 name
+443..494 blockStmt
+449..492 exprStmt
+449..492 callExpr
+455..491 interpolatedExpr
+459..460 nameExpr
+465..466 nameExpr
+474..488 callExpr
+479..480 nameExpr
+486..487 nameExpr
+449..492 callExpr

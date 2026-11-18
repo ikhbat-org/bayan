@@ -1,0 +1,101 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 Identifier `fore`
+1:38 Identifier `ch`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+3:1 Identifier `tray`
+3:6 CloseBrace `}`
+3:8 Identifier `here`
+3:12 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolationStart `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolationStart `{`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolationStart `{`
+5:29 InterpolatedStringStart `$"`
+5:31 InterpolationStart `{`
+5:32 InterpolatedStringStart `$"`
+5:34 InterpolationStart `{`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolationStart `{`
+5:38 InterpolatedStringStart `$"`
+5:40 InterpolationStart `{`
+5:41 InterpolatedStringStart `$"`
+5:43 InterpolationStart `{`
+5:44 InterpolatedStringStart `$"`
+5:46 InterpolationStart `{`
+5:47 StringLiteral `$"{$"`
+5:52 OpenBrace `{`
+5:53 StringLiteral `$"{x}"`
+5:59 CloseBrace `}`
+5:60 StringLiteral `"}"`
+5:63 InterpolationEnd `}`
+5:64 InterpolatedStringEnd `"`
+5:65 InterpolationEnd `}`
+5:66 InterpolatedStringEnd `"`
+5:67 InterpolationEnd `}`
+5:68 InterpolatedStringEnd `"`
+5:69 InterpolationEnd `}`
+5:70 InterpolatedStringEnd `"`
+5:72 CharLiteral `'x`
+7:2 EndOfFile
+
+error BYN0002: unexpected character `\u{3}`
+
+  1 │ test assert property fuzz model fore�ch new goto
+    │                                     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ tray } here"
+    │            ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 'x
+    │                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 'x
+    │                                               ^^
+
+error BYN0008: unterminated char literal
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 'x
+    │                                                                        ^^
+    │
+  help: close it with `'`

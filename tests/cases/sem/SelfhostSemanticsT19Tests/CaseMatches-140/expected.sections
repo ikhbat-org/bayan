@@ -1,0 +1,4 @@
+== bind.probes.c4
+flags 0
+errorExpr:?[3634:18]=-()
+BYN2217 191:14 cannot infer the type of `null` |||

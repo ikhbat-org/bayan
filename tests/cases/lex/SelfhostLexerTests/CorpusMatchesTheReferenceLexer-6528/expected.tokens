@@ -1,0 +1,111 @@
+3:1 FailsKeyword `fails`
+3:7 TryKeyword `try`
+3:11 CatchKeyword `catch`
+3:17 NeverKeyword `never`
+3:23 NoallocKeyword `noalloc`
+3:31 NosuspendKeyword `nosuspend`
+3:41 SuspendsKeyword `suspends`
+3:50 AsyncKeyword `async`
+3:56 AwaitKeyword `await`
+5:1 StringLiteral `"{ let � = 2`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 Identifier `x`
+7:51 StringLiteral `$"open {x"`
+7:61 Semicolon `;`
+8:2 IntegerLiteral `0b__`
+10:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0003: unterminated string literal
+
+  5 │ "{ let � = 2
+    │ ^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │ "{ let � = 2
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  6 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  6 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  �����
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x $"open {x";
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x $"open {x";
+    │                                                   ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  8 │  0b__
+    │  ^^^^

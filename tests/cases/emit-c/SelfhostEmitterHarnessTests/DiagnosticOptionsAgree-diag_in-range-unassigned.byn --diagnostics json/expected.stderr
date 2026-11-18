@@ -1,0 +1,1 @@
+{"code":"BYN2102","severity":"error","file":"input.byn","span":{"start":40,"end":42,"line":3,"column":19,"endLine":3,"endColumn":21},"message":"`hi` is used before it is assigned","label":"declared without a value on line 1","help":"assign it on every path before this, or give the declaration a value","fixes":[]}

@@ -1,0 +1,193 @@
+import lexer
+import parser
+
+const world: string = "struct Point {\n    i32 x = 1\n    i32 y = 2\n}\n\nstruct Fmt {\n    i32 v\n\n    public void formatInto(ref StrBuf sb) {\n    }\n}\n\nstruct FmtSpec {\n    i32 v\n\n    public void formatInto(ref StrBuf sb, as FormatSpec spec) {\n    }\n}\n\nstruct Holder {\n    List<Point> xs\n}\n\nstruct Holder2 {\n    List<i64> ys\n}\n\nstruct Fl {\n    f64 v\n}\n\nstruct Plain {\n    i32 a\n    string s\n}\n\nunion Bag {\n    full(List<Point> xs)\n    empty\n}\n\nunion Tree {\n    leaf\n    node(Owned<Tree> next)\n}\n\nenum Color {\n    red\n    green\n}\n\nvoid nothing() {\n}\n\ni64 inc(i64 x) => x + 1\n\nvoid probes(i64 n, i32 a, f64 f, string str, rune ch, bool flag, List<i64> xs, i64[3] arr, Span<i64> sp, Point p, Fmt fm, FmtSpec fs, Holder h, Plain pl, Bag bag, List<Point> lp, Owned<Point> op, ref i64 rn, Map<string, i64> m, Holder2 h2, Fl fl) {\n    var vv: i64 = 1\n    let k: i64 = 7\n    let c1 = [1, 2, 3]\n    let c2: List<i64> = [1, 2]\n    let c3: List<i64> = []\n    let c4 = []\n    let c5: i64[3] = [1, 2]\n    let c6: i64[3] = [1, 2, 3]\n    let c7: List<i64> = [..xs, 4]\n    let c8: i64[4] = [..arr, 4]\n    let c9: i64[4] = [..xs, 4]\n    let c10: Span<i64> = [..sp]\n    let c11: List<i64>? = [1]\n    let c12: string = [1]\n    let c13: Nope = [1]\n    let c14 = [null, 1]\n    let c15 = [nothing(), 1]\n    let c16 = [nope, 1]\n    let c17 = [inc, inc]\n    let c18 = [..arr, 4]\n    let c19 = [..xs]\n    let c20: List<i64> = [..n]\n    let c21: List<i64> = [..lp]\n    let c22: List<Point> = [..lp]\n    let c23: List<i64> = [..nope]\n    let c24: List<i64> = [\"a\"]\n    let c25: Map<string, i64> = []\n    let c26 = [1, \"a\"]\n    let c27: List<string> = [..xs]\n    let c28: Span<i64> = [1, 2]\n    let c29 = [..n]\n    let c30: List<i64> = [1, ..xs, 2]\n    let m1 = [\"a\": 1, \"b\": 2]\n    let m2: Map<string, i64> = [\"a\": 1]\n    let m3: Map<string, i64>? = [\"a\": 1]\n    let m4 = [\"a\": 1, 2]\n    let m5 = [1, \"a\": 2]\n    let m6: List<i64> = [\"a\": 1]\n    let m7 = [nope: 1, \"b\": 2]\n    let m8 = [f: 1]\n    let m9 = [p: 1]\n    let m10 = [\"a\": null]\n    let m11 = [\"a\": inc]\n    let m12: Map<string, i64> = [\"a\": \"b\"]\n    let m13 = [\"a\": 1, \"b\": \"c\"]\n    let m14: Nope = [\"a\": 1]\n    let m15 = [..xs, \"a\": 1]\n    let m16 = [\"a\": nothing()]\n    let m17 = [fl: 1]\n    let t1 = (1, \"a\")\n    let t2: (i64, string) = (1, \"a\")\n    let t3: (i64 x, i64 y) = (x: 1, z: 2)\n    let t4: (i64, i64)? = (1, 2)\n    let t5: (i64, i64) = (1, 2, 3)\n    let t6 = (null, 1)\n    let t7 = (nope, 1)\n    let t8: Nope = (1, 2)\n    let t9 = (inc, inc)\n    let t10 = (a: 1, b: str)\n    let t11: (i64, string) = (1, 2)\n    let t12 = (nothing(), 1)\n    let l1: i64 -> i64 = x => x + 1\n    let l2 = x => x\n    let l3: i64 -> i64 = (x, y) => x\n    let l4: (i64, i64) -> i64 = x => x\n    let l5: (i64, i64, i64) -> i64 = x => x\n    let l6: i64 -> i64 = x => x + k\n    let l7: i64 -> i64 = x => x + vv\n    let l8: i64 -> i64 = x => x + rn\n    let l9: i64 -> i64 = x => x + n + k + n\n    let l10: i64 -> (i64 -> i64) = x => y => x + y + k\n    let l11: i64 -> i64 = x => { return x }\n    let l12: i64? = x => x\n    let l13: (i64 -> i64)? = x => x\n    let l14: () -> i64 = () => k\n    let l15: i64 -> i64 = n => n\n    let l16: i64 -> i64 = x => a\n    let s1 = stackalloc i64[4]\n    let s2 = stackalloc i64[0]\n    let s3 = stackalloc i64[2000000]\n    let s4 = stackalloc i64[n]\n    let s5 = stackalloc Nope[4]\n    let s6 = stackalloc i64[nope]\n    let s7 = stackalloc u8[1048576]\n    let s8 = stackalloc i64[-1]\n    let i1 = $\"a{n}b\"\n    let i2 = $\"{p}\"\n    let i3 = $\"{p, as: .debug}\"\n    let i4 = $\"{xs}\"\n    let i5 = $\"{lp}\"\n    let i6 = $\"{n, as: .hex}\"\n    let i7 = $\"{n, as: .binary}\"\n    let i8 = $\"{n, as: .octal}\"\n    let i9 = $\"{n, as: .decimal}\"\n    let i10 = $\"{f, as: .hex}\"\n    let i11 = $\"{n, width: 8}\"\n    let i12 = $\"{n, width: 2000}\"\n    let i13 = $\"{n, width: n}\"\n    let i14 = $\"{f, digits: 3}\"\n    let i15 = $\"{n, digits: 3}\"\n    let i16 = $\"{f, digits: 20}\"\n    let i17 = $\"{n, fill: '0'}\"\n    let i18 = $\"{n, fill: ch}\"\n    let i19 = $\"{n, align: .start}\"\n    let i20 = $\"{n, align: .end}\"\n    let i21 = $\"{n, align: .center}\"\n    let i22 = $\"{n, align: .left}\"\n    let i23 = $\"{n, align: 3}\"\n    let i24 = $\"{n, width: 1, width: 2}\"\n    let i25 = $\"{n, bogus: 1}\"\n    let i26 = $\"{n, as: .nope}\"\n    let i27 = $\"{fm}\"\n    let i28 = $\"{fs, as: .hex}\"\n    let i29 = $\"{fm, as: .hex}\"\n    let i30 = $\"{h, as: .debug}\"\n    let i31 = $\"{pl, as: .debug}\"\n    let i32v = $\"{bag}\"\n    let i33 = $\"{nope}\"\n    let i34 = $\"{nope, width: 3}\"\n    let i35 = $\"{op}\"\n    let i36 = $\"{nothing()}\"\n    let i37 = $\"{fs, digits: 2}\"\n    let i38 = $\"{n, width: \"a\"}\"\n    let i39 = $\"{n, fill: 1}\"\n    let i40 = $\"{fs, as: .debug}\"\n    let i41 = $\"{n, width: -1}\"\n    let i42 = $\"{f, digits: f}\"\n    let i43 = $\"{m}\"\n    let i44 = $\"x{n, width: 4, fill: '*', align: .end}y{str}\"\n    let i45 = $\"{h2, as: .debug}\"\n    let w1: i64 = 0\n    let w2: void = 0\n    let w3: Point = 0\n    let w4: Fmt = 0\n    let w5: List<i64> = 0\n    let w6: List<Point> = 0\n    let w7: Map<string, Point> = 0\n    let w8: Map<Point, i64> = 0\n    let w9: Map<string, i64> = 0\n    let w10: (i64, Point) = 0\n    let w11: (i64, string) = 0\n    let w12: Point? = 0\n    let w13: Owned<Point> = 0\n    let w14: Bag = 0\n    let w15: Tree = 0\n    let w16: Color = 0\n    let w17: Symbol = 0\n    let w18: StrBuf = 0\n    let w19: i64[2] = 0\n    let w20: Span<Point> = 0\n    let w21: Result<Point, Color> = 0\n    let w22: i64 -> i64 = 0\n    let w23: never = 0\n    let w24: ReadOnlySpan<i64> = 0\n    let w25: string? = 0\n    let p1: i64 = 0\n    let p2: i64 = 0\n    let p3: i64 = 0\n    let n1: i64 -> i64 = x => x\n}\n"
+
+string tcConst(in Ctx c, for BExpr e) {
+    if (exprConstant(in c, for: e) is { } k) { return constantText(in k) }
+    return "-"
+}
+
+string tcJoin(ref Ctx c, for List<BExpr> xs) {
+    var sb = StrBuf()
+    for i in 0..xs.length {
+        if i > 0 { sb.append(" ") }
+        sb.append(tcDump(ref c, for: xs[i]))
+    }
+    return $"{sb.finish()}"
+}
+
+string tcPart(ref Ctx c, for BInterpolationPart p) {
+    if (p.text is { } t) { return $"t:{t}" }
+    var spec = ""
+    if (p.spec is { } s) { spec = $"/{s.radix},{s.debug},{s.width},{s.fill},{s.align},{s.digits}" }
+    return $"v:{tcDump(ref c, for: p.value)}{spec}"
+}
+
+string tcLambda(ref Ctx c, for i64 i) {
+    let f = c.bLambdas[i].lambda
+    var sb = StrBuf()
+    let encl = c.functions[f].enclosing == -1 ? "" : c.functions[c.functions[f].enclosing].name
+    sb.append($"{c.functions[f].name} Lambda ret {typeDisplay(ref c, by: c.functions[f].returnType)} fails {c.functions[f].hasFails} encl {encl} params[")
+    for k in 0..c.functions[f].parameters.length {
+        let q = c.functions[f].parameters[k]
+        if k > 0 { sb.append(",") }
+        sb.append($"{c.locals[q].name}:{typeDisplay(ref c, by: c.locals[q].type)}")
+    }
+    sb.append("] capsyms[")
+    for k in 0..c.functions[f].captures.length {
+        if k > 0 { sb.append(",") }
+        sb.append(c.locals[c.functions[f].captures[k]].name)
+    }
+    sb.append("] caps[")
+    for k in 0..c.bLambdas[i].captures.length {
+        if k > 0 { sb.append(",") }
+        sb.append(tcDump(ref c, for: c.bLambdas[i].captures[k]))
+    }
+    let all = listContains(in c.modules[c.functions[f].module].allFunctions, by: f) ? "True" : "False"
+    sb.append($"] all {all}")
+    return $"{sb.finish()}"
+}
+
+string tcDump(ref Ctx c, for BNode e) {
+    if e == -1 { return "null" }
+    let k = boundKind(e)
+    let i = boundIndex(e)
+    let sp = nodeSpan(in c, for: e)
+    let head = $"{k}:{typeDisplay(ref c, by: exprType(in c, for: e))}[{sp.start}:{sp.length}]={tcConst(in c, for: e)}"
+    var kids = ""
+    switch k {
+        case .conversion: kids = $"{c.bConversions[i].kind} {tcDump(ref c, for: c.bConversions[i].operand)}"
+        case .binary: kids = $"{c.bBinaries[i].op} {tcDump(ref c, for: c.bBinaries[i].left)} {tcDump(ref c, for: c.bBinaries[i].right)}"
+        case .collection: kids = tcJoin(ref c, for: copyIds(in c.bCollections[i].elements))
+        case .spread: kids = tcDump(ref c, for: c.bSpreads[i].operand)
+        case .tuple: kids = tcJoin(ref c, for: copyIds(in c.bTuples[i].elements))
+        case .stackalloc: kids = $"{typeDisplay(ref c, by: c.bStackallocs[i].element)} {c.bStackallocs[i].count}"
+        case .interpolated:
+            var sb = StrBuf()
+            for j in 0..c.bInterpolateds[i].parts.length {
+                if j > 0 { sb.append(" ") }
+                let part = c.bInterpolateds[i].parts[j]
+                sb.append(tcPart(ref c, for: part))
+            }
+            kids = $"{sb.finish()}"
+        case .lambda: kids = tcLambda(ref c, for: i)
+        case .local: kids = c.locals[c.bLocals[i].local].name
+        case .literal: kids = constantText(in c.bLiterals[i].value)
+        default: {}
+    }
+    return $"{head}({kids})"
+}
+
+void tcDiags(ref Ctx c, from i64 start) {
+    for i in start..c.diagnostics.length {
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        let fixText = c.diagnostics[i].hasFix ? $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" : ""
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fixText}")
+    }
+}
+
+void runInit(ref Binder b, through ref Ctx c, for in parser.Expr init, from in parser.TypeSyntax declType, by string op, at string name) {
+    var expected: Type = -1
+    switch declType {
+        case .none: {}
+        default: expected = resolveType(ref b, through: ref c, for: in declType)
+    }
+    if op == "expr" { print(tcDump(ref c, for: bindExpr(ref b, through: ref c, for: in init, to: expected))) }
+    if op == "fmt" {
+        var seen = List<Type>()
+        let why = whyNotFormattable(ref c, for: expected, by: ref seen)
+        print(why is null ? "null" : $"[{why ?? ""}]")
+    }
+    if op == "isf" { print($"{isFormattable(ref c, for: expected)}") }
+    if op == "prop" {
+        let member: BuiltinMember = name == "p1" ? .formatSpecRadix : name == "p2" ? .formatSpecAlign : .formatSpecWidth
+        print(typeDisplay(ref c, by: propertyType(ref b, through: ref c, for: member, as: expected)))
+    }
+    if op == "inl" {
+        let lam = bindExpr(ref b, through: ref c, for: in init, to: expected)
+        let span = parser.exprSpan(in init)
+        print($"{inLambda(ref b, through: ref c, at: span, for: "this", by: "a lambda does not capture `this`")}")
+        b.fn = c.bLambdas[boundIndex(lam)].lambda
+        print($"{inLambda(ref b, through: ref c, at: span, for: "this", by: "a lambda does not capture `this`")}")
+    }
+}
+
+void runCase(ref Ctx c, for string op, from string fnName, by string name) {
+    let file = c.modules[c.entryModule].files[0]
+    var b = Binder {
+        file: file,
+        fn: -1,
+        owner: -1,
+        scopes: [],
+        targets: [],
+        lambdas: [],
+        lambdaCount: [],
+        seeds: [],
+        pending: [],
+        constraints: [],
+        peers: [],
+        nonNullLocals: [],
+        stateFacts: [],
+        errorNarrowed: [],
+    }
+    pushScope(ref b)
+    let start = c.diagnostics.length
+    for i in 0..c.files[file].unit.members.length {
+        switch c.files[file].unit.members[i] {
+            case .functionDecl(let fd):
+                if t18Text(in c, from: file, at: fd.value.name) == fnName {
+                    b.fn = c.modules[c.entryModule].functions[fnName][0]
+                    for p in fd.value.params {
+                        let t = resolveType(ref b, through: ref c, for: in p.type)
+                        let _ = declareLocal(ref b, through: ref c, at: p.name, as: t, for: .parameter)
+                    }
+                    switch fd.value.body {
+                        case .blockStmt(let blk):
+                            var done = false
+                            for s in blk.value.statements {
+                                switch s {
+                                    case .localDecl(let ld):
+                                        let ln = t18Text(in c, from: file, at: ld.value.name)
+                                        if !done && ln == name {
+                                            runInit(ref b, through: ref c, for: in ld.value.init, from: in ld.value.type, by: op, at: name)
+                                            done = true
+                                        }
+                                        if !done && (ln == "vv" || ln == "k") { let _ = bindStatement(ref b, through: ref c, for: in s) }
+                                    default: {}
+                                }
+                            }
+                        default: {}
+                    }
+                }
+            default: {}
+        }
+    }
+    tcDiags(ref c, from: start)
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 2 < args.length {
+        var bytes = List<u8>()
+        for x in world.bytes { bytes.append(x) }
+        var sources = List<lexer.SourceText>()
+        sources.append(lexer.SourceText.create("tmp/t35-cases/main.byn", from: move bytes))
+        var c = Ctx {
+            files: List<SourceFile>(),
+            modules: List<Mod>(),
+            diagnostics: List<Diag>(),
+            bags: List<DiagBag>(),
+            library: true,
+            packageRoot: "tmp/t35-cases",
+            displayRoot: "tmp/t35-cases",
+        }
+        c.entryModule = loadModule(ref c, for: "main", at: "tmp/t35-cases", from: move sources, by: -1)
+        buildLexicon(ref c)
+        declare(ref c)
+        print($"== {args[i]}.{args[i + 1]}.{args[i + 2]}")
+        runCase(ref c, for: args[i], from: args[i + 1], by: args[i + 2])
+        i += 3
+    }
+    return 0
+}

@@ -1,0 +1,2 @@
+== analyzeOwnership.errdeferMove
+BYN2781 121:10 `xs` is used after it was moved |a `defer failing` on line 120 uses it at scope exit|move `xs` before the `defer failing`, or move a `.copy(to: alloc)` of it instead|

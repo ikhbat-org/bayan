@@ -1,0 +1,145 @@
+1:1 DotDot `..`
+1:3 IntegerLiteral `2`
+1:5 IntegerLiteral `1`
+1:6 DotDotEquals `..=`
+1:9 IntegerLiteral `3`
+1:11 IntegerLiteral `5`
+1:12 NumericSuffix `e`
+1:14 Identifier `x`
+1:15 Dot `.`
+1:16 Identifier `y`
+1:18 FloatLiteral `2.5`
+1:21 NumericSuffix `f`
+3:1 Identifier `s`
+4:1 IntegerLiteral `0x_`
+5:1 IntegerLiteral `0b__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF__`
+8:3 LetKeyword `let`
+8:7 Identifier `s`
+8:9 Equals `=`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolationStart `{`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolationStart `{`
+8:17 InterpolatedStringStart `$"`
+8:19 InterpolationStart `{`
+8:20 InterpolatedStringStart `$"`
+8:22 InterpolationStart `{`
+8:23 InterpolatedStringStart `$"`
+8:25 InterpolationStart `{`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolationStart `{`
+8:29 InterpolatedStringStart `$"`
+8:31 InterpolationStart `{`
+8:32 InterpolatedStringStart `$"`
+8:34 InterpolationStart `{`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolationStart `{`
+8:38 InterpolatedStringStart `$"`
+8:40 InterpolationStart `{`
+8:41 InterpolatedStringStart `$"`
+8:43 InterpolationStart `{`
+8:44 InterpolatedStringStart `$"`
+8:46 InterpolationStart `{`
+8:47 InterpolatedStringStart `$"`
+8:49 InterpolationStart `{`
+8:50 InterpolatedStringStart `$"`
+8:52 InterpolationStart `{`
+8:53 InterpolatedStringStart `$"`
+8:55 InterpolationStart `{`
+8:56 InterpolatedStringStart `$"`
+8:58 InterpolationStart `{`
+8:59 StringLiteral `$"{$"`
+8:64 OpenBrace `{`
+8:65 StringLiteral `$"{$"`
+8:70 OpenBrace `{`
+8:71 Identifier `x`
+8:72 CloseBrace `}`
+8:73 StringLiteral `"}"`
+8:76 CloseBrace `}`
+8:77 StringLiteral `"}"`
+8:80 InterpolationEnd `}`
+8:81 InterpolatedStringEnd `"`
+8:82 InterpolationEnd `}`
+8:83 InterpolatedStringEnd `"`
+8:84 InterpolationEnd `}`
+8:85 InterpolatedStringEnd `"`
+8:86 InterpolationEnd `}`
+8:87 InterpolatedStringEnd `"`
+8:88 InterpolationEnd `}`
+8:89 InterpolatedStringEnd `"`
+8:90 InterpolationEnd `}`
+8:91 InterpolatedStringEnd `"`
+8:92 InterpolationEnd `}`
+8:93 InterpolatedStringEnd `"`
+8:94 InterpolationEnd `}`
+8:95 InterpolatedStringEnd `"`
+8:96 InterpolationEnd `}`
+8:97 InterpolatedStringEnd `"`
+8:98 InterpolationEnd `}`
+8:99 InterpolatedStringEnd `"`
+8:100 InterpolationEnd `}`
+8:101 InterpolatedStringEnd `"`
+8:103 InterpolationEnd `}`
+8:104 InterpolatedStringEnd `"`
+8:105 InterpolationEnd `}`
+8:106 InterpolatedStringEnd `"`
+8:107 InterpolationEnd `}`
+8:108 InterpolatedStringEnd `"`
+8:109 InterpolationEnd `}`
+8:110 InterpolatedStringEnd `"`
+8:111 InterpolationEnd `}`
+8:112 InterpolatedStringEnd `"`
+9:3 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  8 │  �let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}"}"
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │  �let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}"}"
+    │   │  -
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │  �let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}"}"
+    │                                                           ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  8 │  �let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}"}"
+    │                                                                                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │  � 
+    │  ^

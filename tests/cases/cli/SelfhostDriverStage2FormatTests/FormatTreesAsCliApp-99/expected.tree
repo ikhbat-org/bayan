@@ -1,0 +1,7 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+// `&&` cannot start a statement, but the lint goes by indentation alone (BYN5103).
+let a = true
+let b = false
+let both = a
+    && b
+print($"{both}")

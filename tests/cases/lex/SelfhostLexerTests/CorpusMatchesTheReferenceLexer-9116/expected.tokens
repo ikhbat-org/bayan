@@ -1,0 +1,112 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 StringLiteral `$"{$"`
+1:60 OpenBrace `{`
+1:61 StringLiteral `$"{x}"`
+1:67 CloseBrace `}`
+1:68 StringLiteral `"}"`
+1:71 CloseBrace `}`
+1:72 StringLiteral `"}"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 InterpolationEnd `}`
+1:88 InterpolatedStringEnd `"`
+1:89 InterpolationEnd `}`
+1:90 InterpolatedStringEnd `"`
+1:91 InterpolationEnd `}`
+1:92 InterpolatedStringEnd `"`
+1:93 InterpolationEnd `}`
+1:94 InterpolatedStringEnd `"`
+1:95 InterpolationEnd `}`
+1:96 InterpolatedStringEnd `"`
+1:97 InterpolationEnd `}`
+1:98 InterpolatedStringEnd `"`
+2:1 ErrorKeyword `error`
+2:7 SetKeyword `set`
+2:11 UnitKeyword `unit`
+2:16 DistinctKeyword `distinct`
+2:25 TypeKeyword `type`
+2:30 ImportKeyword `import`
+2:37 AsKeyword `as`
+2:40 Identifier `publi`
+2:46 Identifier `c`
+2:48 PrivateKeyword `private`
+2:56 StaticKeyword `static`
+2:63 ReadonlyKeyword `readonly`
+2:72 RequiredKeyword `required`
+2:81 ConstKeyword `const`
+2:87 LetKeyword `let`
+2:91 VarKeyword `var`
+2:95 EmbedKeyword `embed`
+2:101 ExternKeyword `extern`
+2:108 UnsafeKeyword `unsafe`
+3:2 StringLiteral `"text"`
+3:9 StringLiteral `"esc \"q\" \\ \n"`
+3:27 RawStringLiteral `"""\n0xF__\n\n1_\n'\u{D800}'\n///\n\n `
+10:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF3)
+
+  2 │ error set unit distinct type import as publi�c private static readonly required const let var embed extern unsafe
+    │                                             ^
+
+error BYN0003: unterminated string literal
+
+  3 │  "text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

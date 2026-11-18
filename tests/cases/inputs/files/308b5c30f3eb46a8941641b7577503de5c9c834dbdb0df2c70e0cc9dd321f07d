@@ -1,0 +1,13 @@
+w goto
+ let b = ` 2
+ fails try catch n=ever noalloc nosuspend suspends async await
+
+í €
+// ok þ in comment
+
+st<i64>>
+a >> b
+c >>= 1
+
+
+

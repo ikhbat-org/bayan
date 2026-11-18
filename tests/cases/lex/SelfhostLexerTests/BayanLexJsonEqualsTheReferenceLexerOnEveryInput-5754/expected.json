@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"IntegerLiteral","start":0,"end":4,"text":"0b10","doc":null},{"kind":"IntegerLiteral","start":5,"end":6,"text":"2","doc":null},{"kind":"EndOfFile","start":7,"end":7,"text":"","doc":null}],"diagnostics":[{"code":"BYN0015","severity":"error","start":4,"end":5,"message":"source is not valid UTF-8 (byte 0x81)","label":null,"help":null,"fixes":[]}]}

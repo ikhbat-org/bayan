@@ -1,0 +1,87 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `total `
+1:9 InterpolationStart `{`
+1:10 Identifier `x`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringEnd `"`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolatedStringText `a `
+1:18 InterpolationStart `{`
+1:19 Identifier `f`
+1:20 OpenParen `(`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolatedStringText `b `
+1:25 InterpolationStart `{`
+1:27 Identifier `c`
+1:28 InterpolationEnd `}`
+1:29 InterpolatedStringEnd `"`
+1:30 CloseParen `)`
+1:31 InterpolationEnd `}`
+1:32 InterpolatedStringText ` d`
+1:34 InterpolatedStringEnd `"`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolatedStringText `{{literal}}`
+1:49 InterpolatedStringEnd `"`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 Identifier `Point`
+1:60 OpenBrace `{`
+1:62 Identifier `x`
+1:64 Equals `=`
+1:66 IntegerLiteral `1`
+1:68 CloseBrace `}`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringText `!`
+1:71 InterpolatedStringEnd `"`
+1:73 InterpolatedStringStart `$"`
+1:75 InterpolatedStringEnd `"`
+3:2 Identifier `pen`
+3:6 OpenBrace `{`
+3:7 Identifier `x`
+3:8 StringLiteral `";`
+4:1 CloseBrace `}`
+4:3 CharLiteral `'\u{110000}'`
+6:1 OpenParen `(`
+6:3 CloseParen `)`
+6:5 OpenBracket `[`
+6:7 CloseBracket `]`
+6:9 OpenBrace `{`
+6:11 CloseBrace `}`
+7:1 RawStringLiteral `""" `
+7:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ $"total {x}" $"a {f($"b {�c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                          ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  3 │ �pen {x";
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ �pen {x";
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  3 │ �pen {x";
+    │        ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │ } '\u{110000}'
+    │    ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  7 │ """ 
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

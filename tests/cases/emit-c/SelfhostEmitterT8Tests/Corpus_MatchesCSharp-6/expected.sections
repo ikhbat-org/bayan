@@ -1,0 +1,17 @@
+== formatinto
+Plain - -
+One formatInto/1 -
+Two formatInto/2 formatInto/2
+Both formatInto/1 formatInto/2
+Wrong - -
+Static - -
+Fails - -
+ByValue - -
+NotBuf - -
+Three - -
+SpecRef - -
+Reverse formatInto/1 formatInto/2
+StaticSpec - -
+FailsSpec - -
+SpecByValue - -
+SpecNotBuf - -

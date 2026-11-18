@@ -1,0 +1,47 @@
+1:2 Identifier `foo`
+1:6 Identifier `Bar`
+1:10 Identifier `_x`
+1:13 Identifier `camelCase2`
+1:24 Identifier `بيان`
+1:29 Identifier `μετρητής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+2:2 Identifier `a`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │   ^
+
+error BYN0004: unterminated block comment
+
+  2 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ��� ( ) [ ] { }
+    │                                                                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ��� ( ) [ ] { }
+    │                                                                                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ��� ( ) [ ] { }
+    │                                                                                   ^

@@ -1,0 +1,3 @@
+== ret
+counts 0 0 1
+BYN3003 1:8 cannot return a borrow of `b`, which is freed when `fa` returns ||let the caller pass the buffer or allocator in, and borrow or allocate from that|

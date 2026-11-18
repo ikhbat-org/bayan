@@ -1,0 +1,18 @@
+error BYN3004: `items` is modified while `d` still borrows it
+  --> <repo>/tmp/t2/diag/this-ref-call-modifies-borrowed-field/this-ref-call-modifies-borrowed-field.byn:31:9
+
+  31 │         clearAll()
+     │         ^^^^^^^^^^ `d` is used again on line 33
+     │
+  help: finish using `d` first, or copy what it needs before changing `items`
+
+error BYN3004: `items` is modified while `d` still borrows it
+  --> <repo>/tmp/t2/diag/this-ref-call-modifies-borrowed-field/this-ref-call-modifies-borrowed-field.byn:32:9
+
+  32 │         reset()
+     │         ^^^^^^^ `d` is used again on line 33
+     │
+  help: finish using `d` first, or copy what it needs before changing `items`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3004

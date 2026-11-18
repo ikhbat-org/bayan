@@ -1,0 +1,10 @@
+== tests/cases/diag/type-parameter-member.byn
+20..28 memberExpr
+20..28 memberExpr
+20..28 memberExpr
+53..65 callExpr
+53..65 callExpr
+53..65 callExpr
+115..126 memberExpr
+115..126 memberExpr
+115..126 memberExpr

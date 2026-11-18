@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ContextStmt",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LambdaExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RangeExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "ArenaNew",
+    "ListAdd",
+    "ListLength",
+    "Print"
+  ],
+  "diagnostics": []
+}

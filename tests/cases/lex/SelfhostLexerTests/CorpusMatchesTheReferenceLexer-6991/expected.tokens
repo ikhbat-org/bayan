@@ -1,0 +1,166 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 StringLiteral `$"{$"`
+1:57 OpenBrace `{`
+1:58 StringLiteral `$"{$"`
+1:63 OpenBrace `{`
+1:64 Identifier `x`
+1:65 CloseBrace `}`
+1:66 StringLiteral `"}"`
+1:69 CloseBrace `}`
+1:70 StringLiteral `"}"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 InterpolationEnd `}`
+1:88 InterpolatedStringEnd `"`
+1:89 InterpolationEnd `}`
+1:90 InterpolatedStringEnd `"`
+1:91 InterpolationEnd `}`
+1:92 InterpolatedStringEnd `"`
+3:1 IntegerLiteral `0x_`
+4:1 LetKeyword `let`
+4:5 EffectKeyword `effect`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
+    doc `/// not a doc comment`
+7:1 Identifier `b`
+9:1 Amp `&`
+9:3 AmpAmp `&&`
+9:6 Bar `|`
+9:8 BarBar `||`
+9:11 Caret `^`
+9:13 Tilde `~`
+9:15 Bang `!`
+9:17 Equals `=`
+9:19 EqualsEquals `==`
+9:22 BangEquals `!=`
+9:25 Less `<`
+9:27 Less `<`
+9:29 Greater `>`
+9:31 GreaterEquals `>=`
+9:34 LessLess `<<`
+9:37 Greater `>`
+9:38 Greater `>`
+9:40 Greater `>`
+9:41 GreaterEquals `>=`
+10:2 InterpolatedStringStart `$"`
+10:4 InterpolatedStringText `total `
+10:10 InterpolationStart `{`
+10:11 Identifier `x`
+10:12 InterpolationEnd `}`
+10:13 InterpolatedStringEnd `"`
+10:15 InterpolatedStringStart `$"`
+10:17 InterpolatedStringText `a `
+10:19 InterpolationStart `{`
+10:20 Identifier `f`
+10:21 OpenParen `(`
+10:22 InterpolatedStringStart `$"`
+10:24 InterpolatedStringText `b `
+10:26 InterpolationStart `{`
+10:27 Identifier `c`
+10:28 InterpolationEnd `}`
+10:29 InterpolatedStringEnd `"`
+10:30 CloseParen `)`
+10:31 InterpolationEnd `}`
+10:32 InterpolatedStringText ` d`
+10:34 InterpolatedStringEnd `"`
+10:36 InterpolatedStringStart `$"`
+10:38 InterpolatedStringText `{{literal}}`
+10:49 InterpolatedStringEnd `"`
+10:51 InterpolatedStringStart `$"`
+10:53 InterpolationStart `{`
+10:54 Identifier `Point`
+10:60 OpenBrace `{`
+10:62 Identifier `x`
+10:64 Equals `=`
+10:66 IntegerLiteral `1`
+10:68 CloseBrace `}`
+10:69 InterpolationEnd `}`
+10:70 InterpolatedStringText `!`
+10:71 InterpolatedStringEnd `"`
+10:73 InterpolatedStringStart `$"`
+10:75 InterpolatedStringEnd `"`
+11:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ 1e $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" // �x
+    │                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ 1e $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" // �x
+    │                                                    ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ 1e $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" // �x
+    │                                                                                                 ^ invisible
+    │                                                                                                   character
+    │                                                                                                   that
+    │                                                                                                   reorders
+    │                                                                                                   how
+    │                                                                                                   the
+    │                                                                                                   text
+    │                                                                                                   displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ 1e $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" // �x
+    │   │                                                                                                 -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x_
+    │ ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x94)
+
+  9 │ & && | || ^ ~ ! = == != < <� > >= << >> >>=
+    │                            ^

@@ -1,0 +1,42 @@
+1:1 Identifier `nt`
+1:4 OpenBrace `{`
+1:6 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+1:12 CloseBrace `}`
+1:13 CloseBrace `}`
+1:14 Bang `!`
+1:15 StringLiteral `" $"`
+1:19 StringLiteral `"`
+3:1 Identifier `pe`
+3:3 StringLiteral `"`
+4:1 Identifier `le`
+4:5 Equals `=`
+4:7 RawStringLiteral `"""never closed\n `
+5:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ nt { x = 1 }}!" $""
+    │                   ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ pe"
+    │   ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{8}`
+
+  4 │ le� = """never closed
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  4 │ le� = """never closed
+    │       ^^^ raw string starts here
+    │
+  help: close it with `"""`

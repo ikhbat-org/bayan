@@ -1,0 +1,16 @@
+== tests/cases/diag/lambda-break-outside-loop.byn
+23..34 blockStmt
+29..32 exprStmt
+29..32 callExpr
+29..30 nameExpr
+48..126 blockStmt
+54..124 forStmt
+63..67 rangeExpr
+63..64 literalExpr integer
+66..67 literalExpr integer
+68..124 blockStmt
+78..118 exprStmt
+78..118 callExpr
+82..87 lambdaExpr
+88..117 blockStmt
+102..102 breakStmt

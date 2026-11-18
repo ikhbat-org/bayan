@@ -1,0 +1,67 @@
+== tests/cases/run/float-format.byn
+0..34 globalStatement
+0..34 localDecl
+17..34 literalExpr floatKeyword
+35..59 localDecl
+55..59 literalExpr floatKeyword
+60..87 localDecl
+80..87 literalExpr floatKeyword
+88..114 localDecl
+105..114 literalExpr floatKeyword
+115..131 localDecl
+128..131 literalExpr floatKeyword
+132..148 localDecl
+145..148 literalExpr floatKeyword
+149..168 localDecl
+165..168 literalExpr floatKeyword
+169..197 localDecl
+193..197 unaryExpr negate operand 194..197
+198..268 exprStmt
+198..268 callExpr
+204..267 interpolatedExpr
+207..212 nameExpr
+215..223 nameExpr
+226..234 nameExpr
+237..242 nameExpr
+245..250 binaryExpr add right 249..250
+245..246 nameExpr
+249..250 nameExpr
+253..265 nameExpr
+198..268 callExpr
+269..319 exprStmt
+269..319 callExpr
+275..318 interpolatedExpr
+278..289 binaryExpr div right 285..289
+278..282 nameExpr
+285..289 nameExpr
+292..302 binaryExpr div right 298..302
+292..295 literalExpr floatKeyword
+298..302 nameExpr
+305..316 binaryExpr div right 312..316
+305..309 unaryExpr negate operand 306..309
+312..316 nameExpr
+269..319 callExpr
+320..373 exprStmt
+320..373 callExpr
+326..372 interpolatedExpr
+329..335 literalExpr floatKeyword
+338..346 unaryExpr negate operand 339..346
+349..353 literalExpr floatKeyword
+356..361 literalExpr floatKeyword
+364..370 literalExpr floatKeyword
+320..373 callExpr
+374..399 localDecl
+392..399 literalExpr floatKeyword
+400..432 localDecl
+423..432 literalExpr floatKeyword
+433..460 localDecl
+456..460 literalExpr floatKeyword
+461..518 exprStmt
+461..518 callExpr
+467..517 interpolatedExpr
+470..476 nameExpr
+479..490 nameExpr
+493..504 nameExpr
+507..515 callExpr
+511..514 literalExpr floatKeyword
+461..518 callExpr

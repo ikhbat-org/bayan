@@ -1,0 +1,18 @@
+error BYN1031: `T!E` is an input form; write `T f() fails E`
+  --> tmp/t26-tests/cli/diag_input-fails-shorthand-optional-generic.byn/input-fails-shorthand-optional-generic.byn:2:4
+
+  2 │ i32!E? f() { return 1 }
+    │    ^^^ the input form
+    │
+  help: write the error types in a `fails` clause, the last clause of the signature
+
+error BYN1031: `T!E` is an input form; write `T f() fails E`
+  --> tmp/t26-tests/cli/diag_input-fails-shorthand-optional-generic.byn/input-fails-shorthand-optional-generic.byn:3:4
+
+  3 │ i32!Result<E> g() { return 1 }
+    │    ^^^^^^^^^^ the input form
+    │
+  help: write the error types in a `fails` clause, the last clause of the signature
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1031

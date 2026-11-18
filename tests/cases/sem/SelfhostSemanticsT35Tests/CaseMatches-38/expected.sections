@@ -1,0 +1,2 @@
+== expr.probes.c22
+collection:List<Point>[1437:6]=-(spread:Point[1438:4]=-(local:List<Point>[1440:2]=-(lp)))

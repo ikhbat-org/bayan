@@ -1,0 +1,48 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `x`
+2:4 InterpolationStart `{`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolationStart `{`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+4:1 Identifier `c`
+4:3 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
+6:1 StringLiteral `"{`
+7:1 TestKeyword `test`
+7:6 AssertKeyword `assert`
+7:13 PropertyKeyword `property`
+7:22 FuzzKeyword `fuzz`
+7:27 ModelKeyword `model`
+7:33 ForeachKeyword `foreach`
+7:41 NewKeyword `new`
+7:45 GotoKeyword `goto`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

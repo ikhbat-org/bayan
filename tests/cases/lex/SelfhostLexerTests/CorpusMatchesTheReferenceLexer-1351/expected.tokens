@@ -1,0 +1,22 @@
+1:1 Identifier `ان`
+1:4 Identifier `μ`
+1:5 Identifier `τρητ`
+1:9 Identifier `ής`
+1:12 Identifier `x_1`
+1:16 Identifier `d`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB5)
+
+  1 │ ان μ�τρητ�ής x_1 d�
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBE)
+
+  1 │ ان μ�τρητ�ής x_1 d�
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  1 │ ان μ�τρητ�ής x_1 d�
+    │                   ^

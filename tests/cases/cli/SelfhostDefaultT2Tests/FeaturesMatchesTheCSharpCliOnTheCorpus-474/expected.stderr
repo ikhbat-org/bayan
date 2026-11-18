@@ -1,0 +1,5 @@
+error BYN2012: constant `first` depends on itself
+  --> <repo>/tests/cases/diag/circular-constant.byn:1:7
+
+  1 │ const first: i64 = second + 1
+    │       ^^^^^

@@ -1,0 +1,60 @@
+1:1 IntegerLiteral `0x_`
+2:1 IntegerLiteral `0b_`
+3:1 IntegerLiteral `1__`
+4:1 IntegerLiteral `0xF__`
+6:1 VarKeyword `var`
+6:5 Identifier `s`
+6:6 Colon `:`
+6:8 Identifier `List`
+6:12 Less `<`
+6:13 Identifier `List`
+6:17 Less `<`
+6:18 Identifier `i64`
+6:21 Greater `>`
+6:22 Greater `>`
+8:2 Identifier `o`
+9:1 Identifier `a`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ 0b_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0xF__
+    │    ^^
+    │
+    │ 4 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  6 │ var �s: List<List<i64>>
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC4)
+
+  8 │ �o
+    │ ^
+
+error BYN0004: unterminated block comment
+
+  9 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

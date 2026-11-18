@@ -1,0 +1,20 @@
+== tests/cases/diag/overload-overlap.byn
+30..35 binaryExpr add right 34..35
+30..35 binaryExpr add right 34..35
+30..35 binaryExpr add right 34..35
+30..31 nameExpr
+34..35 nameExpr
+141..157 structLiteralExpr
+141..157 structLiteralExpr
+141..157 structLiteralExpr
+150..155 binaryExpr add right 154..155
+150..151 nameExpr
+150..151 nameExpr
+154..155 nameExpr
+184..200 structLiteralExpr
+184..200 structLiteralExpr
+184..200 structLiteralExpr
+193..198 binaryExpr sub right 197..198
+193..194 nameExpr
+193..194 nameExpr
+197..198 nameExpr

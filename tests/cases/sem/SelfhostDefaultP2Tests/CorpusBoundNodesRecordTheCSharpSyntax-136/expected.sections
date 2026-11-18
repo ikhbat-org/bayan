@@ -1,0 +1,162 @@
+== tests/cases/run/io-run-named.byn
+202..1303 blockStmt
+208..237 exprStmt
+208..237 tryExpr
+212..237 callExpr
+231..236 literalExpr string
+242..264 localDecl
+260..264 collectionExpr
+261..263 literalExpr integer
+269..310 exprStmt
+269..310 tryExpr
+273..310 callExpr
+286..298 literalExpr string
+300..309 memberExpr
+300..304 nameExpr
+315..450 localDecl
+339..450 collectionExpr
+340..344 literalExpr string
+346..449 literalExpr string
+455..484 localDecl
+474..484 collectionExpr
+475..478 literalExpr integer
+480..483 literalExpr integer
+489..521 localDecl
+499..521 callExpr
+526..555 assignStmt assign target 526..547 value 550..555
+526..547 indexExpr
+526..529 nameExpr
+530..546 literalExpr string
+550..555 literalExpr string
+550..555 literalExpr string
+560..591 localDecl
+581..591 callExpr
+596..659 exprStmt
+596..659 callExpr
+602..658 memberExpr
+603..650 tryExpr
+607..650 callExpr
+614..618 literalExpr string
+620..631 memberExpr
+620..626 nameExpr
+607..650 callExpr
+640..649 memberExpr
+640..649 memberExpr
+640..644 nameExpr
+607..650 callExpr
+607..650 callExpr
+596..659 callExpr
+664..745 exprStmt
+664..745 callExpr
+670..744 memberExpr
+671..736 tryExpr
+675..736 callExpr
+682..686 literalExpr string
+688..699 memberExpr
+688..694 nameExpr
+712..717 literalExpr string
+712..717 literalExpr string
+726..735 memberExpr
+726..735 memberExpr
+726..730 nameExpr
+675..736 callExpr
+675..736 callExpr
+664..745 callExpr
+750..814 exprStmt
+750..814 callExpr
+756..813 memberExpr
+757..805 tryExpr
+761..805 callExpr
+768..772 literalExpr string
+774..785 memberExpr
+774..780 nameExpr
+761..805 callExpr
+794..804 memberExpr
+794..804 memberExpr
+794..799 nameExpr
+761..805 callExpr
+761..805 callExpr
+750..814 callExpr
+819..892 exprStmt
+819..892 callExpr
+825..891 memberExpr
+826..883 tryExpr
+830..883 callExpr
+837..841 literalExpr string
+843..854 memberExpr
+843..849 nameExpr
+830..883 callExpr
+873..882 memberExpr
+873..882 memberExpr
+873..877 nameExpr
+861..864 nameExpr
+861..864 nameExpr
+830..883 callExpr
+819..892 callExpr
+897..989 exprStmt
+897..989 callExpr
+903..988 memberExpr
+904..980 tryExpr
+908..980 callExpr
+915..919 literalExpr string
+921..932 memberExpr
+921..927 nameExpr
+974..979 literalExpr string
+974..979 literalExpr string
+951..961 memberExpr
+951..961 memberExpr
+951..956 nameExpr
+939..942 nameExpr
+939..942 nameExpr
+908..980 callExpr
+897..989 callExpr
+994..1086 exprStmt
+994..1086 callExpr
+1000..1085 memberExpr
+1001..1077 tryExpr
+1005..1077 callExpr
+1012..1016 literalExpr string
+1018..1029 memberExpr
+1018..1024 nameExpr
+1042..1047 literalExpr string
+1042..1047 literalExpr string
+1066..1076 memberExpr
+1066..1076 memberExpr
+1066..1071 nameExpr
+1054..1057 nameExpr
+1054..1057 nameExpr
+1005..1077 callExpr
+994..1086 callExpr
+1091..1157 localDecl
+1114..1157 collectionExpr
+1115..1119 literalExpr string
+1121..1156 literalExpr string
+1162..1224 exprStmt
+1162..1224 callExpr
+1168..1223 memberExpr
+1169..1215 tryExpr
+1173..1215 callExpr
+1180..1184 literalExpr string
+1186..1196 memberExpr
+1186..1191 nameExpr
+1209..1214 literalExpr string
+1209..1214 literalExpr string
+1173..1215 callExpr
+1173..1215 callExpr
+1173..1215 callExpr
+1162..1224 callExpr
+1229..1301 exprStmt
+1229..1301 callExpr
+1235..1300 memberExpr
+1236..1292 tryExpr
+1240..1292 callExpr
+1247..1251 literalExpr string
+1253..1263 memberExpr
+1253..1258 nameExpr
+1286..1291 literalExpr string
+1286..1291 literalExpr string
+1240..1292 callExpr
+1270..1273 nameExpr
+1270..1273 nameExpr
+1240..1292 callExpr
+1229..1301 callExpr

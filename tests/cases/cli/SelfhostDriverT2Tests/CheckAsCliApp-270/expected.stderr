@@ -1,0 +1,19 @@
+warning BYN2310: `values` is never written through; use `ReadOnlySpan<i64>`
+  --> <repo>/tmp/t2/diag/span-parameter-never-written/span-parameter-never-written.byn:1:11
+
+  1 │ i64 total(Span<i64> values) {
+    │           ^^^^^^^^^
+    │
+  help: take a `ReadOnlySpan`; it also accepts strings and read-only views
+    │ 1 │ i64 total(ReadOnlySpan<i64> values) {
+    │   │           ++++++++
+
+warning BYN2310: `values` is never written through; use `ReadOnlySpan<i64>`
+  --> <repo>/tmp/t2/diag/span-parameter-never-written/span-parameter-never-written.byn:30:17
+
+  30 │ i64 viaReadOnly(Span<i64> values) => sum(values)
+     │                 ^^^^^^^^^
+     │
+  help: take a `ReadOnlySpan`; it also accepts strings and read-only views
+     │ 30 │ i64 viaReadOnly(ReadOnlySpan<i64> values) => sum(values)
+     │    │                 ++++++++

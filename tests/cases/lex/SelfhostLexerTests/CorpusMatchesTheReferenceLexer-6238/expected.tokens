@@ -1,0 +1,25 @@
+1:2 StringLiteral `"a�fb"`
+2:1 IntegerLiteral `0`
+2:2 NumericSuffix `b`
+2:4 Identifier `ms`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � "a�fb"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ � "a�fb"
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ � "a�fb"
+    │      ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │ 0b�ms
+    │   ^

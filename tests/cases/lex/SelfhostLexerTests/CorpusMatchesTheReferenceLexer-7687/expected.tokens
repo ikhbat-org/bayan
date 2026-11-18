@@ -1,0 +1,129 @@
+1:1 Identifier `afé`
+1:6 Equals `=`
+1:8 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:6 StructKeyword `struct`
+2:13 UniqueKeyword `unique`
+2:20 UnionKeyword `union`
+2:26 EnumKeyword `enum`
+2:31 Identifier `flas`
+2:36 OpenKeyword `open`
+2:41 ExtensibleKeyword `extensible`
+2:52 InterfaceKeyword `interface`
+2:62 DelegateKeyword `delegate`
+2:71 ExtensionKeyword `extension`
+2:81 DerivationKeyword `derivation`
+2:92 AttributeKeyword `attribute`
+5:1 LetKeyword `let`
+5:5 Identifier `s`
+5:7 Equals `=`
+5:9 InterpolatedStringStart `$"`
+5:11 InterpolationStart `{`
+5:12 InterpolatedStringStart `$"`
+5:14 InterpolationStart `{`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolationStart `{`
+5:18 InterpolatedStringStart `$"`
+5:20 InterpolationStart `{`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolationStart `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:39 InterpolatedStringStart `$"`
+5:41 InterpolationStart `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:45 InterpolatedStringStart `$"`
+5:47 InterpolationStart `{`
+5:48 InterpolatedStringStart `$"`
+5:50 InterpolationStart `{`
+5:51 InterpolatedStringStart `$"`
+5:53 InterpolationStart `{`
+5:54 InterpolatedStringStart `$"`
+5:56 InterpolationStart `{`
+5:57 StringLiteral `$"{$"`
+5:62 OpenBrace `{`
+5:63 StringLiteral `$"{$"`
+5:68 OpenBrace `{`
+5:69 Identifier `x`
+5:70 CloseBrace `}`
+5:71 StringLiteral `"}"`
+5:74 CloseBrace `}`
+5:75 StringLiteral `"}"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+5:82 InterpolationEnd `}`
+5:83 InterpolatedStringEnd `"`
+5:84 InterpolationEnd `}`
+5:85 InterpolatedStringEnd `"`
+5:86 InterpolationEnd `}`
+5:87 InterpolatedStringEnd `"`
+5:88 InterpolationEnd `}`
+5:89 InterpolatedStringEnd `"`
+5:90 InterpolationEnd `}`
+5:91 InterpolatedStringEnd `"`
+5:92 InterpolationEnd `}`
+5:93 InterpolatedStringEnd `"`
+5:94 InterpolationEnd `}`
+5:95 InterpolatedStringEnd `"`
+5:96 InterpolationEnd `}`
+5:97 InterpolatedStringEnd `"`
+5:98 InterpolationEnd `}`
+5:99 InterpolatedStringEnd `"`
+5:100 InterpolationEnd `}`
+5:101 InterpolatedStringEnd `"`
+5:102 InterpolationEnd `}`
+5:103 InterpolatedStringEnd `"`
+5:104 InterpolationEnd `}`
+5:105 InterpolatedStringEnd `"`
+5:106 InterpolationEnd `}`
+5:107 InterpolatedStringEnd `"`
+5:108 InterpolationEnd `}`
+5:109 InterpolatedStringEnd
+8:1 EndOfFile
+
+error BYN0005: identifier `afé` is not in Unicode normalization form C
+
+  1 │ afé = 1
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ afé = 1
+    │   │   +
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  5 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}
+    │         ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}
+    │                                                         ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ // comment � hiWden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ // comment � hiWden
+    │   │            -

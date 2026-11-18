@@ -1,0 +1,30 @@
+== case inline/dist-safe
+errors 0
+name a/b
+version 0.0.0
+edition 2027
+kind App
+targets
+mode safe
+indent 4
+width 120
+align Runs
+trailingCommas Multiline
+lint guards.postfix Suggestion
+lint lambdas.it Suggestion
+lint nesting.depth Suggestion
+lint functions.length None
+lint conditions.named Suggestion
+lint sections.banner Suggestion
+lint conditions.patterns Suggestion
+lint literals.empty Suggestion
+lint optionals.bind Suggestion
+booleans Symbols
+primitives Sized
+capabilities -
+verbs
+nouns
+adjectives
+forms
+short b
+entry app

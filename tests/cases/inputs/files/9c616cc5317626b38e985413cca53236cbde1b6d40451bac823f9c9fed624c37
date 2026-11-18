@@ -1,0 +1,6 @@
+i64 apply((i64 -> i64) f, to i64 x) => f(x)
+
+void main() {
+    let k = 3
+    print($"{apply((x) => x + k, to: 2)}")
+}

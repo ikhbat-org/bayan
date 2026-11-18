@@ -1,0 +1,49 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+2:2 CharLiteral `''`
+3:2 IntegerLiteral `1_`
+5:1 Identifier `ạ̇let`
+5:8 Identifier `a`
+5:10 Equals `=`
+5:14 IntegerLiteral `1`
+6:1 StructKeyword `struct`
+6:8 Identifier `S`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0007: empty char literal
+
+  2 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │  1_
+    │   ^
+    │
+    │ 3 │  1_
+    │   │   -
+
+error BYN0005: identifier `ạ̇let` is not in Unicode normalization form C
+
+  5 │ ạ̇let a = $ 1
+    │ ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ ạ̇let a = $ 1
+    │   │ ++
+
+error BYN0002: unexpected character `$`
+
+  5 │ ạ̇let a = $ 1
+    │            ^

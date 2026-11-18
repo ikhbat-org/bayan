@@ -1,0 +1,60 @@
+== tests/cases/run/strbuf-over.byn
+0..41 globalStatement
+0..41 localDecl
+12..41 callExpr
+24..40 stackallocExpr
+42..61 exprStmt
+42..61 callExpr
+42..47 nameExpr
+55..60 literalExpr string
+62..99 exprStmt
+62..99 callExpr
+68..98 interpolatedExpr
+71..81 memberExpr
+71..76 nameExpr
+84..96 memberExpr
+84..89 nameExpr
+62..99 callExpr
+100..125 exprStmt
+100..125 callExpr
+100..105 nameExpr
+113..124 literalExpr string
+126..150 localDecl
+138..150 memberExpr
+138..143 nameExpr
+151..176 exprStmt
+151..176 callExpr
+151..156 nameExpr
+164..175 interpolatedExpr
+168..173 nameExpr
+177..194 exprStmt
+177..194 callExpr
+183..193 memberExpr
+183..188 nameExpr
+177..194 callExpr
+196..236 localDecl
+207..236 callExpr
+219..235 stackallocExpr
+237..268 exprStmt
+237..268 callExpr
+237..241 nameExpr
+257..260 literalExpr char
+266..267 literalExpr integer
+269..301 exprStmt
+269..301 callExpr
+269..273 nameExpr
+289..293 literalExpr char
+299..300 literalExpr integer
+302..333 exprStmt
+302..333 callExpr
+302..306 nameExpr
+322..325 literalExpr char
+331..332 literalExpr integer
+334..373 exprStmt
+334..373 callExpr
+340..372 interpolatedExpr
+343..356 callExpr
+343..347 nameExpr
+359..370 memberExpr
+359..363 nameExpr
+334..373 callExpr

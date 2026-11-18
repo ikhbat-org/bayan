@@ -1,0 +1,15 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 Identifier `modl`
+1:32 ForeachKeyword `foreach`
+1:40 NewKeyword `new`
+1:44 Identifier `go`
+1:47 Identifier `o`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  1 │ test assert property fuzz modl foreach new go�o
+    │                                              ^

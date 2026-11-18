@@ -1,0 +1,109 @@
+3:2 IsKeyword `is`
+3:5 AndKeyword `and`
+3:9 OrKeyword `or`
+3:12 NotKeyword `not`
+3:16 WithKeyword `with`
+3:21 MoveKeyword `move`
+3:26 RefKeyword `ref`
+3:30 OutKeyword `out`
+3:34 ThisKeyword `this`
+3:39 NullKeyword `null`
+3:44 TrueKeyword `true`
+3:49 FalseKeyword `false`
+3:55 ComptimeKeyword `comptime`
+3:64 CheckedKeyword `checked`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `x`
+5:4 InterpolationStart `{`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+6:1 LetKeyword `let`
+6:5 Identifier `s`
+6:7 Equals `=`
+6:9 InterpolatedStringStart `$"`
+6:11 InterpolationStart `{`
+6:12 InterpolatedStringStart `$"`
+6:14 InterpolationStart `{`
+6:15 InterpolatedStringStart `$"`
+6:17 InterpolationStart `{`
+6:18 InterpolatedStringStart `$"`
+6:20 InterpolationStart `{`
+6:21 InterpolatedStringStart `$"`
+6:23 InterpolationStart `{`
+6:24 InterpolatedStringStart `$"`
+6:26 InterpolationStart `{`
+6:27 InterpolatedStringStart `$"`
+6:29 InterpolationStart `{`
+6:30 InterpolatedStringStart `$"`
+6:32 InterpolationStart `{`
+6:33 InterpolatedStringStart `$"`
+6:35 InterpolationStart `{`
+6:36 InterpolatedStringStart `$"`
+6:38 InterpolationStart `{`
+6:39 InterpolatedStringStart `$"`
+6:41 InterpolationStart `{`
+6:42 InterpolatedStringStart `$"`
+6:44 InterpolationStart `{`
+6:45 InterpolatedStringStart `$"`
+6:47 InterpolationStart `{`
+6:48 InterpolatedStringStart `$"`
+6:50 InterpolationStart `{`
+6:51 StringLiteral `$"{$"`
+6:56 OpenBrace `{`
+6:57 StringLiteral `$"{$"`
+6:62 OpenBrace `{`
+6:63 StringLiteral `$"{$"`
+6:68 OpenBrace `{`
+6:69 Identifier `x`
+6:70 CloseBrace `}`
+6:71 StringLiteral `"}"`
+6:74 CloseBrace `}`
+6:75 StringLiteral `"}"`
+6:78 CloseBrace `}`
+6:79 StringLiteral `"}"`
+6:82 InterpolationEnd `}`
+6:83 InterpolatedStringEnd `"`
+6:84 InterpolationEnd `}`
+6:85 InterpolatedStringEnd `"`
+6:86 InterpolationEnd `}`
+6:87 InterpolatedStringEnd `"`
+6:88 InterpolationEnd `}`
+6:89 InterpolatedStringEnd `"`
+6:90 InterpolationEnd `}`
+6:91 InterpolatedStringEnd `"`
+6:92 InterpolationEnd `}`
+6:93 InterpolatedStringEnd `"`
+6:94 InterpolationEnd `}`
+6:95 InterpolatedStringEnd `"`
+6:96 InterpolationEnd `}`
+6:97 InterpolatedStringEnd `"`
+6:98 InterpolationEnd `}`
+6:99 InterpolatedStringEnd `"`
+6:100 InterpolationEnd `}`
+6:101 InterpolatedStringEnd `"`
+6:102 InterpolationEnd `}`
+6:103 InterpolatedStringEnd `"`
+6:104 InterpolationEnd `}`
+6:105 InterpolatedStringEnd `"`
+6:106 InterpolationEnd `}`
+6:107 InterpolatedStringEnd `"`
+6:108 InterpolationEnd `}`
+6:109 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                   ^^

@@ -1,0 +1,81 @@
+1:2 IntegerLiteral `0x_`
+2:1 FailsKeyword `fails`
+2:7 TryKeyword `try`
+2:11 CatchKeyword `catch`
+2:17 Identifier `nevernoalloc`
+2:30 NosuspendKeyword `nosuspend`
+2:40 SuspendsKeyword `suspends`
+2:49 AsyncKeyword `async`
+2:55 AwaitKeyword `await`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `a`
+3:5 InterpolationStart `{`
+3:6 InterpolationEnd `}`
+3:7 InterpolatedStringText `c`
+3:8 InterpolationStart `{`
+3:9 InterpolatedStringStart `$"`
+3:11 InterpolationStart `{`
+3:12 Identifier `x`
+3:13 InterpolationEnd `}`
+3:14 InterpolatedStringEnd `"`
+3:15 InterpolationEnd `}`
+3:16 InterpolatedStringEnd `"`
+3:17 CloseBrace `}`
+3:18 StringLiteral `"}"`
+3:21 CloseBrace `}`
+3:22 StringLiteral `"}"`
+3:25 CloseBrace `}`
+3:26 StringLiteral `"}"`
+3:29 CloseBrace `}`
+3:30 StringLiteral `"}"`
+3:33 CloseBrace `}`
+3:34 StringLiteral `"}"`
+3:37 CloseBrace `}`
+3:38 StringLiteral `"}"`
+3:42 CharLiteral `'\u{110000}'`
+5:1 Star `*`
+5:3 Identifier `int`
+5:7 OpenBrace `{`
+5:9 Identifier `x`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+5:15 CloseBrace `}`
+5:16 CloseBrace `}`
+5:17 Bang `!`
+5:18 StringLiteral `" $"`
+5:22 StringLiteral `"`
+6:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  1 │ �0x_
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �0x_
+    │   │ -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ �0x_
+    │  ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  2 │ fails try� catch nevernoalloc nosuspend suspends async await
+    │          ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │  $"a{}c{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" '\u{110000}'
+    │                                           ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  5 │ * int { x = 1 }}!" $""
+    │                      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

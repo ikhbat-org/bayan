@@ -1,0 +1,23 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:3 StringLiteral `"text"`
+1:10 StringLiteral `"esG \"q\" \\ \n"`
+1:28 RawStringLiteral `"""\n\n�X   comment */ a\n'\u{D800'\nạ̇\n�`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ */"text" "esG \"q\" \\ \n" """
+    │                            ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ �X   comment */ a
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ �
+    │ ^

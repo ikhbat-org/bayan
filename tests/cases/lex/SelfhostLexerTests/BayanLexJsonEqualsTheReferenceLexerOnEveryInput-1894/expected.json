@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"Identifier","start":2,"end":8,"text":"letbas","doc":null},{"kind":"Equals","start":9,"end":10,"text":"=","doc":null},{"kind":"IntegerLiteral","start":11,"end":12,"text":"1","doc":null},{"kind":"EndOfFile","start":14,"end":14,"text":"","doc":null}],"diagnostics":[]}

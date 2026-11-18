@@ -1,0 +1,60 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:4 IntegerLiteral `4`
+2:5 Star `*`
+2:6 Identifier `KiB`
+2:10 IntegerLiteral `1`
+2:11 NumericSuffix `u`
+2:13 IntegerLiteral `0x`
+2:15 NumericSuffix `NFu`
+2:19 IntegerLiteral `0b1`
+2:22 NumericSuffix `ul`
+2:25 IntegerLiteral `7`
+2:26 NumericSuffix `l`
+    doc `///� not a doc comment`
+4:2 Identifier `Å`
+4:3 OpenBrace `{`
+4:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  � 4*KiB 1u 0xNFu 0b1ul 7l
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  � 4*KiB 1u 0xNFu 0b1ul 7l
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  � 4*KiB 1u 0xNFu 0b1ul 7l
+    │   ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  � 4*KiB 1u 0xNFu 0b1ul 7l
+    │             ^^
+
+error BYN0011: unit suffix `NFu` is not allowed on a hexadecimal literal
+
+  2 │  � 4*KiB 1u 0xNFu 0b1ul 7l
+    │               ^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xD2)
+
+  3 │  ///� not a doc comment
+    │     ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │  Å{ 
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  Å{ 
+    │   │  +

@@ -1,0 +1,37 @@
+1:2 FlagsKeyword `flags`
+1:8 Identifier `ope`
+1:11 CharLiteral `'x`
+2:2 FloatLiteral `3.14`
+2:7 FloatLiteral `1e5`
+2:11 FloatLiteral `2.5e-3`
+2:18 Identifier `E`
+2:19 Plus `+`
+2:20 IntegerLiteral `2`
+2:22 FloatLiteral `1.50`
+2:26 NumericSuffix `dec`
+2:30 IntegerLiteral `1`
+2:31 DotDot `..`
+2:33 IntegerLiteral `2`
+2:35 IntegerLiteral `1`
+2:36 DotDotEquals `..=`
+2:39 IntegerLiteral `3`
+2:41 IntegerLiteral `5`
+2:42 NumericSuffix `e`
+2:44 Identifier `x`
+2:45 Dot `.`
+2:46 Identifier `y`
+2:48 FloatLiteral `2.5`
+2:51 NumericSuffix `f`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:10 IntegerLiteral `1`
+    doc `/// Doc line two.`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │  flags ope'x
+    │           ^^
+    │
+  help: close it with `'`

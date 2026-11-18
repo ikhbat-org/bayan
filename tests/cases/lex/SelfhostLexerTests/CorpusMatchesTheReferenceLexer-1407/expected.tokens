@@ -1,0 +1,41 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText `c`
+2:8 InterpolatedStringEnd
+4:1 IntegerLiteral `1__`
+5:1 IntegerLiteral `0xF__`
+7:1 RawStringLiteral `"""et café = 1\nlet café = 2A\n W""`
+9:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  7 │ """et café = 1
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

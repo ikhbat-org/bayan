@@ -1,0 +1,3 @@
+== bind.probes.b16
+flags 0
+binary:bool[1948:5]=-(lt local:i32[1948:1]=-(a) local:i32[1952:1]=-(b))

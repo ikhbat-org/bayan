@@ -1,0 +1,4 @@
+== member.probes.-.v20
+errorExpr|?|-|-|-|-|-|2929:10|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2230 149:17 `toBinary()` is now `string(x, as: .binary)` |the old name|write `string(x, as: .binary)`|

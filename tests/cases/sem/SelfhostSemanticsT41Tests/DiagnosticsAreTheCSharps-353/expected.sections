@@ -1,0 +1,5 @@
+== diags.diag/argument-needs-particle
+BYN5005 4:19 `end` is passed without its particle `until:`
+  label needs `until:`
+  help add `until:` before the argument
+  fix 4:19-4:19 until: 

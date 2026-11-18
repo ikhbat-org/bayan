@@ -1,0 +1,66 @@
+1:1 Identifier `ment`
+2:2 Identifier `b`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `total `
+3:9 InterpolationStart `{`
+3:10 Identifier `x`
+3:11 InterpolationEnd `}`
+3:12 InterpolatedStringEnd `"`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolatedStringText `a `
+3:18 InterpolationStart `{`
+3:19 Identifier `f`
+3:20 OpenParen `(`
+3:21 InterpolatedStringStart `$"`
+3:23 InterpolatedStringText `b `
+3:25 InterpolationStart `{`
+3:26 Identifier `c`
+3:27 InterpolationEnd `}`
+3:28 InterpolatedStringText `0)} d`
+3:33 InterpolatedStringEnd `"`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolatedStringText `{{literal}}`
+3:48 InterpolatedStringEnd `"`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 Identifier `Point`
+3:59 OpenBrace `{`
+3:61 Identifier `x`
+3:63 Equals `=`
+3:65 IntegerLiteral `1`
+3:67 CloseBrace `}`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringText `!`
+3:70 InterpolatedStringEnd `"`
+3:72 InterpolatedStringStart `$"`
+3:74 InterpolatedStringEnd `"`
+6:1 IntegerLiteral `0xF__`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"total {x}" $"a {f($"b {c}0)} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"total {x}" $"a {f($"b {c}0)} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                              ^
+    │
+    │ 3 │ $"total {x}" $"a {f($"b {c}0)}} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   │                               +
+
+error BYN0002: unexpected character `̈́`
+
+  5 │ ̈́
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 0xF__
+    │    ^^
+    │
+    │ 6 │ 0xF__
+    │   │    --

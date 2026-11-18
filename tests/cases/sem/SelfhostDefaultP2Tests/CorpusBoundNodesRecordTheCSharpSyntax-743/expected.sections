@@ -1,0 +1,6 @@
+== tests/cases/diag/path-unknown-member.byn
+143..167 globalStatement
+143..167 exprStmt
+143..167 callExpr
+149..166 callExpr
+143..167 callExpr

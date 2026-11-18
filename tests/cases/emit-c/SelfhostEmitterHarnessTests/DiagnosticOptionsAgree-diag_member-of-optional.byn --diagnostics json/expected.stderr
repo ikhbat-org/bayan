@@ -1,0 +1,1 @@
+{"code":"BYN2211","severity":"error","file":"input.byn","span":{"start":59,"end":60,"line":6,"column":11,"endLine":6,"endColumn":12},"message":"`x` is not a member of `Point?`; the value may be null","label":null,"help":"check it first: `if (p is { } value) { … value.x … }`","fixes":[]}

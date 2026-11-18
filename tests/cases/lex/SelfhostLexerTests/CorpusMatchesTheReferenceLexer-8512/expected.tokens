@@ -1,0 +1,77 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:46 OpenBrace `{`
+3:47 Identifier `x`
+3:48 CloseBrace `}`
+3:49 StringLiteral `"}"`
+3:52 InterpolationEnd `}`
+3:53 InterpolatedStringEnd `"`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringEnd `"`
+3:59 CharLiteral `'\u{110000}'`
+5:1 LetKeyword `let`
+5:5 EffectKeyword `effect`
+5:12 Equals `=`
+5:14 IntegerLiteral `2`
+6:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{x}"}"}"}"}" '\u{110000}'
+    │                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{x}"}"}"}"}" '\u{110000}'
+    │                                            ^
+
+error BYN0002: unexpected character `\u{12}`
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{x}"}"}"}"}" '\u{110000}'
+    │                                             ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{x}"}"}"}"}" '\u{110000}'
+    │                                                            ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

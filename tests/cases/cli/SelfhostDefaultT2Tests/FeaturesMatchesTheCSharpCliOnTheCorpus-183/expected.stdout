@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "CallExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr"
+  ],
+  "builtins": [
+    "MapIndexSet",
+    "Print"
+  ],
+  "diagnostics": []
+}

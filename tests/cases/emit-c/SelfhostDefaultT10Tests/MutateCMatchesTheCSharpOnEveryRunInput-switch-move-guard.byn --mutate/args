@@ -1,0 +1,6 @@
+--mutate
+--mode
+debug
+--package
+.
+input.byn

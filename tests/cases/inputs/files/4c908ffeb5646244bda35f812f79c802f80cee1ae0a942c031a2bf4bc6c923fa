@@ -1,0 +1,12 @@
+let c = """never closed
+
+in strings" "" "\u{48}i"
+'\q'
+ ï»¿
+'\u{D800}'
+'\u{110000}'
+'x
+
+a /* never closed
+& && Æ || ^ ~ ! = == != < <= > >= << >> >>=
+c}")} d"

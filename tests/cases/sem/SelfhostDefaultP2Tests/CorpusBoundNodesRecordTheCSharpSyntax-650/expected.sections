@@ -1,0 +1,51 @@
+== tests/cases/diag/map-modified-while-iterating.byn
+14..178 blockStmt
+20..46 localDecl
+28..46 callExpr
+51..61 assignStmt assign target 51..57 value 60..61
+51..57 indexExpr
+51..52 nameExpr
+53..56 literalExpr string
+60..61 literalExpr integer
+66..147 forStmt
+75..76 nameExpr
+77..147 blockStmt
+87..109 assignStmt assign target 87..95 value 98..109
+87..95 indexExpr
+87..88 nameExpr
+89..94 memberExpr
+89..90 nameExpr
+98..109 binaryExpr add right 108..109
+98..105 memberExpr
+98..99 nameExpr
+108..109 literalExpr integer
+118..141 localDecl
+126..141 callExpr
+126..127 nameExpr
+135..140 memberExpr
+135..136 nameExpr
+152..176 forStmt
+161..162 nameExpr
+163..176 blockStmt
+165..174 exprStmt
+165..174 callExpr
+165..166 nameExpr
+194..419 blockStmt
+200..230 localDecl
+212..230 callExpr
+235..417 blockStmt
+245..266 localDecl
+259..266 callExpr
+275..411 contextStmt
+294..295 nameExpr
+296..411 blockStmt
+310..337 localDecl
+322..337 callExpr
+350..362 assignStmt assign target 350..358 value 361..362
+350..358 indexExpr
+350..355 nameExpr
+356..357 literalExpr integer
+361..362 literalExpr integer
+375..401 assignStmt assign target 375..380 value 383..401
+375..380 nameExpr
+383..401 callExpr

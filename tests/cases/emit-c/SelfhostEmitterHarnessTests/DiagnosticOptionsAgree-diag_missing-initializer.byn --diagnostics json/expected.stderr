@@ -1,0 +1,1 @@
+{"code":"BYN2101","severity":"error","file":"input.byn","span":{"start":4,"end":9,"line":1,"column":5,"endLine":1,"endColumn":10},"message":"`let total` needs a value","label":null,"help":"give it a value, or declare it with `var` and assign it on every path before use","fixes":[]}

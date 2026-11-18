@@ -1,0 +1,28 @@
+1:2 Identifier `ext`
+1:5 StringLiteral `" "`
+1:8 Identifier `esc`
+1:13 StringLiteral `"q\" \\ \n"`
+1:25 RawStringLiteral `"""\n \n`
+3:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ �ext" "esc \"q\" \\ \n" """
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �ext" "esc \"q\" \\ \n" """
+    │   │ -
+
+error BYN0002: unexpected character `\`
+
+  1 │ �ext" "esc \"q\" \\ \n" """
+    │            ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �ext" "esc \"q\" \\ \n" """
+    │                         ^^^ raw string starts here
+    │
+  help: close it with `"""`

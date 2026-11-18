@@ -1,0 +1,7 @@
+"""
+$"{a
+� = 2
+// ok �   """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+test assert property fuzz model foreach new goto
+ foo Bar _x camelCase2 ب��ان μετρητής x_1 é
+

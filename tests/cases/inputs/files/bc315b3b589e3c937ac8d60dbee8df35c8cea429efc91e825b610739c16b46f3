@@ -1,0 +1,4 @@
+ 'ab'
+' '\\' '\0'
+let b = "bad \q esc•apek"
+ 

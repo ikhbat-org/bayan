@@ -1,0 +1,4 @@
+== member.probes.-.v25
+errorExpr|?|-|-|-|-|-|3021:6|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2788 153:17 `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `Point` ||copy it, or move the whole local; only an owned collection or optional has an empty value to leave behind|

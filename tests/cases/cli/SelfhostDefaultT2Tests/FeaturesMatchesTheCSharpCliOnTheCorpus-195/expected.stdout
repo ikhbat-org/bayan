@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "ContextStmt",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "ArenaNew",
+    "Print",
+    "StringLength",
+    "StringRepeated"
+  ],
+  "diagnostics": []
+}

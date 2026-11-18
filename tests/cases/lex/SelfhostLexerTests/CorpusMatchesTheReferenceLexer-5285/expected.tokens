@@ -1,0 +1,44 @@
+1:1 CharLiteral `'x`
+2:2 CharLiteral `'\u{D800}'`
+3:1 Identifier `st`
+3:4 Identifier `ruct`
+3:9 Identifier `S`
+4:1 VarKeyword `var`
+4:5 Identifier `xs`
+4:7 Colon `:`
+4:9 Identifier `List`
+4:13 Less `<`
+4:14 Identifier `Listi64`
+4:21 Greater `>`
+4:22 Greater `>`
+6:1 StructKeyword `struct`
+6:8 Identifier `S`
+7:2 Identifier `b`
+8:2 Identifier `ητής`
+8:7 Identifier `x_`
+8:10 Identifier `é`
+10:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │  '\u{D800}'
+    │   ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ st�ruct S
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  8 │  �ητής x_ é
+    │  ^

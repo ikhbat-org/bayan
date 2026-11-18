@@ -1,0 +1,40 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+2:1 IntegerLiteral `0b102`
+3:1 IntegerLiteral `0x`
+4:2 StringLiteral `"`
+4:3 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1;
+    │   │        +
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │ 0b102
+    │     ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD9)
+
+  4 │ �"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  4 │ �"
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

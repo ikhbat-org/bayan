@@ -1,0 +1,4 @@
+== dt1
+tryExpr|i64|834:12
+operand call:i64
+BYN2601 55:14 `try` is not allowed in `defer` ||handle the error here with `catch`; cleanup cannot fail|

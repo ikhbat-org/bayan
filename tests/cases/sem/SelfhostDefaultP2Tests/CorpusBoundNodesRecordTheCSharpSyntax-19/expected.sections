@@ -1,0 +1,36 @@
+== tests/cases/run/condition-cast.byn
+0..17 globalStatement
+0..17 localDecl
+15..17 literalExpr integer
+18..58 ifStmt
+21..33 binaryExpr gt right 32..33
+21..29 callExpr
+25..28 nameExpr
+32..33 literalExpr integer
+34..58 blockStmt
+40..56 exprStmt
+40..56 callExpr
+46..55 literalExpr string
+40..56 callExpr
+59..118 whileStmt
+65..77 binaryExpr gt right 76..77
+65..73 callExpr
+69..72 nameExpr
+76..77 literalExpr integer
+78..118 blockStmt
+84..103 exprStmt
+84..103 callExpr
+90..102 literalExpr string
+84..103 callExpr
+108..116 assignStmt sub target 108..111 value 115..116
+108..111 nameExpr
+115..116 literalExpr integer
+119..140 localDecl
+136..140 literalExpr trueKeyword
+141..178 ifStmt
+144..148 nameExpr
+149..178 blockStmt
+151..176 exprStmt
+151..176 callExpr
+157..175 literalExpr string
+151..176 callExpr

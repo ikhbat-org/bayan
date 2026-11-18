@@ -1,0 +1,5 @@
+void f() {
+    let shown = ready ? Path
+        .relative(root, to: output)
+        .replaced("a", by: "/") : output
+}

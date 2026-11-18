@@ -1,0 +1,81 @@
+1:1 IntegerLiteral `0x`
+3:1 Identifier `b`
+5:3 IsKeyword `is`
+5:6 AndKeyword `and`
+5:10 OrKeyword `or`
+5:13 NotKeyword `not`
+5:17 Identifier `withE`
+5:23 MoveKeyword `move`
+5:29 RefKeyword `ref`
+5:33 OutKeyword `out`
+5:37 Identifier `his`
+5:41 NullKeyword `null`
+5:46 TrueKeyword `true`
+5:51 FalseKeyword `false`
+5:57 ComptimeKeyword `comptime`
+5:66 CheckedKeyword `checked`
+6:3 IntegerLiteral `0b1`
+6:6 NumericSuffix `ms`
+7:2 IntegerLiteral `1010`
+7:7 IntegerLiteral `0B11`
+7:12 Identifier `foo`
+7:16 Identifier `Bar`
+7:20 Identifier `_x`
+7:23 Identifier `camelCase2`
+7:34 Identifier `بيان`
+7:39 Identifier `μετρητής`
+7:48 Identifier `x_1`
+7:52 Identifier `é`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │ ���� is and or not withE move� ref out his null true false comptime checked
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ ���� is and or not withE move� ref out his null true false comptime checked
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ���� is and or not withE move� ref out his null true false comptime checked
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ���� is and or not withE move� ref out his null true false comptime checked
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC4)
+
+  5 │ ���� is and or not withE move� ref out his null true false comptime checked
+    │                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  6 │ � 0b1ms
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  6 │ � 0b1ms
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  6 │ � 0b1ms
+    │  ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  6 │ � 0b1ms
+    │      ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

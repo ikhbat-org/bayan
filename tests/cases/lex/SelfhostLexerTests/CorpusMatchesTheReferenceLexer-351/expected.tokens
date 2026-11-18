@@ -1,0 +1,33 @@
+1:1 IntegerLiteral `1_`
+2:2 Identifier `ής`
+2:5 Identifier `x_1`
+2:10 Identifier `k`
+4:1 Identifier `b`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolationEnd `}`
+6:5 InterpolatedStringEnd `"`
+6:6 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │  ής x_1 �k�
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  2 │  ής x_1 �k�
+    │           ^
+
+error BYN0002: unexpected character `\u{12}`
+
+  4 │ b�
+    │  ^

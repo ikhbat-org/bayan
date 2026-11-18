@@ -1,0 +1,17 @@
+1:4 Identifier `Nom`
+1:8 Identifier `ent`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 IntegerLiteral `0x`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{1B}`
+
+  1 │    Nom�ent */ a
+    │       ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x
+    │  ^^

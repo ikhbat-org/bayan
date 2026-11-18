@@ -1,0 +1,49 @@
+1:1 IntegerLiteral `0b102`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolatedStringText `$`
+3:25 InterpolatedStringEnd `"`
+3:26 OpenBrace `{`
+3:27 InterpolatedStringStart `$"`
+3:29 InterpolationStart `{`
+3:30 InterpolatedStringStart `$"`
+3:32 InterpolationStart `{`
+3:33 InterpolatedStringStart `$"`
+3:35 InterpolationStart `{`
+3:36 InterpolatedStringStart `$"`
+3:38 InterpolationStart `{`
+3:39 InterpolatedStringStart `$"`
+3:41 InterpolationStart `{`
+3:42 InterpolatedStringStart `$"`
+3:44 InterpolationStart `{`
+3:45 InterpolatedStringStart `$"`
+3:47 InterpolationStart `{`
+3:48 InterpolatedStringStart `$"`
+3:50 InterpolationStart `{`
+3:51 Identifier `x`
+3:53 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{x 
+    │                                                ^^ this string never ends
+    │
+  help: close the `{` and the string

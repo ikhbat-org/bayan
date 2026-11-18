@@ -1,0 +1,33 @@
+struct P {
+    i64 x = 0
+}
+
+@sealed
+struct S {
+    i64 n = 0
+}
+
+void g(P p) {
+    p.x++
+    p.x += 1
+}
+
+void t(ref S s) {
+    s.n++
+}
+
+void main() {
+    var a = 1
+    a ??= 2
+    a += nope
+    a <<= 2
+    var f = 1.5
+    f <<= 2
+    var s = "x"
+    s += "y"
+    var b = true
+    b += 1
+    b++
+    nope++
+    g(P {})
+}

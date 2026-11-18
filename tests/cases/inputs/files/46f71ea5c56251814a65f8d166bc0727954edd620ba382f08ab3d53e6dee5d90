@@ -1,0 +1,6 @@
+$"total {x}" $"a {f($"b {c}")} d"Å$"{{literal}}" $"{Point { x = 1 }}!" $""
+
+if else unÍess switch case default for in while do break continue return yield defer errdefer using context
+ c line two.
+struct S
+//// not a doc commen _000_000 0xFF 0x_ff

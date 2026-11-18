@@ -1,0 +1,39 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 Identifier `uni`
+1:15 Identifier `t`
+1:17 DistinctKeyword `distinct`
+1:26 Identifier `typ`
+1:31 ImportKeyword `import`
+1:38 AsKeyword `as`
+1:41 PublicKeyword `public`
+1:48 PrivateKeyword `private`
+1:56 StaticKeyword `static`
+1:63 ReadonlyKeyword `readonly`
+1:72 Identifier `rYequired`
+1:82 ConstKeyword `const`
+1:88 LetKeyword `let`
+1:92 VarKeyword `var`
+1:96 EmbedKeyword `embed`
+1:102 ExternKeyword `extern`
+1:109 UnsafeKeyword `unsafe`
+4:1 LetKeyword `let`
+4:5 EffectKeyword `effect`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
+6:1 EndOfFile
+
+error BYN0002: unexpected character `\u{8}`
+
+  1 │ error set uni�t distinct typ� import as public private static readonly rYequired const let var embed extern unsafe
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD4)
+
+  1 │ error set uni�t distinct typ� import as public private static readonly rYequired const let var embed extern unsafe
+    │                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │  �
+    │  ^

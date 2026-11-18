@@ -1,0 +1,46 @@
+1:1 Identifier `fé`
+1:3 Slash `/`
+1:5 Equals `=`
+1:7 IntegerLiteral `2`
+2:3 Identifier `b`
+3:1 Identifier `Jạ̇`
+4:1 StringLiteral `"`
+5:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  �b
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  �b
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  �b
+    │   ^
+
+error BYN0005: identifier `Jạ̇` is not in Unicode normalization form C
+
+  3 │ Jạ̇
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ Jạ̇
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  4 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0004: unterminated block comment
+
+  5 │  /* 
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

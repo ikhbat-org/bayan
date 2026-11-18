@@ -1,0 +1,28 @@
+1:1 CharLiteral `'x\r`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 PlusPlus `++`
+2:32 MinusMinus `--`
+4:1 OpenParen `(`
+4:3 CloseParen `)`
+4:5 OpenBracket `[`
+4:7 CloseBracket `]`
+4:9 OpenBrace `{`
+4:11 CloseBrace `}`
+5:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

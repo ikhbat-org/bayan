@@ -1,0 +1,164 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 StringLiteral `$"{$"`
+1:60 OpenBrace `{`
+1:61 StringLiteral `$"{x}"`
+1:67 CloseBrace `}`
+1:68 StringLiteral `"}"`
+1:71 CloseBrace `}`
+1:72 StringLiteral `"}"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 IntegerLiteral `0x_`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:11 IntegerLiteral `2`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:7 Equals `=`
+5:11 IntegerLiteral `3`
+7:1 Identifier `FFs`
+8:1 IntegerLiteral `0b1`
+8:4 NumericSuffix `ms`
+9:1 IntegerLiteral `0x`
+10:1 LawKeyword `law`
+10:5 Equals `=`
+10:7 IntegerLiteral `3`
+12:1 CharLiteral `'ab'`
+13:1 CharLiteral `'\q'`
+14:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"0x_
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"0x_
+    │                                                 ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"0x_
+    │                                                                                       ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �
+    │  ^
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ 1
+    │         ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ let c = � 3
+    │         ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  8 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  9 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  11 │  ����� 
+     │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  11 │  ����� 
+     │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  11 │  ����� 
+     │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  11 │  ����� 
+     │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  11 │  ����� 
+     │      ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  12 │ 'ab'
+     │ ^^^^
+     │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\q`
+
+  13 │ '\q'
+     │  ^^
+     │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

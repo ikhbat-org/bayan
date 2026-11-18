@@ -1,0 +1,156 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escavpe"`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 StringLiteral `$"{$"`
+2:55 OpenBrace `{`
+2:56 StringLiteral `$"{$"`
+2:61 OpenBrace `{`
+2:62 StringLiteral `$"{x}"`
+2:68 CloseBrace `}`
+2:69 StringLiteral `"}"`
+2:72 CloseBrace `}`
+2:73 StringLiteral `"}"`
+2:76 InterpolationEnd `}`
+2:77 InterpolatedStringEnd `"`
+2:78 InterpolationEnd `}`
+2:79 InterpolatedStringEnd `"`
+2:80 InterpolationEnd `}`
+2:81 InterpolatedStringEnd `"`
+2:82 InterpolationEnd `}`
+2:83 InterpolatedStringEnd `"`
+2:85 StringLiteral `"}"`
+2:88 InterpolationEnd `}`
+2:89 InterpolatedStringEnd `"`
+2:90 InterpolationEnd `}`
+2:91 InterpolatedStringEnd `"`
+2:92 InterpolationEnd `}`
+2:93 InterpolatedStringEnd `"`
+2:94 InterpolationEnd `}`
+2:95 InterpolatedStringEnd `"`
+2:96 InterpolationEnd `}`
+2:97 InterpolatedStringEnd `"`
+2:98 InterpolationEnd `}`
+2:99 InterpolatedStringEnd `"`
+2:100 InterpolatedStringStart `$"`
+2:102 InterpolationStart `{`
+2:103 InterpolatedStringStart `$"`
+2:105 InterpolationStart `{`
+2:106 InterpolatedStringStart `$"`
+2:108 InterpolationStart `{`
+2:109 InterpolatedStringStart `$"`
+2:111 InterpolationStart `{`
+2:112 InterpolatedStringStart `$"`
+2:114 InterpolationStart `{`
+2:115 StringLiteral `"{$"`
+2:119 OpenBrace `{`
+2:120 InterpolatedStringStart `$"`
+2:122 InterpolationStart `{`
+2:123 InterpolatedStringStart `$"`
+2:125 InterpolationStart `{`
+2:126 InterpolatedStringStart `$"`
+2:128 InterpolationStart `{`
+2:129 InterpolatedStringStart `$"`
+2:131 InterpolationStart `{`
+2:132 InterpolatedStringStart `$"`
+2:134 InterpolationStart `{`
+2:135 StringLiteral `$"{$"`
+2:140 OpenBrace `{`
+2:141 StringLiteral `$"{$"`
+2:146 OpenBrace `{`
+2:147 StringLiteral `$"{x}"`
+2:153 CloseBrace `}`
+2:154 StringLiteral `"}"`
+2:157 CloseBrace `}`
+2:158 StringLiteral `"}"`
+2:161 InterpolationEnd `}`
+2:162 InterpolatedStringEnd `"`
+2:163 InterpolationEnd `}`
+2:164 InterpolatedStringEnd `"`
+2:165 InterpolationEnd `}`
+2:166 InterpolatedStringEnd `"`
+2:167 InterpolationEnd `}`
+2:168 InterpolatedStringEnd `"`
+2:169 InterpolationEnd `}`
+2:170 InterpolatedStringEnd `"`
+2:171 CloseBrace `}`
+2:172 StringLiteral `"  "`
+2:176 StringLiteral `""`
+2:179 CStringLiteral `c"text"`
+2:187 U16StringLiteral `u16"wide"`
+2:197 StringLiteral `"\u{202E} allowed in strings"`
+2:220 StringLiteral `""`
+2:223 StringLiteral `"\u{48}i"`
+3:1 LetKeyword `let`
+3:5 EffectKeyword `effect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+5:1 IntegerLiteral `0b1`
+5:4 NumericSuffix `ms`
+7:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escavpe"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"�"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                                  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"�"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                                                                    ^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"�"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                                                                                                ^^ this
+    │                                                                                                                   string
+    │                                                                                                                   never
+    │                                                                                                                   ends
+    │
+  help: close the `{` and the string
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  5 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

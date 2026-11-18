@@ -1,0 +1,95 @@
+error BYN2001: `signUp` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:1:12
+
+  1 │ let resp = signUp(form) catch switch {
+    │            ^^^^^^
+
+error BYN2001: `form` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:1:19
+
+  1 │ let resp = signUp(form) catch switch {
+    │                   ^^^^
+
+error BYN2001: `EmailError` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:2:5
+
+  2 │     EmailError => .badRequest("Invalid email"),
+    │     ^^^^^^^^^^
+
+error BYN2218: `badRequest` needs a known type here
+  --> <repo>/tests/cases/parse/catch-switch.byn:2:19
+
+  2 │     EmailError => .badRequest("Invalid email"),
+    │                   ^^^^^^^^^^^
+
+error BYN2001: `DbError` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:3:5
+
+  3 │     DbError.timeout => .unavailable,
+    │     ^^^^^^^
+
+error BYN2218: `unavailable` needs a known type here
+  --> <repo>/tests/cases/parse/catch-switch.byn:3:24
+
+  3 │     DbError.timeout => .unavailable,
+    │                        ^^^^^^^^^^^^
+
+error BYN2002: unknown type `DbError`
+  --> <repo>/tests/cases/parse/catch-switch.byn:4:5
+
+  4 │     DbError e => .serverError(e),
+    │     ^^^^^^^
+
+error BYN2218: `serverError` needs a known type here
+  --> <repo>/tests/cases/parse/catch-switch.byn:4:18
+
+  4 │     DbError e => .serverError(e),
+    │                  ^^^^^^^^^^^^
+
+error BYN2001: `save` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:6:1
+
+  6 │ save(x) catch switch {
+    │ ^^^^
+
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:6:6
+
+  6 │ save(x) catch switch {
+    │      ^
+
+error BYN2202: expected `string`, found `IoError`
+  --> <repo>/tests/cases/parse/catch-switch.byn:7:22
+
+  7 │     IoError e => log(e),
+    │                      ^
+
+error BYN2001: `parse` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:10:11
+
+  10 │ let old = parse(s) catch switch {
+     │           ^^^^^
+
+error BYN2001: `s` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:10:17
+
+  10 │ let old = parse(s) catch switch {
+     │                 ^
+
+error BYN2001: `parse` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:14:9
+
+  14 │ let n = parse(s) catch switch {
+     │         ^^^^^
+
+error BYN2001: `s` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:14:15
+
+  14 │ let n = parse(s) catch switch {
+     │               ^
+
+error BYN2001: `fallback` is not defined
+  --> <repo>/tests/cases/parse/catch-switch.byn:15:21
+
+  15 │     ParseError e => fallback(e),
+     │                     ^^^^^^^^

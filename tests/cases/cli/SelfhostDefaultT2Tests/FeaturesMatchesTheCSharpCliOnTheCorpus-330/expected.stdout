@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ConstantPattern",
+    "DiscardPattern",
+    "ExprStmt",
+    "FieldDecl",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IfStmt",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "IsExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "PositionalPattern",
+    "StructDecl",
+    "StructLiteralExpr",
+    "SwitchExpr",
+    "SwitchStmt",
+    "TargetMemberExpr",
+    "UnionDecl",
+    "VarPattern",
+    "VariantPattern"
+  ],
+  "builtins": [
+    "ListAdd",
+    "Print",
+    "StrBufAppend"
+  ],
+  "diagnostics": []
+}

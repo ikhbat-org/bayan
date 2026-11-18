@@ -1,0 +1,155 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 StringLiteral `$"{$"`
+2:55 OpenBrace `{`
+2:56 StringLiteral `$"{$"`
+2:61 OpenBrace `{`
+2:62 Identifier `x`
+2:63 CloseBrace `}`
+2:64 StringLiteral `"}"`
+2:67 Identifier `l`
+2:68 CloseBrace `}`
+2:69 StringLiteral `"}"`
+2:72 InterpolationEnd `}`
+2:73 InterpolatedStringEnd `"`
+2:74 InterpolationEnd `}`
+2:75 InterpolatedStringEnd `"`
+2:76 InterpolationEnd `}`
+2:77 InterpolatedStringEnd `"`
+2:78 InterpolationEnd `}`
+2:79 InterpolatedStringEnd `"`
+2:80 InterpolationEnd `}`
+2:81 InterpolatedStringEnd `"`
+2:82 InterpolationEnd `}`
+2:83 InterpolatedStringEnd `"`
+2:84 InterpolationEnd `}`
+2:85 InterpolatedStringEnd `"`
+2:86 InterpolationEnd `}`
+2:87 InterpolatedStringEnd `"`
+2:88 InterpolationEnd `}`
+2:89 InterpolatedStringEnd `"`
+2:90 InterpolationEnd `}`
+2:91 InterpolatedStringEnd `"`
+2:92 InterpolationEnd `}`
+2:93 InterpolatedStringEnd `"`
+2:94 InterpolationEnd `}`
+2:95 InterpolatedStringEnd `"`
+2:96 InterpolationEnd `}`
+2:97 InterpolatedStringEnd `"`
+2:98 IntegerLiteral `0`
+2:100 IntegerLiteral `42`
+2:103 IntegerLiteral `1_000_000`
+2:113 IntegerLiteral `0xFF`
+2:118 IntegerLiteral `0x_ff`
+2:124 IntegerLiteral `0b1010`
+2:131 IntegerLiteral `0B11`
+2:136 IntegerLiteral `5`
+2:137 NumericSuffix `s`
+2:139 IntegerLiteral `250`
+2:142 NumericSuffix `ms`
+2:145 IntegerLiteral `4`
+2:146 NumericSuffix `KiB`
+2:150 IntegerLiteral `1`
+2:151 NumericSuffix `u`
+2:153 IntegerLiteral `0xFF`
+2:157 NumericSuffix `u`
+2:159 IntegerLiteral `0b1`
+2:162 NumericSuffix `ul`
+2:165 IntegerLiteral `7`
+2:166 NumericSuffix `l`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolatedStringText `total `
+4:13 InterpolationStart `{`
+4:14 Identifier `x`
+4:15 InterpolationEnd `}`
+4:16 InterpolatedStringEnd `"`
+4:18 InterpolatedStringStart `$"`
+4:20 InterpolatedStringText `a `
+4:22 InterpolationStart `{`
+4:23 Identifier `f`
+4:24 OpenParen `(`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolatedStringText `b `
+4:29 InterpolationStart `{`
+4:30 Identifier `c`
+4:31 InterpolationEnd `}`
+4:32 InterpolatedStringEnd `"`
+4:33 CloseParen `)`
+4:34 InterpolationEnd `}`
+4:35 InterpolatedStringText ` d`
+4:37 InterpolatedStringEnd `"`
+4:39 InterpolatedStringStart `$"`
+4:41 InterpolatedStringText `{{literal}}`
+4:52 InterpolatedStringEnd `"`
+4:54 InterpolatedStringStart `$"`
+4:56 InterpolationStart `{`
+4:57 Identifier `Point`
+4:63 OpenBrace `{`
+4:65 Identifier `x`
+4:67 Equals `=`
+4:69 IntegerLiteral `1`
+4:71 CloseBrace `}`
+4:72 InterpolationEnd `}`
+4:73 InterpolatedStringText `!`
+4:74 InterpolatedStringEnd `"`
+4:76 InterpolatedStringStart `$"`
+4:78 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"l}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                                                  ^^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

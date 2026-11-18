@@ -1,0 +1,25 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:5 Identifier `raw`
+1:9 StringLiteral `"quoted"`
+2:1 Identifier `dd`
+2:4 Identifier `en`
+3:1 Identifier `l`
+3:2 Identifier `et`
+3:5 Identifier `x`
+3:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x91)
+
+  1 │ *�/  raw "quoted"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD5)
+
+  2 │ dd�en
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  3 │ l�et x
+    │  ^

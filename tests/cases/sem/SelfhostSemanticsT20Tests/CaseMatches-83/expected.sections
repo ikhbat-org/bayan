@@ -1,0 +1,3 @@
+== inst.i23
+null
+BYN2740 170:15 cannot infer type argument `T` of `unwrap` ||pass an argument it can be read from, or write it out: `unwrap<T>(…)`|

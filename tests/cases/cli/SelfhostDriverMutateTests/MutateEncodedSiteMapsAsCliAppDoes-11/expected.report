@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "kind": "mutation",
+  "tool": "bayan mutate",
+  "timing": {
+    "build_s": 0,
+    "mean_mutant_s": <t>,
+    "max_mutant_s": <t>,
+    "total_s": <t>,
+    "mutant_share_of_build": 0
+  },
+  "files": [
+    {
+      "path": "a�.byn",
+      "mutants": [
+        {
+          "site": {
+            "id": 1,
+            "file": "a�.byn",
+            "line": 1,
+            "column": 1,
+            "operator": "bool",
+            "original": "t",
+            "mutated": "f"
+          },
+          "status": "survived",
+          "suggestion": "add a case that depends on this value"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "killed": 0,
+    "survived": 1,
+    "timeout": 0,
+    "marked": 0,
+    "not_reached": 0,
+    "not_emitted": 0
+  },
+  "operators": {
+    "boundary": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "relational": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "logical": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "condition": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "bool": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "arithmetic": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "literal": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "negation": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "statement": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "emptyReturn": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "variant": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    }
+  }
+}

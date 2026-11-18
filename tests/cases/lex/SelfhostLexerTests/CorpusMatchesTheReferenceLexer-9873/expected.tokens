@@ -1,0 +1,48 @@
+    doc `///$"{ais and or not with move ref out this null true false comptime checked`
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+4:1 CharLiteral `'ab'`
+5:1 Identifier `foo`
+5:5 Identifier `Bar`
+5:9 Identifier `_x`
+5:12 Identifier `camelCase2`
+5:23 Identifier `بيان`
+5:28 Identifier `μετρητής`
+5:37 Identifier `x_1`
+5:41 Identifier `é`
+6:1 StringLiteral `"text"`
+6:8 StringLiteral `"esc \"q\" \\ \n"`
+6:26 RawStringLiteral `"""\n`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��
+    │  ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0003: unterminated string literal
+
+  6 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

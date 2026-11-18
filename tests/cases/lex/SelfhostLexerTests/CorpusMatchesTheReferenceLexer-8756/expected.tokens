@@ -1,0 +1,26 @@
+    doc `/// IDoc line two.`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF9)
+
+  3 │  //// not�a doc comment
+    │          ^

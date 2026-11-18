@@ -1,0 +1,23 @@
+== tests/cases/run/map-index-panic.byn
+0..30 globalStatement
+0..30 localDecl
+12..30 callExpr
+31..47 assignStmt assign target 31..43 value 46..47
+31..43 indexExpr
+31..36 nameExpr
+37..42 literalExpr string
+46..47 literalExpr integer
+48..76 exprStmt
+48..76 callExpr
+54..75 interpolatedExpr
+61..73 indexExpr
+61..66 nameExpr
+67..72 literalExpr string
+48..76 callExpr
+77..107 exprStmt
+77..107 callExpr
+83..106 interpolatedExpr
+91..104 indexExpr
+91..96 nameExpr
+97..103 literalExpr string
+77..107 callExpr

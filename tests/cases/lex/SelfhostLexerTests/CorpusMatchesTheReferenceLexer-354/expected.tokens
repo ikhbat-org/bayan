@@ -1,0 +1,85 @@
+1:2 IntegerLiteral `2`
+2:2 StringLiteral `"a\u{2067}b"`
+2:7 IntegerLiteral `0x_`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 StringLiteral `"{$"`
+3:12 OpenBrace `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:50 StringLiteral `"{$"`
+3:54 OpenBrace `{`
+3:55 Identifier `x`
+3:56 CloseBrace `}`
+3:57 StringLiteral `"}"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:62 InterpolationEnd `}`
+3:63 InterpolatedStringEnd `"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+3:66 InterpolationEnd `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 InterpolationEnd `}`
+3:81 InterpolatedStringEnd `"`
+3:82 InterpolationEnd `}`
+3:83 InterpolatedStringEnd `"`
+3:84 CloseBrace `}`
+3:85 StringLiteral `"}"`
+3:88 InterpolationEnd `}`
+3:89 InterpolatedStringEnd `"`
+3:90 InterpolationEnd `}`
+3:91 InterpolatedStringEnd `"`
+4:1 IntegerLiteral `0b102`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  "a�b"0x_
+    │       ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC1)
+
+  3 │  $"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │ 0b102
+    │     ^

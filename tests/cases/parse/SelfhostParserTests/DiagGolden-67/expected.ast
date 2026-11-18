@@ -1,0 +1,19 @@
+CompilationUnit
+  Function show(i64 a) -> void
+    Block
+      If (> a 0)
+        Block
+          Expr (call print "pos")
+      Else
+        Block
+          Expr (call print "other")
+
+error BYN1041: `else` must follow `}` on the same line
+
+  5 │     else {
+    │     ^^^^ on a new line
+    │
+  help: move `else` up to the line of `}`
+    │ 4 │     }
+    │ 5 │     else {
+    │   │ ---

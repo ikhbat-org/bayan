@@ -1,0 +1,28 @@
+error BYN3102: `grammar.verbs` must be a list of words, e.g. `["upsert"]`
+  --> package.byn:5:16
+
+  5 │         verbs: "upsert",
+    │                ^^^^^^^^
+
+error BYN3102: `grammar.nouns` must be a list of words, e.g. `["upsert"]`
+  --> package.byn:6:16
+
+  6 │         nouns: [.sku],
+    │                ^^^^^^
+
+error BYN3102: `grammar.forms` must be a map from a word to its form, e.g. `["upsert": "upserted"]`
+  --> package.byn:7:16
+
+  7 │         forms: ["upsert"],
+    │                ^^^^^^^^^^
+
+error BYN3101: `rules` is not a field of `Grammar`
+  --> package.byn:8:9
+
+  8 │         rules: [],
+    │         ^^^^^
+    │
+  help: use one of the fields `verbs`, `nouns`, `adjectives`, `collectives`, `forms`
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN3102

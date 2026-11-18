@@ -1,0 +1,11 @@
+1:1 Identifier `er`
+1:4 Identifier `clos`
+1:9 Identifier `s`
+1:11 Identifier `truct`
+1:17 Identifier `S`
+2:1 EndOfFile
+
+error BYN0002: unexpected character `\u{16}`
+
+  1 │ er clos s�truct S
+    │          ^

@@ -1,0 +1,3 @@
+== expr.probes.s8
+errorExpr:?[3390:18]=-()
+BYN2203 142:29 -1 does not fit in a `stackalloc` length (1 to 1048576) |||

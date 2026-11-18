@@ -1,0 +1,8 @@
+error BYN2202: expected `i32`, found `string`
+  --> src/app/main.byn:1:14
+
+  1 │ let x: i32 = "s"
+    │              ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202

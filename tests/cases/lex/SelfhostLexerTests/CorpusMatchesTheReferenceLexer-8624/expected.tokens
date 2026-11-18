@@ -1,0 +1,74 @@
+1:1 CharLiteral `' shruct S`
+2:1 Identifier `t`
+2:2 Less `<`
+2:3 Identifier `i64`
+2:6 Greater `>`
+2:7 Greater `>`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+4:1 Identifier `c`
+4:3 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 IntegerLiteral `1`
+6:1 Star `*`
+6:2 Slash `/`
+6:3 InterpolatedStringStart `$"`
+6:5 InterpolationStart `{`
+6:6 InterpolatedStringStart `$"`
+6:8 InterpolationStart `{`
+6:9 InterpolatedStringStart `$"`
+6:11 InterpolationStart `{`
+6:12 InterpolatedStringStart `$"`
+6:14 InterpolationStart `{`
+6:15 InterpolatedStringStart `$"`
+6:17 InterpolationStart `{`
+6:18 InterpolatedStringStart `$"`
+6:20 InterpolationStart `{`
+6:21 Identifier `x`
+6:22 InterpolationEnd `}`
+6:23 InterpolatedStringEnd `"`
+6:24 StringLiteral `"}"`
+6:27 InterpolationEnd `}`
+6:28 InterpolatedStringEnd `"`
+6:29 InterpolationEnd `}`
+6:30 InterpolatedStringEnd `"`
+6:31 InterpolationEnd `}`
+6:32 InterpolatedStringEnd `"`
+6:33 InterpolationEnd `}`
+6:34 InterpolatedStringEnd `"`
+6:35 InterpolationEnd `}`
+6:36 InterpolatedStringEnd `"`
+6:37 CloseBrace `}`
+6:38 StringLiteral `"}"`
+6:41 CloseBrace `}`
+6:42 StringLiteral `"}let law = 3`
+7:1 TestKeyword `test`
+7:6 AssertKeyword `assert`
+7:14 Identifier `roperty`
+7:22 FuzzKeyword `fuzz`
+7:27 ModelKeyword `model`
+7:33 ForeachKeyword `foreach`
+7:41 NewKeyword `new`
+7:45 GotoKeyword `goto`
+8:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ ' shruct S
+    │ ^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  6 │ */$"{$"{$"{$"{$"{$"{x}""}"}"}"}"}"}"}"}"}"}let law = 3
+    │                                          ^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC4)
+
+  7 │ test assert �roperty fuzz model foreach new goto
+    │             ^

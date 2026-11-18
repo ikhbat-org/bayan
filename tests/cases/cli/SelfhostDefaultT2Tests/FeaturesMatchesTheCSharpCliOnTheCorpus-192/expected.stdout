@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IfStmt",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RangeExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "MapIndexSet",
+    "MapLength",
+    "MapRemove",
+    "Print"
+  ],
+  "diagnostics": []
+}

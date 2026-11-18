@@ -1,0 +1,16 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+2:1 Identifier `port`
+2:6 AsKeyword `as`
+2:9 PublicKeyword `public`
+2:16 PrivateKeyword `private`
+2:24 Identifier `s0FFs`
+4:1 EndOfFile

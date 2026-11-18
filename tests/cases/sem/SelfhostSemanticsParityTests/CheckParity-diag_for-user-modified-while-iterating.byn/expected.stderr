@@ -1,0 +1,18 @@
+error BYN3004: `digits` is modified while the `for` loop still borrows it
+  --> tmp/t26-tests/cli/diag_for-user-modified-while-iterating.byn/for-user-modified-while-iterating.byn:34:9
+
+  34 │         digits.grow()
+     │         ^^^^^^^^^^^^^ the loop over `digits` is still running
+     │
+  help: collect the changes in another list and apply them to `digits` after the loop
+
+error BYN3004: `steps` is modified while the `for` loop still borrows it
+  --> tmp/t26-tests/cli/diag_for-user-modified-while-iterating.byn/for-user-modified-while-iterating.byn:38:17
+
+  38 │         let _ = steps.moveNext()
+     │                 ^^^^^^^^^^^^^^^^ the loop over `steps` is still running
+     │
+  help: collect the changes in another list and apply them to `steps` after the loop
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3004

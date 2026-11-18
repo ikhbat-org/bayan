@@ -1,0 +1,7 @@
+error BYN2102: `hi` is used before it is assigned
+  --> <repo>/tests/cases/diag/in-range-unassigned.byn:3:19
+
+  3 │ print($"{n in 0..=hi}")
+    │                   ^^ declared without a value on line 1
+    │
+  help: assign it on every path before this, or give the declaration a value

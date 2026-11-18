@@ -1,0 +1,47 @@
+1:1 StringLiteral `"a\u{2067}b"`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 Identifier `M`
+3:2 StringLiteral `"{a`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+5:2 Identifier `café`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+6:1 LetKeyword `let`
+6:4 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ M"{a
+    │  ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  5 │  café = 1
+    │  ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │  café = 1
+    │   │     +

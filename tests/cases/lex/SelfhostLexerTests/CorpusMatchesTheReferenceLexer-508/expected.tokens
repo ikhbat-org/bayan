@@ -1,0 +1,38 @@
+1:2 Equals `=`
+1:4 IntegerLiteral `2`
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+5:1 Identifier `b`
+6:2 Identifier `t`
+6:4 LawKeyword `law`
+6:8 Equals `=`
+6:10 IntegerLiteral `3`
+7:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

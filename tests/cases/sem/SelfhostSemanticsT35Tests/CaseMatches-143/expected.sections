@@ -1,0 +1,2 @@
+== expr.probes.t4
+tuple:(i64, i64)[2322:6]=-(literal:i64[2323:1]=1(1) literal:i64[2326:1]=2(2))

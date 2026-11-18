@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `""" `
+1:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """ 
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

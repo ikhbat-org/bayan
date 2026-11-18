@@ -1,0 +1,7 @@
+== dyn
+a: dyn ref IPlain
+b: dyn ref readonly IPlain
+c: ?
+d: ?
+e: ?
+f: ?

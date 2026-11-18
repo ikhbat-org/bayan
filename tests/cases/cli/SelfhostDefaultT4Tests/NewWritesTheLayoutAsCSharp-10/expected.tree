@@ -1,0 +1,65 @@
+dir myApp
+=== myApp/.editorconfig
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+=== myApp/.gitattributes
+* text=auto eol=lf
+*.byn linguist-language=C#
+=== myApp/.gitignore
+/out/
+/dist/
+/gen/
+=== myApp/README.md
+# my-app
+
+A Bayan app. Its code is in `src/app/`.
+
+## Run
+
+```
+bayan run
+```
+
+## Test
+
+```
+bayan test
+```
+dir myApp/docs
+=== myApp/docs/.gitkeep
+=== myApp/package.byn
+Package {
+    name: "local/my-app",      // `local/` until published under a verified namespace
+    version: "0.1.0",
+    edition: 2027,
+    kind: .app,
+    capabilities: [],
+    deps: [],
+    dist: Dist {
+        targets: [.host],        // the machine that builds it
+        mode: .safe,
+    },
+}
+dir myApp/src
+dir myApp/src/app
+=== myApp/src/app/main.byn
+/// The line this app prints.
+string greeting() {
+    return "Salam, world!"
+}
+
+print(greeting())
+dir myApp/testdata
+=== myApp/testdata/.gitkeep
+dir myApp/tests
+=== myApp/tests/app.test.byn
+test "greets the world" {
+    assert(greeting() == "Salam, world!")
+}

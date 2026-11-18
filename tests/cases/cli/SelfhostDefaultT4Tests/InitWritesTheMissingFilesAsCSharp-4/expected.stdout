@@ -1,0 +1,10 @@
+created .editorconfig
+created .gitattributes
+created .github/workflows/bayan.yml
+created .gitignore
+created README.md
+created docs/.gitkeep
+created package.byn
+created src/myProj/myProj.byn
+created testdata/.gitkeep
+created tests/myProj.test.byn

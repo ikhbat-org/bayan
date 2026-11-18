@@ -1,0 +1,55 @@
+1:1 IntegerLiteral `0b102`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 IntegerLiteral `0x_`
+5:1 IntegerLiteral `0b__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF__`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --

@@ -1,0 +1,8 @@
+	error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+  S
+//// not a doc comment
+b
+ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+
+let x⁧ = 1
+ 

@@ -1,0 +1,35 @@
+1:1 Identifier `ar`
+1:4 Identifier `_x`
+1:7 Identifier `camelCase2`
+1:18 Identifier `بي`
+1:21 Slash `/`
+1:22 Identifier `ن`
+1:25 Identifier `μετ`
+2:2 EndOfFile
+
+error BYN0002: unexpected character `\u{15}`
+
+  1 │ ar _x camelCase2 بي�/�ن� μετ� /* block
+    │                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  1 │ ar _x camelCase2 بي�/�ن� μετ� /* block
+    │                      ^
+
+error BYN0002: unexpected character `\u{F}`
+
+  1 │ ar _x camelCase2 بي�/�ن� μετ� /* block
+    │                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  1 │ ar _x camelCase2 بي�/�ن� μετ� /* block
+    │                             ^
+
+error BYN0004: unterminated block comment
+
+  1 │ ar _x camelCase2 بي�/�ن� μετ� /* block
+    │                               ^^ comment starts here
+    │
+  help: close it with `*/`

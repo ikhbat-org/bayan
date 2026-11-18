@@ -1,0 +1,5 @@
+== c9
+catchExpr|i64|1332:33
+operand call:i64 binding - variant - handler literal:i64=0
+variantSpan 1348:14
+BYN2228 69:30 `full` is not a variant of `NetError` ||use a variant of `NetError`, the sets `fetch` fails with|

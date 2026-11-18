@@ -1,0 +1,11 @@
+== tests/cases/diag/duplicate-overload-types.byn
+16..17 nameExpr
+16..17 nameExpr
+16..17 nameExpr
+46..62 globalStatement
+46..62 exprStmt
+46..62 callExpr
+52..61 interpolatedExpr
+55..59 callExpr
+57..58 literalExpr integer
+46..62 callExpr

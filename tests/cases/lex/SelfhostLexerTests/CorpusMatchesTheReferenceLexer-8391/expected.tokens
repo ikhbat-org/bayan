@@ -1,0 +1,24 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `a`
+1:4 InterpolationStart `{`
+1:5 Identifier `b`
+1:6 InterpolationEnd `}`
+1:7 InterpolatedStringText `c`
+1:8 InterpolatedStringEnd
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

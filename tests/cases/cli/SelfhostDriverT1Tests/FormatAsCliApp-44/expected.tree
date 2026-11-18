@@ -1,0 +1,6 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+unless !a { print("y") }
+== z.byn OtherRead, GroupRead, UserWrite, UserRead
+let b = (
+let c = (

@@ -1,0 +1,54 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `stray } Wre`
+1:14 InterpolatedStringEnd `"`
+    doc `/// Doc line two.`
+3:2 IntegerLiteral `0x`
+4:2 Identifier `c`
+4:4 Greater `>`
+4:5 GreaterEquals `>=`
+4:8 IntegerLiteral `1`
+8:14 Identifier `a`
+9:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ $"stray } Wre"
+    │         ^
+    │
+    │ 1 │ $"stray }} Wre"
+    │   │          +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  0x
+    │  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  6 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  6 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����
+    │    ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  7 │ /*
+    │ ^^ block comment
+    │
+  help: write each line with `//`
+    │ 7 │ // omment
+    │   │  ++++++++
+    │ 8 │  a

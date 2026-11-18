@@ -1,0 +1,58 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `{{`
+2:5 InterpolatedStringEnd `"`
+2:6 IntegerLiteral `0b102`
+3:2 Identifier `x́́`
+5:1 LetKeyword `let`
+5:5 EffectKeyword `effect`
+5:12 Equals `=`
+5:14 IntegerLiteral `2`
+6:1 Identifier `macro`
+6:7 Identifier `select`
+6:14 BecomeKeyword `become`
+7:1 LetKeyword `let`
+7:5 Identifier `lawmacro`
+7:14 Identifier `select`
+7:21 BecomeKeyword `become`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���
+    │   ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │ $"{{"0b102
+    │          ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  6 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  6 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  7 │ let lawmacro select become
+    │              ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

@@ -1,0 +1,205 @@
+2:1 FloatLiteral `3.14`
+2:6 FloatLiteral `1e5`
+2:10 FloatLiteral `2.5e-3`
+2:17 FloatLiteral `6E+2`
+2:22 FloatLiteral `1.50`
+2:26 NumericSuffix `dec`
+2:30 IntegerLiteral `1`
+2:31 DotDot `..`
+2:33 IntegerLiteral `2`
+2:35 IntegerLiteral `1`
+2:36 DotDotEquals `..=`
+2:39 IntegerLiteral `3`
+2:41 IntegerLiteral `5`
+2:42 NumericSuffix `e`
+2:44 Identifier `x`
+2:45 Dot `.`
+2:46 Identifier `y`
+2:48 FloatLiteral `2.5`
+2:51 NumericSuffix `f`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:6 StringLiteral `"{$"`
+3:10 OpenBrace `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:55 StringLiteral `"{$"`
+3:59 OpenBrace `{`
+3:60 InterpolatedStringStart `$"`
+3:62 InterpolationStart `{`
+3:63 StringLiteral `$"{x}"`
+3:69 InterpolationEnd `}`
+3:70 InterpolatedStringEnd `"`
+3:71 CloseBrace `}`
+3:72 StringLiteral `"}"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+3:79 InterpolationEnd `}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolationEnd `}`
+3:84 InterpolatedStringEnd `"`
+3:85 InterpolationEnd `}`
+3:86 InterpolatedStringEnd `"`
+3:87 InterpolationEnd `}`
+3:88 InterpolatedStringEnd `"`
+3:89 InterpolationEnd `}`
+3:90 InterpolatedStringEnd `"`
+3:91 InterpolationEnd `}`
+3:92 InterpolatedStringEnd `"`
+3:93 InterpolationEnd `}`
+3:94 InterpolatedStringEnd `"`
+3:95 InterpolationEnd `}`
+3:96 InterpolatedStringEnd `"`
+3:97 InterpolationEnd `}`
+3:98 InterpolatedStringEnd `"`
+3:99 InterpolationEnd `}`
+3:100 InterpolatedStringEnd `"`
+3:101 InterpolationEnd `}`
+3:102 InterpolatedStringEnd `"`
+3:103 CloseBrace `}`
+3:104 StringLiteral `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `a`
+6:4 InterpolationStart `{`
+6:5 Identifier `b`
+6:6 InterpolationEnd `}`
+6:7 InterpolatedStringText `c`
+6:8 InterpolatedStringEnd
+6:8 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  3 │  $"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  3 │  $"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │      ^
+
+error BYN0002: unexpected character `$`
+
+  3 │  $"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                      ^
+
+error BYN0002: unexpected character `\u{7F}`
+
+  3 │  $"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                       ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │  $"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                ^^
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                                         ^ string
+    │                                                                                                           ends
+    │                                                                                                           at
+    │                                                                                                           the
+    │                                                                                                           end
+    │                                                                                                           of
+    │                                                                                                           the
+    │                                                                                                           line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  4 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 4 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  4 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ /* � */
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"a{�b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ $"a{�b}c
+    │     ^

@@ -1,0 +1,96 @@
+2:1 Identifier `b`
+3:3 OpenBrace `{`
+3:5 Identifier `x`
+3:7 Equals `=`
+3:9 IntegerLiteral `1`
+3:11 CloseBrace `}`
+3:12 CloseBrace `}`
+3:13 Bang `!`
+3:14 StringLiteral `" $"`
+3:18 StringLiteral `"`
+4:1 Identifier `mment`
+    doc `/// Doc line one.`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolatedStringText `$`
+7:37 InterpolatedStringEnd `"`
+7:38 OpenBrace `{`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolationStart `{`
+7:42 InterpolatedStringStart `$"`
+7:44 InterpolationStart `{`
+7:45 InterpolatedStringStart `$"`
+7:47 InterpolationStart `{`
+7:48 InterpolatedStringStart `$"`
+7:50 InterpolationStart `{`
+7:51 Identifier `x`
+7:52 InterpolationEnd `}`
+7:53 InterpolatedStringEnd `"`
+7:54 InterpolationEnd `}`
+7:55 InterpolatedStringEnd `"`
+7:56 InterpolationEnd `}`
+7:57 InterpolatedStringEnd `"`
+7:58 InterpolationEnd `}`
+7:59 InterpolatedStringEnd `"`
+7:60 CloseBrace `}`
+7:61 StringLiteral `" 0 42 1_000_000 0xFF 0x_\u{1B}f 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l`
+8:1 Identifier `ạ̇`
+8:4 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │   { x = 1 }}!" $""
+    │                  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{x}"}"}"}"}" 0 42 1_000_000 0xFF 0x_�f 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{x}"}"}"}"}" 0 42 1_000_000 0xFF 0x_�f 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string
+    │                                                                                                                                     ends
+    │                                                                                                                                     at
+    │                                                                                                                                     the
+    │                                                                                                                                     end
+    │                                                                                                                                     of
+    │                                                                                                                                     the
+    │                                                                                                                                     line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  8 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ ạ̇
+    │   │ ++

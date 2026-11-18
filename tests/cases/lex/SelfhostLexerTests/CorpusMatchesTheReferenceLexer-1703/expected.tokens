@@ -1,0 +1,26 @@
+2:1 CharLiteral `''`
+3:2 Identifier `FFu`
+3:6 IntegerLiteral `0b1`
+3:9 NumericSuffix `ul`
+3:12 IntegerLiteral `7`
+3:13 NumericSuffix `l`
+4:2 StructKeyword `struct`
+4:9 UniqueKeyword `unique`
+4:16 UnionKeyword `union`
+4:22 EnumKeyword `enum`
+4:27 FlagsKeyword `flags`
+4:33 Identifier `opCn`
+4:38 ExtensibleKeyword `extensible`
+4:49 Identifier `interace`
+4:58 DelegateKeyword `delegate`
+4:67 ExtensionKeyword `extension`
+4:77 DerivationKeyword `derivation`
+4:88 AttributeKeyword `attribute`
+5:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  2 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

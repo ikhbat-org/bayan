@@ -1,0 +1,81 @@
+== tests/cases/run/symbol-order.byn
+114..207 blockStmt
+120..149 localDecl
+130..149 callExpr
+147..148 literalExpr integer
+154..170 exprStmt
+154..170 callExpr
+154..157 nameExpr
+165..169 nameExpr
+175..205 returnStmt value 182..205
+182..205 callExpr
+196..204 memberExpr
+196..199 nameExpr
+221..687 blockStmt
+296..315 localDecl
+312..315 literalExpr string
+320..339 localDecl
+336..339 literalExpr string
+344..361 exprStmt
+344..361 callExpr
+350..360 interpolatedExpr
+353..358 binaryExpr lt right 357..358
+353..354 nameExpr
+357..358 nameExpr
+344..361 callExpr
+366..382 exprStmt
+366..382 callExpr
+372..381 interpolatedExpr
+375..376 nameExpr
+378..379 nameExpr
+366..382 callExpr
+387..405 localDecl
+396..405 callExpr
+401..404 literalExpr string
+410..428 localDecl
+419..428 callExpr
+424..427 literalExpr string
+433..452 exprStmt
+433..452 callExpr
+439..451 interpolatedExpr
+442..449 binaryExpr lt right 447..449
+442..444 nameExpr
+447..449 nameExpr
+433..452 callExpr
+457..475 exprStmt
+457..475 callExpr
+463..474 interpolatedExpr
+466..468 nameExpr
+470..472 nameExpr
+457..475 callExpr
+569..586 localDecl
+577..586 callExpr
+582..585 literalExpr string
+591..608 localDecl
+599..608 callExpr
+604..607 literalExpr string
+613..664 exprStmt
+613..664 callExpr
+619..663 interpolatedExpr
+622..627 binaryExpr lt right 626..627
+622..623 nameExpr
+626..627 nameExpr
+630..636 binaryExpr le right 635..636
+630..631 nameExpr
+635..636 nameExpr
+639..644 binaryExpr gt right 643..644
+639..640 nameExpr
+643..644 nameExpr
+647..653 binaryExpr ge right 652..653
+647..648 nameExpr
+652..653 nameExpr
+656..661 binaryExpr lt right 660..661
+656..657 nameExpr
+660..661 nameExpr
+613..664 callExpr
+669..685 exprStmt
+669..685 callExpr
+675..684 interpolatedExpr
+678..679 nameExpr
+681..682 nameExpr
+669..685 callExpr

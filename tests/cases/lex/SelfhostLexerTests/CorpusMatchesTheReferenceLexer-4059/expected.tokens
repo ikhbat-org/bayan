@@ -1,0 +1,28 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 Identifier `fo`
+1:35 Identifier `each`
+1:40 NewKeyword `new`
+1:44 GotoKeyword `goto`
+3:2 Equals `=`
+3:4 EqualsEquals `==`
+3:7 BangEquals `!=`
+3:10 Less `<`
+3:12 LessEquals `<=`
+3:15 Greater `>`
+3:17 GreaterEquals `>=`
+3:20 LessLess `<<`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  1 │ test assert property fuzz model fo�each new goto
+    │                                   ^
+
+error BYN0002: unexpected character `‏`
+
+  3 │  = == != < <= > >= << ‏
+    │                       ^

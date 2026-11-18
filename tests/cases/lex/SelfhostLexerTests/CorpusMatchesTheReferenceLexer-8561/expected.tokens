@@ -1,0 +1,147 @@
+1:1 LetKeyword `let`
+1:5 Identifier `s`
+1:7 Equals `=`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 StringLiteral `$"{$"`
+1:62 OpenBrace `{`
+1:63 StringLiteral `$"{$"`
+1:68 OpenBrace `{`
+1:69 Identifier `x`
+1:70 CloseBrace `}`
+1:71 StringLiteral `"}"`
+1:74 CloseBrace `}`
+1:75 StringLiteral `"}"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:90 InterpolationEnd `}`
+1:91 InterpolatedStringText `�`
+1:92 InterpolatedStringEnd `"`
+1:93 InterpolationEnd `}`
+1:94 InterpolatedStringEnd `"`
+1:95 InterpolationEnd `}`
+1:96 InterpolatedStringEnd `"`
+1:97 InterpolationEnd `}`
+1:98 InterpolatedStringEnd `"`
+1:100 InterpolationEnd `}`
+1:101 InterpolatedStringEnd `"`
+1:102 InterpolationEnd `}`
+1:103 InterpolatedStringEnd `"`
+1:104 InterpolationEnd `}`
+1:105 InterpolatedStringEnd `"`
+1:106 InterpolationEnd `}`
+1:107 InterpolatedStringEnd `"`
+1:108 InterpolationEnd `}`
+1:109 InterpolatedStringEnd `"`
+1:110 InterpolationEnd `}`
+1:111 InterpolatedStringText `�`
+1:112 InterpolatedStringEnd
+3:1 IntegerLiteral `1_`
+5:3 InterpolatedStringStart `$"`
+5:5 InterpolationStart `{`
+5:6 StringLiteral `"`
+5:7 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}�"}"}"}"�}"}"}"}"}"}�
+    │         ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}�"}"}"}"�}"}"}"}"}"}�
+    │                                                         ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}�"}"}"}"�}"}"}"}"}"}�
+    │                                                                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC1)
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}�"}"}"}"�}"}"}"}"}"}�
+    │                                                                                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEB)
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}�"}"}"}"�}"}"}"}"}"}�
+    │                                                                                                               ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1_
+    │  ^
+    │
+    │ 3 │ 1_
+    │   │  -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ // comment � hidden
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │ � $"{"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  5 │ � $"{"
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ � $"{"
+    │      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

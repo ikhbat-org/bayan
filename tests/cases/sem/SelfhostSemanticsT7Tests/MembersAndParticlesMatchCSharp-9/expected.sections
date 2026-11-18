@@ -1,0 +1,4 @@
+== noun-on-mutator
+BYN5101 116+6 `sizeUp` is a noun on a `ref this` member; name the action |  | rename it with the verb for what it does to `this` | 
+BYN5101 51+5 `total` is a noun on a `ref this` member; name the action |  | rename it with the verb for what it does to `this` | 
+end

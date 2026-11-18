@@ -1,0 +1,5 @@
+dist
+--allow-dirty
+--target
+host
+tally

@@ -1,0 +1,179 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+2:2 CharLiteral `'\q'`
+4:1 LetKeyword `let`
+4:5 Identifier `s`
+4:7 Equals `=`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolationStart `{`
+4:12 InterpolatedStringStart `$"`
+4:14 InterpolationStart `{`
+4:15 InterpolatedStringStart `$"`
+4:17 InterpolationStart `{`
+4:18 InterpolatedStringStart `$"`
+4:20 InterpolationStart `{`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolationStart `{`
+4:24 InterpolatedStringStart `$"`
+4:26 InterpolationStart `{`
+4:27 InterpolatedStringStart `$"`
+4:29 InterpolationStart `{`
+4:30 InterpolatedStringStart `$"`
+4:32 InterpolationStart `{`
+4:33 InterpolatedStringStart `$"`
+4:35 InterpolationStart `{`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolationStart `{`
+4:39 InterpolatedStringStart `$"`
+4:41 InterpolationStart `{`
+4:42 InterpolatedStringStart `$"`
+4:44 InterpolationStart `{`
+4:45 InterpolatedStringStart `$"`
+4:47 InterpolationStart `{`
+4:48 InterpolatedStringStart `$"`
+4:50 InterpolationStart `{`
+4:51 InterpolatedStringStart `$"`
+4:53 InterpolationStart `{`
+4:54 InterpolatedStringStart `$"`
+4:56 InterpolationStart `{`
+4:57 StringLiteral `$"{$"`
+4:62 OpenBrace `{`
+4:63 StringLiteral `$"{$"`
+4:68 OpenBrace `{`
+4:69 Identifier `x`
+4:70 CloseBrace `}`
+4:71 StringLiteral `"}�"`
+4:74 CloseBrace `}`
+4:75 StringLiteral `"}"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolationEnd `}`
+4:81 InterpolatedStringEnd `"`
+4:82 InterpolationEnd `}`
+4:83 InterpolatedStringEnd `"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 InterpolationEnd `}`
+4:87 InterpolatedStringEnd `"`
+4:88 InterpolationEnd `}`
+4:89 InterpolatedStringEnd `"`
+4:90 InterpolationEnd `}`
+4:91 InterpolatedStringEnd `"`
+4:92 InterpolationEnd `}`
+4:93 InterpolatedStringEnd `"`
+4:94 InterpolationEnd `}`
+4:95 InterpolatedStringEnd `"`
+4:96 InterpolationEnd `}`
+4:97 InterpolatedStringEnd `"`
+4:98 InterpolationEnd `}`
+4:99 InterpolatedStringEnd `"`
+4:100 InterpolationEnd `}`
+4:101 InterpolatedStringEnd `"`
+4:102 InterpolationEnd `}`
+4:103 InterpolatedStringEnd `"`
+4:104 InterpolationEnd `}`
+4:105 InterpolatedStringEnd `"`
+4:106 InterpolationEnd `}`
+4:107 InterpolatedStringEnd `"`
+4:108 InterpolationEnd `}`
+4:109 InterpolatedStringEnd `"`
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:6 Bar `|`
+5:8 BarBar `||`
+5:11 Caret `^`
+5:13 Tilde `~`
+5:15 Bang `!`
+5:17 Equals `=`
+5:19 EqualsEquals `==`
+5:22 BangEquals `!=`
+5:25 Less `<`
+5:27 LessEquals `<=`
+5:30 Greater `>`
+5:32 GreaterEquals `>=`
+5:35 LessLess `<<`
+5:38 Greater `>`
+5:39 Greater `>`
+5:41 Greater `>`
+5:42 GreaterEquals `>=`
+7:3 InterpolatedStringStart `$"`
+7:5 InterpolatedStringText `$`
+7:6 InterpolatedStringEnd `"`
+7:7 OpenBrace `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 Identifier `x`
+7:33 InterpolationEnd `}`
+7:34 InterpolatedStringEnd `"`
+7:35 InterpolationEnd `}`
+7:36 InterpolatedStringEnd `"`
+7:37 InterpolationEnd `}`
+7:38 InterpolatedStringEnd `"`
+7:39 InterpolationEnd `}`
+7:40 InterpolatedStringEnd `"`
+7:41 InterpolationEnd `}`
+7:42 InterpolatedStringEnd `"`
+7:43 InterpolationEnd `}`
+7:44 InterpolatedStringEnd `"`
+7:45 InterpolationEnd `}`
+7:46 InterpolatedStringEnd `"`
+7:47 InterpolationEnd `}`
+7:48 InterpolatedStringEnd `"`
+7:49 CloseBrace `}`
+7:50 StringLiteral `"`
+7:51 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │  '\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}�"}"}"}"}"�}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  4 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}�"}"}"}"}"�}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9C)
+
+  4 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}�"}"}"}"}"�}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ � $"$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  7 │ � $"$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"
+    │                                                  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

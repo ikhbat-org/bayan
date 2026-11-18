@@ -1,0 +1,11 @@
+//// not a doc comment
+t caÃ© = 2
+let c = """never closed
+Fs
+0b1losed
+b
+
+let ÿ = 2
+
+let c = """never closed
+( )è [ ] { }

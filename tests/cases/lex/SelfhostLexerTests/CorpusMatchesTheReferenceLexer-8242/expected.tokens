@@ -1,0 +1,26 @@
+1:1 Identifier `c`
+1:3 Identifier `line`
+1:8 Identifier `one`
+1:11 Dot `.`
+    doc `/// Doc line two.`
+3:1 Identifier `str`
+4:2 Identifier `me`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
+6:2 IntegerLiteral `0xF__`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ �me
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │  0xF__
+    │     ^^
+    │
+    │ 6 │  0xF__
+    │   │     --

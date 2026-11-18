@@ -1,0 +1,35 @@
+1:5 Identifier `er`
+1:8 Identifier `c`
+1:10 Identifier `losed`
+2:1 Identifier `b`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � ���� er c�losed
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ � ���� er c�losed
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ � ���� er c�losed
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � ���� er c�losed
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � ���� er c�losed
+    │      ^
+
+error BYN0002: unexpected character `\u{12}`
+
+  1 │ � ���� er c�losed
+    │            ^

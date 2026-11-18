@@ -1,0 +1,4 @@
+== bind.probes.b48
+flags 0
+errorExpr:?[2741:15]=-()
+BYN2208 155:15 `<` cannot be applied to `Bad` and `Bad` |||

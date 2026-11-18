@@ -1,0 +1,24 @@
+1:1 StringLiteral `"a\u{2067}b"`
+1:44 Identifier `raw`
+1:48 StringLiteral `"quoted"`
+2:2 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ "a�b" /* s = $"{$"{$"{$"{"$"{$"{$"/* � */  raw "quoted"
+    │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ "a�b" // s = $"{$"{$"{$"{"$"{$"{$"/* �
+    │   │        +++++++++++++++++++++++++++++++
+    │ 2 │   raw "quoted"
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ "a�b" /* s = $"{$"{$"{$"{"$"{$"{$"/* � */  raw "quoted"
+    │                                      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ "a�b" /* s = $"{$"{$"{$"{"$"{$"{$"/* � */  raw "quoted"
+    │   │                                      -

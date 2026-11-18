@@ -1,0 +1,11 @@
+== tests/cases/diag/assert-fails-missing-case.byn
+83..128 blockStmt
+89..113 guardedStmt
+104..113 memberExpr
+104..105 nameExpr
+89..93 failStmt
+94..100 targetMemberExpr
+118..126 returnStmt value 125..126
+125..126 literalExpr integer
+130..165 globalStatement
+130..165 assertStmt

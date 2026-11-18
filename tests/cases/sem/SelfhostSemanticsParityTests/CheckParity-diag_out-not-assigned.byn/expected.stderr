@@ -1,0 +1,18 @@
+error BYN2103: `out` parameter `value` is not assigned on every path
+  --> tmp/t26-tests/cli/diag_out-not-assigned.byn/out-not-assigned.byn:3:9
+
+  3 │         return false
+    │         ^^^^^^^^^^^^
+    │
+  help: assign `value` before every `return`
+
+error BYN2103: `out` parameter `value` is not assigned on every path
+  --> tmp/t26-tests/cli/diag_out-not-assigned.byn/out-not-assigned.byn:10:5
+
+  10 │     return false
+     │     ^^^^^^^^^^^^
+     │
+  help: assign `value` before every `return`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2103

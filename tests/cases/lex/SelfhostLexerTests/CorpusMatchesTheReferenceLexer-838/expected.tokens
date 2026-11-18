@@ -1,0 +1,48 @@
+1:1 CharLiteral `'ab'`
+2:1 StringLiteral `"{$"`
+2:5 OpenBrace `{`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolatedStringText `^$`
+2:10 InterpolatedStringEnd `"`
+2:11 OpenBrace `{`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolationEnd `}`
+2:35 InterpolatedStringEnd `"`
+2:36 StringLiteral `"text"`
+2:43 StringLiteral `"esc \"q\" \\ \n"`
+2:61 RawStringLiteral `"""\n`
+3:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0003: unterminated string literal
+
+  2 │ "{$"{$"^$"{$"{$"{$"{$"{$"{$"{ $"{}""text" "esc \"q\" \\ \n" """
+    │                           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ "{$"{$"^$"{$"{$"{$"{$"{$"{$"{ $"{}""text" "esc \"q\" \\ \n" """
+    │                                                             ^^^ raw string starts here
+    │
+  help: close it with `"""`

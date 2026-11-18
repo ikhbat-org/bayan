@@ -1,0 +1,41 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+2:2 LetKeyword `let`
+2:6 Identifier `café`
+2:12 Equals `=`
+2:14 IntegerLiteral `1`
+4:1 IfKeyword `if`
+4:4 ElseKeyword `else`
+4:9 UnlessKeyword `unless`
+4:16 SwitchKeyword `switch`
+4:23 CaseKeyword `case`
+4:28 DefaultKeyword `default`
+4:36 ForKeyword `for`
+4:40 InKeyword `in`
+4:43 WhileKeyword `while`
+4:49 DoKeyword `do`
+4:52 BreakKeyword `break`
+4:58 ContinueKeyword `continue`
+4:67 ReturnKeyword `return`
+4:74 YieldKeyword `yield`
+4:80 DeferKeyword `defer`
+4:86 ErrdeferKeyword `errdefer`
+4:95 UsingKeyword `using`
+4:101 ContextKeyword `context`
+6:1 CloseBrace `}`
+7:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  2 │  let café = 1
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  let café = 1
+    │   │         +

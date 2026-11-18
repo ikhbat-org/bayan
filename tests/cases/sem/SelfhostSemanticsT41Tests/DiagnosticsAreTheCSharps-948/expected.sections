@@ -1,0 +1,9 @@
+== diags.diag/wrong-state
+BYN7001 18:23 `refund` needs `any` to be `.paid`, but it is `Order`
+  help check the state with `is` or `switch` first
+BYN7001 19:24 `archive` needs `order` to be `.paid or .shipped`, but it is `Order.draft`
+  help check the state with `is` or `switch` first
+BYN7001 20:15 `receipt` needs `order` to be `.paid`, but it is `Order.draft`
+  help check the state with `is` or `switch` first
+BYN7001 9:34 `receipt` needs `this` to be `.paid`, but it is `Order.draft`
+  help check the state with `is` or `switch` first

@@ -1,0 +1,63 @@
+1:1 StringLiteral `"{`
+2:1 IntegerLiteral `1__`
+3:2 CharLiteral `'\u{D800}'`
+4:1 IntegerLiteral `4`
+4:3 FloatLiteral `1e5`
+4:7 FloatLiteral `2.5`
+4:10 NumericSuffix `e`
+4:11 Minus `-`
+5:2 Equals `=`
+5:6 IntegerLiteral `2`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:11 IntegerLiteral `3`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:9 RawStringLiteral `"""never closed\n\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1__
+    │  ^^
+    │
+    │ 2 │ 1__
+    │   │  --
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │  '\u{D800}'
+    │   ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `̈́`
+
+  4 │ 4 1e5 2.5e- ̈́
+    │             ^
+
+error BYN0002: unexpected character ```
+
+  5 │  = ` 2
+    │    ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  6 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  7 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

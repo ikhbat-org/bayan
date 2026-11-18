@@ -1,0 +1,2 @@
+== flow.forLoop
+BYN2102 246:13 `x` is used before it is assigned |declared without a value on line 242|assign it on every path before this, or give the declaration a value|

@@ -1,0 +1,14 @@
+1:4 Identifier `commKnt`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+3:1 CharLiteral `'\q'`
+3:5 Star `*`
+4:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\q'*
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

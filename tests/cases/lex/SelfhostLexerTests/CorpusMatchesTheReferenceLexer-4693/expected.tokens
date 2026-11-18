@@ -1,0 +1,34 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+5:3 StringLiteral `"text"`
+5:10 StringLiteral `"esc \"q\" \\ \n"`
+5:28 RawStringLiteral `"""\n ��$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" let a = "open\n''\n `
+8:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  5 │ 	 "text" "esc \"q\" \\ \n" """
+    │ 	                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  6 │  ��$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" let a = "open
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  ��$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" let a = "open
+    │   ^

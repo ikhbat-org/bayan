@@ -1,0 +1,46 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+2:1 StringLiteral `"total {x}"`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolatedStringText `a `
+2:17 InterpolationStart `{`
+2:18 Identifier `f`
+2:19 OpenParen `(`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolatedStringText `b `
+2:24 InterpolationStart `{`
+2:25 Identifier `c`
+2:26 InterpolationEnd `}`
+2:27 InterpolatedStringEnd `"`
+2:28 CloseParen `)`
+2:29 InterpolationEnd `}`
+2:30 InterpolatedStringText ` d`
+2:32 InterpolatedStringEnd `"`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolatedStringText `{{lit �\r`
+2:44 InterpolatedStringEnd
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ "total {x}" $"a {f($"b {c}")} d" $"{{lit �
+    │                                  ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │ "total {x}" $"a {f($"b {c}")} d" $"{{lit �
+    │                                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │ "total {x}" $"a {f($"b {c}")} d" $"{{lit �
+    │                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ "total {x}" $"a {f($"b {c}")} d" $"{{lit �
+    │                                           ^

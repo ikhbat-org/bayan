@@ -1,0 +1,39 @@
+import lexer
+import parser
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 1 < args.length {
+        let name = args[i]
+        let dir = args[i + 1]
+        var sources = List<lexer.SourceText>()
+        sources.append(lexer.SourceText.create("main.byn", from: t11ReadAllBytes($"{dir}/main.byn")))
+        let options = CompilationOptions { capabilities: null, packageName: null }
+        var c = create(from: move sources, at: dir, by: in options)
+        print($"== spans.{name}")
+        for d in c.diagnostics {
+            var sb = StrBuf()
+            sb.append($"{d.code} {d.span.start}..{d.span.end}")
+            if d.hasFix { sb.append($" fix {d.fixSpan.start}..{d.fixSpan.end}") }
+            for r in d.related { sb.append($" related {r.span.start}..{r.span.end}") }
+            print($"{sb.finish()}")
+        }
+        i += 2
+    }
+    var c = Ctx {
+        files: List<SourceFile>(),
+        modules: List<Mod>(),
+        diagnostics: List<Diag>(),
+        bags: List<DiagBag>(),
+    }
+    let name = t28SyntheticName(ref c, for: "next", at: TextSpan { start: 7, length: 3 })
+    var related = List<Related>()
+    related.append(Related { span: name, label: "" })
+    related.append(Related { span: TextSpan { start: 2, length: 1 }, label: "" })
+    addDiag(ref c, by: Diag { code: "BYN2005", file: -1, span: name, message: "", hasFix: true, fixSpan: name, related: move related })
+    print("== map")
+    for d in c.diagnostics {
+        print($"span {d.span.start}..{d.span.end} fix {d.fixSpan.start}..{d.fixSpan.end} related {d.related[0].span.start}..{d.related[0].span.end} {d.related[1].span.start}..{d.related[1].span.end}")
+    }
+    return 0
+}

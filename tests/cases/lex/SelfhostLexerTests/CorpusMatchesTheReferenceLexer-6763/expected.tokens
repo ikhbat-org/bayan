@@ -1,0 +1,46 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+3:1 IntegerLiteral `1__`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:9 StringLiteral `"bad \q escape"`
+6:1 IntegerLiteral `1`
+6:2 Dot `.`
+6:4 IntegerLiteral `0b102`
+9:85 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  6 │ 1. 0b102
+    │        ^
+
+error BYN0004: unterminated block comment
+
+  8 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

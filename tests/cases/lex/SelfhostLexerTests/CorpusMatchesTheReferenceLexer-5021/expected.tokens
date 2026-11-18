@@ -1,0 +1,120 @@
+1:11 Identifier `ạ̇`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 Identifier `x`
+1:58 InterpolationEnd `}`
+1:59 InterpolatedStringEnd `"`
+1:60 InterpolationEnd `}`
+1:61 InterpolatedStringEnd `"`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+1:64 InterpolationEnd `}`
+1:65 InterpolatedStringEnd `"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringEnd `"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+2:1 IfKeyword `if`
+2:4 Identifier `elseunless`
+2:15 SwitchKeyword `switch`
+2:22 CaseKeyword `case`
+2:27 DefaultKeyword `default`
+2:35 ForKeyword `for`
+2:39 InKeyword `in`
+2:42 WhileKeyword `while`
+2:48 DoKeyword `do`
+2:51 BreakKeyword `break`
+2:57 ContinueKeyword `continue`
+2:66 ReturnKeyword `return`
+2:73 YieldKeyword `yield`
+2:79 DeferKeyword `defer`
+2:85 ErrdeferKeyword `errdefer`
+2:94 UsingKeyword `using`
+2:100 ContextKeyword `context`
+3:1 Identifier `t`
+4:1 Identifier `b`
+5:1 Identifier `é`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolationEnd `}`
+6:5 InterpolatedStringEnd `"`
+6:6 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */ � ạ̇ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │  � ạ̇ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */ � ạ̇ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */ � ạ̇ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │   │    -
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ /* � */ � ạ̇ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │           ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ /* � */ � ạ̇ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │   │           ++
+
+error BYN0003: unterminated string literal
+
+  1 │ /* � */ � ạ̇ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  5 │ é
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ é
+    │   │ +

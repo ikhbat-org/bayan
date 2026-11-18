@@ -1,0 +1,72 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+3:2 StructKeyword `struct`
+3:9 UniqueKeyword `unique`
+3:16 UnionKeyword `union`
+3:22 EnumKeyword `enum`
+3:27 FlagsKeyword `flags`
+3:33 OpenKeyword `open`
+3:38 ExtensibleKeyword `extensible`
+3:49 InterfaceKeyword `interface`
+3:59 DelegateKeyword `delegate`
+3:68 ExtensionKeyword `extension`
+3:78 DerivationKeyword `derivation`
+3:89 AttributeKeyword `attribute`
+4:2 Identifier `foo`
+4:6 Identifier `Bar`
+4:10 Identifier `_x`
+4:13 Identifier `camelCase2`
+4:24 Identifier `بيان`
+4:29 Identifier `μετρητής`
+4:38 Identifier `x_1`
+4:42 Identifier `é`
+6:1 Plus `+`
+6:3 Minus `-`
+6:5 Star `*`
+6:7 Slash `/`
+6:9 Percent `%`
+6:11 PlusPercent `+%`
+6:14 MinusPercent `-%`
+6:17 StarPercent `*%`
+6:20 PlusBar `+|`
+6:23 MinusBar `-|`
+6:26 StarBar `*|`
+6:29 PlusPlus `++`
+6:32 MinusMinus `--`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ � struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │ ^

@@ -1,0 +1,39 @@
+== tests/cases/diag/except-narrowing.byn
+256..304 blockStmt
+262..289 ifStmt
+265..270 binaryExpr lt right 269..270
+265..266 nameExpr
+269..270 literalExpr integer
+271..289 blockStmt
+273..277 failStmt
+278..287 targetMemberExpr
+294..302 returnStmt value 301..302
+301..302 nameExpr
+339..399 blockStmt
+345..373 ifStmt
+348..354 binaryExpr eq right 353..354
+348..349 nameExpr
+353..354 literalExpr integer
+355..373 blockStmt
+357..361 failStmt
+362..371 targetMemberExpr
+378..397 returnStmt value 385..397
+385..397 tryExpr
+389..397 callExpr
+395..396 nameExpr
+423..463 catchExpr
+423..463 catchExpr
+423..463 catchExpr
+423..431 callExpr
+429..430 nameExpr
+462..463 literalExpr integer
+503..564 blockStmt
+509..549 ifStmt
+512..518 binaryExpr eq right 517..518
+512..513 nameExpr
+517..518 literalExpr integer
+519..549 blockStmt
+521..525 failStmt
+526..547 memberExpr
+554..562 returnStmt value 561..562
+561..562 nameExpr

@@ -1,0 +1,73 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `a`
+1:4 InterpolationStart `{`
+1:5 Identifier `b`
+1:6 InterpolationEnd `}`
+1:7 InterpolatedStringText `c   `
+1:11 InterpolatedStringEnd `"`
+1:12 StringLiteral `""`
+1:15 CStringLiteral `c"text"`
+1:23 U16StringLiteral `u16"wide"`
+1:33 StringLiteral `"\u{202E} allowed in strings"`
+1:56 StringLiteral `""`
+1:59 StringLiteral `"\u{48}i"`
+4:1 Identifier `fé`
+4:5 Equals `=`
+4:7 Dot `.`
+4:8 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:10 Equals `=`
+5:12 IntegerLiteral `2`
+7:3 Identifier `et`
+7:8 Equals `=`
+7:10 IntegerLiteral `2`
+9:1 Amp `&`
+9:3 AmpAmp `&&`
+9:6 Bar `|`
+9:8 BarBar `||`
+9:11 Caret `^`
+9:13 Tilde `~`
+9:15 Bang `!`
+9:17 Equals `=`
+9:19 EqualsEquals `==`
+9:22 BangEquals `!=`
+9:25 Less `<`
+9:27 LessEquals `<=`
+9:30 Greater `>`
+9:32 GreaterEquals `>=`
+9:35 LessLess `<<`
+9:38 Greater `>`
+9:39 Greater `>`
+9:41 Greater `>`
+9:42 GreaterEquals `>=`
+10:2 EndOfFile
+
+error BYN0005: identifier `fé` is not in Unicode normalization form C
+
+  4 │ fé = .1
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ fé = .1
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ � et � = 2
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  8 │ // ok � in colet x� = 1
+    │       ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  8 │ // ok � in colet x� = 1
+    │                   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ // ok � in colet x� = 1
+    │   │                   -

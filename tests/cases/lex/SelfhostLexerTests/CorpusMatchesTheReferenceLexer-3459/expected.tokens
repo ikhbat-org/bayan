@@ -1,0 +1,66 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `toal `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 InterpolationEnd `}`
+1:11 InterpolatedStringEnd `"`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolatedStringText `a `
+1:17 InterpolationStart `{`
+1:18 Identifier `f`
+1:19 OpenParen `(`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolatedStringText `b `
+1:24 InterpolationStart `{`
+1:25 Identifier `c`
+1:26 InterpolationEnd `}`
+1:27 InterpolatedStringEnd `"`
+1:28 CloseParen `)`
+1:29 InterpolationEnd `}`
+1:30 InterpolatedStringText ` d`
+1:32 InterpolatedStringEnd `"`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolatedStringText `{{lite�al}}`
+1:46 InterpolatedStringEnd `"`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 Identifier `Point`
+1:57 OpenBrace `{`
+1:59 Identifier `x`
+1:61 Equals `=`
+1:63 IntegerLiteral `1`
+1:65 CloseBrace `}`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringText `!`
+1:68 InterpolatedStringEnd `"`
+1:70 InterpolatedStringStart `$"`
+1:72 InterpolatedStringEnd `"`
+2:2 FailsKeyword `fails`
+2:8 TryKeyword `try`
+2:12 CatchKeyword `catch`
+2:18 NeverKeyword `never`
+2:24 Identifier `oalloc`
+2:31 NosuspendKeyword `nosuspend`
+2:41 SuspendsKeyword `suspends`
+2:50 AsyncKeyword `async`
+2:56 AwaitKeyword `await`
+3:2 LetKeyword `let`
+3:6 Identifier `x`
+3:9 Equals `=`
+3:11 IntegerLiteral `1`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  1 │ $"toal {x}" $"a {f($"b {c}")} d" $"{{lite�al}}" $"{Point { x = 1 }}!" $""
+    │                                          ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │  let x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  let x� = 1
+    │   │       -

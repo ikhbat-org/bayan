@@ -1,0 +1,7 @@
+error BYN2761: `Node` contains itself by value: Node → Node
+  --> <repo>/tests/cases/diag/recursive-struct.byn:1:8
+
+  1 │ struct Node {
+    │        ^^^^
+    │
+  help: store the inner one as `Owned<Node>` (or in a `List<Node>`); a value cannot contain itself

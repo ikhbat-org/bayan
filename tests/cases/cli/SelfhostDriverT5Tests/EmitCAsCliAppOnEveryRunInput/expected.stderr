@@ -1,0 +1,10 @@
+error BYN2004: no module `sub`
+  --> <repo>/tmp/t5/emit/run_alias-field-default-import_main/main.byn:1:8
+
+  1 │ import sub
+    │        ^^^
+    │
+  help: put the module's `.byn` files in `sub/` next to the entry file; a module is a directory
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2004

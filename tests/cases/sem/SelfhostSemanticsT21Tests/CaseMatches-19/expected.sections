@@ -1,0 +1,3 @@
+== call.t3
+errorExpr|?|-|-|1432:19|-
+BYN2787 73:14 `trust` needs a reason: a non-empty string literal ||write `x.trustUnchecked() because "why this value is safe"`|

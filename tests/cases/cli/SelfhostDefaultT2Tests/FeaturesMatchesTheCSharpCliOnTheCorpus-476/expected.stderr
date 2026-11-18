@@ -1,0 +1,5 @@
+error BYN2034: the default of field `A.b` depends on itself
+  --> <repo>/tests/cases/diag/circular-field-default-instance.byn:1:29
+
+  1 │ struct A { Owned<Box<i64>>? b = Owned(Box<i64> {}) }
+    │                             ^

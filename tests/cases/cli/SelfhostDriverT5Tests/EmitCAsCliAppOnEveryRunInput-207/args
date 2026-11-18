@@ -1,0 +1,5 @@
+build
+--emit-c
+--mode
+fast
+overflow-fast.byn

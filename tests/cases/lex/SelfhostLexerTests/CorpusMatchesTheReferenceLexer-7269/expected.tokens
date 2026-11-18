@@ -1,0 +1,64 @@
+1:2 ErrorKeyword `error`
+1:8 SetKeyword `set`
+1:12 UnitKeyword `unit`
+1:17 Identifier `di`
+1:20 Identifier `stinct`
+1:27 TypeKeyword `type`
+1:32 ImportKeyword `import`
+1:39 AsKeyword `as`
+1:42 PublicKeyword `public`
+1:49 PrivateKeyword `private`
+1:57 StaticKeyword `static`
+1:64 ReadonlyKeyword `readonly`
+1:73 RequiredKeyword `required`
+1:82 ConstKeyword `const`
+1:88 LetKeyword `let`
+1:92 VarKeyword `var`
+1:96 EmbedKeyword `embed`
+1:102 ExternKeyword `extern`
+1:109 Identifier `unsae`
+2:2 CharLiteral `'`
+3:1 IntegerLiteral `1__`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `x`
+5:4 InterpolationStart `{`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �error set unit di�stinct type import as public private static readonly required const let var embed extern unsae
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �error set unit di�stinct type import as public private static readonly required const let var embed extern unsae
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xD7)
+
+  1 │ �error set unit di�stinct type import as public private static readonly required const let var embed extern unsae
+    │                   ^
+
+error BYN0008: unterminated char literal
+
+  2 │  '
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  5 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

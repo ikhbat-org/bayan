@@ -1,0 +1,1 @@
+{"code":"BYN2704","severity":"error","file":"input.byn","span":{"start":98,"end":99,"line":8,"column":13,"endLine":8,"endColumn":14},"message":"the payload of a `Shape` is read with a pattern, not `.r`","label":null,"help":"match the variant and bind the field, as in `case .Variant(let x):`","fixes":[]}

@@ -1,0 +1,11 @@
+1:1 Identifier `x`
+1:2 Equals `=`
+2:1 Identifier `a`
+4:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ a /* never Qclosed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

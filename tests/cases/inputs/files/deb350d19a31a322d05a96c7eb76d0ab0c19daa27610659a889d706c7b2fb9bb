@@ -1,0 +1,11 @@
+fails try catch never noalloc nosuspend suspends async await
+ fails try catch never noalloc nosuspend suspends async await
+/// Doc line two.
+ € struct S
+
+''
+
+/* block
+ÿ = 2
+// ok þ in comment
+ 

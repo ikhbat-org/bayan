@@ -1,0 +1,78 @@
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+3:2 OpenBrace `{`
+3:4 CloseBrace `}`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Arrow `->`
+4:32 At `@`
+4:34 Hash `#`
+5:1 Plus `+`
+5:3 Minus `-`
+5:5 Star `*`
+5:7 Slash `/`
+5:9 Percent `%`
+5:11 PlusPercent `+%`
+5:14 MinusPercent `-%`
+5:16 IntegerLiteral `1__`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:9 StringLiteral `"bad \q escape"`
+7:1 VarKeyword `var`
+7:5 Identifier `xs`
+7:7 Colon `:`
+7:9 Identifier `List`
+7:13 Less `<`
+7:14 Identifier `List`
+7:18 Less `<`
+7:19 Identifier `i64`
+7:22 Greater `>`
+7:23 Greater `>`
+8:1 IntegerLiteral `0`
+8:3 IntegerLiteral `42`
+8:6 IntegerLiteral `1_000_000`
+8:16 IntegerLiteral `0xFF`
+8:21 IntegerLiteral `0x_ff`
+8:27 IntegerLiteral `0b1010`
+8:34 IntegerLiteral `0B11`
+8:39 IntegerLiteral `5`
+8:40 NumericSuffix `s`
+8:42 IntegerLiteral `250`
+8:45 NumericSuffix `ms`
+8:48 IntegerLiteral `4`
+8:49 NumericSuffix `KiB`
+8:53 IntegerLiteral `1`
+8:54 NumericSuffix `u`
+8:56 IntegerLiteral `0xFF`
+8:60 NumericSuffix `u`
+8:62 IntegerLiteral `0b1`
+8:65 NumericSuffix `ul`
+8:68 IntegerLiteral `7`
+8:69 NumericSuffix `l`
+9:4 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ + - * / % +% -%1__
+    │                 ^^
+    │
+    │ 5 │ + - * / % +% -%1__
+    │   │                 --
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

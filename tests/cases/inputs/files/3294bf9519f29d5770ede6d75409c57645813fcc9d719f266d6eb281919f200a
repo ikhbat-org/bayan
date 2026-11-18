@@ -1,0 +1,8 @@
+t c = """never closed
+
+€let ÿ = 2
+"b
+let a = 1
+ $"stray } here"
+   raw "quoted"
+ 

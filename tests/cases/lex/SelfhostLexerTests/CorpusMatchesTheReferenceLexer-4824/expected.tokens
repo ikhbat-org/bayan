@@ -1,0 +1,94 @@
+1:1 IntegerLiteral `0xF__`
+3:1 Identifier `café`
+3:7 Equals `=`
+3:9 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:10 Equals `=`
+4:12 IntegerLiteral `2`
+5:2 Identifier `b`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:25 StringLiteral `"{$�{$"`
+6:31 OpenBrace `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 Identifier `x`
+6:48 InterpolationEnd `}`
+6:49 InterpolatedStringEnd `"`
+6:50 InterpolationEnd `}`
+6:51 InterpolatedStringEnd `"`
+6:52 InterpolationEnd `}`
+6:53 InterpolatedStringEnd `"`
+6:54 InterpolationEnd `}`
+6:55 InterpolatedStringEnd `"`
+6:56 InterpolationEnd `}`
+6:57 InterpolatedStringEnd `"`
+6:58 CloseBrace `}`
+6:59 StringLiteral `"}"`
+6:62 InterpolationEnd `}`
+6:63 InterpolatedStringEnd `"`
+6:64 InterpolationEnd `}`
+6:65 InterpolatedStringEnd `"`
+6:66 InterpolationEnd `}`
+6:67 InterpolatedStringEnd `"`
+6:69 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ café = 1
+    │ ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ café = 1
+    │   │    +
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$�"{$�{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" 
+    │           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$�"{$�{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" 
+    │                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$�"{$�{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" 
+    │                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$�"{$�{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" 
+    │                            ^

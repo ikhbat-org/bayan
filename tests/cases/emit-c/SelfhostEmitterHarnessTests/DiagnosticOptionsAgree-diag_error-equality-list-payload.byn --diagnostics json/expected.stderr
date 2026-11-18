@@ -1,0 +1,1 @@
+{"code":"BYN2208","severity":"error","file":"input.byn","span":{"start":277,"end":283,"line":9,"column":14,"endLine":9,"endColumn":20},"message":"`==` cannot be applied to `ListError` and `ListError`","label":null,"help":null,"fixes":[]}

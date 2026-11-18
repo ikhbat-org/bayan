@@ -1,0 +1,94 @@
+2:1 Identifier `Fs`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 IntegerLiteral `0x_`
+5:1 IntegerLiteral `0b__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF__`
+8:2 Identifier `_`
+8:4 InterpolatedStringStart `$"`
+8:6 InterpolatedStringText `stay} here`
+8:16 InterpolatedStringEnd `"`
+10:1 CharLiteral `'ab'`
+11:3 IntegerLiteral `0x`
+12:2 IntegerLiteral `5`
+12:3 NumericSuffix `e`
+12:5 Identifier `x`
+12:6 Dot `.`
+12:7 Identifier `y`
+12:9 FloatLiteral `2.5`
+12:12 NumericSuffix `f`
+13:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���
+    │   ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  8 │  _ $"stay} here"
+    │          ^
+    │
+    │ 8 │  _ $"stay}} here"
+    │   │           +
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  10 │ 'ab'
+     │ ^^^^
+     │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `\u{0}`
+
+  11 │  �0x
+     │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  11 │  �0x
+     │   ^^

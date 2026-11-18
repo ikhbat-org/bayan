@@ -1,0 +1,59 @@
+== tests/cases/run/catch-switch-block-arm.byn
+154..219 blockStmt
+160..179 guardedStmt
+173..179 binaryExpr eq right 178..179
+173..174 nameExpr
+178..179 literalExpr integer
+160..164 failStmt
+165..169 targetMemberExpr
+184..204 guardedStmt
+199..204 binaryExpr lt right 203..204
+199..200 nameExpr
+203..204 literalExpr integer
+184..188 failStmt
+189..195 targetMemberExpr
+209..217 returnStmt value 216..217
+216..217 nameExpr
+242..352 catchExpr
+242..352 catchExpr
+242..352 catchExpr
+242..250 callExpr
+248..249 nameExpr
+257..352 switchExpr
+257..263 caughtErrorExpr
+270..275 constantPattern
+270..275 memberExpr
+279..324 blockExpr
+279..324 blockExpr
+279..324 blockStmt
+289..301 exprStmt
+289..301 callExpr
+295..300 literalExpr string
+289..301 callExpr
+310..318 returnStmt value 317..318
+317..318 literalExpr integer
+330..337 constantPattern
+330..337 memberExpr
+341..350 jumpExpr
+341..350 jumpExpr
+341..350 returnStmt value 348..350
+348..350 unaryExpr negate operand 349..350
+366..448 blockStmt
+372..393 exprStmt
+372..393 callExpr
+378..392 interpolatedExpr
+381..390 callExpr
+388..389 literalExpr integer
+372..393 callExpr
+398..420 exprStmt
+398..420 callExpr
+404..419 interpolatedExpr
+407..417 callExpr
+414..416 unaryExpr negate operand 415..416
+398..420 callExpr
+425..446 exprStmt
+425..446 callExpr
+431..445 interpolatedExpr
+434..443 callExpr
+441..442 literalExpr integer
+425..446 callExpr

@@ -1,0 +1,37 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+3:1 IntegerLiteral `1`
+3:2 NumericSuffix `ul`
+3:5 IntegerLiteral `7`
+3:6 NumericSuffix `l`
+4:1 LetKeyword `let`
+4:5 EffectKeyword `effect`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
+5:1 Identifier `각comment`
+5:12 Star `*`
+5:13 Slash `/`
+5:15 Identifier `a`
+    doc `/// Dlet c = \u{7} 3`
+7:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  2 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  �
+    │   │  -
+
+error BYN0005: identifier `각comment` is not in Unicode normalization form C
+
+  5 │ 각comment */ a
+    │ ^^^^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ 각comment */ a
+    │   │ +

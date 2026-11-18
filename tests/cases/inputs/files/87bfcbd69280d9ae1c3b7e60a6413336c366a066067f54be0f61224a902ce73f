@@ -1,0 +1,21 @@
+enum Color {
+    red
+    green
+    red
+    Blue
+}
+enum Empty { }
+enum Planet(ref i64 a, i64 b = 1, List<i64> c, i64 d, i64 d, i64 name, i64 ordinal, Color col, Planet2 p2, bool ok, rune r, string s, f64 f, Missing m, u8 n) {
+    earth
+}
+enum Planet2(i64 mass) {
+    x
+}
+struct R {
+    i64 x requires it > 0
+    i64 x
+    i64 Y
+}
+enum Modes(move i64 a, out i64 b, R.Field rf) {
+    z
+}

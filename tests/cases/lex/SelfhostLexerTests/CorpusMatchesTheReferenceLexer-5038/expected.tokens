@@ -1,0 +1,76 @@
+1:1 CloseBrace `}`
+2:2 Identifier `x`
+2:4 Equals `=`
+2:6 IntegerLiteral `1`
+2:8 CloseBrace `}`
+2:9 CloseBrace `}`
+2:10 Bang `!`
+2:11 StringLiteral `"$"`
+2:14 OpenBrace `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 InterpolatedStringStart `$"`
+2:56 InterpolationStart `{`
+2:57 Identifier `x`
+2:58 InterpolationEnd `}`
+2:59 InterpolatedStringEnd `"`
+2:60 InterpolationEnd `}`
+2:61 InterpolatedStringEnd `"`
+2:62 InterpolationEnd `}`
+2:63 InterpolatedStringEnd `"`
+2:64 InterpolationEnd `}`
+2:65 InterpolatedStringEnd `"`
+2:66 InterpolationEnd `}`
+2:67 InterpolatedStringEnd `"`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringEnd `"`
+2:70 InterpolationEnd `}`
+2:71 InterpolatedStringEnd `"`
+2:72 InterpolationEnd `}`
+2:73 InterpolatedStringEnd `"`
+2:74 InterpolationEnd `}`
+2:75 InterpolatedStringEnd `"`
+2:76 InterpolationEnd `}`
+2:77 InterpolatedStringEnd `"`
+2:78 InterpolationEnd `}`
+2:79 InterpolatedStringEnd `"`
+2:80 InterpolationEnd `}`
+2:81 InterpolatedStringEnd `"`
+2:82 Greater `>`
+2:84 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  x = 1 }}!"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"> b
+    │                  ^^ this string never ends
+    │
+  help: close the `{` and the string

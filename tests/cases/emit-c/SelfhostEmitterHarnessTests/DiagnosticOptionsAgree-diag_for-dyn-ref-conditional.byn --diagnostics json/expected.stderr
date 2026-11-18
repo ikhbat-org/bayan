@@ -1,0 +1,1 @@
+{"code":"BYN2106","severity":"error","file":"input.byn","span":{"start":354,"end":368,"line":15,"column":26,"endLine":15,"endColumn":40},"message":"cannot modify this value","label":"it is borrowed element by element as `dyn ref IC`","help":null,"fixes":[]}

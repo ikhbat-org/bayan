@@ -1,0 +1,29 @@
+== tests/cases/diag/participle-changes-this.byn
+137..164 blockStmt
+147..158 assignStmt assign target 147..151 value 154..158
+147..151 nameExpr
+147..151 nameExpr
+154..158 nameExpr
+154..158 nameExpr
+261..265 nameExpr
+261..265 nameExpr
+261..265 nameExpr
+261..265 nameExpr
+289..309 structLiteralExpr
+289..309 structLiteralExpr
+289..309 structLiteralExpr
+416..443 blockStmt
+426..437 assignStmt assign target 426..430 value 433..437
+426..430 nameExpr
+426..430 nameExpr
+433..437 nameExpr
+433..437 nameExpr
+546..573 blockStmt
+556..567 assignStmt assign target 556..560 value 563..567
+556..560 nameExpr
+556..560 nameExpr
+563..567 nameExpr
+563..567 nameExpr
+591..594 literalExpr floatKeyword
+591..594 literalExpr floatKeyword
+591..594 literalExpr floatKeyword

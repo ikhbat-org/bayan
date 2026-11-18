@@ -1,0 +1,55 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{`
+1:5 InterpolatedStringEnd `"`
+1:7 Identifier `Å`
+1:8 CloseBrace `}`
+1:9 CharLiteral `'`
+2:1 CharLiteral `'\u{110000}'`
+3:1 CharLiteral `'x`
+4:2 CharLiteral `'q'`
+5:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ $"{{" Å}'
+    │       ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ $"{{" Å}'
+    │   │       +
+
+error BYN0008: unterminated char literal
+
+  1 │ $"{{" Å}'
+    │         ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ �'q'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ �'q'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ �'q'
+    │  ^

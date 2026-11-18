@@ -1,0 +1,55 @@
+1:1 IntegerLiteral `0x_`
+    doc `///`
+4:1 IfKeyword `if`
+4:4 ElseKeyword `else`
+4:9 UnlessKeyword `unless`
+4:16 SwitchKeyword `switch`
+4:23 CaseKeyword `case`
+4:28 DefaultKeyword `default`
+4:36 ForKeyword `for`
+4:40 InKeyword `in`
+4:43 WhileKeyword `while`
+4:49 DoKeyword `do`
+4:52 BreakKeyword `break`
+4:58 ContinueKeyword `continue`
+4:67 ReturnKeyword `return`
+4:74 YieldKeyword `yield`
+4:80 Identifier `deferT`
+4:87 ErrdeferKeyword `errdefer`
+4:96 UsingKeyword `using`
+4:102 Identifier `contex`
+5:1 Identifier `ạ̇`
+6:1 IntegerLiteral `0b1`
+6:4 NumericSuffix `ms`
+8:1 StringLiteral `"{`
+9:1 Star `*`
+9:2 Slash `/`
+9:4 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ ạ̇
+    │   │ +
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  6 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  8 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

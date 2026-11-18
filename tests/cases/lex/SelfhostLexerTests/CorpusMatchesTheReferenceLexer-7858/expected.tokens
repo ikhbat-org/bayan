@@ -1,0 +1,88 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+3:1 Identifier `ar`
+3:4 Identifier `_x`
+3:7 Identifier `camelCase2`
+3:18 Identifier `بيان`
+3:23 Identifier `μετρητής`
+3:32 Identifier `x_1`
+3:36 Identifier `é`
+4:2 IntegerLiteral `0xFF`
+4:6 NumericSuffix `s`
+5:1 IntegerLiteral `1`
+5:2 Dot `.`
+6:1 Amp `&`
+6:3 AmpAmp `&&`
+6:6 Bar `|`
+6:8 BarBar `||`
+6:11 Caret `^`
+6:13 Tilde `~`
+6:15 Bang `!`
+6:17 Equals `=`
+6:19 EqualsEquals `==`
+6:22 BangEquals `!=`
+6:25 Less `<`
+6:27 LessEquals `<=`
+6:30 Greater `>`
+6:33 GreaterEquals `>=`
+6:36 LessLess `<<`
+6:39 Greater `>`
+6:40 Greater `>`
+6:42 Greater `>`
+6:43 GreaterEquals `>=`
+7:1 Star `*`
+7:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  1 │ += -= *= /= %= &=� |= ^= <<=
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │  �
+    │   ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  4 │  0xFFs
+    │      ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │ 1.���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │ 1.���
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ 1.���
+    │     ^
+
+error BYN0002: unexpected character `\u{7F}`
+
+  6 │ & && | || ^ ~ ! = == != < <= >� >= << >> >>=
+    │                               ^
+
+error BYN0002: unexpected character `\u{18}`
+
+  7 │ *� 
+    │  ^

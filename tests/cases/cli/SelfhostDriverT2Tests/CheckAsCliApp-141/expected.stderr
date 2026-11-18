@@ -1,0 +1,66 @@
+error BYN2612: `try` is not allowed in a panic handler
+  --> <repo>/tmp/t2/diag/panic-handler-restricted/panic-handler-restricted.byn:12:17
+
+  12 │         let n = try step()
+     │                 ^^^^^^^^^^
+     │
+  help: remove it; panic handlers can't recover
+
+error BYN2612: assignment is not allowed in a panic handler
+  --> <repo>/tmp/t2/diag/panic-handler-restricted/panic-handler-restricted.byn:13:9
+
+  13 │         count = n
+     │         ^^^^^^^^^
+     │
+  help: remove it; panic handlers can't recover
+
+error BYN2612: allocation is not allowed in a panic handler
+  --> <repo>/tmp/t2/diag/panic-handler-restricted/panic-handler-restricted.byn:14:18
+
+  14 │         let xs = List<i64>()
+     │                  ^^^^^^^^^^^
+     │
+  help: remove it; panic handlers can't recover
+
+error BYN2612: `return` is not allowed in a panic handler
+  --> <repo>/tmp/t2/diag/panic-handler-restricted/panic-handler-restricted.byn:15:9
+
+  15 │         return 0
+     │         ^^^^^^^^
+     │
+  help: remove it; panic handlers can't recover
+
+error BYN2612: `break` is not allowed in a panic handler
+  --> <repo>/tmp/t2/diag/panic-handler-restricted/panic-handler-restricted.byn:19:13
+
+  19 │             break
+     │             ^
+     │
+  help: remove it; panic handlers can't recover
+
+error BYN2612: `continue` is not allowed in a panic handler
+  --> <repo>/tmp/t2/diag/panic-handler-restricted/panic-handler-restricted.byn:22:13
+
+  22 │             continue
+     │             ^
+     │
+  help: remove it; panic handlers can't recover
+
+error BYN2612: allocation is not allowed in a panic handler
+  --> <repo>/tmp/t2/diag/panic-handler-restricted/panic-handler-restricted.byn:30:13
+
+  30 │     let s = $"{p.message}"
+     │             ^^^^^^^^^^^^^^
+     │
+  help: remove it; panic handlers can't recover
+
+error BYN2612: `return` is not allowed in a panic handler
+  --> <repo>/tmp/t2/diag/panic-handler-restricted/panic-handler-restricted.byn:31:5
+
+  31 │     return
+     │     ^^^^^^
+     │
+  help: remove it; panic handlers can't recover
+
+✗ build failed: 8 errors, 0 warnings
+  explain: bayan explain BYN2612

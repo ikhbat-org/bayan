@@ -1,0 +1,59 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:1 ErrorKeyword `error`
+2:7 SetKeyword `set`
+2:11 UnitKeyword `unit`
+2:16 DistinctKeyword `distinct`
+2:25 TypeKeyword `type`
+2:30 ImportKeyword `import`
+2:37 AsKeyword `as`
+2:40 PublicKeyword `public`
+2:47 PrivateKeyword `private`
+2:55 StaticKeyword `static`
+2:62 ReadonlyKeyword `readonly`
+2:71 RequiredKeyword `required`
+2:80 ConstKeyword `const`
+2:86 LetKeyword `let`
+2:90 VarKeyword `var`
+2:94 EmbedKeyword `embed`
+2:100 ExternKeyword `extern`
+2:107 UnsafeKeyword `unsafe`
+4:1 Identifier `l`
+4:3 Identifier `et`
+4:6 Identifier `c`
+4:8 Equals `=`
+4:10 RawStringLiteral `"""never closed\n `
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE4)
+
+  4 │ l�et c = """never closed
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  4 │ l�et c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

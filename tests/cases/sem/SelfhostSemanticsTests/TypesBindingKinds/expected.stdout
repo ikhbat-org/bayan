@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "kinds.byn",
+      "name": "digit",
+      "span": {
+        "start": 42,
+        "end": 47
+      },
+      "bindings": [
+        {
+          "name": "s",
+          "kind": "param",
+          "span": {
+            "start": 55,
+            "end": 56
+          },
+          "type": "string"
+        },
+        {
+          "name": "e",
+          "kind": "catch",
+          "span": {
+            "start": 96,
+            "end": 97
+          },
+          "type": "ParseError"
+        }
+      ]
+    },
+    {
+      "path": "kinds.byn",
+      "name": "total",
+      "span": {
+        "start": 170,
+        "end": 175
+      },
+      "bindings": [
+        {
+          "name": "xs",
+          "kind": "param",
+          "span": {
+            "start": 186,
+            "end": 188
+          },
+          "type": "List<i64>"
+        },
+        {
+          "name": "k",
+          "kind": "const",
+          "span": {
+            "start": 202,
+            "end": 203
+          },
+          "type": "i32"
+        },
+        {
+          "name": "sum",
+          "kind": "var",
+          "span": {
+            "start": 216,
+            "end": 219
+          },
+          "type": "i64"
+        },
+        {
+          "name": "x",
+          "kind": "for",
+          "span": {
+            "start": 237,
+            "end": 238
+          },
+          "type": "i64"
+        },
+        {
+          "name": "first",
+          "kind": "let",
+          "span": {
+            "start": 270,
+            "end": 275
+          },
+          "type": "i64?"
+        },
+        {
+          "name": "f",
+          "kind": "pattern",
+          "span": {
+            "start": 334,
+            "end": 335
+          },
+          "type": "i64"
+        },
+        {
+          "name": "d",
+          "kind": "let",
+          "span": {
+            "start": 358,
+            "end": 359
+          },
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "path": "kinds.byn",
+      "name": "main",
+      "span": {
+        "start": 407,
+        "end": 411
+      },
+      "bindings": [
+        {
+          "name": "xs",
+          "kind": "var",
+          "span": {
+            "start": 424,
+            "end": 426
+          },
+          "type": "List<i64>"
+        }
+      ]
+    }
+  ]
+}

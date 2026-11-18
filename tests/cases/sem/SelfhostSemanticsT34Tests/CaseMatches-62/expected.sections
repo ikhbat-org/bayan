@@ -1,0 +1,4 @@
+== s30
+switchExpr|?|3084:12
+value local:i64=n
+BYN2410 101:15 `switch` does not handle every `i64` ||add the missing arms, or `_ => …` for the rest|

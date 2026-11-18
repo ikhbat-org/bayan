@@ -1,0 +1,80 @@
+1:2 Identifier `e5`
+1:5 FloatLiteral `2.5e-3`
+1:12 FloatLiteral `6E+2`
+1:17 FloatLiteral `1.50`
+1:21 NumericSuffix `dec`
+1:25 IntegerLiteral `1`
+1:26 DotDot `..`
+1:28 IntegerLiteral `21`
+1:30 DotDotEquals `..=`
+1:33 IntegerLiteral `3`
+1:35 IntegerLiteral `5`
+1:36 NumericSuffix `e`
+1:38 Identifier `x`
+1:39 Dot `.`
+1:40 Identifier `y`
+1:42 FloatLiteral `2.5`
+1:45 NumericSuffix `f`
+2:8 VarKeyword `var`
+2:12 Identifier `x`
+2:13 Dot `.`
+2:14 Colon `:`
+2:16 Identifier `List`
+2:20 Less `<`
+2:21 Identifier `List`
+2:25 Less `<`
+2:26 Identifier `i64`
+2:29 Greater `>`
+2:30 Greater `>`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `stray } here`
+3:16 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �e5 2.5e-3 6E+2 1.50dec 1..21..=3 5e x.y 2.5f
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �e5 2.5e-3 6E+2 1.50dec 1..21..=3 5e x.y 2.5f
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �e5 2.5e-3 6E+2 1.50dec 1..21..=3 5e x.y 2.5f
+    │  ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │ /* � */var x.: List<List<i64>>
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │ // �
+    │   │  +++
+    │ 3 │ var x.: List<List<i64>>
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  2 │ /* � */var x.: List<List<i64>>
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ /* � */var x.: List<List<i64>>
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �$"stray } here"
+    │  ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │  �$"stray } here"
+    │           ^
+    │
+    │ 3 │  �$"stray }} here"
+    │   │            +

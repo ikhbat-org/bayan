@@ -1,0 +1,29 @@
+== tests/cases/diag/generic-body-changes-state.byn
+138..197 blockStmt
+144..180 assignStmt assign target 144..145 value 148..180
+185..195 assignStmt assign target 185..186 value 189..193
+185..186 nameExpr
+189..193 moveExpr
+194..195 nameExpr
+211..333 blockStmt
+217..231 localDecl
+230..231 literalExpr integer
+236..265 localDecl
+244..265 structLiteralExpr
+262..263 literalExpr integer
+270..298 exprStmt
+270..298 callExpr
+274..275 literalExpr integer
+285..286 nameExpr
+296..297 nameExpr
+303..331 exprStmt
+303..331 callExpr
+307..308 literalExpr integer
+318..319 nameExpr
+329..330 nameExpr
+138..197 blockStmt
+144..180 assignStmt assign target 144..145 value 148..180
+185..195 assignStmt assign target 185..186 value 189..193
+185..186 nameExpr
+189..193 moveExpr
+194..195 nameExpr

@@ -1,0 +1,9 @@
+[32m◆[0m bayan       0.3.2 (commit 9cf2f130da53)
+[32m◆[0m host        <host>
+[31m✗ C compiler: `<repo>/tmp/t5-doctor/path-broken/zig cc` can't be run[0m
+[34m  help: reinstall it, or set BAYAN_CC to a working C compiler[0m
+[31m✗ zig: <repo>/tmp/t5-doctor/path-broken/zig can't be run[0m
+[34m  help: reinstall zig (https://ziglang.org)[0m
+[2m◆[0m git         <host>
+[34m  help: reinstall git[0m
+[32m◆[0m cache       <host>

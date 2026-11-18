@@ -1,0 +1,5 @@
+== tests/cases/diag/cannot-infer-type.byn
+0..12 globalStatement
+0..12 localDecl
+8..12 literalExpr nullKeyword
+13..18 localDecl

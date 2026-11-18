@@ -1,0 +1,11 @@
+// comment ‮ hidden
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+let c = """never �losed
+
+let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+ /* block
+
+ '\u{1F600}' '\'' 'é' '\\' '\0'
+
+is and or not with move ref out this null true false comptime checked
+0xF__

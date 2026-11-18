@@ -1,0 +1,7 @@
+let a = 1
+ Å
+0xFFs
+
+let � = "bad \q escape"
+
+가ن�

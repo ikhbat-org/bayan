@@ -1,0 +1,98 @@
+1:1 CharLiteral `'\u{D800}'`
+2:2 MinusMinus `--`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 BarBar `||`
+3:11 Caret `^`
+3:12 FloatLiteral `3.14`
+3:17 FloatLiteral `1e5`
+3:21 FloatLiteral `2.5e-3`
+3:28 FloatLiteral `6E+2`
+3:33 FloatLiteral `1.50`
+3:37 NumericSuffix `dec`
+3:41 IntegerLiteral `1`
+3:42 DotDot `..`
+3:44 IntegerLiteral `2`
+3:46 IntegerLiteral `1`
+3:47 DotDotEquals `..=`
+3:50 IntegerLiteral `3`
+3:52 IntegerLiteral `5`
+3:53 NumericSuffix `e`
+3:55 Identifier `x`
+3:56 Dot `.`
+3:57 Identifier `y`
+3:59 FloatLiteral `2.5`
+3:62 NumericSuffix `f`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 DefaultKeyword `default`
+5:36 ForKeyword `for`
+5:40 InKeyword `in`
+5:43 WhileKeyword `while`
+5:49 DoKeyword `do`
+5:52 BreakKeyword `break`
+5:58 ContinueKeyword `continue`
+5:67 ReturnKeyword `return`
+5:74 YieldKeyword `yield`
+5:80 DeferKeyword `defer`
+5:86 ErrdeferKeyword `errdefer`
+5:95 UsingKeyword `using`
+5:101 ContextKeyword `context`
+6:2 CharLiteral `'a'`
+6:6 CharLiteral `'\n'`
+6:11 CharLiteral `'\u{1F600}'`
+6:23 CharLiteral `'\''`
+6:28 CharLiteral `'é'`
+6:32 CharLiteral `'\\'`
+6:37 CharLiteral `'\0'`
+8:1 Identifier `ạ̇`
+8:4 InterpolatedStringStart `$"`
+8:6 InterpolatedStringText `open `
+8:11 InterpolationStart `{`
+8:12 Identifier `x`
+8:13 StringLiteral `";`
+10:1 Identifier `é`
+10:3 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  8 │ ạ̇$"open {x";
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ ạ̇$"open {x";
+    │   │ ++
+
+error BYN0003: unterminated string literal
+
+  8 │ ạ̇$"open {x";
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  8 │ ạ̇$"open {x";
+    │             ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  10 │ é
+     │ ^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 10 │ é
+     │    │ +

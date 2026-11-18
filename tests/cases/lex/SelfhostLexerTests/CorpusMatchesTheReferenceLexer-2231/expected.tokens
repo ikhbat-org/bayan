@@ -1,0 +1,20 @@
+1:1 Identifier `l`
+1:4 Identifier `café`
+2:1 Equals `=`
+2:3 IntegerLiteral `1`
+2:4 Semicolon `;`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDA)
+
+  1 │ l� café 
+    │  ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ l� café 
+    │    ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ l� café 
+    │   │       +

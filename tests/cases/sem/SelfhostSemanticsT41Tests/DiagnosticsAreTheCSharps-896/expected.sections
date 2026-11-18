@@ -1,0 +1,7 @@
+== diags.diag/where-unknown-parameter
+BYN2812 5:30 `where` names `U`, which is not a type parameter
+  label not a type parameter of `touch`
+  help name one of `T`
+BYN2812 7:21 `where` names `T`, which is not a type parameter
+  label not a type parameter of `Canvas`
+  help remove the `where` clause; `Canvas` has no type parameters

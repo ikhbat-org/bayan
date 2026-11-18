@@ -1,0 +1,152 @@
+1:1 OpenBrace `{`
+2:1 LetKeyword `let`
+2:5 Identifier `s`
+2:7 Equals `=`
+2:9 InterpolatedStringStart `$"`
+2:11 InterpolationStart `{`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:41 OpenBrace `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 InterpolatedStringStart `$"`
+2:56 InterpolationStart `{`
+2:57 InterpolatedStringStart `$"`
+2:59 InterpolationStart `{`
+2:60 StringLiteral `$"{$"`
+2:65 OpenBrace `{`
+2:66 StringLiteral `$"{x}"`
+2:72 CloseBrace `}`
+2:73 StringLiteral `"}"`
+2:76 InterpolationEnd `}`
+2:77 InterpolatedStringEnd `"`
+2:78 InterpolationEnd `}`
+2:79 InterpolatedStringEnd `"`
+2:80 InterpolationEnd `}`
+2:81 InterpolatedStringEnd `"`
+2:82 InterpolationEnd `}`
+2:83 InterpolatedStringEnd `"`
+2:84 InterpolationEnd `}`
+2:85 InterpolatedStringEnd `"`
+2:86 InterpolationEnd `}`
+2:87 InterpolatedStringEnd `"`
+2:88 CloseBrace `}`
+2:89 StringLiteral `"}"`
+2:92 InterpolationEnd `}`
+2:93 InterpolatedStringEnd `"`
+2:94 InterpolationEnd `}`
+2:95 InterpolatedStringEnd `"`
+2:96 InterpolationEnd `}`
+2:97 InterpolatedStringEnd `"`
+2:98 InterpolationEnd `}`
+2:99 InterpolatedStringEnd `"`
+2:100 InterpolationEnd `}`
+2:101 InterpolatedStringEnd `"`
+2:102 InterpolationEnd `}`
+2:103 InterpolatedStringEnd `"`
+2:104 InterpolationEnd `}`
+2:105 InterpolatedStringEnd `"`
+2:106 InterpolationEnd `}`
+2:107 InterpolatedStringEnd `"`
+2:108 InterpolationEnd `}`
+2:109 InterpolatedStringEnd `"`
+4:1 FloatLiteral `3.14`
+4:6 FloatLiteral `1e5`
+4:10 FloatLiteral `2.5e-3`
+4:17 FloatLiteral `6E+2`
+4:22 FloatLiteral `1.50`
+4:26 NumericSuffix `dec`
+4:30 IntegerLiteral `1`
+4:31 DotDot `..`
+4:33 IntegerLiteral `2`
+4:35 IntegerLiteral `1`
+4:36 DotDotEquals `..=`
+4:39 IntegerLiteral `3`
+4:41 IntegerLiteral `5`
+4:42 NumericSuffix `e`
+4:44 Identifier `x`
+4:45 Dot `.`
+4:46 Identifier `y`
+4:48 FloatLiteral `2.5`
+4:51 NumericSuffix `f`
+6:3 CharLiteral `'\q'`
+7:2 CharLiteral `'\u{110000}'`
+8:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  2 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                       ^
+
+error BYN0002: unexpected character `\u{13}`
+
+  2 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                        ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                            ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │  �
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  6 │ �� '\q'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �� '\q'
+    │  ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │ �� '\q'
+    │     ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  7 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

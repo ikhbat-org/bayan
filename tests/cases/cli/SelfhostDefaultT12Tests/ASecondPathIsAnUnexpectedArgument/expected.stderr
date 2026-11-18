@@ -1,0 +1,2 @@
+bayan: unexpected argument `other`
+usage: bayan dist [<dir>] [--target <t>|all] [--mode debug|safe|fast] [--force] [--allow-dirty]

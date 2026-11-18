@@ -1,0 +1,10 @@
+t café = 1
+let café = 2
+
+$"st�ray } here"
+ let c =  3
+1_
+str  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+( ) [ ] { }
+

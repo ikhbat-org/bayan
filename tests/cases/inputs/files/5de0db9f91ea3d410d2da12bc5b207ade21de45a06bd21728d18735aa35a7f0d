@@ -1,0 +1,6 @@
+let s = f(a, b)
+let t = g(
+    argumentNumberOne,
+    argumentNumberTwo,
+    argumentNumberThree
+)

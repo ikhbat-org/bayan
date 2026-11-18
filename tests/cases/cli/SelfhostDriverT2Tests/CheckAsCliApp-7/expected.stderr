@@ -1,0 +1,21 @@
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t2/diag/input-fails-empty/input-fails-empty.byn:1:1
+
+  1 │ i32!() f() { return 1 }
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t2/diag/input-fails-empty/input-fails-empty.byn:1:4
+
+  1 │ i32!() f() { return 1 }
+    │    ^ found `!`
+    │
+  help: put the next statement on its own line
+    │ 1 │ i32
+    │ 2 │ !() f() { return 1 }
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1012

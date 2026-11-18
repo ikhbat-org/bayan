@@ -1,0 +1,52 @@
+1:1 OpenBrace `{`
+1:2 CharLiteral `'\q`
+3:1 Identifier `b`
+4:3 DotDot `..`
+4:6 DotDotEquals `..=`
+4:10 Colon `:`
+4:12 Question `?`
+4:14 QuestionQuestion `??`
+4:18 QuestionQuestionEquals `??=`
+4:22 QuestionDot `?.`
+4:25 FatArrow `=>`
+4:28 Arrow `->`
+4:31 At `@`
+4:33 Hash `#`
+5:1 Plus `+`
+5:3 Minus `-`
+6:1 Identifier `ot`
+6:4 Identifier `a`
+6:6 Identifier `doc`
+6:10 Slash `/`
+6:11 Identifier `comment`
+7:1 Identifier `b`
+8:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ {'\q
+    │  ^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ {'\q
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │ �� .. ..= : ? ??� ??= ?. => -> @ #
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �� .. ..= : ? ??� ??= ?. => -> @ #
+    │  ^
+
+error BYN0002: unexpected character `\u{19}`
+
+  4 │ �� .. ..= : ? ??� ??= ?. => -> @ #
+    │                 ^

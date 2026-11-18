@@ -1,0 +1,72 @@
+1:1 Identifier `foo`
+1:5 Identifier `Ba`
+1:8 Identifier `_x`
+1:11 Identifier `camelCase2`
+1:22 Identifier `بيان`
+1:27 Identifier `μετρητής`
+1:36 Identifier `x_1`
+1:40 Identifier `é`
+2:1 CharLiteral `'a'`
+2:5 CharLiteral `'\n'`
+2:10 CharLiteral `'\u{1F600}'`
+2:22 CharLiteral `'\''`
+2:27 CharLiteral `'é'`
+2:31 CharLiteral `'\\'`
+2:36 CharLiteral `'\0'`
+4:1 Identifier `각`
+4:5 Comma `,`
+4:7 Dot `.`
+4:9 DotDot `..`
+4:12 DotDotEquals `..=`
+4:16 Colon `:`
+4:18 Question `?`
+4:20 QuestionQuestion `??`
+4:23 QuestionQuestionEquals `??=`
+4:27 QuestionDot `?.`
+4:30 FatArrow `=>`
+4:33 Arrow `->`
+4:36 At `@`
+4:38 Hash `#`
+5:1 Identifier `foo`
+5:5 Identifier `Bar`
+5:9 Identifier `_x`
+5:12 Identifier `camelCase2`
+5:23 Identifier `بيان`
+5:28 Identifier `μετρητής`
+5:37 Identifier `x_1`
+5:41 Identifier `é`
+7:2 IntegerLiteral `1__`
+    doc `///`
+8:4 EndOfFile
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  4 │ 각 , . .. ..= : ? ?? ??= ?. => -> @ #
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ 각 , . .. ..= : ? ?? ??= ?. => -> @ #
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  7 │ ���1__
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  7 │ ���1__
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ���1__
+    │   ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ ���1__
+    │     ^^
+    │
+    │ 7 │ ���1__
+    │   │     --

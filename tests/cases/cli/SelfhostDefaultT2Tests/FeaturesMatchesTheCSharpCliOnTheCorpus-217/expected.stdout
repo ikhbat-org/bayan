@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "DeferStmt",
+    "ErrorEnumDecl",
+    "ExprStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "ReturnStmt",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "Panic",
+    "Print"
+  ],
+  "diagnostics": [
+    "BYN2405"
+  ]
+}

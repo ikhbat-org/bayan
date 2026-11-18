@@ -1,0 +1,90 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:1 Identifier `c`
+2:3 IntegerLiteral `1`
+2:4 DotDot `..`
+2:8 IntegerLiteral `1`
+2:9 DotDotEquals `..=`
+2:12 IntegerLiteral `3`
+2:14 IntegerLiteral `5`
+2:15 NumericSuffix `e`
+2:17 Identifier `x`
+2:18 Dot `.`
+2:19 Identifier `y`
+2:21 FloatLiteral `2.5`
+2:24 NumericSuffix `f`
+4:1 LetKeyword `let`
+4:5 Identifier `actor`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+6:2 Identifier `b`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 StringLiteral `$"{$"`
+7:54 OpenBrace `{`
+7:55 Identifier `x`
+7:56 CloseBrace `}`
+7:57 StringLiteral `"}"`
+7:60 InterpolationEnd `}`
+7:61 InterpolatedStringEnd `"`
+7:62 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  2 │ c 1..� 1..=3 5e x.y 2.5f
+    │      ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  4 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                                           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                                                 ^^

@@ -1,0 +1,53 @@
+1:2 StringLiteral `"a\u{2067}b"`
+2:2 Identifier `_`
+3:3 Identifier `é`
+3:6 Equals `=`
+3:10 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��"a�b"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��"a�b"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  2 │ �_
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ��é = $ 1
+    │  ^
+
+error BYN0002: unexpected character `\u{11}`
+
+  3 │  ��é = $ 1
+    │   ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  3 │  ��é = $ 1
+    │    ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  ��é = $ 1
+    │   │    +
+
+error BYN0002: unexpected character `$`
+
+  3 │  ��é = $ 1
+    │         ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 
+    │         ^

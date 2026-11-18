@@ -1,0 +1,5 @@
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+" u16"wide" "‮ allowed‮
+let a = "open
+let b = "bad \q escape"
+let c = """never

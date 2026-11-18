@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "IfStmt",
+    "InterpolatedExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "IoReadAll",
+    "IoStdin",
+    "Print",
+    "ResultError",
+    "ResultIsOk",
+    "ResultValue",
+    "StringLength"
+  ],
+  "diagnostics": []
+}

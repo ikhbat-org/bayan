@@ -1,0 +1,9 @@
+1:1 Identifier `é`
+1:3 Equals `=`
+1:6 Identifier `c2`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  1 │ é =� c2
+    │    ^

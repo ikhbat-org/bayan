@@ -1,0 +1,76 @@
+1:1 Amp `&`
+1:3 AmpAmp `&&`
+1:6 Bar `|`
+1:8 BarBar `||`
+1:11 Caret `^`
+1:13 Tilde `~`
+1:15 Bang `!`
+1:17 Equals `=`
+1:19 EqualsEquals `==`
+1:22 BangEquals `!=`
+1:25 Less `<`
+1:27 LessEquals `<=`
+1:30 Greater `>`
+1:32 GreaterEquals `>=`
+1:35 LessLess `<<`
+1:38 Greater `>`
+1:39 Greater `>`
+1:41 Greater `>`
+1:42 GreaterEquals `>=`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:9 StringLiteral `"bad \q escape"`
+5:3 CharLiteral `' '`
+5:7 IntegerLiteral `0`
+5:8 CharLiteral `'`
+7:1 LetKeyword `let`
+7:5 Identifier `b`
+7:7 Equals `=`
+7:9 StringLiteral `"bad \q escape"`
+8:2 PlusEquals `+=`
+8:5 MinusEquals `-=`
+8:8 StarEquals `*=`
+8:11 SlashEquals `/=`
+8:14 PercentEquals `%=`
+8:17 AmpEquals `&=`
+8:20 BarEquals `|=`
+8:23 CaretEquals `^=`
+8:26 LessLessEquals `<<=`
+10:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\' '\0'
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\' '\0'
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\' '\0'
+    │      ^
+
+error BYN0008: unterminated char literal
+
+  5 │ \\' '\0'
+    │        ^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

@@ -1,0 +1,1 @@
+{"code":"BYN3002","severity":"error","file":"input.byn","span":{"start":416,"end":441,"line":21,"column":9,"endLine":21,"endColumn":34},"message":"arena `arena` does not live as long as `b`, which borrows it","label":"arena `arena` is freed at the end of its block","help":"copy the data with `.copy(to: alloc)` into an allocator that lives long enough","fixes":[]}

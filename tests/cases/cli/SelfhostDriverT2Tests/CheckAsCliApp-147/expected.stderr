@@ -1,0 +1,18 @@
+error BYN2775: `assert` needs a `bool`, got `i32`
+  --> <repo>/tmp/t2/diag/assert-not-bool/assert-not-bool.byn:2:8
+
+  2 │ assert count
+    │        ^^^^^ this is not a `bool`
+    │
+  help: check the value against what you expect, e.g. `assert count == 3`
+
+error BYN2775: `assert` needs a `bool`, got `string`
+  --> <repo>/tmp/t2/diag/assert-not-bool/assert-not-bool.byn:3:8
+
+  3 │ assert "ready"
+    │        ^^^^^^^ this is not a `bool`
+    │
+  help: check the value against what you expect, e.g. `assert count == 3`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2775

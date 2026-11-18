@@ -1,0 +1,24 @@
+1:1 IntegerLiteral `6`
+1:4 Identifier `u`
+1:5 OpenBrace `{`
+1:6 IntegerLiteral `110000`
+1:12 CloseBrace `}`
+1:13 CharLiteral `'`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE5)
+
+  1 │ 6��u{110000}'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDA)
+
+  1 │ 6��u{110000}'
+    │   ^
+
+error BYN0008: unterminated char literal
+
+  1 │ 6��u{110000}'
+    │             ^
+    │
+  help: close it with `'`

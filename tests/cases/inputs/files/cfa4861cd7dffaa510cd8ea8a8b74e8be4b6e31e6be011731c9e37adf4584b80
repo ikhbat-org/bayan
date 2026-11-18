@@ -1,0 +1,3 @@
+n
+l¦’et b = "bad \q escape"
+let c = """never closed

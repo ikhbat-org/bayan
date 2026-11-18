@@ -1,0 +1,8 @@
++$- * / % +% -%À*% +| -| *| ++ --
+
+ = "bad \q escape"
+let c = """never close
+'ab'
+â€
+0b1ms
+ 

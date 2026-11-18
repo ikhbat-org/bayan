@@ -1,0 +1,5 @@
+error BYN2106: cannot modify this value
+  --> <repo>/tests/cases/diag/for-dyn-ref-span-index.byn:17:26
+
+  17 │     for x: dyn ref IC in view(k.span)[0] { x.bump() }
+     │                          ^^^^^^^^^^^^^^^ a `ReadOnlySpan` cannot be written through

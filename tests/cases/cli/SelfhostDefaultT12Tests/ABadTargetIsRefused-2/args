@@ -1,0 +1,6 @@
+dist
+tally
+--target
+all
+--mode
+fast

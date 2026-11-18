@@ -1,0 +1,71 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 Identifier `iport`
+1:37 Identifier `s`
+1:39 PublicKeyword `public`
+1:46 PrivateKeyword `private`
+1:54 StaticKeyword `static`
+1:61 Identifier `read`
+1:66 Identifier `nly`
+1:70 RequiredKeyword `required`
+1:79 ConstKeyword `const`
+1:85 LetKeyword `let`
+1:89 VarKeyword `var`
+1:93 EmbedKeyword `embed`
+1:99 ExternKeyword `extern`
+1:106 UnsafeKeyword `unsafe`
+    doc `/// Doc line one.`
+4:1 VarKeyword `var`
+4:5 Identifier `xs`
+4:7 Colon `:`
+4:9 Identifier `List`
+4:13 Less `<`
+4:14 Identifier `List`
+4:18 Less `<`
+4:19 Identifier `i64`
+4:22 Greater `>`
+4:23 Greater `>`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  1 │ error set unit distinct type iport �s public private static read�nly required const let var embed extern unsafe
+    │                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����
+    │      ^

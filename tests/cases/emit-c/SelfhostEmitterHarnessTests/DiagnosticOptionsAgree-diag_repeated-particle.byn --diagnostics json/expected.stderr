@@ -1,0 +1,1 @@
+{"code":"BYN5013","severity":"error","file":"input.byn","span":{"start":87,"end":91,"line":2,"column":28,"endLine":2,"endColumn":32},"message":"`copy` uses the particle `from` twice","label":"used again","help":"group the values in a struct, or choose another particle","fixes":[]}

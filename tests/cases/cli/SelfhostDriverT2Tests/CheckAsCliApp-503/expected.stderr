@@ -1,0 +1,12 @@
+error BYN5005: `end` is passed without its particle `until:`
+  --> <repo>/tmp/t2/diag/arguments-swapped/arguments-swapped.byn:6:21
+
+  6 │ print($"{width(end, start)}")
+    │                     ^^^^^ needs `until:`
+    │
+  help: add `until:` before the argument
+    │ 6 │ print($"{width(end, until: start)}")
+    │   │                     +++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN5005

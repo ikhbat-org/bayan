@@ -1,0 +1,32 @@
+1:1 IntegerLiteral `2`
+2:1 Identifier `mac`
+2:4 Identifier `ro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:1 IntegerLiteral `1__`
+5:2 Identifier `x́́`
+5:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  2 │ mac�ro select become
+    │    ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ mac�ro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --

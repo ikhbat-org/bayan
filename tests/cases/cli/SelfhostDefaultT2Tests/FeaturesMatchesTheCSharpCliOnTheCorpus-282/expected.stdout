@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "nodes": [
+    "CallExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr"
+  ],
+  "builtins": [
+    "Print",
+    "StringPadded"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,44 @@
+1:1 CharLiteral `'\u{D800}'`
+2:3 OpenBrace `{`
+2:4 CloseBrace `}`
+2:5 StringLiteral `"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+4:1 Identifier `b`
+6:1 StringLiteral `"text"`
+6:8 StringLiteral `"es \"q\" \\ \n"`
+6:25 RawStringLiteral `"""\n\n`
+8:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `$`
+
+  2 │  ${}"
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  2 │  ${}"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  6 │ "text" "es \"q\" \\ \n" """
+    │                         ^^^ raw string starts here
+    │
+  help: close it with `"""`

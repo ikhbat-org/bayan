@@ -1,0 +1,3 @@
+let b = "bad \q escape"
+ ô€€let cafeÌ = 1; ï»¿ "doc comment
+b

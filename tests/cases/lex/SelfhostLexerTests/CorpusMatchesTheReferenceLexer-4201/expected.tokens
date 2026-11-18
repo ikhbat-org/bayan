@@ -1,0 +1,53 @@
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���� /*fails try cach never noalloc nosuspend suspends asy�c awa�t
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���� /*fails try cach never noalloc nosuspend suspends asy�c awa�t
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���� /*fails try cach never noalloc nosuspend suspends asy�c awa�t
+    │   ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ ���� /*fails try cach never noalloc nosuspend suspends asy�c awa�t
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ ���� /*fails try cach never noalloc nosuspend suspends asy�c awa�t
+    │   │    -
+
+error BYN0004: unterminated block comment
+
+  1 │ ���� /*fails try cach never noalloc nosuspend suspends asy�c awa�t
+    │      ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  1 │ ���� /*fails try cach never noalloc nosuspend suspends asy�c awa�t
+    │                                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  1 │ ���� /*fails try cach never noalloc nosuspend suspends asy�c awa�t
+    │                                                                 ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -

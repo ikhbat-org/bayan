@@ -1,0 +1,13 @@
+1:1 Identifier `lt`
+1:4 Identifier `a`
+1:6 Equals `=`
+1:8 IntegerLiteral `1`
+2:1 Identifier `omment`
+4:1 IntegerLiteral `0`
+4:3 Identifier `x`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `\u{1B}`
+
+  4 │ 0�x
+    │  ^

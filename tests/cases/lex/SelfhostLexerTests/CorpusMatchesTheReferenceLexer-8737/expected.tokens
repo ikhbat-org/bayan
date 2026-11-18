@@ -1,0 +1,148 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolationStart `{`
+1:26 InterpolatedStringStart `$"`
+1:28 InterpolationStart `{`
+1:29 InterpolatedStringStart `$"`
+1:31 InterpolationStart `{`
+1:32 InterpolatedStringStart `$"`
+1:34 InterpolationStart `{`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolationStart `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 StringLiteral `$"{$"`
+1:55 OpenBrace `{`
+1:56 StringLiteral `$"{$"`
+1:61 OpenBrace `{`
+1:62 StringLiteral `$"{x}"`
+1:68 CloseBrace `}`
+1:69 StringLiteral `"}"`
+1:72 CloseBrace `}`
+1:73 StringLiteral `"}"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:91 InterpolatedStringStart `$"`
+1:93 InterpolationStart `{`
+1:94 InterpolatedStringStart `$"`
+1:96 InterpolationStart `{`
+1:97 InterpolatedStringStart `$"`
+1:99 InterpolationStart `{`
+1:100 InterpolatedStringStart `$"`
+1:102 InterpolationStart `{`
+1:103 InterpolatedStringStart `$"`
+1:105 InterpolationStart `{`
+1:106 InterpolatedStringStart `$"`
+1:108 InterpolationStart `{`
+1:109 InterpolatedStringStart `$"`
+1:111 InterpolationStart `{`
+1:112 StringLiteral `$"{$"`
+1:117 OpenBrace `{`
+1:118 StringLiteral `$"{$"`
+1:123 OpenBrace `{`
+1:124 StringLiteral `$"{$"`
+1:129 OpenBrace `{`
+1:130 StringLiteral `$"{$"`
+1:135 OpenBrace `{`
+1:136 StringLiteral `$"{x}"`
+1:142 CloseBrace `}`
+1:143 StringLiteral `"}"`
+1:146 CloseBrace `}`
+1:147 StringLiteral `"}"`
+1:150 CloseBrace `}`
+1:151 StringLiteral `"}"`
+1:154 CloseBrace `}`
+1:155 StringLiteral `"}"`
+1:158 InterpolationEnd `}`
+1:159 InterpolatedStringEnd `"`
+1:160 InterpolationEnd `}`
+1:161 InterpolatedStringEnd `"`
+1:162 InterpolationEnd `}`
+1:163 InterpolatedStringEnd `"`
+1:164 InterpolationEnd `}`
+1:165 InterpolatedStringEnd `"`
+1:166 InterpolationEnd `}`
+1:167 InterpolatedStringEnd `"`
+1:168 InterpolationEnd `}`
+1:169 InterpolatedStringEnd `"`
+1:170 InterpolationEnd `}`
+1:171 InterpolatedStringEnd `"`
+1:172 InterpolationEnd `}`
+1:173 InterpolatedStringEnd `"`
+    doc `/// Doc line two.`
+4:1 CharLiteral `'x`
+5:2 CharLiteral `'\u{1F600}'`
+5:14 CharLiteral `'\''`
+5:19 LetKeyword `let`
+5:23 Identifier `b`
+5:25 Equals `=`
+5:27 StringLiteral `"bad \q escape"`
+6:1 IntegerLiteral `0x`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF6)
+
+  1 │ $"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                   ^
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                  ^^
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │  '\u{1F600}' '\'' let b = "bad \q escape"
+    │                                ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x
+    │ ^^

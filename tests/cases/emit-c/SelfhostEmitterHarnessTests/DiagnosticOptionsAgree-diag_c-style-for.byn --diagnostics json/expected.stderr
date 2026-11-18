@@ -1,0 +1,1 @@
+{"code":"BYN1015","severity":"error","file":"input.byn","span":{"start":26,"end":27,"line":2,"column":16,"endLine":2,"endColumn":17},"message":"C-style `for` loops do not exist in Bayan","label":"expected `in`","help":"loop over a range instead: `for i in 0..n { … }`","fixes":[]}

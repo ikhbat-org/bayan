@@ -1,0 +1,3 @@
+== diags.diag/unclosed-brace
+BYN1001 5:1 expected `}`, found `void`
+  help close the block opened on line 2

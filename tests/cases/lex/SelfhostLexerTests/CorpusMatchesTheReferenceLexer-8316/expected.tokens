@@ -1,0 +1,93 @@
+1:1 Identifier `ver`
+1:5 Identifier `closed`
+2:1 Identifier `b`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 StringLiteral `$"{$"`
+5:54 OpenBrace `{`
+5:55 Identifier `x`
+5:56 CloseBrace `}`
+5:57 StringLiteral `"}"`
+5:60 InterpolationEnd `}`
+5:61 InterpolatedStringEnd `"`
+5:62 InterpolationEnd `}`
+5:63 InterpolatedStringEnd `"`
+5:64 InterpolationEnd `}`
+5:65 InterpolatedStringEnd `"`
+5:66 InterpolationEnd `}`
+5:67 InterpolatedStringEnd `"`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringEnd `"`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringEnd `"`
+5:72 InterpolationEnd `}`
+5:73 InterpolatedStringEnd `"`
+5:74 InterpolationEnd `}`
+5:75 InterpolatedStringEnd `"`
+5:76 InterpolationEnd `}`
+5:77 InterpolatedStringEnd `"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+6:1 Identifier `t`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"���
+    │             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"���
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"���
+    │                                                                                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"���
+    │                                                                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"���
+    │                                                                                    ^
