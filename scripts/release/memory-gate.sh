@@ -22,7 +22,13 @@ if [ -z "${BAYAN_EXE:-}" ]; then
 fi
 export BAYAN_EXE # the golden runner bound reads the driver path from it
 
-run dotnet test -v q --filter "FullyQualifiedName~LanguageServer"
+run "$BAYAN_EXE" test --package editors/language-server/src editors/language-server/src/bounds
+# The bayan-lsp bound blocks are pending only on Windows; anywhere else pending, or none passing, means they did not run.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) ;;
+  *) if grep -qE '(^|[^0-9])[1-9][0-9]* pending' "$log"; then failed+=("bayan-lsp bound blocks reported pending")
+     elif grep -qE '(^|[^0-9])0 passed' "$log"; then failed+=("bayan-lsp bound blocks did not run (none passed)"); fi ;;
+esac
 run "$BAYAN_EXE" test --package src src/driver --only 'bound: '
 # The bound blocks of src/driver/bounds.byn are pending only on Windows; anywhere else none passing means they did not run.
 case "$(uname -s)" in

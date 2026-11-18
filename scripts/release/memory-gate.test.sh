@@ -53,6 +53,8 @@ grep -qx "memory-gate: PASS" "$tmp/out" || fail "an all-pass gate printed no PAS
 [ "$(wc -l < "$LOG" | tr -d ' ')" = 4 ] || fail "the gate did not run all 4 commands: $(cat "$LOG")"
 grep -qxF "bayan timeout=600000 test --package src src/driver --only $title" "$LOG" || fail "the golden runner bound did not run with a 10 minute timeout: $(cat "$LOG")"
 grep -qE "^bayan timeout=[0-9]* test --package src src/driver --only bound: $" "$LOG" || fail "the gate did not run the bound: blocks: $(cat "$LOG")"
+! grep -q 'dotnet' <(grep -v '^#' "$gate") || fail "memory-gate.sh still runs dotnet"
+grep -qxF "bayan timeout= test --package editors/language-server/src editors/language-server/src/bounds" "$LOG" || fail "the gate did not run the bayan-lsp bounds: $(cat "$LOG")"
 ! grep -qE 'CliMemoryBounds|SelfhostDefaultBounds' "$gate" || fail "memory-gate.sh still runs the .NET bound tests"
 grep -q '^test "bound: ' "$root/src/driver/bounds.byn" || fail "src/driver/bounds.byn has no test block titled bound: ..."
 
@@ -72,11 +74,13 @@ grep -q "FAILED: env BAYAN_TEST_TIMEOUT_MS=600000 $BAYAN_EXE test --package src 
 
 : > "$LOG"
 if PENDING=1 FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err"; then fail "a pending golden runner bound passed the gate"; fi
+grep -q "FAILED: bayan-lsp bound blocks reported pending" "$tmp/err" || fail "the pending bayan-lsp bounds were not named: $(cat "$tmp/err")"
 grep -q "FAILED: the golden runner bound reported pending" "$tmp/err" || fail "the pending golden runner bound was not named: $(cat "$tmp/err")"
 
 : > "$LOG"
 if NOMATCH=1 FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err"; then fail "a bound title that selects no test passed the gate"; fi
 grep -q "FAILED: the golden runner bound did not run (no test matched)" "$tmp/err" || fail "the unmatched golden runner bound was not named: $(cat "$tmp/err")"
+grep -q "FAILED: bayan-lsp bound blocks did not run (none passed)" "$tmp/err" || fail "the unrun bayan-lsp bounds were not named: $(cat "$tmp/err")"
 grep -q "FAILED: the bound: blocks did not run (none passed)" "$tmp/err" || fail "the unmatched bound: blocks were not named: $(cat "$tmp/err")"
 
 # BAYAN_EXE unset: the gate builds src/driver with the pinned bayan at HEAD and runs the bound with that driver.
