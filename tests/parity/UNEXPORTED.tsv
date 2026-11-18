@@ -1,0 +1,5 @@
+class	test	reason
+CacheTests	AsanAndCrossBuildsGetTheirOwnRuntime	calls Toolchain.Build on raw C with sanitize and a cross target in-process and counts the runtime entries; the CLI builds Bayan, not raw C, and the driver has no Env.set to point BAYAN_CACHE at a test cache
+CacheTests	EvictionRemovesRuntimeEntries	calls Toolchain.Evict with a one-entry cap in-process; the CLI cannot set the cap and the driver has no Env.set
+CacheTests	ASingleWordOrZigCompilerKeepsItsStamp	its PATH rows only (a word found on PATH, zig on PATH): they set PATH in-process and the driver has no Env.set; the rest is the compiler-stamp block in src/driver/cache.byn
+CliEnvironmentTests	PendingLinesAreNotCountedAsRun	tests the C# test helper Ran (a regex over -v output), not the CLI; the parity cases carry the same filter in their steps
