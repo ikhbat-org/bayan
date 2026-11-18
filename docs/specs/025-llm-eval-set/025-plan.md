@@ -1,6 +1,6 @@
 # 025 — Plan
 Spec: ./025-spec.md
-Status: draft
+Status: approved (2026-11-18)
 Release: unscheduled
 Sources: ./025-spec.md; `docs/decisions/2026-11-17-010-open-questions-019-023-025.md` (Q1–Q8); `docs/specs/015-tooling/015-spec.md` (R1); probes run 2026-11-17 on macOS 26.6.2 with `bayan 0.3.3-dev` (commit `132124b8d146`), listed under *Tech / dependencies*
 

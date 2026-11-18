@@ -1,5 +1,5 @@
 # 025 — Tasks
-Status: draft
+Status: approved (2026-11-18)
 Release: unscheduled
 Sources: ./025-plan.md
 Plan: ./025-plan.md
