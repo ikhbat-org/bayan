@@ -11,8 +11,10 @@
 #       input.byn, before hashing) too; other top-level input and input.* files are copied unmasked;
 #   (2b) land-time masks: in the expected.stdout of a cli case one of whose args lines is `doctor`, the value of an ok row (marker,
 #       plain or coloured) labelled host, C compiler, zig or git becomes `<host>`, the cache row too when the case env sets no
-#       BAYAN_CACHE (`not found` rows, failure rows and seeded-cache rows stay); in SelfhostDefaultT12Tests expected.stdout/expected.stderr
-#       everything after a line `C compiler failed (exit N):` becomes the one line `<cc output>`;
+#       BAYAN_CACHE (`not found` rows, failure rows and seeded-cache rows stay), and the value of the ok row labelled bayan becomes
+#       `<version>`; in SelfhostDefaultT12Tests expected.stdout/expected.stderr everything after a line `C compiler failed (exit N):`
+#       becomes the one line `<cc output>`; in SelfhostDefaultT5Tests expected.stdout/expected.stderr `(commit …)` becomes
+#       `(commit <c>)` and the rest of `isn't writable: ` up to an escape or the line end becomes `<message>` (the T5 `Mask`);
 #   (2c) a non-text file under input/ that still names the export machine (HOME, /Users/, /opt/homebrew) after (2) is left out,
 #       and its case and name printed; cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-14 lands with no input.tsv (T17c);
 #   (2d) a case that fails only because (2c) left out its input (the list `removed` below) is not landed: it is printed and
@@ -122,17 +124,26 @@ removed="cli/SelfhostDriverT5Tests/CannotWriteTheOutputAsCliApp-5${tab}its input
 cli/SelfhostDriverT5Tests/CannotWriteTheOutputAsCliApp-6${tab}its input out/safe/macos-arm64/read-only named the export machine and was left out"
 
 # (a) mask_doctor <export case dir>: in $work/cand, the value of an ok row (marker, optionally in colour) labelled host, C compiler,
-# zig or git becomes <host>, the cache row too when the case env sets no BAYAN_CACHE; `not found` rows, failure rows stay
+# zig or git becomes <host>, the cache row too when the case env sets no BAYAN_CACHE, the bayan row <version>; `not found` rows,
+# failure rows stay
 mask_doctor() {
   local labels='host|C compiler|zig|git' pre="(${ESC}\\[[0-9;]*m)?(◆|\\*)(${ESC}\\[[0-9;]*m)? +"
   grep -q '^BAYAN_CACHE=' "$1/env" 2> /dev/null || labels="$labels|cache"
-  LC_ALL=C sed -E -e "/^$pre($labels) +not found/b" -e "s/^($pre($labels) +)[^ ].*/\\1<host>/" "$work/cand" > "$work/cand2"
+  LC_ALL=C sed -E -e "/^$pre($labels) +not found/b" -e "s/^($pre($labels) +)[^ ].*/\\1<host>/" \
+    -e "s/^(${pre}bayan +)[^ ].*/\\1<version>/" "$work/cand" > "$work/cand2"
   mv "$work/cand2" "$work/cand"
 }
 
 # (b) mask_cc: in $work/cand, everything after a line `C compiler failed (exit N):` becomes the line `<cc output>`
 mask_cc() {
   awk '{ print } /^C compiler failed \(exit [0-9]+\):$/ { print "<cc output>"; exit }' "$work/cand" > "$work/cand2"
+  mv "$work/cand2" "$work/cand"
+}
+
+# (c) mask_commit: in $work/cand, `(commit …)` becomes `(commit <c>)` and the rest of `isn't writable: ` up to an escape or the
+# line end becomes `<message>` (SelfhostDefaultT5Tests.cs `Mask`, which its export did not apply)
+mask_commit() {
+  LC_ALL=C sed -E -e 's/\(commit [^)]*\)/(commit <c>)/g' -e "s/isn't writable: [^${ESC}]*/isn't writable: <message>/g" "$work/cand" > "$work/cand2"
   mv "$work/cand2" "$work/cand"
 }
 
@@ -161,6 +172,7 @@ land_case() {
           [ "$kind/$f" != cli/expected.stdout ] || ! grep -qx -F doctor "$c/args" 2> /dev/null || mask_doctor "$c"
           case "$class" in
             (SelfhostDefaultT12Tests) case "$f" in (expected.stdout|expected.stderr) mask_cc ;; esac ;;
+            (SelfhostDefaultT5Tests) case "$f" in (expected.stdout|expected.stderr) mask_commit ;; esac ;;
           esac
           put "$work/cand" "$to/$f" ;;
     esac

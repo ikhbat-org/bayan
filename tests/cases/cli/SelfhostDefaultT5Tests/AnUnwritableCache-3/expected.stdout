@@ -1,7 +1,7 @@
-* bayan       0.3.2 (commit 9cf2f130da53)
+* bayan       <version>
 * host        <host>
 * C compiler  <host>
 * zig         <host>
 * git         <host>
-x cache: <repo>/tmp/t5-doctor/cache/file isn't writable: The file '<repo>/tmp/t5-doctor/cache/file' already exists.
+x cache: <repo>/tmp/t5-doctor/cache/file isn't writable: <message>
   help: set BAYAN_CACHE to a writable directory
