@@ -1,4 +1,5 @@
 import transport
+import workspace
 
 /// The exit code of a .NET process that ends on an unhandled exception.
 const unhandledExit: i32 = 134
@@ -10,14 +11,20 @@ struct Request {
     transport.JsonElement  params
 }
 
-/// The message loop: lifecycle requests, and `method not found` for the rest.
-public struct Server {
-    bool shutdown = false
+/// What a `NullReferenceException` says: a `GetString()!` that read a JSON null, used as a string.
+const nullReference: string = "Object reference not set to an instance of an object."
 
-    public static Server create() => Server {}
+/// The message loop: lifecycle requests, the document notifications, and `method not found` for the rest.
+public struct Server {
+    bool                shutdown = false
+    workspace.Workspace ws
+    /// URIs of open buffers dropped for size; a didOpen or full change brings them under it.
+    Map<string, bool>   tooLarge
+
+    public static Server create() uses alloc => Server { ws: workspace.Workspace.create(), tooLarge: Map<string, bool>() }
 
     /// Answers messages until `exit` or the end of input; returns the exit code.
-    public i32 run(ref this, ref transport.Transport rpc) uses alloc, console {
+    public i32 run(ref this, ref transport.Transport rpc) uses alloc, console, fs {
         while true {
             let msg = rpc.read() ?? return 0
             let root = msg.root
@@ -41,7 +48,13 @@ public struct Server {
             if method == "exit" {
                 return shutdown ? 0 : 1
             }
-            continue if !isRequest
+            if !isRequest {
+                let failed = notify(method, at: p, for: msg)
+                if failed is not null {
+                    Io.stderr.write($"bayan-lsp: {method}: {failed}\n")
+                }
+                continue
+            }
             let r = Request { msg: move msg, id: id, params: p }
             if shutdown {
                 let failed = error(r, as: -32600, for: "server is shutting down")
@@ -58,7 +71,7 @@ public struct Server {
     }
 
     /// Answers a request; returns the message of the exception the C# handler would throw, or null.
-    string? handle(ref this, string method, for Request r) uses alloc, console {
+    string? handle(ref this, string method, for Request r) uses alloc, console, fs {
         return initialize(r) if method == "initialize"
         if method == "shutdown" {
             shutdown = true
@@ -71,12 +84,40 @@ public struct Server {
         }
         return error(r, as: -32601, for: $"method not found: {method}")
     }
+
+    string? initialize(ref this, Request r) uses alloc, console, fs {
+        indexFolders(r) catch switch {
+            .invalid(let message) => return message,
+        }
+        return reply(r)
+    }
+
+    /// Indexes the folders `initialize` names, each as it is read: each `workspaceFolders` entry's `uri`, or else `rootUri`.
+    void indexFolders(ref this, Request r) uses alloc, console, fs fails transport.JsonUseError {
+        let wf = try r.msg.find("workspaceFolders", at: r.params)
+        if wf is not null && r.msg.kind(wf) is .array {
+            for f in try r.msg.items(wf) {
+                indexUri(try r.msg.text(try r.msg.get("uri", at: f)))
+            }
+            return
+        }
+        let ru = try r.msg.find("rootUri", at: r.params)
+        if ru is not null && r.msg.kind(ru) is .text {
+            indexUri(try r.msg.text(ru))
+        }
+    }
+
+    /// `IndexUri`: an invalid URI is ignored.
+    void indexUri(ref this, string? uri) uses alloc, console, fs {
+        let u = uri ?? return
+        let parsed = workspace.parseUri(u)
+        if parsed.kind is .file {
+            ws.indexFolder(parsed.localPath)
+        }
+    }
 }
 
-string? initialize(Request r) uses alloc, console {
-    let _ = readFolders(r) catch switch {
-        .invalid(let message) => return message,
-    }
+string? reply(Request r) uses alloc, console {
     var w = transport.begin()
     let failed = writeId(ref w, for: r)
     return failed if failed is not null
@@ -111,23 +152,6 @@ string? initialize(Request r) uses alloc, console {
     w.writeEndObject()
     transport.send(ref w)
     return null
-}
-
-/// The folder URIs `initialize` names: each `workspaceFolders` entry's `uri`, or else `rootUri`.
-List<string?> readFolders(Request r) uses alloc fails transport.JsonUseError {
-    var uris = List<string?>()
-    let wf = try r.msg.find("workspaceFolders", at: r.params)
-    if wf is not null && r.msg.kind(wf) is .array {
-        for f in try r.msg.items(wf) {
-            uris.append(try r.msg.text(try r.msg.get("uri", at: f)))
-        }
-        return uris
-    }
-    let ru = try r.msg.find("rootUri", at: r.params)
-    if ru is not null && r.msg.kind(ru) is .text {
-        uris.append(try r.msg.text(ru))
-    }
-    return uris
 }
 
 /// Writes `"id":` and the request's id; returns the exception message if the id cannot be written.
