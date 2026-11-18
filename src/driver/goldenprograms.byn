@@ -1036,7 +1036,11 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
     }
     var none = List<u8>()
     let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
-    let res = goldenProgramPortable(staged != original ? o.stdout.replaced(staged, by: plain) : o.stdout, at: k.scratch, by: ref args)
+    let res = goldenProgramPortable(
+        staged != original ? o.stdout.replaced(staged, by: plain) : o.stdout,
+        at: k.scratch,
+        by: ref args,
+    )
     if k.cls is "SelfhostEmitterT7Tests" or "SelfhostEmitterT21Tests" {
         // the section's lines joined by LF against `expected.c` (SelfhostEmitterHarness.cs:50 `AssertSame`)
         if o.exitCode != 0 {
@@ -1072,7 +1076,11 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
         goldenCliCheck(
             k.dir,
             for: "expected.stderr",
-            as: goldenProgramPortable(staged != original ? o.stderr.replaced(staged, by: plain) : o.stderr, at: k.scratch, by: ref args),
+            as: goldenProgramPortable(
+                staged != original ? o.stderr.replaced(staged, by: plain) : o.stderr,
+                at: k.scratch,
+                by: ref args,
+            ),
             to: ref failures,
         )
         goldenCliCheck(k.dir, for: "expected.c", as: res, to: ref failures)
