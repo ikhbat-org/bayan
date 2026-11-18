@@ -1,7 +1,7 @@
 class	file	family	tests	disposition	target	reason	memberdata
 BootstrapTests	csharp/tests/Bayan.Tests/BootstrapTests.cs	runtime-c	7	shell	shell	bootstrap fixpoint is L027 and the R26/R27 jobs	
 BuiltinResultsTests	csharp/tests/Bayan.Tests/BuiltinResultsTests.cs	csharp-internals	13	sem	sem	region-analysis builtin results table through sem sections	
-CInventoryTests	csharp/tests/Bayan.Tests/CInventoryTests.cs	csharp-internals	14	bayan-test	lib/std bound tests	extension inventory scan; a Bayan test over runtime C and cprint/*.byn literals	
+CInventoryTests	csharp/tests/Bayan.Tests/CInventoryTests.cs	csharp-internals	14	bayan-test	lib/std bound tests	extension inventory scan; a Bayan test over runtime C and cprint/*.byn literals; ported 14 of 14: src/driver/cinventory.byn (`c inventory: ` blocks; the C# regexes as std.regex patterns, the emitted C through `$BAYAN_EXE build --emit-c --mode debug`)	
 CacheTests	csharp/tests/Bayan.Tests/CacheTests.cs	cli	24	cli	tests/parity	changes BAYAN_CACHE; parity case sets it up	
 CliEnvironmentTests	csharp/tests/Bayan.Tests/CliEnvironmentTests.cs;csharp/tests/Bayan.Tests/CliSummaryTests.cs	cli	28	cli	tests/parity	changes environment variables; parity case sets them up (two files, one partial class)	
 CliMemoryBoundsTests	csharp/tests/Bayan.Tests/CliMemoryBoundsTests.cs	cli	25	bayan-test	lib/std bound tests	bounds on memory and disk; a Bayan test builds a large tree and measures	
@@ -54,7 +54,7 @@ LoweringInvariantTests	csharp/tests/Bayan.Tests/LoweringInvariantTests.cs	csharp
 ManifestTests	csharp/tests/Bayan.Tests/ManifestTests.cs	cli	70	cli	cli	reads cases; command output	no export: typed rows
 MapKeyEmitTests	csharp/tests/Bayan.Tests/MapKeyEmitTests.cs	csharp-internals	5	emit-c	emit-c	key hash helpers in emitted C	
 MapKeyLawTests	csharp/tests/Bayan.Tests/MapKeyLawTests.cs	law	13	check	check:L016	law proof becomes a check: command (R18)	no export: typed rows
-MapModelTests	csharp/tests/Bayan.Tests/MapModelTests.cs	csharp-internals	49	bayan-test	lib/std map model test	reference model becomes a Bayan test; run/map-model.byn already golden (L003)	no export: typed rows
+MapModelTests	csharp/tests/Bayan.Tests/MapModelTests.cs	csharp-internals	49	bayan-test	lib/std map model test	reference model becomes a Bayan test; run/map-model.byn already golden (L003); ported 49 of 49: src/driver/mapmodel.byn (`map model: ` blocks, theory rows as @cases; the 40 generated sources are byte-equal to the C# generator's)	no export: typed rows
 MessagesTests	csharp/tests/Bayan.Tests/MessagesTests.cs	csharp-internals	4	bayan-test	lib/std bound tests	scans compiler string literals for prose; a Bayan test over src/*.byn literals	
 MutantSchemataTests	csharp/tests/Bayan.Tests/MutantSchemataTests.cs	golden-folder	362	golden	tests/cases/mutate	folder runner reads the same files	no export: typed rows
 MutationRunnerTests	csharp/tests/Bayan.Tests/MutationRunnerTests.cs	cli	6	cli	cli	mutation statuses through bayan mutate	
@@ -67,7 +67,7 @@ OutputTests	csharp/tests/Bayan.Tests/OutputTests.cs	cli	14	cli	cli	command outpu
 OwnershipCheckerTests	csharp/tests/Bayan.Tests/OwnershipCheckerTests.cs	golden-folder	368	golden	tests/cases/ownership	folder runner reads the same files	no export: typed rows
 OwnershipGeneratorTests	csharp/tests/Bayan.Tests/OwnershipGeneratorTests.cs	runtime-c	3	shell	runtime/tests/*.c	generated ownership C harness; generator goes with .NET, harness case stays	
 OwnershipTableTests	csharp/tests/Bayan.Tests/OwnershipTableTests.cs	runtime-c	3	shell	runtime/tests/*.c	C harness over bayan-rt.c	
-ParserPerfTests	csharp/tests/Bayan.Tests/ParserTests.cs	csharp-internals	2	bayan-test	lib/std bound tests	parser time bound measured by a Bayan test	no export: typed rows
+ParserPerfTests	csharp/tests/Bayan.Tests/ParserTests.cs	csharp-internals	2	bayan-test	lib/std bound tests	parser time bound measured by a Bayan test; ported 2 of 2: src/driver/perf.byn (`the line-join lint is linear: ` blocks, the 2 s bound on lexer.lex, parseCompilationUnit and lintLineJoins)	no export: typed rows
 ParserTests	csharp/tests/Bayan.Tests/ParserTests.cs	golden-folder	217	golden	tests/cases/parse	folder runner reads the same files	no export: typed rows
 PeakSamplerTests	csharp/tests/Bayan.Tests/PeakSamplerTests.cs	infrastructure	1	dropped		harness-only: goes with the harness; the runner bound test (T9a) must report a peak for a process shorter than its sampling interval	
 PowerAssertTests	csharp/tests/Bayan.Tests/PowerAssertTests.cs	cli	8	cli	cli	failed-assert diagram through bayan test	

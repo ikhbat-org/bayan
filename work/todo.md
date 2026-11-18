@@ -968,3 +968,7 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 ||||||| 4bd82d26
 LOW (019 T31, 2026-11-18): L027 statement also requires stage-1/stage-2 C equal in debug mode and no absolute path or timestamp; scripts/ci/bootstrap-check.sh checks neither, and the C#-built half needs L027 in scripts/ci/ddc-laws.txt (not edited).
 LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/tests/*.cs file that 019b deletes; laws-check.js needs it repointed when the port lands.
+||||||| 4bd82d26
+- LOW (019 T27, 2026-11-18): `docs/specs/011-self-hosted-emitter/011-c-inventory.md` R4 text still names `CInventoryTests.cs`; the check now lives in `src/driver/cinventory.byn`.
+- LOW (019 T27, 2026-11-18): `src/driver/cinventory.byn` counts literals of `csharp/Bayan.Backend.C/CEmitter.cs` as hits; rows backed only by it lose their hits when csharp/ goes in 019b.
+- LOW (019 T27, 2026-11-18): `src/driver/bounds.byn` and `goldenChild` in `src/driver/golden.byn` declare `in` parameters; new callers must pass `in` at the call site.

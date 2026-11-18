@@ -1,0 +1,64 @@
+// ParserPerfTests (ParserTests.cs:458) on the self-hosted parser (spec 019 T27): BYN5103 finds each joined line's statement start once,
+// so a long chain or a long switch lints in linear time. `SyntaxTree.Parse` is `lexer.lex`, `parseCompilationUnit` and `lintLineJoins`.
+
+import lexer
+import parser
+
+/// `Source(shape, n)`: `n` joined `.x` lines of a chain, or `n` switch arms each with a joined `.x` line.
+List<u8> perfSource(string shape, for i64 n) uses alloc {
+    var text = List<u8>()
+    let head = shape == "chain" ? "let n = s\n" : "let r = v switch {\n"
+    let line = shape == "chain" ? "    .x\n" : "    i => a\n        .x,\n"
+    let tail = shape == "chain" ? ".y\n" : "    _ => a\n    .x,\n}\n"
+    for b in head.bytes {
+        text.append(b)
+    }
+    for _ in 0..n {
+        for b in line.bytes {
+            text.append(b)
+        }
+    }
+    for b in tail.bytes {
+        text.append(b)
+    }
+    return text
+}
+
+/// `Lints(Parse(source))`: each line-join lint as `<code> <fix replacement length> <label>`, joined by line breaks.
+string perfLints(move List<u8> source) uses alloc {
+    var p = parser.Parser.create(lexer.lex(lexer.SourceText.create("t.byn", from: move source), by: lexer.Keywords.build()))
+    let _ = parser.parseCompilationUnit(ref p)
+    var text = ""
+    for d in parser.lintLineJoins(ref p) {
+        text = text.isEmpty ? text : $"{text}\n"
+        text = $"{text}{d.code} {d.fixReplacement.length} {d.label}"
+    }
+    return text
+}
+
+/// `TheLineJoinLintIsLinear(shape)`: the lint at 100 lines, then the minimum wall clock of 3 parses at 20000 (chain) or 10000 (switch)
+/// lines under 2 s, the lint unchanged each time.
+void perfLineJoin(string shape) uses alloc, clock, console {
+    let expected = shape == "chain" ? "BYN5103 4 joins the statement on line 1" : "BYN5103 8 joins the statement on line 2"
+    assert(perfLints(perfSource(shape, for: 100)) == expected)
+    let bound: i64 = 2000000000
+    var best: i64 = 9223372036854775807
+    for _ in 0..3 {
+        let source = perfSource(shape, for: shape == "chain" ? 20000 : 10000)
+        let start = Io.monotonicNanos()
+        let lints = perfLints(move source)
+        let took = Io.monotonicNanos() - start
+        best = took < best ? took : best
+        assert(lints == expected)
+    }
+    print($"parsed in {best / 1000000} ms at the least of 3 runs (bound {bound / 1000000} ms)")
+    assert(best < bound)
+}
+
+test "the line-join lint is linear: chain" {
+    perfLineJoin("chain")
+}
+
+test "the line-join lint is linear: switch" {
+    perfLineJoin("switch")
+}
