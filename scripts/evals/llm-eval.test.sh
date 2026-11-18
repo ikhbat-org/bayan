@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Test for tools/llm-eval.byn `score`, `recheck` and `run` (spec 025 T2, T3, T7, T8, T9). Scratch is under the repo's tmp/. Builds small task sets there at run
-# time; the seed under evals/llm/tasks is only read.
-#   bash scripts/evals/llm-eval.test.sh
+# time; the seed under evals/llm/tasks is only read. With a law id (L048, L049, L050) it runs only that law's cases.
+#   bash scripts/evals/llm-eval.test.sh [<law id>]
 set -uo pipefail
 cd "$(dirname "$0")/../.."
+only=${1:-}
 seed=evals/llm/tasks
-root=$PWD/tmp/llm-eval-test
+root=$PWD/tmp/llm-eval-test${only:+-$only}
 rm -rf "$root"; mkdir -p "$root/tasks" "$root/cand" "$root/out" "$root/rec"
 trap 'rm -rf "$root"' EXIT
 export LLM_EVAL_STAMP_DIR=$root/stamps
@@ -53,12 +54,88 @@ printf '/// Prints without end.\nvoid shout() {\n    while true {\n        print
 cat "$seed/errors-001-prayer-time/reference/solution.byn" > "$root/cand/with-main.byn"
 printf '\nvoid main() {\n}\n' >> "$root/cand/with-main.byn"
 
-# Each seed reference gets four true (R8, R11).
-for t in "$seed"/*/; do
-  t=${t%/}; name=$(basename "$t")
-  score "seed-$name" "$t" "$t/reference/solution.byn"
-  check "$name: reference scores four true" "$code $(four "seed-$name") $(get "seed-$name" outcome)" '0 true true true true "pass"'
-done
+printf 'i32 main() {\n  print("salam")\n  return 3\n}\n' > "$root/cand/unformatted.byn"
+
+# Law cases. Their titles start with the law id; with a law id as the argument only that law's cases run.
+law() { [ -z "$only" ] || [ "$only" = "$1" ]; }
+
+# L048: each seed reference gets four true (R8, R11). A failure names the task, the first result that is not true and the
+# output of that step.
+step() { case "$1" in (compiles) echo build.stdout ;; (passes) echo run.stdout test.json ;; (lintClean) echo check.stdout ;; (*) echo format.stdout ;; esac; }
+if law L048; then
+  for t in "$seed"/*/; do
+    t=${t%/}; name=$(basename "$t")
+    score "seed-$name" "$t" "$t/reference/solution.byn"
+    check "L048: $name: reference scores four true" "$code $(four "seed-$name") $(get "seed-$name" outcome)" '0 true true true true "pass"'
+    for k in compiles passes lintClean formatStable; do
+      [ "$(get "seed-$name" $k)" = true ] && continue
+      echo "  $name: $k $(get "seed-$name" $k) reference/solution.byn"
+      for f in $(step $k); do [ -f "$root/out/seed-$name/work/$name/1/$f" ] && head -20 "$root/out/seed-$name/work/$name/1/$f" | sed 's/^/    /'; done
+      sed 's/^/    /' "$root/rec/seed-$name.err"
+      break
+    done
+  done
+fi
+
+# L049: every seed reference and one candidate of each failing kind, scored twice, each time in a new --out directory, give
+# the same record (R9). The two scorings run at the same time, so the case fits the gate's time limit.
+twice() {
+  local s
+  for s in a b; do
+    { score "l049-$1-$s" "$2" "$3"; echo "$code" > "$root/rec/l049-$1-$s.code"; } &
+  done
+  wait
+  check "L049: $1: $(basename "$3") scored twice in two --out directories, same record" \
+    "$(cat "$root/rec/l049-$1-a.code") $(cat "$root/rec/l049-$1-b.code") $([ -s "$root/rec/l049-$1-a" ] && echo record) $(cat "$root/rec/l049-$1-b")" \
+    "0 0 record $(cat "$root/rec/l049-$1-a")"
+}
+if law L049; then
+  for t in "$seed"/*/; do
+    t=${t%/}; twice "$(basename "$t")" "$t" "$t/reference/solution.byn"
+  done
+  for c in broken wrong-code lint unformatted loop; do twice "$c" "$exit3" "$root/cand/$c.byn"; done
+fi
+
+# L050: for every `dev` seed task, the prompt the runner sends holds no line of checks/ or reference/, except a line of
+# prompt.md that is also a line of the task's starter/ or source.* (R3). Lines are trimmed; blank lines are not compared.
+# A stub model records each prompt; the n-th record of records.jsonl is the task of the n-th prompt.
+# Run only when named: 11 seed tasks fail it (spec 025 T38, PLAN-CHANGE), so it stays out of the whole run until they are fixed.
+if [ "$only" = L050 ]; then
+  mkdir -p "$root/l050"
+  cat > "$root/l050.sh" <<'EOF'
+n=$(( $(cat "$1/l050/count" 2> /dev/null || echo 0) + 1 ))
+echo "$n" > "$1/l050/count"
+cat > "$1/l050/prompt.$n"
+cat "$1/cand/broken.byn"
+EOF
+  bash scripts/bayan-tool.sh llm-eval run "$seed" --model "sh $root/l050.sh $root" --machine m --out "$root/out/l050" \
+    > "$root/rec/l050" 2> "$root/rec/l050.err"
+  check "L050: the runner sends a prompt for every seed task" "$? $(wc -l < "$root/out/l050/1/records.jsonl" | tr -d ' ')" "0 $(ls -d "$seed"/*/ | wc -l | tr -d ' ')"
+  n=0 dev=0 seen=0
+  for name in $(sed -n 's/^{"task": "\([^"]*\)".*/\1/p' "$root/out/l050/1/records.jsonl"); do
+    n=$((n + 1)); t=$seed/$name
+    grep -q '^Split: dev$' "$t/task.md" || continue
+    seen=$((seen + 1))
+    quoted=$(find "$t/starter" "$t"/source.* -type f 2> /dev/null)
+    hidden=$(find "$t/checks" "$t/reference" -type f | sort)
+    leaks=$(awk 'function trim(s) { gsub(/^[ \t\r]+|[ \t\r]+$/, "", s); return s }
+      { l = trim($0); if (l == "") next }
+      mode == "q" { q[l] = 1; next }
+      mode == "m" { m[l] = 1; next }
+      mode == "p" { p[l] = 1; next }
+      mode == "h" { if (!(l in h)) h[l] = FILENAME; next }
+      (l in h) && !((l in m) && (l in q) && !(l in p)) { print h[l] ": \"" l "\"" }' \
+      mode=q $quoted mode=m "$t/prompt.md" mode=p evals/llm/preamble.md mode=h $hidden mode=s "$root/l050/prompt.$n")
+    check "L050: $name: no line of checks/ or reference/ in the prompt sent" "$leaks" ""
+  done
+  for t in "$seed"/*/; do grep -q '^Split: dev$' "$t/task.md" && dev=$((dev + 1)); done
+  check "L050: every dev task checked" "$seen" "$dev"
+fi
+
+if [ -n "$only" ]; then
+  echo "llm-eval.test $only: $pass passed, $fail failed"
+  [ "$fail" = 0 ]; exit
+fi
 
 # A tests task passes under the sandbox from an empty cache/ (R15): the sample directory is new, so its cache/ starts empty.
 r=seed-errors-001-prayer-time
