@@ -9,7 +9,7 @@
 // for its directory), else at the scratch root; several entries each at the named path of its name. The driver `$BAYAN_EXE` runs in the case's
 // `cwd` (else the scratch root), with `goldenEnv` and the case's `env` (`NAME=value`, or a bare `NAME` unset); the scratch directory reads back
 // as `<repo>` in what it prints, and the case's `compare` word picks what is compared and how it is masked, each as its C# call site does.
-// `links`, `modes` and `env.git` are read for the SelfhostDefault classes only (see `goldenCliStage`, `goldenCli`); `probe` and `expected.tree`, `expected.inputs` and `expected.names` are not read here.
+// `links` and `modes` are read for the SelfhostDefault and SelfhostDriver classes, `env.git` for the SelfhostDefault ones (see `goldenCliStage`, `goldenCli`); `probe` and `expected.tree`, `expected.inputs` and `expected.names` are not read here.
 //
 // The other exported kinds (`emit-c`, `sem`, and `lex` and `parse` class directories) ran per-class harness programs the cases do not name
 // (T17b2a); each class directory is one skipped result, "unsupported kind", until T17b2b.
@@ -171,9 +171,11 @@ List<string> goldenCliNamed(string dir, for string scratch, bool argsOnly = fals
     return named
 }
 
-/// Where the input named by `path` goes: `path`, or its directory when it is a `main.byn` (SelfhostExport.cs:93).
+/// Where the input named by `path` goes: `path` with `..` taken lexically (SelfhostDriverTests.cs:104 `GetFullPath`), or its directory
+/// when it is a `main.byn` (SelfhostExport.cs:93).
 string goldenCliTarget(string path) uses alloc {
-    return Path.fileName(path) == "main.byn" ? Path.directoryName(path) ?? path : path
+    let full = Path.fullPath(path)
+    return Path.fileName(full) == "main.byn" ? Path.directoryName(full) ?? full : full
 }
 
 /// The name of an input line `<name>\t<kind>:<sha256>`.
@@ -255,9 +257,9 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
     var exec = List<string>()
     let named = goldenCliNamed(dir, for: scratch)
     let cls = Path.fileName(Path.directoryName(dir) ?? "")
-    // SelfhostDriverTests.cs:66-120 `StageInputs` (the SelfhostDefault classes): its single input's place, where `links` and `modes` lines
+    // SelfhostDriverTests.cs:66-120 `StageInputs` (the SelfhostDefault and SelfhostDriver classes): its single input's place, where `links` and `modes` lines
     // start (their first path segment is that input's name)
-    let own = cls.startsWith("SelfhostDefault")
+    let own = cls.startsWith("SelfhostDefault") || cls.startsWith("SelfhostDriver")
     var home = scratch
     // the name the C# wrote the input as (`input.name`): the named path of that file name, else below the scratch directory
     let original = goldenCliLines(Path.combine(dir, "input.name"))
@@ -288,6 +290,20 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
                 to: ref exec,
                 through: ref failure,
             )
+            let repoCases = Path.combine(Path.combine(scratch, "tests"), "cases")
+            let at = Path.directoryName(to) ?? scratch
+            if own && at.startsWith($"{repoCases}/") {
+                // a file of the repo's tests/cases: the C# read its module, the other `.byn` files beside it (SelfhostDriverTests.cs:154
+                // `DiagnosticsJsonAsCliAppDoes`), which the export left out; they are the files of `cases` at that place
+                let from = Path.combine(cases, at[repoCases.length + 1..at.length])
+                for file in Io.listDir(from) catch List<string>() {
+                    continue if !file.endsWith(".byn") || file == Path.fileName(to)
+                    let bytes = Io.readFile(Path.combine(from, file)) catch List<u8>()
+                    Io.writeFile(Path.combine(at, file), bytes.span) catch {
+                        failure = $"cannot write {Path.combine(at, file)}"
+                    }
+                }
+            }
             continue
         }
         let bytes = Io.readFile(Path.combine(dir, name)) catch List<u8>()
@@ -335,6 +351,13 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
                 // SelfhostDefaultT5Tests.cs `Same`: the inputs are the env values that are paths, so a single tree is the first one's
                 // (a PATH, a cache, a HOME), created even when empty
                 whole = named[0]
+                Io.createDirectory(whole) catch {
+                    failure = $"cannot create {whole}"
+                }
+            }
+            if cls == "SelfhostDriverT1Tests" && entries.length == 0 && whole != scratch {
+                // an empty input.tsv is the empty directory `args` names (SelfhostDriverTests.cs:112-114 `StageInputs` copied it; T1's
+                // `Oracle` stages the paths of `args`)
                 Io.createDirectory(whole) catch {
                     failure = $"cannot create {whole}"
                 }
@@ -388,7 +411,16 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
             if target.startsWith("<repo>/") && inner >= 0 {
                 target = Path.combine(home, target[inner + first + 2..target.length])
             }
-            let path = goldenCliAt(rel, at: home)
+            var path = goldenCliAt(rel, at: home)
+            if first < 0 {
+                // a named path that is itself a link (SelfhostDriverTests.cs:105-108): made at that path
+                for p in named {
+                    if Path.fileName(p) == rel {
+                        path = p
+                        break
+                    }
+                }
+            }
             Io.createDirectory(Path.directoryName(path) ?? home) catch {}
             failure = goldenCliRun(["ln", "-s", target, path])
             return cwd if failure != ""
@@ -1321,8 +1353,9 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         cwd = Path.fullPath(".")
         env["BAYAN_CC"] = null
     }
-    if word is "argv-masked" or "argv-masked-arguments" {
-        // SelfhostDriverT3Tests.cs:262 `Both`: the build ran in the directory of its `-o` output
+    if word is "argv-masked" or "argv-masked-arguments" || word == "exit" && cls == "SelfhostDriverT3Tests" {
+        // SelfhostDriverT3Tests.cs:262 `Both` and :647 `FindOnPathSkipsDirectoriesAndEmptyEntriesAsToolchain`: the build ran in the
+        // directory of its `-o` output, a fresh one (created below)
         for i in 1..args.length {
             if args[i - 1] == "-o" {
                 cwd = Path.directoryName(args[i]) ?? cwd
@@ -1375,7 +1408,7 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         err = err.replaced($"{scratch}-repo/", by: "")
     }
     if cls == "SelfhostDefaultT9Tests"
-            || cls.startsWith("SelfhostDefault") && Fs.fileExists(Path.combine(dir, "modes")) {
+            || (cls.startsWith("SelfhostDefault") || cls.startsWith("SelfhostDriver")) && Fs.fileExists(Path.combine(dir, "modes")) {
         // what `modes` or a T9 seed locked, opened again for the next run's `goldenFresh`
         let _ = goldenCliRun(["chmod", "-R", "u+rwx", scratch])
     }
