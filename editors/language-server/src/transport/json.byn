@@ -202,6 +202,27 @@ public struct JsonDocument {
         return Utf8.tryDecode(utf8.span) ?? fail .invalid(message: "Cannot transcode invalid UTF-8 JSON text to UTF-16 string.")
     }
 
+    /// `GetInt32`: a number written as an optional `-` and digits that fits in an `int`; a fraction or exponent throws.
+    public i32 int32(JsonElement e) uses alloc fails JsonUseError {
+        try expect(e, as: .number)
+        let node = nodes[e.index]
+        var i = node.start
+        let negative = bytes[i] == '-'
+        if negative {
+            i += 1
+        }
+        var value: i64 = 0
+        while i < node.end {
+            let b = bytes[i]
+            fail .invalid(message: "One of the identified items was in an invalid format.") if !isDigit(b) || value > 2147483648
+            value = value * 10 + i64(b - '0')
+            i += 1
+        }
+        let limit: i64 = negative ? 2147483648 : 2147483647
+        fail .invalid(message: "One of the identified items was in an invalid format.") if value > limit
+        return i32(negative ? -value : value)
+    }
+
     /// `WriteTo` for a number (its text as read) or a string (unescaped, then written as `Utf8JsonWriter` writes UTF-8 it was given:
     /// each invalid sequence becomes `�`). Other kinds are not written by the server.
     public void write(JsonElement e, to ref JsonWriter w) uses alloc fails JsonUseError {

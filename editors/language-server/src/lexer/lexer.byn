@@ -309,7 +309,7 @@ bool isAsciiLetter(u16 c) => (c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A
 bool isAsciiLetterOrDigit(u16 c) => isAsciiLetter(c) || isAsciiDigit(c)
 
 /// Whether `cp` lies in one of the inclusive `lo, hi` pairs of `ranges`.
-bool inRanges(ReadOnlySpan<u32> ranges, for u32 cp) {
+public bool inRanges(ReadOnlySpan<u32> ranges, for u32 cp) {
     var lo: i64 = 0
     var hi = ranges.length / 2
     while lo < hi {

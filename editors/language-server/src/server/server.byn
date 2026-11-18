@@ -1,4 +1,5 @@
 import transport
+import workspace
 
 /// The exit code of a .NET process that ends on an unhandled exception.
 const unhandledExit: i32 = 134
@@ -10,14 +11,20 @@ struct Request {
     transport.JsonElement  params
 }
 
-/// The message loop: lifecycle requests, and `method not found` for the rest.
-public struct Server {
-    bool shutdown = false
+/// What a `NullReferenceException` says: a `GetString()!` that read a JSON null, used as a string.
+const nullReference: string = "Object reference not set to an instance of an object."
 
-    public static Server create() => Server {}
+/// The message loop: lifecycle requests, the document notifications, and `method not found` for the rest.
+public struct Server {
+    bool                shutdown = false
+    workspace.Workspace ws
+    /// URIs of open buffers dropped for size; a didOpen or full change brings them under it.
+    Map<string, bool>   tooLarge
+
+    public static Server create() uses alloc => Server { ws: workspace.Workspace.create(), tooLarge: Map<string, bool>() }
 
     /// Answers messages until `exit` or the end of input; returns the exit code.
-    public i32 run(ref this, ref transport.Transport rpc) uses alloc, console {
+    public i32 run(ref this, ref transport.Transport rpc) uses alloc, console, fs {
         while true {
             let msg = rpc.read() ?? return 0
             let root = msg.root
@@ -41,7 +48,13 @@ public struct Server {
             if method == "exit" {
                 return shutdown ? 0 : 1
             }
-            continue if !isRequest
+            if !isRequest {
+                let failed = notify(method, at: p, for: msg)
+                if failed is not null {
+                    Io.stderr.write($"bayan-lsp: {method}: {failed}\n")
+                }
+                continue
+            }
             let r = Request { msg: move msg, id: id, params: p }
             if shutdown {
                 let failed = error(r, as: -32600, for: "server is shutting down")
@@ -58,7 +71,7 @@ public struct Server {
     }
 
     /// Answers a request; returns the message of the exception the C# handler would throw, or null.
-    string? handle(ref this, string method, for Request r) uses alloc, console {
+    string? handle(ref this, string method, for Request r) uses alloc, console, fs {
         return initialize(r) if method == "initialize"
         if method == "shutdown" {
             shutdown = true
@@ -71,12 +84,254 @@ public struct Server {
         }
         return error(r, as: -32601, for: $"method not found: {method}")
     }
+
+    string? initialize(ref this, Request r) uses alloc, console, fs {
+        indexFolders(r) catch switch {
+            .invalid(let message) => return message,
+        }
+        return reply(r)
+    }
+
+    /// Indexes the folders `initialize` names, each as it is read: each `workspaceFolders` entry's `uri`, or else `rootUri`.
+    void indexFolders(ref this, Request r) uses alloc, console, fs fails transport.JsonUseError {
+        let wf = try r.msg.find("workspaceFolders", at: r.params)
+        if wf is not null && r.msg.kind(wf) is .array {
+            for f in try r.msg.items(wf) {
+                indexUri(try r.msg.text(try r.msg.get("uri", at: f)))
+            }
+            return
+        }
+        let ru = try r.msg.find("rootUri", at: r.params)
+        if ru is not null && r.msg.kind(ru) is .text {
+            indexUri(try r.msg.text(ru))
+        }
+    }
+
+    /// `IndexUri`: an invalid URI is ignored.
+    void indexUri(ref this, string? uri) uses alloc, console, fs {
+        let u = uri ?? return
+        let parsed = workspace.parseUri(u)
+        if parsed.kind is .file {
+            ws.indexFolder(parsed.localPath)
+        }
+    }
+
+    /// Handles a notification; returns the message of the exception the C# handler would throw, or null. Unknown methods are ignored.
+    string? notify(ref this, string method, at transport.JsonElement p, for transport.JsonDocument msg) uses alloc, console, fs {
+        if method == "textDocument/didOpen" {
+            didOpen(p, for: msg) catch switch {
+                .invalid(let message) => return message,
+            }
+        } else if method == "textDocument/didChange" {
+            didChange(p, for: msg) catch switch {
+                .invalid(let message) => return message,
+            }
+        } else if method == "textDocument/didClose" {
+            didClose(p, for: msg) catch switch {
+                .invalid(let message) => return message,
+            }
+        } else if method == "workspace/didChangeWatchedFiles" {
+            didChangeWatchedFiles(p, for: msg) catch switch {
+                .invalid(let message) => return message,
+            }
+        }
+        return null
+    }
+
+    void didOpen(ref this, transport.JsonElement p, for transport.JsonDocument msg) uses alloc, console, fs fails transport.JsonUseError {
+        let td = try msg.get("textDocument", at: p)
+        let uri = try str(msg, at: try msg.get("uri", at: td))
+        let text = (try str(msg, at: try msg.get("text", at: td))).utf16.copy()
+        if ws.tooLarge(text.span) {
+            dropTooLarge(uri)
+            return
+        }
+        let _ = tooLarge.remove(uri)
+        let version = try msg.int32(try msg.get("version", at: td))
+        let at = ws.open(uri, from: move text, at: version)
+        publish(at)
+    }
+
+    void didChange(ref this, transport.JsonElement p, for transport.JsonDocument msg) uses alloc, console, fs fails transport.JsonUseError {
+        let td = try msg.get("textDocument", at: p)
+        let uri = try str(msg, at: try msg.get("uri", at: td))
+        var doc: i64 = tooLarge.contains(uri) ? -1 : ws.find(uri)
+        return if doc < 0 && !tooLarge.contains(uri)
+        let version = try msg.int32(try msg.get("version", at: td))
+        for ch in try msg.items(try msg.get("contentChanges", at: p)) {
+            let range = try msg.find("range", at: ch)
+            let full = range is null
+            if doc < 0 {
+                // Too large so far: only a full change can bring the buffer back.
+                continue if !full
+                let text = (try str(msg, at: try msg.get("text", at: ch))).utf16.copy()
+                continue if ws.tooLarge(text.span)
+                let _ = tooLarge.remove(uri)
+                doc = ws.open(uri, from: move text, at: version)
+                continue
+            }
+            if range is not null {
+                let r = range
+                let s = try msg.get("start", at: r)
+                let e = try msg.get("end", at: r)
+                let sl = try msg.int32(try msg.get("line", at: s))
+                let sc = try msg.int32(try msg.get("character", at: s))
+                let el = try msg.int32(try msg.get("line", at: e))
+                let ec = try msg.int32(try msg.get("character", at: e))
+                // A null text concatenates as empty.
+                let text = (try msg.text(try msg.get("text", at: ch))) ?? ""
+                let units = text.utf16.copy()
+                ws.apply(at: doc, from: sl, by: sc, to: el, through: ec, as: units.span)
+            } else {
+                ws.replace((try str(msg, at: try msg.get("text", at: ch))).utf16.copy(), at: doc)
+            }
+            if ws.tooLarge(ws.docs[doc].text.span) {
+                dropTooLarge(uri)
+                doc = -1
+            }
+        }
+        return if doc < 0
+        // One analysis per notification, however many changes.
+        ws.docs[doc].set(version)
+        publish(doc)
+    }
+
+    void didClose(ref this, transport.JsonElement p, for transport.JsonDocument msg) uses alloc, console, fs fails transport.JsonUseError {
+        let uri = try str(msg, at: try msg.get("uri", at: try msg.get("textDocument", at: p)))
+        // A dropped buffer comes back from disk under the usual rules.
+        if tooLarge.remove(uri) {
+            let u = workspace.parseUri(uri)
+            fail .invalid(message: invalidUri) if u.kind is .invalid
+            if u.kind is .file {
+                let _ = ws.loadFromDisk(u.localPath, as: uri)
+            }
+        }
+        ws.close(uri)
+        let at = ws.find(uri)
+        if at >= 0 {
+            publish(at)
+        } else {
+            publishEmpty(uri)
+        }
+    }
+
+    void didChangeWatchedFiles(ref this, transport.JsonElement p, for transport.JsonDocument msg) uses alloc, console, fs
+            fails transport.JsonUseError {
+        for ch in try msg.items(try msg.get("changes", at: p)) {
+            let uri = try str(msg, at: try msg.get("uri", at: ch))
+            if (try msg.int32(try msg.get("type", at: ch))) == 3 {
+                let removed = ws.remove(uri)
+                if removed is not null {
+                    publishEmpty(removed)
+                } else {
+                    // A folder delete or rename.
+                    for r in ws.removeFolder(uri) {
+                        publishEmpty(r)
+                    }
+                }
+                continue
+            }
+            // The editor holds a buffer we dropped; disk text would be stale.
+            continue if tooLarge.contains(uri)
+            let u = workspace.parseUri(uri)
+            if u.kind is .file {
+                if workspace.dirExists(u.localPath) {
+                    ws.loadFolder(u.localPath)
+                } else {
+                    let _ = ws.loadFromDisk(u.localPath)
+                }
+            }
+        }
+    }
+
+    void publish(ref this, i64 at) uses alloc, console {
+        var w = transport.begin()
+        w.writeString("textDocument/publishDiagnostics", for: "method")
+        w.writeStartObject(for: "params")
+        w.writeString(ws.docs[at].uri, for: "uri")
+        if ws.docs[at].isOpen {
+            // Versions only mean something for open buffers.
+            w.writeNumber(i64(ws.docs[at].version), for: "version")
+        }
+        w.writeStartArray(for: "diagnostics")
+        for d in ws.docs[at].diagnostics {
+            w.writeStartObject()
+            w.writeStartObject(for: "range")
+            let length = ws.docs[at].text.length
+            let start = i64(d.start) < length ? i64(d.start) : length
+            let end = i64(d.start) + i64(d.length) < length ? i64(d.start) + i64(d.length) : length
+            w.writeStartObject(for: "start")
+            w.writeNumber(ws.docs[at].lineOf(start), for: "line")
+            w.writeNumber(ws.docs[at].characterOf(start), for: "character")
+            w.writeEndObject()
+            w.writeStartObject(for: "end")
+            w.writeNumber(ws.docs[at].lineOf(end), for: "line")
+            w.writeNumber(ws.docs[at].characterOf(end), for: "character")
+            w.writeEndObject()
+            w.writeEndObject()
+            w.writeNumber(i64(d.severity), for: "severity")
+            if d.code is not null {
+                w.writeString(d.code ?? "", for: "code")
+            }
+            w.writeString("bayan", for: "source")
+            w.writeString(d.message, for: "message")
+            w.writeEndObject()
+        }
+        w.writeEndArray()
+        w.writeEndObject()
+        transport.send(ref w)
+    }
+
+    void dropTooLarge(ref this, string uri) uses alloc, console, fs {
+        ws.drop(uri)
+        return if tooLarge.contains(uri)
+        tooLarge[uri] = true
+        var w = transport.begin()
+        w.writeString("textDocument/publishDiagnostics", for: "method")
+        w.writeStartObject(for: "params")
+        w.writeString(uri, for: "uri")
+        w.writeStartArray(for: "diagnostics")
+        w.writeStartObject()
+        w.writeStartObject(for: "range")
+        w.writeStartObject(for: "start")
+        w.writeNumber(0, for: "line")
+        w.writeNumber(0, for: "character")
+        w.writeEndObject()
+        w.writeStartObject(for: "end")
+        w.writeNumber(0, for: "line")
+        w.writeNumber(0, for: "character")
+        w.writeEndObject()
+        w.writeEndObject()
+        w.writeNumber(2, for: "severity")
+        w.writeString("bayan", for: "source")
+        w.writeString($"file is larger than {ws.maxFileBytes / (1024 * 1024)} MiB; the language server does not analyse it", for: "message")
+        w.writeEndObject()
+        w.writeEndArray()
+        w.writeEndObject()
+        transport.send(ref w)
+    }
 }
 
-string? initialize(Request r) uses alloc, console {
-    let _ = readFolders(r) catch switch {
-        .invalid(let message) => return message,
-    }
+/// `UriFormatException` for a string `Uri` cannot place.
+const invalidUri: string = "Invalid URI: The format of the URI could not be determined."
+
+/// `GetString()!` used as a string: a JSON null throws `NullReferenceException` where the C# first uses it (no effect comes between).
+string str(transport.JsonDocument msg, at transport.JsonElement e) uses alloc fails transport.JsonUseError {
+    return (try msg.text(e)) ?? fail .invalid(message: nullReference)
+}
+
+void publishEmpty(string uri) uses alloc, console {
+    var w = transport.begin()
+    w.writeString("textDocument/publishDiagnostics", for: "method")
+    w.writeStartObject(for: "params")
+    w.writeString(uri, for: "uri")
+    w.writeStartArray(for: "diagnostics")
+    w.writeEndArray()
+    w.writeEndObject()
+    transport.send(ref w)
+}
+
+string? reply(Request r) uses alloc, console {
     var w = transport.begin()
     let failed = writeId(ref w, for: r)
     return failed if failed is not null
@@ -111,23 +366,6 @@ string? initialize(Request r) uses alloc, console {
     w.writeEndObject()
     transport.send(ref w)
     return null
-}
-
-/// The folder URIs `initialize` names: each `workspaceFolders` entry's `uri`, or else `rootUri`.
-List<string?> readFolders(Request r) uses alloc fails transport.JsonUseError {
-    var uris = List<string?>()
-    let wf = try r.msg.find("workspaceFolders", at: r.params)
-    if wf is not null && r.msg.kind(wf) is .array {
-        for f in try r.msg.items(wf) {
-            uris.append(try r.msg.text(try r.msg.get("uri", at: f)))
-        }
-        return uris
-    }
-    let ru = try r.msg.find("rootUri", at: r.params)
-    if ru is not null && r.msg.kind(ru) is .text {
-        uris.append(try r.msg.text(ru))
-    }
-    return uris
 }
 
 /// Writes `"id":` and the request's id; returns the exception message if the id cannot be written.

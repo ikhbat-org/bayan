@@ -73,3 +73,8 @@ protocol	-	size-limit	body-at-size-limit	a body of exactly 64 MiB is read
 protocol	-	crash-method	crash-on-lone-surrogate-method	a lone surrogate escape in method ends the C# server with an unhandled exception; nothing after it is answered
 protocol	-	crash-id	crash-on-lone-surrogate-id	a lone surrogate escape in a string id cannot be written back; the server ends
 protocol	-	reply-escaping	reply-escaping	every BMP scalar and some astral ones echoed in a -32601 message
+protocol	-	open-diagnostics	notify-open-diagnostics	didOpen publishes diagnostics for CRLF, non-ASCII, untitled: and reopened documents, including a warning-severity BYN1047
+protocol	-	change-edits	notify-change-edits	didChange with full and ranged edits, out-of-range clamping, negative character, null text, unknown uri, the too-large notice and recovery
+protocol	-	close-reload	notify-close-reload	didClose reloads from disk, drops excluded tmp/ and too-large documents, and clears not-on-disk, never-opened and untitled documents
+protocol	-	watched-files	notify-watched-files	didChangeWatchedFiles creates, changes and deletes files and folders; excluded, outside-root and symlinked paths are ignored
+protocol	-	budget-stop	notify-budget-stop	watched creates past 256 MiB of characters stop indexing; the one log line goes to stderr, which is not compared

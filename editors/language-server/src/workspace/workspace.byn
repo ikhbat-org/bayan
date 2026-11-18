@@ -1,0 +1,695 @@
+// Documents and the workspace that holds them, ported from Analysis/Workspace.cs (the documents, the folder walk and its budgets; the
+// symbol index and the lookups behind the requests are T37's). Text is UTF-16 code units, as the C# string.
+
+import indexer
+import lexer
+
+public struct Diagnostic {
+    public i32     start
+    public i32     length
+    public string  message
+    public string? code
+    public i32     severity
+}
+
+/// One `.byn` file: text, line table and analysis results. A document that is not open in the client keeps only its text, line table
+/// and non-local symbols: tokens, locals, the outline and diagnostics are dropped after analysis.
+public struct Document {
+    public string                   uri
+    public List<u16>                text
+    public i32                      version     = 0
+    public bool                     isOpen      = false
+    public List<i32>                lineStarts
+    public List<lexer.Token>        tokens
+    public List<indexer.IndexedSymbol>     symbols
+    public List<i64>                roots
+    public List<Diagnostic>         diagnostics
+
+    public static Document create(string uri, from move List<u16> text, at i32 version, as bool open) uses alloc {
+        var d = Document {
+            uri: uri,
+            text: List<u16>(),
+            isOpen: open,
+            lineStarts: List<i32>(),
+            tokens: List<lexer.Token>(),
+            symbols: List<indexer.IndexedSymbol>(),
+            roots: List<i64>(),
+            diagnostics: List<Diagnostic>(),
+        }
+        let _ = d.replace(move text)
+        d.version = version
+        d.analyze()
+        return d
+    }
+
+    /// `Set` with the text already in place: the version, then one analysis.
+    public void set(ref this, i32 version) uses alloc {
+        this.version = version
+        analyze()
+    }
+
+    /// Replaces the text without analysing (full-sync change inside a batch); returns the change in length.
+    public i64 replace(ref this, move List<u16> text) uses alloc {
+        let delta = text.length - this.text.length
+        this.text = move text
+        computeLines()
+        return delta
+    }
+
+    /// Applies one LSP incremental change (UTF-16 line/character range); returns the change in length.
+    public i64 apply(ref this, i32 startLine, at i32 startChar, to i32 endLine, through i32 endChar, by ReadOnlySpan<u16> newText) uses alloc {
+        let a = offset(startLine, at: startChar)
+        let b = offset(endLine, at: endChar)
+        let before = text.length
+        var t = List<u16>()
+        for i in 0..a {
+            t.append(text[i])
+        }
+        for c in newText {
+            t.append(c)
+        }
+        for i in b..text.length {
+            t.append(text[i])
+        }
+        text = move t
+        computeLines()
+        return text.length - before
+    }
+
+    public void analyze(ref this) uses alloc {
+        var lx = lexer.Lexer.run(text.span)
+        var ix = indexer.Indexer.run(text.take(), for: lx.tokens.take())
+        text = ix.text.take()
+        tokens = ix.tokens.take()
+        symbols = ix.symbols.take()
+        roots = ix.roots.take()
+        var diags = List<Diagnostic>()
+        for p in lx.problems {
+            diags.append(Diagnostic { start: p.start, length: p.length, message: p.message, code: p.code, severity: p.code == "BYN1047" ? 2 : 1 })
+        }
+        if lx.hidden > 0 {
+            diags.append(Diagnostic { start: 0, length: 0, message: $"{lx.hidden} more problems not shown", code: null, severity: 2 })
+        }
+        diagnostics = move diags
+        if !isOpen {
+            release()
+        }
+    }
+
+    /// Drops what only an open buffer needs: tokens, locals and parameters, outline, diagnostics.
+    public void release(ref this) uses alloc {
+        tokens.clear()
+        diagnostics.clear()
+        roots.clear()
+        var kept = List<indexer.IndexedSymbol>()
+        for s in symbols {
+            continue if s.isLocal
+            var k = s
+            k.parent = -1
+            kept.append(k)
+        }
+        symbols = move kept
+    }
+
+    void computeLines(ref this) uses alloc {
+        lineStarts.clear()
+        lineStarts.append(0)
+        for i in 0..text.length {
+            if text[i] == 0x0A {
+                lineStarts.append(i32(i + 1))
+            }
+        }
+    }
+
+    /// UTF-16 line/character to offset, clamped to the line's content (before `\r\n`).
+    public i64 offset(i32 line, at i32 character) {
+        return 0 if line < 0
+        return text.length if i64(line) >= lineStarts.length
+        let start = i64(lineStarts[i64(line)])
+        var end = i64(line) + 1 < lineStarts.length ? i64(lineStarts[i64(line) + 1]) - 1 : text.length
+        if end > start && text[end - 1] == 0x0D && end < text.length {
+            end -= 1
+        }
+        let room = end - start > 0 ? end - start : 0
+        var c = i64(character)
+        if c < 0 {
+            c = 0
+        }
+        if c > room {
+            c = room
+        }
+        return start + c
+    }
+
+    /// The line of `offset`, clamped to the text.
+    public i64 lineOf(i64 offset) {
+        let o = clamped(offset)
+        var lo: i64 = 0
+        var hi = lineStarts.length - 1
+        while lo < hi {
+            let mid = (lo + hi + 1) / 2
+            if i64(lineStarts[mid]) <= o {
+                lo = mid
+            } else {
+                hi = mid - 1
+            }
+        }
+        return lo
+    }
+
+    /// The UTF-16 character of `offset` on its line, clamped to the text.
+    public i64 characterOf(i64 offset) => clamped(offset) - i64(lineStarts[lineOf(offset)])
+
+    i64 clamped(i64 offset) => offset < 0 ? 0 : (offset > text.length ? text.length : offset)
+}
+
+/// What `new Uri(uri)` makes of a string, as far as the server looks: a file (`IsFile`, with its `LocalPath`), another absolute URI,
+/// or a `UriFormatException`.
+public enum UriKind {
+    file
+    other
+    invalid
+}
+
+public struct ParsedUri {
+    public UriKind kind
+    public string  localPath = ""
+}
+
+/// `new Uri(uri)` on Unix for the forms a client sends: a `file://` URI with an empty host (scheme in any case; the query and fragment
+/// dropped; `%XX` runs that spell UTF-8 unescaped, others kept), an absolute path (an implicit file URI, kept as written), another
+/// scheme (not a file). A `file:` URI without `//`, a relative reference or a bad scheme is invalid. A `file:` URI with a host (UNC on
+/// Windows) is taken as not a file.
+public ParsedUri parseUri(string uri) uses alloc {
+    let b = uri.bytes
+    return ParsedUri { kind: .file, localPath: uri } if b.length > 0 && b[0] == '/'
+    var i: i64 = 0
+    while i < b.length && isSchemeByte(b[i], as: i == 0) {
+        i += 1
+    }
+    return ParsedUri { kind: .invalid } if i == 0 || i >= b.length || b[i] != ':'
+    return ParsedUri { kind: .other } if !uri[0..i].equals("file", as: .caseless)
+    return ParsedUri { kind: .invalid } if !uri[i + 1..b.length].startsWith("//")
+    var p = i + 3
+    while p < b.length && b[p] != '/' && b[p] != '?' && b[p] != '#' {
+        p += 1
+    }
+    return ParsedUri { kind: .other } if p > i + 3
+    var e = p
+    while e < b.length && b[e] != '?' && b[e] != '#' {
+        e += 1
+    }
+    let path = p < e ? unescaped(uri[p..e]) : "/"
+    return ParsedUri { kind: .file, localPath: path }
+}
+
+bool isSchemeByte(u8 c, as bool first) {
+    let letter = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+    return letter if first
+    return letter || (c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.'
+}
+
+bool isHexByte(u8 b) => (b >= '0' && b <= '9') || (b >= 'a' && b <= 'f') || (b >= 'A' && b <= 'F')
+
+u8 hexValue(u8 b) => b <= '9' ? b - '0' : (b | 0x20) - 'a' + 10
+
+/// `s` with each run of `%XX` escapes that is UTF-8 replaced by its text; a run that is not stays as written.
+string unescaped(string s) uses alloc {
+    let b = s.bytes
+    var result = List<u8>()
+    var i: i64 = 0
+    while i < b.length {
+        if !(b[i] == '%' && i + 2 < b.length && isHexByte(b[i + 1]) && isHexByte(b[i + 2])) {
+            result.append(b[i])
+            i += 1
+            continue
+        }
+        let start = i
+        var run = List<u8>()
+        while i + 2 < b.length && b[i] == '%' && isHexByte(b[i + 1]) && isHexByte(b[i + 2]) {
+            run.append(hexValue(b[i + 1]) * 16 + hexValue(b[i + 2]))
+            i += 3
+        }
+        if Utf8.tryDecode(run.span) is not null {
+            for c in run {
+                result.append(c)
+            }
+        } else {
+            for k in start..i {
+                result.append(b[k])
+            }
+        }
+    }
+    return Utf8.decode(result.span, invalid: .replace)
+}
+
+/// `new Uri(path).AbsoluteUri` for a full path: `file://` and the path with the characters `Uri` escapes as `%XX` of their UTF-8.
+public string fileUri(string path) uses alloc {
+    var b = StrBuf()
+    b.append("file://")
+    for c in path.bytes {
+        let escape = c < 0x20 || c >= 0x7F || c == ' ' || c == '"' || c == '#' || c == '%' || c == '<' || c == '>' || c == '?' ||
+            c == '\\' || c == '^' || c == '`' || c == '{' || c == '|' || c == '}'
+        if escape {
+            b.append("%")
+            b.append(rune(u32(hexDigit(c >> 4))))
+            b.append(rune(u32(hexDigit(c & 15))))
+        } else {
+            b.append(rune(u32(c)))
+        }
+    }
+    return b.finish().copy()
+}
+
+u8 hexDigit(u8 v) => v < 10 ? '0' + v : 'A' + v - 10
+
+/// `Encoding.UTF8.GetByteCount`: a surrogate without its pair counts as U+FFFD.
+i64 utf8Length(ReadOnlySpan<u16> s) {
+    var n: i64 = 0
+    var i: i64 = 0
+    while i < s.length {
+        let c = s[i]
+        if c < 0x80 {
+            n += 1
+        } else if c < 0x800 {
+            n += 2
+        } else if c >= 0xD800 && c <= 0xDBFF && i + 1 < s.length && s[i + 1] >= 0xDC00 && s[i + 1] <= 0xDFFF {
+            n += 4
+            i += 1
+        } else {
+            n += 3
+        }
+        i += 1
+    }
+    return n
+}
+
+/// `File.ReadAllText`: a UTF-8 or UTF-16 byte order mark picks the encoding, else UTF-8; invalid sequences become U+FFFD.
+List<u16> decodeFile(ReadOnlySpan<u8> b) uses alloc {
+    if b.length >= 2 && ((b[0] == 0xFE && b[1] == 0xFF) || (b[0] == 0xFF && b[1] == 0xFE)) {
+        let big = b[0] == 0xFE
+        var units = List<u16>()
+        var i: i64 = 2
+        while i + 1 < b.length {
+            units.append(big ? u16(b[i]) << 8 | u16(b[i + 1]) : u16(b[i + 1]) << 8 | u16(b[i]))
+            i += 2
+        }
+        var t = List<u16>()
+        var k: i64 = 0
+        while k < units.length {
+            let c = units[k]
+            if c >= 0xD800 && c <= 0xDBFF && k + 1 < units.length && units[k + 1] >= 0xDC00 && units[k + 1] <= 0xDFFF {
+                t.append(c)
+                t.append(units[k + 1])
+                k += 2
+                continue
+            }
+            t.append(c >= 0xD800 && c <= 0xDFFF ? 0xFFFD : c)
+            k += 1
+        }
+        if i < b.length {
+            t.append(0xFFFD)
+        }
+        return t
+    }
+    let from: i64 = b.length >= 3 && b[0] == 0xEF && b[1] == 0xBB && b[2] == 0xBF ? 3 : 0
+    return Utf8.decode(b[from..b.length], invalid: .replace).utf16.copy()
+}
+
+bool sameUnits(ReadOnlySpan<u16> a, as ReadOnlySpan<u16> b) {
+    return false if a.length != b.length
+    for i in 0..a.length {
+        return false if a[i] != b[i]
+    }
+    return true
+}
+
+/// `IsSkippedDirectory`: a directory the indexer never enters.
+public bool isSkippedDirectory(string name) {
+    return true if name.startsWith(".")
+    for d in ["node_modules", "bin", "obj", "dist", "tmp", "Library", "target", "out", "build"] {
+        return true if name.equals(d, as: .caseless)
+    }
+    return false
+}
+
+/// `Directory.EnumerateFiles(dir, "*.byn")` on a name: the pattern matches case-insensitively on macOS and Windows.
+bool isBynName(string name, as bool caseless) {
+    return name.endsWith(".byn") if !caseless
+    let n = name.length
+    return false if n < 4
+    let b = name.bytes
+    return b[n - 4] == 0x2e && (b[n - 3] | 0x20) == 0x62 && (b[n - 2] | 0x20) == 0x79 && (b[n - 1] | 0x20) == 0x6e
+}
+
+/// `Path.TrimEndingDirectorySeparator`.
+string trimEndingSeparator(string p) => p.length > 1 && p.endsWith("/") ? p[0..p.length - 1] : p
+
+/// `RealPath`: `full` with every symbolic link along it resolved; a part that cannot be resolved (missing) is kept as written.
+string realPath(string full) uses alloc, fs {
+    let r = Fs.realPath(full) catch {
+        let dir = Path.directoryName(full) ?? return full
+        return Path.combine(realPath(dir), Path.fileName(full))
+    }
+    return r
+}
+
+/// All documents of the workspace: open buffers plus `.byn` files on disk. Disk files are bounded: hidden directories, `tmp` and build
+/// output are never walked, and indexing stops at `maxFiles` files or `maxChars` characters of text. Open buffers are always held.
+public struct Workspace {
+    public i64            maxFiles     = 20000
+    public i64            maxChars     = 268435456
+    public i64            maxFileBytes = 4194304
+    public i64            maxDirs      = 200000
+    /// Windows and macOS file systems are case-insensitive by default; Linux is not.
+    bool                  caseless
+    /// Documents by slot; `slotKeys` holds the folded key of a used slot, "" for a free one.
+    public List<Document> docs
+    List<string>          slotKeys
+    List<i64>             free
+    Map<string, i64>      index
+    List<string>          roots
+    i64                   chars        = 0
+    bool                  limitLogged  = false
+    /// Distinct directories entered by folder walks, by folded path.
+    Map<string, bool>     dirs
+    bool                  dirsLogged   = false
+    /// Uri as sent → key.
+    Map<string, string>   keyCache
+
+    public static Workspace create() uses alloc => Workspace {
+        caseless: Target.os != "linux",
+        docs: List<Document>(),
+        slotKeys: List<string>(),
+        free: List<i64>(),
+        index: Map<string, i64>(),
+        roots: List<string>(),
+        dirs: Map<string, bool>(),
+        keyCache: Map<string, string>(),
+    }
+
+    /// True while the file or character budget is spent; further disk files are not indexed.
+    public bool limitReached => index.length >= maxFiles || chars >= maxChars
+
+    string folded(string p) uses alloc => caseless ? p.uppercased() : p
+
+    /// Normalises a URI so spellings of one file hit the same document; symbolic links among the directories are resolved.
+    public string key(ref this, string uri) uses alloc, fs {
+        let cached = keyCache.tryGet(at: uri)
+        return cached if cached is not null
+        let u = parseUri(uri)
+        var k = uri
+        if u.kind is .file {
+            let full = Path.fullPath(u.localPath)
+            let dir = Path.directoryName(full)
+            k = dir is null ? full : Path.combine(realPath(dir ?? ""), Path.fileName(full))
+        }
+        if keyCache.length > 4096 {
+            keyCache.clear()
+        }
+        keyCache[uri] = k
+        return k
+    }
+
+    /// `IsExcluded`: `fullPath` lies outside every indexed root, or under a skipped directory of one.
+    bool isExcluded(ref this, string fullPath) uses alloc, fs {
+        let full = Path.fullPath(fullPath)
+        let dir = Path.directoryName(full)
+        return isExcludedKey(dir is null ? full : Path.combine(realPath(dir ?? ""), Path.fileName(full)))
+    }
+
+    bool isExcludedKey(string fullPath) uses alloc {
+        return false if roots.length == 0
+        let path = folded(fullPath)
+        for r in roots {
+            let root = folded(r)
+            continue if !path.startsWith(root) || path.length <= root.length
+            continue if path.bytes[root.length] != '/' && !root.endsWith("/")
+            let rest = path[root.length..path.length]
+            let slash = rest.lastPosition("/")
+            let cut = slash ?? 0
+            var dirs = slash is null ? "" : rest[0..cut]
+            while dirs.startsWith("/") {
+                dirs = dirs[1..dirs.length]
+            }
+            while dirs.endsWith("/") {
+                dirs = dirs[0..dirs.length - 1]
+            }
+            return false if dirs.length == 0
+            var skipped = false
+            for part in dirs.parts("/") {
+                if isSkippedDirectory(part) {
+                    skipped = true
+                    break
+                }
+            }
+            return false if !skipped
+        }
+        return true
+    }
+
+    bool overBudget(ref this, i64 addChars, as bool newFile) uses alloc, console {
+        return false if (!newFile || index.length < maxFiles) && chars + addChars <= maxChars
+        if !limitLogged {
+            limitLogged = true
+            Io.stderr.write(
+                $"bayan-lsp: a .byn file does not fit the index budget ({index.length} files, {chars} chars) and was not indexed; a folder walk in progress stops there, so its later files are skipped\n",
+            )
+        }
+        return true
+    }
+
+    /// The slot of the document for `uri`, or -1.
+    public i64 find(ref this, string uri) uses alloc, fs => slotOf(key(uri))
+
+    i64 slotOf(string key) uses alloc => index.tryGet(at: folded(key)) ?? -1
+
+    i64 add(ref this, string key, from move Document d) uses alloc {
+        let fk = folded(key)
+        let old = index.tryGet(at: fk)
+        if old is not null {
+            let at = old
+            chars -= docs[at].text.length
+            chars += d.text.length
+            docs[at] = move d
+            return at
+        }
+        chars += d.text.length
+        if free.length > 0 {
+            let at = free.removeLast()
+            docs[at] = move d
+            slotKeys[at] = fk
+            index[fk] = at
+            return at
+        }
+        let at = docs.length
+        docs.append(move d)
+        slotKeys.append(fk)
+        index[fk] = at
+        return at
+    }
+
+    void removeSlot(ref this, i64 at) uses alloc {
+        chars -= docs[at].text.length
+        let _ = index.remove(slotKeys[at])
+        slotKeys[at] = ""
+        docs[at].text.clear()
+        docs[at].release()
+        free.append(at)
+    }
+
+    /// True when a buffer is larger than the per-file limit and must not be analysed.
+    public bool tooLarge(ReadOnlySpan<u16> text) =>
+        text.length > maxFileBytes || (text.length * 3 > maxFileBytes && utf8Length(text) > maxFileBytes)
+
+    /// Forgets a document whose buffer is too large, whether open or indexed from disk.
+    public void drop(ref this, string uri) uses alloc, fs {
+        let at = find(uri)
+        if at >= 0 {
+            removeSlot(at)
+        }
+    }
+
+    /// Opens a buffer; returns its slot.
+    public i64 open(ref this, string uri, from move List<u16> text, at i32 version) uses alloc, fs {
+        let k = key(uri)
+        let at = slotOf(k)
+        if at >= 0 && docs[at].uri == uri {
+            docs[at].isOpen = true
+            chars += docs[at].replace(move text)
+            docs[at].set(version)
+            return at
+        }
+        return add(k, from: Document.create(uri, from: move text, at: version, as: true))
+    }
+
+    /// A full-sync change to the document at `at`, not analysed.
+    public void replace(ref this, move List<u16> text, at i64 at) uses alloc {
+        chars += docs[at].replace(move text)
+    }
+
+    /// An incremental change to the document at `at`, not analysed.
+    public void apply(ref this, at i64 at, from i32 startLine, by i32 startChar, to i32 endLine, through i32 endChar, as ReadOnlySpan<u16> text)
+            uses alloc {
+        chars += docs[at].apply(startLine, at: startChar, to: endLine, through: endChar, by: text)
+    }
+
+    /// Closes a buffer; a file that still exists on disk stays indexed from its disk content.
+    public void close(ref this, string uri) uses alloc, console, fs {
+        let k = key(uri)
+        let at = slotOf(k)
+        return if at < 0
+        docs[at].isOpen = false
+        docs[at].release()
+        let u = parseUri(uri)
+        if !(u.kind is .file) || !Fs.fileExists(u.localPath) || isExcludedKey(k) || isLink(u.localPath) {
+            removeSlot(at)
+        } else {
+            // A failed read keeps the previous document.
+            let _ = loadFromDisk(u.localPath, as: uri)
+        }
+    }
+
+    /// Indexes or re-reads one file on disk. A file not yet indexed is skipped when it is excluded, a symbolic link, larger than the
+    /// per-file limit, or over the budget. `clientUri` is the URI the new document keeps. Returns true when the file was rejected for the
+    /// budget.
+    public bool loadFromDisk(ref this, string path, as string? clientUri = null) uses alloc, console, fs {
+        let full = Path.fullPath(path)
+        let uri = clientUri ?? fileUri(full)
+        let k = key(uri)
+        let at = slotOf(k)
+        let known = at >= 0
+        return false if known && docs[at].isOpen
+        return false if !known && (isExcludedKey(k) || isLink(full))
+        let bytes = Io.readFile(full) catch { return false }
+        if bytes.length > maxFileBytes {
+            if known {
+                removeSlot(at)
+            }
+            return false
+        }
+        var text = decodeFile(bytes.span)
+        // Watcher echo of our own state.
+        return false if known && sameUnits(docs[at].text.span, as: text.span)
+        let delta = text.length - (known ? docs[at].text.length : 0)
+        if (!known || delta > 0) && overBudget(delta, as: !known) {
+            if known {
+                removeSlot(at)
+            }
+            return true
+        }
+        let _ = add(k, from: Document.create(uri, from: move text, at: 0, as: false))
+        return false
+    }
+
+    /// Removes a deleted file. Returns the URI of the removed document, if any.
+    public string? remove(ref this, string uri) uses alloc, fs {
+        let at = find(uri)
+        return null if at < 0 || docs[at].isOpen
+        let removed = docs[at].uri
+        removeSlot(at)
+        return removed
+    }
+
+    /// Removes every document under a deleted directory, except open buffers. Returns the URIs of the removed documents.
+    public List<string> removeFolder(ref this, string uri) uses alloc, fs {
+        var removed = List<string>()
+        let k = key(uri)
+        // Nothing is indexed under an excluded path.
+        return removed if !(parseUri(uri).kind is .file) || isExcludedKey(k)
+        let prefix = folded($"{trimEndingSeparator(k)}/")
+        var slots = List<i64>()
+        for e in index {
+            slots.append(e.value)
+        }
+        for at in slots {
+            if !docs[at].isOpen && slotKeys[at].startsWith(prefix) {
+                removed.append(docs[at].uri)
+                removeSlot(at)
+            }
+        }
+        let fk = folded(k)
+        var keep = Map<string, bool>()
+        for e in dirs {
+            if !(e.key.startsWith(prefix) || e.key == fk) {
+                keep[e.key] = true
+            }
+        }
+        dirs = move keep
+        return removed
+    }
+
+    /// Indexes a directory created or moved in under a root, with the rules of `indexFolder`; it does not become a root.
+    public void loadFolder(ref this, string path) uses alloc, console, fs {
+        let full = realPath(trimEndingSeparator(Path.fullPath(path)))
+        // `isExcluded` looks at the directories above a file, so ask about a file inside this one.
+        return if !dirExists(full) || isExcluded(Path.combine(full, "_.byn")) || isLink(full)
+        walk(full)
+    }
+
+    /// Indexes the `.byn` files under `root`. The root is kept by its real path.
+    public void indexFolder(ref this, string root) uses alloc, console, fs {
+        return if !dirExists(root)
+        let real = realPath(trimEndingSeparator(Path.fullPath(root)))
+        var known = false
+        for r in roots {
+            if folded(r) == folded(real) {
+                known = true
+                break
+            }
+        }
+        if !known {
+            roots.append(real)
+        }
+        walk(real)
+    }
+
+    /// Skipped directories and symbolic links are not entered; the walk stops once the budget is spent or once all walks together have
+    /// entered `maxDirs` directories.
+    void walk(ref this, string root) uses alloc, console, fs {
+        var stack = List<string>()
+        stack.append(root)
+        while stack.length > 0 && !limitReached {
+            let dir = stack.removeLast()
+            let fd = folded(dir)
+            if !dirs.contains(fd) && dirs.length >= maxDirs {
+                if !dirsLogged {
+                    Io.stderr.write($"bayan-lsp: the folder walk stopped after {maxDirs} directories; later directories are not indexed\n")
+                }
+                dirsLogged = true
+                return
+            }
+            dirs[fd] = true
+            let names = Io.listDir(dir) catch { continue }
+            var subs = List<string>()
+            for name in names {
+                let entry = Path.combine(dir, name)
+                if Fs.fileExists(entry) {
+                    continue if !isBynName(name, as: caseless) || isLink(entry)
+                    return if loadFromDisk(entry) || limitReached
+                } else {
+                    subs.append(entry)
+                }
+            }
+            for sub in subs {
+                continue if isSkippedDirectory(Path.fileName(sub)) || isLink(sub)
+                stack.append(sub)
+            }
+        }
+    }
+
+    /// `IsReparsePoint`: true for a symbolic link (the path's real path is not its parent's real path and its name); an entry that cannot
+    /// be inspected counts as one.
+    bool isLink(string path) uses alloc, fs {
+        let real = Fs.realPath(path) catch { return true }
+        let dir = Path.directoryName(path) ?? return false
+        let parent = Fs.realPath(dir) catch { return true }
+        return folded(real) != folded(Path.combine(parent, Path.fileName(path)))
+    }
+}
+
+/// `Directory.Exists`.
+public bool dirExists(string path) uses alloc, fs {
+    let _ = Io.listDir(path) catch { return false }
+    return true
+}

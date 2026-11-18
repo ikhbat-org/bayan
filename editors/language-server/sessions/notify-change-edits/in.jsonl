@@ -1,0 +1,14 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":null,"capabilities":{}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/a.byn","languageId":"bayan","version":1,"text":"struct A {}\r\nlet x = 1\n"}}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/a.byn","version":2},"contentChanges":[{"text":"let y = 1;\n"}]}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/a.byn","version":3},"contentChanges":[{"range":{"start":{"line":0,"character":9},"end":{"line":0,"character":10}},"text":""},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"text":"é😀;\r\n"},{"range":{"start":{"line":5,"character":0},"end":{"line":9,"character":99}},"text":";"}]}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/a.byn","version":4},"contentChanges":[{"range":{"start":{"line":0,"character":1},"end":{"line":0,"character":99}},"text":null},{"range":{"start":{"line":1,"character":-3},"end":{"line":1,"character":2}},"text":"z"}]}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/a.byn","version":5},"contentChanges":[{"text":"a;\r\nb;\r\n"},{"range":{"start":{"line":0,"character":5},"end":{"line":1,"character":1}},"text":""}]}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/b.byn","version":1},"contentChanges":[{"text":"x;\n"}]}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/a.byn","version":6},"contentChanges":[{"text":{"@repeat":"a","@times":4194305}}]}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/a.byn","version":7},"contentChanges":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"text":";"}]}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/a.byn","version":8},"contentChanges":[{"text":{"@repeat":"a","@times":4194305}},{"text":"let z;\n"}]}}
+{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"textDocument":{"uri":"file://@WS@/a.byn","version":9},"contentChanges":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"text":{"@repeat":"a","@times":4194305}},{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"text":";"}]}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/a.byn","languageId":"bayan","version":10,"text":"ok\n"}}}
+{"jsonrpc":"2.0","id":2,"method":"shutdown","params":null}
+{"jsonrpc":"2.0","method":"exit","params":null}
