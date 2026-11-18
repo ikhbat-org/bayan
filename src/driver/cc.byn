@@ -233,7 +233,7 @@ List<string> ccArguments(
 interface ICCompiler {
     /// Writes `source` and the runtime into `dir` and links `output`; `target` is the `--target` value, else `targetHost()` (Toolchain.cs:262).
     NativeBuild compile(ref this, string dir, from string source, to string output, by string mode, for string? target)
-            uses alloc, env, fs, process
+            uses alloc, clock, env, fs, process
 }
 
 /// The one implementation (plan D3): the `FindCompiler` order.
