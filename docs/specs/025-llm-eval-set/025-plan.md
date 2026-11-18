@@ -25,7 +25,7 @@ The work goes in this order: launcher, `score`, `recheck`, the two leaking repai
 
 **Output limit.** The launcher pipes the process's standard output through `head -c 1048577` into a file. A file longer than 1 MiB is the `limit` outcome. `head -c` is on macOS and Linux.
 
-**Sandbox on macOS.** `/usr/bin/sandbox-exec -f <profile>` with a profile the launcher writes per sample. Probed on this machine: `(deny network*)` stopped `curl` (exit 6), `(deny file-read* (subpath <tasks-dir>))` stopped `cat` of a hidden file, `(deny file-write*)` followed by `(allow file-write* (subpath <dir>))` allowed writes only under `<dir>`, and a built candidate ran and printed its output. On Linux the launcher applies the clean environment and the output cap and reports `sandbox: none`; the record and the summary carry that word (R15). CI on Linux only scores references, which are the project's own code.
+**Sandbox on macOS.** `/usr/bin/sandbox-exec -f <profile>` with a profile the launcher writes per sample. Probed on this machine: `(deny network*)` stopped `curl` (exit 6), `(deny file-read* (subpath <tasks-dir>))` stopped `cat` of a hidden file, `(deny file-write*)` followed by `(allow file-write* (subpath <dir>))` allowed writes only under `<dir>`, and a built candidate ran and printed its output. On Linux the launcher applies the clean environment and the output cap and reports `sandbox: none`; the record and the summary carry that word (R15). CI on Linux only scores references, which are the project's own code. Superseded by the 2026-11-18 review fix: the profile is now `sandbox-exec/2` (reads denied by default; signal, mach-lookup and exec denied outside an allowlist; `--no-fork` and `--sweep`); see `scripts/evals/llm-sandbox.sh`.
 
 **What the sandbox may write.** Each sample gets its own directory with four parts: `src/` (the scratch directory of R10: `solution.byn` and the copied `checks/*.byn`, nothing else), `bin/`, `cache/` and `tmp/`. A `stdout` candidate runs with `src/` as its only writable path, as R15 says. A `tests` candidate runs inside `bayan test`, which compiles first, so that call may write the whole sample directory, with `BAYAN_CACHE` pointing at the sample's `cache/`. This is wider than R15's wording by the sample's own `bin/`, `cache/` and `tmp/`. Nothing shared is writable, so one candidate cannot change what the next one is scored with. A cold cache cost 2.3 s for a `tests` task in the probe. T2 adds one sentence to R15 saying so.
 
@@ -88,7 +88,7 @@ scripts/evals/llm-sandbox.sh --write <dir> --deny-read <dir>... --stdin <file> -
 - `compiles`, `passes`, `lintClean`, `formatStable`: `true`, `false` or `"not reached"`
 - `outcome`: `pass`, `fail`, `limit` or `no-compile`
 - `passed`: compiles and passes (R12)
-- `sandbox`: `sandbox-exec` or `none`
+- `sandbox`: `sandbox-exec/2` or `none` (records with plain `sandbox-exec` are from the old profile and void for heldout, see the spec's known limits)
 - from `run` only: `wallMs`, `tokens` (absent when the command printed no `tokens:` line), `reply`
 
 The four results, `outcome` and `passed` depend only on the task and the candidate. Times are separate fields and are never an input to them (R9).
