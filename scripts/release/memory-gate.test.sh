@@ -2,6 +2,8 @@
 # Tests scripts/release/memory-gate.sh: it runs every command of docs/memory-leaks.md's *Release gate* block, reports
 # each failure and exits 1 on any, and release.yml cannot draft a release without it passing.
 set -euo pipefail
+# The stub logs the caller's BAYAN_TEST_TIMEOUT_MS, and ci.yml sets it for the whole Test step; start without it.
+unset BAYAN_TEST_TIMEOUT_MS
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 gate="$root/scripts/release/memory-gate.sh"
