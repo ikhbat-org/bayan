@@ -313,7 +313,7 @@ EOF
     check "/3: the program's own path, detached, is dead after the sweep" "$(field exit) $(alive "$root/w/pids/y")" "0 started dead"
     ZIG_LIB_DIR="$zlib" run --tools "$tools" -- "$tools/zig/zig" version
     check "/3: zig from the tools directory runs" "$(field exit) $(cat "$root/out")" "0 $("$zexe" version)"
-    run -- env "$zexe" version 2> /dev/null
+    ZIG_LIB_DIR="$zlib" run --tools "$tools" -- env "$zexe" version 2> /dev/null
     check "/3: exec of the real zig refused" "$([ "$(field exit)" != 0 ] && [ ! -s "$root/out" ] && echo denied)" "denied"
     # The tools directory lies under --write here, so only its own rule keeps the program from writing it.
     mkdir -p "$root/w/tools"
