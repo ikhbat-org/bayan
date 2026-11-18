@@ -14,6 +14,8 @@
 # run at once without sharing a file (preflight.sh reads tmp/wp1). On wlt1 the remote command first puts zig on PATH.
 # WIN_THREADS=N adds `--jobs N` to scripts/test.sh. BAYAN_TEST_TIME_SCALE (default 3) is passed through.
 # WIN_TRX is dropped: scripts/test.sh writes no trx.
+# WIN_CC sets CC for the remote run (e.g. 'zig cc'); unset, the remote run unsets CC, since wp1's user environment points CC at a
+# removed tdm-gcc (2026-11-18), and bootstrap-build.sh then picks cc or zig.
 set -u
 [ $# = 2 ] || { echo "usage: wp1-test.sh <branch> <part>"; exit 2; }
 BR=$1; FILT=$2; H=${WIN_HOST:-wp1}; WB=${WIN_BASH:-'C:\home\apps\Git\bin\bash.exe'}
@@ -33,10 +35,15 @@ git bundle create "tmp/$H/$S.bundle" "$BR" > /dev/null 2>&1 || { echo "wp1-test:
 # wp1's ssh shell is PowerShell (scripts/cleanup/021-ci-q747-scratch.sh); written for 5.1 too (no &&). A re-run for the same sha
 # replaces tmp/<short sha> only when tmp/<short sha>.wp1-test, written before the clone, says this script made it; else exit 3
 PRE=""; [ "$H" != wlt1 ] || PRE="\$env:PATH = 'C:\\home\\lang\\zig\\zig-x86_64-windows-0.17.0;' + \$env:PATH; "
+CCX="unset CC; "
+if [ -n "${WIN_CC:-}" ]; then
+  case $WIN_CC in *[!A-Za-z0-9\ ._:/-]*) echo "wp1-test: bad WIN_CC $WIN_CC"; exit 2;; esac
+  CCX="export CC=''$WIN_CC''; "
+fi
 XTRA=""; [ -z "${WIN_THREADS:-}" ] || XTRA=" --jobs $WIN_THREADS"
 CMD="$PRE""Set-Location '$R'; if (Test-Path '$S') { if (-not (Test-Path '$S.wp1-test')) { Write-Output 'wp1-test: $R/$S exists and wp1-test.sh did not create it'; exit 3 }; Remove-Item -Recurse -Force '$S' }; \
 New-Item -ItemType File -Force '$S.wp1-test' | Out-Null; git clone -q -b $BR $S.bundle $S; if (\$LASTEXITCODE) { exit \$LASTEXITCODE }; \
-Set-Location '$S'; if ((git rev-parse HEAD) -ne '$SHA') { Write-Output 'wp1-test: $BR moved after $SHA was resolved; the clone is not $SHA'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '${BAYAN_TEST_TIME_SCALE:-3}'; & '$WB' -c 'exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only $FILT$XTRA'; exit \$LASTEXITCODE"
+Set-Location '$S'; if ((git rev-parse HEAD) -ne '$SHA') { Write-Output 'wp1-test: $BR moved after $SHA was resolved; the clone is not $SHA'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '${BAYAN_TEST_TIME_SCALE:-3}'; & '$WB' -c '${CCX}exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only $FILT$XTRA'; exit \$LASTEXITCODE"
 printf 'branch: %s\nsha: %s\nfilter: %s\ncommand: ssh %s "%s"\n' "$BR" "$SHA" "$FILT" "$H" "$CMD" > "$OUT"
 scp -q "tmp/$H/$S.bundle" "$H:/$R/" >> "$OUT" 2>&1; rc=$?
 [ $rc = 0 ] && { ssh "$H" "$CMD" >> "$OUT" 2>&1; rc=$?; }

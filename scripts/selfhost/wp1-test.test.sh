@@ -54,6 +54,8 @@ first=$(w feat/x "$F"); [ -f "$aux/remote/$s/a.txt" ] && [ -f "$aux/remote/$s.wp
 touch "$aux/remote/$s/stale"; again=$(w feat/x "$F"); [ -f "$aux/remote/$s/a.txt" ] && [ ! -e "$aux/remote/$s/stale" ] && replaced=1 || replaced=0
 # pwsh hands the bash script to Git Bash as one -c argument, after the zig PATH line ran
 pw=$(WIN_HOST=wlt1 WIN_THREADS=3 w feat/x bayan); dargs=$(tr '\n' ' ' < "$aux/bash-args")
+# WIN_CC sets CC in Git Bash (quoted through PowerShell); unset, CC is unset there; a WIN_CC with a quote or ; is refused
+pwc=$(WIN_CC='zig cc' w feat/x runtime); dargsc=$(tr '\n' ' ' < "$aux/bash-args"); badcc=$(WIN_CC='a;b' w feat/x "$F")
 rm "$aux/remote/$s.wp1-test"; touch "$aux/remote/$s/stale"; foreign=$(w feat/x "$F"); [ -e "$aux/remote/$s/stale" ] && kept=1 || kept=0
 # a commit landing on the branch between the sha lookup and the bundle: the remote clone is not the sha, so the run exits 4
 realgit=$(command -v git)
@@ -64,7 +66,7 @@ fail() { echo "FAIL: $1"; echo "$2"; exit 1; }
 has() { grep -qxF -- "$2" <<< "$1"; }
 [ "$scpa" = "-q tmp/wp1/$s.bundle wp1:/$R/" ] || fail "scp ran '$scpa'" "$good"
 CMD=${ssha#wp1 }
-for p in "Set-Location '$R';" "git clone -q -b feat/x $s.bundle $s;" "Set-Location '$s'; if ((git rev-parse HEAD) -ne '$sha') { Write-Output 'wp1-test: feat/x moved after $sha was resolved; the clone is not $sha'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '3'; & 'C:\\home\\apps\\Git\\bin\\bash.exe' -c 'exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only $F'; exit \$LASTEXITCODE"; do
+for p in "Set-Location '$R';" "git clone -q -b feat/x $s.bundle $s;" "Set-Location '$s'; if ((git rev-parse HEAD) -ne '$sha') { Write-Output 'wp1-test: feat/x moved after $sha was resolved; the clone is not $sha'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '3'; & 'C:\\home\\apps\\Git\\bin\\bash.exe' -c 'unset CC; exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only $F'; exit \$LASTEXITCODE"; do
   [[ $ssha == "wp1 "*"$p"* ]] || fail "ssh ran '$ssha', without '$p'" "$good"; done
 grep -q "^$sha refs/heads/feat/x$" <<< "$bundled" || fail "the bundle does not hold feat/x" "$bundled"
 [ "$(head -4 <<< "$gout")" = "$(printf 'branch: feat/x\nsha: %s\nfilter: %s\ncommand: ssh wp1 "%s"' "$sha" "$F" "$CMD")" ] || fail "the .out header is wrong" "$gout"
@@ -90,7 +92,9 @@ has "$wl" "rc=0" || fail "a wlt1 run failed" "$wl"
 # R28: no dotnet in the remote command, which builds with bootstrap-build.sh and then runs scripts/test.sh
 [[ $ssha != *dotnet* && $ssha == *scripts/bootstrap-build.sh*BAYAN_EXE=*scripts/test.sh* ]] || fail "the remote command has dotnet, or lacks bootstrap-build.sh then scripts/test.sh ('$ssha')" "$good"
 has "$badth" "wp1-test: bad WIN_THREADS x (a positive integer)" && has "$badth" "rc=2" || fail "a bad WIN_THREADS was not refused" "$badth"
-has "$pw" "rc=0" && [[ $dargs == "-c exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only bayan --jobs 3 " ]] || fail "pwsh did not pass the build and test script to Git Bash ('$dargs')" "$pw"
+has "$pw" "rc=0" && [[ $dargs == "-c unset CC; exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only bayan --jobs 3 " ]] || fail "pwsh did not pass the build and test script to Git Bash ('$dargs')" "$pw"
+has "$pwc" "rc=0" && [[ $dargsc == "-c export CC='zig cc'; exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only runtime " ]] || fail "WIN_CC did not reach Git Bash as CC ('$dargsc')" "$pwc"
+has "$badcc" "wp1-test: bad WIN_CC a;b" && has "$badcc" "rc=2" || fail "a bad WIN_CC was not refused" "$badcc"
 has "$first" "rc=0" && [ $cloned = 1 ] || fail "the remote command did not clone into the short-sha directory with its marker" "$first"
 has "$again" "rc=0" && [ $replaced = 1 ] || fail "a re-run for the same sha did not replace the clone it made" "$again"
 has "$foreign" "wp1-test: $aux/remote/$s exists and wp1-test.sh did not create it" && has "$foreign" "rc=3" && [ $kept = 1 ] \
