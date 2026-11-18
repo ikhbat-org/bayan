@@ -223,15 +223,51 @@ public struct JsonDocument {
         return i32(negative ? -value : value)
     }
 
-    /// `WriteTo` for a number (its text as read) or a string (unescaped, then written as `Utf8JsonWriter` writes UTF-8 it was given:
-    /// each invalid sequence becomes `�`). Other kinds are not written by the server.
+    /// `EnumerateObject`: the key of each member, in order; its value is `valueOf`.
+    public List<JsonElement> keys(JsonElement e) uses alloc fails JsonUseError {
+        try expect(e, as: .object)
+        var keys = List<JsonElement>()
+        var key = nodes[e.index].first
+        while key >= 0 {
+            keys.append(JsonElement { index: key })
+            key = nodes[nodes[key].next].next
+        }
+        return keys
+    }
+
+    /// The value of the member whose key is `key`.
+    public JsonElement valueOf(JsonElement key) => JsonElement { index: nodes[key.index].next }
+
+    /// `JsonProperty.NameEquals`.
+    public bool nameEquals(JsonElement key, to string name) uses alloc => keyEquals(key.index, to: name)
+
+    /// `JsonProperty.WriteTo`: the name unescaped, then the value.
+    public void writeProperty(JsonElement key, to ref JsonWriter w) uses alloc fails JsonUseError {
+        let name = try unescaped(key.index)
+        w.writeUtf8PropertyName(name.span)
+        try write(valueOf(key), to: ref w)
+    }
+
+    /// `WriteTo`: a number or literal as read, a string unescaped and then written as `Utf8JsonWriter` writes UTF-8 it was given (each
+    /// invalid sequence becomes `�`), an object or array member by member.
     public void write(JsonElement e, to ref JsonWriter w) uses alloc fails JsonUseError {
         try valid(e)
         let node = nodes[e.index]
-        if node.kind is .number {
+        if node.kind is .number or .trueValue or .falseValue or .nullValue {
             w.writeRawValue(bytes.span[node.start..node.end])
+        } else if node.kind is .object {
+            w.writeStartObject()
+            for key in try keys(e) {
+                try writeProperty(key, to: ref w)
+            }
+            w.writeEndObject()
+        } else if node.kind is .array {
+            w.writeStartArray()
+            for item in try items(e) {
+                try write(item, to: ref w)
+            }
+            w.writeEndArray()
         } else {
-            try expect(e, as: .text)
             let utf8 = try unescaped(e.index)
             w.writeUtf8Value(utf8.span)
         }
@@ -637,6 +673,14 @@ public struct JsonWriter {
         comma = false
     }
 
+    /// A property name given as UTF-8 that may be invalid.
+    public void writeUtf8PropertyName(ref this, ReadOnlySpan<u8> name) uses alloc {
+        separate()
+        appendQuoted(name, to: ref buffer)
+        appendText(":", to: ref buffer)
+        comma = false
+    }
+
     public void writeStartObject(ref this) uses alloc {
         separate()
         appendText("{", to: ref buffer)
@@ -655,6 +699,10 @@ public struct JsonWriter {
 
     public void writeStartArray(ref this, for string name) uses alloc {
         writePropertyName(name)
+        writeStartArray()
+    }
+
+    public void writeStartArray(ref this) uses alloc {
         separate()
         appendText("[", to: ref buffer)
         comma = false
