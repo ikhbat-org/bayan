@@ -71,6 +71,8 @@ jobs:
           # zig cc of src/semantics took over the 600 s default on windows-latest (ci run 42602448089, 2026-11-09:
           # 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
           BAYAN_CC_TIMEOUT_S: 1800
+          # out/dist timed out at the 60 s default on windows-latest (ci run 44266558766) after passing in 44263151004.
+          BAYAN_TEST_TIMEOUT_MS: 300000
         run: bash scripts/test.sh | tee test-report.txt
       - name: Check known failures (Windows)
         if: runner.os == 'Windows'
