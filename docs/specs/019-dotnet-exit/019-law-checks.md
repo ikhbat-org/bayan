@@ -29,5 +29,6 @@ Decision 2026-11-18 (owner): a live `check:` line is swapped only when the new c
 
 - L001, L017, L022, L024: name the C# lexer, parser, binder or emitter as the oracle; after 019b the oracle is the frozen expected files.
 - L026, L039: name .NET's Path.* and the C# CLI as the oracle; same amendment.
+- L028: names `CliApp.Run` as the oracle; after 019b the oracle is the frozen expected files, with the same time masks. Drafted in docs/laws/028-driver-equivalence.md.
 - L005: names C# behaviour in its proof notes; after 019b the oracle is the T24b fixtures.
 - L027: the Statement says "becomes a no-.NET check once T31 lands"; the frozen-tree half needs L027 in scripts/ci/ddc-laws.txt.

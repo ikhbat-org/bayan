@@ -20,59 +20,97 @@ const nullReference: string = "Object reference not set to an instance of an obj
 public struct Server {
     bool                shutdown = false
     workspace.Workspace ws
-    /// URIs of open buffers dropped for size; a didOpen or full change brings them under it.
+    /// URIs of open buffers dropped for size; a didOpen or full change brings them under it. Its keys live in `tooLargeArena`.
     Map<string, bool>   tooLarge
-    /// The documentation of the last completion's items, by their `data`.
+    Arena               tooLargeArena
+    /// The documentation of the last completion's items, by their `data`; it lives in `completionArena`.
     List<string>        completionDocs
+    Arena               completionArena
 
-    public static Server create() uses alloc =>
-        Server { ws: workspace.Workspace.create(), tooLarge: Map<string, bool>(), completionDocs: List<string>() }
+    public static Server create() uses alloc => Server {
+        ws: workspace.Workspace.create(),
+        tooLarge: Map<string, bool>(),
+        tooLargeArena: Arena(),
+        completionDocs: List<string>(),
+        completionArena: Arena(),
+    }
 
     /// Answers messages until `exit` or the end of input; returns the exit code.
     public i32 run(ref this, ref transport.Transport rpc) uses alloc, console, fs {
         while true {
-            let msg = rpc.read() ?? return 0
-            let root = msg.root
-            continue if !(msg.kind(root) is .object)
-            let methodFound = msg.find("method", at: root) catch { continue }
-            let m = methodFound ?? continue
-            continue if !(msg.kind(m) is .text)
-            let methodText = msg.text(m) catch switch {
-                .invalid(let message) => return unhandled(message),
+            // Each message is read, answered and dropped inside its own arena; what outlives it is copied into an arena of its own.
+            using let arena = Arena()
+            var code: i32 = -1
+            provide allocator: arena {
+                code = step(ref rpc)
             }
-            let method = methodText ?? continue
-            let idFound = msg.find("id", at: root) catch { continue }
-            var id = transport.JsonElement.missing()
-            var isRequest = false
-            if idFound is not null {
-                id = idFound
-                isRequest = msg.kind(id) is .number or .text
-            }
-            let paramsFound = msg.find("params", at: root) catch { continue }
-            let p = paramsFound ?? transport.JsonElement.missing()
-            if method == "exit" {
-                return shutdown ? 0 : 1
-            }
-            if !isRequest {
-                let failed = notify(method, at: p, for: msg)
-                if failed is not null {
-                    Io.stderr.write($"bayan-lsp: {method}: {failed}\n")
-                }
-                continue
-            }
-            let r = Request { msg: move msg, id: id, params: p }
-            if shutdown {
-                let failed = error(r, as: -32600, for: "server is shutting down")
-                return unhandled(failed) if failed is not null
-                continue
-            }
-            let failed = handle(method, for: r)
+            return code if code >= 0
+        }
+    }
+
+    /// Reads and answers one message; returns the exit code, or -1 to go on.
+    i32 step(ref this, ref transport.Transport rpc) uses alloc, console, fs {
+        let msg = rpc.read() ?? return 0
+        let root = msg.root
+        return -1 if !(msg.kind(root) is .object)
+        let methodFound = msg.find("method", at: root) catch { return -1 }
+        let m = methodFound ?? return -1
+        return -1 if !(msg.kind(m) is .text)
+        let methodText = msg.text(m) catch switch {
+            .invalid(let message) => return unhandled(message),
+        }
+        let method = methodText ?? return -1
+        let idFound = msg.find("id", at: root) catch { return -1 }
+        var id = transport.JsonElement.missing()
+        var isRequest = false
+        if idFound is not null {
+            id = idFound
+            isRequest = msg.kind(id) is .number or .text
+        }
+        let paramsFound = msg.find("params", at: root) catch { return -1 }
+        let p = paramsFound ?? transport.JsonElement.missing()
+        if method == "exit" {
+            return shutdown ? 0 : 1
+        }
+        if !isRequest {
+            let failed = notify(method, at: p, for: msg)
             if failed is not null {
                 Io.stderr.write($"bayan-lsp: {method}: {failed}\n")
-                let again = error(r, as: -32603, for: failed)
-                return unhandled(again) if again is not null
+            }
+            return -1
+        }
+        let r = Request { msg: move msg, id: id, params: p }
+        if shutdown {
+            let failed = error(r, as: -32600, for: "server is shutting down")
+            return unhandled(failed) if failed is not null
+            return -1
+        }
+        let failed = handle(method, for: r)
+        if failed is not null {
+            Io.stderr.write($"bayan-lsp: {method}: {failed}\n")
+            let again = error(r, as: -32603, for: failed)
+            return unhandled(again) if again is not null
+        }
+        return -1
+    }
+
+    /// Forgets that `uri` was dropped for size; true if it was. The other keys move to a fresh `tooLargeArena`.
+    bool unmarkTooLarge(ref this, string uri) uses alloc {
+        return false if !tooLarge.contains(uri)
+        var keep = List<string>()
+        for e in tooLarge {
+            if e.key != uri {
+                keep.append(e.key.copy())
             }
         }
+        tooLargeArena.reset()
+        provide allocator: tooLargeArena {
+            tooLarge = Map<string, bool>()
+            for k in keep {
+                tooLarge[k.copy()] = true
+            }
+        }
+        return true
     }
 
     /// Answers a request; returns the message of the exception the C# handler would throw, or null.
@@ -157,7 +195,7 @@ public struct Server {
                 let errorsOnly = recv >= 0 && doc.isTextAt(recv, as: "fail")
                 let statesOnly = recv >= 0 && (doc.isTextAt(recv, as: "is") || doc.isTextAt(recv, as: "becomes") || doc.isTextAt(recv, as: "become"))
                 for e in ws.casesAndStates() {
-                    let s = ws.docs[e.doc].symbols[e.sym]
+                    let s = ws.docs[e.doc].symbol(e.sym)
                     continue if statesOnly && !(s.kind is .state)
                     if errorsOnly {
                         continue if !(s.kind is .caseMember)
@@ -173,14 +211,14 @@ public struct Server {
                     let type = found
                     let onValue = !indexer.isUpper(doc.text[i64(doc.tokens[recv].start)])
                     for m in ws.membersOf(type) {
-                        let s = ws.docs[m.doc].symbols[m.sym]
+                        let s = ws.docs[m.doc].symbol(m.sym)
                         if !(onValue && s.kind is .state or .caseMember) {
                             items.add(s.name, as: memberKind(s), for: s.detail, by: s.doc, sort: "1")
                         }
                     }
                     let alias = ws.findType(type)
                     if alias is not null {
-                        let a = ws.docs[alias.doc].symbols[alias.sym]
+                        let a = ws.docs[alias.doc].symbol(alias.sym)
                         if a.kind is .typeAlias && a.detail.position(" distinct ") is not null {
                             let under = underlyingType(a.detail)
                             if under is not null {
@@ -195,19 +233,19 @@ public struct Server {
             }
         } else {
             for l in workspace.localsAt(doc, at: offset) {
-                let s = doc.symbols[l]
+                let s = doc.symbol(l)
                 let t = s.typeName ?? ""
                 items.add(s.name, as: 6, for: t.length > 0 ? $"{s.name}: {t}" : s.name, by: null, sort: "0")
             }
             let enc = workspace.enclosingType(doc, at: offset)
             if enc >= 0 {
-                for m in ws.membersOf(doc.symbols[enc].name) {
-                    let s = ws.docs[m.doc].symbols[m.sym]
+                for m in ws.membersOf(doc.symbol(enc).name) {
+                    let s = ws.docs[m.doc].symbol(m.sym)
                     items.add(s.name, as: memberKind(s), for: s.detail, by: s.doc, sort: "1")
                 }
             }
             for g in ws.globals() {
-                let s = ws.docs[g.doc].symbols[g.sym]
+                let s = ws.docs[g.doc].symbol(g.sym)
                 if !(s.kind is .testCase) {
                     items.add(s.name, as: memberKind(s), for: s.detail, by: s.doc, sort: "3")
                 }
@@ -223,7 +261,10 @@ public struct Server {
             }
         }
 
-        completionDocs.clear()
+        completionArena.reset()
+        provide allocator: completionArena {
+            completionDocs = List<string>()
+        }
         var w = try replyTo(r)
         w.writeStartObject(for: "result")
         w.writeBoolean(value: false, for: "isIncomplete")
@@ -237,7 +278,7 @@ public struct Server {
             }
             if it.doc is not null {
                 w.writeNumber(completionDocs.length, for: "data")
-                completionDocs.append(it.doc ?? "")
+                completionDocs.append((it.doc ?? "").copy(to: completionArena))
             }
             w.writeString(it.sort, for: "sortText")
             w.writeEndObject()
@@ -292,7 +333,7 @@ public struct Server {
                 return ws.member(type, for: word)
             }
             for e in ws.casesAndStates() {
-                return e if ws.docs[e.doc].symbols[e.sym].name == word
+                return e if ws.docs[e.doc].symbol(e.sym).name == word
             }
             return null
         }
@@ -526,7 +567,7 @@ public struct Server {
         for i in 0..doc.symbols.length {
             let parent = doc.symbols[i].parent
             if parent >= 0 {
-                children[parent].append(i)
+                children[i64(parent)].append(i)
             }
         }
         var w = try replyTo(r)
@@ -549,7 +590,7 @@ public struct Server {
         w.writeStartArray(for: "result")
         var n: i64 = 0
         for e in ws.allSymbols() {
-            let s = ws.docs[e.doc].symbols[e.sym]
+            let s = ws.docs[e.doc].symbol(e.sym)
             continue if query.length > 0 && !containsIgnoreCase(s.name, for: query.span)
             w.writeStartObject()
             w.writeString(s.name, for: "name")
@@ -643,7 +684,7 @@ public struct Server {
             dropTooLarge(uri)
             return
         }
-        let _ = tooLarge.remove(uri)
+        let _ = unmarkTooLarge(uri)
         let version = try msg.int32(try msg.get("version", at: td))
         let at = ws.open(uri, from: move text, at: version)
         publish(at)
@@ -663,7 +704,7 @@ public struct Server {
                 continue if !full
                 let text = (try str(msg, at: try msg.get("text", at: ch))).utf16.copy()
                 continue if ws.tooLarge(text.span)
-                let _ = tooLarge.remove(uri)
+                let _ = unmarkTooLarge(uri)
                 doc = ws.open(uri, from: move text, at: version)
                 continue
             }
@@ -689,15 +730,14 @@ public struct Server {
         }
         return if doc < 0
         // One analysis per notification, however many changes.
-        ws.docs[doc].set(version)
-        ws.invalidate()
+        ws.set(doc, to: version)
         publish(doc)
     }
 
     void didClose(ref this, transport.JsonElement p, for transport.JsonDocument msg) uses alloc, console, fs fails transport.JsonUseError {
         let uri = try str(msg, at: try msg.get("uri", at: try msg.get("textDocument", at: p)))
         // A dropped buffer comes back from disk under the usual rules.
-        if tooLarge.remove(uri) {
+        if unmarkTooLarge(uri) {
             let u = workspace.parseUri(uri)
             fail .invalid(message: invalidUri) if u.kind is .invalid
             if u.kind is .file {
@@ -783,7 +823,7 @@ public struct Server {
     void dropTooLarge(ref this, string uri) uses alloc, console, fs {
         ws.drop(uri)
         return if tooLarge.contains(uri)
-        tooLarge[uri] = true
+        tooLarge[uri.copy(to: tooLargeArena)] = true
         var w = transport.begin()
         w.writeString("textDocument/publishDiagnostics", for: "method")
         w.writeStartObject(for: "params")
@@ -1102,7 +1142,7 @@ bool containsIgnoreCase(string name, for ReadOnlySpan<u16> query) uses alloc {
 u16 foldAscii(u16 c) => c >= 0x61 && c <= 0x7A ? c - 0x20 : c
 
 void writeDocSymbol(ref transport.JsonWriter w, for workspace.Document doc, at i64 at, by List<List<i64>> children) uses alloc {
-    let s = doc.symbols[at]
+    let s = doc.symbol(at)
     w.writeStartObject()
     w.writeString(s.kind is .testCase ? $"test \"{s.name}\"" : s.name, for: "name")
     w.writeString(s.kind is .function or .field ? s.typeName ?? "" : "", for: "detail")

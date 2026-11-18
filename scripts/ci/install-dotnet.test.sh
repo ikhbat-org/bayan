@@ -71,6 +71,6 @@ for wf in "$root/.github/workflows/ci.yml" "$root/.github/workflows/mutation.yml
   grep -q 'git fetch .*"\$GITHUB_SHA"' "$wf" || fail "$wf does not fetch GITHUB_SHA"
   ! grep -E "uses: " "$wf" | grep -vqE "uses: (actions/(upload|download)-artifact@|\./\.github/workflows/)" || fail "$wf uses an action other than the artifact ones and the repo's own workflows"
 done
-grep -q "scripts/ci/install-dotnet.sh" "$root/.github/workflows/ci.yml" || fail "ci.yml does not run install-dotnet.sh"
+! grep -q "dotnet" "$root/.github/workflows/ci.yml" || fail "ci.yml still installs or runs .NET (spec 019 T41)"
 grep -q "scripts/ci/install-dotnet.sh" "$root/.github/workflows/mutation.yml" || fail "mutation.yml does not run install-dotnet.sh"
 echo PASS

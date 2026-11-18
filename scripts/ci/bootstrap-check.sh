@@ -4,32 +4,80 @@
 # the previous commit's bootstrap. Stage 0 is scripts/pinned-bayan.sh at that commit (cc on its bootstrap/bayan.c);
 # stage 0 builds stage 1 with `build --package src -o <exe> src/driver`, the route land.sh regenerates bootstrap/ by.
 # Usage: bootstrap-check.sh [<prev>]   (default HEAD^; on a root commit, HEAD; a shallow clone needs depth 2)
+# Merge commit (HEAD^2 exists, no <prev> given): the first parent (dev) may hold a bootstrap too old for the merged branch's
+# src/driver, so HEAD^2 (the merged branch, which its own CI already proved) is tried first and HEAD^ second; either parent's
+# bootstrap building it passes, and the OK line names which parent. CI checks out depth 2, which may lack HEAD^2: the script
+# then runs `git fetch --depth=1 origin <HEAD^2>`, and if that fails it says so and falls back to HEAD^ alone.
+# Reuse and concurrency (T32b): a finished build is reused when HEAD's tree id, the candidate parents' shas and uname -s match
+# tmp/bootstrap-check/stamp (written only after a full success on a clean src/, runtime/ and bootstrap/, untracked files included), and
+# the OK line then says "reused". tmp/bootstrap-check.lock (mkdir; holder pid inside) keeps two runs from writing the output at
+# once: the second waits, then reuses. Builds happen in tmp/bootstrap-check.work.<pid>, published file by file at exit, so
+# a later run never deletes the bayan a law check is still running. A lock whose pid fails `kill -0` is broken.
 # Exit 1 names each stale file; stage 1 and its C are kept in tmp/bootstrap-check/.
 set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$(git rev-parse --show-toplevel)"
-if [ $# -gt 0 ]; then prev=$1
-elif git rev-parse -q --verify 'HEAD^1^{commit}' > /dev/null; then prev='HEAD^'
+cands=()
+if [ $# -gt 0 ]; then cands=("$1")
+elif git rev-parse -q --verify 'HEAD^1^{commit}' > /dev/null; then
+  cands=(HEAD^)
+  if git rev-parse -q --verify 'HEAD^2' > /dev/null; then   # a merge commit: the merged branch first, then the first parent
+    p2=$(git rev-parse HEAD^2)
+    git cat-file -e "$p2^{commit}" 2> /dev/null || git fetch -q --depth=1 origin "$p2" 2> /dev/null || true
+    if git cat-file -e "$p2^{commit}" 2> /dev/null; then cands=(HEAD^2 HEAD^)
+    else echo "bootstrap-check: HEAD^2 ($p2) is not in this clone and could not be fetched; using HEAD^ only"; fi
+  fi
 elif [ "$(git rev-parse --is-shallow-repository)" = true ]; then
   echo "bootstrap-check: FAIL HEAD has no parent in this shallow clone; fetch with depth 2 (R36 needs the previous commit)"; exit 1
-else prev=HEAD; fi
-sha=$(git rev-parse -q --verify "$prev^{commit}") || { echo "bootstrap-check: no commit for '$prev'" >&2; exit 2; }
+else cands=(HEAD); fi
+for prev in "${cands[@]}"; do git rev-parse -q --verify "$prev^{commit}" > /dev/null || { echo "bootstrap-check: no commit for '$prev'" >&2; exit 2; }; done
 fail=0
 for f in bayan-rt.h bayan-rt.c; do
   cmp -s "runtime/$f" "bootstrap/$f" || { echo "bootstrap-check: FAIL bootstrap/$f differs from runtime/$f (R26); copy it"; fail=1; }
 done
-out=tmp/bootstrap-check; rm -rf "$out"; mkdir -p "$out"
+final=tmp/bootstrap-check; out=$final.work.$$; lock=tmp/bootstrap-check.lock; mkdir -p tmp
+waits=0
+until mkdir "$lock" 2> /dev/null; do
+  holder=$(cat "$lock/pid" 2> /dev/null || true)
+  if [ -n "$holder" ] && ! kill -0 "$holder" 2> /dev/null; then rm -rf "$lock"; continue; fi   # the holder is dead
+  if [ -z "$holder" ]; then waits=$((waits + 1)); [ $waits -le 50 ] || { rm -rf "$lock"; waits=0; continue; }; fi   # no pid yet; 10s then stale
+  sleep 0.2
+done
+# the build goes to a private work dir; its files replace those in $final one by one (stamp last) when the script ends, so a
+# check running $final/bayan after this script exits is never deleted from under, and a failed build leaves no stamp
+publish() { if [ -d "$out" ]; then rm -f "$final/stamp"; mkdir -p "$final"; for f in "$out"/*; do [ -e "$f" ] && mv -f "$f" "$final/"; done; fi
+  rm -rf "$out" "$lock"; }
+echo $$ > "$lock/pid"; trap publish EXIT
+dirty=$(git status --porcelain --untracked-files=all -- src runtime bootstrap)
+key="$(git rev-parse 'HEAD^{tree}') $(uname -s)"
+for c in "${cands[@]}"; do key="$key $(git rev-parse "$c^{commit}")"; done
+if [ $fail = 0 ] && [ -z "$dirty" ] \
+  && [ "$(head -1 "$final/stamp" 2> /dev/null || true)" = "$key" ] && { [ -x "$final/bayan" ] || [ -x "$final/bayan.exe" ]; }; then
+  echo "bootstrap-check: OK (bootstrap/ matches src/ and runtime/, and the bootstrap of $(sed -n 2p "$final/stamp") builds it; reused the build of the same inputs)"
+  exit 0
+fi
+mkdir -p "$out"
 exe=bayan; case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) exe=bayan.exe ;; esac
-s0=$(PINNED_BAYAN_REF=$sha bash "$here/pinned-bayan.sh") \
-  || { echo "bootstrap-check: FAIL the bootstrap of $prev ($sha) does not build with cc (R36)"; exit 1; }
-if ! "$s0" build --package src -o "$out/$exe" src/driver > "$out/stage1.log" 2>&1; then
-  tail -20 "$out/stage1.log"
-  echo "bootstrap-check: FAIL the bootstrap of $prev ($sha) does not build src/driver (R36); log: $out/stage1.log"; exit 1
-fi
-if ! "$out/$exe" build --emit-c --mode safe --package src src/driver > "$out/bayan.c" 2> "$out/emit.log"; then
-  tail -20 "$out/emit.log"
-  echo "bootstrap-check: FAIL stage 1 (src/driver built by the bootstrap of $prev) does not emit src/driver (R36); log: $out/emit.log"; exit 1
-fi
+# stage 0 from the bootstrap of $1 builds stage 1, which emits src/driver; sets prev and sha, returns 1 with the reason printed
+chain() {
+  prev=$1; sha=$(git rev-parse "$prev^{commit}")
+  s0=$(PINNED_BAYAN_REF=$sha bash "$here/pinned-bayan.sh") \
+    || { echo "bootstrap-check: FAIL the bootstrap of $prev ($sha) does not build with cc (R36)"; return 1; }
+  if ! "$s0" build --package src -o "$out/$exe" src/driver > "$out/stage1.log" 2>&1; then
+    tail -20 "$out/stage1.log"
+    echo "bootstrap-check: FAIL the bootstrap of $prev ($sha) does not build src/driver (R36); log: $final/stage1.log"; return 1
+  fi
+  if ! "$out/$exe" build --emit-c --mode safe --package src src/driver > "$out/bayan.c" 2> "$out/emit.log"; then
+    tail -20 "$out/emit.log"
+    echo "bootstrap-check: FAIL stage 1 (src/driver built by the bootstrap of $prev) does not emit src/driver (R36); log: $final/emit.log"; return 1
+  fi
+}
+ok=0
+for c in "${cands[@]}"; do
+  if chain "$c"; then ok=1; break; fi
+  [ "$c" = "${cands[${#cands[@]}-1]}" ] || echo "bootstrap-check: trying the next parent"
+done
+[ $ok = 1 ] || exit 1
 if ! cmp -s "$out/bayan.c" bootstrap/bayan.c; then
   # the first differing line and the `#line` above it in the emitted C, which names the src/ file behind it
   line=$(cmp "$out/bayan.c" bootstrap/bayan.c 2>&1 | sed -nE 's/.* line ([0-9]+).*/\1/p' || true)
@@ -43,3 +91,4 @@ if ! cmp -s "$out/bayan.c" bootstrap/bayan.c; then
 fi
 [ $fail = 0 ] || exit 1
 echo "bootstrap-check: OK (bootstrap/ matches src/ and runtime/, and the bootstrap of $prev builds it)"
+[ -n "$dirty" ] || printf '%s\n%s\n' "$key" "$prev" > "$out/stamp"   # never stamp a build over a dirty or untracked src/, runtime/, bootstrap/

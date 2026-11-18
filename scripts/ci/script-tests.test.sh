@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# Tests scripts/ci/script-tests.sh: every file it lists exists, ci.yml's script steps call it and run no test of their own,
-# an unknown group exits 2, and a failing test makes it exit 1 after running the rest.
+# Tests scripts/ci/script-tests.sh: every file it lists exists, ci.yml reaches it only through scripts/test.sh and runs no test of
+# its own, an unknown group exits 2, and a failing test makes it exit 1 after running the rest.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 s="$root/scripts/ci/script-tests.sh"
 fail() { echo "FAIL $1"; exit 1; }
 while IFS= read -r f; do [ -f "$root/$f" ] || fail "script-tests.sh lists a missing file: $f"; done < <(bash "$s" list)
 ci="$root/.github/workflows/ci.yml"
-grep -qx '        run: bash scripts/ci/script-tests.sh unix  # .*' "$ci" || fail "ci.yml's Script tests step does not run script-tests.sh unix"
-grep -qx '        run: bash scripts/ci/script-tests.sh docs' "$ci" || fail "ci.yml's docs step does not run script-tests.sh docs"
+grep -qx '        run: bash scripts/test.sh' "$ci" || fail "ci.yml's Test step does not run scripts/test.sh"
+! grep -n 'script-tests.sh' "$ci" || fail "ci.yml runs script-tests.sh beside scripts/test.sh, so the script tests run twice"
+grep -q 'scripts/ci/script-tests.sh \$groups' "$root/scripts/test.sh" || fail "scripts/test.sh does not run script-tests.sh"
+grep -qx 'groups="unix"; \[ \$os = linux \] && groups="unix docs"' "$root/scripts/test.sh" || fail "scripts/test.sh does not run the docs group on Linux"
 ! grep -nE '^\s+(bash scripts/.*\.test\.sh|for f in scripts/docs)' "$ci" || fail "ci.yml runs a script test outside script-tests.sh"
 rc=0; bash "$s" nope > /dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "an unknown group exited $rc, not 2"
 

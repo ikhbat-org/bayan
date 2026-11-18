@@ -55,6 +55,80 @@ public struct IndexedSymbol {
     public bool isLocal => kind is .local or .param
 }
 
+/// A declaration as a document keeps it: offsets into the text in place of strings. `expand` gives the `IndexedSymbol`.
+public struct SymbolEntry {
+    public SymbolKind kind
+    /// Offset of the name (of a test's quoted name, its opening quote) and the end of its token.
+    public i32        nameStart      = 0
+    public i32        nameEnd        = 0
+    /// The header as written.
+    public i32        detailStart    = 0
+    public i32        detailEnd      = 0
+    /// The declared type as written: `typeStart` is -1 for none, -2 for `string`, -3 for `rune`.
+    public i32        typeStart      = -1
+    public i32        typeEnd        = 0
+    /// The enclosing type's name, `containerStart` -1 for none.
+    public i32        containerStart = -1
+    public i32        containerEnd   = 0
+    /// The joined `///` lines: an index into the document's comments, or -1.
+    public i32        comment        = -1
+    public i32        declStart      = 0
+    public i32        declEnd        = 0
+    public i32        parent         = -1
+    public i32        initStart      = -1
+    public i32        scopeStart     = 0
+    public i32        scopeEnd       = 2147483647
+
+    public bool isType => kind is .structType or .unionType or .errorUnion or .typeAlias or .interfaceType
+
+    public bool isLocal => kind is .local or .param
+}
+
+/// A range of the text; `start` -1 for none, -2 for `string`, -3 for `rune` (a type inferred from a literal).
+struct TextRange {
+    i32 start = -1
+    i32 end   = 0
+}
+
+/// The name of `e` in `text`: a test's name without its quotes.
+public string nameOf(SymbolEntry e, from ReadOnlySpan<u16> text) uses alloc {
+    if e.kind is .testCase {
+        let len: i64 = e.nameEnd - e.nameStart - 2 > 0 ? i64(e.nameEnd - e.nameStart) - 2 : 0
+        return decode(text[i64(e.nameStart) + 1..i64(e.nameStart) + 1 + len])
+    }
+    return decode(text[i64(e.nameStart)..i64(e.nameEnd)])
+}
+
+/// The enclosing type's name of `e` in `text`, or null.
+public string? containerOf(SymbolEntry e, from ReadOnlySpan<u16> text) uses alloc {
+    return null if e.containerStart < 0
+    return decode(text[i64(e.containerStart)..i64(e.containerEnd)])
+}
+
+/// `e` with its strings read from `text` and `comments`.
+public IndexedSymbol expand(SymbolEntry e, from ReadOnlySpan<u16> text, by ReadOnlySpan<string> comments) uses alloc {
+    var s = IndexedSymbol { name: nameOf(e, from: text), kind: e.kind, detail: decode(text[i64(e.detailStart)..i64(e.detailEnd)]) }
+    s.container = containerOf(e, from: text)
+    if e.typeStart == -2 {
+        s.typeName = "string"
+    } else if e.typeStart == -3 {
+        s.typeName = "rune"
+    } else if e.typeStart >= 0 {
+        s.typeName = decode(text[i64(e.typeStart)..i64(e.typeEnd)])
+    }
+    if e.comment >= 0 {
+        s.doc = comments[i64(e.comment)].copy()
+    }
+    s.nameStart = e.nameStart
+    s.declStart = e.declStart
+    s.declEnd = e.declEnd
+    s.parent = i64(e.parent)
+    s.initStart = e.initStart
+    s.scopeStart = e.scopeStart
+    s.scopeEnd = e.scopeEnd
+    return s
+}
+
 /// `Lexer.MaxNesting`: a `{` past this many open frames opens none.
 const maxNesting: i64 = 256
 
@@ -75,8 +149,10 @@ struct Frame {
 public struct Indexer {
     public List<u16>         text
     public List<lexer.Token> tokens
-    public List<IndexedSymbol>      symbols
+    public List<SymbolEntry> symbols
     public List<i64>         roots
+    /// The joined `///` lines the symbols point at.
+    public List<string>      comments
     List<Frame>              frames
     /// `{` past `maxNesting` open frames, not pushed.
     i64                      cut     = 0
@@ -92,8 +168,9 @@ public struct Indexer {
         var ix = Indexer {
             text: move text,
             tokens: move tokens,
-            symbols: List<IndexedSymbol>(),
+            symbols: List<SymbolEntry>(),
             roots: List<i64>(),
+            comments: List<string>(),
             frames: List<Frame>(),
             docLines: List<string>(),
             lineScoped: List<i64>(),
@@ -101,8 +178,6 @@ public struct Indexer {
         ix.scan()
         return ix
     }
-
-    string str(lexer.Token t) uses alloc => decode(text.span[i64(t.start)..i64(t.end)])
 
     bool isWord(lexer.Token t, as string v) {
         return false if i64(t.length) != v.length || !(t.kind is .keyword or .punct or .ident)
@@ -298,34 +373,49 @@ public struct Indexer {
 
     ReadOnlySpan<u16> span(lexer.Token t) => text.span[i64(t.start)..i64(t.end)]
 
-    string header(ReadOnlySpan<lexer.Token> line, from i64 from) uses alloc {
+    /// `text[a..b]` without leading and trailing white space.
+    TextRange trimmedRange(i64 a, until i64 b) {
+        let t = trimmed(text.span[a..b])
+        var lead: i64 = 0
+        while lead < b - a && isWhiteSpace(text[a + lead]) {
+            lead += 1
+        }
+        return TextRange { start: i32(a + lead), end: i32(a + lead + t.length) }
+    }
+
+    TextRange header(ReadOnlySpan<lexer.Token> line, from i64 from) {
         let last = line[line.length - 1]
         var end = last.end
         if isWord(last, as: "{") {
             end = line.length > 1 ? line[line.length - 2].end : last.start
         }
-        return decode(trimmed(text.span[i64(line[from].start)..i64(end)]))
+        return trimmedRange(i64(line[from].start), until: i64(end))
     }
 
-    i64 add(ref this, SymbolKind kind, for lexer.Token name, at ReadOnlySpan<lexer.Token> line, from i64 from, as string? typeName = null, by string? container = null, until bool docs = true) uses alloc {
+    /// `owner`: the symbol whose name is the container (a state's type), or -1 for the enclosing type's.
+    i64 add(ref this, SymbolKind kind, for lexer.Token name, at ReadOnlySpan<lexer.Token> line, from i64 from, as TextRange? typeName = null, by i64 owner = -1, until bool docs = true) uses alloc {
         let parentType = enclosingType()
         let local = kind is .local or .param
-        var sym = IndexedSymbol { name: str(name), kind: kind, detail: header(line, from: from) }
-        sym.nameStart = name.start
+        let detail = header(line, from: from)
+        var sym = SymbolEntry { kind: kind, nameStart: name.start, nameEnd: name.end, detailStart: detail.start, detailEnd: detail.end }
         sym.declStart = line[from].start
         sym.declEnd = line[line.length - 1].end
-        sym.typeName = typeName
-        sym.container = container
-        if container is null && !local && parentType >= 0 {
-            sym.container = symbols[parentType].name
+        let ty = typeName ?? TextRange {}
+        sym.typeStart = ty.start
+        sym.typeEnd = ty.end
+        let container = owner >= 0 ? owner : (!local && parentType >= 0 ? parentType : -1)
+        if container >= 0 {
+            sym.containerStart = symbols[container].nameStart
+            sym.containerEnd = symbols[container].nameEnd
         }
         if docs && docLines.length > 0 {
-            sym.doc = docLines.joined(by: "\n")
+            sym.comment = i32(comments.length)
+            comments.append(docLines.joined(by: "\n"))
         }
         let at = symbols.length
         if !local {
             if parentType >= 0 && !(kind is .testCase) {
-                sym.parent = parentType
+                sym.parent = i32(parentType)
             } else {
                 roots.append(at)
             }
@@ -345,7 +435,7 @@ public struct Indexer {
         // Inside a `states { … }` block every bare name is a state.
         if hasTop && frames[frames.length - 1].kind is .statesFrame && first.kind is .ident {
             let owner = frames[frames.length - 1].owner
-            let _ = add(.state, for: first, at: line, from: k, by: owner >= 0 ? symbols[owner].name : null)
+            let _ = add(.state, for: first, at: line, from: k, by: owner)
             return
         }
 
@@ -395,10 +485,7 @@ public struct Indexer {
         if equalsAscii(w, to: "test") || equalsAscii(w, to: "bench") {
             if k + 1 < line.length && line[k + 1].kind is .text {
                 let tn = line[k + 1]
-                let t = add(.testCase, for: tn, at: line, from: k)
-                let len = tn.length - 2 > 0 ? i64(tn.length) - 2 : 0
-                symbols[t].name = decode(text.span[i64(tn.start) + 1..i64(tn.start) + 1 + len])
-                opener = t
+                opener = add(.testCase, for: tn, at: line, from: k)
                 openerKind = .functionFrame
             }
             return
@@ -413,7 +500,7 @@ public struct Indexer {
                 j += 1
             }
             if identAt(line, at: j) {
-                var ty: string? = null
+                var ty = TextRange {}
                 if wordAt(line, at: j + 1, as: ":") {
                     ty = typeText(line, from: j + 2, until: -1, as: "in")
                 }
@@ -453,7 +540,7 @@ public struct Indexer {
     void declareLocal(ref this, ReadOnlySpan<lexer.Token> line, at i64 j, from i64 from, by bool scoped) uses alloc {
         return if j >= line.length || !(line[j].kind is .ident)
         let nameTok = line[j]
-        var ty: string? = null
+        var ty = TextRange {}
         if j + 1 < line.length && isWord(line[j + 1], as: ":") {
             ty = typeText(line, from: j + 2, until: -1, as: "=")
         } else if j + 2 < line.length && isWord(line[j + 1], as: "=") {
@@ -478,17 +565,17 @@ public struct Indexer {
     }
 
     /// Cheap inference for `let x = Type { … }`, `Type(…)`, `Type.make(…)`, literals.
-    string? inferType(ReadOnlySpan<lexer.Token> line, at i64 from) uses alloc {
+    TextRange inferType(ReadOnlySpan<lexer.Token> line, at i64 from) {
         var j = from
         if isWord(line[j], as: "try") {
             j += 1
         }
-        return null if j >= line.length
+        return TextRange {} if j >= line.length
         let t = line[j]
-        return "string" if t.kind is .text
-        return "rune" if t.kind is .rune
-        return str(t) if t.kind is .ident && isUpper(text[i64(t.start)])
-        return null
+        return TextRange { start: -2, end: 0 } if t.kind is .text
+        return TextRange { start: -3, end: 0 } if t.kind is .rune
+        return TextRange { start: t.start, end: t.end } if t.kind is .ident && isUpper(text[i64(t.start)])
+        return TextRange {}
     }
 
     void declareParams(ref this, ReadOnlySpan<lexer.Token> line, at i64 open, from i64 from) uses alloc {
@@ -536,7 +623,8 @@ public struct Indexer {
             a += 1
         }
         let p = add(.param, for: nameTok, at: line, from: from, as: typeText(line, from: a, until: b - 1), until: false)
-        symbols[p].detail = decode(text.span[i64(line[a].start)..i64(nameTok.end)])
+        symbols[p].detailStart = line[a].start
+        symbols[p].detailEnd = nameTok.end
         lineScoped.append(p)
     }
 
@@ -567,7 +655,7 @@ public struct Indexer {
     }
 
     /// The trimmed text of `line[a..end]`; with `end` -1, up to `stopAt` or a `{`.
-    string typeText(ReadOnlySpan<lexer.Token> line, from i64 a, until i64 end, as string? stopAt = null) uses alloc {
+    TextRange typeText(ReadOnlySpan<lexer.Token> line, from i64 a, until i64 end, as string? stopAt = null) {
         var e = end
         if e < 0 {
             e = a
@@ -575,8 +663,8 @@ public struct Indexer {
                 e += 1
             }
         }
-        return "" if a >= e || a >= line.length
-        return decode(trimmed(text.span[i64(line[a].start)..i64(line[e - 1].end)]))
+        return TextRange { start: 0, end: 0 } if a >= e || a >= line.length
+        return trimmedRange(i64(line[a].start), until: i64(line[e - 1].end))
     }
 }
 

@@ -1,5 +1,5 @@
 # 019 — The .NET exit: goldens, a Bayān language server, CI from the bootstrap, and the C# archive
-Status: approved (text drafted 2026-11-17, owner to review)
+Status: approved as amended through 2026-11-18 (owner, 2026-11-18)
 Release: unscheduled
 Sources: docs/bayan-milestones.md (Target: zero dependencies; user 2026-11-13); docs/decisions/2026-11-16-006-after-022-roadmap-decisions.md (§1 order, §2 freeze E1–E3, §3 option (c), §4 ratchet, C# archive plan; user 2026-11-16); docs/decisions/2026-11-16-007-additional-concepts-review.md (Q9, syntax freeze until 019a); docs/bayan-roadmap.md (row 3)
 Created: 2026-11-17
@@ -87,7 +87,7 @@ The port is built during 019a, but 019a lands without it (R24, R29). Until the B
 
 ### 019b: the archive
 - **R30 Entry condition.** 019b starts only after 019a has landed on `dev`, R20–R23 are met (the Bayān `bayan-lsp` replays every recorded session, keeps the bounds and starts from both editors), and CI, the laws nightly and one release dry run have passed there with no .NET.
-- **R31 The tag.** An annotated tag `csharp-final` sits on the last `dev` commit where the C# compiler builds and its suite passes. Its message names the 019b commit range. The owner pushes it.
+- **R31 The tag.** An annotated tag `csharp-final` sits on the 019a merge commit on `dev`, after one local `dotnet test` and one manual ddc run pass on it (owner 2026-11-18). Its message names the commit where 019b starts. The owner pushes it.
 - **R32 The decision doc.** `docs/decisions/<date>-NNN-csharp-archive.md` names the tag, its commit, what it holds (`csharp/`, the xUnit suite, the .NET CI jobs) and the commands to read, check out and restore it.
 - **R33 One removal commit.** The removal is one commit, `chore(019b): remove the C# compiler`, with no other change. After it, no tracked file is left under `csharp/`, no `.cs` file under `src/tests/`, none of the C# language server sources, and neither `tools/Bayan.SyntaxFuzz` nor `tools/Bayan.UnicodeGen` (OQ5).
 - **R34 Still green, still restorable.** After the removal commit the suite, `scripts/docs/check.sh`, the laws gate and a release dry run pass, and the R27 job, started from `csharp-final`, passes.

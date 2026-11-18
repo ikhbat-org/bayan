@@ -576,7 +576,7 @@ T9Runtime t9RuntimeIn(
     args.append(Path.combine(work, "bayan-rt.c"))
     args.append("-o")
     args.append(obj)
-    let r = Io.run(compiler[0], args.span) catch switch {
+    let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
         IoError e => return T9Runtime {
             result: NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`: {e}" },
         },
@@ -683,7 +683,7 @@ NativeBuild t9CompileIn(
     args.append(exe)
     // `CommandLineToArgvW` (program arguments) is in shell32.
     args.append(windows ? "-lshell32" : "-lm")
-    let r = Io.run(compiler[0], args.span) catch switch {
+    let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
         IoError e => return NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`: {e}" },
     }
     return NativeBuild {
@@ -735,6 +735,77 @@ void evict(string keep, through ref DCtx d) uses alloc, clock, env, fs, random {
     let mb = t9Digits(Env.get("BAYAN_CACHE_MAX_MB") ?? "", until: 9223372036854775807) ?? 2048
     return if mb == 0
     evictWith(keep, to: mb *% 1048576, by: 4000, until: 600000000000, through: ref d)
+}
+
+/// Spec 019 T17d (R1): the most entries `<cache>/zig/o/` keeps (docs/memory-leaks.md).
+const zigCacheEntries: i64 = 2000
+
+/// An `o/` entry written less than this many nanoseconds ago (10 minutes, `evict`'s) is kept past the limit, so a concurrent `zig cc`
+/// keeps its entry.
+const zigCacheMinAge: i64 = 600000000000
+
+/// The env of a `zig cc` the driver starts: `ZIG_GLOBAL_CACHE_DIR=<cacheDirectory()>/zig`, its `o/` trimmed first, when the
+/// driver's own `ZIG_GLOBAL_CACHE_DIR` is unset or empty; nothing for another compiler or a set value, which the child inherits.
+Map<string, string?> zigCacheEnv(List<string> compiler) uses alloc, clock, env, fs {
+    return zigCacheEnvFor(
+        compiler,
+        from: Env.get("ZIG_GLOBAL_CACHE_DIR"),
+        at: cacheDirectory(),
+        by: zigCacheEntries,
+        until: zigCacheMinAge,
+    )
+}
+
+/// `zigCacheEnv` with the driver's `ZIG_GLOBAL_CACHE_DIR` (`set`), its cache directory, the entry limit and the minimum age given.
+Map<string, string?> zigCacheEnvFor(List<string> compiler, from string? set, at string cache, by i64 limit, until i64 minAgeNanos)
+        uses alloc, clock, fs {
+    var env: Map<string, string?> = []
+    let zig = compiler.length > 1 && compiler[1] == "cc" && ccWithoutExtension(Path.fileName(compiler[0])) == "zig"
+    return env if !zig || (set ?? "") != ""
+    let dir = Path.combine(cache, "zig")
+    zigTrim(Path.combine(dir, "o"), by: limit, until: minAgeNanos)
+    env["ZIG_GLOBAL_CACHE_DIR"] = dir
+    return env
+}
+
+/// Removes the oldest entries of `dir` by write time, each whole, until at most `limit` are left, as `t9Evict` trims programs; a
+/// link is removed and its target kept. An entry written less than `minAgeNanos` ago is kept, as `evictWith` keeps one. An IO
+/// error (`dir` missing, an entry gone in between) ends it.
+void zigTrim(string dir, by i64 limit, until i64 minAgeNanos) uses alloc, clock, fs {
+    zigTrimEntries(dir, by: limit, until: minAgeNanos) catch return
+}
+
+/// The body of `zigTrim`.
+void zigTrimEntries(string dir, by i64 limit, until i64 minAgeNanos) uses alloc, clock, fs fails IoError {
+    let names = try Io.listDir(dir)
+    return if names.length <= limit
+    var paths = List<string>()
+    var used = List<i64>()
+    for name in names {
+        let path = Path.combine(dir, name)
+        paths.append(path)
+        used.append((try Fs.modified(path)).nanos)
+    }
+    // Oldest first: an insertion sort of the indices, as `t9Evict`.
+    var order = List<i64>()
+    for i in 0..paths.length {
+        order.append(i)
+        var at = order.length - 1
+        while at > 0 && used[order[at - 1]] > used[i] {
+            order[at] = order[at - 1]
+            at -= 1
+        }
+        order[at] = i
+    }
+    var count = paths.length
+    let cutoff = Time.now().nanos - minAgeNanos
+    for i in order {
+        break if count <= limit
+        continue if used[i] > cutoff
+        count -= 1
+        continue if t3Unlinked(paths[i])
+        try t9DeleteTree(paths[i])
+    }
 }
 
 /// `TryParse` with `NumberStyles.None` (Toolchain.cs:147, :485): `text` as decimal digits only, null when it is empty, has
@@ -1069,4 +1140,66 @@ test "replace-file: replacing a file leaves the new content at its path" {
     var d = newDCtx()
     replaceFile(path, from: source, through: ref d) catch { panic($"cannot replace {path}") }
     assert((Io.readText(path) catch "") == "after")
+}
+
+/// `<root>/zig/o/` with `count` entries `e0`..`e<count-1>`, each a directory holding one file, `e<i>` written at 2021-01-01 + i
+/// hours, so `e0` is the oldest.
+string zigTestCache(string root, at i64 count) uses alloc, fs {
+    let o = Path.combine(Path.combine(root, "zig"), "o")
+    for i in 0..count {
+        let entry = Path.combine(o, $"e{i}")
+        Io.createDirectory(entry) catch { panic($"cannot create {entry}") }
+        Io.writeFile(Path.combine(entry, "obj"), "x".bytes) catch { panic($"cannot write in {entry}") }
+        Fs.setModified(entry, to: Time.fromNanos((1609459200 + i * 3600) * 1000000000)) catch { panic($"cannot stamp {entry}") }
+    }
+    return o
+}
+
+test "zig-cache-trim: past the limit the oldest entries of zig/o are removed whole and the newest kept" {
+    let root = t9TestRoot("zig-trim")
+    let o = zigTestCache(root, at: 5)
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: null, at: root, by: 3, until: 0)
+    assert(env.length == 1)
+    assert(!t9DirectoryExists(Path.combine(o, "e0")))
+    assert(!t9DirectoryExists(Path.combine(o, "e1")))
+    for name in ["e2", "e3", "e4"] {
+        assert(Fs.fileExists(Path.combine(Path.combine(o, name), "obj")))
+    }
+    assert((Io.listDir(o) catch List<string>()).length == 3)
+}
+
+test "zig-cache-set: a set ZIG_GLOBAL_CACHE_DIR is passed through unchanged and nothing is trimmed" {
+    let root = t9TestRoot("zig-set")
+    let o = zigTestCache(root, at: 5)
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: "/elsewhere/zig", at: root, by: 3, until: 0)
+    assert(env.length == 0)
+    assert((Io.listDir(o) catch List<string>()).length == 5)
+    let other = zigCacheEnvFor(boundList(["cc"]), from: null, at: root, by: 3, until: 0)
+    assert(other.length == 0)
+    assert((Io.listDir(o) catch List<string>()).length == 5)
+}
+
+test "zig-cache-unset: an unset ZIG_GLOBAL_CACHE_DIR gives the zig cc child <cache>/zig" {
+    let root = t9TestRoot("zig-unset")
+    let env = zigCacheEnvFor(boundList(["/opt/zig/zig", "cc"]), from: null, at: root, by: 3, until: 0)
+    assert(env["ZIG_GLOBAL_CACHE_DIR"] == Path.combine(root, "zig"))
+    let empty = zigCacheEnvFor(boundList(["zig", "cc"]), from: "", at: root, by: 3, until: 0)
+    assert(empty["ZIG_GLOBAL_CACHE_DIR"] == Path.combine(root, "zig"))
+}
+
+test "zig-cache-young: an entry written within the minimum age survives past the limit" {
+    let root = t9TestRoot("zig-young")
+    let o = zigTestCache(root, at: 5)
+    for name in ["e3", "e4"] {
+        let entry = Path.combine(o, name)
+        Fs.setModified(entry, to: Time.now()) catch { panic($"cannot stamp {entry}") }
+    }
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: null, at: root, by: 1, until: 600000000000)
+    assert(env.length == 1)
+    for name in ["e0", "e1", "e2"] {
+        assert(!t9DirectoryExists(Path.combine(o, name)))
+    }
+    for name in ["e3", "e4"] {
+        assert(Fs.fileExists(Path.combine(Path.combine(o, name), "obj")))
+    }
 }
