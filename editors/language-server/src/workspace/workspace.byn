@@ -22,9 +22,23 @@ public struct Document {
     public bool                     isOpen      = false
     public List<i32>                lineStarts
     public List<lexer.Token>        tokens
-    public List<indexer.IndexedSymbol>     symbols
+    public List<indexer.SymbolEntry> symbols
+    /// The joined `///` lines the symbols point at.
+    public List<string>             comments
     public List<i64>                roots
     public List<Diagnostic>         diagnostics
+
+    /// A document with no text, for a slot that holds none.
+    public static Document empty() uses alloc => Document {
+        uri: "",
+        text: List<u16>(),
+        lineStarts: List<i32>(),
+        tokens: List<lexer.Token>(),
+        symbols: List<indexer.SymbolEntry>(),
+        comments: List<string>(),
+        roots: List<i64>(),
+        diagnostics: List<Diagnostic>(),
+    }
 
     public static Document create(string uri, from move List<u16> text, at i32 version, as bool open) uses alloc {
         var d = Document {
@@ -33,7 +47,8 @@ public struct Document {
             isOpen: open,
             lineStarts: List<i32>(),
             tokens: List<lexer.Token>(),
-            symbols: List<indexer.IndexedSymbol>(),
+            symbols: List<indexer.SymbolEntry>(),
+            comments: List<string>(),
             roots: List<i64>(),
             diagnostics: List<Diagnostic>(),
         }
@@ -83,6 +98,7 @@ public struct Document {
         text = ix.text.take()
         tokens = ix.tokens.take()
         symbols = ix.symbols.take()
+        comments = ix.comments.take()
         roots = ix.roots.take()
         var diags = List<Diagnostic>()
         for p in lx.problems {
@@ -99,10 +115,10 @@ public struct Document {
 
     /// Drops what only an open buffer needs: tokens, locals and parameters, outline, diagnostics.
     public void release(ref this) uses alloc {
-        tokens.clear()
-        diagnostics.clear()
-        roots.clear()
-        var kept = List<indexer.IndexedSymbol>()
+        tokens = List<lexer.Token>()
+        diagnostics = List<Diagnostic>()
+        roots = List<i64>()
+        var kept = List<indexer.SymbolEntry>()
         for s in symbols {
             continue if s.isLocal
             var k = s
@@ -113,12 +129,43 @@ public struct Document {
     }
 
     void computeLines(ref this) uses alloc {
-        lineStarts.clear()
-        lineStarts.append(0)
+        var starts = List<i32>()
+        starts.append(0)
         for i in 0..text.length {
             if text[i] == 0x0A {
-                lineStarts.append(i32(i + 1))
+                starts.append(i32(i + 1))
             }
+        }
+        lineStarts = move starts
+    }
+
+    /// The symbol at `i` with its strings, in the current allocator.
+    public indexer.IndexedSymbol symbol(i64 i) uses alloc => indexer.expand(symbols[i], from: text.span, by: comments.span)
+
+    /// The name of the symbol at `i`, in the current allocator.
+    public string nameOf(i64 i) uses alloc => indexer.nameOf(symbols[i], from: text.span)
+
+    /// A copy of this document, strings and all, in the current allocator.
+    public Document copy() uses alloc {
+        var notes = List<string>()
+        for c in comments {
+            notes.append(c.copy())
+        }
+        var diags = List<Diagnostic>()
+        for d in diagnostics {
+            diags.append(Diagnostic { start: d.start, length: d.length, message: d.message.copy(), code: d.code is null ? null : (d.code ?? "").copy(), severity: d.severity })
+        }
+        return Document {
+            uri: uri.copy(),
+            text: text.copy(),
+            version: version,
+            isOpen: isOpen,
+            lineStarts: lineStarts.copy(),
+            tokens: tokens.copy(),
+            symbols: symbols.copy(),
+            comments: move notes,
+            roots: roots.copy(),
+            diagnostics: move diags,
         }
     }
 
@@ -174,6 +221,7 @@ public struct Document {
             lineStarts: lineStarts.copy(),
             tokens: tokens.copy(),
             symbols: symbols.copy(),
+            comments: comments.copy(),
             roots: roots.copy(),
             diagnostics: List<Diagnostic>(),
         }
@@ -437,9 +485,11 @@ public struct Workspace {
     public i64            maxDirs      = 200000
     /// Windows and macOS file systems are case-insensitive by default; Linux is not.
     bool                  caseless
-    /// Documents by slot; `slotKeys` holds the folded key of a used slot, "" for a free one.
+    /// Documents by slot; `slotKeys` holds the folded key of a used slot, "" for a free one. A slot's document and key live in its
+    /// arena in `arenas`, which is freed whenever the slot's document is replaced or removed.
     public List<Document> docs
     List<string>          slotKeys
+    List<Arena>           arenas
     List<i64>             free
     Map<string, i64>      index
     List<string>          roots
@@ -448,8 +498,15 @@ public struct Workspace {
     /// Distinct directories entered by folder walks, by folded path.
     Map<string, bool>     dirs
     bool                  dirsLogged   = false
-    /// Uri as sent → key.
+    /// Uri as sent → key; its strings live in `cacheArena`.
     Map<string, string>   keyCache
+    Arena                 cacheArena
+    /// The keys of `dirs`.
+    Arena                 dirsArena
+    /// The strings of `roots`.
+    Arena                 rootsArena
+    /// Everything the symbol index holds; freed when the index is dropped.
+    Arena                 indexArena
     // The symbol index: built lazily from all documents and dropped on any change, so requests between edits (hover, completion,
     // definition) are lookups instead of full scans.
     bool                  indexValid   = false
@@ -467,11 +524,16 @@ public struct Workspace {
         caseless: Target.os != "linux",
         docs: List<Document>(),
         slotKeys: List<string>(),
+        arenas: List<Arena>(),
         free: List<i64>(),
         index: Map<string, i64>(),
         roots: List<string>(),
         dirs: Map<string, bool>(),
         keyCache: Map<string, string>(),
+        cacheArena: Arena(),
+        dirsArena: Arena(),
+        rootsArena: Arena(),
+        indexArena: Arena(),
     }
 
     /// The characters of text held, open buffers included.
@@ -493,10 +555,14 @@ public struct Workspace {
 
     string folded(string p) uses alloc => caseless ? p.uppercased() : p
 
-    /// Normalises a URI so spellings of one file hit the same document; symbolic links among the directories are resolved.
+    /// Normalises a URI so spellings of one file hit the same document; symbolic links among the directories are resolved. The key is
+    /// in the current allocator.
     public string key(ref this, string uri) uses alloc, fs {
         let cached = keyCache.tryGet(at: uri)
-        return cached if cached is not null
+        if cached is not null {
+            let hit = cached
+            return hit.copy()
+        }
         let u = parseUri(uri)
         var k = uri
         if u.kind is .file {
@@ -506,8 +572,9 @@ public struct Workspace {
         }
         if keyCache.length > 4096 {
             keyCache.clear()
+            cacheArena.reset()
         }
-        keyCache[uri] = k
+        keyCache[uri.copy(to: cacheArena)] = k.copy(to: cacheArena)
         return k
     }
 
@@ -567,27 +634,41 @@ public struct Workspace {
     i64 add(ref this, string key, from move Document d) uses alloc {
         invalidate()
         let fk = folded(key)
-        let old = index.tryGet(at: fk)
-        if old is not null {
-            let at = old
+        var at = index.tryGet(at: fk) ?? -1
+        if at >= 0 {
             chars -= docs[at].text.length
-            chars += d.text.length
-            docs[at] = move d
-            return at
+        } else if free.length > 0 {
+            at = free.removeLast()
+        } else {
+            at = docs.length
+            docs.append(Document.empty())
+            slotKeys.append("")
+            arenas.append(Arena())
         }
         chars += d.text.length
-        if free.length > 0 {
-            let at = free.removeLast()
-            docs[at] = move d
-            slotKeys[at] = fk
-            index[fk] = at
-            return at
-        }
-        let at = docs.length
-        docs.append(move d)
-        slotKeys.append(fk)
-        index[fk] = at
+        put(d, at: at, as: fk)
         return at
+    }
+
+    /// Copies `d` into the slot's arena under the folded key `fk`, freeing what the slot held; neither may live in that arena.
+    void put(ref this, Document d, at i64 at, as string fk) uses alloc {
+        if slotKeys[at].length > 0 {
+            let _ = index.remove(slotKeys[at])
+        }
+        arenas[at].reset()
+        provide allocator: arenas[at] {
+            docs[at] = d.copy()
+            slotKeys[at] = fk.copy()
+        }
+        index[slotKeys[at]] = at
+    }
+
+    /// Moves the slot's document, whatever allocator its parts are in, into the slot's arena alone.
+    void commit(ref this, i64 at) uses alloc {
+        using let scratch = Arena()
+        provide allocator: scratch {
+            put(docs[at].copy(), at: at, as: slotKeys[at].copy())
+        }
     }
 
     void removeSlot(ref this, i64 at) uses alloc {
@@ -595,8 +676,8 @@ public struct Workspace {
         chars -= docs[at].text.length
         let _ = index.remove(slotKeys[at])
         slotKeys[at] = ""
-        docs[at].text.clear()
-        docs[at].release()
+        docs[at] = Document.empty()
+        arenas[at].reset()
         free.append(at)
     }
 
@@ -615,26 +696,43 @@ public struct Workspace {
     /// Opens a buffer; returns its slot.
     public i64 open(ref this, string uri, from move List<u16> text, at i32 version) uses alloc, fs {
         let k = key(uri)
-        let at = slotOf(k)
-        if at >= 0 && docs[at].uri == uri {
-            docs[at].isOpen = true
-            chars += docs[at].replace(move text)
-            docs[at].set(version)
-            invalidate()
-            return at
+        var at = slotOf(k)
+        using let scratch = Arena()
+        provide allocator: scratch {
+            if at >= 0 && docs[at].uri == uri {
+                docs[at].isOpen = true
+                chars += docs[at].replace(move text)
+                docs[at].set(version)
+                invalidate()
+                commit(at)
+            } else {
+                at = add(k, from: Document.create(uri, from: move text, at: version, as: true))
+            }
         }
-        return add(k, from: Document.create(uri, from: move text, at: version, as: true))
+        return at
+    }
+
+    /// `Set` on the document at `at`: the version, then one analysis.
+    public void set(ref this, i64 at, to i32 version) uses alloc {
+        using let scratch = Arena()
+        provide allocator: scratch {
+            docs[at].set(version)
+            commit(at)
+        }
+        invalidate()
     }
 
     /// A full-sync change to the document at `at`, not analysed.
     public void replace(ref this, move List<u16> text, at i64 at) uses alloc {
         chars += docs[at].replace(move text)
+        commit(at)
     }
 
     /// An incremental change to the document at `at`, not analysed.
     public void apply(ref this, at i64 at, from i32 startLine, by i32 startChar, to i32 endLine, through i32 endChar, as ReadOnlySpan<u16> text)
             uses alloc {
         chars += docs[at].apply(startLine, at: startChar, to: endLine, through: endChar, by: text)
+        commit(at)
     }
 
     /// Closes a buffer; a file that still exists on disk stays indexed from its disk content.
@@ -643,7 +741,11 @@ public struct Workspace {
         let at = slotOf(k)
         return if at < 0
         docs[at].isOpen = false
-        docs[at].release()
+        using let scratch = Arena()
+        provide allocator: scratch {
+            docs[at].release()
+            commit(at)
+        }
         // The index refers to symbols by position, which `release` moves.
         invalidate()
         let u = parseUri(uri)
@@ -659,6 +761,16 @@ public struct Workspace {
     /// per-file limit, or over the budget. `clientUri` is the URI the new document keeps. Returns true when the file was rejected for the
     /// budget.
     public bool loadFromDisk(ref this, string path, as string? clientUri = null) uses alloc, console, fs {
+        // The file's bytes and its analysis are dropped with this arena; the document is copied out of it.
+        using let scratch = Arena()
+        var rejected = false
+        provide allocator: scratch {
+            rejected = load(path, as: clientUri)
+        }
+        return rejected
+    }
+
+    bool load(ref this, string path, as string? clientUri) uses alloc, console, fs {
         let full = Path.fullPath(path)
         let uri = clientUri ?? fileUri(full)
         let k = key(uri)
@@ -691,7 +803,7 @@ public struct Workspace {
     public string? remove(ref this, string uri) uses alloc, fs {
         let at = find(uri)
         return null if at < 0 || docs[at].isOpen
-        let removed = docs[at].uri
+        let removed = docs[at].uri.copy()
         removeSlot(at)
         return removed
     }
@@ -709,18 +821,24 @@ public struct Workspace {
         }
         for at in slots {
             if !docs[at].isOpen && slotKeys[at].startsWith(prefix) {
-                removed.append(docs[at].uri)
+                removed.append(docs[at].uri.copy())
                 removeSlot(at)
             }
         }
         let fk = folded(k)
-        var keep = Map<string, bool>()
+        var keep = List<string>()
         for e in dirs {
             if !(e.key.startsWith(prefix) || e.key == fk) {
-                keep[e.key] = true
+                keep.append(e.key.copy())
             }
         }
-        dirs = move keep
+        dirsArena.reset()
+        provide allocator: dirsArena {
+            dirs = Map<string, bool>()
+            for d in keep {
+                dirs[d.copy()] = true
+            }
+        }
         return removed
     }
 
@@ -744,7 +862,7 @@ public struct Workspace {
             }
         }
         if !known {
-            roots.append(real)
+            roots.append(real.copy(to: rootsArena))
         }
         walk(real)
     }
@@ -764,7 +882,9 @@ public struct Workspace {
                 dirsLogged = true
                 return
             }
-            dirs[fd] = true
+            if !dirs.contains(fd) {
+                dirs[fd.copy(to: dirsArena)] = true
+            }
             let names = Io.listDir(dir) catch { continue }
             var subs = List<string>()
             for name in names {
@@ -795,25 +915,35 @@ public struct Workspace {
     // ---- symbol index -------------------------------------------------------
 
     /// Drops the index; any change to a document's symbols calls it.
-    public void invalidate(ref this) {
+    public void invalidate(ref this) uses alloc {
         return if !indexValid
         indexValid = false
-        globalSyms.clear()
-        casesStates.clear()
-        byName.clear()
-        byContainer.clear()
-        buckets.clear()
-        types.clear()
+        clearIndex()
+    }
+
+    /// Frees the index and leaves it empty.
+    void clearIndex(ref this) uses alloc {
+        indexArena.reset()
+        provide allocator: indexArena {
+            globalSyms = List<SymbolRef>()
+            casesStates = List<SymbolRef>()
+            byName = Map<string, i64>()
+            byContainer = Map<string, i64>()
+            buckets = List<List<SymbolRef>>()
+            types = Map<string, SymbolRef>()
+        }
     }
 
     void ensureIndex(ref this) uses alloc {
         return if indexValid
-        globalSyms.clear()
-        casesStates.clear()
-        byName.clear()
-        byContainer.clear()
-        buckets.clear()
-        types.clear()
+        clearIndex()
+        provide allocator: indexArena {
+            fillIndex()
+        }
+        indexValid = true
+    }
+
+    void fillIndex(ref this) uses alloc {
         for at in 0..docs.length {
             // A free slot.
             continue if (index.tryGet(at: slotKeys[at]) ?? -1) != at
@@ -821,10 +951,10 @@ public struct Workspace {
                 let s = docs[at].symbols[i]
                 continue if s.isLocal
                 let e = SymbolRef { doc: at, sym: i }
-                let container = s.container ?? ""
-                if s.container is null {
+                if s.containerStart < 0 {
                     globalSyms.append(e)
                 } else {
+                    let container = indexer.containerOf(s, from: docs[at].text.span) ?? ""
                     let found = byContainer.tryGet(at: container)
                     if found is not null {
                         buckets[found].append(e)
@@ -838,25 +968,25 @@ public struct Workspace {
                 if s.kind is .caseMember or .state {
                     casesStates.append(e)
                 }
-                let named = byName.tryGet(at: s.name)
+                let name = docs[at].nameOf(i)
+                let named = byName.tryGet(at: name)
                 if named is not null {
                     buckets[named].append(e)
                 } else {
-                    byName[s.name] = buckets.length
+                    byName[name] = buckets.length
                     var b = List<SymbolRef>()
                     b.append(e)
                     buckets.append(move b)
                 }
-                if s.isType && !types.contains(s.name) {
-                    types[s.name] = e
+                if s.isType && !types.contains(name) {
+                    types[name] = e
                 }
             }
         }
-        indexValid = true
     }
 
-    /// The symbol `r` names; `doc` is the document a request reads.
-    public indexer.IndexedSymbol symbol(SymbolRef r, for Document doc) => r.doc < 0 ? doc.symbols[r.sym] : docs[r.doc].symbols[r.sym]
+    /// The symbol `r` names, in the current allocator; `doc` is the document a request reads.
+    public indexer.IndexedSymbol symbol(SymbolRef r, for Document doc) uses alloc => r.doc < 0 ? doc.symbol(r.sym) : docs[r.doc].symbol(r.sym)
 
     /// The document `r` is in; `doc` is the document a request reads.
     public string uriOf(SymbolRef r, for Document doc) => r.doc < 0 ? doc.uri : docs[r.doc].uri
@@ -904,7 +1034,7 @@ public struct Workspace {
 
     public SymbolRef? member(ref this, string typeName, for string name) uses alloc {
         for m in membersOf(typeName) {
-            return m if docs[m.doc].symbols[m.sym].name == name
+            return m if docs[m.doc].nameOf(m.sym) == name
         }
         return null
     }
@@ -915,20 +1045,20 @@ public struct Workspace {
         var i = doc.symbols.length - 1
         while i >= 0 {
             let s = doc.symbols[i]
-            if s.isLocal && i64(s.scopeStart) <= offset && offset <= i64(s.scopeEnd) && i64(s.nameStart) < offset && s.name == name {
+            if s.isLocal && i64(s.scopeStart) <= offset && offset <= i64(s.scopeEnd) && i64(s.nameStart) < offset && doc.nameOf(i) == name {
                 return SymbolRef { doc: -1, sym: i }
             }
             i -= 1
         }
         let ty = enclosingType(doc, at: offset)
         if ty >= 0 {
-            let m = member(doc.symbols[ty].name, for: name)
+            let m = member(doc.nameOf(ty), for: name)
             return m if m is not null
         }
         let named = symbolsNamed(name)
         // Prefer a top-level symbol, then one in this document, then any.
         for e in named {
-            return e if docs[e.doc].symbols[e.sym].container is null
+            return e if docs[e.doc].symbols[e.sym].containerStart < 0
         }
         for e in named {
             return e if key(docs[e.doc].uri) == key(doc.uri)
@@ -944,7 +1074,7 @@ public struct Workspace {
         return null if !(t.kind is .ident or .keyword)
         if doc.isText(t, as: "this") {
             let enc = enclosingType(doc, at: i64(t.start))
-            return enc < 0 ? null : doc.symbols[enc].name
+            return enc < 0 ? null : doc.nameOf(enc)
         }
         let text = doc.textOf(t)
         // `Order.` → static members / cases.
@@ -987,7 +1117,7 @@ public struct Workspace {
             return null
         } else if doc.isText(t, as: "this") {
             let enc = enclosingType(doc, at: i64(t.start))
-            type = enc < 0 ? null : doc.symbols[enc].name
+            type = enc < 0 ? null : doc.nameOf(enc)
         } else {
             let text = doc.textOf(t)
             if indexer.isUpper(doc.text[i64(t.start)]) {
@@ -1054,9 +1184,12 @@ public List<i64> localsAt(Document doc, at i64 offset) uses alloc {
     var i = doc.symbols.length - 1
     while i >= 0 {
         let s = doc.symbols[i]
-        if s.isLocal && i64(s.scopeStart) <= offset && offset <= i64(s.scopeEnd) && i64(s.nameStart) < offset && !seen.contains(s.name) {
-            seen[s.name] = true
-            result.append(i)
+        if s.isLocal && i64(s.scopeStart) <= offset && offset <= i64(s.scopeEnd) && i64(s.nameStart) < offset {
+            let name = doc.nameOf(i)
+            if !seen.contains(name) {
+                seen[name] = true
+                result.append(i)
+            }
         }
         i -= 1
     }

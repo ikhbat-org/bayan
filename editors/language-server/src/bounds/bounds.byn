@@ -4,6 +4,7 @@
 // counterpart: the resident set of this test process (`ps`, so those blocks are pending on Windows) or what a structure keeps stands in, and
 // each title says which. Each block works in its own tree under tmp/lsp-bounds/. scripts/release/editor-gate.sh runs them.
 
+import server
 import transport
 import workspace
 
@@ -434,28 +435,85 @@ test "a Content-Length of 60 MiB with a 2-byte body grows the resident set by un
     assert(after - before < 1024)
 }
 
-test "after a 2 MiB message the resident set falls back within 1 MiB and the transport keeps only its 64 KiB input chunk" {
+test "16 messages of 2 MiB read and 16 written grow the resident set by less than two of them; the transport keeps only its 64 KiB input chunk" {
     if Target.os == "windows" {
         todo("`sh` and `ps` read the resident set; Windows has neither")
     }
     let big = "x".repeated(2 << 20)
-    var input = framed($"{{\"big\":\"{big}\"}}")
-    for b in framed("{\"small\":\"y\"}") {
-        input.append(b)
+    var input = List<u8>()
+    for _ in 0..32 {
+        // A notification no handler takes: read and dropped, nothing written.
+        for b in framed($"{{\"jsonrpc\":\"2.0\",\"method\":\"x/big\",\"params\":{{\"big\":\"{big}\"}}}}") {
+            input.append(b)
+        }
     }
     var t = transport.Transport.reading(move input, at: 64 << 20)
+    var s = server.Server.create()
     let before = residentKb()
-    var count = 0
-    for _ in 0..3 {
-        let doc = t.read()
-        if doc is not null {
-            let keys = doc.keys(doc.root) catch { panic("not an object") }
-            count += keys.length
+    assert(s.run(ref t) == 0)
+    let read = residentKb()
+    for _ in 0..16 {
+        // As `run` answers a message: in its own arena.
+        using let arena = Arena()
+        provide allocator: arena {
+            var w = transport.begin()
+            w.writeString(big, for: "big")
+            assert(transport.frame(ref w).length > 2 << 20)
+        }
+    }
+    let after = residentKb()
+    print($"resident set {before} KB, {read} KB after the reads, {after} KB after the writes")
+    assert(t.bufferBytes <= (64 << 10) + 256)
+    assert(read - before < 4096)
+    assert(after - read < 4096)
+}
+
+test "probe per message" {
+    let big = "x".repeated(2 << 20)
+    let one = $"{{\"jsonrpc\":\"2.0\",\"method\":\"x/big\",\"params\":{{\"big\":\"{big}\"}}}}"
+    var s = server.Server.create()
+    for i in 0..12 {
+        var t = transport.Transport.reading(framed(one), at: 64 << 20)
+        let a = residentKb()
+        assert(s.run(ref t) == 0)
+        let b = residentKb()
+        using let arena = Arena()
+        provide allocator: arena {
+            var t2 = transport.Transport.reading(framed(one), at: 64 << 20)
+            let c = residentKb()
+            let d = t2.read()
+            print($"{i}: run {a} -> {b}; read in arena {c} -> {residentKb()}")
+        }
+    }
+}
+
+test "1,000 edits to one open document do not grow the resident set" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` read the resident set; Windows has neither")
+    }
+    var ws = workspace.Workspace.create()
+    let text = dense(1 << 14)
+    let at = ws.open("file:///edits.byn", from: text.utf16.copy(), at: 1)
+    var before: i64 = 0
+    for i in 0..1000 {
+        // After a warm-up.
+        if i == 100 {
+            before = residentKb()
+        }
+        // As `run` handles a didChange: in its own arena.
+        using let arena = Arena()
+        provide allocator: arena {
+            if i % 2 == 0 {
+                ws.apply(at: at, from: 0, by: 0, to: 0, through: 0, as: "x".utf16.copy().span)
+            } else {
+                ws.apply(at: at, from: 0, by: 0, to: 0, through: 1, as: "".utf16.copy().span)
+            }
+            ws.set(at, to: i32(i + 2))
+            assert(ws.symbolsNamed("f").length > 0)
         }
     }
     let after = residentKb()
     print($"resident set {before} KB to {after} KB")
-    assert(count == 2)
-    assert(t.bufferBytes <= (64 << 10) + 256)
+    assert(ws.docs[at].version == 1001 && ws.charCount == text.length)
     assert(after - before < 1024)
 }

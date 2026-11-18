@@ -165,10 +165,14 @@ public JsonWriter begin() uses alloc {
 
 /// Ends the message started by `begin` and writes it to standard output with its header.
 public void send(ref JsonWriter w) uses alloc, console {
+    Io.stdout.write(frame(ref w))
+}
+
+/// Ends the message started by `begin`; returns it with its header, in the current allocator.
+public string frame(ref JsonWriter w) uses alloc {
     w.writeEndObject()
     let body = w.text ?? panic("bayan-lsp: the JSON writer wrote text that is not UTF-8")
-    Io.stdout.write($"Content-Length: {body.length}\r\n\r\n")
-    Io.stdout.write(body)
+    return $"Content-Length: {body.length}\r\n\r\n{body}"
 }
 
 /// The value of a `Content-Length:` line (key in any ASCII case) as `long.TryParse` reads it after trimming spaces, or -1.
