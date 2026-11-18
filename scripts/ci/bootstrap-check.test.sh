@@ -100,6 +100,16 @@ echo 'v8 cap' > src/driver/main.byn; regen; git commit -qam v8
 [ "$(run)" = fail ] && [ ! -e tmp/bootstrap-check/stamp ] || fail "reuse: a failed build left a stamp" "$(cat "$tmp/out")"
 [ "$(run)" = fail ] && ! grep -q reused "$tmp/out" || fail "reuse: a failed build was reused" "$(cat "$tmp/out")"
 
+# a build over a dirty or untracked src/ is never stamped, and is not reused for the clean tree afterwards
+echo v8b > src/driver/main.byn; regen; git commit -qam v8b
+echo dirty > src/driver/main.byn; regen
+[ "$(run)" = pass ] && [ ! -e tmp/bootstrap-check/stamp ] || fail "dirty: a build over an edited src/ was stamped" "$(cat "$tmp/out")"
+echo v8b > src/driver/main.byn; regen
+echo x > src/driver/new.byn
+[ "$(run)" = pass ] && [ ! -e tmp/bootstrap-check/stamp ] || fail "dirty: a build over an untracked src/ file was stamped" "$(cat "$tmp/out")"
+rm src/driver/new.byn
+[ "$(run)" = pass ] && ! grep -q reused "$tmp/out" && [ -e tmp/bootstrap-check/stamp ] || fail "dirty: the clean tree reused a dirty build" "$(cat "$tmp/out")"
+
 # two runs at once: one build, both OK
 echo v9 > src/driver/main.byn; regen; git commit -qam v9; rm -f "$aux/builds"
 SLOW=2 "$check" > "$tmp/out1" 2>&1 & p1=$!
@@ -107,6 +117,12 @@ sleep 1; "$check" > "$tmp/out2" 2>&1 & p2=$!
 wait $p1 && wait $p2 || fail "concurrent: a run failed" "$(cat "$tmp/out1" "$tmp/out2")"
 grep -q 'OK' "$tmp/out1" && grep -q 'OK' "$tmp/out2" && [ "$(wc -l < "$aux/builds")" -eq 1 ] || fail "concurrent: not one build and two OKs" "$(cat "$tmp/out1" "$tmp/out2"; cat "$aux/builds")"
 [ ! -e tmp/bootstrap-check.lock ] || fail "concurrent: the lock was left behind"
+
+# a rebuild never deletes the bayan a law check may be running: it stays in place while the next build is under way
+echo v9b > src/driver/main.byn; regen; git commit -qam v9b
+SLOW=2 "$check" > "$tmp/out1" 2>&1 & p1=$!
+for _ in 1 2 3 4 5 6; do [ -x tmp/bootstrap-check/bayan ] || fail "rebuild: bayan vanished while a build ran"; sleep 0.2; done
+wait $p1 || fail "rebuild: the run failed" "$(cat "$tmp/out1")"
 
 # a stale lock whose pid is dead is broken; a live one is waited on
 echo v10 > src/driver/main.byn; regen; git commit -qam v10

@@ -9,9 +9,10 @@
 # bootstrap building it passes, and the OK line names which parent. CI checks out depth 2, which may lack HEAD^2: the script
 # then runs `git fetch --depth=1 origin <HEAD^2>`, and if that fails it says so and falls back to HEAD^ alone.
 # Reuse and concurrency (T32b): a finished build is reused when HEAD's tree id, the candidate parents' shas and uname -s match
-# tmp/bootstrap-check/stamp (written only after a full success; none is reused over a dirty src/, runtime/ or bootstrap/), and
+# tmp/bootstrap-check/stamp (written only after a full success on a clean src/, runtime/ and bootstrap/, untracked files included), and
 # the OK line then says "reused". tmp/bootstrap-check.lock (mkdir; holder pid inside) keeps two runs from writing the output at
-# once: the second waits, then reuses. A lock whose pid fails `kill -0` is broken.
+# once: the second waits, then reuses. Builds happen in tmp/bootstrap-check.work.<pid>, published file by file at exit, so
+# a later run never deletes the bayan a law check is still running. A lock whose pid fails `kill -0` is broken.
 # Exit 1 names each stale file; stage 1 and its C are kept in tmp/bootstrap-check/.
 set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -34,7 +35,7 @@ fail=0
 for f in bayan-rt.h bayan-rt.c; do
   cmp -s "runtime/$f" "bootstrap/$f" || { echo "bootstrap-check: FAIL bootstrap/$f differs from runtime/$f (R26); copy it"; fail=1; }
 done
-out=tmp/bootstrap-check; lock=tmp/bootstrap-check.lock; mkdir -p tmp
+final=tmp/bootstrap-check; out=$final.work.$$; lock=tmp/bootstrap-check.lock; mkdir -p tmp
 waits=0
 until mkdir "$lock" 2> /dev/null; do
   holder=$(cat "$lock/pid" 2> /dev/null || true)
@@ -42,15 +43,20 @@ until mkdir "$lock" 2> /dev/null; do
   if [ -z "$holder" ]; then waits=$((waits + 1)); [ $waits -le 50 ] || { rm -rf "$lock"; waits=0; continue; }; fi   # no pid yet; 10s then stale
   sleep 0.2
 done
-echo $$ > "$lock/pid"; trap 'rm -rf "$lock"' EXIT
+# the build goes to a private work dir; its files replace those in $final one by one (stamp last) when the script ends, so a
+# check running $final/bayan after this script exits is never deleted from under, and a failed build leaves no stamp
+publish() { if [ -d "$out" ]; then rm -f "$final/stamp"; mkdir -p "$final"; for f in "$out"/*; do [ -e "$f" ] && mv -f "$f" "$final/"; done; fi
+  rm -rf "$out" "$lock"; }
+echo $$ > "$lock/pid"; trap publish EXIT
+dirty=$(git status --porcelain --untracked-files=all -- src runtime bootstrap)
 key="$(git rev-parse 'HEAD^{tree}') $(uname -s)"
 for c in "${cands[@]}"; do key="$key $(git rev-parse "$c^{commit}")"; done
-if [ $fail = 0 ] && [ -z "$(git status --porcelain --untracked-files=no -- src runtime bootstrap)" ] \
-  && [ "$(head -1 "$out/stamp" 2> /dev/null || true)" = "$key" ] && { [ -x "$out/bayan" ] || [ -x "$out/bayan.exe" ]; }; then
-  echo "bootstrap-check: OK (bootstrap/ matches src/ and runtime/, and the bootstrap of $(sed -n 2p "$out/stamp") builds it; reused the build of the same inputs)"
+if [ $fail = 0 ] && [ -z "$dirty" ] \
+  && [ "$(head -1 "$final/stamp" 2> /dev/null || true)" = "$key" ] && { [ -x "$final/bayan" ] || [ -x "$final/bayan.exe" ]; }; then
+  echo "bootstrap-check: OK (bootstrap/ matches src/ and runtime/, and the bootstrap of $(sed -n 2p "$final/stamp") builds it; reused the build of the same inputs)"
   exit 0
 fi
-rm -rf "$out"; mkdir -p "$out"
+mkdir -p "$out"
 exe=bayan; case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) exe=bayan.exe ;; esac
 # stage 0 from the bootstrap of $1 builds stage 1, which emits src/driver; sets prev and sha, returns 1 with the reason printed
 chain() {
@@ -59,11 +65,11 @@ chain() {
     || { echo "bootstrap-check: FAIL the bootstrap of $prev ($sha) does not build with cc (R36)"; return 1; }
   if ! "$s0" build --package src -o "$out/$exe" src/driver > "$out/stage1.log" 2>&1; then
     tail -20 "$out/stage1.log"
-    echo "bootstrap-check: FAIL the bootstrap of $prev ($sha) does not build src/driver (R36); log: $out/stage1.log"; return 1
+    echo "bootstrap-check: FAIL the bootstrap of $prev ($sha) does not build src/driver (R36); log: $final/stage1.log"; return 1
   fi
   if ! "$out/$exe" build --emit-c --mode safe --package src src/driver > "$out/bayan.c" 2> "$out/emit.log"; then
     tail -20 "$out/emit.log"
-    echo "bootstrap-check: FAIL stage 1 (src/driver built by the bootstrap of $prev) does not emit src/driver (R36); log: $out/emit.log"; return 1
+    echo "bootstrap-check: FAIL stage 1 (src/driver built by the bootstrap of $prev) does not emit src/driver (R36); log: $final/emit.log"; return 1
   fi
 }
 ok=0
@@ -85,4 +91,4 @@ if ! cmp -s "$out/bayan.c" bootstrap/bayan.c; then
 fi
 [ $fail = 0 ] || exit 1
 echo "bootstrap-check: OK (bootstrap/ matches src/ and runtime/, and the bootstrap of $prev builds it)"
-printf '%s\n%s\n' "$key" "$prev" > "$out/stamp"
+[ -n "$dirty" ] || printf '%s\n%s\n' "$key" "$prev" > "$out/stamp"   # never stamp a build over a dirty or untracked src/, runtime/, bootstrap/
