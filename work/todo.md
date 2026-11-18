@@ -977,3 +977,6 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 T33, 2026-11-18): a `var` array passed straight to `Io.stdin.read(to:)` gets BYN2311; callers take a span first.
 - LOW (019 T33, 2026-11-18): BYN_RUNTIME_VERSION was not bumped for byn_io_read_stdin_some (spec 026 R25 owns the bump).
 - LOW (019 T33, 2026-11-18): `read` is not in `t9Candidates`; `src/semantics/region2.byn:354` lists `.ioStdinRead` in `t41BuiltinFresh` though the call returns an i64 and allocates nothing.
+- LOW (019 T35, 2026-11-18): record.sh sessions cannot carry invalid UTF-8, exit codes or exact JSON escape spelling (Python round-trip); those T35 cases are checked only in the worker's tmp/t35-cases. Session format gap before 019b.
+- LOW (019 T35, 2026-11-18): the LSP lexer is not compared with C# by any session yet (T36/T37 sessions exercise it).
+- LOW (019 T35, 2026-11-18): Bayān gaps met in the LSP port: module-level `public const` does not parse; `case: .upper` format unimplemented; no `min`/`i64.max`; no `module.Type {}` literal; struct cannot hold StrBuf.
