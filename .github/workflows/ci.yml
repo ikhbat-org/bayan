@@ -20,24 +20,22 @@ jobs:
         include:
           - os: ubuntu-latest
             rid: linux-x64
-            exe: bayan
           - os: macos-latest
             rid: osx-arm64
-            exe: bayan
           - os: windows-latest
             rid: win-x64
-            exe: bayan.exe
     runs-on: ${{ matrix.os }}
     # Ported tools and SourcesAreFormatted run on the pinned bayan; a CI checkout has no local `dev`, so pin the commit under test.
     env:
       PINNED_BAYAN_REF: HEAD
     steps:
-      # Replaces actions/checkout (spec 015 handoff, T4): the exact commit at depth 1. The repo is public, so no token.
+      # Replaces actions/checkout (spec 015 handoff, T4): the exact commit and its parent (depth 2, for the bootstrap check).
+      # The repo is public, so no token.
       - name: Checkout
         shell: bash
         run: |
           git init -q .
-          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git fetch -q --depth=2 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
       # The tests cross-compile and `bayan doctor` expects zig; no runner image has it. Windows has no cc, so zig builds stage 0.
       - name: Install zig
@@ -49,12 +47,12 @@ jobs:
         run: |
           s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }
           echo "BAYAN_EXE=$s1" >> "$GITHUB_ENV"
-      - name: Script tests
+      # bootstrap/ is fresh and the previous commit's bootstrap still builds src/driver (spec 019 R26, R36). Windows has no
+      # cc for pinned-bayan.sh (T41b).
+      - name: Bootstrap check
         if: runner.os != 'Windows'
-        run: bash scripts/ci/script-tests.sh unix  # the list lives there; run it before a push (docs/bayan-contributing.md)
-      - name: Docs and release script tests
-        if: runner.os == 'Linux'
-        run: bash scripts/ci/script-tests.sh docs
+        shell: bash
+        run: bash scripts/ci/bootstrap-check.sh
       # macos-latest hit the same 600 s zig cc timeout on src/semantics as Windows below (ci run 43583631792,
       # 2026-11-14: 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
       - name: Test
