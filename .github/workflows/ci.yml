@@ -53,6 +53,10 @@ jobs:
       - name: Script tests
         if: runner.os != 'Windows'
         run: bash scripts/ci/script-tests.sh unix  # the list lives there; run it before a push (docs/bayan-contributing.md)
+      # Every dev task's reference must score all four results on the commit under test (spec 025, R29).
+      - name: LLM eval re-check
+        if: runner.os == 'Linux'
+        run: bash scripts/bayan-tool.sh llm-eval recheck evals/llm/tasks
       - name: Docs and release script tests
         if: runner.os == 'Linux'
         run: bash scripts/ci/script-tests.sh docs

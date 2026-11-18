@@ -143,7 +143,7 @@ fails() {
   recheck "$1"
   local line; line=$(grep "^FAIL $2: " "$root/rec/rc-$1")
   check "recheck: $1 fails" "$code $(grep -c '^FAIL' "$root/rec/rc-$1") $(grep -c '^PASS' "$root/rec/rc-$1")" "1 1 1"
-  check "recheck: $1 names its reason" "$(case "$line" in *"$3"*) echo named ;; *) echo "$line" ;; esac)" "named"
+  check "recheck: $1 names its reason" "$(case "$line" in (*"$3"*) echo named ;; (*) echo "$line" ;; esac)" "named"
 }
 fails lint small-900-salam "lint-clean false"
 fails unformatted small-900-salam "format-stable false"
