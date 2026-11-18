@@ -58,7 +58,7 @@ public struct Server {
     }
 
     /// Answers a request; returns the message of the exception the C# handler would throw, or null.
-    string? handle(ref this, string method, for Request r) uses alloc {
+    string? handle(ref this, string method, for Request r) uses alloc, console {
         return initialize(r) if method == "initialize"
         if method == "shutdown" {
             shutdown = true
@@ -73,7 +73,7 @@ public struct Server {
     }
 }
 
-string? initialize(Request r) uses alloc {
+string? initialize(Request r) uses alloc, console {
     let _ = readFolders(r) catch switch {
         .invalid(let message) => return message,
     }
@@ -140,7 +140,7 @@ string? writeId(ref transport.JsonWriter w, for Request r) uses alloc {
 }
 
 /// Sends an error reply; returns the exception message if the id cannot be written.
-string? error(Request r, as i64 code, for string message) uses alloc {
+string? error(Request r, as i64 code, for string message) uses alloc, console {
     var w = transport.begin()
     let failed = writeId(ref w, for: r)
     return failed if failed is not null

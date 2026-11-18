@@ -1,0 +1,12 @@
+{"raw":"Content-Length: 3\r\n\r\n[1]"}
+{"raw":"Content-Length: 5\r\n\r\n\"top\""}
+{"raw":"Content-Length: 1\r\n\r\n5"}
+{"raw":"Content-Length: 8\r\n\r\n{\"id\":1}"}
+{"raw":"Content-Length: 19\r\n\r\n{\"id\":1,\"method\":5}"}
+{"raw":"Content-Length: 24\r\n\r\n{\"id\":true,\"method\":\"x\"}"}
+{"raw":"Content-Length: 22\r\n\r\n{\"id\":{},\"method\":\"x\"}"}
+{"raw":"Content-Length: 24\r\n\r\n{\"id\":null,\"method\":\"x\"}"}
+{"raw":"Content-Length: 34\r\n\r\n{\"id\":1,\"method\":\"a\",\"method\":\"b\"}"}
+{"raw":"Content-Length: 28\r\n\r\n{\"id\":1,\"id\":2,\"method\":\"c\"}"}
+{"raw":"Content-Length: 27\r\n\r\n{\"method\":\"notify-unknown\"}"}
+{"raw":"Content-Length: 41\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"after\"}"}

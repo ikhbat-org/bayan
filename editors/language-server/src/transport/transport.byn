@@ -190,7 +190,7 @@ i64 parseLong(ReadOnlySpan<u8> text) {
         let b = text[i]
         return -1 if b < '0' || b > '9'
         let d = i64(b - '0')
-        return -1 if value > (i64.max - d) / 10
+        return -1 if value > (9223372036854775807 - d) / 10
         value = value * 10 + d
         i += 1
     }

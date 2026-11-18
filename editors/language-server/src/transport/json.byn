@@ -534,32 +534,32 @@ void appendBytes(ReadOnlySpan<u8> bytes, to ref List<u8> sb) uses alloc {
 }
 
 /// Appends the UTF-8 of `text`.
-void appendText(to ref List<u8> sb, string text) uses alloc {
+void appendText(string text, to ref List<u8> sb) uses alloc {
     appendBytes(text.bytes, to: ref sb)
 }
 
 /// Appends `\uXXXX` (uppercase, as `Utf8JsonWriter`).
 void appendEscape(u32 unit, to ref List<u8> sb) {
-    appendText(to: ref sb, "\\u")
-    appendText(to: ref sb, upperHex(unit, width: 4))
+    appendText("\\u", to: ref sb)
+    appendText(upperHex(unit, width: 4), to: ref sb)
 }
 
 /// Appends the escaped form of `cp`, which `escapes`.
 void appendEscaped(u32 cp, to ref List<u8> sb) {
     if cp == 0x22 {
-        appendText(to: ref sb, "\\\"")
+        appendText("\\\"", to: ref sb)
     } else if cp == 0x5C {
-        appendText(to: ref sb, "\\\\")
+        appendText("\\\\", to: ref sb)
     } else if cp == 8 {
-        appendText(to: ref sb, "\\b")
+        appendText("\\b", to: ref sb)
     } else if cp == 12 {
-        appendText(to: ref sb, "\\f")
+        appendText("\\f", to: ref sb)
     } else if cp == 10 {
-        appendText(to: ref sb, "\\n")
+        appendText("\\n", to: ref sb)
     } else if cp == 13 {
-        appendText(to: ref sb, "\\r")
+        appendText("\\r", to: ref sb)
     } else if cp == 9 {
-        appendText(to: ref sb, "\\t")
+        appendText("\\t", to: ref sb)
     } else if cp >= 0x10000 {
         appendEscape(0xD800 + ((cp - 0x10000) >> 10), to: ref sb)
         appendEscape(0xDC00 + ((cp - 0x10000) & 0x3FF), to: ref sb)
@@ -570,7 +570,7 @@ void appendEscaped(u32 cp, to ref List<u8> sb) {
 
 /// Appends `bytes` as the inside of a JSON string; an invalid UTF-8 sequence is written `�`.
 void appendQuoted(ReadOnlySpan<u8> bytes, to ref List<u8> sb) uses alloc {
-    appendText(to: ref sb, "\"")
+    appendText("\"", to: ref sb)
     var run: i64 = 0
     var pos: i64 = 0
     while pos < bytes.length {
@@ -589,7 +589,7 @@ void appendQuoted(ReadOnlySpan<u8> bytes, to ref List<u8> sb) uses alloc {
         run = pos
     }
     appendBytes(bytes[run..pos], to: ref sb)
-    appendText(to: ref sb, "\"")
+    appendText("\"", to: ref sb)
 }
 
 /// The subset of `Utf8JsonWriter` the server writes with: compact output, `,` between values.
@@ -602,9 +602,9 @@ public struct JsonWriter {
     /// The text written so far.
     public string? text => Utf8.tryDecode(buffer.span)
 
-    void separate(ref this) {
+    void separate(ref this) uses alloc {
         if comma {
-            appendText(to: ref buffer, ",")
+            appendText(",", to: ref buffer)
         }
         comma = true
     }
@@ -612,13 +612,13 @@ public struct JsonWriter {
     public void writePropertyName(ref this, string name) uses alloc {
         separate()
         appendQuoted(name.bytes, to: ref buffer)
-        appendText(to: ref buffer, ":")
+        appendText(":", to: ref buffer)
         comma = false
     }
 
-    public void writeStartObject(ref this) {
+    public void writeStartObject(ref this) uses alloc {
         separate()
-        appendText(to: ref buffer, "{")
+        appendText("{", to: ref buffer)
         comma = false
     }
 
@@ -627,20 +627,20 @@ public struct JsonWriter {
         writeStartObject()
     }
 
-    public void writeEndObject(ref this) {
-        appendText(to: ref buffer, "}")
+    public void writeEndObject(ref this) uses alloc {
+        appendText("}", to: ref buffer)
         comma = true
     }
 
     public void writeStartArray(ref this, for string name) uses alloc {
         writePropertyName(name)
         separate()
-        appendText(to: ref buffer, "[")
+        appendText("[", to: ref buffer)
         comma = false
     }
 
-    public void writeEndArray(ref this) {
-        appendText(to: ref buffer, "]")
+    public void writeEndArray(ref this) uses alloc {
+        appendText("]", to: ref buffer)
         comma = true
     }
 
