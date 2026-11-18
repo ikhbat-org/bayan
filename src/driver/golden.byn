@@ -135,10 +135,11 @@ List<GoldenCase> goldenDiscover(string root, through ref i32 exit) uses alloc, c
     var cases = List<GoldenCase>()
     // Alphabetical, so the listing is in `<kind>/<case>` order.
     let kinds = [
-        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem", "style", "typed",
+        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem",
+        "style", "typed",
     ]
     for kind in kinds {
-        // the exported kinds (T17b, goldenexport.byn): `cli` cases, and a class directory each of the others
+        // the exported kinds (T17b, goldenexport.byn): `cli` cases, and a `<Class>/<case>` directory each of the others
         if kind == "cli" {
             goldenCliCases(root, to: ref cases)
         } else if kind is "emit-c" or "sem" {
@@ -417,8 +418,9 @@ string goldenEnding(string kind) {
 }
 
 /// The expected files of the case of `kind` whose input is `input`, in the order they are compared: the files update mode may rewrite.
-List<string> goldenExpectedFiles(string kind, for string input) uses alloc {
+List<string> goldenExpectedFiles(string kind, for string input) uses alloc, fs {
     return goldenCliExpectedFiles(input) if kind == "cli"
+    return goldenExportedFiles(input) if goldenExported(kind, at: input)
     var files = List<string>()
     if kind == "run" {
         for ending in [".stdout", ".stderr", ".exitcode"] {
@@ -440,6 +442,12 @@ List<string> goldenExpectedFiles(string kind, for string input) uses alloc {
 /// `emit` and `quality` (T3) are produced here; `style` (T2b), `run`, `new` and `out` (T3) run the driver `$BAYAN_EXE` names, each child
 /// killed at `deadline` (`goldenLimitMs`; T4).
 string? goldenRun(in GoldenCase c, i64 deadline = 0) uses alloc, clock, console, env, fs, process {
+    if goldenExported(c.kind, at: c.input) {
+        var failure = ""
+        let exe = goldenExe(through: ref failure)
+        return $"{c.input}\n{failure}" if exe == ""
+        return goldenProgramsCase(c.kind, at: c.input, by: exe, deadline: deadline)
+    }
     if c.kind is "style" or "run" or "new" or "out" or "cli" {
         return null if goldenSkip(in c) is not null
         var failure = ""
@@ -578,7 +586,7 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
     }
     let deadline = Io.monotonicNanos() + limitMs * 1000000
     var failure: string? = null
-    if c.kind is "style" or "run" or "new" or "out" or "cli" {
+    if c.kind is "style" or "run" or "new" or "out" or "cli" || goldenExported(c.kind, at: c.input) {
         failure = goldenRun(in c, deadline: deadline)
     } else {
         var missing = ""
@@ -654,7 +662,8 @@ bool goldenIsCasesDir(string path) uses alloc, fs {
         return false if name.endsWith(".byn") && Fs.fileExists(Path.combine(path, name))
     }
     for kind in [
-        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem", "style", "typed",
+        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem",
+        "style", "typed",
     ] {
         return true if t6DirectoryExists(Path.combine(path, kind))
     }
@@ -748,11 +757,12 @@ void goldenPrint(in GoldenResult r) uses alloc, console {
 // writes each result to a file named for its index; the parent reads them back in case order. Windows has no `sh`, so there the cases run one at
 // a time. Each case keeps its own work directory under tmp/ (`goldenFlat`, the style shape, the scaffold and output fact), so two never share one.
 
-/// `sh -c` text: starts `$1 test --golden-worker $3 <k> $2 $4` for k from 0 to `$2 - 1`, in the background, output dropped, and waits for all.
-const goldenWorkersScript: string = "k=0; while [ \"$k\" -lt \"$2\" ]; do \"$1\" test --golden-worker \"$3\" \"$k\" \"$2\" \"$4\" >/dev/null 2>&1 & k=$((k + 1)); done; wait"
+/// `sh -c` text: starts `$1 test --golden-worker $3 <k> $2 $4` for k from 0 to `$2 - 1`, in the background, stdout dropped and stderr in
+/// `$3`/err-<k>, and waits for all.
+const goldenWorkersScript: string = "k=0; while [ \"$k\" -lt \"$2\" ]; do \"$1\" test --golden-worker \"$3\" \"$k\" \"$2\" \"$4\" >/dev/null 2>\"$3/err-$k\" & k=$((k + 1)); done; wait"
 
 /// `cases` run by `jobs` workers through the driver `exe`, each with the time limit `limitMs`: one result per case added to `results`, in case
-/// order. A case whose worker wrote no result (it could not start or stopped) fails saying so.
+/// order. A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
 void goldenJobs(
     in List<GoldenCase> cases,
     by string exe,
@@ -775,18 +785,24 @@ void goldenJobs(
         }
         goldenWorkers(in args)
     }
+    // the first case without a result of each worker gets that worker's stderr (its panic); its later ones name that case
+    var stopped = List<string>()
+    for _ in 0..n {
+        stopped.append("")
+    }
     for i in 0..cases.length {
         let name = $"{cases[i].kind}/{cases[i].name}"
         let text = Io.readText(Path.combine(dir, $"{i}")) catch ""
         let at = goldenOffset(text, for: "\n")
         if at < 0 {
-            results.append(
-                GoldenResult {
-                    name: name,
-                    status: "failed",
-                    detail: $"{cases[i].input}\nits worker (`{exe} test --golden-worker`) wrote no result",
-                },
-            )
+            let k = n > 0 ? i % n : 0
+            var detail = $"{cases[i].input}\nits worker (`{exe} test --golden-worker`) did not reach it: it stopped on {stopped[k]}"
+            if stopped[k] == "" {
+                let err = goldenLf(Io.readText(Path.combine(dir, $"err-{k}")) catch "")
+                detail = $"{cases[i].input}\nits worker (`{exe} test --golden-worker`) stopped on it; its stderr:\n{err}"
+                stopped[k] = name
+            }
+            results.append(GoldenResult { name: name, status: "failed", detail: detail })
             continue
         }
         results.append(GoldenResult { name: name, status: text[0..at], detail: text[at + 1..text.length] })
@@ -1149,7 +1165,8 @@ GoldenOutcome goldenChild(
     from in List<u8> input,
     through ref string failure,
     i64 deadline = 0,
-    Map<string, string?>? env = null
+    Map<string,
+    string?>? env = null
 )
         uses alloc, clock, fs, process {
     var line = StrBuf()
@@ -1785,7 +1802,13 @@ test "an unreadable package.byn renders as the empty grammar of diag/naming-pack
     let options = GoldenOptions { includeTests: false }
     var omitted: i64 = 0
     let empty = goldenCompile(main, by: in options)
-    let emptyText = semantics.renderAll(in empty, from: in empty.diagnostics, by: true, until: 2147483647, to: ref omitted)
+    let emptyText = semantics.renderAll(
+        in empty,
+        from: in empty.diagnostics,
+        by: true,
+        until: 2147483647,
+        to: ref omitted,
+    )
     let made = goldenChmod("000", for: manifest)
     // root reads a mode-0 file anyway, as the C# test allows
     let readable = (Io.readText(manifest) catch "unreadable") != "unreadable"
@@ -2173,6 +2196,22 @@ test "--jobs 8 fails the changed case naming its path and the expected and actua
     for name in ["lex/bad-chars", "lex/bad-interpolation", "run/a-passes", "run/c-passes"] {
         assert(eight.stdout.contains($"\npassed {name}\n"))
     }
+}
+
+test "a worker that panics fails the case it was on with its stderr, and its later cases naming that case" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-jobs-panic")
+    deleteWorkDir(root)
+    let exe = goldenCliFake(root, for: "bayan", as: "echo 'panic: slice 3..5 of a 4-byte string' >&2\nexit 101")
+    var cases = List<GoldenCase>()
+    for name in ["a", "b"] {
+        cases.append(GoldenCase { kind: "run", name: name, input: Path.combine(root, $"{name}.byn") })
+    }
+    var results = List<GoldenResult>()
+    goldenJobs(in cases, by: exe, for: 60000, as: 1, to: ref results)
+    deleteWorkDir(root)
+    assert(results.length == 2)
+    assert(results[0].detail.contains("stopped on it; its stderr:\npanic: slice 3..5 of a 4-byte string"))
+    assert(results[1].detail.contains("did not reach it: it stopped on run/a"))
 }
 
 // The bound of a run over the full cases tree (spec 019 T9a, R9; docs/memory-leaks.md rule 8). The run takes minutes, past the 60 s of a test

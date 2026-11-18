@@ -1,0 +1,408 @@
+import semantics
+import emitter.cprint
+import emitter.ltree
+
+type BInterpolated = semantics.BInterpolated
+type BSwitchExpr = semantics.BSwitchExpr
+type BTryFrom = semantics.BTryFrom
+
+i32 main(ReadOnlySpan<string> args) {
+    let mode = args[0]
+    if mode == "col" {
+        Io.stdout.write("== col\n")
+        for i in 3..args.length { Io.stdout.write($"{powerAssertColumn(args[i])}\n") }
+        return 0
+    }
+    if mode == "flat" {
+        Io.stdout.write("== flat\n")
+        for i in 3..args.length { Io.stdout.write($"[{powerAssertFlatten(args[i])}]\n") }
+        return 0
+    }
+    if mode == "diag" {
+        Io.stdout.write("== diag\n")
+        for i in 3..args.length { Io.stdout.write(t5Diagram(args[i])) }
+        return 0
+    }
+    var rest = List<string>()
+    rest.append(args[3])
+    let ascii = false
+    let symbols = semantics.t26Symbols(ascii)
+    let o = semantics.t26ParseBuildOptions(rest, allowSpans: false) ?? return 2
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    var c = semantics.t26Compile(o, by: symbols, to: ref reported, through: ref ok)
+    var l = LCtx {}
+    if mode == "cases" {
+        Io.stdout.write("== cases\n")
+        for i in 4..args.length { Io.stdout.write(t5Case(ref c, through: ref l, for: args[i])) }
+    }
+    if mode == "synth" { Io.stdout.write(t5Synth(ref c, through: ref l)) }
+    return 0
+}
+
+/// `columns/always` as "0,3,7/tft": the pieces of `Diagram`.
+string t5Diagram(string spec) uses alloc {
+    var columns = List<i64>()
+    var always = List<bool>()
+    var n: i64 = 0
+    var seen = false
+    var flags = false
+    for b in spec.bytes {
+        if b == 47 {
+            if seen { columns.append(n) }
+            flags = true
+        } else if flags {
+            always.append(b == 116)
+        } else if b == 44 {
+            columns.append(n)
+            n = 0
+        } else {
+            n = n * 10 + i64(b) - 48
+            seen = true
+        }
+    }
+    var sb = StrBuf()
+    sb.append($"diagram {spec}\n")
+    for p in powerAssertDiagram(columns, by: always) {
+        var from: i64 = 0
+        for at in 0..p.text.length {
+            if p.text.bytes[at] == 10 {
+                sb.append(p.text[from..at])
+                sb.append("\\n")
+                from = at + 1
+            }
+        }
+        sb.append(p.text[from..p.text.length])
+        sb.append($"|{p.value}|")
+        for k in p.allShown { sb.append($"{k},") }
+        sb.append("|")
+        for k in p.noneShown { sb.append($"{k},") }
+        sb.append($"|{p.anyFrom}\n")
+    }
+    return $"{sb.finish()}"
+}
+
+/// The nth field of `s`, split at ':'.
+string t5Field(string s, at i64 n) {
+    var k: i64 = 0
+    var start: i64 = 0
+    var j: i64 = 0
+    for b in s.bytes {
+        if b == 58 {
+            if k == n { return s[start..j] }
+            k += 1
+            start = j + 1
+        }
+        j += 1
+    }
+    return s[start..s.length]
+}
+
+void t5Reset(ref LCtx l, for FuncId fn) uses alloc {
+    l.fn = fn
+    l.outs = List<List<BStmt>>()
+    l.outs.append(List<BStmt>())
+    l.locals = List<LocalId>()
+    l.seen = Map<LocalId, bool>()
+    l.scopes = List<LScope>()
+    l.labelCount = 0
+}
+
+FuncId t5Func(ref Ctx c, for string name) uses alloc {
+    for fn in 0..c.functions.length {
+        if c.functions[fn].name == name && c.functions[fn].body != -1 { return fn }
+    }
+    return -1
+}
+
+/// The expression of statement `index` of `fn`: a declaration's initializer, an expression statement's expression, an assignment's target.
+BExpr t5Pick(Ctx c, at FuncId fn, for i64 index) {
+    let s = c.bBlocks[c.functions[fn].body & 0xFFFFFFFF].statements[index]
+    let i = s & 0xFFFFFFFF
+    switch semantics.boundKind(s) {
+        case .localDecl: return c.bLocalDecls[i].initializer
+        case .exprStmt: return c.bExprStmts[i].expr
+        default: return c.bAssigns[i].target
+    }
+}
+
+string t5Local(Ctx c, for LocalId x) => c.locals[x].kind == .temp ? "temp" : c.locals[x].name
+
+string t5Real(f64 r) {
+    let hi = i64(r / 4294967296.0)
+    return $"{hi}.{i64(r - f64(hi) * 4294967296.0)}"
+}
+
+string t5List(ref Ctx c, through LCtx l, for List<BExpr> xs) uses alloc {
+    var sb = StrBuf()
+    for x in xs { sb.append($"{t5Shape(ref c, through: l, for: x)};") }
+    return $"{sb.finish()}"
+}
+
+string t5Shape(ref Ctx c, through LCtx l, for BExpr e) uses alloc {
+    let key = cprint.key(ref c, for: ltree.typeOf(c, through: l.tree, for: e))
+    let span = ltree.spanOf(c, through: l.tree, for: e)
+    return $"{t5Body(ref c, through: l, for: e)}:{key}@{span.start}+{span.length}"
+}
+
+string t5Body(ref Ctx c, through LCtx l, for BExpr e) uses alloc {
+    if ltree.isLowered(e) {
+        switch ltree.lKindOf(e) {
+            case .voidValue: return "void"
+            case .neverValue: return "never"
+            case .optionalValue: return $"optval({t5Shape(ref c, through: l, for: l.tree.optionalValues[ltree.lIndexOf(e)].optional)})"
+            case .optionalHas: return $"has({t5Shape(ref c, through: l, for: l.tree.optionalHass[ltree.lIndexOf(e)].optional)})"
+            case .assignExpr: return $"set({t5Shape(ref c, through: l, for: l.tree.assignExprs[ltree.lIndexOf(e)].target)};{t5Shape(ref c, through: l, for: l.tree.assignExprs[ltree.lIndexOf(e)].value)})"
+            case .sequence: return $"seq({t5List(ref c, through: l, for: l.tree.sequences[ltree.lIndexOf(e)].effects)}{t5Shape(ref c, through: l, for: l.tree.sequences[ltree.lIndexOf(e)].value)})"
+            case .indexUnchecked: return $"unchecked({t5Shape(ref c, through: l, for: l.tree.indexUncheckeds[ltree.lIndexOf(e)].target)};{t5Shape(ref c, through: l, for: l.tree.indexUncheckeds[ltree.lIndexOf(e)].index)})"
+            case .errorCode: return $"errcode({t5Shape(ref c, through: l, for: l.tree.errorCodes[ltree.lIndexOf(e)].error)})"
+            case .unionTag: return $"uniontag({t5Shape(ref c, through: l, for: l.tree.unionTags[ltree.lIndexOf(e)].unionValue)})"
+            case .unionField: return $"unionfield({c.unionVariants[l.tree.unionFields[ltree.lIndexOf(e)].variant].name};{l.tree.unionFields[ltree.lIndexOf(e)].index};{t5Shape(ref c, through: l, for: l.tree.unionFields[ltree.lIndexOf(e)].unionValue)})"
+            default: return "lowered?"
+        }
+    }
+    let i = e & 0xFFFFFFFF
+    switch semantics.boundKind(e) {
+        case .literal:
+            let k = c.bLiterals[i].value
+            let hasK = c.constants.tryGet(at: e) is { } ? "#k" : ""
+            switch k.kind {
+                case .integer: return $"i{k.integer.lo}.{k.integer.hi}{hasK}"
+                case .real: return $"r{t5Real(k.real)}{hasK}"
+                case .flag: return $"b{k.flag}{hasK}"
+                case .text: return $"s{k.text}{hasK}"
+                default: return $"k{hasK}"
+            }
+        case .defaultValue: return "default"
+        case .local: return $"local({t5Local(c, for: c.bLocals[i].local)})"
+        case .field: return $"field({c.fields[c.bFields[i].field].name};{t5Shape(ref c, through: l, for: c.bFields[i].receiver)})"
+        case .tupleElement: return $"tuple({c.bTupleElements[i].index};{t5Shape(ref c, through: l, for: c.bTupleElements[i].receiver)})"
+        case .call:
+            let hasK = c.constants.tryGet(at: e) is { } ? "#k" : ""
+            let receiver = c.bCalls[i].receiver == -1 ? "-" : t5Shape(ref c, through: l, for: c.bCalls[i].receiver)
+            var arguments = List<BExpr>()
+            for a in c.bCalls[i].arguments { arguments.append(a) }
+            return $"call({c.functions[c.bCalls[i].function].name}{hasK};{receiver};{t5List(ref c, through: l, for: arguments)})"
+        case .builtinCall:
+            var arguments = List<BExpr>()
+            for a in c.bBuiltinCalls[i].arguments { arguments.append(a) }
+            return $"builtin({c.bBuiltinCalls[i].member};{t5Shape(ref c, through: l, for: c.bBuiltinCalls[i].receiver)};{t5List(ref c, through: l, for: arguments)})"
+        case .unary: return $"unary({c.bUnaries[i].op == .notKeyword ? "not" : $"{c.bUnaries[i].op}"};{t5Shape(ref c, through: l, for: c.bUnaries[i].operand)})"
+        case .errorVariant: return $"errvar({c.errorVariants[c.bErrorVariants[i].variant].name})"
+        case .binary: return $"binary({c.bBinaries[i].op};{t5Shape(ref c, through: l, for: c.bBinaries[i].left)};{t5Shape(ref c, through: l, for: c.bBinaries[i].right)})"
+        case .conversion: return $"conv({c.bConversions[i].kind};{t5Shape(ref c, through: l, for: c.bConversions[i].operand)})"
+        case .conditional: return $"cond({t5Shape(ref c, through: l, for: c.bConditionals[i].condition)};{t5Shape(ref c, through: l, for: c.bConditionals[i].whenTrue)};{t5Shape(ref c, through: l, for: c.bConditionals[i].whenFalse)})"
+        case .index: return $"index({t5Shape(ref c, through: l, for: c.bIndexes[i].target)};{t5Shape(ref c, through: l, for: c.bIndexes[i].index)})"
+        case .structLiteral:
+            var fields = List<BExpr>()
+            for a in c.bStructLiterals[i].fields { fields.append(a) }
+            return $"struct({t5List(ref c, through: l, for: fields)})"
+        default: return "bound?"
+    }
+}
+
+/// `text` with each line break written as `\n`.
+string t5Escape(string text) uses alloc {
+    var sb = StrBuf()
+    var from: i64 = 0
+    for at in 0..text.length {
+        if text.bytes[at] == 10 {
+            sb.append(text[from..at])
+            sb.append("\\n")
+            from = at + 1
+        }
+    }
+    sb.append(text[from..text.length])
+    return $"{sb.finish()}"
+}
+
+string t5Parts(ref Ctx c, through LCtx l, for List<BInterpolationPart> parts) uses alloc {
+    var sb = StrBuf()
+    for p in parts {
+        if p.value == -1 {
+            sb.append($"t'{t5Escape(p.text ?? "")}',")
+        } else {
+            sb.append($"{t5Shape(ref c, through: l, for: p.value)},")
+        }
+    }
+    return $"{sb.finish()}"
+}
+
+string t5Stmt(ref Ctx c, through LCtx l, for BStmt s) uses alloc {
+    if ltree.isLowered(s) {
+        let i = ltree.lIndexOf(s)
+        switch ltree.lKindOf(s) {
+            case .write:
+                let target = l.tree.writes[i].target == -1 ? "-" : t5Shape(ref c, through: l, for: l.tree.writes[i].target)
+                var guards = StrBuf()
+                if (l.tree.writes[i].guards is { } gs) {
+                    guards.append(";g:")
+                    for g in gs { guards.append(g == -1 ? "-," : $"{t5Shape(ref c, through: l, for: g)},") }
+                }
+                return $"write({l.tree.writes[i].sink};{target};{t5Parts(ref c, through: l, for: l.tree.writes[i].parts)}{guards.finish()})"
+            case .failingCall:
+                let f = l.tree.failingCalls[i]
+                let result = f.result == -1 ? "-" : t5Local(c, for: f.result)
+                return $"failcall({t5Local(c, for: f.error)};{t5Shape(ref c, through: l, for: f.call)};{result})"
+            case .panic: return $"panic({l.tree.panics[i].message})"
+            case .label: return $"label({l.tree.labels[i].name})"
+            case .gotoStmt: return $"goto({l.tree.gotoStmts[i].label})"
+            default: return "lowered?"
+        }
+    }
+    let i = s & 0xFFFFFFFF
+    switch semantics.boundKind(s) {
+        case .exprStmt: return $"expr({t5Shape(ref c, through: l, for: c.bExprStmts[i].expr)})"
+        case .assign: return $"assign({t5Shape(ref c, through: l, for: c.bAssigns[i].target)};{t5Shape(ref c, through: l, for: c.bAssigns[i].value)})"
+        case .localDecl: return $"decl({t5Local(c, for: c.bLocalDecls[i].local)})"
+        case .ifStmt: return $"if({t5Shape(ref c, through: l, for: c.bIfs[i].condition)};{t5Stmt(ref c, through: l, for: c.bIfs[i].then)})"
+        case .block:
+            var sb = StrBuf()
+            sb.append("block[")
+            var inner = List<BStmt>()
+            for x in c.bBlocks[i].statements { inner.append(x) }
+            for x in inner { sb.append($"{t5Stmt(ref c, through: l, for: x)} ") }
+            sb.append("]")
+            return $"{sb.finish()}"
+        default: return "stmt?"
+    }
+}
+
+/// What a lowering returned and emitted, from a fresh lowerer.
+string t5Report(ref Ctx c, through ref LCtx l, for string head, at BExpr result) uses alloc {
+    var sb = StrBuf()
+    sb.append($"case {head}\n")
+    sb.append(result == -1 ? "  result null\n" : $"  result {t5Shape(ref c, through: l, for: result)}\n")
+    for s in l.outs[0] { sb.append($"  out {t5Stmt(ref c, through: l, for: s)}\n") }
+    var temps: i64 = 0
+    for x in l.locals {
+        if c.locals[x].kind == .temp { temps += 1 }
+    }
+    sb.append($"  temps {temps}\n")
+    return $"{sb.finish()}"
+}
+
+string t5Case(ref Ctx c, through ref LCtx l, for string spec) uses alloc {
+    let fn = t5Func(ref c, for: t5Field(spec, at: 0))
+    var index: i64 = 0
+    for b in t5Field(spec, at: 1).bytes { index = index * 10 + i64(b) - 48 }
+    let kind = t5Field(spec, at: 2)
+    t5Reset(ref l, for: fn)
+    let e = kind == "assert" || kind == "stmt" ? -1 : t5Pick(c, at: fn, for: index)
+    var result: BExpr = -1
+    if kind == "callParts" { result = lowerCallParts(ref c, through: ref l, for: e) }
+    if kind == "builtin" { result = lowerBuiltinCall(ref c, through: ref l, for: e) }
+    if kind == "stable" { result = lowerStable(ref c, through: ref l, for: e) }
+    if kind == "tryFrom" { result = lowerTryFrom(ref c, through: ref l, for: e) }
+    if kind == "switch" { result = lowerSwitchExpr(ref c, through: ref l, for: e) }
+    if kind == "assert" { lowerAssert(ref c, through: ref l, for: c.bBlocks[c.functions[fn].body & 0xFFFFFFFF].statements[index]) }
+    if kind == "stmt" { lowerStatement(ref c, through: ref l, for: c.bBlocks[c.functions[fn].body & 0xFFFFFFFF].statements[index]) }
+    if kind == "assign" { lowerAssign(ref c, through: ref l, for: c.bBlocks[c.functions[fn].body & 0xFFFFFFFF].statements[index]) }
+    if kind == "write" { result = lowerWrite(ref c, through: ref l, for: e, by: .print, to: -1, as: c.bCalls[e & 0xFFFFFFFF].arguments[0]) }
+    if kind == "levelTrivial" {
+        let level = localExpr(ref c, at: c.bCalls[e & 0xFFFFFFFF].span, for: c.functions[fn].parameters[0])
+        result = lowerWriteParts(ref c, through: ref l, for: e, by: .log, to: -1, as: c.bCalls[e & 0xFFFFFFFF].arguments[0], at: level)
+    }
+    if kind == "levelCall" {
+        let level = t5Pick(c, at: t5Func(ref c, for: "calls"), for: 0)
+        result = lowerWriteParts(ref c, through: ref l, for: e, by: .log, to: -1, as: c.bCalls[e & 0xFFFFFFFF].arguments[0], at: level)
+    }
+    return t5Report(ref c, through: ref l, for: spec, at: result)
+}
+
+/// Hand-built nodes: calls with an operand that nv returns, a `Stable` optional value.
+string t5Synth(ref Ctx c, through ref LCtx l) uses alloc {
+    let calls = t5Func(ref c, for: "calls")
+    let donor = t5Pick(c, at: calls, for: 0)
+    let span = c.bCalls[donor & 0xFFFFFFFF].span
+    let i64Type = c.bCalls[donor & 0xFFFFFFFF].type
+    let id = c.bCalls[donor & 0xFFFFFFFF].function
+    var sb = StrBuf()
+
+    t5Reset(ref l, for: calls)
+    // An empty never block, as the C# side: `lowerExpr` returns an `LNever` and emits nothing.
+    let nv = semantics.addBlockExpr(ref c, from: BBlockExpr { span: span, block: semantics.addBlock(ref c, from: BBlock { span: span }), type: semantics.prim(.neverKind) })
+    var args1 = List<BExpr>()
+    args1.append(nv)
+    let neverCall = semantics.addCall(ref c, from: BCall { span: span, function: id, arguments: move args1, type: i64Type })
+    sb.append(t5Report(ref c, through: ref l, for: "neverCall", at: lowerCallParts(ref c, through: ref l, for: neverCall)))
+
+    t5Reset(ref l, for: calls)
+    let neverBuiltin = semantics.addBuiltinCall(ref c, from: BBuiltinCall { span: span, member: .listAdd, receiver: nv, type: semantics.prim(.void) })
+    sb.append(t5Report(ref c, through: ref l, for: "neverBuiltin", at: lowerBuiltinCall(ref c, through: ref l, for: neverBuiltin)))
+
+    var parts = List<BInterpolationPart>()
+    parts.append(BInterpolationPart { text: "a" })
+    let text = semantics.addInterpolated(ref c, from: BInterpolated { span: span, parts: move parts })
+    var args2 = List<BExpr>()
+    args2.append(text)
+    let neverAppend = semantics.addBuiltinCall(ref c, from: BBuiltinCall { span: span, member: .strBufAppend, receiver: nv, arguments: move args2, type: semantics.prim(.void) })
+    t5Reset(ref l, for: calls)
+    sb.append(t5Report(ref c, through: ref l, for: "neverAppend", at: lowerBuiltinCall(ref c, through: ref l, for: neverAppend)))
+
+    let neverTake = semantics.addBuiltinCall(ref c, from: BBuiltinCall { span: span, member: .listTake, receiver: nv, type: i64Type })
+    t5Reset(ref l, for: calls)
+    sb.append(t5Report(ref c, through: ref l, for: "neverTake", at: lowerBuiltinCall(ref c, through: ref l, for: neverTake)))
+
+    var parts2 = List<BInterpolationPart>()
+    parts2.append(BInterpolationPart { value: nv })
+    let neverText = semantics.addInterpolated(ref c, from: BInterpolated { span: span, parts: move parts2 })
+    t5Reset(ref l, for: calls)
+    sb.append(t5Report(ref c, through: ref l, for: "neverWrite", at: lowerWrite(ref c, through: ref l, for: donor, by: .print, to: -1, as: neverText)))
+
+    let neverSwitch = semantics.addSwitchExpr(ref c, from: BSwitchExpr { span: span, value: nv, type: i64Type })
+    t5Reset(ref l, for: calls)
+    sb.append(t5Report(ref c, through: ref l, for: "neverSwitch", at: lowerSwitchExpr(ref c, through: ref l, for: neverSwitch)))
+
+    let neverTry = semantics.addTryFrom(ref c, from: BTryFrom { span: span, operand: nv, target: i64Type, type: i64Type })
+    t5Reset(ref l, for: calls)
+    sb.append(t5Report(ref c, through: ref l, for: "neverTry", at: lowerTryFrom(ref c, through: ref l, for: neverTry)))
+
+    let optional = ltree.addLOptionalValue(ref l.tree, from: T5LOptionalValue { span: span, optional: donor, type: i64Type })
+    t5Reset(ref l, for: calls)
+    sb.append(t5Report(ref c, through: ref l, for: "optStable", at: lowerStable(ref c, through: ref l, for: optional)))
+
+    t5Reset(ref l, for: calls)
+    var args3 = List<BExpr>()
+    args3.append(nv)
+    let neverArg = semantics.addBuiltinCall(ref c, from: BBuiltinCall { span: span, member: .strBufAppend, receiver: nv, arguments: move args3, type: semantics.prim(.void) })
+    sb.append(t5Report(ref c, through: ref l, for: "neverArg", at: lowerBuiltinCall(ref c, through: ref l, for: neverArg)))
+
+    t5Reset(ref l, for: calls)
+    let noArgSlot = semantics.addBuiltinCall(ref c, from: BBuiltinCall { span: span, member: .mapSlot, receiver: nv, type: i64Type })
+    sb.append(t5Report(ref c, through: ref l, for: "noArgSlot", at: lowerBuiltinCall(ref c, through: ref l, for: noArgSlot)))
+
+    t5Reset(ref l, for: calls)
+    sb.append(t5Report(ref c, through: ref l, for: "neverStable", at: lowerStable(ref c, through: ref l, for: ltree.addLNever(ref l.tree, from: T5LNever { span: span, type: semantics.prim(.neverKind) }))))
+
+    t5Reset(ref l, for: calls)
+    let unchecked = ltree.addLIndexUnchecked(ref l.tree, from: T3LIndexUnchecked { span: span, target: donor, index: donor, type: i64Type }) because "a hand-built place that Stable only inspects"
+    sb.append(t5Report(ref c, through: ref l, for: "uncheckedStable", at: lowerStable(ref c, through: ref l, for: unchecked)))
+
+    let lit = t5Literal(ref c, at: span, by: i64Type, as: Constant { kind: .flag, flag: true })
+    var args4 = List<BExpr>()
+    args4.append(lit)
+    args4.append(lit)
+    t5Reset(ref l, for: calls)
+    let staticCall = semantics.addCall(ref c, from: BCall { span: span, function: id, receiver: lit, arguments: move args4, type: i64Type })
+    sb.append(t5Report(ref c, through: ref l, for: "staticReceiver", at: lowerCallParts(ref c, through: ref l, for: staticCall)))
+
+    t5Reset(ref l, for: calls)
+    let kcall = semantics.addCall(ref c, from: BCall { span: span, function: id, type: i64Type })
+    semantics.setConstant(ref c, for: kcall, to: Constant { kind: .flag, flag: true })
+    sb.append(t5Report(ref c, through: ref l, for: "constantCall", at: lowerCallParts(ref c, through: ref l, for: kcall)))
+
+    let builtinsFn = t5Func(ref c, for: "builtins")
+    let strBuf = localExpr(ref c, at: span, for: c.functions[builtinsFn].parameters[2])
+    var parts3 = List<BInterpolationPart>()
+    parts3.append(BInterpolationPart { value: strBuf })
+    let bufText = semantics.addInterpolated(ref c, from: BInterpolated { span: span, parts: move parts3 })
+    t5Reset(ref l, for: calls)
+    sb.append(t5Report(ref c, through: ref l, for: "builtinPart", at: lowerWrite(ref c, through: ref l, for: donor, by: .print, to: -1, as: bufText)))
+
+    let kinds = t5Func(ref c, for: "kinds")
+    for p in 0..c.functions[kinds].parameters.length {
+        sb.append($"printable {p} {printable(c.locals[c.functions[kinds].parameters[p]].type)}\n")
+    }
+    return $"== synth\n{sb.finish()}"
+}

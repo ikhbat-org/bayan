@@ -1,0 +1,87 @@
+import semantics
+import emitter.cprint
+
+type CCtx = cprint.CCtx
+
+i32 main(ReadOnlySpan<string> args) {
+    var rest = List<string>()
+    for i in 2..args.length { rest.append(args[i]) }
+    let ascii = false
+    let symbols = semantics.t26Symbols(ascii)
+    let o = semantics.t26ParseBuildOptions(in rest, allowSpans: false) ?? return 2
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    var c = semantics.t26Compile(in o, by: in symbols, to: ref reported, through: ref ok)
+    let mode = args[0]
+    if mode == "corpus" {
+        Io.stdout.write(t8Corpus(ref c))
+        Io.stdout.write(t8FormatInto(ref c))
+    }
+    if mode == "failEq" {
+        var cc = CCtx {}
+        Io.stdout.write(cprint.equalHelper(ref cc, from: ref c, for: t8Param(ref c, at: args[1]), at: "a", to: "b"))
+    }
+    if mode == "failFmt" {
+        var cc = CCtx {}
+        Io.stdout.write(cprint.format(ref cc, from: ref c, for: t8Param(ref c, at: args[1]), at: "v", to: "w"))
+    }
+    return 0
+}
+
+/// The type of the first parameter of function `name`.
+Type t8Param(ref Ctx c, at string name) uses alloc {
+    for m in 0..c.modules.length {
+        for k in 0..c.modules[m].allFunctions.length {
+            let fn = c.modules[m].allFunctions[k]
+            if c.functions[fn].name == name { return c.locals[c.functions[fn].parameters[0]].type }
+        }
+    }
+    return -1
+}
+
+string t8Corpus(ref Ctx c) uses alloc {
+    var cc = CCtx {}
+    var sb = StrBuf()
+    sb.append("== corpus\n")
+    for m in 0..c.modules.length {
+        for k in 0..c.modules[m].allFunctions.length {
+            let fn = c.modules[m].allFunctions[k]
+            let name = c.functions[fn].name
+            if c.functions[fn].body == -1 || c.functions[fn].parameters.length != 1 { continue }
+            let t = c.locals[c.functions[fn].parameters[0]].type
+            if name.startsWith("eq") { sb.append($"{name} {cprint.equalHelper(ref cc, from: ref c, for: t, at: "a", to: "b")}\n") }
+            if name.startsWith("fmt") { sb.append($"{name} {cprint.format(ref cc, from: ref c, for: t, at: "v", to: "w")}\n") }
+            if name.startsWith("map") {
+                var args = List<string>()
+                args.append("k")
+                args.append("d")
+                let members = [semantics.BuiltinMember.mapIndexSet, .mapSlot, .mapIndex, .mapTryGet, .mapContains, .mapRemove]
+                for member in members {
+                    sb.append($"{name} {cprint.mapMethod(ref cc, from: ref c, for: member, as: t, at: "m", by: args, to: "L")}\n")
+                }
+            }
+        }
+    }
+    sb.append($"hashes {cc.hashes}\n")
+    sb.append("== helpers\n")
+    for n in cc.helperOrder { sb.append($"{n} {cc.helpers[n].proto} | {cc.helpers[n].body}\n") }
+    return $"{sb.finish()}"
+}
+
+string t8Method(ref Ctx c, for semantics.FuncId fn) uses alloc {
+    if fn == -1 { return "-" }
+    return $"{c.functions[fn].name}/{c.functions[fn].parameters.length}"
+}
+
+string t8FormatInto(ref Ctx c) uses alloc {
+    var sb = StrBuf()
+    sb.append("== formatinto\n")
+    for name in ["Plain", "One", "Two", "Both", "Wrong", "Static", "Fails", "ByValue", "NotBuf", "Three", "SpecRef", "Reverse", "StaticSpec", "FailsSpec", "SpecByValue", "SpecNotBuf"] {
+        for s in 0..c.structs.length {
+            if c.structs[s].name == name {
+                sb.append($"{name} {t8Method(ref c, for: cprint.formatInto(ref c, for: s))} {t8Method(ref c, for: cprint.formatIntoWithSpec(ref c, for: s))}\n")
+            }
+        }
+    }
+    return $"{sb.finish()}"
+}

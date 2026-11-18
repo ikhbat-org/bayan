@@ -29,7 +29,9 @@ List<u8> perfSource(string shape, for i64 n) uses alloc {
 
 /// `Lints(Parse(source))`: each line-join lint as `<code> <fix replacement length> <label>`, joined by line breaks.
 string perfLints(move List<u8> source) uses alloc {
-    var p = parser.Parser.create(lexer.lex(lexer.SourceText.create("t.byn", from: move source), by: lexer.Keywords.build()))
+    var p = parser.Parser.create(
+        lexer.lex(lexer.SourceText.create("t.byn", from: move source), by: lexer.Keywords.build()),
+    )
     let _ = parser.parseCompilationUnit(ref p)
     var text = ""
     for d in parser.lintLineJoins(ref p) {

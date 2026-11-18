@@ -1,0 +1,67 @@
+i32 main(ReadOnlySpan<string> args) {
+    for i in 0..args.length {
+        let all = args[i].startsWith("+")
+        let path = all ? $"{args[i][1..]}" : args[i]
+        var c = fromPath(path, by: in CompilationOptions { includeTests: true }, wholeDirectory: false)
+        Io.stdout.write(all ? t21PrintAll(in c, at: args[i]) : t21Print(in c, at: args[i]))
+    }
+    return 0
+}
+
+string t21Print(in Ctx c, at string path) uses alloc {
+    var sb = StrBuf()
+    sb.append($"== {path}\n")
+    for m in 0..c.modules.length {
+        for k in 0..c.modules[m].allFunctions.length {
+            let fn = c.modules[m].allFunctions[k]
+            if c.functions[fn].body == -1 { continue }
+            for s in descendants(in c, for: c.functions[fn].body) {
+                if boundKind(s) != .assertStmt { continue }
+                let a = nodeSpan(in c, for: s)
+                sb.append($"assert {a.start}..{a.end}\n")
+                for e in descendants(in c, for: c.bAsserts[s & 0xFFFFFFFF].condition) {
+                    let sp = nodeSpan(in c, for: e)
+                    sb.append($"{sp.start}..{sp.end} {t21Top(in c, for: e)}\n")
+                }
+            }
+        }
+    }
+    return $"{sb.finish()}"
+}
+
+string t21PrintAll(in Ctx c, at string path) uses alloc {
+    var sb = StrBuf()
+    sb.append($"== {path}\n")
+    for m in 0..c.modules.length {
+        for k in 0..c.modules[m].allFunctions.length {
+            let fn = c.modules[m].allFunctions[k]
+            if c.functions[fn].body == -1 { continue }
+            for e in descendants(in c, for: c.functions[fn].body) {
+                if !isExprKind(boundKind(e)) { continue }
+                sb.append($"{t21Top(in c, for: e)}\n")
+            }
+        }
+    }
+    return $"{sb.finish()}"
+}
+
+string t21Top(in Ctx c, for BNode e) uses alloc {
+    if (exprSyntax(in c, for: e) is { } n) { return t21Syntax(in c, for: n) }
+    return "-"
+}
+
+string t21Node(in Ctx c, at i64 h) uses alloc => h == -1 ? "-" : t21Syntax(in c, for: exprSyntaxNode(in c, at: h))
+
+string t21Syntax(in Ctx c, for ExprSyntax n) uses alloc {
+    var sb = StrBuf()
+    sb.append($"{n.kind} {n.span.start}..{n.span.end}")
+    if n.inner != -1 { sb.append($" inner({t21Node(in c, at: n.inner)})") }
+    if n.kind == .memberExpr { sb.append($" member({n.member.start}..{n.member.end})") }
+    if n.callee != -1 { sb.append($" callee({t21Node(in c, at: n.callee)})") }
+    if n.left != -1 { sb.append($" left({t21Node(in c, at: n.left)})") }
+    if n.value != -1 { sb.append($" value({t21Node(in c, at: n.value)})") }
+    if n.target != -1 { sb.append($" target({t21Node(in c, at: n.target)})") }
+    if n.condition != -1 { sb.append($" condition({t21Node(in c, at: n.condition)})") }
+    if n.operand != -1 { sb.append($" operand({n.op} {t21Node(in c, at: n.operand)})") }
+    return $"{sb.finish()}"
+}

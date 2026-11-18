@@ -116,9 +116,9 @@ test "map model: golden matches reference model" {
     assert(expected.finish() == golden)
 }
 
-const mmKeySpace: i64 = 8
+const mmKeySpace: i64       = 8
 const mmOpsPerSequence: i64 = 200
-const mmOpsPerPhase: i64 = 40
+const mmOpsPerPhase: i64    = 40
 
 /// `Key(k)` of `L003GeneratedSequenceMatchesModel`.
 string mmKey(i64 k, as bool stringKeys) uses alloc => stringKeys ? $"\"k{k}\"" : $"{k}"
@@ -225,7 +225,7 @@ struct MmNode {
 struct MmGen {
     List<MmNode> nodes
     List<i64>    kids
-    i64          root    = 0
+    i64          root = 0
     List<i64>    structs
     List<i64>    leaves
     List<i64>    strides

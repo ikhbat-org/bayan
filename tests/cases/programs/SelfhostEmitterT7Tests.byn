@@ -1,0 +1,187 @@
+import semantics
+import emitter.cprint
+import emitter.ltree
+
+type CCtx = cprint.CCtx
+type CompilationOptions = semantics.CompilationOptions
+
+i32 main(ReadOnlySpan<string> args) {
+    var rest = List<string>()
+    let mode = args[0]
+    let first = mode == "thunk" ? 3 : 1
+    for i in first..args.length { rest.append(args[i]) }
+    let ascii = false
+    let symbols = semantics.t26Symbols(ascii)
+    let o = semantics.t26ParseBuildOptions(in rest, allowSpans: false) ?? return 2
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    var c = semantics.t26Compile(in o, by: in symbols, to: ref reported, through: ref ok)
+    if mode == "corpus" {
+        Io.stdout.write(t7PrintTypes(ref c))
+        Io.stdout.write(t7PrintOwn(ref c))
+        Io.stdout.write(t7PrintSuffix())
+        Io.stdout.write(t7PrintDyn(ref c))
+    }
+    if mode == "thunk" { Io.stdout.write(t7PrintThunk(ref c, for: args[1], by: args[2])) }
+    if mode == "vtablefail" { Io.stdout.write(t7VtableFail(ref c)) }
+    if mode == "iface" { Io.stdout.write(t7PrintIface(ref c)) }
+    if mode == "suffixfail" { Io.stdout.write(cprint.intSuffix(c.locals[c.functions[t7Func(ref c, for: "f")].parameters[0]].type)) }
+    return 0
+}
+
+/// `Lowerer.Lower`'s filter: the functions it lowers, in order.
+List<FuncId> t7Functions(ref Ctx c) uses alloc {
+    var r = List<FuncId>()
+    for m in 0..c.modules.length {
+        for k in 0..c.modules[m].allFunctions.length {
+            let fn = c.modules[m].allFunctions[k]
+            if c.functions[fn].body == -1 || c.functions[fn].kind == .testKeyword || semantics.functionIsGeneric(ref c, by: fn) { continue }
+            r.append(fn)
+        }
+    }
+    return r
+}
+
+/// Each function's parameter, return and top-level local types.
+List<Type> t7Gather(ref Ctx c) uses alloc {
+    var types = List<Type>()
+    for fn in t7Functions(ref c) {
+        for p in c.functions[fn].parameters { types.append(c.locals[p].type) }
+        types.append(c.functions[fn].returnType)
+        for s in c.bBlocks[c.functions[fn].body & 0xFFFFFFFF].statements {
+            if !ltree.isLowered(s) && semantics.boundKind(s) == .localDecl { types.append(c.locals[c.bLocalDecls[s & 0xFFFFFFFF].local].type) }
+        }
+    }
+    return types
+}
+
+string t7Helpers(in CCtx cc) uses alloc {
+    var sb = StrBuf()
+    for n in cc.helperOrder { sb.append($"helper {n}\n{cc.helpers[n].body}") }
+    return $"{sb.finish()}"
+}
+
+string t7PrintTypes(ref Ctx c) uses alloc {
+    var cc = CCtx {}
+    for t in t7Gather(ref c) { let _ = cprint.cType(ref cc, from: ref c, for: t) }
+    return $"== types\n{cprint.emitTypes(ref cc, from: ref c)}"
+}
+
+string t7PrintOwn(ref Ctx c) uses alloc {
+    var cc = CCtx {}
+    var sb = StrBuf()
+    sb.append("== own\n")
+    for t in t7Gather(ref c) {
+        let owns = cprint.ownsStorage(ref c, for: t)
+        let claim = cprint.ownClaim(ref cc, from: ref c, for: t)
+        let stored = cprint.ownSet(ref cc, from: ref c, for: t)
+        let moved = cprint.ownMove(ref cc, from: ref c, for: t)
+        let ret = cprint.ownReturn(ref cc, from: ref c, for: t)
+        sb.append($"{owns} {claim} {stored} {moved} {ret}\n")
+    }
+    sb.append(t7Helpers(in cc))
+    return $"{sb.finish()}"
+}
+
+string t7PrintSuffix() uses alloc {
+    var sb = StrBuf()
+    sb.append("== suffix\n")
+    var kinds = List<semantics.PrimitiveKind>()
+    kinds.append(.i8)
+    kinds.append(.i16)
+    kinds.append(.i32)
+    kinds.append(.i64)
+    kinds.append(.u8)
+    kinds.append(.u16)
+    kinds.append(.u32)
+    kinds.append(.u64)
+    kinds.append(.isize)
+    kinds.append(.usize)
+    kinds.append(.f32)
+    kinds.append(.f64)
+    kinds.append(.bool)
+    kinds.append(.char)
+    kinds.append(.string)
+    kinds.append(.void)
+    kinds.append(.neverKind)
+    for k in kinds { sb.append($"{cprint.intSuffix(semantics.prim(k))}\n") }
+    return $"{sb.finish()}"
+}
+
+string t7PrintDyn(ref Ctx c) uses alloc {
+    var cc = CCtx {}
+    var sb = StrBuf()
+    sb.append("== dyn\n")
+    for m in 0..c.modules.length {
+        var structs = List<semantics.StructId>()
+        for s in c.modules[m].structs { structs.append(s) }
+        for s in structs {
+            if semantics.structIsGeneric(ref c, by: s) { continue }
+            var ifaces = List<semantics.InterfaceId>()
+            for k in c.structs[s].conformances {
+                // An interface with an associated type or a type parameter has slots no C type exists for (C# throws too).
+                let i = c.conformances[k].iface
+                if c.interfaces[i].associatedTypes.length == 0 && c.interfaces[i].typeParams.length == 0 { ifaces.append(i) }
+            }
+            for i in ifaces {
+                sb.append($"vtab {cprint.vtable(ref cc, from: ref c, for: s, as: i)}\n")
+                sb.append($"again {cprint.vtable(ref cc, from: ref c, for: s, as: i)}\n")
+                var slots = List<semantics.FuncId>()
+                for slot in c.interfaces[i].methods { slots.append(slot) }
+                for slot in c.interfaces[i].properties { slots.append(slot) }
+                for slot in slots { sb.append($"slot {cprint.slotName(ref c, for: slot)}\n") }
+            }
+        }
+    }
+    sb.append($"count {cc.vtableOrder.length}\n")
+    for n in cc.vtableOrder { sb.append(cc.vtables[n]) }
+    sb.append(t7Helpers(in cc))
+    return $"{sb.finish()}"
+}
+
+FuncId t7Func(ref Ctx c, for string name) uses alloc {
+    for fn in t7Functions(ref c) {
+        if c.functions[fn].name == name { return fn }
+    }
+    return -1
+}
+
+string t7PrintThunk(ref Ctx c, for string name, by string local) uses alloc {
+    var cc = CCtx {}
+    let main = t7Func(ref c, for: "main")
+    var type: Type = -1
+    for s in c.bBlocks[c.functions[main].body & 0xFFFFFFFF].statements {
+        if !ltree.isLowered(s) && semantics.boundKind(s) == .localDecl && c.locals[c.bLocalDecls[s & 0xFFFFFFFF].local].name == local {
+            type = c.locals[c.bLocalDecls[s & 0xFFFFFFFF].local].type
+        }
+    }
+    let thunk = cprint.functionThunk(ref cc, from: ref c, for: t7Func(ref c, for: name), as: type)
+    return $"== thunk\n{thunk}\n{t7Helpers(in cc)}"
+}
+
+/// `EmitTypes` after `CType` of every interface: a type no case of the switch matches.
+string t7PrintIface(ref Ctx c) uses alloc {
+    var cc = CCtx {}
+    for m in 0..c.modules.length {
+        var ifaces = List<semantics.InterfaceId>()
+        for k in c.modules[m].interfaces { ifaces.append(k) }
+        for k in ifaces { let _ = cprint.cType(ref cc, from: ref c, for: semantics.makeType(.interfaceType, at: k)) }
+    }
+    return $"== types\n{cprint.emitTypes(ref cc, from: ref c)}"
+}
+
+/// `Vtable` of struct `S` and interface `I`, which `S` does not conform to.
+string t7VtableFail(ref Ctx c) uses alloc {
+    var cc = CCtx {}
+    var s: semantics.StructId = -1
+    var i: semantics.InterfaceId = -1
+    for m in 0..c.modules.length {
+        for k in c.modules[m].structs {
+            if c.structs[k].name == "S" { s = k }
+        }
+        for k in c.modules[m].interfaces {
+            if c.interfaces[k].name == "IBox" { i = k }
+        }
+    }
+    return cprint.vtable(ref cc, from: ref c, for: s, as: i)
+}
