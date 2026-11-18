@@ -7,7 +7,7 @@ sources: none recorded
 kind: guard
 scope: csharp/Bayan.Semantics/Binding/BinderCalls.cs
 proof: csharp/tests/Bayan.Tests/L007UntrustedSinkTests.cs
-check: dotnet test --filter Law=L007
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l007-'
 enacted: 2026-10-21
 ---
 

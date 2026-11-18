@@ -7,7 +7,7 @@ sources: none recorded
 kind: invariant
 scope: csharp/Bayan.Semantics/Binding/BuiltinMembers.cs
 proof: csharp/tests/Bayan.Tests/MapModelTests.cs
-check: dotnet test -v q --filter "Law=L003"
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/map-'
 enacted: 2026-10-20
 ---
 

@@ -7,7 +7,7 @@ sources: Q68
 kind: guard
 scope: csharp/Bayan.Semantics/Binding/OwnershipAnalysis.cs
 proof: csharp/tests/Bayan.Tests/L006OwnershipGuardTests.cs
-check: dotnet test --filter Law=L006
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l006-'
 enacted: 2026-10-21
 ---
 

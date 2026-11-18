@@ -7,7 +7,7 @@ sources: Q662, Q663, Q890
 kind: property
 scope: src/emitter/
 proof: src/tests/SelfhostEmitterNoPanicLawTests.cs
-check: dotnet test -v q --filter "Law=L025"
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'emit/'
 timeout: 1200
 enacted: 2026-11-04
 ---

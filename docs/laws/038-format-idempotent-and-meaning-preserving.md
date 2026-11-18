@@ -7,7 +7,7 @@ sources: spec 022 R4
 kind: property
 scope: csharp/Bayan.Cli/Format.cs
 proof: csharp/tests/Bayan.Tests/LayoutTests.cs
-check: dotnet test -v q --filter "Law=L038"
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l038-'
 ---
 
 ## Statement

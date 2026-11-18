@@ -7,7 +7,7 @@ sources: none recorded
 kind: property
 scope: csharp/Bayan.Testing
 proof: csharp/tests/Bayan.Tests/NotEmittedLawTests.cs
-check: dotnet test -v q --filter "Law=L021"
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l021-'
 enacted: 2026-10-31
 ---
 

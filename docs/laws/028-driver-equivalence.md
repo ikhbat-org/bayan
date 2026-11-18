@@ -7,7 +7,7 @@ sources: Q3, Q1223, Q1225, Q1270
 kind: property
 scope: src/driver/**, csharp/Bayan.Cli/CliApp.cs
 proof: src/tests/SelfhostDriverGoldenTests.cs
-check: dotnet test -v q --filter "Law=L028"
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases
 timeout: 1200
 ---
 
