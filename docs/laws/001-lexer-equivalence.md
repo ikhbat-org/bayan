@@ -19,7 +19,7 @@ For every byte sequence (including invalid UTF-8, unbalanced interpolation, non-
 
 For every lex case in the freeze manifest, `bayan-lex` prints the frozen expected output byte for byte. The frozen files are the C# compiler's output at the freeze (L043).
 
-Dropped from the current Statement: the clause that both lexers read Unicode data from the same generated tables and neither consults the system's ICU. It describes the C# lexer's data source, and no frozen lex case records it. The frozen lex cases hold the token dump (`*.tokens`) only, so the `--json` form is not covered.
+Kept from the current Statement, for `bayan-lex` alone: it reads Unicode data from the generated tables in the repository and does not consult the system's ICU. Only the C# lexer's half of that clause goes away with the oracle. Dropped: the `--json` form. The frozen lex cases hold the token dump (`*.tokens`) only, so it is not covered.
 
 ## Counterexample looks like
 An input `let é = 1;` written with `e` + U+0301 where the C# JSON dump has a BYN0005 diagnostic with fix `é` and the Bayan JSON dump has none, or the two dumps differ in one token's span.
