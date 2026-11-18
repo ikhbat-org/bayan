@@ -4,4 +4,4 @@ error BYN2032: no std module `std.a`
   1 │ import std.a
     │        ^^^^^
     │
-  help: import one of `std.json`
+  help: import one of <std modules>
