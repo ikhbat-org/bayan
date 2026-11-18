@@ -26,6 +26,8 @@ echo e > tests/cases/diag/a.diag; git commit -qam "regenerate after Q1272"
 expect "golden-only, Q cause" 0
 echo f > tests/cases/diag/a.diag; printf 'k\t1\n' > tests/cases/FREEZE.tsv; git add -A; git commit -qm "refresh for T21"
 expect "manifest and golden" 0
+mkdir -p tests/cases/cli/C-1; echo j > tests/cases/cli/C-1/expected.sections; echo j > tests/cases/cli/C-1/expected.golden; git add -A; git commit -qm "exported case for Q1018"
+expect "exported case expected files" 0
 echo g > src/a.txt; git commit -qam "unrelated"
 expect "unrelated commit" 0
 # a range holding the bad commits reports them all, and a merge is skipped

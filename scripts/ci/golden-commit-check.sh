@@ -7,7 +7,8 @@
 #   - it changes only expected files (and the manifest) and its message names no cause: refused.
 # Decision 006 gives no exact form for either term, so this script fixes them:
 #   expected file: a file under tests/cases/ with one of the extensions the README there lists as expected output
-#     (.tokens .ast .diag .jsonl .types .stdout .stderr .exitcode .tree .color .plain .ascii), or tests/cases/out/results-fail.json.
+#     (.tokens .ast .diag .jsonl .types .stdout .stderr .exitcode .tree .color .plain .ascii), tests/cases/out/results-fail.json,
+#     or any expected.* file of an exported case directory (T17c: expected.golden, expected.sections, expected.c, ...).
 #   manifest: tests/cases/FREEZE.tsv (it may not exist yet).
 #   cause: the message holds a 7-40 hex commit sha containing a digit, a question number Q### or Q####, or a task reference T##.
 # Exit 0 clean, 1 refused (sha, subject and reason on stderr), 2 usage or git error.
@@ -17,6 +18,7 @@ manifest=tests/cases/FREEZE.tsv
 is_expected() {
   case "$1" in
     (tests/cases/out/results-fail.json) return 0 ;;
+    (tests/cases/*/expected.*) return 0 ;;
     (tests/cases/*.tokens|tests/cases/*.ast|tests/cases/*.diag|tests/cases/*.jsonl|tests/cases/*.types|tests/cases/*.stdout|\
      tests/cases/*.stderr|tests/cases/*.exitcode|tests/cases/*.tree|tests/cases/*.color|tests/cases/*.plain|tests/cases/*.ascii) return 0 ;;
   esac
