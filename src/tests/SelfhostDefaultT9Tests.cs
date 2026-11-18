@@ -559,18 +559,24 @@ public sealed class SelfhostDefaultT9Tests
     }
 
     /// <summary>
-    /// Under the export (spec 019 T28): writes <c>runtime/&lt;os&gt;/&lt;name&gt;.in</c> with the tree <paramref name="cs"/> holds (<c>dir &lt;path&gt;</c>,
-    /// <c>file &lt;path&gt; &lt;hex of the content&gt;</c>) and each <c>age &lt;path&gt; &lt;minutes&gt;</c> (minutes before the run), and returns the path
+    /// Under the export (spec 019 T28): writes <c>bounds/evict/&lt;name&gt;.in</c> with the tree <paramref name="cs"/> holds (<c>dir &lt;path&gt;</c>;
+    /// <c>file &lt;path&gt; &lt;byte length&gt;</c> and a line of the content when it is printable ASCII, else <c>file64 &lt;path&gt; &lt;byte length&gt;</c>
+    /// and a line of its base64) and each <c>age &lt;path&gt; &lt;minutes&gt;</c> (minutes before the run), and returns the path
     /// without the extension; <see cref="EvictStep"/> then adds one <c>evict</c> line and one <c>expected</c> block per step. Null when not exporting.
     /// </summary>
     private static string? EvictCase(string name, string cs, (string Path, int Minutes)[] ages)
     {
         if (SelfhostExport.Dir is not { } root) return null;
-        var os = Path.Combine(root, "runtime", OperatingSystem.IsWindows() ? "windows" : OperatingSystem.IsMacOS() ? "macos" : "linux");
+        var os = Path.Combine(root, "bounds", "evict");
         Directory.CreateDirectory(os);
         var tree = Directory.EnumerateFileSystemEntries(cs, "*", SearchOption.AllDirectories)
             .Select(p => (Path: Path.GetRelativePath(cs, p).Replace('\\', '/'), Full: p)).OrderBy(e => e.Path, StringComparer.Ordinal)
-            .Select(e => Directory.Exists(e.Full) ? $"dir {e.Path}\n" : $"file {e.Path} {Hex(File.ReadAllBytes(e.Full))}\n");
+            .Select(e =>
+            {
+                if (Directory.Exists(e.Full)) return $"dir {e.Path}\n";
+                var bytes = File.ReadAllBytes(e.Full);
+                return bytes.All(b => b is >= 0x20 and < 0x7f) ? $"file {e.Path} {bytes.Length}\n{Encoding.ASCII.GetString(bytes)}\n" : $"file64 {e.Path} {bytes.Length}\n{Convert.ToBase64String(bytes)}\n";
+            });
         SelfhostExport.WriteExpected(os, name + ".in", string.Concat(tree) + string.Concat(ages.Select(a => $"age {a.Path} {a.Minutes}\n")));
         SelfhostExport.WriteExpected(os, name + ".expected", "");
         return Path.Combine(os, name);
