@@ -349,8 +349,7 @@ public static class SelfhostSemanticsHarness
         var sections = Sections(stdout);
         if (ExportDir is not null)
         {
-            var input = new ExportInput(mainSource, string.Concat(args.Select(a => (Path.IsPathRooted(a) && a.StartsWith(Golden.RepoRoot, StringComparison.Ordinal)
-                ? Path.GetRelativePath(Golden.RepoRoot, a) : a) + "\n")), staged ?? []);
+            var input = new ExportInput(mainSource, SelfhostExport.Args(args.Select(a => a.Replace(Golden.RepoRoot, "<repo>"))), staged ?? []);
             ExportInputs.AddOrUpdate(sections, input);
             // Each section's lines too, so a dictionary merged from several runs still finds the program that printed one.
             foreach (var lines in sections.Values) ExportLines.AddOrUpdate(lines, input);
@@ -370,7 +369,7 @@ public static class SelfhostSemanticsHarness
     /// <summary>A repo path made relative to the repo root, so that no case holds the machine's checkout path.</summary>
     private static string Portable(string text) => text.Replace(Path.TrimEndingDirectorySeparator(Golden.RepoRoot) + Path.DirectorySeparatorChar, "");
 
-    /// <summary>A generated program and its arguments (one per line, a repo path made relative to the repo root).</summary>
+    /// <summary>A generated program and its arguments (<see cref="SelfhostExport.Args"/>, the repo root written <c>&lt;repo&gt;</c>).</summary>
     private sealed record ExportInput(string Program, string Args, IReadOnlyList<(string Arg, string Path)> Staged);
 
     private static readonly ConditionalWeakTable<Dictionary<string, List<string>>, ExportInput> ExportInputs = new();
@@ -420,7 +419,7 @@ public static class SelfhostSemanticsHarness
                     File.Copy(f, Path.Combine(target, Path.GetRelativePath(path, f)), overwrite: true);
             }
         }
-        if (input.Args.Length > 0) File.WriteAllText(Path.Combine(dir, "args"), input.Args);
+        if (input.Args.Length > 0) SelfhostExport.WriteExpected(dir, "args", input.Args);
         File.WriteAllText(Path.Combine(dir, "section"), section + "\n");
         if (compare is not null) File.WriteAllText(Path.Combine(dir, "compare"), compare + "\n");
         File.WriteAllText(Path.Combine(dir, "expected.sections"), Portable($"== {printed}\n" + string.Concat(expected.Select(l => l + "\n"))));
