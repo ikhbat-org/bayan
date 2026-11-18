@@ -1,0 +1,11 @@
+import keywords
+import lexer
+import server
+import transport
+
+/// stdio LSP host. Logs go to stderr.
+i32 main() uses alloc, console {
+    var rpc = transport.Transport.create()
+    var s = server.Server.create()
+    return s.run(ref rpc)
+}

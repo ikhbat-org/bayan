@@ -1,0 +1,159 @@
+import transport
+
+/// The exit code of a .NET process that ends on an unhandled exception.
+const unhandledExit: i32 = 134
+
+/// A request: its message, `id` and `params` (the default element when missing).
+struct Request {
+    transport.JsonDocument msg
+    transport.JsonElement  id
+    transport.JsonElement  params
+}
+
+/// The message loop: lifecycle requests, and `method not found` for the rest.
+public struct Server {
+    bool shutdown = false
+
+    public static Server create() => Server {}
+
+    /// Answers messages until `exit` or the end of input; returns the exit code.
+    public i32 run(ref this, ref transport.Transport rpc) uses alloc, console {
+        while true {
+            let msg = rpc.read() ?? return 0
+            let root = msg.root
+            continue if !(msg.kind(root) is .object)
+            let methodFound = msg.find("method", at: root) catch { continue }
+            let m = methodFound ?? continue
+            continue if !(msg.kind(m) is .text)
+            let methodText = msg.text(m) catch switch {
+                .invalid(let message) => return unhandled(message),
+            }
+            let method = methodText ?? continue
+            let idFound = msg.find("id", at: root) catch { continue }
+            var id = transport.JsonElement.missing()
+            var isRequest = false
+            if idFound is not null {
+                id = idFound
+                isRequest = msg.kind(id) is .number or .text
+            }
+            let paramsFound = msg.find("params", at: root) catch { continue }
+            let p = paramsFound ?? transport.JsonElement.missing()
+            if method == "exit" {
+                return shutdown ? 0 : 1
+            }
+            continue if !isRequest
+            let r = Request { msg: move msg, id: id, params: p }
+            if shutdown {
+                let failed = error(r, as: -32600, for: "server is shutting down")
+                return unhandled(failed) if failed is not null
+                continue
+            }
+            let failed = handle(method, for: r)
+            if failed is not null {
+                Io.stderr.write($"bayan-lsp: {method}: {failed}\n")
+                let again = error(r, as: -32603, for: failed)
+                return unhandled(again) if again is not null
+            }
+        }
+    }
+
+    /// Answers a request; returns the message of the exception the C# handler would throw, or null.
+    string? handle(ref this, string method, for Request r) uses alloc, console {
+        return initialize(r) if method == "initialize"
+        if method == "shutdown" {
+            shutdown = true
+            var w = transport.begin()
+            let failed = writeId(ref w, for: r)
+            return failed if failed is not null
+            w.writeNull(for: "result")
+            transport.send(ref w)
+            return null
+        }
+        return error(r, as: -32601, for: $"method not found: {method}")
+    }
+}
+
+string? initialize(Request r) uses alloc, console {
+    let _ = readFolders(r) catch switch {
+        .invalid(let message) => return message,
+    }
+    var w = transport.begin()
+    let failed = writeId(ref w, for: r)
+    return failed if failed is not null
+    w.writeStartObject(for: "result")
+    w.writeStartObject(for: "capabilities")
+    w.writeStartObject(for: "textDocumentSync")
+    w.writeBoolean(value: true, for: "openClose")
+    w.writeNumber(2, for: "change")
+    w.writeEndObject()
+    w.writeStartObject(for: "completionProvider")
+    w.writeBoolean(value: true, for: "resolveProvider")
+    w.writeStartArray(for: "triggerCharacters")
+    w.writeStringValue(".")
+    w.writeStringValue("@")
+    w.writeEndArray()
+    w.writeEndObject()
+    w.writeBoolean(value: true, for: "hoverProvider")
+    w.writeBoolean(value: true, for: "definitionProvider")
+    w.writeBoolean(value: true, for: "documentSymbolProvider")
+    w.writeBoolean(value: true, for: "workspaceSymbolProvider")
+    w.writeStartObject(for: "signatureHelpProvider")
+    w.writeStartArray(for: "triggerCharacters")
+    w.writeStringValue("(")
+    w.writeStringValue(",")
+    w.writeEndArray()
+    w.writeEndObject()
+    w.writeEndObject()
+    w.writeStartObject(for: "serverInfo")
+    w.writeString("bayan-lsp", for: "name")
+    w.writeString("0.0.1", for: "version")
+    w.writeEndObject()
+    w.writeEndObject()
+    transport.send(ref w)
+    return null
+}
+
+/// The folder URIs `initialize` names: each `workspaceFolders` entry's `uri`, or else `rootUri`.
+List<string?> readFolders(Request r) uses alloc fails transport.JsonUseError {
+    var uris = List<string?>()
+    let wf = try r.msg.find("workspaceFolders", at: r.params)
+    if wf is not null && r.msg.kind(wf) is .array {
+        for f in try r.msg.items(wf) {
+            uris.append(try r.msg.text(try r.msg.get("uri", at: f)))
+        }
+        return uris
+    }
+    let ru = try r.msg.find("rootUri", at: r.params)
+    if ru is not null && r.msg.kind(ru) is .text {
+        uris.append(try r.msg.text(ru))
+    }
+    return uris
+}
+
+/// Writes `"id":` and the request's id; returns the exception message if the id cannot be written.
+string? writeId(ref transport.JsonWriter w, for Request r) uses alloc {
+    w.writePropertyName("id")
+    r.msg.write(r.id, to: ref w) catch switch {
+        .invalid(let message) => return message,
+    }
+    return null
+}
+
+/// Sends an error reply; returns the exception message if the id cannot be written.
+string? error(Request r, as i64 code, for string message) uses alloc, console {
+    var w = transport.begin()
+    let failed = writeId(ref w, for: r)
+    return failed if failed is not null
+    w.writeStartObject(for: "error")
+    w.writeNumber(code, for: "code")
+    w.writeString(message, for: "message")
+    w.writeEndObject()
+    transport.send(ref w)
+    return null
+}
+
+/// What .NET does with an unhandled exception: the message on stderr, then exit code 134.
+i32 unhandled(string message) uses alloc, console {
+    Io.stderr.write($"Unhandled exception. {message}\n")
+    return unhandledExit
+}

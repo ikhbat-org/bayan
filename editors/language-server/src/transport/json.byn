@@ -1,0 +1,683 @@
+// The parts of System.Text.Json the C# server uses: `JsonDocument.Parse` (what it accepts and refuses), the `JsonElement` reads and their
+// exception messages, and `Utf8JsonWriter` with `JavaScriptEncoder.UnsafeRelaxedJsonEscaping`. Behaviour checked against the C# server.
+
+/// `JsonValueKind`.
+public enum JsonKind {
+    undefined
+    object
+    array
+    text
+    number
+    trueValue
+    falseValue
+    nullValue
+}
+
+/// The `JsonValueKind` name the .NET messages use.
+string kindName(JsonKind k) {
+    switch k {
+        case .undefined: return "Undefined"
+        case .object: return "Object"
+        case .array: return "Array"
+        case .text: return "String"
+        case .number: return "Number"
+        case .trueValue: return "True"
+        case .falseValue: return "False"
+        case .nullValue: return "Null"
+    }
+}
+
+/// An exception a `JsonElement` read throws, with its .NET message.
+public union error JsonUseError {
+    invalid(string message)
+}
+
+/// Why `JsonDocument.Parse` refused a text (the C# server only logs it).
+public union error JsonSyntaxError {
+    syntax(string message, i64 offset)
+}
+
+/// `JsonReaderOptions.MaxDepth` at its default: 64 open objects and arrays are read, a 65th is refused.
+const maxDepth: i64 = 64
+
+/// One value of a document. A string's `start` and `end` are inside its quotes. An object's children alternate key and value.
+struct JsonNode {
+    JsonKind kind
+    i64      start
+    i64      end     = 0
+    bool     escaped = false
+    i64      first   = -1
+    i64      next    = -1
+}
+
+/// A value in a `JsonDocument`; `index` -1 is the default `JsonElement` (a missing `params`).
+public struct JsonElement {
+    public i64 index = -1
+
+    /// The default element, as a missing `params`.
+    public static JsonElement missing() => JsonElement {}
+}
+
+/// What the parser expects next.
+enum ParseState {
+    value
+    arrayFirst
+    objectFirst
+    key
+    colon
+    afterValue
+}
+
+/// A parsed message: its bytes and the values in them. Strings are not checked for UTF-8 until they are read, as `JsonDocument`.
+public struct JsonDocument {
+    List<u8>       bytes
+    List<JsonNode> nodes
+
+    /// The top-level value.
+    public JsonElement root => JsonElement { index: 0 }
+
+    /// `JsonDocument.Parse` with the default options: RFC 8259, no comments or trailing commas, at most 64 levels, any bytes inside a
+    /// string but control characters.
+    public static JsonDocument parse(move List<u8> bytes) uses alloc fails JsonSyntaxError {
+        var tree = Tree { nodes: List<JsonNode>(), open: List<i64>(), last: List<i64>() }
+        let n = bytes.length
+        var pos = skipSpace(bytes.span, from: 0)
+        fail .syntax(message: "no JSON tokens", offset: pos) if pos >= n
+        var state: ParseState = .value
+        while true {
+            pos = skipSpace(bytes.span, from: pos)
+            switch state {
+                case .value:
+                    fail .syntax(message: "expected a value", offset: pos) if pos >= n
+                    let c = bytes[pos]
+                    if c == '{' || c == '[' {
+                        fail .syntax(message: "deeper than 64 levels", offset: pos) if tree.open.length >= maxDepth
+                        tree.push(JsonNode { kind: c == '{' ? .object : .array, start: pos })
+                        pos += 1
+                        state = c == '{' ? .objectFirst : .arrayFirst
+                    } else if c == '"' {
+                        let end = try scanString(bytes.span, at: pos)
+                        let _ = tree.add(stringNode(bytes.span, from: pos, to: end))
+                        pos = end
+                        state = .afterValue
+                    } else if c == '-' || isDigit(c) {
+                        let end = try scanNumber(bytes.span, at: pos)
+                        let _ = tree.add(JsonNode { kind: .number, start: pos, end: end })
+                        pos = end
+                        state = .afterValue
+                    } else {
+                        let kind = literalAt(bytes.span, at: pos)
+                        fail .syntax(message: "expected a value", offset: pos) if kind is .undefined
+                        let end = pos + (kind is .falseValue ? 5 : 4)
+                        let _ = tree.add(JsonNode { kind: kind, start: pos, end: end })
+                        pos = end
+                        state = .afterValue
+                    }
+                case .arrayFirst:
+                    if pos < n && bytes[pos] == ']' {
+                        pos = tree.close(at: pos)
+                        state = .afterValue
+                    } else {
+                        state = .value
+                    }
+                case .objectFirst:
+                    if pos < n && bytes[pos] == '}' {
+                        pos = tree.close(at: pos)
+                        state = .afterValue
+                    } else {
+                        state = .key
+                    }
+                case .key:
+                    fail .syntax(message: "expected a property name", offset: pos) if pos >= n || bytes[pos] != '"'
+                    let end = try scanString(bytes.span, at: pos)
+                    let _ = tree.add(stringNode(bytes.span, from: pos, to: end))
+                    pos = end
+                    state = .colon
+                case .colon:
+                    fail .syntax(message: "expected `:`", offset: pos) if pos >= n || bytes[pos] != ':'
+                    pos += 1
+                    state = .value
+                case .afterValue:
+                    if tree.open.length == 0 {
+                        fail .syntax(message: "content after the value", offset: pos) if pos < n
+                        return JsonDocument { bytes: move bytes, nodes: tree.nodes.take() }
+                    }
+                    fail .syntax(message: "an open object or array", offset: pos) if pos >= n
+                    let object = tree.nodes[tree.open[tree.open.length - 1]].kind is .object
+                    let c = bytes[pos]
+                    if c == ',' {
+                        pos += 1
+                        state = object ? .key : .value
+                    } else if (c == '}' && object) || (c == ']' && !object) {
+                        pos = tree.close(at: pos)
+                    } else {
+                        fail .syntax(message: "expected `,` or the end of the object or array", offset: pos)
+                    }
+            }
+        }
+    }
+
+    /// `ValueKind`; the default element is `undefined`.
+    public JsonKind kind(JsonElement e) => e.index < 0 ? .undefined : nodes[e.index].kind
+
+    /// `TryGetProperty`: the value of the last member named `name` (as `JsonDocument` matches a repeated name), or null.
+    public JsonElement? find(string name, at JsonElement e) uses alloc fails JsonUseError {
+        try expect(e, as: .object)
+        var found: JsonElement? = null
+        var key = nodes[e.index].first
+        while key >= 0 {
+            let value = nodes[key].next
+            if keyEquals(key, to: name) {
+                found = JsonElement { index: value }
+            }
+            key = nodes[value].next
+        }
+        return found
+    }
+
+    /// `GetProperty`: as `property`, and a missing name throws `KeyNotFoundException`.
+    public JsonElement get(string name, at JsonElement e) uses alloc fails JsonUseError {
+        let found = try find(name, at: e)
+        return found ?? fail .invalid(message: "The given key was not present in the dictionary.")
+    }
+
+    /// `EnumerateArray`.
+    public List<JsonElement> items(JsonElement e) uses alloc fails JsonUseError {
+        try expect(e, as: .array)
+        var items = List<JsonElement>()
+        var at = nodes[e.index].first
+        while at >= 0 {
+            items.append(JsonElement { index: at })
+            at = nodes[at].next
+        }
+        return items
+    }
+
+    /// `GetString`: null for a JSON null; a surrogate escape without its pair or bytes that are not UTF-8 throw.
+    public string? text(JsonElement e) uses alloc fails JsonUseError {
+        try valid(e)
+        return null if nodes[e.index].kind is .nullValue
+        try expect(e, as: .text)
+        let utf8 = try unescaped(e.index)
+        return Utf8.tryDecode(utf8.span) ?? fail .invalid(message: "Cannot transcode invalid UTF-8 JSON text to UTF-16 string.")
+    }
+
+    /// `WriteTo` for a number (its text as read) or a string (unescaped, then written as `Utf8JsonWriter` writes UTF-8 it was given:
+    /// each invalid sequence becomes `�`). Other kinds are not written by the server.
+    public void write(JsonElement e, to ref JsonWriter w) uses alloc fails JsonUseError {
+        try valid(e)
+        let node = nodes[e.index]
+        if node.kind is .number {
+            w.writeRawValue(bytes.span[node.start..node.end])
+        } else {
+            try expect(e, as: .text)
+            let utf8 = try unescaped(e.index)
+            w.writeUtf8Value(utf8.span)
+        }
+    }
+
+    void valid(JsonElement e) fails JsonUseError {
+        fail .invalid(message: "Operation is not valid due to the current state of the object.") if e.index < 0
+    }
+
+    void expect(JsonElement e, as JsonKind kind) fails JsonUseError {
+        try valid(e)
+        let actual = nodes[e.index].kind
+        fail .invalid(
+            message: $"The requested operation requires an element of type '{kindName(kind)}', but the target element has type '{kindName(actual)}'.",
+        ) if actual != kind
+    }
+
+    /// Whether the key at `key` is `name` once unescaped; a key whose escapes do not unescape matches nothing.
+    bool keyEquals(i64 key, to string name) uses alloc {
+        let node = nodes[key]
+        return equalBytes(bytes.span[node.start..node.end], to: name.bytes) if !node.escaped
+        let utf8 = unescaped(key) catch { return false }
+        return equalBytes(utf8.span, to: name.bytes)
+    }
+
+    /// The bytes of the string at `at` with its escapes replaced (`JsonReaderHelper.TryUnescape`): a high surrogate must be followed by
+    /// `\u` and a low one, a low surrogate may not come first.
+    List<u8> unescaped(i64 at) uses alloc fails JsonUseError {
+        let node = nodes[at]
+        var result = List<u8>()
+        var i = node.start
+        while i < node.end {
+            let b = bytes[i]
+            if b != '\\' {
+                result.append(b)
+                i += 1
+                continue
+            }
+            let e = bytes[i + 1]
+            if e == 'u' {
+                var cp = hex4(bytes.span, at: i + 2)
+                i += 6
+                if cp >= 0xD800 && cp <= 0xDFFF {
+                    fail .invalid(message: invalidSurrogate(cp)) if cp >= 0xDC00
+                    let paired = i + 1 < node.end && bytes[i] == '\\' && bytes[i + 1] == 'u'
+                    fail .invalid(message: "Cannot read incomplete UTF-16 JSON text as string with missing low surrogate.") if !paired
+                    let low = hex4(bytes.span, at: i + 2)
+                    fail .invalid(message: invalidSurrogate(low)) if low < 0xDC00 || low > 0xDFFF
+                    cp = 0x10000 + (cp - 0xD800) * 0x400 + (low - 0xDC00)
+                    i += 6
+                }
+                appendUtf8(cp, to: ref result)
+                continue
+            }
+            if e == 'b' {
+                result.append(8)
+            } else if e == 'f' {
+                result.append(12)
+            } else if e == 'n' {
+                result.append(10)
+            } else if e == 'r' {
+                result.append(13)
+            } else if e == 't' {
+                result.append(9)
+            } else {
+                result.append(e)
+            }
+            i += 2
+        }
+        return result
+    }
+}
+
+/// `ThrowInvalidOperationException_ReadInvalidUTF16`: the value as `0x{value:X2}`.
+string invalidSurrogate(u32 value) =>
+    $"Cannot read invalid UTF-16 JSON text as string. Invalid surrogate value: '0x{upperHex(value, width: 2)}'."
+
+/// `value` in uppercase hex, padded with zeros to at least `width` digits.
+string upperHex(u32 value, i64 width = 0) uses alloc {
+    var text = string(value, as: .hex).uppercased()
+    while text.length < width {
+        text = $"0{text}"
+    }
+    return text
+}
+
+/// The values read so far, and the containers still open with the last child of each.
+struct Tree {
+    List<JsonNode> nodes
+    List<i64>      open
+    List<i64>      last
+
+    /// Appends `node` as the next child of the innermost open container, and returns its index.
+    i64 add(ref this, JsonNode node) uses alloc {
+        let at = nodes.length
+        nodes.append(node)
+        if open.length > 0 {
+            let top = open.length - 1
+            if last[top] < 0 {
+                nodes[open[top]].first = at
+            } else {
+                nodes[last[top]].next = at
+            }
+            last[top] = at
+        }
+        return at
+    }
+
+    /// Appends the container `node` and opens it.
+    void push(ref this, JsonNode node) uses alloc {
+        open.append(add(node))
+        last.append(-1)
+    }
+
+    /// Ends the innermost open container at the bracket at `at`; returns the position after it.
+    i64 close(ref this, at i64 at) {
+        nodes[open[open.length - 1]].end = at + 1
+        let _ = open.removeLast()
+        let _ = last.removeLast()
+        return at + 1
+    }
+}
+
+/// The first position from `from` that is not JSON whitespace (space, tab, line feed, carriage return).
+i64 skipSpace(ReadOnlySpan<u8> bytes, from i64 from) {
+    var pos = from
+    while pos < bytes.length && (bytes[pos] == ' ' || bytes[pos] == '\t' || bytes[pos] == '\n' || bytes[pos] == '\r') {
+        pos += 1
+    }
+    return pos
+}
+
+bool isDigit(u8 b) => b >= '0' && b <= '9'
+
+bool isHex(u8 b) => isDigit(b) || (b >= 'a' && b <= 'f') || (b >= 'A' && b <= 'F')
+
+/// The four hex digits at `at` (already checked by the parser).
+u32 hex4(ReadOnlySpan<u8> bytes, at i64 at) {
+    var value: u32 = 0
+    for i in at..at + 4 {
+        let b = bytes[i]
+        let d: u32 = isDigit(b) ? u32(b - '0') : (b >= 'a' ? u32(b - 'a') + 10 : u32(b - 'A') + 10)
+        value = value * 16 + d
+    }
+    return value
+}
+
+/// The string node for the quotes at `from` and `to` - 1.
+JsonNode stringNode(ReadOnlySpan<u8> bytes, from i64 from, to i64 to) {
+    var escaped = false
+    for i in from + 1..to - 1 {
+        if bytes[i] == '\\' {
+            escaped = true
+        }
+    }
+    return JsonNode { kind: .text, start: from + 1, end: to - 1, escaped: escaped }
+}
+
+/// The position after the closing quote of the string whose opening quote is at `at`.
+i64 scanString(ReadOnlySpan<u8> bytes, at i64 at) fails JsonSyntaxError {
+    var pos = at + 1
+    while true {
+        fail .syntax(message: "unterminated string", offset: at) if pos >= bytes.length
+        let b = bytes[pos]
+        return pos + 1 if b == '"'
+        fail .syntax(message: "control character in a string", offset: pos) if b < 0x20
+        if b == '\\' {
+            fail .syntax(message: "unterminated string", offset: at) if pos + 1 >= bytes.length
+            let e = bytes[pos + 1]
+            if e == 'u' {
+                for i in pos + 2..pos + 6 {
+                    fail .syntax(message: "invalid \\u escape", offset: pos) if i >= bytes.length || !isHex(bytes[i])
+                }
+                pos += 6
+                continue
+            }
+            let simple = e == '"' || e == '\\' || e == '/' || e == 'b' || e == 'f' || e == 'n' || e == 'r' || e == 't'
+            fail .syntax(message: "invalid escape", offset: pos) if !simple
+            pos += 2
+            continue
+        }
+        pos += 1
+    }
+}
+
+/// The end of the number at `at`: `-`? (`0` | [1-9] digits) (`.` digits)? ([eE] [+-]? digits)?.
+i64 scanNumber(ReadOnlySpan<u8> bytes, at i64 at) fails JsonSyntaxError {
+    let n = bytes.length
+    var pos = at
+    if bytes[pos] == '-' {
+        pos += 1
+    }
+    fail .syntax(message: "invalid number", offset: at) if pos >= n || !isDigit(bytes[pos])
+    if bytes[pos] == '0' {
+        pos += 1
+        fail .syntax(message: "leading zero", offset: at) if pos < n && isDigit(bytes[pos])
+    } else {
+        while pos < n && isDigit(bytes[pos]) {
+            pos += 1
+        }
+    }
+    if pos < n && bytes[pos] == '.' {
+        pos += 1
+        fail .syntax(message: "invalid number", offset: at) if pos >= n || !isDigit(bytes[pos])
+        while pos < n && isDigit(bytes[pos]) {
+            pos += 1
+        }
+    }
+    if pos < n && (bytes[pos] == 'e' || bytes[pos] == 'E') {
+        pos += 1
+        if pos < n && (bytes[pos] == '+' || bytes[pos] == '-') {
+            pos += 1
+        }
+        fail .syntax(message: "invalid number", offset: at) if pos >= n || !isDigit(bytes[pos])
+        while pos < n && isDigit(bytes[pos]) {
+            pos += 1
+        }
+    }
+    return pos
+}
+
+/// The literal (`true`, `false`, `null`) at `at`, or `undefined`.
+JsonKind literalAt(ReadOnlySpan<u8> bytes, at i64 at) {
+    let rest = bytes[at..]
+    return .trueValue if startsWith(rest, for: "true")
+    return .falseValue if startsWith(rest, for: "false")
+    return .nullValue if startsWith(rest, for: "null")
+    return .undefined
+}
+
+bool startsWith(ReadOnlySpan<u8> bytes, for string word) => bytes.length >= word.length && equalBytes(bytes[0..word.length], to: word.bytes)
+
+bool equalBytes(ReadOnlySpan<u8> a, to ReadOnlySpan<u8> b) {
+    return false if a.length != b.length
+    for i in 0..a.length {
+        return false if a[i] != b[i]
+    }
+    return true
+}
+
+/// Appends the UTF-8 encoding of `cp`.
+void appendUtf8(u32 cp, to ref List<u8> result) uses alloc {
+    if cp < 0x80 {
+        result.append(u8(cp))
+    } else if cp < 0x800 {
+        result.append(u8(0xC0 | (cp >> 6)))
+        result.append(u8(0x80 | (cp & 0x3F)))
+    } else if cp < 0x10000 {
+        result.append(u8(0xE0 | (cp >> 12)))
+        result.append(u8(0x80 | ((cp >> 6) & 0x3F)))
+        result.append(u8(0x80 | (cp & 0x3F)))
+    } else {
+        result.append(u8(0xF0 | (cp >> 18)))
+        result.append(u8(0x80 | ((cp >> 12) & 0x3F)))
+        result.append(u8(0x80 | ((cp >> 6) & 0x3F)))
+        result.append(u8(0x80 | (cp & 0x3F)))
+    }
+}
+
+/// One UTF-8 decoding step at `pos`: the scalar and its length, or (`valid` false) the length of the invalid maximal subpart, as .NET
+/// replaces it with U+FFFD.
+struct Decoded {
+    u32  value
+    i64  length
+    bool valid
+}
+
+bool continuationAt(ReadOnlySpan<u8> bytes, at i64 pos, from u8 lo, through u8 hi) =>
+    pos < bytes.length && bytes[pos] >= lo && bytes[pos] <= hi
+
+Decoded decodeAt(ReadOnlySpan<u8> bytes, at i64 pos) {
+    let b0 = bytes[pos]
+    return Decoded { value: b0, length: 1, valid: true } if b0 < 0x80
+    if b0 >= 0xC2 && b0 <= 0xDF {
+        return Decoded { value: 0xFFFD, length: 1, valid: false } unless continuationAt(bytes, at: pos + 1, from: 0x80, through: 0xBF)
+        return Decoded { value: (u32(b0 & 0x1F) << 6) | u32(bytes[pos + 1] & 0x3F), length: 2, valid: true }
+    }
+    if b0 >= 0xE0 && b0 <= 0xEF {
+        let lo: u8 = b0 == 0xE0 ? 0xA0 : 0x80
+        let hi: u8 = b0 == 0xED ? 0x9F : 0xBF
+        return Decoded { value: 0xFFFD, length: 1, valid: false } unless continuationAt(bytes, at: pos + 1, from: lo, through: hi)
+        return Decoded { value: 0xFFFD, length: 2, valid: false } unless continuationAt(bytes, at: pos + 2, from: 0x80, through: 0xBF)
+        let value = (u32(b0 & 0x0F) << 12) | (u32(bytes[pos + 1] & 0x3F) << 6) | u32(bytes[pos + 2] & 0x3F)
+        return Decoded { value: value, length: 3, valid: true }
+    }
+    if b0 >= 0xF0 && b0 <= 0xF4 {
+        let lo: u8 = b0 == 0xF0 ? 0x90 : 0x80
+        let hi: u8 = b0 == 0xF4 ? 0x8F : 0xBF
+        return Decoded { value: 0xFFFD, length: 1, valid: false } unless continuationAt(bytes, at: pos + 1, from: lo, through: hi)
+        return Decoded { value: 0xFFFD, length: 2, valid: false } unless continuationAt(bytes, at: pos + 2, from: 0x80, through: 0xBF)
+        return Decoded { value: 0xFFFD, length: 3, valid: false } unless continuationAt(bytes, at: pos + 3, from: 0x80, through: 0xBF)
+        let value = (u32(b0 & 0x07) << 18) | (u32(bytes[pos + 1] & 0x3F) << 12) | (u32(bytes[pos + 2] & 0x3F) << 6) |
+            u32(bytes[pos + 3] & 0x3F)
+        return Decoded { value: value, length: 4, valid: true }
+    }
+    return Decoded { value: 0xFFFD, length: 1, valid: false }
+}
+
+bool inRanges(ReadOnlySpan<u32> ranges, for u32 cp) {
+    var lo: i64 = 0
+    var hi = ranges.length / 2
+    while lo < hi {
+        let mid = lo + (hi - lo) / 2
+        if ranges[mid * 2 + 1] < cp {
+            lo = mid + 1
+        } else {
+            hi = mid
+        }
+    }
+    return lo < ranges.length / 2 && ranges[lo * 2] <= cp
+}
+
+/// Whether the writer escapes `cp`: the relaxed encoder's table below U+10000, everything above.
+bool escapes(u32 cp) => cp >= 0x10000 || inRanges(escapedRanges, for: cp)
+
+/// Appends `bytes`.
+void appendBytes(ReadOnlySpan<u8> bytes, to ref List<u8> sb) uses alloc {
+    for b in bytes {
+        sb.append(b)
+    }
+}
+
+/// Appends the UTF-8 of `text`.
+void appendText(string text, to ref List<u8> sb) uses alloc {
+    appendBytes(text.bytes, to: ref sb)
+}
+
+/// Appends `\uXXXX` (uppercase, as `Utf8JsonWriter`).
+void appendEscape(u32 unit, to ref List<u8> sb) {
+    appendText("\\u", to: ref sb)
+    appendText(upperHex(unit, width: 4), to: ref sb)
+}
+
+/// Appends the escaped form of `cp`, which `escapes`.
+void appendEscaped(u32 cp, to ref List<u8> sb) {
+    if cp == 0x22 {
+        appendText("\\\"", to: ref sb)
+    } else if cp == 0x5C {
+        appendText("\\\\", to: ref sb)
+    } else if cp == 8 {
+        appendText("\\b", to: ref sb)
+    } else if cp == 12 {
+        appendText("\\f", to: ref sb)
+    } else if cp == 10 {
+        appendText("\\n", to: ref sb)
+    } else if cp == 13 {
+        appendText("\\r", to: ref sb)
+    } else if cp == 9 {
+        appendText("\\t", to: ref sb)
+    } else if cp >= 0x10000 {
+        appendEscape(0xD800 + ((cp - 0x10000) >> 10), to: ref sb)
+        appendEscape(0xDC00 + ((cp - 0x10000) & 0x3FF), to: ref sb)
+    } else {
+        appendEscape(cp, to: ref sb)
+    }
+}
+
+/// Appends `bytes` as the inside of a JSON string; an invalid UTF-8 sequence is written `�`.
+void appendQuoted(ReadOnlySpan<u8> bytes, to ref List<u8> sb) uses alloc {
+    appendText("\"", to: ref sb)
+    var run: i64 = 0
+    var pos: i64 = 0
+    while pos < bytes.length {
+        let d = decodeAt(bytes, at: pos)
+        if d.valid && !escapes(d.value) {
+            pos += d.length
+            continue
+        }
+        appendBytes(bytes[run..pos], to: ref sb)
+        if d.valid {
+            appendEscaped(d.value, to: ref sb)
+        } else {
+            appendEscape(0xFFFD, to: ref sb)
+        }
+        pos += d.length
+        run = pos
+    }
+    appendBytes(bytes[run..pos], to: ref sb)
+    appendText("\"", to: ref sb)
+}
+
+/// The subset of `Utf8JsonWriter` the server writes with: compact output, `,` between values.
+public struct JsonWriter {
+    List<u8> buffer
+    bool   comma = false
+
+    public static JsonWriter create() uses alloc => JsonWriter { buffer: List<u8>() }
+
+    /// The text written so far.
+    public string? text => Utf8.tryDecode(buffer.span)
+
+    void separate(ref this) uses alloc {
+        if comma {
+            appendText(",", to: ref buffer)
+        }
+        comma = true
+    }
+
+    public void writePropertyName(ref this, string name) uses alloc {
+        separate()
+        appendQuoted(name.bytes, to: ref buffer)
+        appendText(":", to: ref buffer)
+        comma = false
+    }
+
+    public void writeStartObject(ref this) uses alloc {
+        separate()
+        appendText("{", to: ref buffer)
+        comma = false
+    }
+
+    public void writeStartObject(ref this, for string name) uses alloc {
+        writePropertyName(name)
+        writeStartObject()
+    }
+
+    public void writeEndObject(ref this) uses alloc {
+        appendText("}", to: ref buffer)
+        comma = true
+    }
+
+    public void writeStartArray(ref this, for string name) uses alloc {
+        writePropertyName(name)
+        separate()
+        appendText("[", to: ref buffer)
+        comma = false
+    }
+
+    public void writeEndArray(ref this) uses alloc {
+        appendText("]", to: ref buffer)
+        comma = true
+    }
+
+    public void writeStringValue(ref this, string value) uses alloc {
+        separate()
+        appendQuoted(value.bytes, to: ref buffer)
+    }
+
+    /// A string given as UTF-8 that may be invalid.
+    public void writeUtf8Value(ref this, ReadOnlySpan<u8> value) uses alloc {
+        separate()
+        appendQuoted(value, to: ref buffer)
+    }
+
+    /// A number or literal written as it is.
+    public void writeRawValue(ref this, ReadOnlySpan<u8> text) uses alloc {
+        separate()
+        appendBytes(text, to: ref buffer)
+    }
+
+    public void writeString(ref this, string value, for string name) uses alloc {
+        writePropertyName(name)
+        writeStringValue(value)
+    }
+
+    public void writeNumber(ref this, i64 value, for string name) uses alloc {
+        writePropertyName(name)
+        writeRawValue($"{value}".bytes)
+    }
+
+    public void writeBoolean(ref this, bool value, for string name) uses alloc {
+        writePropertyName(name)
+        writeRawValue((value ? "true" : "false").bytes)
+    }
+
+    public void writeNull(ref this, for string name) uses alloc {
+        writePropertyName(name)
+        writeRawValue("null".bytes)
+    }
+}
