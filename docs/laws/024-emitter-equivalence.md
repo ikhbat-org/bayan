@@ -22,7 +22,7 @@ fixed seeds, each in every `BuildMode`.
 
 ## Proposed statement (019 T31, owner-approved template 2026-11-18)
 
-For every emit case in the freeze manifest, `bayan-emit` prints the frozen expected C in each build mode the case freezes, byte for byte. The frozen files are the C# compiler's output at the freeze (L043).
+For every emit case in the freeze manifest, `bayan-emit` prints C whose SHA-256 equals the frozen hash in `tests/cases/emit/run-c.sha256`, in the mode the input's `// mode:` line names. The frozen files are the C# compiler's output at the freeze (L043).
 
 ## Counterexample looks like
 
