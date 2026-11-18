@@ -6,8 +6,17 @@ set -uo pipefail
 cd "$(dirname "$0")/../.."
 sb=scripts/evals/llm-sandbox.sh
 root=$PWD/tmp/llm-sandbox-test
-rm -rf "$root"; mkdir -p "$root/tasks" "$root/w" "$root/other"
-trap 'rm -rf "$root"; [ -z "${srv:-}" ] || kill "$srv" 2>/dev/null' EXIT
+rm -rf "$root"; mkdir -p "$root/tasks" "$root/w/pids" "$root/other"
+# At exit, every process the test started that is still alive is killed: the server, the launcher of the TERM case, the
+# lingerer of the exit-3 case, and each process whose pid a sweep case wrote under $root/w/pids.
+cleanup() {
+  local p
+  for p in ${srv:-} ${lp:-} ${ling:-} $(cat "$root"/w/pids/* 2> /dev/null); do
+    kill -0 "$p" 2> /dev/null && kill -KILL "$p" 2> /dev/null
+  done
+  rm -rf "$root"
+}
+trap cleanup EXIT
 
 pass=0 fail=0
 ok() { pass=$((pass + 1)); echo "ok   $1"; }
@@ -72,6 +81,9 @@ if $mac; then
   printf 'visible\n' > "$root/other/f"
   run --deny-read "$root/tasks" -- cat "$root/other/f"
   check "read of a sibling outside --write denied" "$([ "$(field exit)" != 0 ] && [ ! -s "$root/out" ] && echo denied)" "denied"
+  run -- git -C "$PWD" show HEAD:scripts/evals/llm-sandbox.sh 2> /dev/null
+  check "git show of the repo's history refused" "$([ "$(field exit)" != 0 ] && [ ! -s "$root/out" ] && echo denied)" "denied"
+  # git may fail on its own libraries first, so the read rule is also tested with cat on the repository's git directory.
   run -- cat "$(git rev-parse --path-format=absolute --git-common-dir)/HEAD"
   check "read of the repo's history denied" "$([ "$(field exit)" != 0 ] && [ ! -s "$root/out" ] && echo denied)" "denied"
 
@@ -89,7 +101,9 @@ if $mac; then
   check "signal to itself allowed" "$(field exit)" "0"
 
   # Exec: only the program, env, zig and what is under --write, TMPDIR or BAYAN_CACHE.
-  # /usr is readable, so only the exec rule stops it.
+  run -- env /bin/cat /etc/hosts 2> /dev/null
+  check "env /bin/cat /etc/hosts refused" "$([ "$(field exit)" != 0 ] && [ ! -s "$root/out" ] && echo denied)" "denied"
+  # /etc is not readable either, so the exec rule alone is tested with a program under /usr, which is.
   run -- env /usr/bin/printf x
   check "exec outside the list denied" "$([ "$(field exit)" != 0 ] && [ ! -s "$root/out" ] && echo denied)" "denied"
 
@@ -118,21 +132,22 @@ else
   echo "skip sandbox cases: no sandbox-exec"
 fi
 
-# --sweep. The test sends no signal but `kill -0`: a process left behind ends by itself, the fifo reader when the test's
-# descriptor closes at exit, the lingerer after 20 seconds.
+# --sweep. Each process a case leaves behind writes its pid under $root/w/pids, which the EXIT trap kills, and ends by itself
+# within 30 seconds: the fifo is opened read-write, so the open never blocks, and the read gives up after 30 seconds.
 mkfifo "$root/w/fifo"
-exec 3<> "$root/w/fifo"
-run --sweep "$root/w" -- "$shell" -c "( read x < '$root/w/fifo' ) > /dev/null 2>&1 & : marker-$$-a"
+run --sweep "$root/w" -- "$shell" -c "( read -t 30 x <> '$root/w/fifo' ) > /dev/null 2>&1 & echo \$! > '$root/w/pids/a'; : marker-$$-a"
 check "--sweep: a child in the program's group is reaped" "$(ps -axo command= | grep -c "[m]arker-$$-a")" "0"
 
 if command -v zig > /dev/null 2>&1; then
-  # lingerer <secs> [fork]: with "fork", double-forks into a new session and sleeps there; the parent exits at once.
+  # lingerer <secs> [fork <pidfile>]: with "fork", double-forks into a new session, writes the last child's pid to <pidfile>
+  # and sleeps there; the parent exits at once.
   cat > "$root/lingerer.c" <<'EOF'
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 int main(int argc, char** argv) {
     int secs = argc > 1 ? atoi(argv[1]) : 5;
-    if (argc > 2) {
+    if (argc > 3) {
         pid_t a = fork();
         if (a < 0) return 3;
         if (a > 0) return 0;
@@ -140,6 +155,8 @@ int main(int argc, char** argv) {
         pid_t b = fork();
         if (b < 0) return 3;
         if (b > 0) return 0;
+        FILE* f = fopen(argv[3], "w");
+        if (f) { fprintf(f, "%d\n", (int)getpid()); fclose(f); }
     }
     sleep(secs);
     return 0;
@@ -147,28 +164,20 @@ int main(int argc, char** argv) {
 EOF
   zig cc -o "$root/w/lingerer" "$root/lingerer.c" 2> "$root/zig.err" || { cat "$root/zig.err"; bad "zig cc lingerer.c"; }
   lingering() { ps -axo command= | grep -c "^$root/w/[l]ingerer"; }
-  run --sweep "$root/w" -- "$shell" -c "'$root/w/lingerer' 20 fork > /dev/null 2>&1"
+  run --sweep "$root/w" -- "$shell" -c "'$root/w/lingerer' 20 fork '$root/w/pids/b' > /dev/null 2>&1"
   check "--sweep: a child that left the group and the session is reaped" "$(field exit) $(lingering)" "0 0"
 
-  # TERM, as the scorer's time limit sends it: Io.run's timeout signals the launcher, whose trap sweeps. The scorer's own
-  # tests cannot see this, since each later launch on the same sample sweeps it too.
-  if pinned=$(bash scripts/pinned-bayan.sh 2> /dev/null); then
-    cat > "$root/term.byn" <<'EOF'
-#!/usr/bin/env bayan
-i32 main(ReadOnlySpan<string> argv) {
-    var a = List<string>()
-    for x in [argv[0], "--write", argv[1], "--sweep", argv[1], "--stdout", argv[2], "--status", argv[3], "--", argv[4], "20"] {
-        a.append(x)
-    }
-    let _ = Io.run("bash", a.span, timeout: Millis(1000)) catch return 9
-    return 0
-}
-EOF
-    "$pinned" run "$root/term.byn" -- "$PWD/$sb" "$root/w" "$root/out" "$root/status" "$root/w/lingerer" > /dev/null 2>&1
-    check "--sweep: TERM from a time limit reaps the program" "$? $(lingering)" "9 0"
-  else
-    echo "skip TERM case: no pinned bayan"
-  fi
+  # TERM to the launcher while the program runs: a lingerer that left the group and the session, and the program, a shell
+  # waiting on the fifo. The launcher sweeps both and exits 143.
+  rm -f "$root/out" "$root/status"
+  "$bash" "$sb" --write "$root/w" --sweep "$root/w" --stdout "$root/out" --status "$root/status" -- \
+    "$shell" -c "'$root/w/lingerer' 20 fork '$root/w/pids/c' > /dev/null 2>&1; read -t 30 x <> '$root/w/fifo'; : marker-$$-t" &
+  lp=$!
+  for _ in $(seq 1 100); do [ -s "$root/w/pids/c" ] && break; sleep 0.1; done
+  kill -TERM "$lp"
+  wait "$lp"; code=$?; lp=""
+  check "--sweep: TERM to the launcher leaves no process and exits 143" \
+    "$code $(lingering) $(ps -axo command= | grep -c "[m]arker-$$-t")" "143 0 0"
 
   if $mac; then
     # A scan that always finds a process: the launcher says so and exits 3. The process it names is a lingerer under the
@@ -179,7 +188,7 @@ EOF
     chmod +x "$root/stub/lsof"
     PATH="$root/stub:$PATH" run --sweep "$root/w" -- true 2> /dev/null
     check "--sweep: a process left after the sweep gives exit 3" "$? $([ -e "$root/status" ] && echo status || echo none)" "3 none"
-    wait "$ling" 2> /dev/null
+    wait "$ling" 2> /dev/null; ling=""
   fi
 else
   echo "skip lingerer cases: zig missing"
