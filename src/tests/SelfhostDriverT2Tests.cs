@@ -208,7 +208,7 @@ public sealed class SelfhostDriverT2Tests
         }
         finally { SelfhostExport.Override.Value = old; }
         var dir = Path.Combine(root, "cli", nameof(SelfhostDriverT2Tests), nameof(LexAsCliApp));
-        Assert.Equal($"lex\n{Case("lex/bad-chars.byn")}\n", File.ReadAllText(Path.Combine(dir, "args")));
+        Assert.Equal("lex\n<repo>/tests/cases/lex/bad-chars.byn\n", File.ReadAllText(Path.Combine(dir, "args")));
         Assert.Equal($"{expected.Exit}\n", File.ReadAllText(Path.Combine(dir, "expected.exitcode")));
         Assert.Equal(Mask(expected.Out), File.ReadAllText(Path.Combine(dir, "expected.stdout")));
         Assert.Equal(Mask(expected.Err), File.ReadAllText(Path.Combine(dir, "expected.stderr")));

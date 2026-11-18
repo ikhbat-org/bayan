@@ -125,9 +125,10 @@ public static class SelfhostExport
     internal static void WriteExpected(string dir, string fileName, string text) =>
         File.WriteAllText(Path.Combine(dir, fileName), text.Replace("\r\n", "\n"), new System.Text.UTF8Encoding(false));
 
-    /// <summary>The text of an <c>args</c> file: one argument per line, inside one <c>\</c> written <c>\\</c>, LF <c>\n</c> and CR <c>\r</c>.</summary>
+    /// <summary>The text of an <c>args</c> file: one argument per line, the repo root written <c>&lt;repo&gt;</c> (<see cref="Repo"/>), and
+    /// inside one <c>\</c> written <c>\\</c>, LF <c>\n</c> and CR <c>\r</c>.</summary>
     internal static string Args(IEnumerable<string> args) =>
-        string.Concat(args.Select(a => a.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\r", "\\r") + "\n"));
+        string.Concat(args.Select(a => Repo(a).Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\r", "\\r") + "\n"));
 
     /// <summary>An argument as <c>args</c> keeps it: the C# text with the repo root written <c>&lt;repo&gt;</c>.</summary>
     internal static string Repo(string arg) => arg.Replace(Golden.RepoRoot, "<repo>");
@@ -196,7 +197,7 @@ public sealed class SelfhostExportTests
             Assert.True(SelfhostExport.Cli(["--version"], 0, "v\n", "", extra: new Dictionary<string, string> { ["stdin"] = "x\n" }, cls: nameof(SelfhostExportTests)));
         });
         var dir = Path.Combine(root, "cli", nameof(SelfhostExportTests), nameof(CliWritesTheCaseAndARepeatGetsARow));
-        Assert.Equal($"lex\n{input}\n", File.ReadAllText(Path.Combine(dir, "args")));
+        Assert.Equal("lex\n<repo>/tmp/export-test-cli-input/main.byn\n", File.ReadAllText(Path.Combine(dir, "args")));
         Assert.Equal($"{exit}\n", File.ReadAllText(Path.Combine(dir, "expected.exitcode")));
         Assert.Equal(stdout.ToString(), File.ReadAllText(Path.Combine(dir, "expected.stdout")));
         Assert.Equal(stderr.ToString(), File.ReadAllText(Path.Combine(dir, "expected.stderr")));
@@ -227,7 +228,7 @@ public sealed class SelfhostExportTests
             SelfhostEmitterHarness.AssertSection(SelfhostEmitterHarness.Recorded(new() { ["s"] = ["l"] }, "s", Path.Combine(work, "a.byn"), args[5]), "s", ["l"]);
         });
         var dir = Path.Combine(root, "cli", nameof(SelfhostExportTests), nameof(ArgsEscapePathsKeepTheirTextAndAFixtureKeepsItsName));
-        Assert.Equal($"lex\na\\nb\nc\\rd\ne\\\\f\ng\\r\\nh\n{Golden.RepoRoot}/tmp/../x//y\n./missing/../q\n", File.ReadAllText(Path.Combine(dir, "args")));
+        Assert.Equal("lex\na\\nb\nc\\rd\ne\\\\f\ng\\r\\nh\n<repo>/tmp/../x//y\n./missing/../q\n", File.ReadAllText(Path.Combine(dir, "args")));
         Assert.Equal("print(\"hi\")\n", File.ReadAllText(Path.Combine(dir, "input.byn")));
         Assert.Equal("a.byn\n", File.ReadAllText(Path.Combine(dir, "input.name")));
         Assert.False(File.Exists(Path.Combine(dir + "-2", "input.name")));
