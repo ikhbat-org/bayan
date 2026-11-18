@@ -269,6 +269,8 @@ check "summary: per revision hand counts" "$(holds "\"0023\":$(blk 3 1 2 2 2 2)"
 commit=$(git rev-parse HEAD)
 compiler=$("$(bash scripts/pinned-bayan.sh)" --version)
 ccommit=$(echo "$compiler" | sed -n 's/.*(commit \([0-9a-f]*\)).*/\1/p')
+# A self-hosted compiler names no commit; the tool then takes the commit the pin's ref resolves to.
+ccommit=${ccommit:-$(git rev-parse -q --verify "${PINNED_BAYAN_REF:-dev}^{commit}")}
 check "summary: names commits, revisions, context, k, settings, limits, sandbox, machine" \
   "$(holds "\"taskSetCommit\":\"$commit\"") $(holds "\"compiler\":\"$(echo "$compiler" | tr -d ' ')\"") $(holds "\"compilerCommit\":\"$ccommit\"") $(holds '"revisions":["0023","0024"]') $(holds "\"context\":\"$(echo "$root/context.md" | tr -d ' ')\"") $(holds '"k":3,') $(holds '"settings":"temperature0.2"') $(holds '"limits":{"buildSeconds":120,"runSeconds":10,"outputBytes":1048576}') $(holds "\"sandbox\":\"$sandbox\"") $(holds '"machine":"Mactest,M1,64GB,macOS,stub,none"') $(holds '"split":"dev"')" \
   "holds holds holds holds holds holds holds holds holds holds holds"
