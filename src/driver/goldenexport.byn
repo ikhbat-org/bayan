@@ -416,7 +416,8 @@ string goldenCliTimes(string text, from string lead, by string repl, bool two = 
     return sb.finish()
 }
 
-/// SelfhostDriverTests.cs:31 `Mask` on one line: `^(bayan \S+) \(.*\)$` as `$1 (masked)`.
+/// SelfhostDriverTests.cs:31 `Mask` on one line: `^(bayan \S+) \(.*\)$` as `$1 (masked)`, the version then as `<version>`, as the
+/// land-time mask of land-export.sh wrote the expected side (T19: the tree's version moves on from the export's).
 string goldenCliVersionLine(string line) uses alloc {
     return line unless line.startsWith("bayan ")
     let b = line.bytes
@@ -425,7 +426,7 @@ string goldenCliVersionLine(string line) uses alloc {
         k += 1
     }
     return line if k == 6 || k + 2 >= line.length || b[k] != 0x20 || b[k + 1] != 0x28 || b[line.length - 1] != 0x29
-    return $"{line[0..k]} (masked)"
+    return "bayan <version> (masked)"
 }
 
 /// SelfhostDriverTests.cs:31 `Mask`: the version line's build detail masked.
@@ -882,6 +883,30 @@ string goldenCliWord(string dir) uses alloc, fs {
     return lines.length == 0 ? "" : lines[0]
 }
 
+/// SelfhostDriverT5Tests.cs:573-577 and :647-651: the stub tool the C# wrote, mode 700, in the `PATH` directory `bin` before the run, which
+/// the export names in `env` but does not record: under `scratch`/tmp/t5/pdb-bin a zig that writes `exe` to its `-o` and `pdb` beside it,
+/// under `scratch`/tmp/t5/rejecting-bin a cc that rejects the C. Empty when `bin` is neither or the stub is written, else the failure.
+string goldenCliT5Stub(string bin, at string scratch) uses alloc, fs, process {
+    var name = ""
+    var text = ""
+    if bin == Path.combine(scratch, "tmp/t5/pdb-bin") {
+        name = "zig"
+        text = "#!/bin/sh\nout=\nwhile [ $# -gt 0 ]; do\n  if [ \"$1\" = -o ]; then out=$2; fi\n  shift\ndone\nprintf 'exe\\n' > \"$out\" || exit 1\nprintf 'pdb\\n' > \"${out%.exe}.pdb\"\n"
+    } else if bin == Path.combine(scratch, "tmp/t5/rejecting-bin") {
+        name = "cc"
+        text = "#!/bin/sh\necho \"main.c:2:5: error: injected\" >&2\nexit 1\n"
+    }
+    return "" if name == ""
+    let path = Path.combine(bin, name)
+    Io.createDirectory(bin) catch return $"cannot create {bin}"
+    Io.writeFile(path, text.bytes) catch return $"cannot write {path}"
+    var args = List<string>()
+    args.append("700")
+    args.append(path)
+    let _ = Io.run("chmod", args.span) catch return "cannot run chmod 700"
+    return ""
+}
+
 /// The `cli` case whose `args` is `input` through the driver `exe` (spec 019 T17b): null when it passes, else the failures, each naming its
 /// expected file and first differing line. The word's comparison is the one its C# call site makes, named on each branch.
 string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clock, env, fs, process {
@@ -929,10 +954,48 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
             }
         }
     }
+    if cls == "SelfhostDriverT5Tests" {
+        failure = goldenCliT5Stub(bin, at: scratch)
+        return $"{dir}\n{failure}" if failure != ""
+    }
     let cwdLines = goldenCliLines(Path.combine(dir, "cwd"))
     if cwdLines.length > 0 {
         let named = goldenCliPut(cwdLines[0], for: scratch)
         cwd = named.startsWith("/") ? named : Path.combine(scratch, named)
+    }
+    if word == "stdout-exact-stderr-masked" && args.length > 0 {
+        // SelfhostDriverT5Tests.cs:125-134 `Isolated`: the run input copied to `<repo>`/tmp/t5/emit/run_<its name without extension>/
+        // and built there
+        let file = args[args.length - 1]
+        let from = Path.combine(cwd, file)
+        cwd = Path.combine(scratch, $"tmp/t5/emit/run_{goldenStem(file)}")
+        Io.createDirectory(cwd) catch return $"{dir}\ncannot create {cwd}"
+        let bytes = Io.readFile(from) catch return $"{dir}\ncannot read {from}"
+        Io.writeFile(Path.combine(cwd, file), bytes.span) catch return $"{dir}\ncannot write {Path.combine(cwd, file)}"
+    }
+    if cls == "SelfhostDriverT5Tests" && Path.fileName(dir).startsWith("RunAsCliAppOnEveryRunInput") {
+        // SelfhostDriverT5Tests.cs:139-145 `Empty`: the run in a fresh empty `<repo>`/tmp/t5/cwd/<the input's name without extension>/
+        for a in args {
+            if a.endsWith(".byn") {
+                cwd = Path.combine(scratch, $"tmp/t5/cwd/{goldenStem(Path.fileName(a))}")
+                break
+            }
+        }
+    }
+    if cls == "SelfhostDriverT5Tests" && Path.fileName(dir).startsWith("OutputNamesAsCliApp") {
+        // SelfhostDriverT5Tests.cs:265-277, :194-212 `SameIn`: the run in `<repo>`/tmp/t5/cs/<the call's name>/ holding arithmetic.byn
+        let names = ["default", "dot", "named", "verbose", "json", "debug", "run-package", "run", "run-dir", "safe"]
+        for i in 0..names.length {
+            continue if Path.fileName(dir) != (i == 0 ? "OutputNamesAsCliApp" : $"OutputNamesAsCliApp-{i + 1}")
+            let from = Path.combine(cwd, "arithmetic.byn")
+            cwd = Path.combine(scratch, $"tmp/t5/cs/{names[i]}")
+            Io.createDirectory(cwd) catch return $"{dir}\ncannot create {cwd}"
+            let bytes = Io.readFile(from) catch return $"{dir}\ncannot read {from}"
+            Io.writeFile(
+                Path.combine(cwd, "arithmetic.byn"),
+                bytes.span,
+            ) catch return $"{dir}\ncannot write {cwd}/arithmetic.byn"
+        }
     }
     if word == "pass-count" {
         // SelfhostDefaultJsonCountTests.cs:24: in the repo root, `BAYAN_CC` unset
@@ -1302,7 +1365,7 @@ version-seconds-masked
 0
 === expected.stderr
 === expected.stdout
-bayan 0.3.2 (masked)
+bayan <version> (masked)
 """
 
 const goldenCliSpecSeconds: string = """
@@ -1813,23 +1876,19 @@ test "`version-masked` masks the version line (SelfhostDriverTests.cs:142-149), 
 }
 
 test "`version-seconds-masked` masks the version line and times (SelfhostDriverT2Tests.cs:33, :49-50), a changed stdout fails" {
-    // the recorded version (0.3.2) is not this driver's, so a fake driver prints the recorded line
-    let fakes = Path.combine(Path.fullPath("tmp"), "golden-cli-fake-version")
-    deleteWorkDir(fakes)
-    let exe = goldenCliFake(fakes, for: "bayan", as: "echo 'bayan 0.3.2 (masked)'")
     let r = goldenCliPair(
         "SelfhostDriverT2Tests/DispatchAsCliApp",
         as: goldenCliSpecVersionSeconds,
-        from: "bayan 0.3.2",
-        to: "bayan 0.0.0",
-        by: exe,
+        from: "bayan <version> (masked)",
+        to: "bayan 0.3.2 (masked)",
     )
-    deleteWorkDir(fakes)
     assert(r[0] == "")
-    assert(r[1].contains("expected.stdout\nexpected line 1: bayan 0.0.0 (masked)\nactual line 1: bayan 0.3.2 (masked)"))
+    assert(
+        r[1].contains("expected.stdout\nexpected line 1: bayan 0.3.2 (masked)\nactual line 1: bayan <version> (masked)")
+    )
     assert(goldenCliVersion(
-        goldenCliT2("bayan 0.3.3-dev (selfhost)\nchecked in 1.25s\n"),
-    ) == "bayan 0.3.3-dev (masked)\nchecked in masked\n")
+        goldenCliT2("bayan 0.3.3-dev (selfhost)\nchecked in 1.25s\nbayan: x (y)\n"),
+    ) == "bayan <version> (masked)\nchecked in masked\nbayan: x (y)\n")
 }
 
 test "`seconds-masked` masks ` in <seconds>s` (SelfhostDriverT2Tests.cs:30, :50), a changed exit code fails" {
@@ -1897,6 +1956,23 @@ test "`stdout-exact-stderr-masked` compares stdout byte for byte (SelfhostDriver
     assert(
         r[1].contains("expected.stdout\nexpected line 58:     byn_changed();\nactual line 58:     byn_main__main();")
     )
+}
+
+test "the T5 cases pass in their C# directories: emit in tmp/t5/emit, run in tmp/t5/cwd, a named build in tmp/t5/cs, stubs on PATH" {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(exe != "")
+    let root = Path.fullPath("tests/cases/cli/SelfhostDriverT5Tests")
+    for name in [
+        "EmitCAsCliAppOnEveryRunInput-145",
+        "RunAsCliAppOnEveryRunInput-123",
+        "OutputNamesAsCliApp-2",
+        "LeavesNoLinkByProductAsCliApp",
+        "RejectedCAsCliApp",
+    ] {
+        assert(goldenCli(Path.combine(Path.combine(root, name), "args"), by: exe) is null)
+        deleteWorkDir(Path.combine(Path.fullPath("tmp/cli"), $"SelfhostDriverT5Tests_{name}"))
+    }
 }
 
 test "`masked` reads the SelfhostDefaultT4Tests directory as `<D>` (SelfhostDefaultT4Tests.cs:87-106), a changed stderr fails" {

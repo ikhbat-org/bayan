@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Tests scripts/selfhost/land-export.sh on a fixture export under tmp/: byte-for-byte copies, input/ as input.tsv with the
 # files and trees stored once by content (executable bit kept), the root masked in non-input text files only, cli/SelfhostExport
-# dropped, the doctor and cc masks, a binary input naming the machine left out, a removed case, EXPORT.tsv from UNEXPORTED.tsv, the case counts
+# dropped, the doctor, cc and version masks, a binary input naming the machine left out, a removed case, EXPORT.tsv from UNEXPORTED.tsv, the case counts
 # and the inventory, a rerun writing nothing, and the refusals.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -32,7 +32,9 @@ printf "BAYAN_CACHE=%s/tmp/p\n" "$R" > "$D/Seeded/env"
 printf "%s[32m◆%s[0m host        macos-arm64\n* zig         /opt/z\n" "$E" "$E" > "$D/Color/expected.stdout"
 printf 'doctor\n' | tee "$D/Plain/args" "$D/Seeded/args" > "$D/Color/args"
 mkdir -p "$D/Build" "$x/cli/SelfhostDefaultT9Tests/Arm"                             # doctor by args, not by class
-printf 'build\n' > "$D/Build/args"; printf "◆ host        macos-arm64\n" > "$D/Build/expected.stdout"
+printf 'build\n' > "$D/Build/args"; printf "◆ host        macos-arm64\nbayan 0.3.2 (masked)\n" > "$D/Build/expected.stdout"
+std='help: import one of `std.json`\n"help":"import one of `std.json`"\nimport one of `std.json`, `std.fs`\n'
+printf "$std" > "$D/Build/expected.stderr"                                          # (2b) std list: the whole `std.json` list only
 printf -- '--ascii\ndoctor\n' > "$x/cli/SelfhostDefaultT9Tests/Arm/args"
 printf "* host        macos-arm64\n* git         /opt/homebrew/bin/git\n" > "$x/cli/SelfhostDefaultT9Tests/Arm/expected.stdout"
 G=$x/sem/GammaTests/Three; mkdir -p "$G/input"                                       # a binary input naming the machine is left out
@@ -47,13 +49,13 @@ printf 'AlphaTests\tOne\tbuild %s/tmp/b.byn\nBetaTests\tNoCase\tcache after evic
 printf 'AlphaTests\t2\nSelfhostExport\t1\n' > "$x/cli/counts.tsv"
 printf 'x\n' > "$x/sem/GammaTests/Two/input/b.txt"; printf '#!/bin/sh\n' > "$x/sem/GammaTests/Two/input/run.sh"
 chmod +x "$x/sem/GammaTests/Two/input/run.sh"
-printf 's\n' > "$x/sem/GammaTests/Two/section"
+printf 's\nbayan 0.3.2 (masked)\nimport one of `std.json`\n' > "$x/sem/GammaTests/Two/section"
 printf 'path\n' > "$x/runtime/macos/path-relative.in"
 { printf 'class\tfile\tfamily\ttests\tdisposition\ttarget\treason\tmemberdata\n'
   printf 'AlphaTests\ta\tcli\t3\tcli\tcli\tr\t\nBetaTests\tb\tcli\t1\tcli\tcli\tr\t\nGammaTests\tg\tsem\t2\tsem\tsem\tr\t\n'; } > "$t/tests/inventory-019.tsv"
 
 out="$(bash "$tool" "$x" "$R/" "$d")" || fail "first run failed: $out"
-[ "$(tail -n1 <<<"$out")" = "land-export: 11 cases, 4 new input files, 2 new input trees, 26 files written" ] || fail "first run counts: $out"
+[ "$(tail -n1 <<<"$out")" = "land-export: 11 cases, 4 new input files, 2 new input trees, 27 files written" ] || fail "first run counts: $out"
 
 # (1) input/ as input.tsv; files and trees once by content
 o="$d/cli/AlphaTests/One"
@@ -79,7 +81,7 @@ printf "◆ cache       <repo>/tmp/p (writable)\n◆ git         <host>\n" | cmp
 printf "%s[32m◆%s[0m host        <host>\n* zig         <host>\n" "$(printf "\033")" "$(printf "\033")" | cmp -s - "$D/Color/expected.stdout" || fail "coloured doctor mask"
 printf "x\nC compiler failed (exit 1):\n<cc output>\n" | cmp -s - "$d/cli/SelfhostDefaultT12Tests/Cc/expected.stderr" || fail "cc output mask"
 printf "keep\n" | cmp -s - "$d/cli/SelfhostDefaultT12Tests/Cc/expected.stdout" || fail "cc mask touched a stdout without the line"
-printf "◆ host        macos-arm64\n" | cmp -s - "$D/Build/expected.stdout" || fail "doctor mask on a case that runs no doctor"
+printf "◆ host        macos-arm64\nbayan <version> (masked)\n" | cmp -s - "$D/Build/expected.stdout" || fail "doctor mask on a case that runs no doctor, or no version mask"
 printf "* host        <host>\n* git         <host>\n" | cmp -s - "$d/cli/SelfhostDefaultT9Tests/Arm/expected.stdout" || fail "doctor mask in another class"
 [ "$(cat "$d/sem/GammaTests/Three/input.tsv")" = "$(printf 'keep.txt\tfile:%s' "$(printf 'k\n' | h)")" ] || fail "binary naming the machine kept: $(cat "$d/sem/GammaTests/Three/input.tsv")"
 grep -q "^land-export: sem/GammaTests/Three: left out host.o" <<<"$out" || fail "left-out file not printed: $out"
@@ -88,6 +90,7 @@ grep -q "^land-export: sem/GammaTests/Three: left out host.o" <<<"$out" || fail 
 grep -q "^land-export: cli/SelfhostDriverT5Tests/CannotWriteTheOutputAsCliApp-5: removed (" <<<"$out" || fail "removed case not printed: $out"
 [ "$(cat "$o/args")" = "$(printf 'build\n<repo>/tmp/a.byn')" ] || fail "args not masked: $(cat "$o/args")"
 printf 'error at <repo>/src/x.byn and <repo>/y' | cmp -s - "$o/expected.stdout" || fail "stdout not masked or final newline added"
+printf 'help: import one of <std modules>\n"help":"import one of <std modules>"\nimport one of `std.json`, `std.fs`\n' | cmp -s - "$D/Build/expected.stderr" || fail "std mask: $(cat "$D/Build/expected.stderr")"
 cmp -s "$d/sem/GammaTests/Two/section" "$x/sem/GammaTests/Two/section" || fail "section"
 # (3) SelfhostExport dropped; kind-level files and the runtime fixtures are not cases
 [ ! -e "$d/cli/SelfhostExport" ] || fail "cli/SelfhostExport landed"

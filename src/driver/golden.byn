@@ -212,7 +212,7 @@ string? goldenCompare(string actual, for string input, at string expected) uses 
 string? goldenDiffer(string actual, for string input, at string expected) uses alloc, fs {
     let text = Io.readText(expected) catch return $"{input}\nmissing expected file {expected}"
     let want = goldenLines(goldenLf(text))
-    let got = goldenLines(goldenLf(actual))
+    let got = goldenLines(goldenLf(goldenStdModules(actual, by: text)))
     var line = 0
     while line < want.length && line < got.length && want[line] == got[line] {
         line += 1
@@ -221,6 +221,39 @@ string? goldenDiffer(string actual, for string input, at string expected) uses a
     let wantLine = line < want.length ? want[line] : "<end of file>"
     let gotLine = line < got.length ? got[line] : "<end of file>"
     return $"{input}\nexpected line {line + 1}: {wantLine}\nactual line {line + 1}: {gotLine}"
+}
+
+/// `actual` with each list after `import one of ` (back-quoted names joined by `, `) as `<std modules>`, when `want` holds that word: an
+/// exported case names the std modules of its export, the tree ships more (spec 019 T19, land-export.sh `mask_std`).
+string goldenStdModules(string actual, by string want) uses alloc {
+    return actual if goldenOffset(want, for: "<std modules>") < 0
+    let lead = "import one of "
+    var sb = StrBuf()
+    var rest = actual
+    var at = goldenOffset(rest, for: lead)
+    while at >= 0 {
+        let k = at + lead.length
+        sb.append(rest[0..k])
+        var end = k
+        var scan = k
+        while scan < rest.length && rest.bytes[scan] == 0x60 {
+            var close = scan + 1
+            while close < rest.length && rest.bytes[close] != 0x60 && rest.bytes[close] != 0x0a {
+                close += 1
+            }
+            break if close >= rest.length || rest.bytes[close] != 0x60
+            end = close + 1
+            break if !rest[end..rest.length].startsWith(", `")
+            scan = end + 2
+        }
+        if end > k {
+            sb.append("<std modules>")
+        }
+        rest = rest[end..rest.length]
+        at = goldenOffset(rest, for: lead)
+    }
+    sb.append(rest)
+    return sb.finish()
 }
 
 /// The text of `input`, named by its bare file name as `Golden.Load` names it (so rendered paths do not depend on the checkout).
@@ -1940,6 +1973,35 @@ test "CR LF in an expected file reads as LF" {
     }
     deleteWorkDir(root)
     assert(failures == 0)
+}
+
+test "an expected `import one of <std modules>` matches any std module list, and an expected list only itself" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-std-modules")
+    deleteWorkDir(root)
+    goldenWrite(
+        root,
+        for: "masked",
+        as: "help: import one of <std modules>\n\"help\":\"import one of <std modules>\"\n",
+    )
+    goldenWrite(root, for: "listed", as: "help: import one of `std.json`\n")
+    let path = Path.combine(root, "masked")
+    let now = "help: import one of `std.encoding`, `std.fs`, `std.json`\n\"help\":\"import one of `std.json`\"\n"
+    assert(goldenDiffer(now, for: path, at: path) is null)
+    assert(goldenDiffer(
+        "help: import one of `std.json`\n\"help\":\"import one of `std.json`\"\n",
+        for: path,
+        at: path,
+    ) is null)
+    assert(goldenDiffer("help: import one of `std.json`\n\"help\":\"import one of\"\n", for: path, at: path) is { })
+    let listed = Path.combine(root, "listed")
+    assert(goldenDiffer("help: import one of `std.json`\n", for: listed, at: listed) is null)
+    assert(goldenDiffer("help: import one of `std.fs`, `std.json`\n", for: listed, at: listed) is { })
+    deleteWorkDir(root)
+    assert(goldenStdModules(
+        "a import one of `std.a.b`, `std.c` b\n",
+        by: "<std modules>",
+    ) == "a import one of <std modules> b\n")
+    assert(goldenStdModules("import one of `std.a`, x", by: "<std modules>") == "import one of <std modules>, x")
 }
 
 /// A shell script at `root`/`name` that prints `bayan 9.9 (fake)` for any arguments and exits with `code` after sleeping `seconds`; executable when `exec`.
