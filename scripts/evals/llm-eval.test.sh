@@ -348,6 +348,20 @@ hrun held-dirty --remote example-provider
 check "run: uncommitted changes are not verified" "$code $(holds '"verified":false') $(grep -c '"headline"' "$root/out/held-dirty/1/summary.json")" "0 holds 0"
 g checkout -q -- .
 
+# A compiler whose version line names no commit (a self-hosted one): the commit comes from the pin's ref, in its own stamp
+# field; with no commit from either, no stamp. The fake answers --version and hands everything else to the real compiler.
+real=$(bash scripts/pinned-bayan.sh)
+printf '#!/bin/sh\nif [ "$1" = --version ]; then echo "bayan 0.3.3-dev (selfhost)"; exit 0; fi\nexec "%s" "$@"\n' "$real" > "$root/fake-bayan"
+chmod +x "$root/fake-bayan"
+pincommit=$(git rev-parse HEAD)
+pstamp=$LLM_EVAL_STAMP_DIR/$hcommit-$pincommit
+PINNED_BAYAN=$root/fake-bayan PINNED_BAYAN_REF=HEAD recheck held
+check "recheck: version line without a commit, the stamp takes the pin's commit" \
+  "$code $(grep -c "^stamp: $pstamp\$" "$root/rec/rc-held") $(sed -n 's/^compilerCommit: //p' "$pstamp" 2> /dev/null) $(grep -c '^compiler: bayan 0.3.3-dev (selfhost)$' "$pstamp" 2> /dev/null)" "0 1 $pincommit 1"
+PINNED_BAYAN=$root/fake-bayan PINNED_BAYAN_REF=no-such-ref recheck held
+check "recheck: no commit from the version line or the pin, no stamp" \
+  "$code $(grep -c '^no stamp: neither' "$root/rec/rc-held") $(ls "$LLM_EVAL_STAMP_DIR" | wc -l | tr -d ' ')" "0 1 2"
+
 # --remote is required for a heldout run without --machine (and --machine or --remote for any run, R32).
 hrun held-anon
 check "run: heldout without --machine or --remote is refused" \

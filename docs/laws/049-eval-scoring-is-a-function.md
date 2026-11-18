@@ -9,7 +9,7 @@ scope: tools/llm-eval.byn
 ---
 
 ## Statement
-For every task and every candidate, two scoring runs, each in its own new `--out` directory, give the same four results. Scoring reads no clock, no network and no state outside the task and the candidate.
+For every task and every candidate whose output does not vary and which finishes within the limits, two scoring runs, each in its own new `--out` directory, give the same four results. No result depends on time except through the `limit` outcome, and scoring reads no network and no state outside the task and the candidate.
 
 ## Counterexample looks like
-A task id, a candidate file and the two result records that differ, for example a candidate that times out on one run and passes on the other, or a result that holds a wall time.
+A task id, a candidate file and the two result records that differ, for example a candidate within the limits whose result differs between the runs, or a result that holds a wall time.

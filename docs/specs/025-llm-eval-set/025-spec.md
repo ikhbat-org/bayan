@@ -1,5 +1,5 @@
 # 025 — Evaluation set for LLM-written Bayān
-Status: draft
+Status: approved (2026-11-18)
 Release: unscheduled (nothing a user runs changes)
 Sources: user 2026-11-17 ("yes start the llm eval set in parallel"); `docs/bayan-spec.md` (revisions 0001–0024, syntax freeze of revision 0023); `docs/decisions/2026-11-02-002-tooling-port-rules.md` (tooling is Bayān or shell)
 Created: 2026-11-17
