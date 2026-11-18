@@ -1,0 +1,10 @@
+æ """ c"text" u16"wide" "â€® allowed in stings" "" "\u{48}i"
+
+€ let cafeÌ = 1
+
+ï»¿{
+let cafÃ© = 2
+= 1
+let ÿ = 2
+// & && | || ^ ~ ! = == != < <= >>= << >> >>=
+

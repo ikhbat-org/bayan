@@ -1,0 +1,74 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 Identifier `kef`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+2:2 LetKeyword `let`
+2:6 Identifier `b`
+2:8 Equals `=`
+2:10 StringLiteral `"bad \q escape"`
+4:1 FloatLiteral `3.14`
+4:6 FloatLiteral `1e5`
+4:10 FloatLiteral `2.5e-3`
+4:17 FloatLiteral `6E+2`
+4:22 FloatLiteral `1.50`
+4:26 NumericSuffix `dec`
+4:30 IntegerLiteral `1`
+4:31 DotDot `..`
+4:33 IntegerLiteral `2`
+4:35 IntegerLiteral `1`
+4:36 DotDotEquals `..=`
+4:39 IntegerLiteral `3`
+4:41 IntegerLiteral `5`
+4:42 NumericSuffix `e`
+4:44 Identifier `x`
+4:45 Dot `.`
+4:46 Identifier `y`
+4:48 FloatLiteral `2.5`
+4:51 NumericSuffix `f`
+5:2 Identifier `line`
+5:7 Identifier `t`
+5:8 Equals `=`
+5:9 Identifier `wo`
+5:11 Dot `.`
+6:1 StructKeyword `struct`
+6:8 Identifier `S`
+8:1 Identifier `b`
+9:2 InterpolatedStringStart `$"`
+9:4 InterpolationStart `{`
+9:5 Identifier `a`
+10:1 Identifier `b`
+11:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  9 │  $"{a
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  11 │ �
+     │ ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 11 │ �
+     │    │ -

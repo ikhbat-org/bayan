@@ -1,0 +1,55 @@
+1:4 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+3:1 IntegerLiteral `1__`
+5:1 LetKeyword `let`
+5:5 EffectKeyword `effect`
+5:12 Equals `=`
+5:14 IntegerLiteral `2`
+6:1 Identifier `ne`
+6:3 Dot `.`
+    doc `/// Doc line two.`
+8:1 StructKeyword `struct`
+8:8 Identifier `S`
+10:1 Identifier `b`
+11:2 IntegerLiteral `0xF_`
+12:2 IfKeyword `if`
+12:5 ElseKeyword `else`
+12:10 UnlessKeyword `unless`
+12:17 SwitchKeyword `switch`
+12:24 CaseKeyword `case`
+12:29 Identifier `defaul`
+12:36 ForKeyword `for`
+12:40 InKeyword `in`
+12:43 WhileKeyword `while`
+12:49 DoKeyword `do`
+12:52 BreakKeyword `break`
+12:58 ContinueKeyword `continue`
+12:67 ReturnKeyword `return`
+12:74 YieldKeyword `yield`
+12:80 DeferKeyword `defer`
+12:86 ErrdeferKeyword `errdefer`
+12:95 UsingKeyword `using`
+12:101 ContextKeyword `context`
+14:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │  $ 1
+    │  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │  0xF_
+     │     ^
+     │
+     │ 11 │  0xF_
+     │    │     -

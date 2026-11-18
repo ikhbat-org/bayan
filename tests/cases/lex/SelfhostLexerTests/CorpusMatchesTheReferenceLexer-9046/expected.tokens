@@ -1,0 +1,75 @@
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+3:2 Identifier `b`
+4:2 IntegerLiteral `0x_`
+6:1 Identifier `x́́Å`
+6:6 LetKeyword `let`
+6:10 Identifier `b`
+6:13 StringLiteral `"bad \q escape"`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �
+    │  ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │  0x_
+    │  ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����
+    │    ^
+
+error BYN0005: identifier `x́́Å` is not in Unicode normalization form C
+
+  6 │ x́́Å let b  "bad \q escape"
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ x́́Å let b  "bad \q escape"
+    │   │    +
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │ x́́Å let b  "bad \q escape"
+    │                  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

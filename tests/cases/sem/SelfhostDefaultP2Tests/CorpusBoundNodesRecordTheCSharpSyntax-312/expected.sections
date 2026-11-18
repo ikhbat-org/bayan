@@ -1,0 +1,25 @@
+== tests/cases/run/symbol-const.byn
+137..250 blockStmt
+141..164 localDecl
+159..164 literalExpr string
+167..180 exprStmt
+167..180 callExpr
+173..179 memberExpr
+173..174 nameExpr
+167..180 callExpr
+183..196 exprStmt
+183..196 callExpr
+189..195 memberExpr
+189..190 nameExpr
+183..196 callExpr
+199..227 localDecl
+207..227 callExpr
+221..226 literalExpr string
+230..248 exprStmt
+230..248 callExpr
+236..247 interpolatedExpr
+239..245 binaryExpr eq right 244..245
+239..240 nameExpr
+244..245 nameExpr
+230..248 callExpr
+111..116 literalExpr string

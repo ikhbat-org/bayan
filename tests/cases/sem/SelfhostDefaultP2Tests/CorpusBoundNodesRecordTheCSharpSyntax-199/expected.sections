@@ -1,0 +1,27 @@
+== tests/cases/run/memory-index-out-of-range.byn
+0..26 globalStatement
+0..26 localDecl
+17..26 collectionExpr
+18..19 literalExpr integer
+21..22 literalExpr integer
+24..25 literalExpr integer
+27..42 localDecl
+35..42 memberExpr
+35..37 nameExpr
+43..52 localDecl
+51..52 literalExpr integer
+53..101 whileStmt
+59..65 binaryExpr le right 64..65
+59..60 nameExpr
+64..65 literalExpr integer
+66..101 blockStmt
+72..88 exprStmt
+72..88 callExpr
+78..87 interpolatedExpr
+81..85 indexExpr
+81..82 nameExpr
+83..84 nameExpr
+72..88 callExpr
+93..99 assignStmt add target 93..94 value 98..99
+93..94 nameExpr
+98..99 literalExpr integer

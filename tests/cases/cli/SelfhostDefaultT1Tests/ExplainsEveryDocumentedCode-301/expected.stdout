@@ -1,0 +1,7 @@
+# BYN4002: internal compiler error, a bound error expression reached lowering
+
+**What.** `bayan build`, `run`, `test` or `dist` found an error expression in the bound program, a body or a field default, although the checker reported no error. The compiler stops before generating any C and exits 1.
+
+**Why.** An error expression stands for a construct the checker rejected, and a rejection is always reported. With none reported, the checker is wrong, not your program (spec §24).
+
+**Fix.** Report it with the program, or the smallest part of it that still fails. `bayan check` on the same program may show where.

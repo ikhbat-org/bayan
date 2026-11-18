@@ -1,0 +1,8 @@
+== tests/cases/diag/panic-handler-symbol-intern.byn
+97..137 blockStmt
+103..135 localDecl
+111..135 callExpr
+125..134 memberExpr
+125..126 nameExpr
+151..182 blockStmt
+157..180 assignStmt assign target 157..170 value 173..180

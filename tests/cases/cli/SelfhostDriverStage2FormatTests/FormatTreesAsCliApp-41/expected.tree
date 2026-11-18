@@ -1,0 +1,6 @@
+== script.byn OtherExecute, OtherRead, GroupExecute, GroupRead, UserExecute, UserWrite, UserRead
+#!/usr/bin/env bayan
+let a = true
+if a {
+    print("x")
+}

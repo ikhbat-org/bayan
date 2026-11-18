@@ -1,0 +1,4 @@
+== s43
+switchExpr|i32|3754:55
+value moveExpr:Ledger
+arm 3773:34 propertyPattern[3773:29]:Ledger(Ledger;items:List<i64>=bindPattern[3782:3]:List<i64>(a:List<i64>:o:-:let);more:List<i64>=bindPattern[3795:3]:List<i64>(b:List<i64>:o:-:let)|-) guard - value literal:i32=1

@@ -1,0 +1,30 @@
+== diags.kinds
+BYN2770 30:6 unknown attribute `allow`
+  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+BYN2006 15:23 `lines` is declared twice
+  label already declared on line 12
+BYN2002 27:12 unknown type `Missing`
+BYN5104 12:24 `lines` holds one `Owned<Line>`; name it with a singular noun
+  help rename it `line`
+  fix 12:24-12:29 line
+BYN5104 13:18 `entries` holds one `Line?`; name it with a singular noun
+  help rename it `entry`
+  fix 13:18-13:25 entry
+BYN5104 17:23 `address` holds a collection; name it with a plural, `addresses`
+  help rename it `addresses`
+  fix 17:23-17:30 addresses
+BYN5104 18:23 `status` holds a collection; name it with a plural, `statuses`
+  help rename it `statuses`
+  fix 18:23-18:29 statuses
+BYN5104 31:23 `line` holds a collection; name it with a plural, `lines`
+  help rename it `lines`
+  fix 31:23-31:27 lines
+BYN5104 34:29 `line` holds a collection; name it with a plural, `lines`
+  help rename it `lines`
+  fix 34:29-34:33 lines
+BYN5104 40:27 `line` holds a collection; name it with a plural, `lines`
+  help rename it `lines`
+  fix 40:27-40:31 lines
+BYN2310 34:18 `line` is never written through; use `ReadOnlySpan<Line>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 34:18-34:22 ReadOnlySpan

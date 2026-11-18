@@ -1,0 +1,4 @@
+== bind.probes.b51
+flags 0
+errorExpr:?[2823:12]=-()
+BYN2208 158:15 `==` cannot be applied to `string` and `Symbol` |||

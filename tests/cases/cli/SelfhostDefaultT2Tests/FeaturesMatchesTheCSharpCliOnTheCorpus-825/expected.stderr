@@ -1,0 +1,7 @@
+error BYN1009: postfix conditions cannot be chained
+  --> <repo>/tests/cases/diag/postfix-chained.byn:2:17
+
+  2 │     work() if a if b
+    │                 ^^ a second condition
+    │
+  help: combine the conditions with `&&` in one postfix `if`

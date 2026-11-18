@@ -1,0 +1,46 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+2:3 Identifier `b`
+3:1 IfKeyword `if`
+3:4 ElseKeyword `else`
+3:9 Identifier `unle`
+3:13 Identifier `ss`
+3:16 SwitchKeyword `switch`
+3:23 CaseKeyword `case`
+3:28 DefaultKeyword `default`
+3:36 ForKeyword `for`
+3:40 InKeyword `in`
+3:43 WhileKeyword `while`
+3:49 DoKeyword `do`
+3:52 BreakKeyword `break`
+3:58 ContinueKeyword `continue`
+3:67 ReturnKeyword `return`
+3:74 YieldKeyword `yield`
+3:80 DeferKeyword `defer`
+3:86 ErrdeferKeyword `errdefer`
+3:95 UsingKeyword `using`
+3:101 Identifier `contwext`
+4:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ � b
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ � b
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  3 │ if else unle�ss switch case default for in while do break continue return yield defer errdefer using contwext
+    │             ^

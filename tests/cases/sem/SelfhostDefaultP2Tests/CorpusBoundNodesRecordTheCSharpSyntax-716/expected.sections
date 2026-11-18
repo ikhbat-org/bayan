@@ -1,0 +1,12 @@
+== tests/cases/diag/number-agreement.byn
+366..377 globalStatement
+366..377 exprStmt
+366..377 callExpr
+372..376 literalExpr string
+366..377 callExpr
+328..362 blockStmt
+338..356 exprStmt
+338..356 callExpr
+338..342 nameExpr
+338..342 nameExpr
+350..355 nameExpr

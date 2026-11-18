@@ -1,0 +1,10 @@
+error BYN2761: `Tree` contains itself by value: Tree → Forest → Tree
+  --> <repo>/tmp/t2/diag/recursive-cycle/recursive-cycle.byn:1:8
+
+  1 │ struct Tree {
+    │        ^^^^
+    │
+  help: store the inner one as `Owned<Tree>` (or in a `List<Tree>`); a value cannot contain itself
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2761

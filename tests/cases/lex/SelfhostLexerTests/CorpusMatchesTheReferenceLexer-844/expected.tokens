@@ -1,0 +1,137 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+2:2 FloatLiteral `3.14`
+2:7 FloatLiteral `1e5`
+2:11 FloatLiteral `2.5e-3`
+2:18 FloatLiteral `6E+2`
+2:23 FloatLiteral `1.50`
+2:27 NumericSuffix `dec`
+2:31 IntegerLiteral `1`
+2:32 DotDot `..`
+2:34 IntegerLiteral `2`
+2:36 IntegerLiteral `1`
+2:37 DotDotEquals `..=`
+2:40 IntegerLiteral `3`
+2:42 IntegerLiteral `5`
+2:43 NumericSuffix `e`
+2:45 Identifier `x`
+2:46 Dot `.`
+2:47 Identifier `y`
+2:49 FloatLiteral `2.5`
+2:52 NumericSuffix `f`
+4:1 CharLiteral `'\u{D800}'`
+6:1 CharLiteral `'x`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolationStart `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 InterpolatedStringStart `$"`
+9:24 InterpolationStart `{`
+9:25 InterpolatedStringStart `$"`
+9:27 InterpolationStart `{`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolationStart `{`
+9:31 InterpolatedStringStart `$"`
+9:33 InterpolationStart `{`
+9:34 InterpolatedStringStart `$"`
+9:36 InterpolationStart `{`
+9:37 InterpolatedStringStart `$"`
+9:39 InterpolationStart `{`
+9:40 StringLiteral `"{$"`
+9:44 OpenBrace `{`
+9:45 InterpolatedStringStart `$"`
+9:47 InterpolationStart `{`
+9:48 InterpolatedStringStart `$"`
+9:50 InterpolationStart `{`
+9:51 InterpolatedStringStart `$"`
+9:53 InterpolationStart `{`
+9:54 StringLiteral `$"{$"`
+9:59 OpenBrace `{`
+9:60 Identifier `x`
+9:61 CloseBrace `}`
+9:62 StringLiteral `"}"`
+9:65 InterpolationEnd `}`
+9:66 InterpolatedStringEnd `"`
+9:67 InterpolationEnd `}`
+9:68 InterpolatedStringEnd `"`
+9:69 InterpolationEnd `}`
+9:70 InterpolatedStringEnd `"`
+9:71 CloseBrace `}`
+9:72 StringLiteral `"}"`
+9:75 InterpolationEnd `}`
+9:76 InterpolatedStringEnd `"`
+9:77 InterpolationEnd `}`
+9:78 InterpolatedStringEnd `"`
+9:79 InterpolationEnd `}`
+9:80 InterpolatedStringEnd `"`
+9:81 InterpolationEnd `}`
+9:82 InterpolatedStringEnd `"`
+9:83 InterpolationEnd `}`
+9:84 InterpolatedStringEnd `"`
+9:85 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │  �
+    │  ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  8 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 8 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  8 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ /* � */
+    │   │    -
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                      ^^

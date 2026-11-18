@@ -1,0 +1,11 @@
+1:1 OpenParen `(`
+1:4 OpenBracket `[`
+1:5 CloseBracket `]`
+1:7 OpenBrace `{`
+1:9 CloseBrace `}`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{5}`
+
+  1 │ (  [] {�}
+    │        ^

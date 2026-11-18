@@ -1,0 +1,5 @@
+== missing-return-value
+BYN2402 2:5 this function returns `i64`; `return` needs a value |||
+fn f
+block 8..22
+  returnStmt 14..20

@@ -1,0 +1,128 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:29 OpenBrace `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 StringLiteral `$"{$"`
+1:56 OpenBrace `{`
+1:57 StringLiteral `$"{x}"`
+1:63 CloseBrace `}`
+1:64 StringLiteral `"}"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 CloseBrace `}`
+1:82 StringLiteral `"}"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 InterpolationEnd `}`
+1:88 InterpolatedStringEnd `"`
+1:89 InterpolationEnd `}`
+1:90 InterpolatedStringText `�}`
+1:92 InterpolatedStringEnd `"`
+1:93 InterpolationEnd `}`
+1:94 InterpolatedStringEnd `"`
+1:95 InterpolationEnd `}`
+1:96 InterpolatedStringEnd `"`
+1:97 InterpolationEnd `}`
+1:98 InterpolatedStringEnd `"`
+1:99 InterpolationEnd `}`
+1:100 InterpolatedStringEnd `"`
+2:1 LetKeyword `let`
+2:7 Equals `=`
+2:9 IntegerLiteral `2`
+3:2 ErrorKeyword `error`
+3:8 SetKeyword `set`
+3:12 UnitKeyword `unit`
+3:17 Identifier `distinc`
+3:24 OpenBrace `{`
+3:25 Identifier `t`
+3:27 TypeKeyword `type`
+3:32 ImportKeyword `import`
+3:39 AsKeyword `as`
+3:42 PublicKeyword `public`
+3:49 PrivateKeyword `private`
+3:57 StaticKeyword `static`
+3:64 ReadonlyKeyword `readonly`
+3:73 RequiredKeyword `required`
+3:82 ConstKeyword `const`
+3:88 LetKeyword `let`
+3:92 VarKeyword `var`
+3:96 EmbedKeyword `embed`
+3:102 ExternKeyword `extern`
+3:109 UnsafeKeyword `unsafe`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"
+    │                            ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"
+    │                                                   ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"
+    │                                                                                          ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"
+    │                                                                                           ^
+    │
+    │ 1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�}}"}"}"}"}"
+    │   │                                                                                            +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ let � = 2
+    │     ^

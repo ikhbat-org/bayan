@@ -1,0 +1,3 @@
+== target.probes.-.t5
+methodGroup|?|-1|origin|-|-|-|3596:7|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|

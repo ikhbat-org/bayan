@@ -1,0 +1,8 @@
+error BYN2021: `area` has no parameter `widht`
+  --> <repo>/tmp/t2/diag/unknown-parameter/unknown-parameter.byn:2:15
+
+  2 │ print($"{area(widht: 3, by: 4)}")
+    │               ^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2021

@@ -1,0 +1,34 @@
+1:4 IntegerLiteral `4`
+1:5 NumericSuffix `omment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 Identifier `pen`
+2:6 OpenBrace `{`
+2:7 Identifier `x`
+2:8 StringLiteral `";`
+3:3 Identifier `q`
+3:5 Identifier `escap`
+3:11 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  pen {x";
+    │        ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\`
+
+  3 │  \q escap��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │  \q escap��
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │  \q escap��
+    │           ^

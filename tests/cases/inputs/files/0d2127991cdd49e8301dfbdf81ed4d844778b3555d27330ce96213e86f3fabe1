@@ -1,0 +1,4 @@
+ $"{Point { x = 1 }}!" $""
+ // ok þ in comment
+ $"total {x}" Æ"a {f($"b {c}")} d" $"{{literal}}" $"{Pomint { x = 1 }}!" $""
+øˆ€€€øˆ€€€  '\'' 'Ã©' '\'

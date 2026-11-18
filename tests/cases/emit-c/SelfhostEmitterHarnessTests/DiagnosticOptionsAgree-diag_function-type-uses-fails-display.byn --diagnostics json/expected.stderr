@@ -1,0 +1,1 @@
+{"code":"BYN2202","severity":"error","file":"input.byn","span":{"start":67,"end":68,"line":2,"column":54,"endLine":2,"endColumn":55},"message":"expected `i64 -> i64 uses console fails IoError`, found `i32`","label":null,"help":null,"fixes":[]}

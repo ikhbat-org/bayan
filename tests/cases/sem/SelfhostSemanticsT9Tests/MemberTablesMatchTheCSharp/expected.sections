@@ -1,0 +1,251 @@
+== members
+string.length property 0 i64
+string.bytes property 1 ReadOnlySpan<u8>
+string.isEmpty property 2 bool
+string.runeCount property 3 i64
+string.isAscii property 4 bool
+string.runes property 23 RuneView
+string.utf16 property 24 Utf16View
+string.lines property 25 LineView
+string.copy method 5 (to: Arena) string mutating=false optional=1
+string.copy has
+string.startsWith method 6 (prefix: string) bool mutating=false optional=0
+string.startsWith has
+string.endsWith method 7 (suffix: string) bool mutating=false optional=0
+string.endsWith has
+string.contains method 8 (text: string) bool mutating=false optional=0
+string.contains has
+string.position method 9 (text: string, from: i64) i64? mutating=false optional=1
+string.position has
+string.lastPosition method 10 (text: string) i64? mutating=false optional=0
+string.lastPosition has
+string.count method 11 (text: string) i64 mutating=false optional=0
+string.count has
+string.trimmed method 12 (from: ?) string mutating=false optional=1
+string.trimmed has
+string.equals method 16 (text: string, as: ?) bool mutating=false optional=1
+string.equals has
+string.lowercased method 14 () string mutating=false optional=0
+string.lowercased has
+string.uppercased method 15 () string mutating=false optional=0
+string.uppercased has
+string.replaced method 17 (text: string, by: string) string mutating=false optional=0
+string.replaced has
+string.repeated method 18 (count: i64) string mutating=false optional=0
+string.repeated has
+string.padded method 20 (to: i64, by: rune) string mutating=false optional=0
+string.padded has
+string.parts method 26 (by: string, limit: i64) PartView mutating=false optional=1
+string.parts has
+rune.value property 80 u32
+roBytes.length property 34 i64
+roBytes.isEmpty property 35 bool
+roBytes.copy method 36 (to: Arena) List<u8> mutating=false optional=1
+roBytes.copy has
+spanStr.length property 34 i64
+spanStr.isEmpty property 35 bool
+spanStr.copy method 36 (to: Arena) List<string> mutating=false optional=1
+spanStr.copy has
+spanStr.joined method 19 (by: string) string mutating=false optional=0
+spanStr.joined has
+listI64.length property 40 i64
+listI64.isEmpty property 41 bool
+listI64.copy method 37 (to: Arena) List<i64> mutating=false optional=1
+listI64.copy has
+listI64.span property 43 ReadOnlySpan<i64>
+listI64.mutableSpan method 44 () Span<i64> mutating=true optional=0
+listI64.mutableSpan has
+listI64.clear method 46 () void mutating=true optional=0
+listI64.clear has
+listI64.removeLast method 47 () i64 mutating=true optional=0
+listI64.removeLast has
+listI64.replace method 52 (at: Range<i64>, by: ReadOnlySpan<i64>) void mutating=true optional=0
+listI64.replace has
+listI64.sort method 53 () void mutating=true optional=0
+listI64.sort has
+listI64.tryGet method 54 (at: i64) i64? mutating=false optional=0
+listI64.tryGet has
+listI64.remove method 48 (from: i64, until: i64) void mutating=true optional=0
+listI64.remove has
+listI64.append method 42 (item: i64) void mutating=true optional=0
+listI64.append has
+listI64.take method 76 () List<i64> mutating=true optional=0
+listI64.take has
+listStr.length property 40 i64
+listStr.isEmpty property 41 bool
+listStr.copy method 37 (to: Arena) List<string> mutating=false optional=1
+listStr.copy has
+listStr.joined method 19 (by: string) string mutating=false optional=0
+listStr.joined has
+listStr.span property 43 ReadOnlySpan<string>
+listStr.mutableSpan method 44 () Span<string> mutating=true optional=0
+listStr.mutableSpan has
+listStr.clear method 46 () void mutating=true optional=0
+listStr.clear has
+listStr.removeLast method 47 () string mutating=true optional=0
+listStr.removeLast has
+listStr.replace method 52 (at: Range<i64>, by: ReadOnlySpan<string>) void mutating=true optional=0
+listStr.replace has
+listStr.sort method 53 () void mutating=true optional=0
+listStr.sort has
+listStr.tryGet method 54 (at: i64) string? mutating=false optional=0
+listStr.tryGet has
+listStr.remove method 48 (from: i64, until: i64) void mutating=true optional=0
+listStr.remove has
+listStr.append method 42 (item: string) void mutating=true optional=0
+listStr.append has
+listStr.take method 76 () List<string> mutating=true optional=0
+listStr.take has
+listBool.length property 40 i64
+listBool.isEmpty property 41 bool
+listBool.copy method 37 (to: Arena) List<bool> mutating=false optional=1
+listBool.copy has
+listBool.span property 43 ReadOnlySpan<bool>
+listBool.mutableSpan method 44 () Span<bool> mutating=true optional=0
+listBool.mutableSpan has
+listBool.clear method 46 () void mutating=true optional=0
+listBool.clear has
+listBool.removeLast method 47 () bool mutating=true optional=0
+listBool.removeLast has
+listBool.replace method 52 (at: Range<i64>, by: ReadOnlySpan<bool>) void mutating=true optional=0
+listBool.replace has
+listBool.tryGet method 54 (at: i64) bool? mutating=false optional=0
+listBool.tryGet has
+listBool.remove method 48 (from: i64, until: i64) void mutating=true optional=0
+listBool.remove has
+listBool.append method 42 (item: bool) void mutating=true optional=0
+listBool.append has
+listBool.take method 76 () List<bool> mutating=true optional=0
+listBool.take has
+listRune.length property 40 i64
+listRune.isEmpty property 41 bool
+listRune.copy method 37 (to: Arena) List<rune> mutating=false optional=1
+listRune.copy has
+listRune.span property 43 ReadOnlySpan<rune>
+listRune.mutableSpan method 44 () Span<rune> mutating=true optional=0
+listRune.mutableSpan has
+listRune.clear method 46 () void mutating=true optional=0
+listRune.clear has
+listRune.removeLast method 47 () rune mutating=true optional=0
+listRune.removeLast has
+listRune.replace method 52 (at: Range<i64>, by: ReadOnlySpan<rune>) void mutating=true optional=0
+listRune.replace has
+listRune.sort method 53 () void mutating=true optional=0
+listRune.sort has
+listRune.tryGet method 54 (at: i64) rune? mutating=false optional=0
+listRune.tryGet has
+listRune.remove method 48 (from: i64, until: i64) void mutating=true optional=0
+listRune.remove has
+listRune.append method 42 (item: rune) void mutating=true optional=0
+listRune.append has
+listRune.take method 76 () List<rune> mutating=true optional=0
+listRune.take has
+map.length property 55 i64
+map.copy method 38 (to: Arena) Map<string, i64> mutating=false optional=0
+map.copy has
+map.contains method 57 (key: string) bool mutating=false optional=0
+map.contains has
+map.clear method 59 () void mutating=true optional=0
+map.clear has
+map.tryGet method 56 (at: string) i64? mutating=false optional=0
+map.tryGet has
+map.slot method 62 (key: string) i64 mutating=true optional=0
+map.slot has
+map.remove method 58 (key: string) bool mutating=true optional=0
+map.remove has
+map.take method 77 () Map<string, i64> mutating=true optional=0
+map.take has
+array.length property 66 i64
+array.span property 67 ReadOnlySpan<i32>
+array.mutableSpan method 45 () Span<i32> mutating=true optional=0
+array.mutableSpan has
+arena.reset method 68 () void mutating=true optional=0
+arena.reset has
+strBuf.length property 72 i64
+strBuf.copy method 39 (to: Arena) StrBuf mutating=false optional=0
+strBuf.copy has
+strBuf.clear method 74 () void mutating=true optional=0
+strBuf.clear has
+strBuf.append method 69 (text: string) void mutating=true optional=0
+strBuf.append has
+strBuf.appendRepeated method 70 (rune: rune, by: i64) void mutating=true optional=0
+strBuf.appendRepeated has
+strBuf.insert method 71 (text: string, at: i64) void mutating=true optional=0
+strBuf.insert has
+strBuf.finish method 73 () string mutating=false optional=0
+strBuf.finish has
+strBuf.view property 73 string
+strBuf.take method 78 () StrBuf mutating=true optional=0
+strBuf.take has
+time.nanos property 102 i64
+processResult.exitCode property 91 i32
+processResult.stdout property 92 string
+processResult.stderr property 93 string
+panic.message property 94 string
+formatSpec.radix property 95 i32
+formatSpec.debug property 96 bool
+formatSpec.width property 97 i64
+formatSpec.fill property 98 rune
+formatSpec.align property 99 i32
+formatSpec.digits property 100 i64
+ioStream.write method 86 (text: string) void mutating=false optional=0
+ioStream.write has
+ioInput.readAll method 87 () string mutating=false optional=0
+ioInput.readAll has
+ioInput.readAllBytes has
+result.value property 83 i64
+result.isOk property 82 bool
+result.err property 84 IoError
+owned.value property 85 i64
+listList.length property 40 i64
+listList.isEmpty property 41 bool
+listList.copy method 37 (to: Arena) List<List<i64>> mutating=false optional=1
+listList.copy has
+listList.span property 43 ReadOnlySpan<List<i64>>
+listList.mutableSpan method 44 () Span<List<i64>> mutating=true optional=0
+listList.mutableSpan has
+listList.clear method 46 () void mutating=true optional=0
+listList.clear has
+listList.removeLast method 47 () List<i64> mutating=true optional=0
+listList.removeLast has
+listList.tryGet method 54 (at: i64) List<i64>? mutating=false optional=0
+listList.tryGet has
+listList.remove method 48 (from: i64, until: i64) void mutating=true optional=0
+listList.remove has
+listList.append method 42 (item: List<i64>) void mutating=true optional=0
+listList.append has
+listList.take method 76 () List<List<i64>> mutating=true optional=0
+listList.take has
+listStrBuf.length property 40 i64
+listStrBuf.isEmpty property 41 bool
+listStrBuf.copy method 37 (to: Arena) List<StrBuf> mutating=false optional=1
+listStrBuf.copy has
+listStrBuf.span property 43 ReadOnlySpan<StrBuf>
+listStrBuf.mutableSpan method 44 () Span<StrBuf> mutating=true optional=0
+listStrBuf.mutableSpan has
+listStrBuf.clear method 46 () void mutating=true optional=0
+listStrBuf.clear has
+listStrBuf.removeLast method 47 () StrBuf mutating=true optional=0
+listStrBuf.removeLast has
+listStrBuf.tryGet method 54 (at: i64) StrBuf? mutating=false optional=0
+listStrBuf.tryGet has
+listStrBuf.remove method 48 (from: i64, until: i64) void mutating=true optional=0
+listStrBuf.remove has
+listStrBuf.append method 42 (item: StrBuf) void mutating=true optional=0
+listStrBuf.append has
+listStrBuf.take method 76 () List<StrBuf> mutating=true optional=0
+listStrBuf.take has
+optStrBuf.take method 79 () StrBuf? mutating=true optional=0
+optStrBuf.take has
+optList.take method 79 () List<i64>? mutating=true optional=0
+optList.take has
+enum.name property 88 string
+enum.ordinal property 89 i32
+runes.skip method 29 (count: i64) string mutating=false optional=0
+runes.skip has
+runes.takeLast method 30 (count: i64) string mutating=false optional=0
+runes.takeLast has
+runes.take method 28 (count: i64) string mutating=false optional=0
+runes.take has
+utf16.copy method 31 () List<u16> mutating=false optional=0
+utf16.copy has

@@ -1,0 +1,5 @@
+let c = """never closed
+/// Doc line two.
+ô€€$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+b
+ 

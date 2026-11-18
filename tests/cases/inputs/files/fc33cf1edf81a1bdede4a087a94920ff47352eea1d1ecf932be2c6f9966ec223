@@ -1,0 +1,16 @@
+i32 main() {
+    print("== capLine")
+    print(capLine("…", by: 1))
+    print(capLine("…", by: 17))
+    print("== buildFailed")
+    print(buildFailed("✗", by: 0, as: 0))
+    print(buildFailed("✗", by: 1, as: 0))
+    print(buildFailed("✗", by: 0, as: 1))
+    print(buildFailed("✗", by: 1, as: 1))
+    print(buildFailed("✗", by: 2, as: 3))
+    print("== buildExplain")
+    print(buildExplain("BYN2001"))
+    print("== checkSummary")
+    print(checkSummary("◆", for: "shop", by: "0.25s"))
+    return 0
+}

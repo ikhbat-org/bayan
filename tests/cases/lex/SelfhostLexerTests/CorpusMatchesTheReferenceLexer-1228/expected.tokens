@@ -1,0 +1,99 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:23 CharLiteral `'{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}""}"}"0xFFs`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `stray } here`
+3:16 InterpolatedStringEnd `"`
+4:2 LetKeyword `let`
+4:6 Identifier `b`
+4:8 Equals `=`
+4:10 StringLiteral `"bad \q escape"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open `
+5:8 InterpolationStart `{`
+5:9 Identifier `x`
+5:10 StringLiteral `";`
+6:1 VarKeyword `var`
+6:5 Identifier `xs`
+6:7 Colon `:`
+6:9 Identifier `List`
+6:13 Less `<`
+6:14 Identifier `List`
+6:18 Less `<`
+6:19 Identifier `i64`
+6:22 Greater `>`
+6:23 Greater `>`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │    ^
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$'{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}""}"}"0xFFs
+    │                      ^
+
+error BYN0008: unterminated char literal
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$'{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}""}"}"0xFFs
+    │                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │  $"stray } here"
+    │          ^
+    │
+    │ 3 │  $"stray }} here"
+    │   │           +
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

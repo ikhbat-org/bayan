@@ -1,0 +1,145 @@
+1:1 LetKeyword `let`
+1:5 Identifier `s`
+1:7 Equals `=`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 StringLiteral `$"{$"`
+1:62 OpenBrace `{`
+1:63 StringLiteral `$"{$"`
+1:68 OpenBrace `{`
+1:69 Identifier `x`
+1:70 CloseBrace `}`
+1:71 StringLiteral `"}"`
+1:74 CloseBrace `}`
+1:75 StringLiteral `"}"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:90 InterpolationEnd `}`
+1:91 InterpolatedStringEnd `"`
+1:92 InterpolationEnd `}`
+1:93 InterpolatedStringEnd `"`
+1:94 InterpolationEnd `}`
+1:95 InterpolatedStringEnd `"`
+1:96 InterpolationEnd `}`
+1:97 InterpolatedStringEnd `"`
+1:98 InterpolationEnd `}`
+1:99 InterpolatedStringEnd `"`
+1:100 InterpolationEnd `}`
+1:101 InterpolatedStringEnd `"`
+1:102 InterpolationEnd `}`
+1:103 InterpolatedStringEnd `"`
+1:104 InterpolationEnd `}`
+1:105 InterpolatedStringEnd `"`
+1:106 InterpolationEnd `}`
+1:107 InterpolatedStringEnd `"`
+1:108 InterpolationEnd `}`
+1:109 InterpolatedStringEnd `"`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+4:1 Identifier `ạ̇`
+4:6 ErrorKeyword `error`
+4:12 SetKeyword `set`
+4:16 UnitKeyword `unit`
+4:21 DistinctKeyword `distinct`
+4:30 TypeKeyword `type`
+4:35 ImportKeyword `import`
+4:42 AsKeyword `as`
+4:45 PublicKeyword `public`
+4:52 PrivateKeyword `private`
+4:60 StaticKeyword `static`
+4:67 ReadonlyKeyword `readonly`
+4:76 RequiredKeyword `required`
+4:85 ConstKeyword `const`
+4:91 LetKeyword `let`
+4:95 VarKeyword `var`
+4:99 EmbedKeyword `embed`
+4:105 ExternKeyword `extern`
+4:112 UnsafeKeyword `unsafe`
+6:1 Identifier `FF`
+6:4 IntegerLiteral `0x_ff`
+6:10 IntegerLiteral `0b1010`
+6:17 IntegerLiteral `0B11`
+6:22 IntegerLiteral `5`
+6:23 NumericSuffix `s`
+6:25 IntegerLiteral `250`
+6:28 NumericSuffix `ms`
+6:31 IntegerLiteral `4`
+6:32 NumericSuffix `KiB`
+6:36 IntegerLiteral `1`
+6:37 NumericSuffix `u`
+6:39 IntegerLiteral `0xFF`
+6:43 NumericSuffix `u`
+6:45 IntegerLiteral `0b1`
+6:48 NumericSuffix `u`
+6:50 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `̈́`
+
+  3 │ ̈́
+    │ ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  4 │ ạ̇ ̈́error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ ạ̇ ̈́error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │   │ +
+
+error BYN0002: unexpected character `̈́`
+
+  4 │ ạ̇ ̈́error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │     ^

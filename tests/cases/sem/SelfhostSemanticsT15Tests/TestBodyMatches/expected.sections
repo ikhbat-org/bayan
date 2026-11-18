@@ -1,0 +1,8 @@
+== test lone
+block 1092..1095
+  localDecl 1084..1090
+    errorExpr 1068..1069 : ?
+  block 1092..1095
+local f 0 0
+requires 0 infers true
+BYN2202 78:8 expected `bool`, found `i32` |||

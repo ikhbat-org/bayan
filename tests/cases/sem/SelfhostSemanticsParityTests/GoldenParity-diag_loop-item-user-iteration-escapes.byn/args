@@ -1,0 +1,4 @@
+--golden
+--package
+<repo>/tests/cases/diag
+<repo>/tests/cases/diag/loop-item-user-iteration-escapes.byn

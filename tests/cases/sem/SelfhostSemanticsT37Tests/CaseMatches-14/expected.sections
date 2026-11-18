@@ -1,0 +1,4 @@
+== check.edge
+counts 1 1 0
+mut xs 2151..2152 false -
+loan xs h 0 0

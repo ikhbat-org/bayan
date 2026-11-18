@@ -1,0 +1,42 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:2 StringLiteral `"b {c}"`
+2:9 CloseParen `)`
+2:10 CloseBrace `}`
+2:12 Identifier `d`
+2:13 StringLiteral `" $"`
+2:17 OpenBrace `{`
+2:19 Identifier `literal`
+2:26 CloseBrace `}`
+2:27 CloseBrace `}`
+5:1 LetKeyword `let`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:11 IntegerLiteral `1`
+8:1 Identifier `afé`
+8:5 Equals `=`
+8:7 IntegerLiteral `2`
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolatedStringText `{{`
+10:5 InterpolatedStringEnd `"`
+10:7 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD4)
+
+  2 │  "b {c}")} d" $"{�literal}} �
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │  "b {c}")} d" $"{�literal}} �
+    │                             ^
+
+error BYN0002: unexpected character `$`
+
+  5 │ let a = $ 1
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │ �
+    │ ^

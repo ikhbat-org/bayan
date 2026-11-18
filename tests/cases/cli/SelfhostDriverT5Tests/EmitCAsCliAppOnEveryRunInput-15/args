@@ -1,0 +1,3 @@
+build
+--emit-c
+catch-switch-block-arm.byn

@@ -1,0 +1,5 @@
+warning BYN2405: unreachable code
+  --> <repo>/tests/cases/run/panic-handler-skips-defer.byn:13:5
+
+  13 │     return 1
+     │     ^^^^^^^^

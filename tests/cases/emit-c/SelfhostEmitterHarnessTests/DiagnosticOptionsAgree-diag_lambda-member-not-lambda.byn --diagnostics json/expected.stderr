@@ -1,0 +1,1 @@
+{"code":"BYN2823","severity":"error","file":"input.byn","span":{"start":169,"end":174,"line":9,"column":32,"endLine":9,"endColumn":37},"message":"`.name` is a member, not a lambda","label":null,"help":"write `it.name`","fixes":[{"span":{"start":169,"end":174,"line":9,"column":32,"endLine":9,"endColumn":37},"replacement":"it.name"}]}

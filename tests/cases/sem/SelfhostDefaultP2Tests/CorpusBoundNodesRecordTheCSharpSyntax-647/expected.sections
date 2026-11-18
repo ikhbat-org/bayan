@@ -1,0 +1,45 @@
+== tests/cases/diag/map-key-string-part.byn
+176..574 blockStmt
+182..212 localDecl
+194..212 callExpr
+217..266 localDecl
+230..266 callExpr
+271..321 localDecl
+285..321 callExpr
+326..510 blockStmt
+336..361 localDecl
+354..361 callExpr
+370..404 localDecl
+381..404 callExpr
+381..388 literalExpr string
+398..403 nameExpr
+413..428 assignStmt assign target 413..424 value 427..428
+413..424 indexExpr
+413..418 nameExpr
+419..423 nameExpr
+427..428 literalExpr integer
+437..458 assignStmt assign target 437..454 value 457..458
+437..454 indexExpr
+437..443 nameExpr
+444..453 tupleExpr
+445..449 nameExpr
+451..452 literalExpr integer
+457..458 literalExpr integer
+467..504 assignStmt assign target 467..500 value 503..504
+467..500 indexExpr
+467..474 nameExpr
+475..499 tupleExpr
+476..495 callExpr
+490..494 nameExpr
+497..498 literalExpr integer
+503..504 literalExpr integer
+515..572 exprStmt
+515..572 callExpr
+521..571 interpolatedExpr
+524..536 memberExpr
+524..529 nameExpr
+539..552 memberExpr
+539..545 nameExpr
+555..569 memberExpr
+555..562 nameExpr
+515..572 callExpr

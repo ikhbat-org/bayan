@@ -1,0 +1,29 @@
+1:2 StructKeyword `struct`
+1:9 Slash `/`
+1:10 Identifier `S`
+1:11 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����struct /S�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����struct /S�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����struct /S�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����struct /S�
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  1 │ ����struct /S�
+    │              ^

@@ -1,0 +1,97 @@
+1:2 LetKeyword `let`
+1:6 Identifier `café`
+1:12 Equals `=`
+1:14 IntegerLiteral `1`
+1:15 Semicolon `;`
+1:17 LetKeyword `let`
+1:21 Identifier `actor`
+1:27 Equals `=`
+1:29 IntegerLiteral `1`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 Identifier `x`
+2:47 InterpolationEnd `}`
+2:48 InterpolatedStringEnd `"`
+2:49 InterpolationEnd `}`
+2:50 InterpolatedStringEnd `"`
+2:51 InterpolationEnd `}`
+2:52 InterpolatedStringEnd `"`
+2:53 InterpolationEnd `}`
+2:54 InterpolatedStringEnd `"`
+2:55 InterpolationEnd `}`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 InterpolationEnd `}`
+2:62 InterpolatedStringEnd `"`
+2:63 InterpolationEnd `}`
+2:64 InterpolatedStringEnd `"`
+2:65 InterpolationEnd `}`
+2:66 InterpolatedStringEnd `"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringEnd `"`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �let café = 1; let actor = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �let café = 1; let actor = 1
+    │  ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ �let café = 1; let actor = 1
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ �let café = 1; let actor = 1
+    │   │         +
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ �let café = 1; let actor = 1
+    │                     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

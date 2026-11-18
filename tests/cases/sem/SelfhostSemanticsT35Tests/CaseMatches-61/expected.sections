@@ -1,0 +1,3 @@
+== expr.probes.c10
+errorExpr:?[1112:6]=-()
+BYN2219 69:27 the length of `..sp` in a `Span` literal must be a compile-time constant |a `Span<i64>` has a run-time length|spread a fixed array `T[N]` here, or build a list: `List<i64> all = [..sp]`|

@@ -1,0 +1,24 @@
+1:1 Identifier `_`
+8:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ _ /* block
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC4)
+
+  2 │ """$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}" closed
+    │                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │  'a' '\n' '\u{1F600}' '\'' '�' '\\' '\0'
+    │                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  4 │  'a' '\n' '\u{1F600}' '\'' '�' '\\' '\0'
+    │                              ^

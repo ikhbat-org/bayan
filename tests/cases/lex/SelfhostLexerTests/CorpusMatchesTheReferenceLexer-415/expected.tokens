@@ -1,0 +1,130 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:1 StringLiteral `" // comment \u{202E} hidden`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"{$"`
+4:54 OpenBrace `{`
+4:55 Identifier `x`
+4:56 CloseBrace `}`
+4:57 StringLiteral `"}"`
+4:60 InterpolationEnd `}`
+4:61 InterpolatedStringEnd `"`
+4:62 InterpolationEnd `}`
+4:63 InterpolatedStringEnd `"`
+4:64 InterpolationEnd `}`
+4:65 InterpolatedStringEnd `"`
+4:66 InterpolationEnd `}`
+4:67 InterpolatedStringEnd `"`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringEnd `"`
+4:70 InterpolationEnd `}`
+4:71 InterpolatedStringEnd `"`
+4:72 InterpolationEnd `}`
+4:73 InterpolatedStringEnd `"`
+4:74 InterpolationEnd `}`
+4:75 InterpolatedStringEnd `"`
+4:76 InterpolationEnd `}`
+4:77 InterpolatedStringEnd `"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolatedStringStart `$"`
+4:82 InterpolationStart `{`
+4:83 InterpolatedStringStart `$"`
+4:85 InterpolationStart `{`
+4:86 InterpolatedStringStart `$"`
+4:88 InterpolationStart `{`
+4:89 InterpolatedStringStart `$"`
+4:91 InterpolationStart `{`
+4:92 InterpolatedStringStart `$"`
+4:94 InterpolationStart `{`
+4:95 InterpolatedStringStart `$"`
+4:97 InterpolationStart `{`
+4:98 InterpolatedStringStart `$"`
+4:100 InterpolationStart `{`
+4:101 InterpolatedStringStart `$"`
+4:103 InterpolationStart `{`
+4:104 InterpolatedStringStart `$"`
+4:106 InterpolationStart `{`
+4:107 InterpolatedStringStart `$"`
+4:109 InterpolationStart `{`
+4:110 StringLiteral `$"{$"`
+4:115 OpenBrace `{`
+4:116 StringLiteral `$"{$"`
+4:121 OpenBrace `{`
+4:122 StringLiteral `$"{$"`
+4:127 OpenBrace `{`
+4:128 StringLiteral `$"{$"`
+4:133 OpenBrace `{`
+4:134 Identifier `x`
+4:135 CloseBrace `}`
+4:136 StringLiteral `"}"`
+4:139 CloseBrace `}`
+4:140 StringLiteral `"}"`
+4:143 CloseBrace `}`
+4:144 StringLiteral `"}"`
+4:147 CloseBrace `}`
+4:148 StringLiteral `"}"`
+4:151 InterpolationEnd `}`
+4:152 InterpolatedStringEnd `"`
+4:154 Identifier `y`
+4:156 FloatLiteral `2.5`
+4:159 NumericSuffix `f`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ " // comment � hidden
+    │ ^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" y 2.5f
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" y 2.5f
+    │                                                                                                        ^^ this
+    │                                                                                                           string
+    │                                                                                                           never
+    │                                                                                                           ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │ �
+    │ ^

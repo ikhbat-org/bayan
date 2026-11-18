@@ -1,0 +1,32 @@
+1:1 CharLiteral `'é`
+2:3 Identifier `a`
+2:4 OpenBrace `{`
+2:5 Identifier `b`
+2:6 CloseBrace `}`
+2:7 Identifier `c`
+3:1 CharLiteral `''`
+4:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'é
+    │ ^^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `$`
+
+  2 │ $�a{b}c
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  2 │ $�a{b}c
+    │  ^
+
+error BYN0007: empty char literal
+
+  3 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

@@ -1,0 +1,9 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+3:2 EndOfFile

@@ -1,0 +1,1 @@
+{"code":"BYN2106","severity":"error","file":"input.byn","span":{"start":474,"end":489,"line":17,"column":26,"endLine":17,"endColumn":41},"message":"cannot modify this value","label":"a `ReadOnlySpan` cannot be written through","help":null,"fixes":[]}

@@ -1,0 +1,39 @@
+error BYN3102: `name` must be a string `namespace/name` of lowercase words joined by `-`, e.g.
+`"local/tally"`
+  --> package.byn:2:11
+
+  2 │     name: "Tally",
+    │           ^^^^^^^
+
+error BYN3102: `version` must be a semantic version string, e.g. `"0.1.0"`
+  --> package.byn:3:14
+
+  3 │     version: "1.0",
+    │              ^^^^^
+
+error BYN3102: `edition` must be `2027`, the only edition so far
+  --> package.byn:4:14
+
+  4 │     edition: 2026,
+    │              ^^^^
+
+error BYN3102: `kind` must be `.app` or `.lib`
+  --> package.byn:5:11
+
+  5 │     kind: .exe,
+    │           ^^^^
+
+error BYN3102: `dist.targets` must be a list of targets, e.g. `[.host, .linuxX64]`
+  --> package.byn:6:27
+
+  6 │     dist: Dist { targets: .host, mode: .turbo },
+    │                           ^^^^^
+
+error BYN3102: `dist.mode` must be `.debug`, `.safe` or `.fast`
+  --> package.byn:6:40
+
+  6 │     dist: Dist { targets: .host, mode: .turbo },
+    │                                        ^^^^^^
+
+✗ build failed: 6 errors, 0 warnings
+  explain: bayan explain BYN3102

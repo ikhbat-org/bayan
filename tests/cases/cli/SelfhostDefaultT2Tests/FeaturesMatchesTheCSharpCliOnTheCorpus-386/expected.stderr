@@ -1,0 +1,11 @@
+error BYN2022: this expression is not supported in v0.1
+  --> <repo>/tests/cases/parse/except-expr.byn:1:12
+
+  1 │ let rest = code except .a
+    │            ^^^^^^^^^^^
+
+error BYN2022: this expression is not supported in v0.1
+  --> <repo>/tests/cases/parse/except-expr.byn:2:12
+
+  2 │ let kind = tok is .word except "if"
+    │            ^^^^^^^^^^^^^^^^^^^

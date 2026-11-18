@@ -1,0 +1,34 @@
+1:1 RawStringLiteral `"""\n0x_\nlet law = 3\n\n���a ��> b\n\nlet actor = 1\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │ ���a ��> b
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │ ���a ��> b
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ���a ��> b
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE0)
+
+  5 │ ���a ��> b
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  5 │ ���a ��> b
+    │       ^

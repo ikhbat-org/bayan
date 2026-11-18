@@ -1,0 +1,47 @@
+1:1 IntegerLiteral `0`
+1:4 IntegerLiteral `3`
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+4:1 Identifier `ray`
+4:5 CloseBrace `}`
+4:7 Identifier `here`
+4:11 StringLiteral `"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open`
+5:7 InterpolatedStringEnd
+6:1 LetKeyword `let`
+6:5 Identifier `a`
+6:7 Equals `=`
+6:9 IntegerLiteral `1`
+7:2 IntegerLiteral `0b1`
+7:5 NumericSuffix `ms`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ ray } here"
+    │           ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

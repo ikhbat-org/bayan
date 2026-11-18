@@ -1,0 +1,31 @@
+2:3 IntegerLiteral `0x`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `\u{16}`
+
+  2 │ � 0x
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ � 0x
+    │   ^^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ /*b� */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ // b�
+    │   │  ++++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  3 │ /*b� */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ /*b� */
+    │   │    -

@@ -1,0 +1,43 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+2:1 CharLiteral `'\q'`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
+9:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ 1
+    │         ^
+
+error BYN0004: unterminated block comment
+
+  4 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

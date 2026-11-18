@@ -1,0 +1,7 @@
+--color
+always
+build
+-v
+-o
+<repo>/tmp/t7-style/build-ok-verbose-always/tally/tally
+<repo>/tmp/t7-style/build-ok-verbose-always/tally/main.byn

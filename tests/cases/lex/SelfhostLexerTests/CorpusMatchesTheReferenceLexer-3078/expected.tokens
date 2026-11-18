@@ -1,0 +1,28 @@
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ��� /* error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ��� /* error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��� /* error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │   ^
+
+error BYN0004: unterminated block comment
+
+  1 │ ��� /* error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │     ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xB1)
+
+  4 │ struct�S
+    │       ^

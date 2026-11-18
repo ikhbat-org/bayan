@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssertStmt",
+    "BinaryExpr",
+    "CallExpr",
+    "EnumDecl",
+    "ExprStmt",
+    "GlobalStatement",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "EnumName",
+    "Print"
+  ],
+  "diagnostics": []
+}

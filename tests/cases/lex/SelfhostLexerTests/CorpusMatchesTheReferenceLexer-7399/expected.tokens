@@ -1,0 +1,119 @@
+1:1 CharLiteral `'ab'`
+3:1 CharLiteral `'\u{110000}'`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolatedStringText `$`
+5:22 InterpolatedStringEnd `"`
+5:23 OpenBrace `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:39 InterpolatedStringStart `$"`
+5:41 InterpolationStart `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:45 InterpolatedStringStart `$"`
+5:47 InterpolationStart `{`
+5:48 InterpolatedStringStart `$"`
+5:50 InterpolationStart `{`
+5:51 InterpolatedStringStart `$"`
+5:53 InterpolationStart `{`
+5:54 Identifier `x`
+5:55 InterpolationEnd `}`
+5:56 InterpolatedStringEnd `"`
+5:57 InterpolationEnd `}`
+5:58 InterpolatedStringEnd `"`
+5:59 InterpolationEnd `}`
+5:60 InterpolatedStringEnd `"`
+5:61 InterpolationEnd `}`
+5:62 InterpolatedStringEnd `"`
+5:63 InterpolationEnd `}`
+5:64 InterpolatedStringEnd `"`
+5:65 InterpolationEnd `}`
+5:66 InterpolatedStringEnd `"`
+5:67 InterpolationEnd `}`
+5:68 InterpolatedStringEnd `"`
+5:69 InterpolationEnd `}`
+5:70 InterpolatedStringEnd `"`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringEnd `"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+5:75 CloseBrace `}`
+5:76 StringLiteral `"}"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+6:1 IntegerLiteral `0b__`
+8:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `\u{0}`
+
+  5 │ �� $"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ �� $"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ �� $"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"�
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  5 │ �� $"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"�
+    │             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  5 │ �� $"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"�
+    │                                                                                 ^ invisible
+    │                                                                                   character
+    │                                                                                   that
+    │                                                                                   reorders how
+    │                                                                                   the text
+    │                                                                                   displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ �� $"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"�
+    │   │                                                                                 -
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  6 │ 0b__
+    │ ^^^^

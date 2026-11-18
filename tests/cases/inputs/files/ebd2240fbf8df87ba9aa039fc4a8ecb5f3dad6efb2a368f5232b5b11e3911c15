@@ -1,0 +1,11 @@
+Package {
+    name: "local/my-lib",
+    version: "1.2.3-rc.1+build.5",
+    edition: 2_027,
+    kind: .lib,
+    capabilities: [.fs, .net],
+    test: Tests { lines: 100, summary: false, diffCoverage: 80, nightly: [.fuzz] },
+    style: Style { indent: 2, width: 100, align: .none, trailingCommas: .never, booleans: .words, primitives: .csharp, lints: ["guards.postfix": .warning, "lambdas.it": .error, "nesting.depth": .none, "functions.length": .suggestion] },
+    grammar: Grammar { verbs: ["upsert", "upsert", "regrind"], nouns: ["SKU"], adjectives: ["idempotent"], forms: ["regrind": "reground", "a": "b", "a": "c"] },
+    dist: Dist { targets: [.host, .linuxX64, .macosArm64], mode: .fast },
+}

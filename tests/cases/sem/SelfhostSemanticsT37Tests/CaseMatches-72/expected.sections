@@ -1,0 +1,5 @@
+== check.loop
+counts 1 1 1
+mut xs 2127..2128 false -
+loan xs - 2105 2161
+BYN3004 124:9 `xs` is modified while the `for` loop still borrows it |the loop over `xs` is still running|collect the changes in another list and apply them to `xs` after the loop|

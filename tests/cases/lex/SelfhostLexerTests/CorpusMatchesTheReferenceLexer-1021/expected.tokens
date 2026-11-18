@@ -1,0 +1,15 @@
+1:1 Identifier `Åcomment`
+1:11 Star `*`
+1:12 Slash `/`
+1:14 Identifier `a`
+    doc `/// a /* never closed`
+4:1 EndOfFile
+
+error BYN0005: identifier `Åcomment` is not in Unicode normalization form C
+
+  1 │ Åcomment */ a
+    │ ^^^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Åcomment */ a
+    │   │ +

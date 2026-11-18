@@ -1,0 +1,4 @@
+run
+--diagnostics
+json
+<repo>/tmp/t5/self/broken/broken.byn

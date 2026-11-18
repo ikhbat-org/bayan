@@ -1,0 +1,82 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+2:2 IntegerLiteral `1__`
+3:1 Identifier `각`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:6 Bar `|`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 EqualsEquals `==`
+4:22 BangEquals `!=`
+4:25 Less `<`
+4:27 LessEquals `<=`
+4:30 Greater `>`
+4:32 GreaterEquals `>=`
+4:35 LessLess `<<`
+4:38 Greater `>`
+4:39 Greater `>`
+4:41 Greater `>`
+4:42 GreaterEquals `>=`
+6:1 LetKeyword `let`
+6:5 Identifier `a`
+6:7 Equals `=`
+6:9 IntegerLiteral `1`
+7:2 Identifier `_`
+7:11 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1__
+    │   ^^
+    │
+    │ 2 │  1__
+    │   │   --
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  3 │ 각
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ 각
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │  �
+    │   ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  7 │  _/* � */ 
+    │   ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 7 │  _// � 
+    │   │    +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  7 │  _/* � */ 
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  _/* � */ 
+    │   │      -

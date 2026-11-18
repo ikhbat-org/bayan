@@ -1,0 +1,72 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+2:1 Identifier `afe`
+3:1 IfKeyword `if`
+3:4 ElseKeyword `else`
+3:9 UnlessKeyword `unless`
+3:16 SwitchKeyword `switch`
+4:1 IfKeyword `if`
+4:4 ElseKeyword `else`
+4:9 UnlessKeyword `unless`
+4:16 SwitchKeyword `switch`
+4:23 CaseKeyword `case`
+4:28 DefaultKeyword `default`
+4:36 ForKeyword `for`
+4:40 InKeyword `in`
+4:43 WhileKeyword `while`
+4:49 DoKeyword `do`
+4:52 BreakKeyword `break`
+4:58 ContinueKeyword `continue`
+4:67 ReturnKeyword `return`
+4:74 YieldKeyword `yield`
+4:80 DeferKeyword `defer`
+4:86 Identifier `errdefe`
+4:94 Identifier `r`
+4:96 UsingKeyword `using`
+4:102 ContextKeyword `context`
+6:1 CloseBrace `}`
+6:2 Bang `!`
+6:3 StringLiteral `"�$"`
+6:7 StringLiteral `"`
+7:2 CharLiteral `' `
+7:4 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ if else unless switch  // comment � hidden
+    │                                   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ if else unless switch  // comment � hidden
+    │   │                                   -
+
+error BYN0002: unexpected character `\u{1C}`
+
+  4 │ if else unless switch case default for in while do break continue return yield defer errdefe�r using context
+    │                                                                                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  6 │ }!"�$""
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  6 │ }!"�$""
+    │       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  7 │  ' 
+    │  ^^
+    │
+  help: close it with `'`

@@ -1,0 +1,34 @@
+3:1 StringLiteral `"oted"`
+4:2 StringLiteral `" let a = "`
+4:13 OpenKeyword `open`
+6:1 OpenBrace `{`
+6:3 Identifier `e`
+7:1 IfKeyword `if`
+7:4 Identifier `e`
+7:5 Identifier `se`
+7:8 UnlessKeyword `unless`
+7:15 SwitchKeyword `switch`
+7:22 CaseKeyword `case`
+7:27 DefaultKeyword `default`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolatedStringText `stray } here`
+7:49 InterpolatedStringEnd `"`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in2 comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB6)
+
+  7 │ if e�se unless switch case default $"stray } here"
+    │     ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  7 │ if e�se unless switch case default $"stray } here"
+    │                                            ^
+    │
+    │ 7 │ if e�se unless switch case default $"stray }} here"
+    │   │                                             +

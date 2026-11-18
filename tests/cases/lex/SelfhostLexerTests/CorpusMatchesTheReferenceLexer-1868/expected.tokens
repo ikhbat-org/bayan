@@ -1,0 +1,57 @@
+2:1 IntegerLiteral `1_`
+4:2 CharLiteral `'\u{202E}'`
+4:5 Identifier `é`
+4:8 LetKeyword `let`
+4:12 Identifier `a`
+4:14 Equals `=`
+4:16 StringLiteral `"open`
+5:2 Identifier `maco`
+5:7 Identifier `select`
+5:14 BecomeKeyword `become`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1_
+    │  ^
+    │
+    │ 2 │ 1_
+    │   │  -
+
+error BYN0002: unexpected character `̈́`
+
+  4 │ ̈́'�'é let a = "open
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ ̈́'�'é let a = "open
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ ̈́'�'é let a = "open
+    │   │   -
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  4 │ ̈́'�'é let a = "open
+    │     ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ ̈́'�'é let a = "open
+    │   │     +
+
+error BYN0003: unterminated string literal
+
+  4 │ ̈́'�'é let a = "open
+    │                ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │  maco select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

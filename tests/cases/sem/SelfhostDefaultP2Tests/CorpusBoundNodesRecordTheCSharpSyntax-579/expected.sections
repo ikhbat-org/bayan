@@ -1,0 +1,15 @@
+== tests/cases/diag/interface-default-abstract-conflict.byn
+104..133 globalStatement
+104..133 exprStmt
+104..133 callExpr
+110..132 interpolatedExpr
+113..130 callExpr
+113..123 structLiteralExpr
+120..121 literalExpr integer
+104..133 callExpr
+33..34 literalExpr integer
+33..34 literalExpr integer
+33..34 literalExpr integer
+33..34 literalExpr integer
+33..34 literalExpr integer
+33..34 literalExpr integer

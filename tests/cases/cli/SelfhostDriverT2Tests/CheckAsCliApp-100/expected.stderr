@@ -1,0 +1,12 @@
+error BYN2008: type name `point` must be PascalCase
+  --> <repo>/tmp/t2/diag/type-casing/type-casing.byn:1:8
+
+  1 │ struct point {
+    │        ^^^^^
+    │
+  help: rename it `Point`
+    │ 1 │ struct Point {
+    │   │        +
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2008

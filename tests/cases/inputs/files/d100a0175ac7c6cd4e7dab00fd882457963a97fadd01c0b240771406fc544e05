@@ -1,0 +1,8 @@
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+ /// Doc line twoq.
+
+/* ""
+'ab'
+ let a = "open
+$"stray } here"
+ 

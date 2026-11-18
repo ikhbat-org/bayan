@@ -1,0 +1,51 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 Identifier `roperty`
+1:21 FuzzKeyword `fuzz`
+1:26 ModelKeyword `model`
+1:32 ForeachKeyword `foreach`
+1:40 NewKeyword `new`
+1:44 GotoKeyword `goto`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:9 StringLiteral `"bad \q escape"`
+4:1 OrKeyword `or`
+4:4 Equals `=`
+4:6 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 EffectKeyword `effect`
+5:12 Equals `=`
+5:14 IntegerLiteral `2`
+6:1 Identifier `macro`
+6:7 Identifier `sele`
+6:12 Identifier `ct`
+6:15 Identifier `bec`
+6:18 CharLiteral `' `
+6:20 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  6 │ macro sele�ct bec' 
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\u{3}`
+
+  6 │ macro sele�ct bec' 
+    │           ^
+
+error BYN0008: unterminated char literal
+
+  6 │ macro sele�ct bec' 
+    │                  ^^
+    │
+  help: close it with `'`

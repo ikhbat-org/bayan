@@ -1,0 +1,9 @@
+== diags.diag/switch-move-overlap
+BYN2790 16:14 pattern `let x and let y` binds the same storage more than once in `switch move …`
+  help bind the whole value or its parts, not both
+BYN2790 22:14 pattern `Ledger { items: let it } whole` binds the same storage more than once in `switch move …`
+  help bind the whole value or its parts, not both
+BYN2790 28:14 pattern `{ items: let p, items: let q }` binds the same storage more than once in `switch move …`
+  help bind each field once
+BYN2790 35:20 pattern `{ items: let p, items: let q }` binds the same storage more than once in `switch move …`
+  help bind each field once

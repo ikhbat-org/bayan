@@ -1,0 +1,7 @@
+== diags.diag/non-struct-conformance
+BYN2815 5:15 `Shape` is a union; only structs can conform yet
+  label listed here
+  help wrap it in a struct that conforms
+BYN2815 10:14 `Color` is an enum; only structs can conform yet
+  label listed here
+  help wrap it in a struct that conforms

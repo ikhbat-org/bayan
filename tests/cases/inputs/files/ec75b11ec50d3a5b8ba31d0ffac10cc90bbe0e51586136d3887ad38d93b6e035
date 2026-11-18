@@ -1,0 +1,9 @@
+/* block
+    comment */ a
+0x
+
+$"ope {x";
+ // ok þ in comment
+
+1e Ã /// Doc line one
+

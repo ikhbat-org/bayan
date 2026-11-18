@@ -1,0 +1,24 @@
+== tests/cases/diag/getter-mutates.byn
+143..186 globalStatement
+143..186 localDecl
+151..186 structLiteralExpr
+164..165 literalExpr integer
+173..184 callExpr
+187..207 exprStmt
+187..207 callExpr
+193..206 interpolatedExpr
+196..204 memberExpr
+196..197 nameExpr
+187..207 callExpr
+65..73 callExpr
+65..73 callExpr
+65..73 callExpr
+65..71 nameExpr
+100..139 blockStmt
+110..116 assignStmt add target 110..111 value 115..116
+110..111 nameExpr
+110..111 nameExpr
+115..116 literalExpr integer
+125..133 returnStmt value 132..133
+132..133 nameExpr
+132..133 nameExpr

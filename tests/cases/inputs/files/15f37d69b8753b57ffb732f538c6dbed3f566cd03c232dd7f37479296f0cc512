@@ -1,0 +1,12 @@
+struct StrBuf {
+    i64 n
+}
+
+struct Log {
+    i64 n
+}
+
+void main() {
+    let a = StrBuf.over(stackalloc u8[4])
+    let b = Log.debug("x")
+}

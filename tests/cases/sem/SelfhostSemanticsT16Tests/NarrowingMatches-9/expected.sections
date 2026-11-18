@@ -1,0 +1,3 @@
+== narrow and
+in check a=true v=false p=true r=false q=false n=false
+in check a=false v=false p=false r=false q=false n=false

@@ -1,0 +1,20 @@
+1:1 Identifier `port`
+1:6 AsKeyword `as`
+1:9 PublicKeyword `public`
+1:16 PrivateKeyword `private`
+1:24 StaticKeyword `static`
+1:31 ReadonlyKeyword `readonly`
+1:40 RequiredKeyword `required`
+1:48 ConstKeyword `const`
+1:55 Identifier `raw`
+1:59 StringLiteral `"quoted"`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolationEnd `}`
+2:6 InterpolatedStringEnd `"`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  1 │ port as public private static readonly required�const  raw "quoted"
+    │                                                ^

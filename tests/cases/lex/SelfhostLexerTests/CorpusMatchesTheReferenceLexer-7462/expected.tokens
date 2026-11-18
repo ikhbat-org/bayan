@@ -1,0 +1,89 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+2:2 CaretEquals `^=`
+2:5 LessLessEquals `<<=`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `x`
+3:5 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 IntegerLiteral `0xFF`
+3:14 NumericSuffix `s`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 StringLiteral `$"{$"`
+5:48 OpenBrace `{`
+5:49 StringLiteral `$"{$"`
+5:54 OpenBrace `{`
+5:55 StringLiteral `$"{$"`
+5:60 OpenBrace `{`
+5:61 StringLiteral `$"{x}"`
+5:67 CloseBrace `}`
+5:68 StringLiteral `"}"`
+5:71 CloseBrace `}`
+5:72 StringLiteral `"}"`
+5:75 CloseBrace `}`
+5:76 StringLiteral `"}"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolationEnd `}`
+5:82 InterpolatedStringEnd `"`
+5:83 InterpolationEnd `}`
+5:84 InterpolatedStringEnd `"`
+5:85 InterpolationEnd `}`
+5:86 InterpolatedStringEnd `"`
+5:87 InterpolationEnd `}`
+5:88 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  3 │  $"x{ $"{0xFFs
+    │              ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"
+    │                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                           ^^

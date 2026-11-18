@@ -1,0 +1,48 @@
+error BYN1040: `;` is an input form; a statement ends at the newline
+  --> tmp/t26-tests/cli/diag_statement-attribute-semicolon.byn/statement-attribute-semicolon.byn:4:11
+
+  4 │     y += 1;
+    │           ^ remove `;`
+    │
+  help: remove the `;`
+    │ 4 │     y += 1;
+    │   │           -
+
+error BYN1008: a postfix `if` applies only to a simple statement
+  --> tmp/t26-tests/cli/diag_statement-attribute-semicolon.byn/statement-attribute-semicolon.byn:6:9
+
+  6 │     { } if x > 0
+    │         ^^
+    │
+  help: put the condition first: `if cond { … }`
+
+error BYN1008: a postfix `unless` applies only to a simple statement
+  --> tmp/t26-tests/cli/diag_statement-attribute-semicolon.byn/statement-attribute-semicolon.byn:8:20
+
+  8 │     if x > 100 { } unless y < 0;
+    │                    ^^^^^^
+    │
+  help: put the condition first: `if cond { … }`
+
+error BYN1040: `;` is an input form; a statement ends at the newline
+  --> tmp/t26-tests/cli/diag_statement-attribute-semicolon.byn/statement-attribute-semicolon.byn:8:32
+
+  8 │     if x > 100 { } unless y < 0;
+    │                                ^ remove `;`
+    │
+  help: remove the `;`
+    │ 8 │     if x > 100 { } unless y < 0;
+    │   │                                -
+
+error BYN1040: `;` is an input form; a statement ends at the newline
+  --> tmp/t26-tests/cli/diag_statement-attribute-semicolon.byn/statement-attribute-semicolon.byn:10:22
+
+  10 │     return y if x > 0;
+     │                      ^ remove `;`
+     │
+  help: remove the `;`
+     │ 10 │     return y if x > 0;
+     │    │                      -
+
+✗ build failed: 5 errors, 0 warnings
+  explain: bayan explain BYN1040

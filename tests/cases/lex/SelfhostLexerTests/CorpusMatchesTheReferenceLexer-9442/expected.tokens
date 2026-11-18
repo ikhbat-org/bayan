@@ -1,0 +1,58 @@
+1:1 CloseBrace `}`
+2:1 Identifier `r`
+2:3 Slash `/`
+2:4 Identifier `a`
+2:5 Slash `/`
+2:7 Identifier `ok`
+2:12 InKeyword `in`
+2:15 Identifier `comment`
+5:2 IntegerLiteral `0x`
+7:1 StringLiteral `"{ `
+7:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ r����/a/ ok � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ r����/a/ ok � in comment
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ r����/a/ ok � in comment
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ r����/a/ ok � in comment
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ r����/a/ ok � in comment
+    │             ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ // �x
+    │   │    -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │  0x
+    │  ^^
+
+error BYN0003: unterminated string literal
+
+  7 │ "{ 
+    │ ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

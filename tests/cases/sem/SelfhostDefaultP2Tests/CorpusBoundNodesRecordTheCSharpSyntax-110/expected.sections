@@ -1,0 +1,35 @@
+== tests/cases/run/interface-associated-type.byn
+153..214 blockStmt
+159..183 localDecl
+179..183 literalExpr nullKeyword
+188..212 exprStmt
+188..212 callExpr
+194..211 interpolatedExpr
+197..209 isExpr
+197..201 nameExpr
+205..209 constantPattern
+205..209 literalExpr nullKeyword
+188..212 callExpr
+216..231 globalStatement
+216..231 exprStmt
+216..231 callExpr
+221..230 structLiteralExpr
+67..68 literalExpr integer
+67..68 literalExpr integer
+67..68 literalExpr integer
+96..106 binaryExpr mul right 104..106
+96..106 binaryExpr mul right 104..106
+96..106 binaryExpr mul right 104..106
+96..101 nameExpr
+104..106 literalExpr integer
+153..214 blockStmt
+159..183 localDecl
+179..183 literalExpr nullKeyword
+188..212 exprStmt
+188..212 callExpr
+194..211 interpolatedExpr
+197..209 isExpr
+197..201 nameExpr
+205..209 constantPattern
+205..209 literalExpr nullKeyword
+188..212 callExpr

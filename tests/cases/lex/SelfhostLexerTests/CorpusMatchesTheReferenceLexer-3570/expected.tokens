@@ -1,0 +1,18 @@
+1:1 Identifier `Å9`
+1:6 Star `*`
+1:7 Slash `/`
+2:1 EndOfFile
+
+error BYN0005: identifier `Å9` is not in Unicode normalization form C
+
+  1 │ Å9� */
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å9� */
+    │   │ +
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ Å9� */
+    │    ^

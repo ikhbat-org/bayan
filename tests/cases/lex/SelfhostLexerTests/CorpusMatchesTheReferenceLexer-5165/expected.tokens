@@ -1,0 +1,19 @@
+1:1 PlusPercent `+%`
+1:4 MinusPercent `-%`
+1:7 StarPercent `*%`
+1:9 PlusBar `+|`
+1:12 MinusBar `-|`
+1:15 StarBar `*|`
+1:18 PlusPlus `++`
+1:21 MinusMinus `--`
+2:1 Amp `&`
+2:3 AmpAmp `&&`
+2:6 Bar `|`
+2:8 BarBar `||`
+2:11 Caret `^`
+2:13 Tilde `~`
+2:15 Bang `!`
+2:17 Equals `=`
+2:19 EqualsEquals `==`
+2:22 BangEquals `!=`
+2:25 EndOfFile

@@ -1,0 +1,48 @@
+1:1 FloatLiteral `3.14`
+1:6 FloatLiteral `1e5`
+1:10 FloatLiteral `2.5e-3`
+1:17 FloatLiteral `6E+2`
+1:22 FloatLiteral `1.50`
+1:26 NumericSuffix `dec`
+1:30 IntegerLiteral `1`
+1:31 DotDot `..`
+1:33 IntegerLiteral `2`
+1:35 IntegerLiteral `1`
+1:36 DotDot `..`
+1:38 Identifier `o`
+1:39 Equals `=`
+1:40 IntegerLiteral `3`
+1:42 IntegerLiteral `5`
+1:43 NumericSuffix `e`
+1:45 Identifier `x`
+1:46 Dot `.`
+1:47 Identifier `y`
+1:49 FloatLiteral `2.5`
+1:52 NumericSuffix `f`
+3:1 Star `*`
+3:2 Slash `/`
+4:1 IntegerLiteral `1`
+4:2 NumericSuffix `e`
+4:3 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 IntegerLiteral `1`
+6:2 LetKeyword `let`
+6:6 Identifier `b`
+6:7 Equals `=`
+6:11 IntegerLiteral `2`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ �let b= ` 2�
+    │ ^
+
+error BYN0002: unexpected character ```
+
+  6 │ �let b= ` 2�
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  6 │ �let b= ` 2�
+    │            ^

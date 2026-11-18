@@ -1,0 +1,64 @@
+1:1 IntegerLiteral `0x`
+2:2 CharLiteral `'x`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:9 CharLiteral `'\u{1F600}'`
+3:21 CharLiteral `'\''`
+3:26 CharLiteral `'é'`
+3:30 CharLiteral `'\\'`
+3:35 CharLiteral `'\0'`
+5:1 StructKeyword `struct`
+5:8 Identifier `S`
+6:2 Identifier `Å`
+6:5 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x�����
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ 0x�����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ 0x�����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ 0x�����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ 0x�����
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ 0x�����
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ � 'x
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  2 │ � 'x
+    │   ^^
+    │
+  help: close it with `'`
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  6 │  Å 
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │  Å 
+    │   │  +

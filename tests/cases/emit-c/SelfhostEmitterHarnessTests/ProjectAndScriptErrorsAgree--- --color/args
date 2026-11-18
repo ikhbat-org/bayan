@@ -1,0 +1,6 @@
+build
+--emit-c
+input.byn
+--
+--color
+blue

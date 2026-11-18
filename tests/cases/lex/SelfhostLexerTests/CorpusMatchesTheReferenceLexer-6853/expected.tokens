@@ -1,0 +1,9 @@
+4:1 Star `*`
+4:2 Slash `/`
+6:1 Identifier `b`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  7 │  // ok � in comment
+    │        ^

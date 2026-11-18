@@ -1,0 +1,15 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:2 IntegerLiteral `1`
+2:3 Dot `.`
+2:4 Identifier `ne`
+2:6 Dot `.`
+    doc `/// Do�c line two.`
+4:1 StructKeyword `struct`
+4:8 Identifier `S`
+5:16 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  3 │ /// Do�c line two.
+    │       ^

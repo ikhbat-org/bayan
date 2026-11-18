@@ -1,0 +1,4 @@
+== bind.probes.k3
+flags 0
+errorExpr:?[3891:9]=-()
+BYN2206 200:14 cannot convert `i32` to `string` |||

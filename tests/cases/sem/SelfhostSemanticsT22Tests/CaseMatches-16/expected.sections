@@ -1,0 +1,3 @@
+== becomes.Order.st.c3
+null
+BYN7003 37:18 `st` calls `pay`, which changes the state; declare `becomes` on `st` ||add `becomes .paid` to the signature of `st`|fix 635..635  becomes .paid

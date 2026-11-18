@@ -1,0 +1,12 @@
+== tests/cases/diag/function-type-placement.byn
+185..191 callExpr
+185..191 callExpr
+185..191 callExpr
+209..212 blockStmt
+242..245 blockStmt
+269..272 blockStmt
+292..295 blockStmt
+317..320 blockStmt
+350..353 blockStmt
+376..379 blockStmt
+393..396 blockStmt

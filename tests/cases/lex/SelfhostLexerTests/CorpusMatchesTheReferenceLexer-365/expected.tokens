@@ -1,0 +1,26 @@
+2:2 CharLiteral `'\u{110000}'`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quoted"`
+4:2 StringLiteral `"a\u{2067}b"`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolationEnd `}`
+4:12 InterpolatedStringEnd `"`
+4:13 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

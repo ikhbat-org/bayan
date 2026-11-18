@@ -1,0 +1,73 @@
+2:1 IntegerLiteral `0b102`
+5:2 Identifier `x`
+5:4 Equals `=`
+5:8 CloseBrace `}`
+5:9 CloseBrace `}`
+5:10 Bang `!`
+5:11 StringLiteral `" $"`
+5:15 StringLiteral `"`
+6:5 StructKeyword `struct`
+6:12 UniqueKeyword `unique`
+6:19 UnionKeyword `union`
+6:25 EnumKeyword `enum`
+6:30 FlagsKeyword `flags`
+6:36 OpenKeyword `open`
+6:41 ExtensibleKeyword `extensible`
+6:52 InterfaceKeyword `interface`
+6:62 DelegateKeyword `delegate`
+6:71 ExtensionKeyword `extension`
+6:81 DerivationKeyword `derivation`
+6:92 Identifier `attriute`
+7:2 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ �
+    │ ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │ 0b102
+    │     ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  // comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  // comment � hidden
+    │   │             -
+
+error BYN0002: unexpected character `\u{1B}`
+
+  5 │  x = � }}!" $""
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  5 │  x = � }}!" $""
+    │               ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  6 │  � �struct unique union enum flags open extensible interface delegate extension derivation attriute
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │  � �struct unique union enum flags open extensible interface delegate extension derivation attriute
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │  � �struct unique union enum flags open extensible interface delegate extension derivation attriute
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │  � �struct unique union enum flags open extensible interface delegate extension derivation attriute
+    │     ^

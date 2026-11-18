@@ -1,0 +1,171 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 StringLiteral `$"{x}"`
+2:55 InterpolationEnd `}`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 InterpolationEnd `}`
+2:62 InterpolatedStringEnd `"`
+2:63 InterpolationEnd `}`
+2:64 InterpolatedStringEnd `"`
+2:65 InterpolationEnd `}`
+2:66 InterpolatedStringEnd `"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 FatArrow `=>`
+2:74 Arrow `->`
+2:77 At `@`
+2:79 Hash `#`
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 MinusPercent `-%`
+3:17 StarPercent `*%`
+3:20 PlusBar `+|`
+3:23 MinusBar `-|`
+3:26 StarBar `*|`
+3:29 PlusPlus `++`
+3:32 MinusMinus `--`
+4:2 FailsKeyword `fails`
+4:8 TryKeyword `try`
+4:12 CatchKeyword `catch`
+4:18 NeverKeyword `never`
+4:24 NoallocKeyword `noalloc`
+4:32 NosuspendKeyword `nosuspend`
+4:42 SuspendsKeyword `suspends`
+4:51 AsyncKeyword `async`
+4:57 AwaitKeyword `await`
+5:3 InterpolatedStringStart `$"`
+5:5 InterpolationStart `{`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+5:9 InterpolatedStringStart `$"`
+5:11 InterpolationStart `{`
+5:12 InterpolatedStringStart `$"`
+5:14 InterpolationStart `{`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolationStart `{`
+5:18 InterpolatedStringStart `$"`
+5:20 InterpolationStart `{`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolationStart `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 StringLiteral `$"{$"`
+5:32 OpenBrace `{`
+5:33 StringLiteral `$"{$"`
+5:38 OpenBrace `{`
+5:39 StringLiteral `$"{$"`
+5:44 OpenBrace `{`
+5:45 StringLiteral `$"{$"`
+5:50 OpenBrace `{`
+5:51 StringLiteral `$"{x}"`
+5:57 CloseBrace `}`
+5:58 StringLiteral `"}"`
+5:61 CloseBrace `}`
+5:62 StringLiteral `"}"`
+6:1 StringLiteral `$"{a`
+7:1 IfKeyword `if`
+7:4 ElseKeyword `else`
+7:9 UnlessKeyword `unless`
+7:16 SwitchKeyword `switch`
+7:23 CaseKeyword `case`
+7:28 DefaultKeyword `default`
+7:36 ForKeyword `for`
+7:40 InKeyword `in`
+7:43 WhileKeyword `while`
+7:49 DoKeyword `do`
+7:52 BreakKeyword `break`
+7:58 ContinueKeyword `continue`
+7:67 ReturnKeyword `return`
+7:74 YieldKeyword `yield`
+7:80 DeferKeyword `defer`
+7:86 ErrdeferKeyword `errdefer`
+7:95 UsingKeyword `using`
+7:101 ContextKeyword `context`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"=> -> @ #
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │  ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │  ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  5 │  ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+    │                           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{a
+    │ ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

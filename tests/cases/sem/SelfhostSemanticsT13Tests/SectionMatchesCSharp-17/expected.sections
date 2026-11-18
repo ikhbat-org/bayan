@@ -1,0 +1,10 @@
+== instantiateFunction
+tri new yes need of need args Tri map T=Tri fns +1 work +1 self yes
+again new no need of need args Tri map T=Tri fns +0 work +0
+square new yes need of need args Square map T=Square fns +1 work +0
+BYN2807 2:12 `Square` does not conform to `IShape`: missing `area` | the generic code needs this of its type arguments | add `: IShape` to `Square` and provide `area`
+nested new yes need of need args Both map T=Both fns +1 work +1 self yes
+generic new yes loose of loose args U map U=U fns +1 work +0
+pass new yes two of two args Square map T=Square fns +1 work +0
+pass instances two<Square> errors 0
+pass BYN2807 2:12 `Square` does not conform to `IOther`: missing `other` | the generic code needs this of its type arguments | add `: IOther` to `Square` and provide `other`

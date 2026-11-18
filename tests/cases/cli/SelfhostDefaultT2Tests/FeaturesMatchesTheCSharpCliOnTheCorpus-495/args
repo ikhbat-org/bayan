@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/defer-declaration-body.byn
+--package
+<repo>/tests/cases/diag

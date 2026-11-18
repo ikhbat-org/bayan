@@ -1,0 +1,35 @@
+3:1 Identifier `o`
+3:3 Identifier `Bar`
+3:7 Identifier `_x`
+3:10 Identifier `camelCase2`
+3:21 Identifier `بيان`
+3:26 Identifier `μετρητής`
+3:35 Identifier `x_`
+3:39 Identifier `macro`
+3:45 Identifier `select`
+3:52 BecomeKeyword `become`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment�
+    │       ^
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ o Bar _x camelCase2 بيان μετρητής x_ ﻿macro select become
+    │                                      ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ o Bar _x camelCase2 بيان μετρητής x_ ﻿macro select become
+    │                                       ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ o Bar _x camelCase2 بيان μετρητής x_ ﻿macro select become
+    │                                             ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

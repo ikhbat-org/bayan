@@ -1,0 +1,27 @@
+== constraints
+need Circle yes
+need Square no
+BYN2807 34:26 `Square` does not conform to `IShape`: missing `area` |  | add `: IShape` to `Square` and provide `area`
+need Both no
+BYN2807 34:26 `Both` does not conform to `IShape`: missing `area` |  | add `: IShape` to `Both` and provide `area`
+need i32 no
+BYN2807 34:26 `i32` does not conform to `IShape`: missing `area` |  | pass a struct that conforms to `IShape`; primitives do not conform to interfaces
+need U no
+BYN2807 34:26 `U` does not conform to `IShape`: missing `area` |  | add `where U : IShape` to the declaration of `U`
+need IShape no
+BYN2807 34:26 `IShape` does not conform to `IShape`: missing `area` |  | pass a struct that conforms to `IShape`; only structs conform to interfaces
+need error yes
+two Square no
+BYN2807 37:25 `Square` does not conform to `IOther`: missing `other` |  | add `: IOther` to `Square` and provide `other`
+empty Square no
+BYN2807 40:27 `Square` does not conform to `IEmpty`: missing `: IEmpty` |  | add `: IEmpty` to `Square` and provide `: IEmpty`
+none Square yes
+notIface Square yes
+two Tri no
+BYN2807 37:25 `Tri` does not conform to `IOther`: missing `other` |  | add `: IOther` to `Tri` and provide `other`
+split Square no
+BYN2807 75:27 `Square` does not conform to `IShape`: missing `area` |  | add `: IShape` to `Square` and provide `area`
+split Circle no
+BYN2807 75:44 `Circle` does not conform to `IEmpty`: missing `: IEmpty` |  | add `: IEmpty` to `Circle` and provide `: IEmpty`
+rev Square no
+BYN2807 78:25 `Square` does not conform to `IRev`: missing `back` |  | add `: IRev` to `Square` and provide `back`

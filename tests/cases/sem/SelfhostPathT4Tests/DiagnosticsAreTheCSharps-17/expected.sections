@@ -1,0 +1,3 @@
+== diags.log-function
+BYN2009 1:6 `Log` must be camelCase
+  help rename it `log`; only types are PascalCase

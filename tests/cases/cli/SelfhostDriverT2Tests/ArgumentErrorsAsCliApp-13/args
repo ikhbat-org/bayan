@@ -1,0 +1,3 @@
+check
+<repo>/tests/cases/lex/bad-chars.byn
+--all

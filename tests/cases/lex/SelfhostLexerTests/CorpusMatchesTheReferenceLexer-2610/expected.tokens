@@ -1,0 +1,146 @@
+1:1 Identifier `FFu`
+1:5 IntegerLiteral `0b1`
+1:8 NumericSuffix `ul`
+1:11 IntegerLiteral `7`
+1:12 NumericSuffix `l`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 PlusPlus `++`
+2:32 MinusMinus `--`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 AsKeyword `as`
+3:40 PublicKeyword `public`
+3:47 PrivateKeyword `private`
+3:55 StaticKeyword `static`
+3:62 ReadonlyKeyword `readonly`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 VarKeyword `var`
+3:94 EmbedKeyword `embed`
+3:100 ExternKeyword `extern`
+3:107 UnsafeKeyword `unsafe`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:33 OpenBrace `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 Identifier `x`
+4:47 InterpolationEnd `}`
+4:48 InterpolatedStringEnd `"`
+4:49 InterpolationEnd `}`
+4:50 InterpolatedStringEnd `"`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 CloseBrace `}`
+4:56 StringLiteral `"}"`
+4:59 InterpolationEnd `}`
+4:60 InterpolatedStringEnd `"`
+4:61 InterpolationEnd `}`
+4:62 InterpolatedStringEnd `"`
+4:63 InterpolationEnd `}`
+4:64 InterpolatedStringEnd `"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:69 InterpolationEnd `}`
+4:70 InterpolatedStringEnd `"`
+4:71 InterpolationEnd `}`
+4:72 InterpolatedStringEnd `"`
+4:74 StringLiteral `"text"`
+4:81 StringLiteral `"esc \"q\" \\ \n"`
+4:99 RawStringLiteral `"""\n\n�����\n$"{" `
+7:6 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" "text" "esc \"q\" \\ \n" """
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" "text" "esc \"q\" \\ \n" """
+    │                               ^
+
+error BYN0002: unexpected character `\u{15}`
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" "text" "esc \"q\" \\ \n" """
+    │                                ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" "text" "esc \"q\" \\ \n" """
+    │                                                                                                   ^^^ raw
+    │                                                                                                       string
+    │                                                                                                       starts
+    │                                                                                                       here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  6 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  6 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │     ^

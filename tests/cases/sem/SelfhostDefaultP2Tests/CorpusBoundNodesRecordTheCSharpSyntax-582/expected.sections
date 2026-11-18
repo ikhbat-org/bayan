@@ -1,0 +1,15 @@
+== tests/cases/diag/interface-default-missing-return.byn
+162..172 globalStatement
+162..172 exprStmt
+162..172 callExpr
+168..171 literalExpr string
+162..172 callExpr
+96..158 blockStmt
+106..152 ifStmt
+109..119 binaryExpr gt right 118..119
+109..115 callExpr
+109..113 nameExpr
+118..119 literalExpr integer
+120..152 blockStmt
+134..142 returnStmt value 141..142
+141..142 literalExpr integer

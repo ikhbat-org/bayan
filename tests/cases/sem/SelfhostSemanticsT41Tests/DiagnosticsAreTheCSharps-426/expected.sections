@@ -1,0 +1,9 @@
+== diags.diag/fails-shorthand-two-fails
+BYN1065 10:19 `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`, `fails`
+  label out of order
+  help move `uses` before `fails`
+  fix 10:11-10:39 uses console fails F fails G
+BYN1031 10:4 `T!E` is an input form; write `T f() fails E`
+  label the input form
+  help write `fails E, F, G` as the last clause of the signature
+  fix 10:4-10:39  g() uses console fails E, F, G

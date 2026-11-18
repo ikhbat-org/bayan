@@ -1,0 +1,58 @@
+1:1 StringLiteral `"{{literal}}"`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 Identifier `Poi`
+3:1 Identifier `각`
+3:5 Identifier `u`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 StringLiteral `"`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ "{{literal}}" $"{Poi // comment � �iden
+    │                                 ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ "{{literal}}" $"{Poi // comment � �iden
+    │   │                                 -
+
+error BYN0015: source is not valid UTF-8 (byte 0x89)
+
+  1 │ "{{literal}}" $"{Poi // comment � �iden
+    │                                   ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  3 │ 각 u�
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ 각 u�
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ 각 u�
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ 각 u�
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

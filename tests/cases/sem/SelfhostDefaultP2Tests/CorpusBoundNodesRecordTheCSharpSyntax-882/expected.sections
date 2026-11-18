@@ -1,0 +1,22 @@
+== tests/cases/diag/take-immutable.byn
+151..179 blockStmt
+157..177 localDecl
+165..177 callExpr
+165..170 nameExpr
+205..237 blockStmt
+211..235 localDecl
+219..235 callExpr
+219..228 memberExpr
+219..222 nameExpr
+286..316 blockStmt
+292..314 localDecl
+300..314 callExpr
+300..307 indexExpr
+300..304 nameExpr
+305..306 literalExpr integer
+330..386 blockStmt
+336..359 localDecl
+348..359 callExpr
+364..384 localDecl
+372..384 callExpr
+372..377 nameExpr

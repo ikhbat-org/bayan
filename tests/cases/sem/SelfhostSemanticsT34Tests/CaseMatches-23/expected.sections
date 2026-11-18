@@ -1,0 +1,6 @@
+== s5
+switchExpr|i32|1709:40
+value local:Shape=sh
+arm 1721:18 bindPattern[1721:13]:Shape(-) guard - value local:?=a
+arm 1741:6 bindPattern[1741:1]:Shape_(-) guard - value literal:i32=0
+BYN2706 76:26 variant `empty` has no payload ||match it with `.empty`|

@@ -1,0 +1,8 @@
+error BYN2210: `??` needs an optional value on the left, found `i64`
+  --> <repo>/tmp/t2/diag/coalesce-not-optional/coalesce-not-optional.byn:2:9
+
+  2 │ let m = n ?? 0
+    │         ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2210

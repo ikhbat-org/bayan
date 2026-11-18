@@ -1,0 +1,31 @@
+warning BYN5011: this `expects` reads only `percent`; a type with `requires` checks it once
+  --> <repo>/tests/cases/diag/requires-violated.byn:2:5
+
+  2 │     expects percent in 0..=100
+    │     ^^^^^^^
+    │
+  help: declare a type with `requires` for `percent`
+
+warning BYN5011: this `expects` reads only `n`; a type with `requires` checks it once
+  --> <repo>/tests/cases/diag/requires-violated.byn:5:21
+
+  5 │ i32 positive(i32 n) expects n > 0 && n < 1000 => n
+    │                     ^^^^^^^
+    │
+  help: declare a type with `requires` for `n`
+
+error BYN2321: `150` violates `requires percent in 0..=100` of `discount`
+  --> <repo>/tests/cases/diag/requires-violated.byn:8:29
+
+  8 │ let bad = discount(200, by: 150)
+    │                             ^^^ fails the contract
+    │
+  help: pass a value that meets `requires percent in 0..=100`
+
+error BYN2321: `0` violates `requires n > 0 && n < 1000` of `positive`
+  --> <repo>/tests/cases/diag/requires-violated.byn:10:40
+
+  10 │ print($"{ok} {bad} {runtime} {positive(0)} {positive(5)}")
+     │                                        ^ fails the contract
+     │
+  help: pass a value that meets `requires n > 0 && n < 1000`

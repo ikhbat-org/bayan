@@ -1,0 +1,4 @@
+== member.probes.-.x2
+methodGroup|?|-1|hiddenFn|-|-|-|2384:14|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2005 125:20 `hiddenFn` is not visible here |not `public`|mark `hiddenFn` `public` to use it from another module|

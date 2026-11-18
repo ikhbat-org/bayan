@@ -1,0 +1,7 @@
+error BYN2804: `i32` is not an interface
+  --> <repo>/tests/cases/diag/input-csharp-type-name-where.byn:1:25
+
+  1 │ i64 f<T>(T x) where T : int => 1
+    │                         ^^^ a type
+    │
+  help: list an `interface` here

@@ -1,0 +1,3 @@
+== structd.probes.s13
+bound
+BYN2001 224:26 `nope` is not defined ||did you mean `Node`?|fix 4513..4517 Node

@@ -1,0 +1,14 @@
+== untyped
+qInt true
+qU false
+qFlt true
+qFltF false
+qChar true
+qNull true
+qStr false
+qTrue false
+qParen true
+qNeg true
+qSum true
+qCmp false
+qMod false

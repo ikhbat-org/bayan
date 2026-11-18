@@ -1,0 +1,1 @@
+{"code":"BYN1041","severity":"error","file":"input.byn","span":{"start":65,"end":69,"line":5,"column":5,"endLine":5,"endColumn":9},"message":"`else` must follow `}` on the same line","label":"on a new line","help":"move `else` up to the line of `}`","fixes":[{"span":{"start":60,"end":65,"line":4,"column":6,"endLine":5,"endColumn":5},"replacement":" "}]}

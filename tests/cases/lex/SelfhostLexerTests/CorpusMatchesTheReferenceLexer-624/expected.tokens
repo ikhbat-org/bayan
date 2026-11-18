@@ -1,0 +1,15 @@
+1:1 IntegerLiteral `0b102`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بيان`
+3:28 Identifier `μετρητής`
+3:37 Identifier `x_1`
+3:41 Identifier `é`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^

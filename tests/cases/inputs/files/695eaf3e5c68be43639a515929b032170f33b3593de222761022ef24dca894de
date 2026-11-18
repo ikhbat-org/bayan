@@ -1,0 +1,4 @@
+let shipment = carrier.book(
+    parcel,
+    as: .express
+)

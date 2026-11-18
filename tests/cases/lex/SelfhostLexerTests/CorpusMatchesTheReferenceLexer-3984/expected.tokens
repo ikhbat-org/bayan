@@ -1,0 +1,46 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 Identifier `co`
+1:60 Identifier `ntinue`
+1:67 Identifier `returHn`
+1:75 YieldKeyword `yield`
+1:81 Identifier `d`
+1:83 Identifier `fer`
+1:87 ErrdeferKeyword `errdefer`
+1:96 UsingKeyword `using`
+1:102 ContextKeyword `context`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `{{`
+2:5 InterpolatedStringEnd `"`
+2:7 IntegerLiteral `0x`
+2:10 IntegerLiteral `0x_`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8A)
+
+  1 │ if else unless switch case default for in while do break co�ntinue returHn yield d�fer errdefer using context
+    │                                                            ^
+
+error BYN0002: unexpected character `\u{1D}`
+
+  1 │ if else unless switch case default for in while do break co�ntinue returHn yield d�fer errdefer using context
+    │                                                                                   ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ $"{{" 0x 0x_
+    │       ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ $"{{" 0x 0x_
+    │          ^^^

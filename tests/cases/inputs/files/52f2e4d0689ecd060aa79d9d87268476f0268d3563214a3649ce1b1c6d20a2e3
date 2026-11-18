@@ -1,0 +1,3 @@
+struct S
+ //// not /a doc omment
+

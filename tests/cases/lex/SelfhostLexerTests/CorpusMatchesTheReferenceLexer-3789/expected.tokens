@@ -1,0 +1,98 @@
+1:1 Identifier `g`
+1:3 ContextKeyword `context`
+2:1 FailsKeyword `fails`
+2:7 TryKeyword `try`
+2:11 CatchKeyword `catch`
+2:17 Identifier `nev`
+2:21 StringLiteral `"}"`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolatedStringText `total `
+3:11 InterpolationStart `{`
+3:12 Identifier `x`
+3:13 InterpolationEnd `}`
+3:14 InterpolatedStringEnd `"`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolatedStringText `a `
+3:20 InterpolationStart `{`
+3:21 Identifier `f`
+3:22 OpenParen `(`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolatedStringText `b `
+3:27 InterpolationStart `{`
+3:28 Identifier `c`
+3:29 InterpolationEnd `}`
+3:30 InterpolatedStringEnd `"`
+3:31 CloseParen `)`
+3:32 InterpolationEnd `}`
+3:33 InterpolatedStringText ` d`
+3:35 InterpolatedStringEnd `"`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolatedStringText `{{literal}}`
+3:50 InterpolatedStringEnd `"`
+3:52 InterpolatedStringStart `$"`
+3:54 InterpolationStart `{`
+3:55 Identifier `Point`
+3:61 OpenBrace `{`
+3:63 Identifier `x`
+3:65 Equals `=`
+3:67 IntegerLiteral `1`
+3:69 CloseBrace `}`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringText `!`
+3:72 InterpolatedStringEnd `"`
+3:74 InterpolatedStringStart `$"`
+3:76 InterpolatedStringEnd `"`
+4:2 LetKeyword `let`
+4:6 Identifier `a`
+4:8 Equals `=`
+4:12 IntegerLiteral `1`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ ������$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │ ������$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ ������$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ ������$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │       ^
+
+error BYN0002: unexpected character `$`
+
+  4 │  let a = $ 1
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{ 
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

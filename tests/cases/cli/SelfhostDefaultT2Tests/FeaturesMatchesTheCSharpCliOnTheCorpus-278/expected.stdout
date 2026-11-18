@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ConstantPattern",
+    "ExprStmt",
+    "FunctionDecl",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "IsExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "TryExpr"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "ListAdd",
+    "ListAsSpan",
+    "ListClear",
+    "Print",
+    "StringInvalidUtf8At",
+    "StringLength",
+    "Utf8Decode",
+    "Utf8TryDecode"
+  ],
+  "diagnostics": []
+}

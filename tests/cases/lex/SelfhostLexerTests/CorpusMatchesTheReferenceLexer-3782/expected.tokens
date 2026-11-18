@@ -1,0 +1,75 @@
+2:1 CharLiteral `'a'`
+2:5 CharLiteral `'\n'`
+2:10 CharLiteral `'\u{1F600}'`
+2:22 CharLiteral `'\''`
+2:27 CharLiteral `'é'`
+2:31 CharLiteral `'\\'`
+2:36 CharLiteral `'\0'`
+3:2 CharLiteral `'\u{D800}'`
+4:2 PlusEquals `+=`
+4:5 MinusEquals `-=`
+4:8 StarEquals `*=`
+4:11 SlashEquals `/=`
+4:14 PercentEquals `%=`
+4:17 AmpEquals `&=`
+4:20 BarEquals `|=`
+4:23 CaretEquals `^=`
+4:26 LessLessEquals `<<=`
+5:1 OpenBrace `{`
+6:1 StringLiteral `"{$"`
+6:5 OpenBrace `{`
+6:6 InterpolatedStringStart `$"`
+6:8 InterpolationStart `{`
+6:10 OpenBrace `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolatedStringText `\u{16}`
+6:23 InterpolationStart `{`
+6:24 InterpolatedStringStart `$"`
+6:26 InterpolationStart `{`
+6:27 InterpolatedStringStart `$"`
+6:29 InterpolationStart `{`
+6:30 InterpolatedStringStart `$"`
+6:32 InterpolationStart `{`
+6:33 InterpolatedStringStart `$"`
+6:35 InterpolationStart `{`
+6:36 InterpolatedStringStart `$"`
+6:38 InterpolationStart `{`
+6:39 InterpolatedStringStart `$"`
+6:41 InterpolationStart `{`
+6:42 InterpolatedStringStart `$"`
+6:44 InterpolationStart `{`
+6:45 InterpolatedStringStart `$"`
+6:47 InterpolationStart `{`
+6:48 InterpolatedStringStart `$"`
+6:50 InterpolationStart `{`
+6:51 Identifier `x`
+6:52 InterpolationEnd `}`
+6:53 InterpolatedStringEnd `"`
+6:54 InterpolationEnd `}`
+6:55 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │  '\u{D800}'
+    │   ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `$`
+
+  6 │ "{$"{$"{${$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  6 │ "{$"{$"{${$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                          ^^ this string never ends
+    │
+  help: close the `{` and the string

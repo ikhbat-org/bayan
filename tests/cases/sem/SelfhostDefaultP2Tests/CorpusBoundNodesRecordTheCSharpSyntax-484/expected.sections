@@ -1,0 +1,3 @@
+== tests/cases/diag/field-write-sealed.byn
+118..145 blockStmt
+124..143 assignStmt assign target 124..139 value 142..143

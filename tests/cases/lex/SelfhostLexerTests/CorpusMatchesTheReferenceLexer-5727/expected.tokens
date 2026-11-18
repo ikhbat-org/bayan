@@ -1,0 +1,91 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 AsKeyword `as`
+3:40 PublicKeyword `public`
+3:47 PrivateKeyword `private`
+3:55 StaticKeyword `static`
+3:62 ReadonlyKeyword `readonly`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 Identifier `vr`
+3:93 EmbedKeyword `embed`
+3:99 ExternKeyword `extern`
+3:106 UnsafeKeyword `unsafe`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 Identifier `x`
+5:44 InterpolationEnd `}`
+5:45 InterpolatedStringEnd `"`
+5:46 InterpolationEnd `}`
+5:47 InterpolatedStringEnd `"`
+5:48 InterpolationEnd `}`
+5:49 InterpolatedStringEnd `"`
+5:50 InterpolationEnd `}`
+5:51 InterpolatedStringEnd `"`
+5:52 InterpolationEnd `}`
+5:53 InterpolatedStringEnd `"`
+5:54 InterpolationEnd `}`
+5:55 InterpolatedStringEnd `"`
+5:56 InterpolationEnd `}`
+5:57 InterpolatedStringEnd `"`
+5:58 InterpolationEnd `}`
+5:59 InterpolatedStringEnd `"`
+5:60 InterpolationEnd `}`
+5:61 InterpolatedStringEnd `"`
+5:62 InterpolationEnd `}`
+5:63 InterpolatedStringEnd `"`
+5:64 InterpolationEnd `}`
+5:65 InterpolatedStringEnd `"`
+5:66 InterpolationEnd `}`
+5:67 InterpolatedStringEnd `"`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringEnd `"`
+5:70 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

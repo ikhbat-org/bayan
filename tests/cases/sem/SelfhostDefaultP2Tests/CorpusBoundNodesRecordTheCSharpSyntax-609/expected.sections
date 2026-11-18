@@ -1,0 +1,9 @@
+== tests/cases/diag/io-unknown-member-suggests-directory.byn
+140..172 blockStmt
+146..170 exprStmt
+150..170 callExpr
+186..205 blockStmt
+192..203 exprStmt
+192..203 callExpr
+198..202 literalExpr string
+192..203 callExpr

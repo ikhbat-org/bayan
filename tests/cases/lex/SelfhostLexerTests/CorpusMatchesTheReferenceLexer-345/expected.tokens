@@ -1,0 +1,68 @@
+1:1 CharLiteral `'\q'`
+4:3 Identifier `raw`
+4:7 StringLiteral `"quoted"`
+5:2 OpenBrace `{`
+5:4 IsKeyword `is`
+5:7 AndKeyword `and`
+5:11 OrKeyword `or`
+5:14 NotKeyword `not`
+5:18 WithKeyword `with`
+5:23 MoveKeyword `move`
+5:28 RefKeyword `ref`
+5:32 OutKeyword `out`
+5:36 ThisKeyword `this`
+5:41 NullKeyword `null`
+5:46 TrueKeyword `true`
+5:51 FalseKeyword `false`
+5:57 Identifier `com`
+5:61 Identifier `t`
+5:63 Identifier `ime`
+5:67 CheckedKeyword `checked`
+6:1 Identifier `letcafé`
+6:9 Equals `=`
+6:11 IntegerLiteral `2`
+7:3 LessEquals `<=`
+7:6 Greater `>`
+7:8 GreaterEquals `>=`
+7:11 LessLess `<<`
+7:14 Greater `>`
+7:15 Greater `>`
+7:17 Greater `>`
+7:18 GreaterEquals `>=`
+8:1 PlusEquals `+=`
+8:4 MinusEquals `-=`
+8:7 StarEquals `*=`
+8:10 SlashEquals `/=`
+8:13 PercentEquals `%=`
+8:16 AmpEquals `&=`
+8:19 BarEquals `|=`
+8:22 CaretEquals `^=`
+8:25 LessLessEquals `<<=`
+9:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��
+    │  ^
+
+error BYN0002: unexpected character `̈́`
+
+  5 │  {̈́is and or not with move ref out this null true false com t�ime checked
+    │   ^
+
+error BYN0002: unexpected character `\u{1F}`
+
+  5 │  {̈́is and or not with move ref out this null true false com t�ime checked
+    │                                                              ^

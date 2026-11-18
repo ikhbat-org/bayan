@@ -1,0 +1,65 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 StringLiteral `"{$"`
+1:8 OpenBrace `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 Identifier `x`
+1:43 InterpolationEnd `}`
+1:44 InterpolatedStringEnd `"`
+1:45 InterpolationEnd `}`
+1:46 InterpolatedStringEnd `"`
+1:47 InterpolationEnd `}`
+1:48 InterpolatedStringEnd `"`
+2:1 Identifier `losed`
+3:1 Identifier `b`
+4:1 IntegerLiteral `1__`
+5:2 Plus `+`
+5:4 Minus `-`
+5:6 Star `*`
+5:8 Slash `/`
+5:10 Percent `%`
+5:12 PlusPercent `+%`
+5:15 MinusPercent `-%`
+5:18 StarPercent `*%`
+5:21 PlusBar `+|`
+5:24 MinusBar `-|`
+5:27 StarBar `*|`
+5:30 PlusPlus `++`
+5:33 MinusMinus `--`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --

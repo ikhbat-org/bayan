@@ -1,0 +1,22 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 Identifier `mdel`
+1:32 ForeachKeyword `foreach`
+1:40 NewKeyword `new`
+1:44 GotoKeyword `goto`
+2:1 Equals `=`
+2:3 IntegerLiteral `2`
+4:1 Identifier `et`
+4:4 Identifier `c`
+4:6 Equals `=`
+4:8 RawStringLiteral `"""never closed\nerror set unit distinct type import as public private static readonly required const let var embed extern unsafe\n\né `
+7:4 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ et c = """never closed
+    │        ^^^ raw string starts here
+    │
+  help: close it with `"""`

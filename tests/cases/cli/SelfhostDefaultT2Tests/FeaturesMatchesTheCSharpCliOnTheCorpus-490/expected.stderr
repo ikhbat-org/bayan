@@ -1,0 +1,5 @@
+error BYN2407: `continue pick` refers to a `switch`, not a loop
+  --> <repo>/tests/cases/diag/continue-switch.byn:4:18
+
+  4 │         continue pick
+    │                  ^^^^

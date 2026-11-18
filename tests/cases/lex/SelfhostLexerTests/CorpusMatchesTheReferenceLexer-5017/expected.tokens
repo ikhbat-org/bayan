@@ -1,0 +1,103 @@
+1:1 Identifier `Å`
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolationStart `{`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 InterpolatedStringStart `$"`
+1:19 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolationStart `{`
+1:26 InterpolatedStringStart `$"`
+1:28 InterpolationStart `{`
+1:29 InterpolatedStringStart `$"`
+1:31 InterpolationStart `{`
+1:32 InterpolatedStringStart `$"`
+1:34 InterpolationStart `{`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolationStart `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 StringLiteral `$"{$"`
+1:55 OpenBrace `{`
+1:56 StringLiteral `$"{x}"`
+1:62 CloseBrace `}`
+1:63 StringLiteral `"}"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringEnd `"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+2:1 LetKeyword `let`
+2:5 Identifier `actor`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+4:1 RawStringLiteral `"""�x_1 é\n{{literal}}" $"{Point { x = 1 }}!2.5e-3 `
+5:41 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  1 │ Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                                                  ^^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  2 │ let actor�= 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xE0)
+
+  2 │ let actor�= 1
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  4 │ """�x_1 é
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ """�x_1 é
+    │    ^

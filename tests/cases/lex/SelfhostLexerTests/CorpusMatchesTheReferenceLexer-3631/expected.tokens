@@ -1,0 +1,14 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:2 Identifier `b`
+3:2 CharLiteral `'`
+4:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  3 │  '
+    │  ^
+    │
+  help: close it with `'`

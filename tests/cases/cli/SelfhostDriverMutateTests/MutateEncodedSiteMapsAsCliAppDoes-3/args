@@ -1,0 +1,7 @@
+mutate
+--binary
+<repo>/tmp/t13-mutate/encoded-utf16le-nobom/prog
+--sites
+<repo>/tmp/t13-mutate/encoded-utf16le-nobom/prog.sites.json
+--
+true

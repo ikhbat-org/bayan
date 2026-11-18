@@ -1,0 +1,6 @@
+== lower
+fn f locals=0 ctx=0 panic=0 stmts=0
+fn main locals=0 ctx=0 panic=0 stmts=0
+fn P locals=0 ctx=0 panic=0 stmts=2
+main main
+test nothing locals=0 ctx=0 panic=0 stmts=0

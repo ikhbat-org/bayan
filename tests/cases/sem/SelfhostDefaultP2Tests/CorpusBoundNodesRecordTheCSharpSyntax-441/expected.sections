@@ -1,0 +1,37 @@
+== tests/cases/diag/dyn-ref-local-receiver-modified.byn
+278..430 blockStmt
+284..316 localDecl
+292..316 structLiteralExpr
+303..314 callExpr
+321..338 exprStmt
+321..338 callExpr
+321..328 memberExpr
+321..322 nameExpr
+336..337 literalExpr integer
+343..363 localDecl
+351..363 memberExpr
+351..358 memberExpr
+351..352 nameExpr
+368..393 localDecl
+392..393 nameExpr
+392..393 nameExpr
+398..407 exprStmt
+398..407 callExpr
+398..399 nameExpr
+412..428 exprStmt
+412..428 callExpr
+418..427 interpolatedExpr
+421..425 indexExpr
+421..422 nameExpr
+423..424 literalExpr integer
+412..428 callExpr
+210..263 blockStmt
+220..233 exprStmt
+220..233 callExpr
+220..225 nameExpr
+220..225 nameExpr
+242..257 exprStmt
+242..257 callExpr
+242..247 nameExpr
+242..247 nameExpr
+255..256 literalExpr integer

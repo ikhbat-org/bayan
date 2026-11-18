@@ -1,0 +1,144 @@
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+3:1 LetKeyword `let`
+3:5 EffectKeyword `effect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 StringLiteral `$"{$"`
+4:55 OpenBrace `{`
+4:56 StringLiteral `$"{$"`
+4:61 OpenBrace `{`
+4:62 Identifier `x`
+4:63 CloseBrace `}`
+4:64 StringLiteral `"}"`
+4:67 CloseBrace `}`
+4:68 StringLiteral `"}"`
+4:71 InterpolationEnd `}`
+4:72 InterpolatedStringEnd `"`
+4:73 InterpolationEnd `}`
+4:74 InterpolatedStringEnd `"`
+4:75 InterpolationEnd `}`
+4:76 InterpolatedStringEnd `"`
+4:77 InterpolationEnd `}`
+4:78 InterpolatedStringEnd `"`
+4:79 InterpolationEnd `}`
+4:80 InterpolatedStringEnd `"`
+4:81 InterpolationEnd `}`
+4:82 InterpolatedStringEnd `"`
+4:83 InterpolationEnd `}`
+4:84 InterpolatedStringEnd `"`
+4:85 InterpolationEnd `}`
+4:86 InterpolatedStringEnd `"`
+5:1 FailsKeyword `fails`
+5:7 TryKeyword `try`
+5:11 CatchKeyword `catch`
+5:17 NeverKeyword `never`
+5:23 NoallocKeyword `noalloc`
+5:31 NosuspendKeyword `nosuspend`
+5:41 SuspendsKeyword `suspends`
+5:50 AsyncKeyword `async`
+5:56 AwaitKeyword `await`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 StringLiteral `$"{$"`
+7:30 OpenBrace `{`
+7:31 StringLiteral `$"{$"`
+7:36 OpenBrace `{`
+7:37 StringLiteral `$"{$"`
+7:42 OpenBrace `{`
+7:43 StringLiteral `$"{$"`
+7:48 OpenBrace `{`
+7:49 StringLiteral `$"{"`
+7:53 OpenBrace `{`
+7:54 StringLiteral `$"{x}"`
+7:60 CloseBrace `}`
+7:61 StringLiteral `"}"`
+7:64 CloseBrace `}`
+7:65 StringLiteral `"}"`
+7:68 CloseBrace `}`
+7:69 StringLiteral `"}"`
+7:72 CloseBrace `}`
+7:73 StringLiteral `"}"`
+7:76 CloseBrace `}`
+7:77 StringLiteral `" `
+7:79 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"�
+    │                                                  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"�
+    │                                                                                       ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{x}"}"}"}"}"}"}"}"}"}" 
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{x}"}"}"}"}"}"}"}"}"}" 
+    │                                                                             ^^ string ends at
+    │                                                                                the end of the
+    │                                                                                line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

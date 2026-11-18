@@ -1,0 +1,41 @@
+1:1 Identifier `Åif`
+1:6 ElseKeyword `else`
+1:11 UnlessKeyword `unless`
+1:18 SwitchKeyword `switch`
+1:25 CaseKeyword `case`
+1:30 DefaultKeyword `default`
+1:38 ForKeyword `for`
+1:42 InKeyword `in`
+1:45 WhileKeyword `while`
+1:51 DoKeyword `do`
+1:54 BreakKeyword `break`
+1:60 Identifier `contiue`
+1:68 ReturnKeyword `return`
+1:75 YieldKeyword `yield`
+1:81 DeferKeyword `defer`
+1:87 ErrdeferKeyword `errdefer`
+1:96 UsingKeyword `using`
+1:102 ContextKeyword `context`
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 MinusPercent `-%`
+3:17 StarPercent `*%`
+3:20 PlusBar `+|`
+3:23 MinusBar `-|`
+3:26 StarBar `*|`
+3:29 PlusPlus `++`
+3:32 MinusMinus `--`
+5:1 EndOfFile
+
+error BYN0005: identifier `Åif` is not in Unicode normalization form C
+
+  1 │ Åif else unless switch case default for in while do break contiue return yield defer errdefer using context
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Åif else unless switch case default for in while do break contiue return yield defer errdefer using context
+    │   │ +

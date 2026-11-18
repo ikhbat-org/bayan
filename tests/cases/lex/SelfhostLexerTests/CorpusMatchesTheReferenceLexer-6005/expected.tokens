@@ -1,0 +1,80 @@
+1:1 CharLiteral `'ab'`
+3:1 CharLiteral `'ab'`
+4:2 CharLiteral `'\u{D8�00}'`
+5:1 CharLiteral `'\u{202E}'`
+5:5 Slash `/`
+5:6 CharLiteral `'/ line comment`
+7:1 IntegerLiteral `0`
+7:2 CloseBrace `}`
+7:3 CharLiteral `'`
+8:1 CharLiteral `'x`
+10:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │  '\u{D8�00}'
+    │  ^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u{D8`
+
+  4 │  '\u{D8�00}'
+    │   ^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  4 │  '\u{D8�00}'
+    │        ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ '�'� /'/ line comment
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ '�'� /'/ line comment
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  5 │ '�'� /'/ line comment
+    │    ^
+
+error BYN0008: unterminated char literal
+
+  5 │ '�'� /'/ line comment
+    │       ^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  7 │ 0}'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  8 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

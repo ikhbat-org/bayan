@@ -1,0 +1,32 @@
+2:1 OpenBrace `{`
+3:1 LetKeyword `let`
+3:5 Identifier `actor`
+3:13 IntegerLiteral `1`
+4:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0x8A)
+
+  2 │ �{
+    │ ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ let actor � 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  3 │ let actor � 1
+    │           ^

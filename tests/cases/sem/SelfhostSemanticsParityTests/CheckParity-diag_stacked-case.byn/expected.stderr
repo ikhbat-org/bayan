@@ -1,0 +1,10 @@
+error BYN1014: stacked `case` labels
+  --> tmp/t26-tests/cli/diag_stacked-case.byn/stacked-case.byn:4:9
+
+  4 │         case .sun:
+    │         ^^^^ a second label for the same statements
+    │
+  help: combine the patterns into one label, e.g. `case .sat or .sun:`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1014

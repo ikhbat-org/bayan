@@ -1,0 +1,18 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+2:1 StringLiteral `"tex"`
+2:7 StringLiteral `"eHc \"q\" \\ \n"`
+2:25 RawStringLiteral `"""\nℾ�`
+3:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ "tex" "eHc \"q\" \\ \n" """
+    │                         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xAB)
+
+  3 │ ℾ�
+    │  ^

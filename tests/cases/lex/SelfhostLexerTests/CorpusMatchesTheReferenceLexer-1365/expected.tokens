@@ -1,0 +1,13 @@
+1:1 Identifier `b`
+2:2 IntegerLiteral `0b_`
+3:2 EndOfFile
+
+error BYN0002: unexpected character `\u{16}`
+
+  2 │ �0b_
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ �0b_
+    │  ^^^

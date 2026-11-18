@@ -1,0 +1,105 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:4 Identifier `ạ̇`
+2:1 IntegerLiteral `2`
+2:3 Identifier `بيان`
+2:8 Identifier `μετρητής`
+2:17 Identifier `x_1`
+2:21 Identifier `é`
+3:2 IntegerLiteral `0x_`
+4:3 CloseBrace `}`
+4:4 StringLiteral `"}"`
+4:7 CloseBrace `}`
+4:8 StringLiteral `"}"`
+4:11 CloseBrace `}`
+4:12 StringLiteral `"}"`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolationStart `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolationStart `{`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolationStart `{`
+5:29 InterpolatedStringStart `$"`
+5:31 InterpolationStart `{`
+5:32 InterpolatedStringStart `$"`
+5:34 InterpolationStart `{`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolationStart `{`
+5:38 InterpolatedStringStart `$"`
+5:40 InterpolationStart `{`
+5:41 InterpolatedStringStart `$"`
+5:43 InterpolationStart `{`
+5:44 InterpolatedStringStart `$"`
+5:46 InterpolationStart `{`
+5:47 InterpolatedStringStart `$"`
+5:49 InterpolationStart `{`
+5:50 StringLiteral `$"{$"`
+5:55 OpenBrace `{`
+5:56 Identifier `x`
+5:57 CloseBrace `}`
+5:58 StringLiteral `"}"`
+5:61 InterpolationEnd `}`
+5:62 InterpolatedStringEnd `"`
+5:63 InterpolationEnd `}`
+5:64 InterpolatedStringEnd `"`
+5:65 InterpolationEnd `}`
+5:66 InterpolatedStringEnd `"`
+5:67 InterpolationEnd `}`
+5:68 InterpolatedStringEnd `"`
+5:69 InterpolationEnd `}`
+5:70 InterpolatedStringEnd `"`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringEnd `"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+5:75 InterpolationEnd `}`
+5:76 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ */ ạ̇
+    │    ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ */ ạ̇
+    │   │    ++
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  0x_
+    │  ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │  ��}"}"}"}"}"}"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  ��}"}"}"}"}"}"
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                                                  ^^

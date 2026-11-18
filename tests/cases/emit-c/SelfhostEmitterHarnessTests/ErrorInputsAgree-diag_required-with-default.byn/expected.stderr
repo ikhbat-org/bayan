@@ -1,0 +1,8 @@
+error BYN2108: required field `max` has a default value
+  --> input.byn:2:18
+
+  2 │     required i64 max = 10
+    │                  ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2108

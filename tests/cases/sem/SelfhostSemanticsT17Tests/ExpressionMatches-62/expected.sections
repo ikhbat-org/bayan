@@ -1,0 +1,3 @@
+== case suffix-bad
+errorExpr 881..884 : ?
+BYN2022 49:17 the unit suffix `kg` is not supported in v0.1 |||

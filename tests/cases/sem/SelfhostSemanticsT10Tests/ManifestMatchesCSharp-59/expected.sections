@@ -1,0 +1,30 @@
+== case manifest/colon
+errors 0
+name local/shop
+version 0.1.0
+edition 2027
+kind App
+targets host
+mode safe
+indent 4
+width 100
+align None
+trailingCommas Never
+lint guards.postfix Warning
+lint lambdas.it Suggestion
+lint nesting.depth Suggestion
+lint functions.length None
+lint conditions.named Suggestion
+lint sections.banner Suggestion
+lint conditions.patterns Suggestion
+lint literals.empty Suggestion
+lint optionals.bind Suggestion
+booleans Symbols
+primitives Sized
+capabilities x6e6574
+verbs
+nouns
+adjectives
+forms
+short shop
+entry app

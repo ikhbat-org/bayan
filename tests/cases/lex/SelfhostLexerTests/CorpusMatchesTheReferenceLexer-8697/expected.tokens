@@ -1,0 +1,120 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{x}"`
+1:55 IntegerLiteral `0b__`
+2:1 CharLiteral `'\''`
+2:6 CharLiteral `'é'`
+2:10 CharLiteral `'\\'`
+2:15 CharLiteral `'\0'`
+3:2 Identifier `macro`
+3:8 Identifier `select`
+3:15 BecomeKeyword `become`
+6:1 Amp `&`
+6:3 AmpAmp `&&`
+6:6 Bar `|`
+6:8 BarBar `||`
+6:11 Caret `^`
+6:13 Tilde `~`
+6:15 Bang `!`
+6:17 Equals `=`
+6:19 EqualsEquals `==`
+6:22 BangEquals `!=`
+6:25 Less `<`
+6:27 LessEquals `<=`
+6:30 Greater `>`
+6:32 GreaterEquals `>=`
+6:35 LessLess `<<`
+6:38 Greater `>`
+6:39 Greater `>`
+6:41 Greater `>`
+6:42 GreaterEquals `>=`
+7:2 LetKeyword `let`
+7:6 Identifier `b`
+7:8 Equals `=`
+7:12 IntegerLiteral `2`
+8:1 LetKeyword `let`
+8:5 Identifier `c`
+8:7 Equals `=`
+8:11 IntegerLiteral `3`
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"0b__
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"0b__
+    │                                                 ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"0b__
+    │                                                       ^^^^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │  macro select become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │  macro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ � // line comment
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ � // line comment
+    │   │ -
+
+error BYN0002: unexpected character ```
+
+  7 │  let b = ` 2
+    │          ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  8 │ let c = � 3
+    │         ^

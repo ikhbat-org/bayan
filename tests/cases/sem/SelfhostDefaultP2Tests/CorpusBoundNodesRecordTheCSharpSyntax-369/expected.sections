@@ -1,0 +1,26 @@
+== tests/cases/diag/bool-without-prefix.byn
+318..329 globalStatement
+318..329 exprStmt
+318..329 callExpr
+324..328 literalExpr string
+318..329 callExpr
+60..65 unaryExpr notKeyword operand 61..65
+60..65 unaryExpr notKeyword operand 61..65
+60..65 unaryExpr notKeyword operand 61..65
+61..65 nameExpr
+61..65 nameExpr
+95..100 literalExpr falseKeyword
+95..100 literalExpr falseKeyword
+95..100 literalExpr falseKeyword
+128..132 literalExpr trueKeyword
+128..132 literalExpr trueKeyword
+128..132 literalExpr trueKeyword
+167..172 literalExpr falseKeyword
+167..172 literalExpr falseKeyword
+167..172 literalExpr falseKeyword
+283..288 literalExpr falseKeyword
+283..288 literalExpr falseKeyword
+283..288 literalExpr falseKeyword
+309..314 literalExpr falseKeyword
+309..314 literalExpr falseKeyword
+309..314 literalExpr falseKeyword

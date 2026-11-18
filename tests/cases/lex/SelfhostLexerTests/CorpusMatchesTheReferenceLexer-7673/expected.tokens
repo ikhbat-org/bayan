@@ -1,0 +1,166 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolatedStringText `�$`
+1:14 InterpolatedStringEnd `"`
+1:15 OpenBrace `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:20 OpenBrace `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 Identifier `x`
+1:46 InterpolationEnd `}`
+1:47 InterpolatedStringEnd `"`
+1:48 InterpolationEnd `}`
+1:49 InterpolatedStringEnd `"`
+1:50 InterpolationEnd `}`
+1:51 InterpolatedStringEnd `"`
+1:52 InterpolationEnd `}`
+1:53 InterpolatedStringEnd `"`
+1:55 InterpolatedStringStart `$"`
+1:57 InterpolationStart `{`
+1:58 InterpolatedStringStart `$"`
+1:60 InterpolationStart `{`
+1:61 InterpolatedStringStart `$"`
+1:63 InterpolationStart `{`
+1:64 InterpolatedStringStart `$"`
+1:66 InterpolationStart `{`
+1:67 InterpolatedStringStart `$"`
+1:69 InterpolationStart `{`
+1:70 InterpolatedStringStart `$"`
+1:72 InterpolationStart `{`
+1:73 InterpolatedStringStart `$"`
+1:75 InterpolationStart `{`
+1:76 InterpolatedStringStart `$"`
+1:78 InterpolationStart `{`
+1:79 StringLiteral `$"{$"`
+1:84 OpenBrace `{`
+1:85 StringLiteral `$"{$"`
+1:90 OpenBrace `{`
+1:91 StringLiteral `$"{$"`
+1:96 OpenBrace `{`
+1:97 StringLiteral `$"{$"`
+1:102 OpenBrace `{`
+1:103 StringLiteral `$"{$"`
+1:108 OpenBrace `{`
+1:109 Identifier `x`
+1:110 CloseBrace `}`
+1:111 StringLiteral `"}"`
+1:114 CloseBrace `}`
+1:115 StringLiteral `"}"`
+1:118 CloseBrace `}`
+1:119 StringLiteral `"}"`
+1:122 CloseBrace `}`
+1:123 StringLiteral `" ?? ??= ?. => -> @ #`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+    doc `/// Doc line one.\r`
+4:3 IntegerLiteral `2`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 Identifier `becom`
+5:20 IntegerLiteral `1_`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  1 │ $"{$"{$"{$"�$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" ?? ??= ?. => -> @ #
+    │            ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"{$"{$"{$"�$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" ?? ??= ?. => -> @ #
+    │                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  1 │ $"{$"{$"{$"�$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" ?? ??= ?. => -> @ #
+    │                    ^
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"�$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" ?? ??= ?. => -> @ #
+    │                                                                             ^^ this string
+    │                                                                                never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"�$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" ?? ??= ?. => -> @ #
+    │                                                                                ^^
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"�$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" ?? ??= ?. => -> @ #
+    │                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^ string
+    │                                                                                                                                                  ends
+    │                                                                                                                                                  at
+    │                                                                                                                                                  the
+    │                                                                                                                                                  end
+    │                                                                                                                                                  of
+    │                                                                                                                                                  the
+    │                                                                                                                                                  line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ � 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ � 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ � 2
+    │  ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select becom 1_
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select becom 1_
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ macro select becom 1_
+    │                     ^
+    │
+    │ 5 │ macro select becom 1_
+    │   │                     -

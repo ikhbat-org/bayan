@@ -1,0 +1,4 @@
+a /* never closed
+ let a = $ 1
+ $"{let café = 2
+ 1.

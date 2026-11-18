@@ -1,0 +1,69 @@
+4:1 Identifier `macro`
+4:7 Identifier `select`
+4:14 BecomeKeyword `become`
+6:4 IntegerLiteral `3`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ ��� // ok � in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │ ��� // ok � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ��� // ok � in comment
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ ��� // ok � in comment
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �
+    │ ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\u{7}`
+
+  6 │  � 3
+    │  ^

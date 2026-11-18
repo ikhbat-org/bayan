@@ -1,0 +1,6 @@
+"aâ§b" /* block
+
+   comment */ a
+ '\u{D800}'
+// o ş in comment
+ $"Á{{" ÿ

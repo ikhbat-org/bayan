@@ -1,0 +1,15 @@
+1:1 Identifier `fo`
+1:4 Identifier `B`
+1:5 Identifier `r`
+1:7 Identifier `_x`
+1:10 Identifier `camelCase2`
+1:21 Identifier `بيان`
+1:26 Identifier `μετρητής`
+1:35 Identifier `x_1`
+1:39 Identifier `é`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  1 │ fo B�r _x camelCase2 بيان μετρητής x_1 é
+    │     ^

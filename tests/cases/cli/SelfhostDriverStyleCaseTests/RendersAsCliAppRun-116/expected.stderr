@@ -1,0 +1,152 @@
+[1m[31merror BYN2001[0m: `x1` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:3:9
+
+  [2m3[0m [2m|[0m     y = x1
+    [2m|[0m         [1m[31m^^[0m
+
+[1m[31merror BYN2001[0m: `x2` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:4:9
+
+  [2m4[0m [2m|[0m     y = x2
+    [2m|[0m         [1m[31m^^[0m
+
+[1m[31merror BYN2001[0m: `x3` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:5:9
+
+  [2m5[0m [2m|[0m     y = x3
+    [2m|[0m         [1m[31m^^[0m
+
+[1m[31merror BYN2001[0m: `x4` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:6:9
+
+  [2m6[0m [2m|[0m     y = x4
+    [2m|[0m         [1m[31m^^[0m
+
+[1m[31merror BYN2001[0m: `x5` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:7:9
+
+  [2m7[0m [2m|[0m     y = x5
+    [2m|[0m         [1m[31m^^[0m
+
+[1m[31merror BYN2001[0m: `x6` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:8:9
+
+  [2m8[0m [2m|[0m     y = x6
+    [2m|[0m         [1m[31m^^[0m
+
+[1m[31merror BYN2001[0m: `x7` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:9:9
+
+  [2m9[0m [2m|[0m     y = x7
+    [2m|[0m         [1m[31m^^[0m
+
+[1m[31merror BYN2001[0m: `x8` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:10:9
+
+  [2m10[0m [2m|[0m     y = x8
+     [2m|[0m         [1m[31m^^[0m
+
+[1m[31merror BYN2001[0m: `x9` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:11:9
+
+  [2m11[0m [2m|[0m     y = x9
+     [2m|[0m         [1m[31m^^[0m
+
+[1m[31merror BYN2001[0m: `x10` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:12:9
+
+  [2m12[0m [2m|[0m     y = x10
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x11` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:13:9
+
+  [2m13[0m [2m|[0m     y = x11
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x12` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:14:9
+
+  [2m14[0m [2m|[0m     y = x12
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x13` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:15:9
+
+  [2m15[0m [2m|[0m     y = x13
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x14` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:16:9
+
+  [2m16[0m [2m|[0m     y = x14
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x15` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:17:9
+
+  [2m17[0m [2m|[0m     y = x15
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x16` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:18:9
+
+  [2m18[0m [2m|[0m     y = x16
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x17` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:19:9
+
+  [2m19[0m [2m|[0m     y = x17
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x18` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:20:9
+
+  [2m20[0m [2m|[0m     y = x18
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x19` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:21:9
+
+  [2m21[0m [2m|[0m     y = x19
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x20` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:22:9
+
+  [2m22[0m [2m|[0m     y = x20
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x21` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:23:9
+
+  [2m23[0m [2m|[0m     y = x21
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x22` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:24:9
+
+  [2m24[0m [2m|[0m     y = x22
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x23` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:25:9
+
+  [2m25[0m [2m|[0m     y = x23
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x24` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:26:9
+
+  [2m26[0m [2m|[0m     y = x24
+     [2m|[0m         [1m[31m^^^[0m
+
+[1m[31merror BYN2001[0m: `x25` is not defined
+[2m  -->[0m <repo>/tmp/t7-style/diag-cap-all-dumb/tally/main.byn:27:9
+
+  [2m27[0m [2m|[0m     y = x25
+     [2m|[0m         [1m[31m^^^[0m
+
+[31mx build failed: 25 errors, 0 warnings[0m
+  explain: bayan explain BYN2001

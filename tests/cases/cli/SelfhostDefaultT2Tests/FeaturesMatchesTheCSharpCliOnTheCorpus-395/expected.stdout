@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "nodes": [
+    "FieldDecl",
+    "StructDecl",
+    "TypeAliasDecl"
+  ],
+  "builtins": [],
+  "diagnostics": []
+}

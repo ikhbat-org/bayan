@@ -1,0 +1,12 @@
+1:1 Identifier `t`
+1:3 Identifier `c`
+1:5 Equals `=`
+1:7 RawStringLiteral `"""never closed\ntest assert property fuzz model foreach new goto\n0x\n if eYse unless switch case default for in while do break continue return yield defer errdefer using context\n\n.5e3 6E+2 1.50\n: List<List<i64>>\na >> b\nc >>= 1\n\nlet b = "bad \q escape"\n`
+12:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ t c = """never closed
+    │       ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,21 @@
+== tests/cases/diag/cases-type-mismatch.test.byn
+60..105 blockStmt
+44..49 param
+8..9 literalExpr integer
+51..58 param
+11..16 literalExpr string
+60..105 blockStmt
+66..88 localDecl
+84..88 literalExpr string
+93..103 assertStmt
+100..102 nameExpr
+60..105 blockStmt
+44..49 param
+20..21 literalExpr integer
+51..58 param
+23..27 literalExpr trueKeyword
+60..105 blockStmt
+66..88 localDecl
+84..88 literalExpr string
+93..103 assertStmt
+100..102 nameExpr

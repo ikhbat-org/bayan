@@ -1,0 +1,4 @@
+== subj.w9
+structLiteral|Plain|-|-|2597:14|literal:i64=1
+owns false
+BYN2789 113:19 `switch move …` needs a local or a `move` parameter, not a fresh value ||drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection field into a local first|

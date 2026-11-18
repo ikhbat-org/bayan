@@ -1,0 +1,127 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+3:1 Identifier `den`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+5:1 IntegerLiteral `0xFF`
+5:5 NumericSuffix `s`
+6:2 Identifier `ro`
+6:5 Identifier `select`
+6:12 BecomeKeyword `become`
+7:1 LetKeyword `let`
+7:5 LawKeyword `law`
+7:9 Equals `=`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolatedStringText `total `
+7:19 InterpolationStart `{`
+7:20 Identifier `x`
+7:21 InterpolationEnd `}`
+7:22 InterpolatedStringEnd `"`
+7:24 InterpolatedStringStart `$"`
+7:26 InterpolatedStringText `a `
+7:28 InterpolationStart `{`
+7:29 Identifier `f`
+7:30 OpenParen `(`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolatedStringText `b `
+7:35 InterpolationStart `{`
+7:36 Identifier `c`
+7:37 InterpolationEnd `}`
+7:38 InterpolatedStringEnd `"`
+7:39 CloseParen `)`
+7:40 InterpolationEnd `}`
+7:41 InterpolatedStringText ` d`
+7:43 InterpolatedStringEnd `"`
+7:45 InterpolatedStringStart `$"`
+7:47 InterpolatedStringText `{{literal}}`
+7:58 InterpolatedStringEnd `"`
+7:60 InterpolatedStringStart `$"`
+7:62 InterpolationStart `{`
+7:63 Identifier `Point`
+7:69 OpenBrace `{`
+7:71 Identifier `x`
+7:73 Equals `=`
+7:75 IntegerLiteral `1`
+7:77 CloseBrace `}`
+7:78 InterpolationEnd `}`
+7:79 InterpolatedStringText `!`
+7:80 InterpolatedStringEnd `"`
+7:82 InterpolatedStringStart `$"`
+7:84 InterpolatedStringEnd `"`
+9:1 ErrorKeyword `error`
+9:7 SetKeyword `set`
+9:11 UnitKeyword `unit`
+9:16 DistinctKeyword `distinct`
+9:25 TypeKeyword `type`
+9:30 ImportKeyword `import`
+9:37 AsKeyword `as`
+9:40 PublicKeyword `public`
+9:47 PrivateKeyword `private`
+9:55 StaticKeyword `static`
+9:62 Identifier `read`
+9:67 Identifier `only`
+9:72 RequiredKeyword `required`
+9:81 ConstKeyword `const`
+9:87 LetKeyword `let`
+9:91 VarKeyword `var`
+9:95 EmbedKeyword `embed`
+9:101 ExternKeyword `extern`
+9:108 UnsafeKeyword `unsafe`
+10:1 LetKeyword `let`
+10:5 Identifier `c`
+10:7 Equals `=`
+10:9 RawStringLiteral `"""never closed\n\n+ - * / % +% -% *% +| -| *| ++ --\n\n`
+14:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� =
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� =
+    │   │      -
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  5 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  6 │  ro select become
+    │     ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xE6)
+
+  9 │ error set unit distinct type import as public private static read�only required const let var embed extern unsafe
+    │                                                                  ^
+
+error BYN0003: unterminated string literal
+
+  10 │ let c = """never closed
+     │         ^^^ raw string starts here
+     │
+  help: close it with `"""`

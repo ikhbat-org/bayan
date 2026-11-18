@@ -1,0 +1,6 @@
+"esc \"q\" \\ \n" """
+  raw "quoted"
+
+fails try catch never noalloc nosuspend suspends async await
+let b = ` 2
+ ô€€ 

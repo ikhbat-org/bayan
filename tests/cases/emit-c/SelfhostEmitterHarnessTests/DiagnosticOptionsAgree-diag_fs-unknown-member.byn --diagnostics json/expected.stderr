@@ -1,0 +1,1 @@
+{"code":"BYN2003","severity":"error","file":"input.byn","span":{"start":91,"end":100,"line":2,"column":16,"endLine":2,"endColumn":25},"message":"`fileExist` is not a member of `Fs`","label":null,"help":"did you mean `fileExists`?","fixes":[]}

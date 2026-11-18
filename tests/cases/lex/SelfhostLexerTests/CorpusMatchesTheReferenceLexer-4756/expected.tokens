@@ -1,0 +1,67 @@
+2:1 CharLiteral `'�`
+3:2 Greater `>`
+3:3 Greater `>`
+3:5 Identifier `b`
+4:1 Identifier `c`
+5:1 VarKeyword `var`
+5:5 Identifier `xs`
+5:7 Colon `:`
+5:9 Identifier `List`
+5:14 Identifier `List`
+5:18 Less `<`
+5:19 Identifier `i64`
+5:22 Greater `>`
+5:23 Greater `>`
+7:1 IfKeyword `if`
+7:4 ElseKeyword `else`
+7:9 UnlessKeyword `unless`
+7:16 SwitchKeyword `switch`
+7:23 CaseKeyword `case`
+7:28 DefaultKeyword `default`
+7:36 ForKeyword `for`
+7:40 InKeyword `in`
+7:43 WhileKeyword `while`
+7:49 DoKeyword `do`
+7:52 BreakKeyword `break`
+7:58 ContinueKeyword `continue`
+7:67 ReturnKeyword `return`
+7:74 YieldKeyword `yield`
+7:80 DeferKeyword `defer`
+7:86 ErrdeferKeyword `errdefer`
+7:95 UsingKeyword `using`
+7:101 ContextKeyword `context`
+8:2 StructKeyword `struct`
+8:9 Identifier `S`
+9:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidde�n
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidde�n
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ // comment � hidde�n
+    │                   ^
+
+error BYN0008: unterminated char literal
+
+  2 │ '�
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xB9)
+
+  2 │ '�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD5)
+
+  5 │ var xs: List�List<i64>>
+    │             ^

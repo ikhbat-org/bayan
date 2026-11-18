@@ -1,0 +1,3 @@
+build
+--emit-c
+suq-quote.byn

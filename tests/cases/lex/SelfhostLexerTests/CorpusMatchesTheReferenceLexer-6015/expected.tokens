@@ -1,0 +1,64 @@
+2:1 CharLiteral `'\u{110000}'`
+4:1 PlusEquals `+=`
+4:4 MinusEquals `-=`
+4:7 StarEquals `*=`
+4:10 Slash `/`
+4:11 Identifier `F`
+4:12 Equals `=`
+4:14 PercentEquals `%=`
+4:17 Amp `&`
+4:18 Bar `|`
+4:20 BarEquals `|=`
+4:23 CaretEquals `^=`
+4:26 LessLessEquals `<<=`
+5:2 Plus `+`
+5:4 Minus `-`
+5:6 Star `*`
+5:8 Slash `/`
+5:10 Percent `%`
+5:12 PlusPercent `+%`
+5:15 MinusPercent `-%`
+5:18 StarPercent `*%`
+5:21 PlusBar `+|`
+5:24 MinusBar `-|`
+5:27 StarBar `*|`
+5:30 PlusPlus `++`
+5:33 MinusMinus `--`
+7:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���
+    │   ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  7 │ ��� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  7 │ ��� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ��� 
+    │   ^

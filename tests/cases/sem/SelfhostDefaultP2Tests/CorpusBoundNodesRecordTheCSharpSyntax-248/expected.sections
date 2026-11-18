@@ -1,0 +1,64 @@
+== tests/cases/run/ref-out-copy-only.byn
+37..57 blockStmt
+43..55 exprStmt
+43..55 callExpr
+43..45 nameExpr
+53..54 nameExpr
+110..135 blockStmt
+116..133 assignStmt assign target 116..117 value 120..133
+116..117 nameExpr
+120..133 callExpr
+120..121 nameExpr
+131..132 nameExpr
+239..264 globalStatement
+239..264 localDecl
+257..264 callExpr
+265..282 localDecl
+274..282 callExpr
+283..296 localDecl
+294..296 literalExpr string
+297..324 localDecl
+305..324 structLiteralExpr
+314..315 literalExpr integer
+320..322 literalExpr string
+325..479 blockStmt
+331..356 localDecl
+349..356 callExpr
+361..393 localDecl
+372..393 callExpr
+372..377 literalExpr string
+387..392 nameExpr
+398..419 exprStmt
+398..419 callExpr
+402..406 nameExpr
+416..418 nameExpr
+424..461 exprStmt
+424..461 callExpr
+429..433 nameExpr
+443..447 nameExpr
+455..460 nameExpr
+466..477 exprStmt
+466..477 callExpr
+466..467 nameExpr
+472..476 nameExpr
+480..498 exprStmt
+480..498 callExpr
+486..497 callExpr
+486..488 nameExpr
+480..498 callExpr
+499..510 exprStmt
+499..510 callExpr
+505..509 nameExpr
+499..510 callExpr
+511..526 exprStmt
+511..526 callExpr
+517..525 interpolatedExpr
+520..523 memberExpr
+520..521 nameExpr
+511..526 callExpr
+207..235 blockStmt
+217..229 assignStmt assign target 217..218 value 221..229
+217..218 nameExpr
+217..218 nameExpr
+221..229 memberExpr
+221..222 nameExpr

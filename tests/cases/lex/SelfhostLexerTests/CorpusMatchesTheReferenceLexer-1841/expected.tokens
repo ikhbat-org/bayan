@@ -1,0 +1,16 @@
+    doc `/// DWc line two.`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+4:1 Slash `/`
+    doc `/// not fails try catch never noalloc nosuspend suspends async await`
+5:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  4 │ /�/// not fails try catch never noalloc nosuspend suspends async await
+    │  ^
+
+error BYN0002: unexpected character `﻿`
+
+  5 │  ﻿ 
+    │  ^

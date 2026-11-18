@@ -1,0 +1,8 @@
+error BYN2011: type alias `Alpha` refers to itself
+  --> tmp/t26-tests/cli/diag_circular-alias.byn/circular-alias.byn:1:6
+
+  1 │ type Alpha = Beta
+    │      ^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2011

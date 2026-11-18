@@ -1,0 +1,93 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بيان`
+3:28 Identifier `μετρητής`
+3:37 Identifier `x_1`
+3:41 Identifier `é`
+4:1 IntegerLiteral `1__`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `a`
+6:4 InterpolationStart `{`
+6:5 Identifier `b`
+6:6 InterpolationEnd `}`
+6:7 InterpolatedStringText `c`
+6:8 InterpolatedStringEnd
+7:1 IfKeyword `if`
+7:4 ElseKeyword `else`
+7:9 UnlessKeyword `unless`
+7:16 SwitchKeyword `switch`
+7:23 CaseKeyword `case`
+7:28 DefaultKeyword `default`
+7:36 ForKeyword `for`
+7:40 InKeyword `in`
+7:43 WhileKeyword `while`
+7:49 DoKeyword `do`
+7:52 BreakKeyword `break`
+7:58 ContinueKeyword `continue`
+7:67 ReturnKeyword `return`
+7:74 YieldKeyword `yield`
+7:80 DeferKeyword `defer`
+7:86 ErrdeferKeyword `errdefer`
+7:95 UsingKeyword `using`
+7:101 ContextKeyword `context`
+9:3 LetKeyword `let`
+9:7 Identifier `c`
+9:9 Equals `=`
+9:13 IntegerLiteral `3`
+10:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  6 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  8 │  ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  8 │  ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │  ���
+    │    ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  9 │ � let c = � 3
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │ � let c = � 3
+    │   │ -
+
+error BYN0002: unexpected character `\u{7}`
+
+  9 │ � let c = � 3
+    │           ^

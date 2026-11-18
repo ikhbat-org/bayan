@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/non-exhaustive-union-guard.byn
+--package
+<repo>/tests/cases/diag

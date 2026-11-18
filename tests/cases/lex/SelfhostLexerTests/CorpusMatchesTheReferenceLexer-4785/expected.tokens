@@ -1,0 +1,22 @@
+1:1 Identifier `Å`
+1:3 Hash `#`
+2:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å�#�
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å�#�
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  1 │ Å�#�
+    │   ^
+
+error BYN0002: unexpected character `\u{F}`
+
+  1 │ Å�#�
+    │     ^

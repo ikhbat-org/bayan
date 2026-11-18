@@ -1,0 +1,1 @@
+{"code":"BYN2611","severity":"error","file":"input.byn","span":{"start":177,"end":178,"line":12,"column":29,"endLine":12,"endColumn":30},"message":"this `catch` block can complete normally; end it with `return`, `break`, `continue` or a panic","label":null,"help":"leave the block instead of falling through; the call returns a value","fixes":[]}

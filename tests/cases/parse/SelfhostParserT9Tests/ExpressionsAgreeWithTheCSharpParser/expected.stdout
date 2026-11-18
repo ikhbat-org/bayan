@@ -1,0 +1,39 @@
+(+ 1 (* 2 3)) @4..13
+(- (- a b) c) @4..13
+(?? a (?? b c)) @4..15
+(|| a (&& b c)) @4..15
+(== a (< b c)) @4..14
+(>> a 1) @4..10
+(> a b) @4..9
+(.. 0 (- n 1)) @4..12
+(| a (^ b (& c d))) @4..17
+(* (- a) b) @4..10
+(? c a (? b d e)) @4..21
+(+ (call i64 a) b) @4..14
+(+ (paren a) b) @4..11
+(index xs (^ 1)) @4..10
+(index xs (.. 1 (^ 1))) @4..13
+(index xs (.. _ 3)) @4..11
+(index xs (.. 2 _)) @4..11
+(+% a (*| b c)) @4..15
+(call f a (b: 2) (ref c)) @4..21
+(< a b) @4..9
+(. (?. a b) c) @4..10
+(try (+ (call f) 1)) @4..15
+(+ (paren (try (call f))) 1) @4..17
+(catch (call f) 0) @4..15
+(?? a (return 1)) @4..17
+(call Point) @8..15
+(|| (&& a b) (! c)) @4..20
+(in a (..= 0 9)) @4..14
+(+ (move a) b) @4..14
+(?? a (break)) @4..14
+(?? a (fail b)) @4..15
+(call f (for: a) (as: b) (move c) (out d) (in e)) @4..41
+(catch (call f) (e) 0) @4..19 BYN1025@14..17
+(catch (call f) (variant (call g)) 0) @4..21
+(call trust a (reason: "r")) @4..25 BYN1062@4..9
+(call trust (+ a b) (reason: c)) @4..27 BYN1062@4..9
+(<< a b) @4..12
+(?? a b) @4..12
+(+ a b) @4..10 BYN1002@7..7

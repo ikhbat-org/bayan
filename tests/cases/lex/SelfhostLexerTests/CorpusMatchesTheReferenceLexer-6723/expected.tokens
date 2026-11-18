@@ -1,0 +1,59 @@
+1:1 Identifier `et`
+1:4 EffectKeyword `effect`
+1:11 Equals `=`
+1:13 IntegerLiteral `2`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 StringLiteral `"open`
+4:1 Identifier `ạ̇`
+4:6 CharLiteral `''`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  1 │ �et effect = 2
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  4 │ ạ̇ �''
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ ạ̇ �''
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ ạ̇ �''
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ ạ̇ �''
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ ạ̇ �''
+    │      ^
+
+error BYN0007: empty char literal
+
+  4 │ ạ̇ �''
+    │      ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  5 │  �
+    │  ^

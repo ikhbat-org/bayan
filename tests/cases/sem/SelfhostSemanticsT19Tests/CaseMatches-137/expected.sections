@@ -1,0 +1,3 @@
+== bind.probes.r7
+flags 0
+range:Range<rune>[3215:8]=-(false literal:rune[3215:3]=a(a) literal:rune[3220:3]=z(z))

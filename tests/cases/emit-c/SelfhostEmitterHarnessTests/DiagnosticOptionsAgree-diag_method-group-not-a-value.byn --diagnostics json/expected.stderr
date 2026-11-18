@@ -1,0 +1,2 @@
+{"code":"BYN2019","severity":"error","file":"input.byn","span":{"start":208,"end":218,"line":15,"column":6,"endLine":15,"endColumn":16},"message":"`weight` is a method, not a value","label":null,"help":"call it: `weight()`","fixes":[]}
+{"code":"BYN2019","severity":"error","file":"input.byn","span":{"start":258,"end":268,"line":17,"column":9,"endLine":17,"endColumn":19},"message":"`copy` is a method, not a value","label":null,"help":"call it: `copy()`","fixes":[]}

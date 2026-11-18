@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssertStmt",
+    "AttributeSyntax",
+    "BinaryExpr",
+    "BlockStmt",
+    "LiteralExpr",
+    "NameExpr",
+    "Param",
+    "TestDecl"
+  ],
+  "builtins": [],
+  "diagnostics": []
+}

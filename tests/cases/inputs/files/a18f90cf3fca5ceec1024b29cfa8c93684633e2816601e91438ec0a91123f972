@@ -1,0 +1,4 @@
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"let law = 3
+
+is and or not with move ref out this null true false comptime checked

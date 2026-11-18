@@ -1,0 +1,22 @@
+1:1 CloseBrace `}`
+1:2 Amp `&`
+1:4 AmpAmp `&&`
+1:7 Bar `|`
+1:8 IntegerLiteral `1`
+1:10 Bar `|`
+1:12 Caret `^`
+1:14 Tilde `~`
+1:16 Bang `!`
+1:18 Equals `=`
+1:20 EqualsEquals `==`
+1:23 BangEquals `!=`
+1:26 Less `<`
+1:28 LessEquals `<=`
+1:31 Greater `>`
+1:33 GreaterEquals `>=`
+1:36 LessLess `<<`
+1:39 Greater `>`
+1:40 Greater `>`
+1:42 Greater `>`
+1:43 GreaterEquals `>=`
+2:1 EndOfFile

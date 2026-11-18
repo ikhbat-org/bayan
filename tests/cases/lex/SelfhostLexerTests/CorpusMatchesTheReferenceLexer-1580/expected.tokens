@@ -1,0 +1,21 @@
+1:1 Identifier `Å`
+1:3 StringLiteral `"text"`
+1:10 StringLiteral `"esc$\"q\" \\ \n"`
+1:28 RawStringLiteral `"""\r\n\r\n0b1ms\r\nlet x\u{2067} = 1\r\n\r\n'\u{110000}'\r\n\r\n�st<i64>>\r\na >> b\r\nc >>= 1\r\n let c = """`
+11:13 NeverKeyword `never`
+11:19 Identifier `closed`
+12:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å"text" "esc$\"q\" \\ \n" """
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å"text" "esc$\"q\" \\ \n" """
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  8 │ �st<i64>>
+    │ ^

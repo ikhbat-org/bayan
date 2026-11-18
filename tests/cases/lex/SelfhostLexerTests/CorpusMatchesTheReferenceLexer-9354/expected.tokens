@@ -1,0 +1,29 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+2:2 StringLiteral `" ̈́`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:7 Identifier `raw`
+3:11 StringLiteral `"quoted"`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ let a = $ 1
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  2 │  " ̈́
+    │  ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{   raw "quoted"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

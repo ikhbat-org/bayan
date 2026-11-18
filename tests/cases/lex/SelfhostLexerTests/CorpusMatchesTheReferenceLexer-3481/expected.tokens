@@ -1,0 +1,128 @@
+1:2 Identifier `é`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `stray } here`
+5:15 InterpolatedStringEnd `"`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 StringLiteral `$"{x}"`
+7:55 InterpolationEnd `}`
+7:56 InterpolatedStringEnd `"`
+7:57 StringLiteral `"}"`
+7:60 InterpolationEnd `}`
+7:61 InterpolatedStringEnd `"`
+7:62 InterpolationEnd `}`
+7:63 InterpolatedStringEnd `"`
+7:64 InterpolationEnd `}`
+7:65 InterpolatedStringEnd `"`
+7:66 InterpolationEnd `}`
+7:67 InterpolatedStringEnd `"`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringEnd `"`
+7:70 InterpolationEnd `}`
+7:71 InterpolatedStringEnd `"`
+7:72 InterpolationEnd `}`
+7:73 InterpolatedStringEnd `"`
+7:74 InterpolationEnd `}`
+7:75 InterpolatedStringEnd `"`
+7:76 InterpolationEnd `}`
+7:77 InterpolatedStringEnd `"`
+7:78 InterpolationEnd `}`
+7:79 InterpolatedStringEnd `"`
+7:80 InterpolationEnd `}`
+7:81 InterpolatedStringEnd `"`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � é/* block
+    │ ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ � é/* block
+    │   ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ � é/* block
+    │   │   +
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ � é/* block
+    │     ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ � é// block
+    │   │      +++++++
+    │ 2 │ // /* �
+    │   │ +++++++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  2 │  /* � */
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  /* � */
+    │   │     -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // comment � hiden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // comment � hiden
+    │   │            -
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │ $"stray } here"
+    │         ^
+    │
+    │ 5 │ $"stray }} here"
+    │   │          +
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}""}"}"}"}"}"}"}"}"}"}"}"}"
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}""}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^^

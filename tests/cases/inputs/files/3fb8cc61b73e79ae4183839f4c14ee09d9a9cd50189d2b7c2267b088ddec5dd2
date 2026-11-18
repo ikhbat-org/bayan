@@ -1,0 +1,6 @@
+void main() {
+    let StrBuf = 1
+    let Log = 2
+    let a = StrBuf.over(stackalloc u8[4])
+    let b = Log.debug("x")
+}

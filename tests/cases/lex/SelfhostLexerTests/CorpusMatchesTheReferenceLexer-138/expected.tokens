@@ -1,0 +1,73 @@
+1:1 Identifier `n`
+1:2 CharLiteral `' '`
+1:6 Identifier `u`
+1:7 OpenBrace `{`
+1:8 IntegerLiteral `1`
+1:9 NumericSuffix `F600`
+1:13 CloseBrace `}`
+1:14 CharLiteral `' '`
+1:18 CharLiteral `''`
+1:21 CharLiteral `'�`
+2:2 CharLiteral `'\\'`
+2:7 CharLiteral `'\0'`
+4:1 IntegerLiteral `0x_`
+5:2 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ n' '\u{1F600}' '\'' '�
+    │     ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ n' '\u{1F600}' '\'' '�
+    │                 ^
+
+error BYN0007: empty char literal
+
+  1 │ n' '\u{1F600}' '\'' '�
+    │                  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0008: unterminated char literal
+
+  1 │ n' '\u{1F600}' '\'' '�
+    │                     ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ n' '\u{1F600}' '\'' '�
+    │                      ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  3 │ � �// comment � hidden
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � �// comment � hidden
+    │   │ -
+
+error BYN0002: unexpected character `\u{0}`
+
+  3 │ � �// comment � hidden
+    │   ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ � �// comment � hidden
+    │               ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � �// comment � hidden
+    │   │               -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^

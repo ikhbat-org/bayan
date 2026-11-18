@@ -1,0 +1,26 @@
+== tests/cases/diag/checked-field-assignment.byn
+100..141 blockStmt
+110..135 assignStmt assign target 110..119 value 122..135
+0..143 structDecl
+0..143 structDecl
+0..143 structDecl
+44..73 requiresRule
+44..73 requiresRule
+53..64 binaryExpr le right 60..64
+53..56 nameExpr
+53..56 nameExpr
+60..64 nameExpr
+60..64 nameExpr
+44..73 requiresRule
+44..73 requiresRule
+44..73 requiresRule
+44..73 requiresRule
+44..73 requiresRule
+44..73 requiresRule
+0..143 structDecl
+0..143 structDecl
+0..143 structDecl
+0..143 structDecl
+0..143 structDecl
+0..143 structDecl
+0..143 structDecl

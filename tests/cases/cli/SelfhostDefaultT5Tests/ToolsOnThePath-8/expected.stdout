@@ -1,0 +1,9 @@
+◆ bayan       0.3.2 (commit 9cf2f130da53)
+◆ host        <host>
+✗ C compiler: `<repo>/tmp/t5-doctor/path-cc/cc` can't be run
+  help: reinstall it, or set BAYAN_CC to a working C compiler
+◆ zig         not found; building for other targets needs it
+  help: install zig (https://ziglang.org)
+◆ git         not found; `bayan new` skips `git init`, `bayan dist` records no commit, `bayan test --changed` is unavailable
+  help: install git
+◆ cache       <host>

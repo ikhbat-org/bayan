@@ -1,0 +1,3 @@
+<repo>/tmp/t7-style/audit-plain/tally/main.byn:1:1  @allow(BYN2230)  because "kept for the C ABI"
+<repo>/tmp/t7-style/audit-plain/tally/main.byn:5:1  unsafe void poke()  no reason given
+◆ 2 bypasses in <repo>/tmp/t7-style/audit-plain/tally/main.byn

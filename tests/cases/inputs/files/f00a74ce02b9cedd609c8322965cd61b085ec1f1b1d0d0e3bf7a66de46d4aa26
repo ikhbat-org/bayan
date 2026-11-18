@@ -1,0 +1,10 @@
+struct S
+ 0b__
+ 'a' '\n' '\u{1F600}' '\'' 'Ã©' '\' '\0'
+ let a = $ 1
+$/ Doc line two.
+struct S
+//// not a doc
+error set unit distinct type import as public prµvate static readonly required const let var embed extern unsafe
+
++ - * / % +% -% *% +| -| *| ++ --

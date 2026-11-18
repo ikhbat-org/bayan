@@ -1,0 +1,2 @@
+let inInstance = host != -1 && !c.fns[host].isStatic && (
+    c.fns[host].kind == .method || c.fns[host].kind == .getter)

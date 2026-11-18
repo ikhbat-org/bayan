@@ -1,0 +1,120 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:3 IntegerLiteral `1_`
+3:1 CloseBrace `}`
+3:3 Identifier `a`
+3:5 Greater `>`
+3:6 Greater `>`
+3:8 Identifier `b`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 StringLiteral `$"{�"`
+5:54 OpenBrace `{`
+5:55 StringLiteral `$"P{$"`
+5:61 OpenBrace `{`
+5:62 Identifier `x`
+5:63 CloseBrace `}`
+5:64 StringLiteral `"}"`
+5:67 CloseBrace `}`
+5:68 StringLiteral `"}"`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringEnd `"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+5:75 InterpolationEnd `}`
+5:76 InterpolatedStringEnd `"`
+5:77 InterpolationEnd `}`
+5:78 InterpolatedStringEnd `"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolationEnd `}`
+5:82 InterpolatedStringEnd `"`
+5:83 InterpolationEnd `}`
+5:84 InterpolatedStringEnd `"`
+5:85 InterpolationEnd `}`
+5:86 InterpolatedStringEnd `"`
+5:87 InterpolationEnd `}`
+5:88 InterpolatedStringEnd `"`
+5:89 InterpolationEnd `}`
+5:90 InterpolatedStringEnd `"`
+5:91 InterpolationEnd `}`
+5:92 InterpolatedStringEnd `"`
+5:93 CharLiteral `' �`
+5:96 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ */1_
+    │    ^
+    │
+    │ 1 │ */1_
+    │   │    -
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"P{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"' �
+    │             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"P{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"' �
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"P{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"' �
+    │                                                    ^
+
+error BYN0008: unterminated char literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"P{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"' �
+    │                                                                                             ^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"P{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"' �
+    │                                                                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"P{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"' �
+    │                                                                                                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"P{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"' �
+    │                                                                                                ^

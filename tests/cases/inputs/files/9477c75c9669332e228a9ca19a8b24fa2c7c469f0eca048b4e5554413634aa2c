@@ -1,0 +1,4 @@
+public struct L {
+    public i64 a = 3
+    public string b = "x"
+}

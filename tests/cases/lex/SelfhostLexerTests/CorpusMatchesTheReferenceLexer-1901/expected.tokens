@@ -1,0 +1,55 @@
+1:1 StringLiteral `"text"`
+1:8 U16StringLiteral `u16"wide"`
+1:18 StringLiteral `"\u{202E} allowed in strings"`
+1:41 StringLiteral `""`
+1:44 StringLiteral `"\u{48}i"`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 Identifier `x`
+2:45 InterpolationEnd `}`
+2:46 InterpolatedStringEnd `"`
+2:47 InterpolationEnd `}`
+2:48 InterpolatedStringEnd `"`
+2:49 InterpolationEnd `}`
+2:50 InterpolatedStringEnd `"`
+2:51 InterpolationEnd `}`
+2:52 InterpolatedStringEnd `"`
+2:53 InterpolationEnd `}`
+2:54 InterpolatedStringEnd `"`
+2:55 StringLiteral `"}"`
+2:58 InterpolationEnd `}`
+2:59 InterpolatedStringEnd `"`
+2:60 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}""}"}"
+    │                       ^^ this string never ends
+    │
+  help: close the `{` and the string

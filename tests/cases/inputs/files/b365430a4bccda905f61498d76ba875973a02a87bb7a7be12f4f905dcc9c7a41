@@ -1,0 +1,58 @@
+// Shapes.
+union Shape {
+    circle(f64 r)
+    square(f64 side)
+}
+
+enum Size { // small
+    s
+    m // medium
+    l
+}
+
+struct unique File {
+    i64 fd
+}
+
+union error StockError {
+    outOfStock
+}
+
+type distinct Percent = i32 requires it in 0..=100
+
+@derive(Json)
+struct Parcel {
+    i64 weight
+}
+
+i32 twice(i32 n) => n * 2
+bool isA(rune c) => c == 'a'
+
+Shape pick(Shape s) {
+    switch s {
+        case not .circle: return s
+        default: return s
+    }
+}
+
+i64 add(i64 a, i64 b) {
+    return a + b
+}
+
+void run(Arena arena) {
+    provide allocator: arena {
+        print("x")
+    }
+}
+
+void main() {
+    let t: i64 = add(1, b: 2)
+    print($"{t}")
+    if t > 0 {
+        print("pos")
+    } else {
+        print("other")
+    }
+    let u: Untrusted<string> = Untrusted("x")
+    print(u.trustUnchecked() because "checked")
+}

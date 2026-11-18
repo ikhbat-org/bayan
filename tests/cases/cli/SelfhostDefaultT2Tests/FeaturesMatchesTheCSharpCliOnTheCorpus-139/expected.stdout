@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CaughtErrorExpr",
+    "CollectionExpr",
+    "DeclarationPattern",
+    "DiscardPattern",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "SwitchExpr",
+    "VarPattern",
+    "VariantPattern"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "IoRun",
+    "Print",
+    "ProcessExitCode"
+  ],
+  "diagnostics": []
+}

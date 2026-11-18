@@ -1,0 +1,17 @@
+1:1 Identifier `b`
+3:1 CharLiteral `'\uJ\u{18}{D800}'`
+4:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │ '\uJ�{D800}'
+    │ ^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u`
+
+  3 │ '\uJ�{D800}'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

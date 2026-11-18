@@ -1,0 +1,13 @@
+<repo>/tests/cases/run/alias-field-default-import
+main broken
+<repo>/tests/cases/run/alias-field-default-import/main.byn
+/var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-withfile-2tSo5a/0.byn
+sub
+sub/sub.byn
+/var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-withfile-2tSo5a/1.byn
+main fixed
+<repo>/tests/cases/run/alias-field-default-import/main.byn
+/var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-withfile-2tSo5a/2.byn
+unread
+<repo>/tests/cases/run/alias-field-default-import/nope.byn
+/var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-withfile-2tSo5a/3.byn

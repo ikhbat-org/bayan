@@ -1,0 +1,62 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 Identifier `L`
+2:17 StringLiteral `"{$"`
+2:21 OpenBrace `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 StringLiteral `"{$"`
+2:29 OpenBrace `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:47 StringLiteral `"{$"`
+2:51 OpenBrace `{`
+2:52 Identifier `x`
+2:54 IntegerLiteral `1_`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{$"{$"{$"{$"{L"{$"{$"{"{$"{$"{$"{$"{$"{$"{$�"{$"{x 1_
+    │                                          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"{$"{$"{$"{$"{L"{$"{$"{"{$"{$"{$"{$"{$"{$"{$�"{$"{x 1_
+    │                                             ^
+
+error BYN0002: unexpected character `\u{E}`
+
+  2 │ $"{$"{$"{$"{$"{L"{$"{$"{"{$"{$"{$"{$"{$"{$"{$�"{$"{x 1_
+    │                                              ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ $"{$"{$"{$"{$"{L"{$"{$"{"{$"{$"{$"{$"{$"{$"{$�"{$"{x 1_
+    │                                                       ^
+    │
+    │ 2 │ $"{$"{$"{$"{$"{L"{$"{$"{"{$"{$"{$"{$"{$"{$"{$�"{$"{x 1_
+    │   │                                                       -

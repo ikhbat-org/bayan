@@ -1,0 +1,8 @@
+== tests/cases/diag/duplicate-default.byn
+0..9 globalStatement
+0..9 localDecl
+8..9 literalExpr integer
+10..76 switchStmt
+17..18 nameExpr
+42..42 breakStmt
+69..69 breakStmt

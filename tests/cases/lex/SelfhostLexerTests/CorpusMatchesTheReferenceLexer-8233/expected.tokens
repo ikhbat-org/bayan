@@ -1,0 +1,55 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+3:2 CloseBrace `}`
+3:4 Identifier `here`
+3:8 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+6:1 Identifier `_`
+7:1 Identifier `a`
+7:3 Greater `>`
+7:4 Greater `>`
+7:6 Identifier `b`
+8:2 NeverKeyword `never`
+8:8 Identifier `closed`
+9:1 Identifier `b`
+10:1 IntegerLiteral `000`
+10:4 InterpolationEnd `}`
+10:5 InterpolatedStringText `'`
+10:6 InterpolatedStringEnd
+11:1 CharLiteral `'x`
+12:2 Identifier `b`
+13:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │  } here"
+    │        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  11 │ 'x
+     │ ^^
+     │
+  help: close it with `'`

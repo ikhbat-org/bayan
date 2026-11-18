@@ -1,0 +1,14 @@
+== tests/cases/diag/unobservable-operator.byn
+13..91 blockStmt
+19..89 returnStmt value 88..89
+88..89 nameExpr
+106..187 blockStmt
+112..185 returnStmt value 184..185
+184..185 nameExpr
+200..226 blockStmt
+206..224 returnStmt value 213..224
+213..224 binaryExpr add right 220..224
+213..217 callExpr
+215..216 literalExpr integer
+220..224 callExpr
+222..223 literalExpr integer

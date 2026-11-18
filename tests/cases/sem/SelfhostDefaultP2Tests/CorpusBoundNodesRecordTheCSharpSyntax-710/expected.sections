@@ -1,0 +1,21 @@
+== tests/cases/diag/number-agreement-clean.byn
+519..530 globalStatement
+519..530 exprStmt
+519..530 callExpr
+525..529 literalExpr string
+519..530 callExpr
+331..365 blockStmt
+341..359 exprStmt
+341..359 callExpr
+341..346 nameExpr
+341..346 nameExpr
+354..358 nameExpr
+438..515 blockStmt
+448..509 forStmt
+460..466 nameExpr
+467..509 blockStmt
+481..499 exprStmt
+481..499 callExpr
+481..486 nameExpr
+481..486 nameExpr
+494..498 nameExpr

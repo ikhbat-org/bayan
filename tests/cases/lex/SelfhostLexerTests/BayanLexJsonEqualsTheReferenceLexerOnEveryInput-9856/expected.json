@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"Slash","start":0,"end":1,"text":"/","doc":null},{"kind":"Identifier","start":3,"end":7,"text":"lock","doc":null},{"kind":"EndOfFile","start":9,"end":9,"text":"","doc":null}],"diagnostics":[{"code":"BYN0002","severity":"error","start":1,"end":2,"message":"unexpected character `\\u{B}`","label":null,"help":null,"fixes":[]}]}

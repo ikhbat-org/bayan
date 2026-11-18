@@ -1,0 +1,21 @@
+2:1 Identifier `s`
+2:2 Comma `,`
+2:4 Dot `.`
+2:6 DotDot `..`
+2:9 DotDotEquals `..=`
+2:13 Colon `:`
+2:15 Question `?`
+2:17 QuestionQuestion `??`
+2:20 QuestionQuestionEquals `??=`
+2:24 QuestionDot `?.`
+2:27 FatArrow `=>`
+2:30 Arrow `->`
+2:33 At `@`
+2:35 Hash `#`
+4:1 Identifier `xF__`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �
+    │ ^

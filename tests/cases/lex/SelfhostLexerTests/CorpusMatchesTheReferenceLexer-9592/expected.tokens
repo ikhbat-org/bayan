@@ -1,0 +1,28 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:2 IntegerLiteral `0`
+2:3 NumericSuffix `F__`
+4:1 IntegerLiteral `0x`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  1 │ let a = 1�
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ �0F__
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ // ok � in comment
+    │       ^

@@ -1,0 +1,12 @@
+1:1 IntegerLiteral `3`
+1:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD2)
+
+  1 │ 3��
+    │  ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ 3��
+    │   ^

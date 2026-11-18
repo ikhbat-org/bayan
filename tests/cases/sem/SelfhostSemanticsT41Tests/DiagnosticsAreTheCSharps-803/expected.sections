@@ -1,0 +1,2 @@
+== diags.diag/label-not-on-loop
+BYN2408 1:1 label `done` must be on a loop or `switch`

@@ -1,0 +1,28 @@
+1:1 Identifier `ock`
+2:4 Identifier `comment`
+2:12 Star `*`
+2:13 Slash `/`
+2:15 Identifier `a`
+    doc `/// Doc line one.`
+5:1 Identifier `F`
+5:3 IntegerLiteral `0x_ff`
+5:9 IntegerLiteral `0b1010`
+5:16 IntegerLiteral `0B11`
+5:21 IntegerLiteral `5`
+5:22 NumericSuffix `s`
+5:24 IntegerLiteral `25`
+5:27 Identifier `ms`
+5:30 IntegerLiteral `4`
+5:31 NumericSuffix `KiB`
+5:35 IntegerLiteral `1`
+5:36 NumericSuffix `u`
+5:38 Identifier `xFFu`
+5:43 IntegerLiteral `0b1`
+5:46 NumericSuffix `ul`
+5:49 Identifier `l`
+6:1 EndOfFile
+
+error BYN0002: unexpected character `\u{3}`
+
+  5 │ F 0x_ff 0b1010 0B11 5s 25�ms 4KiB 1u xFFu 0b1ul l
+    │                          ^

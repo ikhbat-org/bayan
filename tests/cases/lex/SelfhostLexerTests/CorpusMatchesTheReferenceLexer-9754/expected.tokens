@@ -1,0 +1,43 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+3:1 Identifier `가`
+3:4 Identifier `J_x`
+3:8 Identifier `camlC`
+3:14 Identifier `fault`
+3:20 ForKeyword `for`
+3:24 InKeyword `in`
+3:27 WhileKeyword `while`
+3:33 DoKeyword `do`
+3:36 BreakKeyword `break`
+3:42 ContinueKeyword `continue`
+3:51 ReturnKeyword `return`
+3:58 YieldKeyword `yield`
+3:64 DeferKeyword `defer`
+3:70 Identifier `errde`
+4:1 EndOfFile
+
+error BYN0005: identifier `가` is not in Unicode normalization form C
+
+  3 │ 가�J_x camlC fault for in while do break continue return yield defer errde
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ 가�J_x camlC fault for in while do break continue return yield defer errde
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  3 │ 가�J_x camlC fault for in while do break continue return yield defer errde
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  3 │ 가�J_x camlC fault for in while do break continue return yield defer errde
+    │    ^

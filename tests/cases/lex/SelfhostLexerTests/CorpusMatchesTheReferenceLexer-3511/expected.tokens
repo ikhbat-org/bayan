@@ -1,0 +1,23 @@
+1:1 Identifier `h`
+1:3 CaseKeyword `case`
+1:8 DefaultKeyword `default`
+1:16 ForKeyword `for`
+1:20 InKeyword `in`
+1:23 WhileKeyword `while`
+1:29 DoKeyword `do`
+1:32 BreakKeyword `break`
+1:38 ContinueKeyword `continue`
+1:47 ReturnKeyword `return`
+1:54 YieldKeyword `yield`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never closed\nfails try catch never noalloc nosuspend suspends async await\n\n   comment */ a\n  comment \u{202E} hidden\nfé = 1\n3let café = 2\n `
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

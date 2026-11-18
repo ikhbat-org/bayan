@@ -1,0 +1,9 @@
+1:1 Identifier `comment`
+2:1 Slash `/`
+2:2 Identifier `b`
+2:3 Star `*`
+2:5 Identifier `block`
+3:4 Identifier `comment`
+3:12 Star `*`
+3:13 Slash `/`
+3:16 EndOfFile

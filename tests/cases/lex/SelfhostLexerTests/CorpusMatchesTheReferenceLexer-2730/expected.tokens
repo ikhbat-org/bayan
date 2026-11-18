@@ -1,0 +1,61 @@
+1:2 Identifier `b`
+2:2 IsKeyword `is`
+2:5 AndKeyword `and`
+2:9 OrKeyword `or`
+2:12 NotKeyword `not`
+2:16 WithKeyword `with`
+2:21 MoveKeyword `move`
+2:26 Identifier `ef`
+2:29 OutKeyword `out`
+2:33 ThisKeyword `this`
+2:38 NullKeyword `null`
+2:43 Identifier `rue`
+2:47 FalseKeyword `false`
+2:53 ComptimeKeyword `comptime`
+2:62 CheckedKeyword `checked`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 Identifier `a`
+4:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �b
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ �����is and or not with move �ef out this null rue false comptime checked
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ �����is and or not with move �ef out this null rue false comptime checked
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����is and or not with move �ef out this null rue false comptime checked
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����is and or not with move �ef out this null rue false comptime checked
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  2 │ �����is and or not with move �ef out this null rue false comptime checked
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ �����is and or not with move �ef out this null rue false comptime checked
+    │                              ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{a 
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

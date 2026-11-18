@@ -1,0 +1,30 @@
+1:1 Identifier `각`
+1:5 Identifier `ạ̇`
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:13 IntegerLiteral `2`
+    doc `/// \u{2}Doc line one.`
+4:2 EndOfFile
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  1 │ 각 ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각 ạ̇
+    │   │ +
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ 각 ạ̇
+    │     ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각 ạ̇
+    │   │     +
+
+error BYN0002: unexpected character `\u{1A}`
+
+  4 │ �
+    │ ^

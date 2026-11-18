@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "IndexExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "SpanLength",
+    "StrBufAppend",
+    "StrBufNew"
+  ],
+  "diagnostics": [
+    "BYN2310"
+  ]
+}

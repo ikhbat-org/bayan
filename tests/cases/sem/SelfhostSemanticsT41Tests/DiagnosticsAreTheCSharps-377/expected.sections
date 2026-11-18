@@ -1,0 +1,2 @@
+== diags.diag/assert-fails-other-set
+BYN2411 14:20 `DbError` cannot match `ParseError`

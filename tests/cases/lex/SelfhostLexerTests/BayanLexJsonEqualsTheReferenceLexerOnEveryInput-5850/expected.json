@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"CharLiteral","start":0,"end":5,"text":"'a1b_","doc":null},{"kind":"EndOfFile","start":6,"end":6,"text":"","doc":null}],"diagnostics":[{"code":"BYN0008","severity":"error","start":0,"end":5,"message":"unterminated char literal","label":null,"help":"close it with `'`","fixes":[]}]}

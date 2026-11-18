@@ -1,0 +1,47 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+3:2 Identifier `comment`
+3:10 Star `*`
+3:11 Slash `/`
+3:13 Identifier `a`
+    doc `/// Doc line '\u{D800}`
+5:2 Identifier `Å`
+5:3 InterpolatedStringStart `$"`
+5:5 InterpolatedStringText `open `
+5:10 InterpolationStart `{`
+5:11 Identifier `x`
+5:12 StringLiteral `";`
+7:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  5 │  Å$"open {x";
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │  Å$"open {x";
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  5 │  Å$"open {x";
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │  Å$"open {x";
+    │            ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,9 @@
+0b102
+
+ â€® hidden
+let Ñâ§ = 1
+
+ b = "bad \q escape"
+let c = """never closed
+Ã 'x
+

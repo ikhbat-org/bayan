@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/argument-implied-name.byn
+--package
+<repo>/tests/cases/diag

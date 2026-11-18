@@ -1,0 +1,65 @@
+1:1 StringLiteral `"`
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+3:2 StructKeyword `struct`
+3:9 Identifier `S`
+8:15 Identifier `a`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xB2)
+
+  4 │ //�/ine comment
+    │   ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  5 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 5 │ // block
+    │   │  +++++++
+    │ 6 │ // comment �V��ᅡᆨ
+    │   │ +++++++++++++++++
+    │ 7 │ // 0b__
+    │   │ +++++++
+    │ 8 │ // comment
+    │   │ ++++++++++
+    │ 9 │  a
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  6 │    comment �V��ᅡᆨ
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  6 │    comment �V��ᅡᆨ
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │    comment �V��ᅡᆨ
+    │               ^

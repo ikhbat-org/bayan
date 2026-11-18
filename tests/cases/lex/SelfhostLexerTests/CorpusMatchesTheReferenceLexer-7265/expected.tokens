@@ -1,0 +1,22 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+2:2 StringLiteral `"text"`
+2:9 StringLiteral `"esc \"q\" \\ \n"`
+2:27 RawStringLiteral `"""\n //// not a doc comment\n 0x_\n\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │  "text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

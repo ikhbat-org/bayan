@@ -1,0 +1,9 @@
+0x
+_// comment â€š hidden
+ b
+c >>= 1
+ ğŸ˜ var xs: List<List<i64>>
+ "text" "esc \"q\" \\ \n" """
+
+// ok ş in comment
+

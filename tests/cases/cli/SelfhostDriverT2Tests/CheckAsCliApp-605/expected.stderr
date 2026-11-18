@@ -1,0 +1,10 @@
+error BYN2805: `Square` lists `IShape` twice
+  --> <repo>/tmp/t2/diag/duplicate-conformance/duplicate-conformance.byn:5:25
+
+  5 │ struct Square : IShape, IShape {
+    │                         ^^^^^^ already listed
+    │
+  help: remove the second `IShape`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2805

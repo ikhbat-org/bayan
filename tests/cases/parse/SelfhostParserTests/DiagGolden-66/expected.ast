@@ -1,0 +1,15 @@
+CompilationUnit
+  Function f() -> void
+    Block
+      For Let i in (.. 0 10)
+        Block
+          Break done
+
+error BYN1010: `goto` does not exist in Bayan
+
+  3 │         goto done
+    │         ^^^^ not a keyword in Bayan
+    │
+  help: label the loop (`outer: for x in xs { … }`) and use `break outer` to leave it early
+    │ 3 │         break done
+    │   │         +++++

@@ -1,0 +1,13 @@
+1010 0B11 5s 250' one.
+/// Doc line two.
+struct S
+//// not a doc comment
+b
+
+"text" "esc \"q\" \\ \n" """
+
+e on.
+/// Doc line two.
+struct S
+//// not a doc let c =  3
+ 

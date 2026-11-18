@@ -1,0 +1,2 @@
+== diags.diag/not-formattable
+BYN2225 2:10 `List<i64>` cannot be formatted

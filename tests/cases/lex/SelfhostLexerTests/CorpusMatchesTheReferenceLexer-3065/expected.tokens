@@ -1,0 +1,16 @@
+1:1 Identifier `M`
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `a`
+1:5 InterpolationStart `{`
+1:6 Identifier `b`
+1:7 InterpolationEnd `}`
+1:8 InterpolatedStringText `c `
+1:10 InterpolatedStringEnd
+1:10 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ M$"a{b}c 
+    │  ^^ this string never ends
+    │
+  help: close it with `"`

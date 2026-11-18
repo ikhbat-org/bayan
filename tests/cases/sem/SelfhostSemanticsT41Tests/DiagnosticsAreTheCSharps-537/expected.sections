@@ -1,0 +1,10 @@
+== diags.diag/std-json-no-lookup
+BYN2003 6:38 `get` is not a member of `Json`
+returns close 0
+returns next -1
+returns over 0
+returns parse 0
+returns readNumber -1
+returns readString -1
+returns readValue -1
+returns treeOf 0 1

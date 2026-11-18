@@ -1,0 +1,7 @@
+== member Point
+first none
+block 205..212
+local a 0 3
+local b 1 3
+requires 0 infers false
+BYN2001 11:30 `zz` is not defined |||

@@ -1,0 +1,28 @@
+1:1 Identifier `Å`
+1:3 TestKeyword `test`
+1:8 AssertKeyword `assert`
+1:15 PropertyKeyword `property`
+1:24 FuzzKeyword `fuzz`
+1:29 ModelKeyword `model`
+1:35 ForeachKeyword `foreach`
+1:43 NewKeyword `new`
+1:47 GotoKeyword `goto`
+2:1 IntegerLiteral `0xF__`
+3:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å test assert property fuzz model foreach new goto
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å test assert property fuzz model foreach new goto
+    │   │ +
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --

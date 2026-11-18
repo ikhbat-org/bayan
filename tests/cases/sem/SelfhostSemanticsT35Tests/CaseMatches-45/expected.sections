@@ -1,0 +1,2 @@
+== expr.probes.t10
+tuple:(i32 a, string b)[2474:14]=-(literal:i32[2478:1]=1(1) local:string[2484:3]=-(str))

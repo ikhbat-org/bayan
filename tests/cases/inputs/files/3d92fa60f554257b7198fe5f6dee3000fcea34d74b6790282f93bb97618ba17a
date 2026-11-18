@@ -1,0 +1,9 @@
+open
+let b = "ba'
+ = 
+$"stray } here"
+  """ c"text" u16"wide" "â€® allowed in strings" "" "Ü\u{48}i"
+ & && | || ^ ~ ! = = != < <= > >= << >> >>=
+
+b
+ 

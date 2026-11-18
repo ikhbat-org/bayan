@@ -1,0 +1,61 @@
+1:1 CharLiteral `'ab'`
+4:1 IntegerLiteral `1_6`
+5:1 IntegerLiteral `0b102`
+6:1 IntegerLiteral `0xFF`
+6:5 NumericSuffix `s`
+7:1 IntegerLiteral `0b1`
+7:4 NumericSuffix `ms`
+8:1 IntegerLiteral `0x_`
+9:1 IntegerLiteral `0b__`
+10:1 IntegerLiteral `1__`
+11:1 IntegerLiteral `0xF`
+11:5 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  6 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x_
+    │ ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  9 │ �0b__
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  9 │ �0b__
+    │  ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 1__
+     │  ^^
+     │
+     │ 10 │ 1__
+     │    │  --

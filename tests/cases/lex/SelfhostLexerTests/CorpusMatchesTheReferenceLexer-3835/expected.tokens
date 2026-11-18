@@ -1,0 +1,24 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:3 Identifier `line`
+1:8 Identifier `comment`
+3:14 Identifier `a`
+    doc `/// Doc line one.`
+6:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │ /*+block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │ // +block
+    │   │  ++++++++
+    │ 3 │ // comh�nt
+    │   │ ++++++++++
+    │ 4 │  a
+
+error BYN0015: source is not valid UTF-8 (byte 0xAD)
+
+  3 │    comh�nt */ a
+    │        ^

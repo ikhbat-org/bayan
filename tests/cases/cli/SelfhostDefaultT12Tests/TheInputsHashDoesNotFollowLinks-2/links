@@ -1,0 +1,4 @@
+cs/tally/src/alias -> util
+cs/tally/src/dangling.byn -> nowhere.byn
+cs/tally/src/link.byn -> util/u.byn
+cs/tally/src/loop -> ..

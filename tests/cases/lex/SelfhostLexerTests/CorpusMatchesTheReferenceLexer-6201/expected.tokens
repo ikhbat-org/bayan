@@ -1,0 +1,146 @@
+1:1 LetKeyword `let`
+1:5 Identifier `s`
+1:7 Equals `=`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 StringLiteral `$"{$"`
+1:62 OpenBrace `{`
+1:63 StringLiteral `$"{$"`
+1:68 OpenBrace `{`
+1:69 Identifier `x`
+1:70 CloseBrace `}`
+1:71 StringLiteral `"}"`
+1:74 CloseBrace `}`
+1:75 StringLiteral `"\t"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:90 InterpolationEnd `}`
+1:91 InterpolatedStringEnd `"`
+1:92 InterpolationEnd `}`
+1:93 InterpolatedStringEnd `"`
+1:94 InterpolationEnd `}`
+1:95 InterpolatedStringEnd `"`
+1:96 InterpolationEnd `}`
+1:97 InterpolatedStringEnd `"`
+1:98 InterpolationEnd `}`
+1:99 InterpolatedStringEnd `"`
+1:100 InterpolationEnd `}`
+1:101 InterpolatedStringEnd `"`
+1:102 InterpolationEnd `}`
+1:103 InterpolatedStringEnd `"`
+1:104 InterpolationEnd `}`
+1:105 InterpolatedStringEnd `"`
+1:106 InterpolationEnd `}`
+1:107 InterpolatedStringEnd `"`
+1:108 InterpolationEnd `}`
+1:109 InterpolatedStringEnd `"`
+3:1 CharLiteral `'\q'`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 StringLiteral `$"{$"`
+5:54 OpenBrace `{`
+5:55 StringLiteral `$"{$"`
+5:60 OpenBrace `{`
+5:61 StringLiteral `$"{x}"`
+5:67 CloseBrace `}`
+5:68 StringLiteral `"}"`
+5:71 CloseBrace `}`
+5:72 StringLiteral `"}"`
+5:75 InterpolationEnd `}`
+5:76 InterpolatedStringEnd `"`
+5:77 InterpolationEnd `}`
+5:78 InterpolatedStringEnd `"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolationEnd `}`
+5:82 InterpolatedStringEnd `"`
+5:83 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"	"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"
+    │                                  ^^ this string never ends
+    │
+  help: close the `{` and the string

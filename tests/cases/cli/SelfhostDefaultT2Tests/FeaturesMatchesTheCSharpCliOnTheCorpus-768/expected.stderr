@@ -1,0 +1,5 @@
+error BYN2219: a `const` must be a compile-time constant
+  --> <repo>/tests/cases/diag/not-constant.byn:3:16
+
+  3 │ const n: i64 = compute()
+    │                ^^^^^^^^^

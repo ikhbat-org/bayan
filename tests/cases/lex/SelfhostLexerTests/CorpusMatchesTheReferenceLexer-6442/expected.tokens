@@ -1,0 +1,17 @@
+1:1 Identifier `x́́`
+1:4 StringLiteral `"text"`
+1:11 StringLiteral `"esc \"q\" �\\ \n"`
+1:30 RawStringLiteral `"""\n {\nc >>= 1\nlet café = 1;\n/l/ \u{202E}x\n1_\n, . .. ..= : ? ?? ??= ?. => -> @ #\n `
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD2)
+
+  1 │ x́́"text" "esc \"q\" �\\ \n" """
+    │                      ^
+
+error BYN0003: unterminated string literal
+
+  1 │ x́́"text" "esc \"q\" �\\ \n" """
+    │                              ^^^ raw string starts here
+    │
+  help: close it with `"""`

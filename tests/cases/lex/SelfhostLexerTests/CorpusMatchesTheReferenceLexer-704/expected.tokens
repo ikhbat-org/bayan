@@ -1,0 +1,15 @@
+1:1 IntegerLiteral `0x`
+2:2 RawStringLiteral `"""\t$"{{"\nstruct unique union enum flags open extensible interface delegate extension derivation attribute\n mment \u{202E} hidden\nlet x\u{2067} = is and or not with move ref out this null true false comptime checked\n`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  2 │  """	$"{{"
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,46 @@
+2:1 IntegerLiteral `2`
+2:3 IntegerLiteral `1_000_000`
+2:13 IntegerLiteral `0xFF`
+2:18 IntegerLiteral `0x_ff`
+2:24 IntegerLiteral `0b1010`
+2:31 IntegerLiteral `0B11`
+2:36 IntegerLiteral `5`
+2:37 NumericSuffix `s`
+2:39 IntegerLiteral `250`
+2:42 NumericSuffix `ms`
+2:45 IntegerLiteral `4`
+2:46 NumericSuffix `KiB`
+2:50 IntegerLiteral `1`
+2:51 NumericSuffix `u`
+2:53 IntegerLiteral `0xFF`
+2:57 NumericSuffix `u`
+2:59 Slash `/`
+2:64 Star `*`
+2:65 Slash `/`
+2:67 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD4)
+
+  2 │ 2 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB�1u 0xFFu /� � */ 
+    │                                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  2 │ 2 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB�1u 0xFFu /� � */ 
+    │                                                            ^
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  2 │ 2 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB�1u 0xFFu /� � */ 
+    │                                                              ^ invisible character that
+    │                                                                reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ 2 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB�1u 0xFFu /� � */ 
+    │   │                                                              -

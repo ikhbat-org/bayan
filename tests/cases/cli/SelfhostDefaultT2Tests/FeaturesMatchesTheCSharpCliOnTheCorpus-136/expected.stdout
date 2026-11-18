@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "TargetMemberExpr",
+    "TryExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "IoRun",
+    "Print",
+    "ProcessExitCode",
+    "ProcessStdout",
+    "SpanLength",
+    "StringBytes",
+    "StringCount",
+    "StringLastPosition",
+    "StringPosition",
+    "Utf8DecodeReplace"
+  ],
+  "diagnostics": []
+}

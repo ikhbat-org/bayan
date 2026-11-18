@@ -1,0 +1,40 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+2:2 TestKeyword `test`
+2:7 AssertKeyword `assert`
+2:14 PropertyKeyword `property`
+2:23 FuzzKeyword `fuzz`
+2:28 ModelKeyword `model`
+2:34 Identifier `freach`
+2:41 NewKeyword `new`
+2:45 GotoKeyword `goto`
+3:1 Slash `/`
+3:3 Identifier `block`
+5:1 Identifier `xt`
+5:3 StringLiteral `" u16"`
+5:9 Identifier `wide`
+5:13 StringLiteral `" "`
+5:18 Identifier `al`
+6:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ xt" u16"wide" "� al�
+    │                ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ xt" u16"wide" "� al�
+    │   │                -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ xt" u16"wide" "� al�
+    │                    ^

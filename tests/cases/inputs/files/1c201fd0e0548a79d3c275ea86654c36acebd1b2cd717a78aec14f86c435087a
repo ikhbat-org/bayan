@@ -1,0 +1,10 @@
+let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}}"}"}"
+ \q escape"
+let c = """never closed
+ st let var embedrextern unsafe
+if else un 1__
+
+test assert property fuzz model foreach new goto
+
+never closed
+ "a⁧b" 

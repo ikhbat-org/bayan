@@ -1,0 +1,32 @@
+== tests/cases/run/ref-out-lambda-block.byn
+49..62 blockStmt
+55..60 assignStmt assign target 55..56 value 59..60
+55..56 nameExpr
+59..60 nameExpr
+76..206 blockStmt
+82..111 localDecl
+105..111 lambdaExpr
+116..180 blockStmt
+126..135 localDecl
+134..135 literalExpr integer
+144..174 exprStmt
+144..174 callExpr
+149..159 lambdaExpr
+158..159 nameExpr
+169..173 nameExpr
+185..204 exprStmt
+185..204 callExpr
+191..203 interpolatedExpr
+194..201 callExpr
+194..198 nameExpr
+199..200 literalExpr integer
+185..204 callExpr
+110..111 nameExpr
+110..111 nameExpr
+110..111 nameExpr
+154..159 binaryExpr add right 158..159
+154..159 binaryExpr add right 158..159
+154..159 binaryExpr add right 158..159
+154..155 nameExpr
+158..159 nameExpr
+158..159 nameExpr

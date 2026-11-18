@@ -1,0 +1,9 @@
+== diags.diag/nosuspend-removed
+BYN6001 1:15 `nosuspend` is removed; a function without `uses` is already pure
+  label removed
+  help remove `nosuspend`
+  fix 1:14-1:24 
+BYN6001 4:23 `suspends` is removed; a function without `uses` is already pure
+  label removed
+  help remove `suspends`
+  fix 4:22-4:31 

@@ -1,0 +1,4 @@
+created library `local/a-1b` in `a-1b`
+
+  cd a-1b
+  bayan test

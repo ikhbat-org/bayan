@@ -1,0 +1,38 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"opn`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `x`
+3:4 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:10 IntegerLiteral `0b__`
+4:2 RawStringLiteral `"""\nis and or not wxFFu 0b1ul 7l\n\n`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "opn
+    │         ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"x{ $"{ 0b__
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ $"x{ $"{ 0b__
+    │          ^^^^
+
+error BYN0003: unterminated string literal
+
+  4 │  """
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,3 @@
+build
+--emit-c
+fs-real-path.byn

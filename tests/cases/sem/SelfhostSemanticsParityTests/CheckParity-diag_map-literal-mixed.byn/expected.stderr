@@ -1,0 +1,18 @@
+error BYN2236: a map literal needs `key: value` in every element
+  --> tmp/t26-tests/cli/diag_map-literal-mixed.byn/map-literal-mixed.byn:1:43
+
+  1 │ let stock: Map<string, i32> = ["A-1": 12, 3]
+    │                                           ^ no `key:` here
+    │
+  help: write every element as `key: value`, or remove the keys to make a list
+
+error BYN2236: a map literal needs `key: value` in every element
+  --> tmp/t26-tests/cli/diag_map-literal-mixed.byn/map-literal-mixed.byn:2:16
+
+  2 │ let headers = ["Accept", "Host": "x"]
+    │                ^^^^^^^^ no `key:` here
+    │
+  help: write every element as `key: value`, or remove the keys to make a list
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2236

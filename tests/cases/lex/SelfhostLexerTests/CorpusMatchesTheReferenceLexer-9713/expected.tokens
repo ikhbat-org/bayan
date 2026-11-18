@@ -1,0 +1,14 @@
+    doc `/// Doc line one.`
+2:2 StructKeyword `struct`
+2:9 UniqueKeyword `unique`
+2:16 UnionKeyword `union`
+2:22 EnumKeyword `enum`
+2:27 FlagsKeyword `flags`
+2:33 OpenKeyword `open`
+2:38 ExtensibleKeyword `extensible`
+2:49 InterfaceKeyword `interface`
+2:59 DelegateKeyword `delegate`
+2:68 ExtensionKeyword `extension`
+2:78 DerivationKeyword `derivation`
+2:89 AttributeKeyword `attribute`
+3:2 EndOfFile

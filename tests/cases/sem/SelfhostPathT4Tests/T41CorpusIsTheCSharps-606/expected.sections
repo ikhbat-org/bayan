@@ -1,0 +1,2 @@
+== diags.diag/this-outside-method
+BYN2018 1:15 `this` is only available inside instance methods

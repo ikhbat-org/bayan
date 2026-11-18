@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"Identifier","start":0,"end":1,"text":"P","doc":null},{"kind":"CharLiteral","start":1,"end":11,"text":"'\\u{D200}'","doc":null},{"kind":"EndOfFile","start":12,"end":12,"text":"","doc":null}],"diagnostics":[]}

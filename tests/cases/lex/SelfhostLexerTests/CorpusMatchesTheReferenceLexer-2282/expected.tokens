@@ -1,0 +1,28 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+2:1 LetKeyword `let`
+2:7 Equals `=`
+2:9 IntegerLiteral `2`
+4:1 Slash `/`
+4:3 Identifier `ok`
+4:8 InKeyword `in`
+4:11 Identifier `comment`
+6:1 Identifier `x́́`
+6:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ / ok � in comment
+    │      ^

@@ -1,0 +1,19 @@
+== tests/cases/diag/borrow-returned.byn
+20..75 blockStmt
+26..53 localDecl
+36..53 stackallocExpr
+58..73 returnStmt value 65..73
+65..73 indexExpr
+65..68 nameExpr
+69..70 literalExpr integer
+122..138 indexExpr
+122..138 indexExpr
+122..138 indexExpr
+122..133 memberExpr
+122..128 nameExpr
+136..137 literalExpr integer
+176..187 indexExpr
+176..187 indexExpr
+176..187 indexExpr
+176..182 nameExpr
+183..184 literalExpr integer

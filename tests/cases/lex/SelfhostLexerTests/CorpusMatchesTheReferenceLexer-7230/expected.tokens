@@ -1,0 +1,119 @@
+1:3 IntegerLiteral `2`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+3:1 CharLiteral `'\u{110000}'`
+5:1 TestKeyword `test`
+5:6 AssertKeyword `assert`
+5:13 PropertyKeyword `property`
+5:22 FuzzKeyword `fuzz`
+5:27 ModelKeyword `model`
+5:33 ForeachKeyword `foreach`
+5:41 NewKeyword `new`
+5:45 GotoKeyword `goto`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:38 Identifier `e`
+7:39 OpenBrace `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 InterpolatedStringStart `$"`
+7:51 InterpolationStart `{`
+7:52 StringLiteral `$"{x}"`
+7:58 InterpolationEnd `}`
+7:59 InterpolatedStringEnd `"`
+7:60 InterpolationEnd `}`
+7:61 InterpolatedStringEnd `"`
+7:62 InterpolationEnd `}`
+7:63 InterpolatedStringEnd `"`
+7:64 InterpolationEnd `}`
+7:65 InterpolatedStringEnd `"`
+7:66 CloseBrace `}`
+7:67 StringLiteral `"}"`
+7:70 InterpolationEnd `}`
+7:71 InterpolatedStringEnd `"`
+7:72 InterpolationEnd `}`
+7:73 InterpolatedStringEnd `"`
+7:74 InterpolationEnd `}`
+7:75 InterpolatedStringEnd `"`
+7:77 ErrorKeyword `error`
+7:83 SetKeyword `set`
+7:87 UnitKeyword `unit`
+7:92 DistinctKeyword `distinct`
+7:101 TypeKeyword `type`
+7:106 ImportKeyword `import`
+7:113 AsKeyword `as`
+7:116 PublicKeyword `public`
+7:123 PrivateKeyword `private`
+7:131 StaticKeyword `static`
+7:138 ReadonlyKeyword `readonly`
+7:147 RequiredKeyword `required`
+7:156 ConstKeyword `const`
+7:162 LetKeyword `let`
+7:166 VarKeyword `var`
+7:170 EmbedKeyword `embed`
+7:176 ExternKeyword `extern`
+7:183 UnsafeKeyword `unsafe`
+9:1 RawStringLiteral `""" let a = $ 1\n\n`
+11:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ ` 2
+    │ ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$e{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$e{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                                     ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$e{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                                                    ^^
+
+error BYN0003: unterminated string literal
+
+  9 │ """ let a = $ 1
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

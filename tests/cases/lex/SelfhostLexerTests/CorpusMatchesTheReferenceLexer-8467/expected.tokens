@@ -1,0 +1,84 @@
+1:2 LetKeyword `let`
+1:6 LawKeyword `law`
+1:10 Equals `=`
+1:12 IntegerLiteral `3`
+3:1 VarKeyword `var`
+3:5 Identifier `xs`
+3:7 Colon `:`
+3:9 Identifier `List`
+3:13 Less `<`
+3:14 Identifier `List`
+3:18 Less `<`
+3:19 Identifier `i64`
+3:22 Greater `>`
+3:23 Greater `>`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 Identifier `a`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `total `
+6:9 InterpolationStart `{`
+6:10 Identifier `x`
+6:11 InterpolationEnd `}`
+6:12 InterpolatedStringEnd `"`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolatedStringText `a `
+6:18 InterpolationStart `{`
+6:19 Identifier `f`
+6:20 OpenParen `(`
+6:21 InterpolatedStringStart `$"`
+6:23 InterpolatedStringText `b `
+6:25 InterpolationStart `{`
+6:26 Identifier `c`
+6:27 InterpolationEnd `}`
+6:28 InterpolatedStringEnd `"`
+6:29 CloseParen `)`
+6:30 InterpolationEnd `}`
+6:31 InterpolatedStringText `d`
+6:32 InterpolatedStringEnd `"`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolatedStringText `{{literal}}`
+6:47 InterpolatedStringEnd `"`
+6:49 InterpolatedStringStart `$"`
+6:51 InterpolationStart `{`
+6:52 Identifier `Point`
+6:58 OpenBrace `{`
+6:60 Identifier `x`
+6:62 Equals `=`
+6:64 IntegerLiteral `1`
+6:66 CloseBrace `}`
+6:67 InterpolationEnd `}`
+6:68 InterpolatedStringText `!`
+6:69 InterpolatedStringEnd `"`
+6:71 InterpolatedStringStart `$"`
+6:73 InterpolatedStringEnd `"`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:6 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �let law = 3
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �let law = 3
+    │   │ -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ // �x
+    │   │    -
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{ 
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

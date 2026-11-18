@@ -1,0 +1,26 @@
+warning BYN5014: `eval` is not a known verb, noun or adjective
+  --> <repo>/tests/cases/run/self-hosting-shape.byn:45:9
+
+  45 │     i64 eval() => value
+     │         ^^^^
+     │
+  help: add it to `grammar` in package.byn: `nouns: ["eval"]`, `verbs: ["eval"]` or
+        `adjectives: ["eval"]`
+
+warning BYN5014: `eval` is not a known verb, noun or adjective
+  --> <repo>/tests/cases/run/self-hosting-shape.byn:54:9
+
+  54 │     i64 eval() => left + right
+     │         ^^^^
+     │
+  help: add it to `grammar` in package.byn: `nouns: ["eval"]`, `verbs: ["eval"]` or
+        `adjectives: ["eval"]`
+
+warning BYN5014: `eval` is not a known verb, noun or adjective
+  --> <repo>/tests/cases/run/self-hosting-shape.byn:63:9
+
+  63 │     i64 eval() => left * right
+     │         ^^^^
+     │
+  help: add it to `grammar` in package.byn: `nouns: ["eval"]`, `verbs: ["eval"]` or
+        `adjectives: ["eval"]`

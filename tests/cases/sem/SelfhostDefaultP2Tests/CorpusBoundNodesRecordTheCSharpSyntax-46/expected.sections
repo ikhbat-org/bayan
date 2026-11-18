@@ -1,0 +1,68 @@
+== tests/cases/run/error-equality-payload.byn
+95..148 blockStmt
+101..133 guardedStmt
+128..133 binaryExpr gt right 132..133
+128..129 nameExpr
+132..133 literalExpr integer
+101..124 returnStmt value 108..124
+108..124 callExpr
+108..124 callExpr
+122..123 nameExpr
+138..146 returnStmt value 145..146
+145..146 literalExpr integer
+145..146 literalExpr integer
+150..186 globalStatement
+150..186 localDecl
+170..186 callExpr
+184..185 literalExpr integer
+187..223 localDecl
+207..223 callExpr
+221..222 literalExpr integer
+224..260 localDecl
+244..260 callExpr
+258..259 literalExpr integer
+261..311 exprStmt
+261..311 callExpr
+267..310 interpolatedExpr
+270..276 binaryExpr eq right 275..276
+270..271 nameExpr
+275..276 nameExpr
+279..285 binaryExpr eq right 284..285
+279..280 nameExpr
+284..285 nameExpr
+288..294 binaryExpr ne right 293..294
+288..289 nameExpr
+293..294 nameExpr
+297..308 binaryExpr eq right 302..308
+297..298 nameExpr
+302..308 targetMemberExpr
+261..311 callExpr
+376..419 exprStmt
+376..419 callExpr
+382..418 interpolatedExpr
+385..399 binaryExpr eq right 390..399
+385..386 nameExpr
+390..399 targetMemberExpr
+402..416 binaryExpr eq right 407..416
+402..403 nameExpr
+407..416 targetMemberExpr
+376..419 callExpr
+420..492 exprStmt
+420..492 callExpr
+426..491 interpolatedExpr
+429..447 binaryExpr eq right 440..447
+429..436 callExpr
+434..435 literalExpr integer
+440..447 callExpr
+445..446 literalExpr integer
+450..468 binaryExpr eq right 461..468
+450..457 callExpr
+455..456 literalExpr integer
+461..468 callExpr
+466..467 literalExpr integer
+471..489 binaryExpr eq right 482..489
+471..478 callExpr
+476..477 literalExpr integer
+482..489 callExpr
+487..488 literalExpr integer
+420..492 callExpr

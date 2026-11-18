@@ -1,0 +1,8 @@
+error BYN2411: `DbError` cannot match `ParseError`
+  --> input.byn:14:20
+
+  14 │ assert f("") fails DbError.gone
+     │                    ^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2411

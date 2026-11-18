@@ -1,0 +1,67 @@
+    doc `/// 0b1ms`
+2:2 StringLiteral `"{+ - * / % +% -% *% +| -| *| ++ --`
+3:1 Identifier `ray`
+3:5 CloseBrace `}`
+3:7 Identifier `here`
+3:11 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+5:2 LetKeyword `let`
+5:6 Identifier `a`
+5:8 Equals `=`
+5:12 IntegerLiteral `1`
+6:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "� "\u{48}i"\n\t`
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  "{+ - * / % +% -% *% +| -| *| ++ --
+    │  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ ray } here"
+    │           ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  5 │  let a = $ 1�
+    │          ^
+
+error BYN0002: unexpected character `\u{5}`
+
+  5 │  let a = $ 1�
+    │             ^
+
+error BYN0003: unterminated string literal
+
+  6 │   """ c"text" u16"wide" "� allowed in strings" "� "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  6 │   """ c"text" u16"wide" "� allowed in strings" "� "\u{48}i"
+    │                                                 ^

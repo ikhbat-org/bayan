@@ -1,0 +1,5 @@
+error BYN2110: field `x` is set twice
+  --> <repo>/tests/cases/diag/duplicate-field-init.byn:5:23
+
+  5 │ let p = Point { x: 1, x: 2 }
+    │                       ^

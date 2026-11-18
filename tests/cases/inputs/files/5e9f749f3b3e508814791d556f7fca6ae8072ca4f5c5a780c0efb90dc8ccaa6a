@@ -1,0 +1,7 @@
+struct S {
+    i32    a
+    string bb
+
+    public i64 c  => a
+    bool       dd => true
+}

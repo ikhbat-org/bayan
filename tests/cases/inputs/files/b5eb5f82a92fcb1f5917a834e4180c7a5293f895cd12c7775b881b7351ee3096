@@ -1,0 +1,1 @@
+Package { name: "local/a", version: "0.1.0", style: Grammar { } }

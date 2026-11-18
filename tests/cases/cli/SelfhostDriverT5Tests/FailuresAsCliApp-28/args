@@ -1,0 +1,8 @@
+build
+--emit-c
+--all
+--diagnostics
+text
+--mode
+debug
+<repo>/tmp/t5/self/failures/arithmetic.byn

@@ -1,0 +1,16 @@
+1:1 FloatLiteral `2.5e-3`
+1:8 FloatLiteral `6E+2`
+1:13 FloatLiteral `1.50`
+1:17 NumericSuffix `dec`
+1:21 IntegerLiteral `1`
+1:22 DotDot `..`
+1:24 IntegerLiteral `2`
+1:26 IntegerLiteral `1`
+1:27 DotDotEquals `..=`
+1:30 IntegerLiteral `3`
+1:32 IntegerLiteral `5`
+1:33 NumericSuffix `e`
+1:35 Identifier `x`
+1:36 Dot `.`
+1:37 Identifier `y`
+2:1 EndOfFile

@@ -1,0 +1,5 @@
+--color
+always
+test
+-v
+<repo>/tmp/t7-style/test-control-chars-dumb/tally

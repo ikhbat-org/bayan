@@ -1,0 +1,15 @@
+1:1 IntegerLiteral `0x`
+1:5 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\n0x_\n\n*/ $"x{ $"{ 0b102\n\nfails try catch never noalloc nosuspend suspends async await\n `
+8:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  1 │ 0x  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │     ^^^ raw string starts here
+    │
+  help: close it with `"""`

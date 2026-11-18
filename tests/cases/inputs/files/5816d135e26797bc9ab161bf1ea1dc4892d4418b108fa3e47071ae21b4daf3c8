@@ -1,0 +1,10 @@
+// ok ş in comment
+
+/// Doc line one.
+let c =  3
+
+let ÿ = 2
+
+'\u{D800}'
+"aâ§b"
+ 2.5f

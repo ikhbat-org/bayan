@@ -1,0 +1,8 @@
+error BYN2406: `break` outside a loop
+  --> input.byn:8:13
+
+  8 │             break
+    │             ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2406

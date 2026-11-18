@@ -1,0 +1,34 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:5 IntegerLiteral `50`
+1:7 NumericSuffix `ms`
+1:10 IntegerLiteral `4`
+1:11 NumericSuffix `KiB`
+1:15 IntegerLiteral `1`
+1:16 NumericSuffix `u`
+1:18 IntegerLiteral `0`
+1:19 NumericSuffix `FFu`
+1:23 IntegerLiteral `0b1`
+1:26 NumericSuffix `ul`
+1:29 IntegerLiteral `7`
+1:30 NumericSuffix `l`
+3:1 NeverKeyword `never`
+3:7 Identifier `closed`
+4:1 Identifier `b`
+5:1 FailsKeyword `fails`
+5:7 TryKeyword `try`
+5:11 Identifier `ctch`
+5:16 NeverKeyword `never`
+5:22 NoallocKeyword `noalloc`
+5:30 NosuspendKeyword `nosuspend`
+5:40 SuspendsKeyword `suspends`
+5:49 AsyncKeyword `async`
+5:55 AwaitKeyword `await`
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{ 50ms 4KiB 1u 0FFu 0b1ul 7l
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

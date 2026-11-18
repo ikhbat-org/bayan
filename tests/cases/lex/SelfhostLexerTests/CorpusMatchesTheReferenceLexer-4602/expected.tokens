@@ -1,0 +1,41 @@
+1:1 InKeyword `in`
+1:4 Identifier `comment`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:9 Percent `%`
+4:11 PlusPercent `+%`
+4:14 MinusPercent `-%`
+4:17 StarPercent `*%`
+4:20 PlusBar `+|`
+4:23 Minus `-`
+4:26 StarBar `*|`
+4:29 PlusPlus `++`
+4:32 MinusMinus `--`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �// ok � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │  �// ok � in comment
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8E)
+
+  4 │ + - * /� % +% -% *% +| -� *|� ++ --
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  4 │ + - * /� % +% -% *% +| -� *|� ++ --
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  4 │ + - * /� % +% -% *% +| -� *|� ++ --
+    │                             ^

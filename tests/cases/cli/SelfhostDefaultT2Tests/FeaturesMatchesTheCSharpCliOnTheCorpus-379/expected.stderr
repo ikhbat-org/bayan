@@ -1,0 +1,16 @@
+error BYN2004: no module `money`
+  --> <repo>/tests/cases/parse/declarations.byn:1:8
+
+  1 │ import money
+    │        ^^^^^
+    │
+  help: put the module's `.byn` files in `money/` next to the entry file; a module is a directory
+
+error BYN2004: no module `app.users`
+  --> <repo>/tests/cases/parse/declarations.byn:2:8
+
+  2 │ import app.users as u
+    │        ^^^^^^^^^
+    │
+  help: put the module's `.byn` files in `app/users/` next to the entry file; a module is a
+        directory

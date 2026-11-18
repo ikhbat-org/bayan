@@ -1,0 +1,48 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 Identifier `thi`
+1:37 NullKeyword `null`
+1:42 TrueKeyword `true`
+1:47 FalseKeyword `false`
+1:53 ComptimeKeyword `comptime`
+1:62 CheckedKeyword `checked`
+3:1 FailsKeyword `fails`
+3:7 TryKeyword `try`
+3:11 CatchKeyword `catch`
+3:17 NeverKeyword `never`
+3:23 NoallocKeyword `noalloc`
+3:31 NosuspendKeyword `nosuspend`
+3:41 SuspendsKeyword `suspends`
+3:50 AsyncKeyword `async`
+3:56 AwaitKeyword `await`
+4:4 Identifier `comment`
+4:12 Star `*`
+4:13 Slash `/`
+4:15 Identifier `a`
+5:3 Identifier `raw`
+5:7 StringLiteral `"quoted"`
+7:1 Identifier `a`
+7:3 Greater `>`
+7:4 Greater `>`
+7:6 Identifier `b`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `a`
+8:4 InterpolationStart `{`
+8:5 Identifier `b`
+8:6 InterpolationEnd `}`
+8:7 InterpolatedStringText `c`
+8:8 InterpolatedStringEnd
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  8 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

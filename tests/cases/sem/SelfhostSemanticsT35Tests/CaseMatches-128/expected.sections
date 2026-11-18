@@ -1,0 +1,3 @@
+== expr.probes.i5
+interpolated:string[3517:7]=-(v:local:List<Point>[3520:2]=-(lp))
+BYN2225 147:17 `List<Point>` cannot be formatted |an element is `Point`||

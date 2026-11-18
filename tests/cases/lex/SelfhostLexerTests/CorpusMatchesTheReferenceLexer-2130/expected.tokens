@@ -1,0 +1,50 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+    doc `/// Doc line two.`
+4:2 CharLiteral `'\q'`
+5:3 Equals `=`
+5:5 IntegerLiteral `1`
+6:1 Identifier `le`
+6:6 Equals `=`
+6:8 IntegerLiteral `2`
+8:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n `
+9:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │  '\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ le � = 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  7 │ // ok � �
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ // ok � �
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  8 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

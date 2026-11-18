@@ -1,0 +1,24 @@
+== main.byn
+// BYN1079: an empty collection or struct whose type the target already gives; the fix writes `[]` or `{}`.
+struct Point {
+    i32 x = 0
+    i32 y = 0
+}
+
+struct Bag {
+    List<i32> items = []
+    Map<string, i32> counts = []
+    Point origin = {}
+}
+
+void main() {
+    let xs: List<i32> = []
+    let m: Map<string, i32> = []
+    let p: Point = {}
+    var ys = List<i32>()
+    let zs = List<i32>()
+    let other: List<i64> = []
+    let b = Bag {}
+    ys.append(1)
+    print($"{xs.length}{m.length}{p.x}{ys.length}{zs.length}{other.length}{b.items.length}")
+}

@@ -1,0 +1,7 @@
+== owned
+0 (*(byn_own_read(&own_l13_lst, "List<i64>", byn_file_0, 70), &l13_lst))
+1 (*bynh_chk_move_list_i64(&l13_lst, &own_l13_lst, byn_file_0, 70))
+2 bynh_chk_set_list_i64(&l13_lst, ((bynt_list_i64){NULL, 0, 0, byn_context}), &own_l13_lst, false, byn_file_0, 70)
+3 call byn_main__fill((own_l13_lst.line = 0, &l13_lst))
+4 (*(byn_own_read(&own_l13_lst, "List<i64>", byn_file_0, 70), &l13_lst))
+5 (*bynh_chk_move_list_i64(&l13_lst, NULL, byn_file_0, 70))

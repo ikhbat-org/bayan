@@ -1,0 +1,27 @@
+# BYN1074: condition that wraps
+
+A style lint (`conditions.named`): reported by `bayan check` only, never by `build`, `run` or `test`. Its severity comes from `lints` in `package.byn` (`.suggestion` by default; `.none` silences it, `.error` makes `bayan check` fail). It has no machine fix.
+
+**What.** The condition of an `if`, `unless` or `while` continues on a later line than its keyword.
+
+**Why.** A wrapped condition is a few facts read together. A name for them says what they mean at the control statement, and the `let` holds the wrapped lines on their own.
+
+**Example.**
+
+```
+if order is .paid
+        && order.total >= freeShippingThreshold
+        && customer.region.shipsFree {
+    order.shipping = .free
+}
+```
+
+**Fix.** Name the condition with a `let`:
+
+```
+let shipsFree = order is .paid
+    && order.total >= freeShippingThreshold
+    && customer.region.shipsFree
+
+order.shipping = .free if shipsFree
+```

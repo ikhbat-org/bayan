@@ -1,0 +1,13 @@
+== main
+int main(int argc, char** argv) {
+    byn_err err = {0};
+    byn_hash_seed_init(false);
+    byn_sym_init(byn_symtab, (uint32_t)(sizeof byn_symtab / sizeof byn_symtab[0]));
+    (void)argv;
+    byn_str* byn_argv = byn_args(&argc, argv);
+    int32_t code = 0;
+    code = byn_main__main((bynt_span_str){byn_argv, argc > 1 ? argc - 1 : 0});
+    if (err.code != 0) { byn_report_error(byn_errors[err.code - 1]); return byn_exit_codes[err.code - 1]; }
+    byn_stdout_flush();
+    return code;
+}

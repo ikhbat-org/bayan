@@ -1,0 +1,6 @@
+== s7
+switchExpr|i32|1815:42
+value local:Shape=sh
+arm 1827:20 bindPattern[1827:15]:Shape(-) guard - value literal:i32=1
+arm 1849:6 bindPattern[1849:1]:Shape_(-) guard - value literal:i32=0
+BYN2411 78:26 `Box.full` cannot match `Shape` |||

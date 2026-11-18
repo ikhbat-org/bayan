@@ -1,0 +1,82 @@
+2:4 Identifier `é`
+2:8 PlusEquals `+=`
+2:11 MinusEquals `-=`
+2:14 StarEquals `*=`
+2:17 SlashEquals `/=`
+2:20 PercentEquals `%=`
+2:23 AmpEquals `&=`
+2:26 BarEquals `|=`
+2:29 CaretEquals `^=`
+2:32 LessLessEquals `<<=`
+4:3 IntegerLiteral `1`
+4:4 NumericSuffix `e`
+4:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB6)
+
+  1 │ // line com�ent
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  � é �+= -= *= /= %= &= |= ^= <<=
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  � é �+= -= *= /= %= &= |= ^= <<=
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  � é �+= -= *= /= %= &= |= ^= <<=
+    │   ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  2 │  � é �+= -= *= /= %= &= |= ^= <<=
+    │    ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  � é �+= -= *= /= %= &= |= ^= <<=
+    │   │    +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  � é �+= -= *= /= %= &= |= ^= <<=
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  � é �+= -= *= /= %= &= |= ^= <<=
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  � é �+= -= *= /= %= &= |= ^= <<=
+    │        ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // commen8t � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // commen8t � hidden
+    │   │             -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │  �1e
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │  �1e
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │  �1e
+    │   ^

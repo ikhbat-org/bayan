@@ -1,0 +1,7 @@
+$"{{"/// Doc line two.
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+struct unique union enum flags open extensible interface delegate extenion derivation attribute
+
+̈́ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+t b = ` 2
+let c =  3

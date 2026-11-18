@@ -1,0 +1,10 @@
+error BYN2003: `removeDirector` is not a member of `Io`
+  --> tmp/t26-tests/cli/diag_io-unknown-member-suggests-directory.byn/io-unknown-member-suggests-directory.byn:3:12
+
+  3 │     try Io.removeDirector(p)
+    │            ^^^^^^^^^^^^^^
+    │
+  help: did you mean `removeDirectory`?
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2003

@@ -1,0 +1,2 @@
+PATH=tmp/t9-cache/rt-identity-bin:$PATH
+CCLOG=<root>/cc.log

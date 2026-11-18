@@ -1,0 +1,1 @@
+{"code":"BYN2806","severity":"error","file":"input.byn","span":{"start":56,"end":60,"line":3,"column":23,"endLine":3,"endColumn":27},"message":"`Self` has no member `nope` in its constraints (`IShape`)","label":null,"help":"declare `nope` in `IShape`; a default method sees only its interface's members","fixes":[]}

@@ -1,0 +1,4 @@
+TERM=dumb
+CI=1
+BAYAN_CACHE=<repo>/tmp/t7-style-cache/build-ice-dumb-csharp
+PATH=<repo>/tmp/t7-style/build-ice-dumb/tally/fakebin

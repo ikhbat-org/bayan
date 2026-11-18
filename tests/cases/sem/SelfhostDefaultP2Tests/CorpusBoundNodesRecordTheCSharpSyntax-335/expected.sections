@@ -1,0 +1,43 @@
+== tests/cases/run/untrusted-clean-facts.byn
+135..180 globalStatement
+135..180 localDecl
+162..180 callExpr
+172..179 literalExpr string
+181..202 localDecl
+194..202 memberExpr
+194..195 nameExpr
+194..195 nameExpr
+203..226 localDecl
+217..226 memberExpr
+217..218 nameExpr
+217..218 nameExpr
+227..253 localDecl
+241..253 binaryExpr eq right 246..253
+241..242 nameExpr
+241..242 nameExpr
+246..253 literalExpr string
+254..294 localDecl
+279..294 callExpr
+289..293 literalExpr trueKeyword
+295..320 ifStmt
+298..299 nameExpr
+298..299 nameExpr
+300..320 blockStmt
+306..318 exprStmt
+306..318 callExpr
+312..317 literalExpr string
+306..318 callExpr
+321..342 exprStmt
+321..342 callExpr
+327..341 interpolatedExpr
+330..331 nameExpr
+334..335 nameExpr
+338..339 nameExpr
+321..342 callExpr
+343..397 localDecl
+359..377 callExpr because
+359..360 nameExpr
+398..406 exprStmt
+398..406 callExpr
+404..405 nameExpr
+398..406 callExpr

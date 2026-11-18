@@ -1,0 +1,32 @@
+== tests/cases/diag/not-formattable-untrusted-part.byn
+262..497 blockStmt
+268..301 localDecl
+276..301 structLiteralExpr
+285..299 callExpr
+295..298 literalExpr string
+306..319 exprStmt
+306..319 callExpr
+312..318 interpolatedExpr
+315..316 nameExpr
+306..319 callExpr
+324..356 localDecl
+352..356 literalExpr nullKeyword
+361..374 exprStmt
+361..374 callExpr
+367..373 interpolatedExpr
+370..371 nameExpr
+361..374 callExpr
+379..419 localDecl
+387..419 callExpr
+424..437 exprStmt
+424..437 callExpr
+430..436 interpolatedExpr
+433..434 nameExpr
+424..437 callExpr
+442..476 localDecl
+451..476 callExpr
+481..495 exprStmt
+481..495 callExpr
+487..494 interpolatedExpr
+490..492 nameExpr
+481..495 callExpr

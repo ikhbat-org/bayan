@@ -1,0 +1,37 @@
+1:1 Identifier `e`
+1:2 Amp `&`
+3:2 IfKeyword `if`
+3:5 ElseKeyword `else`
+3:10 UnlessKeyword `unless`
+3:17 SwitchKeyword `switch`
+3:24 CaseKeyword `case`
+3:29 DefaultKeyword `default`
+3:37 ForKeyword `for`
+3:41 InKeyword `in`
+3:44 WhileKeyword `while`
+3:50 DoKeyword `do`
+3:53 BreakKeyword `break`
+3:59 ContinueKeyword `continue`
+3:68 ReturnKeyword `return`
+3:75 Identifier `ield`
+3:80 DeferKeyword `defer`
+3:86 ErrdeferKeyword `errdefer`
+3:95 UsingKeyword `using`
+3:101 ContextKeyword `context`
+4:2 CharLiteral `'\u{202E}'`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ e&�
+    │   ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │  '�'
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  '�'
+    │   │   -

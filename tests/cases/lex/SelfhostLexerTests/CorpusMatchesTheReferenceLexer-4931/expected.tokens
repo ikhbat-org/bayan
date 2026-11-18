@@ -1,0 +1,24 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `stra� } h�ere`
+2:16 InterpolatedStringEnd `"`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEA)
+
+  2 │ $"stra� } h�ere"
+    │       ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ $"stra� } h�ere"
+    │         ^
+    │
+    │ 2 │ $"stra� }} h�ere"
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC4)
+
+  2 │ $"stra� } h�ere"
+    │            ^

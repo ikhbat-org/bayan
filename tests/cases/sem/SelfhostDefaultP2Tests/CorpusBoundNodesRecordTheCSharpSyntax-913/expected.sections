@@ -1,0 +1,18 @@
+== tests/cases/diag/union-borrow-escapes-region.byn
+59..206 blockStmt
+65..85 localDecl
+76..85 memberExpr
+90..183 blockStmt
+100..125 localDecl
+118..125 callExpr
+134..177 assignStmt assign target 134..138 value 141..177
+134..138 nameExpr
+141..177 callExpr
+152..176 callExpr
+152..160 literalExpr string
+170..175 nameExpr
+188..204 exprStmt
+188..204 callExpr
+194..203 interpolatedExpr
+197..201 nameExpr
+188..204 callExpr

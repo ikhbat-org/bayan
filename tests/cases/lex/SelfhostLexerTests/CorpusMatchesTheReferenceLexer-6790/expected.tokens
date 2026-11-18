@@ -1,0 +1,52 @@
+1:2 QuestionDot `?.`
+1:5 FatArrow `=>`
+1:8 Arrow `->`
+1:11 At `@`
+1:13 Hash `#`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 PlusPlus `++`
+2:32 MinusMinus `--`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 IntegerLiteral `0xF__`
+4:1 IntegerLiteral `0`
+4:2 NumericSuffix `ms`
+4:5 IntegerLiteral `4`
+4:6 NumericSuffix `KiB`
+4:10 IntegerLiteral `1`
+4:11 NumericSuffix `u`
+4:13 IntegerLiteral `0xFF`
+4:17 NumericSuffix `u`
+4:19 IntegerLiteral `0b1`
+4:22 NumericSuffix `ul`
+4:25 IntegerLiteral `7`
+4:26 NumericSuffix `l`
+5:2 StructKeyword `struct`
+5:9 Identifier `S`
+7:1 CharLiteral `''`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ & && 0xF__
+    │         ^^
+    │
+    │ 3 │ & && 0xF__
+    │   │         --
+
+error BYN0007: empty char literal
+
+  7 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

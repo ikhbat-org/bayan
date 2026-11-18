@@ -1,0 +1,31 @@
+== diags.positions
+BYN5104 5:29 `line` holds a collection; name it with a plural, `lines`
+  help rename it `lines`
+  fix 5:29-5:33 lines
+BYN5104 7:23 `lines` holds one `Line`; name it with a singular noun
+  help rename it `line`
+  fix 7:23-7:28 line
+BYN5104 10:16 `item` holds a collection; name it with a plural, `items`
+  help rename it `items`
+  fix 10:16-10:20 items
+BYN5105 11:9 `linesCount` counts items; name it `lineCount`
+  help rename it `lineCount`
+  fix 11:9-11:19 lineCount
+BYN5104 12:10 `lines` holds one `Line`; name it with a singular noun
+  help rename it `line`
+  fix 12:10-12:15 line
+BYN5104 15:26 `line` holds a collection; name it with a plural, `lines`
+  help rename it `lines`
+  fix 15:26-15:30 lines
+BYN5104 19:24 `item` holds a collection; name it with a plural, `items`
+  help rename it `items`
+  fix 19:24-19:28 items
+BYN5105 19:34 `numBoxes` counts items; name it `boxCount`
+  help rename it `boxCount`
+  fix 19:34-19:42 boxCount
+BYN5104 25:25 `line` holds a collection; name it with a plural, `lines`
+  help rename it `lines`
+  fix 25:25-25:29 lines
+BYN5105 26:17 `numberOfItems` counts items; name it `itemCount`
+  help rename it `itemCount`
+  fix 26:17-26:30 itemCount

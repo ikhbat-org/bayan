@@ -1,0 +1,99 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+2:3 Identifier `raw`
+2:7 StringLiteral `"quoted"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `stray } here`
+3:15 InterpolatedStringEnd `"`
+4:4 Identifier `ạ̇`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolatedStringText `total `
+4:16 InterpolationStart `{`
+4:17 Identifier `x`
+4:18 InterpolationEnd `}`
+4:19 InterpolatedStringEnd `"`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolatedStringText `a `
+4:25 InterpolationStart `{`
+4:26 Identifier `f`
+4:27 OpenParen `(`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolatedStringText `b `
+4:32 InterpolationStart `{`
+4:33 Identifier `c`
+4:34 InterpolationEnd `}`
+4:35 InterpolatedStringEnd `"`
+4:36 CloseParen `)`
+4:37 InterpolationEnd `}`
+4:38 InterpolatedStringText ` d`
+4:40 InterpolatedStringEnd `"`
+4:42 InterpolatedStringStart `$"`
+4:44 InterpolatedStringText `{{literal}}`
+4:55 InterpolatedStringEnd `"`
+4:57 InterpolatedStringStart `$"`
+4:59 InterpolationStart `{`
+4:60 Identifier `Point`
+4:66 OpenBrace `{`
+4:68 Identifier `x`
+4:70 Equals `=`
+4:72 IntegerLiteral `1`
+4:74 CloseBrace `}`
+4:75 InterpolationEnd `}`
+4:76 InterpolatedStringText `!`
+4:77 InterpolatedStringEnd `"`
+4:79 InterpolatedStringStart `$"`
+4:81 InterpolatedStringEnd `"`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:10 Equals `=`
+6:12 IntegerLiteral `2`
+7:2 LetKeyword `let`
+7:6 Identifier `actor`
+7:12 Equals `=`
+7:14 IntegerLiteral `1`
+8:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"stray } here"
+    │         ^
+    │
+    │ 3 │ $"stray }} here"
+    │   │          +
+
+error BYN0002: unexpected character `\u{0}`
+
+  4 │  � ạ̇ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │  ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  4 │  � ạ̇ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │    ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  � ạ̇ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   │    ++
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  7 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

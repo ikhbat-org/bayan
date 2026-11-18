@@ -1,0 +1,47 @@
+1:1 CharLiteral `'\u{202E}'`
+1:6 IntegerLiteral `0_000`
+1:12 IntegerLiteral `0xFF`
+1:17 IntegerLiteral `0x_ff`
+1:24 Comma `,`
+1:26 Dot `.`
+1:28 DotDot `..`
+1:31 DotDotEquals `..=`
+1:35 Colon `:`
+1:37 Question `?`
+1:39 QuestionQuestion `??`
+1:42 QuestionQuestionEquals `??=`
+1:46 QuestionDot `?.`
+1:49 FatArrow `=>`
+1:52 Arrow `->`
+1:55 At `@`
+1:57 Hash `#`
+2:2 LetKeyword `let`
+2:6 EffectKeyword `effect`
+2:13 Equals `=`
+2:15 IntegerLiteral `2`
+4:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ '�'� 0_000 0xFF 0x_ff  , . .. ..= : ? ?? ??= ?. => -> @ #
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '�'� 0_000 0xFF 0x_ff  , . .. ..= : ? ?? ??= ?. => -> @ #
+    │   │  -
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  1 │ '�'� 0_000 0xFF 0x_ff  , . .. ..= : ? ?? ??= ?. => -> @ #
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '�'� 0_000 0xFF 0x_ff  , . .. ..= : ? ?? ??= ?. => -> @ #
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  2 │  �let effect = 2
+    │  ^

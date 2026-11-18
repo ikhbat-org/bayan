@@ -1,0 +1,120 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 Identifier `mode`
+1:32 ForeachKeyword `foreach`
+1:40 NewKeyword `new`
+1:44 GotoKeyword `goto`
+3:1 Identifier `각`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 StringLiteral `$"{$"`
+3:58 OpenBrace `{`
+3:59 Identifier `x`
+3:60 CloseBrace `}`
+3:61 StringLiteral `"}"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+3:66 InterpolationEnd `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 InterpolationEnd `}`
+3:81 InterpolatedStringEnd `"`
+4:1 StringLiteral `"a\u{2067}b"`
+4:7 ErrorKeyword `error`
+4:13 SetKeyword `set`
+4:17 UnitKeyword `unit`
+4:22 DistinctKeyword `distinct`
+4:31 TypeKeyword `type`
+4:36 ImportKeyword `import`
+4:43 AsKeyword `as`
+4:46 PublicKeyword `public`
+4:53 PrivateKeyword `private`
+4:61 StaticKeyword `static`
+4:68 ReadonlyKeyword `readonly`
+4:77 RequiredKeyword `required`
+4:86 ConstKeyword `const`
+4:92 LetKeyword `let`
+4:96 VarKeyword `var`
+4:100 EmbedKeyword `embed`
+4:106 ExternKeyword `extern`
+4:113 UnsafeKeyword `unsafe`
+6:1 Identifier `각`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  1 │ test assert property fuzz mode� foreach new goto
+    │                               ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  3 │ 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  3 │ 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ 각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                                                     ^^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  6 │ 각
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ 각
+    │   │ +

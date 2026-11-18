@@ -1,0 +1,20 @@
+1:1 CharLiteral `'\r`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{ $"{
+    │     ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,25 @@
+1:1 IntegerLiteral `0x`
+2:2 Identifier `t`
+2:3 Less `<`
+2:4 Identifier `i64`
+2:7 Greater `>`
+2:8 Greater `>`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+4:1 Identifier `c`
+4:4 Greater `>`
+4:5 GreaterEquals `>=`
+4:8 IntegerLiteral `1`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  4 │ c� >>= 1
+    │  ^

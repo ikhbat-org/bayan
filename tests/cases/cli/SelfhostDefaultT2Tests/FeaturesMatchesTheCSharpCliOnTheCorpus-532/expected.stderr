@@ -1,0 +1,5 @@
+error BYN2609: error enum `NoError` has no variants
+  --> <repo>/tests/cases/diag/empty-error-set.byn:1:13
+
+  1 │ union error NoError {
+    │             ^^^^^^^

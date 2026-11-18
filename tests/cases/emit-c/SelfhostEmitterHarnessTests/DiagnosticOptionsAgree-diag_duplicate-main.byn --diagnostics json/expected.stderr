@@ -1,0 +1,1 @@
+{"code":"BYN2013","severity":"error","file":"input.byn","span":{"start":0,"end":10,"line":1,"column":1,"endLine":1,"endColumn":11},"message":"the program has two entry points","label":"`main` is also declared on line 2","help":null,"fixes":[]}

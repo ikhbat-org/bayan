@@ -1,0 +1,74 @@
+1:1 IntegerLiteral `1_`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `stray } here`
+2:15 InterpolatedStringEnd `"`
+3:2 Amp `&`
+3:4 AmpAmp `&&`
+3:7 Bar `|`
+3:9 Bar `|`
+3:10 Bar `|`
+3:12 Caret `^`
+3:14 Tilde `~`
+3:16 Bang `!`
+3:18 Equals `=`
+3:20 EqualsEquals `==`
+3:23 BangEquals `!=`
+3:26 Less `<`
+3:28 LessEquals `<=`
+3:31 Greater `>`
+3:34 CharLiteral `'\q'`
+4:1 IntegerLiteral `0xF__`
+5:1 OpenParen `(`
+5:3 CloseParen `)`
+5:5 OpenBracket `[`
+5:7 CloseBracket `]`
+5:9 OpenBrace `{`
+5:11 CloseBrace `}`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:9 RawStringLiteral `"""neve" closed\n `
+7:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ $"stray } here"
+    │         ^
+    │
+    │ 2 │ $"stray }} here"
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  3 │  & && | |�| ^ ~ ! = == != < <= >  '\q'
+    │          ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │  & && | |�| ^ ~ ! = == != < <= >  '\q'
+    │                                    ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0xF__
+    │    ^^
+    │
+    │ 4 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  6 │ let c = """neve" closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

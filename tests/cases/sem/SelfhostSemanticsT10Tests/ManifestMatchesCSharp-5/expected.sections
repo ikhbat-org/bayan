@@ -1,0 +1,30 @@
+== case diag/grammar-dictionary
+errors 0
+name local/catalog
+version 0.1.0
+edition 2027
+kind App
+targets
+mode safe
+indent 4
+width 120
+align Runs
+trailingCommas Multiline
+lint guards.postfix Suggestion
+lint lambdas.it Suggestion
+lint nesting.depth Suggestion
+lint functions.length None
+lint conditions.named Suggestion
+lint sections.banner Suggestion
+lint conditions.patterns Suggestion
+lint literals.empty Suggestion
+lint optionals.bind Suggestion
+booleans Symbols
+primitives Sized
+capabilities -
+verbs x757073657274 x72656772696e64
+nouns x534b55
+adjectives x6964656d706f74656e74
+forms x72656772696e64=x726567726f756e64
+short catalog
+entry app

@@ -1,0 +1,1 @@
+{"code":"BYN3206","severity":"error","file":"input.byn","span":{"start":69,"end":72,"line":4,"column":30,"endLine":4,"endColumn":33},"message":"`at .top` names no field of `Range`","label":"`.top`","help":"name a field of `Range`","fixes":[]}

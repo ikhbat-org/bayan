@@ -1,0 +1,66 @@
+1:3 IntegerLiteral `0x`
+2:1 CharLiteral `'ab'`
+4:1 Identifier `ere`
+4:4 StringLiteral `"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open `
+5:8 InterpolationStart `{`
+6:1 FailsKeyword `fails`
+6:7 TryKeyword `try`
+6:11 CatchKeyword `catch`
+6:17 NeverKeyword `never`
+6:23 NoallocKeyword `noalloc`
+6:31 NosuspendKeyword `nosuspend`
+6:41 SuspendsKeyword `suspends`
+6:50 AsyncKeyword `async`
+6:56 AwaitKeyword `await`
+8:2 CharLiteral `'`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolatedStringText `x`
+9:4 InterpolationStart `{`
+9:6 InterpolatedStringStart `$"`
+9:8 InterpolationStart `{`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � 0x
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ � 0x
+    │   ^^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0003: unterminated string literal
+
+  4 │ ere"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `‏`
+
+  8 │ ‏'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  8 │ ‏'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  9 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

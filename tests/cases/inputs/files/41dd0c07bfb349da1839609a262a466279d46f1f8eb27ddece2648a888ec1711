@@ -1,0 +1,1 @@
+let x = c ? first(argumentNumberOne, argumentNumberTwo) : ""

@@ -1,0 +1,34 @@
+== tests/cases/run/millis.byn
+129..283 blockStmt
+135..154 localDecl
+143..154 callExpr
+150..153 literalExpr integer
+159..186 localDecl
+175..186 callExpr
+182..185 literalExpr integer
+191..209 exprStmt
+191..209 callExpr
+197..208 interpolatedExpr
+200..206 callExpr
+204..205 nameExpr
+191..209 callExpr
+214..232 exprStmt
+214..232 callExpr
+220..231 interpolatedExpr
+223..229 binaryExpr eq right 228..229
+223..224 nameExpr
+228..229 nameExpr
+214..232 callExpr
+237..263 exprStmt
+237..263 callExpr
+243..262 interpolatedExpr
+246..260 binaryExpr eq right 251..260
+246..247 nameExpr
+251..260 callExpr
+258..259 literalExpr integer
+237..263 callExpr
+268..281 exprStmt
+268..281 callExpr
+274..280 interpolatedExpr
+277..278 nameExpr
+268..281 callExpr

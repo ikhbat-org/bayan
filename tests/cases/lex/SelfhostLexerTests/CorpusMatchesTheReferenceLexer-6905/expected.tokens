@@ -1,0 +1,46 @@
+1:1 CharLiteral `'\u{110000}'`
+    doc `///"{ 0xose`
+3:1 Identifier `b`
+5:1 Identifier `يان`
+5:5 Identifier `μετρητής`
+5:14 Identifier `x_1`
+5:18 Identifier `é`
+7:1 LetKeyword `let`
+7:5 Identifier `café`
+7:11 Equals `=`
+7:13 IntegerLiteral `1`
+8:1 Identifier `foo`
+8:5 Identifier `Bar`
+8:9 Identifier `_x`
+8:12 Identifier `camelWase2`
+8:23 Identifier `بيان`
+8:28 Identifier `μετρητής`
+8:37 Identifier `x_1`
+8:41 Identifier `é`
+9:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'�
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  1 │ '\u{110000}'�
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  5 │ �يان μετρητής x_1 é
+    │ ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  7 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ let café = 1
+    │   │        +

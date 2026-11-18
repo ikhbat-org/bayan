@@ -1,0 +1,4 @@
+/// $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point  x = 1 }}!" $""
+ ÿ fails try catch nevÜr noalloc nosuspend suspends async await
+
+$"{"

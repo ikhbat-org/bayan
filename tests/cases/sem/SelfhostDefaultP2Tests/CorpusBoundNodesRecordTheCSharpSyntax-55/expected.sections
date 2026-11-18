@@ -1,0 +1,82 @@
+== tests/cases/run/errors-except-narrowing.byn
+158..242 blockStmt
+164..191 ifStmt
+167..172 binaryExpr lt right 171..172
+167..168 nameExpr
+171..172 literalExpr integer
+173..191 blockStmt
+175..179 failStmt
+180..189 targetMemberExpr
+196..223 ifStmt
+199..205 binaryExpr eq right 204..205
+199..200 nameExpr
+204..205 literalExpr integer
+206..223 blockStmt
+208..212 failStmt
+213..221 targetMemberExpr
+228..240 returnStmt value 235..240
+235..240 binaryExpr mul right 239..240
+235..236 nameExpr
+239..240 literalExpr integer
+277..379 blockStmt
+283..331 localDecl
+291..331 catchExpr
+291..299 callExpr
+297..298 nameExpr
+330..331 literalExpr integer
+336..364 ifStmt
+339..346 binaryExpr gt right 343..346
+339..340 nameExpr
+343..346 literalExpr integer
+347..364 blockStmt
+349..353 failStmt
+354..362 targetMemberExpr
+369..377 returnStmt value 376..377
+376..377 nameExpr
+404..559 blockStmt
+410..495 localDecl
+418..495 catchExpr
+418..426 callExpr
+424..425 nameExpr
+433..495 switchExpr
+433..439 caughtErrorExpr
+450..458 constantPattern
+450..458 targetMemberExpr
+462..464 unaryExpr negate operand 463..464
+474..482 constantPattern
+474..482 targetMemberExpr
+486..488 unaryExpr negate operand 487..488
+500..557 returnStmt value 507..557
+507..557 conditionalExpr
+507..514 binaryExpr eq right 512..514
+507..508 nameExpr
+512..514 unaryExpr negate operand 513..514
+517..526 literalExpr string
+529..557 conditionalExpr
+529..536 binaryExpr eq right 534..536
+529..530 nameExpr
+534..536 unaryExpr negate operand 535..536
+539..548 literalExpr string
+551..557 interpolatedExpr
+554..555 nameExpr
+573..670 blockStmt
+579..597 exprStmt
+579..597 callExpr
+585..596 callExpr
+594..595 literalExpr integer
+579..597 callExpr
+602..620 exprStmt
+602..620 callExpr
+608..619 callExpr
+617..618 literalExpr integer
+602..620 callExpr
+625..644 exprStmt
+625..644 callExpr
+631..643 callExpr
+640..642 unaryExpr negate operand 641..642
+625..644 callExpr
+649..668 exprStmt
+649..668 callExpr
+655..667 callExpr
+664..666 literalExpr integer
+649..668 callExpr

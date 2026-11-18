@@ -1,0 +1,10 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+5:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ 1. /* "{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}}"}"}"}"}"}"}"a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

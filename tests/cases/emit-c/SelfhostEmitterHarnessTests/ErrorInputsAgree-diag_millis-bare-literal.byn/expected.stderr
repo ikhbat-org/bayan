@@ -1,0 +1,8 @@
+error BYN2202: expected `Millis`, found `i32`
+  --> input.byn:3:21
+
+  3 │     let t: Millis = 5
+    │                     ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202

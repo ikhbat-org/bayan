@@ -1,0 +1,28 @@
+// os: unix
+// `Io.run(…, directory:)` runs the child there; a directory that does not exist, or a file, fails before anything starts.
+string listIn(string dir) fails IoError {
+    let ls: string[2] = ["-c", "ls; echo > ../started.txt"]
+    let r = try Io.run("sh", ls.span, directory: dir)
+    return $"exit {r.exitCode}, [{r.stdout}]"
+}
+
+string describe(string dir) => listIn(dir) catch switch {
+    .notFound => "not found",
+    .notADirectory => "not a directory",
+    _ => "some other error",
+}
+
+void main() fails IoError {
+    try Io.createDirectory("sub")
+    let marker: u8[2] = [104, 105]
+    try Io.writeFile("sub/marker.txt", marker.span)
+    print(describe("sub"))
+    try Io.remove("started.txt")
+    print(describe("no-such-dir"))
+    print(describe("sub/marker.txt"))
+    // Nothing started for either: the child would have written `started.txt` beside `sub`.
+    print((try Io.listDir(".")).joined(by: ", "))
+    // Without `directory:` the child runs in ours.
+    let here: string[2] = ["-c", "ls"]
+    print((try Io.run("sh", here.span)).stdout)
+}

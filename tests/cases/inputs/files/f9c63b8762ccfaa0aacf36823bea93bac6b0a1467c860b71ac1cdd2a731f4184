@@ -1,0 +1,3 @@
+bool ok() => true
+
+void main() { if a { b() } else { c() } }

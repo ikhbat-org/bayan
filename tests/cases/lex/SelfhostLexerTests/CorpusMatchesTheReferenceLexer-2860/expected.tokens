@@ -1,0 +1,76 @@
+1:1 CloseBrace `}`
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:28 Identifier `z`
+1:29 OpenBrace `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:50 OpenBrace `{`
+1:51 Identifier `x`
+1:52 CloseBrace `}`
+1:53 StringLiteral `"}"`
+2:1 OpenBrace `{`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 Identifier `x`
+2:13 Identifier `raw`
+2:17 StringLiteral `"quoted"`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ } $"{$"{$"{$"{$"{$"{$"{$"{$z{$"{$"{$"{$"{$"{$"{$${x}"}"
+    │                           ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ } $"{$"{$"{$"{$"{$"{$"{$"{$z{$"{$"{$"{$"{$"{$"{$${x}"}"
+    │                                                ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ } $"{$"{$"{$"{$"{$"{$"{$"{$z{$"{$"{$"{$"{$"{$"{$${x}"}"
+    │                                                 ^
+
+error BYN0003: unterminated string literal
+
+  2 │ {$"{$"{x �  raw "quoted"
+    │     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  2 │ {$"{$"{x �  raw "quoted"
+    │          ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ {$"{$"{x �  raw "quoted"
+    │   │          -

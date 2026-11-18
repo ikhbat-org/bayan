@@ -1,0 +1,4 @@
+== bind.probes.c3
+flags 0
+errorExpr:?[3606:14]=-()
+BYN2216 190:14 branches have different types: `i32` and `string` |||

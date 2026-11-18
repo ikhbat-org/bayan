@@ -1,0 +1,6 @@
+let a = 1
+{+= -= *= /= %= &= |= ^= <<=
+ if else unless switch case default for in while do break continue return yield defer errdefer using context
+
+$"{a foo Bar _x camelCase2 بيان μετρητής x_1 é
+0b1010 0B11 5s 250ms 4KiB 1u 0x

@@ -1,0 +1,47 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `u`
+1:7 IntegerLiteral `0b1`
+1:10 NumericSuffix `ul`
+1:13 IntegerLiteral `7`
+1:14 NumericSuffix `l`
+3:1 Identifier `u`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 Identifier `x`
+4:5 InterpolationEnd `}`
+4:6 InterpolatedStringEnd `"`
+4:7 CloseBrace `}`
+4:8 StringLiteral `"}`
+5:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{x}"}"}
+    │        ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ ����� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ ����� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����� 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����� 
+    │     ^

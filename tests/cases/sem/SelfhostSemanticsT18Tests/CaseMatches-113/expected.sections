@@ -1,0 +1,8 @@
+== index.probes.-.i1
+errorExpr|?|-|-|-|-|-|3856:6|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2201 185:17 a `string` cannot be indexed |strings have no indexer|read a byte, slice, or take characters; `string` is UTF-8, so position 0 is not a character:
+  `str.bytes[0]`       the byte at offset 0 (applied below)
+  `str[a..b]`          the text between byte offsets a and b
+  `str.runes.take(n)`  the first n runes
+  `str.graphemes`      user-perceived characters|fix 3856..3862 str.bytes[0]

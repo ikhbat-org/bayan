@@ -1,0 +1,3 @@
+== member.probes.-.m35
+call|IoInput|-1|stdin|-|-|-|2315:8|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|

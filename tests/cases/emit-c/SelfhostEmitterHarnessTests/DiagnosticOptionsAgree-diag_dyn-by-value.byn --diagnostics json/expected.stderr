@@ -1,0 +1,1 @@
+{"code":"BYN2809","severity":"error","file":"input.byn","span":{"start":47,"end":57,"line":5,"column":11,"endLine":5,"endColumn":21},"message":"`dyn IShape` is not supported yet","label":"an owned dynamic value","help":"write `dyn ref IShape`","fixes":[]}

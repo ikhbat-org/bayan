@@ -1,0 +1,7 @@
+/* // ‮x
+ letb = "bad \q escape"
+ let café = 1
+�
+0x
+let c = """never closed
+ 

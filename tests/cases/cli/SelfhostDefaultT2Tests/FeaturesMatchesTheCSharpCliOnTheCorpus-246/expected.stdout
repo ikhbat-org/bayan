@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr"
+  ],
+  "builtins": [
+    "ListAdd",
+    "Print"
+  ],
+  "diagnostics": []
+}

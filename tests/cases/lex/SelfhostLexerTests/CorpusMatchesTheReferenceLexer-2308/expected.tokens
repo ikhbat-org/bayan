@@ -1,0 +1,21 @@
+1:1 Amp `&`
+1:3 AmpAmp `&&`
+1:6 Bar `|`
+1:8 BarBar `||`
+1:11 Caret `^`
+1:13 Tilde `~`
+1:15 Bang `!`
+1:17 EqualsEquals `==`
+1:19 Equals `=`
+1:21 BangEquals `!=`
+1:24 Less `<`
+1:26 LessEquals `<=`
+1:29 Greater `>`
+1:31 GreaterEquals `>=`
+1:34 LessLess `<<`
+1:37 Greater `>`
+1:38 Greater `>`
+1:40 Greater `>`
+1:41 GreaterEquals `>=`
+3:1 Identifier `b`
+5:1 EndOfFile

@@ -1,0 +1,4 @@
+== diags.run/region-combo-store-two-levels-in-time
+returns mk 1
+returns mk2 1
+store pass 0 1 323..324

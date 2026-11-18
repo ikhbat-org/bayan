@@ -1,0 +1,4 @@
+1:1 LetKeyword `let`
+1:4 Caret `^`
+1:6 Identifier `a`
+1:7 EndOfFile

@@ -1,0 +1,6 @@
+øˆ€€€
+let Vb = "bad \q escape"
+ "" "\u{48}i"
+ '\q'
+ 'x
+ Í„

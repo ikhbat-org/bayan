@@ -1,0 +1,3 @@
+== const S
+const S string value "s" static false elements 0
+literal 749..752 : string = "s"

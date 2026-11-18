@@ -1,0 +1,63 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `stray }�here`
+1:15 InterpolatedStringEnd `"`
+2:1 IntegerLiteral `0`
+2:3 Identifier `xF__`
+4:1 Identifier `b`
+5:2 Identifier `n`
+5:4 Identifier `comment`
+6:1 Identifier `ạ̇`
+6:5 Identifier `u`
+6:7 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ $"stray }�here"
+    │         ^
+    │
+    │ 1 │ $"stray }}�here"
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC8)
+
+  1 │ $"stray }�here"
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF7)
+
+  2 │ 0�xF__
+    │  ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  6 │ ạ̇�����u 
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ ạ̇�����u 
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  6 │ ạ̇�����u 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  6 │ ạ̇�����u 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ạ̇�����u 
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ạ̇�����u 
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ạ̇�����u 
+    │        ^

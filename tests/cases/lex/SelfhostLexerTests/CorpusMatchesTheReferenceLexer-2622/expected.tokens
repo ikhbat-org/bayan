@@ -1,0 +1,44 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 Identifier `fuz`
+1:26 ModelKeyword `model`
+1:32 ForeachKeyword `foreach`
+1:40 NewKeyword `new`
+1:44 GotoKeyword `goto`
+2:2 StringLiteral `"{'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'`
+3:1 StringLiteral `"text"`
+3:8 StringLiteral `"esc \�q\" \\ \n"`
+3:25 RawStringLiteral `"""\no�nt { x = 1 }}!" $""\n0x\n `
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  "{'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\�`
+
+  3 │ "text" "esc \�q\" \\ \n" """
+    │             ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0x94)
+
+  3 │ "text" "esc \�q\" \\ \n" """
+    │              ^
+
+error BYN0003: unterminated string literal
+
+  3 │ "text" "esc \�q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  4 │ o�nt { x = 1 }}!" $""
+    │  ^

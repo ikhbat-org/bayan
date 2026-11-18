@@ -1,0 +1,3 @@
+== bind.probes.b50
+flags 0
+binary:bool[2796:12]=-(eq symbolLiteral:Symbol[2797:3]="x"() local:Symbol[2805:3]=-(sym))

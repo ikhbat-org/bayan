@@ -1,0 +1,28 @@
+== tests/cases/run/lines-trailing-cr.byn
+79..147 globalStatement
+79..147 forStmt
+88..99 memberExpr
+88..93 literalExpr string
+100..147 blockStmt
+106..145 exprStmt
+106..145 callExpr
+112..144 interpolatedExpr
+115..123 memberExpr
+115..116 nameExpr
+126..142 callExpr
+126..127 nameExpr
+137..141 literalExpr string
+106..145 callExpr
+148..224 forStmt
+157..176 memberExpr
+157..170 literalExpr string
+177..224 blockStmt
+183..222 exprStmt
+183..222 callExpr
+189..221 interpolatedExpr
+192..200 memberExpr
+192..193 nameExpr
+203..219 callExpr
+203..204 nameExpr
+214..218 literalExpr string
+183..222 callExpr

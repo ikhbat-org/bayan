@@ -1,0 +1,49 @@
+8:3 Identifier `macro`
+8:9 Identifier `select`
+8:16 BecomeKeyword `become`
+9:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ /*
+    │ ^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ // "{ += -= *= /= %�= &= |= ^= <<=
+    │   │  +++++++++++++++++++++++++++++++++
+    │ 4 │ // 0b1ms
+    │   │ ++++++++
+    │ 5 │ // le� c = � 3
+    │   │ ++++++++++++++
+    │ 6 │ //
+    │   │ ++
+    │ 7 │ macro select become
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  4 │ "{ += -= *= /= %�= &= |= ^= <<=
+    │                 ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  8 │ */macro select become
+    │   ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  8 │ */macro select become
+    │         ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

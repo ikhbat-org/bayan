@@ -1,0 +1,6 @@
+== diags.diag/ref-out-escape-list-replace
+BYN3002 11:9 `ys` does not live as long as `kept`, which borrows it
+  label `ys` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 2:30-2:32 `keep` stores `ys` into `xs` here
+store keep 0 1 90..92

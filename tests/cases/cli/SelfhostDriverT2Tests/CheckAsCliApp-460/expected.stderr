@@ -1,0 +1,32 @@
+warning BYN2311: `xs` is never reassigned; declare it with `let`
+  --> <repo>/tmp/t2/diag/renamed-member/renamed-member.byn:2:9
+
+  2 │     var xs = List<i64>()
+    │         ^^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 2 │     let xs = List<i64>()
+    │   │     +++
+
+error BYN2230: `add` is now `append`
+  --> <repo>/tmp/t2/diag/renamed-member/renamed-member.byn:3:8
+
+  3 │     xs.add(1)
+    │        ^^^ the old name
+    │
+  help: rename it `append`
+    │ 3 │     xs.append(1)
+    │   │         ++++
+
+error BYN2230: `asString()` is now `finish()`
+  --> <repo>/tmp/t2/diag/renamed-member/renamed-member.byn:6:14
+
+  6 │     print(sb.asString())
+    │              ^^^^^^^^ the old name
+    │
+  help: rename it `finish`
+    │ 6 │     print(sb.finish())
+    │   │              ++++++
+
+✗ build failed: 2 errors, 1 warning
+  explain: bayan explain BYN2230

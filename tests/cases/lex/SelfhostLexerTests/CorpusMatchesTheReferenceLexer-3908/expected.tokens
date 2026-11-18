@@ -1,0 +1,19 @@
+1:1 RawStringLiteral `"""\nن μετρητ�0x_\n let effect = �\n`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  2 │ ن μετρητ�0x_
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  3 │  let effect = �
+    │               ^

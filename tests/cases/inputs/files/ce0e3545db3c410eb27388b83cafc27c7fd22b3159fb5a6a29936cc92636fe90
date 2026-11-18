@@ -1,0 +1,8 @@
+let actor = 1
+let b = ` 2
+
+⁩
+  raw "quoted"
+"text" "esc \"q\" \\ \n" """
+let a = "open
+ 

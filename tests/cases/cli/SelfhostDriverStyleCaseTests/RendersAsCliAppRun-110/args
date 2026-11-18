@@ -1,0 +1,6 @@
+--color
+never
+build
+-o
+<repo>/tmp/t7-style/build-fail-plain/tally/tally
+<repo>/tmp/t7-style/build-fail-plain/tally/main.byn

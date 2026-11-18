@@ -1,0 +1,2 @@
+bayan: `tally` already exists and isn't empty
+  help: run `bayan init` inside it to add only the missing files

@@ -1,0 +1,15 @@
+== tests/cases/run/io-random-u64.byn
+155..275 blockStmt
+161..183 localDecl
+169..183 callExpr
+188..210 localDecl
+196..210 callExpr
+215..273 exprStmt
+215..273 callExpr
+221..272 conditionalExpr
+221..227 binaryExpr ne right 226..227
+221..222 nameExpr
+226..227 nameExpr
+230..248 literalExpr string
+251..272 literalExpr string
+215..273 callExpr

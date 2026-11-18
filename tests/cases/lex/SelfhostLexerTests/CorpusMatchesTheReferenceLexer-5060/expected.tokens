@@ -1,0 +1,103 @@
+1:1 IntegerLiteral `0x`
+2:1 Identifier `s`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 IntegerLiteral `0x_`
+5:1 IntegerLiteral `0b__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF__`
+10:3 Identifier `ist`
+10:6 Less `<`
+10:7 Identifier `List`
+10:11 Less `<`
+10:12 Identifier `i64`
+10:15 Greater `>`
+10:16 Identifier `_`
+11:3 Identifier `hidden`
+12:1 LetKeyword `let`
+12:7 Equals `=`
+12:9 IntegerLiteral `1`
+13:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  9 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  9 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  10 │ � ist<List<i64>_
+     │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  11 │ � hidden
+     │ ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 11 │ � hidden
+     │    │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  12 │ let �� = 1
+     │     ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  12 │ let �� = 1
+     │      ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 12 │ let �� = 1
+     │    │      -

@@ -1,0 +1,6 @@
+a /* never closed
+
+///
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+never closed
+b

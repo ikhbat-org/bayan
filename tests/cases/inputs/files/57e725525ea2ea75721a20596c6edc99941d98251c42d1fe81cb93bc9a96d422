@@ -1,0 +1,12 @@
+union error E {
+    bad
+}
+
+i64 g() => 1
+
+i64 f() fails E => 1
+
+test "t" {
+    assert g() fails i64
+    assert f() fails i64
+}

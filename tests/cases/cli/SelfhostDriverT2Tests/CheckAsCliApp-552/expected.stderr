@@ -1,0 +1,10 @@
+error BYN1006: `unless` cannot have an `else` branch
+  --> <repo>/tmp/t2/diag/unless-else/unless-else.byn:2:27
+
+  2 │     unless ok { retry() } else { done() }
+    │                           ^^^^ `else` after `unless`
+    │
+  help: use `if` with the opposite condition, so both branches read positively
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1006

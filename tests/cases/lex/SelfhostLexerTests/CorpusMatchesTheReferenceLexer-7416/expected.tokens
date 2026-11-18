@@ -1,0 +1,67 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 IntegerLiteral `1_`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بيان`
+3:28 Identifier `με`
+3:30 Identifier `ρητής`
+3:36 Identifier `x_1`
+3:40 Identifier `é`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `{{`
+5:5 InterpolatedStringEnd `"`
+6:1 CharLiteral `'`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `{{`
+7:5 InterpolatedStringEnd `"`
+7:7 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1_
+    │   ^
+    │
+    │ 2 │  1_
+    │   │   -
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  3 │ foo Bar _x camelCase2 بيان με�ρητής x_1 é
+    │                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����
+    │      ^
+
+error BYN0008: unterminated char literal
+
+  6 │ '
+    │ ^
+    │
+  help: close it with `'`

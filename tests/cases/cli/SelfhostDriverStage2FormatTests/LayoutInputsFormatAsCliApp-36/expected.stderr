@@ -1,0 +1,1462 @@
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case000.byn:1:1
+
+  1 │ tmp
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case001.byn:1:1
+
+  1 │ format
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case002.byn:1:1
+
+  1 │ fix
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case003.byn:1:1
+
+  1 │ main.byn
+    │ ^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case006.byn:1:1
+
+  1 │ formatted
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case007.byn:1:1
+
+  1 │ two
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case010.byn:1:1
+
+  1 │ round3
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found keyword `requires`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case013.byn:1:1
+
+  1 │ requires
+    │ ^^^^^^^^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case016.byn:1:1
+
+  1 │ function-types
+    │ ^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case019.byn:1:1
+
+  1 │ order
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found keyword `uses`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case022.byn:1:11
+
+  1 │ shorthand-uses
+    │           ^^^^
+error BYN1001: expected `}`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case024.byn:1:34
+
+  1 │ i32 g() uses console fails E, F {
+    │                                  ^
+    │
+  help: close the block opened on line 1
+error BYN1002: expected an expression, found keyword `fails`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case025.byn:1:1
+
+  1 │ fails
+    │ ^^^^^
+error BYN1001: expected `{`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case027.byn:3:17
+
+  3 │     uses console
+    │                 ^
+error BYN1001: expected `{`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case028.byn:3:17
+
+  3 │     uses console
+    │                 ^
+error BYN1001: expected `{`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case029.byn:1:54
+
+  1 │ i64!E g<T>(T x) fails F where T : IShape expects true
+    │                                                      ^
+error BYN1001: expected `{`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case030.byn:1:42
+
+  1 │ i32!E g() fails F uses console fails G, E
+    │                                          ^
+error BYN1001: expected `{`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case031.byn:1:39
+
+  1 │ i32!E g() fails F uses console uses fs
+    │                                       ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case034.byn:1:1
+
+  1 │ shorthand-comment
+    │ ^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1001: expected `}`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case035.byn:3:21
+
+  3 │         fails E, F {
+    │                     ^
+    │
+  help: close the block opened on line 3
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case036.byn:1:1
+
+  1 │ shorthand-lines
+    │ ^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1001: expected `}`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case037.byn:3:21
+
+  3 │         fails E, F {
+    │                     ^
+    │
+  help: close the block opened on line 3
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case038.byn:1:1
+
+  1 │ shorthand-where
+    │ ^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1001: expected `}`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case039.byn:1:57
+
+  1 │ i64 g<T>(T x) where T : IShape expects true fails E, F {
+    │                                                         ^
+    │
+  help: close the block opened on line 1
+error BYN1002: expected an expression, found keyword `fails`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case040.byn:1:15
+
+  1 │ shorthand-two-fails
+    │               ^^^^^
+error BYN1001: expected `}`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case041.byn:1:37
+
+  1 │ i32 g() uses console fails E, F, G {
+    │                                     ^
+    │
+  help: close the block opened on line 1
+error BYN1002: expected an expression, found keyword `uses`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case042.byn:1:15
+
+  1 │ shorthand-two-uses
+    │               ^^^^
+error BYN1001: expected `}`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case043.byn:1:42
+
+  1 │ i32 g() uses console uses fs fails E, F {
+    │                                          ^
+    │
+  help: close the block opened on line 1
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case044.byn:1:1
+
+  1 │ idempotent
+    │ ^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case049.byn:1:1
+
+  1 │ package.byn
+    │ ^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case050.byn:1:1
+
+  1 │ defaults
+    │ ^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case051.byn:1:1
+
+  1 │ words
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case052.byn:1:11
+
+  1 │ booleans: .words, primitives: .csharp
+    │           ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case052.byn:1:17
+
+  1 │ booleans: .words, primitives: .csharp
+    │                 ^ found `,`
+    │
+  help: put the next statement on its own line
+    │ 1 │ booleans: .words
+    │ 2 │ , primitives: .csharp
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case053.byn:1:1
+
+  1 │ src
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found keyword `is`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case054.byn:1:1
+
+  1 │ is not 0
+    │ ^^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case055.byn:1:1
+
+  1 │ csharp-builds
+    │ ^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case056.byn:1:13
+
+  1 │ primitives: .csharp
+    │             ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case058.byn:1:1
+
+  1 │ build
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case059.byn:1:1
+
+  1 │ -o
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found keyword `out`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case060.byn:1:1
+
+  1 │ out
+    │ ^^^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case061.byn:1:1
+
+  1 │ BYN1030
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case062.byn:1:1
+
+  1 │ spacing
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case063.byn:1:11
+
+  1 │ booleans: .words
+    │           ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case066.byn:1:1
+
+  1 │ member
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case068.byn:1:1
+
+  1 │ primitive-names
+    │ ^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case071.byn:1:1
+
+  1 │ conv-sized
+    │ ^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case074.byn:1:1
+
+  1 │ conv-csharp
+    │ ^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case077.byn:1:1
+
+  1 │ conv-declared
+    │ ^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case079.byn:1:1
+
+  1 │ conv-declared-package
+    │ ^^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case080.byn:1:1
+
+  1 │ a.byn
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case083.byn:1:1
+
+  1 │ badstyle
+    │ ^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case084.byn:1:11
+
+  1 │ booleans: .both
+    │           ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case085.byn:1:1
+
+  1 │ style.booleans
+    │ ^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case086.byn:1:1
+
+  1 │ check
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case087.byn:1:1
+
+  1 │ b.byn
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case091.byn:1:1
+
+  1 │ check-clean
+    │ ^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case093.byn:1:12
+
+  1 │ idempotent-
+    │            ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case095.byn:1:1
+
+  1 │ statement-attributes
+    │ ^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case099.byn:1:1
+
+  1 │ round3-all
+    │ ^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case100.byn:1:1
+
+  1 │ error
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1001: expected `)`, found `;`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case101.byn:2:19
+
+  2 │ if (a) { print("x"; }
+    │                   ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case102.byn:1:1
+
+  1 │ recursive
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case103.byn:1:1
+
+  1 │ sub
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case104.byn:1:1
+
+  1 │ deep
+    │ ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case105.byn:1:1
+
+  1 │ nofix
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1031: `T!E` is an input form; write `T f() fails E`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case106.byn:1:4
+
+  1 │ i32!Foo? f() {
+    │    ^^^^^ the input form
+    │
+  help: write the error types in a `fails` clause, the last clause of the signature
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case107.byn:1:1
+
+  1 │ BYN1031
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case108.byn:1:1
+
+  1 │ passes
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case109.byn:1:1
+
+  1 │ still changing after 1 passes
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case109.byn:1:6
+
+  1 │ still changing after 1 passes
+    │      ^ found `changing`
+    │
+  help: put the next statement on its own line
+    │ 1 │ still
+    │ 2 │ changing after 1 passes
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case110.byn:1:1
+
+  1 │ passes-thread
+    │ ^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case112.byn:1:1
+
+  1 │ abandoned
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case113.byn:2:1
+
+  2 │ 
+    │ ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case114.byn:1:1
+
+  1 │ rewrite was abandoned
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case114.byn:1:8
+
+  1 │ rewrite was abandoned
+    │        ^ found `was`
+    │
+  help: put the next statement on its own line
+    │ 1 │ rewrite
+    │ 2 │ was abandoned
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case115.byn:1:1
+
+  1 │ broken
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case116.byn:1:1
+
+  1 │ io
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case118.byn:1:1
+
+  1 │ io-dir
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case119.byn:1:1
+
+  1 │ locked
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case120.byn:1:1
+
+  1 │ mode
+    │ ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case121.byn:1:1
+
+  1 │ script.byn
+    │ ^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1001: expected `}`, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case123.byn:1:7
+
+  1 │ if a {
+    │       ^
+    │
+  help: close the block opened on line 1
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case124.byn:1:1
+
+  1 │ symlink
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case125.byn:1:1
+
+  1 │ real.byn
+    │ ^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case126.byn:1:1
+
+  1 │ link.byn
+    │ ^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case127.byn:1:1
+
+  1 │ cycle
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case128.byn:1:1
+
+  1 │ up
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case129.byn:1:1
+
+  1 │ ..
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case130.byn:1:1
+
+  1 │ up2
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case131.byn:1:1
+
+  1 │ alias.byn
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case132.byn:1:1
+
+  1 │ parent-link
+    │ ^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case133.byn:1:1
+
+  1 │ outer
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case134.byn:1:1
+
+  1 │ dir
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case135.byn:1:1
+
+  1 │ outside.byn
+    │ ^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case136.byn:1:1
+
+  1 │ link
+    │ ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case137.byn:1:1
+
+  1 │ proj
+    │ ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case138.byn:1:1
+
+  1 │ real
+    │ ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case139.byn:1:1
+
+  1 │ g.byn
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case140.byn:1:1
+
+  1 │ f.byn
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case141.byn:1:1
+
+  1 │ ../g.byn
+    │ ^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case142.byn:1:1
+
+  1 │ ../real/deep
+    │ ^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case143.byn:1:1
+
+  1 │ decoy, not Bayan
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case143.byn:1:6
+
+  1 │ decoy, not Bayan
+    │      ^ found `,`
+    │
+  help: put the next statement on its own line
+    │ 1 │ decoy
+    │ 2 │ , not Bayan
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case144.byn:1:1
+
+  1 │ link-through-dir
+    │ ^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case145.byn:1:1
+
+  1 │ link-through-dir-nodecoy
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case146.byn:1:1
+
+  1 │ walk-through-dir
+    │ ^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case148.byn:1:1
+
+  1 │ other
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case149.byn:1:1
+
+  1 │ h.byn
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case151.byn:1:1
+
+  1 │ x
+    │ ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case152.byn:1:1
+
+  1 │ ../other/deep
+    │ ^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found `..`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case153.byn:1:3
+
+  1 │ x/..
+    │   ^^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case154.byn:1:1
+
+  1 │ loop-link
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case155.byn:1:1
+
+  1 │ loop.byn
+    │ ^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case156.byn:1:1
+
+  1 │ other/deep
+    │ ^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case158.byn:1:1
+
+  1 │ link-dotdot-file
+    │ ^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case159.byn:1:1
+
+  1 │ link-dotdot-dir
+    │ ^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case160.byn:1:1
+
+  1 │ package-link-outside
+    │ ^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case161.byn:1:1
+
+  1 │ outside
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case162.byn:1:1
+
+  1 │ x.byn
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case164.byn:1:1
+
+  1 │ pkg
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case165.byn:1:1
+
+  1 │ vendor
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case166.byn:1:1
+
+  1 │ ../outside
+    │ ^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case168.byn:1:1
+
+  1 │ temp
+    │ ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case169.byn:1:1
+
+  1 │ X
+    │ ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case170.byn:1:1
+
+  1 │ ab
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case171.byn:1:1
+
+  1 │ aXb
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case172.byn:1:1
+
+  1 │ diag
+    │ ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case173.byn:1:1
+
+  1 │ hashmap-not-supported.byn
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case174.byn:1:1
+
+  1 │ BYN2830
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case175.byn:1:9
+
+  1 │ HashMap<
+    │         ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case176.byn:1:1
+
+  1 │ line-join-member
+    │ ^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found keyword `enum`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case177.byn:1:11
+
+  1 │ line-join-enum-shorthand
+    │           ^^^^
+error BYN1002: expected an expression, found keyword `and`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case178.byn:1:11
+
+  1 │ line-join-and
+    │           ^^^
+
+error BYN1002: expected an expression, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case178.byn:1:14
+
+  1 │ line-join-and
+    │              ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case179.byn:1:1
+
+  1 │ line-join-quiet
+    │ ^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case180.byn:1:1
+
+  1 │ .byn
+    │ ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case181.byn:1:11
+
+  1 │ line-join-
+    │           ^
+error BYN1002: expected an expression, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case182.byn:1:5
+
+  1 │ fix-
+    │     ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case183.byn:1:1
+
+  1 │ tests
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case184.byn:1:1
+
+  1 │ cases
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case185.byn:1:1
+
+  1 │ style-sections-banner
+    │ ^^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case186.byn:1:1
+
+  1 │ BYN1077
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case187.byn:1:1
+
+  1 │ style-conditions-patterns
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case188.byn:1:1
+
+  1 │ BYN1078
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case189.byn:1:1
+
+  1 │ style-literals-empty
+    │ ^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case190.byn:1:1
+
+  1 │ BYN1079
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case191.byn:1:1
+
+  1 │ style-optionals-bind
+    │ ^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case192.byn:1:1
+
+  1 │ BYN1080
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case193.byn:1:1
+
+  1 │ style-guards-postfix
+    │ ^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case194.byn:1:1
+
+  1 │ BYN1072
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case195.byn:1:1
+
+  1 │ style-lambdas-it
+    │ ^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case196.byn:1:1
+
+  1 │ BYN1073
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case197.byn:1:1
+
+  1 │ ^fixed .*main.byn (d+)
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case197.byn:1:7
+
+  1 │ ^fixed .*main.byn (d+)
+    │       ^ found `.`
+    │
+  help: put the next statement on its own line
+    │ 1 │ ^fixed
+    │ 2 │ .*main.byn (d+)
+
+error BYN0002: unexpected character `$`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case197.byn:2:1
+
+  2 │ $
+    │ ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case198.byn:1:1
+
+  1 │ style-fix-keeps-comments
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case199.byn:1:1
+
+  1 │ style-fix-keeps-line-comments
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case200.byn:1:1
+
+  1 │ conditions-patterns
+    │ ^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case201.byn:1:1
+
+  1 │ optionals-bind
+    │ ^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case202.byn:1:1
+
+  1 │ literals-empty
+    │ ^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case203.byn:1:1
+
+  1 │ sections-banner
+    │ ^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case204.byn:1:1
+
+  1 │ run
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case205.byn:1:9
+
+  1 │ fix-run-
+    │         ^
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case206.byn:1:7
+
+  1 │ --emit-c
+    │       ^ found `-`
+    │
+  help: put the next statement on its own line
+    │ 1 │ --emit
+    │ 2 │ -c
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case207.byn:1:1
+
+  1 │ fix-missing
+    │ ^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case208.byn:1:1
+
+  1 │ nope.byn
+    │ ^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case209.byn:1:1
+
+  1 │ fix-no-format
+    │ ^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case211.byn:1:1
+
+  1 │ x == 1 || x == 2
+    │ ^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case212.byn:1:1
+
+  1 │ x is 1 or 2
+    │ ^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case213.byn:1:1
+
+  1 │ fix-twice
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found `.`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case215.byn:1:1
+
+  1 │ .
+    │ ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case216.byn:1:1
+
+  1 │ ^fixed .*main.byn (2)
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case216.byn:1:7
+
+  1 │ ^fixed .*main.byn (2)
+    │       ^ found `.`
+    │
+  help: put the next statement on its own line
+    │ 1 │ ^fixed
+    │ 2 │ .*main.byn (2)
+
+error BYN0002: unexpected character `$`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case216.byn:2:1
+
+  2 │ $
+    │ ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case218.byn:1:1
+
+  1 │ fix-unparsable
+    │ ^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found `}`
+  --> <repo>/tmp/t8-layout/FormatTests-18/case219.byn:4:1
+
+  4 │ }
+    │ ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case220.byn:1:1
+
+  1 │ error BYN1002
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case220.byn:1:6
+
+  1 │ error BYN1002
+    │      ^ found `BYN1002`
+    │
+  help: put the next statement on its own line
+    │ 1 │ error
+    │ 2 │ BYN1002
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case221.byn:1:1
+
+  1 │ fix-abandoned
+    │ ^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case223.byn:1:1
+
+  1 │ style-severity-error
+    │ ^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case226.byn:1:1
+
+  1 │ error BYN1072
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case226.byn:1:6
+
+  1 │ error BYN1072
+    │      ^ found `BYN1072`
+    │
+  help: put the next statement on its own line
+    │ 1 │ error
+    │ 2 │ BYN1072
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case227.byn:1:1
+
+  1 │ m
+    │ ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found end of file
+  --> <repo>/tmp/t8-layout/FormatTests-18/case228.byn:1:2
+
+  1 │ !
+    │  ^
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case229.byn:1:1
+
+  1 │ m0!
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case229.byn:1:3
+
+  1 │ m0!
+    │   ^ found `!`
+    │
+  help: put the next statement on its own line
+    │ 1 │ m0
+    │ 2 │ !
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case230.byn:1:1
+
+  1 │ m1!
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case230.byn:1:3
+
+  1 │ m1!
+    │   ^ found `!`
+    │
+  help: put the next statement on its own line
+    │ 1 │ m1
+    │ 2 │ !
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case231.byn:1:1
+
+  1 │ m2!
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tmp/t8-layout/FormatTests-18/case231.byn:1:3
+
+  1 │ m2!
+    │   ^ found `!`
+    │
+  help: put the next statement on its own line
+    │ 1 │ m2
+    │ 2 │ !

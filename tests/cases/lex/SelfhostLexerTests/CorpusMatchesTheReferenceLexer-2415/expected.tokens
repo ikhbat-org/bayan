@@ -1,0 +1,112 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `total `
+1:9 InterpolationStart `{`
+1:10 Identifier `x`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringEnd `"`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolatedStringText `a `
+1:18 InterpolationStart `{`
+1:19 Identifier `f`
+1:20 OpenParen `(`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolatedStringText `b `
+1:25 InterpolationStart `{`
+1:26 Identifier `c`
+1:27 InterpolationEnd `}`
+1:28 InterpolatedStringEnd `"`
+1:29 CloseParen `)`
+1:30 InterpolationEnd `}`
+1:31 InterpolatedStringText ` d`
+1:33 InterpolatedStringEnd `"`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolatedStringText `{{literal}}`
+1:48 InterpolatedStringEnd `"`
+1:50 InterpolatedStringStart `$"`
+1:52 InterpolationStart `{`
+1:53 Identifier `Point`
+1:59 OpenBrace `{`
+1:61 Identifier `x`
+1:63 Equals `=`
+1:65 IntegerLiteral `1`
+1:67 CloseBrace `}`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringText `!`
+1:70 InterpolatedStringEnd `"`
+1:72 InterpolatedStringStart `$"`
+1:74 InterpolatedStringEnd `"`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 StringLiteral `"open`
+4:1 IfKeyword `if`
+4:4 ElseKeyword `else`
+4:9 UnlessKeyword `unless`
+4:16 SwitchKeyword `switch`
+4:23 CaseKeyword `case`
+4:28 DefaultKeyword `default`
+4:36 ForKeyword `for`
+4:40 InKeyword `in`
+4:43 WhileKeyword `while`
+4:49 DoKeyword `do`
+4:52 BreakKeyword `break`
+4:58 ContinueKeyword `continue`
+4:67 ReturnKeyword `return`
+4:74 YieldKeyword `yield`
+4:80 DeferKeyword `defer`
+4:86 ErrdeferKeyword `errdefer`
+4:95 UsingKeyword `using`
+4:101 ContextKeyword `context`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 DefaultKeyword `default`
+5:36 ForKeyword `for`
+5:40 InKeyword `in`
+5:43 WhileKeyword `while`
+5:49 DoKeyword `do`
+5:52 BreakKeyword `break`
+5:58 ContinueKeyword `continue`
+5:67 ReturnKeyword `return`
+5:74 YieldKeyword `yield`
+5:80 DeferKeyword `defer`
+5:86 ErrdeferKeyword `errdefer`
+5:95 UsingKeyword `using`
+5:101 ContextKeyword `context`
+6:2 IntegerLiteral `0x_`
+8:2 OpenBrace `{`
+8:3 Identifier `c`
+8:4 CloseBrace `}`
+8:5 StringLiteral `")} d"`
+8:12 InterpolatedStringStart `$"`
+8:14 InterpolatedStringText `{{literal}}`
+8:25 InterpolatedStringEnd `"`
+8:27 InterpolatedStringStart `$"`
+8:29 InterpolationStart `{`
+8:30 Identifier `Point`
+8:36 OpenBrace `{`
+8:38 Identifier `x`
+8:40 Equals `=`
+8:42 IntegerLiteral `1`
+8:44 CloseBrace `}`
+8:45 InterpolationEnd `}`
+8:46 InterpolatedStringText `!`
+8:47 InterpolatedStringEnd `"`
+8:49 InterpolatedStringStart `$"`
+8:51 InterpolatedStringEnd `"`
+    doc `/// Doc line two.`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │  0x_
+    │  ^^^

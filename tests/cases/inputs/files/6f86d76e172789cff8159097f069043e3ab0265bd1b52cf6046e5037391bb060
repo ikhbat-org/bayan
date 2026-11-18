@@ -1,0 +1,11 @@
+t c = """never closed
+test assert property fuzz model foreach new goto
+0x
+ if eYse unless switch case default for in while do break continue return yield defer errdefer using context
+
+.5e3 6E+2 1.50
+: List<List<i64>>
+a >> b
+c >>= 1
+
+let b = "bad \q escape"

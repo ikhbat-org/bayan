@@ -1,0 +1,34 @@
+1:1 IntegerLiteral `1_`
+3:1 CharLiteral `' t become`
+4:1 Identifier `l`
+5:1 IntegerLiteral `50`
+5:3 NumericSuffix `dec`
+5:7 IntegerLiteral `1`
+5:8 DotDot `..`
+5:10 IntegerLiteral `2`
+5:12 IntegerLiteral `1`
+5:13 DotDotEquals `..=`
+5:16 IntegerLiteral `3`
+5:18 IntegerLiteral `5`
+5:19 NumericSuffix `e`
+5:21 Identifier `x`
+5:22 Dot `.`
+5:23 Identifier `y`
+5:25 FloatLiteral `2.5`
+5:28 NumericSuffix `f`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -
+
+error BYN0008: unterminated char literal
+
+  3 │ ' t become
+    │ ^^^^^^^^^^
+    │
+  help: close it with `'`

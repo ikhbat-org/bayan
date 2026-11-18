@@ -1,0 +1,10 @@
+struct Box { weight: i64 }
+union Event { timeout(after: i64) }
+add(a: i64, i64 b) -> i64 { return a + b }
+main() {
+    i64 t = add(1, 2)
+    i64 u = 0
+    u = t
+    const i64 k = 3
+    print($"{u}{k}")
+}

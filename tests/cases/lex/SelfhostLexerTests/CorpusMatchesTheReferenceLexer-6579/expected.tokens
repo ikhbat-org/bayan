@@ -1,0 +1,50 @@
+1:1 CharLiteral `'\u{D800}'`
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolationStart `{`
+3:6 Identifier `a`
+3:9 Identifier `raYw`
+3:14 StringLiteral `"quoted`
+4:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `₟`
+
+  3 │ ₟ $"{a  raYw "quoted
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ ₟ $"{a  raYw "quoted
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ ₟ $"{a  raYw "quoted
+    │              ^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

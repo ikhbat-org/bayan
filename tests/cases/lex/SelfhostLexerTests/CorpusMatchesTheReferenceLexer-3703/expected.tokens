@@ -1,0 +1,68 @@
+1:1 Identifier `x`
+1:4 IntegerLiteral `4`
+1:5 Equals `=`
+1:7 IntegerLiteral `1`
+2:2 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:10 Bar `|`
+3:11 IntegerLiteral `3`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `x`
+4:4 InterpolationStart `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolatedStringEnd
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:6 Bar `|`
+5:8 BarBar `||`
+5:11 Caret `^`
+5:13 Tilde `~`
+5:15 Bang `!`
+5:17 Equals `=`
+5:19 EqualsEquals `==`
+5:22 BangEquals `!=`
+5:25 Less `<`
+5:27 LessEquals `<=`
+5:30 Greater `>`
+5:32 GreaterEquals `>=`
+5:35 LessLess `<<`
+5:38 Greater `>`
+5:39 Greater `>`
+5:41 Greater `>`
+5:42 GreaterEquals `>=`
+6:2 Identifier `x́́`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 Identifier `a`
+9:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ x� 4= 1
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ x� 4= 1
+    │   │  -
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = �|3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"x{ $"
+    │      ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

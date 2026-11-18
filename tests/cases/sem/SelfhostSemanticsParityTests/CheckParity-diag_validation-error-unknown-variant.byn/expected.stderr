@@ -1,0 +1,11 @@
+error BYN2228: `boom` is not a variant of `ValidationError<Signup> | ValidationError<Address>`
+  --> tmp/t26-tests/cli/diag_validation-error-unknown-variant.byn/validation-error-unknown-variant.byn:19:35
+
+  19 │     register("ab", at: "") catch (Other.boom) print("x")
+     │                                   ^^^^^^^^^^
+     │
+  help: use a variant of `ValidationError<Signup>`, `ValidationError<Address>`, the sets `register`
+        fails with
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2228

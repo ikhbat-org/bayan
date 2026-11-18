@@ -1,0 +1,7 @@
+warning BYN5011: this `expects` reads only `value`; a type with `requires` checks it once
+  --> <repo>/tests/cases/run/requires-block.byn:1:27
+
+  1 │ i32 firstDigit(i32 value) expects value in 0..10 {
+    │                           ^^^^^^^
+    │
+  help: declare a type with `requires` for `value`

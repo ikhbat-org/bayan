@@ -1,0 +1,63 @@
+1:1 IntegerLiteral `0x`
+1:4 Identifier `stru`
+1:8 Identifier `ct`
+1:11 UniqueKeyword `unique`
+1:18 UnionKeyword `union`
+1:24 EnumKeyword `enum`
+1:29 FlagsKeyword `flags`
+1:35 OpenKeyword `open`
+1:40 ExtensibleKeyword `extensible`
+1:51 InterfaceKeyword `interface`
+1:61 DelegateKeyword `delegate`
+1:70 Identifier `ext6ension`
+1:81 DerivationKeyword `derivation`
+1:92 Identifier `attribut`
+3:1 CharLiteral `'x`
+5:1 IntegerLiteral `0`
+5:3 IntegerLiteral `42`
+5:6 IntegerLiteral `1_000_000`
+5:16 IntegerLiteral `0xFF`
+5:21 IntegerLiteral `0x_ff`
+5:27 IntegerLiteral `0b1010`
+5:34 IntegerLiteral `0B11`
+5:39 IntegerLiteral `5`
+5:40 NumericSuffix `s`
+5:42 IntegerLiteral `250`
+5:45 NumericSuffix `ms`
+5:48 IntegerLiteral `4`
+5:49 NumericSuffix `KiB`
+5:53 IntegerLiteral `1`
+5:54 NumericSuffix `u`
+5:56 IntegerLiteral `0xFF`
+5:60 NumericSuffix `u`
+5:62 IntegerLiteral `0b1`
+5:65 NumericSuffix `ul`
+5:68 IntegerLiteral `7`
+5:69 NumericSuffix `l`
+6:3 LetKeyword `let`
+6:7 Identifier `café`
+6:12 Equals `=`
+6:14 IntegerLiteral `2`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x stru�ct unique union enum flags open extensible interface delegate ext6ension derivation attribut
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  1 │ 0x stru�ct unique union enum flags open extensible interface delegate ext6ension derivation attribut
+    │        ^
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{0}`
+
+  6 │  �let café = 2
+    │  ^

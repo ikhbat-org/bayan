@@ -1,0 +1,85 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+2:1 OpenBrace `{`
+2:2 Identifier `Pont`
+2:7 OpenBrace `{`
+2:9 Identifier `x`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+2:15 CloseBrace `}`
+2:16 CloseBrace `}`
+2:17 Bang `!`
+2:18 StringLiteral `" $"`
+2:22 StringLiteral `"`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:12 IntegerLiteral `1`
+4:5 LetKeyword `let`
+4:9 Identifier `b`
+4:11 Equals `=`
+4:15 IntegerLiteral `2`
+5:1 FailsKeyword `fails`
+5:7 TryKeyword `try`
+5:11 CatchKeyword `catch`
+5:17 NeverKeyword `never`
+5:24 Identifier `oalloc`
+5:31 NosuspendKeyword `nosuspend`
+5:41 SuspendsKeyword `suspends`
+5:50 AsyncKeyword `async`
+5:56 AwaitKeyword `await`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ {Pont { x = 1 }}!" $""
+    │                      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  3 │  let a = $ 1
+    │          ^
+
+error BYN0002: unexpected character `‏`
+
+  4 │  ‏ �let b = ` 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │  ‏ �let b = ` 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │  ‏ �let b = ` 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │  ‏ �let b = ` 2
+    │     ^
+
+error BYN0002: unexpected character ```
+
+  4 │  ‏ �let b = ` 2
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x92)
+
+  5 │ fails try catch never ��oalloc nosuspend suspends async await
+    │                       ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ fails try catch never ��oalloc nosuspend suspends async await
+    │                        ^

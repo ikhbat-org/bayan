@@ -1,0 +1,53 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `x`
+2:4 InterpolationStart `{`
+2:7 Amp `&`
+2:8 OpenBrace `{`
+3:1 Identifier `letxb`
+3:7 Identifier `j`
+3:9 StringLiteral `"bad \q escape"`
+4:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"x{ $&{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"x{ $&{
+    │      ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ letxb j "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │  � 
+    │  ^

@@ -1,0 +1,55 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+2:2 IntegerLiteral `0b1`
+2:5 NumericSuffix `ms`
+4:1 IsKeyword `is`
+4:4 AndKeyword `and`
+4:8 OrKeyword `or`
+4:11 NotKeyword `not`
+4:15 WithKeyword `with`
+4:20 MoveKeyword `move`
+4:25 RefKeyword `ref`
+4:29 OutKeyword `out`
+4:33 ThisKeyword `this`
+4:38 NullKeyword `null`
+4:43 TrueKeyword `true`
+4:48 FalseKeyword `false`
+4:54 ComptimeKeyword `comptime`
+4:63 CheckedKeyword `checked`
+6:2 IntegerLiteral `000_000`
+6:10 IntegerLiteral `0xFF`
+6:15 IntegerLiteral `0x_ff`
+6:21 IntegerLiteral `0b1010`
+6:28 IntegerLiteral `0B11`
+6:33 IntegerLiteral `5`
+6:34 NumericSuffix `s`
+6:36 IntegerLiteral `250`
+7:1 LetKeyword `let`
+7:5 EffectKeyword `effect`
+7:12 Equals `=`
+7:14 IntegerLiteral `2`
+8:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  2 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `\u{0}`
+
+  6 │ �000_000 0xFF 0x_ff 0b1010 0B11 5s 250// ok � in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  6 │ �000_000 0xFF 0x_ff 0b1010 0B11 5s 250// ok � in comment
+    │                                             ^

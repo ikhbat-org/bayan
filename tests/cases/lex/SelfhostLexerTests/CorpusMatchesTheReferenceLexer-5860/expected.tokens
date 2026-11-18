@@ -1,0 +1,170 @@
+1:4 LetKeyword `let`
+1:8 Identifier `café`
+1:14 Equals `=`
+1:16 IntegerLiteral `1`
+3:3 TestKeyword `test`
+3:8 AssertKeyword `assert`
+3:15 PropertyKeyword `property`
+3:24 FuzzKeyword `fuzz`
+3:29 ModelKeyword `model`
+3:35 ForeachKeyword `foreach`
+3:43 NewKeyword `new`
+3:47 GotoKeyword `goto`
+4:1 Identifier `E`
+4:2 Plus `+`
+4:3 IntegerLiteral `2`
+4:5 FloatLiteral `1.50`
+4:9 NumericSuffix `dec`
+4:13 IntegerLiteral `1`
+4:14 DotDot `..`
+4:16 IntegerLiteral `2`
+4:18 IntegerLiteral `1`
+4:19 DotDotEquals `..=`
+4:22 IntegerLiteral `3`
+4:24 IntegerLiteral `5`
+4:25 NumericSuffix `e`
+4:27 Identifier `x`
+4:28 Dot `.`
+4:29 Identifier `y`
+4:31 FloatLiteral `2.5`
+4:34 NumericSuffix `f`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolationStart `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolationStart `{`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolationStart `{`
+5:29 InterpolatedStringStart `$"`
+5:31 InterpolationStart `{`
+5:32 InterpolatedStringStart `$"`
+5:34 InterpolationStart `{`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolationStart `{`
+5:38 InterpolatedStringStart `$"`
+5:40 InterpolationStart `{`
+5:41 InterpolatedStringStart `$"`
+5:43 InterpolationStart `{`
+5:44 InterpolatedStringStart `$"`
+5:46 InterpolationStart `{`
+5:47 InterpolatedStringStart `$"`
+5:49 InterpolationStart `{`
+5:50 StringLiteral `$"{$"`
+5:55 OpenBrace `{`
+5:56 Identifier `x`
+5:57 CloseBrace `}`
+5:58 StringLiteral `"}"`
+5:61 InterpolationEnd `}`
+5:62 InterpolatedStringEnd `"`
+5:63 InterpolationEnd `}`
+5:64 InterpolatedStringEnd `"`
+5:65 InterpolationEnd `}`
+5:66 InterpolatedStringEnd `"`
+5:67 InterpolationEnd `}`
+5:68 InterpolatedStringEnd `"`
+5:69 InterpolationEnd `}`
+5:70 InterpolatedStringEnd `"`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringEnd `"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+5:75 InterpolationEnd `}`
+5:76 InterpolatedStringEnd `"`
+5:77 InterpolationEnd `}`
+5:78 InterpolatedStringEnd `"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolationEnd `}`
+5:82 InterpolatedStringEnd `"`
+5:83 InterpolationEnd `}`
+5:84 InterpolatedStringEnd `"`
+5:85 InterpolationEnd `}`
+5:86 InterpolatedStringEnd `"`
+5:87 InterpolationEnd `}`
+5:88 InterpolatedStringEnd `"`
+5:89 InterpolationEnd `}`
+5:90 InterpolatedStringEnd `"`
+5:91 InterpolationEnd `}`
+5:92 InterpolatedStringEnd `"`
+6:1 LetKeyword `let`
+6:5 Identifier `actor`
+6:11 Equals `=`
+6:13 IntegerLiteral `1`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ � �let café = 1
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � �let café = 1
+    │   │   -
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ � �let café = 1
+    │        ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ � �let café = 1
+    │   │           +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ ����� test assert property fuzz model foreach new goto
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │ ����� test assert property fuzz model foreach new goto
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����� test assert property fuzz model foreach new goto
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����� test assert property fuzz model foreach new goto
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����� test assert property fuzz model foreach new goto
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  4 │ �E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │ ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"�}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAF)
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"�}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                               ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  6 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

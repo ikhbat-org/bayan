@@ -1,0 +1,36 @@
+1:1 Identifier `e`
+1:2 StringLiteral `" "`
+1:7 Identifier `allowed`
+1:15 InKeyword `in`
+1:18 Identifier `string`
+1:25 IntegerLiteral `7`
+1:26 NumericSuffix `l`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 Identifier `a`
+4:3 RawStringLiteral `""" "text" u16"wide" "\u{202E} allowed in strings" "" "u{48}i"\n$"stray } here"\n\n`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ e" "� allowed in string 7l
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ e" "� allowed in string 7l
+    │   │     -
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │   """ "text" u16"wide" "� allowed in strings" "" "u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

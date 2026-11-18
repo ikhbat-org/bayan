@@ -1,0 +1,46 @@
+1:1 DotDot `..`
+1:3 IntegerLiteral `2`
+1:5 IntegerLiteral `1`
+1:6 DotDot `..`
+2:1 Identifier `W`
+2:3 Equals `=`
+2:5 IntegerLiteral `2`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `stray } here`
+3:15 InterpolatedStringEnd `"`
+4:2 IntegerLiteral `0b1`
+4:5 NumericSuffix `ms`
+5:1 Identifier `o`
+5:2 Identifier `sed`
+6:1 Identifier `b`
+8:1 StringLiteral `"a\u{2067}b"`
+8:7 LetKeyword `let`
+8:11 EffectKeyword `effect`
+8:18 Equals `=`
+8:20 IntegerLiteral `2`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  2 │ W� = 2
+    │  ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"stray } here"
+    │         ^
+    │
+    │ 3 │ $"stray }} here"
+    │   │          +
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  4 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xBE)
+
+  5 │ o�sed
+    │  ^

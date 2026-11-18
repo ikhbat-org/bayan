@@ -1,0 +1,45 @@
+1:4 Identifier `commen`
+1:10 Identifier `t`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 StringLiteral `"a\u{2067}b"`
+2:8 Star `*`
+2:9 Slash `/`
+3:1 Identifier `Å`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+5:2 CharLiteral `' `
+5:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x94)
+
+  1 │    commen�t */ a
+    │          ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ Å
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC9)
+
+  5 │ �' 
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  5 │ �' 
+    │  ^^
+    │
+  help: close it with `'`

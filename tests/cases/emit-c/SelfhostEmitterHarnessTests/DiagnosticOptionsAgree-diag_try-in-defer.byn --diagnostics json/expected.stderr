@@ -1,0 +1,1 @@
+{"code":"BYN2601","severity":"error","file":"input.byn","span":{"start":128,"end":139,"line":10,"column":11,"endLine":10,"endColumn":22},"message":"`try` is not allowed in `defer`","label":null,"help":"handle the error here with `catch`; cleanup cannot fail","fixes":[]}

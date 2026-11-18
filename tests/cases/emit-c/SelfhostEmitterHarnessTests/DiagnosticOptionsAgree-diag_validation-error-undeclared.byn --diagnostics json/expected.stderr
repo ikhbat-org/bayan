@@ -1,0 +1,1 @@
+{"code":"BYN2603","severity":"error","file":"input.byn","span":{"start":328,"end":353,"line":13,"column":13,"endLine":13,"endColumn":38},"message":"`ValidationError<Signup>` is not in the `fails` clause of `register`","label":null,"help":"add it to the signature: `fails ValidationError<Address>, ValidationError<Signup>`","fixes":[]}

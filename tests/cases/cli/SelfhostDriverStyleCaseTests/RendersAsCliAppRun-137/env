@@ -1,0 +1,3 @@
+CI=1
+BAYAN_CACHE=<repo>/tmp/t7-style-cache/build-ice-always-csharp
+PATH=<repo>/tmp/t7-style/build-ice-always/tally/fakebin

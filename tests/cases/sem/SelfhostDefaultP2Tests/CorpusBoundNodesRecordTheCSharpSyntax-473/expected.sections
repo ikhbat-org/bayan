@@ -1,0 +1,15 @@
+== tests/cases/diag/expects-reads-untrusted.byn
+75..95 blockStmt
+54..74 binaryExpr le right 69..74
+54..74 binaryExpr le right 69..74
+54..74 binaryExpr le right 69..74
+54..65 memberExpr
+54..58 nameExpr
+54..58 nameExpr
+69..74 nameExpr
+54..74 binaryExpr le right 69..74
+54..74 binaryExpr le right 69..74
+54..74 binaryExpr le right 69..74
+75..95 blockStmt
+81..93 returnStmt value 88..93
+88..93 nameExpr

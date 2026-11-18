@@ -1,0 +1,19 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+2:2 IntegerLiteral `3`
+3:2 Plus `+`
+3:4 Minus `-`
+3:6 Star `*`
+3:8 Slash `/`
+3:10 Percent `%`
+3:12 PlusPercent `+%`
+3:15 MinusPercent `-%`
+3:18 StarPercent `*%`
+3:21 PlusBar `+|`
+3:23 MinusBar `-|`
+3:26 StarBar `*|`
+3:29 PlusPlus `++`
+3:32 MinusMinus `--`
+4:1 EndOfFile

@@ -1,0 +1,20 @@
+error BYN2109: `Money` needs a value for `note`, `history`
+  --> input.byn:12:39
+
+  12 │     public Money plus(Money other) => Money { cents: cents + other.cents }
+     │                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     │
+  help: set them: `Money { note: …, history: … }`
+
+error BYN2115: `reset` modifies `this` but is not declared `ref this`
+  --> input.byn:15:9
+
+  15 │         cents = 0
+     │         ^^^^^ `this` is modified here
+     │
+  help: declare it `ref this` as the first parameter
+     │ 14 │     void reset(ref this) {
+     │    │                ++++++++
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2109

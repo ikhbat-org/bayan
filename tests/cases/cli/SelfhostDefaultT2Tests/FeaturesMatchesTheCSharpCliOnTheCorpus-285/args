@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/string-rune-count.byn
+--package
+<repo>/tests/cases/run

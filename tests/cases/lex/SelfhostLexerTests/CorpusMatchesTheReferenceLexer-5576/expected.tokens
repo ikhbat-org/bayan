@@ -1,0 +1,61 @@
+1:1 IntegerLiteral `0xF__`
+2:1 LetKeyword `let`
+2:5 Identifier `x`
+2:8 Equals `=`
+2:10 IntegerLiteral `1`
+4:1 Identifier `nt`
+6:1 PlusPercent `+%`
+6:4 MinusPercent `-%`
+6:7 StarPercent `*%`
+6:10 PlusBar `+|`
+6:13 MinusBar `-|`
+6:16 StarBar `*|`
+6:19 PlusPlus `++`
+6:22 Minus `-`
+7:1 Amp `&`
+7:3 AmpAmp `&&`
+7:6 Bar `|`
+7:8 BarBar `||`
+7:11 Caret `^`
+7:13 Tilde `~`
+7:15 Bang `!`
+7:17 Equals `=`
+7:19 EqualsEquals `==`
+7:22 BangEquals `!=`
+7:25 Less `<`
+7:27 LessEquals `<=`
+7:30 Greater `>`
+7:32 GreaterEquals `>=`
+7:35 LessLess `<<`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolatedStringText `stray } here`
+7:52 InterpolatedStringEnd `"`
+9:1 IntegerLiteral `1`
+9:2 Dot `.`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  2 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ let x� = 1
+    │   │      -
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  7 │ & && | || ^ ~ ! = == != < <= > >= << $"stray } here"
+    │                                              ^
+    │
+    │ 7 │ & && | || ^ ~ ! = == != < <= > >= << $"stray }} here"
+    │   │                                               +

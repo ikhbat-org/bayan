@@ -1,0 +1,43 @@
+1:1 CharLiteral `'\u{202E}'`
+1:5 At `@`
+1:7 Hash `#`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+3:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ '�'����@ #
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '�'����@ #
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ '�'����@ #
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ '�'����@ #
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ '�'����@ #
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ '�'����@ #
+    │       ^

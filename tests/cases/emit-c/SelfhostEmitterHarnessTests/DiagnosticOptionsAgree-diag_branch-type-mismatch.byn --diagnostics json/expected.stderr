@@ -1,0 +1,1 @@
+{"code":"BYN2216","severity":"error","file":"input.byn","span":{"start":22,"end":35,"line":2,"column":9,"endLine":2,"endColumn":22},"message":"branches have different types: `i32` and `string`","label":null,"help":null,"fixes":[]}

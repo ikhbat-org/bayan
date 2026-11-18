@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `"""let café = 1\n\n"\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"macro select becom\n 1_�\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """let café = 1
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF7)
+
+  5 │  1_�
+    │    ^

@@ -1,0 +1,7 @@
+﻿
+// comment ‮ hidden
+
+‮
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+a /* never closed
+� let c =  3

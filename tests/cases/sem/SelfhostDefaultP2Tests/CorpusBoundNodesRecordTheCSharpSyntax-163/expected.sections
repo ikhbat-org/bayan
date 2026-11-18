@@ -1,0 +1,30 @@
+== tests/cases/run/list-remove-at-panics.byn
+0..20 globalStatement
+0..20 localDecl
+9..20 callExpr
+21..33 exprStmt
+21..33 callExpr
+21..23 nameExpr
+31..32 literalExpr integer
+34..46 exprStmt
+34..46 callExpr
+34..36 nameExpr
+44..45 literalExpr integer
+47..63 exprStmt
+47..63 callExpr
+47..49 nameExpr
+61..62 literalExpr integer
+64..90 exprStmt
+64..90 callExpr
+70..89 interpolatedExpr
+78..87 memberExpr
+78..80 nameExpr
+64..90 callExpr
+91..107 exprStmt
+91..107 callExpr
+91..93 nameExpr
+105..106 literalExpr integer
+108..128 exprStmt
+108..128 callExpr
+114..127 literalExpr string
+108..128 callExpr

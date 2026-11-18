@@ -1,0 +1,39 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `open `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 StringLiteral `";`
+2:1 Identifier `t`
+2:3 ForKeyword `for`
+2:7 InKeyword `in`
+2:10 WhileKeyword `while`
+2:16 DoKeyword `do`
+2:19 BreakKeyword `break`
+2:25 ContinueKeyword `continue`
+2:34 Identifier `retu`
+2:40 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  2 │ t for in while do break continue retu �
+    │                                       ^ invisible character that reorders how the text
+    │                                         displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ t for in while do break continue retu �
+    │   │                                       -

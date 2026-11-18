@@ -1,0 +1,57 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolatedStringText `{{`
+3:7 InterpolatedStringEnd `"`
+3:8 Identifier `각`
+4:4 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │  ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │  ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ � $"{{"각
+    │ ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  3 │ � $"{{"각
+    │        ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ � $"{{"각
+    │   │        +
+
+error BYN0004: unterminated block comment
+
+  4 │ /* 
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

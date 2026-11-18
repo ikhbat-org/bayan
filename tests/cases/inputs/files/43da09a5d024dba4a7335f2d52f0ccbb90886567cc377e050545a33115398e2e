@@ -1,0 +1,18 @@
+string inContext(ReadOnlySpan<string> parts) {
+    using let arena = Arena()
+    provide allocator: arena {
+        let a = Path.relative("/a", "/a/b")
+        let b = Path.fileName("/a/b")
+        let c = Path.directoryName("/a/b") ?? ""
+        let d = Path.combine("/a", "b")
+        let e = Path.combine(parts)
+        let f = Path.fullPath("x")
+        print($"{a}{b}{c}{d}{e}{f}")
+    }
+    return ""
+}
+
+void main() {
+    let parts = List<string>()
+    let _ = inContext(parts.span)
+}

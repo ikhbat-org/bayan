@@ -1,0 +1,5 @@
+== unit constraint
+pending 1
+module main tmp/t11-cases/constraint main
+file tmp/t11-cases/constraint/main.byn source
+diag BYN2807 tmp/t11-cases/constraint/main.byn 7:12 `P` does not conform to `IShape`: missing `: IShape` | the generic code needs this of its type arguments | add `: IShape` to `P` and provide `: IShape`

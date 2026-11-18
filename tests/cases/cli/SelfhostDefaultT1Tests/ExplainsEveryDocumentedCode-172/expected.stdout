@@ -1,0 +1,14 @@
+# BYN2305: argument must be named
+
+**Why.** `f(true)` doesn't say what the argument means. Bayan requires the parameter name for `bool` parameters. An argument that is a variable or field with the parameter's name (`verbose` or `options.verbose` for `verbose`) counts as named. Parameters that share a type no longer need names: since design round 3 every required parameter besides the object carries a particle, and the call writes it (BYN5005).
+
+**Example.**
+
+```
+void show(bool verbose) {
+}
+
+show(true)
+```
+
+**Fix.** Name it: `show(verbose: true)`.

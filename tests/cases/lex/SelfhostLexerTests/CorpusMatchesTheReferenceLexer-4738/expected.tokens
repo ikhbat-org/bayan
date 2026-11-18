@@ -1,0 +1,28 @@
+1:2 CloseBrace `}`
+1:4 Identifier `hereF`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `ope `
+2:7 InterpolationStart `{`
+2:8 Identifier `x`
+2:9 Semicolon `;`
+4:1 CharLiteral `'x\r`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"ope {x;
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │  	�
+    │  	^

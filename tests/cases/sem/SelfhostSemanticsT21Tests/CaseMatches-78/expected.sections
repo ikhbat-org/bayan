@@ -1,0 +1,2 @@
+== diag.move-with-parenthesized
+BYN2782 9:22 cannot move out of this expression ||move a local variable or a `move` parameter instead|

@@ -1,0 +1,2 @@
+== flow.noReturn
+BYN2401 56:1 `noReturn` must return `i32` on every path ||add a `return` (or `panic(…)`) on the paths that reach the end|

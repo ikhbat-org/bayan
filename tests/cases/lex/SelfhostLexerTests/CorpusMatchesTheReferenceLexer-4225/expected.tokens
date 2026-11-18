@@ -1,0 +1,15 @@
+1:1 IntegerLiteral `0x_`
+2:2 Identifier `a`
+7:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0004: unterminated block comment
+
+  2 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

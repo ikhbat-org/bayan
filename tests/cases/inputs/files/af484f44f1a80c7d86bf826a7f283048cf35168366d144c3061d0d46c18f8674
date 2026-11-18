@@ -1,0 +1,1 @@
+type distinct Percent = i32 requires it in 0..=100

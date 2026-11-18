@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/strbuf-grow-escapes-context.byn
+--package
+<repo>/tests/cases/diag

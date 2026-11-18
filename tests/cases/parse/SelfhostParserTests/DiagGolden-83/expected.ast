@@ -1,0 +1,4 @@
+CompilationUnit
+  Attribute @positional
+  Function run() -> void
+    Block

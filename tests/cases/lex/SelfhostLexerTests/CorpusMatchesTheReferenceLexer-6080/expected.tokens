@@ -1,0 +1,94 @@
+1:1 Identifier `te`
+1:4 Identifier `st`
+1:7 AssertKeyword `assert`
+1:14 PropertyKeyword `property`
+1:23 FuzzKeyword `fuzz`
+1:28 ModelKeyword `model`
+1:34 ForeachKeyword `foreach`
+1:42 NewKeyword `new`
+1:46 GotoKeyword `goto`
+2:1 Identifier `ay`
+2:4 CloseBrace `}`
+2:6 Identifier `here`
+2:10 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+4:2 CharLiteral `'\u{110000}'`
+6:1 StringLiteral `"`
+7:1 VarKeyword `var`
+7:5 Identifier `xs`
+7:7 Colon `:`
+7:9 Identifier `List`
+7:13 Less `<`
+7:14 Identifier `List`
+7:18 Less `<`
+7:19 Identifier `i64`
+7:22 Greater `>`
+7:23 Greater `>`
+8:1 VarKeyword `var`
+8:5 Identifier `xs`
+8:8 Identifier `List`
+8:12 Less `<`
+8:13 Identifier `List`
+8:17 Less `<`
+8:18 Identifier `i64`
+8:21 Greater `>`
+8:22 Greater `>`
+9:2 InterpolatedStringStart `$"`
+9:4 InterpolatedStringText `a`
+9:5 InterpolationStart `{`
+9:6 Identifier `b`
+9:7 InterpolationEnd `}`
+9:8 InterpolatedStringText `c`
+9:9 InterpolatedStringEnd
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  1 │ te�st assert property fuzz model foreach new goto
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ay } here"
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  6 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  9 │  $"a{b}c
+    │  ^^ this string never ends
+    │
+  help: close it with `"`

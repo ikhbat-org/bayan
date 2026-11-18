@@ -1,0 +1,3 @@
+== call.c7
+errorExpr|?|-|-|-|1524:14|-
+BYN5007 101:14 `Log.debug` names a level, not the act; write `log(…, as: .debug)` ||call `log` and pass the level `as: .debug`|fix 1524..1538 log("x", as: .debug)

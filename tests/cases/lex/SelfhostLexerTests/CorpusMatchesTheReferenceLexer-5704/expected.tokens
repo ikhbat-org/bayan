@@ -1,0 +1,81 @@
+1:2 Identifier `ạ̇`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `actor`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+7:1 Identifier `x́́`
+7:5 VarKeyword `var`
+7:9 Identifier `xs`
+7:11 Colon `:`
+7:13 Identifier `List`
+7:17 Less `<`
+7:18 Identifier `List`
+7:22 Less `<`
+7:23 Identifier `i64`
+7:26 Greater `>`
+7:27 Greater `>`
+8:1 IntegerLiteral `0xFF`
+8:5 NumericSuffix `s`
+9:1 IntegerLiteral `3`
+9:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDA)
+
+  1 │ �ạ̇
+    │ ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ �ạ̇
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ �ạ̇
+    │   │  ++
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  2 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ let café = 1
+    │   │        +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����
+    │    ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  5 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  8 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

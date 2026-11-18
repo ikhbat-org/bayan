@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/arguments-single-not-swapped.byn
+--package
+<repo>/tests/cases/diag

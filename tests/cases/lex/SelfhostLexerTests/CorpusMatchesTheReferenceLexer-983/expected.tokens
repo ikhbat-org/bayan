@@ -1,0 +1,42 @@
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+3:2 LetKeyword `let`
+3:6 Identifier `lw`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:2 IntegerLiteral `0xF__`
+6:1 CharLiteral `'\q'`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ �var xs: List<List<i64>>
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ �var xs: List<List<i64>>
+    │  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │  0xF__
+    │     ^^
+    │
+    │ 4 │  0xF__
+    │   │     --
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

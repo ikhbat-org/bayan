@@ -1,0 +1,142 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+2:1 Identifier `ment`
+2:8 Identifier `hidden`
+3:1 LetKeyword `let`
+3:5 Identifier `x`
+3:8 Equals `=`
+3:10 IntegerLiteral `1`
+4:2 LetKeyword `let`
+4:6 Identifier `c`
+4:8 Equals `=`
+4:12 IntegerLiteral `3`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolatedStringText `$`
+6:49 InterpolatedStringEnd `"`
+6:50 OpenBrace `{`
+6:51 InterpolatedStringStart `$"`
+6:53 InterpolationStart `{`
+6:54 StringLiteral `$"{x}"`
+6:60 InterpolationEnd `}`
+6:61 InterpolatedStringEnd `"`
+6:62 CloseBrace `}`
+6:63 StringLiteral `"}"`
+6:66 InterpolationEnd `}`
+6:67 InterpolatedStringEnd `"`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringEnd `"`
+6:70 IntegerLiteral `0x`
+7:1 IntegerLiteral `0x_`
+9:1 Identifier `ad`
+9:5 Identifier `q`
+9:7 Identifier `escape`
+9:13 StringLiteral `"`
+10:1 LetKeyword `let`
+10:5 Identifier `c`
+10:7 Equals `=`
+10:9 RawStringLiteral `"""never closed , . .. ..= : ? ?? ??= ?. => -> @ #\n `
+11:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ ment � hidden
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ ment � hidden
+    │   │      -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ let x� = 1
+    │   │      -
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │  let c = � 3
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"}"}"0x
+    │                                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"}"}"0x
+    │                                                      ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"}"}"0x
+    │                                                                      ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x_
+    │ ^^^
+
+error BYN0002: unexpected character `\`
+
+  9 │ ad \q escape"
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  9 │ ad \q escape"
+    │             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  10 │ let c = """never closed , . .. ..= : ? ?? ??= ?. => -> @ #
+     │         ^^^ raw string starts here
+     │
+  help: close it with `"""`

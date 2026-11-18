@@ -1,0 +1,54 @@
+1:1 Identifier `literal`
+1:8 CloseBrace `}`
+1:9 CloseBrace `}`
+1:10 StringLiteral `" $"`
+1:14 OpenBrace `{`
+1:15 Identifier `P`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  1 │ literal}}" $"{P�
+    │                ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ literal}}" $"{P�
+    │   │                -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ // ok � inb comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ �����/* block
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │ �����/* block
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �����/* block
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �����/* block
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �����/* block
+    │     ^
+
+error BYN0004: unterminated block comment
+
+  3 │ �����/* block
+    │      ^^ comment starts here
+    │
+  help: close it with `*/`

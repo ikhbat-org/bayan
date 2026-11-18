@@ -1,0 +1,154 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 Identifier `x`
+2:48 InterpolationEnd `}`
+2:49 InterpolatedStringEnd `"`
+2:50 InterpolationEnd `}`
+2:51 InterpolatedStringEnd `"`
+2:52 InterpolationEnd `}`
+2:53 InterpolatedStringEnd `"`
+2:54 InterpolationEnd `}`
+2:55 InterpolatedStringEnd `"`
+2:56 InterpolationEnd `}`
+2:57 InterpolatedStringEnd `"`
+2:58 InterpolationEnd `}`
+2:59 InterpolatedStringEnd `"`
+2:60 InterpolationEnd `}`
+2:61 InterpolatedStringEnd `"`
+2:62 InterpolationEnd `}`
+2:63 InterpolatedStringEnd `"`
+2:64 InterpolationEnd `}`
+2:65 InterpolatedStringEnd `"`
+2:66 InterpolationEnd `}`
+2:67 InterpolatedStringEnd `"`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringEnd `"`
+2:71 StringLiteral `" $"`
+2:75 OpenBrace `{`
+2:76 Identifier `Point`
+2:82 OpenBrace `{`
+2:84 Identifier `x`
+2:86 Equals `=`
+2:88 IntegerLiteral `1`
+2:90 CloseBrace `}`
+2:91 CloseBrace `}`
+2:92 Bang `!`
+2:93 StringLiteral `"F__`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `a`
+3:5 InterpolationStart `{`
+3:6 Identifier `b`
+3:7 InterpolationEnd `}`
+3:8 InterpolatedStringText `c 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l`
+3:64 InterpolatedStringEnd
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 StringLiteral `"`
+6:1 Amp `&`
+6:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}" " $"{Point { x = 1 }}!"F__
+    │                                                                                             ^^^^ string
+    │                                                                                                  ends
+    │                                                                                                  at
+    │                                                                                                  the
+    │                                                                                                  end
+    │                                                                                                  of
+    │                                                                                                  the
+    │                                                                                                  line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │  $"a{b}c 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │  ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  6 │ &�����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  6 │ &�����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ &�����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ &�����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ &�����
+    │      ^

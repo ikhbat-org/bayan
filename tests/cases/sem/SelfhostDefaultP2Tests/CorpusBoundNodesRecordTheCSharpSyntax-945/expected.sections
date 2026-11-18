@@ -1,0 +1,3 @@
+== tests/cases/diag/unknown-type.byn
+0..15 globalStatement
+0..15 localDecl

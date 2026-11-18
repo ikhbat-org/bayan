@@ -1,0 +1,112 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:5 Identifier `Point`
+1:11 OpenBrace `{`
+1:13 Identifier `x`
+1:15 Equals `=`
+1:17 IntegerLiteral `1`
+1:19 CloseBrace `}`
+1:20 InterpolationEnd `}`
+1:21 InterpolatedStringText `!`
+1:22 InterpolatedStringEnd `"`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolatedStringEnd `"`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `total `
+3:10 InterpolationStart `{`
+3:11 Identifier `x`
+3:12 InterpolationEnd `}`
+3:13 InterpolatedStringEnd `"`
+3:16 StringLiteral `"a {f($"`
+3:24 Identifier `b`
+3:26 OpenBrace `{`
+3:27 Identifier `c`
+3:28 CloseBrace `}`
+3:29 StringLiteral `")} d"`
+3:36 InterpolatedStringStart `$"`
+3:38 InterpolatedStringText `{{literal}}`
+3:49 InterpolatedStringEnd `"`
+3:51 InterpolatedStringStart `$"`
+3:53 InterpolationStart `{`
+3:54 Identifier `Pomint`
+3:61 OpenBrace `{`
+3:63 Identifier `x`
+3:65 Equals `=`
+3:67 IntegerLiteral `1`
+3:69 CloseBrace `}`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringText `!`
+3:72 InterpolatedStringEnd `"`
+3:74 InterpolatedStringStart `$"`
+3:76 InterpolatedStringEnd `"`
+4:5 CharLiteral `'\''`
+4:10 CharLiteral `'é'`
+4:14 CharLiteral `'\'`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │  // ok � in comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC6)
+
+  3 │  $"total {x}" �"a {f($"b {c}")} d" $"{{literal}}" $"{Pomint { x = 1 }}!" $""
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ ����������  '\'' 'é' '\'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ ����������  '\'' 'é' '\'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����������  '\'' 'é' '\'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����������  '\'' 'é' '\'
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����������  '\'' 'é' '\'
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ ����������  '\'' 'é' '\'
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ ����������  '\'' 'é' '\'
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����������  '\'' 'é' '\'
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����������  '\'' 'é' '\'
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����������  '\'' 'é' '\'
+    │          ^
+
+error BYN0008: unterminated char literal
+
+  4 │ ����������  '\'' 'é' '\'
+    │                      ^^^
+    │
+  help: close it with `'`

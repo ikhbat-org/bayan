@@ -1,0 +1,67 @@
+1:2 LetKeyword `let`
+1:6 Identifier `c`
+1:8 Equals `=`
+1:12 IntegerLiteral `3`
+3:1 StringLiteral `"{ �`
+4:1 FloatLiteral `3.14`
+4:6 FloatLiteral `1e5`
+4:10 FloatLiteral `2.5e-3`
+4:17 FloatLiteral `6E+2`
+4:22 FloatLiteral `1.50`
+4:26 NumericSuffix `dec`
+4:30 IntegerLiteral `1`
+4:31 DotDot `..`
+4:33 IntegerLiteral `2`
+4:35 IntegerLiteral `1`
+4:36 DotDotEquals `..=`
+4:39 IntegerLiteral `3`
+4:41 IntegerLiteral `5`
+4:42 NumericSuffix `e`
+4:44 Identifier `x`
+4:45 Dot `.`
+4:46 Identifier `y`
+4:48 FloatLiteral `2.5`
+4:51 NumericSuffix `f`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �let c = � 3
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �let c = � 3
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �let c = � 3
+    │  ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ �let c = � 3
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  3 │ "{ �
+    │ ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ "{ �
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │  �
+    │   │  -

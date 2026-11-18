@@ -1,0 +1,96 @@
+1:1 Identifier `__`
+2:1 IntegerLiteral `0xF__`
+3:2 LetKeyword `let`
+3:6 Identifier `actor`
+3:12 Equals `=`
+3:14 IntegerLiteral `1`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:50 OpenBrace `{`
+4:51 StringLiteral `$"{x}"`
+4:57 IntegerLiteral `0xFF`
+4:61 NumericSuffix `s`
+5:7 Identifier `comment`
+5:15 Star `*`
+5:16 Slash `/`
+5:18 Identifier `a`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"0xFFs
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"0xFFs
+    │                                                 ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"0xFFs
+    │                                                   ^^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"0xFFs
+    │                                                             ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │  ��    comment */ a
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  ��    comment */ a
+    │   ^

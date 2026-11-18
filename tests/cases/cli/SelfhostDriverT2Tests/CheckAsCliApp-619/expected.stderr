@@ -1,0 +1,10 @@
+error BYN2809: `dyn IShape` is not supported yet
+  --> <repo>/tmp/t2/diag/dyn-by-value/dyn-by-value.byn:5:11
+
+  5 │ void show(dyn IShape s) { }
+    │           ^^^^^^^^^^ an owned dynamic value
+    │
+  help: write `dyn ref IShape`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2809

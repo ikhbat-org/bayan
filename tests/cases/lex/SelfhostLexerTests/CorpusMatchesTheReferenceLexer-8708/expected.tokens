@@ -1,0 +1,19 @@
+1:1 CharLiteral `'x`
+3:1 Identifier `Amacro`
+3:8 Identifier `select`
+3:15 BecomeKeyword `become`
+4:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ Amacro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

@@ -1,0 +1,40 @@
+2:1 CharLiteral `'\q'`
+3:1 CharLiteral `'\u{D80각a >> b`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `{{`
+5:5 InterpolatedStringEnd `"`
+5:8 RawStringLiteral `""" c"text" u16"wde" "\u{202E} allo�ed in strngs" "" "\u{48}i"\n\n`
+7:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0008: unterminated char literal
+
+  3 │ '\u{D80각a >> b
+    │ ^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{D80`
+
+  3 │ '\u{D80각a >> b
+    │  ^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{{"  """ c"text" u16"wde" "� allo�ed in strngs" "" "\u{48}i"
+    │        ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  5 │ $"{{"  """ c"text" u16"wde" "� allo�ed in strngs" "" "\u{48}i"
+    │                                    ^

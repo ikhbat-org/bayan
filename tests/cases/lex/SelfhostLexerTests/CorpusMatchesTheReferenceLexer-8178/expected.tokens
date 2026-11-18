@@ -1,0 +1,35 @@
+1:5 Identifier `comment`
+1:13 Star `*`
+1:14 Slash `/`
+1:16 Identifier `a`
+5:1 Identifier `Å`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │   � comment */ a
+    │   ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  3 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ �
+    │   │ -
+
+error BYN0002: unexpected character `‏`
+
+  4 │ ‏
+    │ ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  5 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ Å
+    │   │ +

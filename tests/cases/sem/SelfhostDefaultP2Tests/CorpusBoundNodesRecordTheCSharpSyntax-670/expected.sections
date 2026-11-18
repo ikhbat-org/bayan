@@ -1,0 +1,10 @@
+== tests/cases/diag/mutate-temporary.byn
+0..13 globalStatement
+0..13 localDecl
+8..13 literalExpr string
+14..29 assignStmt assign target 14..24 value 27..29
+14..24 indexExpr
+14..21 memberExpr
+14..15 nameExpr
+22..23 literalExpr integer
+27..29 literalExpr integer

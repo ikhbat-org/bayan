@@ -1,0 +1,2 @@
+== ref-this-store-through-later-method
+BYN3002 21:9 arena `arena` does not live as long as `b`, which borrows it |arena `arena` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

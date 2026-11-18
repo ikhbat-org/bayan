@@ -1,0 +1,7 @@
+== args.a8
+literal|i64|-|-|-|2702:1|1
+literal|bool|-|-|-|2705:5|false
+literal|i64|-|-|-|2712:1|3
+literal|string|-|-|-|294:3|"x"
+BYN2305 139:22 argument for `verbose` must be named ||write `verbose: …`; a `bool` argument says nothing at the call site|fix 2705..2705 verbose: 
+BYN5005 139:29 `b` is passed without its particle `to:` |needs `to:`|add `to:` before the argument|fix 2712..2712 to: 

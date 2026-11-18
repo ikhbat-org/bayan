@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/statement-outside-entry
+--include-path
+<repo>/tests/cases/diag/statement-outside-entry/main.byn

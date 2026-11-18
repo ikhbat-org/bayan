@@ -1,0 +1,73 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+1:61 Identifier `nt`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:9 IntegerLiteral `1`
+5:3 Identifier `raw`
+5:7 StringLiteral `"�quoted"`
+7:1 LetKeyword `let`
+7:5 Identifier `actor`
+7:11 Equals `=`
+7:13 IntegerLiteral `1`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolatedStringText `x`
+8:5 InterpolationStart `{`
+8:7 InterpolatedStringStart `$"`
+8:9 InterpolationStart `{`
+8:10 IntegerLiteral `1`
+8:11 NumericSuffix `ms`
+9:1 IntegerLiteral `0x_`
+9:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  1 │ fails try catch never noalloc nosuspend suspends async await�nt
+    │                                                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │   raw "�quoted"
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���
+    │   ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  7 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  8 │  $"x{ $"{1ms
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  9 │ 0x_ 
+    │ ^^^

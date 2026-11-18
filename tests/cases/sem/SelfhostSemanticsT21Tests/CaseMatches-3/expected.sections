@@ -1,0 +1,3 @@
+== expr.w5
+moveExpr|List<i64>|-|-|2501:4|field:List<i64>
+BYN2782 109:19 cannot move out of field `items` ||take it with `.take()`, or copy it with `.copy(to: alloc)`; its owner keeps it|

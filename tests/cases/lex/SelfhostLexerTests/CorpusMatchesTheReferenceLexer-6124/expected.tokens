@@ -1,0 +1,29 @@
+1:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} a,lowed in strings" "" "\u{48}i"\n1. ����� x́́ let c = """`
+2:21 NeverKeyword `never`
+2:27 Identifier `closed`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │ 1. ����� x́́ let c = """never closed
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ 1. ����� x́́ let c = """never closed
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ 1. ����� x́́ let c = """never closed
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ 1. ����� x́́ let c = """never closed
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ 1. ����� x́́ let c = """never closed
+    │        ^

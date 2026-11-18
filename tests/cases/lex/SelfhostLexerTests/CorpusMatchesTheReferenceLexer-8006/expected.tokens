@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `""" a >> b\n\u{0}\n4>>\n\u{1D}a >> b\nc >>= 1\n b\nlet a = 1\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """ a >> b
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

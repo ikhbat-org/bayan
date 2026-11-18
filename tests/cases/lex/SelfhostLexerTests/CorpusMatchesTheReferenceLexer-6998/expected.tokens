@@ -1,0 +1,59 @@
+1:1 Identifier `_`
+5:2 Identifier `ribute`
+6:1 ErrorKeyword `error`
+6:7 SetKeyword `set`
+6:11 Identifier `un`
+6:14 Identifier `it`
+6:17 DistinctKeyword `distinct`
+6:26 TypeKeyword `type`
+6:31 ImportKeyword `import`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:11 IntegerLiteral `3`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����
+    │     ^
+
+error BYN0002: unexpected character `\u{1B}`
+
+  6 │ error set un�it distinct type import 
+    │             ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  7 │ let c = � 3
+    │         ^

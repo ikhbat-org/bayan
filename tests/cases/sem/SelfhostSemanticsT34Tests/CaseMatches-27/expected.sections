@@ -1,0 +1,4 @@
+== c10
+catchExpr|void|1380:14
+operand call:void binding - variant - handler literal:i32=0
+BYN2202 70:28 expected `void`, found `i32` ||drop the handler's value; `act` returns nothing, so the handler cannot produce one|

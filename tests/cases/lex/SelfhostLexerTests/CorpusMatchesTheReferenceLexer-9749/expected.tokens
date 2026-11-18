@@ -1,0 +1,111 @@
+1:1 Identifier `stru`
+1:5 Identifier `ct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:2 LetKeyword `let`
+2:8 Equals `=`
+2:10 IntegerLiteral `2`
+3:3 Identifier `xs`
+3:5 Colon `:`
+3:7 Identifier `Li`
+3:10 LetKeyword `let`
+3:14 Identifier `s`
+3:16 Equals `=`
+3:18 InterpolatedStringStart `$"`
+3:20 InterpolationStart `{`
+3:21 InterpolatedStringStart `$"`
+3:23 InterpolationStart `{`
+3:24 InterpolatedStringStart `$"`
+3:26 InterpolationStart `{`
+3:27 InterpolatedStringStart `$"`
+3:29 InterpolationStart `{`
+3:30 InterpolatedStringStart `$"`
+3:32 InterpolationStart `{`
+3:33 InterpolatedStringStart `$"`
+3:35 InterpolationStart `{`
+3:36 InterpolatedStringStart `$"`
+3:38 InterpolationStart `{`
+3:39 InterpolatedStringStart `$"`
+3:41 InterpolationStart `{`
+3:42 InterpolatedStringStart `$"`
+3:44 InterpolationStart `{`
+3:45 InterpolatedStringStart `$"`
+3:47 InterpolationStart `{`
+3:48 InterpolatedStringStart `$"`
+3:50 InterpolationStart `{`
+3:51 InterpolatedStringStart `$"`
+3:53 InterpolationStart `{`
+3:54 InterpolatedStringStart `$"`
+3:56 InterpolationStart `{`
+3:57 InterpolatedStringStart `$"`
+3:59 InterpolationStart `{`
+3:60 InterpolatedStringStart `$"`
+3:62 InterpolationStart `{`
+3:63 InterpolatedStringStart `$"`
+3:65 InterpolationStart `{`
+3:66 StringLiteral `$"{$"`
+3:71 OpenBrace `{`
+3:72 StringLiteral `$"{$"`
+3:77 OpenBrace `{`
+3:78 Identifier `x`
+3:79 CloseBrace `}`
+3:80 StringLiteral `"}"`
+3:83 CloseBrace `}`
+3:84 StringLiteral `"}"`
+3:87 InterpolationEnd `}`
+3:88 InterpolatedStringEnd `"`
+3:89 InterpolationEnd `}`
+3:90 InterpolatedStringEnd `"`
+3:91 InterpolationEnd `}`
+3:92 InterpolatedStringEnd `"`
+3:93 InterpolationEnd `}`
+3:94 InterpolatedStringEnd `"`
+3:95 InterpolationEnd `}`
+3:96 InterpolatedStringEnd `"`
+3:97 InterpolationEnd `}`
+3:98 InterpolatedStringEnd `"`
+3:99 InterpolationEnd `}`
+3:100 InterpolatedStringEnd `"`
+3:101 InterpolationEnd `}`
+3:102 InterpolatedStringEnd `"`
+3:103 InterpolationEnd `}`
+3:104 InterpolatedStringEnd `"`
+3:105 InterpolationEnd `}`
+3:106 InterpolatedStringEnd `"`
+3:107 InterpolationEnd `}`
+3:108 InterpolatedStringEnd `"`
+3:109 InterpolationEnd `}`
+3:110 InterpolatedStringEnd `"`
+3:111 InterpolationEnd `}`
+3:112 InterpolatedStringEnd `"`
+3:113 InterpolationEnd `}`
+3:114 InterpolatedStringEnd `"`
+3:115 InterpolationEnd `}`
+3:116 InterpolatedStringEnd `"`
+3:117 InterpolationEnd `}`
+3:118 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  1 │ stru�ct unique union enum flags open extensible interface delegate extension derivation attribute
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │  let � = 2
+    │      ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │   xs: Li let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                  ^^

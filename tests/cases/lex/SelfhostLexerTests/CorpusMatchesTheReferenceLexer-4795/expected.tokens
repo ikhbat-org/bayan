@@ -1,0 +1,143 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+2:2 IntegerLiteral `0b1`
+2:5 NumericSuffix `ms`
+3:2 LetKeyword `let`
+3:6 Identifier `x`
+3:9 Equals `=`
+3:11 IntegerLiteral `1`
+4:2 Identifier `macro`
+4:8 Identifier `select`
+4:15 BecomeKeyword `become`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 Question `?`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:16 OpenBrace `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolationStart `{`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolationStart `{`
+5:29 InterpolatedStringStart `$"`
+5:31 InterpolationStart `{`
+5:32 InterpolatedStringStart `$"`
+5:34 InterpolationStart `{`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolationStart `{`
+5:38 InterpolatedStringStart `$"`
+5:40 InterpolationStart `{`
+5:41 InterpolatedStringStart `$"`
+5:43 InterpolationStart `{`
+5:44 InterpolatedStringStart `$"`
+5:46 InterpolationStart `{`
+5:47 InterpolatedStringStart `$"`
+5:49 InterpolationStart `{`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolationStart `{`
+5:53 StringLiteral `$"{$"`
+5:58 OpenBrace `{`
+5:59 Identifier `x`
+5:60 CloseBrace `}`
+5:61 StringLiteral `"}"`
+5:64 InterpolationEnd `}`
+5:65 InterpolatedStringEnd `"`
+5:66 InterpolationEnd `}`
+5:67 InterpolatedStringEnd `"`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringEnd `"`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringEnd `"`
+5:72 InterpolationEnd `}`
+5:73 InterpolatedStringEnd `"`
+5:74 InterpolationEnd `}`
+5:75 InterpolatedStringEnd `"`
+5:76 InterpolationEnd `}`
+5:77 InterpolatedStringEnd `"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+5:82 InterpolationEnd `}`
+5:83 InterpolatedStringEnd `"`
+5:84 InterpolationEnd `}`
+5:85 InterpolatedStringEnd `"`
+5:86 InterpolationEnd `}`
+5:87 InterpolatedStringEnd `"`
+5:88 CloseBrace `}`
+5:89 StringLiteral `"}"`
+5:92 InterpolationEnd `}`
+5:93 InterpolatedStringEnd `"`
+5:94 InterpolationEnd `}`
+5:95 InterpolatedStringEnd `"`
+5:96 InterpolationEnd `}`
+5:97 InterpolatedStringEnd `"`
+5:98 InterpolationEnd `}`
+5:99 InterpolatedStringEnd `"`
+5:100 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  2 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │  let x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  let x� = 1
+    │   │       -
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │  macro select become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │  macro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `$`
+
+  5 │ $"{?$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF7)
+
+  5 │ $"{?$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │               ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{?$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                     ^^

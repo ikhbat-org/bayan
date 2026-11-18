@@ -1,0 +1,1 @@
+{"code":"BYN3208","severity":"error","file":"input.byn","span":{"start":110,"end":135,"line":7,"column":9,"endLine":7,"endColumn":34},"message":"fields of `Range` cannot be assigned one at a time; its `requires` are checked at construction","label":null,"help":"build a new value with `with`: `try x with { f: v }`","fixes":[]}

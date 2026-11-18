@@ -1,0 +1,5 @@
+error BYN1001: expected `}` to end the interpolated expression, found `y`
+  --> <repo>/tests/cases/diag/interpolation-hole.byn:1:20
+
+  1 │ let s = $"value {x y}"
+    │                    ^

@@ -1,0 +1,17 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never closed\n0xF__\n l4et s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"\n 0x_\n '0x_\n\nc >>= 1\n\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF1)
+
+  3 │  l4et s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                        ^

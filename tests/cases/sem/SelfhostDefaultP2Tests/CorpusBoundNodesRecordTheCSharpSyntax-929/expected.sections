@@ -1,0 +1,34 @@
+== tests/cases/diag/unique-move-in-loop.byn
+183..212 blockStmt
+189..210 exprStmt
+189..210 callExpr
+195..209 interpolatedExpr
+198..207 memberExpr
+198..200 nameExpr
+189..210 callExpr
+226..401 blockStmt
+232..251 localDecl
+240..251 callExpr
+256..301 forStmt
+265..269 rangeExpr
+265..266 literalExpr integer
+268..269 literalExpr integer
+270..301 blockStmt
+280..295 exprStmt
+280..295 callExpr
+288..294 argument
+293..294 nameExpr
+306..325 localDecl
+314..325 callExpr
+330..399 forStmt
+339..343 rangeExpr
+339..340 literalExpr integer
+342..343 literalExpr integer
+344..399 blockStmt
+354..369 exprStmt
+354..369 callExpr
+362..368 argument
+367..368 nameExpr
+378..393 assignStmt assign target 378..379 value 382..393
+378..379 nameExpr
+382..393 callExpr

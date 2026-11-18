@@ -1,0 +1,21 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:9 IntegerLiteral `1`
+4:1 RawStringLiteral `"""\n\u{FEFF}\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

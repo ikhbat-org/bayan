@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "GlobalStatement",
+    "InterfaceDecl",
+    "LiteralExpr",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "StructDecl"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": [
+    "BYN5107"
+  ]
+}

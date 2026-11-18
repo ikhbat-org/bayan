@@ -1,0 +1,42 @@
+1:2 FloatLiteral `1.50`
+1:6 NumericSuffix `dec`
+1:10 IntegerLiteral `1`
+1:11 DotDot `..`
+1:13 IntegerLiteral `2`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolatedStringText `stray } here`
+1:28 InterpolatedStringEnd `"`
+    doc `/// Doc line one.`
+4:1 CharLiteral `'\u{D800}'`
+    doc `/// Doc line two.`
+7:5 Identifier `comment`
+7:13 Star `*`
+7:14 Slash `/`
+7:16 Identifier `a`
+    doc `/// �oc line one.`
+10:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │  1.50dec 1..2$"stray } here"
+    │                      ^
+    │
+    │ 1 │  1.50dec 1..2$"stray }} here"
+    │   │                       +
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `\u{16}`
+
+  7 │ �   comment */ a
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  8 │ /// �oc line one.
+    │     ^

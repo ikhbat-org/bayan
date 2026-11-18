@@ -1,0 +1,19 @@
+1:1 CharLiteral `'x`
+2:1 IntegerLiteral `1_`
+    doc `/// Doc li\u{16}e one`
+4:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1_
+    │  ^
+    │
+    │ 2 │ 1_
+    │   │  -

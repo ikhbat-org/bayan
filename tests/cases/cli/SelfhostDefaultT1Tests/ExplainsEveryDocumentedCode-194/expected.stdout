@@ -1,0 +1,15 @@
+# BYN2604: `try` in a function that cannot fail
+
+**Why.** `try` passes an error to the caller, which needs a `fails` clause to say so.
+
+**Example.**
+
+```
+union error ParseError {
+    bad
+}
+i64 parse(string s) fails ParseError => 1
+i64 total(string s) { return try parse(s) }
+```
+
+**Fix.** Handle the error with `catch`, or add `fails …` to the signature.

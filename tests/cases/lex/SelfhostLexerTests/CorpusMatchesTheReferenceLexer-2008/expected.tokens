@@ -1,0 +1,54 @@
+2:1 IntegerLiteral `1_`
+3:1 Identifier `x`
+3:2 StringLiteral `";`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:9 Percent `%`
+4:11 PlusPercent `+%`
+4:13 LetKeyword `let`
+4:17 Identifier `café`
+4:22 Equals `=`
+4:24 IntegerLiteral `2`
+7:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1_
+    │  ^
+    │
+    │ 2 │ 1_
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  3 │ x";
+    │  ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │  // ok � in comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  7 │ ��� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  7 │ ��� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ��� 
+    │   ^

@@ -1,0 +1,7 @@
+error BYN2032: no std module `std.a`
+  --> main.byn:1:8
+
+  1 │ import std.a
+    │        ^^^^^
+    │
+  help: import one of `std.json`

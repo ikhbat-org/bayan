@@ -1,0 +1,76 @@
+1:1 Identifier `c`
+1:2 Identifier `ᅡᆨ`
+2:1 Identifier `a`
+2:4 Greater `>`
+2:5 Greater `>`
+2:7 Identifier `b`
+3:1 IntegerLiteral `0x`
+3:4 Plus `+`
+3:6 Minus `-`
+3:8 Star `*`
+3:10 Slash `/`
+3:12 Percent `%`
+3:14 PlusPercent `+%`
+3:17 MinusPercent `-%`
+3:20 StarPercent `*%`
+3:23 PlusBar `+|`
+3:26 MinusBar `-|`
+3:29 StarBar `*|`
+3:32 PlusPlus `++`
+3:35 MinusMinus `--`
+4:4 IntegerLiteral `0b1010`
+4:11 IntegerLiteral `0B11`
+4:16 IntegerLiteral `5`
+4:17 NumericSuffix `s`
+4:19 IntegerLiteral `250`
+4:22 NumericSuffix `ms`
+4:25 IntegerLiteral `4`
+4:26 NumericSuffix `KiB`
+4:30 IntegerLiteral `1`
+4:31 NumericSuffix `u`
+4:33 IntegerLiteral `0xFF`
+4:37 NumericSuffix `u`
+4:39 IntegerLiteral `0b1`
+4:42 NumericSuffix `ul`
+4:44 CloseBracket `]`
+4:45 IntegerLiteral `7`
+4:46 NumericSuffix `l`
+5:2 CharLiteral `'x`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  1 │ c��ᅡᆨ
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ c��ᅡᆨ
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ a� >> b
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x + - * / % +% -% *% +| -| *| ++ --
+    │ ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │  � 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul]7l
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  � 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul]7l
+    │   │  -
+
+error BYN0008: unterminated char literal
+
+  5 │  'x
+    │  ^^
+    │
+  help: close it with `'`

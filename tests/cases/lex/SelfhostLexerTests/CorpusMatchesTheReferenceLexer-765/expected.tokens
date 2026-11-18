@@ -1,0 +1,105 @@
+1:1 LetKeyword `let`
+1:6 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `2`
+3:4 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:11 IntegerLiteral `2`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:7 Equals `=`
+5:11 IntegerLiteral `3`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `open `
+7:8 InterpolationStart `{`
+7:9 Identifier `x`
+7:10 StringLiteral `";`
+8:1 Identifier `ạ̇`
+9:2 Identifier `Bar`
+9:6 Identifier `_x`
+9:9 Identifier `camelCase2`
+9:20 Identifier `بي`
+9:25 ErrorKeyword `error`
+9:31 SetKeyword `set`
+9:35 UnitKeyword `unit`
+9:40 DistinctKeyword `distinct`
+9:49 TypeKeyword `type`
+9:54 ImportKeyword `import`
+9:61 AsKeyword `as`
+9:64 PublicKeyword `public`
+9:71 PrivateKeyword `private`
+9:79 StaticKeyword `static`
+9:86 ReadonlyKeyword `readonly`
+9:95 RequiredKeyword `required`
+9:104 ConstKeyword `const`
+9:110 LetKeyword `let`
+9:114 VarKeyword `var`
+9:118 EmbedKeyword `embed`
+9:124 ExternKeyword `extern`
+9:131 UnsafeKeyword `unsafe`
+10:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE6)
+
+  1 │ let �café = 2
+    │     ^
+
+error BYN0002: unexpected character `$`
+
+  3 │  $ 1
+    │  ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  8 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ ạ̇
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  9 │  Bar _x camelCase2 بي ���� error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  9 │  Bar _x camelCase2 بي ���� error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │  Bar _x camelCase2 بي ���� error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │  Bar _x camelCase2 بي ���� error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                          ^

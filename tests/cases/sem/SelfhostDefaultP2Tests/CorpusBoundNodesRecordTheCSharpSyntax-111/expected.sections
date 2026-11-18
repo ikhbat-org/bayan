@@ -1,0 +1,6 @@
+== tests/cases/run/interface-bare-fails-member.byn
+116..135 blockStmt
+122..133 exprStmt
+122..133 callExpr
+128..132 literalExpr string
+122..133 callExpr

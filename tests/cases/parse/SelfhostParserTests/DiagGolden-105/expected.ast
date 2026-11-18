@@ -1,0 +1,21 @@
+CompilationUnit
+  ErrorEnum ParseError
+    Variant empty
+    Variant tooLong
+  Enum Outcome
+    Member empty
+    Member full
+  Function parse(string s) -> i64 fails ParseError
+    Block
+      Guarded if (. s isEmpty)
+        Return .empty
+      Guarded if (> (. s length) 9)
+        Return (. ParseError tooLong)
+      Return (. s length)
+  Function classify(string s) -> Outcome fails ParseError
+    Block
+      Guarded if (> (. s length) 9)
+        Fail .tooLong
+      Guarded if (. s isEmpty)
+        Return .empty
+      Return .full

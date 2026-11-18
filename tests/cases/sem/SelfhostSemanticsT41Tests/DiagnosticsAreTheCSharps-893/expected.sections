@@ -1,0 +1,4 @@
+== diags.diag/unknown-particle
+BYN5008 1:11 `over` is not a particle
+  label not a particle
+  help choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`

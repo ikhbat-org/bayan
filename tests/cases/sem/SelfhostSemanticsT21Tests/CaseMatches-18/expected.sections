@@ -1,0 +1,3 @@
+== expr.w9
+moveExpr|Plain|-|-|2592:4|structLiteral:Plain
+BYN2782 113:19 cannot move out of a fresh value ||remove the `move`; a fresh value needs none|

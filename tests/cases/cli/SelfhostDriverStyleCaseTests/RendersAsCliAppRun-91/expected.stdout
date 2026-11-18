@@ -1,0 +1,10 @@
+running 3 tests in 1 module
+  [32m*[0m tally: adds
+  [33m*[0m tally: later (pending)
+
+  [1m[31mx[0m tally: is false
+      assert(false)
+      main.test.byn:10
+
+[32m*[0m 1 passed - [31mx[0m 1 failed - 1 pending - 0.00s
+  rerun the failure: bayan test --only "is false"

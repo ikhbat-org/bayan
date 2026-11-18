@@ -1,0 +1,70 @@
+CompilationUnit
+  Enum Op
+    Member add
+    Member sub
+    Member mul
+  Struct Box
+    Field Op op
+    Field i32 n
+  Function digit(rune c) -> bool
+    Block
+      Return (&& (>= c '0') (<= c '9'))
+  Function small(i32 x) -> bool
+    Block
+      Return (&& (>= x (- 1)) (<= x 10))
+  Function additive(Op op) -> bool
+    Block
+      Let yes = (|| (== op .add) (== op .sub))
+      Return yes
+  Function mixed(i32 c) -> bool
+    Block
+      Return (|| (|| (== c 0) (paren (&& (>= c 7) (<= c 9)))) (== c 12))
+  Function named(string s) -> bool
+    Block
+      Return (|| (== s "a") (== s "b"))
+  Function field(Box b) -> bool
+    Block
+      Return (|| (== (. b op) .mul) (== (. b op) .add))
+  Function indexed(List<i32> xs, at i32 i) -> bool
+    Block
+      Return (|| (== (index xs i) 1) (== (index xs i) 2))
+  Function control(i32 c) -> bool
+    Block
+      Return (|| (|| (< c 0x20) (paren (&& (>= c 0x7F) (<= c 0x9F)))) (== c 0x61C))
+  Function flipped(i32 c) -> bool
+    Block
+      Return (|| (> 0x20 c) (>= c 0x7F))
+  Function lone(i32 c) -> bool
+    Block
+      Return (< c 0x20)
+  Function between(i32 c) -> bool
+    Block
+      Return (&& (> c 3) (< c 9))
+  Function size(List<i32> xs) -> i32
+    Block
+      Return 2
+  Function calls(List<i32> xs) -> bool
+    Block
+      Return (|| (== (call size xs) 1) (== (call size xs) 2))
+  Function partial(i32 x, at bool y) -> bool
+    Block
+      Return (|| (|| (== x 1) (== x 2)) y)
+  Function single(i32 x) -> bool
+    Block
+      Return (== x 1)
+  Function reversed(i32 x) -> bool
+    Block
+      Return (&& (>= x 9) (<= x 1))
+  Function floats(f64 x) -> bool
+    Block
+      Return (|| (== x 1.0) (== x 2.0))
+  Function optional(i32? x) -> bool
+    Block
+      Return (|| (== x 1) (== x 2))
+  Function main() -> void
+    Block
+      Let xs: List<i32> = (list 1 2)
+      Let b = (struct Box (op .add) (n 1))
+      Expr (call print (interp (call digit '5') (call small 3) (call additive .add) (call mixed 8) (call named "a") (call field b) (call indexed xs (at: 0))))
+      Expr (call print (interp (call calls xs) (call partial 1 (at: false)) (call single 1) (call reversed 3) (call floats 1.0) (call optional null)))
+      Expr (call print (interp (call control 1) (call control 0x80) (call control 0x61C) (call control 0x41) (call flipped 1) (call flipped 0x7F) (call flipped 0x41) (call lone 1) (call between 5)))

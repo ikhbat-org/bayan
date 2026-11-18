@@ -1,0 +1,2 @@
+== diags.diag/required-with-default
+BYN2108 2:18 required field `max` has a default value

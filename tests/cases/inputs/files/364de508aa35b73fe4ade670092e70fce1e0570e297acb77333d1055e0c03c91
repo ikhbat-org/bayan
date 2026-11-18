@@ -1,0 +1,416 @@
+import lexer
+import parser
+
+Borrow tcBorrow(move List<Region> regions, by move List<LocalId> owners, from move Map<LocalId, i64> lends, bool hasLends) {
+    if hasLends { return Borrow { regions: move regions, owners: move owners, lends: move lends } }
+    return Borrow { regions: move regions, owners: move owners }
+}
+
+/// The borrow as one line; the C# test sorts the three lists, so this prints them in any order.
+string tcShowIds(in Borrow b) {
+    var sb = StrBuf()
+    sb.append("[")
+    for k in 0..b.regions.length {
+        if k > 0 { sb.append(",") }
+        sb.append($"{b.regions[k].depth}:{b.regions[k].name}")
+    }
+    sb.append("] [")
+    for k in 0..b.owners.length {
+        if k > 0 { sb.append(",") }
+        sb.append($"l{b.owners[k]}")
+    }
+    sb.append("] ")
+    if (b.lends is { } l) {
+        var first = true
+        for (o, at) in l {
+            if !first { sb.append(",") }
+            first = false
+            sb.append($"l{o}={at}")
+        }
+    } else {
+        sb.append("-")
+    }
+    return $"{sb.finish()}"
+}
+
+/// The `k`th function named `name` of the entry module, in declaration order.
+FuncId tcNth(in Ctx c, by string name, at i64 k) {
+    var seen: i64 = 0
+    for f in 0..c.functions.length {
+        if c.functions[f].name == name && c.functions[f].module == c.entryModule {
+            if seen == k { return f }
+            seen += 1
+        }
+    }
+    return -1
+}
+
+/// The borrow as one line, owners and lends by local name.
+string tcShowNames(ref Ctx c, by in Borrow b) {
+    var sb = StrBuf()
+    sb.append("[")
+    for k in 0..b.regions.length {
+        if k > 0 { sb.append(",") }
+        sb.append($"{b.regions[k].depth}:{b.regions[k].name}")
+    }
+    sb.append("] [")
+    for k in 0..b.owners.length {
+        if k > 0 { sb.append(",") }
+        sb.append(c.locals[b.owners[k]].name)
+    }
+    sb.append("] ")
+    if (b.lends is { } l) {
+        var first = true
+        for (o, at) in l {
+            if !first { sb.append(",") }
+            first = false
+            sb.append($"{c.locals[o].name}={at}")
+        }
+    } else {
+        sb.append("-")
+    }
+    return $"{sb.finish()}"
+}
+
+Ctx tcLoad(string name) {
+    var bytes = List<u8>()
+    for x in tcSource(name).bytes { bytes.append(x) }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("tmp/t25-cases/main.byn", from: move bytes))
+    var c = Ctx {
+        files: List<SourceFile>(),
+        modules: List<Mod>(),
+        diagnostics: List<Diag>(),
+        bags: List<DiagBag>(),
+        packageRoot: "tmp/t25-cases",
+        displayRoot: "tmp/t25-cases",
+    }
+    c.entryModule = loadModule(ref c, for: "main", at: "tmp/t25-cases", from: move sources, by: -1)
+    buildLexicon(ref c)
+    declare(ref c)
+    // Compilation.cs BindAll checks conformances first, then binds every body.
+    checkConformances(ref c)
+    let fns = copyIds(in c.modules[c.entryModule].allFunctions)
+    for fn in fns {
+        if !functionIsInstance(ref c, by: fn) { bindFunction(ref c, for: fn) }
+    }
+    summarizeRegions(ref c)
+    return move c
+}
+
+void tcRun(string name) {
+    var c = tcLoad(name)
+    print($"== {name}")
+    for fname in tcFunctions(name) {
+        let f = tcNth(in c, by: fname, at: 0)
+        var r = Regions { fn: f, source: c.functions[f].file }
+        runRegions(ref r, through: ref c)
+        for (l, d) in r.depthOf { print($"{fname} depth {c.locals[l].name} {d} {r.declaredAt[l]}") }
+        for t in r.restTails { print($"{fname} rest {t.region.depth}:{t.region.name} {t.tail}") }
+        // Only a rest parameter's entry, as on the C# side: every other entry comes from T37's `mayBorrow` or `storeBorrow`.
+        let ps = copyIds(in c.functions[f].parameters)
+        let syntax = t12Params(in c, for: f)
+        for i in 0..ps.length {
+            let l = ps[i]
+            if (syntax[i].syntax is { } x) && x.isRest && r.locals.contains(l) {
+                print($"{fname} local {c.locals[l].name} {tcShowNames(ref c, by: in r.locals[l])}")
+            }
+        }
+        for env in r.environments { print($"{fname} env {env.depth}") }
+    }
+}
+
+string tcSource(string name) {
+    if name == "r-a" { return "union error E {\n    bad\n}\n\nunion Shape {\n    circle(i64 radius)\n    square(i64 side)\n}\n\ni64 work(i64 n, to ref i64 total, by Arena arena, rest ReadOnlySpan<i64> more) fails E {\n    var a = 1\n    assert n > 0\n    a = n + 2\n    if n > 3 {\n        let c = 4\n        a = c\n    } else {\n        let d = 5\n        a = d\n    }\n    while a < 10 {\n        let w = a\n        a += w\n    }\n    do {\n        let dw = 1\n        a -= dw\n    } while a > 100\n    for i in 0..3 {\n        let inner = i\n    }\n    defer {\n        let df = 1\n    }\n    defer failing (e) {\n        let ef = 2\n    }\n    defer panicking (p) {\n        let pf = 3\n    }\n    if n == 7 { fail .bad }\n    return a\n}\n\ni64 area(Shape s) {\n    switch s {\n        case .circle(let r) when r > 1:\n            let rr = r * r\n            return rr\n        case .square(let side):\n            return side\n        default:\n            return 0\n    }\n}\n\ni64 pick(Shape s, by i64? maybe) {\n    let v = s switch {\n        .circle(let r) => r,\n        .square(let q) => q,\n    }\n    if (maybe is { } m) {\n        return m + v\n    }\n    if s is .circle(let rad) { return rad }\n    return v\n}\n\ni64 risky(i64 n) fails E {\n    if n > 1 { fail .bad }\n    return n\n}\n\nvoid main() {\n    let arena = Arena()\n    provide allocator: arena {\n        let inside = 1\n    }\n    let got = risky(2) catch switch {\n        E err => -1,\n    }\n    let k = 3\n    for i in 0..2 {\n        let f: i64 -> i64 = x => x + k\n    }\n}\n\ni64 loopy(i64 n) {\n    var total = 0\n    while total < n {\n        let step = 1\n        let g: i64 -> i64 = x => x + step\n        total += step\n    }\n    return total\n}\n\ni64 walk(List<i64> xs) {\n    var sum = 0\n    for x in xs {\n        let y = x\n        sum += y\n    }\n    return sum\n}\n" }
+    if name == "r-b" { return "union error E {\n    bad\n}\n\nunion Shape {\n    circle(i64 radius)\n    square(i64 side)\n}\n\ni64 area(Shape s) {\n    switch s {\n        case .circle(let r) when r > 1:\n            let rr = r * r\n            return rr\n        case .square(let side):\n            return side\n        default:\n            return 0\n    }\n}\n\ni64 pick(Shape s, by i64? maybe) {\n    let v = s switch {\n        .circle(let r) => r,\n        .square(let q) => q,\n    }\n    if (maybe is { } m) {\n        return m + v\n    }\n    if s is .circle(let rad) { return rad }\n    return v\n}\n\ni64 risky(i64 n) fails E {\n    if n > 1 { fail .bad }\n    return n\n}\n\nvoid main() {\n    let arena = Arena()\n    provide allocator: arena {\n        let inside = 1\n    }\n    let got = risky(2) catch switch {\n        E err => -1,\n    }\n    let k = 3\n    for i in 0..2 {\n        let f: i64 -> i64 = x => x + k\n    }\n}\n" }
+    if name == "borrow-escapes-region" { return "void main() {\n    var view = \"\"\n    {\n        let bytes = stackalloc u8[16]\n        var sb = StrBuf(bytes)\n        sb.append(\"scratch\")\n        view = sb.finish()\n    }\n    print(view)\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        kept = \"copied\".copy(to: arena)\n    }\n    print(kept)\n}\n" }
+    if name == "borrow-own-field-mutated" { return "struct Token {\n    i64 kind\n}\n\nstruct Lexer {\n    List<Token> toks\n\n    ReadOnlySpan<Token> tokens() => toks.span\n\n    void push(ref this, Token t) {\n        toks.append(t)\n    }\n\n    (ReadOnlySpan<Token>, i64) spanAndCount() => (toks.span, toks.length)\n\n    ReadOnlySpan<Token> scratch() {\n        var local = List<Token>()\n        local.append(Token { kind: 0 })\n        return local.span\n    }\n}\n\nvoid main() {\n    var lexer = Lexer { toks: List<Token>() }\n    let all = lexer.tokens()\n    lexer.toks.append(Token { kind: 1 })\n    lexer.push(Token { kind: 2 })\n    print($\"{all.length}\")\n    for t in lexer.toks {\n        lexer.push(t)\n    }\n    var kept: ReadOnlySpan<Token> = lexer.tokens()\n    {\n        let inner = Lexer { toks: List<Token>() }\n        kept = inner.tokens()\n    }\n    print($\"{kept.length}\")\n}\n\nstruct Writer {\n    StrBuf text\n\n    string view() => text.finish()\n}\n" }
+    if name == "borrow-returned" { return "Span<i64> scratch() {\n    let buf = stackalloc i64[4]\n    return buf[1..]\n}\n\nReadOnlySpan<i64> firstTwo(i64[4] values) => values.span[..2]\n\nSpan<i64> fine(Span<i64> values) => values[1..]\n" }
+    if name == "borrow-stored-through-span" { return "void fill(Span<string> dst) {\n    let buf = stackalloc u8[16]\n    var sb = StrBuf(buf)\n    sb.append(\"hello\")\n    dst[0] = sb.finish()\n}\nvar arr: string[1] = [\"x\"]\nfill(arr.mutableSpan())\nprint(arr[0])\n\nvoid either(Span<string> dst, bool useCaller) {\n    let buf = stackalloc u8[16]\n    var sb = StrBuf(buf)\n    sb.append(\"hi\")\n    var mine: string[1] = [\"y\"]\n    var view = mine.mutableSpan()\n    if useCaller {\n        view = dst\n    }\n    view[0] = sb.finish()\n}\n" }
+    if name == "borrow-then-mutated-in-initializer" { return "// A borrow taken early in an initializer is live while the rest of it runs: a later argument that grows the owner conflicts (BYN3004).\ninterface IThing {\n    i64 get()\n}\n\nstruct C : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\nstruct W {\n    List<i64> items\n\n    i64 grow(ref this) {\n        for i in 0..100 { items.append(i) }\n        return 0\n    }\n}\n\nstruct Bag {\n    List<C> items\n\n    i64 grow(ref this) {\n        for i in 0..100 { items.append(C { n: i }) }\n        return 0\n    }\n}\n\nReadOnlySpan<i64> first(ReadOnlySpan<i64> s, at i64 n) => s\n\ndyn ref IThing pick(dyn ref IThing d, at i64 n) => d\n\nvoid main() {\n    var w = W { items: List<i64>() }\n    w.items.append(42)\n    let sp: ReadOnlySpan<i64> = first(w.items.span, at: w.grow())\n    print($\"{sp[0]}\")\n    var b = Bag { items: List<C>() }\n    b.items.append(C { n: 1 })\n    let d: dyn ref IThing = pick(b.items[0], at: b.grow())\n    print($\"{d.get()}\")\n}\n" }
+    if name == "call-result-borrows-ref-argument" { return "interface IC {\n    i64 n\n}\n\nstruct C : IC {\n    i64 n\n}\n\n// A function returning a `dyn ref` or a span may point into what it was passed by `ref`: the result borrows it.\ndyn ref readonly IC pick(ref List<C> l) => l[0]\n\nReadOnlySpan<C> all(ref List<C> l) => l.span\n\ni64 first(ref List<C> l) => l[0].n\n\nvoid main() {\n    var l = List<C>()\n    l.append(C { n: 1 })\n    let r = pick(ref l)\n    l.append(C { n: 2 })\n    print($\"{r.n}\")\n    let s = all(ref l)\n    l.append(C { n: 3 })\n    print($\"{s[0].n}\")\n    let k = first(ref l)\n    l.append(C { n: 4 })\n    print($\"{k}\")\n}\n" }
+    if name == "dyn-ref-borrow" { return "interface IShape {\n    i64 area()\n}\n\nstruct Circle : IShape {\n    i64 r\n\n    i64 area() => 3 * r * r\n}\n\nvoid show(dyn ref IShape s) => print($\"{s.area()}\")\n\nvoid peek(dyn ref readonly IShape s) => print($\"{s.area()}\")\n\nvoid main() {\n    let fixed = Circle { r: 1 }\n    peek(fixed)\n    show(fixed)\n    var kept = Circle { r: 2 }\n    var late: dyn ref IShape = kept\n    {\n        var inner = Circle { r: 3 }\n        late = inner\n    }\n    show(late)\n}\n" }
+    if name == "dyn-ref-list-element-modified" { return "interface IThing {\n    i64 get()\n}\n\nstruct S : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\nvoid main() {\n    var xs = List<S>()\n    xs.append(S { n: 1 })\n    let d: dyn ref IThing = xs[0]\n    for i in 0..100 {\n        xs.append(S { n: i })\n    }\n    print($\"{d.get()}\")\n    let sp: Span<S> = xs.mutableSpan()\n    let e: dyn ref IThing = sp[0]\n    xs.append(S { n: 2 })\n    print($\"{e.get()}\")\n}\n" }
+    if name == "dyn-ref-list-element-ref-and-value" { return "interface IThing {\n    i64 get()\n}\n\nstruct S : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\nvoid show(dyn ref IThing d, to ref List<S> xs) {\n    for i in 0..100 {\n        xs.append(S { n: i })\n    }\n    print($\"{d.get()}\")\n}\n\nvoid main() {\n    var xs = List<S>()\n    xs.append(S { n: 1 })\n    show(xs[0], to: ref xs)\n}\n" }
+    if name == "dyn-ref-local-argument-modified" { return "// Passing a writable `dyn ref` local on to a writable `dyn ref` parameter modifies what it borrows (BYN3004).\ninterface IReset { void reset(ref this) uses alloc }\nstruct B : IReset {\n    List<i64> items\n    void reset(ref this) {\n        items.clear()\n        items.append(7)\n    }\n}\nvoid poke(dyn ref IReset r) { r.reset() }\nvoid main() {\n    var b = B { items: List<i64>() }\n    b.items.append(1)\n    let s = b.items.span\n    let r: dyn ref IReset = b\n    poke(r)\n    print($\"{s[0]}\")\n}\n" }
+    if name == "dyn-ref-local-receiver-modified" { return "// A `ref this` call through a writable `dyn ref` local modifies what it borrows (BYN3004).\ninterface IReset { void reset(ref this) uses alloc }\nstruct B : IReset {\n    List<i64> items\n    void reset(ref this) {\n        items.clear()\n        items.append(7)\n    }\n}\nvoid main() {\n    var b = B { items: List<i64>() }\n    b.items.append(1)\n    let s = b.items.span\n    let r: dyn ref IReset = b\n    r.reset()\n    print($\"{s[0]}\")\n}\n" }
+    if name == "dyn-ref-ref-argument-outlived" { return "// A `dyn ref` returned from a `ref` argument lives no longer than the argument, even when the argument lends no storage of its own (BYN3002).\ninterface IThing {\n    i64 get()\n}\n\nstruct S : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\nstruct Box {\n    S inner\n}\n\ndyn ref IThing pick(ref Box b) => b.inner\n\nvoid main() {\n    var kept = S { n: 1 }\n    var late: dyn ref IThing = kept\n    {\n        var b = Box { inner: S { n: 2 } }\n        late = pick(ref b)\n    }\n    print($\"{late.get()}\")\n}\n" }
+    if name == "dyn-ref-returned-local" { return "interface IThing {\n    i64 get()\n}\n\nstruct S : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\nstruct Box {\n    S inner\n\n    dyn ref IThing fresh(ref this) {\n        var s = S { n: 1 }\n        return s\n    }\n}\n\ndyn ref IThing make() {\n    var s = S { n: 2 }\n    return s\n}\n\nvoid main() {}\n" }
+    if name == "dyn-ref-this-argument-changed-fields" { return "// A `ref this` method that passes `this` as a writable `dyn ref` changes every field for its callers (BYN3004).\ninterface IReset { void reset(ref this) uses alloc }\nstruct B : IReset {\n    List<i64> items\n\n    void reset(ref this) {\n        items.clear()\n        items.append(7)\n    }\n\n    void pass(ref this) { poke(this) }\n\n    void run(ref this) {\n        let s = items.span\n        pass()\n        print($\"{s[0]}\")\n    }\n}\n\nvoid poke(dyn ref IReset r) { r.reset() }\n\nvoid main() {\n    var b = B { items: List<i64>() }\n    b.items.append(1)\n    b.run()\n}\n" }
+    if name == "dyn-ref-this-argument-modified" { return "// Passing `this` as a writable `dyn ref` lets the callee change every field, like `ref this` (BYN3004).\ninterface IReset { void reset(ref this) uses alloc }\nstruct B : IReset {\n    List<i64> items\n\n    void reset(ref this) {\n        items.clear()\n        items.append(7)\n    }\n\n    void run(ref this) {\n        let s = items.span\n        poke(this)\n        print($\"{s[0]}\")\n    }\n}\n\nvoid poke(dyn ref IReset r) { r.reset() }\n\nvoid main() {\n    var b = B { items: List<i64>() }\n    b.items.append(1)\n    b.run()\n}\n" }
+    if name == "dyn-ref-this-field-outlived" { return "interface IThing {\n    i64 get()\n}\n\nstruct S : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\nstruct Box {\n    S inner\n\n    dyn ref IThing pick(ref this) => inner\n}\n\nvoid main() {\n    var kept = S { n: 1 }\n    var late: dyn ref IThing = kept\n    {\n        var b = Box { inner: S { n: 2 } }\n        late = b.pick()\n    }\n    print($\"{late.get()}\")\n}\n" }
+    if name == "dyn-ref-this-list-field-modified" { return "interface IThing {\n    i64 get()\n}\n\nstruct S : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\nstruct B {\n    List<S> items\n\n    // A `dyn ref` into a field's list borrows `this`: growing or shrinking the list while it is live is an error.\n    void run(ref this) {\n        let d: dyn ref IThing = items[0]\n        for i in 0..100 {\n            items.append(S { n: i })\n        }\n        print($\"{d.get()}\")\n        let e: dyn ref IThing = items[0]\n        let _ = items.removeLast()\n        items.clear()\n        print($\"{e.get()}\")\n    }\n}\n\nvoid main() {\n    var b = B { items: List<S>() }\n    b.items.append(S { n: 1 })\n    b.run()\n}\n" }
+    if name == "env-get-escapes-context" { return "// `Env.get` allocates from `context.allocator`, so a result made inside `provide` borrows that arena.\nvoid main() uses env, alloc {\n    var home: string? = null\n    {\n        using let arena = Arena()\n        provide allocator: arena {\n            home = Env.get(\"HOME\")\n        }\n    }\n    print(home ?? \"-\")\n}\n" }
+    if name == "for-dyn-ref-span-variable-borrows" { return "interface IThing {\n    i64 get()\n}\n\nstruct S : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\n// The variable of `for x: dyn ref I in span` points where the span points: kept past the loop, it borrows that list.\nvoid main() {\n    var keep = List<S>()\n    keep.append(S { n: 7 })\n    var xs = List<S>()\n    xs.append(S { n: 1 })\n    let sp: Span<S> = xs.mutableSpan()\n    var d: dyn ref IThing = keep[0]\n    for x: dyn ref IThing in sp {\n        d = x\n    }\n    xs.append(S { n: 2 })\n    print($\"{d.get()}\")\n}\n" }
+    if name == "for-dyn-ref-variable-borrows" { return "interface IThing {\n    i64 get()\n}\n\nstruct S : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\n// The variable of `for x: dyn ref I in xs` points into `xs`: kept past the loop, it still borrows `xs`.\nvoid main() {\n    var keep = List<S>()\n    keep.append(S { n: 7 })\n    var xs = List<S>()\n    xs.append(S { n: 1 })\n    var d: dyn ref IThing = keep[0]\n    for x: dyn ref IThing in xs {\n        d = x\n    }\n    for i in 0..100 {\n        xs.append(S { n: i })\n    }\n    print($\"{d.get()}\")\n    var e: dyn ref readonly IThing = keep[0]\n    for x: dyn ref readonly IThing in xs {\n        e = x\n    }\n    xs.clear()\n    print($\"{e.get()}\")\n}\n" }
+    if name == "for-this-list-field-modified" { return "struct S {\n    i64 n\n}\n\nstruct B {\n    List<S> items\n\n    // A loop over a field's list holds a loan on it, like a loop over a local list.\n    void run(ref this) {\n        for x in items {\n            items.append(S { n: x.n })\n        }\n    }\n}\n\nvoid main() {\n    var b = B { items: List<S>() }\n    b.items.append(S { n: 1 })\n    b.run()\n}\n" }
+    if name == "for-user-modified-while-iterating" { return "struct Digits : IIndexable {\n    type Item = i64\n\n    i64 size\n\n    i64 count => size\n\n    i64 get(i64 index) => index * 10\n\n    void grow(ref this) {\n        size += 1\n    }\n}\n\nstruct Countdown : IEnumerator {\n    type Item = i64\n\n    i64 left\n\n    bool moveNext(ref this) {\n        left -= 1\n        return left >= 0\n    }\n\n    i64 current => left\n}\n\nvoid main() {\n    var digits = Digits { size: 3 }\n    for d in digits {\n        for e in digits {\n            print($\"{d + e}\")\n        }\n        digits.grow()\n    }\n    var steps = Countdown { left: 3 }\n    for n in steps {\n        let _ = steps.moveNext()\n        print($\"{n}\")\n    }\n}\n" }
+    if name == "interpolation-escapes-context" { return "void main() {\n    let n = 2\n    var text = \"\"\n    {\n        using let arena = Arena()\n        provide allocator: arena {\n            let inside = $\"n = {n}\"\n            print(inside)\n            text = $\"n = {n + 1}\"\n        }\n    }\n    text = $\"n = {n + 2}\"\n    print(text)\n}\n" }
+    if name == "io-read-escapes-context" { return "void main() fails IoError {\n    var text = \"\"\n    var bytes = List<u8>()\n    {\n        using let arena = Arena()\n        provide allocator: arena {\n            let inside = try Io.readText(\"notes.txt\")\n            print(inside)\n            text = try Io.readText(\"notes.txt\")\n            bytes = try Io.readFile(\"data.bin\")\n        }\n    }\n    print(text)\n    print($\"{bytes.length}\")\n}\n" }
+    if name == "lambda-capture-borrow-modified" { return "void main() {\n    var buf = StrBuf()\n    buf.append(\"hi\")\n    let s = buf.view\n    let f: () -> i64 = () => s.length\n    buf.append(\"more\")\n    print($\"{f()}\")\n    buf.clear()\n    print($\"{f()}\")\n    buf.clear()\n}\n" }
+    if name == "lambda-capture-borrow-through-call" { return "string get((() -> string) f) => f()\n\nvoid main() {\n    var buf = StrBuf()\n    buf.append(\"abc\")\n    let s = buf.view\n    let t = get(() => s)\n    buf.clear()\n    print(t)\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        kept = get(() => name)\n    }\n    print(kept)\n}\n" }
+    if name == "lambda-escapes-region" { return "i64 apply((() -> (i64 -> i64)) make) => make()(1)\n\nvoid main() {\n    var kept: () -> i64 = () => 0\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        kept = () => name.length\n    }\n    print($\"{kept()}\")\n    var last: i64 -> i64 = x => x\n    for i in 0..3 {\n        last = x => x + i\n    }\n    var j = 0\n    while j < 2 {\n        let k = j\n        last = x => x + k\n        j += 1\n    }\n    do {\n        let k = j\n        last = x => x + k\n        j += 1\n    } while j < 4\n    print($\"{last(1)}\")\n    let n = apply(() => {\n        let k = 2\n        return x => x + k\n    })\n    let m = apply(() => x => x + 1)\n    print($\"{n + m}\")\n}\n" }
+    if name == "loop-item-field-list-cleared" { return "// Clearing an element's list field while a loop result still borrows it is refused (Q745).\nstruct Expense {\n    List<string> participants\n}\n\nReadOnlySpan<string> pass(ReadOnlySpan<string> s) => s\n\nvoid main() uses alloc {\n    var ps = List<string>()\n    ps.append(\"ann\")\n    var expenses = List<Expense>()\n    expenses.append({ participants: move ps })\n    var shares = List<ReadOnlySpan<string>>()\n    for e in expenses {\n        shares.append(pass(e.participants))\n    }\n    expenses[0].participants.clear()\n    let n = shares[0].length\n}\n" }
+    if name == "loop-item-iterable-cleared" { return "// What a loop item's list lends is a loan on the iterable: clearing it while a result still borrows it is refused (Q745).\nstruct Expense {\n    List<string> participants\n}\n\nReadOnlySpan<string> pass(ReadOnlySpan<string> s) => s\n\nvoid main() uses alloc {\n    var ps = List<string>()\n    ps.append(\"ann\")\n    var expenses = List<Expense>()\n    expenses.append({ participants: move ps })\n    var shares = List<ReadOnlySpan<string>>()\n    for e in expenses {\n        shares.append(pass(e.participants))\n    }\n    expenses.clear()\n    let n = shares[0].length\n}\n" }
+    if name == "loop-item-user-iteration-escapes" { return "// A user iteration's items may be fresh values: what one of them lends does not outlive the loop (Q745).\nstruct Bag {\n    string[1] names\n}\n\nstruct Bags : IIndexable {\n    type Item = Bag\n    i64 count\n    Bag get(i64 index) => { names: [\"ann\"] }\n}\n\nReadOnlySpan<string> pass(ReadOnlySpan<string> s) => s\n\nvoid main() uses alloc {\n    let bags = Bags { count: 2 }\n    var kept = List<string>()\n    for b in bags {\n        for s in pass(b.names) {\n            kept.append(s)\n        }\n    }\n    let n = kept[0]\n}\n" }
+    if name == "map-key-string-part" { return "// A `string` inside a composite key borrows as a `string` key does: one that dies before the map is reported, and a\n// `Symbol` key borrows nothing (spec 008 R7).\nvoid main() {\n    var plain = Map<string, i32>()\n    var scoped = Map<(string name, i32 scope), i32>()\n    var symbols = Map<(Symbol name, i32 scope), i32>()\n    {\n        using let arena = Arena()\n        let name = \"local\".copy(to: arena)\n        plain[name] = 1\n        scoped[(name, 0)] = 1\n        symbols[(Symbol.intern(name), 0)] = 1\n    }\n    print($\"{plain.length} {scoped.length} {symbols.length}\")\n}\n" }
+    if name == "map-modified-while-iterating" { return "void modify() {\n    var m = Map<string, i64>()\n    m[\"a\"] = 1\n    for e in m {\n        m[e.key] = e.value + 1\n        let _ = m.remove(e.key)\n    }\n    for e in m { m.clear() }\n}\n\nvoid escape() {\n    var outer = Map<i64, string>()\n    {\n        using var a = Arena()\n        provide allocator: a {\n            var inner = Map<i64, i64>()\n            inner[1] = 2\n            outer = Map<i64, string>()\n        }\n    }\n}\n" }
+    if name == "moved-while-borrowed" { return "// Moving a value hands its storage to a new owner, which may grow or free it: a borrow into it ends there (BYN3006).\ninterface IThing {\n    i64 get()\n}\n\nstruct unique S : IThing {\n    List<i64> xs\n\n    i64 get() => xs[0]\n}\n\nunion Slot {\n    full(S s)\n    empty\n}\n\nS make() {\n    var xs = List<i64>()\n    xs.append(42)\n    return S { xs: move xs }\n}\n\nvoid keep(move S s) {\n    print($\"{s.xs.length}\")\n}\n\nvoid dynRef() {\n    var s = make()\n    let d: dyn ref IThing = s\n    var t = move s\n    t.xs.append(1)\n    print($\"{d.get()}\")\n}\n\nvoid readonlyDynRef() {\n    let s = make()\n    let d: dyn ref readonly IThing = s\n    keep(move s)\n    print($\"{d.get()}\")\n}\n\nvoid spanOfField() {\n    let s = make()\n    let sp: ReadOnlySpan<i64> = s.xs.span\n    var t = move s\n    t.xs.append(1)\n    print($\"{sp[0]}\")\n}\n\n// The result may point into what `slot` holds: it borrows `slot`.\nSpan<i64> items(ref Slot slot, by Span<i64> none) => none\n\nvoid switchMove() {\n    var slot = Slot.full(make())\n    let none: i64[1] = [0]\n    let sp: Span<i64> = items(ref slot, by: none)\n    switch move slot {\n        case .full(var x):\n            x.xs.append(1)\n        default:\n    }\n    print($\"{sp[0]}\")\n}\n\nvoid take() {\n    var xs = List<i64>()\n    xs.append(1)\n    let sp: ReadOnlySpan<i64> = xs.span\n    var ys = xs.take()\n    ys.append(2)\n    print($\"{sp[0]}\")\n}\n\nvoid main() {\n    dynRef()\n    readonlyDynRef()\n    spanOfField()\n    switchMove()\n    take()\n}\n" }
+    if name == "mutated-while-borrowed" { return "void main() {\n    var xs = List<i64>()\n    xs.append(1)\n    let view = xs.span\n    xs.append(2)\n    print($\"{view[0]}\")\n    let again = xs.span\n    xs.remove(from: 0, until: 1)\n    print($\"{again[0]}\")\n    for x in xs {\n        xs.append(x)\n    }\n    using var arena = Arena()\n    let name = \"ann\".copy(to: arena)\n    arena.reset()\n    print(name)\n}\n" }
+    if name == "owned-escapes-arena" { return "struct Node {\n    i64 item\n    Owned<Node>? next\n}\n\nvoid main() {\n    var head: Owned<Node>? = null\n    {\n        using let arena = Arena()\n        provide allocator: arena {\n            head = Owned(Node { item: 1, next: move head })\n        }\n    }\n}\n" }
+    if name == "path-escapes-context" { return "// `Path.fileName` and `Path.relative` allocate from `context.allocator`, so a result made inside `provide` borrows that arena.\nvoid main() {\n    var name = \"\"\n    var rel = \"\"\n    {\n        using let arena = Arena()\n        provide allocator: arena {\n            print(Path.fileName(\"/a/inside\"))\n            name = Path.fileName(\"/a/b.txt\")\n            rel = Path.relative(from: \"/a\", to: \"/a/b\")\n        }\n    }\n    print(name)\n    print(rel)\n}\n" }
+    if name == "ref-and-value" { return "void grow(ref List<i64> items, from ReadOnlySpan<i64> source) {\n    items.append(source.length)\n}\n\nvoid main() {\n    var xs = List<i64>()\n    grow(items: ref xs, from: xs)\n}\n" }
+    if name == "ref-out-escape-call-result" { return "string pick(string s) {\n    return s\n}\n\nvoid pass(string s, to out string g) {\n    g = pick(s)\n}\n\nvoid main() {\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        pass(name, to: out kept)\n    }\n    print(kept)\n}\n" }
+    if name == "ref-out-escape-lambda-loop" { return "void pass((i64 -> i64) f, to out (i64 -> i64) g) {\n    g = f\n}\n\nvoid main() {\n    var last: i64 -> i64 = x => x\n    for i in 0..3 {\n        pass(x => x + i, to: out last)\n    }\n    print($\"{last(1)}\")\n}\n" }
+    if name == "ref-out-escape-list-append" { return "void keep(string s, to ref List<string> xs) {\n    xs.append(s)\n}\n\nvoid main() {\n    var kept = List<string>()\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        keep(name, to: ref kept)\n    }\n    print(kept[0])\n}\n" }
+    if name == "ref-out-escape-list-replace" { return "void keep(ReadOnlySpan<string> ys, to ref List<string> xs) {\n    xs.replace(at: 0..0, by: ys)\n}\n\nvoid main() {\n    var kept = List<string>()\n    {\n        using let arena = Arena()\n        var ys = List<string>()\n        ys.append(\"ann\".copy(to: arena))\n        keep(ys, to: ref kept)\n    }\n    print(kept[0])\n}\n" }
+    if name == "ref-out-escape-local-alias" { return "void pass(string s, to out string g) {\n    let t = s\n    g = t\n}\n\nvoid main() {\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        pass(name, to: out kept)\n    }\n    print(kept)\n}\n" }
+    if name == "ref-out-escape-map-index-set" { return "void keep(string s, to ref Map<string, i64> m) {\n    m[s] = 1\n}\n\nvoid main() {\n    var kept = Map<string, i64>()\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        keep(name, to: ref kept)\n    }\n    print($\"{kept}\")\n}\n" }
+    if name == "ref-out-escape-map-slot" { return "void keep(string s, to ref Map<string, i64> m) {\n    m.slot(s) += 1\n}\n\nvoid main() {\n    var kept = Map<string, i64>()\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        keep(name, to: ref kept)\n    }\n    print($\"{kept}\")\n}\n" }
+    if name == "ref-out-escape-mutual-recursion" { return "void f(string s, to ref string t, at i64 n) {\n    if n > 0 { g(s, to: ref t, at: n - 1) }\n}\n\nvoid g(string s, to ref string t, at i64 n) {\n    if n > 0 { f(s, to: ref t, at: n - 1) } else { t = s }\n}\n\nvoid main() {\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        f(name, to: ref kept, at: 2)\n    }\n    print(kept)\n}\n" }
+    if name == "ref-out-escape-out" { return "void pass(string s, to out string g) {\n    g = s\n}\n\nvoid main() {\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        pass(name, to: out kept)\n    }\n    print(kept)\n}\n" }
+    if name == "ref-out-escape-out-field" { return "struct Box {\n    string s\n}\n\nvoid pass(string s, to out string g) {\n    g = s\n}\n\nvoid main() {\n    var b = Box { s: \"\" }\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        pass(name, to: out b.s)\n    }\n    print(b.s)\n}\n" }
+    if name == "ref-out-escape-ref" { return "void pass(string s, to ref string g) {\n    g = s\n}\n\nvoid main() {\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        pass(name, to: ref kept)\n    }\n    print(kept)\n}\n" }
+    if name == "ref-out-escape-ref-element" { return "void pass(string s, to ref string g) {\n    g = s\n}\n\nvoid main() {\n    var xs = List<string>()\n    xs.append(\"\")\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        pass(name, to: ref xs[0])\n    }\n    print(xs[0])\n}\n" }
+    if name == "ref-out-escape-ref-this-field" { return "struct Box {\n    string s\n\n    void put(ref this, string v) {\n        s = v\n    }\n}\n\nvoid main() {\n    var b = Box { s: \"\" }\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        b.put(name)\n    }\n    print(b.s)\n}\n" }
+    if name == "ref-out-escape-ref-this-list-field" { return "struct Bag {\n    List<string> items\n\n    void add(ref this, string v) {\n        items.append(v)\n    }\n}\n\nvoid main() {\n    var b = Bag { items: List<string>() }\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        b.add(name)\n    }\n    print(b.items[0])\n}\n" }
+    if name == "ref-out-escape-ref-this-map-field" { return "struct Bag {\n    Map<i64, string> m\n\n    void put(ref this, string v) {\n        m[1] = v\n    }\n}\n\nvoid main() {\n    var b = Bag { m: Map<i64, string>() }\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        b.put(name)\n    }\n    print(b.m[1])\n}\n" }
+    if name == "ref-out-escape-ref-this-map-slot" { return "struct Bag {\n    Map<i64, string> m\n\n    void put(ref this, string v) {\n        m.slot(1) = v\n    }\n}\n\nvoid main() {\n    var b = Bag { m: Map<i64, string>() }\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        b.put(name)\n    }\n    print(b.m[1])\n}\n" }
+    if name == "ref-out-escape-returned-source" { return "string pick(string s) {\n    return s\n}\n\nvoid main() {\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        kept = pick(name)\n    }\n    print(kept)\n}\n" }
+    if name == "ref-out-escape-two-levels" { return "void g(string s, to ref string t) {\n    t = s\n}\n\nvoid f(string s, to ref string t) {\n    g(s, to: ref t)\n}\n\nvoid main() {\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        f(name, to: ref kept)\n    }\n    print(kept)\n}\n" }
+    if name == "ref-out-return-arena-two-levels" { return "string mk(string s, from Arena a) {\n    return s.copy(to: a)\n}\n\nstring mk2(string s, from Arena a) {\n    return mk(s, from: a)\n}\n\nvoid main() {\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        kept = mk2(\"ann\", from: arena)\n    }\n    print(kept)\n}\n" }
+    if name == "ref-out-return-mutual-recursion" { return "string f(string a, by string b, at i64 n) {\n    if n > 0 { return g(b, by: a, at: n - 1) }\n    return \"\"\n}\n\nstring g(string a, by string b, at i64 n) {\n    if n > 0 { return f(b, by: a, at: n - 1) }\n    return a\n}\n\nvoid main() {\n    var kept = \"\"\n    var other = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        other = f(name, by: \"bob\", at: 2)\n        kept = f(\"bob\", by: name, at: 2)\n    }\n    print(other)\n    print(kept)\n}\n" }
+    if name == "ref-out-return-one" { return "string first(string a, by string b) {\n    return a\n}\n\nvoid main() {\n    var kept = \"\"\n    var other = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        other = first(\"bob\", by: name)\n        kept = first(name, by: \"bob\")\n    }\n    print(other)\n    print(kept)\n}\n" }
+    if name == "ref-out-return-through-local" { return "string viaLocal(string s) {\n    let t = s\n    return t\n}\n\nstring viaCall(string s) {\n    return viaLocal(s)\n}\n\nvoid main() {\n    var kept = \"\"\n    var nested = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        kept = viaLocal(name)\n        nested = viaCall(name)\n    }\n    print(kept)\n    print(nested)\n}\n" }
+    if name == "ref-this-argument-modifies-borrowed-field" { return "// Passing `ref this` hands the callee the whole receiver: it may change every field, so a live span into a field conflicts (BYN3004).\nstruct B {\n    List<i64> items\n\n    void run(ref this) {\n        let s = items.span\n        wipe(ref this)\n        print($\"{s[0]}\")\n    }\n\n    void reset(ref this) {\n        wipe(ref this)\n    }\n\n    // A `ref this` method whose body passes `ref this` on changes every field too.\n    void outer(ref this) {\n        let s = items.span\n        reset()\n        print($\"{s[0]}\")\n    }\n}\n\nvoid wipe(ref B b) {\n    b.items.clear()\n    b.items.append(7)\n}\n\nvoid main() {\n    var b = B { items: List<i64>() }\n    b.items.append(1)\n    b.run()\n    b.outer()\n}\n" }
+    if name == "ref-this-field-argument-while-borrowed" { return "interface IThing {\n    i64 get()\n}\n\nstruct S : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\nvoid grow(ref List<S> l) {\n    l.append(S { n: 2 })\n}\n\nstruct B {\n    List<S> items\n\n    // Passing a field by `ref` lets the callee grow it, like passing a local list.\n    void run(ref this) {\n        let d: dyn ref IThing = items[0]\n        grow(ref items)\n        grow(ref this.items)\n        print($\"{d.get()}\")\n    }\n}\n\nvoid main() {\n    var b = B { items: List<S>() }\n    b.items.append(S { n: 1 })\n    b.run()\n}\n" }
+    if name == "ref-this-store-through-later-method" { return "struct Box {\n    string s\n    string t\n\n    // `put` is summarized before `keep`: its first summary has one store, its second two.\n    void put(ref this, string v, through string w) {\n        s = v\n        keep(w)\n    }\n\n    void keep(ref this, string w) {\n        t = w\n    }\n}\n\nvoid main() {\n    var b = Box { s: \"\", t: \"\" }\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        b.put(\"x\", through: name)\n    }\n    print(b.t)\n}\n" }
+    if name == "region-combo-all-three" { return "// A `ref this` map-field store (Q747) of an arena value returned through two levels, and a store through an `out` parameter (Q745) in the same function: both are refused.\nstring mk(string s, from Arena a) {\n    return s.copy(to: a)\n}\n\nstring mk2(string s, from Arena a) {\n    return mk(s, from: a)\n}\n\nstruct Bag {\n    Map<i64, string> m\n\n    void put(ref this, string v) {\n        m[1] = v\n    }\n}\n\nvoid pass(string s, to out string g) {\n    g = s\n}\n\nvoid main() {\n    var b = Bag { m: Map<i64, string>() }\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        let name = mk2(\"ann\", from: arena)\n        b.put(name)\n        pass(name, to: out kept)\n    }\n    print(b.m[1])\n    print(kept)\n}\n" }
+    if name == "region-combo-ref-this-map-two-levels" { return "// A `ref this` map-field store (Q747) of an arena value returned through two levels is refused.\nstring mk(string s, from Arena a) {\n    return s.copy(to: a)\n}\n\nstring mk2(string s, from Arena a) {\n    return mk(s, from: a)\n}\n\nstruct Bag {\n    Map<i64, string> m\n\n    void put(ref this, string v) {\n        m[1] = v\n    }\n}\n\nvoid main() {\n    var b = Bag { m: Map<i64, string>() }\n    {\n        using let arena = Arena()\n        b.put(mk2(\"ann\", from: arena))\n    }\n    print(b.m[1])\n}\n" }
+    if name == "region-combo-store-ref-this-map" { return "// A `ref this` map-field store (Q747) and a store through an `out` parameter (Q745) in the same function: both are refused.\nstruct Bag {\n    Map<i64, string> m\n\n    void put(ref this, string v) {\n        m[1] = v\n    }\n}\n\nvoid pass(string s, to out string g) {\n    g = s\n}\n\nvoid main() {\n    var b = Bag { m: Map<i64, string>() }\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        b.put(name)\n        pass(name, to: out kept)\n    }\n    print(b.m[1])\n    print(kept)\n}\n" }
+    if name == "region-combo-store-through-ref-this-map" { return "// A store summary through a `ref` parameter (Q745) that reaches a `ref this` map-field store (Q747) is refused.\nstruct Bag {\n    Map<i64, string> m\n\n    void put(ref this, string v) {\n        m[1] = v\n    }\n}\n\nvoid fill(string s, to ref Bag b) {\n    b.put(s)\n}\n\nvoid main() {\n    var b = Bag { m: Map<i64, string>() }\n    {\n        using let arena = Arena()\n        let name = \"ann\".copy(to: arena)\n        fill(name, to: ref b)\n    }\n    print(b.m[1])\n}\n" }
+    if name == "region-combo-store-two-levels" { return "// An arena value returned through two levels, stored through an `out` parameter (Q745), is refused.\nstring mk(string s, from Arena a) {\n    return s.copy(to: a)\n}\n\nstring mk2(string s, from Arena a) {\n    return mk(s, from: a)\n}\n\nvoid pass(string s, to out string g) {\n    g = s\n}\n\nvoid main() {\n    var kept = \"\"\n    {\n        using let arena = Arena()\n        pass(mk2(\"ann\", from: arena), to: out kept)\n    }\n    print(kept)\n}\n" }
+    if name == "rest-escapes" { return "ReadOnlySpan<i64> keep(rest ReadOnlySpan<i64> xs) {\n    return xs\n}\n\nvoid stash(ref ReadOnlySpan<i64> into, rest ReadOnlySpan<i64> xs) {\n    let view = xs\n    into = view\n}\n" }
+    if name == "strbuf-finish-non-local" { return "// finish() on an element or a field of a local is a loan on that local (Q745).\nvoid element() {\n    var xs = List<StrBuf>()\n    xs.append(StrBuf())\n    xs[0].append(\"a\")\n    let s = xs[0].finish()\n    xs[0].clear()\n    print(s)\n}\n\nvoid field() {\n    var t = (buf: StrBuf(), n: 1)\n    t.buf.append(\"a\")\n    let s = t.buf.finish()\n    t.buf.clear()\n    print(s)\n}\n\nvoid main() {\n    element()\n    field()\n}\n" }
+    if name == "strbuf-finish-then-clear" { return "void main() {\n    var sb = StrBuf()\n    sb.append(\"a\")\n    let s = sb.finish()\n    sb.clear()\n    print(s)\n}\n" }
+    if name == "strbuf-grow-escapes-context" { return "void main() {\n    var text = \"\"\n    var outer = StrBuf()\n    {\n        using let arena = Arena()\n        provide allocator: arena {\n            var sb = StrBuf()\n            sb.append(\"abc\")\n            print(sb.finish())\n            text = sb.finish()\n            outer = StrBuf()\n        }\n    }\n    outer.append(\"ok\")\n    text = outer.finish()\n    print(text)\n}\n" }
+    if name == "strbuf-loan-refusals" { return "// While finish() or view still lends a StrBuf's text, insert and take are refused (Q745).\nvoid insertAfterFinish() {\n    var sb = StrBuf()\n    sb.append(\"a\")\n    let s = sb.finish()\n    sb.insert(\"b\", at: 0)\n    print(s)\n}\n\nvoid takeAfterView() {\n    var sb = StrBuf()\n    sb.append(\"a\")\n    let s = sb.view\n    let t = sb.take()\n    print(s)\n}\n\nvoid main() {\n    insertAfterFinish()\n    takeAfterView()\n}\n" }
+    if name == "this-ref-call-modifies-borrowed-field" { return "interface IThing {\n    i64 get()\n}\n\nstruct S : IThing {\n    i64 n\n\n    i64 get() => n\n}\n\nstruct B {\n    List<S> items\n    List<S> other\n\n    void clearAll(ref this) {\n        items.clear()\n    }\n\n    void clearOther(ref this) {\n        other.clear()\n    }\n\n    void reset(ref this) {\n        clearAll()\n    }\n\n    // A `ref this` call on `this` changes the fields its body changes: only those conflict with a live borrow.\n    void run(ref this) {\n        let d: dyn ref IThing = items[0]\n        clearOther()\n        clearAll()\n        reset()\n        print($\"{d.get()}\")\n    }\n}\n\nvoid main() {\n    var b = B { items: List<S>(), other: List<S>() }\n    b.items.append(S { n: 1 })\n    b.run()\n}\n" }
+    if name == "union-borrow-escapes-region" { return "union Token {\n    word(string text)\n    end\n}\n\nvoid main() {\n    var kept = Token.end\n    {\n        using let arena = Arena()\n        kept = Token.word(\"copied\".copy(to: arena))\n    }\n    print($\"{kept}\")\n}\n" }
+    if name == "compute" { return "void main() {\n    let a = 1\n    let s = $\"n {a}\"\n    let xs: List<i64> = [1, 2]\n    let n = a\n    let lit = 5\n    let low = s.lowercased()\n    let cp = s.copy()\n    let t = string(a)\n    let m: Map<i64, i64> = [1: 2]\n    let has = m.contains(1)\n}\n" }
+    return ""
+}
+List<string> tcFunctions(string name) {
+    var names = List<string>()
+    if name == "r-a" { names.append("area") }
+    if name == "r-a" { names.append("loopy") }
+    if name == "r-a" { names.append("main") }
+    if name == "r-a" { names.append("pick") }
+    if name == "r-a" { names.append("risky") }
+    if name == "r-a" { names.append("walk") }
+    if name == "r-a" { names.append("work") }
+    if name == "r-b" { names.append("area") }
+    if name == "r-b" { names.append("main") }
+    if name == "r-b" { names.append("pick") }
+    if name == "r-b" { names.append("risky") }
+    return names
+}
+void tcCompute() {
+    var c = tcLoad("compute")
+    print("== compute")
+    let f = tcNth(in c, by: "main", at: 0)
+    let block = boundIndex(c.functions[f].body)
+    let a = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[0])].local
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        r.contexts.append(Borrow { regions: [Region { depth: 2, name: "ctx" }], owners: [a] })
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[1])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"interp-ctx {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[1])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"interp-none {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        r.contexts.append(Borrow { regions: [Region { depth: 2, name: "ctx" }], owners: [a] })
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[2])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"list-ctx {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[2])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"list-none {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        var lends: Map<LocalId, i64> = []
+        lends[a] = 3
+        r.locals[a] = Borrow { regions: [Region { depth: 1, name: "a-data" }], owners: [a], lends: move lends }
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[3])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"local-set {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[3])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"local-unset {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        r.contexts.append(Borrow { regions: [Region { depth: 2, name: "ctx" }], owners: [a] })
+        var lends: Map<LocalId, i64> = []
+        lends[a] = 3
+        r.locals[a] = Borrow { regions: [Region { depth: 1, name: "a-data" }], owners: [a], lends: move lends }
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[4])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"literal {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        r.contexts.append(Borrow { regions: [Region { depth: 2, name: "ctx" }], owners: [a] })
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[5])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"lower-ctx {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[5])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"lower-none {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        r.contexts.append(Borrow { regions: [Region { depth: 2, name: "ctx" }], owners: [a] })
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[6])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"copy-ctx {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        r.contexts.append(Borrow { regions: [Region { depth: 2, name: "ctx" }], owners: [a] })
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[7])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"to-string-ctx {tcShowNames(ref c, by: in b)}")
+    }
+    {
+        var r = Regions { fn: f, source: c.functions[f].file }
+        r.contexts.append(Borrow { regions: [Region { depth: 2, name: "ctx" }], owners: [a] })
+        let init = c.bLocalDecls[boundIndex(c.bBlocks[block].statements[9])].initializer
+        let b = computeBorrow(ref r, through: ref c, for: init)
+        print($"contains-ctx {tcShowNames(ref c, by: in b)}")
+    }
+}
+void tcDiag(string name) {
+    var c = tcLoad(name)
+    print($"== {name}")
+    let mark = c.diagnostics.length
+    let fns = copyIds(in c.modules[c.entryModule].allFunctions)
+    for fn in fns {
+        if c.functions[fn].body != -1 && !functionIsGeneric(ref c, by: fn) && !functionIsInstance(ref c, by: fn) { analyzeRegions(ref c, for: fn) }
+    }
+    for i in mark..c.diagnostics.length {
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        let fixText = c.diagnostics[i].hasFix ? $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" : ""
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fixText}")
+    }
+}void tcBagged(string name) {
+    var c = tcLoad(name)
+    print($"== bag {name}")
+    let outer = pushBag(ref c)
+    let fns = copyIds(in c.modules[c.entryModule].allFunctions)
+    for fn in fns {
+        if c.functions[fn].body != -1 && !functionIsGeneric(ref c, by: fn) && !functionIsInstance(ref c, by: fn) { t42AnalyzeRegions(ref c, for: fn) }
+    }
+    popBag(ref c, to: outer)
+    var churn = List<string>()
+    for i in 0..4096 { churn.append($"churn {i} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx") }
+    let b = c.bags.length - 1
+    for d in c.bags[b].items {
+        let pos = linePosition(c.files[d.file].text.span, at: d.span.start)
+        let fixText = d.hasFix ? $"fix {d.fixSpan.start}..{d.fixSpan.end} {d.fixReplacement}" : ""
+        print($"{d.code} {pos.line}:{pos.column} {d.message} |{d.label}|{d.help}|{fixText}")
+    }
+}
+
+void tcPure() {
+    print("== pure")
+    {
+        let a = tcBorrow([], by: [], from: [], hasLends: false)
+        let b = tcBorrow([Region { depth: 1, name: "x" }, Region { depth: 0, name: "y" }], by: [1, 2], from: [], hasLends: false)
+        print($"empty-left {tcShowIds(in unionBorrow(in a, by: in b))}")
+    }
+    {
+        let a = tcBorrow([Region { depth: 1, name: "x" }], by: [0], from: [1: 4], hasLends: true)
+        let b = tcBorrow([], by: [], from: [], hasLends: false)
+        print($"empty-right {tcShowIds(in unionBorrow(in a, by: in b))}")
+    }
+    {
+        let a = tcBorrow([], by: [], from: [], hasLends: false)
+        let b = tcBorrow([], by: [], from: [], hasLends: false)
+        print($"both-empty {tcShowIds(in unionBorrow(in a, by: in b))}")
+    }
+    {
+        let a = tcBorrow([Region { depth: 1, name: "x" }, Region { depth: 2, name: "z" }], by: [0, 1], from: [], hasLends: false)
+        let b = tcBorrow([Region { depth: 2, name: "z" }, Region { depth: 0, name: "y" }], by: [1, 3], from: [], hasLends: false)
+        print($"overlap {tcShowIds(in unionBorrow(in a, by: in b))}")
+    }
+    {
+        let a = tcBorrow([Region { depth: 1, name: "x" }], by: [1], from: [1: 5], hasLends: true)
+        let b = tcBorrow([Region { depth: 0, name: "y" }], by: [2], from: [1: 3, 2: 9], hasLends: true)
+        print($"merge-min {tcShowIds(in unionBorrow(in a, by: in b))}")
+    }
+    {
+        let a = tcBorrow([Region { depth: 1, name: "x" }], by: [1], from: [], hasLends: false)
+        let b = tcBorrow([Region { depth: 0, name: "y" }], by: [2], from: [2: 9], hasLends: true)
+        print($"merge-left-null {tcShowIds(in unionBorrow(in a, by: in b))}")
+    }
+    {
+        let a = tcBorrow([Region { depth: 1, name: "x" }], by: [1], from: [1: 5, 3: 2], hasLends: true)
+        let b = tcBorrow([Region { depth: 0, name: "y" }], by: [2], from: [], hasLends: false)
+        print($"merge-right-null {tcShowIds(in unionBorrow(in a, by: in b))}")
+    }
+    {
+        let a = tcBorrow([Region { depth: 1, name: "x" }], by: [1], from: [1: 2], hasLends: true)
+        let b = tcBorrow([Region { depth: 0, name: "y" }], by: [1], from: [1: 8], hasLends: true)
+        print($"merge-keep-smaller {tcShowIds(in unionBorrow(in a, by: in b))}")
+    }
+    {
+        let a = tcBorrow([Region { depth: 1, name: "x" }], by: [0], from: [], hasLends: false)
+        print($"lent-fresh {tcShowIds(in lent(in a, for: 2, at: 7))}")
+    }
+    {
+        let a = tcBorrow([Region { depth: 1, name: "x" }], by: [2], from: [2: 3], hasLends: true)
+        print($"lent-again {tcShowIds(in lent(in a, for: 2, at: 7))}")
+    }
+    {
+        let a = tcBorrow([], by: [2], from: [2: 9], hasLends: true)
+        print($"lent-later {tcShowIds(in lent(in a, for: 2, at: 4))}")
+    }
+    {
+        let a = tcBorrow([], by: [], from: [], hasLends: false)
+        print($"lent-empty {tcShowIds(in lent(in a, for: 0, at: 0))}")
+    }
+}
+
+
+i32 main(ReadOnlySpan<string> args) {
+    if args.length > 0 && args[0] == "diag" {
+        for k in 1..args.length { tcDiag(args[k]) }
+        return 0
+    }
+    if args.length > 0 && args[0] == "bagged" {
+        for k in 1..args.length { tcBagged(args[k]) }
+        return 0
+    }
+    for name in args {
+        if name == "pure" { tcPure() } else if name == "compute" { tcCompute() } else { tcRun(name) }
+    }
+    return 0
+}

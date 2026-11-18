@@ -1,0 +1,76 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:12 IntegerLiteral `1`
+2:2 Comma `,`
+2:4 Dot `.`
+2:6 DotDot `..`
+2:9 DotDotEquals `..=`
+2:13 Colon `:`
+2:16 Question `?`
+2:18 QuestionQuestion `??`
+2:21 QuestionQuestionEquals `??=`
+2:25 QuestionDot `?.`
+2:28 FatArrow `=>`
+2:31 Arrow `->`
+2:34 At `@`
+2:36 Hash `#`
+3:1 VarKeyword `var`
+3:5 Identifier `xs`
+3:7 Colon `:`
+3:9 Identifier `List`
+3:13 Less `<`
+3:14 Identifier `List`
+3:18 Less `<`
+3:19 Identifier `i64`
+3:22 Greater `>`
+3:23 Greater `>`
+4:2 CharLiteral `'\q'`
+6:1 Identifier `e`
+6:2 StringLiteral `"`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `open `
+7:8 InterpolationStart `{`
+7:9 Identifier `x`
+7:10 StringLiteral `";`
+8:1 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor =1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │  , . .. ..= : �? ?? ??= ?. => -> @ #
+    │               ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │  '\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  6 │ e"
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

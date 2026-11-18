@@ -1,0 +1,3 @@
+== case name-builtin
+errorExpr 1570..1575 : ?
+BYN2019 80:18 `print` is a method, not a value ||call it: `print(…)`|

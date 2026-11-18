@@ -1,0 +1,2 @@
+== diags.diag/no-target-type
+BYN2218 1:9 `invalid` needs a known type here

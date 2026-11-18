@@ -1,0 +1,32 @@
+1:1 Identifier `ạ̇`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolatedStringText `a`
+1:7 InterpolationStart `{`
+1:8 Identifier `b`
+1:9 InterpolationEnd `}`
+1:10 InterpolatedStringText `c  `
+1:13 InterpolatedStringEnd `"`
+1:14 StringLiteral `""`
+1:17 CStringLiteral `c"text"`
+1:25 U16StringLiteral `u16"wide"`
+1:35 StringLiteral `"\u{202E} allowed in strings"`
+1:58 StringLiteral `""`
+1:61 StringLiteral `"\u{48}i"`
+2:1 RawStringLiteral `""" 'ab'\r\n\r\n1_ \r\n\r\nstruct unique union enum flags open extensible interface delegate extension derivation attribute\r\n\r\n`
+8:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇$"a{b}c  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇$"a{b}c  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   │ ++
+
+error BYN0003: unterminated string literal
+
+  2 │ """ 'ab'
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

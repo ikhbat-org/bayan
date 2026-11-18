@@ -1,0 +1,4 @@
+== diags.unknown-ref-this
+BYN5014 3:10 `zorkify` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `verbs: ["zorkify"]`, `nouns: ["zorkify"]` or `adjectives: ["zorkify"]`
+BYN2014 1:1 the program has no entry point

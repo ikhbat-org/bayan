@@ -1,0 +1,1 @@
+{"code":"BYN2410","severity":"error","file":"input.byn","span":{"start":64,"end":65,"line":7,"column":22,"endLine":7,"endColumn":23},"message":"`switch` does not handle every `Color`","label":"not covered: .green, .blue","help":"add the missing arms, or `_ => …` for the rest","fixes":[]}

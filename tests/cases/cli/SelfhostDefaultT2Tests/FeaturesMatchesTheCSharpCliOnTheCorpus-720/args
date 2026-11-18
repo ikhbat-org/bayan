@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/map-key-struct-instantiation.byn
+--package
+<repo>/tests/cases/diag

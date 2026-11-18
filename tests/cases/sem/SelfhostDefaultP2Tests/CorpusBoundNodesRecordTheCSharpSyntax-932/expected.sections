@@ -1,0 +1,22 @@
+== tests/cases/diag/unique-struct-containment.byn
+162..315 blockStmt
+168..207 localDecl
+181..207 structLiteralExpr
+194..205 callExpr
+212..229 localDecl
+223..229 nameExpr
+234..262 localDecl
+242..262 structLiteralExpr
+253..254 literalExpr integer
+259..260 literalExpr integer
+267..276 localDecl
+275..276 nameExpr
+281..313 exprStmt
+281..313 callExpr
+287..312 interpolatedExpr
+290..304 memberExpr
+290..297 memberExpr
+290..294 nameExpr
+307..310 memberExpr
+307..308 nameExpr
+281..313 callExpr

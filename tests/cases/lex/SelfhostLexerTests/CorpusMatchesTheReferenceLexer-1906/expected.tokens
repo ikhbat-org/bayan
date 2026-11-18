@@ -1,0 +1,36 @@
+1:1 Identifier `b`
+2:1 Identifier `int`
+2:5 OpenBrace `{`
+2:7 Identifier `x`
+2:9 Equals `=`
+2:11 IntegerLiteral `1`
+2:13 CloseBrace `}`
+2:14 CloseBrace `}`
+2:15 Bang `!`
+2:16 StringLiteral `" $"`
+2:20 StringLiteral `"`
+3:1 Identifier `Å`
+8:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ int { x = 1 }}!" $""
+    │                    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ Å /* block
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ Å /* block
+    │   │ +
+
+error BYN0004: unterminated block comment
+
+  3 │ Å /* block
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

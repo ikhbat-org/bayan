@@ -1,0 +1,26 @@
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����// kk � in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����// kk � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����// kk � in comment
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����// kk � in comment
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ ����// kk � in comment
+    │           ^

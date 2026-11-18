@@ -1,0 +1,36 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Identifier `b`
+2:2 Identifier `est`
+2:6 AssertKeyword `assert`
+2:13 PropertyKeyword `property`
+2:22 FuzzKeyword `fuzz`
+2:27 ModelKeyword `model`
+2:33 Identifier `ftoreach`
+2:42 NewKeyword `new`
+2:46 GotoKeyword `goto`
+3:1 CharLiteral `'t`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 Identifier `a`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ �est assert property fuzz model ftoreach new goto
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  3 │ 't
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

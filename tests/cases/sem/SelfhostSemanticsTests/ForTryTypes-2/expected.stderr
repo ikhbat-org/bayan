@@ -1,0 +1,9 @@
+note BYN1072: an early exit in a block can be a postfix guard
+  --> tmp/t26-tests/for-try-types/steps.byn:8:9
+
+  8 │         if at >= limit { return null }
+    │         ^^^^^^^^^^^^^^^ an early exit in a block
+    │
+  help: write it as a postfix guard
+    │ 8 │         return null if at >= limit
+    │   │         ++++++++++++++++++++++++++

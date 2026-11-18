@@ -1,0 +1,1 @@
+union error Retryable = SendError except .rejected

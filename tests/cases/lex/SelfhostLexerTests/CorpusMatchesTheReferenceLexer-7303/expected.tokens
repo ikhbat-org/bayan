@@ -1,0 +1,18 @@
+1:1 OpenBrace `{`
+1:2 LetKeyword `let`
+1:6 Identifier `c`
+1:8 Equals `=`
+1:10 StringLiteral `""`
+1:12 NeverKeyword `never`
+1:18 Identifier `closed`
+3:1 IntegerLiteral `0xF__`
+4:2 OpenBrace `{`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --

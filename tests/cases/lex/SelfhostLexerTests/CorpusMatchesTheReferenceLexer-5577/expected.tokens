@@ -1,0 +1,9 @@
+1:2 SlashEquals `/=`
+1:5 PercentEquals `%=`
+1:8 AmpEquals `&=`
+1:11 BarEquals `|=`
+1:14 CaretEquals `^=`
+1:17 LessLessEquals `<<=`
+2:1 Identifier `uct`
+2:5 Identifier `S`
+4:2 EndOfFile

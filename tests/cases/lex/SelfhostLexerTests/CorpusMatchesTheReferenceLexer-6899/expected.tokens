@@ -1,0 +1,43 @@
+1:1 Identifier `ent`
+2:1 Identifier `b`
+3:1 Identifier `b`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `x`
+5:4 InterpolationStart `{`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+5:11 OpenBrace `{`
+5:12 Identifier `c`
+5:13 CloseBrace `}`
+5:14 StringLiteral `")} d"`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolatedStringText `{{literal}}`
+5:34 InterpolatedStringEnd `"`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:39 Identifier `Point`
+5:45 OpenBrace `{`
+5:47 Identifier `x`
+5:49 Equals `=`
+5:51 IntegerLiteral `1`
+5:53 CloseBrace `}`
+5:54 InterpolationEnd `}`
+5:55 InterpolatedStringText `!`
+5:56 InterpolatedStringEnd `"`
+5:58 InterpolatedStringStart `$"`
+5:60 InterpolatedStringEnd
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │ $"x{ $"{  {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $"
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"x{ $"{  {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $"
+    │                                                          ^^ this string never ends
+    │
+  help: close it with `"`

@@ -1,0 +1,11 @@
+1
+�et b = ` 2
+let c =  3
+ + - * / % +% -% *% +| -| *| ++ --
+   """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+ =
+
+
+let ⁧ = 1
+ 

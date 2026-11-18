@@ -1,0 +1,19 @@
+error BYN3101: `verison` is not a field of `Package`
+  --> package.byn:4:5
+
+  4 │     verison: "0.2.0",
+    │     ^^^^^^^
+    │
+  help: use one of the fields `name`, `version`, `edition`, `kind`, `codes`, `capabilities`, `deps`,
+        `test`, `dist`, `style`, `grammar`
+
+error BYN3101: `target` is not a field of `Dist`
+  --> package.byn:5:18
+
+  5 │     dist: Dist { target: [.host] },
+    │                  ^^^^^^
+    │
+  help: use one of the fields `targets`, `mode`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3101

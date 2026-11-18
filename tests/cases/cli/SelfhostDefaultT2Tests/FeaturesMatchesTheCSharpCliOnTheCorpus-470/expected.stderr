@@ -1,0 +1,5 @@
+error BYN2411: `DbError` cannot match `ParseError`
+  --> <repo>/tests/cases/diag/catch-switch-foreign-set.byn:18:5
+
+  18 │     DbError e => 1,
+     │     ^^^^^^^^^

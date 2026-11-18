@@ -1,0 +1,88 @@
+1:1 Identifier `b`
+2:2 CharLiteral `'\u{202E}'`
+2:5 IntegerLiteral `1_`
+4:1 CharLiteral `''`
+5:2 ErrorKeyword `error`
+5:8 SetKeyword `set`
+5:12 Identifier `uni`
+5:16 Identifier `t`
+5:18 DistinctKeyword `distinct`
+5:27 TypeKeyword `type`
+5:32 ImportKeyword `import`
+5:39 AsKeyword `as`
+5:42 PublicKeyword `public`
+5:49 PrivateKeyword `private`
+5:57 StaticKeyword `static`
+5:64 ReadonlyKeyword `readonly`
+5:73 RequiredKeyword `required`
+5:82 ConstKeyword `const`
+5:88 LetKeyword `let`
+5:92 VarKeyword `var`
+5:96 EmbedKeyword `embed`
+5:102 ExternKeyword `extern`
+5:109 UnsafeKeyword `unsafe`
+7:1 IntegerLiteral `0xF__`
+9:3 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  '�'1_
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  '�'1_
+    │   │   -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  '�'1_
+    │      ^
+    │
+    │ 2 │  '�'1_
+    │   │      -
+
+error BYN0007: empty char literal
+
+  4 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  5 │  error set uni�t distinct type import as public private static readonly required const let var embed extern unsafe
+    │               ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  9 │ ����� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  9 │ ����� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ ����� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ ����� 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ ����� 
+    │     ^

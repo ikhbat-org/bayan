@@ -1,0 +1,1 @@
+{"code":"BYN2221","severity":"error","file":"input.byn","span":{"start":9,"end":10,"line":1,"column":10,"endLine":1,"endColumn":11},"message":"`i32` cannot be iterated","label":null,"help":"use `for` over ranges (`0..n`), spans, lists, arrays, strings, or a type conforming to `IIndexable` or `IEnumerator`","fixes":[]}

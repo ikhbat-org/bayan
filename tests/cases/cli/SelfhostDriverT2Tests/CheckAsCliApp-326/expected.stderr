@@ -1,0 +1,10 @@
+error BYN3004: `items` is modified while the `for` loop still borrows it
+  --> <repo>/tmp/t2/diag/for-this-list-field-modified/for-this-list-field-modified.byn:11:13
+
+  11 │             items.append(S { n: x.n })
+     │             ^^^^^^^^^^^^^^^^^^^^^^^^^^ the loop over `items` is still running
+     │
+  help: collect the changes in another list and apply them to `items` after the loop
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3004

@@ -1,0 +1,44 @@
+1:1 IntegerLiteral `0x`
+3:3 Identifier `aw`
+3:6 StringLiteral `"quoted"`
+4:2 Identifier `Å`
+6:1 Identifier `ment`
+6:6 Star `*`
+6:7 Slash `/`
+6:9 Identifier `a`
+    doc `/// Doc line oj �1.`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x�
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  1 │ 0x�
+    │   ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  // comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  // comment � hidden
+    │   │             -
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │  Å
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  Å
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ /// Doc line oj �1.
+    │                 ^

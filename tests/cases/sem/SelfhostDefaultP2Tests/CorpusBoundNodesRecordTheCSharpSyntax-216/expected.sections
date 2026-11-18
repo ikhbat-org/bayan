@@ -1,0 +1,34 @@
+== tests/cases/run/panic-handler-binding.byn
+18..196 blockStmt
+24..42 localDecl
+35..42 literalExpr string
+47..66 deferStmt
+67..165 blockStmt
+77..115 exprStmt
+77..115 callExpr
+83..114 interpolatedExpr
+86..90 nameExpr
+93..94 nameExpr
+103..112 memberExpr
+103..104 nameExpr
+77..115 callExpr
+124..159 exprStmt
+124..159 callExpr
+130..158 interpolatedExpr
+140..156 memberExpr
+140..149 memberExpr
+140..141 nameExpr
+124..159 callExpr
+170..194 exprStmt
+170..194 callExpr
+176..193 interpolatedExpr
+179..191 binaryExpr div right 184..191
+179..181 literalExpr integer
+185..190 binaryExpr sub right 189..190
+185..186 nameExpr
+189..190 nameExpr
+170..194 callExpr
+198..206 globalStatement
+198..206 exprStmt
+198..206 callExpr
+204..205 literalExpr integer

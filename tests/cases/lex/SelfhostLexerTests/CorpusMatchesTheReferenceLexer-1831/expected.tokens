@@ -1,0 +1,133 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+3:1 IntegerLiteral `0b102`
+4:1 IntegerLiteral `0`
+4:3 IntegerLiteral `42`
+4:6 IntegerLiteral `1_000_000`
+4:16 IntegerLiteral `0xFF`
+4:21 IntegerLiteral `0x_ff`
+4:27 IntegerLiteral `0b1010`
+4:34 IntegerLiteral `0B11`
+4:39 IntegerLiteral `5`
+4:40 NumericSuffix `s`
+4:42 IntegerLiteral `250`
+4:45 NumericSuffix `ms`
+4:48 IntegerLiteral `4`
+4:49 NumericSuffix `KiB`
+4:53 IntegerLiteral `1`
+4:54 NumericSuffix `u`
+4:56 IntegerLiteral `0xFF`
+4:60 NumericSuffix `u`
+4:62 IntegerLiteral `0b1`
+4:65 NumericSuffix `ul`
+4:68 IntegerLiteral `7`
+4:69 NumericSuffix `l`
+6:1 Identifier `b`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 Identifier `x`
+7:45 InterpolationEnd `}`
+7:46 InterpolatedStringEnd `"`
+7:47 InterpolationEnd `}`
+7:48 InterpolatedStringEnd `"`
+7:49 InterpolationEnd `}`
+7:50 InterpolatedStringEnd `"`
+7:51 InterpolationEnd `}`
+7:52 InterpolatedStringEnd `"`
+7:53 InterpolationEnd `}`
+7:54 InterpolatedStringEnd `"`
+7:55 InterpolationEnd `}`
+7:56 InterpolatedStringEnd `"`
+7:57 InterpolationEnd `}`
+7:58 InterpolatedStringEnd `"`
+7:59 InterpolationEnd `}`
+7:60 InterpolatedStringEnd `"`
+7:61 InterpolationEnd `}`
+7:62 InterpolatedStringEnd `"`
+7:63 InterpolationEnd `}`
+7:64 InterpolatedStringEnd `"`
+7:65 InterpolationEnd `}`
+7:66 InterpolatedStringEnd `"`
+7:67 InterpolationEnd `}`
+7:68 InterpolatedStringEnd `"`
+7:69 InterpolationEnd `}`
+7:70 InterpolatedStringEnd `"`
+7:71 InterpolationEnd `}`
+7:72 InterpolatedStringEnd `"`
+7:73 CloseBrace `}`
+7:74 StringLiteral `" 't x\u{2067} = 1`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����
+    │    ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  3 │ 0b102
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 't x� = 1
+    │                                                                          ^^^^^^^^^^^ string
+    │                                                                                      ends at
+    │                                                                                      the end
+    │                                                                                      of the
+    │                                                                                      line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

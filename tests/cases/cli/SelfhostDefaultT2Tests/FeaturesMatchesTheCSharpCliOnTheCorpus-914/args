@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/strbuf-finish-non-local.byn
+--package
+<repo>/tests/cases/diag

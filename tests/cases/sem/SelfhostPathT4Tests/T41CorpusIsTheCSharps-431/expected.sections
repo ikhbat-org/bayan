@@ -1,0 +1,4 @@
+== diags.run/map-copy-allowed
+returns fresh 1
+returns passThrough 0
+store bump 1 0 667..670

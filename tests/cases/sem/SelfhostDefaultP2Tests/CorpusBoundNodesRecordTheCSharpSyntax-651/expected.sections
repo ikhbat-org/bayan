@@ -1,0 +1,44 @@
+== tests/cases/diag/map-slot-no-default.byn
+134..458 blockStmt
+140..173 localDecl
+153..173 callExpr
+178..203 assignStmt assign target 178..196 value 199..203
+178..196 callExpr
+178..184 nameExpr
+190..195 literalExpr string
+199..203 targetMemberExpr
+208..238 localDecl
+221..238 callExpr
+243..264 assignStmt add target 243..259 value 263..264
+243..259 memberExpr
+243..257 callExpr
+243..249 nameExpr
+255..256 literalExpr integer
+263..264 literalExpr integer
+269..302 localDecl
+281..302 callExpr
+307..330 exprStmt
+307..330 callExpr
+307..320 callExpr
+307..312 nameExpr
+318..319 literalExpr integer
+328..329 literalExpr integer
+335..367 localDecl
+349..367 callExpr
+372..394 assignStmt add target 372..389 value 393..394
+372..389 memberExpr
+372..387 callExpr
+372..379 nameExpr
+385..386 literalExpr integer
+393..394 literalExpr integer
+399..430 localDecl
+411..430 callExpr
+435..456 assignStmt assign target 435..448 value 451..456
+435..448 callExpr
+435..440 nameExpr
+446..447 literalExpr integer
+451..456 literalExpr string
+451..456 literalExpr string
+71..72 literalExpr integer
+104..105 literalExpr integer
+118..119 literalExpr integer

@@ -1,0 +1,11 @@
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t2/diag/style-functions-length-on/main/package.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1012

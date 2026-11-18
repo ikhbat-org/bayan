@@ -1,0 +1,9 @@
+== diags.diag/input-errdefer
+BYN1020 7:5 `errdefer` is now `defer failing`
+  label the input form
+  help write `defer failing`
+  fix 7:5-7:13 defer failing
+BYN1020 8:5 `errdefer` is now `defer failing`
+  label the input form
+  help write `defer failing`
+  fix 8:5-8:13 defer failing

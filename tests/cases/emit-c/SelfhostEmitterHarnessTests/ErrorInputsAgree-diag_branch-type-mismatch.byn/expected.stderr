@@ -1,0 +1,8 @@
+error BYN2216: branches have different types: `i32` and `string`
+  --> input.byn:2:9
+
+  2 │ let x = ok ? 1 : "no"
+    │         ^^^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2216

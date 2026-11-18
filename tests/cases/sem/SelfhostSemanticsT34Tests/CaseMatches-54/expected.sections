@@ -1,0 +1,6 @@
+== s56
+switchExpr|i32|4443:31
+value local:i64=n
+arm 4454:10 constantPattern[4454:5]:i64(errorExpr:?) guard - value literal:i32=1
+arm 4466:6 bindPattern[4466:1]:i64_(-) guard - value literal:i32=0
+BYN2019 127:26 `Shape` is a type, not a value |||

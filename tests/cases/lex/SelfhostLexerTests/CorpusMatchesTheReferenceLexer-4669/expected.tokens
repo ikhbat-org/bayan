@@ -1,0 +1,94 @@
+3:1 LetKeyword `let`
+3:5 Identifier `actor`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+5:1 IntegerLiteral `0x_`
+6:2 Identifier `int`
+6:6 OpenBrace `{`
+6:8 Identifier `x`
+6:10 Equals `=`
+6:12 IntegerLiteral `1`
+6:14 CloseBrace `}`
+6:15 CloseBrace `}`
+6:16 Bang `!`
+6:17 StringLiteral `" $"`
+6:21 StringLiteral `"`
+7:2 LetKeyword `let`
+7:6 Identifier `b`
+7:8 Equals `=`
+7:10 StringLiteral `"bad \q escape"`
+8:2 Plus `+`
+8:4 Minus `-`
+8:6 Star `*`
+8:8 Slash `/`
+8:10 Percent `%`
+8:12 PlusPercent `+%`
+8:15 MinusPercent `-%`
+8:18 StarPercent `*%`
+8:21 PlusBar `+|`
+8:24 MinusBar `-|`
+8:27 StarBar `*|`
+8:30 PlusPlus `++`
+8:33 MinusMinus `--`
+9:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ ����� // comment � hidden
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ ����� // comment � hidden
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����� // comment � hidden
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����� // comment � hidden
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����� // comment � hidden
+    │     ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ ����� // comment � hidden
+    │                  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ ����� // comment � hidden
+    │   │                  -
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x_
+    │ ^^^
+
+error BYN0003: unterminated string literal
+
+  6 │  int { x = 1 }}!" $""
+    │                     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

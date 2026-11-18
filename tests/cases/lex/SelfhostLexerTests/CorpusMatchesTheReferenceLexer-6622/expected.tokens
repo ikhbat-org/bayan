@@ -1,0 +1,100 @@
+1:2 CharLiteral `'x`
+2:1 Identifier `closed`
+3:1 Identifier `b`
+4:2 At `@`
+4:3 OpenBrace `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 StringLiteral `$"{$"`
+4:57 OpenBrace `{`
+4:58 StringLiteral `$"{x}"`
+4:64 CloseBrace `}`
+4:65 StringLiteral `"}"`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringEnd `"`
+4:70 InterpolationEnd `}`
+4:71 InterpolatedStringEnd `"`
+4:73 InterpolatedStringStart `$"`
+4:75 InterpolatedStringText `x`
+4:76 InterpolationStart `{`
+4:78 InterpolatedStringStart `$"`
+4:80 InterpolationStart `{`
+4:81 LetKeyword `let`
+4:85 Identifier `c`
+4:87 Equals `=`
+4:91 IntegerLiteral `3`
+5:1 Identifier `d`
+6:1 TestKeyword `test`
+6:6 AsKeyword `as`
+6:9 Identifier `ert`
+6:14 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ ﻿'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `$`
+
+  4 │ $@{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" $"x{ $"{let c = � 3
+    │ ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $@{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" $"x{ $"{let c = � 3
+    │                                                    ^^
+
+error BYN0003: unterminated string literal
+
+  4 │ $@{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" $"x{ $"{let c = � 3
+    │                                                                              ^^ this string
+    │                                                                                 never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ $@{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" $"x{ $"{let c = � 3
+    │                                                                                         ^
+
+error BYN0002: unexpected character `\u{14}`
+
+  6 │ test as�ert‏ 
+    │        ^
+
+error BYN0002: unexpected character `‏`
+
+  6 │ test as�ert‏ 
+    │            ^

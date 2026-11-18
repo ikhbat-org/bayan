@@ -1,0 +1,7 @@
+== tests/cases/diag/number-agreement-whole.byn
+948..959 globalStatement
+948..959 exprStmt
+948..959 callExpr
+954..958 literalExpr string
+948..959 callExpr
+937..944 blockStmt

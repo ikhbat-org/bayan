@@ -1,0 +1,93 @@
+1:2 LetKeyword `let`
+1:6 Identifier `a`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:2 Identifier `a`
+2:3 CharLiteral `' '`
+2:7 Identifier `n`
+2:8 CharLiteral `' '`
+2:12 Identifier `u`
+2:13 OpenBrace `{`
+2:14 IntegerLiteral `1`
+2:15 Identifier `F600`
+2:19 CloseBrace `}`
+2:20 CharLiteral `' '`
+2:24 CharLiteral `''`
+2:27 Identifier `é`
+2:28 CharLiteral `' '`
+2:33 CharLiteral `' '`
+2:37 IntegerLiteral `0`
+2:38 CharLiteral `'`
+6:1 CharLiteral `''`
+7:1 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  2 │  a' '\n' '\u{1�F600}' '\'' �é' '\\' '\0'
+    │      ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  a' '\n' '\u{1�F600}' '\'' �é' '\\' '\0'
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  2 │  a' '\n' '\u{1�F600}' '\'' �é' '\\' '\0'
+    │               ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  a' '\n' '\u{1�F600}' '\'' �é' '\\' '\0'
+    │                        ^
+
+error BYN0007: empty char literal
+
+  2 │  a' '\n' '\u{1�F600}' '\'' �é' '\\' '\0'
+    │                         ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBE)
+
+  2 │  a' '\n' '\u{1�F600}' '\'' �é' '\\' '\0'
+    │                            ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  a' '\n' '\u{1�F600}' '\'' �é' '\\' '\0'
+    │                                 ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  a' '\n' '\u{1�F600}' '\'' �é' '\\' '\0'
+    │                                  ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  a' '\n' '\u{1�F600}' '\'' �é' '\\' '\0'
+    │                                      ^
+
+error BYN0008: unterminated char literal
+
+  2 │  a' '\n' '\u{1�F600}' '\'' �é' '\\' '\0'
+    │                                        ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ �
+    │  ^
+
+error BYN0007: empty char literal
+
+  6 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

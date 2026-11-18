@@ -1,0 +1,13 @@
+CompilationUnit
+  Struct Range requires (>= lo 0)
+    Field i64 lo
+    Field i64 hi
+
+error BYN1028: `delegate` is not Bayan; write a function type `type F = int -> int`
+
+  3 │     delegate int F(int x);
+    │     ^^^^^^^^^^^^^^^^^^^^^^ a C# delegate
+    │
+  help: declare it as `type F = int -> int`
+    │ 3 │     type F = int -> int
+    │   │     +++++++++++++++++++

@@ -1,0 +1,14 @@
+== main broken nodes
+209..261 blockStmt
+215..232 localDecl
+223..232 structLiteralExpr
+185..193 structLiteralExpr
+37..38 literalExpr integer
+237..259 exprStmt
+237..259 callExpr
+243..258 interpolatedExpr
+246..256 memberExpr
+237..259 callExpr
+37..38 literalExpr integer
+185..193 structLiteralExpr
+37..38 literalExpr integer

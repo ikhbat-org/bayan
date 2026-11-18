@@ -1,0 +1,8 @@
+1:1 Identifier `et`
+1:7 IntegerLiteral `2`
+2:2 EndOfFile
+
+error BYN0002: unexpected character `\u{F}`
+
+  1 │ et  � 2
+    │     ^

@@ -1,0 +1,21 @@
+== x-payload
+BYN2001 15:19 `nope` is not defined |||
+BYN2603 15:10 `.missing` is not in the `fails` clause of `unknown` ||name a case of `CarrierError`|
+BYN2604 19:10 `infallible` cannot fail, so it cannot pass on `.timeout` ||declare the error in a `fails` clause, or handle it here|
+BYN2603 23:10 `Other` is not in the `fails` clause of `qualified` ||add it to the signature: `fails CarrierError, Other`|
+fn infallible
+block 249..280
+  errorStmt 255..259
+fn ok
+block 135..166
+  failStmt 141..145
+    errorVariant 146..164 : CarrierError
+      literal 162..163 : i64
+fn qualified
+block 318..344
+  failStmt 324..328
+    errorVariant 329..342 : Other
+      literal 340..341 : i64
+fn unknown
+block 202..229
+  errorStmt 208..212

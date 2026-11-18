@@ -1,0 +1,68 @@
+== functions
+find print print 1 void (text: string, to: Stream) fails=false sets=
+find log log 2 void (text: string, as: LogLevel) fails=false sets=
+find panic panic 3 never (message: string) fails=false sets=
+find todo todo 4 never (message: string) fails=false sets=
+find Owned Owned 10 ? () fails=false sets=
+find Untrusted Untrusted 11 ? () fails=false sets=
+find trust trust 12 ? () fails=false sets=
+find Arena null
+find nope null
+io readFile readFile 13 List<u8> (path: string) fails=true sets=IoError
+io readText readText 14 string (path: string) fails=true sets=IoError
+io writeFile writeFile 15 void (path: string, bytes: ReadOnlySpan<u8>) fails=true sets=IoError
+io remove remove 16 void (path: string) fails=true sets=IoError
+io createDirectory createDirectory 17 void (path: string) fails=true sets=IoError
+io removeDirectory removeDirectory 18 void (path: string) fails=true sets=IoError
+io listDir listDir 19 List<string> (path: string) fails=true sets=IoError
+io run run 20 ProcessResult (program: string, args: ReadOnlySpan<string>, directory: string?, input: ReadOnlySpan<u8>?, env: Map<string, string?>?, timeout: Millis?) fails=true sets=IoError
+io runBatch runBatch 21 ProcessResult (path: string, args: ReadOnlySpan<string>) fails=true sets=IoError
+io monotonicNanos monotonicNanos 22 i64 () fails=false sets=
+io stdout stdout 24 IoStream () fails=false sets=
+io stderr stderr 25 IoStream () fails=false sets=
+io stdin stdin 26 IoInput () fails=false sets=
+io print null
+string invalidUtf8At invalidUtf8At 34 i64? (bytes: ReadOnlySpan<u8>) fails=false sets=
+string decode null
+utf8 decode decode 28 string (bytes: ReadOnlySpan<u8>) fails=true sets=Utf8Error
+utf8 tryDecode tryDecode 29 string? (bytes: ReadOnlySpan<u8>) fails=false sets=
+utf8 encode null
+parse i32 parse 35 i32 (text: string, as: Radix) fails=true sets=ParseError
+parse u8 parse 35 u8 (text: string, as: Radix) fails=true sets=ParseError
+Arena Arena 6 Arena () fails=false sets=
+StrBuf(buffer) StrBuf 7 StrBuf (buffer: Span<u8>) fails=false sets=
+StrBuf StrBuf 8 StrBuf () fails=false sets=
+StrBuf.over StrBuf.over 9 StrBuf (buffer: Span<u8>) fails=false sets=
+Utf8.decode(invalid) decode 30 string (bytes: ReadOnlySpan<u8>, invalid: Utf8Invalid) fails=false sets=
+Hex.encode encode 31 string (bytes: ReadOnlySpan<u8>) fails=false sets=
+Hex.decode decode 32 List<u8> (text: string) fails=true sets=ParseError
+path isRooted isRooted 38 bool (path: string) fails=false sets=
+path relative relative 39 string (from: string, to: string) fails=false sets=
+path fileName fileName 40 string (path: string) fails=false sets=
+path directoryName directoryName 41 string? (path: string) fails=false sets=
+path combine combine 42 string (path1: string, path2: string) fails=false sets=
+path fullPath fullPath 44 string (path: string) fails=false sets=
+Path.combine(paths) combine 43 string (paths: ReadOnlySpan<string>) fails=false sets=
+Symbol.intern intern 33 Symbol (text: string) fails=false sets=
+env get get 45 string? (name: string) fails=false sets=
+env nope null
+fs fileExists fileExists 46 bool (path: string) fails=false sets=
+fs nope null
+Env.get get 45 string? (name: string) fails=false sets=
+Fs.fileExists fileExists 46 bool (path: string) fails=false sets=
+fs rename rename 47 void (path: string, to: string) fails=true sets=IoError
+fs copy copy 48 void (path: string, to: string) fails=true sets=IoError
+fs modified modified 49 Time (path: string) fails=true sets=IoError
+fs setModified setModified 50 void (path: string, to: Time) fails=true sets=IoError
+fs realPath realPath 51 string (path: string) fails=true sets=IoError
+time now now 52 Time () fails=false sets=
+time fromNanos fromNanos 53 Time (nanos: i64) fails=false sets=
+time nope null
+Fs.rename rename 47 void (path: string, to: string) fails=true sets=IoError
+Fs.copy copy 48 void (path: string, to: string) fails=true sets=IoError
+Fs.modified modified 49 Time (path: string) fails=true sets=IoError
+Fs.setModified setModified 50 void (path: string, to: Time) fails=true sets=IoError
+Fs.realPath realPath 51 string (path: string) fails=true sets=IoError
+Time.now now 52 Time () fails=false sets=
+Time.fromNanos fromNanos 53 Time (nanos: i64) fails=false sets=
+parse i32 again true

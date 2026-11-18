@@ -1,0 +1,93 @@
+public union error ParseError { empty }
+
+public struct Row {
+    public i64 id
+}
+
+public struct CsvParser {
+    i64 n
+
+    public Row parse() => Row { id: n }
+}
+
+public struct RowBuilder {
+    i64 n
+
+    public static RowBuilder build() => RowBuilder { n: 0 }
+}
+
+public struct RowReader {
+    i64 n
+
+    public Row? tryRead() => null
+}
+
+public struct RowWriter {
+    i64 n
+
+    public void writeInto(ref this, List<Row> rows) uses alloc {
+        n += 1
+    }
+}
+
+public struct RowFormatter {
+    i64 n
+
+    public static Row formatOp(Row row) => row
+}
+
+public struct RowScanner {
+    i64 n
+
+    public static Row? tryScan() => null
+}
+
+public struct RowRecorder {
+    i64 n
+
+    public Row recordInto() => Row { id: n }
+}
+
+public struct RowRenderer {
+    public i64 render
+}
+
+public struct RowHandler {
+    i64 n
+
+    public i64 handle => n
+}
+
+public interface ITableLoader {
+    Row load()
+}
+
+public interface ITableEncoder {
+    i64 encode
+}
+
+public struct TableCodec {
+    i64 n
+
+    public Row encode() => Row { id: n }
+}
+
+public struct LineCodec {
+    i64 n
+
+    public static Row decodeOp(Row row) => row
+}
+
+public struct Carrier {
+    i64 n
+}
+
+public struct Ledger {
+    i64 n
+}
+
+public struct User {
+    i64 n
+}
+
+print("ok")

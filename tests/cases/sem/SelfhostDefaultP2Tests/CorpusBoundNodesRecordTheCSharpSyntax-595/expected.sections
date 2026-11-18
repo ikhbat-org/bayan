@@ -1,0 +1,35 @@
+== tests/cases/diag/interpolation-escapes-context.byn
+12..276 blockStmt
+18..27 localDecl
+26..27 literalExpr integer
+32..45 localDecl
+43..45 literalExpr string
+50..232 blockStmt
+60..85 localDecl
+78..85 callExpr
+94..226 contextStmt
+113..118 nameExpr
+119..226 blockStmt
+133..156 localDecl
+146..156 interpolatedExpr
+153..154 nameExpr
+169..182 exprStmt
+169..182 callExpr
+175..181 nameExpr
+169..182 callExpr
+195..216 assignStmt assign target 195..199 value 202..216
+195..199 nameExpr
+202..216 interpolatedExpr
+209..214 binaryExpr add right 213..214
+209..210 nameExpr
+213..214 literalExpr integer
+237..258 assignStmt assign target 237..241 value 244..258
+237..241 nameExpr
+244..258 interpolatedExpr
+251..256 binaryExpr add right 255..256
+251..252 nameExpr
+255..256 literalExpr integer
+263..274 exprStmt
+263..274 callExpr
+269..273 nameExpr
+263..274 callExpr

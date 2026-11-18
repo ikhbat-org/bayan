@@ -1,0 +1,7 @@
+error BYN1052: `except` takes a pattern, not a condition
+  --> <repo>/tests/cases/diag/except-not-pattern.byn:2:22
+
+  2 │     if n is 0 except n > 3 {
+    │                      ^^^^^ a condition
+    │
+  help: use `where` for a condition

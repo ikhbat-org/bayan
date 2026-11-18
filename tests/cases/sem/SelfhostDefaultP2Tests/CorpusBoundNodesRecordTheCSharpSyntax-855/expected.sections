@@ -1,0 +1,6 @@
+== tests/cases/diag/string-indexer.byn
+0..18 globalStatement
+0..18 localDecl
+11..18 literalExpr string
+19..38 localDecl
+31..38 indexExpr

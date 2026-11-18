@@ -1,0 +1,32 @@
+1:1 IntegerLiteral `0xF__`
+1:7 Identifier `ạ̇a`
+4:28 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__�ạ̇a /* never closed
+    │    ^^
+    │
+    │ 1 │ 0xF__�ạ̇a /* never closed
+    │   │    --
+
+error BYN0002: unexpected character `\u{8}`
+
+  1 │ 0xF__�ạ̇a /* never closed
+    │      ^
+
+error BYN0005: identifier `ạ̇a` is not in Unicode normalization form C
+
+  1 │ 0xF__�ạ̇a /* never closed
+    │       ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 0xF__�ạ̇a /* never closed
+    │   │       +
+
+error BYN0004: unterminated block comment
+
+  1 │ 0xF__�ạ̇a /* never closed
+    │            ^^ comment starts here
+    │
+  help: close it with `*/`

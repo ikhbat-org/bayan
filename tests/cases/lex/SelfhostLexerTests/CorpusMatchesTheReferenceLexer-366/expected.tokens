@@ -1,0 +1,18 @@
+1:1 CharLiteral `''`
+3:1 StringLiteral `"a\u{2067}b"`
+4:1 CharLiteral `'ab'`
+5:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text

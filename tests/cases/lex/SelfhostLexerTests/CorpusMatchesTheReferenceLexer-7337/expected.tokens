@@ -1,0 +1,55 @@
+1:1 Identifier `l`
+1:2 Identifier `et`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:1 FloatLiteral `3.14`
+2:6 FloatLiteral `1e5`
+2:10 FloatLiteral `2.5e-3`
+2:17 FloatLiteral `6E+2`
+2:22 FloatLiteral `1.50`
+2:26 NumericSuffix `dec`
+2:30 IntegerLiteral `1`
+2:31 DotDot `..`
+2:33 IntegerLiteral `2`
+2:35 IntegerLiteral `1`
+2:36 DotDotEquals `..=`
+2:39 IntegerLiteral `3`
+2:41 IntegerLiteral `5`
+2:42 NumericSuffix `e`
+2:44 Identifier `x`
+2:45 Dot `.`
+2:46 Minus `-`
+2:47 Identifier `y`
+2:49 FloatLiteral `2.5`
+2:52 NumericSuffix `f`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:11 IntegerLiteral `1`
+5:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  1 │ l�et x� = 1
+    │  ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ l�et x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ l�et x� = 1
+    │   │       -
+
+error BYN0002: unexpected character `$`
+
+  4 │ let a = $ 1
+    │         ^
+
+error BYN0002: unexpected character `̈́`
+
+  5 │  ̈́
+    │  ^

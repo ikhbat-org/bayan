@@ -1,0 +1,2 @@
+== diags.diag/empty-error-set
+BYN2609 1:13 error enum `NoError` has no variants

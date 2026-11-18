@@ -1,0 +1,17 @@
+== tests/cases/diag/positional-exemption.byn
+212..231 globalStatement
+212..231 localDecl
+220..231 callExpr
+226..227 literalExpr integer
+229..230 literalExpr integer
+232..247 exprStmt
+232..247 callExpr
+238..246 interpolatedExpr
+241..244 memberExpr
+241..242 nameExpr
+232..247 callExpr
+197..208 callExpr
+197..208 callExpr
+197..208 callExpr
+203..204 nameExpr
+206..207 nameExpr

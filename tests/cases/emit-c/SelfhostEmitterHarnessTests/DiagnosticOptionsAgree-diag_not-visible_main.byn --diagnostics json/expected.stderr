@@ -1,0 +1,1 @@
+{"code":"BYN2005","severity":"error","file":"input/main.byn","span":{"start":27,"end":32,"line":2,"column":15,"endLine":2,"endColumn":20},"message":"`round` is not visible here","label":"not `public`","help":"mark `round` `public` to use it from another module","fixes":[]}

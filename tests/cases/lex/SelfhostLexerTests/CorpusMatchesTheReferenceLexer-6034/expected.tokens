@@ -1,0 +1,17 @@
+1:1 CharLiteral `'\u{10000}`
+2:2 StringLiteral `" ̈́ `
+2:6 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '\u{10000}
+    │ ^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  2 │  " ̈́ 
+    │  ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

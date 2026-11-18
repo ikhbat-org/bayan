@@ -1,0 +1,10 @@
+ÿ let b = ` 2
+
+${total {x}" "a {f($"b {c}")} d" $"{{literal}}ã $"{Point { x = 1 }}!" $""
+
+/// Doc line two.
+
+'\u{D800}'
+
+50dec 11__
+  

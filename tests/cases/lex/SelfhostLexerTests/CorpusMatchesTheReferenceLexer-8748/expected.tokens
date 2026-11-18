@@ -1,0 +1,27 @@
+    doc `/// Doc line two.`
+3:3 LetKeyword `let`
+3:7 Identifier `café`
+3:13 Equals `=`
+3:15 IntegerLiteral `1`
+3:16 Semicolon `;`
+    doc `/// Do line two.`
+4:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  3 │ � let café = 1;/// Do line two.
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � let café = 1;/// Do line two.
+    │   │ -
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ � let café = 1;/// Do line two.
+    │       ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ � let café = 1;/// Do line two.
+    │   │          +

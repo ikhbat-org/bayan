@@ -1,0 +1,74 @@
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolatedStringText `total `
+2:12 InterpolationStart `{`
+2:13 Identifier `x`
+2:14 InterpolationEnd `}`
+2:15 InterpolatedStringEnd `"`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolatedStringText `a `
+2:21 InterpolationStart `{`
+2:22 Identifier `f`
+2:23 OpenParen `(`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolatedStringText `b `
+2:28 InterpolationStart `{`
+2:29 Identifier `c`
+2:30 InterpolationEnd `}`
+2:31 InterpolatedStringEnd `"`
+2:32 CloseParen `)`
+2:33 InterpolationEnd `}`
+2:34 InterpolatedStringText ` d`
+2:36 InterpolatedStringEnd `"`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolatedStringText `{{literal}}`
+2:51 InterpolatedStringEnd `"`
+2:53 InterpolatedStringStart `$"`
+2:55 InterpolationStart `{`
+2:56 Identifier `Poinvt`
+2:64 Identifier `x`
+2:66 Equals `=`
+2:68 IntegerLiteral `1`
+2:70 InterpolationEnd `}`
+2:71 InterpolatedStringText `}!`
+2:73 InterpolatedStringEnd `"`
+2:75 InterpolatedStringStart `$"`
+2:77 InterpolatedStringEnd `"`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ �� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Poinvt  x = 1 }}!" $""
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ �� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Poinvt  x = 1 }}!" $""
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │ �� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Poinvt  x = 1 }}!" $""
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │ �� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Poinvt  x = 1 }}!" $""
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ �� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Poinvt  x = 1 }}!" $""
+    │   ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ �� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Poinvt  x = 1 }}!" $""
+    │                                                                       ^
+    │
+    │ 2 │ �� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Poinvt  x = 1 }}}!" $""
+    │   │                                                                        +

@@ -1,0 +1,2 @@
+== call.c5
+builtinCall|i32?|local:string|intTryParse|-|1456:25|enumMember:Radix=hex

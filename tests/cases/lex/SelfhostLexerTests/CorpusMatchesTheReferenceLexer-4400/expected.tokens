@@ -1,0 +1,55 @@
+1:2 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+4:2 Identifier `nt`
+4:5 OpenBrace `{`
+4:7 Identifier `x`
+4:9 Equals `=`
+4:11 IntegerLiteral `1`
+4:13 CloseBrace `}`
+4:14 CloseBrace `}`
+4:15 Bang `!`
+4:16 StringLiteral `" $"`
+4:20 StringLiteral `"`
+5:2 TestKeyword `test`
+5:7 AssertKeyword `assert`
+5:14 PropertyKeyword `property`
+5:23 FuzzKeyword `fuzz`
+5:28 ModelKeyword `model`
+5:34 ForeachKeyword `foreach`
+5:42 NewKeyword `new`
+5:46 GotoKeyword `goto`
+7:1 CharLiteral `''`
+8:1 CharLiteral `'a'`
+8:5 CharLiteral `'\n'`
+8:10 CharLiteral `'\u{1F600}'`
+8:22 CharLiteral `'\''`
+8:27 CharLiteral `'é'`
+8:31 CharLiteral `'\\'`
+8:36 CharLiteral `'\0'`
+10:3 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ let café = 1
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  4 │  nt { x = 1 }}!" $""
+    │                    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0007: empty char literal
+
+  7 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

@@ -1,0 +1,5 @@
+== diags.diag/type-name-order-function-type
+BYN1043 4:5 `i32 -> bool f` is an input form; write `let f: i32 -> bool`
+  label type before name
+  help write `let f: i32 -> bool`; local bindings put the name first
+  fix 4:5-4:18 let f: i32 -> bool

@@ -1,0 +1,23 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/outside/outside.byn
+93..139 blockStmt
+99..111 localDecl
+107..111 structLiteralExpr
+49..58 binaryExpr mul right 57..58
+49..54 nameExpr
+57..58 literalExpr integer
+74..77 literalExpr string
+116..137 exprStmt
+116..137 callExpr
+122..136 interpolatedExpr
+125..128 memberExpr
+125..126 nameExpr
+131..134 memberExpr
+131..132 nameExpr
+116..137 callExpr
+49..58 binaryExpr mul right 57..58
+49..54 nameExpr
+57..58 literalExpr integer
+74..77 literalExpr string
+19..24 binaryExpr add right 23..24
+19..20 literalExpr integer
+23..24 literalExpr integer

@@ -1,0 +1,22 @@
+1:1 IntegerLiteral `0B11`
+1:6 IntegerLiteral `5`
+1:7 NumericSuffix `s`
+1:9 IntegerLiteral `250`
+1:12 NumericSuffix `ms`
+1:15 IntegerLiteral `4`
+1:16 NumericSuffix `KiB`
+1:20 IntegerLiteral `1`
+1:21 NumericSuffix `u`
+1:23 IntegerLiteral `0xFF`
+1:27 NumericSuffix `u`
+1:29 IntegerLiteral `0`
+1:30 NumericSuffix `b`
+1:32 LetKeyword `let`
+1:36 Identifier `café`
+1:42 IntegerLiteral `2`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  1 │ 0B11 5s 250ms 4KiB 1u 0xFFu 0b let café � 2
+    │                                         ^

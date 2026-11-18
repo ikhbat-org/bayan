@@ -1,0 +1,36 @@
+== states
+diag BYN7008 4:9 state `.empty` has the same name as static member `Cart.empty` |  | rename the state or the static member | none
+diag BYN7008 5:9 state `.full` has the same name as static member `Cart.full` |  | rename the state or the static member | none
+diag BYN7010 11:15 `drop` declares `becomes .empty` but takes `this is .full`; a transition needs `ref this` |  | change the receiver of `drop` to `ref this`, or return the new state as a value | 11:15+0 "ref "
+diag BYN2022 22:9 `requires` on a generic struct is not supported in v0.1 |  |  | none
+diag BYN7007 33:48 `Gen<i64>` has no state `.nope` |  | check the states declared in `Gen<i64>` | none
+diag BYN7007 10:27 `Cart` has no state `.gone` |  | check the states declared in `Cart` | none
+diag BYN7007 10:42 `Cart` has no state `.lost` |  | check the states declared in `Cart` | none
+diag BYN2701 17:9 union `Dup` already has a variant `on` | already declared on line 16 |  | none
+diag BYN2009 18:9 `Off` must be camelCase |  | rename it `off`; only types are PascalCase | 18:9+3 "off"
+diag BYN2701 26:9 union `Gen` already has a variant `on` | already declared on line 24 |  | none
+diag BYN7007 28:41 `Gen` has no state `.nope` |  | check the states declared in `Gen` | none
+diag BYN7007 31:31 `Plain` has no state `.on` |  | check the states declared in `Plain` | none
+struct Cart
+  method empty method module static=True abstract=False at=7:23 ret=Cart.empty () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+  method fill method module static=False abstract=False at=9:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+  method bad method module static=False abstract=False at=10:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+  method drop method module static=False abstract=False at=11:10 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+  states empty,full
+struct Dup
+  states on,Off
+struct Gen
+  method flip method module static=False abstract=False at=28:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[T]
+  states on,off
+struct Plain
+  method x method module static=False abstract=False at=31:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+states 4
+all use function module static=False abstract=False at=33:6 ret=void (h:Gen<i64>@33:19#0:none,s:Gen<i64>.on@33:37#1:none,n:?@33:58#2:none) fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all empty method module static=True abstract=False at=7:23 ret=Cart.empty () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all full getter module static=False abstract=False at=8:16 ret=i64 () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all fill method module static=False abstract=False at=9:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+all bad method module static=False abstract=False at=10:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+all drop method module static=False abstract=False at=11:10 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all flip method module static=False abstract=False at=28:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[T]
+all x method module static=False abstract=False at=31:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+all flip method module static=False abstract=False at=28:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[T]

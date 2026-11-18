@@ -1,0 +1,21 @@
+1:4 Identifier `comment`
+1:12 Slash `/`
+1:14 Identifier `a`
+2:2 Identifier `l`
+2:4 Identifier `t`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:10 RawStringLiteral `"""never closed\n`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC4)
+
+  2 │  l�t c = """never closed
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │  l�t c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

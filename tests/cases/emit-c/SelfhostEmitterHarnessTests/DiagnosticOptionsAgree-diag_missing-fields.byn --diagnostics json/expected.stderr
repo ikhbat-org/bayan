@@ -1,0 +1,1 @@
+{"code":"BYN2109","severity":"error","file":"input.byn","span":{"start":46,"end":60,"line":6,"column":9,"endLine":6,"endColumn":23},"message":"`Point` needs a value for `y`","label":null,"help":"set it: `Point { y: … }`","fixes":[]}

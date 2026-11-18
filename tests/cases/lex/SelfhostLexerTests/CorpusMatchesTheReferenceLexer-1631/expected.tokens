@@ -1,0 +1,33 @@
+    doc `/// Do� line one.`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
+4:1 Identifier `macro`
+4:7 Identifier `select`
+4:14 BecomeKeyword `become`
+4:21 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  1 │ /// Do� line one.
+    │       ^
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ 1
+    │         ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │ macro select become 
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ macro select become 
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

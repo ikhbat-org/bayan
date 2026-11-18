@@ -1,0 +1,6 @@
+1. 'ab'
+
+let a = 1
+pen
+let b =a"bad \q escape"
+let c = """never clos a >> b

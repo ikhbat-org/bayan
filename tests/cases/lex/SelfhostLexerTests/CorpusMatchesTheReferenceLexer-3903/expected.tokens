@@ -1,0 +1,43 @@
+1:1 IntegerLiteral `0b102`
+2:2 Slash `/`
+2:3 Slash `/`
+2:5 Identifier `comment`
+2:15 Identifier `hidden`
+3:1 IntegerLiteral `0x`
+4:2 LetKeyword `let`
+4:6 Identifier `actor`
+4:12 Equals `=`
+4:14 IntegerLiteral `1`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8E)
+
+  2 │  /�/ comment � hidden
+    │   ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  /�/ comment � hidden
+    │              ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  /�/ comment � hidden
+    │   │              -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  4 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

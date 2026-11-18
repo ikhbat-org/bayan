@@ -1,0 +1,64 @@
+1:1 IntegerLiteral `0`
+1:3 IntegerLiteral `42`
+1:6 IntegerLiteral `1_000_00`
+1:15 IntegerLiteral `0xFF`
+1:20 IntegerLiteral `0x_ff`
+1:26 IntegerLiteral `0`
+1:27 NumericSuffix `b`
+1:29 IntegerLiteral `1010`
+1:34 IntegerLiteral `0B11`
+1:39 IntegerLiteral `5`
+1:40 NumericSuffix `s`
+1:42 IntegerLiteral `250`
+1:45 NumericSuffix `ms`
+1:48 IntegerLiteral `4`
+1:49 NumericSuffix `KiB`
+1:53 IntegerLiteral `1`
+1:54 NumericSuffix `u`
+1:56 IntegerLiteral `0xFF`
+1:60 NumericSuffix `u`
+1:62 IntegerLiteral `0b1`
+1:65 NumericSuffix `ul`
+1:68 IntegerLiteral `7`
+1:69 NumericSuffix `l`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `{{`
+2:6 InterpolatedStringEnd `"`
+3:1 IntegerLiteral `0xF__`
+4:1 Identifier `t`
+4:3 Identifier `b`
+4:5 Equals `=`
+4:7 StringLiteral `"bad \q`
+4:14 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  1 │ 0 42� 1_000_00 0xFF 0x_ff 0b�1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ 0 42� 1_000_00 0xFF 0x_ff 0b�1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                             ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  4 │ t b = "bad \q
+    │       ^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ t b = "bad \q
+    │            ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

@@ -1,0 +1,2 @@
+{"code":"BYN2217","severity":"error","file":"input.byn","span":{"start":8,"end":12,"line":1,"column":9,"endLine":1,"endColumn":13},"message":"cannot infer the type of `null`","label":null,"help":"write the type: `i64? x = null`","fixes":[]}
+{"code":"BYN2217","severity":"error","file":"input.byn","span":{"start":17,"end":18,"line":2,"column":5,"endLine":2,"endColumn":6},"message":"cannot infer the type of `y`","label":null,"help":"write the type: `var i64 y`","fixes":[]}

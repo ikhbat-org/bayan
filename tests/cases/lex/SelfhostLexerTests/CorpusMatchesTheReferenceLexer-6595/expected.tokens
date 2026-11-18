@@ -1,0 +1,89 @@
+1:1 IntegerLiteral `0b102`
+3:1 Identifier `Å`
+4:1 Identifier `a`
+4:3 Greater `>`
+4:4 Greater `>`
+4:6 Identifier `b`
+6:1 Star `*`
+6:2 Slash `/`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:44 Identifier `W`
+6:45 OpenBrace `{`
+6:46 Identifier `x`
+6:47 CloseBrace `}`
+6:48 StringLiteral `"}"`
+6:51 InterpolationEnd `}`
+6:52 InterpolatedStringEnd `"`
+6:53 InterpolationEnd `}`
+6:54 InterpolatedStringEnd `"`
+6:55 InterpolationEnd `}`
+6:56 InterpolatedStringEnd `"`
+6:57 InterpolationEnd `}`
+6:58 InterpolatedStringEnd `"`
+6:59 InterpolationEnd `}`
+6:60 InterpolatedStringEnd `"`
+6:61 InterpolationEnd `}`
+6:62 InterpolatedStringEnd `"`
+6:63 InterpolationEnd `}`
+6:64 InterpolatedStringEnd `"`
+6:65 InterpolationEnd `}`
+6:66 InterpolatedStringEnd `"`
+6:67 InterpolationEnd `}`
+6:68 InterpolatedStringEnd `"`
+6:69 InterpolationEnd `}`
+6:70 InterpolatedStringEnd `"`
+6:71 InterpolationEnd `}`
+6:72 InterpolatedStringEnd `"`
+6:74 Identifier `b`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ Å
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  6 │ */ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$W{x}"}"}"}"}"}"}"}"}"}"}"}"}" b
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  6 │ */ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$W{x}"}"}"}"}"}"}"}"}"}"}"}"}" b
+    │                                           ^

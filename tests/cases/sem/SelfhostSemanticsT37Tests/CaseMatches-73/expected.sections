@@ -1,0 +1,4 @@
+== check.after
+counts 1 1 0
+mut xs 2161..2164 false -
+loan xs h 2105 0

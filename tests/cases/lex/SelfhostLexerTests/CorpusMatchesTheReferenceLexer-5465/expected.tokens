@@ -1,0 +1,61 @@
+1:1 CharLiteral `'`
+3:1 CharLiteral `'\u{110000}'`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:6 Bar `|`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 EqualsEquals `==`
+4:22 BangEquals `!=`
+4:25 Less `<`
+4:27 LessEquals `<=`
+4:30 Greater `>`
+4:32 GreaterEquals `>=`
+4:35 LessLess `<<`
+4:38 Greater `>`
+4:39 Identifier `u`
+4:40 Greater `>`
+4:42 Greater `>`
+4:43 GreaterEquals `>=`
+5:1 LetKeyword `let`
+5:5 Identifier `actor`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:5 LawKeyword `law`
+7:9 Equals `=`
+7:11 IntegerLiteral `3`
+    doc `///`
+10:1 Identifier `lt`
+10:6 Equals `=`
+10:8 IntegerLiteral `2`
+11:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  5 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  10 │ lt � = 2
+     │    ^

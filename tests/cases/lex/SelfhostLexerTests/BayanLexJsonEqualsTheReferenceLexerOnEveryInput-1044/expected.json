@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"IntegerLiteral","start":0,"end":2,"text":"01","doc":null},{"kind":"NumericSuffix","start":2,"end":4,"text":"ms","doc":null},{"kind":"EndOfFile","start":4,"end":4,"text":"","doc":null}],"diagnostics":[]}

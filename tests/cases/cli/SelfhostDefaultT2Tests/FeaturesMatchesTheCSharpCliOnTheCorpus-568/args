@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/for-dyn-ref-map-index.byn
+--package
+<repo>/tests/cases/diag

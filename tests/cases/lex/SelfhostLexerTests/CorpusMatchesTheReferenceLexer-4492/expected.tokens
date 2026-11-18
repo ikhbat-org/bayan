@@ -1,0 +1,35 @@
+1:1 Identifier `sed`
+2:1 Identifier `b`
+4:4 InKeyword `in`
+4:7 Identifier `comment`
+5:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │  � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  �����
+    │      ^

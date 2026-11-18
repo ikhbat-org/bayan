@@ -1,0 +1,57 @@
+0.1.0/
+0.1.0/BUILDINFO.json 644
+{
+  "package": "local/tally",
+  "version": "0.1.0",
+  "compiler": "bayan 0.3.2",
+  "mode": "safe",
+  "targets": [
+    "linux-x64",
+    "macos-arm64",
+    "windows-x64"
+  ],
+  "source": null,
+  "inputs": "sha256:e04356b31a67296eec0b78e44aad6f2c1001f117342bfa070dc64dde955401a0"
+}
+
+0.1.0/SHA256SUMS 644
+<hash>  linux-x64/tally
+<hash>  macos-arm64/tally
+<hash>  windows-x64/tally.exe
+
+0.1.0/linux-x64/
+0.1.0/linux-x64/tally 755 <binary>
+0.1.0/macos-arm64/
+0.1.0/macos-arm64/tally 755 <binary>
+0.1.0/windows-x64/
+0.1.0/windows-x64/tally.exe 755 <binary>
+latest/
+latest/BUILDINFO.json 644
+{
+  "package": "local/tally",
+  "version": "0.1.0",
+  "compiler": "bayan 0.3.2",
+  "mode": "safe",
+  "targets": [
+    "linux-x64",
+    "macos-arm64",
+    "windows-x64"
+  ],
+  "source": null,
+  "inputs": "sha256:e04356b31a67296eec0b78e44aad6f2c1001f117342bfa070dc64dde955401a0"
+}
+
+latest/SHA256SUMS 644
+<hash>  linux-x64/tally
+<hash>  macos-arm64/tally
+<hash>  windows-x64/tally.exe
+
+latest/VERSION 644
+0.1.0
+
+latest/linux-x64/
+latest/linux-x64/tally 755 <binary>
+latest/macos-arm64/
+latest/macos-arm64/tally 755 <binary>
+latest/windows-x64/
+latest/windows-x64/tally.exe 755 <binary>

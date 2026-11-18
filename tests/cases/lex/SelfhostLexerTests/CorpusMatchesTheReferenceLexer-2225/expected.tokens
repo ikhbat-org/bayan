@@ -1,0 +1,27 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Identifier `b`
+1:7 Plus `+`
+3:1 LetKeyword `let`
+3:7 Equals `=`
+3:9 IntegerLiteral `2`
+4:1 LetKeyword `let`
+4:5 Identifier `Q`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 IntegerLiteral `1`
+5:3 NumericSuffix `eafé`
+5:9 Equals `=`
+5:11 IntegerLiteral `1`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ let � = 2
+    │     ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let Q = � 3
+    │         ^

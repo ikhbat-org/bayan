@@ -1,0 +1,41 @@
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 MinusPercent `-%`
+3:17 StarPercent `*%`
+3:20 PlusBar `+|`
+3:23 MinusBar `-|`
+3:26 StarBar `*|`
+3:29 PlusPlus `++`
+3:32 MinusMinus `--`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 StringLiteral `"open`
+5:2 LetKeyword `let`
+5:6 Identifier `b`
+5:8 Equals `=`
+5:10 StringLiteral `"bad \q escape"`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA5)
+
+  4 │ let a� = "open
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  4 │ let a� = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

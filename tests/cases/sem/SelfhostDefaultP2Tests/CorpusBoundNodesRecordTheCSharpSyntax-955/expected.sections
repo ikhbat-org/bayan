@@ -1,0 +1,6 @@
+== tests/cases/diag/unsupported.byn
+30..48 globalStatement
+30..48 localDecl
+44..48 literalExpr nullKeyword
+49..65 localDecl
+57..60 memberExpr

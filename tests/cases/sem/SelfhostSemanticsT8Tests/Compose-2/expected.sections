@@ -1,0 +1,8 @@
+== compose diagnostics
+BYN2002 20:5 unknown type `Strbuf` help: did you mean `StrBuf`?
+BYN2002 21:5 unknown type `boolean` help: did you mean `bool`?
+BYN2002 22:5 unknown type `str` help: did you mean `string`?
+BYN2002 23:13 unknown type `Missing`
+BYN2002 24:5 unknown type `a.b.c`
+BYN2608 18:17 `A | B except .x` is not an error enum
+BYN2760 19:9 `List<i32>` cannot be a `Map` key help: use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those as the key

@@ -1,0 +1,1 @@
+{"code":"BYN2034","severity":"error","file":"input.byn","span":{"start":28,"end":29,"line":1,"column":29,"endLine":1,"endColumn":30},"message":"the default of field `A.b` depends on itself","label":null,"help":null,"fixes":[]}

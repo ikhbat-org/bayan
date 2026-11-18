@@ -1,0 +1,80 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolationStart `{`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:12 OpenBrace `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolatedStringText `$`
+1:19 InterpolatedStringEnd `"`
+1:20 OpenBrace `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 Identifier `x`
+1:49 InterpolationEnd `}`
+1:50 InterpolatedStringEnd `"`
+1:51 InterpolationEnd `}`
+1:52 InterpolatedStringEnd `"`
+1:53 InterpolationEnd `}`
+1:54 InterpolatedStringEnd `"`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 InterpolationEnd `}`
+1:58 InterpolatedStringEnd `"`
+1:59 InterpolationEnd `}`
+1:60 InterpolatedStringEnd `"`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:13 MinusPercent `-%`
+2:16 StarPercent `*%`
+2:19 PlusBar `+|`
+2:22 MinusBar `-|`
+2:25 StarBar `*|`
+2:28 PlusPlus `++`
+2:31 MinusMinus `--`
+3:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ �$"{$"{$"{${$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �$"{$"{$"{${$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │   │ -
+
+error BYN0002: unexpected character `$`
+
+  1 │ �$"{$"{$"{${$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �$"{$"{$"{${$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │                           ^^ this string never ends
+    │
+  help: close the `{` and the string

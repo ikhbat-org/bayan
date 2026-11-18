@@ -1,0 +1,85 @@
+error BYN2003: `notFound` is not a member of `i64`
+  --> <repo>/tests/cases/parse/postfix.byn:3:13
+
+  3 │     return .notFound unless db.find(id) is { } order
+    │             ^^^^^^^^
+
+error BYN2001: `db` is not defined
+  --> <repo>/tests/cases/parse/postfix.byn:3:29
+
+  3 │     return .notFound unless db.find(id) is { } order
+    │                             ^^
+
+error BYN2001: `id` is not defined
+  --> <repo>/tests/cases/parse/postfix.byn:3:37
+
+  3 │     return .notFound unless db.find(id) is { } order
+    │                                     ^^
+    │
+  help: did you mean `Io`?
+    │ 3 │     return .notFound unless db.find(Io) is { } order
+    │   │                                     ++
+
+error BYN2001: `d` is not defined
+  --> <repo>/tests/cases/parse/postfix.byn:4:5
+
+  4 │     d++ if debtor.amount == 0
+    │     ^
+    │
+  help: did you mean `n`?
+    │ 4 │     n++ if debtor.amount == 0
+    │   │     +
+
+error BYN2001: `debtor` is not defined
+  --> <repo>/tests/cases/parse/postfix.byn:4:12
+
+  4 │     d++ if debtor.amount == 0
+    │            ^^^^^^
+
+error BYN2001: `total` is not defined
+  --> <repo>/tests/cases/parse/postfix.byn:5:5
+
+  5 │     total = 0 unless keep
+    │     ^^^^^
+
+error BYN2001: `keep` is not defined
+  --> <repo>/tests/cases/parse/postfix.byn:5:22
+
+  5 │     total = 0 unless keep
+    │                      ^^^^
+
+error BYN2202: expected `string`, found `i64`
+  --> <repo>/tests/cases/parse/postfix.byn:7:9
+
+  7 │     log(n) if verbose
+    │         ^
+
+error BYN2001: `verbose` is not defined
+  --> <repo>/tests/cases/parse/postfix.byn:7:15
+
+  7 │     log(n) if verbose
+    │               ^^^^^^^
+
+error BYN2406: `break` outside a loop
+  --> <repo>/tests/cases/parse/postfix.byn:8:5
+
+  8 │     break if done
+    │     ^
+
+error BYN2001: `done` is not defined
+  --> <repo>/tests/cases/parse/postfix.byn:8:14
+
+  8 │     break if done
+    │              ^^^^
+
+error BYN2406: `continue` outside a loop
+  --> <repo>/tests/cases/parse/postfix.byn:9:5
+
+  9 │     continue unless ready
+    │     ^
+
+error BYN2001: `ready` is not defined
+  --> <repo>/tests/cases/parse/postfix.byn:9:21
+
+  9 │     continue unless ready
+    │                     ^^^^^

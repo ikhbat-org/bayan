@@ -1,0 +1,12 @@
+== tests/cases/diag/null-equality-optional-fix.byn
+12..82 blockStmt
+18..36 localDecl
+32..36 literalExpr nullKeyword
+41..58 localDecl
+49..58 binaryExpr eq right 54..58
+49..50 nameExpr
+54..58 literalExpr nullKeyword
+63..80 localDecl
+71..80 binaryExpr ne right 76..80
+71..72 nameExpr
+76..80 literalExpr nullKeyword

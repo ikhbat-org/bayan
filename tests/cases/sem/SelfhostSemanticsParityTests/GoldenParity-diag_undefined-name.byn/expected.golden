@@ -1,0 +1,8 @@
+error BYN2001: `cout` is not defined
+
+  2 │ print($"{cout}")
+    │          ^^^^
+    │
+  help: did you mean `count`?
+    │ 2 │ print($"{count}")
+    │   │             +

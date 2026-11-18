@@ -1,0 +1,90 @@
+1:1 CharLiteral `''`
+3:1 Identifier `b`
+5:3 Identifier `raw`
+5:7 StringLiteral `"quoted"`
+7:1 Amp `&`
+7:3 AmpAmp `&&`
+7:6 Bar `|`
+7:8 BarBar `||`
+7:11 Caret `^`
+7:13 Tilde `~`
+7:15 Bang `!`
+7:17 Equals `=`
+7:19 EqualsEquals `==`
+7:22 BangEquals `!=`
+7:25 Less `<`
+7:27 LessEquals `<=`
+7:30 Greater `>`
+7:32 GreaterEquals `>=`
+7:35 LessLess `<<`
+7:38 Greater `>`
+7:39 Greater `>`
+7:41 Greater `>`
+7:42 GreaterEquals `>=`
+8:2 LetKeyword `let`
+8:6 Identifier `x`
+8:9 Equals `=`
+8:11 IntegerLiteral `1`
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolationStart `{`
+10:4 Identifier `a`
+11:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  8 │ ���let x� = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  8 │ ���let x� = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ���let x� = 1
+    │   ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  8 │ ���let x� = 1
+    │         ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ ���let x� = 1
+    │   │         -
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{a
+     │ ^^ this string never ends
+     │
+  help: close the `{` and the string

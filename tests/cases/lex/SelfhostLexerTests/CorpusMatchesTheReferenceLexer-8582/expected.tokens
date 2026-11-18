@@ -1,0 +1,28 @@
+4:1 LetKeyword `let`
+4:5 Identifier `D`
+4:7 Equals `=`
+4:9 IntegerLiteral `2`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 DefaultKeyword `default`
+5:36 ForKeyword `for`
+5:40 InKeyword `in`
+5:43 WhileKeyword `while`
+5:49 DoKeyword `do`
+5:52 BreakKeyword `break`
+5:58 ContinueKeyword `continue`
+5:67 ReturnKeyword `return`
+5:74 YieldKeyword `yield`
+5:80 DeferKeyword `defer`
+5:86 Identifier `ermrdefer`
+5:96 UsingKeyword `using`
+5:102 ContextKeyword `context`
+6:2 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ �
+    │ ^

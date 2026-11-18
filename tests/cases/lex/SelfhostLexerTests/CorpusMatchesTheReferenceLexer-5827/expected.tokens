@@ -1,0 +1,82 @@
+1:2 Equals `=`
+1:4 StringLiteral `"open`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q escape"`
+3:1 Identifier `le`
+3:4 Amp `&`
+3:6 AmpAmp `&&`
+3:9 Bar `|`
+3:11 BarBar `||`
+3:14 Caret `^`
+3:16 Tilde `~`
+3:18 Bang `!`
+3:20 Equals `=`
+3:22 EqualsEquals `==`
+3:25 BangEquals `!=`
+3:28 Less `<`
+3:30 LessEquals `<=`
+3:33 Greater `>`
+3:35 GreaterEquals `>=`
+3:38 LessLess `<<`
+3:41 Greater `>`
+3:42 Greater `>`
+3:44 Greater `>`
+3:45 GreaterEquals `>=`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:9 StringLiteral `"bad \q escape"`
+7:1 Identifier `fé`
+7:5 Equals `=`
+7:7 Bang `!`
+7:8 IntegerLiteral `1`
+8:1 LetKeyword `let`
+8:5 Identifier `caf`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:13 Identifier `a`
+8:14 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │  = "open
+    │    ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0005: identifier `fé` is not in Unicode normalization form C
+
+  7 │ fé = !1
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ fé = !1
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  8 │ let caf� $"{a
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  8 │ let caf� $"{a
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string

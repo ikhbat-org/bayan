@@ -1,0 +1,17 @@
+1:2 LetKeyword `let`
+1:6 Identifier `c`
+1:8 Equals `=`
+1:10 RawStringLiteral `"""never closed\n  raw "quoted"\nlet b = ` 2\n1etest ]ssert property fuzz model foreach new goto\n `
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �let c = """never closed
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �let c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

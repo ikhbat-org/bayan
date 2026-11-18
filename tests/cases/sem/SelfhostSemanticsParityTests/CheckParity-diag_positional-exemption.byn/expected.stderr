@@ -1,0 +1,18 @@
+error BYN5004: `make` has 2 unlabeled parameters; give each but one a particle
+  --> tmp/t26-tests/cli/diag_positional-exemption.byn/positional-exemption.byn:8:18
+
+  8 │     static Point make(i64 x, i64 y) => Point(x, y)
+    │                  ^^^^ 2 unlabeled parameters
+    │
+  help: keep one unlabeled parameter, the object
+
+error BYN5006: `y` is a required parameter besides the object and needs a particle
+  --> tmp/t26-tests/cli/diag_positional-exemption.byn/positional-exemption.byn:8:34
+
+  8 │     static Point make(i64 x, i64 y) => Point(x, y)
+    │                                  ^ needs a particle
+    │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN5004

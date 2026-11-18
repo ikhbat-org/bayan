@@ -1,0 +1,30 @@
+union error E {
+    bad
+}
+
+union error F {
+    withCode(i64 code)
+}
+
+void h() fails E {
+    fail 3
+}
+
+void k() fails F {
+    fail .withCode
+}
+
+void m() fails F {
+    fail F.withCode
+}
+
+void w() fails E {
+    defer panicking (p) fail E.bad
+    h()
+}
+
+void v() {
+    return panic("x")
+}
+
+void main() {}

@@ -1,0 +1,71 @@
+1:1 Identifier `café`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+3:1 IntegerLiteral `0x`
+4:1 IntegerLiteral `0b__`
+5:1 IntegerLiteral `1_`
+5:3 Star `*`
+6:1 IntegerLiteral `0xF__`
+8:1 CharLiteral `'\u{110000}'`
+9:1 LetKeyword `let`
+9:5 Identifier `a`
+9:7 Equals `=`
+9:9 StringLiteral `"open`
+10:2 Identifier `_`
+11:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ café = 1
+    │ ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ café = 1
+    │   │    +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_*�
+    │  ^
+    │
+    │ 5 │ 1_*�
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  5 │ 1_*�
+    │    ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 0xF__
+    │    ^^
+    │
+    │ 6 │ 0xF__
+    │   │    --
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  8 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  9 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

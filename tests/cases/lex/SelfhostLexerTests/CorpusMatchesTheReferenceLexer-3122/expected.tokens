@@ -1,0 +1,42 @@
+1:1 Identifier `ạ̇`
+1:4 CharLiteral `' '`
+1:8 CharLiteral `''`
+1:10 Identifier `faisls`
+1:17 TryKeyword `try`
+1:21 CatchKeyword `catch`
+1:27 NeverKeyword `never`
+1:33 NoallocKeyword `noalloc`
+1:41 NosuspendKeyword `nosuspend`
+1:51 SuspendsKeyword `suspends`
+1:60 AsyncKeyword `async`
+1:66 AwaitKeyword `await`
+2:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n `
+3:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇' '\''faisls try catch never noalloc nosuspend suspends async await
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇' '\''faisls try catch never noalloc nosuspend suspends async await
+    │   │ ++
+
+error BYN0002: unexpected character `\`
+
+  1 │ ạ̇' '\''faisls try catch never noalloc nosuspend suspends async await
+    │       ^
+
+error BYN0007: empty char literal
+
+  1 │ ạ̇' '\''faisls try catch never noalloc nosuspend suspends async await
+    │        ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  2 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

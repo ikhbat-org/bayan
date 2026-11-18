@@ -1,0 +1,12 @@
+# BYN2304: positional after named
+
+**Why.** After a named argument, positions no longer line up with parameters.
+
+**Example.**
+
+```
+i64 f(i64 x, by i64 y) => x + y
+let a = f(by: 1, 2)
+```
+
+**Fix.** Name the remaining arguments too.

@@ -1,0 +1,107 @@
+1:1 Slash `/`
+1:3 Identifier `ok`
+1:8 InKeyword `in`
+1:11 Identifier `comment`
+3:1 Identifier `t`
+3:2 Less `<`
+3:3 Identifier `i64`
+3:6 Greater `>`
+3:7 Greater `>`
+4:1 Identifier `a`
+4:3 Greater `>`
+4:4 Greater `>`
+4:6 Identifier `b`
+5:1 Identifier `c`
+5:3 Greater `>`
+5:4 Greater `>`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:38 OpenBrace `{`
+6:39 InterpolatedStringStart `$"`
+6:41 InterpolationStart `{`
+6:42 InterpolatedStringStart `$"`
+6:44 InterpolatedStringText `x}`
+6:46 InterpolatedStringEnd `"`
+6:47 InterpolationEnd `}`
+6:48 InterpolatedStringEnd `"`
+6:49 CloseBrace `}`
+6:50 StringLiteral `"}"`
+6:53 InterpolationEnd `}`
+6:54 InterpolatedStringEnd `"`
+6:55 IfKeyword `if`
+6:58 ElseKeyword `else`
+6:63 UnlessKeyword `unless`
+6:70 SwitchKeyword `switch`
+6:77 CaseKeyword `case`
+6:82 DefaultKeyword `default`
+6:90 ForKeyword `for`
+6:94 InKeyword `in`
+6:97 WhileKeyword `while`
+6:103 DoKeyword `do`
+6:106 BreakKeyword `break`
+6:112 ContinueKeyword `continue`
+6:121 ReturnKeyword `return`
+6:128 YieldKeyword `yield`
+6:134 DeferKeyword `defer`
+6:140 ErrdeferKeyword `errdefer`
+6:149 UsingKeyword `using`
+6:155 ContextKeyword `context`
+8:1 LetKeyword `let`
+8:5 Identifier `b`
+8:7 Equals `=`
+8:9 StringLiteral `"bad \q escape"`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ / ok � in comment
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"x}"}"}"}"}"if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"x}"}"}"}"}"if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │                                     ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"x}"}"}"}"}"if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │                                             ^
+    │
+    │ 6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"x}}"}"}"}"}"if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │   │                                              +
+
+error BYN0006: invalid escape sequence `\q`
+
+  8 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

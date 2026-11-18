@@ -1,0 +1,39 @@
+error BYN1044: `unique struct` is an input form; write `struct unique`
+  --> <repo>/tests/cases/diag/input-keyword-order.byn:1:1
+
+  1 │ unique struct File {
+    │ ^^^^^^^^^^^^^ the input form
+    │
+  help: put the kind first: `struct unique`
+    │ 1 │ struct unique File {
+    │   │ +++++++++++++
+
+error BYN1044: `error enum` is an input form; write `union error`
+  --> <repo>/tests/cases/diag/input-keyword-order.byn:5:1
+
+  5 │ error enum StockError {
+    │ ^^^^^^^^^^ the input form
+    │
+  help: put the kind first: `union error`
+    │ 5 │ union error StockError {
+    │   │ +++++++++++
+
+error BYN1044: `error union` is an input form; write `union error`
+  --> <repo>/tests/cases/diag/input-keyword-order.byn:9:8
+
+  9 │ public error union CarrierError {
+    │        ^^^^^^^^^^^ the input form
+    │
+  help: put the kind first: `union error`
+    │ 9 │ public union error CarrierError {
+    │   │        +++++++++++
+
+error BYN1044: `distinct type` is an input form; write `type distinct`
+  --> <repo>/tests/cases/diag/input-keyword-order.byn:13:1
+
+  13 │ distinct type Sku = string
+     │ ^^^^^^^^^^^^^ the input form
+     │
+  help: put the kind first: `type distinct`
+     │ 13 │ type distinct Sku = string
+     │    │ +++++++++++++

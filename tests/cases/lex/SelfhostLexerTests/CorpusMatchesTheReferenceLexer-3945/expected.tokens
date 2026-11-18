@@ -1,0 +1,24 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:26 LessLessEquals `<<=`
+2:2 IntegerLiteral `0xF__`
+3:2 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ += -= *= /= %= &= |= ^=` <<=
+    │                        ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  0xF__
+    │     ^^
+    │
+    │ 2 │  0xF__
+    │   │     --

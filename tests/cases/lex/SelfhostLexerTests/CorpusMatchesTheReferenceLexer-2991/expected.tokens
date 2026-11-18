@@ -1,0 +1,42 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+1:15 IntegerLiteral `0b102`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:9 StringLiteral `"bad \q escape"`
+4:5 Identifier `comment`
+4:13 Star `*`
+4:14 Slash `/`
+4:16 Identifier `a`
+    doc `/// Doc line one.\n/// Doc line two.`
+7:1 Identifier `stru`
+8:1 Identifier `a`
+8:3 Greater `>`
+8:4 Greater `>`
+8:6 Identifier `b`
+10:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1;0b102
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1;0b102
+    │   │        +
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ let café = 1;0b102
+    │                   ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

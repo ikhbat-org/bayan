@@ -1,0 +1,7 @@
+error BYN8001: `readUnchecked()` bypasses a safety rule and needs `because "…"`
+  --> <repo>/tests/cases/diag/because-unchecked.byn:9:14
+
+  9 │     print($"{c.readUnchecked()}")
+    │              ^^^^^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause

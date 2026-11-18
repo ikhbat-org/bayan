@@ -1,0 +1,68 @@
+1:2 Equals `=`
+1:4 IntegerLiteral `2`
+2:3 Identifier `a`
+2:5 Equals `=`
+2:9 IntegerLiteral `1`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+6:1 OpenBrace `{`
+6:2 Identifier `ạ̇`
+7:1 CharLiteral `' �`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  1 │ � = 2
+    │ ^
+
+error BYN0002: unexpected character `$`
+
+  2 │   a = $ 1
+    │       ^
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  6 │ {ạ̇
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ {ạ̇
+    │   │  +
+
+error BYN0008: unterminated char literal
+
+  7 │ ' �
+    │ ^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  7 │ ' �
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  7 │ ' �
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  7 │ ' �
+    │    ^

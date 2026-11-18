@@ -1,0 +1,105 @@
+1:1 Identifier `ạ̇let`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+2:1 IntegerLiteral `0x`
+2:4 Identifier `struc`
+2:10 Identifier `S`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `open `
+3:9 InterpolationStart `{`
+3:10 Identifier `x`
+3:11 StringLiteral `";`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 StringLiteral `$"{x}"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:60 Identifier `a`
+5:1 EndOfFile
+
+error BYN0005: identifier `ạ̇let` is not in Unicode normalization form C
+
+  1 │ ạ̇let � = 2
+    │ ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇let � = 2
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ ạ̇let � = 2
+    │        ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x struc� S
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  2 │ 0x struc� S
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  3 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xA5)
+
+  4 │  $"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" a /* never closed
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" a /* never closed
+    │                                    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │  $"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" a /* never closed
+    │                                                ^^
+
+error BYN0004: unterminated block comment
+
+  4 │  $"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" a /* never closed
+    │                                                               ^^ comment starts here
+    │
+  help: close it with `*/`

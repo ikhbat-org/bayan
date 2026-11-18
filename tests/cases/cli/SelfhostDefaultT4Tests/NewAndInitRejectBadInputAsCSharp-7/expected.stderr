@@ -1,0 +1,2 @@
+bayan: `a--b` can't be a package name
+  help: use lowercase words joined by `-` (`my-app`) or camelCase (`myApp`); start with a letter

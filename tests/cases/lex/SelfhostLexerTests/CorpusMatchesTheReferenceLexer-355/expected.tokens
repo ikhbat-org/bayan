@@ -1,0 +1,40 @@
+1:1 UnlessKeyword `unless`
+1:8 SwitchKeyword `switch`
+1:15 CaseKeyword `case`
+1:20 DefaultKeyword `default`
+1:28 ForKeyword `for`
+1:32 InKeyword `in`
+1:35 WhileKeyword `while`
+1:41 DoKeyword `do`
+1:44 BreakKeyword `break`
+1:50 Identifier `coti`
+3:2 Identifier `F600`
+3:6 CloseBrace `}`
+3:7 CharLiteral `' '`
+3:11 CharLiteral `''`
+3:14 CharLiteral `'é'`
+3:18 CharLiteral `'\\'`
+3:23 CharLiteral `'\0'`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ // comment � hidden
+    │   │            -
+
+error BYN0002: unexpected character `\`
+
+  3 │  F600}' '\'' 'é' '\\' '\0'
+    │          ^
+
+error BYN0007: empty char literal
+
+  3 │  F600}' '\'' 'é' '\\' '\0'
+    │           ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

@@ -1,0 +1,197 @@
+== tests/cases/run/style-fix-optionals-bind.byn
+139..209 blockStmt
+145..191 forStmt
+154..156 nameExpr
+157..191 blockStmt
+167..185 guardedStmt
+179..185 binaryExpr eq right 184..185
+179..180 nameExpr
+184..185 nameExpr
+167..175 returnStmt value 174..175
+174..175 nameExpr
+174..175 nameExpr
+196..207 returnStmt value 203..207
+203..207 literalExpr nullKeyword
+239..365 blockStmt
+245..363 ifStmt
+249..273 isExpr
+249..264 callExpr
+254..256 nameExpr
+262..263 literalExpr integer
+268..273 propertyPattern
+275..333 blockStmt
+285..304 localDecl
+299..304 binaryExpr mul right 303..304
+299..300 nameExpr
+303..304 literalExpr integer
+313..327 returnStmt value 320..327
+320..327 nameExpr
+339..363 blockStmt
+349..357 returnStmt value 356..357
+356..357 literalExpr integer
+399..507 blockStmt
+405..505 ifStmt
+409..433 isExpr
+409..424 callExpr
+414..416 nameExpr
+422..423 literalExpr integer
+428..433 propertyPattern
+435..459 blockStmt
+445..453 returnStmt value 452..453
+452..453 nameExpr
+465..505 blockStmt
+475..499 returnStmt value 482..499
+482..499 binaryExpr add right 498..499
+482..495 callExpr
+492..494 nameExpr
+498..499 literalExpr integer
+534..599 blockStmt
+540..584 ifStmt
+544..554 isExpr
+544..545 nameExpr
+549..554 propertyPattern
+556..584 blockStmt
+566..578 returnStmt value 573..578
+573..578 binaryExpr add right 577..578
+573..574 nameExpr
+577..578 literalExpr integer
+589..597 returnStmt value 596..597
+596..597 literalExpr integer
+626..712 blockStmt
+632..659 localDecl
+644..659 callExpr
+649..651 nameExpr
+657..658 literalExpr integer
+664..696 ifStmt
+668..682 isExpr
+668..673 nameExpr
+677..682 propertyPattern
+684..696 blockStmt
+686..694 returnStmt value 693..694
+693..694 nameExpr
+701..710 returnStmt value 708..710
+708..710 unaryExpr negate operand 709..710
+741..872 blockStmt
+747..760 localDecl
+759..760 literalExpr integer
+765..774 localDecl
+773..774 literalExpr integer
+779..853 whileStmt
+786..810 isExpr
+786..801 callExpr
+791..793 nameExpr
+799..800 nameExpr
+805..810 propertyPattern
+812..853 blockStmt
+822..832 assignStmt add target 822..827 value 831..832
+822..827 nameExpr
+831..832 nameExpr
+841..847 assignStmt add target 841..842 value 846..847
+841..842 nameExpr
+846..847 literalExpr integer
+858..870 returnStmt value 865..870
+865..870 nameExpr
+904..1081 blockStmt
+910..923 localDecl
+922..923 literalExpr integer
+928..1062 forStmt
+937..939 nameExpr
+940..1062 blockStmt
+950..1056 ifStmt
+954..982 isExpr
+954..973 callExpr
+959..961 nameExpr
+967..972 binaryExpr add right 971..972
+967..968 nameExpr
+971..972 literalExpr integer
+977..982 propertyPattern
+984..1018 blockStmt
+998..1008 assignStmt add target 998..1003 value 1007..1008
+998..1003 nameExpr
+1007..1008 nameExpr
+1024..1056 blockStmt
+1038..1038 continueStmt
+1067..1079 returnStmt value 1074..1079
+1074..1079 nameExpr
+1109..1253 blockStmt
+1115..1128 localDecl
+1127..1128 literalExpr integer
+1191..1234 ifStmt
+1195..1219 isExpr
+1195..1210 callExpr
+1200..1202 nameExpr
+1208..1209 literalExpr integer
+1214..1219 propertyPattern
+1221..1234 blockStmt
+1223..1232 assignStmt assign target 1223..1228 value 1231..1232
+1223..1228 nameExpr
+1231..1232 nameExpr
+1239..1251 returnStmt value 1246..1251
+1246..1251 nameExpr
+1291..1360 blockStmt
+1297..1345 ifStmt
+1301..1331 binaryExpr logicalAnd right 1307..1331
+1301..1303 nameExpr
+1307..1331 isExpr
+1307..1322 callExpr
+1312..1314 nameExpr
+1320..1321 literalExpr integer
+1326..1331 propertyPattern
+1333..1345 blockStmt
+1335..1343 returnStmt value 1342..1343
+1342..1343 nameExpr
+1350..1358 returnStmt value 1357..1358
+1357..1358 literalExpr integer
+1391..1504 blockStmt
+1397..1424 localDecl
+1409..1424 callExpr
+1414..1416 nameExpr
+1422..1423 literalExpr integer
+1429..1452 assignStmt assign target 1429..1434 value 1437..1452
+1429..1434 nameExpr
+1437..1452 callExpr
+1442..1444 nameExpr
+1450..1451 literalExpr integer
+1457..1489 ifStmt
+1461..1475 isExpr
+1461..1466 nameExpr
+1470..1475 propertyPattern
+1477..1489 blockStmt
+1479..1487 returnStmt value 1486..1487
+1486..1487 nameExpr
+1494..1502 returnStmt value 1501..1502
+1501..1502 literalExpr integer
+1518..1729 blockStmt
+1524..1553 localDecl
+1544..1553 collectionExpr
+1545..1546 literalExpr integer
+1548..1549 literalExpr integer
+1551..1552 literalExpr integer
+1558..1662 exprStmt
+1558..1662 callExpr
+1564..1661 interpolatedExpr
+1567..1580 callExpr
+1577..1579 nameExpr
+1582..1599 callExpr
+1596..1598 nameExpr
+1601..1616 callExpr
+1614..1615 literalExpr integer
+1614..1615 literalExpr integer
+1618..1628 callExpr
+1625..1627 nameExpr
+1630..1642 callExpr
+1639..1641 nameExpr
+1644..1659 callExpr
+1656..1658 nameExpr
+1558..1662 callExpr
+1667..1727 exprStmt
+1667..1727 callExpr
+1673..1726 interpolatedExpr
+1676..1687 callExpr
+1684..1686 nameExpr
+1689..1708 callExpr
+1695..1697 nameExpr
+1703..1707 literalExpr trueKeyword
+1710..1724 callExpr
+1721..1723 nameExpr
+1667..1727 callExpr

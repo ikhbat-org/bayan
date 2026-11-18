@@ -1,0 +1,13 @@
+
+let x⁧ = 1
+b
+
+ạ̇let b = "bad \q escape"
+
+never closed
+b
+
+"a⁧b" /// Doc line two.
+
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ 

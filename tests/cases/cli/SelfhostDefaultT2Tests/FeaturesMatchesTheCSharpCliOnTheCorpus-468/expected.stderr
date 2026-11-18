@@ -1,0 +1,8 @@
+error BYN2611: this `catch` block can complete normally; end it with `return`, `break`, `continue`
+or a panic
+  --> <repo>/tests/cases/diag/catch-block-completes.byn:19:36
+
+  19 │ let n = parse("") catch { log("x") }
+     │                                    ^
+     │
+  help: leave the block instead of falling through; `parse` returns a value

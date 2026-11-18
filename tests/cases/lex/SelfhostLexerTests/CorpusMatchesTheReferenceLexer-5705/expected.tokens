@@ -1,0 +1,23 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+2:1 IfKeyword `if`
+2:4 ElseKeyword `else`
+2:9 UnlessKeyword `unless`
+2:16 SwitchKeyword `switch`
+2:23 CaseKeyword `case`
+2:28 DefaultKeyword `default`
+2:36 ForKeyword `for`
+2:40 InKeyword `in`
+2:43 WhileKeyword `while`
+2:49 DoKeyword `do`
+2:52 BreakKeyword `break`
+2:58 ContinueKeyword `continue`
+2:67 ReturnKeyword `return`
+2:74 YieldKeyword `yield`
+2:80 DeferKeyword `defer`
+2:86 ErrdeferKeyword `errdefer`
+2:95 UsingKeyword `using`
+2:101 ContextKeyword `context`
+3:2 EndOfFile

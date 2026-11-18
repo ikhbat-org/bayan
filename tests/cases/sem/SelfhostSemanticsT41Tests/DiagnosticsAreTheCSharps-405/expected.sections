@@ -1,0 +1,3 @@
+== diags.diag/union-pattern-arity
+BYN2703 8:5 variant `rect` has 2 payload field(s), but the pattern lists 1
+  help list every field: `.rect(let w, let h)`, or `_` to skip one

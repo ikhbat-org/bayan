@@ -1,0 +1,76 @@
+1:1 Identifier `ạ̇`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 IntegerLiteral `1`
+4:2 IntegerLiteral `0b__`
+5:2 Identifier `각`
+6:1 OpenBrace `{`
+6:2 Identifier `c`
+6:3 CloseBrace `}`
+6:4 StringLiteral `")}<d"`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolatedStringText `{{literal}}`
+6:24 InterpolatedStringEnd `"`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 Identifier `Point`
+6:35 OpenBrace `{`
+6:37 Identifier `x`
+6:39 Equals `=`
+7:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇
+    │   │ +
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  // comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  // comment � hidden
+    │   │             -
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │  0b__
+    │  ^^^^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  5 │  각
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │  각
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  6 │ {c}")}<d" $"{{literal}}" $"{Point { x =
+    │                          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  7 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  7 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ���
+    │   ^

@@ -1,0 +1,8 @@
+== diags.interface-default
+BYN2800 1:11 `Gate` must start with `I` and an uppercase letter
+  label an interface name
+  help rename it to `IGate`
+  fix 1:11-1:15 IGate
+BYN7001 16:16 `ship` needs `order` to be `.paid`, but it is `Order`
+  help `isPaid` doesn't narrow; write `if order is .paid`
+BYN2003 2:29 `paid` is not a member of `Self`

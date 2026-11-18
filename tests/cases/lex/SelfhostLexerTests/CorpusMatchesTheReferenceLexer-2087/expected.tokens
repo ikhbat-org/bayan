@@ -1,0 +1,71 @@
+1:1 CharLiteral `'ab'`
+2:2 StructKeyword `struct`
+2:9 Identifier `S`
+    doc `/// Doc line two.`
+4:3 IntegerLiteral `250`
+4:6 NumericSuffix `ms`
+4:9 IntegerLiteral `4`
+4:10 NumericSuffix `KiB`
+4:14 IntegerLiteral `1`
+4:15 NumericSuffix `u`
+4:17 IntegerLiteral `0xFF`
+4:21 NumericSuffix `u`
+4:23 IntegerLiteral `0b1`
+4:26 NumericSuffix `ul`
+4:30 InterpolatedStringStart `$"`
+4:32 InterpolationStart `{`
+4:33 InterpolatedStringStart `$"`
+4:35 InterpolationStart `{`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolationStart `{`
+4:39 InterpolatedStringStart `$"`
+4:41 InterpolationStart `{`
+4:42 InterpolatedStringStart `$"`
+4:44 InterpolationStart `{`
+4:45 InterpolatedStringStart `$"`
+4:47 InterpolationStart `{`
+4:48 InterpolatedStringStart `$"`
+4:50 InterpolationStart `{`
+4:51 InterpolatedStringStart `$"`
+4:53 InterpolationStart `{`
+4:54 InterpolatedStringStart `$"`
+4:56 InterpolationStart `{`
+4:57 InterpolatedStringStart `$"`
+4:59 InterpolationStart `{`
+4:60 InterpolatedStringStart `$"`
+4:62 InterpolationStart `{`
+4:63 InterpolatedStringStart `$"`
+4:65 InterpolationStart `{`
+4:66 InterpolatedStringStart `$"`
+4:68 InterpolationStart `{`
+4:69 InterpolatedStringStart `$"`
+4:71 InterpolationStart `{`
+4:72 InterpolatedStringStart `$"`
+4:74 InterpolationStart `{`
+4:75 InterpolatedStringStart `$"`
+4:77 InterpolationStart `{`
+4:78 Identifier `x`
+4:79 InterpolationEnd `}`
+4:80 InterpolatedStringEnd `"`
+4:81 InterpolationEnd `}`
+4:82 InterpolatedStringEnd `"`
+4:83 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `﻿`
+
+  4 │   250ms 4KiB 1u 0xFFu 0b1ul ﻿$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                             ^
+
+error BYN0003: unterminated string literal
+
+  4 │   250ms 4KiB 1u 0xFFu 0b1ul ﻿$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                                                     ^^ this string never ends
+    │
+  help: close the `{` and the string

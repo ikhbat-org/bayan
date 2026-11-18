@@ -1,0 +1,17 @@
+== diags.diag/input-unless-forms
+BYN1022 4:5 `unless` with `&&`/`||` reads as a double negative
+  label a compound condition
+  help use `if` with the negated condition
+  fix 4:5-4:26 if !(n > 1 && n < 5)
+BYN1023 7:5 `unless x is null` is not allowed; write `if x is not null`
+  label a negated null test
+  help use `if` with `is not null`
+  fix 7:5-7:24 if name is not null
+BYN1033 10:12 `unless` takes no likelihood word; write `if unlikely !…` or drop `unlikely`
+  label a likelihood word
+  help remove the word, or write `if unlikely` with the negated condition
+  fix 10:12-10:21 
+BYN1022 13:18 `unless` with `&&`/`||` reads as a double negative
+  label a compound condition
+  help use `if` with the negated condition
+  fix 13:18-13:39 if !(n > 1 || n < 0)

@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/generic-body-changes-state.byn
+--package
+<repo>/tests/cases/diag

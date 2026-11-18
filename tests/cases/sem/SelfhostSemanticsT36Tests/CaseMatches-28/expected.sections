@@ -1,0 +1,5 @@
+== return-value-in-void
+BYN2403 2:12 `log` returns nothing, but `return` has a value ||declare a return type instead of `void`, or remove the value|
+fn log
+block 11..27
+  returnStmt 17..25

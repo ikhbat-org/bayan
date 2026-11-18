@@ -1,0 +1,56 @@
+== tests/cases/run/interface-constraint-unique.byn
+277..325 blockStmt
+283..295 exprStmt
+283..295 callExpr
+283..288 nameExpr
+300..323 exprStmt
+300..323 callExpr
+306..322 callExpr
+306..311 nameExpr
+300..323 callExpr
+339..433 blockStmt
+345..369 localDecl
+353..369 structLiteralExpr
+366..367 literalExpr integer
+374..388 exprStmt
+374..388 callExpr
+386..387 nameExpr
+393..407 exprStmt
+393..407 callExpr
+405..406 nameExpr
+412..431 exprStmt
+412..431 callExpr
+418..430 callExpr
+418..419 nameExpr
+412..431 callExpr
+165..176 binaryExpr mul right 172..176
+165..176 binaryExpr mul right 172..176
+165..176 binaryExpr mul right 172..176
+165..169 nameExpr
+165..169 nameExpr
+172..176 nameExpr
+172..176 nameExpr
+202..227 blockStmt
+212..221 assignStmt add target 212..216 value 220..221
+212..216 nameExpr
+212..216 nameExpr
+220..221 literalExpr integer
+83..99 interpolatedExpr
+83..99 interpolatedExpr
+83..99 interpolatedExpr
+91..97 callExpr
+91..95 nameExpr
+83..99 interpolatedExpr
+83..99 interpolatedExpr
+83..99 interpolatedExpr
+91..97 callExpr
+91..95 nameExpr
+277..325 blockStmt
+283..295 exprStmt
+283..295 callExpr
+283..288 nameExpr
+300..323 exprStmt
+300..323 callExpr
+306..322 callExpr
+306..311 nameExpr
+300..323 callExpr

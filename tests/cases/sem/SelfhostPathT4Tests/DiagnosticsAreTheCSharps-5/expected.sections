@@ -1,0 +1,3 @@
+== diags.panic-handler-combine
+BYN2612 3:17 allocation is not allowed in a panic handler
+  help remove it; panic handlers can't recover

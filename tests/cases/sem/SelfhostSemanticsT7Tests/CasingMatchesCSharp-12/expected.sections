@@ -1,0 +1,3 @@
+== value-pascal
+BYN2009 5+7 `DoThing` must be camelCase |  | rename it `doThing`; only types are PascalCase | 5+7=doThing
+end

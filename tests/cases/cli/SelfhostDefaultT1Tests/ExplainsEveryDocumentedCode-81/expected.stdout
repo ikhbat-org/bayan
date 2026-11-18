@@ -1,0 +1,11 @@
+# BYN1076: function body too long
+
+A style lint (`functions.length`), **off by default**: reported by `bayan check` only, and only when `lints: ["functions.length": .suggestion]` (or `.warning`, `.error`) is set in `package.byn`. It has no machine fix.
+
+**What.** A function body has more than 60 lines between its braces. The bound is fixed.
+
+**Why.** A long body does several jobs. Named steps say what each one is, and each fits on a screen.
+
+**Example.** A function whose body has 61 lines of statements.
+
+**Fix.** Split the body into functions named for their steps and call them in order.

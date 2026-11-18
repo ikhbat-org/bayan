@@ -1,0 +1,76 @@
+1:1 OpenBrace `{`
+1:2 IntegerLiteral `11000`
+1:7 NumericSuffix `a0`
+1:9 CloseBrace `}`
+1:10 CharLiteral `'\r`
+2:1 CharLiteral `'x\r`
+3:2 IntegerLiteral `1`
+3:3 NumericSuffix `e`
+4:3 CharLiteral `''`
+6:1 CharLiteral `'\u\D800}'`
+6:12 StringLiteral `"{`
+7:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ {11000a0}'
+    │          ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `₀`
+
+  4 │ ₀ ''
+    │ ^
+
+error BYN0007: empty char literal
+
+  4 │ ₀ ''
+    │   ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │  �
+    │  ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │ '\u\D800}'�"{
+    │ ^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u`
+
+  6 │ '\u\D800}'�"{
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0006: invalid escape sequence `\D`
+
+  6 │ '\u\D800}'�"{
+    │    ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xD7)
+
+  6 │ '\u\D800}'�"{
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  6 │ '\u\D800}'�"{
+    │            ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

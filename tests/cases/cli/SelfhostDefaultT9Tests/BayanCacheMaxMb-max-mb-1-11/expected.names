@@ -1,0 +1,16 @@
+arithmetic
+arithmetic.byn
+cache/
+cache/v1/
+cache/v1/CACHEDIR.TAG
+cache/v1/programs/
+cache/v1/programs/c2d74e9158e8775a5e937ea61fff9940a9877f34be3d5327a27f483ff42a64db/
+cache/v1/programs/c2d74e9158e8775a5e937ea61fff9940a9877f34be3d5327a27f483ff42a64db/program
+cache/v1/programs/c2d74e9158e8775a5e937ea61fff9940a9877f34be3d5327a27f483ff42a64db/program.sha256
+cache/v1/programs/old2/
+cache/v1/programs/old2/program
+cache/v1/runtime/
+cache/v1/runtime/cb86843f106a912970d6aed999b1a6446fc3bf7a104481dd634c1512dc05528d/
+cache/v1/runtime/cb86843f106a912970d6aed999b1a6446fc3bf7a104481dd634c1512dc05528d/bayan-rt.o
+cache/v1/runtime/cb86843f106a912970d6aed999b1a6446fc3bf7a104481dd634c1512dc05528d/bayan-rt.o.sha256
+cache/v1/tmp/

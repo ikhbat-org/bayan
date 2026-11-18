@@ -1,0 +1,14 @@
+error BYN2022: this expression is not supported in v0.1
+  --> input.byn:1:12
+
+  1 │ let rest = code except .a
+    │            ^^^^^^^^^^^
+
+error BYN2022: this expression is not supported in v0.1
+  --> input.byn:2:12
+
+  2 │ let kind = tok is .word except "if"
+    │            ^^^^^^^^^^^^^^^^^^^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2022

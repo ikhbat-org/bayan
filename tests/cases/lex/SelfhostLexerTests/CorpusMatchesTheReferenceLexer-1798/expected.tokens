@@ -1,0 +1,13 @@
+1:2 Identifier `strct`
+1:8 Identifier `S`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �strct S
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �strct S
+    │  ^

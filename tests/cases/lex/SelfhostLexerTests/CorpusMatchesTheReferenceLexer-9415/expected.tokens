@@ -1,0 +1,104 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolatedStringText `$`
+1:10 InterpolatedStringEnd `"`
+1:11 OpenBrace `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolatedStringText `�$`
+1:36 InterpolatedStringEnd `"`
+1:37 OpenBrace `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 Identifier `x`
+1:51 InterpolationEnd `}`
+1:52 InterpolatedStringEnd `"`
+1:53 InterpolationEnd `}`
+1:54 InterpolatedStringEnd `"`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 InterpolationEnd `}`
+1:58 InterpolatedStringEnd `"`
+1:59 CloseBrace `}`
+1:60 StringLiteral `""`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+1:64 InterpolationEnd `}`
+1:65 InterpolatedStringEnd `"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringEnd `"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+2:1 Identifier `e2`
+2:4 Identifier `بيان`
+2:9 Identifier `μ`
+2:10 CharLiteral `'\u{D800}'`
+3:2 Identifier `Å`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolatedStringText `x`
+3:8 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:14 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  1 │ $"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{x}"}"}"}"}""}"}"}"}"}"
+    │                                   ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │ e2 بيان μ'\u{D800}'
+    │           ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ �Å $"x{ $"{ 
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ �Å $"x{ $"{ 
+    │   │ -
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ �Å $"x{ $"{ 
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ �Å $"x{ $"{ 
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  3 │ �Å $"x{ $"{ 
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string

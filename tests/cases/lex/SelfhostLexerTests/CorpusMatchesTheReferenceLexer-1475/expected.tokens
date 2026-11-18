@@ -1,0 +1,28 @@
+1:1 IntegerLiteral `1010`
+1:6 IntegerLiteral `0B11`
+1:11 IntegerLiteral `5`
+1:12 NumericSuffix `s`
+1:14 IntegerLiteral `250`
+1:17 CharLiteral `' one.`
+    doc `/// Doc line two.`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+5:1 Identifier `b`
+7:1 StringLiteral `"text"`
+7:8 StringLiteral `"esc \"q\" \\ \n"`
+7:26 RawStringLiteral `"""\n\ne on.\n/// Doc line two.\nstruct S\n//// not a doc let c = \u{7} 3\n `
+13:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 1010 0B11 5s 250' one.
+    │                 ^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  7 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,46 @@
+4:1 Identifier `é`
+    doc `/// Doc line one.`
+8:1 IntegerLiteral `0b__`
+9:1 Identifier `c`
+9:3 Greater `>`
+9:4 GreaterEquals `>=`
+9:7 IntegerLiteral `1`
+10:2 ErrorKeyword `error`
+10:8 SetKeyword `set`
+10:12 UnitKeyword `unit`
+10:17 DistinctKeyword `distinct`
+10:26 TypeKeyword `type`
+10:31 ImportKeyword `import`
+10:38 AsKeyword `as`
+10:41 PublicKeyword `public`
+10:48 PrivateKeyword `private`
+10:56 StaticKeyword `static`
+10:63 ReadonlyKeyword `readonly`
+10:72 RequiredKeyword `required`
+10:81 ConstKeyword `const`
+10:87 LetKeyword `let`
+10:91 VarKeyword `var`
+10:95 EmbedKeyword `embed`
+10:101 ExternKeyword `extern`
+10:108 UnsafeKeyword `unsafe`
+12:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ ﻿
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  8 │ 0b__
+    │ ^^^^

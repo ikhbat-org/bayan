@@ -1,0 +1,3 @@
+== expr.probes.c27
+errorExpr:?[1595:6]=-()
+BYN2202 86:30 expected `string`, found `i64` |`xs` holds `i64`|spread a sequence of `string`, or change the literal's element type to `i64`|

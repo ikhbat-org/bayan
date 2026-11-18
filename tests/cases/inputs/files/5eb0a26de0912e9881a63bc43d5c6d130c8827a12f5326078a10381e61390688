@@ -1,0 +1,26 @@
+warning BYN5104: `line` holds a collection; name it with a plural, `lines`
+
+  32 │     public List<Line> line
+     │                       ^^^^
+     │
+  help: rename it `lines`
+     │ 32 │     public List<Line> lines
+     │    │                           +
+
+warning BYN5104: `lines` holds one `Line`; name it with a singular noun
+
+  33 │     public Line lines
+     │                 ^^^^^
+     │
+  help: rename it `line`
+     │ 33 │     public Line lines
+     │    │                     -
+
+warning BYN5104: `lineOptions` holds one `Keywords`; name it with a singular noun
+
+  34 │     public Keywords lineOptions
+     │                     ^^^^^^^^^^^
+     │
+  help: rename it `lineOption`
+     │ 34 │     public Keywords lineOptions
+     │    │                               -

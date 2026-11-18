@@ -1,0 +1,10 @@
+1:1 Identifier `b`
+2:4 RawStringLiteral `""" c\u{6}"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n'\q'\ngs" "" "\u{48}i"\n ạ̇\nlet c =\u{7} 3\n\na >> b\n\n$"stray } here"\n\n`
+12:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │    """ c�"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`

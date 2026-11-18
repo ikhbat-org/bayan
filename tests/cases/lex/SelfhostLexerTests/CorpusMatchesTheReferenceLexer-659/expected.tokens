@@ -1,0 +1,22 @@
+1:1 Identifier `osed`
+2:1 Identifier `b`
+5:15 Identifier `a`
+    doc `/// Doc line one.\n///  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let c = \u{7} 3`
+8:2 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  4 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 4 │ // block
+    │   │  +++++++
+    │ 5 │ // cobment
+    │   │ ++++++++++
+    │ 6 │  a
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ � 
+    │ ^

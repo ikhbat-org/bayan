@@ -1,0 +1,1 @@
+{"code":"BYN2804","severity":"error","file":"input.byn","span":{"start":24,"end":27,"line":1,"column":25,"endLine":1,"endColumn":28},"message":"`i32` is not an interface","label":"a type","help":"list an `interface` here","fixes":[]}

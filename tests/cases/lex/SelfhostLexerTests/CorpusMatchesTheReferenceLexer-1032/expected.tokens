@@ -1,0 +1,45 @@
+1:1 Identifier `Å`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 IntegerLiteral `1`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `a`
+3:5 InterpolationStart `{`
+3:6 Identifier `b`
+3:7 InterpolationEnd `}`
+3:8 InterpolatedStringText `cl `
+3:11 InterpolationStart `{`
+3:12 Identifier `x`
+3:13 InterpolationEnd `}`
+3:14 InterpolatedStringEnd `"`
+3:16 IntegerLiteral `0b1`
+3:19 NumericSuffix `ms`
+5:1 IntegerLiteral `0b__`
+6:2 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å
+    │   │ +
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │  $"a{b}cl {x}" 0b1ms
+    │                   ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0002: unexpected character `\u{0}`
+
+  6 │ �
+    │ ^

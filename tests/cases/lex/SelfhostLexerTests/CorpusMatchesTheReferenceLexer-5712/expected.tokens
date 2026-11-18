@@ -1,0 +1,97 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 Identifier `n`
+1:18 Identifier `ever`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 Identifier `asyncawait`
+2:2 IntegerLiteral `0x`
+2:4 CharLiteral `' '`
+2:8 IntegerLiteral `0`
+2:9 CharLiteral `'`
+4:3 CharLiteral `''`
+5:2 CharLiteral `''`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolatedStringText `open `
+6:9 InterpolationStart `{`
+6:10 Identifier `x`
+6:11 StringLiteral `";`
+8:1 IntegerLiteral `2`
+8:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  1 │ fails try catch n�ever noalloc nosuspend suspends asyncawait
+    │                  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x' '\0'
+    │  ^^
+
+error BYN0002: unexpected character `\`
+
+  2 │  0x' '\0'
+    │       ^
+
+error BYN0008: unterminated char literal
+
+  2 │  0x' '\0'
+    │         ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ �����''
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ �����''
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����''
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����''
+    │    ^
+
+error BYN0002: unexpected character `\u{F}`
+
+  4 │ �����''
+    │     ^
+
+error BYN0007: empty char literal
+
+  4 │ �����''
+    │      ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0007: empty char literal
+
+  5 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  6 │  $"open {x";
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

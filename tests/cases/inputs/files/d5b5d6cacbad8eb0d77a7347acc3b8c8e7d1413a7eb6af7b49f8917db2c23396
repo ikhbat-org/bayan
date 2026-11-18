@@ -1,0 +1,6 @@
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+if else unless switch case default for in while do break continue return yield defer errdefer using context
+"{// line comment
+n" """
+  raw "quoted"
+  """ c"text" u16"wide" "‮allowe

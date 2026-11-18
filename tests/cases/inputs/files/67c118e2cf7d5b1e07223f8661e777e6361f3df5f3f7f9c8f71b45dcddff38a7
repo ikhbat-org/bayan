@@ -1,0 +1,29 @@
+union error E {
+    bad(i64 code)
+    gone
+}
+
+i64 risky(i64 n) fails E {
+    fail .gone if n < 0
+    return n
+}
+
+i64 safe(i64 n) fails E {
+    return risky(n) catch (.gone) 7
+}
+
+struct Door {
+    i64 id
+    states {
+        shut
+        open(i64 width)
+    }
+    void close(ref this is .open) becomes .shut {
+        become .shut
+    }
+    void widen(ref this is .open, i64 w) becomes .open {
+        become .open(w)
+    }
+}
+
+void main() { }

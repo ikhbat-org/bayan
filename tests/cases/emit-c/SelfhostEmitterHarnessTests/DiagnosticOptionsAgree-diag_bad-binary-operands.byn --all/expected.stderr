@@ -1,0 +1,16 @@
+error BYN2208: `+` cannot be applied to `i64` and `u64`
+  --> input.byn:3:9
+
+  3 │ let c = a + b
+    │         ^^^^^
+    │
+  help: convert one side explicitly, e.g. `(u64)…`; mixed signedness never converts implicitly
+
+error BYN2208: `+` cannot be applied to `bool` and `i32`
+  --> input.byn:4:9
+
+  4 │ let d = true + 1
+    │         ^^^^^^^^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2208

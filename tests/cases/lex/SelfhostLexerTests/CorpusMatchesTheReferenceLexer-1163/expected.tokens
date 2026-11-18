@@ -1,0 +1,143 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `stray } here`
+1:15 InterpolatedStringEnd `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:17 OpenBrace `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 Identifier `x`
+2:52 InterpolationEnd `}`
+2:53 InterpolatedStringEnd `"`
+2:54 InterpolationEnd `}`
+2:55 InterpolatedStringEnd `"`
+2:56 InterpolationEnd `}`
+2:57 InterpolatedStringEnd `"`
+2:58 InterpolationEnd `}`
+2:59 InterpolatedStringEnd `"`
+2:60 InterpolationEnd `}`
+2:61 InterpolatedStringEnd `"`
+2:62 InterpolationEnd `}`
+2:63 InterpolatedStringEnd `"`
+2:64 InterpolationEnd `}`
+2:65 InterpolatedStringEnd `"`
+2:66 InterpolationEnd `}`
+2:67 InterpolatedStringEnd `"`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringEnd `"`
+2:70 InterpolationEnd `}`
+2:71 InterpolatedStringEnd `"`
+2:72 InterpolationEnd `}`
+2:73 InterpolatedStringEnd `"`
+2:74 CloseBrace `}`
+2:75 StringLiteral `"}"`
+2:78 InterpolationEnd `}`
+2:79 InterpolatedStringEnd `"`
+2:80 InterpolationEnd `}`
+2:81 InterpolatedStringEnd `"`
+2:82 InterpolationEnd `}`
+2:83 InterpolatedStringEnd `"`
+2:84 InterpolationEnd `}`
+2:85 InterpolatedStringEnd `"`
+3:1 LetKeyword `let`
+3:5 EffectKeyword `effect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+4:1 Identifier `ment`
+4:8 Identifier `hidden`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+7:1 Identifier `b`
+9:1 Identifier `hidden`
+10:1 LetKeyword `let`
+10:5 Identifier `x`
+10:8 Equals `=`
+10:10 IntegerLiteral `1`
+12:1 InterpolatedStringStart `$"`
+12:3 InterpolationStart `{`
+13:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ $"stray } here"
+    │         ^
+    │
+    │ 1 │ $"stray }} here"
+    │   │          +
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ ment � hidden
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ ment � hidden
+    │   │      -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ let x� = 1
+    │   │      -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  10 │ let x� = 1
+     │      ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 10 │ let x� = 1
+     │    │      -
+
+error BYN0003: unterminated string literal
+
+  12 │ $"{ ‏
+     │ ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `‏`
+
+  12 │ $"{ ‏
+     │     ^

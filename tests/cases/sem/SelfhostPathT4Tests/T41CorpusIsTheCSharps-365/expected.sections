@@ -1,0 +1,4 @@
+== diags.diag/input-csharp-type-name-base
+BYN2804 1:12 `i32` is not an interface
+  label a type
+  help list an `interface` here

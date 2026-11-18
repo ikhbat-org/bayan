@@ -1,0 +1,11 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\r\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"let x\u{2067} = 1\r\n\r\n/* block\r\nation attribute\r\nerror set unit distinct type import as public p\r\n`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

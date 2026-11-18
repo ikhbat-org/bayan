@@ -1,0 +1,20 @@
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t2/diag/expression-statement/expression-statement.byn:2:5
+
+  2 │     a + b
+    │     ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tmp/t2/diag/expression-statement/expression-statement.byn:3:5
+
+  3 │     a == b
+    │     ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1012

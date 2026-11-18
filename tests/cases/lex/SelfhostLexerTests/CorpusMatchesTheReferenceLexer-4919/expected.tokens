@@ -1,0 +1,105 @@
+1:1 Identifier `_`
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolatedStringText `�`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolatedStringText `�$`
+1:48 InterpolatedStringEnd `"`
+1:49 OpenBrace `{`
+1:50 Identifier `x`
+1:51 CloseBrace `}`
+1:52 StringLiteral `"}"`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 InterpolationEnd `}`
+1:58 InterpolatedStringEnd `"`
+1:59 InterpolationEnd `}`
+1:60 InterpolatedStringEnd `"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:70 LetKeyword `let`
+1:74 Identifier `café`
+1:79 Equals `=`
+1:81 IntegerLiteral `2`
+2:1 IntegerLiteral `1__`
+3:2 IntegerLiteral `0x`
+4:1 Slash `/`
+4:3 Identifier `ok`
+4:8 InKeyword `in`
+4:11 Identifier `comment`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ _ $"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"�$"{x}"}"}"}"}"}"}"}" ̈́ let café = 2
+    │                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0x9E)
+
+  1 │ _ $"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"�$"{x}"}"}"}"}"}"}"}" ̈́ let café = 2
+    │                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  1 │ _ $"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"�$"{x}"}"}"}"}"}"}"}" ̈́ let café = 2
+    │                                                ^
+
+error BYN0002: unexpected character `̈́`
+
+  1 │ _ $"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"�$"{x}"}"}"}"}"}"}"}" ̈́ let café = 2
+    │                                                                      ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1__
+    │  ^^
+    │
+    │ 2 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xD3)
+
+  3 │ �0x
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ �0x
+    │  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ / ok � in comment
+    │      ^

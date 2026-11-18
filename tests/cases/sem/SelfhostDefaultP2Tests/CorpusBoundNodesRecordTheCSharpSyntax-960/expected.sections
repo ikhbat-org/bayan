@@ -1,0 +1,45 @@
+== tests/cases/diag/valid-calls.byn
+38..52 binaryExpr mul right 46..52
+38..52 binaryExpr mul right 46..52
+38..52 binaryExpr mul right 46..52
+38..43 nameExpr
+46..52 nameExpr
+74..79 binaryExpr mul right 78..79
+74..79 binaryExpr mul right 78..79
+74..79 binaryExpr mul right 78..79
+74..75 nameExpr
+78..79 literalExpr integer
+120..141 conditionalExpr
+120..141 conditionalExpr
+120..141 conditionalExpr
+120..124 nameExpr
+127..131 nameExpr
+134..141 literalExpr string
+143..169 globalStatement
+143..169 exprStmt
+143..169 callExpr
+149..168 interpolatedExpr
+152..166 callExpr
+157..158 literalExpr integer
+164..165 literalExpr integer
+143..169 callExpr
+170..190 exprStmt
+170..190 callExpr
+176..189 interpolatedExpr
+179..187 callExpr
+185..186 literalExpr integer
+170..190 callExpr
+191..226 exprStmt
+191..226 callExpr
+197..225 callExpr
+208..212 literalExpr trueKeyword
+220..224 literalExpr string
+191..226 callExpr
+227..252 localDecl
+238..252 memberExpr
+238..245 literalExpr string
+253..269 exprStmt
+253..269 callExpr
+259..268 interpolatedExpr
+262..266 nameExpr
+253..269 callExpr

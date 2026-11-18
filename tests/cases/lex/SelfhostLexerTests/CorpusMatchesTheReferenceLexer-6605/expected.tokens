@@ -1,0 +1,169 @@
+1:1 IntegerLiteral `0000`
+1:5 CloseBrace `}`
+1:6 CharLiteral `'`
+2:1 CharLiteral `'x`
+4:1 OpenParen `(`
+4:3 CloseParen `)`
+4:5 OpenBracket `[`
+4:7 CloseBracket `]`
+4:9 OpenBrace `{`
+4:11 CloseBrace `}`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolationStart `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolationStart `{`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolationStart `{`
+5:29 InterpolatedStringStart `$"`
+5:31 InterpolationStart `{`
+5:32 InterpolatedStringStart `$"`
+5:34 InterpolationStart `{`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolationStart `{`
+5:38 InterpolatedStringStart `$"`
+5:40 InterpolationStart `{`
+5:41 InterpolatedStringStart `$"`
+5:43 InterpolationStart `{`
+5:44 InterpolatedStringStart `$"`
+5:46 InterpolationStart `{`
+5:47 InterpolatedStringStart `$"`
+5:49 InterpolationStart `{`
+5:50 StringLiteral `$"{$"`
+5:55 OpenBrace `{`
+5:56 Identifier `x`
+5:57 CloseBrace `}`
+5:58 StringLiteral `"}"`
+5:61 InterpolationEnd `}`
+5:62 InterpolatedStringEnd `"`
+5:63 InterpolationEnd `}`
+5:64 InterpolatedStringEnd `"`
+5:65 InterpolationEnd `}`
+5:66 InterpolatedStringEnd `"`
+5:67 InterpolationEnd `}`
+5:68 InterpolatedStringEnd `"`
+5:69 InterpolationEnd `}`
+5:70 InterpolatedStringEnd `"`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringEnd `"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:11 Equals `=`
+6:13 IntegerLiteral `1`
+6:14 Semicolon `;`
+7:1 IsKeyword `is`
+7:4 AndKeyword `and`
+7:8 OrKeyword `or`
+7:11 NotKeyword `not`
+7:15 WithKeyword `with`
+7:20 MoveKeyword `move`
+7:25 RefKeyword `ref`
+7:29 OutKeyword `out`
+7:33 ThisKeyword `this`
+7:38 NullKeyword `null`
+7:43 Identifier `tru`
+7:47 FalseKeyword `false`
+7:52 CloseParen `)`
+7:53 ComptimeKeyword `comptime`
+7:62 CheckedKeyword `checked`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolationStart `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 StringLiteral `$"{$"`
+9:27 OpenBrace `{`
+9:28 StringLiteral `$"{$"`
+9:33 OpenBrace `{`
+9:34 StringLiteral `$"{$"`
+9:39 OpenBrace `{`
+9:40 StringLiteral `$"{$"`
+9:45 OpenBrace `{`
+9:46 StringLiteral `$"{$"`
+9:51 OpenBrace `{`
+9:52 StringLiteral `$"{$"`
+9:57 OpenBrace `{`
+9:58 StringLiteral `$"{x}"`
+9:64 CloseBrace `}`
+9:65 StringLiteral `""`
+9:67 CloseBrace `}`
+9:68 StringLiteral `"}"`
+9:71 CloseBrace `}`
+9:72 StringLiteral `"}"`
+9:75 CloseBrace `}`
+9:76 StringLiteral `"}"`
+9:82 IntegerLiteral `2`
+10:1 LetKeyword `let`
+10:5 Identifier `c`
+10:7 Equals `=`
+10:11 IntegerLiteral `3`
+12:1 Star `*`
+12:2 Slash `/`
+12:4 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 0000}'
+    │      ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"
+    │                                                  ^^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  6 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ let café = 1;
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}""}"}"}"}"}"}" ` 2
+    │                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character ```
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}""}"}"}"}"}"}" ` 2
+    │                                                                                ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  10 │ let c = � 3
+     │         ^

@@ -1,0 +1,27 @@
+== names
+string: length bytes isEmpty runeCount isAscii runes utf16 lines copy startsWith endsWith contains position lastPosition count trimmed equals lowercased uppercased replaced repeated padded parts
+i64:
+rune: value
+roBytes: length isEmpty copy
+spanStr: length isEmpty copy joined
+listI64: length isEmpty copy span mutableSpan clear removeLast replace sort tryGet remove append take
+listStr: length isEmpty copy joined span mutableSpan clear removeLast replace sort tryGet remove append take
+listBool: length isEmpty copy span mutableSpan clear removeLast replace tryGet remove append take
+listRune: length isEmpty copy span mutableSpan clear removeLast replace sort tryGet remove append take
+listList: length isEmpty copy span mutableSpan clear removeLast tryGet remove append take
+listStrBuf: length isEmpty copy span mutableSpan clear removeLast tryGet remove append take
+map: length copy contains clear tryGet slot remove take
+array: length span mutableSpan
+strBuf: length copy clear append appendRepeated insert finish view take
+symbol:
+processResult: exitCode stdout stderr
+formatSpec: radix debug width fill align digits
+result: value
+owned: value
+optional:
+optStrBuf: take
+optList: take
+enum: name ordinal
+runes: skip takeLast take
+utf16: copy
+ioInput: readAll

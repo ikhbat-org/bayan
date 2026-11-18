@@ -1,0 +1,1 @@
+{"code":"BYN2023","severity":"error","file":"input.byn","span":{"start":61,"end":76,"line":5,"column":29,"endLine":5,"endColumn":44},"message":"`ValidationError` takes 1 type argument(s), not 0","label":null,"help":null,"fixes":[]}

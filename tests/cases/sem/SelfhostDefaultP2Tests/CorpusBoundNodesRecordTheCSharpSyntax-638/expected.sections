@@ -1,0 +1,34 @@
+== tests/cases/diag/literal-needs-try.byn
+102..123 structLiteralExpr
+102..123 structLiteralExpr
+102..123 structLiteralExpr
+102..123 structLiteralExpr
+120..121 nameExpr
+0..49 structDecl
+0..49 structDecl
+0..49 structDecl
+0..49 structDecl
+0..49 structDecl
+32..47 requiresRule
+32..47 requiresRule
+41..47 binaryExpr gt right 46..47
+41..43 nameExpr
+41..43 nameExpr
+46..47 literalExpr integer
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+0..49 structDecl
+0..49 structDecl
+0..49 structDecl
+0..49 structDecl
+0..49 structDecl
+0..49 structDecl
+0..49 structDecl

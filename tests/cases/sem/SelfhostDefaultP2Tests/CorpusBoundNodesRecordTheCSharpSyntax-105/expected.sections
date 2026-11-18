@@ -1,0 +1,27 @@
+== tests/cases/run/if-never.byn
+55..148 blockStmt
+61..125 ifStmt
+70..83 isExpr
+70..71 nameExpr
+75..83 constantPattern
+75..83 targetMemberExpr
+84..125 blockStmt
+94..119 exprStmt
+94..119 callExpr
+100..118 literalExpr string
+94..119 callExpr
+130..146 exprStmt
+130..146 callExpr
+136..145 literalExpr string
+130..146 callExpr
+150..160 globalStatement
+150..160 exprStmt
+150..160 callExpr
+156..159 targetMemberExpr
+161..176 exprStmt
+161..176 callExpr
+167..175 targetMemberExpr
+177..197 exprStmt
+177..197 callExpr
+183..196 literalExpr string
+177..197 callExpr

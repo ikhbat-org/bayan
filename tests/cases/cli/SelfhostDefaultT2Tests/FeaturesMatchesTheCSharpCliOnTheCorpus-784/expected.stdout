@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "ErrorEnumDecl",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "GetterDecl",
+    "InterfaceDecl",
+    "InterpolatedExpr",
+    "MemberExpr",
+    "NameExpr",
+    "StructDecl",
+    "UnionDecl"
+  ],
+  "builtins": [
+    "ListLength",
+    "Print"
+  ],
+  "diagnostics": [
+    "BYN5104",
+    "BYN5105"
+  ]
+}

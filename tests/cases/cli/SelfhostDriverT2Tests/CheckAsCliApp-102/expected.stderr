@@ -1,0 +1,10 @@
+error BYN2410: `switch` does not handle every `Shape`
+  --> <repo>/tmp/t2/diag/non-exhaustive-union-arms/non-exhaustive-union-arms.byn:7:22
+
+  7 │ f32 area(Shape s) => s switch {
+    │                      ^ not covered: .rect, .none
+    │
+  help: add the missing arms: .rect, .none
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2410

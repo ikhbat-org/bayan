@@ -1,0 +1,5 @@
+error BYN2205: division by zero
+  --> <repo>/tests/cases/diag/division-by-zero.byn:1:9
+
+  1 │ let x = 10 / 0
+    │         ^^^^^^

@@ -1,0 +1,13 @@
+1:1 Identifier `et`
+1:4 Identifier `c`
+1:6 Equals `=`
+1:7 Identifier `T`
+1:9 RawStringLiteral `"""nb\r\n\r\n\u{2066} '\q'\r\n0xF__\r\n \t\r\nlet café = 1\r\n / Doc line one.\r\n// Doc line two.\r\nsBt\r\n`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ et c =T """nb
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

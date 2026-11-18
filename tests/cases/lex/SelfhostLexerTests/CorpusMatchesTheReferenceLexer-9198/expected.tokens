@@ -1,0 +1,28 @@
+1:1 Identifier `b`
+2:1 IntegerLiteral `8`
+2:3 Identifier `a`
+2:5 Identifier `doc`
+2:9 Identifier `co`
+2:12 Identifier `e`
+2:13 Identifier `r`
+2:15 Identifier `close`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:10 CharLiteral `'\u{1F600}'`
+3:22 CharLiteral `'\''`
+3:27 CharLiteral `'é'`
+3:31 CharLiteral `'\\'`
+3:36 CharLiteral `'\0'`
+4:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  2 │ 8 a doc co e�r close
+    │             ^
+
+error BYN0004: unterminated block comment
+
+  4 │  /*
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

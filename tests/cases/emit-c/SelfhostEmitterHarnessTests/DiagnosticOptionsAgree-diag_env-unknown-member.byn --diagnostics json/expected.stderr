@@ -1,0 +1,1 @@
+{"code":"BYN2003","severity":"error","file":"input.byn","span":{"start":80,"end":84,"line":2,"column":11,"endLine":2,"endColumn":15},"message":"`gett` is not a member of `Env`","label":null,"help":"did you mean `get`?","fixes":[]}

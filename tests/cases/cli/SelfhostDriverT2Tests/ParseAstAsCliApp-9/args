@@ -1,0 +1,3 @@
+parse
+--ast
+<repo>/tests/cases/parse/fails-bare-line-end.byn

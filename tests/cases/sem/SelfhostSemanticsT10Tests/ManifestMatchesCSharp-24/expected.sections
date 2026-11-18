@@ -1,0 +1,5 @@
+== case inline/style-max-line
+errors 1
+error BYN3102: `style.maxLine` must be removed: use `style.width`
+  1 │ Package { name: "local/a", version: "0.1.0", style: Style { maxLine: 100 } }
+    │                                                                      ^^^

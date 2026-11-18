@@ -1,0 +1,11 @@
+== project proj
+module lib tmp/t11-cases/proj/src/lib lib
+file src/lib/l.byn source
+module lib.sub tmp/t11-cases/proj/src/lib/sub lib_sub
+file src/lib/sub/s.byn source
+module main tmp/t11-cases/proj/src main
+file src/app/main.byn source
+import lib lib
+import sub lib.sub
+diag BYN1001 src/lib/sub/s.byn 1:8 expected a struct name, found `{` |  | 
+diag BYN1001 src/lib/sub/s.byn 2:1 expected `}`, found end of file |  | close the struct opened on line 1

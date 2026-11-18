@@ -1,0 +1,63 @@
+3:1 Identifier `a`
+7:10 RawStringLiteral `""" g0b10�2\n0xFFs\n0b1ms\n0x_\n0b__\n1 `
+12:3 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ a /* never closed
+    │   ^^^^^^^^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ a // never closed
+    │   │    ++++++++++++++
+    │ 4 │ //
+    │   │ ++
+    │ 5 │ // // comment � hidden
+    │   │ ++++++++++++++++++++++
+    │ 6 │ // let x� = 1
+    │   │ +++++++++++++
+    │ 7 │ // /* �
+    │   │ +++++++
+    │ 8 │  """ g0b10�2
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ // comment � hidden
+    │   │            -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  6 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ let x� = 1
+    │   │      -
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  7 │  /* � */ """ g0b10�2
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  /* � */ """ g0b10�2
+    │   │     -
+
+error BYN0003: unterminated string literal
+
+  7 │  /* � */ """ g0b10�2
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │  /* � */ """ g0b10�2
+    │                   ^

@@ -1,0 +1,33 @@
+1:1 IntegerLiteral `0b__`
+2:3 StringLiteral `"a�\u{C}�b"`
+3:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ � "a���b" �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ � "a���b" �
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  2 │ � "a���b" �
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  2 │ � "a���b" �
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ � "a���b" �
+    │           ^

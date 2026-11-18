@@ -1,0 +1,11 @@
+idde
+let x‚Ålet effect = 2
+
+ b = "bad \q escape"
+let c = """never clet a = "open
+
+"a‚Åßb" let b = "bad \q escape"
+
+ effect = 2
+macro select become
+let 

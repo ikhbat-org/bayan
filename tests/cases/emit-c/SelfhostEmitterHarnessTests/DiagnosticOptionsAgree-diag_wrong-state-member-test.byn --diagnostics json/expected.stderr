@@ -1,0 +1,2 @@
+{"code":"BYN7001","severity":"error","file":"input.byn","span":{"start":268,"end":273,"line":14,"column":16,"endLine":14,"endColumn":21},"message":"`ship` needs `order` to be `.paid`, but it is `Order`","label":null,"help":"`isPaid` doesn't narrow; write `if order is .paid`","fixes":[]}
+{"code":"BYN7001","severity":"error","file":"input.byn","span":{"start":330,"end":335,"line":17,"column":16,"endLine":17,"endColumn":21},"message":"`ship` needs `order` to be `.paid`, but it is `Order`","label":null,"help":"check the state with `is` or `switch` first","fixes":[]}

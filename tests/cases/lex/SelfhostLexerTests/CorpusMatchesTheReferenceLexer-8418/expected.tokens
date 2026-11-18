@@ -1,0 +1,15 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600'`
+1:21 CharLiteral `'\''`
+1:26 CharLiteral `'é'`
+1:30 CharLiteral `'\\'`
+1:35 CharLiteral `'\0'`
+3:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\u{1F600`
+
+  1 │ 'a' '\n' '\u{1F600' '\'' 'é' '\\' '\0'
+    │           ^^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`

@@ -1,0 +1,11 @@
+void f(ReadOnlySpan<string> parts) {
+    defer panicking {
+        let d = Path.fullPath("x")
+        print(d)
+    }
+}
+
+void main() {
+    let parts = List<string>()
+    f(parts.span)
+}

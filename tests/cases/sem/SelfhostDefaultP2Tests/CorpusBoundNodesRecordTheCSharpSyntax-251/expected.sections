@@ -1,0 +1,54 @@
+== tests/cases/run/region-combo-all-three-in-time.byn
+243..271 blockStmt
+249..269 returnStmt value 256..269
+256..269 callExpr
+256..257 nameExpr
+267..268 nameExpr
+308..337 blockStmt
+314..335 returnStmt value 321..335
+321..335 callExpr
+324..325 nameExpr
+333..334 nameExpr
+474..487 blockStmt
+480..485 assignStmt assign target 480..481 value 484..485
+480..481 nameExpr
+484..485 nameExpr
+501..756 blockStmt
+507..754 blockStmt
+517..542 localDecl
+535..542 callExpr
+551..588 localDecl
+559..588 structLiteralExpr
+568..586 callExpr
+597..610 localDecl
+608..610 literalExpr string
+619..653 localDecl
+630..653 callExpr
+634..639 literalExpr string
+647..652 nameExpr
+662..673 exprStmt
+662..673 callExpr
+662..663 nameExpr
+668..672 nameExpr
+682..706 exprStmt
+682..706 callExpr
+687..691 nameExpr
+701..705 nameExpr
+715..728 exprStmt
+715..728 callExpr
+721..727 indexExpr
+721..724 memberExpr
+721..722 nameExpr
+725..726 literalExpr integer
+715..728 callExpr
+737..748 exprStmt
+737..748 callExpr
+743..747 nameExpr
+737..748 callExpr
+409..433 blockStmt
+419..427 assignStmt assign target 419..423 value 426..427
+419..423 indexExpr
+419..420 nameExpr
+419..420 nameExpr
+421..422 literalExpr integer
+426..427 nameExpr

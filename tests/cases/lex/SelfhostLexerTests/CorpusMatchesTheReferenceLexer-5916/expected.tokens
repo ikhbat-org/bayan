@@ -1,0 +1,17 @@
+1:1 StringLiteral `"\u{1D}a��b"`
+1:9 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ "�a��b" 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  1 │ "�a��b" 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  1 │ "�a��b" 
+    │     ^

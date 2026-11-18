@@ -1,0 +1,70 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+3:2 Identifier `foo`
+3:6 Identifier `Bar`
+3:10 Identifier `_x`
+3:13 Identifier `camelC1se2`
+3:24 Identifier `بيان`
+3:29 Identifier `μετρητής`
+3:38 Identifier `x_1`
+3:42 Identifier `é`
+4:2 Identifier `é`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolatedStringText `a`
+4:7 InterpolationStart `{`
+4:8 Identifier `b`
+4:9 InterpolationEnd `}`
+4:10 InterpolatedStringText `c $`
+4:13 InterpolatedStringEnd `"`
+4:14 Identifier `stray`
+4:20 CloseBrace `}`
+4:22 Identifier `here`
+4:26 StringLiteral `"`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ �foo Bar _x camelC1se2 بيان μετρητής x_1 é
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ �foo Bar _x camelC1se2 بيان μετρητής x_1 é
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ �foo Bar _x camelC1se2 بيان μετρητής x_1 é
+    │  ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  4 │  é$"a{b}c $"stray } here"
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  é$"a{b}c $"stray } here"
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  4 │  é$"a{b}c $"stray } here"
+    │                          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

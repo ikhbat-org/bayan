@@ -1,0 +1,38 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/default/default.byn
+46..47 literalExpr integer
+46..47 literalExpr integer
+46..47 literalExpr integer
+102..103 nameExpr
+102..103 nameExpr
+102..103 nameExpr
+168..169 nameExpr
+168..169 nameExpr
+168..169 nameExpr
+190..197 tryExpr
+190..197 tryExpr
+190..197 tryExpr
+194..197 callExpr
+119..155 catchExpr
+119..122 callExpr
+129..155 switchExpr
+129..135 caughtErrorExpr
+138..139 discardPattern
+143..147 jumpExpr
+143..147 jumpExpr
+143..147 failStmt
+211..248 blockStmt
+217..228 localDecl
+225..228 callExpr
+63..97 catchExpr
+63..66 callExpr
+73..97 switchExpr
+73..79 caughtErrorExpr
+82..83 discardPattern
+87..95 jumpExpr
+87..95 jumpExpr
+87..95 returnStmt value 94..95
+233..246 exprStmt
+233..246 callExpr
+239..245 interpolatedExpr
+242..243 nameExpr
+233..246 callExpr

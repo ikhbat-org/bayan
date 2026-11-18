@@ -1,0 +1,45 @@
+1:2 FloatLiteral `3.14`
+1:7 FloatLiteral `1e5`
+1:11 FloatLiteral `2.5e-3`
+1:18 FloatLiteral `6E+2`
+1:23 FloatLiteral `1.50`
+1:27 NumericSuffix `dec`
+1:31 IntegerLiteral `1`
+1:32 DotDot `..`
+1:34 IntegerLiteral `2`
+1:36 IntegerLiteral `1`
+1:37 DotDotEquals `..=`
+1:40 IntegerLiteral `3`
+1:42 IntegerLiteral `5`
+1:43 NumericSuffix `e`
+1:45 Identifier `x`
+1:46 Dot `.`
+1:47 Identifier `y`
+1:49 FloatLiteral `2.5`
+1:52 NumericSuffix `f`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │     ^

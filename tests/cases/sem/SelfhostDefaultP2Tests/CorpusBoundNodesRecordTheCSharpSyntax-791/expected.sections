@@ -1,0 +1,45 @@
+== tests/cases/diag/ref-this-field-argument-while-borrowed.byn
+114..142 blockStmt
+120..140 exprStmt
+120..140 callExpr
+120..121 nameExpr
+129..139 structLiteralExpr
+136..137 literalExpr integer
+426..507 blockStmt
+432..462 localDecl
+440..462 structLiteralExpr
+451..460 callExpr
+467..493 exprStmt
+467..493 callExpr
+467..474 memberExpr
+467..468 nameExpr
+482..492 structLiteralExpr
+489..490 literalExpr integer
+498..505 exprStmt
+498..505 callExpr
+498..499 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+281..410 blockStmt
+291..323 localDecl
+315..323 indexExpr
+315..323 indexExpr
+315..320 nameExpr
+315..320 nameExpr
+321..322 literalExpr integer
+332..347 exprStmt
+332..347 callExpr
+341..346 nameExpr
+341..346 nameExpr
+356..376 exprStmt
+356..376 callExpr
+365..375 memberExpr
+365..369 thisExpr
+385..404 exprStmt
+385..404 callExpr
+391..403 interpolatedExpr
+394..401 callExpr
+394..395 nameExpr
+385..404 callExpr

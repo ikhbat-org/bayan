@@ -1,0 +1,7 @@
+◆ bayan       0.3.2 (commit 9cf2f130da53)
+◆ host        <host>
+◆ C compiler  <host>
+◆ zig         <host>
+◆ git         <host>
+✗ cache: <repo>/tmp/t5-doctor/readonly isn't writable: Access to the path '<repo>/tmp/t5-doctor/readonly/.doctor-891fb8a3380f4c199e24444a3e063999' is denied.
+  help: set BAYAN_CACHE to a writable directory

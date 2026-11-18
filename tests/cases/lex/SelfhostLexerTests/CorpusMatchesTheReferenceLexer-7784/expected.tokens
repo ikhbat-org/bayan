@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `""" _\n$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""\n`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """ _
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

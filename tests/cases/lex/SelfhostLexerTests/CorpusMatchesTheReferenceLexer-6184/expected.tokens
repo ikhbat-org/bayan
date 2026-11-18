@@ -1,0 +1,27 @@
+1:2 IntegerLiteral `21__`
+2:1 OpenBrace `{`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolatedStringText `stray } here`
+2:17 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `‼`
+
+  1 │ ‼21__
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ ‼21__
+    │    ^^
+    │
+    │ 1 │ ‼21__
+    │   │    --
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ { $"stray } here"
+    │           ^
+    │
+    │ 2 │ { $"stray }} here"
+    │   │            +

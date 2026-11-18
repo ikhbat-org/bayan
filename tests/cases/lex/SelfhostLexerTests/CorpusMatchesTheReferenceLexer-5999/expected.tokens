@@ -1,0 +1,120 @@
+1:1 LetKeyword `let`
+1:5 Identifier `s`
+1:7 Equals `=`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:19 Identifier `Y`
+1:20 OpenBrace `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 InterpolatedStringStart `$"`
+1:59 InterpolationStart `{`
+1:60 StringLiteral `$"{$"`
+1:65 OpenBrace `{`
+1:66 StringLiteral `$"{x}"`
+1:72 CloseBrace `}`
+1:73 StringLiteral `"}"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:90 InterpolationEnd `}`
+1:91 InterpolatedStringEnd `"`
+1:92 InterpolationEnd `}`
+1:93 InterpolatedStringEnd `"`
+1:94 InterpolationEnd `}`
+1:95 InterpolatedStringEnd `"`
+1:96 InterpolationEnd `}`
+1:97 InterpolatedStringEnd `"`
+1:98 InterpolationEnd `}`
+1:99 InterpolatedStringEnd `"`
+1:100 InterpolationEnd `}`
+1:101 InterpolatedStringEnd `"`
+1:102 CloseBrace `}`
+1:103 StringLiteral `"}"`
+1:106 InterpolationEnd `}`
+1:107 InterpolatedStringEnd `"`
+1:108 InterpolationEnd `}`
+1:109 InterpolatedStringEnd `"`
+2:2 Slash `/`
+2:4 Identifier `comment`
+2:14 Identifier `hidden`
+2:21 StringLiteral `"a\u{2067}b"`
+4:1 IntegerLiteral `0b1`
+4:4 NumericSuffix `ms`
+5:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let s = $"{$"{$"{$Y{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ let s = $"{$"{$"{$Y{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                  ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ let s = $"{$"{$"{$Y{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                            ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  / comment � hidden "a�b" 
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  / comment � hidden "a�b" 
+    │   │            -
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  4 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `̈́`
+
+  5 │ ̈́
+    │ ^

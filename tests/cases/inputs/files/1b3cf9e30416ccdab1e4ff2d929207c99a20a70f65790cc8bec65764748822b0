@@ -1,0 +1,547 @@
+import lexer
+import parser
+
+SourceFile makeFile(string display, by string text) {
+    var bytes = List<u8>()
+    for b in text.bytes { bytes.append(b) }
+    let source = lexer.SourceText.create(display, from: move bytes)
+    var p = parser.Parser.create(lexer.lex(move source, by: lexer.Keywords.build()))
+    let unit = parser.parseCompilationUnit(ref p)
+    var textBytes = List<u8>()
+    for b in text.bytes { textBytes.append(b) }
+    return SourceFile {
+        path: display,
+        displayPath: display,
+        text: move textBytes,
+        unit: move unit,
+        imports: Map<string, i64>(),
+        module: 0,
+    }
+}
+
+Ctx newCtx(string text) {
+    var c = Ctx { files: List<SourceFile>(), modules: List<Mod>(), diagnostics: List<Diag>(), bags: List<DiagBag>() }
+    c.files.append(makeFile("main.byn", by: text))
+    var files = List<FileId>()
+    files.append(0)
+    c.modules.append(Mod { name: "main", files: move files, directory: ".", cName: "main" })
+    return c
+}
+
+void dump(ref Ctx c, for string section) {
+    print($"== {section}")
+    for d in c.diagnostics {
+        let fix = d.hasFix ? $"{d.fixSpan.start}+{d.fixSpan.length}={d.fixReplacement}" : ""
+        print($"{d.code} {d.span.start}+{d.span.length} {d.message} | {d.label} | {d.help} | {fix}")
+    }
+}
+
+void lexiconCase() {
+    var c = newCtx("")
+    buildLexicon(ref c)
+    buildLexicon(ref c)
+    print("== lexicon")
+    print($"{c.lexiconVerbs.length} {c.lexiconNouns.length} {c.lexiconAdjectives.length}")
+    print($"{c.lexiconVerbs[0]} {c.lexiconVerbs[1]} {c.lexiconVerbs[2]}")
+    let n = c.lexiconNouns.length
+    print($"{c.lexiconNouns[n - 3]} {c.lexiconNouns[n - 2]} {c.lexiconNouns[n - 1]}")
+    print($"{c.lexiconAdjectives[40]} {c.lexiconAdjectives[41]} {c.lexiconAdjectives[42]}")
+}
+
+void packageFileCase() {
+    var c = newCtx("")
+    let before = packageFileIndex(in c.files)
+    let none = grammarOf(ref c)
+    c.files.append(makeFile("package.byn", by: ""))
+    let empty = grammarOf(ref c)
+    print("== package-file")
+    print($"{before} {packageFileIndex(in c.files)}")
+    print($"{none.verbs.length + none.nouns.length + none.adjectives.length} {empty.verbs.length}")
+}
+
+void runCase0() {
+    var c = newCtx("public struct Door {\n    bool open\n\n    public bool ajar => !open\n\n    public bool locked() => false\n\n    public bool hasKey => true\n\n    public bool containsAny() => false\n\n    // A lint on the public API only: a member the module keeps to itself is not checked.\n    bool closed => false\n\n    bool shut() => false\n}\n\nprint(\"ok\")\n")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Door", nameSpan: TextSpan { start: 14, length: 4 }, file: 0, module: 0, declIndex: 0, access: .publicKeyword })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "locked", nameSpan: TextSpan { start: 83, length: 6 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 2, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("bool") ?? errorType() })
+    c.structs[s0].methods.append(f0)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "containsAny", nameSpan: TextSpan { start: 150, length: 11 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 4, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("bool") ?? errorType() })
+    c.structs[s0].methods.append(f1)
+    let f2 = newFunction(ref c, by: FunctionSymbol { name: "shut", nameSpan: TextSpan { start: 299, length: 4 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 6, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("bool") ?? errorType() })
+    c.structs[s0].methods.append(f2)
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "ajar", nameSpan: TextSpan { start: 52, length: 4 }, owner: s0, file: 0, access: .publicKeyword, type: primitiveByName("bool") ?? errorType() }))
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "hasKey", nameSpan: TextSpan { start: 118, length: 6 }, owner: s0, file: 0, access: .publicKeyword, type: primitiveByName("bool") ?? errorType() }))
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "closed", nameSpan: TextSpan { start: 273, length: 6 }, owner: s0, file: 0, access: .module, type: primitiveByName("bool") ?? errorType() }))
+    let grammar = Grammar {}
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    checkParticles(ref c, from: 0, for: f1)
+    checkParticles(ref c, from: 0, for: f2)
+    dump(ref c, for: "bool-without-prefix")
+}
+void runCase1() {
+    var c = newCtx("public struct Counter {\n    i64 n\n\n    public void total(ref this, i64 by) {\n        n += by\n    }\n\n    public void sizeUp(ref this) {\n        n *= 2\n    }\n\n    // A lint on the public API only: a member the module keeps to itself is not checked.\n    void sizeDown(ref this) {\n        n /= 2\n    }\n}\n\nprint(\"ok\")\n")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Counter", nameSpan: TextSpan { start: 14, length: 7 }, file: 0, module: 0, declIndex: 0, access: .publicKeyword })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "total", nameSpan: TextSpan { start: 51, length: 5 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 1, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "by", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.structs[s0].methods.append(f0)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "sizeUp", nameSpan: TextSpan { start: 116, length: 6 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 2, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f1)
+    let f2 = newFunction(ref c, by: FunctionSymbol { name: "sizeDown", nameSpan: TextSpan { start: 256, length: 8 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 3, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f2)
+    let grammar = Grammar {}
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    checkParticles(ref c, from: 0, for: f1)
+    checkParticles(ref c, from: 0, for: f2)
+    dump(ref c, for: "noun-on-mutator")
+}
+void runCase2() {
+    var c = newCtx("struct Words {\n    string text\n\n    // `-ed` names the changed copy; the member that changes `this` is `sort`.\n    void sorted(ref this) {\n        text = text\n    }\n\n    // A copy or a view may be `-ed` with no `ref this` verb beside it.\n    string joined() => text\n\n    Words reversed => Words { text: text }\n\n    // `trimmed` undoes the doubled consonant: the verb is `trim`.\n    void trimmed(ref this, i64 times) {\n        text = text\n    }\n\n    // Words that only end in `-ed` and math vocabulary are not participles.\n    void need(ref this) {\n        text = text\n    }\n\n    f64 sqrt => 0.0\n\n    states {\n        drafted\n        shipped\n    }\n}\n")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Words", nameSpan: TextSpan { start: 7, length: 5 }, file: 0, module: 0, declIndex: 0, access: .module })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "sorted", nameSpan: TextSpan { start: 120, length: 6 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 1, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f0)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "joined", nameSpan: TextSpan { start: 249, length: 6 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 2, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("string") ?? errorType() })
+    c.structs[s0].methods.append(f1)
+    let f2 = newFunction(ref c, by: FunctionSymbol { name: "trimmed", nameSpan: TextSpan { start: 387, length: 7 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 4, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.functions[f2].parameters.append(newLocal(ref c, by: LocalSymbol { name: "times", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.structs[s0].methods.append(f2)
+    let f3 = newFunction(ref c, by: FunctionSymbol { name: "need", nameSpan: TextSpan { start: 531, length: 4 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 5, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f3)
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "reversed", nameSpan: TextSpan { start: 277, length: 8 }, owner: s0, file: 0, access: .module, type: structTypeOf(s0) }))
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "sqrt", nameSpan: TextSpan { start: 583, length: 4 }, owner: s0, file: 0, access: .module, type: primitiveByName("f64") ?? errorType() }))
+    let grammar = Grammar {}
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    checkParticles(ref c, from: 0, for: f1)
+    checkParticles(ref c, from: 0, for: f2)
+    checkParticles(ref c, from: 0, for: f3)
+    dump(ref c, for: "participle-changes-this")
+}
+void runCase3() {
+    var c = newCtx("struct Shelf {\n    i64 count\n\n    i64 at(i64 index) => count + index\n\n    i64 toI64() => count\n\n    i64 asCount => count\n\n    string toString() => \"\"\n\n    // Static factories name a source with `from`; a static `toX` is not an instance conversion.\n    static Shelf fromCount(i64 count) => Shelf { count: count }\n\n    static Shelf toShelf(i64 count) => Shelf { count: count }\n\n    i64 total() => count\n}\n\nprint(\"ok\")\n")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Shelf", nameSpan: TextSpan { start: 7, length: 5 }, file: 0, module: 0, declIndex: 0, access: .module })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "at", nameSpan: TextSpan { start: 38, length: 2 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 1, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "index", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.structs[s0].methods.append(f0)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "toI64", nameSpan: TextSpan { start: 78, length: 5 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 2, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f1)
+    let f2 = newFunction(ref c, by: FunctionSymbol { name: "toString", nameSpan: TextSpan { start: 133, length: 8 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 4, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("string") ?? errorType() })
+    c.structs[s0].methods.append(f2)
+    let f3 = newFunction(ref c, by: FunctionSymbol { name: "fromCount", nameSpan: TextSpan { start: 265, length: 9 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 5, owner: s0, isStatic: true, isMutating: false, hasFails: false, returnType: structTypeOf(s0) })
+    c.functions[f3].parameters.append(newLocal(ref c, by: LocalSymbol { name: "count", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.structs[s0].methods.append(f3)
+    let f4 = newFunction(ref c, by: FunctionSymbol { name: "toShelf", nameSpan: TextSpan { start: 330, length: 7 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 6, owner: s0, isStatic: true, isMutating: false, hasFails: false, returnType: structTypeOf(s0) })
+    c.functions[f4].parameters.append(newLocal(ref c, by: LocalSymbol { name: "count", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.structs[s0].methods.append(f4)
+    let f5 = newFunction(ref c, by: FunctionSymbol { name: "total", nameSpan: TextSpan { start: 384, length: 5 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 7, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f5)
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "asCount", nameSpan: TextSpan { start: 104, length: 7 }, owner: s0, file: 0, access: .module, type: primitiveByName("i64") ?? errorType() }))
+    let grammar = Grammar {}
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    checkParticles(ref c, from: 0, for: f1)
+    checkParticles(ref c, from: 0, for: f2)
+    checkParticles(ref c, from: 0, for: f3)
+    checkParticles(ref c, from: 0, for: f4)
+    checkParticles(ref c, from: 0, for: f5)
+    dump(ref c, for: "particle-as-member-name")
+}
+void runCase4() {
+    var c = newCtx("union error ParseError { empty }\n\nstruct Reader {\n    string text\n\n    i64 parse() fails ParseError {\n        return 0\n    }\n\n    i64 tryParse() => 0\n\n    // `T?` and `bool` are the two shapes of an attempt.\n    i64? tryParseOrNull() => null\n}\n")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Reader", nameSpan: TextSpan { start: 41, length: 6 }, file: 0, module: 0, declIndex: 1, access: .module })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "parse", nameSpan: TextSpan { start: 75, length: 5 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 1, memberIndex: 1, owner: s0, isStatic: false, isMutating: false, hasFails: true, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f0)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "tryParse", nameSpan: TextSpan { start: 134, length: 8 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 1, memberIndex: 2, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f1)
+    let f2 = newFunction(ref c, by: FunctionSymbol { name: "tryParseOrNull", nameSpan: TextSpan { start: 217, length: 14 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 1, memberIndex: 3, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: internOptional(ref c, by: primitiveByName("i64") ?? errorType()) })
+    c.structs[s0].methods.append(f2)
+    let grammar = Grammar {}
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    checkParticles(ref c, from: 0, for: f1)
+    checkParticles(ref c, from: 0, for: f2)
+    dump(ref c, for: "try-wrong-return")
+}
+void runCase5() {
+    var c = newCtx("struct Queue {\n    i64 count\n\n    bool isEmpty(ref this) {\n        count = 0\n        return true\n    }\n\n    // Arguments make it an action, not a state.\n    bool hasRoomFor(ref this, i64 n) {\n        count += n\n        return true\n    }\n}\n")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Queue", nameSpan: TextSpan { start: 7, length: 5 }, file: 0, module: 0, declIndex: 0, access: .module })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "isEmpty", nameSpan: TextSpan { start: 39, length: 7 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 1, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("bool") ?? errorType() })
+    c.structs[s0].methods.append(f0)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "hasRoomFor", nameSpan: TextSpan { start: 162, length: 10 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 2, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("bool") ?? errorType() })
+    c.functions[f1].parameters.append(newLocal(ref c, by: LocalSymbol { name: "n", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.structs[s0].methods.append(f1)
+    let grammar = Grammar {}
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    checkParticles(ref c, from: 0, for: f1)
+    dump(ref c, for: "state-member-mutates")
+}
+void runCase6() {
+    var c = newCtx("struct Catalog {\n    i64 count\n\n    void upsertRow(ref this) {\n        count += 1\n    }\n\n    i64 skuCount => count\n\n    // Inflected forms of known words, particles and math names are known.\n    i64 sortedRows() => count\n\n    i64 countsBy(i64 step) => step\n\n    f64 sqrt => 0.0\n\n    f64 log2 => 0.0\n}\n\nprint(\"ok\")\n")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Catalog", nameSpan: TextSpan { start: 7, length: 7 }, file: 0, module: 0, declIndex: 0, access: .module })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "upsertRow", nameSpan: TextSpan { start: 41, length: 9 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 1, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f0)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "sortedRows", nameSpan: TextSpan { start: 199, length: 10 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 3, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f1)
+    let f2 = newFunction(ref c, by: FunctionSymbol { name: "countsBy", nameSpan: TextSpan { start: 230, length: 8 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 4, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.functions[f2].parameters.append(newLocal(ref c, by: LocalSymbol { name: "step", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.structs[s0].methods.append(f2)
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "skuCount", nameSpan: TextSpan { start: 97, length: 8 }, owner: s0, file: 0, access: .module, type: primitiveByName("i64") ?? errorType() }))
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "sqrt", nameSpan: TextSpan { start: 266, length: 4 }, owner: s0, file: 0, access: .module, type: primitiveByName("f64") ?? errorType() }))
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "log2", nameSpan: TextSpan { start: 287, length: 4 }, owner: s0, file: 0, access: .module, type: primitiveByName("f64") ?? errorType() }))
+    let grammar = Grammar {}
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    checkParticles(ref c, from: 0, for: f1)
+    checkParticles(ref c, from: 0, for: f2)
+    dump(ref c, for: "unknown-word")
+}
+void runCase7() {
+    var c = newCtx("// A function has one unlabeled required parameter, the object (BYN5004); each other one needs a particle (BYN5006).\nvoid transfer(i64 amount, i64 payer, i64 payee) {\n    return\n}\n")
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "transfer", nameSpan: TextSpan { start: 122, length: 8 }, kind: .function, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: -1, owner: -1, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "amount", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "payer", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "payee", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    let grammar = Grammar {}
+    checkParticles(ref c, from: 0, for: f0)
+    dump(ref c, for: "particle-required")
+}
+void runCase8() {
+    var c = newCtx("// The receiver is not the object: `amount` is, so `fee` needs a particle (BYN5006).\nstruct Ledger {\n    i64 total\n\n    void record(ref this, i64 amount, i64 fee) {\n        total += amount - fee\n    }\n}\n")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Ledger", nameSpan: TextSpan { start: 92, length: 6 }, file: 0, module: 0, declIndex: 0, access: .module })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "record", nameSpan: TextSpan { start: 125, length: 6 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 1, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "amount", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "fee", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.structs[s0].methods.append(f0)
+    let grammar = Grammar {}
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    dump(ref c, for: "parameter-needs-particle")
+}
+void runCase9() {
+    var c = newCtx("// A particle appears at most once per signature (BYN5013).\nvoid copy(from string src, from string backup) {\n    return\n}\n")
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "copy", nameSpan: TextSpan { start: 65, length: 4 }, kind: .function, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: -1, owner: -1, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "src", type: primitiveByName("string") ?? errorType(), isParameter: true }))
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "backup", type: primitiveByName("string") ?? errorType(), isParameter: true }))
+    let grammar = Grammar {}
+    checkParticles(ref c, from: 0, for: f0)
+    dump(ref c, for: "repeated-particle")
+}
+void runCase10() {
+    var c = newCtx("// Exempt from BYN5004-5006: the receiver, `bool` parameters and parameters with a default.\n\nstruct Counter {\n    i64 n\n\n    void add(ref this, i64 amount, until i64 limit) {\n        n = n + amount < limit ? n + amount : limit\n    }\n}\n\ni64 scaled(i64 n, bool doubled, i64 factor = 3) => doubled ? n * factor * 2 : n * factor\n\nvar c = Counter { n: 0 }\nc.add(5, until: 4)\nprint($\"{c.n} {scaled(2, doubled: true)} {scaled(2, doubled: false, factor: 1)}\")\n")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Counter", nameSpan: TextSpan { start: 100, length: 7 }, file: 0, module: 0, declIndex: 0, access: .module })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "add", nameSpan: TextSpan { start: 130, length: 3 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 1, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "amount", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f0].parameters.append(newLocal(ref c, by: LocalSymbol { name: "limit", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.structs[s0].methods.append(f0)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "scaled", nameSpan: TextSpan { start: 240, length: 6 }, kind: .function, access: .module, modifiers: 0, file: 0, declIndex: 1, memberIndex: -1, owner: -1, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.functions[f1].parameters.append(newLocal(ref c, by: LocalSymbol { name: "n", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f1].parameters.append(newLocal(ref c, by: LocalSymbol { name: "doubled", type: primitiveByName("bool") ?? errorType(), isParameter: true }))
+    c.functions[f1].parameters.append(newLocal(ref c, by: LocalSymbol { name: "factor", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    let grammar = Grammar {}
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    checkParticles(ref c, from: 0, for: f1)
+    dump(ref c, for: "particle-exemptions")
+}
+void runCase11() {
+    var c = newCtx("public struct Shelf {\n    i64 n\n    public void copied(ref this) {\n        n = 1\n    }\n    public void doubled(ref this) {\n        n = 2\n    }\n    public void trimmed(ref this) {\n        n = 3\n    }\n    public void hundred(ref this) {\n        n = 4\n    }\n    public void stopped(ref this) {\n        n = 5\n    }\n    public void named(ref this) {\n        n = 6\n    }\n    public void joined(ref this) {\n        n = 7\n    }\n    public i64 toString() => n\n    public i64 toWidget() => n\n    public i64 asView() => n\n    public i64 to() => n\n    public void runners(ref this) {\n        n = 8\n    }\n    public void unreadable(ref this) {\n        n = 9\n    }\n    public void rebuilt(ref this) {\n        n = 10\n    }\n    public i64 utf8Count() => n\n    public i64 md5sum() => n\n    public void hoped(ref this) {\n        n = 13\n    }\n    public void towed(ref this) {\n        n = 14\n    }\n    public i64 x() => n\n    public i64 frobs() => n\n    public i64 copiers() => n\n    public bool ready() => true\n    public bool startsWithA() => true\n    public bool tryIt() => true\n    public bool canGo() => true\n    public void hasRoom(ref this) {\n        n = 11\n    }\n    public void entries(ref this) {\n        n = 12\n    }\n    public i64 fetch() fails E {\n        return 0\n    }\n    public string tryFetch() => \"\"\n    public bool tryParse() => true\n    public i64 parse() fails E {\n        return 0\n    }\n    public i64 tryNothing() => 0\n    public static i64 toThing() => 0\n    public bool visible => true\n    public bool isShown => true\n    i64 for_count => 0\n}\nunion error E { missing }\nvoid three(i64 a, i64 b, i64 c, bool d, i64 e = 1) {\n    return\n}\nvoid spread(i64 a, by i64 b, by i64 c, by i64 d, rest ReadOnlySpan<i64> xs) {\n    return\n}\nvoid twoBools(bool a, bool b) {\n    return\n}")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Shelf", nameSpan: TextSpan { start: 14, length: 5 }, file: 0, module: 0, declIndex: 0, access: .publicKeyword })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "copied", nameSpan: TextSpan { start: 48, length: 6 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 1, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f0)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "doubled", nameSpan: TextSpan { start: 103, length: 7 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 2, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f1)
+    let f2 = newFunction(ref c, by: FunctionSymbol { name: "trimmed", nameSpan: TextSpan { start: 159, length: 7 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 3, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f2)
+    let f3 = newFunction(ref c, by: FunctionSymbol { name: "hundred", nameSpan: TextSpan { start: 215, length: 7 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 4, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f3)
+    let f4 = newFunction(ref c, by: FunctionSymbol { name: "stopped", nameSpan: TextSpan { start: 271, length: 7 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 5, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f4)
+    let f5 = newFunction(ref c, by: FunctionSymbol { name: "named", nameSpan: TextSpan { start: 327, length: 5 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 6, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f5)
+    let f6 = newFunction(ref c, by: FunctionSymbol { name: "joined", nameSpan: TextSpan { start: 381, length: 6 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 7, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f6)
+    let f7 = newFunction(ref c, by: FunctionSymbol { name: "toString", nameSpan: TextSpan { start: 435, length: 8 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 8, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f7)
+    let f8 = newFunction(ref c, by: FunctionSymbol { name: "toWidget", nameSpan: TextSpan { start: 466, length: 8 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 9, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f8)
+    let f9 = newFunction(ref c, by: FunctionSymbol { name: "asView", nameSpan: TextSpan { start: 497, length: 6 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 10, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f9)
+    let f10 = newFunction(ref c, by: FunctionSymbol { name: "to", nameSpan: TextSpan { start: 526, length: 2 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 11, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f10)
+    let f11 = newFunction(ref c, by: FunctionSymbol { name: "runners", nameSpan: TextSpan { start: 552, length: 7 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 12, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f11)
+    let f12 = newFunction(ref c, by: FunctionSymbol { name: "unreadable", nameSpan: TextSpan { start: 608, length: 10 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 13, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f12)
+    let f13 = newFunction(ref c, by: FunctionSymbol { name: "rebuilt", nameSpan: TextSpan { start: 667, length: 7 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 14, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f13)
+    let f14 = newFunction(ref c, by: FunctionSymbol { name: "utf8Count", nameSpan: TextSpan { start: 723, length: 9 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 15, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f14)
+    let f15 = newFunction(ref c, by: FunctionSymbol { name: "md5sum", nameSpan: TextSpan { start: 755, length: 6 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 16, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f15)
+    let f16 = newFunction(ref c, by: FunctionSymbol { name: "hoped", nameSpan: TextSpan { start: 785, length: 5 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 17, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f16)
+    let f17 = newFunction(ref c, by: FunctionSymbol { name: "towed", nameSpan: TextSpan { start: 840, length: 5 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 18, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f17)
+    let f18 = newFunction(ref c, by: FunctionSymbol { name: "x", nameSpan: TextSpan { start: 894, length: 1 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 19, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f18)
+    let f19 = newFunction(ref c, by: FunctionSymbol { name: "frobs", nameSpan: TextSpan { start: 918, length: 5 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 20, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f19)
+    let f20 = newFunction(ref c, by: FunctionSymbol { name: "copiers", nameSpan: TextSpan { start: 946, length: 7 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 21, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f20)
+    let f21 = newFunction(ref c, by: FunctionSymbol { name: "ready", nameSpan: TextSpan { start: 977, length: 5 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 22, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("bool") ?? errorType() })
+    c.structs[s0].methods.append(f21)
+    let f22 = newFunction(ref c, by: FunctionSymbol { name: "startsWithA", nameSpan: TextSpan { start: 1009, length: 11 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 23, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("bool") ?? errorType() })
+    c.structs[s0].methods.append(f22)
+    let f23 = newFunction(ref c, by: FunctionSymbol { name: "tryIt", nameSpan: TextSpan { start: 1047, length: 5 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 24, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("bool") ?? errorType() })
+    c.structs[s0].methods.append(f23)
+    let f24 = newFunction(ref c, by: FunctionSymbol { name: "canGo", nameSpan: TextSpan { start: 1079, length: 5 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 25, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("bool") ?? errorType() })
+    c.structs[s0].methods.append(f24)
+    let f25 = newFunction(ref c, by: FunctionSymbol { name: "hasRoom", nameSpan: TextSpan { start: 1111, length: 7 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 26, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f25)
+    let f26 = newFunction(ref c, by: FunctionSymbol { name: "entries", nameSpan: TextSpan { start: 1168, length: 7 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 27, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f26)
+    let f27 = newFunction(ref c, by: FunctionSymbol { name: "fetch", nameSpan: TextSpan { start: 1224, length: 5 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 28, owner: s0, isStatic: false, isMutating: false, hasFails: true, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f27)
+    let f28 = newFunction(ref c, by: FunctionSymbol { name: "tryFetch", nameSpan: TextSpan { start: 1283, length: 8 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 29, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("string") ?? errorType() })
+    c.structs[s0].methods.append(f28)
+    let f29 = newFunction(ref c, by: FunctionSymbol { name: "tryParse", nameSpan: TextSpan { start: 1316, length: 8 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 30, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("bool") ?? errorType() })
+    c.structs[s0].methods.append(f29)
+    let f30 = newFunction(ref c, by: FunctionSymbol { name: "parse", nameSpan: TextSpan { start: 1350, length: 5 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 31, owner: s0, isStatic: false, isMutating: false, hasFails: true, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f30)
+    let f31 = newFunction(ref c, by: FunctionSymbol { name: "tryNothing", nameSpan: TextSpan { start: 1406, length: 10 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 32, owner: s0, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f31)
+    let f32 = newFunction(ref c, by: FunctionSymbol { name: "toThing", nameSpan: TextSpan { start: 1446, length: 7 }, kind: .method, access: .publicKeyword, modifiers: 0, file: 0, declIndex: 0, memberIndex: 33, owner: s0, isStatic: true, isMutating: false, hasFails: false, returnType: primitiveByName("i64") ?? errorType() })
+    c.structs[s0].methods.append(f32)
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "visible", nameSpan: TextSpan { start: 1477, length: 7 }, owner: s0, file: 0, access: .publicKeyword, type: primitiveByName("bool") ?? errorType() }))
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "isShown", nameSpan: TextSpan { start: 1509, length: 7 }, owner: s0, file: 0, access: .publicKeyword, type: primitiveByName("bool") ?? errorType() }))
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "for_count", nameSpan: TextSpan { start: 1533, length: 9 }, owner: s0, file: 0, access: .module, type: primitiveByName("i64") ?? errorType() }))
+    let f33 = newFunction(ref c, by: FunctionSymbol { name: "three", nameSpan: TextSpan { start: 1581, length: 5 }, kind: .function, access: .module, modifiers: 0, file: 0, declIndex: 2, memberIndex: -1, owner: -1, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.functions[f33].parameters.append(newLocal(ref c, by: LocalSymbol { name: "a", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f33].parameters.append(newLocal(ref c, by: LocalSymbol { name: "b", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f33].parameters.append(newLocal(ref c, by: LocalSymbol { name: "c", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f33].parameters.append(newLocal(ref c, by: LocalSymbol { name: "d", type: primitiveByName("bool") ?? errorType(), isParameter: true }))
+    c.functions[f33].parameters.append(newLocal(ref c, by: LocalSymbol { name: "e", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    let f34 = newFunction(ref c, by: FunctionSymbol { name: "spread", nameSpan: TextSpan { start: 1647, length: 6 }, kind: .function, access: .module, modifiers: 0, file: 0, declIndex: 3, memberIndex: -1, owner: -1, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.functions[f34].parameters.append(newLocal(ref c, by: LocalSymbol { name: "a", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f34].parameters.append(newLocal(ref c, by: LocalSymbol { name: "b", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f34].parameters.append(newLocal(ref c, by: LocalSymbol { name: "c", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f34].parameters.append(newLocal(ref c, by: LocalSymbol { name: "d", type: primitiveByName("i64") ?? errorType(), isParameter: true }))
+    c.functions[f34].parameters.append(newLocal(ref c, by: LocalSymbol { name: "xs", type: errorType(), isParameter: true }))
+    let f35 = newFunction(ref c, by: FunctionSymbol { name: "twoBools", nameSpan: TextSpan { start: 1738, length: 8 }, kind: .function, access: .module, modifiers: 0, file: 0, declIndex: 4, memberIndex: -1, owner: -1, isStatic: false, isMutating: false, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.functions[f35].parameters.append(newLocal(ref c, by: LocalSymbol { name: "a", type: primitiveByName("bool") ?? errorType(), isParameter: true }))
+    c.functions[f35].parameters.append(newLocal(ref c, by: LocalSymbol { name: "b", type: primitiveByName("bool") ?? errorType(), isParameter: true }))
+    let grammar = Grammar {}
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    checkParticles(ref c, from: 0, for: f1)
+    checkParticles(ref c, from: 0, for: f2)
+    checkParticles(ref c, from: 0, for: f3)
+    checkParticles(ref c, from: 0, for: f4)
+    checkParticles(ref c, from: 0, for: f5)
+    checkParticles(ref c, from: 0, for: f6)
+    checkParticles(ref c, from: 0, for: f7)
+    checkParticles(ref c, from: 0, for: f8)
+    checkParticles(ref c, from: 0, for: f9)
+    checkParticles(ref c, from: 0, for: f10)
+    checkParticles(ref c, from: 0, for: f11)
+    checkParticles(ref c, from: 0, for: f12)
+    checkParticles(ref c, from: 0, for: f13)
+    checkParticles(ref c, from: 0, for: f14)
+    checkParticles(ref c, from: 0, for: f15)
+    checkParticles(ref c, from: 0, for: f16)
+    checkParticles(ref c, from: 0, for: f17)
+    checkParticles(ref c, from: 0, for: f18)
+    checkParticles(ref c, from: 0, for: f19)
+    checkParticles(ref c, from: 0, for: f20)
+    checkParticles(ref c, from: 0, for: f21)
+    checkParticles(ref c, from: 0, for: f22)
+    checkParticles(ref c, from: 0, for: f23)
+    checkParticles(ref c, from: 0, for: f24)
+    checkParticles(ref c, from: 0, for: f25)
+    checkParticles(ref c, from: 0, for: f26)
+    checkParticles(ref c, from: 0, for: f27)
+    checkParticles(ref c, from: 0, for: f28)
+    checkParticles(ref c, from: 0, for: f29)
+    checkParticles(ref c, from: 0, for: f30)
+    checkParticles(ref c, from: 0, for: f31)
+    checkParticles(ref c, from: 0, for: f32)
+    checkParticles(ref c, from: 0, for: f33)
+    checkParticles(ref c, from: 0, for: f34)
+    checkParticles(ref c, from: 0, for: f35)
+    dump(ref c, for: "extra")
+}
+void runCase12() {
+    var c = newCtx("struct Catalog {\n    i64 count\n\n    void upsertRow(ref this) {\n        count += 1\n    }\n\n    i64 skuCount => count\n\n    bool isIdempotent => true\n\n    // `forms` gives the irregular `-ed` spelling, so this member changes `this` under an `-ed` name.\n    void reground(ref this) {\n        count += 1\n    }\n\n    i64 kycLevel => 0\n}\n\nprint(\"ok\")\n")
+    let s0 = newStruct(ref c, by: StructSymbol { name: "Catalog", nameSpan: TextSpan { start: 7, length: 7 }, file: 0, module: 0, declIndex: 0, access: .module })
+    let f0 = newFunction(ref c, by: FunctionSymbol { name: "upsertRow", nameSpan: TextSpan { start: 41, length: 9 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 1, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f0)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "reground", nameSpan: TextSpan { start: 258, length: 8 }, kind: .method, access: .module, modifiers: 0, file: 0, declIndex: 0, memberIndex: 4, owner: s0, isStatic: false, isMutating: true, hasFails: false, returnType: primitiveByName("void") ?? errorType() })
+    c.structs[s0].methods.append(f1)
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "skuCount", nameSpan: TextSpan { start: 97, length: 8 }, owner: s0, file: 0, access: .module, type: primitiveByName("i64") ?? errorType() }))
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "isIdempotent", nameSpan: TextSpan { start: 125, length: 12 }, owner: s0, file: 0, access: .module, type: primitiveByName("bool") ?? errorType() }))
+    c.structs[s0].properties.append(newProperty(ref c, by: PropertySymbol { name: "kycLevel", nameSpan: TextSpan { start: 313, length: 8 }, owner: s0, file: 0, access: .module, type: primitiveByName("i64") ?? errorType() }))
+    var raw = Grammar { verbs: ["upsert", "regrind"], nouns: ["SKU"], adjectives: ["idempotent"] }
+    raw.forms["regrind"] = "reground"
+    let grammar = lowerGrammar(in raw)
+    checkMembersWith(ref c, for: s0, by: grammar)
+    checkParticles(ref c, from: 0, for: f0)
+    checkParticles(ref c, from: 0, for: f1)
+    dump(ref c, for: "grammar-dictionary")
+}
+void runCase13() {
+    var c = newCtx("struct my_point {\n    i64 n\n}\n")
+    checkType(ref c, from: 0, at: TextSpan { start: 7, length: 8 })
+    dump(ref c, for: "type-snake")
+}
+void runCase14() {
+    var c = newCtx("struct HTTPClient {\n    i64 n\n}\n")
+    checkType(ref c, from: 0, at: TextSpan { start: 7, length: 10 })
+    dump(ref c, for: "type-acronym")
+}
+void runCase15() {
+    var c = newCtx("struct IOError {\n    i64 n\n}\n")
+    checkType(ref c, from: 0, at: TextSpan { start: 7, length: 7 })
+    dump(ref c, for: "type-io")
+}
+void runCase16() {
+    var c = newCtx("struct Point {\n    i64 n\n}\n")
+    checkType(ref c, from: 0, at: TextSpan { start: 7, length: 5 })
+    dump(ref c, for: "type-ok")
+}
+void runCase17() {
+    var c = newCtx("struct point {\n    i64 n\n}\n")
+    checkType(ref c, from: 0, at: TextSpan { start: 7, length: 5 })
+    dump(ref c, for: "type-lower")
+}
+void runCase18() {
+    var c = newCtx("struct XMLHttpRequest {\n    i64 n\n}\n")
+    checkType(ref c, from: 0, at: TextSpan { start: 7, length: 14 })
+    dump(ref c, for: "type-mixed")
+}
+void runCase19() {
+    var c = newCtx("struct http_server_v2 {\n    i64 n\n}\n")
+    checkType(ref c, from: 0, at: TextSpan { start: 7, length: 14 })
+    dump(ref c, for: "type-digits")
+}
+void runCase20() {
+    var c = newCtx("struct café_shop {\n    i64 n\n}\n")
+    checkType(ref c, from: 0, at: TextSpan { start: 7, length: 10 })
+    dump(ref c, for: "type-uncased")
+}
+void runCase21() {
+    var c = newCtx("struct ABc {\n    i64 n\n}\n")
+    checkType(ref c, from: 0, at: TextSpan { start: 7, length: 3 })
+    dump(ref c, for: "type-two")
+}
+void runCase22() {
+    var c = newCtx("interface IShape {\n    i64 size()\n}\n")
+    checkInterface(ref c, from: 0, at: TextSpan { start: 10, length: 6 })
+    dump(ref c, for: "iface-ok")
+}
+void runCase23() {
+    var c = newCtx("interface Shape {\n    i64 size()\n}\n")
+    checkInterface(ref c, from: 0, at: TextSpan { start: 10, length: 5 })
+    dump(ref c, for: "iface-plain")
+}
+void runCase24() {
+    var c = newCtx("interface Ishape {\n    i64 size()\n}\n")
+    checkInterface(ref c, from: 0, at: TextSpan { start: 10, length: 6 })
+    dump(ref c, for: "iface-lower-i")
+}
+void runCase25() {
+    var c = newCtx("interface IHTTPThing {\n    i64 size()\n}\n")
+    checkInterface(ref c, from: 0, at: TextSpan { start: 10, length: 10 })
+    dump(ref c, for: "iface-bad-casing")
+}
+void runCase26() {
+    var c = newCtx("interface shape_thing {\n    i64 size()\n}\n")
+    checkInterface(ref c, from: 0, at: TextSpan { start: 10, length: 11 })
+    dump(ref c, for: "iface-snake")
+}
+void runCase27() {
+    var c = newCtx("void DoThing() {\n    return\n}\n")
+    checkValue(ref c, from: 0, at: TextSpan { start: 5, length: 7 })
+    dump(ref c, for: "value-pascal")
+}
+void runCase28() {
+    var c = newCtx("void parse_url() {\n    return\n}\n")
+    checkValue(ref c, from: 0, at: TextSpan { start: 5, length: 9 })
+    dump(ref c, for: "value-snake")
+}
+void runCase29() {
+    var c = newCtx("void parseURL() {\n    return\n}\n")
+    checkValue(ref c, from: 0, at: TextSpan { start: 5, length: 8 })
+    dump(ref c, for: "value-acronym")
+}
+void runCase30() {
+    var c = newCtx("void parse() {\n    return\n}\n")
+    checkValue(ref c, from: 0, at: TextSpan { start: 5, length: 5 })
+    dump(ref c, for: "value-ok")
+}
+void runCase31() {
+    var c = newCtx("void HTTPGet() {\n    return\n}\n")
+    checkValue(ref c, from: 0, at: TextSpan { start: 5, length: 7 })
+    dump(ref c, for: "value-upper")
+}
+void runCase32() {
+    var c = newCtx("void IO() {\n    return\n}\n")
+    checkValue(ref c, from: 0, at: TextSpan { start: 5, length: 2 })
+    dump(ref c, for: "value-io")
+}
+void runCase33() {
+    var c = newCtx("void get2Things() {\n    return\n}\n")
+    checkValue(ref c, from: 0, at: TextSpan { start: 5, length: 10 })
+    dump(ref c, for: "value-digit")
+}
+void runCase34() {
+    var c = newCtx("struct ZZTop {\n    i64 n\n}\n")
+    checkType(ref c, from: 0, at: TextSpan { start: 7, length: 5 })
+    dump(ref c, for: "type-z")
+}
+void runCase35() {
+    var c = newCtx("void zapZed() {\n    return\n}\n")
+    checkValue(ref c, from: 0, at: TextSpan { start: 5, length: 6 })
+    dump(ref c, for: "value-z")
+}
+i32 main() {
+    lexiconCase()
+    packageFileCase()
+    runCase0()
+    runCase1()
+    runCase2()
+    runCase3()
+    runCase4()
+    runCase5()
+    runCase6()
+    runCase7()
+    runCase8()
+    runCase9()
+    runCase10()
+    runCase11()
+    runCase12()
+    runCase13()
+    runCase14()
+    runCase15()
+    runCase16()
+    runCase17()
+    runCase18()
+    runCase19()
+    runCase20()
+    runCase21()
+    runCase22()
+    runCase23()
+    runCase24()
+    runCase25()
+    runCase26()
+    runCase27()
+    runCase28()
+    runCase29()
+    runCase30()
+    runCase31()
+    runCase32()
+    runCase33()
+    runCase34()
+    runCase35()
+    return 0
+}

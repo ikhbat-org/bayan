@@ -1,0 +1,53 @@
+== tests/cases/diag/dyn-ref-borrow.byn
+135..155 callExpr
+135..155 callExpr
+135..155 callExpr
+141..154 interpolatedExpr
+144..152 callExpr
+144..145 nameExpr
+135..155 callExpr
+197..217 callExpr
+197..217 callExpr
+197..217 callExpr
+203..216 interpolatedExpr
+206..214 callExpr
+206..207 nameExpr
+197..217 callExpr
+231..449 blockStmt
+237..264 localDecl
+249..264 structLiteralExpr
+261..262 literalExpr integer
+269..280 exprStmt
+269..280 callExpr
+274..279 nameExpr
+274..279 nameExpr
+285..296 exprStmt
+285..296 callExpr
+290..295 nameExpr
+290..295 nameExpr
+301..327 localDecl
+312..327 structLiteralExpr
+324..325 literalExpr integer
+332..363 localDecl
+359..363 nameExpr
+359..363 nameExpr
+368..432 blockStmt
+378..405 localDecl
+390..405 structLiteralExpr
+402..403 literalExpr integer
+414..426 assignStmt assign target 414..418 value 421..426
+414..418 nameExpr
+421..426 nameExpr
+421..426 nameExpr
+437..447 exprStmt
+437..447 callExpr
+442..446 nameExpr
+91..100 binaryExpr mul right 99..100
+91..100 binaryExpr mul right 99..100
+91..100 binaryExpr mul right 99..100
+91..96 binaryExpr mul right 95..96
+91..92 literalExpr integer
+95..96 nameExpr
+95..96 nameExpr
+99..100 nameExpr
+99..100 nameExpr

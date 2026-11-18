@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/union-value-not-integer.byn
+--package
+<repo>/tests/cases/diag

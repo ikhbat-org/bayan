@@ -1,0 +1,5 @@
+void f() {
+    if (x) while y {
+    } else while z {
+    }
+}

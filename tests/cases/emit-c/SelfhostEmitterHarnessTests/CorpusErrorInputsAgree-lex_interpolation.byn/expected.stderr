@@ -1,0 +1,27 @@
+error BYN1012: this expression does nothing as a statement
+  --> input.byn:1:1
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> input.byn:1:13
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │             ^ found a string literal
+    │
+  help: put the next statement on its own line
+    │ 1 │ $"total {x}"
+    │ 2 │ $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+error BYN1002: expected an expression, found `}`
+  --> input.byn:1:68
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                                                    ^
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN1012

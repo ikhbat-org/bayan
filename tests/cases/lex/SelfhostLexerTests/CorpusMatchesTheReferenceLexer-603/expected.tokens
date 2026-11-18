@@ -1,0 +1,28 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:8 StringLiteral `"bad \q escape"`
+1:23 CloseBracket `]`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x89)
+
+  1 │ let b =�"bad \q escape"]
+    │        ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b =�"bad \q escape"]
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ �
+    │  ^

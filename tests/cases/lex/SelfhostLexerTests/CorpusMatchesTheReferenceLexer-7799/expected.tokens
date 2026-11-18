@@ -1,0 +1,44 @@
+2:4 IntegerLiteral `0x`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `x`
+3:4 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:10 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │ �  0x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │ �  0x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ �  0x
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ �  0x
+    │    ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"x{ $"{ 
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

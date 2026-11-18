@@ -1,0 +1,54 @@
+1:1 StringLiteral `"}"`
+1:4 CloseBrace `}`
+1:5 StringLiteral `"}"`
+1:8 CloseBrace `}`
+1:9 StringLiteral `"}"`
+1:12 CloseBrace `}`
+1:13 StringLiteral `"}"`
+2:2 StringLiteral `"}"`
+2:5 StringLiteral `"}"`
+2:8 CloseBrace `}`
+2:9 StringLiteral `"}"`
+2:12 CloseBrace `}`
+2:13 StringLiteral `"}"`
+2:16 CloseBrace `}`
+2:17 StringLiteral `"}"`
+2:20 CloseBrace `}`
+2:21 StringLiteral `"}"`
+3:1 LetKeyword `let`
+3:5 EffectKeyword `effect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+5:1 CloseBrace `}`
+5:4 Identifier `raw`
+5:8 StringLiteral `"quoted"`
+7:6 Identifier `comment`
+7:14 Star `*`
+7:15 Slash `/`
+7:17 Identifier `a`
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  "}"�"}"}"}"}"}"}"}"}"}"
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF7)
+
+  7 │ 	  � comment */ a
+    │ 	  ^

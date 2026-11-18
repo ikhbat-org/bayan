@@ -1,0 +1,9 @@
+== diags.diag/take-unsupported
+BYN2788 14:17 `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `i64`
+  help copy it, or move the whole local; only an owned collection or optional has an empty value to leave behind
+BYN2788 15:17 `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `string`
+  help copy it, or move the whole local; only an owned collection or optional has an empty value to leave behind
+BYN2788 16:17 `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `Point`
+  help copy it, or move the whole local; only an owned collection or optional has an empty value to leave behind
+BYN2788 17:17 `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `i64?`
+  help copy it, or move the whole local; only an owned collection or optional has an empty value to leave behind

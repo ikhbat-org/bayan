@@ -1,0 +1,46 @@
+1:1 Comma `,`
+1:3 Dot `.`
+1:5 DotDot `..`
+1:8 DotDotEquals `..=`
+1:12 Colon `:`
+1:14 Question `?`
+1:16 QuestionQuestion `??`
+1:19 QuestionQuestionEquals `??=`
+1:23 QuestionDot `?.`
+1:26 FatArrow `=>`
+1:29 Arrow `->`
+1:32 At `@`
+1:34 Hash `#`
+8:2 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  3 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  6 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  6 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │     ^

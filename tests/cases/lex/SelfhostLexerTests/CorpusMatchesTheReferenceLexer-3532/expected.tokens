@@ -1,0 +1,52 @@
+1:1 Equals `=`
+1:3 LessLessEquals `<<=`
+3:1 Star `*`
+3:2 Slash `/`
+3:3 IntegerLiteral `0x`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolatedStringText `a`
+3:8 InterpolationStart `{`
+3:9 Identifier `b`
+3:10 InterpolationEnd `}`
+3:11 InterpolatedStringText `c`
+3:12 InterpolatedStringEnd
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Arrow `->`
+4:32 At `@`
+4:34 Hash `#`
+6:1 IntegerLiteral `0xFF`
+6:5 NumericSuffix `s`
+6:7 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ */0x$"a{b}c
+    │   ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ */0x$"a{b}c
+    │     ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  6 │ 0xFFs� 
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  6 │ 0xFFs� 
+    │      ^

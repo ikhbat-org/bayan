@@ -1,0 +1,3 @@
+== diags.diag/unreachable-code
+BYN2405 3:5 unreachable code
+BYN2405 8:1 unreachable code

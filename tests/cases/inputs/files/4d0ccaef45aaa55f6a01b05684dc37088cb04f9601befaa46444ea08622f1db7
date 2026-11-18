@@ -1,0 +1,4 @@
+struct S {
+    u8* p
+    Instant n
+}

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "main.byn",
+      "name": "greeting",
+      "span": {
+        "start": 37,
+        "end": 45
+      },
+      "bindings": []
+    },
+    {
+      "path": "main.byn",
+      "name": "main",
+      "span": {
+        "start": 80,
+        "end": 97
+      },
+      "bindings": []
+    }
+  ]
+}

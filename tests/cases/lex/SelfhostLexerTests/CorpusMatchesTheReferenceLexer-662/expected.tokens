@@ -1,0 +1,33 @@
+1:1 StringLiteral `"nevNer\u{1C}closed`
+3:1 CharLiteral `' '`
+3:5 IntegerLiteral `0`
+3:6 CharLiteral `'`
+5:1 LetKeyword `let`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:9 IntegerLiteral `1`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "nevNer�closed
+    │ ^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\`
+
+  3 │ ' '\0'
+    │    ^
+
+error BYN0008: unterminated char literal
+
+  3 │ ' '\0'
+    │      ^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{1D}`
+
+  4 │ �
+    │ ^

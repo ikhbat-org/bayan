@@ -1,0 +1,87 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 Identifier `suspen`
+1:48 Identifier `ds`
+1:51 AsyncKeyword `async`
+1:57 AwaitKeyword `await`
+3:2 LetKeyword `let`
+3:6 Identifier `x`
+3:9 Equals `=`
+3:11 IntegerLiteral `1`
+4:1 IntegerLiteral `1`
+4:2 Dot `.`
+4:4 LetKeyword `let`
+4:8 Identifier `a`
+4:10 Equals `=`
+4:12 StringLiteral `"open`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  1 │ fails try catch never�noalloc nosuspend suspen�ds async await
+    │                      ^
+
+error BYN0002: unexpected character `\u{1B}`
+
+  1 │ fails try catch never�noalloc nosuspend suspen�ds async await
+    │                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │ ����let x� = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │ ����let x� = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����let x� = 1
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����let x� = 1
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ ����let x� = 1
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  3 │ ����let x� = 1
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  4 │ 1. let a = "open
+    │            ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  6 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  6 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ /* � */
+    │   │    -

@@ -1,0 +1,39 @@
+1:1 Identifier `le`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+2:1 Identifier `ver`
+2:5 Identifier `closed`
+3:1 Identifier `b`
+5:1 Identifier `ạ̇`
+5:5 LetKeyword `let`
+5:9 Identifier `c`
+5:11 Equals `=`
+5:13 RawStringLiteral `"""never closed\n\nvar xs: List<List<i64>>\n \n0xF__\n\n//// not a doc comment\n $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"`
+12:66 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD1)
+
+  1 │ le� a = $ 1
+    │   ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ le� a = $ 1
+    │         ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │ ạ̇ let c = """never closed
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ ạ̇ let c = """never closed
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  5 │ ạ̇ let c = """never closed
+    │             ^^^ raw string starts here
+    │
+  help: close it with `"""`

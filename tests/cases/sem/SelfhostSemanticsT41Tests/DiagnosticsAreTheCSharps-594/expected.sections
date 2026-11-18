@@ -1,0 +1,4 @@
+== diags.diag/payload-needs-name
+BYN1064 2:12 payload `f64` of `.circle` needs a name
+  label no name
+  help name the payload: `.circle(f64 name)`

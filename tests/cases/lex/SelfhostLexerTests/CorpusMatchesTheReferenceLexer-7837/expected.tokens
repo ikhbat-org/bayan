@@ -1,0 +1,46 @@
+1:1 VarKeyword `var`
+1:4 Identifier `xs`
+1:6 Colon `:`
+1:7 Identifier `List`
+1:11 Less `<`
+1:12 Identifier `List`
+1:16 Less `<`
+1:17 Identifier `i64`
+1:20 Greater `>`
+1:21 Greater `>`
+3:2 IntegerLiteral `0b__`
+4:2 LetKeyword `let`
+4:6 Identifier `b`
+4:8 Equals `=`
+4:12 IntegerLiteral `2`
+6:1 IntegerLiteral `1`
+6:2 Dot `.`
+6:4 StringLiteral `"`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  1 │ var�xs:List<List<i64>>
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ �0b__
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ �0b__
+    │  ^^^^
+
+error BYN0002: unexpected character ```
+
+  4 │  let b = ` 2
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  6 │ 1. "
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

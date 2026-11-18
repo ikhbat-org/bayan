@@ -1,0 +1,1 @@
+{"code":"BYN3002","severity":"error","file":"input.byn","span":{"start":262,"end":284,"line":11,"column":9,"endLine":11,"endColumn":31},"message":"`ys` does not live as long as `kept`, which borrows it","label":"`ys` is freed at the end of its block","help":"copy the data with `.copy(to: alloc)` into an allocator that lives long enough","fixes":[]}

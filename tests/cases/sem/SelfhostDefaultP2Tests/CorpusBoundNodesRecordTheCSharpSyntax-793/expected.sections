@@ -1,0 +1,23 @@
+== tests/cases/diag/ref-this-let-receiver.byn
+99..123 globalStatement
+99..123 localDecl
+107..123 structLiteralExpr
+120..121 literalExpr integer
+124..144 exprStmt
+124..144 callExpr
+130..143 interpolatedExpr
+133..141 callExpr
+133..134 nameExpr
+124..144 callExpr
+145..153 exprStmt
+145..153 callExpr
+145..146 nameExpr
+52..74 blockStmt
+62..68 assignStmt add target 62..63 value 67..68
+62..63 nameExpr
+62..63 nameExpr
+67..68 literalExpr integer
+94..95 nameExpr
+94..95 nameExpr
+94..95 nameExpr
+94..95 nameExpr

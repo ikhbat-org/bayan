@@ -1,0 +1,8 @@
+error BYN2020: no enclosing loop is labeled `outer`
+  --> tmp/t26-tests/cli/diag_unknown-label.byn/unknown-label.byn:2:11
+
+  2 │     break outer
+    │           ^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2020

@@ -1,0 +1,71 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolationEnd `}`
+3:5 InterpolatedStringEnd `"`
+3:6 IntegerLiteral `0`
+3:7 CloseBrace `}`
+3:8 CharLiteral `'`
+4:1 CharLiteral `'x`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+6:1 Identifier `a`
+6:3 Greater `>`
+6:4 Greater `>`
+6:6 Identifier `b`
+9:2 Greater `>`
+10:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0008: unterminated char literal
+
+  3 │ $"{}"0}'
+    │        ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  5 │ �let x� = 1
+    │ ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ �let x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ �let x� = 1
+    │   │       -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  8 │ // ok � in comment
+    │       ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  9 │  >�
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │  >�
+    │   │   -

@@ -1,0 +1,30 @@
+1:1 Identifier `_0b1ms`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+5:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  2 │ let b = ` 
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ ���// ok � in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ ���// ok � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ���// ok � in comment
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ ���// ok � in comment
+    │          ^

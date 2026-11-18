@@ -1,0 +1,15 @@
+CompilationUnit
+  Function f() -> void
+    Block
+      If x
+        Block
+          Expr (call work)
+  Function g() -> void
+    Block
+
+error BYN1001: expected `}`, found `void`
+
+  5 │ void g() {}
+    │ ^^^^
+    │
+  help: close the block opened on line 2

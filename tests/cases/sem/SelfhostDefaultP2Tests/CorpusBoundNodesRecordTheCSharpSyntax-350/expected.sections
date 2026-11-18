@@ -1,0 +1,18 @@
+== tests/cases/diag/argument-must-be-named.byn
+38..52 binaryExpr mul right 46..52
+38..52 binaryExpr mul right 46..52
+38..52 binaryExpr mul right 46..52
+38..43 nameExpr
+46..52 nameExpr
+77..80 blockStmt
+82..108 globalStatement
+82..108 exprStmt
+82..108 callExpr
+88..107 interpolatedExpr
+91..105 callExpr
+96..97 literalExpr integer
+103..104 literalExpr integer
+82..108 callExpr
+109..119 exprStmt
+109..119 callExpr
+114..118 literalExpr trueKeyword

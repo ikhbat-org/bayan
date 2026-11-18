@@ -1,0 +1,69 @@
+    doc `/// Doc line one.`
+3:1 Identifier `é`
+3:3 OpenParen `(`
+3:5 CloseParen `)`
+3:7 OpenBracket `[`
+3:9 CloseBracket `]`
+3:11 OpenBrace `{`
+3:13 CloseBrace `}`
+4:4 IntegerLiteral `0xFF`
+4:8 NumericSuffix `s`
+6:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����/// Doc line one.
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����/// Doc line one.
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����/// Doc line one.
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����/// Doc line one.
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����/// Doc line one.
+    │     ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  3 │ é( ) [ ] { }
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ é( ) [ ] { }
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │  � 0xFFs
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  4 │  � 0xFFs
+    │   ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  4 │  � 0xFFs
+    │        ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0004: unterminated block comment
+
+  5 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

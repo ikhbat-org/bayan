@@ -1,0 +1,4 @@
+let ÿ = 2
+
+  """ c"text" u16"wi3e" "â€® allowed in strings" "" "\u{48}i"
+ 0b1ms

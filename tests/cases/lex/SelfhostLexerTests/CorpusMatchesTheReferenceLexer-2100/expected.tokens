@@ -1,0 +1,29 @@
+1:1 Identifier `st`
+1:3 Identifier `ruct`
+1:8 Identifier `S`
+4:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  1 │ st�ruct S
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ ��� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ ��� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ��� 
+    │   ^

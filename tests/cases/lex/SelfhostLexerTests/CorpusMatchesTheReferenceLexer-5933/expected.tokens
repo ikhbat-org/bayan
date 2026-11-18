@@ -1,0 +1,57 @@
+1:1 Identifier `e`
+1:2 StringLiteral `"`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never closed\n\n0xF__\n$"{}" """`
+6:1 StringLiteral `"   "`
+6:6 StringLiteral `""`
+6:9 CStringLiteral `c"text"`
+6:17 U16StringLiteral `u16"wid�e"`
+6:28 StringLiteral `"\u{202E} allowed in strings"`
+6:51 StringLiteral `""`
+6:54 StringLiteral `"\u{48}i�`
+7:2 IntegerLiteral `1`
+7:3 Dot `.`
+8:1 CharLiteral `'\u{202E}'`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ e"
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  6 │ "   """ c"text" u16"wid�e" "� allowed in strings" "" "\u{48}i�
+    │                        ^
+
+error BYN0003: unterminated string literal
+
+  6 │ "   """ c"text" u16"wid�e" "� allowed in strings" "" "\u{48}i�
+    │                                                      ^^^^^^^^^ string ends at the end of the
+    │                                                                line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  6 │ "   """ c"text" u16"wid�e" "� allowed in strings" "" "\u{48}i�
+    │                                                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB5)
+
+  7 │  1�.
+    │   ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  8 │ '�'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ '�'
+    │   │  -

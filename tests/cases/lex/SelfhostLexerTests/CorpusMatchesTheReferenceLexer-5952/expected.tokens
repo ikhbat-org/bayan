@@ -1,0 +1,31 @@
+1:1 Identifier `x́`
+1:4 StringLiteral `"stray  he�e"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 CharLiteral `'`
+2:10 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ x́� "stray  he�e"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFB)
+
+  1 │ x́� "stray  he�e"
+    │               ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {'
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0008: unterminated char literal
+
+  2 │ $"open {'
+    │         ^
+    │
+  help: close it with `'`

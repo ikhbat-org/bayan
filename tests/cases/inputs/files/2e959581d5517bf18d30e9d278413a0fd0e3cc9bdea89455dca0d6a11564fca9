@@ -1,0 +1,5 @@
+struct Bag {
+    i64 ledger => 1
+    i64 roster => 1
+    i64 ledgers => 1
+}

@@ -1,0 +1,21 @@
+== tests/cases/run/panic-handler-order.byn
+13..77 blockStmt
+19..34 deferStmt
+35..57 exprStmt
+35..57 callExpr
+41..56 literalExpr string
+35..57 callExpr
+62..75 exprStmt
+62..75 callExpr
+68..74 literalExpr string
+92..150 blockStmt
+98..113 deferStmt
+114..136 exprStmt
+114..136 callExpr
+120..135 literalExpr string
+114..136 callExpr
+141..148 exprStmt
+141..148 callExpr
+152..159 globalStatement
+152..159 exprStmt
+152..159 callExpr

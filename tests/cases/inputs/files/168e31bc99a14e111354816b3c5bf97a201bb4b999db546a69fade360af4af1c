@@ -1,0 +1,14 @@
+'\u{D800}'
+
+let a = "open
+ ent ‮ hidden
+let x⁧ = 1
+
+ 1
+let � = 2
+// ok � in comment
+
+0b102
+
+$"x{ $"{ foo Bar _x camelCase2 بيان μετρητής x_1 é
+

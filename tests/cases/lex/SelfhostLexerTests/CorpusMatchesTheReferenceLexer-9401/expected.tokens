@@ -1,0 +1,43 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:12 UnitKeyword `unit`
+1:17 DistinctKeyword `distinct`
+1:26 TypeKeyword `type`
+1:31 ImportKeyword `import`
+1:38 AsKeyword `as`
+1:41 PublicKeyword `public`
+1:48 PrivateKeyword `private`
+1:56 StaticKeyword `static`
+1:63 ReadonlyKeyword `readonly`
+1:72 RequiredKeyword `required`
+1:81 ConstKeyword `const`
+1:87 LetKeyword `let`
+1:91 VarKeyword `var`
+1:95 EmbedKeyword `embed`
+1:101 ExternKeyword `extern`
+1:108 UnsafeKeyword `unsafe`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:1 StructKeyword `struct`
+4:8 Identifier `S`
+5:2 Identifier `a`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  1 │ error set �unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF6)
+
+  5 │ �a /* never closed
+    │ ^
+
+error BYN0004: unterminated block comment
+
+  5 │ �a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

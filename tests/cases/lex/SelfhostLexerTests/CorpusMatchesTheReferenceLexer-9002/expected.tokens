@@ -1,0 +1,58 @@
+1:1 Identifier `fvct`
+1:6 Equals `=`
+1:8 IntegerLiteral `2`
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 Identifier `ect`
+2:18 Equals `=`
+2:20 IntegerLiteral `2`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 BecomeKeyword `become`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 LetKeyword `let`
+5:6 LawKeyword `law`
+5:10 Equals `=`
+5:12 IntegerLiteral `3`
+9:2 FloatLiteral `2.5`
+9:5 NumericSuffix `f`
+10:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n `
+11:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select ect = 2
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select ect = 2
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  10 │    """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+     │    ^^^ raw string starts here
+     │
+  help: close it with `"""`

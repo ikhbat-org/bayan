@@ -1,0 +1,29 @@
+== diags.call-arity
+BYN2301 21:9 missing argument `at` for `many`
+BYN2304 22:55 a positional argument cannot follow a named one
+BYN2302 23:30 `pick` takes 1 argument(s)
+BYN3002 21:9 arena `arena` does not live as long as `kept`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 3:9-3:10 `many` stores `b` into `x` here
+BYN3002 22:9 arena `arena` does not live as long as `kept`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 3:9-3:10 `many` stores `b` into `x` here
+BYN3005 25:27 `kept` is passed by `ref` and again in the same call
+  label `kept` is also passed by `ref`
+  help copy the value into a local first, or make two calls
+BYN3005 25:13 `kept` is passed by `ref` and again in the same call
+  label `kept` is also passed by `ref`
+  help copy the value into a local first, or make two calls
+BYN3005 26:10 `kept` is passed by `ref` and again in the same call
+  label `kept` is also passed by `ref`
+  help copy the value into a local first, or make two calls
+BYN3002 26:5 arena `arena` does not live as long as `kept`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 11:9-11:10 `pass` stores `s` into `t` here
+returns pick 0
+store many 0 3 77..78
+store many 1 2 87..88
+store pass 0 1 242..243

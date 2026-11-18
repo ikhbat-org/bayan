@@ -1,0 +1,6 @@
+Ã
+  """ c"text"u16"wide" "â€® allowed in strings" "" "\u{48}i"
+
+0x_
+ let effect = 2 macro select become
+let a = 1

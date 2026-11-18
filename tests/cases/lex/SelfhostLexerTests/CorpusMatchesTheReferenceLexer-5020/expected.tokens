@@ -1,0 +1,41 @@
+1:1 Identifier `ạ̇`
+1:6 CharLiteral `'\0'`
+2:1 StructKeyword `struct`
+2:8 Identifier `uSique`
+2:15 UnionKeyword `union`
+2:21 EnumKeyword `enum`
+2:26 FlagsKeyword `flags`
+2:32 OpenKeyword `open`
+2:37 Identifier `extensibl`
+2:48 InterfaceKeyword `interface`
+2:58 DelegateKeyword `delegate`
+2:67 ExtensionKeyword `extension`
+2:77 DerivationKeyword `derivation`
+2:88 AttributeKeyword `attribute`
+3:2 IntegerLiteral `1`
+3:3 NumericSuffix `elet`
+3:8 Identifier `b`
+3:10 Equals `=`
+3:12 StringLiteral `"bad \q escape"`
+4:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇  '\0'
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇  '\0'
+    │   │ ++
+
+error BYN0002: unexpected character `\u{16}`
+
+  2 │ struct uSique union enum flags open extensibl� interface delegate extension derivation attribute
+    │                                              ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │  1elet b = "bad \q escape"
+    │                 ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

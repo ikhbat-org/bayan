@@ -1,0 +1,39 @@
+1:1 CharLiteral `'\u{D800}'`
+2:1 StringLiteral `"a {f($"`
+2:9 Identifier `b`
+2:11 OpenBrace `{`
+2:12 Identifier `c`
+2:13 CloseBrace `}`
+2:14 StringLiteral `")} d"`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolatedStringText `{{literal}}`
+2:34 InterpolatedStringEnd `"`
+3:1 IntegerLiteral `1__`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `stray } here`
+5:15 InterpolatedStringEnd `"`
+6:2 StringLiteral `"a\u{2067}b"`
+6:7 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │ $"stray } here"
+    │         ^
+    │
+    │ 5 │ $"stray }} here"
+    │   │          +

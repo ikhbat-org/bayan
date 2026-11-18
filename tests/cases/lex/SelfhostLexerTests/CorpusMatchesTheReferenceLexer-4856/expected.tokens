@@ -1,0 +1,30 @@
+1:2 LetKeyword `let`
+1:6 LawKeyword `law`
+1:10 Equals `=`
+1:12 IntegerLiteral `3`
+2:1 Identifier `mm`
+2:4 IsKeyword `is`
+2:7 AndKeyword `and`
+2:11 OrKeyword `or`
+2:14 NotKeyword `not`
+2:18 WithKeyword `with`
+2:23 MoveKeyword `move`
+2:28 RefKeyword `ref`
+2:32 OutKeyword `out`
+2:36 ThisKeyword `this`
+2:41 NullKeyword `null`
+2:46 TrueKeyword `true`
+2:51 FalseKeyword `false`
+2:57 ComptimeKeyword `comptime`
+2:66 CheckedKeyword `checked`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �let law = 3
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �let law = 3
+    │  ^

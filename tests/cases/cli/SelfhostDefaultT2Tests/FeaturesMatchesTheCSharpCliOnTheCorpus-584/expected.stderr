@@ -1,0 +1,5 @@
+error BYN2214: `^` is only allowed inside an index or slice
+  --> <repo>/tests/cases/diag/from-end-outside-index.byn:1:9
+
+  1 │ let i = ^1
+    │         ^^

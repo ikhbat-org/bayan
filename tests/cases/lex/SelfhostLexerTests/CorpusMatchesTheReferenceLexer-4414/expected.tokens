@@ -1,0 +1,84 @@
+2:1 IntegerLiteral `0`
+2:3 IntegerLiteral `42`
+2:6 IntegerLiteral `1_000_`
+2:13 IntegerLiteral `00`
+2:16 IntegerLiteral `0xFF`
+2:21 IntegerLiteral `0x_ff`
+2:27 IntegerLiteral `0b1010`
+2:34 IntegerLiteral `0B11`
+2:39 IntegerLiteral `5`
+2:40 NumericSuffix `s`
+2:42 IntegerLiteral `250`
+2:45 NumericSuffix `ms`
+2:48 IntegerLiteral `4`
+2:49 NumericSuffix `KiB`
+2:53 IntegerLiteral `1`
+2:54 NumericSuffix `u`
+2:56 IntegerLiteral `0x`
+2:59 Identifier `FFu`
+2:63 IntegerLiteral `0b1`
+2:66 NumericSuffix `ul`
+2:69 IntegerLiteral `7`
+2:70 NumericSuffix `l`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+4:3 IntegerLiteral `1__`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �
+    │  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0 42 1_000_�00 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0x�FFu 0b1ul 7l
+    │           ^
+    │
+    │ 2 │ 0 42 1_000_�00 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0x�FFu 0b1ul 7l
+    │   │           -
+
+error BYN0002: unexpected character `\u{18}`
+
+  2 │ 0 42 1_000_�00 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0x�FFu 0b1ul 7l
+    │            ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0 42 1_000_�00 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0x�FFu 0b1ul 7l
+    │                                                        ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  2 │ 0 42 1_000_�00 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0x�FFu 0b1ul 7l
+    │                                                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │  ��1__
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  ��1__
+    │   ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │  ��1__
+    │     ^^
+    │
+    │ 4 │  ��1__
+    │   │     --

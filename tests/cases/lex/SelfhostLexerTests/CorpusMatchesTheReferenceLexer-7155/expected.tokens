@@ -1,0 +1,113 @@
+1:1 FloatLiteral `1e5`
+1:5 FloatLiteral `2.5e-3`
+1:12 FloatLiteral `6E+2`
+1:17 FloatLiteral `1.50`
+1:21 NumericSuffix `dec`
+1:25 IntegerLiteral `1`
+1:26 DotDot `..`
+1:28 IntegerLiteral `2`
+2:1 Identifier `ạ̇`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 InterpolatedStringStart `$"`
+2:51 InterpolationStart `{`
+2:52 Identifier `x`
+2:53 InterpolationEnd `}`
+2:54 InterpolatedStringEnd `"`
+2:55 InterpolationEnd `}`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 InterpolationEnd `}`
+2:62 InterpolatedStringEnd `"`
+2:63 InterpolationEnd `}`
+2:64 InterpolatedStringEnd `"`
+2:65 InterpolationEnd `}`
+2:66 InterpolatedStringEnd `"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringEnd `"`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringEnd `"`
+2:77 InterpolationEnd `}`
+2:78 InterpolatedStringEnd `"`
+2:79 InterpolationEnd `}`
+2:80 InterpolatedStringEnd `"`
+2:81 InterpolationEnd `}`
+2:82 InterpolatedStringEnd `"`
+2:84 IsKeyword `is`
+2:87 AndKeyword `and`
+2:91 OrKeyword `or`
+2:94 NotKeyword `not`
+2:98 WithKeyword `with`
+2:103 MoveKeyword `move`
+2:108 RefKeyword `ref`
+2:112 OutKeyword `out`
+2:116 Identifier `tis`
+2:120 NullKeyword `null`
+2:125 TrueKeyword `true`
+2:130 FalseKeyword `false`
+2:136 ComptimeKeyword `comptime`
+2:145 CheckedKeyword `checked`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
+5:1 Identifier `bi`
+6:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  2 │ ạ̇$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" is and or not with move ref out tis null true false comptime checked
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ ạ̇$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" is and or not with move ref out tis null true false comptime checked
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  2 │ ạ̇$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" is and or not with move ref out tis null true false comptime checked
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ 1
+    │         ^

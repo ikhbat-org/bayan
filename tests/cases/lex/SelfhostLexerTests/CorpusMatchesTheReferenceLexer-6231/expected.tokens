@@ -1,0 +1,82 @@
+2:3 LetKeyword `let`
+2:9 Equals `=`
+2:11 IntegerLiteral `2`
+4:1 IntegerLiteral `0xF`
+4:5 IntegerLiteral `0x_ff`
+4:11 IntegerLiteral `0b1010`
+4:18 IntegerLiteral `0B11`
+4:23 IntegerLiteral `5`
+4:24 NumericSuffix `s`
+4:26 IntegerLiteral `250`
+4:30 Identifier `s`
+4:32 IntegerLiteral `4`
+4:33 NumericSuffix `KiB`
+4:37 Identifier `é`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │ ����� let � = 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ ����� let � = 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����� let � = 2
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����� let � = 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����� let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ ����� let � = 2
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  4 │ 0xF 0x_ff 0b1010 0B11 5s 250�s 4KiB é
+    │                             ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  4 │ 0xF 0x_ff 0b1010 0B11 5s 250�s 4KiB é
+    │                                     ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ 0xF 0x_ff 0b1010 0B11 5s 250�s 4KiB é
+    │   │                                     +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  5 │ let�café = 1
+    │    ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  5 │ let�café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ let�café = 1
+    │   │        +

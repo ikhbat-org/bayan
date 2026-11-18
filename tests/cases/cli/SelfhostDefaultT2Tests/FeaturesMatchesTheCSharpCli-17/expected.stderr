@@ -1,0 +1,5 @@
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t2-features/broken/main.byn:2:18
+
+  2 │     let x: i32 = "no"
+    │                  ^^^^

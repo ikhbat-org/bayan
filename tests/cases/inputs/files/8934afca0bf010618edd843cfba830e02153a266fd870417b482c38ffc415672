@@ -1,0 +1,3 @@
+const distMaxFiles: i64 = 20000
+const distMaxDirs: i64  = 4000
+const distMaxDepth: i64 = 64

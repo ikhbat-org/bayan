@@ -1,0 +1,12 @@
+error BYN2001: `cout` is not defined
+  --> tmp/t26-tests/cli/diag_undefined-name.byn/undefined-name.byn:2:10
+
+  2 │ print($"{cout}")
+    │          ^^^^
+    │
+  help: did you mean `count`?
+    │ 2 │ print($"{count}")
+    │   │             +
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2001

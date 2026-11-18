@@ -1,0 +1,3 @@
+== expr.probes.i15
+interpolated:string[3827:17]=-(v:local:i64[3830:1]=-(n)/0,false,0,32,-1,-1)
+BYN2021 157:21 `i64` has no parameter `digits` |||

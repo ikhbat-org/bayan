@@ -1,0 +1,4 @@
+struct S {
+    i32 a
+    string bb
+}

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssertStmt",
+    "AttributeSyntax",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "FunctionDecl",
+    "LiteralExpr",
+    "MemberExpr",
+    "NameExpr",
+    "Param",
+    "ReturnStmt",
+    "TestDecl",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "StringLength"
+  ],
+  "diagnostics": []
+}

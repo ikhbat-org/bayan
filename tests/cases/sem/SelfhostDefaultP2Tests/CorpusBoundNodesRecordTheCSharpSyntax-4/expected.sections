@@ -1,0 +1,22 @@
+== tests/cases/run/assert-coalesce-skipped.byn
+20..47 blockStmt
+26..32 assignStmt add target 26..27 value 31..32
+26..27 nameExpr
+31..32 literalExpr integer
+37..45 returnStmt value 44..45
+44..45 nameExpr
+49..68 globalStatement
+49..68 localDecl
+67..68 literalExpr integer
+67..68 literalExpr integer
+69..87 localDecl
+86..87 literalExpr integer
+88..134 assertStmt
+95..134 binaryExpr eq right 133..134
+95..129 binaryExpr add right 124..129
+96..120 binaryExpr coalesce right 105..120
+96..101 nameExpr
+105..120 callExpr
+114..119 nameExpr
+124..129 nameExpr
+133..134 literalExpr integer

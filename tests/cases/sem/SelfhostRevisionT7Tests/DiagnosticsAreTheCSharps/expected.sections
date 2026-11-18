@@ -1,0 +1,28 @@
+== diags.struct-members
+BYN5104 6:23 `line` holds a collection; name it with a plural, `lines`
+  help rename it `lines`
+  fix 6:23-6:27 lines
+BYN5104 7:17 `lines` holds one `Line`; name it with a singular noun
+  help rename it `line`
+  fix 7:17-7:22 line
+BYN5104 8:29 `weight` holds a collection; name it with a plural, `weights`
+  help rename it `weights`
+  fix 8:29-8:35 weights
+BYN5104 12:30 `lineByName` holds a collection; name it with a plural, `linesByName`
+  help rename it `linesByName`
+  fix 12:30-12:40 linesByName
+BYN5104 16:17 `people` holds one `Line`; name it with a singular noun
+  help rename it `person`
+  fix 16:17-16:23 person
+BYN5104 17:23 `item` holds a collection; name it with a plural, `items`
+  help rename it `items`
+  fix 17:23-17:27 items
+BYN5104 18:17 `entries` holds one `Line`; name it with a singular noun
+  help rename it `entry`
+  fix 18:17-18:24 entry
+BYN5104 20:36 `items` holds one `Line`; name it with a singular noun
+  help rename it `item`
+  fix 20:36-20:41 item
+BYN5104 20:57 `entry` holds a collection; name it with a plural, `entries`
+  help rename it `entries`
+  fix 20:57-20:62 entries

@@ -1,0 +1,70 @@
+1:1 Identifier `ension`
+1:8 DerivationKeyword `derivation`
+1:19 AttributeKeyword `attribute`
+2:1 ErrorKeyword `error`
+2:7 SetKeyword `set`
+2:11 UnitKeyword `unit`
+2:16 DistinctKeyword `distinct`
+2:25 Identifier `t`
+2:27 IntegerLiteral `0xFF`
+2:31 NumericSuffix `s`
+4:1 Identifier `foo`
+4:5 Identifier `Bar`
+4:9 Identifier `_x`
+4:12 Identifier `camelCase2`
+4:23 Identifier `بيان`
+4:28 Identifier `μετρητής`
+4:37 Identifier `x_1`
+4:41 Identifier `é`
+5:5 IntegerLiteral `50`
+5:7 NumericSuffix `ms`
+5:10 IntegerLiteral `4`
+5:11 NumericSuffix `KiB`
+6:1 Identifier `x́́`
+6:5 IntegerLiteral `0b1`
+6:8 NumericSuffix `ms`
+8:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ error set unit distinct t 0xFFs
+    │                               ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  5 │ � ���� 50ms 4KiB 
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ � ���� 50ms 4KiB 
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │ � ���� 50ms 4KiB 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ � ���� 50ms 4KiB 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ � ���� 50ms 4KiB 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ � ���� 50ms 4KiB 
+    │      ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  6 │ x́́ 0b1ms
+    │        ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

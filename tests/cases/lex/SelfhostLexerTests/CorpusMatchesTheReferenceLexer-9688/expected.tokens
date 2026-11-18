@@ -1,0 +1,134 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolationStart `{`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 InterpolatedStringStart `$"`
+1:19 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolationStart `{`
+1:26 InterpolatedStringStart `$"`
+1:28 InterpolationStart `{`
+1:29 InterpolatedStringStart `$"`
+1:31 InterpolationStart `{`
+1:32 InterpolatedStringStart `$"`
+1:34 InterpolationStart `{`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolationStart `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 StringLiteral `$"{$"`
+1:55 OpenBrace `{`
+1:56 Identifier `x`
+1:57 CloseBrace `}`
+1:58 StringLiteral `"}"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+2:1 Identifier `τρητής`
+2:8 Identifier `x_1`
+2:12 Identifier `é`
+4:1 IntegerLiteral `1__`
+5:1 IntegerLiteral `0xF__`
+7:1 IfKeyword `if`
+7:4 ElseKeyword `else`
+7:9 UnlessKeyword `unless`
+7:16 SwitchKeyword `switch`
+7:23 Identifier `cas`
+7:27 Identifier `e`
+7:29 DefaultKeyword `default`
+7:37 ForKeyword `for`
+7:41 InKeyword `in`
+7:44 WhileKeyword `while`
+7:50 DoKeyword `do`
+7:53 BreakKeyword `break`
+7:59 ContinueKeyword `continue`
+7:68 ReturnKeyword `return`
+7:75 YieldKeyword `yield`
+7:81 DeferKeyword `defer`
+7:87 ErrdeferKeyword `errdefer`
+7:96 UsingKeyword `using`
+7:102 ContextKeyword `context`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolatedStringText `total `
+8:10 InterpolationStart `{`
+8:11 Identifier `x`
+8:12 InterpolationEnd `}`
+8:13 InterpolatedStringEnd `"`
+8:15 InterpolatedStringStart `$"`
+8:17 InterpolatedStringText `a `
+8:19 InterpolationStart `{`
+8:20 Identifier `f`
+8:21 OpenParen `(`
+8:22 StringLiteral `$"b {c}"`
+8:30 CloseParen `)`
+8:31 InterpolationEnd `}`
+8:32 InterpolatedStringText ` d`
+8:34 InterpolatedStringEnd `"`
+8:36 InterpolatedStringStart `$"`
+8:38 InterpolatedStringText `{{literal}}`
+8:49 InterpolatedStringEnd `"`
+8:51 InterpolatedStringStart `$"`
+8:53 InterpolationStart `{`
+8:54 Identifier `Point`
+8:60 OpenBrace `{`
+8:62 Identifier `x`
+8:64 Equals `=`
+8:66 IntegerLiteral `1`
+8:68 CloseBrace `}`
+8:69 InterpolationEnd `}`
+8:70 InterpolatedStringText `!`
+8:71 InterpolatedStringEnd `"`
+8:73 InterpolatedStringStart `$"`
+8:75 InterpolatedStringEnd `"`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ ﻿$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ ﻿$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                                                  ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --
+
+error BYN0002: unexpected character `$`
+
+  7 │ if else unless switch cas$e default for in while do break continue return yield defer errdefer using context
+    │                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE7)
+
+  8 │ �$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^

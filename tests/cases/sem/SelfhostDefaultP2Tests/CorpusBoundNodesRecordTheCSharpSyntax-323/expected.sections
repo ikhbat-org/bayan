@@ -1,0 +1,18 @@
+== tests/cases/run/time-from-nanos.byn
+114..229 blockStmt
+120..162 localDecl
+128..162 callExpr
+143..161 literalExpr integer
+167..186 exprStmt
+167..186 callExpr
+173..185 interpolatedExpr
+176..183 memberExpr
+176..177 nameExpr
+167..186 callExpr
+191..227 exprStmt
+191..227 callExpr
+197..226 interpolatedExpr
+200..224 memberExpr
+200..218 callExpr
+215..217 unaryExpr negate operand 216..217
+191..227 callExpr

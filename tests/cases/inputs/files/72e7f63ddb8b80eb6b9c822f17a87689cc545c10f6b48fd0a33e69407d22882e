@@ -1,0 +1,5 @@
+fails try catch never noalloc nosuspend suspends async await
+
+ạ̇ $"{"a >> b
+ "a⁧b" 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+ $"stray } here"

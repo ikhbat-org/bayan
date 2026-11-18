@@ -1,0 +1,45 @@
+1:1 Identifier `x`
+1:4 Equals `=`
+1:6 IntegerLiteral `1`
+    doc `/// Doc line two.`
+4:1 LetKeyword `let`
+4:5 EffectKeyword `effect`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 Identifier `becom1__`
+6:2 LetKeyword `let`
+6:6 Identifier `c`
+6:8 Equals `=`
+6:12 IntegerLiteral `3`
+7:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ x� = 1
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ x� = 1
+    │   │  -
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select becom1__
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select becom1__
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\u{7}`
+
+  6 │  let c = � 3
+    │          ^

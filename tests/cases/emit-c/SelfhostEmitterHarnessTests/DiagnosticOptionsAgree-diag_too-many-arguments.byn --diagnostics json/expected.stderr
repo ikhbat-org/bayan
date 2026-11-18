@@ -1,0 +1,1 @@
+{"code":"BYN2302","severity":"error","file":"input.byn","span":{"start":44,"end":45,"line":2,"column":19,"endLine":2,"endColumn":20},"message":"`twice` takes 1 argument(s)","label":null,"help":null,"fixes":[]}

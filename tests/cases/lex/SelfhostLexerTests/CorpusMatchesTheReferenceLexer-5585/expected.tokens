@@ -1,0 +1,63 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolatedStringText `\u{1F}$`
+1:32 InterpolatedStringEnd `"`
+1:33 OpenBrace `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 Identifier `x`
+1:44 InterpolationEnd `}`
+1:45 InterpolatedStringEnd `"`
+1:46 InterpolationEnd `}`
+1:47 InterpolatedStringEnd `"`
+1:48 InterpolationEnd `}`
+1:49 InterpolatedStringEnd `"`
+1:50 CloseBrace `}`
+1:51 StringLiteral `"}"`
+1:54 InterpolationEnd `}`
+1:55 InterpolatedStringEnd `"`
+1:56 InterpolationEnd `}`
+1:57 InterpolatedStringEnd `"`
+1:59 InterpolatedStringStart `$"`
+1:61 InterpolationStart `{`
+1:63 Identifier `st`
+1:65 Less `<`
+1:66 Identifier `i64`
+1:69 Greater `>`
+1:70 Greater `>`
+2:2 Greater `>`
+2:3 Greater `>`
+2:5 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{x}"}"}"}"}"}"}" $"{ st<i64>>
+    │                                                           ^^ this string never ends
+    │
+  help: close the `{` and the string

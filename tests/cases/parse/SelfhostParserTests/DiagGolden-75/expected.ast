@@ -1,0 +1,13 @@
+CompilationUnit
+  Function a() -> void
+    Block
+  Function b() -> void
+    Block
+  Function c() -> void
+    Block
+  Function d() -> void
+    Block
+  Function main() -> void
+    Block
+      Let s = "// ── In a string ──"
+      Expr (call print s)

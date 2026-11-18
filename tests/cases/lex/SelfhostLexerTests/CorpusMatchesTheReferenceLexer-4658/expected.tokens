@@ -1,0 +1,16 @@
+1:1 CharLiteral `'\u{D800}'`
+2:2 IntegerLiteral `0x_`
+3:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\nlet actor = 1\n\n"""`
+7:5 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x_
+    │  ^^^

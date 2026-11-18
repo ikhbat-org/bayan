@@ -1,0 +1,74 @@
+1:3 StructKeyword `struct`
+1:10 UniqueKeyword `unique`
+1:17 UnionKeyword `union`
+1:23 EnumKeyword `enum`
+1:28 FlagsKeyword `flags`
+1:34 Identifier `openextensible`
+1:49 InterfaceKeyword `interface`
+1:59 DelegateKeyword `delegate`
+1:68 ExtensionKeyword `extension`
+1:78 DerivationKeyword `derivation`
+1:89 AttributeKeyword `attribute`
+2:2 Identifier `ere`
+2:5 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `ope`
+3:6 InterpolatedStringEnd
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 LetKeyword `let`
+5:6 Identifier `x`
+5:9 Equals `=`
+5:11 IntegerLiteral `1`
+6:2 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ ��struct unique union enum flags openextensible interface delegate extension derivation attribute
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ ��struct unique union enum flags openextensible interface delegate extension derivation attribute
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ ��struct unique union enum flags openextensible interface delegate extension derivation attribute
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ ��struct unique union enum flags openextensible interface delegate extension derivation attribute
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │  ere"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"ope
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │  let x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │  let x� = 1
+    │   │       -

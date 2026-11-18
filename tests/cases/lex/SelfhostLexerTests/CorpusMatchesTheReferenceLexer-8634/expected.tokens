@@ -1,0 +1,16 @@
+2:1 Identifier `b`
+4:1 IntegerLiteral `0`
+4:3 IntegerLiteral `42`
+4:6 IntegerLiteral `1_000_000`
+4:16 IntegerLiteral `0xFF`
+5:1 StringLiteral `"text"`
+5:8 StringLiteral `"esc \"q\" \\ \n"`
+5:26 RawStringLiteral `"""\n `
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

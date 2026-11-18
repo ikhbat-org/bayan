@@ -1,0 +1,11 @@
+test "adds" {
+    assert(1 + 1 == 2)
+}
+
+test "later" {
+    todo("split by weight")
+}
+
+test "is false" {
+    assert(false)
+}

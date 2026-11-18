@@ -1,0 +1,14 @@
+== tests/cases/diag/spread-run-time-length.byn
+0..26 globalStatement
+0..26 localDecl
+20..26 collectionExpr
+21..22 literalExpr integer
+24..25 literalExpr integer
+27..56 localDecl
+47..56 collectionExpr
+57..85 localDecl
+79..85 collectionExpr
+86..110 localDecl
+101..110 collectionExpr
+111..139 localDecl
+133..139 collectionExpr

@@ -1,0 +1,24 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 Identifier `unio0`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:76 DerivationKeyword `derivation`
+1:87 Identifier `a`
+1:89 Identifier `ttribute`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB3)
+
+  1 │ struct unique unio0 enum flags open extensible interface delegate extension�derivation a�ttribute
+    │                                                                            ^
+
+error BYN0002: unexpected character `\u{F}`
+
+  1 │ struct unique unio0 enum flags open extensible interface delegate extension�derivation a�ttribute
+    │                                                                                         ^

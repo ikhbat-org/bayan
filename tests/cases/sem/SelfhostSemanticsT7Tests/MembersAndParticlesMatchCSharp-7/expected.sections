@@ -1,0 +1,3 @@
+== state-member-mutates
+BYN5002 39+7 `isEmpty` reads as state but modifies `this` | declared `ref this` | remove `ref this` so it only reads, or name the action with a verb | 
+end

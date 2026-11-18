@@ -1,0 +1,124 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 StringLiteral `"{$"`
+1:35 OpenBrace `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 Identifier `x`
+1:52 InterpolationEnd `}`
+1:53 InterpolatedStringEnd `"`
+1:54 InterpolationEnd `}`
+1:55 InterpolatedStringEnd `"`
+1:56 InterpolationEnd `}`
+1:57 InterpolatedStringEnd `"`
+1:58 InterpolationEnd `}`
+1:59 InterpolatedStringEnd `"`
+1:60 InterpolationEnd `}`
+1:61 InterpolatedStringEnd `"`
+1:62 CloseBrace `}`
+1:63 StringLiteral `"}"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringEnd `"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+    doc `/// Doct line two.`
+3:2 CharLiteral `'\q'`
+4:1 IntegerLiteral `0`
+4:2 CharLiteral `'`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF__`
+8:2 IntegerLiteral `3`
+8:3 Dot `.`
+9:1 IntegerLiteral `14`
+9:4 FloatLiteral `1e5`
+9:8 FloatLiteral `2.5e-3`
+9:15 FloatLiteral `6E+2`
+9:20 FloatLiteral `1.50`
+9:24 NumericSuffix `dec`
+9:28 IntegerLiteral `1`
+9:29 DotDot `..`
+9:31 IntegerLiteral `2`
+9:33 IntegerLiteral `1`
+9:34 DotDotEquals `..=`
+9:37 IntegerLiteral `3`
+9:39 IntegerLiteral `5`
+9:40 NumericSuffix `e`
+9:42 Identifier `x`
+9:43 Dot `.`
+9:44 Identifier `y`
+9:46 FloatLiteral `2.5`
+9:49 NumericSuffix `f`
+11:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │  '\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0008: unterminated char literal
+
+  4 │ 0'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --

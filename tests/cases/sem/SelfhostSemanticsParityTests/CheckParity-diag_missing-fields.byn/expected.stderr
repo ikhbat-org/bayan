@@ -1,0 +1,10 @@
+error BYN2109: `Point` needs a value for `y`
+  --> tmp/t26-tests/cli/diag_missing-fields.byn/missing-fields.byn:6:9
+
+  6 │ let p = Point { x: 1 }
+    │         ^^^^^^^^^^^^^^
+    │
+  help: set it: `Point { y: … }`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2109

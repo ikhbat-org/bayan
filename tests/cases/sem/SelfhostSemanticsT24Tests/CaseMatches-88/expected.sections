@@ -1,0 +1,2 @@
+== lintSpanParameter.viaReadOnly
+BYN2310 175:17 `values` is never written through; use `ReadOnlySpan<i64>` ||take a `ReadOnlySpan`; it also accepts strings and read-only views|fix 3012..3016 ReadOnlySpan

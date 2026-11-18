@@ -1,0 +1,4 @@
+let c = """never closed+= -= *= /= %= &= |= ^= <<=
+  b = "badQ \q escape"
+let c = """never closed
+ 

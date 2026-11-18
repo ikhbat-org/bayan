@@ -1,0 +1,64 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `open `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 StringLiteral `";`
+3:1 StringLiteral `""`
+3:3 Identifier `a`
+3:5 Greater `>`
+3:6 Greater `>`
+3:8 Identifier `b`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `a`
+5:4 InterpolationStart `{`
+5:5 Identifier `b`
+5:6 InterpolationEnd `}`
+5:7 InterpolatedStringText `c/ comment \u{202E} hidden`
+5:26 InterpolatedStringEnd
+6:1 LetKeyword `let`
+6:5 Identifier `x`
+6:8 Equals `=`
+6:10 Identifier `ld`
+6:13 DeferKeyword `defer`
+6:19 ErrdeferKeyword `errdefer`
+6:28 UsingKeyword `using`
+6:34 Identifier `co`
+6:36 OpenParen `(`
+6:37 Identifier `ntext`
+7:1 FailsKeyword `fails`
+7:7 Identifier `tr`
+7:10 CatchKeyword `catch`
+7:16 Identifier `n`
+    doc `///`
+8:4 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"a{b}c/ comment � hidden
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  6 │ let x� = ld defer errdefer using co(ntext
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ let x� = ld defer errdefer using co(ntext
+    │   │      -

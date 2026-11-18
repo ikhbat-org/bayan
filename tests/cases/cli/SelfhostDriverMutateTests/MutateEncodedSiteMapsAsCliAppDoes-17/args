@@ -1,0 +1,7 @@
+mutate
+--binary
+<repo>/tmp/t13-mutate/encoded-short/prog
+--sites
+<repo>/tmp/t13-mutate/encoded-short/prog.sites.json
+--
+true

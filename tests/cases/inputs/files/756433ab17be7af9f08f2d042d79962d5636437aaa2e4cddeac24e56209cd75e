@@ -1,0 +1,4 @@
+  """ c"Þext" u16"wide" "â€® allowed in strings" "" "\u{48}i"
+
+let actor = 1
+ "text" "esc \"q\" \\ \n" """

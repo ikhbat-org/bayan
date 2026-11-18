@@ -1,0 +1,114 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 Identifier `x`
+1:44 InterpolationEnd `}`
+1:45 InterpolatedStringEnd `"`
+1:46 InterpolationEnd `}`
+1:47 InterpolatedStringEnd `"`
+1:48 Identifier `l`
+1:49 Less `<`
+1:50 Identifier `t`
+1:52 Identifier `b`
+1:54 Equals `=`
+1:58 IntegerLiteral `2`
+2:1 LetKeyword `let`
+2:5 Identifier `s`
+2:7 Equals `=`
+2:9 InterpolatedStringStart `$"`
+2:11 InterpolationStart `{`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 StringLiteral `$"{$"`
+2:26 OpenBrace `{`
+2:27 StringLiteral `$"{$"`
+2:32 OpenBrace `{`
+2:33 StringLiteral `$"{$"`
+2:38 OpenBrace `{`
+2:39 StringLiteral `$"{$"`
+2:44 OpenBrace `{`
+2:45 StringLiteral `$"{$"`
+2:50 OpenBrace `{`
+2:51 StringLiteral `$"{$"`
+2:56 OpenBrace `{`
+2:57 StringLiteral `$"{$"`
+2:62 Identifier `D`
+2:63 OpenBrace `{`
+2:64 StringLiteral `$"{$"`
+2:69 OpenBrace `{`
+2:70 Identifier `x`
+2:71 CloseBrace `}`
+2:72 StringLiteral `"}"`
+2:75 CloseBrace `}`
+2:76 StringLiteral `"}"`
+2:79 CloseBrace `}`
+2:80 StringLiteral `"}"`
+2:83 CloseBrace `}`
+2:84 StringLiteral `"}"`
+2:87 CloseBrace `}`
+2:88 StringLiteral `"}"`
+2:91 CloseBrace `}`
+2:92 StringLiteral `"}"`
+2:95 CloseBrace `}`
+2:96 StringLiteral `"}"`
+2:99 CloseBrace `}`
+2:100 StringLiteral `"}"`
+2:103 InterpolationEnd `}`
+2:104 InterpolatedStringEnd `"`
+2:105 InterpolationEnd `}`
+2:106 InterpolatedStringEnd `"`
+2:107 InterpolationEnd `}`
+2:108 InterpolatedStringEnd `"`
+2:109 InterpolationEnd `}`
+2:110 InterpolatedStringEnd `"`
+3:1 LetKeyword `let`
+3:5 EffectKeyword `effect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"l<t b = ` 2
+    │                                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character ```
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"l<t b = ` 2
+    │                                                        ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"D{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                     ^^

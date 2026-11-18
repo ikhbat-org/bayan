@@ -1,0 +1,6 @@
+build
+--target
+windows-x64
+-o
+sub
+arithmetic.byn

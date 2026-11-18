@@ -1,0 +1,64 @@
+1:1 Identifier `c`
+1:3 Greater `>`
+1:4 GreaterEquals `>=`
+1:7 IntegerLiteral `1`
+3:1 Identifier `ạ̇`
+4:2 CharLiteral `'a'`
+4:6 CharLiteral `'\n'`
+4:11 CharLiteral `'\u{1F600}'`
+4:23 CharLiteral `'\''`
+4:28 CharLiteral `'é'`
+4:32 CharLiteral `'\\'`
+4:37 CharLiteral `'\0'`
+6:2 Equals `=`
+6:4 IntegerLiteral `1`
+8:1 IntegerLiteral `0x_`
+8:6 IntegerLiteral `0`
+8:7 NumericSuffix `b`
+8:9 IntegerLiteral `1`
+8:10 NumericSuffix `ms`
+9:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │ ��'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ��'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  6 │ �� = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  6 │ �� = 1
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x_� 0b�1ms
+    │ ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  8 │ 0x_� 0b�1ms
+    │    ^
+
+error BYN0002: unexpected character `\u{1B}`
+
+  8 │ 0x_� 0b�1ms
+    │        ^

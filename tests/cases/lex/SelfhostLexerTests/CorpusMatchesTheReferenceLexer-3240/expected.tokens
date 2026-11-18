@@ -1,0 +1,41 @@
+1:1 Identifier `le`
+1:3 Identifier `t`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+3:1 OpenBrace `{`
+3:2 CharLiteral `'x`
+4:2 OpenParen `(`
+4:3 Identifier `j`
+4:4 CloseParen `)`
+4:6 OpenBracket `[`
+4:8 CloseBracket `]`
+4:10 OpenBrace `{`
+4:13 CloseBrace `}`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  1 │ le�t � = 2
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ le�t � = 2
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ �
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  3 │ {'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{5}`
+
+  4 │  (j) [ ] { �}
+    │            ^

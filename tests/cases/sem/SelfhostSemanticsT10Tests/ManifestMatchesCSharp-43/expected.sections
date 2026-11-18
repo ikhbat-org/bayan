@@ -1,0 +1,7 @@
+== case inline/lexer-error
+errors 1
+error BYN0003: unterminated string literal
+  1 │ Package { name: "local/a, version: "0.1.0" }
+    │                                          ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

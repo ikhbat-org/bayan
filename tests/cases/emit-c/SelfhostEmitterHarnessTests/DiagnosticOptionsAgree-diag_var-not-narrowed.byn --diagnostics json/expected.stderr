@@ -1,0 +1,1 @@
+{"code":"BYN2211","severity":"error","file":"input.byn","span":{"start":138,"end":139,"line":10,"column":16,"endLine":10,"endColumn":17},"message":"`v` is not a member of `Box?`; the value may be null","label":null,"help":"check it first: `if (b is { } value) { … value.v … }`","fixes":[]}

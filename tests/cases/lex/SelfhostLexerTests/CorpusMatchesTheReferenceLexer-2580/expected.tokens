@@ -1,0 +1,21 @@
+1:1 Identifier `mment`
+2:2 IfKeyword `if`
+2:5 ElseKeyword `else`
+2:10 UnlessKeyword `unless`
+2:17 SwitchKeyword `switch`
+2:24 CaseKeyword `case`
+2:29 DefaultKeyword `default`
+2:37 ForKeyword `for`
+2:41 InKeyword `in`
+2:44 Identifier `whiVle`
+2:51 DoKeyword `do`
+2:54 BreakKeyword `break`
+2:60 ContinueKeyword `continue`
+2:69 ReturnKeyword `return`
+2:76 YieldKeyword `yield`
+2:82 DeferKeyword `defer`
+2:88 ErrdeferKeyword `errdefer`
+2:97 UsingKeyword `using`
+2:103 Identifier `cntext`
+3:2 Identifier `_`
+3:3 EndOfFile

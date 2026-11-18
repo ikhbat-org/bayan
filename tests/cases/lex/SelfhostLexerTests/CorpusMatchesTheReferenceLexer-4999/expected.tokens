@@ -1,0 +1,163 @@
+3:1 OpenBrace `{`
+3:2 Identifier `f`
+3:3 OpenParen `(`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolatedStringText `b `
+3:8 InterpolationStart `{`
+3:9 Identifier `c`
+3:10 InterpolationEnd `}`
+3:11 InterpolatedStringEnd `"`
+3:12 CloseParen `)`
+3:13 CloseBrace `}`
+3:15 Identifier `d`
+3:16 StringLiteral `" $"`
+3:20 OpenBrace `{`
+3:21 OpenBrace `{`
+3:22 Identifier `l`
+3:23 Slash `/`
+3:25 Identifier `comment`
+3:35 Identifier `hidden`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+5:2 CloseBrace `}`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 InterpolatedStringStart `$"`
+5:51 InterpolationStart `{`
+5:52 StringLiteral `$"{$j"`
+5:58 OpenBrace `{`
+5:59 StringLiteral `$"{x}"`
+5:65 CloseBrace `}`
+5:66 StringLiteral `"}"`
+5:69 InterpolationEnd `}`
+5:70 InterpolatedStringEnd `"`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringEnd `"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+5:75 InterpolationEnd `}`
+5:76 InterpolatedStringEnd `"`
+5:77 InterpolationEnd `}`
+5:78 InterpolatedStringEnd `"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolationEnd `}`
+5:82 InterpolatedStringEnd `"`
+5:83 InterpolationEnd `}`
+5:84 InterpolatedStringEnd `"`
+5:85 InterpolationEnd `}`
+5:86 InterpolatedStringEnd `"`
+5:87 InterpolationEnd `}`
+5:88 InterpolatedStringEnd `"`
+5:89 CharLiteral `'\u{110000}'`
+7:1 Identifier `b`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���
+    │   ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ {f($"b {c}")} d" $"{{l/ comment � hidden
+    │                                 ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ {f($"b {c}")} d" $"{{l/ comment � hidden
+    │   │                                 -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0003: unterminated string literal
+
+  5 │  } $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$j"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"'\u{110000}'
+    │                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │  } $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$j"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"'\u{110000}'
+    │                                                    ^^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  5 │  } $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$j"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"'\u{110000}'
+    │                                                                                          ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

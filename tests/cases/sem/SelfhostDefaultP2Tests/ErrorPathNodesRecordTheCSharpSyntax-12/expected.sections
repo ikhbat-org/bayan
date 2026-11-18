@@ -1,0 +1,6 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/fail/fail.byn diagnostics
+BYN2202 10:10 expected `an error`, found `i32`
+BYN2705 14:10 variant `withCode` carries a payload
+BYN2705 18:10 variant `withCode` carries a payload
+BYN2612 22:25 `fail` is not allowed in a panic handler
+BYN2602 23:5 `h` can fail; handle the error or pass it on

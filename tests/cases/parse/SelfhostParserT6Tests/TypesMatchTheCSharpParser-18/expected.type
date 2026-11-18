@@ -1,0 +1,2 @@
+(ptr 0..3 false (named 0..2 0..2 < >)) at 2
+BYN1067 0+3 pointer types are allowed only in `extern` declarations [a pointer type] [wrap the C call in an `extern` declaration]

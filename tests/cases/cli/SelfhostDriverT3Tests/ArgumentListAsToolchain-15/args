@@ -1,0 +1,8 @@
+build
+<repo>/examples/hello/main.byn
+-o
+<repo>/tmp/t3/args-fast-macos-arm64/cs-out
+--mode
+fast
+--target
+macos-arm64

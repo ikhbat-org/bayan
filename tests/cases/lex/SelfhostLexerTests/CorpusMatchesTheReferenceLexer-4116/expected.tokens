@@ -1,0 +1,37 @@
+1:3 Identifier `ma`
+1:6 Identifier `ro`
+1:9 Identifier `select`
+1:16 BecomeKeyword `become`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ���� ma�ro select become
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ���� ma�ro select become
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���� ma�ro select become
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���� ma�ro select become
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC1)
+
+  1 │ ���� ma�ro select become
+    │        ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ ���� ma�ro select become
+    │            ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

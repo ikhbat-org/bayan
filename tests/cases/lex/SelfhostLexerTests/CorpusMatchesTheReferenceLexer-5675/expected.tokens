@@ -1,0 +1,17 @@
+1:2 Identifier `a`
+1:4 Greater `>`
+1:5 Greater `>`
+1:7 Identifier `b`
+4:2 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  3 │  /* + - * / % +% -% *% +|� -| *| + --
+    │                          ^

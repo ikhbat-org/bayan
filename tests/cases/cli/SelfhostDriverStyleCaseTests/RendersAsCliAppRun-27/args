@@ -1,0 +1,6 @@
+--color
+always
+build
+-o
+<repo>/tmp/t7-style/build-ice-dumb/tally/tally
+<repo>/tmp/t7-style/build-ice-dumb/tally/main.byn

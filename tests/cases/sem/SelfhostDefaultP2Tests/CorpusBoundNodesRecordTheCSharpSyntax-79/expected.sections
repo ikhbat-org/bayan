@@ -1,0 +1,14 @@
+== tests/cases/run/for-paren-single-variable.byn
+0..15 globalStatement
+0..15 localDecl
+9..15 collectionExpr
+10..11 literalExpr integer
+13..14 literalExpr integer
+16..51 forStmt
+27..29 nameExpr
+30..51 blockStmt
+36..49 exprStmt
+36..49 callExpr
+42..48 interpolatedExpr
+45..46 nameExpr
+36..49 callExpr

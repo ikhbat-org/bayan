@@ -1,0 +1,8 @@
+error BYN2406: `break` outside a loop
+  --> tmp/t26-tests/cli/diag_jump-outside-loop.byn/jump-outside-loop.byn:1:1
+
+  1 │ break
+    │ ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2406

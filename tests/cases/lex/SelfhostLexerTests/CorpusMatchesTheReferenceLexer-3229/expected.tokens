@@ -1,0 +1,38 @@
+1:1 FloatLiteral `3.14`
+1:6 FloatLiteral `1e5`
+1:10 Dot `.`
+1:11 FloatLiteral `5e-3`
+1:16 FloatLiteral `6E+2`
+1:21 FloatLiteral `1.50`
+1:25 NumericSuffix `dec`
+1:29 IntegerLiteral `1`
+1:30 DotDot `..`
+1:32 IntegerLiteral `2`
+1:34 IntegerLiteral `1`
+1:35 DotDotEquals `..=`
+1:38 IntegerLiteral `3`
+1:40 IntegerLiteral `5`
+1:41 NumericSuffix `e`
+1:43 Identifier `x`
+1:44 Dot `.`
+1:45 Identifier `y`
+1:47 FloatLiteral `2.5`
+1:50 NumericSuffix `f`
+2:2 LetKeyword `let`
+2:6 Identifier `caf`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 StringLiteral `"`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  2 │  let caf� = 2
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  3 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

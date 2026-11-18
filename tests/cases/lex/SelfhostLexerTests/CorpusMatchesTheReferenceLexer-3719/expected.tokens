@@ -1,0 +1,34 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `open `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 StringLiteral `";`
+2:2 Identifier `t__`
+2:5 Dot `.`
+2:6 Identifier `macro`
+2:12 Identifier `sel`
+2:15 OpenParen `(`
+2:16 Identifier `ct`
+2:19 BecomeKeyword `become`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │  t__.macro sel(ct become
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

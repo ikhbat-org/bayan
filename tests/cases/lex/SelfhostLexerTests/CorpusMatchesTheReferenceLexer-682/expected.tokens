@@ -1,0 +1,90 @@
+2:4 IntegerLiteral `1`
+2:5 NumericSuffix `ea`
+2:8 Greater `>`
+2:9 Greater `>`
+3:3 IntegerLiteral `0x`
+4:1 IntegerLiteral `0x_`
+5:1 IntegerLiteral `0b__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0`
+7:4 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // commen�t � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // commen�t � hidden
+    │   │             -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │  ���� 1ea >> �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │  ���� 1ea >> �
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���� 1ea >> �
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���� 1ea >> �
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │  ���� 1ea >> �
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ��� 0x 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ��� 0x 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��� 0x 
+    │   ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ ��� 0x 
+    │     ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0004: unterminated block comment
+
+  7 │ 0/*
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

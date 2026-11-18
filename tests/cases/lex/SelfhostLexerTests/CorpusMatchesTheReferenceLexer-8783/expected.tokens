@@ -1,0 +1,51 @@
+1:3 LetKeyword `let`
+1:7 LawKeyword `law`
+1:11 Equals `=`
+1:13 IntegerLiteral `3`
+2:2 CharLiteral `'a'`
+2:6 CharLiteral `'\n'`
+2:11 CharLiteral `'\u{1F600}'`
+2:23 CharLiteral `'\''`
+2:28 CharLiteral `'é'`
+2:32 CharLiteral `'\\'`
+2:37 CharLiteral `'\0'`
+4:1 VarKeyword `var`
+4:5 Identifier `xs`
+4:7 Colon `:`
+4:9 Identifier `List`
+4:13 Less `<`
+4:14 Identifier `List`
+4:18 Less `<`
+4:19 Identifier `i64`
+4:22 Greater `>`
+4:23 Greater `>`
+5:2 Identifier `t`
+5:4 BecomeKeyword `become`
+6:1 LetKeyword `let`
+6:5 LawKeyword `law`
+6:10 IntegerLiteral `3`
+7:1 Star `*`
+7:2 Slash `/`
+7:4 LetKeyword `let`
+7:8 LawKeyword `law`
+7:12 Equals `=`
+7:14 IntegerLiteral `3`
+8:2 Plus `+`
+8:4 Minus `-`
+8:6 Star `*`
+8:8 Slash `/`
+8:10 Percent `%`
+8:12 PlusPercent `+%`
+8:15 MinusPercent `-%`
+8:18 StarPercent `*%`
+8:21 PlusBar `+|`
+8:24 MinusBar `-|`
+8:27 StarBar `*|`
+8:30 PlusPlus `++`
+8:33 MinusMinus `--`
+9:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � let law = 3
+    │ ^

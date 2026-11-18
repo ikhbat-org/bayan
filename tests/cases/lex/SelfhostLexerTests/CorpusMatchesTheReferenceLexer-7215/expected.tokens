@@ -1,0 +1,19 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 Identifier `de`
+1:60 Identifier `egate`
+1:66 ExtensionKeyword `extension`
+1:76 DerivationKeyword `derivation`
+1:87 AttributeKeyword `attribute`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x89)
+
+  1 │ struct unique union enum flags open extensible interface de�egate extension derivation attribute
+    │                                                            ^

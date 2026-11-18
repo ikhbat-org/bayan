@@ -1,0 +1,20 @@
+import lexer
+
+void main() {
+    print($"{lexer.firstIsUpper("".bytes)} {lexer.firstIsLower("".bytes)}")
+    print($"{lexer.firstIsUpper("A".bytes)} {lexer.firstIsLower("A".bytes)}")
+    print($"{lexer.firstIsUpper("Z".bytes)} {lexer.firstIsLower("Z".bytes)}")
+    print($"{lexer.firstIsUpper("a".bytes)} {lexer.firstIsLower("a".bytes)}")
+    print($"{lexer.firstIsUpper("z".bytes)} {lexer.firstIsLower("z".bytes)}")
+    print($"{lexer.firstIsUpper("Å".bytes)} {lexer.firstIsLower("Å".bytes)}")
+    print($"{lexer.firstIsUpper("Å".bytes)} {lexer.firstIsLower("Å".bytes)}")
+    print($"{lexer.firstIsUpper("Ω".bytes)} {lexer.firstIsLower("Ω".bytes)}")
+    print($"{lexer.firstIsUpper("ω".bytes)} {lexer.firstIsLower("ω".bytes)}")
+    print($"{lexer.firstIsUpper("ǅ".bytes)} {lexer.firstIsLower("ǅ".bytes)}")
+    print($"{lexer.firstIsUpper("_".bytes)} {lexer.firstIsLower("_".bytes)}")
+    print($"{lexer.firstIsUpper("7".bytes)} {lexer.firstIsLower("7".bytes)}")
+    print($"{lexer.firstIsUpper("𝐀".bytes)} {lexer.firstIsLower("𝐀".bytes)}")
+    print($"{lexer.firstIsUpper("𝐚".bytes)} {lexer.firstIsLower("𝐚".bytes)}")
+    print($"{lexer.firstIsUpper("Äx".bytes)} {lexer.firstIsLower("Äx".bytes)}")
+    print($"{lexer.firstIsUpper("Δx".bytes)} {lexer.firstIsLower("Δx".bytes)}")
+}

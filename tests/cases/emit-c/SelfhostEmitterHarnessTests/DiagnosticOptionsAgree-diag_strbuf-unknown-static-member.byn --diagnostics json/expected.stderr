@@ -1,0 +1,1 @@
+{"code":"BYN2003","severity":"error","file":"input.byn","span":{"start":160,"end":164,"line":3,"column":20,"endLine":3,"endColumn":24},"message":"`nope` is not a member of `StrBuf`","label":null,"help":null,"fixes":[]}

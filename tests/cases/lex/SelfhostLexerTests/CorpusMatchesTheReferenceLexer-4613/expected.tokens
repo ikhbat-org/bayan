@@ -1,0 +1,54 @@
+1:1 StringLiteral `"{$"`
+1:5 OpenBrace `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 InterpolationEnd `}`
+1:11 InterpolatedStringEnd `"`
+1:12 CloseBrace `}`
+1:13 StringLiteral `"}"`
+1:16 CloseBrace `}`
+1:17 StringLiteral `"}"`
+1:20 CloseBrace `}`
+1:21 StringLiteral `"}"`
+1:24 CloseBrace `}`
+1:25 StringLiteral `"}"`
+1:28 CloseBrace `}`
+1:29 StringLiteral `"}"`
+1:32 CloseBrace `}`
+1:33 StringLiteral `"}"`
+1:36 CloseBrace `}`
+1:37 StringLiteral `"}"`
+1:40 CloseBrace `}`
+1:41 StringLiteral `"}"`
+1:44 CloseBrace `}`
+1:45 StringLiteral `"}"`
+1:48 CloseBrace `}`
+1:49 StringLiteral `" let café = 2`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:1 CloseBrace `}`
+3:2 CharLiteral `'  `
+3:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" let café = 2
+    │                                                 ^^^^^^^^^^^^^^ string ends at the end of the
+    │                                                                line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0008: unterminated char literal
+
+  3 │ }'  
+    │  ^^^
+    │
+  help: close it with `'`

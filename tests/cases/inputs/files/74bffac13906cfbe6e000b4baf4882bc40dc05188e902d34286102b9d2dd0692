@@ -1,0 +1,15 @@
+public struct Order {
+    // A name forced from outside keeps its spelling.
+    @json(name: "numLines")
+    public i64 numLines
+
+    // A lint on the public API only: a member the module keeps to itself is not checked.
+    i64 linesCount
+}
+
+// A struct the module keeps to itself is not checked.
+struct Draft {
+    public i64 numItems
+}
+
+print("ok")

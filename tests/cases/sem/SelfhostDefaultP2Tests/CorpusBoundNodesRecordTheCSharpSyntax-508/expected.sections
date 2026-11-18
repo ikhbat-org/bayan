@@ -1,0 +1,18 @@
+== tests/cases/diag/fs-copy-needs-fs.byn
+150..181 blockStmt
+156..179 exprStmt
+156..179 tryExpr
+160..179 callExpr
+168..169 nameExpr
+175..178 literalExpr string
+236..267 blockStmt
+242..265 exprStmt
+242..265 tryExpr
+246..265 callExpr
+254..255 nameExpr
+261..264 literalExpr string
+281..300 blockStmt
+287..298 exprStmt
+287..298 callExpr
+293..297 literalExpr string
+287..298 callExpr

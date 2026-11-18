@@ -1,0 +1,35 @@
+1:2 Star `*`
+1:4 Percent `%`
+1:6 PlusBar `+|`
+1:9 MinusBar `-|`
+1:12 StarBar `*|`
+1:15 Plus `+`
+1:17 Identifier `Fu`
+1:20 IntegerLiteral `0b1`
+1:23 NumericSuffix `ul`
+1:26 IntegerLiteral `7`
+1:27 NumericSuffix `l`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 Identifier `alet`
+3:9 Identifier `c`
+3:11 Equals `=`
+3:15 IntegerLiteral `3`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │  *�% +| -| *| + Fu 0b1ul 7l
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{alet c = � 3
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ $"{alet c = � 3
+    │             ^

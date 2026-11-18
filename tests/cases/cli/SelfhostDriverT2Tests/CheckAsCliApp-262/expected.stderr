@@ -1,0 +1,10 @@
+error BYN2003: `fileExist` is not a member of `Fs`
+  --> <repo>/tmp/t2/diag/fs-unknown-member/fs-unknown-member.byn:2:16
+
+  2 │ let found = Fs.fileExist("a.txt")
+    │                ^^^^^^^^^
+    │
+  help: did you mean `fileExists`?
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2003

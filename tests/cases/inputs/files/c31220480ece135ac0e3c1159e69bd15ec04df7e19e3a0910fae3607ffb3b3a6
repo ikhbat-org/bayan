@@ -1,0 +1,27 @@
+public struct Line {
+    public i64 grams
+}
+
+public struct Order {
+    public List<u8> buffer
+    public List<Line> history
+    public Map<string, i64> data
+    public Untrusted<List<Line>> draft
+    public Untrusted<List<Line>> drafts
+    public List<Line>? entry
+    public string titles
+    public i64 cents
+    public bool isLines
+    @json(name: "line")
+    public List<Line> line
+    @column("item")
+    public List<Line> item
+    List<Line> hidden
+    Line others
+}
+
+struct Draft {
+    public List<Line> line
+}
+
+print("ok")

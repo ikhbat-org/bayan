@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BlockStmt",
+    "CallExpr",
+    "DeferStmt",
+    "ExprStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "GuardedStmt",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

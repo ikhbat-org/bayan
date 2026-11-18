@@ -1,0 +1,70 @@
+1:2 StringLiteral `"open`
+2:3 Amp `&`
+2:5 AmpAmp `&&`
+2:8 Bar `|`
+2:10 BarBar `||`
+2:13 Caret `^`
+2:15 Tilde `~`
+2:17 Bang `!`
+2:19 Equals `=`
+2:21 EqualsEquals `==`
+2:24 BangEquals `!=`
+2:27 Less `<`
+2:29 LessEquals `<=`
+2:32 Greater `>`
+2:34 GreaterEquals `>=`
+2:37 LessLess `<<`
+2:40 Greater `>`
+2:41 Greater `>`
+2:43 Greater `>`
+2:44 GreaterEquals `>=`
+3:2 OpenParen `(`
+3:4 CloseParen `)`
+3:6 OpenBracket `[`
+3:8 CloseBracket `]`
+3:10 OpenBrace `{`
+3:12 CloseBrace `}`
+4:1 CharLiteral `'x`
+5:2 Identifier `x`
+5:3 Dot `.`
+5:4 Identifier `y`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │  "open
+    │  ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ ���� & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ ���� & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���� & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���� & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │    ^
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  x.y�
+    │     ^

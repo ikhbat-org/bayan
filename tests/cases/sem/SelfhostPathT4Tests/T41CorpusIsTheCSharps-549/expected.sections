@@ -1,0 +1,7 @@
+== diags.diag/non-exhaustive-enum
+BYN2410 8:25 `switch` does not handle every `Suit`
+  label not covered: .spades
+  help add the missing arms, or `_ => …` for the rest
+BYN2410 14:12 `switch` does not handle every `Suit`
+  label not covered: .clubs, .diamonds, .spades
+  help add the missing cases or a `default:` section

@@ -1,0 +1,14 @@
+error BYN2002: unknown type `Display`
+  --> input.byn:1:28
+
+  1 │ void log(rest ReadOnlySpan<Display> items, to Stream stream = .stdout, string sep = " ") {
+    │                            ^^^^^^^
+
+error BYN2002: unknown type `Stream`
+  --> input.byn:1:47
+
+  1 │ void log(rest ReadOnlySpan<Display> items, to Stream stream = .stdout, string sep = " ") {
+    │                                               ^^^^^^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2002

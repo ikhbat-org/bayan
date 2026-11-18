@@ -1,0 +1,106 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+1:3 StringLiteral `"text"`
+1:10 U16StringLiteral `u16"wide"`
+1:20 StringLiteral `"\u{202E} allowed in strings"`
+1:43 StringLiteral `""`
+1:46 StringLiteral `"\u{48}i 0xFFs`
+3:1 LetKeyword `let`
+3:5 EffectKeyword `effect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+4:1 OpenParen `(`
+4:3 CloseParen `)`
+4:5 OpenBracket `[`
+4:7 CloseBracket `]`
+4:9 OpenBrace `{`
+4:11 CloseBrace `}`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 StringLiteral `$"{$"`
+6:54 OpenBrace `{`
+6:55 StringLiteral `$"{x}"`
+6:61 CloseBrace `}`
+6:62 StringLiteral `"}"`
+6:65 InterpolationEnd `}`
+6:66 InterpolatedStringEnd `"`
+6:67 InterpolationEnd `}`
+6:68 InterpolatedStringEnd `"`
+6:69 InterpolationEnd `}`
+6:70 InterpolatedStringEnd `"`
+6:71 InterpolationEnd `}`
+6:72 InterpolatedStringEnd `"`
+6:73 InterpolationEnd `}`
+6:74 InterpolatedStringEnd `"`
+6:75 InterpolationEnd `}`
+6:76 InterpolatedStringEnd `"`
+6:77 InterpolationEnd `}`
+6:78 InterpolatedStringEnd `"`
+6:79 InterpolationEnd `}`
+6:80 InterpolatedStringEnd `"`
+6:81 InterpolationEnd `}`
+6:82 InterpolatedStringEnd `"`
+6:83 InterpolationEnd `}`
+6:84 InterpolatedStringEnd `"`
+6:85 InterpolationEnd `}`
+6:86 InterpolatedStringEnd `"`
+6:87 InterpolationEnd `}`
+6:88 InterpolatedStringEnd `"`
+7:1 CharLiteral `'\u{110000}'`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ 1."text" u16"wide" "� allowed in strings" "" "\u{48}i 0xFFs
+    │                                              ^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  7 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

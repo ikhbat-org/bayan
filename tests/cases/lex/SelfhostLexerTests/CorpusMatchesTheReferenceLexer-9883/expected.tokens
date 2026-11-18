@@ -1,0 +1,9 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:4 Identifier `comment`
+2:12 Star `*`
+2:13 Slash `/`
+2:15 Identifier `a`
+5:1 EndOfFile

@@ -1,0 +1,46 @@
+== tests/cases/run/ref-list-element-in-loop.byn
+147..157 blockStmt
+149..155 assignStmt add target 149..150 value 154..155
+149..150 nameExpr
+154..155 literalExpr integer
+171..387 blockStmt
+177..197 localDecl
+186..197 callExpr
+202..214 exprStmt
+202..214 callExpr
+202..204 nameExpr
+212..213 literalExpr integer
+219..231 exprStmt
+219..231 callExpr
+219..221 nameExpr
+229..230 literalExpr integer
+236..279 forStmt
+245..247 nameExpr
+248..279 blockStmt
+258..273 exprStmt
+258..273 callExpr
+267..272 indexExpr
+267..269 nameExpr
+270..271 literalExpr integer
+284..307 localDecl
+301..307 collectionExpr
+302..303 literalExpr integer
+305..306 literalExpr integer
+312..355 forStmt
+321..323 nameExpr
+324..355 blockStmt
+334..349 exprStmt
+334..349 callExpr
+343..348 indexExpr
+343..345 nameExpr
+346..347 literalExpr integer
+360..385 exprStmt
+360..385 callExpr
+366..384 interpolatedExpr
+369..374 indexExpr
+369..371 nameExpr
+372..373 literalExpr integer
+377..382 indexExpr
+377..379 nameExpr
+380..381 literalExpr integer
+360..385 callExpr

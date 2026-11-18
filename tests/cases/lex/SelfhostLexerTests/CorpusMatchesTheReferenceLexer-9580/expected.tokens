@@ -1,0 +1,34 @@
+1:1 CharLiteral `'x\r`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 Identifier `a`
+2:6 StringLiteral `"`
+3:2 Identifier `ment`
+3:7 Identifier `V`
+3:8 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{a "
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{a "
+    │      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character ```
+
+  3 │  ment`V
+    │      ^

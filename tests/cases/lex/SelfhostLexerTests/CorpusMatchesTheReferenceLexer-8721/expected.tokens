@@ -1,0 +1,47 @@
+1:1 OpenParen `(`
+1:3 CloseParen `)`
+1:5 OpenBracket `[`
+1:7 CloseBracket `]`
+1:9 OpenBrace `{`
+1:11 CloseBrace `}`
+2:2 Identifier `a`
+2:4 Greater `>`
+2:5 Greater `>`
+2:7 Identifier `b`
+4:1 OpenParen `(`
+4:3 CloseParen `)`
+4:5 OpenBracket `[`
+4:7 Identifier `U`
+4:8 CloseBracket `]`
+4:10 OpenBrace `{`
+4:12 CloseBrace `}`
+5:3 LetKeyword `let`
+5:7 Identifier `café`
+5:13 Equals `=`
+5:15 IntegerLiteral `1`
+5:16 Semicolon `;`
+5:18 Identifier `ok`
+5:23 InKeyword `in`
+5:26 Identifier `comm`
+5:30 Minus `-`
+5:31 Identifier `ent`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ � let café = 1; ok � in comm-ent
+    │ ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  5 │ � let café = 1; ok � in comm-ent
+    │       ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ � let café = 1; ok � in comm-ent
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ � let café = 1; ok � in comm-ent
+    │                     ^

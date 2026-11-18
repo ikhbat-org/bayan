@@ -1,0 +1,9 @@
+2:1 Identifier `b`
+3:2 Identifier `setunit`
+3:10 Identifier `d`
+3:12 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  3 │  setunit$d 
+    │         ^

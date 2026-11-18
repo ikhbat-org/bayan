@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/for-unique-item.byn
+--package
+<repo>/tests/cases/diag

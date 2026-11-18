@@ -1,0 +1,31 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:1 IntegerLiteral `0`
+2:3 IntegerLiteral `42`
+2:6 IntegerLiteral `1_000_000`
+2:16 IntegerLiteral `0xFF`
+2:21 IntegerLiteral `0x_ff`
+2:27 IntegerLiteral `0b1010`
+2:34 IntegerLiteral `0`
+2:36 Identifier `B11`
+2:40 Identifier `Zs`
+2:43 IntegerLiteral `250`
+2:46 NumericSuffix `ms`
+2:49 IntegerLiteral `4`
+2:50 NumericSuffix `KiB`
+2:54 IntegerLiteral `1`
+2:55 NumericSuffix `u`
+2:57 IntegerLiteral `0xFF`
+2:61 NumericSuffix `u`
+2:63 IntegerLiteral `0b1`
+2:66 NumericSuffix `ul`
+2:69 IntegerLiteral `7`
+2:70 NumericSuffix `l`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  2 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0�B11 Zs 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                                   ^

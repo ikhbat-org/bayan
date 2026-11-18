@@ -1,0 +1,28 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+1:4 IntegerLiteral `0b1`
+1:7 OpenBrace `{`
+1:8 Identifier `s`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `stray } here`
+3:15 InterpolatedStringEnd `"`
+4:2 LetKeyword `let`
+4:6 Identifier `bB`
+4:9 Equals `=`
+4:11 StringLiteral `"bad \q esape"`
+5:2 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"stray } here"
+    │         ^
+    │
+    │ 3 │ $"stray }} here"
+    │   │          +
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │  let bB = "bad \q esape"
+    │                ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

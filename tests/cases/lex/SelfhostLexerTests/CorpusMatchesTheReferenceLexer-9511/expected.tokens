@@ -1,0 +1,53 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 Identifier `a`
+3:6 PlusEquals `+=`
+3:9 MinusEquals `-=`
+3:12 StarEquals `*=`
+3:15 SlashEquals `/=`
+3:18 PercentEquals `%=`
+3:21 AmpEquals `&=`
+3:24 BarEquals `|=`
+3:26 Identifier `P`
+3:28 CaretEquals `^=`
+3:31 LessLessEquals `<<=`
+4:2 Identifier `각`
+4:6 Identifier `et`
+4:11 Equals `=`
+4:13 IntegerLiteral `2`
+6:1 IntegerLiteral `0b__`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{a += -= *= /= %= &= |=P ^= <<=
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  4 │  각 et � = 2
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  각 et � = 2
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │  각 et � = 2
+    │         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  6 │ 0b__
+    │ ^^^^

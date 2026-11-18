@@ -1,0 +1,24 @@
+2:2 RawStringLiteral `"""\nlet café = 1;�$"{a\nin strings" "" "\u{48}i"\n\nlet a = $ 1\n$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point {�x = 1 }}!" $""\n var xs: List<List<i64>>\n `
+9:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  2 │  """
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  3 │ let café = 1;�$"{a
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  7 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point {�x = 1 }}!" $""
+    │                                                            ^

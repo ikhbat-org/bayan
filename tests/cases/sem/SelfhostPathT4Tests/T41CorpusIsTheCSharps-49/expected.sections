@@ -1,0 +1,5 @@
+== diags.diag/for-type-first
+BYN1043 2:9 `for i32 x` is an input form; write `for x: i32`
+  label type before name
+  help write `for x: i32`; loop variables put the name first
+  fix 2:9-2:14 x: i32

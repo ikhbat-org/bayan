@@ -1,0 +1,120 @@
+1:1 Plus `+`
+1:3 Minus `-`
+1:5 Star `*`
+1:7 Slash `/`
+1:9 Percent `%`
+1:11 PlusPercent `+%`
+1:14 MinusPercent `-%`
+1:17 StarPercent `*%`
+1:20 PlusBar `+|`
+1:23 MinusBar `-|`
+1:26 StarBar `*|`
+1:29 PlusPlus `++`
+1:31 MinusMinus `--`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 StringLiteral `$"{x \t $"`
+2:59 OpenBrace `{`
+2:60 StringLiteral `$"{$"`
+2:65 OpenBrace `{`
+2:66 StringLiteral `$"{$"`
+2:71 OpenBrace `{`
+2:72 StringLiteral `$"{$"`
+2:77 OpenBrace `{`
+2:78 StringLiteral `$"{$"`
+2:83 OpenBrace `{`
+2:84 StringLiteral `$"{$"`
+2:89 OpenBrace `{`
+2:90 StringLiteral `$"{$"`
+2:95 OpenBrace `{`
+2:96 StringLiteral `$"{x}"`
+2:102 CloseBrace `}`
+2:103 StringLiteral `"}"`
+2:106 CloseBrace `}`
+2:107 StringLiteral `"}"`
+2:110 CloseBrace `}`
+2:111 StringLiteral `"}"`
+2:114 CloseBrace `}`
+2:115 StringLiteral `"}"`
+2:118 CloseBrace `}`
+2:119 StringLiteral `"}"`
+2:122 CloseBrace `}`
+2:123 StringLiteral `""`
+2:126 LetKeyword `let`
+2:130 Identifier `a`
+2:132 Equals `=`
+2:136 IntegerLiteral `1`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:9 Percent `%`
+4:11 PlusPercent `+%`
+4:14 MinusPercent `-%`
+4:17 StarPercent `*%`
+4:20 PlusBar `+|`
+4:23 MinusBar `-|`
+4:26 StarBar `*|`
+4:29 PlusPlus `++`
+4:32 MinusMinus `--`
+6:2 IntegerLiteral `0B11`
+6:7 IntegerLiteral `5`
+6:8 NumericSuffix `s250ms`
+6:15 IntegerLiteral `4`
+6:16 NumericSuffix `KiB`
+6:20 IntegerLiteral `1`
+6:21 NumericSuffix `u`
+6:23 IntegerLiteral `0xFF`
+6:27 NumericSuffix `u`
+6:29 IntegerLiteral `0b1`
+6:32 NumericSuffix `ul`
+6:35 IntegerLiteral `7`
+6:36 NumericSuffix `l`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x 	 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"" let a = $ 1
+    │                                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x 	 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"" let a = $ 1
+    │                                                  ^^
+
+error BYN0002: unexpected character `$`
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x 	 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"" let a = $ 1
+    │                                                       	                                                                              ^

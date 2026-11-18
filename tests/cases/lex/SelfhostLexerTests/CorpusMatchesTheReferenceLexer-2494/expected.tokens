@@ -1,0 +1,43 @@
+1:1 IntegerLiteral `0xF__`
+2:4 Identifier `raw`
+2:8 StringLiteral `"muoted"`
+4:1 CharLiteral `'`
+5:1 OpenParen `(`
+5:3 CloseParen `)`
+5:5 OpenBracket `[`
+5:7 CloseBracket `]`
+5:9 OpenBrace `{`
+5:11 CloseBrace `}`
+7:4 Identifier `comment`
+7:12 Star `*`
+7:13 Slash `/`
+7:15 Identifier `a`
+8:2 Identifier `et`
+8:5 Identifier `actor`
+8:11 Equals `=`
+8:13 IntegerLiteral `1`
+8:14 NumericSuffix `let`
+8:18 Identifier `effb`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0008: unterminated char literal
+
+  4 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  8 │  et actor = 1let effb
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

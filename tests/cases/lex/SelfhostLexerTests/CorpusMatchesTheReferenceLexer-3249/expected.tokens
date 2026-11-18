@@ -1,0 +1,167 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 Identifier `x`
+1:56 CloseBrace `}`
+1:57 StringLiteral `"}"`
+1:60 InterpolationEnd `}`
+1:61 InterpolatedStringEnd `"`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+2:2 Identifier `foo`
+2:6 Identifier `Bar`
+2:10 Identifier `_x`
+2:13 Identifier `camelCase2`
+2:24 Identifier `بيان`
+2:29 Identifier `μετρητής`
+2:38 Identifier `x_1`
+2:42 Identifier `é`
+3:3 Equals `=`
+3:5 IntegerLiteral `1`
+4:2 LetKeyword `let`
+4:6 Identifier `caé`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 StringLiteral `$"{$"`
+6:12 OpenBrace `{`
+6:13 StringLiteral `$"{$"`
+6:18 OpenBrace `{`
+6:19 StringLiteral `$"{${$"`
+6:26 OpenBrace `{`
+6:27 StringLiteral `$"{$"`
+6:32 OpenBrace `{`
+6:33 StringLiteral `$"{$"`
+6:38 OpenBrace `{`
+6:39 StringLiteral `$"{$"`
+6:44 OpenBrace `{`
+6:45 StringLiteral `$"{x}"`
+6:51 CloseBrace `}`
+6:52 StringLiteral `"}"`
+6:55 CloseBrace `}`
+6:56 StringLiteral `"}"`
+6:59 CloseBrace `}`
+6:60 StringLiteral `"}"`
+6:63 CloseBrace `}`
+6:64 StringLiteral `"}"`
+6:67 CloseBrace `}`
+6:68 StringLiteral `"}"`
+6:71 CloseBrace `}`
+6:72 StringLiteral `"}"`
+6:75 StringLiteral `$"{$"`
+6:80 OpenBrace `{`
+6:81 StringLiteral `$"{$"`
+6:86 OpenBrace `{`
+6:87 StringLiteral `$"{$"`
+6:92 OpenBrace `{`
+6:93 StringLiteral `$"{$"`
+6:98 OpenBrace `{`
+6:99 StringLiteral `$"{$"`
+6:104 OpenBrace `{`
+6:105 StringLiteral `$"{$"`
+6:110 OpenBrace `{`
+6:111 StringLiteral `$"{$"`
+6:116 OpenBrace `{`
+6:118 OpenBrace `{`
+6:119 StringLiteral `$"{$"`
+6:124 OpenBrace `{`
+6:125 StringLiteral `$"{x}"`
+6:131 CloseBrace `}`
+6:132 StringLiteral `"}"`
+6:135 CloseBrace `}`
+6:136 StringLiteral `"}"`
+6:139 CloseBrace `}`
+6:140 StringLiteral `"}"`
+6:143 CloseBrace `}`
+6:144 StringLiteral `"}"`
+6:148 CharLiteral `' `
+6:150 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" // �x
+    │                                                 ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" // �x
+    │                                                                    ^ invisible character that
+    │                                                                      reorders how the text
+    │                                                                      displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" // �x
+    │   │                                                                    -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ � = 1
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � = 1
+    │   │ -
+
+error BYN0005: identifier `caé` is not in Unicode normalization form C
+
+  4 │  let caé = 1
+    │      ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  let caé = 1
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{x}"}"}"}"}"}"}"}"}" ' 
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{x}"}"}"}"}"}"}"}"}" ' 
+    │                                                                                                                     ^
+
+error BYN0008: unterminated char literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{x}"}"}"}"}"}"}"}"}" ' 
+    │                                                                                                                                                    ^^
+    │
+  help: close it with `'`

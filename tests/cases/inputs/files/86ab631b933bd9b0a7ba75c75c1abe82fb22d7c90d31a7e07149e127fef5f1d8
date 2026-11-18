@@ -1,0 +1,4 @@
+interface I {
+    void close() uses io fails
+    Token next()
+}

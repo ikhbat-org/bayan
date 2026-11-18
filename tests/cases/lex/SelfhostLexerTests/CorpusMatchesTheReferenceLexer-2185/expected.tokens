@@ -1,0 +1,76 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `stray } here`
+1:16 InterpolatedStringEnd `"`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 Identifier `a`
+3:4 Identifier `comment`
+3:12 Star `*`
+3:13 Slash `/`
+3:15 Identifier `a`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `a`
+5:4 InterpolationStart `{`
+5:5 Identifier `b`
+5:6 InterpolationEnd `}`
+5:7 InterpolatedStringText `c`
+5:8 InterpolatedStringEnd
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:10 Equals `=`
+6:12 IntegerLiteral `2`
+7:1 Minus `-`
+7:2 Bar `|`
+7:4 StarBar `*|`
+8:1 LetKeyword `let`
+8:5 Identifier `x`
+8:8 Equals `=`
+8:10 IntegerLiteral `1`
+9:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �$"stray } here"
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �$"stray } here"
+    │   │ -
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ �$"stray } here"
+    │          ^
+    │
+    │ 1 │ �$"stray }} here"
+    │   │           +
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{a
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  7 │ -�| *|
+    │  ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  8 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ let x� = 1
+    │   │      -

@@ -1,0 +1,78 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 StringLiteral `"{$"`
+1:20 OpenBrace `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 StringLiteral `$"{$"`
+1:59 OpenBrace `{`
+1:60 StringLiteral `$"{x}"`
+1:66 CloseBrace `}`
+1:67 StringLiteral `"}"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 ErrorKeyword `error`
+1:84 SetKeyword `set`
+1:88 UnitKeyword `unit`
+1:93 DistinctKeyword `distinct`
+1:102 TypeKeyword `type`
+1:107 ImportKeyword `import`
+1:114 AsKeyword `as`
+1:117 PublicKeyword `public`
+1:124 Identifier `priate`
+1:131 StaticKeyword `static`
+1:138 ReadonlyKeyword `readonly`
+1:147 RequiredKeyword `required`
+1:156 ConstKeyword `const`
+1:162 LetKeyword `let`
+1:166 VarKeyword `var`
+1:170 EmbedKeyword `embed`
+1:176 ExternKeyword `extern`
+1:183 UnsafeKeyword `unsafe`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"error set unit distinct type import as public priate static readonly required const let var embed extern unsafe
+    │                                       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"error set unit distinct type import as public priate static readonly required const let var embed extern unsafe
+    │                                                      ^^

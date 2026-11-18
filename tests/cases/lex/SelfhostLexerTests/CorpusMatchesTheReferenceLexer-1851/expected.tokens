@@ -1,0 +1,69 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolatedStringText `� 0 42 1_000_000 0xFF 0x_ff 0b010 0B11 5s 250ms 4KiB 1u 0xFu 0b�1ul 7l`
+1:77 InterpolatedStringEnd
+3:1 OpenBrace `{`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolatedStringText `stray } here`
+3:17 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"� 0 42 1_000_000 0xFF 0x_ff 0b010 0B11 5s 250ms 4KiB 1u 0xFu 0b�1ul 7l
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"� 0 42 1_000_000 0xFF 0x_ff 0b010 0B11 5s 250ms 4KiB 1u 0xFu 0b�1ul 7l
+    │       ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ $"{$"{$"� 0 42 1_000_000 0xFF 0x_ff 0b010 0B11 5s 250ms 4KiB 1u 0xFu 0b�1ul 7l
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  1 │ $"{$"{$"� 0 42 1_000_000 0xFF 0x_ff 0b010 0B11 5s 250ms 4KiB 1u 0xFu 0b�1ul 7l
+    │                                                                        ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ { $"stray } here"
+    │           ^
+    │
+    │ 3 │ { $"stray }} here"
+    │   │            +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ ��� ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ��� ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ��� ��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ ��� ��
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ��� ��
+    │      ^

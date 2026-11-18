@@ -1,0 +1,11 @@
+error BYN6003: `network` is not an effect
+  --> input.byn:3:34
+
+  3 │ bool check((i32 -> bool uses io, network) p) => true
+    │                                  ^^^^^^^ not an effect or an `effect` alias of this module
+    │
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6003

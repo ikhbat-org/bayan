@@ -1,0 +1,28 @@
+error BYN2225: `Box` cannot be formatted
+  --> input.byn:9:14
+
+  9 │     print($"{b}")
+    │              ^
+    │
+  help: add `formatInto(ref StrBuf)` to `Box`, or use `{x, as: .debug}`
+
+error BYN2225: `Untrusted<string>?` cannot be formatted
+  --> input.byn:11:14
+
+  11 │     print($"{o}")
+     │              ^ the value is `Untrusted<string>`
+
+error BYN2225: `Map<string, Untrusted<string>>` cannot be formatted
+  --> input.byn:13:14
+
+  13 │     print($"{m}")
+     │              ^ the value is `Untrusted<string>`
+
+error BYN2225: `List<Untrusted<string>>` cannot be formatted
+  --> input.byn:15:14
+
+  15 │     print($"{xs}")
+     │              ^^ an element is `Untrusted<string>`
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2225

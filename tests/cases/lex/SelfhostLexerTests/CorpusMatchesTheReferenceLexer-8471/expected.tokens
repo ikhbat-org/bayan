@@ -1,0 +1,50 @@
+2:1 CharLiteral `''`
+4:1 Identifier `é0x`
+5:1 Identifier `allowed`
+5:9 InKeyword `in`
+5:12 Identifier `strings`
+5:19 StringLiteral `" "`
+5:22 StringLiteral `" "`
+5:26 IntegerLiteral `8`
+5:27 NumericSuffix `u0x_`
+7:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */
+    │   │    -
+
+error BYN0007: empty char literal
+
+  2 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0005: identifier `é0x` is not in Unicode normalization form C
+
+  4 │ é0x
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ é0x
+    │   │ +
+
+error BYN0002: unexpected character `\`
+
+  5 │ allowed in strings" "" "\8u0x_
+    │                         ^

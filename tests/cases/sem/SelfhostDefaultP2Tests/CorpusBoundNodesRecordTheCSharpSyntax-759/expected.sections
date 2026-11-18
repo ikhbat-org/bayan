@@ -1,0 +1,21 @@
+== tests/cases/diag/propagate-from-infallible.byn
+75..120 blockStmt
+81..105 guardedStmt
+96..105 memberExpr
+96..97 nameExpr
+81..85 failStmt
+86..92 targetMemberExpr
+110..118 returnStmt value 117..118
+117..118 literalExpr integer
+142..169 blockStmt
+148..167 returnStmt value 155..167
+155..167 tryExpr
+159..167 callExpr
+165..166 nameExpr
+171..193 globalStatement
+171..193 exprStmt
+171..193 callExpr
+177..192 interpolatedExpr
+180..190 callExpr
+186..189 literalExpr string
+171..193 callExpr

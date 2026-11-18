@@ -1,0 +1,71 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText `c ist<i64>>`
+2:18 InterpolatedStringEnd
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+4:1 Identifier `c`
+4:3 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 IntegerLiteral `1`
+5:1 Identifier `x́́`
+6:1 StructKeyword `struct`
+6:8 Identifier `S`
+8:1 Plus `+`
+8:3 Minus `-`
+8:5 Star `*`
+8:7 Slash `/`
+8:9 Percent `%`
+8:11 PlusPercent `+%`
+8:14 MinusPercent `-%`
+8:17 StarPercent `*%`
+8:20 PlusBar `+|`
+8:23 MinusBar `-|`
+8:26 StarBar `*|`
+8:29 PlusPlus `++`
+8:32 MinusMinus `--`
+11:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b}c ist<i64>>
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC8)
+
+  3 │ a�>> b
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  9 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  9 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ ���
+    │   ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  10 │ // comment � hidden
+     │            ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 10 │ // comment � hidden
+     │    │            -

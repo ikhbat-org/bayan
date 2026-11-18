@@ -1,0 +1,14 @@
+2:2 CharLiteral `'\u{D800}'`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  1 │ //// n�ot a doc comment
+    │       ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │  '\u{D800}'
+    │   ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

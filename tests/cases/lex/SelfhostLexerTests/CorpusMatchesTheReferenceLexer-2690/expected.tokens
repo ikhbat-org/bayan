@@ -1,0 +1,25 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 Equals `=`
+1:9 SlashEquals `/=`
+1:12 PercentEquals `%=`
+1:15 Amp `&`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ += -= �= /= %= &� �|= ^= <<=
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE4)
+
+  1 │ += -= �= /= %= &� �|= ^= <<=
+    │                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD5)
+
+  1 │ += -= �= /= %= &� �|= ^= <<=
+    │                   ^

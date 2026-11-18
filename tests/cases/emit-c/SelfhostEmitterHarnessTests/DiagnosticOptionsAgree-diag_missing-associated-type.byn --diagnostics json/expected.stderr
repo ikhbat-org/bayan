@@ -1,0 +1,1 @@
+{"code":"BYN2803","severity":"error","file":"input.byn","span":{"start":16,"end":26,"line":1,"column":17,"endLine":1,"endColumn":27},"message":"`Digits` does not bind `type Item` of `IIndexable`","label":"needs `type Item`","help":"add `type Item = …` to `Digits`","fixes":[]}

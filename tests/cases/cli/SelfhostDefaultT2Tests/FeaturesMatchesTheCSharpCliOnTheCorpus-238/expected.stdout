@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "nodes": [
+    "AttributeSyntax",
+    "BinaryExpr",
+    "CallExpr",
+    "CatchExpr",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RequiresRule",
+    "StructDecl",
+    "TryExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "ListAdd",
+    "ListIsEmpty",
+    "Print"
+  ],
+  "diagnostics": []
+}

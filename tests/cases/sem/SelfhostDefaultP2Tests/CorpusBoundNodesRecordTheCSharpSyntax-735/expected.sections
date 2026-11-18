@@ -1,0 +1,8 @@
+== tests/cases/diag/parameter-needs-particle.byn
+163..200 blockStmt
+173..194 assignStmt add target 173..178 value 182..194
+173..178 nameExpr
+173..178 nameExpr
+182..194 binaryExpr sub right 191..194
+182..188 nameExpr
+191..194 nameExpr

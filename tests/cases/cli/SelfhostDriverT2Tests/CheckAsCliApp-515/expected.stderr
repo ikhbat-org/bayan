@@ -1,0 +1,13 @@
+error BYN2801: `Square` does not provide `area` required by `IShape`
+  --> <repo>/tmp/t2/diag/missing-interface-member/missing-interface-member.byn:6:17
+
+   6 │ struct Square : IShape {
+     │                 ^^^^^^ needs `area`
+     │
+  help: add `i64 area()` to `Square`
+     │ 10 │     i64 area() => todo("area")
+     │    │ ++++++++++++++++++++++++++++++
+     │ 11 │ }
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2801

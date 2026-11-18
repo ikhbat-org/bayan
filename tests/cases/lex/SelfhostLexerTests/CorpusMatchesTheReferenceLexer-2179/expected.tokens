@@ -1,0 +1,53 @@
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolatedStringText `$`
+1:9 InterpolatedStringEnd `"`
+1:10 OpenBrace `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 Identifier `x`
+1:22 InterpolationEnd `}`
+1:23 InterpolatedStringEnd `"`
+1:24 InterpolationEnd `}`
+1:25 InterpolatedStringEnd `"`
+1:26 InterpolationEnd `}`
+1:27 InterpolatedStringEnd `"`
+1:28 CloseBrace `}`
+1:29 StringLiteral `"}"`
+1:32 InterpolationEnd `}`
+1:33 InterpolatedStringEnd `"`
+1:34 CloseBrace `}`
+1:35 StringLiteral `"} `
+1:38 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ � $"{$"$"{�$"{$"{$"{x}"}"}"}"}"}"}"} 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ � $"{$"$"{�$"{$"{$"{x}"}"}"}"}"}"}"} 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ � $"{$"$"{�$"{$"{$"{x}"}"}"}"}"}"}"} 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  1 │ � $"{$"$"{�$"{$"{$"{x}"}"}"}"}"}"}"} 
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  1 │ � $"{$"$"{�$"{$"{$"{x}"}"}"}"}"}"}"} 
+    │                                   ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

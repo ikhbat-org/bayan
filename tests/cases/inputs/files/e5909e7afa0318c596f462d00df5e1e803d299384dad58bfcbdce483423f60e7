@@ -1,0 +1,9 @@
+eÌ struct S
+ 0x_
+
+€
+ xs: LiŒt<List<i64>>
+a >> b
+c >>= 1
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" "{Point { x = 1 }}!" $""
+

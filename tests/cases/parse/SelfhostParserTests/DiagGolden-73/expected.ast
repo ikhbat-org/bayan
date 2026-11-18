@@ -1,0 +1,19 @@
+CompilationUnit
+  Struct Point
+    Field i32 x = 0
+    Field i32 y = 0
+  Struct Bag
+    Field List<i32> items = (call List<i32>)
+    Field Map<string, i32> counts = (call Map<string, i32>)
+    Field Point origin = (struct Point)
+  Function main() -> void
+    Block
+      Let xs: List<i32> = (call List<i32>)
+      Let m: Map<string, i32> = (call Map<string, i32>)
+      Let p: Point = (struct Point)
+      Var ys = (call List<i32>)
+      Let zs = (call List<i32>)
+      Let other: List<i64> = (call List<i64>)
+      Let b = (struct Bag)
+      Expr (call (. ys append) 1)
+      Expr (call print (interp (. xs length) (. m length) (. p x) (. ys length) (. zs length) (. other length) (. (. b items) length)))

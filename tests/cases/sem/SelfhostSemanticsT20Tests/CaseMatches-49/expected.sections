@@ -1,0 +1,3 @@
+== call.c26
+errorExpr|?|-|-|-|2107:11|-
+BYN2003 120:19 `frob` is not a member of `i64` |||

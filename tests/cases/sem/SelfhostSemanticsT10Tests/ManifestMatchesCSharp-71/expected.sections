@@ -1,0 +1,13 @@
+== case manifest/unknown-field
+errors 2
+error BYN3101: `verison` is not a field of `Package`
+  4 │     verison: "0.2.0",
+    │     ^^^^^^^
+    │
+  help: use one of the fields `name`, `version`, `edition`, `kind`, `codes`, `capabilities`, `deps`,
+        `test`, `dist`, `style`, `grammar`
+error BYN3101: `target` is not a field of `Dist`
+  5 │     dist: Dist { target: [.host] },
+    │                  ^^^^^^
+    │
+  help: use one of the fields `targets`, `mode`

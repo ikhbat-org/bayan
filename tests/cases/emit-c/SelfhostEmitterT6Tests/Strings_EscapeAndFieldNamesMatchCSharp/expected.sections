@@ -1,0 +1,14 @@
+== strings
+|""|BYN_STR("", 0)
+plain|"plain"|BYN_STR("plain", 5)
+a\042b|"a\042b"|BYN_STR("a\042b", 3)
+back\134slash|"back\134slash"|BYN_STR("back\134slash", 10)
+what\077|"what\077"|BYN_STR("what\077", 5)
+tab\011here\012nl\015|"tab\011here\012nl\015"|BYN_STR("tab\011here\012nl\015", 12)
+h\303\251llo \342\234\223|"h\303\251llo \342\234\223"|BYN_STR("h\303\251llo \342\234\223", 10)
+int_
+main_
+name
+typeof_
+Int
+class

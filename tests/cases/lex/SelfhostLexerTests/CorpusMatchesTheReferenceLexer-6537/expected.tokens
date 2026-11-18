@@ -1,0 +1,66 @@
+1:1 Identifier `b`
+3:2 Less `<`
+4:1 Identifier `ion`
+4:5 AttributeKeyword `attribute`
+5:1 ErrorKeyword `error`
+5:7 SetKeyword `set`
+5:11 UnitKeyword `unit`
+5:16 DistinctKeyword `distinct`
+5:25 TypeKeyword `type`
+5:30 ImportKeyword `import`
+5:37 AsKeyword `as`
+5:40 PublicKeyword `public`
+5:47 Identifier `p`
+6:2 Identifier `s`
+6:4 Equals `=`
+6:6 InterpolatedStringStart `$"`
+6:8 InterpolationStart `{`
+6:9 InterpolatedStringStart `$"`
+6:11 InterpolationStart `{`
+6:12 InterpolatedStringStart `$"`
+6:14 InterpolationStart `{`
+6:15 InterpolatedStringStart `$"`
+6:17 InterpolationStart `{`
+6:18 InterpolatedStringStart `$"`
+6:20 InterpolationStart `{`
+6:21 StringLiteral `"{$_{$"`
+6:28 OpenBrace `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 InterpolatedStringStart `$"`
+6:49 InterpolationStart `{`
+6:50 InterpolatedStringStart `$"`
+6:52 InterpolationStart `{`
+6:53 InterpolatedStringStart `$"`
+6:55 InterpolationStart `{`
+6:56 InterpolatedStringStart `$"`
+6:58 InterpolationStart `{`
+6:59 InterpolatedStringStart `$"`
+6:61 InterpolationStart `{`
+6:63 Identifier `x`
+6:64 Dot `.`
+6:65 Identifier `y`
+6:67 IntegerLiteral `2`
+6:69 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  6 │  s = $"{$"{$"{$"{$"{�"{$_{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{ x.y 2 
+    │                     ^
+
+error BYN0003: unterminated string literal
+
+  6 │  s = $"{$"{$"{$"{$"{�"{$_{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{ x.y 2 
+    │                                                            ^^ this string never ends
+    │
+  help: close the `{` and the string

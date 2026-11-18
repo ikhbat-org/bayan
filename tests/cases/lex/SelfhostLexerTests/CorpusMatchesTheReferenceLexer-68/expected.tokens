@@ -1,0 +1,85 @@
+1:5 Identifier `comment`
+1:13 Star `*`
+1:14 Slash `/`
+1:16 Identifier `a`
+2:1 CharLiteral `'\u{202E}�'`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolationEnd `}`
+3:5 InterpolatedStringEnd `"`
+3:6 OpenBrace `{`
+3:7 Identifier `D800t`
+3:12 CloseBrace `}`
+3:13 CharLiteral `'`
+4:3 Identifier `u`
+4:4 OpenBrace `{`
+4:5 IntegerLiteral `110000`
+4:11 CloseBrace `}`
+4:12 CharLiteral `'`
+5:1 CharLiteral `'x`
+6:1 CharLiteral `'\q'`
+8:1 Identifier `c`
+8:3 Greater `>`
+8:4 GreaterEquals `>=`
+8:7 IntegerLiteral `1`
+9:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ '��'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ '��'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ '��'
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  2 │ '��'
+    │   ^
+
+error BYN0008: unterminated char literal
+
+  3 │ $"{}"{D800t}'
+    │             ^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{6}`
+
+  4 │ �\u{110000}'
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ �\u{110000}'
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  4 │ �\u{110000}'
+    │            ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

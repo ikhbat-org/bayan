@@ -1,0 +1,6 @@
+'\u{110000}'
+"text" "esc \"^q\" \\ \n" """
+
+let café = 1;i{
+foo Bar _x camelCase2 بيان μετρητής x_1 é
+ ﻿ "

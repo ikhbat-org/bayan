@@ -1,0 +1,60 @@
+2:1 IntegerLiteral `0__`
+3:1 Identifier `ạ̇`
+4:1 Identifier `ạ̇`
+4:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ ��﻿
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ ��﻿
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ ��﻿
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ ��﻿
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ ��﻿
+    │   ^
+
+error BYN0002: unexpected character `﻿`
+
+  1 │ ��﻿
+    │   ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0__
+    │  ^^
+    │
+    │ 2 │ 0__
+    │   │  --
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇
+    │   │ +
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  4 │ ạ̇ 
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ ạ̇ 
+    │   │ +

@@ -1,0 +1,10 @@
+error BYN2614: `Panic.handler` may be set only as the first statement of `main`
+  --> tmp/t26-tests/cli/diag_on-panic-not-first.byn/on-panic-not-first.byn:7:5
+
+  7 │     Panic.handler = onCrash
+    │     ^^^^^^^^^^^^^^^^^^^^^^^ not the first statement of `main`
+    │
+  help: set it once, as the first statement of `main`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2614

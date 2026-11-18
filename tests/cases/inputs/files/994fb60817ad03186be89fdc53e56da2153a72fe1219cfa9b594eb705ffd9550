@@ -1,0 +1,30 @@
+public struct Rule {
+    public i64 weight
+}
+
+// A `forms` entry is read by its word's class (revision 0021 Part 3).
+public struct Crew {
+    i64 count
+
+    // A noun's form is its plural: a list named with the singular is renamed to it.
+    public List<Rule> criterion
+
+    // A verb's form is its `-ed` spelling, so this member changes `this` under an `-ed` name.
+    public void reground(ref this) {
+        count += 1
+    }
+
+    // A collective's or an adjective's form is not an `-ed` spelling.
+    public void staves(ref this) {
+        count += 1
+    }
+
+    public void better(ref this) {
+        count += 1
+    }
+
+    // An unknown word on a `bool` member is offered as an adjective first.
+    public bool isZorby => true
+}
+
+print("ok")

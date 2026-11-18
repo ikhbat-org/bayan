@@ -1,0 +1,22 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+3:1 Identifier `ct`
+3:4 BecomeKeyword `become`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:10 IntegerLiteral `63`
+    doc `/// Doc line two.`
+7:1 LetKeyword `let`
+7:5 Identifier `a`
+7:7 Equals `=`
+7:9 IntegerLiteral `1`
+8:2 IntegerLiteral `1`
+9:2 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  9 │ �
+    │ ^

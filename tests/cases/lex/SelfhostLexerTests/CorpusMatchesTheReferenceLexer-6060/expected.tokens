@@ -1,0 +1,44 @@
+1:1 IntegerLiteral `0`
+1:3 IntegerLiteral `42`
+1:6 IntegerLiteral `1_000_000`
+1:16 IntegerLiteral `0xFF`
+1:21 IntegerLiteral `0x_ff`
+1:27 IntegerLiteral `01010`
+1:33 IntegerLiteral `0B11`
+1:38 IntegerLiteral `5`
+1:39 NumericSuffix `s`
+1:41 IntegerLiteral `250`
+1:44 NumericSuffix `ms`
+1:47 IntegerLiteral `4`
+1:48 NumericSuffix `KiB`
+1:52 IntegerLiteral `1`
+1:53 NumericSuffix `u`
+1:55 IntegerLiteral `0xFF`
+1:59 NumericSuffix `u`
+1:61 IntegerLiteral `0b1`
+1:64 NumericSuffix `ul`
+1:67 IntegerLiteral `7`
+1:68 NumericSuffix `l`
+2:2 Identifier `leteffect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+3:1 Equals `=`
+3:3 PercentEquals `%=`
+3:6 AmpEquals `&=`
+3:9 BarEquals `|=`
+3:12 CaretEquals `^=`
+3:15 LessLess `<<`
+4:1 Identifier `a`
+7:5 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  4 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  7 │  ȧ� 
+    │    ^

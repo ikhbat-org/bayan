@@ -1,0 +1,8 @@
+_000_000 0xFF
+L0x
+ test assert property fuzz model foreach new goto
+
+<List<i64>>
+a >> b
+> >>= 1á
+

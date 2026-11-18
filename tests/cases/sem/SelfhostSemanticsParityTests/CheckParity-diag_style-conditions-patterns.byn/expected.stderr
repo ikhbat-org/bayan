@@ -1,0 +1,89 @@
+note BYN1078: `c` is tested against constants 2 times; write one pattern
+  --> tmp/t26-tests/cli/diag_style-conditions-patterns.byn/style-conditions-patterns.byn:14:12
+
+  14 │     return c >= '0' && c <= '9'
+     │            ^^^^^^^^^^^^^^^^^^^^ 2 tests of `c`
+     │
+  help: write `c is '0'..='9'`
+     │ 14 │     return c is '0'..='9'
+     │    │              +++++++++
+
+note BYN1078: `x` is tested against constants 2 times; write one pattern
+  --> tmp/t26-tests/cli/diag_style-conditions-patterns.byn/style-conditions-patterns.byn:18:12
+
+  18 │     return x >= -1 && x <= 10
+     │            ^^^^^^^^^^^^^^^^^^ 2 tests of `x`
+     │
+  help: write `x is -1..=10`
+     │ 18 │     return x is -1..=10
+     │    │              ++++++++
+
+note BYN1078: `op` is tested against constants 2 times; write one pattern
+  --> tmp/t26-tests/cli/diag_style-conditions-patterns.byn/style-conditions-patterns.byn:22:15
+
+  22 │     let yes = op == .add || op == .sub
+     │               ^^^^^^^^^^^^^^^^^^^^^^^^ 2 tests of `op`
+     │
+  help: write `op is .add or .sub`
+     │ 22 │     let yes = op is .add or .sub
+     │    │                  ++++++++++
+
+note BYN1078: `c` is tested against constants 4 times; write one pattern
+  --> tmp/t26-tests/cli/diag_style-conditions-patterns.byn/style-conditions-patterns.byn:27:12
+
+  27 │     return c == 0 || (c >= 7 && c <= 9) || c == 12
+     │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 4 tests of `c`
+     │
+  help: write `c is 0 or 7..=9 or 12`
+     │ 27 │     return c is 0 or 7..=9 or 12
+     │    │              ++++++++++++++++
+
+note BYN1078: `s` is tested against constants 2 times; write one pattern
+  --> tmp/t26-tests/cli/diag_style-conditions-patterns.byn/style-conditions-patterns.byn:31:12
+
+  31 │     return s == "a" || s == "b"
+     │            ^^^^^^^^^^^^^^^^^^^^ 2 tests of `s`
+     │
+  help: write `s is "a" or "b"`
+     │ 31 │     return s is "a" or "b"
+     │    │              +++++++++
+
+note BYN1078: `b.op` is tested against constants 2 times; write one pattern
+  --> tmp/t26-tests/cli/diag_style-conditions-patterns.byn/style-conditions-patterns.byn:35:12
+
+  35 │     return b.op == .mul || b.op == .add
+     │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 2 tests of `b.op`
+     │
+  help: write `b.op is .mul or .add`
+     │ 35 │     return b.op is .mul or .add
+     │    │                 ++++++++++
+
+note BYN1078: `xs[i]` is tested against constants 2 times; write one pattern
+  --> tmp/t26-tests/cli/diag_style-conditions-patterns.byn/style-conditions-patterns.byn:39:12
+
+  39 │     return xs[i] == 1 || xs[i] == 2
+     │            ^^^^^^^^^^^^^^^^^^^^^^^^ 2 tests of `xs[i]`
+     │
+  help: write `xs[i] is 1 or 2`
+     │ 39 │     return xs[i] is 1 or 2
+     │    │                  +++++++
+
+note BYN1078: `c` is tested against constants 4 times; write one pattern
+  --> tmp/t26-tests/cli/diag_style-conditions-patterns.byn/style-conditions-patterns.byn:43:12
+
+  43 │     return c < 0x20 || (c >= 0x7F && c <= 0x9F) || c == 0x61C
+     │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 4 tests of `c`
+     │
+  help: write `c is < 0x20 or 0x7F..=0x9F or 0x61C`
+     │ 43 │     return c is < 0x20 or 0x7F..=0x9F or 0x61C
+     │    │              +++++++++++++++++++++++++++
+
+note BYN1078: `c` is tested against constants 2 times; write one pattern
+  --> tmp/t26-tests/cli/diag_style-conditions-patterns.byn/style-conditions-patterns.byn:48:12
+
+  48 │     return 0x20 > c || c >= 0x7F
+     │            ^^^^^^^^^^^^^^^^^^^^^ 2 tests of `c`
+     │
+  help: write `c is < 0x20 or >= 0x7F`
+     │ 48 │     return c is < 0x20 or >= 0x7F
+     │    │            ++++++++++++++

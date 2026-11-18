@@ -1,0 +1,2 @@
+== flow.logic
+BYN2102 195:19 `x` is used before it is assigned |declared without a value on line 194|assign it on every path before this, or give the declaration a value|

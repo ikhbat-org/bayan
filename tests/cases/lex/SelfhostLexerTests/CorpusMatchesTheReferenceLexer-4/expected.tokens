@@ -1,0 +1,18 @@
+3:1 IntegerLiteral `0xF__`
+4:2 CharLiteral `'a'`
+4:6 CharLiteral `'\n'`
+4:11 CharLiteral `'\u{1F600}'`
+4:23 CharLiteral `'\''`
+4:28 CharLiteral `'é'`
+4:32 CharLiteral `'\\'`
+4:37 CharLiteral `'\0'`
+5:1 Identifier `x́́`
+5:5 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --

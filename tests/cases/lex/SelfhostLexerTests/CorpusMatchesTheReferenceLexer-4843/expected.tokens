@@ -1,0 +1,29 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:2 StringLiteral `"`
+3:1 Identifier `b`
+12:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  "
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0004: unterminated block comment
+
+  5 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

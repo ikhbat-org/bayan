@@ -1,0 +1,5 @@
+== s17
+switchExpr|i64|2354:44
+value local:Order=od
+arm 2366:11 unionPattern[2366:6]:Order(draft;|-) guard - value literal:i64=1
+arm 2379:17 unionPattern[2379:12]:Order(paid;bindPattern[2385:3]:i64(p:i64:b:-:let)|-) guard - value local:i64=p

@@ -1,0 +1,121 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `x`
+1:4 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolatedStringText `a`
+1:12 InterpolationStart `{`
+1:13 Identifier `b`
+1:14 InterpolationEnd `}`
+1:15 InterpolatedStringText `c`
+1:16 InterpolatedStringEnd
+2:1 CharLiteral `'x`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `open `
+3:9 InterpolationStart `{`
+3:10 Identifier `x`
+3:11 StringLiteral `";`
+6:1 LetKeyword `let`
+6:5 Identifier `a`
+6:7 Equals `=`
+6:11 IntegerLiteral `1`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `x`
+7:4 InterpolationStart `{`
+7:6 InterpolatedStringStart `$"`
+7:8 InterpolationStart `{`
+7:9 InterpolatedStringStart `$"`
+7:11 InterpolationStart `{`
+7:12 InterpolatedStringStart `$"`
+7:14 InterpolationStart `{`
+7:15 InterpolatedStringStart `$"`
+7:17 InterpolationStart `{`
+7:18 InterpolatedStringStart `$"`
+7:20 InterpolationStart `{`
+7:21 InterpolatedStringStart `$"`
+7:23 InterpolationStart `{`
+7:24 InterpolatedStringStart `$"`
+7:26 InterpolationStart `{`
+7:27 InterpolatedStringStart `$"`
+7:29 InterpolationStart `{`
+7:30 InterpolatedStringStart `$"`
+7:32 InterpolationStart `{`
+7:33 InterpolatedStringStart `$"`
+7:35 InterpolationStart `{`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolationStart `{`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolationStart `{`
+7:42 StringLiteral `$"{$"`
+7:47 OpenBrace `{`
+7:48 StringLiteral `$"{$"`
+7:53 OpenBrace `{`
+7:54 StringLiteral `$"{$"`
+7:59 OpenBrace `{`
+7:60 Identifier `x`
+7:61 CloseBrace `}`
+7:62 StringLiteral `"}"`
+7:65 CloseBrace `}`
+7:66 StringLiteral `"}"`
+7:69 CloseBrace `}`
+7:70 StringLiteral `"}"`
+7:73 InterpolationEnd `}`
+7:74 InterpolatedStringEnd `"`
+7:75 InterpolationEnd `}`
+7:76 InterpolatedStringEnd `"`
+7:77 InterpolationEnd `}`
+7:78 InterpolatedStringEnd `"`
+7:79 InterpolationEnd `}`
+7:80 InterpolatedStringEnd `"`
+7:81 InterpolationEnd `}`
+7:82 InterpolatedStringEnd `"`
+7:83 InterpolationEnd `}`
+7:84 InterpolatedStringEnd `"`
+7:85 InterpolationEnd `}`
+7:86 InterpolatedStringEnd `"`
+7:87 InterpolationEnd `}`
+7:88 InterpolatedStringEnd `"`
+7:89 InterpolationEnd `}`
+7:90 InterpolatedStringEnd `"`
+7:91 InterpolationEnd `}`
+7:92 InterpolatedStringEnd `"`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"x{ $"{$"a{b}c
+    │         ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  3 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  6 │ let a = $ 1
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"x{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"x{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                          ^^

@@ -1,0 +1,13 @@
+== groups
+errorExpr 1444..1451 : ?
+errorExpr 1444..1451 : ?
+errorExpr 1444..1451 : ?
+errorExpr 1444..1451 : ?
+errorExpr 1444..1451 : ?
+errorExpr 1444..1451 : ?
+BYN2019 74:16 `m` is a module, not a value |||
+BYN2705 74:16 variant `circle` carries a payload ||pass it: `Shape.circle(radius, scale)`|
+BYN2019 74:16 `length` is a method, not a value ||call it: `length()`|
+BYN2019 74:16 `tm` is a method, not a value ||call it: `tm()`|
+BYN2824 74:16 `modFunc` cannot be used as a value: it is a union variant ||wrap it in a lambda: `(radius, scale) => modFunc(radius, scale)`|
+BYN2824 74:16 `modFunc` cannot be used as a value: it is a method ||wrap it in a lambda: `() => modFunc()`|

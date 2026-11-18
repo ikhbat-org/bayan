@@ -1,0 +1,63 @@
+1:1 Identifier `é`
+1:4 Equals `=`
+1:6 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `caf`
+2:10 LetKeyword `let`
+2:14 EffectKeyword `effect`
+2:21 Equals `=`
+2:23 IntegerLiteral `2`
+4:1 Plus `+`
+4:3 MinusMinus `--`
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:6 Bar `|`
+5:8 BarBar `||`
+5:11 Hash `#`
+5:12 Caret `^`
+5:14 Tilde `~`
+5:16 Bang `!`
+5:18 Equals `=`
+5:20 EqualsEquals `==`
+5:23 BangEquals `!=`
+5:26 Less `<`
+5:28 LessEquals `<=`
+5:31 Greater `>`
+5:33 GreaterEquals `>=`
+5:36 LessLess `<<`
+5:39 Greater `>`
+5:40 Greater `>`
+5:42 Greater `>`
+5:43 GreaterEquals `>=`
+6:1 Plus `+`
+6:2 Dot `.`
+6:3 Equals `=`
+6:5 MinusEquals `-=`
+6:8 StarEquals `*=`
+6:11 SlashEquals `/=`
+6:14 PercentEquals `%=`
+7:1 Identifier `각`
+7:4 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é = 1
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é = 1
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ let caf� let effect = 2
+    │        ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  7 │ 각
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ 각
+    │   │ +

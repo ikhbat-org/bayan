@@ -1,0 +1,100 @@
+1:1 Identifier `b`
+2:2 Comma `,`
+2:4 Dot `.`
+2:6 DotDot `..`
+2:9 DotDotEquals `..=`
+2:13 Colon `:`
+2:15 Question `?`
+2:17 QuestionQuestion `??`
+2:20 QuestionQuestionEquals `??=`
+2:24 QuestionDot `?.`
+2:27 FatArrow `=>`
+2:30 Arrow `->`
+2:33 At `@`
+2:35 Hash `#`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolatedStringText `a+ - * / % +% -% *% +| -| *| ++ --`
+4:38 InterpolatedStringEnd
+6:3 IntegerLiteral `0x_`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolationStart `{`
+8:4 InterpolatedStringStart `$"`
+8:6 InterpolationStart `{`
+8:7 InterpolatedStringStart `$"`
+8:9 InterpolationStart `{`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:13 InterpolatedStringStart `$"`
+8:15 InterpolationStart `{`
+8:16 InterpolatedStringStart `$"`
+8:18 InterpolationStart `{`
+8:19 InterpolatedStringStart `$"`
+8:21 InterpolationStart `{`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolationStart `{`
+8:25 InterpolatedStringStart `$"`
+8:27 InterpolationStart `{`
+8:28 InterpolatedStringStart `$"`
+8:30 InterpolationStart `{`
+8:31 InterpolatedStringStart `$"`
+8:33 InterpolationStart `{`
+8:34 InterpolatedStringStart `$"`
+8:36 InterpolationStart `{`
+8:37 InterpolatedStringStart `$"`
+8:39 InterpolationStart `{`
+8:40 InterpolatedStringStart `$"`
+8:42 InterpolationStart `{`
+8:43 InterpolatedStringStart `$"`
+8:45 InterpolationStart `{`
+8:46 InterpolatedStringStart `$"`
+8:48 InterpolationStart `{`
+8:49 StringLiteral `$"{$"`
+8:54 OpenBrace `{`
+8:55 StringLiteral `$"{$"`
+8:60 OpenBrace `{`
+8:61 Identifier `x`
+8:62 CloseBrace `}`
+8:63 StringLiteral `"}"`
+8:66 CloseBrace `}`
+8:67 StringLiteral `"}"`
+8:70 InterpolationEnd `}`
+8:71 InterpolatedStringEnd `"`
+8:72 InterpolationEnd `}`
+8:73 InterpolatedStringEnd `"`
+8:74 InterpolationEnd `}`
+8:75 InterpolatedStringEnd `"`
+8:77 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │  $"a+ - * / % +% -% *% +| -| *| ++ --
+    │  ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ � 0x_
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ � 0x_
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ � 0x_
+    │   ^^^
+
+error BYN0003: unterminated string literal
+
+  8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 
+    │                                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 
+    │                                                 ^^

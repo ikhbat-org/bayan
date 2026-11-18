@@ -1,0 +1,53 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:11 IntegerLiteral `1`
+6:1 StructKeyword `struct`
+6:8 UniqueKeyword `unique`
+6:15 UnionKeyword `union`
+6:21 EnumKeyword `enum`
+6:26 FlagsKeyword `flags`
+6:32 OpenKeyword `open`
+6:37 ExtensibleKeyword `extensible`
+6:48 InterfaceKeyword `interface`
+6:58 DelegateKeyword `delegate`
+6:67 ExtensionKeyword `extension`
+6:77 DerivationKeyword `derivation`
+6:88 AttributeKeyword `attribute`
+7:2 IsKeyword `is`
+7:5 AndKeyword `and`
+7:9 OrKeyword `or`
+7:12 Identifier `notwith`
+7:20 MoveKeyword `move`
+7:25 RefKeyword `ref`
+7:29 OutKeyword `out`
+7:33 ThisKeyword `this`
+7:38 NullKeyword `null`
+7:43 TrueKeyword `true`
+7:48 FalseKeyword `false`
+7:54 ComptimeKeyword `comptime`
+7:63 CheckedKeyword `checked`
+9:1 Identifier `c`
+9:3 Greater `>`
+9:4 GreaterEquals `>=`
+9:7 IntegerLiteral `1`
+10:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0002: unexpected character `$`
+
+  2 │ let a = $ 1
+    │         ^

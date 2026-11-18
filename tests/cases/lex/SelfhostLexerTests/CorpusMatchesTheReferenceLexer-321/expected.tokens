@@ -1,0 +1,114 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `'\q'`
+3:7 InterpolatedStringEnd
+5:1 LetKeyword `let`
+5:5 Identifier `ffect`
+5:11 Equals `=`
+5:13 IntegerLiteral `2`
+6:3 Identifier `a`
+6:5 Equals `=`
+6:9 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:5 Identifier `b`
+7:7 Equals `=`
+7:11 IntegerLiteral `2`
+8:1 LetKeyword `let`
+8:5 Identifier `c`
+8:7 Equals `=`
+8:11 IntegerLiteral `3`
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolationStart `{`
+10:4 InterpolatedStringStart `$"`
+10:6 InterpolationStart `{`
+10:7 InterpolatedStringStart `$"`
+10:9 InterpolationStart `{`
+10:10 InterpolatedStringStart `$"`
+10:12 InterpolationStart `{`
+10:13 InterpolatedStringStart `$"`
+10:15 InterpolationStart `{`
+10:16 InterpolatedStringStart `$"`
+10:18 InterpolationStart `{`
+10:19 InterpolatedStringStart `$"`
+10:21 InterpolationStart `{`
+10:22 InterpolatedStringStart `$"`
+10:24 InterpolationStart `{`
+10:25 InterpolatedStringStart `$"`
+10:27 InterpolationStart `{`
+10:28 InterpolatedStringStart `$"`
+10:30 InterpolationStart `{`
+10:31 InterpolatedStringStart `$"`
+10:33 InterpolationStart `{`
+10:34 InterpolatedStringStart `$"`
+10:36 InterpolationStart `{`
+10:37 InterpolatedStringStart `$"`
+10:39 InterpolationStart `{`
+10:40 InterpolatedStringStart `$"`
+10:42 InterpolationStart `{`
+10:43 InterpolatedStringStart `$"`
+10:45 InterpolationStart `{`
+10:46 InterpolatedStringStart `$"`
+10:48 InterpolationStart `{`
+10:49 StringLiteral `$"{$"`
+10:54 OpenBrace `{`
+10:55 Identifier `x`
+10:56 CloseBrace `}`
+10:57 StringLiteral `"}"`
+10:60 InterpolationEnd `}`
+10:61 InterpolatedStringEnd `"`
+11:1 IntegerLiteral `0b102`
+12:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  3 │ $"'\q'
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ $"'\q'
+    │    ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `$`
+
+  6 │   a = $ 1
+    │       ^
+
+error BYN0002: unexpected character ```
+
+  7 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  8 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+     │                                           ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  10 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+     │                                                 ^^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  11 │ 0b102
+     │     ^

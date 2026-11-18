@@ -1,0 +1,18 @@
+error BYN1019: `for (let x in xs)` is an input form; write `for x in xs`
+  --> input.byn:2:9
+
+  2 │     for (let  in xs) {
+    │         ^^^^^^^^^^^^ the input form
+    │
+  help: write the loop variable and iterable without parentheses
+    │ 2 │     for <missing> in xs {
+    │   │         +++++++++++++++
+
+error BYN1001: expected a loop variable, found keyword `in`
+  --> input.byn:2:15
+
+  2 │     for (let  in xs) {
+    │               ^^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1019

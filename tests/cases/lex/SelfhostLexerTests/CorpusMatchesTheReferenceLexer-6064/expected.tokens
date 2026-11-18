@@ -1,0 +1,65 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `x`
+2:5 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+3:1 Identifier `ạ̇`
+4:1 Identifier `Å`
+4:3 Identifier `b`
+4:4 CharLiteral `' , . .. .\u{1}= : ? ?? ??= ?. => -> @ #`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"x{ $"{
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇
+    │   │ ++
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │ Å b' , . .. .�= : ? ?? ??= ?. => -> @ #
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ Å b' , . .. .�= : ? ?? ??= ?. => -> @ #
+    │   │ +
+
+error BYN0008: unterminated char literal
+
+  4 │ Å b' , . .. .�= : ? ?? ??= ?. => -> @ #
+    │    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `̈́`
+
+  6 │ ̈́
+    │ ^

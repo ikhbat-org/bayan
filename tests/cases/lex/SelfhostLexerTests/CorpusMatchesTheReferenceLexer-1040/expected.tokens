@@ -1,0 +1,10 @@
+1:1 Identifier `le`
+1:4 Identifier `afé`
+1:8 Equals `=`
+1:10 IntegerLiteral `2`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `̈́`
+
+  2 │ ̈́
+    │ ^

@@ -1,0 +1,5 @@
+1:1 CatchKeyword `catch`
+1:7 NeverKeyword `never`
+1:13 Identifier `noelloc`
+1:21 Identifier `nos`
+1:25 EndOfFile

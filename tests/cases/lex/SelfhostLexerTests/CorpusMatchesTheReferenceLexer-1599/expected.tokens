@@ -1,0 +1,45 @@
+1:4 Identifier `co`
+1:6 Question `?`
+1:7 Identifier `mment`
+1:13 Star `*`
+1:14 Slash `/`
+1:16 Identifier `a`
+3:1 Identifier `_`
+4:1 IntegerLiteral `0xF__`
+6:1 LetKeyword `let`
+6:7 Equals `=`
+6:9 IntegerLiteral `2`
+8:1 Identifier `xs`
+8:3 Colon `:`
+8:5 Identifier `List`
+8:9 Less `<`
+8:10 Identifier `List`
+8:14 Less `<`
+8:15 Identifier `i64`
+8:18 Greater `>`
+8:19 Greater `>`
+9:1 Identifier `a`
+9:3 OpenBrace `{`
+9:4 Identifier `x`
+9:5 StringLiteral `";`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0xF__
+    │    ^^
+    │
+    │ 4 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ let � = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  9 │ a {x";
+    │     ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,64 @@
+1:1 IntegerLiteral `0b102`
+2:3 LetKeyword `let`
+2:7 Identifier `actor`
+2:13 Equals `=`
+2:15 IntegerLiteral `1`
+3:2 Identifier `a`
+3:4 Greater `>`
+3:5 Greater `>`
+3:7 Identifier `b`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:11 Equals `=`
+6:13 IntegerLiteral `12`
+6:16 FloatLiteral `0.11`
+6:21 IntegerLiteral `5`
+6:22 NumericSuffix `s`
+6:24 IntegerLiteral `25`
+6:26 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  2 │  �let actor = 1
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  �let actor = 1
+    │   │  -
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  2 │  �let actor = 1
+    │       ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `﻿`
+
+  4 │ ﻿
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ �
+    │   │ -
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  6 │ let café = 12 0.11 5s 25
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ let café = 12 0.11 5s 25
+    │   │        +

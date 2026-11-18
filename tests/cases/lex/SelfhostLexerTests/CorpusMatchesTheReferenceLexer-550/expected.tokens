@@ -1,0 +1,25 @@
+1:1 Identifier `ạ̇`
+2:1 IntegerLiteral `0xF__`
+4:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇₍// Doc lihne two.
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇₍// Doc lihne two.
+    │   │ ++
+
+error BYN0002: unexpected character `₍`
+
+  1 │ ạ̇₍// Doc lihne two.
+    │    ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --

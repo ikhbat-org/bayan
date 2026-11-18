@@ -1,0 +1,49 @@
+== tests/cases/run/fs-copy.byn
+137..533 blockStmt
+143..179 localDecl
+161..179 collectionExpr
+162..166 literalExpr integer
+168..172 literalExpr integer
+174..178 literalExpr integer
+184..228 exprStmt
+184..228 tryExpr
+188..228 callExpr
+201..216 literalExpr string
+218..227 memberExpr
+218..222 nameExpr
+233..282 exprStmt
+233..282 tryExpr
+237..282 callExpr
+245..260 literalExpr string
+266..281 literalExpr string
+287..326 exprStmt
+287..326 callExpr
+293..325 tryExpr
+297..325 callExpr
+309..324 literalExpr string
+287..326 callExpr
+331..386 exprStmt
+331..386 callExpr
+337..385 interpolatedExpr
+353..383 callExpr
+367..382 literalExpr string
+331..386 callExpr
+391..461 exprStmt
+391..461 catchExpr
+391..424 callExpr
+399..402 literalExpr string
+408..423 literalExpr string
+431..461 blockExpr
+431..461 blockStmt
+433..459 exprStmt
+433..459 callExpr
+439..458 literalExpr string
+433..459 callExpr
+466..496 exprStmt
+466..496 tryExpr
+470..496 callExpr
+480..495 literalExpr string
+501..531 exprStmt
+501..531 tryExpr
+505..531 callExpr
+515..530 literalExpr string

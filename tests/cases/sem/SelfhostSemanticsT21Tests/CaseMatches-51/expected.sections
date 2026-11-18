@@ -1,0 +1,3 @@
+== call.b11
+builtinCall|bool|local:string=s|stringEquals|2087:28|local:string=s,errorExpr:?
+BYN2720 93:32 `ignoreCase` is not a member of `Comparison` |||

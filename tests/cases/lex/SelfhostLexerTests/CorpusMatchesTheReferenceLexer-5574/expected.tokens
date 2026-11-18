@@ -1,0 +1,89 @@
+1:1 Identifier `d`
+1:2 StringLiteral `" $"`
+1:6 IntegerLiteral `0`
+1:7 OpenBrace `{`
+1:8 OpenBrace `{`
+1:9 Identifier `literal`
+1:16 CloseBrace `}`
+1:17 CloseBrace `}`
+1:18 StringLiteral `" $"`
+1:22 OpenBrace `{`
+1:23 Identifier `Point`
+1:29 OpenBrace `{`
+1:31 Identifier `x`
+1:33 Equals `=`
+1:35 IntegerLiteral `1`
+1:37 CloseBrace `}`
+1:38 CloseBrace `}`
+1:39 Bang `!`
+1:40 StringLiteral `" $"`
+1:44 StringLiteral `"`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 StringLiteral `"{$"`
+2:45 OpenBrace `{`
+2:46 Identifier `x`
+2:47 CloseBrace `}`
+2:48 StringLiteral `"}"`
+2:51 InterpolationEnd `}`
+2:52 InterpolatedStringEnd `"`
+2:53 InterpolationEnd `}`
+2:54 InterpolatedStringEnd `"`
+2:55 InterpolationEnd `}`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 CharLiteral `'ab'`
+3:4 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ d" $"0{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                            ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{x}"}"}"}"}"}"}"'ab'
+    │                       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{x}"}"}"}"}"}"}"'ab'
+    │                                                             ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `‏`
+
+  3 │  ‏ 
+    │  ^

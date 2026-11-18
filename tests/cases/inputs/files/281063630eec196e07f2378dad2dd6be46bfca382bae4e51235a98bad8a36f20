@@ -1,0 +1,11 @@
+ï»¿ xÌ
+ $ 1
+let b = ` 2
+let c =  3
+
+{
+fails try catch nÖver noalloc nosuspend suspends async await
+
+let a = 1
+
+{

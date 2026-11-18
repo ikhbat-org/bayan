@@ -1,0 +1,6 @@
+== diags.unknown-other
+BYN5014 3:9 `zork` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `nouns: ["zork"]`, `verbs: ["zork"]` or `adjectives: ["zork"]`
+BYN5014 2:9 `zorks` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `nouns: ["zorks"]`, `verbs: ["zorks"]` or `adjectives: ["zorks"]`
+BYN2014 1:1 the program has no entry point

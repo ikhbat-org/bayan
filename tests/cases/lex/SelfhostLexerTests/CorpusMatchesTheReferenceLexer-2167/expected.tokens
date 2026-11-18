@@ -1,0 +1,36 @@
+2:2 IntegerLiteral `800`
+2:5 CloseBrace `}`
+2:6 CharLiteral `'`
+3:1 CharLiteral `'\u{11  exten $"open {x";`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ // coment �� hidden
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ // coment �� hidden
+    │            ^
+
+error BYN0008: unterminated char literal
+
+  2 │  800}'
+    │      ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  3 │ '\u{11  exten $"open {x";
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{11`
+
+  3 │ '\u{11  exten $"open {x";
+    │  ^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`

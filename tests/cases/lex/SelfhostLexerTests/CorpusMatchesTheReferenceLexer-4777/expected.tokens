@@ -1,0 +1,61 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+3:1 LetKeyword `let`
+3:5 EffectKeyword `effect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+5:4 InKeyword `in`
+5:7 Identifier `comment`
+6:2 PlusEquals `+=`
+6:5 MinusEquals `-=`
+6:8 StarEquals `*=`
+6:11 SlashEquals `/=`
+6:14 PercentEquals `%=`
+6:17 AmpEquals `&=`
+6:20 BarEquals `|=`
+6:23 CaretEquals `^=`
+6:26 LessLessEquals `<<=`
+7:3 InterpolatedStringStart `$"`
+7:5 InterpolatedStringText `stray } here`
+7:17 InterpolatedStringEnd `"`
+9:1 CloseBrace `}`
+9:2 StringLiteral `" $`
+9:5 EndOfFile
+
+error BYN0002: unexpected character `\u{1C}`
+
+  5 │ �� in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ �� in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  � $"stray } here"
+    │  ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  7 │  � $"stray } here"
+    │            ^
+    │
+    │ 7 │  � $"stray }} here"
+    │   │             +
+
+error BYN0003: unterminated string literal
+
+  9 │ }" $
+    │  ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

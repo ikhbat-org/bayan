@@ -1,0 +1,36 @@
+1:1 Identifier `e`
+1:2 StringLiteral `"`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never closed\n letg x\u{2067} = 1\n\n == != < <= > >= << >> >>=\n+= -= *= /= %=�� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"�"}"}"}"}"}" macro select become\na-̣̇`
+7:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ e"
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  6 │ += -= *= /= %=�� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"�"}"}"}"}"}" macro select become
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ += -= *= /= %=�� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"�"}"}"}"}"}" macro select become
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  6 │ += -= *= /= %=�� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"�"}"}"}"}"}" macro select become
+    │                                                                                        ^

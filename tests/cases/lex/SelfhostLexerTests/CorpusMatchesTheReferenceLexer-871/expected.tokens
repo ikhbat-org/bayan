@@ -1,0 +1,34 @@
+1:4 OpenParen `(`
+1:6 CloseParen `)`
+1:8 OpenBracket `[`
+1:10 CloseBracket `]`
+1:12 OpenBrace `{`
+1:14 CloseBrace `}`
+2:1 Identifier `sJruc`
+2:8 Identifier `S`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ �� � ( ) [ ] {� }
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� � ( ) [ ] {� }
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� � ( ) [ ] {� }
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  1 │ �� � ( ) [ ] {� }
+    │               ^
+
+error BYN0002: unexpected character `\u{14}`
+
+  2 │ sJruc� S
+    │      ^

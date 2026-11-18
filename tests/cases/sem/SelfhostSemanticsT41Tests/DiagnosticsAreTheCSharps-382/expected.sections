@@ -1,0 +1,3 @@
+== diags.diag/defer-failing-without-fails
+BYN2606 2:5 `defer failing` in a function that cannot fail
+  help remove `failing` to run it on every exit, or add a `fails` clause to the function

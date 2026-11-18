@@ -1,0 +1,24 @@
+1:2 FloatLiteral `2.5`
+1:5 NumericSuffix `f`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:10 CharLiteral `'\u{1F600}'`
+3:22 CharLiteral `'�\''`
+3:27 CharLiteral `'é'`
+3:31 CharLiteral `'\\'`
+3:36 CharLiteral `'\0'`
+4:1 Identifier `ivate`
+4:7 Identifier `sta`
+5:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │ 'a' '\n' '\u{1F600}' '�\'' 'é' '\\' '\0'
+    │                      ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0x96)
+
+  3 │ 'a' '\n' '\u{1F600}' '�\'' 'é' '\\' '\0'
+    │                       ^

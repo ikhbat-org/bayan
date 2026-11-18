@@ -1,0 +1,2 @@
+== diags.diag/duplicate-argument
+BYN2303 2:22 `x` is passed twice

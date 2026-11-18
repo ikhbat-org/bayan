@@ -1,0 +1,1 @@
+{"code":"BYN2022","severity":"error","file":"input.byn","span":{"start":57,"end":60,"line":6,"column":9,"endLine":6,"endColumn":12},"message":"`?.` is not supported in v0.1","label":null,"help":null,"fixes":[]}

@@ -1,0 +1,6 @@
+void main() uses alloc {
+    let a = Path.combin("a", "b")
+    let b = Path.fullPat("a")
+    let c = Path.directoryNam("a")
+    let d = Path.nope("a")
+}

@@ -1,0 +1,56 @@
+1:1 Identifier `ȧ`
+1:4 Identifier `Z`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolatedStringText `a`
+1:9 InterpolationStart `{`
+1:10 Identifier `b`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringText `c�`
+1:14 InterpolatedStringEnd
+2:1 EndOfFile
+
+error BYN0005: identifier `ȧ` is not in Unicode normalization form C
+
+  1 │ ȧ�Z��$"a{b}c�
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ȧ�Z��$"a{b}c�
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ ȧ�Z��$"a{b}c�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  1 │ ȧ�Z��$"a{b}c�
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ ȧ�Z��$"a{b}c�
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ ȧ�Z��$"a{b}c�
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ȧ�Z��$"a{b}c�
+    │       ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ ȧ�Z��$"a{b}c�
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ ȧ�Z��$"a{b}c�
+    │               ^

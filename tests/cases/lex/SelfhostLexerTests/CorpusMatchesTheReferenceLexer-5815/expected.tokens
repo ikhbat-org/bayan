@@ -1,0 +1,25 @@
+1:2 Identifier `café`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:2 StringLiteral `"test assert property fuzz model foreach new got`
+4:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │  café = 1
+    │  ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │  café = 1
+    │   │     +
+
+error BYN0003: unterminated string literal
+
+  3 │  "test assert property fuzz model foreach new got
+    │  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

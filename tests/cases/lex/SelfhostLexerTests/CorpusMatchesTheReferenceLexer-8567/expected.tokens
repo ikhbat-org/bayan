@@ -1,0 +1,63 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+2:1 IfKeyword `if`
+2:4 ElseKeyword `else`
+2:9 UnlessKeyword `unless`
+2:16 SwitchKeyword `switch`
+2:23 CaseKeyword `case`
+2:28 DefaultKeyword `default`
+2:36 ForKeyword `for`
+2:40 InKeyword `in`
+2:43 WhileKeyword `while`
+2:49 DoKeyword `do`
+2:52 BreakKeyword `break`
+2:58 ContinueKeyword `continue`
+2:67 ReturnKeyword `return`
+2:74 YieldKeyword `yield`
+2:80 DeferKeyword `defer`
+2:86 ErrdeferKeyword `errdefer`
+2:95 UsingKeyword `using`
+2:101 ContextKeyword `context`
+3:2 Identifier `a`
+3:4 Greater `>`
+3:5 Greater `>`
+3:7 Identifier `b`
+4:1 IsKeyword `is`
+4:4 AndKeyword `and`
+4:8 OrKeyword `or`
+4:11 NotKeyword `not`
+4:15 WithKeyword `with`
+4:20 MoveKeyword `move`
+4:25 RefKeyword `ref`
+4:29 OutKeyword `out`
+4:33 ThisKeyword `this`
+4:38 NullKeyword `null`
+4:43 TrueKeyword `true`
+4:48 FalseKeyword `false`
+4:54 ComptimeKeyword `comptime`
+4:63 CheckedKeyword `checked`
+5:1 Greater `>`
+5:2 Greater `>`
+6:1 Identifier `a`
+6:3 Greater `>`
+6:4 Greater `>`
+6:6 Identifier `b`
+7:1 Identifier `c`
+7:3 Greater `>`
+7:4 Greater `>`
+7:5 Semicolon `;`
+7:6 Equals `=`
+7:8 IntegerLiteral `1`
+8:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1;
+    │   │        +

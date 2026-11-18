@@ -1,0 +1,36 @@
+home/
+home/.cache/
+home/.cache/bayan/
+home/.cache/bayan/keep.txt 3
+home/.cache/bayan/v1/
+home/.cache/bayan/v1/CACHEDIR.TAG 170
+home/.cache/bayan/v1/programs/
+home/.cache/bayan/v1/programs/k1/
+home/.cache/bayan/v1/programs/k1/nested/
+home/.cache/bayan/v1/programs/k1/program 1572864
+home/.cache/bayan/v1/programs/k1/program.sha256 64
+home/.cache/bayan/v1/programs/k2/
+home/.cache/bayan/v1/programs/k2/program 100000
+home/.cache/bayan/v1/programs/stray.txt 7
+home/.cache/bayan/v1/scripts/
+home/.cache/bayan/v1/scripts/a 1
+home/.cache/bayan/v1/scripts/b 1
+home/.cache/bayan/v1/scripts/c.tmp 1
+home/Library/
+home/Library/Caches/
+home/Library/Caches/bayan/
+home/Library/Caches/bayan/keep.txt 3
+home/Library/Caches/bayan/v1/
+home/Library/Caches/bayan/v1/CACHEDIR.TAG 170
+home/Library/Caches/bayan/v1/programs/
+home/Library/Caches/bayan/v1/programs/k1/
+home/Library/Caches/bayan/v1/programs/k1/nested/
+home/Library/Caches/bayan/v1/programs/k1/program 1572864
+home/Library/Caches/bayan/v1/programs/k1/program.sha256 64
+home/Library/Caches/bayan/v1/programs/k2/
+home/Library/Caches/bayan/v1/programs/k2/program 100000
+home/Library/Caches/bayan/v1/programs/stray.txt 7
+home/Library/Caches/bayan/v1/scripts/
+home/Library/Caches/bayan/v1/scripts/a 1
+home/Library/Caches/bayan/v1/scripts/b 1
+home/Library/Caches/bayan/v1/scripts/c.tmp 1

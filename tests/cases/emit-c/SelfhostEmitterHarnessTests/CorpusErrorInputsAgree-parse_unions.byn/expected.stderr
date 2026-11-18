@@ -1,0 +1,18 @@
+error BYN2014: the program has no entry point
+  --> input.byn:1:1
+
+  1 │ union Shape {
+    │ ^
+
+warning BYN2311: `w` is never reassigned; declare it with `let`
+  --> input.byn:16:20
+
+  16 │     Shape.rect(var w, _) => w,
+     │                    ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 16 │     Shape.rect(let w, _) => w,
+     │    │                +++
+
+✗ build failed: 1 error, 1 warning
+  explain: bayan explain BYN2014

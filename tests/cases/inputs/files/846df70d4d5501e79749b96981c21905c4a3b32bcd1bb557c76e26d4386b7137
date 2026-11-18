@@ -1,0 +1,4 @@
+À€
+{
+  """ c"text" u6"wide" "â€® allowed in strings" "" "\u{48}i"
+$"a{b}c 

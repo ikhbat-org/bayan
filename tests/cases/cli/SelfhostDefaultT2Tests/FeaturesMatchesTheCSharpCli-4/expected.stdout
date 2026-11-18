@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssertStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "NameExpr",
+    "TestDecl"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

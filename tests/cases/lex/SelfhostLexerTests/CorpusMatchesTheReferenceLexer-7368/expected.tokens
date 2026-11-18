@@ -1,0 +1,74 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:5 IntegerLiteral `1`
+1:6 NumericSuffix `e`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q escape"`
+3:2 Identifier `ruct`
+3:7 Identifier `S`
+5:1 Identifier `b`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `total `
+7:9 InterpolationStart `{`
+7:10 Identifier `x`
+7:11 InterpolationEnd `}`
+7:12 InterpolatedStringEnd `"`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolatedStringText `a `
+7:18 InterpolationStart `{`
+7:19 Identifier `f`
+7:20 OpenParen `(`
+7:21 InterpolatedStringStart `$"`
+7:23 InterpolatedStringText `b `
+7:25 InterpolationStart `{`
+7:26 Identifier `c`
+7:27 InterpolationEnd `}`
+7:28 InterpolatedStringEnd `"`
+7:29 CloseParen `)`
+7:30 InterpolationEnd `}`
+7:31 InterpolatedStringText ` d`
+7:33 InterpolatedStringEnd `"`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolatedStringText `{{literal}}`
+7:48 InterpolatedStringEnd `"`
+7:50 InterpolatedStringStart `$"`
+7:52 InterpolationStart `{`
+7:53 Identifier `Point`
+7:59 OpenBrace `{`
+7:61 Identifier `x`
+7:63 Equals `=`
+7:65 IntegerLiteral `1`
+7:67 CloseBrace `}`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringText `!`
+7:70 InterpolatedStringEnd `"`
+7:72 InterpolatedStringStart `$"`
+7:74 InterpolatedStringEnd `"`
+9:1 LetKeyword `let`
+9:7 Equals `=`
+9:9 IntegerLiteral `2`
+10:2 StringLiteral `"text"`
+10:9 StringLiteral `"esc \"q\" \\ \n"`
+10:27 RawStringLiteral `"""\n`
+11:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  9 │ let � = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  10 │  "text" "esc \"q\" \\ \n" """
+     │                           ^^^ raw string starts here
+     │
+  help: close it with `"""`

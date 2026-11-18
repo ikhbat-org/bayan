@@ -1,0 +1,5 @@
+error BYN2022: this expression is not supported in v0.1
+  --> <repo>/tests/cases/parse/except-wasl.byn:1:12
+
+  1 │ let rest = code
+    │            ^^^^

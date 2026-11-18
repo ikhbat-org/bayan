@@ -1,0 +1,3 @@
+== alloc.deep
+borrow [2:arena `ar`] [ar]
+counts 0 0 0

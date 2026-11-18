@@ -1,0 +1,3 @@
+== expr.probes.i45
+interpolated:string[4795:19]=-(v:local:Holder2[4798:2]=-(h2)/0,true,0,32,-1,-1)
+BYN2225 187:18 `Holder2` cannot be formatted |field `ys` is `List<i64>`||

@@ -1,0 +1,70 @@
+1:1 IntegerLiteral `0x`
+1:4 CharLiteral `'ab'`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+5:5 Identifier `n`
+5:7 Identifier `faails`
+5:14 TryKeyword `try`
+5:18 CatchKeyword `catch`
+5:24 NeverKeyword `never`
+5:30 NoallocKeyword `noalloc`
+5:38 NosuspendKeyword `nosuspend`
+5:48 SuspendsKeyword `suspends`
+5:57 AsyncKeyword `async`
+5:63 AwaitKeyword `await`
+6:2 FailsKeyword `fails`
+6:8 TryKeyword `try`
+6:12 CatchKeyword `catch`
+6:18 NeverKeyword `never`
+6:24 NoallocKeyword `noalloc`
+6:32 NosuspendKeyword `nosuspend`
+6:42 SuspendsKeyword `suspends`
+6:51 AsyncKeyword `async`
+6:57 AwaitKeyword `await`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 StringLiteral `"`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x 'ab'
+    │ ^^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 0x 'ab'
+    │    ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\ \n faails try catch never noalloc nosuspend suspends async await
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\ \n faails try catch never noalloc nosuspend suspends async await
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\ \n faails try catch never noalloc nosuspend suspends async await
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{"
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

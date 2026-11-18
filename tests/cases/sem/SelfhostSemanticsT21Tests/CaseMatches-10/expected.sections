@@ -1,0 +1,3 @@
+== expr.p2
+errorExpr|?|-|-|2368:12|-
+BYN2321 103:23 `0` violates `requires it > 0` of `Pos` |fails the contract|pass a value that meets `requires it > 0`|

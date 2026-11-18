@@ -1,0 +1,5 @@
+error BYN2302: `twice` takes 1 argument(s)
+  --> <repo>/tests/cases/diag/too-many-arguments.byn:2:19
+
+  2 │ print($"{twice(1, 2)}")
+    │                   ^

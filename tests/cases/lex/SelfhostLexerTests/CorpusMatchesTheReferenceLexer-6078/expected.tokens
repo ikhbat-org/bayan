@@ -1,0 +1,151 @@
+1:1 Identifier `ạq̇`
+2:1 Identifier `ikred`
+2:7 ConstKeyword `const`
+2:13 LetKeyword `let`
+2:17 VarKeyword `var`
+2:21 EmbedKeyword `embed`
+2:27 ExternKeyword `extern`
+2:34 UnsafeKeyword `unsafe`
+3:1 IfKeyword `if`
+3:4 ElseKeyword `else`
+3:9 Identifier `Å`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 InterpolatedStringStart `$"`
+3:51 InterpolationStart `{`
+3:52 InterpolatedStringStart `$"`
+3:54 InterpolationStart `{`
+3:55 InterpolatedStringStart `$"`
+3:57 InterpolationStart `{`
+3:58 StringLiteral `$"{$"`
+3:63 OpenBrace `{`
+3:64 StringLiteral `$"{$"`
+3:69 OpenBrace `{`
+3:70 Identifier `x`
+3:71 CloseBrace `}`
+3:72 StringLiteral `"}"`
+3:75 CloseBrace `}`
+3:76 StringLiteral `"}"`
+3:79 InterpolationEnd `}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolationEnd `}`
+3:84 InterpolatedStringEnd `"`
+3:85 InterpolationEnd `}`
+3:86 InterpolatedStringEnd `"`
+3:87 InterpolationEnd `}`
+3:88 InterpolatedStringEnd `"`
+3:89 InterpolationEnd `}`
+3:90 InterpolatedStringEnd `"`
+3:91 InterpolationEnd `}`
+3:92 InterpolatedStringEnd `"`
+3:93 InterpolationEnd `}`
+3:94 InterpolatedStringEnd `"`
+3:95 InterpolationEnd `}`
+3:96 InterpolatedStringEnd `"`
+3:97 InterpolationEnd `}`
+3:98 InterpolatedStringEnd `"`
+3:99 InterpolationEnd `}`
+3:100 InterpolatedStringEnd `"`
+3:101 InterpolationEnd `}`
+3:102 InterpolatedStringEnd `"`
+3:103 InterpolationEnd `}`
+3:104 InterpolatedStringEnd `"`
+3:105 InterpolationEnd `}`
+3:106 InterpolatedStringEnd `"`
+3:107 InterpolatedStringStart `$"`
+3:109 InterpolationStart `{`
+3:110 InterpolatedStringStart `$"`
+3:112 InterpolationStart `{`
+3:113 InterpolatedStringStart `$"`
+3:115 InterpolationStart `{`
+3:116 InterpolatedStringStart `$"`
+3:118 InterpolationStart `{`
+3:119 InterpolatedStringStart `$"`
+3:121 InterpolationStart `{`
+3:122 InterpolatedStringStart `$"`
+3:124 InterpolationStart `{`
+3:125 InterpolatedStringStart `$"`
+3:127 InterpolationStart `{`
+3:128 InterpolatedStringStart `$"`
+3:130 InterpolationStart `{`
+3:131 InterpolatedStringStart `$"`
+3:133 InterpolationStart `{`
+3:134 InterpolatedStringStart `$"`
+3:136 InterpolationStart `{`
+3:137 InterpolatedStringStart `$"`
+3:139 InterpolationStart `{`
+3:140 InterpolatedStringStart `$"`
+3:142 InterpolationStart `{`
+3:143 InterpolatedStringStart `$"`
+3:145 InterpolationStart `{`
+3:146 InterpolatedStringStart `$"`
+3:148 InterpolationStart `{`
+3:149 StringLiteral `$"{$"`
+3:154 OpenBrace `{`
+3:155 StringLiteral `$"{x}"`
+3:161 CloseBrace `}`
+3:162 StringLiteral `"}"`
+3:165 InterpolationEnd `}`
+3:166 InterpolatedStringEnd `"`
+3:167 InterpolationEnd `}`
+3:168 InterpolatedStringEnd `"`
+3:170 EndOfFile
+
+error BYN0005: identifier `ạq̇` is not in Unicode normalization form C
+
+  1 │ ạq̇
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạq̇
+    │   │ +
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ if else Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" 
+    │         ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ if else Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" 
+    │   │         +
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ if else Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" 
+    │                                                          ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ if else Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" 
+    │                                                                                                                                            ^^ this
+    │                                                                                                                                               string
+    │                                                                                                                                               never
+    │                                                                                                                                               ends
+    │
+  help: close the `{` and the string

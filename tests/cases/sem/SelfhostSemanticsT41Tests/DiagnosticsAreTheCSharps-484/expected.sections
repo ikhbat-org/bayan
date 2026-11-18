@@ -1,0 +1,3 @@
+== diags.diag/empty-enum
+BYN2722 1:6 enum `Nothing` has no members
+  help add the members, or remove the enum

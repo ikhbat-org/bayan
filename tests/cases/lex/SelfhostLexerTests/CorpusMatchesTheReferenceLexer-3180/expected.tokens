@@ -1,0 +1,8 @@
+1:1 Identifier `c`
+1:3 Greater `>`
+1:4 GreaterEquals `>=`
+1:7 IntegerLiteral `1`
+    doc `/// Doc line o<.`
+3:2 OpenParen `(`
+3:4 CloseParen `)`
+3:5 EndOfFile

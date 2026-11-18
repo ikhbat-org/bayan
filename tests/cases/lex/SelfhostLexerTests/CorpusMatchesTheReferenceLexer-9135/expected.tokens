@@ -1,0 +1,17 @@
+1:1 Identifier `lR`
+1:3 OpenBrace `{`
+1:4 Identifier `et`
+1:7 Identifier `cafeÝ`
+1:14 Equals `=`
+1:16 IntegerLiteral `1`
+1:17 Semicolon `;`
+1:18 EndOfFile
+
+error BYN0005: identifier `cafeÝ` is not in Unicode normalization form C
+
+  1 │ lR{et cafeÝ = 1;
+    │       ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ lR{et cafeÝ = 1;
+    │   │           +

@@ -1,0 +1,8 @@
+struct S {
+    i32 a // x
+    string bb = "q" // y
+    public bool c => a > 0
+    i64 dd => 2
+}
+type A = i64
+type Bb = string

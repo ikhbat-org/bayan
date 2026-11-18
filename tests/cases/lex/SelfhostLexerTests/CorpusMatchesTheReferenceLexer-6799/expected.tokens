@@ -1,0 +1,52 @@
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+3:1 Identifier `acro`
+3:6 Identifier `select`
+3:13 Identifier `blet`
+3:18 Identifier `b`
+3:20 Equals `=`
+3:22 StringLiteral `"bad \q escape"`
+4:3 CharLiteral `'\q'`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `x`
+6:4 InterpolationStart `{`
+6:6 InterpolatedStringStart `$"`
+6:8 InterpolationStart `{`
+6:10 Star `*`
+6:11 Slash `/`
+6:13 EndOfFile
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ acro select blet b = "bad \q escape"
+    │      ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ acro select blet b = "bad \q escape"
+    │                           ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │  �'\q'
+    │  ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │  �'\q'
+    │    ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  6 │ $"x{ $"{ */ 
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

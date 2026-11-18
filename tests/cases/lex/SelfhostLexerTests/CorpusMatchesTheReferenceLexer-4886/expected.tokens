@@ -1,0 +1,60 @@
+2:2 CharLiteral `'`
+3:1 CharLiteral `'x`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:10 Equals `=`
+5:12 IntegerLiteral `2`
+7:1 TestKeyword `test`
+7:6 AssertKeyword `assert`
+7:13 PropertyKeyword `property`
+7:22 Identifier `fzz`
+7:26 ModelKeyword `model`
+7:32 ForeachKeyword `foreach`
+7:40 NewKeyword `new`
+7:44 Identifier `go`
+7:47 Identifier `o`
+9:1 Identifier `é`
+9:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � // comment � hidden
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ � // comment � hidden
+    │              ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � // comment � hidden
+    │   │              -
+
+error BYN0008: unterminated char literal
+
+  2 │  '
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  7 │ test assert property fzz model foreach new go�o
+    │                                              ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  9 │ é 
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 9 │ é 
+    │   │ +

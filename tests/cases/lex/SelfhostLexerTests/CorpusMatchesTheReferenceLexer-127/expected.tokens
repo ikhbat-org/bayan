@@ -1,0 +1,74 @@
+1:4 Identifier `ha`
+4:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ �� �����ha /* never cl�osed
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� �����ha /* never cl�osed
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �� �����ha /* never cl�osed
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �� �����ha /* never cl�osed
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� �����ha /* never cl�osed
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� �����ha /* never cl�osed
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� �����ha /* never cl�osed
+    │        ^
+
+error BYN0004: unterminated block comment
+
+  1 │ �� �����ha /* never cl�osed
+    │            ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  1 │ �� �����ha /* never cl�osed
+    │                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │  � ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │  � ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │  � ����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  � ����
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  � ����
+    │       ^

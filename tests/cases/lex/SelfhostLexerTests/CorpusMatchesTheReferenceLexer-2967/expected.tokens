@@ -1,0 +1,141 @@
+1:1 Identifier `wide`
+1:5 StringLiteral `" "`
+1:10 Identifier `allowed`
+1:18 Identifier `instrings`
+1:27 StringLiteral `" "`
+1:30 StringLiteral `" "`
+1:34 Identifier `u`
+1:35 OpenBrace `{`
+1:36 IntegerLiteral `48`
+1:38 CloseBrace `}`
+1:39 Identifier `i`
+1:40 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{$"`
+3:54 OpenBrace `{`
+3:55 StringLiteral `$"{x}"`
+3:61 CloseBrace `}`
+3:62 StringLiteral `"}"`
+3:65 InterpolationEnd `}`
+3:66 InterpolatedStringText `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:77 IntegerLiteral `0x`
+3:80 InterpolatedStringStart `$"`
+3:82 InterpolationStart `{`
+3:83 InterpolatedStringStart `$"`
+3:85 InterpolationStart `{`
+3:86 InterpolatedStringStart `$"`
+3:88 InterpolationStart `{`
+3:89 InterpolatedStringStart `$"`
+3:91 InterpolationStart `{`
+3:92 InterpolatedStringStart `$"`
+3:94 InterpolationStart `{`
+3:95 StringLiteral `$"{$"`
+3:100 OpenBrace `{`
+3:101 StringLiteral `$"{$"`
+3:106 OpenBrace `{`
+3:107 StringLiteral `$"{$"`
+3:112 OpenBrace `{`
+3:113 StringLiteral `$"{$"`
+3:118 OpenBrace `{`
+3:119 StringLiteral `$"{$"`
+3:124 OpenBrace `{`
+3:125 Identifier `x`
+4:1 StringLiteral `"{`
+4:3 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ wide" "� allowed instrings" "" "\u{48}i"
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ wide" "� allowed instrings" "" "\u{48}i"
+    │   │        -
+
+error BYN0002: unexpected character `\`
+
+  1 │ wide" "� allowed instrings" "" "\u{48}i"
+    │                                 ^
+
+error BYN0003: unterminated string literal
+
+  1 │ wide" "� allowed instrings" "" "\u{48}i"
+    │                                        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}" 0x $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                                 ^^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}" 0x $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                                                  ^
+    │
+    │ 3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}}}"}"}"}"}" 0x $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │   │                                                                   +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}" 0x $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                                                             ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}" 0x $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │                                                                                            ^^ this
+    │                                                                                               string
+    │                                                                                               never
+    │                                                                                               ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

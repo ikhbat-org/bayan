@@ -1,0 +1,106 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:2 IntegerLiteral `0`
+2:4 IntegerLiteral `42`
+2:7 IntegerLiteral `1_000_000`
+2:17 IntegerLiteral `0xFF`
+2:22 IntegerLiteral `0x_ff`
+2:28 IntegerLiteral `0b101`
+2:33 IntegerLiteral `0`
+2:35 IntegerLiteral `0B11`
+2:40 IntegerLiteral `5`
+2:41 NumericSuffix `s`
+2:43 IntegerLiteral `250`
+2:46 NumericSuffix `ms`
+2:49 IntegerLiteral `4`
+2:50 NumericSuffix `KiB`
+2:54 IntegerLiteral `1`
+2:55 NumericSuffix `u`
+2:57 IntegerLiteral `0xFF`
+2:61 NumericSuffix `u`
+2:63 IntegerLiteral `0b1`
+2:66 NumericSuffix `ul`
+2:69 OpenBrace `{`
+2:70 Identifier `l`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{$"`
+3:54 OpenBrace `{`
+3:55 Identifier `x`
+3:56 CloseBrace `}`
+3:57 StringLiteral `"`
+4:1 PlusEquals `+=`
+4:4 MinusEquals `-=`
+4:7 StarEquals `*=`
+4:10 SlashEquals `/=`
+4:13 PercentEquals `%=`
+4:16 AmpEquals `&=`
+4:19 BarEquals `|=`
+4:22 CaretEquals `^=`
+4:25 LessLessEquals `<<=`
+6:1 PlusEquals `+=`
+6:4 MinusEquals `-=`
+6:7 StarEquals `*=`
+6:10 SlashEquals `/=`
+6:13 PercentEquals `%=`
+6:16 AmpEquals `&=`
+6:19 BarEquals `|=`
+6:22 CaretEquals `^=`
+6:25 LessLessEquals `<<=`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB2)
+
+  2 │  0 42 1_000_000 0xFF 0x_ff 0b101�0 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul {l
+    │                                 ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"
+    │                                                         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,54 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `{{`
+2:5 InterpolatedStringEnd `"`
+2:6 IntegerLiteral `0_000`
+2:12 IntegerLiteral `0xF`
+2:17 IntegerLiteral `0x_ff`
+2:23 IntegerLiteral `0b1010`
+2:30 IntegerLiteral `0B11`
+2:35 IntegerLiteral `5`
+2:36 NumericSuffix `s`
+2:38 IntegerLiteral `250`
+2:41 NumericSuffix `ms`
+2:44 IntegerLiteral `4`
+2:45 NumericSuffix `KiB`
+2:49 IntegerLiteral `1`
+2:50 NumericSuffix `u`
+2:52 IntegerLiteral `0xFF`
+2:56 NumericSuffix `u`
+2:58 IntegerLiteral `0b1`
+2:61 NumericSuffix `ul`
+2:64 IntegerLiteral `7`
+2:65 InterpolatedStringStart `$"`
+2:67 InterpolationStart `{`
+2:68 StringLiteral `"  1`
+3:1 At `@`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE5)
+
+  2 │ $"{{"0_000 0xF� 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7$"{"  1
+    │               ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{{"0_000 0xF� 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7$"{"  1
+    │                                                                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{{"0_000 0xF� 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7$"{"  1
+    │                                                                    ^^^^ string ends at the end
+    │                                                                         of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,3 @@
+== member.probes.-.m26
+methodGroup|?|-1|invalidUtf8At|-|-|-|2071:20|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|

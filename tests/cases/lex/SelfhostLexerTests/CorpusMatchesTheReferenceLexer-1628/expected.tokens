@@ -1,0 +1,67 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+2:2 Identifier `c`
+2:4 IntegerLiteral `1`
+2:5 DotDot `..`
+2:7 IntegerLiteral `2`
+2:9 FloatLiteral `1.0`
+2:13 IntegerLiteral `42`
+2:16 IntegerLiteral `1_000_000`
+2:26 IntegerLiteral `0xFF`
+2:31 IntegerLiteral `0x_ff`
+2:37 IntegerLiteral `0b1010`
+2:44 IntegerLiteral `0B11`
+2:49 IntegerLiteral `5`
+2:50 NumericSuffix `s250ms`
+2:57 IntegerLiteral `4`
+2:58 NumericSuffix `KiB`
+2:62 IntegerLiteral `1`
+2:63 NumericSuffix `u`
+2:65 IntegerLiteral `0xFF`
+2:69 NumericSuffix `u`
+2:71 IntegerLiteral `0b1`
+2:74 NumericSuffix `ul`
+2:77 IntegerLiteral `7`
+2:78 NumericSuffix `l`
+4:2 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 LessLess `<<`
+4:10 Greater `>`
+4:11 Greater `>`
+4:13 Greater `>`
+4:14 IntegerLiteral `6`
+4:15 GreaterEquals `>=`
+5:1 PlusEquals `+=`
+5:4 MinusEquals `-=`
+5:7 StarEquals `*=`
+5:10 SlashEquals `/=`
+5:13 PercentEquals `%=`
+5:16 AmpEquals `&=`
+5:19 BarEquals `|=`
+5:22 CaretEquals `^=`
+5:25 LessLessEquals `<<=`
+6:9 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │ �c 1..2 1.0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  6 │  /* � */
+    │  ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │  // �
+    │   │   +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  6 │  /* � */
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │  /* � */
+    │   │     -

@@ -1,0 +1,23 @@
+1:1 Identifier `afé`
+1:5 Equals `=`
+1:7 IntegerLiteral `2`
+2:1 Identifier `fec`
+2:5 Identifier `a`
+7:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ fec a /* never closed
+    │       ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  3 │ � ạ̇0xF__
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � ạ̇0xF__
+    │   │ -

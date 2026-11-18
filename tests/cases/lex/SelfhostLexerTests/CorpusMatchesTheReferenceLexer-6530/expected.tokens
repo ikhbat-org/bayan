@@ -1,0 +1,9 @@
+1:2 Identifier `closed`
+5:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  4 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

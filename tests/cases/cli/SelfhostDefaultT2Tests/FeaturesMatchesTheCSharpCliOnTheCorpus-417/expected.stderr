@@ -1,0 +1,11 @@
+error BYN2002: unknown type `Display`
+  --> <repo>/tests/cases/parse/rest-params.byn:1:28
+
+  1 │ void log(rest ReadOnlySpan<Display> items, to Stream stream = .stdout, string sep = " ") {
+    │                            ^^^^^^^
+
+error BYN2002: unknown type `Stream`
+  --> <repo>/tests/cases/parse/rest-params.byn:1:47
+
+  1 │ void log(rest ReadOnlySpan<Display> items, to Stream stream = .stdout, string sep = " ") {
+    │                                               ^^^^^^

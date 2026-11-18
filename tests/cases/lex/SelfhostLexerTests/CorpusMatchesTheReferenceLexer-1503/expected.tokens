@@ -1,0 +1,22 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 Identifier `oen`
+1:36 ExtensibleKeyword `extensible`
+1:47 InterfaceKeyword `interface`
+1:57 DelegateKeyword `delegate`
+1:66 ExtensionKeyword `extension`
+1:76 DerivationKeyword `derivation`
+1:87 AttributeKeyword `attribute`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+5:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

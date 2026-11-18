@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `""" 'a' '\n' '\u{1Fw00}' '\'' 'é' '\\' '\0'\n lewt café = 2\n\n`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """ 'a' '\n' '\u{1Fw00}' '\'' 'é' '\\' '\0'
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

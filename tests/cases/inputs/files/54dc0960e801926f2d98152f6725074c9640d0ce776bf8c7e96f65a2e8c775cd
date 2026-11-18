@@ -1,0 +1,7 @@
+struct unique union enum flags open extensible interface delegate extension derivation attribute
+ let b = ` 2
+
+let effect = 2
+$"total {x}" $"a {f($"b {c}")} d $"{{literal}}" $"{Point { x = 1 }}!" $""
+ /*‹ block
+ 

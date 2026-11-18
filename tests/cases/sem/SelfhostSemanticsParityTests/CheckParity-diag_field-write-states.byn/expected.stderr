@@ -1,0 +1,11 @@
+error BYN3216: `Order.total` can be written only by `Order`'s own methods or with `with`: `Order`
+has states
+  --> tmp/t26-tests/cli/diag_field-write-states.byn/field-write-states.byn:10:5
+
+  10 │     order.total = 0
+     │     ^^^^^^^^^^^^^^^
+     │
+  help: add a `ref this` method to `Order`, or build a new value with `with`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3216

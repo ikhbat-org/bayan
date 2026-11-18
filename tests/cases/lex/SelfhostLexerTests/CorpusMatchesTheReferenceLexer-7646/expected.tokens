@@ -1,0 +1,11 @@
+1:1 StringLiteral `"x{ $"`
+1:7 OpenBrace `{`
+1:9 RawStringLiteral `"""`
+1:12 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "x{ $"{ """
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

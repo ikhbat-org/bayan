@@ -1,0 +1,3 @@
+build
+--emit-c
+slice-inclusive-max.byn

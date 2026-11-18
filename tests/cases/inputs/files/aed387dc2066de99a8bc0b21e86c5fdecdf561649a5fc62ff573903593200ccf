@@ -1,0 +1,9 @@
+import std.probe
+
+public void store() {
+    probe.save("x")
+}
+
+void main() {
+    store()
+}

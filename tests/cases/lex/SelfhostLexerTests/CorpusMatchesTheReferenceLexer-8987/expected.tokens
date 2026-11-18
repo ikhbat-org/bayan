@@ -1,0 +1,46 @@
+1:1 CharLiteral `'\u{110000}'`
+    doc `/// Doc line two.`
+3:2 IntegerLiteral `0b__`
+6:1 LetKeyword `let`
+6:5 EffectKeyword `effect`
+6:12 Equals `=`
+6:14 IntegerLiteral `2`
+8:1 IntegerLiteral `0x`
+9:2 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │  0b__
+    │  ^^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ����
+    │    ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x
+    │ ^^

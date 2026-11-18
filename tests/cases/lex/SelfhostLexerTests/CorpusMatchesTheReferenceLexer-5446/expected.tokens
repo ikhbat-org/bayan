@@ -1,0 +1,24 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 Identifier `o`
+1:10 NotKeyword `not`
+1:14 WithKeyword `with`
+1:19 MoveKeyword `move`
+1:24 RefKeyword `ref`
+1:28 OutKeyword `out`
+1:32 ThisKeyword `this`
+1:37 NullKeyword `null`
+1:42 Identifier `tr`
+1:45 Identifier `e`
+1:47 FalseKeyword `false`
+1:53 ComptimeKeyword `comptime`
+1:62 CheckedKeyword `checked`
+3:1 Identifier `ve`
+3:4 Identifier `closed`
+4:1 Identifier `b`
+5:2 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ is and o not with move ref out this null tr\e false comptime checked
+    │                                            ^

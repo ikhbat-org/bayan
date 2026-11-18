@@ -1,0 +1,12 @@
+error BYN3104: `package.byn` uses `field: value`
+  --> package.byn:2:11
+
+  2 │     name: = "local/shop",
+    │           ^ the input form
+    │
+  help: remove the `=`
+    │ 2 │     name: = "local/shop",
+    │   │          --
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3104

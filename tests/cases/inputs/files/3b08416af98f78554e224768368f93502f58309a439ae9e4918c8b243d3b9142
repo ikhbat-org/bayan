@@ -1,0 +1,8 @@
+let a = "open
+
+각   �"]" c"text" u16"wide" "‮ allowedin strings" "" "\u{48}i"
+
+// ‮x
+
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+

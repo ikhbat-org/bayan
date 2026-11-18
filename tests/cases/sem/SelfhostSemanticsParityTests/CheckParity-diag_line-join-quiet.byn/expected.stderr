@@ -1,0 +1,8 @@
+error BYN2605: `catch` needs a call that can fail
+  --> tmp/t26-tests/cli/diag_line-join-quiet.byn/line-join-quiet.byn:38:25
+
+  38 │ i64 viaSwitch(i64 n) => n switch {
+     │                         ^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2605

@@ -1,0 +1,18 @@
+error BYN2813: `next` takes `ref this`, but the receiver is `dyn ref readonly ICounter`
+  --> <repo>/tmp/t2/diag/dyn-readonly-mutation/dyn-readonly-mutation.byn:9:16
+
+  9 │     print($"{c.next()}")
+    │                ^^^^ declared `ref this`
+    │
+  help: take `dyn ref ICounter`
+
+error BYN2813: `skip` takes `ref this`, but the receiver is `dyn ref readonly ICounter`
+  --> <repo>/tmp/t2/diag/dyn-readonly-mutation/dyn-readonly-mutation.byn:10:16
+
+  10 │     print($"{c.skip()}")
+     │                ^^^^ declared `ref this`
+     │
+  help: take `dyn ref ICounter`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2813

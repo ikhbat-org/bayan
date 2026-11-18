@@ -1,0 +1,5 @@
+error BYN2034: the default of field `G.g` depends on itself
+  --> <repo>/tests/cases/diag/circular-field-default-generic.byn:1:28
+
+  1 │ struct G<T> { Owned<G<T>>? g = Owned(G<T> {}) }
+    │                            ^

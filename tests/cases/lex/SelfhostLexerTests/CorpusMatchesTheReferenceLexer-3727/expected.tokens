@@ -1,0 +1,43 @@
+1:1 IntegerLiteral `0x`
+3:2 Identifier `line`
+3:8 Identifier `one`
+3:11 Dot `.`
+    doc `/// Doc line two.`
+5:1 StructKeyword `struct`
+5:8 Identifier `S`
+6:2 LetKeyword `let`
+6:6 EffectKeyword `effect`
+6:13 Equals `=`
+6:15 IntegerLiteral `2`
+7:1 IntegerLiteral `1`
+7:2 NumericSuffix `u`
+7:4 IntegerLiteral `0x`
+7:7 IntegerLiteral `0x`
+8:3 Identifier `raw`
+8:7 StringLiteral `"quoted"`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `\u{4}`
+
+  3 │  line� one.
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │ struct S�
+    │         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 1u 0x 0x
+    │    ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 1u 0x 0x
+    │       ^^

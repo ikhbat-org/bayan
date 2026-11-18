@@ -1,0 +1,30 @@
+1:1 IntegerLiteral `0b12`
+4:1 Identifier `Ålet`
+4:6 Identifier `b`
+4:8 Equals `=`
+4:12 IntegerLiteral `2`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b12
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │  // ok � in comment
+    │        ^
+
+error BYN0005: identifier `Ålet` is not in Unicode normalization form C
+
+  4 │ Ålet b = ` 2
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ Ålet b = ` 2
+    │   │ +
+
+error BYN0002: unexpected character ```
+
+  4 │ Ålet b = ` 2
+    │          ^

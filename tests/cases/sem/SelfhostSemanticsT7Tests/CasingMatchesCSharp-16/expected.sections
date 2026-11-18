@@ -1,0 +1,3 @@
+== iface-bad-casing
+BYN2008 10+10 type name `IHTTPThing` must be PascalCase |  | rename it `IhttpThing` | 10+10=IhttpThing
+end

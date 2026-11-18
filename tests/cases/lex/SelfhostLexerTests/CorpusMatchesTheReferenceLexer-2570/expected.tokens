@@ -1,0 +1,71 @@
+1:1 CharLiteral `'`
+2:1 CharLiteral `'\u{110000}'`
+3:1 CharLiteral `'x`
+4:2 CharLiteral `'\u{110000}'`
+5:2 LetKeyword `let`
+5:7 Identifier `afé`
+5:11 Equals `=`
+5:13 IntegerLiteral `2`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolatedStringText `$`
+6:8 InterpolatedStringEnd `"`
+6:9 OpenBrace `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:20 Equals `=`
+6:22 IntegerLiteral `1`
+8:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `\u{1F}`
+
+  5 │  let �afé = 2
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"$"{$"{$"{ 	� = 1
+    │             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  6 │  $"{$"$"{$"{$"{ 	� = 1
+    │                 	^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │  $"{$"$"{$"{$"{ 	� = 1
+    │   │                 	-

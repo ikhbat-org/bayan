@@ -1,0 +1,143 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:26 IntegerLiteral `6`
+3:27 OpenBrace `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:50 OpenBrace `{`
+3:51 Identifier `x`
+3:52 CloseBrace `}`
+3:53 StringLiteral `"}"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringEnd `"`
+3:58 InterpolationEnd `}`
+3:59 InterpolatedStringEnd `"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:62 InterpolationEnd `}`
+3:63 InterpolatedStringEnd `"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+3:67 InterpolatedStringStart `$"`
+3:69 InterpolationStart `{`
+3:70 InterpolatedStringStart `$"`
+3:72 InterpolationStart `{`
+3:73 InterpolatedStringStart `$"`
+3:75 InterpolationStart `{`
+3:76 InterpolatedStringStart `$"`
+3:78 InterpolationStart `{`
+3:79 InterpolatedStringStart `$"`
+3:81 InterpolationStart `{`
+3:82 InterpolatedStringStart `$"`
+3:84 InterpolationStart `{`
+3:85 StringLiteral `$"{$"`
+3:90 OpenBrace `{`
+3:91 StringLiteral `$"{$"`
+3:96 OpenBrace `{`
+3:97 StringLiteral `$"{$"`
+3:102 OpenBrace `{`
+3:103 StringLiteral `$"{$"`
+3:108 OpenBrace `{`
+3:109 StringLiteral `$"{$"`
+3:114 OpenBrace `{`
+3:115 StringLiteral `$"{$"`
+3:120 OpenBrace `{`
+3:121 StringLiteral `$"{$"`
+3:126 OpenBrace `{`
+3:127 StringLiteral `$"{x}"`
+3:133 CloseBrace `}`
+3:134 StringLiteral `"}"`
+3:137 CloseBrace `}`
+3:138 StringLiteral `"}"`
+4:2 OpenBrace `{`
+4:4 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$6{$"{$"{$"{$"{$"{$"{$"{$�{x}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"�
+    │                         ^
+
+error BYN0002: unexpected character `$`
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$6{$"{$"{$"{$"{$"{$"{$"{$�{x}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"�
+    │                                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBE)
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$6{$"{$"{$"{$"{$"{$"{$"{$�{x}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"�
+    │                                                  ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$6{$"{$"{$"{$"{$"{$"{$"{$�{x}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"�
+    │                                                                                   ^^ this
+    │                                                                                      string
+    │                                                                                      never
+    │                                                                                      ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$6{$"{$"{$"{$"{$"{$"{$"{$�{x}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"�
+    │                                                                                      ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$6{$"{$"{$"{$"{$"{$"{$"{$�{x}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"�
+    │                                                                                                                                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ �����{ 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ �����{ 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����{ 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����{ 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����{ 
+    │     ^

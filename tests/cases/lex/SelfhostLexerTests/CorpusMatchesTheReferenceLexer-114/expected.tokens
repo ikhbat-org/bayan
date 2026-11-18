@@ -1,0 +1,97 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+    doc `/// Doc line two.`
+4:1 CloseBrace `}`
+4:2 StringLiteral `"}"`
+4:5 CloseBrace `}`
+4:6 StringLiteral `"}"`
+4:9 CloseBrace `}`
+4:10 StringLiteral `"}"`
+4:13 CloseBrace `}`
+4:14 StringLiteral `"}"`
+4:17 CloseBrace `}`
+4:18 StringLiteral `"`
+6:1 IntegerLiteral `1`
+6:2 NumericSuffix `ms`
+7:1 IntegerLiteral `0x_`
+8:1 IntegerLiteral `0b__`
+9:1 IntegerLiteral `1__`
+10:1 IntegerLiteral `0xF__`
+11:1 LetKeyword `let`
+11:5 Identifier `café`
+11:11 Equals `=`
+11:13 IntegerLiteral `1`
+11:14 Semicolon `;`
+11:16 Identifier `ent`
+12:2 Identifier `ever`
+12:7 Identifier `closed`
+13:1 Identifier `b`
+15:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ }"}"}"}"}"}"}"}"}"
+    │                  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  8 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 1__
+    │  ^^
+    │
+    │ 9 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 0xF__
+     │    ^^
+     │
+     │ 10 │ 0xF__
+     │    │    --
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  11 │ let café = 1; ent
+     │     ^^^^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 11 │ let café = 1; ent
+     │    │        +
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  14 │ // �x
+     │    ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 14 │ // �x
+     │    │    -

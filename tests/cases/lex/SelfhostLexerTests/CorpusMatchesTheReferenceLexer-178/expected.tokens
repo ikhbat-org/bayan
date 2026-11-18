@@ -1,0 +1,17 @@
+1:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\n/// Doc line one.\n Ået café = 1\nlet c\n  """`
+6:7 CStringLiteral `c"text"`
+6:15 U16StringLiteral `u16"wide"`
+6:25 StringLiteral `"\u{202E} allowed in strings"`
+6:48 StringLiteral `""`
+6:51 StringLiteral `"\u{48}i"`
+9:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  8 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ �
+    │   │ -

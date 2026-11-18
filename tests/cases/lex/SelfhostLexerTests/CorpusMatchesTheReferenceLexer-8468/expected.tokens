@@ -1,0 +1,109 @@
+2:1 Identifier `D800`
+2:5 CloseBrace `}`
+2:6 CharLiteral `'`
+3:1 CharLiteral `'\u{110000}'`
+4:1 CharLiteral `'x`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolationStart `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolatedStringText `\u{13}`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:39 InterpolatedStringStart `$"`
+5:41 InterpolationStart `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:45 InterpolatedStringStart `$"`
+5:47 InterpolationStart `{`
+5:48 InterpolatedStringStart `$"`
+5:50 InterpolationStart `{`
+5:51 StringLiteral `$"{$"`
+5:56 OpenBrace `{`
+5:57 StringLiteral `$"{x}"`
+5:64 Identifier `é`
+5:67 IfKeyword `if`
+5:70 ElseKeyword `else`
+5:75 UnlessKeyword `unless`
+5:82 SwitchKeyword `switch`
+5:89 CaseKeyword `case`
+5:94 DefaultKeyword `default`
+5:102 ForKeyword `for`
+5:106 InKeyword `in`
+5:109 WhileKeyword `while`
+5:115 DoKeyword `do`
+5:118 BreakKeyword `break`
+5:124 ContinueKeyword `continue`
+5:133 ReturnKeyword `return`
+5:140 YieldKeyword `yield`
+5:146 DeferKeyword `defer`
+5:152 ErrdeferKeyword `errdefer`
+5:161 UsingKeyword `using`
+5:167 ContextKeyword `context`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ D800}'
+    │      ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  �$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" é if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │  �$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" é if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │                                                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │  �$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" é if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │                                                    ^^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  5 │  �$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" é if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │                                                                 ^^ same letters, different
+    │                                                                    encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │  �$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" é if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │   │                                                                 +

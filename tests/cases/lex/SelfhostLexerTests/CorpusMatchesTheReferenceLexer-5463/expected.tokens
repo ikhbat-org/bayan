@@ -1,0 +1,12 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+8:5 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  3 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

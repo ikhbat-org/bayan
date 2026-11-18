@@ -1,0 +1,35 @@
+1:1 Identifier `Å`
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+1:6 Identifier `t`
+1:7 OpenBrace `{`
+1:8 StringLiteral `"`
+3:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å$"{t{"
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å$"{t{"
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  1 │ Å$"{t{"
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ Å$"{t{"
+    │        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │ �
+    │ ^

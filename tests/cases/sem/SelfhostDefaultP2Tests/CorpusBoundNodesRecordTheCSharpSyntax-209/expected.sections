@@ -1,0 +1,23 @@
+== tests/cases/run/on-panic-order.byn
+22..60 blockStmt
+28..58 exprStmt
+28..58 callExpr
+34..57 interpolatedExpr
+46..55 memberExpr
+46..47 nameExpr
+28..58 callExpr
+74..152 blockStmt
+80..99 deferStmt
+100..130 exprStmt
+100..130 callExpr
+106..129 interpolatedExpr
+118..127 memberExpr
+118..119 nameExpr
+100..130 callExpr
+135..150 exprStmt
+135..150 callExpr
+141..149 literalExpr string
+166..208 blockStmt
+172..195 assignStmt assign target 172..185 value 188..195
+200..206 exprStmt
+200..206 callExpr

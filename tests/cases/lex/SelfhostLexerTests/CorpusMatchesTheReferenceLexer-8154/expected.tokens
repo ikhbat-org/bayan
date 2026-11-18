@@ -1,0 +1,54 @@
+1:1 Identifier `ạ̇test`
+1:9 AssertKeyword `assert`
+1:16 PropertyKeyword `property`
+1:25 FuzzKeyword `fuzz`
+1:30 Identifier `modelforeach`
+1:43 NewKeyword `new`
+1:47 GotoKeyword `goto`
+3:1 IntegerLiteral `0x_`
+4:2 LetKeyword `let`
+4:6 Identifier `efJfect`
+4:14 Equals `=`
+4:16 IntegerLiteral `2`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `x`
+6:4 InterpolationStart `{`
+6:6 InterpolatedStringStart `$"`
+6:8 InterpolationStart `{`
+6:9 Identifier `각`
+6:12 EndOfFile
+
+error BYN0005: identifier `ạ̇test` is not in Unicode normalization form C
+
+  1 │ ạ̇test assert property fuzz modelforeach new goto
+    │ ^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇test assert property fuzz modelforeach new goto
+    │   │ ++
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x_
+    │ ^^^
+
+error BYN0002: unexpected character `̈́`
+
+  4 │ ̈́let efJfect = 2
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"x{ $"{각
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  6 │ $"x{ $"{각
+    │         ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ $"x{ $"{각
+    │   │         +

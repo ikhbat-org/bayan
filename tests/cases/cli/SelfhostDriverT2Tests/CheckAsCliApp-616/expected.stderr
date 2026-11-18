@@ -1,0 +1,8 @@
+error BYN2406: `break` outside a loop
+  --> <repo>/tmp/t2/diag/lambda-break-outside-loop/lambda-break-outside-loop.byn:8:13
+
+  8 │             break
+    │             ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2406

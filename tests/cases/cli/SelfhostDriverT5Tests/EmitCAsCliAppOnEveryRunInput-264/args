@@ -1,0 +1,3 @@
+build
+--emit-c
+strbuf-insert-splits-rune.byn

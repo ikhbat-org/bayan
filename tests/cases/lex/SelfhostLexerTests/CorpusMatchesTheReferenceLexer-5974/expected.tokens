@@ -1,0 +1,15 @@
+1:1 Identifier `me`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+3:1 Identifier `ff`
+3:4 IntegerLiteral `0b1010`
+5:84 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  3 │ ff 0b1010 /* block
+    │           ^^ comment starts here
+    │
+  help: close it with `*/`

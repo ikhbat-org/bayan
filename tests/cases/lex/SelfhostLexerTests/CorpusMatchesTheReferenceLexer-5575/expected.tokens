@@ -1,0 +1,23 @@
+1:2 CloseBrace `}`
+1:4 IntegerLiteral `1_`
+2:1 OpenParen `(`
+2:3 CloseParen `)`
+2:5 OpenBracket `[`
+2:7 CloseBracket `]`
+2:9 OpenBrace `{`
+2:11 CloseBrace `}`
+3:2 IntegerLiteral `3`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `̈́`
+
+  1 │ ̈́} 1_
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ ̈́} 1_
+    │     ^
+    │
+    │ 1 │ ̈́} 1_
+    │   │     -

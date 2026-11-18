@@ -1,0 +1,32 @@
+== tests/cases/diag/validation-error-same-name-list
+133..245 blockStmt
+139..195 ifStmt
+142..147 binaryExpr gt right 146..147
+142..143 nameExpr
+146..147 literalExpr integer
+148..195 blockStmt
+150..154 failStmt
+155..193 memberExpr
+200..204 failStmt
+205..243 memberExpr
+259..402 blockStmt
+265..358 exprStmt
+265..358 catchExpr
+265..272 callExpr
+270..271 literalExpr integer
+279..358 switchExpr
+279..285 caughtErrorExpr
+296..328 declarationPattern
+296..328 declarationPattern
+296..328 declarationPattern
+296..328 declarationPattern
+332..351 callExpr
+338..350 literalExpr string
+332..351 callExpr
+363..400 exprStmt
+363..400 catchExpr
+363..370 callExpr
+368..369 literalExpr integer
+390..400 callExpr
+396..399 literalExpr string
+390..400 callExpr

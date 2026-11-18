@@ -1,0 +1,1 @@
+{"code":"BYN8006","severity":"error","file":"input.byn","span":{"start":54,"end":58,"line":1,"column":55,"endLine":1,"endColumn":59},"message":"`expects` reads `name`, which is `Untrusted`; a violation would trap on outside data","label":null,"help":"validate `name` with a type that has `requires` before the call","fixes":[]}

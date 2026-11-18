@@ -1,0 +1,10 @@
+error BYN1016: `@positional(strict)` is not allowed here
+  --> tmp/t26-tests/cli/diag_positional-arguments.byn/positional-arguments.byn:1:1
+
+  1 │ @positional(strict)
+    │ ^^^^^^^^^^^^^^^^^^^
+    │
+  help: write `@positional` with no arguments and no `because`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1016

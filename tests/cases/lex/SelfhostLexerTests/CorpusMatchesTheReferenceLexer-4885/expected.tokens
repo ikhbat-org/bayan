@@ -1,0 +1,58 @@
+1:1 Identifier `é`
+1:4 Plus `+`
+1:6 Minus `-`
+1:8 Star `*`
+1:10 Slash `/`
+1:12 Percent `%`
+1:14 PlusPercent `+%`
+1:17 MinusPercent `-%`
+1:20 Star `*`
+1:22 Percent `%`
+1:24 PlusBar `+|`
+1:27 MinusBar `-|`
+1:30 StarBar `*|`
+1:33 PlusPlus `++`
+1:36 MinusMinus `--`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:10 CharLiteral `'\u{1F600}'`
+3:22 CharLiteral `'\''`
+3:27 CharLiteral `'é'`
+3:31 CharLiteral `'\\'`
+3:36 CharLiteral `'\0'`
+    doc `///   raw "quoted"`
+5:1 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é + - * / % +% -% *�% +| -| *| ++�--
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é + - * / % +% -% *�% +| -| *| ++�--
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  1 │ é + - * / % +% -% *�% +| -| *| ++�--
+    │                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE4)
+
+  1 │ é + - * / % +% -% *�% +| -| *| ++�--
+    │                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF6)
+
+  2 │  ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  ���
+    │    ^

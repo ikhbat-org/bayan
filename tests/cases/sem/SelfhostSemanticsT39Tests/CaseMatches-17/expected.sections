@@ -1,0 +1,2 @@
+== lib.getter
+BYN2107 5:9 property `latest` modifies the value ||make it a method if it needs to change the value|

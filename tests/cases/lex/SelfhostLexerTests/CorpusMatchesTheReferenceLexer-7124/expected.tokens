@@ -1,0 +1,111 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:11 StringLiteral `"{$"`
+1:15 OpenBrace `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 InterpolatedStringStart `$"`
+1:54 InterpolationStart `{`
+1:55 StringLiteral `$"{$"`
+1:60 OpenBrace `{`
+1:61 Identifier `x`
+1:62 CloseBrace `}`
+1:63 StringLiteral `"}"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringEnd `"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:90 InterpolationEnd `}`
+1:91 InterpolatedStringEnd `"`
+1:92 CloseBrace `}`
+1:93 StringLiteral `"}�"`
+1:97 InterpolationEnd `}`
+1:98 InterpolatedStringEnd `"`
+1:99 InterpolationEnd `}`
+1:100 InterpolatedStringEnd `"`
+1:101 InterpolationEnd `}`
+1:102 InterpolatedStringEnd `"`
+1:104 LetKeyword `let`
+1:108 Identifier `actor`
+1:114 Equals `=`
+1:116 IntegerLiteral `1`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF1)
+
+  1 │ $"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�"}"}"}" let actor = 1�
+    │          ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�"}"}"}" let actor = 1�
+    │                                                       ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  1 │ $"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�"}"}"}" let actor = 1�
+    │                                                                                               ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ $"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�"}"}"}" let actor = 1�
+    │                                                                                                            ^^^^^ reserved
+    │                                                                                                                  for
+    │                                                                                                                  a
+    │                                                                                                                  future
+    │                                                                                                                  version
+    │                                                                                                                  of
+    │                                                                                                                  Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xEE)
+
+  1 │ $"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}�"}"}"}" let actor = 1�
+    │                                                                                                                     ^

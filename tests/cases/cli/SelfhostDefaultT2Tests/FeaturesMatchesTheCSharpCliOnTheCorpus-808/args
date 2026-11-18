@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/particle-exemptions.byn
+--package
+<repo>/tests/cases/diag

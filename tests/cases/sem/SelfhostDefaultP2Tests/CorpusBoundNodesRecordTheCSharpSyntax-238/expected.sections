@@ -1,0 +1,55 @@
+== tests/cases/run/plain-field-write.byn
+86..175 globalStatement
+86..175 localDecl
+98..175 collectionExpr
+99..136 structLiteralExpr
+114..119 literalExpr falseKeyword
+133..134 literalExpr integer
+138..174 structLiteralExpr
+153..157 literalExpr trueKeyword
+171..172 literalExpr integer
+176..189 localDecl
+188..189 literalExpr integer
+190..218 assignStmt add target 190..213 value 217..218
+190..213 memberExpr
+190..202 indexExpr
+190..195 nameExpr
+196..201 nameExpr
+196..201 nameExpr
+217..218 literalExpr integer
+219..247 assignStmt add target 219..242 value 246..247
+219..242 memberExpr
+219..231 indexExpr
+219..224 nameExpr
+225..230 nameExpr
+225..230 nameExpr
+246..247 literalExpr integer
+248..276 assignStmt sub target 248..271 value 275..276
+248..271 memberExpr
+248..260 indexExpr
+248..253 nameExpr
+254..259 nameExpr
+254..259 nameExpr
+275..276 literalExpr integer
+277..307 localDecl
+285..307 structLiteralExpr
+302..305 literalExpr floatKeyword
+308..322 assignStmt sub target 308..314 value 318..322
+308..314 memberExpr
+308..309 nameExpr
+318..322 literalExpr floatKeyword
+323..389 exprStmt
+323..389 callExpr
+329..388 interpolatedExpr
+332..355 memberExpr
+332..344 indexExpr
+332..337 nameExpr
+338..343 nameExpr
+338..343 nameExpr
+358..377 memberExpr
+358..366 indexExpr
+358..363 nameExpr
+364..365 literalExpr integer
+380..386 memberExpr
+380..381 nameExpr
+323..389 callExpr

@@ -1,0 +1,2 @@
+== diags.diag/jump-out-of-defer
+BYN2610 3:9 `return` cannot leave a `defer` or `defer failing` body

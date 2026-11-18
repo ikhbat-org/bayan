@@ -1,0 +1,20 @@
+== tests/cases/diag/env-get-escapes-context.byn
+131..312 blockStmt
+137..161 localDecl
+157..161 literalExpr nullKeyword
+166..287 blockStmt
+176..201 localDecl
+194..201 callExpr
+210..281 contextStmt
+229..234 nameExpr
+235..281 blockStmt
+249..271 assignStmt assign target 249..253 value 256..271
+249..253 nameExpr
+256..271 callExpr
+264..270 literalExpr string
+292..310 exprStmt
+292..310 callExpr
+298..309 binaryExpr coalesce right 306..309
+298..302 nameExpr
+306..309 literalExpr string
+292..310 callExpr

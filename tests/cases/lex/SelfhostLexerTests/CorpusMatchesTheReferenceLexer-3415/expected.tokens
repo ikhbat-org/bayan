@@ -1,0 +1,94 @@
+1:1 Amp `&`
+1:3 AmpAmp `&&`
+1:6 Bar `|`
+1:8 BarBar `||`
+1:11 Caret `^`
+1:13 Tilde `~`
+1:15 Bang `!`
+1:17 Equals `=`
+1:19 EqualsEquals `==`
+1:22 BangEquals `!=`
+1:25 Less `<`
+1:27 LessEquals `<=`
+1:30 Greater `>`
+1:32 GreaterEquals `>=`
+1:35 LessLess `<<`
+1:38 Greater `>`
+1:39 Greater `>`
+1:41 Greater `>`
+1:42 GreaterEquals `>=`
+2:2 LetKeyword `let`
+2:6 Identifier `actor`
+2:12 Equals `=`
+2:14 IntegerLiteral `1`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 Identifier `x`
+4:44 InterpolationEnd `}`
+4:45 InterpolatedStringEnd `"`
+4:46 InterpolationEnd `}`
+4:47 InterpolatedStringEnd `"`
+4:48 InterpolationEnd `}`
+4:49 InterpolatedStringEnd `"`
+4:50 InterpolationEnd `}`
+4:51 InterpolatedStringEnd `"`
+4:52 InterpolationEnd `}`
+4:53 InterpolatedStringEnd `"`
+    doc `///`
+5:2 Identifier `_`
+6:1 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  2 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" ///
+    │                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ �_
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ �_
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ �_
+    │  ^

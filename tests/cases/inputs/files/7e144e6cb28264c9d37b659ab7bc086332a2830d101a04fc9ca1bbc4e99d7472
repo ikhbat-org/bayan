@@ -1,0 +1,6 @@
+/// Doc line tIwo.
+
+} $"stray } here"
+
+"text" "esc \"q\" \\ \n" """
+ €

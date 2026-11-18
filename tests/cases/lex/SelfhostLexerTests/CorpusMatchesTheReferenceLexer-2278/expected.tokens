@@ -1,0 +1,101 @@
+1:1 IntegerLiteral `00`
+1:3 CloseBrace `}`
+1:4 CharLiteral `'\r`
+2:1 CharLiteral `'\u{110000}'`
+3:1 CharLiteral `'x\r`
+4:2 Identifier `t`
+4:6 Identifier `hidden`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+6:2 Identifier `v`
+6:3 Identifier `ان`
+6:6 Identifier `με`
+6:10 IntegerLiteral `2`
+6:12 IntegerLiteral `1`
+6:13 DotDotEquals `..=`
+6:16 IntegerLiteral `3`
+6:18 IntegerLiteral `5`
+6:19 NumericSuffix `e`
+6:21 Identifier `x`
+6:22 Dot `.`
+6:23 Identifier `y`
+6:26 Dot `.`
+6:27 IntegerLiteral `5`
+6:28 NumericSuffix `f`
+8:1 LetKeyword `let`
+8:7 Equals `=`
+8:9 IntegerLiteral `1`
+9:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 00}'
+    │    ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │  t � hidden
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  t � hidden
+    │   │    -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ let x� = 1
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  �v�ان με� 2 1..=3 5e x.y �.5f
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8A)
+
+  6 │  �v�ان με� 2 1..=3 5e x.y �.5f
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  6 │  �v�ان με� 2 1..=3 5e x.y �.5f
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  6 │  �v�ان με� 2 1..=3 5e x.y �.5f
+    │                           ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  8 │ let � = 1
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ let � = 1
+    │   │     -

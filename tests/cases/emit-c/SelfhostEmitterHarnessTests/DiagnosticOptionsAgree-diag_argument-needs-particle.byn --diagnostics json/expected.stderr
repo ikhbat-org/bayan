@@ -1,0 +1,1 @@
+{"code":"BYN5005","severity":"error","file":"input.byn","span":{"start":149,"end":150,"line":4,"column":19,"endLine":4,"endColumn":20},"message":"`end` is passed without its particle `until:`","label":"needs `until:`","help":"add `until:` before the argument","fixes":[{"span":{"start":149,"end":149,"line":4,"column":19,"endLine":4,"endColumn":19},"replacement":"until: "}]}

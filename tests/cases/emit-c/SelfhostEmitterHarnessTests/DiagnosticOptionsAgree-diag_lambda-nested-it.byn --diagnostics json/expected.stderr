@@ -1,0 +1,2 @@
+{"code":"BYN2029","severity":"error","file":"input.byn","span":{"start":267,"end":269,"line":13,"column":42,"endLine":13,"endColumn":44},"message":"`it` inside a lambda that already uses `it`; name one lambda","label":null,"help":"name the lambda's parameter: `x => …`","fixes":[]}
+{"code":"BYN2029","severity":"error","file":"input.byn","span":{"start":371,"end":373,"line":18,"column":35,"endLine":18,"endColumn":37},"message":"`it` inside a lambda that already uses `it`; name one lambda","label":null,"help":"name the inner lambda's parameter: `x => …`","fixes":[]}

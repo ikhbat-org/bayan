@@ -1,0 +1,19 @@
+== tests/cases/diag/function-typed-parameter-particle.byn
+45..49 literalExpr trueKeyword
+45..49 literalExpr trueKeyword
+45..49 literalExpr trueKeyword
+72..77 binaryExpr gt right 76..77
+72..77 binaryExpr gt right 76..77
+72..77 binaryExpr gt right 76..77
+72..73 nameExpr
+76..77 literalExpr integer
+119..123 callExpr
+119..123 callExpr
+119..123 callExpr
+119..120 nameExpr
+121..122 nameExpr
+137..167 blockStmt
+143..165 localDecl
+151..165 callExpr
+156..157 literalExpr integer
+159..164 nameExpr

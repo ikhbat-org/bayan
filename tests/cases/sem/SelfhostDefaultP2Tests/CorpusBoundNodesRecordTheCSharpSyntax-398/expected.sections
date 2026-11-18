@@ -1,0 +1,8 @@
+== tests/cases/diag/clause-order-inserts.byn
+179..239 blockStmt
+189..204 exprStmt
+189..204 callExpr
+195..203 literalExpr string
+189..204 callExpr
+213..233 becomeStmt
+226..232 nameExpr

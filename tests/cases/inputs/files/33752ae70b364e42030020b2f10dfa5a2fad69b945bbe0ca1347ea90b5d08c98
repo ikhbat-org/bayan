@@ -1,0 +1,7 @@
+â‚struct unique union enum flags open extensible interface delegate extension derivation attribute
+
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" <i64>>
+a >> b
+c >>= 1
+
+let b = "bad \q escape"

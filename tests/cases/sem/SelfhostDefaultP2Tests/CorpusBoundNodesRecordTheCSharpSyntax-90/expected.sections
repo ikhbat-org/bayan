@@ -1,0 +1,29 @@
+== tests/cases/run/fs-file-exists.byn
+117..376 blockStmt
+123..147 localDecl
+141..147 collectionExpr
+142..146 literalExpr integer
+152..201 exprStmt
+152..201 tryExpr
+156..201 callExpr
+169..189 literalExpr string
+191..200 memberExpr
+191..195 nameExpr
+206..259 exprStmt
+206..259 callExpr
+212..258 interpolatedExpr
+221..256 callExpr
+235..255 literalExpr string
+206..259 callExpr
+264..305 exprStmt
+264..305 callExpr
+270..304 interpolatedExpr
+284..302 callExpr
+298..301 literalExpr string
+264..305 callExpr
+310..374 exprStmt
+310..374 callExpr
+316..373 interpolatedExpr
+328..371 callExpr
+342..370 literalExpr string
+310..374 callExpr

@@ -1,0 +1,21 @@
+1:1 IntegerLiteral `4`
+1:2 CharLiteral `'�î'`
+1:6 Identifier `b`
+2:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 4'�î'b
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ 4'�î'b
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ 4'�î'b
+    │    ^

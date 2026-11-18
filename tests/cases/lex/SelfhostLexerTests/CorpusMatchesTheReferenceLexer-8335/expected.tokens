@@ -1,0 +1,39 @@
+2:2 Identifier `ɀ`
+2:3 OpenBrace `{`
+3:1 Identifier `each`
+4:1 Identifier `b`
+5:1 Identifier `p`
+5:4 StringLiteral `"`
+5:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ ����ɀ{
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │ ����ɀ{
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ ����ɀ{
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����ɀ{
+    │    ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  5 │ p� "
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │ p� "
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

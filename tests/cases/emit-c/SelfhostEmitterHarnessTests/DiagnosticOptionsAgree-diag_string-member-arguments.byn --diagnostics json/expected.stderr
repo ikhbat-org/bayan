@@ -1,0 +1,4 @@
+{"code":"BYN2720","severity":"error","file":"input.byn","span":{"start":151,"end":157,"line":4,"column":30,"endLine":4,"endColumn":36},"message":"`middle` is not a member of `Edge`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2720","severity":"error","file":"input.byn","span":{"start":190,"end":195,"line":5,"column":32,"endLine":5,"endColumn":37},"message":"`loose` is not a member of `Comparison`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2202","severity":"error","file":"input.byn","span":{"start":220,"end":221,"line":6,"column":24,"endLine":6,"endColumn":25},"message":"expected `string`, found `i32`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2202","severity":"error","file":"input.byn","span":{"start":267,"end":268,"line":8,"column":22,"endLine":8,"endColumn":23},"message":"expected `i64`, found `string`","label":null,"help":null,"fixes":[]}

@@ -1,0 +1,53 @@
+== tests/cases/diag/style-literals-empty.byn
+293..627 blockStmt
+299..330 localDecl
+319..330 callExpr
+335..379 localDecl
+361..379 callExpr
+384..407 localDecl
+399..407 structLiteralExpr
+135..136 literalExpr integer
+149..150 literalExpr integer
+412..432 localDecl
+421..432 callExpr
+437..457 localDecl
+446..457 callExpr
+462..496 localDecl
+485..496 callExpr
+501..515 localDecl
+509..515 structLiteralExpr
+189..200 callExpr
+231..249 callExpr
+269..277 structLiteralExpr
+135..136 literalExpr integer
+149..150 literalExpr integer
+520..532 exprStmt
+520..532 callExpr
+520..522 nameExpr
+530..531 literalExpr integer
+537..625 exprStmt
+537..625 callExpr
+543..624 interpolatedExpr
+546..555 memberExpr
+546..548 nameExpr
+557..565 memberExpr
+557..558 nameExpr
+567..570 memberExpr
+567..568 nameExpr
+572..581 memberExpr
+572..574 nameExpr
+583..592 memberExpr
+583..585 nameExpr
+594..606 memberExpr
+594..599 nameExpr
+608..622 memberExpr
+608..615 memberExpr
+608..609 nameExpr
+537..625 callExpr
+135..136 literalExpr integer
+149..150 literalExpr integer
+189..200 callExpr
+231..249 callExpr
+269..277 structLiteralExpr
+135..136 literalExpr integer
+149..150 literalExpr integer

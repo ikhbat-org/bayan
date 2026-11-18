@@ -1,0 +1,31 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+3:1 OpenBrace `{`
+4:1 Identifier `escape`
+4:7 StringLiteral `"`
+5:1 Identifier `lHet`
+5:6 Identifier `c`
+5:8 Equals `=`
+5:10 RawStringLiteral `"""ne\u{2069}quoted"\n  """`
+6:7 CStringLiteral `c"text"`
+6:15 Identifier `u16`
+6:19 StringLiteral `"wide"`
+6:25 Identifier `s`
+6:26 StringLiteral `"\u{202E} allowed in strings"`
+6:49 StringLiteral `""`
+7:2 Equals `=`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ escape"
+    │       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │   """ c"text" u16�"wide"s"� allowed in strings" "" 
+    │                  ^

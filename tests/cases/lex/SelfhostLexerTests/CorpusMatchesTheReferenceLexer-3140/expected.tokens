@@ -1,0 +1,31 @@
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:11 IntegerLiteral `1`
+6:1 CharLiteral `'a'`
+6:5 CharLiteral `'\n'`
+6:10 CharLiteral `'\u{1F600}'`
+6:22 CharLiteral `'\''`
+6:27 CharLiteral `'é'`
+6:31 CharLiteral `'\\'`
+6:36 CharLiteral `'\0'`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �
+    │ ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^
+
+error BYN0002: unexpected character `$`
+
+  4 │ let a = $ 1
+    │         ^

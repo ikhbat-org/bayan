@@ -1,0 +1,10 @@
+== diags.number-agreement-whole
+BYN5104 32:23 `line` holds a collection; name it with a plural, `lines`
+  help rename it `lines`
+  fix 32:23-32:27 lines
+BYN5104 33:17 `lines` holds one `Line`; name it with a singular noun
+  help rename it `line`
+  fix 33:17-33:22 line
+BYN5104 34:21 `lineOptions` holds one `Keywords`; name it with a singular noun
+  help rename it `lineOption`
+  fix 34:21-34:32 lineOption

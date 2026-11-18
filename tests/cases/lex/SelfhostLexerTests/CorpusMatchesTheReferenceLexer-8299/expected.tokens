@@ -1,0 +1,56 @@
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+5:1 IntegerLiteral `0b__`
+6:3 Hash `#`
+7:1 Plus `+`
+7:3 Minus `-`
+7:5 Star `*`
+7:7 Slash `/`
+7:9 Percent `%`
+7:11 PlusPercent `+%`
+7:14 MinusPercent `-%`
+7:17 Star `*`
+7:19 PlusBar `+|`
+7:22 MinusBar `-|`
+7:25 StarBar `*|`
+7:27 InterpolatedStringStart `$"`
+7:29 InterpolatedStringText `open `
+7:34 InterpolationStart `{`
+7:35 Identifier `x`
+7:36 StringLiteral `";`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ let café = 1
+    │   │        +
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0003: unterminated string literal
+
+  7 │ + - * / % +% -% * +| -| *|$"open {x";
+    │                           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ + - * / % +% -% * +| -| *|$"open {x";
+    │                                    ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,3 @@
+== call-result-borrows-ref-argument
+BYN3004 20:5 `l` is modified while `r` still borrows it |`r` is used again on line 21|finish using `r` first, or copy what it needs before changing `l`|
+BYN3004 23:5 `l` is modified while `s` still borrows it |`s` is used again on line 24|finish using `s` first, or copy what it needs before changing `l`|

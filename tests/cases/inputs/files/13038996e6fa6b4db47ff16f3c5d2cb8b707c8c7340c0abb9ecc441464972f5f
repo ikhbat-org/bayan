@@ -1,0 +1,7 @@
+'ab'
+
+$"x{ $"{= $ 1
+let b = ` 2
+let c = q 3
+
+c"text" u16"wide" "‮ allowed in strings"  

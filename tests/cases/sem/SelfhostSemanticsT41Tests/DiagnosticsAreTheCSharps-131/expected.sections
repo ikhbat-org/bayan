@@ -1,0 +1,13 @@
+== diags.diag/take-immutable
+BYN2104 7:13 `plain` is immutable
+  label `take` modifies it; parameters are immutable
+  help copy it into a local `var`, or take it by `ref` if the caller's value should change
+BYN2104 11:13 `bag` is immutable
+  label `take` modifies it; parameters are immutable
+  help copy it into a local `var`, or take it by `ref` if the caller's value should change
+BYN2106 15:13 cannot modify this value
+  label a `ReadOnlySpan` cannot be written through
+BYN2104 20:13 `items` is immutable
+  label `take` modifies it; declared with `let` on line 19
+  help declare it with `var` if it should change
+  fix 19:5-19:8 var

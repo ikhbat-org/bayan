@@ -1,0 +1,3 @@
+== diags.diag/on-panic-signature
+BYN2202 6:21 expected `void f(Panic p)`, found `void report(string)`
+  help name a function declared `void f(Panic p)`

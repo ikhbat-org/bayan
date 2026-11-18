@@ -1,0 +1,3 @@
+== strbuf-loan-refusals
+BYN3004 6:5 `sb` is modified while `s` still borrows it |`s` is used again on line 7|finish using `s` first, or copy what it needs before changing `sb`|
+BYN3006 14:13 `sb` is moved while `s` still borrows it |`s` is used again on line 15|finish using `s` first, or copy what it needs before moving `sb`|

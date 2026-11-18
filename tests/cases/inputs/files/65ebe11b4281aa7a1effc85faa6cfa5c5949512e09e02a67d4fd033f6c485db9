@@ -1,0 +1,6 @@
+void main() {
+    let y = 1
+    let a = int.tryFrom(y)
+    let b = long.max
+    let c = sbyte(y)
+}

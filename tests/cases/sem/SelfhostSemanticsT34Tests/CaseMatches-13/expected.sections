@@ -1,0 +1,6 @@
+== s58
+switchExpr|i32|4539:41
+value errorExpr:?
+arm 4553:17 propertyPattern[4553:12]:?(?;|-) guard - value literal:i32=1
+arm 4572:6 bindPattern[4572:1]:?_(-) guard - value literal:i32=0
+BYN2001 129:15 `nope` is not defined ||did you mean `none`?|fix 4539..4543 none

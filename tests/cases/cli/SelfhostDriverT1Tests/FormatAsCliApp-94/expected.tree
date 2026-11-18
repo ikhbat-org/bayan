@@ -1,0 +1,12 @@
+== a.byn OtherRead, GroupRead, UserWrite, UserRead
+long i8(long x) => x + 1000
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+void main() {
+    let n = i8(3)
+}
+== package.byn OtherRead, GroupRead, UserWrite, UserRead
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { primitives: .csharp },
+}

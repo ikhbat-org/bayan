@@ -1,0 +1,66 @@
+1:1 StringLiteral `" é`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:5 OpenParen `(`
+3:7 CloseParen `)`
+3:9 OpenBracket `[`
+3:11 CloseBracket `]`
+3:13 OpenBrace `{`
+3:15 CloseBrace `}`
+4:1 IntegerLiteral `0`
+4:3 IntegerLiteral `42`
+4:6 IntegerLiteral `1_000_000`
+4:16 IntegerLiteral `0xFF`
+4:21 IntegerLiteral `0x_ff`
+4:27 IntegerLiteral `0b1010`
+4:34 IntegerLiteral `0`
+4:36 Identifier `B11`
+4:40 IntegerLiteral `5`
+4:41 NumericSuffix `s`
+4:43 IntegerLiteral `250`
+4:46 NumericSuffix `ms`
+4:49 IntegerLiteral `4`
+4:50 NumericSuffix `KiB`
+4:54 IntegerLiteral `1`
+4:55 NumericSuffix `u`
+4:57 IntegerLiteral `0xFF`
+4:61 Identifier `u`
+4:63 IntegerLiteral `0b1`
+4:66 NumericSuffix `u`
+4:68 IntegerLiteral `7`
+4:69 NumericSuffix `l`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ " é
+    │ ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{ ( ) [ ] { }
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\u{17}`
+
+  4 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0�B11 5s 250ms 4KiB 1u 0xFF�u 0b1u� 7l
+    │                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  4 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0�B11 5s 250ms 4KiB 1u 0xFF�u 0b1u� 7l
+    │                                                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0�B11 5s 250ms 4KiB 1u 0xFF�u 0b1u� 7l
+    │                                                                    ^

@@ -1,0 +1,52 @@
+== tests/cases/diag/style-lambdas-it.byn
+189..292 blockStmt
+195..212 localDecl
+207..212 literalExpr falseKeyword
+217..273 forStmt
+226..235 nameExpr
+236..273 blockStmt
+246..267 assignStmt assign target 246..251 value 254..267
+246..251 nameExpr
+254..267 binaryExpr logicalOr right 263..267
+254..259 nameExpr
+263..267 callExpr
+263..264 nameExpr
+265..266 nameExpr
+278..290 returnStmt value 285..290
+285..290 nameExpr
+306..571 blockStmt
+312..373 localDecl
+344..373 collectionExpr
+345..372 structLiteralExpr
+366..370 literalExpr trueKeyword
+378..426 localDecl
+391..426 callExpr
+395..404 nameExpr
+410..425 lambdaExpr
+431..474 localDecl
+443..474 callExpr
+447..456 nameExpr
+462..473 memberExpr
+479..530 localDecl
+493..530 callExpr
+497..506 nameExpr
+513..528 lambdaExpr
+535..569 exprStmt
+535..569 callExpr
+541..568 interpolatedExpr
+544..550 nameExpr
+552..557 nameExpr
+559..566 nameExpr
+535..569 callExpr
+415..425 memberExpr
+415..425 memberExpr
+415..425 memberExpr
+415..416 nameExpr
+462..473 memberExpr
+462..473 memberExpr
+462..473 memberExpr
+462..464 nameExpr
+518..528 memberExpr
+518..528 memberExpr
+518..528 memberExpr
+518..519 nameExpr

@@ -1,0 +1,5 @@
+== diags.diag/missing-become
+BYN7009 9:13 `pay` declares `becomes .paid` but returns here without `become`
+  help add `become .paid(…)` before returning, or fail
+BYN7009 17:5 `settle` declares `becomes .paid` but returns here without `become`
+  help add `become .paid(…)` before returning, or fail

@@ -1,0 +1,42 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:27 CharLiteral `'μ�τρητής x_1 é`
+2:2 Identifier `a`
+4:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ foo Bar _x camelCase2 بيان'μ�τρητής x_1 é
+    │                           ^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  1 │ foo Bar _x camelCase2 بيان'μ�τρητής x_1 é
+    │                             ^
+
+error BYN0004: unterminated block comment
+
+  2 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ � // ok � in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ � // ok � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ � // ok � in comment
+    │         ^

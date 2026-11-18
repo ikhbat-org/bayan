@@ -1,0 +1,87 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:2 Equals `=`
+2:4 IntegerLiteral `2`
+3:2 IntegerLiteral `0`
+3:3 CharLiteral `'`
+4:2 Identifier `Fs`
+5:1 IntegerLiteral `0b1`
+5:4 NumericSuffix `ms`
+6:1 IntegerLiteral `0x_`
+7:1 IntegerLiteral `0b__`
+8:1 IntegerLiteral `1__`
+9:1 IntegerLiteral `0xF__`
+10:1 StringLiteral `" if �else unless switch case default for in while do break coninue reurn yield defer errdefer using context`
+12:1 CharLiteral `'ab'`
+13:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  2 │ � = 2
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  3 │  0'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  5 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  7 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 1__
+    │  ^^
+    │
+    │ 8 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 0xF__
+    │    ^^
+    │
+    │ 9 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  10 │ " if �else unless switch case default for in while do break coninue reurn yield defer errdefer using context
+     │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string
+     │                                                                                                              ends
+     │                                                                                                              at
+     │                                                                                                              the
+     │                                                                                                              end
+     │                                                                                                              of
+     │                                                                                                              the
+     │                                                                                                              line
+     │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  10 │ " if �else unless switch case default for in while do break coninue reurn yield defer errdefer using context
+     │      ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  12 │ 'ab'
+     │ ^^^^
+     │
+  help: use a string literal ("…") for text

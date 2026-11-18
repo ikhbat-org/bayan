@@ -1,0 +1,36 @@
+== tests/cases/diag/for-dyn-ref-coalesce.byn
+249..253 literalExpr nullKeyword
+249..253 literalExpr nullKeyword
+249..253 literalExpr nullKeyword
+266..408 blockStmt
+272..289 localDecl
+280..289 callExpr
+294..314 exprStmt
+294..314 callExpr
+294..295 nameExpr
+303..313 structLiteralExpr
+310..311 literalExpr integer
+319..333 localDecl
+327..331 moveExpr
+332..333 nameExpr
+338..383 forStmt
+359..370 binaryExpr coalesce right 369..370
+359..365 callExpr
+369..370 nameExpr
+371..383 blockStmt
+373..381 exprStmt
+373..381 callExpr
+373..374 nameExpr
+388..406 exprStmt
+388..406 callExpr
+394..405 interpolatedExpr
+397..403 memberExpr
+397..401 indexExpr
+397..398 nameExpr
+399..400 literalExpr integer
+388..406 callExpr
+217..227 blockStmt
+219..225 assignStmt add target 219..220 value 224..225
+219..220 nameExpr
+219..220 nameExpr
+224..225 literalExpr integer

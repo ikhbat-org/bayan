@@ -1,0 +1,38 @@
+== tests/cases/diag/ref-out-return-through-local.byn
+26..56 blockStmt
+32..41 localDecl
+40..41 nameExpr
+46..54 returnStmt value 53..54
+53..54 nameExpr
+83..109 blockStmt
+89..107 returnStmt value 96..107
+96..107 callExpr
+105..106 nameExpr
+123..346 blockStmt
+129..142 localDecl
+140..142 literalExpr string
+147..162 localDecl
+160..162 literalExpr string
+167..310 blockStmt
+177..202 localDecl
+195..202 callExpr
+211..243 localDecl
+222..243 callExpr
+222..227 literalExpr string
+237..242 nameExpr
+252..273 assignStmt assign target 252..256 value 259..273
+252..256 nameExpr
+259..273 callExpr
+268..272 nameExpr
+282..304 assignStmt assign target 282..288 value 291..304
+282..288 nameExpr
+291..304 callExpr
+299..303 nameExpr
+315..326 exprStmt
+315..326 callExpr
+321..325 nameExpr
+315..326 callExpr
+331..344 exprStmt
+331..344 callExpr
+337..343 nameExpr
+331..344 callExpr

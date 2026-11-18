@@ -1,0 +1,87 @@
+1:1 Identifier `oc`
+1:4 Identifier `line`
+1:9 Identifier `one`
+1:12 Dot `.`
+    doc `/// Doc line two.`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+5:1 Greater `>`
+5:2 Greater `>`
+5:4 Identifier `b`
+6:1 Identifier `c`
+6:3 Greater `>`
+6:4 GreaterEquals `>=`
+6:7 IntegerLiteral `1`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolationStart `{`
+8:4 InterpolatedStringStart `$"`
+8:6 InterpolationStart `{`
+8:7 InterpolatedStringStart `$"`
+8:9 InterpolationStart `{`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:13 InterpolatedStringStart `$"`
+8:15 InterpolationStart `{`
+8:16 InterpolatedStringStart `$"`
+8:18 InterpolationStart `{`
+8:19 InterpolatedStringStart `$"`
+8:21 InterpolationStart `{`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolationStart `{`
+8:25 InterpolatedStringStart `$"`
+8:27 InterpolationStart `{`
+8:28 InterpolatedStringStart `$"`
+8:30 InterpolationStart `{`
+8:31 InterpolatedStringStart `$"`
+8:33 InterpolationStart `{`
+8:34 InterpolatedStringStart `$"`
+8:36 InterpolationStart `{`
+8:37 InterpolatedStringStart `$"`
+8:39 InterpolationStart `{`
+8:40 InterpolatedStringStart `$"`
+8:42 InterpolationStart `{`
+8:43 InterpolatedStringStart `$"`
+8:45 InterpolationStart `{`
+8:46 Identifier `x`
+8:47 InterpolationEnd `}`
+8:48 InterpolatedStringEnd `"`
+8:49 InterpolationEnd `}`
+8:50 InterpolatedStringEnd `"`
+8:51 InterpolationEnd `}`
+8:52 InterpolatedStringEnd `"`
+8:53 InterpolationEnd `}`
+8:54 InterpolatedStringEnd `"`
+8:55 InterpolationEnd `}`
+8:56 InterpolatedStringEnd `"`
+8:57 InterpolationEnd `}`
+8:58 InterpolatedStringEnd `"`
+8:59 InterpolationEnd `}`
+8:60 InterpolatedStringEnd `"`
+8:61 InterpolationEnd `}`
+8:62 InterpolatedStringEnd `"`
+8:63 InterpolationEnd `}`
+8:64 InterpolatedStringEnd `"`
+8:65 InterpolationEnd `}`
+8:66 InterpolatedStringEnd `"`
+8:67 InterpolationEnd `}`
+8:68 InterpolatedStringEnd `"`
+8:69 InterpolationEnd `}`
+8:70 InterpolatedStringEnd `"`
+8:71 InterpolationEnd `}`
+8:72 InterpolatedStringEnd `"`
+8:73 InterpolationEnd `}`
+8:74 InterpolatedStringEnd `"`
+8:75 InterpolationEnd `}`
+8:76 InterpolatedStringEnd `"`
+8:77 CloseBrace `}`
+8:78 StringLiteral `"`
+8:79 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                              ^ string ends at
+    │                                                                                the end of the
+    │                                                                                line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

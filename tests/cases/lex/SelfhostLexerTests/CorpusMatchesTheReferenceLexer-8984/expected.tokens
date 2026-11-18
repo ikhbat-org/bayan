@@ -1,0 +1,146 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é�'`
+1:32 CharLiteral `'\\'`
+1:37 CharLiteral `'\0'`
+2:2 PlusEquals `+=`
+2:5 MinusEquals `-=`
+2:8 StarEquals `*=`
+2:11 SlashEquals `/=`
+2:14 PercentEquals `%=`
+2:17 AmpEquals `&=`
+2:20 BarEquals `|=`
+2:23 CaretEquals `^=`
+2:26 LessLessEquals `<<=`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 Identifier `x`
+3:47 InterpolationEnd `}`
+3:48 InterpolatedStringEnd `"`
+3:49 InterpolationEnd `}`
+3:50 InterpolatedStringEnd `"`
+3:51 InterpolationEnd `}`
+3:52 InterpolatedStringEnd `"`
+3:53 InterpolationEnd `}`
+3:54 InterpolatedStringEnd `"`
+3:55 InterpolationEnd `}`
+3:56 InterpolatedStringEnd `"`
+3:57 InterpolationEnd `}`
+3:58 InterpolatedStringEnd `"`
+3:59 InterpolationEnd `}`
+3:60 InterpolatedStringEnd `"`
+3:61 InterpolationEnd `}`
+3:62 InterpolatedStringEnd `"`
+3:63 InterpolationEnd `}`
+3:64 InterpolatedStringEnd `"`
+3:65 InterpolationEnd `}`
+3:66 InterpolatedStringEnd `"`
+3:67 InterpolationEnd `}`
+3:68 InterpolatedStringEnd `"`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:10 Equals `=`
+4:12 IntegerLiteral `2`
+5:2 IfKeyword `if`
+5:5 ElseKeyword `else`
+5:10 UnlessKeyword `unless`
+5:17 SwitchKeyword `switch`
+5:24 CaseKeyword `case`
+5:29 DefaultKeyword `default`
+5:37 ForKeyword `for`
+5:41 InKeyword `in`
+5:44 WhileKeyword `while`
+5:50 DoKeyword `do`
+5:53 BreakKeyword `break`
+5:59 ContinueKeyword `continue`
+5:68 Identifier `rturn`
+5:74 YieldKeyword `yield`
+5:80 DeferKeyword `defer`
+5:86 ErrdeferKeyword `errdefer`
+5:95 UsingKeyword `using`
+5:101 ContextKeyword `context`
+7:1 TestKeyword `test`
+7:6 AssertKeyword `assert`
+7:13 PropertyKeyword `property`
+7:22 FuzzKeyword `fuzz`
+7:27 ModelKeyword `model`
+7:33 ForeachKeyword `foreach`
+7:41 NewKeyword `new`
+7:45 GotoKeyword `goto`
+9:1 IntegerLiteral `1`
+9:2 NumericSuffix `e`
+9:4 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'a' '\n' '\u{1F600}' '\'' 'é�' '\\' '\0'
+    │                           ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  1 │ 'a' '\n' '\u{1F600}' '\'' 'é�' '\\' '\0'
+    │                             ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\u{1D}`
+
+  5 │ �if else unless switch case default for in while do break continue rturn yield defer errdefer using context
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  6 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  6 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����
+    │    ^

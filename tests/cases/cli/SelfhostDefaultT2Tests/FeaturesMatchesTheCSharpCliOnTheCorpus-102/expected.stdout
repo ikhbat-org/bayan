@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "nodes": [
+    "CallExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "HexEncode",
+    "ListAdd",
+    "ListAsSpan",
+    "Print",
+    "StringBytes"
+  ],
+  "diagnostics": []
+}

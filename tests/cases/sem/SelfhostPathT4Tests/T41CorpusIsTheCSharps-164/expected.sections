@@ -1,0 +1,4 @@
+== diags.diag/except-not-pattern
+BYN1052 2:22 `except` takes a pattern, not a condition
+  label a condition
+  help use `where` for a condition

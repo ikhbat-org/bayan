@@ -1,0 +1,1 @@
+{"code":"BYN2205","severity":"error","file":"input.byn","span":{"start":8,"end":14,"line":1,"column":9,"endLine":1,"endColumn":15},"message":"division by zero","label":null,"help":null,"fixes":[]}

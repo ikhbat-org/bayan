@@ -1,0 +1,18 @@
+error BYN7007: `run` has no state `.done`
+  --> input.byn:5:13
+
+  5 │     become .done
+    │             ^^^^
+    │
+  help: check the states declared in `run`
+
+error BYN7007: `run` has no state `.retry`
+  --> input.byn:6:13
+
+  6 │     become .retry(1)
+    │             ^^^^^
+    │
+  help: check the states declared in `run`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN7007

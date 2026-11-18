@@ -1,0 +1,3 @@
+== bind.probes.i1
+flags 0
+is:bool[3328:10]=-(local:i32[3328:1]=-(a) rangePattern:-[3333:5]=-(true literal:i32[3333:1]=1(1) literal:i32[3337:1]=5(5)))

@@ -1,0 +1,36 @@
+error BYN2002: unknown type `I`
+  --> <repo>/tests/cases/parse/where-becomes-uses.byn:1:26
+
+  1 │ void f<T>(T x) where T : I uses io becomes .done fails E {
+    │                          ^
+
+error BYN6003: `io` is not an effect
+  --> <repo>/tests/cases/parse/where-becomes-uses.byn:1:33
+
+  1 │ void f<T>(T x) where T : I uses io becomes .done fails E {
+    │                                 ^^ not an effect or an `effect` alias of this module
+    │
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias
+
+error BYN2002: unknown type `E`
+  --> <repo>/tests/cases/parse/where-becomes-uses.byn:1:56
+
+  1 │ void f<T>(T x) where T : I uses io becomes .done fails E {
+    │                                                        ^
+
+error BYN6002: `f` uses `console` but does not declare it
+  --> <repo>/tests/cases/parse/where-becomes-uses.byn:2:5
+
+  2 │     print(x)
+    │     ^^^^^^^^ uses `console`
+    │
+  help: add `console` to the `uses` clause, or remove the call
+    │ 1 │ void f<T>(T x) where T : I uses io, console becomes .done fails E {
+    │   │                                   +++++++++
+
+error BYN2202: expected `string`, found `T`
+  --> <repo>/tests/cases/parse/where-becomes-uses.byn:2:11
+
+  2 │     print(x)
+    │           ^

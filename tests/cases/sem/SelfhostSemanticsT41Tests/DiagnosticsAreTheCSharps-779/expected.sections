@@ -1,0 +1,5 @@
+== diags.diag/lambda-generic-inference
+BYN2218 4:21 `[ … ]` needs a known type here
+  help declare the type: `List<i64> xs = [1, 2]`
+BYN2740 4:16 cannot infer type argument `T` of `pick`
+  help pass an argument it can be read from, or write it out: `pick<T>(…)`

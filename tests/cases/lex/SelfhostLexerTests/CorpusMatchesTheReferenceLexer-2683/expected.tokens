@@ -1,0 +1,82 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+3:4 ErrorKeyword `error`
+3:10 Identifier `et`
+3:13 UnitKeyword `unit`
+3:18 DistinctKeyword `distinct`
+3:27 TypeKeyword `type`
+3:32 ImportKeyword `import`
+3:39 AsKeyword `as`
+3:42 PublicKeyword `public`
+3:49 PrivateKeyword `private`
+3:57 StaticKeyword `static`
+3:64 ReadonlyKeyword `readonly`
+3:73 RequiredKeyword `required`
+3:82 ConstKeyword `const`
+3:88 LetKeyword `let`
+3:92 VarKeyword `var`
+3:96 EmbedKeyword `embed`
+3:102 ExternKeyword `extern`
+3:109 UnsafeKeyword `unsafe`
+4:1 IntegerLiteral `1_`
+6:1 OpenParen `(`
+6:3 CloseParen `)`
+6:5 OpenBracket `[`
+6:7 CloseBracket `]`
+6:9 OpenBrace `{`
+6:11 CloseBrace `}`
+7:2 LetKeyword `let`
+7:6 Identifier `café`
+7:12 Equals `=`
+7:14 IntegerLiteral `1`
+7:15 Semicolon `;`
+7:16 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ ���� error �et unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │ ^
+
+error BYN0002: unexpected character `\u{5}`
+
+  3 │ ���� error �et unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ ���� error �et unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ ���� error �et unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB5)
+
+  3 │ ���� error �et unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │            ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1_
+    │  ^
+    │
+    │ 4 │ 1_
+    │   │  -
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  7 │  let café = 1;
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │  let café = 1;
+    │   │         +

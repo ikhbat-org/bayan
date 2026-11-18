@@ -1,0 +1,3 @@
+test "twice doubles" {
+    assert(twice(21) == 42)
+}

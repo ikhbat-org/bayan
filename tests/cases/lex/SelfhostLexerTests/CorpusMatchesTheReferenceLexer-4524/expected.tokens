@@ -1,0 +1,44 @@
+1:1 FloatLiteral `3.14`
+1:6 FloatLiteral `1e5`
+1:10 FloatLiteral `2.5e-3`
+1:17 FloatLiteral `6E+2`
+1:22 FloatLiteral `1.50`
+1:26 NumericSuffix `dec`
+1:30 IntegerLiteral `1`
+1:31 DotDot `..`
+1:33 IntegerLiteral `2`
+1:35 IntegerLiteral `1`
+1:36 DotDotEquals `..=`
+1:39 IntegerLiteral `3`
+1:41 IntegerLiteral `5`
+1:42 NumericSuffix `e`
+1:44 Identifier `x`
+1:45 Dot `.`
+1:46 Identifier `y`
+1:48 FloatLiteral `2.5`
+1:51 NumericSuffix `f`
+2:2 LetKeyword `let`
+2:6 LawKeyword `law`
+2:10 Equals `=`
+2:12 IntegerLiteral `3`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 Identifier `a`
+3:6 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ �let law = 3
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �let law = 3
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{a
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

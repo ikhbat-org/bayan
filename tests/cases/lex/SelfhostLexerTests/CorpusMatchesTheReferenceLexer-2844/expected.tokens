@@ -1,0 +1,45 @@
+1:1 IntegerLiteral `0x`
+3:1 Identifier `otal`
+3:6 OpenBrace `{`
+3:7 Identifier `x`
+3:8 CloseBrace `}`
+3:9 StringLiteral `"' $"`
+3:14 Identifier `a`
+3:16 OpenBrace `{`
+3:17 Identifier `f`
+3:19 OpenParen `(`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolatedStringText `b `
+3:24 InterpolationStart `{`
+3:25 Identifier `c`
+3:26 InterpolationEnd `}`
+3:27 InterpolatedStringEnd `"`
+3:28 CloseParen `)`
+3:29 CloseBrace `}`
+3:31 Identifier `d`
+3:32 StringLiteral `" $"`
+3:36 OpenBrace `{`
+3:37 OpenBrace `{`
+3:38 Identifier `literal`
+3:46 CloseBrace `}`
+3:47 CloseBrace `}`
+3:48 StringLiteral `" $"`
+3:52 OpenBrace `{`
+3:53 Identifier `Point`
+3:59 OpenBrace `{`
+3:61 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ otal {x}"' $"a {f�($"b {c}")} d" $"{{literal�}}" $"{Point { 
+    │                  ^
+
+error BYN0002: unexpected character `\u{7F}`
+
+  3 │ otal {x}"' $"a {f�($"b {c}")} d" $"{{literal�}}" $"{Point { 
+    │                                             ^

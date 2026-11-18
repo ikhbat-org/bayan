@@ -1,0 +1,6 @@
+error BYN2770: unknown attribute `json`
+
+  3 │     @json(name: "numLines")
+    │      ^^^^
+    │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test

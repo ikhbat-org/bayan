@@ -1,0 +1,57 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{� `
+1:6 InterpolatedStringEnd `"`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolatedStringEnd `"`
+2:1 Identifier `e`
+2:2 StringLiteral `" "`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolatedStringText `open `
+3:10 InterpolationStart `{`
+3:11 Identifier `x`
+3:12 StringLiteral `";`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  1 │ $"{{� " $""
+    │     ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ e" "�  ��
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ e" "�  ��
+    │   │     -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ e" "�  ��
+    │        ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │ e" "�  ��
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ � $"open {x";
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ � $"open {x";
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ � $"open {x";
+    │            ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

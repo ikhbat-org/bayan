@@ -1,0 +1,133 @@
+== tests/cases/run/lambda-fails.byn
+99..212 blockStmt
+105..129 guardedStmt
+120..129 memberExpr
+120..121 nameExpr
+105..109 failStmt
+110..116 targetMemberExpr
+134..190 guardedStmt
+178..190 binaryExpr gt right 189..190
+178..186 memberExpr
+178..179 nameExpr
+189..190 literalExpr integer
+134..138 failStmt
+139..174 callExpr
+148..156 memberExpr
+148..149 nameExpr
+163..173 literalExpr string
+195..210 returnStmt value 202..210
+202..210 memberExpr
+202..203 nameExpr
+289..297 tryExpr
+289..297 tryExpr
+289..297 tryExpr
+293..297 callExpr
+293..294 nameExpr
+295..296 nameExpr
+360..372 catchExpr
+360..372 catchExpr
+360..372 catchExpr
+360..364 callExpr
+360..361 nameExpr
+362..363 nameExpr
+371..372 literalExpr integer
+432..529 catchExpr
+432..529 catchExpr
+432..529 catchExpr
+432..436 callExpr
+432..433 nameExpr
+434..435 nameExpr
+443..529 switchExpr
+443..449 caughtErrorExpr
+456..480 variantPattern
+461..464 varPattern
+469..472 varPattern
+484..508 binaryExpr add right 495..508
+484..492 binaryExpr mul right 489..492
+484..486 nameExpr
+489..492 literalExpr integer
+495..508 memberExpr
+495..501 nameExpr
+514..520 constantPattern
+514..520 targetMemberExpr
+524..526 unaryExpr negate operand 525..526
+543..1062 blockStmt
+549..592 exprStmt
+549..592 callExpr
+555..591 interpolatedExpr
+558..589 catchExpr
+558..580 callExpr
+564..568 literalExpr string
+574..579 nameExpr
+587..589 unaryExpr negate operand 588..589
+549..592 callExpr
+597..610 localDecl
+609..610 literalExpr integer
+615..762 localDecl
+658..662 lambdaExpr
+723..728 nameExpr
+767..830 exprStmt
+767..830 callExpr
+773..829 interpolatedExpr
+776..801 callExpr
+783..788 literalExpr string
+794..800 nameExpr
+804..827 callExpr
+811..814 literalExpr string
+820..826 nameExpr
+767..830 callExpr
+835..918 exprStmt
+835..918 callExpr
+841..917 interpolatedExpr
+844..869 callExpr
+848..857 literalExpr string
+863..868 nameExpr
+872..890 callExpr
+876..878 literalExpr string
+884..889 nameExpr
+893..915 callExpr
+897..902 literalExpr string
+908..914 nameExpr
+835..918 callExpr
+923..1042 localDecl
+931..1042 catchExpr
+931..956 callExpr
+937..943 literalExpr string
+949..955 nameExpr
+963..1042 switchExpr
+963..969 caughtErrorExpr
+980..986 variantPattern
+980..986 variantPattern
+980..986 variantPattern
+990..1014 binaryExpr add right 1002..1014
+990..999 binaryExpr mul right 997..999
+990..994 memberExpr
+990..991 nameExpr
+997..999 literalExpr integer
+1002..1014 memberExpr
+1002..1007 memberExpr
+1002..1003 nameExpr
+1024..1030 constantPattern
+1024..1030 targetMemberExpr
+1034..1035 literalExpr integer
+1047..1060 exprStmt
+1047..1060 callExpr
+1053..1059 interpolatedExpr
+1056..1057 nameExpr
+1047..1060 callExpr
+663..762 blockStmt
+673..728 guardedStmt
+712..728 binaryExpr gt right 723..728
+712..720 memberExpr
+712..713 nameExpr
+723..728 nameExpr
+723..728 nameExpr
+673..677 failStmt
+678..708 callExpr
+687..692 nameExpr
+687..692 nameExpr
+699..707 literalExpr string
+737..756 returnStmt value 744..756
+744..756 tryExpr
+748..756 callExpr
+754..755 nameExpr

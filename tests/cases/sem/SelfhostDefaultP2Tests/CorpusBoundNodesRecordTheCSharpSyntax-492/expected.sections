@@ -1,0 +1,38 @@
+== tests/cases/diag/for-dyn-ref-readonly-still-lint.byn
+126..298 blockStmt
+132..152 localDecl
+140..152 collectionExpr
+141..151 structLiteralExpr
+148..149 literalExpr integer
+157..208 forStmt
+187..188 nameExpr
+189..208 blockStmt
+191..206 exprStmt
+191..206 callExpr
+197..205 interpolatedExpr
+200..203 memberExpr
+200..201 nameExpr
+191..206 callExpr
+213..233 localDecl
+221..233 collectionExpr
+222..232 structLiteralExpr
+229..230 literalExpr integer
+238..273 forStmt
+259..260 nameExpr
+261..273 blockStmt
+263..271 exprStmt
+263..271 callExpr
+263..264 nameExpr
+278..296 exprStmt
+278..296 callExpr
+284..295 interpolatedExpr
+287..293 memberExpr
+287..291 indexExpr
+287..288 nameExpr
+289..290 literalExpr integer
+278..296 callExpr
+101..111 blockStmt
+103..109 assignStmt add target 103..104 value 108..109
+103..104 nameExpr
+103..104 nameExpr
+108..109 literalExpr integer

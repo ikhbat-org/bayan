@@ -1,0 +1,102 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+3:1 StringLiteral `"a\u{2067}b"`
+4:1 Identifier `foo`
+4:5 Identifier `Bar`
+4:10 Identifier `_x`
+4:13 Identifier `camelCa`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolationStart `{`
+4:24 InterpolatedStringStart `$"`
+4:26 InterpolationStart `{`
+4:27 InterpolatedStringStart `$"`
+4:29 InterpolationStart `{`
+4:30 InterpolatedStringStart `$"`
+4:32 InterpolationStart `{`
+4:33 InterpolatedStringStart `$"`
+4:35 InterpolationStart `{`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolationStart `{`
+4:39 InterpolatedStringStart `$"`
+4:41 InterpolationStart `{`
+4:42 InterpolatedStringStart `$"`
+4:44 InterpolationStart `{`
+4:45 InterpolatedStringStart `$"`
+4:47 InterpolationStart `{`
+4:48 InterpolatedStringStart `$"`
+4:50 InterpolationStart `{`
+4:51 InterpolatedStringStart `$"`
+4:53 InterpolationStart `{`
+4:54 InterpolatedStringStart `$"`
+4:56 InterpolationStart `{`
+4:57 InterpolatedStringStart `$"`
+4:59 InterpolationStart `{`
+4:60 InterpolatedStringStart `$"`
+4:62 InterpolationStart `{`
+4:63 InterpolatedStringStart `$"`
+4:65 InterpolationStart `{`
+4:66 Identifier `x`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:69 InterpolationEnd `}`
+4:70 InterpolatedStringEnd `"`
+4:71 InterpolationEnd `}`
+4:72 InterpolatedStringEnd `"`
+4:73 InterpolationEnd `}`
+4:74 InterpolatedStringEnd `"`
+4:75 InterpolationEnd `}`
+4:76 InterpolatedStringEnd `"`
+4:77 InterpolationEnd `}`
+4:78 InterpolatedStringEnd `"`
+4:79 InterpolationEnd `}`
+4:80 InterpolatedStringEnd `"`
+4:81 InterpolationEnd `}`
+4:82 InterpolatedStringEnd `"`
+4:83 InterpolationEnd `}`
+4:84 InterpolatedStringEnd `"`
+4:85 InterpolationEnd `}`
+4:86 InterpolatedStringEnd `"`
+4:87 InterpolationEnd `}`
+4:88 InterpolatedStringEnd `"`
+4:89 InterpolationEnd `}`
+4:90 InterpolatedStringEnd `"`
+4:91 InterpolationEnd `}`
+4:92 InterpolatedStringEnd `"`
+4:93 InterpolationEnd `}`
+4:94 InterpolatedStringEnd `"`
+4:95 InterpolationEnd `}`
+4:96 InterpolatedStringEnd `"`
+4:97 Identifier `c`
+4:99 Greater `>`
+4:100 GreaterEquals `>=`
+4:103 IntegerLiteral `1`
+5:2 LetKeyword `let`
+5:6 Identifier `café`
+5:12 Equals `=`
+5:14 IntegerLiteral `1`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD5)
+
+  4 │ foo Bar� _x camelCa‏$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"c >>= 1
+    │        ^
+
+error BYN0002: unexpected character `‏`
+
+  4 │ foo Bar� _x camelCa‏$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"c >>= 1
+    │                    ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  5 │  let café = 1
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │  let café = 1
+    │   │         +

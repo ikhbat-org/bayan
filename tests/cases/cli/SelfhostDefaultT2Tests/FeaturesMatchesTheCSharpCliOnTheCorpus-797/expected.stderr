@@ -1,0 +1,7 @@
+error BYN2612: allocation is not allowed in a panic handler
+  --> <repo>/tests/cases/diag/panic-handler-env.byn:3:16
+
+  3 │     let home = Env.get("HOME")
+    │                ^^^^^^^^^^^^^^^
+    │
+  help: remove it; panic handlers can't recover

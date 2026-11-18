@@ -1,0 +1,5 @@
+defer using context
+fails try catch // line commen×t
+//// not a doc comment
+ ( ) [ ] { }
+ 

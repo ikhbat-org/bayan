@@ -1,0 +1,44 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+2:1 Dot `.`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+5:1 Identifier `b`
+6:2 OpenBrace `{`
+6:4 Identifier `foo`
+6:8 Identifier `Bar`
+6:12 Identifier `_x`
+6:15 Identifier `camelCase2`
+6:26 Identifier `بيان`
+6:31 Identifier `μετρητής`
+6:40 Identifier `x_1`
+6:44 Identifier `é`
+7:3 StringLiteral `" $"`
+7:7 StringLiteral `"`
+8:1 StringLiteral `" `
+8:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  7 │ � " $""
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  7 │ � " $""
+    │       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  8 │ " 
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

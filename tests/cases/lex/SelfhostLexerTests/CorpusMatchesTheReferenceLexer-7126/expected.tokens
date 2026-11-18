@@ -1,0 +1,85 @@
+1:2 IntegerLiteral `3`
+1:3 Dot `.`
+1:4 Identifier `O4`
+1:7 FloatLiteral `1e5`
+1:11 FloatLiteral `2.5e-3`
+1:18 FloatLiteral `6E+2`
+1:23 FloatLiteral `1.50`
+1:27 NumericSuffix `dec`
+1:31 IntegerLiteral `1`
+1:32 Dot `.`
+1:33 IntegerLiteral `2`
+1:35 IntegerLiteral `1`
+1:36 DotDotEquals `..=`
+1:39 IntegerLiteral `3`
+1:41 IntegerLiteral `5`
+1:42 NumericSuffix `e`
+1:44 Identifier `x`
+1:45 Dot `.`
+1:46 Identifier `y`
+1:48 FloatLiteral `2.5`
+1:51 NumericSuffix `f`
+3:1 Comma `,`
+3:3 Dot `.`
+3:5 DotDot `..`
+3:8 DotDotEquals `..=`
+3:12 Colon `:`
+3:14 Question `?`
+3:16 QuestionQuestion `??`
+3:19 QuestionQuestionEquals `??=`
+3:23 QuestionDot `?.`
+3:26 FatArrow `=>`
+3:29 Arrow `->`
+3:32 At `@`
+3:34 Hash `#`
+4:4 Identifier `comment`
+4:12 Star `*`
+4:13 Slash `/`
+4:15 Identifier `a`
+6:1 CharLiteral `'\u{202E}'`
+6:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����3.O4 1e5 2.5e-3 6E+2 1.50dec 1�.2 1..=3 5e x.y 2.5f
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����3.O4 1e5 2.5e-3 6E+2 1.50dec 1�.2 1..=3 5e x.y 2.5f
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����3.O4 1e5 2.5e-3 6E+2 1.50dec 1�.2 1..=3 5e x.y 2.5f
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����3.O4 1e5 2.5e-3 6E+2 1.50dec 1�.2 1..=3 5e x.y 2.5f
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����3.O4 1e5 2.5e-3 6E+2 1.50dec 1�.2 1..=3 5e x.y 2.5f
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAB)
+
+  1 │ �����3.O4 1e5 2.5e-3 6E+2 1.50dec 1�.2 1..=3 5e x.y 2.5f
+    │                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  3 │ , . .. ..=�: ? ?? ??= ?. => -> @ #
+    │           ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ '�' 
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ '�' 
+    │   │  -

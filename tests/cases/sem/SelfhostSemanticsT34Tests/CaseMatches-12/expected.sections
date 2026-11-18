@@ -1,0 +1,8 @@
+== s42
+switchExpr|i32|3680:59
+value local:Shape=sh
+arm 3692:37 binaryPattern[3692:32]:Shape(or unionPattern[3692:14]:Shape(circle;bindPattern[3700:3]:i64(r:i64:b:-:let)|-),unionPattern[3710:14]:Shape(square;bindPattern[3718:3]:i64(r:i64:b:-:let)|-)) guard - value literal:i32=1
+arm 3731:6 bindPattern[3731:1]:Shape_(-) guard - value literal:i32=0
+BYN2007 113:57 `r` is already a local here |already declared on line 113|pick a different name; Bayan does not let a local hide another one|
+BYN2022 113:27 variables inside `or` patterns is not supported in v0.1 |||
+BYN2712 113:66 `_` hides future cases of `Shape`, declared in this package |matches every case added later|list the cases instead: .empty|

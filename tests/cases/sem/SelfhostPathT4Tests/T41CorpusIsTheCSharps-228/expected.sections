@@ -1,0 +1,9 @@
+== diags.diag/char-input
+BYN1048 1:14 `char` is now `rune`
+  label the input form
+  help rename the type to `rune`
+  fix 1:14-1:18 rune
+BYN1048 4:23 `char` is now `rune`
+  label the input form
+  help rename the type to `rune`
+  fix 4:23-4:27 rune

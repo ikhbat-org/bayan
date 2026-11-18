@@ -1,0 +1,8 @@
+== tests/cases/diag/unknown-effect.byn
+94..97 blockStmt
+122..125 blockStmt
+139..164 blockStmt
+145..151 exprStmt
+145..151 callExpr
+156..162 exprStmt
+156..162 callExpr

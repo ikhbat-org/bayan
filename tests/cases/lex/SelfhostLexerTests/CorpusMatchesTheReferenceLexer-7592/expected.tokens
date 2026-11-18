@@ -1,0 +1,15 @@
+1:2 IntegerLiteral `012`
+1:5 StringLiteral `"`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �012"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �012"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

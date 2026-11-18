@@ -1,0 +1,6 @@
+== diags.diag/fail-undeclared-case
+BYN2603 6:10 `.missing` is not in the `fails` clause of `f`
+  help name a case of `ParseError`
+BYN2602 10:10 `f` can fail; handle the error or pass it on
+  help propagate the error with `try`, or handle it with `catch`
+  fix 10:10-10:10 try 

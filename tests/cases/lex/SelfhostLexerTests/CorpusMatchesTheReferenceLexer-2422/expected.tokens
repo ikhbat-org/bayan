@@ -1,0 +1,36 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+    doc `/// Doc line two.� `
+2:22 EndOfFile
+
+error BYN0002: unexpected character `\u{12}`
+
+  1 │ let�effect = 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ ���� /// Doc line two.� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ ���� /// Doc line two.� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���� /// Doc line two.� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���� /// Doc line two.� 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  2 │ ���� /// Doc line two.� 
+    │                       ^

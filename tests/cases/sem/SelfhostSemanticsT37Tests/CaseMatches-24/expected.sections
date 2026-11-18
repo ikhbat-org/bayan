@@ -1,0 +1,4 @@
+== pattern.union
+counts 0 1 1
+loan sl w 2734 0
+BYN3002 162:14 `sl` does not live as long as `w`, which borrows it |`sl` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

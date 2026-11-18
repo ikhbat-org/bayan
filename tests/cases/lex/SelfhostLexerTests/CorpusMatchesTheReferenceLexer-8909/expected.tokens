@@ -1,0 +1,60 @@
+1:1 Identifier `ạ̇`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolatedStringText `total `
+1:13 InterpolationStart `{`
+1:14 Identifier `x`
+1:15 InterpolationEnd `}`
+1:16 InterpolatedStringEnd `"`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolatedStringText `a `
+1:22 InterpolationStart `{`
+1:23 Identifier `f`
+1:24 OpenParen `(`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolatedStringText `b `
+1:29 InterpolationStart `{`
+1:30 Identifier `c`
+1:31 InterpolationEnd `}`
+1:32 InterpolatedStringEnd `"`
+1:33 CloseParen `)`
+1:34 InterpolationEnd `}`
+1:35 InterpolatedStringText ` d`
+1:37 InterpolatedStringEnd `"`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolatedStringText `{{literal}}`
+1:52 InterpolatedStringEnd `"`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 Identifier `Point`
+1:63 OpenBrace `{`
+1:65 Identifier `x`
+1:67 Equals `=`
+1:69 IntegerLiteral `1`
+1:71 CloseBrace `}`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringText `!`
+1:74 InterpolatedStringEnd `"`
+1:76 InterpolatedStringStart `$"`
+1:78 InterpolatedStringEnd `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `x`
+3:4 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+4:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   │ ++
+
+error BYN0003: unterminated string literal
+
+  3 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

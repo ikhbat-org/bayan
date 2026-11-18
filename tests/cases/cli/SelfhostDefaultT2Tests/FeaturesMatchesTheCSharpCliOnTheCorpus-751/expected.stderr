@@ -1,0 +1,9 @@
+error BYN6001: `noalloc` is removed; a function without `uses` is already pure
+  --> <repo>/tests/cases/diag/noalloc-removed.byn:1:18
+
+  1 │ i32 twice(i32 n) noalloc => n * 2
+    │                  ^^^^^^^ removed
+    │
+  help: remove `noalloc`
+    │ 1 │ i32 twice(i32 n) noalloc => n * 2
+    │   │                 --------

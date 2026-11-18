@@ -1,0 +1,21 @@
+CompilationUnit
+  While a
+    <error>
+  Expr (call f)
+
+error BYN1017: parentheses around a condition are an input form
+
+  1 │ while (a) goto case 1
+    │       ^^^ not needed
+    │
+  help: remove the parentheses
+    │ 1 │ while a goto case 1
+    │   │       +
+
+error BYN1010: `goto` does not exist in Bayan
+
+  1 │ while (a) goto case 1
+    │           ^^^^ `goto case` does not exist
+    │
+  help: combine patterns with `or`, or move shared code into a function; switch sections never fall
+        through

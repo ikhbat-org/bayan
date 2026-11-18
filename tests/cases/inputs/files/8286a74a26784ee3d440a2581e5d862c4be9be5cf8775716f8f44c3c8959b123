@@ -1,0 +1,7 @@
+let b = "bad \q escapãe"
+
+0b1šms
+
+$"{}"0x_Á
+0xF__
+

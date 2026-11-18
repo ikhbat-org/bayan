@@ -1,0 +1,14 @@
+1:1 Identifier `élet`
+1:7 Identifier `café`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:1 EndOfFile
+
+error BYN0005: identifier `élet` is not in Unicode normalization form C
+
+  1 │ élet café = 2
+    │ ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ élet café = 2
+    │   │ +

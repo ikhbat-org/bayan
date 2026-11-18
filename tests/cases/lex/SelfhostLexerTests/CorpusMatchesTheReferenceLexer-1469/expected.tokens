@@ -1,0 +1,29 @@
+3:2 Identifier `line`
+3:7 Identifier `two`
+3:10 Dot `.`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  1 │ // commen� ��hidden
+    │          ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // commen� ��hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // commen� ��hidden
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  1 │ // commen� ��hidden
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �
+    │ ^

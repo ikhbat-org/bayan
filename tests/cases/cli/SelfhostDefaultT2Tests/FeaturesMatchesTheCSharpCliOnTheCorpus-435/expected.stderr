@@ -1,0 +1,5 @@
+error BYN2222: `i64[3]` needs exactly its length in elements, found 2
+  --> <repo>/tests/cases/diag/array-length-mismatch.byn:1:18
+
+  1 │ let xs: i64[3] = [1, 2]
+    │                  ^^^^^^

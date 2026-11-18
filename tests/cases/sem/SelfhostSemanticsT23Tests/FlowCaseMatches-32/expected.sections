@@ -1,0 +1,2 @@
+== flow.caught
+BYN2604 128:13 `caught` cannot fail, so it cannot pass on `NetError` ||handle the error with `catch`, or declare `fails NetError`|

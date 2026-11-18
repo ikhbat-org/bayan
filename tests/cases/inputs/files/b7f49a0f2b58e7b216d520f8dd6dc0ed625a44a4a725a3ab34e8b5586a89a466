@@ -1,0 +1,3 @@
+text" u16"wide" "‮ allowed in let b = "bad \q escape"
+> b{c >>= 1
+ 

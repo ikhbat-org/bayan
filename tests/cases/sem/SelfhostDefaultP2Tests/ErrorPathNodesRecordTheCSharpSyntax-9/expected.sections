@@ -1,0 +1,34 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/empty/empty.byn
+72..73 literalExpr integer
+72..73 literalExpr integer
+72..73 literalExpr integer
+87..122 catchExpr
+87..122 catchExpr
+87..122 catchExpr
+87..91 callExpr
+98..122 switchExpr
+98..104 caughtErrorExpr
+111..114 declarationPattern
+111..114 declarationPattern
+111..114 declarationPattern
+111..114 declarationPattern
+118..119 literalExpr integer
+136..138 blockStmt
+18..50 structDecl
+18..50 structDecl
+18..50 structDecl
+33..48 requiresRule
+33..48 requiresRule
+42..48 binaryExpr eq right 47..48
+42..43 literalExpr integer
+47..48 literalExpr integer
+33..48 requiresRule
+33..48 requiresRule
+33..48 requiresRule
+18..50 structDecl
+18..50 structDecl
+18..50 structDecl
+18..50 structDecl
+18..50 structDecl
+18..50 structDecl
+18..50 structDecl

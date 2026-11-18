@@ -1,0 +1,195 @@
+// bayan-check: the self-hosted checker. Ports the `check` and `types` subset of `CliApp` (CliApp.cs:141
+// `Types`, :151 `ParseBuildOptions`, :259 `Compile`, :298 `Report`, :315 `TakeGlobalOptions`, :362 `IsScript`,
+// :441 `Check`, :513 `Failed`, :528 `ProgramName` in json.byn), `DiagnosticJson` (json.byn) and the golden
+// harness's compilation (DiagTests.cs:20-26). Plain style only: `--color` is checked but paints nothing, and
+// the symbols are `Symbols.Unicode`, or `Symbols.Ascii` with `--ascii` (Q646).
+//
+//     bayan-check [--ascii] [--color <when>] [<check options>] [--spans] <path>
+//                                    as `bayan check <path>` (R1); `--spans` also prints a
+//                                    `span out of range:` line per diagnostic span outside its file (L023)
+//     bayan-check [--ascii] [--color <when>] --types [<check options>] <path>
+//                                    as `bayan types <path>` (R2)
+//     bayan-check --golden [--tests] [--include-path] [--spans] --package <dir> <file>
+//                                    `<file>` compiled alone with `<dir>` as package root, as `DiagTests`
+//                                    does, and its diagnostics rendered uncapped to stdout; exit 0
+//     bayan-check --many <dir>       `== <name>` and, for every `*.byn` in `<dir>` in name order, its
+//                                    `--golden --package <dir>` output and `--spans` lines (corpora, L023),
+//                                    then `exit <n>` when that input's exit is not 0
+//     bayan-check --time <path>      the nanoseconds `check` spends parsing and checking `<path>`, and
+//                                    `parse … check …` on stderr (R7)
+//     bayan-check --codes            `code\tmessage` for every `SemaCode`, in `DiagnosticCodes.cs` order
+//
+// `<check options>` are `ParseBuildOptions`'s with `allowOutput: false`: `--all`, `--mode <m>`,
+// `--diagnostics json|text` and `-- <ignored>`. A mode flag is the first argument after the global
+// options. Paths are absolute (R1): Bayan has no current directory (Q571).
+
+import lexer
+import parser
+
+i32 usage() {
+    Io.stderr.write(
+        "usage: bayan-check [--ascii] [--color <when>] [--types] [--all] [--mode <m>] [--diagnostics json|text] [--spans] <path> | --golden [--tests] [--include-path] [--spans] --package <dir> <file> | --many <dir> | --time <path> | --codes\n",
+    )
+    return exitUsage
+}
+
+/// DiagTests.cs:20-26: `<file>` compiled alone with `<dir>` as root, tests included with `--tests`, the
+/// capabilities and name of `<dir>/package.byn` when there is one, rendered by `RenderAll` uncapped.
+i32 golden(in List<string> args) {
+    var tests = false
+    var includePath = false
+    var spans = false
+    var dir: string? = null
+    var file: string? = null
+    var i: i64 = 0
+    while i < args.length {
+        let a = args[i]
+        if a == "--tests" {
+            tests = true
+        } else if a == "--include-path" {
+            includePath = true
+        } else if a == "--spans" {
+            spans = true
+        } else if a == "--package" && i + 1 < args.length {
+            i += 1
+            dir = args[i]
+        } else if file is null && !a.startsWith("-") {
+            file = a
+        } else {
+            return usage()
+        }
+        i += 1
+    }
+    let root = dir ?? return usage()
+    let path = file ?? return usage()
+    var capabilities: List<string>? = null
+    var packageName: string? = null
+    let manifestPath = t11Combine(root, by: "package.byn")
+    if t26FileExists(manifestPath) {
+        // Q565: an unreadable `package.byn` reads as an empty one (BYN3100).
+        let m = manifestRead(manifestPath) catch manifestParse(lexer.SourceText.create("package.byn", from: List<u8>()))
+        if (m.capabilities is { } caps) {
+            capabilities = copyStrings(in caps)
+        }
+        packageName = m.name
+    }
+    let options = CompilationOptions { includeTests: tests, capabilities: move capabilities, packageName: packageName }
+    // `Golden.Load` names the source by its file name.
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create(t26FileName(path), from: t11ReadAllBytes(path)))
+    var c = create(from: move sources, at: root, by: in options)
+    var omitted: i64 = 0
+    Io.stdout.write(renderAll(in c, from: in c.diagnostics, by: includePath, until: noLimit, to: ref omitted))
+    if spans {
+        t26CheckSpans(ref c)
+    }
+    return exitOk
+}
+
+/// `--many`: every `*.byn` in `dir`, in name order, as `--golden --package <dir>` prints it, then its
+/// `--spans` lines; the shape of `bayan-parse --many` (src/parser/main.byn:58). Exits 0, or the
+/// last per-input exit that is neither 0 nor 1.
+i32 many(string dir) {
+    var names = Io.listDir(dir) catch return usage()
+    names.sort()
+    var worst = exitOk
+    for name in names {
+        unless name.endsWith(".byn") {
+            continue
+        }
+        let path = t11Combine(dir, by: name)
+        var args = List<string>()
+        args.append("--package")
+        args.append(dir)
+        if name.endsWith(".test.byn") {
+            args.append("--tests")
+        }
+        args.append("--spans")
+        args.append(path)
+        print($"== {name}")
+        // One `exit <n>` line after an input whose `golden` exit is not 0; none for 0, so a clean
+        // `--many` prints what `--golden` prints (SelfhostSemanticsTests.ManyMatchesCompilation).
+        let exit = golden(in args)
+        if exit != exitOk {
+            print($"exit {exit}")
+            if exit != exitFailure {
+                worst = exit
+            }
+        }
+    }
+    return worst
+}
+
+/// `--time` (R7): `check`'s compile of `path`, timed by `Compilation.ParseTime`/`CheckTime`
+/// (compile.byn:96, :107); the total on stdout as `bayan-parse --time` does (src/parser/main.byn:80).
+i32 timed(string path, by in T26Symbols symbols) {
+    var args = List<string>()
+    args.append(path)
+    let o = t26ParseBuildOptions(in args, allowSpans: false) ?? return exitUsage
+    var reported = List<T26Reported>()
+    var ok = false
+    let c = t26Compile(in o, by: in symbols, to: ref reported, through: ref ok)
+    print($"{c.parseTime + c.checkTime}")
+    Io.stderr.write($"parse {c.parseTime} check {c.checkTime}\n")
+    return exitOk
+}
+
+/// `--codes`: `code\tmessage` for every `SemaCode` (codes.byn:785 `allSemaCodes`), as `bayan-parse --codes`
+/// prints `ParseCode` (src/parser/main.byn:99).
+i32 printCodes() {
+    for code in allSemaCodes() {
+        print($"{codeText(code)}\t{messageFormat(code)}")
+    }
+    return exitOk
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    // CliApp.cs:315 `TakeGlobalOptions`: `--color` and `--ascii` come out of everything before a `--`. The
+    // arguments are `check`'s (R1), so a command is always given and the script branch never applies.
+    var ascii = false
+    var rest = List<string>()
+    var i: i64 = 0
+    while i < args.length {
+        let a = args[i]
+        if a == "--" {
+            for k in i..args.length {
+                rest.append(args[k])
+            }
+            break
+        }
+        var value: string? = null
+        if a == "--ascii" {
+            ascii = true
+        } else if a == "--color" && i + 1 < args.length {
+            i += 1
+            value = args[i]
+        } else if a.startsWith("--color=") {
+            value = a["--color=".length..a.length]
+        } else if a == "--color" {
+            value = ""
+        } else {
+            rest.append(a)
+        }
+        if (value is { } v) {
+            if v != "auto" && v != "always" && v != "never" {
+                Io.stderr.write($"bayan: unknown color setting `{v}` (expected auto, always or never)\n")
+                return exitUsage
+            }
+        }
+        i += 1
+    }
+    let symbols = t26Symbols(ascii)
+    let mode = rest.length > 0 ? rest[0] : ""
+    if mode == "--types" {
+        rest.remove(at: 0)
+        return types(in rest, by: in symbols)
+    }
+    if mode == "--golden" {
+        rest.remove(at: 0)
+        return golden(in rest)
+    }
+    return rest.length == 2 ? many(rest[1]) : usage() if mode == "--many"
+    return rest.length == 2 ? timed(rest[1], by: in symbols) : usage() if mode == "--time"
+    return rest.length == 1 ? printCodes() : usage() if mode == "--codes"
+    return check(in rest, by: in symbols)
+}

@@ -1,0 +1,19 @@
+1:1 CharLiteral `'xw// ok � i� comment`
+2:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'xw// ok � i� comment
+    │ ^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ 'xw// ok � i� comment
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC9)
+
+  1 │ 'xw// ok � i� comment
+    │             ^

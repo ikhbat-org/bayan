@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"IntegerLiteral","start":16,"end":17,"text":"1","doc":null},{"kind":"NumericSuffix","start":17,"end":24,"text":"eيان","doc":null},{"kind":"Identifier","start":25,"end":41,"text":"μετρητής","doc":null},{"kind":"EndOfFile","start":43,"end":43,"text":"","doc":null}],"diagnostics":[]}

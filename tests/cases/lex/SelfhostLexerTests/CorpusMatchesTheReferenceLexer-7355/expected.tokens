@@ -1,0 +1,42 @@
+1:1 CharLiteral `'\u{�800}'`
+2:2 IntegerLiteral `1`
+2:3 NumericSuffix `e`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolatedStringText `open `
+2:11 InterpolationStart `{`
+2:12 Identifier `x`
+2:13 StringLiteral `";`
+3:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ '\u{�800}'
+    │ ^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u{`
+
+  1 │ '\u{�800}'
+    │  ^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  1 │ '\u{�800}'
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  2 │  1e$"open {x";
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │  1e$"open {x";
+    │             ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

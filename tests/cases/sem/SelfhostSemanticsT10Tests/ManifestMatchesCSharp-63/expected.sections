@@ -1,0 +1,9 @@
+== case inline/style-lint-severity
+errors 2
+error BYN3102: `style.lints` must be `.none`, `.suggestion`, `.warning` or `.error` for `lambdas.it`
+  1 │ Package { name: "local/a", version: "0.1.0", style: Style { lints: ["lambdas.it": .loud, "nesting.depth": 1] } }
+    │                                                                                   ^^^^^
+error BYN3102: `style.lints` must be `.none`, `.suggestion`, `.warning` or `.error` for
+`nesting.depth`
+  1 │ Package { name: "local/a", version: "0.1.0", style: Style { lints: ["lambdas.it": .loud, "nesting.depth": 1] } }
+    │                                                                                                           ^

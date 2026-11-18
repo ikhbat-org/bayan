@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/input-fails-shorthand-forms.byn
+--package
+<repo>/tests/cases/diag

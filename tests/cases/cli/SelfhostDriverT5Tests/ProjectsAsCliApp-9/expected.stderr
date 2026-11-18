@@ -1,0 +1,1 @@
+bayan: `local/kit` is a library, so there is no program to build; `bayan test` runs its tests

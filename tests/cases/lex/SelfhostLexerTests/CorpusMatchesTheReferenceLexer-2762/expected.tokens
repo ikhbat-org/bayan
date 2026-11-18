@@ -1,0 +1,60 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q escape"`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:10 CharLiteral `'\u{1F600}'`
+3:22 CharLiteral `'\''`
+3:27 CharLiteral `'é'`
+3:31 CharLiteral `'\\'`
+3:36 CharLiteral `'\0'`
+5:1 CharLiteral `''`
+6:1 StructKeyword `struct`
+6:8 UniqueKeyword `unique`
+6:15 UnionKeyword `union`
+6:21 EnumKeyword `enum`
+6:26 FlagsKeyword `flags`
+6:32 OpenKeyword `open`
+6:37 ExtensibleKeyword `extensible`
+6:48 InterfaceKeyword `interface`
+6:58 DelegateKeyword `delegate`
+6:67 ExtensionKeyword `extension`
+6:77 DerivationKeyword `derivation`
+6:88 AttributeKeyword `attribute`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 InterpolationEnd `}`
+7:6 InterpolatedStringEnd `"`
+7:8 OpenParen `(`
+7:10 CloseParen `)`
+7:12 OpenBracket `[`
+7:14 CloseBracket `]`
+7:16 OpenBrace `{`
+7:18 CloseBrace `}`
+9:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0007: empty char literal
+
+  5 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

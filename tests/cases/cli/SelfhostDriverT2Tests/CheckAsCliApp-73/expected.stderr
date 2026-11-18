@@ -1,0 +1,18 @@
+error BYN7009: `pay` declares `becomes .paid` but returns here without `become`
+  --> <repo>/tmp/t2/diag/missing-become/missing-become.byn:9:13
+
+  9 │             return
+    │             ^^^^^^
+    │
+  help: add `become .paid(…)` before returning, or fail
+
+error BYN7009: `settle` declares `becomes .paid` but returns here without `become`
+  --> <repo>/tmp/t2/diag/missing-become/missing-become.byn:17:5
+
+  17 │     }
+     │     ^
+     │
+  help: add `become .paid(…)` before returning, or fail
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN7009

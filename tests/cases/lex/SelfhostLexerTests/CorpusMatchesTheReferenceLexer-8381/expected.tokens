@@ -1,0 +1,32 @@
+2:1 IntegerLiteral `0x`
+4:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  1 │ �$�
+    │ ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ �$�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  1 │ �$�
+    │   ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ � 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  4 │ � 
+    │  ^

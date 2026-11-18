@@ -1,0 +1,8 @@
+  raw "quoted"
+
+eÌ$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x let actor = 1
+let acto¢ = 1
+
+fails try catch never noalloc nosuspend suspends async await
+ let b = "bad \q escape"
+	 

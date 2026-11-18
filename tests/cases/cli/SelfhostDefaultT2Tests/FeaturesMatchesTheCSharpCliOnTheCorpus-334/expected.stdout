@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "nodes": [
+    "BecauseClause",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "IfStmt",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "Print",
+    "StringIsEmpty",
+    "StringLength",
+    "Trust",
+    "UntrustedNew"
+  ],
+  "diagnostics": []
+}

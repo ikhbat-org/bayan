@@ -1,0 +1,3 @@
+void main() {
+    let n = i8(3)
+}

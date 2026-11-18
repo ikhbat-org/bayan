@@ -1,0 +1,60 @@
+union error E {
+    bad
+    worse(string why)
+}
+
+const gravity: f64 = 6.673e-11
+const half: f32 = 0.5
+const lowest: i64 = -9223372036854775807 - 1
+const top: u64 = 18446744073709551615
+const small: u8 = 200
+const yes: bool = true
+const letter: rune = 'x'
+const label: string = "a\"b\\c?\t é✓"
+const primes: u32[3] = [2, 3, 5]
+const names: string[2] = ["x\ty", "é"]
+const ratios: f64[2] = [0.5, 3.0]
+const many: u32[10] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+enum Kind {
+    word
+    symbol
+}
+
+enum Planet(f64 mass, f32 gee, string label, Kind kind) {
+    mercury(3.303e23, 3.7, "swift", .word)
+    earth(5.976e24, 9.8, "home", .symbol)
+}
+
+struct Counter {
+    i64 n
+    Counter(i64 start) { n = start }
+    i64 plus(by i64 d) => n + d
+    i64 plus(from i64 a, to i64 b) => n - a + b
+    i64 value => n
+}
+
+i64 twice(i64 x) => x * 2
+i64 twice(i64 x, by i64 k) => x * k
+
+T id<T>(move T v) => move v
+
+i64 apply(i64 x) {
+    let add: i64 -> i64 = y => y + 1
+    return add(x)
+}
+
+test "adds" {
+    let a = id(1)
+    let b = id("s")
+    let c = Counter(1)
+    assert twice(a) == 2 && twice(a, by: 3) == 3 && c.value == 1 && apply(1) == 2
+}
+
+test "plus" {
+    assert Counter(3).plus(by: 1) == 4
+}
+
+void main() fails E {
+    fail .bad if apply(0) == 7
+}

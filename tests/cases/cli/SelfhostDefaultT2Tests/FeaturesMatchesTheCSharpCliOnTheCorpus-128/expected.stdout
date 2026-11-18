@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CaughtErrorExpr",
+    "ConstantPattern",
+    "DiscardPattern",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "JumpExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "SwitchExpr",
+    "TargetMemberExpr"
+  ],
+  "builtins": [
+    "IoRunBatch",
+    "ListAsSpan",
+    "Print",
+    "ProcessExitCode"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,1 @@
+{"code":"BYN2004","severity":"error","file":"input.byn","span":{"start":7,"end":11,"line":1,"column":8,"endLine":1,"endColumn":12},"message":"no module `mony`","label":null,"help":"put the module's `.byn` files in `mony/` next to the entry file; a module is a directory","fixes":[]}

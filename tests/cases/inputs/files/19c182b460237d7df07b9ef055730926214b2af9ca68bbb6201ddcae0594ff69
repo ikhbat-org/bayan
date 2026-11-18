@@ -1,0 +1,43 @@
+public struct Order {
+    public i64 total
+}
+
+// Fixed settings in fields are fine.
+public struct OrderHasher {
+    u64 seed
+    public u64 hash(Order order) => seed + u64(order.total)
+}
+
+public struct OrderCodec {
+    public string encode(Order order) => ""
+    public Order decode(string text) => Order { total: 0 }
+}
+
+// A doer fed data step by step changes `this` and is named like one.
+public struct OrderBuilder {
+    i64 total
+    public void add(ref this, Order order) {
+        total += order.total
+    }
+    public Order build() => Order { total: total }
+}
+
+// A member the module keeps to itself is not checked.
+public struct LineComparer {
+    i64 calls
+    public i64 compare(Order order) => order.total
+    void count(ref this) {
+        calls += 1
+    }
+}
+
+// A type the module keeps to itself is not checked.
+struct RowHasher {
+    u64 state
+    public u64 hash(ref this, Order order) {
+        state += 1
+        return state
+    }
+}
+
+print("ok")

@@ -1,0 +1,8 @@
+== tests/cases/diag/non-exhaustive-data-enum.byn
+109..144 switchExpr
+109..144 switchExpr
+109..144 switchExpr
+109..110 nameExpr
+124..132 constantPattern
+124..132 targetMemberExpr
+136..141 literalExpr string

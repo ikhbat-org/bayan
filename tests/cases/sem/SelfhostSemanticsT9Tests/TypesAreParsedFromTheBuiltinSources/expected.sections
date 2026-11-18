@@ -1,0 +1,20 @@
+== types
+Stream 12:6 decl=0 stdout@25:6#0 stderr@37:6#1
+Radix 12:5 decl=0 binary@24:6#0 octal@36:5#1 decimal@47:7#2 hex@60:3#3
+Edge 12:4 decl=0 start@23:5#0 end@34:3#1
+Align 12:5 decl=0 start@24:5#0 end@35:3#1 center@44:6#2
+Comparison 12:10 decl=0 ordinal@29:7#0 caseless@42:8#1
+LogLevel 12:8 decl=0 debug@27:5#0 info@38:4#1 warn@48:4#2 error@58:5#3
+Utf8Invalid 12:11 decl=0 replace@30:7#0
+IoError 19:7 decl=IoError
+Utf8Error 19:9 decl=Utf8Error
+ValidationError 19:15 decl=ValidationError
+ParseError 19:10 decl=ParseError
+Rule 13:4 violation=Violation@187:9
+Rule.length 57:6
+Rule.range 110:5
+Rule.custom 163:6
+IEnumerator 17:11 decl=0
+IIndexable 121:10 decl=1
+nope null
+modules 1

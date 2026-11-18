@@ -1,0 +1,23 @@
+== tests/cases/diag/undeclared-error.byn
+115..160 blockStmt
+121..145 guardedStmt
+136..145 memberExpr
+136..137 nameExpr
+121..125 failStmt
+126..132 targetMemberExpr
+150..158 returnStmt value 157..158
+157..158 literalExpr integer
+199..226 blockStmt
+205..224 returnStmt value 212..224
+212..224 tryExpr
+216..224 callExpr
+222..223 nameExpr
+228..258 globalStatement
+228..258 exprStmt
+228..258 callExpr
+234..257 interpolatedExpr
+237..255 catchExpr
+237..247 callExpr
+243..246 literalExpr string
+254..255 literalExpr integer
+228..258 callExpr

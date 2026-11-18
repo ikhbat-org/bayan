@@ -1,0 +1,29 @@
+== tests/cases/diag/ref-out-escape-ref-this-list-field.byn
+117..291 blockStmt
+123..160 localDecl
+131..160 structLiteralExpr
+144..158 callExpr
+165..267 blockStmt
+175..200 localDecl
+193..200 callExpr
+209..241 localDecl
+220..241 callExpr
+220..225 literalExpr string
+235..240 nameExpr
+250..261 exprStmt
+250..261 callExpr
+250..251 nameExpr
+256..260 nameExpr
+272..289 exprStmt
+272..289 callExpr
+278..288 indexExpr
+278..285 memberExpr
+278..279 nameExpr
+286..287 literalExpr integer
+272..289 callExpr
+70..101 blockStmt
+80..95 exprStmt
+80..95 callExpr
+80..85 nameExpr
+80..85 nameExpr
+93..94 nameExpr

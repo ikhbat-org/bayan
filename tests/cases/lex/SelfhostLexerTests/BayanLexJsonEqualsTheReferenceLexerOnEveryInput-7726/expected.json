@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"IntegerLiteral","start":0,"end":1,"text":"1","doc":null},{"kind":"Dot","start":1,"end":2,"text":".","doc":null},{"kind":"EndOfFile","start":2,"end":2,"text":"","doc":null}],"diagnostics":[]}

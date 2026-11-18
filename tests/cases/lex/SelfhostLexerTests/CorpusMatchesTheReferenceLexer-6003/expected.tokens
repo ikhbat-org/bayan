@@ -1,0 +1,18 @@
+1:1 Identifier `nev`
+2:1 Identifier `Doo`
+2:5 Identifier `Bar`
+2:9 Identifier `_x`
+2:12 Identifier `camelCase2`
+2:23 Identifier `بيان`
+2:28 Identifier `μετρητής`
+2:37 Identifier `x_1`
+2:41 Identifier `é`
+3:2 Identifier `a`
+10:2 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  3 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

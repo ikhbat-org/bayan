@@ -1,0 +1,41 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 StringLiteral `" ue false comptime checked`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ let�a = $ 1
+    │    ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ let�a = $ 1
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{" ue false comptime checked
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{" ue false comptime checked
+    │    ^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `‏`
+
+  5 │ ‏
+    │ ^

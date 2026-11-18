@@ -1,0 +1,8 @@
+1:1 Identifier `et`
+1:7 IntegerLiteral `2`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ et �  2
+    │    ^

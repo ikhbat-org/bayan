@@ -1,0 +1,129 @@
+1:1 StringLiteral `"{$"`
+1:5 OpenBrace `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 Identifier `x`
+1:43 InterpolationEnd `}`
+1:44 InterpolatedStringEnd `"`
+1:45 InterpolationEnd `}`
+1:46 InterpolatedStringEnd `"`
+1:47 InterpolationEnd `}`
+1:48 InterpolatedStringEnd `"`
+1:49 InterpolationEnd `}`
+1:50 InterpolatedStringEnd `"`
+1:51 InterpolationEnd `}`
+1:52 InterpolatedStringText `}`
+1:53 InterpolatedStringEnd `"`
+2:1 Identifier `r`
+2:3 Identifier `xs`
+2:5 Colon `:`
+2:7 Identifier `L`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolatedStringText `^$`
+2:36 InterpolatedStringEnd `"`
+2:37 OpenBrace `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 StringLiteral `$"{$"`
+2:46 OpenBrace `{`
+2:48 OpenBrace `{`
+2:49 StringLiteral `$"{$"`
+2:54 OpenBrace `{`
+2:55 StringLiteral `$"{$"`
+2:60 OpenBrace `{`
+2:61 StringLiteral `$"{x}"`
+2:67 CloseBrace `}`
+2:68 StringLiteral `"}"`
+2:71 CloseBrace `}`
+2:72 StringLiteral `"}"`
+2:75 CloseBrace `}`
+2:76 StringLiteral `"}"`
+4:2 OpenBrace `{`
+4:3 Identifier `literal`
+4:10 CloseBrace `}`
+4:11 CloseBrace `}`
+4:12 StringLiteral `" $"`
+4:16 OpenBrace `{`
+4:17 Identifier `Po`
+4:20 CharLiteral `'\q'`
+5:2 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}}"
+    │                                                    ^
+    │
+    │ 1 │ "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}}}"
+    │   │                                                     +
+
+error BYN0003: unterminated string literal
+
+  2 │ r xs: L$"{$"{$"{$"{$"{$"{$"{$"{$"^$"{$"{$"{$"{${$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ r xs: L$"{$"{$"{$"{$"{$"{$"{$"{$"^$"{$"{$"{$"{${$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                                         ^^
+
+error BYN0002: unexpected character `$`
+
+  2 │ r xs: L$"{$"{$"{$"{$"{$"{$"{$"{$"^$"{$"{$"{$"{${$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                                               ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // comment � hidden
+    │   │            -
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │  {literal}}" $"{Po '\q'
+    │                     ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

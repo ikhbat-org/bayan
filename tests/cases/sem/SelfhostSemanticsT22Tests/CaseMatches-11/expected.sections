@@ -1,0 +1,3 @@
+== pat.probes.-.q11
+bindPattern|-
+BYN2411 65:21 `NetError.closed` cannot match `NetError | OtherError except .closed` |||

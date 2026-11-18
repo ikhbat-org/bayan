@@ -1,0 +1,10 @@
+CompilationUnit
+  Struct S
+    Field i64 a
+
+error BYN1001: expected `}`, found end of file
+
+  3 │ 
+    │ ^
+    │
+  help: close the struct opened on line 1

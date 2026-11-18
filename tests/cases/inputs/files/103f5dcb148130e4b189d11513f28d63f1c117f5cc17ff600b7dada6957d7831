@@ -1,0 +1,10 @@
+// os: unix
+// A program named with a `/` is found against our directory, not the `directory:` the child runs in: `./tool` with
+// `directory: "sub"` runs our `tool` (in `sub`), not `sub/tool`, as it does without `directory:` (plan 007, Q1247).
+void main() fails IoError {
+    let setup: string[2] = ["-c", "mkdir -p sub && printf '#!/bin/sh\\n[ \"${PWD##*/}\" = sub ] && echo ours in sub || echo ours here\\n' > tool && printf '#!/bin/sh\\necho theirs\\n' > sub/tool && chmod +x tool sub/tool"]
+    let _ = try Io.run("sh", setup.span)
+    let none: string[1] = [""]
+    print((try Io.run("./tool", none.span)).stdout)
+    print((try Io.run("./tool", none.span, directory: "sub")).stdout)
+}

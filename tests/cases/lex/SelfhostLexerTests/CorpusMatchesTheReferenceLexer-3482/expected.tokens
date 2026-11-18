@@ -1,0 +1,47 @@
+1:1 CharLiteral `'\''`
+1:6 CharLiteral `'é'`
+1:10 CharLiteral `'\\'`
+1:15 CharLiteral `'\0'`
+3:1 OpenBrace `{`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:9 StringLiteral `"{$ // line comment`
+4:1 InterpolationEnd `}`
+4:2 InterpolatedStringEnd
+5:1 CharLiteral `'\q'`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ {$"{$"{�"{$ // line comment
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ {$"{$"{�"{$ // line comment
+    │     ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ {$"{$"{�"{$ // line comment
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  3 │ {$"{$"{�"{$ // line comment
+    │         ^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

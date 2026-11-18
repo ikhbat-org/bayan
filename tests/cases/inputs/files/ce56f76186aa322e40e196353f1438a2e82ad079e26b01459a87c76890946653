@@ -1,0 +1,3 @@
+void check(string s) fails ParseError {
+    fail .empty if s.isEmpty
+}

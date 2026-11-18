@@ -1,0 +1,69 @@
+union error E {
+    x
+    y(i64 n)
+}
+
+struct P {
+    i64 a
+    i64 b
+    i64 sum => a + b
+}
+
+union U {
+    one(i64 v)
+    two(i64 v, i64 w)
+    none
+}
+
+struct Q {
+    P p
+    P t
+    string s
+}
+
+i64 g() fails E => 1
+
+void gv() fails E { }
+
+i64 h() => 2
+
+void hv() { }
+
+i64 lazy(i64 k, at bool q, to i64? o, from P p, until U u, by List<i64> xs, for i64[3] arr, through Q qq, as U? ou) fails E {
+    let a1 = q && (g() catch 0) > 1
+    let a2 = q || (g() catch 0) > 1
+    let a3 = q ? (g() catch 0) : 2
+    let a4 = q ? 1 : (g() catch 0)
+    let a5 = o ?? (g() catch 0)
+    let a6 = [..arr, 4]
+    let a7: List<i64> = [..xs, 5]
+    let a8: List<i64> = [..arr, 6]
+    let a9 = [1, 2]
+    let b1 = u is .one(let v) && v > 1
+    let b2 = u is .two(1, let w)
+    let b3 = p is { a: 1, b: > 2 }
+    let b4 = k is > 1 and < 9
+    let b5 = k is not 3
+    let b6 = qq is { p: { a: 1 }, t: { a: 2 } }
+    let b7 = o is 3
+    let b8 = o is > 3
+    let b9 = o is 1..5
+    let c1 = ou is .one(_)
+    let c2 = p is { sum: 3 }
+    let c3 = qq.s is { length: 3 }
+    let c4 = u is .none
+    let c5 = k is 1..=5
+    let c6 = k in h()..=9
+    let d1: i64 -> i64 = x => x + k
+    let d2: () -> i64 = () => 9
+    let d3 = try g()
+    gv() catch { }
+    try gv()
+    hv()
+    let ys: List<i64> = [1]
+    let d6 = move ys
+    let d7 = i32(k)
+        return 0
+}
+
+void main() { }

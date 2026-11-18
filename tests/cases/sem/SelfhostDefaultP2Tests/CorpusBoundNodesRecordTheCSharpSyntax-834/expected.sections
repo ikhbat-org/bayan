@@ -1,0 +1,34 @@
+== tests/cases/diag/state-literal-violated.byn
+104..138 globalStatement
+104..138 localDecl
+116..138 structLiteralExpr
+139..182 localDecl
+150..182 structLiteralExpr
+0..102 structDecl
+0..102 structDecl
+0..102 structDecl
+0..102 structDecl
+0..102 structDecl
+26..41 requiresRule
+26..41 requiresRule
+35..41 binaryExpr gt right 40..41
+35..37 nameExpr
+35..37 nameExpr
+40..41 literalExpr integer
+26..41 requiresRule
+26..41 requiresRule
+26..41 requiresRule
+26..41 requiresRule
+26..41 requiresRule
+26..41 requiresRule
+26..41 requiresRule
+26..41 requiresRule
+26..41 requiresRule
+26..41 requiresRule
+0..102 structDecl
+0..102 structDecl
+0..102 structDecl
+0..102 structDecl
+0..102 structDecl
+0..102 structDecl
+0..102 structDecl

@@ -1,0 +1,85 @@
+== tests/cases/run/int-parse.byn
+260..458 blockStmt
+266..428 localDecl
+274..428 catchExpr
+274..288 callExpr
+283..287 nameExpr
+274..288 callExpr
+295..428 switchExpr
+295..301 caughtErrorExpr
+312..329 variantPattern
+322..325 varPattern
+333..370 jumpExpr
+333..370 jumpExpr
+333..370 returnStmt value 340..370
+340..370 interpolatedExpr
+344..348 nameExpr
+366..368 nameExpr
+380..389 constantPattern
+380..389 targetMemberExpr
+393..421 jumpExpr
+393..421 jumpExpr
+393..421 returnStmt value 400..421
+400..421 interpolatedExpr
+404..408 nameExpr
+433..456 returnStmt value 440..456
+440..456 interpolatedExpr
+444..448 nameExpr
+453..454 nameExpr
+489..781 blockStmt
+495..512 exprStmt
+495..512 callExpr
+501..511 callExpr
+506..510 literalExpr string
+495..512 callExpr
+517..536 exprStmt
+517..536 callExpr
+523..535 callExpr
+528..534 literalExpr string
+517..536 callExpr
+541..559 exprStmt
+541..559 callExpr
+547..558 callExpr
+552..557 literalExpr string
+541..559 callExpr
+564..582 exprStmt
+564..582 callExpr
+570..581 callExpr
+575..580 literalExpr string
+564..582 callExpr
+587..606 exprStmt
+587..606 callExpr
+593..605 callExpr
+598..604 literalExpr string
+587..606 callExpr
+611..626 exprStmt
+611..626 callExpr
+617..625 callExpr
+622..624 literalExpr string
+611..626 callExpr
+631..647 exprStmt
+631..647 callExpr
+637..646 callExpr
+642..645 literalExpr string
+631..647 callExpr
+652..747 exprStmt
+652..747 callExpr
+658..746 interpolatedExpr
+661..690 tryExpr
+665..690 callExpr
+675..679 literalExpr string
+685..689 targetMemberExpr
+693..721 tryExpr
+697..721 callExpr
+706..710 literalExpr string
+716..720 targetMemberExpr
+724..744 tryExpr
+728..744 callExpr
+738..743 literalExpr string
+728..744 callExpr
+652..747 callExpr
+752..779 localDecl
+760..779 tryExpr
+764..779 callExpr
+773..778 literalExpr string
+764..779 callExpr

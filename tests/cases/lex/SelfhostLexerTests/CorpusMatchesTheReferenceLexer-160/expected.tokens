@@ -1,0 +1,96 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+2:2 StringLiteral `"a\u{2067}b"`
+2:7 OpenBrace `{`
+3:1 Identifier `ạ̇`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:24 StringLiteral `"{$"`
+4:28 OpenBrace `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolatedStringText `�`
+4:47 InterpolationStart `{`
+4:48 InterpolatedStringStart `$"`
+4:50 InterpolationStart `{`
+4:51 InterpolatedStringStart `$"`
+4:53 InterpolationStart `{`
+4:54 Identifier `x`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:59 InterpolationEnd `}`
+4:60 InterpolatedStringEnd `"`
+4:61 InterpolationEnd `}`
+4:62 InterpolatedStringEnd `"`
+4:63 InterpolationEnd `}`
+4:64 InterpolatedStringEnd `"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:7 Equals `=`
+5:11 IntegerLiteral `3`
+7:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇
+    │   │ ++
+
+error BYN0002: unexpected character `$`
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{x}"}"}"}"}"}"}"
+    │                      ^
+
+error BYN0002: unexpected character `\u{F}`
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{x}"}"}"}"}"}"}"
+    │                       ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{x}"}"}"}"}"}"}"
+    │                             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{x}"}"}"}"}"}"}"
+    │                                              ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ let c = � 3
+    │         ^

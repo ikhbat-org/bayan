@@ -1,0 +1,9 @@
+1:1 Identifier `b102`
+2:12 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │  /* blockS 
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

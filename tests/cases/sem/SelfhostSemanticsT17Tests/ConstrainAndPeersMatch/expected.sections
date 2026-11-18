@@ -1,0 +1,11 @@
+== pending
+pending true false
+constraints none none none none none
+constraints i64 none none none none
+peers 0 0 2
+constraints i64 none none none none
+constraints i64 i64 none none none
+peers 0 0 0
+binary true false false
+unary true false
+constraints i64 i64 none i16 i8

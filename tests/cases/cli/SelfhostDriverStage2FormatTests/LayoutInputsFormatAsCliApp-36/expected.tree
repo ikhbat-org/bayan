@@ -1,0 +1,641 @@
+== case000.byn
+tmp== case001.byn
+format== case002.byn
+fix== case003.byn
+main.byn== case004.byn
+let a = true
+if a {
+    print("y")
+}
+== case005.byn
+let a = true
+if a {
+    print("y")
+}
+== case006.byn
+formatted== case007.byn
+two== case008.byn
+let a = true
+let b = true
+if a {
+    if b {
+        print("x")
+    }
+}
+== case009.byn
+let a = true
+let b = true
+if a {
+    if b {
+        print("x")
+    }
+}
+== case010.byn
+round3== case011.byn
+// one
+// two
+bool isA(rune c) => c == 'a'
+
+@cases(1, 2)
+test "positive" (i32 n) {
+    assert(n > 0)
+}
+== case012.byn
+// one
+// two
+bool isA(rune c) => c == 'a'
+
+@cases(1, 2)
+test "positive" (i32 n) {
+    assert(n > 0)
+}
+== case013.byn
+requires== case014.byn
+type distinct Percent = i32 requires it in 0..=100
+== case015.byn
+type distinct Percent = i32 requires it in 0..=100
+== case016.byn
+function-types== case017.byn
+struct Order { i64 total }
+
+type OrderFilter = Order -> bool
+type F           = i32 -> bool
+== case018.byn
+struct Order { i64 total }
+
+type OrderFilter = Order -> bool
+type F           = i32 -> bool
+== case019.byn
+order== case020.byn
+struct Box { i64 weight }
+
+union Event { timeout(i64 after) }
+
+i64 add(i64 a, i64 b) {
+    return a + b
+}
+
+void main() {
+    let t: i64 = add(1, 2)
+    var u: i64 = 0
+    u = t
+    const k: i64 = 3
+    print($"{u}{k}")
+}
+== case021.byn
+struct Box { i64 weight }
+
+union Event { timeout(i64 after) }
+
+i64 add(i64 a, i64 b) {
+    return a + b
+}
+
+void main() {
+    let t: i64 = add(1, 2)
+    var u: i64 = 0
+    u = t
+    const k: i64 = 3
+    print($"{u}{k}")
+}
+== case022.byn
+shorthand-uses== case023.byn
+union error E {
+    a
+}
+
+union error F {
+    b
+}
+
+i32 g() uses console fails E, F {
+    print("g")
+    return 1
+}
+== case024.byn
+i32 g() uses console fails E, F {== case025.byn
+fails== case026.byn
+union error E {
+    a
+}
+
+union error F {
+    b
+}
+
+union error G {
+    c
+}
+== case027.byn
+i32!E g() // keep me
+    fails F
+    uses console== case028.byn
+i32!E g()
+    fails F
+    uses console== case029.byn
+i64!E g<T>(T x) fails F where T : IShape expects true== case030.byn
+i32!E g() fails F uses console fails G, E== case031.byn
+i32!E g() fails F uses console uses fs== case032.byn
+interface IShape {
+    i64 area()
+}
+== case033.byn
+{
+    print("g")
+    return 1
+}
+== case034.byn
+shorthand-comment== case035.byn
+i32 g()
+        uses console // keep me
+        fails E, F {== case036.byn
+shorthand-lines== case037.byn
+i32 g()
+        uses console
+        fails E, F {== case038.byn
+shorthand-where== case039.byn
+i64 g<T>(T x) where T : IShape expects true fails E, F {== case040.byn
+shorthand-two-fails== case041.byn
+i32 g() uses console fails E, F, G {== case042.byn
+shorthand-two-uses== case043.byn
+i32 g() uses console uses fs fails E, F {== case044.byn
+idempotent== case045.byn
+let a = true
+if a {
+    print("x")
+}
+== case046.byn
+let a = true
+if a {
+    print("x")
+}
+== case047.byn
+bool f(bool a, bool b, i32 n) => a && !b || n is not 0
+
+void main() {
+    let x: isize = 3
+    switch x {
+        case 1 or 2: print("a")
+        default: print("b")
+    }
+    print("s") if !f(true, false, 1) && x > 0
+}
+== case048.byn
+bool f(bool a, bool b, i32 n) => a && !b || n is not 0
+
+void main() {
+    let x: isize = 3
+    switch x {
+        case 1 or 2: print("a")
+        default: print("b")
+    }
+    print("s") if !f(true, false, 1) && x > 0
+}
+== case049.byn
+package.byn== case050.byn
+defaults== case051.byn
+words== case052.byn
+booleans: .words, primitives: .csharp== case053.byn
+src== case054.byn
+is not 0== case055.byn
+csharp-builds== case056.byn
+primitives: .csharp== case057.byn
+i64 twice(i32 n) => n * 2
+
+void main() {
+    let r: f64 = 0.5
+    print($"{twice(3)} {r}")
+}
+== case058.byn
+build== case059.byn
+-o== case060.byn
+out== case061.byn
+BYN1030== case062.byn
+spacing== case063.byn
+booleans: .words== case064.byn
+bool f(bool a, bool b) => a && !b || !(a)
+== case065.byn
+bool f(bool a, bool b) => a && !b || !(a)
+== case066.byn
+member== case067.byn
+i64 f(Box b) => b.long
+== case068.byn
+primitive-names== case069.byn
+struct P { i32 i8 }
+
+void main() {
+    let u8 = 1
+    let p = P { i8: 3 }
+    let w: i8 = 2
+    print($"{u8}{p.i8}{w}")
+}
+== case070.byn
+struct P { i32 i8 }
+
+void main() {
+    let u8 = 1
+    let p = P { i8: 3 }
+    let w: i8 = 2
+    print($"{u8}{p.i8}{w}")
+}
+== case071.byn
+conv-sized== case072.byn
+void main() {
+    let y = 1
+    let z: i64 = i64(y)
+    let a = i32.tryFrom(y)
+    let b = i64.max
+}
+== case073.byn
+void main() {
+    let y = 1
+    let z: i64 = i64(y)
+    let a = i32.tryFrom(y)
+    let b = i64.max
+}
+== case074.byn
+conv-csharp== case075.byn
+void main() {
+    let y = 1
+    let a = i32.tryFrom(y)
+    let b = i64.max
+    let c = i8(y)
+}
+== case076.byn
+void main() {
+    let y = 1
+    let a = i32.tryFrom(y)
+    let b = i64.max
+    let c = i8(y)
+}
+== case077.byn
+conv-declared== case078.byn
+void main() {
+    let i8 = 1
+    let n = i8.foo
+    let m = i8(2)
+}
+== case079.byn
+conv-declared-package== case080.byn
+a.byn== case081.byn
+i64 i8(i64 x) => x + 1000
+== case082.byn
+void main() {
+    let n = i8(3)
+}
+== case083.byn
+badstyle== case084.byn
+booleans: .both== case085.byn
+style.booleans== case086.byn
+check== case087.byn
+b.byn== case088.byn
+--check
+== case089.byn
+== case090.byn
+== case091.byn
+check-clean== case092.byn
+== case093.byn
+idempotent-== case094.byn
+struct Box { i64 weight }
+
+i64 add(i32 a, i32 b) {
+    return a + b
+}
+
+void main() {
+    let a = true
+    if a && !false {
+        print("x")
+    }
+    if a {
+        print("y")
+    }
+    let t: i32 = add(1, 2)
+    print($"{t}") if !a || t is not 0
+}
+== case095.byn
+statement-attributes== case096.byn
+i32 clamp(i32 x) {
+    @unobservable because "the caller never passes 0"
+    if x <= 0 {
+        return 0
+    }
+    @unobservable(boundary) because "x is at most 100"
+    return x
+}
+== case097.byn
+// Shapes.
+union Shape {
+    circle(f64 r)
+    square(f64 side)
+}
+
+enum Size { // small
+    s
+    m // medium
+    l
+}
+
+struct unique File {
+    i64 fd
+}
+
+union error StockError {
+    outOfStock
+}
+
+type distinct Percent = i32 requires it in 0..=100
+
+@derive(Json)
+struct Parcel {
+    i64 weight
+}
+
+i32 twice(i32 n) => n * 2
+bool isA(rune c) => c == 'a'
+
+Shape pick(Shape s) {
+    switch s {
+        case not .circle: return s
+        default: return s
+    }
+}
+
+i64 add(i64 a, i64 b) {
+    return a + b
+}
+
+void run(Arena arena) {
+    provide allocator: arena {
+        print("x")
+    }
+}
+
+void main() {
+    let t: i64 = add(1, b: 2)
+    print($"{t}")
+    if t > 0 {
+        print("pos")
+    } else {
+        print("other")
+    }
+    let u: Untrusted<string> = Untrusted("x")
+    print(u.trustUnchecked() because "checked")
+}
+== case098.byn
+// Shapes.
+union Shape {
+    circle(f64 r)
+    square(f64 side)
+}
+
+enum Size { // small
+    s
+    m // medium
+    l
+}
+
+struct unique File {
+    i64 fd
+}
+
+union error StockError {
+    outOfStock
+}
+
+type distinct Percent = i32 requires it in 0..=100
+
+@derive(Json)
+struct Parcel {
+    i64 weight
+}
+
+i32 twice(i32 n) => n * 2
+bool isA(rune c) => c == 'a'
+
+Shape pick(Shape s) {
+    switch s {
+        case not .circle: return s
+        default: return s
+    }
+}
+
+i64 add(i64 a, i64 b) {
+    return a + b
+}
+
+void run(Arena arena) {
+    provide allocator: arena {
+        print("x")
+    }
+}
+
+void main() {
+    let t: i64 = add(1, b: 2)
+    print($"{t}")
+    if t > 0 {
+        print("pos")
+    } else {
+        print("other")
+    }
+    let u: Untrusted<string> = Untrusted("x")
+    print(u.trustUnchecked() because "checked")
+}
+== case099.byn
+round3-all== case100.byn
+error== case101.byn
+let a = true
+if (a) { print("x"; }
+== case102.byn
+recursive== case103.byn
+sub== case104.byn
+deep== case105.byn
+nofix== case106.byn
+i32!Foo? f() {
+    return 1
+}
+== case107.byn
+BYN1031== case108.byn
+passes== case109.byn
+still changing after 1 passes== case110.byn
+passes-thread== case111.byn
+var changing: still
+== case112.byn
+abandoned== case113.byn
+let broken = (
+== case114.byn
+rewrite was abandoned== case115.byn
+broken== case116.byn
+io== case117.byn
+let a = true
+== case118.byn
+io-dir== case119.byn
+locked== case120.byn
+mode== case121.byn
+script.byn== case122.byn
+#!/usr/bin/env bayan
+let a = true
+if a {
+    print("x")
+}
+== case123.byn
+if a {== case124.byn
+symlink== case125.byn
+real.byn== case126.byn
+link.byn== case127.byn
+cycle== case128.byn
+up== case129.byn
+..== case130.byn
+up2== case131.byn
+alias.byn== case132.byn
+parent-link== case133.byn
+outer== case134.byn
+dir== case135.byn
+outside.byn== case136.byn
+link== case137.byn
+proj== case138.byn
+real== case139.byn
+g.byn== case140.byn
+f.byn== case141.byn
+../g.byn== case142.byn
+../real/deep== case143.byn
+decoy, not Bayan
+== case144.byn
+link-through-dir== case145.byn
+link-through-dir-nodecoy== case146.byn
+walk-through-dir== case147.byn
+let b = true
+if b {
+    print("y")
+}
+== case148.byn
+other== case149.byn
+h.byn== case150.byn
+let c = true
+if c {
+    print("z")
+}
+== case151.byn
+x== case152.byn
+../other/deep== case153.byn
+x/..== case154.byn
+loop-link== case155.byn
+loop.byn== case156.byn
+other/deep== case157.byn
+let b = true
+if b {
+    print("y")
+}
+== case158.byn
+link-dotdot-file== case159.byn
+link-dotdot-dir== case160.byn
+package-link-outside== case161.byn
+outside== case162.byn
+x.byn== case163.byn
+i64 i8(i64 x) => x
+== case164.byn
+pkg== case165.byn
+vendor== case166.byn
+../outside== case167.byn
+void main() {
+    let n = i8(3)
+}
+== case168.byn
+temp== case169.byn
+X== case170.byn
+ab== case171.byn
+aXb== case172.byn
+diag== case173.byn
+hashmap-not-supported.byn== case174.byn
+BYN2830== case175.byn
+HashMap<== case176.byn
+line-join-member== case177.byn
+line-join-enum-shorthand== case178.byn
+line-join-and== case179.byn
+line-join-quiet== case180.byn
+.byn== case181.byn
+line-join-== case182.byn
+fix-== case183.byn
+tests== case184.byn
+cases== case185.byn
+style-sections-banner== case186.byn
+BYN1077== case187.byn
+style-conditions-patterns== case188.byn
+BYN1078== case189.byn
+style-literals-empty== case190.byn
+BYN1079== case191.byn
+style-optionals-bind== case192.byn
+BYN1080== case193.byn
+style-guards-postfix== case194.byn
+BYN1072== case195.byn
+style-lambdas-it== case196.byn
+BYN1073== case197.byn
+^fixed .*main.byn (d+)
+$== case198.byn
+style-fix-keeps-comments== case199.byn
+style-fix-keeps-line-comments== case200.byn
+conditions-patterns== case201.byn
+optionals-bind== case202.byn
+literals-empty== case203.byn
+sections-banner== case204.byn
+run== case205.byn
+fix-run-== case206.byn
+--emit-c== case207.byn
+fix-missing== case208.byn
+nope.byn== case209.byn
+fix-no-format== case210.byn
+void main() {
+    let x = 1
+    if x == 1 || x == 2 {
+        print("y")
+    }
+    let ok = true
+    print($"{ok}")
+}
+== case211.byn
+x == 1 || x == 2== case212.byn
+x is 1 or 2== case213.byn
+fix-twice== case214.byn
+// ── Helpers ──────
+bool f(i32 x) {
+    return x == 1 || x == 2
+}
+== case215.byn
+.== case216.byn
+^fixed .*main.byn (2)
+$== case217.byn
+// ── Helpers ──────────────────────────────────────────────────────────────────
+bool f(i32 x) {
+    return x is 1 or 2
+}
+== case218.byn
+fix-unparsable== case219.byn
+void f(bool c) {
+    if c { return }
+    let x = (1 +
+}
+== case220.byn
+error BYN1002== case221.byn
+fix-abandoned== case222.byn
+void f(bool c) {
+    if c {
+        return
+    }
+}
+== case223.byn
+style-severity-error== case224.byn
+--all
+== case225.byn
+--package
+== case226.byn
+error BYN1072== case227.byn
+m== case228.byn
+!== case229.byn
+m0!== case230.byn
+m1!== case231.byn
+m2!== package.byn
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { width: 96 },
+}

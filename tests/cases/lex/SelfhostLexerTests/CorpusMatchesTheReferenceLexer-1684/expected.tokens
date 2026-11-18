@@ -1,0 +1,77 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+2:2 IntegerLiteral `0x`
+3:1 IntegerLiteral `0x`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolatedStringText `x`
+3:7 InterpolationStart `{`
+3:9 InterpolatedStringStart `$"`
+3:11 InterpolationStart `{`
+4:1 StringLiteral `"{$"`
+4:5 OpenBrace `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolationStart `{`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolationStart `{`
+4:12 InterpolatedStringStart `$"`
+4:14 InterpolationStart `{`
+4:15 InterpolatedStringStart `$"`
+4:17 InterpolationStart `{`
+4:18 InterpolatedStringStart `$"`
+4:20 InterpolationStart `{`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolationStart `{`
+4:24 InterpolatedStringStart `$"`
+4:26 InterpolationStart `{`
+4:27 InterpolatedStringStart `$"`
+4:29 InterpolationStart `{`
+4:30 InterpolatedStringStart `$"`
+4:32 InterpolationStart `{`
+4:33 InterpolatedStringStart `$"`
+4:35 InterpolationStart `{`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolationStart `{`
+4:39 InterpolatedStringStart `$"`
+4:41 InterpolationStart `{`
+4:42 InterpolatedStringStart `$"`
+4:44 InterpolationStart `{`
+4:45 InterpolatedStringStart `$"`
+4:47 InterpolationStart `{`
+5:1 IntegerLiteral `0`
+5:3 Identifier `_`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x
+    │  ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x $"x{ $"{
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  4 │ "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$
+    │                                             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  4 │ "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$
+    │                                                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  5 │ 0�_
+    │  ^

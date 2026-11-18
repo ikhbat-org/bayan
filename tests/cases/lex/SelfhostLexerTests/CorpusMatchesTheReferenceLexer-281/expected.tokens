@@ -1,0 +1,115 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 Identifier `x`
+2:51 InterpolationEnd `}`
+2:52 InterpolatedStringEnd `"`
+2:53 InterpolationEnd `}`
+2:54 InterpolatedStringEnd `"`
+2:55 InterpolationEnd `}`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 InterpolationEnd `}`
+2:62 InterpolatedStringEnd `"`
+2:63 InterpolationEnd `}`
+2:64 InterpolatedStringEnd `"`
+2:65 InterpolationEnd `}`
+2:66 InterpolatedStringEnd `"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 LetKeyword `let`
+2:73 Identifier `actor`
+2:79 Equals `=`
+2:81 IntegerLiteral `1`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 StringLiteral `"{$"`
+3:14 OpenBrace `{`
+3:15 InterpolatedStringStart `$"`
+3:17 InterpolationStart `{`
+3:18 InterpolatedStringStart `$"`
+3:20 InterpolationStart `{`
+3:21 InterpolatedStringStart `$"`
+3:23 InterpolationStart `{`
+3:24 InterpolatedStringStart `$"`
+3:26 InterpolationStart `{`
+3:27 InterpolatedStringStart `$"`
+3:29 InterpolationStart `{`
+3:30 InterpolatedStringStart `$"`
+3:32 InterpolationStart `{`
+3:33 StringLiteral `$"{$"`
+3:38 OpenBrace `{`
+3:39 StringLiteral `$"{$"`
+3:44 OpenBrace `{`
+3:45 StringLiteral `$"{$"`
+3:50 OpenBrace `{`
+3:51 StringLiteral `$"{x}"`
+3:57 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"let actor = 1
+    │                                                                         ^^^^^ reserved for a
+    │                                                                               future version
+    │                                                                               of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"
+    │                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"
+    │                                 ^^

@@ -1,0 +1,85 @@
+2:1 Identifier `b`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 StringLiteral `"{$"`
+3:27 OpenBrace `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 InterpolatedStringStart `$"`
+3:51 InterpolationStart `{`
+3:52 InterpolatedStringStart `$"`
+3:54 InterpolationStart `{`
+3:55 StringLiteral `$"{x}"`
+3:61 InterpolationEnd `}`
+3:62 InterpolatedStringEnd `"`
+3:63 InterpolationEnd `}`
+3:64 InterpolatedStringEnd `"`
+3:65 InterpolationEnd `}`
+3:66 InterpolatedStringText `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 CloseBrace `}`
+3:81 StringLiteral `"}"`
+3:84 InterpolationEnd `}`
+3:85 InterpolatedStringEnd `"`
+3:86 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}"}"}"}"}"}"
+    │                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}"}"}"}"}"}"
+    │                                                       ^^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}}"}"}"}"}"}"}"}"}"}"
+    │                                                                  ^
+    │
+    │ 3 │  $"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}}}"}"}"}"}"}"}"}"}"}"
+    │   │                                                                   +

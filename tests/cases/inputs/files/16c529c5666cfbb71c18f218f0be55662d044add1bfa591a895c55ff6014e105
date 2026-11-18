@@ -1,0 +1,6 @@
+/// Doc line one.
+let a = $ 1
+// ‮x
+
+$"stray } here"
+

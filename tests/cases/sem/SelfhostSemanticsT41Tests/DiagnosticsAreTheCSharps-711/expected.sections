@@ -1,0 +1,3 @@
+== diags.diag/getter-mutates
+BYN2107 5:19 property `latest` modifies the value
+  help make it a method if it needs to change the value

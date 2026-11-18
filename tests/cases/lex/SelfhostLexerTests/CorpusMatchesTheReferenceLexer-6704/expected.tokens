@@ -1,0 +1,41 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+3:3 PlusEquals `+=`
+3:6 MinusEquals `-=`
+3:9 StarEquals `*=`
+3:12 SlashEquals `/=`
+3:15 Percent `%`
+3:16 Identifier `O`
+3:17 Equals `=`
+3:20 AmpEquals `&=`
+3:23 BarEquals `|=`
+3:26 CaretEquals `^=`
+3:29 LessLessEquals `<<=`
+5:1 IntegerLiteral `0b102`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:11 IntegerLiteral `2`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ � += -= *= /= %O=� &= |= ^= <<=
+    │ ^
+
+error BYN0002: unexpected character `\u{7F}`
+
+  3 │ � += -= *= /= %O=� &= |= ^= <<=
+    │                  ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │ 0b102
+    │     ^
+
+error BYN0002: unexpected character ```
+
+  6 │ let b = ` 2
+    │         ^

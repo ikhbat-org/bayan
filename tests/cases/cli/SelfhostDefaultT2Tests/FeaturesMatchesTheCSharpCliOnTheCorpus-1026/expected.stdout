@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IfStmt",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "IsExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "PropertyDecl",
+    "PropertyPattern",
+    "StructDecl",
+    "StructLiteralExpr",
+    "TupleExpr",
+    "TypeAliasDecl",
+    "UnaryExpr",
+    "WithExpr"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,96 @@
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 PlusPlus `++`
+2:32 MinusMinus `--`
+4:1 Identifier `mment`
+4:10 BarBar `||`
+4:13 Caret `^`
+4:15 Tilde `~`
+4:17 Bang `!`
+4:19 Equals `=`
+4:21 EqualsEquals `==`
+4:24 BangEquals `!=`
+4:27 Less `<`
+4:29 LessEquals `<=`
+4:32 Greater `>`
+4:34 GreaterEquals `>=`
+4:37 LessLess `<<`
+4:40 Greater `>`
+4:41 Greater `>`
+4:43 Greater `>`
+4:44 GreaterEquals `>=`
+5:1 PlusEquals `+=`
+5:4 Equals `=`
+5:6 LetKeyword `let`
+5:10 Identifier `café`
+5:16 Equals `=`
+5:18 IntegerLiteral `1`
+6:2 StringLiteral `"text"`
+6:9 StringLiteral `"esc \"q"`
+6:23 Identifier `n`
+6:24 StringLiteral `" "`
+6:27 StringLiteral `""`
+7:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �
+    │   │ -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ mment �� || ^ ~ ! = == != < <= > >= << >> >>=
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ mment �� || ^ ~ ! = == != < <= > >= << >> >>=
+    │   │       -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ mment �� || ^ ~ ! = == != < <= > >= << >> >>=
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ mment �� || ^ ~ ! = == != < <= > >= << >> >>=
+    │   │        -
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  5 │ += = let café = 1
+    │          ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ += = let café = 1
+    │   │             +
+
+error BYN0002: unexpected character `\`
+
+  6 │  "text" "esc \"q" \\ \n" """
+    │                   ^
+
+error BYN0002: unexpected character `\`
+
+  6 │  "text" "esc \"q" \\ \n" """
+    │                    ^
+
+error BYN0002: unexpected character `\`
+
+  6 │  "text" "esc \"q" \\ \n" """
+    │                      ^

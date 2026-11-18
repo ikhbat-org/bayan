@@ -1,0 +1,4 @@
+== diags.run/collection-literals
+BYN2311 36:5 `s` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 36:1-36:4 let

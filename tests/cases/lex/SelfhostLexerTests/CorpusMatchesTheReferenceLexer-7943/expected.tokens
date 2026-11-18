@@ -1,0 +1,5 @@
+2:2 Identifier `leLt`
+2:7 EffectKeyword `effect`
+2:14 Equals `=`
+2:16 IntegerLiteral `2`
+4:1 EndOfFile

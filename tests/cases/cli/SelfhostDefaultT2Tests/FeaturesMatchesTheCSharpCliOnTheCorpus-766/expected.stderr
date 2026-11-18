@@ -1,0 +1,15 @@
+error BYN2804: `Point` is not an interface
+  --> <repo>/tests/cases/diag/not-an-interface.byn:5:17
+
+  5 │ struct Circle : Point {
+    │                 ^^^^^ a struct
+    │
+  help: list an `interface` here
+
+error BYN2804: `Point` is not an interface
+  --> <repo>/tests/cases/diag/not-an-interface.byn:9:34
+
+  9 │ void touch<T>(ref T a) where T : Point { }
+    │                                  ^^^^^ a struct
+    │
+  help: list an `interface` here

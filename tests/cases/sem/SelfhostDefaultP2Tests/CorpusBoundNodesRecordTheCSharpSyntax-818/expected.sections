@@ -1,0 +1,24 @@
+== tests/cases/diag/rule-target-not-field.byn
+0..74 structDecl
+0..74 structDecl
+0..74 structDecl
+44..72 requiresRule
+44..72 requiresRule
+53..64 binaryExpr le right 60..64
+53..56 nameExpr
+53..56 nameExpr
+60..64 nameExpr
+60..64 nameExpr
+44..72 requiresRule
+44..72 requiresRule
+44..72 requiresRule
+44..72 requiresRule
+44..72 requiresRule
+44..72 requiresRule
+0..74 structDecl
+0..74 structDecl
+0..74 structDecl
+0..74 structDecl
+0..74 structDecl
+0..74 structDecl
+0..74 structDecl

@@ -1,0 +1,22 @@
+error BYN7006: `Order is .paid` is an input form; write `Order.paid`
+  --> input.byn:9:19
+
+  9 │ type Paid = Order is .paid
+    │                   ^^ one state
+    │
+  help: write the state type `Order.paid`
+    │ 9 │ type Paid = Order is .paid
+    │   │                  ----
+
+error BYN7006: `Order is .paid` is an input form; write `Order.paid`
+  --> input.byn:11:18
+
+  11 │     let x: Order is .paid = o
+     │                  ^^ one state
+     │
+  help: write the state type `Order.paid`
+     │ 11 │     let x: Order is .paid = o
+     │    │                 ----
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN7006

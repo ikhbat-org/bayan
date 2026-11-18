@@ -1,0 +1,38 @@
+== tests/cases/run/region-combo-ref-this-map-two-levels-in-time.byn
+176..204 blockStmt
+182..202 returnStmt value 189..202
+189..202 callExpr
+189..190 nameExpr
+200..201 nameExpr
+241..270 blockStmt
+247..268 returnStmt value 254..268
+254..268 callExpr
+257..258 nameExpr
+266..267 nameExpr
+382..538 blockStmt
+388..536 blockStmt
+398..423 localDecl
+416..423 callExpr
+432..469 localDecl
+440..469 structLiteralExpr
+449..467 callExpr
+478..508 exprStmt
+478..508 callExpr
+478..479 nameExpr
+484..507 callExpr
+488..493 literalExpr string
+501..506 nameExpr
+517..530 exprStmt
+517..530 callExpr
+523..529 indexExpr
+523..526 memberExpr
+523..524 nameExpr
+527..528 literalExpr integer
+517..530 callExpr
+342..366 blockStmt
+352..360 assignStmt assign target 352..356 value 359..360
+352..356 indexExpr
+352..353 nameExpr
+352..353 nameExpr
+354..355 literalExpr integer
+359..360 nameExpr

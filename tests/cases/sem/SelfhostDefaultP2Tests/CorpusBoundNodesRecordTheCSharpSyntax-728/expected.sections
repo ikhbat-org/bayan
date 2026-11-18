@@ -1,0 +1,17 @@
+== tests/cases/diag/panic-handler-path.byn
+153..292 blockStmt
+159..196 localDecl
+172..196 callExpr
+186..195 memberExpr
+186..187 nameExpr
+201..236 localDecl
+212..236 callExpr
+226..235 memberExpr
+226..227 nameExpr
+241..290 localDecl
+251..290 callExpr
+271..274 literalExpr string
+280..289 memberExpr
+280..281 nameExpr
+306..337 blockStmt
+312..335 assignStmt assign target 312..325 value 328..335

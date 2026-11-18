@@ -1,0 +1,16 @@
+== tests/cases/diag/missing-return.byn
+16..57 blockStmt
+22..55 ifStmt
+25..30 binaryExpr gt right 29..30
+25..26 nameExpr
+29..30 literalExpr integer
+31..55 blockStmt
+41..49 returnStmt value 48..49
+48..49 literalExpr integer
+59..78 globalStatement
+59..78 exprStmt
+59..78 callExpr
+65..77 interpolatedExpr
+68..75 callExpr
+73..74 literalExpr integer
+59..78 callExpr

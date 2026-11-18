@@ -1,0 +1,34 @@
+1:2 Identifier `B`
+1:4 IntegerLiteral `1`
+1:5 NumericSuffix `u`
+1:7 IntegerLiteral `0xFF`
+1:11 NumericSuffix `u`
+1:13 IntegerLiteral `0b1`
+1:16 NumericSuffix `ul`
+1:19 IntegerLiteral `7`
+1:20 NumericSuffix `lN`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ��� B 1u�0xFFu 0b1ul 7lN
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��� B 1u�0xFFu 0b1ul 7lN
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��� B 1u�0xFFu 0b1ul 7lN
+    │   ^
+
+error BYN0002: unexpected character `\u{8}`
+
+  1 │ ��� B 1u�0xFFu 0b1ul 7lN
+    │         ^

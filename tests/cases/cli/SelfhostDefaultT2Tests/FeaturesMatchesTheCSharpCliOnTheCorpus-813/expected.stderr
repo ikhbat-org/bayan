@@ -1,0 +1,7 @@
+error BYN2003: `fileNme` is not a member of `Path`
+  --> <repo>/tests/cases/diag/path-unknown-member.byn:2:12
+
+  2 │ print(Path.fileNme("x"))
+    │            ^^^^^^^
+    │
+  help: did you mean `fileName`?

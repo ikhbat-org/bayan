@@ -1,0 +1,8 @@
+error BYN2721: enum `Color` already has a member `red`
+  --> <repo>/tmp/t2/diag/duplicate-enum-member/duplicate-enum-member.byn:4:5
+
+  4 │     red
+    │     ^^^ already declared on line 2
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2721

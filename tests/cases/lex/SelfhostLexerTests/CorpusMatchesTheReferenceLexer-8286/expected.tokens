@@ -1,0 +1,56 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 Identifier `st`
+2:4 Less `<`
+2:5 Identifier `i64`
+2:8 Greater `>`
+2:9 Greater `>`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+4:1 Identifier `c`
+4:3 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 IntegerLiteral `1`
+5:3 RawStringLiteral `""" ctext" u16"wide" "\u{202E} allowed in strings" "� "\u{48}i"\nstruct S\nmacro select become\n  ` 2\nlet c = \u{7} 3\n\n$"{{" �����`
+11:8 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │   """ ctext" u16"wide" "� allowed in strings" "� "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  5 │   """ ctext" u16"wide" "� allowed in strings" "� "\u{48}i"
+    │                                                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  11 │ $"{{" �����
+     │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  11 │ $"{{" �����
+     │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  11 │ $"{{" �����
+     │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  11 │ $"{{" �����
+     │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  11 │ $"{{" �����
+     │           ^

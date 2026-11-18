@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/typed/lambda-narrowed-capture.byn
+--package
+<repo>/tests/cases/typed

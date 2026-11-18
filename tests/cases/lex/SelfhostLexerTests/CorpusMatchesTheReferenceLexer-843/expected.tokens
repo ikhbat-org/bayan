@@ -1,0 +1,77 @@
+1:2 Identifier `b`
+3:1 OpenParen `(`
+3:3 CloseParen `)`
+3:5 OpenBracket `[`
+3:7 CloseBracket `]`
+3:9 OpenBrace `{`
+3:11 CloseBrace `}`
+4:2 IntegerLiteral `1_`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:5 OpenBracket `[`
+6:6 StringLiteral `"{$"`
+6:10 OpenBrace `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 StringLiteral `"{$"`
+6:24 OpenBrace `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 InterpolatedStringStart `$"`
+6:51 InterpolationStart `{`
+6:52 Identifier `x`
+6:53 InterpolationEnd `}`
+6:54 InterpolatedStringEnd `"`
+6:55 InterpolationEnd `}`
+6:56 InterpolatedStringEnd `"`
+6:57 InterpolatedStringStart `$"`
+6:59 InterpolationStart `{`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��b
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��b
+    │  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │  1_
+    │   ^
+    │
+    │ 4 │  1_
+    │   │   -
+
+error BYN0002: unexpected character `$`
+
+  6 │ $"{$["{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"$"{
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$["{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"$"{
+    │                                                         ^^ this string never ends
+    │
+  help: close the `{` and the string

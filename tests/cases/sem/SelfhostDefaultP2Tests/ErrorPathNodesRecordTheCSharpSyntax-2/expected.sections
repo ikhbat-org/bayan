@@ -1,0 +1,37 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/assign/assign.byn
+76..102 blockStmt
+82..87 incDecStmt
+82..85 memberExpr
+82..83 nameExpr
+82..87 incDecStmt
+92..100 assignStmt add target 92..95 value 99..100
+92..95 memberExpr
+92..93 nameExpr
+99..100 literalExpr integer
+120..133 blockStmt
+126..131 incDecStmt
+147..318 blockStmt
+153..162 localDecl
+161..162 literalExpr integer
+167..174 assignStmt coalesce target 167..168 value 173..174
+179..188 assignStmt add target 179..180 value 184..188
+193..200 assignStmt shl target 193..194 value 199..200
+193..194 nameExpr
+199..200 literalExpr integer
+205..216 localDecl
+213..216 literalExpr floatKeyword
+221..228 assignStmt shl target 221..222 value 227..228
+233..244 localDecl
+241..244 literalExpr string
+249..257 assignStmt add target 249..250 value 254..257
+262..274 localDecl
+270..274 literalExpr trueKeyword
+279..285 assignStmt add target 279..280 value 284..285
+290..293 incDecStmt
+298..304 incDecStmt
+309..316 exprStmt
+309..316 callExpr
+311..315 structLiteralExpr
+23..24 literalExpr integer
+23..24 literalExpr integer
+59..60 literalExpr integer

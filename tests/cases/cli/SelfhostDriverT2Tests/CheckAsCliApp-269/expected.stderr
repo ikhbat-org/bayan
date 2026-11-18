@@ -1,0 +1,18 @@
+error BYN2740: cannot infer type argument `T` of `pick`
+  --> <repo>/tmp/t2/diag/lambda-generic-inference/lambda-generic-inference.byn:4:16
+
+  4 │     let none = pick([], by: it > 0)
+    │                ^^^^
+    │
+  help: pass an argument it can be read from, or write it out: `pick<T>(…)`
+
+error BYN2218: `[ … ]` needs a known type here
+  --> <repo>/tmp/t2/diag/lambda-generic-inference/lambda-generic-inference.byn:4:21
+
+  4 │     let none = pick([], by: it > 0)
+    │                     ^^
+    │
+  help: declare the type: `List<i64> xs = [1, 2]`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2740

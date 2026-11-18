@@ -1,0 +1,26 @@
+1:1 Identifier `acro`
+1:6 Identifier `select`
+1:13 BecomeKeyword `become`
+2:1 Identifier `le`
+2:4 LawKeyword `law`
+2:8 Equals `=`
+2:10 IntegerLiteral `3`
+3:2 Identifier `a`
+4:1 EndOfFile
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ acro select become
+    │      ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  3 │  a�̋
+    │   ^
+
+error BYN0002: unexpected character `̋`
+
+  3 │  a�̋
+    │    ^

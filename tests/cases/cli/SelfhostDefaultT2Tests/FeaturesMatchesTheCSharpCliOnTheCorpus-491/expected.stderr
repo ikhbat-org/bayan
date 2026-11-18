@@ -1,0 +1,7 @@
+error BYN2770: unknown attribute `json`
+  --> <repo>/tests/cases/diag/count-name-exempt.byn:3:6
+
+  3 │     @json(name: "numLines")
+    │      ^^^^
+    │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test

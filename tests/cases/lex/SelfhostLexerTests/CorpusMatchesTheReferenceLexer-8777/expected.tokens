@@ -1,0 +1,73 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+3:1 Comma `,`
+3:3 Dot `.`
+3:5 DotDot `..`
+3:8 DotDotEquals `..=`
+3:12 Colon `:`
+3:14 Question `?`
+3:16 QuestionQuestion `??`
+3:19 QuestionQuestion `??`
+3:21 Identifier `n`
+3:22 Equals `=`
+3:24 QuestionDot `?.`
+3:27 FatArrow `=>`
+3:30 Arrow `->`
+3:33 At `@`
+3:35 Hash `#`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:10 Equals `=`
+4:12 IntegerLiteral `2`
+5:1 Identifier `ray`
+5:5 CloseBrace `}`
+5:7 Identifier `her`
+5:10 StringLiteral `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `open `
+6:8 InterpolationStart `{`
+6:9 Identifier `x`
+6:10 StringLiteral `";`
+7:1 IntegerLiteral `1__`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `{{`
+8:5 InterpolatedStringEnd `"`
+8:6 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │ ray } her"
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 1__
+    │  ^^
+    │
+    │ 7 │ 1__
+    │   │  --

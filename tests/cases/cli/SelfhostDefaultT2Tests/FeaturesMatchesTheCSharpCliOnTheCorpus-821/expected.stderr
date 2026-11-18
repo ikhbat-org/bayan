@@ -1,0 +1,7 @@
+error BYN1016: `@positional(strict)` is not allowed here
+  --> <repo>/tests/cases/diag/positional-arguments.byn:1:1
+
+  1 │ @positional(strict)
+    │ ^^^^^^^^^^^^^^^^^^^
+    │
+  help: write `@positional` with no arguments and no `because`

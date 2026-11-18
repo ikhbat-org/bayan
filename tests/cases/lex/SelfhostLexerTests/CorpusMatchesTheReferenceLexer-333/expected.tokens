@@ -1,0 +1,49 @@
+1:1 Identifier `sed`
+2:1 Identifier `b`
+3:2 LetKeyword `let`
+3:6 Identifier `c`
+3:8 Equals `=`
+3:10 RawStringLiteral `"""never c�ose�\n\n'\n$"{ �let q = \u{7} 3\n `
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ �let c = """never c�ose�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ �let c = """never c�ose�
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  3 │ �let c = """never c�ose�
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  3 │ �let c = """never c�ose�
+    │                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ �let c = """never c�ose�
+    │                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  6 │ $"{ �let q = � 3
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  6 │ $"{ �let q = � 3
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  6 │ $"{ �let q = � 3
+    │      ^

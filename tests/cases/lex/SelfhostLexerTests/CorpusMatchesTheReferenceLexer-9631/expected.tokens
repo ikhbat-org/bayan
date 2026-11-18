@@ -1,0 +1,93 @@
+1:1 CharLiteral `''`
+2:1 CharLiteral `'ab'`
+3:1 CharLiteral `'\q'`
+4:1 CharLiteral `'\u{D800}'`
+5:1 CharLiteral `'\u{110000}'`
+6:1 CharLiteral `'x`
+7:2 LetKeyword `let`
+7:6 Identifier `café`
+7:11 Equals `=`
+7:13 IntegerLiteral `2`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolationStart `{`
+8:4 InterpolatedStringStart `$"`
+8:6 InterpolationStart `{`
+8:7 InterpolatedStringStart `$"`
+8:9 InterpolationStart `{`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:13 InterpolatedStringStart `$"`
+8:15 InterpolationStart `{`
+8:16 InterpolatedStringStart `$"`
+8:18 InterpolationStart `{`
+8:19 InterpolatedStringStart `$"`
+8:21 InterpolationStart `{`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolationStart `{`
+8:25 InterpolatedStringStart `$"`
+8:27 InterpolationStart `{`
+8:28 InterpolatedStringStart `$"`
+8:30 InterpolationStart `{`
+8:31 InterpolatedStringStart `$"`
+8:33 InterpolationStart `{`
+8:34 InterpolatedStringStart `$"`
+8:36 InterpolationStart `{`
+8:37 InterpolatedStringStart `$"`
+8:39 InterpolationStart `{`
+8:40 InterpolatedStringStart `$"`
+8:42 InterpolationStart `{`
+8:43 InterpolatedStringStart `$"`
+8:45 InterpolationStart `{`
+8:46 Identifier `x`
+8:47 InterpolationEnd `}`
+8:48 InterpolatedStringEnd `"`
+8:50 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  5 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" 
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string

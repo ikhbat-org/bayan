@@ -1,0 +1,39 @@
+1:1 CharLiteral `'ab'`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:3 IntegerLiteral `0`
+4:4 NumericSuffix `F__`
+5:2 IntegerLiteral `1__`
+6:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  // coNmment � hidden
+    │              ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  // coNmment � hidden
+    │   │              -
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │  1__
+    │   ^^
+    │
+    │ 5 │  1__
+    │   │   --

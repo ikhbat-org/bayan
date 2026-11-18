@@ -1,0 +1,11 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+2:3 ExtensibleKeyword `extensible`
+2:14 InterfaceKeyword `interface`
+2:24 DelegateKeyword `delegate`
+2:33 ExtensionKeyword `extension`
+2:43 DerivationKeyword `derivation`
+2:54 AttributeKeyword `attribute`
+3:2 EndOfFile

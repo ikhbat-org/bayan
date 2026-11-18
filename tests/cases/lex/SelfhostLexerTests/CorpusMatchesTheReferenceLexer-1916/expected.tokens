@@ -1,0 +1,13 @@
+1:1 Identifier `ạ̇3a`
+1:7 Greater `>`
+1:8 Identifier `Cb`
+2:1 EndOfFile
+
+error BYN0005: identifier `ạ̇3a` is not in Unicode normalization form C
+
+  1 │ ạ̇3a >Cb
+    │ ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇3a >Cb
+    │   │ ++

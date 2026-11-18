@@ -1,0 +1,11 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\n/* block\n   comment */ a\n let G = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"\n{ foo Bar _x camelCase2 بيان μετρητής x_1 é\nlet actor = 1\n\n\u{0} `
+8:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

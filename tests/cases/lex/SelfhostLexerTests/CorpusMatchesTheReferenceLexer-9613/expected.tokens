@@ -1,0 +1,38 @@
+1:1 Identifier `x́́macro`
+1:10 Identifier `select`
+1:17 BecomeKeyword `become`
+3:1 OpenBrace `{`
+3:2 IntegerLiteral `0`
+3:4 IntegerLiteral `42`
+3:7 IntegerLiteral `1_000_000`
+3:17 IntegerLiteral `0xFF`
+3:22 IntegerLiteral `0x_ff`
+3:28 IntegerLiteral `0b1010`
+3:35 IntegerLiteral `0B11`
+3:40 IntegerLiteral `5`
+3:41 NumericSuffix `s`
+3:43 IntegerLiteral `250`
+3:46 NumericSuffix `ms`
+3:49 IntegerLiteral `4`
+3:50 NumericSuffix `KiB`
+3:54 IntegerLiteral `1`
+3:55 NumericSuffix `u`
+3:57 IntegerLiteral `0xFF`
+3:61 NumericSuffix `u`
+3:63 IntegerLiteral `0b1`
+3:66 NumericSuffix `ul`
+3:69 IntegerLiteral `7`
+3:70 NumericSuffix `l`
+5:2 EndOfFile
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ x́́macro select become
+    │          ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ �
+    │ ^

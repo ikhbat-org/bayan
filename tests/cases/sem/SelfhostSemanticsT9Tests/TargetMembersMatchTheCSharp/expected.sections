@@ -1,0 +1,8 @@
+== target
+[linux-x64] diagnostics=0 host=0 literals=[linux][x64]
+[macos-arm64] diagnostics=0 host=0 literals=[macos][arm64]
+[windows-x64] diagnostics=0 host=0 literals=[windows][x64]
+[wasm32] diagnostics=0 host=0 literals=[wasi][wasm32]
+[nodash] diagnostics=0 host=0 literals=[][]
+[] diagnostics=0 host=0 literals=[][]
+host diagnostics=0 host=2 literals=

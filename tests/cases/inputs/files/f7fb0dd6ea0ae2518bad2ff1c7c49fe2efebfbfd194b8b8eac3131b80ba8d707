@@ -1,0 +1,9 @@
+struct Box { weight: long }
+add(a: int, b: i32) -> long { return a + b; }
+void main() {
+    let a = true
+    if (a && !false) { print("x") }
+    unless !a { print("y") }
+    int t = add(1, 2)
+    print($"{t}") if not a or t is not 0
+}

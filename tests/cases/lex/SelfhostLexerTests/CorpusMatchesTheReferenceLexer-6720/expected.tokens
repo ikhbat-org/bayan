@@ -1,0 +1,74 @@
+1:1 Identifier `t`
+1:3 Hash `#`
+1:4 Identifier `a`
+1:5 Equals `=`
+1:7 StringLiteral `"op � \u{2069} ����� �`
+2:2 Identifier `pe`
+2:4 StringLiteral `"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ t #a= "op � � ����� �
+    │       ^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ t #a= "op � � ����� �
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ t #a= "op � � ����� �
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  1 │ t #a= "op � � ����� �
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ t #a= "op � � ����� �
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ t #a= "op � � ����� �
+    │                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ t #a= "op � � ����� �
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ t #a= "op � � ����� �
+    │                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ t #a= "op � � ����� �
+    │                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │ ��pe"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ��pe"
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ��pe"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

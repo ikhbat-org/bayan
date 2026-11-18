@@ -1,0 +1,67 @@
+public struct Row {
+    public i64 id
+}
+
+public struct RowUpserter {
+    i64 n
+
+    public Row read() => Row { id: n }
+}
+
+public struct RowReindexer {
+    i64 n
+
+    public Row reindex() => Row { id: n }
+}
+
+public struct RowStager {
+    i64 n
+}
+
+public struct RowTallier {
+    i64 n
+}
+
+public struct RowShipper {
+    i64 n
+
+    public Row ship() => Row { id: n }
+}
+
+public struct RowPlower {
+    i64 n
+}
+
+public struct RowPlowwer {
+    i64 n
+}
+
+public struct RowRelayer {
+    i64 n
+}
+
+public struct RowFixer {
+    i64 n
+}
+
+public struct RowFixxer {
+    i64 n
+}
+
+public struct RowAer {
+    i64 n
+}
+
+public struct RowGoer {
+    i64 n
+}
+
+public struct RowTaxer {
+    i64 n
+}
+
+public struct RowStageer {
+    i64 n
+}
+
+print("ok")

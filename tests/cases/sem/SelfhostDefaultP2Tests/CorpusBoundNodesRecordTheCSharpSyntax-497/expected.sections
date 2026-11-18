@@ -1,0 +1,40 @@
+== tests/cases/diag/for-let-enumerator.byn
+200..221 structLiteralExpr
+200..221 structLiteralExpr
+200..221 structLiteralExpr
+218..219 nameExpr
+235..381 blockStmt
+241..274 localDecl
+253..274 structLiteralExpr
+271..272 literalExpr integer
+279..323 forStmt
+288..293 nameExpr
+294..323 blockStmt
+304..317 exprStmt
+304..317 callExpr
+310..316 interpolatedExpr
+313..314 nameExpr
+304..317 callExpr
+328..379 forStmt
+342..349 callExpr
+347..348 literalExpr integer
+350..379 blockStmt
+360..373 exprStmt
+360..373 callExpr
+366..372 interpolatedExpr
+369..370 nameExpr
+360..373 callExpr
+96..146 blockStmt
+106..115 assignStmt sub target 106..110 value 114..115
+106..110 nameExpr
+106..110 nameExpr
+114..115 literalExpr integer
+124..140 returnStmt value 131..140
+131..140 binaryExpr ge right 139..140
+131..135 nameExpr
+131..135 nameExpr
+139..140 literalExpr integer
+167..171 nameExpr
+167..171 nameExpr
+167..171 nameExpr
+167..171 nameExpr

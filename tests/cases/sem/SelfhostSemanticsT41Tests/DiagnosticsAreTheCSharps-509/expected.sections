@@ -1,0 +1,4 @@
+== diags.diag/input-csharp-type-name-dyn
+BYN2804 1:16 `i64` is not an interface
+  label after `dyn`
+  help name an `interface` after `dyn ref`

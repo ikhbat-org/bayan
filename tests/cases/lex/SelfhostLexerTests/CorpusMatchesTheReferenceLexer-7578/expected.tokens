@@ -1,0 +1,16 @@
+1:1 Identifier `et5`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+1:24 Identifier `y`
+2:2 Identifier `c`
+2:4 Equals `=`
+2:6 StringLiteral `""`
+2:9 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ et5 b = "bad \q escape"y
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

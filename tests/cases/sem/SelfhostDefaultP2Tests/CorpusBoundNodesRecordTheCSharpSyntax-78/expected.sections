@@ -1,0 +1,34 @@
+== tests/cases/run/for-indexable-nested.byn
+177..313 blockStmt
+183..216 localDecl
+197..216 structLiteralExpr
+213..214 literalExpr integer
+221..311 forStmt
+230..237 nameExpr
+238..311 blockStmt
+248..305 forStmt
+257..264 nameExpr
+265..305 blockStmt
+279..295 exprStmt
+279..295 callExpr
+285..294 interpolatedExpr
+288..289 nameExpr
+291..292 nameExpr
+279..295 callExpr
+85..89 nameExpr
+85..89 nameExpr
+85..89 nameExpr
+85..89 nameExpr
+120..161 conditionalExpr
+120..161 conditionalExpr
+120..161 conditionalExpr
+120..130 binaryExpr eq right 129..130
+120..125 nameExpr
+129..130 literalExpr integer
+133..136 literalExpr string
+139..161 conditionalExpr
+139..149 binaryExpr eq right 148..149
+139..144 nameExpr
+148..149 literalExpr integer
+152..155 literalExpr string
+158..161 literalExpr string

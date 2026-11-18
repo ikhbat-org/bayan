@@ -1,0 +1,3 @@
+== expr.probes.c21
+errorExpr:?[1403:6]=-()
+BYN2202 80:27 expected `i64`, found `Point` |`lp` holds `Point`|spread a sequence of `i64`, or change the literal's element type to `Point`|

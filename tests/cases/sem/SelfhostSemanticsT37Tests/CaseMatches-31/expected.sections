@@ -1,0 +1,4 @@
+== check.late
+counts 1 1 0
+mut xs 2105..2108 false -
+loan xs h 2143 0

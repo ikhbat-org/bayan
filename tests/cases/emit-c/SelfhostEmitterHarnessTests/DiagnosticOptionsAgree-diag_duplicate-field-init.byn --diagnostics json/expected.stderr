@@ -1,0 +1,1 @@
+{"code":"BYN2110","severity":"error","file":"input.byn","span":{"start":50,"end":51,"line":5,"column":23,"endLine":5,"endColumn":24},"message":"field `x` is set twice","label":null,"help":null,"fixes":[]}

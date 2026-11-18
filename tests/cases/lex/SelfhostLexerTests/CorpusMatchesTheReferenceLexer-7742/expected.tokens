@@ -1,0 +1,93 @@
+3:3 Identifier `two`
+3:6 Dot `.`
+4:1 Identifier `str2ct`
+4:8 Identifier `S`
+6:1 VarKeyword `var`
+6:5 Identifier `xs`
+6:7 Colon `:`
+6:9 Identifier `List`
+6:13 Less `<`
+6:14 Identifier `Listi64`
+6:21 Greater `>`
+6:22 Greater `>`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 StringLiteral `$"{x}"`
+8:2 InterpolationEnd `}`
+8:3 InterpolatedStringText ` here`
+8:8 InterpolatedStringEnd `"`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolatedStringText `open `
+9:8 InterpolationStart `{`
+9:9 Identifier `x`
+9:10 StringLiteral `";`
+10:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ // ok � in comment
+    │       ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  3 │ � two.
+    │ ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  9 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,37 @@
+1:1 Identifier `ₓ`
+1:4 StringLiteral `"text"`
+1:11 StringLiteral `"esc \"q\" \\ \n"`
+1:29 RawStringLiteral `"""\r\n '\u{110000}'\r\n\r\n$"{}" 0b102\r\n `
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ ₓ����� "text" "esc \"q\" \\ \n" """
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ ₓ����� "text" "esc \"q\" \\ \n" """
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ₓ����� "text" "esc \"q\" \\ \n" """
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ₓ����� "text" "esc \"q\" \\ \n" """
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ₓ����� "text" "esc \"q\" \\ \n" """
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ₓ����� "text" "esc \"q\" \\ \n" """
+    │                                 ^^^ raw string starts here
+    │
+  help: close it with `"""`

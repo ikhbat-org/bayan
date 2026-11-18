@@ -1,0 +1,80 @@
+1:1 OpenBrace `{`
+1:2 Identifier `Point`
+1:8 OpenBrace `{`
+1:10 Identifier `x`
+1:12 Equals `=`
+1:14 IntegerLiteral `1`
+1:16 CloseBrace `}`
+1:17 CloseBrace `}`
+1:18 Bang `!`
+1:19 StringLiteral `" $"`
+1:23 StringLiteral `"`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `total `
+2:10 InterpolationStart `{`
+2:11 Identifier `x`
+2:12 InterpolationEnd `}`
+2:13 InterpolatedStringEnd `"`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolatedStringText `a `
+2:19 InterpolationStart `{`
+2:20 Identifier `f`
+2:21 OpenParen `(`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolatedStringText `b `
+2:26 InterpolationStart `{`
+2:27 Identifier `c`
+2:28 InterpolationEnd `}`
+2:29 InterpolatedStringEnd `"`
+2:30 CloseParen `)`
+2:31 InterpolationEnd `}`
+2:32 InterpolatedStringText ` d`
+2:34 InterpolatedStringEnd `"`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolatedStringText `{{literal}}`
+2:49 InterpolatedStringEnd `"`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 Identifier `Point`
+2:60 OpenBrace `{`
+2:62 Identifier `x`
+2:64 Equals `=`
+2:66 IntegerLiteral `1`
+2:68 CloseBrace `}`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringText `!`
+2:71 InterpolatedStringEnd `"`
+2:73 InterpolatedStringStart `$"`
+2:75 InterpolatedStringEnd `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 Identifier `a`
+5:1 Identifier `b`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `open `
+6:8 InterpolationStart `{`
+6:9 Identifier `x`
+6:10 StringLiteral `";`
+8:1 Identifier `b`
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ {Point { x = 1 }}!" $""
+    │                       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

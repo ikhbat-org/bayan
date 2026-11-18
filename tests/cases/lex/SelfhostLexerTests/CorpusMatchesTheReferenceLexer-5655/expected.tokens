@@ -1,0 +1,35 @@
+1:1 Identifier `_000`
+1:6 IntegerLiteral `0xFF`
+1:11 IntegerLiteral `0x_ff`
+1:17 IntegerLiteral `0b1010`
+1:24 IntegerLiteral `0B11`
+1:29 IntegerLiteral `5`
+1:30 NumericSuffix `s`
+1:32 IntegerLiteral `250`
+1:35 NumericSuffix `ms`
+1:38 IntegerLiteral `4`
+1:39 NumericSuffix `KiB`
+1:43 IntegerLiteral `1`
+1:44 NumericSuffix `u`
+1:46 IntegerLiteral `0xFF`
+1:50 NumericSuffix `u`
+1:53 VarKeyword `var`
+1:57 Identifier `xs`
+1:59 Colon `:`
+1:61 Identifier `List`
+1:65 Less `<`
+1:66 Identifier `List`
+1:70 Less `<`
+1:71 Identifier `i64`
+1:74 Greater `>`
+1:75 Greater `>`
+2:2 Identifier `x́́`
+3:1 CharLiteral `'\u{D800'`
+4:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\u{D800`
+
+  3 │ '\u{D800'
+    │  ^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`

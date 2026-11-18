@@ -1,0 +1,4 @@
+== tests/cases/diag/not-disposable.byn
+0..15 globalStatement
+0..15 localDecl
+14..15 literalExpr integer

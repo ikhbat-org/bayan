@@ -1,0 +1,1 @@
+{"code":"BYN2722","severity":"error","file":"input.byn","span":{"start":5,"end":12,"line":1,"column":6,"endLine":1,"endColumn":13},"message":"enum `Nothing` has no members","label":null,"help":"add the members, or remove the enum","fixes":[]}

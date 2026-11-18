@@ -1,0 +1,10 @@
+110000}'
+'x
+let c = """never closed
+ 0xFFs
+À€ // line comment
+
+  raw "quoted"
+ 7l
+
+0xFFs

@@ -1,0 +1,1 @@
+{"code":"BYN2230","severity":"error","file":"input.byn","span":{"start":184,"end":191,"line":7,"column":11,"endLine":7,"endColumn":18},"message":"`onPanic` is now `handler`","label":"the old name","help":"rename it `handler`","fixes":[{"span":{"start":184,"end":191,"line":7,"column":11,"endLine":7,"endColumn":18},"replacement":"handler"}]}

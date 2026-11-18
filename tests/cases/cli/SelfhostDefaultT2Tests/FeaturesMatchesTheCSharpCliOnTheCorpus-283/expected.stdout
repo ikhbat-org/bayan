@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "Print",
+    "StringCount",
+    "StringLastPosition",
+    "StringPosition"
+  ],
+  "diagnostics": []
+}

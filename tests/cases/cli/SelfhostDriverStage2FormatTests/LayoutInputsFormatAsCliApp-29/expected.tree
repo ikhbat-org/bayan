@@ -1,0 +1,1578 @@
+== case000.byn
+tmp== case001.byn
+layout== case002.byn
+main.byn== case003.byn
+let a = 1
+let b = 2
+== case004.byn
+let a = 1
+let b = 2
+== case005.byn
+let a = 1 // one
+let b = 2
+== case006.byn
+let a = 1 // one
+let b = 2
+== case007.byn
+let a = 1
+== case008.byn
+let a = 1
+== case009.byn
+let a = 1
+== case010.byn
+== case011.byn
+void main() {
+    let a = 1
+    if a > 0 {
+        print(a)
+    }
+}
+== case012.byn
+void main() {
+    let a = 1
+    if a > 0 {
+        print(a)
+    }
+}
+== case013.byn
+void main() {
+    let s = xs
+        .map(f)
+        ?? ys
+}
+== case014.byn
+void main() {
+    let s = xs
+        .map(f)
+        ?? ys
+}
+== case015.byn
+void main() {
+    let s = a +
+        b
+    print(s)
+}
+== case016.byn
+void main() {
+    let s = a +
+        b
+    print(s)
+}
+== case017.byn
+public Money quote(Cart cart)
+        expects cart.total > 0
+        uses db
+        fails QuoteError {
+    return cart.total
+}
+== case018.byn
+public Money quote(Cart cart)
+        expects cart.total > 0
+        uses db
+        fails QuoteError {
+    return cart.total
+}
+== case019.byn
+void main() {
+    if a
+            && b {
+        print(a)
+    }
+}
+== case020.byn
+void main() {
+    if a
+            && b {
+        print(a)
+    }
+}
+== case021.byn
+void main() {
+    f(1, 2)
+    let xs = [1]
+}
+== case022.byn
+void main() {
+    f(1, 2)
+    let xs = [1]
+}
+== case023.byn
+void main() {
+    // first
+    let a = 1
+    // last
+}
+== case024.byn
+void main() {
+    // first
+    let a = 1
+    // last
+}
+== case025.byn
+let a = b + c - d == e && f || g ?? h
+== case026.byn
+let a = b + c - d == e && f || g ?? h
+== case027.byn
+bool isA(rune c) => c == 'a'
+== case028.byn
+bool isA(rune c) => c == 'a'
+== case029.byn
+for i in 0..10 {
+    print(i)
+}
+for i in 0..<n {
+    print(i)
+}
+== case030.byn
+for i in 0..10 {
+    print(i)
+}
+for i in 0..<n {
+    print(i)
+}
+== case031.byn
+let a = -b
+let c = !d
+== case032.byn
+let a = -b
+let c = !d
+== case033.byn
+let p = Point { x: 1, y: 2 }
+f(ref c, by: d)
+== case034.byn
+let p = Point { x: 1, y: 2 }
+f(ref c, by: d)
+== case035.byn
+let a = b ? c : d
+struct S : I { i32 x }
+== case036.byn
+let a = b ? c : d
+struct S : I { i32 x }
+== case037.byn
+let s = pick(c ? a : b, by: x)
+let u = f(c ? a : b, by: d ? e : g)
+== case038.byn
+let s = pick(c ? a : b, by: x)
+let u = f(c ? a : b, by: d ? e : g)
+== case039.byn
+let a = f(x, y)[0]
+== case040.byn
+let a = f(x, y)[0]
+== case041.byn
+test "positive" (i32 n) {
+    assert(n > 0)
+}
+== case042.byn
+string f(
+    string t,
+    by (string a, string b) args
+) =>
+    t
+let x = g(by(1), at(2))
+== case043.byn
+string f(
+    string t,
+    by (string a, string b) args
+) =>
+    t
+let x = g(by(1), at(2))
+== case044.byn
+List<i32> xs = make()
+u8* p = q
+let t = 30s
+let s = a >> 2
+== case045.byn
+let a = 1 // a  note
+let b = 2 // b
+== case046.byn
+let a = 1 // a  note
+let b = 2 // b
+== case047.byn
+// tight
+/// doc
+//
+let a = 1 // b  c
+== case048.byn
+// tight
+/// doc
+//
+let a = 1 // b  c
+== case049.byn
+let a = "x  =  y "
+let b = $"  x {a}  -"
+== case050.byn
+let a = "x  =  y "
+let b = $"  x {a}  -"
+== case051.byn
+let s = $"{n, as: .hex} and {a + 1}"
+== case052.byn
+let s = $"{n, as: .hex} and {a + 1}"
+== case053.byn
+void pay(ref this is .draft)
+        becomes .paid {
+}
+== case054.byn
+i64 amount(this is .paid or .shipped) =>
+    payment
+== case055.byn
+Color pick() {
+    return .red
+}
+== case056.byn
+void check(string s) fails ParseError {
+    fail .empty if s.isEmpty
+}
+== case057.byn
+i64 f(Color c) => c switch {
+    case .red => 1
+    case .green => 2
+}
+== case058.byn
+union error Retryable = SendError except .rejected
+== case059.byn
+void f(Order o)
+        expects o is .paid
+        and o is .shipped {
+}
+== case060.byn
+let parsed = Suit.parse("spades")
+    ?? .clubs
+== case061.byn
+print($"{size(1) catch .good}")
+== case062.byn
+let a = c == .red || c == .green
+== case063.byn
+let a = c != .red && c != .green
+== case064.byn
+let a = order.paid
+let b = f().x
+== case065.byn
+void main() {
+    let a = 1
+
+    let b = 2
+}
+== case066.byn
+void main() {
+    let a = 1
+
+    let b = 2
+}
+== case067.byn
+void f() {
+}
+
+void g() {
+}
+== case068.byn
+void f() {
+}
+
+void g() {
+}
+== case069.byn
+struct A { i32 x }
+struct B { i32 y }
+
+type F = i32 -> bool
+
+void f() {
+}
+== case070.byn
+struct A { i32 x }
+struct B { i32 y }
+
+type F = i32 -> bool
+
+void f() {
+}
+== case071.byn
+struct A { i32 x }
+
+struct B { i32 y }
+== case072.byn
+struct A { i32 x }
+
+struct B { i32 y }
+== case073.byn
+    let rates = taxRates.forRegion(customer.region) ?? fail .noTaxRegion
+    var subtotal = Money.zero(cart.currency)
+    for line in cart.lines {
+        let product = try catalog.find(line.sku)
+        fail .discontinued(line.sku) if product.isDiscontinued
+        subtotal = subtotal + product.price * line.quantity
+    }
+    let discount = customer.tier.discount(on: subtotal)
+    let total = (subtotal - discount) * rates.multiplier
+    log($"quote {cart.id}: {total}", as: .debug)
+    return total
+}
+== case074.byn
+public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 uses db fails QuoteError {
+== case075.byn
+public Money quote(Cart cart, for Customer customer)
+        expects cart.lines.length > 0
+        uses db
+        fails QuoteError {
+== case076.byn
+public Money quote(
+    Cart cart,
+    for Customer customer
+)
+        expects cart.lines.length > 0
+        uses db
+        fails QuoteError {
+    let rates = taxRates.forRegion(
+        customer.region
+    )
+        ?? fail .noTaxRegion
+    var subtotal = Money.zero(
+        cart.currency
+    )
+
+    for line in cart.lines {
+        let product = try catalog.find(
+            line.sku
+        )
+        fail .discontinued(
+            line.sku
+        ) if product.isDiscontinued
+
+        subtotal = subtotal + product.price * line.quantity
+    }
+
+    let discount = customer.tier.discount(
+        on: subtotal
+    )
+    let total = (
+        subtotal - discount
+    ) * rates.multiplier
+
+    log(
+        $"quote {cart.id}: {total}",
+        as: .debug
+    )
+    return total
+}
+== case077.byn
+if order is .paid
+        and order.total >= freeShippingThreshold
+        && customer.region.shipsFree
+        && !order.hasOversizedItems {
+    order.shipping = .free
+}
+== case078.byn
+if order is .paid
+        and order.total >= freeShippingThreshold
+        && customer.region.shipsFree
+        && !order.hasOversizedItems {
+    order.shipping = .free
+}
+== case079.byn
+let reminders = orders
+    .where(it.placedAt < cutoff
+        && it.total > minimum)
+    .sorted(by: it.placedAt)
+    .take(50)
+    .map(
+        Reminder(
+            it.id,
+            for: it.customer
+        )
+    )
+== case080.byn
+let reminders = orders
+    .where(it.placedAt < cutoff
+        && it.total > minimum)
+    .sorted(by: it.placedAt)
+    .take(50)
+    .map(
+        Reminder(
+            it.id,
+            for: it.customer
+        )
+    )
+== case081.byn
+let shipment = carrier.book(
+    parcel,
+    from: warehouse.address,
+    to: order.shippingAddress,
+    by: order.deadline,
+    as: .express
+)
+== case082.byn
+let shipment = carrier.book(
+    parcel,
+    from: warehouse.address,
+    to: order.shippingAddress,
+    by: order.deadline,
+    as: .express
+)
+== case083.byn
+Booking book(
+    Carrier carrier,
+    Route route,
+    Date date,
+    Passenger passenger,
+    Seat preferredSeat,
+    Meal meal,
+    Insurance insurance
+) uses net, suspend fails BookingError {
+    return try carrier.quote(
+        route,
+        on: date
+    )
+}
+== case084.byn
+Booking book(
+    Carrier carrier,
+    Route route,
+    Date date,
+    Passenger passenger,
+    Seat preferredSeat,
+    Meal meal,
+    Insurance insurance
+) uses net, suspend fails BookingError {
+    return try carrier.quote(
+        route,
+        on: date
+    )
+}
+== case085.byn
+public Money quote(
+    Cart cart,
+    for Customer customer
+)
+        expects cart.lines.length > 0
+        && customer.region.isKnown
+        uses db
+        fails QuoteError {
+    return cart.total(for: customer)
+}
+== case086.byn
+public Money quote(
+    Cart cart,
+    for Customer customer
+) expects cart.lines.length > 0 && customer.region.isKnown uses db fails QuoteError {
+    return cart.total(for: customer)
+}
+== case087.byn
+if order is .paid
+        && order.total >= freeShippingThreshold
+        && customer.region.shipsFree
+        && !order.hasOversizedOrHazardousItems {
+    order.shipping = .free
+}
+== case088.byn
+if order is .paid
+        && order.total >= freeShippingThreshold
+        && customer.region.shipsFree
+        && !order.hasOversizedOrHazardousItems {
+    order.shipping = .free
+}
+== case089.byn
+let reminders = orders
+    .where(it.placedAt < cutoff
+        && it.total > minimum)
+    .sorted(by: it.placedAt)
+    .take(50)
+    .map(
+        Reminder(
+            it.id,
+            for: it.customer
+        )
+    )
+== case090.byn
+let reminders = orders
+    .where(it.placedAt < cutoff
+        && it.total > minimum)
+    .sorted(by: it.placedAt)
+    .take(50)
+    .map(
+        Reminder(
+            it.id,
+            for: it.customer
+        )
+    )
+== case091.byn
+let shipment = carrier.book(
+    parcel,
+    from: warehouse.address,
+    to: order.shippingAddress,
+    by: order.deadline,
+    as: .express,
+    insured: order.total > insuranceThreshold
+)
+== case092.byn
+let shipment = carrier.book(
+    parcel,
+    from: warehouse.address,
+    to: order.shippingAddress,
+    by: order.deadline,
+    as: .express,
+    insured: order.total > insuranceThreshold
+)
+== case093.byn
+let shipment = carrier.book(
+    parcel,
+    as: .express
+)
+== case094.byn
+let shipment = carrier.book(
+    parcel,
+    as: .express
+)
+== case095.byn
+let s = f(a, b)
+let t = [x, y]
+== case096.byn
+let s = f(a, b)
+let t = [x, y]
+== case097.byn
+let s = f(a, b)
+let t = g(
+    argumentNumberOne,
+    argumentNumberTwo,
+    argumentNumberThree
+)
+== case098.byn
+let s = f(a, b)
+let t = g(
+    argumentNumberOne,
+    argumentNumberTwo,
+    argumentNumberThree
+)
+== case099.byn
+let p = Point {
+    x: 1,
+    y: 2
+}
+let q = Point {
+    x: firstCoordinate,
+    y: secondCoordinate
+}
+== case100.byn
+let p = Point {
+    x: 1,
+    y: 2
+}
+let q = Point {
+    x: firstCoordinate,
+    y: secondCoordinate
+}
+== case101.byn
+let n = xs.take(2).count()
+== case102.byn
+let n = xs.take(2).count()
+== case103.byn
+let n = xs
+    .map(it + 1)
+    .where(it > 0)
+    .sorted(by: it)
+== case104.byn
+let n = xs
+    .map(it + 1)
+    .where(it > 0)
+    .sorted(by: it)
+== case105.byn
+let n = xs
+    .map(it + 1)
+    .where(it > 0)
+    .sorted(by: it)
+== case106.byn
+let t = f(1, 2, 3)
+== case107.byn
+let t = f(1, 2, 3)
+== case108.byn
+if (alpha || beta) && gamma
+        && delta {
+    go()
+}
+== case109.byn
+if (alpha || beta) && gamma && delta {
+    go()
+}
+== case110.byn
+if ready {
+    launch(
+        firstArgument,
+        secondArgument
+    )
+}
+== case111.byn
+if ready {
+    launch(
+        firstArgument,
+        secondArgument
+    )
+}
+== case112.byn
+void main() {
+    if a
+            && check(
+                firstArgument,
+                secondArgument
+            ) {
+        go()
+    }
+}
+== case113.byn
+void main() {
+    if a
+            && check(
+                firstArgument,
+                secondArgument
+            ) {
+        go()
+    }
+}
+== case114.byn
+void main() {
+    switch k {
+        case .pair(let first, let second): return f(
+            first,
+            by: grid[rowNumber, columnNumber],
+        )
+    }
+}
+== case115.byn
+void main() {
+    switch k {
+        case .pair(let first, let second): return f(first, by: grid[rowNumber, columnNumber])
+    }
+}
+== case116.byn
+void main() {
+    switch k {
+        case .pair(
+            let firstValue,
+            let secondValue
+        ): go()
+    }
+}
+== case117.byn
+let x = c ? first(
+    argumentNumberOne,
+    argumentNumberTwo
+) : ""
+== case118.byn
+let x = c ? first(
+    argumentNumberOne,
+    argumentNumberTwo
+) : ""
+== case119.byn
+@derive(Json, Row)
+public struct Customer {
+    CustomerId id
+    Email      email
+    string     name
+    Region     region
+    Tier       tier = .standard
+    Instant    createdAt
+
+    public bool isVip => tier is .gold
+        or .platinum
+    public string displayName => $"{name} <{email}>"
+
+    public void promote(
+        ref this,
+        to Tier next
+    ) {
+        tier = next
+    }
+}
+== case120.byn
+@derive(Json, Row)
+public struct Customer {
+    CustomerId id
+    Email      email
+    string     name
+    Region     region
+    Tier       tier = .standard
+    Instant    createdAt
+
+    public bool isVip => tier is .gold
+        or .platinum
+    public string displayName => $"{name} <{email}>"
+
+    public void promote(
+        ref this,
+        to Tier next
+    ) {
+        tier = next
+    }
+}
+== case121.byn
+let label = order switch {
+    .placed => "Awaiting payment",
+    .paid p => $"Paid via {p.payment.method}",
+    .shipped s => $"Shipped, tracking {s.tracking}",
+    .canceled => "Canceled",
+}
+== case122.byn
+let label = order switch {
+    .placed => "Awaiting payment",
+    .paid p => $"Paid via {p.payment.method}",
+    .shipped s => $"Shipped, tracking {s.tracking}",
+    .canceled => "Canceled",
+}
+== case123.byn
+type distinct CustomerId = i64
+type distinct Sku = string requires it.length <= 16
+
+effect db = net, fs
+
+union error QuoteError {
+    noTaxRegion
+    discontinued(Sku sku)
+}
+
+public Money quote(
+    Cart cart,
+    for Customer customer
+) {
+    return cart.total
+}
+== case124.byn
+type distinct CustomerId = i64
+type distinct Sku = string requires it.length <= 16
+
+effect db = net, fs
+
+union error QuoteError {
+    noTaxRegion
+    discontinued(Sku sku)
+}
+
+public Money quote(
+    Cart cart,
+    for Customer customer
+) {
+    return cart.total
+}
+== case125.byn
+struct Customer {
+    CustomerId id
+    Email      email
+    string     name
+    Tier       tier = .standard
+
+    public bool isVip => tier is .gold
+        or .platinum
+    public string displayName => $"{name} <{email}>"
+}
+== case126.byn
+struct Customer {
+    CustomerId id
+    Email      email
+    string     name
+    Tier       tier = .standard
+
+    public bool isVip => tier is .gold
+        or .platinum
+    public string displayName => $"{name} <{email}>"
+}
+== case127.byn
+type distinct CustomerId = i64
+type distinct Sku = string requires it.length <= 16
+
+effect db = net, fs
+
+union error QuoteError {
+    noTaxRegion
+    discontinued(Sku sku)
+}
+== case128.byn
+type distinct CustomerId = i64
+type distinct Sku = string requires it.length <= 16
+
+effect db = net, fs
+
+union error QuoteError {
+    noTaxRegion
+    discontinued(Sku sku)
+}
+== case129.byn
+struct Server {
+    i64  port // default 8080
+    bool tls  // on by default
+}
+== case130.byn
+struct Server {
+    i64  port // default 8080
+    bool tls  // on by default
+}
+== case131.byn
+struct S {
+    i32 a
+
+    string bb
+    i64    c
+}
+== case132.byn
+struct S {
+    i32 a
+
+    string bb
+    i64    c
+}
+== case133.byn
+struct S {
+    i32 a
+    // the rest
+    string bb
+    i64    c
+}
+== case134.byn
+struct S {
+    i32 a
+    // the rest
+    string bb
+    i64    c
+}
+== case135.byn
+let n = k switch {
+    .a   => 1,
+    .bb  => f(x),
+    .ccc => 3,
+    .d   => 4,
+}
+== case136.byn
+let n = k switch {
+    .a   => 1,
+    .bb  => f(x),
+    .ccc => 3,
+    .d   => 4,
+}
+== case137.byn
+struct S {
+    i32    a
+    string bb
+
+    public i64 c  => a
+    bool       dd => true
+}
+== case138.byn
+struct S {
+    i32    a
+    string bb
+
+    public i64 c  => a
+    bool       dd => true
+}
+== case139.byn
+void main() {
+    let a = 1   // one
+    let bcd = 2 // two
+    if a > 0 {  // three
+        go() // four
+    }
+}
+== case140.byn
+void main() {
+    let a = 1   // one
+    let bcd = 2 // two
+    if a > 0 {  // three
+        go() // four
+    }
+}
+== case141.byn
+struct S {
+    i32 aaaaaaaaaaaaaaaaaaaa
+    LongerTypeName b
+}
+== case142.byn
+struct S {
+    u8* p
+    Instant n
+}
+== case143.byn
+type A  = i64
+type Bb = string
+
+struct S {
+    i32    a  // x
+    string bb // y
+}
+== case144.byn
+struct S {
+    i32    a
+    string bb
+}
+== case145.byn
+Package { name: "local/t", version: "0.1.0", style: Style { align: .none } }
+== case146.byn
+align== case147.byn
+package.byn== case148.byn
+format== case149.byn
+skipped== case150.byn
+struct S {
+    i32    a        // x
+    string bb = "q" // y
+
+    public bool c  => a > 0
+    i64         dd => 2
+}
+
+type A  = i64
+type Bb = string
+== case151.byn
+void show() {
+    let d = a - b
+    let w: Grams = -weight
+    let f = c ?? -d
+}
+== case152.byn
+void show() {
+    let d = a - b
+    let w: Grams = -weight
+    let f = c ?? -d
+}
+== case153.byn
+void show(List<Sku> skus) {
+    let total = price * quantity
+    let port = config.port ?? 8080
+    let span = 0..n
+    let origin = Point { x: 1, y: 2 }
+    let sizes = [1, 2]
+    let label = format(total)
+    let done = !finished
+    let w: Grams = -weight
+}
+== case154.byn
+void show(List<Sku> skus) {
+    let total = price * quantity
+    let port = config.port ?? 8080
+    let span = 0..n
+    let origin = Point { x: 1, y: 2 }
+    let sizes = [1, 2]
+    let label = format(total)
+    let done = !finished
+    let w: Grams = -weight
+}
+== case155.byn
+void f(u8*p) {
+    let n = a * b
+}
+== case156.byn
+void fill(List<Sku> skus) {
+    let wait = 30s
+}
+== case157.byn
+void fill(List<Sku> skus) {
+    let wait = 30s
+}
+== case158.byn
+let m: Map<string, List<i32> > = make()
+let n: List<List<i32>> = make()
+== case159.byn
+let m: Map<string, List<i32> > = make()
+let n: List<List<i32>> = make()
+== case160.byn
+@derive(Json)
+struct Note {
+    @json(name: "note") string text
+}
+== case161.byn
+@derive(Json)
+struct Note {
+    @json(name: "note") string text
+}
+== case162.byn
+struct Note {
+    @json(name: "note") string text
+}
+== case163.byn
+@allow(unusedValue) because "warm"
+@cases(1)
+void warm() {
+}
+== case164.byn
+@allow(unusedValue) because "warm"
+@cases(1)
+void warm() {
+}
+== case165.byn
+public void promote(
+    ref this,
+    to Tier next
+) {
+    tier = next
+}
+== case166.byn
+public void promote(
+    ref this,
+    to Tier next
+) {
+    tier = next
+}
+== case167.byn
+bool ok() => true
+
+void main() {
+    if a {
+        b()
+    } else {
+        c()
+    }
+}
+== case168.byn
+bool ok() => true
+
+void main() {
+    if a {
+        b()
+    } else {
+        c()
+    }
+}
+== case169.byn
+struct Cart {
+    List<Line> lines
+
+    public i32 count => lines.length
+
+    public void add(
+        ref this,
+        Line line
+    ) {
+        lines.append(line)
+    }
+
+    public void clear(ref this) {
+        lines = []
+    }
+}
+== case170.byn
+struct Cart {
+    List<Line> lines
+
+    public i32 count => lines.length
+
+    public void add(
+        ref this,
+        Line line
+    ) {
+        lines.append(line)
+    }
+
+    public void clear(ref this) {
+        lines = []
+    }
+}
+== case171.byn
+struct Cart {
+    public void add(
+        ref this,
+        Line line
+    ) {
+        let n = 1
+        print(n)
+        lines.append(line)
+    }
+}
+
+void main() {
+    let a = 1
+    print(a)
+}
+== case172.byn
+bool hidden(i64 c) {
+    return c < 0x20
+        || (c >= 0x7F && c <= 0x9F)
+        || c == 0x61C
+        || (c >= 0x202A && c <= 0x202E)
+}
+== case173.byn
+bool hidden(i64 c) {
+    return c < 0x20
+        || (c >= 0x7F && c <= 0x9F)
+        || c == 0x61C
+        || (c >= 0x202A && c <= 0x202E)
+}
+== case174.byn
+let ok = ready
+    && check(
+        firstArgument,
+        secondArgument
+    )
+    && done
+== case175.byn
+let ok = ready
+    && check(
+        firstArgument,
+        secondArgument
+    )
+    && done
+== case176.byn
+let inInstance = host != -1
+    && !c.fns[host].isStatic
+    && (c.fns[host].kind == .method
+        || c.fns[host].kind == .getter)
+== case177.byn
+let inInstance = host != -1
+    && !c.fns[host].isStatic
+    && (c.fns[host].kind == .method
+        || c.fns[host].kind == .getter)
+== case178.byn
+let empty = c.variants[i].payload.length == 0
+    && c.errors[c.variants[i].variant].fields.length > 0
+== case179.byn
+let empty = c.variants[i].payload.length == 0
+    && c.errors[c.variants[i].variant].fields.length > 0
+== case180.byn
+void f() {
+    let root = (move parsed).trustUnchecked() because "a site map only names sites; each field is checked below"
+}
+== case181.byn
+let inInstance = host != -1
+    && !c.fns[host].isStatic
+    && (c.fns[host].kind == .method
+        || c.fns[host].kind == .getter)
+== case182.byn
+shown.append(
+    compiled.manifest is not null
+        ? Path
+        .relative(
+            compiled.root,
+            to: output
+        )
+        .replaced("\\", by: "/")
+        : output
+)
+== case183.byn
+shown.append(
+    compiled.manifest is not null
+        ? Path
+        .relative(
+            compiled.root,
+            to: output
+        )
+        .replaced("\\", by: "/")
+        : output
+)
+== case184.byn
+i64 total(
+    i64 firstArgument,
+    i64 secondArgument
+) =>
+    firstArgument + secondArgument
+== case185.byn
+i64 total(
+    i64 firstArgument,
+    i64 secondArgument
+) => firstArgument + secondArgument
+== case186.byn
+shown.append(
+    compiled.manifest is not null
+        ? Path
+        .relative(
+            compiled.root,
+            to: output
+        )
+        .replaced("\\", by: "/")
+        : output
+)
+== case187.byn
+bool literal(TokenKind kind) =>
+    kind switch {
+        .integerLiteral => true,
+        .floatLiteral   => true,
+        .stringLiteral
+            or .rawStringLiteral
+            or .cStringLiteral => true,
+        _ => false,
+    }
+== case188.byn
+bool literal(TokenKind kind) =>
+    kind switch {
+        .integerLiteral => true,
+        .floatLiteral   => true,
+        .stringLiteral
+            or .rawStringLiteral
+            or .cStringLiteral => true,
+        _ => false,
+    }
+== case189.byn
+struct DistSource {
+    string? commit = null
+    bool    dirty  = false
+    i64     count
+}
+== case190.byn
+struct DistSource {
+    string? commit = null
+    bool    dirty  = false
+    i64     count
+}
+== case191.byn
+i64 total(
+    i64 firstArgument,
+    i64 secondArgument
+) =>
+    firstArgument + secondArgument
+== case192.byn
+const t: u32[8] = [
+    0x0041, 0x005A, 0x005F, 0x005F,
+    0x0061, 0x007A, 0x00AA, 0x00AA
+]
+== case193.byn
+const t: u32[8] = [
+    0x0041, 0x005A, 0x005F, 0x005F,
+    0x0061, 0x007A, 0x00AA, 0x00AA
+]
+== case194.byn
+const t: u32[8] = [
+    0x0041, 0x005A, 0x005F,
+    0x005F, 0x0061, 0x007A,
+    0x00AA, 0x00AA
+]
+== case195.byn
+const t: u32[8] = [
+    0x0041, 0x005A, 0x005F, 0x005F,
+    0x0061, 0x007A, 0x00AA, 0x00AA
+]
+== case196.byn
+void f() {
+    switch kind {
+        case .binary:
+            let op = c.op
+            go(op)
+        default: {}
+    }
+}
+== case197.byn
+void f() {
+    switch kind {
+        case .binary:
+            let op = c.op
+            go(op)
+        default: {}
+    }
+}
+== case198.byn
+void f() {
+    switch kind {
+        case .a: go()
+        default: {}
+    }
+}
+== case199.byn
+void f() {
+    switch kind {
+        case .a: go()
+        default: {}
+    }
+}
+== case200.byn
+struct CCtx {
+    /// `OwnershipChecks`.
+    public bool   checks = false
+    /// `_packageRoot`.
+    public string root   = ""
+    // ── T2 state
+    public i64    n      = 0
+    public string longer = ""
+}
+== case201.byn
+struct CCtx {
+    /// `OwnershipChecks`.
+    public bool   checks = false
+    /// `_packageRoot`.
+    public string root   = ""
+    // ── T2 state
+    public i64    n      = 0
+    public string longer = ""
+}
+== case202.byn
+void f() {
+    let shown = ready ? Path.relative(
+        root,
+        to: output
+    ).replaced("a", by: "/") : output
+}
+== case203.byn
+void f() {
+    let shown = ready ? Path.relative(
+        root,
+        to: output
+    ).replaced("a", by: "/") : output
+}
+== case204.byn
+void f() {
+    if (member == "handler"
+            || member == "onPanic") && t15Lookup(
+                ref b,
+                for: "Panic"
+            ) == -1 {
+        return bindOnPanic(
+            ref b,
+            through: ref c,
+            for: in a.value
+        )
+    }
+}
+== case205.byn
+void f() {
+    if (member == "handler"
+            || member == "onPanic") && t15Lookup(
+                ref b,
+                for: "Panic"
+            ) == -1 {
+        return bindOnPanic(
+            ref b,
+            through: ref c,
+            for: in a.value
+        )
+    }
+}
+== case206.byn
+void f() {
+    if (i < barrier && !isTrivial(
+        in c,
+        through: in l,
+        for: values[i]
+    )
+            || movedFirst[i]) && !lvalue
+            && !isVoidExpr(values[i]) {
+        values[i] = spill(
+            ref c,
+            through: ref l,
+            for: values[i]
+        )
+    }
+}
+== case207.byn
+void f() {
+    if (i < barrier && !isTrivial(
+        in c,
+        through: in l,
+        for: values[i]
+    )
+            || movedFirst[i]) && !lvalue
+            && !isVoidExpr(values[i]) {
+        values[i] = spill(
+            ref c,
+            through: ref l,
+            for: values[i]
+        )
+    }
+}
+== case208.byn
+void f() {
+    if (checkedStore(
+        ref cc,
+        for: ref f,
+        from: ref c,
+        through: t,
+        at: t.assignExprs[i].target,
+        to: t.assignExprs[i].value,
+        claim: false
+    ) is { } stored) {
+        return stored
+    }
+}
+== case209.byn
+void f() {
+    if (checkedStore(
+        ref cc,
+        for: ref f,
+        from: ref c,
+        through: t,
+        at: t.assignExprs[i].target,
+        to: t.assignExprs[i].value,
+        claim: false
+    ) is { } stored) {
+        return stored
+    }
+}
+== case210.byn
+void f() {
+    if (originalValueNumberOne == originalValueNumberTwo) is true {
+        return 1
+    }
+}
+== case211.byn
+let v = table[
+    firstKeyNameValue ?? secondKeyNameValue ?? thirdKeyNameValue
+].value
+== case212.byn
+let w = rows[i].first()
+    .second(alphaValue)
+    .third(betaValue)
+    .fourth()
+== case213.byn
+let w = rows[i].first()
+    .second(alphaValue)
+    .third(betaValue)
+    .fourth()
+== case214.byn
+void f() {
+    switch kind {
+        case .binary:
+            let op = ready ? c.op : d.op
+        case .unary:
+            go(op)
+        default: {}
+    }
+}
+== case215.byn
+Point moved(
+    Point p,
+    Point by = Point { x: 0, y: 0 }
+) =>
+    p.plus(by)
+== case216.byn
+Point moved(
+    Point p,
+    Point by = Point { x: 0, y: 0 }
+) =>
+    p.plus(by)
+== case217.byn
+void f() {
+    let shown = ready ? Path
+        .relative(root, to: output)
+        .replaced("a", by: "/") : output
+}
+== case218.byn
+const distMaxFiles: i64 = 20000
+const distMaxDirs: i64  = 4000
+const distMaxDepth: i64 = 64
+== case219.byn
+const distMaxFiles: i64 = 20000
+const distMaxDirs: i64  = 4000
+const distMaxDepth: i64 = 64
+== case220.byn
+struct Order { i64 total
+    str name }
+
+public Money quote(Cart cart)
+        expects cart.total>0
+        uses db {
+    let x = [1, 2, 3] // three
+    if x.length>0
+            && ok {
+        print(x[0])
+    }
+
+    // done
+}
+== case221.byn
+@unformatted because "a table"
+void t() {  
+  let grid = [
+  1,   0,	
+  0,   1,
+  ]
+}
+== case222.byn
+void f() {
+    let a = 1
+}
+== case223.byn
+void f() {
+    let a = 1
+}
+== case224.byn
+struct S {
+    @unformatted because "columns"
+    i32 f() {
+      return   1
+    }
+
+    i32 g() {
+        return 2
+    }
+}
+== case225.byn
+struct S {
+    @unformatted because "columns"
+    i32 f() {
+      return   1
+    }
+
+    i32 g() {
+        return 2
+    }
+}
+== case226.byn
+void main() {
+    if unlikely (a).length > 0 {
+        print(1)
+    }
+}
+== case227.byn
+let s = x >> 2
+let d = 30s
+let p = u8* b
+let q = a * b
+== case228.byn
+void main() {
+    let t = g(
+        argumentNumberOne,
+        argumentNumberTwo
+    )
+    let s = f(a, b)
+}
+== case229.byn
+Package { name: "local/t", version: "0.1.0", style: Style { indent: 2, width: 30, trailingCommas: .never } }
+== case230.byn
+knobs== case231.byn
+void main() {
+    let t = g(
+        argumentNumberOne,
+        argumentNumberTwo
+    )
+    let s = f(a, b)
+}
+== case232.byn
+struct S {
+    i32 x
+        requires x > 0
+}
+== case233.byn
+struct S {
+    i32 x
+        requires x > 0
+}
+== case234.byn
+let a = 1 // b
+== case235.byn
+tokens== case236.byn
+let a = 1
+let b = 3
+== case237.byn
+the tokens changed== case238.byn
+diagnostics== case239.byn
+let a = 1 let b = 2
+== case240.byn
+the diagnostics changed== case241.byn
+comments== case242.byn
+let a = 1 // one
+== case243.byn
+let a = 1 // two
+== case244.byn
+the comments changed== case245.byn
+adjacency== case246.byn
+let a = 1
+let b = x >> 2
+== case247.byn
+let a = 1
+let b = x > > 2
+== case248.byn
+the spacing the parser reads changed== case249.byn
+=== case250.byn
+  =  == case251.byn
+src== case252.byn
+lib== case253.byn
+*.byn== case254.byn
+var skipped: layout
+== case255.byn
+var changing: still
+== case256.byn
+corpus== package.byn
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { width: 40, trailingCommas: .never },
+}

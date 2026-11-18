@@ -1,0 +1,89 @@
+2:2 ErrorKeyword `error`
+2:8 Identifier `se`
+2:11 Identifier `t`
+2:13 UnitKeyword `unit`
+2:18 DistinctKeyword `distinct`
+2:27 TypeKeyword `type`
+2:32 ImportKeyword `import`
+2:39 AsKeyword `as`
+2:42 PublicKeyword `public`
+2:49 PrivateKeyword `private`
+2:57 Identifier `sta`
+2:61 Identifier `tic`
+2:65 ReadonlyKeyword `readonly`
+2:74 RequiredKeyword `required`
+2:83 Identifier `cons`
+2:87 Identifier `t`
+2:89 LetKeyword `let`
+2:93 VarKeyword `var`
+2:97 EmbedKeyword `embed`
+2:103 ExternKeyword `extern`
+2:110 UnsafeKeyword `unsafe`
+3:1 Identifier `a`
+4:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │ �����error se�t unit distinct type import as public private sta�tic readonly required cons�t let var embed extern unsafe
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ �����error se�t unit distinct type import as public private sta�tic readonly required cons�t let var embed extern unsafe
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����error se�t unit distinct type import as public private sta�tic readonly required cons�t let var embed extern unsafe
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����error se�t unit distinct type import as public private sta�tic readonly required cons�t let var embed extern unsafe
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����error se�t unit distinct type import as public private sta�tic readonly required cons�t let var embed extern unsafe
+    │     ^
+
+error BYN0002: unexpected character `\u{15}`
+
+  2 │ �����error se�t unit distinct type import as public private sta�tic readonly required cons�t let var embed extern unsafe
+    │              ^
+
+error BYN0002: unexpected character `\u{4}`
+
+  2 │ �����error se�t unit distinct type import as public private sta�tic readonly required cons�t let var embed extern unsafe
+    │                                                                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  2 │ �����error se�t unit distinct type import as public private sta�tic readonly required cons�t let var embed extern unsafe
+    │                                                                                           ^
+
+error BYN0004: unterminated block comment
+
+  3 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

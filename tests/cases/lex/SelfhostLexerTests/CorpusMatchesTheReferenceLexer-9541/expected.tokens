@@ -1,0 +1,53 @@
+1:2 IntegerLiteral `0`
+1:4 IntegerLiteral `42`
+1:7 IntegerLiteral `1_000_000`
+1:17 IntegerLiteral `0xFF`
+1:22 IntegerLiteral `0x_ff`
+1:28 IntegerLiteral `0b1010`
+1:35 IntegerLiteral `0B11`
+1:40 IntegerLiteral `5`
+1:41 NumericSuffix `s`
+1:43 IntegerLiteral `250`
+1:46 NumericSuffix `ms`
+1:49 IntegerLiteral `4`
+1:50 NumericSuffix `KiB`
+1:54 IntegerLiteral `1`
+1:55 NumericSuffix `u`
+1:57 IntegerLiteral `0xFF`
+1:61 NumericSuffix `u`
+1:63 IntegerLiteral `0b1`
+1:66 NumericSuffix `ul`
+1:69 IntegerLiteral `7`
+1:70 NumericSuffix `l`
+2:1 CharLiteral `'\u{110000}'`
+3:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowzd in strings" "" "\u{48}i"\n\n& && | U|| ^ ~ ! = == != < <= > >= << >> >�=\n\n`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │  ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  3 │    """ c"text" u16"wide" "� allowzd in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  5 │ & && | U|| ^ ~ ! = == != < <= > >= << >> >�=
+    │                                           ^

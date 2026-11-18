@@ -1,0 +1,3 @@
+== bind.probes.b23
+flags 0
+binary:bool[2105:6]=-(lt conversion:i32[2105:2]=-(identity local:Untrusted<i32>[2105:2]=-(ui)) literal:i32[2110:1]=3(3))

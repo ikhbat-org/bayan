@@ -1,0 +1,31 @@
+1:1 IntegerLiteral `0x`
+2:4 Identifier `raw`
+2:8 StringLiteral `"quoted"`
+3:4 StructKeyword `struct`
+3:11 UniqueKeyword `unique`
+3:18 UnionKeyword `union`
+3:24 EnumKeyword `enum`
+3:29 FlagsKeyword `flags`
+3:35 OpenKeyword `open`
+3:40 ExtensibleKeyword `extensible`
+3:51 InterfaceKeyword `interface`
+3:61 DelegateKeyword `delegate`
+3:70 ExtensionKeyword `extension`
+3:80 DerivationKeyword `derivation`
+3:91 AttributeKeyword `attribute`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ ﻿ �struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │ ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  3 │ ﻿ �struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │   ^

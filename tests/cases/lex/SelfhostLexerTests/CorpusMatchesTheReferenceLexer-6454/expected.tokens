@@ -1,0 +1,58 @@
+1:1 IntegerLiteral `1__`
+2:1 IntegerLiteral `1__`
+3:4 Identifier `_`
+3:8 StringLiteral `" /*`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1__
+    │  ^^
+    │
+    │ 2 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ �� _���‏ " /*
+    │ ^
+
+error BYN0002: unexpected character `\u{4}`
+
+  3 │ �� _���‏ " /*
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ �� _���‏ " /*
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ �� _���‏ " /*
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �� _���‏ " /*
+    │       ^
+
+error BYN0002: unexpected character `‏`
+
+  3 │ �� _���‏ " /*
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  3 │ �� _���‏ " /*
+    │          ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

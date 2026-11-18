@@ -1,0 +1,3 @@
+build
+--emit-c
+type-alias-static-call.byn

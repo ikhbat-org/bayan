@@ -1,0 +1,40 @@
+1:1 CloseBrace `}`
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `total `
+1:10 InterpolationStart `{`
+1:11 Identifier `x`
+1:12 InterpolationEnd `}`
+1:13 InterpolatedStringEnd `"`
+1:16 StringLiteral `"a� {f($"`
+1:25 Identifier `b`
+1:27 OpenBrace `{`
+1:28 Identifier `c`
+1:29 CloseBrace `}`
+1:30 StringLiteral `")} d"`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolatedStringText `{{literal}}`
+1:50 InterpolatedStringEnd `"`
+1:52 InterpolatedStringStart `$"`
+1:54 InterpolationStart `{`
+1:55 Identifier `Point`
+1:61 OpenBrace `{`
+1:63 Identifier `x`
+1:65 Equals `=`
+1:67 IntegerLiteral `1`
+1:69 CloseBrace `}`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringText `!`
+1:72 InterpolatedStringEnd `"`
+1:74 InterpolatedStringStart `$"`
+1:76 InterpolatedStringEnd `"`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC8)
+
+  1 │ }$"total {x}" �"a� {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD1)
+
+  1 │ }$"total {x}" �"a� {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                  ^

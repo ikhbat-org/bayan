@@ -1,0 +1,33 @@
+1:2 RawStringLiteral `""" ere�"\r\n$ let c = """`
+2:14 NeverKeyword `never`
+2:20 Identifier `closed`
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 MinusPercent `-%`
+3:17 StarPercent `*%`
+3:20 PlusBar `+|`
+3:23 MinusBar `-|`
+3:26 Identifier `R`
+3:27 StarBar `*|`
+3:30 PlusPlus `++`
+3:33 MinusMinus `--`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �� """ ere�"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �� """ ere�"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  1 │ �� """ ere�"
+    │           ^

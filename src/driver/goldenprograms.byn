@@ -975,6 +975,15 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
     if goldenProgramHasTree(k.dir) {
         goldenProgramTree(k.dir, from: k.cases, to: Path.combine(k.scratch, "input"), through: ref failure)
     }
+    let fixture = "FixtureCMatchesAndAnInputWithErrorsFailsAsBuildDoes-"
+    if k.cls == "SelfhostDefaultT10Tests" && k.name.startsWith($"{fixture}errors ") {
+        // SelfhostDefaultT10Tests.cs:350-355: the input with errors ran beside the fixtures b.byn and w.byn the test wrote first, whose
+        // text is the input of their own cases
+        for file in ["b.byn", "w.byn"] {
+            let sibling = Path.combine(Path.directoryName(k.dir) ?? ".", $"{fixture}{file} --coverage")
+            goldenProgramPut(sibling, for: "input.byn", at: Path.combine(k.scratch, file), through: ref failure)
+        }
+    }
     let sections = Fs.fileExists(Path.combine(k.dir, "expected.sections"))
     let harness = Fs.fileExists(Path.combine(k.dir, "expected.stderr"))
         && Fs.fileExists(Path.combine(k.dir, "expected.c"))

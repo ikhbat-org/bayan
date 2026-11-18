@@ -1,0 +1,46 @@
+import lexer
+import parser
+
+string t41At(in Ctx c, for FileId file, at i64 offset) {
+    if file < 0 { return "?" }
+    let p = linePosition(c.files[file].text.span, at: offset)
+    return $"{p.line}:{p.column}"
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 2 < args.length {
+        let name = args[i]
+        let dir = args[i + 1]
+        let flag = args[i + 2]
+        var sources = List<lexer.SourceText>()
+        if flag != "empty" { sources.append(lexer.SourceText.create("main.byn", from: t11ReadAllBytes($"{dir}/main.byn"))) }
+        let options = CompilationOptions { includeTests: flag == "tests", library: flag == "library", skipOwnershipCheck: flag == "skip", capabilities: null, packageName: null }
+        var c = create(from: move sources, at: dir, by: in options)
+        print($"== diags.{name}")
+        for d in c.diagnostics {
+            print($"{d.code} {t41At(in c, for: d.file, at: d.span.start)} {d.message}")
+            if d.label.length > 0 { print($"  label {d.label}") }
+            if d.help.length > 0 { print($"  help {d.help}") }
+            if d.hasFix { print($"  fix {t41At(in c, for: d.file, at: d.fixSpan.start)}-{t41At(in c, for: d.file, at: d.fixSpan.end)} {d.fixReplacement}") }
+            for r in d.related { print($"  related {t41At(in c, for: d.file, at: r.span.start)}-{t41At(in c, for: d.file, at: r.span.end)} {r.label}") }
+        }
+        for f in 0..c.functions.length {
+            let fn = FuncId(f)
+            if c.storeSummaries.contains(fn) {
+                for p in c.storeSummaries[fn] {
+                    let site = p.site ?? TextSpan { start: -1, length: 0 }
+                    print($"store {c.functions[fn].name} {p.source} {p.target} {site.start}..{site.end}")
+                }
+            }
+            if c.returnSummaries.contains(fn) {
+                var sb = StrBuf()
+                sb.append($"returns {c.functions[fn].name}")
+                for k in c.returnSummaries[fn] { sb.append($" {k}") }
+                print($"{sb.finish()}")
+            }
+        }
+        i += 3
+    }
+    return 0
+}

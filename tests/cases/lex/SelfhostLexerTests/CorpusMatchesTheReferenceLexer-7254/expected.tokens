@@ -1,0 +1,107 @@
+1:3 StringLiteral `""`
+1:6 CStringLiteral `c"text"`
+1:14 U16StringLiteral `u16"wide"`
+1:24 StringLiteral `"\u{202E} allowed in strings"`
+1:47 StringLiteral `""`
+1:50 StringLiteral `"\u{48}i"`
+2:2 ErrorKeyword `error`
+2:8 SetKeyword `set`
+2:12 UnitKeyword `unit`
+2:17 DistinctKeyword `distinct`
+2:26 TypeKeyword `type`
+2:31 ImportKeyword `import`
+2:38 AsKeyword `as`
+2:41 PublicKeyword `public`
+2:48 PrivateKeyword `private`
+2:56 StaticKeyword `static`
+2:63 ReadonlyKeyword `readonly`
+2:72 RequiredKeyword `required`
+2:81 ConstKeyword `const`
+2:87 LetKeyword `let`
+2:91 VarKeyword `var`
+2:95 EmbedKeyword `embed`
+2:101 ExternKeyword `extern`
+2:108 UnsafeKeyword `unsafe`
+3:1 PlusEquals `+=`
+3:4 MinusEquals `-=`
+3:7 StarEquals `*=`
+3:10 SlashEquals `/=`
+3:13 PercentEquals `%=`
+3:16 AmpEquals `&=`
+3:19 BarEquals `|=`
+3:22 CaretEquals `^=`
+3:25 LessLessEquals `<<=`
+5:1 IntegerLiteral `0xFF`
+5:5 NumericSuffix `s`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 InterpolatedStringStart `$"`
+6:49 InterpolationStart `{`
+6:50 StringLiteral `$"{x}"`
+6:56 InterpolationEnd `}`
+6:57 InterpolatedStringEnd `"`
+6:58 InterpolationEnd `}`
+6:59 InterpolatedStringEnd `"`
+6:60 InterpolationEnd `}`
+6:61 InterpolatedStringEnd `"`
+6:63 CharLiteral `''`
+7:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  5 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"�''
+    │                                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"�''
+    │                                                  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"�''
+    │                                                              ^
+
+error BYN0007: empty char literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"�''
+    │                                                               ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

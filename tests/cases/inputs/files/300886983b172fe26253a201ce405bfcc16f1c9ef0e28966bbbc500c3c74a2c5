@@ -1,0 +1,28 @@
+void f0() { let x = }
+void f1() { let x = }
+void f2() { let x = }
+void f3() { let x = }
+void f4() { let x = }
+void f5() { let x = }
+void f6() { let x = }
+void f7() { let x = }
+void f8() { let x = }
+void f9() { let x = }
+void f10() { let x = }
+void f11() { let x = }
+void f12() { let x = }
+void f13() { let x = }
+void f14() { let x = }
+void f15() { let x = }
+void f16() { let x = }
+void f17() { let x = }
+void f18() { let x = }
+void f19() { let x = }
+void f20() { let x = }
+void f21() { let x = }
+void f22() { let x = }
+void f23() { let x = }
+void f24() { let x = }
+void main() {
+    print("hi")
+}

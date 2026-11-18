@@ -1,0 +1,20 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{`
+1:5 InterpolatedStringEnd `"`
+1:6 Identifier `b`
+2:1 Identifier `c`
+2:3 Greater `>`
+2:4 GreaterEquals `>=`
+2:7 IntegerLiteral `0xF`
+2:11 Identifier `Is`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8E)
+
+  2 │ c >>= �0xF�Is
+    │       ^
+
+error BYN0002: unexpected character `\u{11}`
+
+  2 │ c >>= �0xF�Is
+    │           ^

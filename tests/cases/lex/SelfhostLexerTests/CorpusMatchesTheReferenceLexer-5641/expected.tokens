@@ -1,0 +1,25 @@
+    doc `/// Doc line on.`
+4:1 LetKeyword `let`
+4:5 EffectKeyword `effect`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
+6:3 StringLiteral `"q\" \\ \n"`
+6:15 RawStringLiteral `"""\n  raw "quoted"\n'\u{110000}'\n `
+9:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  4 │ let effect =�2
+    │             ^
+
+error BYN0002: unexpected character `\`
+
+  6 │  \"q\" \\ \n" """
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  6 │  \"q\" \\ \n" """
+    │               ^^^ raw string starts here
+    │
+  help: close it with `"""`

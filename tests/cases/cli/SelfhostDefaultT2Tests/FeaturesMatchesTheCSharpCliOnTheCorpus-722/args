@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/map-modified-while-iterating.byn
+--package
+<repo>/tests/cases/diag

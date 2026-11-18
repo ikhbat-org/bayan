@@ -1,0 +1,2 @@
+== case int-above-int128-float-target
+literal 2565..2604 : f64 = 3.402823669209385E+38

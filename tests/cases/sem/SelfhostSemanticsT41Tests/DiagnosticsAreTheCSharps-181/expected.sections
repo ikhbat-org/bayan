@@ -1,0 +1,3 @@
+== diags.diag/lambda-no-target-type
+BYN2218 2:13 `x => x` needs a known type here
+  help write the function type it has, such as `let f: i64 -> i64 = x => x`

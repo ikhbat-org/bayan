@@ -1,0 +1,43 @@
+2:2 Identifier `macro`
+2:8 Identifier `sele`
+2:13 Identifier `t`
+2:15 BecomeKeyword `become`
+3:4 Identifier `ᅡ`
+3:6 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │  macro sele�t become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\u{7F}`
+
+  2 │  macro sele�t become
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │  � ��ᅡ�� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  3 │  � ��ᅡ�� 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  � ��ᅡ�� 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  3 │  � ��ᅡ�� 
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  3 │  � ��ᅡ�� 
+    │        ^

@@ -1,0 +1,14 @@
+== tests/cases/run/path-relative-nul.byn
+117..161 globalStatement
+117..161 exprStmt
+117..161 callExpr
+123..160 callExpr
+143..147 literalExpr string
+153..159 literalExpr string
+117..161 callExpr
+162..209 exprStmt
+162..209 callExpr
+168..208 callExpr
+188..192 literalExpr string
+198..207 literalExpr string
+162..209 callExpr

@@ -1,0 +1,7 @@
+error BYN7008: state `.empty` has the same name as static member `Cart.empty`
+  --> <repo>/tests/cases/diag/state-shadows-static.byn:4:9
+
+  4 │         empty
+    │         ^^^^^
+    │
+  help: rename the state or the static member

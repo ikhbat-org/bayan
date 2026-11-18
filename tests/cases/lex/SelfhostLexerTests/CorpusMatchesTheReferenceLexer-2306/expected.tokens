@@ -1,0 +1,136 @@
+1:1 Identifier `w`
+2:1 CharLiteral `'\q'`
+3:1 CharLiteral `'\u{D800}'`
+4:1 CharLiteral `'\u{110000}'`
+5:1 CharLiteral `'x`
+7:1 LetKeyword `let`
+7:5 Identifier `café`
+7:11 Equals `=`
+7:13 IntegerLiteral `1`
+8:2 Identifier `ήςx_1`
+8:8 Identifier `é`
+9:1 StringLiteral `"a\u{2067}b"`
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolationStart `{`
+10:4 InterpolatedStringStart `$"`
+10:6 InterpolationStart `{`
+10:7 InterpolatedStringStart `$"`
+10:9 InterpolationStart `{`
+10:10 InterpolatedStringStart `$"`
+10:12 InterpolationStart `{`
+10:13 InterpolatedStringStart `$"`
+10:15 InterpolationStart `{`
+10:16 InterpolatedStringStart `$"`
+10:18 InterpolationStart `{`
+10:19 InterpolatedStringStart `$"`
+10:21 InterpolationStart `{`
+10:22 InterpolatedStringStart `$"`
+10:24 InterpolationStart `{`
+10:25 InterpolatedStringStart `$"`
+10:27 InterpolationStart `{`
+10:28 InterpolatedStringStart `$"`
+10:30 InterpolationStart `{`
+10:31 InterpolatedStringStart `$"`
+10:33 InterpolationStart `{`
+10:34 InterpolatedStringStart `$"`
+10:36 InterpolationStart `{`
+10:37 InterpolatedStringStart `$"`
+10:39 InterpolationStart `{`
+10:40 InterpolatedStringStart `$"`
+10:42 InterpolationStart `{`
+10:43 InterpolatedStringStart `$"`
+10:45 InterpolationStart `{`
+10:46 InterpolatedStringStart `$"`
+10:48 InterpolationStart `{`
+10:49 StringLiteral `$"{x}"`
+10:55 InterpolationEnd `}`
+10:56 InterpolatedStringEnd `"`
+10:57 InterpolationEnd `}`
+10:58 InterpolatedStringEnd `"`
+10:59 InterpolationEnd `}`
+10:60 InterpolatedStringEnd `"`
+10:61 InterpolationEnd `}`
+10:62 InterpolatedStringEnd `"`
+10:63 InterpolationEnd `}`
+10:64 InterpolatedStringEnd `"`
+10:65 InterpolationEnd `}`
+10:66 InterpolatedStringEnd `"`
+10:67 InterpolationEnd `}`
+10:68 InterpolatedStringEnd `"`
+10:69 InterpolationEnd `}`
+10:70 InterpolatedStringEnd `"`
+10:71 InterpolationEnd `}`
+10:72 InterpolatedStringEnd `"`
+11:1 DotDotEquals `..=`
+11:5 LetKeyword `let`
+11:9 Identifier `c`
+11:11 Equals `=`
+11:15 IntegerLiteral `3`
+12:1 Plus `+`
+12:3 Minus `-`
+12:5 Star `*`
+12:7 Slash `/`
+12:9 Percent `%`
+12:11 PlusPercent `+%`
+12:14 MinusPercent `-%`
+12:17 StarPercent `*%`
+12:20 PlusBar `+|`
+12:23 MinusBar `-|`
+12:26 StarBar `*|`
+12:29 Plus `+`
+12:31 MinusMinus `--`
+14:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  7 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ let café = 1
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+     │                   ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  10 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+     │                                                 ^^
+
+error BYN0002: unexpected character `\u{7}`
+
+  11 │ ..= let c = � 3
+     │             ^

@@ -1,0 +1,31 @@
+1:4 Identifier `raw`
+1:8 StringLiteral `"quoted"`
+2:2 IntegerLiteral `0xF__`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ �  raw "quoted"
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �  raw "quoted"
+    │   │ -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  0xF__
+    │     ^^
+    │
+    │ 2 │  0xF__
+    │   │     --
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^

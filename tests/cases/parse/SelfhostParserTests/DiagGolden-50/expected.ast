@@ -1,0 +1,18 @@
+CompilationUnit
+  ErrorEnum ParseError
+    Variant bad
+  Function parse(string s) -> i64 fails ParseError
+    Block
+      Guarded if (. s isEmpty)
+        Fail .bad
+      Return (. s length)
+  Function one() -> i64 => 1
+  Function total(string s) -> i64 fails ParseError
+    Block
+      Return (try (+ (call parse s) 1))
+  Function wrapped(string s) -> i64 fails ParseError
+    Block
+      Return (try (+ (call one) (call parse s)))
+  Function fine(string s) -> i64 fails ParseError
+    Block
+      Return (+ (paren (try (call parse s))) (try (call parse s)))

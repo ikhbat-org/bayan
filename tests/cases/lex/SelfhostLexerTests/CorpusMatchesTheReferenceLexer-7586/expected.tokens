@@ -1,0 +1,18 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+2:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n // \u{202E}x\n'\u{202E}'\nx́́\n$"{'\q'\n\n`
+8:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b = ` 2
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  2 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

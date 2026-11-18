@@ -1,0 +1,3 @@
+== member.probes.-.m3
+enumMember|Color|-|red|-|-|-|1497:9|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|

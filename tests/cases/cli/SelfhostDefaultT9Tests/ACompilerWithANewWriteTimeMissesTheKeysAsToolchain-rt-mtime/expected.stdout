@@ -1,0 +1,6 @@
+  parse      <t>s
+  check      <t>s
+  emit       <t>s
+  compile    <t>s
+  arithmetic
+◆ built arithmetic (safe, macos-arm64) in <t>s

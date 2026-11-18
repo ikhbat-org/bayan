@@ -1,0 +1,40 @@
+1:1 CharLiteral `' '`
+1:5 Identifier `u`
+1:6 OpenBrace `{`
+1:7 IntegerLiteral `1`
+1:8 NumericSuffix `F`
+1:10 IntegerLiteral `00`
+1:12 CloseBrace `}`
+1:13 CharLiteral `' '`
+1:17 CharLiteral `''`
+1:20 CharLiteral `' macro select become\r`
+2:1 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ ' '\u{1F�00}' '\'' ' macro select become
+    │    ^
+
+error BYN0002: unexpected character `\u{6}`
+
+  1 │ ' '\u{1F�00}' '\'' ' macro select become
+    │         ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ ' '\u{1F�00}' '\'' ' macro select become
+    │                ^
+
+error BYN0007: empty char literal
+
+  1 │ ' '\u{1F�00}' '\'' ' macro select become
+    │                 ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0008: unterminated char literal
+
+  1 │ ' '\u{1F�00}' '\'' ' macro select become
+    │                    ^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`

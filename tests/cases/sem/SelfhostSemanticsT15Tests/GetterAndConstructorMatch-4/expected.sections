@@ -1,0 +1,13 @@
+== member m2
+first none
+block 102..109
+  ifStmt 100..101
+    unary 100..101 : bool
+      local 100..101 : bool k
+    exprStmt 100..101
+      call 100..101 : never panic
+        literal 100..101 : string = "contract violated: k"
+  block 102..109
+local k 0 3
+requires 1 infers false
+BYN5011 5:28 this `expects` reads only `k`; a type with `requires` checks it once ||declare a type with `requires` for `k`|

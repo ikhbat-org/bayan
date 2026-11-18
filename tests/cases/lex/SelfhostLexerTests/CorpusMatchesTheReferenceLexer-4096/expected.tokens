@@ -1,0 +1,30 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 Identifier `be`
+1:16 At `@`
+1:17 Identifier `ome`
+2:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select be@ome
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select be@ome
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  2 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �
+    │   │ -

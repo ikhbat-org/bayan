@@ -1,0 +1,154 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:26 CloseBracket `]`
+1:27 OpenBrace `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 Identifier `x`
+1:47 InterpolationEnd `}`
+1:48 InterpolatedStringEnd `"`
+1:49 InterpolationEnd `}`
+1:50 InterpolatedStringEnd `"`
+1:51 InterpolationEnd `}`
+1:52 InterpolatedStringEnd `"`
+1:53 InterpolationEnd `}`
+1:54 InterpolatedStringEnd `"`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 InterpolationEnd `}`
+1:58 InterpolatedStringEnd `"`
+1:59 CloseBrace `}`
+1:60 StringLiteral `"}"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:72 LetKeyword `let`
+1:76 LawKeyword `law`
+1:80 Equals `=`
+1:82 IntegerLiteral `3`
+2:1 InKeyword `in`
+2:4 Identifier `comme0x_`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:11 IntegerLiteral `1`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:10 Identifier `bad`
+6:15 Identifier `q`
+6:17 Identifier `escape`
+6:23 StringLiteral `"`
+8:1 IntegerLiteral `0`
+8:2 Identifier `b1ms`
+9:1 IntegerLiteral `0x_`
+10:1 IntegerLiteral `0b__`
+11:1 IntegerLiteral `1__`
+12:1 IntegerLiteral `0xF__`
+13:2 DotDot `..`
+13:4 IntegerLiteral `2`
+13:6 IntegerLiteral `1`
+13:7 DotDotEquals `..=`
+13:10 IntegerLiteral `3`
+13:12 IntegerLiteral `5`
+13:13 NumericSuffix `e`
+13:15 Identifier `x`
+13:16 Dot `.`
+13:17 Identifier `y`
+13:19 FloatLiteral `2.5`
+13:22 NumericSuffix `f`
+14:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$]{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}" let law = 3
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$]{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}" let law = 3
+    │                         ^
+
+error BYN0002: unexpected character `$`
+
+  4 │ let a = $ 1
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  6 │ let b = �bad \q escape"
+    │         ^
+
+error BYN0002: unexpected character `\`
+
+  6 │ let b = �bad \q escape"
+    │              ^
+
+error BYN0003: unterminated string literal
+
+  6 │ let b = �bad \q escape"
+    │                       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  8 │ 0�b1ms
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  9 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  10 │ 0b__
+     │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │ 1__
+     │  ^^
+     │
+     │ 11 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  12 │ 0xF__
+     │    ^^
+     │
+     │ 12 │ 0xF__
+     │    │    --

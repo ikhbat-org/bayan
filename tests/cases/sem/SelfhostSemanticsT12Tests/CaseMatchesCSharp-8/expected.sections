@@ -1,0 +1,45 @@
+== unions
+diag BYN2711 6:9 `b` and `e` share the value 10 | already used | give each case its own value
+diag BYN2710 7:16 `f` carries data and cannot have a value | only a case without data can have a value | remove the value
+diag BYN2709 8:9 a case value must be an integer constant | not an `i32` integer literal | write the value as an integer literal, or remove it
+diag BYN2006 9:21 `p` is declared twice | already declared on line 9 | 
+diag BYN2002 9:24 unknown type `Missing` |  | 
+diag BYN2701 10:5 union `U` already has a variant `a` | already declared on line 2 | 
+diag BYN2709 11:9 a case value must be an integer constant | not an `i32` integer literal | write the value as an integer literal, or remove it
+diag BYN2709 12:9 a case value must be an integer constant | not an `i32` integer literal | write the value as an integer literal, or remove it
+diag BYN2709 15:9 a case value must be an integer constant | not an `i32` integer literal | write the value as an integer literal, or remove it
+diag BYN2709 16:9 a case value must be an integer constant | not an `i32` integer literal | write the value as an integer literal, or remove it
+diag BYN2709 17:9 a case value must be an integer constant | not an `i32` integer literal | write the value as an integer literal, or remove it
+diag BYN2711 20:5 `p2` and `r` share the value 40 | follows `q`, so it is 40 | give each case its own value
+diag BYN2009 21:5 `Bad` must be camelCase |  | rename it `bad`; only types are PascalCase
+diag BYN2702 23:7 union `Empty` has no variants |  | add the variants, or remove the union
+diag BYN2711 31:9 `b` and `c` share the value -2147483648 | already used | give each case its own value
+union U
+  variant a tag=0 at=2:5 ()
+  variant b tag=10 at=3:5 ()
+  variant c tag=-5 at=4:5 ()
+  variant d tag=32 at=5:5 ()
+  variant e tag=10 at=6:5 ()
+  variant f tag=11 at=7:5 (x:i64@7:11#0)
+  variant g tag=12 at=8:5 ()
+  variant h tag=13 at=9:5 (p:i64@9:11#0,q:?@9:32#1)
+  variant i tag=14 at=11:5 ()
+  variant j tag=15 at=12:5 ()
+  variant k tag=2147483647 at=13:5 ()
+  variant l tag=-2147483648 at=14:5 ()
+  variant m tag=-2147483647 at=15:5 ()
+  variant n tag=-2147483646 at=16:5 ()
+  variant o tag=-2147483645 at=17:5 ()
+  variant p2 tag=40 at=18:5 ()
+  variant q tag=39 at=19:5 ()
+  variant r tag=40 at=20:5 ()
+  variant Bad tag=41 at=21:5 ()
+union Empty
+union G
+  variant one tag=0 at=25:5 (v:T@25:11#0)
+  variant two tag=1 at=26:5 (vs:List<T>@26:17#0)
+union W
+  variant a tag=2147483647 at=29:5 ()
+  variant b tag=-2147483648 at=30:5 ()
+  variant c tag=-2147483648 at=31:5 ()
+  variant d tag=-2147483647 at=32:5 ()

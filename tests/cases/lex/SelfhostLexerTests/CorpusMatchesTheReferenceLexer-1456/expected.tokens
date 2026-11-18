@@ -1,0 +1,66 @@
+2:1 CharLiteral `'\u{D800}'`
+3:1 CharLiteral `'ab'`
+5:3 Identifier `macro`
+5:9 Identifier `select`
+5:16 BecomeKeyword `become`
+7:2 Equals `=`
+7:4 IntegerLiteral `1`
+9:1 Identifier `각`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �
+    │ ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `̈́`
+
+  5 │ ̈́ macro select become
+    │ ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ ̈́ macro select become
+    │   ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ ̈́ macro select become
+    │         ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  7 │ �� = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  7 │ �� = 1
+    │  ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  9 │ 각
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 9 │ 각
+    │   │ +

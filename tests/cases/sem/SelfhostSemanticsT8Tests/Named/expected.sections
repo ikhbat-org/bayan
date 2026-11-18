@@ -1,0 +1,20 @@
+== named
+a: i32?
+b: (i32, string name)
+c: Map<string, i32>
+d: i64 -> string
+e: i32 -> void uses alloc, console, fs
+f: List<i64>
+g: ?
+h: Span<u8>
+i: ReadOnlySpan<u8>
+j: Owned<string>
+k: Untrusted<string>
+l: Arena
+m: StrBuf
+n: Map<(i32, bool), i64>
+o: Panic
+p: ProcessResult
+q: FormatSpec
+r: Symbol
+boundX: i64

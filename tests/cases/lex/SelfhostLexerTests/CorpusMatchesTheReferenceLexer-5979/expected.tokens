@@ -1,0 +1,61 @@
+1:1 IntegerLiteral `0b102`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+4:1 CharLiteral `'\q'`
+6:1 IntegerLiteral `0`
+6:3 IntegerLiteral `42`
+6:6 IntegerLiteral `1_000_000`
+6:16 IntegerLiteral `0xFF`
+6:21 IntegerLiteral `0x_ff`
+6:27 IntegerLiteral `0`
+6:28 IntegerLiteral `1010`
+6:33 IntegerLiteral `0B11`
+6:38 IntegerLiteral `5`
+6:39 NumericSuffix `s`
+6:41 IntegerLiteral `250`
+6:44 NumericSuffix `ms`
+6:47 IntegerLiteral `4`
+6:48 NumericSuffix `KiB`
+6:52 IntegerLiteral `1`
+6:53 NumericSuffix `u`
+6:55 IntegerLiteral `0xFF`
+6:59 NumericSuffix `u`
+6:61 IntegerLiteral `0b1`
+6:64 NumericSuffix `ul`
+6:67 IntegerLiteral `7`
+6:68 NumericSuffix `l`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xB5)
+
+  6 │ 0 42 1_000_000 0xFF 0x_ff 0�1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  7 │  ��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  7 │  ��
+    │    ^

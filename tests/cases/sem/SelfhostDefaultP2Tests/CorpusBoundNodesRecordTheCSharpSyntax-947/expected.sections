@@ -1,0 +1,4 @@
+== tests/cases/diag/unknown-variant.byn
+40..67 globalStatement
+40..67 localDecl
+48..67 memberExpr

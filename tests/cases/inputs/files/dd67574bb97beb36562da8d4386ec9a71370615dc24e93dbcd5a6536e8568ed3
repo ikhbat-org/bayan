@@ -1,0 +1,8 @@
+let b = "bad \q escape"
+let b = "bad \q escape"
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+
+''
+struct unique union enum flags open extensible interface delegate extension derivation attribute
+ $"{}" ( ) [ ] { }
+

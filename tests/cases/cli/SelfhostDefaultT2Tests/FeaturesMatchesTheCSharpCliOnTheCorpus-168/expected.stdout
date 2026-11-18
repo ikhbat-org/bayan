@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RangeExpr"
+  ],
+  "builtins": [
+    "ListAdd",
+    "ListAsSpan",
+    "ListReplace",
+    "Print",
+    "SpanLength",
+    "StrBufAppend",
+    "StrBufAsString",
+    "StrBufGrow"
+  ],
+  "diagnostics": []
+}

@@ -715,17 +715,18 @@ i32 goldenTest(
     // Workers need a driver that starts (T2c); without one the cases run here, each failing with the T2c text as under `--jobs 1`.
     var unusable = ""
     let driver = goldenExeOf(exe, through: ref unusable)
-    if driver != "" {
-        goldenPrebuild(ref cases, by: driver, buildMs: buildMs)
-    }
     if jobs > 1 && cases.length > 1 && driver != "" && Target.os != "windows" {
-        goldenJobs(in cases, by: exe, for: limitMs, as: jobs, to: ref mine)
+        // the workers' script builds the programs first, in processes of their own (`goldenPrebuildWorker`)
+        goldenJobs(in cases, by: exe, for: limitMs, as: jobs, to: ref mine, buildMs: buildMs)
         for r in mine {
             unless quiet {
                 goldenPrint(in r)
             }
         }
     } else {
+        if driver != "" {
+            goldenPrebuild(ref cases, by: driver, buildMs: buildMs)
+        }
         for c in cases {
             let r = goldenResult(c, for: limitMs, by: driverPath)
             unless quiet {
@@ -765,18 +766,26 @@ void goldenPrint(in GoldenResult r) uses alloc, console {
 // writes each result to a file named for its index; the parent reads them back in case order. Windows has no `sh`, so there the cases run one at
 // a time. Each case keeps its own work directory under tmp/ (`goldenFlat`, the style shape, the scaffold and output fact), so two never share one.
 
-/// `sh -c` text: starts `$1 test --golden-worker $3 <k> $2 $4` for k from 0 to `$2 - 1`, in the background, stdout dropped and stderr in
-/// `$3`/err-<k>, and waits for all.
-const goldenWorkersScript: string = "k=0; while [ \"$k\" -lt \"$2\" ]; do \"$1\" test --golden-worker \"$3\" \"$k\" \"$2\" \"$4\" >/dev/null 2>\"$3/err-$k\" & k=$((k + 1)); done; wait"
+/// `sh -c` text: runs `$1 test --golden-prebuild $3 $1 $5` while it exits `goldenWorkerMore`, stderr in `$3`/err-prebuild; then starts
+/// `$1 test --golden-worker $3 <k> $2 $4` for k from 0 to `$2 - 1`, in the background, stdout dropped and stderr in `$3`/err-<k>, again while it
+/// exits `goldenWorkerMore`, and waits for all.
+const goldenWorkersScript: string = "while \"$1\" test --golden-prebuild \"$3\" \"$1\" \"$5\" >/dev/null 2>>\"$3/err-prebuild\"; [ $? -eq 75 ]; do :; done; k=0; while [ \"$k\" -lt \"$2\" ]; do (while \"$1\" test --golden-worker \"$3\" \"$k\" \"$2\" \"$4\" >/dev/null 2>>\"$3/err-$k\"; [ $? -eq 75 ]; do :; done) & k=$((k + 1)); done; wait"
 
-/// `cases` run by `jobs` workers through the driver `exe`, each with the time limit `limitMs`: one result per case added to `results`, in case
-/// order. A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
+/// A worker's (or the prebuild's) exit after `goldenWorkerBatch` cases with more left: the script starts it again, and it resumes at the index
+/// in `dir`/next-<k> (next-prebuild). A process keeps what it allocated until it ends (measured 2026-11-18: 300 reads of a 13 MB file, 3.9 GB),
+/// and each exported case reads the 3 MB of src/ its program key hashes (`goldenProgram`), so one process over all of them grew past 34 GB.
+const goldenWorkerMore: i32  = 75
+const goldenWorkerBatch: i64 = 100
+
+/// `cases` run by `jobs` workers through the driver `exe`, each with the time limit `limitMs`, after their programs are built (each within
+/// `buildMs`): one result per case added to `results`, in case order. A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
 void goldenJobs(
     in List<GoldenCase> cases,
     by string exe,
     for i64 limitMs,
     as i64 jobs,
-    to ref List<GoldenResult> results
+    to ref List<GoldenResult> results,
+    i64 buildMs = goldenBuildLimitMs
 )
         uses alloc, clock, fs, process {
     let dir = Path.combine(Path.fullPath("tmp"), $"golden-jobs-{Io.monotonicNanos()}")
@@ -788,7 +797,7 @@ void goldenJobs(
     let n = jobs < cases.length ? jobs : cases.length
     if goldenWrote(Path.combine(dir, "cases"), as: list.finish()) {
         var args = List<string>()
-        for a in ["-c", goldenWorkersScript, "sh", exe, $"{n}", dir, $"{limitMs}"] {
+        for a in ["-c", goldenWorkersScript, "sh", exe, $"{n}", dir, $"{limitMs}", $"{buildMs}"] {
             args.append(a)
         }
         goldenWorkers(in args)
@@ -831,7 +840,9 @@ void goldenWorkers(in List<string> args) uses alloc, process {
 }
 
 /// `bayan test --golden-worker <dir> <k> <n> <limitMs>`: the cases of `dir`/cases (`<kind>\t<case>\t<input>` lines) whose index is `k` modulo
-/// `n`, each through `goldenResult` with the time limit `limitMs`, its status line and detail written to `dir`/<index>. `exitUsage` on a bad number.
+/// `n`, each through `goldenResult` with the time limit `limitMs`, its status line and detail written to `dir`/<index>; at most
+/// `goldenWorkerBatch` of them, from the index in `dir`/next-<k> if there is one, then `goldenWorkerMore` when some are left. `exitUsage` on a bad
+/// number.
 i32 goldenWorker(string dir, at string k, for string n, by string limit) uses alloc, clock, console, env, fs, process {
     let index = t9Digits(k, until: 2147483647) ?? return exitUsage
     let count = t9Digits(n, until: 2147483647) ?? return exitUsage
@@ -842,8 +853,15 @@ i32 goldenWorker(string dir, at string k, for string n, by string limit) uses al
     for line in text.parts(by: "\n") {
         lines.append(line)
     }
-    for i in 0..lines.length {
+    let next = Path.combine(dir, $"next-{index}")
+    let from = t9Digits((Io.readText(next) catch "").trimmed(from: .end), until: 2147483647) ?? index
+    var ran: i64 = 0
+    for i in from..lines.length {
         continue if i % count != index
+        if ran == goldenWorkerBatch {
+            return goldenWrote(next, as: $"{i}\n") ? goldenWorkerMore : exitFailure
+        }
+        ran += 1
         var fields = List<string>()
         for f in lines[i].parts(by: "\t") {
             fields.append(f)
@@ -851,6 +869,33 @@ i32 goldenWorker(string dir, at string k, for string n, by string limit) uses al
         continue if fields.length != 3
         let r = goldenResult(GoldenCase { kind: fields[0], name: fields[1], input: fields[2] }, for: limitMs)
         let _ = goldenWrote(Path.combine(dir, $"{i}"), as: $"{r.status}\n{r.detail}")
+    }
+    return exitOk
+}
+
+/// `bayan test --golden-prebuild <dir> <exe> <buildMs>`: `goldenPrebuild` through the driver `exe` for the cases of `dir`/cases, at most
+/// `goldenWorkerBatch` exported ones from the index in `dir`/next-prebuild if there is one, then `goldenWorkerMore` when some are left.
+/// `exitUsage` on a bad number.
+i32 goldenPrebuildWorker(string dir, by string exe, for string limit) uses alloc, clock, env, fs, process {
+    let buildMs = t9Digits(limit, until: 9223372036854775807) ?? return exitUsage
+    let text = Io.readText(Path.combine(dir, "cases")) catch return exitFailure
+    let next = Path.combine(dir, "next-prebuild")
+    let from = t9Digits((Io.readText(next) catch "").trimmed(from: .end), until: 2147483647) ?? 0
+    var i: i64 = 0
+    var ran: i64 = 0
+    for line in text.parts(by: "\n") {
+        i += 1
+        continue if i - 1 < from
+        var fields = List<string>()
+        for f in line.parts(by: "\t") {
+            fields.append(f)
+        }
+        continue if fields.length != 3 || !goldenExported(fields[0], at: fields[2])
+        if ran == goldenWorkerBatch {
+            return goldenWrote(next, as: $"{i - 1}\n") ? goldenWorkerMore : exitFailure
+        }
+        ran += 1
+        let _ = goldenProgramsCase(fields[0], at: fields[2], by: exe, prebuild: true, buildMs: buildMs)
     }
     return exitOk
 }
@@ -1767,13 +1812,14 @@ test "a missing kind directory and a missing root list nothing" {
     assert(goldenList(Path.combine(root, "missing")) == 1)
 }
 
-/// Failure texts of the cases of `kind` under `root`, and in `count` how many ran.
-List<string> goldenFailures(string root, for string kind, to ref i64 count)
+/// Failure texts of the cases of `kind` under `root`, and in `count` how many ran; with `top`, only the cases directly in the kind's
+/// directory (not the exported `<Class>/<case>/` ones, which `bayan test tests/cases` runs).
+List<string> goldenFailures(string root, for string kind, to ref i64 count, bool top = false)
         uses alloc, clock, console, env, fs, process {
     var exit = 0
     var failures = List<string>()
     for c in goldenDiscover(root, through: ref exit) {
-        continue if c.kind != kind
+        continue if c.kind != kind || top && c.name.contains("/")
         count += 1
         if (goldenRun(in c) is { } failure) {
             failures.append(failure)
@@ -1792,7 +1838,7 @@ void goldenWrite(string root, for string rel, as string text) uses alloc, fs {
 test "lex, parse and typed cases pass over tests/cases" {
     for kind in ["lex", "parse", "typed"] {
         var count: i64 = 0
-        let failures = goldenFailures(Path.fullPath("tests/cases"), for: kind, to: ref count)
+        let failures = goldenFailures(Path.fullPath("tests/cases"), for: kind, to: ref count, top: true)
         assert(count > 0)
         assert(failures.length == 0)
     }
@@ -2213,6 +2259,29 @@ test "--jobs 1 and --jobs 4 print the same report in case order, times masked, a
     assert(names[0] == "lex/bad-chars" && names[1] == "lex/bad-interpolation" && names[2] == "run/a-passes")
     assert(names[3] == "run/b-fails" && names[4] == "run/c-passes")
     assert(results[3].status == "failed" && results[4].status == "passed")
+}
+
+test "a worker resumes at its next-<k> index and stops after a batch with more of its cases left" {
+    let dir = Path.combine(Path.fullPath("tmp"), "golden-worker-batch")
+    deleteWorkDir(dir)
+    let input = Path.fullPath("tests/cases/lex/bad-chars.byn")
+    var list = StrBuf()
+    for _ in 0..goldenWorkerBatch + 3 {
+        list.append($"lex\tbad-chars\t{input}\n")
+    }
+    goldenWrite(dir, for: "cases", as: list.finish())
+    goldenWrite(dir, for: "next-0", as: "2\n")
+    let first = goldenWorker(dir, at: "0", for: "1", by: "60000")
+    let skipped = Io.readText(Path.combine(dir, "1")) catch "-"
+    let last = Io.readText(Path.combine(dir, $"{goldenWorkerBatch + 1}")) catch "-"
+    let unrun = Io.readText(Path.combine(dir, $"{goldenWorkerBatch + 2}")) catch "-"
+    let next = Io.readText(Path.combine(dir, "next-0")) catch "-"
+    let second = goldenWorker(dir, at: "0", for: "1", by: "60000")
+    let rest = Io.readText(Path.combine(dir, $"{goldenWorkerBatch + 2}")) catch "-"
+    deleteWorkDir(dir)
+    assert(first == goldenWorkerMore && skipped == "-" && last.startsWith("passed\n") && unrun == "-")
+    assert(next == $"{goldenWorkerBatch + 2}\n")
+    assert(second == exitOk && rest.startsWith("passed\n"))
 }
 
 test "--jobs 8 fails the changed case naming its path and the expected and actual fourth line, the others passing" {

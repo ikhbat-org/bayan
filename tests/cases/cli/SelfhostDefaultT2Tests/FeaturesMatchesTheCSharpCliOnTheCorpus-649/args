@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/interface-abstract-default-conflict.byn
+--package
+<repo>/tests/cases/diag

@@ -1,0 +1,5 @@
+error BYN2610: `return` cannot leave a `defer` or `defer failing` body
+  --> <repo>/tests/cases/diag/jump-out-of-defer.byn:3:9
+
+  3 │         return
+    │         ^^^^^^

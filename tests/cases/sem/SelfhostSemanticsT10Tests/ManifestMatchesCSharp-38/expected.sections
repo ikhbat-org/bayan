@@ -1,0 +1,8 @@
+== case inline/grammar-forms-bad
+errors 2
+error BYN3102: `grammar.adjectives` must be a list of words, e.g. `["upsert"]`
+  1 │ Package { name: "local/a", version: "0.1.0", grammar: Grammar { adjectives: [1], forms: [1: "x"] } }
+    │                                                                             ^^^
+error BYN3102: `grammar.forms` must be a map from a word to its form, e.g. `["upsert": "upserted"]`
+  1 │ Package { name: "local/a", version: "0.1.0", grammar: Grammar { adjectives: [1], forms: [1: "x"] } }
+    │                                                                                         ^^^^^^^^

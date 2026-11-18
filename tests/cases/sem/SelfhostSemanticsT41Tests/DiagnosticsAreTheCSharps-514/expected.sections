@@ -1,0 +1,8 @@
+== diags.diag/format-spec-errors
+BYN2021 5:17 `string` has no parameter `as: .hex`
+BYN2203 6:27 99 does not fit in a format spec's `digits` (0 to 15)
+BYN2021 7:17 `i32` has no parameter `digits`
+BYN2219 8:24 a format spec's `width` must be a compile-time constant
+BYN2720 9:24 `middle` is not a member of `align`
+BYN2021 10:17 `string` has no parameter `color`
+BYN2303 11:27 `width` is passed twice

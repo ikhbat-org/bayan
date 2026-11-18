@@ -1,0 +1,12 @@
+error BYN1007: `unless` with a negated condition is a double negative
+  --> input.byn:6:16
+
+  6 │     print("x") unless not a
+    │                ^^^^^^^^^^^^ `unless` already negates
+    │
+  help: use `if` with the condition as written
+    │ 6 │     print("x") if a
+    │   │                ++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1007

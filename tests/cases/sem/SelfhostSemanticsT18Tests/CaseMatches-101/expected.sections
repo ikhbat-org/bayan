@@ -1,0 +1,4 @@
+== index.probes.-.i7
+index|i32|local:list|-|-|-|f|3982:9|errorExpr:?
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2202 191:19 expected `an integer index`, found `string` |||

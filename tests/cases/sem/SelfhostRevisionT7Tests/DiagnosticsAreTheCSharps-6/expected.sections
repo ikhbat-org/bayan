@@ -1,0 +1,55 @@
+== diags.project-forms
+BYN5104 6:22 `criterion` holds a collection; name it with a plural, `criteria`
+  help rename it `criteria`
+  fix 6:22-6:31 criteria
+BYN5104 7:16 `criteria` holds one `Box`; name it with a singular noun
+  help rename it `criterion`
+  fix 7:16-7:24 criterion
+BYN5104 8:22 `sku` holds a collection; name it with a plural, `skus`
+  help rename it `skus`
+  fix 8:22-8:25 skus
+BYN5104 9:16 `skus` holds one `Box`; name it with a singular noun
+  help rename it `sku`
+  fix 9:16-9:20 sku
+BYN5104 10:22 `box` holds a collection; name it with a plural, `boxes`
+  help rename it `boxes`
+  fix 10:22-10:25 boxes
+BYN5104 11:16 `boxes` holds one `Box`; name it with a singular noun
+  help rename it `box`
+  fix 11:16-11:21 box
+BYN5105 13:16 `numCriteria` counts items; name it `criterionCount`
+  help rename it `criterionCount`
+  fix 13:16-13:27 criterionCount
+BYN5105 14:16 `skusCount` counts items; name it `skuCount`
+  help rename it `skuCount`
+  fix 14:16-14:25 skuCount
+BYN5105 15:16 `numberOfBoxes` counts items; name it `boxCount`
+  help rename it `boxCount`
+  fix 15:16-15:29 boxCount
+BYN5104 16:22 `quiz` holds a collection; name it with a plural, `quizes`
+  help rename it `quizes`
+  fix 16:22-16:26 quizes
+BYN5104 18:22 `wish` holds a collection; name it with a plural, `wishes`
+  help rename it `wishes`
+  fix 18:22-18:26 wishes
+BYN5104 19:22 `story` holds a collection; name it with a plural, `stories`
+  help rename it `stories`
+  fix 19:22-19:27 stories
+BYN5104 20:22 `tray` holds a collection; name it with a plural, `trays`
+  help rename it `trays`
+  fix 20:22-20:26 trays
+BYN5104 21:22 `torch` holds a collection; name it with a plural, `torches`
+  help rename it `torches`
+  fix 21:22-21:27 torches
+BYN5104 22:16 `stories` holds one `Box`; name it with a singular noun
+  help rename it `story`
+  fix 22:16-22:23 story
+BYN5104 23:16 `batches` holds one `Box`; name it with a singular noun
+  help rename it `batch`
+  fix 23:16-23:23 batch
+BYN5104 25:16 `trays` holds one `Box`; name it with a singular noun
+  help rename it `tray`
+  fix 25:16-25:21 tray
+BYN5105 27:16 `numStories` counts items; name it `storyCount`
+  help rename it `storyCount`
+  fix 27:16-27:26 storyCount

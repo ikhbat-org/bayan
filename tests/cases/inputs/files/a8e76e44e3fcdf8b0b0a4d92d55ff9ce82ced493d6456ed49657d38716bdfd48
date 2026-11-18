@@ -1,0 +1,6 @@
+a >> b
+
+$"x{ $"{
+  """ c"text"u16"wide" "�‮ allowed in srings" "" "\u{48}i"
+0xFFs
+*/ // comment ‮ hidden

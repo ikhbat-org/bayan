@@ -1,0 +1,67 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+2:1 FailsKeyword `fails`
+2:7 TryKeyword `try`
+2:11 CatchKeyword `catch`
+2:17 NeverKeyword `never`
+2:23 NoallocKeyword `noalloc`
+2:31 NosuspendKeyword `nosuspend`
+2:41 Identifier `s`
+2:42 Hash `#`
+2:43 Identifier `sends`
+2:49 AsyncKeyword `async`
+2:55 AwaitKeyword `await`
+4:1 IsKeyword `is`
+4:4 AndKeyword `and`
+4:8 OrKeyword `or`
+4:11 NotKeyword `not`
+4:15 Identifier `w`
+4:17 Identifier `th`
+4:20 MoveKeyword `move`
+4:25 RefKeyword `ref`
+4:29 OutKeyword `out`
+4:33 ThisKeyword `this`
+4:38 NullKeyword `null`
+4:43 TrueKeyword `true`
+4:48 FalseKeyword `false`
+4:54 ComptimeKeyword `comptime`
+4:63 CheckedKeyword `checked`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 StringLiteral `" b`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  4 │ is and or not w�th move ref out this null true false comptime checked
+    │                ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{" b
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{" b
+    │    ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

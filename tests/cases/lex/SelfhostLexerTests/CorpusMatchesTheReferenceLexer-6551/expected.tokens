@@ -1,0 +1,122 @@
+1:1 FloatLiteral `3.14`
+1:6 FloatLiteral `1e5`
+1:10 FloatLiteral `2.5e-3`
+1:17 FloatLiteral `6E+2`
+1:22 FloatLiteral `1.50`
+1:26 NumericSuffix `dec`
+1:30 IntegerLiteral `1`
+1:31 DotDot `..`
+1:33 IntegerLiteral `2`
+1:35 IntegerLiteral `1`
+1:36 DotDotEquals `..=`
+1:39 IntegerLiteral `3`
+1:41 IntegerLiteral `5`
+1:42 NumericSuffix `e`
+1:44 Identifier `x`
+1:45 Dot `.`
+1:46 Identifier `y`
+1:48 FloatLiteral `2.5`
+1:51 NumericSuffix `f`
+3:1 Identifier `ạ̇`
+3:5 ErrorKeyword `error`
+3:11 SetKeyword `set`
+3:15 UnitKeyword `unit`
+3:20 DistinctKeyword `distinct`
+3:29 TypeKeyword `type`
+3:34 ImportKeyword `import`
+3:41 AsKeyword `as`
+3:44 PublicKeyword `public`
+3:51 PrivateKeyword `private`
+3:59 StaticKeyword `static`
+3:66 ReadonlyKeyword `readonly`
+3:75 RequiredKeyword `required`
+3:84 ConstKeyword `const`
+3:90 LetKeyword `let`
+3:94 VarKeyword `var`
+3:98 EmbedKeyword `embed`
+3:104 ExternKeyword `extern`
+3:111 UnsafeKeyword `unsafe`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 DefaultKeyword `default`
+5:36 ForKeyword `for`
+5:40 InKeyword `in`
+5:43 WhileKeyword `while`
+5:49 DoKeyword `do`
+5:53 BreakKeyword `break`
+5:59 ContinueKeyword `continue`
+5:68 ReturnKeyword `return`
+5:75 YieldKeyword `yield`
+5:81 DeferKeyword `defer`
+5:87 ErrdeferKeyword `errdefer`
+5:96 UsingKeyword `using`
+5:102 ContextKeyword `context`
+6:1 FailsKeyword `fails`
+6:7 TryKeyword `try`
+6:11 CatchKeyword `catch`
+6:17 NeverKeyword `never`
+6:23 NoallocKeyword `noalloc`
+6:31 NosuspendKeyword `nosuspend`
+6:41 SuspendsKeyword `suspends`
+6:50 AsyncKeyword `async`
+6:56 AwaitKeyword `await`
+7:1 CharLiteral `''`
+8:2 IntegerLiteral `1_`
+9:4 Identifier `hidden`
+10:1 LetKeyword `let`
+10:5 Identifier `x`
+10:8 Equals `=`
+10:10 IntegerLiteral `1`
+11:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │   │ +
+
+error BYN0002: unexpected character `\u{8}`
+
+  5 │ if else unless switch case default for in while do� break continue return yield defer errdefer using context
+    │                                                   ^
+
+error BYN0007: empty char literal
+
+  7 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │  1_
+    │   ^
+    │
+    │ 8 │  1_
+    │   │   -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  9 │  � hidden
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │  � hidden
+    │   │  -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  10 │ let x� = 1
+     │      ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 10 │ let x� = 1
+     │    │      -

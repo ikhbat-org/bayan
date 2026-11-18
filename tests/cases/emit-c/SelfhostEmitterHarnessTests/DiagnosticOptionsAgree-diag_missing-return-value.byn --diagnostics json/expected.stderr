@@ -1,0 +1,1 @@
+{"code":"BYN2402","severity":"error","file":"input.byn","span":{"start":14,"end":20,"line":2,"column":5,"endLine":2,"endColumn":11},"message":"this function returns `i64`; `return` needs a value","label":null,"help":null,"fixes":[]}

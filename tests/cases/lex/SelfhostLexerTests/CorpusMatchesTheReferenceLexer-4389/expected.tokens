@@ -1,0 +1,41 @@
+1:1 FloatLiteral `3.14`
+1:6 FloatLiteral `1e5`
+1:10 FloatLiteral `2.5e-3`
+1:17 FloatLiteral `6E+2`
+1:22 FloatLiteral `1.50`
+1:26 NumericSuffix `dec`
+1:30 IntegerLiteral `1`
+1:31 DotDot `..`
+1:33 IntegerLiteral `2`
+1:35 IntegerLiteral `1`
+1:36 Dot `.`
+1:37 Equals `=`
+1:38 IntegerLiteral `3`
+1:40 IntegerLiteral `5`
+1:41 NumericSuffix `e`
+1:43 Identifier `x`
+1:44 Dot `.`
+1:45 Identifier `y`
+1:47 FloatLiteral `2.5`
+1:50 NumericSuffix `f`
+2:2 Identifier `cape`
+2:6 StringLiteral `"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""never closed\n0x\n1_\n0b102\n0xFFs\n0b1ms\n0x_\n0b__\n1 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" \u{202E}  "open\nlet b = ""{ 0b102\n\n`
+14:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  cape"
+    │      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

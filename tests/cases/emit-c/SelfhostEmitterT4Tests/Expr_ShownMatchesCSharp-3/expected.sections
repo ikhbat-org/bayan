@@ -1,0 +1,26 @@
+== expr
+a1: exprStmt(call panic:never(literal "x":string="x")) => neverValue:E locals=1
+a2: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i64 locals=1
+a3: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i32 locals=1
+a4: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i32 locals=1
+a5: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i32 locals=1
+a6: exprStmt(call panic:never(literal "x":string="x")) => neverValue:U locals=1
+a7: exprStmt(call panic:never(literal "x":string="x")) => neverValue:P locals=1
+a8: assign(local t#1:P structLiteral:P(literal 0:1:i64=0:1 literal 0:2:i64=0:2)) exprStmt(call panic:never(literal "x":string="x")) => neverValue:P locals=2
+a9: exprStmt(call panic:never(literal "x":string="x")) => neverValue:Range<i32> locals=1
+b1: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i64 locals=1
+b2: exprStmt(call panic:never(literal "x":string="x")) => neverValue:bool locals=1
+b3: assign(local t#1:i64 local k#-:i64) exprStmt(call panic:never(literal "x":string="x")) => neverValue:bool locals=2
+b4: exprStmt(call panic:never(literal "x":string="x")) => neverValue:bool locals=1
+b5: assign(local t#1:bool local q#-:bool) ifStmt(local t#1:bool block(exprStmt(call panic:never(literal "x":string="x")))) assign(local t#2:bool local t#1:bool) assign(local t#0:bool literal true:bool=true) => local t#2:bool locals=3
+b6: exprStmt(call panic:never(literal "x":string="x")) => neverValue:bool locals=1
+b7: ifStmt(local q#-:bool block(exprStmt(call panic:never(literal "a":string="a"))) block(exprStmt(call panic:never(literal "b":string="b")))) => neverValue:never locals=2
+b8: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i64? locals=1
+b9: assign(local t#1:List<i64> collection:List<i64>) exprStmt(builtinCall m42:void(local t#1:List<i64> literal 0:1:i64=0:1)) exprStmt(call panic:never(literal "x":string="x")) => neverValue:List<i64> locals=2
+c1: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i32[2] locals=1
+c2: assign(local t#1:Map<string, i64> collection:Map<string, i64>) exprStmt(call panic:never(literal "x":string="x")) => neverValue:Map<string, i64> locals=2
+c3: exprStmt(call panic:never(literal "x":string="x")) => neverValue:Span<i64> locals=1
+c4: exprStmt(call panic:never(literal "x":string="x")) => neverValue:Span<i64> locals=1
+c5: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i64 locals=1
+c6: assign(local t#1:i64 local k#-:i64) exprStmt(call panic:never(literal "x":string="x")) => neverValue:bool locals=2
+c7: assign(local t#1:i64[3] local arr#-:i64[3]) exprStmt(call panic:never(literal "x":string="x")) => neverValue:i64[4] locals=2

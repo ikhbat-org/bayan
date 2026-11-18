@@ -1,0 +1,18 @@
+1:1 Identifier `x́`
+1:4 Hash `#`
+1:5 Identifier `b`
+2:1 Identifier `let0`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:12 Identifier `h3`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ x́�#b
+    │   ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let0 c = � h3
+    │          ^

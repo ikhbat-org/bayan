@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"Identifier","start":0,"end":2,"text":"et","doc":null},{"kind":"IntegerLiteral","start":6,"end":7,"text":"2","doc":null},{"kind":"EndOfFile","start":9,"end":9,"text":"","doc":null}],"diagnostics":[{"code":"BYN0002","severity":"error","start":4,"end":5,"message":"unexpected character `\\u{F}`","label":null,"help":null,"fixes":[]}]}

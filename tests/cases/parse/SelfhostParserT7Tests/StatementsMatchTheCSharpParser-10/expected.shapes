@@ -1,0 +1,2 @@
+block 9..52 < for 15..50 letKeyword i names 0 block 43..50 < > >
+BYN1015 26+1 C-style `for` loops do not exist in Bayan

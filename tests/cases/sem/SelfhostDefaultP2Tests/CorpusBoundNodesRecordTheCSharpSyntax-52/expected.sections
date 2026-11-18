@@ -1,0 +1,129 @@
+== tests/cases/run/errors-cleanup.byn
+91..107 blockStmt
+97..105 exprStmt
+97..105 callExpr
+103..104 nameExpr
+97..105 callExpr
+151..469 blockStmt
+157..170 exprStmt
+157..170 callExpr
+162..169 literalExpr string
+175..180 deferStmt
+181..196 exprStmt
+181..196 callExpr
+186..195 literalExpr string
+201..214 deferStmt
+215..233 exprStmt
+215..233 callExpr
+220..232 literalExpr string
+238..243 deferStmt
+244..259 exprStmt
+244..259 callExpr
+249..258 literalExpr string
+264..281 deferStmt
+282..326 blockStmt
+292..320 exprStmt
+292..320 callExpr
+298..319 interpolatedExpr
+316..317 nameExpr
+292..320 callExpr
+331..399 blockStmt
+341..346 deferStmt
+347..366 exprStmt
+347..366 callExpr
+352..365 literalExpr string
+375..393 exprStmt
+375..393 callExpr
+380..392 literalExpr string
+404..428 guardedStmt
+418..428 nameExpr
+404..408 failStmt
+409..414 targetMemberExpr
+433..453 exprStmt
+433..453 callExpr
+438..452 literalExpr string
+458..467 returnStmt value 465..467
+465..467 literalExpr integer
+484..623 blockStmt
+490..621 forStmt
+499..503 rangeExpr
+499..500 literalExpr integer
+502..503 literalExpr integer
+504..621 blockStmt
+514..519 deferStmt
+520..537 exprStmt
+520..537 callExpr
+526..536 interpolatedExpr
+533..534 nameExpr
+520..537 callExpr
+546..564 guardedStmt
+558..564 binaryExpr eq right 563..564
+558..559 nameExpr
+563..564 literalExpr integer
+546..546 continueStmt
+573..588 guardedStmt
+582..588 binaryExpr eq right 587..588
+582..583 nameExpr
+587..588 literalExpr integer
+573..573 breakStmt
+597..615 exprStmt
+597..615 callExpr
+603..614 interpolatedExpr
+611..612 nameExpr
+597..615 callExpr
+653..803 blockStmt
+659..664 deferStmt
+665..684 exprStmt
+665..684 callExpr
+670..683 literalExpr string
+689..702 deferStmt
+703..725 exprStmt
+703..725 callExpr
+708..724 literalExpr string
+730..764 localDecl
+738..764 tryExpr
+742..764 callExpr
+759..763 literalExpr trueKeyword
+769..788 exprStmt
+769..788 callExpr
+774..787 literalExpr string
+793..801 returnStmt value 800..801
+800..801 nameExpr
+805..856 globalStatement
+805..856 exprStmt
+805..856 callExpr
+811..855 interpolatedExpr
+821..853 catchExpr
+821..844 callExpr
+838..843 literalExpr falseKeyword
+851..853 unaryExpr negate operand 852..853
+805..856 callExpr
+857..869 exprStmt
+857..869 callExpr
+863..868 literalExpr string
+857..869 callExpr
+870..920 exprStmt
+870..920 callExpr
+876..919 interpolatedExpr
+886..917 catchExpr
+886..908 callExpr
+903..907 literalExpr trueKeyword
+915..917 unaryExpr negate operand 916..917
+870..920 callExpr
+921..933 exprStmt
+921..933 callExpr
+927..932 literalExpr string
+921..933 callExpr
+934..941 exprStmt
+934..941 callExpr
+942..954 exprStmt
+942..954 callExpr
+948..953 literalExpr string
+942..954 callExpr
+955..990 exprStmt
+955..990 callExpr
+961..989 interpolatedExpr
+971..987 catchExpr
+971..978 callExpr
+985..987 unaryExpr negate operand 986..987
+955..990 callExpr

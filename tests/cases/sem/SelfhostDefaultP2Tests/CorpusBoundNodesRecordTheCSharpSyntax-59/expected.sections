@@ -1,0 +1,95 @@
+== tests/cases/run/errors-result.byn
+153..293 blockStmt
+159..187 guardedStmt
+176..187 memberExpr
+176..179 nameExpr
+159..172 returnStmt value 166..172
+166..172 targetMemberExpr
+166..172 targetMemberExpr
+192..291 returnStmt value 199..291
+199..291 switchExpr
+199..202 nameExpr
+220..225 constantPattern
+220..225 literalExpr string
+229..230 literalExpr integer
+229..230 literalExpr integer
+240..245 constantPattern
+240..245 literalExpr string
+249..250 literalExpr integer
+249..250 literalExpr integer
+260..261 discardPattern
+265..284 memberExpr
+265..284 memberExpr
+337..357 conditionalExpr
+337..357 conditionalExpr
+337..357 conditionalExpr
+337..343 memberExpr
+337..338 nameExpr
+346..353 memberExpr
+346..347 nameExpr
+356..357 literalExpr integer
+359..380 globalStatement
+359..380 localDecl
+367..380 callExpr
+374..379 literalExpr string
+381..402 localDecl
+389..402 callExpr
+396..401 literalExpr string
+403..421 localDecl
+411..421 callExpr
+418..420 literalExpr string
+422..443 exprStmt
+422..443 callExpr
+428..442 interpolatedExpr
+431..432 nameExpr
+435..436 nameExpr
+439..440 nameExpr
+422..443 callExpr
+444..495 exprStmt
+444..495 callExpr
+450..494 interpolatedExpr
+453..459 memberExpr
+453..454 nameExpr
+462..468 memberExpr
+462..463 nameExpr
+471..480 callExpr
+478..479 nameExpr
+483..492 callExpr
+490..491 nameExpr
+444..495 callExpr
+496..544 exprStmt
+496..544 callExpr
+502..543 interpolatedExpr
+505..533 binaryExpr eq right 514..533
+505..510 memberExpr
+505..506 nameExpr
+514..533 memberExpr
+536..541 memberExpr
+536..537 nameExpr
+496..544 callExpr
+545..584 exprStmt
+545..584 callExpr
+551..583 interpolatedExpr
+554..572 binaryExpr eq right 559..572
+554..555 nameExpr
+559..572 callExpr
+566..571 literalExpr string
+575..581 binaryExpr eq right 580..581
+575..576 nameExpr
+580..581 nameExpr
+545..584 callExpr
+585..631 localDecl
+629..630 literalExpr integer
+629..630 literalExpr integer
+632..657 exprStmt
+632..657 callExpr
+638..656 interpolatedExpr
+641..654 memberExpr
+641..648 nameExpr
+632..657 callExpr
+658..677 exprStmt
+658..677 callExpr
+664..676 interpolatedExpr
+667..674 memberExpr
+667..668 nameExpr
+658..677 callExpr

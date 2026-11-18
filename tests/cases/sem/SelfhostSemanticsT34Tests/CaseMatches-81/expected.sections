@@ -1,0 +1,6 @@
+== s4
+switchExpr|i32|1647:48
+value local:Shape=sh
+arm 1659:26 bindPattern[1659:21]:Shape(-) guard - value local:?=a
+arm 1687:6 bindPattern[1687:1]:Shape_(-) guard - value literal:i32=0
+BYN2703 75:26 variant `circle` has 1 payload field(s), but the pattern lists 2 ||list every field: `.circle(let r)`, or `_` to skip one|

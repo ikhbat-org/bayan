@@ -1,0 +1,99 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolatedStringText `$`
+2:10 InterpolatedStringEnd `"`
+2:11 OpenBrace `{`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 StringLiteral `$"{$"`
+2:59 OpenBrace `{`
+2:60 Identifier `x`
+2:61 CloseBrace `}`
+2:62 StringLiteral `"}"`
+2:65 InterpolationEnd `}`
+2:66 InterpolatedStringEnd `"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringEnd `"`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringEnd `"`
+2:77 InterpolationEnd `}`
+2:78 InterpolatedStringEnd `"`
+2:79 InterpolationEnd `}`
+2:80 InterpolatedStringEnd `"`
+2:81 InterpolationEnd `}`
+2:82 InterpolatedStringEnd `"`
+2:83 InterpolationEnd `}`
+2:84 InterpolatedStringEnd `"`
+2:85 InterpolationEnd `}`
+2:86 InterpolatedStringEnd `"`
+2:87 InterpolationEnd `}`
+2:88 InterpolatedStringEnd `"`
+2:89 InterpolationEnd `}`
+2:90 InterpolatedStringEnd `"`
+2:91 InterpolationEnd `}`
+2:92 InterpolatedStringEnd `"`
+2:93 CloseBrace `}`
+2:94 StringLiteral `"}"`
+2:97 InterpolationEnd `}`
+2:98 InterpolatedStringEnd `"`
+2:99 InterpolationEnd `}`
+2:100 InterpolatedStringEnd `"`
+3:1 CharLiteral `'\u{110000}'`
+4:1 Star `*`
+5:1 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ $"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                      ^^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

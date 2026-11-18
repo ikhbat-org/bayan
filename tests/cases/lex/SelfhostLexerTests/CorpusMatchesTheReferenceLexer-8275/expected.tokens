@@ -1,0 +1,40 @@
+1:4 InKeyword `in`
+1:7 Identifier `comment`
+4:1 IfKeyword `if`
+4:4 ElseKeyword `else`
+4:9 UnlessKeyword `unless`
+4:16 SwitchKeyword `switch`
+4:23 CaseKeyword `case`
+4:28 DefaultKeyword `default`
+4:36 ForKeyword `for`
+4:40 InKeyword `in`
+4:43 WhileKeyword `while`
+4:49 DoKeyword `do`
+4:52 BreakKeyword `break`
+4:58 ContinueKeyword `continue`
+4:67 ReturnKeyword `return`
+4:74 YieldKeyword `yield`
+4:80 DeferKeyword `defer`
+4:86 ErrdeferKeyword `errdefer`
+4:95 UsingKeyword `using`
+4:101 ContextKeyword `context`
+5:2 PlusEquals `+=`
+5:5 MinusEquals `-=`
+5:8 StarEquals `*=`
+5:11 SlashEquals `/=`
+5:14 PercentEquals `%=`
+5:17 AmpEquals `&=`
+5:20 BarEquals `|=`
+5:23 CaretEquals `^=`
+5:26 LessLessEquals `<<=`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │  � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^

@@ -1,0 +1,1 @@
+{"code":"BYN2410","severity":"error","file":"input.byn","span":{"start":88,"end":89,"line":7,"column":22,"endLine":7,"endColumn":23},"message":"`switch` does not handle every `Shape`","label":"not covered: .rect, .none","help":"add the missing arms: .rect, .none","fixes":[]}

@@ -1,0 +1,49 @@
+1:1 Equals `=`
+1:3 MinusEquals `-=`
+1:6 StarEquals `*=`
+1:9 SlashEquals `/=`
+1:12 PercentEquals `%=`
+1:15 AmpEquals `&=`
+1:18 BarEquals `|=`
+1:21 CaretEquals `^=`
+1:24 LessLessEquals `<<=`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 Identifier `m`
+4:29 Identifier `del`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:44 GotoKeyword `goto`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ���
+    │   ^
+
+error BYN0002: unexpected character `\u{13}`
+
+  4 │ test assert property fuzz m�del foreach new�goto
+    │                            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  4 │ test assert property fuzz m�del foreach new�goto
+    │                                            ^

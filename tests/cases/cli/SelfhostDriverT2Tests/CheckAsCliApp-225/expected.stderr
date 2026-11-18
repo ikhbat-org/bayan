@@ -1,0 +1,10 @@
+error BYN3202: `ValidationError<Signup>` and `SignupError` both have a case `invalid`
+  --> <repo>/tmp/t2/diag/validation-error-clash/validation-error-clash.byn:14:1
+
+  14 │ union error Clash = ValidationError<Signup>, SignupError
+     │ ^^^^^^^^^^^ two cases `invalid`
+     │
+  help: rename one case, or compose fewer sets
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3202

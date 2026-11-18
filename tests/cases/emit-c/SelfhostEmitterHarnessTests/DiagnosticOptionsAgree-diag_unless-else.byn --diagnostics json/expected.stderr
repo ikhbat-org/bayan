@@ -1,0 +1,1 @@
+{"code":"BYN1006","severity":"error","file":"input.byn","span":{"start":44,"end":48,"line":2,"column":27,"endLine":2,"endColumn":31},"message":"`unless` cannot have an `else` branch","label":"`else` after `unless`","help":"use `if` with the opposite condition, so both branches read positively","fixes":[]}

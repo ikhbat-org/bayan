@@ -1,0 +1,19 @@
+1:1 Identifier `Å`
+2:1 RawStringLiteral `"""Flet café = 1\r\n `
+3:2 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  2 │ """Flet café = 1
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

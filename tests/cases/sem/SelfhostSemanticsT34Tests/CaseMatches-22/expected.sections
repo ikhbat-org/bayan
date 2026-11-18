@@ -1,0 +1,5 @@
+== s11
+switchExpr|i32|2065:34
+value local:Ledger=lg
+arm 2077:20 propertyPattern[2077:15]:Ledger(Ledger;|-) guard - value literal:i32=0
+BYN2003 82:29 `nope` is not a member of `Ledger` |||

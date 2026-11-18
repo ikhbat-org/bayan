@@ -1,0 +1,3 @@
+== const K
+const K i32 value 5 static false elements 0
+literal 729..730 : i32 = 5

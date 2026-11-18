@@ -1,0 +1,3 @@
+== case this-free
+errorExpr 1759..1763 : ?
+BYN2018 89:17 `this` is only available inside instance methods |||

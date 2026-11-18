@@ -1,0 +1,186 @@
+1:1 IntegerLiteral `02`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 IntegerLiteral `0x_`
+5:1 IntegerLiteral `0b__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF__`
+9:1 IntegerLiteral `0xFF`
+9:5 NumericSuffix `s`
+11:1 IfKeyword `if`
+11:4 ElseKeyword `else`
+11:9 UnlessKeyword `unless`
+11:16 SwitchKeyword `switch`
+11:23 CaseKeyword `case`
+11:28 DefaultKeyword `default`
+11:36 ForKeyword `for`
+11:40 InKeyword `in`
+11:43 WhileKeyword `while`
+11:49 DoKeyword `do`
+11:52 BreakKeyword `break`
+11:58 ContinueKeyword `continue`
+11:67 ReturnKeyword `return`
+11:74 YieldKeyword `yield`
+11:80 DeferKeyword `defer`
+11:86 ErrdeferKeyword `errdefer`
+11:95 UsingKeyword `using`
+11:101 ContextKeyword `context`
+12:1 InterpolatedStringStart `$"`
+12:3 InterpolationStart `{`
+12:4 InterpolatedStringStart `$"`
+12:6 InterpolationStart `{`
+12:7 InterpolatedStringStart `$"`
+12:9 InterpolationStart `{`
+12:10 InterpolatedStringStart `$"`
+12:12 InterpolationStart `{`
+12:13 InterpolatedStringStart `$"`
+12:15 InterpolationStart `{`
+12:16 InterpolatedStringStart `$"`
+12:18 InterpolationStart `{`
+12:19 InterpolatedStringStart `$"`
+12:21 InterpolationStart `{`
+12:22 InterpolatedStringStart `$"`
+12:24 InterpolationStart `{`
+12:25 InterpolatedStringStart `$"`
+12:27 InterpolationStart `{`
+12:28 InterpolatedStringStart `$"`
+12:30 InterpolationStart `{`
+12:31 InterpolatedStringStart `$"`
+12:33 InterpolationStart `{`
+12:34 InterpolatedStringStart `$"`
+12:36 InterpolationStart `{`
+12:37 InterpolatedStringStart `$"`
+12:39 InterpolationStart `{`
+12:40 InterpolatedStringStart `$"`
+12:42 InterpolationStart `{`
+12:43 InterpolatedStringStart `$"`
+12:45 InterpolationStart `{`
+12:46 InterpolatedStringStart `$"`
+12:48 InterpolationStart `{`
+12:49 StringLiteral `$"{$"`
+12:54 OpenBrace `{`
+12:55 StringLiteral `$"{$"`
+12:60 OpenBrace `{`
+12:61 StringLiteral `$"{x}"`
+12:67 Identifier `j`
+12:68 StringLiteral `"}"`
+12:71 CloseBrace `}`
+12:72 StringLiteral `"}"`
+12:75 CloseBrace `}`
+12:76 StringLiteral `"}"`
+12:79 InterpolationEnd `}`
+12:80 InterpolatedStringEnd `"`
+12:81 InterpolationEnd `}`
+12:82 InterpolatedStringEnd `"`
+12:83 InterpolationEnd `}`
+12:84 InterpolatedStringEnd `"`
+12:85 InterpolationEnd `}`
+12:86 InterpolatedStringEnd `"`
+12:87 InterpolationEnd `}`
+12:88 InterpolatedStringEnd `"`
+12:89 InterpolationEnd `}`
+12:90 InterpolatedStringEnd `"`
+12:91 InterpolationEnd `}`
+12:92 InterpolatedStringEnd `"`
+12:93 InterpolationEnd `}`
+12:94 InterpolatedStringEnd `"`
+12:95 InterpolationEnd `}`
+12:96 InterpolatedStringEnd `"`
+12:97 InterpolationEnd `}`
+12:98 InterpolatedStringEnd `"`
+13:1 LetKeyword `let`
+13:5 Identifier `a`
+13:7 Equals `=`
+13:11 IntegerLiteral `1`
+15:1 CharLiteral `' '`
+15:5 IntegerLiteral `0`
+15:6 CharLiteral `'`
+17:1 Identifier `Å`
+18:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  9 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  12 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"j"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+     │                ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  12 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"j"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+     │                                                 ^^
+
+error BYN0002: unexpected character `$`
+
+  13 │ let a = $ 1
+     │         ^
+
+error BYN0002: unexpected character `\`
+
+  15 │ ' '\0'
+     │    ^
+
+error BYN0008: unterminated char literal
+
+  15 │ ' '\0'
+     │      ^
+     │
+  help: close it with `'`
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  17 │ Å
+     │ ^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 17 │ Å
+     │    │ +

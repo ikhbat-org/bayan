@@ -1,0 +1,155 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 Identifier `x`
+1:47 InterpolationEnd `}`
+1:48 InterpolatedStringEnd `"`
+1:49 InterpolationEnd `}`
+1:50 InterpolatedStringEnd `"`
+1:51 InterpolationEnd `}`
+1:52 InterpolatedStringEnd `"`
+1:53 InterpolationEnd `}`
+1:54 InterpolatedStringEnd `"`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 InterpolationEnd `}`
+1:58 InterpolatedStringEnd `"`
+1:59 InterpolationEnd `}`
+1:60 InterpolatedStringEnd `"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 CloseBrace `}`
+1:78 StringLiteral `"`
+2:8 LetKeyword `let`
+2:12 Identifier `x`
+2:15 Equals `=`
+2:17 IntegerLiteral `1`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+5:1 Identifier `_`
+6:1 IntegerLiteral `0xF__`
+8:1 Identifier `n`
+8:3 Identifier `strings`
+8:10 StringLiteral `" `
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolationStart `{`
+10:4 Identifier `a`
+11:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                              ^ string ends at
+    │                                                                                the end of the
+    │                                                                                line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │ /* � */let x� = 1
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │ // �
+    │   │  +++
+    │ 3 │ let x� = 1
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  2 │ /* � */let x� = 1
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ /* � */let x� = 1
+    │   │    -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  2 │ /* � */let x� = 1
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ /* � */let x� = 1
+    │   │             -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 0xF__
+    │    ^^
+    │
+    │ 6 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  8 │ n strings" 
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  9 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │ �
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{a
+     │ ^^ this string never ends
+     │
+  help: close the `{` and the string

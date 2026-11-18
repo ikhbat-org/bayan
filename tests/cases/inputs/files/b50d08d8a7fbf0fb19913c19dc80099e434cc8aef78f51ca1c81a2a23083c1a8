@@ -1,0 +1,7 @@
+a /* never closed
+'\u{110000}'
+$"{}"struct unique union enum flags open extensible iterface delegçate extension derivation attribute
+
+let c =  3
+
+$"{{"

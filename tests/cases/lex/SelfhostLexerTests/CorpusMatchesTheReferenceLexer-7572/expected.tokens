@@ -1,0 +1,38 @@
+1:1 OpenKeyword `open`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"ba'`
+3:2 Equals `=`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `stray } here`
+4:15 InterpolatedStringEnd `"`
+5:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "�\u{48}i"\n & && | || ^ ~ ! = = != < <= > >= << >> >>=\n\nb\n `
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ let b = "ba'
+    │         ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"stray } here"
+    │         ^
+    │
+    │ 4 │ $"stray }} here"
+    │   │          +
+
+error BYN0003: unterminated string literal
+
+  5 │   """ c"text" u16"wide" "� allowed in strings" "" "�\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  5 │   """ c"text" u16"wide" "� allowed in strings" "" "�\u{48}i"
+    │                                                    ^

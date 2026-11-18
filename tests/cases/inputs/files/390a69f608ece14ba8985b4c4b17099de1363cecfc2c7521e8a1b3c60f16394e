@@ -1,0 +1,10 @@
+1
+let af√© = 2
+'\u{D800}'
+
+1_
+one.
+/// Doc line two.
+struct S
+//// not a doc comment
+b

@@ -1,0 +1,101 @@
+1:1 Identifier `각let`
+1:8 LawKeyword `law`
+1:12 Equals `=`
+1:14 IntegerLiteral `3`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 StringLiteral `$"{$"`
+2:55 OpenBrace `{`
+2:56 StringLiteral `$"{x h"`
+2:63 OpenBrace `{`
+2:64 StringLiteral `$"{$"`
+2:69 OpenBrace `{`
+2:70 StringLiteral `$"{$"`
+2:75 OpenBrace `{`
+2:76 StringLiteral `$"{$"`
+2:81 OpenBrace `{`
+2:82 StringLiteral `$"{$"`
+2:87 OpenBrace `{`
+2:88 StringLiteral `$"{$"`
+2:93 OpenBrace `{`
+2:94 StringLiteral `$"{$"`
+2:99 OpenBrace `{`
+2:100 StringLiteral `$"{$"`
+2:105 OpenBrace `{`
+2:106 StringLiteral `$"{$"`
+2:111 OpenBrace `{`
+2:112 StringLiteral `$"{x}"`
+2:118 CloseBrace `}`
+2:119 StringLiteral `"}"`
+2:122 CloseBrace `}`
+2:123 StringLiteral `"}"`
+2:126 CloseBrace `}`
+2:127 StringLiteral `"}"`
+2:130 CloseBrace `}`
+2:131 StringLiteral `"0xFFs`
+3:2 EndOfFile
+
+error BYN0005: identifier `각let` is not in Unicode normalization form C
+
+  1 │ 각let law = 3
+    │ ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각let law = 3
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x h"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"0xFFs
+    │                                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x h"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"0xFFs
+    │                                                  ^^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x h"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"0xFFs
+    │                                                                                                                                   ^^^^^^ string
+    │                                                                                                                                          ends
+    │                                                                                                                                          at
+    │                                                                                                                                          the
+    │                                                                                                                                          end
+    │                                                                                                                                          of
+    │                                                                                                                                          the
+    │                                                                                                                                          line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

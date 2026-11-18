@@ -1,0 +1,43 @@
+1:1 CharLiteral `'x\r`
+3:1 IsKeyword `is`
+3:4 AndKeyword `and`
+3:8 OrKeyword `or`
+3:11 NotKeyword `not`
+3:15 Identifier `witv`
+3:20 MoveKeyword `move`
+3:25 RefKeyword `ref`
+3:29 OutKeyword `out`
+3:33 ThisKeyword `this`
+3:38 NullKeyword `null`
+3:43 TrueKeyword `true`
+3:48 FalseKeyword `false`
+3:54 Identifier `comptimeuchecked`
+4:2 Identifier `actor`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+5:1 LetKeyword `let`
+6:1 VarKeyword `var`
+6:5 Identifier `xs`
+6:7 Colon `:`
+6:9 Identifier `List`
+6:13 Less `<`
+6:14 Identifier `List`
+6:18 Less `<`
+6:19 Identifier `i64`
+6:22 Greater `>`
+6:23 Greater `>`
+8:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  4 │  actor = 1
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

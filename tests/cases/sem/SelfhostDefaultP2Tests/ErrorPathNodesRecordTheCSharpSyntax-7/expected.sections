@@ -1,0 +1,10 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/move/move.byn
+50..52 blockStmt
+66..105 blockStmt
+72..86 localDecl
+80..86 structLiteralExpr
+25..26 literalExpr integer
+91..103 exprStmt
+91..103 callExpr
+96..102 argument
+25..26 literalExpr integer

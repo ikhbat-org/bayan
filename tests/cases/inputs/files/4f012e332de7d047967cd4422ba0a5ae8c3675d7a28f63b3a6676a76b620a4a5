@@ -1,0 +1,10 @@
+let b = "bad \q escape"
+
+iB 1u 0xFFu 0b1ul 7l
+ ar xs: List<List<i64>>
+ $"open {x";
+ foo Bar _x camelCase2 بيان μετρητής x_1 é
+ ����
+t café = 1
+let café = 2
+ /// 

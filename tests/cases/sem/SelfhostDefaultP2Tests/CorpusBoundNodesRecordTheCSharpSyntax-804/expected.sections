@@ -1,0 +1,3 @@
+== tests/cases/diag/repeated-particle.byn
+107..121 blockStmt
+113..119 returnStmt

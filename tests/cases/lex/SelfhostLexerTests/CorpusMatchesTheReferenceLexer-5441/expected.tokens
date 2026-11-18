@@ -1,0 +1,56 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:2 CharLiteral `' e"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 CharLiteral `'\u{202E}'`
+3:12 LessLessEquals `<<=`
+5:1 IsKeyword `is`
+5:4 Identifier `adlet`
+5:10 Identifier `b`
+5:12 Equals `=`
+5:15 IntegerLiteral `2`
+6:2 CharLiteral `'\q'`
+6:6 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0008: unterminated char literal
+
+  2 │  ' e"
+    │  ^^^^
+    │
+  help: close it with `'`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ let c = '�'<<=
+    │          ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ let c = '�'<<=
+    │   │          -
+
+error BYN0002: unexpected character ```
+
+  5 │ is adlet b = `2
+    │              ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │  '\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

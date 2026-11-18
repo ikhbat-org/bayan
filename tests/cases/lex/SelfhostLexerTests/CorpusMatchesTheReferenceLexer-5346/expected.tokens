@@ -1,0 +1,50 @@
+1:2 IntegerLiteral `0`
+1:4 IntegerLiteral `42`
+1:7 IntegerLiteral `1_000_000`
+1:17 IntegerLiteral `0xFF`
+1:22 IntegerLiteral `0x_ff`
+1:28 IntegerLiteral `0b1010`
+1:35 IntegerLiteral `0B11`
+1:40 IntegerLiteral `5`
+1:41 NumericSuffix `s`
+1:43 IntegerLiteral `250`
+1:47 Identifier `ms`
+1:50 IntegerLiteral `4`
+1:51 NumericSuffix `KiB`
+1:55 IntegerLiteral `1`
+1:56 NumericSuffix `u`
+1:58 IntegerLiteral `0xFF`
+1:62 NumericSuffix `u`
+1:64 IntegerLiteral `0b1`
+1:67 NumericSuffix `ul7l`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `{{`
+2:5 InterpolatedStringEnd `"`
+3:1 Identifier `Å`
+3:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  1 │ �0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250�ms 4KiB 1u 0xFFu 0b1ul7l
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  1 │ �0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250�ms 4KiB 1u 0xFFu 0b1ul7l
+    │                                              ^
+
+error BYN0011: unit suffix `ul7l` is not allowed on a binary literal
+
+  1 │ �0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250�ms 4KiB 1u 0xFFu 0b1ul7l
+    │                                                                   ^^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ Å
+    │   │ +

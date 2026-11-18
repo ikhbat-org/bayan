@@ -1,0 +1,111 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `a`
+1:4 InterpolationStart `{`
+1:5 Identifier `b`
+1:6 InterpolationEnd `}`
+1:7 InterpolatedStringText `c $`
+1:10 InterpolatedStringEnd `"`
+1:11 OpenBrace `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:31 StringLiteral `"{$"`
+1:35 OpenBrace `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:58 StringLiteral `"{$"`
+1:62 OpenBrace `{`
+1:63 InterpolatedStringStart `$"`
+1:65 InterpolationStart `{`
+1:66 InterpolatedStringStart `$"`
+1:68 InterpolationStart `{`
+1:69 InterpolatedStringStart `$"`
+1:71 InterpolationStart `{`
+1:72 Identifier `x`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 CloseBrace `}`
+1:80 StringLiteral `"}"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 InterpolationEnd `}`
+1:88 InterpolatedStringEnd `"`
+1:89 InterpolationEnd `}`
+1:90 InterpolatedStringEnd `"`
+1:91 InterpolationEnd `}`
+1:92 InterpolatedStringEnd `"`
+1:93 InterpolationEnd `}`
+1:94 InterpolatedStringEnd `"`
+1:95 InterpolationEnd `}`
+1:96 InterpolatedStringEnd `"`
+1:97 CloseBrace `}`
+1:98 StringLiteral `"}"`
+1:101 InterpolationEnd `}`
+1:102 InterpolatedStringEnd `"`
+1:103 InterpolationEnd `}`
+1:104 InterpolatedStringEnd `"`
+1:105 InterpolationEnd `}`
+1:106 InterpolatedStringEnd `"`
+1:107 InterpolationEnd `}`
+1:108 InterpolatedStringEnd `"`
+1:109 InterpolationEnd `}`
+1:110 InterpolatedStringEnd `"`
+1:111 InterpolationEnd `}`
+1:112 InterpolatedStringEnd `"`
+1:113 Identifier `foo`
+1:117 Identifier `Bar`
+1:121 Identifier `_x`
+1:124 Identifier `camelCase2`
+1:135 Identifier `بيان`
+1:140 Identifier `μετρητής`
+1:149 Identifier `x`
+1:151 Identifier `_1`
+1:154 Identifier `é`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD3)
+
+  1 │ $"a{b}c $"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"foo Bar _x camelCase2 بيان μετρητής x�_1 é
+    │                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  1 │ $"a{b}c $"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"foo Bar _x camelCase2 بيان μετρητής x�_1 é
+    │                                                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC6)
+
+  1 │ $"a{b}c $"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"foo Bar _x camelCase2 بيان μετρητής x�_1 é
+    │                                                                                                                                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �
+    │ ^

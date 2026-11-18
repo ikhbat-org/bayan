@@ -1,0 +1,33 @@
+== extra
+BYN5001 103+7 `doubled` changes `this`; name it `double` |  | name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view | 
+BYN5001 159+7 `trimmed` changes `this`; name it `trim` |  | name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view | 
+BYN5001 271+7 `stopped` changes `this`; name it `stop` |  | name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view | 
+BYN5001 327+5 `named` changes `this`; name it `name` |  | name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view | 
+BYN5001 381+6 `joined` changes `this`; name it `join` |  | name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view | 
+BYN5001 48+6 `copied` changes `this`; name it `copy` |  | name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view | 
+BYN5001 785+5 `hoped` changes `this`; name it `hope` |  | name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view | 
+BYN5001 840+5 `towed` changes `this`; name it `tow` |  | name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view | 
+BYN5002 1111+7 `hasRoom` reads as state but modifies `this` | declared `ref this` | remove `ref this` so it only reads, or name the action with a verb | 
+BYN5003 1276+6 `tryFetch` must return `i64?` or `bool`; it is derived from `fetch() fails` | returns `string` | change it to return `i64?` or `bool`, or remove `tryFetch` and call `try fetch()` | 
+BYN5004 1581+5 `three` has 3 unlabeled parameters; give each but one a particle | 3 unlabeled parameters | keep one unlabeled parameter, the object | 
+BYN5006 1598+1 `b` is a required parameter besides the object and needs a particle | needs a particle | label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as` | 
+BYN5006 1605+1 `c` is a required parameter besides the object and needs a particle | needs a particle | label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as` | 
+BYN5009 435+8 `toString` spells a conversion with `to`; write `string(shelf)` |  | use a view noun, `copy()`, or a `T(x)` conversion | 
+BYN5009 466+8 `toWidget` spells a conversion with `to`; write `Widget(shelf)` |  | use a view noun, `copy()`, or a `T(x)` conversion | 
+BYN5009 497+6 `asView` spells a conversion with `as`; write `view` |  | use a view noun, `copy()`, or a `T(x)` conversion | 
+BYN5009 526+2 `to` is a particle; name the member with a verb or a noun |  | rename the member, for example `tryGet(at:)` instead of `at(…)` | 
+BYN5013 1671+2 `spread` uses the particle `by` twice | used again | group the values in a struct, or choose another particle | 
+BYN5013 1681+2 `spread` uses the particle `by` twice | used again | group the values in a struct, or choose another particle | 
+BYN5014 1050+2 `it` is not a known verb, noun or adjective |  | add it to `grammar` in package.byn: `adjectives: ["it"]`, `verbs: ["it"]` or `nouns: ["it"]` | 
+BYN5014 1409+7 `nothing` is not a known verb, noun or adjective |  | add it to `grammar` in package.byn: `nouns: ["nothing"]`, `verbs: ["nothing"]` or `adjectives: ["nothing"]` | 
+BYN5014 1511+5 `shown` is not a known verb, noun or adjective |  | add it to `grammar` in package.byn: `adjectives: ["shown"]`, `verbs: ["shown"]` or `nouns: ["shown"]` | 
+BYN5014 468+6 `widget` is not a known verb, noun or adjective |  | add it to `grammar` in package.byn: `nouns: ["widget"]`, `verbs: ["widget"]` or `adjectives: ["widget"]` | 
+BYN5014 608+10 `unreadable` is not a known verb, noun or adjective |  | add it to `grammar` in package.byn: `verbs: ["unreadable"]`, `nouns: ["unreadable"]` or `adjectives: ["unreadable"]` | 
+BYN5014 667+7 `rebuilt` is not a known verb, noun or adjective |  | add it to `grammar` in package.byn: `verbs: ["rebuilt"]`, `nouns: ["rebuilt"]` or `adjectives: ["rebuilt"]` | 
+BYN5014 785+5 `hoped` is not a known verb, noun or adjective |  | add it to `grammar` in package.byn: `verbs: ["hoped"]`, `nouns: ["hoped"]` or `adjectives: ["hoped"]` | 
+BYN5014 840+5 `towed` is not a known verb, noun or adjective |  | add it to `grammar` in package.byn: `verbs: ["towed"]`, `nouns: ["towed"]` or `adjectives: ["towed"]` | 
+BYN5014 918+5 `frobs` is not a known verb, noun or adjective |  | add it to `grammar` in package.byn: `nouns: ["frobs"]`, `verbs: ["frobs"]` or `adjectives: ["frobs"]` | 
+BYN5101 1168+7 `entries` is a noun on a `ref this` member; name the action |  | rename it with the verb for what it does to `this` | 
+BYN5102 1477+7 `visible` is a `bool` state; prefix with `is`, `has` or `can` |  | rename it `isVisible` | 1477+7=isVisible
+BYN5102 977+5 `ready` is a `bool` state; prefix with `is`, `has` or `can` |  | rename it `isReady` | 977+5=isReady
+end

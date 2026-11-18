@@ -1,0 +1,73 @@
+1:2 Identifier `_`
+1:4 VarKeyword `var`
+1:8 Identifier `xs`
+1:10 Colon `:`
+1:12 Identifier `List`
+1:16 Less `<`
+1:17 Identifier `List`
+1:21 Less `<`
+1:22 Identifier `i6`
+1:24 Greater `>`
+1:25 Greater `>`
+2:2 Identifier `q`
+2:4 Identifier `escape`
+2:10 StringLiteral `"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""nev\nstruct S\n\n0xF__\n\nerror set unit distinct type import as pulic�private static readonly required const let var embed extern unsafe\n`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��_����var xs: List<List<i6>>
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��_����var xs: List<List<i6>>
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ��_����var xs: List<List<i6>>
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ��_����var xs: List<List<i6>>
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��_����var xs: List<List<i6>>
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��_����var xs: List<List<i6>>
+    │       ^
+
+error BYN0002: unexpected character `\`
+
+  2 │ \q escape"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ \q escape"
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """nev
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  8 │ error set unit distinct type import as pulic�private static readonly required const let var embed extern unsafe
+    │                                             ^

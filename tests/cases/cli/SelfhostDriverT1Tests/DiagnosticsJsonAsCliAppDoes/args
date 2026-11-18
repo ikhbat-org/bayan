@@ -1,0 +1,4 @@
+check
+--diagnostics
+json
+<repo>/tests/cases/diag-json/unicode-columns.byn

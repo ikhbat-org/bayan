@@ -1,0 +1,4 @@
+== tests/cases/diag/millis-bare-literal.byn
+94..119 blockStmt
+100..117 localDecl
+116..117 literalExpr integer

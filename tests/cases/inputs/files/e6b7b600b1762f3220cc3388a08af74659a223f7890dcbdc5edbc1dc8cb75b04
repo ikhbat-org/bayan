@@ -1,0 +1,3 @@
+test "twice" {
+    assert twice(2) == 4
+}

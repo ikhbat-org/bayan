@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "Print",
+    "StringLength",
+    "StringLowercased",
+    "StringUppercased"
+  ],
+  "diagnostics": []
+}

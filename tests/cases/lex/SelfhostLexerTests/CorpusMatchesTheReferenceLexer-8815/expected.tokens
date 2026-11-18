@@ -1,0 +1,58 @@
+1:2 NotKeyword `not`
+1:6 Identifier `a`
+1:8 Identifier `doc`
+1:12 Identifier `comment`
+2:1 Identifier `b`
+3:4 IntegerLiteral `0xF__`
+5:2 CharLiteral `'x\u{13}`
+6:2 CloseBrace `}`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolatedStringText `a`
+6:7 InterpolationStart `{`
+6:8 Identifier `b`
+6:9 InterpolationEnd `}`
+6:10 InterpolatedStringText `c// line comment`
+6:26 InterpolatedStringEnd
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF5)
+
+  3 │  ���� 0xF__
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │  ���� 0xF__
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ���� 0xF__
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ���� 0xF__
+    │     ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │  ���� 0xF__
+    │          ^^
+    │
+    │ 3 │  ���� 0xF__
+    │   │          --
+
+error BYN0008: unterminated char literal
+
+  5 │  'x�
+    │  ^^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  6 │  } $"a{b}c// line comment
+    │    ^^ this string never ends
+    │
+  help: close it with `"`

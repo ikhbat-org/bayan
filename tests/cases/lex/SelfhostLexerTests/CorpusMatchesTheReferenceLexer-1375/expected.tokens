@@ -1,0 +1,198 @@
+1:1 IntegerLiteral `0xF__`
+2:1 IntegerLiteral `1010`
+2:6 IntegerLiteral `0B11`
+2:11 IntegerLiteral `5`
+2:12 NumericSuffix `s`
+2:14 IntegerLiteral `250`
+2:17 NumericSuffix `ms`
+2:20 IntegerLiteral `4`
+2:21 NumericSuffix `KiB`
+2:25 IntegerLiteral `1`
+2:26 NumericSuffix `u`
+2:28 IntegerLiteral `0xFF`
+2:32 NumericSuffix `u`
+2:34 LetKeyword `let`
+2:38 EffectKeyword `effect`
+2:45 Equals `=`
+2:47 IntegerLiteral `2`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 Identifier `x`
+4:47 InterpolationEnd `}`
+4:48 InterpolatedStringEnd `"`
+4:49 InterpolationEnd `}`
+4:50 InterpolatedStringEnd `"`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:59 InterpolationEnd `}`
+4:60 InterpolatedStringEnd `"`
+4:61 InterpolationEnd `}`
+4:62 InterpolatedStringEnd `"`
+4:63 InterpolationEnd `}`
+4:64 InterpolatedStringEnd `"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:69 InterpolationEnd `}`
+4:70 InterpolatedStringEnd `"`
+4:71 InterpolationEnd `}`
+4:72 InterpolatedStringEnd `"`
+4:73 InterpolationEnd `}`
+4:74 InterpolatedStringEnd `"`
+4:75 InterpolationEnd `}`
+4:76 InterpolatedStringEnd `"`
+4:77 CloseBrace `}`
+4:78 StringLiteral `"'\u{202E}'`
+5:1 CharLiteral `'a'`
+5:5 CharLiteral `'\n'`
+5:10 CharLiteral `'\u{1F600}'`
+5:22 CharLiteral `'\''`
+5:27 CharLiteral `'é'`
+5:31 CharLiteral `'\\'`
+5:36 CharLiteral `'\0'`
+7:1 StructKeyword `struct`
+7:8 UniqueKeyword `unique`
+7:15 UnionKeyword `union`
+7:21 EnumKeyword `enum`
+7:26 FlagsKeyword `flags`
+7:32 OpenKeyword `open`
+7:37 ExtensibleKeyword `extensible`
+7:48 InterfaceKeyword `interface`
+7:58 DelegateKeyword `delegate`
+7:67 ExtensionKeyword `extension`
+7:77 DerivationKeyword `derivation`
+7:88 AttributeKeyword `attribute`
+8:2 LetKeyword `let`
+8:6 Identifier `s`
+8:8 Equals `=`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:13 InterpolatedStringStart `$"`
+8:15 InterpolationStart `{`
+8:16 InterpolatedStringStart `$"`
+8:18 InterpolationStart `{`
+8:19 InterpolatedStringStart `$"`
+8:21 InterpolationStart `{`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolationStart `{`
+8:25 InterpolatedStringStart `$"`
+8:27 InterpolationStart `{`
+8:28 InterpolatedStringStart `$"`
+8:30 InterpolationStart `{`
+8:31 InterpolatedStringStart `$"`
+8:33 InterpolationStart `{`
+8:34 InterpolatedStringStart `$"`
+8:36 InterpolationStart `{`
+8:37 InterpolatedStringStart `$"`
+8:39 InterpolationStart `{`
+8:40 InterpolatedStringStart `$"`
+8:42 InterpolationStart `{`
+8:43 InterpolatedStringStart `$"`
+8:45 InterpolationStart `{`
+8:46 InterpolatedStringStart `$"`
+8:48 InterpolationStart `{`
+8:49 InterpolatedStringStart `$"`
+8:51 InterpolationStart `{`
+8:52 InterpolatedStringStart `$"`
+8:54 InterpolationStart `{`
+8:55 InterpolatedStringStart `$"`
+8:57 InterpolationStart `{`
+8:58 StringLiteral `$"{$"`
+8:63 OpenBrace `{`
+8:64 StringLiteral `$"{$"`
+8:69 OpenBrace `{`
+8:70 Identifier `x`
+8:71 CloseBrace `}`
+8:72 StringLiteral `"}"`
+8:75 CloseBrace `}`
+8:76 StringLiteral `"}"`
+8:79 InterpolationEnd `}`
+8:80 InterpolatedStringEnd `"`
+8:81 InterpolationEnd `}`
+8:82 InterpolatedStringEnd `"`
+8:83 InterpolationEnd `}`
+8:84 InterpolatedStringEnd `"`
+8:85 InterpolationEnd `}`
+8:86 InterpolatedStringEnd `"`
+8:87 InterpolationEnd `}`
+8:88 InterpolatedStringEnd `"`
+8:89 InterpolationEnd `}`
+8:90 InterpolatedStringEnd `"`
+8:91 InterpolationEnd `}`
+8:92 InterpolatedStringEnd `"`
+8:93 InterpolationEnd `}`
+8:94 InterpolatedStringEnd `"`
+8:95 InterpolationEnd `}`
+8:96 InterpolatedStringEnd `"`
+8:97 InterpolationEnd `}`
+8:98 InterpolatedStringEnd `"`
+8:99 InterpolationEnd `}`
+8:100 InterpolatedStringEnd `"`
+8:101 InterpolationEnd `}`
+8:102 InterpolatedStringEnd `"`
+8:103 InterpolationEnd `}`
+8:104 InterpolatedStringEnd `"`
+8:105 InterpolationEnd `}`
+8:106 InterpolatedStringEnd `"`
+8:107 InterpolationEnd `}`
+8:108 InterpolatedStringEnd `"`
+8:109 InterpolationEnd `}`
+8:110 InterpolatedStringEnd `"`
+9:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"'�'
+    │                                                                              ^^^^ string ends
+    │                                                                                   at the end
+    │                                                                                   of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │  let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                          ^^

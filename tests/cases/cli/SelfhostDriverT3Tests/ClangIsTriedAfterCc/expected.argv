@@ -1,0 +1,16 @@
+clang
+-std=c11
+-fwrapv
+-ffp-contract=off
+-w
+-O0
+-g
+-DBYN_DEBUG
+-ffile-prefix-map=<dir>=.
+-I
+<dir>
+main.c
+bayan-rt.o
+-o
+program
+-lm

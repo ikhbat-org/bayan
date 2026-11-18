@@ -1,0 +1,5 @@
+== s13
+switchExpr|i64|2160:35
+value local:i64?=on
+arm 2172:9 constantPattern[2172:4]:i64?(defaultValue:i64?) guard - value literal:i64=0
+arm 2183:10 propertyPattern[2183:5]:i64?(i64;|v:i64:b:-:let) guard - value local:i64=v

@@ -1,0 +1,3 @@
+build
+--emit-c
+error-equality-other-set.byn

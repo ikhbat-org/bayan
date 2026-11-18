@@ -1,0 +1,81 @@
+1:1 IntegerLiteral `0x`
+3:1 StructKeyword `struct`
+3:8 UniqueKeyword `unique`
+3:15 UnionKeyword `union`
+3:21 EnumKeyword `enum`
+3:26 FlagsKeyword `flags`
+3:32 OpenKeyword `open`
+3:37 ExtensibleKeyword `extensible`
+3:48 InterfaceKeyword `interface`
+3:58 DelegateKeyword `delegate`
+3:67 ExtensionKeyword `extension`
+3:77 DerivationKeyword `derivation`
+3:88 AttributeKeyword `attribute`
+4:1 Identifier `b`
+5:1 FloatLiteral `3.14`
+5:6 FloatLiteral `1e5`
+5:10 FloatLiteral `2.5e-3`
+5:17 FloatLiteral `6E+2`
+5:22 FloatLiteral `1.50`
+5:26 NumericSuffix `dec`
+5:30 IntegerLiteral `1`
+5:31 DotDot `..`
+5:35 IntegerLiteral `1`
+5:36 DotDotEquals `..=`
+5:39 IntegerLiteral `3`
+5:41 IntegerLiteral `5`
+5:42 NumericSuffix `e`
+5:44 Identifier `x`
+5:45 Dot `.`
+5:46 Identifier `y`
+5:48 FloatLiteral `2.5`
+5:51 NumericSuffix `f`
+6:1 OpenParen `(`
+6:3 CloseParen `)`
+6:5 OpenBracket `[`
+6:7 CloseBracket `]`
+6:9 OpenBrace `{`
+6:11 CloseBrace `}`
+7:3 Identifier `l`
+7:4 Identifier `t`
+7:6 Identifier `actor`
+7:12 Equals `=`
+7:14 IntegerLiteral `1`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF1)
+
+  5 │ 3.14 1e5 2.5e-3 6E+2 1.50dec 1..� 1..=3 5e x.y 2.5f
+    │                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  6 │ ( ) [ ] {�}
+    │          ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  7 │  �l�t actor = 1
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  �l�t actor = 1
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xB4)
+
+  7 │  �l�t actor = 1
+    │    ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  7 │  �l�t actor = 1
+    │       ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

@@ -1,0 +1,2 @@
+== tests/cases/diag/constant-overflow.byn
+17..34 binaryExpr mul right 33..34

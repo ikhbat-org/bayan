@@ -1,0 +1,24 @@
+error BYN1042: `return` takes its value on the same line
+  --> tmp/t26-tests/cli/diag_return-on-new-line.byn/return-on-new-line.byn:3:9
+
+  3 │         x + 1
+    │         ^ on the next line
+    │
+  help: move the value to the line of `return`
+    │ 2 │     return
+    │ 3 │         x + 1
+    │   │ -------
+
+error BYN1042: `break` takes its value on the same line
+  --> tmp/t26-tests/cli/diag_return-on-new-line.byn/return-on-new-line.byn:10:17
+
+  10 │                 outer
+     │                 ^^^^^ on the next line
+     │
+  help: move the value to the line of `break`
+     │  9 │             break
+     │ 10 │                 outer
+     │    │ ---------------
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1042

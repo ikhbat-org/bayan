@@ -1,0 +1,69 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 Identifier `bad`
+1:14 Identifier `q`
+1:16 Identifier `escape`
+1:22 StringLiteral `"`
+2:3 Identifier `stray`
+2:9 CloseBrace `}`
+2:11 Identifier `here`
+2:15 StringLiteral `"`
+3:3 CharLiteral `'x`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ let b = bad \q escape"
+    │             ^
+
+error BYN0003: unterminated string literal
+
+  1 │ let b = bad \q escape"
+    │                      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  2 │  $stray�} here"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  2 │  $stray�} here"
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  2 │  $stray�} here"
+    │               ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │ ���� 'x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │ ���� 'x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ���� 'x
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ���� 'x
+    │    ^
+
+error BYN0008: unterminated char literal
+
+  3 │ ���� 'x
+    │      ^^
+    │
+  help: close it with `'`

@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/validation-error-same-name-unhandled
+--include-path
+<repo>/tests/cases/diag/validation-error-same-name-unhandled/main.byn

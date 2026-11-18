@@ -1,0 +1,2 @@
+ "bad \q escape"
+let c = """neveÖrâ‚ 

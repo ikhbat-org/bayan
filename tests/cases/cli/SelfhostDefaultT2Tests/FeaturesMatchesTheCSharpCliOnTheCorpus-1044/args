@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/witness-mutates-this.byn
+--package
+<repo>/tests/cases/diag

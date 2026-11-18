@@ -1,0 +1,51 @@
+1:1 StringLiteral `" u16"`
+1:7 Identifier `wide`
+1:11 StringLiteral `" "`
+1:16 Identifier `allowed`
+1:24 Identifier `innt`
+1:31 Identifier `hidden`
+2:1 LetKeyword `let`
+2:5 Identifier `x`
+2:10 Identifier `b`
+4:1 CharLiteral `'\u{202E}'`
+4:4 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ " u16"wide" "� allowed innt � hidden
+    │              ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ " u16"wide" "� allowed innt � hidden
+    │   │              -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ " u16"wide" "� allowed innt � hidden
+    │                             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ " u16"wide" "� allowed innt � hidden
+    │   │                             -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ let x� � b
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ let x� � b
+    │        ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ '�'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ '�'
+    │   │  -

@@ -1,0 +1,26 @@
+error BYN2711: `read` and `write` share the value 1
+  --> tmp/t26-tests/cli/diag_duplicate-union-value.byn/duplicate-union-value.byn:3:13
+
+  3 │     write = 1
+    │             ^ already used
+    │
+  help: give each case its own value
+
+error BYN2711: `mid` and `high` share the value 2
+  --> tmp/t26-tests/cli/diag_duplicate-union-value.byn/duplicate-union-value.byn:9:12
+
+  9 │     high = 2
+    │            ^ already used
+    │
+  help: give each case its own value
+
+error BYN2711: `two` and `next` share the value 2
+  --> tmp/t26-tests/cli/diag_duplicate-union-value.byn/duplicate-union-value.byn:15:5
+
+  15 │     next
+     │     ^^^^ follows `one`, so it is 2
+     │
+  help: give each case its own value
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2711

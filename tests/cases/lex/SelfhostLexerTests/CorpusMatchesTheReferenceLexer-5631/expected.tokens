@@ -1,0 +1,104 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 Identifier `x`
+2:44 InterpolationEnd `}`
+2:45 InterpolatedStringEnd `"`
+2:46 InterpolationEnd `}`
+2:47 InterpolatedStringEnd `"`
+2:48 InterpolationEnd `}`
+2:49 InterpolatedStringEnd `"`
+2:50 InterpolationEnd `}`
+2:51 InterpolatedStringEnd `"`
+2:52 InterpolationEnd `}`
+2:53 InterpolatedStringEnd `"`
+2:54 InterpolationEnd `}`
+2:55 InterpolatedStringEnd `"`
+2:56 InterpolationEnd `}`
+2:57 InterpolatedStringEnd `"`
+3:8 StructKeyword `struct`
+3:15 UniqueKeyword `unique`
+3:22 UnionKeyword `union`
+3:28 EnumKeyword `enum`
+3:33 FlagsKeyword `flags`
+3:39 OpenKeyword `open`
+3:44 ExtensibleKeyword `extensible`
+3:55 InKeyword `in`
+3:57 Identifier `erface`
+3:64 DelegateKeyword `delegate`
+3:73 ExtensionKeyword `extension`
+3:83 DerivationKeyword `derivation`
+3:94 AttributeKeyword `attribute`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ /* � */struct unique union enum flags open extensible in�erface delegate extension derivation attribute
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ // �
+    │   │  +++
+    │ 4 │ struct unique union enum flags open extensible in�erface delegate extension derivation attribute
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  3 │ /* � */struct unique union enum flags open extensible in�erface delegate extension derivation attribute
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ /* � */struct unique union enum flags open extensible in�erface delegate extension derivation attribute
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  3 │ /* � */struct unique union enum flags open extensible in�erface delegate extension derivation attribute
+    │                                                         ^

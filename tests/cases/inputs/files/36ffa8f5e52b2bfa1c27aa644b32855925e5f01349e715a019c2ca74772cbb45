@@ -1,0 +1,183 @@
+import lexer
+
+string modifierText(ArgModifier m) => m switch {
+    .refKeyword => "ref ", .moveKeyword => "move ", .outKeyword => "out ", .inKeyword => "in ", .none => "",
+}
+
+void show(in Expr e, from ref Parser p, to ref StrBuf sb) {
+    switch e {
+        case .none:
+            sb.append("_")
+        case .nameExpr(let n):
+            sb.append(p.lexed.source.getText(n.value.name))
+        case .literalExpr(let n):
+            sb.append(p.lexed.source.getText(n.value.span))
+        case .parenExpr(let n):
+            sb.append("(paren ")
+            show(in n.value.inner, from: ref p, to: ref sb)
+            sb.append(")")
+        case .binaryExpr(let n):
+            sb.append($"({binaryText(n.value.op)} ")
+            show(in n.value.left, from: ref p, to: ref sb)
+            sb.append(" ")
+            show(in n.value.right, from: ref p, to: ref sb)
+            sb.append(")")
+        case .unaryExpr(let n):
+            sb.append($"({unaryText(n.value.op)} ")
+            show(in n.value.operand, from: ref p, to: ref sb)
+            sb.append(")")
+        case .rangeExpr(let n):
+            sb.append(n.value.inclusive ? "(..= " : "(.. ")
+            show(in n.value.start, from: ref p, to: ref sb)
+            sb.append(" ")
+            show(in n.value.end, from: ref p, to: ref sb)
+            sb.append(")")
+        case .inExpr(let n):
+            sb.append("(in ")
+            show(in n.value.value, from: ref p, to: ref sb)
+            sb.append(" ")
+            show(in n.value.range, from: ref p, to: ref sb)
+            sb.append(")")
+        case .conditionalExpr(let n):
+            sb.append("(? ")
+            show(in n.value.condition, from: ref p, to: ref sb)
+            sb.append(" ")
+            show(in n.value.whenTrue, from: ref p, to: ref sb)
+            sb.append(" ")
+            show(in n.value.whenFalse, from: ref p, to: ref sb)
+            sb.append(")")
+        case .indexExpr(let n):
+            sb.append("(index ")
+            show(in n.value.target, from: ref p, to: ref sb)
+            sb.append(" ")
+            show(in n.value.index, from: ref p, to: ref sb)
+            sb.append(")")
+        case .tryExpr(let n):
+            sb.append("(try ")
+            show(in n.value.operand, from: ref p, to: ref sb)
+            sb.append(")")
+        case .moveExpr(let n):
+            sb.append("(move ")
+            show(in n.value.operand, from: ref p, to: ref sb)
+            sb.append(")")
+        case .memberExpr(let n):
+            sb.append(n.value.nullConditional ? "(?. " : "(. ")
+            show(in n.value.target, from: ref p, to: ref sb)
+            sb.append($" {p.lexed.source.getText(n.value.member)})")
+        case .callExpr(let n):
+            sb.append("(call ")
+            show(in n.value.callee, from: ref p, to: ref sb)
+            for i in 0..n.value.args.length {
+                sb.append(" ")
+                let named = n.value.args[i].name is not null
+                let wrapped = named || n.value.args[i].modifier != .none
+                if wrapped { sb.append("(") }
+                if named { sb.append($"{p.lexed.source.getText(n.value.args[i].name ?? TextSpan { start: 0, length: 0 })}: ") }
+                sb.append(modifierText(n.value.args[i].modifier))
+                show(in n.value.args[i].value, from: ref p, to: ref sb)
+                if wrapped { sb.append(")") }
+            }
+            sb.append(")")
+        case .catchExpr(let n):
+            sb.append("(catch ")
+            show(in n.value.operand, from: ref p, to: ref sb)
+            if n.value.binding is not null { sb.append($" ({p.lexed.source.getText(n.value.binding ?? TextSpan { start: 0, length: 0 })})") }
+            switch n.value.variant {
+                case .none:
+                    sb.append("")
+                default:
+                    sb.append(" (variant ")
+                    show(in n.value.variant, from: ref p, to: ref sb)
+                    sb.append(")")
+            }
+            sb.append(" ")
+            show(in n.value.handler, from: ref p, to: ref sb)
+            sb.append(")")
+        case .jumpExpr(let n):
+            switch n.value.jump {
+                case .returnStmt(let r):
+                    sb.append("(return")
+                    switch r.value.value {
+                        case .none:
+                            sb.append("")
+                        default:
+                            sb.append(" ")
+                            show(in r.value.value, from: ref p, to: ref sb)
+                    }
+                    sb.append(")")
+                case .failStmt(let f):
+                    sb.append("(fail ")
+                    show(in f.value.error, from: ref p, to: ref sb)
+                    sb.append(")")
+                case .breakStmt(let b):
+                    sb.append(b.value.label is not null ? $"(break {p.lexed.source.getText(b.value.label ?? TextSpan { start: 0, length: 0 })})" : "(break)")
+                case .continueStmt(let c):
+                    sb.append(c.value.label is not null ? $"(continue {p.lexed.source.getText(c.value.label ?? TextSpan { start: 0, length: 0 })})" : "(continue)")
+                default:
+                    sb.append("?")
+            }
+        default:
+            sb.append("?")
+    }
+}
+
+void parseOne(string text, by Keywords keywords) {
+    var bytes = List<u8>()
+    for b in text.bytes { bytes.append(b) }
+    var p = Parser.create(lexer.lex(SourceText.create("t.byn", from: move bytes), by: keywords))
+    p.pos = 2
+    p.prevEnd = p.lexed.tokens[1].end
+    let e = parseExpression(ref p)
+    var sb = StrBuf()
+    show(in e, from: ref p, to: ref sb)
+    let span = exprSpan(in e)
+    sb.append($" @{span.start}..{span.end}")
+    for d in p.lexed.diagnostics { sb.append($" {d.code}@{d.span.start}..{d.span.end}") }
+    print(sb.finish())
+}
+
+void main() {
+    let keywords = Keywords.build()
+    using let arena = Arena()
+    provide allocator: arena {
+        parseOne("x = 1 + 2 * 3", by: keywords)
+        parseOne("x = a - b - c", by: keywords)
+        parseOne("x = a ?? b ?? c", by: keywords)
+        parseOne("x = a || b && c", by: keywords)
+        parseOne("x = a == b < c", by: keywords)
+        parseOne("x = a >> 1", by: keywords)
+        parseOne("x = a > b", by: keywords)
+        parseOne("x = 0..n - 1", by: keywords)
+        parseOne("x = a | b ^ c & d", by: keywords)
+        parseOne("x = -a * b", by: keywords)
+        parseOne("x = c ? a : b ? d : e", by: keywords)
+        parseOne("x = i64(a) + b", by: keywords)
+        parseOne("x = (a) + b", by: keywords)
+        parseOne("x = xs[^1]", by: keywords)
+        parseOne("x = xs[1..^1]", by: keywords)
+        parseOne("x = xs[..3]", by: keywords)
+        parseOne("x = xs[2..]", by: keywords)
+        parseOne("x = a +% b *| c", by: keywords)
+        parseOne("x = f(a, b: 2, ref c)", by: keywords)
+        parseOne("x = a < b", by: keywords)
+        parseOne("x = a?.b.c", by: keywords)
+        parseOne("x = try f() + 1", by: keywords)
+        parseOne("x = (try f()) + 1", by: keywords)
+        parseOne("x = f() catch 0", by: keywords)
+        parseOne("x = a ?? return 1", by: keywords)
+        parseOne("x = new Point()", by: keywords)
+        parseOne("x = a and b or not c", by: keywords)
+        parseOne("x = a in 0..=9", by: keywords)
+        parseOne("x = move a + b", by: keywords)
+        parseOne("x = a ?? break", by: keywords)
+        parseOne("x = a ?? fail b", by: keywords)
+        parseOne("x = f(for: a, as: b, move c, out d, in e)", by: keywords)
+        parseOne("x = f() catch (e) 0", by: keywords)
+        parseOne("x = f() catch (g()) 0", by: keywords)
+        parseOne("x = trust(a, reason: \"r\")", by: keywords)
+        parseOne("x = trust(a + b, reason: c)", by: keywords)
+        parseOne("x = a <<\n  b\n", by: keywords)
+        parseOne("x = a\n  ?? b\n", by: keywords)
+        parseOne("x = a +\n\nb\n", by: keywords)
+    }
+}

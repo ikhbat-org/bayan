@@ -1,0 +1,30 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\n $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""\n "text" "esc \"qK\" \\ \n" """`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `a`
+4:4 InterpolationStart `{`
+4:5 Identifier `b`
+4:6 InterpolationEnd `}`
+4:7 InterpolatedStringText `cr closed`
+4:16 InterpolatedStringEnd
+5:1 Identifier `b`
+6:3 OpenParen `(`
+6:5 CloseParen `)`
+6:7 OpenBracket `[`
+6:9 CloseBracket `]`
+6:11 OpenBrace `{`
+6:13 CloseBrace `}`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"a{b}cr closed
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  � ( ) [ ] { }
+    │  ^

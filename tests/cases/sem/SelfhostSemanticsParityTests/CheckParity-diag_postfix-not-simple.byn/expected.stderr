@@ -1,0 +1,18 @@
+error BYN1008: a postfix `if` applies only to a simple statement
+  --> tmp/t26-tests/cli/diag_postfix-not-simple.byn/postfix-not-simple.byn:2:16
+
+  2 │     { work() } if ok
+    │                ^^
+    │
+  help: put the condition first: `if cond { … }`
+
+error BYN1008: a postfix `if` applies only to a simple statement
+  --> tmp/t26-tests/cli/diag_postfix-not-simple.byn/postfix-not-simple.byn:3:15
+
+  3 │     let x = 1 if ok
+    │               ^^
+    │
+  help: declare the variable, then assign it conditionally; a declaration cannot be conditional
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1008

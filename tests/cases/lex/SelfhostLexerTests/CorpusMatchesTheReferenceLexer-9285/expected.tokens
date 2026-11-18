@@ -1,0 +1,65 @@
+2:1 IntegerLiteral `0x`
+2:3 NumericSuffix `Y_m`
+3:1 IntegerLiteral `0b__`
+4:1 IntegerLiteral `1__`
+5:1 IntegerLiteral `0xF__`
+6:1 Identifier `b`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolatedStringText `stray } here`
+7:16 InterpolatedStringEnd `"`
+8:1 LetKeyword `let`
+8:5 Identifier `b`
+8:7 Equals `=`
+8:11 IntegerLiteral `2`
+9:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0xY_m
+    │ ^^
+
+error BYN0011: unit suffix `Y_m` is not allowed on a hexadecimal literal
+
+  2 │ 0xY_m
+    │   ^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  7 │  $"stray } here"
+    │          ^
+    │
+    │ 7 │  $"stray }} here"
+    │   │           +
+
+error BYN0002: unexpected character ```
+
+  8 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\`
+
+  9 │ \
+    │ ^

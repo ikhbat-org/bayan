@@ -1,0 +1,27 @@
+type Id = i64
+enum Color {
+    red
+    green
+}
+union error Oops {
+    bad
+    worse(i64 code)
+}
+struct Point {
+    public i64 x
+    public i64 y
+    public i64 sum => x + y
+}
+interface IShape {
+    i64 area()
+}
+i64 twice(i64 x) => (x * 2)
+void main() {
+    let p = Point { x: 1, y: 2 }
+    print($"{p.sum} {twice(2)}")
+}
+
+@cases((1, 2), (3, 4)) because "two pairs"
+test "pairs" (i64 a, i64 b) {
+    assert(a < b)
+}

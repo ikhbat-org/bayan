@@ -1,0 +1,4 @@
+== diags.run/pending-peers-q74-mirror
+BYN2311 2:5 `b` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 2:1-2:4 let

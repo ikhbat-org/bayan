@@ -1,0 +1,47 @@
+== tests/cases/diag/for-dyn-ref-span-index.byn
+315..316 nameExpr
+315..316 nameExpr
+315..316 nameExpr
+329..530 blockStmt
+335..352 localDecl
+343..352 callExpr
+357..377 exprStmt
+357..377 callExpr
+357..358 nameExpr
+366..376 structLiteralExpr
+373..374 literalExpr integer
+382..406 localDecl
+391..406 callExpr
+411..428 exprStmt
+411..428 callExpr
+411..413 nameExpr
+421..427 argument
+426..427 nameExpr
+433..448 localDecl
+441..445 moveExpr
+446..448 nameExpr
+453..502 forStmt
+474..489 indexExpr
+474..486 callExpr
+479..485 memberExpr
+479..480 nameExpr
+487..488 literalExpr integer
+490..502 blockStmt
+492..500 exprStmt
+492..500 callExpr
+492..493 nameExpr
+507..528 exprStmt
+507..528 callExpr
+513..527 interpolatedExpr
+516..525 memberExpr
+516..523 indexExpr
+516..520 indexExpr
+516..517 nameExpr
+518..519 literalExpr integer
+521..522 literalExpr integer
+507..528 callExpr
+247..257 blockStmt
+249..255 assignStmt add target 249..250 value 254..255
+249..250 nameExpr
+249..250 nameExpr
+254..255 literalExpr integer

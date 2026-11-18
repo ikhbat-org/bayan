@@ -1,0 +1,6 @@
+== s22
+switchExpr|i32|2609:38
+value local:NetError=ne
+arm 2621:16 binaryPattern[2621:11]:NetError(and constantPattern[2621:11]:NetError(errorVariant:DiskError=full),bindPattern[2621:11]:NetError(d:DiskError:o:-:let)) guard - value literal:i32=1
+arm 2639:6 bindPattern[2639:1]:NetError_(-) guard - value literal:i32=0
+BYN2411 93:27 `DiskError` cannot match `NetError` |||

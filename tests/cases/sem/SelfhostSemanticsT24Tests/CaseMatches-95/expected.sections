@@ -1,0 +1,2 @@
+== analyzeOwnership.branches
+BYN2781 103:14 `xs` is used after it was moved |moved on line 99|assign `xs` a new value before using it again, or move a `.copy(to: alloc)` of it instead|

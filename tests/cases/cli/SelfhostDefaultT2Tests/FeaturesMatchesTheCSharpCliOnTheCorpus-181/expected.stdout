@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "ErrorEnumDecl",
+    "ExprStmt",
+    "FailStmt",
+    "FunctionDecl",
+    "GuardedStmt",
+    "LiteralExpr",
+    "NameExpr",
+    "TargetMemberExpr",
+    "TryExpr"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

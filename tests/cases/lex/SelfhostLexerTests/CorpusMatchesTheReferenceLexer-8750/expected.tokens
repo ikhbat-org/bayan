@@ -1,0 +1,68 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+2:2 IntegerLiteral `0b102`
+3:4 LetKeyword `let`
+3:8 Identifier `actor`
+3:14 Equals `=`
+3:16 IntegerLiteral `1`
+5:1 OpenBrace `{`
+5:4 EndOfFile
+
+error BYN0002: unexpected character `\u{19}`
+
+  1 │ let café = 2�
+    │             ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │  0b102
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │  ��� let actor = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │  ��� let actor = 1
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ��� let actor = 1
+    │    ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │  ��� let actor = 1
+    │          ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ { �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ { �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ { �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ { �����
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ { �����
+    │       ^

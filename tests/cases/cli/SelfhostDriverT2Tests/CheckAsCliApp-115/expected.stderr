@@ -1,0 +1,18 @@
+error BYN2029: `it` inside a lambda that already uses `it`; name one lambda
+  --> <repo>/tmp/t2/diag/lambda-nested-it/lambda-nested-it.byn:13:42
+
+  13 │     List<i64> items requires any(it, by: it > 0)
+     │                                          ^^
+     │
+  help: name the lambda's parameter: `x => …`
+
+error BYN2029: `it` inside a lambda that already uses `it`; name one lambda
+  --> <repo>/tmp/t2/diag/lambda-nested-it/lambda-nested-it.byn:18:35
+
+  18 │     if first(xss, by: any(it, by: it > 1)) {
+     │                                   ^^
+     │
+  help: name the inner lambda's parameter: `x => …`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2029

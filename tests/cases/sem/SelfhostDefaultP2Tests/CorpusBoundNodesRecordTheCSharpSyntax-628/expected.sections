@@ -1,0 +1,8 @@
+== tests/cases/diag/lambda-move.byn
+12..51 blockStmt
+18..49 localDecl
+37..41 moveExpr
+42..49 lambdaExpr
+48..49 literalExpr integer
+48..49 literalExpr integer
+48..49 literalExpr integer

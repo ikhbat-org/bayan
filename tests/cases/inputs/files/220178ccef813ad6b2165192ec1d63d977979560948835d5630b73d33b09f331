@@ -1,0 +1,5 @@
+$"{"if else unless switch case default for in while do br�eak continue return yield defer errdefer using context
+ $"aA{b}c
+'
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '[0'
+let café = 1

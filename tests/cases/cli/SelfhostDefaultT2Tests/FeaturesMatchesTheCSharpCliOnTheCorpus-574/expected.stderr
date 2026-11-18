@@ -1,0 +1,6 @@
+error BYN2106: cannot modify this value
+  --> <repo>/tests/cases/diag/for-dyn-ref-with.byn:18:26
+
+  18 │     for x: dyn ref IC in (a with { k: 2 }).items { x.bump() }
+     │                          ^^^^^^^^^^^^^^^^^^^^^^^ it is borrowed element by element as
+     │                                                  `dyn ref IC`

@@ -1,0 +1,22 @@
+1:3 Identifier `Q`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �$�Q�
+    │ ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ �$�Q�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ �$�Q�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  1 │ �$�Q�
+    │     ^

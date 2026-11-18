@@ -1,0 +1,2 @@
+macro select become
+$"total {x}" $"a {Yf($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""

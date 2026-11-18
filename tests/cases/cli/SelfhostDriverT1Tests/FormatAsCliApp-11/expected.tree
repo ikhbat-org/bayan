@@ -1,0 +1,9 @@
+== .worktrees/x/a.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+unless !a { print("y") }
+== src/ok.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+unless !a { print("y") }
+== tmp/b.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+unless !a { print("y") }

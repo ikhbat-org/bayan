@@ -1,0 +1,2 @@
+== diags.diag/coalesce-not-optional
+BYN2210 2:9 `??` needs an optional value on the left, found `i64`

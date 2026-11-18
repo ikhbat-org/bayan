@@ -1,0 +1,17 @@
+1:3 Identifier `퀀`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ ���퀀
+    │ ^
+
+error BYN0002: unexpected character `\u{1B}`
+
+  1 │ ���퀀
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ ���퀀
+    │   ^

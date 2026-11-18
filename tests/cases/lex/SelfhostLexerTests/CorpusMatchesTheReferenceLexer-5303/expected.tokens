@@ -1,0 +1,61 @@
+2:1 StructKeyword `struct`
+2:8 Identifier `S`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Identifier `fé`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+4:14 Semicolon `;`
+5:1 Identifier `struJct`
+5:9 Identifier `S`
+6:1 IntegerLiteral `0x`
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  4 │ let c�fé = 1;
+    │      ^
+
+error BYN0005: identifier `fé` is not in Unicode normalization form C
+
+  4 │ let c�fé = 1;
+    │       ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ let c�fé = 1;
+    │   │        +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  7 │ �
+    │ ^

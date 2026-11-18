@@ -1,0 +1,84 @@
+import lexer
+
+i32 main(ReadOnlySpan<string> args) {
+    var c = fromPath(args[0], by: in CompilationOptions { includeTests: true, capabilities: ["fs"] })
+    var i = 1
+    while i + 2 < args.length {
+        let text = lexer.SourceText.create(args[i + 1], from: t11ReadAllBytes(args[i + 2]))
+        let next = withFile(in c, from: in text)
+        c = move next
+        print($"== {args[i]}")
+        if c.diagnostics.length == 0 { print("(no diagnostics)") }
+        for d in c.diagnostics {
+            let pos = linePosition(c.files[d.file].text.span, at: d.span.start)
+            print($"diag {d.code} {c.files[d.file].displayPath} {pos.line}:{pos.column} {d.message} | {d.label} | {d.help}")
+        }
+        Io.stdout.write(p2Print(in c, at: $"{args[i]} nodes"))
+        i += 3
+    }
+    return 0
+}
+string p2Print(in Ctx c, at string path) uses alloc {
+    var sb = StrBuf()
+    sb.append($"== {path}\n")
+    var functions = List<FuncId>()
+    var seen: Map<FuncId, bool> = []
+    for m in 0..c.modules.length {
+        for f in c.modules[m].allFunctions {
+            unless seen.contains(f) { functions.append(f) }
+            seen[f] = true
+        }
+        for t in c.modules[m].tests {
+            let f = c.tests[t].function
+            unless seen.contains(f) { functions.append(f) }
+            seen[f] = true
+        }
+    }
+    for fn in functions {
+        let body = c.functions[fn].body
+        if body == -1 || boundKind(body) != .block { continue }
+        for n in descendants(in c, for: body) { sb.append($"{p2Line(in c, for: n)}\n") }
+    }
+    // Field defaults and constant initializers, bound outside any body.
+    for m in 0..c.modules.length {
+        for s in c.modules[m].structs {
+            for f in c.structs[s].fields {
+                let d = c.fields[f].defaultValue
+                if d != -1 { for n in descendants(in c, for: d) { sb.append($"{p2Line(in c, for: n)}\n") } }
+            }
+        }
+        for k in c.modules[m].allConstants {
+            let v = c.consts[k].bound
+            if v != -1 { for n in descendants(in c, for: v) { sb.append($"{p2Line(in c, for: n)}\n") } }
+        }
+    }
+    return $"{sb.finish()}"
+}
+
+string p2Span(TextSpan s) uses alloc => $"{s.start}..{s.end}"
+
+string p2Line(in Ctx c, for BNode n) uses alloc {
+    // A node records one `Syntax`: ` both` (never in the C# lines) when it has the two.
+    let other = nodeSyntax(in c, for: n)
+    if (exprSyntax(in c, for: n) is { } e) {
+        var sb = StrBuf()
+        sb.append($"{p2Span(e.span)} {e.kind}")
+        if e.kind == .binaryExpr { sb.append($" {e.binaryOp} right {p2Span(e.right)}") }
+        if e.kind == .unaryExpr { sb.append($" {e.op} operand {p2Span(exprSyntaxNode(in c, at: e.operand).span)}") }
+        if e.kind == .literalExpr {
+            sb.append($" {e.literalKind}")
+            if (e.suffix is { } x) { sb.append($" suffix {p2Span(x)}") }
+        }
+        if e.becauseKeyword { sb.append(" because") }
+        if other is not null { sb.append(" both") }
+        return $"{sb.finish()}"
+    }
+    if (other is { } s) {
+        var sb = StrBuf()
+        sb.append($"{p2Span(s.span)} {s.kind}")
+        if s.kind == .assignStmt { sb.append($" {s.assignOp} target {p2Span(s.target)}") }
+        if (s.value is { } v) { sb.append($" value {p2Span(v)}") }
+        return $"{sb.finish()}"
+    }
+    return $"{p2Span(nodeSpan(in c, for: n))} -"
+}

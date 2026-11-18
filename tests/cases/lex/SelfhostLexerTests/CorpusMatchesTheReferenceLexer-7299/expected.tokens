@@ -1,0 +1,21 @@
+1:1 Identifier `i`
+1:6 Identifier `omment`
+1:13 Star `*`
+1:14 Slash `/`
+1:16 Identifier `a`
+3:1 Identifier `Å`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ i   �omment */ a
+    │     ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ Å
+    │   │ +

@@ -1,0 +1,8 @@
+ = "open
+let b = "bad \q escape"
+le & && | || ^ ~ ! = == != < <= > >= << >> >>=
+
+let b = "bad \q escape"
+
+feÌ = !1
+let cafÃ $"{a

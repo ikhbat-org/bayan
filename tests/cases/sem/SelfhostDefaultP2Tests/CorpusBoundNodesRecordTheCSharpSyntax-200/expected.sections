@@ -1,0 +1,89 @@
+== tests/cases/run/memory-readonly-span.byn
+48..142 blockStmt
+54..68 localDecl
+67..68 literalExpr integer
+73..127 forStmt
+82..86 nameExpr
+87..127 blockStmt
+97..121 assignStmt add target 97..98 value 102..121
+97..98 nameExpr
+102..121 conditionalExpr
+102..113 binaryExpr eq right 107..113
+102..103 nameExpr
+107..113 nameExpr
+116..117 literalExpr integer
+120..121 literalExpr integer
+132..140 returnStmt value 139..140
+139..140 nameExpr
+178..268 blockStmt
+184..202 localDecl
+201..202 literalExpr integer
+207..249 forStmt
+216..222 nameExpr
+223..249 blockStmt
+233..243 assignStmt add target 233..238 value 242..243
+233..238 nameExpr
+242..243 nameExpr
+254..266 returnStmt value 261..266
+261..266 nameExpr
+270..289 globalStatement
+270..289 localDecl
+281..289 literalExpr string
+290..312 localDecl
+302..312 memberExpr
+302..306 nameExpr
+313..356 localDecl
+344..356 indexExpr
+344..349 nameExpr
+350..351 literalExpr integer
+354..355 literalExpr integer
+357..382 localDecl
+371..382 callExpr
+383..400 exprStmt
+383..400 callExpr
+383..390 nameExpr
+398..399 literalExpr integer
+401..418 exprStmt
+401..418 callExpr
+401..408 nameExpr
+416..417 literalExpr integer
+419..448 localDecl
+439..448 collectionExpr
+440..441 literalExpr integer
+443..444 literalExpr integer
+446..447 literalExpr integer
+449..489 localDecl
+479..489 memberExpr
+479..484 nameExpr
+490..590 exprStmt
+490..590 callExpr
+496..589 interpolatedExpr
+499..520 callExpr
+505..509 nameExpr
+505..509 nameExpr
+516..519 literalExpr char
+523..545 callExpr
+529..534 nameExpr
+541..544 literalExpr char
+548..571 callExpr
+554..560 nameExpr
+567..570 literalExpr char
+574..587 memberExpr
+574..580 nameExpr
+490..590 callExpr
+591..657 exprStmt
+591..657 callExpr
+597..656 interpolatedExpr
+600..612 callExpr
+604..611 nameExpr
+604..611 nameExpr
+615..625 callExpr
+619..624 nameExpr
+619..624 nameExpr
+628..637 callExpr
+632..636 nameExpr
+640..654 callExpr
+644..653 indexExpr
+644..648 nameExpr
+649..650 literalExpr integer
+591..657 callExpr

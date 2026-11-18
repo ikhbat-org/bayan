@@ -1,0 +1,23 @@
+1:1 Greater `>`
+1:2 Identifier `et`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never closed\r\nlet a = $ 1\r\nt<List<i64>>\r\na >> b\r\nc >>= 1\r\n\r\n�� '\u{D800}'\r\n\r\r\n 0x `
+9:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ >et c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  7 │ �� '\u{D800}'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ �� '\u{D800}'
+    │  ^

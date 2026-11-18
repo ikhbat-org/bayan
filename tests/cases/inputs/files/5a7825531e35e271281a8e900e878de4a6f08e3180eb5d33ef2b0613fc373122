@@ -1,0 +1,11 @@
+b
+   """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+'\q'
+gs" "" "\u{48}i"
+ ạ̇
+let c = 3
+
+a >> b
+
+$"stray } here"
+

@@ -1,0 +1,6 @@
+== case inline/style-lint-list
+errors 1
+error BYN3102: `style.lints` must be a map from a lint name to `.none`, `.suggestion`, `.warning` or
+`.error`, e.g. `["guards.postfix": .warning]`
+  1 │ Package { name: "local/a", version: "0.1.0", style: Style { lints: ["lambdas.it"] } }
+    │                                                                    ^^^^^^^^^^^^^^

@@ -1,0 +1,36 @@
+1:1 Identifier `é`
+2:1 IntegerLiteral `0`
+2:3 IntegerLiteral `42`
+2:6 IntegerLiteral `1_000_000`
+2:16 IntegerLiteral `0xFF`
+2:21 IntegerLiteral `0x_ff`
+2:27 IntegerLiteral `0b1010`
+2:34 IntegerLiteral `0B11`
+2:39 IntegerLiteral `5`
+2:40 NumericSuffix `s`
+2:42 IntegerLiteral `250`
+2:45 NumericSuffix `ms`
+2:48 IntegerLiteral `4`
+2:49 NumericSuffix `KiB`
+2:53 IntegerLiteral `1`
+2:54 NumericSuffix `u`
+2:56 IntegerLiteral `0xFF`
+2:60 NumericSuffix `u`
+2:62 IntegerLiteral `0b1`
+2:65 NumericSuffix `ul`
+2:68 IntegerLiteral `7`
+2:69 NumericSuffix `l`
+3:5 Identifier `comment`
+3:13 Star `*`
+3:14 Slash `/`
+3:16 Identifier `a`
+5:1 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é
+    │   │ +

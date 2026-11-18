@@ -1,0 +1,13 @@
+'\u{110000}'
+// ok ˛ in comment
+
++ - * / % +% -% *% +| -| *| ++ --
+ ‚Å©
+3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+
+ 1
+let effect = 2
+macro select become
+let law =3
+
+/// Doc line one.

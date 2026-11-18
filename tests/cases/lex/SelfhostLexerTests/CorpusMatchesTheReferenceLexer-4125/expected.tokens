@@ -1,0 +1,70 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+2:11 LetKeyword `let`
+2:15 LawKeyword `law`
+2:19 Equals `=`
+2:21 IntegerLiteral `3`
+3:3 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = � 3
+    │         ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │  /* � */ �let law = 3
+    │  ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │  // �
+    │   │   +++
+    │ 3 │   �let law = 3
+    │   │ +
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  2 │  /* � */ �let law = 3
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  /* � */ �let law = 3
+    │   │     -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  /* � */ �let law = 3
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  /* � */ �let law = 3
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  /* � */ �let law = 3
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │  ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │  ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ����
+    │     ^

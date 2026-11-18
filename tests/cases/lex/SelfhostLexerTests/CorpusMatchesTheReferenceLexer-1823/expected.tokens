@@ -1,0 +1,15 @@
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `a`
+2:5 InterpolationStart `{`
+2:6 Identifier `b`
+2:7 InterpolationEnd `}`
+2:8 InterpolatedStringText `cd defer errdefer sing context`
+2:38 InterpolatedStringEnd
+4:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"a{b}cd defer errdefer sing context
+    │  ^^ this string never ends
+    │
+  help: close it with `"`

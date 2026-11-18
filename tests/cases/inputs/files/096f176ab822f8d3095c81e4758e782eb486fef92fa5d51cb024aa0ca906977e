@@ -1,0 +1,10 @@
+// comment ‮ hidden
+ �
+let b = "bad \q escape"
+
+let café = 1
+/// Do line one.
+ me
+
+'x
+‮ 

@@ -1,0 +1,6 @@
+error set unit distinct type import as public private static readonly required const let var ebed extern unsafe
+
+let c =  3
+ $"{"$"{"
+let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+

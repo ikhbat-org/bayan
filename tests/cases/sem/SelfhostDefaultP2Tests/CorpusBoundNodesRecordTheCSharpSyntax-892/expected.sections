@@ -1,0 +1,13 @@
+== tests/cases/diag/too-many-arguments.byn
+20..25 binaryExpr mul right 24..25
+20..25 binaryExpr mul right 24..25
+20..25 binaryExpr mul right 24..25
+20..21 nameExpr
+24..25 literalExpr integer
+26..49 globalStatement
+26..49 exprStmt
+26..49 callExpr
+32..48 interpolatedExpr
+35..46 callExpr
+41..42 literalExpr integer
+26..49 callExpr

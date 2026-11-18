@@ -1,0 +1,112 @@
+== tests/cases/run/validation-error-composed.byn
+374..500 blockStmt
+380..413 localDecl
+388..413 tryExpr
+392..413 structLiteralExpr
+392..413 structLiteralExpr
+407..411 nameExpr
+418..452 localDecl
+426..452 tryExpr
+430..452 structLiteralExpr
+430..452 structLiteralExpr
+446..450 nameExpr
+457..498 exprStmt
+457..498 callExpr
+463..497 interpolatedExpr
+477..483 memberExpr
+477..478 nameExpr
+489..495 memberExpr
+489..490 nameExpr
+457..498 callExpr
+544..725 blockStmt
+550..723 exprStmt
+550..723 catchExpr
+550..574 callExpr
+559..563 nameExpr
+569..573 nameExpr
+581..723 switchExpr
+581..587 caughtErrorExpr
+598..623 declarationPattern
+598..623 declarationPattern
+598..623 declarationPattern
+598..623 declarationPattern
+627..651 callExpr
+633..650 literalExpr string
+627..651 callExpr
+661..687 declarationPattern
+661..687 declarationPattern
+661..687 declarationPattern
+661..687 declarationPattern
+691..716 callExpr
+697..715 literalExpr string
+691..716 callExpr
+739..836 blockStmt
+745..774 exprStmt
+745..774 callExpr
+753..760 literalExpr string
+766..773 literalExpr string
+779..805 exprStmt
+779..805 callExpr
+787..791 literalExpr string
+797..804 literalExpr string
+810..834 exprStmt
+810..834 callExpr
+818..825 literalExpr string
+831..833 literalExpr string
+108..176 structDecl
+108..176 structDecl
+108..176 structDecl
+108..176 structDecl
+108..176 structDecl
+148..174 requiresRule
+148..174 requiresRule
+157..174 binaryExpr ge right 173..174
+157..169 memberExpr
+157..159 nameExpr
+157..159 nameExpr
+173..174 literalExpr integer
+148..174 requiresRule
+148..174 requiresRule
+148..174 requiresRule
+148..174 requiresRule
+148..174 requiresRule
+148..174 requiresRule
+148..174 requiresRule
+148..174 requiresRule
+148..174 requiresRule
+148..174 requiresRule
+108..176 structDecl
+108..176 structDecl
+108..176 structDecl
+108..176 structDecl
+108..176 structDecl
+108..176 structDecl
+108..176 structDecl
+178..238 structDecl
+178..238 structDecl
+178..238 structDecl
+178..238 structDecl
+178..238 structDecl
+219..236 requiresRule
+219..236 requiresRule
+228..236 binaryExpr ne right 234..236
+228..230 nameExpr
+228..230 nameExpr
+234..236 literalExpr string
+219..236 requiresRule
+219..236 requiresRule
+219..236 requiresRule
+219..236 requiresRule
+219..236 requiresRule
+219..236 requiresRule
+219..236 requiresRule
+219..236 requiresRule
+219..236 requiresRule
+219..236 requiresRule
+178..238 structDecl
+178..238 structDecl
+178..238 structDecl
+178..238 structDecl
+178..238 structDecl
+178..238 structDecl
+178..238 structDecl

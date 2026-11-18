@@ -1,0 +1,58 @@
+== x-switch-move
+BYN2783 21:23 `items` borrows from what it was bound to and cannot be changed or moved |moving it would take the value out of what it borrows from|move or copy the value it was bound to instead|
+BYN2790 29:14 pattern `let x and let y` binds the same storage more than once in `switch move …` ||bind the whole value or its parts, not both|
+fn borrowed
+block 276..377
+  switchStmt 282..375
+    local 289..290 : Box
+    unionPattern 306..322
+      bindPattern 312..315
+    exprStmt 336..352
+      call 336..352 : void
+        moveExpr 341..351 : List<i64>
+          local 346..351 : List<i64>
+fn check
+block 118..122
+  returnStmt 118..122
+    literal 118..122 : bool
+fn guarded
+block 546..675
+  switchStmt 552..673
+    moveExpr 559..563 : Box
+      local 564..565 : Box
+    unionPattern 581..597
+      bindPattern 587..590
+    call 603..620 : bool
+      moveExpr 609..619 : List<i64>
+        local 614..619 : List<i64>
+    exprStmt 634..650
+      call 634..650 : void
+        literal 640..649 : string
+        enumMember 634..650 : Stream
+fn keep
+block 80..83
+fn overlap
+block 394..519
+  localDecl 400..419
+    collection 408..419 : List<i64>
+  switchStmt 424..517
+    moveExpr 431..435 : List<i64>
+      local 436..437 : List<i64>
+    binaryPattern 453..468
+      bindPattern 453..456
+      bindPattern 463..466
+    exprStmt 482..494
+      call 482..494 : void
+        moveExpr 487..493 : List<i64>
+          local 492..493 : List<i64>
+fn owned
+block 147..253
+  switchStmt 153..251
+    moveExpr 160..164 : Box
+      local 165..166 : Box
+    unionPattern 182..198
+      bindPattern 188..191
+    exprStmt 212..228
+      call 212..228 : void
+        moveExpr 217..227 : List<i64>
+          local 222..227 : List<i64>

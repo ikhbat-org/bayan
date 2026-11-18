@@ -1,0 +1,18 @@
+error BYN2019: `weight` is a method, not a value
+  --> input.byn:15:6
+
+  15 │ show(box.weight)
+     │      ^^^^^^^^^^
+     │
+  help: call it: `weight()`
+
+error BYN2019: `copy` is a method, not a value
+  --> input.byn:17:9
+
+  17 │ showAll(items.copy)
+     │         ^^^^^^^^^^
+     │
+  help: call it: `copy()`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2019

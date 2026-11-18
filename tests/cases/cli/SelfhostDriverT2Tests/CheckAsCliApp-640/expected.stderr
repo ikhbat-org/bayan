@@ -1,0 +1,8 @@
+error BYN1002: expected an expression, found keyword `let`
+  --> <repo>/tmp/t2/diag/recovery/recovery.byn:3:5
+
+  3 │     let y = 2
+    │     ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1002

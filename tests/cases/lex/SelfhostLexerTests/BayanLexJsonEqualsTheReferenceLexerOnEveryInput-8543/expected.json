@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"RawStringLiteral","start":0,"end":41,"text":"\"\"\"\nb\n$\"{}\"//// not a doc comment\n 0b__\n ","doc":null},{"kind":"EndOfFile","start":41,"end":41,"text":"","doc":null}],"diagnostics":[{"code":"BYN0003","severity":"error","start":0,"end":3,"message":"unterminated string literal","label":"raw string starts here","help":"close it with `\"\"\"`","fixes":[]}]}

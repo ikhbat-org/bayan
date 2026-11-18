@@ -1,0 +1,53 @@
+1:1 CharLiteral `' $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:3 StringLiteral `"text"`
+3:10 StringLiteral `"esc \"q\" \\ \n"`
+3:28 RawStringLiteral `"""\n �����'ab'\n\n`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ ' $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ � "text" "esc \"q\" \\ \n" """
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ � "text" "esc \"q\" \\ \n" """
+    │                            ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │  �����'ab'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │  �����'ab'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����'ab'
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����'ab'
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����'ab'
+    │      ^

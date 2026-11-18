@@ -1,0 +1,5 @@
+== diags.diag/noun-on-mutator
+BYN5101 4:17 `total` is a noun on a `ref this` member; name the action
+  help rename it with the verb for what it does to `this`
+BYN5101 8:17 `sizeUp` is a noun on a `ref this` member; name the action
+  help rename it with the verb for what it does to `this`

@@ -1,0 +1,32 @@
+== tests/cases/diag/return-error-input.byn
+202..302 blockStmt
+208..234 guardedStmt
+225..234 memberExpr
+225..226 nameExpr
+208..221 returnStmt value 215..221
+215..221 targetMemberExpr
+239..280 guardedStmt
+268..280 binaryExpr gt right 279..280
+268..276 memberExpr
+268..269 nameExpr
+279..280 literalExpr integer
+239..264 returnStmt value 246..264
+246..264 memberExpr
+285..300 returnStmt value 292..300
+292..300 memberExpr
+292..293 nameExpr
+424..509 blockStmt
+430..459 guardedStmt
+447..459 binaryExpr gt right 458..459
+447..455 memberExpr
+447..448 nameExpr
+458..459 literalExpr integer
+430..434 failStmt
+435..443 targetMemberExpr
+464..490 guardedStmt
+481..490 memberExpr
+481..482 nameExpr
+464..477 returnStmt value 471..477
+471..477 targetMemberExpr
+495..507 returnStmt value 502..507
+502..507 targetMemberExpr

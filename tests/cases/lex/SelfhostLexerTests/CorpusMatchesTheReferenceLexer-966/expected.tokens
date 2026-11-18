@@ -1,0 +1,142 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:27 StringLiteral `"{$"`
+1:31 OpenBrace `{`
+1:32 InterpolatedStringStart `$"`
+1:34 InterpolationStart `{`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolationStart `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 InterpolatedStringStart `$"`
+1:52 InterpolationStart `{`
+1:53 InterpolatedStringStart `$"`
+1:55 InterpolationStart `{`
+1:56 StringLiteral `$"{$"`
+1:61 OpenBrace `{`
+1:62 Identifier `x`
+1:63 CloseBrace `}`
+1:64 StringLiteral `"}"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 CloseBrace `}`
+1:84 StringLiteral `"}"`
+1:87 InterpolationEnd `}`
+1:88 InterpolatedStringEnd `"`
+1:89 InterpolationEnd `}`
+1:90 InterpolatedStringEnd `"`
+1:91 InterpolationEnd `}`
+1:92 InterpolatedStringEnd `"`
+1:93 InterpolationEnd `}`
+1:94 InterpolatedStringEnd `"`
+1:95 InterpolationEnd `}`
+1:96 InterpolatedStringEnd `"`
+1:98 IntegerLiteral `0`
+1:100 IntegerLiteral `42`
+1:103 IntegerLiteral `1_00_000`
+1:112 IntegerLiteral `0xFF`
+1:117 IntegerLiteral `0x_ff`
+1:123 IntegerLiteral `0b1010`
+1:130 IntegerLiteral `0B11`
+1:135 IntegerLiteral `5`
+1:136 NumericSuffix `s`
+1:138 IntegerLiteral `250`
+1:141 NumericSuffix `ms`
+1:144 IntegerLiteral `4`
+1:145 NumericSuffix `KiB`
+1:149 IntegerLiteral `1`
+1:150 NumericSuffix `u`
+1:152 IntegerLiteral `0xFF`
+1:156 NumericSuffix `u`
+1:158 IntegerLiteral `0b1`
+1:161 NumericSuffix `ul`
+1:164 IntegerLiteral `7`
+1:165 NumericSuffix `l`
+2:1 StringLiteral `"{// comment \u{202E} hidden`
+3:2 Plus `+`
+3:4 Minus `-`
+3:6 Star `*`
+3:8 Slash `/`
+3:10 Percent `%`
+3:12 PlusPercent `+%`
+3:15 MinusPercent `-%`
+3:18 StarPercent `*%`
+3:21 PlusBar `+|`
+3:24 MinusBar `-|`
+3:27 StarBar `*|`
+3:30 PlusPlus `++`
+3:33 MinusMinus `--`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 0 42 1_00_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 0 42 1_00_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC8)
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 0 42 1_00_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                          ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 0 42 1_00_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                                                        ^^
+
+error BYN0003: unterminated string literal
+
+  2 │ "{// comment � hidden
+    │ ^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `‏`
+
+  3 │ ‏+ - * / % +% -% *%� +| -| *| ++ --
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9C)
+
+  3 │ ‏+ - * / % +% -% *%� +| -| *| ++ --
+    │                    ^

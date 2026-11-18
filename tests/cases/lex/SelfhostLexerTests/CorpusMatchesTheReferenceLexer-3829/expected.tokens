@@ -1,0 +1,28 @@
+4:1 Identifier `b`
+6:2 IntegerLiteral `2`
+8:1 IntegerLiteral `1__`
+9:1 Identifier `c`
+9:3 Identifier `line`
+9:8 Identifier `two`
+9:11 Dot `.`
+10:1 StructKeyword `struct`
+10:8 Identifier `S`
+10:15 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 1__
+    │  ^^
+    │
+    │ 8 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xEA)
+
+  10 │ struct S�//// 
+     │         ^

@@ -1,0 +1,25 @@
+1:1 Identifier `rror`
+1:6 SetKeyword `set`
+1:10 UnitKeyword `unit`
+1:15 DistinctKeyword `distinct`
+1:24 TypeKeyword `type`
+1:29 ImportKeyword `import`
+1:36 AsKeyword `as`
+1:39 PublicKeyword `public`
+1:46 PrivateKeyword `private`
+1:54 Identifier `stati`
+1:60 ReadonlyKeyword `readonly`
+1:69 RequiredKeyword `required`
+1:78 ConstKeyword `const`
+1:84 LetKeyword `let`
+1:88 VarKeyword `var`
+1:92 EmbedKeyword `embed`
+1:98 ExternKeyword `extern`
+1:105 UnsafeKeyword `unsafe`
+2:2 Identifier `_`
+2:5 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │  _ �
+    │    ^

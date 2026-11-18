@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"IntegerLiteral","start":0,"end":1,"text":"1","doc":null},{"kind":"CloseBrace","start":22,"end":23,"text":"}","doc":{"start":3,"end":20}},{"kind":"EndOfFile","start":24,"end":24,"text":"","doc":null}],"diagnostics":[]}

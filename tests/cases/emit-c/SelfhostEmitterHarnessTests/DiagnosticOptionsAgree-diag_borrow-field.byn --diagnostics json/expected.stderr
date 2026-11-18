@@ -1,0 +1,1 @@
+{"code":"BYN3001","severity":"error","file":"input.byn","span":{"start":20,"end":28,"line":2,"column":5,"endLine":2,"endColumn":13},"message":"a struct field cannot hold a borrowed `Span<u8>`","label":null,"help":"store a `List` copied with `.copy(to: alloc)` instead; storing borrows in structs arrives in a later version","fixes":[]}

@@ -1,0 +1,61 @@
+3:1 Identifier `é`
+3:2 CharLiteral `' '`
+3:7 CharLiteral `' '`
+3:11 IntegerLiteral `0`
+3:12 CharLiteral `'\r`
+4:1 LetKeyword `let`
+4:5 EffectKeyword `effect`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
+5:2 FloatLiteral `3.4`
+5:6 FloatLiteral `1e5`
+5:10 FloatLiteral `2.5e-3`
+5:17 FloatLiteral `6E+2`
+5:22 FloatLiteral `1.50`
+5:26 NumericSuffix `dec`
+5:30 IntegerLiteral `1`
+5:31 DotDot `..`
+5:33 IntegerLiteral `2`
+5:35 IntegerLiteral `1`
+5:36 DotDotEquals `..=`
+5:39 IntegerLiteral `3`
+5:41 IntegerLiteral `5`
+5:42 NumericSuffix `e`
+5:44 Identifier `x`
+5:45 Dot `.`
+5:46 Identifier `y`
+5:48 FloatLiteral `2.5`
+5:51 NumericSuffix `f`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in come�nt
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF9)
+
+  1 │ // ok � in come�nt
+    │                ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ é' '\\' '\0'
+    │     ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ é' '\\' '\0'
+    │      ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ é' '\\' '\0'
+    │          ^
+
+error BYN0008: unterminated char literal
+
+  3 │ é' '\\' '\0'
+    │            ^
+    │
+  help: close it with `'`

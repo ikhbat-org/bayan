@@ -1,0 +1,49 @@
+2:2 Equals `=`
+2:4 IntegerLiteral `2`
+5:1 CharLiteral `'\u{202E}'`
+7:1 Identifier `각`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  1 │ // ��9
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // ��9
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // ��9
+    │   │     -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ '�'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ '�'
+    │   │  -
+
+error BYN0002: unexpected character `̈́`
+
+  6 │ ̈́
+    │ ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  7 │ 각
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ 각
+    │   │ +

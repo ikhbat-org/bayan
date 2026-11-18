@@ -1,0 +1,13 @@
+2:4 Identifier `raw`
+2:8 StringLiteral `"quoted"`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `🕘`
+
+  1 │ 🕘
+    │ ^
+
+error BYN0002: unexpected character `\u{C}`
+
+  2 │ �  raw "quoted"
+    │ ^

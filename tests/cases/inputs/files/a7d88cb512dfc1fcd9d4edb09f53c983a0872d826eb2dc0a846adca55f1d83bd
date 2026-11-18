@@ -1,0 +1,5 @@
+"text" "esc \"q\" \\ \n" """
+foo Bar _x camelCase2 ب"يان μετρητ�ς x_1 é
+ a = 1
+let � = 2
+// ok � in comment

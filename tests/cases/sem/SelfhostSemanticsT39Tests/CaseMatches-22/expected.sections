@@ -1,0 +1,26 @@
+== wr.wr
+w1 true
+w2 true
+w3 true
+w4 true
+w5 true
+w6 false
+w7 true
+w8 true
+w9 true
+wa true
+wb true
+wc true
+wd true
+we true
+wf true
+wg false
+wh true
+BYN2104 20:5 `w7` is immutable |declared with `let` on line 19|declare it with `var` if it should change|fix 299..302 var
+BYN2106 28:5 cannot modify this value |a `ReadOnlySpan` cannot be written through||
+BYN2104 30:5 `pn` is immutable |parameters are immutable|copy it into a local `var`, or take it by `ref` if the caller's value should change|
+BYN2209 32:5 strings cannot be joined with `+`; use interpolation ||write the parts as one interpolation: `s = $"{s}{x}"`, or build text in a `StrBuf`: `buf.append($"{a}{b}")`|fix 525..534 wb = $"{wb}y"
+BYN2208 38:5 `+` cannot be applied to `bool` and `i32` |||
+BYN2208 40:5 `<<` cannot be applied to `f64` and `i32` |||
+BYN2207 42:5 `++` cannot be applied to `bool` |||
+BYN2210 44:5 `??` needs an optional value on the left, found `i32` |||

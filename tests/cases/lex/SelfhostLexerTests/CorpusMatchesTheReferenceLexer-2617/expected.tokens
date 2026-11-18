@@ -1,0 +1,33 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+2:2 CloseBrace `}`
+3:2 IntegerLiteral `0xFF`
+3:6 NumericSuffix `s`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ ���}// ine comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │ ���}// ine comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���}// ine comment
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  3 │ �0xFFs
+    │ ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  3 │ �0xFFs
+    │      ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

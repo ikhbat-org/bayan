@@ -1,0 +1,35 @@
+== tests/cases/diag/for-try-next-not-visible
+205..219 structLiteralExpr
+205..219 structLiteralExpr
+205..219 structLiteralExpr
+216..217 literalExpr integer
+121..178 blockStmt
+131..138 assignStmt add target 131..133 value 137..138
+131..133 nameExpr
+131..133 nameExpr
+137..138 literalExpr integer
+147..172 returnStmt value 154..172
+154..172 conditionalExpr
+154..160 binaryExpr gt right 159..160
+154..156 nameExpr
+154..156 nameExpr
+159..160 literalExpr integer
+163..167 literalExpr nullKeyword
+170..172 nameExpr
+170..172 nameExpr
+170..172 nameExpr
+44..109 blockStmt
+50..70 localDecl
+58..70 callExpr
+75..107 forStmt
+75..107 forStmt
+88..89 tryExpr
+88..89 callExpr
+88..89 nameExpr
+83..84 name
+90..107 blockStmt
+92..105 exprStmt
+92..105 callExpr
+98..104 interpolatedExpr
+101..102 nameExpr
+92..105 callExpr

@@ -1,0 +1,23 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `x`
+1:4 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 Identifier `b`
+1:15 Equals `=`
+1:16 Identifier `c`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  1 │ $"x{ $"{� $"{b=c
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  1 │ $"x{ $"{� $"{b=c
+    │           ^^ this string never ends
+    │
+  help: close the `{` and the string

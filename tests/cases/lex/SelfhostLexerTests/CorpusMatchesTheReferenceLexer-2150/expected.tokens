@@ -1,0 +1,25 @@
+    doc `/// Doc lin one.`
+2:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n let} café = 1\n\n$"{ _�\n\n let effect = 2\n\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │    """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ $"{ _�
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ $"{ _�
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ $"{ _�
+    │       ^

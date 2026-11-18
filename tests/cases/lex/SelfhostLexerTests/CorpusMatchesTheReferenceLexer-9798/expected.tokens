@@ -1,0 +1,34 @@
+1:1 FailsKeyword `fails`
+1:7 Identifier `ry`
+1:10 CatchKeyword `catch`
+1:18 NeverKeyword `never`
+1:24 NoallocKeyword `noalloc`
+1:32 NosuspendKeyword `nosuspend`
+1:42 SuspendsKeyword `suspends`
+1:51 AsyncKeyword `async`
+1:57 AwaitKeyword `await`
+3:1 LetKeyword `let`
+3:7 Equals `=`
+3:9 IntegerLiteral `2`
+5:1 OpenParen `(`
+5:3 CloseParen `)`
+5:5 OpenBracket `[`
+5:7 CloseBracket `]`
+5:9 OpenBrace `{`
+5:11 CloseBrace `}`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ fails ry catch�  never noalloc nosuspend suspends async await
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �
+    │ ^

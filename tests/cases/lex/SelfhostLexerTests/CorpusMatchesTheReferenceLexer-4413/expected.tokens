@@ -1,0 +1,7 @@
+1:1 IntegerLiteral `0x_`
+2:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^

@@ -1,0 +1,12 @@
+== diags.loop-alloc
+BYN2202 36:12 expected `dyn ref ISink`, found `(string key, Box value)`
+BYN2003 37:11 `put` is not a member of `(string key, Box value)`
+BYN2225 41:15 `i64 -> i64` cannot be formatted
+BYN2311 35:9 `m` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 35:5-35:8 let
+BYN2311 42:9 `xs` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 42:5-42:8 let
+returns make 0
+returns make3 1

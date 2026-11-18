@@ -1,0 +1,7 @@
+void main() {
+    Log<i32>.debug("x")
+    Log.nope("x")
+    Log.debug(msg: "x")
+    var s = "x"
+    Log.debug(move s)
+}

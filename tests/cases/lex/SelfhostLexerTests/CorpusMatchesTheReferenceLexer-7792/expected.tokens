@@ -1,0 +1,137 @@
+    doc `/// Doc line two.`
+2:2 Identifier `ails`
+2:7 TryKeyword `try`
+2:11 CatchKeyword `catch`
+2:17 NeverKeyword `never`
+2:23 NoallocKeyword `noalloc`
+2:31 NosuspendKeyword `nosuspend`
+2:41 SuspendsKeyword `suspends`
+2:50 AsyncKeyword `async`
+2:56 AwaitKeyword `await`
+3:2 TestKeyword `test`
+3:7 Identifier `ass`
+3:10 Identifier `rt`
+3:13 PropertyKeyword `property`
+3:22 FuzzKeyword `fuzz`
+3:27 ModelKeyword `model`
+3:33 ForeachKeyword `foreach`
+3:41 NewKeyword `new`
+3:45 GotoKeyword `goto`
+5:1 Identifier `l`
+5:2 CloseBrace `}`
+5:3 CloseBrace `}`
+5:4 StringLiteral `" $"`
+5:8 OpenBrace `{`
+5:9 Identifier `Point`
+5:15 OpenBrace `{`
+5:17 Identifier `x`
+5:19 Equals `=`
+5:21 IntegerLiteral `1`
+5:23 CloseBrace `}`
+5:24 CloseBrace `}`
+5:25 Bang `!`
+5:26 StringLiteral `" $"`
+5:30 StringLiteral `"`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `stray } here`
+7:15 InterpolatedStringEnd `"`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 InterpolatedStringStart `$"`
+8:7 InterpolationStart `{`
+8:8 InterpolatedStringStart `$"`
+8:10 InterpolationStart `{`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolationStart `{`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolationStart `{`
+8:17 InterpolatedStringStart `$"`
+8:19 InterpolationStart `{`
+8:20 InterpolatedStringStart `$"`
+8:22 InterpolationStart `{`
+8:23 InterpolatedStringStart `$"`
+8:25 InterpolationStart `{`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolationStart `{`
+8:29 InterpolatedStringStart `$"`
+8:31 InterpolationStart `{`
+8:32 InterpolatedStringStart `$"`
+8:34 InterpolationStart `{`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolationStart `{`
+8:38 InterpolatedStringStart `$"`
+8:40 InterpolationStart `{`
+8:41 InterpolatedStringStart `$"`
+8:43 InterpolationStart `{`
+8:44 InterpolatedStringStart `$"`
+8:46 InterpolationStart `{`
+8:47 InterpolatedStringStart `$"`
+8:49 InterpolationStart `{`
+8:50 StringLiteral `$"{$"`
+8:55 OpenBrace `{`
+8:56 StringLiteral `$"{x}"`
+8:62 CloseBrace `}`
+8:63 StringLiteral `"}"`
+8:66 InterpolationEnd `}`
+8:67 InterpolatedStringEnd `"`
+8:68 InterpolationEnd `}`
+8:69 InterpolatedStringEnd `"`
+8:70 InterpolationEnd `}`
+8:71 InterpolatedStringEnd `"`
+8:72 InterpolationEnd `}`
+8:73 InterpolatedStringEnd `"`
+8:74 InterpolationEnd `}`
+8:75 InterpolatedStringEnd `"`
+8:76 InterpolationEnd `}`
+8:77 InterpolatedStringEnd `"`
+8:78 InterpolationEnd `}`
+8:79 InterpolatedStringEnd `"`
+8:80 InterpolationEnd `}`
+8:81 InterpolatedStringEnd `"`
+8:82 InterpolationEnd `}`
+8:83 InterpolatedStringEnd `"`
+8:84 InterpolationEnd `}`
+8:85 InterpolatedStringEnd `"`
+8:86 InterpolationEnd `}`
+8:87 InterpolatedStringEnd `"`
+8:88 InterpolationEnd `}`
+8:89 InterpolatedStringEnd `"`
+8:90 InterpolationEnd `}`
+8:91 InterpolatedStringEnd `"`
+8:92 InterpolationEnd `}`
+8:93 InterpolatedStringEnd `"`
+8:94 InterpolationEnd `}`
+8:95 InterpolatedStringEnd `"`
+8:96 InterpolationEnd `}`
+8:97 InterpolatedStringEnd `"`
+8:98 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  2 │ �ails try catch never noalloc nosuspend suspends async await
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAB)
+
+  3 │  test ass�rt property fuzz model foreach new goto
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  5 │ l}}" $"{Point { x = 1 }}!" $""
+    │                              ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  7 │ $"stray } here"
+    │         ^
+    │
+    │ 7 │ $"stray }} here"
+    │   │          +
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                  ^^

@@ -1,0 +1,109 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"$"`
+1:53 OpenBrace `{`
+1:54 StringLiteral `$"{$"`
+1:59 OpenBrace `{`
+1:60 Identifier `x`
+1:61 CloseBrace `}`
+1:62 StringLiteral `"}"`
+1:65 CloseBrace `}`
+1:66 StringLiteral `"}"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:76 StringLiteral `"}"`
+1:79 LetKeyword `let`
+1:83 Identifier `a`
+1:85 Equals `=`
+1:89 IntegerLiteral `1`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 StringLiteral `$"{$"`
+2:15 OpenBrace `{`
+2:16 StringLiteral `$"{$"`
+2:21 OpenBrace `{`
+2:22 StringLiteral `$"{$"`
+2:27 OpenBrace `{`
+2:28 StringLiteral `$"{$"`
+2:33 OpenBrace `{`
+2:34 StringLiteral `$"{$"`
+2:39 OpenBrace `{`
+2:40 StringLiteral `$"{$"`
+2:45 OpenBrace `{`
+2:46 StringLiteral `$"{$"`
+2:51 OpenBrace `{`
+2:52 Identifier `x`
+2:53 CloseBrace `}`
+2:54 StringLiteral `" let c = "`
+2:65 StringLiteral `""`
+2:67 NeverKeyword `never`
+2:73 Identifier `closed`
+4:1 CharLiteral `'\q'`
+5:2 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"}"}"}"�"}"let a = $ 1
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"}"}"}"�"}"let a = $ 1
+    │                                                                           ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"}"}"}"�"}"let a = $ 1
+    │                                                                                       ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" let c = """never closed
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

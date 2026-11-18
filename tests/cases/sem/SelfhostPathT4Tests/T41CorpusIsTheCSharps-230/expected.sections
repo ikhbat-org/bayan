@@ -1,0 +1,17 @@
+== diags.diag/panic-handler-restricted
+BYN2612 12:17 `try` is not allowed in a panic handler
+  help remove it; panic handlers can't recover
+BYN2612 15:9 `return` is not allowed in a panic handler
+  help remove it; panic handlers can't recover
+BYN2612 19:13 `break` is not allowed in a panic handler
+  help remove it; panic handlers can't recover
+BYN2612 22:13 `continue` is not allowed in a panic handler
+  help remove it; panic handlers can't recover
+BYN2612 13:9 assignment is not allowed in a panic handler
+  help remove it; panic handlers can't recover
+BYN2612 14:18 allocation is not allowed in a panic handler
+  help remove it; panic handlers can't recover
+BYN2612 30:13 allocation is not allowed in a panic handler
+  help remove it; panic handlers can't recover
+BYN2612 31:5 `return` is not allowed in a panic handler
+  help remove it; panic handlers can't recover

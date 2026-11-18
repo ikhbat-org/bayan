@@ -1,0 +1,63 @@
+== tests/cases/diag/for-user-modified-while-iterating.byn
+365..640 blockStmt
+371..402 localDecl
+384..402 structLiteralExpr
+399..400 literalExpr integer
+407..518 forStmt
+416..422 nameExpr
+423..518 blockStmt
+433..490 forStmt
+442..448 nameExpr
+449..490 blockStmt
+463..480 exprStmt
+463..480 callExpr
+469..479 interpolatedExpr
+472..477 binaryExpr add right 476..477
+472..473 nameExpr
+476..477 nameExpr
+463..480 callExpr
+499..512 exprStmt
+499..512 callExpr
+499..505 nameExpr
+523..556 localDecl
+535..556 structLiteralExpr
+553..554 literalExpr integer
+561..638 forStmt
+570..575 nameExpr
+576..638 blockStmt
+586..610 localDecl
+594..610 callExpr
+594..599 nameExpr
+619..632 exprStmt
+619..632 callExpr
+625..631 interpolatedExpr
+628..629 nameExpr
+619..632 callExpr
+81..85 nameExpr
+81..85 nameExpr
+81..85 nameExpr
+81..85 nameExpr
+113..123 binaryExpr mul right 121..123
+113..123 binaryExpr mul right 121..123
+113..123 binaryExpr mul right 121..123
+113..118 nameExpr
+121..123 literalExpr integer
+149..174 blockStmt
+159..168 assignStmt add target 159..163 value 167..168
+159..163 nameExpr
+159..163 nameExpr
+167..168 literalExpr integer
+274..324 blockStmt
+284..293 assignStmt sub target 284..288 value 292..293
+284..288 nameExpr
+284..288 nameExpr
+292..293 literalExpr integer
+302..318 returnStmt value 309..318
+309..318 binaryExpr ge right 317..318
+309..313 nameExpr
+309..313 nameExpr
+317..318 literalExpr integer
+345..349 nameExpr
+345..349 nameExpr
+345..349 nameExpr
+345..349 nameExpr

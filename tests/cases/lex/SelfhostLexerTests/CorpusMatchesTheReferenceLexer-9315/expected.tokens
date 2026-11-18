@@ -1,0 +1,11 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:6 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowe\u{13} in strings" "" "\u{48}i" // comment \u{202E} hidde\n /*\n"`
+3:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ */   """ c"text" u16"wide" "� allowe� in strings" "" "\u{48}i" // comment � hidde
+    │      ^^^ raw string starts here
+    │
+  help: close it with `"""`

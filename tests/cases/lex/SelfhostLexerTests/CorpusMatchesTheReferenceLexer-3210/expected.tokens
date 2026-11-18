@@ -1,0 +1,59 @@
+1:2 Identifier `foo`
+1:6 Identifier `Bar`
+1:10 Identifier `_x`
+1:13 Identifier `camelCase2`
+1:24 Identifier `بيان`
+1:29 Identifier `μετρητής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+4:2 TestKeyword `test`
+4:7 AssertKeyword `assert`
+4:14 PropertyKeyword `property`
+4:23 FuzzKeyword `fuzz`
+4:28 ModelKeyword `model`
+4:34 ForeachKeyword `foreach`
+4:42 NewKeyword `new`
+4:46 GotoKeyword `goto`
+5:1 IntegerLiteral `0b102`
+8:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ �foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │ 0b102
+    │     ^
+
+error BYN0004: unterminated block comment
+
+  6 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

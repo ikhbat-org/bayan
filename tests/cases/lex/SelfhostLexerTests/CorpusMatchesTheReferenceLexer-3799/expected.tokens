@@ -1,0 +1,19 @@
+1:1 CloseBrace `}`
+1:2 CharLiteral `' '`
+1:6 CharLiteral `''`
+1:9 CharLiteral `'é'`
+1:13 CharLiteral `'\\'`
+1:18 CharLiteral `'\0'`
+2:2 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ }' '\'' 'é' '\\' '\0'
+    │     ^
+
+error BYN0007: empty char literal
+
+  1 │ }' '\'' 'é' '\\' '\0'
+    │      ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

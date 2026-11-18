@@ -1,0 +1,47 @@
+1:1 IntegerLiteral `0xF__`
+3:1 Identifier `le`
+3:4 Identifier `café`
+3:10 Equals `=`
+3:12 IntegerLiteral `1`
+3:13 Semicolon `;`
+3:18 RawStringLiteral `""" c"text" �u16"wide" "\u{202E} allowed ln strings" "" "\u{48}i"\n let c = """`
+4:13 NeverKeyword `never`
+4:19 Identifier `closed`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ le café = 1;�   """ c"text" �u16"wide" "� allowed ln strings" "" "\u{48}i"
+    │    ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ le café = 1;�   """ c"text" �u16"wide" "� allowed ln strings" "" "\u{48}i"
+    │   │       +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ le café = 1;�   """ c"text" �u16"wide" "� allowed ln strings" "" "\u{48}i"
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ le café = 1;�   """ c"text" �u16"wide" "� allowed ln strings" "" "\u{48}i"
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ le café = 1;�   """ c"text" �u16"wide" "� allowed ln strings" "" "\u{48}i"
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  3 │ le café = 1;�   """ c"text" �u16"wide" "� allowed ln strings" "" "\u{48}i"
+    │                              ^

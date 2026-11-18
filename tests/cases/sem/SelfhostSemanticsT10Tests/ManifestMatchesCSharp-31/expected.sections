@@ -1,0 +1,17 @@
+== case inline/nested-equals
+errors 2
+error BYN3104: `package.byn` uses `field: value`
+  1 │ Package { name: "local/a", version: "0.1.0", dist: Dist { mode: = .fast, targets = [.host] } }
+    │                                                                 ^ the input form
+    │
+  help: remove the `=`
+    │ 1 │ Package { name: "local/a", version: "0.1.0", dist: Dist { mode: = .fast, targets = [.host] } }
+    │   │                                                                --
+error BYN3104: `package.byn` uses `field: value`
+  1 │ Package { name: "local/a", version: "0.1.0", dist: Dist { mode: = .fast, targets = [.host] } }
+    │                                                                                  ^ the input
+    │                                                                                    form
+    │
+  help: write `:` after the field name
+    │ 1 │ Package { name: "local/a", version: "0.1.0", dist: Dist { mode: = .fast, targets: [.host] } }
+    │   │                                                                                 +

@@ -1,0 +1,10 @@
+" ( ) [ ] { }
+ /* block
+
+$"stray } here"
+ /* never closed
+b
+ 0x_
+let café = 2
+
+c >>= 1

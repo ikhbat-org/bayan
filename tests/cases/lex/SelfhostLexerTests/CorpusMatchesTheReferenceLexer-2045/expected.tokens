@@ -1,0 +1,110 @@
+    doc `/// Doc line two.`
+3:1 Identifier `t`
+3:3 Identifier `S`
+5:1 Identifier `b`
+7:2 LetKeyword `let`
+7:6 Identifier `s`
+7:8 Equals `=`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:35 OpenBrace `{`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolationStart `{`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolationStart `{`
+7:42 InterpolatedStringStart `$"`
+7:44 InterpolationStart `{`
+7:45 InterpolatedStringStart `$"`
+7:47 InterpolationStart `{`
+7:48 InterpolatedStringStart `$"`
+7:50 InterpolationStart `{`
+7:51 InterpolatedStringStart `$"`
+7:53 InterpolationStart `{`
+7:54 InterpolatedStringStart `$"`
+7:56 InterpolationStart `{`
+7:57 InterpolatedStringStart `$"`
+7:59 InterpolationStart `{`
+7:60 StringLiteral `$"{$"`
+7:65 OpenBrace `{`
+7:66 StringLiteral `$"{x}"`
+7:72 CloseBrace `}`
+7:73 StringLiteral `"}"`
+7:76 InterpolationEnd `}`
+7:77 InterpolatedStringEnd `"`
+7:78 InterpolationEnd `}`
+7:79 InterpolatedStringEnd `"`
+7:80 InterpolationEnd `}`
+7:81 InterpolatedStringEnd `"`
+7:82 InterpolationEnd `}`
+7:83 InterpolatedStringEnd `"`
+7:84 InterpolationEnd `}`
+7:85 InterpolatedStringEnd `"`
+7:86 InterpolationEnd `}`
+7:87 InterpolatedStringEnd `"`
+7:88 InterpolationEnd `}`
+7:89 InterpolatedStringEnd `"`
+7:90 InterpolationEnd `}`
+7:91 InterpolatedStringEnd `"`
+7:92 CloseBrace `}`
+7:93 StringLiteral `"}"`
+7:96 InterpolationEnd `}`
+7:97 InterpolatedStringEnd `"`
+7:98 InterpolationEnd `}`
+7:99 InterpolatedStringEnd `"`
+7:100 InterpolationEnd `}`
+7:101 InterpolatedStringEnd `"`
+7:102 InterpolationEnd `}`
+7:103 InterpolatedStringEnd `"`
+7:104 InterpolationEnd `}`
+7:105 InterpolatedStringEnd `"`
+7:106 InterpolationEnd `}`
+7:107 InterpolatedStringEnd `"`
+7:108 InterpolationEnd `}`
+7:109 InterpolatedStringEnd `"`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │ �let s = $"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  7 │ �let s = $"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  7 │ �let s = $"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                  ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ �let s = $"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                            ^^

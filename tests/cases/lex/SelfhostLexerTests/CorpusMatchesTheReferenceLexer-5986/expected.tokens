@@ -1,0 +1,117 @@
+1:1 Identifier `et`
+1:4 Identifier `s`
+1:6 Equals `=`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 InterpolatedStringStart `$"`
+1:19 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 CharLiteral `'\u{202E}'`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:40 OpenBrace `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 InterpolatedStringStart `$"`
+1:52 InterpolationStart `{`
+1:53 InterpolatedStringStart `$"`
+1:55 InterpolationStart `{`
+1:56 InterpolatedStringStart `$"`
+1:58 InterpolationStart `{`
+1:59 InterpolatedStringStart `$"`
+1:61 InterpolationStart `{`
+1:62 StringLiteral `$"{$"`
+1:67 OpenBrace `{`
+1:68 StringLiteral `$"{$"`
+1:73 OpenBrace `{`
+1:74 StringLiteral `$"{$"`
+1:79 OpenBrace `{`
+1:80 StringLiteral `$"{x}"`
+1:86 CloseBrace `}`
+1:87 StringLiteral `"}"`
+1:90 CloseBrace `}`
+1:91 StringLiteral `"}"`
+1:94 CloseBrace `}`
+1:95 StringLiteral `"}"`
+1:98 InterpolationEnd `}`
+1:99 InterpolatedStringEnd `"`
+1:100 StringLiteral `"}M}"`
+1:105 InterpolationEnd `}`
+1:106 InterpolatedStringEnd `"`
+1:107 InterpolationEnd `}`
+1:108 InterpolatedStringEnd `"`
+1:109 LetKeyword `let`
+1:113 Identifier `a`
+1:115 Equals `=`
+1:117 StringLiteral `"open`
+3:1 IntegerLiteral `0xFF`
+3:5 NumericSuffix `s`
+4:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ et s = $"{$"{$"{$"{$"{'�' $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}M}"}"}"let a = "open
+    │                        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ et s = $"{$"{$"{$"{$"{'�' $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}M}"}"}"let a = "open
+    │   │                        -
+
+error BYN0002: unexpected character `$`
+
+  1 │ et s = $"{$"{$"{$"{$"{'�' $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}M}"}"}"let a = "open
+    │                                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8E)
+
+  1 │ et s = $"{$"{$"{$"{$"{'�' $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}M}"}"}"let a = "open
+    │                                        ^
+
+error BYN0003: unterminated string literal
+
+  1 │ et s = $"{$"{$"{$"{$"{'�' $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}M}"}"}"let a = "open
+    │                                                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ et s = $"{$"{$"{$"{$"{'�' $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}M}"}"}"let a = "open
+    │                                                               ^^
+
+error BYN0003: unterminated string literal
+
+  1 │ et s = $"{$"{$"{$"{$"{'�' $"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}M}"}"}"let a = "open
+    │                                                                                                                      ^^^^^ string
+    │                                                                                                                            ends
+    │                                                                                                                            at
+    │                                                                                                                            the
+    │                                                                                                                            end
+    │                                                                                                                            of
+    │                                                                                                                            the
+    │                                                                                                                            line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  3 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

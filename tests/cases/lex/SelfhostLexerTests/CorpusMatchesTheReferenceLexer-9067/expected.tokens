@@ -1,0 +1,16 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\n\n 2\nlet c = \u{7} 3\n \n' '\{1F600}' '\'' 'é' '\\' '\0'\n1_\n3.14 �e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f\n `
+8:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  7 │ 3.14 �e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │      ^

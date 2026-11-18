@@ -1,0 +1,6 @@
+== s3
+switchExpr|i32|1594:39
+value local:Shape=sh
+arm 1606:17 bindPattern[1606:12]:Shape(-) guard - value local:?=r
+arm 1625:6 bindPattern[1625:1]:Shape_(-) guard - value literal:i32=0
+BYN2700 74:27 `nope` is not a variant of union `Shape` |||

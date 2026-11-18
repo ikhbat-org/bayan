@@ -1,0 +1,30 @@
+string runs(ReadOnlySpan<string> none) fails IoError {
+    using let arena = Arena()
+    provide allocator: arena {
+        let r = try Io.run("true", none)
+        let rb = try Io.runBatch("x.bat", none)
+        print($"{r.exitCode}{rb.exitCode}")
+    }
+    return ""
+}
+
+string texts(ReadOnlySpan<u8> raw) fails Utf8Error {
+    using let arena = Arena()
+    provide allocator: arena {
+        let a = try Utf8.decode(raw)
+        let b = Utf8.tryDecode(raw) ?? ""
+        let d = Utf8.decode(raw, invalid: .replace)
+        let h = Hex.encode(raw)
+        var buf = StrBuf.over(stackalloc u8[8])
+        buf.append(a)
+        print($"{a}{b}{d}{h}{buf.view}")
+    }
+    return ""
+}
+
+void main() {
+    let none = List<string>()
+    let raw = List<u8>()
+    let _ = runs(none.span) catch switch { _ => "" }
+    let _ = texts(raw.span) catch switch { _ => "" }
+}

@@ -1,0 +1,83 @@
+1:5 IntegerLiteral `0b__`
+2:2 OpenBrace `{`
+2:4 Identifier `x`
+3:1 IntegerLiteral `0x__`
+6:1 LetKeyword `let`
+6:5 LawKeyword `law`
+6:9 Equals `=`
+6:11 IntegerLiteral `3`
+7:2 StringLiteral `"{$"`
+7:6 OpenBrace `{`
+7:7 OpenParen `(`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ ����� �� 0b__
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ ����� �� 0b__
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����� �� 0b__
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����� �� 0b__
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����� �� 0b__
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ����� �� 0b__
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����� �� 0b__
+    │        ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ ����� �� 0b__
+    │          ^^^^
+
+error BYN0002: unexpected character `\u{18}`
+
+  2 │  { x� 
+    │     ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x__
+    │ ^^^^
+
+error BYN0002: unexpected character `\u{0}`
+
+  5 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  7 │  "{$"{($"{$"{$
+    │           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  7 │  "{$"{($"{$"{$
+    │              ^

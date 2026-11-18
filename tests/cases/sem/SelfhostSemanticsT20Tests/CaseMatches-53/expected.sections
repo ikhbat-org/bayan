@@ -1,0 +1,4 @@
+== call.c12
+errorExpr|?|-|-|-|1650:15|-
+BYN8001 106:15 `frobUnchecked()` bypasses a safety rule and needs `because "…"` |bypasses a safety rule|explain the bypass in a `because` clause|
+BYN2001 106:15 `frobUnchecked` is not defined |||

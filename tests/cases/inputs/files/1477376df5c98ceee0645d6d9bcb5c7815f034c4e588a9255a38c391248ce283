@@ -1,0 +1,7 @@
+"text" "esc \"q\" \\ \n" """
+ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ "text" "esc \"qK\" \\ \n" """
+$"a{b}cr closed
+b
+ € ( ) [ ] { }
+

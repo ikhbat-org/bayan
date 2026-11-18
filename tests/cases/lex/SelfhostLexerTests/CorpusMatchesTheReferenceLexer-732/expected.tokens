@@ -1,0 +1,25 @@
+1:1 Identifier `q`
+1:2 CharLiteral `'\r`
+2:1 CharLiteral `'\u{D800}&p`
+2:12 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ q'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ '\u{D800}&p
+    │ ^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │ '\u{D800}&p
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

@@ -1,0 +1,5 @@
+error BYN2409: `switch` has more than one `default` section
+  --> <repo>/tests/cases/diag/duplicate-default.byn:5:5
+
+  5 │     default:
+    │     ^^^^^^^^

@@ -1,0 +1,8 @@
+error BYN2222: `i64[3]` needs exactly its length in elements, found 2
+  --> tmp/t26-tests/cli/diag_array-length-mismatch.byn/array-length-mismatch.byn:1:18
+
+  1 │ let xs: i64[3] = [1, 2]
+    │                  ^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2222

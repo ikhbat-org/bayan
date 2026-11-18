@@ -1,0 +1,7 @@
+error BYN2614: `Panic.handler` may be set only as the first statement of `main`
+  --> <repo>/tests/cases/diag/on-panic-twice.byn:7:5
+
+  7 │     Panic.handler = onCrash
+    │     ^^^^^^^^^^^^^^^^^^^^^^^ set again here
+    │
+  help: set it once, as the first statement of `main`

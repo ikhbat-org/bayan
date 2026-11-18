@@ -1,0 +1,4 @@
+== member.probes.-.m25
+errorExpr|?|-|-|-|-|-|2047:9|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2003 112:20 `nope` is not a member of `Utf8` |||

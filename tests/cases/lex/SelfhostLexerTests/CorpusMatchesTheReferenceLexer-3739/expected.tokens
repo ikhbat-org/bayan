@@ -1,0 +1,73 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:1 Identifier `foo`
+2:5 Identifier `Bar`
+2:9 Identifier `_x`
+2:12 Identifier `camelCase2`
+2:23 Identifier `بيان`
+2:28 Identifier `μετρ`
+2:33 Identifier `τής`
+2:37 Identifier `x_`
+2:41 Identifier `é`
+4:1 Less `<`
+4:3 Greater `>`
+4:4 Greater `>`
+4:6 GreaterEquals `>=`
+5:1 Plus `+`
+5:3 LetKeyword `let`
+5:7 Identifier `a`
+5:9 Equals `=`
+5:13 IntegerLiteral `1`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolatedStringText `open `
+7:11 InterpolationStart `{`
+7:12 Identifier `x`
+7:13 StringLiteral `";`
+8:1 IntegerLiteral `0x`
+8:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  2 │ foo Bar _x camelCase2 بيان μετρ�τής x_� é
+    │                                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  2 │ foo Bar _x camelCase2 بيان μετρ�τής x_� é
+    │                                       ^
+
+error BYN0002: unexpected character `$`
+
+  5 │ + let a = $ 1
+    │           ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  7 │ 0xF$"open {x";
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ 0xF$"open {x";
+    │             ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x 
+    │ ^^

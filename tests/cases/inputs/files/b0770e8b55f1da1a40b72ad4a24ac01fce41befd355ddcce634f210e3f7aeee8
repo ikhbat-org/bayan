@@ -1,0 +1,9 @@
+fo
+/*  """ c"text" u16"wide" "â€® allowed in strings" "" "\u{48}i"
+
+is and or not with move ref out this null true false comptime hecked
+' '\\' '\0'
+
+â‚
+let c = """never closed
+ 

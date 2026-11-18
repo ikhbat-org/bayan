@@ -1,0 +1,8 @@
+error BYN2034: the default of field `A.b` depends on itself
+  --> input.byn:1:29
+
+  1 │ struct A { Owned<Box<i64>>? b = Owned(Box<i64> {}) }
+    │                             ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2034

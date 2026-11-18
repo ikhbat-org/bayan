@@ -1,0 +1,51 @@
+1:2 CharLiteral `''`
+2:1 StructKeyword `struct`
+2:8 Identifier `S`
+3:1 Identifier `et`
+3:4 Identifier `caé`
+3:8 Equals `=`
+3:10 IntegerLiteral `2`
+4:1 Identifier `elCa`
+4:5 OpenParen `(`
+4:7 CloseParen `)`
+4:9 OpenBracket `[`
+4:11 CloseBracket `]`
+4:13 OpenBrace `{`
+4:14 Identifier `h`
+4:16 CloseBrace `}`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+6:2 Identifier `c`
+6:4 Greater `>`
+6:5 GreaterEquals `>=`
+6:8 IntegerLiteral `1`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��''
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��''
+    │  ^
+
+error BYN0007: empty char literal
+
+  1 │ ��''
+    │   ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ let x� = 1
+    │   │      -

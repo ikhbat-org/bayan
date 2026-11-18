@@ -1,0 +1,11 @@
+1:1 StringLiteral `" "`
+1:5 StringLiteral `"\u{48}i"`
+2:1 CharLiteral `'ab'`
+4:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text

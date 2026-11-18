@@ -1,0 +1,127 @@
+1:1 LetKeyword `let`
+1:5 Identifier `s`
+1:7 Equals `=`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 StringLiteral `$"{$"`
+1:62 OpenBrace `{`
+1:65 StringLiteral `"{$"`
+1:69 OpenBrace `{`
+1:70 Identifier `x`
+1:71 CloseBrace `}`
+1:72 StringLiteral `"}"`
+1:75 CloseBrace `}`
+1:76 StringLiteral `"}"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 InterpolationEnd `}`
+1:88 InterpolatedStringEnd `"`
+1:89 InterpolationEnd `}`
+1:90 InterpolatedStringEnd `"`
+1:91 InterpolationEnd `}`
+1:92 InterpolatedStringText `}`
+1:93 InterpolatedStringEnd `"`
+1:94 InterpolationEnd `}`
+1:95 InterpolatedStringEnd `"`
+1:96 InterpolationEnd `}`
+1:97 InterpolatedStringEnd `"`
+1:98 StringLiteral `"}"`
+1:101 InterpolationEnd `}`
+1:102 InterpolatedStringEnd `"`
+1:103 InterpolationEnd `}`
+1:104 InterpolatedStringEnd `"`
+1:105 InterpolationEnd `}`
+1:106 InterpolatedStringEnd `"`
+1:107 InterpolationEnd `}`
+1:108 InterpolatedStringEnd `"`
+2:2 FloatLiteral `3.14`
+2:7 FloatLiteral `1e5`
+2:11 FloatLiteral `2.5e-3`
+2:18 FloatLiteral `6E+2`
+2:23 FloatLiteral `1.50`
+2:27 NumericSuffix `dec`
+2:31 IntegerLiteral `1`
+2:32 DotDot `..`
+2:34 IntegerLiteral `2`
+2:36 IntegerLiteral `1`
+2:37 DotDotEquals `..=`
+2:40 IntegerLiteral `3`
+2:42 IntegerLiteral `5`
+2:43 NumericSuffix `e`
+2:45 Identifier `x`
+2:46 Dot `.`
+2:47 Identifier `y`
+2:49 FloatLiteral `2.5`
+2:52 NumericSuffix `f`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}}"}"}"�"}"}"}"}"}"
+    │               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}}"}"}"�"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0002: unexpected character `$`
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}}"}"}"�"}"}"}"}"}"
+    │                                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}}"}"}"�"}"}"}"}"}"
+    │                                                                ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}}"}"}"�"}"}"}"}"}"
+    │                                                                                            ^
+    │
+    │ 1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}}}"}"}"�"}"}"}"}"}"
+    │   │                                                                                             +
+
+error BYN0015: source is not valid UTF-8 (byte 0x9C)
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}}"}"}"�"}"}"}"}"}"
+    │                                                                                                  ^

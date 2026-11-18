@@ -1,0 +1,2 @@
+== diags.diag/jump-outside-loop
+BYN2406 1:1 `break` outside a loop

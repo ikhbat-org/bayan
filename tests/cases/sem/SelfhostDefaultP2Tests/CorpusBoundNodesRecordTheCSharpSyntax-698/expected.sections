@@ -1,0 +1,11 @@
+== tests/cases/diag/not-formattable-struct.byn
+38..66 globalStatement
+38..66 localDecl
+46..66 structLiteralExpr
+57..58 literalExpr integer
+63..64 literalExpr integer
+67..80 exprStmt
+67..80 callExpr
+73..79 interpolatedExpr
+76..77 nameExpr
+67..80 callExpr

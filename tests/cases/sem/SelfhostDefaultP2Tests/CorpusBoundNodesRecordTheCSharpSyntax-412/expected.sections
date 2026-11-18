@@ -1,0 +1,6 @@
+== tests/cases/diag/count-name.byn
+182..193 globalStatement
+182..193 exprStmt
+182..193 callExpr
+188..192 literalExpr string
+182..193 callExpr

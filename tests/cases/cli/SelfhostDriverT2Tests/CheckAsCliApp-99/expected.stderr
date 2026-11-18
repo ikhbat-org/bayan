@@ -1,0 +1,18 @@
+error BYN2705: variant `circle` carries a payload
+  --> <repo>/tmp/t2/diag/variant-needs-payload/variant-needs-payload.byn:7:13
+
+  7 │     let s = Shape.circle
+    │             ^^^^^^^^^^^^
+    │
+  help: pass it: `Shape.circle(r)`
+
+error BYN2705: variant `circle` carries a payload
+  --> <repo>/tmp/t2/diag/variant-needs-payload/variant-needs-payload.byn:8:20
+
+  8 │     let t: Shape = .circle
+    │                    ^^^^^^^
+    │
+  help: pass it: `Shape.circle(r)`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2705

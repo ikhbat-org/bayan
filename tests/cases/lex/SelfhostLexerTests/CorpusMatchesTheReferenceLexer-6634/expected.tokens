@@ -1,0 +1,73 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 StringLiteral `" 1__`
+3:2 IntegerLiteral `0xF__`
+5:1 Plus `+`
+5:3 Minus `-`
+5:5 Star `*`
+5:7 Slash `/`
+5:9 Percent `%`
+5:11 PlusPercent `+%`
+5:14 MinusPercent `-%`
+5:17 StarPercent `*%`
+5:20 PlusBar `+|`
+5:24 MinusBar `-|`
+5:27 StarBar `*|`
+5:30 PlusPlus `++`
+5:33 MinusMinus `--`
+7:1 Dot `.`
+7:2 Equals `=`
+7:3 IntegerLiteral `3`
+7:5 IntegerLiteral `5`
+7:6 NumericSuffix `e`
+7:8 Identifier `x`
+7:9 Dot `.`
+7:10 Identifier `y`
+7:12 FloatLiteral `2.5`
+7:15 NumericSuffix `f`
+8:1 LetKeyword `let`
+8:5 EffectKeyword `effect`
+8:12 Equals `=`
+8:14 IntegerLiteral `2`
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{" 1__
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{" 1__
+    │    ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │  0xF__
+    │     ^^
+    │
+    │ 3 │  0xF__
+    │   │     --
+
+error BYN0015: source is not valid UTF-8 (byte 0xC6)
+
+  5 │ + - * / % +% -% *% +| �-| *| ++ --
+    │                       ^

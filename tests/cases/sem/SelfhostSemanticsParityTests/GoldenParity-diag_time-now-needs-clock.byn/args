@@ -1,0 +1,4 @@
+--golden
+--package
+<repo>/tests/cases/diag
+<repo>/tests/cases/diag/time-now-needs-clock.byn

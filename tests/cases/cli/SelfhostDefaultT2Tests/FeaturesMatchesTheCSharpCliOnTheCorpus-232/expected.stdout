@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "nodes": [
+    "CallExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "LiteralExpr"
+  ],
+  "builtins": [
+    "PathRelative",
+    "Print"
+  ],
+  "diagnostics": []
+}

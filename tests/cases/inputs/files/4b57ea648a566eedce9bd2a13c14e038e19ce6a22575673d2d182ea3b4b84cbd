@@ -1,0 +1,14 @@
+union error E {
+    bad
+}
+
+void f() fails E {
+    defer print("always")
+    defer failing print("failing")
+    defer panicking print("panicking")
+    fail .bad
+}
+
+void main() {
+    f() catch { print("caught") }
+}

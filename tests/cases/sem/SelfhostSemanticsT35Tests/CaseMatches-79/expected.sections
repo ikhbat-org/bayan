@@ -1,0 +1,2 @@
+== expr.probes.c7
+collection:List<i64>[1014:9]=-(spread:i64[1015:4]=-(local:List<i64>[1017:2]=-(xs)) literal:i64[1021:1]=4(4))

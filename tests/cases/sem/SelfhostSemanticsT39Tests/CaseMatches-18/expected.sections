@@ -1,0 +1,2 @@
+== lib.borrow
+BYN2783 7:35 `items` borrows from what it was bound to and cannot be changed or moved |`append` modifies it|change the subject itself, or work on a `.copy(to: alloc)`; a loop or pattern variable of a unique type borrows from its subject|

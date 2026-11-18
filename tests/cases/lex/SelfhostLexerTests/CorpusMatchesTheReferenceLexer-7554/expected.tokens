@@ -1,0 +1,22 @@
+1:2 Identifier `macro`
+1:8 Identifier `slect`
+1:14 Identifier `bec`
+1:17 Identifier `me`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  1 │ �macro slect bec�me
+    │ ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ �macro slect bec�me
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  1 │ �macro slect bec�me
+    │                 ^

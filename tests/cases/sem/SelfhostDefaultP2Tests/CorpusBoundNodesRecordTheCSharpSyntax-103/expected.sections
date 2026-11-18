@@ -1,0 +1,35 @@
+== tests/cases/run/hex-encode.byn
+0..30 globalStatement
+0..30 exprStmt
+0..30 callExpr
+6..29 callExpr
+17..28 memberExpr
+17..22 literalExpr string
+0..30 callExpr
+31..65 exprStmt
+31..65 callExpr
+37..64 interpolatedExpr
+41..61 callExpr
+52..60 memberExpr
+52..54 literalExpr string
+31..65 callExpr
+66..86 localDecl
+76..86 callExpr
+87..100 exprStmt
+87..100 callExpr
+87..90 nameExpr
+98..99 literalExpr integer
+101..115 exprStmt
+101..115 callExpr
+101..104 nameExpr
+112..114 literalExpr integer
+116..131 exprStmt
+116..131 callExpr
+116..119 nameExpr
+127..130 literalExpr integer
+132..159 exprStmt
+132..159 callExpr
+138..158 callExpr
+149..157 memberExpr
+149..152 nameExpr
+132..159 callExpr

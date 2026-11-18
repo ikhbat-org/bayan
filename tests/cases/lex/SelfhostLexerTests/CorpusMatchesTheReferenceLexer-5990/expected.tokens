@@ -1,0 +1,7 @@
+2:2 IntegerLiteral `0b10`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{3}`
+
+  1 │ �
+    │ ^

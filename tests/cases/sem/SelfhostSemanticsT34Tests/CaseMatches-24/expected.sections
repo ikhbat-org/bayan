@@ -1,0 +1,3 @@
+== t2
+local|i64|864:1
+BYN2605 56:18 `try` needs a call that can fail |||

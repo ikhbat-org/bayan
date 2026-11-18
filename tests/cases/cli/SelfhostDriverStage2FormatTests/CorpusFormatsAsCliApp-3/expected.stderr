@@ -1,0 +1,1541 @@
+error BYN8001: `@json(expose)` bypasses a safety rule and needs `because "…"`
+  --> {D}/diag/because-json-expose.byn:1:1
+
+  1 │ @json(expose)
+    │ ^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+bayan: {D}/diag/block-comment.byn: rewriting it made it unparsable, so the rewrite was abandoned and the file left unchanged
+error BYN1015: C-style `for` loops do not exist in Bayan
+  --> {D}/diag/c-style-for.byn:2:16
+
+  2 │     for (var i = 0; i < 10; i++) {
+    │                ^ expected `in`
+    │
+  help: loop over a range instead: `for i in 0..n { … }`
+error BYN0012: `int` is reserved and cannot be used as an identifier
+  --> {D}/diag/csharp-name-declared.byn:1:15
+
+  1 │ void show(i32 int) {
+    │               ^^^ a C# primitive type name
+    │
+  help: choose another name
+
+error BYN0012: `long` is reserved and cannot be used as an identifier
+  --> {D}/diag/csharp-name-declared.byn:2:9
+
+  2 │     let long = 4
+    │         ^^^^ a C# primitive type name
+    │
+  help: choose another name
+error BYN1051: `except` is not allowed in a `case` pattern
+  --> {D}/diag/except-in-case-left.byn:3:22
+
+  3 │         case .square except .circle: return s
+    │                      ^^^^^^ not allowed here
+    │
+  help: write the arm as `case not .circle`
+error BYN1052: `except` takes a pattern, not a condition
+  --> {D}/diag/except-not-pattern.byn:2:22
+
+  2 │     if n is 0 except n > 3 {
+    │                      ^^^^^ a condition
+    │
+  help: use `where` for a condition
+error BYN1002: expected an expression, found keyword `let`
+  --> {D}/diag/expected-expression.byn:2:1
+
+  2 │ let b = 1 +
+    │ ^^^
+
+error BYN1002: expected an expression, found keyword `let`
+  --> {D}/diag/expected-expression.byn:3:1
+
+  3 │ let c = (1, )
+    │ ^^^
+
+error BYN1002: expected an expression, found `)`
+  --> {D}/diag/expected-expression.byn:3:13
+
+  3 │ let c = (1, )
+    │             ^
+error BYN1003: expected a type, found `,`
+  --> {D}/diag/expected-member.byn:1:15
+
+  1 │ void f(i64 a, , i64 b) {}
+    │               ^
+
+error BYN1004: expected a field, property, constructor or method, found `+`
+  --> {D}/diag/expected-member.byn:4:5
+
+  4 │     +
+    │     ^
+error BYN1012: this expression does nothing as a statement
+  --> {D}/diag/expression-statement.byn:2:5
+
+  2 │     a + b
+    │     ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/diag/expression-statement.byn:3:5
+
+  3 │     a == b
+    │     ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1010: `goto` does not exist in Bayan
+  --> {D}/diag/goto-case.byn:4:13
+
+  4 │             goto case 2
+    │             ^^^^ `goto case` does not exist
+    │
+  help: combine patterns with `or`, or move shared code into a function; switch sections never fall
+        through
+error BYN1010: `goto` does not exist in Bayan
+  --> {D}/diag/goto.byn:3:9
+
+  3 │         goto done
+    │         ^^^^ not a keyword in Bayan
+    │
+  help: label the loop (`outer: for x in xs { … }`) and use `break outer` to leave it early
+    │ 3 │         break done
+    │   │         +++++
+error BYN1006: `unless` cannot have an `else` branch
+  --> {D}/diag/input-body-nested-diagnostic.byn:4:36
+
+  4 │     if (a) unless b { print("s") } else { print("t") }
+    │                                    ^^^^ `else` after `unless`
+    │
+  help: use `if` with the opposite condition, so both branches read positively
+error BYN1025: `catch (e)` is an input form; bind the error in a `catch switch` arm
+  --> {D}/diag/input-catch-binding.byn:18:29
+
+  18 │     let b = parse("") catch (e) 0
+     │                             ^^^ the input form
+     │
+  help: write `catch switch { E e => … }`, binding the error in each arm
+error BYN1012: this expression does nothing as a statement
+  --> {D}/diag/input-fails-empty.byn:1:1
+
+  1 │ i32!() f() { return 1 }
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/diag/input-fails-empty.byn:1:4
+
+  1 │ i32!() f() { return 1 }
+    │    ^ found `!`
+    │
+  help: put the next statement on its own line
+    │ 1 │ i32
+    │ 2 │ !() f() { return 1 }
+error BYN1031: `T!E` is an input form; write `T f() fails E`
+  --> {D}/diag/input-fails-shorthand-optional-generic.byn:3:4
+
+  3 │ i32!E? f() {
+    │    ^^^ the input form
+    │
+  help: write the error types in a `fails` clause, the last clause of the signature
+
+error BYN1031: `T!E` is an input form; write `T f() fails E`
+  --> {D}/diag/input-fails-shorthand-optional-generic.byn:7:4
+
+  7 │ i32!Result<E> g() {
+    │    ^^^^^^^^^^ the input form
+    │
+  help: write the error types in a `fails` clause, the last clause of the signature
+error BYN1006: `unless` cannot have an `else` branch
+  --> {D}/diag/input-paren-braceless-body.byn:19:5
+
+  19 │     else print("g")
+     │     ^^^^ `else` after `unless`
+     │
+  help: use `if` with the opposite condition, so both branches read positively
+error BYN1001: expected `}` to end the interpolated expression, found `y`
+  --> {D}/diag/interpolation-hole.byn:1:20
+
+  1 │ let s = $"value {x y}"
+    │                    ^
+error BYN1011: cannot assign to this expression
+  --> {D}/diag/invalid-assignment.byn:2:5
+
+  2 │     f() = 1
+    │     ^^^
+    │
+  help: assign to a variable, a field or an indexed element
+
+error BYN1011: cannot assign to this expression
+  --> {D}/diag/invalid-assignment.byn:3:5
+
+  3 │     a + b = 2
+    │     ^^^^^
+    │
+  help: assign to a variable, a field or an indexed element
+error BYN1001: expected a lambda parameter name, found `i32 x`
+  --> {D}/diag/lambda-typed-parameter.byn:2:14
+
+  2 │     let f = (i32 x) => x
+    │              ^^^^^ not a bare name
+    │
+  help: write the parameter's name only; a lambda takes its parameter types from the function type
+        it is passed to
+
+error BYN1001: expected a lambda parameter name, found `by x`
+  --> {D}/diag/lambda-typed-parameter.byn:3:14
+
+  3 │     let g = (by x) => x
+    │              ^^^^ not a bare name
+    │
+  help: write the parameter's name only; a lambda takes its parameter types from the function type
+        it is passed to
+error BYN1016: `public` is not allowed here
+  --> {D}/diag/misplaced-modifier.byn:1:1
+
+  1 │ public import money
+    │ ^^^^^^
+
+error BYN1016: `readonly` is not allowed here
+  --> {D}/diag/misplaced-modifier.byn:2:1
+
+  2 │ readonly void f() {}
+    │ ^^^^^^^^
+
+error BYN1016: `static` is not allowed here
+  --> {D}/diag/misplaced-modifier.byn:3:1
+
+  3 │ static struct S {}
+    │ ^^^^^^
+error BYN8001: `@allow` bypasses a safety rule and needs `because "…"`
+  --> {D}/diag/missing-because.byn:1:1
+
+  1 │ @allow(unusedValue)
+    │ ^^^^^^^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+
+error BYN8001: `load()` bypasses a safety rule and needs `because "…"`
+  --> {D}/diag/missing-because.byn:3:5
+
+  3 │     load() because ""
+    │     ^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+
+error BYN8001: `@allow` bypasses a safety rule and needs `because "…"`
+  --> {D}/diag/missing-because.byn:7:1
+
+  7 │ @allow(unusedValue) because " "
+    │ ^^^^^^^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+error BYN1005: expected a line break after the statement
+  --> {D}/diag/missing-line-break.byn:1:10
+
+  1 │ let a = 1 let b = 2
+    │          ^ found keyword `let`
+    │
+  help: put the next statement on its own line
+    │ 1 │ let a = 1
+    │ 2 │ let b = 2
+error BYN1046: `pattern` is allowed only after `=` in a `const`
+  --> {D}/diag/pattern-outside-const.byn:6:17
+
+  6 │     let empty = pattern Line { qty: 0 }
+    │                 ^^^^^^^ `pattern` outside a `const`
+    │
+  help: declare the pattern as `const name = pattern T { … }`
+error BYN1064: payload `f64` of `.circle` needs a name
+  --> {D}/diag/payload-needs-name.byn:2:12
+
+  2 │     circle(f64)
+    │            ^^^ no name
+    │
+  help: name the payload: `.circle(f64 name)`
+error BYN1067: pointer types are allowed only in `extern` declarations
+  --> {D}/diag/pointer-outside-extern.byn:1:11
+
+  1 │ void fill(u8* buffer) {
+    │           ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+error BYN1009: postfix conditions cannot be chained
+  --> {D}/diag/postfix-chained.byn:2:17
+
+  2 │     work() if a if b
+    │                 ^^ a second condition
+    │
+  help: combine the conditions with `&&` in one postfix `if`
+error BYN1008: a postfix `if` applies only to a simple statement
+  --> {D}/diag/postfix-not-simple.byn:2:16
+
+  2 │     { work() } if ok
+    │                ^^
+    │
+  help: put the condition first: `if cond { … }`
+
+error BYN1008: a postfix `if` applies only to a simple statement
+  --> {D}/diag/postfix-not-simple.byn:3:15
+
+  3 │     let x = 1 if ok
+    │               ^^
+    │
+  help: declare the variable, then assign it conditionally; a declaration cannot be conditional
+error BYN1067: pointer types are allowed only in `extern` declarations
+  --> {D}/diag/prefix-pointer-input.byn:1:11
+
+  1 │ void copy(*const u8 from, *mut u8 to) {
+    │           ^^^^^^^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+
+error BYN1067: pointer types are allowed only in `extern` declarations
+  --> {D}/diag/prefix-pointer-input.byn:1:27
+
+  1 │ void copy(*const u8 from, *mut u8 to) {
+    │                           ^^^^^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+error BYN1002: expected an expression, found keyword `let`
+  --> {D}/diag/recovery.byn:3:5
+
+  3 │     let y = 2
+    │     ^^^
+error BYN2117: `ref this` must be the first parameter
+  --> {D}/diag/ref-this-not-first.byn:4:22
+
+  4 │     void add(i64 by, ref this) {
+    │                      ^^^^^^^^ after other parameters
+    │
+  help: move `ref this` to the start of the parameter list
+error BYN3218: this `requires` reads `it` and other fields
+  --> {D}/diag/requires-mixes-fields.byn:3:14
+
+  3 │     i64 high requires it > 0 && it >= low
+    │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: split it: an `it` rule under the field, and a struct-level rule with `at .field`
+error BYN1001: expected a named optional parameter after `rest`, found `i32 extra`
+  --> {D}/diag/rest-named-after.byn:1:37
+
+  1 │ void sum(rest ReadOnlySpan<i32> xs, i32 extra) {
+    │                                     ^^^^^^^^^ a positional parameter after `rest`
+    │
+  help: give it a default value, or move it before the `rest` parameter
+
+error BYN1001: expected a named optional parameter after `rest`, found `rest ReadOnlySpan<i32> ys`
+  --> {D}/diag/rest-named-after.byn:4:38
+
+  4 │ void both(rest ReadOnlySpan<i32> xs, rest ReadOnlySpan<i32> ys) {
+    │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^ a second `rest` parameter
+    │
+  help: keep one `rest` parameter
+error BYN1014: stacked `case` labels
+  --> {D}/diag/stacked-case.byn:4:9
+
+  4 │         case .sun:
+    │         ^^^^ a second label for the same statements
+    │
+  help: combine the patterns into one label, e.g. `case .sat or .sun:`
+error BYN8001: `@unobservable` bypasses a safety rule and needs `because "…"`
+  --> {D}/diag/statement-attribute-because.byn:2:5
+
+  2 │     @unobservable
+    │     ^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+
+error BYN8001: `@unobservable` bypasses a safety rule and needs `because "…"`
+  --> {D}/diag/statement-attribute-because.byn:7:5
+
+  7 │     @unobservable(boundary) because ""
+    │     ^^^^^^^^^^^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+error BYN1008: a postfix `if` applies only to a simple statement
+  --> {D}/diag/statement-attribute-semicolon.byn:6:9
+
+  6 │     { } if x > 0
+    │         ^^
+    │
+  help: put the condition first: `if cond { … }`
+
+error BYN1008: a postfix `unless` applies only to a simple statement
+  --> {D}/diag/statement-attribute-semicolon.byn:8:20
+
+  8 │     if x > 100 { } unless y < 0;
+    │                    ^^^^^^
+    │
+  help: put the condition first: `if cond { … }`
+error BYN1069: attribute `@inline` is not allowed before a statement
+  --> {D}/diag/statement-attribute.byn:2:5
+
+  2 │     @inline
+    │     ^^^^^^^ before a statement
+    │
+  help: remove the attribute; only `@unobservable` may come before a statement
+
+error BYN1069: attribute `@allow` is not allowed before a statement
+  --> {D}/diag/statement-attribute.byn:9:5
+
+  9 │     @allow(unusedValue) because "kept"
+    │     ^^^^^^^^^^^^^^^^^^^ before a statement
+    │
+  help: remove the attribute; only `@unobservable` may come before a statement
+error BYN1001: expected a declaration or statement, found `}`
+  --> {D}/diag/stray-tokens.byn:1:1
+
+  1 │ }
+    │ ^
+    │
+  help: remove this `}`; it has no matching `{`
+
+error BYN1001: expected a statement, found keyword `else`
+  --> {D}/diag/stray-tokens.byn:3:1
+
+  3 │ else { }
+    │ ^^^^
+    │
+  help: remove this `else`; it has no matching `if`
+error BYN1013: a conditional expression inside a collection literal must be parenthesized
+  --> {D}/diag/ternary-in-collection.byn:1:11
+
+  1 │ let xs = [a ? 1 : 2, 3]
+    │           ^^^^^^^^^
+    │
+  help: wrap it in parentheses
+    │ 1 │ let xs = [(a ? 1 : 2), 3]
+    │   │           +++++++++++
+error BYN1062: `trust(x, reason: …)` is now `x.trustUnchecked() because "…"`
+  --> {D}/diag/trust-input.byn:8:7
+
+  8 │ print(trust(u, reason: reason))
+    │       ^^^^^ the input form
+    │
+  help: call `trustUnchecked()` on the value and give the reason in `because`
+error BYN1001: expected `}`, found `void`
+  --> {D}/diag/unclosed-brace.byn:5:1
+
+  5 │ void g() {}
+    │ ^^^^
+    │
+  help: close the block opened on line 2
+error BYN1001: expected `}`, found end of file
+  --> {D}/diag/unclosed-struct.byn:3:1
+
+  3 │ 
+    │ ^
+    │
+  help: close the struct opened on line 1
+error BYN5008: `over` is not a particle
+  --> {D}/diag/unknown-particle.byn:1:11
+
+  1 │ void copy(over Buf src, to Buf dst) {
+    │           ^^^^ not a particle
+    │
+  help: choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`
+error BYN1006: `unless` cannot have an `else` branch
+  --> {D}/diag/unless-else.byn:2:27
+
+  2 │     unless ok { retry() } else { done() }
+    │                           ^^^^ `else` after `unless`
+    │
+  help: use `if` with the opposite condition, so both branches read positively
+error BYN1006: `unless` cannot have an `else` branch
+  --> {D}/diag/unless-not-else-braceless-fix.byn:4:5
+
+  4 │     else print("t")
+    │     ^^^^ `else` after `unless`
+    │
+  help: use `if` with the opposite condition, so both branches read positively
+error BYN0007: empty char literal
+  --> {D}/lex/bad-chars.byn:1:1
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/bad-chars.byn:1:1
+
+  1 │ ''
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+  --> {D}/lex/bad-chars.byn:2:1
+
+  2 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\q`
+  --> {D}/lex/bad-chars.byn:3:2
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+  --> {D}/lex/bad-chars.byn:4:2
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+  --> {D}/lex/bad-chars.byn:5:2
+
+  5 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+  --> {D}/lex/bad-chars.byn:6:1
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/bad-interpolation.byn:1:1
+
+  1 │ $"stray } here"
+    │ ^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN0014: `}` in an interpolated string must be doubled
+  --> {D}/lex/bad-interpolation.byn:1:9
+
+  1 │ $"stray } here"
+    │         ^
+    │
+    │ 1 │ $"stray }} here"
+    │   │          +
+
+error BYN0003: unterminated string literal
+  --> {D}/lex/bad-interpolation.byn:2:1
+
+  2 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+  --> {D}/lex/bad-interpolation.byn:2:10
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+error BYN0010: invalid numeric literal: expected digits after `0x`
+  --> {D}/lex/bad-numbers.byn:1:1
+
+  1 │ 0x
+    │ ^^
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/bad-numbers.byn:1:1
+
+  1 │ 0x
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+  --> {D}/lex/bad-numbers.byn:2:2
+
+  2 │ 1_
+    │  ^
+    │
+    │ 2 │ 1_
+    │   │  -
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+  --> {D}/lex/bad-numbers.byn:3:5
+
+  3 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+  --> {D}/lex/bad-numbers.byn:4:5
+
+  4 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+  --> {D}/lex/bad-numbers.byn:5:4
+
+  5 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+  --> {D}/lex/bad-numbers.byn:6:1
+
+  6 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+  --> {D}/lex/bad-numbers.byn:7:1
+
+  7 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+  --> {D}/lex/bad-numbers.byn:8:2
+
+  8 │ 1__
+    │  ^^
+    │
+    │ 8 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+  --> {D}/lex/bad-numbers.byn:9:4
+
+  9 │ 0xF__
+    │    ^^
+    │
+    │ 9 │ 0xF__
+    │   │    --
+error BYN0003: unterminated string literal
+  --> {D}/lex/bad-strings.byn:1:9
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+  --> {D}/lex/bad-strings.byn:2:14
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+  --> {D}/lex/bad-strings.byn:3:9
+
+  3 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+  --> {D}/lex/bidi.byn:1:12
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+  --> {D}/lex/bidi.byn:2:6
+
+  2 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ let x� = 1
+    │   │      -
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/chars.byn:1:1
+
+  1 │ 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/lex/chars.byn:1:4
+
+  1 │ 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │    ^ found a rune literal
+    │
+  help: put the next statement on its own line
+    │ 1 │ 'a'
+    │ 2 │ '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/comments.byn:3:15
+
+  3 │    comment */ a
+    │               ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1001: expected `{`, found `b`
+  --> {D}/lex/comments.byn:8:1
+
+  8 │ b
+    │ ^
+
+error BYN1001: expected `}`, found end of file
+  --> {D}/lex/comments.byn:9:1
+
+  9 │ 
+    │ ^
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/floats.byn:1:1
+
+  1 │ 3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │ ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/lex/floats.byn:1:5
+
+  1 │ 3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │     ^ found `1e5`
+    │
+  help: put the next statement on its own line
+    │ 1 │ 3.14
+    │ 2 │ 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/generics.byn:2:1
+
+  2 │ a >> b
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/identifiers.byn:1:1
+
+  1 │ foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/lex/identifiers.byn:1:4
+
+  1 │ foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │    ^ found `Bar`
+    │
+  help: put the next statement on its own line
+    │ 1 │ foo
+    │ 2 │ Bar _x camelCase2 بيان μετρητής x_1 é
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/integers.byn:1:1
+
+  1 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/lex/integers.byn:1:2
+
+  1 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │  ^ found `42`
+    │
+  help: put the next statement on its own line
+    │ 1 │ 0
+    │ 2 │ 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/interpolation.byn:1:1
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/lex/interpolation.byn:1:13
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │             ^ found a string literal
+    │
+  help: put the next statement on its own line
+    │ 1 │ $"total {x}"
+    │ 2 │ $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+error BYN1002: expected an expression, found `}`
+  --> {D}/lex/interpolation.byn:1:68
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                                                    ^
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+  --> {D}/lex/invalid-utf8.byn:2:5
+
+  2 │ let � = 2
+    │     ^
+
+error BYN1001: expected a variable name, found `=`
+  --> {D}/lex/invalid-utf8.byn:2:7
+
+  2 │ let � = 2
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+  --> {D}/lex/invalid-utf8.byn:3:7
+
+  3 │ // ok � in comment
+    │       ^
+error BYN1001: expected a struct name, found keyword `union`
+  --> {D}/lex/keywords.byn:1:15
+
+  1 │ struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │               ^^^^^
+
+error BYN1005: expected a line break after the statement
+  --> {D}/lex/keywords.byn:2:15
+
+  2 │ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │               ^ found keyword `distinct`
+    │
+  help: put the next statement on its own line
+    │ 2 │ error set unit
+    │ 3 │ distinct type import as public private static readonly required const let var embed extern unsafe
+
+error BYN1001: expected `=`, found keyword `distinct`
+  --> {D}/lex/keywords.byn:2:16
+
+  2 │ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                ^^^^^^^^
+
+error BYN1004: expected a field, property, constructor or method, found keyword `if`
+  --> {D}/lex/keywords.byn:3:1
+
+  3 │ if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │ ^^
+
+error BYN1004: expected a field, property, constructor or method, found keyword `test`
+  --> {D}/lex/keywords.byn:6:1
+
+  6 │ test assert property fuzz model foreach new goto
+    │ ^^^^
+
+error BYN1001: expected `}`, found end of file
+  --> {D}/lex/keywords.byn:7:1
+
+  7 │ 
+    │ ^
+error BYN0005: identifier `café` is not in Unicode normalization form C
+  --> {D}/lex/nfc.byn:1:5
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+error BYN1002: expected an expression, found `)`
+  --> {D}/lex/operators.byn:1:3
+
+  1 │ ( ) [ ] { }
+    │   ^
+    │
+  help: write a value; `()` is not one, and a tuple has at least two elements
+
+error BYN1002: expected an expression, found `]`
+  --> {D}/lex/operators.byn:1:7
+
+  1 │ ( ) [ ] { }
+    │       ^
+
+error BYN1005: expected a line break after the statement
+  --> {D}/lex/operators.byn:1:8
+
+  1 │ ( ) [ ] { }
+    │        ^ found `{`
+    │
+  help: put the next statement on its own line
+    │ 1 │ ( ) [ ]
+    │ 2 │ { }
+
+error BYN1002: expected an expression, found `,`
+  --> {D}/lex/operators.byn:2:1
+
+  2 │ , . .. ..= : ? ?? ??= ?. => -> @ #
+    │ ^
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+  --> {D}/lex/reserved.byn:1:5
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+  --> {D}/lex/reserved.byn:3:1
+
+  3 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/reserved.byn:3:1
+
+  3 │ macro select become
+    │ ^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/lex/reserved.byn:3:6
+
+  3 │ macro select become
+    │      ^ found `select`
+    │
+  help: put the next statement on its own line
+    │ 3 │ macro
+    │ 4 │ select become
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+  --> {D}/lex/reserved.byn:3:7
+
+  3 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/strings.byn:1:1
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/lex/strings.byn:1:7
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │       ^ found a string literal
+    │
+  help: put the next statement on its own line
+    │ 1 │ "text"
+    │ 2 │ "esc \"q\" \\ \n" """
+error BYN0016: interpolated strings are nested too deeply
+  --> {D}/lex/too-deep.byn:1:57
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN1001: expected `}` to end the interpolated expression, found `{`
+  --> {D}/lex/too-deep.byn:1:62
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                              ^
+error BYN0002: unexpected character `$`
+  --> {D}/lex/unexpected.byn:1:9
+
+  1 │ let a = $ 1
+    │         ^
+
+error BYN0002: unexpected character ```
+  --> {D}/lex/unexpected.byn:2:9
+
+  2 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+  --> {D}/lex/unexpected.byn:3:9
+
+  3 │ let c = � 3
+    │         ^
+error BYN1012: this expression does nothing as a statement
+  --> {D}/lex/unterminated-comment.byn:1:1
+
+  1 │ a /* never closed
+    │ ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN0004: unterminated block comment
+  --> {D}/lex/unterminated-comment.byn:1:3
+
+  1 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+error BYN1011: cannot assign to this expression
+  --> {D}/manifest/colon-equals.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^
+    │
+  help: assign to a variable, a field or an indexed element
+
+error BYN1002: expected an expression, found `=`
+  --> {D}/manifest/colon-equals.byn:2:11
+
+  2 │     name: = "local/shop",
+    │           ^
+
+error BYN1005: expected a line break after the statement
+  --> {D}/manifest/colon-equals.byn:2:25
+
+  2 │     name: = "local/shop",
+    │                         ^ found `,`
+    │
+  help: put the next statement on its own line
+    │ 2 │     name: = "local/shop"
+    │ 3 │     ,
+    │   │ ++++
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/colon-equals.byn:3:14
+
+  3 │     version: "0.1.0",
+    │              ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/manifest/colon-equals.byn:3:21
+
+  3 │     version: "0.1.0",
+    │                     ^ found `,`
+    │
+  help: put the next statement on its own line
+    │ 3 │     version: "0.1.0"
+    │ 4 │     ,
+    │   │ ++++
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/colon-equals.byn:4:14
+
+  4 │     edition: 2027,
+    │              ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/manifest/colon-equals.byn:4:18
+
+  4 │     edition: 2027,
+    │                  ^ found `,`
+    │
+  help: put the next statement on its own line
+    │ 4 │     edition: 2027
+    │ 5 │     ,
+    │   │ ++++
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/colon-equals.byn:5:11
+
+  5 │     kind: .app,
+    │           ^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/manifest/colon-equals.byn:5:15
+
+  5 │     kind: .app,
+    │               ^ found `,`
+    │
+  help: put the next statement on its own line
+    │ 5 │     kind: .app
+    │ 6 │     ,
+    │   │ ++++
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> {D}/manifest/colon-equals.byn:6:1
+
+  6 │ }
+    │ ^
+    │
+  help: remove this `}`; it has no matching `{`
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/colon-missing.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/manifest/colon-missing.byn:1:8
+
+  1 │ Package {
+    │        ^ found `{`
+    │
+  help: put the next statement on its own line
+    │ 1 │ Package
+    │ 2 │ {
+error BYN1001: expected a field name, found keyword `test`
+  --> {D}/manifest/colon.byn:8:5
+
+  8 │     test: Tests { diffCoverage: 80, nightly: [.fuzz] },
+    │     ^^^^
+
+error BYN1001: expected the test's name as a string literal, found `:`
+  --> {D}/manifest/colon.byn:8:9
+
+  8 │     test: Tests { diffCoverage: 80, nightly: [.fuzz] },
+    │         ^
+
+error BYN1002: expected an expression, found `,`
+  --> {D}/manifest/colon.byn:8:55
+
+  8 │     test: Tests { diffCoverage: 80, nightly: [.fuzz] },
+    │                                                       ^
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/colon.byn:9:11
+
+  9 │     dist: Dist { targets: [.host], mode: .safe },
+    │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/manifest/colon.byn:9:49
+
+   9 │     dist: Dist { targets: [.host], mode: .safe },
+     │                                                 ^ found `,`
+     │
+  help: put the next statement on its own line
+     │  9 │     dist: Dist { targets: [.host], mode: .safe }
+     │ 10 │     ,
+     │    │ ++++
+
+error BYN1002: expected an expression, found `.`
+  --> {D}/manifest/colon.byn:14:25
+
+  14 │         trailingCommas: .never,
+     │                         ^
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/colon.byn:15:16
+
+  15 │         lints: ["guards.postfix": .warning],
+     │                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the value is computed and discarded
+     │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/manifest/colon.byn:15:44
+
+  15 │         lints: ["guards.postfix": .warning],
+     │                                            ^ found `,`
+     │
+  help: put the next statement on its own line
+     │ 15 │         lints: ["guards.postfix": .warning]
+     │ 16 │         ,
+     │    │ ++++++++
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> {D}/manifest/colon.byn:16:5
+
+  16 │     },
+     │     ^
+     │
+  help: remove this `}`; it has no matching `{`
+
+error BYN1002: expected an expression, found `,`
+  --> {D}/manifest/colon.byn:16:6
+
+  16 │     },
+     │      ^
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> {D}/manifest/colon.byn:17:1
+
+  17 │ }
+     │ ^
+     │
+  help: remove this `}`; it has no matching `{`
+bayan: {D}/manifest/equals.byn: rewriting it made it unparsable, so the rewrite was abandoned and the file left unchanged
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/grammar-collective-mixed.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/grammar-invalid.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/grammar-not-grammar.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/grammar-overlap-case.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/grammar-overlap.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/grammar-repeat.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/invalid-values.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/missing-fields.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/not-a-package.byn:1:1
+
+  1 │ Dist {
+    │ ^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/not-data.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/style-choices.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/style-invalid.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/style-not-style.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1001: expected a field name, found keyword `test`
+  --> {D}/manifest/tests-invalid.byn:4:5
+
+  4 │     test: Tests { lines: 101, branches: "all", errorPaths: 150, mutation: true, summary: 1, speed: 3 },
+    │     ^^^^
+
+error BYN1001: expected the test's name as a string literal, found `:`
+  --> {D}/manifest/tests-invalid.byn:4:9
+
+  4 │     test: Tests { lines: 101, branches: "all", errorPaths: 150, mutation: true, summary: 1, speed: 3 },
+    │         ^
+
+error BYN1002: expected an expression, found `,`
+  --> {D}/manifest/tests-invalid.byn:4:103
+
+  4 │     test: Tests { lines: 101, branches: "all", errorPaths: 150, mutation: true, summary: 1, speed: 3 },
+    │                                                                                                       ^
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> {D}/manifest/tests-invalid.byn:5:1
+
+  5 │ }
+    │ ^
+    │
+  help: remove this `}`; it has no matching `{`
+error BYN1001: expected a field name, found keyword `test`
+  --> {D}/manifest/tests-not-tests.byn:4:5
+
+  4 │     test: 80,
+    │     ^^^^
+
+error BYN1001: expected the test's name as a string literal, found `:`
+  --> {D}/manifest/tests-not-tests.byn:4:9
+
+  4 │     test: 80,
+    │         ^
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> {D}/manifest/tests-not-tests.byn:5:1
+
+  5 │ }
+    │ ^
+    │
+  help: remove this `}`; it has no matching `{`
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/unknown-field.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1001: expected a field name, found keyword `test`
+  --> {D}/manifest/valid.byn:9:5
+
+  9 │     test: Tests { diffCoverage: 80, nightly: [.fuzz] },
+    │     ^^^^
+
+error BYN1001: expected the test's name as a string literal, found `:`
+  --> {D}/manifest/valid.byn:9:9
+
+  9 │     test: Tests { diffCoverage: 80, nightly: [.fuzz] },
+    │         ^
+
+error BYN1002: expected an expression, found `,`
+  --> {D}/manifest/valid.byn:9:55
+
+  9 │     test: Tests { diffCoverage: 80, nightly: [.fuzz] },
+    │                                                       ^
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/manifest/valid.byn:10:11
+
+  10 │     dist: Dist {
+     │           ^^^^^^ the value is computed and discarded
+     │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/manifest/valid.byn:13:6
+
+  13 │     },
+     │      ^ found `,`
+     │
+  help: put the next statement on its own line
+     │ 13 │     }
+     │ 14 │     ,
+     │    │ ++++
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> {D}/manifest/valid.byn:14:1
+
+  14 │ }
+     │ ^
+     │
+  help: remove this `}`; it has no matching `{`
+error BYN1051: `except` is not allowed in a `case` pattern
+  --> {D}/parse/except-in-case-left.byn:3:22
+
+  3 │         case .square except .circle: return s
+    │                      ^^^^^^ not allowed here
+    │
+  help: write the arm as `case not .circle`
+error BYN1001: expected a loop variable, found keyword `in`
+  --> {D}/parse/for-input-form-missing-name.byn:2:15
+
+  2 │     for (let  in xs) {
+    │               ^^
+error BYN1001: expected a lambda parameter name, found `,`
+  --> {D}/parse/lambdas-recovery.byn:8:14
+
+  8 │     let f = (, a) => 1
+    │              ^ an empty parameter
+    │
+  help: write the parameter's name
+
+error BYN1001: expected a lambda parameter name, found `a`
+  --> {D}/parse/lambdas-recovery.byn:9:14
+
+  9 │     let g = (a] => 1
+    │              ^ not a bare name
+    │
+  help: write the parameter's name only; a lambda takes its parameter types from the function type
+        it is passed to
+
+error BYN1001: expected `)`, found `]`
+  --> {D}/parse/lambdas-recovery.byn:9:15
+
+  9 │     let g = (a] => 1
+    │               ^
+
+error BYN1001: expected a lambda parameter name, found `,`
+  --> {D}/parse/lambdas-recovery.byn:10:16
+
+  10 │     let h = (a,,b) => 1
+     │                ^ an empty parameter
+     │
+  help: write the parameter's name
+error BYN1012: this expression does nothing as a statement
+  --> {D}/parse/lambdas.byn:23:5
+
+  23 │     (a, b) => a
+     │     ^^^^^^^^^^^ the value is computed and discarded
+     │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+error BYN1002: expected an expression, found `.`
+  --> {D}/parse/pattern-branches-unicode.byn:2:15
+
+  2 │ let pb = x is .
+    │               ^
+
+error BYN1002: expected an expression, found `.`
+  --> {D}/parse/pattern-branches-unicode.byn:3:15
+
+  3 │ let pc = x is .5
+    │               ^
+
+error BYN1002: expected an expression, found `{`
+  --> {D}/parse/pattern-branches-unicode.byn:16:9
+
+  16 │ if x is { }
+     │         ^
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> {D}/parse/pattern-branches-unicode.byn:17:1
+
+  17 │ }
+     │ ^
+     │
+  help: remove this `}`; it has no matching `{`
+
+error BYN1005: expected a line break after the statement
+  --> {D}/parse/pattern-branches-unicode.byn:21:20
+
+  21 │ let tb = order.paid { x: 1 }
+     │                    ^ found `{`
+     │
+  help: put the next statement on its own line
+     │ 21 │ let tb = order.paid
+     │ 22 │ { x: 1 }
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/parse/pattern-branches-unicode.byn:21:26
+
+  21 │ let tb = order.paid { x: 1 }
+     │                          ^ the value is computed and discarded
+     │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/parse/pattern-branches-unicode.byn:22:20
+
+  22 │ if Order.paid { x: 1 }
+     │                    ^ the value is computed and discarded
+     │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> {D}/parse/pattern-branches-unicode.byn:23:1
+
+  23 │ }
+     │ ^
+     │
+  help: remove this `}`; it has no matching `{`
+error BYN1005: expected a line break after the statement
+  --> {D}/parse/struct-literal-unicode-upper.byn:8:15
+
+  8 │ let h = v is ω { x: 1 }
+    │               ^ found `{`
+    │
+  help: put the next statement on its own line
+    │ 8 │ let h = v is ω
+    │ 9 │ { x: 1 }
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/parse/struct-literal-unicode-upper.byn:8:21
+
+  8 │ let h = v is ω { x: 1 }
+    │                     ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> {D}/parse/struct-literal-unicode-upper.byn:9:10
+
+   9 │ let i = ω { x: 1 }
+     │          ^ found `{`
+     │
+  help: put the next statement on its own line
+     │  9 │ let i = ω
+     │ 10 │ { x: 1 }
+
+error BYN1012: this expression does nothing as a statement
+  --> {D}/parse/struct-literal-unicode-upper.byn:9:16
+
+  9 │ let i = ω { x: 1 }
+    │                ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN0005: identifier `Åp` is not in Unicode normalization form C
+  --> {D}/parse/struct-literal-unicode-upper.byn:10:9
+
+  10 │ let j = Åp { x: 1 }
+     │         ^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 10 │ let j = Åp { x: 1 }
+     │    │         +

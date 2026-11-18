@@ -1,0 +1,7 @@
+== s59
+switchExpr|i32|4595:71
+value moveExpr:Box
+arm 4614:42 unionPattern[4614:37]:Box(full;propertyPattern[4620:30]:Ledger(Ledger;items:List<i64>=bindPattern[4629:3]:List<i64>(a:List<i64>:o:-:let);items:List<i64>=bindPattern[4643:3]:List<i64>(b:List<i64>:o:-:let)|-)|-) guard - value literal:i32=1
+arm 4658:6 bindPattern[4658:1]:Box_(-) guard - value literal:i32=0
+BYN2790 130:40 pattern `{ items: let a, items: let b }` binds the same storage more than once in `switch move …` ||bind each field once|
+BYN2712 130:78 `_` hides future cases of `Box`, declared in this package |matches every case added later|list the cases instead: .empty|

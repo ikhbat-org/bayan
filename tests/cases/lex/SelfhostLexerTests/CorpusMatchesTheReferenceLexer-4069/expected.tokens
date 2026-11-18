@@ -1,0 +1,36 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+3:1 IntegerLiteral `000`
+3:4 CloseBrace `}`
+3:5 CharLiteral `'`
+4:1 CharLiteral `'x`
+5:2 CharLiteral `'ab'`
+6:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  3 │ 000}'
+    │     ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text

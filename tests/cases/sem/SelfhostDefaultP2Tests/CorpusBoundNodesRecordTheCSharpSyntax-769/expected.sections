@@ -1,0 +1,34 @@
+== tests/cases/diag/ref-out-escape-lambda-loop.byn
+49..62 blockStmt
+55..60 assignStmt assign target 55..56 value 59..60
+55..56 nameExpr
+59..60 nameExpr
+76..202 blockStmt
+82..111 localDecl
+105..111 lambdaExpr
+116..176 forStmt
+125..129 rangeExpr
+125..126 literalExpr integer
+128..129 literalExpr integer
+130..176 blockStmt
+140..170 exprStmt
+140..170 callExpr
+145..155 lambdaExpr
+154..155 nameExpr
+165..169 nameExpr
+181..200 exprStmt
+181..200 callExpr
+187..199 interpolatedExpr
+190..197 callExpr
+190..194 nameExpr
+195..196 literalExpr integer
+181..200 callExpr
+110..111 nameExpr
+110..111 nameExpr
+110..111 nameExpr
+150..155 binaryExpr add right 154..155
+150..155 binaryExpr add right 154..155
+150..155 binaryExpr add right 154..155
+150..151 nameExpr
+154..155 nameExpr
+154..155 nameExpr

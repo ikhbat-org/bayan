@@ -1,0 +1,62 @@
+1:1 IntegerLiteral `0xF__`
+2:1 Star `*`
+2:2 Slash `/`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolatedStringText `stray } here`
+2:19 InterpolatedStringEnd `"`
+3:2 IntegerLiteral `0xF__`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+7:1 CloseBrace `}`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ */� $"stray } here"
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ */� $"stray } here"
+    │   │   -
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ */� $"stray } here"
+    │             ^
+    │
+    │ 2 │ */� $"stray }} here"
+    │   │              +
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │  0xF__
+    │     ^^
+    │
+    │ 3 │  0xF__
+    │   │     --
+
+error BYN0002: unexpected character `\u{1B}`
+
+  5 │ let x��� = 1
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  5 │ let x��� = 1
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  5 │ let x��� = 1
+    │        ^

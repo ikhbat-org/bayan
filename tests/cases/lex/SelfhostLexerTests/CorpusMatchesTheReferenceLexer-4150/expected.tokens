@@ -1,0 +1,16 @@
+1:2 StringLiteral `"a{b}c`
+2:1 Identifier `_1`
+2:3 Dot `.`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC6)
+
+  1 │ �"a{b}c
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �"a{b}c
+    │  ^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

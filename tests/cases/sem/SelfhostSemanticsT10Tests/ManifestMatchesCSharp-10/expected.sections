@@ -1,0 +1,5 @@
+== case manifest/grammar-not-grammar
+errors 1
+error BYN3102: `grammar` must be a `Grammar { … }`
+  4 │     grammar: ["upsert"],
+    │              ^^^^^^^^^^

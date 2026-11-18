@@ -1,0 +1,111 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+2:1 CharLiteral `'\u{202E}'`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolationStart `{`
+2:9 InterpolatedStringStart `$"`
+2:11 InterpolationStart `{`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 StringLiteral `$"{$"`
+2:59 OpenBrace `{`
+2:60 StringLiteral `$"{$"`
+2:65 OpenBrace `{`
+2:66 Identifier `x`
+2:67 CloseBrace `}`
+2:68 StringLiteral `"}}"`
+2:72 CloseBrace `}`
+2:73 StringLiteral `"}"`
+2:76 InterpolationEnd `}`
+2:77 InterpolatedStringEnd `"`
+2:78 InterpolationEnd `}`
+2:79 InterpolatedStringEnd `"`
+2:80 InterpolationEnd `}`
+2:81 InterpolatedStringEnd `"`
+2:82 InterpolationEnd `}`
+2:83 InterpolatedStringEnd `"`
+2:84 InterpolationEnd `}`
+2:85 InterpolatedStringEnd `"`
+2:86 InterpolationEnd `}`
+2:87 InterpolatedStringEnd `"`
+2:88 InterpolationEnd `}`
+2:89 InterpolatedStringEnd `"`
+2:90 InterpolationEnd `}`
+2:91 InterpolatedStringEnd `"`
+2:92 InterpolationEnd `}`
+2:93 InterpolatedStringEnd `"`
+2:94 InterpolationEnd `}`
+2:95 InterpolatedStringEnd `"`
+2:96 InterpolationEnd `}`
+2:97 InterpolatedStringEnd `"`
+2:98 InterpolationEnd `}`
+2:99 InterpolatedStringEnd `"`
+2:100 InterpolationEnd `}`
+2:101 InterpolatedStringEnd `"`
+2:102 InterpolationEnd `}`
+2:103 InterpolatedStringEnd `"`
+2:104 InterpolationEnd `}`
+2:105 InterpolatedStringEnd `"`
+2:106 InterpolationEnd `}`
+2:107 InterpolatedStringEnd `"`
+2:109 StructKeyword `struct`
+2:116 UniqueKeyword `unique`
+2:123 UnionKeyword `union`
+2:129 EnumKeyword `enum`
+2:134 FlagsKeyword `flags`
+2:140 OpenKeyword `open`
+2:145 ExtensibleKeyword `extensible`
+2:156 InterfaceKeyword `interface`
+2:166 DelegateKeyword `delegate`
+2:175 ExtensionKeyword `extension`
+2:185 DerivationKeyword `derivation`
+2:196 AttributeKeyword `attribute`
+3:2 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = � 3
+    │         ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ '�'� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ '�'� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │   │  -
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ '�'� $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │                                                      ^^

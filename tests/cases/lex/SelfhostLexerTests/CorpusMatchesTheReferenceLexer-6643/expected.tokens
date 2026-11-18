@@ -1,0 +1,55 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+    doc `///error set unit distinct type import as public private static readonly required const let var embed extern unsafe`
+4:2 StructKeyword `struct`
+4:9 UniqueKeyword `unique`
+4:16 UnionKeyword `union`
+4:22 EnumKeyword `enum`
+4:27 FlagsKeyword `flags`
+4:33 OpenKeyword `open`
+4:38 ExtensibleKeyword `extensible`
+4:49 InterfaceKeyword `interface`
+4:59 DelegateKeyword `delegate`
+4:68 ExtensionKeyword `extension`
+4:78 DerivationKeyword `derivation`
+4:89 AttributeKeyword `attribute`
+5:1 IntegerLiteral `0x`
+6:4 LetKeyword `let`
+6:8 Identifier `b`
+6:10 Equals `=`
+6:12 StringLiteral `"bad \q escape"`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ �struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  4 │ �struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │  � let b = "bad \q escape"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │  � let b = "bad \q escape"
+    │   ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │  � let b = "bad \q escape"
+    │                 ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

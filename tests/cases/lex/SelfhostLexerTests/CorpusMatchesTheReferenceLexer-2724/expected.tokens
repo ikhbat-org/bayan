@@ -1,0 +1,91 @@
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:43 Identifier `V`
+1:44 StringLiteral `"{$"`
+1:48 OpenBrace `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 InterpolatedStringStart `$"`
+1:54 InterpolationStart `{`
+1:55 InterpolatedStringStart `$"`
+1:57 InterpolationStart `{`
+1:58 StringLiteral `$"{x}"`
+1:64 InterpolationEnd `}`
+1:65 InterpolatedStringEnd `"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringText ` \t�`
+1:70 InterpolatedStringEnd
+1:70 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ � �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$V"{$"{$"{$"{$"{$"{x}"}"} 	�
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$V"{$"{$"{$"{$"{$"{x}"}"} 	�
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  1 │ � �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$V"{$"{$"{$"{$"{$"{x}"}"} 	�
+    │   ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ � �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$V"{$"{$"{$"{$"{$"{x}"}"} 	�
+    │                                           ^
+
+error BYN0003: unterminated string literal
+
+  1 │ � �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$V"{$"{$"{$"{$"{$"{x}"}"} 	�
+    │                                                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ � �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$V"{$"{$"{$"{$"{$"{x}"}"} 	�
+    │                                                     ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ � �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$V"{$"{$"{$"{$"{$"{x}"}"} 	�
+    │                                                           ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ � �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$V"{$"{$"{$"{$"{$"{x}"}"} 	�
+    │                                                                     	^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ � �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$V"{$"{$"{$"{$"{$"{x}"}"} 	�
+    │                                                                     	 ^

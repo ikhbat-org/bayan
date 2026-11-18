@@ -1,0 +1,61 @@
+== tests/cases/run/io-remove-directory.byn
+157..739 blockStmt
+163..218 exprStmt
+163..218 tryExpr
+167..218 callExpr
+186..217 literalExpr string
+223..305 exprStmt
+223..305 catchExpr
+223..268 callExpr
+242..267 literalExpr string
+275..305 blockExpr
+275..305 blockStmt
+277..303 exprStmt
+277..303 callExpr
+283..302 literalExpr string
+277..303 callExpr
+310..365 exprStmt
+310..365 tryExpr
+314..365 callExpr
+333..364 literalExpr string
+370..419 exprStmt
+370..419 tryExpr
+374..419 callExpr
+393..418 literalExpr string
+424..504 exprStmt
+424..504 catchExpr
+424..469 callExpr
+443..468 literalExpr string
+476..504 blockExpr
+476..504 blockStmt
+478..502 exprStmt
+478..502 callExpr
+484..501 literalExpr string
+478..502 callExpr
+509..533 localDecl
+527..533 collectionExpr
+528..532 literalExpr integer
+538..592 exprStmt
+538..592 tryExpr
+542..592 callExpr
+555..580 literalExpr string
+582..591 memberExpr
+582..586 nameExpr
+597..674 exprStmt
+597..674 catchExpr
+597..642 callExpr
+616..641 literalExpr string
+649..674 blockExpr
+649..674 blockStmt
+651..672 exprStmt
+651..672 callExpr
+657..671 literalExpr string
+651..672 callExpr
+679..719 exprStmt
+679..719 tryExpr
+683..719 callExpr
+693..718 literalExpr string
+724..737 exprStmt
+724..737 callExpr
+730..736 literalExpr string
+724..737 callExpr

@@ -1,0 +1,30 @@
+1:1 Identifier `x_1`
+1:5 Identifier `é`
+3:1 Identifier `a`
+4:8 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ �
+    │ ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ a /* never cosed
+    │   ^^^^^^^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ a // never cosed
+    │   │    +++++++++++++
+    │ 4 │ // /* �
+    │   │ +++++++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  4 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ /* � */
+    │   │    -

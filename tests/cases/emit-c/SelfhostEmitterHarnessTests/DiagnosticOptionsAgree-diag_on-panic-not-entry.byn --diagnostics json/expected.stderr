@@ -1,0 +1,1 @@
+{"code":"BYN2614","severity":"error","file":"input.byn","span":{"start":67,"end":90,"line":6,"column":5,"endLine":6,"endColumn":28},"message":"`Panic.handler` may be set only as the first statement of `main`","label":"`setUp` is not the program's entry function","help":"set it once, as the first statement of `main`","fixes":[]}

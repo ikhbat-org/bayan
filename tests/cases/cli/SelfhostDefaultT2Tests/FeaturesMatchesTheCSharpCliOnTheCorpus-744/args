@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/mutates-without-ref-this.byn
+--package
+<repo>/tests/cases/diag

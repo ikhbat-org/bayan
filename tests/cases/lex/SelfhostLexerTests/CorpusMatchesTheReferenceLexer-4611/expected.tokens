@@ -1,0 +1,97 @@
+1:3 LetKeyword `let`
+1:7 Identifier `café`
+1:13 Equals `=`
+1:15 IntegerLiteral `1`
+3:1 IntegerLiteral `0x`
+5:1 OpenBrace `{`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolationStart `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolationStart `{`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolationStart `{`
+5:29 Identifier `x`
+5:30 InterpolationEnd `}`
+5:31 InterpolatedStringEnd `"`
+5:32 InterpolationEnd `}`
+5:33 InterpolatedStringEnd `"`
+5:34 InterpolationEnd `}`
+5:35 InterpolatedStringEnd `"`
+5:36 InterpolationEnd `}`
+5:37 InterpolatedStringEnd `"`
+5:38 InterpolationEnd `}`
+5:39 InterpolatedStringEnd `"`
+5:40 InterpolationEnd `}`
+5:41 InterpolatedStringEnd `"`
+5:42 InterpolationEnd `}`
+5:43 InterpolatedStringEnd `"`
+5:44 InterpolationEnd `}`
+5:45 InterpolatedStringEnd `"`
+5:46 InterpolationEnd `}`
+5:47 InterpolatedStringEnd `"`
+5:48 CloseBrace `}`
+5:50 Identifier `a`
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ���� let café = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ���� let café = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���� let café = 1
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���� let café = 1
+    │    ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ ���� let café = 1
+    │          ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ���� let café = 1
+    │   │             +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0004: unterminated block comment
+
+  5 │ {$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"} a /* never closed
+    │                                                    ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │ .5e-3 6E+ let x� = 1
+    │                ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ .5e-3 6E+ let x� = 1
+    │   │                -

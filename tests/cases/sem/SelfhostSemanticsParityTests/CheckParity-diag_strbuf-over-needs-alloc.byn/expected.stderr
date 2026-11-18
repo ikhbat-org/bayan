@@ -1,0 +1,12 @@
+error BYN6002: `f` uses `alloc` but does not declare it
+  --> tmp/t26-tests/cli/diag_strbuf-over-needs-alloc.byn/strbuf-over-needs-alloc.byn:3:13
+
+  3 │     var s = StrBuf.over(stackalloc u8[2])
+    │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ uses `alloc`
+    │
+  help: add `alloc` to the `uses` clause, or remove the call
+    │ 2 │ public i64 f() uses alloc {
+    │   │               +++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6002

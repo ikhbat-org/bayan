@@ -1,0 +1,14 @@
+== tests/cases/diag/cases-not-constant.byn
+33..49 blockStmt
+39..47 returnStmt value 46..47
+46..47 literalExpr integer
+107..128 blockStmt
+100..105 param
+80..81 literalExpr integer
+107..128 blockStmt
+113..126 assertStmt
+120..125 binaryExpr gt right 124..125
+120..121 nameExpr
+124..125 literalExpr integer
+238..241 blockStmt
+19..20 literalExpr integer

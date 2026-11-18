@@ -1,0 +1,50 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 OrKeyword `or`
+2:11 NotKeyword `not`
+2:15 WithKeyword `with`
+2:20 MoveKeyword `move`
+2:25 RefKeyword `ref`
+2:29 OutKeyword `out`
+2:33 ThisKeyword `this`
+2:38 NullKeyword `null`
+2:43 Identifier `tru`
+2:46 Bar `|`
+2:48 FalseKeyword `false`
+2:54 ComptimeKeyword `comptime`
+2:63 CheckedKeyword `checked`
+4:1 Identifier `ed`
+4:4 InKeyword `in`
+4:7 Identifier `strings`
+4:14 StringLiteral `" "`
+4:17 StringLiteral `" "`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolationEnd `}`
+4:24 InterpolatedStringEnd `"`
+4:25 Identifier `st`
+4:28 Identifier `ruct`
+4:33 Identifier `S`
+6:1 IntegerLiteral `4`
+6:2 NumericSuffix `KiB`
+6:6 IntegerLiteral `1`
+6:7 NumericSuffix `u`
+6:9 IntegerLiteral `0xFF`
+6:13 NumericSuffix `u`
+6:15 IntegerLiteral `0b1`
+6:18 NumericSuffix `ul`
+6:21 IntegerLiteral `7`
+6:22 NumericSuffix `l`
+    doc `/// Doc line two.`
+9:3 Identifier `raw`
+9:7 StringLiteral `"quoted"`
+10:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  4 │ ed in strings" "" "$"{}"st�ruct S
+    │                           ^

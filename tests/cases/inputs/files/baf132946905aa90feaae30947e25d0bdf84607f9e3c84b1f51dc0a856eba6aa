@@ -1,0 +1,7 @@
+â€® /// Doc line two.
+
+error set unit distiEct type import as public private static readonly required const let var embed extern unsafe
+
+if else unless switch case default for in while do break continue return yield defer errdefer using context
+ í €
+  """ c"text" u16"wide"s"â€® allowed in strings" "" "\u{48}i"

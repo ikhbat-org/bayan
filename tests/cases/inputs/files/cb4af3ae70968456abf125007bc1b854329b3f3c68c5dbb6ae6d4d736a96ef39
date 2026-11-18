@@ -1,0 +1,8 @@
+'\u{D800}'
+a >> b
+
+let x⁧ = 1
+ fails try catch never noalloc nosuspend suspends async aait
+  raw "quoted"
+ ⁦ x⁧ = 1
+ 

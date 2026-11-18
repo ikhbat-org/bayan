@@ -1,0 +1,7 @@
+//// not a doc comment
+ var xs: List<List<i64>>
+let effect = 2
+ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"‚
+fails try catch never noalloc nosuspend suspends async await
+
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{x}"}"}"}"}"}"}"}"}"}" 

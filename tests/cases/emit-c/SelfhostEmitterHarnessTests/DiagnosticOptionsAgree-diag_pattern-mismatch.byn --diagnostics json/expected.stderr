@@ -1,0 +1,2 @@
+{"code":"BYN2411","severity":"error","file":"input.byn","span":{"start":23,"end":27,"line":2,"column":14,"endLine":2,"endColumn":18},"message":"`null` cannot match `i32`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2411","severity":"error","file":"input.byn","span":{"start":46,"end":55,"line":3,"column":19,"endLine":3,"endColumn":28},"message":"3 elements cannot match `(i32, i32)`","label":null,"help":null,"fixes":[]}

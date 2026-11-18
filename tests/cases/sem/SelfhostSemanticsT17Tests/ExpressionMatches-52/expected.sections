@@ -1,0 +1,3 @@
+== case conv-mismatch-optional
+errorExpr 1342..1346 : ?
+BYN2202 69:17 expected `i32`, found `i32?` ||unwrap it with `??`, `is { } v`, or `?? return`; the value may be absent|

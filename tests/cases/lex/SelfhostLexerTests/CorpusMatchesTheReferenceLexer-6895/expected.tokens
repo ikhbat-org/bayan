@@ -1,0 +1,27 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never �closed\r\n � � /* bloZck\r\n\r\n'\q'\r\n\r\n1__\r\n `
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let c = """never �closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ let c = """never �closed
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │  � � /* bloZck
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  � � /* bloZck
+    │    ^

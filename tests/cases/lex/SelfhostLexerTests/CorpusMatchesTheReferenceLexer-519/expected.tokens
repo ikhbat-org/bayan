@@ -1,0 +1,94 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 StringLiteral `" ‏ test assert property fuzz model foreach new goto`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:22 StringLiteral `"{$"`
+2:26 OpenBrace `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+3:1 InterpolationEnd `}`
+3:2 InterpolatedStringEnd `"`
+3:3 InterpolationEnd `}`
+3:4 InterpolatedStringEnd `"`
+3:5 InterpolationEnd `}`
+3:6 InterpolatedStringEnd `"`
+3:7 StringLiteral `"`
+4:1 Identifier `s`
+4:3 Equals `=`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:15 Identifier `Y`
+4:16 OpenBrace `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolatedStringEnd
+5:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{" ‏ test assert property fuzz model foreach new goto
+    │    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  2 │  $"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{
+    │                    ^
+
+error BYN0002: unexpected character `\u{1C}`
+
+  2 │  $"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{
+    │                     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ }"}"}""
+    │       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ s = $"{$"{$"{$Y{$"
+    │           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  4 │ s = $"{$"{$"{$Y{$"
+    │              ^
+
+error BYN0003: unterminated string literal
+
+  4 │ s = $"{$"{$"{$Y{$"
+    │                 ^^ this string never ends
+    │
+  help: close it with `"`

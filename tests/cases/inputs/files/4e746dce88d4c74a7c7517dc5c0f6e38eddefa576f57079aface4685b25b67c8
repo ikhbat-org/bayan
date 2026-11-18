@@ -1,0 +1,8 @@
+$"open {x";
+//// not a doc comment
+﻿
+a >> b
+ is and or not with move ref out this null true false comptime checked
+
+b
+ 

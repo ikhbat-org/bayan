@@ -1,0 +1,41 @@
+1:2 IntegerLiteral `0b1`
+1:5 NumericSuffix `ul`
+1:8 IntegerLiteral `7`
+1:9 NumericSuffix `l`
+3:1 IntegerLiteral `1__`
+8:74 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0004: unterminated block comment
+
+  5 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │  "a�b"
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  "a�b"
+    │   │    -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  8 │ '�' $"{$"{$"{$"{$"{$"{$"F$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ '�' $"{$"{$"{$"{$"{$"{$"F$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │   │  -

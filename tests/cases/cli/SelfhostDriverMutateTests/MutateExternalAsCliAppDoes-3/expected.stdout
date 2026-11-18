@@ -1,0 +1,30 @@
+a.byn:1:1 arithmetic `a + b` -> `a - b`: survived
+a.byn:2:1 arithmetic `a * b` -> `a / b`: survived
+a.byn:3:1 bool `true` -> `false`: not emitted
+a.byn:4:1 arithmetic `a + 0` -> `a - 0`: marked
+b.byn:5:1 statement `i += 1` -> ``: survived
+b.byn:6:2 mystery `x` -> `y`: survived
+b.byn:7:3 mystery `x` -> `z`: not emitted
+mutation: 0 killed, 4 survived, 0 timeout, 1 marked, 0 not reached, 2 not emitted
+survived: a.byn:1:1: a + b → a - b [arithmetic]
+  suggestion: add a case whose result differs under the changed operator
+survived: a.byn:2:1: a * b → a / b [arithmetic]
+  suggestion: add a case whose result differs under the changed operator
+survived: b.byn:5:1: i += 1 →  [statement]
+  suggestion: assert the effect of this statement
+survived: b.byn:6:2: x → y [mystery]
+  suggestion: add a case that fails under this change
+operators:
+  boundary: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  relational: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  logical: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  condition: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  bool: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 1 not emitted
+  arithmetic: 0 killed, 2 survived, 0 timeout, 1 marked, 0 not reached, 0 not emitted
+  literal: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  negation: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  statement: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  emptyReturn: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  variant: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  mystery: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 1 not emitted
+timing: build <t> s, mean <t> s and max <t> s per mutant, total <t> s, mutant share of build <t>%

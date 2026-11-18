@@ -1,0 +1,14 @@
+== tests/cases/run/style-fix-sections-banner-fixed.byn
+325..326 literalExpr integer
+325..326 literalExpr integer
+325..326 literalExpr integer
+564..565 literalExpr integer
+564..565 literalExpr integer
+564..565 literalExpr integer
+579..808 blockStmt
+782..806 exprStmt
+782..806 callExpr
+788..805 interpolatedExpr
+791..796 callExpr
+798..803 callExpr
+782..806 callExpr

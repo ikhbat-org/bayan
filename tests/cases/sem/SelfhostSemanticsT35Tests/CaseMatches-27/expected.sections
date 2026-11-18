@@ -1,0 +1,2 @@
+== expr.probes.c8
+collection:i64[4][1045:10]=-(spread:i64[1046:5]=-(local:i64[3][1048:3]=-(arr)) literal:i64[1053:1]=4(4))

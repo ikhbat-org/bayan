@@ -1,0 +1,5 @@
+== s62
+switchExpr|i64|4840:37
+value local:i64=n
+arm 4851:16 binaryPattern[4851:11]:i64(and constantPattern[4851:1]:i64(literal:i64=1),bindPattern[4857:3]:i64(x:i64:b:-:let)) guard - value local:i64=x
+arm 4869:6 bindPattern[4869:1]:i64_(-) guard - value literal:i64=0

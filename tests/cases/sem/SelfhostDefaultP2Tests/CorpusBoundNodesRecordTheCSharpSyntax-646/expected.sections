@@ -1,0 +1,67 @@
+== tests/cases/diag/map-key-part.byn
+459..464 nameExpr
+459..464 nameExpr
+459..464 nameExpr
+489..564 blockStmt
+495..516 localDecl
+503..516 callExpr
+521..531 assignStmt assign target 521..527 value 530..531
+521..527 indexExpr
+521..522 nameExpr
+523..526 nameExpr
+530..531 literalExpr integer
+536..562 returnStmt value 543..562
+543..562 callExpr
+551..552 nameExpr
+560..561 literalExpr integer
+578..1146 blockStmt
+584..616 localDecl
+598..616 callExpr
+621..658 localDecl
+633..658 callExpr
+663..711 localDecl
+675..711 callExpr
+716..751 localDecl
+730..751 callExpr
+756..788 localDecl
+770..788 callExpr
+793..833 localDecl
+805..833 callExpr
+838..871 localDecl
+854..871 callExpr
+876..906 localDecl
+889..906 callExpr
+911..941 localDecl
+924..941 callExpr
+946..978 localDecl
+960..978 callExpr
+983..1012 localDecl
+999..1012 collectionExpr
+1017..1054 localDecl
+1031..1054 collectionExpr
+1032..1050 structLiteralExpr
+1047..1048 literalExpr integer
+1052..1053 literalExpr integer
+1059..1096 exprStmt
+1059..1096 callExpr
+1065..1095 interpolatedExpr
+1068..1093 callExpr
+1076..1083 nameExpr
+1091..1092 literalExpr integer
+1059..1096 callExpr
+1101..1144 exprStmt
+1101..1144 callExpr
+1107..1143 interpolatedExpr
+1110..1141 callExpr
+1119..1140 structLiteralExpr
+1135..1138 literalExpr floatKeyword
+1101..1144 callExpr
+459..464 nameExpr
+459..464 nameExpr
+459..464 nameExpr
+489..564 blockStmt
+495..516 localDecl
+503..516 callExpr
+521..531 assignStmt assign target 521..527 value 530..531
+536..562 returnStmt value 543..562
+543..562 callExpr

@@ -1,0 +1,7 @@
+error BYN2106: cannot modify this value
+  --> <repo>/tests/cases/diag/owned-read-only.byn:7:5
+
+  7 │     n.item = 2
+    │     ^^^^^^ an `Owned` value is read-only
+    │
+  help: build a new value and wrap it with `Owned(…)`

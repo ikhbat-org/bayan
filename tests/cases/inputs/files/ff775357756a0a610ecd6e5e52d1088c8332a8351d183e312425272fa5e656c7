@@ -1,0 +1,6 @@
+"text" "esc \"q\" \\ \n" """
+   """ c"text" u16"wide" "‮ allowed in strings" "" "\u48}i"
+c >>= 1
+
+ strings" "" "\u{48}i"
+ 

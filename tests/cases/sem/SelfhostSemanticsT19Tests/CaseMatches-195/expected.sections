@@ -1,0 +1,3 @@
+== bind.probes.k8
+flags 5
+defaultValue:i32?[4001:4]=-()

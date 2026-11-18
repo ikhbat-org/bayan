@@ -1,0 +1,3 @@
+== given.probes.-.g1
+false
+BYN2705 52:14 variant `timeout` carries a payload ||pass it: `.timeout(after)`|

@@ -1,0 +1,44 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+2:2 IntegerLiteral `0x`
+3:1 IntegerLiteral `1_`
+4:1 IntegerLiteral `0b102`
+4:6 NumericSuffix `a`
+8:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x
+    │  ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1_
+    │  ^
+    │
+    │ 3 │ 1_
+    │   │  -
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │ 0b102a /* never closed
+    │     ^
+
+error BYN0011: unit suffix `a` is not allowed on a binary literal
+
+  4 │ 0b102a /* never closed
+    │      ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0004: unterminated block comment
+
+  4 │ 0b102a /* never closed
+    │        ^^ comment starts here
+    │
+  help: close it with `*/`

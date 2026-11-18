@@ -1,0 +1,15 @@
+, . .. ..= : ? ?? ??= ?. => -> @ #
+ one.
+/// Doc line two.
+struct S
+//// not a doc comment
+b
+ struct unique union enum flags open extensible interface delegate extension deri'vation attribute
+ /// Doc line one.
+ // ‮x
+ e comment
+/* block
+   comment */ a
+/// 0xF__
+ 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+ 

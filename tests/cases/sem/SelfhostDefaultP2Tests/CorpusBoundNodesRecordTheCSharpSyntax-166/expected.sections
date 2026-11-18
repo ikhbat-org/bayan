@@ -1,0 +1,38 @@
+== tests/cases/run/list-remove-range-past-end.byn
+0..20 globalStatement
+0..20 localDecl
+9..20 callExpr
+21..51 forStmt
+30..34 rangeExpr
+30..31 literalExpr integer
+33..34 literalExpr integer
+35..51 blockStmt
+37..49 exprStmt
+37..49 callExpr
+37..39 nameExpr
+47..48 nameExpr
+47..48 nameExpr
+52..80 exprStmt
+52..80 callExpr
+52..54 nameExpr
+68..69 literalExpr integer
+78..79 literalExpr integer
+81..102 exprStmt
+81..102 callExpr
+87..101 interpolatedExpr
+90..99 memberExpr
+90..92 nameExpr
+81..102 callExpr
+103..115 exprStmt
+103..115 callExpr
+103..105 nameExpr
+113..114 literalExpr integer
+116..144 exprStmt
+116..144 callExpr
+116..118 nameExpr
+132..133 literalExpr integer
+142..143 literalExpr integer
+145..165 exprStmt
+145..165 callExpr
+151..164 literalExpr string
+145..165 callExpr

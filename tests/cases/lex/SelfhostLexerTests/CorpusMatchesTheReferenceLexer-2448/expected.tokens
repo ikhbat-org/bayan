@@ -1,0 +1,115 @@
+2:2 IntegerLiteral `0xFF`
+2:6 NumericSuffix `s`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `total `
+4:9 InterpolationStart `{`
+4:10 Identifier `x`
+4:11 InterpolationEnd `}`
+4:12 InterpolatedStringEnd `"`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolatedStringText `a `
+4:18 InterpolationStart `{`
+4:19 Identifier `f`
+4:20 OpenParen `(`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolatedStringText `b `
+4:25 InterpolationStart `{`
+4:26 Identifier `c`
+4:27 InterpolationEnd `}`
+4:28 InterpolatedStringEnd `"`
+4:29 CloseParen `)`
+4:30 InterpolationEnd `}`
+4:31 InterpolatedStringText ` d`
+4:33 InterpolatedStringEnd `"`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolatedStringText `{{literal}}`
+4:48 InterpolatedStringEnd `"`
+4:50 InterpolatedStringStart `$"`
+4:52 InterpolationStart `{`
+4:53 Identifier `Point`
+4:59 OpenBrace `{`
+4:61 Identifier `x`
+4:63 Equals `=`
+4:65 IntegerLiteral `1`
+4:67 CloseBrace `}`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringText `!`
+4:70 InterpolatedStringEnd `"`
+4:72 InterpolatedStringStart `$"`
+4:74 InterpolatedStringEnd `"`
+6:1 Identifier `x_`
+7:1 IntegerLiteral `0b__`
+8:1 IntegerLiteral `1__`
+9:1 IntegerLiteral `0xF__`
+10:2 IntegerLiteral `0b102`
+12:1 Identifier `é`
+13:1 InterpolatedStringStart `$"`
+13:3 InterpolationStart `{`
+13:4 StringLiteral `"`
+14:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │  0xFFs
+    │      ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  7 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 1__
+    │  ^^
+    │
+    │ 8 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 0xF__
+    │    ^^
+    │
+    │ 9 │ 0xF__
+    │   │    --
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  10 │  0b102
+     │      ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  12 │ é
+     │ ^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 12 │ é
+     │    │ +
+
+error BYN0003: unterminated string literal
+
+  13 │ $"{"
+     │ ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  13 │ $"{"
+     │    ^ string ends at the end of the line
+     │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

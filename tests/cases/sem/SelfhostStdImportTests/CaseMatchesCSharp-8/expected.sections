@@ -1,0 +1,6 @@
+== path nested
+module std.a.b <std>/a/b std_a_b
+file <std>/a/b/b.byn
+module main tmp/std-cases/nested main
+file tmp/std-cases/nested/main.byn
+import b std.a.b

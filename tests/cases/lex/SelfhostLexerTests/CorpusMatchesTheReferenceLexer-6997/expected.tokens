@@ -1,0 +1,112 @@
+1:1 IntegerLiteral `1__`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 Identifier `a`
+3:40 PublicKeyword `public`
+3:47 PrivateKeyword `private`
+3:55 StaticKeyword `static`
+3:62 ReadonlyKeyword `readonly`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 VarKeyword `var`
+3:94 EmbedKeyword `embed`
+3:100 ExternKeyword `extern`
+3:107 UnsafeKeyword `unsafe`
+5:1 Equals `=`
+5:3 IntegerLiteral `1`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 InterpolatedStringStart `$"`
+6:49 InterpolationStart `{`
+6:50 StringLiteral `$"{$"`
+6:55 OpenBrace `{`
+6:56 StringLiteral `$"{x}"`
+6:62 CloseBrace `}`
+6:63 StringLiteral `"}"`
+6:66 InterpolationEnd `}`
+6:67 InterpolatedStringEnd `"`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringEnd `"`
+6:70 InterpolationEnd `}`
+6:71 InterpolatedStringEnd `"`
+6:72 InterpolationEnd `}`
+6:73 InterpolatedStringEnd `"`
+6:74 InterpolationEnd `}`
+6:75 InterpolatedStringEnd `"`
+6:76 InterpolationEnd `}`
+6:77 InterpolatedStringEnd `"`
+6:78 InterpolationEnd `}`
+6:79 InterpolatedStringEnd `"`
+6:80 InterpolationEnd `}`
+6:81 InterpolatedStringEnd `"`
+6:82 InterpolationEnd `}`
+6:83 InterpolatedStringEnd `"`
+6:84 InterpolationEnd `}`
+6:85 InterpolatedStringEnd `"`
+6:86 InterpolationEnd `}`
+6:87 InterpolatedStringEnd `"`
+6:88 InterpolationEnd `}`
+6:89 InterpolatedStringEnd `"`
+6:90 InterpolationEnd `}`
+6:91 InterpolatedStringEnd `"`
+6:92 InterpolationEnd `}`
+6:93 InterpolatedStringEnd `"`
+6:94 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  3 │ error set unit distinct type import a� public private static readonly required const let var embed extern unsafe
+    │                                      ^
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                  ^^

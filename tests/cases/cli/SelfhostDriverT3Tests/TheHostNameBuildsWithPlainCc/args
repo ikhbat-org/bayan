@@ -1,0 +1,8 @@
+build
+<repo>/examples/hello/main.byn
+-o
+<repo>/tmp/t3/host-name/cs-out
+--mode
+safe
+--target
+macos-arm64

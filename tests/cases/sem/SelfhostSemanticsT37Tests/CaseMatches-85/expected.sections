@@ -1,0 +1,3 @@
+== store.outlives
+counts 0 0 1
+BYN3002 106:5 `y` does not live as long as `h`, which borrows it |`y` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

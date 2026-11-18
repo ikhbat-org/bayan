@@ -1,0 +1,15 @@
+== fors
+for 1521..1540 x 2 4 borrows true target - true
+  local 1530..1532 : List<i32> xs
+for 1545..1563 t 3 4 borrows true target - true
+  local 1554..1555 : string s
+for 1568..1587 e 4 4 borrows true target - true
+  errorExpr 1577..1579 : ?
+for 1597..1616 z 5 4 borrows true target lab true
+  local 1606..1608 : List<i32> xs
+for 1621..1641 xs 6 4 borrows true target - true
+  local 1631..1633 : List<i32> xs
+BYN2001 142:14 `zz` is not defined |||
+BYN2007 146:9 `xs` is already a local here |already declared on line 137|pick a different name; Bayan does not let a local hide another one|
+for 215..242 y 0 1 borrows true target - true
+  literal 229..233 : string = "ab"

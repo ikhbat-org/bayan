@@ -1,0 +1,4 @@
+== bind.probes.i3
+flags 0
+errorExpr:?[3374:9]=-()
+BYN2208 181:14 `in` cannot be applied to `f64` and `Range<i32>` ||make the value and the range ends integers or chars of the same type|

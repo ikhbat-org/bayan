@@ -1,0 +1,9 @@
+== diags.diag/particle-as-member-name
+BYN5009 4:9 `at` is a particle; name the member with a verb or a noun
+  help rename the member, for example `tryGet(at:)` instead of `at(…)`
+BYN5009 6:9 `toI64` spells a conversion with `to`; write `i64(shelf)`
+  help use a view noun, `copy()`, or a `T(x)` conversion
+BYN5009 10:12 `toString` spells a conversion with `to`; write `string(shelf)`
+  help use a view noun, `copy()`, or a `T(x)` conversion
+BYN5009 8:9 `asCount` spells a conversion with `as`; write `count`
+  help use a view noun, `copy()`, or a `T(x)` conversion

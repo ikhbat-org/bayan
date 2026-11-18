@@ -1,0 +1,17 @@
+== errors diagnostics
+BYN2002 12:5 unknown type `String` help: did you mean `string`?
+BYN2002 21:5 unknown type `Foo.Bar` help: add `import Foo`; `Foo` is not an imported module
+BYN2002 24:5 unknown type `cents` help: did you mean `Cents`?
+BYN2011 1:6 type alias `Loop` refers to itself
+BYN2022 22:5 the `dec` type is not supported in v0.1
+BYN2023 14:5 `List` takes 1 type argument(s), not 2
+BYN2023 23:5 `i32` takes 0 type argument(s), not 1
+BYN2023 25:5 `Map` takes 2 type argument(s), not 1
+BYN2024 11:5 `i32??` is already optional
+BYN2025 13:5 `void` is not a value type
+BYN2025 26:12 `void` is not a value type
+BYN2228 8:37 `nope` is not a variant of `FileError`
+BYN2608 20:17 `i64` is not an error enum
+BYN2609 9:13 error enum `Gone` has no variants
+BYN2760 15:9 `f64` cannot be a `Map` key help: use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those as the key
+BYN2830 16:5 `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order help: write `Map<string, i32>`

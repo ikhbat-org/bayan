@@ -1,0 +1,10 @@
+error BYN2003: `osx` is not a member of `Target`
+  --> <repo>/tmp/t2/diag/target-unknown-member/target-unknown-member.byn:2:14
+
+  2 │ print(Target.osx)
+    │              ^^^
+    │
+  help: did you mean `os`?
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2003

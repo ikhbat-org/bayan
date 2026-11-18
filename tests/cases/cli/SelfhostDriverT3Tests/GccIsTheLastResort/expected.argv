@@ -1,0 +1,15 @@
+gcc
+-std=c11
+-fwrapv
+-ffp-contract=off
+-w
+-O2
+-DBYN_NDEBUG
+-ffile-prefix-map=<dir>=.
+-I
+<dir>
+main.c
+bayan-rt.o
+-o
+program
+-lm

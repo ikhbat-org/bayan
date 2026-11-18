@@ -1,0 +1,53 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بي`
+1:27 Identifier `ن`
+1:29 Identifier `μετρητ`
+1:38 Identifier `c`
+1:40 Identifier `x_1`
+1:44 Identifier `é`
+5:17 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  1 │ foo Bar _x camelCase2 بي��ن μετρητ����c x_1 é
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  1 │ foo Bar _x camelCase2 بي��ن μετρητ����c x_1 é
+    │                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  1 │ foo Bar _x camelCase2 بي��ن μετρητ����c x_1 é
+    │                                   ^
+
+error BYN0002: unexpected character `\u{7F}`
+
+  1 │ foo Bar _x camelCase2 بي��ن μετρητ����c x_1 é
+    │                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ foo Bar _x camelCase2 بي��ن μετρητ����c x_1 é
+    │                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  1 │ foo Bar _x camelCase2 بي��ن μετρητ����c x_1 é
+    │                                      ^
+
+error BYN0002: unexpected character `̈́`
+
+  3 │ ̈́/*
+    │ ^
+
+error BYN0004: unterminated block comment
+
+  3 │ ̈́/*
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

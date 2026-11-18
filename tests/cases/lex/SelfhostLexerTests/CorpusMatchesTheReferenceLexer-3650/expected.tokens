@@ -1,0 +1,14 @@
+1:1 CharLiteral `''`
+2:2 Identifier `mment`
+2:8 Star `*`
+2:9 Slash `/`
+2:11 Identifier `a`
+    doc `/// $"{{"`
+3:10 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

@@ -1,0 +1,18 @@
+2:2 CharLiteral `'\q'`
+4:1 Identifier `c`
+4:3 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 IntegerLiteral `1`
+5:1 Identifier `b`
+6:2 LetKeyword `let`
+6:6 EffectKeyword `effect`
+6:13 Equals `=`
+6:15 IntegerLiteral `2`
+7:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │  '\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

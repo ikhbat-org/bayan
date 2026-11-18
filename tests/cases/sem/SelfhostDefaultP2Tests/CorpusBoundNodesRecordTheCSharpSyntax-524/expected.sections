@@ -1,0 +1,56 @@
+== tests/cases/diag/function-value-not-a-function.byn
+257..258 literalExpr integer
+257..258 literalExpr integer
+257..258 literalExpr integer
+293..297 literalExpr trueKeyword
+293..297 literalExpr trueKeyword
+293..297 literalExpr trueKeyword
+328..332 literalExpr trueKeyword
+328..332 literalExpr trueKeyword
+328..332 literalExpr trueKeyword
+367..371 literalExpr trueKeyword
+367..371 literalExpr trueKeyword
+367..371 literalExpr trueKeyword
+406..410 literalExpr trueKeyword
+406..410 literalExpr trueKeyword
+406..410 literalExpr trueKeyword
+445..449 literalExpr trueKeyword
+445..449 literalExpr trueKeyword
+445..449 literalExpr trueKeyword
+469..659 blockStmt
+475..493 localDecl
+483..493 callExpr
+487..492 nameExpr
+498..518 localDecl
+506..518 callExpr
+511..517 nameExpr
+523..547 localDecl
+531..547 callExpr
+536..546 memberExpr
+552..575 localDecl
+560..575 callExpr
+565..574 memberExpr
+580..600 localDecl
+588..600 callExpr
+594..599 nameExpr
+605..632 localDecl
+613..632 callExpr
+619..631 memberExpr
+637..657 localDecl
+645..657 callExpr
+651..656 nameExpr
+673..676 blockStmt
+51..60 binaryExpr mul right 59..60
+51..60 binaryExpr mul right 59..60
+51..60 binaryExpr mul right 59..60
+51..56 nameExpr
+51..56 nameExpr
+59..60 literalExpr integer
+87..88 literalExpr integer
+87..88 literalExpr integer
+87..88 literalExpr integer
+111..145 blockStmt
+121..139 assignStmt assign target 121..131 value 134..139
+121..131 memberExpr
+121..125 thisExpr
+134..139 nameExpr

@@ -1,0 +1,2 @@
+== diag.readonly-field
+BYN2105 6:1 field `value` is readonly ||set `readonly` fields only in a constructor or a struct literal|

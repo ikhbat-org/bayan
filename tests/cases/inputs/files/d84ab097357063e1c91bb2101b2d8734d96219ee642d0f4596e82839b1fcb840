@@ -1,0 +1,9 @@
+// `Millis(n)` makes a duration from an `i64`, `i64(t)` reads it back, `==` compares, and it prints with its symbol.
+void main() {
+    let t = Millis(250)
+    let u: Millis = Millis(250)
+    print($"{i64(t)}")
+    print($"{t == u}")
+    print($"{t == Millis(0)}")
+    print($"{t}")
+}

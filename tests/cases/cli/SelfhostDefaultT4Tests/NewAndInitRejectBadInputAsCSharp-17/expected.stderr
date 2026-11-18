@@ -1,0 +1,2 @@
+bayan: unexpected argument `--vcs`
+usage: bayan new <name> [--lib|--script] [--vcs git|none] [--ci github|none]

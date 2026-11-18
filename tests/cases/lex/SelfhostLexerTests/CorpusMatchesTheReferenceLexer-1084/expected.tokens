@@ -1,0 +1,29 @@
+1:1 Identifier `ect`
+1:5 Equals `=`
+1:7 IntegerLiteral `2`
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+3:1 LetKeyword `let`
+3:5 Identifier `aw`
+3:8 Equals `=`
+3:10 IntegerLiteral `3`
+4:2 LetKeyword `let`
+4:6 LawKeyword `law`
+4:10 Equals `=`
+4:12 IntegerLiteral `3`
+5:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

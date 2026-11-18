@@ -1,0 +1,3 @@
+== diags.diag/state-shadows-static
+BYN7008 4:9 state `.empty` has the same name as static member `Cart.empty`
+  help rename the state or the static member

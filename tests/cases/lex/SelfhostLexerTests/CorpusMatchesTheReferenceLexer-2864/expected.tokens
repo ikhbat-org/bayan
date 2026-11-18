@@ -1,0 +1,7 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never closed+= -= *= /= %= &= |= ^= <<=\n  b = "badQ \q escape"\nlet c = """`
+3:12 NeverKeyword `never`
+3:18 Identifier `closed`
+5:1 EndOfFile

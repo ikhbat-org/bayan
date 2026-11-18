@@ -1,0 +1,39 @@
+1:1 CharLiteral `'\u{110000}'`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 IsKeyword `is`
+2:7 Identifier `ad`
+2:10 OrKeyword `or`
+2:13 NotKeyword `not`
+2:17 WithKeyword `with`
+2:22 MoveKeyword `move`
+2:27 RefKeyword `ref`
+2:31 OutKeyword `out`
+2:35 ThisKeyword `this`
+2:40 NullKeyword `null`
+2:45 Identifier `tue`
+2:49 FalseKeyword `false`
+2:55 ComptimeKeyword `comptime`
+2:64 CheckedKeyword `checked`
+11:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{is ad or not with move ref out this null tue false comptime checked
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0004: unterminated block comment
+
+  3 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

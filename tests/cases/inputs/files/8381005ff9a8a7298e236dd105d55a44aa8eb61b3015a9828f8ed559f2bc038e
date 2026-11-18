@@ -1,0 +1,7 @@
+// padding so that main starts after every function of b.byn
+// padding so that main starts after every function of b.byn
+// padding so that main starts after every function of b.byn
+// padding so that main starts after every function of b.byn
+void main() {
+    print($"{twice(2)} {ten()}")
+}

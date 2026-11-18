@@ -1,0 +1,71 @@
+1:1 Identifier `ạ̇`
+1:5 IntegerLiteral `5`
+1:6 NumericSuffix `e`
+1:8 Identifier `x`
+1:9 Dot `.`
+1:10 Identifier `y`
+1:12 FloatLiteral `2.5`
+1:15 NumericSuffix `f`
+3:1 Comma `,`
+3:3 Dot `.`
+3:5 DotDot `..`
+3:8 Dot `.`
+3:9 Equals `=`
+3:11 Colon `:`
+3:13 Question `?`
+3:15 QuestionQuestion `??`
+3:18 QuestionQuestionEquals `??=`
+3:22 Dot `.`
+3:24 FatArrow `=>`
+3:27 Arrow `->`
+3:30 At `@`
+3:32 Hash `#`
+4:1 PlusEquals `+=`
+4:4 MinusEquals `-=`
+4:7 StarEquals `*=`
+4:10 SlashEquals `/=`
+4:13 PercentEquals `%=`
+4:16 AmpEquals `&=`
+4:19 BarEquals `|=`
+4:22 CaretEquals `^=`
+4:25 LessLessEquals `<<=`
+5:1 Identifier `C`
+5:2 StringLiteral `"a\u{2067}b"`
+6:1 ErrorKeyword `error`
+6:7 SetKeyword `set`
+6:11 UnitKeyword `unit`
+6:16 DistinctKeyword `distinct`
+6:25 TypeKeyword `type`
+6:30 ImportKeyword `import`
+6:37 AsKeyword `as`
+6:40 PublicKeyword `public`
+6:47 PrivateKeyword `private`
+6:55 StaticKeyword `static`
+6:62 ReadonlyKeyword `readonly`
+6:71 RequiredKeyword `required`
+6:80 ConstKeyword `const`
+6:86 LetKeyword `let`
+6:90 VarKeyword `var`
+6:94 EmbedKeyword `embed`
+6:100 ExternKeyword `extern`
+6:107 UnsafeKeyword `unsafe`
+8:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇ 5e x.y 2.5f
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇ 5e x.y 2.5f
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ �
+    │  ^

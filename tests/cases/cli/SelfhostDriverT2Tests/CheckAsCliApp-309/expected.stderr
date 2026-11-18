@@ -1,0 +1,50 @@
+error BYN2202: expected `i64 -> bool`, found `bool isChecked(i64) fails LexError`
+  --> <repo>/tmp/t2/diag/function-value-mismatch/function-value-mismatch.byn:34:18
+
+  34 │     let a = keep(isChecked)
+     │                  ^^^^^^^^^
+     │
+  help: pass a function of type `i64 -> bool`
+
+error BYN2202: expected `i64 -> bool fails LexError`, found `bool isBig(i64)`
+  --> <repo>/tmp/t2/diag/function-value-mismatch/function-value-mismatch.byn:35:25
+
+  35 │     let b = keepChecked(isBig)
+     │                         ^^^^^
+     │
+  help: pass a function of type `i64 -> bool fails LexError`
+
+error BYN2202: expected `i64 -> bool fails ReadError`, found `bool isChecked(i64) fails LexError`
+  --> <repo>/tmp/t2/diag/function-value-mismatch/function-value-mismatch.byn:36:22
+
+  36 │     let c = keepRead(isChecked)
+     │                      ^^^^^^^^^
+     │
+  help: pass a function of type `i64 -> bool fails ReadError`
+
+error BYN2202: expected `i64 -> i64`, found `bool isBig(i64)`
+  --> <repo>/tmp/t2/diag/function-value-mismatch/function-value-mismatch.byn:37:25
+
+  37 │     let d: i64 -> i64 = isBig
+     │                         ^^^^^
+     │
+  help: pass a function of type `i64 -> i64`
+
+error BYN2202: expected `i64 -> bool fails LexError`, found `bool isInferred(i64) fails`
+  --> <repo>/tmp/t2/diag/function-value-mismatch/function-value-mismatch.byn:38:25
+
+  38 │     let e = keepChecked(isInferred)
+     │                         ^^^^^^^^^^
+     │
+  help: declare the error sets of `isInferred`: `fails LexError`
+
+error BYN2202: expected `i64 -> void`, found `void bump(ref i64)`
+  --> <repo>/tmp/t2/diag/function-value-mismatch/function-value-mismatch.byn:39:22
+
+  39 │     let f = keepVoid(bump)
+     │                      ^^^^
+     │
+  help: pass a function of type `i64 -> void`
+
+✗ build failed: 6 errors, 0 warnings
+  explain: bayan explain BYN2202

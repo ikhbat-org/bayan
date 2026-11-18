@@ -1,0 +1,176 @@
+== tests/cases/run/owned-expr.byn
+127..275 switchExpr
+127..275 switchExpr
+127..275 switchExpr
+127..128 nameExpr
+142..153 variantPattern
+147..150 varPattern
+157..158 nameExpr
+164..182 variantPattern
+169..172 varPattern
+176..179 varPattern
+186..215 binaryExpr add right 202..215
+186..199 callExpr
+191..198 memberExpr
+191..192 nameExpr
+202..215 callExpr
+207..214 memberExpr
+207..208 nameExpr
+221..239 variantPattern
+226..229 varPattern
+233..236 varPattern
+243..272 binaryExpr mul right 259..272
+243..256 callExpr
+248..255 memberExpr
+248..249 nameExpr
+259..272 callExpr
+264..271 memberExpr
+264..265 nameExpr
+338..441 blockStmt
+344..384 ifStmt
+347..353 binaryExpr eq right 352..353
+347..348 nameExpr
+352..353 literalExpr integer
+354..384 blockStmt
+364..378 returnStmt value 371..378
+371..378 callExpr
+376..377 literalExpr integer
+389..439 returnStmt value 396..439
+396..439 callExpr
+401..419 callExpr
+407..418 callExpr
+416..417 nameExpr
+421..438 callExpr
+427..437 callExpr
+431..436 binaryExpr sub right 435..436
+431..432 nameExpr
+435..436 literalExpr integer
+504..584 callExpr
+504..584 callExpr
+504..584 callExpr
+513..568 callExpr
+519..567 callExpr
+528..546 callExpr
+534..545 callExpr
+543..544 literalExpr integer
+548..566 callExpr
+554..565 callExpr
+563..564 literalExpr integer
+570..583 callExpr
+576..582 callExpr
+580..581 literalExpr integer
+604..955 blockStmt
+610..953 switchStmt
+617..618 nameExpr
+634..641 variantPattern
+639..640 discardPattern
+655..663 returnStmt value 662..663
+662..663 literalExpr integer
+677..695 variantPattern
+682..685 varPattern
+689..692 varPattern
+709..731 localDecl
+717..731 callExpr
+723..730 memberExpr
+723..724 nameExpr
+744..766 localDecl
+752..766 callExpr
+758..765 memberExpr
+758..759 nameExpr
+779..805 returnStmt value 786..805
+786..805 binaryExpr add right 790..805
+786..787 literalExpr integer
+791..804 conditionalExpr
+791..796 binaryExpr gt right 795..796
+791..792 nameExpr
+795..796 nameExpr
+799..800 nameExpr
+803..804 nameExpr
+819..837 variantPattern
+824..827 varPattern
+831..834 varPattern
+851..873 localDecl
+859..873 callExpr
+865..872 memberExpr
+865..866 nameExpr
+886..908 localDecl
+894..908 callExpr
+900..907 memberExpr
+900..901 nameExpr
+921..947 returnStmt value 928..947
+928..947 binaryExpr add right 932..947
+928..929 literalExpr integer
+933..946 conditionalExpr
+933..938 binaryExpr gt right 937..938
+933..934 nameExpr
+937..938 nameExpr
+941..942 nameExpr
+945..946 nameExpr
+969..1449 blockStmt
+975..1000 localDecl
+993..1000 callExpr
+1005..1447 contextStmt
+1024..1029 nameExpr
+1030..1447 blockStmt
+1040..1099 localDecl
+1051..1099 callExpr
+1060..1078 callExpr
+1066..1077 callExpr
+1075..1076 literalExpr integer
+1080..1098 callExpr
+1086..1097 callExpr
+1095..1096 literalExpr integer
+1108..1124 localDecl
+1116..1124 callExpr
+1133..1146 exprStmt
+1133..1146 callExpr
+1139..1145 interpolatedExpr
+1142..1143 nameExpr
+1133..1146 callExpr
+1155..1185 exprStmt
+1155..1185 callExpr
+1161..1184 interpolatedExpr
+1164..1171 callExpr
+1169..1170 nameExpr
+1174..1182 callExpr
+1180..1181 nameExpr
+1155..1185 callExpr
+1194..1222 localDecl
+1207..1222 callExpr
+1213..1221 callExpr
+1231..1257 localDecl
+1242..1257 callExpr
+1248..1256 callExpr
+1266..1312 exprStmt
+1266..1312 callExpr
+1272..1311 interpolatedExpr
+1275..1290 binaryExpr eq right 1289..1290
+1275..1285 memberExpr
+1275..1279 nameExpr
+1289..1290 nameExpr
+1293..1309 callExpr
+1298..1308 memberExpr
+1298..1302 nameExpr
+1266..1312 callExpr
+1321..1341 localDecl
+1333..1341 callExpr
+1350..1405 exprStmt
+1350..1405 callExpr
+1356..1404 interpolatedExpr
+1359..1369 binaryExpr eq right 1368..1369
+1359..1364 nameExpr
+1368..1369 nameExpr
+1372..1385 binaryExpr eq right 1381..1385
+1372..1377 nameExpr
+1381..1385 nameExpr
+1388..1402 binaryExpr eq right 1398..1402
+1388..1394 nameExpr
+1398..1402 nameExpr
+1350..1405 callExpr
+1414..1441 exprStmt
+1414..1441 callExpr
+1420..1440 interpolatedExpr
+1423..1438 callExpr
+1428..1437 callExpr
+1432..1436 literalExpr integer
+1414..1441 callExpr

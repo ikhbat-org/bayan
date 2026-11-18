@@ -1,0 +1,64 @@
+1:1 Identifier `b`
+2:2 IntegerLiteral `0`
+2:4 IntegerLiteral `42`
+2:7 IntegerLiteral `1_000_000`
+2:17 IntegerLiteral `0xFF`
+2:22 IntegerLiteral `0x_ff`
+2:28 IntegerLiteral `0b1010`
+2:35 IntegerLiteral `0B11`
+2:40 IntegerLiteral `5`
+2:41 NumericSuffix `s`
+2:43 IntegerLiteral `250`
+2:46 NumericSuffix `ms`
+2:49 IntegerLiteral `4`
+2:50 NumericSuffix `KiB`
+2:54 IntegerLiteral `1`
+2:55 NumericSuffix `u`
+2:57 IntegerLiteral `0xFF`
+2:61 NumericSuffix `u`
+2:63 IntegerLiteral `0b1`
+2:66 NumericSuffix `ul`
+2:69 IntegerLiteral `7`
+2:70 NumericSuffix `l`
+3:2 LetKeyword `let`
+3:6 Identifier `café`
+3:12 Equals `=`
+3:14 IntegerLiteral `1`
+5:1 Identifier `x`
+5:2 CloseBrace `}`
+5:3 StringLiteral `"}"`
+5:6 CloseBrace `}`
+5:7 StringLiteral `"}"`
+5:10 CloseBrace `}`
+5:11 StringLiteral `"}"`
+5:14 CloseBrace `}`
+5:15 StringLiteral `"}"`
+5:18 CloseBrace `}`
+5:19 StringLiteral `"}"`
+5:22 CloseBrace `}`
+5:23 StringLiteral `"}"`
+5:26 CloseBrace `}`
+5:27 StringLiteral `"}"`
+5:30 CloseBrace `}`
+5:31 StringLiteral `"}"`
+5:34 CloseBrace `}`
+5:35 StringLiteral `"}"`
+5:38 CloseBrace `}`
+5:39 StringLiteral `"}   comment */ a`
+6:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │  let café = 1
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  let café = 1
+    │   │         +
+
+error BYN0003: unterminated string literal
+
+  5 │ x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}   comment */ a
+    │                                       ^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

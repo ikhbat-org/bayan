@@ -1,0 +1,11 @@
+== diags.diag/unless-not-else-braceless-fix
+BYN1007 3:5 `unless` with a negated condition is a double negative
+  label `unless` already negates
+  help use `if` with the condition as written
+BYN1018 3:17 the body of `unless` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+  fix 3:16-3:27  { print("s") }
+BYN1006 4:5 `unless` cannot have an `else` branch
+  label `else` after `unless`
+  help use `if` with the opposite condition, so both branches read positively

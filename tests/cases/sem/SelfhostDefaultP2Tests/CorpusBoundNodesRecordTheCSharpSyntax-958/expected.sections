@@ -1,0 +1,16 @@
+== tests/cases/diag/use-before-assign.byn
+0..13 globalStatement
+0..13 localDecl
+9..13 literalExpr trueKeyword
+14..28 localDecl
+29..52 ifStmt
+32..34 nameExpr
+35..52 blockStmt
+41..50 assignStmt assign target 41..46 value 49..50
+41..46 nameExpr
+49..50 literalExpr integer
+53..70 exprStmt
+53..70 callExpr
+59..69 interpolatedExpr
+62..67 nameExpr
+53..70 callExpr

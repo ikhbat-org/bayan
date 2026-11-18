@@ -1,0 +1,11 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+union error E {
+    a
+}
+union error F {
+    b
+}
+i32!E g() fails F uses console {
+    print("g")
+    return 1
+}

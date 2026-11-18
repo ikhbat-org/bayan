@@ -1,0 +1,4 @@
+// Doc line one.
+�� {f($"b {c}")} d" $"{{literal //// not a doc comment
+ Å $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"Point { x = 1 }}!" $""
+ 각 

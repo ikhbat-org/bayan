@@ -1,0 +1,111 @@
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 MinusPercent `-%`
+3:17 StarPercent `*%`
+3:20 PlusBar `+|`
+3:23 MinusBar `-|`
+3:26 Star `*`
+3:27 Identifier `c`
+3:28 Bar `|`
+3:30 PlusPlus `++`
+3:33 MinusMinus `--`
+4:2 LetKeyword `let`
+4:6 Identifier `s`
+4:8 Equals `=`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 Slash `/`
+4:38 StringLiteral `"{$"`
+4:42 OpenBrace `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 InterpolatedStringStart `$"`
+4:54 InterpolationStart `{`
+4:55 InterpolatedStringStart `$"`
+4:57 InterpolationStart `{`
+4:58 InterpolatedStringStart `$"`
+4:60 InterpolationStart `{`
+4:61 InterpolatedStringStart `$"`
+4:63 InterpolationStart `{`
+4:64 StringLiteral `$"{$"`
+4:69 OpenBrace `{`
+4:70 Identifier `x`
+4:71 CloseBrace `}`
+4:72 StringLiteral `"}"`
+4:75 InterpolationEnd `}`
+4:76 InterpolatedStringEnd `"`
+4:77 InterpolationEnd `}`
+4:78 InterpolatedStringEnd `"`
+4:79 InterpolationEnd `}`
+4:80 InterpolatedStringEnd `"`
+4:81 InterpolationEnd `}`
+4:82 InterpolatedStringEnd `"`
+4:83 InterpolationEnd `}`
+4:84 InterpolatedStringEnd `"`
+4:85 InterpolationEnd `}`
+4:86 InterpolatedStringEnd `"`
+4:87 InterpolationEnd `}`
+4:88 InterpolatedStringEnd `"`
+4:89 CloseBrace `}`
+4:90 StringLiteral `"}"`
+4:93 InterpolationEnd `}`
+4:94 InterpolatedStringEnd `"`
+4:95 InterpolationEnd `}`
+4:96 InterpolatedStringEnd `"`
+4:97 InterpolationEnd `}`
+4:98 InterpolatedStringEnd `"`
+4:99 InterpolationEnd `}`
+4:100 InterpolatedStringEnd `"`
+4:101 InterpolationEnd `}`
+4:102 InterpolatedStringEnd `"`
+4:103 InterpolationEnd `}`
+4:104 InterpolatedStringEnd `"`
+4:105 InterpolationEnd `}`
+4:106 InterpolatedStringEnd `"`
+4:107 InterpolationEnd `}`
+4:108 InterpolatedStringEnd `"`
+4:109 InterpolationEnd `}`
+4:110 InterpolatedStringEnd `"`
+5:2 CharLiteral `'x`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │  �
+    │  ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │  let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{/"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                ^^
+
+error BYN0008: unterminated char literal
+
+  5 │  'x
+    │  ^^
+    │
+  help: close it with `'`

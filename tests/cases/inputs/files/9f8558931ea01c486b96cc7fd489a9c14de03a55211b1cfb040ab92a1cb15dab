@@ -1,0 +1,6 @@
+'
+'ab'
+'\ 1.‚Å¶b
+let a = 1
+ $"total {x}" $"a {f($"b {c}§")} d" $"{{literal}}" $"{Point { x= 1 }}!" $""
+

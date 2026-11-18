@@ -1,0 +1,32 @@
+== tests/cases/diag/path-needs-alloc.byn
+254..285 blockStmt
+260..283 returnStmt value 267..283
+267..283 callExpr
+281..282 nameExpr
+351..403 blockStmt
+357..401 returnStmt value 364..401
+364..401 callExpr
+384..388 nameExpr
+394..400 nameExpr
+449..480 blockStmt
+455..478 returnStmt value 462..478
+462..478 callExpr
+476..477 nameExpr
+511..542 blockStmt
+517..540 returnStmt value 524..540
+524..540 callExpr
+538..539 nameExpr
+556..669 blockStmt
+562..667 exprStmt
+562..667 callExpr
+568..666 interpolatedExpr
+571..592 callExpr
+586..591 literalExpr string
+595..631 callExpr
+614..618 literalExpr string
+624..630 literalExpr string
+634..649 callExpr
+643..648 literalExpr string
+652..664 callExpr
+659..663 literalExpr string
+562..667 callExpr

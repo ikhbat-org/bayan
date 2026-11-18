@@ -1,0 +1,1 @@
+{"code":"BYN2802","severity":"error","file":"input.byn","span":{"start":101,"end":103,"line":9,"column":16,"endLine":9,"endColumn":18},"message":"`S.name` is `IA.name` but `IB` requires `string name()`","label":"`name` also has a default in `IA`","help":"add `string name()` to `S` to choose one","fixes":[]}

@@ -1,0 +1,20 @@
+== tests/cases/diag/dyn-ref-returned-local.byn
+227..266 blockStmt
+233..251 localDecl
+241..251 structLiteralExpr
+248..249 literalExpr integer
+256..264 returnStmt value 263..264
+263..264 nameExpr
+263..264 nameExpr
+280..282 blockStmt
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+150..201 blockStmt
+160..178 localDecl
+168..178 structLiteralExpr
+175..176 literalExpr integer
+187..195 returnStmt value 194..195
+194..195 nameExpr
+194..195 nameExpr

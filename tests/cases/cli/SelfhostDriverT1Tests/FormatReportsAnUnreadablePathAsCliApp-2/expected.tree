@@ -1,0 +1,9 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+if (a) { print("x") }
+== package.byn UserWrite, UserRead
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { booleans: .words },
+}

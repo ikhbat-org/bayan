@@ -1,0 +1,39 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:15 BecomeKeyword `become`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:10 StringLiteral `"open`
+4:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select� become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select� become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\u{17}`
+
+  1 │ macro select� become
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  2 │  //// not a d�oc coment
+    │              ^
+
+error BYN0003: unterminated string literal
+
+  3 │  let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

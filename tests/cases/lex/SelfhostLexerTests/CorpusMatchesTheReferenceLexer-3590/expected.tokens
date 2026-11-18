@@ -1,0 +1,32 @@
+1:3 TestKeyword `test`
+1:8 AssertKeyword `assert`
+1:15 PropertyKeyword `property`
+1:24 FuzzKeyword `fuzz`
+1:29 ModelKeyword `model`
+1:35 ForeachKeyword `foreach`
+1:43 NewKeyword `new`
+1:47 GotoKeyword `goto`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 PlusPlus `++`
+2:32 MinusMinus `--`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ � test assert property fuzz model foreach new goto
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ � test assert property fuzz model foreach new goto
+    │  ^

@@ -1,0 +1,194 @@
+1:1 IntegerLiteral `0x`
+2:1 IntegerLiteral `1_`
+3:1 IntegerLiteral `0b102`
+4:1 IntegerLiteral `0xFF`
+4:5 NumericSuffix `s`
+5:1 IntegerLiteral `0b1`
+5:4 NumericSuffix `ms`
+6:1 IntegerLiteral `0x_`
+7:1 IntegerLiteral `0b__`
+8:1 IntegerLiteral `1__`
+9:1 IntegerLiteral `0xF__`
+10:1 LetKeyword `let`
+10:5 Identifier `s`
+10:7 Equals `=`
+10:9 InterpolatedStringStart `$"`
+10:11 InterpolationStart `{`
+10:12 InterpolatedStringStart `$"`
+10:14 InterpolationStart `{`
+10:15 InterpolatedStringStart `$"`
+10:17 InterpolationStart `{`
+10:18 InterpolatedStringStart `$"`
+10:20 InterpolationStart `{`
+10:21 InterpolatedStringStart `$"`
+10:23 InterpolationStart `{`
+10:24 InterpolatedStringStart `$"`
+10:26 InterpolationStart `{`
+10:27 InterpolatedStringStart `$"`
+10:29 InterpolationStart `{`
+10:30 InterpolatedStringStart `$"`
+10:32 InterpolationStart `{`
+10:33 InterpolatedStringStart `$"`
+10:35 InterpolationStart `{`
+10:36 InterpolatedStringStart `$"`
+10:38 InterpolationStart `{`
+10:39 InterpolatedStringStart `$"`
+10:41 InterpolationStart `{`
+10:42 InterpolatedStringStart `$"`
+10:44 InterpolationStart `{`
+10:45 InterpolatedStringStart `$"`
+10:47 InterpolationStart `{`
+10:48 InterpolatedStringStart `$"`
+10:50 InterpolationStart `{`
+10:51 InterpolatedStringStart `$"`
+10:53 InterpolationStart `{`
+10:54 InterpolatedStringStart `$"`
+10:56 InterpolationStart `{`
+10:57 StringLiteral `$"{$"`
+10:62 OpenBrace `{`
+10:63 StringLiteral `$"{$"`
+10:68 OpenBrace `{`
+10:69 Identifier `x`
+10:70 CloseBrace `}`
+10:71 StringLiteral `"}"`
+10:74 CloseBrace `}`
+10:75 StringLiteral `"}"`
+10:78 InterpolationEnd `}`
+10:79 InterpolatedStringEnd `"`
+10:80 InterpolationEnd `}`
+10:81 InterpolatedStringEnd `"`
+10:82 InterpolationEnd `}`
+10:83 InterpolatedStringEnd `"`
+10:84 InterpolationEnd `}`
+10:85 InterpolatedStringEnd `"`
+10:86 InterpolationEnd `}`
+10:87 InterpolatedStringEnd `"`
+10:88 InterpolationEnd `}`
+10:89 InterpolatedStringEnd `"`
+10:90 InterpolationEnd `}`
+10:91 InterpolatedStringEnd `"`
+10:92 InterpolationEnd `}`
+10:93 InterpolatedStringEnd `"`
+10:94 InterpolationEnd `}`
+10:95 InterpolatedStringEnd `"`
+10:96 InterpolationEnd `}`
+10:97 InterpolatedStringEnd `"`
+10:98 InterpolationEnd `}`
+10:99 InterpolatedStringEnd `"`
+10:100 InterpolationEnd `}`
+10:101 InterpolatedStringEnd `"`
+10:102 InterpolationEnd `}`
+10:103 InterpolatedStringEnd `"`
+10:104 InterpolationEnd `}`
+10:105 InterpolatedStringEnd `"`
+10:106 InterpolationEnd `}`
+10:107 InterpolatedStringEnd `"`
+10:108 InterpolationEnd `}`
+10:109 InterpolatedStringEnd `"`
+11:1 IntegerLiteral `0x`
+12:2 IntegerLiteral `1__`
+14:1 OpenBrace `{`
+15:1 PlusEquals `+=`
+15:4 MinusEquals `-=`
+15:7 StarEquals `*=`
+15:10 SlashEquals `/=`
+15:13 PercentEquals `%=`
+15:16 AmpEquals `&=`
+15:19 BarEquals `|=`
+15:22 CaretEquals `^=`
+15:25 LessLessEquals `<<=`
+16:1 LetKeyword `let`
+16:7 Equals `=`
+16:9 IntegerLiteral `2`
+17:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1_
+    │  ^
+    │
+    │ 2 │ 1_
+    │   │  -
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  3 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  4 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  5 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  7 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 1__
+    │  ^^
+    │
+    │ 8 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 0xF__
+    │    ^^
+    │
+    │ 9 │ 0xF__
+    │   │    --
+
+error BYN0016: interpolated strings are nested too deeply
+
+  10 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+     │                                                         ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  11 │ 0x
+     │ ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  12 │  1__
+     │   ^^
+     │
+     │ 12 │  1__
+     │    │   --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  13 │  �
+     │  ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 13 │  �
+     │    │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  16 │ let � = 2
+     │     ^

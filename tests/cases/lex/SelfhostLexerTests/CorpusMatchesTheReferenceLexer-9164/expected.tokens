@@ -1,0 +1,22 @@
+1:2 OpenBrace `{`
+1:3 OpenBrace `{`
+1:4 Identifier `literal`
+1:11 CloseBrace `}`
+1:12 CloseBrace `}`
+1:13 StringLiteral `" $"`
+1:17 OpenBrace `{`
+1:18 Identifier `Point`
+1:24 OpenBrace `{`
+1:26 Identifier `x`
+1:28 Equals `=`
+2:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ �{{literal}}" $"{Point { x =
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �{{literal}}" $"{Point { x =
+    │   │ -

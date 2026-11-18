@@ -1,0 +1,18 @@
+1:1 CharLiteral `'\q'`
+3:6 Identifier `comment`
+3:14 Star `*`
+3:15 Slash `/`
+3:17 Identifier `a`
+4:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ ﻿    comment */ a
+    │ ^

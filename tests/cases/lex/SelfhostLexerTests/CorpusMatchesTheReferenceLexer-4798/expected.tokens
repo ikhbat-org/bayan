@@ -1,0 +1,65 @@
+2:1 Identifier `b`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:6 Question `?`
+3:7 Equals `=`
+3:9 IntegerLiteral `1`
+4:5 Identifier `comment`
+4:13 Star `*`
+4:14 Slash `/`
+4:16 Identifier `a`
+6:1 Minus `-`
+6:2 LetKeyword `let`
+6:6 Identifier `café`
+6:11 Equals `=`
+6:13 IntegerLiteral `2`
+8:1 Identifier `Å`
+10:1 Identifier `foo`
+10:5 Identifier `Bar`
+10:9 Identifier `_x`
+10:12 Identifier `camelCa`
+10:20 Identifier `e2`
+10:23 Identifier `بيان`
+10:28 Identifier `μετρητής`
+10:37 Identifier `x_1`
+10:41 Identifier `é`
+12:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  8 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ Å
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  9 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  9 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ �����
+    │     ^
+
+error BYN0002: unexpected character `\u{10}`
+
+  10 │ foo Bar _x camelCa�e2 بيان μετρητής x_1 é
+     │                   ^

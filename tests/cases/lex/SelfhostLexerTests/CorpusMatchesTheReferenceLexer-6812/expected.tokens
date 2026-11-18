@@ -1,0 +1,39 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText `c4et actor = 1`
+2:21 InterpolatedStringEnd
+3:1 IntegerLiteral `1__`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ ��� 
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b}c4et actor = 1
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --

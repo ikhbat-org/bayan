@@ -1,0 +1,24 @@
+1:1 RawStringLiteral `"""let actor = 1\n���if else unless switch carse default for in while do break continue return yield defer errdefer using context\nlet a = $ 1\n `
+4:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """let actor = 1
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ ���if else unless switch carse default for in while do break continue return yield defer errdefer using context
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │ ���if else unless switch carse default for in while do break continue return yield defer errdefer using context
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���if else unless switch carse default for in while do break continue return yield defer errdefer using context
+    │   ^

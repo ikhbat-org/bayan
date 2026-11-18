@@ -1,0 +1,47 @@
+error BYN6003: `allocator` is not an effect
+  --> input.byn:1:27
+
+  1 │ void log(string msg) uses allocator, io {
+    │                           ^^^^^^^^^ not an effect or an `effect` alias of this module
+    │
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias
+
+error BYN6003: `io` is not an effect
+  --> input.byn:1:38
+
+  1 │ void log(string msg) uses allocator, io {
+    │                                      ^^ not an effect or an `effect` alias of this module
+    │
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias
+
+error BYN6002: `log` uses `console` but does not declare it
+  --> input.byn:2:5
+
+  2 │     print(msg)
+    │     ^^^^^^^^^^ uses `console`
+    │
+  help: add `console` to the `uses` clause, or remove the call
+    │ 1 │ void log(string msg) uses allocator, io, console {
+    │   │                                        +++++++++
+
+error BYN6003: `allocator` is not an effect
+  --> input.byn:4:22
+
+  4 │ i32 next(i32 n) uses allocator becomes .done fails ParseError => n
+    │                      ^^^^^^^^^ not an effect or an `effect` alias of this module
+    │
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias
+
+error BYN7009: `next` declares `becomes .done` but returns here without `become`
+  --> input.byn:4:66
+
+  4 │ i32 next(i32 n) uses allocator becomes .done fails ParseError => n
+    │                                                                  ^
+    │
+  help: add `become .done(…)` before returning, or fail
+
+✗ build failed: 5 errors, 0 warnings
+  explain: bayan explain BYN6003

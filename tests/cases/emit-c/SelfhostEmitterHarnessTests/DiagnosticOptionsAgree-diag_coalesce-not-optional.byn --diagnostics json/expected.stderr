@@ -1,0 +1,1 @@
+{"code":"BYN2210","severity":"error","file":"input.byn","span":{"start":23,"end":24,"line":2,"column":9,"endLine":2,"endColumn":10},"message":"`??` needs an optional value on the left, found `i64`","label":null,"help":null,"fixes":[]}

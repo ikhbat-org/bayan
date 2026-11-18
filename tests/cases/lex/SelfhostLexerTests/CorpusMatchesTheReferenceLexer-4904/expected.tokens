@@ -1,0 +1,9 @@
+1:3 RawStringLiteral `""" c"text" 16"wideh "\u{202E} allowed in \u{8}trings" "" "\u{48}i"\n   raw "quoted"\n\u{202E}\n1__\n`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │   """ c"text" 16"wideh "� allowed in �trings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

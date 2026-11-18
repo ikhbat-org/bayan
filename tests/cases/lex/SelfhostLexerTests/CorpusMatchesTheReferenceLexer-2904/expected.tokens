@@ -1,0 +1,42 @@
+1:1 Identifier `t`
+1:3 Identifier `café`
+1:9 Equals `=`
+1:11 IntegerLiteral `2`
+2:2 OpenBrace `{`
+2:4 IntegerLiteral `8`
+2:5 CloseBrace `}`
+2:6 Identifier `i`
+2:7 StringLiteral `"`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC7)
+
+  1 │ t café� = 2
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDA)
+
+  2 │  {�8}i"
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │  {�8}i"
+    │       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ���
+    │   ^

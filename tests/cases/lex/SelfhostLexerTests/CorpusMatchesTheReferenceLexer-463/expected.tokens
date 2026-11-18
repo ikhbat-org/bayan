@@ -1,0 +1,89 @@
+2:1 IntegerLiteral `0`
+2:3 IntegerLiteral `42`
+2:6 IntegerLiteral `1_000_`
+2:12 NumericSuffix `N00`
+2:16 IntegerLiteral `0xFF`
+2:21 IntegerLiteral `0x_ff`
+2:27 IntegerLiteral `0b1010`
+2:34 IntegerLiteral `0B11`
+2:39 IntegerLiteral `5`
+2:40 NumericSuffix `s`
+2:42 IntegerLiteral `250`
+2:45 NumericSuffix `ms`
+2:48 IntegerLiteral `4`
+2:49 NumericSuffix `KiB`
+2:53 IntegerLiteral `1`
+2:54 NumericSuffix `u`
+2:56 IntegerLiteral `0xFF`
+2:60 NumericSuffix `u`
+2:62 IntegerLiteral `0b1`
+2:65 NumericSuffix `ul`
+2:68 IntegerLiteral `7`
+2:69 NumericSuffix `l`
+3:1 IntegerLiteral `1`
+3:2 Dot `.`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Arrow `->`
+4:32 At `@`
+4:34 Hash `#`
+5:2 Identifier `é`
+5:7 Identifier `comment`
+5:15 Star `*`
+5:16 Slash `/`
+5:18 Identifier `a`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │    ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0 42 1_000_N00 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │           ^
+    │
+    │ 2 │ 0 42 1_000_N00 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │   │           -
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  5 │  é   comment */ a
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │  é   comment */ a
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{ �
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

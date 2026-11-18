@@ -1,0 +1,11 @@
+== diags.diag/input-body-nested-diagnostic
+BYN1017 4:8 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 4:8-4:55 a { unless b { print("s") } else { print("t") } }
+BYN1006 4:36 `unless` cannot have an `else` branch
+  label `else` after `unless`
+  help use `if` with the opposite condition, so both branches read positively
+BYN1018 4:12 the body of `if` must be a block
+  label a single statement
+  help wrap the statement in `{ }`

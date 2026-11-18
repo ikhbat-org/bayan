@@ -1,0 +1,46 @@
+== tests/cases/run/io-run-relative-program.byn
+271..691 blockStmt
+277..495 localDecl
+300..495 collectionExpr
+301..305 literalExpr string
+307..494 literalExpr string
+500..536 localDecl
+508..536 tryExpr
+512..536 callExpr
+519..523 literalExpr string
+525..535 memberExpr
+525..530 nameExpr
+512..536 callExpr
+512..536 callExpr
+512..536 callExpr
+512..536 callExpr
+541..567 localDecl
+563..567 collectionExpr
+564..566 literalExpr string
+572..619 exprStmt
+572..619 callExpr
+578..618 memberExpr
+579..610 tryExpr
+583..610 callExpr
+590..598 literalExpr string
+600..609 memberExpr
+600..604 nameExpr
+583..610 callExpr
+583..610 callExpr
+583..610 callExpr
+583..610 callExpr
+572..619 callExpr
+624..689 exprStmt
+624..689 callExpr
+630..688 memberExpr
+631..680 tryExpr
+635..680 callExpr
+642..650 literalExpr string
+652..661 memberExpr
+652..656 nameExpr
+674..679 literalExpr string
+674..679 literalExpr string
+635..680 callExpr
+635..680 callExpr
+635..680 callExpr
+624..689 callExpr

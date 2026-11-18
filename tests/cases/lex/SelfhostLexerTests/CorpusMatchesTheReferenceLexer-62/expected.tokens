@@ -1,0 +1,56 @@
+1:1 CharLiteral `'\u{D800}'`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 BarBar `||`
+3:11 Caret `^`
+3:13 Tilde `~`
+3:15 Bang `!`
+3:17 Equals `=`
+3:19 EqualsEquals `==`
+3:22 BangEquals `!=`
+3:25 Less `<`
+3:27 LessEquals `<=`
+3:30 Greater `>`
+3:32 GreaterEquals `>=`
+3:35 LessLess `<<`
+3:38 Greater `>`
+3:39 Greater `>`
+3:41 Greater `>`
+3:42 GreaterEquals `>=`
+4:1 Identifier `fé`
+4:5 Equals `=`
+4:7 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:10 Equals `=`
+5:12 IntegerLiteral `2`
+    doc `/// Doc line one.`
+8:2 Identifier `é`
+9:3 CloseBrace `}`
+9:5 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0005: identifier `fé` is not in Unicode normalization form C
+
+  4 │ fé = 1
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ fé = 1
+    │   │  +
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  8 │  é
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │  é
+    │   │  +

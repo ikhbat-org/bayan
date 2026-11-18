@@ -1,0 +1,2 @@
+== call.b16
+builtinCall|List<i64>|local:List<i64>=ns|listTake|2240:9|

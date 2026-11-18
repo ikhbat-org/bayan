@@ -1,0 +1,87 @@
+1:2 IntegerLiteral `2`
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:9 Percent `%`
+4:11 PlusPercent `+%`
+4:14 MinusPercent `-%`
+4:17 StarPercent `*%`
+4:20 PlusBar `+|`
+4:23 MinusBar `-|`
+4:26 StarBar `*|`
+4:29 PlusPlus `++`
+4:32 MinusMinus `--`
+5:1 StructKeyword `struct`
+5:8 UniqueKeyword `unique`
+5:15 UnionKeyword `union`
+5:21 EnumKeyword `enum`
+5:26 FlagsKeyword `flags`
+5:32 OpenKeyword `open`
+5:37 ExtensibleKeyword `extensible`
+5:48 InterfaceKeyword `interface`
+5:58 DelegateKeyword `delegate`
+5:67 ExtensionKeyword `extension`
+5:77 DerivationKeyword `derivation`
+5:88 AttributeKeyword `attribute`
+7:1 IntegerLiteral `1`
+7:2 Dot `.`
+8:2 Identifier `u`
+8:3 OpenBrace `{`
+8:4 Identifier `D800`
+8:8 CloseBrace `}`
+8:9 CharLiteral `'`
+9:1 CharLiteral `'\u{110000}'`
+10:1 CharLiteral `'x`
+11:2 LetKeyword `let`
+11:6 Identifier `café`
+11:11 Equals `=`
+11:13 IntegerLiteral `2`
+12:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\`
+
+  8 │ \u{D800}'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  8 │ \u{D800}'
+    │         ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  9 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  10 │ 'x
+     │ ^^
+     │
+  help: close it with `'`

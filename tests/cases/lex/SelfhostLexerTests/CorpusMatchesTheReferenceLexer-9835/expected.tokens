@@ -1,0 +1,8 @@
+1:1 Slash `/`
+1:4 Identifier `lock`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{B}`
+
+  1 │ /� lock
+    │  ^

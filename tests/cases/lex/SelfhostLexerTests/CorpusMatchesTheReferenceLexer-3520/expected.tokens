@@ -1,0 +1,5 @@
+1:1 CloseBrace `}`
+1:2 StringLiteral `"}"`
+1:5 CloseBrace `}`
+1:6 StringLiteral `"}"`
+2:1 EndOfFile

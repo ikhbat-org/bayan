@@ -1,0 +1,11 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:2 StringLiteral `"{`
+2:4 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  "{
+    │  ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

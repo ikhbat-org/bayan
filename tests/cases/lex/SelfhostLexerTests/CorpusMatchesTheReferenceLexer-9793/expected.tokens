@@ -1,0 +1,48 @@
+3:1 IntegerLiteral `0x_`
+5:1 Identifier `a`
+5:3 Star `*`
+5:5 NeverKeyword `never`
+5:11 Identifier `closed`
+6:2 Identifier `c`
+6:4 Greater `>`
+6:5 GreaterEquals `>=`
+6:8 IntegerLiteral `1`
+7:2 CharLiteral `'\q'`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����// line co�mment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����// line co�mment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����// line co�mment
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����// line co�mment
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ ����// line co�mment
+    │               ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x_
+    │ ^^^
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │  '\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

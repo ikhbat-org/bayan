@@ -1,0 +1,11 @@
+error BYN2221: `i32` cannot be iterated
+  --> input.byn:1:10
+
+  1 │ for x in 5 {
+    │          ^
+    │
+  help: use `for` over ranges (`0..n`), spans, lists, arrays, strings, or a type conforming to
+        `IIndexable` or `IEnumerator`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2221

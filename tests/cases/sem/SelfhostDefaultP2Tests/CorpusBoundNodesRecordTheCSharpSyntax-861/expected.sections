@@ -1,0 +1,50 @@
+== tests/cases/diag/style-fix-keeps-line-comments.byn
+261..364 blockStmt
+267..284 localDecl
+279..284 literalExpr falseKeyword
+289..345 forStmt
+298..307 nameExpr
+308..345 blockStmt
+318..339 assignStmt assign target 318..323 value 326..339
+318..323 nameExpr
+326..339 binaryExpr logicalOr right 335..339
+326..331 nameExpr
+335..339 callExpr
+335..336 nameExpr
+337..338 nameExpr
+350..362 returnStmt value 357..362
+357..362 nameExpr
+382..436 blockStmt
+388..434 returnStmt value 395..434
+395..434 binaryExpr logicalOr right 428..434
+395..401 binaryExpr eq right 400..401
+395..396 nameExpr
+400..401 literalExpr integer
+428..434 binaryExpr eq right 433..434
+428..429 nameExpr
+433..434 literalExpr integer
+450..679 blockStmt
+456..517 localDecl
+488..517 collectionExpr
+489..516 structLiteralExpr
+510..514 literalExpr trueKeyword
+522..576 ifStmt
+525..542 memberExpr
+525..534 nameExpr
+554..576 blockStmt
+564..570 returnStmt
+581..645 localDecl
+595..645 callExpr
+599..608 nameExpr
+614..644 lambdaExpr
+650..677 exprStmt
+650..677 callExpr
+656..676 interpolatedExpr
+659..666 nameExpr
+668..674 callExpr
+672..673 literalExpr integer
+650..677 callExpr
+634..644 memberExpr
+634..644 memberExpr
+634..644 memberExpr
+634..635 nameExpr

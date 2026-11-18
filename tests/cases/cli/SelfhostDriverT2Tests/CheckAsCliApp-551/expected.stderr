@@ -1,0 +1,26 @@
+error BYN2785: `slot` needs a default value, and `Color` has none
+  --> <repo>/tmp/t2/diag/map-slot-no-default/map-slot-no-default.byn:18:5
+
+  18 │     colors.slot("sky") = .red
+     │     ^^^^^^^^^^^^^^^^^^
+     │
+  help: read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`
+
+error BYN2785: `slot` needs a default value, and `Point` has none
+  --> <repo>/tmp/t2/diag/map-slot-no-default/map-slot-no-default.byn:20:5
+
+  20 │     points.slot(1).y += 1
+     │     ^^^^^^^^^^^^^^
+     │
+  help: read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`
+
+error BYN2785: `slot` needs a default value, and `List<i64>` has none
+  --> <repo>/tmp/t2/diag/map-slot-no-default/map-slot-no-default.byn:22:5
+
+  22 │     lists.slot(1).append(2)
+     │     ^^^^^^^^^^^^^
+     │
+  help: read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2785

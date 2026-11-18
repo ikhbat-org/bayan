@@ -1,0 +1,5 @@
+== diags.diag/variant-needs-payload
+BYN2705 7:13 variant `circle` carries a payload
+  help pass it: `Shape.circle(r)`
+BYN2705 8:20 variant `circle` carries a payload
+  help pass it: `Shape.circle(r)`

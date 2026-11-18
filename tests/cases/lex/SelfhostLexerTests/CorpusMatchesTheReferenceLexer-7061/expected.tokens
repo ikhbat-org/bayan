@@ -1,0 +1,145 @@
+1:1 CloseBrace `}`
+2:2 Identifier `c`
+2:4 Greater `>`
+2:5 GreaterEquals `>=`
+2:8 IntegerLiteral `1`
+3:2 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:11 IntegerLiteral `2`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:7 Equals `=`
+5:11 IntegerLiteral `3`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 StringLiteral `$"{x}"`
+6:55 InterpolationEnd `}`
+6:56 InterpolatedStringEnd `"`
+6:57 InterpolationEnd `}`
+6:58 InterpolatedStringEnd `"`
+6:59 InterpolationEnd `}`
+6:60 InterpolatedStringEnd `"`
+6:61 InterpolationEnd `}`
+6:62 InterpolatedStringText `�`
+6:63 InterpolatedStringEnd `"`
+6:64 InterpolationEnd `}`
+6:65 InterpolatedStringEnd `"`
+6:66 InterpolationEnd `}`
+6:67 InterpolatedStringEnd `"`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringEnd `"`
+6:70 InterpolationEnd `}`
+6:71 InterpolatedStringEnd `"`
+6:72 InterpolationEnd `}`
+6:73 InterpolatedStringEnd `"`
+6:74 InterpolationEnd `}`
+6:75 InterpolatedStringEnd `"`
+6:76 InterpolationEnd `}`
+6:77 InterpolatedStringEnd `"`
+6:78 InterpolationEnd `}`
+6:79 InterpolatedStringEnd `"`
+6:80 InterpolationEnd `}`
+6:81 InterpolatedStringEnd `"`
+6:82 StringLiteral `"}"`
+6:85 InterpolationEnd `}`
+6:86 InterpolatedStringEnd `"`
+7:1 IntegerLiteral `0xFF`
+7:5 NumericSuffix `s`
+8:1 LetKeyword `let`
+8:5 Identifier `actor`
+8:11 Equals `=`
+8:13 IntegerLiteral `1`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ ����c >>= 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ ����c >>= 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����c >>= 1
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����c >>= 1
+    │    ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}�"}"}"}"}"}"}"}"}"}""}"}"
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}�"}"}"}"}"}"}"}"}"}""}"}"
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}�"}"}"}"}"}"}"}"}"}""}"}"
+    │                                                              ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  7 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  8 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

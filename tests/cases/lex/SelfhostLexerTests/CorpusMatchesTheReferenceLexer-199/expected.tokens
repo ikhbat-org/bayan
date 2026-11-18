@@ -1,0 +1,52 @@
+3:1 CharLiteral `'\u{110000}'`
+4:1 CharLiteral `'x$`
+6:1 Identifier `lezt`
+6:6 Identifier `actor`
+6:12 Equals `=`
+6:14 IntegerLiteral `1`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���
+    │   ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x$
+    │ ^^^
+    │
+  help: close it with `'`
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  6 │ lezt actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{ 
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

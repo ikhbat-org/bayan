@@ -1,0 +1,10 @@
+fails try catch never noalloc nosuspend suspends async await
+let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+
+  """ c"text" u16"wid" "â€® allowed in strings" "" "\u{48}i"
+
+test assert property fuzz model foreach new goto
+
+( ) [ ] { }
+
+'Ã

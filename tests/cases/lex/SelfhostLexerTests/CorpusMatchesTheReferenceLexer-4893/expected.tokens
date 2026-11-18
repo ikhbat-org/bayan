@@ -1,0 +1,125 @@
+1:1 Identifier `b1ms`
+2:1 IntegerLiteral `0x_`
+3:1 IntegerLiteral `0b__`
+4:1 Identifier `__`
+5:1 IntegerLiteral `0xF__`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 Identifier `x`
+7:47 InterpolationEnd `}`
+7:48 InterpolatedStringEnd `"`
+7:49 InterpolationEnd `}`
+7:50 InterpolatedStringEnd `"`
+7:51 InterpolationEnd `}`
+7:52 InterpolatedStringEnd `"`
+7:53 InterpolationEnd `}`
+7:54 InterpolatedStringEnd `"`
+7:55 InterpolationEnd `}`
+7:56 InterpolatedStringEnd `"`
+7:57 InterpolationEnd `}`
+7:58 InterpolatedStringEnd `"`
+7:59 InterpolationEnd `}`
+7:60 InterpolatedStringEnd `"`
+7:61 InterpolationEnd `}`
+7:62 InterpolatedStringEnd `"`
+7:63 InterpolationEnd `}`
+7:64 InterpolatedStringEnd `"`
+7:65 InterpolationEnd `}`
+7:66 InterpolatedStringEnd `"`
+7:67 InterpolationEnd `}`
+7:68 InterpolatedStringEnd `"`
+7:69 InterpolationEnd `}`
+7:70 InterpolatedStringEnd `"`
+7:71 InterpolationEnd `}`
+7:72 InterpolatedStringEnd `"`
+10:1 CharLiteral `'x`
+12:2 IfKeyword `if`
+12:5 ElseKeyword `else`
+12:10 UnlessKeyword `unless`
+12:17 SwitchKeyword `switch`
+12:24 CaseKeyword `case`
+12:29 DefaultKeyword `default`
+12:37 ForKeyword `for`
+12:41 InKeyword `in`
+12:44 WhileKeyword `while`
+12:50 DoKeyword `do`
+12:53 Identifier `br`
+12:56 Identifier `eak`
+12:60 ContinueKeyword `continue`
+12:69 ReturnKeyword `return`
+12:76 YieldKeyword `yield`
+12:82 DeferKeyword `defer`
+12:88 ErrdeferKeyword `errdefer`
+12:97 Identifier `usiUng`
+12:104 ContextKeyword `context`
+13:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  8 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  8 │ �
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  10 │ 'x
+     │ ^^
+     │
+  help: close it with `'`

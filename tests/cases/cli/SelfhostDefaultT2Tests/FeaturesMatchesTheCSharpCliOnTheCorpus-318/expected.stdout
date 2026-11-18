@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BlockStmt",
+    "CallExpr",
+    "ConstantPattern",
+    "ExprStmt",
+    "FieldDecl",
+    "ForStmt",
+    "FunctionDecl",
+    "IfStmt",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "IsExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "MoveExpr",
+    "NameExpr",
+    "PropertyPattern",
+    "ReturnStmt",
+    "StructDecl",
+    "StructLiteralExpr"
+  ],
+  "builtins": [
+    "ListAdd",
+    "ListLength",
+    "ListTake",
+    "MapIndex",
+    "MapIndexSet",
+    "MapLength",
+    "MapTake",
+    "OptionalTake",
+    "Print",
+    "StrBufAppend",
+    "StrBufAsString",
+    "StrBufGrow",
+    "StrBufLength",
+    "StrBufTake"
+  ],
+  "diagnostics": []
+}

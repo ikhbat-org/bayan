@@ -1,0 +1,79 @@
+== tests/cases/run/string-views.byn
+85..628 blockStmt
+91..108 localDecl
+99..108 literalExpr string
+113..165 forStmt
+122..129 memberExpr
+122..123 nameExpr
+130..165 blockStmt
+140..159 exprStmt
+140..159 callExpr
+146..158 interpolatedExpr
+149..156 memberExpr
+149..150 nameExpr
+140..159 callExpr
+170..216 forStmt
+179..186 memberExpr
+179..180 nameExpr
+187..216 blockStmt
+197..210 exprStmt
+197..210 callExpr
+203..209 interpolatedExpr
+206..207 nameExpr
+197..210 callExpr
+221..294 exprStmt
+221..294 callExpr
+227..293 interpolatedExpr
+230..251 memberExpr
+230..244 callExpr
+230..237 memberExpr
+230..231 nameExpr
+255..270 callExpr
+255..262 memberExpr
+255..256 nameExpr
+268..269 literalExpr integer
+275..290 callExpr
+275..282 memberExpr
+275..276 nameExpr
+288..289 literalExpr integer
+221..294 callExpr
+299..379 forStmt
+311..339 memberExpr
+311..333 literalExpr string
+340..379 blockStmt
+350..373 exprStmt
+350..373 callExpr
+356..372 interpolatedExpr
+365..369 nameExpr
+350..373 callExpr
+384..459 forStmt
+396..419 callExpr
+396..404 literalExpr string
+415..418 literalExpr string
+420..459 blockStmt
+430..453 exprStmt
+430..453 callExpr
+436..452 interpolatedExpr
+445..449 nameExpr
+430..453 callExpr
+464..551 forStmt
+476..508 callExpr
+476..483 literalExpr string
+494..497 literalExpr string
+506..507 literalExpr integer
+509..551 blockStmt
+519..545 exprStmt
+519..545 callExpr
+525..544 interpolatedExpr
+537..541 nameExpr
+519..545 callExpr
+556..626 forStmt
+568..585 callExpr
+568..570 literalExpr string
+581..584 literalExpr string
+586..626 blockStmt
+596..620 exprStmt
+596..620 callExpr
+602..619 interpolatedExpr
+612..616 nameExpr
+596..620 callExpr

@@ -1,0 +1,59 @@
+== tests/cases/diag/borrow-stored-through-span.byn
+28..136 blockStmt
+34..61 localDecl
+44..61 stackallocExpr
+66..86 localDecl
+75..86 callExpr
+82..85 nameExpr
+91..109 exprStmt
+91..109 callExpr
+91..93 nameExpr
+101..108 literalExpr string
+114..134 assignStmt assign target 114..120 value 123..134
+114..120 indexExpr
+114..117 nameExpr
+118..119 literalExpr integer
+123..134 callExpr
+123..125 nameExpr
+249..465 blockStmt
+255..282 localDecl
+265..282 stackallocExpr
+287..307 localDecl
+296..307 callExpr
+303..306 nameExpr
+312..327 exprStmt
+312..327 callExpr
+312..314 nameExpr
+322..326 literalExpr string
+332..359 localDecl
+354..359 collectionExpr
+355..358 literalExpr string
+364..393 localDecl
+375..393 callExpr
+375..379 nameExpr
+398..437 ifStmt
+401..410 nameExpr
+411..437 blockStmt
+421..431 assignStmt assign target 421..425 value 428..431
+421..425 nameExpr
+428..431 nameExpr
+442..463 assignStmt assign target 442..449 value 452..463
+442..449 indexExpr
+442..446 nameExpr
+447..448 literalExpr integer
+452..463 callExpr
+452..454 nameExpr
+137..163 globalStatement
+137..163 localDecl
+158..163 collectionExpr
+159..162 literalExpr string
+164..187 exprStmt
+164..187 callExpr
+169..186 callExpr
+169..172 nameExpr
+188..201 exprStmt
+188..201 callExpr
+194..200 indexExpr
+194..197 nameExpr
+198..199 literalExpr integer
+188..201 callExpr

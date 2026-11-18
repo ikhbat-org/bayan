@@ -1,0 +1,17 @@
+aé😀.byn:1:1 bool `t` -> `f`: survived
+mutation: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+survived: aé😀.byn:1:1: t → f [bool]
+  suggestion: add a case that depends on this value
+operators:
+  boundary: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  relational: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  logical: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  condition: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  bool: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  arithmetic: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  literal: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  negation: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  statement: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  emptyReturn: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  variant: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+timing: build <t> s, mean <t> s and max <t> s per mutant, total <t> s, mutant share of build <t>%

@@ -1,0 +1,12 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never closed\n _000 \nis and or not with move ref out this null true false comptime checked\n\n0x\n var xs: List<List<i64>>\n\n0xF__\n `
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

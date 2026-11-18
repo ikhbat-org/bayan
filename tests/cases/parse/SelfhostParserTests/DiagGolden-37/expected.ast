@@ -1,0 +1,5 @@
+CompilationUnit
+  Attribute @positional strict
+  Struct Point
+    Field i64 x
+    Field i64 y

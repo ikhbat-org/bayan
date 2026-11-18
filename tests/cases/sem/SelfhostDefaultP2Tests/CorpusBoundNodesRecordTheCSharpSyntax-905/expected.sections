@@ -1,0 +1,10 @@
+== tests/cases/diag/type-parameter-arithmetic.byn
+25..30 binaryExpr add right 29..30
+25..30 binaryExpr add right 29..30
+25..30 binaryExpr add right 29..30
+51..53 unaryExpr negate operand 52..53
+51..53 unaryExpr negate operand 52..53
+51..53 unaryExpr negate operand 52..53
+105..114 binaryExpr mul right 113..114
+105..114 binaryExpr mul right 113..114
+105..114 binaryExpr mul right 113..114

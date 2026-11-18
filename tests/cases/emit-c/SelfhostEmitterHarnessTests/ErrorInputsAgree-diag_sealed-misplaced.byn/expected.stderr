@@ -1,0 +1,18 @@
+error BYN1016: `@sealed` is not allowed here
+  --> input.byn:1:1
+
+  1 │ @sealed
+    │ ^^^^^^^
+    │
+  help: put `@sealed` on a struct
+
+error BYN1016: `@sealed(strict)` is not allowed here
+  --> input.byn:4:1
+
+  4 │ @sealed(strict)
+    │ ^^^^^^^^^^^^^^^
+    │
+  help: write `@sealed` with no arguments and no `because`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1016

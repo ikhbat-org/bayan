@@ -1,0 +1,15 @@
+1:2 Star `*`
+1:3 Slash `/`
+1:6 Identifier `raw`
+1:10 StringLiteral `"quoted"`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �*/  raw "quoted"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �*/  raw "quoted"
+    │  ^

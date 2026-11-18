@@ -1,0 +1,1 @@
+{"code":"BYN7012","severity":"error","file":"input.byn","span":{"start":318,"end":355,"line":16,"column":5,"endLine":16,"endColumn":42},"message":"`x` would change state here; a state changes only through `become`","label":"the generic code needs this of its type arguments","help":"call `put` with a type without states; it replaces a value of its type argument whole","fixes":[]}

@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/checked-field-assignment.byn
+--package
+<repo>/tests/cases/diag

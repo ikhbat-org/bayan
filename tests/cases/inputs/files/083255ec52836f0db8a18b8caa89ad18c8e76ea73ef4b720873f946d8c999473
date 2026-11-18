@@ -1,0 +1,8 @@
+	 = 2
+ let café = 2
+ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ is and or not with ove ref out this null true false comptime checked
+"text" "esc \"q\" \\ \n" """
+
+/* block
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"

@@ -1,0 +1,49 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+2:1 IntegerLiteral `0b1`
+2:4 Identifier `s`
+4:1 Identifier `en`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:9 StringLiteral `"!bad \q esc nit distinct type import as public private static readonl`
+6:1 StringLiteral `"text"`
+6:8 StringLiteral `"esc \"q\" \\ \n"`
+6:26 RawStringLiteral `"""\nlet a = $ 1\n\nlet effect = 2\n`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  2 │ 0b1�s
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  5 │ let b = "!bad \q esc nit distinct type import as public private static readonl
+    │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at
+    │                                                                                the end of the
+    │                                                                                line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ let b = "!bad \q esc nit distinct type import as public private static readonl
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  6 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,75 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+2:2 StringLiteral `"open {"`
+2:10 Semicolon `;`
+    doc `/// Doc line one.`
+4:1 VarKeyword `var`
+4:5 Identifier `xs`
+4:7 Colon `:`
+4:9 Identifier `List`
+4:13 Less `<`
+4:14 Identifier `List`
+4:18 Less `<`
+4:19 Identifier `i64`
+4:22 Greater `>`
+4:23 Greater `>`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:11 Equals `=`
+6:13 IntegerLiteral `1`
+6:14 Semicolon `;`
+6:15 StringLiteral `"text"`
+6:22 StringLiteral `"esc \"q\" \-\ \n"`
+6:41 RawStringLiteral `"""\n 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1u�l 7l\n\n`
+9:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  6 │ let café = 1;"text" "esc \"q\" \-\ \n" """
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ let café = 1;"text" "esc \"q\" \-\ \n" """
+    │   │        +
+
+error BYN0006: invalid escape sequence `\-`
+
+  6 │ let café = 1;"text" "esc \"q\" \-\ \n" """
+    │                                 ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0006: invalid escape sequence `\ `
+
+  6 │ let café = 1;"text" "esc \"q\" \-\ \n" """
+    │                                   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  6 │ let café = 1;"text" "esc \"q\" \-\ \n" """
+    │                                         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  7 │  0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1u�l 7l
+    │                                                                   ^

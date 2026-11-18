@@ -1,0 +1,5 @@
+error BYN2225: `List<i64>` cannot be formatted
+  --> <repo>/tests/cases/diag/not-formattable.byn:2:10
+
+  2 │ print($"{xs}")
+    │          ^^

@@ -1,0 +1,45 @@
+== tests/cases/run/wrapping-fast.byn
+14..48 globalStatement
+14..48 localDecl
+29..48 literalExpr integer
+49..64 localDecl
+61..64 literalExpr integer
+65..108 exprStmt
+65..108 callExpr
+71..107 interpolatedExpr
+74..82 binaryExpr addWrap right 81..82
+74..77 nameExpr
+81..82 literalExpr integer
+85..94 binaryExpr subWrap right 92..94
+85..88 nameExpr
+92..94 unaryExpr negate operand 93..94
+97..105 binaryExpr mulWrap right 104..105
+97..100 nameExpr
+104..105 literalExpr integer
+65..108 callExpr
+109..154 exprStmt
+109..154 callExpr
+115..153 interpolatedExpr
+118..125 binaryExpr addWrap right 123..125
+118..119 nameExpr
+123..125 literalExpr integer
+128..142 binaryExpr subWrap right 137..142
+131..132 literalExpr integer
+140..141 literalExpr integer
+145..151 binaryExpr mulWrap right 150..151
+145..146 nameExpr
+150..151 literalExpr integer
+109..154 callExpr
+155..202 exprStmt
+155..202 callExpr
+161..201 interpolatedExpr
+164..172 binaryExpr addSat right 171..172
+164..167 nameExpr
+171..172 literalExpr integer
+175..182 binaryExpr addSat right 180..182
+175..176 nameExpr
+180..182 literalExpr integer
+185..199 binaryExpr subSat right 194..199
+188..189 literalExpr integer
+197..198 literalExpr integer
+155..202 callExpr

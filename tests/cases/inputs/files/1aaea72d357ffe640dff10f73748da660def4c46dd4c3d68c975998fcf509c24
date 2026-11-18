@@ -1,0 +1,7 @@
+///
+ = 2
+macro select become 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+
+dec 1..2 GG..=3 5e x.y 2.5f
+
+'

@@ -1,0 +1,5 @@
+== diags.alloc-roots
+BYN3003 28:28 cannot return a borrow of arena `h`, which is freed when `viaField` returns
+  help let the caller pass the buffer or allocator in, and borrow or allocate from that
+returns make 0
+returns viaField 0

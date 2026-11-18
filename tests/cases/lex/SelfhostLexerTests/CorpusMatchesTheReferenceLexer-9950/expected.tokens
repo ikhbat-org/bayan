@@ -1,0 +1,23 @@
+1:1 Identifier `a`
+1:5 Identifier `q`
+1:7 Identifier `escape`
+1:13 StringLiteral `"`
+2:1 LetKeyword `let`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD1)
+
+  1 │ a� \q escape"
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ a� \q escape"
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  1 │ a� \q escape"
+    │             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

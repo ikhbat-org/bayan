@@ -1,0 +1,7 @@
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ '\u{D800}'
+
+let x⁧ = 1
+* never closed
+b
+

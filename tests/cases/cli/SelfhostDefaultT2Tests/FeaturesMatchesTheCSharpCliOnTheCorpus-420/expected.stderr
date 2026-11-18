@@ -1,0 +1,47 @@
+error BYN1005: expected a line break after the statement
+  --> <repo>/tests/cases/parse/struct-literal-unicode-upper.byn:8:15
+
+  8 │ let h = v is ω { x: 1 }
+    │               ^ found `{`
+    │
+  help: put the next statement on its own line
+    │ 8 │ let h = v is ω
+    │ 9 │ { x: 1 }
+
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tests/cases/parse/struct-literal-unicode-upper.byn:8:21
+
+  8 │ let h = v is ω { x: 1 }
+    │                     ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tests/cases/parse/struct-literal-unicode-upper.byn:9:10
+
+   9 │ let i = ω { x: 1 }
+     │          ^ found `{`
+     │
+  help: put the next statement on its own line
+     │  9 │ let i = ω
+     │ 10 │ { x: 1 }
+
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tests/cases/parse/struct-literal-unicode-upper.byn:9:16
+
+  9 │ let i = ω { x: 1 }
+    │                ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN0005: identifier `Åp` is not in Unicode normalization form C
+  --> <repo>/tests/cases/parse/struct-literal-unicode-upper.byn:10:9
+
+  10 │ let j = Åp { x: 1 }
+     │         ^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 10 │ let j = Åp { x: 1 }
+     │    │         +

@@ -1,0 +1,38 @@
+1:1 CharLiteral `'\n'`
+1:6 CharLiteral `'\u{1F600}'`
+1:18 CharLiteral `'\''`
+1:22 Colon `:`
+1:23 CharLiteral `'é'`
+1:27 CharLiteral `'\\'`
+1:32 CharLiteral `'\0'`
+2:1 LetKeyword `let`
+2:7 Equals `=`
+2:9 IntegerLiteral `2`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+4:2 IsKeyword `is`
+4:5 AndKeyword `and`
+4:9 OrKeyword `or`
+4:12 NotKeyword `not`
+4:16 WithKeyword `with`
+4:21 Identifier `mo`
+4:23 Identifier `ve`
+4:26 RefKeyword `ref`
+4:30 OutKeyword `out`
+4:34 ThisKeyword `this`
+4:39 NullKeyword `null`
+4:44 TrueKeyword `true`
+4:49 FalseKeyword `false`
+4:55 ComptimeKeyword `comptime`
+4:64 Identifier `checkedi`
+4:72 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9C)
+
+  4 │  is and or not with mo�ve ref out this null true false comptime checkedi
+    │                       ^

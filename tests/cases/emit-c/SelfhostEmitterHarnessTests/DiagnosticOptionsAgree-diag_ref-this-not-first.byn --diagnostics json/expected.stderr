@@ -1,0 +1,1 @@
+{"code":"BYN2117","severity":"error","file":"input.byn","span":{"start":49,"end":57,"line":4,"column":22,"endLine":4,"endColumn":30},"message":"`ref this` must be the first parameter","label":"after other parameters","help":"move `ref this` to the start of the parameter list","fixes":[]}

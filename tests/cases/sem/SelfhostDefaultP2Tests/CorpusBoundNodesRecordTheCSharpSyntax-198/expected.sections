@@ -1,0 +1,58 @@
+== tests/cases/run/memory-assign-order.byn
+27..109 blockStmt
+33..45 assignStmt assign target 33..38 value 41..45
+33..38 indexExpr
+33..35 nameExpr
+36..37 literalExpr integer
+41..45 literalExpr integer
+50..94 forStmt
+59..65 rangeExpr
+59..60 literalExpr integer
+62..65 literalExpr integer
+66..94 blockStmt
+76..88 exprStmt
+76..88 callExpr
+76..78 nameExpr
+86..87 nameExpr
+86..87 nameExpr
+99..107 returnStmt value 106..107
+106..107 literalExpr integer
+111..131 globalStatement
+111..131 localDecl
+120..131 callExpr
+132..144 exprStmt
+132..144 callExpr
+132..134 nameExpr
+142..143 literalExpr integer
+145..165 assignStmt assign target 145..150 value 153..165
+145..150 indexExpr
+145..147 nameExpr
+148..149 literalExpr integer
+153..165 callExpr
+162..164 nameExpr
+166..186 localDecl
+175..186 callExpr
+187..200 exprStmt
+187..200 callExpr
+187..189 nameExpr
+197..199 literalExpr integer
+201..222 assignStmt add target 201..206 value 210..222
+201..206 indexExpr
+201..203 nameExpr
+204..205 literalExpr integer
+210..222 callExpr
+219..221 nameExpr
+223..272 exprStmt
+223..272 callExpr
+229..271 interpolatedExpr
+232..237 indexExpr
+232..234 nameExpr
+235..236 literalExpr integer
+240..249 memberExpr
+240..242 nameExpr
+252..257 indexExpr
+252..254 nameExpr
+255..256 literalExpr integer
+260..269 memberExpr
+260..262 nameExpr
+223..272 callExpr

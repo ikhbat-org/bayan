@@ -1,0 +1,3 @@
+== case conv-mismatch-char
+errorExpr 1139..1142 : ?
+BYN2202 60:17 expected `i32`, found `rune` ||convert it explicitly|fix 1139..1142 i32('a')

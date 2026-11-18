@@ -1,0 +1,85 @@
+1:1 Identifier `각0x_`
+2:1 IntegerLiteral `0b__`
+3:1 IntegerLiteral `1__`
+4:1 IntegerLiteral `0xF__`
+5:1 OpenParen `(`
+5:2 Identifier `é`
+5:7 Identifier `foo`
+5:11 Identifier `Bar`
+5:15 Identifier `_x`
+5:18 Identifier `camelCase2`
+5:29 Identifier `بيان`
+5:34 Identifier `μετρητής`
+5:43 Identifier `x_1`
+5:47 Identifier `é`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+7:1 EndOfFile
+
+error BYN0005: identifier `각0x_` is not in Unicode normalization form C
+
+  1 │ 각0x_
+    │ ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각0x_
+    │   │ +
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0xF__
+    │    ^^
+    │
+    │ 4 │ 0xF__
+    │   │    --
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  5 │ (é � foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ (é � foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ (é � foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ (é � foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ (é � foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │      ^
+
+error BYN0002: unexpected character `̈́`
+
+  6 │ ̈́$"{$"{
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  6 │ ̈́$"{$"{
+    │     ^^ this string never ends
+    │
+  help: close the `{` and the string

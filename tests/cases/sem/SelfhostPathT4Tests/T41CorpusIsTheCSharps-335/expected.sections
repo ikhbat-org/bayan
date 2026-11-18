@@ -1,0 +1,2 @@
+== diags.diag/recovery
+BYN1002 3:5 expected an expression, found keyword `let`

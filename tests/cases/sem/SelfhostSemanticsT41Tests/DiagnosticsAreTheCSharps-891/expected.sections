@@ -1,0 +1,2 @@
+== diags.diag/not-a-value
+BYN2019 5:9 `Money` is a type, not a value

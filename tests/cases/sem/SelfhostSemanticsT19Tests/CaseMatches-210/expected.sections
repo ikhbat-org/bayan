@@ -1,0 +1,4 @@
+== bind.probes.u6
+flags 2
+errorExpr:?[1377:2]=-()
+BYN2207 96:14 `-` cannot be applied to `u32` ||convert to a signed type first; unsigned values cannot be negative|

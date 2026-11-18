@@ -1,0 +1,4 @@
+struct Bag {
+    i64 n
+    void upserted(ref this) { n += 1 }
+}

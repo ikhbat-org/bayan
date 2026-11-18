@@ -1,0 +1,49 @@
+== tests/cases/run/mutable-span.byn
+96..342 blockStmt
+102..122 localDecl
+111..122 callExpr
+127..139 exprStmt
+127..139 callExpr
+127..129 nameExpr
+137..138 literalExpr integer
+144..156 exprStmt
+144..156 callExpr
+144..146 nameExpr
+154..155 literalExpr integer
+161..188 localDecl
+172..188 callExpr
+172..174 nameExpr
+193..205 assignStmt assign target 193..200 value 203..205
+193..200 indexExpr
+193..197 nameExpr
+198..199 literalExpr integer
+203..205 literalExpr integer
+210..234 localDecl
+228..234 collectionExpr
+229..230 literalExpr integer
+232..233 literalExpr integer
+239..264 localDecl
+247..264 callExpr
+247..250 nameExpr
+269..278 assignStmt assign target 269..273 value 276..278
+269..273 indexExpr
+269..270 nameExpr
+271..272 literalExpr integer
+276..278 literalExpr integer
+283..340 exprStmt
+283..340 callExpr
+289..339 interpolatedExpr
+292..297 indexExpr
+292..294 nameExpr
+295..296 literalExpr integer
+300..310 indexExpr
+300..307 memberExpr
+300..302 nameExpr
+308..309 literalExpr integer
+313..319 indexExpr
+313..316 nameExpr
+317..318 literalExpr integer
+322..337 memberExpr
+322..330 memberExpr
+322..325 nameExpr
+283..340 callExpr

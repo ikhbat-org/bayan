@@ -1,0 +1,8 @@
+& && | || ^ ~ ! = == != < <=> >= << >> >>=
+   """ c"text" u16"wide" "Óâ€® allowed in strins" "" "\u{48}i"
+
+0xF__
+
+struct S
+
+â‚ 

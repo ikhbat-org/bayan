@@ -1,0 +1,87 @@
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolatedStringText `{{literal}}`
+1:16 InterpolatedStringEnd `"`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 Identifier `Point`
+1:27 OpenBrace `{`
+1:29 Identifier `x`
+1:31 Equals `=`
+2:1 Identifier `t`
+2:3 Equals `=`
+2:5 IntegerLiteral `2`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 BecomeKeyword `become`
+4:1 LetKeyword `let`
+4:6 Identifier `각`
+5:1 OpenParen `(`
+5:3 CloseParen `)`
+5:5 OpenBracket `[`
+5:7 CloseBracket `]`
+5:9 OpenBrace `{`
+5:11 CloseBrace `}`
+6:2 Identifier `foo`
+6:6 Identifier `Bar`
+6:10 Identifier `_x`
+6:13 Identifier `camelCase2`
+6:24 Identifier `بيان`
+6:29 Identifier `μετρητής`
+6:38 Identifier `x_1`
+6:42 Identifier `é`
+8:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  1 │ � $"{{literal}}" $"{Point { x = 
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � $"{{literal}}" $"{Point { x = 
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  1 │ � $"{{literal}}" $"{Point { x = 
+    │                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  4 │ let  각
+    │      ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ let  각
+    │   │      +
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ���foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ���foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │   ^

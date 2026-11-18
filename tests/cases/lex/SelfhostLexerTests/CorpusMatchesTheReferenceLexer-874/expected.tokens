@@ -1,0 +1,57 @@
+1:1 CharLiteral `'ab'`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:10 CharLiteral `'\u{1F600}'`
+3:22 CharLiteral `'\''`
+3:27 CharLiteral `'é'`
+3:31 CharLiteral `'\\'`
+3:36 CharLiteral `'\0'`
+4:1 CharLiteral `'ab'`
+6:1 ErrorKeyword `error`
+6:7 SetKeyword `set`
+6:11 UnitKeyword `unit`
+6:16 DistinctKeyword `distinct`
+6:25 TypeKeyword `type`
+6:30 ImportKeyword `import`
+6:37 AsKeyword `as`
+6:40 PublicKeyword `public`
+6:47 PrivateKeyword `private`
+6:55 StaticKeyword `static`
+6:62 ReadonlyKeyword `readonly`
+6:71 RequiredKeyword `required`
+6:80 ConstKeyword `const`
+6:86 LetKeyword `let`
+6:90 VarKeyword `var`
+6:94 EmbedKeyword `embed`
+6:100 Identifier `etern`
+6:106 UnsafeKeyword `unsafe`
+7:1 StringLiteral `"text"`
+7:8 StringLiteral `"esc \"q\"6 \\ \n"`
+7:27 RawStringLiteral `"""\n\n`
+9:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xD2)
+
+  6 │ error set unit distinct type import as public private static�readonly required const let var embed etern unsafe
+    │                                                             ^
+
+error BYN0003: unterminated string literal
+
+  7 │ "text" "esc \"q\"6 \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

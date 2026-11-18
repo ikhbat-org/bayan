@@ -1,0 +1,4 @@
+i64 total(
+    i64 firstArgument,
+    i64 secondArgument
+) => firstArgument + secondArgument

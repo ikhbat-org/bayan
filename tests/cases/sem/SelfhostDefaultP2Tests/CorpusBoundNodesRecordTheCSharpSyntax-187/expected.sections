@@ -1,0 +1,28 @@
+== tests/cases/run/map-increment-missing.byn
+58..84 globalStatement
+58..84 localDecl
+66..84 callExpr
+85..95 assignStmt assign target 85..91 value 94..95
+85..91 indexExpr
+85..86 nameExpr
+87..90 literalExpr string
+94..95 literalExpr integer
+96..104 incDecStmt
+96..102 indexExpr
+96..97 nameExpr
+98..101 literalExpr string
+96..104 incDecStmt
+105..118 exprStmt
+105..118 callExpr
+111..117 interpolatedExpr
+114..115 nameExpr
+105..118 callExpr
+119..127 incDecStmt
+119..125 indexExpr
+119..120 nameExpr
+121..124 literalExpr string
+119..127 incDecStmt
+128..148 exprStmt
+128..148 callExpr
+134..147 literalExpr string
+128..148 callExpr

@@ -1,0 +1,6 @@
+struct S
+ b
+ 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+"a⁧b" /* block
+ let c = � 3
+ café =

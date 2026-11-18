@@ -1,0 +1,6 @@
+ = "bad \q
+'\\' '\0'
+
+error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+/// Doc line two.
+$"stray } here"

@@ -1,0 +1,26 @@
+error BYN0003: unterminated string literal
+  --> input.byn:1:9
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+  --> input.byn:2:14
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+  --> input.byn:3:9
+
+  3 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN0003

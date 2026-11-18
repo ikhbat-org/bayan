@@ -1,0 +1,51 @@
+2:2 Identifier `b`
+4:1 IntegerLiteral `0`
+4:3 IntegerLiteral `42`
+4:6 Identifier `_000_000`
+4:15 IntegerLiteral `0xFF`
+4:20 IntegerLiteral `0x_ff`
+4:26 IntegerLiteral `0b1`
+4:29 IntegerLiteral `10`
+4:32 IntegerLiteral `0B11`
+4:37 IntegerLiteral `5`
+4:38 NumericSuffix `s`
+4:40 IntegerLiteral `250`
+4:43 NumericSuffix `ms`
+4:46 IntegerLiteral `4`
+4:47 NumericSuffix `KiB`
+4:51 IntegerLiteral `1`
+4:52 NumericSuffix `u`
+4:54 IntegerLiteral `0xFF`
+4:58 NumericSuffix `u`
+4:60 IntegerLiteral `0b1`
+4:63 NumericSuffix `ul`
+4:67 Identifier `l`
+5:2 StringLiteral `"{`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9E)
+
+  4 │ 0 42 _000_000 0xFF 0x_ff 0b1�10 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul �l
+    │                             ^
+
+error BYN0002: unexpected character `\u{2}`
+
+  4 │ 0 42 _000_000 0xFF 0x_ff 0b1�10 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul �l
+    │                                                                   ^
+
+error BYN0003: unterminated string literal
+
+  5 │  "{
+    │  ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `̈́`
+
+  6 │ ̈́
+    │ ^

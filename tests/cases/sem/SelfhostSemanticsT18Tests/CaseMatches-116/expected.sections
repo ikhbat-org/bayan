@@ -1,0 +1,4 @@
+== target.probes.-.t6
+errorExpr|?|-|-|-|-|-|3617:2|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2218 176:14 `x` needs a known type here |||

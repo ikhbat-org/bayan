@@ -1,0 +1,85 @@
+1:1 Identifier `n`
+2:1 LetKeyword `let`
+2:5 Identifier `x`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolatedStringText `total `
+2:15 InterpolationStart `{`
+2:16 Identifier `x`
+2:17 InterpolationEnd `}`
+2:18 InterpolatedStringEnd `"`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolatedStringText `a `
+2:24 InterpolationStart `{`
+2:25 Identifier `f`
+2:26 OpenParen `(`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolatedStringText `b `
+2:31 InterpolationStart `{`
+2:32 Identifier `c`
+2:33 InterpolationEnd `}`
+2:34 InterpolatedStringEnd `"`
+2:35 CloseParen `)`
+2:36 InterpolationEnd `}`
+2:37 InterpolatedStringText ` d`
+2:39 InterpolatedStringEnd `"`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolatedStringText `{{literal}}`
+2:54 InterpolatedStringEnd `"`
+2:56 InterpolatedStringStart `$"`
+2:58 InterpolationStart `{`
+2:59 Identifier `Point`
+2:65 OpenBrace `{`
+2:67 Identifier `x`
+2:69 Equals `=`
+2:71 IntegerLiteral `1`
+2:73 CloseBrace `}`
+2:74 InterpolationEnd `}`
+2:75 InterpolatedStringText `!`
+2:76 InterpolatedStringEnd `"`
+2:77 InterpolatedStringStart `$"`
+2:79 InterpolatedStringEnd `"`
+4:1 IntegerLiteral `1`
+5:2 Identifier `b`
+6:9 Identifier `er`
+6:12 Identifier `closed`
+7:1 Identifier `b`
+9:1 CharLiteral `''`
+10:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ let x�$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!"$""
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  2 │ let x�$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!"$""
+    │       ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  6 │  /* � */er closed
+    │  ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │  // �
+    │   │   +++
+    │ 7 │  er closed
+    │   │ +
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  6 │  /* � */er closed
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │  /* � */er closed
+    │   │     -
+
+error BYN0007: empty char literal
+
+  9 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

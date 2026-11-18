@@ -1,0 +1,6 @@
+== tests/cases/diag/statement-outside-entry
+13..24 globalStatement
+13..24 exprStmt
+13..24 callExpr
+19..23 literalExpr string
+13..24 callExpr

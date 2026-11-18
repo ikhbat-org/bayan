@@ -1,0 +1,16 @@
+    doc `///� */ ''`
+2:2 Identifier `al`
+2:4 CloseBrace `}`
+2:5 CloseBrace `}`
+2:6 StringLiteral `" $"`
+2:10 OpenBrace `{`
+2:11 Identifier `Po1nt`
+2:17 OpenBrace `{`
+2:19 Identifier `x`
+3:1 IntegerLiteral `1`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ///� */ ''
+    │    ^

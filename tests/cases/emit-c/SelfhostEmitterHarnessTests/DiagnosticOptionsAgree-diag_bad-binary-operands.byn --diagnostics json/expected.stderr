@@ -1,0 +1,2 @@
+{"code":"BYN2208","severity":"error","file":"input.byn","span":{"start":38,"end":43,"line":3,"column":9,"endLine":3,"endColumn":14},"message":"`+` cannot be applied to `i64` and `u64`","label":null,"help":"convert one side explicitly, e.g. `(u64)…`; mixed signedness never converts implicitly","fixes":[]}
+{"code":"BYN2208","severity":"error","file":"input.byn","span":{"start":52,"end":60,"line":4,"column":9,"endLine":4,"endColumn":17},"message":"`+` cannot be applied to `bool` and `i32`","label":null,"help":null,"fixes":[]}

@@ -1,0 +1,491 @@
+f64 zero() => 0.0
+f64 negZero() => -zero()
+
+string kindsText(in List<BNode> ns) {
+    var sb = StrBuf()
+    for n in ns {
+        sb.append($" {boundKind(n)}")
+    }
+    return $"{sb.finish()}"
+}
+
+string typeText(in Ctx c, for BNode n) {
+    let k = boundKind(n)
+    var t: Type = -1
+    if isExprKind(k) {
+        t = exprType(in c, for: n)
+    } else if isPatternKind(k) {
+        t = patternInput(in c, for: n)
+    } else {
+        return "-"
+    }
+    if kindOf(t) == .primitive {
+        return $"{primKindOf(typeIndex(t))}"
+    }
+    return $"{kindOf(t)}"
+}
+
+BExpr leafE(ref Ctx c, at i64 i) {
+    let sp = TextSpan { start: 0, length: 0 }
+    switch i {
+        case 0: return addLiteral(ref c, from: BLiteral { span: sp, type: prim(.i64), value: Constant { kind: .integer } })
+        case 1: return addDefault(ref c, from: BDefault { span: sp, type: prim(.i64) })
+        case 2: return addThis(ref c, from: BThis { span: sp, type: prim(.i64) })
+        case 3: return addErrorExpr(ref c, from: BErrorExpr { span: sp })
+        case 4: return addTypeRef(ref c, from: BTypeRef { span: sp, referenced: prim(.i64) })
+        default: return addSymbolLiteral(ref c, from: BSymbolLiteral { span: sp, text: "s" })
+    }
+}
+
+BStmt leafS(ref Ctx c, at i64 i) {
+    let sp = TextSpan { start: 0, length: 0 }
+    switch i {
+        case 0: return addErrorStmt(ref c, from: BErrorStmt { span: sp })
+        case 1: return addBreak(ref c, from: BBreak { span: sp, target: 0 })
+        case 2: return addContinue(ref c, from: BContinue { span: sp, target: 0 })
+        default: return addSetOnPanic(ref c, from: BSetOnPanic { span: sp, handler: 0 })
+    }
+}
+
+BPattern leafP(ref Ctx c, at i64 i) {
+    let sp = TextSpan { start: 0, length: 0 }
+    switch i {
+        case 0: return addBindPattern(ref c, from: BBindPattern { span: sp, inputType: prim(.i64) })
+        case 1: return addUnionPattern(ref c, from: BUnionPattern { span: sp, inputType: prim(.i64), variant: 0 })
+        case 2: return addErrorPattern(ref c, from: BErrorPattern { span: sp, inputType: prim(.i64), variant: 0 })
+        default: return addPropertyPattern(ref c, from: BPropertyPattern { span: sp, inputType: prim(.i64), valueType: prim(.i64) })
+    }
+}
+
+BStmt leafBlock(ref Ctx c) {
+    let s = leafS(ref c, at: 0)
+    return addBlock(ref c, from: BBlock { span: TextSpan { start: 0, length: 0 }, statements: [s] })
+}
+
+BExpr leafLocal(ref Ctx c) => addLocal(ref c, from: BLocal { span: TextSpan { start: 0, length: 0 }, local: 0 })
+
+void printNode(in Ctx c, for BNode n, as string label) {
+    let sp = nodeSpan(in c, for: n)
+    let ch = children(in c, for: n)
+    let d = descendants(in c, for: n)
+    print($"{label} {boundKind(n)} {sp.start}+{sp.length} {typeText(in c, for: n)}:{kindsText(in ch)} |{kindsText(in d)}")
+}
+
+i32 main() {
+    var c = Ctx { files: List<SourceFile>(), modules: List<Mod>(), diagnostics: List<Diag>(), bags: List<DiagBag>() }
+    let sp = TextSpan { start: 0, length: 0 }
+    c.locals.append(LocalSymbol { name: "a", type: prim(.i64) })
+    c.locals.append(LocalSymbol { name: "b", type: prim(.i64) })
+    c.locals.append(LocalSymbol { name: "p", type: prim(.i16) })
+    c.functions.append(FunctionSymbol { name: "f" })
+    c.fields.append(FieldSymbol { name: "x", type: prim(.i32) })
+    c.consts.append(ConstSymbol { name: "k", type: prim(.u8) })
+    c.enumMembers.append(EnumMemberSymbol { name: "m", owner: 0 })
+    var uv = UnionVariantSymbol { name: "v", owner: 0 }
+    uv.fields.append(2)
+    c.unionVariants.append(move uv)
+    var ev = ErrorVariantSymbol { name: "e", set: 0 }
+    ev.fields.append(2)
+    c.errorVariants.append(move ev)
+    c.jumpTargets.append(JumpTarget { isLoop: true })
+    print("== tiny")
+    let ta = addLocal(ref c, from: BLocal { span: TextSpan { start: 10, length: 1 }, local: 0 })
+    let tb = addLocal(ref c, from: BLocal { span: TextSpan { start: 14, length: 1 }, local: 1 })
+    let tcond = addBinary(ref c, from: BBinary { span: TextSpan { start: 10, length: 5 }, op: .lt, left: ta, right: tb, type: prim(.bool) })
+    let tx = addLocal(ref c, from: BLocal { span: TextSpan { start: 30, length: 1 }, local: 0 })
+    let ty = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 33, length: 1 }, type: prim(.i64), value: Constant { kind: .integer, integer: bigFromI64(1) } })
+    let tcall = addCall(ref c, from: BCall { span: TextSpan { start: 28, length: 7 }, function: 0, arguments: [tx, ty], type: prim(.i64) })
+    let tret = addReturn(ref c, from: BReturn { span: TextSpan { start: 21, length: 15 }, value: tcall })
+    let tif = addIf(ref c, from: BIf { span: TextSpan { start: 6, length: 31 }, condition: tcond, then: tret })
+    let troot = addBlock(ref c, from: BBlock { span: TextSpan { start: 0, length: 40 }, statements: [tif] })
+    let tall = descendants(in c, for: troot)
+    for n in tall {
+        printNode(in c, for: n, as: "node")
+    }
+    print("== children")
+    let n0 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 1000, length: 3 }, type: prim(.i8), value: Constant { kind: .integer } })
+    printNode(in c, for: n0, as: "literal")
+    let n1 = addSymbolLiteral(ref c, from: BSymbolLiteral { span: TextSpan { start: 1001, length: 3 }, text: "s" })
+    printNode(in c, for: n1, as: "symbolLiteral")
+    let n2 = addHostTarget(ref c, from: BHostTarget { span: TextSpan { start: 1002, length: 3 }, isOs: true })
+    printNode(in c, for: n2, as: "hostTarget")
+    let n3 = addDefault(ref c, from: BDefault { span: TextSpan { start: 1003, length: 3 }, type: prim(.u16) })
+    printNode(in c, for: n3, as: "default")
+    let n4 = addLocal(ref c, from: BLocal { span: TextSpan { start: 1004, length: 3 }, local: 0 })
+    printNode(in c, for: n4, as: "local")
+    let n5 = addThis(ref c, from: BThis { span: TextSpan { start: 1005, length: 3 }, type: prim(.u32) })
+    printNode(in c, for: n5, as: "this")
+    let v0 = leafE(ref c, at: 0)
+    let n6 = addField(ref c, from: BField { span: TextSpan { start: 1006, length: 3 }, receiver: v0, field: 0 })
+    printNode(in c, for: n6, as: "field")
+    let v1 = leafE(ref c, at: 1)
+    let n7 = addTupleElement(ref c, from: BTupleElement { span: TextSpan { start: 1007, length: 3 }, receiver: v1, index: 0, type: prim(.f32) })
+    printNode(in c, for: n7, as: "tupleElement")
+    let v2 = leafE(ref c, at: 0)
+    let v3 = leafE(ref c, at: 1)
+    let v4 = leafE(ref c, at: 2)
+    let n8 = addCall(ref c, from: BCall { span: TextSpan { start: 1008, length: 3 }, function: 0, receiver: v2, arguments: [v3, v4], type: prim(.i64) })
+    printNode(in c, for: n8, as: "call")
+    let v5 = leafE(ref c, at: 1)
+    let n9 = addCall(ref c, from: BCall { span: TextSpan { start: 1009, length: 3 }, function: 0, arguments: [v5], type: prim(.i64) })
+    printNode(in c, for: n9, as: "call-")
+    let v6 = leafE(ref c, at: 0)
+    let v7 = leafE(ref c, at: 1)
+    let v8 = leafE(ref c, at: 2)
+    let n10 = addBuiltinCall(ref c, from: BBuiltinCall { span: TextSpan { start: 1010, length: 3 }, member: .listAdd, receiver: v6, arguments: [v7, v8], type: prim(.void) })
+    printNode(in c, for: n10, as: "builtinCall")
+    let v9 = leafE(ref c, at: 3)
+    let n11 = addUnary(ref c, from: BUnary { span: TextSpan { start: 1011, length: 3 }, op: .negate, operand: v9, type: prim(.i64) })
+    printNode(in c, for: n11, as: "unary")
+    let v10 = leafE(ref c, at: 0)
+    let v11 = leafE(ref c, at: 1)
+    let n12 = addBinary(ref c, from: BBinary { span: TextSpan { start: 1012, length: 3 }, op: .add, left: v10, right: v11, type: prim(.i64) })
+    printNode(in c, for: n12, as: "binary")
+    let v12 = leafE(ref c, at: 4)
+    let n13 = addConversion(ref c, from: BConversion { span: TextSpan { start: 1013, length: 3 }, operand: v12, type: prim(.f64), kind: .widen })
+    printNode(in c, for: n13, as: "conversion")
+    let v13 = leafE(ref c, at: 0)
+    let n14 = addTryFrom(ref c, from: BTryFrom { span: TextSpan { start: 1014, length: 3 }, operand: v13, target: prim(.u8), type: prim(.i64) })
+    printNode(in c, for: n14, as: "tryFrom")
+    let v14 = leafE(ref c, at: 0)
+    let v15 = leafE(ref c, at: 1)
+    let v16 = leafE(ref c, at: 2)
+    let n15 = addConditional(ref c, from: BConditional { span: TextSpan { start: 1015, length: 3 }, condition: v14, whenTrue: v15, whenFalse: v16, type: prim(.i64) })
+    printNode(in c, for: n15, as: "conditional")
+    let v17 = leafE(ref c, at: 2)
+    let v18 = leafE(ref c, at: 1)
+    let n16 = addCoalesce(ref c, from: BCoalesce { span: TextSpan { start: 1016, length: 3 }, left: v17, right: v18, type: prim(.i64) })
+    printNode(in c, for: n16, as: "coalesce")
+    let v19 = leafE(ref c, at: 0)
+    let v20 = leafE(ref c, at: 1)
+    let v21 = leafE(ref c, at: 2)
+    let n17 = addStructLiteral(ref c, from: BStructLiteral { span: TextSpan { start: 1017, length: 3 }, structId: 0, fields: [v19, v20], payload: [v21] })
+    printNode(in c, for: n17, as: "structLiteral")
+    let n18 = addStructLiteral(ref c, from: BStructLiteral { span: TextSpan { start: 1018, length: 3 }, structId: 0 })
+    printNode(in c, for: n18, as: "structLiteral-")
+    let v22 = leafE(ref c, at: 0)
+    let v23 = leafE(ref c, at: 1)
+    let v24 = leafE(ref c, at: 2)
+    let n19 = addWith(ref c, from: BWith { span: TextSpan { start: 1019, length: 3 }, target: v22, updates: [BWithUpdate { field: 0, value: v23 }, BWithUpdate { field: 0, value: v24 }] })
+    printNode(in c, for: n19, as: "with")
+    let v25 = leafE(ref c, at: 0)
+    let v26 = leafE(ref c, at: 1)
+    let n20 = addTuple(ref c, from: BTuple { span: TextSpan { start: 1020, length: 3 }, tupleType: makeType(.tuple, at: 0), elements: [v25, v26] })
+    printNode(in c, for: n20, as: "tuple")
+    let v27 = leafE(ref c, at: 0)
+    let v28 = leafE(ref c, at: 1)
+    let v29 = leafE(ref c, at: 2)
+    let n21 = addCollection(ref c, from: BCollection { span: TextSpan { start: 1021, length: 3 }, type: prim(.i64), elements: [v27, v28, v29] })
+    printNode(in c, for: n21, as: "collection")
+    let v30 = leafE(ref c, at: 5)
+    let n22 = addSpread(ref c, from: BSpread { span: TextSpan { start: 1022, length: 3 }, operand: v30, type: prim(.i64) })
+    printNode(in c, for: n22, as: "spread")
+    let v31 = leafE(ref c, at: 0)
+    let v32 = leafE(ref c, at: 1)
+    let n23 = addIndex(ref c, from: BIndex { span: TextSpan { start: 1023, length: 3 }, target: v31, index: v32, fromEnd: true, type: prim(.i64) })
+    printNode(in c, for: n23, as: "index")
+    let v33 = leafE(ref c, at: 0)
+    let v34 = leafE(ref c, at: 1)
+    let v35 = leafE(ref c, at: 2)
+    let n24 = addSlice(ref c, from: BSlice { span: TextSpan { start: 1024, length: 3 }, target: v33, start: v34, end: v35, type: prim(.i64) })
+    printNode(in c, for: n24, as: "slice")
+    let v36 = leafE(ref c, at: 0)
+    let n25 = addSlice(ref c, from: BSlice { span: TextSpan { start: 1025, length: 3 }, target: v36, type: prim(.i64) })
+    printNode(in c, for: n25, as: "slice-")
+    let v37 = leafE(ref c, at: 0)
+    let v38 = leafE(ref c, at: 2)
+    let n26 = addSlice(ref c, from: BSlice { span: TextSpan { start: 1026, length: 3 }, target: v37, end: v38, type: prim(.i64) })
+    printNode(in c, for: n26, as: "sliceEnd")
+    let v39 = leafE(ref c, at: 0)
+    let v40 = leafE(ref c, at: 1)
+    let n27 = addRange(ref c, from: BRange { span: TextSpan { start: 1027, length: 3 }, start: v39, end: v40, type: prim(.i64) })
+    printNode(in c, for: n27, as: "range")
+    let v41 = leafE(ref c, at: 0)
+    let v42 = leafP(ref c, at: 0)
+    let n28 = addIs(ref c, from: BIs { span: TextSpan { start: 1028, length: 3 }, value: v41, pattern: v42 })
+    printNode(in c, for: n28, as: "is")
+    let v43 = leafE(ref c, at: 0)
+    let v44 = leafP(ref c, at: 0)
+    let v45 = leafE(ref c, at: 1)
+    let v46 = leafE(ref c, at: 2)
+    let v47 = leafP(ref c, at: 1)
+    let v48 = leafE(ref c, at: 3)
+    let n29 = addSwitchExpr(ref c, from: BSwitchExpr { span: TextSpan { start: 1029, length: 3 }, value: v43, arms: [BSwitchArm { span: sp, pattern: v44, guard: v45, value: v46 }, BSwitchArm { span: sp, pattern: v47, value: v48 }], type: prim(.i64) })
+    printNode(in c, for: n29, as: "switchExpr")
+    let v49 = leafE(ref c, at: 0)
+    let v50 = leafE(ref c, at: 1)
+    let n30 = addInterpolated(ref c, from: BInterpolated { span: TextSpan { start: 1030, length: 3 }, parts: [BInterpolationPart { text: "a" }, BInterpolationPart { value: v49 }, BInterpolationPart { text: "b" }, BInterpolationPart { value: v50 }] })
+    printNode(in c, for: n30, as: "interpolated")
+    let v51 = leafLocal(ref c)
+    let n31 = addMove(ref c, from: BMove { span: TextSpan { start: 1031, length: 3 }, operand: v51 })
+    printNode(in c, for: n31, as: "move")
+    let v52 = leafE(ref c, at: 0)
+    let n32 = addTry(ref c, from: BTry { span: TextSpan { start: 1032, length: 3 }, operand: v52, type: prim(.i64) })
+    printNode(in c, for: n32, as: "try")
+    let v53 = leafE(ref c, at: 0)
+    let v54 = leafE(ref c, at: 1)
+    let n33 = addCatch(ref c, from: BCatch { span: TextSpan { start: 1033, length: 3 }, operand: v53, handler: v54, type: prim(.i64) })
+    printNode(in c, for: n33, as: "catch")
+    let v55 = leafS(ref c, at: 1)
+    let n34 = addJump(ref c, from: BJump { span: TextSpan { start: 1034, length: 3 }, jump: v55 })
+    printNode(in c, for: n34, as: "jump")
+    let v56 = leafBlock(ref c)
+    let n35 = addBlockExpr(ref c, from: BBlockExpr { span: TextSpan { start: 1035, length: 3 }, block: v56, type: prim(.void) })
+    printNode(in c, for: n35, as: "blockExpr")
+    let v57 = leafE(ref c, at: 0)
+    let v58 = leafE(ref c, at: 1)
+    let n36 = addErrorVariant(ref c, from: BErrorVariant { span: TextSpan { start: 1036, length: 3 }, variant: 0, payload: [v57, v58] })
+    printNode(in c, for: n36, as: "errorVariant")
+    let n37 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 1037, length: 3 }, member: 0 })
+    printNode(in c, for: n37, as: "enumMember")
+    let v59 = leafE(ref c, at: 0)
+    let v60 = leafE(ref c, at: 1)
+    let n38 = addUnionNew(ref c, from: BUnionNew { span: TextSpan { start: 1038, length: 3 }, variant: 0, payload: [v59, v60] })
+    printNode(in c, for: n38, as: "unionNew")
+    let n39 = addEnumValues(ref c, from: BEnumValues { span: TextSpan { start: 1039, length: 3 }, enumId: 0, type: prim(.bool) })
+    printNode(in c, for: n39, as: "enumValues")
+    let n40 = addStaticArray(ref c, from: BStaticArray { span: TextSpan { start: 1040, length: 3 }, constId: 0 })
+    printNode(in c, for: n40, as: "staticArray")
+    let n41 = addStackalloc(ref c, from: BStackalloc { span: TextSpan { start: 1041, length: 3 }, element: prim(.i64), count: 4, type: prim(.string) })
+    printNode(in c, for: n41, as: "stackalloc")
+    let n42 = addErrorExpr(ref c, from: BErrorExpr { span: TextSpan { start: 1042, length: 3 } })
+    printNode(in c, for: n42, as: "errorExpr")
+    let n43 = addTypeRef(ref c, from: BTypeRef { span: TextSpan { start: 1043, length: 3 }, referenced: prim(.i64) })
+    printNode(in c, for: n43, as: "typeRef")
+    let n44 = addModuleRef(ref c, from: BModuleRef { span: TextSpan { start: 1044, length: 3 }, module: 0 })
+    printNode(in c, for: n44, as: "moduleRef")
+    let v61 = leafLocal(ref c)
+    let v62 = leafLocal(ref c)
+    let n45 = addLambda(ref c, from: BLambda { span: TextSpan { start: 1045, length: 3 }, lambda: 0, captures: [v61, v62], functionType: makeType(.function, at: 0) })
+    printNode(in c, for: n45, as: "lambda")
+    let n46 = addFunctionRef(ref c, from: BFunctionRef { span: TextSpan { start: 1046, length: 3 }, function: 0, functionType: makeType(.function, at: 0) })
+    printNode(in c, for: n46, as: "functionRef")
+    let v63 = leafS(ref c, at: 0)
+    let v64 = leafS(ref c, at: 1)
+    let v65 = leafS(ref c, at: 2)
+    let n47 = addBlock(ref c, from: BBlock { span: TextSpan { start: 1047, length: 3 }, statements: [v63, v64, v65] })
+    printNode(in c, for: n47, as: "block")
+    let v66 = leafE(ref c, at: 0)
+    let n48 = addLocalDecl(ref c, from: BLocalDecl { span: TextSpan { start: 1048, length: 3 }, local: 0, initializer: v66 })
+    printNode(in c, for: n48, as: "localDecl")
+    let n49 = addLocalDecl(ref c, from: BLocalDecl { span: TextSpan { start: 1049, length: 3 }, local: 0 })
+    printNode(in c, for: n49, as: "localDecl-")
+    let v67 = leafE(ref c, at: 2)
+    let n50 = addExprStmt(ref c, from: BExprStmt { span: TextSpan { start: 1050, length: 3 }, expr: v67 })
+    printNode(in c, for: n50, as: "exprStmt")
+    let v68 = leafE(ref c, at: 0)
+    let v69 = leafE(ref c, at: 1)
+    let n51 = addAssign(ref c, from: BAssign { span: TextSpan { start: 1051, length: 3 }, target: v68, value: v69, op: .add })
+    printNode(in c, for: n51, as: "assign")
+    let v70 = leafE(ref c, at: 0)
+    let n52 = addReturn(ref c, from: BReturn { span: TextSpan { start: 1052, length: 3 }, value: v70 })
+    printNode(in c, for: n52, as: "return")
+    let n53 = addReturn(ref c, from: BReturn { span: TextSpan { start: 1053, length: 3 } })
+    printNode(in c, for: n53, as: "return-")
+    let v71 = leafE(ref c, at: 3)
+    let n54 = addFail(ref c, from: BFail { span: TextSpan { start: 1054, length: 3 }, error: v71 })
+    printNode(in c, for: n54, as: "fail")
+    let v72 = leafE(ref c, at: 0)
+    let v73 = leafE(ref c, at: 1)
+    let n55 = addBecome(ref c, from: BBecome { span: TextSpan { start: 1055, length: 3 }, state: 0, payload: [v72, v73] })
+    printNode(in c, for: n55, as: "become")
+    let n56 = addBreak(ref c, from: BBreak { span: TextSpan { start: 1056, length: 3 }, target: 0 })
+    printNode(in c, for: n56, as: "break")
+    let n57 = addContinue(ref c, from: BContinue { span: TextSpan { start: 1057, length: 3 }, target: 0 })
+    printNode(in c, for: n57, as: "continue")
+    let v74 = leafE(ref c, at: 0)
+    let v75 = leafS(ref c, at: 0)
+    let v76 = leafS(ref c, at: 1)
+    let n58 = addIf(ref c, from: BIf { span: TextSpan { start: 1058, length: 3 }, condition: v74, then: v75, elseBranch: v76 })
+    printNode(in c, for: n58, as: "if")
+    let v77 = leafE(ref c, at: 0)
+    let v78 = leafS(ref c, at: 0)
+    let n59 = addIf(ref c, from: BIf { span: TextSpan { start: 1059, length: 3 }, condition: v77, then: v78 })
+    printNode(in c, for: n59, as: "if-")
+    let v79 = leafE(ref c, at: 0)
+    let v80 = leafS(ref c, at: 0)
+    let n60 = addWhile(ref c, from: BWhile { span: TextSpan { start: 1060, length: 3 }, condition: v79, body: v80, target: 0 })
+    printNode(in c, for: n60, as: "while")
+    let v81 = leafS(ref c, at: 0)
+    let v82 = leafE(ref c, at: 0)
+    let n61 = addDoWhile(ref c, from: BDoWhile { span: TextSpan { start: 1061, length: 3 }, body: v81, condition: v82, target: 0 })
+    printNode(in c, for: n61, as: "doWhile")
+    let v83 = leafE(ref c, at: 0)
+    let v84 = leafS(ref c, at: 0)
+    let n62 = addFor(ref c, from: BFor { span: TextSpan { start: 1062, length: 3 }, variable: 0, iterable: v83, body: v84, target: 0 })
+    printNode(in c, for: n62, as: "for")
+    let v85 = leafE(ref c, at: 0)
+    let v86 = leafP(ref c, at: 0)
+    let v87 = leafE(ref c, at: 1)
+    let v88 = leafS(ref c, at: 0)
+    let v89 = leafS(ref c, at: 1)
+    let v90 = leafS(ref c, at: 2)
+    let n63 = addSwitch(ref c, from: BSwitch { span: TextSpan { start: 1063, length: 3 }, value: v85, sections: [BSwitchSection { span: sp, pattern: v86, guard: v87, body: [v88, v89] }, BSwitchSection { span: sp, body: [v90] }], target: 0 })
+    printNode(in c, for: n63, as: "switch")
+    let v91 = leafS(ref c, at: 0)
+    let n64 = addDefer(ref c, from: BDefer { span: TextSpan { start: 1064, length: 3 }, body: v91 })
+    printNode(in c, for: n64, as: "defer")
+    let v92 = leafE(ref c, at: 0)
+    let n65 = addAssert(ref c, from: BAssert { span: TextSpan { start: 1065, length: 3 }, condition: v92 })
+    printNode(in c, for: n65, as: "assert")
+    let v93 = leafS(ref c, at: 1)
+    let n66 = addErrdefer(ref c, from: BErrdefer { span: TextSpan { start: 1066, length: 3 }, body: v93 })
+    printNode(in c, for: n66, as: "errdefer")
+    let v94 = leafS(ref c, at: 2)
+    let n67 = addPanicDefer(ref c, from: BPanicDefer { span: TextSpan { start: 1067, length: 3 }, body: v94 })
+    printNode(in c, for: n67, as: "panicDefer")
+    let n68 = addSetOnPanic(ref c, from: BSetOnPanic { span: TextSpan { start: 1068, length: 3 }, handler: 0 })
+    printNode(in c, for: n68, as: "setOnPanic")
+    let v95 = leafE(ref c, at: 0)
+    let v96 = leafBlock(ref c)
+    let n69 = addContext(ref c, from: BContext { span: TextSpan { start: 1069, length: 3 }, allocator: v95, body: v96 })
+    printNode(in c, for: n69, as: "context")
+    let n70 = addErrorStmt(ref c, from: BErrorStmt { span: TextSpan { start: 1070, length: 3 } })
+    printNode(in c, for: n70, as: "errorStmt")
+    let v97 = leafE(ref c, at: 0)
+    let n71 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1071, length: 3 }, inputType: prim(.i8), value: v97 })
+    printNode(in c, for: n71, as: "constantPattern")
+    let v98 = leafE(ref c, at: 1)
+    let n72 = addRelationalPattern(ref c, from: BRelationalPattern { span: TextSpan { start: 1072, length: 3 }, inputType: prim(.i16), op: .lt, value: v98 })
+    printNode(in c, for: n72, as: "relationalPattern")
+    let v99 = leafE(ref c, at: 0)
+    let v100 = leafE(ref c, at: 1)
+    let n73 = addRangePattern(ref c, from: BRangePattern { span: TextSpan { start: 1073, length: 3 }, inputType: prim(.i32), start: v99, end: v100, inclusive: true })
+    printNode(in c, for: n73, as: "rangePattern")
+    let n74 = addBindPattern(ref c, from: BBindPattern { span: TextSpan { start: 1074, length: 3 }, inputType: prim(.u8), local: 0 })
+    printNode(in c, for: n74, as: "bindPattern")
+    let v101 = leafP(ref c, at: 1)
+    let n75 = addNotPattern(ref c, from: BNotPattern { span: TextSpan { start: 1075, length: 3 }, inputType: prim(.u16), operand: v101 })
+    printNode(in c, for: n75, as: "notPattern")
+    let v102 = leafP(ref c, at: 0)
+    let v103 = leafP(ref c, at: 1)
+    let n76 = addBinaryPattern(ref c, from: BBinaryPattern { span: TextSpan { start: 1076, length: 3 }, inputType: prim(.u32), isAnd: true, left: v102, right: v103 })
+    printNode(in c, for: n76, as: "binaryPattern")
+    let v104 = leafP(ref c, at: 0)
+    let v105 = leafP(ref c, at: 1)
+    let n77 = addPropertyPattern(ref c, from: BPropertyPattern { span: TextSpan { start: 1077, length: 3 }, inputType: prim(.u64), valueType: prim(.i64), subpatterns: [BSubpattern { pattern: v104 }, BSubpattern { pattern: v105 }] })
+    printNode(in c, for: n77, as: "propertyPattern")
+    let v106 = leafE(ref c, at: 0)
+    let n78 = addUnionField(ref c, from: BUnionField { span: TextSpan { start: 1078, length: 3 }, receiver: v106, variant: 0, index: 0 })
+    printNode(in c, for: n78, as: "unionField")
+    let v107 = leafP(ref c, at: 0)
+    let v108 = leafP(ref c, at: 1)
+    let n79 = addUnionPattern(ref c, from: BUnionPattern { span: TextSpan { start: 1079, length: 3 }, inputType: prim(.f32), variant: 0, subpatterns: [v107, v108] })
+    printNode(in c, for: n79, as: "unionPattern")
+    let v109 = leafE(ref c, at: 1)
+    let n80 = addErrorField(ref c, from: BErrorField { span: TextSpan { start: 1080, length: 3 }, receiver: v109, variant: 0, index: 0 })
+    printNode(in c, for: n80, as: "errorField")
+    let v110 = leafP(ref c, at: 0)
+    let v111 = leafP(ref c, at: 2)
+    let n81 = addErrorPattern(ref c, from: BErrorPattern { span: TextSpan { start: 1081, length: 3 }, inputType: prim(.f64), variant: 0, subpatterns: [v110, v111] })
+    printNode(in c, for: n81, as: "errorPattern")
+    let v112 = leafE(ref c, at: 0)
+    let n82 = addMethodGroup(ref c, from: BMethodGroup { span: TextSpan { start: 1082, length: 3 }, receiver: v112, function: 0 })
+    printNode(in c, for: n82, as: "methodGroup")
+    let n83 = addVariantGroup(ref c, from: BVariantGroup { span: TextSpan { start: 1083, length: 3 }, variant: 0 })
+    printNode(in c, for: n83, as: "variantGroup")
+    let v113 = leafE(ref c, at: 0)
+    let n84 = addBuiltinGroup(ref c, from: BBuiltinGroup { span: TextSpan { start: 1084, length: 3 }, receiver: v113, name: "length" })
+    printNode(in c, for: n84, as: "builtinGroup")
+    print("== constants")
+    let k0 = Constant { kind: .integer, integer: bigFromI64(0) }
+    print(constantText(in k0))
+    let k1 = Constant { kind: .integer, integer: bigFromI64(-1) }
+    print(constantText(in k1))
+    let k2 = Constant { kind: .integer, integer: bigFromI64(42) }
+    print(constantText(in k2))
+    let k3 = Constant { kind: .integer, integer: bigFromI64(9223372036854775807) }
+    print(constantText(in k3))
+    let k4 = Constant { kind: .integer, integer: bigMin(64, signed: true) }
+    print(constantText(in k4))
+    let k5 = Constant { kind: .integer, integer: bigFromU64(18446744073709551615) }
+    print(constantText(in k5))
+    let k6 = Constant { kind: .integer, integer: bigShl(bigFromI64(1), by: 100) }
+    print(constantText(in k6))
+    let k7 = Constant { kind: .integer, integer: bigNeg(bigShl(bigFromI64(1), by: 100)) }
+    print(constantText(in k7))
+    let k8 = Constant { kind: .integer, integer: bigMax(128, signed: true) }
+    print(constantText(in k8))
+    let k9 = Constant { kind: .integer, integer: bigMin(128, signed: true) }
+    print(constantText(in k9))
+    let k10 = Constant { kind: .flag, flag: true }
+    print(constantText(in k10))
+    let k11 = Constant { kind: .flag, flag: false }
+    print(constantText(in k11))
+    let k12 = Constant { kind: .flag }
+    print(constantText(in k12))
+    let k13 = Constant { kind: .text, text: "say \"hi\"" }
+    print(constantText(in k13))
+    let k14 = Constant { kind: .text, text: "" }
+    print(constantText(in k14))
+    let k15 = Constant { kind: .rune, rune: 97 }
+    print(constantText(in k15))
+    let k16 = Constant { kind: .rune, rune: 128512 }
+    print(constantText(in k16))
+    let k17 = Constant { kind: .real, real: 1.5 }
+    print(constantText(in k17))
+    let k18 = Constant { kind: .real, real: 0.1 }
+    print(constantText(in k18))
+    let k19 = Constant { kind: .real, real: 100.0 }
+    print(constantText(in k19))
+    let k20 = Constant { kind: .real, real: 0.0 }
+    print(constantText(in k20))
+    let k21 = Constant { kind: .real, real: negZero() }
+    print(constantText(in k21))
+    let k22 = Constant { kind: .real, real: -2.5 }
+    print(constantText(in k22))
+    let k23 = Constant { kind: .real, real: 1e20 }
+    print(constantText(in k23))
+    let k24 = Constant { kind: .real, real: 1e15 }
+    print(constantText(in k24))
+    let k25 = Constant { kind: .real, real: 1e14 }
+    print(constantText(in k25))
+    let k26 = Constant { kind: .real, real: 1e16 }
+    print(constantText(in k26))
+    let k27 = Constant { kind: .real, real: 1e17 }
+    print(constantText(in k27))
+    let k28 = Constant { kind: .real, real: 1.5e16 }
+    print(constantText(in k28))
+    let k29 = Constant { kind: .real, real: 12345678901234567.0 }
+    print(constantText(in k29))
+    let k30 = Constant { kind: .real, real: 123456789012345678.0 }
+    print(constantText(in k30))
+    let k31 = Constant { kind: .real, real: 1.5e-5 }
+    print(constantText(in k31))
+    let k32 = Constant { kind: .real, real: 0.00012345 }
+    print(constantText(in k32))
+    let k33 = Constant { kind: .real, real: 123456789012345.0 }
+    print(constantText(in k33))
+    let k34 = Constant { kind: .real, real: 1234567890123456.0 }
+    print(constantText(in k34))
+    let k35 = Constant { kind: .real, real: 0.0001 }
+    print(constantText(in k35))
+    let k36 = Constant { kind: .real, real: 0.00001 }
+    print(constantText(in k36))
+    let k37 = Constant { kind: .real, real: 1.25e-7 }
+    print(constantText(in k37))
+    let k38 = Constant { kind: .real, real: -2.5e-300 }
+    print(constantText(in k38))
+    let k39 = Constant { kind: .real, real: 1.7976931348623157e308 }
+    print(constantText(in k39))
+    let k40 = Constant { kind: .real, real: 5e-324 }
+    print(constantText(in k40))
+    let k41 = Constant { kind: .real, real: 3e100 }
+    print(constantText(in k41))
+    let k42 = Constant { kind: .real, real: 1.0 / zero() }
+    print(constantText(in k42))
+    let k43 = Constant { kind: .real, real: -1.0 / zero() }
+    print(constantText(in k43))
+    let k44 = Constant { kind: .real, real: zero() / zero() }
+    print(constantText(in k44))
+    print("== handles")
+    print($"count {BoundKind.values.length}")
+    for i in 0..78 {
+        let k = BoundKind.fromOrdinal(i) ?? .errorExpr
+        let h0 = makeBound(k, at: 0)
+        let h1 = makeBound(k, at: 2147483647)
+        let h2 = makeBound(k, at: 12345)
+        print($"{i} {k} {isExprKind(k)} {isStmtKind(k)} {isPatternKind(k)} {boundKind(h0) == k} {boundIndex(h0)} {boundKind(h1) == k} {boundIndex(h1)} {boundKind(h2)} {boundIndex(h2)}")
+    }
+    return 0
+}

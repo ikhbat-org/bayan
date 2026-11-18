@@ -1,0 +1,26 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\n \n let b = "bad \q escape"\n\n� let actYor = 1\n� `
+6:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  5 │ � let actYor = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  5 │ � let actYor = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  6 │ � 
+    │ ^

@@ -1,0 +1,29 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+2:2 Identifier `acro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:2 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b = ` 2
+    │         ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │  acro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `﻿`
+
+  4 │ ﻿
+    │ ^

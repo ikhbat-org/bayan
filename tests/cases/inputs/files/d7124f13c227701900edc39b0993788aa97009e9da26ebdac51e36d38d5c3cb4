@@ -1,0 +1,19 @@
+public struct Line {
+    public i64 grams
+}
+
+public struct Order {
+    public List<Line> line
+    public Line lines
+    public Map<string, i64> weight
+    public List<Line> lineItems
+    public Line firstLine
+    public i64[4] totals
+    public Map<string, Line> lineByName
+
+    public void add(ref this, Line items) uses alloc {
+        line.append(items)
+    }
+}
+
+print("ok")

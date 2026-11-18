@@ -1,0 +1,4 @@
+build
+--target
+linux-x64
+arithmetic.byn

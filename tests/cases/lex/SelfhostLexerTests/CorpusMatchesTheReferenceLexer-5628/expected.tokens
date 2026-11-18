@@ -1,0 +1,62 @@
+1:1 Star `*`
+1:2 Slash `/`
+2:1 Slash `/`
+2:3 CharLiteral `'x`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+5:1 CharLiteral `'\u{D800}'`
+6:2 Identifier `macro`
+6:8 Identifier `select`
+6:15 BecomeKeyword `become`
+8:1 IntegerLiteral `1_`
+8:4 Identifier `_`
+8:5 Colon `:`
+9:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ / 'x
+    │   ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  5 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  6 │  macro select become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  6 │  macro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 1_�_:
+    │  ^
+    │
+    │ 8 │ 1_�_:
+    │   │  -
+
+error BYN0002: unexpected character `\u{6}`
+
+  8 │ 1_�_:
+    │   ^

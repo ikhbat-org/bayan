@@ -1,0 +1,28 @@
+1:1 Identifier `truct`
+1:7 Identifier `S`
+3:1 Identifier `b`
+4:1 Identifier `e`
+4:3 Slash `/`
+4:5 OpenBrace `{`
+4:7 LetKeyword `let`
+4:11 Identifier `c`
+4:13 Equals `=`
+4:15 RawStringLiteral `"""never closed\n test assert property fuzz mod�l foreach new goto\n `
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  4 │ e�/ { let c = """never closed
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  4 │ e�/ { let c = """never closed
+    │               ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  5 │  test assert property fuzz mod�l foreach new goto
+    │                               ^

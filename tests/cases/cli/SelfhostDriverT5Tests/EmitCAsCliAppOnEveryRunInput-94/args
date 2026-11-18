@@ -1,0 +1,3 @@
+build
+--emit-c
+function-type-key-nested-fails.byn

@@ -1,0 +1,4 @@
+void f() {
+    for (a, b) in xs {
+    }
+}

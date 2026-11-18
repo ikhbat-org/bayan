@@ -1,0 +1,3 @@
+== tests/cases/diag/input-csharp-type-name-dyn.byn
+23..25 blockStmt
+39..41 blockStmt

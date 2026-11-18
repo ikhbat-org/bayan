@@ -1,0 +1,97 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+3:3 Plus `+`
+3:5 Minus `-`
+3:7 Star `*`
+3:9 Slash `/`
+3:11 Percent `%`
+3:13 PlusPercent `+%`
+3:16 MinusPercent `-%`
+3:19 StarPercent `*%`
+3:22 PlusBar `+|`
+3:25 MinusBar `-|`
+3:28 StarBar `*|`
+3:31 PlusPlus `++`
+3:34 MinusMinus `--`
+4:1 Identifier `Å`
+5:2 Identifier `x`
+5:3 CharLiteral `'\q'`
+7:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ ����� + - * / % +% -% *% +| -| *| ++ --�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │ ����� + - * / % +% -% *% +| -| *| ++ --�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����� + - * / % +% -% *% +| -| *| ++ --�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����� + - * / % +% -% *% +| -| *| ++ --�
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����� + - * / % +% -% *% +| -| *| ++ --�
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  3 │ ����� + - * / % +% -% *% +| -| *| ++ --�
+    │                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �Å
+    │ ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │ �Å
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ �Å
+    │   │  +
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │  x'\q'
+    │    ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  7 │ ����� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  7 │ ����� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ����� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ����� 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ����� 
+    │     ^

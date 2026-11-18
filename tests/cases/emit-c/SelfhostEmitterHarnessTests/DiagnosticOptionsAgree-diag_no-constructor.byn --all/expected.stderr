@@ -1,0 +1,10 @@
+error BYN2112: `Point` has no constructor
+  --> input.byn:6:9
+
+  6 │ let p = Point(1, 2)
+    │         ^^^^^
+    │
+  help: set the fields with a struct literal: `Point { x: …, y: … }`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2112

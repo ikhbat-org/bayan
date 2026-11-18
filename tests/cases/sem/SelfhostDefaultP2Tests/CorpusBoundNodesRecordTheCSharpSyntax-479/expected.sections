@@ -1,0 +1,15 @@
+== tests/cases/diag/fail-undeclared-case.byn
+71..118 blockStmt
+77..103 guardedStmt
+94..103 memberExpr
+94..95 nameExpr
+77..81 failStmt
+108..116 returnStmt value 115..116
+115..116 literalExpr integer
+120..138 globalStatement
+120..138 exprStmt
+120..138 callExpr
+126..137 interpolatedExpr
+129..135 callExpr
+131..134 literalExpr string
+120..138 callExpr

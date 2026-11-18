@@ -1,0 +1,11 @@
+warning BYN2405: unreachable code
+  --> input.byn:3:5
+
+  3 │     print("done")
+    │     ^^^^^^^^^^^^^
+
+warning BYN2405: unreachable code
+  --> input.byn:8:1
+
+  8 │ print("after")
+    │ ^^^^^^^^^^^^^^

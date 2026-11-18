@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `"""\n$"stray } here"\n 'ab'\nlet x\u{2067} = 1\n\n\t l\u{18}t b = ` 2\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$x{$"{x}"}"}"}"}"}"\nlet � = 2\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  8 │ let � = 2
+    │     ^

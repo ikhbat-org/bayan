@@ -1,0 +1,3 @@
+== case this-static
+errorExpr 106..110 : ?
+BYN2018 6:25 `this` is only available inside instance methods |||

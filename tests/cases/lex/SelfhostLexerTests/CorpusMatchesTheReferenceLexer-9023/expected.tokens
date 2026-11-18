@@ -1,0 +1,37 @@
+1:1 Identifier `Å`
+1:4 CharLiteral `''`
+2:1 Identifier `x́́m`
+2:6 Identifier `strucz`
+2:13 Identifier `S`
+4:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å ''
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å ''
+    │   │ +
+
+error BYN0007: empty char literal
+
+  1 │ Å ''
+    │    ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD5)
+
+  2 │ x́́m�strucz S
+    │     ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // comment � hidden
+    │   │            -

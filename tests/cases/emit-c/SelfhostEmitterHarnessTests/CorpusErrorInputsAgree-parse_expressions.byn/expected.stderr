@@ -1,0 +1,157 @@
+error BYN2022: the suffix `dec` is not supported in v0.1
+  --> input.byn:2:38
+
+  2 │ let floats = [3.14, 1e5, 2.5e-3, 1.50dec]
+    │                                      ^^^
+
+error BYN2022: C string literals is not supported in v0.1
+  --> input.byn:4:24
+
+  4 │ let strings = ["text", c"cstr", u16"wide", "esc\t\"q\""]
+    │                        ^^^^^^^
+
+error BYN2022: UTF-16 string literals is not supported in v0.1
+  --> input.byn:4:33
+
+  4 │ let strings = ["text", c"cstr", u16"wide", "esc\t\"q\""]
+    │                                 ^^^^^^^^^
+
+error BYN2001: `sum` is not defined
+  --> input.byn:9:20
+
+  9 │ let msg = $"total {sum} for {lines.length} lines, {{braces}}"
+    │                    ^^^
+
+error BYN2001: `lines` is not defined
+  --> input.byn:9:30
+
+  9 │ let msg = $"total {sum} for {lines.length} lines, {{braces}}"
+    │                              ^^^^^
+
+error BYN2001: `x` is not defined
+  --> input.byn:10:32
+
+  10 │ let nested = $"outer {$"inner {x}"}"
+     │                                ^
+
+error BYN2002: unknown type `Point`
+  --> input.byn:11:9
+
+  11 │ let p = Point { x: 1, y: -2 }
+     │         ^^^^^
+
+error BYN2218: `[ … ]` needs a known type here
+  --> input.byn:15:13
+
+  15 │ let empty = []
+     │             ^^
+     │
+  help: declare the type: `List<i64> xs = [1, 2]`
+
+error BYN2001: `a` is not defined
+  --> input.byn:16:17
+
+  16 │ let spread = [..a, ..b]
+     │                 ^
+     │
+  help: did you mean `p`?
+     │ 16 │ let spread = [..p, ..b]
+     │    │                 +
+
+error BYN2022: spreads (`..xs`) outside a collection literal is not supported in v0.1
+  --> input.byn:16:20
+
+  16 │ let spread = [..a, ..b]
+     │                    ^^^
+
+error BYN2001: `x` is not defined
+  --> input.byn:17:15
+
+  17 │ let cast = u8(x + 1)
+     │               ^
+     │
+  help: did you mean `p`?
+     │ 17 │ let cast = u8(p + 1)
+     │    │               +
+
+error BYN2001: `a` is not defined
+  --> input.byn:18:13
+
+  18 │ let neg = -(a - b)
+     │             ^
+     │
+  help: did you mean `p`?
+     │ 18 │ let neg = -(p - b)
+     │    │             +
+
+error BYN2001: `b` is not defined
+  --> input.byn:18:17
+
+  18 │ let neg = -(a - b)
+     │                 ^
+     │
+  help: did you mean `p`?
+     │ 18 │ let neg = -(a - p)
+     │    │                 +
+
+error BYN2001: `a` is not defined
+  --> input.byn:19:13
+
+  19 │ let bits = ~a & 0xF | b << 2
+     │             ^
+     │
+  help: did you mean `p`?
+     │ 19 │ let bits = ~p & 0xF | b << 2
+     │    │             +
+
+error BYN2001: `b` is not defined
+  --> input.byn:19:23
+
+  19 │ let bits = ~a & 0xF | b << 2
+     │                       ^
+     │
+  help: did you mean `p`?
+     │ 19 │ let bits = ~a & 0xF | p << 2
+     │    │                       +
+
+error BYN2001: `n` is not defined
+  --> input.byn:20:12
+
+  20 │ let r = 0..n
+     │            ^
+     │
+  help: did you mean `p`?
+     │ 20 │ let r = 0..p
+     │    │            +
+
+error BYN2001: `n` is not defined
+  --> input.byn:21:14
+
+  21 │ let ri = 0..=n
+     │              ^
+     │
+  help: did you mean `p`?
+     │ 21 │ let ri = 0..=p
+     │    │              +
+
+error BYN2001: `xs` is not defined
+  --> input.byn:22:12
+
+  22 │ let last = xs[^1]
+     │            ^^
+
+error BYN2214: `^` is only allowed inside an index or slice
+  --> input.byn:22:15
+
+  22 │ let last = xs[^1]
+     │               ^^
+
+error BYN2001: `xs` is not defined
+  --> input.byn:23:11
+
+  23 │ let mid = xs[1..^1]
+     │           ^^
+… and 38 more errors (use --all to show them)
+
+✗ build failed: 58 errors, 0 warnings
+  explain: bayan explain BYN2022

@@ -1,0 +1,179 @@
+1:1 Greater `>`
+1:2 Greater `>`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 Identifier `x`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:59 InterpolationEnd `}`
+4:60 InterpolatedStringEnd `"`
+4:61 InterpolationEnd `}`
+4:62 InterpolatedStringEnd `"`
+4:63 InterpolationEnd `}`
+4:64 InterpolatedStringEnd `"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:69 InterpolationEnd `}`
+4:70 InterpolatedStringEnd `"`
+4:71 InterpolationEnd `}`
+4:72 InterpolatedStringEnd `"`
+4:73 InterpolationEnd `}`
+4:74 InterpolatedStringEnd `"`
+4:75 InterpolationEnd `}`
+4:76 InterpolatedStringEnd `"`
+4:80 IsKeyword `is`
+4:83 AndKeyword `and`
+4:87 OrKeyword `or`
+4:90 NotKeyword `not`
+4:94 WithKeyword `with`
+4:99 MoveKeyword `move`
+4:104 RefKeyword `ref`
+4:108 OutKeyword `out`
+4:112 ThisKeyword `this`
+4:117 NullKeyword `null`
+4:122 TrueKeyword `true`
+4:127 FalseKeyword `false`
+4:133 ComptimeKeyword `comptime`
+4:142 CheckedKeyword `checked`
+5:3 StructKeyword `struct`
+5:10 UniqueKeyword `unique`
+5:17 UnionKeyword `union`
+5:23 EnumKeyword `enum`
+5:28 FlagsKeyword `flags`
+5:34 OpenKeyword `open`
+5:39 ExtensibleKeyword `extensible`
+5:50 InterfaceKeyword `interface`
+5:60 DelegateKeyword `delegate`
+5:69 ExtensionKeyword `extension`
+5:79 DerivationKeyword `derivation`
+5:90 AttributeKeyword `attribute`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolatedStringText `Z`
+7:7 InterpolationStart `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 StringLiteral `$"{$"`
+7:46 OpenBrace `{`
+7:47 StringLiteral `$"{$"`
+7:52 OpenBrace `{`
+7:53 Identifier `x`
+7:54 CloseBrace `}`
+7:55 StringLiteral `"}"`
+7:58 CloseBrace `}`
+7:59 StringLiteral `"}"`
+7:62 InterpolationEnd `}`
+7:63 InterpolatedStringEnd `"`
+7:64 InterpolationEnd `}`
+7:65 InterpolatedStringEnd `"`
+7:66 InterpolationEnd `}`
+7:67 InterpolatedStringEnd `"`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringEnd `"`
+7:70 InterpolationEnd `}`
+7:71 InterpolatedStringEnd `"`
+7:72 InterpolationEnd `}`
+7:73 InterpolatedStringEnd `"`
+7:74 InterpolationEnd `}`
+7:75 InterpolatedStringEnd `"`
+7:76 InterpolationEnd `}`
+7:77 InterpolatedStringEnd `"`
+8:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" � is and or not with move ref out this null true false comptime checked
+    │                                                                              ^ invisible
+    │                                                                                character that
+    │                                                                                reorders how
+    │                                                                                the text
+    │                                                                                displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" � is and or not with move ref out this null true false comptime checked
+    │   │                                                                              -
+
+error BYN0002: unexpected character `̈́`
+
+  5 │  ̈́struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"Z{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"
+    │              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"Z{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                         ^^

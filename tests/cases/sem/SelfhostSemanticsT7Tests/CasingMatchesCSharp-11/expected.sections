@@ -1,0 +1,3 @@
+== value-upper
+BYN2009 5+7 `HTTPGet` must be camelCase |  | rename it `httpGet`; only types are PascalCase | 5+7=httpGet
+end

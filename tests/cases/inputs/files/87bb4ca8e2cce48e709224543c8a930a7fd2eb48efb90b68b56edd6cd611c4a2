@@ -1,0 +1,4 @@
+i64 f(Color c) => c switch {
+    case .red => 1
+    case .green => 2
+}

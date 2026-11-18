@@ -1,0 +1,22 @@
+public void directory(string p) {
+    let d = Path.directoryName(p)
+}
+
+public void combine(string p) {
+    let c = Path.combine(p, p)
+}
+
+public void combineSpan(ReadOnlySpan<string> p) {
+    let c = Path.combine(p)
+}
+
+public void full(string p) {
+    let f = Path.fullPath(p)
+}
+
+void main() uses alloc {
+    directory("a")
+    combine("a")
+    combineSpan(["a"])
+    full("a")
+}

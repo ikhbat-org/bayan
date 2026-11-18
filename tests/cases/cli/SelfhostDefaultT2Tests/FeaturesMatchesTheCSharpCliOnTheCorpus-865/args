@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/ref-this-not-first.byn
+--package
+<repo>/tests/cases/diag

@@ -1,0 +1,54 @@
+== synth
+case neverCall
+  result null
+  temps 0
+case neverBuiltin
+  result never:void@624+5
+  temps 0
+case neverAppend
+  result never:never@624+5
+  temps 0
+case neverTake
+  result never:never@624+5
+  temps 0
+case neverWrite
+  result never:i64@624+5
+  temps 0
+case neverSwitch
+  result never:never@624+5
+  temps 0
+case neverTry
+  result never:never@624+5
+  temps 0
+case optStable
+  result optval(local(temp):i64@624+5):i64@624+5
+  out assign(local(temp):i64@624+5;call(id;-;local(k):i64@627+1;):i64@624+5)
+  temps 1
+case neverArg
+  result never:void@624+5
+  temps 0
+case noArgSlot
+  result never:i64@624+5
+  temps 0
+case neverStable
+  result never:never@624+5
+  temps 0
+case uncheckedStable
+  result unchecked(call(id;-;local(k):i64@627+1;):i64@624+5;call(id;-;local(k):i64@627+1;):i64@624+5):i64@624+5
+  temps 0
+case staticReceiver
+  result call(id;-;btrue:i64@624+5;btrue:i64@624+5;):i64@624+5
+  temps 0
+case constantCall
+  result call(id#k;-;):i64@624+5
+  temps 0
+case builtinPart
+  result void:void@624+5
+  out write(print;-;local(sb):strbuf@624+5,)
+  temps 0
+printable 0 true
+printable 1 true
+printable 2 true
+printable 3 true
+printable 4 true
+printable 5 false

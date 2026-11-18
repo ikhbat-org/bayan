@@ -1,0 +1,58 @@
+error BYN2001: `parse` is not defined
+  --> input.byn:1:9
+
+  1 │ let n = parse(s) catch { return -1 }
+    │         ^^^^^
+
+error BYN2001: `s` is not defined
+  --> input.byn:1:15
+
+  1 │ let n = parse(s) catch { return -1 }
+    │               ^
+
+error BYN2403: `main` returns nothing, but `return` has a value
+  --> input.byn:1:33
+
+  1 │ let n = parse(s) catch { return -1 }
+    │                                 ^^
+
+error BYN2001: `parse` is not defined
+  --> input.byn:2:9
+
+  2 │ let m = parse(s) catch {
+    │         ^^^^^
+
+error BYN2001: `s` is not defined
+  --> input.byn:2:15
+
+  2 │ let m = parse(s) catch {
+    │               ^
+    │
+  help: did you mean `n`?
+    │ 2 │ let m = parse(n) catch {
+    │   │               +
+
+error BYN2406: `break` outside a loop
+  --> input.byn:4:5
+
+  4 │     break
+    │     ^
+
+error BYN2001: `save` is not defined
+  --> input.byn:6:1
+
+  6 │ save(x) catch { log("x") }
+    │ ^^^^
+
+error BYN2001: `x` is not defined
+  --> input.byn:6:6
+
+  6 │ save(x) catch { log("x") }
+    │      ^
+    │
+  help: did you mean `n`?
+    │ 6 │ save(n) catch { log("x") }
+    │   │      +
+
+✗ build failed: 8 errors, 0 warnings
+  explain: bayan explain BYN2001

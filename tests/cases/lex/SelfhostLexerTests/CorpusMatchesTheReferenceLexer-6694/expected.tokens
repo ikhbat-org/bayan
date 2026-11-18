@@ -1,0 +1,12 @@
+1:1 Identifier `ilet`
+1:6 Identifier `a`
+1:8 Equals `=`
+1:10 StringLiteral `"o8en`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ ilet a = "o8en
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

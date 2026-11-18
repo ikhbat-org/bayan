@@ -1,0 +1,10 @@
+error BYN2761: `Node` contains itself by value: Node → Node
+  --> tmp/t26-tests/cli/diag_recursive-struct.byn/recursive-struct.byn:1:8
+
+  1 │ struct Node {
+    │        ^^^^
+    │
+  help: store the inner one as `Owned<Node>` (or in a `List<Node>`); a value cannot contain itself
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2761

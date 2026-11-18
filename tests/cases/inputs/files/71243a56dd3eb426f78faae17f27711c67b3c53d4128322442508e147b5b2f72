@@ -1,0 +1,6 @@
+test assert property fuz model foreach new goto
+ "{'a' '\n' '\u{1F600}' '\'' 'Ã©' '\\' '\0'
+"text" "esc \”q\" \\ \n" """
+oÎnt { x = 1 }}!" $""
+0x
+ 

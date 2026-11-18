@@ -1,0 +1,26 @@
+== tests/cases/diag/line-join-member.byn
+114..127 globalStatement
+114..127 localDecl
+122..127 literalExpr string
+128..145 localDecl
+136..145 memberExpr
+136..137 nameExpr
+146..159 exprStmt
+146..159 callExpr
+152..158 interpolatedExpr
+155..156 nameExpr
+146..159 callExpr
+161..227 ifStmt
+164..169 binaryExpr gt right 168..169
+164..165 nameExpr
+168..169 literalExpr integer
+170..227 blockStmt
+176..207 localDecl
+184..207 memberExpr
+184..195 callExpr
+184..185 nameExpr
+212..225 exprStmt
+212..225 callExpr
+218..224 interpolatedExpr
+221..222 nameExpr
+212..225 callExpr

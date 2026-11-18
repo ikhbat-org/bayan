@@ -1,0 +1,24 @@
+1:1 CharLiteral `'H�b'`
+4:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'H�b'
+    │ ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  1 │ 'H�b'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  // ��x
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  2 │  // ��x
+    │      ^

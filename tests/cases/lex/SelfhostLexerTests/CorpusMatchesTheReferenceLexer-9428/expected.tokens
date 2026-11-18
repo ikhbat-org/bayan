@@ -1,0 +1,78 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 Identifier `ype`
+3:29 ImportKeyword `import`
+3:36 AsKeyword `as`
+3:39 PublicKeyword `public`
+3:46 PrivateKeyword `private`
+3:54 StaticKeyword `static`
+3:61 ReadonlyKeyword `readonly`
+3:70 RequiredKeyword `required`
+3:79 Identifier `onst`
+3:84 LetKeyword `let`
+3:88 VarKeyword `var`
+3:92 EmbedKeyword `embed`
+3:98 ExternKeyword `extern`
+3:105 UnsafeKeyword `unsafe`
+5:3 Amp `&`
+5:5 AmpAmp `&&`
+5:8 Bar `|`
+5:10 BarBar `||`
+5:13 Caret `^`
+5:15 Tilde `~`
+5:17 Bang `!`
+5:19 Equals `=`
+5:21 EqualsEquals `==`
+5:23 BangEquals `!=`
+5:26 Less `<`
+5:28 LessEquals `<=`
+5:31 Greater `>`
+5:33 GreaterEquals `>=`
+5:36 LessLess `<<`
+5:39 Greater `>`
+5:40 Greater `>`
+5:42 Greater `>`
+5:43 GreaterEquals `>=`
+6:2 IntegerLiteral `0x`
+8:1 StringLiteral `"text"`
+8:8 StringLiteral `"esc \"q\" \\ \n"`
+8:26 RawStringLiteral `"""\r\n\r\n`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │  ��& && | || ^ ~ ! = ==�!= < <= > >= << >> >>=
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  ��& && | || ^ ~ ! = ==�!= < <= > >= << >> >>=
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x83)
+
+  5 │  ��& && | || ^ ~ ! = ==�!= < <= > >= << >> >>=
+    │                        ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │  0x
+    │  ^^
+
+error BYN0003: unterminated string literal
+
+  8 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

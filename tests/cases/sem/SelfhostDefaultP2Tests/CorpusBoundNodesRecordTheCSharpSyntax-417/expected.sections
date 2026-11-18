@@ -1,0 +1,19 @@
+== tests/cases/diag/distinct-bare-literal.byn
+52..97 blockStmt
+58..71 localDecl
+70..71 literalExpr integer
+76..95 exprStmt
+76..95 callExpr
+82..94 interpolatedExpr
+85..92 memberExpr
+85..86 nameExpr
+76..95 callExpr
+0..38 structDecl
+23..38 requiresRule
+23..38 requiresRule
+32..38 binaryExpr gt right 37..38
+32..34 nameExpr
+32..34 nameExpr
+37..38 literalExpr integer
+23..38 requiresRule
+23..38 requiresRule

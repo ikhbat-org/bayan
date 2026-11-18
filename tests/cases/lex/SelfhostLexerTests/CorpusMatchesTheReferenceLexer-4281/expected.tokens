@@ -1,0 +1,14 @@
+1:1 Identifier `n`
+1:2 StringLiteral `" "`
+1:5 StringLiteral `""`
+2:3 Identifier `raw`
+2:7 StringLiteral `"quoted"`
+3:3 RawStringLiteral `""" c"text" u16"\nvar xs: List<List<i64>>\n\ntch ca\nlet  = 1\n\u{2066}3.14 1e5 2.5e-3 6E+21.50dec 1..2 1..=3 5e x.y 2.5f\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,17 @@
+struct Cart {
+    i64 n
+    states {
+        empty
+        full(List<i64> items)
+    }
+}
+struct Order {
+    i64 id
+    states {
+        draft
+        paid(i64 payment, string payment, Missing q)
+        draft
+        Shipped
+    }
+}
+struct Plain { }

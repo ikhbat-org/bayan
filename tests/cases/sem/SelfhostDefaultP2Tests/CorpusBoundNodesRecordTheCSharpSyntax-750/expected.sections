@@ -1,0 +1,12 @@
+== tests/cases/diag/positional-after-named.byn
+31..32 nameExpr
+31..32 nameExpr
+31..32 nameExpr
+33..59 globalStatement
+33..59 exprStmt
+33..59 callExpr
+39..58 interpolatedExpr
+42..56 callExpr
+49..50 literalExpr integer
+42..56 callExpr
+33..59 callExpr

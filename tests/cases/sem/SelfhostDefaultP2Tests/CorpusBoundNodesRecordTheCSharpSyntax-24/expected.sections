@@ -1,0 +1,41 @@
+== tests/cases/run/copy-default-allocator.byn
+86..112 globalStatement
+86..112 localDecl
+103..112 collectionExpr
+104..105 literalExpr integer
+107..108 literalExpr integer
+110..111 literalExpr integer
+113..133 localDecl
+122..133 callExpr
+134..146 exprStmt
+134..146 callExpr
+134..136 nameExpr
+144..145 literalExpr integer
+147..169 localDecl
+155..169 callExpr
+155..162 memberExpr
+155..157 nameExpr
+170..181 exprStmt
+170..181 callExpr
+170..171 nameExpr
+179..180 literalExpr integer
+182..199 localDecl
+190..199 callExpr
+190..192 nameExpr
+200..212 exprStmt
+200..212 callExpr
+200..202 nameExpr
+210..211 literalExpr integer
+213..263 exprStmt
+213..263 callExpr
+219..262 interpolatedExpr
+222..230 memberExpr
+222..223 nameExpr
+233..237 indexExpr
+233..234 nameExpr
+235..236 literalExpr integer
+240..248 memberExpr
+240..241 nameExpr
+251..260 memberExpr
+251..253 nameExpr
+213..263 callExpr

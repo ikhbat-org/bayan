@@ -1,0 +1,4 @@
+== t5
+tryExpr|i64|933:19
+operand call:i64
+BYN2602 59:24 `fetch` can fail; handle the error or pass it on ||propagate the error with `try`, or handle it with `catch`|fix 943..943 try 

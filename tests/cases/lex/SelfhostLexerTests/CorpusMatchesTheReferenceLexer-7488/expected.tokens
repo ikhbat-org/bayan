@@ -1,0 +1,72 @@
+2:1 ErrorKeyword `error`
+2:7 SetKeyword `set`
+2:11 UnitKeyword `unit`
+2:16 DistinctKeyword `distinct`
+2:25 TypeKeyword `type`
+2:30 Identifier `imp`
+2:33 Dot `.`
+2:34 Identifier `rt`
+2:37 AsKeyword `as`
+2:40 Identifier `pubic`
+2:46 PrivateKeyword `private`
+2:54 StaticKeyword `static`
+2:61 ReadonlyKeyword `readonly`
+2:70 RequiredKeyword `required`
+2:79 ConstKeyword `const`
+2:85 LetKeyword `let`
+2:89 VarKeyword `var`
+2:93 EmbedKeyword `embed`
+2:99 ExternKeyword `extern`
+2:106 UnsafeKeyword `unsafe`
+3:2 Identifier `b102`
+6:1 Identifier `é`
+6:4 Equals `=`
+6:6 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:5 Identifier `café`
+7:10 Equals `=`
+7:12 IntegerLiteral `2`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │ ��� /* � */
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │ ��� /* � */
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ��� /* � */
+    │   ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  5 │ ��� /* � */
+    │     ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 5 │ ��� // �
+    │   │      +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  5 │ ��� /* � */
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ ��� /* � */
+    │   │        -
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  6 │ é = 1
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ é = 1
+    │   │ +

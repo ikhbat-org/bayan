@@ -1,0 +1,32 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+3:1 Identifier `a`
+10:10 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  3 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │ t x� = 1 �/// not a doc comment
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ t x� = 1 �/// not a doc comment
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  7 │ t x� = 1 �/// not a doc comment
+    │          ^

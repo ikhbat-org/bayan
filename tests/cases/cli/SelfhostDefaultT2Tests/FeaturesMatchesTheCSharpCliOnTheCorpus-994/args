@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/unique-struct-containment.byn
+--package
+<repo>/tests/cases/diag

@@ -1,0 +1,2 @@
+== lintNeverReassignedVar.useAfterMove
+BYN2311 75:9 `b` is never reassigned; declare it with `let` ||declare it with `let` to tell the reader the value never changes|fix 1302..1305 let

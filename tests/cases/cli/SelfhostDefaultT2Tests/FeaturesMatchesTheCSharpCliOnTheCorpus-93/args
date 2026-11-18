@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/fs-set-modified.byn
+--package
+<repo>/tests/cases/run

@@ -1,0 +1,1 @@
+{"code":"BYN2770","severity":"error","file":"input.byn","span":{"start":81,"end":85,"line":3,"column":6,"endLine":3,"endColumn":10},"message":"unknown attribute `json`","label":null,"help":"use `@exitCode(n)` on an error variant or `@cases(...)` on a test","fixes":[]}

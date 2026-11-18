@@ -1,0 +1,9 @@
+1:1 Identifier `E`
+1:2 Plus `+`
+1:3 IntegerLiteral `2`
+1:5 Dot `.`
+1:6 IntegerLiteral `50`
+1:8 NumericSuffix `ec`
+1:11 IntegerLiteral `1`
+1:12 Dot `.`
+1:14 EndOfFile

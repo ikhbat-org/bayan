@@ -1,0 +1,1 @@
+{"code":"BYN2213","severity":"error","file":"input.byn","span":{"start":38,"end":39,"line":2,"column":12,"endLine":2,"endColumn":13},"message":"index 3 is out of range for `i64[3]`","label":null,"help":null,"fixes":[]}

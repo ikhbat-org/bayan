@@ -1,0 +1,7 @@
+error BYN2782: cannot move out of a fresh value
+  --> <repo>/tests/cases/diag/lambda-move.byn:2:29
+
+  2 │     let f: () -> i64 = move () => 0
+    │                             ^^^^^^^
+    │
+  help: remove the `move`; a fresh value needs none

@@ -1,0 +1,43 @@
+1:2 IntegerLiteral `2`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolationEnd `}`
+2:16 InterpolatedStringEnd `"`
+2:17 Identifier `foo`
+2:21 Identifier `Bar`
+2:25 Identifier `_x`
+2:28 Identifier `camelCase2`
+2:39 Identifier `بيان`
+2:44 Identifier `μετρητ`
+2:51 Identifier `ς`
+2:53 Identifier `x_1`
+2:57 Identifier `é`
+3:2 Identifier `ul`
+3:5 IntegerLiteral `7`
+3:6 NumericSuffix `l`
+5:1 IntegerLiteral `0x`
+5:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � 2
+    │ ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3$"{}"foo Bar _x camelCase2 بيان μετρητ�ς x_1 é
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  2 │ let c = � 3$"{}"foo Bar _x camelCase2 بيان μετρητ�ς x_1 é
+    │                                                  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x
+    │ ^^

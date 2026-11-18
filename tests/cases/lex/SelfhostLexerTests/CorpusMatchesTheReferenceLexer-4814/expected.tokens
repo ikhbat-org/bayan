@@ -1,0 +1,10 @@
+1:1 Identifier `a`
+1:2 CloseParen `)`
+5:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ a)/* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

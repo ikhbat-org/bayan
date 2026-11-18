@@ -1,0 +1,1 @@
+{"code":"BYN2009","severity":"error","file":"input.byn","span":{"start":18,"end":24,"line":2,"column":5,"endLine":2,"endColumn":11},"message":"`Circle` must be camelCase","label":null,"help":"rename it `circle`; only types are PascalCase","fixes":[{"span":{"start":18,"end":24,"line":2,"column":5,"endLine":2,"endColumn":11},"replacement":"circle"}]}

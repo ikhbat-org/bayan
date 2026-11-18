@@ -1,0 +1,31 @@
+== tests/cases/run/todo.byn
+0..14 globalStatement
+0..14 exprStmt
+0..14 callExpr
+6..13 literalExpr string
+0..14 callExpr
+15..37 localDecl
+33..37 literalExpr trueKeyword
+38..81 localDecl
+51..81 conditionalExpr
+51..56 nameExpr
+59..61 literalExpr integer
+64..81 callExpr
+64..81 callExpr
+69..80 literalExpr string
+82..99 exprStmt
+82..99 callExpr
+88..98 interpolatedExpr
+91..96 binaryExpr add right 95..96
+91..92 nameExpr
+95..96 literalExpr integer
+82..99 callExpr
+100..142 localDecl
+120..142 callExpr
+120..142 callExpr
+125..141 interpolatedExpr
+138..139 nameExpr
+143..155 exprStmt
+143..155 callExpr
+149..154 nameExpr
+143..155 callExpr

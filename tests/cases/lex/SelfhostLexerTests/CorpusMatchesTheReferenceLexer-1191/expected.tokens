@@ -1,0 +1,34 @@
+1:2 Identifier `ok`
+1:7 InKeyword `in`
+1:10 Identifier `commTena`
+1:19 Slash `/`
+1:20 Identifier `z`
+1:22 NeverKeyword `never`
+1:28 Identifier `closed`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+5:1 IntegerLiteral `1`
+5:2 Dot `.`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │  ok � in commTena /z never closed
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{b
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

@@ -1,0 +1,145 @@
+1:1 DotDotEquals `..=`
+1:4 IntegerLiteral `3`
+1:6 IntegerLiteral `5`
+1:7 NumericSuffix `e`
+1:9 Identifier `x`
+1:10 Dot `.`
+1:11 Identifier `y`
+1:13 FloatLiteral `2.5`
+1:16 NumericSuffix `f`
+3:1 CharLiteral `'x`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `stray } here`
+5:16 InterpolatedStringEnd `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:47 OpenBrace `{`
+6:48 InterpolatedStringStart `$"`
+6:50 InterpolationStart `{`
+6:51 Identifier `x`
+6:52 InterpolationEnd `}`
+6:53 InterpolatedStringEnd `"`
+6:54 CloseBrace `}`
+6:55 StringLiteral `"}"`
+6:58 InterpolationEnd `}`
+6:59 InterpolatedStringEnd `"`
+6:60 InterpolationEnd `}`
+6:61 InterpolatedStringEnd `"`
+6:62 InterpolationEnd `}`
+6:63 InterpolatedStringText `�`
+6:63 InterpolatedStringEnd `"`
+6:64 InterpolationEnd `}`
+6:65 InterpolatedStringEnd `"`
+6:66 InterpolationEnd `}`
+6:67 InterpolatedStringEnd `"`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringEnd `"`
+6:70 InterpolationEnd `}`
+6:71 InterpolatedStringEnd `"`
+6:72 InterpolationEnd `}`
+6:73 InterpolatedStringEnd `"`
+6:74 InterpolationEnd `}`
+6:75 InterpolatedStringEnd `"`
+6:76 InterpolationEnd `}`
+6:77 InterpolatedStringEnd `"`
+6:78 InterpolationEnd `}`
+6:79 InterpolatedStringEnd `"`
+6:80 InterpolationEnd `}`
+6:81 InterpolatedStringEnd `"`
+6:82 InterpolationEnd `}`
+6:83 InterpolatedStringEnd `"`
+6:84 InterpolationEnd `}`
+6:85 InterpolatedStringEnd `"`
+    doc `/// Doc l�ne one.`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:9 RawStringLiteral `"""never closed\n ' '\'' 'é' '\\' '\0'\n `
+9:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │ ���$"stray } here"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │ ���$"stray } here"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ���$"stray } here"
+    │   ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │ ���$"stray } here"
+    │            ^
+    │
+    │ 5 │ ���$"stray }} here"
+    │   │             +
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"}"}"}"}"}�"}"}"}"}"}"}"}"}"}"}"}"/// Doc l�ne one.
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"}"}"}"}"}�"}"}"}"}"}"}"}"}"}"}"}"/// Doc l�ne one.
+    │                                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBE)
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"}"}"}"}"}�"}"}"}"}"}"}"}"}"}"}"}"/// Doc l�ne one.
+    │                                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"}"}"}"}"}�"}"}"}"}"}"}"}"}"}"}"}"/// Doc l�ne one.
+    │                                                                                                ^
+
+error BYN0003: unterminated string literal
+
+  7 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

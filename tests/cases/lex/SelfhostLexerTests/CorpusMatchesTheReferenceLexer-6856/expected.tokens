@@ -1,0 +1,130 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 Bang `!`
+1:64 CheckedKeyword `checked`
+3:1 StringLiteral `"a\u{2067}b"`
+3:6 LetKeyword `let`
+3:10 Identifier `café`
+3:16 Equals `=`
+3:18 IntegerLiteral `1`
+    doc `/// Doc line two.`
+7:1 Identifier `x́́let`
+7:8 Identifier `s`
+7:10 Equals `=`
+7:12 InterpolatedStringStart `$"`
+7:14 InterpolationStart `{`
+7:15 InterpolatedStringStart `$"`
+7:17 InterpolationStart `{`
+7:18 InterpolatedStringStart `$"`
+7:20 InterpolationStart `{`
+7:21 InterpolatedStringStart `$"`
+7:23 InterpolationStart `{`
+7:24 InterpolatedStringStart `$"`
+7:26 InterpolationStart `{`
+7:27 InterpolatedStringStart `$"`
+7:29 InterpolationStart `{`
+7:30 InterpolatedStringStart `$"`
+7:32 InterpolationStart `{`
+7:33 InterpolatedStringStart `$"`
+7:35 InterpolationStart `{`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolationStart `{`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolationStart `{`
+7:42 InterpolatedStringStart `$"`
+7:44 InterpolationStart `{`
+7:45 InterpolatedStringStart `$"`
+7:47 InterpolationStart `{`
+7:48 InterpolatedStringStart `$"`
+7:50 InterpolationStart `{`
+7:51 InterpolatedStringStart `$"`
+7:53 InterpolationStart `{`
+7:54 InterpolatedStringStart `$"`
+7:56 InterpolationStart `{`
+7:57 InterpolatedStringStart `$"`
+7:59 InterpolationStart `{`
+7:60 StringLiteral `$"{$"`
+7:65 OpenBrace `{`
+7:66 StringLiteral `$"{$"`
+7:71 OpenBrace `{`
+7:72 Identifier `x`
+7:73 CloseBrace `}`
+7:74 StringLiteral `"}"`
+7:77 CloseBrace `}`
+7:78 StringLiteral `"}"`
+7:81 InterpolationEnd `}`
+7:82 InterpolatedStringEnd `"`
+7:83 InterpolationEnd `}`
+7:84 InterpolatedStringEnd `"`
+7:85 InterpolationEnd `}`
+7:86 InterpolatedStringEnd `"`
+7:87 InterpolationEnd `}`
+7:88 InterpolatedStringEnd `"`
+7:89 InterpolationEnd `}`
+7:90 InterpolatedStringEnd `"`
+7:91 InterpolationEnd `}`
+7:92 InterpolatedStringEnd `"`
+7:93 InterpolationEnd `}`
+7:94 InterpolatedStringEnd `"`
+7:95 InterpolationEnd `}`
+7:96 InterpolatedStringEnd `"`
+7:97 InterpolationEnd `}`
+7:98 InterpolatedStringEnd `"`
+7:99 InterpolationEnd `}`
+7:100 InterpolatedStringEnd `"`
+7:101 InterpolationEnd `}`
+7:102 InterpolatedStringEnd `"`
+7:103 InterpolationEnd `}`
+7:104 InterpolatedStringEnd `"`
+7:105 InterpolationEnd `}`
+7:106 InterpolatedStringEnd `"`
+7:107 InterpolationEnd `}`
+7:108 InterpolatedStringEnd `"`
+7:109 InterpolationEnd `}`
+7:110 InterpolatedStringEnd `"`
+7:111 InterpolationEnd `}`
+7:112 InterpolatedStringEnd `"`
+8:1 Identifier `a`
+9:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ "a�b"let café = 1
+    │          ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ "a�b"let café = 1
+    │   │             +
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ // comment � hidden
+    │   │            -
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ x́́let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                            ^^
+
+error BYN0004: unterminated block comment
+
+  8 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

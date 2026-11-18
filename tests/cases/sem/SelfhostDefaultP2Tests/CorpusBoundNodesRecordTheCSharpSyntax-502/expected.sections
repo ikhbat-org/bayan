@@ -1,0 +1,36 @@
+== tests/cases/diag/for-unique-item-constraint.byn
+163..235 blockStmt
+169..178 localDecl
+177..178 literalExpr integer
+183..220 forStmt
+192..197 nameExpr
+198..220 blockStmt
+208..214 assignStmt add target 208..209 value 213..214
+208..209 nameExpr
+213..214 literalExpr integer
+225..233 returnStmt value 232..233
+232..233 nameExpr
+249..282 blockStmt
+255..280 exprStmt
+255..280 callExpr
+261..279 interpolatedExpr
+264..277 callExpr
+269..276 structLiteralExpr
+255..280 callExpr
+71..72 literalExpr integer
+71..72 literalExpr integer
+71..72 literalExpr integer
+106..117 callExpr
+106..117 callExpr
+106..117 callExpr
+163..235 blockStmt
+169..178 localDecl
+177..178 literalExpr integer
+183..220 forStmt
+192..197 nameExpr
+198..220 blockStmt
+208..214 assignStmt add target 208..209 value 213..214
+208..209 nameExpr
+213..214 literalExpr integer
+225..233 returnStmt value 232..233
+232..233 nameExpr

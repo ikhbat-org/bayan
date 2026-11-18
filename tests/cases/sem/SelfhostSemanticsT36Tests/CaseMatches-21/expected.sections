@@ -1,0 +1,36 @@
+== x-generic
+BYN2221 25:14 `T` cannot be iterated ||use `for` over ranges (`0..n`), spans, lists, arrays, strings, or a type conforming to `IIndexable` or `IEnumerator`|
+fn none
+block 352..401
+  forStmt 358..399
+    local 367..372 : T
+    block 373..399
+      exprStmt 383..393
+        call 383..393 : void
+          literal 389..392 : string
+          enumMember 383..393 : Stream
+fn run
+block 416..429
+  returnStmt 416..429
+    call 416..429 : i64
+      structLiteral 421..428 : Rows
+fn step
+block 251..328
+  localDecl 257..271
+    local 266..271 : T
+  forStmt 276..313
+    local 285..287 : T
+    block 288..313
+      localDecl 298..307
+        local 306..307 : T.Item
+  returnStmt 318..326
+    literal 325..326 : i64
+fn walk
+block 145..206
+  forStmt 151..191
+    local 160..165 : T
+    block 166..191
+      localDecl 176..185
+        local 184..185 : T.Item
+  returnStmt 196..204
+    literal 203..204 : i64

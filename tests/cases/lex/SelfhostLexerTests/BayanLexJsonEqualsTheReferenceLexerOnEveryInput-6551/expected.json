@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"Identifier","start":1,"end":7,"text":"closed","doc":null},{"kind":"EndOfFile","start":13,"end":13,"text":"","doc":null}],"diagnostics":[{"code":"BYN0004","severity":"error","start":10,"end":12,"message":"unterminated block comment","label":"comment starts here","help":"close it with `*/`","fixes":[]}]}

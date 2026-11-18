@@ -1,0 +1,39 @@
+1:1 Identifier `Åst`
+1:4 Identifier `ray`
+1:8 CloseBrace `}`
+1:10 Identifier `here`
+1:14 StringLiteral `"`
+2:2 StringLiteral `"open {x"`
+2:11 Semicolon `;`
+3:1 EndOfFile
+
+error BYN0005: identifier `Åst` is not in Unicode normalization form C
+
+  1 │ Åst�ray } here"
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Åst�ray } here"
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xAB)
+
+  1 │ Åst�ray } here"
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  1 │ Åst�ray } here"
+    │               ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  2 │ $�"open {x";
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  2 │ $�"open {x";
+    │  ^

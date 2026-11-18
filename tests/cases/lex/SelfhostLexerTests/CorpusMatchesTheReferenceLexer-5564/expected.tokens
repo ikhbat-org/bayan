@@ -1,0 +1,89 @@
+1:1 CharLiteral `'`
+2:1 CharLiteral `'ab'`
+3:1 CharLiteral `'\ 1.\r\u{2066}b`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 IntegerLiteral `1`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `total `
+5:10 InterpolationStart `{`
+5:11 Identifier `x`
+5:12 InterpolationEnd `}`
+5:13 InterpolatedStringEnd `"`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolatedStringText `a `
+5:19 InterpolationStart `{`
+5:20 Identifier `f`
+5:21 OpenParen `(`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolatedStringText `b `
+5:26 InterpolationStart `{`
+5:27 Identifier `c`
+5:28 InterpolationEnd `}`
+5:29 InterpolatedStringText `�`
+5:29 InterpolatedStringEnd `"`
+5:30 CloseParen `)`
+5:31 InterpolationEnd `}`
+5:32 InterpolatedStringText ` d`
+5:34 InterpolatedStringEnd `"`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolatedStringText `{{literal}}`
+5:49 InterpolatedStringEnd `"`
+5:51 InterpolatedStringStart `$"`
+5:53 InterpolationStart `{`
+5:54 Identifier `Point`
+5:60 OpenBrace `{`
+5:62 Identifier `x`
+5:64 Equals `=`
+5:66 IntegerLiteral `1`
+5:68 CloseBrace `}`
+5:69 InterpolationEnd `}`
+5:70 InterpolatedStringText `!`
+5:71 InterpolatedStringEnd `"`
+5:73 InterpolatedStringStart `$"`
+5:75 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0008: unterminated char literal
+
+  3 │ '\ 1.��b
+    │ ^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\ `
+
+  3 │ '\ 1.��b
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  3 │ '\ 1.��b
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ '\ 1.��b
+    │   │       -
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  5 │  $"total {x}" $"a {f($"b {c}�")} d" $"{{literal}}" $"{Point { x�= 1 }}!" $""
+    │                             ^

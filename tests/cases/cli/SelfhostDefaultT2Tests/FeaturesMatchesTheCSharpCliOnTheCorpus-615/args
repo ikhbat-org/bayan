@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/hashmap-type-argument-count.byn
+--package
+<repo>/tests/cases/diag

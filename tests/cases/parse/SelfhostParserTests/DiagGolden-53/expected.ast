@@ -1,0 +1,10 @@
+CompilationUnit
+  Function main() -> void
+    Block
+      Let a = 1
+      Let b = 2
+      If (&& (> a 0) (> b 0))
+        Block
+          Expr (call print "both")
+      Let both = (&& (> a 0) (> b 0))
+      Expr (call print (interp both))

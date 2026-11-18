@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "nodes": [
+    "Argument",
+    "AssignStmt",
+    "BlockStmt",
+    "CallExpr",
+    "DeferStmt",
+    "ErrorEnumDecl",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "MoveExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "TryExpr"
+  ],
+  "builtins": [
+    "ListLength",
+    "Print"
+  ],
+  "diagnostics": []
+}

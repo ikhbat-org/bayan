@@ -1,0 +1,7 @@
+== expected
+ICount.count i64 Getter owner -
+IDef.size string Getter owner -
+IBag.first i64 Getter owner -
+IBad.bad ? Getter owner -
+diags +0
+functions +0

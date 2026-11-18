@@ -1,0 +1,59 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:5 Greater `>`
+1:6 Greater `>`
+1:8 Identifier `b`
+2:1 Identifier `c`
+2:3 Greater `>`
+2:4 GreaterEquals `>=`
+2:7 IntegerLiteral `1`
+3:1 Identifier `x́́open`
+3:9 OpenBrace `{`
+3:10 Identifier `x`
+3:11 StringLiteral `"Y`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:11 IntegerLiteral `3`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:13 IntegerLiteral `1`
+7:1 Identifier `ne`
+7:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{ >> b
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ x́́open {x"Y
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{15}`
+
+  4 │ let c � � 3
+    │       ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c � � 3
+    │         ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  5 │ let café � 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ let café � 1
+    │   │        +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE7)
+
+  5 │ let café � 1
+    │           ^

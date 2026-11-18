@@ -1,0 +1,19 @@
+1:1 RawStringLiteral `"""\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x�}"}"}"}"}"}"}"}"}"}"}"}" ///\n�\n} let effect= 2\n'\u{110000}'\n\nạ̇ `
+7:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x�}"}"}"}"}"}"}"}"}"}"}"}" ///
+    │                                                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �
+    │ ^

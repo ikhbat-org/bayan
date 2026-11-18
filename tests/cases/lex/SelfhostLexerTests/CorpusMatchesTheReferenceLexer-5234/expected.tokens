@@ -1,0 +1,67 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:2 Identifier `c`
+2:4 Greater `>`
+2:5 GreaterEquals `>=`
+2:8 IntegerLiteral `1`
+4:1 Star `*`
+4:2 Slash `/`
+4:3 LetKeyword `let`
+4:7 Identifier `café`
+4:13 Equals `=`
+4:15 IntegerLiteral `1`
+5:5 Identifier `n`
+5:6 StringLiteral `" "`
+5:9 StringLiteral `""`
+6:3 Identifier `raw`
+6:7 StringLiteral `"quoted"`
+7:3 RawStringLiteral `""" c"text" u16"\nlet actor = 1\nlet ef�fect = 2\nmlet x\u{2067} = 1\n\n`
+12:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  4 │ */let café = 1
+    │       ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ */let café = 1
+    │   │          +
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\ \n" """
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\ \n" """
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ \\ \n" """
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  7 │   """ c"text" u16"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  9 │ let ef�fect = 2
+    │       ^

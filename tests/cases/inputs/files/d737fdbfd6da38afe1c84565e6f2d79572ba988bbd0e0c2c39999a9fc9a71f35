@@ -1,0 +1,11 @@
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+let a = $ 1
+ 1e$"x{ $"{
+$"a{b}c
+er closed
+b
+
+/ not a doc comment
+b
+ 

@@ -1,0 +1,3 @@
+== bind.probes.b35
+flags 0
+coalesce:i32[2392:7]=-(local:i32?[2392:2]=-(oi) literal:i32[2398:1]=1(1))

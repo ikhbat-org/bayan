@@ -1,0 +1,59 @@
+1:1 Identifier `Å`
+2:1 VarKeyword `var`
+2:5 Identifier `xs`
+2:7 Colon `:`
+2:9 Identifier `List`
+2:13 Less `<`
+2:14 Identifier `List`
+2:18 Less `<`
+2:19 Identifier `i64`
+2:22 Greater `>`
+2:23 Greater `>`
+4:2 CharLiteral `'a'`
+4:6 CharLiteral `'\n'`
+4:11 CharLiteral `'\u{1F600}'`
+4:23 CharLiteral `'\''`
+4:28 CharLiteral `'é'`
+4:33 CharLiteral `'\\'`
+4:38 CharLiteral `'\0'`
+    doc `/// // \u{202E}x\r`
+7:2 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF5)
+
+  4 │  'a' '\n' '\u{1F600}' '\'' 'é'� '\\' '\0'
+    │                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ �
+    │  ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ /// // �x
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ /// // �x
+    │   │        -

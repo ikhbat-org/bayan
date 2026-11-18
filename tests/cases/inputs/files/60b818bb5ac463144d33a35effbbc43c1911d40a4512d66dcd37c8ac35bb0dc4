@@ -1,0 +1,8 @@
+if else unless switch case default for in while do break continue return yield defer errdefer using context
+'\q'
+let a = $ 1
+ /* block
+0x
+S
+//// not a doc comment
+b

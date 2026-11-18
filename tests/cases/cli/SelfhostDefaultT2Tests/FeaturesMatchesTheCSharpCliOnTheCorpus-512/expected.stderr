@@ -1,0 +1,5 @@
+error BYN2701: union `Shape` already has a variant `circle`
+  --> <repo>/tests/cases/diag/duplicate-union-variant.byn:4:5
+
+  4 │     circle(f32 radius)
+    │     ^^^^^^ already declared on line 2

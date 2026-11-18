@@ -1,0 +1,83 @@
+== tests/cases/run/interpolation-expression.byn
+73..114 blockStmt
+79..112 returnStmt value 86..112
+86..112 interpolatedExpr
+89..99 memberExpr
+89..94 nameExpr
+103..110 memberExpr
+103..108 nameExpr
+136..159 blockStmt
+142..157 returnStmt value 149..157
+149..157 memberExpr
+149..150 nameExpr
+173..614 blockStmt
+179..188 localDecl
+187..188 literalExpr integer
+193..215 localDecl
+203..215 interpolatedExpr
+212..213 nameExpr
+220..230 exprStmt
+220..230 callExpr
+226..229 nameExpr
+220..230 callExpr
+235..279 exprStmt
+235..279 callExpr
+241..278 callExpr
+250..277 structLiteralExpr
+264..269 literalExpr string
+274..275 nameExpr
+274..275 nameExpr
+235..279 callExpr
+284..324 exprStmt
+284..324 callExpr
+290..323 interpolatedExpr
+293..308 callExpr
+299..307 interpolatedExpr
+304..305 nameExpr
+311..321 callExpr
+317..320 nameExpr
+284..324 callExpr
+329..370 localDecl
+341..370 structLiteralExpr
+355..362 interpolatedExpr
+359..360 nameExpr
+367..368 nameExpr
+367..368 nameExpr
+375..407 exprStmt
+375..407 callExpr
+381..406 interpolatedExpr
+384..394 memberExpr
+384..389 nameExpr
+397..404 memberExpr
+397..402 nameExpr
+375..407 callExpr
+412..422 localDecl
+420..422 literalExpr string
+427..471 forStmt
+436..440 rangeExpr
+436..437 literalExpr integer
+439..440 literalExpr integer
+441..471 blockStmt
+451..465 assignStmt assign target 451..452 value 455..465
+451..452 nameExpr
+455..465 interpolatedExpr
+458..459 nameExpr
+461..462 nameExpr
+476..484 exprStmt
+476..484 callExpr
+482..483 nameExpr
+476..484 callExpr
+489..514 localDecl
+507..514 callExpr
+519..612 contextStmt
+538..543 nameExpr
+544..612 blockStmt
+554..585 localDecl
+566..585 interpolatedExpr
+578..583 binaryExpr mul right 582..583
+578..579 nameExpr
+582..583 literalExpr integer
+594..606 exprStmt
+594..606 callExpr
+600..605 nameExpr
+594..606 callExpr

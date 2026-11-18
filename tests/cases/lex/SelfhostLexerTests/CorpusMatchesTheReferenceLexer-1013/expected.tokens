@@ -1,0 +1,43 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+3:1 RawStringLiteral `""" ��\n"\n*/\n���`
+6:2 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  3 │ """ ��
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ """ ��
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ """ ��
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���
+    │   ^

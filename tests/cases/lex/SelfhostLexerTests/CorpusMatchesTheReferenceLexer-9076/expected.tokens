@@ -1,0 +1,173 @@
+2:1 LetKeyword `let`
+2:5 Identifier `x`
+2:8 Equals `=`
+2:10 IntegerLiteral `1`
+3:2 IntegerLiteral `0x`
+4:1 IntegerLiteral `1_`
+5:1 IntegerLiteral `0b102`
+6:1 IntegerLiteral `0xFF`
+6:5 NumericSuffix `s`
+7:1 IntegerLiteral `0b1`
+7:4 NumericSuffix `ms`
+8:1 IntegerLiteral `0x_`
+9:1 IntegerLiteral `0b__`
+10:1 IntegerLiteral `1__`
+11:1 IntegerLiteral `0xF__`
+12:1 StringLiteral `"text"`
+12:8 StringLiteral `"esc \"q\" \\ \n� "`
+12:26 StringLiteral `""`
+15:1 Identifier `a`
+15:4 IntegerLiteral `1`
+15:5 NumericSuffix `e`
+15:7 InterpolatedStringStart `$"`
+15:9 InterpolationStart `{`
+15:10 InterpolatedStringStart `$"`
+15:12 InterpolationStart `{`
+15:13 InterpolatedStringStart `$"`
+15:15 InterpolationStart `{`
+15:16 InterpolatedStringStart `$"`
+15:18 InterpolationStart `{`
+15:19 InterpolatedStringStart `$"`
+15:21 InterpolationStart `{`
+15:23 InterpolatedStringStart `$"`
+15:25 InterpolationStart `{`
+15:26 InterpolatedStringStart `$"`
+15:28 InterpolationStart `{`
+15:29 InterpolatedStringStart `$"`
+15:31 InterpolationStart `{`
+15:32 InterpolatedStringStart `$"`
+15:34 InterpolationStart `{`
+15:35 InterpolatedStringStart `$"`
+15:37 InterpolationStart `{`
+15:38 InterpolatedStringStart `$"`
+15:40 InterpolationStart `{`
+15:41 InterpolatedStringStart `$"`
+15:43 InterpolationStart `{`
+15:44 InterpolatedStringStart `$"`
+15:46 InterpolationStart `{`
+15:47 InterpolatedStringStart `$"`
+15:49 InterpolationStart `{`
+15:50 InterpolatedStringStart `$"`
+15:52 InterpolationStart `{`
+15:53 InterpolatedStringStart `$"`
+15:55 InterpolationStart `{`
+15:56 Identifier `x`
+15:57 InterpolationEnd `}`
+15:58 InterpolatedStringEnd `"`
+15:59 InterpolationEnd `}`
+15:60 InterpolatedStringEnd `"`
+15:61 InterpolationEnd `}`
+15:62 InterpolatedStringEnd `"`
+15:63 InterpolationEnd `}`
+15:64 InterpolatedStringEnd `"`
+15:65 InterpolationEnd `}`
+15:66 InterpolatedStringEnd `"`
+15:67 InterpolationEnd `}`
+15:68 InterpolatedStringEnd `"`
+15:69 InterpolationEnd `}`
+15:70 InterpolatedStringEnd `"`
+15:71 InterpolationEnd `}`
+15:72 InterpolatedStringEnd `"`
+15:73 InterpolationEnd `}`
+15:74 InterpolatedStringEnd `"`
+15:76 IntegerLiteral `0x`
+15:79 IntegerLiteral `0xF__`
+16:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  2 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ let x� = 1
+    │   │      -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  0x
+    │  ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1_
+    │  ^
+    │
+    │ 4 │ 1_
+    │   │  -
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  6 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  9 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 1__
+     │  ^^
+     │
+     │ 10 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │ 0xF__
+     │    ^^
+     │
+     │ 11 │ 0xF__
+     │    │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  12 │ "text" "esc \"q\" \\ \n� """
+     │                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  15 │ a  1e $"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" 0x 0xF__
+     │                      ^
+
+error BYN0003: unterminated string literal
+
+  15 │ a  1e $"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" 0x 0xF__
+     │                          ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  15 │ a  1e $"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" 0x 0xF__
+     │                                                                            ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  15 │ a  1e $"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" 0x 0xF__
+     │                                                                                  ^^
+     │
+     │ 15 │ a  1e $"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" 0x 0xF__
+     │    │                                                                                  --

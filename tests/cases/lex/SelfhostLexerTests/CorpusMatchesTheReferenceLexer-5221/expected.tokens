@@ -1,0 +1,158 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{x}"`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 Identifier `E`
+1:58 StringLiteral `"}"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 IntegerLiteral `0b1`
+1:80 NumericSuffix `ms`
+2:1 IntegerLiteral `0x_`
+3:1 IntegerLiteral `0b__`
+4:1 IntegerLiteral `1__`
+5:1 IntegerLiteral `0x`
+5:4 FailsKeyword `fails`
+5:10 TryKeyword `try`
+5:14 CatchKeyword `catch`
+5:20 NeverKeyword `never`
+5:26 NoallocKeyword `noalloc`
+5:34 NosuspendKeyword `nosuspend`
+5:44 SuspendsKeyword `suspends`
+5:53 AsyncKeyword `async`
+5:59 AwaitKeyword `await`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 StringLiteral `$"{$"`
+6:34 OpenBrace `{`
+6:35 StringLiteral `$"{$"`
+6:40 OpenBrace `{`
+6:41 StringLiteral `$"{$"`
+6:46 OpenBrace `{`
+6:47 StringLiteral `$"{$"`
+6:52 OpenBrace `{`
+6:53 StringLiteral `$"{x}"`
+6:59 CloseBrace `}`
+6:60 StringLiteral `"}"`
+6:63 CloseBrace `}`
+6:64 StringLiteral `"}"`
+6:67 CloseBrace `}`
+6:68 StringLiteral `"}"`
+7:1 IsKeyword `is`
+7:4 AndKeyword `and`
+7:8 OrKeyword `or`
+7:11 NotKeyword `not`
+7:15 WithKeyword `with`
+7:20 MoveKeyword `move`
+7:25 RefKeyword `ref`
+7:29 OutKeyword `out`
+7:33 ThisKeyword `this`
+7:38 NullKeyword `null`
+7:43 TrueKeyword `true`
+7:48 FalseKeyword `false`
+7:54 ComptimeKeyword `comptime`
+7:63 CheckedKeyword `checked`
+8:2 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"E"}"}"}"}"}"}"}"}"}"0b1ms
+    │                                                 ^^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"E"}"}"}"}"}"}"}"}"}"0b1ms
+    │                                                                                ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x fails try catch never noalloc nosuspend suspends async await
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                          ^^ this string never ends
+    │
+  help: close the `{` and the string

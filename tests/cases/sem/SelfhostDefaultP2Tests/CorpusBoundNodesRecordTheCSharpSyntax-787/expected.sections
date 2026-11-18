@@ -1,0 +1,63 @@
+== tests/cases/diag/ref-out-return-mutual-recursion.byn
+42..106 blockStmt
+48..90 ifStmt
+51..56 binaryExpr gt right 55..56
+51..52 nameExpr
+55..56 literalExpr integer
+57..90 blockStmt
+59..88 returnStmt value 66..88
+66..88 callExpr
+68..69 nameExpr
+75..76 nameExpr
+82..87 binaryExpr sub right 86..87
+82..83 nameExpr
+86..87 literalExpr integer
+95..104 returnStmt value 102..104
+102..104 literalExpr string
+150..213 blockStmt
+156..198 ifStmt
+159..164 binaryExpr gt right 163..164
+159..160 nameExpr
+163..164 literalExpr integer
+165..198 blockStmt
+167..196 returnStmt value 174..196
+174..196 callExpr
+176..177 nameExpr
+183..184 nameExpr
+190..195 binaryExpr sub right 194..195
+190..191 nameExpr
+194..195 literalExpr integer
+203..211 returnStmt value 210..211
+210..211 nameExpr
+227..470 blockStmt
+233..246 localDecl
+244..246 literalExpr string
+251..265 localDecl
+263..265 literalExpr string
+270..435 blockStmt
+280..305 localDecl
+298..305 callExpr
+314..346 localDecl
+325..346 callExpr
+325..330 literalExpr string
+340..345 nameExpr
+355..388 assignStmt assign target 355..360 value 363..388
+355..360 nameExpr
+363..388 callExpr
+365..369 nameExpr
+375..380 literalExpr string
+386..387 literalExpr integer
+397..429 assignStmt assign target 397..401 value 404..429
+397..401 nameExpr
+404..429 callExpr
+406..411 literalExpr string
+417..421 nameExpr
+427..428 literalExpr integer
+440..452 exprStmt
+440..452 callExpr
+446..451 nameExpr
+440..452 callExpr
+457..468 exprStmt
+457..468 callExpr
+463..467 nameExpr
+457..468 callExpr

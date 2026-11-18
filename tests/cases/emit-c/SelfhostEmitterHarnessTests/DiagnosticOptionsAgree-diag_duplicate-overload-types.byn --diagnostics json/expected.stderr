@@ -1,0 +1,1 @@
+{"code":"BYN2006","severity":"error","file":"input.byn","span":{"start":22,"end":23,"line":2,"column":5,"endLine":2,"endColumn":6},"message":"`f` is declared twice","label":"already declared on line 1","help":null,"fixes":[]}

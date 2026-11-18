@@ -1,0 +1,2567 @@
+// The layout pass of `bayan format` (spec 022 T8). Ports `Layout.cs` (`Layout` and its `Engine`) function for function; each function
+// names the member it ports. The C# `Decls` and `Blocks` iterators are walked in place by the passes that read them (`guideDecls`,
+// `guideStmt`, `memberBlanks`, `shapes`), since a borrowed declaration cannot be collected into a list. The tree walks recurse as deep
+// as the parser did when it built the tree, and every other loop is bounded by the token count.
+
+import lexer
+import parser
+import semantics
+
+/// Layout.cs: LayoutOptions. The project's layout knobs (`style` in `package.byn`).
+struct LayoutOptions {
+    i64                          indent         = 4
+    i64                          width          = 120
+    semantics.AlignStyle         align          = .runs
+    semantics.TrailingCommaStyle trailingCommas = .multiline
+}
+
+/// Layout.cs: Apply. The laid-out bytes, or the input and why the layout was skipped.
+struct LayoutResult {
+    List<u8> output
+    string?  skipReason
+}
+
+/// Layout.cs: Rounds. Rounds of the engine over its own output: a join can fit only once a later break has shortened its line.
+const layoutRounds: i64 = 4
+
+/// Layout.cs: GapItem. A newline, or a `//` comment (or a `#!`/`#:` line at the top) without its trailing blanks.
+struct LayoutGapItem {
+    bool isComment
+    i64  start
+    i64  end
+}
+
+/// Layout.cs: Gap.
+struct LayoutGap {
+    List<LayoutGapItem> items
+    bool hasNewline
+    bool hasBlank
+}
+
+/// Layout.cs: Frame. An open `{`, `(`, `[` (or the file), with the level of its line and its current statement.
+struct LayoutFrame {
+    lexer.TokenKind opener
+    i64  line
+    i64  statement       = 0
+    i64  statementIndent = 0
+    bool control         = false
+    bool clause          = false
+    i64  body            = -1
+    bool inSwitch        = false
+}
+
+/// Layout.cs: Side.
+enum LayoutSide {
+    deferred
+    space
+    none
+    keep
+}
+
+/// Layout.cs: Chain. A member chain: its receiver's first token, its last token, the `.` of each link, and those that break.
+struct LayoutChain {
+    i64       start
+    i64       end
+    List<i64> dots
+    List<i64> breakable
+    i64       lambdaCalls
+}
+
+/// The C# `(Start, End)` of `Unformatted`.
+struct LayoutRegion {
+    i64 start
+    i64 end
+}
+
+/// What the passes read of an `AttributeSyntax`: its span, its name's span and the end of its `because` (0 without one).
+struct LayoutAttribute {
+    i64  start
+    i64  end
+    i64  nameStart
+    i64  nameEnd
+    bool hasBecause
+    i64  becauseEnd
+}
+
+/// The C# `(Key, Columns)` of `Shapes`.
+struct LayoutShape {
+    string    key
+    List<i64> columns
+}
+
+/// The C# `(Start, Group, Method)` of `MemberBlanks`.
+struct LayoutMember {
+    i64    start
+    string group
+    bool   method
+}
+
+/// The C# `(TokenKind, string)` of `Significant`.
+struct LayoutTokenText {
+    lexer.TokenKind kind
+    string text
+}
+
+/// Layout.cs: Apply. Lays out `source`, spacing each product written tight (`a*b`). When that fails `layoutCheck` (`u8*p` is a pointer
+/// to the parser), the file is laid out again with each such gap as written.
+LayoutResult layoutApply(List<u8> source, by LayoutOptions options) uses alloc {
+    let spaced = layoutApplyWith(source, by: options, for: true)
+    return spaced if spaced.skipReason is null
+    return layoutApplyWith(source, by: options, for: false)
+}
+
+/// The UTF-8 byte order mark's length at the start of `bytes`: 3 or 0.
+i64 layoutBom(List<u8> bytes) => bytes.length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF ? 3 : 0
+
+/// `Lexer.Lex(new SourceText("layout", bytes))`.
+lexer.LexResult layoutLex(List<u8> bytes, by lexer.Keywords keywords) uses alloc {
+    let copy = bytes.copy()
+    return lexer.lex(lexer.SourceText.create("layout", from: move copy), by: keywords)
+}
+
+/// Layout.cs: Apply (the private overload).
+LayoutResult layoutApplyWith(List<u8> source, by LayoutOptions options, for bool spaceProducts) uses alloc {
+    let keywords = lexer.Keywords.build()
+    let lexed = layoutLex(source, by: keywords)
+    let tokens = lexed.tokens.copy()
+    let bom = layoutBom(source)
+    var gaps = List<LayoutGap>()
+    unless layoutGaps(source, from: tokens, at: bom, to: ref gaps) {
+        return LayoutResult {
+            output: source.copy(),
+            skipReason: "text between tokens that is neither whitespace nor a `//` comment",
+        }
+    }
+    var p = parser.Parser.create(move lexed)
+    let tree = parser.parseCompilationUnit(ref p)
+    var engine = layoutEngine(source.copy(), from: move tokens, by: move gaps, at: bom, for: options, as: spaceProducts)
+    var output = engine.render(tree)
+    for round in 1..layoutRounds {
+        let roundLexed = layoutLex(output, by: keywords)
+        let roundTokens = roundLexed.tokens.copy()
+        var roundGaps = List<LayoutGap>()
+        unless layoutGaps(output, from: roundTokens, at: bom, to: ref roundGaps) {
+            break
+        }
+        var roundParser = parser.Parser.create(move roundLexed)
+        let roundTree = parser.parseCompilationUnit(ref roundParser)
+        var roundEngine = layoutEngine(
+            output.copy(),
+            from: move roundTokens,
+            by: move roundGaps,
+            at: bom,
+            for: options,
+            as: spaceProducts,
+        )
+        let next = roundEngine.render(roundTree)
+        break if t8SameBytes(in next, as: in output)
+        output = move next
+    }
+    if (layoutCheck(
+        source,
+        from: engine.tokens,
+        by: engine.gaps,
+        at: tree,
+        through: ref p,
+        for: output,
+    ) is { } reason) {
+        return LayoutResult { output: source.copy(), skipReason: reason }
+    }
+    return LayoutResult { output: move output, skipReason: null }
+}
+
+/// Layout.cs: Gaps. The gap before each token into `gaps`; false when one holds something other than blanks, newlines and line comments.
+bool layoutGaps(List<u8> source, from List<lexer.Token> tokens, at i64 bom, to ref List<LayoutGap> gaps) uses alloc {
+    for i in 0..tokens.length {
+        let start = i == 0 ? bom : tokens[i - 1].end
+        var items = List<LayoutGapItem>()
+        var at = start
+        var blank = false
+        var lineEmpty = i == 0
+        while at < tokens[i].start {
+            let b = source[at]
+            if b is 0x20 or 0x09 or 0x0D {
+                at += 1
+                continue
+            }
+            if b == 0x0A {
+                if lineEmpty && items.length > 0 {
+                    blank = true
+                }
+                items.append(LayoutGapItem { isComment: false, start: at, end: at + 1 })
+                lineEmpty = true
+                at += 1
+                continue
+            }
+            let shebang = b == 0x23 && i == 0 && (at == start || source[at - 1] == 0x0A)
+            return false if !shebang && !(b == 0x2F && at + 1 < tokens[i].start && source[at + 1] == 0x2F)
+            var end = at
+            while end < tokens[i].start && source[end] != 0x0A {
+                end += 1
+            }
+            var trimmed = end
+            while trimmed > at
+                    && (source[trimmed - 1] == 0x20 || source[trimmed - 1] == 0x09 || source[trimmed - 1] == 0x0D) {
+                trimmed -= 1
+            }
+            items.append(LayoutGapItem { isComment: true, start: at, end: trimmed })
+            lineEmpty = false
+            at = end
+        }
+        var newline = false
+        for x in items {
+            if !x.isComment {
+                newline = true
+            }
+        }
+        gaps.append(LayoutGap { items: move items, hasNewline: newline, hasBlank: blank })
+    }
+    return true
+}
+
+/// Layout.cs: Check. Why `output` may not replace `source`, or null when it may. `p` is the parser that built `tree` from `source`.
+string? layoutCheck(
+    List<u8> source,
+    from List<lexer.Token> tokens,
+    by List<LayoutGap> gaps,
+    at parser.CompilationUnit tree,
+    through ref parser.Parser p,
+    for List<u8> output
+) uses alloc {
+    let lexed = layoutLex(output, by: lexer.Keywords.build())
+    let after = lexed.tokens.copy()
+    let before = layoutSignificant(p.lexed.source, from: tokens)
+    let now = layoutSignificant(lexed.source, from: after)
+    return "the tokens changed" if before.length != now.length
+    for k in 0..before.length {
+        return "the tokens changed" if before[k].kind != now[k].kind || before[k].text != now[k].text
+    }
+    let adjacency = layoutAdjacency(source, from: tokens)
+    let adjacencyAfter = layoutAdjacency(output, from: after)
+    return "the spacing the parser reads changed" if adjacency.length != adjacencyAfter.length
+    for k in 0..adjacency.length {
+        return "the spacing the parser reads changed" if adjacency[k] != adjacencyAfter[k]
+    }
+    let bom = layoutBom(output)
+    var afterGaps = List<LayoutGap>()
+    unless layoutGaps(output, from: after, at: bom, to: ref afterGaps) {
+        return "the comments changed"
+    }
+    let comments = layoutComments(source, from: gaps)
+    let commentsAfter = layoutComments(output, from: afterGaps)
+    return "the comments changed" if comments.length != commentsAfter.length
+    for k in 0..comments.length {
+        return "the comments changed" if comments[k] != commentsAfter[k]
+    }
+    var reparsed = parser.Parser.create(move lexed)
+    let reparsedTree = parser.parseCompilationUnit(ref reparsed)
+    var codes = List<string>()
+    for d in p.lexed.diagnostics {
+        unless d.code.isEmpty {
+            codes.append(d.code)
+        }
+    }
+    var codesAfter = List<string>()
+    for d in reparsed.lexed.diagnostics {
+        unless d.code.isEmpty {
+            codesAfter.append(d.code)
+        }
+    }
+    return "the diagnostics changed" if codes.length != codesAfter.length
+    for k in 0..codes.length {
+        return "the diagnostics changed" if codes[k] != codesAfter[k]
+    }
+    return "the tree changed" if shape(in tree, from: ref p) != shape(in reparsedTree, from: ref reparsed)
+    return null
+}
+
+/// Whether token `i` is a trailing comma: a `,` before `)`, `]` or `}`.
+bool layoutTrailing(List<lexer.Token> tokens, at i64 i) {
+    return false if tokens[i].kind != .comma || i + 1 >= tokens.length
+    let next = tokens[i + 1].kind
+    return next is .closeParen or .closeBracket or .closeBrace
+}
+
+/// Layout.cs: Significant. The tokens as kind and text, less each trailing comma (a `,` before `)`, `]` or `}`).
+List<LayoutTokenText> layoutSignificant(lexer.SourceText text, from List<lexer.Token> tokens) uses alloc {
+    var result = List<LayoutTokenText>()
+    for i in 0..tokens.length {
+        continue if layoutTrailing(tokens, at: i)
+        result.append(
+            LayoutTokenText {
+                kind: tokens[i].kind,
+                text: text.getText(lexer.TextSpan.fromBounds(tokens[i].start, until: tokens[i].end)),
+            },
+        )
+    }
+    return result
+}
+
+/// Layout.cs: Adjacency. Whether a gap goes before each significant token, at the positions where the parser reads it (1 or 0), and 2
+/// (the C# null) elsewhere.
+List<i8> layoutAdjacency(List<u8> bytes, from List<lexer.Token> tokens) uses alloc {
+    var result = List<i8>()
+    for i in 0..tokens.length {
+        continue if layoutTrailing(tokens, at: i)
+        if layoutTriviaMatters(bytes, from: tokens, at: i) && !layoutStarGap(tokens, at: i) {
+            result.append(tokens[i].hasTriviaBefore ? i8(1) : i8(0))
+        } else {
+            result.append(i8(2))
+        }
+    }
+    return result
+}
+
+/// Layout.cs: TriviaMatters. Whether the parser branches on the gap before token `i` (`HasTriviaBefore` in Parser.cs): a `>` then `>`
+/// or `>=`, a `..` then `.`, a `*` that may make a pointer, a numeric suffix, and `unlikely` before a gap.
+bool layoutTriviaMatters(List<u8> bytes, from List<lexer.Token> tokens, at i64 i) {
+    return false if i == 0 || i >= tokens.length
+    let before = tokens[i - 1].kind
+    let kind = tokens[i].kind
+    return before == .greater && (kind is .greater or .greaterEquals)
+        || before == .dotDot && kind == .dot
+        || layoutStarGap(tokens, at: i)
+        || kind == .numericSuffix
+        || before == .identifier
+        && layoutBytesAre(bytes, from: tokens[i - 1].start, until: tokens[i - 1].end, as: "unlikely")
+}
+
+/// Whether `bytes[start..end]` spell `word`.
+bool layoutBytesAre(List<u8> bytes, from i64 start, until i64 end, as string word) {
+    let w = word.bytes
+    return false if end - start != w.length
+    for k in 0..w.length {
+        return false if bytes[start + k] != w[k]
+    }
+    return true
+}
+
+/// Layout.cs: StarGap. The gaps around a `*` that may make a pointer (`u8*`, `u8* p`).
+bool layoutStarGap(List<lexer.Token> tokens, at i64 i) {
+    let before = tokens[i - 1].kind
+    let kind = tokens[i].kind
+    return kind == .star && (layoutTypeEnd(before) || before == .star)
+        || before == .star && !tokens[i - 1].hasTriviaBefore
+}
+
+/// Layout.cs: TypeEnd. A token a type can end with, so that a `*` after it may make a pointer.
+bool layoutTypeEnd(lexer.TokenKind kind) =>
+    kind == .identifier
+    || kind == .greater
+    || kind == .question
+    || kind == .closeBracket
+    || parser.isContextualKeyword(kind)
+
+/// Layout.cs: Comments.
+List<string> layoutComments(List<u8> bytes, from List<LayoutGap> gaps) uses alloc {
+    var result = List<string>()
+    for g in gaps {
+        for x in g.items {
+            if x.isComment {
+                result.append(layoutString(layoutCommentText(bytes, from: x)))
+            }
+        }
+    }
+    return result
+}
+
+/// `Encoding.UTF8.GetString(bytes)`.
+string layoutString(List<u8> bytes) uses alloc {
+    let copy = bytes.copy()
+    let text = lexer.SourceText.create("layout", from: move copy)
+    return text.getText(lexer.TextSpan.fromBounds(0, until: bytes.length))
+}
+
+/// Layout.cs: CommentText. A comment as written, with one space after its `//` run when text follows it directly (proposal §3.8).
+List<u8> layoutCommentText(List<u8> bytes, from LayoutGapItem item) uses alloc {
+    var slashes: i64 = 0
+    let length = item.end - item.start
+    while slashes < length && bytes[item.start + slashes] == 0x2F {
+        slashes += 1
+    }
+    var text = List<u8>()
+    for k in item.start..item.end {
+        text.append(bytes[k])
+    }
+    return text if slashes == 0
+        || slashes == length
+        || bytes[item.start + slashes] == 0x20
+        || bytes[item.start + slashes] == 0x09
+    var spaced = List<u8>()
+    for k in 0..slashes {
+        spaced.append(text[k])
+    }
+    spaced.append(0x20)
+    for k in slashes..length {
+        spaced.append(text[k])
+    }
+    return spaced
+}
+
+/// Layout.cs: Engine (its constructor).
+LayoutEngine layoutEngine(
+    move List<u8> source,
+    from move List<lexer.Token> tokens,
+    by move List<LayoutGap> gaps,
+    at i64 bom,
+    for LayoutOptions options,
+    as bool spaceProducts
+) uses alloc {
+    let n = tokens.length
+    var engine = LayoutEngine {
+        source: move source,
+        tokens: move tokens,
+        gaps: move gaps,
+        bom: bom,
+        options: options,
+        spaceProducts: spaceProducts,
+        keywords: lexer.Keywords.build(),
+        lineStart: List<bool>(),
+        levelOf: List<i64>(),
+        frozen: List<bool>(),
+        inHole: List<bool>(),
+        needsBlank: List<bool>(),
+        matchOf: List<i64>(),
+        dropComma: List<bool>(),
+        addComma: List<bool>(),
+        pad: List<i64>(),
+        commentPad: List<i64>(),
+        tightAfter: List<bool>(),
+        tightBefore: List<bool>(),
+        enclosing: List<i64>(),
+        headerArrow: List<bool>(),
+        output: List<u8>(),
+    }
+    for i in 0..n {
+        engine.lineStart.append(false)
+        engine.levelOf.append(0)
+        engine.frozen.append(false)
+        engine.inHole.append(false)
+        engine.needsBlank.append(false)
+        engine.matchOf.append(0)
+        engine.dropComma.append(false)
+        engine.addComma.append(false)
+        engine.pad.append(0)
+        engine.commentPad.append(0)
+        engine.tightAfter.append(false)
+        engine.tightBefore.append(false)
+        engine.enclosing.append(0)
+        engine.headerArrow.append(false)
+    }
+    return engine
+}
+
+/// Layout.cs: IsOpener.
+bool layoutIsOpener(lexer.TokenKind kind) => kind is .openParen or .openBracket or .openBrace or .interpolationStart
+
+/// Layout.cs: IsCloser.
+bool layoutIsCloser(lexer.TokenKind kind) => kind is .closeParen or .closeBracket or .closeBrace or .interpolationEnd
+
+/// Layout.cs: AfterLa. Whether a line ending in `kind` continues on the next (lā).
+bool layoutAfterLa(lexer.TokenKind kind) => kind switch {
+    .comma or .fatArrow or .openBrace or .openParen or .openBracket        => true,
+    .dot or .dotDot or .dotDotEquals or .question or .questionQuestion     => true,
+    .questionDot or .plus or .minus or .star or .slash or .percent         => true,
+    .plusPercent or .minusPercent or .starPercent or .plusBar or .minusBar => true,
+    .starBar or .amp or .ampAmp or .bar or .barBar or .caret               => true,
+    .equalsEquals or .bangEquals or .less or .lessEquals or .greaterEquals => true,
+    .lessLess or .andKeyword or .orKeyword or .isKeyword or .inKeyword     => true,
+    .equals or .plusEquals or .minusEquals or .starEquals or .slashEquals  => true,
+    .percentEquals or .ampEquals or .barEquals or .caretEquals             => true,
+    .lessLessEquals or .questionQuestionEquals                             => true,
+    _                                                                      => false,
+}
+
+/// Layout.cs: ExpressionBefore. Whether a name after `kind` starts an expression, not a declaration (`Type name(`).
+bool layoutExpressionBefore(lexer.TokenKind kind) => kind switch {
+    .identifier or .greater or .question or .closeBracket or .closeParen or .star => false,
+    .returnKeyword or .tryKeyword or .awaitKeyword or .inKeyword or .isKeyword    => true,
+    .andKeyword or .orKeyword or .notKeyword or .ifKeyword or .unlessKeyword      => true,
+    .whileKeyword or .elseKeyword or .failKeyword or .yieldKeyword                => true,
+    .deferKeyword or .errdeferKeyword or .assertKeyword or .caseKeyword           => true,
+    .moveKeyword or .refKeyword or .outKeyword or .switchKeyword                  => true,
+    _                                                                             => !lexer.isKeyword(kind),
+}
+
+/// Layout.cs: Piece.
+bool layoutPiece(lexer.TokenKind kind) => kind switch {
+    .interpolatedStringStart
+        or .interpolatedStringText
+        or .interpolationStart
+        or .interpolationEnd
+        or .interpolatedStringEnd => true,
+    _ => false,
+}
+
+/// Layout.cs: OperandEnd.
+bool layoutOperandEnd(lexer.TokenKind kind) => kind switch {
+    .identifier or .integerLiteral or .floatLiteral or .numericSuffix or .charLiteral or .interpolatedStringEnd => true,
+    .closeParen or .closeBracket or .thisKeyword or .nullKeyword or .trueKeyword or .falseKeyword => true,
+    _ => lexer.isStringLiteral(kind) || parser.isContextualKeyword(kind),
+}
+
+/// Layout.cs: IsBinary.
+bool layoutIsBinary(lexer.TokenKind kind) => kind switch {
+    .fatArrow or .arrow or .equals or .equalsEquals or .bangEquals or .lessEquals or .greaterEquals => true,
+    .questionQuestion or .questionQuestionEquals or .ampAmp or .barBar  => true,
+    .slash or .percent or .plusPercent or .minusPercent or .starPercent => true,
+    .plusBar or .minusBar or .starBar or .bar or .caret                 => true,
+    .lessLess or .plusEquals or .minusEquals or .starEquals             => true,
+    .slashEquals or .percentEquals or .ampEquals or .barEquals          => true,
+    .caretEquals or .lessLessEquals                                     => true,
+    _                                                                   => false,
+}
+
+/// The C# `decl.Span`.
+lexer.TextSpan layoutDeclSpan(parser.Decl decl) => decl switch {
+    .importDecl(let n)         => n.value.span,
+    .globalStatement(let n)    => n.value.span,
+    .functionDecl(let n)       => n.value.span,
+    .structDecl(let n)         => n.value.span,
+    .interfaceDecl(let n)      => n.value.span,
+    .getterDecl(let n)         => n.value.span,
+    .associatedTypeDecl(let n) => n.value.span,
+    .extensionDecl(let n)      => n.value.span,
+    .fieldDecl(let n)          => n.value.span,
+    .propertyDecl(let n)       => n.value.span,
+    .constructorDecl(let n)    => n.value.span,
+    .errorEnumDecl(let n)      => n.value.span,
+    .errorSetDecl(let n)       => n.value.span,
+    .enumDecl(let n)           => n.value.span,
+    .unionDecl(let n)          => n.value.span,
+    .typeAliasDecl(let n)      => n.value.span,
+    .effectDecl(let n)         => n.value.span,
+    .testDecl(let n)           => n.value.span,
+    .none                      => lexer.TextSpan.fromBounds(0, until: 0),
+}
+
+/// The C# `decl.GetType().Name`.
+string layoutDeclType(parser.Decl decl) => decl switch {
+    .importDecl(_)         => "ImportDecl",
+    .globalStatement(_)    => "GlobalStatement",
+    .functionDecl(_)       => "FunctionDecl",
+    .structDecl(_)         => "StructDecl",
+    .interfaceDecl(_)      => "InterfaceDecl",
+    .getterDecl(_)         => "GetterDecl",
+    .associatedTypeDecl(_) => "AssociatedTypeDecl",
+    .extensionDecl(_)      => "ExtensionDecl",
+    .fieldDecl(_)          => "FieldDecl",
+    .propertyDecl(_)       => "PropertyDecl",
+    .constructorDecl(_)    => "ConstructorDecl",
+    .errorEnumDecl(_)      => "ErrorEnumDecl",
+    .errorSetDecl(_)       => "ErrorSetDecl",
+    .enumDecl(_)           => "EnumDecl",
+    .unionDecl(_)          => "UnionDecl",
+    .typeAliasDecl(_)      => "TypeAliasDecl",
+    .effectDecl(_)         => "EffectDecl",
+    .testDecl(_)           => "TestDecl",
+    .none                  => "",
+}
+
+/// The C# `decl.Attributes`, as the spans the passes read.
+List<LayoutAttribute> layoutAttributes(parser.Decl decl) uses alloc {
+    switch decl {
+        case .importDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .globalStatement(let n): return layoutAttributeSpans(n.value.attributes)
+        case .functionDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .structDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .interfaceDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .getterDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .associatedTypeDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .extensionDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .fieldDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .propertyDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .constructorDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .errorEnumDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .errorSetDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .enumDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .unionDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .typeAliasDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .effectDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .testDecl(let n): return layoutAttributeSpans(n.value.attributes)
+        case .none: return List<LayoutAttribute>()
+    }
+}
+
+List<LayoutAttribute> layoutAttributeSpans(List<parser.AttributeSyntax> attributes) uses alloc {
+    var result = List<LayoutAttribute>()
+    for a in attributes {
+        var hasBecause = false
+        var becauseEnd: i64 = 0
+        if (a.becauseKeyword is { } clause) {
+            hasBecause = true
+            becauseEnd = clause.span.end
+        }
+        result.append(LayoutAttribute {
+            start: a.span.start,
+            end: a.span.end,
+            nameStart: a.name.start,
+            nameEnd: a.name.end,
+            hasBecause: hasBecause,
+            becauseEnd: becauseEnd,
+        })
+    }
+    return result
+}
+
+/// Layout.cs: Engine.Unformatted. The regions of `@unformatted because "…"` declarations (proposal §4.4), into `regions`.
+void layoutUnformatted(List<parser.Decl> decls, from List<u8> bytes, to ref List<LayoutRegion> regions) uses alloc {
+    for decl in decls {
+        let span = layoutDeclSpan(decl)
+        for a in layoutAttributes(decl) {
+            if layoutBytesAre(bytes, from: a.nameStart, until: a.nameEnd, as: "unformatted") && a.hasBecause {
+                regions.append(LayoutRegion { start: a.start, end: a.end > span.end ? a.end : span.end })
+            }
+        }
+        switch decl {
+            case .structDecl(let s): layoutUnformatted(s.value.members, from: bytes, to: ref regions)
+            case .interfaceDecl(let n): layoutUnformatted(n.value.members, from: bytes, to: ref regions)
+            case .extensionDecl(let e): layoutUnformatted(e.value.members, from: bytes, to: ref regions)
+            default:
+        }
+    }
+}
+
+/// Layout.cs: Engine.OwnLineAttributes. A type or a function: the declarations whose attributes go on their own lines.
+bool layoutOwnLineAttributes(parser.Decl decl) => decl switch {
+    .structDecl(_) or .interfaceDecl(_) or .extensionDecl(_) or .enumDecl(_) or .unionDecl(_) => true,
+    .errorEnumDecl(_)
+        or .errorSetDecl(_)
+        or .typeAliasDecl(_)
+        or .functionDecl(_)
+        or .constructorDecl(_)
+        or .testDecl(_) => true,
+    .importDecl(_)
+        or .globalStatement(_)
+        or .getterDecl(_)
+        or .associatedTypeDecl(_)
+        or .fieldDecl(_)
+        or .propertyDecl(_) => false,
+    .effectDecl(_) or .none => false,
+}
+
+/// Layout.cs: Engine.Group. `Modifiers.Static` is 4 (nodes.byn `modifierStatic`).
+string layoutGroup(parser.Decl decl) {
+    switch decl {
+        case .fieldDecl(let f): return (f.value.modifiers & 4) != 0 ? "static" : "field"
+        case .propertyDecl(let p): return (p.value.modifiers & 4) != 0 ? "static" : "property"
+        case .functionDecl(let f): return (f.value.modifiers & 4) != 0 ? "static" : "method"
+        case .getterDecl(_): return "property"
+        case .constructorDecl(_): return "method"
+        default: return layoutDeclType(decl)
+    }
+}
+
+/// Layout.cs: Engine.
+struct LayoutEngine {
+    List<u8>          source
+    List<lexer.Token> tokens
+    List<LayoutGap>   gaps
+    i64               bom
+    LayoutOptions     options
+    bool              spaceProducts
+    lexer.Keywords    keywords
+    List<bool>        lineStart
+    List<i64>         levelOf
+    List<bool>        frozen
+    List<bool>        inHole
+    List<bool>        needsBlank
+    List<i64>         matchOf
+    List<bool>        dropComma
+    List<bool>        addComma
+    List<i64>         pad
+    List<i64>         commentPad
+    List<bool>        tightAfter
+    List<bool>        tightBefore
+    List<i64>         enclosing
+    List<bool>        headerArrow
+    List<u8>          output
+
+    /// Layout.cs: Engine.Render.
+    List<u8> render(ref this, parser.CompilationUnit tree) uses alloc {
+        for i in 0..tokens.length {
+            lineStart[i] = i == 0 || gaps[i].hasNewline
+        }
+        freeze(tree.members)
+        match()
+        guide(tree.members)
+        levels()
+        joins()
+        breaks()
+        levels()
+        topLevelBlanks(tree.members)
+        memberBlanks(tree.members)
+        if options.align == .runs {
+            align(tree.members)
+        }
+        for b in 0..bom {
+            output.append(source[b])
+        }
+        for i in 0..tokens.length {
+            continue if dropComma[i]
+            emitGap(i)
+            for b in tokens[i].start..tokens[i].end {
+                output.append(source[b])
+            }
+            if addComma[i] {
+                output.append(0x2C)
+            }
+        }
+        return output.copy()
+    }
+
+    /// Layout.cs: Engine.Kind.
+    lexer.TokenKind kind(i64 i) {
+        return tokens[i].kind if i >= 0 && i < tokens.length
+        return .endOfFile
+    }
+
+    /// Layout.cs: Engine.Text, compared with `word`.
+    bool textIs(i64 i, as string word) => layoutBytesAre(source, from: tokens[i].start, until: tokens[i].end, as: word)
+
+    /// Layout.cs: Engine.Text.
+    string text(i64 i) uses alloc {
+        var bytes = List<u8>()
+        for b in tokens[i].start..tokens[i].end {
+            bytes.append(source[b])
+        }
+        return layoutString(bytes)
+    }
+
+    /// Layout.cs: Engine.Trivia.
+    bool trivia(i64 i) => tokens[i].hasTriviaBefore
+
+    /// Layout.cs: Engine.TokenAt. The first token starting at or after `offset`.
+    i64 tokenAt(i64 offset) {
+        var lo: i64 = 0
+        var hi = tokens.length - 1
+        while lo < hi {
+            let mid = (lo + hi) / 2
+            if tokens[mid].start < offset {
+                lo = mid + 1
+            } else {
+                hi = mid
+            }
+        }
+        return lo
+    }
+
+    // ── Frozen gaps: `@unformatted because "…"` declarations (proposal §4.4); a hole's line breaks ──
+
+    /// Layout.cs: Engine.Freeze.
+    void freeze(ref this, List<parser.Decl> members) uses alloc {
+        var depth: i64 = 0
+        for i in 0..tokens.length {
+            if depth > 0 {
+                inHole[i] = true
+            }
+            if tokens[i].kind == .interpolatedStringStart {
+                depth += 1
+            } else if tokens[i].kind == .interpolatedStringEnd && depth > 0 {
+                depth -= 1
+            }
+        }
+        var regions = List<LayoutRegion>()
+        layoutUnformatted(members, from: source, to: ref regions)
+        for r in regions {
+            var i = tokenAt(r.start) + 1
+            while i < tokens.length && tokens[i].end <= r.end {
+                frozen[i] = true
+                i += 1
+            }
+        }
+    }
+
+    // ── Indentation (pass 5) ─────────────────────────────────────────────────
+
+    /// Layout.cs: Engine.OriginalIndent. The columns of the spaces and tabs that start the original line of token `i`; a tab is a level.
+    i64 originalIndent(i64 i) {
+        var at = tokens[i].start
+        var n: i64 = 0
+        while at > bom && (source[at - 1] == 0x20 || source[at - 1] == 0x09) {
+            at -= 1
+            n += source[at] == 0x09 ? options.indent : 1
+        }
+        return n
+    }
+
+    /// Layout.cs: Engine.Levels.
+    void levels(ref this) uses alloc {
+        var frames = List<LayoutFrame>()
+        frames.append(LayoutFrame { opener: .endOfFile, line: -1 })
+        var i: i64 = 0
+        while i < tokens.length {
+            var j = i + 1
+            while j < tokens.length && !lineStart[j] {
+                j += 1
+            }
+            let top = frames.length - 1
+            let first = kind(i)
+            var level: i64 = 0
+            // A `{` that ends a header clause or a wrapped condition opens a body at the statement's level.
+            var body: i64 = -1
+            if first == .endOfFile {
+                level = 0
+            } else if first is .closeParen or .closeBracket or .closeBrace {
+                level = frames[top].line > 0 ? frames[top].line : 0
+                // `) {` closing a list opened on a clause or condition line opens that line's body.
+                body = frames[top].body
+            } else {
+                let inGroup = frames[top].opener is .openParen or .openBracket
+                let prev = kind(i - 1)
+                var continues = false
+                if i == 0 || prev == .openParen || prev == .openBracket || prev == .openBrace {
+                    continues = false
+                } else if prev == .comma {
+                    // After `,` a line starts an entry, except in a top-level or clause list (`effect db = net,`, `uses net,`).
+                    continues = !inGroup && (frames.length == 1 || frames[top].clause)
+                } else if !inGroup && gaps[i].hasBlank {
+                    continues = false
+                } else {
+                    // A line can start with a ternary's `?` or `:` only inside brackets, where it continues the entry.
+                    continues = isWasl(i) || layoutAfterLa(prev) || first == .question || first == .colon
+                }
+                if !continues {
+                    // A `case` body goes one level past its `case`.
+                    level = frames[top].line + (frames[top].inSwitch && !(first is .caseKeyword or .defaultKeyword)
+                        ? 2
+                        : 1)
+                    frames[top].statement = level
+                    frames[top].statementIndent = originalIndent(i)
+                    frames[top].control = first is .ifKeyword or .whileKeyword or .forKeyword or .unlessKeyword
+                    frames[top].clause = false
+                } else if (first == .requiresKeyword
+                        || first == .catchKeyword
+                        && prev == .closeBrace) && originalIndent(i) <= frames[top].statementIndent {
+                    // A struct-level `requires` and a `catch` after `}` may sit at the statement's indentation (BYN5103 exempts them).
+                    level = frames[top].statement
+                } else {
+                    let clause = isClause(i)
+                    let wide = clause || frames[top].control || frames[top].clause
+                    level = frames[top].statement + (wide ? 2 : 1)
+                    if wide {
+                        body = frames[top].statement
+                    }
+                    frames[top].clause = frames[top].clause || clause
+                }
+            }
+            levelOf[i] = level
+            for k in i..j {
+                if layoutIsOpener(kind(k)) {
+                    let line = kind(k) == .openBrace && body >= 0 ? body : level
+                    // A group in a control header continues the header: its lines and its `{` keep the header's levels.
+                    let outer = frames[frames.length - 1]
+                    let header = kind(k) == .openParen && outer.control && !callLike(k - 1)
+                    frames.append(LayoutFrame {
+                        opener: kind(k),
+                        line: line,
+                        statement: header ? outer.statement : line,
+                        statementIndent: originalIndent(i),
+                        body: body,
+                        control: header,
+                        inSwitch: kind(k) == .openBrace
+                            && (kind(k + 1) == .caseKeyword || kind(k + 1) == .defaultKeyword),
+                    })
+                } else if layoutIsCloser(kind(k)) {
+                    if frames.length > 1 {
+                        frames.remove(at: frames.length - 1)
+                    }
+                }
+            }
+            i = j
+        }
+    }
+
+    /// Layout.cs: Engine.IsWasl. A token that joins the line it starts to the line before (waṣl), as the parser reads it.
+    bool isWasl(i64 i) {
+        let k = kind(i)
+        return k == .dot
+            || k == .questionDot
+            || k == .questionQuestion
+            || k == .ampAmp
+            || k == .barBar
+            || k == .andKeyword
+            || k == .orKeyword
+            || k == .catchKeyword
+            || k == .exceptKeyword
+            || k == .requiresKeyword
+            || k == .failsKeyword
+            || k == .usesKeyword || isClause(i)
+    }
+
+    /// Layout.cs: Engine.IsClause. A header clause keyword: `where`, `expects`, `uses`, `becomes` or `fails`.
+    bool isClause(i64 i) {
+        let k = kind(i)
+        return true if k is .failsKeyword or .usesKeyword
+        return false if k != .identifier
+        return kind(i + 1) == .identifier && kind(i + 2) == .colon if textIs(i, as: "where")
+        return kind(i + 1) == .dot if textIs(i, as: "becomes")
+        if textIs(i, as: "expects") {
+            let next = kind(i + 1)
+            return next is .identifier or .bang or .notKeyword or .thisKeyword
+        }
+        return false
+    }
+
+    // ── Joins (pass 3) and breaks (pass 4): lists, chains, header clauses, conditions (proposal §3.4–§3.6) ──
+
+    /// Layout.cs: Engine.Match.
+    void match(ref this) uses alloc {
+        var open = List<i64>()
+        for i in 0..tokens.length {
+            matchOf[i] = -1
+            if layoutIsCloser(kind(i)) && open.length > 0 {
+                let o = open[open.length - 1]
+                open.remove(at: open.length - 1)
+                matchOf[o] = i
+                matchOf[i] = o
+            }
+            enclosing[i] = open.length > 0 ? open[open.length - 1] : -1
+            if layoutIsOpener(kind(i)) {
+                open.append(i)
+            }
+        }
+    }
+
+    /// Layout.cs: Engine.IsIndex. Whether the `[` at `o` is an index (`xs[i]`, `u8[4]`), not a list literal.
+    bool isIndex(i64 o) => kind(o) == .openBracket && o > 0 && layoutOperandEnd(kind(o - 1))
+
+    /// Layout.cs: Engine.Columns. The columns token `i` takes: its UTF-8 lead bytes.
+    i64 columns(i64 i) {
+        var n: i64 = 0
+        for b in tokens[i].start..tokens[i].end {
+            if (source[b] & 0xC0) != 0x80 {
+                n += 1
+            }
+        }
+        return n
+    }
+
+    /// Layout.cs: Engine.Multiline.
+    bool multiline(i64 i) {
+        for b in tokens[i].start..tokens[i].end {
+            return true if source[b] == 0x0A
+        }
+        return false
+    }
+
+    /// Layout.cs: Engine.LineStartOf.
+    i64 lineStartOf(i64 i) {
+        var k = i
+        while k > 0 && !lineStart[k] {
+            k -= 1
+        }
+        return k
+    }
+
+    /// Layout.cs: Engine.LineEnd. The first token after `i` that starts a line, or the end of the file.
+    i64 lineEnd(i64 i) {
+        var k = i + 1
+        while k < tokens.length - 1 {
+            return k if lineStart[k]
+            k += 1
+        }
+        return tokens.length - 1
+    }
+
+    /// Layout.cs: Engine.Width. The columns of tokens `[s, e)` written as one line from line start `s`; 0 when a token spans lines.
+    i64 width(i64 s, until i64 e) uses alloc {
+        var width = levelOf[s] * options.indent
+        for k in s..e {
+            continue if dropComma[k]
+            return 0 if multiline(k)
+            if k > s && space(k, from: tokens[k - 1].end) {
+                width += 1
+            }
+            width += columns(k) + (addComma[k] ? 1 : 0)
+        }
+        return width
+    }
+
+    /// Layout.cs: Engine.Editable. Whether the structure over tokens `[start, end]` may change: none is frozen and it is not in an
+    /// interpolation hole.
+    bool editable(i64 start, through i64 end) {
+        return false if inHole[start]
+        for k in start..end + 1 {
+            return false if frozen[k]
+        }
+        return true
+    }
+
+    /// Layout.cs: Engine.Items. The tokens directly inside the list `(o, c)`, stepping over nested brackets.
+    List<i64> items(i64 o, until i64 c) uses alloc {
+        var result = List<i64>()
+        var k = o + 1
+        while k < c {
+            result.append(k)
+            if layoutIsOpener(kind(k)) && matchOf[k] > k {
+                k = matchOf[k]
+            }
+            k += 1
+        }
+        return result
+    }
+
+    /// Layout.cs: Engine.TrailingComma.
+    bool trailingComma(i64 c) => kind(c - 1) == .comma && !dropComma[c - 1]
+
+    /// Layout.cs: Engine.IsStructLiteral. A `{` that opens a struct literal or a `with` update: a type name or `with`, then `name:`.
+    bool isStructLiteral(i64 o) {
+        return false if kind(o) != .openBrace || matchOf[o] <= o
+        let prev = kind(o - 1)
+        return (prev is .identifier or .greater or .withKeyword) && kind(o + 1) == .identifier && kind(o + 2) == .colon
+    }
+
+    /// Layout.cs: Engine.CommaSafe. Whether the parser takes a trailing comma in the list `(o, c)`: an argument list, a `[ ]` literal or
+    /// a struct literal. A parameter list (BYN1003), a lambda's, an index and a group do not.
+    bool commaSafe(i64 o, until i64 c) uses alloc {
+        let k = kind(o)
+        return isStructLiteral(o) if k == .openBrace
+        return lineStart[o] || !layoutOperandEnd(kind(o - 1)) if k == .openBracket
+        return false if k != .openParen
+        let name = o - 1
+        return false if lineStart[o]
+            || !(kind(name) == .identifier || parser.isContextualKeyword(kind(name)))
+            || !callLike(name)
+        let after = kind(c + 1)
+        return false if after == .openBrace
+            || after == .fatArrow
+            || after == .arrow
+            || after == .requiresKeyword
+            || isClause(c + 1)
+        return false if inPattern(o)
+        // A spaced `?` is a ternary's; `T? name(` declares.
+        return lineStart[name]
+            || layoutExpressionBefore(kind(name - 1))
+            || kind(name - 1) == .question && trivia(name - 1)
+    }
+
+    /// Layout.cs: Engine.InPattern. Whether the `(` at `o` holds a pattern (`case .some(let x)`, `is .pair(a, b)`).
+    bool inPattern(i64 o) uses alloc {
+        for k in items(o, until: matchOf[o]) {
+            return true if (kind(k - 1) == .openParen && k - 1 == o
+                || kind(k - 1) == .comma) && (kind(k) == .letKeyword || kind(k) == .varKeyword)
+        }
+        var k = o - 1
+        while k >= 0 {
+            let at = kind(k)
+            if layoutIsCloser(at) && matchOf[k] >= 0 && matchOf[k] < k {
+                k = matchOf[k]
+            } else if layoutIsOpener(at)
+                    || at == .comma
+                    || at == .colon
+                    || at == .equals
+                    || at == .fatArrow
+                    || at == .identifier && textIs(k, as: "where") {
+                return false
+            } else if at is .caseKeyword or .isKeyword or .exceptKeyword {
+                return true
+            }
+            return false if lineStart[k]
+            k -= 1
+        }
+        return false
+    }
+
+    /// Whether the gap before token `k` holds a comment.
+    bool hasComment(i64 k) {
+        for x in gaps[k].items {
+            return true if x.isComment
+        }
+        return false
+    }
+
+    /// Layout.cs: Engine.Joins. Pass 3. A `( )` or `[ ]` list broken over lines joins when it fits, holds no comment, block or author's
+    /// trailing comma (under `.multiline`). A chain broken only before its links joins when it fits and has fewer than three lambda calls.
+    /// Under `.never` every trailing comma the parser can do without goes first.
+    void joins(ref this) uses alloc {
+        if options.trailingCommas != .multiline {
+            for c in 1..tokens.length {
+                if layoutIsCloser(kind(c)) && matchOf[c] >= 0 && kind(c - 1) == .comma && gaps[c - 1].items.length == 0
+                        && commaSafe(matchOf[c], until: c) && editable(c - 1, through: c) {
+                    dropComma[c - 1] = true
+                }
+            }
+        }
+        // A group breaks only before its own operators: the author's break after its `(` or before its `)` goes.
+        for g in 1..tokens.length {
+            continue if kind(g) != .openParen
+                || matchOf[g] <= g + 1
+                || callLike(g - 1)
+                || kind(g - 1) == .greater
+                || inPattern(g)
+            let c = matchOf[g]
+            var comma = false
+            for k in items(g, until: c) {
+                if kind(k) == .comma {
+                    comma = true
+                }
+            }
+            continue if comma
+            if lineStart[g + 1] && !hasComment(g + 1) && editable(g + 1, through: g + 1) {
+                lineStart[g + 1] = false
+            }
+            if lineStart[c] && !hasComment(c) && editable(c, through: c) {
+                lineStart[c] = false
+            }
+        }
+        var o: i64 = 0
+        while o < tokens.length {
+            if (kind(o) == .openParen || kind(o) == .openBracket) && matchOf[o] >= o {
+                let c = matchOf[o]
+                if joinable(o, until: c) {
+                    var breaks = List<i64>()
+                    for k in o + 1..c + 1 {
+                        breaks.append(k)
+                    }
+                    if tryJoin(o, through: c, for: breaks) {
+                        o = c
+                    } else {
+                        // A header with a `=>` body breaks after the `=>` before its parameters wrap.
+                        let arrow = headerArrowAfter(c)
+                        if arrow > 0 && !lineStart[arrow + 1] && editable(arrow + 1, through: arrow + 1) {
+                            lineStart[arrow + 1] = true
+                            if tryJoin(o, through: c, for: breaks) {
+                                o = c
+                            } else {
+                                lineStart[arrow + 1] = false
+                            }
+                        }
+                    }
+                }
+            }
+            o += 1
+        }
+        let all = chains()
+        for chain in all {
+            var broken = false
+            for d in chain.dots {
+                if lineStart[d] {
+                    broken = true
+                }
+            }
+            continue if chain.lambdaCalls >= 3 || !broken || !editable(chain.start, through: chain.end)
+            var only = true
+            var k = chain.start + 1
+            while k <= chain.end && only {
+                if lineStart[k] {
+                    var isDot = false
+                    for d in chain.dots {
+                        if d == k {
+                            isDot = true
+                        }
+                    }
+                    if !isDot || hasComment(k) {
+                        only = false
+                    }
+                }
+                k += 1
+            }
+            continue if !only
+            // A chain in a ternary that has not broken joins: the ternary breaks first.
+            if inUnbrokenTernary(chain.start) {
+                for d in chain.dots {
+                    lineStart[d] = false
+                }
+            } else {
+                let _ = tryJoin(chain.start, through: chain.end, for: chain.dots)
+            }
+        }
+    }
+
+    /// Layout.cs: Engine.HeaderArrow. The header `=>` on the line after the parameter list closed at `c`, or -1.
+    i64 headerArrowAfter(i64 c) {
+        var k = c + 1
+        while k < tokens.length && !lineStart[k] {
+            return k if headerArrow[k]
+            if layoutIsOpener(kind(k)) && matchOf[k] > k {
+                k = matchOf[k]
+            }
+            k += 1
+        }
+        return -1
+    }
+
+    /// Layout.cs: Engine.InUnbrokenTernary. Whether token `i` is in an operand of a ternary inside `( )` or `[ ]` whose `?` has not
+    /// broken.
+    bool inUnbrokenTernary(i64 i) {
+        let o = enclosing[i]
+        return false if o < 0 || !(kind(o) == .openParen || kind(o) == .openBracket)
+        var k = i - 1
+        while k > o {
+            if layoutIsCloser(kind(k)) && matchOf[k] >= 0 && matchOf[k] < k {
+                k = matchOf[k]
+            } else if kind(k) == .comma {
+                return false
+            } else if kind(k) == .question && trivia(k) {
+                return !lineStart[k]
+            }
+            k -= 1
+        }
+        return false
+    }
+
+    /// Layout.cs: Engine.Joinable.
+    bool joinable(i64 o, until i64 c) {
+        var broken = false
+        for k in o + 1..c + 1 {
+            broken = broken || lineStart[k]
+            if hasComment(k)
+                    || frozen[k]
+                    || inHole[k] && lineStart[k]
+                    || multiline(k)
+                    || kind(k) == .openBrace
+                    || kind(k) == .closeBrace
+                    || kind(k) == .comma
+                    && (kind(k + 1) == .closeParen || kind(k + 1) == .closeBracket)
+                    && !dropComma[k] {
+                return false
+            }
+        }
+        return broken && !frozen[o]
+    }
+
+    /// Layout.cs: Engine.TryJoin. Clears the line breaks before `breaks` when the line holding tokens `[start, end]` then fits.
+    bool tryJoin(ref this, i64 start, through i64 end, for List<i64> breaks) uses alloc {
+        var cleared = List<i64>()
+        for k in breaks {
+            if lineStart[k] {
+                cleared.append(k)
+            }
+        }
+        for k in cleared {
+            lineStart[k] = false
+        }
+        let s = lineStartOf(start)
+        return true if width(s, until: lineEnd(end)) <= options.width
+        for k in cleared {
+            lineStart[k] = true
+        }
+        return false
+    }
+
+    /// Layout.cs: Engine.IsLink. A `.` or `?.` and a name: a link of a member chain.
+    bool isLink(i64 j) =>
+        (kind(j) == .dot || kind(j) == .questionDot)
+        && (kind(j + 1) == .identifier || parser.isContextualKeyword(kind(j + 1)))
+
+    /// Layout.cs: Engine.ArmLine. Whether the line from link `j` holds a `=>` outside brackets: a switch arm, not a link.
+    bool armLine(i64 j) {
+        var depth: i64 = 0
+        var k = j
+        while k < tokens.length - 1 && (k == j || !lineStart[k]) {
+            if layoutIsOpener(kind(k)) {
+                depth += 1
+            } else if layoutIsCloser(kind(k)) {
+                depth -= 1
+            } else if depth == 0 && kind(k) == .fatArrow {
+                return true
+            }
+            k += 1
+        }
+        return false
+    }
+
+    /// Layout.cs: Engine.Chains. The member chains with two or more calls (`orders.where(…).take(50)`); a nested chain is its own.
+    List<LayoutChain> chains() uses alloc {
+        var result = List<LayoutChain>()
+        var used = List<bool>()
+        for i in 0..tokens.length {
+            used.append(false)
+        }
+        for i in 1..tokens.length {
+            continue if used[i] || !isLink(i) || lineStart[i] && (gaps[i].hasBlank || armLine(i))
+            let prev = kind(i - 1)
+            if !(prev == .identifier || prev == .closeParen || prev == .closeBracket || prev == .thisKeyword || prev == .interpolatedStringEnd
+                    || lexer.isStringLiteral(prev) || parser.isContextualKeyword(prev)) {
+                continue
+            }
+            var start = i - 1
+            if layoutIsCloser(kind(start)) && matchOf[start] >= 0 {
+                start = matchOf[start]
+                if kind(start) != .interpolationStart && !lineStart[start]
+                        && (kind(start - 1) == .identifier || parser.isContextualKeyword(kind(start - 1))) {
+                    start -= 1
+                }
+            }
+            var dots = List<i64>()
+            var breakable = List<i64>()
+            var calls: i64 = 0
+            var lambdas: i64 = 0
+            var end = i
+            var j = i
+            while isLink(j) && (j == i || !lineStart[j] || !gaps[j].hasBlank && !armLine(j)) {
+                used[j] = true
+                dots.append(j)
+                var k = j + 2
+                var call = false
+                while (kind(k) == .openParen || kind(k) == .openBracket) && !lineStart[k] && matchOf[k] > k {
+                    if kind(k) == .openParen && k == j + 2 {
+                        call = true
+                        if hasLambda(k, until: matchOf[k]) {
+                            lambdas += 1
+                        }
+                    }
+                    k = matchOf[k] + 1
+                }
+                if call {
+                    calls += 1
+                }
+                // A `.member` after an index stays on its line (`c.items[i].payload`).
+                if (call || breakable.length > 0) && kind(j - 1) != .closeBracket {
+                    breakable.append(j)
+                }
+                end = k - 1
+                j = k
+            }
+            if calls >= 2 {
+                result.append(
+                    LayoutChain {
+                        start: start,
+                        end: end,
+                        dots: move dots,
+                        breakable: move breakable,
+                        lambdaCalls: lambdas,
+                    },
+                )
+            }
+        }
+        return result
+    }
+
+    /// Layout.cs: Engine.HasLambda. Whether the arguments `(o, c)` hold a lambda: a `=>` or an implicit `it`.
+    bool hasLambda(i64 o, until i64 c) {
+        for k in o + 1..c {
+            return true if kind(k) == .fatArrow || kind(k) == .identifier && textIs(k, as: "it")
+        }
+        return false
+    }
+
+    /// Layout.cs: Engine.Breaks. Pass 4. A chain with three or more lambda calls, or with one link already broken, breaks every link.
+    /// A list broken over lines, or ending in the author's trailing comma, takes one item per line. Then each line past `width` breaks its
+    /// condition, its header clauses, or its outermost chain or list, until every line fits or nothing is left to break.
+    void breaks(ref this) uses alloc {
+        let all = chains()
+        for chain in all {
+            var broken = false
+            for d in chain.breakable {
+                if lineStart[d] {
+                    broken = true
+                }
+            }
+            if (chain.lambdaCalls >= 3 || broken) && editable(chain.start, through: chain.end) {
+                for d in chain.breakable {
+                    lineStart[d] = true
+                }
+            }
+        }
+        for o in 0..tokens.length {
+            continue if !(kind(o) == .openParen || kind(o) == .openBracket) || matchOf[o] < o
+            let c = matchOf[o]
+            let inner = items(o, until: c)
+            var comma = false
+            var started = false
+            for k in inner {
+                if kind(k) == .comma {
+                    comma = true
+                }
+                if lineStart[k] {
+                    started = true
+                }
+            }
+            continue if !editable(o, through: c) || isIndex(o) || !comma
+            if lineStart[c] || trailingComma(c) || started {
+                breakList(o, until: c)
+            }
+        }
+        for round in 0..tokens.length {
+            levels()
+            let lineChains = chains()
+            var changed = false
+            var s: i64 = 0
+            while s < tokens.length - 1 {
+                let e = lineEnd(s)
+                if !frozen[s]
+                        && !inHole[s]
+                        && width(s, until: e) > options.width
+                        && breakLine(s, until: e, for: lineChains) {
+                    changed = true
+                }
+                s = e
+            }
+            break if !changed
+        }
+    }
+
+    /// Layout.cs: Engine.BreakList. One item per line: a break after the opener and after each item, and the trailing comma the knob asks for.
+    void breakList(ref this, i64 o, until i64 c) uses alloc {
+        if o + 1 < c {
+            lineStart[o + 1] = true
+        }
+        var starts = List<i64>()
+        for k in items(o, until: c) {
+            if (k == o + 1 || kind(k - 1) == .comma) && k < c {
+                starts.append(k)
+            }
+        }
+        var widths = List<i64>()
+        let row = scalars(o, until: c, at: starts, to: ref widths) ? rowOf(o, at: starts, by: widths) : 1
+        for n in 1..starts.length {
+            lineStart[starts[n]] = n % row == 0
+        }
+        lineStart[c] = true
+        if options.trailingCommas == .multiline && kind(c - 1) != .comma && o + 1 < c && commaSafe(o, until: c) {
+            addComma[c - 1] = true
+        }
+    }
+
+    /// Layout.cs: Engine.Scalars. Whether every item of the list literal `[o, c]` is a scalar (a number, a char, or a string of at most 16
+    /// columns, signed or not) and no comment is inside; the columns of each item into `widths` when so (the C# null is false).
+    bool scalars(i64 o, until i64 c, at List<i64> starts, to ref List<i64> widths) uses alloc {
+        return false if kind(o) != .openBracket || isIndex(o) || starts.length < 2
+        for k in o + 1..c + 1 {
+            return false if hasComment(k)
+        }
+        for n in 0..starts.length {
+            var k = starts[n]
+            if kind(k) == .minus || kind(k) == .plus {
+                k += 1
+            }
+            if !(kind(k) == .integerLiteral || kind(k) == .floatLiteral || kind(k) == .charLiteral
+                    || kind(k) == .stringLiteral && !multiline(k) && columns(k) <= 16) {
+                return false
+            }
+            if kind(k + 1) == .numericSuffix {
+                k += 1
+            }
+            return false if !(kind(k + 1) == .comma || kind(k + 1) == .closeBracket)
+            widths.append(width(starts[n], until: k + 1) - levelOf[starts[n]] * options.indent)
+        }
+        return true
+    }
+
+    /// Layout.cs: Engine.Row. The items per row of a broken scalar list: as many as the author's first row holds when rows of that many
+    /// fit, otherwise the most that fit in every row (at least one).
+    i64 rowOf(i64 o, at List<i64> starts, by List<i64> widths) {
+        let indent = (levelOf[lineStartOf(o)] + 1) * options.indent
+        var first: i64 = 1
+        while first < starts.length && !gaps[starts[first]].hasNewline {
+            first += 1
+        }
+        return first if rowFits(first, by: widths, at: indent)
+        var n = (first < starts.length ? first : starts.length) - 1
+        while n > 1 {
+            return n if rowFits(n, by: widths, at: indent)
+            n -= 1
+        }
+        return 1
+    }
+
+    /// Layout.cs: Engine.Row (its local `Fits`). Whether rows of `n` items fit in `width`.
+    bool rowFits(i64 n, by List<i64> widths, at i64 indent) {
+        var at: i64 = 0
+        while at < widths.length {
+            var width = indent + 1
+            let end = widths.length < at + n ? widths.length : at + n
+            for m in at..end {
+                width += widths[m] + (m > at ? 2 : 0)
+            }
+            return false if width > options.width
+            at += n
+        }
+        return true
+    }
+
+    /// Layout.cs: Engine.BreakLine. Breaks the over-wide line `[s, e)` at its widest structure; false when it has none.
+    bool breakLine(ref this, i64 s, until i64 e, for List<LayoutChain> lineChains) uses alloc {
+        var changed = false
+        // A one-line body opens: `{` ends the line and `}` starts one.
+        var p = kind(s) == .closeBrace && kind(s + 1) == .elseKeyword ? s + 1 : s
+        let head = kind(p)
+        if head is .ifKeyword or .whileKeyword or .unlessKeyword or .forKeyword or .elseKeyword {
+            var k = p + 1
+            var depth: i64 = 0
+            while k < e {
+                if layoutIsCloser(kind(k)) {
+                    depth -= 1
+                }
+                if depth == 0 && kind(k) == .openBrace {
+                    let c = matchOf[k]
+                    if c > k + 1 && c < e && editable(k + 1, through: c) {
+                        lineStart[k + 1] = true
+                        lineStart[c] = true
+                        return true
+                    }
+                    break
+                }
+                if layoutIsOpener(kind(k)) {
+                    depth += 1
+                }
+                k += 1
+            }
+        }
+        // A header with a `=>` body breaks after the `=>` first; its parameters wrap only if the header still does not fit.
+        for k in s..e - 1 {
+            if headerArrow[k] && !lineStart[k + 1] && editable(k + 1, through: k + 1) {
+                lineStart[k + 1] = true
+                return true
+            }
+        }
+        // Header clauses after the `)` go one per line when the head before them fits.
+        var clauseDepth: i64 = 0
+        var closed = false
+        var firstClause: i64 = -1
+        for k in s..e {
+            if layoutIsCloser(kind(k)) {
+                clauseDepth -= 1
+            }
+            if clauseDepth == 0 && kind(k) == .closeParen {
+                closed = true
+            } else if clauseDepth == 0 && closed && k > s && isClause(k) {
+                if firstClause < 0 {
+                    break if width(s, until: k) > options.width
+                    firstClause = k
+                }
+                if !lineStart[k] && editable(k, through: k) {
+                    lineStart[k] = true
+                    changed = true
+                }
+            }
+            if layoutIsOpener(kind(k)) {
+                clauseDepth += 1
+            }
+        }
+        return true if changed
+        // An expression breaks before each operator of its lowest level outside brackets, then inside the widest group.
+        if kind(p) == .elseKeyword {
+            p += 1
+        }
+        let control = p < e && (kind(p) == .ifKeyword || kind(p) == .whileKeyword || kind(p) == .unlessKeyword)
+        var ops = lowestOperators(s, from: p, until: e)
+        if ops.length == 0 {
+            var widest: i64 = 0
+            var depth: i64 = 0
+            for k in s..e {
+                if layoutIsCloser(kind(k)) {
+                    depth = depth > 0 ? depth - 1 : 0
+                }
+                if depth == 0
+                        && kind(k) == .openParen
+                        && matchOf[k] > k + 1
+                        && matchOf[k] < e
+                        && (k == s || !callLike(k - 1))
+                        && tokens[matchOf[k]].end - tokens[k].start > widest {
+                    let inner = lowestOperators(k, from: k + 1, until: matchOf[k])
+                    if inner.length > 0 {
+                        widest = tokens[matchOf[k]].end - tokens[k].start
+                        ops = inner.copy()
+                    }
+                }
+                if layoutIsOpener(kind(k)) {
+                    depth += 1
+                }
+            }
+        }
+        if ops.length > 0 {
+            for k in ops {
+                lineStart[k] = true
+            }
+            return true
+        }
+        // Otherwise the outermost chain or list on the line: a chain before a list at the same depth, then the leftmost.
+        // A chain in a ternary that has not broken stays whole, and nothing breaks inside an index. A control head's
+        // `(` never opens: a line after its `)` would end the condition (BYN1017).
+        var depths = List<i64>()
+        var ternary = List<bool>()
+        var d: i64 = 0
+        var q: i64 = -1
+        for k in s..e {
+            if layoutIsCloser(kind(k)) {
+                d -= 1
+            }
+            if q >= 0 && (d < depths[q - s] || d == depths[q - s] && kind(k) == .comma) {
+                q = -1
+            }
+            depths.append(d)
+            if q < 0 && k > s && kind(k) == .question && trivia(k) {
+                q = k
+            }
+            ternary.append(q >= 0 && d == depths[q - s])
+            if layoutIsOpener(kind(k)) {
+                d += 1
+            }
+        }
+        var bestChain: i64 = -1
+        var best: i64 = 2147483647
+        for ci in 0..lineChains.length {
+            let count = lineChains[ci].breakable.length
+            continue if count == 0 || lineChains[ci].breakable[0] < s || lineChains[ci].breakable[count - 1] >= e
+            var broken = false
+            for b in lineChains[ci].breakable {
+                if lineStart[b] {
+                    broken = true
+                }
+            }
+            continue if broken || !editable(lineChains[ci].start, through: lineChains[ci].end)
+            continue if ternary[lineChains[ci].breakable[0] - s]
+            if depths[lineChains[ci].breakable[0] - s] < best {
+                best = depths[lineChains[ci].breakable[0] - s]
+                bestChain = ci
+            }
+        }
+        var bestList: i64 = -1
+        for o in s..e {
+            continue if !(kind(o) == .openParen || kind(o) == .openBracket || isStructLiteral(o))
+                || isIndex(o)
+                || control && o == p + 1
+            let c = matchOf[o]
+            continue if c <= o + 1
+                || c >= e
+                || depths[o - s] >= best
+                || !editable(o, through: c)
+                || kind(o) == .openParen && inPattern(o)
+            // A group around one operand followed by a member (`(move parsed).trust()`) is an atom, as `xs[i].member` is.
+            if kind(o) == .openParen
+                    && (o == s || !callLike(o - 1))
+                    && (kind(c + 1) == .dot || kind(c + 1) == .questionDot) {
+                var comma = false
+                for k in items(o, until: c) {
+                    if kind(k) == .comma {
+                        comma = true
+                    }
+                }
+                continue if !comma
+            }
+            best = depths[o - s]
+            bestList = o
+            bestChain = -1
+        }
+        if bestChain >= 0 {
+            for b in lineChains[bestChain].breakable {
+                lineStart[b] = true
+            }
+            return true
+        }
+        return false if bestList < 0
+        breakList(bestList, until: matchOf[bestList])
+        return true
+    }
+
+    /// Layout.cs: Engine.LowestOperators. The operators of the lowest level in tokens `[from, e)` outside brackets that a line may
+    /// start with, before any header clause: a ternary's `?` and `:` inside `( )` or a list's `[ ]` (at a statement's level a line
+    /// starting with `?` ends the statement), then `??`, `||`, `&&` and their words outside an index.
+    List<i64> lowestOperators(i64 s, from i64 start, until i64 e) uses alloc {
+        var found = List<i64>()
+        var levels = List<i64>()
+        var ternaries: i64 = 0
+        var depth: i64 = 0
+        for k in start..e {
+            if layoutIsCloser(kind(k)) {
+                depth = depth > 0 ? depth - 1 : 0
+            }
+            if depth == 0 {
+                break if k > s && isClause(k)
+                let t = kind(k)
+                var level: i64 = -1
+                if t == .question && trivia(k) {
+                    level = 0
+                } else if t == .colon && ternaries > 0 {
+                    level = 0
+                } else if t == .questionQuestion {
+                    level = 1
+                } else if t is .barBar or .orKeyword {
+                    level = 2
+                } else if t is .ampAmp or .andKeyword {
+                    level = 3
+                }
+                if t == .question && level == 0 {
+                    ternaries += 1
+                } else if t == .colon && level == 0 {
+                    ternaries -= 1
+                }
+                let o = enclosing[k]
+                // `if (a) ⏎ && b` would read `(a)` as the whole condition (BYN1017), on any line of the header.
+                let afterHead = kind(k - 1) == .closeParen && matchOf[k - 1] > 0
+                    && (kind(matchOf[k - 1] - 1) == .ifKeyword
+                        || kind(matchOf[k - 1] - 1) == .whileKeyword
+                        || kind(matchOf[k - 1] - 1) == .unlessKeyword)
+                if level >= 0 && !lineStart[k] && editable(k, through: k) && !(o >= 0 && isIndex(o))
+                        && (level > 0 || o >= 0 && (kind(o) == .openParen || kind(o) == .openBracket)) && !afterHead {
+                    found.append(k)
+                    levels.append(level)
+                }
+            }
+            if layoutIsOpener(kind(k)) {
+                depth += 1
+            }
+        }
+        var lowest: i64 = 4
+        for l in levels {
+            if l < lowest {
+                lowest = l
+            }
+        }
+        var result = List<i64>()
+        for n in 0..found.length {
+            if levels[n] == lowest {
+                result.append(found[n])
+            }
+        }
+        return result
+    }
+
+    // ── Blank lines between top-level declarations (pass 7, proposal §3.7) ───
+
+    /// Layout.cs: Engine.TopLevelBlanks.
+    void topLevelBlanks(ref this, List<parser.Decl> members) uses alloc {
+        for d in 1..members.length {
+            continue if members[d - 1] is .globalStatement(_) || members[d] is .globalStatement(_)
+            let a = layoutDeclSpan(members[d - 1])
+            let b = layoutDeclSpan(members[d])
+            let next = tokenAt(a.end)
+            continue if next >= tokens.length - 1 || !gaps[next].hasNewline
+            let nextEnd = d + 1 < members.length ? tokenAt(layoutDeclSpan(members[d + 1]).start) : tokens.length - 1
+            let bEnd = tokenAt(b.end)
+            let until = nextEnd < bEnd ? nextEnd : bEnd
+            if oneLine(tokenAt(a.start), until: next) && oneLine(next, until: next + 1 > until ? next + 1 : until)
+                    && layoutDeclType(members[d - 1]) == layoutDeclType(members[d])
+                    && leadingKeywords(tokenAt(a.start)) == leadingKeywords(next) {
+                continue
+            }
+            needsBlank[next] = true
+        }
+    }
+
+    /// Layout.cs: Engine.OneLine. Whether tokens `[start, end)` lie on one line.
+    bool oneLine(i64 start, until i64 end) {
+        for i in start + 1..end {
+            return false if lineStart[i]
+        }
+        return true
+    }
+
+    /// Layout.cs: Engine.LeadingKeywords.
+    string leadingKeywords(i64 i) uses alloc {
+        var words = StrBuf()
+        var k = i
+        while k < tokens.length && lexer.isKeyword(kind(k)) {
+            if k > i {
+                words.append(" ")
+            }
+            words.append(text(k))
+            k += 1
+        }
+        return $"{words.finish()}"
+    }
+
+    // ── The guide's attributes, blocks, generics and member groups (docs/bayan-style.md, proposal §3.2) ──
+
+    /// Layout.cs: Engine.Guide. An attribute before a type or function goes on its own line above it; one before a field or parameter
+    /// stays inline. A statement block written on one line takes one statement per line, `{` ending the line and `}` starting one; a `=>`
+    /// body and a block inside an expression (a lambda's) stay as written. The `<` and `>` of a generic list take no space inside.
+    void guide(ref this, List<parser.Decl> members) uses alloc {
+        guideDecls(members)
+        for o in 1..tokens.length {
+            let close = genericClose(o)
+            if close > 0 {
+                tightAfter[o] = true
+                tightBefore[close] = true
+            }
+        }
+    }
+
+    /// Layout.cs: Engine.Guide over Layout.cs: Engine.Decls and Layout.cs: Engine.Blocks(Decl).
+    void guideDecls(ref this, List<parser.Decl> decls) uses alloc {
+        for decl in decls {
+            let attributes = layoutAttributes(decl)
+            if attributes.length > 0 && layoutOwnLineAttributes(decl) {
+                let last = attributes[attributes.length - 1]
+                let head = tokenAt(last.end > last.becauseEnd ? last.end : last.becauseEnd)
+                if editable(tokenAt(attributes[0].start), through: head) {
+                    for k in 1..attributes.length {
+                        lineStart[tokenAt(attributes[k].start)] = true
+                    }
+                    lineStart[head] = true
+                }
+            }
+            switch decl {
+                case .functionDecl(let f):
+                    unless f.value.expressionBody is .none {
+                        let arrow = tokenAt(parser.exprSpan(in f.value.expressionBody).start) - 1
+                        if arrow > 0 && kind(arrow) == .fatArrow {
+                            headerArrow[arrow] = true
+                        }
+                    }
+                    guideStmt(f.value.body)
+                case .constructorDecl(let c): guideStmt(c.value.body)
+                case .testDecl(let t): guideStmt(t.value.body)
+                case .propertyDecl(let p): guideStmt(p.value.block)
+                case .globalStatement(let g): guideStmt(g.value.statement)
+                case .structDecl(let s): guideDecls(s.value.members)
+                case .interfaceDecl(let n): guideDecls(n.value.members)
+                case .extensionDecl(let x): guideDecls(x.value.members)
+                default:
+            }
+        }
+    }
+
+    /// Layout.cs: Engine.Guide over Layout.cs: Engine.Blocks(Stmt): the statement blocks nested in `stmt`'s statements, not in expressions.
+    void guideStmt(ref this, parser.Stmt stmt) uses alloc {
+        switch stmt {
+            case .blockStmt(let b):
+                let o = tokenAt(b.value.span.start)
+                // An empty arm stays on its label's line: `default: {}`.
+                if b.value.statements.length == 0
+                        && kind(o) == .openBrace
+                        && kind(o - 1) == .colon
+                        && matchOf[o] == o + 1
+                        && !hasComment(o)
+                        && gaps[o + 1].items.length == 0 && editable(o, through: o + 1) {
+                    lineStart[o] = false
+                }
+                if b.value.statements.length > 0
+                        && kind(o) == .openBrace
+                        && matchOf[o] >= o
+                        && editable(o, through: matchOf[o]) {
+                    for s in b.value.statements {
+                        lineStart[tokenAt(parser.stmtSpan(in s).start)] = true
+                    }
+                    lineStart[matchOf[o]] = true
+                }
+                for s in b.value.statements {
+                    guideStmt(s)
+                }
+            case .ifStmt(let s):
+                guideStmt(s.value.then)
+                guideStmt(s.value.elseKeyword)
+            case .unlessStmt(let s): guideStmt(s.value.body)
+            case .guardedStmt(let s): guideStmt(s.value.statement)
+            case .whileStmt(let s): guideStmt(s.value.body)
+            case .doWhileStmt(let s): guideStmt(s.value.body)
+            case .whileLetStmt(let s): guideStmt(s.value.body)
+            case .forStmt(let s): guideStmt(s.value.body)
+            case .labeledStmt(let s): guideStmt(s.value.statement)
+            case .switchStmt(let s):
+                for section in s.value.sections {
+                    for x in section.statements {
+                        guideStmt(x)
+                    }
+                }
+            case .deferStmt(let s): guideStmt(s.value.body)
+            case .contextStmt(let s): guideStmt(s.value.body)
+            default:
+        }
+    }
+
+    /// Layout.cs: Engine.GenericClose. The `>` closing a generic list opened by the `<` at `o`, or −1: a `<` right after a name, then on
+    /// one line only tokens a type is made of, up to its `>`.
+    i64 genericClose(i64 o) {
+        return -1 if kind(o) != .less
+            || trivia(o)
+            || !(kind(o - 1) == .identifier || parser.isContextualKeyword(kind(o - 1)))
+        var depth: i64 = 1
+        var k = o + 1
+        while k < tokens.length && !lineStart[k] {
+            let at = kind(k)
+            if at == .less {
+                depth += 1
+            } else if at == .greater {
+                depth -= 1
+                return k if depth == 0
+            } else if !(at == .identifier || at == .comma || at == .dot || at == .question || at == .star || at == .openBracket
+                    || at == .closeBracket
+                    || at == .openParen
+                    || at == .closeParen
+                    || at == .integerLiteral
+                    || at == .arrow
+                    || parser.isContextualKeyword(at)) {
+                return -1
+            }
+            k += 1
+        }
+        return -1
+    }
+
+    /// Layout.cs: Engine.MemberBlanks. Inside a type body, one blank line between member groups (fields, `states`, properties, static
+    /// members, methods) and between two methods. A function body's statements are not members, so none goes there.
+    void memberBlanks(ref this, List<parser.Decl> decls) uses alloc {
+        let none = List<parser.UnionVariant>()
+        for decl in decls {
+            switch decl {
+                case .structDecl(let s):
+                    memberBlanksOf(s.value.members, for: s.value.states)
+                    memberBlanks(s.value.members)
+                case .interfaceDecl(let n):
+                    memberBlanksOf(n.value.members, for: none)
+                    memberBlanks(n.value.members)
+                case .extensionDecl(let x):
+                    memberBlanksOf(x.value.members, for: none)
+                    memberBlanks(x.value.members)
+                default:
+            }
+        }
+    }
+
+    /// Layout.cs: Engine.MemberBlanks, for one type body.
+    void memberBlanksOf(ref this, List<parser.Decl> members, for List<parser.UnionVariant> states) uses alloc {
+        var found = List<LayoutMember>()
+        for m in members {
+            found.append(
+                LayoutMember {
+                    start: memberStart(m),
+                    group: layoutGroup(m),
+                    method: m is .functionDecl(_) || m is .constructorDecl(_),
+                },
+            )
+        }
+        if states.length > 0 {
+            let at = statesStart(tokenAt(states[0].span.start))
+            if at >= 0 {
+                found.append(LayoutMember { start: at, group: "states", method: false })
+            }
+        }
+        // `items.Sort` by start: the starts are distinct tokens.
+        for k in 1..found.length {
+            var j = k
+            while j > 0 && found[j - 1].start > found[j].start {
+                let moved = found[j - 1]
+                found[j - 1] = found[j]
+                found[j] = moved
+                j -= 1
+            }
+        }
+        for k in 1..found.length {
+            continue if found[k - 1].group == found[k].group && !(found[k - 1].method && found[k].method)
+            let next = found[k].start
+            if gaps[next].hasNewline && editable(next, through: next) {
+                needsBlank[next] = true
+            }
+        }
+    }
+
+    /// Layout.cs: Engine.MemberStart.
+    i64 memberStart(parser.Decl decl) uses alloc {
+        let span = layoutDeclSpan(decl)
+        let attributes = layoutAttributes(decl)
+        return tokenAt(attributes[0].start < span.start ? attributes[0].start : span.start) if attributes.length > 0
+        return tokenAt(span.start)
+    }
+
+    /// Layout.cs: Engine.StatesStart. The `states` word of the `states { … }` block holding the state at `first`, or −1.
+    i64 statesStart(i64 first) {
+        let o = first - 1
+        return kind(o) == .openBrace && o > 0 && textIs(o - 1, as: "states") ? o - 1 : -1
+    }
+
+    // ── Alignment runs (pass 8, proposal §3.2, §3.3, §3.7) ───────────────────
+
+    /// Layout.cs: Engine.Align. Pass 8. Consecutive lines of one shape at one level, with no blank or comment line between them, form a
+    /// run, and the run pads the gap before each of its columns so that they start at one column. Then consecutive lines at one level
+    /// that end in a comment align the comments. A column whose padding would push a line of its run past `width` stays unaligned in
+    /// that run, and a line whose column sits after a gap the parser reads ends the run.
+    void align(ref this, List<parser.Decl> members) uses alloc {
+        var shapeMap: Map<i64, LayoutShape> = []
+        shapes(members, by: true, to: ref shapeMap)
+        arms(ref shapeMap)
+        var lines = List<i64>()
+        for i in 0..tokens.length - 1 {
+            if lineStart[i] {
+                lines.append(i)
+            }
+        }
+        var run = List<i64>()
+        for s in lines {
+            var ok = shapeMap.contains(s) && plain(s)
+            if ok {
+                for k in shapeMap[s].columns {
+                    if !(k < 0 || padded(s, at: k)) {
+                        ok = false
+                    }
+                }
+            }
+            if run.length > 0
+                    && (!ok
+                    || shapeMap[s].key != shapeMap[run[0]].key
+                    || levelOf[s] != levelOf[run[0]]
+                    || separated(s)) {
+                alignRun(run, by: shapeMap)
+                run = List<i64>()
+            }
+            if ok {
+                run.append(s)
+            }
+        }
+        alignRun(run, by: shapeMap)
+        run = List<i64>()
+        for s in lines {
+            let e = lineEnd(s)
+            let ok = gaps[e].items.length > 0 && gaps[e].items[0].isComment && plain(s)
+            if run.length > 0 && (!ok || levelOf[s] != levelOf[run[0]] || separated(s)) {
+                alignComments(run)
+                run = List<i64>()
+            }
+            if ok {
+                run.append(s)
+            }
+        }
+        alignComments(run)
+    }
+
+    /// Layout.cs: Engine.Shapes. The fields, properties and one-line top-level declarations that start a line, by their line.
+    void shapes(List<parser.Decl> decls, by bool topLevel, to ref Map<i64, LayoutShape> shapeMap) uses alloc {
+        for decl in decls {
+            let span = layoutDeclSpan(decl)
+            let start = tokenAt(span.start)
+            let s = lineStartOf(start)
+            let e = lineEnd(s)
+            if (s == start || kind(s) == .at) && tokenAt(span.end) == e {
+                var name: i64 = -1
+                var hasBody = false
+                // A top-level `const` parses as a statement but declares like the rest.
+                var declares = true
+                switch decl {
+                    case .fieldDecl(let f): name = tokenAt(f.value.name.start)
+                    case .propertyDecl(let p):
+                        name = tokenAt(p.value.name.start)
+                        hasBody = !(p.value.body is .none)
+                    case .globalStatement(let g):
+                        declares = false
+                        switch g.value.statement {
+                            case .localDecl(let l): declares = l.value.kind == .constKeyword
+                            default:
+                        }
+                    default:
+                }
+                let isField = decl is .fieldDecl(_)
+                let isProperty = decl is .propertyDecl(_)
+                if topLevel && declares && firstAt(.equals, from: start, until: e) > 0 {
+                    var columns = List<i64>()
+                    columns.append(firstAt(.equals, from: start, until: e))
+                    shapeMap[s] = LayoutShape {
+                        key: $"{layoutDeclType(decl)} {leadingKeywords(start)}",
+                        columns: move columns,
+                    }
+                } else if !topLevel && isField {
+                    var columns = List<i64>()
+                    columns.append(name)
+                    columns.append(firstAt(.equals, from: name, until: e))
+                    shapeMap[s] = LayoutShape { key: "field", columns: move columns }
+                } else if !topLevel && isProperty && hasBody && firstAt(.fatArrow, from: name, until: e) > 0 {
+                    var columns = List<i64>()
+                    columns.append(name)
+                    columns.append(firstAt(.fatArrow, from: name, until: e))
+                    shapeMap[s] = LayoutShape { key: "property", columns: move columns }
+                }
+            }
+            switch decl {
+                case .structDecl(let d): shapes(d.value.members, by: false, to: ref shapeMap)
+                case .interfaceDecl(let n): shapes(n.value.members, by: false, to: ref shapeMap)
+                case .extensionDecl(let x): shapes(x.value.members, by: false, to: ref shapeMap)
+                default:
+            }
+        }
+    }
+
+    /// Layout.cs: Engine.Arms. The one-line arms of each `switch { … }`: an arm that starts a line and ends it with its `,` or the `}`.
+    void arms(ref Map<i64, LayoutShape> shapeMap) uses alloc {
+        for o in 1..tokens.length {
+            continue if kind(o) != .openBrace || kind(o - 1) != .switchKeyword || matchOf[o] < o
+            let c = matchOf[o]
+            for k in items(o, until: c) {
+                continue if !lineStart[k] || !(k == o + 1 || kind(k - 1) == .comma)
+                let e = lineEnd(k)
+                continue if e > c || !(e == c || kind(e - 1) == .comma)
+                var spans = false
+                for m in k..e {
+                    if layoutIsOpener(kind(m)) && matchOf[m] >= e {
+                        spans = true
+                    }
+                }
+                continue if spans
+                let arrow = firstAt(.fatArrow, from: k, until: e)
+                if arrow > 0 {
+                    var columns = List<i64>()
+                    columns.append(arrow)
+                    shapeMap[k] = LayoutShape { key: "arm", columns: move columns }
+                }
+            }
+        }
+    }
+
+    /// Layout.cs: Engine.First. The first `wanted` in tokens `[start, e)` outside brackets, or −1.
+    i64 firstAt(lexer.TokenKind wanted, from i64 start, until i64 e) {
+        var k = start
+        while k < e {
+            return k if kind(k) == wanted
+            if layoutIsOpener(kind(k)) && matchOf[k] > k {
+                k = matchOf[k]
+            }
+            k += 1
+        }
+        return -1
+    }
+
+    /// Layout.cs: Engine.Plain. Whether the line from `s` is one line, with no frozen token and not in a hole.
+    bool plain(i64 s) uses alloc {
+        let e = lineEnd(s)
+        return false if inHole[s] || inHole[e] || width(s, until: e) == 0
+        for k in s..e + 1 {
+            return false if frozen[k]
+        }
+        return true
+    }
+
+    /// Layout.cs: Engine.Padded. Whether column token `k` follows a space on the line of `s` that padding may widen.
+    bool padded(i64 s, at i64 k) uses alloc =>
+        k > s
+        && k < lineEnd(s)
+        && space(k, from: tokens[k - 1].end)
+        && !layoutTriviaMatters(source, from: tokens, at: k)
+
+    /// Layout.cs: Engine.Separated. Whether a blank line, an inserted one or a `//` line comes before line start `s`; a `///` line does not.
+    bool separated(i64 s) {
+        return true if gaps[s].hasBlank || needsBlank[s]
+        for k in 1..gaps[s].items.length {
+            return true if gaps[s].items[k].isComment && !doc(gaps[s].items[k])
+        }
+        return false
+    }
+
+    /// Layout.cs: Engine.Doc. Whether the comment `item` is a `///` line.
+    bool doc(LayoutGapItem item) {
+        let n = item.end - item.start
+        return false if n < 3
+            || source[item.start] != 0x2f
+            || source[item.start + 1] != 0x2f
+            || source[item.start + 2] != 0x2f
+        return n == 3 || source[item.start + 3] != 0x2f
+    }
+
+    /// Layout.cs: Engine.Pads. The padding the run has already put in tokens `(s, e)`.
+    i64 pads(i64 s, until i64 e) {
+        var n: i64 = 0
+        for k in s + 1..e {
+            n += pad[k]
+        }
+        return n
+    }
+
+    /// Layout.cs: Engine.LineWidth. The columns of the line from `s` with its padding, before any trailing comment.
+    i64 lineWidth(i64 s) uses alloc => width(s, until: lineEnd(s)) + pads(s, until: lineEnd(s))
+
+    /// Layout.cs: Engine.AlignRun.
+    void alignRun(ref this, List<i64> lines, by Map<i64, LayoutShape> shapeMap) uses alloc {
+        return if lines.length < 2
+        var run = lines.copy()
+        let key = shapeMap[run[0]].key
+        let outliers = key is "field" or "property" or "arm"
+        var restart = true
+        // Each restart drops one line, so the loop ends within `lines.length` passes.
+        while restart {
+            restart = false
+            return if run.length < 2
+            for c in 0..shapeMap[run[0]].columns.length {
+                // Only the lines that have the column take part: a field without a default has no `=`.
+                var part = List<i64>()
+                for s in run {
+                    if shapeMap[s].columns[c] >= 0 {
+                        part.append(s)
+                    }
+                }
+                continue if part.length < 2
+                var at = List<i64>()
+                for s in part {
+                    let column = shapeMap[s].columns[c]
+                    at.append(width(s, until: column) + pads(s, until: column) + 1)
+                }
+                var target = at[0]
+                var widest: i64 = 0
+                for n in 0..at.length {
+                    if at[n] > target {
+                        target = at[n]
+                        widest = n
+                    }
+                }
+                var second: i64 = -2147483648
+                for n in 0..at.length {
+                    if n != widest && at[n] > second {
+                        second = at[n]
+                    }
+                }
+                // A line more than 8 columns past the next-widest leaves the run and stays unaligned.
+                if outliers && target - second > 8 {
+                    for s in run {
+                        for k in shapeMap[s].columns {
+                            if k >= 0 {
+                                pad[k] = 0
+                            }
+                        }
+                    }
+                    let outlier = part[widest]
+                    for n in 0..run.length {
+                        if run[n] == outlier {
+                            run.remove(at: n)
+                            break
+                        }
+                    }
+                    restart = true
+                    break
+                }
+                var over = false
+                for n in 0..part.length {
+                    if at[n] < target && lineWidth(part[n]) + target - at[n] > options.width {
+                        over = true
+                    }
+                }
+                continue if over
+                for n in 0..part.length {
+                    pad[shapeMap[part[n]].columns[c]] = target - at[n]
+                }
+            }
+        }
+    }
+
+    /// Layout.cs: Engine.AlignComments.
+    void alignComments(ref this, List<i64> run) uses alloc {
+        return if run.length < 2
+        var at = List<i64>()
+        for s in run {
+            at.append(lineWidth(s) + 1)
+        }
+        var target = at[0]
+        for x in at {
+            if x > target {
+                target = x
+            }
+        }
+        for n in 0..run.length {
+            let item = gaps[lineEnd(run[n])].items[0]
+            let comment = layoutCommentText(source, from: item)
+            var columns: i64 = 0
+            for b in comment {
+                if (b & 0xC0) != 0x80 {
+                    columns += 1
+                }
+            }
+            return if at[n] < target && target + columns > options.width
+        }
+        for n in 0..run.length {
+            commentPad[lineEnd(run[n])] = target - at[n]
+        }
+    }
+
+    // ── Writing a gap: blank lines (pass 7), comments, indentation (pass 5), spacing (pass 6) ──
+
+    /// Layout.cs: Engine.EmitGap.
+    void emitGap(ref this, i64 i) uses alloc {
+        let start = i == 0 ? bom : tokens[i - 1].end
+        if frozen[i] {
+            for b in start..tokens[i].start {
+                output.append(source[b])
+            }
+            return
+        }
+        if inHole[i] && gaps[i].hasNewline {
+            hygiene(start, until: tokens[i].start)
+            return
+        }
+        let eof = kind(i) == .endOfFile
+        let count = gaps[i].items.length
+        var at: i64 = 0
+        if i > 0 && count > 0 && gaps[i].items[0].isComment {
+            spaces(1 + commentPad[i])
+            let item = gaps[i].items[0]
+            add(item)
+            at = 1
+        }
+        // A joined gap holds no comment (Joinable); a broken one held no newline.
+        if i > 0 && !lineStart[i] {
+            if eof {
+                output.append(0x0A)
+                return
+            }
+            if at == 0 && space(i, from: start) {
+                spaces(1 + pad[i])
+            }
+            return
+        }
+        if i > 0 {
+            output.append(0x0A)
+            at += 1
+        }
+        // Each line between the token's line and the one before: the index of a comment item, or -1 for a blank line.
+        var lines = List<i64>()
+        var comment: i64 = -1
+        while at < count {
+            if gaps[i].items[at].isComment {
+                comment = at
+            } else {
+                if comment >= 0 || lines.length == 0 || lines[lines.length - 1] >= 0 {
+                    lines.append(comment)
+                }
+                comment = -1
+            }
+            at += 1
+        }
+        if comment >= 0 {
+            lines.append(comment)
+        }
+        if i == 0 || kind(i - 1) == .openBrace {
+            while lines.length > 0 && lines[0] < 0 {
+                lines.remove(at: 0)
+            }
+        }
+        if eof || kind(i) == .closeBrace {
+            while lines.length > 0 && lines[lines.length - 1] < 0 {
+                lines.remove(at: lines.length - 1)
+            }
+        }
+        var blank = false
+        for line in lines {
+            if line < 0 {
+                blank = true
+            }
+        }
+        if needsBlank[i] && !blank {
+            var withBlank = List<i64>()
+            withBlank.append(-1)
+            for line in lines {
+                withBlank.append(line)
+            }
+            lines = move withBlank
+        }
+        let closer = kind(i) == .closeParen || kind(i) == .closeBracket || kind(i) == .closeBrace
+        let commentLevel = eof ? 0 : closer ? levelOf[i] + 1 : levelOf[i]
+        for line in lines {
+            if line >= 0 {
+                indent(commentLevel)
+                let item = gaps[i].items[line]
+                add(item)
+            }
+            output.append(0x0A)
+        }
+        if !eof {
+            indent(levelOf[i])
+        }
+    }
+
+    /// Layout.cs: Engine.Add.
+    void add(ref this, LayoutGapItem item) uses alloc {
+        for b in layoutCommentText(source, from: item) {
+            output.append(b)
+        }
+    }
+
+    /// Layout.cs: Engine.Indent.
+    void indent(ref this, i64 level) uses alloc => spaces(level * options.indent)
+
+    /// Layout.cs: Engine.Spaces.
+    void spaces(ref this, i64 n) uses alloc {
+        for k in 0..n {
+            output.append(0x20)
+        }
+    }
+
+    /// Layout.cs: Engine.Hygiene. The bytes as written, less the blanks and carriage returns before each newline (pass 1).
+    void hygiene(ref this, i64 start, until i64 end) uses alloc {
+        var blanks = start
+        for at in start..end {
+            let b = source[at]
+            continue if b is 0x20 or 0x09 or 0x0D
+            if b != 0x0A {
+                for k in blanks..at {
+                    output.append(source[k])
+                }
+            }
+            output.append(b)
+            blanks = at + 1
+        }
+        for k in blanks..end {
+            output.append(source[k])
+        }
+    }
+
+    // ── Horizontal spacing (pass 6, proposal §3.8) ───────────────────────────
+
+    /// Layout.cs: Engine.Space. Whether one space goes between tokens `i` − 1 and `i` on one line.
+    bool space(i64 i, from i64 start) uses alloc {
+        let written = tokens[i].start > start
+        // A product written tight takes a space each side (`price * quantity`); Check compares the trees.
+        return true if spaceProducts && (tightProduct(i) || tightProduct(i - 1))
+        // The parser reads the gap here (`>>`, `T...`, `u8*`, `30s`, `unlikely (a)`): keep it as written.
+        return written if layoutTriviaMatters(source, from: tokens, at: i)
+        // Generics are tight inside (`List<Sku>`).
+        return written && merges(i) if tightAfter[i - 1] || tightBefore[i]
+        let a = after(i - 1)
+        let ahead = before(i)
+        var spaced = false
+        if a == .none || ahead == .none {
+            spaced = false
+        } else if a == .keep || ahead == .keep {
+            spaced = written
+        } else if a == .space || ahead == .space {
+            spaced = true
+        } else {
+            spaced = written
+        }
+        return spaced || written && merges(i)
+    }
+
+    /// Layout.cs: Engine.Merges. Whether tokens `i` − 1 and `i` written together lex as something else (`- -x`).
+    bool merges(i64 i) uses alloc {
+        // A string piece lexes as itself only inside its string; it never merges with a neighbour.
+        return false if layoutPiece(kind(i - 1)) || layoutPiece(kind(i))
+        var joined = List<u8>()
+        for b in tokens[i - 1].start..tokens[i - 1].end {
+            joined.append(source[b])
+        }
+        for b in tokens[i].start..tokens[i].end {
+            joined.append(source[b])
+        }
+        let lexed = lexer.lex(lexer.SourceText.create("layout", from: move joined), by: keywords)
+        return lexed.tokens.length != 3
+            || lexed.tokens[0].kind != tokens[i - 1].kind
+            || lexed.tokens[1].kind != tokens[i].kind
+    }
+
+    /// Layout.cs: Engine.TightProduct. Whether token `i` is a `*` written tight between two operands on one line (`a*b`).
+    bool tightProduct(i64 i) {
+        if !(i > 0 && i + 1 < tokens.length && kind(
+            i,
+        ) == .star && !lineStart[i] && !lineStart[i + 1] && !trivia(i) && !trivia(i + 1)
+                && layoutOperandEnd(kind(i - 1))) {
+            return false
+        }
+        let next = kind(i + 1)
+        return next == .identifier
+            || next == .integerLiteral
+            || next == .floatLiteral
+            || next == .charLiteral
+            || next == .openParen
+            || next == .thisKeyword
+            || next == .interpolatedStringStart
+            || lexer.isStringLiteral(next)
+            || parser.isContextualKeyword(next)
+    }
+
+    /// Layout.cs: Engine.IsUnary. Whether the `-`, `+`, `&`, `!` or `*` at `i` is a prefix operator.
+    bool isUnary(i64 i) => lineStart[i] || !layoutOperandEnd(kind(i - 1))
+
+    /// Layout.cs: Engine.Star. A `*`: prefix, binary (spaced before), or as written (`u8*`, `u8**`, `a*b`).
+    LayoutSide star(i64 i, as LayoutSide prefix) {
+        return prefix if lineStart[i]
+        return .keep if kind(i - 1) == .star && !trivia(i)
+        return prefix if !layoutOperandEnd(kind(i - 1))
+        return trivia(i) ? .space : .keep
+    }
+
+    /// Layout.cs: Engine.After. What token `i` asks of the space after it.
+    LayoutSide after(i64 i) {
+        let k = kind(i)
+        return .none if k is .interpolatedStringStart
+            or .interpolatedStringText
+            or .interpolationStart
+            or .interpolationEnd
+        return .none if k is .openParen
+            or .openBracket
+            or .dot
+            or .questionDot
+            or .at
+            or .tilde
+            or .dotDot
+            or .dotDotEquals
+        return .space if k is .comma or .colon
+        return kind(i + 1) == .closeBrace ? .keep : .space if k == .openBrace
+        return .space if layoutIsBinary(k)
+        return isUnary(i) ? .none : .space if k is .minus or .plus or .amp
+        return isUnary(i) ? .none : .keep if k == .bang
+        return star(i, as: .none) if k == .star
+        return kind(i - 1) == .dotDot ? .none : trivia(i) ? .space : .keep if k == .less
+        return trivia(i) ? .space : .keep if k is .greater or .question
+        return .keep if k is .plusPlus or .minusMinus or .hash or .semicolon
+        return .deferred
+    }
+
+    /// Layout.cs: Engine.Before. What token `i` asks of the space before it.
+    LayoutSide before(i64 i) {
+        let k = kind(i)
+        return .none if k is .interpolatedStringText
+            or .interpolationStart
+            or .interpolationEnd
+            or .interpolatedStringEnd
+        return .none if k is .closeParen or .closeBracket or .comma
+        return .keep if k is .semicolon or .numericSuffix or .plusPlus or .minusMinus or .hash
+        return kind(i - 1) == .openBrace ? .keep : .space if k == .closeBrace
+        return .space if k == .openBrace
+        return spacedColon(i) ? .space : .none if k == .colon
+        if k is .dot or .questionDot {
+            let prev = kind(i - 1)
+            return .deferred if k == .dot && prev == .identifier && textIs(i - 1, as: "becomes")
+            return prev == .identifier
+                || prev == .closeParen
+                || prev == .closeBracket
+                || prev == .thisKeyword
+                || prev == .interpolatedStringEnd
+                || lexer.isStringLiteral(prev) || parser.isContextualKeyword(prev) ? .none : .deferred
+        }
+        return particleTuple(i) ? .space : callLike(i - 1) ? .none : .deferred if k is .openParen or .openBracket
+        return layoutOperandEnd(kind(i - 1)) ? .none : .deferred if k is .dotDot or .dotDotEquals
+        return .space if layoutIsBinary(k)
+        return isUnary(i) ? .deferred : .space if k is .minus or .plus or .amp
+        return isUnary(i) ? .deferred : .keep if k == .bang
+        return star(i, as: .deferred) if k == .star
+        return kind(i - 1) == .dotDot ? .none : trivia(i) ? .space : .keep if k == .less
+        return trivia(i) ? .space : .keep if k is .greater or .question
+        return .deferred
+    }
+
+    /// Layout.cs: Engine.ParticleTuple. Whether the `(` at `i` opens the tuple type of a parameter after its particle
+    /// (`by (string a, string b) args`), not a call: the particle follows a `(` or `,` and a name follows the `)`.
+    bool particleTuple(i64 i) {
+        return false if kind(i) != .openParen || i < 2 || kind(i - 1) != .identifier
+        return false if !(kind(i - 2) is .openParen or .comma)
+        return false if !(textIs(i - 1, as: "from") || textIs(i - 1, as: "to") || textIs(i - 1, as: "until")
+            || textIs(i - 1, as: "through")
+            || textIs(i - 1, as: "at")
+            || textIs(i - 1, as: "by")
+            || textIs(i - 1, as: "for")
+            || textIs(i - 1, as: "as"))
+        let close = matchOf[i]
+        return close > i && close + 1 < matchOf.length && kind(close + 1) == .identifier
+    }
+
+    /// Layout.cs: Engine.CallLike. Whether a `(` or `[` after token `i` is a call or an index: no space before it.
+    bool callLike(i64 i) {
+        let k = kind(i)
+        return true if k == .closeParen || k == .closeBracket || parser.isContextualKeyword(k)
+        return k == .identifier && !(textIs(i, as: "where") || textIs(i, as: "expects") || textIs(i, as: "becomes"))
+    }
+
+    /// Layout.cs: Engine.SpacedColon. Whether the `:` at `i` is a ternary's or a conformance's (`struct S : I`, `where T : I`).
+    bool spacedColon(i64 i) {
+        var depth: i64 = 0
+        // A `,` at this level ends a ternary operand, so a `?` before it is another entry's (`f(c ? a : b, by: x)`).
+        var pastComma = false
+        var k = i - 1
+        while k >= 0 {
+            let at = kind(k)
+            pastComma = true if at == .comma && depth == 0
+            if at is .closeParen or .closeBracket or .closeBrace or .interpolationEnd {
+                depth += 1
+            } else if at is .openParen or .openBracket or .openBrace or .interpolationStart {
+                return false if depth == 0
+                depth -= 1
+            } else if depth == 0
+                    && (at == .structKeyword || at == .interfaceKeyword || at == .extensionKeyword || at == .question && trivia(
+                        k,
+                    ) && !pastComma
+                    || at == .identifier && textIs(k, as: "where")) {
+                return true
+            }
+            // A chain link continues its line, so the scan goes on through it to a `?` before the chain.
+            return false if lineStart[k] && depth == 0 && !isWasl(k)
+            k -= 1
+        }
+        return false
+    }
+}

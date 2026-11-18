@@ -1,0 +1,5 @@
+== tests/cases/diag/not-constant.byn
+17..18 literalExpr integer
+17..18 literalExpr integer
+17..18 literalExpr integer
+35..44 callExpr

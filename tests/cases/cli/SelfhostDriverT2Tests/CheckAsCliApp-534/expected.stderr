@@ -1,0 +1,10 @@
+error BYN6005: `price` uses `console`, beyond the bound `pure` declared by `IPricer.price`
+  --> <repo>/tmp/t2/diag/effect-bound-exceeded/effect-bound-exceeded.byn:10:9
+
+  10 │     i64 price(i64 cents) {
+     │         ^^^^^ uses `console`
+     │
+  help: declare `console` on `IPricer.price`, or pass a function without it
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6005

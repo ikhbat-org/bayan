@@ -1,0 +1,1 @@
+{"code":"BYN2225","severity":"error","file":"input.byn","span":{"start":76,"end":77,"line":7,"column":10,"endLine":7,"endColumn":11},"message":"`Point` cannot be formatted","label":null,"help":"add `formatInto(ref StrBuf)` to `Point`, or use `{x, as: .debug}`","fixes":[]}

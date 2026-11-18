@@ -1,0 +1,30 @@
+1:1 Identifier `_fails`
+1:8 TryKeyword `try`
+1:12 CatchKeyword `catch`
+1:18 NeverKeyword `never`
+1:24 NoallocKeyword `noalloc`
+1:32 NosuspendKeyword `nosuspend`
+1:42 SuspendsKeyword `suspends`
+1:51 AsyncKeyword `async`
+1:57 AwaitKeyword `await`
+2:4 Identifier `comment`
+2:12 Star `*`
+2:13 Slash `/`
+2:15 Identifier `a`
+5:1 IntegerLiteral `0x`
+6:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ _fails try catch never noalloc nosuspend�suspends async await
+    │                                         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  6 │  � 
+    │  ^

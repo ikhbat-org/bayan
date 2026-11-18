@@ -1,0 +1,38 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+4:1 CharLiteral `' u $"{��� /// Doc line o�e.\r`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  4 │ ' u $"{��� /// Doc line o�e.
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ ' u $"{��� /// Doc line o�e.
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ ' u $"{��� /// Doc line o�e.
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ' u $"{��� /// Doc line o�e.
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  4 │ ' u $"{��� /// Doc line o�e.
+    │                          ^

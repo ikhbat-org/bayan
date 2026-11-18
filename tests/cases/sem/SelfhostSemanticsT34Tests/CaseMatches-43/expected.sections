@@ -1,0 +1,6 @@
+== s18
+switchExpr|i32|2413:32
+value local:Order=od
+arm 2425:10 bindPattern[2425:5]:Order(-) guard - value literal:i32=1
+arm 2437:6 bindPattern[2437:1]:Order_(-) guard - value literal:i32=0
+BYN7007 89:28 `Order` has no state `.nope` ||check the states declared in `Order`|

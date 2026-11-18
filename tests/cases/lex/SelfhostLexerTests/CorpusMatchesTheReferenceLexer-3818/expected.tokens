@@ -1,0 +1,95 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{x}"`
+3:55 InterpolationEnd `}`
+3:56 InterpolatedStringText `}`
+3:57 InterpolatedStringEnd `"`
+3:58 InterpolationEnd `}`
+3:59 InterpolatedStringEnd `"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+5:1 Identifier `macr`
+5:6 Identifier `select`
+5:13 Identifier `beome`
+7:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}}"}"}" //// not a doc comment
+    │                                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}}"}"}" //// not a doc comment
+    │                                                 ^^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}}"}"}" //// not a doc comment
+    │                                                        ^
+    │
+    │ 3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}}}"}"}" //// not a doc comment
+    │   │                                                         +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │  �
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │  �
+    │   ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macr select beome
+    │      ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

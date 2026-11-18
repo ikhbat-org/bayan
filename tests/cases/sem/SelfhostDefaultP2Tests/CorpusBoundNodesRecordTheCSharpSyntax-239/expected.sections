@@ -1,0 +1,63 @@
+== tests/cases/run/positional-requires.byn
+128..143 tryExpr
+128..143 tryExpr
+128..143 tryExpr
+132..143 callExpr
+132..143 callExpr
+138..139 nameExpr
+141..142 nameExpr
+145..169 globalStatement
+145..169 localDecl
+158..169 callExpr
+164..165 literalExpr integer
+167..168 literalExpr integer
+170..203 localDecl
+178..203 catchExpr
+178..190 callExpr
+181..182 literalExpr integer
+188..189 literalExpr integer
+197..203 nameExpr
+204..225 exprStmt
+204..225 callExpr
+210..224 interpolatedExpr
+213..216 memberExpr
+213..214 nameExpr
+219..222 memberExpr
+219..220 nameExpr
+204..225 callExpr
+226..260 localDecl
+234..260 catchExpr
+234..247 callExpr
+237..239 unaryExpr negate operand 238..239
+245..246 literalExpr integer
+254..260 nameExpr
+261..282 exprStmt
+261..282 callExpr
+267..281 interpolatedExpr
+270..273 memberExpr
+270..271 nameExpr
+276..279 memberExpr
+276..277 nameExpr
+261..282 callExpr
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+51..66 requiresRule
+51..66 requiresRule
+60..66 binaryExpr ge right 65..66
+60..61 nameExpr
+60..61 nameExpr
+65..66 literalExpr integer
+51..66 requiresRule
+51..66 requiresRule
+51..66 requiresRule
+51..66 requiresRule
+51..66 requiresRule
+51..66 requiresRule
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl
+0..68 structDecl

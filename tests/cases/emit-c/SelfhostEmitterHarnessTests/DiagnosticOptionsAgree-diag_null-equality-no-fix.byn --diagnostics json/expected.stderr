@@ -1,0 +1,2 @@
+{"code":"BYN2208","severity":"error","file":"input.byn","span":{"start":45,"end":54,"line":3,"column":13,"endLine":3,"endColumn":22},"message":"`==` cannot be applied to `i32` and `null`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2208","severity":"error","file":"input.byn","span":{"start":67,"end":79,"line":4,"column":13,"endLine":4,"endColumn":25},"message":"`==` cannot be applied to `null` and `null`","label":null,"help":null,"fixes":[]}

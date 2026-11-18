@@ -1,0 +1,28 @@
+interface IKeeper {
+    void keep(ref this, string v, to ref string t)
+}
+
+struct K : IKeeper {
+    string s
+
+    void keep(ref this, string v, to ref string t) {
+        t = v
+    }
+}
+
+void viaDyn(dyn ref IKeeper k, by string v, to ref string t) {
+    k.keep(v, to: ref t)
+    k.keep(v, to: ref t, v)
+}
+
+void main() {
+    var k = K { s: "" }
+    var kept = ""
+    {
+        using let arena = Arena()
+        let name = "ann".copy(to: arena)
+        viaDyn(k, by: name, to: ref kept)
+        viaDyn(5, by: name, to: ref kept)
+    }
+    print(kept)
+}

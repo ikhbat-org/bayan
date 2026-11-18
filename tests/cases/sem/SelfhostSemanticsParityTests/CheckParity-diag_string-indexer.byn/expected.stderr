@@ -1,0 +1,16 @@
+error BYN2201: a `string` cannot be indexed
+  --> tmp/t26-tests/cli/diag_string-indexer.byn/string-indexer.byn:2:17
+
+  2 │ let first = name[0]
+    │                 ^^^ strings have no indexer
+    │
+  help: read a byte, slice, or take characters; `string` is UTF-8, so position 0 is not a character:
+          `name.bytes[0]`       the byte at offset 0 (applied below)
+          `name[a..b]`          the text between byte offsets a and b
+          `name.runes.take(n)`  the first n runes
+          `name.graphemes`      user-perceived characters
+    │ 2 │ let first = name.bytes[0]
+    │   │                 ++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2201

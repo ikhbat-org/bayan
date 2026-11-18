@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/unknown-module.byn
+--package
+<repo>/tests/cases/diag

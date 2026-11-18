@@ -1,0 +1,13 @@
+== tests/cases/diag/literal-with-constructor.byn
+135..167 globalStatement
+135..167 localDecl
+143..167 structLiteralExpr
+78..131 blockStmt
+88..102 assignStmt assign target 88..96 value 99..102
+88..96 memberExpr
+88..92 thisExpr
+99..102 nameExpr
+111..125 assignStmt assign target 111..119 value 122..125
+111..119 memberExpr
+111..115 thisExpr
+122..125 nameExpr

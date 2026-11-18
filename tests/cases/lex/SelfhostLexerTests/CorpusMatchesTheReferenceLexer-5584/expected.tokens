@@ -1,0 +1,37 @@
+1:1 CharLiteral `'\u{110000}'`
+2:2 Identifier `é`
+3:1 TestKeyword `test`
+3:6 AssertKeyword `assert`
+3:13 PropertyKeyword `property`
+3:22 FuzzKeyword `fuzz`
+3:27 ModelKeyword `model`
+3:33 Identifier `forch`
+3:39 NewKeyword `new`
+3:43 GotoKeyword `goto`
+4:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  2 │  é�� 
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  é�� 
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │  é�� 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  é�� 
+    │     ^

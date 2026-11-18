@@ -1,0 +1,71 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Identifier `b`
+2:1 StringLiteral `"}"`
+2:4 CloseBrace `}`
+2:5 StringLiteral `"}"`
+2:8 CloseBrace `}`
+2:9 StringLiteral `"}"`
+2:12 CloseBrace `}`
+2:13 StringLiteral `"}"`
+2:16 CloseBrace `}`
+2:17 StringLiteral `"}"`
+2:20 CloseBrace `}`
+2:21 StringLiteral `"}"`
+2:24 CloseBrace `}`
+2:25 StringLiteral `"}"`
+2:28 CloseBrace `}`
+2:32 IntegerLiteral `1__`
+3:2 LetKeyword `let`
+3:6 LawKeyword `law`
+3:10 Equals `=`
+3:12 IntegerLiteral `3`
+4:1 CharLiteral `'\u{202E}'`
+4:5 LetKeyword `let`
+4:11 Equals `=`
+4:13 IntegerLiteral `2`
+5:1 Identifier `ạ̇`
+5:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ "}"}"}"}"}"}"}"}"}"}"}"}"}"} � 1__
+    │                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ "}"}"}"}"}"}"}"}"}"}"}"}"}"} � 1__
+    │                               ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ "}"}"}"}"}"}"}"}"}"}"}"}"}"} � 1__
+    │                                 ^^
+    │
+    │ 2 │ "}"}"}"}"}"}"}"}"}"}"}"}"}"} � 1__
+    │   │                                 --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ '�' let � = 2
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ '�' let � = 2
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ '�' let � = 2
+    │         ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │ ạ̇ 
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ ạ̇ 
+    │   │ ++

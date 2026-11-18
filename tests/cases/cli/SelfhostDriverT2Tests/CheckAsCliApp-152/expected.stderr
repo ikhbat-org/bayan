@@ -1,0 +1,13 @@
+note BYN1080: `maybe is { } value` binds an optional with a pattern; `maybe is not null` narrows
+`maybe`
+  --> <repo>/tmp/t2/diag/valid-types/valid-types.byn:27:4
+
+  27 │ if (maybe is { } value) {
+     │    ^^^^^^^^^^^^^^^^^^^^ binds a second name
+     │
+  help: write `if maybe is not null` and read `maybe`
+     │ 27 │ if maybe is not null {
+     │    │    +++++++++++++++++++
+     │ 28 │     print($"{maybe}")
+     │    │ +++++++++++++++++
+     │ 29 │ }

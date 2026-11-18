@@ -1,0 +1,19 @@
+# BYN1079: empty literal spelled with its type
+
+A style lint (`literals.empty`): reported by `bayan check` only, never by `build`, `run` or `test`. Its severity comes from `lints` in `package.byn` (`.suggestion` by default; `.none` silences it, `.error` makes `bayan check` fail). `bayan fix` applies its fix whatever the severity.
+
+**What.** A field default or an annotated `let` local initialised with `List<T>()`, `Map<K, V>()` or `T {}` where the declared type is the same type. Arguments and struct-literal initialisers are not linted yet.
+
+**Why.** The declaration already names the type; writing it again on the right adds nothing.
+
+**Example.**
+
+```
+let names: List<string> = List<string>()
+```
+
+**Fix.** Write `[]` for a list or map, `{}` for a struct (the machine fix does it; the C output is the same):
+
+```
+let names: List<string> = []
+```

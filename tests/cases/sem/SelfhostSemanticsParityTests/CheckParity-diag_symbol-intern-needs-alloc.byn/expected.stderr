@@ -1,0 +1,12 @@
+error BYN6002: `undeclared` uses `alloc` but does not declare it
+  --> tmp/t26-tests/cli/diag_symbol-intern-needs-alloc.byn/symbol-intern-needs-alloc.byn:3:12
+
+  3 │     return Symbol.intern(text)
+    │            ^^^^^^^^^^^^^^^^^^^ uses `alloc`
+    │
+  help: add `alloc` to the `uses` clause, or remove the call
+    │ 2 │ public Symbol undeclared(string text) uses alloc {
+    │   │                                      +++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6002

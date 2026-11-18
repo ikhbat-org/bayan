@@ -1,0 +1,62 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `tota`
+3:7 InterpolatedStringEnd
+4:2 OpenBrace `{`
+4:3 Identifier `x`
+4:4 CloseBrace `}`
+4:5 StringLiteral `" $"`
+4:9 Identifier `a`
+4:11 Identifier `I`
+4:12 OpenParen `(`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolatedStringText `b `
+4:17 InterpolationStart `{`
+4:18 Identifier `c`
+4:19 InterpolationEnd `}`
+4:20 InterpolatedStringEnd `"`
+4:21 CloseParen `)`
+4:22 CloseBrace `}`
+4:24 Identifier `d`
+4:25 StringLiteral `" $"`
+4:29 OpenBrace `{`
+4:30 OpenBrace `{`
+4:31 Identifier `literal`
+4:38 CloseBrace `}`
+4:39 CloseBrace `}`
+4:40 StringLiteral `" $"`
+4:44 OpenBrace `{`
+4:45 Identifier `Point`
+4:51 OpenBrace `{`
+4:53 Identifier `x`
+4:55 Equals `=`
+4:57 IntegerLiteral `1`
+4:59 CloseBrace `}`
+4:60 CloseBrace `}`
+4:61 Bang `!`
+4:62 StringLiteral `" $"`
+4:66 StringLiteral `"`
+5:2 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b = ` 2
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"tota
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0003: unterminated string literal
+
+  4 │  {x}" $"a I($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                                                  ^ string ends at the end of
+    │                                                                    the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

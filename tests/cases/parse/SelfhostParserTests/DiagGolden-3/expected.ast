@@ -1,0 +1,15 @@
+CompilationUnit
+  ErrorEnum EmailError
+    Variant invalid doc `Not an address.`
+  ErrorEnum DbError
+    Variant timeout doc `Too slow.`
+  ErrorSet SignupError = EmailError, DbError
+
+error BYN1029: an error set is declared `union error SignupError = A, B`
+
+  11 │ error set SignupError = EmailError | DbError
+     │ ^^^^^^^^^ the input form
+     │
+  help: write `union error`, with `,` between the members
+     │ 11 │ union error SignupError = EmailError, DbError
+     │    │ +++++++++++++++++++++++++++++++++++++

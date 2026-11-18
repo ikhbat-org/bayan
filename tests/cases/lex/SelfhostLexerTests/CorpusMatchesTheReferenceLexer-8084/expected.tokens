@@ -1,0 +1,39 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+2:2 LetKeyword `let`
+2:6 EffectKeyword `effect`
+2:13 Equals `=`
+2:15 IntegerLiteral `2`
+    doc `/// Doc line two.`
+6:1 StructKeyword `struct`
+6:8 Identifier `S`
+8:1 Identifier `b`
+9:2 IntegerLiteral `0x`
+11:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  9 │  0x
+    │  ^^
+
+error BYN0004: unterminated block comment
+
+  10 │ /* block
+     │ ^^ comment starts here
+     │
+  help: close it with `*/`

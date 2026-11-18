@@ -150,11 +150,12 @@ string goldenCliPut(string text, for string scratch) uses alloc {
     return text.replaced("<repo>", by: scratch).replaced("<root>", by: scratch).replaced("{D}", by: scratch)
 }
 
-/// The paths below the repo that `args`, `env` and `cwd` of case `dir` name, in that order, each `<repo>/…` up to the end of its line or a `:`,
-/// read below `scratch`.
-List<string> goldenCliNamed(string dir, for string scratch) uses alloc, fs {
+/// The paths below the repo that `args`, `env` and `cwd` of case `dir` name (`args` alone with `argsOnly`), in that order, each `<repo>/…` up
+/// to the end of its line or a `:`, read below `scratch`.
+List<string> goldenCliNamed(string dir, for string scratch, bool argsOnly = false) uses alloc, fs {
     var named = List<string>()
     for file in ["args", "env", "cwd"] {
+        continue if argsOnly && file != "args"
         for line in file == "args" ? goldenArgLines(Path.combine(dir, file)) : goldenCliLines(Path.combine(dir, file)) {
             var rest = line
             var at = goldenOffset(rest, for: "<repo>/")
@@ -297,26 +298,38 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
             placed.append(false)
         }
         var any = false
-        if entries.length > 1 {
-            for path in named {
-                let target = goldenCliTarget(path)
-                for k in 0..entries.length {
-                    if !placed[k] && goldenCliEntryName(entries[k]) == Path.fileName(target) {
-                        goldenCliPlace(entries[k], at: target, from: cases, to: ref exec, through: ref failure)
-                        placed[k] = true
-                        any = true
-                    }
+        for path in named {
+            let target = goldenCliTarget(path)
+            for k in 0..entries.length {
+                if !placed[k] && goldenCliEntryName(entries[k]) == Path.fileName(target) {
+                    goldenCliPlace(entries[k], at: target, from: cases, to: ref exec, through: ref failure)
+                    placed[k] = true
+                    any = true
                 }
             }
         }
-        // one tree: its entries at the first named path, else at the scratch root
-        let whole = any ? scratch : named.length > 0 ? goldenCliTarget(named[0]) : scratch
+        // the rest at the first path `args` names, a `main.byn` one first (SelfhostExport.cs:93), else at the scratch root: a path only
+        // `env` names (a PATH, a cache) is no input's place
+        let given = goldenCliNamed(dir, for: scratch, argsOnly: true)
+        var whole = any || given.length == 0 ? scratch : goldenCliTarget(given[0])
+        if !any {
+            for path in given {
+                if Path.fileName(path) == "main.byn" {
+                    whole = goldenCliTarget(path)
+                    break
+                }
+            }
+        }
         for k in 0..entries.length {
             continue if placed[k]
             let name = goldenCliEntryName(entries[k])
             var target = Path.combine(whole, name)
             if any {
                 for path in named {
+                    if Path.fileName(path) == name {
+                        // a named `main.byn` beside another named entry: its own path, not its directory's
+                        target = path
+                    }
                     var up = Path.directoryName(path) ?? ""
                     while up.length > scratch.length {
                         if Path.fileName(up) == name {
@@ -470,6 +483,82 @@ string goldenCliCommit(string text) uses alloc {
     return buf.finish()
 }
 
+/// `text` with the rest of each line after `lead…close` followed by `: ` read as `<message>`: the C# `(lead[^close]*close): .*` as `$1: <message>`.
+string goldenCliMessage(string text, from string lead, until u8 close) uses alloc {
+    let b = text.bytes
+    var sb = StrBuf()
+    var copied: i64 = 0
+    var i: i64 = 0
+    while i < text.length {
+        if goldenCliHas(text, at: i, for: lead) {
+            var j = i + lead.length
+            while j < text.length && b[j] != close && b[j] != 0x0a {
+                j += 1
+            }
+            if j + 2 < text.length && b[j] == close && b[j + 1] == 0x3a && b[j + 2] == 0x20 {
+                sb.append(text[copied..j + 3])
+                sb.append("<message>")
+                var e = j + 3
+                while e < text.length && b[e] != 0x0a {
+                    e += 1
+                }
+                copied = e
+                i = e
+                continue
+            }
+        }
+        i += 1
+    }
+    sb.append(text[copied..text.length])
+    return sb.finish()
+}
+
+/// SelfhostDefaultT9Tests.cs:830-833 `Masked` after the root: `[0-9]+\.[0-9]{2}s` as `<t>s`, the message of an unwritable cache and of a C
+/// compiler that does not start as `<message>`, `scripts/[0-9a-f]{64}` as `scripts/<skey>`, `\(commit [^)]*\)` as `(commit <c>)`.
+string goldenCliT9(string text) uses alloc {
+    let t = goldenCliTimes(text, from: "", by: "<t>s", two: true)
+    let m = goldenCliMessage(
+        goldenCliMessage(t, from: "cannot write the build output or cache (<root>", until: 0x29),
+        from: "cannot run the C compiler `",
+        until: 0x60,
+    )
+    let b = m.bytes
+    var sb = StrBuf()
+    var copied: i64 = 0
+    var i: i64 = 0
+    while i < m.length {
+        if goldenCliHas(m, at: i, for: "scripts/") && i + 8 + 64 <= m.length {
+            var hex = true
+            for k in i + 8..i + 8 + 64 {
+                hex = hex && (goldenCliDigit(b[k]) || b[k] >= 0x61 && b[k] <= 0x66)
+            }
+            if hex {
+                sb.append(m[copied..i])
+                sb.append("scripts/<skey>")
+                i += 8 + 64
+                copied = i
+                continue
+            }
+        }
+        if goldenCliHas(m, at: i, for: "(commit ") {
+            var j = i + 8
+            while j < m.length && b[j] != 0x29 {
+                j += 1
+            }
+            if j < m.length {
+                sb.append(m[copied..i])
+                sb.append("(commit <c>)")
+                i = j + 1
+                copied = i
+                continue
+            }
+        }
+        i += 1
+    }
+    sb.append(m[copied..m.length])
+    return sb.finish()
+}
+
 /// Whether `text` holds `word` from byte `i` on, compared as bytes (`i` need not start a character).
 bool goldenCliHas(string text, at i64 i, for string word) {
     return false if i + word.length > text.length
@@ -546,6 +635,85 @@ string goldenCliT12(string text) uses alloc {
     }
     buf.append(rest)
     return goldenCliTimes(buf.finish(), from: " in ", by: " in <time>")
+}
+
+/// The index after an SGR sequence `ESC[<digits and ;>m` at `i` in `line`, else `i`.
+i64 goldenCliSgr(string line, at i64 i) {
+    let b = line.bytes
+    return i if !(i + 1 < line.length && b[i] == 0x1b && b[i + 1] == 0x5b)
+    var j = i + 2
+    while j < line.length && (goldenCliDigit(b[j]) || b[j] == 0x3b) {
+        j += 1
+    }
+    return j < line.length && b[j] == 0x6d ? j + 1 : i
+}
+
+/// land-export.sh `mask_doctor` (T17c land-time mask) on one line: the value of an ok row (marker `◆` or `*`, optionally in colour)
+/// labelled host, C compiler, zig or git, and cache when `cache`, as `<host>`; a `not found` row and any other line as is.
+string goldenCliDoctorLine(string line, by bool cache) uses alloc {
+    let b = line.bytes
+    var k = goldenCliSgr(line, at: 0)
+    if goldenCliHas(line, at: k, for: "◆") {
+        k += "◆".length
+    } else if k < line.length && b[k] == 0x2a {
+        k += 1
+    } else {
+        return line
+    }
+    k = goldenCliSgr(line, at: k)
+    let marker = k
+    while k < line.length && b[k] == 0x20 {
+        k += 1
+    }
+    return line if k == marker
+    for label in ["host", "C compiler", "zig", "git", "cache"] {
+        continue if label == "cache" && !cache || !goldenCliHas(line, at: k, for: label)
+        var j = k + label.length
+        let gap = j
+        while j < line.length && b[j] == 0x20 {
+            j += 1
+        }
+        return line if j == gap || j >= line.length || goldenCliHas(line, at: j, for: "not found")
+        return $"{line[0..j]}<host>"
+    }
+    return line
+}
+
+/// land-export.sh `mask_doctor` on the actual side: each line of `text` through `goldenCliDoctorLine`.
+string goldenCliDoctor(string text, by bool cache) uses alloc {
+    var sb = StrBuf()
+    let lines = goldenLines(text)
+    for i in 0..lines.length {
+        if i > 0 {
+            sb.append("\n")
+        }
+        sb.append(goldenCliDoctorLine(lines[i], by: cache))
+    }
+    return sb.finish()
+}
+
+/// land-export.sh `mask_cc` (T17c land-time mask) on the actual side: everything after the first line `C compiler failed (exit N):` as
+/// the one line `<cc output>`; `text` as is when it has no such line.
+string goldenCliCc(string text) uses alloc {
+    let lead = "C compiler failed (exit "
+    var start: i64 = 0
+    while start < text.length {
+        var end = start
+        while end < text.length && text.bytes[end] != 0x0a {
+            end += 1
+        }
+        if goldenCliHas(text, at: start, for: lead) {
+            var j = start + lead.length
+            while j < end && goldenCliDigit(text.bytes[j]) {
+                j += 1
+            }
+            if j > start + lead.length && j + 2 == end && goldenCliHas(text, at: j, for: "):") {
+                return $"{text[0..end]}\n<cc output>\n"
+            }
+        }
+        start = end + 1
+    }
+    return text
 }
 
 /// Whether `c` is in the class `[0-9.E+-]` of SelfhostDriverMutateTests.cs:40.
@@ -629,7 +797,7 @@ string goldenCliMutation(string text) uses alloc {
 }
 
 /// SelfhostDriverT3Tests.cs:212 `Masked`: the compiler's argv with the flags that name the machine's directories masked; `scratch` is the
-/// directory the build ran in.
+/// directory the build ran in, and a file below a cache's `v1/tmp/` (`main.c`, `program`) reads as the probe's, by its name.
 string goldenCliArgv(string argv, at string scratch) uses alloc {
     var text = argv
     while text.endsWith("\n") {
@@ -645,6 +813,9 @@ string goldenCliArgv(string argv, at string scratch) uses alloc {
             line = "<dir>"
         } else if line == Path.combine(scratch, "main.c") {
             line = "main.c"
+        } else if line.contains("/cache/v1/tmp/") {
+            // the probe compiled in the scratch directory, the driver this runner runs in its cache's work directory
+            line = Path.fileName(line)
         } else if line == Path.combine(scratch, "bayan-rt.c") {
             line = "bayan-rt.c"
         } else if line.endsWith("/bayan-rt.o") {
@@ -734,6 +905,17 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         args.append(goldenCliPut(line, for: scratch))
     }
     var env = goldenEnv()
+    // the colour the export's process had none of (a case that sets one says so in `env`): this shell's would pick another palette
+    for name in ["NO_COLOR", "FORCE_COLOR", "COLORTERM", "BAYAN_THEME", "COLORFGBG"] {
+        env[name] = null
+    }
+    // the C# ran in a fresh temp directory (SelfhostDefaultT4Tests.cs:43 `Fresh`) outside any git work tree; the scratch is in this one
+    env["GIT_CEILING_DIRECTORIES"] = Path.directoryName(scratch) ?? scratch
+    if cls == "SelfhostDefaultT9Tests" {
+        // SelfhostDefaultT9Tests.cs:813-814 `Bayan`: the cache below the working directory, BAYAN_CC unset
+        env["BAYAN_CACHE"] = Path.combine(cwd, "cache")
+        env["BAYAN_CC"] = null
+    }
     var bin = scratch
     for line in goldenCliLines(Path.combine(dir, "env")) {
         let at = goldenOffset(line, for: "=")
@@ -779,7 +961,7 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
     return $"{dir}\n{failure}" if failure != ""
     // what the run printed, the scratch directory read back as the placeholder the C# masked it to
     var tag = "<repo>"
-    if word == "root-masked" {
+    if word == "root-masked" || cls == "SelfhostDefaultT9Tests" {
         tag = "<root>"
     } else if word == "masked" && cls == "SelfhostDefaultT4Tests" {
         tag = "<D>"
@@ -802,6 +984,27 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
     }
     buf = buf.replaced(scratch, by: tag)
     err = err.replaced(scratch, by: tag)
+    // the T17c land-time masks of land-export.sh, on the actual side: `mask_doctor` on a doctor run's stdout (the cache row too unless
+    // the case's env sets BAYAN_CACHE), `mask_cc` on SelfhostDefaultT12Tests's streams
+    var doctor = false
+    for a in args {
+        doctor = doctor || a == "doctor"
+    }
+    if doctor {
+        var cache = true
+        for line in goldenCliLines(Path.combine(dir, "env")) {
+            cache = cache && !line.startsWith("BAYAN_CACHE=")
+        }
+        buf = goldenCliDoctor(buf, by: cache)
+    }
+    if cls == "SelfhostDefaultT12Tests" {
+        buf = goldenCliCc(buf)
+        err = goldenCliCc(err)
+    }
+    if cls == "SelfhostDefaultT9Tests" {
+        buf = goldenCliT9(buf)
+        err = goldenCliT9(err)
+    }
     let exit = $"{o.exitCode}\n"
     var failures = List<string>()
     switch word {
@@ -1843,6 +2046,24 @@ test "input.tsv entries and trees are placed below the scratch directory, an exe
     assert(exec.exitCode == 0)
 }
 
+test "a `main.byn` entry goes to the path `args` names when another entry is named too" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-stage-named")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/C/named")
+    goldenWrite(dir, for: "args", as: "build\n-o\n<repo>/t/tally/tally\n<repo>/t/tally/main.byn\n")
+    goldenWrite(dir, for: "env", as: "PATH=<repo>/t/fakebin\n")
+    goldenWrite(dir, for: "input.tsv", as: "fakebin\ttree:tt\nmain.byn\tfile:aa\n")
+    goldenWrite(root, for: "inputs/trees/tt.tsv", as: "")
+    goldenWrite(root, for: "inputs/files/aa", as: "main\n")
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let main = Io.readText(Path.combine(scratch, "t/tally/main.byn")) catch "-"
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(main == "main\n")
+}
+
 test "an `input.byn.ref` pointer is placed where input.byn goes, and BAYAN_UPDATE=1 keeps it and writes no input.byn" {
     let root = Path.combine(Path.fullPath("tmp"), "golden-cli-ref")
     deleteWorkDir(root)
@@ -1895,6 +2116,45 @@ test "the T12 and time masks compare bytes, so text with multibyte characters be
     assert(goldenCliT12("é<root>/cache/v1/tmp/x/a.byn in 1.5s") == "éa.byn in <time>")
     assert(goldenCliT12("ـ<root>/cache/v1/tmp") == "ـ<root>/cache/v1/tmp")
     assert(goldenCliTimes("ءé in 12.34s ب", from: " in ", by: " in masked", two: true) == "ءé in masked ب")
+}
+
+test "the doctor mask reads ok rows' values as `<host>` as land-export.sh `mask_doctor` does, `not found` and other rows as is" {
+    let text = "◆ bayan       0.3.3-dev (commit <c>)\n◆ host        macos-arm64\n\u{1b}[32m◆\u{1b}[0m C compiler  /usr/bin/cc (clang 17)\n* zig         not found\n* git         /opt/homebrew/bin/git (git 2.56.0)\n✗ cache       <root>/cache (not writable)\n◆ cache       <root>/cache (writable, 0 programs, 0.0 MB)\n"
+    let masked = "◆ bayan       0.3.3-dev (commit <c>)\n◆ host        <host>\n\u{1b}[32m◆\u{1b}[0m C compiler  <host>\n* zig         not found\n* git         <host>\n✗ cache       <root>/cache (not writable)\n◆ cache       <host>\n"
+    assert(goldenCliDoctor(text, by: true) == masked)
+    assert(goldenCliDoctor(
+        "◆ cache       <root>/cache (writable)\n",
+        by: false,
+    ) == "◆ cache       <root>/cache (writable)\n")
+    assert(goldenCliDoctor("◆ hostname    x\n◆ host\n", by: true) == "◆ hostname    x\n◆ host\n")
+}
+
+test "the T9 mask reads times, unwritable-cache and C compiler messages, script keys and the commit as SelfhostDefaultT9Tests' `Masked`" {
+    let key = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    assert(goldenCliT9("◆ built a (safe) in 12.34s · from cache\n") == "◆ built a (safe) in <t>s · from cache\n")
+    let unwritable = "bayan: cannot write the build output or cache (<root>/cache): Permission denied\nnext\n"
+    assert(goldenCliT9(unwritable) == "bayan: cannot write the build output or cache (<root>/cache): <message>\nnext\n")
+    assert(goldenCliT9(
+        "bayan: cannot run the C compiler `cc`: no such file\n",
+    ) == "bayan: cannot run the C compiler `cc`: <message>\n")
+    assert(
+        goldenCliT9($"<root>/cache/v1/scripts/{key}/x (commit abc)") == "<root>/cache/v1/scripts/<skey>/x (commit <c>)"
+    )
+    assert(goldenCliT9("scripts/0123 1.5s") == "scripts/0123 1.5s")
+}
+
+test "the argv mask reads a file below a cache's `v1/tmp/` by its name, another path as is" {
+    let argv = "cc\n/r/tmp/cache/v1/tmp/ab-1/main.c\n-o\n/r/tmp/cache/v1/tmp/ab-1/program.exe\n/r/src/main.c\n"
+    assert(goldenCliArgv(argv, at: "/s") == "cc\nmain.c\n-o\nprogram.exe\n/r/src/main.c")
+}
+
+test "the cc mask reads everything after `C compiler failed (exit N):` as `<cc output>`, and a text without that line as is" {
+    assert(goldenCliCc(
+        "✗ build failed\nC compiler failed (exit 1):\nmain.c:2:5: error: x\n1 error\n",
+    ) == "✗ build failed\nC compiler failed (exit 1):\n<cc output>\n")
+    assert(goldenCliCc(
+        "C compiler failed (exit 1): x\nC compiler failed (exit ):\n",
+    ) == "C compiler failed (exit 1): x\nC compiler failed (exit ):\n")
 }
 
 test "a cli case without `args` is reported, and BAYAN_UPDATE=1 rewrites a cli case's expected files" {

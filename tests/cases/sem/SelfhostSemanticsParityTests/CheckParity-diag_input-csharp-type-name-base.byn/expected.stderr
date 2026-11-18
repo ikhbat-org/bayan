@@ -1,0 +1,10 @@
+error BYN2804: `i32` is not an interface
+  --> tmp/t26-tests/cli/diag_input-csharp-type-name-base.byn/input-csharp-type-name-base.byn:1:12
+
+  1 │ struct S : int {
+    │            ^^^ a type
+    │
+  help: list an `interface` here
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2804

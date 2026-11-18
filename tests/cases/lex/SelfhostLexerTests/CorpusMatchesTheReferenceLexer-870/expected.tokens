@@ -1,0 +1,44 @@
+1:1 RawStringLiteral `"""\r\n$"{a\n� = 2\n// ok �   """`
+4:15 CStringLiteral `c"text"`
+4:23 U16StringLiteral `u16"wide"`
+4:33 StringLiteral `"\u{202E} allowed in strings"`
+4:56 StringLiteral `""`
+4:59 StringLiteral `"\u{48}i"`
+5:1 TestKeyword `test`
+5:6 AssertKeyword `assert`
+5:13 PropertyKeyword `property`
+5:22 FuzzKeyword `fuzz`
+5:27 ModelKeyword `model`
+5:33 ForeachKeyword `foreach`
+5:41 NewKeyword `new`
+5:45 GotoKeyword `goto`
+6:2 Identifier `foo`
+6:6 Identifier `Bar`
+6:10 Identifier `_x`
+6:13 Identifier `camelCase2`
+6:24 Identifier `ب`
+6:27 Identifier `ان`
+6:30 Identifier `μετρητής`
+6:39 Identifier `x_1`
+6:43 Identifier `é`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ � = 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ // ok �   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD9)
+
+  6 │  foo Bar _x camelCase2 ب��ان μετρητής x_1 é
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  6 │  foo Bar _x camelCase2 ب��ان μετρητής x_1 é
+    │                          ^

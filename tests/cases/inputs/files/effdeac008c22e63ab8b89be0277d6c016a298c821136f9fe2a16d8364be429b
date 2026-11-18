@@ -1,0 +1,33 @@
+struct Cart {
+    i64 count
+    states {
+        empty
+        full
+    }
+    static Cart.empty empty() => Cart.empty { count: 0 }
+    static i64 full => 1
+    void fill(ref this is .empty) becomes .full { }
+    void bad(ref this is .gone) becomes .lost { }
+    void drop(this is .full) becomes .empty { }
+}
+struct Dup {
+    i64 n
+    states {
+        on
+        on
+        Off
+    }
+}
+struct Gen<T> {
+    T v requires it > 0
+    states {
+        on
+        off
+        on
+    }
+    void flip(ref this is .on) becomes .nope { }
+}
+struct Plain {
+    void x(ref this) becomes .on { }
+}
+void use(Gen<i64> h, by Gen.on<i64> s, for Gen.nope<i64> n) { }

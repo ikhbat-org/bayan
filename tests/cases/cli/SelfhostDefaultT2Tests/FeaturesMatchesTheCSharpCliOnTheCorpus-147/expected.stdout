@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "ForStmt",
+    "GlobalStatement",
+    "IfStmt",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "IoReadAll",
+    "IoStdin",
+    "Print",
+    "ResultIsOk",
+    "ResultValue",
+    "StringBytes",
+    "StringLength",
+    "StringRuneCount"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,38 @@
+== tests/cases/diag/lambda-capture-unique.byn
+29..33 callExpr
+29..33 callExpr
+29..33 callExpr
+29..30 nameExpr
+31..32 literalExpr integer
+47..187 blockStmt
+53..73 localDecl
+62..73 callExpr
+78..95 localDecl
+86..95 memberExpr
+86..88 nameExpr
+100..133 localDecl
+108..133 callExpr
+114..132 lambdaExpr
+123..125 nameExpr
+138..163 localDecl
+146..163 callExpr
+152..162 lambdaExpr
+161..162 nameExpr
+168..185 exprStmt
+168..185 callExpr
+174..184 interpolatedExpr
+177..182 binaryExpr add right 181..182
+177..178 nameExpr
+181..182 nameExpr
+168..185 callExpr
+119..132 binaryExpr add right 123..132
+119..132 binaryExpr add right 123..132
+119..132 binaryExpr add right 123..132
+119..120 nameExpr
+123..132 memberExpr
+123..125 nameExpr
+157..162 binaryExpr add right 161..162
+157..162 binaryExpr add right 161..162
+157..162 binaryExpr add right 161..162
+157..158 nameExpr
+161..162 nameExpr

@@ -1,0 +1,120 @@
+1:1 IntegerLiteral `0x_`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolationEnd `}`
+2:6 InterpolatedStringEnd `"`
+3:1 CharLiteral `'ab'`
+4:2 Identifier `comment`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 StringLiteral `$"{$"`
+6:54 OpenBrace `{`
+6:55 StringLiteral `$"{$"`
+6:60 OpenBrace `{`
+6:61 Identifier `x`
+6:62 CloseBrace `}`
+6:63 StringLiteral `"}"`
+6:66 CloseBrace `}`
+6:67 StringLiteral `"}"`
+6:70 InterpolationEnd `}`
+6:71 InterpolatedStringEnd `"`
+6:72 InterpolationEnd `}`
+6:73 InterpolatedStringEnd `"`
+6:74 InterpolationEnd `}`
+6:75 InterpolatedStringEnd `"`
+6:76 InterpolationEnd `}`
+6:77 InterpolatedStringEnd `"`
+6:78 InterpolationEnd `}`
+6:79 InterpolatedStringEnd `"`
+6:80 InterpolationEnd `}`
+6:81 InterpolatedStringEnd `"`
+6:82 InterpolationEnd `}`
+6:83 InterpolatedStringEnd `"`
+6:84 InterpolationEnd `}`
+6:85 InterpolatedStringEnd `"`
+6:86 InterpolationEnd `}`
+6:87 InterpolatedStringEnd `"`
+6:88 InterpolationEnd `}`
+6:89 InterpolatedStringEnd `"`
+6:90 InterpolationEnd `}`
+6:91 InterpolatedStringEnd `"`
+6:92 InterpolationEnd `}`
+6:93 InterpolatedStringEnd `"`
+6:94 InterpolationEnd `}`
+6:95 InterpolatedStringEnd `"`
+6:96 InterpolationEnd `}`
+6:97 InterpolatedStringEnd `"`
+6:98 InterpolationEnd `}`
+6:99 InterpolatedStringEnd `"`
+6:100 InterpolationEnd `}`
+6:101 InterpolatedStringEnd `"`
+6:103 Identifier `é`
+7:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" é/* block
+    │                                                 ^^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" é/* block
+    │                                                                                                       ^^ same
+    │                                                                                                          letters,
+    │                                                                                                          different
+    │                                                                                                          encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" é/* block
+    │   │                                                                                                       +
+
+error BYN0004: unterminated block comment
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" é/* block
+    │                                                                                                         ^^ comment
+    │                                                                                                            starts
+    │                                                                                                            here
+    │
+  help: close it with `*/`

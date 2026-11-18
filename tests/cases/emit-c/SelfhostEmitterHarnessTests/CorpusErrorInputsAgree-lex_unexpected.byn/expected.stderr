@@ -1,0 +1,20 @@
+error BYN0002: unexpected character `$`
+  --> input.byn:1:9
+
+  1 │ let a = $ 1
+    │         ^
+
+error BYN0002: unexpected character ```
+  --> input.byn:2:9
+
+  2 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+  --> input.byn:3:9
+
+  3 │ let c = � 3
+    │         ^
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN0002

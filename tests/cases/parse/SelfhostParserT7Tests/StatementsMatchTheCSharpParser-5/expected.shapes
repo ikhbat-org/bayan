@@ -1,0 +1,2 @@
+block 9..42 < for 15..40 letKeyword v names 0 block 33..40 < > >
+BYN1019 19+13 `for (let x in xs)` is an input form; write `for x in xs` fix 19+13 'v in xs'

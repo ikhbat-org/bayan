@@ -1,0 +1,88 @@
+1:4 Identifier `hidden`
+2:1 LetKeyword `let`
+2:5 Identifier `x`
+2:8 Equals `=`
+2:10 IntegerLiteral `1`
+4:1 IntegerLiteral `0xF__`
+6:4 Identifier `FF`
+6:7 IntegerLiteral `0x_ff`
+6:13 IntegerLiteral `0b1010`
+6:20 IntegerLiteral `0B11`
+6:25 IntegerLiteral `5`
+6:26 NumericSuffix `s`
+6:28 IntegerLiteral `250`
+6:31 NumericSuffix `ms`
+6:34 IntegerLiteral `4`
+6:35 NumericSuffix `KiB`
+6:39 IntegerLiteral `1`
+6:40 NumericSuffix `u`
+6:42 IntegerLiteral `0xFF`
+6:46 NumericSuffix `u`
+6:48 IntegerLiteral `0b1`
+6:51 NumericSuffix `ul`
+6:54 IntegerLiteral `7`
+6:55 NumericSuffix `l`
+7:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �΀� hidden
+    │ ^
+
+error BYN0002: unexpected character `΀`
+
+  1 │ �΀� hidden
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ �΀� hidden
+    │   ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  2 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ let x� = 1
+    │   │      -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0xF__
+    │    ^^
+    │
+    │ 4 │ 0xF__
+    │   │    --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │  // comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │  // comment � hidden
+    │   │             -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  6 │  ���� FF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  6 │  ���� FF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  ���� FF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  ���� FF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │     ^

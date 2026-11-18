@@ -1,0 +1,5 @@
+== tests/cases/diag/function-type-bare-validation-error.byn
+84..88 literalExpr trueKeyword
+84..88 literalExpr trueKeyword
+84..88 literalExpr trueKeyword
+102..105 blockStmt

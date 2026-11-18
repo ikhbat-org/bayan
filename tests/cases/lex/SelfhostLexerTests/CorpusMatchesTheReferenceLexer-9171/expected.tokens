@@ -1,0 +1,49 @@
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+5:2 Tilde `~`
+5:3 StringLiteral `"{}"`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `$`
+
+  5 │ $~"{}"
+    │ ^
+
+error BYN0004: unterminated block comment
+
+  6 │ /*/ comment � hidden
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ /*/ comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ /*/ comment � hidden
+    │   │             -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ let x� = 1
+    │   │      -

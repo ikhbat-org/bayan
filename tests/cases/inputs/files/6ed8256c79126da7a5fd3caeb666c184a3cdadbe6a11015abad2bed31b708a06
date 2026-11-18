@@ -1,0 +1,5 @@
+'\u{110000}'
+$"{{" '\'
+// ok � in comment
+/*� ‭ */
+t" u16"wide" "‮ allowed in strings" " 각

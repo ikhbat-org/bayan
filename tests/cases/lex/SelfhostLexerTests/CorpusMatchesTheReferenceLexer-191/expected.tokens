@@ -1,0 +1,4 @@
+1:1 LetKeyword `let`
+1:5 Identifier `effet`
+1:11 Equals `=`
+1:13 EndOfFile

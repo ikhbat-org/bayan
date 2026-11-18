@@ -1,0 +1,67 @@
+1:1 OpenBrace `{`
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolationStart `{`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolatedStringText `*`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 Identifier `x`
+1:22 InterpolationEnd `}`
+1:23 InterpolatedStringEnd `"`
+1:24 InterpolationEnd `}`
+1:25 InterpolatedStringEnd `"`
+1:26 InterpolationEnd `}`
+1:27 InterpolatedStringEnd `"`
+1:28 InterpolationEnd `}`
+1:29 InterpolatedStringEnd `"`
+1:30 InterpolationEnd `}`
+1:31 InterpolatedStringEnd `"`
+1:32 InterpolationEnd `}`
+1:33 InterpolatedStringEnd `"`
+1:34 CloseBrace `}`
+1:35 StringLiteral `"}"`
+1:38 CloseBrace `}`
+1:39 StringLiteral `"}`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText `c\r`
+2:9 InterpolatedStringEnd
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+4:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ {$"{$"{$"{$"*{$"{$"{x}"}"}"}"}"}"}"}"}"}
+    │                                       ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �
+    │   │ -

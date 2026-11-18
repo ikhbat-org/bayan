@@ -1,0 +1,8 @@
+== diags.diag/dyn-ref-borrow
+BYN2104 18:10 `fixed` is immutable
+  label it is borrowed as `dyn ref IShape`; declared with `let` on line 16
+  help declare it with `var` if it should change
+  fix 16:5-16:8 var
+BYN3002 23:16 `inner` does not live as long as `late`, which borrows it
+  label `inner` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough

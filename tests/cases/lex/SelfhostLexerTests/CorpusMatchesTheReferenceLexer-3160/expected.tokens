@@ -1,0 +1,175 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `total `
+1:9 InterpolationStart `{`
+1:10 Identifier `x`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringEnd `"`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolatedStringText `a `
+1:18 InterpolationStart `{`
+1:19 Identifier `f`
+1:20 OpenParen `(`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolatedStringText `b `
+1:25 InterpolationStart `{`
+1:26 Identifier `c`
+1:27 InterpolationEnd `}`
+1:28 InterpolatedStringEnd `"`
+1:29 CloseParen `)`
+1:30 InterpolationEnd `}`
+1:31 InterpolatedStringText ` d`
+1:33 InterpolatedStringEnd `"`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolatedStringText `{{literal}}`
+1:48 InterpolatedStringEnd `"`
+1:50 InterpolatedStringStart `$"`
+1:52 InterpolationStart `{`
+1:53 Identifier `Point`
+1:59 OpenBrace `{`
+1:61 Identifier `x`
+1:63 Equals `=`
+1:65 IntegerLiteral `1`
+1:67 CloseBrace `}`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringText `!`
+1:70 InterpolatedStringEnd `"`
+1:73 StringLiteral `""`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 StringLiteral `$"{$"`
+2:55 OpenBrace `{`
+2:56 StringLiteral `$"{$"`
+2:61 OpenBrace `{`
+2:62 Identifier `x`
+2:63 CloseBrace `}`
+2:64 StringLiteral `"}"`
+2:67 CloseBrace `}`
+2:68 StringLiteral `"}"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringEnd `"`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringEnd `"`
+2:77 InterpolationEnd `}`
+2:78 InterpolatedStringEnd `"`
+2:79 InterpolationEnd `}`
+2:80 InterpolatedStringEnd `"`
+2:81 InterpolationEnd `}`
+2:82 InterpolatedStringEnd `"`
+2:83 InterpolationEnd `}`
+2:84 InterpolatedStringEnd `"`
+2:85 InterpolationEnd `}`
+2:86 InterpolatedStringEnd `"`
+2:87 Identifier `U`
+2:88 InterpolationEnd `}`
+2:89 InterpolatedStringEnd `"`
+2:90 InterpolationEnd `}`
+2:91 InterpolatedStringEnd `"`
+2:92 InterpolationEnd `}`
+2:93 InterpolatedStringEnd `"`
+2:94 InterpolationEnd `}`
+2:95 InterpolatedStringEnd `"`
+2:96 Identifier `a`
+2:98 Greater `>`
+2:99 Greater `>`
+2:101 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:11 IntegerLiteral `2`
+7:2 VarKeyword `var`
+7:6 Identifier `xs`
+7:8 Colon `:`
+7:10 Identifier `List`
+7:14 Less `<`
+7:15 Identifier `List`
+7:19 Less `<`
+7:20 Identifier `i64`
+7:23 Greater `>`
+7:24 Greater `>`
+9:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $�""
+    │                                                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9E)
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $�""
+    │                                                                         ^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"U}"}"}"}"a >> b
+    │           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"U}"}"}"}"a >> b
+    │                                                  ^^
+
+error BYN0002: unexpected character ```
+
+  6 │ let b = ` 2
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  7 │ �var xs: List<List<i64>>
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  7 │ �var xs: List<List<i64>>
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  7 │ �var xs: List<List<i64>>
+    │  ^

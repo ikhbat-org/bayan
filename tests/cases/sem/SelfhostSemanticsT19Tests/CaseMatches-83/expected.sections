@@ -1,0 +1,3 @@
+== bind.probes.b46
+flags 0
+binary:bool[2685:16]=-(eq errorVariant:Bad[2685:9]=-() local:Bad[2698:3]=-(bad))

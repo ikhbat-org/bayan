@@ -1,0 +1,101 @@
+1:2 LetKeyword `let`
+1:6 Identifier `s`
+1:8 Equals `=`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:44 OpenBrace `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 InterpolatedStringStart `$"`
+1:59 InterpolationStart `{`
+1:61 Identifier `h`
+1:62 StringLiteral `"{$"`
+1:66 OpenBrace `{`
+1:67 StringLiteral `$"{x}"`
+1:73 CloseBrace `}`
+1:74 StringLiteral `"}"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 StringLiteral `"}"`
+1:90 CloseBrace `}`
+1:91 StringLiteral `"}"`
+1:94 InterpolationEnd `}`
+1:95 InterpolatedStringEnd `"`
+1:96 InterpolationEnd `}`
+1:97 InterpolatedStringEnd `"`
+1:98 InterpolationEnd `}`
+1:99 InterpolatedStringEnd `"`
+1:100 InterpolationEnd `}`
+1:101 InterpolatedStringEnd `"`
+1:102 InterpolationEnd `}`
+1:103 InterpolatedStringEnd `"`
+1:104 InterpolationEnd `}`
+1:105 InterpolatedStringEnd `"`
+1:106 InterpolationEnd `}`
+1:107 InterpolatedStringEnd `"`
+1:108 InterpolationEnd `}`
+1:109 InterpolatedStringEnd `"`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ 	let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$h"{$"{$"{x}"}"}"}"}"}"}"}""}"}"}"}"}"}"}"}"}"}"}"
+    │ 	              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ 	let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$h"{$"{$"{x}"}"}"}"}"}"}"}""}"}"}"}"}"}"}"}"}"}"}"
+    │ 	                                         ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ 	let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$h"{$"{$"{x}"}"}"}"}"}"}"}""}"}"}"}"}"}"}"}"}"}"}"
+    │ 	                                                          ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ 	let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$h"{$"{$"{x}"}"}"}"}"}"}"}""}"}"}"}"}"}"}"}"}"}"}"
+    │ 	                                                                 ^^
+
+error BYN0004: unterminated block comment
+
+  2 │ /*	
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

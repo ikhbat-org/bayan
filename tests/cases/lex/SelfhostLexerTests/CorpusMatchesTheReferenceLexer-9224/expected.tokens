@@ -1,0 +1,68 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+3:1 Identifier `nt`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolatedStringText `a`
+3:7 InterpolationStart `{`
+3:8 Identifier `b`
+3:9 InterpolationEnd `}`
+3:10 InterpolatedStringText `c`
+3:11 InterpolatedStringEnd
+4:1 IntegerLiteral `0xFF`
+4:5 NumericSuffix `s`
+5:1 Identifier `_0xF__`
+7:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" �"" "\u{48}\u{1}i"\n `
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ let� b = ` 2
+    │    ^
+
+error BYN0002: unexpected character ```
+
+  1 │ let� b = ` 2
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ �
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  3 │ nt $"a{b}c
+    │    ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  4 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  7 │   """ c"text" u16"wide" "� allowed in strings" �"" "\u{48}�i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  7 │   """ c"text" u16"wide" "� allowed in strings" �"" "\u{48}�i"
+    │                                                ^

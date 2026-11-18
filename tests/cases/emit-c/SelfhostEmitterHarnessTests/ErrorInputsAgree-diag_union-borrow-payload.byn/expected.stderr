@@ -1,0 +1,10 @@
+error BYN2708: a union payload cannot hold a borrowed `ReadOnlySpan<u8>`
+  --> input.byn:2:28
+
+  2 │     bytes(ReadOnlySpan<u8> data)
+    │                            ^^^^
+    │
+  help: store a `List` copied with `.copy(to: alloc)` instead
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2708

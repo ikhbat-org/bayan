@@ -1,0 +1,9 @@
+ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{<"{x}"}"}"}"}"}"}"}"}"}"}"}"}" �
+let b = "bad \q escape"
+ent ‮ hidden
+let x⁧ = 1
+
+ent ‮ hidden
+lt x⁧ = 1
+"text" "esc \"q\" \\ \n" """
+struct unique union enum flags open extensible interface delegate extension derivation attribute

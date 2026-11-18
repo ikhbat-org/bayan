@@ -1,0 +1,15 @@
+== tests/cases/diag/state-member-mutates.byn
+57..102 blockStmt
+67..76 assignStmt assign target 67..72 value 75..76
+67..72 nameExpr
+67..72 nameExpr
+75..76 literalExpr integer
+85..96 returnStmt value 92..96
+92..96 literalExpr trueKeyword
+190..236 blockStmt
+200..210 assignStmt add target 200..205 value 209..210
+200..205 nameExpr
+200..205 nameExpr
+209..210 nameExpr
+219..230 returnStmt value 226..230
+226..230 literalExpr trueKeyword

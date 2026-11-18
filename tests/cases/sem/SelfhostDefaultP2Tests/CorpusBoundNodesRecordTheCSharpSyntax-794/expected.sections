@@ -1,0 +1,9 @@
+== tests/cases/diag/ref-this-mismatch.byn
+123..128 nameExpr
+123..128 nameExpr
+123..128 nameExpr
+123..128 nameExpr
+156..161 nameExpr
+156..161 nameExpr
+156..161 nameExpr
+156..161 nameExpr

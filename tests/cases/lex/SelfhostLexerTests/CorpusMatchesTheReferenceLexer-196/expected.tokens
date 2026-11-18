@@ -1,0 +1,33 @@
+1:1 Identifier `b`
+2:2 TestKeyword `test`
+2:7 AssertKeyword `assert`
+2:14 PropertyKeyword `property`
+2:23 FuzzKeyword `fuzz`
+2:28 ModelKeyword `model`
+2:34 ForeachKeyword `foreach`
+2:42 NewKeyword `new`
+2:46 GotoKeyword `goto`
+3:4 ErrorKeyword `error`
+3:10 SetKeyword `set`
+3:14 UnitKeyword `unit`
+3:19 DistinctKeyword `distinct`
+3:28 TypeKeyword `type`
+3:33 ImportKeyword `import`
+3:40 AsKeyword `as`
+3:43 PublicKeyword `public`
+3:50 PrivateKeyword `private`
+3:58 StaticKeyword `static`
+3:65 ReadonlyKeyword `readonly`
+3:74 RequiredKeyword `required`
+3:83 ConstKeyword `const`
+3:89 LetKeyword `let`
+3:93 VarKeyword `var`
+3:97 EmbedKeyword `embed`
+3:103 ExternKeyword `extern`
+3:110 UnsafeKeyword `unsafe`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │  � error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │  ^

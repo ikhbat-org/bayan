@@ -1,0 +1,44 @@
+error BYN2228: `lost` is not a variant of `CarrierError`
+  --> input.byn:7:44
+
+  7 │ union error Unknown = CarrierError except .lost
+    │                                            ^^^^
+
+error BYN2609: error enum `Nothing` has no variants
+  --> input.byn:8:13
+
+  8 │ union error Nothing = CarrierError except .timeout, .rejected
+    │             ^^^^^^^
+
+error BYN2603: `CarrierError.rejected` is not in the `fails` clause of `retry`
+  --> input.byn:16:22
+
+  16 │     if n == 0 { fail .rejected }
+     │                      ^^^^^^^^^
+     │
+  help: pick another case, or remove `.rejected` from the `except` list
+
+error BYN2603: `CarrierError.rejected` is not in the `fails` clause of `retry`
+  --> input.byn:17:12
+
+  17 │     return try quote(n)
+     │            ^^^^^^^^^^^^
+     │
+  help: handle it with `catch (CarrierError.rejected)`, or remove `.rejected` from the `except` list
+
+error BYN2228: `rejected` is not a variant of `CarrierError except .rejected`
+  --> input.byn:20:39
+
+  20 │ i64 recover(i64 n) => retry(n) catch (CarrierError.rejected) 0
+     │                                       ^^^^^^^^^^^^^^^^^^^^^
+
+error BYN2603: `CarrierError.rejected` is not in the `fails` clause of `retryNamed`
+  --> input.byn:23:22
+
+  23 │     if n == 0 { fail CarrierError.rejected }
+     │                      ^^^^^^^^^^^^^^^^^^^^^
+     │
+  help: pick another case, or remove `.rejected` from the `except` list
+
+✗ build failed: 6 errors, 0 warnings
+  explain: bayan explain BYN2228

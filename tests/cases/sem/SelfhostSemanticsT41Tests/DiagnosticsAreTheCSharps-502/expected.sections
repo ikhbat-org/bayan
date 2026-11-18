@@ -1,0 +1,4 @@
+== diags.diag/function-type-unknown-effect
+BYN6003 3:34 `network` is not an effect
+  label not an effect or an `effect` alias of this module
+  help choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console`, or a declared effect alias

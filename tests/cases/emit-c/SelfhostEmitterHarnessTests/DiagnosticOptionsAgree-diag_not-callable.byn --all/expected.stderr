@@ -1,0 +1,8 @@
+error BYN2220: `i32` cannot be called
+  --> input.byn:2:9
+
+  2 │ let y = x(1)
+    │         ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2220

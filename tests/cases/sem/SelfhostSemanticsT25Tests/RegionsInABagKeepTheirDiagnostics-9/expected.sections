@@ -1,0 +1,3 @@
+== bag for-user-modified-while-iterating
+BYN3004 34:9 `digits` is modified while the `for` loop still borrows it |the loop over `digits` is still running|collect the changes in another list and apply them to `digits` after the loop|
+BYN3004 38:17 `steps` is modified while the `for` loop still borrows it |the loop over `steps` is still running|collect the changes in another list and apply them to `steps` after the loop|

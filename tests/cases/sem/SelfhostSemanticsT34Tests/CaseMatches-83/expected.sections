@@ -1,0 +1,7 @@
+== fc7
+catchExpr|i64|1254:41
+operand call:i64 binding t:NetError:o:-:catch variant - handler switchExpr:i64
+switchExpr|i64|1269:26
+value local:NetError=t
+arm 1278:15 binaryPattern[1278:10]:NetError(and binaryPattern[1278:10]:NetError(or constantPattern[1278:10]:NetError(errorVariant:NetError=timeout),constantPattern[1278:10]:NetError(errorVariant:NetError=closed)),bindPattern[1278:10]:NetError(e:NetError:o:-:let)) guard - value literal:i64=1
+fnlocals n:i64:o:-:let sh:Shape:o:-:let bx:Box:o:-:let lg:Ledger:o:-:let tp:(i64 a, i64 b):o:-:let on:i64?:o:-:let od:Order:o:-:let op:Order.paid:o:-:let ch:rune:o:-:let s:string:o:-:let ne:NetError:o:-:let bytes:ReadOnlySpan<u8>:o:-:let mb:Box:o:-:let ml:Ledger:o:-:let none:NoError:o:-:let ol:Ledger?:o:-:let t:NetError:o:-:catch e:NetError:o:-:let

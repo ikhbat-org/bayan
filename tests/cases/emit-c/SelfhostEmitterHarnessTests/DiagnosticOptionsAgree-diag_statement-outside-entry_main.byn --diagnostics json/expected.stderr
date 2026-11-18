@@ -1,0 +1,1 @@
+{"code":"BYN2015","severity":"error","file":"money/money.byn","span":{"start":0,"end":15,"line":1,"column":1,"endLine":1,"endColumn":16},"message":"top-level statements are allowed only in the entry module","label":null,"help":null,"fixes":[]}

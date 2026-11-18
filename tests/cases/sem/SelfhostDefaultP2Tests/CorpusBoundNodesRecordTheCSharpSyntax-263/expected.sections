@@ -1,0 +1,36 @@
+== tests/cases/run/shadowing-type-change.byn
+0..19 globalStatement
+0..19 localDecl
+12..19 literalExpr string
+20..44 localDecl
+32..44 memberExpr
+32..37 nameExpr
+45..66 exprStmt
+45..66 callExpr
+51..65 interpolatedExpr
+54..63 binaryExpr add right 62..63
+54..59 nameExpr
+62..63 literalExpr integer
+45..66 callExpr
+67..88 localDecl
+79..88 collectionExpr
+80..81 literalExpr integer
+83..84 literalExpr integer
+86..87 literalExpr integer
+89..190 ifStmt
+92..108 binaryExpr gt right 107..108
+92..104 memberExpr
+92..97 nameExpr
+107..108 literalExpr integer
+109..190 blockStmt
+115..135 localDecl
+127..135 indexExpr
+127..132 nameExpr
+133..134 literalExpr integer
+140..171 localDecl
+152..171 interpolatedExpr
+164..169 nameExpr
+176..188 exprStmt
+176..188 callExpr
+182..187 nameExpr
+176..188 callExpr

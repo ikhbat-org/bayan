@@ -1,0 +1,16 @@
+    doc `/// if else unl�ss switch case default for in while do reak contnue return yield defer errdefer using context`
+3:1 IntegerLiteral `0xFF`
+3:5 NumericSuffix `s`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ /// if else unl�ss switch case default for in while do reak contnue return yield defer errdefer using context
+    │                ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  3 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

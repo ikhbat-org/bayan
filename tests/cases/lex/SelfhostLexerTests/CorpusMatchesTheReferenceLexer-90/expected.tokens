@@ -1,0 +1,99 @@
+1:1 CharLiteral `'\u{110000}'`
+3:1 IntegerLiteral `0x`
+4:1 IntegerLiteral `1_`
+5:1 IntegerLiteral `0b102`
+6:1 IntegerLiteral `0xFF`
+6:5 NumericSuffix `s`
+7:1 IntegerLiteral `0b1`
+7:4 NumericSuffix `ms`
+8:1 Identifier `x_`
+9:1 IntegerLiteral `0b__`
+10:1 IntegerLiteral `1__`
+11:1 IntegerLiteral `0xF__`
+12:1 StringLiteral `"{"`
+12:4 Identifier `a`
+12:6 Identifier `b`
+12:7 StringLiteral `" \u{FEFF} `
+12:11 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1_
+    │  ^
+    │
+    │ 4 │ 1_
+    │   │  -
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  6 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  8 │ �x_
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  9 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 1__
+     │  ^^
+     │
+     │ 10 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │ 0xF__
+     │    ^^
+     │
+     │ 11 │ 0xF__
+     │    │    --
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  12 │ "{"a�b" ﻿ 
+     │     ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 12 │ "{"a�b" ﻿ 
+     │    │     -
+
+error BYN0003: unterminated string literal
+
+  12 │ "{"a�b" ﻿ 
+     │       ^^^^ string ends at the end of the line
+     │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

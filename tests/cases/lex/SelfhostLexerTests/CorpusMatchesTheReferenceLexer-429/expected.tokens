@@ -1,0 +1,28 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `{{`
+2:5 InterpolatedStringEnd `"`
+2:7 Identifier `foo`
+2:11 Identifier `Bar`
+2:15 Identifier `_x`
+2:18 Identifier `camelCa`
+2:26 Identifier `e2`
+2:29 Identifier `بيان`
+2:34 Identifier `μετρητής`
+2:43 Identifier `x_1`
+2:47 Identifier `é`
+3:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �
+    │   │ -
+
+error BYN0002: unexpected character `\u{F}`
+
+  2 │ $"{{" foo Bar _x camelCa�e2 بيان μετρητής x_1 é
+    │                         ^

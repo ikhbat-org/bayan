@@ -1,0 +1,4 @@
+== diags.diag/except-in-case-left
+BYN1051 3:22 `except` is not allowed in a `case` pattern
+  label not allowed here
+  help write the arm as `case not .circle`

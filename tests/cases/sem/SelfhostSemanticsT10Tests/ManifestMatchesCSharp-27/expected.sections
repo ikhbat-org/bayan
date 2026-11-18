@@ -1,0 +1,5 @@
+== case inline/missing-version
+errors 1
+error BYN3103: `package.byn` has no `version`
+  1 │ Package { name: "local/a" }
+    │ ^^^^^^^

@@ -1,0 +1,60 @@
+2:4 CharLiteral `'1_`
+3:1 IntegerLiteral `0`
+3:3 IntegerLiteral `42`
+3:6 IntegerLiteral `1_000_000`
+3:16 IntegerLiteral `0xFF`
+3:21 IntegerLiteral `0x_ff`
+3:27 IntegerLiteral `0b1010`
+3:34 IntegerLiteral `0B11`
+3:39 IntegerLiteral `5`
+3:40 NumericSuffix `s`
+3:42 IntegerLiteral `250`
+3:45 NumericSuffix `ms`
+3:48 IntegerLiteral `4`
+3:49 NumericSuffix `KiB`
+3:53 IntegerLiteral `1`
+3:54 NumericSuffix `u`
+3:56 IntegerLiteral `0xFF`
+3:60 NumericSuffix `u`
+3:62 IntegerLiteral `0b1`
+3:65 NumericSuffix `ul`
+3:68 IntegerLiteral `7`
+3:69 NumericSuffix `l`
+5:1 Identifier `f`
+7:1 Amp `&`
+7:3 AmpAmp `&&`
+7:6 Bar `|`
+7:8 BarBar `||`
+7:11 Caret `^`
+7:13 Tilde `~`
+7:15 Bang `!`
+7:17 Equals `=`
+7:19 EqualsEquals `==`
+7:22 BangEquals `!=`
+7:25 Less `<`
+7:27 LessEquals `<=`
+7:30 Greater `>`
+7:32 GreaterEquals `>=`
+7:35 LessLess `<<`
+7:38 Greater `>`
+7:39 Greater `>`
+7:41 Greater `>`
+7:42 GreaterEquals `>=`
+8:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  2 │  � '1_
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  � '1_
+    │   │  -
+
+error BYN0008: unterminated char literal
+
+  2 │  � '1_
+    │    ^^^
+    │
+  help: close it with `'`

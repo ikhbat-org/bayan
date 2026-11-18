@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/validation-error-same-name-undeclared
+--include-path
+<repo>/tests/cases/diag/validation-error-same-name-undeclared/main.byn

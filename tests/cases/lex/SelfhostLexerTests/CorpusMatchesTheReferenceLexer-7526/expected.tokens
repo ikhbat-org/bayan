@@ -1,0 +1,14 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 Identifier `outthis`
+1:37 NullKeyword `null`
+1:42 TrueKeyword `true`
+1:47 FalseKeyword `false`
+1:53 ComptimeKeyword `comptime`
+1:62 CheckedKeyword `checked`
+3:1 EndOfFile

@@ -1,0 +1,2 @@
+{"code":"BYN2405","severity":"warning","file":"input.byn","span":{"start":26,"end":39,"line":3,"column":5,"endLine":3,"endColumn":18},"message":"unreachable code","label":null,"help":null,"fixes":[]}
+{"code":"BYN2405","severity":"warning","file":"input.byn","span":{"start":61,"end":75,"line":8,"column":1,"endLine":8,"endColumn":15},"message":"unreachable code","label":null,"help":null,"fixes":[]}

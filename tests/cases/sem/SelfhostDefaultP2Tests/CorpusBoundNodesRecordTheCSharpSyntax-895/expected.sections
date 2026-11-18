@@ -1,0 +1,14 @@
+== tests/cases/diag/trust-unchecked-because.byn
+0..41 globalStatement
+0..41 localDecl
+27..41 callExpr
+37..40 literalExpr string
+42..67 exprStmt
+42..67 callExpr
+48..66 callExpr
+48..49 nameExpr
+42..67 callExpr
+68..115 exprStmt
+68..115 callExpr
+74..94 callExpr because
+68..115 callExpr

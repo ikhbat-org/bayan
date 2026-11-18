@@ -1,0 +1,3 @@
+== bind.probes.r11
+flags 0
+range:Range<i32>[3310:4]=-(false literal:i32[3310:1]=1(1) literal:i32[3313:1]=2(2))

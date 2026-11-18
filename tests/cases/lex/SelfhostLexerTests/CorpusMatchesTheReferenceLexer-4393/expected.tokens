@@ -1,0 +1,22 @@
+1:1 Identifier `ạ̇`
+1:5 Identifier `_`
+1:7 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇�_‏
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇�_‏
+    │   │ ++
+
+error BYN0002: unexpected character `\u{1E}`
+
+  1 │ ạ̇�_‏
+    │    ^
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ạ̇�_‏
+    │      ^

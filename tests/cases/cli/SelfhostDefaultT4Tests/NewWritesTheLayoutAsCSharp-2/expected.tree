@@ -1,0 +1,6 @@
+=== abs.byn
+mode x
+#!/usr/bin/env bayan
+#:io threaded
+
+print("Salam, world!")

@@ -1,0 +1,8 @@
+1:2 Equals `=`
+1:6 IntegerLiteral `3`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │  = � 3
+    │    ^

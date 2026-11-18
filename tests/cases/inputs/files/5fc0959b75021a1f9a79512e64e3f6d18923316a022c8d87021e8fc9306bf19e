@@ -1,0 +1,8 @@
+'\u{D800}'
+
+0x
+ 'ab'
+
+fails try catch ever <oalloc nosuspend suspends async await
+ let b = "bad \q escape"
+ 

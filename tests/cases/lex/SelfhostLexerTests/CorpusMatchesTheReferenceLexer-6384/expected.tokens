@@ -1,0 +1,33 @@
+2:1 IntegerLiteral `0x`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `m`
+3:6 Identifier `s`
+4:1 Identifier `n`
+4:2 StringLiteral `"{"`
+4:6 LetKeyword `let`
+4:10 Identifier `c`
+4:12 Equals `=`
+4:15 IntegerLiteral `3`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^
+
+error BYN0011: unit suffix `m` is not allowed on a binary literal
+
+  3 │ 0b1m�s
+    │    ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  3 │ 0b1m�s
+    │     ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ n"{" let c = �3
+    │              ^

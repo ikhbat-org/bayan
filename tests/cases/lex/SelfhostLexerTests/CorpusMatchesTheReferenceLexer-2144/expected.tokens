@@ -1,0 +1,43 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+4:1 StringLiteral `"{ let law = 3`
+5:5 Identifier `omment`
+5:12 Star `*`
+5:13 Slash `/`
+5:15 Identifier `a`
+6:1 Identifier `Rx́́`
+7:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  4 │ "{ let law = 3
+    │ ^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │    �omment */ a
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ Rx́́ ���
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ Rx́́ ���
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ Rx́́ ���
+    │        ^

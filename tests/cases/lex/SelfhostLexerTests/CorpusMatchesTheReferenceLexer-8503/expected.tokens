@@ -1,0 +1,22 @@
+1:1 Identifier `xtensi`
+1:8 Identifier `E`
+1:9 Plus `+`
+1:10 IntegerLiteral `2`
+1:12 FloatLiteral `1.50`
+1:16 NumericSuffix `d`
+2:1 Identifier `aw`
+2:4 StringLiteral `"quoted"`
+3:3 RawStringLiteral `""" c"+= -= *= /= % &= |= ^= <<=\n\n�$"open {x";\n 0x\n\n\u{2066}`
+8:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"+= -= *= /= % &= |= ^= <<=
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �$"open {x";
+    │ ^

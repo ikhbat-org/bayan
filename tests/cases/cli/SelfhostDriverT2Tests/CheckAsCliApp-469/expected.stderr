@@ -1,0 +1,23 @@
+note BYN1078: `n` is tested against constants 2 times; write one pattern
+  --> <repo>/tmp/t2/diag/style-fix-keeps-line-comments/style-fix-keeps-line-comments.byn:16:12
+
+  16 │     return n == 0 || // none or one
+     │            ^^^^^^^^^^^^^^^^^^^^^^^^ 2 tests of `n`
+     │
+  help: write `n is 0 or 1`
+
+note BYN1072: an early exit in a block can be a postfix guard
+  --> <repo>/tmp/t2/diag/style-fix-keeps-line-comments/style-fix-keeps-line-comments.byn:22:5
+
+  22 │     if customers.isEmpty // why
+     │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ an early exit in a block
+     │
+  help: write it as a postfix guard
+
+note BYN1073: `c => c.…` reads one member and can use `it`
+  --> <repo>/tmp/t2/diag/style-fix-keeps-line-comments/style-fix-keeps-line-comments.byn:26:38
+
+  26 │     let wrapped = any(customers, by: c => // why
+     │                                      ^^^^^^^^^^^ reads one member of its parameter
+     │
+  help: write `it` for the parameter

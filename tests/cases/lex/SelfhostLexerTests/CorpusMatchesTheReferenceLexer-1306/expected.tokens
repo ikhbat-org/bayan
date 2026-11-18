@@ -1,0 +1,37 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 BarBar `||`
+3:11 Caret `^`
+3:13 Tilde `~`
+3:15 Bang `!`
+3:17 Equals `=`
+3:19 EqualsEquals `==`
+3:22 BangEquals `!=`
+3:25 Less `<`
+3:27 LessEquals `<=`
+3:30 Greater `>`
+3:32 GreaterEquals `>=`
+3:35 LessLess `<<`
+3:38 Greater `>`
+3:39 Greater `>`
+3:41 Greater `>`
+3:42 GreaterEquals `>=`
+4:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │  � 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │  � 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │  � 
+    │   ^

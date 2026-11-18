@@ -1,0 +1,81 @@
+1:1 Identifier `_000`
+1:6 IntegerLiteral `0xFF`
+1:11 IntegerLiteral `0x_ff`
+1:17 IntegerLiteral `0b1010`
+1:24 IntegerLiteral `0`
+1:25 NumericSuffix `B`
+2:1 CharLiteral `'\u{110000}'`
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 Percent `%`
+3:16 StarPercent `*%`
+3:19 PlusBar `+|`
+3:22 MinusBar `-|`
+3:24 Identifier `B`
+3:26 StarBar `*|`
+3:29 PlusPlus `++`
+3:32 MinusMinus `--`
+5:1 IntegerLiteral `0b102`
+7:1 CharLiteral `''`
+8:2 LetKeyword `let`
+8:6 Identifier `cafér`
+8:12 Equals `=`
+8:14 IntegerLiteral `1`
+8:15 Semicolon `;`
+9:1 LetKeyword `let`
+9:5 Identifier `c`
+9:7 Equals `=`
+9:11 IntegerLiteral `3`
+10:2 Identifier `n`
+11:1 LetKeyword `let`
+11:5 Identifier `x`
+11:8 Equals `=`
+11:10 IntegerLiteral `1`
+13:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │ 0b102
+    │     ^
+
+error BYN0007: empty char literal
+
+  7 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0005: identifier `cafér` is not in Unicode normalization form C
+
+  8 │  let cafér= 1;
+    │      ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │  let cafér= 1;
+    │   │         +
+
+error BYN0002: unexpected character `\u{7}`
+
+  9 │ let c = � 3
+    │         ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  11 │ let x� = 1
+     │      ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 11 │ let x� = 1
+     │    │      -

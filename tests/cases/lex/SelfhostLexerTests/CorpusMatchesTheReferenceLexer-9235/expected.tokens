@@ -1,0 +1,74 @@
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+    doc `/// Doc line one.\n/// Doc lin two�'x`
+9:1 CharLiteral `''`
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolationStart `{`
+10:4 InterpolatedStringStart `$"`
+10:6 InterpolationStart `{`
+10:7 InterpolatedStringStart `$"`
+10:9 InterpolationStart `{`
+10:10 InterpolatedStringStart `$"`
+10:12 InterpolationStart `{`
+10:13 InterpolatedStringStart `$"`
+10:15 InterpolationStart `{`
+10:16 InterpolatedStringStart `$"`
+10:18 InterpolationStart `{`
+10:19 InterpolatedStringStart `$"`
+10:21 InterpolationStart `{`
+10:22 InterpolatedStringStart `$"`
+10:24 InterpolationStart `{`
+10:25 InterpolatedStringStart `$"`
+10:27 InterpolationStart `{`
+10:28 InterpolatedStringStart `$"`
+10:30 InterpolationStart `{`
+10:31 InterpolatedStringStart `$"`
+10:33 InterpolationStart `{`
+10:34 InterpolatedStringStart `$"`
+10:36 InterpolationStart `{`
+10:37 InterpolatedStringStart `$"`
+10:39 InterpolationStart `{`
+10:40 InterpolatedStringStart `$"`
+10:42 InterpolationStart `{`
+10:43 InterpolatedStringStart `$"`
+10:45 InterpolationStart `{`
+10:46 InterpolatedStringStart `$"`
+10:48 InterpolationStart `{`
+10:49 StringLiteral `$"x}"`
+10:54 InterpolationEnd `}`
+10:55 InterpolatedStringEnd `"`
+10:56 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │ /// Doc lin two�'x
+    │                ^
+
+error BYN0007: empty char literal
+
+  9 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"x}"}"
+     │                                           ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  10 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"x}"}"
+     │                                                 ^^

@@ -1,0 +1,3 @@
+build
+--emit-c
+lambda-capture-by-copy.byn

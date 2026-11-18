@@ -1,0 +1,47 @@
+1:1 IntegerLiteral `0x`
+1:3 NumericSuffix `letcafé`
+1:12 Equals `=`
+1:14 IntegerLiteral `1`
+2:2 Identifier `letc`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never closed\r\n\r\n�' '\\' '\0'\r\n� 0b1ms\r\n�`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0xletcafé = 1
+    │ ^^
+
+error BYN0011: unit suffix `letcafé` is not allowed on a hexadecimal literal
+
+  1 │ 0xletcafé = 1
+    │   ^^^^^^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  2 │  letc = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  4 │ �' '\\' '\0'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ � 0b1ms
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ � 0b1ms
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  6 │ �
+    │ ^

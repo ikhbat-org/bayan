@@ -1,0 +1,81 @@
+1:2 Equals `=`
+1:4 IntegerLiteral `2`
+2:1 IfKeyword `if`
+2:4 ElseKeyword `else`
+2:9 UnlessKeyword `unless`
+2:16 SwitchKeyword `switch`
+2:23 CaseKeyword `case`
+2:28 DefaultKeyword `default`
+2:36 ForKeyword `for`
+2:40 InKeyword `in`
+2:43 WhileKeyword `while`
+2:49 DoKeyword `do`
+2:52 BreakKeyword `break`
+2:58 ContinueKeyword `continue`
+2:67 ReturnKeyword `return`
+2:74 YieldKeyword `yield`
+2:80 DeferKeyword `defer`
+2:86 ErrdeferKeyword `errdefer`
+2:95 UsingKeyword `using`
+2:101 ContextKeyword `context`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:5 StringLiteral `"{ i64>>`
+5:1 Identifier `a`
+5:3 Greater `>`
+5:4 Greater `>`
+5:6 Identifier `b`
+6:1 Identifier `c`
+6:3 Greater `>`
+6:4 GreaterEquals `>=`
+6:7 IntegerLiteral `1`
+7:1 StringLiteral `"text"`
+7:8 StringLiteral `"esc \"q\" \\ \n"`
+7:26 RawStringLiteral `"""\n `
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ �� �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �� �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ �� �
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ �� �
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ �� �
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{ "{ i64>>
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{ "{ i64>>
+    │     ^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

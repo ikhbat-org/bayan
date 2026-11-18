@@ -1,0 +1,6 @@
+public enum Shade {
+    light
+    dark
+}
+
+public i64 depth(Shade s) => s == .dark ? 2 : 1

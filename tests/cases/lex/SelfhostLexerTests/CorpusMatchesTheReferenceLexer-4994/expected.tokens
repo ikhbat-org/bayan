@@ -1,0 +1,74 @@
+1:2 IntegerLiteral `0x`
+1:4 NumericSuffix `if`
+1:7 ElseKeyword `else`
+1:12 UnlessKeyword `unless`
+1:19 SwitchKeyword `switch`
+1:26 Identifier `casKe`
+1:32 DefaultKeyword `default`
+1:40 ForKeyword `for`
+1:44 InKeyword `in`
+1:47 WhileKeyword `while`
+1:53 DoKeyword `do`
+1:56 BreakKeyword `break`
+1:62 ContinueKeyword `continue`
+1:71 ReturnKeyword `return`
+1:78 YieldKeyword `yield`
+1:84 DeferKeyword `defer`
+1:90 ErrdeferKeyword `errdefer`
+1:99 UsingKeyword `using`
+1:105 ContextKeyword `context`
+2:6 Identifier `ra`
+2:9 StringLiteral `"quoted"`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��0xif else unless switch casKe default for in�while do break continue return yield defer errdefer using context
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��0xif else unless switch casKe default for in�while do break continue return yield defer errdefer using context
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ ��0xif else unless switch casKe default for in�while do break continue return yield defer errdefer using context
+    │   ^^
+
+error BYN0011: unit suffix `if` is not allowed on a hexadecimal literal
+
+  1 │ ��0xif else unless switch casKe default for in�while do break continue return yield defer errdefer using context
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  1 │ ��0xif else unless switch casKe default for in�while do break continue return yield defer errdefer using context
+    │                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │  �����   ra "quoted"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │  �����   ra "quoted"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����   ra "quoted"
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����   ra "quoted"
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����   ra "quoted"
+    │      ^

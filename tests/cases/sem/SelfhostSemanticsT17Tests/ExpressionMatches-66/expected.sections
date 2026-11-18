@@ -1,0 +1,3 @@
+== case float-suffix-bad
+errorExpr 1005..1010 : ?
+BYN2022 55:22 the suffix `kg` is not supported in v0.1 |||

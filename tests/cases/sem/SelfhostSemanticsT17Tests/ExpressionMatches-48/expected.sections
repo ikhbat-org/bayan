@@ -1,0 +1,3 @@
+== case name-typo
+errorExpr 1715..1721 : ?
+BYN2001 87:17 `modFnc` is not defined ||did you mean `modFunc`?|fix 1715..1721 modFunc

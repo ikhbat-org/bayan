@@ -1,0 +1,10 @@
+let c = """never closed
+'\u{1p10000}'
+ fails try catch never noallo‡c nosuspend suspends async await
+*/ðŸ˜
+let a = "opœen
+
+e.
+/// Doc line two.
+struct S
+//// not a doc

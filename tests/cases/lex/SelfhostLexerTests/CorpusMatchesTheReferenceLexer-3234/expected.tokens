@@ -1,0 +1,127 @@
+1:1 Comma `,`
+1:3 Dot `.`
+1:5 DotDot `..`
+1:8 DotDotEquals `..=`
+1:12 Colon `:`
+1:14 Question `?`
+1:16 QuestionQuestion `??`
+1:19 QuestionQuestionEquals `??=`
+1:23 QuestionDot `?.`
+1:25 FatArrow `=>`
+1:28 Arrow `->`
+1:31 At `@`
+1:33 Hash `#`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"{$"`
+4:54 OpenBrace `{`
+4:55 StringLiteral `$"{$"`
+4:60 OpenBrace `{`
+4:61 StringLiteral `$"{x}"`
+4:68 StructKeyword `struct`
+4:75 UniqueKeyword `unique`
+4:82 UnionKeyword `union`
+4:88 EnumKeyword `enum`
+4:93 FlagsKeyword `flags`
+4:99 OpenKeyword `open`
+4:104 ExtensibleKeyword `extensible`
+4:115 InterfaceKeyword `interface`
+4:125 DelegateKeyword `delegate`
+4:134 ExtensionKeyword `extension`
+4:144 DerivationKeyword `derivation`
+4:155 AttributeKeyword `attribute`
+5:1 StringLiteral `$"{$"`
+5:6 OpenBrace `{`
+5:7 StringLiteral `$"{$"`
+5:12 OpenBrace `{`
+5:13 StringLiteral `$"{$"`
+5:18 OpenBrace `{`
+5:19 StringLiteral `$"{$"`
+5:24 OpenBrace `{`
+5:25 StringLiteral `$"{$"`
+5:30 OpenBrace `{`
+5:31 StringLiteral `$"{$"`
+5:36 OpenBrace `{`
+5:37 StringLiteral `$"{$"`
+5:42 OpenBrace `{`
+5:43 Identifier `x`
+5:44 CloseBrace `}`
+5:45 StringLiteral `"}"`
+5:49 LetKeyword `let`
+5:53 Identifier `café`
+5:59 Equals `=`
+5:61 IntegerLiteral `1`
+5:62 Semicolon `;`
+5:64 IntegerLiteral `0`
+5:66 IntegerLiteral `42`
+5:69 IntegerLiteral `1_000_000`
+5:79 IntegerLiteral `0xFF`
+5:84 IntegerLiteral `0x_ff`
+5:90 IntegerLiteral `0b1010`
+5:97 IntegerLiteral `0B11`
+5:102 IntegerLiteral `5`
+5:103 NumericSuffix `s`
+5:105 IntegerLiteral `250`
+5:108 NumericSuffix `ms`
+5:111 IntegerLiteral `4`
+5:112 NumericSuffix `KiB`
+5:116 IntegerLiteral `1`
+5:117 NumericSuffix `u`
+5:119 IntegerLiteral `0xFF`
+5:123 NumericSuffix `u`
+5:125 IntegerLiteral `0b1`
+5:128 NumericSuffix `ul`
+5:131 IntegerLiteral `7`
+5:132 NumericSuffix `l`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │                                                 ^^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" let café = 1; 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                                                     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" let café = 1; 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │   │                                                        +

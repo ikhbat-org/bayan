@@ -1,0 +1,66 @@
+1:1 Identifier `Å`
+2:2 Identifier `macro`
+2:8 Identifier `select`
+2:15 BecomeKeyword `become`
+3:2 CloseBrace `}`
+3:3 CharLiteral `' ( ) [ ] { }\r`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:10 Equals `=`
+6:12 IntegerLiteral `2`
+7:2 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å // ok � in comment
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å // ok � in comment
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ Å // ok � in comment
+    │          ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │  macro select become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │  macro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0008: unterminated char literal
+
+  3 │  }' ( ) [ ] { }
+    │   ^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ �// ok � in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ �// ok � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ �// ok � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ �// ok � in comment
+    │        ^

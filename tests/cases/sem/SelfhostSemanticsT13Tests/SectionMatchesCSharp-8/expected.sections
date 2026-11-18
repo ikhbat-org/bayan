@@ -1,0 +1,5 @@
+== drainInstanceMethods
+instance null
+get Method body yes
+local k i64
+instantiationErrors +0

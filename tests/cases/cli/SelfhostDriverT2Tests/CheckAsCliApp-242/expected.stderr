@@ -1,0 +1,10 @@
+error BYN2612: allocation is not allowed in a panic handler
+  --> <repo>/tmp/t2/diag/panic-handler-env/panic-handler-env.byn:3:16
+
+  3 │     let home = Env.get("HOME")
+    │                ^^^^^^^^^^^^^^^
+    │
+  help: remove it; panic handlers can't recover
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2612

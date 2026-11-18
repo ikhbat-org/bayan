@@ -1,0 +1,4 @@
+== index.probes.-.i6
+errorExpr|?|-|-|-|-|-|3964:4|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2212 190:14 `i64` cannot be indexed |||

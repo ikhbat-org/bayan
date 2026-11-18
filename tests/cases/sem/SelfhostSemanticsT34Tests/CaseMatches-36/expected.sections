@@ -1,0 +1,6 @@
+== s16
+switchExpr|i32|2312:27
+value local:i64=n
+arm 2323:6 constantPattern[2323:1]:i64(errorExpr:?) guard - value literal:i32=1
+arm 2331:6 bindPattern[2331:1]:i64_(-) guard - value literal:i32=0
+BYN2202 87:26 expected `i64`, found `string` |||

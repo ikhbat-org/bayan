@@ -1,0 +1,69 @@
+1:1 Identifier `x_`
+2:1 IntegerLiteral `0b__`
+3:1 IntegerLiteral `1__`
+4:1 IntegerLiteral `0xF__`
+    doc `/// Doc line one.\n\u{0}/// Doc line two.`
+9:1 CharLiteral `'\q'`
+10:1 CharLiteral `'\u{D800}'`
+11:1 CharLiteral `'\u{110000}'`
+12:1 CharLiteral `'x`
+14:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0xF__
+    │    ^^
+    │
+    │ 4 │ 0xF__
+    │   │    --
+
+error BYN0002: unexpected character `\u{0}`
+
+  6 │ �/// Doc line two.
+    │ ^
+
+error BYN0002: unexpected character `﻿`
+
+  7 │ ﻿
+    │ ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  9 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  10 │ '\u{D800}'
+     │  ^^^^^^^^
+     │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  11 │ '\u{110000}'
+     │  ^^^^^^^^^^
+     │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  12 │ 'x
+     │ ^^
+     │
+  help: close it with `'`

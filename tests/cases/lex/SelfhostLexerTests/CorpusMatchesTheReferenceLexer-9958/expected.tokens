@@ -1,0 +1,28 @@
+1:1 Identifier `Å`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bd \q escape"`
+5:2 Equals `=`
+5:4 IntegerLiteral `1`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:10 Equals `=`
+6:12 IntegerLiteral `2`
+7:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å
+    │   │ +
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bd \q escape"
+    │             ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

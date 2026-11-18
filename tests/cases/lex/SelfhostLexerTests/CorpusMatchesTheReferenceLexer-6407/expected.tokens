@@ -1,0 +1,7 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 IntegerLiteral `1`
+4:1 EndOfFile

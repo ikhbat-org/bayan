@@ -1,0 +1,2 @@
+(fn 0..25 -> (named 6..10 6..10 < >) fails 11..16 (named 17..18 17..18 < >) uses 19..23 24..25) at 8
+BYN1065 19+4 `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`, `fails` [out of order] [move `uses` before `fails`] fix 11+14 'uses a fails E'

@@ -1,0 +1,11 @@
+== flat
+[]
+[assert x == 1]
+[assert a && b]
+[a b c]
+[  lead trail ]
+[assert f("日本") == é]
+[assert s == "😀😀" && x]
+[ ]
+[a  b]
+[tab after]

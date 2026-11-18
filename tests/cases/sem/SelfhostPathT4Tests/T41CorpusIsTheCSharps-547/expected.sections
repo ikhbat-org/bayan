@@ -1,0 +1,13 @@
+== diags.diag/spread-run-time-length
+BYN2219 2:22 the length of `..xs` in a `T[N]` literal must be a compile-time constant
+  label a `List<i32>` has a run-time length
+  help spread a fixed array `T[N]` here, or build a list: `List<i32> all = [..xs, 3]`
+BYN2219 3:24 the length of `..xs` in a `Span` literal must be a compile-time constant
+  label a `List<i32>` has a run-time length
+  help spread a fixed array `T[N]` here, or build a list: `List<i32> all = [..xs]`
+BYN2219 4:20 the length of `..xs` in a `T[N]` literal must be a compile-time constant
+  label a `List<i32>` has a run-time length
+  help spread a fixed array `T[N]` here, or build a list: `List<i32> all = [0, ..xs]`
+BYN2202 5:24 expected `i64`, found `i32`
+  label `xs` holds `i32`
+  help spread a sequence of `i64`, or change the literal's element type to `i32`

@@ -1,0 +1,11 @@
+1:21 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in commen�� 
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  1 │ // ok � in commen�� 
+    │                  ^

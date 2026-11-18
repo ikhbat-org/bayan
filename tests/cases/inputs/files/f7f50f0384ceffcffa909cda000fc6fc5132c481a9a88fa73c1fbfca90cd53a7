@@ -1,0 +1,11 @@
+& && | || ^ ~ ! = == != < <= > >= << >> >>=
+ //// not a doc comment
+ /* ‭ */let aw = 3
+
+let b = ` 2
+
+/// Doc line one.
+
+// comment ‮ hidden
+
+/*

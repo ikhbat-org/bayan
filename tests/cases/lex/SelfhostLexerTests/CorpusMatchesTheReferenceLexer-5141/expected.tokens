@@ -1,0 +1,60 @@
+1:1 Identifier `ạ̇0b102`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:9 IntegerLiteral `1`
+4:4 OpenParen `(`
+4:6 CloseParen `)`
+4:8 OpenBracket `[`
+4:10 CloseBracket `]`
+4:12 OpenBrace `{`
+4:14 CloseBrace `}`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 EndOfFile
+
+error BYN0005: identifier `ạ̇0b102` is not in Unicode normalization form C
+
+  1 │ ạ̇0b102
+    │ ^^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇0b102
+    │   │ ++
+
+error BYN0002: unexpected character `﻿`
+
+  2 │ ﻿
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ ���� �( ) [ ] { }
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ ���� �( ) [ ] { }
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ���� �( ) [ ] { }
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ���� �( ) [ ] { }
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ ���� �( ) [ ] { }
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,22 @@
+== main.byn
+// BYN1079: `bayan fix` writes `[]` or `{}` where the target gives the type; the fixed copy prints the same.
+struct Point {
+    i32 x = 3
+    i32 y = 4
+}
+
+struct Bag {
+    List<i32> items = []
+    Map<string, i32> counts = []
+    Point origin = {}
+}
+
+void main() {
+    var b = Bag {}
+    b.items.append(7)
+    let xs: List<i32> = []
+    let m: Map<string, i32> = []
+    let p: Point = {}
+    print($"{b.items.length}{b.counts.length}{b.origin.x}{b.origin.y}")
+    print($"{xs.length}{m.length}{p.x + p.y}")
+}

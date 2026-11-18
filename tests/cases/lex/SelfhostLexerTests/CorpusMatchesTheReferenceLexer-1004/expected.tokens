@@ -1,0 +1,21 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+1:5 Identifier `Ϭ`
+1:6 Dot `.`
+1:7 IntegerLiteral `5`
+1:8 NumericSuffix `f`
+4:1 FailsKeyword `fails`
+4:7 TryKeyword `try`
+4:11 CatchKeyword `catch`
+4:17 NeverKeyword `never`
+4:23 NoallocKeyword `noalloc`
+4:31 NosuspendKeyword `nosuspend`
+4:41 SuspendsKeyword `suspends`
+4:50 AsyncKeyword `async`
+4:56 AwaitKeyword `await`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ 1.� Ϭ.5f
+    │   ^

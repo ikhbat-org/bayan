@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "FieldDecl",
+    "InExpr",
+    "LiteralExpr",
+    "MemberExpr",
+    "NameExpr",
+    "RangeExpr",
+    "RequiresRule",
+    "StructDecl",
+    "TypeAliasDecl"
+  ],
+  "builtins": [
+    "ListAdd",
+    "ListIsEmpty",
+    "StringLength"
+  ],
+  "diagnostics": []
+}

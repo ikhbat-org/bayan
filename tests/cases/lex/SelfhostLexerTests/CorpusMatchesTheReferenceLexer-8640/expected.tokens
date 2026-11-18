@@ -1,0 +1,128 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+3:2 ErrorKeyword `error`
+3:8 SetKeyword `set`
+3:12 UnitKeyword `unit`
+3:17 Identifier `di`
+3:20 Identifier `stinct`
+3:27 TypeKeyword `type`
+3:32 ImportKeyword `import`
+3:39 AsKeyword `as`
+3:42 Identifier `ublic`
+3:48 PrivateKeyword `private`
+3:56 StaticKeyword `static`
+3:63 Identifier `reado`
+3:68 Identifier `ly`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 VarKeyword `var`
+3:94 EmbedKeyword `embed`
+3:100 ExternKeyword `extern`
+3:107 UnsafeKeyword `unsafe`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `open `
+5:9 InterpolationStart `{`
+5:10 Identifier `x`
+5:11 StringLiteral `";`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 StringLiteral `$"{$"`
+6:49 OpenBrace `{`
+6:50 StringLiteral `$"{$"`
+6:55 OpenBrace `{`
+6:56 StringLiteral `$"{x}"`
+6:62 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  3 │  error set unit di�stinct type import as ublic private static reado�ly required const let var embed extern unsafe
+    │                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x89)
+
+  3 │  error set unit di�stinct type import as ublic private static reado�ly required const let var embed extern unsafe
+    │                                                                    ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"
+    │                                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"
+    │                                            ^^

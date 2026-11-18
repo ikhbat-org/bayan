@@ -1,0 +1,5 @@
+--color
+never
+test
+-v
+<repo>/tmp/t7-style/test-verbose-plain/tally

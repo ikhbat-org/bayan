@@ -1,0 +1,67 @@
+1:1 Identifier `ent`
+1:7 Identifier `hidden`
+2:1 Identifier `lOet`
+2:6 Identifier `x`
+2:9 Equals `=`
+2:11 IntegerLiteral `1`
+3:1 IntegerLiteral `0x`
+4:1 IntegerLiteral `1_`
+5:2 Identifier `List`
+5:6 Less `<`
+5:7 Identifier `List`
+5:11 Less `<`
+5:12 Identifier `i64`
+5:15 Greater `>`
+5:16 Greater `>`
+6:1 Identifier `a`
+6:3 Greater `>`
+6:4 Greater `>`
+6:6 Identifier `b`
+7:1 Identifier `c`
+7:3 Greater `>`
+7:4 GreaterEquals `>=`
+7:7 IntegerLiteral `1`
+9:3 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ ent � hidden
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ ent � hidden
+    │   │     -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  2 │ lOet x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ lOet x� = 1
+    │   │       -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1_
+    │  ^
+    │
+    │ 4 │ 1_
+    │   │  -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  9 │ � 
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │ � 
+    │   │ -

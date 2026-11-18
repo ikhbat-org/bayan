@@ -1,0 +1,40 @@
+1:1 Identifier `ạ̇`
+2:1 Identifier `le5t`
+2:6 Identifier `x`
+2:9 Equals `=`
+2:11 IntegerLiteral `1`
+3:3 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇
+    │   │ +
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  2 │ le5t x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ le5t x� = 1
+    │   │       -
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │  ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │  ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ���
+    │    ^

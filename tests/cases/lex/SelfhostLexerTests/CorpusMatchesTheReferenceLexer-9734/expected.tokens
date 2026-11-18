@@ -1,0 +1,63 @@
+1:1 Identifier `losed`
+2:1 Identifier `b`
+6:1 Identifier `macro`
+6:7 Identifier `select`
+6:14 BecomeKeyword `become`
+8:1 PlusEquals `+=`
+8:4 MinusEquals `-=`
+8:7 StarEquals `*=`
+8:10 SlashEquals `/=`
+8:13 PercentEquals `%=`
+8:16 AmpEquals `&=`
+8:19 BarEquals `|=`
+8:22 CaretEquals `^=`
+8:25 LessLessEquals `<<=`
+9:2 Identifier `ạ̇`
+10:1 LetKeyword `let`
+10:5 Identifier `cafe`
+10:10 Equals `=`
+10:12 IntegerLiteral `1`
+10:13 Semicolon `;`
+11:4 Identifier `comment`
+11:12 Star `*`
+11:13 Slash `/`
+11:15 Identifier `a`
+12:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ // comment � hidden
+    │   │            -
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  6 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  6 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  9 │  ạ̇
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 9 │  ạ̇
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  10 │ let cafe� = 1;
+     │         ^

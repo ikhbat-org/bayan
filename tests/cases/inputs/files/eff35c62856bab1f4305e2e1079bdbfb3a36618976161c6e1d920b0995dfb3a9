@@ -1,0 +1,13 @@
+nt
+/* block
+   commentD*/ a
+/// Doc line one.
+/// Doc line two. $"{a
+â€®b
+
+sc \"q\" \\ \n" """
+  raw "quoted"
+  """ c"text" u16"wide" "
+$"{"let a = 1
+
+€ 

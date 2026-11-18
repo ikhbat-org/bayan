@@ -1,0 +1,10 @@
+error BYN2703: variant `rect` has 2 payload field(s), but the pattern lists 1
+  --> tmp/t26-tests/cli/diag_union-pattern-arity.byn/union-pattern-arity.byn:8:5
+
+  8 │     .rect(let w) => w,
+    │     ^^^^^^^^^^^^
+    │
+  help: list every field: `.rect(let w, let h)`, or `_` to skip one
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2703

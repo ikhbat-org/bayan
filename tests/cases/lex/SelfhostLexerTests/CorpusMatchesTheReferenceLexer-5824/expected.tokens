@@ -1,0 +1,48 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `stra� } here`
+1:14 InterpolatedStringEnd `"`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:2 IntegerLiteral `1__`
+5:1 IntegerLiteral `0xF__`
+6:2 Identifier `foo`
+6:6 Identifier `Bar`
+6:10 Identifier `_x`
+6:13 Identifier `camelCaWe2`
+6:24 Dot `.`
+6:25 Identifier `بيان`
+6:30 Identifier `μετρητής`
+6:39 Identifier `x_1`
+6:43 Identifier `é`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  1 │ $"stra� } here"
+    │       ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ $"stra� } here"
+    │         ^
+    │
+    │ 1 │ $"stra� }} here"
+    │   │          +
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │  1__
+    │   ^^
+    │
+    │ 4 │  1__
+    │   │   --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --

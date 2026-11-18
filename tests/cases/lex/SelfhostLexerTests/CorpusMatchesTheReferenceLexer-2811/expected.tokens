@@ -1,0 +1,51 @@
+2:1 CloseBrace `}`
+2:2 Bang `!`
+2:3 StringLiteral `" $"`
+2:7 StringLiteral `"`
+4:1 IntegerLiteral `0x`
+6:1 Identifier `a`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │ }!" $""
+    │       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x
+    │ ^^
+
+error BYN0004: unterminated block comment
+
+  6 │ a /*�never c�osed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBE)
+
+  6 │ a /*�never c�osed
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  6 │ a /*�never c�osed
+    │             ^

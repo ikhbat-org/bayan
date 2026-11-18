@@ -1,0 +1,8 @@
+== tests/cases/diag/unknown-state.byn
+198..201 blockStmt
+251..254 blockStmt
+256..291 globalStatement
+256..291 localDecl
+268..291 structLiteralExpr
+132..160 blockStmt
+142..154 becomeStmt

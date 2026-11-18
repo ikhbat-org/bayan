@@ -1,0 +1,90 @@
+public union error ParseError { empty }
+
+public struct Notebook {
+    i64 n
+    string text
+
+    public static Notebook make() => Notebook { n: 0, text: "" }
+
+    public void total(ref this, i64 by) {
+        n += by
+    }
+
+    public void sizeUp(ref this) {
+        n *= 2
+    }
+
+    void sizeDown(ref this) {
+        n /= 2
+    }
+
+    public void sorted(ref this) {
+        text = text
+    }
+
+    public bool isEmpty(ref this) {
+        n = 0
+        return true
+    }
+
+    public bool hasRoomFor(ref this, i64 k) {
+        n += k
+        return true
+    }
+
+    public bool empty() => n == 0
+
+    public i64 parse() fails ParseError {
+        return 0
+    }
+
+    public i64 tryParse() => 0
+
+    public i64 load() fails ParseError {
+        return 0
+    }
+
+    public i64? tryLoad() => null
+
+    public i64 read() fails ParseError {
+        return 0
+    }
+
+    public bool tryRead() => false
+
+    public i64 tryFind() => 0
+
+    public i64 scan() fails ParseError {
+        return 0
+    }
+
+    public Missing tryScan() => 0
+
+    public i64 trying() => 0
+
+
+    public bool ready => n > 0
+
+    bool hidden => n > 0
+
+    public i64 size => n
+
+    public List<Notebook> notebook => List<Notebook>()
+
+    @json(name: "item")
+    public List<Notebook> item => List<Notebook>()
+
+    public i64 numLines => n
+}
+
+struct Quiet {
+    i64 n
+
+    bool ready => n > 0
+
+    void reset(ref this) {
+        n = 0
+    }
+}
+
+print("ok")

@@ -1,0 +1,4 @@
+== diags.diag/for-this-list-field-modified
+BYN3004 11:13 `items` is modified while the `for` loop still borrows it
+  label the loop over `items` is still running
+  help collect the changes in another list and apply them to `items` after the loop

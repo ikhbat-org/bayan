@@ -1,0 +1,23 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+3:5 Identifier `comment`
+3:13 Star `*`
+3:16 Identifier `a`
+5:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  3 │     comment *� �a
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x94)
+
+  3 │     comment *� �a
+    │                ^

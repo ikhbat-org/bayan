@@ -1,0 +1,96 @@
+1:1 OpenBrace `{`
+1:2 Identifier `D800`
+1:6 CloseBrace `}`
+1:7 CharLiteral `'\r`
+2:1 CharLiteral `'\u{110000}'`
+3:1 CharLiteral `'x\r`
+4:2 StringLiteral `"stray } here"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open `
+5:8 InterpolationStart `{`
+5:9 Identifier `x`
+5:10 StringLiteral `";`
+7:1 ErrorKeyword `error`
+7:7 SetKeyword `set`
+7:11 UnitKeyword `unit`
+7:16 Identifier `ditinct`
+7:24 TypeKeyword `type`
+7:29 ImportKeyword `import`
+7:36 AsKeyword `as`
+7:39 PublicKeyword `public`
+7:46 PrivateKeyword `private`
+7:54 StaticKeyword `static`
+7:61 ReadonlyKeyword `readonly`
+7:70 RequiredKeyword `required`
+7:79 ConstKeyword `const`
+7:85 LetKeyword `let`
+7:89 VarKeyword `var`
+7:93 EmbedKeyword `embed`
+7:99 ExternKeyword `extern`
+7:106 UnsafeKeyword `unsafe`
+8:2 CharLiteral `'\u{110000}'`
+9:2 CharLiteral `'a'`
+9:6 CharLiteral `'\n'`
+9:11 CharLiteral `'\u{1F600}'`
+9:23 CharLiteral `'\''`
+9:28 CharLiteral `'é'`
+9:32 CharLiteral `'\\'`
+9:37 CharLiteral `'\0'`
+11:3 IntegerLiteral `2`
+12:1 LetKeyword `let`
+12:5 Identifier `c`
+12:7 Equals `=`
+12:11 IntegerLiteral `3`
+14:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ {D800}'
+    │       ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  8 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character ```
+
+  11 │ ` 2
+     │ ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  12 │ let c = � 3
+     │         ^

@@ -1,0 +1,8 @@
+error BYN2003: `nope` is not a member of `StrBuf`
+  --> tmp/t26-tests/cli/diag_strbuf-unknown-static-member.byn/strbuf-unknown-static-member.byn:3:20
+
+  3 │     let x = StrBuf.nope
+    │                    ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2003

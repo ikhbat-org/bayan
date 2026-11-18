@@ -1,0 +1,4 @@
+FORCE_COLOR=1
+COLORTERM=truecolor
+CI=1
+BAYAN_CACHE=<repo>/tmp/t7-style-cache/diag-removal-fix-force-csharp

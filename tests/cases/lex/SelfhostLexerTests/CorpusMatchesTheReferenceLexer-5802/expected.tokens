@@ -1,0 +1,29 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 Identifier `n`
+1:13 Identifier `ot`
+1:16 WithKeyword `with`
+1:21 MoveKeyword `move`
+1:26 RefKeyword `ref`
+1:30 OutKeyword `out`
+1:34 ThisKeyword `this`
+1:39 NullKeyword `null`
+1:44 TrueKeyword `true`
+1:49 FalseKeyword `false`
+1:55 ComptimeKeyword `comptime`
+1:64 CheckedKeyword `checked`
+2:1 CharLiteral `'`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE5)
+
+  1 │ is and or n�ot with move ref out this null true false comptime checked
+    │            ^
+
+error BYN0008: unterminated char literal
+
+  2 │ '
+    │ ^
+    │
+  help: close it with `'`

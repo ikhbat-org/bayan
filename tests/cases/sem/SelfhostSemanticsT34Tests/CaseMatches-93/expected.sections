@@ -1,0 +1,6 @@
+== s46
+switchExpr|i32|3929:46
+value local:Order=od
+arm 3941:24 bindPattern[3941:19]:Order(-) guard - value literal:i32=1
+arm 3967:6 bindPattern[3967:1]:Order_(-) guard - value literal:i32=0
+BYN2703 117:27 variant `paid` has 1 payload field(s), but the pattern lists 2 ||list every field: `.paid(let payment)`, or `_` to skip one|

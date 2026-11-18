@@ -1,0 +1,31 @@
+== tests/cases/diag/region-combo-store-two-levels.byn
+135..163 blockStmt
+141..161 returnStmt value 148..161
+148..161 callExpr
+148..149 nameExpr
+159..160 nameExpr
+200..229 blockStmt
+206..227 returnStmt value 213..227
+213..227 callExpr
+216..217 nameExpr
+225..226 nameExpr
+268..281 blockStmt
+274..279 assignStmt assign target 274..275 value 278..279
+274..275 nameExpr
+278..279 nameExpr
+295..430 blockStmt
+301..314 localDecl
+312..314 literalExpr string
+319..412 blockStmt
+329..354 localDecl
+347..354 callExpr
+363..406 exprStmt
+363..406 callExpr
+368..391 callExpr
+372..377 literalExpr string
+385..390 nameExpr
+401..405 nameExpr
+417..428 exprStmt
+417..428 callExpr
+423..427 nameExpr
+417..428 callExpr

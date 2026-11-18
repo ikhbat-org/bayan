@@ -1,0 +1,10 @@
+error BYN2802: `S.area` is `IA.area` but `IB` requires `i32 area()`
+  --> tmp/t26-tests/cli/diag_interface-default-other-file_main.byn/main.byn:3:23
+
+  3 │ struct S : shapes.IA, shapes.IB {
+    │                       ^^^^^^^^^ `area` has a default in `IA`
+    │
+  help: add `i32 area()` to `S` to choose one
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2802

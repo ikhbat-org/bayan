@@ -1,0 +1,17 @@
+    doc `///Do� line one.\r`
+3:2 OpenBrace `{`
+3:3 Identifier `x`
+3:4 StringLiteral `";`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ ///Do� line one.
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  3 │  {x";
+    │    ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

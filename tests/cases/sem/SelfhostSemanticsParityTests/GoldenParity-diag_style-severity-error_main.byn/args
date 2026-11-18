@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/style-severity-error
+--include-path
+<repo>/tests/cases/diag/style-severity-error/main.byn

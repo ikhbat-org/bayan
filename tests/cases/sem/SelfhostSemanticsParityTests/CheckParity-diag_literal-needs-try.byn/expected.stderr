@@ -1,0 +1,12 @@
+error BYN3207: a literal of `Order` can fail its `requires`; write `try Order { … }`
+  --> tmp/t26-tests/cli/diag_literal-needs-try.byn/literal-needs-try.byn:5:52
+
+  5 │ Order order(i64 n) fails ValidationError<Order> => Order { quantity: n }
+    │                                                    ^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: add `try` before the literal and handle the `ValidationError<Order>`
+    │ 5 │ Order order(i64 n) fails ValidationError<Order> => try Order { quantity: n }
+    │   │                                                    ++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3207

@@ -1,0 +1,47 @@
+== tests/cases/run/map-key-struct-padding.byn
+173..260 blockStmt
+179..213 localDecl
+187..213 structLiteralExpr
+199..204 literalExpr falseKeyword
+210..211 literalExpr integer
+218..231 assignStmt assign target 218..224 value 227..231
+218..224 memberExpr
+218..219 nameExpr
+227..231 literalExpr trueKeyword
+236..245 assignStmt assign target 236..240 value 243..245
+236..240 memberExpr
+236..237 nameExpr
+243..245 nameExpr
+250..258 returnStmt value 257..258
+257..258 nameExpr
+274..432 blockStmt
+280..303 localDecl
+288..303 callExpr
+308..340 assignStmt assign target 308..336 value 339..340
+308..336 indexExpr
+308..309 nameExpr
+310..335 structLiteralExpr
+322..326 literalExpr trueKeyword
+332..333 literalExpr integer
+339..340 literalExpr integer
+345..360 assignStmt assign target 345..356 value 359..360
+345..356 indexExpr
+345..346 nameExpr
+347..355 callExpr
+353..354 literalExpr integer
+359..360 literalExpr integer
+365..385 exprStmt
+365..385 callExpr
+371..384 interpolatedExpr
+374..382 memberExpr
+374..375 nameExpr
+365..385 callExpr
+390..430 exprStmt
+390..430 callExpr
+396..429 interpolatedExpr
+399..427 indexExpr
+399..400 nameExpr
+401..426 structLiteralExpr
+413..417 literalExpr trueKeyword
+423..424 literalExpr integer
+390..430 callExpr

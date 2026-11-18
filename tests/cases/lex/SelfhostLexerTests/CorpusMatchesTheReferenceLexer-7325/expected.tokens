@@ -1,0 +1,32 @@
+1:1 Identifier `b`
+2:3 Identifier `hidden`
+4:1 Identifier `ds`
+4:4 AsyncKeyword `async`
+4:10 AwaitKeyword `await`
+5:1 IsKeyword `is`
+5:4 AndKeyword `and`
+5:8 OrKeyword `or`
+5:11 NotKeyword `not`
+5:15 WithKeyword `with`
+5:20 Identifier `mov0xx́́`
+5:29 VarKeyword `var`
+5:33 Identifier `xs`
+5:35 Colon `:`
+5:37 Identifier `List`
+5:41 Less `<`
+5:42 Identifier `List`
+5:46 Less `<`
+5:47 Identifier `i64`
+5:50 Greater `>`
+5:51 Greater `>`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �� hidden
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  2 │  �� hidden
+    │   ^

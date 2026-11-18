@@ -1,0 +1,80 @@
+1:1 IntegerLiteral `1__`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `a`
+3:4 InterpolationStart `{`
+3:5 Identifier `b`
+3:6 InterpolationEnd `}`
+3:7 InterpolatedStringText `c`
+3:8 InterpolatedStringEnd
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolationEnd `}`
+4:5 InterpolatedStringEnd `"`
+6:1 IntegerLiteral `0x`
+6:3 InterpolatedStringStart `$"`
+6:5 InterpolatedStringText `open `
+6:10 InterpolationStart `{`
+6:11 Identifier `x`
+6:12 StringLiteral `";`
+9:1 IntegerLiteral `0xF`
+9:4 Identifier `_`
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  3 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ $"{}" // comment � i<dden
+    │                  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ $"{}" // comment � i<dden
+    │   │                  -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x$"open {x";
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  6 │ 0x$"open {x";
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ 0x$"open {x";
+    │            ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  8 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  8 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8E)
+
+  9 │ 0xF�_
+    │    ^

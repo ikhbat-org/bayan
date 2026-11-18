@@ -1,0 +1,7 @@
+== c16
+catchExpr|i64|5395:61
+operand call:i64 binding t:NetError:o:-:catch variant - handler switchExpr:i64
+switchExpr|i64|5410:46
+value local:NetError=t
+arm 5419:27 errorPattern[5419:22]:NetError guard - value local:i64=k
+arm 5448:6 bindPattern[5448:1]:NetError_(-) guard - value literal:i64=0

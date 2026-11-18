@@ -1,0 +1,20 @@
+1:1 TestKeyword `test`
+1:6 Identifier `a`
+1:7 Identifier `sert`
+1:12 PropertyKeyword `property`
+1:21 FuzzKeyword `fuzz`
+1:26 ModelKeyword `model`
+1:32 Identifier `foreacS`
+1:40 NewKeyword `new`
+1:44 GotoKeyword `goto`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  1 │ test a�sert property fuzz model foreacS �new goto
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  1 │ test a�sert property fuzz model foreacS �new goto
+    │                                         ^

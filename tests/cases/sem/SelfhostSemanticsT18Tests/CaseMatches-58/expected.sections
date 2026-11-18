@@ -1,0 +1,3 @@
+== member.Bag.h.h1
+errorExpr|?|-|-|-|-|-|1062:11|-
+BYN2744 78:25 `nope` is not a member of type parameter `U` ||add `where U : …` naming an interface that declares `nope`, or use a concrete type|

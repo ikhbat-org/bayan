@@ -1,0 +1,93 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+1:4 Identifier `ver`
+1:8 Identifier `closed`
+2:1 Identifier `b`
+2:3 Equals `=`
+2:5 IntegerLiteral `1`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Arrow `->`
+4:32 At `@`
+4:34 Hash `#`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 StringLiteral `"{$"`
+5:14 OpenBrace `{`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolationStart `{`
+5:18 InterpolatedStringStart `$"`
+5:20 InterpolationStart `{`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolationStart `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:39 InterpolatedStringStart `$"`
+5:41 InterpolationStart `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:45 InterpolatedStringStart `$"`
+5:47 InterpolationStart `{`
+5:48 InterpolatedStringStart `$"`
+5:50 InterpolationStart `{`
+5:51 InterpolatedStringStart `$"`
+5:53 InterpolationStart `{`
+5:54 StringLiteral `$"{$"`
+5:59 OpenBrace `{`
+5:60 Identifier `x`
+5:61 CloseBrace `}`
+5:62 StringLiteral `"$"`
+5:65 Identifier `x`
+5:66 OpenBrace `{`
+5:68 StringLiteral `$"{`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  2 │ b�� = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  2 │ b�� = 1
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"$"x{ $"{
+    │                                                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"$"x{ $"{
+    │                                                      ^^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"$"x{ $"{
+    │                                                                    ^^^ string ends at the end
+    │                                                                        of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

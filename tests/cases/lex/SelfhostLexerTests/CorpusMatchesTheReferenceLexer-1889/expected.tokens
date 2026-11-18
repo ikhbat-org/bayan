@@ -1,0 +1,24 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{`
+1:5 InterpolatedStringEnd `"`
+2:1 LetKeyword `let`
+2:6 Identifier `b`
+2:8 Equals `=`
+2:12 IntegerLiteral `2`
+3:2 IntegerLiteral `0b__`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  2 │ let �b = ` 2
+    │     ^
+
+error BYN0002: unexpected character ```
+
+  2 │ let �b = ` 2
+    │          ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │  0b__
+    │  ^^^^

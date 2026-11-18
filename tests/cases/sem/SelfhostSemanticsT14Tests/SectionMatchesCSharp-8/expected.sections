@@ -1,0 +1,2 @@
+== baseSpanFallback
+BYN2801 71:8 `MissOne` does not provide `count` required by `ICount` | needs `count` | add `i64 count { get }` to `MissOne` | fix 771:0 i64 count => todo("count") 

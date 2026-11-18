@@ -1,0 +1,42 @@
+public struct Line {
+    public i64 grams
+}
+
+public type distinct Qty = i64 requires it > 0
+
+public struct Crate<T> {
+    public T items
+}
+
+public struct Order {
+    public Owned<Line> lines
+    public Line? entries
+    public List<Line> lines2
+    public List<Line> lines
+    public List<Line> widgets
+    public List<Line> address
+    public List<Line> status
+    public List<Line> analysis
+    public string address2
+    public string status2
+    public string analysis2
+    public string addresses
+    public i64 totalLineWeight
+    public i64 numberAnyLines
+    public string numLines
+    public Missing lines3
+    public List<Line> línea
+    public i64 númLines
+    @allow(unusedValue) because "kept"
+    public List<Line> line
+}
+
+public i64 first(Span<Line> line) => line.length
+
+public i64 second(i64 _) => 0
+
+public i64 third(Line __) => 0
+
+public i64 fourth(Line[4] line) => 0
+
+print("ok")

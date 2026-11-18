@@ -1,0 +1,34 @@
+== declfile stmts
+module m tmp/t11-cases/stmts/m m
+file m/m.byn source
+module main tmp/t11-cases/stmts main
+file tmp/t11-cases/stmts/a.byn source
+import m m
+file tmp/t11-cases/stmts/b.byn source
+file tmp/t11-cases/stmts/c.test.byn test
+diag BYN2015 m/m.byn 1:1 top-level statements are allowed only in the entry module |  | 
+diag BYN2015 tmp/t11-cases/stmts/b.byn 1:1 top-level statements are allowed only in the entry module |  | keep top-level statements in one file of the entry module
+diag BYN2015 tmp/t11-cases/stmts/c.test.byn 1:1 top-level statements are allowed only in the entry module |  | 
+decls m
+const c
+structs
+enums
+unions
+interfaces
+errorsets
+main none
+decls main
+structs
+enums
+unions
+interfaces
+errorsets
+all main Main 2:1 <>
+main Main
+aliases
+distinct
+positional 0
+wheres 0
+testcases 0
+mainstatements 3
+testbodies 0 withvalues 0

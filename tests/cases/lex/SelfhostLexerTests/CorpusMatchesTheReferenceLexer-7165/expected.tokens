@@ -1,0 +1,19 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `a`
+1:4 InterpolationStart `{`
+1:5 Identifier `b`
+1:6 InterpolationEnd `}`
+1:7 InterpolatedStringText `c $`
+1:10 InterpolatedStringEnd `"`
+1:11 Identifier `stray`
+1:17 CloseBrace `}`
+1:19 Identifier `here`
+1:23 StringLiteral `"`
+2:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"a{b}c $"stray } here"
+    │                       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

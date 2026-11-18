@@ -1,0 +1,1 @@
+{"code":"BYN2761","severity":"error","file":"input.byn","span":{"start":7,"end":11,"line":1,"column":8,"endLine":1,"endColumn":12},"message":"`Tree` contains itself by value: Tree → Forest → Tree","label":null,"help":"store the inner one as `Owned<Tree>` (or in a `List<Tree>`); a value cannot contain itself","fixes":[]}

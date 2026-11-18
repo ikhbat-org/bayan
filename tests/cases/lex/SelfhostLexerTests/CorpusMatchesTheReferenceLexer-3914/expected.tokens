@@ -1,0 +1,47 @@
+1:4 CharLiteral `'\u{110000}'`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `stray } here`
+2:15 InterpolatedStringEnd `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `x`
+4:4 InterpolationStart `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolationStart `{`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ ﻿ �'\u{110000}'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ ﻿ �'\u{110000}'
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ ﻿ �'\u{110000}'
+    │    ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ ﻿ �'\u{110000}'
+    │     ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ $"stray } here"
+    │         ^
+    │
+    │ 2 │ $"stray }} here"
+    │   │          +
+
+error BYN0003: unterminated string literal
+
+  4 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

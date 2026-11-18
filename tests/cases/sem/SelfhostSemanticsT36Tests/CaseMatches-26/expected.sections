@@ -1,0 +1,88 @@
+== x-fail
+BYN2604 17:17 `f` cannot fail, so it cannot pass on `ParseError` ||declare the error in a `fails` clause, or handle it here|
+BYN2604 22:17 `g` cannot fail, so it cannot pass on `.empty` ||declare the error in a `fails` clause, or handle it here|
+BYN2603 27:17 `.missing` is not in the `fails` clause of `h` ||name a case of `ParseError`|
+BYN2227 32:17 `.empty` is ambiguous; it exists in `ParseError`, `Other` |||
+BYN2603 37:17 `MoneyError` is not in the `fails` clause of `m` ||add it to the signature: `fails ParseError, MoneyError`|
+BYN2202 42:17 expected `an error`, found `i32` |||
+BYN2228 47:17 `empty` is not a variant of `the inferred error set` ||name the set: `fail MyError.x`|
+BYN2603 52:17 `Other.gone` is not in the `fails` clause of `r` ||pick another case, or remove `.gone` from the `except` list|
+BYN2604 62:10 `main` cannot fail, so it cannot pass on `.empty` ||declare the error in a `fails` clause, or handle it here|
+fn f
+block 175..226
+  ifStmt 181..211
+    local 184..185 : bool
+    block 186..211
+      errorStmt 188..192
+  returnStmt 216..224
+    literal 223..224 : i64
+fn g
+block 242..283
+  ifStmt 248..268
+    local 251..252 : bool
+    block 253..268
+      errorStmt 255..259
+  returnStmt 273..281
+    literal 280..281 : i64
+fn h
+block 316..359
+  ifStmt 322..344
+    local 325..326 : bool
+    block 327..344
+      errorStmt 329..333
+  returnStmt 349..357
+    literal 356..357 : i64
+fn k
+block 399..440
+  ifStmt 405..425
+    local 408..409 : bool
+    block 410..425
+      errorStmt 412..416
+  returnStmt 430..438
+    literal 437..438 : i64
+fn m
+block 473..526
+  ifStmt 479..511
+    local 482..483 : bool
+    block 484..511
+      failStmt 486..490
+        errorVariant 491..509 : MoneyError
+  returnStmt 516..524
+    literal 523..524 : i64
+fn main
+block 825..844
+  errorStmt 831..835
+fn n
+block 559..595
+  ifStmt 565..580
+    local 568..569 : bool
+    block 570..580
+      errorStmt 572..576
+  returnStmt 585..593
+    literal 592..593 : i64
+fn q
+block 617..658
+  ifStmt 623..643
+    local 626..627 : bool
+    block 628..643
+      errorStmt 630..634
+  returnStmt 648..656
+    literal 655..656 : i64
+fn r
+block 687..727
+  ifStmt 693..712
+    local 696..697 : bool
+    block 698..712
+      failStmt 700..704
+        errorVariant 705..710 : Other
+  returnStmt 717..725
+    literal 724..725 : i64
+fn s
+block 760..811
+  ifStmt 766..796
+    local 769..770 : bool
+    block 771..796
+      failStmt 773..777
+        errorVariant 778..794 : ParseError
+  returnStmt 801..809
+    literal 808..809 : i64

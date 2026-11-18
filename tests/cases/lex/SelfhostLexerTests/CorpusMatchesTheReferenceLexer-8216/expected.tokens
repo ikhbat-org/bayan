@@ -1,0 +1,10 @@
+1:1 CharLiteral `'͈b'`
+2:1 CloseParen `)`
+2:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ '͈b'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text

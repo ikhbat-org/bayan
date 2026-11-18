@@ -1,0 +1,16 @@
+== tests/cases/run/alias-field-default-import
+209..260 blockStmt
+215..232 localDecl
+223..232 structLiteralExpr
+185..193 structLiteralExpr
+37..38 literalExpr integer
+237..258 exprStmt
+237..258 callExpr
+243..257 interpolatedExpr
+246..255 memberExpr
+246..253 memberExpr
+246..247 nameExpr
+237..258 callExpr
+37..38 literalExpr integer
+185..193 structLiteralExpr
+37..38 literalExpr integer

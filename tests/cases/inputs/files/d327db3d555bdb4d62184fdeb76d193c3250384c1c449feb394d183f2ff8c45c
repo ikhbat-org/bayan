@@ -1,0 +1,622 @@
+// Recovery and line structure. Ports from `csharp/Bayan.Syntax/Parsing/Parser.cs`: `ExpectEnd`,
+// `ReportSemicolon`, `IndentAt`, `BreaksLine`, `HasBlankLineBefore`, `IsWasl`, `LineContinues`,
+// `StopsHere`, `EndsBefore`, `ExpectName`, `NameOf`, `IsName`, `IsStatementKeyword`, `Synchronize`,
+// `RecoverIfNeeded` (lines 165–343), `LintLineJoins`, the style lints (`LintPostfixGuard`, `LintItLambda`,
+// `LintWrappedCondition`, `LintFunctionLength` and `ParseBlock`'s depth check), `InGroup`, `Unreport`, the sets `ItName` and `Particles`, and
+// from the lexer `TokenKindFacts.IsContextualKeyword` and `Keywords.IsCSharpPrimitive`. Owner:
+//
+// A C# `Name` is its `TextSpan` (nodes.byn), so `expectName` and `nameOf` return the span; a missing
+// name is the empty span at the current token, which C# spells `<missing>`.
+
+import lexer
+
+/// The end of a statement or declaration: a line break, `}` or the end of the file. Each `;` here is
+/// the input form (BYN1040); another statement on the same line is BYN1005.
+void expectEnd(ref Parser p) {
+    if p.kind() == .semicolon {
+        while p.kind() == .semicolon {
+            reportSemicolon(ref p, for: p.advance())
+        }
+        return
+    }
+    return if p.atEnd() || p.kind() == .closeBrace || p.current().hasNewlineBefore
+    // The token after the statement was already reported (e.g. as a bad expression); one error is enough.
+    return if p.lastErrorAt == p.current().start
+    let _ = p.reportFix(
+        .missingLineBreak,
+        at: TextSpan { start: p.prevEnd, length: 0 },
+        through: TextSpan.fromBounds(p.prevEnd, until: p.current().start),
+        by: $"\n{indentAt(ref p, at: p.prevEnd)}",
+        label: $"found {p.describe(p.current())}",
+        help: "put the next statement on its own line",
+    )
+}
+
+/// BYN1040 for a `;` just consumed: deleted, or a line break when a statement follows on its line.
+void reportSemicolon(ref Parser p, for Token semicolon) {
+    var from = semicolon.start
+    while from > 0 && (p.lexed.source.bytes[from - 1] == ' ' || p.lexed.source.bytes[from - 1] == '\t') {
+        from -= 1
+    }
+    if p.current().hasNewlineBefore || p.kind() == .semicolon || p.kind() == .closeBrace || p.kind() == .endOfFile {
+        let _ = p.reportFix(
+            .semicolonInput,
+            at: spanOf(semicolon),
+            through: TextSpan.fromBounds(from, until: semicolon.end),
+            by: "",
+            label: "remove `;`",
+            help: "remove the `;`",
+        )
+        return
+    }
+    var to = semicolon.end
+    while to < p.lexed.source.bytes.length && (p.lexed.source.bytes[to] == ' ' || p.lexed.source.bytes[to] == '\t') {
+        to += 1
+    }
+    let _ = p.reportFix(
+        .semicolonInput,
+        at: spanOf(semicolon),
+        through: TextSpan.fromBounds(from, until: to),
+        by: $"\n{indentAt(ref p, at: semicolon.start)}",
+        label: "remove `;`",
+        help: "put the next statement on its own line",
+    )
+}
+
+/// The spaces and tabs that start the line holding `offset`.
+string indentAt(ref Parser p, at i64 offset) {
+    let line = p.lexed.source.getLineSpan(p.lexed.source.getLineIndex(offset))
+    var end = line.start
+    while end < line.end && (p.lexed.source.bytes[end] == ' ' || p.lexed.source.bytes[end] == '\t') {
+        end += 1
+    }
+    return p.lexed.source.getText(TextSpan.fromBounds(line.start, until: end))
+}
+
+// ── Line breaks (waqf) ───────────────────────────────────────────────────────
+
+/// Whether a line break before token `index` can end a statement: one outside `()`, `[]` and interpolation holes.
+bool breaksLine(ref Parser p, at i64 index) =>
+    index < p.count && p.lexed.tokens[index].hasNewlineBefore && !p.inGroup[index]
+
+/// Whether a line of only whitespace lies between token `index` and the one before it; a comment line is not blank.
+bool hasBlankLineBefore(ref Parser p, at i64 index) {
+    return false if index <= 0 || index >= p.count
+    var lineIsBlank = false
+    for i in p.lexed.tokens[index - 1].end..p.lexed.tokens[index].start {
+        let b = p.lexed.source.bytes[i]
+        if b == '\n' {
+            return true if lineIsBlank
+            lineIsBlank = true
+        } else if !(b == ' ' || b == '\t' || b == '\r') {
+            lineIsBlank = false
+        }
+    }
+    return false
+}
+
+/// A token that joins the line it starts to the line before (waṣl).
+bool isWasl(ref Parser p, at i64 index) {
+    switch p.kindAt(index) {
+        case .dot or .questionDot or .questionQuestion or .ampAmp or .barBar or .andKeyword or .orKeyword or
+            .catchKeyword or .exceptKeyword or .requiresKeyword or .failsKeyword or .usesKeyword:
+            return true
+        case .identifier:
+            let token = p.lexed.tokens[index]
+            return p.kindAt(index + 1) == .identifier
+                && p.kindAt(index + 2) == .colon if lexer.sameBytes(p.text(token), as: "where".bytes)
+            return p.kindAt(index + 1) == .dot if lexer.sameBytes(p.text(token), as: "becomes".bytes)
+            if lexer.sameBytes(p.text(token), as: "expects".bytes) {
+                let next = p.kindAt(index + 1)
+                return next is .identifier or .bang or .notKeyword or .thisKeyword
+            }
+            return false
+        default:
+            return false
+    }
+}
+
+/// Whether the line before token `index` ends in an operator, `,`, `=`, `=>` or an opening bracket (lā), or the token is waṣl.
+bool lineContinues(ref Parser p, at i64 index) => isWasl(ref p, at: index) || afterLa(ref p, at: index)
+
+/// Whether the line before token `index` ends in an operator, `,`, `=`, `=>` or an opening bracket (lā).
+bool afterLa(ref Parser p, at i64 index) {
+    return false if index <= 0
+    switch p.kindAt(index - 1) {
+        case .comma or .fatArrow or .openBrace or .openParen or .openBracket or
+            .dot or .dotDot or .dotDotEquals or .question or .questionQuestion or
+            .questionDot or .plus or .minus or .star or .slash or .percent or
+            .plusPercent or .minusPercent or .starPercent or .plusBar or .minusBar or
+            .starBar or .amp or .ampAmp or .bar or .barBar or .caret or
+            .equalsEquals or .bangEquals or .less or .lessEquals or .greaterEquals or
+            .lessLess or .andKeyword or .orKeyword or .isKeyword or .inKeyword or
+            .equals or .plusEquals or .minusEquals or .starEquals or .slashEquals or
+            .percentEquals or .ampEquals or .barEquals or .caretEquals or
+            .lessLessEquals or .questionQuestionEquals:
+            return true
+        default:
+            return false
+    }
+}
+
+/// Whether the expression being parsed ends before the current token: it starts a new line, and is not waṣl or follows a blank line.
+bool stopsHere(ref Parser p) =>
+    breaksLine(ref p, at: p.pos) && (hasBlankLineBefore(ref p, at: p.pos) || !isWasl(ref p, at: p.pos))
+
+/// Whether a statement ends before token `index`, for lookahead: a `;`, `}`, the end, or a line break.
+bool endsBefore(ref Parser p, at i64 index) {
+    let kind = p.kindAt(index)
+    return kind == .semicolon || kind == .closeBrace || kind == .endOfFile || breaksLine(ref p, at: index)
+}
+
+// ── Line-join lint (BYN5103) ─────────────────────────────────────────────────
+
+/// BYN5103, a warning: a waṣl line indented no deeper than the line its statement starts on. Reported by a
+/// compilation and fixed by `bayan format`, not by `bayan parse`. Ports `LintLineJoins`.
+public List<Diagnostic> lintLineJoins(ref Parser p) uses alloc {
+    var lints = List<Diagnostic>()
+    var opener = List<i64>()
+    var open = List<i64>()
+    for i in 0..p.count {
+        opener.append(-1)
+        switch p.kindAt(i) {
+            case .openParen or .openBracket or .openBrace or .interpolationStart:
+                open.append(i)
+            case .closeParen or .closeBracket or .interpolationEnd or .closeBrace:
+                if open.length > 0 {
+                    opener[i] = open.removeLast()
+                }
+            default:
+                continue
+        }
+    }
+    // Each line's first token, and the first token of the line its statement starts on, filled forward: the statement
+    // starts on the first line reached by stepping back over joined lines and bracketed groups, and every step goes back.
+    var first = List<i64>()
+    var statement = List<i64>()
+    for i in 0..p.count {
+        first.append(i > 0 && !p.lexed.tokens[i].hasNewlineBefore ? first[i - 1] : i)
+        statement.append(i)
+        continue if first[i] != i
+        if opener[i] >= 0 {
+            statement[i] = statement[first[opener[i]]]
+        } else if i > 0 && joinsLineBefore(ref p, at: i) {
+            statement[i] = statement[first[i - 1]]
+        }
+    }
+    for i in 1..p.count {
+        continue if !breaksLine(ref p, at: i) || hasBlankLineBefore(ref p, at: i) || !isWasl(ref p, at: i)
+        // After lā the line above already continues; after `{` or `,` the line starts an entry (a statement, an arm).
+        continue if afterLa(ref p, at: i)
+        continue if p.kindAt(i) == .catchKeyword && p.kindAt(i - 1) == .closeBrace
+        // At a field's indentation `requires` is a struct-level rule (O3, spec §2.5), so its indentation is meant.
+        continue if p.kindAt(i) == .requiresKeyword
+        let start = statement[first[i - 1]]
+        let token = p.lexed.tokens[i]
+        let indent = indentAt(ref p, at: token.start)
+        let statementIndent = indentAt(ref p, at: p.lexed.tokens[start].start)
+        continue if indent.length > statementIndent.length
+        let line = p.lexed.source.getLineIndex(p.lexed.tokens[start].start) + 1
+        let lineStart = p.lexed.source.getLineSpan(p.lexed.source.getLineIndex(token.start)).start
+        lints.append(Diagnostic {
+            code: "BYN5103",
+            span: spanOf(token),
+            message: $"a line starting with `{p.textOf(token)}` joins the statement above; indent it deeper",
+            label: $"joins the statement on line {line}",
+            help: "indent it deeper than the line its statement starts on",
+            hasFix: true,
+            fixSpan: TextSpan { start: lineStart, length: indent.length },
+            fixReplacement: $"{statementIndent}    ",
+        })
+    }
+    return lints
+}
+
+// ── Style lints (BYN1072–BYN1076) ────────────────────────────────────────────
+// Reported by `bayan check` only, at the severity of the manifest's `lints` (compile.byn `styleLintsAt`). Each lint
+// appends to `p.styleLints` through `reportStyleLint`; the parse functions call them where `Parser.cs` does.
+
+// Parser.cs: MaxNesting, MaxFunctionLines
+const maxNesting: i64       = 4
+const maxFunctionLines: i64 = 60
+
+/// The C# `_styleLints.Report`: a lint has a fix exactly when `fixSpan` is set.
+void reportStyleLint(
+    ref Parser p,
+    for string code,
+    at TextSpan span,
+    by string message,
+    string label = "",
+    string help = "",
+    TextSpan? fixSpan = null,
+    string fixReplacement = ""
+) {
+    p.styleLints.append(
+        styleLintOf(
+            code,
+            at: span,
+            by: message,
+            label: label,
+            help: help,
+            fixSpan: fixSpan,
+            fixReplacement: fixReplacement,
+        ),
+    )
+}
+
+/// The diagnostic `reportStyleLint` appends; a typed lint (lints.byn) is made the same way and kept until the compilation confirms it.
+Diagnostic styleLintOf(
+    string code,
+    at TextSpan span,
+    by string message,
+    string label = "",
+    string help = "",
+    TextSpan? fixSpan = null,
+    string fixReplacement = ""
+) {
+    return Diagnostic {
+        code: code,
+        span: span,
+        message: message,
+        label: label,
+        help: help,
+        hasFix: fixSpan is not null,
+        fixSpan: fixSpan ?? TextSpan { start: 0, length: 0 },
+        fixReplacement: fixReplacement,
+    }
+}
+
+/// BYN1072 on an `if` without `else` whose block holds only a `return`, `fail`, `break` or `continue`; the fix writes it
+/// as a postfix guard. `span` is the `if` statement's span.
+// Parser.cs: LintPostfixGuard
+void lintPostfixGuard(
+    ref Parser p,
+    at TextSpan span,
+    for Expr condition,
+    by Stmt then,
+    from Stmt otherwise,
+    as Likelihood likelihood
+) {
+    return if !(otherwise is .none && likelihood == .none)
+    var block = TextSpan { start: 0, length: 0 }
+    switch then {
+        case .blockStmt(let b):
+            return if b.value.statements.length != 1
+            switch b.value.statements[0] {
+                case .returnStmt(_) or .failStmt(_) or .breakStmt(_) or .continueStmt(_):
+                    block = b.value.span
+                default:
+                    return
+            }
+        default:
+            return
+    }
+    return if block.length < 2
+    // A break or continue has an empty span (its span is taken before its label is read), so the exit is read off the block's
+    // text: inside the braces, trimmed, then without its trailing `;`s. Trivia is only spaces, tabs and line breaks (Lexer.cs).
+    var from = block.start + 1
+    var to = block.end - 1
+    while from < to && isTriviaSpace(p.lexed.source.bytes[from]) {
+        from += 1
+    }
+    while to > from && isTriviaSpace(p.lexed.source.bytes[to - 1]) {
+        to -= 1
+    }
+    while to > from && p.lexed.source.bytes[to - 1] == ';' {
+        to -= 1
+    }
+    while to > from && isTriviaSpace(p.lexed.source.bytes[to - 1]) {
+        to -= 1
+    }
+    let body = p.lexed.source.getText(TextSpan.fromBounds(from, until: to))
+    let text = p.lexed.source.getText(exprSpan(in condition))
+    // A comment, a second statement or a line break in the block or the condition has no place in the one-line rewrite: no fix.
+    let plain = !body.contains("\n") && !body.contains("/") && !body.contains(";") && !text.contains("\n")
+    let at = TextSpan.fromBounds(span.start, until: block.start)
+    let message = "an early exit in a block can be a postfix guard"
+    if plain {
+        reportStyleLint(
+            ref p,
+            for: "BYN1072",
+            at: at,
+            by: message,
+            label: "an early exit in a block",
+            help: "write it as a postfix guard",
+            fixSpan: span,
+            fixReplacement: $"{body} if {text}",
+        )
+    } else {
+        reportStyleLint(
+            ref p,
+            for: "BYN1072",
+            at: at,
+            by: message,
+            label: "an early exit in a block",
+            help: "write it as a postfix guard",
+        )
+    }
+}
+
+/// A space, tab or line-break byte.
+bool isTriviaSpace(u8 b) => b == ' ' || b == '\t' || b == '\r' || b == '\n'
+
+/// BYN1073 on a lambda argument `x => x.f`; the fix writes `it.f`. `startIndex` is the lambda's first token.
+// Parser.cs: LintItLambda
+void lintItLambda(ref Parser p, at TextSpan span, for List<TextSpan> parameters, by Expr body, from i64 startIndex) {
+    return if parameters.length != 1 || startIndex >= p.count || !p.argumentStarts[startIndex]
+    let param = p.lexed.source.getText(parameters[0])
+    return if param == "it"
+    switch body {
+        case .memberExpr(let m):
+            return if m.value.nullConditional || m.value.typeArgs.length != 0
+            switch m.value.target {
+                case .nameExpr(let n):
+                    return if n.value.typeArgs.length != 0 || p.lexed.source.getText(n.value.name) != param
+                    let member = p.lexed.source.getText(m.value.member)
+                    reportStyleLint(
+                        ref p,
+                        for: "BYN1073",
+                        at: span,
+                        by: $"`{param} => {param}.…` reads one member and can use `it`",
+                        label: "reads one member of its parameter",
+                        help: "write `it` for the parameter",
+                        fixSpan: span,
+                        fixReplacement: $"it.{member}",
+                    )
+                default:
+                    return
+            }
+        default:
+            return
+    }
+}
+
+/// BYN1074 on a control head whose condition continues on a later line than the keyword at token `keywordIndex`.
+// Parser.cs: LintWrappedCondition
+void lintWrappedCondition(ref Parser p, from i64 keywordIndex, for Expr condition) {
+    for i in (keywordIndex + 1)..p.pos {
+        unless p.lexed.tokens[i].hasNewlineBefore {
+            continue
+        }
+        reportStyleLint(
+            ref p,
+            for: "BYN1074",
+            at: exprSpan(in condition),
+            by: "this condition wraps; name it with a `let`",
+            label: "the condition wraps",
+            help: "name the condition with a `let`",
+        )
+        return
+    }
+}
+
+/// BYN1075 at the `{` of a block opened more than 4 levels below its function's body; `parseBlock` counts the depth.
+// Parser.cs: ParseBlock (its `_blockDepth` check)
+void lintNestingDepth(ref Parser p, at Token open) {
+    p.blockDepth += 1
+    return if p.blockDepth != maxNesting + 1
+    reportStyleLint(
+        ref p,
+        for: "BYN1075",
+        at: spanOf(open),
+        by: "blocks nested more than 4 deep; flatten them with early exits",
+        label: $"nested more than {maxNesting} deep",
+        help: "flatten it with early exits",
+    )
+}
+
+/// BYN1076 on a function body of more than 60 lines between its braces.
+// Parser.cs: LintFunctionLength
+void lintFunctionLength(ref Parser p, at TextSpan body) {
+    return if body.length == 0
+    let lines = p.lexed.source.getLineIndex(body.end - 1) - p.lexed.source.getLineIndex(body.start) - 1
+    return if lines <= maxFunctionLines
+    reportStyleLint(
+        ref p,
+        for: "BYN1076",
+        at: TextSpan { start: body.start, length: 1 },
+        by: $"this function body is {lines} lines; split it into named steps",
+        label: $"{lines} lines",
+        help: "split it into named steps",
+    )
+}
+
+/// Drops the fix of each style lint, typed or not, that would delete a comment (`dropsComment`); the lint stays.
+// Parser.cs: KeepComments
+public void keepComments(ref Parser p) uses alloc {
+    for i in 0..p.styleLints.length {
+        let lint = p.styleLints[i]
+        p.styleLints[i] = keepingComments(ref p, for: lint)
+    }
+    for i in 0..p.typedLints.length {
+        let lint = p.typedLints[i].lint
+        p.typedLints[i].lint = keepingComments(ref p, for: lint)
+        if (p.typedLints[i].otherwise is { } o) {
+            p.typedLints[i].otherwise = keepingComments(ref p, for: o)
+        }
+    }
+}
+
+// Parser.cs: KeepingComments
+Diagnostic keepingComments(ref Parser p, for Diagnostic lint) uses alloc {
+    return lint if !lint.hasFix || !dropsComment(ref p, at: lint.fixSpan, by: lint.fixReplacement)
+    return styleLintOf(lint.code, at: lint.span, by: lint.message, label: lint.label, help: lint.help)
+}
+
+/// Whether a comment lies whole inside the span a fix replaces, `span`, and the fix's `replacement` does not hold its text.
+// Parser.cs: DropsComment
+bool dropsComment(ref Parser p, at TextSpan span, by string replacement) uses alloc {
+    var i = tokenAt(ref p, at: span.start)
+    while i < p.count && (i == 0 ? 0 : p.lexed.tokens[i - 1].end) < span.end {
+        // Between two tokens there is only whitespace and comments.
+        let end = p.lexed.tokens[i].start
+        var at = i == 0 ? 0 : p.lexed.tokens[i - 1].end
+        while at + 1 < end {
+            if p.lexed.source.bytes[at] != '/'
+                    || (p.lexed.source.bytes[at + 1] != '/' && p.lexed.source.bytes[at + 1] != '*') {
+                at += 1
+                continue
+            }
+            var close = at + 2
+            if p.lexed.source.bytes[at + 1] == '/' {
+                while close < end && p.lexed.source.bytes[close] != '\n' {
+                    close += 1
+                }
+            } else {
+                while close + 1 < end
+                        && !(p.lexed.source.bytes[close] == '*' && p.lexed.source.bytes[close + 1] == '/') {
+                    close += 1
+                }
+                close = close + 2 < end ? close + 2 : end
+            }
+            return true if at >= span.start && close <= span.end
+                && !replacement.contains(p.lexed.source.getText(TextSpan.fromBounds(at, until: close)))
+            at = close
+        }
+        i += 1
+    }
+    return false
+}
+
+/// Whether token `index` continues the statement on the line before it.
+bool joinsLineBefore(ref Parser p, at i64 index) =>
+    !breaksLine(ref p, at: index) || !hasBlankLineBefore(ref p, at: index) && p.kindAt(index - 1) != .openBrace
+    && lineContinues(ref p, at: index)
+
+/// Whether the group opened at `open` has a `kind` token at its top level.
+bool inGroup(ref Parser p, at i64 open, for TokenKind kind) {
+    var depth = 0
+    for i in open..p.count {
+        let k = p.kindAt(i)
+        return true if depth == 1 && k == kind
+        switch k {
+            case .openParen or .openBracket or .openBrace:
+                depth += 1
+            case .closeParen or .closeBracket or .closeBrace:
+                depth -= 1
+                return false if depth == 0
+            case .endOfFile:
+                return false
+            default:
+                continue
+        }
+    }
+    return false
+}
+
+TextSpan expectName(ref Parser p, string what = "a name") {
+    if isName(p.kind()) {
+        let token = p.advance()
+        let text = p.textOf(token)
+        // SPEC §2.4: a C# primitive name is a type, never a declared name; a member after `.` only refers to one.
+        // Not through `report`: the name parsed in full, so no recovery is needed.
+        if isCSharpPrimitive(text) && (p.pos < 2 || p.kindAt(p.pos - 2) != .dot) {
+            p.lexed.diagnostics.append(Diagnostic {
+                code: codeText(.reservedKeyword),
+                span: spanOf(token),
+                message: format(messageFormat(.reservedKeyword), by: (a0: text, a1: "", a2: "")),
+                label: "a C# primitive type name",
+                help: "choose another name",
+                hasFix: false,
+                fixSpan: spanOf(token),
+                fixReplacement: "",
+            })
+        }
+        return spanOf(token)
+    }
+    let _ = p.report(.expected, at: spanOf(p.current()), arg0: what, arg1: p.describe(p.current()))
+    return TextSpan { start: p.current().start, length: 0 }
+}
+
+TextSpan nameOf(Token token) => spanOf(token)
+
+/// An identifier, or a declaration keyword used as a name (spec 004 R3).
+bool isName(TokenKind kind) => kind == .identifier || isContextualKeyword(kind)
+
+// ── Recovery ─────────────────────────────────────────────────────────────────
+
+bool isStatementKeyword(TokenKind kind) => kind switch {
+    .letKeyword or .varKeyword or .constKeyword or .ifKeyword or
+        .unlessKeyword or .whileKeyword or .doKeyword or .forKeyword or
+        .foreachKeyword or .switchKeyword or .returnKeyword or .failKeyword or .breakKeyword or
+        .continueKeyword or .deferKeyword or .errdeferKeyword or .usingKeyword or
+        .contextKeyword or .provideKeyword or .becomeKeyword or .structKeyword or .publicKeyword or .privateKeyword or
+        .importKeyword or .errorKeyword or .testKeyword or .typeKeyword or
+        .staticKeyword or .readonlyKeyword or .requiredKeyword or .uniqueKeyword or
+        .externKeyword or .unsafeKeyword or .unionKeyword or .distinctKeyword => true,
+    _ => false,
+}
+
+/// Skips to a plausible statement start: past a `;`, before a `}`, or at a line starting a statement.
+void synchronize(ref Parser p) {
+    var depth = 0
+    var first = true
+    while !p.atEnd() {
+        let token = p.current()
+        return if !first
+            && depth == 0
+            && token.hasNewlineBefore
+            && (isStatementKeyword(token.kind) || token.kind == .identifier)
+        first = false
+        if token.kind == .semicolon && depth == 0 {
+            let _ = p.advance()
+            return
+        } else if token.kind == .openBrace {
+            depth += 1
+        } else if token.kind == .closeBrace {
+            return if depth == 0
+            depth -= 1
+            if depth == 0 {
+                let _ = p.advance()
+                return
+            }
+        }
+        let _ = p.advance()
+    }
+}
+
+/// After a syntax error inside a statement, skip only if the parser is not already at a clean restart point.
+void recoverIfNeeded(ref Parser p, from i64 syntaxErrorsBefore) {
+    return if p.syntaxErrors == syntaxErrorsBefore
+    return if p.atEnd() || p.kind() == .closeBrace
+    return if p.current().hasNewlineBefore && (isStatementKeyword(p.kind()) || p.kind() == .identifier)
+    synchronize(ref p)
+}
+
+/// Withdraws the diagnostic at `index` (from `report`; -1 is the C# `null`) when a later fix over the
+/// same span replaces it. `List` has no `removeAt`, so the entry becomes a tombstone (code `""`) that
+/// `errorCount` skips and the dump drops (Q440). As in C#, neither `syntaxErrors` nor `lastErrorAt` changes.
+void unreport(ref Parser p, at i64 index) {
+    if index >= 0 {
+        p.lexed.diagnostics[index].code = ""
+    }
+}
+
+// ── Tables ───────────────────────────────────────────────────────────────────
+
+/// `TokenKindFacts.IsContextualKeyword`: declaration-only keywords that are names wherever the grammar
+/// does not need them as keywords.
+public bool isContextualKeyword(TokenKind kind) => kind switch {
+    .errorKeyword or .flagsKeyword or .unitKeyword or .distinctKeyword or
+        .openKeyword or .extensibleKeyword or .setKeyword or .typeKeyword or
+        .lawKeyword or .derivationKeyword or .attributeKeyword or .embedKeyword or
+        .effectKeyword => true,
+    _ => false,
+}
+
+/// `Keywords.IsCSharpPrimitive` (SPEC §2.4): reserved in every project so C# muscle memory cannot
+/// declare a name that shadows a sized type.
+bool isCSharpPrimitive(string text) => text switch {
+    "sbyte" or "byte" or "short" or "ushort" or "int" or "uint" or "long" or "ulong" or "nint" or "nuint" or
+        "float" or "double" => true,
+    _ => false,
+}
+
+/// `ItName.Contains(text)`.
+bool isItName(string text) => text == "it"
+
+/// `Particles.Contains(text)`.
+bool isParticle(string text) => text switch {
+    "from" or "to" or "until" or "through" or "at" or "by" or "for" or "as" => true,
+    _ => false,
+}

@@ -1,0 +1,6 @@
+== tests/cases/diag/unknown-enum-member.byn
+43..61 globalStatement
+43..61 localDecl
+51..61 memberExpr
+62..84 localDecl
+77..84 targetMemberExpr

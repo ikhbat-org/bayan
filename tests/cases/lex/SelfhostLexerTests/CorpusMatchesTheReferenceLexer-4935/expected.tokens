@@ -1,0 +1,75 @@
+1:3 Equals `=`
+1:5 MinusEquals `-=`
+1:8 StarEquals `*=`
+1:11 SlashEquals `/=`
+1:14 PercentEquals `%=`
+1:17 AmpEquals `&=`
+1:20 BarEquals `|=`
+1:23 CaretEquals `^=`
+1:26 LessLessEquals `<<=`
+2:1 Identifier `l`
+2:3 Identifier `t`
+2:5 Identifier `x`
+2:8 Equals `=`
+2:10 IntegerLiteral `1`
+3:1 IntegerLiteral `2`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+5:1 StringLiteral `"`
+6:1 IntegerLiteral `9`
+6:2 Slash `/`
+6:5 Identifier `x`
+7:1 LetKeyword `let`
+7:5 Identifier `x`
+7:8 Equals `=`
+7:10 IntegerLiteral `1`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF1)
+
+  2 │ l�t x� = 1
+    │  ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  2 │ l�t x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ l�t x� = 1
+    │   │      -
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  5 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ 9/ �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ 9/ �x
+    │   │    -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ let x� = 1
+    │   │      -

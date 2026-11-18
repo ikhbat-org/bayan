@@ -1,0 +1,8 @@
+== effects.lambdas
+BYN6002 12:5 `quiet` uses `console` but does not declare it |uses `console`|add `console` to the `uses` clause, or remove the call|fix 203..203  uses console
+BYN6002 30:5 `undeclared` uses `console` but does not declare it |uses `console`|add `console` to the `uses` clause, or remove the call|fix 564..564  uses console
+BYN6002 35:5 `through` uses `console` but does not declare it |uses `console`|add `console` to the `uses` clause, or remove the call|fix 660..660  uses console
+BYN6002 39:5 `inner` uses `console` but does not declare it |uses `console`|add `console` to the `uses` clause, or remove the call|fix 786..786  uses console
+BYN6002 48:5 `refs` uses `console` but does not declare it |uses `console`|add `console` to the `uses` clause, or remove the call|fix 895..895  uses console
+BYN6005 20:26 `stored$lambda1` uses `console`, beyond the bound `pure` declared by `i64 -> void` |uses `console`|add `console` to the function type's `uses`, or pass a function without it|
+BYN6005 47:26 `shout` uses `console`, beyond the bound `pure` declared by `i64 -> void` |uses `console`|add `console` to the function type's `uses`, or pass a function without it|

@@ -1,0 +1,20 @@
+error BYN2202: expected `string`, found `i64`
+  --> tmp/t26-tests/for-try-reports/reports.byn:14:25
+
+  14 │         let s: string = row
+     │                         ^^^
+
+error BYN2202: expected `string`, found `i64`
+  --> tmp/t26-tests/for-try-reports/reports.byn:20:18
+
+  20 │     for try row: string in rows {
+     │                  ^^^^^^
+
+error BYN2202: expected `i64`, found `string`
+  --> tmp/t26-tests/for-try-reports/reports.byn:21:22
+
+  21 │         let n: i64 = "x"
+     │                      ^^^
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2202

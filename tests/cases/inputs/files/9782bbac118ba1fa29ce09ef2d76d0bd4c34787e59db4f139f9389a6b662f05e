@@ -1,0 +1,29 @@
+warning BYN5104: `criteria` holds one `Rule`; name it with a singular noun
+  --> main.byn:14:17
+
+  14 │     public Rule criteria
+     │                 ^^^^^^^^
+     │
+  help: rename it `criterion`
+     │ 14 │     public Rule criterion
+     │    │                        ++
+
+warning BYN5104: `criterion` holds a collection; name it with a plural, `criteria`
+  --> main.byn:15:23
+
+  15 │     public List<Rule> criterion
+     │                       ^^^^^^^^^
+     │
+  help: rename it `criteria`
+     │ 15 │     public List<Rule> criteria
+     │    │                              +
+
+warning BYN5104: `stamp` holds a collection; name it with a plural, `stamps`
+  --> main.byn:18:24
+
+  18 │     public List<Order> stamp
+     │                        ^^^^^
+     │
+  help: rename it `stamps`
+     │ 18 │     public List<Order> stamps
+     │    │                             +

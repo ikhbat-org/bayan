@@ -1,0 +1,6 @@
+macro select become
+let actor = 1
+g'\u{1µ0000}'
+ let a = 1
+ = 2
+$"{}"

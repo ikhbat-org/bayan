@@ -1,0 +1,42 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 Identifier `c`
+1:12 Identifier `atch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 Identifier `sus`
+1:44 Identifier `ends`
+1:49 AsyncKeyword `async`
+1:55 AwaitKeyword `await`
+3:1 LetKeyword `let`
+3:7 Equals `=`
+3:9 IntegerLiteral `2`
+5:1 Question `?`
+5:3 QuestionQuestionEquals `??=`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ fails try c�atch never noalloc nosuspend sus�ends async await
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  1 │ fails try c�atch never noalloc nosuspend sus�ends async await
+    │                                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ �
+    │  ^

@@ -1,0 +1,11 @@
+macro select become
+ let effect = 2
+
+
+/// Doc line two.
+struct S
+//// not a doc comment
+b
+ 0x
+/* block
+ 

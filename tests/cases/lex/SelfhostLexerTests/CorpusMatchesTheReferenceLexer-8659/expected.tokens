@@ -1,0 +1,57 @@
+    doc `/// Doc line� one.`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+3:1 Identifier `가`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:9 RawStringLiteral `"""neverx closed\n�\n`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  1 │ /// Doc line� one.
+    │             ^
+
+error BYN0005: identifier `가` is not in Unicode normalization form C
+
+  3 │ 가���
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ 가���
+    │   │ +
+
+error BYN0002: unexpected character `\u{E}`
+
+  3 │ 가���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  3 │ 가���
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  3 │ 가���
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ let c = """neverx closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ �
+    │  ^

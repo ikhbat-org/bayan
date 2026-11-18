@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"CharLiteral","start":0,"end":17,"text":"' let café = ; ","doc":null},{"kind":"EndOfFile","start":17,"end":17,"text":"","doc":null}],"diagnostics":[{"code":"BYN0008","severity":"error","start":0,"end":17,"message":"unterminated char literal","label":null,"help":"close it with `'`","fixes":[]}]}

@@ -1,0 +1,10 @@
+b
+
+}'
+'x
+
+let c = """never closed
+ "text" "esc \"q\" \\ \n" &""
+ ạ̇\u{110000}'
+'x
+lKet x⁧ = 1

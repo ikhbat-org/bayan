@@ -1,0 +1,34 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `stray } hre`
+1:15 InterpolatedStringEnd `"`
+1:16 Identifier `F`
+2:1 Identifier `ctor`
+2:6 Equals `=`
+2:8 IntegerLiteral `1`
+3:1 LetKeyword `let`
+3:5 EffectKeyword `effect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+4:1 Identifier `macro`
+4:7 Identifier `sel`
+4:10 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �$"stray } hre"F
+    │ ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ �$"stray } hre"F
+    │          ^
+    │
+    │ 1 │ �$"stray }} hre"F
+    │   │           +
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │ macro sel
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

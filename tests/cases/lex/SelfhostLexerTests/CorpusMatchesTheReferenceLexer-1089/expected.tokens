@@ -1,0 +1,123 @@
+1:1 IntegerLiteral `1__`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:11 IntegerLiteral `2`
+5:4 Identifier `c`
+5:6 Identifier `omment`
+5:13 Star `*`
+5:14 Slash `/`
+5:16 Identifier `a`
+6:3 StructKeyword `struct`
+6:10 Identifier `uniquerunion`
+6:23 EnumKeyword `enum`
+6:28 FlagsKeyword `flags`
+6:34 OpenKeyword `open`
+6:39 ExtensibleKeyword `extensible`
+6:50 InterfaceKeyword `interface`
+6:60 DelegateKeyword `delegate`
+6:69 ExtensionKeyword `extension`
+6:79 Identifier `deriv`
+6:84 Identifier `ation`
+6:90 AttributeKeyword `attribute`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 Identifier `x`
+7:45 InterpolationEnd `}`
+7:46 InterpolatedStringEnd `"`
+7:47 InterpolationEnd `}`
+7:48 InterpolatedStringEnd `"`
+7:49 InterpolationEnd `}`
+7:50 InterpolatedStringEnd `"`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  3 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ �
+    │   │ -
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 2
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  5 │    c�omment */ a
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  6 │ ����� struct uniquerunion enum flags open extensible interface delegate extension deriv�ation attribute
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  6 │ ����� struct uniquerunion enum flags open extensible interface delegate extension deriv�ation attribute
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����� struct uniquerunion enum flags open extensible interface delegate extension deriv�ation attribute
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����� struct uniquerunion enum flags open extensible interface delegate extension deriv�ation attribute
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����� struct uniquerunion enum flags open extensible interface delegate extension deriv�ation attribute
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  6 │ ����� struct uniquerunion enum flags open extensible interface delegate extension deriv�ation attribute
+    │                                                                                        ^
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                                ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,9 @@
+error BYN2106: cannot modify this value
+  --> <repo>/tmp/t2/diag/for-dyn-ref-with/for-dyn-ref-with.byn:18:26
+
+  18 │     for x: dyn ref IC in (a with { k: 2 }).items { x.bump() }
+     │                          ^^^^^^^^^^^^^^^^^^^^^^^ it is borrowed element by element as
+     │                                                  `dyn ref IC`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2106

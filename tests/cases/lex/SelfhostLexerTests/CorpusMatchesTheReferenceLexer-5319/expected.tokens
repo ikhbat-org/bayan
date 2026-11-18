@@ -1,0 +1,55 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 Identifier `m`
+1:22 Identifier `ve`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+4:1 CharLiteral `'ab'`
+5:1 CharLiteral `'\q'`
+6:3 Identifier `u`
+6:4 OpenBrace `{`
+6:5 Identifier `D0b102`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  1 │ is and or�not with m�ve ref out this null true false comptime checked
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  1 │ is and or�not with m�ve ref out this null true false comptime checked
+    │                     ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xF3)
+
+  6 │ �\u{D0b102
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  6 │ �\u{D0b102
+    │  ^

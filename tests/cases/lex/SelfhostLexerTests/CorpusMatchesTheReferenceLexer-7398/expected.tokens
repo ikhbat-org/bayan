@@ -1,0 +1,40 @@
+1:1 StringLiteral `"a\u{2067}b"`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolatedStringText `{{`
+1:10 InterpolatedStringEnd `"`
+1:12 NoallocKeyword `noalloc`
+1:20 NosuspendKeyword `nosuspend`
+1:30 SuspendsKeyword `suspends`
+1:39 AsyncKeyword `async`
+1:45 Identifier `awit`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 OrKeyword `or`
+2:11 NotKeyword `not`
+2:15 WithKeyword `with`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+4:2 OpenKeyword `open`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:9 StringLiteral `"bad \q escape"`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:9 RawStringLiteral `"""never closed\n /// Doc line two.\n 3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f\n/// Doc line two.\n `
+10:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  6 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

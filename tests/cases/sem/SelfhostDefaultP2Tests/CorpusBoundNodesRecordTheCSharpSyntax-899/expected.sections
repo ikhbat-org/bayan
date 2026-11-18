@@ -1,0 +1,6 @@
+== tests/cases/diag/tuple-name-mismatch.byn
+0..36 globalStatement
+0..36 localDecl
+24..36 tupleExpr
+28..29 literalExpr integer
+34..35 literalExpr integer

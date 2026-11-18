@@ -1,0 +1,49 @@
+1:1 Identifier `ạ̇`
+1:4 StringLiteral `" "`
+1:7 Identifier `bad`
+1:12 Identifier `q`
+1:14 Identifier `escape`
+1:20 StringLiteral `"`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never closed\n0x\n // ok � in comment\n a >> �\n $"{a\nmacro select become\n`
+8:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇" "bad \q escape"
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇" "bad \q escape"
+    │   │ ++
+
+error BYN0002: unexpected character `\`
+
+  1 │ ạ̇" "bad \q escape"
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ạ̇" "bad \q escape"
+    │                    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │  // ok � in comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA5)
+
+  5 │  a >> �
+    │       ^

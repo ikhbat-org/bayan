@@ -1,0 +1,3 @@
+== pat.probes.-.q2
+bindPattern|-
+BYN2703 56:20 variant `timeout` has 1 payload field(s), but the pattern lists 2 ||list every field: `.timeout(let after)`, or `_` to skip one|

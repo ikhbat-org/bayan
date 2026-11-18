@@ -1,0 +1,106 @@
+1:1 IntegerLiteral `800`
+1:4 CloseBrace `}`
+1:5 CharLiteral `'`
+2:1 CharLiteral `'\`
+3:1 Identifier `ar`
+3:4 Identifier `_x`
+3:7 Identifier `camelCase2`
+3:18 Identifier `بيان`
+3:23 Identifier `μετρητής`
+3:32 Identifier `x_1`
+3:36 Identifier `é`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 StringLiteral `"{$"`
+5:32 OpenBrace `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:39 InterpolatedStringStart `$"`
+5:41 InterpolationStart `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:46 OpenBrace `{`
+5:47 InterpolatedStringStart `$"`
+5:49 InterpolationStart `{`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolationStart `{`
+5:53 InterpolatedStringStart `$"`
+5:55 InterpolationStart `{`
+5:56 Identifier `x`
+5:57 InterpolationEnd `}`
+5:58 InterpolatedStringEnd `"`
+6:1 Identifier `a`
+6:2 Greater `>`
+6:3 Greater `>`
+6:5 Identifier `b`
+8:1 CharLiteral `'x`
+9:1 LetKeyword `let`
+9:7 Equals `=`
+9:9 IntegerLiteral `2`
+10:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 800}'
+    │     ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ '\
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\`
+
+  2 │ '\
+    │  ^
+
+error BYN0002: unexpected character `﻿`
+
+  4 │  ﻿
+    │  ^
+
+error BYN0002: unexpected character `$`
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{${$"{$"{$"{x}"
+    │                                             ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{${$"{$"{$"{x}"
+    │                                                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0008: unterminated char literal
+
+  8 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  9 │ let � = 2
+    │     ^

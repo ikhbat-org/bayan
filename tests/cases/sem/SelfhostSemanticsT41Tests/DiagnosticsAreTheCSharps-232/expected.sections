@@ -1,0 +1,3 @@
+== diags.diag/not-disposable
+BYN2226 1:11 `using` needs a value that owns memory, not `i32`
+  help use `using` only for values that own memory: `Arena` and `List<T>`

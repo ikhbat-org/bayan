@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `""" c"text" u16"wide"\r\nay } here�\r\n$"open {x";`
+3:12 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """ c"text" u16"wide"
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  2 │ ay } here�
+    │          ^

@@ -1,0 +1,20 @@
+1:1 Identifier `x́́`
+1:7 Identifier `raw`
+1:11 StringLiteral `"quoted"`
+3:1 FloatLiteral `1e5`
+3:5 FloatLiteral `2.5e-3`
+3:12 FloatLiteral `6E+2`
+3:17 FloatLiteral `1.5`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolationEnd `}`
+4:5 InterpolatedStringEnd `"`
+5:1 Identifier `a`
+8:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  5 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

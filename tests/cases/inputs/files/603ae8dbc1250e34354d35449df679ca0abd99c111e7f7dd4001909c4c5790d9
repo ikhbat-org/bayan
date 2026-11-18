@@ -1,0 +1,4 @@
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+ext
+fails try catch never noalloc nosuspend suspends async await

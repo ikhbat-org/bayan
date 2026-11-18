@@ -1,0 +1,37 @@
+1:1 CharLiteral `'x`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `x`
+3:5 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolationEnd `}`
+3:15 InterpolatedStringEnd `"`
+    doc `///'\u{D800}'`
+5:1 CharLiteral `'\u{202E}'`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  3 │  $"x{ $"{ $"{}"
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ '�'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ '�'
+    │   │  -

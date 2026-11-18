@@ -1,0 +1,51 @@
+== tests/cases/run/for-try-var.byn
+225..386 blockStmt
+231..266 localDecl
+242..266 structLiteralExpr
+253..254 literalExpr integer
+263..264 literalExpr integer
+271..352 forStmt
+271..352 forStmt
+286..290 tryExpr
+286..290 callExpr
+286..290 nameExpr
+279..282 name
+291..352 blockStmt
+301..320 exprStmt
+301..320 callExpr
+307..319 interpolatedExpr
+314..317 nameExpr
+301..320 callExpr
+329..346 guardedStmt
+338..346 binaryExpr eq right 345..346
+338..341 nameExpr
+345..346 literalExpr integer
+329..329 breakStmt
+357..384 exprStmt
+357..384 callExpr
+363..383 interpolatedExpr
+374..381 memberExpr
+374..378 nameExpr
+357..384 callExpr
+388..397 globalStatement
+388..397 exprStmt
+388..397 tryExpr
+392..397 callExpr
+114..194 blockStmt
+124..154 ifStmt
+127..138 binaryExpr ge right 133..138
+127..129 nameExpr
+127..129 nameExpr
+133..138 nameExpr
+133..138 nameExpr
+139..154 blockStmt
+141..152 returnStmt value 148..152
+148..152 literalExpr nullKeyword
+163..170 assignStmt add target 163..165 value 169..170
+163..165 nameExpr
+163..165 nameExpr
+169..170 literalExpr integer
+179..188 returnStmt value 186..188
+186..188 nameExpr
+186..188 nameExpr
+186..188 nameExpr

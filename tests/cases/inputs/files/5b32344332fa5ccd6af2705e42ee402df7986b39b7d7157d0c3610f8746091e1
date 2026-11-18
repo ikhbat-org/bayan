@@ -1,0 +1,10 @@
+0xF__
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ '\u{D800}'
+//// not a doc comment
+
+var xs: List<List<i64>>
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+"{
+%= &= |= ^= <<

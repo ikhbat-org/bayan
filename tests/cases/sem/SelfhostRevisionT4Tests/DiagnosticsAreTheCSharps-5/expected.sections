@@ -1,0 +1,6 @@
+== diags.m-collective-and-noun
+BYN3102 6:23 `grammar.collectives` must be free of `Ledger`, which `grammar.nouns` lists; only a verb that is also a noun may be in two lists
+verbs
+nouns ledger
+adjectives
+collectives Ledger

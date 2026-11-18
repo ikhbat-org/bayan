@@ -1,0 +1,38 @@
+2:2 LetKeyword `let`
+2:6 Identifier `cfé`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+4:1 Identifier `safH`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 DefaultKeyword `default`
+5:36 Identifier `f`
+5:37 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��
+    │  ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ �let cfé = 2�
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �let cfé = 2�
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  2 │ �let cfé = 2�
+    │             ^

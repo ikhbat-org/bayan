@@ -1,0 +1,9 @@
+$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+fails try catch never noalloc nosuspend suspends async await
+fails try catch never noalloc nosuspend suspends async await
+one.
+/// Doc line two.
+struct S
+//// not a doc c
+struct S
+'u{110000}'

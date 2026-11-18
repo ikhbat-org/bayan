@@ -1,0 +1,57 @@
+3:1 Identifier `b`
+4:2 Plus `+`
+4:4 Minus `-`
+4:6 Star `*`
+4:8 Slash `/`
+4:10 Percent `%`
+4:12 PlusPercent `+%`
+4:15 MinusPercent `-%`
+4:18 StarPercent `*%`
+4:21 PlusBar `+|`
+4:24 MinusBar `-|`
+4:27 StarBar `*|`
+4:30 PlusPlus `++`
+4:33 MinusMinus `--`
+6:1 CharLiteral `'a\u{3}b'`
+8:1 IntegerLiteral `0xF__`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����
+    │     ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │ 'a�b'
+    │ ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 0xF__
+    │    ^^
+    │
+    │ 8 │ 0xF__
+    │   │    --

@@ -1,0 +1,56 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+4:2 Star `*`
+4:3 Slash `/`
+4:4 Identifier `elect`
+4:10 BecomeKeyword `become`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
+6:2 Identifier `truct`
+6:8 UniqueKeyword `unique`
+6:15 UnionKeyword `union`
+6:21 EnumKeyword `enum`
+6:26 FlagsKeyword `flags`
+6:32 OpenKeyword `open`
+6:37 ExtensibleKeyword `extensible`
+6:48 InterfaceKeyword `interface`
+6:58 DelegateKeyword `delegate`
+6:67 Identifier `extesion`
+6:76 DerivationKeyword `derivation`
+6:87 AttributeKeyword `attribute`
+7:1 LetKeyword `let`
+7:5 Identifier `actor`
+7:11 Equals `=`
+7:13 IntegerLiteral `1`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 Identifier `a`
+8:7 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ �*/elect become
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  4 │ �*/elect become
+    │  ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  7 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  8 │  $"{a 
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,10 @@
+error BYN2234: `while let` needs a `T?` value, got `i64`
+  --> tmp/t26-tests/cli/diag_while-let-not-optional.byn/while-let-not-optional.byn:3:15
+
+  3 │ while let n = next() {
+    │               ^^^^^^
+    │
+  help: loop with `while` and a condition, or bind it once: `let n = …`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2234

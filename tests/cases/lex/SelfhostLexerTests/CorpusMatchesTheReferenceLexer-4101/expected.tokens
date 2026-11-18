@@ -1,0 +1,10 @@
+1:1 Identifier `b`
+2:1 Hash `#`
+3:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ #/*
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

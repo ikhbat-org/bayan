@@ -1,0 +1,28 @@
+2:1 IntegerLiteral `0b02`
+4:1 StringLiteral `"{`
+5:3 Identifier `r`
+5:5 Identifier `w`
+5:7 StringLiteral `"qoted"`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �
+    │ ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │ 0b02
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  4 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{18}`
+
+  5 │   r�w "qoted"
+    │    ^

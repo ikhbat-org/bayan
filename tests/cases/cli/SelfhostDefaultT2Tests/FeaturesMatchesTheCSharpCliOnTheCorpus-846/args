@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/ref-out-escape-out-field.byn
+--package
+<repo>/tests/cases/diag

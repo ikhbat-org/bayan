@@ -1,0 +1,8 @@
+== case inline/duplicate
+errors 2
+error BYN3100: `package.byn` is data only: expected `name` only once
+  1 │ Package { name: "local/a", version: "0.1.0", name: "local/b", grammar: Grammar { verbs: [], verbs: [] } }
+    │                                              ^^^^
+error BYN3100: `package.byn` is data only: expected `verbs` only once
+  1 │ Package { name: "local/a", version: "0.1.0", name: "local/b", grammar: Grammar { verbs: [], verbs: [] } }
+    │                                                                                             ^^^^^

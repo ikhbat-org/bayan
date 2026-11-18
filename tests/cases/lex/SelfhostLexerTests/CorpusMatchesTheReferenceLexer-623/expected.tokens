@@ -1,0 +1,48 @@
+1:1 IntegerLiteral `0x_`
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+4:1 CharLiteral `'\u{D800}'`
+5:1 Identifier `a`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_`
+    │ ^^^
+
+error BYN0002: unexpected character ```
+
+  1 │ 0x_`
+    │    ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0004: unterminated block comment
+
+  5 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │  //omment � hidden
+    │           ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │  //omment � hidden
+    │   │           -

@@ -1,0 +1,25 @@
+CompilationUnit
+  Function f(i32 x) -> i32
+    Block
+      Attribute @inline
+      Return x
+  Function g(i32 x) -> i32
+    Block
+      Attribute @unobservable because `rounding is invisible`
+      Let y = (+ x 1)
+      Attribute @allow unusedValue because `kept`
+      Return y
+
+error BYN1069: attribute `@inline` is not allowed before a statement
+
+  2 │     @inline
+    │     ^^^^^^^ before a statement
+    │
+  help: remove the attribute; only `@unobservable` may come before a statement
+
+error BYN1069: attribute `@allow` is not allowed before a statement
+
+  9 │     @allow(unusedValue) because "kept"
+    │     ^^^^^^^^^^^^^^^^^^^ before a statement
+    │
+  help: remove the attribute; only `@unobservable` may come before a statement

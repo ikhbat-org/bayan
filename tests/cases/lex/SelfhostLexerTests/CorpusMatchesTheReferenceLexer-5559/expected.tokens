@@ -1,0 +1,17 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never closed\r\n\r\n\t >> >>=\r\n+= -= *= /\u{0}_000 0xFF 0x_ff 0b101e�\u{18}\r\n/* block\r\n let a = $ 1\r\n\r\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  4 │ += -= *= /�_000 0xFF 0x_ff 0b101e��
+    │                                  ^

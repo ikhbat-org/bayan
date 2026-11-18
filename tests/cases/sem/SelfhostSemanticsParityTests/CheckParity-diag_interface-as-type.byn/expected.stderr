@@ -1,0 +1,26 @@
+error BYN2816: `IShape` is an interface, not a type
+  --> tmp/t26-tests/cli/diag_interface-as-type.byn/interface-as-type.byn:5:11
+
+  5 │ void show(IShape s) {
+    │           ^^^^^^ an interface
+    │
+  help: write `dyn ref IShape` or add a `where` constraint
+
+error BYN2816: `IShape` is an interface, not a type
+  --> tmp/t26-tests/cli/diag_interface-as-type.byn/interface-as-type.byn:6:12
+
+  6 │     let t: IShape = s
+    │            ^^^^^^ an interface
+    │
+  help: write `dyn ref IShape` or add a `where` constraint
+
+error BYN2816: `IShape` is an interface, not a type
+  --> tmp/t26-tests/cli/diag_interface-as-type.byn/interface-as-type.byn:10:22
+
+  10 │     let shapes: List<IShape> = []
+     │                      ^^^^^^ an interface
+     │
+  help: write `dyn ref IShape` or add a `where` constraint
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2816

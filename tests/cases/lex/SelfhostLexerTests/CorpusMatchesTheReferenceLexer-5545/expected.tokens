@@ -1,0 +1,58 @@
+1:1 Identifier `b`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 BecomeKeyword `become`
+4:2 IntegerLiteral `2`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolationEnd `}`
+5:6 InterpolatedStringEnd `"`
+6:1 ForeachKeyword `foreach`
+6:9 Identifier `neÅ`
+7:1 IfKeyword `if`
+7:4 ElseKeyword `else`
+7:9 UnlessKeyword `unless`
+7:16 SwitchKeyword `switch`
+7:23 CaseKeyword `case`
+7:28 DefaultKeyword `default`
+7:36 ForKeyword `for`
+7:41 InKeyword `in`
+7:44 WhileKeyword `while`
+7:50 DoKeyword `do`
+7:53 BreakKeyword `break`
+7:59 ContinueKeyword `continue`
+7:68 ReturnKeyword `return`
+7:75 YieldKeyword `yield`
+7:81 DeferKeyword `defer`
+7:87 ErrdeferKeyword `errdefer`
+7:96 UsingKeyword `using`
+7:102 ContextKeyword `context`
+8:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0005: identifier `neÅ` is not in Unicode normalization form C
+
+  6 │ foreach neÅ
+    │         ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ foreach neÅ
+    │   │           +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE0)
+
+  7 │ if else unless switch case default for �in while do break continue return yield defer errdefer using context
+    │                                        ^

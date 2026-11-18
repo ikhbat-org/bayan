@@ -1,0 +1,126 @@
+1:1 CharLiteral `'ab'`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `{{`
+3:5 InterpolatedStringEnd `"`
+3:7 Amp `&`
+3:9 AmpAmp `&&`
+3:12 Bar `|`
+3:14 BarBar `||`
+3:17 Caret `^`
+3:19 Tilde `~`
+3:21 Bang `!`
+3:23 Equals `=`
+3:25 EqualsEquals `==`
+3:28 BangEquals `!=`
+3:31 Less `<`
+3:33 LessEquals `<=`
+3:36 Greater `>`
+3:38 GreaterEquals `>=`
+3:41 LessLess `<<`
+3:44 Greater `>`
+3:45 Greater `>`
+3:47 Greater `>`
+3:48 GreaterEquals `>=`
+4:4 Identifier `comment`
+4:12 Star `*`
+4:13 Slash `/`
+4:15 Identifier `a`
+6:1 Identifier `a`
+6:3 Greater `>`
+6:4 Greater `>`
+6:6 Identifier `b`
+7:1 LetKeyword `let`
+7:5 Identifier `s`
+7:7 Equals `=`
+7:9 InterpolatedStringStart `$"`
+7:11 InterpolationStart `{`
+7:12 InterpolatedStringStart `$"`
+7:14 InterpolationStart `{`
+7:15 InterpolatedStringStart `$"`
+7:17 InterpolationStart `{`
+7:18 InterpolatedStringStart `$"`
+7:20 InterpolationStart `{`
+7:21 InterpolatedStringStart `$"`
+7:23 InterpolationStart `{`
+7:24 InterpolatedStringStart `$"`
+7:26 InterpolationStart `{`
+7:27 InterpolatedStringStart `$"`
+7:29 InterpolationStart `{`
+7:30 InterpolatedStringStart `$"`
+7:32 InterpolationStart `{`
+7:33 InterpolatedStringStart `$"`
+7:35 InterpolationStart `{`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolationStart `{`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolationStart `{`
+7:42 InterpolatedStringStart `$"`
+7:44 InterpolationStart `{`
+7:45 InterpolatedStringStart `$"`
+7:47 InterpolationStart `{`
+7:48 InterpolatedStringStart `$"`
+7:50 InterpolationStart `{`
+7:51 InterpolatedStringStart `$"`
+7:53 InterpolationStart `{`
+7:54 InterpolatedStringStart `$"`
+7:56 InterpolationStart `{`
+7:57 StringLiteral `$"{$"`
+7:62 OpenBrace `{`
+7:63 StringLiteral `$"{$"`
+7:68 OpenBrace `{`
+7:69 Identifier `x`
+7:70 CloseBrace `}`
+7:71 StringLiteral `"}"`
+7:74 CloseBrace `}`
+7:75 StringLiteral `"}"`
+7:78 InterpolationEnd `}`
+7:79 InterpolatedStringEnd `"`
+7:80 InterpolationEnd `}`
+7:81 InterpolatedStringEnd `"`
+7:82 InterpolationEnd `}`
+7:83 InterpolatedStringEnd `"`
+7:84 InterpolationEnd `}`
+7:85 InterpolatedStringEnd `"`
+7:86 InterpolationEnd `}`
+7:87 InterpolatedStringEnd `"`
+7:88 InterpolationEnd `}`
+7:89 InterpolatedStringEnd `"`
+7:90 InterpolationEnd `}`
+7:91 InterpolatedStringEnd `"`
+7:92 InterpolationEnd `}`
+7:93 InterpolatedStringEnd `"`
+7:94 InterpolationEnd `}`
+7:95 InterpolatedStringEnd `"`
+7:96 InterpolationEnd `}`
+7:97 InterpolatedStringEnd `"`
+7:98 InterpolationEnd `}`
+7:99 InterpolatedStringEnd `"`
+7:100 InterpolationEnd `}`
+7:101 InterpolatedStringEnd `"`
+7:102 InterpolationEnd `}`
+7:103 InterpolatedStringEnd `"`
+7:104 InterpolationEnd `}`
+7:105 InterpolatedStringEnd `"`
+7:106 InterpolationEnd `}`
+7:107 InterpolatedStringEnd `"`
+7:108 InterpolationEnd `}`
+7:109 InterpolatedStringEnd `"`
+9:1 Identifier `_`
+11:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  10 │ �
+     │ ^

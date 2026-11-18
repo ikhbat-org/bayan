@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/stray-tokens.byn
+--package
+<repo>/tests/cases/diag

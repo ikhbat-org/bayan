@@ -1,0 +1,5 @@
+created app `local/a-b-c` in `a-b-c`
+
+  cd a-b-c
+  bayan run
+  bayan test

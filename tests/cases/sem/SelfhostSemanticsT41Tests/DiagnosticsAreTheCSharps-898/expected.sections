@@ -1,0 +1,13 @@
+== diags.diag/assignment-changes-state
+BYN7012 15:5 `o` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7012 19:5 `o` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7012 27:5 `o` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7012 44:11 `o` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7012 9:15 `this` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7002 10:16 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`

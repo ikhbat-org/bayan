@@ -1,0 +1,129 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:24 Identifier `S`
+2:25 OpenBrace `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 InterpolatedStringStart `$"`
+2:52 InterpolationStart `{`
+2:53 StringLiteral `$"{$"`
+2:58 OpenBrace `{`
+2:59 StringLiteral `$"{$"`
+2:64 OpenBrace `{`
+2:65 Identifier `x`
+2:66 CloseBrace `}`
+2:67 StringLiteral `"}"`
+2:70 CloseBrace `}`
+2:71 StringLiteral `"}"`
+2:74 InterpolationEnd `}`
+2:75 InterpolatedStringEnd `"`
+2:76 InterpolationEnd `}`
+2:77 InterpolatedStringEnd `"`
+2:78 StringLiteral `"}"`
+2:81 InterpolationEnd `}`
+2:82 InterpolatedStringEnd `"`
+2:83 InterpolationEnd `}`
+2:84 InterpolatedStringEnd `"`
+2:85 InterpolationEnd `}`
+2:86 InterpolatedStringEnd `"`
+2:87 InterpolationEnd `}`
+2:88 InterpolatedStringEnd `"`
+2:89 InterpolationEnd `}`
+2:90 InterpolatedStringEnd `"`
+2:91 InterpolationEnd `}`
+2:92 InterpolatedStringEnd `"`
+2:93 InterpolationEnd `}`
+2:94 InterpolatedStringEnd `"`
+2:95 CloseBrace `}`
+2:96 StringLiteral `"}"`
+2:99 InterpolationEnd `}`
+2:100 InterpolatedStringEnd `"`
+2:101 InterpolationEnd `}`
+2:102 InterpolatedStringEnd `"`
+2:103 InterpolationEnd `}`
+2:104 InterpolatedStringEnd `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolatedStringEnd
+4:9 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+
+error BYN0002: unexpected character `$`
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$S{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}""}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                       ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$S{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}""}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                     ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ � ﻿
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ � ﻿
+    │  ^
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ � ﻿
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"
+    │       ^^ this string never ends
+    │
+  help: close it with `"`

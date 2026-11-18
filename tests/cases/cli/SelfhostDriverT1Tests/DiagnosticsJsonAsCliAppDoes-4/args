@@ -1,0 +1,4 @@
+build
+--diagnostics
+json
+<repo>/tests/cases/diag-json/fix-and-help.byn

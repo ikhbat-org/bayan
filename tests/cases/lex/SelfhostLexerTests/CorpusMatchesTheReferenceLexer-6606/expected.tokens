@@ -1,0 +1,122 @@
+    doc `/// Doc line one.`
+2:1 IntegerLiteral `1__`
+3:1 LetKeyword `let`
+3:5 Identifier `x`
+3:8 Equals `=`
+3:10 IntegerLiteral `1`
+4:2 CharLiteral `' '`
+4:6 IntegerLiteral `0`
+4:7 CharLiteral `'`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolatedStringText `$`
+7:28 InterpolatedStringEnd `"`
+7:29 OpenBrace `{`
+7:30 InterpolatedStringStart `$"`
+7:32 InterpolationStart `{`
+7:33 InterpolatedStringStart `$"`
+7:35 InterpolationStart `{`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolationStart `{`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolationStart `{`
+7:42 Identifier `x`
+7:43 InterpolationEnd `}`
+7:44 InterpolatedStringEnd `"`
+7:45 InterpolationEnd `}`
+7:46 InterpolatedStringEnd `"`
+7:47 InterpolationEnd `}`
+7:48 InterpolatedStringEnd `"`
+7:49 InterpolationEnd `}`
+7:50 InterpolatedStringEnd `"`
+7:51 CloseBrace `}`
+7:52 StringLiteral `"}"`
+7:55 InterpolationEnd `}`
+7:56 InterpolatedStringEnd `"`
+7:57 InterpolationEnd `}`
+7:58 InterpolatedStringEnd `"`
+7:59 InterpolationEnd `}`
+7:60 InterpolatedStringEnd `"`
+7:62 IntegerLiteral `1`
+7:63 NumericSuffix `e`
+7:68 Identifier `comment`
+7:76 Star `*`
+7:77 Slash `/`
+7:79 Identifier `a`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1__
+    │  ^^
+    │
+    │ 2 │ 1__
+    │   │  --
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ let x� = 1
+    │   │      -
+
+error BYN0002: unexpected character `\`
+
+  4 │ \' '\0'
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ \' '\0'
+    │     ^
+
+error BYN0008: unterminated char literal
+
+  4 │ \' '\0'
+    │       ^
+    │
+  help: close it with `'`
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  6 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  6 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ /* � */
+    │   │    -
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" 1e    comment */ a
+    │             ^^ this string never ends
+    │
+  help: close the `{` and the string

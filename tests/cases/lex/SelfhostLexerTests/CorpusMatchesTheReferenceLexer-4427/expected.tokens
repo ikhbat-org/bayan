@@ -1,0 +1,53 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:4 Comma `,`
+2:6 Dot `.`
+2:8 DotDot `..`
+2:11 DotDotEquals `..=`
+2:15 Colon `:`
+2:17 Question `?`
+2:19 QuestionQuestion `??`
+2:22 QuestionQuestionEquals `??=`
+2:26 QuestionDot `?.`
+2:29 FatArrow `=>`
+2:32 Arrow `->`
+2:35 At `@`
+2:37 Hash `#`
+3:1 Identifier `μετρητής`
+3:10 Identifier `x_1`
+3:14 Identifier `é`
+4:1 IfKeyword `if`
+4:4 ElseKeyword `else`
+4:9 UnlessKeyword `unless`
+4:16 SwitchKeyword `switch`
+4:23 CaseKeyword `case`
+4:28 DefaultKeyword `default`
+4:36 ForKeyword `for`
+4:40 InKeyword `in`
+4:43 WhileKeyword `while`
+4:49 DoKeyword `do`
+4:52 BreakKeyword `break`
+4:58 ContinueKeyword `continue`
+4:67 ReturnKeyword `return`
+4:74 YieldKeyword `yield`
+4:80 DeferKeyword `defer`
+4:86 ErrdeferKeyword `errdefer`
+4:95 UsingKeyword `using`
+4:101 ContextKeyword `context`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:10 Equals `=`
+5:12 IntegerLiteral `2`
+6:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  2 │  � , . .. ..= : ? ?? ??= ?. => -> @ #
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  � , . .. ..= : ? ?? ??= ?. => -> @ #
+    │   │  -

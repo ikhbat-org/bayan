@@ -1,0 +1,15 @@
+== tests/cases/diag/to-string-call.byn
+36..129 blockStmt
+42..52 localDecl
+50..52 literalExpr integer
+57..79 localDecl
+65..79 structLiteralExpr
+76..77 literalExpr integer
+84..103 exprStmt
+84..103 callExpr
+90..102 callExpr
+84..103 callExpr
+108..127 exprStmt
+108..127 callExpr
+114..126 callExpr
+108..127 callExpr

@@ -1,0 +1,10 @@
+error BYN2111: `Ratio` has a constructor; call it instead of using a struct literal
+  --> tmp/t26-tests/cli/diag_literal-with-constructor.byn/literal-with-constructor.byn:11:9
+
+  11 │ let r = Ratio { num: 1, den: 0 }
+     │         ^^^^^^^^^^^^^^^^^^^^^^^^
+     │
+  help: call the constructor: `Ratio(num: …, den: …)`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2111

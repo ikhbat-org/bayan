@@ -1,0 +1,5 @@
+error BYN2022: a named pattern is not supported in v0.1
+  --> <repo>/tests/cases/diag/pattern-const-not-bound.byn:5:15
+
+  5 │ const empty = pattern Line { qty: 0 }
+    │               ^^^^^^^^^^^^^^^^^^^^^^^

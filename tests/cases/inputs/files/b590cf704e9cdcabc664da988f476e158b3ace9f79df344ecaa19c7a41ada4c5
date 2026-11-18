@@ -1,0 +1,1 @@
+{ "version": 1, "sites": [{ "id": 1, "file": "a", "line": 1, "column": 1, "operator": "o", "original": "a", "mutated": "b", "emitted": "yes" }] }

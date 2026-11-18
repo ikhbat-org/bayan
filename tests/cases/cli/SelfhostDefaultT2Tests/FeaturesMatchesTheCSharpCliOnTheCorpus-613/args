@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/goto.byn
+--package
+<repo>/tests/cases/diag

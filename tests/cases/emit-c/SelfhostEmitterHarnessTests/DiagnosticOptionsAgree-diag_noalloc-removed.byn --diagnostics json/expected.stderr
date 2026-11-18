@@ -1,0 +1,1 @@
+{"code":"BYN6001","severity":"error","file":"input.byn","span":{"start":17,"end":24,"line":1,"column":18,"endLine":1,"endColumn":25},"message":"`noalloc` is removed; a function without `uses` is already pure","label":"removed","help":"remove `noalloc`","fixes":[{"span":{"start":16,"end":24,"line":1,"column":17,"endLine":1,"endColumn":25},"replacement":""}]}

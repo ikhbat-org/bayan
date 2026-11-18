@@ -1,0 +1,10 @@
+error BYN2106: cannot modify this value
+  --> <repo>/tmp/t2/diag/owned-read-only/owned-read-only.byn:7:5
+
+  7 │     n.item = 2
+    │     ^^^^^^ an `Owned` value is read-only
+    │
+  help: build a new value and wrap it with `Owned(…)`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2106

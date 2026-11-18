@@ -1,0 +1,65 @@
+1:5 Identifier `ạ̇`
+1:9 StringLiteral `"`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 CharLiteral `'x`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � �� ạ̇ "
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � �� ạ̇ "
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  1 │ � �� ạ̇ "
+    │    ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ � �� ạ̇ "
+    │      ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ � �� ạ̇ "
+    │   │      +
+
+error BYN0003: unterminated string literal
+
+  1 │ � �� ạ̇ "
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  2 │ let c = 'x
+    │         ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │  �
+    │   ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �
+    │   │ -

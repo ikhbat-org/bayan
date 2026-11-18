@@ -1,0 +1,4 @@
+== member.probes.-.v29
+errorExpr|?|-|-|-|-|-|3118:18|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2704 157:27 the payload of a `Shape` is read with a pattern, not `.radius` ||match the variant and bind the field, as in `case .Variant(let x):`|

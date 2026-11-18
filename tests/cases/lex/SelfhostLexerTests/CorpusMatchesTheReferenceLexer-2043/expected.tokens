@@ -1,0 +1,152 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+3:1 LetKeyword `let`
+3:5 Identifier `s`
+3:7 Equals `=`
+3:9 InterpolatedStringStart `$"`
+3:11 InterpolationStart `{`
+3:12 InterpolatedStringStart `$"`
+3:14 InterpolationStart `{`
+3:15 InterpolatedStringStart `$"`
+3:17 InterpolationStart `{`
+3:18 InterpolatedStringStart `$"`
+3:20 InterpolatedStringText `$`
+3:21 InterpolatedStringEnd `"`
+3:22 OpenBrace `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 InterpolatedStringStart `$"`
+3:55 InterpolationStart `{`
+3:56 InterpolatedStringStart `$"`
+3:58 InterpolationStart `{`
+3:59 InterpolatedStringStart `$"`
+3:61 InterpolationStart `{`
+3:62 StringLiteral `$"{$"`
+3:67 OpenBrace `{`
+3:68 Identifier `x`
+3:69 CloseBrace `}`
+3:70 StringLiteral `"}"`
+3:73 InterpolationEnd `}`
+3:74 InterpolatedStringEnd `"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+3:79 InterpolationEnd `}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolationEnd `}`
+3:84 InterpolatedStringEnd `"`
+3:85 InterpolationEnd `}`
+3:86 InterpolatedStringEnd `"`
+3:87 InterpolationEnd `}`
+3:88 InterpolatedStringEnd `"`
+3:89 InterpolationEnd `}`
+3:90 InterpolatedStringEnd `"`
+3:91 InterpolationEnd `}`
+3:92 InterpolatedStringEnd `"`
+3:93 InterpolationEnd `}`
+3:94 InterpolatedStringEnd `"`
+3:95 InterpolationEnd `}`
+3:96 InterpolatedStringEnd `"`
+3:97 InterpolationEnd `}`
+3:98 InterpolatedStringEnd `"`
+3:99 CloseBrace `}`
+3:100 StringLiteral `"}"`
+3:103 InterpolationEnd `}`
+3:104 InterpolatedStringEnd `"`
+3:105 InterpolationEnd `}`
+3:106 InterpolatedStringEnd `"`
+3:107 InterpolationEnd `}`
+3:108 InterpolatedStringEnd `"`
+4:1 PlusEquals `+=`
+4:4 MinusEquals `-=`
+4:7 StarEquals `*=`
+4:10 SlashEquals `/=`
+4:13 PercentEquals `%=`
+4:16 AmpEquals `&=`
+4:19 BarEquals `|=`
+4:22 CaretEquals `^=`
+4:25 LessLessEquals `<<=`
+5:2 Identifier `e`
+5:3 StringLiteral `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `open `
+6:8 InterpolationStart `{`
+6:9 Identifier `x`
+6:10 StringLiteral `";`
+7:2 LetKeyword `let`
+7:6 Identifier `c`
+7:8 Equals `=`
+7:12 IntegerLiteral `3`
+9:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ let s = $"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                              ^^
+
+error BYN0003: unterminated string literal
+
+  5 │  e"
+    │   ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{7}`
+
+  7 │  let c = � 3
+    │          ^
+
+error BYN0002: unexpected character `̈́`
+
+  8 │ ̈́
+    │ ^

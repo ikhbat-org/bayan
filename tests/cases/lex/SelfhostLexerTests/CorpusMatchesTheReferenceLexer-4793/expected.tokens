@@ -1,0 +1,71 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{`
+1:5 InterpolatedStringEnd `"`
+2:1 IntegerLiteral `1__`
+3:2 IntegerLiteral `0x`
+6:1 CharLiteral `'a'`
+6:5 CharLiteral `'\n'`
+6:10 CharLiteral `'\u{1F\u{7F}600}'`
+6:23 CharLiteral `'\''`
+6:28 CharLiteral `'é'`
+6:32 CharLiteral `'\\'`
+6:37 CharLiteral `'\0'`
+7:1 IntegerLiteral `0x`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1__
+    │  ^^
+    │
+    │ 2 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  0x
+    │  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ � �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ � �
+    │  ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  5 │ � �
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ � �
+    │   │   -
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │ 'a' '\n' '\u{1F�600}' '\'' 'é' '\\' '\0'
+    │          ^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u{1F`
+
+  6 │ 'a' '\n' '\u{1F�600}' '\'' 'é' '\\' '\0'
+    │           ^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  8 │ �
+    │ ^

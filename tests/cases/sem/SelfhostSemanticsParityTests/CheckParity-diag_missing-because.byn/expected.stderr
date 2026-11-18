@@ -1,0 +1,26 @@
+error BYN8001: `@allow` bypasses a safety rule and needs `because "…"`
+  --> tmp/t26-tests/cli/diag_missing-because.byn/missing-because.byn:1:1
+
+  1 │ @allow(unusedValue)
+    │ ^^^^^^^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+
+error BYN8001: `load()` bypasses a safety rule and needs `because "…"`
+  --> tmp/t26-tests/cli/diag_missing-because.byn/missing-because.byn:3:5
+
+  3 │     load() because ""
+    │     ^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+
+error BYN8001: `@allow` bypasses a safety rule and needs `because "…"`
+  --> tmp/t26-tests/cli/diag_missing-because.byn/missing-because.byn:7:1
+
+  7 │ @allow(unusedValue) because " "
+    │ ^^^^^^^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN8001

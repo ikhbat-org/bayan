@@ -1,0 +1,185 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:10 IntegerLiteral `3`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolatedStringText `\u{6}`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 Identifier `x`
+2:48 InterpolationEnd `}`
+2:49 InterpolatedStringEnd `"`
+2:50 InterpolationEnd `}`
+2:51 InterpolatedStringEnd `"`
+2:52 InterpolationEnd `}`
+2:53 InterpolatedStringEnd `"`
+2:54 InterpolationEnd `}`
+2:55 InterpolatedStringEnd `"`
+2:56 InterpolationEnd `}`
+2:57 InterpolatedStringEnd `"`
+2:58 InterpolationEnd `}`
+2:59 InterpolatedStringEnd `"`
+2:60 InterpolationEnd `}`
+2:61 InterpolatedStringEnd `"`
+2:62 InterpolationEnd `}`
+2:63 InterpolatedStringEnd `"`
+2:64 InterpolationEnd `}`
+2:65 InterpolatedStringEnd `"`
+2:67 CharLiteral `' '`
+2:72 CharLiteral `' '`
+2:76 IntegerLiteral `0`
+2:77 CharLiteral `'\r`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 StringLiteral `$"{$"`
+6:33 OpenBrace `{`
+6:34 StringLiteral `$"{$"`
+6:39 OpenBrace `{`
+6:42 StringLiteral `"{$"`
+6:46 OpenBrace `{`
+6:47 StringLiteral `$"{$"`
+6:52 OpenBrace `{`
+6:53 StringLiteral `$"{$"`
+6:58 OpenBrace `{`
+6:59 Identifier `x`
+6:60 CloseBrace `}`
+6:61 StringLiteral `"}"`
+6:64 CloseBrace `}`
+6:65 StringLiteral `"}"`
+6:68 CloseBrace `}`
+6:69 StringLiteral `"}"`
+6:72 CloseBrace `}`
+6:73 StringLiteral `"}"`
+6:76 CloseBrace `}`
+6:77 StringLiteral `"}"`
+6:80 StringLiteral `$"{$"`
+6:85 OpenBrace `{`
+6:86 StringLiteral `$"{$"`
+6:91 OpenBrace `{`
+6:92 StringLiteral `$"{$"`
+6:97 OpenBrace `{`
+6:98 StringLiteral `$"{$"`
+6:103 OpenBrace `{`
+6:104 StringLiteral `$"{$"`
+6:109 OpenBrace `{`
+6:110 StringLiteral `$"{$"`
+6:115 OpenBrace `{`
+6:116 StringLiteral `$"{$"`
+6:121 OpenBrace `{`
+6:122 StringLiteral `$"{x}"`
+6:128 CloseBrace `}`
+6:129 StringLiteral `"`
+6:130 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  2 │ $"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" ' '\\' '\0'
+    │                                                                      ^
+
+error BYN0002: unexpected character `\`
+
+  2 │ $"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" ' '\\' '\0'
+    │                                                                       ^
+
+error BYN0002: unexpected character `\`
+
+  2 │ $"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" ' '\\' '\0'
+    │                                                                           ^
+
+error BYN0008: unterminated char literal
+
+  2 │ $"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" ' '\\' '\0'
+    │                                                                             ^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                            ^^
+
+error BYN0002: unexpected character `$`
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                         ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                                                                                                                 ^ string
+    │                                                                                                                                   ends
+    │                                                                                                                                   at
+    │                                                                                                                                   the
+    │                                                                                                                                   end
+    │                                                                                                                                   of
+    │                                                                                                                                   the
+    │                                                                                                                                   line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,9 @@
+1:1 CloseBrace `}`
+6:3 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ /*ạ̇""
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

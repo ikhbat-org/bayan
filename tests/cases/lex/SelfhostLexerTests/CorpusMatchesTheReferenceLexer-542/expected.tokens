@@ -1,0 +1,68 @@
+1:1 CloseBrace `}`
+1:2 StringLiteral `"}"`
+1:5 Less `<`
+1:6 CloseBrace `}`
+1:7 StringLiteral `"}"`
+1:10 CloseBrace `}`
+1:11 StringLiteral `"}"`
+1:14 CloseBrace `}`
+1:15 StringLiteral `"}"`
+1:18 CloseBrace `}`
+1:19 StringLiteral `"}"`
+1:22 CloseBrace `}`
+1:23 StringLiteral `"}"`
+1:26 CloseBrace `}`
+1:27 StringLiteral `"}"`
+1:30 LetKeyword `let`
+1:34 Identifier `b`
+1:36 Equals `=`
+1:38 StringLiteral `"bad \q escape"`
+2:1 CharLiteral `'\u{202E}'`
+2:5 CharLiteral `'\u{800}'`
+3:2 Amp `&`
+3:4 AmpAmp `&&`
+3:7 Bar `|`
+3:9 BarBar `||`
+3:12 Caret `^`
+3:14 Tilde `~`
+3:16 Bang `!`
+3:18 Equals `=`
+3:20 EqualsEquals `==`
+3:23 BangEquals `!=`
+3:26 Less `<`
+3:28 LessEquals `<=`
+3:31 Greater `>`
+3:33 GreaterEquals `>=`
+3:36 LessLess `<<`
+3:39 Greater `>`
+3:40 Greater `>`
+3:42 Greater `>`
+3:43 GreaterEquals `>=`
+4:3 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ }"}"<}"}"}"}"}"}"}"}"}"}"}"}"let b = "bad \q escape"
+    │                                           ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ '�' '\u{800}'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ '�' '\u{800}'
+    │   │  -
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  �
+    │   │  -

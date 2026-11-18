@@ -1,0 +1,46 @@
+== tests/cases/run/io-invalid-utf8.byn
+85..487 blockStmt
+91..126 localDecl
+108..126 collectionExpr
+109..113 literalExpr integer
+115..119 literalExpr integer
+121..125 literalExpr integer
+131..168 exprStmt
+131..168 tryExpr
+135..168 callExpr
+148..157 literalExpr string
+159..167 memberExpr
+159..162 nameExpr
+173..299 localDecl
+184..299 catchExpr
+184..206 callExpr
+196..205 literalExpr string
+213..299 switchExpr
+213..219 caughtErrorExpr
+230..242 constantPattern
+230..242 targetMemberExpr
+246..259 literalExpr string
+269..270 discardPattern
+274..292 literalExpr string
+304..329 exprStmt
+304..329 callExpr
+310..328 interpolatedExpr
+322..326 nameExpr
+304..329 callExpr
+334..382 localDecl
+356..382 tryExpr
+360..382 callExpr
+372..381 literalExpr string
+387..446 exprStmt
+387..446 callExpr
+393..445 interpolatedExpr
+406..418 memberExpr
+406..411 nameExpr
+435..443 indexExpr
+435..440 nameExpr
+441..442 literalExpr integer
+387..446 callExpr
+451..485 localDecl
+459..485 tryExpr
+463..485 callExpr
+475..484 literalExpr string

@@ -1,0 +1,15 @@
+1:1 Equals `=`
+1:3 EqualsEquals `==`
+1:6 BangEquals `!=`
+1:9 Less `<`
+1:11 LessEquals `<=`
+1:14 Greater `>`
+1:16 GreaterEquals `>=`
+1:19 LessLess `<<`
+1:22 Greater `>`
+1:23 Greater `>`
+1:25 Greater `>`
+1:26 GreaterEquals `>=`
+2:1 PlusEquals `+=`
+2:4 MinusEquals `-=`
+2:7 EndOfFile

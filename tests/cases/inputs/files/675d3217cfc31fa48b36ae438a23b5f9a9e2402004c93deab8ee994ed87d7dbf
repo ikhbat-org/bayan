@@ -1,0 +1,5 @@
+$"{"
+$"{"
+À€b = "bad \q escape"
+let c = """never closed
+ á„€á…¡á†¨

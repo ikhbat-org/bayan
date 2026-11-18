@@ -1,0 +1,26 @@
+error BYN2770: unknown attribute `retry`
+  --> tmp/t26-tests/cli/diag_unknown-attribute.byn/unknown-attribute.byn:2:6
+
+  2 │     @retry(3)
+    │      ^^^^^
+    │
+  help: use `@exitCode(n)`; it is the only attribute an error variant takes
+
+error BYN2770: unknown attribute `inline`
+  --> tmp/t26-tests/cli/diag_unknown-attribute.byn/unknown-attribute.byn:7:2
+
+  7 │ @inline
+    │  ^^^^^^
+    │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+
+error BYN1016: `@exitCode` is not allowed here
+  --> tmp/t26-tests/cli/diag_unknown-attribute.byn/unknown-attribute.byn:10:1
+
+  10 │ @exitCode(2)
+     │ ^^^^^^^^^^^^
+     │
+  help: put `@exitCode` on an error enum variant
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2770

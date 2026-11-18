@@ -1,0 +1,50 @@
+== tests/cases/diag/lambda-capture-borrow-through-call.byn
+32..35 callExpr
+32..35 callExpr
+32..35 callExpr
+32..33 nameExpr
+49..324 blockStmt
+55..73 localDecl
+65..73 callExpr
+78..95 exprStmt
+78..95 callExpr
+78..81 nameExpr
+89..94 literalExpr string
+100..116 localDecl
+108..116 memberExpr
+108..111 nameExpr
+121..141 localDecl
+129..141 callExpr
+133..140 lambdaExpr
+139..140 nameExpr
+146..157 exprStmt
+146..157 callExpr
+146..149 nameExpr
+162..170 exprStmt
+162..170 callExpr
+168..169 nameExpr
+162..170 callExpr
+175..188 localDecl
+186..188 literalExpr string
+193..306 blockStmt
+203..228 localDecl
+221..228 callExpr
+237..269 localDecl
+248..269 callExpr
+248..253 literalExpr string
+263..268 nameExpr
+278..300 assignStmt assign target 278..282 value 285..300
+278..282 nameExpr
+285..300 callExpr
+289..299 lambdaExpr
+295..299 nameExpr
+311..322 exprStmt
+311..322 callExpr
+317..321 nameExpr
+311..322 callExpr
+139..140 nameExpr
+139..140 nameExpr
+139..140 nameExpr
+295..299 nameExpr
+295..299 nameExpr
+295..299 nameExpr

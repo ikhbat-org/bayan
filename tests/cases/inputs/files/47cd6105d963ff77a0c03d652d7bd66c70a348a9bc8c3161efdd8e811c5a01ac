@@ -1,0 +1,9 @@
+// ok � in comment
+
+let b = ` 2
+
+$~"{}"
+/*/ comment ‮ hidden
+let x⁧ = 1
+ ..=3  
+ /* block

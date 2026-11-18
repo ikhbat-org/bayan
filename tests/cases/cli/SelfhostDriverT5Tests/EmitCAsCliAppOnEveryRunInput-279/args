@@ -1,0 +1,3 @@
+build
+--emit-c
+string-rune-count.byn

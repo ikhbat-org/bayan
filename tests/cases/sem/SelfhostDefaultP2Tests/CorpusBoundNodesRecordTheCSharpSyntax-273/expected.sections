@@ -1,0 +1,47 @@
+== tests/cases/run/strbuf-loan-safe-members.byn
+135..154 globalStatement
+135..154 localDecl
+147..154 callExpr
+155..172 localDecl
+164..172 callExpr
+173..188 exprStmt
+173..188 callExpr
+173..175 nameExpr
+183..187 literalExpr string
+189..208 localDecl
+197..208 callExpr
+197..199 nameExpr
+209..223 exprStmt
+209..223 callExpr
+209..211 nameExpr
+219..222 literalExpr string
+224..253 exprStmt
+224..253 callExpr
+224..226 nameExpr
+242..245 literalExpr char
+251..252 literalExpr integer
+254..283 localDecl
+265..283 callExpr
+265..267 nameExpr
+277..282 nameExpr
+284..331 exprStmt
+284..331 callExpr
+290..330 interpolatedExpr
+293..294 nameExpr
+297..306 memberExpr
+297..299 nameExpr
+309..316 memberExpr
+309..311 nameExpr
+319..328 memberExpr
+319..323 nameExpr
+284..331 callExpr
+332..345 assignStmt assign target 332..334 value 337..345
+332..334 nameExpr
+337..345 callExpr
+346..371 exprStmt
+346..371 callExpr
+352..370 interpolatedExpr
+355..356 nameExpr
+359..368 memberExpr
+359..361 nameExpr
+346..371 callExpr

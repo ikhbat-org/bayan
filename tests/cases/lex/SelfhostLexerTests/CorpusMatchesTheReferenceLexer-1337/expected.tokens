@@ -1,0 +1,29 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `open `
+2:9 InterpolationStart `{`
+2:10 Identifier `Cx`
+2:12 StringLiteral `";`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  1 │ let law =�3
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"open {Cx";
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │  $"open {Cx";
+    │            ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

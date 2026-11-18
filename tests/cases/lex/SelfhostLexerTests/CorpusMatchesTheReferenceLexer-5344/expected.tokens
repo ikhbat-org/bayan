@@ -1,0 +1,26 @@
+1:2 Identifier `n`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `a`
+3:4 InterpolationStart `{`
+3:5 Identifier `b`
+3:6 InterpolationEnd `}`
+3:7 InterpolatedStringText `c error set unit distinct type import as public private static readonly required const let var embed extern unsafe\r`
+3:122 InterpolatedStringEnd
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"a{b}c error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ � //// not a doc comment
+    │ ^

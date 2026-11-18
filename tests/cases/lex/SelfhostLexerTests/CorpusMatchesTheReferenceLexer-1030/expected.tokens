@@ -1,0 +1,62 @@
+1:1 Identifier `b`
+2:2 OpenParen `(`
+2:4 CloseParen `)`
+2:6 OpenBracket `[`
+2:8 CloseBracket `]`
+2:10 OpenBrace `{`
+2:12 CloseBrace `}`
+3:2 Identifier `macro`
+3:8 Identifier `select`
+3:15 BecomeKeyword `become`
+4:1 Identifier `é`
+4:4 CharLiteral `''`
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:6 Bar `|`
+5:8 BarBar `||`
+5:11 Caret `^`
+5:13 Tilde `~`
+5:15 Bang `!`
+5:17 Equals `=`
+5:19 EqualsEquals `==`
+5:22 BangEquals `!=`
+5:25 Less `<`
+5:27 LessEquals `<=`
+5:30 Greater `>`
+5:32 GreaterEquals `>=`
+5:35 LessLess `<<`
+5:38 Greater `>`
+5:39 Greater `>`
+5:41 Greater `>`
+5:42 GreaterEquals `>=`
+8:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │  macro select become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │  macro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  4 │ é ''
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ é ''
+    │   │ +
+
+error BYN0007: empty char literal
+
+  4 │ é ''
+    │    ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

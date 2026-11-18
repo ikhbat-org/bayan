@@ -1,0 +1,5 @@
+i64 twice(i64 x) => x * 2
+
+void main() {
+    print($"{twice(2)}")
+}

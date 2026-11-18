@@ -1,0 +1,65 @@
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:11 IntegerLiteral `2`
+4:1 IntegerLiteral `0x`
+5:1 CharLiteral `'`
+6:1 CharLiteral `'x`
+8:1 OpenParen `(`
+8:3 CloseParen `)`
+8:5 OpenBracket `[`
+8:7 CloseBracket `]`
+8:9 OpenBrace `{`
+8:11 CloseBrace `}`
+9:1 LetKeyword `let`
+9:5 Identifier `actor`
+9:11 Equals `=`
+9:13 IntegerLiteral `1`
+10:2 OpenParen `(`
+10:4 CloseParen `)`
+10:6 OpenBracket `[`
+10:8 CloseBracket `]`
+10:10 OpenBrace `{`
+10:12 CloseBrace `}`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0002: unexpected character ```
+
+  2 │ let b = ` 2
+    │         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x
+    │ ^^
+
+error BYN0008: unterminated char literal
+
+  5 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  7 │ // o � in comment
+    │      ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  9 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

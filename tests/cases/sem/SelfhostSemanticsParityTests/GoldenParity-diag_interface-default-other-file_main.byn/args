@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/interface-default-other-file
+--include-path
+<repo>/tests/cases/diag/interface-default-other-file/main.byn

@@ -1,0 +1,5 @@
+== diags.run/generics-types
+returns swap 0 1
+returns wrap 0
+store replace 0 -1 558..566
+store replace 1 -1 584..588

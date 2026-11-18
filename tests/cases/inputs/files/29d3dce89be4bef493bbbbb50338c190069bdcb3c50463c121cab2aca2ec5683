@@ -1,0 +1,3 @@
+public void promote(ref this, to Tier next) {
+    tier = next
+}

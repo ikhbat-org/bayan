@@ -1,0 +1,12 @@
+# BYN2219: not a constant
+
+**Why.** Constants, array lengths, parameter defaults and patterns are evaluated by the compiler. A spread `..xs` into a fixed array or `Span` literal must also have a compile-time length, because the literal's storage is sized on the stack.
+
+**Example.**
+
+```
+i64 compute() => 1
+const n: i64 = compute()
+```
+
+**Fix.** Use literals and other constants, or make it a `let`. For a spread, spread a fixed array `T[N]`, or make the target a `List<T>`.

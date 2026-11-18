@@ -1,0 +1,7 @@
+== path std-imports-package
+module std.a <std>/a std_a
+file <std>/a/a.byn
+module main tmp/std-cases/package main
+file tmp/std-cases/package/main.byn
+import a std.a
+diag BYN2033 <std>/a/a.byn 1:8 std module `std.a` imports `util`, which is not a std module |  | import only `std.…` modules from a std module

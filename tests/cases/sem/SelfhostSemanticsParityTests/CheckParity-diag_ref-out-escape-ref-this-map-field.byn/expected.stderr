@@ -1,0 +1,13 @@
+error BYN3002: arena `arena` does not live as long as `b`, which borrows it
+  --> tmp/t26-tests/cli/diag_ref-out-escape-ref-this-map-field.byn/ref-out-escape-ref-this-map-field.byn:14:9
+
+   5 │         m[1] = v
+     │                - `put` stores `v` into `this` here
+     │
+  14 │         b.put(name)
+     │         ^^^^^^^^^^^ arena `arena` is freed at the end of its block
+     │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3002

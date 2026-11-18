@@ -1,0 +1,50 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 CharLiteral `'ab'`
+3:2 Identifier `foo`
+3:6 Identifier `Bar`
+3:10 Identifier `_x`
+3:13 Identifier `camelCase2`
+3:24 Identifier `بي`
+3:27 Identifier `ن`
+3:29 Identifier `μετρητ`
+3:36 Identifier `fς`
+3:39 Identifier `x`
+3:41 Identifier `_1`
+3:44 Identifier `é`
+6:1 StringLiteral `"a\u{2067}b"`
+6:6 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `؆`
+
+  3 │  foo Bar _x camelCase2 بي؆�ن μετρητ�fς x�_1 é
+    │                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  3 │  foo Bar _x camelCase2 بي؆�ن μετρητ�fς x�_1 é
+    │                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  3 │  foo Bar _x camelCase2 بي؆�ن μετρητ�fς x�_1 é
+    │                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD4)
+
+  3 │  foo Bar _x camelCase2 بي؆�ن μετρητ�fς x�_1 é
+    │                                         ^
+
+error BYN0002: unexpected character `﻿`
+
+  5 │ ﻿
+    │ ^

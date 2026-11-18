@@ -1,0 +1,35 @@
+1:1 Identifier `stuct`
+1:7 UniqueKeyword `unique`
+1:14 UnionKeyword `union`
+1:20 EnumKeyword `enum`
+1:25 FlagsKeyword `flags`
+1:31 OpenKeyword `open`
+1:36 ExtensibleKeyword `extensible`
+1:47 InterfaceKeyword `interface`
+1:57 DelegateKeyword `delegate`
+1:66 ExtensionKeyword `extension`
+1:76 DerivationKeyword `derivation`
+1:87 AttributeKeyword `attribute`
+2:2 Identifier `a`
+2:4 Greater `>`
+2:5 Greater `>`
+2:7 Identifier `b`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  1 │ stuct unique� union enum flags open extensible interface delegate extension derivation attribute
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  2 │ � a >> b
+    │ ^

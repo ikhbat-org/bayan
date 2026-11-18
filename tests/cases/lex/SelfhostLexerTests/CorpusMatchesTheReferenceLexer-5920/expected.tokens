@@ -1,0 +1,143 @@
+1:1 Identifier `Å`
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolationStart `{`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 InterpolatedStringStart `$"`
+1:19 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolationStart `{`
+1:26 InterpolatedStringStart `$"`
+1:28 InterpolationStart `{`
+1:29 InterpolatedStringStart `$"`
+1:31 InterpolationStart `{`
+1:32 StringLiteral `"{$"`
+1:36 OpenBrace `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 Identifier `x`
+1:53 InterpolationEnd `}`
+1:54 InterpolatedStringEnd `"`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 InterpolationEnd `}`
+1:58 InterpolatedStringEnd `"`
+1:59 InterpolationEnd `}`
+1:60 InterpolatedStringEnd `"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 CloseBrace `}`
+1:64 StringLiteral `"}"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:70 InterpolatedStringStart `$"`
+1:72 InterpolationStart `{`
+1:73 InterpolatedStringStart `$"`
+1:75 InterpolationStart `{`
+1:76 InterpolatedStringStart `$"`
+1:78 InterpolationStart `{`
+1:79 InterpolatedStringStart `$"`
+1:81 InterpolationStart `{`
+1:82 InterpolatedStringStart `$"`
+1:84 InterpolationStart `{`
+1:85 InterpolatedStringStart `$"`
+1:87 InterpolationStart `{`
+1:88 InterpolatedStringStart `$"`
+1:90 InterpolationStart `{`
+1:91 StringLiteral `$"{$"`
+1:96 OpenBrace `{`
+1:97 StringLiteral `$"{�$"`
+1:102 OpenBrace `{`
+1:103 StringLiteral `$"{$"`
+1:108 OpenBrace `{`
+1:109 StringLiteral `$"{$"`
+1:114 OpenBrace `{`
+1:115 StringLiteral `$"{$"`
+1:120 OpenBrace `{`
+1:121 StringLiteral `$"{$"`
+1:126 OpenBrace `{`
+1:127 StringLiteral `$"{x}"`
+1:133 CloseBrace `}`
+1:134 StringLiteral `"}"`
+1:137 CloseBrace `}`
+1:138 StringLiteral `"}"`
+1:141 CloseBrace `}`
+1:142 StringLiteral `"}"`
+1:145 CloseBrace `}`
+1:146 StringLiteral `"}"`
+1:149 CloseBrace `}`
+1:150 StringLiteral `"}"`
+1:153 CloseBrace `}`
+1:154 StringLiteral `"}"`
+1:157 InterpolationEnd `}`
+1:158 InterpolatedStringEnd `"`
+1:159 InterpolationEnd `}`
+1:160 InterpolatedStringEnd `"`
+1:162 CharLiteral `'a'`
+1:166 CharLiteral `'\n'`
+1:171 CharLiteral `'\u{1F600}'`
+1:183 CharLiteral `'\''`
+1:188 CharLiteral `'é'`
+1:192 CharLiteral `'\\'`
+1:197 CharLiteral `'\0'`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+4:1 PlusEquals `+=`
+4:4 MinusEquals `-=`
+4:7 StarEquals `*=`
+4:10 SlashEquals `/=`
+4:13 PercentEquals `%=`
+4:16 AmpEquals `&=`
+4:19 BarEquals `|=`
+4:22 CaretEquals `^=`
+4:25 LessLessEquals `<<=`
+6:1 Identifier `ever`
+6:6 Identifier `closed`
+6:12 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  1 │ Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                                ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                                                                                            ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8B)
+
+  1 │ Å$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                                                                                                     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

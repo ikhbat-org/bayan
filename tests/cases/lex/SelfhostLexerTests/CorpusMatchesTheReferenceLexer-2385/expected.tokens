@@ -1,0 +1,60 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `total �`
+1:10 InterpolationStart `{`
+1:11 Identifier `x`
+1:12 InterpolationEnd `}`
+1:13 InterpolatedStringEnd `"`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolatedStringText `a `
+1:19 InterpolationStart `{`
+1:20 Identifier `f`
+1:21 OpenParen `(`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolatedStringText `b `
+1:26 InterpolationStart `{`
+1:27 Identifier `c`
+1:28 InterpolationEnd `}`
+1:29 InterpolatedStringEnd `"`
+1:30 CloseParen `)`
+1:31 InterpolationEnd `}`
+1:32 InterpolatedStringText ` d`
+1:34 InterpolatedStringEnd `"`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolatedStringText `{{literal}}`
+1:49 InterpolatedStringEnd `"`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 Identifier `Point`
+1:60 OpenBrace `{`
+1:62 Identifier `x`
+1:64 Equals `=`
+1:66 IntegerLiteral `1`
+1:68 CloseBrace `}`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringText `!`
+1:71 InterpolatedStringEnd `"`
+1:75 StringLiteral `"`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  1 │ $"total �{x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $�"
+    │         ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"total �{x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $�"
+    │                                                                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC4)
+
+  1 │ $"total �{x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $�"
+    │                                                                          ^
+
+error BYN0003: unterminated string literal
+
+  1 │ $"total �{x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $�"
+    │                                                                           ^ string ends at the
+    │                                                                             end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

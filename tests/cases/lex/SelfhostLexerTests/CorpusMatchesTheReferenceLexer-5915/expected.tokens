@@ -1,0 +1,116 @@
+2:2 LetKeyword `let`
+2:6 Identifier `s`
+2:8 Equals `=`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 InterpolatedStringStart `$"`
+2:51 InterpolationStart `{`
+2:52 InterpolatedStringStart `$"`
+2:54 InterpolationStart `{`
+2:55 InterpolatedStringStart `$"`
+2:57 InterpolationStart `{`
+2:58 StringLiteral `$"{$"`
+2:63 OpenBrace `{`
+2:64 StringLiteral `$"{$"`
+2:69 OpenBrace `{`
+2:70 Identifier `x`
+2:71 CloseBrace `}`
+2:72 StringLiteral `"}"`
+2:75 CloseBrace `}`
+2:76 StringLiteral `"}"`
+2:79 InterpolationEnd `}`
+2:80 InterpolatedStringEnd `"`
+2:81 InterpolationEnd `}`
+2:82 InterpolatedStringEnd `"`
+2:83 InterpolationEnd `}`
+2:84 InterpolatedStringEnd `"`
+2:85 InterpolationEnd `}`
+2:86 InterpolatedStringEnd `"`
+2:87 InterpolationEnd `}`
+2:88 InterpolatedStringEnd `"`
+2:89 InterpolationEnd `}`
+2:90 InterpolatedStringEnd `"`
+2:91 InterpolationEnd `}`
+2:92 InterpolatedStringEnd `"`
+2:93 InterpolationEnd `}`
+2:94 InterpolatedStringEnd `"`
+2:95 InterpolationEnd `}`
+2:96 InterpolatedStringEnd `"`
+2:97 InterpolationEnd `}`
+2:98 InterpolatedStringEnd `"`
+2:99 InterpolationEnd `}`
+2:100 InterpolatedStringEnd `"`
+2:101 InterpolationEnd `}`
+2:102 InterpolatedStringEnd `"`
+2:103 InterpolationEnd `}`
+2:104 InterpolatedStringEnd `"`
+2:105 InterpolationEnd `}`
+2:106 InterpolatedStringEnd `"`
+2:107 InterpolationEnd `}`
+2:108 InterpolatedStringEnd `"`
+2:109 InterpolationEnd `}`
+2:110 InterpolatedStringEnd `"`
+4:1 Identifier `errr`
+4:6 SetKeyword `set`
+4:10 UnitKeyword `unit`
+4:15 DistinctKeyword `distinct`
+4:24 TypeKeyword `type`
+4:29 ImportKeyword `import`
+4:36 AsKeyword `as`
+4:39 PublicKeyword `public`
+4:46 PrivateKeyword `private`
+4:54 Identifier `stat`
+4:59 Identifier `c`
+4:61 ReadonlyKeyword `readonly`
+4:70 RequiredKeyword `required`
+4:79 ConstKeyword `const`
+4:85 LetKeyword `let`
+4:89 VarKeyword `var`
+4:93 EmbedKeyword `embed`
+4:99 ExternKeyword `extern`
+4:106 UnsafeKeyword `unsafe`
+5:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                          ^^
+
+error BYN0002: unexpected character `\u{1D}`
+
+  4 │ errr set unit distinct type import as public private stat�c readonly required const let var embed extern unsafe
+    │                                                          ^

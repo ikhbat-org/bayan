@@ -1,0 +1,12 @@
+error BYN2009: `Total` must be camelCase
+  --> <repo>/tmp/t2/diag/value-casing/value-casing.byn:1:5
+
+  1 │ let Total = 0
+    │     ^^^^^
+    │
+  help: rename it `total`; only types are PascalCase
+    │ 1 │ let total = 0
+    │   │     +
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2009

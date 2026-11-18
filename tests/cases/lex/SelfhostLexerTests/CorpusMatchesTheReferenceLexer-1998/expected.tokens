@@ -1,0 +1,49 @@
+1:1 CharLiteral `'ab'`
+2:1 IntegerLiteral `0b102`
+3:1 Identifier `r`
+3:3 Identifier `closed`
+4:1 Identifier `b`
+5:9 LetKeyword `let`
+5:13 Identifier `b`
+5:15 Equals `=`
+5:17 StringLiteral `"bad \q escape"`
+6:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │ 0b102
+    │     ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  5 │ /* � */ let b = "bad \q escape"
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 5 │ // �
+    │   │  +++
+    │ 6 │  let b = "bad \q escape"
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  5 │ /* � */ let b = "bad \q escape"
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ /* � */ let b = "bad \q escape"
+    │   │    -
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ /* � */ let b = "bad \q escape"
+    │                      ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

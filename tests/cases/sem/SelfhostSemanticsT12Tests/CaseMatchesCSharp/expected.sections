@@ -1,0 +1,15 @@
+== states
+diag BYN2006 12:34 `payment` is declared twice | already declared on line 12 | 
+diag BYN2002 12:43 unknown type `Missing` |  | 
+diag BYN2701 13:9 union `Order` already has a variant `draft` | already declared on line 11 | 
+diag BYN2009 14:9 `Shipped` must be camelCase |  | rename it `shipped`; only types are PascalCase
+states Cart
+  variant empty tag=0 at=4:9 ()
+  variant full tag=1 at=5:9 (items:List<i64>@5:24#0)
+states Order
+  variant draft tag=0 at=11:9 ()
+  variant paid tag=1 at=12:9 (payment:i64@12:18#0,q:?@12:51#1)
+  variant Shipped tag=2 at=14:9 ()
+struct Cart
+struct Order
+struct Plain

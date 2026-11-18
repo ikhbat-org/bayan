@@ -1,0 +1,41 @@
+== tests/cases/run/io-run-missing.byn
+130..252 blockStmt
+136..175 localDecl
+161..175 callExpr
+180..218 localDecl
+188..218 tryExpr
+192..218 callExpr
+199..206 nameExpr
+208..217 memberExpr
+208..212 nameExpr
+192..218 callExpr
+192..218 callExpr
+192..218 callExpr
+192..218 callExpr
+223..250 returnStmt value 230..250
+230..250 interpolatedExpr
+238..248 memberExpr
+238..239 nameExpr
+289..380 catchExpr
+289..380 catchExpr
+289..380 catchExpr
+289..304 callExpr
+296..303 nameExpr
+311..380 switchExpr
+311..317 caughtErrorExpr
+324..333 constantPattern
+324..333 targetMemberExpr
+337..348 literalExpr string
+354..355 discardPattern
+359..377 literalExpr string
+394..487 blockStmt
+400..440 exprStmt
+400..440 callExpr
+406..439 callExpr
+415..438 literalExpr string
+400..440 callExpr
+445..485 exprStmt
+445..485 callExpr
+451..484 callExpr
+460..483 literalExpr string
+445..485 callExpr

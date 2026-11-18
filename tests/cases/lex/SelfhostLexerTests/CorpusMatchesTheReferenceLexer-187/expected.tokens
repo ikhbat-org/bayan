@@ -1,0 +1,83 @@
+1:3 Identifier `macro`
+1:9 Identifier `select`
+1:16 BecomeKeyword `become`
+2:2 IfKeyword `if`
+2:5 ElseKeyword `else`
+2:10 UnlessKeyword `unless`
+2:17 Identifier `sw`
+2:20 Identifier `itch`
+2:25 CaseKeyword `case`
+2:30 DefaultKeyword `default`
+2:38 ForKeyword `for`
+2:42 InKeyword `in`
+2:45 WhileKeyword `while`
+2:51 DoKeyword `do`
+2:54 BreakKeyword `break`
+2:60 ContinueKeyword `continue`
+2:69 ReturnKeyword `return`
+2:76 YieldKeyword `yield`
+2:82 DeferKeyword `defer`
+2:88 ErrdeferKeyword `errdefer`
+2:97 UsingKeyword `using`
+2:103 ContextKeyword `context`
+3:3 IntegerLiteral `0B11`
+3:8 IntegerLiteral `5`
+3:9 NumericSuffix `s`
+3:11 IntegerLiteral `25`
+3:13 CloseParen `)`
+3:14 Identifier `ms`
+3:17 Identifier `UKiB`
+3:22 IntegerLiteral `1`
+3:23 NumericSuffix `u`
+3:25 IntegerLiteral `0xFF`
+3:29 NumericSuffix `u`
+3:31 IntegerLiteral `0b1`
+3:34 NumericSuffix `ul`
+3:37 IntegerLiteral `7`
+3:38 NumericSuffix `l`
+5:4 Equals `=`
+5:6 IntegerLiteral `1`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:10 Equals `=`
+6:12 IntegerLiteral `2`
+8:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � macro select become
+    │ ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ � macro select become
+    │   ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ � macro select become
+    │         ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │ ��if else unless sw�itch case default for in while do break continue return yield defer errdefer using context
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ��if else unless sw�itch case default for in while do break continue return yield defer errdefer using context
+    │  ^
+
+error BYN0002: unexpected character `\u{1D}`
+
+  2 │ ��if else unless sw�itch case default for in while do break continue return yield defer errdefer using context
+    │                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  5 │ 	 � = 1
+    │ 	 ^

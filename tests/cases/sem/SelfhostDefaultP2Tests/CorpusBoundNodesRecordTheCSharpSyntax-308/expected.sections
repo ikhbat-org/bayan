@@ -1,0 +1,112 @@
+== tests/cases/run/switch-move-guard.byn
+318..1136 blockStmt
+324..343 localDecl
+332..343 callExpr
+348..359 exprStmt
+348..359 callExpr
+348..349 nameExpr
+357..358 literalExpr integer
+364..389 localDecl
+372..389 callExpr
+382..388 argument
+387..388 nameExpr
+394..611 switchStmt
+401..405 moveExpr
+406..407 nameExpr
+423..435 variantPattern
+429..432 varPattern
+441..453 binaryExpr gt right 452..453
+441..449 memberExpr
+441..442 nameExpr
+452..453 literalExpr integer
+467..491 exprStmt
+467..491 callExpr
+473..490 interpolatedExpr
+480..488 memberExpr
+480..481 nameExpr
+467..491 callExpr
+505..517 variantPattern
+511..514 varPattern
+531..557 exprStmt
+531..557 callExpr
+537..556 interpolatedExpr
+546..554 memberExpr
+546..547 nameExpr
+531..557 callExpr
+571..577 constantPattern
+591..605 exprStmt
+591..605 callExpr
+597..604 literalExpr string
+591..605 callExpr
+617..636 localDecl
+625..636 callExpr
+641..652 exprStmt
+641..652 callExpr
+641..642 nameExpr
+650..651 literalExpr integer
+657..682 localDecl
+665..682 callExpr
+675..681 argument
+680..681 nameExpr
+687..830 localDecl
+695..830 switchExpr
+696..700 moveExpr
+701..702 nameExpr
+721..733 variantPattern
+727..730 varPattern
+739..751 binaryExpr gt right 750..751
+739..747 memberExpr
+739..740 nameExpr
+750..751 literalExpr integer
+755..768 binaryExpr mul right 766..768
+755..763 memberExpr
+755..756 nameExpr
+766..768 literalExpr integer
+778..790 variantPattern
+784..787 varPattern
+794..802 memberExpr
+794..795 nameExpr
+812..818 constantPattern
+822..823 literalExpr integer
+835..859 exprStmt
+835..859 callExpr
+841..858 interpolatedExpr
+855..856 nameExpr
+835..859 callExpr
+865..884 localDecl
+873..884 callExpr
+889..900 exprStmt
+889..900 callExpr
+889..890 nameExpr
+898..899 literalExpr integer
+905..916 exprStmt
+905..916 callExpr
+905..906 nameExpr
+914..915 literalExpr integer
+921..957 localDecl
+929..957 structLiteralExpr
+943..947 moveExpr
+948..949 nameExpr
+954..955 literalExpr integer
+962..1134 switchStmt
+969..973 moveExpr
+974..975 nameExpr
+991..1013 propertyPattern
+1000..1003 varPattern
+1010..1011 constantPattern
+1010..1011 literalExpr integer
+1027..1052 exprStmt
+1027..1052 callExpr
+1033..1051 interpolatedExpr
+1041..1049 memberExpr
+1041..1042 nameExpr
+1027..1052 callExpr
+1066..1088 propertyPattern
+1075..1078 varPattern
+1085..1086 discardPattern
+1102..1128 exprStmt
+1102..1128 callExpr
+1108..1127 interpolatedExpr
+1117..1125 memberExpr
+1117..1118 nameExpr
+1102..1128 callExpr

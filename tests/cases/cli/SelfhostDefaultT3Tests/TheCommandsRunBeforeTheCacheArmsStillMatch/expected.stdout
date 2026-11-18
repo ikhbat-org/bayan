@@ -1,0 +1,4 @@
+CompilationUnit
+  Function main() -> i32
+    Block
+      Return 0

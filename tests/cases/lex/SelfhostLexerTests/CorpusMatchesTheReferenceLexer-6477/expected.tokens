@@ -1,0 +1,48 @@
+1:1 Identifier `각`
+2:1 OpenParen `(`
+2:3 CloseParen `)`
+2:5 OpenBracket `[`
+2:7 CloseBracket `]`
+2:9 OpenBrace `{`
+2:11 CloseBrace `}`
+4:1 IntegerLiteral `0`
+4:3 IntegerLiteral `42`
+4:6 IntegerLiteral `1_000_000`
+4:16 IntegerLiteral `0xFF`
+4:21 IntegerLiteral `0x_ff`
+4:27 IntegerLiteral `0b1010`
+4:34 IntegerLiteral `0B11`
+4:39 IntegerLiteral `5`
+4:40 NumericSuffix `s`
+4:42 IntegerLiteral `250`
+4:45 NumericSuffix `ms`
+4:48 IntegerLiteral `4`
+4:49 NumericSuffix `KiB`
+4:53 IntegerLiteral `1`
+4:54 NumericSuffix `u`
+4:56 IntegerLiteral `0xFF`
+4:60 NumericSuffix `u`
+4:62 IntegerLiteral `0b1`
+4:65 NumericSuffix `ul`
+4:68 IntegerLiteral `7`
+4:69 NumericSuffix `l`
+5:4 CloseParen `)`
+5:6 OpenBracket `[`
+5:8 CloseBracket `]`
+5:10 OpenBrace `{`
+5:12 CloseBrace `}`
+6:1 EndOfFile
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  1 │ 각
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF7)
+
+  5 │  � ) [ ] { }
+    │  ^

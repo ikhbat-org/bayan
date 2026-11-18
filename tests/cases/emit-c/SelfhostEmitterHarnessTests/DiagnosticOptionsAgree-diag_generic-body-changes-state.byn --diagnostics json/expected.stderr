@@ -1,0 +1,1 @@
+{"code":"BYN7012","severity":"error","file":"input.byn","span":{"start":144,"end":180,"line":10,"column":5,"endLine":10,"endColumn":41},"message":"`o` would change state here; a state changes only through `become`","label":null,"help":"assign a value in the same state, or move the transition into a `becomes` method","fixes":[]}

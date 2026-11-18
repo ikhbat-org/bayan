@@ -1,0 +1,3 @@
+== case conv-span
+errorExpr 668..670 : ?
+BYN2202 40:16 expected `Span<i32>`, found `i32` |||

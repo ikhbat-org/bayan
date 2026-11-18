@@ -1,0 +1,7 @@
+test "adds" {
+    assert(1 + 1 == 2)
+}
+
+test "compares" {
+    assert("a" != "b")
+}

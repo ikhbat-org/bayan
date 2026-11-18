@@ -1,0 +1,14 @@
+1:2 CharLiteral `'\q'`
+2:2 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏'\q'
+    │ ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ ‏'\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

@@ -1,0 +1,9 @@
+‏
+let #café = 2
+/* block
+'\u{1F600}' '\'' 'é' '\
+  """ c"text" u16"wide" "‮ allowed in strings" �" "\u{48}i"
+
+c >>= 1
+ $"a{b}c '\'' 'é' '\\' '\0'
+ 

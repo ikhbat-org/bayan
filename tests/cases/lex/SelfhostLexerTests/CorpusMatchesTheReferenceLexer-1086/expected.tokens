@@ -1,0 +1,80 @@
+1:1 StringLiteral `"a\u{2067}b"`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+5:1 ErrorKeyword `error`
+5:7 SetKeyword `set`
+5:11 UnitKeyword `unit`
+5:16 DistinctKeyword `distinct`
+5:25 TypeKeyword `type`
+5:30 ImportKeyword `import`
+5:37 AsKeyword `as`
+5:40 PublicKeyword `public`
+5:47 PrivateKeyword `private`
+5:55 StaticKeyword `static`
+5:62 ReadonlyKeyword `readonly`
+5:71 RequiredKeyword `required`
+5:80 ConstKeyword `const`
+5:86 LetKeyword `let`
+5:90 VarKeyword `var`
+5:94 EmbedKeyword `embed`
+5:100 ExternKeyword `extern`
+5:107 UnsafeKeyword `unsafe`
+7:1 Identifier `fé`
+7:4 Equals `=`
+7:6 IntegerLiteral `2`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolationStart `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 InterpolatedStringStart `$"`
+9:24 InterpolationStart `{`
+9:25 InterpolatedStringStart `$"`
+9:27 InterpolationStart `{`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolationStart `{`
+9:31 InterpolatedStringStart `$"`
+9:33 InterpolationStart `{`
+9:34 InterpolatedStringStart `$"`
+9:36 InterpolationStart `{`
+9:37 InterpolatedStringStart `$"`
+9:39 InterpolationStart `{`
+9:40 InterpolatedStringStart `$"`
+9:42 InterpolationStart `{`
+9:43 Identifier `x`
+9:44 InterpolationEnd `}`
+9:45 InterpolatedStringEnd `"`
+9:46 InterpolationEnd `}`
+9:47 InterpolatedStringEnd `"`
+9:48 InterpolationEnd `}`
+9:49 InterpolatedStringEnd `"`
+9:50 InterpolationEnd `}`
+9:51 InterpolatedStringEnd `"`
+9:52 InterpolationEnd `}`
+9:53 InterpolatedStringEnd `"`
+9:54 InterpolationEnd `}`
+9:55 InterpolatedStringEnd `"`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string

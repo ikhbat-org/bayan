@@ -1,0 +1,36 @@
+== tests/cases/diag/unique-use-after-move.byn
+104..279 blockStmt
+110..129 localDecl
+118..129 callExpr
+134..145 exprStmt
+134..145 callExpr
+134..135 nameExpr
+143..144 literalExpr integer
+150..164 localDecl
+158..162 moveExpr
+163..164 nameExpr
+169..189 exprStmt
+169..189 callExpr
+175..188 interpolatedExpr
+178..186 memberExpr
+178..179 nameExpr
+169..189 callExpr
+194..205 exprStmt
+194..205 callExpr
+194..195 nameExpr
+203..204 literalExpr integer
+210..225 assignStmt assign target 210..211 value 214..225
+210..211 nameExpr
+214..225 callExpr
+230..241 exprStmt
+230..241 callExpr
+230..231 nameExpr
+239..240 literalExpr integer
+246..277 exprStmt
+246..277 callExpr
+252..276 interpolatedExpr
+255..263 memberExpr
+255..256 nameExpr
+266..274 memberExpr
+266..267 nameExpr
+246..277 callExpr

@@ -1,0 +1,6 @@
+== args.a6
+literal|i64|-|-|-|2630:1|1
+literal|bool|-|-|-|2642:4|true
+literal|i64|-|-|-|276:1|3
+literal|string|-|-|-|294:3|"x"
+BYN2303 137:37 `verbose` is passed twice |||

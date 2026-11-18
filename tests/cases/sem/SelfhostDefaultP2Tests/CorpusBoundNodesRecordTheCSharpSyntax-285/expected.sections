@@ -1,0 +1,53 @@
+== tests/cases/run/string-radix.byn
+0..15 globalStatement
+0..15 localDecl
+13..15 unaryExpr negate operand 14..15
+16..32 localDecl
+28..32 unaryExpr negate operand 29..32
+33..53 localDecl
+50..53 literalExpr integer
+54..87 localDecl
+67..87 literalExpr integer
+88..158 exprStmt
+88..158 callExpr
+94..157 interpolatedExpr
+104..126 callExpr
+111..112 nameExpr
+118..125 targetMemberExpr
+129..155 callExpr
+136..141 nameExpr
+147..154 targetMemberExpr
+88..158 callExpr
+159..226 exprStmt
+159..226 callExpr
+165..225 interpolatedExpr
+174..199 callExpr
+181..186 nameExpr
+192..198 targetMemberExpr
+202..223 callExpr
+209..210 nameExpr
+216..222 targetMemberExpr
+159..226 callExpr
+227..308 exprStmt
+227..308 callExpr
+233..307 interpolatedExpr
+244..253 callExpr
+251..252 nameExpr
+244..253 callExpr
+256..279 callExpr
+263..264 nameExpr
+270..278 targetMemberExpr
+282..305 callExpr
+289..290 nameExpr
+296..304 targetMemberExpr
+227..308 callExpr
+309..370 exprStmt
+309..370 callExpr
+315..369 interpolatedExpr
+322..341 callExpr
+329..330 nameExpr
+336..340 targetMemberExpr
+344..367 callExpr
+351..356 nameExpr
+362..366 targetMemberExpr
+309..370 callExpr

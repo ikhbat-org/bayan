@@ -1,0 +1,44 @@
+union error ReadError { broken }
+
+struct Rows {
+    i64 at
+    i64 limit
+
+    i64? next(ref this) fails ReadError {
+        if at >= limit { return null }
+        at += 1
+        return at
+    }
+}
+
+i64 copied(i64 limit) fails ReadError {
+    var sum = 0
+    for try row in (Rows { at: 0, limit: limit }) { sum += row }
+    return sum
+}
+
+i64 inPlace() fails ReadError {
+    var rows = Rows { at: 0, limit: 3 }
+    var sum = 0
+    for try row: i64 in rows {
+        sum += row
+        break if row == 2
+    }
+    return sum + rows.at
+}
+
+i64 fromLet() fails ReadError {
+    let rows = Rows { at: 0, limit: 2 }
+    var sum = 0
+    for try row in rows { sum += row }
+    return sum + rows.at
+}
+
+i64 byRef(ref Rows rows) fails ReadError {
+    var sum = 0
+    for try row in (rows) { sum += row }
+    return sum
+}
+
+var rows = Rows { at: 0, limit: 2 }
+print($"{try copied(3)} {try inPlace()} {try fromLet()} {try byRef(ref rows)}")

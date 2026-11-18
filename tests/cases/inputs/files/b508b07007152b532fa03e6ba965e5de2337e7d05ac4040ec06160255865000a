@@ -1,0 +1,14 @@
+let n = 4
+var loose = 0
+for i in 0..=n - 1 {
+    loose += 1
+}
+var tight = 0
+for i in 0..=(n - 1) {
+    tight += 1
+}
+print($"{loose} {tight} {loose == tight}")
+let lo = 1
+for i in lo + 1..n * 2 - 3 {
+    print($"{i}")
+}

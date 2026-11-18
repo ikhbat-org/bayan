@@ -1,0 +1,61 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:2 CharLiteral `'a'`
+2:6 CharLiteral `'\n'`
+2:11 CharLiteral `'\u{1F�600}'`
+2:23 CharLiteral `'\''`
+2:28 CharLiteral `'�'`
+2:32 CharLiteral `'\\'`
+2:37 CharLiteral `'\0'`
+4:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │  'a' '\n' '\u{1F�600}' '\'' '�' '\\' '\0'
+    │           ^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u{1F`
+
+  2 │  'a' '\n' '\u{1F�600}' '\'' '�' '\\' '\0'
+    │            ^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0015: source is not valid UTF-8 (byte 0x96)
+
+  2 │  'a' '\n' '\u{1F�600}' '\'' '�' '\\' '\0'
+    │                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │  'a' '\n' '\u{1F�600}' '\'' '�' '\\' '\0'
+    │                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ���
+    │   ^

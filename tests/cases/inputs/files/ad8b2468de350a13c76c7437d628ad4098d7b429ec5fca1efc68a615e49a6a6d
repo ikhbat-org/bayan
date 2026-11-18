@@ -1,0 +1,8 @@
+‮
+a�̇afé = 2
+ 1
+let b = ` 2
+let c =  3
+�
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+ 

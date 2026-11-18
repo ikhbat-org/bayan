@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/function-type-uses-fails-display.byn
+--package
+<repo>/tests/cases/diag

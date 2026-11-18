@@ -1,0 +1,15 @@
+warning BYN2712: `_` hides future cases of `Shape`, declared in this package
+  --> <repo>/tmp/t2/diag/wildcard-on-local-union/wildcard-on-local-union.byn:9:5
+
+  9 │     _ => 0,
+    │     ^ matches every case added later
+    │
+  help: list the cases instead: .rect, .none
+
+warning BYN2712: `_` hides future cases of `Shape`, declared in this package
+  --> <repo>/tmp/t2/diag/wildcard-on-local-union/wildcard-on-local-union.byn:16:5
+
+  16 │     _ => 0,
+     │     ^ matches every case added later
+     │
+  help: remove the `_` arm

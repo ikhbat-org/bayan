@@ -1,0 +1,14 @@
+== tests/cases/run/positional.byn
+50..69 globalStatement
+50..69 localDecl
+58..69 callExpr
+64..65 literalExpr integer
+67..68 literalExpr integer
+70..91 exprStmt
+70..91 callExpr
+76..90 interpolatedExpr
+79..82 memberExpr
+79..80 nameExpr
+85..88 memberExpr
+85..86 nameExpr
+70..91 callExpr

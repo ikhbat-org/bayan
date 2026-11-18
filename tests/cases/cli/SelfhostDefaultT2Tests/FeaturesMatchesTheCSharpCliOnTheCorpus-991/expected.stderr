@@ -1,0 +1,7 @@
+error BYN2781: `a` is used after it was moved
+  --> <repo>/tests/cases/diag/unique-move-in-loop.byn:10:22
+
+  10 │         consume(move a)
+     │                      ^ moved on line 10
+     │
+  help: assign `a` a new value before using it again, or move a `.copy(to: alloc)` of it instead
