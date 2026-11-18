@@ -928,3 +928,19 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - 025 T10b LOW (gate 28be2417): `tools/llm-eval.byn` `filesUnder` counts hidden files (`.DS_Store`), so a stray one in a `heldout` task fails the marker check; skip dot-files or name them in the guide. Also: 025-plan.md says the marker goes in every file that can hold a comment, R24 says every non-exempt file; the code follows R24, the plan text needs the same wording.
 - 025 T14/T15 LOW: small-003 (29 lines) and std-003 (28 lines) exceed the guide's ~25-line tier-1 size; kept at tier 1 (fixing task: T31 recalibration).
 - LOW (025 CI, 2026-11-18): flake in frozen csharp/: `BootstrapTests.cs:78,149` and `CacheTests.cs:191` set the process-wide `Environment.CurrentDirectory` while `StdPathTests.EachFunctionMatchesDotNet` (`StdPathTests.cs:162`) reads it in parallel; ci run 44234350347 linux failed `Path.fullPath(" ")` with .NET at the repo root and Bayan at bin/Release. Goes away with the C# tests in 019b; until then a rerun.
+- 024 T5 LOW: `labels.test.byn:58-59` checks the backward `b.cond` against `encodeAt`'s own output, not a TSV row; add a `b-cond-back` row to encodings.s/tsv and assert against it (T16 sweep).
+- LOW (024 branch review) `src/tests/SabkTests.cs`, `SabkLawTests.cs`: off arm64 macOS the tests return early and count as passed, not skipped; report them as skips so the R9 count line is honest.
+- LOW (024 branch review) `RunInRoot` in `SabkTests.cs`/`SabkLawTests.cs` has no timeout and is duplicated; one helper with a timeout.
+- LOW (024 branch review) `SabkTests.cs:81` requires `ld` stderr to be empty; a minos-15 warning from a newer ld fails it. Match known warnings or assert on the exit code and output.
+- LOW (024 branch review) `SabkSourceTestsPass` reads `sweep.tsv` that a previous run may have left stale; regenerate or check its age.
+- LOW (024 branch review) `src/sabk/enc/labels.byn:65-70` `bind` sets the offset before patching, so a `word` failure leaves the assembler half-bound.
+- LOW (024 branch review) `src/sabk/ra/lower.byn:270` an `.open` block is skipped silently; refuse it.
+- LOW (024 branch review) `src/sabk/enc/encode.byn:213-220` accepts unpredictable ldp/stp forms (writeback with Rt == Rn, or Rt == Rt2 on load); refuse them.
+- LOW (024 branch review) `src/sabk/enc/encode.test.byn:239,250,257,294` `?? 0` / `catch => 0` turn a parse failure into a value; fail the test instead.
+- LOW (024 branch review) `labels.test.byn`, `writer.test.byn` still hold hand-typed hex words (spec 024 R3); take them from encodings.tsv.
+- LOW (024 branch review) `src/sabk/macho/writer.byn:117-126,282` does not refuse duplicate section names or symbol offsets past their section's end.
+- LOW (024 branch review) CI time: the sabk tests build four stage-2 packages; share one build.
+- LOW (024 branch review) `scripts/sabk/record-macho.sh` uses the host's unpinned Apple clang/otool/nm; a second toolchain (CLT clang-2100.3.34.2, SDK 27.0) gave identical bytes (refuted as MEDIUM), but the symbol and reloc order still depend on the assembler version.
+- LOW (024 fix re-review) `src/sabk/enc/labels.test.byn:129-148`: the cbz-refusal test does not prove "changes nothing"; a `symbols[id]` set before the refusal still passes. Call `bind(l)` after the refusal and assert `finish` succeeds.
+- LOW (024 fix re-review) `scripts/sabk/record-skip.test.sh:14-22` covers only the not-macOS and no-otool skips; not-arm64, the zig check and the clang/nm loop are untested, and a skip counts as a pass in `script-tests.sh:28`, so nothing shows the arm64 macOS job ran the recorders.
+- LOW (review fix/review-2026-11-17-8) `scripts/cleanup/2026-11-17-vm-zig-cache.sh:43`: after it starts bayan-test01, nothing stops a CI/bench job from claiming the VM before the delete and the EXIT stop; and an `incus start` that boots the VM but reports failure exits without the stop. Both need a VM-side job lock.

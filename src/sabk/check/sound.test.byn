@@ -1,0 +1,630 @@
+// Tests of `checkAllocation` (spec 024 T11, R7). The sound cases run `ra.allocate` over the T7-T10 test shapes and check
+// its output; the corrupted ones start from an allocator result or a hand-written segment list and change one segment.
+// Positions number every instruction and terminator in block order, from 0.
+import sabk.sir
+import sabk.ra
+
+/// The findings as "bN.position kind vN" joined by spaces.
+string show(List<Finding> found) uses alloc {
+    var sb = StrBuf()
+    for i in 0..found.length {
+        sb.append(" ") if i > 0
+        let x = found[i]
+        var k = "conflict"
+        k = "unwritten" if x.kind == .readBeforeWrite
+        k = "clobbered" if x.kind == .clobbered
+        k = "unassigned" if x.kind == .unassigned
+        sb.append($"b{x.block}.{x.position} {k} v{x.vreg}")
+    }
+    return sb.finish()
+}
+
+Segment seg(VReg v, from i64 a, through i64 b, at Loc l) => Segment { vreg: v, from: a, until: b, location: l }
+
+/// One segment per vreg, spanning its live interval, the location the allocator chose.
+List<Segment> segmentsOf(sir.Function f, from ra.Allocation a) uses alloc {
+    var r = List<Segment>()
+    let live = ra.liveIntervals(f)
+    for iv in live.intervals {
+        switch a.locations[iv.vreg] {
+            case .none: continue
+            case .reg(let n): r.append(seg(iv.vreg, from: iv.start, through: iv.end, at: .reg(n)))
+            case .stack(let k): r.append(seg(iv.vreg, from: iv.start, through: iv.end, at: .slot(k)))
+        }
+    }
+    return r
+}
+
+List<Segment> allocated(sir.Function f) uses alloc {
+    let a = ra.allocate(f) catch switch {
+        .tooManyCallArgs(let n) => panic("unexpected"),
+        .frameTooLarge(let n) => panic("unexpected"),
+    }
+    return segmentsOf(f, from: a)
+}
+
+/// The findings of the allocator's own allocation of `f`.
+string audit(sir.Function f) uses alloc => show(checkAllocation(f, as: allocated(f)))
+
+/// The index of the segment of `v`.
+i64 indexOf(List<Segment> segs, for VReg v) {
+    for i in 0..segs.length {
+        return i if segs[i].vreg == v
+    }
+    return -1
+}
+
+/// calc(v0, v1): v2 = 7; v3 = v0 + v2; v4 = v3 - v1; ret v4
+sir.Function straight() uses alloc {
+    var f = sir.newFunction("calc", by: 2)
+    let b = sir.newBlock(ref f)
+    let c = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(c, 7))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], c))
+    let d = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .sub(d, s, f.params[1]))
+    sir.terminate(ref f, at: b, as: .ret(d))
+    return f
+}
+
+/// calc with mul and div
+sir.Function fullCalc() uses alloc {
+    var f = sir.newFunction("calc", by: 2)
+    let b = sir.newBlock(ref f)
+    let c = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(c, 7))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], c))
+    let d = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .sub(d, s, f.params[1]))
+    let p = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .mul(p, d, d))
+    let q = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .div(q, p, c))
+    sir.terminate(ref f, at: b, as: .ret(q))
+    return f
+}
+
+/// countdown(v0): the loop redefines v0, so v0, one and zero live through the whole loop.
+sir.Function loopFn() uses alloc {
+    var f = sir.newFunction("countdown", by: 1)
+    let entry = sir.newBlock(ref f)
+    let loop = sir.newBlock(ref f)
+    let done = sir.newBlock(ref f)
+    let one = sir.newVReg(ref f)
+    let zero = sir.newVReg(ref f)
+    sir.emit(ref f, to: entry, as: .imm(one, 1))
+    sir.emit(ref f, to: entry, as: .imm(zero, 0))
+    sir.terminate(ref f, at: entry, as: .jump(loop))
+    let next = sir.newVReg(ref f)
+    sir.emit(ref f, to: loop, as: .sub(next, f.params[0], one))
+    sir.emit(ref f, to: loop, as: .add(f.params[0], next, zero))
+    sir.terminate(ref f, at: loop, as: .br(.gt, next, zero, loop, done))
+    sir.terminate(ref f, at: done, as: .ret(sir.noReg()))
+    return f
+}
+
+/// caller(v0): v1 = call helper(v0, v0); v2 = addr @counter; v3 = load @counter; store @counter, v1; ret v1
+sir.Function globalFn() uses alloc {
+    var f = sir.newFunction("caller", by: 1)
+    let b = sir.newBlock(ref f)
+    let r = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .call(r, "helper", [f.params[0], f.params[0]]))
+    let g = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .addrGlobal(g, "counter"))
+    let l = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .load(l, "counter"))
+    sir.emit(ref f, to: b, as: .store("counter", r))
+    sir.terminate(ref f, at: b, as: .ret(r))
+    return f
+}
+
+/// caller(v0): v1 = call helper(v0); ret v1
+sir.Function callFn() uses alloc {
+    var f = sir.newFunction("caller", by: 1)
+    let b = sir.newBlock(ref f)
+    let r = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .call(r, "helper", [f.params[0]]))
+    sir.terminate(ref f, at: b, as: .ret(r))
+    return f
+}
+
+/// keeps(v0): call side(); v1 = v0 + v0; ret v1. v0 crosses the call.
+sir.Function keepsFn() uses alloc {
+    var g = sir.newFunction("keeps", by: 1)
+    let gb = sir.newBlock(ref g)
+    let x = sir.newVReg(ref g)
+    sir.emit(ref g, to: gb, as: .call(sir.noReg(), "side", List<sir.VReg>()))
+    sir.emit(ref g, to: gb, as: .add(x, g.params[0], g.params[0]))
+    sir.terminate(ref g, at: gb, as: .ret(x))
+    return g
+}
+
+/// spans(v0): y = 1; call side(); y = y + v0; ret y. Both cross the call.
+sir.Function spansFn() uses alloc {
+    var h = sir.newFunction("spans", by: 1)
+    let hb = sir.newBlock(ref h)
+    let y = sir.newVReg(ref h)
+    sir.emit(ref h, to: hb, as: .imm(y, 1))
+    sir.emit(ref h, to: hb, as: .call(sir.noReg(), "side", List<sir.VReg>()))
+    sir.emit(ref h, to: hb, as: .add(y, y, h.params[0]))
+    sir.terminate(ref h, at: hb, as: .ret(y))
+    return h
+}
+
+/// `count` constants all live at once, then summed.
+sir.Function pressure(by i64 count) uses alloc {
+    var f = sir.newFunction("pressure", by: 0)
+    let b = sir.newBlock(ref f)
+    var vs = List<sir.VReg>()
+    for i in 0..count {
+        let v = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .imm(v, i))
+        vs.append(v)
+    }
+    var acc = vs[0]
+    for i in 1..count {
+        let s = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .add(s, acc, vs[i]))
+        acc = s
+    }
+    sir.terminate(ref f, at: b, as: .ret(acc))
+    return f
+}
+
+/// Twelve constants live across a call, then summed: some must spill.
+sir.Function wideFn() uses alloc {
+    var f = sir.newFunction("wide", by: 0)
+    let b = sir.newBlock(ref f)
+    var vs = List<sir.VReg>()
+    for i in 0..12 {
+        let v = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .imm(v, i))
+        vs.append(v)
+    }
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "side", List<sir.VReg>()))
+    var acc = vs[0]
+    for i in 1..12 {
+        let s = sir.newVReg(ref f)
+        sir.emit(ref f, to: b, as: .add(s, acc, vs[i]))
+        acc = s
+    }
+    sir.terminate(ref f, at: b, as: .ret(acc))
+    return f
+}
+
+/// main(): the R8 program.
+sir.Function r8Fn() uses alloc {
+    var f = sir.newFunction("main", by: 0)
+    let b = sir.newBlock(ref f)
+    let stream = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(stream, 0))
+    let ptr = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .addrStr(ptr, 0))
+    let len = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(len, 13))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "byn_print", [stream, ptr, len]))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "byn_stdout_flush", List<sir.VReg>()))
+    let code = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(code, 7))
+    sir.terminate(ref f, at: b, as: .ret(code))
+    return f
+}
+
+/// countdown(v0): v1 = 1; v2 = 0; loop: v3 = v0 - v1; br gt v3, v2 -> loop, done
+sir.Function countdownFn() uses alloc {
+    var f = sir.newFunction("countdown", by: 1)
+    let entry = sir.newBlock(ref f)
+    let loop = sir.newBlock(ref f)
+    let done = sir.newBlock(ref f)
+    let one = sir.newVReg(ref f)
+    let zero = sir.newVReg(ref f)
+    sir.emit(ref f, to: entry, as: .imm(one, 1))
+    sir.emit(ref f, to: entry, as: .imm(zero, 0))
+    sir.terminate(ref f, at: entry, as: .jump(loop))
+    let next = sir.newVReg(ref f)
+    sir.emit(ref f, to: loop, as: .sub(next, f.params[0], one))
+    sir.terminate(ref f, at: loop, as: .br(.gt, next, zero, loop, done))
+    sir.terminate(ref f, at: done, as: .ret(sir.noReg()))
+    return f
+}
+
+/// A value live across a call, plus a global load and store (the T10 `calls`).
+sir.Function callsFn() uses alloc {
+    var f = sir.newFunction("caller", by: 2)
+    let b = sir.newBlock(ref f)
+    let r = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .call(r, "helper", [f.params[1], f.params[0]]))
+    let g = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .load(g, "counter"))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, r, g))
+    sir.emit(ref f, to: b, as: .store("counter", s))
+    let p = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .addrGlobal(p, "counter"))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "side", List<sir.VReg>()))
+    let t = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(t, s, f.params[0]))
+    sir.terminate(ref f, at: b, as: .ret(t))
+    return f
+}
+
+/// three(v0, v1, v2): a constant, a call, then v0 + v1 + v2; the three parameters cross the call.
+sir.Function threeFn() uses alloc {
+    var f = sir.newFunction("three", by: 3)
+    let b = sir.newBlock(ref f)
+    let c = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(c, 1))
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "side", List<sir.VReg>()))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], f.params[1]))
+    let t = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(t, s, f.params[2]))
+    sir.terminate(ref f, at: b, as: .ret(t))
+    return f
+}
+
+/// swap(a, b) calls g(b, a).
+sir.Function swapFn() uses alloc {
+    var f = sir.newFunction("swap", by: 2)
+    let b = sir.newBlock(ref f)
+    sir.emit(ref f, to: b, as: .call(sir.noReg(), "g", [f.params[1], f.params[0]]))
+    sir.terminate(ref f, at: b, as: .ret(sir.noReg()))
+    return f
+}
+
+/// shift(a, b, c) calls g(b, c, a).
+sir.Function shiftFn() uses alloc {
+    var h = sir.newFunction("shift", by: 3)
+    let hb = sir.newBlock(ref h)
+    sir.emit(ref h, to: hb, as: .call(sir.noReg(), "g", [h.params[1], h.params[2], h.params[0]]))
+    sir.terminate(ref h, at: hb, as: .ret(sir.noReg()))
+    return h
+}
+
+/// Eight constants passed to one call: every argument register is used.
+sir.Function eightFn() uses alloc {
+    var g = sir.newFunction("eight", by: 0)
+    let gb = sir.newBlock(ref g)
+    var eight = List<sir.VReg>()
+    for i in 0..8 {
+        let v = sir.newVReg(ref g)
+        sir.emit(ref g, to: gb, as: .imm(v, i))
+        eight.append(v)
+    }
+    sir.emit(ref g, to: gb, as: .call(sir.noReg(), "eight", move eight))
+    sir.terminate(ref g, at: gb, as: .ret(sir.noReg()))
+    return g
+}
+
+/// ten(v0..v9): returns v9; only the first 8 parameters are precoloured.
+sir.Function tenFn() uses alloc {
+    var f = sir.newFunction("ten", by: 10)
+    let b = sir.newBlock(ref f)
+    sir.terminate(ref f, at: b, as: .ret(f.params[9]))
+    return f
+}
+
+test "the allocator's output is sound on the remaining T7-T10 shapes" {
+    assert audit(countdownFn()) == ""
+    assert audit(callsFn()) == ""
+    assert audit(threeFn()) == ""
+    assert audit(swapFn()) == ""
+    assert audit(shiftFn()) == ""
+    assert audit(eightFn()) == ""
+    assert audit(tenFn()) == ""
+}
+
+test "the allocator's output is sound under heavy spilling" {
+    assert audit(pressure(by: 68)) == ""
+    assert audit(pressure(by: 100)) == ""
+    assert audit(pressure(by: 514)) == ""
+}
+
+test "the allocator's output is sound on straight-line code and calc" {
+    assert audit(straight()) == ""
+    assert audit(fullCalc()) == ""
+}
+
+test "the allocator's output is sound on loops" {
+    assert audit(loopFn()) == ""
+}
+
+test "the allocator's output is sound on calls, globals and values kept across a call" {
+    assert audit(callFn()) == ""
+    assert audit(globalFn()) == ""
+    assert audit(keepsFn()) == ""
+    assert audit(spansFn()) == ""
+}
+
+test "the allocator's output is sound under register pressure with spills" {
+    assert audit(pressure(by: 20)) == ""
+    assert audit(wideFn()) == ""
+}
+
+test "the allocator's output is sound on the R8 program" {
+    assert audit(r8Fn()) == ""
+}
+
+test "two simultaneously live vregs sharing a register are a conflict" {
+    // v2 (the constant, 0-1) is moved onto x0, the register of v0 (0-1); v0 is read at 1 after v2 was written at 0.
+    var segs = allocated(straight())
+    segs[indexOf(segs, for: 2)].location = .reg(0)
+    assert show(checkAllocation(straight(), as: move segs)) == "b0.1 conflict v0"
+}
+
+test "a vreg whose segments change location with no move is a read before write" {
+    // v3 (1-2) is split: written to its register at 1, then expected in x20 at 2, which never received it.
+    var segs = allocated(straight())
+    let i = indexOf(segs, for: 3)
+    segs[i].until = 1
+    segs.append(seg(3, from: 2, through: 2, at: .reg(20)))
+    assert show(checkAllocation(straight(), as: move segs)) == "b0.2 unwritten v3"
+}
+
+test "a vreg with no segment at a read is unassigned" {
+    var segs = allocated(straight())
+    let i = indexOf(segs, for: 3)
+    segs[i].until = 1
+    assert show(checkAllocation(straight(), as: move segs)) == "b0.2 unassigned v3"
+}
+
+/// caller(v0): 0: v1 = call helper(v0)  1: v2 = add v0, v1  2: ret v2. v0 is an argument and is read after the call.
+sir.Function argAfterCallFn() uses alloc {
+    var f = sir.newFunction("caller", by: 1)
+    let b = sir.newBlock(ref f)
+    let r1 = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .call(r1, "helper", [f.params[0]]))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], r1))
+    sir.terminate(ref f, at: b, as: .ret(s))
+    return f
+}
+
+test "a value in a caller-saved register across a call is flagged" {
+    let f = argAfterCallFn()
+    let sound: List<Segment> = [seg(0, from: 0, through: 1, at: .reg(19)), seg(1, from: 0, through: 1, at: .reg(0)), seg(2, from: 1, through: 2, at: .reg(1))]
+    assert show(checkAllocation(f, as: move sound)) == ""
+    let slot: List<Segment> = [seg(0, from: 0, through: 1, at: .slot(0)), seg(1, from: 0, through: 1, at: .reg(0)), seg(2, from: 1, through: 2, at: .reg(1))]
+    assert show(checkAllocation(f, as: move slot)) == ""
+    let bad: List<Segment> = [seg(0, from: 0, through: 1, at: .reg(5)), seg(1, from: 0, through: 1, at: .reg(0)), seg(2, from: 1, through: 2, at: .reg(1))]
+    assert show(checkAllocation(f, as: move bad)) == "b0.1 clobbered v0"
+}
+
+test "a conflict at a join of two paths is found" {
+    // 0: br | 1: v1 = 1  2: jump | 3: v2 = 2  4: jump | 5: ret v1. Both paths write x2 and v1 is read after the join.
+    var f = sir.newFunction("join", by: 1)
+    let b0 = sir.newBlock(ref f)
+    let b1 = sir.newBlock(ref f)
+    let b2 = sir.newBlock(ref f)
+    let b3 = sir.newBlock(ref f)
+    let v1 = sir.newVReg(ref f)
+    let v2 = sir.newVReg(ref f)
+    sir.terminate(ref f, at: b0, as: .br(.eq, f.params[0], f.params[0], b1, b2))
+    sir.emit(ref f, to: b1, as: .imm(v1, 1))
+    sir.terminate(ref f, at: b1, as: .jump(b3))
+    sir.emit(ref f, to: b2, as: .imm(v2, 2))
+    sir.terminate(ref f, at: b2, as: .jump(b3))
+    sir.terminate(ref f, at: b3, as: .ret(v1))
+    let segs: List<Segment> = [seg(0, from: 0, through: 0, at: .reg(0)), seg(1, from: 1, through: 5, at: .reg(2)), seg(2, from: 3, through: 3, at: .reg(2))]
+    assert show(checkAllocation(f, as: move segs)) == "b3.0 conflict v1"
+}
+
+// ---- L047: allocation is sound over every test function above and a generated set ----
+
+/// "v:loc" joined by spaces: x9, s0 (spill slot 0) or - (unused).
+string showLocations(ra.Allocation a) uses alloc {
+    var sb = StrBuf()
+    for i in 0..a.locations.length {
+        sb.append(" ") if i > 0
+        switch a.locations[i] {
+            case .none: sb.append($"v{i}:-")
+            case .reg(let n): sb.append($"v{i}:x{n}")
+            case .stack(let k): sb.append($"v{i}:s{k}")
+        }
+    }
+    return sb.finish()
+}
+
+/// L047 on `f`: "refused" when `allocate` fails; else the first unsound fact with the function and its allocation, or ""
+/// when there is none. Checked: the findings of `checkAllocation`, every x19-x28 assigned is in `usedCalleeSaved`, and
+/// `frameSize` covers every spill slot assigned (slot k ends at 16 + 8 * usedCalleeSaved.length + 8 * (k + 1)).
+string lawVerdict(sir.Function f) uses alloc {
+    let a = ra.allocate(f) catch switch {
+        .tooManyCallArgs(let n) => return "refused",
+        .frameTooLarge(let n)   => return "refused",
+    }
+    var fact = show(checkAllocation(f, as: segmentsOf(f, from: a)))
+    for v in 0..a.locations.length {
+        break if fact != ""
+        switch a.locations[v] {
+            case .none: continue
+            case .reg(let n):
+                var saved = false
+                for r in a.usedCalleeSaved {
+                    saved = true if r == n
+                }
+                fact = $"v{v} in x{n} is not in usedCalleeSaved" if n >= 19 && n <= 28 && !saved
+            case .stack(let k):
+                let end = 16 + 8 * a.usedCalleeSaved.length + 8 * (k + 1)
+                fact = $"v{v} in slot {k} ends at {end}, past frameSize {a.frameSize}" if end > a.frameSize
+        }
+    }
+    return "" if fact == ""
+    return $"{fact}\nallocation: {showLocations(a)}\n{sir.printFunction(f)}"
+}
+
+/// A seeded linear congruential generator.
+struct Rng {
+    i64 state
+}
+
+/// The next draw, 0 to `bound` - 1.
+i64 draw(ref Rng r, by i64 bound) {
+    r.state = (r.state * 1103515245 + 12345) % 2147483648
+    return (r.state / 65536) % bound
+}
+
+/// A value of `defined`, drawn.
+sir.VReg pick(List<sir.VReg> defined, from ref Rng r) => defined[draw(ref r, by: defined.length)]
+
+/// One instruction writing `dst` from values of `defined` (which may be empty): a constant, an address, a load, arithmetic,
+/// or (one draw in `callOdds`) a call of up to 8 arguments.
+sir.SInst randomInst(ref Rng r, for List<sir.VReg> defined, to sir.VReg dst, by i64 callOdds) uses alloc {
+    if callOdds > 0 && draw(ref r, by: callOdds) == 0 {
+        var args = List<sir.VReg>()
+        if defined.length > 0 {
+            for i in 0..draw(ref r, by: 9) {
+                args.append(pick(defined, from: ref r))
+            }
+        }
+        return .call(draw(ref r, by: 2) == 0 ? sir.noReg() : dst, "g", move args)
+    }
+    let k = defined.length == 0 ? draw(ref r, by: 4) : draw(ref r, by: 9)
+    switch k {
+        case 0: return .imm(dst, draw(ref r, by: 100))
+        case 1: return .addrStr(dst, 0)
+        case 2: return .addrGlobal(dst, "counter")
+        case 3: return .load(dst, "counter")
+        case 4: return .add(dst, pick(defined, from: ref r), pick(defined, from: ref r))
+        case 5: return .sub(dst, pick(defined, from: ref r), pick(defined, from: ref r))
+        case 6: return .mul(dst, pick(defined, from: ref r), pick(defined, from: ref r))
+        case 7: return .div(dst, pick(defined, from: ref r), pick(defined, from: ref r))
+        default: return .store("counter", pick(defined, from: ref r))
+    }
+}
+
+/// Whether `inst` writes its `dst`: a store and a call without a result do not.
+bool writes(sir.SInst inst) {
+    switch inst {
+        case .store(let name, let src): return false
+        case .call(let dst, let symbol, let args): return dst != sir.noReg()
+        default: return true
+    }
+}
+
+/// Appends `count` random instructions to block `b` of `f`. Each writes a new vreg, or one draw in four redefines a value
+/// of `defined`; a new vreg is added to `defined` only once written, so every read is of a value written before it.
+void emitRandom(
+    ref sir.Function f,
+    to sir.BlockId b,
+    by i64 count,
+    for ref List<sir.VReg> defined,
+    from ref Rng r,
+    at i64 callOdds
+) uses alloc {
+    for i in 0..count {
+        let redefine = defined.length > 0 && draw(ref r, by: 4) == 0
+        let dst = redefine ? pick(defined, from: ref r) : sir.newVReg(ref f)
+        let inst = randomInst(ref r, for: defined, to: dst, by: callOdds)
+        let written = writes(inst)
+        sir.emit(ref f, to: b, as: move inst)
+        defined.append(dst) if !redefine && written
+    }
+}
+
+/// A generated well-formed function: `shape` 0 is straight-line, 1 a loop, 2 call-heavy straight-line. `live` values are
+/// written up front and all read at the end, so at least `live` values are live at once in between.
+sir.Function generated(i64 shape, by i64 live, from ref Rng r) uses alloc {
+    var f = sir.newFunction($"gen{shape}x{live}", by: draw(ref r, by: 5))
+    let entry = sir.newBlock(ref f)
+    var defined = List<sir.VReg>()
+    for p in f.params {
+        defined.append(p)
+    }
+    let callOdds = shape == 2 ? 3 : 12
+    var kept = List<sir.VReg>()
+    for i in 0..live {
+        let v = sir.newVReg(ref f)
+        let inst = randomInst(ref r, for: defined, to: v, by: callOdds)
+        let written = writes(inst)
+        sir.emit(ref f, to: entry, as: move inst)
+        sir.emit(ref f, to: entry, as: .imm(v, i)) if !written
+        defined.append(v)
+        kept.append(v)
+    }
+    emitRandom(ref f, to: entry, by: draw(ref r, by: 12), for: ref defined, from: ref r, at: callOdds)
+    var last = entry
+    if shape == 1 {
+        // entry -> loop; loop -> loop | done. The loop body reads values written in entry or earlier in the body.
+        let body = sir.newBlock(ref f)
+        let done = sir.newBlock(ref f)
+        sir.terminate(ref f, at: entry, as: .jump(body))
+        emitRandom(ref f, to: body, by: 1 + draw(ref r, by: 12), for: ref defined, from: ref r, at: callOdds)
+        let a = pick(defined, from: ref r)
+        let b = pick(defined, from: ref r)
+        sir.terminate(ref f, at: body, as: .br(.gt, a, b, body, done))
+        last = done
+    }
+    emitRandom(ref f, to: last, by: draw(ref r, by: 6), for: ref defined, from: ref r, at: callOdds)
+    if kept.length == 0 {
+        sir.terminate(ref f, at: last, as: .ret(defined.length > 0 ? pick(defined, from: ref r) : sir.noReg()))
+        return f
+    }
+    var acc = kept[0]
+    for i in 1..kept.length {
+        let s = sir.newVReg(ref f)
+        sir.emit(ref f, to: last, as: .add(s, acc, kept[i]))
+        acc = s
+    }
+    sir.terminate(ref f, at: last, as: .ret(acc))
+    return f
+}
+
+test "L047: the allocation of every SIR test function is sound" {
+    var fs = List<sir.Function>()
+    fs.append(straight())
+    fs.append(fullCalc())
+    fs.append(loopFn())
+    fs.append(globalFn())
+    fs.append(callFn())
+    fs.append(keepsFn())
+    fs.append(spansFn())
+    fs.append(wideFn())
+    fs.append(r8Fn())
+    fs.append(countdownFn())
+    fs.append(callsFn())
+    fs.append(threeFn())
+    fs.append(swapFn())
+    fs.append(shiftFn())
+    fs.append(eightFn())
+    fs.append(tenFn())
+    fs.append(argAfterCallFn())
+    for n in 1..61 {
+        fs.append(pressure(by: n))
+    }
+    fs.append(pressure(by: 68))
+    fs.append(pressure(by: 100))
+    fs.append(pressure(by: 514))
+    var first = ""
+    for f in fs {
+        let verdict = lawVerdict(f)
+        assert verdict != "refused"
+        first = verdict if first == ""
+    }
+    assert first == ""
+}
+
+test "L047: the allocation of every generated function is sound" {
+    var r = Rng { state: 47 }
+    var accepted = 0
+    var refused = 0
+    var first = ""
+    for shape in 0..3 {
+        for live in 0..41 {
+            for k in 0..4 {
+                let verdict = lawVerdict(generated(shape, by: live, from: ref r))
+                if verdict == "refused" {
+                    refused += 1
+                } else {
+                    accepted += 1
+                    first = verdict if first == ""
+                }
+            }
+        }
+    }
+    assert first == ""
+    // A law over accepted functions holds vacuously if every one is refused.
+    assert accepted > refused
+}

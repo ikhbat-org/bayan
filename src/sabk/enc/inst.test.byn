@@ -1,0 +1,52 @@
+Reg gp(u8 number) => Reg { kind: .general, number: number }
+
+test "every Inst form constructs" {
+    let x0 = gp(0)
+    let x1 = gp(1)
+    let x2 = gp(2)
+    let x3 = gp(3)
+    let sp = Reg { kind: .sp, number: 31 }
+    let target = Label(7)
+    let all: List<Inst> = [
+        .movz(.x, x0, 1, 0),
+        .movk(.x, x0, 1, 16),
+        .movReg(.w, x0, x1),
+        .movSp(x0, sp),
+        .addImm(.x, x0, x1, 4, false),
+        .subImm(.x, x0, x1, 4, true),
+        .addReg(.x, x0, x1, x2, .lsl, 0),
+        .subReg(.w, x0, x1, x2, .asr, 3),
+        .subsImm(.x, x0, x1, 4, false),
+        .subsReg(.x, x0, x1, x2, .lsr, 1),
+        .cmpImm(.x, x1, 4, false),
+        .cmpReg(.w, x1, x2, .lsl, 0),
+        .mul(.x, x0, x1, x2),
+        .sdiv(.x, x0, x1, x2),
+        .msub(.x, x0, x1, x2, x3),
+        .neg(.x, x0, x1),
+        .andReg(.x, x0, x1, x2, .lsl, 0),
+        .orrReg(.x, x0, x1, x2, .lsl, 0),
+        .eorReg(.x, x0, x1, x2, .lsl, 0),
+        .cset(.w, x0, .eq),
+        .csel(.x, x0, x1, x2, .al),
+        .ldrImm(.x, x0, sp, 8),
+        .strImm(.w, x0, sp, 4),
+        .ldur(.x, x0, x1, -8),
+        .stur(.w, x0, x1, -4),
+        .stp(.pre, x0, x1, sp, -16),
+        .ldp(.post, x0, x1, sp, 16),
+        .b(target),
+        .bl(target),
+        .bCond(.ne, target),
+        .cbz(.x, x0, target),
+        .cbnz(.w, x0, target),
+        .br(x0),
+        .blr(x0),
+        .ret(gp(30)),
+        .adrp(x0, "_msg"),
+        .addPageOff(x0, x0, "_msg"),
+        .adr(x0, target),
+    ]
+    assert all.length == 38
+    let _ = EncodeError.refused("hlt", "unsupported")
+}

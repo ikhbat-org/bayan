@@ -1,0 +1,93 @@
+// Tests of `liveIntervals` (spec 024 T8, R6, R10). The expected intervals are worked out by hand from the SIR shape:
+// positions number every instruction and terminator in block order, and an interval is [first def or use, last use or live].
+import sabk.sir
+
+
+/// The intervals as "v:start-end" joined by spaces.
+string show(Liveness l) uses alloc {
+    var sb = StrBuf()
+    for i in 0..l.intervals.length {
+        sb.append(" ") if i > 0
+        let iv = l.intervals[i]
+        sb.append($"v{iv.vreg}:{iv.start}-{iv.end}")
+    }
+    return sb.finish()
+}
+
+test "straight-line intervals" {
+    var f = sir.newFunction("calc", by: 2)
+    let b = sir.newBlock(ref f)
+    let c = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .imm(c, 7))
+    let s = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(s, f.params[0], c))
+    let d = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .sub(d, s, f.params[1]))
+    sir.terminate(ref f, at: b, as: .ret(d))
+    // 0: c = const  1: s = add v0, c  2: d = sub s, v1  3: ret d
+    let l = liveIntervals(f)
+    assert show(l) == "v0:0-1 v1:0-2 v2:0-1 v3:1-2 v4:2-3"
+    assert l.calls.length == 0
+}
+
+test "a loop keeps a value live across the back-edge" {
+    var f = sir.newFunction("countdown", by: 1)
+    let entry = sir.newBlock(ref f)
+    let loop = sir.newBlock(ref f)
+    let done = sir.newBlock(ref f)
+    let one = sir.newVReg(ref f)
+    let zero = sir.newVReg(ref f)
+    sir.emit(ref f, to: entry, as: .imm(one, 1))
+    sir.emit(ref f, to: entry, as: .imm(zero, 0))
+    sir.terminate(ref f, at: entry, as: .jump(loop))
+    let next = sir.newVReg(ref f)
+    sir.emit(ref f, to: loop, as: .sub(next, f.params[0], one))
+    sir.emit(ref f, to: loop, as: .add(f.params[0], next, zero))
+    sir.terminate(ref f, at: loop, as: .br(.gt, next, zero, loop, done))
+    sir.terminate(ref f, at: done, as: .ret(sir.noReg()))
+    // 0: one  1: zero  2: jump | 3: next = sub v0, one  4: v0 = add next, zero  5: br | 6: ret
+    // one, zero and v0 are read in the loop and the loop repeats, so they live through the whole loop (to 5).
+    let l = liveIntervals(f)
+    assert show(l) == "v0:0-5 v1:0-5 v2:1-5 v3:3-5"
+}
+
+test "a value live across a call crosses it, a parameter read after a call at position 0 included; the call's result does not" {
+    var f = sir.newFunction("caller", by: 1)
+    let b = sir.newBlock(ref f)
+    let r = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .call(r, "helper", [f.params[0]]))
+    let t = sir.newVReg(ref f)
+    sir.emit(ref f, to: b, as: .add(t, r, f.params[0]))
+    sir.terminate(ref f, at: b, as: .ret(t))
+    // 0: r = call helper(v0)  1: t = add r, v0  2: ret t
+    let l = liveIntervals(f)
+    assert show(l) == "v0:0-1 v1:0-1 v2:1-2"
+    assert l.calls.length == 1
+    assert l.calls[0] == 0
+    assert crossesCall(l, at: l.intervals[0])      // v0 is read again after the call
+    assert !crossesCall(l, at: l.intervals[1])
+
+    var g = sir.newFunction("keeps", by: 1)
+    let gb = sir.newBlock(ref g)
+    let x = sir.newVReg(ref g)
+    sir.emit(ref g, to: gb, as: .call(sir.noReg(), "side", List<VReg>()))
+    sir.emit(ref g, to: gb, as: .add(x, g.params[0], g.params[0]))
+    sir.terminate(ref g, at: gb, as: .ret(x))
+    // 0: call side()  1: x = add v0, v0  2: ret x; v0 is a parameter, live into the call at 0 and read after it, so it crosses.
+    let m = liveIntervals(g)
+    assert show(m) == "v0:0-1 v1:1-2"
+    assert crossesCall(m, at: m.intervals[0])
+
+    var h = sir.newFunction("spans", by: 1)
+    let hb = sir.newBlock(ref h)
+    let y = sir.newVReg(ref h)
+    sir.emit(ref h, to: hb, as: .imm(y, 1))
+    sir.emit(ref h, to: hb, as: .call(sir.noReg(), "side", List<VReg>()))
+    sir.emit(ref h, to: hb, as: .add(y, y, h.params[0]))
+    sir.terminate(ref h, at: hb, as: .ret(y))
+    // 0: y = const  1: call  2: y = add y, v0  3: ret y; y spans the call at 1, v0 starts at 0 and ends at 2
+    let n = liveIntervals(h)
+    assert show(n) == "v0:0-2 v1:0-3"
+    assert crossesCall(n, at: n.intervals[0])
+    assert crossesCall(n, at: n.intervals[1])
+}
