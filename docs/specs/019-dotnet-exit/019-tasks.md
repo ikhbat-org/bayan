@@ -1,6 +1,6 @@
 # 019 — Tasks
 
-Status: approved (text drafted 2026-11-17, owner to review)
+Status: approved as amended through 2026-11-18 (owner, 2026-11-18)
 Release: unscheduled
 Sources: docs/decisions/2026-11-16-006-after-022-roadmap-decisions.md (§2, §3, C# archive plan); docs/bayan-milestones.md (Target: zero dependencies)
 
