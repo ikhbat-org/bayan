@@ -1,7 +1,8 @@
 ---
 id: L048
 title: Eval references pass
-status: proposed
+status: enacted
+enacted: 2026-11-18
 release: unscheduled
 sources: spec 025 R8, R29
 kind: property
