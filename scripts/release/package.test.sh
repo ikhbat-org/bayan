@@ -60,6 +60,7 @@ mkexe() {
 }
 mkexe macho 0100000c "$t/pub/unix/bayan"; mkexe pe aa64 "$t/pub/win/bayan.exe"
 mkexe elf 003e "$t/pub/linux/bayan"
+mkexe macho 0100000c "$t/pub/unix/bayan-lsp"; mkexe pe aa64 "$t/pub/win/bayan-lsp.exe"; mkexe elf 003e "$t/pub/linux/bayan-lsp"
 bash "$s" pack osx-arm64 "$t/pub/unix" "$t/out" >/dev/null 2>"$t/warn"
 grep -q "::warning::package: the repo has no LICENSE.md" "$t/warn" || fail "no missing-LICENSE warning: $(cat "$t/warn")"
 echo license > "$t/repo/LICENSE.md"; echo notice > "$t/repo/NOTICE.md"
@@ -73,10 +74,11 @@ bash "$s" pack win-arm64 "$t/pub/win" "$t/out" >/dev/null 2>>"$t/warn"
 [ -f "$t/out/bayan-1.2.3-macos-arm64.tar.gz" ] && [ -f "$t/out/bayan-1.2.3-linux-x64.tar.gz" ] || fail "tar.gz names wrong: $(ls "$t/out")"
 [ -f "$t/out/bayan-1.2.3-windows-arm64.zip" ] || fail "zip name wrong: $(ls "$t/out")"
 layout() { local p="$1" e w=""; shift; for e in "" "$@"; do w="$w$p/$e "; done; printf '%s' "$w"; }
-[ "$(tar -tzf "$t/out/bayan-1.2.3-macos-arm64.tar.gz" | LC_ALL=C sort | tr '\n' ' ')" = "$(layout bayan-1.2.3-macos-arm64 README.md bayan $docs)" ] \
+[ "$(tar -tzf "$t/out/bayan-1.2.3-macos-arm64.tar.gz" | LC_ALL=C sort | tr '\n' ' ')" = "$(layout bayan-1.2.3-macos-arm64 README.md bayan bayan-lsp $docs)" ] \
   || fail "tar layout: $(tar -tzf "$t/out/bayan-1.2.3-macos-arm64.tar.gz")"
 unzip -l "$t/out/bayan-1.2.3-windows-arm64.zip" > "$t/zip-list"
 grep -q "bayan-1.2.3-windows-arm64/bayan.exe" "$t/zip-list" || fail "zip lacks the exe"
+grep -q "bayan-1.2.3-windows-arm64/bayan-lsp.exe" "$t/zip-list" || fail "zip lacks bayan-lsp.exe"
 grep -q "bayan-1.2.3-windows-arm64/share/doc/bayan/STATUS.md" "$t/zip-list" || fail "zip lacks the docs"
 [ "$(tar -xzOf "$t/out/bayan-1.2.3-linux-x64.tar.gz" bayan-1.2.3-linux-x64/share/doc/bayan/SPEC.md)" = bayan-spec ] || fail "SPEC.md is not docs/bayan-spec.md"
 bash "$s" docs "$t/out" >/dev/null
@@ -100,16 +102,23 @@ bash "$s" pack linux-x64 "$t/pub/linux" "$t/out3" >/dev/null 2>&1 || fail "pack 
 mv "$t/laws-README.md" "$t/repo/docs/laws/README.md"
 out="$(bash "$s" pack win-x64 "$t/pub/unix" "$t/out" 2>&1)" && fail "missing exe accepted"
 echo "$out" | grep -q "bayan.exe not found" || fail "no missing-exe message: $out"
+# R37: every archive holds bayan-lsp beside bayan, of the same machine.
+mkdir -p "$t/nolsp"; cp "$t/pub/linux/bayan" "$t/nolsp/"
+out="$(bash "$s" pack linux-x64 "$t/nolsp" "$t/out4" 2>&1)" && fail "missing bayan-lsp accepted"
+echo "$out" | grep -q "bayan-lsp not found" || fail "no missing-bayan-lsp message: $out"
+mkexe elf 00b7 "$t/nolsp/bayan-lsp"
+out="$(bash "$s" pack linux-x64 "$t/nolsp" "$t/out4" 2>&1)" && fail "a wrong-arch bayan-lsp accepted"
+echo "$out" | grep -q "bayan-lsp is elf:00b7 but linux-x64 needs" || fail "no bayan-lsp machine message: $out"
 # The machine guard: each format matching and mismatching, and an unknown format.
 for row in "elf 003e linux-x64 linux-arm64" "elf 00b7 linux-arm64 linux-x64" "macho 01000007 osx-x64 osx-arm64" "macho 0100000c osx-arm64 osx-x64" \
   "pe 8664 win-x64 win-arm64" "pe aa64 win-arm64 win-x64"; do
   set -- $row; fmt=$1; mach=$2; good=$3; bad=$4; exe=bayan; case "$fmt" in pe) exe=bayan.exe ;; esac
-  mkexe "$fmt" "$mach" "$t/g-$good/$exe"
+  mkexe "$fmt" "$mach" "$t/g-$good/$exe"; mkexe "$fmt" "$mach" "$t/g-$good/bayan-lsp${exe#bayan}"
   bash "$s" pack "$good" "$t/g-$good" "$t/gout" >/dev/null 2>&1 || fail "$good header refused for $good"
   out="$(bash "$s" pack "$bad" "$t/g-$good" "$t/gout" 2>&1)" && fail "$good header accepted for $bad"
   echo "$out" | grep -q "needs" || fail "no machine message for $good header as $bad: $out"
 done
-mkexe junk x "$t/g-junk/bayan"
+mkexe junk x "$t/g-junk/bayan"; mkexe junk x "$t/g-junk/bayan-lsp"
 out="$(bash "$s" pack linux-x64 "$t/g-junk" "$t/gout" 2>&1)" && fail "an unknown executable format accepted"
 echo "$out" | grep -q "is not an ELF, 64-bit Mach-O or PE executable" || fail "no unknown-format message: $out"
 out="$(bash "$s" pack freebsd-x64 "$t/pub/unix" "$t/out" 2>&1)" && fail "unknown rid accepted"
