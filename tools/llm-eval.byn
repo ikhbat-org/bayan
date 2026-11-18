@@ -118,7 +118,7 @@ Task readTask(string dir) fails EvalError {
 
 /// Runs `command` (tab-separated) through the launcher in `src`, writable only under `write`, with standard input from `stdin` (empty when
 /// null) and standard output to `outPath`. The launcher is stopped after `limitMs`, which is the time limit. With `noFork` the
-/// program may not fork. Every process left under the sample directory is killed when the step ends (M3).
+/// program may not fork. With `prime` the program is only started suspended and killed (R14). Every process left under the sample directory is killed when the step ends (M3).
 Step launch(
     string command,
     at Places p,
@@ -126,7 +126,8 @@ Step launch(
     from string? stdin,
     for string write,
     until i64 limitMs,
-    bool noFork = false
+    bool noFork = false,
+    bool prime = false
 ) fails EvalError {
     let status = $"{outPath}.status"
     var args = List<string>()
@@ -137,6 +138,9 @@ Step launch(
     args.append(p.sample)
     if noFork {
         args.append("--no-fork")
+    }
+    if prime {
+        args.append("--prime")
     }
     if stdin is not null {
         args.append("--stdin")
@@ -334,6 +338,20 @@ Scored scoreSample(
             )
             limit = build.limit
             if build.exitCode == 0 && !build.limit {
+                // The system's check of a new program is not the program's time (R14): the launcher starts it once,
+                // suspended, and kills it before it runs. A prime that fails is the scorer's error, not an outcome.
+                let prime = try launch(
+                    exe,
+                    at: p,
+                    to: Path.combine(sample, "prime.stdout"),
+                    from: null,
+                    for: src,
+                    until: buildMs,
+                    prime: true,
+                )
+                fail .failed(
+                    message: $"the launcher's prime exited {prime.exitCode} (limit {prime.limit}) in {sample}",
+                ) if prime.exitCode != 0 || prime.limit
                 let stdinPath = Path.combine(checks, "stdin")
                 let outFile = Path.combine(sample, "run.stdout")
                 let started = Io.monotonicNanos()

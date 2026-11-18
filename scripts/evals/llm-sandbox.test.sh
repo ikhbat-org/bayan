@@ -205,6 +205,36 @@ EOF
   check "--sweep: TERM to the launcher leaves no process and exits 143" \
     "$code $(lingering) $(ps -axo command= | grep -c "[m]arker-$$-t")" "143 0 0"
 
+  # --prime (R14): the program is started suspended and killed, so it writes nothing and prints nothing, and a program
+  # that loops costs no time. Elsewhere --prime runs nothing, which the same checks hold for.
+  cat > "$root/marker.c" <<'EOF'
+#include <stdio.h>
+int main(int argc, char** argv) {
+    FILE* f = fopen(argv[1], "w");
+    if (f) { fputs("ran\n", f); fclose(f); }
+    puts("ran");
+    return 0;
+}
+EOF
+  # The looper ends by itself after 20 seconds, so a prime that runs it fails the check instead of hanging the test.
+  printf '#include <time.h>\nint main(void) {\n    time_t start = time(0);\n    while (time(0) - start < 20) {\n    }\n    return 0;\n}\n' > "$root/looper.c"
+  zig cc -o "$root/w/marker" "$root/marker.c" 2> "$root/zig.err" || { cat "$root/zig.err"; bad "zig cc marker.c"; }
+  zig cc -o "$root/w/looper" "$root/looper.c" 2> "$root/zig.err" || { cat "$root/zig.err"; bad "zig cc looper.c"; }
+  primed() { ps -axo command= | grep -c "^$root/w/[m]arker\|^$root/w/[l]ooper"; }
+  start=$(date +%s)
+  run --prime --sweep "$root/w" -- "$root/w/marker" "$root/w/marked"; code=$?
+  secs=$(($(date +%s) - start))
+  check "--prime: returns 0 within 5 s, the program wrote no file, printed nothing and is gone" \
+    "$code $(field exit) $([ "$secs" -le 5 ] && echo fast) $([ -e "$root/w/marked" ] && echo file || echo nofile) $(wc -c < "$root/out" | tr -d ' ') $(primed)" \
+    "0 0 fast nofile 0 0"
+  start=$(date +%s)
+  run --prime --sweep "$root/w" -- "$root/w/looper"; code=$?
+  secs=$(($(date +%s) - start))
+  check "--prime: a looping program returns within 5 s and is gone" \
+    "$code $(field exit) $([ "$secs" -le 5 ] && echo fast) $(primed)" "0 0 fast 0"
+  run -- "$root/w/marker" "$root/w/marked"
+  check "the program primed runs after" "$(field exit) $(cat "$root/out") $(cat "$root/w/marked")" "0 ran ran"
+
   if $mac; then
     # A scan that always finds a process: the launcher says so and exits 3. The process it names is a lingerer under the
     # sweep directory, which the launcher kills; the stub still names it.
