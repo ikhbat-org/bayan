@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
 # Starts one process of the LLM eval scorer (spec 025, R14, R15): clean environment, output cap, and on macOS an OS sandbox.
-#   llm-sandbox.sh --write <dir> [--deny-read <dir>]... [--stdin <file>] [--no-fork] [--sweep <dir>] --stdout <file> --status <file>
-#                  -- <program> [args...]
+#   llm-sandbox.sh --write <dir> [--deny-read <dir>]... [--stdin <file>] [--no-fork] [--prime] [--sweep <dir>] --stdout <file>
+#                  --status <file> -- <program> [args...]
 # The program's standard output goes to --stdout, cut at 1 MiB. --status gets three lines: `exit: <code>`, `limit: true|false`
 # (output past 1 MiB was cut) and `sandbox: sandbox-exec/2|none` (`/2` names the profile: reads denied but for the system,
 # the program's directory, zig, dotnet, TMPDIR, BAYAN_CACHE and --write; no signal outside the sandbox, no mach lookup, exec
-# only of the program, env, zig, and anything under zig's directory, --write, TMPDIR and BAYAN_CACHE). The launcher exits 0 when it ran the program, 2 on bad usage
-# or a path the profile cannot hold (`"`, `\` or a newline), 3 when the sweep left a process, 143 on TERM or INT.
-# --no-fork denies fork to the program on macOS. --sweep runs the program as its own process group and, when it ends or the
-# launcher gets TERM or INT, kills that group, its descendants, and every process of this user whose image is under <dir>.
+# only of the program, the --prime helper, env, zig, and anything under zig's directory, --write, TMPDIR and BAYAN_CACHE).
+# The launcher exits 0 when it ran the program, 2 on bad usage or a path the profile cannot hold (`"`, `\` or a newline), 3
+# when the sweep left a process, 4 when --prime cannot build its helper, 143 on TERM or INT.
+# --no-fork denies fork to the program on macOS. --prime does not run the program: on macOS it builds llm-prime.c with zig
+# and runs it under the same profile, which starts the program suspended and kills it before it runs an instruction, so the
+# system's check of a new program is done before the timed run (R14); `exit:` is the helper's, 0 when it did so. Elsewhere
+# --prime runs nothing and writes `exit: 0`. With --prime, --no-fork would deny the helper its spawn.
+# --sweep runs the program as its own process group and, when it ends or the launcher gets TERM or INT, kills that group,
+# its descendants, and every process of this user whose image is under <dir>.
 # The environment is an allowlist; HOME is TMPDIR when set, else the --write directory.
 # Runs under bash 3.2: no associative arrays, no mapfile.
 set -uo pipefail
 
 cap=1048576
-usage() { echo "usage: llm-sandbox.sh --write <dir> [--deny-read <dir>]... [--stdin <file>] [--no-fork] [--sweep <dir>] --stdout <file> --status <file> -- <program> [args...]" >&2; exit 2; }
+usage() { echo "usage: llm-sandbox.sh --write <dir> [--deny-read <dir>]... [--stdin <file>] [--no-fork] [--prime] [--sweep <dir>] --stdout <file> --status <file> -- <program> [args...]" >&2; exit 2; }
 
-write="" stdin="/dev/null" stdout="" status="" nofork=false sweepdir=""
+write="" stdin="/dev/null" stdout="" status="" nofork=false prime=false sweepdir=""
 deny=()
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -26,6 +31,7 @@ while [ $# -gt 0 ]; do
     (--stdout) [ $# -ge 2 ] || usage; stdout=$2; shift 2 ;;
     (--status) [ $# -ge 2 ] || usage; status=$2; shift 2 ;;
     (--no-fork) nofork=true; shift ;;
+    (--prime) prime=true; shift ;;
     (--sweep) [ $# -ge 2 ] || usage; sweepdir=$2; shift 2 ;;
     (--) shift; break ;;
     (*) usage ;;
@@ -69,6 +75,10 @@ if [ "$(uname -s)" = Darwin ] && [ -x /usr/bin/sandbox-exec ]; then
   ziglink="" zigdir=""
   if ziglink=$(command -v zig 2>/dev/null) && [ -n "$ziglink" ]; then zigdir=$(dirname "$(real "$ziglink")"); else ziglink=""; fi
   dotnet=$(abs "${DOTNET_ROOT:-/usr/local/share/dotnet}")
+  work=$(mktemp -d "${TMPDIR:-/tmp}/llm-sandbox.XXXXXX") || exit 2
+  trap 'rm -rf "$work"' EXIT
+  helper=""  # the prime helper, built here with --prime
+  if $prime; then helper=$(abs "$work")/llm-prime; fi
   wdir=$(abs "$write")
   extra=()  # TMPDIR and BAYAN_CACHE, each when set
   if [ -n "${TMPDIR:-}" ]; then extra+=("$(abs "$TMPDIR")"); fi
@@ -78,13 +88,11 @@ if [ "$(uname -s)" = Darwin ] && [ -x /usr/bin/sandbox-exec ]; then
   # A path the profile cannot hold is refused, never escaped: SBPL would end the string at `"` or take `\` as an escape.
   nl='
 '
-  for p in "$progreal" "$progdir" "$ziglink" "$zigdir" "$dotnet" "$wdir" ${extra[@]+"${extra[@]}"} ${denyabs[@]+"${denyabs[@]}"}; do
+  for p in "$progreal" "$progdir" "$helper" "$ziglink" "$zigdir" "$dotnet" "$wdir" ${extra[@]+"${extra[@]}"} ${denyabs[@]+"${denyabs[@]}"}; do
     case "$p" in
       (*'"'*|*'\'*|*"$nl"*) echo "llm-sandbox: a path holds \", \\ or a newline, which the sandbox profile cannot hold: $p" >&2; exit 2 ;;
     esac
   done
-  work=$(mktemp -d "${TMPDIR:-/tmp}/llm-sandbox.XXXXXX") || exit 2
-  trap 'rm -rf "$work"' EXIT
   profile=$work/profile.sb
   # SBPL takes the last rule that matches.
   {
@@ -95,6 +103,7 @@ if [ "$(uname -s)" = Darwin ] && [ -x /usr/bin/sandbox-exec ]; then
     echo '(allow file-read-metadata)'
     echo '(allow file-read* (literal "/") (subpath "/usr") (subpath "/System") (subpath "/dev"))'
     echo "(allow file-read* (subpath \"$progdir\"))"
+    if [ -n "$helper" ]; then echo "(allow file-read* (literal \"$helper\"))"; fi
     if [ -n "$ziglink" ]; then echo "(allow file-read* (literal \"$ziglink\") (subpath \"$zigdir\"))"; fi
     echo "(allow file-read* (subpath \"$dotnet\"))"
     for d in ${extra[@]+"${extra[@]}"}; do echo "(allow file-read* (subpath \"$d\"))"; done
@@ -108,12 +117,22 @@ if [ "$(uname -s)" = Darwin ] && [ -x /usr/bin/sandbox-exec ]; then
     echo '(deny mach-lookup)'
     echo '(deny process-exec*)'
     printf '(allow process-exec* (literal "/usr/bin/env") (literal "%s")' "$progreal"
+    if [ -n "$helper" ]; then printf ' (literal "%s")' "$helper"; fi
     if [ -n "$ziglink" ]; then printf ' (literal "%s") (subpath "%s")' "$ziglink" "$zigdir"; fi
     printf ' (subpath "%s")' "$wdir" ${extra[@]+"${extra[@]}"}
     echo ')'
     if $nofork; then echo '(deny process-fork)'; fi
   } > "$profile"
   runner=(/usr/bin/sandbox-exec -f "$profile" env -i "${envargs[@]}")
+  if $prime; then
+    zig cc -o "$helper" "$(dirname "$0")/llm-prime.c" >&2 || { echo "llm-sandbox: cannot build the prime helper with zig" >&2; exit 4; }
+    set -- "$prog" "$@"
+    prog=$helper
+  fi
+elif $prime; then
+  : > "$stdout"
+  printf 'exit: 0\nlimit: false\nsandbox: %s\n' "$sandbox" > "$status"
+  exit 0
 fi
 
 # The exit code comes from PIPESTATUS, never a file: a file under TMPDIR or --write is one the program could rewrite. head

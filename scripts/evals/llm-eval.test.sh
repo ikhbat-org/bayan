@@ -68,6 +68,12 @@ check "tests task: the sample's cache/ was used" "$([ -n "$(ls -A "$root/out/$r/
 # A stdout task: the exit code is compared (R4).
 score right "$exit3" "$root/cand/right.byn"; secsRight=$secs
 check "exit code 3 as expected passes" "$code $(four right) $(get right outcome) $(get right passed)" '0 true true true true "pass" true'
+# The program is primed before its timed run (R14): the prime's status file is there, dated before run.stdout.
+mtime() { stat -f %Fm "$1" 2> /dev/null || stat -c %.9Y "$1" 2> /dev/null || echo none; }
+s=$root/out/right/work/small-900-exit-code/1
+check "the run is primed first" "$(head -1 "$s/prime.stdout.status" 2> /dev/null) $(awk -v a="$(mtime "$s/prime.stdout.status")" \
+  -v b="$(mtime "$s/run.stdout")" 'BEGIN { print (a != "none" && b != "none" && a + 0 < b + 0) ? "before" : "not before" }')" \
+  "exit: 0 before"
 score wrong-code "$exit3" "$root/cand/wrong-code.byn"
 check "wrong exit code fails" "$code $(four wrong-code) $(get wrong-code outcome) $(get wrong-code passed)" '0 true false true true "fail" false'
 
