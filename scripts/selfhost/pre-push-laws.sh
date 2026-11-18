@@ -9,14 +9,15 @@ failed=()
 for f in docs/laws/0*.md; do
   [ "$(sed -n 's/^status: *//p' "$f" | head -1)" = enacted ] || continue
   id=$(sed -n 's/^id: *//p' "$f" | head -1)
-  # A law with its own `check:` runs that command (the gate runs it the same way); one without runs its xunit tests.
+  # A `check:` that is a dotnet test runs the law's xunit tests as before; any other `check:` (a shell proof) runs as written;
+  # an enacted law with no `check:` has no proof and fails (Fable, 025 T38, 2026-11-19).
   check=$(sed -n 's/^check: *//p' "$f" | head -1)
-  echo "== $id (full tier)${check:+: $check}"
-  if [ -n "$check" ]; then
-    BAYAN_LAW_TIER=full bash -c "$check" || failed+=("$id")
-  else
-    BAYAN_LAW_TIER=full dotnet test -v q --filter "Law=$id" || failed+=("$id")
-  fi
+  echo "== $id (full tier)"
+  case "$check" in
+    ('') echo "$id: enacted with no check: line"; failed+=("$id") ;;
+    ('dotnet test'*) BAYAN_LAW_TIER=full dotnet test -v q --filter "Law=$id" || failed+=("$id") ;;
+    (*) echo "   $check"; BAYAN_LAW_TIER=full bash -c "$check" || failed+=("$id") ;;
+  esac
 done
 if [ ${#failed[@]} = 0 ]; then echo "All enacted laws hold (full tier)."; exit 0; fi
 echo "LAWS FAILED (full tier): ${failed[*]}"; exit 1
