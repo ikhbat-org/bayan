@@ -20,8 +20,17 @@ printf '0\n' > "$c/expected.exitcode"
 printf 'bin\000%s\n' "$R" > "$c/expected.bin"                                       # binary: not masked
 printf 'x\n' > "$c/input/a.txt"; printf 'x\n' > "$c/input/sub/b.txt"; printf '#!/bin/sh\n' > "$c/input/sub/run.sh"
 chmod +x "$c/input/sub/run.sh"
-printf 'use "%s/lib"\n' "$R" > "$x/cli/AlphaTests/One-2/input.byn"                  # an input: not masked
+printf 'use "%s/lib"\n' "$R" > "$x/cli/AlphaTests/One-2/input.byn"                  # an input: masked and stored by content
 printf 'lex\n' > "$x/cli/AlphaTests/One-2/args"
+D=$x/cli/SelfhostDefaultT5Tests; mkdir -p "$D/Plain" "$D/Seeded" "$D/Color" "$x/cli/SelfhostDefaultT12Tests/Cc"
+E=$(printf "\033")
+printf "◆ bayan       0.3.2\n◆ host        macos-arm64\n◆ C compiler  /Users/q/bin/zig cc (clang 22)\n◆ zig         not found; x\n◆ git         /opt/homebrew/bin/git (git 2)\n◆ cache       %s/tmp/cache (writable)\n✗ zig: <repo>/zig is bad\n" "$R" > "$D/Plain/expected.stdout"
+printf "NO_COLOR\nLANG=C\n" > "$D/Plain/env"
+printf "◆ cache       %s/tmp/p (writable)\n◆ git         /opt/homebrew/bin/git\n" "$R" > "$D/Seeded/expected.stdout"
+printf "BAYAN_CACHE=%s/tmp/p\n" "$R" > "$D/Seeded/env"
+printf "%s[32m◆%s[0m host        macos-arm64\n* zig         /opt/z\n" "$E" "$E" > "$D/Color/expected.stdout"
+printf "x\nC compiler failed (exit 1):\nIn file /Users/q/zig/a.h:2\n  error\n" > "$x/cli/SelfhostDefaultT12Tests/Cc/expected.stderr"
+printf "keep\n" > "$x/cli/SelfhostDefaultT12Tests/Cc/expected.stdout"
 printf 'lex\n' > "$x/cli/SelfhostExport/Probe/args"
 printf 'AlphaTests\tOne\tbuild %s/tmp/b.byn\nBetaTests\tNoCase\tcache after evicting (not exported: API-level)\nSelfhostExport\tProbe\tx\n' "$R" > "$x/cli/UNEXPORTED.tsv"
 printf 'AlphaTests\t2\nSelfhostExport\t1\n' > "$x/cli/counts.tsv"
@@ -33,7 +42,7 @@ printf 'path\n' > "$x/runtime/macos/path-relative.in"
   printf 'AlphaTests\ta\tcli\t3\tcli\tcli\tr\t\nBetaTests\tb\tcli\t1\tcli\tcli\tr\t\nGammaTests\tg\tsem\t1\tsem\tsem\tr\t\n'; } > "$t/tests/inventory-019.tsv"
 
 out="$(bash "$tool" "$x" "$R/" "$d")" || fail "first run failed: $out"
-[ "$out" = "land-export: 3 cases, 2 new input files, 2 new input trees, 10 files written" ] || fail "first run counts: $out"
+[ "$out" = "land-export: 7 cases, 3 new input files, 2 new input trees, 17 files written" ] || fail "first run counts: $out"
 
 # (1) input/ as input.tsv; files and trees once by content
 o="$d/cli/AlphaTests/One"
@@ -44,12 +53,21 @@ sub="$(printf 'b.txt\tfile:%s\nrun.sh\tfile+x:%s\n' "$hx" "$hr")"; hs="$(printf 
 [ "$(cat "$d/inputs/trees/$hs.tsv")" = "$sub" ] || fail "sub tree file"
 [ -f "$d/inputs/trees/$he.tsv" ] && [ ! -s "$d/inputs/trees/$he.tsv" ] || fail "empty tree file"
 [ "$(cat "$d/sem/GammaTests/Two/input.tsv")" = "$sub" ] || fail "the same tree in another case lists the same lines"
-[ "$(ls "$d/inputs/files" | wc -l | tr -d ' ')" = 2 ] || fail "files stored more than once: $(ls "$d/inputs/files")"
+[ "$(ls "$d/inputs/files" | wc -l | tr -d ' ')" = 3 ] || fail "files stored more than once: $(ls "$d/inputs/files")"
 cmp -s "$d/inputs/files/$hr" "$c/input/sub/run.sh" || fail "stored file differs"
 # byte for byte, and (2) the root masked in non-input text only
 cmp -s "$o/expected.exitcode" "$c/expected.exitcode" || fail "expected.exitcode not byte for byte"
 cmp -s "$o/expected.bin" "$c/expected.bin" || fail "binary file changed"
-cmp -s "$d/cli/AlphaTests/One-2/input.byn" "$x/cli/AlphaTests/One-2/input.byn" || fail "input.byn masked"
+[ ! -e "$d/cli/AlphaTests/One-2/input.byn" ] || fail "input.byn was copied"
+hb="$(printf "use \"<repo>/lib\"\n" | h)"
+[ "$(cat "$d/cli/AlphaTests/One-2/input.byn.ref")" = "file:$hb" ] || fail "input.byn.ref: $(cat "$d/cli/AlphaTests/One-2/input.byn.ref")"
+printf "use \"<repo>/lib\"\n" | cmp -s - "$d/inputs/files/$hb" || fail "input.byn not masked before hashing"
+D="$d/cli/SelfhostDefaultT5Tests"
+printf "◆ bayan       0.3.2\n◆ host        <host>\n◆ C compiler  <host>\n◆ zig         not found; x\n◆ git         <host>\n◆ cache       <host>\n✗ zig: <repo>/zig is bad\n" | cmp -s - "$D/Plain/expected.stdout" || fail "doctor mask: $(cat "$D/Plain/expected.stdout")"
+printf "◆ cache       <repo>/tmp/p (writable)\n◆ git         <host>\n" | cmp -s - "$D/Seeded/expected.stdout" || fail "seeded cache mask: $(cat "$D/Seeded/expected.stdout")"
+printf "%s[32m◆%s[0m host        <host>\n* zig         <host>\n" "$(printf "\033")" "$(printf "\033")" | cmp -s - "$D/Color/expected.stdout" || fail "coloured doctor mask"
+printf "x\nC compiler failed (exit 1):\n<cc output>\n" | cmp -s - "$d/cli/SelfhostDefaultT12Tests/Cc/expected.stderr" || fail "cc output mask"
+printf "keep\n" | cmp -s - "$d/cli/SelfhostDefaultT12Tests/Cc/expected.stdout" || fail "cc mask touched a stdout without the line"
 [ "$(cat "$o/args")" = "$(printf 'build\n<repo>/tmp/a.byn')" ] || fail "args not masked: $(cat "$o/args")"
 printf 'error at <repo>/src/x.byn and <repo>/y' | cmp -s - "$o/expected.stdout" || fail "stdout not masked or final newline added"
 cmp -s "$d/sem/GammaTests/Two/section" "$x/sem/GammaTests/Two/section" || fail "section"
@@ -57,17 +75,21 @@ cmp -s "$d/sem/GammaTests/Two/section" "$x/sem/GammaTests/Two/section" || fail "
 [ ! -e "$d/cli/SelfhostExport" ] || fail "cli/SelfhostExport landed"
 [ ! -e "$d/cli/UNEXPORTED.tsv" ] && [ ! -e "$d/cli/counts.tsv" ] && [ ! -e "$d/runtime" ] || fail "a non-case file landed"
 # (4) EXPORT.tsv
-want="$(printf 'class\tkind\ttests\tcases\treason\nAlphaTests\tcli\t3\t2\t1 not exported: One (build <repo>/tmp/b.byn)\nBetaTests\tcli\t1\t0\t1 not exported: NoCase (cache after evicting (not exported: API-level))\nGammaTests\tsem\t1\t1\t')"
+want="$(printf 'class\tkind\ttests\tcases\treason\nAlphaTests\tcli\t3\t2\t1 not exported: One (build <repo>/tmp/b.byn)\nBetaTests\tcli\t1\t0\t1 not exported: NoCase (cache after evicting (not exported: API-level))\nGammaTests\tsem\t1\t1\t\nSelfhostDefaultT12Tests\tcli\t\t1\t\nSelfhostDefaultT5Tests\tcli\t\t3\t')"
 [ "$(cat "$d/EXPORT.tsv")" = "$want" ] || fail "EXPORT.tsv: $(cat "$d/EXPORT.tsv")"
 
 # a rerun over the same input writes nothing
 touch "$t/marker"
 out="$(bash "$tool" "$x" "$R" "$d")" || fail "rerun failed: $out"
-[ "$out" = "land-export: 3 cases, 0 new input files, 0 new input trees, 0 files written" ] || fail "rerun counts: $out"
+[ "$out" = "land-export: 7 cases, 0 new input files, 0 new input trees, 0 files written" ] || fail "rerun counts: $out"
 [ -z "$(find "$d" -newer "$t/marker")" ] || fail "rerun touched: $(find "$d" -newer "$t/marker")"
 
 # refusals
 rc=0; bash "$tool" "$x" "$R" > /dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "two arguments exited $rc, not 2"
+printf 'see /opt/homebrew/bin\n' > "$x/cli/AlphaTests/One-2/leak.txt"
+rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
+[ $rc = 1 ] && grep -q "names the export machine" <<<"$out" || fail "a leak was accepted ($rc): $out"
+rm "$x/cli/AlphaTests/One-2/leak.txt"
 ln -s a.txt "$c/input/link"
 rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
 [ $rc = 1 ] && grep -q "unsupported input entry.*link" <<<"$out" || fail "a symlink in input/ was accepted ($rc): $out"
