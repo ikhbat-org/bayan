@@ -269,7 +269,7 @@ struct ZigOrCc : ICCompiler {
         }
         // Toolchain.cs:397-402: the runtime object first. A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode`.
         let runtimeArgs = ccRuntimeArguments(in compiler, for: dir, by: mode, through: resolved)
-        let rt = Io.run(compiler[0], runtimeArgs.span) catch switch {
+        let rt = Io.run(compiler[0], runtimeArgs.span, env: zigCacheEnv(compiler)) catch switch {
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
                 errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
                 rejected: true,
@@ -282,7 +282,7 @@ struct ZigOrCc : ICCompiler {
         } if rt.exitCode != 0
             || !t1FileExists(Path.combine(dir, "bayan-rt.o"))
         // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:440).
-        let r = Io.run(compiler[0], args.span) catch switch {
+        let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
                 errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
                 rejected: true,
