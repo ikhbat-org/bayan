@@ -301,6 +301,7 @@ TMPDIR=$root/net-tmp BAYAN_CACHE=$root/net-cache bash scripts/evals/llm-sandbox.
   --model "sh $root/model.sh $root/reply-two $root/rec/net.prompt 7" --machine m --out "$root/out/run-net" 2> "$root/rec/net.err"
 status() { sed -n "s/^$1: //p" "$root/rec/net.status"; }
 check "run: completes inside the network denial" "$(status exit) $(status sandbox) $(get net tokens) $(cmp -s "$root/rec/net.prompt" "$root/want-plain" && echo same)" "0 $sandbox 7 same"
+[ "$(status exit)" = 0 ] || { echo "  net.status:"; sed 's/^/    /' "$root/rec/net.status"; echo "  net.err (last 40 lines):"; tail -40 "$root/rec/net.err" | sed 's/^/    /'; }
 
 # Stamp and heldout guard (T9). A git repository holding a set with one `dev` and one `Split: heldout` task, both
 # synthetic. The stamp goes to $LLM_EVAL_STAMP_DIR, under $root.
