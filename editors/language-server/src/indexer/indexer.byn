@@ -1,0 +1,632 @@
+// Line-based declaration scanner, ported from Analysis/Indexer.cs. Bayan statements end at newlines and declarations are type-first,
+// so a header fits on one line; that keeps this scan simple and tolerant of half-typed code. Offsets are UTF-16 code units, as the
+// lexer's.
+
+import keywords
+import lexer
+
+public enum SymbolKind {
+    structType
+    unionType
+    errorUnion
+    typeAlias
+    interfaceType
+    effect
+    function
+    field
+    caseMember
+    state
+    constant
+    local
+    param
+    testCase
+}
+
+/// A declaration. Locals and parameters also carry a scope; the C# `LocalSymbol` fields live here with their defaults.
+public struct IndexedSymbol {
+    public string     name
+    public SymbolKind kind
+    /// Enclosing type name for members.
+    public string?    container  = null
+    /// Declared type of fields, locals, params.
+    public string?    typeName   = null
+    /// Header line as written.
+    public string     detail
+    /// Offset of the name.
+    public i32        nameStart  = 0
+    /// Offset of the header.
+    public i32        declStart  = 0
+    /// End of the body (or header).
+    public i32        declEnd    = 0
+    /// Joined `///` lines.
+    public string?    doc        = null
+    /// Document outline parent: the index of the enclosing type's symbol, or -1. The C# `Children` of a symbol are the symbols that
+    /// name it here, in order.
+    public i64        parent     = -1
+    /// Locals: offset of the initializer expression.
+    public i32        initStart  = -1
+    /// Visible from here…
+    public i32        scopeStart = 0
+    /// …to here.
+    public i32        scopeEnd   = 2147483647
+
+    public bool isType => kind is .structType or .unionType or .errorUnion or .typeAlias or .interfaceType
+
+    public bool isLocal => kind is .local or .param
+}
+
+/// `Lexer.MaxNesting`: a `{` past this many open frames opens none.
+const maxNesting: i64 = 256
+
+enum FrameKind {
+    typeFrame
+    statesFrame
+    functionFrame
+    otherFrame
+}
+
+struct Frame {
+    FrameKind kind
+    i64       owner = -1
+    List<i64> scoped
+}
+
+/// The scan's state. It owns the text and tokens while it runs; `run` hands them back.
+public struct Indexer {
+    public List<u16>         text
+    public List<lexer.Token> tokens
+    public List<IndexedSymbol>      symbols
+    public List<i64>         roots
+    List<Frame>              frames
+    /// `{` past `maxNesting` open frames, not pushed.
+    i64                      cut     = 0
+    List<string>             docLines
+    /// Reused per line: the params / loop vars scoped to the body the line's first `{` opens.
+    List<i64>                lineScoped
+    /// The symbol whose body the line's first `{` opens, or -1.
+    i64                      opener     = -1
+    FrameKind                openerKind = .otherFrame
+
+    /// Scans `text` and its `tokens`; both are moved back out of the result.
+    public static Indexer run(move List<u16> text, for move List<lexer.Token> tokens) uses alloc {
+        var ix = Indexer {
+            text: move text,
+            tokens: move tokens,
+            symbols: List<IndexedSymbol>(),
+            roots: List<i64>(),
+            frames: List<Frame>(),
+            docLines: List<string>(),
+            lineScoped: List<i64>(),
+        }
+        ix.scan()
+        return ix
+    }
+
+    string str(lexer.Token t) uses alloc => decode(text.span[i64(t.start)..i64(t.end)])
+
+    bool isWord(lexer.Token t, as string v) {
+        return false if i64(t.length) != v.length || !(t.kind is .keyword or .punct or .ident)
+        for i in 0..v.length {
+            return false if u16(v.bytes[i]) != text[i64(t.start) + i]
+        }
+        return true
+    }
+
+    bool hasTop => frames.length > 0
+
+    i64 enclosingType() {
+        var i = frames.length - 1
+        while i >= 0 {
+            return frames[i].owner if frames[i].kind is .typeFrame
+            i -= 1
+        }
+        return -1
+    }
+
+    bool inFunction() {
+        var i = frames.length - 1
+        while i >= 0 {
+            return true if frames[i].kind is .functionFrame
+            return false if frames[i].kind is .typeFrame or .statesFrame
+            i -= 1
+        }
+        return false
+    }
+
+    void scan(ref this) uses alloc {
+        var line = List<lexer.Token>()
+        var i: i64 = 0
+        while i < tokens.length && !(tokens[i].kind is .eof) {
+            line.clear()
+            var hadDoc = false
+            while !(tokens[i].kind is .newline or .eof) {
+                let tk = tokens[i]
+                i += 1
+                if tk.kind is .docComment {
+                    docLines.append(decode(trimmed(text.span[i64(tk.start) + 3..i64(tk.end)])))
+                    hadDoc = true
+                    continue
+                }
+                continue if tk.kind is .comment or .blockComment
+                line.append(tk)
+            }
+            if tokens[i].kind is .newline {
+                i += 1
+            }
+
+            // A blank or plain-comment line detaches pending `///` docs.
+            if line.length == 0 {
+                if !hadDoc {
+                    docLines.clear()
+                }
+                continue
+            }
+            processLine(line.span)
+        }
+        // Close anything left open (half-typed code).
+        cut = 0
+        while frames.length > 0 {
+            pop(at: i32(text.length))
+        }
+    }
+
+    void processLine(ref this, ReadOnlySpan<lexer.Token> line) uses alloc {
+        var k: i64 = 0
+        // Leading `}` close frames first (`} else {`).
+        while k < line.length && isWord(line[k], as: "}") {
+            pop(at: line[k].start)
+            k += 1
+        }
+        return if k >= line.length
+
+        // Attribute-only line: keep pending docs.
+        return if line[k].kind is .at && allAttributes(line, at: k)
+        k = skipAttributesAndModifiers(line, at: k)
+
+        opener = -1
+        openerKind = .otherFrame
+        lineScoped.clear()
+
+        if k < line.length {
+            declare(line, at: k)
+        }
+        docLines.clear()
+
+        // Brace bookkeeping for the rest of the line.
+        var firstHeaderOpen: i64 = -1
+        if opener >= 0 || lineScoped.length > 0 {
+            for j in k..line.length {
+                if isWord(line[j], as: "{") {
+                    firstHeaderOpen = j
+                    break
+                }
+            }
+        }
+
+        for j in k..line.length {
+            if isWord(line[j], as: "{") {
+                let isHeader = j == firstHeaderOpen
+                var f = Frame {
+                    kind: isHeader && opener >= 0 ? openerKind : .otherFrame,
+                    owner: isHeader ? opener : -1,
+                    scoped: List<i64>(),
+                }
+                if isHeader {
+                    for p in lineScoped {
+                        symbols[p].scopeStart = line[j].start
+                        f.scoped.append(p)
+                    }
+                }
+                if frames.length < maxNesting {
+                    frames.append(move f)
+                } else {
+                    cut += 1
+                }
+            } else if isWord(line[j], as: "}") {
+                pop(at: line[j].start)
+            }
+        }
+        // Parameters of a body-less declaration (interface method, extern) end with the line.
+        if firstHeaderOpen < 0 {
+            for p in lineScoped {
+                symbols[p].scopeStart = symbols[p].nameStart
+                symbols[p].scopeEnd = line[line.length - 1].end
+            }
+        }
+    }
+
+    void pop(ref this, at i32 at) {
+        // A block past the depth cap opened no frame.
+        if cut > 0 {
+            cut -= 1
+            return
+        }
+        return if frames.length == 0
+        let f = frames.removeLast()
+        for s in f.scoped {
+            symbols[s].scopeEnd = at
+        }
+        if f.owner >= 0 {
+            symbols[f.owner].declEnd = at + 1
+        }
+    }
+
+    bool allAttributes(ReadOnlySpan<lexer.Token> line, at i64 k) {
+        let j = skipAttributes(line, at: k)
+        return true if j >= line.length
+        // `@allow(x) because "…"` alone on a line.
+        return isWord(line[j], as: "because") && j + 2 >= line.length
+    }
+
+    i64 skipAttributes(ReadOnlySpan<lexer.Token> line, at i64 from) {
+        var k = from
+        while k < line.length && line[k].kind is .at {
+            // @name
+            k += 2
+            if k < line.length && isWord(line[k], as: "(") {
+                k = skipGroup(line, at: k)
+            }
+            if k < line.length && isWord(line[k], as: "because") {
+                k += 2
+            }
+        }
+        return k
+    }
+
+    i64 skipAttributesAndModifiers(ReadOnlySpan<lexer.Token> line, at i64 from) {
+        var k = skipAttributes(line, at: from)
+        while k < line.length && keywords.isModifier(span(line[k])) {
+            k += 1
+        }
+        return k
+    }
+
+    i64 skipGroup(ReadOnlySpan<lexer.Token> line, at i64 from) {
+        var depth: i64 = 0
+        var k = from
+        while k < line.length {
+            if isWord(line[k], as: "(") || isWord(line[k], as: "[") || isWord(line[k], as: "<") {
+                depth += 1
+            } else if isWord(line[k], as: ")") || isWord(line[k], as: "]") || isWord(line[k], as: ">") {
+                depth -= 1
+                return k + 1 if depth == 0
+            }
+            k += 1
+        }
+        return k
+    }
+
+    ReadOnlySpan<u16> span(lexer.Token t) => text.span[i64(t.start)..i64(t.end)]
+
+    string header(ReadOnlySpan<lexer.Token> line, from i64 from) uses alloc {
+        let last = line[line.length - 1]
+        var end = last.end
+        if isWord(last, as: "{") {
+            end = line.length > 1 ? line[line.length - 2].end : last.start
+        }
+        return decode(trimmed(text.span[i64(line[from].start)..i64(end)]))
+    }
+
+    i64 add(ref this, SymbolKind kind, for lexer.Token name, at ReadOnlySpan<lexer.Token> line, from i64 from, as string? typeName = null, by string? container = null, until bool docs = true) uses alloc {
+        let parentType = enclosingType()
+        let local = kind is .local or .param
+        var sym = IndexedSymbol { name: str(name), kind: kind, detail: header(line, from: from) }
+        sym.nameStart = name.start
+        sym.declStart = line[from].start
+        sym.declEnd = line[line.length - 1].end
+        sym.typeName = typeName
+        sym.container = container
+        if container is null && !local && parentType >= 0 {
+            sym.container = symbols[parentType].name
+        }
+        if docs && docLines.length > 0 {
+            sym.doc = docLines.joined(by: "\n")
+        }
+        let at = symbols.length
+        if !local {
+            if parentType >= 0 && !(kind is .testCase) {
+                sym.parent = parentType
+            } else {
+                roots.append(at)
+            }
+        }
+        symbols.append(sym)
+        return at
+    }
+
+    bool identAt(ReadOnlySpan<lexer.Token> line, at i64 j) => j < line.length && line[j].kind is .ident
+
+    bool wordAt(ReadOnlySpan<lexer.Token> line, at i64 j, as string v) => j < line.length && isWord(line[j], as: v)
+
+    void declare(ref this, ReadOnlySpan<lexer.Token> line, at i64 k) uses alloc {
+        let first = line[k]
+        let w = span(first)
+
+        // Inside a `states { … }` block every bare name is a state.
+        if hasTop && frames[frames.length - 1].kind is .statesFrame && first.kind is .ident {
+            let owner = frames[frames.length - 1].owner
+            let _ = add(.state, for: first, at: line, from: k, by: owner >= 0 ? symbols[owner].name : null)
+            return
+        }
+
+        if equalsAscii(w, to: "struct") || equalsAscii(w, to: "union") || equalsAscii(w, to: "type") || equalsAscii(w, to: "interface") {
+            var j = k + 1
+            var isError = false
+            if wordAt(line, at: j, as: "unique") || wordAt(line, at: j, as: "distinct") || wordAt(line, at: j, as: "error") {
+                isError = isWord(line[j], as: "error")
+                j += 1
+            }
+            return if !identAt(line, at: j)
+            var kind: SymbolKind = .interfaceType
+            if equalsAscii(w, to: "struct") {
+                kind = .structType
+            } else if equalsAscii(w, to: "union") {
+                kind = isError ? .errorUnion : .unionType
+            } else if equalsAscii(w, to: "type") {
+                kind = .typeAlias
+            }
+            opener = add(kind, for: line[j], at: line, from: k)
+            openerKind = .typeFrame
+            return
+        }
+        if equalsAscii(w, to: "effect") {
+            if identAt(line, at: k + 1) {
+                let _ = add(.effect, for: line[k + 1], at: line, from: k)
+            }
+            return
+        }
+        if equalsAscii(w, to: "states") {
+            opener = enclosingType()
+            openerKind = .statesFrame
+            return
+        }
+        if equalsAscii(w, to: "case") {
+            if !inFunction() && identAt(line, at: k + 1) {
+                let _ = add(.caseMember, for: line[k + 1], at: line, from: k)
+            }
+            return
+        }
+        if equalsAscii(w, to: "const") {
+            if identAt(line, at: k + 1) && wordAt(line, at: k + 2, as: "=") {
+                let _ = add(.constant, for: line[k + 1], at: line, from: k)
+            }
+            return
+        }
+        if equalsAscii(w, to: "test") || equalsAscii(w, to: "bench") {
+            if k + 1 < line.length && line[k + 1].kind is .text {
+                let tn = line[k + 1]
+                let t = add(.testCase, for: tn, at: line, from: k)
+                let len = tn.length - 2 > 0 ? i64(tn.length) - 2 : 0
+                symbols[t].name = decode(text.span[i64(tn.start) + 1..i64(tn.start) + 1 + len])
+                opener = t
+                openerKind = .functionFrame
+            }
+            return
+        }
+        if equalsAscii(w, to: "let") || equalsAscii(w, to: "var") {
+            declareLocal(line, at: k + 1, from: k, by: false)
+            return
+        }
+        if equalsAscii(w, to: "for") {
+            var j = k + 1
+            if wordAt(line, at: j, as: "try") {
+                j += 1
+            }
+            if identAt(line, at: j) {
+                var ty: string? = null
+                if wordAt(line, at: j + 1, as: ":") {
+                    ty = typeText(line, from: j + 2, until: -1, as: "in")
+                }
+                lineScoped.append(add(.local, for: line[j], at: line, from: k, as: ty, until: false))
+            }
+            return
+        }
+        if equalsAscii(w, to: "while") {
+            if wordAt(line, at: k + 1, as: "let") {
+                declareLocal(line, at: k + 2, from: k, by: true)
+            }
+            return
+        }
+
+        // Type-first function or field: `Type name(…)` / `Type name`.
+        let typeEnd = scanType(line, at: k)
+        return if typeEnd <= k || typeEnd >= line.length
+        let nameTok = line[typeEnd]
+        return if !(nameTok.kind is .ident) || isUpper(text[i64(nameTok.start)])
+        let typeName = typeText(line, from: k, until: typeEnd)
+
+        if wordAt(line, at: typeEnd + 1, as: "(") {
+            // A call inside a body, not a declaration.
+            return if inFunction()
+            let fn = add(.function, for: nameTok, at: line, from: k, as: typeName)
+            opener = fn
+            openerKind = .functionFrame
+            declareParams(line, at: typeEnd + 1, from: k)
+            return
+        }
+        if hasTop && frames[frames.length - 1].kind is .typeFrame {
+            let _ = add(.field, for: nameTok, at: line, from: k, as: typeName)
+        }
+    }
+
+    /// `scoped`: the local belongs to the line's header (`while let`); otherwise to the innermost frame.
+    void declareLocal(ref this, ReadOnlySpan<lexer.Token> line, at i64 j, from i64 from, by bool scoped) uses alloc {
+        return if j >= line.length || !(line[j].kind is .ident)
+        let nameTok = line[j]
+        var ty: string? = null
+        if j + 1 < line.length && isWord(line[j + 1], as: ":") {
+            ty = typeText(line, from: j + 2, until: -1, as: "=")
+        } else if j + 2 < line.length && isWord(line[j + 1], as: "=") {
+            ty = inferType(line, at: j + 2)
+        }
+        let sym = add(.local, for: nameTok, at: line, from: from, as: ty, until: false)
+        // Not visible in its own initializer.
+        symbols[sym].scopeStart = line[line.length - 1].end
+        var e = j + 1
+        while e + 1 < line.length {
+            if isWord(line[e], as: "=") {
+                symbols[sym].initStart = line[e + 1].start
+                break
+            }
+            e += 1
+        }
+        if scoped {
+            lineScoped.append(sym)
+        } else if hasTop {
+            frames[frames.length - 1].scoped.append(sym)
+        }
+    }
+
+    /// Cheap inference for `let x = Type { … }`, `Type(…)`, `Type.make(…)`, literals.
+    string? inferType(ReadOnlySpan<lexer.Token> line, at i64 from) uses alloc {
+        var j = from
+        if isWord(line[j], as: "try") {
+            j += 1
+        }
+        return null if j >= line.length
+        let t = line[j]
+        return "string" if t.kind is .text
+        return "rune" if t.kind is .rune
+        return str(t) if t.kind is .ident && isUpper(text[i64(t.start)])
+        return null
+    }
+
+    void declareParams(ref this, ReadOnlySpan<lexer.Token> line, at i64 open, from i64 from) uses alloc {
+        var depth: i64 = 0
+        var start = open + 1
+        for j in open..line.length {
+            if isWord(line[j], as: "(") || isWord(line[j], as: "[") || isWord(line[j], as: "<") {
+                depth += 1
+                continue
+            }
+            let close = isWord(line[j], as: ")") || isWord(line[j], as: "]") || isWord(line[j], as: ">")
+            if close {
+                depth -= 1
+            }
+            if (depth == 1 && isWord(line[j], as: ",")) || (depth == 0 && close) {
+                declareParam(line, from: start, until: j, at: from)
+                start = j + 1
+                return if depth == 0
+            }
+        }
+    }
+
+    void declareParam(ref this, ReadOnlySpan<lexer.Token> line, from i64 first, until i64 last, at i64 from) uses alloc {
+        var a = first
+        var b = last
+        // Cut default value and inline state refinement: `Order order is .paid = …`.
+        for j in a..b {
+            if isWord(line[j], as: "=") || isWord(line[j], as: "is") {
+                b = j
+                break
+            }
+        }
+        return if b - a < 2
+        if isWord(line[a], as: "ref") || isWord(line[a], as: "move") {
+            return if isWord(line[a + 1], as: "this")
+            a += 1
+        }
+        if isWord(line[a], as: "rest") || isWord(line[a], as: "const") {
+            a += 1
+        }
+        let nameTok = line[b - 1]
+        return if !(nameTok.kind is .ident)
+        // Particle: a lowercase word before the type (`at i64 i`).
+        if b - a >= 3 && line[a].kind is .ident or .keyword && isLower(text[i64(line[a].start)]) && !keywords.isPrimitive(span(line[a])) {
+            a += 1
+        }
+        let p = add(.param, for: nameTok, at: line, from: from, as: typeText(line, from: a, until: b - 1), until: false)
+        symbols[p].detail = decode(text.span[i64(line[a].start)..i64(nameTok.end)])
+        lineScoped.append(p)
+    }
+
+    /// Returns the index after a type starting at `k`, or k when none.
+    i64 scanType(ReadOnlySpan<lexer.Token> line, at i64 k) {
+        let t = line[k]
+        let startsType = t.kind is .ident && (isUpper(text[i64(t.start)]) || keywords.isPrimitive(span(t)))
+        return k if !startsType
+        var j = k + 1
+        while j < line.length {
+            let x = line[j]
+            if isWord(x, as: "<") || isWord(x, as: "[") {
+                j = skipGroup(line, at: j)
+                continue
+            }
+            if isWord(x, as: "?") || isWord(x, as: "*") {
+                j += 1
+                continue
+            }
+            // `Order.paid` single-state type.
+            if isWord(x, as: ".") && j + 1 < line.length && line[j + 1].kind is .ident && j + 2 < line.length && line[j + 2].kind is .ident {
+                j += 2
+                continue
+            }
+            break
+        }
+        return j
+    }
+
+    /// The trimmed text of `line[a..end]`; with `end` -1, up to `stopAt` or a `{`.
+    string typeText(ReadOnlySpan<lexer.Token> line, from i64 a, until i64 end, as string? stopAt = null) uses alloc {
+        var e = end
+        if e < 0 {
+            e = a
+            while e < line.length && !(stopAt is not null && isWord(line[e], as: stopAt)) && !isWord(line[e], as: "{") {
+                e += 1
+            }
+        }
+        return "" if a >= e || a >= line.length
+        return decode(trimmed(text.span[i64(line[a].start)..i64(line[e - 1].end)]))
+    }
+}
+
+/// Whether the UTF-16 `word` is the ASCII `name`.
+bool equalsAscii(ReadOnlySpan<u16> word, to string name) {
+    return false if name.length != word.length
+    for i in 0..word.length {
+        return false if u16(name.bytes[i]) != word[i]
+    }
+    return true
+}
+
+/// `char.IsUpper`.
+public bool isUpper(u16 c) => c < 128 ? c >= 0x41 && c <= 0x5A : lexer.inRanges(upperRanges, for: u32(c))
+
+/// `char.IsLower`.
+public bool isLower(u16 c) => c < 128 ? c >= 0x61 && c <= 0x7A : lexer.inRanges(lowerRanges, for: u32(c))
+
+/// `char.IsWhiteSpace`.
+public bool isWhiteSpace(u16 c) {
+    return (c >= 0x09 && c <= 0x0D) || c == 0x20 || c == 0x85 || c == 0xA0 || c == 0x1680 || (c >= 0x2000 && c <= 0x200A) ||
+        c == 0x2028 || c == 0x2029 || c == 0x202F || c == 0x205F || c == 0x3000
+}
+
+/// `Trim()`: `s` without leading and trailing white space.
+public ReadOnlySpan<u16> trimmed(ReadOnlySpan<u16> s) {
+    var a: i64 = 0
+    var b = s.length
+    while a < b && isWhiteSpace(s[a]) {
+        a += 1
+    }
+    while b > a && isWhiteSpace(s[b - 1]) {
+        b -= 1
+    }
+    return s[a..b]
+}
+
+/// The UTF-16 code units `s` as a string; a surrogate without its pair becomes U+FFFD (a Bayan string is UTF-8).
+public string decode(ReadOnlySpan<u16> s) uses alloc {
+    var b = StrBuf()
+    var i: i64 = 0
+    while i < s.length {
+        let c = u32(s[i])
+        if c >= 0xD800 && c <= 0xDBFF && i + 1 < s.length && s[i + 1] >= 0xDC00 && s[i + 1] <= 0xDFFF {
+            b.append(rune(0x10000 + ((c - 0xD800) << 10) + (u32(s[i + 1]) - 0xDC00)))
+            i += 2
+            continue
+        }
+        b.append(c >= 0xD800 && c <= 0xDFFF ? rune(0xFFFD) : rune(c))
+        i += 1
+    }
+    return b.finish().copy()
+}

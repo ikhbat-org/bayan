@@ -1,0 +1,8 @@
+Package {
+    name: "local/bayan-lsp",
+    version: "0.0.1",
+    edition: 2027,
+    kind: .app,
+    capabilities: [.fs],
+    deps: [],
+}

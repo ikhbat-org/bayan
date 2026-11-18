@@ -2822,6 +2822,29 @@ uint32_t byn_io_read_stdin(byn_str* out, byn_alloc* alloc) {
     return 0;
 }
 
+uint32_t byn_io_read_stdin_some(uint8_t* ptr, int64_t len, int64_t* got) {
+    /* A reply written before the read must not wait in the buffer while this read blocks. */
+    byn_stdout_flush();
+    int64_t n = 0;
+    if (len > 0) {
+#ifdef _WIN32
+        static bool binary;
+        if (!binary) {
+            binary = true;
+            _setmode(0, _O_BINARY);
+        }
+        n = _read(0, ptr, len > INT_MAX ? INT_MAX : (unsigned)len);
+#else
+        size_t want = len > SSIZE_MAX ? (size_t)SSIZE_MAX : (size_t)len;
+        do n = read(0, ptr, want);
+        while (n < 0 && errno == EINTR);
+#endif
+        if (n < 0) return byn_io_error(errno);
+    }
+    if (got) *got = n;
+    return 0;
+}
+
 uint32_t byn_io_write_file(byn_str path, const uint8_t* ptr, int64_t len) {
     FILE* f = byn_io_open(path, "wb");
     if (!f) return byn_io_error(errno);

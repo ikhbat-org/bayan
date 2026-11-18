@@ -1,0 +1,308 @@
+// Keywords, primitive type names and built-in members, from the C# server's Keywords.cs. Lists are in the order the C# server's
+// frozen collections enumerate them, which completion shows.
+
+/// Keywords in enumeration order.
+const names: string[70] = [
+    "if",
+    "switch",
+    "break",
+    "readonly",
+    "becomes",
+    "with",
+    "failing",
+    "panicking",
+    "expects",
+    "or",
+    "distinct",
+    "is",
+    "effect",
+    "module",
+    "states",
+    "private",
+    "null",
+    "unique",
+    "var",
+    "and",
+    "unsafe",
+    "bench",
+    "let",
+    "fail",
+    "because",
+    "for",
+    "const",
+    "defer",
+    "continue",
+    "test",
+    "rest",
+    "interface",
+    "struct",
+    "return",
+    "catch",
+    "unless",
+    "true",
+    "except",
+    "type",
+    "assert",
+    "become",
+    "where",
+    "Self",
+    "requires",
+    "it",
+    "while",
+    "internal",
+    "union",
+    "try",
+    "provide",
+    "in",
+    "ref",
+    "fails",
+    "uses",
+    "extern",
+    "as",
+    "error",
+    "panic",
+    "checked",
+    "not",
+    "law",
+    "false",
+    "else",
+    "import",
+    "pattern",
+    "move",
+    "this",
+    "public",
+    "case",
+    "static",
+]
+
+/// The hover doc of each keyword in `names`.
+const docs: string[70] = [
+    "Conditional. No parentheses; braces required. Postfix form: `stmt if cond`.",
+    "Pattern switch; exhaustive over unions and states.",
+    "Leaves the loop.",
+    "Read-only storage or pointer target.",
+    "Clause: the method moves `this` to a state, `becomes .placed`. Every returning path must `become`.",
+    "Copy with changed fields: `order with { quantity: 2 }`. Re-checks the type's rules.",
+    "`defer failing stmt` runs `stmt` only when the scope exits by failure.",
+    "`defer panicking stmt` runs `stmt` only when the scope exits by panic.",
+    "Precondition checked at function entry in every build mode; traps on failure.",
+    "Boolean or pattern disjunction (same as `||` in expressions).",
+    "`type distinct Name = T` creates a new type that does not mix with `T`.",
+    "Type, pattern or state test: `x is not null`, `order is .paid`.",
+    "`effect db = net, fs` declares an effect alias for `uses` clauses.",
+    "Module declaration.",
+    "Typestate block inside a struct: one state per line. Refer to a state as `.s` or `Type.s`.",
+    "Visible only inside the declaring type.",
+    "No value; only for `T?`. Test with `is null` / `is not null`.",
+    "`struct unique Name` is move-only: values are moved, never copied. Cannot be `const`.",
+    "Mutable local binding, name first: `var w: Grams = 0g`.",
+    "Boolean or pattern conjunction (same as `&&` in expressions).",
+    "Unsafe block; needs `because \"…\"`.",
+    "Benchmark declaration.",
+    "Immutable local binding, name first: `let w: Grams = 0g`.",
+    "Fails with an error case: `fail .timeout`. Also postfix (`fail .x if c`) and after `??`.",
+    "Purpose clause, required on `@allow`, `@json(expose)`, `…Unchecked()` and `unsafe`.",
+    "`for x in xs { … }` iterates any type with `moveNext`/`current`. `for try x in xs` for fallible sequences.",
+    "Compile-time constant: `const name = …`.",
+    "Runs at scope exit. `defer failing` runs only on failure, `defer panicking` only on panic.",
+    "Skips to the next iteration.",
+    "Test declaration: `test \"name\" { … }`, lives beside the code.",
+    "Variadic parameter: `rest ReadOnlySpan<T> items`.",
+    "Declares an interface. Properties are bare `Type name`; static members may use `Self`.",
+    "Declares a value type. `struct unique Name` makes it move-only.",
+    "Returns from the function.",
+    "Handles failures: `catch e { … }` or `catch switch { case .x -> … }`.",
+    "Negated conditional: `unless cond { … }` or postfix `stmt unless cond`.",
+    "Boolean true.",
+    "Exclusion (istithnāʾ): `for x in xs except null`, `union error A = B except .c`.",
+    "`type Name = T` is an alias; `type distinct Name = T requires …` is a new type with rules.",
+    "Power assert: on failure prints every sub-expression's value. `assert … fails` checks failures.",
+    "Transitions `this` to a state: `become .placed`.",
+    "Generic constraints clause. Clause order: `where`, `expects`, `uses`, `becomes`, `fails`.",
+    "The implementing type inside an interface.",
+    "Rule on a field, struct or distinct type, checked at construction and `with`.",
+    "Implicit single parameter in lambdas and rules: `xs.where(it > 0)`.",
+    "Loop while a condition holds. `while let x = …` loops while a value is present.",
+    "Visible inside the package.",
+    "Declares a tagged union. `union error Name` declares an error union; one `case` per line.",
+    "Propagates a failure to the caller. `try … catch` handles it.",
+    "Effect-handler block: `provide log: handler { … }` redirects an effect inside the block.",
+    "Separates the loop variable from the sequence in `for x in xs`.",
+    "Passes by reference. `ref this` marks a method that changes `this`.",
+    "Clause listing the error unions a function can fail with: `fails IoError, ParseError`.",
+    "Effect clause: `uses alloc, net, fs, clock, random, env, process, console, suspend`.",
+    "Declares a foreign (C) function or type. Pointers are allowed only here.",
+    "Particle (`as: .hex`) and pattern binding.",
+    "`union error Name { … }` declares the error cases a function can `fail` with.",
+    "Aborts with a message. Handled only by `Panic.handler` set in `main`.",
+    "`checked(expr)` returns a failure instead of trapping on overflow.",
+    "Boolean or pattern negation (same as `!` in expressions).",
+    "Opt-in law declaration checked by the toolchain.",
+    "Boolean false.",
+    "Alternative branch; written after `}` on the same line.",
+    "Imports a module (`core` needs no import).",
+    "`const name = pattern T { … }` names a reusable pattern.",
+    "Transfers ownership: `move x` at a call site, `move this` as a consuming receiver.",
+    "The receiver. `ref this` mutates; `this is .s` requires a state; `move this` consumes.",
+    "Visible outside the module (default visibility is module).",
+    "A union case, or a `switch` arm.",
+    "Type-level member.",
+]
+
+/// Primitive type names in enumeration order.
+const primitiveNames: string[32] = [
+    "u8",
+    "i8",
+    "nint",
+    "void",
+    "u32",
+    "f32",
+    "nuint",
+    "isize",
+    "string",
+    "uint",
+    "unit",
+    "usize",
+    "ulong",
+    "float",
+    "i64",
+    "byte",
+    "u64",
+    "bool",
+    "int",
+    "i16",
+    "sbyte",
+    "long",
+    "u16",
+    "rune",
+    "double",
+    "ushort",
+    "never",
+    "i128",
+    "short",
+    "u128",
+    "f64",
+    "i32",
+]
+
+/// Modifiers skipped when reading a declaration header.
+const modifiers: string[7] = ["public", "private", "internal", "static", "readonly", "extern", "unsafe"]
+
+/// A built-in member or function shown in completion and hover until the binder provides them.
+public struct Member {
+    public string name
+    public string signature
+    public string doc
+    public bool   isMethod
+}
+
+/// Built-in functions.
+public List<Member> functions() uses alloc {
+    var list = List<Member>()
+    list.append(Member { name: "print", signature: "void print(string text, to: Stream = .stdout) uses console", doc: "Writes a line to stdout, or `to: .stderr`.", isMethod: true })
+    list.append(Member { name: "log", signature: "void log(string message)", doc: "Non-allocating log sink; writes `level: message` to stderr. Redirect with `provide log:`.", isMethod: true })
+    list.append(Member { name: "panic", signature: "never panic(string message)", doc: "Aborts the program with a message.", isMethod: true })
+    list.append(Member { name: "min", signature: "T min(T a, T b)", doc: "Smaller of two values.", isMethod: true })
+    list.append(Member { name: "max", signature: "T max(T a, T b)", doc: "Larger of two values.", isMethod: true })
+    list.append(Member { name: "string", signature: "string string(T value, as: Format = .decimal)", doc: "Formats a value through `Display.formatInto`. Never decodes bytes; use `Utf8.decode`.", isMethod: true })
+    return list
+}
+
+/// Members of `string`.
+public List<Member> stringMembers() uses alloc {
+    var list = List<Member>()
+    list.append(Member { name: "length", signature: "i64 length", doc: "Length in UTF-8 bytes.", isMethod: false })
+    list.append(Member { name: "isEmpty", signature: "bool isEmpty", doc: "True when `length` is 0.", isMethod: false })
+    list.append(Member { name: "isAscii", signature: "bool isAscii", doc: "True when every byte is ASCII.", isMethod: false })
+    list.append(Member { name: "runeCount", signature: "i64 runeCount", doc: "Number of Unicode scalar values (O(n)).", isMethod: false })
+    list.append(Member { name: "bytes", signature: "ReadOnlySpan<u8> bytes", doc: "The UTF-8 bytes.", isMethod: false })
+    list.append(Member { name: "runes", signature: "Runes runes", doc: "Iterates Unicode scalar values.", isMethod: false })
+    list.append(Member { name: "utf16", signature: "Utf16View utf16", doc: "UTF-16 view; `.copy()` to own it.", isMethod: false })
+    list.append(Member { name: "lines", signature: "Lines lines", doc: "Iterates lines without allocating.", isMethod: false })
+    list.append(Member { name: "parts", signature: "Parts parts(string separator)", doc: "Iterates the parts between separators.", isMethod: true })
+    list.append(Member { name: "position", signature: "i64? position(string value)", doc: "Byte position of the first match, or null.", isMethod: true })
+    list.append(Member { name: "lastPosition", signature: "i64? lastPosition(string value)", doc: "Byte position of the last match, or null.", isMethod: true })
+    list.append(Member { name: "count", signature: "i64 count(string value)", doc: "Number of non-overlapping matches.", isMethod: true })
+    list.append(Member { name: "contains", signature: "bool contains(string value)", doc: "Assertion verb: true when `value` occurs.", isMethod: true })
+    list.append(Member { name: "startsWith", signature: "bool startsWith(string value)", doc: "Assertion verb: true when the string begins with `value`.", isMethod: true })
+    list.append(Member { name: "endsWith", signature: "bool endsWith(string value)", doc: "Assertion verb: true when the string ends with `value`.", isMethod: true })
+    list.append(Member { name: "equals", signature: "bool equals(string other, as: Comparison = .ordinal)", doc: "Ordinal by default; `as: .caseless` is ASCII-only in v0.1.", isMethod: true })
+    list.append(Member { name: "trimmed", signature: "string trimmed()", doc: "Borrowed view without leading/trailing whitespace.", isMethod: true })
+    list.append(Member { name: "lowercased", signature: "string lowercased() uses alloc", doc: "ASCII lowercase copy (culture-aware forms live in `kit.intl`).", isMethod: true })
+    list.append(Member { name: "uppercased", signature: "string uppercased() uses alloc", doc: "ASCII uppercase copy.", isMethod: true })
+    list.append(Member { name: "replaced", signature: "string replaced(string value, by: string) uses alloc", doc: "Copy with every literal match replaced.", isMethod: true })
+    list.append(Member { name: "repeated", signature: "string repeated(i64 times) uses alloc", doc: "Copy repeated `times` times.", isMethod: true })
+    list.append(Member { name: "copy", signature: "string copy(to: Allocator = alloc) uses alloc", doc: "Owned copy of a borrowed string.", isMethod: true })
+    return list
+}
+
+/// Members of lists, sets and spans.
+public List<Member> collectionMembers() uses alloc {
+    var list = List<Member>()
+    list.append(Member { name: "length", signature: "i64 length", doc: "Number of elements.", isMethod: false })
+    list.append(Member { name: "isEmpty", signature: "bool isEmpty", doc: "True when there are no elements.", isMethod: false })
+    list.append(Member { name: "get", signature: "T get(at i64 i)", doc: "Element at `i`; traps when out of range. Behind `xs[i]`.", isMethod: true })
+    list.append(Member { name: "tryGet", signature: "T? tryGet(at i64 i)", doc: "Element at `i`, or null when out of range.", isMethod: true })
+    list.append(Member { name: "append", signature: "void append(T item)", doc: "Adds `item` at the end.", isMethod: true })
+    list.append(Member { name: "prepend", signature: "void prepend(T item)", doc: "Adds `item` at the start.", isMethod: true })
+    list.append(Member { name: "add", signature: "bool add(T item)", doc: "Sets: adds `item`; false when already present.", isMethod: true })
+    list.append(Member { name: "remove", signature: "void remove(at i64 i)", doc: "Removes the element at `i` (or `from:until:` / `from:through:`).", isMethod: true })
+    list.append(Member { name: "replace", signature: "void replace(at i64 i, by T item)", doc: "Replaces the element at `i`.", isMethod: true })
+    list.append(Member { name: "sum", signature: "T sum()", doc: "Sum of the elements.", isMethod: true })
+    list.append(Member { name: "product", signature: "T product()", doc: "Product of the elements.", isMethod: true })
+    list.append(Member { name: "average", signature: "T average()", doc: "Mean of the elements.", isMethod: true })
+    list.append(Member { name: "min", signature: "T min()", doc: "Smallest element (`min(by:)` for a key).", isMethod: true })
+    list.append(Member { name: "max", signature: "T max()", doc: "Largest element.", isMethod: true })
+    return list
+}
+
+
+/// The keyword at `index` in enumeration order.
+public string keyword(at i64 index) => names[index]
+
+/// The hover doc of the keyword at `index`.
+public string doc(at i64 index) => docs[index]
+
+/// The number of keywords.
+public i64 keywordCount() => names.length
+
+/// The hover doc of `word`, or null when it is not a keyword.
+public string? docFor(string word) {
+    for i in 0..names.length {
+        return docs[i] if names[i] == word
+    }
+    return null
+}
+
+/// Whether the UTF-16 `word` is a keyword.
+public bool isKeyword(ReadOnlySpan<u16> word) => contains(names, for: word)
+
+/// Whether the UTF-16 `word` is a primitive type name.
+public bool isPrimitive(ReadOnlySpan<u16> word) => contains(primitiveNames, for: word)
+
+/// Whether the UTF-16 `word` is a declaration modifier.
+public bool isModifier(ReadOnlySpan<u16> word) => contains(modifiers, for: word)
+
+/// The number of primitive type names.
+public i64 primitiveCount() => primitiveNames.length
+
+/// The primitive type name at `index` in enumeration order.
+public string primitive(at i64 index) => primitiveNames[index]
+
+/// Whether `list` holds `word`; every entry is ASCII, so a word is compared unit by byte.
+bool contains(ReadOnlySpan<string> list, for ReadOnlySpan<u16> word) {
+    for name in list {
+        if equalsAscii(name, to: word) {
+            return true
+        }
+    }
+    return false
+}
+
+bool equalsAscii(string name, to ReadOnlySpan<u16> word) {
+    return false if name.length != word.length
+    for i in 0..word.length {
+        return false if u16(name.bytes[i]) != word[i]
+    }
+    return true
+}

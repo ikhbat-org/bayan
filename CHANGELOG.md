@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Removed
+- `scripts/selfhost/shard-test.sh` and its test are retired (spec 019 T48b); `wp1-test.sh` takes a `scripts/test.sh` part and runs `bootstrap-build.sh` then `scripts/test.sh`.
+
 ## [0.3.2] - 2026-11-16
 
 The style guide ships: `bayan format` is a layout engine in both compilers, and `bayan fix` applies nine style lints.

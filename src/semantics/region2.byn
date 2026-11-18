@@ -351,6 +351,7 @@ bool t41IsBroad(Ctx c, for FuncId fn) =>
 bool t41BuiltinFresh(BuiltinFunction builtin) =>
     builtin is .ioReadFile
     or .ioStdinReadAllBytes
+    or .ioStdinRead
     or .ioReadText
     or .ioListDir
     or .ioRun

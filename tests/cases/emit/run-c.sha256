@@ -145,6 +145,7 @@ b35972341a10cf175080cc6fde92a382a7652b771c78f069de3f0d6ce3740e7f  run/io-run.byn
 55b79763a4a15f4dfe012e76792bc9345accbe21df72dd55b3e0ed3b30fe64ed  run/io-stdin-bytes-move.byn
 53672a82745ec64f149f1d2b20e7fd7f1444d6907affb0394cbc812428b3949e  run/io-stdin-bytes.byn
 b3afa1386abcbb07038404990ecd297ec393f14f7c9b9fbb15e5577fcc9f83c0  run/io-stdin-invalid-utf8.byn
+3c6b0ec7e8ff7fe057b5bbadadd0d14ff8d76a192ef0c68bf60158af970c3bc1  run/io-stdin-read.byn
 3effa7b5b4e8e19e2f42efdcc6243eba098c9ea7c0d9fc2c0eacc66828cd55bb  run/io-stdin.byn
 3ef6c4e9b66936ae752ebdad7aca2b7e8981ebf7f17e0fcc134a51185b0f7389  run/io-stdout-stderr.byn
 c0f218e693055e3cbffd39cb8034bdcd7c172351123fdeb1df257fea1b972b13  run/lambda-alias-any.byn

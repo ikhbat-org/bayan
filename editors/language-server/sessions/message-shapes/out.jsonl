@@ -1,0 +1,3 @@
+{"jsonrpc":"2.0","id":1,"error":{"code":-32601,"message":"method not found: b"}}
+{"jsonrpc":"2.0","id":2,"error":{"code":-32601,"message":"method not found: c"}}
+{"jsonrpc":"2.0","id":3,"error":{"code":-32601,"message":"method not found: after"}}
