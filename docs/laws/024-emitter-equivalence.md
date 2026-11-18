@@ -20,6 +20,10 @@ For every program `bayan check` accepts and every `BuildMode` (`debug`, `safe`, 
 (byte-identical to `examples/hello/main.byn`, which `CliTests` passes to `--emit-c`), and the 010 generator's well-typed programs on the
 fixed seeds, each in every `BuildMode`.
 
+## Proposed statement (019 T31, owner-approved template 2026-11-18)
+
+For every emit case in the freeze manifest, `bayan-emit` prints the frozen expected C in each build mode the case freezes, byte for byte. The frozen files are the C# compiler's output at the freeze (L043).
+
 ## Counterexample looks like
 
 An input, a mode and the first line where the two outputs differ:

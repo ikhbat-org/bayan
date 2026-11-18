@@ -15,5 +15,9 @@ enacted: 2026-10-20
 ## Statement
 For every byte sequence (including invalid UTF-8, unbalanced interpolation, non-NFC identifiers and bidi controls), `bayan-lex` and the C# lexer produce identical structured token dumps (`--json`: kinds, spans, values, diagnostics with codes, spans and fixes). Both lexers read Unicode data from the same generated tables in the repository; neither consults the system's ICU.
 
+## Proposed statement (019 T31, owner-approved template 2026-11-18)
+
+For every lex case in the freeze manifest, `bayan-lex` prints the frozen expected output byte for byte. The frozen files are the C# compiler's output at the freeze (L043).
+
 ## Counterexample looks like
 An input `let é = 1;` written with `e` + U+0301 where the C# JSON dump has a BYN0005 diagnostic with fix `é` and the Bayan JSON dump has none, or the two dumps differ in one token's span.
