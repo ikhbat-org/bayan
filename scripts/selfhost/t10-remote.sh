@@ -5,7 +5,7 @@
 # --branch (default: the current branch) is bundled; the run is at its head. Output: tmp/t10-remote/<sha8>/<host>/ holds the
 # remote tmp/t10/, tmp/t10-remote/<sha8>/<host>.log the compare's stdout and stderr. Prints that log's last line (`t10: AGREE on
 # ...` or `t10: DISAGREE on ...`) and exits with the compare's exit code.
-# vm: as shard-test.sh's slice_vm. ghosthive's bayan-test01 is started when stopped (and stopped at the end only then), its
+# vm: ghosthive's bayan-test01 is started when stopped (and stopped at the end only then), its
 # qemu reniced, the bundle cloned as user bt into /home/bt/t10/<sha8>/repo and the compare run there under
 # systemd-run --unit=t10-<sha8> with dotnet and zig on PATH and LANG=C.UTF-8. Polled every 30 s; aborted (unit stopped) when
 # ghosthive's MemAvailable drops below 10 GiB (exit 3), when ghosthive or the VM does not answer 10 polls in a row (exit 4) or
@@ -19,7 +19,7 @@ set -u
 VM=bayan-test01; GH=ghosthive; MIN_KB=$((10*1024*1024)); POLL_S=${T10R_POLL_S:-30}; MAX_POLLS=${T10R_MAX_POLLS:-120}
 R=C:/home/code/extrode.com/bayan/tmp
 
-# gh, vmssh and poll_state are copied from scripts/selfhost/shard-test.sh (poll_state without its UNIT argument)
+# gh, vmssh and poll_state: ssh to ghosthive, ssh to the VM through incus exec, and the VM state poll
 gh() { ssh -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=4 "$GH" "$@"; }
 vmssh() { gh "timeout 60 incus exec $VM -- $*"; }
 # poll_state: one poll's output in (the host's MemAvailable line, then `---`, the rc file, `---`, the unit state), one verdict
