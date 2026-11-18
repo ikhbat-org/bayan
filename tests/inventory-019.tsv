@@ -60,7 +60,7 @@ MutantSchemataTests	csharp/tests/Bayan.Tests/MutantSchemataTests.cs	golden-folde
 MutationRunnerTests	csharp/tests/Bayan.Tests/MutationRunnerTests.cs	cli	6	cli	cli	mutation statuses through bayan mutate	
 MutatorTests	csharp/tests/Bayan.Tests/MutatorTests.cs	csharp-internals	17	cli	cli	mutation sites through bayan mutate --list	
 NamingGrammarTests	csharp/tests/Bayan.Tests/NamingGrammarTests.cs	csharp-internals	25	diag	diag	BYN5001 verb-form diagnostics	
-NamingPackageGrammarTests	csharp/tests/Bayan.Tests/NamingPackageGrammarTests.cs	csharp-internals	2	diag	diag	package.byn dictionary through BYN5001	
+NamingPackageGrammarTests	csharp/tests/Bayan.Tests/NamingPackageGrammarTests.cs	csharp-internals	2	diag	diag	package.byn dictionary through BYN5001; ported 2 of 2: tests/cases/diag/naming-package-empty (the empty half of AnUnreadablePackageIsAnEmptyGrammar), src/driver/golden.byn block "an unreadable package.byn renders as the empty grammar of diag/naming-package-empty" (the mode-0 half, chmod 000 through Io.run, that case's .diag expected; pending on Windows), scripts/ci/std-naming-lints.test.sh (StdSourcesHaveOnlyTheKnownNamingLintHits)	
 NeverReassignedVarLintTests	csharp/tests/Bayan.Tests/NeverReassignedVarLintTests.cs	cli	24	diag	diag	BYN2311 diagnostics	
 NotEmittedLawTests	csharp/tests/Bayan.Tests/NotEmittedLawTests.cs	law	2	check	check:L021	law proof becomes a check: command (R18)	
 OutputTests	csharp/tests/Bayan.Tests/OutputTests.cs	cli	14	cli	cli	command output text	
