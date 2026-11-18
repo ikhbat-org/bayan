@@ -28,6 +28,8 @@ echo f > tests/cases/diag/a.diag; printf 'k\t1\n' > tests/cases/FREEZE.tsv; git 
 expect "manifest and golden" 0
 mkdir -p tests/cases/cli/C-1; echo j > tests/cases/cli/C-1/expected.sections; echo j > tests/cases/cli/C-1/expected.golden; git add -A; git commit -qm "exported case for Q1018"
 expect "exported case expected files" 0
+echo k > tests/cases/cli/C-1/expected.golden; echo k > src/a.txt; git commit -qam "exported case with src for Q1018"
+expect "exported case mixed with src" 1
 echo g > src/a.txt; git commit -qam "unrelated"
 expect "unrelated commit" 0
 # a range holding the bad commits reports them all, and a merge is skipped
@@ -36,6 +38,6 @@ git checkout -q main; echo i > src/c.txt; git add -A; git commit -qm "main work"
 git merge -q --no-ff side -m "merge side" 2>/dev/null
 expect "merge commit" 0
 run_check "$(git rev-list --max-parents=0 HEAD)"; [ "$rc" = 1 ] || fail "whole range exit $rc"
-[ "$(grep -c 'golden-commit-check: [0-9a-f]\{7\} ' <<<"$out")" = 2 ] || fail "whole range should name 2 commits: $out"
+[ "$(grep -c 'golden-commit-check: [0-9a-f]\{7\} ' <<<"$out")" = 3 ] || fail "whole range should name 3 commits: $out"
 rc=0; bash "$gc" nonsense >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "bad usage exit $rc"
 echo "golden-commit-check.test: ok"
