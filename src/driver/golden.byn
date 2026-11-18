@@ -1802,7 +1802,13 @@ test "an unreadable package.byn renders as the empty grammar of diag/naming-pack
     let options = GoldenOptions { includeTests: false }
     var omitted: i64 = 0
     let empty = goldenCompile(main, by: in options)
-    let emptyText = semantics.renderAll(in empty, from: in empty.diagnostics, by: true, until: 2147483647, to: ref omitted)
+    let emptyText = semantics.renderAll(
+        in empty,
+        from: in empty.diagnostics,
+        by: true,
+        until: 2147483647,
+        to: ref omitted,
+    )
     let made = goldenChmod("000", for: manifest)
     // root reads a mode-0 file anyway, as the C# test allows
     let readable = (Io.readText(manifest) catch "unreadable") != "unreadable"
