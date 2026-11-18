@@ -172,7 +172,7 @@ awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" '
   BEGIN {
     while ((getline l < inv) > 0) { split(l, a, "\t"); if (a[1] != "class") tests[a[1]] = a[4] }
     while ((getline l < un) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
-      reason[key] = (key in reason ? reason[key] "; " : "") a[3]; rows[key]++ }
+      reason[key] = (rows[key] ? reason[key] "; " : "") a[3]; rows[key]++ }
   }
   { key = $1 "\t" $2; keys[key] = 1; cnt[key] = $3 }
   END {

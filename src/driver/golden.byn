@@ -1767,13 +1767,53 @@ test "lex, parse and typed cases pass over tests/cases" {
 test "diag, manifest and diag-json cases pass over tests/cases" {
     var count: i64 = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "diag", to: ref count).length == 0)
-    assert(count == 642)
+    assert(count == 648)
     count = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "manifest", to: ref count).length == 0)
     assert(count == 21)
     count = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "diag-json", to: ref count).length == 0)
     assert(count == 2)
+}
+
+/// `chmod <mode> <path>`; false when it cannot run or fails.
+bool goldenChmod(string mode, for string path) uses alloc, process {
+    var args = List<string>()
+    args.append(mode)
+    args.append(path)
+    let r = Io.run("chmod", args.span) catch return false
+    return r.exitCode == 0
+}
+
+// NamingPackageGrammarTests.AnUnreadablePackageIsAnEmptyGrammar (spec 019 T27): the empty half is the diag/naming-package-empty case. A mode-0
+// package.byn cannot be a committed input, so this block makes one beside that case's main.byn and expects that case's .diag (the C# output).
+test "an unreadable package.byn renders as the empty grammar of diag/naming-package-empty" {
+    if Target.os == "windows" {
+        todo("`chmod 000` makes no file unreadable on Windows; the C# test returns there too")
+    }
+    let source = Path.fullPath("tests/cases/diag/naming-package-empty")
+    let expected = Path.combine(source, "main.diag")
+    let root = Path.combine(Path.fullPath("tmp"), "golden-unreadable-package")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "main.byn", as: Io.readText(Path.combine(source, "main.byn")) catch "")
+    goldenWrite(root, for: "package.byn", as: "")
+    let main = Path.combine(root, "main.byn")
+    let manifest = Path.combine(root, "package.byn")
+    let options = GoldenOptions { includeTests: false }
+    var omitted: i64 = 0
+    let empty = goldenCompile(main, by: in options)
+    let emptyText = semantics.renderAll(in empty, from: in empty.diagnostics, by: true, until: 2147483647, to: ref omitted)
+    let made = goldenChmod("000", for: manifest)
+    // root reads a mode-0 file anyway, as the C# test allows
+    let readable = (Io.readText(manifest) catch "unreadable") != "unreadable"
+    let c = goldenCompile(main, by: in options)
+    let text = semantics.renderAll(in c, from: in c.diagnostics, by: true, until: 2147483647, to: ref omitted)
+    let _ = goldenChmod("644", for: manifest)
+    deleteWorkDir(root)
+    assert(goldenDiffer(emptyText, for: main, at: expected) is null)
+    assert(made)
+    return if readable
+    assert(goldenDiffer(text, for: main, at: expected) is null)
 }
 
 test "a changed expected line fails with the input path and the first differing line" {

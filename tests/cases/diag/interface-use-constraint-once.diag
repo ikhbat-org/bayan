@@ -1,0 +1,6 @@
+error BYN2807: `Square` does not conform to `IShape`: missing `area`
+
+  24 │     print($"{twice(ref s)}")
+     │              ^^^^^^^^^^^^ the generic code needs this of its type arguments
+     │
+  help: add `: IShape` to `Square` and provide `area`
