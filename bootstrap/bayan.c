@@ -231565,7 +231565,7 @@ break_3:;
             l14_self = t15;
         } else {
 #line 781 "driver/goldenprograms.byn"
-            t17 = l2_cli;
+            t17 = l9_args;
 #line 781 "driver/goldenprograms.byn"
             t18 = INT64_C(0);
 #line 781 "driver/goldenprograms.byn"

@@ -777,8 +777,8 @@ void goldenProgramBayanCheck(GoldenExportCase k, to ref List<string> failures) u
     } else if same {
         self = goldenProgramSelfArgs(ref args)
     } else {
-        // `CheckSame` (SelfhostSemanticsTests.cs:600-612): the repo-relative copy as `args` holds it, read from the scratch directory as the repo
-        for a in cli {
+        // `CheckSame` (SelfhostSemanticsTests.cs:600-612): the copy's full path, which `args` holds as `<repo>/…`, below the scratch directory
+        for a in args {
             self.append(a)
         }
     }
@@ -1512,7 +1512,7 @@ test "a section printed twice or not at all fails, as does an unknown compare wo
     assert(word.contains("unknown compare word `shuffled`"))
 }
 
-test "`untimed` reads ` in <n>.<nn>s` at a line's end as ` in <time>` on both sides (SelfhostSemanticsTests.cs:200), another time fails without it" {
+test "`untimed` reads ` in <n>.<nn>s` at a line's end as ` in <time>` on both sides (SelfhostSemanticsTests.cs:200), other text still fails" {
     var files = List<string>()
     for f in [
         "args",
@@ -1538,17 +1538,16 @@ test "`untimed` reads ` in <n>.<nn>s` at a line's end as ` in <time>` on both si
         from: "checked in 13.45s\n",
         by: ref files,
     )
-    files[5] = ""
     let failed = goldenProgramsFake(
         "untimed",
         for: "sem",
         at: "SelfhostSemanticsTests",
         as: "cat 'STDOUT'",
-        from: "checked in 13.45s\n",
+        from: "checked 2 in 13.45s\n",
         by: ref files,
     )
     assert(pass == "")
-    assert(failed.contains("expected.stdout\nexpected line 1: checked in 0.12s\nactual line 1: checked in 13.45s"))
+    assert(failed.contains("expected.stdout\nexpected line 1: checked in <time>\nactual line 1: checked 2 in <time>"))
     assert(goldenProgramUntimedLine("ok in 1.5s") == "ok in 1.5s")
     assert(goldenProgramUntimedLine("ok in 10.25s\r") == "ok in <time>\r")
 }
@@ -1800,11 +1799,11 @@ test "an `expected.sections` with no `== ` header compares every stdout line, bl
     assert(failed.contains("expected line 2: b\nactual line 2: "))
 }
 
-test "a sem CheckParity case runs on its repo-relative argument from the scratch directory, stderr read repo-relative as `Portable` wrote it, not `<repo>` (SelfhostSemanticsTests.cs:583-614)" {
+test "a sem CheckParity case runs on its `<repo>` argument as the full path below the scratch directory, stderr read repo-relative as `Portable` wrote it, not `<repo>` (SelfhostSemanticsTests.cs:583-614)" {
     var files = List<string>()
     for f in [
         "args",
-        "tmp/t26-tests/cli/diag_x.byn/x.byn\n",
+        "<repo>/tmp/t26-tests/cli/diag_x.byn/x.byn\n",
         "input.byn",
         "f() {}\n",
         "expected.stderr",
@@ -1818,7 +1817,7 @@ test "a sem CheckParity case runs on its repo-relative argument from the scratch
         "check-same",
         for: "sem",
         at: "SelfhostSemanticsParityTests",
-        as: "test -f \"$1\" && echo \"--> $PWD/$1:1:1\" >&2\nexit 1",
+        as: "test -f \"$1\" && echo \"--> $1:1:1\" >&2\nexit 1",
         from: "",
         by: ref files,
     )
@@ -1827,7 +1826,7 @@ test "a sem CheckParity case runs on its repo-relative argument from the scratch
         "check-same",
         for: "sem",
         at: "SelfhostSemanticsParityTests",
-        as: "test -f \"$1\" && echo \"--> $PWD/$1:1:1\" >&2\nexit 1",
+        as: "test -f \"$1\" && echo \"--> $1:1:1\" >&2\nexit 1",
         from: "",
         by: ref files,
     )
