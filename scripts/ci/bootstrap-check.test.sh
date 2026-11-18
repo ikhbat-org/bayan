@@ -23,6 +23,7 @@ case "$src" in *cap*) [ $CAP = yes ] || { echo "error: this compiler cannot pars
 [ "$2" = --emit-c ] && { printf '#line 1 "driver/main.byn"\nC:%s\n' "$src"; exit 0; }
 while [ $# -gt 0 ]; do [ "$1" = -o ] && out=$2; shift; done
 cap=no; case "$src" in *cap*) cap=yes ;; esac
+echo build >> "$AUX/builds"; [ -z "${SLOW:-}" ] || sleep "$SLOW"
 mkdir -p "$(dirname "$out")"; sed "s/^CAP=.*/CAP=$cap/" "$0" > "$out"; chmod +x "$out"
 STUB
 cat > "$aux/cc" <<'STUB'
@@ -85,6 +86,38 @@ git merge -q --no-ff --no-commit mside > /dev/null 2>&1; echo 'v6 cap' > src/dri
 [ "$(run)" = fail ] || fail "a merge commit no parent's bootstrap can build passed" "$(cat "$tmp/out")"
 grep -q 'FAIL the bootstrap of HEAD^2 ' "$tmp/out" && grep -q 'FAIL the bootstrap of HEAD^ ' "$tmp/out" && grep -q 'trying the next parent' "$tmp/out" \
   || fail "the merge failure did not name both parents" "$(cat "$tmp/out")"
+
+# reuse (T32b): same inputs reuse the build, a changed tree rebuilds, a failed build leaves no stamp
+git checkout -q -b reuse dev; rm -f "$aux/builds"
+[ "$(run)" = pass ] || fail "reuse: first run failed" "$(cat "$tmp/out")"
+[ "$(wc -l < "$aux/builds")" -eq 1 ] && ! grep -q reused "$tmp/out" || fail "reuse: first run did not build once" "$(cat "$tmp/out")"
+[ "$(run)" = pass ] && grep -q 'reused' "$tmp/out" && [ "$(wc -l < "$aux/builds")" -eq 1 ] || fail "reuse: same inputs did not reuse" "$(cat "$tmp/out")"
+echo v7 > src/driver/main.byn; regen; git commit -qam v7
+[ "$(run)" = pass ] && ! grep -q reused "$tmp/out" && [ "$(wc -l < "$aux/builds")" -eq 2 ] || fail "reuse: a changed tree did not rebuild" "$(cat "$tmp/out")"
+echo v7b > src/driver/main.byn; regen; git commit -q --amend -a --no-edit   # same parent, new tree
+[ "$(run)" = pass ] && ! grep -q reused "$tmp/out" && [ "$(wc -l < "$aux/builds")" -eq 3 ] || fail "reuse: a changed tree under the same parent did not rebuild" "$(cat "$tmp/out")"
+echo 'v8 cap' > src/driver/main.byn; regen; git commit -qam v8
+[ "$(run)" = fail ] && [ ! -e tmp/bootstrap-check/stamp ] || fail "reuse: a failed build left a stamp" "$(cat "$tmp/out")"
+[ "$(run)" = fail ] && ! grep -q reused "$tmp/out" || fail "reuse: a failed build was reused" "$(cat "$tmp/out")"
+
+# two runs at once: one build, both OK
+echo v9 > src/driver/main.byn; regen; git commit -qam v9; rm -f "$aux/builds"
+SLOW=2 "$check" > "$tmp/out1" 2>&1 & p1=$!
+sleep 1; "$check" > "$tmp/out2" 2>&1 & p2=$!
+wait $p1 && wait $p2 || fail "concurrent: a run failed" "$(cat "$tmp/out1" "$tmp/out2")"
+grep -q 'OK' "$tmp/out1" && grep -q 'OK' "$tmp/out2" && [ "$(wc -l < "$aux/builds")" -eq 1 ] || fail "concurrent: not one build and two OKs" "$(cat "$tmp/out1" "$tmp/out2"; cat "$aux/builds")"
+[ ! -e tmp/bootstrap-check.lock ] || fail "concurrent: the lock was left behind"
+
+# a stale lock whose pid is dead is broken; a live one is waited on
+echo v10 > src/driver/main.byn; regen; git commit -qam v10
+sh -c 'exit 0' & dead=$!; wait $dead
+mkdir tmp/bootstrap-check.lock; echo $dead > tmp/bootstrap-check.lock/pid
+[ "$(run)" = pass ] || fail "stale lock with a dead pid was not broken" "$(cat "$tmp/out")"
+echo v11 > src/driver/main.byn; regen; git commit -qam v11
+mkdir tmp/bootstrap-check.lock; echo $$ > tmp/bootstrap-check.lock/pid
+"$check" > "$tmp/out" 2>&1 & p3=$!; sleep 1
+kill -0 $p3 2> /dev/null || fail "a live lock was not waited on" "$(cat "$tmp/out")"
+rm -rf tmp/bootstrap-check.lock; wait $p3 || fail "the waiting run failed after the lock cleared" "$(cat "$tmp/out")"
 
 # an unknown ref is an error, not a pass
 [ "$(run nope)" = fail ] && grep -q "no commit for 'nope'" "$tmp/out" || fail "an unknown ref was not refused" "$(cat "$tmp/out")"
