@@ -1,3 +1,5 @@
+import indexer
+import keywords
 import transport
 import workspace
 
@@ -20,8 +22,11 @@ public struct Server {
     workspace.Workspace ws
     /// URIs of open buffers dropped for size; a didOpen or full change brings them under it.
     Map<string, bool>   tooLarge
+    /// The documentation of the last completion's items, by their `data`.
+    List<string>        completionDocs
 
-    public static Server create() uses alloc => Server { ws: workspace.Workspace.create(), tooLarge: Map<string, bool>() }
+    public static Server create() uses alloc =>
+        Server { ws: workspace.Workspace.create(), tooLarge: Map<string, bool>(), completionDocs: List<string>() }
 
     /// Answers messages until `exit` or the end of input; returns the exit code.
     public i32 run(ref this, ref transport.Transport rpc) uses alloc, console, fs {
@@ -82,7 +87,499 @@ public struct Server {
             transport.send(ref w)
             return null
         }
+        let answered = answer(method, for: r) catch switch {
+            .invalid(let message) => return message,
+        }
+        return null if answered
         return error(r, as: -32601, for: $"method not found: {method}")
+    }
+
+    /// Answers the editor-feature requests; false for any other method.
+    bool answer(ref this, string method, for Request r) uses alloc, console, fs fails transport.JsonUseError {
+        if method == "textDocument/completion" {
+            try completion(r)
+        } else if method == "completionItem/resolve" {
+            try resolveCompletion(r)
+        } else if method == "textDocument/hover" {
+            try hover(r)
+        } else if method == "textDocument/definition" {
+            try definition(r)
+        } else if method == "textDocument/documentSymbol" {
+            try documentSymbols(r)
+        } else if method == "textDocument/signatureHelp" {
+            try signatureHelp(r)
+        } else if method == "workspace/symbol" {
+            try workspaceSymbols(r)
+        } else {
+            return false
+        }
+        return true
+    }
+
+    // ---- completion -----------------------------------------------------------
+
+    void completion(ref this, Request r) uses alloc, console, fs fails transport.JsonUseError {
+        let at = try locate(r)
+        if at < 0 {
+            try nullResult(r)
+            return
+        }
+        let offset = try offsetOf(r, at: at)
+        let doc = ws.docs[at].full()
+        var items = Items { list: List<CompletionItem>(), seen: Map<string, bool>() }
+
+        let ti = offset == 0 ? -1 : doc.tokenBefore(offset - 1)
+        if ti >= 0 {
+            let tok = doc.tokens[ti]
+            if tok.kind is .comment or .docComment or .text or .rune && offset > i64(tok.start)
+                    && offset < i64(tok.end) + (tok.kind is .text ? 0 : 1) && !(tok.kind is .text && doc.text[i64(tok.start)] == 0x24) {
+                try nullResult(r)
+                return
+            }
+        }
+
+        // Partial word under the cursor and the token before it.
+        var before = ti
+        if ti >= 0 && doc.tokens[ti].kind is .ident or .keyword && i64(doc.tokens[ti].end) == offset {
+            before = ti - 1
+        }
+        let afterDot = before >= 0 && (doc.isTextAt(before, as: ".") || doc.isTextAt(before, as: "?."))
+        let afterAt = before >= 0 && doc.tokens[before].kind is .at
+
+        if afterAt {
+            for i in 0..attributeNames.length {
+                items.add(attributeNames[i], as: 3, for: $"@{attributeNames[i]}", by: attributeDocs[i])
+            }
+        } else if afterDot {
+            let recv = before - 1
+            if isTargetTyped(doc, at: recv) {
+                // Narrow by context: `fail .` → error cases; `is .` / `becomes .` → states.
+                let errorsOnly = recv >= 0 && doc.isTextAt(recv, as: "fail")
+                let statesOnly = recv >= 0 && (doc.isTextAt(recv, as: "is") || doc.isTextAt(recv, as: "becomes") || doc.isTextAt(recv, as: "become"))
+                for e in ws.casesAndStates() {
+                    let s = ws.docs[e.doc].symbols[e.sym]
+                    continue if statesOnly && !(s.kind is .state)
+                    if errorsOnly {
+                        continue if !(s.kind is .caseMember)
+                        let container = s.container ?? continue
+                        let t = ws.findType(container) ?? continue
+                        continue if !(ws.docs[t.doc].symbols[t.sym].kind is .errorUnion)
+                    }
+                    items.add(s.name, as: 20, for: $"{s.container ?? ""}.{s.name}", by: s.doc)
+                }
+            } else {
+                let found = ws.typeOfReceiver(doc, at: recv)
+                if found is not null {
+                    let type = found
+                    let onValue = !indexer.isUpper(doc.text[i64(doc.tokens[recv].start)])
+                    for m in ws.membersOf(type) {
+                        let s = ws.docs[m.doc].symbols[m.sym]
+                        if !(onValue && s.kind is .state or .caseMember) {
+                            items.add(s.name, as: memberKind(s), for: s.detail, by: s.doc, sort: "1")
+                        }
+                    }
+                    let alias = ws.findType(type)
+                    if alias is not null {
+                        let a = ws.docs[alias.doc].symbols[alias.sym]
+                        if a.kind is .typeAlias && a.detail.position(" distinct ") is not null {
+                            let under = underlyingType(a.detail)
+                            if under is not null {
+                                items.add("value", as: 10, for: $"{under} value", by: "The underlying value.", sort: "1")
+                            }
+                        }
+                    }
+                    for b in builtinMembers(type) {
+                        items.add(b.name, as: b.isMethod ? 2 : 10, for: b.signature, by: b.doc, sort: "2")
+                    }
+                }
+            }
+        } else {
+            for l in workspace.localsAt(doc, at: offset) {
+                let s = doc.symbols[l]
+                let t = s.typeName ?? ""
+                items.add(s.name, as: 6, for: t.length > 0 ? $"{s.name}: {t}" : s.name, by: null, sort: "0")
+            }
+            let enc = workspace.enclosingType(doc, at: offset)
+            if enc >= 0 {
+                for m in ws.membersOf(doc.symbols[enc].name) {
+                    let s = ws.docs[m.doc].symbols[m.sym]
+                    items.add(s.name, as: memberKind(s), for: s.detail, by: s.doc, sort: "1")
+                }
+            }
+            for g in ws.globals() {
+                let s = ws.docs[g.doc].symbols[g.sym]
+                if !(s.kind is .testCase) {
+                    items.add(s.name, as: memberKind(s), for: s.detail, by: s.doc, sort: "3")
+                }
+            }
+            for b in keywords.functions() {
+                items.add(b.name, as: 3, for: b.signature, by: b.doc, sort: "4")
+            }
+            for i in 0..keywords.primitiveCount() {
+                items.add(keywords.primitive(at: i), as: 25, for: "primitive type", by: null, sort: "6")
+            }
+            for i in 0..keywords.keywordCount() {
+                items.add(keywords.keyword(at: i), as: 14, for: "keyword", by: keywords.doc(at: i), sort: "7")
+            }
+        }
+
+        completionDocs.clear()
+        var w = try replyTo(r)
+        w.writeStartObject(for: "result")
+        w.writeBoolean(value: false, for: "isIncomplete")
+        w.writeStartArray(for: "items")
+        for it in items.list {
+            w.writeStartObject()
+            w.writeString(it.label, for: "label")
+            w.writeNumber(it.kind, for: "kind")
+            if it.detail is not null {
+                w.writeString(it.detail ?? "", for: "detail")
+            }
+            if it.doc is not null {
+                w.writeNumber(completionDocs.length, for: "data")
+                completionDocs.append(it.doc ?? "")
+            }
+            w.writeString(it.sort, for: "sortText")
+            w.writeEndObject()
+        }
+        w.writeEndArray()
+        w.writeEndObject()
+        transport.send(ref w)
+    }
+
+    /// Echoes the item back with its documentation filled in.
+    void resolveCompletion(ref this, Request r) uses alloc, console fails transport.JsonUseError {
+        var doc: string? = null
+        let d = try r.msg.find("data", at: r.params)
+        if d is not null {
+            let i = try tryInt32(r.msg, at: d)
+            if i >= 0 && i < completionDocs.length {
+                doc = completionDocs[i]
+            }
+        }
+        var w = try replyTo(r)
+        w.writeStartObject(for: "result")
+        for key in try r.msg.keys(r.params) {
+            if !r.msg.nameEquals(key, to: "documentation") {
+                try r.msg.writeProperty(key, to: ref w)
+            }
+        }
+        if doc is not null {
+            writeMarkup(ref w, for: "documentation", as: doc ?? "")
+        }
+        w.writeEndObject()
+        transport.send(ref w)
+    }
+
+    // ---- hover / definition -----------------------------------------------------
+
+    /// `SymbolAt`: the symbol under `offset` in the request document `doc`, or null.
+    workspace.SymbolRef? symbolAt(ref this, workspace.Document doc, at i64 offset) uses alloc, fs {
+        let ti = doc.tokenIndexAt(offset)
+        return null if ti < 0
+        let tok = doc.tokens[ti]
+        return null if !(tok.kind is .ident or .keyword)
+        let word = doc.textOf(tok)
+        // On a declaration's own name (`let x`, `Type name(`, a param): that symbol.
+        for i in 0..doc.symbols.length {
+            let d = doc.symbols[i]
+            return workspace.SymbolRef.request(i) if d.nameStart == tok.start && !(d.kind is .testCase)
+        }
+        // Member access: `recv.word`.
+        if ti >= 1 && (doc.isTextAt(ti - 1, as: ".") || doc.isTextAt(ti - 1, as: "?.")) {
+            if !isTargetTyped(doc, at: ti - 2) {
+                let type = ws.typeOfReceiver(doc, at: ti - 2) ?? return null
+                return ws.member(type, for: word)
+            }
+            for e in ws.casesAndStates() {
+                return e if ws.docs[e.doc].symbols[e.sym].name == word
+            }
+            return null
+        }
+        return ws.resolve(doc, for: word, at: i64(tok.start))
+    }
+
+    void hover(ref this, Request r) uses alloc, console, fs fails transport.JsonUseError {
+        let at = try locate(r)
+        if at < 0 {
+            try nullResult(r)
+            return
+        }
+        let offset = try offsetOf(r, at: at)
+        let doc = ws.docs[at].full()
+        let hit = symbolAt(doc, at: offset)
+        var tokStart: i64 = 0
+        var tokEnd: i64 = 0
+        var onKeyword = false
+        var word = ""
+        let ti = doc.tokenIndexAt(offset)
+        if ti >= 0 {
+            let tok = doc.tokens[ti]
+            tokStart = i64(tok.start)
+            tokEnd = i64(tok.end)
+            onKeyword = tok.kind is .keyword
+            if tok.kind is .ident or .keyword {
+                word = doc.textOf(tok)
+            }
+        }
+        var md: string? = null
+        if hit is not null {
+            let s = ws.symbol(hit, for: doc)
+            var code = ""
+            if s.kind is .local {
+                let t = s.typeName ?? ""
+                let suffix = t.length > 0 ? $": {t}" : ""
+                code = $"{s.detail.startsWith("var") ? "var" : "let"} {s.name}{suffix}"
+            } else if s.kind is .param {
+                code = s.detail
+            } else {
+                let c = s.container
+                let caseOrState = s.kind is .caseMember or .state
+                if c is not null && !caseOrState {
+                    code = $"// in {c}\n"
+                }
+                let body = caseOrState ? $"{s.container ?? ""}.{s.name}" : s.detail
+                code = $"{code}{body}"
+            }
+            let docs = s.doc
+            md = docs is null ? $"```bayan\n{code}\n```" : $"```bayan\n{code}\n```\n\n{docs}"
+        } else if onKeyword && keywords.docFor(word) is not null {
+            md = $"**{word}** — {keywords.docFor(word) ?? ""}"
+        } else if word.length > 0 {
+            for b in keywords.functions() {
+                if b.name == word {
+                    md = $"```bayan\n{b.signature}\n```\n\n{b.doc}"
+                    break
+                }
+            }
+            if ti >= 1 && (doc.isTextAt(ti - 1, as: ".") || doc.isTextAt(ti - 1, as: "?.")) {
+                // A member never resolves to a free builtin function.
+                md = null
+                for b in builtinMembers(ws.typeOfReceiver(doc, at: ti - 2)) {
+                    if b.name == word {
+                        md = $"```bayan\n{b.signature}\n```\n\n{b.doc}"
+                        break
+                    }
+                }
+            }
+        }
+        if md is null {
+            try nullResult(r)
+            return
+        }
+        var w = try replyTo(r)
+        w.writeStartObject(for: "result")
+        writeMarkup(ref w, for: "contents", as: md ?? "")
+        writeRange(ref w, for: doc, from: tokStart, to: tokEnd)
+        w.writeEndObject()
+        transport.send(ref w)
+    }
+
+    void definition(ref this, Request r) uses alloc, console, fs fails transport.JsonUseError {
+        let at = try locate(r)
+        if at < 0 {
+            try nullResult(r)
+            return
+        }
+        let offset = try offsetOf(r, at: at)
+        let doc = ws.docs[at].full()
+        let found = symbolAt(doc, at: offset)
+        if found is null {
+            try nullResult(r)
+            return
+        }
+        let hit = found
+        let s = ws.symbol(hit, for: doc)
+        var w = try replyTo(r)
+        w.writeStartObject(for: "result")
+        w.writeString(ws.uriOf(hit, for: doc), for: "uri")
+        let start = i64(s.nameStart)
+        if hit.doc < 0 {
+            writeRange(ref w, for: doc, from: start, to: start + nameLength(s))
+        } else {
+            writeRange(ref w, for: ws.docs[hit.doc], from: start, to: start + nameLength(s))
+        }
+        w.writeEndObject()
+        transport.send(ref w)
+    }
+
+    // ---- signature help -----------------------------------------------------------
+
+    void signatureHelp(ref this, Request r) uses alloc, console, fs fails transport.JsonUseError {
+        let at = try locate(r)
+        if at < 0 {
+            try nullResult(r)
+            return
+        }
+        let offset = try offsetOf(r, at: at)
+        let doc = ws.docs[at].full()
+        // Walk back to the unmatched `(` and count commas at depth 0.
+        var ti = offset == 0 ? -1 : doc.tokenBefore(offset - 1)
+        // The token under the cursor only counts if the cursor is past its start (`f(|` vs `|(`).
+        if ti >= 0 && i64(doc.tokens[ti].start) >= offset {
+            ti -= 1
+        }
+        var depth: i64 = 0
+        var commas: i64 = 0
+        var open: i64 = -1
+        var i = ti
+        var steps: i64 = 0
+        while i >= 0 && steps < 4096 {
+            let t = doc.tokens[i]
+            if t.kind is .newline {
+                // A newline ends the search unless the call's argument list continues across lines.
+                if depth == 0 {
+                    var prev = i - 1
+                    while prev >= 0 && doc.tokens[prev].kind is .newline or .comment or .docComment {
+                        prev -= 1
+                    }
+                    if !(prev >= 0 && (doc.isTextAt(prev, as: ",") || doc.isTextAt(prev, as: "("))) {
+                        break
+                    }
+                }
+            } else if t.kind is .punct && t.length == 1 {
+                let c = doc.text[i64(t.start)]
+                if c == 0x29 || c == 0x5D || c == 0x7D {
+                    depth += 1
+                } else if c == 0x28 || c == 0x5B || c == 0x7B {
+                    if depth == 0 {
+                        open = i
+                        break
+                    }
+                    depth -= 1
+                } else if c == 0x2C && depth == 0 {
+                    commas += 1
+                }
+            }
+            i -= 1
+            steps += 1
+        }
+        if open < 1 || !doc.isTextAt(open, as: "(") || !(doc.tokens[open - 1].kind is .ident or .keyword) {
+            try nullResult(r)
+            return
+        }
+
+        let name = doc.textOf(doc.tokens[open - 1])
+        var label: string? = null
+        var docs: string? = null
+        let hit = symbolAt(doc, at: i64(doc.tokens[open - 1].start))
+        if hit is not null && ws.symbol(hit, for: doc).kind is .function {
+            label = ws.symbol(hit, for: doc).detail
+            docs = ws.symbol(hit, for: doc).doc
+        } else {
+            for b in keywords.functions() {
+                if b.name == name {
+                    label = b.signature
+                    docs = b.doc
+                    break
+                }
+            }
+        }
+        if label is null {
+            try nullResult(r)
+            return
+        }
+
+        let text = label ?? ""
+        let parms = splitParams(text)
+        let count = parms.length / 2
+        var w = try replyTo(r)
+        w.writeStartObject(for: "result")
+        w.writeStartArray(for: "signatures")
+        w.writeStartObject()
+        w.writeString(text, for: "label")
+        if docs is not null {
+            writeMarkup(ref w, for: "documentation", as: docs ?? "")
+        }
+        w.writeStartArray(for: "parameters")
+        for p in 0..count {
+            w.writeStartObject()
+            w.writeStartArray(for: "label")
+            w.writeRawValue($"{parms[p * 2]}".bytes)
+            w.writeRawValue($"{parms[p * 2 + 1]}".bytes)
+            w.writeEndArray()
+            w.writeEndObject()
+        }
+        w.writeEndArray()
+        w.writeEndObject()
+        w.writeEndArray()
+        w.writeNumber(0, for: "activeSignature")
+        let last = count - 1 > 0 ? count - 1 : 0
+        w.writeNumber(commas < last ? commas : last, for: "activeParameter")
+        w.writeEndObject()
+        transport.send(ref w)
+    }
+
+    // ---- symbols ---------------------------------------------------------------
+
+    void documentSymbols(ref this, Request r) uses alloc, console, fs fails transport.JsonUseError {
+        let at = ws.find(try uriOf(r))
+        if at < 0 {
+            try nullResult(r)
+            return
+        }
+        let doc = ws.docs[at].full()
+        var children = List<List<i64>>()
+        for _ in 0..doc.symbols.length {
+            children.append(List<i64>())
+        }
+        for i in 0..doc.symbols.length {
+            let parent = doc.symbols[i].parent
+            if parent >= 0 {
+                children[parent].append(i)
+            }
+        }
+        var w = try replyTo(r)
+        w.writeStartArray(for: "result")
+        for s in doc.roots {
+            writeDocSymbol(ref w, for: doc, at: s, by: children)
+        }
+        w.writeEndArray()
+        transport.send(ref w)
+    }
+
+    void workspaceSymbols(ref this, Request r) uses alloc, console fails transport.JsonUseError {
+        let qq = try r.msg.find("query", at: r.params)
+        var q = ""
+        if qq is not null {
+            q = (try r.msg.text(qq)) ?? ""
+        }
+        let query = q.utf16.copy()
+        var w = try replyTo(r)
+        w.writeStartArray(for: "result")
+        var n: i64 = 0
+        for e in ws.allSymbols() {
+            let s = ws.docs[e.doc].symbols[e.sym]
+            continue if query.length > 0 && !containsIgnoreCase(s.name, for: query.span)
+            w.writeStartObject()
+            w.writeString(s.name, for: "name")
+            w.writeNumber(outlineKind(s), for: "kind")
+            if s.container is not null {
+                w.writeString(s.container ?? "", for: "containerName")
+            }
+            w.writeStartObject(for: "location")
+            w.writeString(ws.docs[e.doc].uri, for: "uri")
+            writeRange(ref w, for: ws.docs[e.doc], from: i64(s.nameStart), to: i64(s.nameStart) + nameLength(s))
+            w.writeEndObject()
+            w.writeEndObject()
+            n += 1
+            break if n >= 500
+        }
+        w.writeEndArray()
+        transport.send(ref w)
+    }
+
+    // ---- helpers ---------------------------------------------------------------
+
+    /// `Locate`, up to the workspace lookup: the slot of the request's document, or -1.
+    i64 locate(ref this, Request r) uses alloc, fs fails transport.JsonUseError => ws.find(try uriOf(r))
+
+    /// `Locate`, the rest: the offset of the request's `position` in the document at `at`.
+    i64 offsetOf(Request r, at i64 at) uses alloc fails transport.JsonUseError {
+        let pos = try r.msg.get("position", at: r.params)
+        let line = try r.msg.int32(try r.msg.get("line", at: pos))
+        let character = try r.msg.int32(try r.msg.get("character", at: pos))
+        return ws.docs[at].offset(line, at: character)
     }
 
     string? initialize(ref this, Request r) uses alloc, console, fs {
@@ -193,6 +690,7 @@ public struct Server {
         return if doc < 0
         // One analysis per notification, however many changes.
         ws.docs[doc].set(version)
+        ws.invalidate()
         publish(doc)
     }
 
@@ -388,6 +886,264 @@ string? error(Request r, as i64 code, for string message) uses alloc, console {
     w.writeEndObject()
     transport.send(ref w)
     return null
+}
+
+/// A reply under way: `"id":` and the request's id written.
+transport.JsonWriter replyTo(Request r) uses alloc fails transport.JsonUseError {
+    var w = transport.begin()
+    let failed = writeId(ref w, for: r)
+    fail .invalid(message: failed) if failed is not null
+    return w
+}
+
+void nullResult(Request r) uses alloc, console fails transport.JsonUseError {
+    var w = try replyTo(r)
+    w.writeNull(for: "result")
+    transport.send(ref w)
+}
+
+/// The request's `textDocument.uri`; a JSON null throws where `Workspace.Key` looks it up.
+string uriOf(Request r) uses alloc fails transport.JsonUseError {
+    let uri = try r.msg.text(try r.msg.get("uri", at: try r.msg.get("textDocument", at: r.params)))
+    return uri ?? fail .invalid(message: "Value cannot be null. (Parameter 'key')")
+}
+
+/// `TryGetInt32`: -1 for a number that is not an `int`; anything but a number throws.
+i64 tryInt32(transport.JsonDocument msg, at transport.JsonElement e) uses alloc fails transport.JsonUseError {
+    return i64(try msg.int32(e)) if !(msg.kind(e) is .number)
+    let value = msg.int32(e) catch { return -1 }
+    return i64(value)
+}
+
+struct CompletionItem {
+    string  label
+    i64     kind
+    string? detail
+    string? doc
+    string  sort
+}
+
+/// Completion items, the first with each label kept.
+struct Items {
+    List<CompletionItem> list
+    Map<string, bool>    seen
+
+    void add(ref this, string label, as i64 kind, for string? detail, by string? doc, string sort = "5") uses alloc {
+        return if seen.contains(label)
+        seen[label] = true
+        list.append(CompletionItem { label: label, kind: kind, detail: detail, doc: doc, sort: $"{sort}{label}" })
+    }
+}
+
+const attributeNames: string[7] = ["derive", "allow", "json", "sealed", "positional", "column", "link"]
+
+const attributeDocs: string[7] = [
+    "Derives members: `@derive(equality)`.",
+    "Silences a diagnostic; needs `because \"…\"`.",
+    "JSON mapping options; `@json(expose)` needs `because \"…\"`.",
+    "Blocks outside field writes; construct and change only through methods or `with`.",
+    "Opts a constructor into positional arguments of the same kind.",
+    "Database column mapping.",
+    "Links a native library for `extern` declarations.",
+]
+
+/// `.x` with nothing typed before it (or after a keyword / operator) is a target-typed case or state.
+bool isTargetTyped(workspace.Document doc, at i64 recv) {
+    return true if recv < 0
+    let rt = doc.tokens[recv]
+    return true if rt.kind is .newline or .at
+    if rt.kind is .punct {
+        return !(doc.isText(rt, as: ")") || doc.isText(rt, as: "]") || doc.isText(rt, as: "}") || doc.isText(rt, as: "?"))
+    }
+    if rt.kind is .keyword {
+        return !(doc.isText(rt, as: "this") || doc.isText(rt, as: "it") || doc.isText(rt, as: "Self"))
+    }
+    return false
+}
+
+List<keywords.Member> builtinMembers(string? type) uses alloc {
+    let t = type ?? return List<keywords.Member>()
+    return keywords.stringMembers() if t == "string"
+    if t == "List" || t == "Set" || t == "Map" || t == "Span" || t == "ReadOnlySpan" || t == "Array" {
+        return keywords.collectionMembers()
+    }
+    return List<keywords.Member>()
+}
+
+/// `type distinct Grams = i64 requires …` → `i64`.
+string? underlyingType(string detail) uses alloc {
+    let s = detail.utf16.copy()
+    var eq: i64 = -1
+    for i in 0..s.length {
+        if s[i] == 0x3D {
+            eq = i
+            break
+        }
+    }
+    return null if eq < 0
+    var a = eq + 1
+    while a < s.length && indexer.isWhiteSpace(s[a]) {
+        a += 1
+    }
+    var b = a
+    while b < s.length && s[b] != 0x20 {
+        b += 1
+    }
+    return null if b == a
+    return indexer.decode(s.span[a..b])
+}
+
+i64 memberKind(indexer.IndexedSymbol s) {
+    return 22 if s.kind is .structType
+    return 13 if s.kind is .unionType or .errorUnion
+    return 7 if s.kind is .typeAlias
+    return 8 if s.kind is .interfaceType
+    return 9 if s.kind is .effect
+    if s.kind is .function {
+        return s.container is null ? 3 : 2
+    }
+    return 5 if s.kind is .field
+    return 20 if s.kind is .caseMember or .state
+    return 21 if s.kind is .constant
+    return 6
+}
+
+i64 outlineKind(indexer.IndexedSymbol s) {
+    return 23 if s.kind is .structType
+    return 10 if s.kind is .unionType or .errorUnion
+    return 5 if s.kind is .typeAlias
+    return 11 if s.kind is .interfaceType
+    return 2 if s.kind is .effect
+    if s.kind is .function {
+        return s.container is null ? 12 : 6
+    }
+    return 8 if s.kind is .field
+    return 22 if s.kind is .caseMember or .state
+    return 14 if s.kind is .constant
+    return 12 if s.kind is .testCase
+    return 13
+}
+
+/// The UTF-16 length of the name as written: a test name with its quotes.
+i64 nameLength(indexer.IndexedSymbol s) => workspace.utf16Length(s.name) + (s.kind is .testCase ? 2 : 0)
+
+/// The UTF-16 `start, end` of each parameter in a signature label, flattened.
+List<i64> splitParams(string label) uses alloc {
+    var res = List<i64>()
+    let s = label.utf16.copy()
+    var open: i64 = -1
+    for i in 0..s.length {
+        if s[i] == 0x28 {
+            open = i
+            break
+        }
+    }
+    return res if open < 0
+    var depth: i64 = 0
+    var start = open + 1
+    var i = open
+    while i < s.length {
+        let c = s[i]
+        if c == 0x28 || c == 0x3C || c == 0x5B {
+            depth += 1
+            i += 1
+            continue
+        }
+        // `->` / `=>` inside a function-typed parameter is not a closing bracket.
+        let close = c == 0x29 || c == 0x5D || (c == 0x3E && i > 0 && s[i - 1] != 0x2D && s[i - 1] != 0x3D)
+        if close {
+            depth -= 1
+        }
+        if (c == 0x2C && depth == 1) || (close && depth == 0) {
+            var a = start
+            while a < i && s[a] == 0x20 {
+                a += 1
+            }
+            let part = s.span[a..i]
+            let receiver = startsWith(part, as: "ref this") || startsWith(part, as: "move this") || startsWith(part, as: "this ")
+            if i > a && !receiver {
+                res.append(a)
+                res.append(i)
+            }
+            start = i + 1
+            if depth == 0 {
+                break
+            }
+        }
+        i += 1
+    }
+    return res
+}
+
+/// Whether `s` starts with the ASCII `prefix`.
+bool startsWith(ReadOnlySpan<u16> s, as string prefix) {
+    return false if s.length < prefix.length
+    for i in 0..prefix.length {
+        return false if s[i] != u16(prefix.bytes[i])
+    }
+    return true
+}
+
+/// `Contains(query, OrdinalIgnoreCase)`, folding ASCII letters only.
+bool containsIgnoreCase(string name, for ReadOnlySpan<u16> query) uses alloc {
+    let s = name.utf16.copy()
+    var i: i64 = 0
+    while i + query.length <= s.length {
+        var j: i64 = 0
+        while j < query.length && foldAscii(s[i + j]) == foldAscii(query[j]) {
+            j += 1
+        }
+        return true if j == query.length
+        i += 1
+    }
+    return false
+}
+
+u16 foldAscii(u16 c) => c >= 0x61 && c <= 0x7A ? c - 0x20 : c
+
+void writeDocSymbol(ref transport.JsonWriter w, for workspace.Document doc, at i64 at, by List<List<i64>> children) uses alloc {
+    let s = doc.symbols[at]
+    w.writeStartObject()
+    w.writeString(s.kind is .testCase ? $"test \"{s.name}\"" : s.name, for: "name")
+    w.writeString(s.kind is .function or .field ? s.typeName ?? "" : "", for: "detail")
+    w.writeNumber(outlineKind(s), for: "kind")
+    let nameEnd = i64(s.nameStart) + workspace.utf16Length(s.name)
+    writeRange(ref w, for: doc, from: i64(s.declStart), to: i64(s.declEnd) > nameEnd ? i64(s.declEnd) : nameEnd)
+    w.writePropertyName("selectionRange")
+    writeRangeValue(ref w, for: doc, from: i64(s.nameStart), to: i64(s.nameStart) + nameLength(s))
+    if children[at].length > 0 {
+        w.writeStartArray(for: "children")
+        for c in children[at] {
+            writeDocSymbol(ref w, for: doc, at: c, by: children)
+        }
+        w.writeEndArray()
+    }
+    w.writeEndObject()
+}
+
+void writeRange(ref transport.JsonWriter w, for workspace.Document doc, from i64 start, to i64 end) uses alloc {
+    w.writePropertyName("range")
+    writeRangeValue(ref w, for: doc, from: start, to: end)
+}
+
+void writeRangeValue(ref transport.JsonWriter w, for workspace.Document doc, from i64 start, to i64 end) uses alloc {
+    w.writeStartObject()
+    w.writeStartObject(for: "start")
+    w.writeNumber(doc.lineOf(start), for: "line")
+    w.writeNumber(doc.characterOf(start), for: "character")
+    w.writeEndObject()
+    w.writeStartObject(for: "end")
+    w.writeNumber(doc.lineOf(end), for: "line")
+    w.writeNumber(doc.characterOf(end), for: "character")
+    w.writeEndObject()
+    w.writeEndObject()
+}
+
+void writeMarkup(ref transport.JsonWriter w, for string name, as string md) uses alloc {
+    w.writeStartObject(for: name)
+    w.writeString("markdown", for: "kind")
+    w.writeString(md, for: "value")
+    w.writeEndObject()
 }
 
 /// What .NET does with an unhandled exception: the message on stderr, then exit code 134.

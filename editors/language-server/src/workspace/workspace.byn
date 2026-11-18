@@ -1,7 +1,8 @@
-// Documents and the workspace that holds them, ported from Analysis/Workspace.cs (the documents, the folder walk and its budgets; the
-// symbol index and the lookups behind the requests are T37's). Text is UTF-16 code units, as the C# string.
+// Documents and the workspace that holds them, ported from Analysis/Workspace.cs: the documents, the folder walk and its budgets, the
+// symbol index and the lookups behind the requests. Text is UTF-16 code units, as the C# string.
 
 import indexer
+import keywords
 import lexer
 
 public struct Diagnostic {
@@ -161,6 +162,79 @@ public struct Document {
     public i64 characterOf(i64 offset) => clamped(offset) - i64(lineStarts[lineOf(offset)])
 
     i64 clamped(i64 offset) => offset < 0 ? 0 : (offset > text.length ? text.length : offset)
+
+    /// `Full()`: a copy of this document when open, else a fully analysed copy; the caller owns it and nothing keeps it.
+    public Document full() uses alloc {
+        return Document.create(uri, from: text.copy(), at: version, as: true) if !isOpen
+        return Document {
+            uri: uri,
+            text: text.copy(),
+            version: version,
+            isOpen: true,
+            lineStarts: lineStarts.copy(),
+            tokens: tokens.copy(),
+            symbols: symbols.copy(),
+            roots: roots.copy(),
+            diagnostics: List<Diagnostic>(),
+        }
+    }
+
+    /// Token containing or ending at `offset`, or -1.
+    public i64 tokenIndexAt(i64 offset) {
+        var lo: i64 = 0
+        var hi = tokens.length - 1
+        while lo <= hi {
+            let mid = (lo + hi) >> 1
+            let t = tokens[mid]
+            if offset < i64(t.start) {
+                hi = mid - 1
+            } else if offset > i64(t.end) {
+                lo = mid + 1
+            } else {
+                // Prefer the identifier when touching two tokens (`foo|.`).
+                if offset == i64(t.end) && mid + 1 < tokens.length && i64(tokens[mid + 1].start) == offset && !(t.kind is .ident or .keyword) {
+                    return mid + 1
+                }
+                return mid
+            }
+        }
+        return -1
+    }
+
+    /// Token containing the character at `offset`, else the last token before it.
+    public i64 tokenBefore(i64 offset) {
+        var lo: i64 = 0
+        var hi = tokens.length - 1
+        var best: i64 = -1
+        while lo <= hi {
+            let mid = (lo + hi) >> 1
+            if i64(tokens[mid].start) <= offset {
+                best = mid
+                lo = mid + 1
+            } else {
+                hi = mid - 1
+            }
+        }
+        // Skip zero-length Eof.
+        while best > 0 && tokens[best].length == 0 {
+            best -= 1
+        }
+        return best
+    }
+
+    public string textOf(lexer.Token t) uses alloc => indexer.decode(text.span[i64(t.start)..i64(t.end)])
+
+    /// Whether the token's text is the ASCII `value`.
+    public bool isText(lexer.Token t, as string value) {
+        return false if i64(t.length) != value.length
+        for i in 0..value.length {
+            return false if u16(value.bytes[i]) != text[i64(t.start) + i]
+        }
+        return true
+    }
+
+    /// Whether the token at `index` exists and its text is the ASCII `value`.
+    public bool isTextAt(i64 index, as string value) => index >= 0 && index < tokens.length && isText(tokens[index], as: value)
 }
 
 /// What `new Uri(uri)` makes of a string, as far as the server looks: a file (`IsFile`, with its `LocalPath`), another absolute URI,
@@ -376,6 +450,18 @@ public struct Workspace {
     bool                  dirsLogged   = false
     /// Uri as sent → key.
     Map<string, string>   keyCache
+    // The symbol index: built lazily from all documents and dropped on any change, so requests between edits (hover, completion,
+    // definition) are lookups instead of full scans.
+    bool                  indexValid   = false
+    /// Non-local, no container.
+    List<SymbolRef>       globalSyms   = []
+    List<SymbolRef>       casesStates  = []
+    /// Name → its bucket in `buckets`.
+    Map<string, i64>      byName       = []
+    /// Container → its bucket in `buckets`.
+    Map<string, i64>      byContainer  = []
+    List<List<SymbolRef>> buckets      = []
+    Map<string, SymbolRef> types       = []
 
     public static Workspace create() uses alloc => Workspace {
         caseless: Target.os != "linux",
@@ -465,6 +551,7 @@ public struct Workspace {
     i64 slotOf(string key) uses alloc => index.tryGet(at: folded(key)) ?? -1
 
     i64 add(ref this, string key, from move Document d) uses alloc {
+        invalidate()
         let fk = folded(key)
         let old = index.tryGet(at: fk)
         if old is not null {
@@ -490,6 +577,7 @@ public struct Workspace {
     }
 
     void removeSlot(ref this, i64 at) uses alloc {
+        invalidate()
         chars -= docs[at].text.length
         let _ = index.remove(slotKeys[at])
         slotKeys[at] = ""
@@ -518,6 +606,7 @@ public struct Workspace {
             docs[at].isOpen = true
             chars += docs[at].replace(move text)
             docs[at].set(version)
+            invalidate()
             return at
         }
         return add(k, from: Document.create(uri, from: move text, at: version, as: true))
@@ -541,6 +630,8 @@ public struct Workspace {
         return if at < 0
         docs[at].isOpen = false
         docs[at].release()
+        // The index refers to symbols by position, which `release` moves.
+        invalidate()
         let u = parseUri(uri)
         if !(u.kind is .file) || !Fs.fileExists(u.localPath) || isExcludedKey(k) || isLink(u.localPath) {
             removeSlot(at)
@@ -686,6 +777,334 @@ public struct Workspace {
         let parent = Fs.realPath(dir) catch { return true }
         return folded(real) != folded(Path.combine(parent, Path.fileName(path)))
     }
+
+    // ---- symbol index -------------------------------------------------------
+
+    /// Drops the index; any change to a document's symbols calls it.
+    public void invalidate(ref this) {
+        return if !indexValid
+        indexValid = false
+        globalSyms.clear()
+        casesStates.clear()
+        byName.clear()
+        byContainer.clear()
+        buckets.clear()
+        types.clear()
+    }
+
+    void ensureIndex(ref this) uses alloc {
+        return if indexValid
+        globalSyms.clear()
+        casesStates.clear()
+        byName.clear()
+        byContainer.clear()
+        buckets.clear()
+        types.clear()
+        for at in 0..docs.length {
+            // A free slot.
+            continue if (index.tryGet(at: slotKeys[at]) ?? -1) != at
+            for i in 0..docs[at].symbols.length {
+                let s = docs[at].symbols[i]
+                continue if s.isLocal
+                let e = SymbolRef { doc: at, sym: i }
+                let container = s.container ?? ""
+                if s.container is null {
+                    globalSyms.append(e)
+                } else {
+                    let found = byContainer.tryGet(at: container)
+                    if found is not null {
+                        buckets[found].append(e)
+                    } else {
+                        byContainer[container] = buckets.length
+                        var b = List<SymbolRef>()
+                        b.append(e)
+                        buckets.append(move b)
+                    }
+                }
+                if s.kind is .caseMember or .state {
+                    casesStates.append(e)
+                }
+                let named = byName.tryGet(at: s.name)
+                if named is not null {
+                    buckets[named].append(e)
+                } else {
+                    byName[s.name] = buckets.length
+                    var b = List<SymbolRef>()
+                    b.append(e)
+                    buckets.append(move b)
+                }
+                if s.isType && !types.contains(s.name) {
+                    types[s.name] = e
+                }
+            }
+        }
+        indexValid = true
+    }
+
+    /// The symbol `r` names; `doc` is the document a request reads.
+    public indexer.IndexedSymbol symbol(SymbolRef r, for Document doc) => r.doc < 0 ? doc.symbols[r.sym] : docs[r.doc].symbols[r.sym]
+
+    /// The document `r` is in; `doc` is the document a request reads.
+    public string uriOf(SymbolRef r, for Document doc) => r.doc < 0 ? doc.uri : docs[r.doc].uri
+
+    /// Every non-local symbol of the workspace.
+    public List<SymbolRef> allSymbols() uses alloc {
+        var all = List<SymbolRef>()
+        for at in 0..docs.length {
+            continue if (index.tryGet(at: slotKeys[at]) ?? -1) != at
+            for i in 0..docs[at].symbols.length {
+                if !docs[at].symbols[i].isLocal {
+                    all.append(SymbolRef { doc: at, sym: i })
+                }
+            }
+        }
+        return all
+    }
+
+    public List<SymbolRef> globals(ref this) uses alloc {
+        ensureIndex()
+        return globalSyms.copy()
+    }
+
+    public List<SymbolRef> casesAndStates(ref this) uses alloc {
+        ensureIndex()
+        return casesStates.copy()
+    }
+
+    public List<SymbolRef> symbolsNamed(ref this, string name) uses alloc {
+        ensureIndex()
+        let at = byName.tryGet(at: name) ?? return List<SymbolRef>()
+        return buckets[at].copy()
+    }
+
+    public SymbolRef? findType(ref this, string name) uses alloc {
+        ensureIndex()
+        return types.tryGet(at: name)
+    }
+
+    public List<SymbolRef> membersOf(ref this, string typeName) uses alloc {
+        ensureIndex()
+        let at = byContainer.tryGet(at: typeName) ?? return List<SymbolRef>()
+        return buckets[at].copy()
+    }
+
+    public SymbolRef? member(ref this, string typeName, for string name) uses alloc {
+        for m in membersOf(typeName) {
+            return m if docs[m.doc].symbols[m.sym].name == name
+        }
+        return null
+    }
+
+    /// Resolves a bare name at an offset: locals, then members of the enclosing type, then globals.
+    public SymbolRef? resolve(ref this, Document doc, for string name, at i64 offset) uses alloc, fs {
+        // Innermost first: the last matching local declared before the offset wins.
+        var i = doc.symbols.length - 1
+        while i >= 0 {
+            let s = doc.symbols[i]
+            if s.isLocal && i64(s.scopeStart) <= offset && offset <= i64(s.scopeEnd) && i64(s.nameStart) < offset && s.name == name {
+                return SymbolRef { doc: -1, sym: i }
+            }
+            i -= 1
+        }
+        let ty = enclosingType(doc, at: offset)
+        if ty >= 0 {
+            let m = member(doc.symbols[ty].name, for: name)
+            return m if m is not null
+        }
+        let named = symbolsNamed(name)
+        // Prefer a top-level symbol, then one in this document, then any.
+        for e in named {
+            return e if docs[e.doc].symbols[e.sym].container is null
+        }
+        for e in named {
+            return e if key(docs[e.doc].uri) == key(doc.uri)
+        }
+        return named.length > 0 ? named[0] : null
+    }
+
+    /// Static type name of a receiver expression ending at token `idx`.
+    public string? typeOfReceiver(ref this, Document doc, at i64 idx, i64 depth = 0) uses alloc, fs {
+        return null if idx < 0 || depth > 8
+        let t = doc.tokens[idx]
+        return "string" if t.kind is .text
+        return null if !(t.kind is .ident or .keyword)
+        if doc.isText(t, as: "this") {
+            let enc = enclosingType(doc, at: i64(t.start))
+            return enc < 0 ? null : doc.symbols[enc].name
+        }
+        let text = doc.textOf(t)
+        // `Order.` → static members / cases.
+        return text if indexer.isUpper(doc.text[i64(t.start)])
+        // `a.b.` → type of b inside type of a.
+        if idx >= 2 && (doc.isTextAt(idx - 1, as: ".") || doc.isTextAt(idx - 1, as: "?.")) {
+            let outer = typeOfReceiver(doc, at: idx - 2, depth: depth + 1) ?? return null
+            let m = member(outer, for: text) ?? return null
+            return typeOfSymbol(doc, for: m, depth: 1)
+        }
+        let r = resolve(doc, for: text, at: i64(t.start)) ?? return null
+        return typeOfSymbol(doc, for: r, depth: 0)
+    }
+
+    string? typeOfSymbol(ref this, Document doc, for SymbolRef r, i64 depth = 0) uses alloc, fs {
+        let s = symbol(r, for: doc)
+        let declared = normalize(s.typeName)
+        if declared is not null {
+            return declared == "Self" ? s.container : declared
+        }
+        if s.isLocal && s.kind is .local && s.initStart >= 0 && depth < 8 {
+            return exprType(doc, at: doc.tokenIndexAt(i64(s.initStart)), depth: depth + 1)
+        }
+        return null
+    }
+
+    /// Type of a simple chain `a.b.c(…)`, `Type(…)`, `Type { … }`, `f(…)`.
+    public string? exprType(ref this, Document doc, at i64 start, i64 depth = 0) uses alloc, fs {
+        return null if start < 0 || depth > 8
+        var i = start
+        while i < doc.tokens.length && (doc.isText(doc.tokens[i], as: "try") || doc.isText(doc.tokens[i], as: "move")) {
+            i += 1
+        }
+        return null if i >= doc.tokens.length
+        let t = doc.tokens[i]
+        var type: string? = null
+        if t.kind is .text {
+            type = "string"
+        } else if !(t.kind is .ident or .keyword) {
+            return null
+        } else if doc.isText(t, as: "this") {
+            let enc = enclosingType(doc, at: i64(t.start))
+            type = enc < 0 ? null : doc.symbols[enc].name
+        } else {
+            let text = doc.textOf(t)
+            if indexer.isUpper(doc.text[i64(t.start)]) {
+                type = text
+            } else {
+                let r = resolve(doc, for: text, at: i64(t.start))
+                if r is not null {
+                    let s = symbol(r, for: doc)
+                    type = s.kind is .function ? normalize(s.typeName) : typeOfSymbol(doc, for: r, depth: depth + 1)
+                }
+            }
+        }
+        i = skipCall(doc, at: i + 1)
+        while type is not null && i + 1 < doc.tokens.length && (doc.isText(doc.tokens[i], as: ".") || doc.isText(doc.tokens[i], as: "?."))
+                && doc.tokens[i + 1].kind is .ident {
+            let current = type ?? ""
+            let name = doc.textOf(doc.tokens[i + 1])
+            let m = member(current, for: name)
+            var next: string? = null
+            if m is not null {
+                next = typeOfSymbol(doc, for: m, depth: depth + 1)
+            }
+            if next is null && current == "string" {
+                for b in keywords.stringMembers() {
+                    if b.name == name {
+                        let sp = b.signature.position(" ") ?? 0
+                        next = sp > 0 ? normalize(b.signature[0..sp]) : null
+                        break
+                    }
+                }
+            }
+            type = next
+            i = skipCall(doc, at: i + 2)
+        }
+        return type
+    }
+}
+
+/// A symbol: the slot of its document (-1 for the document a request reads) and its index among that document's symbols.
+public struct SymbolRef {
+    public i64 doc
+    public i64 sym
+
+    /// The symbol at `sym` in the document a request reads.
+    public static SymbolRef request(i64 sym) => SymbolRef { doc: -1, sym: sym }
+}
+
+/// The innermost type declaration around `offset`, or -1.
+public i64 enclosingType(Document doc, at i64 offset) {
+    var best: i64 = -1
+    for i in 0..doc.symbols.length {
+        let s = doc.symbols[i]
+        if s.isType && i64(s.declStart) <= offset && offset < i64(s.declEnd) && (best < 0 || s.declStart > doc.symbols[best].declStart) {
+            best = i
+        }
+    }
+    return best
+}
+
+/// Locals and parameters visible at `offset`, innermost first.
+public List<i64> localsAt(Document doc, at i64 offset) uses alloc {
+    var seen = Map<string, bool>()
+    var result = List<i64>()
+    var i = doc.symbols.length - 1
+    while i >= 0 {
+        let s = doc.symbols[i]
+        if s.isLocal && i64(s.scopeStart) <= offset && offset <= i64(s.scopeEnd) && i64(s.nameStart) < offset && !seen.contains(s.name) {
+            seen[s.name] = true
+            result.append(i)
+        }
+        i -= 1
+    }
+    return result
+}
+
+i64 skipCall(Document doc, at i64 start) {
+    var i = start
+    return i if i >= doc.tokens.length || !(doc.isText(doc.tokens[i], as: "(") || doc.isText(doc.tokens[i], as: "{"))
+    var depth: i64 = 0
+    while i < doc.tokens.length {
+        let t = doc.tokens[i]
+        if t.kind is .punct && t.length == 1 {
+            let c = doc.text[i64(t.start)]
+            if c == 0x28 || c == 0x7B || c == 0x5B {
+                depth += 1
+            } else if c == 0x29 || c == 0x7D || c == 0x5D {
+                depth -= 1
+                return i + 1 if depth == 0
+            }
+        }
+        i += 1
+    }
+    return i
+}
+
+/// `Order.paid` → `Order`, `List<T>?` → `List`.
+public string? normalize(string? type) uses alloc {
+    let t = type ?? return null
+    return null if t.length == 0
+    let units = t.utf16.copy()
+    var span = indexer.trimmed(units.span)
+    for i in 0..span.length {
+        let c = span[i]
+        if c == 0x3C || c == 0x3F || c == 0x2A || c == 0x5B || c == 0x20 {
+            span = span[0..i]
+            break
+        }
+    }
+    var dot: i64 = -1
+    for i in 0..span.length {
+        if span[i] == 0x2E {
+            dot = i
+            break
+        }
+    }
+    if dot > 0 && (dot + 1 == span.length || indexer.isLower(span[dot + 1])) {
+        span = span[0..dot]
+    }
+    return null if span.length == 0
+    return indexer.decode(span)
+}
+
+/// The UTF-16 length of `s`.
+public i64 utf16Length(string s) {
+    var n: i64 = 0
+    for b in s.bytes {
+        if (b & 0xC0) != 0x80 {
+            n += b >= 0xF0 ? 2 : 1
+        }
+    }
+    return n
 }
 
 /// `Directory.Exists`.
