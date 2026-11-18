@@ -1,7 +1,8 @@
 ---
 id: L044
 title: Language server equivalence
-status: proposed
+status: enacted
+enacted: 2026-11-18
 release: unscheduled
 sources: spec 019 R21
 kind: property
