@@ -1,6 +1,6 @@
 # 019 — Plan
 
-Status: approved (text drafted 2026-11-17, owner to review)
+Status: approved as amended through 2026-11-18 (owner, 2026-11-18)
 Release: unscheduled
 Sources: docs/decisions/2026-11-16-006-after-022-roadmap-decisions.md (§1, §2, §3, §4, C# archive plan); docs/bayan-milestones.md (Target: zero dependencies; user 2026-11-13); docs/decisions/2026-11-16-007-additional-concepts-review.md (Q9)
 
