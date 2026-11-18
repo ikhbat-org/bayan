@@ -17,22 +17,53 @@ public struct Transport {
     i64        pos    = 0
     i64        filled = 0
     List<u8>   header
+    /// Bytes read in place of standard input when `fromFeed` (the bound tests); `fed` of them are read.
+    List<u8>   feed
+    bool       fromFeed = false
+    i64        fed      = 0
 
     public static Transport create(i64 maxMessage = defaultMaxMessage) uses alloc {
         var input = List<u8>()
         for _ in 0..chunk {
             input.append(0)
         }
-        return Transport { maxMessage: maxMessage, input: move input, header: List<u8>() }
+        return Transport { maxMessage: maxMessage, input: move input, header: List<u8>(), feed: List<u8>() }
+    }
+
+    /// A transport that reads `bytes` instead of standard input.
+    public static Transport reading(move List<u8> bytes, at i64 maxMessage) uses alloc {
+        var t = create(maxMessage)
+        t.feed = move bytes
+        t.fromFeed = true
+        return t
+    }
+
+    /// Bytes the transport keeps between messages: its input chunk and its header line.
+    public i64 bufferBytes => input.length + header.length
+
+    /// Refills `input` from standard input, or from `feed`; false at the end of input (a read error ends it too).
+    bool fill(ref this) uses console {
+        var n: i64 = 0
+        if fromFeed {
+            n = (feed.length - fed < input.length ? feed.length - fed : input.length)
+            for i in 0..n {
+                input[i] = feed[fed + i]
+            }
+            fed += n
+        } else {
+            let r = Io.stdin.read(to: input.mutableSpan()) catch { return false }
+            n = r
+        }
+        return false if n <= 0
+        pos = 0
+        filled = n
+        return true
     }
 
     /// The next byte of standard input, or -1 at its end (a read error ends it too).
     i64 readByte(ref this) uses console {
         if pos == filled {
-            let n = Io.stdin.read(to: input.mutableSpan()) catch { return -1 }
-            return -1 if n <= 0
-            pos = 0
-            filled = n
+            return -1 if !fill()
         }
         let b = input[pos]
         pos += 1
@@ -44,10 +75,7 @@ public struct Transport {
         var done: i64 = 0
         while done < into.length {
             if pos == filled {
-                let n = Io.stdin.read(to: input.mutableSpan()) catch { return false }
-                return false if n <= 0
-                pos = 0
-                filled = n
+                return false if !fill()
             }
             let k = (into.length - done < filled - pos ? into.length - done : filled - pos)
             for i in 0..k {
@@ -137,10 +165,14 @@ public JsonWriter begin() uses alloc {
 
 /// Ends the message started by `begin` and writes it to standard output with its header.
 public void send(ref JsonWriter w) uses alloc, console {
+    Io.stdout.write(frame(ref w))
+}
+
+/// Ends the message started by `begin`; returns it with its header, in the current allocator.
+public string frame(ref JsonWriter w) uses alloc {
     w.writeEndObject()
     let body = w.text ?? panic("bayan-lsp: the JSON writer wrote text that is not UTF-8")
-    Io.stdout.write($"Content-Length: {body.length}\r\n\r\n")
-    Io.stdout.write(body)
+    return $"Content-Length: {body.length}\r\n\r\n{body}"
 }
 
 /// The value of a `Content-Length:` line (key in any ASCII case) as `long.TryParse` reads it after trimming spaces, or -1.
