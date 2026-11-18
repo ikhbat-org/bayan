@@ -15,6 +15,9 @@
 #       `<version>`; in SelfhostDefaultT12Tests expected.stdout/expected.stderr everything after a line `C compiler failed (exit N):`
 #       becomes the one line `<cc output>`; in SelfhostDefaultT5Tests expected.stdout/expected.stderr `(commit …)` becomes
 #       `(commit <c>)` and the rest of `isn't writable: ` up to an escape or the line end becomes `<message>` (the T5 `Mask`);
+#       in a cli case's expected.stdout and expected.stderr, a version line the C# `Mask` left as `bayan <version> (masked)` names
+#       `<version>` (T19: the tree's version moves on); in every expected.* file, the std module list `import one of `std.json``
+#       becomes `import one of <std modules>` (T19: the export shipped std.json alone, the tree ships more);
 #   (2c) a non-text file under input/ that still names the export machine (HOME, /Users/, /opt/homebrew) after (2) is left out,
 #       and its case and name printed; cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-14 lands with no input.tsv (T17c);
 #   (2d) a case that fails only because (2c) left out its input (the list `removed` below) is not landed: it is printed and
@@ -140,7 +143,21 @@ mask_cc() {
   mv "$work/cand2" "$work/cand"
 }
 
-# (c) mask_commit: in $work/cand, `(commit …)` becomes `(commit <c>)` and the rest of `isn't writable: ` up to an escape or the
+# (c) mask_version: in $work/cand, the version of a line `bayan <version> (masked)` (SelfhostDriverTests.cs:31 `Mask`) becomes <version>
+mask_version() {
+  LC_ALL=C sed -E 's/^bayan [^ ]+ \(masked\)$/bayan <version> (masked)/' "$work/cand" > "$work/cand2"
+  mv "$work/cand2" "$work/cand"
+}
+
+# (d) mask_std: in $work/cand, the export's std module list after `import one of `, `std.json` alone (not followed by ", `", a longer
+# list), becomes <std modules>
+mask_std() {
+  LC_ALL=C sed -E -e 's/import one of `std\.json`$/import one of <std modules>/' \
+    -e 's/import one of `std\.json`([^,]|,$|,[^ ]|, $|, [^`])/import one of <std modules>\1/g' "$work/cand" > "$work/cand2"
+  mv "$work/cand2" "$work/cand"
+}
+
+# (e) mask_commit: in $work/cand, `(commit …)` becomes `(commit <c>)` and the rest of `isn't writable: ` up to an escape or the
 # line end becomes `<message>` (SelfhostDefaultT5Tests.cs `Mask`, which its export did not apply)
 mask_commit() {
   LC_ALL=C sed -E -e 's/\(commit [^)]*\)/(commit <c>)/g' -e "s/isn't writable: [^${ESC}]*/isn't writable: <message>/g" "$work/cand" > "$work/cand2"
@@ -170,6 +187,8 @@ land_case() {
           else cp "$c/$f" "$work/cand"; fi
           # a cli doctor run (a line of args is `doctor`): mask_doctor on its stdout
           [ "$kind/$f" != cli/expected.stdout ] || ! grep -qx -F doctor "$c/args" 2> /dev/null || mask_doctor "$c"
+          case "$kind/$f" in (cli/expected.stdout|cli/expected.stderr) mask_version ;; esac
+          case "$f" in (expected.*) mask_std ;; esac
           case "$class" in
             (SelfhostDefaultT12Tests) case "$f" in (expected.stdout|expected.stderr) mask_cc ;; esac ;;
             (SelfhostDefaultT5Tests) case "$f" in (expected.stdout|expected.stderr) mask_commit ;; esac ;;

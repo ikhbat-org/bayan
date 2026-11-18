@@ -1,1 +1,1 @@
-bayan: cannot write the build output or cache (<repo>/tmp/t5/pdb-cache): Is a directory : '<repo>/tmp/t5/cs/pdb/sub'
+bayan: cannot write the build output or cache (<repo>/tmp/t5/pdb-cache): An input or output operation failed.

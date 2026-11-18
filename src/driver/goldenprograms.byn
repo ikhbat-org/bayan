@@ -491,7 +491,9 @@ void goldenProgramSame(string path, as ref List<string> got, by bool header, to 
     let want = goldenCliLines(path)
     let head = header && want.length > 0 ? 1 : 0
     var line = 0
-    while line + head < want.length && line < got.length && want[line + head] == got[line] {
+    while line + head < want.length
+            && line < got.length
+            && want[line + head] == goldenStdModules(got[line], by: want[line + head]) {
         line += 1
     }
     return if line + head == want.length && line == got.length
@@ -598,13 +600,13 @@ void goldenProgramCheck(string dir, for string name, as string actual, by string
         return
     }
     var want = text
-    var got = actual
+    var got = goldenStdModules(actual, by: text)
     if form == "untimed" {
         want = goldenProgramUntimed(goldenLf(text))
-        got = goldenProgramUntimed(goldenLf(actual))
+        got = goldenProgramUntimed(goldenLf(got))
     } else if form == "trim" {
         want = goldenProgramTrimEnd(goldenLf(text))
-        got = goldenProgramTrimEnd(goldenLf(actual))
+        got = goldenProgramTrimEnd(goldenLf(got))
     }
     return if want == got
     if goldenUpdate() && !Fs.fileExists(goldenExpected(path, for: ".pending")) {
@@ -2135,4 +2137,34 @@ test "a build past the build limit is kept as a failed file naming the program, 
         assert(r.status == "failed" && r.detail.contains(text))
     }
     assert(goldenBuildLimitMs == 1200000)
+}
+
+test "a section line or a program file expecting `import one of <std modules>` matches any std module list; an expected list only itself" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-program-std-modules")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "sections", as: "== all\nerror: import one of <std modules>\n")
+    goldenWrite(root, for: "listed", as: "== all\nerror: import one of `std.json`\n")
+    goldenWrite(root, for: "expected.stdout", as: "help: import one of <std modules>\n")
+    var got = List<string>()
+    got.append("error: import one of `std.fs`, `std.json`")
+    var failures = List<string>()
+    goldenProgramSame(Path.combine(root, "sections"), as: ref got, by: true, to: ref failures)
+    assert(failures.length == 0)
+    goldenProgramSame(Path.combine(root, "listed"), as: ref got, by: true, to: ref failures)
+    assert(failures.length == 1)
+    var other = List<string>()
+    other.append("error: import two of `std.fs`")
+    goldenProgramSame(Path.combine(root, "sections"), as: ref other, by: true, to: ref failures)
+    assert(failures.length == 2)
+    goldenProgramCheck(
+        root,
+        for: "expected.stdout",
+        as: "help: import one of `std.fs`, `std.json`\n",
+        by: "trim",
+        to: ref failures,
+    )
+    assert(failures.length == 2)
+    goldenProgramCheck(root, for: "expected.stdout", as: "help: import two of `std.fs`\n", by: "trim", to: ref failures)
+    assert(failures.length == 3)
+    deleteWorkDir(root)
 }
