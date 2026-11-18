@@ -7,7 +7,7 @@ sources: none recorded
 kind: property
 scope: runtime/bayan-rt.c
 proof: csharp/tests/Bayan.Tests/SymbolLawTests.cs
-check: dotnet test --filter Law=L015
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/symbol'
 enacted: 2026-10-25
 ---
 

@@ -7,7 +7,7 @@ sources: none recorded
 kind: property
 scope: runtime/bayan-rt.c
 proof: csharp/tests/Bayan.Tests/L010Utf8DecodeTests.cs
-check: dotnet test --filter Law=L010
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/utf8' --only 'run/string-from'
 enacted: 2026-10-21
 ---
 
