@@ -1,4 +1,4 @@
-[32m◆[0m bayan       0.3.2 (commit 9cf2f130da53)
+[32m◆[0m bayan       <version>
 [32m◆[0m host        <host>
 [31m✗ C compiler: none found[0m
 [34m  help: install zig (https://ziglang.org), or set BAYAN_CC to a C compiler[0m
