@@ -163,6 +163,32 @@ int main(int argc, char** argv) {
 }
 EOF
   zig cc -o "$root/w/lingerer" "$root/lingerer.c" 2> "$root/zig.err" || { cat "$root/zig.err"; bad "zig cc lingerer.c"; }
+  # tamper <dir>: writes 0 into every file in <dir>, makes it read-only, exits 7. The program can write TMPDIR, so no file
+  # there may carry its exit code (review 2026-11-18, loop 2).
+  cat > "$root/tamper.c" <<'EOF'
+#include <dirent.h>
+#include <stdio.h>
+#include <sys/stat.h>
+int main(int argc, char** argv) {
+    DIR* d = opendir(argv[1]);
+    struct dirent* e;
+    char p[4096];
+    while (d && (e = readdir(d)) != NULL) {
+        if (e->d_name[0] == '.') continue;
+        snprintf(p, sizeof p, "%s/%s", argv[1], e->d_name);
+        FILE* f = fopen(p, "w");
+        if (f) { fputs("0\n", f); fclose(f); chmod(p, 0444); }
+    }
+    return 7;
+}
+EOF
+  zig cc -o "$root/w/tamper" "$root/tamper.c" 2> "$root/zig.err" || { cat "$root/zig.err"; bad "zig cc tamper.c"; }
+  mkdir -p "$root/w/tmp"
+  TMPDIR="$root/w/tmp" run -- "$root/w/tamper" "$root/w/tmp" 2> /dev/null
+  check "exit code not rewritable from TMPDIR" "$(field exit)" "7"
+  TMPDIR="$root/w/tmp" run --sweep "$root/w" -- "$root/w/tamper" "$root/w/tmp" 2> /dev/null
+  check "exit code not rewritable from TMPDIR (--sweep)" "$(field exit)" "7"
+  chmod -R u+w "$root/w/tmp"
   lingering() { ps -axo command= | grep -c "^$root/w/[l]ingerer"; }
   run --sweep "$root/w" -- "$shell" -c "'$root/w/lingerer' 20 fork '$root/w/pids/b' > /dev/null 2>&1"
   check "--sweep: a child that left the group and the session is reaped" "$(field exit) $(lingering)" "0 0"

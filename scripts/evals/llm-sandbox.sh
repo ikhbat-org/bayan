@@ -5,7 +5,7 @@
 # The program's standard output goes to --stdout, cut at 1 MiB. --status gets three lines: `exit: <code>`, `limit: true|false`
 # (output past 1 MiB was cut) and `sandbox: sandbox-exec/2|none` (`/2` names the profile: reads denied but for the system,
 # the program's directory, zig, dotnet, TMPDIR, BAYAN_CACHE and --write; no signal outside the sandbox, no mach lookup, exec
-# only of the program, env, zig and under those directories). The launcher exits 0 when it ran the program, 2 on bad usage
+# only of the program, env, zig, and anything under zig's directory, --write, TMPDIR and BAYAN_CACHE). The launcher exits 0 when it ran the program, 2 on bad usage
 # or a path the profile cannot hold (`"`, `\` or a newline), 3 when the sweep left a process, 143 on TERM or INT.
 # --no-fork denies fork to the program on macOS. --sweep runs the program as its own process group and, when it ends or the
 # launcher gets TERM or INT, kills that group, its descendants, and every process of this user whose image is under <dir>.
@@ -116,11 +116,11 @@ if [ "$(uname -s)" = Darwin ] && [ -x /usr/bin/sandbox-exec ]; then
   runner=(/usr/bin/sandbox-exec -f "$profile" env -i "${envargs[@]}")
 fi
 
-# The exit code goes through a file because the pipe to head hides it. head stops at one byte past the cap, so a program that
-# prints without end gets SIGPIPE.
-codefile=$(mktemp "${TMPDIR:-/tmp}/llm-sandbox-code.XXXXXX") || exit 2
+# The exit code comes from PIPESTATUS, never a file: a file under TMPDIR or --write is one the program could rewrite. head
+# stops at one byte past the cap, so a program that prints without end gets SIGPIPE.
 if [ -z "$sweepdir" ]; then
-  { "${runner[@]}" "$prog" "$@" < "$stdin"; echo $? > "$codefile"; } | head -c $((cap + 1)) > "$stdout"
+  "${runner[@]}" "$prog" "$@" < "$stdin" | head -c $((cap + 1)) > "$stdout"
+  code=${PIPESTATUS[0]}
 else
   # The pipeline is a job of its own (set -m gives it its own process group), so a TERM from the scorer's time limit reaches
   # only the launcher, whose trap sweeps.
@@ -129,7 +129,7 @@ else
   image() {
     if [ "$(uname -s)" = Darwin ]; then
       PATH=$PATH:/usr/sbin lsof -a -d txt -u "$(id -u)" -Fpn 2>/dev/null \
-        | awk -v a="$sweepabs/" -v b="$sweepdir/" '/^p/ { pid = substr($0, 2) } /^n/ { n = substr($0, 2); if (index(n, a) == 1 || index(n, b) == 1) print pid }' \
+        | SWEEP_A="$sweepabs/" SWEEP_B="$sweepdir/" awk '/^p/ { pid = substr($0, 2) } /^n/ { n = substr($0, 2); if (index(n, ENVIRON["SWEEP_A"]) == 1 || index(n, ENVIRON["SWEEP_B"]) == 1) print pid }' \
         | sort -u
     else
       local e t
@@ -155,16 +155,16 @@ else
     [ -z "$(image)" ]
   }
   pgid=""
-  trap 'sweep; rm -f "$codefile"; exit 143' TERM INT
+  trap 'sweep; exit 143' TERM INT
   set -m
-  { "${runner[@]}" "$prog" "$@" < "$stdin"; echo $? > "$codefile"; } | head -c $((cap + 1)) > "$stdout" &
-  pgid=$(jobs -p | head -1)
-  wait
+  ( "${runner[@]}" "$prog" "$@" < "$stdin" | head -c $((cap + 1)) > "$stdout"; exit "${PIPESTATUS[0]}" ) &
+  pgid=$!
+  wait "$pgid"
+  code=$?
   set +m
-  sweep || { rm -f "$codefile"; echo "llm-sandbox: a process under $sweepdir outlived the sweep" >&2; exit 3; }
+  sweep || { echo "llm-sandbox: a process under $sweepdir outlived the sweep" >&2; exit 3; }
   trap - TERM INT
 fi
-code=$(cat "$codefile"); rm -f "$codefile"
 
 limit=false
 if [ "$(wc -c < "$stdout" | tr -d ' ')" -gt "$cap" ]; then
