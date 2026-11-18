@@ -2781,3 +2781,73 @@ test "a non-constant @cases value is BYN2774 under check, as the frozen diag cas
     assert(failure == "" && o.exitCode == exitFailure)
     assert(sb.finish() == $"{diag}\n" && located == 4)
 }
+
+// L041: job count does not change the result
+test "L041: --jobs N and --jobs M print the same masked report over 30 generated cases directories" {
+    let ns = goldenLines("1\n2\n1\n3")
+    let ms = goldenLines("4\n16\n2\n8")
+    var mismatch = ""
+    var passed = false
+    var failed = false
+    var missing = false
+    for seed in 0..30 {
+        var state: u64 = 0x9E3779B97F4A7C15 ^ (u64(seed + 1) *% 0xD1B54A32D192ED03)
+        let root = Path.combine(Path.fullPath("tmp"), $"golden-l041-{seed}")
+        // one to three `lex` and one to three `parse` cases, each passing (its expected file copied), failing (one expected line changed) or
+        // with no expected file
+        deleteWorkDir(root)
+        for kind in ["lex", "parse"] {
+            let stems = goldenLines(
+                kind == "lex"
+                    ? "bad-chars\nchars\ncomments\nfloats\nidentifiers\nintegers\nkeywords\noperators\nstrings\nunexpected"
+                    : "except-wasl\nhello\nexcept-expr\ncatch-block\nparticles\ncatch-switch\nerror-payload",
+            )
+            let ending = kind == "lex" ? ".tokens" : ".ast"
+            state ^= state << 13
+            state ^= state >> 7
+            state ^= state << 17
+            let count = 1 + i64(state % 3)
+            for k in 0..count {
+                state ^= state << 13
+                state ^= state >> 7
+                state ^= state << 17
+                let stem = stems[i64((state >> 4) % u64(stems.length))]
+                let mode = (state >> 20) % 3
+                goldenCopy(root, for: $"{kind}/{stem}.byn")
+                let expected = Io.readText(Path.fullPath($"tests/cases/{kind}/{stem}{ending}")) catch ""
+                if mode == 0 {
+                    goldenWrite(root, for: $"{kind}/{stem}{ending}", as: expected)
+                } else if mode == 1 {
+                    let at = i64((state >> 32) % u64(goldenLines(expected).length))
+                    goldenWrite(root, for: $"{kind}/{stem}{ending}", as: goldenChangeLine(expected, at: at))
+                }
+            }
+        }
+        for j in 0..ns.length {
+            let n = goldenJobsRun(root, as: ns[j])
+            let m = goldenJobsRun(root, as: ms[j])
+            assert(!n.stdout.contains("timed out") && !m.stdout.contains("timed out"))
+            passed = passed || n.stdout.contains("\npassed ")
+            failed = failed || n.stdout.contains("expected line ")
+            missing = missing || n.stdout.contains("missing expected file")
+            continue if n.stdout == m.stdout
+            let a = goldenLines(n.stdout)
+            let b = goldenLines(m.stdout)
+            var i: i64 = 0
+            while i < a.length && i < b.length && a[i] == b[i] {
+                i += 1
+            }
+            let left = i < a.length ? a[i] : "<end>"
+            let right = i < b.length ? b[i] : "<end>"
+            mismatch = $"L041 counterexample: seed {seed} ({root}), --jobs {ns[j]} vs --jobs {ms[j]}, line {i + 1}: {left} | {right}"
+            break
+        }
+        if mismatch != "" {
+            print(mismatch)
+            break
+        }
+        deleteWorkDir(root)
+    }
+    assert(mismatch == "")
+    assert(passed && failed && missing)
+}
