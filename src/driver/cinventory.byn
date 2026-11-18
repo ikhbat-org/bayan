@@ -334,7 +334,8 @@ test "c inventory: every hit is a row and every row has a hit" {
     assert(bad.length == 0)
     let noRow = ciExcept(hits, from: rows)
     let noHit = ciExcept(rows, from: hits)
-    print($"hits without a row:\n{ciJoined(noRow)}rows without a hit:\n{ciJoined(noHit)}") if noRow.length > 0 || noHit.length > 0
+    print($"hits without a row:\n{ciJoined(noRow)}rows without a hit:\n{ciJoined(noHit)}") if noRow.length > 0
+        || noHit.length > 0
     assert(noRow.length == 0 && noHit.length == 0)
     assert(ciJoined(hits) == ciJoined(rows))
 }
@@ -382,7 +383,9 @@ string ciInts(List<i64> xs) uses alloc {
 }
 
 test "c inventory: anchor matches whole words only" {
-    assert(ciInts(ciAnchorLines("byn_env_get_all(x);\nbyn_env_get(x);\nmy_byn_env_get(x);\n", for: "byn_env_get")) == "2")
+    assert(
+        ciInts(ciAnchorLines("byn_env_get_all(x);\nbyn_env_get(x);\nmy_byn_env_get(x);\n", for: "byn_env_get")) == "2"
+    )
     assert(ciInts(ciAnchorLines("a(\"x\")\nb(\"x\")\n", for: "(\"x\")")) == "1,2")
     assert(ciAnchorLines("a\nb\n", for: "c").length == 0)
 }
@@ -455,6 +458,8 @@ test "c inventory: line breaks are preserved" {
 
 test "c inventory: attribute list splits on commas" {
     assert(ciJoined(ciSplit("__attribute__((noreturn, cold))")) == "__attribute__((noreturn))\n__attribute__((cold))\n")
-    assert(ciJoined(ciSplit("__attribute__ ((aligned(8), packed))")) == "__attribute__((aligned(8)))\n__attribute__((packed))\n")
+    assert(ciJoined(
+        ciSplit("__attribute__ ((aligned(8), packed))"),
+    ) == "__attribute__((aligned(8)))\n__attribute__((packed))\n")
     assert(ciJoined(ciSplit("__builtin_expect")) == "__builtin_expect\n")
 }

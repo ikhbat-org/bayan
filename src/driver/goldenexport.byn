@@ -253,10 +253,36 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
     var cwd = scratch
     var exec = List<string>()
     let named = goldenCliNamed(dir, for: scratch)
+    // the name the C# wrote the input as (`input.name`): the named path of that file name, else below the scratch directory
+    let original = goldenCliLines(Path.combine(dir, "input.name"))
     let listed = Io.listDir(dir) catch List<string>()
     for name in listed {
-        continue if !(name.startsWith("input.") && name != "input.tsv" && Fs.fileExists(Path.combine(dir, name)))
-        let to = named.length > 0 ? named[0] : Path.combine(scratch, name)
+        continue if !(name.startsWith("input.")
+            && name != "input.tsv"
+            && name != "input.name"
+            && Fs.fileExists(Path.combine(dir, name)))
+        let plain = name == "input.byn.ref" ? "input.byn" : name
+        var to = named.length > 0 ? named[0] : Path.combine(scratch, original.length > 0 ? original[0] : plain)
+        if original.length > 0 {
+            for path in named {
+                if Path.fileName(path) == Path.fileName(original[0]) {
+                    to = path
+                    break
+                }
+            }
+        }
+        if name == "input.byn.ref" {
+            // T17a2: the pointer `file:<sha256>` into `cases`/inputs/files, placed where input.byn goes
+            let pointer = goldenCliLines(Path.combine(dir, name))
+            goldenCliPlace(
+                $"{plain}\t{pointer.length > 0 ? pointer[0] : ""}",
+                at: to,
+                from: cases,
+                to: ref exec,
+                through: ref failure,
+            )
+            continue
+        }
         let bytes = Io.readFile(Path.combine(dir, name)) catch List<u8>()
         Io.createDirectory(Path.directoryName(to) ?? scratch) catch {}
         Io.writeFile(to, bytes.span) catch {
@@ -335,7 +361,7 @@ string goldenCliTimes(string text, from string lead, by string repl, bool two = 
         if lead == "" {
             starts = i == 0 || !goldenCliDigit(b[i - 1])
         } else {
-            starts = i + lead.length <= n && text[i..i + lead.length] == lead
+            starts = goldenCliHas(text, at: i, for: lead)
         }
         var end: i64 = -1
         if starts {
@@ -444,6 +470,15 @@ string goldenCliCommit(string text) uses alloc {
     return buf.finish()
 }
 
+/// Whether `text` holds `word` from byte `i` on, compared as bytes (`i` need not start a character).
+bool goldenCliHas(string text, at i64 i, for string word) {
+    return false if i + word.length > text.length
+    for k in 0..word.length {
+        return false if text.bytes[i + k] != word.bytes[k]
+    }
+    return true
+}
+
 /// Whether `text` has `/` or `\` at `i`.
 bool goldenCliSep(string text, at i64 i) => i < text.length && (text.bytes[i] == 0x2f || text.bytes[i] == 0x5c)
 
@@ -455,11 +490,11 @@ string goldenCliT12(string text) uses alloc {
     var i: i64 = 0
     while i < text.length {
         var end: i64 = -1
-        if text[i..text.length].startsWith("<root>") {
+        if goldenCliHas(text, at: i, for: "<root>") {
             var j = i + 6
             var ok = true
             for word in ["cache", "v1", "tmp"] {
-                if ok && goldenCliSep(text, at: j) && text[j + 1..text.length].startsWith(word) {
+                if ok && goldenCliSep(text, at: j) && goldenCliHas(text, at: j + 1, for: word) {
                     j += 1 + word.length
                 } else {
                     ok = false
@@ -1806,6 +1841,60 @@ test "input.tsv entries and trees are placed below the scratch directory, an exe
     assert(cwd == scratch)
     assert(main == "print(\"Salam, world!\")\n")
     assert(exec.exitCode == 0)
+}
+
+test "an `input.byn.ref` pointer is placed where input.byn goes, and BAYAN_UPDATE=1 keeps it and writes no input.byn" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-ref")
+    deleteWorkDir(root)
+    let name = "SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken"
+    let dir = Path.combine(root, $"cli/{name}")
+    goldenCliFixture(root, for: name, as: goldenCliSpecExit)
+    let text = "print(\"hi\")\n"
+    let sha = Hex.encode(sha256(text.bytes).span)
+    goldenWrite(root, for: $"inputs/files/{sha}", as: text)
+    goldenWrite(dir, for: "input.byn.ref", as: $"file:{sha}\n")
+    Io.remove(Path.combine(dir, "input.byn")) catch {}
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let staged = Io.readText(Path.combine(scratch, "tmp/t1-driver/tool.byn")) catch "-"
+    let run = goldenCliFixtureRun(root, for: name)
+    let update = goldenUpdateRun(root, as: "1", by: "1")
+    let pointer = Io.readText(Path.combine(dir, "input.byn.ref")) catch "-"
+    let written = Fs.fileExists(Path.combine(dir, "input.byn"))
+    deleteWorkDir(root)
+    deleteWorkDir(
+        Path.combine(Path.fullPath("tmp"), "cli/SelfhostDriverT1Tests_AScriptRunsAndAGlobalOptionBeforeItIsTaken"),
+    )
+    assert(failure == "")
+    assert(staged == text)
+    assert(run == "")
+    assert(update.stdout.contains($"\npassed cli/{name}\n"))
+    assert(pointer == $"file:{sha}\n")
+    assert(!written)
+}
+
+test "an `input.byn.ref` pointer with no file below inputs/files fails the case naming the missing file" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-ref-missing")
+    deleteWorkDir(root)
+    let name = "SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken"
+    let dir = Path.combine(root, $"cli/{name}")
+    goldenCliFixture(root, for: name, as: goldenCliSpecExit)
+    let sha = Hex.encode(sha256("print(\"hi\")\n".bytes).span)
+    goldenWrite(dir, for: "input.byn.ref", as: $"file:{sha}\n")
+    Io.remove(Path.combine(dir, "input.byn")) catch {}
+    let failure = goldenCliFixtureRun(root, for: name)
+    deleteWorkDir(root)
+    deleteWorkDir(
+        Path.combine(Path.fullPath("tmp"), "cli/SelfhostDriverT1Tests_AScriptRunsAndAGlobalOptionBeforeItIsTaken"),
+    )
+    assert(failure.contains($"missing input file {Path.combine(root, $"inputs/files/{sha}")}"))
+}
+
+test "the T12 and time masks compare bytes, so text with multibyte characters before a match does not stop them" {
+    assert(goldenCliT12("é<root>/cache/v1/tmp/x/a.byn in 1.5s") == "éa.byn in <time>")
+    assert(goldenCliT12("ـ<root>/cache/v1/tmp") == "ـ<root>/cache/v1/tmp")
+    assert(goldenCliTimes("ءé in 12.34s ب", from: " in ", by: " in masked", two: true) == "ءé in masked ب")
 }
 
 test "a cli case without `args` is reported, and BAYAN_UPDATE=1 rewrites a cli case's expected files" {

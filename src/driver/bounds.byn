@@ -333,10 +333,16 @@ test "sweep: a build leaves the fresh and the foreign seeded names in TMPDIR and
             boundAged(Path.combine(temp, name), by: 120)
         }
         boundAged(Path.combine(temp, "bayan-coverage-new"), by: 0)
-        Io.writeFile(Path.combine(temp, "bayan-coverage-old/inside"), "".bytes) catch { panic($"cannot write {temp}/bayan-coverage-old/inside") }
+        Io.writeFile(
+            Path.combine(temp, "bayan-coverage-old/inside"),
+            "".bytes,
+        ) catch { panic($"cannot write {temp}/bayan-coverage-old/inside") }
         let file = Path.combine(temp, "bayan-coverage-file")
         Io.writeFile(file, "".bytes) catch { panic($"cannot write {file}") }
-        Fs.setModified(file, to: Time.fromNanos(Time.now().nanos - 120 * 60 * 1000000000)) catch { panic($"cannot age {file}") }
+        Fs.setModified(
+            file,
+            to: Time.fromNanos(Time.now().nanos - 120 * 60 * 1000000000),
+        ) catch { panic($"cannot age {file}") }
         // the C# seed ages the directories after creating `inside`, which touches its parent
         boundAged(Path.combine(temp, "bayan-coverage-old"), by: 120)
         let staging = Path.combine(root, "cache/v1/tmp")

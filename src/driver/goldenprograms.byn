@@ -202,13 +202,31 @@ string goldenProgram(
     return ""
 }
 
-/// The name of the plain input file of case `dir` (`input.byn`, `input.test.byn`); empty when it has none.
+/// The name of the plain input file of case `dir` (`input.byn`, `input.test.byn`; `input.byn` for its T17a2 pointer `input.byn.ref`); empty
+/// when it has none. `input.name` is not an input.
 string goldenProgramPlain(string dir) uses alloc, fs {
     let listed = Io.listDir(dir) catch return ""
     for name in listed {
-        return name if name.startsWith("input.") && name != "input.tsv" && Fs.fileExists(Path.combine(dir, name))
+        continue if !(name.startsWith("input.")
+            && name != "input.tsv"
+            && name != "input.name"
+            && Fs.fileExists(Path.combine(dir, name)))
+        return name == "input.byn.ref" ? "input.byn" : name
     }
     return ""
+}
+
+/// The file holding the plain input `plain` of case `dir`: itself, else the file its pointer `<plain>.ref` (`file:<sha256>`, T17a2) names in
+/// the inputs/files of the cases root above `dir`.
+string goldenProgramInput(string dir, for string plain) uses alloc, fs {
+    let path = Path.combine(dir, plain)
+    let pointer = goldenCliLines(Path.combine(dir, $"{plain}.ref"))
+    return path if Fs.fileExists(path) || pointer.length == 0 || !pointer[0].startsWith("file:")
+    let cases = Path.directoryName(Path.directoryName(Path.directoryName(dir) ?? "") ?? "") ?? ""
+    return Path.combine(
+        Path.combine(Path.combine(cases, "inputs"), "files"),
+        pointer[0]["file:".length..pointer[0].length],
+    )
 }
 
 /// Whether case `dir` has an `input/` tree (its `input.tsv`, or the directory of an export before T17a).
@@ -263,8 +281,8 @@ void goldenProgramTree(string dir, from string cases, to string target, through 
 
 /// The plain input of case `dir` copied to `path`.
 void goldenProgramPut(string dir, for string plain, at string path, through ref string failure) uses alloc, fs {
-    let bytes = Io.readFile(Path.combine(dir, plain)) catch {
-        failure = $"cannot read {Path.combine(dir, plain)}"
+    let bytes = Io.readFile(goldenProgramInput(dir, for: plain)) catch {
+        failure = $"cannot read {goldenProgramInput(dir, for: plain)}"
         return
     }
     Io.createDirectory(Path.directoryName(path) ?? ".") catch {}
@@ -625,7 +643,12 @@ bool goldenProgramClean(GoldenExportCase k, for in GoldenOutcome o, to ref List<
 /// directory, its `input/` placed there as the repo paths `args` name (SelfhostSemanticsHarness.cs:392-426), the section compared.
 void goldenProgramGenSem(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
     var failure = ""
-    let prog = goldenProgram("semantics", by: k.exe, through: ref failure, main: Path.combine(k.dir, "input.byn"))
+    let prog = goldenProgram(
+        "semantics",
+        by: k.exe,
+        through: ref failure,
+        main: goldenProgramInput(k.dir, for: "input.byn"),
+    )
     goldenProgramTree(k.dir, from: k.cases, to: k.scratch, through: ref failure)
     if failure != "" {
         failures.append($"{k.dir}\n{failure}")
@@ -934,15 +957,20 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
     if goldenProgramHasTree(k.dir) {
         goldenProgramTree(k.dir, from: k.cases, to: Path.combine(k.scratch, "input"), through: ref failure)
     }
-    var cli = goldenArgLines(Path.combine(k.dir, "args"))
-    for i in 0..cli.length {
-        if plain != "" && cli[i] == plain {
-            cli[i] = original
-        }
-    }
     let sections = Fs.fileExists(Path.combine(k.dir, "expected.sections"))
     let harness = Fs.fileExists(Path.combine(k.dir, "expected.stderr"))
         && Fs.fileExists(Path.combine(k.dir, "expected.c"))
+    // `SameAsCli` ran on the input's full path, which `Mapped` (SelfhostEmitterHarness.cs:262) wrote as `plain`; a bare name it kept
+    let staged = harness && original != plain ? Path.combine(k.scratch, original) : original
+    var cli = goldenArgLines(Path.combine(k.dir, "args"))
+    for i in 0..cli.length {
+        if plain != "" && cli[i] == plain {
+            cli[i] = staged
+        }
+        if cli[i].contains("<repo>") {
+            cli[i] = goldenCliPut(cli[i], for: k.scratch)
+        }
+    }
     var prog = ""
     var args = List<string>()
     var joined = ""
@@ -960,27 +988,30 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
         } else {
             args.append(k.name.startsWith("Types_OfATypeNoCaseMatches") ? "iface" : "corpus")
         }
-        args.append(plain)
+        args.append(original)
         let main = goldenProgramSource(k.cases, for: "SelfhostEmitterT7Tests.byn", through: ref failure)
         prog = goldenProgram("emitter", by: k.exe, through: ref failure, main: main)
     } else if k.cls == "SelfhostEmitterT21Tests" {
         // SelfhostEmitterT21Tests.cs:136-143: GenSem with the T21 main on the input's path (`+` for the all-expression mode), its section
         let dash = goldenOffset(k.name, for: "-")
         let plus = dash >= 0 && k.name[dash + 1..k.name.length].startsWith("+")
-        joined = $"{plus ? "+" : ""}{plain != "" ? plain : "input"}"
+        joined = $"{plus ? "+" : ""}{plain != "" ? original : "input"}"
         args.append(joined)
         let main = goldenProgramSource(k.cases, for: "SelfhostEmitterT21Tests.byn", through: ref failure)
         prog = goldenProgram("semantics", by: k.exe, through: ref failure, main: main)
     } else if k.cls == "SelfhostEmitterT22Tests" {
         // SelfhostEmitterT22Tests.cs:270-271: `shapes <path>`, stdout as the C# lines
         args.append("shapes")
-        args.append(plain)
+        args.append(original)
         let main = goldenProgramSource(k.cases, for: "SelfhostEmitterT22Tests.byn", through: ref failure)
         prog = goldenProgram("emitter", by: k.exe, through: ref failure, main: main)
     } else if sections
-            || k.cls == "SelfhostDefaultT10Tests" && !harness && cli.length > 0 && cli[0] is "coverage"
-            or "mutate" {
-        // the class's generated main with `args` (SelfhostEmitterHarness.cs:194-215; SelfhostDefaultT10Tests.cs:360-380)
+            || k.cls == "SelfhostDefaultT10Tests"
+            && !harness
+            && cli.length > 0
+            && (cli[0].startsWith("coverage") || cli[0].startsWith("mutate")) {
+        // the class's generated main with `args` (SelfhostEmitterHarness.cs:194-215; SelfhostDefaultT10Tests.cs:360-380), its mode
+        // `coverage` or `mutate` with `-skip` or `-tests` (:40-55)
         for a in cli {
             args.append(a)
         }
@@ -1005,7 +1036,7 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
     }
     var none = List<u8>()
     let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
-    let res = goldenProgramPortable(o.stdout, at: k.scratch, by: ref args)
+    let res = goldenProgramPortable(staged != original ? o.stdout.replaced(staged, by: plain) : o.stdout, at: k.scratch, by: ref args)
     if k.cls is "SelfhostEmitterT7Tests" or "SelfhostEmitterT21Tests" {
         // the section's lines joined by LF against `expected.c` (SelfhostEmitterHarness.cs:50 `AssertSame`)
         if o.exitCode != 0 {
@@ -1041,7 +1072,7 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
         goldenCliCheck(
             k.dir,
             for: "expected.stderr",
-            as: goldenProgramPortable(o.stderr, at: k.scratch, by: ref args),
+            as: goldenProgramPortable(staged != original ? o.stderr.replaced(staged, by: plain) : o.stderr, at: k.scratch, by: ref args),
             to: ref failures,
         )
         goldenCliCheck(k.dir, for: "expected.c", as: res, to: ref failures)
@@ -1076,7 +1107,7 @@ void goldenProgramParse(GoldenExportCase k, to ref List<string> failures) uses a
             by: k.exe,
             through: ref failure,
             main: "-",
-            add: Path.combine(k.dir, plain),
+            add: goldenProgramInput(k.dir, for: plain),
             addAs: $"parser/t{n}-test.byn",
         )
         if failure != "" {
@@ -1284,7 +1315,7 @@ void goldenProgramLex(GoldenExportCase k, to ref List<string> failures) uses all
             "lexer",
             by: k.exe,
             through: ref failure,
-            add: Path.combine(k.dir, plain),
+            add: goldenProgramInput(k.dir, for: plain),
             addAs: "t-case.byn",
             file: true,
         )
@@ -1312,7 +1343,7 @@ void goldenProgramLex(GoldenExportCase k, to ref List<string> failures) uses all
         if k.name.startsWith("RunOnStdin") {
             input = "x\n".bytes.copy()
         } else {
-            input = Io.readFile(Path.combine(k.dir, plain)) catch List<u8>()
+            input = Io.readFile(goldenProgramInput(k.dir, for: plain)) catch List<u8>()
         }
     } else {
         // LexerTests.cs:113-121 (`LexGolden`), :294-333 (`Corpus`, one file of the C#'s `--many` run): the input path
@@ -1632,11 +1663,21 @@ test "an emit-c case with `input.name` runs on its input staged under that name,
     goldenWrite(parity, for: "input.name", as: "lib/a.byn\n")
     goldenWrite(parity, for: "expected.c", as: "--mode safe --package . lib/a.byn\nf() {}\n")
     let passParity = goldenProgramsCase("emit-c", at: parity, by: exe) ?? ""
+    // a `SameAsCli` case runs on the full path, read back as `plain` as `Mapped` wrote it; the bare name stays
+    let same = Path.combine(root, "cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_goto.byn --all")
+    goldenWrite(same, for: "args", as: "build\n--emit-c\n--all\ninput.byn\n")
+    goldenWrite(same, for: "input.byn", as: "goto.byn\n")
+    goldenWrite(same, for: "input.name", as: "goto.byn\n")
+    goldenWrite(same, for: "expected.c", as: "--all input.byn\ngoto.byn\n")
+    goldenWrite(same, for: "expected.stderr", as: "")
+    goldenWrite(same, for: "expected.exitcode", as: "0\n")
+    let passSame = goldenProgramsCase("emit-c", at: same, by: exe) ?? ""
     Io.remove(Path.combine(t10, "input.name")) catch {}
     let failed = goldenProgramsCase("emit-c", at: t10, by: exe) ?? ""
     deleteWorkDir(root)
     assert(pass == "")
     assert(passParity == "")
+    assert(passSame == "")
     assert(failed.contains(
         "expected line 1: --coverage --mode safe --package . arithmetic.byn\nactual line 1: --coverage --mode safe --package . input.byn",
     ))

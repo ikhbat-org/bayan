@@ -316,14 +316,18 @@ test "doctor-render-plain: a passing, a noted and a failing check render with ma
     // CliEnvironmentTests.cs:267 `DoctorRendersPlain`
     let checks = t25RenderChecks()
     let got = t5Render(in checks, by: DStyle {})
-    assert(got == "◆ bayan  0.1.0\n◆ zig    not found\n  help: install zig\n✗ cache: isn't writable\n  help: set BAYAN_CACHE\n")
+    assert(
+        got == "◆ bayan  0.1.0\n◆ zig    not found\n  help: install zig\n✗ cache: isn't writable\n  help: set BAYAN_CACHE\n"
+    )
 }
 
 test "doctor-render-ascii: ascii symbols render the marks as `*` and `x`" {
     // CliEnvironmentTests.cs:273 `DoctorRendersAscii`
     let checks = t25RenderChecks()
     let got = t5Render(in checks, by: DStyle { ascii: true })
-    assert(got == "* bayan  0.1.0\n* zig    not found\n  help: install zig\nx cache: isn't writable\n  help: set BAYAN_CACHE\n")
+    assert(
+        got == "* bayan  0.1.0\n* zig    not found\n  help: install zig\nx cache: isn't writable\n  help: set BAYAN_CACHE\n"
+    )
 }
 
 test "doctor-render-colour: the 16-colour palette paints each mark, a failing line and the help lines" {
