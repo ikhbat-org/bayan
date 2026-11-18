@@ -9,9 +9,12 @@
 #   files      every file the branch changes is in the task's files list or one the guard allows; prints the addition
 #   questions  every Question number the branch adds is new to docs/bayan-questions.md (the branch's and the base's) and inside the task's
 #              range (its task line, else $BAYAN_QRANGES or <main checkout>/tmp/q-ranges.tsv, written by wave-brief)
-#   tests      the classes declared in the task's test files (csharp/tests/Bayan.Tests/, src/tests/) and those of test-map.tsv (the smoke set always, a row when
-#              the branch changes a file its glob matches) pass, each running at least one test; plan-strings-check passes (scripts/bayan-tool.sh)
-#   wp1        tmp/wp1/<sha>.out (wp1-test.sh) exists for the branch's HEAD, ends in `exit 0`, ran tests, and its filter names every class above
+#   tests      the words of test-map.tsv (the smoke set always, a row when the branch changes a file its glob matches) pass, each running at least
+#              one test: a word is a scripts/test.sh part (golden|bayan|parity|scripts|runtime), run as `scripts/test.sh --only <part>`, or a
+#              `<kind>/<Class>/` selector, run as `bayan test tests/cases --only <word>` (BAYAN_EXE, else the stage-1 binary scripts/bootstrap-build.sh
+#              prints); plan-strings-check passes (scripts/bayan-tool.sh)
+#   wp1        tmp/wp1/<sha>.out (wp1-test.sh) exists for the branch's HEAD, ends in `exit 0`, holds `test: all passed`, and its `filter:` line (comma-separated
+#              parts) names the part of every word above (a selector's part is golden; parity and scripts are skipped on Windows and not needed)
 # On a checkout of <branch> the working tree is checked (a writer before its commit), else the branch's commit in a temporary worktree.
 # Logs go to tmp/preflight/<t>/.
 set -u
@@ -153,12 +156,7 @@ done
 
 # tests
 CLASSES=()
-for f in "${TESTF[@]+"${TESTF[@]}"}"; do
-  cs=$( [ -f "$f" ] && grep -E '(^|[^A-Za-z0-9_])class +[A-Za-z0-9_]+Tests([^A-Za-z0-9_]|$)' "$f" | sed -E 's/.*class +([A-Za-z0-9_]+Tests).*/\1/')
-  [ -n "$cs" ] || cs=$(basename "$f" .cs)
-  CLASSES+=($cs)
-done
-# test-map.tsv: the smoke set (glob `*`) and the classes of every row whose glob matches a changed file
+# test-map.tsv: the smoke set (glob `*`) and the words of every row whose glob matches a changed file
 while IFS=$'\t' read -r glob cls; do
   [[ -z $glob || $glob == '#'* ]] && continue
   hit=0; [ "$glob" = '*' ] && hit=1
@@ -166,31 +164,39 @@ while IFS=$'\t' read -r glob cls; do
   [ $hit = 0 ] || CLASSES+=($cls)
 done < "$HERE/test-map.tsv"
 CLASSES=($(printf '%s\n' "${CLASSES[@]}" | awk '!seen[$0]++'))
-FILT=$(printf 'FullyQualifiedName~%s|' "${CLASSES[@]}"); FILT=${FILT%|}
-if ! dotnet build -v q > "$L/build.txt" 2>&1; then fail "tests: build failed — $(grep -m3 -E ' error [A-Z]+[0-9]+' "$L/build.txt" | sed 's/.*\///' | tr '\n' ' ')"
+# a word's scripts/test.sh part: itself, or golden for a selector; the parts wp1 must have run (parity and scripts are skipped on Windows)
+part_of() { case $1 in golden|bayan|parity|scripts|runtime) echo "$1";; *) echo golden;; esac; }
+NEED=(); for c in "${CLASSES[@]}"; do p=$(part_of "$c"); case $p in parity|scripts) ;; *) NEED+=("$p");; esac; done
+NEED=($(printf '%s\n' "${NEED[@]+"${NEED[@]}"}" | awk 'NF && !seen[$0]++'))
+FILT=$(IFS=,; echo "${NEED[*]+"${NEED[*]}"}")
+BEXE=${BAYAN_EXE:-}
+[ -n "$BEXE" ] || BEXE=$(bash "$PWD/scripts/bootstrap-build.sh" 2> "$L/build.txt" | tail -1)
+if [ ! -x "$BEXE" ]; then fail "tests: build failed — $(tail -1 "$L/build.txt" 2> /dev/null)"
 else
-  dotnet test --no-build --filter "$FILT" --logger "console;verbosity=normal" > "$L/test.txt" 2>&1; TX=$?
-  bad=0
+  bad=0; i=0
   for c in "${CLASSES[@]}"; do
-    grep -qE "^ *(Passed|Failed|Skipped) ([A-Za-z0-9_]+\.)*$c\." "$L/test.txt" || { fail "tests: FullyQualifiedName~$c matched no tests"; bad=1; }
+    i=$((i+1)); p=$(part_of "$c")
+    if [ "$p" = "$c" ]; then BAYAN_EXE=$BEXE bash "$PWD/scripts/test.sh" --only "$c" > "$L/test-$i.txt" 2>&1; TX=$?
+    else BAYAN_EXE=$BEXE "$BEXE" test tests/cases --only "$c" > "$L/test-$i.txt" 2>&1; TX=$?; fi
+    if grep -qE '^bayan: no (case|test) name contains' "$L/test-$i.txt"; then fail "tests: $c matched no tests"; bad=1
+    elif [ $TX != 0 ]; then fail "tests: $c failed, exit $TX (tmp/preflight/$t/test-$i.txt)"; bad=1
+    elif grep -qE '^test: +[a-z]+ +skip ' "$L/test-$i.txt"; then fail "tests: $c was skipped (tmp/preflight/$t/test-$i.txt)"; bad=1; fi
   done
-  grep -E '^ *Failed [A-Za-z0-9_.]+' "$L/test.txt" | sed -E 's/^ *Failed ([^ []+).*/\1/' | while read -r x; do echo "FAIL tests: $x failed"; done
-  if grep -qE '^ *Failed [A-Za-z0-9_.]+' "$L/test.txt" || [ $TX != 0 ]; then F=1; bad=1; [ $TX = 0 ] || echo "FAIL tests: dotnet test exited $TX (tmp/preflight/$t/test.txt)"; fi
-  [ $bad = 1 ] || ok "tests ($(grep -cE '^ *Passed ' "$L/test.txt") passed: ${CLASSES[*]})"
+  [ $bad = 1 ] || ok "tests (${#CLASSES[@]} run: ${CLASSES[*]})"
 fi
 if bash "$HERE/../bayan-tool.sh" plan-strings-check --base "$BASE" > "$L/plan-strings.txt" 2>&1; then ok "plan-strings"
 else fail "tests: plan-strings-check --base $BASE failed — $(tail -1 "$L/plan-strings.txt")"; fi
 
 # wp1
-W=$OUT/tmp/wp1/$SHA.out; RUN="bash scripts/selfhost/wp1-test.sh $BR '$FILT'"
+W=$OUT/tmp/wp1/$SHA.out; RUN="bash scripts/selfhost/wp1-test.sh $BR $FILT"
 if [ -n "$(git status --porcelain)" ]; then fail "wp1: the working tree has uncommitted changes; after the commit, run: $RUN"
 elif [ ! -f "$W" ]; then fail "wp1: no tmp/wp1/$SHA.out for $BR's HEAD; run: $RUN"
 elif [ "$(tail -1 "$W")" != "exit 0" ]; then fail "wp1: tmp/wp1/$SHA.out ends in '$(tail -1 "$W")', not 'exit 0'"
-elif ! grep -qE 'Total: *[1-9]' "$W"; then fail "wp1: tmp/wp1/$SHA.out ran no tests"
+elif ! grep -qx 'test: all passed' "$W"; then fail "wp1: tmp/wp1/$SHA.out ran no tests"
 else
   wf=$(sed -n 's/^filter: //p' "$W" | head -1); miss=()
-  for c in "${CLASSES[@]}"; do [[ "|$wf|" == *"|FullyQualifiedName~$c|"* ]] || miss+=("$c"); done
-  if [ ${#miss[@]} = 0 ]; then ok "wp1 ($(grep -m1 -oE 'Passed: *[0-9]+' "$W"))"
+  for c in "${NEED[@]+"${NEED[@]}"}"; do [[ ",$wf," == *",$c,"* ]] || miss+=("$c"); done
+  if [ ${#miss[@]} = 0 ]; then ok "wp1 (parts: ${wf:-none})"
   else fail "wp1: tmp/wp1/$SHA.out ran '$wf', without ${miss[*]}; run: $RUN"; fi
 fi
 exit $F

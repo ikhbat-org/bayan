@@ -1,4 +1,5 @@
-# test-map.tsv: path glob TAB test classes (space separated). preflight.sh adds the classes of every row whose glob matches a file the branch changes to the per-task wp1 filter.
-# Globs are bash patterns on repo-relative paths (* also crosses /). The row for `*` is the smoke set: it always runs.
-*	CInventoryTests SelfhostDriverT8Tests SelfhostDriverRuntimeTests
-src/driver/main.byn	SelfhostDriverT2Tests SelfhostDefaultT4Tests SelfhostDriverT5Tests
+# test-map.tsv: path glob TAB test words (space separated): scripts/test.sh parts (golden bayan parity scripts runtime) or `<kind>/<Class>/` selectors for `bayan test tests/cases --only`. preflight.sh adds the words of every row whose glob matches a file the branch changes to the per-task test run and its wp1 parts.
+# Globs are bash patterns on repo-relative paths (* also crosses /). The row for `*` is the smoke set: it always runs. Selectors name only kinds present under tests/cases.
+*	bayan parity
+src/driver/main.byn	parity
+src/emitter/*	emit/
