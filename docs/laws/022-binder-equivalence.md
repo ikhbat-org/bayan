@@ -7,7 +7,7 @@ sources: Q658
 kind: property
 scope: src/semantics/main.byn
 proof: src/tests/SelfhostSemanticsEquivalenceLawTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'sem/'
+check: dotnet test -v q --filter "Law=L022"
 timeout: 1800
 enacted: 2026-11-01
 ---

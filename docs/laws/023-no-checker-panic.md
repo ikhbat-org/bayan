@@ -7,7 +7,7 @@ sources: Q486, Q508, Q661, Q662, Q663, Q744, Q748, Q874
 kind: property
 scope: src/semantics/
 proof: src/tests/SelfhostSemanticsNoPanicLawTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'sem/'
+check: dotnet test -v q --filter "Law=L023"
 timeout: 300
 ---
 

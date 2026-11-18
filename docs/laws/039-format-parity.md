@@ -7,7 +7,7 @@ sources: spec 022 R5
 kind: property
 scope: src/driver/**, csharp/Bayan.Cli/Format.cs
 proof: src/tests/SelfhostDriverTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'cli/format'
+check: dotnet test -v q --filter "Law=L039"
 ---
 
 ## Statement

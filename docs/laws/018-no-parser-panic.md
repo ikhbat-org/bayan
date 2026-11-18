@@ -7,7 +7,7 @@ sources: Q473, Q486, Q508, Q509, Q510, Q744, Q748, Q874
 kind: property
 scope: src/parser/parser.byn
 proof: src/tests/SelfhostParserNoPanicLawTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'parse/'
+check: dotnet test -v q --filter "Law=L018"
 timeout: 300
 ---
 

@@ -7,7 +7,7 @@ sources: none recorded
 kind: property
 scope: src/lexer/lexer.byn
 proof: src/tests/SelfhostLexerTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'lex/'
+check: dotnet test -v q --filter "Law=L002"
 timeout: 1800
 enacted: 2026-10-20
 ---

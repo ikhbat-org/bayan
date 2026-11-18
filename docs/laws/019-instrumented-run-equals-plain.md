@@ -7,7 +7,7 @@ sources: none recorded
 kind: property
 scope: csharp/Bayan.Backend.C, csharp/Bayan.Lowering (coverage counters, mutant schemata)
 proof: csharp/tests/Bayan.Tests/InstrumentedRunLawTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l019-'
+check: dotnet test -v q --filter "Law=L019"
 enacted: 2026-10-31
 ---
 

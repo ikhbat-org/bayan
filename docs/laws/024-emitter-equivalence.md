@@ -7,7 +7,7 @@ sources: Q890
 kind: property
 scope: src/emitter/, csharp/Bayan.Lowering/, csharp/Bayan.Backend.C/CEmitter.cs
 proof: src/tests/SelfhostEmitterEquivalenceLawTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'emit/'
+check: dotnet test -v q --filter "Law=L024"
 timeout: 300
 enacted: 2026-11-04
 ---

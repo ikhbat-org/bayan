@@ -7,7 +7,7 @@ sources: none recorded
 kind: property
 scope: src/driver/**, src/emitter/**, src/semantics/**, bootstrap/bayan.c
 proof: csharp/tests/Bayan.Tests/BootstrapTests.cs
-check: bash scripts/ci/bootstrap-check.sh
+check: dotnet test -v q --filter "Law=L027"
 timeout: 900
 ---
 
