@@ -135,7 +135,8 @@ List<GoldenCase> goldenDiscover(string root, through ref i32 exit) uses alloc, c
     var cases = List<GoldenCase>()
     // Alphabetical, so the listing is in `<kind>/<case>` order.
     let kinds = [
-        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem", "style", "typed",
+        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem",
+        "style", "typed",
     ]
     for kind in kinds {
         // the exported kinds (T17b, goldenexport.byn): `cli` cases, and a `<Class>/<case>` directory each of the others
@@ -661,7 +662,8 @@ bool goldenIsCasesDir(string path) uses alloc, fs {
         return false if name.endsWith(".byn") && Fs.fileExists(Path.combine(path, name))
     }
     for kind in [
-        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem", "style", "typed",
+        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem",
+        "style", "typed",
     ] {
         return true if t6DirectoryExists(Path.combine(path, kind))
     }
@@ -1156,7 +1158,8 @@ GoldenOutcome goldenChild(
     from in List<u8> input,
     through ref string failure,
     i64 deadline = 0,
-    Map<string, string?>? env = null
+    Map<string,
+    string?>? env = null
 )
         uses alloc, clock, fs, process {
     var line = StrBuf()
