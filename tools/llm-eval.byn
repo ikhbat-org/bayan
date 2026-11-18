@@ -68,12 +68,24 @@ struct Task {
     string check
 }
 
-/// Where a scoring runs: the pinned compiler, the launcher, the tasks directory it may not read, and the sample directory.
+/// Where a scoring runs: the copy of the pinned compiler, the launcher, the tasks directory it may not read, the sample
+/// directory, and the tools directory with zig's lib directory.
 struct Places {
     string bayan
     string launcher
     string tasks
     string sample
+    string tools
+    string zigLib
+}
+
+/// The copies one scorer process starts zig and the compiler from (T44): `dir` lies outside every sample, which may read
+/// and start the files in it but not write them, and each step's sweep covers it. `bayan` is the compiler's copy there and
+/// `zigLib` the real zig's lib directory, which the copy of zig is pointed at.
+struct Tools {
+    string dir
+    string bayan
+    string zigLib
 }
 
 /// One process run through the launcher: its exit code, and whether it reached the time or the output limit.
@@ -136,6 +148,8 @@ Step launch(
     }
     args.append("--sweep")
     args.append(p.sample)
+    args.append("--tools")
+    args.append(p.tools)
     if noFork {
         args.append("--no-fork")
     }
@@ -155,6 +169,8 @@ Step launch(
     env["TMPDIR"] = Path.combine(p.sample, "tmp")
     env["BAYAN_TEST_TIMEOUT_MS"] = $"{runMs}"
     env["NO_COLOR"] = "1"
+    env["PATH"] = $"{Path.combine(p.tools, "zig")}:{Env.get("PATH") ?? ""}"
+    env["ZIG_LIB_DIR"] = p.zigLib
     let r = Io.run(
         "bash",
         args.span,
@@ -225,6 +241,80 @@ string pinnedBayan(string root) fails EvalError {
     return pinned.stdout.trimmed()
 }
 
+/// Runs `program args`; fails naming `what` when it cannot start or exits non-zero.
+void runOrFail(string program, for List<string> args, as string what) fails EvalError {
+    let r = Io.run(program, args.span) catch fail .failed(message: $"cannot {what}")
+    fail .failed(message: $"cannot {what}: {r.stderr.trimmed()}") if r.exitCode != 0
+}
+
+/// Removes `path` and everything under it; a path that is not there is no error.
+void removeTree(string path) {
+    var args = List<string>()
+    args.append("-rf")
+    args.append(path)
+    let _ = Io.run("rm", args.span) catch return
+}
+
+/// Copies `source` to `target` as a clone (`cp -c`, `-cR` for a `tree`) where the file system can, else as a plain copy.
+void cloneCopy(string source, to string target, as bool tree) fails EvalError {
+    var args = List<string>()
+    args.append(tree ? "-cR" : "-c")
+    args.append(source)
+    args.append(target)
+    let r = Io.run("cp", args.span) catch fail .failed(message: $"cannot copy {source}")
+    if r.exitCode != 0 {
+        removeTree(target)
+        var plain = List<string>()
+        if tree {
+            plain.append("-R")
+        }
+        plain.append(source)
+        plain.append(target)
+        try runOrFail("cp", for: plain, as: $"copy {source} to {target}")
+    }
+}
+
+/// The value of `.<key> = "<value>",` in `zig env` output, or null.
+string? zigField(string text, for string key) {
+    let head = $".{key} = \""
+    for raw in text.parts(by: "\n") {
+        let line = raw.trimmed()
+        return line[head.length..line.length - 2] if line.startsWith(head) && line.endsWith("\",")
+    }
+    return null
+}
+
+/// Makes the tools directory `dir` (T44): copies of zig and of the whole directory of the compiler `bayan`, each started
+/// once, so the system's check of a new program is paid here and not in a timed step. `dir` must not exist.
+Tools makeTools(string dir, from string bayan) fails EvalError {
+    fail .failed(message: $"{dir} exists; remove it or give another --out") if isDirectory(dir)
+    let bayanDir = Path.directoryName(bayan) ?? "."
+    let realDir = Fs.realPath(bayanDir) catch fail .failed(message: $"cannot resolve {bayanDir}")
+    for d in [bayanDir, $"{realDir}"] {
+        fail .failed(message: $"the tools directory {dir} lies under the compiler's directory {d}") if dir.startsWith($"{d}/")
+    }
+    var envArgs = List<string>()
+    envArgs.append("env")
+    let zigEnv = Io.run("zig", envArgs.span) catch fail .failed(message: "cannot run zig env; is zig on PATH?")
+    fail .failed(message: $"zig env exited {zigEnv.exitCode}") if zigEnv.exitCode != 0
+    let zigExe = zigField(zigEnv.stdout, for: "zig_exe") ?? fail .failed(message: "zig env names no zig_exe")
+    let zigLib = zigField(zigEnv.stdout, for: "lib_dir") ?? fail .failed(message: "zig env names no lib_dir")
+    let zigCopy = Path.combine(dir, "zig")
+    Io.createDirectory(zigCopy) catch fail .failed(message: $"cannot make {zigCopy}")
+    try cloneCopy(zigExe, to: Path.combine(zigCopy, "zig"), as: false)
+    let bayanCopy = Path.combine(dir, "bayan")
+    try cloneCopy(bayanDir, to: bayanCopy, as: true)
+    let tools = Tools { dir: dir, bayan: Path.combine(bayanCopy, Path.fileName(bayan)), zigLib: zigLib }
+    var version = List<string>()
+    version.append("version")
+    var env: Map<string, string?> = []
+    env["ZIG_LIB_DIR"] = zigLib
+    let started = Io.run(Path.combine(zigCopy, "zig"), version.span, env: env) catch fail .failed(message: "cannot start the copy of zig")
+    fail .failed(message: $"the copy of zig exited {started.exitCode}") if started.exitCode != 0
+    try runOrFail(tools.bayan, for: ["--version"], as: $"start the copy of the compiler {tools.bayan}")
+    return tools
+}
+
 /// A scored candidate: its record, whether it got all four results (R8, R29), and how long its run took (for a `tests`
 /// task, `bayan test`, which builds too). The time is never part of the record (R9); only `recheck` reports it.
 struct Scored {
@@ -256,12 +346,12 @@ struct Reply {
     string text
 }
 
-/// Scores `candidate` against the task in `taskDir` with the compiler `bayan`, in a new sample directory under `outDir`
+/// Scores `candidate` against the task in `taskDir` with the copies in `tools`, in a new sample directory under `outDir`
 /// named by the sample's number `n`. A model's reply, when given, is added at the end of the record.
 Scored scoreSample(
     string taskDir,
     for string candidate,
-    from string bayan,
+    from Tools tools,
     to string outDir,
     at Reply? reply,
     as i64 n
@@ -272,10 +362,12 @@ Scored scoreSample(
     let sample = Path.combine(outDir, $"work/{task.name}/{n}")
     fail .failed(message: $"{sample} exists; give another --out") if isDirectory(sample)
     let p = Places {
-        bayan: bayan,
+        bayan: tools.bayan,
         launcher: Path.combine(root, "scripts/evals/llm-sandbox.sh"),
         tasks: Path.directoryName(taskDir) ?? taskDir,
         sample: sample,
+        tools: tools.dir,
+        zigLib: tools.zigLib,
     }
     let src = Path.combine(sample, "src")
     for part in ["src", "bin", "cache", "tmp"] {
@@ -295,9 +387,10 @@ Scored scoreSample(
         ) catch fail .failed(message: $"cannot copy {checks}/{name}")
     }
 
-    // The sandbox in use, from a run that does nothing, so the record names it even when the first real step is stopped.
+    // The sandbox in use, from a run that does nothing, so the record names it even when the first real step is stopped. The
+    // program is the compiler's copy: with a sweep, the launcher starts nothing from outside the swept directories.
     let probe = try launch(
-        "true",
+        $"{p.bayan}\t--version",
         at: p,
         to: Path.combine(sample, "probe.stdout"),
         from: null,
@@ -452,7 +545,15 @@ Scored scoreSample(
 void score(string taskDir, for string candidate, to string outDir) fails EvalError {
     let root = try repoRoot()
     let bayan = try pinnedBayan(root)
-    let scored = try scoreSample(taskDir, for: candidate, from: bayan, to: outDir, at: null, as: 1)
+    // Beside the work directory, and refused when there, so two scorers never share it.
+    let tools = try makeTools(Path.combine(outDir, "tools"), from: bayan)
+    let scored = scoreSample(taskDir, for: candidate, from: tools, to: outDir, at: null, as: 1) catch switch {
+        .failed(let message) => {
+            removeTree(tools.dir)
+            fail .failed(message: message)
+        },
+    }
+    removeTree(tools.dir)
     print(scored.record)
 }
 
@@ -742,6 +843,11 @@ bool recheck(string tasksDir, for string? only, to string outDir) fails EvalErro
     // Taken before scoring, so the stamp names what was checked.
     let taskCommit = committedSet(tasksDir)
     let runDir = freshDir(outDir)
+    // Made only when there is a task to score.
+    var tools = Tools { dir: "", bayan: bayan, zigLib: "" }
+    if !names.isEmpty {
+        tools = try makeTools(Path.combine(runDir, "tools"), from: bayan)
+    }
     var allPassed = true
     // The slowest program run, and apart from it the slowest `bayan test`, whose time holds a build.
     var slowest: i64 = -1
@@ -754,7 +860,7 @@ bool recheck(string tasksDir, for string? only, to string outDir) fails EvalErro
         let dir = Path.combine(tasksDir, name)
         let reference = Path.combine(dir, "reference/solution.byn")
         if Fs.fileExists(reference) {
-            let scored = scoreSample(dir, for: reference, from: bayan, to: runDir, at: null, as: 1) catch switch {
+            let scored = scoreSample(dir, for: reference, from: tools, to: runDir, at: null, as: 1) catch switch {
                 .failed(let message) => Scored { record: "", results: message },
             }
             problems.append($"reference: {scored.results}") if !scored.clean
@@ -772,6 +878,9 @@ bool recheck(string tasksDir, for string? only, to string outDir) fails EvalErro
             allPassed = false
             print($"FAIL {name}: {joined(problems, by: "; ")}")
         }
+    }
+    if !tools.dir.isEmpty {
+        removeTree(tools.dir)
     }
     if slowest >= 0 {
         print($"slowest run: {slowest / 1000000} ms ({slowestTask})")
@@ -975,6 +1084,8 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
     let runDir = freshDir(outDir)
     Io.createDirectory(runDir) catch fail .failed(message: $"cannot make {runDir}")
     let recordsPath = Path.combine(runDir, "records.jsonl")
+    // Left behind when the run fails, in a run directory no later run reuses.
+    let tools = try makeTools(Path.combine(runDir, "tools"), from: bayan)
     var counts = List<Counted>()
     var revisions = List<string>()
     var splits = List<string>()
@@ -1021,7 +1132,7 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
             Io.writeFile(candidate, extracted(r.stdout).bytes) catch fail .failed(message: $"cannot write {candidate}")
             let tokens = i64.tryParse(field(r.stderr, for: "tokens") ?? "")
             let reply = Reply { wallMs: wallMs, tokens: tokens, text: r.stdout }
-            let scored = try scoreSample(dir, for: candidate, from: bayan, to: runDir, at: reply, as: s)
+            let scored = try scoreSample(dir, for: candidate, from: tools, to: runDir, at: reply, as: s)
             print(scored.record)
             try appendText($"{scored.record}\n", to: recordsPath)
             samples += 1
@@ -1042,6 +1153,7 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
         }
         counts.append(counted)
     }
+    removeTree(tools.dir)
 
     let compiler = compilerVersion(bayan, at: root)
     let compilerCommit = compilerCommitOf(compiler, at: root)
