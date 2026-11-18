@@ -1,0 +1,51 @@
+import lexer
+
+string t7LikelihoodText(Likelihood l) => l switch {
+    .none => "",
+    .unlikely => " unlikely",
+    .neverKeyword => " never",
+}
+
+string shape(in Stmt s, from ref Parser p) {
+    switch s {
+        case .blockStmt(let n):
+            var text = $"block {n.value.span.start}..{n.value.span.end} <"
+            for st in n.value.statements { text = $"{text} {shape(in st, from: ref p)}" }
+            return $"{text} >"
+        case .ifStmt(let n):
+            return $"if {n.value.span.start}..{n.value.span.end}{t7LikelihoodText(n.value.likelihood)} {shape(in n.value.then, from: ref p)} else {shape(in n.value.elseKeyword, from: ref p)}"
+        case .unlessStmt(let n):
+            return $"unless {n.value.span.start}..{n.value.span.end} {shape(in n.value.body, from: ref p)}"
+        case .whileStmt(let n):
+            return $"while {n.value.span.start}..{n.value.span.end} {shape(in n.value.body, from: ref p)}"
+        case .doWhileStmt(let n):
+            return $"do {n.value.span.start}..{n.value.span.end} {shape(in n.value.body, from: ref p)}"
+        case .whileLetStmt(let n):
+            return $"whilelet {n.value.span.start}..{n.value.span.end} {p.lexed.source.getText(n.value.variable)} {shape(in n.value.body, from: ref p)}"
+        case .forStmt(let n):
+            return $"for {n.value.span.start}..{n.value.span.end} {n.value.kind} {n.value.names.length > 0 ? "" : p.lexed.source.getText(n.value.variable)} names {n.value.names.length} {shape(in n.value.body, from: ref p)}"
+        case .labeledStmt(let n):
+            return $"label {n.value.span.start}..{n.value.span.end} {p.lexed.source.getText(n.value.label)} {shape(in n.value.statement, from: ref p)}"
+        case .errorStmt(let n):
+            return $"error {n.value.span.start}..{n.value.span.end}"
+        case .none:
+            return "none"
+        default:
+            return "?"
+    }
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    let keywords = Keywords.build()
+    var bytes = Io.readFile(args[0]) catch return 4
+    var p = Parser.create(lexer.lex(SourceText.create(args[0], from: move bytes), by: keywords))
+    while p.kind() != .openBrace && !p.atEnd() { let _ = p.advance() }
+    let block = parseBlock(ref p)
+    print(shape(in block, from: ref p))
+    for d in p.lexed.diagnostics {
+        if d.code.isEmpty { continue }
+        let fix = d.hasFix ? $" fix {d.fixSpan.start}+{d.fixSpan.length} '{d.fixReplacement}'" : ""
+        print($"{d.code} {d.span.start}+{d.span.length} {d.message}{fix}")
+    }
+    return 0
+}

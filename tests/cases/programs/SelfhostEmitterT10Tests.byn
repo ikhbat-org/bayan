@@ -1,0 +1,194 @@
+import semantics
+import emitter.cprint
+import emitter.ltree
+
+type CCtx = cprint.CCtx
+type CFunc = cprint.CFunc
+type LAssignExpr = ltree.LAssignExpr
+type LErrorCode = ltree.LErrorCode
+type LNextChar = ltree.LNextChar
+type LOptionalHas = ltree.LOptionalHas
+type LOptionalValue = ltree.LOptionalValue
+type LSequence = ltree.LSequence
+type LIndexUnchecked = ltree.LIndexUnchecked
+type LVoid = ltree.LVoid
+type LErrorField = ltree.LErrorField
+type LFunctionValue = ltree.LFunctionValue
+type BMove = semantics.BMove
+
+i32 main(ReadOnlySpan<string> args) {
+    var rest = List<string>()
+    for i in 3..args.length { rest.append(args[i]) }
+    let ascii = false
+    let symbols = semantics.t26Symbols(ascii)
+    let o = semantics.t26ParseBuildOptions(in rest, allowSpans: false) ?? return 2
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    var c = semantics.t26Compile(in o, by: in symbols, to: ref reported, through: ref ok)
+    var l = LCtx {}
+    if args[0] == "expr" { Io.stdout.write(t10Print(ref c, through: ref l, at: args[1], for: args[2])) }
+    if args[0] == "owned" { Io.stdout.write(t10Owned(ref c, through: ref l, at: args[1], for: args[2])) }
+    if args[0] == "fail" { Io.stdout.write(t10Fail(ref c, through: ref l, at: args[1], for: args[2])) }
+    if args[0] == "failbound" { Io.stdout.write(t10FailBound(ref c, through: ref l, at: args[1], for: args[2], as: t10Init(in c, for: "itp"))) }
+    if args[0] == "failspan" { Io.stdout.write(t10FailBound(ref c, through: ref l, at: args[1], for: args[2], as: c.bCalls[t10Init(in c, for: "vc") & 0xFFFFFFFF].arguments[0])) }
+    return 0
+}
+
+FuncId t10G(in Ctx c) {
+    for m in 0..c.modules.length {
+        for k in 0..c.modules[m].allFunctions.length {
+            let fn = c.modules[m].allFunctions[k]
+            if c.functions[fn].name == "g" { return fn }
+        }
+    }
+    return -1
+}
+
+/// The index of `g`'s top-level declaration of `name`.
+i64 t10Decl(in Ctx c, for string name) {
+    for s in c.bBlocks[c.functions[t10G(in c)].body & 0xFFFFFFFF].statements {
+        if !ltree.isLowered(s) && semantics.boundKind(s) == .localDecl && c.locals[c.bLocalDecls[s & 0xFFFFFFFF].local].name == name { return s & 0xFFFFFFFF }
+    }
+    return -1
+}
+
+/// A `try`'s operand: the call `Call` takes once lowering has split the `try` off.
+BExpr t10Bare(in Ctx c, at BExpr e) {
+    if !ltree.isLowered(e) && semantics.boundKind(e) == .tryExpr { return c.bTries[e & 0xFFFFFFFF].operand }
+    return e
+}
+
+BExpr t10Init(in Ctx c, for string name) => t10Bare(in c, at: c.bLocalDecls[t10Decl(in c, for: name)].initializer)
+
+LocalId t10Var(in Ctx c, for string name) => c.bLocalDecls[t10Decl(in c, for: name)].local
+
+semantics.TextSpan t10At(in Ctx c, for string name) => semantics.nodeSpan(in c, for: t10Init(in c, for: name))
+
+BExpr t10Read(ref Ctx c, for string name) uses alloc => localExpr(ref c, at: t10At(in c, for: name), for: t10Var(in c, for: name))
+
+CFunc t10Func(in Ctx c, at string file, for string linePath) uses alloc {
+    let g = t10G(in c)
+    var f = CFunc { fn: g, file: file, linePath: linePath, lineStarts: cprint.lineStartsOf(in c, for: c.functions[g].file) }
+    if linePath == "-" { f.linePath = null }
+    for p in c.functions[g].parameters { f.names[p] = $"p_{c.locals[p].name}" }
+    var n = 0
+    for s in c.bBlocks[c.functions[g].body & 0xFFFFFFFF].statements {
+        if !ltree.isLowered(s) && semantics.boundKind(s) == .localDecl {
+            let local = c.bLocalDecls[s & 0xFFFFFFFF].local
+            f.names[local] = $"l{n}_{c.locals[local].name}"
+            n += 1
+        }
+    }
+    return f
+}
+
+/// With ownership checks on: reads and moves of the `List` local `lst` (with a slot), outside and inside a dry run
+/// (`lst` unsequenced), a checked store to it and `fill(out lst)`.
+string t10Owned(ref Ctx c, through ref LCtx l, at string file, for string linePath) uses alloc {
+    var f = t10Func(in c, at: file, for: linePath)
+    var cc = CCtx { ownershipChecks: true }
+    let g = t10G(in c)
+    let lst = t10Var(in c, for: "lst")
+    var items = List<BExpr>()
+    items.append(t10Read(ref c, for: "lst"))
+    items.append(semantics.addMove(ref c, from: BMove { span: t10At(in c, for: "lst"), operand: t10Read(ref c, for: "lst") }))
+    items.append(ltree.addLAssignExpr(ref l.tree, from: LAssignExpr { span: t10At(in c, for: "lst"), target: t10Read(ref c, for: "lst"), value: t10Init(in c, for: "lst") }))
+    for s in c.bBlocks[c.functions[g].body & 0xFFFFFFFF].statements {
+        if ltree.isLowered(s) || semantics.boundKind(s) != .exprStmt { continue }
+        let e = c.bExprStmts[s & 0xFFFFFFFF].expr
+        if semantics.boundKind(e) == .call && c.functions[c.bCalls[e & 0xFFFFFFFF].function].name == "fill" { items.append(e) }
+    }
+    var sb = StrBuf()
+    sb.append("== owned\n")
+    for i in 0..items.length {
+        let e = items[i]
+        if !ltree.isLowered(e) && semantics.boundKind(e) == .call {
+            sb.append($"{i} call {cprint.call(ref cc, for: ref f, from: ref c, through: l.tree, at: e & 0xFFFFFFFF, to: null)}\n")
+            continue
+        }
+        sb.append($"{i} {cprint.emitExpr(ref cc, for: ref f, from: ref c, through: l.tree, at: e)}\n")
+    }
+    f.hasDryRun = true
+    f.unsequenced[lst] = true
+    sb.append($"{items.length} {cprint.emitExpr(ref cc, for: ref f, from: ref c, through: l.tree, at: items[0])}\n")
+    sb.append($"{items.length + 1} {cprint.emitExpr(ref cc, for: ref f, from: ref c, through: l.tree, at: items[1])}\n")
+    return $"{sb.finish()}"
+}
+
+string t10Fail(ref Ctx c, through ref LCtx l, at string file, for string linePath) uses alloc {
+    var f = t10Func(in c, at: file, for: linePath)
+    var cc = CCtx {}
+    let v = ltree.addLVoid(ref l.tree, from: LVoid { span: t10At(in c, for: "a") })
+    return cprint.emitExpr(ref cc, for: ref f, from: ref c, through: l.tree, at: v)
+}
+
+/// `e`, a bound node lowering removes (an interpolated string, a `rest` span literal), emitted unlowered.
+string t10FailBound(ref Ctx c, through ref LCtx l, at string file, for string linePath, as BExpr e) uses alloc {
+    var f = t10Func(in c, at: file, for: linePath)
+    var cc = CCtx {}
+    return cprint.emitExpr(ref cc, for: ref f, from: ref c, through: l.tree, at: e)
+}
+
+string t10Print(ref Ctx c, through ref LCtx l, at string file, for string linePath) uses alloc {
+    var f = t10Func(in c, at: file, for: linePath)
+    var cc = CCtx {}
+    let g = t10G(in c)
+    let i64Type = c.locals[c.functions[g].parameters[0]].type
+    var items = List<BExpr>()
+    for n in ["a", "v", "mv", "pr", "tp", "te", "cd", "c0", "u0", "er", "fc", "ar", "p0", "lst", "nn", "sb", "on", "un", "mn", "hx", "fo", "arr", "q0", "mp", "o2", "e2", "sbn", "sbo", "rf", "rt", "ld", "rn", "rb", "ud", "ut", "ur", "hd", "ip", "pi", "pre", "pf", "iu", "so", "se", "si", "tr", "sd", "ea", "sb0", "up", "li", "lb", "lf", "ls", "kd", "cs", "sy", "qx", "sp", "ua", "cv", "sa", "sn", "cp", "hc", "qg", "rc", "bn", "ng", "nt", "cvn", "ix", "sl", "sw", "dz"] { items.append(t10Init(in c, for: n)) }
+    for s in c.bBlocks[c.functions[g].body & 0xFFFFFFFF].statements {
+        if !ltree.isLowered(s) && semantics.boundKind(s) == .exprStmt { items.append(t10Bare(in c, at: c.bExprStmts[s & 0xFFFFFFFF].expr)) }
+    }
+    items.append(semantics.addMove(ref c, from: BMove { span: t10At(in c, for: "te"), operand: t10Init(in c, for: "te") }))
+    items.append(semantics.addThis(ref c, from: BThis { span: t10At(in c, for: "a"), type: i64Type }))
+    items.append(ltree.addLOptionalHas(ref l.tree, from: LOptionalHas { span: t10At(in c, for: "o"), optional: t10Read(ref c, for: "o") }))
+    items.append(ltree.addLOptionalValue(ref l.tree, from: LOptionalValue { span: t10At(in c, for: "o"), optional: t10Read(ref c, for: "o"), type: i64Type }))
+    items.append(ltree.addLUnionTag(ref l.tree, from: LUnionTag { span: t10At(in c, for: "u0"), unionValue: t10Read(ref c, for: "u0") }))
+    items.append(ltree.addLErrorCode(ref l.tree, from: LErrorCode { span: t10At(in c, for: "er"), error: t10Read(ref c, for: "er") }))
+    items.append(ltree.addLAssignExpr(ref l.tree, from: LAssignExpr { span: t10At(in c, for: "a"), target: t10Read(ref c, for: "a"), value: t10Init(in c, for: "v") }))
+    var effects = List<BExpr>()
+    effects.append(t10Init(in c, for: "cd"))
+    items.append(ltree.addLSequence(ref l.tree, from: LSequence { span: t10At(in c, for: "a"), effects: move effects, value: t10Read(ref c, for: "v") }))
+    var none = List<BExpr>()
+    items.append(ltree.addLSequence(ref l.tree, from: LSequence { span: t10At(in c, for: "a"), effects: move none, value: t10Read(ref c, for: "v") }))
+    let u0 = ltree.addLIndexUnchecked(ref l.tree, from: LIndexUnchecked { span: t10At(in c, for: "a"), target: t10Read(ref c, for: "lst"), index: t10Read(ref c, for: "a"), type: i64Type }) because "a node for the emitter; it is never run"
+    items.append(u0)
+    let u1 = ltree.addLIndexUnchecked(ref l.tree, from: LIndexUnchecked { span: t10At(in c, for: "a"), target: t10Read(ref c, for: "arr"), index: t10Read(ref c, for: "a"), type: i64Type }) because "a node for the emitter; it is never run"
+    items.append(u1)
+    items.append(ltree.addLNextChar(ref l.tree, from: LNextChar { span: t10At(in c, for: "a"), text: t10Read(ref c, for: "str"), position: t10Var(in c, for: "a") }))
+    let ev = c.bErrorVariants[t10Init(in c, for: "er") & 0xFFFFFFFF].variant
+    items.append(ltree.addLErrorField(ref l.tree, from: LErrorField { span: t10At(in c, for: "er"), error: t10Read(ref c, for: "er"), variant: ev, index: 0 }))
+    let uv = c.bUnionNews[t10Init(in c, for: "ua") & 0xFFFFFFFF].variant
+    items.append(ltree.addLUnionField(ref l.tree, from: LUnionField { span: t10At(in c, for: "ua"), unionValue: t10Read(ref c, for: "ua"), variant: uv, index: 0 }))
+    let lam = c.bCalls[t10Init(in c, for: "ap") & 0xFFFFFFFF].arguments[0] & 0xFFFFFFFF
+    items.append(ltree.addLFunctionValue(ref l.tree, from: LFunctionValue { span: t10At(in c, for: "ap"), function: c.bLambdas[lam].lambda, functionType: c.bLambdas[lam].functionType }))
+    items.append(ltree.addLFunctionValue(ref l.tree, from: LFunctionValue { span: t10At(in c, for: "ap"), function: c.bLambdas[lam].lambda, env: t10Var(in c, for: "a"), functionType: c.bLambdas[lam].functionType }))
+    items.append(ltree.addLFunctionValue(ref l.tree, from: LFunctionValue { span: t10At(in c, for: "hc"), function: c.bCalls[t10Init(in c, for: "hc") & 0xFFFFFFFF].function, functionType: c.locals[c.functions[g].parameters[4]].type }))
+    items.append(semantics.addLiteral(ref c, from: BLiteral { span: t10At(in c, for: "lb"), type: semantics.prim(.bool), value: Constant { kind: .flag, flag: true } }))
+    let kl = t10Read(ref c, for: "lb")
+    semantics.setConstant(ref c, for: kl, to: Constant { kind: .flag, flag: false })
+    items.append(kl)
+    let kp = localExpr(ref c, at: t10At(in c, for: "a"), for: c.functions[g].parameters[0])
+    semantics.setConstant(ref c, for: kp, to: Constant { kind: .flag, flag: true })
+    items.append(kp)
+    for kt in [c.locals[t10Var(in c, for: "q0")].type, semantics.prim(.void), semantics.prim(.neverKind)] {
+        let kth = semantics.addThis(ref c, from: BThis { span: t10At(in c, for: "a"), type: kt })
+        semantics.setConstant(ref c, for: kth, to: Constant { kind: .flag, flag: true })
+        items.append(kth)
+    }
+    var sb = StrBuf()
+    sb.append("== expr\n")
+    for i in 0..items.length {
+        let e = items[i]
+        sb.append($"{i} {cprint.emitExpr(ref cc, for: ref f, from: ref c, through: l.tree, at: e)}\n")
+        if !ltree.isLowered(e) && semantics.boundKind(e) == .call {
+            sb.append($"{i} call {cprint.call(ref cc, for: ref f, from: ref c, through: l.tree, at: e & 0xFFFFFFFF, to: null)}\n")
+            sb.append($"{i} call-result {cprint.call(ref cc, for: ref f, from: ref c, through: l.tree, at: e & 0xFFFFFFFF, to: "R")}\n")
+        }
+    }
+    sb.append("== helpers\n")
+    for name in cc.helperOrder {
+        if name.startsWith("bynh_from_ordinal_") { sb.append(cc.helpers[name].body) }
+    }
+    return $"{sb.finish()}"
+}

@@ -1,0 +1,48 @@
+import lexer
+import semantics
+
+type CompilationOptions = semantics.CompilationOptions
+
+string t10Opt(string? s) => s ?? "-"
+
+i32 main(ReadOnlySpan<string> args) {
+    let mode = args[0]
+    let dir = args[1]
+    for k in 2..args.length {
+        let file = args[k]
+        print($"== {Path.fileName(file)}")
+        let bytes = Io.readFile(file) catch return 1
+        var sources = List<lexer.SourceText>()
+        sources.append(lexer.SourceText.create(Path.fileName(file), from: move bytes))
+        let options = CompilationOptions { includeTests: mode.contains("-tests") }
+        var c = semantics.create(from: move sources, at: dir, by: in options)
+        var failed = false
+        for d in c.diagnostics {
+            if !d.isWarning { failed = true }
+        }
+        if failed {
+            print("errors")
+            continue
+        }
+        var skip = List<string>()
+        if mode.endsWith("-skip") {
+            skip.append("-")
+            skip.append(Path.fileName(file))
+        }
+        if mode.startsWith("mutate") {
+            let schema = buildSchema(ref c, for: in skip)
+            for op in mutatorOperators() { print($"notEmitted {op} {schema.notEmitted.tryGet(at: op) ?? 0}") }
+            print($"switches {schema.switches.length}")
+            Io.stdout.write(sitesJson(in schema))
+            continue
+        }
+        let map = instrument(ref c, for: in skip)
+        print($"count {map.probes.count} statements {map.probes.statements.length} branches {map.probes.branches.length} errors {map.probes.errors.length}")
+        for x in map.counters {
+            var outcome = "-"
+            if (x.outcome is { } o) { outcome = o ? "true" : "false" }
+            print($"{x.id} {x.kind} {x.file} {x.line}:{x.column} {t10Opt(x.function)} {t10Opt(x.variant)} {t10Opt(x.origin)} {outcome}")
+        }
+    }
+    return 0
+}
