@@ -21,12 +21,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: ubuntu-24.04, rid: linux-x64, exe: bayan }
-          - { os: ubuntu-24.04-arm, rid: linux-arm64, exe: bayan }
-          - { os: macos-15, rid: osx-arm64, exe: bayan }
-          - { os: macos-15-intel, rid: osx-x64, exe: bayan }
-          - { os: windows-2025, rid: win-x64, exe: bayan.exe }
-          - { os: windows-11-arm, rid: win-arm64, exe: bayan.exe }
+          - { os: ubuntu-24.04, rid: linux-x64, exe: bayan, lsp: bayan-lsp }
+          - { os: ubuntu-24.04-arm, rid: linux-arm64, exe: bayan, lsp: bayan-lsp }
+          - { os: macos-15, rid: osx-arm64, exe: bayan, lsp: bayan-lsp }
+          - { os: macos-15-intel, rid: osx-x64, exe: bayan, lsp: bayan-lsp }
+          - { os: windows-2025, rid: win-x64, exe: bayan.exe, lsp: bayan-lsp.exe }
+          - { os: windows-11-arm, rid: win-arm64, exe: bayan.exe, lsp: bayan-lsp.exe }
     runs-on: ${{ matrix.os }}
     # The tag being released: the pushed tag, or v + the dry run's input. Steps read it from here, never from the input.
     env:
@@ -79,6 +79,10 @@ jobs:
       - name: Smoke test
         shell: bash
         run: ./publish/${{ matrix.exe }} --version | grep -F "bayan $(cat VERSION) (selfhost)"
+      # bayan-lsp ships beside bayan, built by this release's own bayan (spec 019 R37); package.sh refuses an archive without it.
+      - name: Build bayan-lsp
+        shell: bash
+        run: ./publish/${{ matrix.exe }} build --package editors/language-server/src -o publish/${{ matrix.lsp }} editors/language-server/src/app
       - name: Package
         shell: bash
         run: bash scripts/release/package.sh pack ${{ matrix.rid }} publish dist
@@ -160,7 +164,7 @@ jobs:
           v="$(bash scripts/release/package.sh check-tag "$GITHUB_REF_NAME")"
           bash scripts/release/package.sh docs dist
           bash scripts/release/package.sh sums dist
-          # dist/bayan-* is the six compiler archives and bayan-$v-docs.tar.gz.
+          # dist/bayan-* is the six compiler archives (bayan and bayan-lsp each) and bayan-$v-docs.tar.gz.
           mkdir -p tmp && bash scripts/release/package.sh notes "$v" > tmp/notes.md
           # 0.x releases are GitHub prereleases (user, 2026-11-14).
           gh release create "$GITHUB_REF_NAME" dist/bayan-* dist/SHA256SUMS --draft --verify-tag \

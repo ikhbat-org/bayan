@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# scripts/dist.sh with a fake dotnet: layout per target and version, latest replaced on each build, --from import, refusals.
+# scripts/dist.sh with a fake dotnet: layout per target and version, latest replaced on each build, --from import, refusals,
+# and bayan-lsp beside bayan in every build, built by that bayan (spec 019 R37).
 set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 t="$root/tmp/dist-test-$$"
@@ -8,7 +9,8 @@ trap 'rm -rf "$t"' EXIT
 fail=0
 check() { if [ "$2" = "$3" ]; then echo "ok: $1"; else echo "FAIL: $1: got '$2', want '$3'"; fail=1; fi; }
 d="$t/dist"
-# fake dotnet: `dotnet publish <proj> -c Release -r <rid> -o <dir>` writes a binary naming its rid and FAKE_BUILD
+# fake dotnet: `dotnet publish <proj> -c Release -r <rid> -o <dir>` writes a bayan naming its rid and FAKE_BUILD on line 2,
+# whose `build ... -o <file> ...` writes "lsp <rid> <FAKE_BUILD>" to <file> (FAKE_LSPFAIL=1: the build fails)
 cat > "$t/bin/dotnet" <<'FAKE'
 #!/usr/bin/env bash
 while [ $# -gt 0 ]; do case "$1" in -r) rid=$2; shift 2 ;; -o) out=$2; shift 2 ;; *) shift ;; esac; done
@@ -16,35 +18,53 @@ while [ $# -gt 0 ]; do case "$1" in -r) rid=$2; shift 2 ;; -o) out=$2; shift 2 ;
 [ "${FAKE_FAIL:-}" = 1 ] && exit 1
 [ "${FAKE_NOWRITE:-}" = 1 ] && exit 0
 mkdir -p "$out"; exe=bayan; case "$rid" in win-*) exe=bayan.exe ;; esac
-echo "$rid ${FAKE_BUILD:-1}" > "$out/$exe"
+printf '#!/usr/bin/env bash\n# %s\n[ "${FAKE_LSPFAIL:-}" = 1 ] && exit 1\nwhile [ $# -gt 0 ]; do case "$1" in -o) echo "lsp %s" > "$2"; shift 2 ;; *) shift ;; esac; done\n' \
+  "$rid ${FAKE_BUILD:-1}" "$rid ${FAKE_BUILD:-1}" > "$out/$exe"
+chmod +x "$out/$exe"
 touch "${FAKE_MARK:-/dev/null}"
 FAKE
 chmod +x "$t/bin/dotnet"
 run() { PATH="$t/bin:$PATH" bash "$root/scripts/dist.sh" --dist "$d" "$@"; }
+id() { sed -n 's/^# //p' "$1"; }
 
 out=$(FAKE_BUILD=1 run --rid osx-arm64 --label 1.0.0 2>/dev/null); check "first build exits 0" "$?" 0
 check "prints the binary path" "$out" "$d/macos-arm64/1.0.0/bayan"
-check "version dir binary" "$(cat "$d/macos-arm64/1.0.0/bayan")" "osx-arm64 1"
-check "latest binary" "$(cat "$d/macos-arm64/latest/bayan")" "osx-arm64 1"
+check "version dir binary" "$(id "$d/macos-arm64/1.0.0/bayan")" "osx-arm64 1"
+check "latest binary" "$(id "$d/macos-arm64/latest/bayan")" "osx-arm64 1"
 check "binary executable" "$([ -x "$d/macos-arm64/1.0.0/bayan" ] && echo y)" y
+check "bayan-lsp beside bayan, built by it" "$(cat "$d/macos-arm64/1.0.0/bayan-lsp")" "lsp osx-arm64 1"
+check "latest bayan-lsp" "$(cat "$d/macos-arm64/latest/bayan-lsp")" "lsp osx-arm64 1"
+check "bayan-lsp executable" "$([ -x "$d/macos-arm64/1.0.0/bayan-lsp" ] && echo y)" y
+check "BUILD-INFO lsp built" "$(grep '^lsp ' "$d/macos-arm64/1.0.0/BUILD-INFO")" "lsp built"
 check "BUILD-INFO version" "$(grep '^version ' "$d/macos-arm64/latest/BUILD-INFO")" "version 1.0.0"
 check "BUILD-INFO rid" "$(grep '^rid ' "$d/macos-arm64/1.0.0/BUILD-INFO")" "rid osx-arm64"
 
 FAKE_BUILD=2 run --rid osx-arm64 --label 1.1.0 >/dev/null 2>&1
-check "older version kept" "$(cat "$d/macos-arm64/1.0.0/bayan")" "osx-arm64 1"
-check "new version dir" "$(cat "$d/macos-arm64/1.1.0/bayan")" "osx-arm64 2"
-check "latest replaced by the newest build" "$(cat "$d/macos-arm64/latest/bayan")" "osx-arm64 2"
+check "older version kept" "$(id "$d/macos-arm64/1.0.0/bayan")" "osx-arm64 1"
+check "new version dir" "$(id "$d/macos-arm64/1.1.0/bayan")" "osx-arm64 2"
+check "latest replaced by the newest build" "$(id "$d/macos-arm64/latest/bayan")" "osx-arm64 2"
+check "latest bayan-lsp replaced" "$(cat "$d/macos-arm64/latest/bayan-lsp")" "lsp osx-arm64 2"
 check "latest BUILD-INFO replaced" "$(grep '^version ' "$d/macos-arm64/latest/BUILD-INFO")" "version 1.1.0"
 check "no staging dir left" "$(ls -A "$d/macos-arm64" | tr '\n' ' ')" "1.0.0 1.1.0 latest "
 
 FAKE_BUILD=3 run --rid win-x64 --rid linux-arm64 --label 1.1.0 >/dev/null 2>&1
-check "windows target name and exe" "$(cat "$d/windows-x64/latest/bayan.exe")" "win-x64 3"
-check "linux target" "$(cat "$d/linux-arm64/1.1.0/bayan")" "linux-arm64 3"
-check "other targets untouched" "$(cat "$d/macos-arm64/latest/bayan")" "osx-arm64 2"
+check "windows target name and exe" "$(id "$d/windows-x64/latest/bayan.exe")" "win-x64 3"
+check "windows bayan-lsp.exe" "$(cat "$d/windows-x64/latest/bayan-lsp.exe")" "lsp win-x64 3"
+check "linux bayan-lsp" "$(cat "$d/linux-arm64/1.1.0/bayan-lsp")" "lsp linux-arm64 3"
+check "linux target" "$(id "$d/linux-arm64/1.1.0/bayan")" "linux-arm64 3"
+check "other targets untouched" "$(id "$d/macos-arm64/latest/bayan")" "osx-arm64 2"
 
 mkdir -p "$t/pub"; echo imported > "$t/pub/bayan.exe"
+# an imported bayan.exe that cannot run here, with no bayan-lsp.exe beside it: a warning and BUILD-INFO `lsp none`
+err=$(run --from "$t/pub" --rid win-x64 --label 1.1.9 2>&1); check "--from without bayan-lsp exits 0" "$?" 0
+check "--from without bayan-lsp warns" "$(echo "$err" | grep -c '^dist: warning: .* cannot build bayan-lsp.exe')" 1
+check "--from without bayan-lsp ships none" "$([ -e "$d/windows-x64/1.1.9/bayan-lsp.exe" ] && echo y || echo n)" n
+check "--from without bayan-lsp BUILD-INFO" "$(grep '^lsp ' "$d/windows-x64/1.1.9/BUILD-INFO")" "lsp none"
+echo imported-lsp > "$t/pub/bayan-lsp.exe"
 run --from "$t/pub" --rid win-x64 --label 1.2.0 >/dev/null 2>&1; check "--from exits 0" "$?" 0
+check "--from bayan-lsp BUILD-INFO" "$(grep '^lsp ' "$d/windows-x64/1.2.0/BUILD-INFO")" "lsp imported"
 check "--from imported" "$(cat "$d/windows-x64/latest/bayan.exe")" imported
+check "--from imported bayan-lsp" "$(cat "$d/windows-x64/latest/bayan-lsp.exe")" imported-lsp
 check "--from source recorded" "$(grep '^source ' "$d/windows-x64/1.2.0/BUILD-INFO")" "source $t/pub"
 check "--from commit unknown without --commit" "$(grep '^commit ' "$d/windows-x64/1.2.0/BUILD-INFO")" "commit unknown"
 run --from "$t/pub" --rid win-x64 --label 1.2.1 --commit abc123 >/dev/null 2>&1
@@ -52,8 +72,12 @@ check "--commit recorded" "$(grep '^commit ' "$d/windows-x64/1.2.1/BUILD-INFO")"
 check "host build records this checkout" "$(grep '^commit ' "$d/macos-arm64/1.0.0/BUILD-INFO")" "commit $(git -C "$root" rev-parse HEAD)"
 
 FAKE_FAIL=1 run --rid osx-arm64 --label 2.0.0 >/dev/null 2>&1; check "failed publish exits 1" "$?" 1
-check "failed publish leaves latest" "$(cat "$d/macos-arm64/latest/bayan")" "osx-arm64 2"
+check "failed publish leaves latest" "$(id "$d/macos-arm64/latest/bayan")" "osx-arm64 2"
 check "failed publish makes no version dir" "$([ -e "$d/macos-arm64/2.0.0" ] && echo y || echo n)" n
+err=$(FAKE_LSPFAIL=1 run --rid linux-x64 --label 2.0.1 2>&1); check "failed bayan-lsp build exits 0" "$?" 0
+check "failed bayan-lsp build warns" "$(echo "$err" | grep -c '^dist: warning: .* cannot build bayan-lsp (see tmp/dist-lsp-linux-x64.log)')" 1
+check "failed bayan-lsp build ships none" "$([ -e "$d/linux-x64/2.0.1/bayan-lsp" ] && echo y || echo n)" n
+check "failed bayan-lsp build BUILD-INFO" "$(grep '^lsp ' "$d/linux-x64/2.0.1/BUILD-INFO")" "lsp none"
 
 err=$(run --rid sparc-x64 --label 1.0.0 2>&1); check "unknown rid exits 1" "$?" 1
 check "unknown rid message" "$err" "dist: unknown rid sparc-x64"
@@ -64,11 +88,11 @@ run --bogus >/dev/null 2>&1; check "unknown argument refused" "$?" 1
 
 lbl=$(FAKE_BUILD=4 run 2>/dev/null); check "host build exits 0" "$?" 0
 check "default label is CompilerVersion(+commit)(.dirty)" "$(echo "$lbl" | grep -cE '/[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+\+[0-9a-f]{12})?(\.dirty)?/bayan(\.exe)?$')" 1
-prev="$(cat "$d/macos-arm64/latest/bayan")" prevv="$(grep '^version ' "$d/macos-arm64/latest/BUILD-INFO")"
+prev="$(id "$d/macos-arm64/latest/bayan")" prevv="$(grep '^version ' "$d/macos-arm64/latest/BUILD-INFO")"
 mkdir "$d/macos-arm64/.lock"
 FAKE_MARK="$t/published" FAKE_BUILD=5 run --rid osx-arm64 --label 3.0.0 >/dev/null 2>&1; check "held lock exits 1" "$?" 1
 check "held lock refuses before publishing" "$([ -e "$t/published" ] && echo y || echo n)" n
-check "held lock leaves latest" "$(cat "$d/macos-arm64/latest/bayan")" "$prev"
+check "held lock leaves latest" "$(id "$d/macos-arm64/latest/bayan")" "$prev"
 check "held lock makes no version dir" "$([ -e "$d/macos-arm64/3.0.0" ] && echo y || echo n)" n
 rmdir "$d/macos-arm64/.lock"
 
@@ -76,7 +100,7 @@ rmdir "$d/macos-arm64/.lock"
 mkdir -p "$t/nomv"
 printf '#!/usr/bin/env bash\ncase "$1" in */latest) exit 1 ;; esac\nexec /bin/mv "$@"\n' > "$t/nomv/mv"; chmod +x "$t/nomv/mv"
 PATH="$t/nomv:$PATH" FAKE_BUILD=6 run --rid osx-arm64 --label 3.1.0 >/dev/null 2>&1; check "latest in use exits 1" "$?" 1
-check "latest in use is unchanged" "$(cat "$d/macos-arm64/latest/bayan")" "$prev"
+check "latest in use is unchanged" "$(id "$d/macos-arm64/latest/bayan")" "$prev"
 check "latest in use keeps its BUILD-INFO" "$(grep '^version ' "$d/macos-arm64/latest/BUILD-INFO")" "$prevv"
 check "latest in use leaves no staging or lock" "$(ls -A "$d/macos-arm64" | grep -c '^\.')" 0
 
@@ -84,7 +108,7 @@ mkdir -p "$d/macos-arm64/.latest-old/sub"; touch "$d/macos-arm64/.latest-old/sub
 err=$(FAKE_BUILD=7 run --rid osx-arm64 --label 3.2.0 2>&1); check "uncleanable .latest-old exits 1" "$?" 1
 check "uncleanable .latest-old says why" "$(echo "$err" | grep -c '^dist: cannot clear')" 1
 chmod 700 "$d/macos-arm64/.latest-old/sub"
-check "--help ends with the --commit line" "$(bash "$root/scripts/dist.sh" --help | tail -1 | grep -c -- --commit)" 1
+check "--help ends with the BUILD-INFO lsp line" "$(bash "$root/scripts/dist.sh" --help | tail -1 | grep -c 'BUILD-INFO `lsp`')" 1
 
 err=$(run --rid osx-arm64 --label .latest-next 2>&1); check "label starting with . refused" "$err" "dist: bad version label '.latest-next'"
 run --rid osx-arm64 --label "1.0 x" >/dev/null 2>&1; check "label with a space refused" "$?" 1

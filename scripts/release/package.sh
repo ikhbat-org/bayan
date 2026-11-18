@@ -3,8 +3,8 @@
 #   package.sh check-tag <tag>                  exit 0 when <tag> is v + VERSION
 #   package.sh release-flags <version>          the extra `gh release create` flags: --prerelease while the major is 0
 #   package.sh check-dry-run-tag <tag>          exit 0 when <tag> is v<VERSION without -dev>-rc.<N> (workflow_dispatch only)
-#   package.sh pack <rid> <publish-dir> <out>   <out>/bayan-<version>-<target>.tar.gz (.zip for Windows), the binary
-#                                               inside a bayan-<version>-<target>/ folder with README.md, the docs
+#   package.sh pack <rid> <publish-dir> <out>   <out>/bayan-<version>-<target>.tar.gz (.zip for Windows), bayan and
+#                                               bayan-lsp (spec 019 R37; .exe on Windows) inside a bayan-<version>-<target>/ folder with README.md, the docs
 #                                               under share/doc/bayan/ (and LICENSE.md, warning when the repo has none, and NOTICE.md)
 #   package.sh docs <out>                       <out>/bayan-<version>-docs.tar.gz, the docs and every other release doc
 #                                               (version.sh `bayan_release_docs`) under bayan-<version>-docs/share/doc/bayan/
@@ -83,17 +83,19 @@ case "${1:-}" in
   pack)
     rid="${2:?usage: package.sh pack <rid> <publish-dir> <out>}"; pub="${3:?}"; out="${4:?}"
     case "$rid" in
-      linux-x64|linux-arm64) target="$rid"; exe=bayan; ext=tar.gz ;;
-      osx-x64|osx-arm64) target="macos-${rid#osx-}"; exe=bayan; ext=tar.gz ;;
-      win-x64|win-arm64) target="windows-${rid#win-}"; exe=bayan.exe; ext=zip ;;
+      linux-x64|linux-arm64) target="$rid"; exe=bayan; lsp=bayan-lsp; ext=tar.gz ;;
+      osx-x64|osx-arm64) target="macos-${rid#osx-}"; exe=bayan; lsp=bayan-lsp; ext=tar.gz ;;
+      win-x64|win-arm64) target="windows-${rid#win-}"; exe=bayan.exe; lsp=bayan-lsp.exe; ext=zip ;;
       *) die "unknown rid $rid" ;;
     esac
-    [ -f "$pub/$exe" ] || die "$pub/$exe not found"
-    check_machine "$pub/$exe" "$rid"
+    for f in "$exe" "$lsp"; do
+      [ -f "$pub/$f" ] || die "$pub/$f not found"
+      check_machine "$pub/$f" "$rid"
+    done
     v="$(version)"; name="bayan-$v-$target"
     mkdir -p "$out"; out="$(cd "$out" && pwd)"
     stage="$out/.stage-$target"; rm -rf "$stage"; mkdir -p "$stage/$name"
-    cp "$pub/$exe" "$stage/$name/"
+    cp "$pub/$exe" "$pub/$lsp" "$stage/$name/"
     cp "$root/README.md" "$stage/$name/"
     if [ -f "$root/LICENSE.md" ]; then cp "$root/LICENSE.md" "$stage/$name/"; else echo "::warning::package: the repo has no LICENSE.md; $name ships without one" >&2; fi
     if [ -f "$root/NOTICE.md" ]; then cp "$root/NOTICE.md" "$stage/$name/"; fi

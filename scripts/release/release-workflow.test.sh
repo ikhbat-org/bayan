@@ -28,4 +28,15 @@ grep -qx '  workflow_call:' "$ln" || fail "laws-nightly.yml is not callable"
 grep -q "cron: '0 4 \* \* \*'" "$ln" || fail "laws-nightly.yml lost its schedule"
 grep -q 'timeout-minutes: 180' "$ln" || fail "laws-nightly.yml's job no longer allows 180 min"
 grep -qF '$(bash scripts/release/package.sh release-flags "$v")' "$wf" || fail "release.yml's gh release create lost release-flags (0.x prerelease)"
+# 019 R37: each archive holds bayan-lsp, built by the shipped (stage 2) bayan after its smoke test and before Package;
+# the C# server (editors/language-server/*.csproj) is never built or shipped.
+[ "$(grep -cE '^          - \{ os: [^,]+, rid: (linux|osx)-[a-z0-9]+, exe: bayan, lsp: bayan-lsp \}$|^          - \{ os: [^,]+, rid: win-[a-z0-9]+, exe: bayan\.exe, lsp: bayan-lsp\.exe \}$' "$wf")" = 6 ] \
+  || fail "release.yml's six build rows do not each name lsp: bayan-lsp (.exe on Windows)"
+lsp='        run: ./publish/${{ matrix.exe }} build --package editors/language-server/src -o publish/${{ matrix.lsp }} editors/language-server/src/app'
+l_lsp=$(grep -nxF -- "$lsp" "$wf" | cut -d: -f1 | head -n 1 || true)
+l_sm=$(grep -nF -- 'run: ./publish/${{ matrix.exe }} --version' "$wf" | cut -d: -f1 | head -n 1 || true)
+l_pkg=$(grep -nxF -- '        run: bash scripts/release/package.sh pack ${{ matrix.rid }} publish dist' "$wf" | cut -d: -f1 | head -n 1 || true)
+[ -n "$l_lsp" ] || fail "release.yml does not build bayan-lsp with the shipped bayan into publish/"
+[ -n "$l_sm" ] && [ -n "$l_pkg" ] && [ "$l_sm" -lt "$l_lsp" ] && [ "$l_lsp" -lt "$l_pkg" ] || fail "release.yml builds bayan-lsp outside the smoke test .. Package span"
+! grep -qE 'LanguageServer|\.csproj' "$wf" || fail "release.yml builds the C# language server"
 echo PASS
