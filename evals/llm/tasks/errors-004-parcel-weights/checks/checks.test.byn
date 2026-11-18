@@ -1,0 +1,33 @@
+@cases(("1", 1), ("12", 12), ("50", 50))
+test "kilos reads a weight" (string text, i64 expected) {
+    assert (try kilos(text)) == expected
+}
+
+@cases("", "heavy", "2.5", "-3", "0", "1x")
+test "kilos rejects what is not a weight" (string text) {
+    assert kilos(text) fails ParcelError.badWeight
+}
+
+@cases("51", "400")
+test "kilos rejects a parcel over 50 kilos" (string text) {
+    assert kilos(text) fails ParcelError.tooMuch
+}
+
+test "totalKilos adds two weights" {
+    assert (try totalKilos("12", to: "30")) == 42
+    assert (try totalKilos("50", to: "50")) == 100
+}
+
+test "totalKilos passes the error on" {
+    assert totalKilos("abc", to: "5") fails ParcelError.badWeight
+    assert totalKilos("5", to: "99") fails ParcelError.tooMuch
+    assert totalKilos("99", to: "abc") fails ParcelError.tooMuch
+    assert totalKilos("abc", to: "99") fails ParcelError.badWeight
+}
+
+test "kilosOrZero falls back to 0" {
+    assert kilosOrZero("12") == 12
+    assert kilosOrZero("heavy") == 0
+    assert kilosOrZero("51") == 0
+    assert kilosOrZero("") == 0
+}

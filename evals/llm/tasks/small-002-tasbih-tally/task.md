@@ -17,12 +17,6 @@ Check: stdout
 The input covers: a tie broken by first appearance, a phrase with a space inside, surrounding spaces, a blank line.
 
 ## Check command
-Run from the repository root. It prints `PASS small-002-tasbih-tally` when the reference compiles with no diagnostic, is unchanged by `bayan format`, and passes its checks.
-
 ```sh
-B=$(bash scripts/pinned-bayan.sh); t=evals/llm/tasks/small-002-tasbih-tally; d=tmp/llm-eval/small-002-tasbih-tally
-mkdir -p "$d" && cp "$t/reference/solution.byn" "$d/"
-[ -z "$("$B" check --diagnostics json "$d" 2>&1)" ] && "$B" format --check "$d" &&
-  "$B" run "$d/solution.byn" < "$t/checks/stdin" > "$d/actual.stdout" && diff "$d/actual.stdout" "$t/checks/expected.stdout" &&
-  echo "PASS small-002-tasbih-tally"
+bash scripts/bayan-tool.sh llm-eval recheck evals/llm/tasks --only small-002-tasbih-tally
 ```

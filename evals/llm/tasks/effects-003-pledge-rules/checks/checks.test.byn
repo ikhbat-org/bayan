@@ -1,0 +1,52 @@
+List<i64> pledges() {
+    var list = List<i64>()
+    list.append(10)
+    list.append(25)
+    list.append(40)
+    return list
+}
+
+test "adjustPledges applies the rule to each pledge in order" {
+    let doubled = adjustPledges(pledges(), by: p => p * 2)
+    assert doubled.length == 3
+    assert doubled[0] == 20
+    assert doubled[1] == 50
+    assert doubled[2] == 80
+}
+
+test "adjustPledges of no pledges is empty" {
+    assert adjustPledges(List<i64>(), by: p => p + 1).length == 0
+}
+
+test "totalAfter sums the adjusted pledges" {
+    assert totalAfter(pledges(), by: p => p - 5) == 60
+    assert totalAfter(List<i64>(), by: p => p) == 0
+}
+
+test "countAbove counts only pledges strictly above the floor" {
+    assert countAbove(pledges(), at: 25) == 1
+    assert countAbove(pledges(), at: 9) == 3
+    assert countAbove(pledges(), at: 40) == 0
+}
+
+test "a rule that prints is accepted by both functions" {
+    let shown = adjustPledges(pledges(), by: p => {
+        print($"pledge {p}")
+        return p
+    })
+    assert shown.length == 3
+    let sum = totalAfter(pledges(), by: p => {
+        print($"pledge {p}")
+        return p
+    })
+    assert sum == 75
+}
+
+test "the declared effects are alloc, none and none" {
+    let adjust: (List<i64>, i64 -> i64) -> List<i64> uses alloc = adjustPledges
+    let total: (List<i64>, i64 -> i64) -> i64 = totalAfter
+    let count: (List<i64>, i64) -> i64 = countAbove
+    assert adjust(pledges(), p => p).length == 3
+    assert total(pledges(), p => p) == 75
+    assert count(pledges(), 0) == 3
+}

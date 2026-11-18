@@ -1,0 +1,28 @@
+/// Seats still free at a table; more guests than seats is a bug in the lists.
+i64 seatsLeft(i64 seats, for i64 guests)
+        expects guests <= seats {
+    return seats - guests
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            fields.append(part)
+        }
+        let seats = fields.length == 3 ? (i64.tryParse(fields[1]) ?? -1) : -1
+        let guests = fields.length == 3 ? (i64.tryParse(fields[2]) ?? -1) : -1
+        if seats < 0 || guests < 0 {
+            print($"bad line: {text}")
+            continue
+        }
+        print($"{fields[0]}: {seatsLeft(seats, for: guests)} seats left")
+    }
+}

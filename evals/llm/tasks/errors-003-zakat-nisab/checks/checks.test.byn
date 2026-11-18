@@ -1,0 +1,25 @@
+@cases((1000, 500, 25), (500, 500, 12), (4000, 85, 100), (39, 1, 0))
+test "zakatDue takes a fortieth" (i64 savings, i64 nisab, i64 expected) {
+    assert (try zakatDue(savings, at: nisab)) == expected
+}
+
+@cases(0, -1, -500)
+test "zakatDue refuses a nisab of 0 or less" (i64 nisab) {
+    assert zakatDue(1000, at: nisab) fails ZakatError.badNisab
+}
+
+test "zakatDue refuses negative savings" {
+    assert zakatDue(-1, at: 100) fails ZakatError.negative
+    assert zakatDue(-900, at: 100) fails ZakatError.negative
+}
+
+@cases((99, 100), (0, 100), (1, 2))
+test "zakatDue refuses savings below the nisab" (i64 savings, i64 nisab) {
+    assert zakatDue(savings, at: nisab) fails ZakatError.belowNisab
+}
+
+test "the first check that applies decides" {
+    assert zakatDue(-5, at: 0) fails ZakatError.badNisab
+    assert zakatDue(50, at: -3) fails ZakatError.badNisab
+    assert zakatDue(-5, at: 100) fails ZakatError.negative
+}

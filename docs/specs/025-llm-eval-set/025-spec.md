@@ -1,5 +1,5 @@
 # 025 — Evaluation set for LLM-written Bayān
-Status: draft
+Status: approved (2026-11-18)
 Release: unscheduled (nothing a user runs changes)
 Sources: user 2026-11-17 ("yes start the llm eval set in parallel"); `docs/bayan-spec.md` (revisions 0001–0024, syntax freeze of revision 0023); `docs/decisions/2026-11-02-002-tooling-port-rules.md` (tooling is Bayān or shell)
 Created: 2026-11-17
@@ -60,7 +60,7 @@ An evaluation set answers that, provided it measures every model the same way an
 - R12 A task is passed when the candidate compiles and passes. Lint-clean and format-stable are reported beside it and never change whether a task is passed.
 - R13 A repair task also requires that its starter file fails `bayan check` with the diagnostic code the task names. This is a property of the task, checked with the reference, not of the candidate.
 - R14 Each build and each run has a time limit and an output limit, the same for every model and stated in the result. Reaching a limit is a fail, never a retry, and is reported as its own outcome, `limit`. The limits are 120 seconds to build, 10 seconds to run and 1 MiB of output, loose enough that only a program that does not stop reaches them.
-- R15 A candidate is a program written by a model and is run as one. The runner starts it in the scratch directory as a process with no secrets in its environment, under an OS sandbox that denies network access, denies reading the task set and allows writes only in the scratch directory (macOS first). Where no sandbox is available the runner says so in the result.
+- R15 A candidate is a program written by a model and is run as one. The runner starts it in the scratch directory as a process with no secrets in its environment, under an OS sandbox that denies network access, denies reading the task set and allows writes only in the scratch directory (macOS first). A `tests` candidate runs inside `bayan test`, which builds it first, so that call may also write the scoring's own build, cache and temporary directories beside the scratch directory, and nothing shared. Where no sandbox is available the runner says so in the result.
 - R16 The code is taken from the model's reply by one fixed rule, the same for every model: the contents of the last fenced code block when there is one, otherwise the whole reply.
 
 ### Categories
@@ -95,7 +95,7 @@ An evaluation set answers that, provided it measures every model the same way an
 - R21 The headline number of a model is its result on `heldout`. A `dev` result is always labelled as such.
 - R22 A task never moves from `dev` to `heldout`. A `heldout` task that leaks (shown in a prompt, found in a corpus, published) moves to `dev`.
 - R23 No task is copied or adapted from text in this repository: `tests/cases/`, `examples/`, `lib/std/` and its tests, `src/`, `tools/`, the code samples in `docs/`, or the site. Prompts are new text. The reverse also holds: no eval task is later reused as a repository test or a docs sample.
-- R24 Every `heldout` file carries one marker string, unique to the set, so that a leak into a corpus can be searched for.
+- R24 Every `heldout` file carries one marker string, unique to the set, so that a leak into a corpus can be searched for. The files `checks/stdin`, `checks/expected.stdout` and `checks/exitcode` are exempt, because they are fed or compared byte for byte; every other file of a `heldout` task carries the marker (owner, 2026-11-17, Fable's recommendation).
 - R25 Where a name is needed, tasks use Islamic names and themes (Aisha, Bilal, iftar, zakat).
 
 ### Versioning
@@ -137,6 +137,9 @@ Facts about the compiler at `bayan 0.3.3-dev` (commit `5810cf25b398`) that the f
 - `bayan test` does not report lints. Style lints come from `bayan check` with severity `note`.
 - A constant argument to a type with `requires` is checked at compile time, so a hidden test cannot assert that `Percent(101)` fails; it must pass the value through a function.
 - A violated `expects` ends the process with exit code 134. A test cannot assert it, so a task about `expects` needs a `stdout` check with `checks/exitcode`. The seed has none.
+- A test that prints without end does not grow `bayan test` without bound (`bayan 0.3.3-dev`, commit `0530e92ea69c`, macOS, 2026-11-18). It is stopped at the 10-second test limit with status `timeout`, its `output` field keeps the first and last 64 KiB (the whole `--json` report was 132 KiB), and the peak resident memory of `bayan test` and its children was 80.5 MiB, against 69.6 MiB for the same test printing one line.
+- `effects` works as a `tests` check (`bayan 0.3.3-dev`, commit `0530e92ea69c`, 2026-11-18, `effects-001-iftar-tables`). The compiler required a public function that builds a `List` to declare `uses alloc`: a missing clause, or one naming only another effect (`uses console`), is BYN6002 and the candidate does not compile. A clause with an extra effect (`uses alloc, console`) passes `bayan check`; a hidden test catches it by storing the function in a local of type `(i64, i64) -> List<i64> uses alloc`, which is BYN6005 in the tests build, so the candidate compiles and fails. A test cannot observe what the solution did through a handler: `provide` takes only `allocator` and `alloc` (any other handler is BYN2022), and `Arena` has no member but `reset`, so the test under `provide allocator:` can assert only the values returned. The exact effect set is observed by the compile step and the bounded local; a private function infers its effects, so the prompt must ask for `public`.
+- `spec` works as a `stdout` check (`bayan 0.3.3-dev`, commit `0530e92ea69c`, 2026-11-18, `spec-001-sadaqah-counters`). The shape that worked: the prompt states one case the spec settles (wrapping and saturating addition on a `u8` holding 250, wrapping subtraction on an `i8` holding -120), names the operations but not their symbols or results, and fixes the output lines; `checks/expected.stdout` is the pinned compiler's output (`4`, `255`, `126`) and there is no `checks/stdin`. A candidate that prints a wrong answer compiles and fails on the output. A candidate that uses plain `+` compiles and ends with `panic: arithmetic overflow` and exit code 134, so it fails too. Because the answer is computed by the program, the task tests whether the model knows how to write the case in Bayān, not whether it can state the result: a model that knows the spelling of `+%` and `+|` gets the answer from the compiler.
 
 ## Acceptance criteria
 - Given the seed, when the *Check command* of each `task.md` is run from the repository root, then each prints `PASS <task>` (R8). Recorded 2026-11-17: 12 of 12.
@@ -161,6 +164,7 @@ All answered; each resolution is marked with the owner's decision.
   - `tests/` stays the compiler's own cases, which keeps R23 visible in the tree, and a corpus can exclude `evals/` by path.
 - **Whether the set ships in the repository.** *Resolved:* `dev` tasks in this repository; `heldout` tasks in a separate private repository, never committed here. The reason is that this repository is public (since 2026-11-01), so anything committed once is public in every clone (owner, 2026-11-17, Fable's recommendation).
   - The runner takes a tasks directory (R38). Leak paths to manage: scoring a hosted model sends every `heldout` prompt to that provider, so `heldout` runs only against endpoints with a no-training term and the result records the provider; `heldout` tasks written by a hosted-model worker also pass through a provider.
+  - *Resolved:* the `heldout` tasks live in `github.com/ikhbat-org/bayan-heldout`, a plain private repository (not a fork or submodule of this one), cloned beside the main checkout and passed through R38's tasks-directory argument; only the owner writes to it. `heldout` tasks are written by the owner or a local model; hosted-model workers write `dev` tasks only. If local throughput cannot reach the first cut's 80 `heldout` tasks, the fallback is hosted authoring under the same no-training term, with the provider recorded per task in the `task.md` header and those tasks reported as a separate subset (owner, 2026-11-17, Fable's recommendation; the owner creates the repository).
 - **The license of the task text.** *Resolved:* no separate license; task text stays under ISL-P 1.2 and `NOTICE.md` gets one line naming `evals/` (R40) (owner, 2026-11-17, Fable's recommendation).
   - The license is silent on model training; whether the Foundation wants ISL terms to say anything about it is a question for the license, not this spec.
 - **Which model runs the first baseline, and with which context.** *Resolved:* the first run is a set-validation run on the strongest hosted model the owner already pays for, twice (no context, then `docs/bayan-grammar.md`), then a local base model the owner picks under the same two contexts (owner, 2026-11-17, Fable's recommendation).
@@ -175,7 +179,7 @@ All answered; each resolution is marked with the owner's decision.
   - If the re-check takes more than about 3 minutes at full size, it moves to a nightly workflow and a 12-task smoke subset stays on push. To settle in the plan: `scripts/pinned-bayan.sh` pins the tip of `dev` and builds the C# CLI, so the scorer is not the self-hosted compiler users download; and a branch re-check runs the `dev`-tip compiler, not the branch's.
 
 ## Seed record
-Checked 2026-11-17 with `bayan 0.3.3-dev` (commit `5810cf25b398`) from `scripts/pinned-bayan.sh`; all are `Split: dev`, `Revision: 0023`.
+Checked 2026-11-18 with `bayan 0.3.3-dev` (commit `0530e92ea69c`) from `scripts/pinned-bayan.sh`: `bash scripts/bayan-tool.sh llm-eval recheck evals/llm/tasks` printed 12 `PASS` lines. All are `Split: dev`, `Revision: 0023`. The two repair tasks were corrected (T4): each program now reads its data from `checks/stdin`, each prompt shows an example run on input that is not the hidden input, so a candidate of `print` lines taken from the prompt fails, and the diagnostic text in each prompt is the pinned compiler's output for the new starter. The other 10 tasks still record commit `5810cf25b398` in `Checked:`.
 
 | Task | Tier | Check | What it covers |
 |---|---|---|---|
@@ -189,5 +193,8 @@ Checked 2026-11-17 with `bayan 0.3.3-dev` (commit `5810cf25b398`) from `scripts/
 | `contracts-002-discount-percent` | 1 | tests | `type distinct` with `requires` |
 | `port-001-python-guest-table` | 2 | stdout | a Python snippet: padding and alignment |
 | `port-002-shell-numbered-lines` | 1 | stdout | a shell `read` loop |
-| `repair-001-missing-particle` | 1 | stdout | BYN5005, an argument without its particle |
-| `repair-002-unhandled-failure` | 2 | stdout | BYN2602, where the offered `try` is not the fix the task needs |
+| `repair-001-missing-particle` | 1 | stdout | BYN5005, an argument without its particle; reads `checks/stdin` |
+| `repair-002-unhandled-failure` | 2 | stdout | BYN2602, where the offered `try` is not the fix the task needs; reads `checks/stdin` |
+
+### Cross-check against the self-hosted compiler (T32)
+Checked 2026-11-18. The default pin (`scripts/pinned-bayan.sh`) builds the C# CLI (`csharp/Bayan.Cli`), so the scorer is the C# compiler. The self-hosted `bayan` (`bayan 0.3.3-dev (selfhost)`) was built from the same pinned commit `46e65014bc6e` (the tip of `dev`) with `bayan build --mode safe --package src -o <out> src/driver`, and `PINNED_BAYAN` was set to it. `recheck evals/llm/tasks` over the 40 `dev` tasks (task-set commit `403385f85551`) gave 40 `PASS` and exit 0 under both compilers. The two result sets agree on every task, including the five repair starters (each fails with only the code its title names under both). No task differs, so no `work/todo.md` line was needed. The self-hosted run wrote no stamp, because its version line names no commit.

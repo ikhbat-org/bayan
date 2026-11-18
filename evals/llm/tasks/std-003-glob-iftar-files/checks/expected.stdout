@@ -1,0 +1,11 @@
+meals/iftar/01-dates.txt: match
+meals/suhoor/12-.txt: match
+meals/iftar/1-dates.txt: no match
+meals/iftar/001-dates.txt: no match
+meals/iftar/01-dates.csv: no match
+meals/iftar/extra/01-dates.txt: no match
+meals/dinner/01-dates.txt: no match
+meals/suhoor/ab-fruit.salad.txt: match
+meals/iftar/01-dates.txt: match
+meals//iftar/01-dates.txt: no match
+matched: 4

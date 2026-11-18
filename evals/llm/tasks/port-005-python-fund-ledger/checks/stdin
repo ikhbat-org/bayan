@@ -1,0 +1,20 @@
+open zakat 500
+open sadaqah 120
+
+give zakat 80
+take sadaqah 30
+take sadaqah 100
+open zakat 10
+give waqf 5
+open waqf abc
+move zakat sadaqah 200
+move zakat nowhere 1
+move zakat sadaqah 0
+  take   zakat   1
+give sadaqah
+pay zakat 5
+show
+open waqf 40
+show extra
+move waqf zakat 40
+show

@@ -1,0 +1,9 @@
+test "thankDonor can be called for a donor and an amount" {
+    thankDonor("Aisha", for: 25)
+    thankDonor("Bilal", for: 0)
+}
+
+test "thankDonor declares no effect beyond console" {
+    let thank: (string, i64) -> void uses console = thankDonor
+    thank("Zaynab", 10)
+}

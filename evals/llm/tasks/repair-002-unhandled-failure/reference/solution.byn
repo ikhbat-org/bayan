@@ -19,8 +19,21 @@ struct Table {
 }
 
 void main() {
-    var table = Table { guests: List<string>(), seats: 3 }
-    for guest in ["Aisha", "Bilal", "Aisha", "Maryam", "Yusuf"] {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var table = Table { guests: List<string>(), seats: 0 }
+    var first = true
+    for line in read.value.lines {
+        let guest = line.trimmed()
+        if first {
+            table.seats = i64.tryParse(guest) ?? 0
+            first = false
+            continue
+        }
+        continue if guest.isEmpty
         table.add(guest) catch switch {
             .full => {
                 print($"{guest}: table full")
