@@ -192,7 +192,7 @@ public sealed class SelfhostSemanticsT10Tests
                 File.Copy(source, Path.Combine(caseDir, "input", "main.byn"));
                 SelfhostExport.WriteExpected(Path.Combine(caseDir, "input"), "package.byn", "");
                 SelfhostExport.WriteExpected(caseDir, "modes", "package.byn None\n");
-                SelfhostExport.WriteExpected(caseDir, "args", SelfhostExport.Args(new[] { "--golden", "--package", dir, "--include-path", source }.Select(Portable)));
+                SelfhostExport.WriteExpected(caseDir, "args", SelfhostExport.Args(new[] { "--golden", "--package", dir, "--include-path", source }.Select(SelfhostExport.Repo)));
                 SelfhostExport.WriteExpected(caseDir, "expected.golden", Portable(expected));
                 return;
             }

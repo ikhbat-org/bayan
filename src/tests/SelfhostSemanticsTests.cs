@@ -274,7 +274,7 @@ public sealed class SelfhostSemanticsTests
         {
             var dir = ExportCase(root, cls, test, file);
             SelfhostExport.WriteInput(dir, ExportInputs(cli));
-            SelfhostExport.WriteExpected(dir, "args", SelfhostExport.Args(cli.Select(Portable)));
+            SelfhostExport.WriteExpected(dir, "args", SelfhostExport.Args(cli.Select(SelfhostExport.Repo)));
             SelfhostExport.WriteExpected(dir, "compare", "untimed\n");
             SelfhostExport.WriteExpected(dir, "expected.stdout", Portable(Untimed(stdout.ToString())));
             SelfhostExport.WriteExpected(dir, "expected.stderr", Portable(Untimed(stderr.ToString())));
@@ -558,7 +558,7 @@ public sealed class SelfhostSemanticsTests
         {
             var outDir = ExportCase(root, cls, test, file);
             SelfhostExport.WriteInput(outDir, [package ? dir : path]);
-            SelfhostExport.WriteExpected(outDir, "args", SelfhostExport.Args(args.Select(Portable)));
+            SelfhostExport.WriteExpected(outDir, "args", SelfhostExport.Args(args.Select(SelfhostExport.Repo)));
             SelfhostExport.WriteExpected(outDir, "expected.golden", Portable(expected));
             return;
         }
@@ -604,7 +604,7 @@ public sealed class SelfhostSemanticsTests
         {
             var outDir = ExportCase(root, cls, test, file);
             SelfhostExport.WriteInput(outDir, [Path.GetFileName(caseDir) == "diag" ? copy : dir]);
-            SelfhostExport.WriteExpected(outDir, "args", SelfhostExport.Args([Portable(copy)]));
+            SelfhostExport.WriteExpected(outDir, "args", SelfhostExport.Args([SelfhostExport.Repo(copy)]));
             SelfhostExport.WriteExpected(outDir, "expected.stderr", Portable(stderr.ToString()));
             SelfhostExport.WriteExpected(outDir, "expected.exitcode", $"{exit}\n");
             return;
@@ -642,7 +642,7 @@ public sealed class SelfhostSemanticsTests
             SelfhostExport.Override.Value = old;
         }
         var made = Path.Combine(root, "sem", nameof(SelfhostSemanticsTests), nameof(ExportWritesTheSemCase));
-        Assert.Equal($"check\n{Portable(Path.Combine(dir, "hello.byn"))}\n", File.ReadAllText(Path.Combine(made, "args")));
+        Assert.Equal($"check\n<repo>/{Path.GetRelativePath(Golden.RepoRoot, Path.Combine(dir, "hello.byn"))}\n", File.ReadAllText(Path.Combine(made, "args")));
         Assert.Equal(Hello, File.ReadAllText(Path.Combine(made, "input.byn")));
         Assert.Equal("0\n", File.ReadAllText(Path.Combine(made, "expected.exitcode")));
         Assert.Equal("untimed\n", File.ReadAllText(Path.Combine(made, "compare")));

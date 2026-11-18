@@ -129,6 +129,9 @@ public static class SelfhostExport
     internal static string Args(IEnumerable<string> args) =>
         string.Concat(args.Select(a => a.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\r", "\\r") + "\n"));
 
+    /// <summary>An argument as <c>args</c> keeps it: the C# text with the repo root written <c>&lt;repo&gt;</c>.</summary>
+    internal static string Repo(string arg) => arg.Replace(Golden.RepoRoot, "<repo>");
+
     /// <summary>
     /// Under the export: writes <c>cli/&lt;Class&gt;/&lt;test&gt;[-n]</c> with <c>args</c> (one per line), <c>expected.exitcode</c>,
     /// <c>expected.stdout</c> and <c>expected.stderr</c> of a C# <c>CliApp.Run</c>, the <paramref name="inputs"/> it read (see
@@ -221,6 +224,7 @@ public sealed class SelfhostExportTests
             Assert.True(SelfhostExport.Cli(["lex"], 0, "", "", [Path.Combine(work, "input.byn")], cls: nameof(SelfhostExportTests)));
             var s = SelfhostSemanticsHarness.RunSections("i32 main() {\n    print(\"== alpha\")\n    print(\"a1\")\n    return 0\n}\n", args[1..]);
             SelfhostSemanticsHarness.AssertSection(s, "alpha", ["a1"], cls: nameof(SelfhostExportTests));
+            SelfhostEmitterHarness.AssertSection(SelfhostEmitterHarness.Recorded(new() { ["s"] = ["l"] }, "s", Path.Combine(work, "a.byn"), args[5]), "s", ["l"]);
         });
         var dir = Path.Combine(root, "cli", nameof(SelfhostExportTests), nameof(ArgsEscapePathsKeepTheirTextAndAFixtureKeepsItsName));
         Assert.Equal($"lex\na\\nb\nc\\rd\ne\\\\f\ng\\r\\nh\n{Golden.RepoRoot}/tmp/../x//y\n./missing/../q\n", File.ReadAllText(Path.Combine(dir, "args")));
@@ -229,6 +233,8 @@ public sealed class SelfhostExportTests
         Assert.False(File.Exists(Path.Combine(dir + "-2", "input.name")));
         var sem = Path.Combine(root, "sem", nameof(SelfhostExportTests), nameof(ArgsEscapePathsKeepTheirTextAndAFixtureKeepsItsName));
         Assert.Equal("a\\nb\nc\\rd\ne\\\\f\ng\\r\\nh\n<repo>/tmp/../x//y\n./missing/../q\n", File.ReadAllText(Path.Combine(sem, "args")));
+        var emit = Path.Combine(root, "emit-c", nameof(SelfhostExportTests), nameof(ArgsEscapePathsKeepTheirTextAndAFixtureKeepsItsName));
+        Assert.Equal("s\ninput.byn\n<repo>/tmp/../x//y\n", File.ReadAllText(Path.Combine(emit, "args")));
     }
 
     [Fact]
