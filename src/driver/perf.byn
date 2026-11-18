@@ -87,8 +87,9 @@ string perfRegionSource() uses alloc {
     return sb.finish()
 }
 
-/// `TwoHundredMethodsCallingEachOtherCheckQuickly`: the minimum wall clock of 3 compiles under 5 s, none with an error.
-test "region analysis is linear: 200 methods calling each other check quickly" {
+/// `TwoHundredMethodsCallingEachOtherCheckQuickly`: the minimum wall clock of 3 compiles under 5 s, none with an error. Titled `bound: `
+/// so the release memory gate (scripts/release/memory-gate.sh) runs it.
+test "bound: region analysis is linear: 200 methods calling each other check quickly" {
     let bound: i64 = 5000000000
     var best: i64 = 9223372036854775807
     let options = PerfOptions {}

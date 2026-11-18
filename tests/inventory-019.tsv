@@ -24,7 +24,7 @@ FunctionTypeTests	csharp/tests/Bayan.Tests/FunctionTypeTests.cs	csharp-internals
 GatesTests	csharp/tests/Bayan.Tests/GatesTests.cs	cli	8	cli	cli	manifest minimums through the command	
 GenericsTests	csharp/tests/Bayan.Tests/GenericsTests.cs	csharp-internals	2	emit-c	emit-c	monomorphization checked in emitted C	
 GoldenTests	csharp/tests/Bayan.Tests/GoldenTests.cs	infrastructure	7	dropped		harness-only: tests of the C# golden runner; the new runner has its own checks (R1)	
-GrammarDictionaryTests	csharp/tests/Bayan.Tests/GrammarDictionaryTests.cs	csharp-internals	8	check	check	grammar dictionary freshness; check: command	
+GrammarDictionaryTests	csharp/tests/Bayan.Tests/GrammarDictionaryTests.cs	csharp-internals	8	check	src/semantics/grammardict.byn test blocks "grammar dictionary: the manifest reads the grammar", "...: the grammar is empty without the field", "...: map entries need a value", "...: help verbs are checker verbs" (4 @cases), "...: word classes are lowercase words"	grammar dictionary freshness; ported 8 of 8: src/semantics/grammardict.byn (`grammar dictionary: ` blocks)	
 HashSeedTests	csharp/tests/Bayan.Tests/HashSeedTests.cs	cli	2	run	run	map hashing seed under --test	
 HelpLanguageTests	csharp/tests/Bayan.Tests/HelpLanguageTests.cs	cli	2	cli	cli	help text	
 InstrumentedRunLawTests	csharp/tests/Bayan.Tests/InstrumentedRunLawTests.cs	law	1	check	check:L019	law proof becomes a check: command (R18)	
@@ -73,7 +73,7 @@ PeakSamplerTests	csharp/tests/Bayan.Tests/PeakSamplerTests.cs	infrastructure	1	d
 PowerAssertTests	csharp/tests/Bayan.Tests/PowerAssertTests.cs	cli	8	cli	cli	failed-assert diagram through bayan test	
 ProgressTests	csharp/tests/Bayan.Tests/ProgressTests.cs	cli	11	cli	cli	progress line through the command; TTY width case needs parity set-up	
 QualityReportTests	csharp/tests/Bayan.Tests/QualityReportTests.cs	cli	8	cli	quality	report JSON and summary through the command	
-RegionAnalysisPerfTests	csharp/tests/Bayan.Tests/RegionAnalysisPerfTests.cs	csharp-internals	1	check	check	timed bayan check of the generated 200-method struct, 5 s bound, minimum of 3 runs (a wall-clock bound, expressible from source; Fable 2026-11-17)	
+RegionAnalysisPerfTests	csharp/tests/Bayan.Tests/RegionAnalysisPerfTests.cs	csharp-internals	1	check	src/driver/perf.byn bound: block "bound: region analysis is linear: 200 methods calling each other check quickly"	timed bayan check of the generated 200-method struct, 5 s bound, minimum of 3 runs (a wall-clock bound, expressible from source; Fable 2026-11-17); ported 1 of 1: src/driver/perf.byn (a bound: block, so scripts/release/memory-gate.sh runs it)	
 RunTests	csharp/tests/Bayan.Tests/RunTests.cs	golden-folder	346	golden	tests/cases/run	folder runner reads the same files	no export: typed rows
 RuntimeNativeTests	csharp/tests/Bayan.Tests/RuntimeNativeTests.cs	runtime-c	15	shell	runtime/tests/*.c	shell runner over C harness; Windows runBatch fact becomes a run case	
 RuntimeSizeOverflowTests	csharp/tests/Bayan.Tests/RuntimeSizeOverflowTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime behaviour	
