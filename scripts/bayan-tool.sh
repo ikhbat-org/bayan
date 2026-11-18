@@ -14,8 +14,12 @@ src="$root/tools/$name.byn"
 head -c 2 "$src" | grep -q "^#!" || { echo "bayan-tool: tools/$name.byn does not start with #! (a script)" >&2; exit 2; }
 # The pin is found without the caller's PATH entries under its working directory, where tests put stub programs (a
 # parity case's `git` stub in $WORK/bin), so pinned-bayan.sh runs the real git.
-path=""; IFS=: read -ra dirs <<< "$PATH"
-for d in "${dirs[@]}"; do case "$d" in "$PWD"|"$PWD"/*) ;; *) path="${path:+$path:}$d" ;; esac; done
+# No here-string: bash 3.2 writes its temp file to /var/tmp whatever TMPDIR says, which the eval sandbox denies (spec 025 R34).
+path=""; rest="$PATH:"
+while [ -n "$rest" ]; do
+  d=${rest%%:*}; rest=${rest#*:}
+  case "$d" in "$PWD"|"$PWD"/*) ;; *) path="${path:+$path:}$d" ;; esac
+done
 bayan="$(cd "$root" && PATH="$path" bash scripts/pinned-bayan.sh)"
 export BAYAN_REPO_ROOT="$root"
 exec "$bayan" run "$src" -- "$@"
