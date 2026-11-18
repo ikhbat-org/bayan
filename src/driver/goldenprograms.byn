@@ -709,7 +709,8 @@ void goldenProgramBayanCheck(GoldenExportCase k, to ref List<string> failures) u
     } else if same {
         self = goldenProgramSelfArgs(ref args)
     } else {
-        for a in args {
+        // `CheckSame` (SelfhostSemanticsTests.cs:600-612): the repo-relative copy as `args` holds it, read from the scratch directory as the repo
+        for a in cli {
             self.append(a)
         }
     }
@@ -733,8 +734,8 @@ void goldenProgramBayanCheck(GoldenExportCase k, to ref List<string> failures) u
         goldenProgramCheck(k.dir, for: "expected.stdout", as: goldenProgramPortable(o.stdout, at: k.scratch, by: ref cli), by: form, to: ref failures)
         goldenCliCheck(k.dir, for: "expected.exitcode", as: exit, to: ref failures)
     } else {
-        // SelfhostSemanticsTests.cs:583-614 `CheckSame`: stderr (not made portable, the repo read as `<repo>`) and exit
-        goldenCliCheck(k.dir, for: "expected.stderr", as: goldenLf(o.stderr).replaced(k.scratch, by: "<repo>"), to: ref failures)
+        // SelfhostSemanticsTests.cs:583-614 `CheckSame`: stderr with the scratch directory (the repo) dropped, as `Portable` (:607) wrote it, and exit
+        goldenCliCheck(k.dir, for: "expected.stderr", as: goldenLf(o.stderr).replaced($"{k.scratch}/", by: ""), to: ref failures)
         goldenCliCheck(k.dir, for: "expected.exitcode", as: exit, to: ref failures)
     }
 }
@@ -843,18 +844,41 @@ string goldenProgramThunkLocal(string fn) {
     }
 }
 
-/// An `emit-c` case. Its plain input and `input/` are placed in the scratch directory under their own names, which `args` uses, and the
-/// program runs there.
+/// The file name the C# ran a `run/` input of `name` on, which the emitted C names (`byn_file_0`): the label's first word after `<test>-`
+/// (SelfhostDefaultT10Tests.cs:321 `{GetFileName(input)} {flag}`; SelfhostEmitterParityTests.cs:48 `run/<file>` with `/` as `_`); `plain`
+/// for other cases.
+string goldenProgramOriginal(string name, for string plain) uses alloc {
+    var word = ""
+    for lead in ["CoverageCMatchesTheCSharpOnEveryRunInput-", "MutateCMatchesTheCSharpOnEveryRunInput-", "RunInputsEmitTheSameC-run_"] {
+        if name.startsWith(lead) {
+            word = name[lead.length..name.length]
+        }
+    }
+    let space = goldenOffset(word, for: " ")
+    if space >= 0 {
+        word = word[0..space]
+    }
+    return word.endsWith(".byn") ? word : plain
+}
+
+/// An `emit-c` case. Its plain input (under the name the C# ran it on, `goldenProgramOriginal`) and `input/` are placed in the scratch
+/// directory, which `args` uses, and the program runs there.
 void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
     var failure = ""
     let plain = goldenProgramPlain(k.dir)
+    let original = goldenProgramOriginal(k.name, for: plain)
     if plain != "" {
-        goldenProgramPut(k.dir, for: plain, at: Path.combine(k.scratch, plain), through: ref failure)
+        goldenProgramPut(k.dir, for: plain, at: Path.combine(k.scratch, original), through: ref failure)
     }
     if goldenProgramHasTree(k.dir) {
         goldenProgramTree(k.dir, from: k.cases, to: Path.combine(k.scratch, "input"), through: ref failure)
     }
     var cli = goldenCliLines(Path.combine(k.dir, "args"))
+    for i in 0..cli.length {
+        if plain != "" && cli[i] == plain {
+            cli[i] = original
+        }
+    }
     let sections = Fs.fileExists(Path.combine(k.dir, "expected.sections"))
     let harness = Fs.fileExists(Path.combine(k.dir, "expected.stderr")) && Fs.fileExists(Path.combine(k.dir, "expected.c"))
     var prog = ""
@@ -898,7 +922,7 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
         }
         let main = goldenProgramSource(k.cases, for: $"{k.cls}.byn", through: ref failure)
         prog = goldenProgram("emitter", by: k.exe, through: ref failure, main: main)
-    } else if harness || k.cls == "SelfhostDefaultT10Tests" {
+    } else if harness || k.cls is "SelfhostDefaultT10Tests" or "SelfhostEmitterParityTests" {
         // bayan-emit (SelfhostEmitterHarness.cs:29-42): the C# CLI arguments as it takes them
         for a in goldenProgramEmitExtra(k.name, at: k.scratch) {
             args.append(a)
@@ -946,7 +970,7 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
         goldenCliCheck(k.dir, for: "expected.c", as: res, to: ref failures)
         goldenCliCheck(k.dir, for: "expected.exitcode", as: $"{o.exitCode}\n", to: ref failures)
     } else {
-        // SelfhostDefaultT10Tests.cs:360-380, :755-775: stdout as `expected.c`
+        // SelfhostDefaultT10Tests.cs:360-380, :755-775; SelfhostEmitterParityTests.cs:46-48: stdout as `expected.c`
         goldenCliCheck(k.dir, for: "expected.c", as: res, to: ref failures)
     }
 }
@@ -1338,6 +1362,46 @@ test "an emit-c T7 case compares the section its name ends with, the thunk case 
     deleteWorkDir(root)
     assert(pass == "")
     assert(failed.contains("expected.c\nexpected line 1: thunk a\nactual line 1: thunk b"))
+}
+
+test "a DefaultT10 CoverageC/MutateC or Parity `run/` case runs bayan-emit on its input under the file name of its label, which the C names" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-programs-original")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "prog", as: "#!/bin/sh\necho \"$@\"\nfor a; do :; done\ncat \"$a\"\n")
+    let exe = goldenCliFake(root, for: "bayan",
+        as: $"while [ $# -gt 0 ]; do [ \"$1\" = -o ] && out=$2; shift; done\ncp '{Path.combine(root, "prog")}' \"$out\"\nchmod +x \"$out\"")
+    let t10 = Path.combine(root, "cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-arithmetic.byn --coverage")
+    goldenWrite(t10, for: "args", as: "--coverage\n--mode\nsafe\n--package\n.\ninput.byn\n")
+    goldenWrite(t10, for: "input.byn", as: "f() {}\n")
+    goldenWrite(t10, for: "expected.c", as: "--coverage --mode safe --package . arithmetic.byn\nf() {}\n")
+    let pass = goldenProgramsCase("emit-c", at: t10, by: exe) ?? ""
+    let parity = Path.combine(root, "cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_arithmetic.byn")
+    goldenWrite(parity, for: "args", as: "--mode\nsafe\n--package\n.\ninput.byn\n")
+    goldenWrite(parity, for: "input.byn", as: "f() {}\n")
+    goldenWrite(parity, for: "expected.c", as: "--mode safe --package . arithmetic.byn\nf() {}\n")
+    let passParity = goldenProgramsCase("emit-c", at: parity, by: exe) ?? ""
+    goldenWrite(t10, for: "expected.c", as: "--coverage --mode safe --package . input.byn\nf() {}\n")
+    let failed = goldenProgramsCase("emit-c", at: t10, by: exe) ?? ""
+    deleteWorkDir(root)
+    assert(pass == "")
+    assert(passParity == "")
+    assert(failed.contains("expected line 1: --coverage --mode safe --package . input.byn\nactual line 1: --coverage --mode safe --package . arithmetic.byn"))
+    assert(goldenProgramOriginal("FixtureCMatchesAndAnInputWithErrorsFailsAsBuildDoes-b.byn --coverage", for: "input.byn") == "input.byn")
+}
+
+test "a sem CheckParity case runs on its repo-relative argument from the scratch directory, stderr read repo-relative as `Portable` wrote it, not `<repo>` (SelfhostSemanticsTests.cs:583-614)" {
+    var files = List<string>()
+    for f in ["args", "tmp/t26-tests/cli/diag_x.byn/x.byn\n", "input.byn", "f() {}\n", "expected.stderr", "--> tmp/t26-tests/cli/diag_x.byn/x.byn:1:1\n",
+            "expected.exitcode", "1\n"] {
+        files.append(f)
+    }
+    let pass = goldenProgramsFake("check-same", for: "sem", at: "SelfhostSemanticsParityTests", as: "test -f \"$1\" && echo \"--> $PWD/$1:1:1\" >&2\nexit 1",
+        from: "", by: ref files)
+    files[5] = "--> <repo>/tmp/t26-tests/cli/diag_x.byn/x.byn:1:1\n"
+    let failed = goldenProgramsFake("check-same", for: "sem", at: "SelfhostSemanticsParityTests", as: "test -f \"$1\" && echo \"--> $PWD/$1:1:1\" >&2\nexit 1",
+        from: "", by: ref files)
+    assert(pass == "")
+    assert(failed.contains("expected.stderr\nexpected line 1: --> <repo>/tmp/t26-tests/cli/diag_x.byn/x.byn:1:1\nactual line 1: --> tmp/t26-tests/cli/diag_x.byn/x.byn:1:1"))
 }
 
 test "a row whose program file is missing fails naming it, and every program file the rows name is in tests/cases/programs" {
