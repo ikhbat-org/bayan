@@ -76,6 +76,14 @@ jobs:
         shell: bash
         # The hosted Windows image names its Python `python`; `python3` is not guaranteed there.
         run: python -I scripts/ci/known-failures.py tests/windows-known-failures.txt test-report.txt
+      # scripts/test.sh keeps tmp/test.*/ (one log per part) only when a part fails.
+      - name: Upload test logs
+        if: failure() || runner.os == 'Windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-logs-${{ matrix.rid }}
+          path: tmp/test.*/
+          if-no-files-found: ignore
       - name: Smoke test stage 1 binary
         shell: bash
         run: '"$BAYAN_EXE" --version'

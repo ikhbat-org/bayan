@@ -104,6 +104,7 @@ part() {
     summary "$name" pass $(( $(date +%s) - start )) "$detail"
   else
     summary "$name" FAIL $(( $(date +%s) - start )) "$detail (exit $rc; log: $logs/$name.log)"
+    grep -E '^(failed|timed out) |^  ✗ ' "$logs/$name.log" | head -n 40 | sed 's/^/    /'
     tail -n 20 "$logs/$name.log" | sed 's/^/    /'
     failed="$failed $name"
   fi

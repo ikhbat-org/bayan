@@ -31,6 +31,14 @@ grep -qx 'test: FAILED bayan' <<<"$out" || fail "the failing part is not named a
 [ -f "$tmp/parity.args" ] && [ -f "$tmp/scripts.args" ] && [ -f "$tmp/runtime.args" ] || fail "the parts after a failing one did not run: $out"
 
 rm -f "$tmp"/*.args; stub bayan 0
+printf '#!/bin/sh\necho "failed run/early-case"\necho "  ✗ a test block"\nseq 1 30\nexit 3\n' > "$tmp/golden"; chmod +x "$tmp/golden"
+rc=0; out="$("$BASH" "$s" --only golden 2>&1)" || rc=$?
+logs="$(sed -n 's#.*log: \(.*\)/golden\.log).*#\1#p' <<<"$out")"; case "$logs" in "$root"/tmp/test.*) rm -rf "$logs" ;; esac
+grep -qx '    failed run/early-case' <<<"$out" || fail "a failed case above the log's last 20 lines is not printed: $out"
+grep -qx '      ✗ a test block' <<<"$out" || fail "a failed test block above the log's last 20 lines is not printed: $out"
+stub golden 0
+
+rm -f "$tmp"/*.args
 rc=0; out="$("$BASH" "$s" --only runtime --jobs 5 2>&1)" || rc=$?
 [ $rc = 0 ] || fail "--only runtime exited $rc: $out"
 [ -f "$tmp/runtime.args" ] && [ ! -f "$tmp/golden.args" ] && [ ! -f "$tmp/bayan.args" ] && [ ! -f "$tmp/parity.args" ] && [ ! -f "$tmp/scripts.args" ] \
