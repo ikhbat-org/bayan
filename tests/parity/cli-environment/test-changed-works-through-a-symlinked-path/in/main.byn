@@ -1,0 +1,11 @@
+import money
+
+string greeting() {
+    return "Salam, world!"
+}
+
+test "in main" {
+    assert(money.cents(1) == 100)
+}
+
+print(greeting())

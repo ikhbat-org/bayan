@@ -307,6 +307,64 @@ test "bound: a build sweeps stale temporary and staging directories" {
     }
 }
 
+/// `SelfhostDefaultT9Tests.ABuildSweepsStaleDirectories` (spec 019 T15g, T25): not exported, since its check needs file ages, empty seeded
+/// directories and cache staging keys. Both theory rows: the seeded names left in `<root>-tmp` and the staging keys after one build. The
+/// expected names are the C# test's literal (SelfhostDefaultT9Tests.cs:1281). Not a `bound: ` block: no resident set is compared.
+test "sweep: a build leaves the fresh and the foreign seeded names in TMPDIR and sweeps stale staging keys" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let seeded = [
+        "bayan-coverage-old/",
+        "bayan-coverage-old/inside",
+        "bayan-mutate-old/",
+        "bayan-asan-old/",
+        "bayan-coverage-new/",
+        "other-old/",
+        "bayan-coverage-file",
+    ]
+    for timeout in ["", "7200"] {
+        let root = boundFresh($"t9-sweep-{timeout}")
+        boundArithmetic(root)
+        let temp = $"{root}-tmp"
+        deleteWorkDir(temp)
+        for name in ["bayan-coverage-old", "bayan-mutate-old", "bayan-asan-old", "other-old"] {
+            boundAged(Path.combine(temp, name), by: 120)
+        }
+        boundAged(Path.combine(temp, "bayan-coverage-new"), by: 0)
+        Io.writeFile(Path.combine(temp, "bayan-coverage-old/inside"), "".bytes) catch { panic($"cannot write {temp}/bayan-coverage-old/inside") }
+        let file = Path.combine(temp, "bayan-coverage-file")
+        Io.writeFile(file, "".bytes) catch { panic($"cannot write {file}") }
+        Fs.setModified(file, to: Time.fromNanos(Time.now().nanos - 120 * 60 * 1000000000)) catch { panic($"cannot age {file}") }
+        // the C# seed ages the directories after creating `inside`, which touches its parent
+        boundAged(Path.combine(temp, "bayan-coverage-old"), by: 120)
+        let staging = Path.combine(root, "cache/v1/tmp")
+        boundAged(Path.combine(staging, "key-old"), by: 180)
+        boundAged(Path.combine(staging, "key-running"), by: 125)
+        boundAged(Path.combine(staging, "key-new"), by: 0)
+        var env = timeout == "" ? boundList(["-u", "BAYAN_CC_TIMEOUT_S"]) : boundList([$"BAYAN_CC_TIMEOUT_S={timeout}"])
+        env.append($"TMPDIR={temp}")
+        env.append($"TMP={temp}")
+        let r = boundStart(boundList([exe, "build", "arithmetic.byn"]), at: root, as: env)
+        var left = List<string>()
+        for name in seeded {
+            let path = Path.combine(temp, name.endsWith("/") ? name[0..name.length - 1] : name)
+            left.append(name) if boundIsDir(path) || Fs.fileExists(path)
+        }
+        let running = boundIsDir(Path.combine(staging, "key-running"))
+        let old = boundIsDir(Path.combine(staging, "key-old"))
+        deleteWorkDir(root)
+        deleteWorkDir(temp)
+        let names = left.joined(by: "\n")
+        print($"BAYAN_CC_TIMEOUT_S `{timeout}`: exit {r.exit}, left [{names}], running {running}, old {old}")
+        assert(r.exit == 0)
+        assert(names == "bayan-coverage-new/\nother-old/\nbayan-coverage-file")
+        assert(running == (timeout == "7200"))
+        assert(!old)
+    }
+}
+
 // ── F2 ───────────────────────────────────────────────────────────────────────
 
 /// `CliMemoryBoundsTests.RunWithSweptWorkDir`'s watcher: every `bayan-coverage-*` directory in `$T` is deleted as soon as it appears while

@@ -7,7 +7,7 @@ sources: none recorded
 kind: property
 scope: csharp/Bayan.Backend.C/CEmitter.cs
 proof: csharp/tests/Bayan.Tests/L012InterfaceDispatchTests.cs
-check: dotnet test --filter Law=L012
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/interface-' --only 'run/dyn-ref'
 enacted: 2026-10-22
 ---
 

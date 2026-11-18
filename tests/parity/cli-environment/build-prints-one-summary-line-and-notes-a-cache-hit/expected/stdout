@@ -1,0 +1,12 @@
+== 1 exit 0
+build 0
+◆ built build-ok (safe, <host>) in #s
+== 2 exit 0
+build 0
+◆ built build-ok (safe, <host>) in #s · from cache
+== 3 exit 0
+build 0
+* built build-ok (safe, <host>) in #s - from cache
+== 4 exit 0
+build 0
+[32m◆ built build-ok (safe, <host>) in #s · from cache[0m

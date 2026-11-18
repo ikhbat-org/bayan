@@ -302,3 +302,34 @@ string? t5Version(string file, by in List<string> args) uses alloc, process {
     // coverage-exempt: Q1092 `parts` yields at least one part (an empty text gives one empty part), so the loop always returns; the C# `Split('\n')[0]` has no such line
     return null
 }
+
+/// CliEnvironmentTests.cs:252 `s_checks`.
+List<T5Check> t25RenderChecks() uses alloc {
+    var checks = List<T5Check>()
+    checks.append(T5Check { level: .ok, name: "bayan", detail: "0.1.0" })
+    checks.append(T5Check { level: .note, name: "zig", detail: "not found", fix: "install zig" })
+    checks.append(T5Check { level: .broken, name: "cache", detail: "isn't writable", fix: "set BAYAN_CACHE" })
+    return checks
+}
+
+test "doctor-render-plain: a passing, a noted and a failing check render with marks, aligned names and help lines" {
+    // CliEnvironmentTests.cs:267 `DoctorRendersPlain`
+    let checks = t25RenderChecks()
+    let got = t5Render(in checks, by: DStyle {})
+    assert(got == "◆ bayan  0.1.0\n◆ zig    not found\n  help: install zig\n✗ cache: isn't writable\n  help: set BAYAN_CACHE\n")
+}
+
+test "doctor-render-ascii: ascii symbols render the marks as `*` and `x`" {
+    // CliEnvironmentTests.cs:273 `DoctorRendersAscii`
+    let checks = t25RenderChecks()
+    let got = t5Render(in checks, by: DStyle { ascii: true })
+    assert(got == "* bayan  0.1.0\n* zig    not found\n  help: install zig\nx cache: isn't writable\n  help: set BAYAN_CACHE\n")
+}
+
+test "doctor-render-colour: the 16-colour palette paints each mark, a failing line and the help lines" {
+    // CliEnvironmentTests.cs:279 `DoctorRendersColour`: `Palette.Ansi16` is palette 0
+    let checks = t25RenderChecks()
+    let got = t5Render(in checks, by: DStyle { color: true, palette: 0 })
+    let want = "\u{1b}[32m◆\u{1b}[0m bayan  0.1.0\n\u{1b}[2m◆\u{1b}[0m zig    not found\n\u{1b}[34m  help: install zig\u{1b}[0m\n\u{1b}[31m✗ cache: isn't writable\u{1b}[0m\n\u{1b}[34m  help: set BAYAN_CACHE\u{1b}[0m\n"
+    assert(got == want)
+}

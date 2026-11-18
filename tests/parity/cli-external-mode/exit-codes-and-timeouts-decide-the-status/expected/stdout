@@ -1,0 +1,26 @@
+== 1 exit 0
+mutate 0
+a.byn:1:1 arithmetic `a + b` -> `a - b`: survived
+a.byn:2:1 arithmetic `a * b` -> `a / b`: killed
+a.byn:3:1 bool `true` -> `false`: not emitted
+a.byn:4:1 arithmetic `a + 0` -> `a - 0`: marked
+a.byn:5:1 statement `i += 1` -> ``: timeout (counted as killed)
+mutation: 1 killed, 1 survived, 1 timeout, 1 marked, 0 not reached, 1 not emitted
+survived: a.byn:1:1: a + b → a - b [arithmetic]
+  suggestion: add a case whose result differs under the changed operator
+operators:
+  boundary: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  relational: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  logical: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  condition: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  bool: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 1 not emitted
+  arithmetic: 1 killed, 1 survived, 0 timeout, 1 marked, 0 not reached, 0 not emitted
+  literal: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  negation: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  statement: 0 killed, 0 survived, 1 timeout, 0 marked, 0 not reached, 0 not emitted
+  emptyReturn: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  variant: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+== 2 exit 0
+"kind": "mutation"
+"survived": 1
+"tool": "bayan mutate"

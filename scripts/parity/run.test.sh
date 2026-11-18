@@ -7,6 +7,8 @@ fail() { echo "FAIL: $1" >&2; exit 1; }
 # A tool whose interpreter is not installed (CI runners have no deno) is skipped, not failed.
 needs() { read -r cmd _ < "$1/impl"; command -v "$cmd" > /dev/null; }
 for t in "$root"/tests/parity/*/; do
+  # The cli-* cases were recorded from the C# `bayan` (scripts/parity/csharp-bayan.sh); scripts/test.sh runs them against the driver.
+  case "$(basename "$t")" in cli-*) echo "SKIP $(basename "$t"): recorded from the C# bayan, run by scripts/test.sh --only parity"; continue ;; esac
   needs "$t" || { echo "SKIP $(basename "$t"): $(read -r c _ < "$t/impl"; echo "$c") not installed"; continue; }
   bash "$root/scripts/parity/run.sh" "$(basename "$t")" > /dev/null || fail "$(basename "$t") no longer matches its baseline: $(bash "$root/scripts/parity/run.sh" "$(basename "$t")" | head -3)"
 done
@@ -51,4 +53,33 @@ out=$(bash "$root/scripts/parity/run.sh" ../parity 2>&1) && fail "tool ../parity
 grep -q 'bad tool name' <<< "$out" || fail "tool ../parity was not refused: $out"
 # --record reports a case it could not record.
 if bash "$root/scripts/parity/run.sh" probe --record no-such-case > /dev/null; then fail "--record of a missing case exited 0"; fi
+# Masks (spec 019 T25): a time, a staging key and the .NET text after `bayan: cannot …` read the same whatever their value;
+# a time inside a word, a key with a 33rd hex digit and a `bayan: cannot` line without a path or name stay exact.
+cat > "$t/impl.sh" <<'STUB'
+#!/bin/sh
+cat <<'OUT'
+built in 9.87s · 0.1s
+v1.2.3s keep 1.5sx
+cache/v1/tmp/fedcba9876543210-fedcba9876543210fedcba9876543210
+key 0123456789abcdef-0123456789abcdef0123456789abcdefa
+bayan: cannot write the build output or cache (/x/cache): Read-only file system
+bayan: cannot read `a.byn`: Permission denied
+bayan: cannot run: keep this
+OUT
+STUB
+bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" masks > /dev/null || fail "a masked value still differs: $(bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" masks)"
+for m in 's/9.87s/9.87x/' 's/0.1s/1.0q/' 's/fedcba9876543210-/fedcba987654321-/' 's/keep 1.5sx/keep #sx/' 's/cdefa$/cdef/' 's/(\/x\/cache): Read-only/(\/x\/cache) Read-only/' 's/: keep this/: other/'; do
+  sed "$m" "$t/impl.sh" > "$t/impl2.sh"
+  if bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl2.sh" masks > /dev/null; then fail "mask case passed with $m"; fi
+done
+# steps: each step's exit, stdout and stderr under `== <n>`; a `$ ` step sees $BAYAN; the last step's exit is the case's.
+[ "$(cat "$root/tests/parity/probe/steps/expected/stdout")" = "$(printf '== 1 exit 0\none\n== 2 exit 3\none\n== 3 exit 0\ntwo')" ] \
+  || fail "steps stdout is not per step: $(cat "$root/tests/parity/probe/steps/expected/stdout")"
+printf '#!/bin/sh\ncat "$1"; [ "$1" = b.txt ] && exit 4; exit 0\n' > "$t/impl.sh"
+out=$(bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" steps) && fail "a different last-step exit passed"
+grep -q 'FAIL probe/steps: exit differs' <<< "$out" || fail "no exit mismatch reported for steps: $out"
+grep -q 'FAIL probe/steps: stdout differs' <<< "$out" || fail "no step exit mismatch reported: $out"
+# nofiles: the work directory is not compared.
+printf '#!/bin/sh\ncat "$1"; touch extra\n' > "$t/impl.sh"
+bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" steps > /dev/null || fail "a nofiles case compared its files: $(bash "$root/scripts/parity/run.sh" probe --impl "bash $t/impl.sh" steps)"
 echo PASS

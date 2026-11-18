@@ -1,0 +1,2 @@
+$ c() { env -u BAYAN_CACHE -u XDG_CACHE_HOME HOME=$WORK/home "$@" $BAYAN cache stats | head -1; }; mkdir home; is() { [ "$1" = "cache:    $2" ] && echo ok || echo "$1 is not $2"; }; case $(uname -s) in Darwin) is "$(c)" $WORK/home/Library/Caches/bayan ;; *) is "$(c)" $WORK/home/.cache/bayan; is "$(c XDG_CACHE_HOME=/xdg)" /xdg/bayan; is "$(c XDG_CACHE_HOME=relative)" $WORK/home/.cache/bayan ;; esac | sort -u
+$ BAYAN_CACHE=/elsewhere $BAYAN cache stats | head -1

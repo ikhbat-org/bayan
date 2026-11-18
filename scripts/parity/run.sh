@@ -13,6 +13,17 @@
 #   env        KEY=VALUE lines added to the environment (optional); `$ROOT`, `$WORK` and `$PATH` expand, so
 #              PATH=$WORK/bin:$PATH puts a stub (say a `git` printing a recorded diff) first
 #   setup      a bash script run in the work directory before the tool (optional; e.g. builds a git repo)
+#   steps      several commands in place of `args` (optional, spec 019 T25), one per line, run in order in the work directory:
+#              a line `$ <command>` runs `bash -c <command>` with $BAYAN set to the command under test (word-split, so
+#              `$BAYAN build x` runs it); any other line runs the command under test with the line's tab-separated fields as
+#              arguments. Each step's stdout and stderr are appended under a line `== <n>` (stdout: `== <n> exit <code>`);
+#              exit is the last step's
+#   masks      mask names, one per line, applied to stdout and stderr before comparing or recording (optional, spec 019 T25):
+#                seconds       a time `1.23s` (digits, a point, digits, then `s`) becomes `#s`
+#                staging       a cache staging-key name, 16 hex digits, `-`, 32 hex digits, becomes `<staging>`
+#                dotnet-error  on a line `bayan: cannot …`, the text after its `(<path>): ` or `` `<name>`: `` becomes `<error>`
+#                              (the .NET exception message the C# CLI appends)
+#   nofiles    an empty file: the work directory is not compared (optional; a case that builds leaves binaries and a cache)
 #   expected/  exit, stdout, stderr, and files/ (the work directory's files after the run, setup's .git excluded)
 # Prints `PASS <tool> <n> cases` or one `FAIL <tool>/<case>: …` line per mismatch and exits 1.
 set -euo pipefail
@@ -63,11 +74,30 @@ for c in "${cases[@]}"; do
     echo "FAIL $tool/$c: setup failed: $(tail -1 "$got/setup.log")"; bad=1; continue
   fi
   set +e
-  # shellcheck disable=SC2086  # impl is a command line
-  (cd "$work" && env ${envv[@]+"${envv[@]}"} $impl ${argv[@]+"${argv[@]}"} < "$stdin" > "$got/stdout" 2> "$got/stderr")
-  echo $? > "$got/exit"
+  if [ -f "$case_dir/steps" ]; then
+    : > "$got/stdout"; : > "$got/stderr"; i=0; rc=0
+    while IFS= read -r s || [ -n "$s" ]; do
+      [ -n "$s" ] || continue
+      i=$((i+1)); s="${s//\$ROOT/$root}"; s="${s//\$WORK/$work}"
+      if [ "${s#\$ }" != "$s" ]; then
+        (cd "$work" && env ${envv[@]+"${envv[@]}"} BAYAN="$impl" bash -c "${s#\$ }" < "$stdin" > "$got/step.out" 2> "$got/step.err")
+      else
+        IFS="$(printf '\t')" read -r -a sargv <<< "$s"
+        # shellcheck disable=SC2086  # impl is a command line
+        (cd "$work" && env ${envv[@]+"${envv[@]}"} $impl "${sargv[@]}" < "$stdin" > "$got/step.out" 2> "$got/step.err")
+      fi
+      rc=$?
+      { echo "== $i exit $rc"; cat "$got/step.out"; } >> "$got/stdout"; { echo "== $i"; cat "$got/step.err"; } >> "$got/stderr"
+    done < "$case_dir/steps"
+    rm -f "$got/step.out" "$got/step.err"; echo $rc > "$got/exit"
+  else
+    # shellcheck disable=SC2086  # impl is a command line
+    (cd "$work" && env ${envv[@]+"${envv[@]}"} $impl ${argv[@]+"${argv[@]}"} < "$stdin" > "$got/stdout" 2> "$got/stderr")
+    echo $? > "$got/exit"
+  fi
   set -e
-  mkdir -p "$got/files"; (cd "$work" && tar --exclude ./.git -cf - .) | (cd "$got/files" && tar -xf -)
+  mkdir -p "$got/files"
+  [ -f "$case_dir/nofiles" ] || (cd "$work" && tar --exclude ./.git -cf - .) | (cd "$got/files" && tar -xf -)
   # Scratch paths differ per checkout: the work and repo paths read as $WORK and $ROOT.
   # Literal match, and only a whole path: a root of /w must not rewrite /wave-brief.
   for f in stdout stderr; do W="$work" R="$root" perl -pi -e 's/\Q$ENV{W}\E(?![\w.-])/\$WORK/g; s/\Q$ENV{R}\E(?![\w.-])/\$ROOT/g' "$got/$f"; done
@@ -75,6 +105,15 @@ for c in "${cases[@]}"; do
   find "$got/files" -type f -exec env W="$work" R="$root" perl -pi -e 's/\Q$ENV{W}\E(?![\w.-])/\$WORK/g; s/\Q$ENV{R}\E(?![\w.-])/\$ROOT/g' {} +
   # Python 3.11+ adds traceback caret lines (`  ^^^^`, `~~~^^`) that older Pythons do not print: drop them.
   perl -ni -e 'print unless /^\s*[~^]+\s*$/' "$got/stderr"
+  if [ -f "$case_dir/masks" ]; then while IFS= read -r m || [ -n "$m" ]; do
+    case "$m" in
+      "") ;;
+      seconds) perl -pi -e 's/(?<![\w.])\d+\.\d+s(?!\w)/#s/g' "$got/stdout" "$got/stderr" ;;
+      staging) perl -pi -e 's/(?<![0-9a-f])[0-9a-f]{16}-[0-9a-f]{32}(?![0-9a-f])/<staging>/g' "$got/stdout" "$got/stderr" ;;
+      dotnet-error) perl -pi -e 's/^(bayan: cannot [^(`\n]*(?:\([^)\n]*\)|`[^`\n]*`)): .*$/$1: <error>/' "$got/stdout" "$got/stderr" ;;
+      *) echo "FAIL $tool/$c: unknown mask '$m'"; bad=1 ;;
+    esac
+  done < "$case_dir/masks"; fi
   if [ $record = 1 ]; then
     rm -rf "$case_dir/expected"; mkdir -p "$case_dir/expected"
     cp "$got/exit" "$got/stdout" "$got/stderr" "$case_dir/expected/"; cp -R "$got/files" "$case_dir/expected/files"

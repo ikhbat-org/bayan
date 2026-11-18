@@ -7,7 +7,7 @@ sources: Q1157
 kind: property
 scope: runtime/bayan-rt.c
 proof: csharp/tests/Bayan.Tests/RuntimeNativeTests.cs
-check: dotnet test -v q --filter "Law=L031"
+check: bash runtime/tests/run.sh
 ---
 
 ## Statement

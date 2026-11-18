@@ -37,7 +37,9 @@ for p in "$repo"/tmp/*-build-out* "$repo"/tmp/t24-win "$repo"/tmp/t24b-win "$rep
          "$repo"/tmp/t12 "$repo"/tmp/t13 "$repo"/tmp/gate-export-* "$repo"/tmp/std-path-export \
          "$repo"/tmp/l005-run-batch-export "$repo"/tmp/zig-global \
          "$repo"/tmp/t40-linux "$repo"/tmp/t40-win "$repo"/tmp/rwt.* "$repo"/tmp/025-t32 "$repo"/tmp/export-t1* "$repo"/tmp/export-t2* \
-         "$repo"/tmp/export-full "$repo"/tmp/export-full-*.txt "$repo"/tmp/export-full.out "$repo"/tmp/snapshot-rerun.out "$repo"/tmp/t17-split.md "$repo"/tmp/t17b-split.md; do
+         "$repo"/tmp/export-full "$repo"/tmp/export-full-*.txt "$repo"/tmp/export-full.out "$repo"/tmp/snapshot-rerun.out "$repo"/tmp/t17-split.md "$repo"/tmp/t17b-split.md \
+         "$repo"/tmp/t17c-trial "$repo"/tmp/t17c-trial.out "$repo"/tmp/fable-decisions* "$repo"/tmp/decisions-2026-11-18.md \
+         "$repo"/tmp/ci-019-run.out "$repo"/.worktrees/*/tmp/zig-global "$repo"/.worktrees/*/tmp/lawbreak; do
   rel=${p#"$repo"/}
   if git -C "$repo" ls-files --error-unmatch -- "$rel" >/dev/null 2>&1; then
     printf 'refuse: %s is tracked by git. Propose it as a commit instead. Left alone.\n' "$rel"; failed=1; continue
@@ -46,7 +48,7 @@ for p in "$repo"/tmp/*-build-out* "$repo"/tmp/t24-win "$repo"/tmp/t24b-win "$rep
   if [ $execute = 1 ]; then rm -rf "$p"; printf 'removed %s\n' "$rel"; else printf 'would remove %s (%s)\n' "$rel" "$(du -sh "$p" | cut -f1)"; fi
 done
 
-# 3. the broken zig global cache
+# 3. zig's default global cache (grew past 500 GB on mb1 before 2026-11-18; broken 2026-11-18)
 z="$HOME/.cache/zig"
 if [ ! -e "$z" ]; then printf 'skip:  %s gone\n' "$z"
 elif [ $execute = 1 ] && [ $zig = 1 ]; then rm -rf "$z"; printf 'removed %s\n' "$z"

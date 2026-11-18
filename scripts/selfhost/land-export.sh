@@ -5,14 +5,21 @@
 #   (1) input/ becomes input.tsv, one line per entry sorted by name, `<name>\tfile:<sha256>`, `<name>\tfile+x:<sha256>` (user
 #       executable bit) or `<name>\ttree:<sha256>`; files are stored once at <dest>/inputs/files/<sha256>, directories at
 #       <dest>/inputs/trees/<sha256>.tsv (same format; a tree's hash is the sha256 of its .tsv text);
-#   (2) in every non-input text file, each occurrence of the export worktree root becomes `<repo>` (input/ and the top-level
-#       input and input.* files are inputs and are copied unmasked);
+#   (1b) the top-level input.byn is stored by content too: it becomes input.byn.ref, the one line `file:<sha256>` into
+#       <dest>/inputs/files (T17a2, D5);
+#   (2) in every non-input text file, each occurrence of the export worktree root becomes `<repo>`; in input text (input/ files,
+#       input.byn, before hashing) too; other top-level input and input.* files are copied unmasked;
+#   (2b) land-time masks: in class SelfhostDefaultT5Tests expected.stdout, the value of an ok row (marker, plain or coloured)
+#       labelled host, C compiler, zig or git becomes `<host>`, the cache row too when the case env sets no BAYAN_CACHE (`not found`
+#       rows, failure rows and seeded-cache rows stay); in SelfhostDefaultT12Tests expected.stdout/expected.stderr everything after a
+#       line `C compiler failed (exit N):` becomes the one line `<cc output>`;
 #   (3) cli/SelfhostExport/ is dropped;
 #   (4) <dest>/EXPORT.tsv (class, kind, tests, cases, reason) is written: one row per class and kind with cases or with rows in
 #       <kind>/UNEXPORTED.tsv, tests from <dest>/../inventory-019.tsv, cases the case directories, reason the class's
 #       UNEXPORTED.tsv rows (root masked), empty when it has none.
 # A file is written only when its content differs, so a rerun over the same export writes nothing. A symlink or other special
-# file, or a name holding a tab, newline or backslash, under input/ stops the run. Prints the counts; exit 2 on bad arguments.
+# file, or a name holding a tab, newline or backslash, under input/ stops the run. After landing, any file under <dest> holding
+# this machine's HOME, /Users/ or /opt/homebrew stops the run (exit 1). Prints the counts; exit 2 on bad arguments.
 set -euo pipefail
 [ $# = 3 ] || { echo "usage: land-export.sh <export dir> <export worktree root> <dest tests/cases>" >&2; exit 2; }
 src="${1%/}"; repo="${2%/}"; dest="${3%/}"
@@ -35,12 +42,24 @@ put() {
   if ! cmp -s "$1" "$2" 2> /dev/null; then mkdir -p "$(dirname "$2")"; cp "$1" "$2"; written=$((written + 1)); fi
 }
 
+# store <file>: copies the file into inputs/files by content; sets $stored to its sha256
+store() {
+  stored="$($sum < "$1" | cut -c1-64)"
+  if [ ! -f "$dest/inputs/files/$stored" ]; then cp "$1" "$dest/inputs/files/$stored"; chmod 644 "$dest/inputs/files/$stored"; blobs=$((blobs + 1)); fi
+}
+
 # land_input <case input dir> <target input.tsv>
 land_input() {
-  local in="$1" w="$work/in" p e h d n bad
+  local in="$1" w="$work/in" p e h d n bad hit
   rm -rf "$w"; mkdir -p "$w/lv"
   bad="$(cd "$in" && find . \( ! -type f ! -type d \) -o -name "*$tab*" -o -name "*$nl*" -o -name '*\\*')"
   [ -z "$bad" ] || { echo "land-export: unsupported input entry under $in: $bad" >&2; exit 1; }
+  # (c) the root in an input text file becomes <repo> before hashing (on a copy: the export is not touched)
+  (cd "$in" && find . -type f -print0 | xargs -0 grep -l -I -F -e "$repo" -- 2> /dev/null) > "$w/hits" || true
+  if [ -s "$w/hits" ]; then
+    rm -rf "$work/inmask"; cp -Rp "$in" "$work/inmask"; in="$work/inmask"
+    while IFS= read -r hit; do LC_ALL=C sed "s/$esc/<repo>/g" "$in/$hit" > "$work/cand"; cat "$work/cand" > "$in/$hit"; done < "$w/hits"
+  fi
   (cd "$in" && find . -type f -print) > "$w/files"
   (cd "$in" && find . -type f -perm -100 -print) > "$w/exec"
   (cd "$in" && find . -type d -print) > "$w/dirs"
@@ -81,6 +100,23 @@ land_input() {
   done
 }
 
+ESC="$(printf '\033')"
+
+# (a) mask_doctor <export case dir>: in $work/cand, the value of an ok row (marker, optionally in colour) labelled host, C compiler,
+# zig or git becomes <host>, the cache row too when the case env sets no BAYAN_CACHE; `not found` rows, failure rows stay
+mask_doctor() {
+  local labels='host|C compiler|zig|git' pre="(${ESC}\\[[0-9;]*m)?(◆|\\*)(${ESC}\\[[0-9;]*m)? +"
+  grep -q '^BAYAN_CACHE=' "$1/env" 2> /dev/null || labels="$labels|cache"
+  LC_ALL=C sed -E -e "/^$pre($labels) +not found/b" -e "s/^($pre($labels) +)[^ ].*/\\1<host>/" "$work/cand" > "$work/cand2"
+  mv "$work/cand2" "$work/cand"
+}
+
+# (b) mask_cc: in $work/cand, everything after a line `C compiler failed (exit N):` becomes the line `<cc output>`
+mask_cc() {
+  awk '{ print } /^C compiler failed \(exit [0-9]+\):$/ { print "<cc output>"; exit }' "$work/cand" > "$work/cand2"
+  mv "$work/cand2" "$work/cand"
+}
+
 # land_case <export case dir> <dest case dir>
 land_case() {
   local c="$1" to="$2" f
@@ -91,9 +127,17 @@ land_case() {
   while IFS= read -r f; do
     f="${f#./}"
     case "$f" in
+      (input.byn) # stored by content; the pointer file input.byn.ref holds `file:<sha256>`
+          if grep -qx -F -e "./$f" "$work/masked"; then LC_ALL=C sed "s/$esc/<repo>/g" "$c/$f" > "$work/cand"; else cp "$c/$f" "$work/cand"; fi
+          store "$work/cand"; printf 'file:%s\n' "$stored" > "$work/ref"; put "$work/ref" "$to/input.byn.ref" ;;
       (input|input.*) put "$c/$f" "$to/$f" ;;
-      (*) if grep -qx -F -e "./$f" "$work/masked"; then LC_ALL=C sed "s/$esc/<repo>/g" "$c/$f" > "$work/cand"; put "$work/cand" "$to/$f"
-          else put "$c/$f" "$to/$f"; fi ;;
+      (*) if grep -qx -F -e "./$f" "$work/masked"; then LC_ALL=C sed "s/$esc/<repo>/g" "$c/$f" > "$work/cand"
+          else cp "$c/$f" "$work/cand"; fi
+          case "$class" in
+            (SelfhostDefaultT5Tests) [ "$f" != expected.stdout ] || mask_doctor "$c" ;;
+            (SelfhostDefaultT12Tests) case "$f" in (expected.stdout|expected.stderr) mask_cc ;; esac ;;
+          esac
+          put "$work/cand" "$to/$f" ;;
     esac
   done < "$work/rest"
   mkdir -p "$to"
@@ -138,4 +182,8 @@ awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" '
 ' "$work/counts" | LC_ALL=C sort -t"$tab" -k1,1 -k2,2 > "$work/body"
 { printf 'class\tkind\ttests\tcases\treason\n'; cat "$work/body"; } > "$work/EXPORT.tsv"
 put "$work/EXPORT.tsv" "$dest/EXPORT.tsv"
+# nothing under dest may name the export machine: its HOME, /Users/ or /opt/homebrew
+pats=(-e /Users/ -e /opt/homebrew); [ "${#HOME}" -le 1 ] || pats+=(-e "$HOME")
+leaks="$(grep -rl -F "${pats[@]}" -- "$dest" 2> /dev/null | head -20 || true)"
+[ -z "$leaks" ] || { echo "land-export: the landed tree names the export machine (HOME, /Users/ or /opt/homebrew) in:" >&2; echo "$leaks" >&2; exit 1; }
 echo "land-export: $cases cases, $blobs new input files, $trees new input trees, $written files written"

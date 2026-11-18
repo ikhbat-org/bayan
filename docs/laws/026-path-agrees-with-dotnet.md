@@ -7,7 +7,7 @@ sources: none recorded
 kind: property
 scope: runtime/bayan-rt.c (byn_path_*), csharp/Bayan.Semantics/Builtins.cs (Path members), csharp/Bayan.Backend.C/CEmitter.cs (Path calls)
 proof: csharp/tests/Bayan.Tests/StdPathLawTests.cs
-check: dotnet test -v q --filter "Law=L026"
+check: bash runtime/tests/run.sh && bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/path'
 timeout: 300
 enacted: 2026-11-05
 ---

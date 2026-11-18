@@ -1,0 +1,8 @@
+import keep
+
+var kept = ""
+{
+    using let arena = Arena()
+    keep.pass("ann".copy(to: arena), to: ref kept)
+}
+print(kept)

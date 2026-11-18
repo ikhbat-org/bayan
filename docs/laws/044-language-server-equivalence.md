@@ -9,7 +9,10 @@ scope: editors/language-server/src/**, editors/language-server/sessions/
 ---
 
 ## Statement
-For every recorded session under `editors/language-server/sessions/`, the replies of the Bayān `bayan-lsp` equal the replies the C# server recorded at the freeze, message for message.
+For every recorded session under `editors/language-server/sessions/`, the replies of the Bayān `bayan-lsp` equal the recorded replies, message for message.
 
 ## Counterexample looks like
 A session file and the first request whose reply from the Bayān server differs from the recorded reply, or a reply that is missing or extra.
+
+## History
+Amended 2026-11-18 (spec 019 D13) to "the recorded replies". Enact when T37 lands.

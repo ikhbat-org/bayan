@@ -1,0 +1,1 @@
+$ $BAYAN doctor > out.txt; echo "doctor $?"; sed -n '1s/ (commit .*/ (commit /p' out.txt; grep '^◆ host ' out.txt | sed 's/ [^ ]*$/ <host>/'; grep -cE '^◆ C compiler  .+ \(.+\)$' out.txt; grep '^◆ cache ' out.txt | sed 's/(writable, .*/(writable, /'; grep -c -e '✗' -e 'help:' out.txt

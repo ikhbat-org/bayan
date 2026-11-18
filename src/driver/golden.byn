@@ -2104,6 +2104,7 @@ GoldenOutcome goldenJobsRun(string root, as string jobs) uses alloc, clock, env,
     return o
 }
 
+// L040: every selected case is reported once, the same under --jobs 1 and --jobs 4
 test "--jobs 1 and --jobs 4 print the same report in case order, times masked, and exit the same" {
     let root = Path.combine(Path.fullPath("tmp"), "golden-jobs")
     goldenJobsFixture(root)
@@ -2292,6 +2293,7 @@ test "BAYAN_UPDATE=1 with --jobs 4 rewrites only the differing expected files, l
     assert(sameAfter == sameBefore && pendingAfter == pendingBefore)
 }
 
+// L042: a run without BAYAN_UPDATE writes nothing under the cases directory
 test "a run without BAYAN_UPDATE leaves the cases directory byte for byte the same, with --jobs 1 and --jobs 4" {
     let root = Path.combine(Path.fullPath("tmp"), "golden-no-update")
     goldenUpdateFixture(root)

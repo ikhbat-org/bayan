@@ -7,7 +7,7 @@ sources: none recorded
 kind: property
 scope: runtime/bayan-rt.c
 proof: csharp/tests/Bayan.Tests/L005RunBatchTests.cs
-check: dotnet test --filter Law=L005
+check: bash runtime/tests/run.sh
 enacted: 2026-10-21
 ---
 

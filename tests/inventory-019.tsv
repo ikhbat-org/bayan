@@ -1,14 +1,14 @@
 class	file	family	tests	disposition	target	reason	memberdata
 BootstrapTests	csharp/tests/Bayan.Tests/BootstrapTests.cs	runtime-c	7	shell	shell	bootstrap fixpoint is L027 and the R26/R27 jobs	
 BuiltinResultsTests	csharp/tests/Bayan.Tests/BuiltinResultsTests.cs	csharp-internals	13	sem	sem	region-analysis builtin results table through sem sections	
-CInventoryTests	csharp/tests/Bayan.Tests/CInventoryTests.cs	csharp-internals	14	bayan-test	lib/std bound tests	extension inventory scan; a Bayan test over runtime C and cprint/*.byn literals	
-CacheTests	csharp/tests/Bayan.Tests/CacheTests.cs	cli	24	cli	tests/parity	changes BAYAN_CACHE; parity case sets it up	
-CliEnvironmentTests	csharp/tests/Bayan.Tests/CliEnvironmentTests.cs;csharp/tests/Bayan.Tests/CliSummaryTests.cs	cli	28	cli	tests/parity	changes environment variables; parity case sets them up (two files, one partial class)	
+CInventoryTests	csharp/tests/Bayan.Tests/CInventoryTests.cs	csharp-internals	14	bayan-test	lib/std bound tests	extension inventory scan; a Bayan test over runtime C and cprint/*.byn literals; ported 14 of 14: src/driver/cinventory.byn (`c inventory: ` blocks; the C# regexes as std.regex patterns, the emitted C through `$BAYAN_EXE build --emit-c --mode debug`)	
+CacheTests	csharp/tests/Bayan.Tests/CacheTests.cs	cli	24	cli	tests/parity	changes BAYAN_CACHE; parity case sets it up; ported 24 of 24: tests/parity/cli-cache (10), src/driver/cache.byn blocks script-key, compiler-stamp, replace-file (3), tests/cases/DIVERGENCES.tsv Q976 (9), tests/parity/UNEXPORTED.tsv (2, plus the PATH rows of ASingleWordOrZigCompilerKeepsItsStamp)	
+CliEnvironmentTests	csharp/tests/Bayan.Tests/CliEnvironmentTests.cs;csharp/tests/Bayan.Tests/CliSummaryTests.cs	cli	28	cli	tests/parity	changes environment variables; parity case sets them up (two files, one partial class); ported 28 of 28: tests/parity/cli-environment (21), src/driver/doctor.byn blocks doctor-render-plain, -ascii, -colour (3), tests/cases/DIVERGENCES.tsv Q976 (1) and Q1117 (2 whole, 4 tty asserts of ported cases), tests/parity/UNEXPORTED.tsv (1)	
 CliMemoryBoundsTests	csharp/tests/Bayan.Tests/CliMemoryBoundsTests.cs	cli	25	bayan-test	lib/std bound tests	bounds on memory and disk; a Bayan test builds a large tree and measures	
 CliTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	64	cli	cli	exit code and text of bayan commands	
-CliToolchainTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	7	cli	tests/parity	needs toolchain set-up	
+CliToolchainTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	7	cli	tests/parity	needs toolchain set-up; ported 7 of 7: tests/parity/cli-toolchain (1), tests/cases/DIVERGENCES.tsv Q976 (6)	
 CollectionLiteralTests	csharp/tests/Bayan.Tests/CollectionLiteralTests.cs	csharp-internals	3	emit-c	emit-c	span literals on stack, checked in emitted C	
-ContrastTests	csharp/tests/Bayan.Tests/ContrastTests.cs	cli	6	shell	shell	WCAG contrast over docs table; no compiler involved	
+ContrastTests	csharp/tests/Bayan.Tests/ContrastTests.cs	cli	6	shell	shell	WCAG contrast over docs table; no compiler involved; ported 6 of 6: scripts/docs/contrast.test.sh (the C# Palette and Style.Paint read as the driver's t7Prefix and t5Paint)	
 CoverageReportTests	csharp/tests/Bayan.Tests/CoverageReportTests.cs	cli	8	cli	cli	coverage report through bayan test	
 CoverageSummaryTests	csharp/tests/Bayan.Tests/CoverageSummaryTests.cs	cli	4	cli	cli	one-line summary through bayan test	
 CoverageTests	csharp/tests/Bayan.Tests/CoverageTests.cs	golden-folder	350	golden	tests/cases/coverage	folder runner reads the same files	no export: typed rows
@@ -18,7 +18,7 @@ DiagnosticCodesTests	csharp/tests/Bayan.Tests/DiagnosticCodesTests.cs	csharp-int
 DiagnosticRendererTests	csharp/tests/Bayan.Tests/DiagnosticRendererTests.cs	csharp-internals	19	cli	cli	renderer output reached by bayan check text; covering case per row in T18	
 DynRefEmitTests	csharp/tests/Bayan.Tests/DynRefEmitTests.cs	csharp-internals	3	emit-c	emit-c	vtables in emitted C	
 ErrorUnionTypeTests	csharp/tests/Bayan.Tests/ErrorUnionTypeTests.cs	csharp-internals	1	sem	sem	type model through sem sections	
-ExternalModeTests	csharp/tests/Bayan.Tests/ExternalModeTests.cs	cli	11	cli	tests/parity	BAYAN_MUTANT command run per site; stub tools	
+ExternalModeTests	csharp/tests/Bayan.Tests/ExternalModeTests.cs	cli	11	cli	tests/parity	BAYAN_MUTANT command run per site; stub tools; ported 11 of 11: tests/parity/cli-external-mode (10), src/driver/mutate.byn block site-map (1)	
 FormatTests	csharp/tests/Bayan.Tests/FormatTests.cs	golden-folder	76	golden	tests/cases/format	folder runner reads the same files	no export: typed rows
 FunctionTypeTests	csharp/tests/Bayan.Tests/FunctionTypeTests.cs	csharp-internals	12	sem	sem	function-type model through sem sections	
 GatesTests	csharp/tests/Bayan.Tests/GatesTests.cs	cli	8	cli	cli	manifest minimums through the command	
@@ -54,7 +54,7 @@ LoweringInvariantTests	csharp/tests/Bayan.Tests/LoweringInvariantTests.cs	csharp
 ManifestTests	csharp/tests/Bayan.Tests/ManifestTests.cs	cli	70	cli	cli	reads cases; command output	no export: typed rows
 MapKeyEmitTests	csharp/tests/Bayan.Tests/MapKeyEmitTests.cs	csharp-internals	5	emit-c	emit-c	key hash helpers in emitted C	
 MapKeyLawTests	csharp/tests/Bayan.Tests/MapKeyLawTests.cs	law	13	check	check:L016	law proof becomes a check: command (R18)	no export: typed rows
-MapModelTests	csharp/tests/Bayan.Tests/MapModelTests.cs	csharp-internals	49	bayan-test	lib/std map model test	reference model becomes a Bayan test; run/map-model.byn already golden (L003)	no export: typed rows
+MapModelTests	csharp/tests/Bayan.Tests/MapModelTests.cs	csharp-internals	49	bayan-test	lib/std map model test	reference model becomes a Bayan test; run/map-model.byn already golden (L003); ported 49 of 49: src/driver/mapmodel.byn (`map model: ` blocks, theory rows as @cases; the 40 generated sources are byte-equal to the C# generator's)	no export: typed rows
 MessagesTests	csharp/tests/Bayan.Tests/MessagesTests.cs	csharp-internals	4	bayan-test	lib/std bound tests	scans compiler string literals for prose; a Bayan test over src/*.byn literals	
 MutantSchemataTests	csharp/tests/Bayan.Tests/MutantSchemataTests.cs	golden-folder	362	golden	tests/cases/mutate	folder runner reads the same files	no export: typed rows
 MutationRunnerTests	csharp/tests/Bayan.Tests/MutationRunnerTests.cs	cli	6	cli	cli	mutation statuses through bayan mutate	
@@ -67,7 +67,7 @@ OutputTests	csharp/tests/Bayan.Tests/OutputTests.cs	cli	14	cli	cli	command outpu
 OwnershipCheckerTests	csharp/tests/Bayan.Tests/OwnershipCheckerTests.cs	golden-folder	368	golden	tests/cases/ownership	folder runner reads the same files	no export: typed rows
 OwnershipGeneratorTests	csharp/tests/Bayan.Tests/OwnershipGeneratorTests.cs	runtime-c	3	shell	runtime/tests/*.c	generated ownership C harness; generator goes with .NET, harness case stays	
 OwnershipTableTests	csharp/tests/Bayan.Tests/OwnershipTableTests.cs	runtime-c	3	shell	runtime/tests/*.c	C harness over bayan-rt.c	
-ParserPerfTests	csharp/tests/Bayan.Tests/ParserTests.cs	csharp-internals	2	bayan-test	lib/std bound tests	parser time bound measured by a Bayan test	no export: typed rows
+ParserPerfTests	csharp/tests/Bayan.Tests/ParserTests.cs	csharp-internals	2	bayan-test	lib/std bound tests	parser time bound measured by a Bayan test; ported 2 of 2: src/driver/perf.byn (`the line-join lint is linear: ` blocks, the 2 s bound on lexer.lex, parseCompilationUnit and lintLineJoins)	no export: typed rows
 ParserTests	csharp/tests/Bayan.Tests/ParserTests.cs	golden-folder	217	golden	tests/cases/parse	folder runner reads the same files	no export: typed rows
 PeakSamplerTests	csharp/tests/Bayan.Tests/PeakSamplerTests.cs	infrastructure	1	dropped		harness-only: goes with the harness; the runner bound test (T9a) must report a peak for a process shorter than its sampling interval	
 PowerAssertTests	csharp/tests/Bayan.Tests/PowerAssertTests.cs	cli	8	cli	cli	failed-assert diagram through bayan test	

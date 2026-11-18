@@ -8,7 +8,7 @@ enacted: 2026-10-26
 kind: property
 scope: src/parser/main.byn
 proof: src/tests/SelfhostParserEquivalenceLawTests.cs
-check: dotnet test -v q --filter "Law=L017"
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'parse/'
 timeout: 1800
 ---
 

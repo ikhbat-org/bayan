@@ -1,0 +1,43 @@
+== 1
+[1m[31merror BYN2104[0m: `x` is immutable
+[2m  -->[0m $WORK/main.byn:3:5
+
+  [2m3[0m [2m│[0m     x = 2
+    [2m│[0m     [1m[31m^ declared with `let` on line 2[0m
+    [2m│[0m
+  [1m[34mhelp:[0m declare it with `var` if it should change
+    [2m│[0m [2m2[0m [2m│[0m     var x = 1
+    [2m│[0m   [2m│[0m     [34m+++[0m
+
+[31m✗ build failed: 1 error, 0 warnings[0m
+  explain: bayan explain BYN2104
+== 2
+error BYN2104: `x` is immutable
+  --> $WORK/main.byn:3:5
+
+  3 │     x = 2
+    │     ^ declared with `let` on line 2
+    │
+  help: declare it with `var` if it should change
+    │ 2 │     var x = 1
+    │   │     +++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2104
+== 3
+{"code":"BYN2104","severity":"error","file":"$WORK/main.byn","span":{"start":32,"end":33,"line":3,"column":5,"endLine":3,"endColumn":6},"message":"`x` is immutable","label":"declared with `let` on line 2","help":"declare it with `var` if it should change","fixes":[{"span":{"start":18,"end":21,"line":2,"column":5,"endLine":2,"endColumn":8},"replacement":"var"}]}
+== 4
+{"code":"BYN2104","severity":"error","file":"$WORK/main.byn","span":{"start":32,"end":33,"line":3,"column":5,"endLine":3,"endColumn":6},"message":"`x` is immutable","label":"declared with `let` on line 2","help":"declare it with `var` if it should change","fixes":[{"span":{"start":18,"end":21,"line":2,"column":5,"endLine":2,"endColumn":8},"replacement":"var"}]}
+== 5
+error BYN2104: `x` is immutable
+  --> $WORK/main.byn:3:5
+
+  3 │     x = 2
+    │     ^ declared with `let` on line 2
+    │
+  help: declare it with `var` if it should change
+    │ 2 │     var x = 1
+    │   │     +++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2104

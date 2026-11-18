@@ -1,5 +1,9 @@
 # 019 export runners: how each exported case is run and compared
 
+Status: draft (T17b2a, 2026-11-18)
+Release: unscheduled
+Sources: docs/specs/019-dotnet-exit/019-plan.md (T17b2a); the C# tests on the export branch
+
 Source of truth: the C# tests on the export branch, `src/tests/` (written `$T`). Cases: `tmp/export-full/<kind>/<Class>/<case>/`.
 Case dir name is `<test>[-row][-n]`. A case never names the program it ran; the C# builds it. This file records that program.
 All C# citations are `$T/<file>:<line>`; the file column abbreviates `Selfhost<X>Tests.cs` as `<X>`.
