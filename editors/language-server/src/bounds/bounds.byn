@@ -1,0 +1,461 @@
+// The memory bounds of bayan-lsp (docs/memory-leaks.md, the `bayan-lsp` rows; spec 019 T38a, R22), ported from LanguageServerWorkspaceTests
+// and LanguageServerLeakTests: the limits are set small on the workspace and the transport, as the C# tests set them; the server keeps its
+// defaults. The C# heap measurements (a GC'd live heap, a WeakReference, a private buffer's capacity, allocated bytes) have no Bayān
+// counterpart: the resident set of this test process (`ps`, so those blocks are pending on Windows) or what a structure keeps stands in, and
+// each title says which. Each block works in its own tree under tmp/lsp-bounds/. scripts/release/editor-gate.sh runs them.
+
+import transport
+import workspace
+
+/// tmp/lsp-bounds/<name>, emptied and created; its real path, as the workspace keys files.
+string fresh(string name) uses alloc, fs {
+    let base = Path.combine(Path.fullPath("tmp"), "lsp-bounds")
+    let dir = Path.combine(base, name)
+    deleteTree(dir)
+    Io.createDirectory(base) catch {}
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    return Fs.realPath(dir) catch { panic($"cannot resolve {dir}") }
+}
+
+/// Removes `dir` and everything under it; a link is removed, not followed.
+void deleteTree(string dir) uses alloc, fs {
+    let names = Io.listDir(dir) catch { return }
+    for name in names {
+        let path = Path.combine(dir, name)
+        let real = Fs.realPath(path) catch ""
+        if Fs.fileExists(path) || real != path {
+            Io.remove(path) catch {}
+        } else {
+            deleteTree(path)
+        }
+    }
+    Io.removeDirectory(dir) catch {}
+}
+
+/// Writes `text` to `rel` under `root`, creating its directories; the file's path.
+string touch(string root, at string rel, as string text = "f() {}\n") uses alloc, fs {
+    var dir = root
+    var parts = List<string>()
+    for p in rel.parts(by: "/") {
+        parts.append(p)
+    }
+    for i in 0..parts.length - 1 {
+        dir = Path.combine(dir, parts[i])
+        Io.createDirectory(dir) catch {}
+    }
+    let path = Path.combine(dir, parts[parts.length - 1])
+    Io.writeFile(path, text.bytes) catch { panic($"cannot write {path}") }
+    return path
+}
+
+string uriOf(string root, at string rel) uses alloc => workspace.fileUri(Path.combine(root, rel))
+
+/// The file names of the documents held, sorted.
+List<string> names(ref workspace.Workspace ws) uses alloc {
+    var all = List<string>()
+    for at in ws.slots() {
+        let u = ws.docs[at].uri
+        let slash = u.lastPosition("/") ?? -1
+        all.append(u[slash + 1..u.length])
+    }
+    all.sort()
+    return all
+}
+
+/// The resident set of this process in KB, from `ps` run by a `sh` whose parent it is.
+i64 residentKb() uses alloc, process {
+    var args = List<string>()
+    args.append("-c")
+    args.append("ps -o rss= -p $PPID")
+    let r = Io.run("sh", args.span) catch { panic("cannot run sh to read the resident set") }
+    var kb: i64 = 0
+    for b in r.stdout.trimmed().bytes {
+        assert(b >= '0' && b <= '9')
+        kb = kb * 10 + i64(b - '0')
+    }
+    return kb
+}
+
+/// `Dense` of LanguageServerLeakTests: about `chars` characters of structs and functions with locals.
+string dense(i64 chars) uses alloc {
+    let unit = "struct S{i64 a}\nvoid f(i64 x){let y=x}\n"
+    return unit.repeated((chars + unit.length - 1) / unit.length)
+}
+
+test "the file budget (maxFiles, 20,000 by default) stops indexing at 3 of 5 files but an open buffer is still held" {
+    let root = fresh("file-count")
+    for i in 0..5 {
+        let _ = touch(root, at: $"src/f{i}.byn")
+    }
+    var ws = workspace.Workspace.create()
+    ws.maxFiles = 3
+    ws.indexFolder(root)
+    assert(ws.slots().length == 3)
+    assert(ws.limitReached)
+    let _ = ws.open(uriOf(root, at: "src/open.byn"), from: "g() {}\n".utf16.copy(), at: 1)
+    assert(ws.slots().length == 4)
+}
+
+test "the character budget (maxChars, 256 MiB by default) counts a removed file's characters back" {
+    let root = fresh("char-refund")
+    let a = touch(root, at: "src/a.byn", as: "aaaaaa")
+    let _ = touch(root, at: "src/b.byn", as: "bbbbbb")
+    var ws = workspace.Workspace.create()
+    ws.maxChars = 10
+    ws.indexFolder(root)
+    assert(ws.slots().length == 1)
+    let first = ws.docs[ws.slots()[0]].uri
+    let _ = ws.remove(first)
+    assert(ws.slots().length == 0)
+    let _ = ws.loadFromDisk(a)
+    assert(ws.slots().length == 1)
+}
+
+test "a spent file budget recovers once its files are removed and a second root is then indexed" {
+    let root = fresh("limit-recovers")
+    for i in 0..4 {
+        let _ = touch(root, at: $"a/f{i}.byn")
+    }
+    let _ = touch(root, at: "b/x.byn")
+    var ws = workspace.Workspace.create()
+    ws.maxFiles = 3
+    ws.indexFolder(Path.combine(root, "a"))
+    assert(ws.limitReached)
+    var uris = List<string>()
+    for at in ws.slots() {
+        uris.append(ws.docs[at].uri)
+    }
+    for u in uris {
+        let _ = ws.remove(u)
+    }
+    assert(!ws.limitReached)
+    ws.indexFolder(Path.combine(root, "b"))
+    let n = names(ref ws)
+    assert(n.length == 1 && n[0] == "x.byn")
+}
+
+test "a known file that grows past the character budget on reload is removed" {
+    let root = fresh("grown-past-budget")
+    let a = touch(root, at: "src/a.byn", as: "xxxx")
+    var ws = workspace.Workspace.create()
+    ws.maxChars = 10
+    ws.indexFolder(root)
+    assert(ws.slots().length == 1)
+    Io.writeFile(a, "x".repeated(20).bytes) catch { panic($"cannot write {a}") }
+    let _ = ws.loadFromDisk(a)
+    assert(ws.slots().length == 0)
+}
+
+test "the folder walk stops at the first file rejected for the character budget: later files that would fit are skipped" {
+    let root = fresh("walk-stops")
+    for i in 0..4 {
+        let _ = touch(root, at: $"src/f{i}.byn")
+    }
+    // The walk takes files in the order the directory lists them.
+    let src = Path.combine(root, "src")
+    let order = Io.listDir(src) catch { panic($"cannot list {src}") }
+    for i in 0..4 {
+        let text = i == 0 ? "aaaaaa" : i == 1 ? "b".repeated(20) : i == 2 ? "c" : "d"
+        Io.writeFile(Path.combine(src, order[i]), text.bytes) catch { panic("cannot write a file") }
+    }
+    var ws = workspace.Workspace.create()
+    ws.maxChars = 10
+    ws.indexFolder(root)
+    let n = names(ref ws)
+    assert(n.length == 1 && n[0] == order[0])
+}
+
+test "a known file that does not grow is never evicted for the character budget, and the budget counts exactly" {
+    let root = fresh("not-evicted")
+    let a = touch(root, at: "src/a.byn", as: "12345678")
+    var ws = workspace.Workspace.create()
+    ws.maxChars = 10
+    ws.indexFolder(root)
+    let _ = ws.open(uriOf(root, at: "src/open.byn"), from: "x".repeated(20).utf16.copy(), at: 1)
+    assert(ws.charCount > 10)
+    Io.writeFile(a, "12345".bytes) catch { panic($"cannot write {a}") }
+    let _ = ws.loadFromDisk(a)
+    var found = false
+    for name in names(ref ws) {
+        found = found || name == "a.byn"
+    }
+    assert(found)
+    assert(ws.charCount == 25)
+}
+
+test "the character count stays exact over open, full and incremental changes, a disk rewrite and the close that reloads it" {
+    let root = fresh("char-count-exact")
+    let a = touch(root, at: "src/a.byn", as: "abc\n")
+    var ws = workspace.Workspace.create()
+    ws.indexFolder(root)
+    assert(ws.charCount == 4)
+    let u = uriOf(root, at: "src/a.byn")
+    let at = ws.open(u, from: "abcdef\n".utf16.copy(), at: 1)
+    assert(ws.charCount == 7)
+    ws.apply(at: at, from: 0, by: 1, to: 0, through: 3, as: "XYZW".utf16.copy().span)
+    assert(ws.charCount == 9 && ws.docs[at].text.length == 9)
+    ws.replace("12".utf16.copy(), at: at)
+    assert(ws.charCount == 2)
+    Io.writeFile(a, "disk text\n".bytes) catch { panic($"cannot write {a}") }
+    ws.close(u)
+    assert(ws.slots().length == 1 && ws.charCount == 10)
+}
+
+test "closing a buffer removes it when its disk file is under .worktrees/ or over the per-file limit (maxFileBytes, 4 MiB by default)" {
+    let root = fresh("close-rules")
+    let _ = touch(root, at: "src/kept.byn")
+    let _ = touch(root, at: ".worktrees/w/hidden.byn")
+    let _ = touch(root, at: "src/big.byn", as: "x".repeated(40))
+    var ws = workspace.Workspace.create()
+    ws.maxFileBytes = 32
+    ws.indexFolder(root)
+    assert(ws.slots().length == 1)
+    let hidden = uriOf(root, at: ".worktrees/w/hidden.byn")
+    let big = uriOf(root, at: "src/big.byn")
+    let _ = ws.open(hidden, from: "g() {}\n".utf16.copy(), at: 1)
+    let _ = ws.open(big, from: "h() {}\n".utf16.copy(), at: 1)
+    assert(ws.slots().length == 3)
+    ws.close(hidden)
+    ws.close(big)
+    let n = names(ref ws)
+    assert(n.length == 1 && n[0] == "kept.byn")
+    assert(ws.charCount == 7)
+}
+
+test "the folder walk enters no hidden directory, tmp or build output (the incident: a whole tree and its mutants indexed)" {
+    let root = fresh("skipped-dirs")
+    let _ = touch(root, at: "src/a.byn")
+    for d in [".git", ".worktrees", "tmp", "bin", "obj", "out", "node_modules", "target", "build", "dist"] {
+        let _ = touch(root, at: $"{d}/x.byn")
+    }
+    var ws = workspace.Workspace.create()
+    ws.indexFolder(root)
+    let n = names(ref ws)
+    assert(n.length == 1 && n[0] == "a.byn")
+}
+
+test "a disk document keeps under 12 bytes per character in the resident set, and no tokens, diagnostics or locals" {
+    let root = fresh("bytes-per-char")
+    let text = dense(1 << 20)
+    var chars: i64 = 0
+    for i in 0..8 {
+        let _ = touch(root, at: $"src/d{i}.byn", as: text)
+        chars += text.length
+    }
+    var ws = workspace.Workspace.create()
+    let measured = Target.os != "windows"
+    let before = measured ? residentKb() : 0
+    ws.indexFolder(root)
+    let after = measured ? residentKb() : 0
+    assert(ws.charCount == chars)
+    for at in ws.slots() {
+        assert(ws.docs[at].tokens.length == 0 && ws.docs[at].diagnostics.length == 0)
+        for s in ws.docs[at].symbols {
+            assert(!s.isLocal)
+        }
+    }
+    assert(ws.symbolsNamed("S").length > 0)
+    if !measured {
+        todo("`sh` and `ps` read the resident set; Windows has neither")
+    }
+    print($"retained {(after - before) * 1024 / chars} bytes per char over {chars} chars ({before} KB to {after} KB)")
+    assert((after - before) * 1024 <= 12 * chars)
+}
+
+test "a replaced document leaves none of its symbols in the symbol index (the C# asserted it was collectable)" {
+    let root = fresh("replaced")
+    var files = List<string>()
+    for i in 0..4 {
+        files.append(touch(root, at: $"src/f{i}.byn", as: $"struct T{i} {{}}\n"))
+    }
+    var ws = workspace.Workspace.create()
+    ws.indexFolder(root)
+    assert(ws.globals().length == 4)
+    assert(ws.symbolsNamed("T0").length == 1)
+    for f in files {
+        Io.writeFile(f, "struct Changed {}\n".bytes) catch { panic($"cannot write {f}") }
+        let _ = ws.loadFromDisk(f)
+    }
+    for i in 0..4 {
+        assert(ws.symbolsNamed($"T{i}").length == 0)
+    }
+    assert(ws.symbolsNamed("Changed").length == 4)
+}
+
+test "nesting 100,000 deep (brackets, blocks, string interpolation) gives one nesting diagnostic each and does not overflow the stack" {
+    let n: i64 = 100000
+    let open = ["(", "{ let a = [", "$\"{"]
+    let close = [")", "]; }", "}\""]
+    for k in 0..3 {
+        let text = $"{k == 1 ? "void f() " : "f"}{open[k].repeated(n)}x{close[k].repeated(n)}"
+        let d = workspace.Document.create("file:///deep.byn", from: text.utf16.copy(), at: 1, as: true)
+        var nested = 0
+        for g in d.diagnostics {
+            if g.message.contains("nested deeper than 256") {
+                nested += 1
+            }
+        }
+        assert(nested == 1)
+    }
+}
+
+test "a 300,000-link member chain is typed with the receiver depth capped at 8 and does not overflow the stack" {
+    var ws = workspace.Workspace.create()
+    let at = ws.open("file:///chain.byn", from: "a.".repeated(300000).utf16.copy(), at: 1)
+    let doc = ws.docs[at].full()
+    var last = doc.tokens.length - 1
+    while last >= 0 && !doc.isTextAt(last, as: "a") {
+        last -= 1
+    }
+    assert(last >= 599998)
+    assert(ws.typeOfReceiver(doc, at: last) is null)
+}
+
+test "diagnostics are capped at 1,000 per file with one summary entry" {
+    let d = workspace.Document.create("file:///semi.byn", from: ";".repeated(262144).utf16.copy(), at: 1, as: true)
+    assert(d.diagnostics.length == 1001)
+    assert(d.diagnostics[1000].message == "261144 more problems not shown")
+}
+
+test "an open buffer over 4 MiB of UTF-8 (maxFileBytes) is too large to analyse; one at the limit is not" {
+    let ws = workspace.Workspace.create()
+    assert(!ws.tooLarge("x".repeated(4194304).utf16.copy().span))
+    assert(ws.tooLarge("x".repeated(4194305).utf16.copy().span))
+    // 1,398,102 three-byte characters are 4,194,306 bytes in fewer units than the limit.
+    assert(ws.tooLarge("一".repeated(1398102).utf16.copy().span))
+    assert(!ws.tooLarge("一".repeated(1398101).utf16.copy().span))
+}
+
+test "one file through a linked directory is one document, and the walk does not follow the link" {
+    if Target.os == "windows" {
+        todo("`ln -s` makes the link; Windows has none")
+    }
+    let root = fresh("symlink")
+    let _ = touch(root, at: "real/a.byn")
+    var args = List<string>()
+    for a in ["-s", Path.combine(root, "real"), Path.combine(root, "link")] {
+        args.append(a)
+    }
+    let _ = Io.run("ln", args.span) catch { panic("cannot run ln") }
+    var ws = workspace.Workspace.create()
+    ws.indexFolder(root)
+    assert(ws.slots().length == 1)
+    let _ = ws.open(uriOf(root, at: "link/a.byn"), from: "g() {}\n".utf16.copy(), at: 1)
+    assert(ws.slots().length == 1)
+    assert(ws.charCount == 7)
+}
+
+test "re-walking a folder does not spend the directory bound (maxDirs, 200,000 by default)" {
+    let root = fresh("rewalk")
+    let _ = touch(root, at: "a/f.byn")
+    let _ = touch(root, at: "a/s/f.byn")
+    var ws = workspace.Workspace.create()
+    ws.maxDirs = 3
+    ws.indexFolder(Path.combine(root, "a"))
+    for _ in 0..5 {
+        ws.loadFolder(Path.combine(root, "a"))
+    }
+    let _ = touch(root, at: "a/t/f.byn")
+    ws.loadFolder(Path.combine(root, "a/t"))
+    assert(ws.slots().length == 3)
+}
+
+test "a removed folder refunds its directories to the directory bound" {
+    let root = fresh("refund-dirs")
+    let _ = touch(root, at: "a/f.byn")
+    let _ = touch(root, at: "a/s/f.byn")
+    var ws = workspace.Workspace.create()
+    ws.maxDirs = 2
+    ws.indexFolder(Path.combine(root, "a"))
+    let _ = ws.removeFolder(uriOf(root, at: "a/s"))
+    let _ = touch(root, at: "a/t/f.byn")
+    ws.loadFolder(Path.combine(root, "a/t"))
+    assert(ws.slots().length == 2)
+}
+
+test "the folder walk stops at the directory bound, over every walk together" {
+    let root = fresh("dir-bound")
+    let _ = touch(root, at: "r.byn")
+    for i in 0..5 {
+        let _ = touch(root, at: $"d{i}/f.byn")
+    }
+    var ws = workspace.Workspace.create()
+    ws.maxDirs = 3
+    ws.indexFolder(root)
+    assert(ws.slots().length == 3)
+    ws.loadFolder(Path.combine(root, "d0"))
+    assert(ws.slots().length == 3)
+}
+
+/// `Content-Length` framing of `body`.
+List<u8> framed(string body) uses alloc {
+    var bytes = List<u8>()
+    for b in $"Content-Length: {body.length}\r\n\r\n".bytes {
+        bytes.append(b)
+    }
+    for b in body.bytes {
+        bytes.append(b)
+    }
+    return bytes
+}
+
+test "a message over the message limit (64 MiB by default) is skipped and a large one under it still parses" {
+    let text = "a".repeated(300000)
+    var input = List<u8>()
+    // The skipped message is valid JSON: read past the limit, it would be the first message.
+    let skipped = "{\"text\":\"skipped\"}"
+    for b in framed($"{skipped}{" ".repeated(500000 - skipped.length)}") {
+        input.append(b)
+    }
+    for b in framed($"{{\"text\":\"{text}\"}}") {
+        input.append(b)
+    }
+    var t = transport.Transport.reading(move input, at: 400000)
+    let doc = t.read() ?? panic("no message read")
+    let e = doc.get("text", at: doc.root) catch { panic("no text member") }
+    let s = doc.text(e) catch { panic("text is not a string") }
+    assert(s == text)
+    assert(t.read() is null)
+}
+
+test "a Content-Length of 60 MiB with a 2-byte body grows the resident set by under 1 MiB: the body is not allocated up front" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` read the resident set; Windows has neither")
+    }
+    var input = List<u8>()
+    for b in $"Content-Length: {60 << 20}\r\n\r\n{{}}".bytes {
+        input.append(b)
+    }
+    var t = transport.Transport.reading(move input, at: 64 << 20)
+    let before = residentKb()
+    assert(t.read() is null)
+    let after = residentKb()
+    print($"resident set {before} KB to {after} KB")
+    assert(after - before < 1024)
+}
+
+test "after a 2 MiB message the resident set falls back within 1 MiB and the transport keeps only its 64 KiB input chunk" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` read the resident set; Windows has neither")
+    }
+    let big = "x".repeated(2 << 20)
+    var input = framed($"{{\"big\":\"{big}\"}}")
+    for b in framed("{\"small\":\"y\"}") {
+        input.append(b)
+    }
+    var t = transport.Transport.reading(move input, at: 64 << 20)
+    let before = residentKb()
+    var count = 0
+    for _ in 0..3 {
+        let doc = t.read()
+        if doc is not null {
+            let keys = doc.keys(doc.root) catch { panic("not an object") }
+            count += keys.length
+        }
+    }
+    let after = residentKb()
+    print($"resident set {before} KB to {after} KB")
+    assert(count == 2)
+    assert(t.bufferBytes <= (64 << 10) + 256)
+    assert(after - before < 1024)
+}

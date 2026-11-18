@@ -474,6 +474,20 @@ public struct Workspace {
         keyCache: Map<string, string>(),
     }
 
+    /// The characters of text held, open buffers included.
+    public i64 charCount => chars
+
+    /// The slots that hold a document.
+    public List<i64> slots() uses alloc {
+        var used = List<i64>()
+        for at in 0..docs.length {
+            if (index.tryGet(at: slotKeys[at]) ?? -1) == at {
+                used.append(at)
+            }
+        }
+        return used
+    }
+
     /// True while the file or character budget is spent; further disk files are not indexed.
     public bool limitReached => index.length >= maxFiles || chars >= maxChars
 
