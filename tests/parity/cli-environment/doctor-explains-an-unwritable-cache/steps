@@ -1,0 +1,1 @@
+$ $BAYAN doctor > out.txt; echo "doctor $?"; grep -o "^✗ cache: .* isn't writable" out.txt; grep -F '  help: set BAYAN_CACHE' out.txt

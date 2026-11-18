@@ -1,0 +1,1 @@
+$ $BAYAN test main.byn > out.txt; echo "test $?"; grep -A1 ': loops$' out.txt; grep -o -e ' 0 passed · ' -e ' 1 failed · ' out.txt

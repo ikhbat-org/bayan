@@ -1030,3 +1030,43 @@ string t9HashFile(string path) uses alloc, fs fails IoError {
     let bytes = try Io.readFile(path)
     return Hex.encode(sha256(bytes.span).span)
 }
+
+/// `CacheTests.Root`: tmp/cache-tests/<name>, emptied and created.
+string t9TestRoot(string name) uses alloc, fs {
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "cache-tests"), name)
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    return dir
+}
+
+// CacheTests.ScriptKeysDependOnTheCompilerBuild.
+test "script-key: a script's key depends on the compiler build, the same build giving the same key" {
+    let script = "print(\"hi\")\n"
+    assert(scriptKey(script.bytes, by: "safe", for: "a") != scriptKey(script.bytes, by: "safe", for: "b"))
+    assert(scriptKey(script.bytes, by: "safe", for: "a") == scriptKey(script.bytes, by: "safe", for: "a"))
+    assert(compilerBuild() != "")
+}
+
+// CacheTests.ASingleWordOrZigCompilerKeepsItsStamp, the rows that name the compiler by its path: the rows that find `cc` and `zig`
+// on a `PATH` set to the test's directory are not ported, as a test block cannot set `PATH` (no `Env.set`).
+test "compiler-stamp: a single-word compiler's stamp is its path and write time in ticks, and a word naming no file has none" {
+    let root = t9TestRoot("stamp-words")
+    let cc = Path.combine(root, "cc")
+    Io.writeFile(cc, "".bytes) catch { panic($"cannot write {cc}") }
+    // `new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc)`: 1609459200 Unix seconds, 637450560000000000 ticks.
+    Fs.setModified(cc, to: Time.fromNanos(1609459200 * 1000000000)) catch { panic($"cannot stamp {cc}") }
+    assert(t9CompilerStamp(boundList([cc])) == $"{cc}:637450560000000000")
+    assert(t9CompilerStamp(boundList(["nosuch"])) == "")
+}
+
+// CacheTests.ReplaceFileRetriesWhileDestinationIsOpen, its non-Windows branch: the content is replaced.
+test "replace-file: replacing a file leaves the new content at its path" {
+    let root = t9TestRoot("replace-open")
+    let path = Path.combine(root, "target.txt")
+    let source = Path.combine(root, "source.txt")
+    Io.writeFile(path, "before".bytes) catch { panic($"cannot write {path}") }
+    Io.writeFile(source, "after".bytes) catch { panic($"cannot write {source}") }
+    var d = newDCtx()
+    replaceFile(path, from: source, through: ref d) catch { panic($"cannot replace {path}") }
+    assert((Io.readText(path) catch "") == "after")
+}

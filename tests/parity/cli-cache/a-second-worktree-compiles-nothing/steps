@@ -1,0 +1,3 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; cd tally && g() { git -c core.hooksPath=.no-hooks -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false "$@"; } && g init --quiet -b work && g add -A && g commit --quiet -m start && g worktree add --quiet -b second ../second && echo "worktree $?"
+$ $BAYAN build tally > /dev/null; echo "build $?"; $BAYAN test tally > /dev/null; echo "test $?"; ls cache/v1/programs | wc -l | tr -d ' '; $BAYAN cache stats > before.txt
+$ $BAYAN build second > /dev/null; echo "build $?"; $BAYAN test second > /dev/null; echo "test $?"; $BAYAN cache stats > after.txt; cmp -s before.txt after.txt && echo "stats unchanged"; ./second/out/safe/*/tally

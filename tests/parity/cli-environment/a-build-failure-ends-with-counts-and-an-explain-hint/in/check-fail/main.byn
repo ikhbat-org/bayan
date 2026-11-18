@@ -1,0 +1,8 @@
+void main() {
+    let x = 1
+    x = 2
+    x = 3
+    var a = 1
+    var b = 2
+    print($"{a} {b}")
+}

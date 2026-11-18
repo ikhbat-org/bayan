@@ -6,6 +6,7 @@
 import semantics
 import emitter
 import emitter.cprint
+import lexer
 import std.json
 
 /// `MutantStatus` (MutationRunner.cs), in its declaration order, which `Messages.MutateTotals` counts in.
@@ -790,4 +791,35 @@ string? t13Str(in List<json.JsonMember> members, for string key) uses alloc {
         default:
             return null
     }
+}
+
+/// ExternalModeTests.cs:203 `TheSiteMapReaderRoundTripsSitesJson`'s source.
+const t13RoundTripSource: string = "i64 inc(i64 n) {\n    var y = n\n    @unobservable because \"no test can see it\"\n    y += 0\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n"
+
+// ExternalModeTests.TheSiteMapReaderRoundTripsSitesJson.
+test "site-map: the reader reads back each site of a schemata build's sites JSON, its unobservable mark kept, and refuses version 2" {
+    var files = List<lexer.SourceText>()
+    var bytes = List<u8>()
+    for b in t13RoundTripSource.bytes {
+        bytes.append(b)
+    }
+    files.append(lexer.SourceText.create("lib.test.byn", from: move bytes))
+    let options = GoldenOptions { includeTests: true, library: true }
+    var c = semantics.create(from: move files, at: ".", by: options)
+    assert(!t5HasErrors(c))
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: none)
+    let read = externalSiteReadAll(emitter.sitesJson(schema))
+    assert(read is not null)
+    if (read is { } sites) {
+        assert(sites.length > 0)
+        assert(sites.length == schema.sites.length)
+        var marked = false
+        for i in 0..sites.length {
+            assert(sites[i] == externalSiteFrom(schema.sites[i]))
+            marked = marked || sites[i].unobservable == "no test can see it"
+        }
+        assert(marked)
+    }
+    assert(externalSiteReadAll("{ \"version\": 2, \"sites\": [] }") is null)
 }

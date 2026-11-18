@@ -1,0 +1,2 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; $BAYAN build tally > /dev/null; echo "build $?"; ls cache/v1/programs | wc -l | tr -d ' '
+$ e=$(ls -d cache/v1/programs/*); f=$(ls $e | grep -v '\.sha256$'); printf '\001\002\003' > $e/$f; $BAYAN build tally > /dev/null; echo "build $?"; ./tally/out/safe/*/tally; ls cache/v1/programs | wc -l | tr -d ' '

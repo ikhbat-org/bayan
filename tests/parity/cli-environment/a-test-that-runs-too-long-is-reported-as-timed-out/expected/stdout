@@ -1,0 +1,6 @@
+== 1 exit 0
+test 3
+  ✗ work: loops
+      timed out after 0 s
+ 0 passed · 
+ 1 failed · 

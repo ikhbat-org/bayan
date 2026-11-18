@@ -1,0 +1,3 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; mkdir -p tally/src/money && cp money.byn tally/src/money/money.byn && cp main.byn tally/src/app/main.byn && cd tally && g() { git -c core.hooksPath=.no-hooks -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false "$@"; } && g init --quiet -b work && g add -A && g commit --quiet -m start && echo "repo $?"
+$ r() { grep -E '^  (\*|◆) [^:]+: ' | grep -v ' (pending)$' | sed -E 's/^  (\*|◆) [^:]+: //' | LC_ALL=C sort; }; printf '\n' >> tally/src/money/money.byn; $BAYAN test -v tally --changed --only cents --only main | r
+$ $BAYAN test tally --changed --only main > o.txt; echo "test $?"; head -1 o.txt | cut -c1-28

@@ -1,0 +1,29 @@
+== 1 exit 0
+new 0
+repo 0
+== 2 exit 0
+test 0
+cents
+greets the world
+in main
+== 3 exit 0
+test 0
+running 0 tests in 0 modules (3 in unchanged modules skipped)
+== 4 exit 0
+cents
+== 5 exit 0
+cents
+extra
+greets the world
+in main
+== 6 exit 0
+running 0 tests
+== 7 exit 0
+cents
+extra
+greets the world
+in main
+== 8 exit 0
+4
+== 9 exit 0
+1
