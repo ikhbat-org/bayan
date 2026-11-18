@@ -19,11 +19,11 @@ public enum SymbolKind {
     constant
     local
     param
-    test
+    testCase
 }
 
 /// A declaration. Locals and parameters also carry a scope; the C# `LocalSymbol` fields live here with their defaults.
-public struct Symbol {
+public struct IndexedSymbol {
     public string     name
     public SymbolKind kind
     /// Enclosing type name for members.
@@ -75,7 +75,7 @@ struct Frame {
 public struct Indexer {
     public List<u16>         text
     public List<lexer.Token> tokens
-    public List<Symbol>      symbols
+    public List<IndexedSymbol>      symbols
     public List<i64>         roots
     List<Frame>              frames
     /// `{` past `maxNesting` open frames, not pushed.
@@ -92,7 +92,7 @@ public struct Indexer {
         var ix = Indexer {
             text: move text,
             tokens: move tokens,
-            symbols: List<Symbol>(),
+            symbols: List<IndexedSymbol>(),
             roots: List<i64>(),
             frames: List<Frame>(),
             docLines: List<string>(),
@@ -307,19 +307,10 @@ public struct Indexer {
         return decode(trimmed(text.span[i64(line[from].start)..i64(end)]))
     }
 
-    i64 add(
-        ref this,
-        SymbolKind kind,
-        for lexer.Token name,
-        at ReadOnlySpan<lexer.Token> line,
-        from i64 from,
-        as string? typeName = null,
-        by string? container = null,
-        until bool docs = true,
-    ) uses alloc {
+    i64 add(ref this, SymbolKind kind, for lexer.Token name, at ReadOnlySpan<lexer.Token> line, from i64 from, as string? typeName = null, by string? container = null, until bool docs = true) uses alloc {
         let parentType = enclosingType()
         let local = kind is .local or .param
-        var sym = Symbol { name: str(name), kind: kind, detail: header(line, from: from) }
+        var sym = IndexedSymbol { name: str(name), kind: kind, detail: header(line, from: from) }
         sym.nameStart = name.start
         sym.declStart = line[from].start
         sym.declEnd = line[line.length - 1].end
@@ -333,7 +324,7 @@ public struct Indexer {
         }
         let at = symbols.length
         if !local {
-            if parentType >= 0 && !(kind is .test) {
+            if parentType >= 0 && !(kind is .testCase) {
                 sym.parent = parentType
             } else {
                 roots.append(at)
@@ -404,7 +395,7 @@ public struct Indexer {
         if equalsAscii(w, to: "test") || equalsAscii(w, to: "bench") {
             if k + 1 < line.length && line[k + 1].kind is .text {
                 let tn = line[k + 1]
-                let t = add(.test, for: tn, at: line, from: k)
+                let t = add(.testCase, for: tn, at: line, from: k)
                 let len = tn.length - 2 > 0 ? i64(tn.length) - 2 : 0
                 symbols[t].name = decode(text.span[i64(tn.start) + 1..i64(tn.start) + 1 + len])
                 opener = t
@@ -580,7 +571,7 @@ public struct Indexer {
         var e = end
         if e < 0 {
             e = a
-            while e < line.length && !(stopAt is not null && isWord(line[e], as: stopAt ?? "")) && !isWord(line[e], as: "{") {
+            while e < line.length && !(stopAt is not null && isWord(line[e], as: stopAt)) && !isWord(line[e], as: "{") {
                 e += 1
             }
         }
@@ -625,7 +616,7 @@ public ReadOnlySpan<u16> trimmed(ReadOnlySpan<u16> s) {
 
 /// The UTF-16 code units `s` as a string; a surrogate without its pair becomes U+FFFD (a Bayan string is UTF-8).
 public string decode(ReadOnlySpan<u16> s) uses alloc {
-    var b = StrBuf(capacity: s.length)
+    var b = StrBuf()
     var i: i64 = 0
     while i < s.length {
         let c = u32(s[i])

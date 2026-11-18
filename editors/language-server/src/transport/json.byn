@@ -203,7 +203,7 @@ public struct JsonDocument {
     }
 
     /// `GetInt32`: a number written as an optional `-` and digits that fits in an `int`; a fraction or exponent throws.
-    public i32 int32(JsonElement e) fails JsonUseError {
+    public i32 int32(JsonElement e) uses alloc fails JsonUseError {
         try expect(e, as: .number)
         let node = nodes[e.index]
         var i = node.start

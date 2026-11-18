@@ -21,7 +21,7 @@ public struct Document {
     public bool                     isOpen      = false
     public List<i32>                lineStarts
     public List<lexer.Token>        tokens
-    public List<indexer.Symbol>     symbols
+    public List<indexer.IndexedSymbol>     symbols
     public List<i64>                roots
     public List<Diagnostic>         diagnostics
 
@@ -32,7 +32,7 @@ public struct Document {
             isOpen: open,
             lineStarts: List<i32>(),
             tokens: List<lexer.Token>(),
-            symbols: List<indexer.Symbol>(),
+            symbols: List<indexer.IndexedSymbol>(),
             roots: List<i64>(),
             diagnostics: List<Diagnostic>(),
         }
@@ -61,10 +61,16 @@ public struct Document {
         let a = offset(startLine, at: startChar)
         let b = offset(endLine, at: endChar)
         let before = text.length
-        var t = List<u16>(capacity: a + newText.length + text.length - b)
-        t.append(contentsOf: text.span[0..a])
-        t.append(contentsOf: newText)
-        t.append(contentsOf: text.span[b..text.length])
+        var t = List<u16>()
+        for i in 0..a {
+            t.append(text[i])
+        }
+        for c in newText {
+            t.append(c)
+        }
+        for i in b..text.length {
+            t.append(text[i])
+        }
         text = move t
         computeLines()
         return text.length - before
@@ -77,7 +83,7 @@ public struct Document {
         tokens = ix.tokens.take()
         symbols = ix.symbols.take()
         roots = ix.roots.take()
-        var diags = List<Diagnostic>(capacity: lx.problems.length + 1)
+        var diags = List<Diagnostic>()
         for p in lx.problems {
             diags.append(Diagnostic { start: p.start, length: p.length, message: p.message, code: p.code, severity: p.code == "BYN1047" ? 2 : 1 })
         }
@@ -95,7 +101,7 @@ public struct Document {
         tokens.clear()
         diagnostics.clear()
         roots.clear()
-        var kept = List<indexer.Symbol>()
+        var kept = List<indexer.IndexedSymbol>()
         for s in symbols {
             continue if s.isLocal
             var k = s
@@ -178,7 +184,7 @@ public ParsedUri parseUri(string uri) uses alloc {
     let b = uri.bytes
     return ParsedUri { kind: .file, localPath: uri } if b.length > 0 && b[0] == '/'
     var i: i64 = 0
-    while i < b.length && isSchemeByte(b[i], first: i == 0) {
+    while i < b.length && isSchemeByte(b[i], as: i == 0) {
         i += 1
     }
     return ParsedUri { kind: .invalid } if i == 0 || i >= b.length || b[i] != ':'
@@ -197,7 +203,7 @@ public ParsedUri parseUri(string uri) uses alloc {
     return ParsedUri { kind: .file, localPath: path }
 }
 
-bool isSchemeByte(u8 c, first bool first) {
+bool isSchemeByte(u8 c, as bool first) {
     let letter = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
     return letter if first
     return letter || (c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.'
@@ -210,11 +216,11 @@ u8 hexValue(u8 b) => b <= '9' ? b - '0' : (b | 0x20) - 'a' + 10
 /// `s` with each run of `%XX` escapes that is UTF-8 replaced by its text; a run that is not stays as written.
 string unescaped(string s) uses alloc {
     let b = s.bytes
-    var out = List<u8>()
+    var result = List<u8>()
     var i: i64 = 0
     while i < b.length {
         if !(b[i] == '%' && i + 2 < b.length && isHexByte(b[i + 1]) && isHexByte(b[i + 2])) {
-            out.append(b[i])
+            result.append(b[i])
             i += 1
             continue
         }
@@ -225,12 +231,16 @@ string unescaped(string s) uses alloc {
             i += 3
         }
         if Utf8.tryDecode(run.span) is not null {
-            out.append(contentsOf: run.span)
+            for c in run {
+                result.append(c)
+            }
         } else {
-            out.append(contentsOf: b[start..i])
+            for k in start..i {
+                result.append(b[k])
+            }
         }
     }
-    return Utf8.decode(out.span, invalid: .replace)
+    return Utf8.decode(result.span, invalid: .replace)
 }
 
 /// `new Uri(path).AbsoluteUri` for a full path: `file://` and the path with the characters `Uri` escapes as `%XX` of their UTF-8.
@@ -278,13 +288,13 @@ i64 utf8Length(ReadOnlySpan<u16> s) {
 List<u16> decodeFile(ReadOnlySpan<u8> b) uses alloc {
     if b.length >= 2 && ((b[0] == 0xFE && b[1] == 0xFF) || (b[0] == 0xFF && b[1] == 0xFE)) {
         let big = b[0] == 0xFE
-        var units = List<u16>(capacity: b.length / 2)
+        var units = List<u16>()
         var i: i64 = 2
         while i + 1 < b.length {
             units.append(big ? u16(b[i]) << 8 | u16(b[i + 1]) : u16(b[i + 1]) << 8 | u16(b[i]))
             i += 2
         }
-        var t = List<u16>(capacity: units.length + 1)
+        var t = List<u16>()
         var k: i64 = 0
         while k < units.length {
             let c = units[k]
@@ -384,7 +394,7 @@ public struct Workspace {
     string folded(string p) uses alloc => caseless ? p.uppercased() : p
 
     /// Normalises a URI so spellings of one file hit the same document; symbolic links among the directories are resolved.
-    public string key(string uri) uses alloc, fs {
+    public string key(ref this, string uri) uses alloc, fs {
         let cached = keyCache.tryGet(at: uri)
         return cached if cached is not null
         let u = parseUri(uri)
@@ -402,7 +412,7 @@ public struct Workspace {
     }
 
     /// `IsExcluded`: `fullPath` lies outside every indexed root, or under a skipped directory of one.
-    bool isExcluded(string fullPath) uses alloc, fs {
+    bool isExcluded(ref this, string fullPath) uses alloc, fs {
         let full = Path.fullPath(fullPath)
         let dir = Path.directoryName(full)
         return isExcludedKey(dir is null ? full : Path.combine(realPath(dir ?? ""), Path.fileName(full)))
@@ -417,7 +427,8 @@ public struct Workspace {
             continue if path.bytes[root.length] != '/' && !root.endsWith("/")
             let rest = path[root.length..path.length]
             let slash = rest.lastPosition("/")
-            var dirs = slash is null ? "" : rest[0..slash ?? 0]
+            let cut = slash ?? 0
+            var dirs = slash is null ? "" : rest[0..cut]
             while dirs.startsWith("/") {
                 dirs = dirs[1..dirs.length]
             }
@@ -437,7 +448,7 @@ public struct Workspace {
         return true
     }
 
-    bool overBudget(ref this, i64 addChars, as bool newFile) uses console {
+    bool overBudget(ref this, i64 addChars, as bool newFile) uses alloc, console {
         return false if (!newFile || index.length < maxFiles) && chars + addChars <= maxChars
         if !limitLogged {
             limitLogged = true
@@ -449,15 +460,15 @@ public struct Workspace {
     }
 
     /// The slot of the document for `uri`, or -1.
-    public i64 find(string uri) uses alloc, fs => slotOf(key(uri))
+    public i64 find(ref this, string uri) uses alloc, fs => slotOf(key(uri))
 
     i64 slotOf(string key) uses alloc => index.tryGet(at: folded(key)) ?? -1
 
-    i64 add(ref this, string key, move Document d) uses alloc {
+    i64 add(ref this, string key, from move Document d) uses alloc {
         let fk = folded(key)
         let old = index.tryGet(at: fk)
         if old is not null {
-            let at = old ?? 0
+            let at = old
             chars -= docs[at].text.length
             chars += d.text.length
             docs[at] = move d
@@ -509,11 +520,11 @@ public struct Workspace {
             docs[at].set(version)
             return at
         }
-        return add(k, Document.create(uri, from: move text, at: version, as: true))
+        return add(k, from: Document.create(uri, from: move text, at: version, as: true))
     }
 
     /// A full-sync change to the document at `at`, not analysed.
-    public void replace(ref this, at i64 at, move List<u16> text) uses alloc {
+    public void replace(ref this, move List<u16> text, at i64 at) uses alloc {
         chars += docs[at].replace(move text)
     }
 
@@ -567,7 +578,7 @@ public struct Workspace {
             }
             return true
         }
-        let _ = add(k, Document.create(uri, from: move text, at: 0, as: false))
+        let _ = add(k, from: Document.create(uri, from: move text, at: 0, as: false))
         return false
     }
 
@@ -678,7 +689,7 @@ public struct Workspace {
 }
 
 /// `Directory.Exists`.
-bool dirExists(string path) uses alloc, fs {
+public bool dirExists(string path) uses alloc, fs {
     let _ = Io.listDir(path) catch { return false }
     return true
 }

@@ -1,0 +1,18 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@/root","capabilities":{}}}
+{"jsonrpc":"2.0","id":2,"method":"bayan/barrier","params":null}
+{"fs":"write","path":"root/src/new.byn","text":"struct New {}\n"}
+{"fs":"write","path":"root/src/with space é.byn","text":"struct Space {}\n"}
+{"fs":"write","path":"root/tmp/n.byn","text":"struct Tmp {}\n"}
+{"fs":"write","path":"root/src/sub/deep/n.byn","text":"struct Deep {}\n"}
+{"fs":"write","path":"root/src/sub/obj/o.byn","text":"struct Obj {}\n"}
+{"fs":"write","path":"root/build/b.byn","text":"struct Build {}\n"}
+{"fs":"write","path":"outside/p.byn","text":"struct Outside {}\n"}
+{"fs":"symlink","path":"root/src/link.byn","target":"outside/o.byn"}
+{"fs":"symlink","path":"root/src/linkdir","target":"outside"}
+{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file://@WS@/root/src/new.byn","type":1},{"uri":"file://@WS@/root/src/with%20space%20%C3%A9.byn","type":1},{"uri":"file://@WS@/root/tmp/n.byn","type":1},{"uri":"file://@WS@/root/src/sub","type":1},{"uri":"file://@WS@/root/build/b.byn","type":1},{"uri":"file://@WS@/outside/p.byn","type":1},{"uri":"file://@WS@/root/src/link.byn","type":1},{"uri":"file://@WS@/root/src/linkdir","type":1},{"uri":"file://@WS@/root/src/a.byn","type":2}]}}
+{"jsonrpc":"2.0","id":3,"method":"bayan/barrier","params":null}
+{"fs":"write","path":"root/src/a.byn","text":"struct Changed {}\n"}
+{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file://@WS@/root/src/a.byn","type":2}]}}
+{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file://@WS@/root/src/new.byn","type":3},{"uri":"file://@WS@/root/src/with space é.byn","type":3},{"uri":"file://@WS@/root/tmp/n.byn","type":3},{"uri":"file://@WS@/root/src/sub/deep/n.byn","type":3},{"uri":"file://@WS@/root/src/sub/obj/o.byn","type":3},{"uri":"file://@WS@/root/build/b.byn","type":3},{"uri":"file://@WS@/outside/p.byn","type":3},{"uri":"file://@WS@/root/src/link.byn","type":3},{"uri":"file://@WS@/root/src/linkdir/o.byn","type":3},{"uri":"file://@WS@/root/node_modules/m.byn","type":3},{"uri":"file://@WS@/root/.hidden/h.byn","type":3},{"uri":"file://@WS@/root/src/old","type":3},{"uri":"file://@WS@/root/src/h%23x.byn","type":3},{"uri":"file://@WS@/root/src/a.byn","type":3},{"uri":"file://@WS@/root/src/a.byn","type":3}]}}
+{"jsonrpc":"2.0","id":4,"method":"shutdown","params":null}
+{"jsonrpc":"2.0","method":"exit","params":null}
