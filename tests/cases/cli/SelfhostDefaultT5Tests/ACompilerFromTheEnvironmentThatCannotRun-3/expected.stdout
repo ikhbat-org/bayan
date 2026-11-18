@@ -1,4 +1,4 @@
-[32m◆[0m bayan       0.3.2 (commit 9cf2f130da53)
+[32m◆[0m bayan       <version>
 [32m◆[0m host        <host>
 [31m✗ C compiler: BAYAN_CC is `<repo>/tmp/t5-doctor/broken-env/missing`, which can't be run[0m
 [34m  help: point BAYAN_CC at a C compiler, or unset it to use zig[0m

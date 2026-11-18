@@ -9,7 +9,7 @@
 // for its directory), else at the scratch root; several entries each at the named path of its name. The driver `$BAYAN_EXE` runs in the case's
 // `cwd` (else the scratch root), with `goldenEnv` and the case's `env` (`NAME=value`, or a bare `NAME` unset); the scratch directory reads back
 // as `<repo>` in what it prints, and the case's `compare` word picks what is compared and how it is masked, each as its C# call site does.
-// `links`, `modes`, `probe`, `env.git` and `expected.tree`, `expected.inputs` and `expected.names` are not read here.
+// `links`, `modes` and `env.git` are read for the SelfhostDefault classes only (see `goldenCliStage`, `goldenCli`); `probe` and `expected.tree`, `expected.inputs` and `expected.names` are not read here.
 //
 // The other exported kinds (`emit-c`, `sem`, and `lex` and `parse` class directories) ran per-class harness programs the cases do not name
 // (T17b2a); each class directory is one skipped result, "unsupported kind", until T17b2b.
@@ -254,11 +254,17 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
     var cwd = scratch
     var exec = List<string>()
     let named = goldenCliNamed(dir, for: scratch)
+    let cls = Path.fileName(Path.directoryName(dir) ?? "")
+    // SelfhostDriverTests.cs:66-120 `StageInputs` (the SelfhostDefault classes): its single input's place, where `links` and `modes` lines
+    // start (their first path segment is that input's name)
+    let own = cls.startsWith("SelfhostDefault")
+    var home = scratch
     // the name the C# wrote the input as (`input.name`): the named path of that file name, else below the scratch directory
     let original = goldenCliLines(Path.combine(dir, "input.name"))
     let listed = Io.listDir(dir) catch List<string>()
     for name in listed {
-        continue if !(name.startsWith("input.")
+        // a plain `input` is the one file `StageInputs` copied (SelfhostExport.cs:91 `WriteInput`), its name in `input.name`
+        continue if !((name.startsWith("input.") || own && name == "input")
             && name != "input.tsv"
             && name != "input.name"
             && Fs.fileExists(Path.combine(dir, name)))
@@ -288,6 +294,12 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
         Io.createDirectory(Path.directoryName(to) ?? scratch) catch {}
         Io.writeFile(to, bytes.span) catch {
             failure = $"cannot write {to}"
+        }
+        if name == "input" {
+            home = to
+            if goldenCliExecutable(Path.combine(dir, name)) {
+                exec.append(to)
+            }
         }
     }
     let tsv = Path.combine(dir, "input.tsv")
@@ -319,6 +331,15 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
                     break
                 }
             }
+            if cls == "SelfhostDefaultT5Tests" && given.length == 0 && named.length > 0 {
+                // SelfhostDefaultT5Tests.cs `Same`: the inputs are the env values that are paths, so a single tree is the first one's
+                // (a PATH, a cache, a HOME), created even when empty
+                whole = named[0]
+                Io.createDirectory(whole) catch {
+                    failure = $"cannot create {whole}"
+                }
+            }
+            home = whole
         }
         for k in 0..entries.length {
             continue if placed[k]
@@ -355,7 +376,299 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
             return cwd
         }
     }
+    if own && failure == "" {
+        // `links` lines `<rel> -> <target>`: a target below the input's original place (`<repo>/…/<name>/…`) is read below `home`
+        for line in goldenCliLines(Path.combine(dir, "links")) {
+            let arrow = goldenOffset(line, for: " -> ")
+            continue if arrow < 0
+            let rel = line[0..arrow]
+            var target = line[arrow + 4..line.length]
+            let first = goldenOffset(rel, for: "/")
+            let inner = first < 0 ? -1 : goldenOffset(target, for: $"/{rel[0..first]}/")
+            if target.startsWith("<repo>/") && inner >= 0 {
+                target = Path.combine(home, target[inner + first + 2..target.length])
+            }
+            let path = goldenCliAt(rel, at: home)
+            Io.createDirectory(Path.directoryName(path) ?? home) catch {}
+            failure = goldenCliRun(["ln", "-s", target, path])
+            return cwd if failure != ""
+        }
+        // `modes` lines `<rel> <UnixFileMode names>` (SelfhostDriverTests.cs:80), applied last: a locked directory takes no entries
+        for line in goldenCliLines(Path.combine(dir, "modes")) {
+            let space = goldenOffset(line, for: " ")
+            continue if space < 0
+            let path = goldenCliAt(line[0..space], at: home)
+            failure = goldenCliRun(["chmod", goldenCliMode(line[space + 1..line.length]), path])
+            return cwd if failure != ""
+        }
+    }
     return cwd
+}
+
+/// The path of a `links` or `modes` line's `rel` (its first segment the input's name) for the input placed at `home`.
+string goldenCliAt(string rel, at string home) uses alloc {
+    let first = goldenOffset(rel, for: "/")
+    return first < 0 ? home : Path.combine(home, rel[first + 1..rel.length])
+}
+
+/// The octal `chmod` mode of .NET `UnixFileMode` names as `ToString` writes them (`UserExecute, UserRead`, `None`).
+string goldenCliMode(string names) uses alloc {
+    let bits = [
+        "UserRead", "UserWrite", "UserExecute", "GroupRead", "GroupWrite", "GroupExecute", "OtherRead", "OtherWrite",
+        "OtherExecute",
+    ]
+    let values = [256, 128, 64, 32, 16, 8, 4, 2, 1]
+    var mode = 0
+    for part in names.parts(by: ", ") {
+        for k in 0..bits.length {
+            if part == bits[k] {
+                mode += values[k]
+            }
+        }
+    }
+    return $"{mode / 64}{mode / 8 % 8}{mode % 8}"
+}
+
+/// The command `argv` (its first word the program), its stderr when it fails or cannot start, else "".
+string goldenCliRun(ReadOnlySpan<string> argv) uses alloc, process {
+    var args = List<string>()
+    for k in 1..argv.length {
+        args.append(argv[k])
+    }
+    let r = Io.run(argv[0], args.span) catch return $"cannot run {argv[0]}"
+    return r.exitCode == 0 ? "" : $"{argv[0]} failed: {r.stderr}"
+}
+
+/// SelfhostDefaultT4Tests.cs:78-81 `Export`: when the env of case `dir` names `<bin>`, the PATH directory the C# made, `bin` is created
+/// fresh, holding `env.git` as an executable `git` when the case has one. What failed, else "".
+string goldenCliBin(string dir, at string bin) uses alloc, fs, process {
+    return "" if goldenOffset(Io.readText(Path.combine(dir, "env")) catch "", for: "<bin>") < 0
+    return $"cannot create {bin}" unless goldenFresh(bin)
+    let text = Path.combine(dir, "env.git")
+    return "" unless Fs.fileExists(text)
+    let git = Path.combine(bin, "git")
+    let bytes = Io.readFile(text) catch List<u8>()
+    Io.writeFile(git, bytes.span) catch return $"cannot write {git}"
+    return goldenCliRun(["chmod", "+x", git])
+}
+
+/// Whether the file at `path` has an execute bit (`test -x`; there is no file-mode builtin).
+bool goldenCliExecutable(string path) uses alloc, process {
+    return goldenCliRun(["test", "-x", path]) == ""
+}
+
+/// SelfhostDefaultT9Tests.cs:870-925 `Same`: case `<test>-<name>[-n]` is step n of the steps whose first is `<test>-<name>`; the steps
+/// before it, oldest first, when that first case is beside it.
+List<string> goldenCliT9Steps(string dir) uses alloc, fs {
+    var steps = List<string>()
+    let name = Path.fileName(dir)
+    let parent = Path.directoryName(dir) ?? ""
+    var dash = -1
+    for i in 0..name.length {
+        if name[i..i + 1] == "-" {
+            dash = i
+        }
+    }
+    return steps if dash < 0
+    let n = i64.tryParse(name[dash + 1..name.length]) ?? 0
+    return steps if n < 2
+    let first = name[0..dash]
+    return steps unless t6DirectoryExists(Path.combine(parent, first))
+    steps.append(Path.combine(parent, first))
+    for k in 2..n {
+        steps.append(Path.combine(parent, $"{first}-{k}"))
+    }
+    return steps
+}
+
+/// An env value of SelfhostDefaultT9Tests' export: `$PATH` the inherited one (:909), a `tmp/t9-cache/` path (the repo root dropped, :909) below
+/// `repo`.
+string goldenCliT9Value(string value, at string repo) uses alloc, env {
+    return value.replaced("tmp/t9-cache/", by: $"{repo}/tmp/t9-cache/").replaced("$PATH", by: Env.get("PATH") ?? "")
+}
+
+/// SelfhostDefaultT9Tests.cs:834-842 `Bayan`'s env for the step case `dir` run in `cwd`: the cache below it, BAYAN_CC unset, then the case's `env`.
+Map<string, string?> goldenCliT9Env(string dir, for string scratch, at string cwd) uses alloc, env, fs {
+    var env = goldenEnv()
+    for name in ["NO_COLOR", "FORCE_COLOR", "COLORTERM", "BAYAN_THEME", "COLORFGBG"] {
+        env[name] = null
+    }
+    env["GIT_CEILING_DIRECTORIES"] = Path.directoryName(scratch) ?? scratch
+    env["BAYAN_CACHE"] = Path.combine(cwd, "cache")
+    env["BAYAN_CC"] = null
+    for line in goldenCliLines(Path.combine(dir, "env")) {
+        let at = goldenOffset(line, for: "=")
+        if at < 0 {
+            env[line] = null
+        } else {
+            env[line[0..at]] = goldenCliT9Value(
+                goldenCliPut(line[at + 1..line.length], for: scratch),
+                at: $"{scratch}-repo",
+            )
+        }
+    }
+    return env
+}
+
+/// SelfhostDefaultT9Tests.cs:1121-1136 `LoggingZig`: a `zig` in `bin` that appends its argv to `$CCLOG` and runs the zig on this PATH, its
+/// `zig version` `tag` when one is given. What failed, else "".
+string goldenCliT9Zig(string bin, as string tag) uses alloc, fs, process {
+    let found = Io.run("sh", ["-c", "command -v zig"]) catch return "cannot run sh"
+    return "no zig on PATH for the logging zig" if found.exitCode != 0
+    let real = found.stdout.trimmed()
+    let version = tag == "" ? "" : $"if [ \"$1\" = version ]; then echo '{tag}'; exit 0; fi\n"
+    let zig = Path.combine(bin, "zig")
+    let text = $"#!/bin/sh\nif [ -n \"$CCLOG\" ]; then printf '%s\\n' \"$*\" >> \"$CCLOG\"; fi\n{version}exec '{real}' \"$@\"\n"
+    Io.writeFile(zig, text.bytes) catch return $"cannot write {zig}"
+    return goldenCliRun(["chmod", "755", zig])
+}
+
+/// SelfhostDefaultT9Tests.cs:1010-1019 `AnOddCCompiler`: the `cc` of `shape` in `bin`. What failed, else "".
+string goldenCliT9Cc(string bin, as string shape) uses alloc, fs, process {
+    let parse = "#!/bin/sh\nout=\nwhile [ $# -gt 0 ]; do\n  if [ \"$1\" = -o ]; then out=$2; fi\n  shift\ndone\nprintf x > \"$out\"\ncase $out in */*) dir=${out%/*};; *) dir=.;; esac\n"
+    var text = parse
+    if shape == "notexecutable" {
+        text = ""
+    } else if shape == "noexe" {
+        text = "#!/bin/sh\nexit 0\n"
+    } else if shape == "subdir" {
+        text = $"{parse}/bin/mkdir \"$dir/sub\"\n"
+    } else {
+        text = $"{parse}if [ -f \"$dir/../../racedir\" ]; then /bin/mkdir \"$(/bin/cat \"$dir/../../racedir\")\"; fi\n"
+    }
+    let cc = Path.combine(bin, "cc")
+    Io.writeFile(cc, text.bytes) catch return $"cannot write {cc}"
+    return goldenCliRun(["chmod", (shape == "notexecutable" ? "600" : "700"), cc])
+}
+
+/// The PATH directories below `repo/tmp/t9-cache/` the env of case `dir` names, made fresh once per case: `cc-bin-<shape>` an odd `cc`,
+/// another a logging `zig`. What failed, else "".
+string goldenCliT9Bins(string dir, at string repo) uses alloc, env, fs, process {
+    return $"cannot create {repo}" unless goldenFresh(repo)
+    for line in goldenCliLines(Path.combine(dir, "env")) {
+        continue unless line.startsWith("PATH=")
+        for part in goldenCliT9Value(line[5..line.length], at: repo).parts(by: ":") {
+            continue unless part.startsWith($"{repo}/tmp/t9-cache/")
+            Io.createDirectory(part) catch return $"cannot create {part}"
+            let name = Path.fileName(part)
+            let failure = name.startsWith(
+                "cc-bin-",
+            ) ? goldenCliT9Cc(part, as: name[7..name.length]) : goldenCliT9Zig(part, as: "")
+            return failure if failure != ""
+        }
+    }
+    return ""
+}
+
+/// The one directory below `root`'s `cache/v1/programs` or `cache/v1/runtime` (`kind`), "" when there is not exactly one.
+string goldenCliT9Entry(string root, for string kind) uses alloc, fs {
+    let base = Path.combine(Path.combine(Path.combine(root, "cache"), "v1"), kind)
+    let dirs = goldenCliDirs(base)
+    return dirs.length == 1 ? Path.combine(base, dirs[0]) : ""
+}
+
+/// The seed (`step` 0) and `Before` action of step `step` of SelfhostDefaultT9Tests' test `method` (`name` its `Same` name), on the tree `root`
+/// with its PATH directories below `repo`, as :931-1294 write them; what only the C# side asserts on (the pointer rewritten at
+/// script-oldpointer steps 2-3) is left out. What failed, else "".
+string goldenCliT9Before(string method, as string name, at i64 step, to string root, from string repo)
+        uses alloc, env, fs, process {
+    let v1 = Path.combine(Path.combine(root, "cache"), "v1")
+    let bin = Path.combine(Path.combine(Path.combine(repo, "tmp"), "t9-cache"), $"{name}-bin")
+    let zig = Path.combine(bin, "zig")
+    var three = List<u8>()
+    three.append(1)
+    three.append(2)
+    three.append(3)
+    let programs = goldenCliT9Entry(root, for: "programs")
+    let runtime = goldenCliT9Entry(root, for: "runtime")
+    if method == "ASecondBuildLinksFromTheCache" && step == 4 {
+        return "no single programs entry" if programs == ""
+        let program = Path.combine(programs, "program")
+        Io.writeFile(program, three.span) catch return $"cannot write {program}"
+    } else if method == "ABuildThatCannotPublishFails" && step == 0 {
+        Io.createDirectory(v1) catch return $"cannot create {v1}"
+        let made = Path.combine(v1, "programs")
+        if name == "publish-programsfile" {
+            Io.writeFile(made, List<u8>().span) catch return $"cannot write {made}"
+        } else if name == "publish-programsreadonly" {
+            Io.createDirectory(made) catch return $"cannot create {made}"
+            return goldenCliRun(["chmod", "555", made])
+        }
+    } else if method == "ABuildThatCannotPublishFails" && step == 2 {
+        return "no single programs entry" if programs == ""
+        deleteWorkDir(programs)
+        Io.writeFile(programs, List<u8>().span) catch return $"cannot write {programs}"
+    } else if method == "AnOddCCompiler" && step == 2 {
+        return "no single programs entry" if programs == ""
+        deleteWorkDir(programs)
+        Io.writeFile(Path.combine(v1, "racedir"), programs.bytes) catch return "cannot write racedir"
+    } else if method == "ABuildTagsTheCache" && step >= 2 {
+        Io.remove(Path.combine(v1, "CACHEDIR.TAG")) catch {}
+    } else if method == "AnUnwritableCache" && step == 0 {
+        Io.writeFile(Path.combine(root, "cache"), List<u8>().span) catch return "cannot write cache"
+    } else if method == "ADamagedRuntimeObjectIsRebuiltAsToolchain" && step == 2 {
+        return "no single runtime entry" if runtime == ""
+        let obj = Path.combine(runtime, "bayan-rt.o")
+        Io.writeFile(obj, three.span) catch return $"cannot write {obj}"
+    } else if method == "ADifferentCompilerIdentityMissesTheKeysAsToolchain" && step % 2 == 1 {
+        let failure = goldenCliT9Zig(bin, as: step == 1 ? "1" : "2")
+        return failure if failure != ""
+        return goldenCliRun(["touch", "-m", "-t", "202001010000", zig])
+    } else if (method == "ACompilerWithANewWriteTimeMissesTheKeysAsToolchain"
+            || method == "ARememberedScriptMissesAfterTheCompilerChangesAsToolchain") && step % 2 == 1 {
+        return goldenCliRun(["touch", "-m", "-t", (step == 1 ? "202001010000" : "202101010000"), zig])
+    } else if method == "AnOldFormatPointerMissesOnceAndIsRewrittenAsToolchain" && step == 1 {
+        return goldenCliRun(["touch", "-m", "-t", "202001010000", zig])
+    }
+    return ""
+}
+
+/// SelfhostDefaultT9Tests.cs:870-925 `Same` up to step case `dir`, run by `exe` in `scratch`: the PATH directories made, the seed, then each
+/// earlier step's tree staged over the last, its `Before` and its run (output unread), then this step's tree and `Before`. What failed, else "".
+string goldenCliT9Replay(string dir, from string cases, by string exe, at string scratch, i64 deadline = 0)
+        uses alloc, clock, env, fs, process {
+    let repo = $"{scratch}-repo"
+    let name = Path.fileName(dir)
+    let dash = goldenOffset(name, for: "-")
+    let method = name[0..dash]
+    let steps = goldenCliT9Steps(dir)
+    let first = steps.length > 0 ? Path.fileName(steps[0]) : name
+    let same = first[dash + 1..first.length]
+    var failure = goldenCliT9Bins(dir, at: repo)
+    return failure if failure != ""
+    for k in 0..steps.length {
+        let _ = goldenCliStage(steps[k], from: cases, to: scratch, through: ref failure)
+        return failure if failure != ""
+        if k == 0 {
+            failure = goldenCliT9Before(method, as: same, at: 0, to: scratch, from: repo)
+            return failure if failure != ""
+        }
+        failure = goldenCliT9Before(method, as: same, at: k + 1, to: scratch, from: repo)
+        return failure if failure != ""
+        var args = List<string>()
+        for line in goldenArgLines(Path.combine(steps[k], "args")) {
+            args.append(goldenCliPut(line, for: scratch))
+        }
+        let env = goldenCliT9Env(steps[k], for: scratch, at: scratch)
+        let none = List<u8>()
+        let _ = goldenChild(
+            exe,
+            by: in args,
+            at: scratch,
+            from: in none,
+            through: ref failure,
+            deadline: deadline,
+            env: env,
+        )
+        return failure if failure != ""
+    }
+    let _ = goldenCliStage(dir, from: cases, to: scratch, through: ref failure)
+    return failure if failure != ""
+    if steps.length == 0 {
+        failure = goldenCliT9Before(method, as: same, at: 0, to: scratch, from: repo)
+        return failure if failure != ""
+    }
+    return goldenCliT9Before(method, as: same, at: steps.length + 1, to: scratch, from: repo)
 }
 
 /// Whether `c` is an ASCII digit.
@@ -650,7 +963,8 @@ i64 goldenCliSgr(string line, at i64 i) {
 }
 
 /// land-export.sh `mask_doctor` (T17c land-time mask) on one line: the value of an ok row (marker `◆` or `*`, optionally in colour)
-/// labelled host, C compiler, zig or git, and cache when `cache`, as `<host>`; a `not found` row and any other line as is.
+/// labelled host, C compiler, zig or git, and cache when `cache`, as `<host>`, the one labelled bayan as `<version>`; a `not found` row
+/// and any other line as is.
 string goldenCliDoctorLine(string line, by bool cache) uses alloc {
     let b = line.bytes
     var k = goldenCliSgr(line, at: 0)
@@ -667,7 +981,7 @@ string goldenCliDoctorLine(string line, by bool cache) uses alloc {
         k += 1
     }
     return line if k == marker
-    for label in ["host", "C compiler", "zig", "git", "cache"] {
+    for label in ["host", "C compiler", "zig", "git", "cache", "bayan"] {
         continue if label == "cache" && !cache || !goldenCliHas(line, at: k, for: label)
         var j = k + label.length
         let gap = j
@@ -675,7 +989,7 @@ string goldenCliDoctorLine(string line, by bool cache) uses alloc {
             j += 1
         }
         return line if j == gap || j >= line.length || goldenCliHas(line, at: j, for: "not found")
-        return $"{line[0..j]}<host>"
+        return $"{line[0..j]}{label == "bayan" ? "<version>" : "<host>"}"
     }
     return line
 }
@@ -942,12 +1256,17 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         env["BAYAN_CC"] = null
     }
     var bin = scratch
+    let gitBin = $"{scratch}-bin"
+    if cls.startsWith("SelfhostDefault") {
+        failure = goldenCliBin(dir, at: gitBin)
+        return $"{dir}\n{failure}" if failure != ""
+    }
     for line in goldenCliLines(Path.combine(dir, "env")) {
         let at = goldenOffset(line, for: "=")
         if at < 0 {
             env[line] = null
         } else {
-            let value = goldenCliPut(line[at + 1..line.length], for: scratch)
+            let value = goldenCliPut(line[at + 1..line.length], for: scratch).replaced("<bin>", by: gitBin)
             env[line[0..at]] = value
             if line[0..at] == "PATH" {
                 bin = value
@@ -1010,6 +1329,11 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
             }
         }
     }
+    if cls == "SelfhostDefaultT9Tests" {
+        env = goldenCliT9Env(dir, for: scratch, at: cwd)
+        failure = goldenCliT9Replay(dir, from: cases, by: exe, at: scratch, deadline: deadline)
+        return $"{dir}\n{failure}" if failure != ""
+    }
     Io.createDirectory(cwd) catch {}
     let stdinPath = Path.combine(dir, "stdin")
     let stdin = Fs.fileExists(
@@ -1044,6 +1368,16 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         // SelfhostDriverTests.cs:1492: the formatted directory as `{D}`
         buf = buf.replaced(args[1], by: "{D}")
         err = err.replaced(args[1], by: "{D}")
+    }
+    if cls == "SelfhostDefaultT9Tests" {
+        // SelfhostDefaultT9Tests.cs:861 `Machineless`: the repo root of the `tmp/t9-cache/` PATH directories dropped
+        buf = buf.replaced($"{scratch}-repo/", by: "")
+        err = err.replaced($"{scratch}-repo/", by: "")
+    }
+    if cls == "SelfhostDefaultT9Tests"
+            || cls.startsWith("SelfhostDefault") && Fs.fileExists(Path.combine(dir, "modes")) {
+        // what `modes` or a T9 seed locked, opened again for the next run's `goldenFresh`
+        let _ = goldenCliRun(["chmod", "-R", "u+rwx", scratch])
     }
     buf = buf.replaced(scratch, by: tag)
     err = err.replaced(scratch, by: tag)
@@ -2140,6 +2474,171 @@ test "a `main.byn` entry goes to the path `args` names when another entry is nam
     assert(main == "main\n")
 }
 
+test "a SelfhostDefault plain `input` goes to the env path of its `input.name`, executable when it was" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-stage-plain")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDefaultT5Tests/plain")
+    goldenWrite(dir, for: "args", as: "doctor\n")
+    goldenWrite(dir, for: "env", as: "BAYAN_CC=<repo>/t/fakecc\nPATH=<repo>/t/empty\n")
+    goldenWrite(dir, for: "input", as: "#!/bin/sh\n")
+    goldenWrite(dir, for: "input.name", as: "fakecc\n")
+    let _ = goldenCliRun(["chmod", "+x", Path.combine(dir, "input")])
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let cc = Io.readText(Path.combine(scratch, "t/fakecc")) catch "-"
+    let exec = goldenCliExecutable(Path.combine(scratch, "t/fakecc"))
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(cc == "#!/bin/sh\n")
+    assert(exec)
+}
+
+test "a T5 input tree no path names goes to its first env path, created even when empty, and `modes` lock it last" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-stage-env")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDefaultT5Tests/env")
+    goldenWrite(dir, for: "args", as: "doctor\n")
+    goldenWrite(dir, for: "env", as: "BAYAN_CC\nPATH=<repo>/t/path\n")
+    goldenWrite(dir, for: "input.tsv", as: "zig\tfile:aa\n")
+    goldenWrite(dir, for: "modes", as: "path/zig None\n")
+    goldenWrite(root, for: "inputs/files/aa", as: "z\n")
+    let empty = Path.combine(root, "cli/SelfhostDefaultT5Tests/empty")
+    goldenWrite(empty, for: "args", as: "doctor\n")
+    goldenWrite(empty, for: "env", as: "BAYAN_CACHE=<repo>/t/readonly\n")
+    goldenWrite(empty, for: "input.tsv", as: "")
+    goldenWrite(empty, for: "modes", as: "readonly UserExecute, UserRead\n")
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let zig = Path.combine(scratch, "t/path/zig")
+    let placed = Fs.fileExists(zig)
+    let readable = goldenCliRun(["test", "-r", zig]) == ""
+    let _ = goldenCliStage(empty, from: root, to: scratch, through: ref failure)
+    let locked = Path.combine(scratch, "t/readonly")
+    let made = goldenCliRun(["test", "-d", locked]) == ""
+    let writable = goldenCliRun(["test", "-w", locked]) == ""
+    let _ = goldenCliRun(["chmod", "700", locked])
+    let _ = goldenCliRun(["chmod", "600", zig])
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(placed)
+    assert(!readable)
+    assert(made)
+    assert(!writable)
+    assert(goldenCliMode("UserExecute, UserRead") == "500")
+    assert(goldenCliMode("None") == "000")
+    assert(goldenCliMode("UserRead, UserWrite, GroupRead, OtherRead") == "644")
+}
+
+test "SelfhostDefault `links` are made below the input's place, a target below its original place read there" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-stage-links")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDefaultT12Tests/links")
+    goldenWrite(dir, for: "args", as: "dist\ntally\n")
+    goldenWrite(dir, for: "cwd", as: "<root>\n")
+    goldenWrite(dir, for: "input.tsv", as: "real-src\ttree:tt\ntally\ttree:tt\n")
+    goldenWrite(dir, for: "links", as: "cs/tally/src -> <repo>/tmp/t12/x/cs/real-src\ncs/out -> outside\n")
+    goldenWrite(root, for: "inputs/trees/tt.tsv", as: "a\tfile:aa\n")
+    goldenWrite(root, for: "inputs/files/aa", as: "z\n")
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let through = Io.readText(Path.combine(scratch, "tally/src/a")) catch "-"
+    let linked = goldenCliRun(["test", "-L", Path.combine(scratch, "out")]) == ""
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(through == "z\n")
+    assert(linked)
+}
+
+test "a SelfhostDefault env naming `<bin>` gets a fresh bin directory holding `env.git` as an executable `git`" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-bin")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDefaultT4Tests/git")
+    goldenWrite(dir, for: "env", as: "PATH=<bin>\n")
+    goldenWrite(dir, for: "env.git", as: "#!/bin/sh\nkill -9 $$\n")
+    let bin = Path.combine(root, "bin")
+    let failure = goldenCliBin(dir, at: bin)
+    let git = Io.readText(Path.combine(bin, "git")) catch "-"
+    let exec = goldenCliExecutable(Path.combine(bin, "git"))
+    let none = goldenCliBin(Path.combine(root, "cli/SelfhostDefaultT4Tests/none"), at: Path.combine(root, "nobin"))
+    let made = goldenCliRun(["test", "-e", Path.combine(root, "nobin")]) == ""
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(git == "#!/bin/sh\nkill -9 $$\n")
+    assert(exec)
+    assert(none == "")
+    assert(!made)
+}
+
+test "a T9 step case replays the steps before it in one tree, each after its `Before`, and only when its first step is beside it" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-t9")
+    deleteWorkDir(root)
+    let cls = Path.combine(root, "cli/SelfhostDefaultT9Tests")
+    goldenWrite(Path.combine(cls, "ABuildTagsTheCache-tag"), for: "args", as: "one\n")
+    goldenWrite(Path.combine(cls, "ABuildTagsTheCache-tag-2"), for: "args", as: "two\n")
+    let last = Path.combine(cls, "ABuildTagsTheCache-tag-3")
+    goldenWrite(last, for: "args", as: "three\n")
+    goldenWrite(Path.combine(cls, "BayanCacheMaxMb-max-mb-1-11"), for: "args", as: "x\n")
+    // the driver stand-in logs its argv and whether the tag its last run wrote was there, then writes it
+    let exe = Path.combine(root, "exe")
+    goldenWrite(
+        root,
+        for: "exe",
+        as: "#!/bin/sh\ntest -f cache/v1/CACHEDIR.TAG && t=tagged || t=untagged\necho \"$* $t\" >> log\nmkdir -p cache/v1\necho s > cache/v1/CACHEDIR.TAG\n",
+    )
+    let _ = goldenCliRun(["chmod", "755", exe])
+    let scratch = Path.combine(root, "scratch")
+    let _ = goldenFresh(scratch)
+    let failure = goldenCliT9Replay(last, from: root, by: exe, at: scratch)
+    let log = Io.readText(Path.combine(scratch, "log")) catch "-"
+    let tag = Fs.fileExists(Path.combine(scratch, "cache/v1/CACHEDIR.TAG"))
+    let alone = goldenCliT9Steps(Path.combine(cls, "BayanCacheMaxMb-max-mb-1-11")).length
+    let first = goldenCliT9Steps(Path.combine(cls, "ABuildTagsTheCache-tag")).length
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(log == "one untagged\ntwo untagged\n")
+    assert(!tag)
+    assert(alone == 0)
+    assert(first == 0)
+}
+
+test "T9 seeds and PATH directories: an unwritable cache, a read-only `programs`, an odd `cc`, `$PATH` and `tmp/t9-cache/` read here" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-t9-seed")
+    deleteWorkDir(root)
+    let tree = Path.combine(root, "tree")
+    let repo = Path.combine(root, "repo")
+    let _ = goldenFresh(tree)
+    let unwritable = goldenCliT9Before("AnUnwritableCache", as: "unwritable", at: 0, to: tree, from: repo)
+    let cache = Fs.fileExists(Path.combine(tree, "cache"))
+    Io.remove(Path.combine(tree, "cache")) catch {}
+    let publish = goldenCliT9Before(
+        "ABuildThatCannotPublishFails",
+        as: "publish-programsreadonly",
+        at: 0,
+        to: tree,
+        from: repo,
+    )
+    let programs = Path.combine(tree, "cache/v1/programs")
+    let locked = t6DirectoryExists(programs) && goldenCliRun(["test", "-w", programs]) != ""
+    let _ = goldenCliRun(["chmod", "-R", "u+rwx", tree])
+    let odd = Path.combine(root, "cli/SelfhostDefaultT9Tests/AnOddCCompiler-cc-notexecutable")
+    goldenWrite(odd, for: "env", as: "PATH=tmp/t9-cache/cc-bin-notexecutable\n")
+    let bins = goldenCliT9Bins(odd, at: repo)
+    let cc = Path.combine(repo, "tmp/t9-cache/cc-bin-notexecutable/cc")
+    let placed = Fs.fileExists(cc) && !goldenCliExecutable(cc)
+    let value = goldenCliT9Value("tmp/t9-cache/a-bin:$PATH", at: repo)
+    deleteWorkDir(root)
+    assert(unwritable == "")
+    assert(cache)
+    assert(publish == "")
+    assert(locked)
+    assert(bins == "")
+    assert(placed)
+    assert(value == $"{repo}/tmp/t9-cache/a-bin:{Env.get("PATH") ?? ""}")
+}
+
 test "an `input.byn.ref` pointer is placed where input.byn goes, and BAYAN_UPDATE=1 keeps it and writes no input.byn" {
     let root = Path.combine(Path.fullPath("tmp"), "golden-cli-ref")
     deleteWorkDir(root)
@@ -2194,9 +2693,9 @@ test "the T12 and time masks compare bytes, so text with multibyte characters be
     assert(goldenCliTimes("ءé in 12.34s ب", from: " in ", by: " in masked", two: true) == "ءé in masked ب")
 }
 
-test "the doctor mask reads ok rows' values as `<host>` as land-export.sh `mask_doctor` does, `not found` and other rows as is" {
+test "the doctor mask reads ok rows' values as `<host>`, bayan's as `<version>`, as land-export.sh `mask_doctor` does, `not found` and other rows as is" {
     let text = "◆ bayan       0.3.3-dev (commit <c>)\n◆ host        macos-arm64\n\u{1b}[32m◆\u{1b}[0m C compiler  /usr/bin/cc (clang 17)\n* zig         not found\n* git         /opt/homebrew/bin/git (git 2.56.0)\n✗ cache       <root>/cache (not writable)\n◆ cache       <root>/cache (writable, 0 programs, 0.0 MB)\n"
-    let masked = "◆ bayan       0.3.3-dev (commit <c>)\n◆ host        <host>\n\u{1b}[32m◆\u{1b}[0m C compiler  <host>\n* zig         not found\n* git         <host>\n✗ cache       <root>/cache (not writable)\n◆ cache       <host>\n"
+    let masked = "◆ bayan       <version>\n◆ host        <host>\n\u{1b}[32m◆\u{1b}[0m C compiler  <host>\n* zig         not found\n* git         <host>\n✗ cache       <root>/cache (not writable)\n◆ cache       <host>\n"
     assert(goldenCliDoctor(text, by: true) == masked)
     assert(goldenCliDoctor(
         "◆ cache       <root>/cache (writable)\n",

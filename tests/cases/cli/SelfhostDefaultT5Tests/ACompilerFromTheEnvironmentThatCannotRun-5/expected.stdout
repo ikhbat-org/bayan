@@ -1,4 +1,4 @@
-* bayan       0.3.2 (commit 9cf2f130da53)
+* bayan       <version>
 * host        <host>
 x C compiler: BAYAN_CC is `<repo>/tmp/t5-doctor/broken-env/missing`, which can't be run
   help: point BAYAN_CC at a C compiler, or unset it to use zig
