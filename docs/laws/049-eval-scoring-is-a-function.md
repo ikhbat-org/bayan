@@ -1,7 +1,8 @@
 ---
 id: L049
 title: Eval scoring is a function
-status: proposed
+status: enacted
+enacted: 2026-11-18
 release: unscheduled
 sources: spec 025 R9
 kind: property

@@ -1,7 +1,8 @@
 ---
 id: L050
 title: Eval hidden stays hidden
-status: proposed
+status: enacted
+enacted: 2026-11-18
 release: unscheduled
 sources: spec 025 R3
 kind: guard
