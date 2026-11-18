@@ -1,5 +1,9 @@
 # Law checks drafted but not live (spec 019 T31, R18)
 
+Status: draft (T31 part 1, 2026-11-18)
+Release: unscheduled
+Sources: docs/specs/019-dotnet-exit/019-tasks.md (T31, T31b); docs/laws/*.md
+
 Decision 2026-11-18 (owner): a live `check:` line is swapped only when the new command runs at least one existing case that covers the statement. These laws keep their old `check:` until the target lands. `bayan test --only X` exits 2 when X matches nothing (verified), so a drafted selector cannot pass vacuously. G = `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases`.
 
 | law | drafted check | waits on |
