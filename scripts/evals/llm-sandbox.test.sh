@@ -8,10 +8,10 @@ sb=scripts/evals/llm-sandbox.sh
 root=$PWD/tmp/llm-sandbox-test
 rm -rf "$root"; mkdir -p "$root/tasks" "$root/w/pids" "$root/other"
 # At exit, every process the test started that is still alive is killed: the server, the launcher of the TERM case, the
-# lingerer of the exit-3 case, and each process whose pid a sweep case wrote under $root/w/pids.
+# lingerer of the exit-3 case, the fifo's holder, and each process whose pid a sweep case wrote under $root/w/pids.
 cleanup() {
   local p
-  for p in ${srv:-} ${lp:-} ${ling:-} $(cat "$root"/w/pids/* 2> /dev/null); do
+  for p in ${srv:-} ${lp:-} ${ling:-} ${hold:-} $(cat "$root"/w/pids/* 2> /dev/null); do
     kill -0 "$p" 2> /dev/null && kill -KILL "$p" 2> /dev/null
   done
   rm -rf "$root"
@@ -46,7 +46,7 @@ run -- "$shell" -c 'exit 7'
 check "exit code kept" "$(field exit)" "7"
 
 # sandbox name
-if $mac; then check "sandbox name" "$(field sandbox)" "sandbox-exec/2"; else check "sandbox name" "$(field sandbox)" "none"; fi
+if $mac; then check "sandbox name" "$(field sandbox)" "sandbox-exec/3"; else check "sandbox name" "$(field sandbox)" "none"; fi
 
 # a program not on PATH is named
 run -- "no-such-program-$$" 2> "$root/err"
@@ -58,7 +58,7 @@ run -- env
 names=$(sed 's/=.*//' "$root/out" | sort | tr '\n' ' ')
 extra=""
 for n in $names; do
-  case "$n" in (HOME|PATH|TMPDIR|BAYAN_CACHE|BAYAN_TEST_TIMEOUT_MS|NO_COLOR|DOTNET_ROOT|PWD|SHLVL|_|OLDPWD) ;; (*) extra="$extra $n" ;; esac
+  case "$n" in (HOME|PATH|TMPDIR|BAYAN_CACHE|BAYAN_TEST_TIMEOUT_MS|NO_COLOR|DOTNET_ROOT|ZIG_LIB_DIR|PWD|SHLVL|_|OLDPWD) ;; (*) extra="$extra $n" ;; esac
 done
 check "no names outside the allowlist" "$extra" ""
 check "NO_COLOR passed" "$(grep -c '^NO_COLOR=1$' "$root/out")" "1"
@@ -100,7 +100,7 @@ if $mac; then
   run -- "$shell" -c 'kill -0 $$'
   check "signal to itself allowed" "$(field exit)" "0"
 
-  # Exec: only the program, env, zig and what is under --write, TMPDIR or BAYAN_CACHE.
+  # Exec: without --sweep, only the program, env and what is under --write, TMPDIR or BAYAN_CACHE.
   run -- env /bin/cat /etc/hosts 2> /dev/null
   check "env /bin/cat /etc/hosts refused" "$([ "$(field exit)" != 0 ] && [ ! -s "$root/out" ] && echo denied)" "denied"
   # /etc is not readable either, so the exec rule alone is tested with a program under /usr, which is.
@@ -133,28 +133,32 @@ else
 fi
 
 # --sweep. Each process a case leaves behind writes its pid under $root/w/pids, which the EXIT trap kills, and ends by itself
-# within 30 seconds: the fifo is opened read-write, so the open never blocks, and the read gives up after 30 seconds.
-mkfifo "$root/w/fifo"
-run --sweep "$root/w" -- "$shell" -c "( read -t 30 x <> '$root/w/fifo' ) > /dev/null 2>&1 & echo \$! > '$root/w/pids/a'; : marker-$$-a"
-check "--sweep: a child in the program's group is reaped" "$(ps -axo command= | grep -c "[m]arker-$$-a")" "0"
-
+# within 20 seconds. With --sweep the program may start only what lies under a swept directory, so every case's program is
+# built there with zig.
 if command -v zig > /dev/null 2>&1; then
-  # lingerer <secs> [fork <pidfile>]: with "fork", double-forks into a new session, writes the last child's pid to <pidfile>
-  # and sleeps there; the parent exits at once.
+  # lingerer <secs> [child|fork|stay <pidfile>]: "child" forks a child that stays in the program's group; "fork"
+  # double-forks into a new session; "stay" does as "fork" and the first process sleeps too. The last child writes its pid
+  # to <pidfile>. Each sleeps <secs>; a first process that does not stay exits at once.
   cat > "$root/lingerer.c" <<'EOF'
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 int main(int argc, char** argv) {
     int secs = argc > 1 ? atoi(argv[1]) : 5;
     if (argc > 3) {
         pid_t a = fork();
         if (a < 0) return 3;
-        if (a > 0) return 0;
-        setsid();
-        pid_t b = fork();
-        if (b < 0) return 3;
-        if (b > 0) return 0;
+        if (a > 0) {
+            if (strcmp(argv[2], "stay") == 0) sleep(secs);
+            return 0;
+        }
+        if (strcmp(argv[2], "child") != 0) {
+            setsid();
+            pid_t b = fork();
+            if (b < 0) return 3;
+            if (b > 0) return 0;
+        }
         FILE* f = fopen(argv[3], "w");
         if (f) { fprintf(f, "%d\n", (int)getpid()); fclose(f); }
     }
@@ -163,6 +167,10 @@ int main(int argc, char** argv) {
 }
 EOF
   zig cc -o "$root/w/lingerer" "$root/lingerer.c" 2> "$root/zig.err" || { cat "$root/zig.err"; bad "zig cc lingerer.c"; }
+  # alive <pidfile>: "started" when the pid was written, then "alive" or "dead".
+  alive() { local p; p=$(cat "$1" 2> /dev/null); echo "$([ -n "$p" ] && echo started) $([ -n "$p" ] && kill -0 "$p" 2> /dev/null && echo alive || echo dead)"; }
+  run --sweep "$root/w" -- "$root/w/lingerer" 20 child "$root/w/pids/a"
+  check "--sweep: a child in the program's group is reaped" "$(field exit) $(alive "$root/w/pids/a")" "0 started dead"
   # tamper <dir>: writes 0 into every file in <dir>, makes it read-only, exits 7. The program can write TMPDIR, so no file
   # there may carry its exit code (review 2026-11-18, loop 2).
   cat > "$root/tamper.c" <<'EOF'
@@ -190,20 +198,19 @@ EOF
   check "exit code not rewritable from TMPDIR (--sweep)" "$(field exit)" "7"
   chmod -R u+w "$root/w/tmp"
   lingering() { ps -axo command= | grep -c "^$root/w/[l]ingerer"; }
-  run --sweep "$root/w" -- "$shell" -c "'$root/w/lingerer' 20 fork '$root/w/pids/b' > /dev/null 2>&1"
+  run --sweep "$root/w" -- "$root/w/lingerer" 20 fork "$root/w/pids/b"
   check "--sweep: a child that left the group and the session is reaped" "$(field exit) $(lingering)" "0 0"
 
-  # TERM to the launcher while the program runs: a lingerer that left the group and the session, and the program, a shell
-  # waiting on the fifo. The launcher sweeps both and exits 143.
+  # TERM to the launcher while the program runs: a lingerer that left the group and the session, and the program, a
+  # lingerer that stays. The launcher sweeps both and exits 143.
   rm -f "$root/out" "$root/status"
   "$bash" "$sb" --write "$root/w" --sweep "$root/w" --stdout "$root/out" --status "$root/status" -- \
-    "$shell" -c "'$root/w/lingerer' 20 fork '$root/w/pids/c' > /dev/null 2>&1; read -t 30 x <> '$root/w/fifo'; : marker-$$-t" &
+    "$root/w/lingerer" 20 stay "$root/w/pids/c" &
   lp=$!
   for _ in $(seq 1 100); do [ -s "$root/w/pids/c" ] && break; sleep 0.1; done
   kill -TERM "$lp"
   wait "$lp"; code=$?; lp=""
-  check "--sweep: TERM to the launcher leaves no process and exits 143" \
-    "$code $(lingering) $(ps -axo command= | grep -c "[m]arker-$$-t")" "143 0 0"
+  check "--sweep: TERM to the launcher leaves no process and exits 143" "$code $(lingering)" "143 0"
 
   # --prime (R14): the program is started suspended and killed, so it writes nothing and prints nothing, and a program
   # that loops costs no time. Elsewhere --prime runs nothing, which the same checks hold for.
@@ -245,6 +252,77 @@ EOF
     PATH="$root/stub:$PATH" run --sweep "$root/w" -- true 2> /dev/null
     check "--sweep: a process left after the sweep gives exit 3" "$? $([ -e "$root/status" ] && echo status || echo none)" "3 none"
     wait "$ling" 2> /dev/null; ling=""
+
+    # Exec only from swept directories (T44, sandbox-exec/3). Zig and the program are started from copies in a tools
+    # directory, which the sweep covers and the program cannot write. A holder keeps the fifo open for 20 seconds, so a
+    # process reading it ends by itself then.
+    tools=$root/tools
+    mkdir -p "$tools/zig"
+    zexe=$(zig env | sed -n 's/^ *\.zig_exe = "\(.*\)",$/\1/p')
+    zlib=$(zig env | sed -n 's/^ *\.lib_dir = "\(.*\)",$/\1/p')
+    cp -c "$zexe" "$tools/zig/zig" 2> /dev/null || cp "$zexe" "$tools/zig/zig"
+    "$tools/zig/zig" version > /dev/null  # the system's check of a new copy, before any case
+    # detach <pidfile> <program> [args...]: double-forks into a new session; the last child writes its pid to <pidfile> and
+    # execs <program> (on PATH) with standard input kept. Returns once that exec is done. `detach read` reads its standard
+    # input to the end.
+    cat > "$root/detach.c" <<'EOF'
+#include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+int main(int argc, char** argv) {
+    char buf[256];
+    if (argc == 2 && strcmp(argv[1], "read") == 0) {
+        while (read(0, buf, sizeof buf) > 0) {
+        }
+        return 0;
+    }
+    if (argc < 3) return 2;
+    int p[2];
+    if (pipe(p) != 0) return 3;
+    fcntl(p[1], F_SETFD, FD_CLOEXEC);
+    pid_t a = fork();
+    if (a < 0) return 3;
+    if (a > 0) {
+        close(p[1]);
+        while (read(p[0], buf, 1) > 0) {
+        }
+        return 0;
+    }
+    setsid();
+    pid_t b = fork();
+    if (b < 0) return 3;
+    if (b > 0) return 0;
+    FILE* f = fopen(argv[1], "w");
+    if (f) { fprintf(f, "%d\n", (int)getpid()); fclose(f); }
+    int n = open("/dev/null", O_WRONLY);
+    dup2(n, 1);
+    dup2(n, 2);
+    execvp(argv[2], argv + 2);
+    return 127;
+}
+EOF
+    zig cc -o "$root/w/detach" "$root/detach.c" 2> "$root/zig.err" || { cat "$root/zig.err"; bad "zig cc detach.c"; }
+    cp "$root/w/detach" "$tools/detach"
+    mkfifo "$root/zfifo"
+    sleep 20 3<> "$root/zfifo" & hold=$!
+    PATH="$tools/zig:$PATH" ZIG_LIB_DIR="$zlib" run --sweep "$root/w" --tools "$tools" --stdin "$root/zfifo" -- \
+      "$root/w/detach" "$root/w/pids/z" zig fmt --stdin
+    check "/3: a detached zig fmt --stdin is dead after the sweep" "$(field exit) $(alive "$root/w/pids/z")" "0 started dead"
+    run --sweep "$root/w" --tools "$tools" --stdin "$root/zfifo" -- "$tools/detach" "$root/w/pids/y" "$tools/detach" read
+    check "/3: the program's own path, detached, is dead after the sweep" "$(field exit) $(alive "$root/w/pids/y")" "0 started dead"
+    ZIG_LIB_DIR="$zlib" run --tools "$tools" -- "$tools/zig/zig" version
+    check "/3: zig from the tools directory runs" "$(field exit) $(cat "$root/out")" "0 $("$zexe" version)"
+    ZIG_LIB_DIR="$zlib" run --tools "$tools" -- env "$zexe" version 2> /dev/null
+    check "/3: exec of the real zig refused" "$([ "$(field exit)" != 0 ] && [ ! -s "$root/out" ] && echo denied)" "denied"
+    # The tools directory lies under --write here, so only its own rule keeps the program from writing it.
+    mkdir -p "$root/w/tools"
+    run --sweep "$root/w" --tools "$root/w/tools" -- "$root/w/marker" "$root/w/tools/made"
+    check "/3: a write to the tools directory refused" "$(field exit) $([ -e "$root/w/tools/made" ] && echo made || echo none)" "0 none"
+    rm -f "$root/w/marked"
+    run --prime --sweep "$root/w" --tools "$tools" -- "$root/w/marker" "$root/w/marked"
+    check "/3: --prime with --tools builds its helper there" \
+      "$(field exit) $([ -x "$tools/llm-prime" ] && echo helper) $([ -e "$root/w/marked" ] && echo file || echo nofile)" "0 helper nofile"
   fi
 else
   echo "skip lingerer cases: zig missing"

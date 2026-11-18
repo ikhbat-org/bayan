@@ -28,7 +28,7 @@ four() { echo "$(get "$1" compiles) $(get "$1" passes) $(get "$1" lintClean) $(g
 
 mac=false
 [ "$(uname -s)" = Darwin ] && [ -x /usr/bin/sandbox-exec ] && mac=true
-sandbox=none; $mac && sandbox=sandbox-exec/2
+sandbox=none; $mac && sandbox=sandbox-exec/3
 
 # A stdout task that expects exit code 3, and a tests task whose test calls `shout()`.
 header() { printf '# %s\n\nTitle: test task\nCategory: %s\nTier: 1\nSplit: dev\nRevision: 0023\nChecked: none\nCheck: %s\n\n## Files\n\n## Notes\n\n## Check command\n' "$1" "$2" "$3"; }
@@ -549,6 +549,23 @@ check "recheck: MARKER present, every non-exempt file marked passes; exempt file
 markit small-902-bare
 recheck mk
 check "recheck: MARKER present, every heldout task marked passes" "$code $(grep -c '^PASS' "$root/rec/rc-mk")" "0 3"
+
+# One tools directory per scorer process (T44): a run of two samples starts zig from one copy, outside both samples, and
+# removes the copy at the end. The zig processes are seen in `ps` while the run goes; each names its sample's directory.
+bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model "sh $root/model.sh $root/reply-none $root/rec/t44.prompt" \
+  --samples 2 --out "$root/out/t44" --machine m > "$root/rec/t44" 2> "$root/rec/t44.err" &
+scorer=$!
+: > "$root/rec/t44.ps"
+while kill -0 "$scorer" 2> /dev/null; do
+  ps -axo command= | grep "/zig " | grep -F "$root/out/t44/" >> "$root/rec/t44.ps"
+done
+wait "$scorer"
+code=$?
+zigs=$(sed -n 's#^\([^ ]*/zig\) .*#\1#p' "$root/rec/t44.ps" | sort -u)
+seen() { grep -c "/work/small-900-salam/$1/" "$root/rec/t44.ps"; }
+check "run: two samples start zig from one tools directory, removed at the end" \
+  "$code $zigs $([ "$(seen 1)" -gt 0 ] && [ "$(seen 2)" -gt 0 ] && echo both) $([ -e "$root/out/t44/1/tools" ] && echo left || echo gone)" \
+  "0 $root/out/t44/1/tools/zig/zig both gone"
 
 echo "llm-eval.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]
