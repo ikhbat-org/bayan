@@ -108,11 +108,14 @@ No Bayan product (compiler, runtime, LSP, VS Code extension, tools) is released 
 these fail:
 
 ```sh
-dotnet test -v q --filter "FullyQualifiedName~LanguageServer"     # LSP walk, budgets, retention, depth, buffers
+"$BAYAN_EXE" test --package editors/language-server/src editors/language-server/src/bounds     # LSP walk, budgets, retention, depth, buffers
 "$BAYAN_EXE" test --package src src/driver --only 'bound: '       # CLI capture, cache eviction, walks, timeouts
 bash scripts/pinned-bayan.test.sh                                  # pinned build cache eviction
 env BAYAN_TEST_TIMEOUT_MS=600000 "$BAYAN_EXE" test --package src src/driver --only 'a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'  # golden runner bound
 ```
+
+The first line runs the bound blocks of `editors/language-server/src/bounds/bounds.byn` (spec 019 T38a, R22) with no .NET;
+they are pending on Windows (no `sh` or `ps`), and on Linux and macOS the gate fails when any is pending or none passed.
 
 The second line runs the `bound: ` test blocks of `src/driver/bounds.byn` (spec 019 T28, R9, R15): the bounds
 `CliMemoryBoundsTests` and `SelfhostDefaultBoundsTests` checked, with the same numbers, measured by
