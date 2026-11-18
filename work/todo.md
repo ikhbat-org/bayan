@@ -984,3 +984,5 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 T36, 2026-11-18): record.sh does not compare stderr, so the budget-stop log line is unchecked by sessions; record.sh with an INDEX `bound-only` session name stops with "no session at …/bound-only".
 - LOW (019 T37, 2026-11-18): bayan-lsp workspace/symbol filter folds ASCII only; C# Contains(OrdinalIgnoreCase) folds non-ASCII too (no Unicode upper-casing in the library; no session has a non-ASCII query).
 - LOW (019 T37, 2026-11-18): bayan-lsp null textDocument.uri reply text "Value cannot be null. (Parameter 'key')" is inferred from .NET, unchecked by any session; a reply that fails partway sends -32603 instead of a partial write.
+- 019 T38a2 LOW: the 1,000-edit bound in editors/language-server/src/bounds/bounds.byn:510 allows 4 MiB of growth, so a leak under about 4 KB per edit passes; tighten once the 2.5 MB one-off jump is explained.
+- 019 T38a2 LOW: BYN5014 and BYN2311 warnings in editors/language-server/src/workspace/workspace.byn (lines 763, 788, 918, 992).
