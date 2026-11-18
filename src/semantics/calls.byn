@@ -234,6 +234,16 @@ BExpr bindCall(
             at: syntax,
         ) if name == "readAllBytes"
             && exprType(in c, for: c.bBuiltinGroups[i].receiver) == builtinType(.ioInput)
+        // `Io.stdin.read(to: buffer)` fails the same way.
+        return bindFunctionCall(
+            ref b,
+            through: ref c,
+            for: in call,
+            by: t9Function(ref c, for: "Io.stdin.read"),
+            from: -1,
+            at: syntax,
+        ) if name == "read"
+            && exprType(in c, for: c.bBuiltinGroups[i].receiver) == builtinType(.ioInput)
         return bindBuiltinMethodCall(ref b, through: ref c, for: in call, from: c.bBuiltinGroups[i].receiver, by: name)
     }
     return bindConstruction(ref b, through: ref c, for: in call, as: c.bTypeRefs[i].referenced) if kind == .typeRef
