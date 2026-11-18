@@ -54,23 +54,23 @@ void goldenCliCases(string root, to ref List<GoldenCase> cases) uses alloc, fs {
     }
 }
 
-/// The exported class directories of `kind` (`emit-c`, `sem`, `lex`, `parse`) under `root`, one case each, its input the directory.
+/// The exported case directories `<Class>/<case>` of `kind` (`emit-c`, `sem`, `lex`, `parse`) under `root`, each a case, its input the
+/// directory (run by goldenprograms.byn).
 void goldenExportClasses(string root, for string kind, to ref List<GoldenCase> cases) uses alloc, fs {
     let dir = Path.combine(root, kind)
     return unless t6DirectoryExists(dir)
     for cls in goldenCliDirs(dir) {
-        cases.append(GoldenCase { kind: kind, name: cls, input: Path.combine(dir, cls) })
+        for name in goldenCliDirs(Path.combine(dir, cls)) {
+            cases.append(GoldenCase { kind: kind, name: $"{cls}/{name}", input: Path.combine(Path.combine(dir, cls), name) })
+        }
     }
 }
 
-/// The skip text of an exported case that is not run: a `cli` case without `args` (the SelfhostDriverT3Tests probe cases) or a class of
-/// another exported kind; null for the others.
+/// The skip text of an exported case that is not run: a `cli` case without `args` (the SelfhostDriverT3Tests probe cases); null for the others.
 string? goldenCliSkip(string kind, at string input) uses alloc {
     if kind == "cli" {
         return input.endsWith("args") ? null : $"skipped: no `args` file in {input}"
     }
-    return $"unsupported kind `{kind}` (T17b2b): {input}" if kind is "emit-c" or "sem"
-    return $"unsupported kind `{kind}` (T17b2b): {input}" if kind is "lex" or "parse" && !input.endsWith(".byn")
     return null
 }
 
@@ -1600,24 +1600,21 @@ test "input.tsv entries and trees are placed below the scratch directory, an exe
     assert(exec.exitCode == 0)
 }
 
-test "a cli case without `args` and each class of another exported kind are reported, and BAYAN_UPDATE=1 rewrites a cli case's expected files" {
+test "a cli case without `args` is reported, and BAYAN_UPDATE=1 rewrites a cli case's expected files" {
     let root = Path.combine(Path.fullPath("tmp"), "golden-cli-update")
     deleteWorkDir(root)
     let name = "SelfhostDriverT1Tests/AuditAsCliApp-10"
     goldenCliFixture(root, for: name, as: goldenCliSpecVersion.replaced("usage: bayan audit <path>", by: "usage: changed"))
     goldenWrite(root, for: "cli/SelfhostDriverT3Tests/Probe/expected.stdout", as: "")
-    goldenWrite(root, for: "emit-c/SelfhostEmitterTests/Case/input.byn", as: "")
     let before = goldenUpdateRun(root, as: "1", by: null)
     let update = goldenUpdateRun(root, as: "1", by: "1")
     let again = goldenUpdateRun(root, as: "1", by: null)
     let stderr = Io.readText(Path.combine(root, $"cli/{name}/expected.stderr")) catch ""
     deleteWorkDir(root)
     let probe = Path.combine(root, "cli/SelfhostDriverT3Tests/Probe")
-    let emit = Path.combine(root, "emit-c/SelfhostEmitterTests")
     assert(before.exitCode == exitTestFailure)
     assert(before.stdout.contains($"\nfailed cli/{name}\n"))
     assert(before.stdout.contains($"\nskipped cli/SelfhostDriverT3Tests/Probe\n    skipped: no `args` file in {probe}\n"))
-    assert(before.stdout.contains($"\nskipped emit-c/SelfhostEmitterTests\n    unsupported kind `emit-c` (T17b2b): {emit}\n"))
     assert(update.stdout.contains($"\npassed cli/{name}\n    rewrote {Path.combine(root, $"cli/{name}/expected.stderr")}\n"))
     assert(again.exitCode == exitOk)
     assert(stderr == "usage: bayan audit <path>\n")

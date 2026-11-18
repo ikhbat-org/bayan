@@ -138,7 +138,7 @@ List<GoldenCase> goldenDiscover(string root, through ref i32 exit) uses alloc, c
         "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem", "style", "typed",
     ]
     for kind in kinds {
-        // the exported kinds (T17b, goldenexport.byn): `cli` cases, and a class directory each of the others
+        // the exported kinds (T17b, goldenexport.byn): `cli` cases, and a `<Class>/<case>` directory each of the others
         if kind == "cli" {
             goldenCliCases(root, to: ref cases)
         } else if kind is "emit-c" or "sem" {
@@ -417,8 +417,9 @@ string goldenEnding(string kind) {
 }
 
 /// The expected files of the case of `kind` whose input is `input`, in the order they are compared: the files update mode may rewrite.
-List<string> goldenExpectedFiles(string kind, for string input) uses alloc {
+List<string> goldenExpectedFiles(string kind, for string input) uses alloc, fs {
     return goldenCliExpectedFiles(input) if kind == "cli"
+    return goldenExportedFiles(input) if goldenExported(kind, at: input)
     var files = List<string>()
     if kind == "run" {
         for ending in [".stdout", ".stderr", ".exitcode"] {
@@ -440,6 +441,12 @@ List<string> goldenExpectedFiles(string kind, for string input) uses alloc {
 /// `emit` and `quality` (T3) are produced here; `style` (T2b), `run`, `new` and `out` (T3) run the driver `$BAYAN_EXE` names, each child
 /// killed at `deadline` (`goldenLimitMs`; T4).
 string? goldenRun(in GoldenCase c, i64 deadline = 0) uses alloc, clock, console, env, fs, process {
+    if goldenExported(c.kind, at: c.input) {
+        var failure = ""
+        let exe = goldenExe(through: ref failure)
+        return $"{c.input}\n{failure}" if exe == ""
+        return goldenProgramsCase(c.kind, at: c.input, by: exe, deadline: deadline)
+    }
     if c.kind is "style" or "run" or "new" or "out" or "cli" {
         return null if goldenSkip(in c) is not null
         var failure = ""
@@ -578,7 +585,7 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
     }
     let deadline = Io.monotonicNanos() + limitMs * 1000000
     var failure: string? = null
-    if c.kind is "style" or "run" or "new" or "out" or "cli" {
+    if c.kind is "style" or "run" or "new" or "out" or "cli" || goldenExported(c.kind, at: c.input) {
         failure = goldenRun(in c, deadline: deadline)
     } else {
         var missing = ""
