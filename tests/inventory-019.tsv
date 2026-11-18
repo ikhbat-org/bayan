@@ -8,7 +8,7 @@ CliMemoryBoundsTests	csharp/tests/Bayan.Tests/CliMemoryBoundsTests.cs	cli	25	bay
 CliTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	64	cli	cli	exit code and text of bayan commands	
 CliToolchainTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	7	cli	tests/parity	needs toolchain set-up	
 CollectionLiteralTests	csharp/tests/Bayan.Tests/CollectionLiteralTests.cs	csharp-internals	3	emit-c	emit-c	span literals on stack, checked in emitted C	
-ContrastTests	csharp/tests/Bayan.Tests/ContrastTests.cs	cli	6	shell	shell	WCAG contrast over docs table; no compiler involved	
+ContrastTests	csharp/tests/Bayan.Tests/ContrastTests.cs	cli	6	shell	shell	WCAG contrast over docs table; no compiler involved; ported 6 of 6: scripts/docs/contrast.test.sh (the C# Palette and Style.Paint read as the driver's t7Prefix and t5Paint)	
 CoverageReportTests	csharp/tests/Bayan.Tests/CoverageReportTests.cs	cli	8	cli	cli	coverage report through bayan test	
 CoverageSummaryTests	csharp/tests/Bayan.Tests/CoverageSummaryTests.cs	cli	4	cli	cli	one-line summary through bayan test	
 CoverageTests	csharp/tests/Bayan.Tests/CoverageTests.cs	golden-folder	350	golden	tests/cases/coverage	folder runner reads the same files	no export: typed rows
