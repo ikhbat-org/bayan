@@ -39,17 +39,16 @@ jobs:
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
-      # Replaces actions/setup-dotnet: the SDK pinned in install-dotnet.sh, sha512-checked.
-      - name: Install .NET SDK
-        shell: bash
-        run: |
-          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
-          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
-          echo "$dotnet_root" >> "$GITHUB_PATH"
-      # The tests cross-compile (OutputTests) and `bayan doctor` expects zig; no runner image has it.
+      # The tests cross-compile and `bayan doctor` expects zig; no runner image has it. Windows has no cc, so zig builds stage 0.
       - name: Install zig
         shell: bash
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      # Stage 0 from bootstrap/bayan.c, stage 1 from src/ (spec 019 R24); the later steps run stage 1 as $BAYAN_EXE.
+      - name: Build from the bootstrap
+        shell: bash
+        run: |
+          s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }
+          echo "BAYAN_EXE=$s1" >> "$GITHUB_ENV"
       - name: Script tests
         if: runner.os != 'Windows'
         run: bash scripts/ci/script-tests.sh unix  # the list lives there; run it before a push (docs/bayan-contributing.md)
@@ -60,25 +59,23 @@ jobs:
       # 2026-11-14: 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
       - name: Test
         if: runner.os != 'Windows'
-        env: { BAYAN_TEST_TIME_SCALE: 3, BAYAN_CC_TIMEOUT_S: 1800 }
-        run: dotnet test Bayan.slnx -c Release
+        env: { BAYAN_CC_TIMEOUT_S: 1800 }
+        run: bash scripts/test.sh
       # Windows has known failures until spec 014 (Q743); the next step decides the job.
       - name: Test (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true
+        shell: bash
         env:
-          BAYAN_TEST_TIME_SCALE: 3
           # zig cc of src/semantics took over the 600 s default on windows-latest (ci run 42602448089, 2026-11-09:
           # 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
           BAYAN_CC_TIMEOUT_S: 1800
-        run: dotnet test Bayan.slnx -c Release --logger "trx;LogFileName=windows.trx" --results-directory TestResults
+        run: bash scripts/test.sh | tee test-report.txt
       - name: Check known failures (Windows)
         if: runner.os == 'Windows'
         shell: bash
         # The hosted Windows image names its Python `python`; `python3` is not guaranteed there.
-        run: python -I scripts/ci/known-failures.py tests/windows-known-failures.txt TestResults/windows.trx
-      - name: Publish (NativeAOT)
-        run: dotnet publish csharp/Bayan.Cli -c Release -r ${{ matrix.rid }} -o out
-      - name: Smoke test AOT binary
+        run: python -I scripts/ci/known-failures.py tests/windows-known-failures.txt test-report.txt
+      - name: Smoke test stage 1 binary
         shell: bash
-        run: ./out/${{ matrix.exe }} --version
+        run: '"$BAYAN_EXE" --version'
