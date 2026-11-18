@@ -13,7 +13,7 @@ Portion portion(i32 dates, for i32 guests) fails ValidationError<Portion> {
 
 /// The same table with `extra` more guests.
 Portion joined(Portion p, by i32 extra) fails ValidationError<Portion> {
-    return try p with { guests: p.guests + extra }
+    return try p with { guests: p.guests + extra + 1 }
 }
 
 i32 perGuest(Portion p) => p.dates / p.guests
