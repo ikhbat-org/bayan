@@ -117,13 +117,26 @@ Task readTask(string dir) fails EvalError {
 }
 
 /// Runs `command` (tab-separated) through the launcher in `src`, writable only under `write`, with standard input from `stdin` (empty when
-/// null) and standard output to `outPath`. The launcher is stopped after `limitMs`, which is the time limit.
-Step launch(string command, at Places p, to string outPath, from string? stdin, for string write, until i64 limitMs)
-        fails EvalError {
+/// null) and standard output to `outPath`. The launcher is stopped after `limitMs`, which is the time limit. With `noFork` the
+/// program may not fork. Every process left under the sample directory is killed when the step ends (M3).
+Step launch(
+    string command,
+    at Places p,
+    to string outPath,
+    from string? stdin,
+    for string write,
+    until i64 limitMs,
+    bool noFork = false
+) fails EvalError {
     let status = $"{outPath}.status"
     var args = List<string>()
     for a in [p.launcher, "--write", write, "--deny-read", p.tasks, "--stdout", outPath, "--status", status] {
         args.append(a)
+    }
+    args.append("--sweep")
+    args.append(p.sample)
+    if noFork {
+        args.append("--no-fork")
     }
     if stdin is not null {
         args.append("--stdin")
@@ -279,7 +292,20 @@ Scored scoreSample(
     }
 
     // The sandbox in use, from a run that does nothing, so the record names it even when the first real step is stopped.
-    let probe = try launch("true", at: p, to: Path.combine(sample, "probe.stdout"), from: null, for: src, until: runMs)
+    let probe = try launch(
+        "true",
+        at: p,
+        to: Path.combine(sample, "probe.stdout"),
+        from: null,
+        for: src,
+        until: runMs,
+        noFork: true,
+    )
+    // A probe that fails means the launcher cannot run anything as asked (a profile sandbox-exec refused, say), so no
+    // result of this sample would mean anything.
+    fail .failed(
+        message: $"the launcher's probe exited {probe.exitCode} (limit {probe.limit}) in {sample}",
+    ) if probe.exitCode != 0 || probe.limit
 
     // compiles; lint-clean comes from the same run (R11).
     let check = try launch(
@@ -318,6 +344,7 @@ Scored scoreSample(
                     from: Fs.fileExists(stdinPath) ? stdinPath : null,
                     for: src,
                     until: runMs,
+                    noFork: true,
                 )
                 runNanos = Io.monotonicNanos() - started
                 limit = run.limit
@@ -1027,7 +1054,8 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
     var heldoutTasks: i64 = 0
     for split in splits {
         let part = ofSplit(counts, for: split)
-        if split == "heldout" && verified {
+        // No headline over part of the set (R21).
+        if split == "heldout" && verified && o.only is null {
             headline = 0
             for c in part {
                 headline += 1 if c.passedFirst
