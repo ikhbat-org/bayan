@@ -112,11 +112,11 @@ Placement C (decided 2026-11-17): these tasks do not block T51. They must be don
 
 - [x] T52 enact L040 every case is reported once — drafted 2026-11-18 as docs/laws/040-*.md, enacted 2026-11-18 — done when: L040 has `status: enacted`.
 - [x] T53 prove L040 via /prove — depends on T4 — done when: `laws-check.js --run` holds.
-- [ ] T54 enact L041 job count does not change the result — drafted 2026-11-18 as docs/laws/041-*.md, amended 2026-11-18 (D12: for runs in which no case reaches its time limit), awaiting enactment — done when: the user sets `status: enacted`.
+- [x] T54 enact L041 job count does not change the result — drafted 2026-11-18 as docs/laws/041-*.md, amended 2026-11-18 (D12: for runs in which no case reaches its time limit), awaiting enactment — done when: the user sets `status: enacted`. Enacted by owner 2026-11-18 ("Enact all four now").
 - [ ] T55 prove L041 via /prove — depends on T5 — done when: `laws-check.js --run` holds.
 - [x] T56 enact L042 a run without update writes nothing — drafted 2026-11-18 as docs/laws/042-*.md, enacted 2026-11-18 — done when: L042 has `status: enacted`.
 - [x] T57 prove L042 via /prove — depends on T6 — done when: `laws-check.js --run` holds.
-- [ ] T58 enact L043 frozen files come from the frozen compiler — drafted 2026-11-18 as docs/laws/043-*.md, amended 2026-11-18 (D4 option B: FREEZE.tsv export branch head, rows unchanged since the freeze, weekly sample re-export, full re-export on manual dispatch), awaiting enactment — done when: the user sets `status: enacted`.
+- [x] T58 enact L043 frozen files come from the frozen compiler — drafted 2026-11-18 as docs/laws/043-*.md, amended 2026-11-18 (D4 option B: FREEZE.tsv export branch head, rows unchanged since the freeze, weekly sample re-export, full re-export on manual dispatch), awaiting enactment — done when: the user sets `status: enacted`. Enacted by owner 2026-11-18 ("Enact all four now").
 - [ ] T59 prove L043 via /prove — depends on T20, T46 — done when: the weekly sample re-export (one class per kind, from the export branch head in FREEZE.tsv) reproduces every sampled manifest row unchanged since the freeze and outside the divergence list, and the full re-export runs on manual dispatch (D4 option B).
 - [ ] T60 enact L044 language server equivalence — drafted 2026-11-18 as docs/laws/044-*.md, amended 2026-11-18 (D13: "the recorded replies"), awaiting enactment; enact when T37 lands — done when: the user sets `status: enacted`.
 - [ ] T61 prove L044 via /prove — depends on T37 — done when: `laws-check.js --run` holds.

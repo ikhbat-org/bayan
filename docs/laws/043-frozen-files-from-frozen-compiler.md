@@ -1,7 +1,8 @@
 ---
 id: L043
 title: Frozen files come from the frozen compiler
-status: proposed
+status: enacted
+enacted: 2026-11-18
 release: unscheduled
 sources: spec 019 R10, R12, R13, R27
 kind: property

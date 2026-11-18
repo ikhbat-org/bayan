@@ -1,7 +1,8 @@
 ---
 id: L041
 title: Job count does not change the result
-status: proposed
+status: enacted
+enacted: 2026-11-18
 release: unscheduled
 sources: spec 019 R4
 kind: property
