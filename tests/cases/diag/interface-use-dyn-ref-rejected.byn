@@ -1,0 +1,30 @@
+// InterfaceUseTests.ConformingValuesConvertToDynRef, the conversions that do not exist: a non-conformer (`Square`), a
+// primitive, and `dyn ref readonly` to `dyn ref`.
+interface IShape {
+    i64 area()
+    string describe() => $"area {area()}"
+}
+
+struct Circle : IShape {
+    i64 r
+
+    i64 area() => 3 * r * r
+}
+
+struct Square {
+    i64 side
+}
+
+void show(dyn ref IShape s) => print(s.describe())
+
+void run() {
+    var s = Square { side: 2 }
+    show(s)
+    var n: i64 = 3
+    let m: dyn ref IShape = n
+    var c = Circle { r: 2 }
+    let r: dyn ref readonly IShape = c
+    let w: dyn ref IShape = r
+}
+
+run()

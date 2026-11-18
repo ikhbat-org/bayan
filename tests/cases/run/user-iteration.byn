@@ -1,0 +1,57 @@
+// UserIterationTests: `for … in` over `IIndexable` and `IEnumerator` conformers, untyped and typed, over a `var`, a call
+// (an rvalue enumerator, spilled to a hidden `var`) and a type with both.
+struct Digits : IIndexable {
+    type Item = i64
+
+    i64 count => 3
+
+    i64 get(i64 index) => index * 10
+}
+
+struct Countdown : IEnumerator {
+    type Item = i64
+
+    i64 left
+
+    bool moveNext(ref this) {
+        left -= 1
+        return left >= 0
+    }
+
+    i64 current => left
+}
+
+struct Both : IEnumerator, IIndexable {
+    type Item = i64
+
+    bool moveNext(ref this) => false
+
+    i64 current => 0
+
+    i64 count => 0
+
+    i64 get(i64 index) => index
+}
+
+Countdown from(i64 n) => Countdown { left: n }
+
+// ConformersBindWithUserIterationInBothForms
+void run() {
+    let digits = Digits {}
+    for d in digits { print($"{d}") }
+    for d: i64 in digits { print($"{d}") }
+    var steps = Countdown { left: 3 }
+    for n in steps { print($"{n}") }
+    for n: i64 in from(2) { print($"{n}") }
+    var both = Both {}
+    for b in both { print($"{b}") }
+}
+
+// AnRvalueEnumeratorIsSpilledToAHiddenVar
+void spill() {
+    for n in from(2) { print($"{n}") }
+}
+
+run()
+print("-")
+spill()
