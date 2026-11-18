@@ -34,6 +34,10 @@ case "$jobs" in (""|*[!0-9]*|0) echo "test.sh: --jobs expects a positive whole n
 
 os=unix; case "$(uname -s)" in (MINGW*|MSYS*|CYGWIN*) os=windows ;; (Linux) os=linux ;; esac
 mkdir -p "$root/tmp"
+# Every part shares one zig cache unless the caller names one: the driver puts zig's cache under each BAYAN_CACHE when
+# ZIG_GLOBAL_CACHE_DIR is unset (T17d), and the per-case caches of the golden runner then rebuild libc and compiler_rt
+# per case, past the 300 s limit on windows-latest (ci run 44276585184, 2026-11-18).
+export ZIG_GLOBAL_CACHE_DIR="${ZIG_GLOBAL_CACHE_DIR:-$root/tmp/zig-global}"
 logs="$(mktemp -d "$root/tmp/test.XXXXXX")" || exit 2
 failed=""
 
@@ -104,6 +108,7 @@ part() {
     summary "$name" pass $(( $(date +%s) - start )) "$detail"
   else
     summary "$name" FAIL $(( $(date +%s) - start )) "$detail (exit $rc; log: $logs/$name.log)"
+    grep -E '^(failed|timed out) |^  ✗ ' "$logs/$name.log" | head -n 40 | sed 's/^/    /'
     tail -n 20 "$logs/$name.log" | sed 's/^/    /'
     failed="$failed $name"
   fi

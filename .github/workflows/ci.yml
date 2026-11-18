@@ -20,65 +20,74 @@ jobs:
         include:
           - os: ubuntu-latest
             rid: linux-x64
-            exe: bayan
           - os: macos-latest
             rid: osx-arm64
-            exe: bayan
           - os: windows-latest
             rid: win-x64
-            exe: bayan.exe
     runs-on: ${{ matrix.os }}
     # Ported tools and SourcesAreFormatted run on the pinned bayan; a CI checkout has no local `dev`, so pin the commit under test.
     env:
       PINNED_BAYAN_REF: HEAD
     steps:
-      # Replaces actions/checkout (spec 015 handoff, T4): the exact commit at depth 1. The repo is public, so no token.
+      # Replaces actions/checkout (spec 015 handoff, T4): the exact commit and its parent (depth 2, for the bootstrap check).
+      # The repo is public, so no token.
       - name: Checkout
         shell: bash
         run: |
           git init -q .
-          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git fetch -q --depth=2 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
-      # Replaces actions/setup-dotnet: the SDK pinned in install-dotnet.sh, sha512-checked.
-      - name: Install .NET SDK
-        shell: bash
-        run: |
-          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
-          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
-          echo "$dotnet_root" >> "$GITHUB_PATH"
-      # The tests cross-compile (OutputTests) and `bayan doctor` expects zig; no runner image has it.
+      # The tests cross-compile and `bayan doctor` expects zig; no runner image has it. Windows has no cc, so zig builds stage 0.
       - name: Install zig
         shell: bash
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
-      - name: Script tests
+      # Stage 0 from bootstrap/bayan.c, stage 1 from src/ (spec 019 R24); the later steps run stage 1 as $BAYAN_EXE.
+      - name: Build from the bootstrap
+        shell: bash
+        run: |
+          s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }
+          echo "BAYAN_EXE=$s1" >> "$GITHUB_ENV"
+      # bootstrap/ is fresh and the previous commit's bootstrap still builds src/driver (spec 019 R26, R36). Windows has no
+      # cc for pinned-bayan.sh (T41b).
+      - name: Bootstrap check
         if: runner.os != 'Windows'
-        run: bash scripts/ci/script-tests.sh unix  # the list lives there; run it before a push (docs/bayan-contributing.md)
-      - name: Docs and release script tests
-        if: runner.os == 'Linux'
-        run: bash scripts/ci/script-tests.sh docs
+        shell: bash
+        run: bash scripts/ci/bootstrap-check.sh
       # macos-latest hit the same 600 s zig cc timeout on src/semantics as Windows below (ci run 43583631792,
       # 2026-11-14: 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
+      # The self-hosted runner limits each golden case and test block to 60 s (BAYAN_TEST_TIMEOUT_MS); the C# ran
+      # them in-process with none. out/dist (`bayan dist`, three targets, cold zig cache) passed it on ubuntu-latest and
+      # macos-latest (ci run 44238254448, 2026-11-18).
       - name: Test
         if: runner.os != 'Windows'
-        env: { BAYAN_TEST_TIME_SCALE: 3, BAYAN_CC_TIMEOUT_S: 1800 }
-        run: dotnet test Bayan.slnx -c Release
+        env: { BAYAN_CC_TIMEOUT_S: 1800, BAYAN_TEST_TIMEOUT_MS: 300000 }
+        run: bash scripts/test.sh
       # Windows has known failures until spec 014 (Q743); the next step decides the job.
       - name: Test (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true
+        shell: bash
         env:
-          BAYAN_TEST_TIME_SCALE: 3
           # zig cc of src/semantics took over the 600 s default on windows-latest (ci run 42602448089, 2026-11-09:
           # 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
           BAYAN_CC_TIMEOUT_S: 1800
-        run: dotnet test Bayan.slnx -c Release --logger "trx;LogFileName=windows.trx" --results-directory TestResults
+          # out/dist timed out at the 60 s default on windows-latest (ci run 44266558766) after passing in 44263151004. The
+          # zig cache is shared by scripts/test.sh; per-case caches put the style test over 300 s (ci run 44276585184).
+          BAYAN_TEST_TIMEOUT_MS: 300000
+        run: bash scripts/test.sh | tee test-report.txt
       - name: Check known failures (Windows)
         if: runner.os == 'Windows'
         shell: bash
         # The hosted Windows image names its Python `python`; `python3` is not guaranteed there.
-        run: python -I scripts/ci/known-failures.py tests/windows-known-failures.txt TestResults/windows.trx
-      - name: Publish (NativeAOT)
-        run: dotnet publish csharp/Bayan.Cli -c Release -r ${{ matrix.rid }} -o out
-      - name: Smoke test AOT binary
+        run: python -I scripts/ci/known-failures.py tests/windows-known-failures.txt test-report.txt
+      # scripts/test.sh keeps tmp/test.*/ (one log per part) only when a part fails.
+      - name: Upload test logs
+        if: failure() || runner.os == 'Windows'
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-logs-${{ matrix.rid }}
+          path: tmp/test.*/
+          if-no-files-found: ignore
+      - name: Smoke test stage 1 binary
         shell: bash
-        run: ./out/${{ matrix.exe }} --version
+        run: '"$BAYAN_EXE" --version'

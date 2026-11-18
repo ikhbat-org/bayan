@@ -20,7 +20,7 @@ import sys
 SUMMARY = re.compile(r"^test: (\w+)\s+(pass|FAIL|skip)\b(.*)$")
 LOG = re.compile(r"log: (.+)\)\s*$")
 GOLDEN = re.compile(r"^(?:failed|timed out) (\S+/\S+)\s*$")
-BAYAN = re.compile(r"^\s+✗ (.+)$")
+BAYAN = re.compile(r"^  ✗ (.+)$")  # indent 2 only: a nested ✗ (a build error inside a test's detail) is not a test name
 
 
 def read(path):
