@@ -489,6 +489,15 @@ public string call(
                 as: $"{{\n    uint8_t* p = NULL;\n    int64_t n = 0;\n    uint32_t err = byn_io_read_stdin_bytes(&p, &n, byn_context);\n    if (err == 0 && out) *out = ({list}){{p, n, n, byn_context}};\n    return err;\n}}\n",
             )
             return $"{name}({outArg})"
+        case .ioStdinRead:
+            let span = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[0]].type)
+            let name = helper(
+                ref cc,
+                for: "bynh_io_stdin_read",
+                from: $"static uint32_t bynh_io_stdin_read({span} buffer, int64_t* out)",
+                as: "{\n    return byn_io_read_stdin_some(buffer.ptr, buffer.len, out);\n}\n",
+            )
+            return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
         case .ioReadText:
             return $"byn_io_read_text({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg}, byn_context)"
         case .ioWriteFile:

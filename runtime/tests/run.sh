@@ -120,6 +120,14 @@ check zero-resize "hex 0, zero-byte requests 0
 check strbuf-grow "cap 128, taken text unchanged 1, old blocks handed back 0
 "
 
+check io-read-some 'stdout: "reply/#"
+short: err 0 got 3 "hel"
+rest: err 0 got 2 "lo"
+more: err 0 got 3 "xyz"
+end: err 0 got 0 ""
+closed: failed 1 got -1
+'
+
 # io-read-release.c: the heap is measured on macOS and glibc only, elsewhere the driver prints "unsupported".
 mkdir -p "$work/io"
 if build io-read-release; then
