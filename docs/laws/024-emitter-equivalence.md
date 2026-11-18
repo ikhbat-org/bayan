@@ -20,6 +20,12 @@ For every program `bayan check` accepts and every `BuildMode` (`debug`, `safe`, 
 (byte-identical to `examples/hello/main.byn`, which `CliTests` passes to `--emit-c`), and the 010 generator's well-typed programs on the
 fixed seeds, each in every `BuildMode`.
 
+## Proposed statement (019 T31, owner-approved template 2026-11-18)
+
+For every emit case in the freeze manifest, `bayan-emit` prints C whose SHA-256 equals the frozen hash in `tests/cases/emit/run-c.sha256`, in the mode the input's `// mode:` line names. The frozen files are the C# compiler's output at the freeze (L043).
+
+Dropped from the current Statement: the 010 generator's well-typed programs on the fixed seeds, and every `BuildMode` for each input. The frozen cases are the `tests/cases/run/` inputs, each as one hash in the mode its `// mode:` line names, and the C# backend that produced the other texts is gone. The `*.test.byn` inputs are among the hashed inputs.
+
 ## Counterexample looks like
 
 An input, a mode and the first line where the two outputs differ:
