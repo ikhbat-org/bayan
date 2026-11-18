@@ -55,7 +55,7 @@ ManifestTests	csharp/tests/Bayan.Tests/ManifestTests.cs	cli	70	cli	cli	reads cas
 MapKeyEmitTests	csharp/tests/Bayan.Tests/MapKeyEmitTests.cs	csharp-internals	5	emit-c	emit-c	key hash helpers in emitted C	
 MapKeyLawTests	csharp/tests/Bayan.Tests/MapKeyLawTests.cs	law	13	check	check:L016	law proof becomes a check: command (R18)	no export: typed rows
 MapModelTests	csharp/tests/Bayan.Tests/MapModelTests.cs	csharp-internals	49	bayan-test	lib/std map model test	reference model becomes a Bayan test; run/map-model.byn already golden (L003); ported 49 of 49: src/driver/mapmodel.byn (`map model: ` blocks, theory rows as @cases; the 40 generated sources are byte-equal to the C# generator's)	no export: typed rows
-MessagesTests	csharp/tests/Bayan.Tests/MessagesTests.cs	csharp-internals	4	bayan-test	lib/std bound tests	scans compiler string literals for prose; a Bayan test over src/*.byn literals	
+MessagesTests	csharp/tests/Bayan.Tests/MessagesTests.cs	csharp-internals	4	no counterpart		tests checked C# CLI source layout (a Messages registry with dotted ids, numbered placeholders, no prose literals in CliApp/Doctor/Dist); the self-hosted driver writes its text inline and has no registry, so a port would invent one; printed text stays covered line for line by the cli/ golden cases; owner approved 2026-11-18 on Fable's reading (OQ4)	
 MutantSchemataTests	csharp/tests/Bayan.Tests/MutantSchemataTests.cs	golden-folder	362	golden	tests/cases/mutate	folder runner reads the same files	no export: typed rows
 MutationRunnerTests	csharp/tests/Bayan.Tests/MutationRunnerTests.cs	cli	6	cli	cli	mutation statuses through bayan mutate	
 MutatorTests	csharp/tests/Bayan.Tests/MutatorTests.cs	csharp-internals	17	cli	cli	mutation sites through bayan mutate --list	

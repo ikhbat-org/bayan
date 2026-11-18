@@ -41,9 +41,9 @@ nice dotnet test csharp/tests/Bayan.Tests/Bayan.Tests.csproj --list-tests -v q
 
 ## OQ10 estimate, in test counts
 
-- 019a without the language server: 15490 tests to port (15589 minus 42 server tests minus 57 dropped or no counterpart)
+- 019a without the language server: 15486 tests to port (15589 minus 42 server tests minus 61 dropped or no counterpart)
 - Server port: 42 tests (`LanguageServerLeakTests` 22, `LanguageServerWorkspaceTests` 20)
-- 019b: 57 tests leave without a port, plus the removal commit
+- 019b: 61 tests leave without a port, plus the removal commit
 
 ## Per-class counts
 
@@ -105,7 +105,7 @@ nice dotnet test csharp/tests/Bayan.Tests/Bayan.Tests.csproj --list-tests -v q
 | MapKeyEmitTests | csharp-internals | 5 | emit-c |
 | MapKeyLawTests | law | 13 | check |
 | MapModelTests | csharp-internals | 49 | bayan-test |
-| MessagesTests | csharp-internals | 4 | bayan-test |
+| MessagesTests | csharp-internals | 4 | no counterpart |
 | MutantSchemataTests | golden-folder | 362 | golden |
 | MutationRunnerTests | cli | 6 | cli |
 | MutatorTests | csharp-internals | 17 | cli |
