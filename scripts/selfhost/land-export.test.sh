@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Tests scripts/selfhost/land-export.sh on a fixture export under tmp/: byte-for-byte copies, input/ as input.tsv with the
 # files and trees stored once by content (executable bit kept), the root masked in non-input text files only, cli/SelfhostExport
-# dropped, the doctor and cc masks, a binary input naming the machine left out, a removed case, EXPORT.tsv from UNEXPORTED.tsv, the case counts
+# dropped, the doctor, cc and T5 commit masks, a binary input naming the machine left out, a removed case, EXPORT.tsv from UNEXPORTED.tsv, the case counts
 # and the inventory, a rerun writing nothing, and the refusals.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -25,7 +25,7 @@ printf 'use "%s/lib"\n' "$R" > "$x/cli/AlphaTests/One-2/input.byn"              
 printf 'lex\n' > "$x/cli/AlphaTests/One-2/args"
 D=$x/cli/SelfhostDefaultT5Tests; mkdir -p "$D/Plain" "$D/Seeded" "$D/Color" "$x/cli/SelfhostDefaultT12Tests/Cc"
 E=$(printf "\033")
-printf "◆ bayan       0.3.2\n◆ host        macos-arm64\n◆ C compiler  /Users/q/bin/zig cc (clang 22)\n◆ zig         not found; x\n◆ git         /opt/homebrew/bin/git (git 2)\n◆ cache       %s/tmp/cache (writable)\n✗ zig: <repo>/zig is bad\n" "$R" > "$D/Plain/expected.stdout"
+printf "◆ bayan       0.3.2\n◆ host        macos-arm64\n◆ C compiler  /Users/q/bin/zig cc (clang 22)\n◆ zig         not found; x\n◆ git         /opt/homebrew/bin/git (git 2)\n◆ cache       %s/tmp/cache (writable)\n✗ zig: <repo>/zig is bad\n%s[31m✗ cache: /c isn't writable: Access to the path '/c/.d-1' is denied.%s[0m\nx (commit 9cf2) y\n" "$R" "$E" "$E" > "$D/Plain/expected.stdout"
 printf "NO_COLOR\nLANG=C\n" > "$D/Plain/env"
 printf "◆ cache       %s/tmp/p (writable)\n◆ git         /opt/homebrew/bin/git\n" "$R" > "$D/Seeded/expected.stdout"
 printf "BAYAN_CACHE=%s/tmp/p\n" "$R" > "$D/Seeded/env"
@@ -74,7 +74,7 @@ hb="$(printf "use \"<repo>/lib\"\n" | h)"
 [ "$(cat "$d/cli/AlphaTests/One-2/input.byn.ref")" = "file:$hb" ] || fail "input.byn.ref: $(cat "$d/cli/AlphaTests/One-2/input.byn.ref")"
 printf "use \"<repo>/lib\"\n" | cmp -s - "$d/inputs/files/$hb" || fail "input.byn not masked before hashing"
 D="$d/cli/SelfhostDefaultT5Tests"
-printf "◆ bayan       0.3.2\n◆ host        <host>\n◆ C compiler  <host>\n◆ zig         not found; x\n◆ git         <host>\n◆ cache       <host>\n✗ zig: <repo>/zig is bad\n" | cmp -s - "$D/Plain/expected.stdout" || fail "doctor mask: $(cat "$D/Plain/expected.stdout")"
+printf "◆ bayan       <version>\n◆ host        <host>\n◆ C compiler  <host>\n◆ zig         not found; x\n◆ git         <host>\n◆ cache       <host>\n✗ zig: <repo>/zig is bad\n%s[31m✗ cache: /c isn't writable: <message>%s[0m\nx (commit <c>) y\n" "$E" "$E" | cmp -s - "$D/Plain/expected.stdout" || fail "doctor mask: $(cat "$D/Plain/expected.stdout")"
 printf "◆ cache       <repo>/tmp/p (writable)\n◆ git         <host>\n" | cmp -s - "$D/Seeded/expected.stdout" || fail "seeded cache mask: $(cat "$D/Seeded/expected.stdout")"
 printf "%s[32m◆%s[0m host        <host>\n* zig         <host>\n" "$(printf "\033")" "$(printf "\033")" | cmp -s - "$D/Color/expected.stdout" || fail "coloured doctor mask"
 printf "x\nC compiler failed (exit 1):\n<cc output>\n" | cmp -s - "$d/cli/SelfhostDefaultT12Tests/Cc/expected.stderr" || fail "cc output mask"
