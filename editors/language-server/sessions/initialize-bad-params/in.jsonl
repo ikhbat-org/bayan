@@ -1,0 +1,13 @@
+{"raw":"Content-Length: 46\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\"}"}
+{"raw":"Content-Length: 60\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"initialize\",\"params\":null}"}
+{"raw":"Content-Length: 58\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"initialize\",\"params\":[]}"}
+{"raw":"Content-Length: 80\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":4,\"method\":\"initialize\",\"params\":{\"workspaceFolders\":[1]}}"}
+{"raw":"Content-Length: 81\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":5,\"method\":\"initialize\",\"params\":{\"workspaceFolders\":[{}]}}"}
+{"raw":"Content-Length: 88\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":6,\"method\":\"initialize\",\"params\":{\"workspaceFolders\":[{\"uri\":5}]}}"}
+{"raw":"Content-Length: 93\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":7,\"method\":\"initialize\",\"params\":{\"workspaceFolders\":null,\"rootUri\":7}}"}
+{"raw":"Content-Length: 103\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":8,\"method\":\"initialize\",\"params\":{\"workspaceFolders\":[{\"uri\":null}],\"rootUri\":7}}"}
+{"raw":"Content-Length: 77\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":9,\"method\":\"initialize\",\"params\":{\"rootUri\":\"\\ud800A\"}}"}
+{"raw":"Content-Length: 78\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":10,\"method\":\"initialize\",\"params\":{\"rootUri\":\"\\ud800x\"}}"}
+{"raw":"Content-Length: 77\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":11,\"method\":\"initialize\",\"params\":{\"rootUri\":\"\\u0000\"}}"}
+{"raw":"Content-Length: 80\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":12,\"method\":\"initialize\",\"params\":{\"rootUri\":\"\\ud800\\\\n\"}}"}
+{"raw":"Content-Length: 77\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":13,\"method\":\"initialize\",\"params\":{\"rootUri\":\"\\udc00\"}}"}

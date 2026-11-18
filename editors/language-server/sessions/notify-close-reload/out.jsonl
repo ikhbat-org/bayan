@@ -1,0 +1,14 @@
+{"jsonrpc":"2.0","id":1,"result":{"capabilities":{"textDocumentSync":{"openClose":true,"change":2},"completionProvider":{"resolveProvider":true,"triggerCharacters":[".","@"]},"hoverProvider":true,"definitionProvider":true,"documentSymbolProvider":true,"workspaceSymbolProvider":true,"signatureHelpProvider":{"triggerCharacters":["(",","]}},"serverInfo":{"name":"bayan-lsp","version":"0.0.1"}}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/src/a.byn","version":1,"diagnostics":[{"range":{"start":{"line":0,"character":5},"end":{"line":0,"character":6}},"severity":1,"code":"BYN1040","source":"bayan","message":"`;` is not needed; a newline ends the statement"}]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/src/a.byn","diagnostics":[]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/src/a.byn","diagnostics":[]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/src/b.byn","diagnostics":[{"range":{"start":{"line":0,"character":0},"end":{"line":0,"character":0}},"severity":2,"source":"bayan","message":"file is larger than 4 MiB; the language server does not analyse it"}]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/src/b.byn","diagnostics":[]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/src/b.byn","diagnostics":[]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/src/c.byn","version":1,"diagnostics":[{"range":{"start":{"line":0,"character":1},"end":{"line":0,"character":2}},"severity":1,"code":"BYN1040","source":"bayan","message":"`;` is not needed; a newline ends the statement"}]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/src/c.byn","diagnostics":[]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/src/d.byn","diagnostics":[]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/tmp/t.byn","version":1,"diagnostics":[{"range":{"start":{"line":0,"character":1},"end":{"line":0,"character":2}},"severity":1,"code":"BYN1040","source":"bayan","message":"`;` is not needed; a newline ends the statement"}]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file://@WS@/root/tmp/t.byn","diagnostics":[]}}
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"untitled:x","diagnostics":[]}}
+{"jsonrpc":"2.0","id":2,"result":null}

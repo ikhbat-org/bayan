@@ -1,0 +1,4 @@
+message of 12 bytes: hello, world
+message of 21 bytes: {"method":"shutdown"}
+read returned 0 after 17 reads
+0 bytes left; still running

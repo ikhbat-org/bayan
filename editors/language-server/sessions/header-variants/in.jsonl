@@ -1,0 +1,22 @@
+{"raw":"content-length: 21\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"CONTENT-LENGTH:21\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length:   21   \r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: +21\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: \t21\t\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21\u0000\u0000\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21\n\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"\r\n\r\nContent-Length: 21\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Type: x\r\nContent-Length: 21\r\nX: y\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 5\r\nContent-Length: 21\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21\r\nContent-Length: zz\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21\r\nContent-Length: -1\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: -0\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 1_0\r\nContent-Length: 21\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 99999999999999999999\r\nContent-Length: 21\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21\r\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21\r\n\r\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21\r\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21                                                                                                                                                                                                                                                                                                            \r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21é\r\n\r\n{\"id\":1,\"method\":\"h\"}"}
+{"raw":"Content-Length: 21\r\n\r\n{\"id\":1,\"method\":\"h\"}"}

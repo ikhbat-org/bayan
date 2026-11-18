@@ -55,3 +55,26 @@ request	-	signatureHelp	requests-tour deep-brackets-and-blocks	a declared functi
 request	-	workspace/symbol	requests-tour folder-delete-and-rename index-skips-dirs	a query and the empty query
 request	-	didChangeWatchedFiles	folder-delete-and-rename watcher-excluded-outside known-file-grown-past-size	created, changed and deleted
 request	-	publishDiagnostics	requests-tour diagnostics-capped oversized-open-buffer	with and without version, empty, the too-large notice, the 1,001-entry cap
+protocol	-	initialize	lifecycle-initialize	the capabilities reply with no root, an empty workspaceFolders and a rootUri that is not a URI; a string id is echoed
+protocol	-	shutdown	lifecycle-shutdown-exit	shutdown answers null; later requests get -32600, a notification is ignored, exit ends the session and a request after it is not read
+protocol	-	exit-without-shutdown	lifecycle-exit-without-shutdown	exit before shutdown ends the session at once (exit code 1, not 0; out.jsonl holds no exit code)
+protocol	-	method-not-found	method-not-found	-32601 with the method echoed; null id is a notification; number ids echoed as written, string ids unescaped and re-escaped
+protocol	-	initialize-params	initialize-bad-params	params missing, null, an array, folders without a string uri, and surrogate escapes in rootUri give -32603 with the .NET exception message
+protocol	-	message-shapes	message-shapes	a root that is not an object, no or non-string method, bool or object id, and repeated keys (the last wins)
+protocol	-	malformed-json	malformed-json	bodies JsonDocument refuses (comments, BOM, trailing commas, leading zeros, NaN, control characters, content after the value) are skipped
+protocol	-	json-depth	json-depth-limit	64 nested arrays or objects are read, 65 are refused
+protocol	-	headers	header-variants	Content-Length in any case, with spaces, tabs, a sign or trailing NULs; other headers, stray blank lines, invalid values, the last valid one wins; lines over 256 bytes are cut
+protocol	-	header-eof	header-cut-by-eof	input ends inside a header line
+protocol	-	header-no-blank-eof	header-without-blank-line-eof	input ends after a header before the blank line
+protocol	-	zero-length	zero-length-body	a Content-Length 0 body is bad JSON and skipped
+protocol	-	oversized-eof	oversized-body-at-eof	a body over 64 MiB is dropped; input ending while it is skipped ends the session
+protocol	-	oversized-skip	oversized-body-skipped	a body over 64 MiB is skipped and the next message is answered
+protocol	-	size-limit	body-at-size-limit	a body of exactly 64 MiB is read
+protocol	-	crash-method	crash-on-lone-surrogate-method	a lone surrogate escape in method ends the C# server with an unhandled exception; nothing after it is answered
+protocol	-	crash-id	crash-on-lone-surrogate-id	a lone surrogate escape in a string id cannot be written back; the server ends
+protocol	-	reply-escaping	reply-escaping	every BMP scalar and some astral ones echoed in a -32601 message
+protocol	-	open-diagnostics	notify-open-diagnostics	didOpen publishes diagnostics for CRLF, non-ASCII, untitled: and reopened documents, including a warning-severity BYN1047
+protocol	-	change-edits	notify-change-edits	didChange with full and ranged edits, out-of-range clamping, negative character, null text, unknown uri, the too-large notice and recovery
+protocol	-	close-reload	notify-close-reload	didClose reloads from disk, drops excluded tmp/ and too-large documents, and clears not-on-disk, never-opened and untitled documents
+protocol	-	watched-files	notify-watched-files	didChangeWatchedFiles creates, changes and deletes files and folders; excluded, outside-root and symlinked paths are ignored
+protocol	-	budget-stop	notify-budget-stop	watched creates past 256 MiB of characters stop indexing; the one log line goes to stderr, which is not compared
