@@ -44,6 +44,13 @@ rc=0; out="$("$BASH" "$s" --only runtime --jobs 5 2>&1)" || rc=$?
 [ -f "$tmp/runtime.args" ] && [ ! -f "$tmp/golden.args" ] && [ ! -f "$tmp/bayan.args" ] && [ ! -f "$tmp/parity.args" ] && [ ! -f "$tmp/scripts.args" ] \
   || fail "--only runtime ran another part: $out"
 
+
+printf '#!/bin/sh\necho "$ZIG_GLOBAL_CACHE_DIR" > "%s/zig.dir"\n' "$tmp" > "$tmp/runtime"; chmod +x "$tmp/runtime"
+rc=0; (unset ZIG_GLOBAL_CACHE_DIR; "$BASH" "$s" --only runtime >/dev/null 2>&1) || rc=$?
+[ $rc = 0 ] && [ "$(cat "$tmp/zig.dir")" = "$root/tmp/zig-global" ] || fail "an unset ZIG_GLOBAL_CACHE_DIR is not tmp/zig-global: $(cat "$tmp/zig.dir")"
+rc=0; ZIG_GLOBAL_CACHE_DIR="$tmp/own-zig" "$BASH" "$s" --only runtime >/dev/null 2>&1 || rc=$?
+[ $rc = 0 ] && [ "$(cat "$tmp/zig.dir")" = "$tmp/own-zig" ] || fail "a set ZIG_GLOBAL_CACHE_DIR was replaced: $(cat "$tmp/zig.dir")"
+stub runtime 0
 rc=0; "$BASH" "$s" --jobs 0 >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "--jobs 0 exited $rc, not 2"
 rc=0; "$BASH" "$s" --only nope >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "--only nope exited $rc, not 2"
 echo "test.test: all passed"
