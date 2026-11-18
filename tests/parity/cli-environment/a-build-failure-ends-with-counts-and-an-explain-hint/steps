@@ -1,0 +1,4 @@
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u $BAYAN build broken/main.byn
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u $BAYAN check check-fail/main.byn
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u $BAYAN check --color always broken/main.byn
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u $BAYAN --ascii check broken/main.byn

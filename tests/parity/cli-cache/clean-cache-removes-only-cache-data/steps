@@ -1,0 +1,2 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; $BAYAN build tally > /dev/null; echo "build $?"
+$ echo "not bayan's" > cache/keep.txt; $BAYAN clean --cache tally > out.txt; echo "clean $?"; grep -qF "removed $WORK/cache/v1" out.txt && echo "removed the data"; [ -d cache/v1 ] || echo "data gone"; cat cache/keep.txt

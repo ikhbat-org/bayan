@@ -1,0 +1,16 @@
+== 1 exit 0
+new 0
+build 0
+== 2 exit 0
+stats 0
+cache:    $WORK/cache
+programs: 1 (
+scripts:  0
+== 3 exit 0
+cache 2
+1
+== 4 exit 0
+clean 0
+0
+0
+executable kept

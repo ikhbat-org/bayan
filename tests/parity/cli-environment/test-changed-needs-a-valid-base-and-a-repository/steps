@@ -1,0 +1,3 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; mkdir -p tally/src/money && cp money.byn tally/src/money/money.byn && cp main.byn tally/src/app/main.byn && cd tally && g() { git -c core.hooksPath=.no-hooks -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false "$@"; } && g init --quiet -b work && g add -A && g commit --quiet -m start && echo "repo $?"
+$ $BAYAN test tally --base no-such-ref 2> e.txt; echo "test $?"; grep -o "can't compare the working tree with \`no-such-ref\`" e.txt
+$ GIT_CEILING_DIRECTORIES=$PWD $BAYAN test loose --changed 2> e.txt; echo "test $?"; grep -o 'needs a git repository' e.txt

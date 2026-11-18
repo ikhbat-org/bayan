@@ -1,0 +1,3 @@
+a.txt
+$ $BAYAN a.txt; echo two > b.txt; echo err >&2; exit 3
+b.txt

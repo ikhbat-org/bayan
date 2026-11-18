@@ -1,0 +1,7 @@
+built in #s · #s
+v1.2.3s keep 1.5sx
+cache/v1/tmp/<staging>
+key 0123456789abcdef-0123456789abcdef0123456789abcdefa
+bayan: cannot write the build output or cache (/x/cache): <error>
+bayan: cannot read `a.byn`: <error>
+bayan: cannot run: keep this

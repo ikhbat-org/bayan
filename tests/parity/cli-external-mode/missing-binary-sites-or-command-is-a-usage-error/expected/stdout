@@ -1,0 +1,5 @@
+== 1 exit 0
+mutate --sites $WORK/prog.sites.json -- true: 2 1
+mutate --binary $WORK/prog -- true: 2 1
+mutate --binary $WORK/prog --sites $WORK/prog.sites.json: 2 1
+mutate --binary $WORK/prog --sites $WORK/prog.sites.json --: 2 1

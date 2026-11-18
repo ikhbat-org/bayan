@@ -1,0 +1,1 @@
+$ $BAYAN test --mutate --run '"$BAYAN_BINARY" --test 0 >/dev/null' $WORK/p > out.txt 2> err.txt; echo "test $?"; grep -oF 'arithmetic `n + 1` -> `n - 1`: killed' out.txt; grep -oF 'mutation: 4 killed, 0 survived' out.txt; grep -oF '"tool": "bayan test --mutate --run"' p/out/test/bayan-quality.json

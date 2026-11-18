@@ -1,0 +1,1 @@
+$ $BAYAN doctor > out.txt; echo "doctor $?"; grep -F -e '✗ cache: ' -e '  help: set BAYAN_CACHE' out.txt

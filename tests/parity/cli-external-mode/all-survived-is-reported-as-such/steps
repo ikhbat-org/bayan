@@ -1,0 +1,1 @@
+$ $BAYAN mutate --binary $WORK/prog --sites $WORK/prog.sites.json -- /bin/sh -c 'exit 0' > out.txt; echo "mutate $?"; grep '^mutation:' out.txt; grep -c '^survived:' out.txt

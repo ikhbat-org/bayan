@@ -1,0 +1,7 @@
+public i64 cents(i64 units) {
+    return units * 100
+}
+
+test "cents" {
+    assert(cents(2) == 200)
+}
