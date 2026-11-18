@@ -27,7 +27,7 @@ four() { echo "$(get "$1" compiles) $(get "$1" passes) $(get "$1" lintClean) $(g
 
 mac=false
 [ "$(uname -s)" = Darwin ] && [ -x /usr/bin/sandbox-exec ] && mac=true
-sandbox=none; $mac && sandbox=sandbox-exec
+sandbox=none; $mac && sandbox=sandbox-exec/2
 
 # A stdout task that expects exit code 3, and a tests task whose test calls `shout()`.
 header() { printf '# %s\n\nTitle: test task\nCategory: %s\nTier: 1\nSplit: dev\nRevision: 0023\nChecked: none\nCheck: %s\n\n## Files\n\n## Notes\n\n## Check command\n' "$1" "$2" "$3"; }
@@ -46,7 +46,9 @@ printf 'i32 main() {\n    print("salam")\n    return 3\n}\n' > "$root/cand/right
 printf 'i32 main() {\n    print("salam")\n    return 0\n}\n' > "$root/cand/wrong-code.byn"
 printf 'i32 main() {\n    var code = 3\n    print("salam")\n    return code\n}\n' > "$root/cand/lint.byn"
 printf 'void main() {\n    print(nope)\n}\n' > "$root/cand/broken.byn"
-printf 'void main() {\n    var n: i64 = 0\n    while true {\n        n += 1\n    }\n}\n' > "$root/cand/loop.byn"
+# The loop ends by itself after 40 seconds, so a scorer that failed to stop it leaves nothing running for long.
+printf 'void main() {\n    let start = Io.monotonicNanos()\n    var n: i64 = 0\n    while Io.monotonicNanos() - start < 40000000000 {\n        n += 1\n    }\n}\n' > "$root/cand/loop.byn"
+printf 'i32 main(ReadOnlySpan<string> args) {\n    if args.length > 0 {\n        while true {\n        }\n    }\n    var child = List<string>()\n    child.append("child")\n    let _ = Io.run("../bin/solution", child.span) catch return 1\n    print("salam")\n    return 3\n}\n' > "$root/cand/spawn.byn"
 printf '/// Prints without end.\nvoid shout() {\n    while true {\n        print("a line that repeats")\n    }\n}\n' > "$root/cand/shout.byn"
 cat "$seed/errors-001-prayer-time/reference/solution.byn" > "$root/cand/with-main.byn"
 printf '\nvoid main() {\n}\n' >> "$root/cand/with-main.byn"
@@ -81,6 +83,34 @@ check "tests candidate with a main" "$code $(get with-main compiles) $(get with-
 score loop "$exit3" "$root/cand/loop.byn"
 check "loop gives limit" "$code $(get loop compiles) $(get loop passes) $(get loop outcome)" '0 true false "limit"'
 check "loop is stopped at the run limit" "$([ $((secs - secsRight)) -ge 8 ] && [ $((secs - secsRight)) -le 30 ] && echo yes)" "yes"
+# The time limit reaches the launcher as TERM; its sweep kills the candidate, which runs in a process group of its own (M3).
+# Each later launch on the sample sweeps it too, so llm-sandbox.test.sh tests the TERM sweep alone.
+if $mac; then
+  check "loop leaves no process" "$(lsof -a -d txt -u "$(id -u)" -Fn 2> /dev/null | grep -c "^n$root/out/loop/")" "0"
+fi
+
+# A stdout candidate that starts a child (which would run without end) cannot fork on macOS, so it fails, and nothing of it
+# is left running (M3).
+if $mac; then
+  score spawn "$exit3" "$root/cand/spawn.byn"
+  check "a candidate that starts a child fails and leaves no process" \
+    "$code $(get spawn outcome) $(lsof -a -d txt -u "$(id -u)" -Fn 2> /dev/null | grep -c "^n$root/out/spawn/")" '0 "fail" 0'
+fi
+
+# A launcher whose probe does not run the program (exit 65, as sandbox-exec gives for a profile it refuses): the scoring
+# fails and writes no record (M1). The stub sits in a copy of the files the tool needs.
+fake=$root/fake-repo
+mkdir -p "$fake/scripts/evals" "$fake/tools" "$fake/evals/llm"
+cp scripts/bayan-tool.sh scripts/pinned-bayan.sh "$fake/scripts/"
+cp tools/llm-eval.byn "$fake/tools/"
+cp evals/llm/preamble.md "$fake/evals/llm/"
+cat > "$fake/scripts/evals/llm-sandbox.sh" <<'EOF'
+while [ $# -gt 0 ]; do case "$1" in (--status) status=$2; shift 2 ;; (--stdout) : > "$2"; shift 2 ;; (--) break ;; (*) shift ;; esac; done
+printf 'exit: 65\nlimit: false\nsandbox: stub\n' > "$status"
+EOF
+PINNED_BAYAN=$(bash scripts/pinned-bayan.sh) bash "$fake/scripts/bayan-tool.sh" llm-eval score "$exit3" "$root/cand/right.byn" \
+  --out "$root/out/probe" > "$root/rec/probe" 2> "$root/rec/probe.err"
+check "a probe that exits non-zero fails the scoring, no record" "$([ $? != 0 ] && echo failed) $(wc -c < "$root/rec/probe" | tr -d ' ')" "failed 0"
 
 # A test that prints without end reaches the per-test run limit (R14).
 score shout "$loud" "$root/cand/shout.byn"
@@ -293,17 +323,30 @@ bash scripts/bayan-tool.sh llm-eval run "$seed" --model "cat $root/cand/broken.b
 check "run: git status shows nothing written under the tasks directory" \
   "$? $(git status --porcelain --ignored --untracked-files=all -- "$seed" | wc -l | tr -d ' ') $(grep -c '"outcome": "no-compile"' "$root/out/seed-run/1/records.jsonl")" "0 0 1"
 
-# The whole run, the tool and the stub, inside the launcher's network denial (R34). Writes go only under $root. The pin is
-# found outside: pinned-bayan.sh touches the shared cache, which the sandbox denies. On macOS the scorer's own launches
-# fail there (sandbox-exec cannot apply a second, different profile), so this checks that the run completes, not the score.
+# The whole run, the tool and the stub, inside a network denial (R34). Writes go only under $root. The pin is found
+# outside: pinned-bayan.sh touches the shared cache, which the sandbox denies.
 mkdir -p "$root/net-tmp" "$root/net-cache"
 pinned=$(bash scripts/pinned-bayan.sh)
-TMPDIR=$root/net-tmp BAYAN_CACHE=$root/net-cache bash scripts/evals/llm-sandbox.sh --write "$root" --stdout "$root/rec/net" \
-  --status "$root/rec/net.status" -- env "PINNED_BAYAN=$pinned" bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" \
-  --model "sh $root/model.sh $root/reply-two $root/rec/net.prompt 7" --machine m --out "$root/out/run-net" 2> "$root/rec/net.err"
-status() { sed -n "s/^$1: //p" "$root/rec/net.status"; }
-check "run: completes inside the network denial" "$(status exit) $(status sandbox) $(get net tokens) $(cmp -s "$root/rec/net.prompt" "$root/want-plain" && echo same)" "0 $sandbox 7 same"
-[ "$(status exit)" = 0 ] || { echo "  net.status:"; sed 's/^/    /' "$root/rec/net.status"; echo "  net.err (last 40 lines):"; tail -40 "$root/rec/net.err" | sed 's/^/    /'; }
+if $mac; then
+  # The launcher's own profile cannot hold the tool (it denies reads of the repo and exec of anything but its program), so
+  # the denial here is a profile of network and writes only. The scorer's launches cannot apply their profile inside it
+  # (sandbox-exec cannot apply a second one), so the probe fails and the run stops there, after the model command ran.
+  real=$(cd "$root" && pwd -P)
+  env -i "HOME=$root/net-tmp" "PATH=$PATH" "TMPDIR=$root/net-tmp" "BAYAN_CACHE=$root/net-cache" "DOTNET_ROOT=${DOTNET_ROOT:-}" \
+    "PINNED_BAYAN=$pinned" /usr/bin/sandbox-exec -p "(version 1) (allow default) (deny network*) (deny file-write*)
+      (allow file-write* (literal \"/dev/null\") (literal \"/dev/dtracehelper\") (subpath \"$real\"))" \
+    bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model "sh $root/model.sh $root/reply-two $root/rec/net.prompt 7" \
+    --machine m --out "$root/out/run-net" > "$root/rec/net" 2> "$root/rec/net.err"
+  check "run: inside the network denial the model command runs, then the probe stops the scoring" \
+    "$([ $? != 0 ] && echo stopped) $(grep -c "the launcher's probe exited" "$root/rec/net.err") $(cmp -s "$root/rec/net.prompt" "$root/want-plain" && echo same)" "stopped 1 same"
+else
+  TMPDIR=$root/net-tmp BAYAN_CACHE=$root/net-cache bash scripts/evals/llm-sandbox.sh --write "$root" --stdout "$root/rec/net" \
+    --status "$root/rec/net.status" -- env "PINNED_BAYAN=$pinned" bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" \
+    --model "sh $root/model.sh $root/reply-two $root/rec/net.prompt 7" --machine m --out "$root/out/run-net" 2> "$root/rec/net.err"
+  status() { sed -n "s/^$1: //p" "$root/rec/net.status"; }
+  check "run: completes inside the network denial" "$(status exit) $(status sandbox) $(get net tokens) $(cmp -s "$root/rec/net.prompt" "$root/want-plain" && echo same)" "0 $sandbox 7 same"
+  [ "$(status exit)" = 0 ] || { echo "  net.status:"; sed 's/^/    /' "$root/rec/net.status"; echo "  net.err (last 40 lines):"; tail -40 "$root/rec/net.err" | sed 's/^/    /'; }
+fi
 
 # Stamp and heldout guard (T9). A git repository holding a set with one `dev` and one `Split: heldout` task, both
 # synthetic. The stamp goes to $LLM_EVAL_STAMP_DIR, under $root.
@@ -345,6 +388,9 @@ check "recheck --only writes no stamp" "$code $(grep -c '^no stamp: --only' "$ro
 hrun held-stamped --remote example-provider
 check "run: heldout with the stamp is verified and has the headline" \
   "$code $(holds '"verified":true') $(holds '"headline":{"split":"heldout","tasks":1,"pass@1":{"count":1,"rate":1.0000}}')" "0 holds holds"
+# --only scores part of the set: no headline, even when verified (R21).
+hrun held-only --remote example-provider --only small-901-kept
+check "run: --only writes no headline" "$code $(holds '"verified":true') $(grep -c '"headline"' "$root/out/held-only/1/summary.json")" "0 holds 0"
 # The stamp does not verify the same commit once a file is changed.
 printf '\n' >> "$hs/small-900-salam/prompt.md"
 hrun held-dirty --remote example-provider
@@ -352,18 +398,25 @@ check "run: uncommitted changes are not verified" "$code $(holds '"verified":fal
 g checkout -q -- .
 
 # A compiler whose version line names no commit (a self-hosted one): the commit comes from the pin's ref, in its own stamp
-# field; with no commit from either, no stamp. The fake answers --version and hands everything else to the real compiler.
+# field; with no commit from either, no stamp. The fake answers --version and hands everything else to the real compiler,
+# which runs the tool. The set it rechecks is committed and holds no task, so no scored step runs: the sandbox lets a step
+# exec the program alone, so the fake could not hand a step on.
 real=$(bash scripts/pinned-bayan.sh)
 printf '#!/bin/sh\nif [ "$1" = --version ]; then echo "bayan 0.3.3-dev (selfhost)"; exit 0; fi\nexec "%s" "$@"\n' "$real" > "$root/fake-bayan"
 chmod +x "$root/fake-bayan"
+mkdir -p "$root/sets/empty"
+printf 'No tasks.\n' > "$root/sets/empty/README.md"
+ge() { git -C "$root/sets/empty" -c user.name=test -c user.email=test@example.invalid -c commit.gpgsign=false -c core.hooksPath=/dev/null "$@"; }
+ge init -q && ge add -A && ge commit -qm empty
+ecommit=$(ge rev-parse HEAD)
 pincommit=$(git rev-parse HEAD)
-pstamp=$LLM_EVAL_STAMP_DIR/$hcommit-$pincommit
-PINNED_BAYAN=$root/fake-bayan PINNED_BAYAN_REF=HEAD recheck held
+pstamp=$LLM_EVAL_STAMP_DIR/$ecommit-$pincommit
+PINNED_BAYAN=$root/fake-bayan PINNED_BAYAN_REF=HEAD recheck empty
 check "recheck: version line without a commit, the stamp takes the pin's commit" \
-  "$code $(grep -c "^stamp: $pstamp\$" "$root/rec/rc-held") $(sed -n 's/^compilerCommit: //p' "$pstamp" 2> /dev/null) $(grep -c '^compiler: bayan 0.3.3-dev (selfhost)$' "$pstamp" 2> /dev/null)" "0 1 $pincommit 1"
-PINNED_BAYAN=$root/fake-bayan PINNED_BAYAN_REF=no-such-ref recheck held
+  "$code $(grep -c "^stamp: $pstamp\$" "$root/rec/rc-empty") $(sed -n 's/^compilerCommit: //p' "$pstamp" 2> /dev/null) $(grep -c '^compiler: bayan 0.3.3-dev (selfhost)$' "$pstamp" 2> /dev/null)" "0 1 $pincommit 1"
+PINNED_BAYAN=$root/fake-bayan PINNED_BAYAN_REF=no-such-ref recheck empty
 check "recheck: no commit from the version line or the pin, no stamp" \
-  "$code $(grep -c '^no stamp: neither' "$root/rec/rc-held") $(ls "$LLM_EVAL_STAMP_DIR" | wc -l | tr -d ' ')" "0 1 2"
+  "$code $(grep -c '^no stamp: neither' "$root/rec/rc-empty") $(ls "$LLM_EVAL_STAMP_DIR" | wc -l | tr -d ' ')" "0 1 2"
 
 # --remote is required for a heldout run without --machine (and --machine or --remote for any run, R32).
 hrun held-anon
