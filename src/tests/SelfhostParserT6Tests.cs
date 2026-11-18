@@ -249,7 +249,7 @@ public sealed class SelfhostParserT6Tests(ITestOutputHelper output)
         if (SelfhostExport.Dir is not { } root) return false;
         var dir = SelfhostExport.Case(root, "parse", nameof(SelfhostParserT6Tests), test);
         SelfhostExport.WriteInput(dir, [input]);
-        SelfhostExport.WriteExpected(dir, "args", string.Concat(args.Select(a => a + "\n")));
+        SelfhostExport.WriteExpected(dir, "args", SelfhostExport.Args(args));
         SelfhostExport.WriteExpected(dir, "expected." + what, expected);
         return true;
     }

@@ -904,7 +904,7 @@ public sealed class SelfhostDefaultT9Tests
             {
                 last = SelfhostExport.Case(export, "cli", nameof(SelfhostDefaultT9Tests), $"{step.Test}-{name}");
                 SelfhostExport.WriteInput(last, [snapshot]);
-                SelfhostExport.WriteExpected(last, "args", string.Concat(step.Args.Select(x => x + "\n")));
+                SelfhostExport.WriteExpected(last, "args", SelfhostExport.Args(step.Args));
                 if (step.Env is { Length: > 0 } env)
                     SelfhostExport.WriteExpected(last, "env", string.Concat(env.Select(e => (e.Value is null ? "-" + e.Name : $"{e.Name}={e.Value.Replace(Environment.GetEnvironmentVariable("PATH") ?? "\0", "$PATH").Replace(Golden.RepoRoot + Path.DirectorySeparatorChar, "")}") + "\n")));
                 SelfhostExport.WriteExpected(last, "expected.exitcode", $"{expected.Exit}\n");

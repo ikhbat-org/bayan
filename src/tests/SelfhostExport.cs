@@ -84,9 +84,9 @@ public static class SelfhostExport
     }
 
     /// <summary>
-    /// The program the C# side compiled: one plain file as <c>input.&lt;ext&gt;</c>; a directory, or a <c>main.byn</c> (which the
-    /// C# compiles with its directory, as <see cref="SelfhostEmitterHarness.Isolate"/> copies it), as the tree under <c>input/</c>;
-    /// several paths each under <c>input/&lt;name&gt;</c>.
+    /// The program the C# side compiled: one plain file as <c>input.&lt;ext&gt;</c>, with <c>input.name</c> holding the file's
+    /// own name when it differs; a directory, or a <c>main.byn</c> (which the C# compiles with its directory, as
+    /// <see cref="SelfhostEmitterHarness.Isolate"/> copies it), as the tree under <c>input/</c>; several paths each under <c>input/&lt;name&gt;</c>.
     /// </summary>
     internal static void WriteInput(string dir, IReadOnlyList<string> paths)
     {
@@ -95,7 +95,9 @@ public static class SelfhostExport
         {
             var fileName = Path.GetFileName(paths[0]);
             var dot = fileName.IndexOf('.');
-            File.Copy(paths[0], Path.Combine(dir, "input" + (dot < 0 ? "" : fileName[dot..])));
+            var staged = "input" + (dot < 0 ? "" : fileName[dot..]);
+            File.Copy(paths[0], Path.Combine(dir, staged));
+            if (fileName != staged) WriteExpected(dir, "input.name", fileName + "\n");
             return;
         }
         for (var i = 0; i < paths.Count; i++)
@@ -123,6 +125,10 @@ public static class SelfhostExport
     internal static void WriteExpected(string dir, string fileName, string text) =>
         File.WriteAllText(Path.Combine(dir, fileName), text.Replace("\r\n", "\n"), new System.Text.UTF8Encoding(false));
 
+    /// <summary>The text of an <c>args</c> file: one argument per line, inside one <c>\</c> written <c>\\</c>, LF <c>\n</c> and CR <c>\r</c>.</summary>
+    internal static string Args(IEnumerable<string> args) =>
+        string.Concat(args.Select(a => a.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\r", "\\r") + "\n"));
+
     /// <summary>
     /// Under the export: writes <c>cli/&lt;Class&gt;/&lt;test&gt;[-n]</c> with <c>args</c> (one per line), <c>expected.exitcode</c>,
     /// <c>expected.stdout</c> and <c>expected.stderr</c> of a C# <c>CliApp.Run</c>, the <paramref name="inputs"/> it read (see
@@ -136,7 +142,7 @@ public static class SelfhostExport
         if (Caller.Value is { } caller) (cls, test) = caller;
         var dir = Case(root, "cli", cls ?? Path.GetFileNameWithoutExtension(file), test);
         if (inputs is not null) WriteInput(dir, inputs);
-        WriteExpected(dir, "args", string.Concat(args.Select(a => a + "\n")));
+        WriteExpected(dir, "args", Args(args));
         WriteExpected(dir, "expected.exitcode", $"{exit}\n");
         WriteExpected(dir, "expected.stdout", stdout);
         WriteExpected(dir, "expected.stderr", stderr);
@@ -195,6 +201,34 @@ public sealed class SelfhostExportTests
         Assert.Equal("--version\n", File.ReadAllText(Path.Combine(dir + "-2", "args")));
         Assert.Equal("x\n", File.ReadAllText(Path.Combine(dir + "-2", "stdin")));
         Assert.False(File.Exists(Path.Combine(dir + "-2", "input")));
+    }
+
+    /// <summary>The 2026-11-18 export contract: (a) <c>args</c> escapes <c>\</c>, LF and CR inside an argument; (b) a <c>sem</c>
+    /// case's argument keeps its text with the repo root written <c>&lt;repo&gt;</c>; (c) a fixture staged under another name gets <c>input.name</c>.</summary>
+    [Fact]
+    public void ArgsEscapePathsKeepTheirTextAndAFixtureKeepsItsName()
+    {
+        var root = Fresh("export-test-contract");
+        var work = Fresh("export-test-contract-input");
+        Directory.CreateDirectory(Path.Combine(work, "sub"));
+        var fixture = Path.Combine(work, "sub", "..") + "//a.byn";
+        File.WriteAllText(fixture, "print(\"hi\")\n");
+        File.WriteAllText(Path.Combine(work, "input.byn"), "print(\"hi\")\n");
+        string[] args = ["lex", "a\nb", "c\rd", "e\\f", "g\r\nh", Golden.RepoRoot + "/tmp/../x//y", "./missing/../q"];
+        ExportingTo(root, () =>
+        {
+            Assert.True(SelfhostExport.Cli(args, 0, "", "", [fixture], cls: nameof(SelfhostExportTests)));
+            Assert.True(SelfhostExport.Cli(["lex"], 0, "", "", [Path.Combine(work, "input.byn")], cls: nameof(SelfhostExportTests)));
+            var s = SelfhostSemanticsHarness.RunSections("i32 main() {\n    print(\"== alpha\")\n    print(\"a1\")\n    return 0\n}\n", args[1..]);
+            SelfhostSemanticsHarness.AssertSection(s, "alpha", ["a1"], cls: nameof(SelfhostExportTests));
+        });
+        var dir = Path.Combine(root, "cli", nameof(SelfhostExportTests), nameof(ArgsEscapePathsKeepTheirTextAndAFixtureKeepsItsName));
+        Assert.Equal($"lex\na\\nb\nc\\rd\ne\\\\f\ng\\r\\nh\n{Golden.RepoRoot}/tmp/../x//y\n./missing/../q\n", File.ReadAllText(Path.Combine(dir, "args")));
+        Assert.Equal("print(\"hi\")\n", File.ReadAllText(Path.Combine(dir, "input.byn")));
+        Assert.Equal("a.byn\n", File.ReadAllText(Path.Combine(dir, "input.name")));
+        Assert.False(File.Exists(Path.Combine(dir + "-2", "input.name")));
+        var sem = Path.Combine(root, "sem", nameof(SelfhostExportTests), nameof(ArgsEscapePathsKeepTheirTextAndAFixtureKeepsItsName));
+        Assert.Equal("a\\nb\nc\\rd\ne\\\\f\ng\\r\\nh\n<repo>/tmp/../x//y\n./missing/../q\n", File.ReadAllText(Path.Combine(sem, "args")));
     }
 
     [Fact]

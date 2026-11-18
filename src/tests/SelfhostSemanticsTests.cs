@@ -274,7 +274,7 @@ public sealed class SelfhostSemanticsTests
         {
             var dir = ExportCase(root, cls, test, file);
             SelfhostExport.WriteInput(dir, ExportInputs(cli));
-            SelfhostExport.WriteExpected(dir, "args", string.Concat(cli.Select(a => Portable(a) + "\n")));
+            SelfhostExport.WriteExpected(dir, "args", SelfhostExport.Args(cli.Select(Portable)));
             SelfhostExport.WriteExpected(dir, "compare", "untimed\n");
             SelfhostExport.WriteExpected(dir, "expected.stdout", Portable(Untimed(stdout.ToString())));
             SelfhostExport.WriteExpected(dir, "expected.stderr", Portable(Untimed(stderr.ToString())));
@@ -558,7 +558,7 @@ public sealed class SelfhostSemanticsTests
         {
             var outDir = ExportCase(root, cls, test, file);
             SelfhostExport.WriteInput(outDir, [package ? dir : path]);
-            SelfhostExport.WriteExpected(outDir, "args", string.Concat(args.Select(a => Portable(a) + "\n")));
+            SelfhostExport.WriteExpected(outDir, "args", SelfhostExport.Args(args.Select(Portable)));
             SelfhostExport.WriteExpected(outDir, "expected.golden", Portable(expected));
             return;
         }
@@ -604,7 +604,7 @@ public sealed class SelfhostSemanticsTests
         {
             var outDir = ExportCase(root, cls, test, file);
             SelfhostExport.WriteInput(outDir, [Path.GetFileName(caseDir) == "diag" ? copy : dir]);
-            SelfhostExport.WriteExpected(outDir, "args", Portable(copy) + "\n");
+            SelfhostExport.WriteExpected(outDir, "args", SelfhostExport.Args([Portable(copy)]));
             SelfhostExport.WriteExpected(outDir, "expected.stderr", Portable(stderr.ToString()));
             SelfhostExport.WriteExpected(outDir, "expected.exitcode", $"{exit}\n");
             return;

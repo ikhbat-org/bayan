@@ -63,7 +63,7 @@ public static class SelfhostEmitterHarness
             var names = CaseNames([input]);
             // A plain file's directory (its `--package`) is the case directory, where its `input.<ext>` is.
             string Arg(string a) => !Directory.Exists(input) && Path.GetFileName(input) != "main.byn" && a == Path.GetDirectoryName(input) ? "." : Mapped(a, names);
-            if (args is not null) SelfhostExport.WriteExpected(dir, "args", string.Concat(args.Select(a => Arg(a) + "\n")));
+            if (args is not null) SelfhostExport.WriteExpected(dir, "args", SelfhostExport.Args(args.Select(Arg)));
             SelfhostExport.WriteExpected(dir, "expected.c", Mapped(expected, names));
             return;
         }
@@ -160,7 +160,7 @@ public static class SelfhostEmitterHarness
             var inputs = cli.Where(a => File.Exists(a) || Directory.Exists(a)).ToList();
             SelfhostExport.WriteInput(dir, inputs);
             var names = CaseNames(inputs);
-            SelfhostExport.WriteExpected(dir, "args", string.Concat(cli.Select(a => Mapped(a, names) + "\n")));
+            SelfhostExport.WriteExpected(dir, "args", SelfhostExport.Args(cli.Select(a => Mapped(a, names))));
             SelfhostExport.WriteExpected(dir, "expected.c", Mapped(Named(stdout.ToString()), names));
             SelfhostExport.WriteExpected(dir, "expected.stderr", Mapped(Named(stderr.ToString()), names));
             SelfhostExport.WriteExpected(dir, "expected.exitcode", $"{exit}\n");
@@ -209,7 +209,7 @@ public static class SelfhostEmitterHarness
         var inputs = args.Where(File.Exists).Distinct().ToList();
         if (inputs.Count > 0) SelfhostExport.WriteInput(dir, inputs);
         var names = CaseNames(inputs);
-        SelfhostExport.WriteExpected(dir, "args", string.Concat(args.Select(a => Mapped(a, names) + "\n")));
+        SelfhostExport.WriteExpected(dir, "args", SelfhostExport.Args(args.Select(a => Mapped(a, names))));
         SelfhostExport.WriteExpected(dir, "expected.sections", Mapped(
             section == "" ? string.Join('\n', expected) : $"== {section}\n" + string.Concat(expected.Select(l => l + "\n")), names));
     }
@@ -315,7 +315,8 @@ public sealed class SelfhostEmitterExportTests
         }
         finally { SelfhostExport.Override.Value = old; }
         var dir = Path.Combine(root, "emit-c", nameof(SelfhostEmitterT6Tests), nameof(SelfhostEmitterT6Tests.Strings_EscapeAndFieldNamesMatchCSharp));
-        Assert.Equal(["args", "expected.sections", "input.byn"], Directory.GetFiles(dir).Select(f => Path.GetFileName(f)).Order(StringComparer.Ordinal).ToArray());
+        Assert.Equal(["args", "expected.sections", "input.byn", "input.name"], Directory.GetFiles(dir).Select(f => Path.GetFileName(f)).Order(StringComparer.Ordinal).ToArray());
+        Assert.Equal("a.byn\n", File.ReadAllText(Path.Combine(dir, "input.name")));
         Assert.Equal("i64 f(i64 x) => x\n\nbool g(bool b) => b\n", File.ReadAllText(Path.Combine(dir, "input.byn")));
         Assert.Equal("strings\ninput.byn\n\n", File.ReadAllText(Path.Combine(dir, "args")));
         var sections = File.ReadAllLines(Path.Combine(dir, "expected.sections"));
