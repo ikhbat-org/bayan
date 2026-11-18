@@ -3,6 +3,9 @@
 
 import lexer
 import parser
+import semantics
+
+type PerfOptions = semantics.CompilationOptions
 
 /// `Source(shape, n)`: `n` joined `.x` lines of a chain, or `n` switch arms each with a joined `.x` line.
 List<u8> perfSource(string shape, for i64 n) uses alloc {
@@ -61,4 +64,51 @@ test "the line-join lint is linear: chain" {
 
 test "the line-join lint is linear: switch" {
     perfLineJoin("switch")
+}
+
+// RegionAnalysisPerfTests (RegionAnalysisPerfTests.cs:13): region analysis computes each `ref this` method's changed fields once, not once
+// per call path, so 200 methods each calling up to 10 later ones check quickly.
+
+/// The C# test's source: struct `P` with methods `m0`..`m199`, `m<i>` calling `m<i + j>` for j in 1..=10 while below 200, and a `main`.
+string perfRegionSource() uses alloc {
+    let count: i64 = 200
+    var sb = StrBuf()
+    sb.append("struct P {\n    List<i64> xs\n    i64 n\n\n")
+    for i in 0..count {
+        sb.append($"    void m{i}(ref this) {{\n        n += 1\n")
+        for j in 1..11 {
+            if i + j < count {
+                sb.append($"        if n > {j} {{ m{i + j}() }}\n")
+            }
+        }
+        sb.append("    }\n")
+    }
+    sb.append("}\n\nvoid main() {\n    var p = P { xs: List<i64>(), n: 0 }\n    p.m0()\n}\n")
+    return sb.finish()
+}
+
+/// `TwoHundredMethodsCallingEachOtherCheckQuickly`: the minimum wall clock of 3 compiles under 5 s, none with an error.
+test "region analysis is linear: 200 methods calling each other check quickly" {
+    let bound: i64 = 5000000000
+    var best: i64 = 9223372036854775807
+    let options = PerfOptions {}
+    for _ in 0..3 {
+        var text = List<u8>()
+        for b in perfRegionSource().bytes {
+            text.append(b)
+        }
+        var sources = List<lexer.SourceText>()
+        sources.append(lexer.SourceText.create("perf.byn", from: move text))
+        let start = Io.monotonicNanos()
+        let c = semantics.create(from: move sources, at: ".", by: in options)
+        let took = Io.monotonicNanos() - start
+        best = took < best ? took : best
+        var errors = 0
+        for d in c.diagnostics {
+            errors += d.isWarning || d.isNote ? 0 : 1
+        }
+        assert(errors == 0)
+    }
+    print($"checked in {best / 1000000} ms at the least of 3 runs (bound {bound / 1000000} ms)")
+    assert(best < bound)
 }

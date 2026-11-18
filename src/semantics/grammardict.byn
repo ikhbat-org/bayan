@@ -1,0 +1,104 @@
+// GrammarDictionaryTests (spec 019 T27): `grammar` in `package.byn` as `manifestParse` reads it, and the one verb list R15 and BYN5014
+// share. The checks themselves are the `diag/` goldens (`unknown-word`, `grammar-dictionary`). The C# `Lexicon.FunctionWords` has no
+// counterpart here, so the lowercase check reads the five lists `buildLexicon` fills.
+
+import lexer
+
+/// `Parse(text)`: the manifest of `text` as a `package.byn`.
+Manifest grammarDictParse(string text) uses alloc {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    return manifestParse(lexer.SourceText.create("package.byn", from: move bytes))
+}
+
+/// True when `words` holds `word`.
+bool grammarDictHas(List<string> words, for string word) {
+    for w in words {
+        return true if w == word
+    }
+    return false
+}
+
+/// True when each of `words` is one or more of `a` to `z`; prints the first that is not.
+bool grammarDictAllLower(List<string> words) uses console {
+    for w in words {
+        var lower = !w.isEmpty
+        for b in w.bytes {
+            lower = lower && isLowerAscii(b)
+        }
+        unless lower {
+            print($"{w} is not a lowercase word")
+            return false
+        }
+    }
+    return true
+}
+
+/// The built-in lexicon, filled once.
+Ctx grammarDictLexicon() uses alloc {
+    var c = Ctx {
+        files: List<SourceFile>(),
+        modules: List<Mod>(),
+        diagnostics: List<Diag>(),
+        bags: List<DiagBag>(),
+    }
+    buildLexicon(ref c)
+    return c
+}
+
+test "grammar dictionary: the manifest reads the grammar" {
+    let m = grammarDictParse("""
+        Package {
+            name: "local/shop",
+            version: "0.1.0",
+            grammar: Grammar {
+                verbs: ["upsert", "reindex"],
+                nouns: ["sku"],
+                adjectives: ["idempotent"],
+                forms: ["regrind": "reground", "upsert": "upserted"],
+            },
+        }
+        """)
+    assert(m.diagnostics.length == 0)
+    assert(m.grammar.verbs.length == 2)
+    assert(grammarDictHas(m.grammar.verbs, for: "reindex"))
+    assert(grammarDictHas(m.grammar.verbs, for: "upsert"))
+    assert(m.grammar.nouns.length == 1 && m.grammar.nouns[0] == "sku")
+    assert(m.grammar.adjectives.length == 1 && m.grammar.adjectives[0] == "idempotent")
+    assert(m.grammar.forms.tryGet(at: "regrind") == "reground")
+    assert(m.grammar.forms.tryGet(at: "upsert") == "upserted")
+}
+
+test "grammar dictionary: the grammar is empty without the field" {
+    let m = grammarDictParse("""Package { name: "local/shop", version: "0.1.0", grammar: Grammar { forms: [] } }""")
+    assert(m.diagnostics.length == 0)
+    assert(m.grammar.verbs.length == 0)
+    assert(m.grammar.forms.length == 0)
+}
+
+test "grammar dictionary: map entries need a value" {
+    let m = grammarDictParse("""Package { name: "local/shop", version: "0.1.0", grammar: Grammar { forms: ["a": "b", "c"] } }""")
+    var found = false
+    for d in m.diagnostics {
+        found = found || d.message.contains("`:` and a value")
+    }
+    assert(found)
+}
+
+// The verbs a help may start with are the checker's verbs, so a verb R15 accepts is never an unknown word.
+@cases("add", "rename", "write", "propagate")
+test "grammar dictionary: help verbs are checker verbs" (string verb) {
+    let c = grammarDictLexicon()
+    assert(grammarDictHas(c.lexiconVerbs, for: verb))
+}
+
+test "grammar dictionary: word classes are lowercase words" {
+    let c = grammarDictLexicon()
+    assert(grammarDictAllLower(c.lexiconVerbs))
+    assert(grammarDictAllLower(c.lexiconNouns))
+    assert(grammarDictAllLower(c.lexiconAdjectives))
+    assert(grammarDictAllLower(c.lexiconCollectives))
+    assert(grammarDictAllLower(c.lexiconIrregularPlurals))
+}

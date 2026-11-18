@@ -1,0 +1,33 @@
+// NamingGrammarTests.ParticipleNamesItsVerbFirst: each `-ed` member on `ref this` is BYN5001, and the message names the verb
+// Naming.ParticipleStems puts first.
+struct Words {
+    i64 n
+
+    void sorted(ref this) { n += 1 }
+
+    void joined(ref this) { n += 1 }
+
+    void reversed(ref this) { n += 1 }
+
+    void parsed(ref this) { n += 1 }
+
+    void closed(ref this) { n += 1 }
+
+    void trimmed(ref this) { n += 1 }
+
+    void stopped(ref this) { n += 1 }
+
+    void copied(ref this) { n += 1 }
+
+    void doubled(ref this) { n += 1 }
+
+    void named(ref this) { n += 1 }
+
+    void fixed(ref this) { n += 1 }
+
+    void called(ref this) { n += 1 }
+
+    void passed(ref this) { n += 1 }
+
+    void counted(ref this) { n += 1 }
+}
