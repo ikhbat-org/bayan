@@ -2,7 +2,7 @@
 # Local compiler builds kept by target and version (dist/ is gitignored).
 #   scripts/dist.sh [--rid <rid>]... [--label <version>] [--from <publish-dir> [--commit <sha>]] [--dist <dir>]
 # Layout:
-#   dist/<target>/<version>/bayan[.exe]   one directory per version, with BUILD-INFO
+#   dist/<target>/<version>/bayan[.exe]   one directory per version, with BUILD-INFO and bayan-lsp[.exe] (019 R37)
 #   dist/<target>/latest/                 a copy of the most recent build for that target, replaced on every build
 # Targets use the release names (scripts/release/package.sh): osx-arm64 -> macos-arm64, win-x64 -> windows-x64.
 # <version> is Toolchain.CompilerVersion; a prerelease (0.2.0-dev) gets +<12-hex commit>, and a tree with
@@ -11,6 +11,8 @@
 # NativeAOT does not cross-compile between operating systems: run this on each OS (mb1, wlt1, wp1), or publish
 # elsewhere and import the binary with --from <dir> --rid <rid> (its label is this checkout's unless --label is given;
 # its BUILD-INFO commit is "unknown" unless --commit names the commit it was built from).
+# bayan-lsp is built from editors/language-server by that bayan (so it must run here), or --from takes <dir>/bayan-lsp;
+# BUILD-INFO `lsp` is built, imported or none (the build failed, with a warning).
 set -euo pipefail
 export MSBUILDDISABLENODEREUSE=1 DOTNET_CLI_USE_MSBUILD_SERVER=0  # no MSBuild worker or build server outlives the run
 
@@ -18,7 +20,7 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 lock="" plock=""
 trap '[ -z "$plock" ] || rmdir "$plock" 2>/dev/null || :; [ -z "$lock" ] || rmdir "$lock" 2>/dev/null || :' EXIT
 die() { echo "dist: $*" >&2; exit 1; }
-usage() { sed -n '2,13p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '2,15p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
 host_rid() {
   local arch
@@ -103,13 +105,29 @@ for rid in "${rids[@]}"; do
     rmdir "$plock"; plock=""
   fi
   [ -f "$pub/$exe" ] || die "$pub/$exe not found"
+  # The C# bayan cannot build the Bayān server (BYN2003: `read` is not a member of `IoInput`): until T43 makes this
+  # script ship the self-hosted bayan, a failed build is a warning and BUILD-INFO says `lsp none`.
+  lsp="bayan-lsp${exe#bayan}" lspf="" lspinfo=none
+  if [ -n "$from" ] && [ -f "$from/$lsp" ]; then
+    lspf="$from/$lsp" lspinfo=imported
+  else
+    mkdir -p "$root/tmp/dist-lsp/$rid"; rm -f "$root/tmp/dist-lsp/$rid/$lsp"
+    echo "dist: building $lsp with $pub/$exe" >&2
+    if "$pub/$exe" build --package "$root/editors/language-server/src" -o "$root/tmp/dist-lsp/$rid/$lsp" \
+        "$root/editors/language-server/src/app" >"$root/tmp/dist-lsp-$rid.log" 2>&1 && [ -f "$root/tmp/dist-lsp/$rid/$lsp" ]; then
+      lspf="$root/tmp/dist-lsp/$rid/$lsp" lspinfo=built
+    else
+      echo "dist: warning: $pub/$exe cannot build $lsp (see tmp/dist-lsp-$rid.log); this build has none" >&2
+    fi
+  fi
 
   dir="$dist/$tgt/$lbl"
   mkdir -p "$dir"
   cp "$pub/$exe" "$dir/$exe"
   chmod +x "$dir/$exe"
-  printf 'version %s\ntarget %s\nrid %s\ncommit %s\nbuilt %s\nhost %s\nsource %s\n' \
-    "$lbl" "$tgt" "$rid" "$commit" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$(uname -n)" "${from:-dotnet publish}" > "$dir/BUILD-INFO"
+  if [ -n "$lspf" ]; then cp "$lspf" "$dir/$lsp"; chmod +x "$dir/$lsp"; fi
+  printf 'version %s\ntarget %s\nrid %s\ncommit %s\nbuilt %s\nhost %s\nsource %s\nlsp %s\n' \
+    "$lbl" "$tgt" "$rid" "$commit" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$(uname -n)" "${from:-dotnet publish}" "$lspinfo" > "$dir/BUILD-INFO"
 
   # latest: copy beside it, move the old one aside, move the copy in. A failed step leaves the old latest in place
   # (Windows refuses to move a folder holding a running bayan.exe).
