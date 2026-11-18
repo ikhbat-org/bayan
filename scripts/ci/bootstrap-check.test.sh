@@ -71,6 +71,21 @@ git checkout -q -b chain dev; echo 'v4 cap' > src/driver/main.byn; regen; git co
 grep -q "FAIL the bootstrap of HEAD^ ($(git rev-parse dev)) does not build src/driver (R36)" "$tmp/out" \
   || fail "no chain failure message" "$(cat "$tmp/out")"
 
+# a merge commit: dev's bootstrap cannot build the merged branch's src/, the branch's own can; the check builds from HEAD^2
+git checkout -q -b mfeat dev; echo 'v5 cap' > src/driver/main.byn; regen; git commit -qam feat
+git checkout -q dev; echo d > docs.txt; git add docs.txt; git commit -qm dev-moves
+git merge -q --no-ff -m merge mfeat
+[ "$(run)" = pass ] || fail "a merge commit whose second parent's bootstrap builds src/ failed" "$(cat "$tmp/out")"
+grep -q 'the bootstrap of HEAD^2 builds it' "$tmp/out" || fail "the merge check did not name HEAD^2" "$(cat "$tmp/out")"
+
+# a merge commit where neither parent's bootstrap builds the merged src/: fail, after trying both parents
+git checkout -q -b mboth dev~1; git checkout -q -b mside; echo e > side.txt; git add side.txt; git commit -qm side
+git checkout -q mboth; echo f > main.txt; git add main.txt; git commit -qm main
+git merge -q --no-ff --no-commit mside > /dev/null 2>&1; echo 'v6 cap' > src/driver/main.byn; regen; git add -A; git commit -qm merge-new-src
+[ "$(run)" = fail ] || fail "a merge commit no parent's bootstrap can build passed" "$(cat "$tmp/out")"
+grep -q 'FAIL the bootstrap of HEAD^2 ' "$tmp/out" && grep -q 'FAIL the bootstrap of HEAD^ ' "$tmp/out" && grep -q 'trying the next parent' "$tmp/out" \
+  || fail "the merge failure did not name both parents" "$(cat "$tmp/out")"
+
 # an unknown ref is an error, not a pass
 [ "$(run nope)" = fail ] && grep -q "no commit for 'nope'" "$tmp/out" || fail "an unknown ref was not refused" "$(cat "$tmp/out")"
 [ ! -e "$aux/dotnet-calls.txt" ] || fail "bootstrap-check.sh called dotnet: $(cat "$aux/dotnet-calls.txt")"
