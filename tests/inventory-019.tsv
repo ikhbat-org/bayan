@@ -14,7 +14,7 @@ CoverageSummaryTests	csharp/tests/Bayan.Tests/CoverageSummaryTests.cs	cli	4	cli	
 CoverageTests	csharp/tests/Bayan.Tests/CoverageTests.cs	golden-folder	350	golden	tests/cases/coverage	folder runner reads the same files	no export: typed rows
 DiagJsonTests	csharp/tests/Bayan.Tests/DiagJsonTests.cs	golden-folder	3	golden	tests/cases/diag-json	folder runner reads the same files	no export: typed rows
 DiagTests	csharp/tests/Bayan.Tests/DiagTests.cs	golden-folder	642	golden	tests/cases/diag	folder runner reads the same files	no export: typed rows
-DiagnosticCodesTests	csharp/tests/Bayan.Tests/DiagnosticCodesTests.cs	csharp-internals	11	check	check	diagnostic-code table against cases; becomes a check: command	
+DiagnosticCodesTests	csharp/tests/Bayan.Tests/DiagnosticCodesTests.cs	csharp-internals	11	check	check	diagnostic-code table against cases; becomes a check: command; ported 11 of 11: scripts/ci/diagnostic-codes.test.sh (one check per [Fact], the codes from the docs/DIAGNOSTICS.md registered table, run from scripts/ci/script-tests.sh)	
 DiagnosticRendererTests	csharp/tests/Bayan.Tests/DiagnosticRendererTests.cs	csharp-internals	19	cli	cli	renderer output reached by bayan check text; covering case per row in T18	
 DynRefEmitTests	csharp/tests/Bayan.Tests/DynRefEmitTests.cs	csharp-internals	3	emit-c	emit-c	vtables in emitted C	
 ErrorUnionTypeTests	csharp/tests/Bayan.Tests/ErrorUnionTypeTests.cs	csharp-internals	1	sem	sem	type model through sem sections	
