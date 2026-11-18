@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Tests scripts/selfhost/land-export.sh on a fixture export under tmp/: byte-for-byte copies, input/ as input.tsv with the
 # files and trees stored once by content (executable bit kept), the root masked in non-input text files only, cli/SelfhostExport
 # dropped, EXPORT.tsv from UNEXPORTED.tsv, the case counts and the inventory, a rerun writing nothing, and the refusals.
@@ -66,7 +67,7 @@ printf "◆ bayan       0.3.2\n◆ host        <host>\n◆ C compiler  <host>\n�
 printf "◆ cache       <repo>/tmp/p (writable)\n◆ git         <host>\n" | cmp -s - "$D/Seeded/expected.stdout" || fail "seeded cache mask: $(cat "$D/Seeded/expected.stdout")"
 printf "%s[32m◆%s[0m host        <host>\n* zig         <host>\n" "$(printf "\033")" "$(printf "\033")" | cmp -s - "$D/Color/expected.stdout" || fail "coloured doctor mask"
 printf "x\nC compiler failed (exit 1):\n<cc output>\n" | cmp -s - "$d/cli/SelfhostDefaultT12Tests/Cc/expected.stderr" || fail "cc output mask"
-printf "keep\n" | cmp -s - "$d/cli/SelfhostDefaultT12Tests/Cc/expected.stdout" || fail "cc mask touched a stdout without the line"#!/usr/bin/env bash
+printf "keep\n" | cmp -s - "$d/cli/SelfhostDefaultT12Tests/Cc/expected.stdout" || fail "cc mask touched a stdout without the line"
 [ "$(cat "$o/args")" = "$(printf 'build\n<repo>/tmp/a.byn')" ] || fail "args not masked: $(cat "$o/args")"
 printf 'error at <repo>/src/x.byn and <repo>/y' | cmp -s - "$o/expected.stdout" || fail "stdout not masked or final newline added"
 cmp -s "$d/sem/GammaTests/Two/section" "$x/sem/GammaTests/Two/section" || fail "section"
