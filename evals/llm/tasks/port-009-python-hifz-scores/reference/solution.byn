@@ -1,0 +1,46 @@
+/// The text Python prints for a score that may be `None`.
+string shown(i64? score) {
+    return score is null ? "None" : $"{score}"
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var best = Map<string, i64?>()
+    for line in read.value.lines {
+        var fields = List<string>()
+        for part in line.parts(by: " ") {
+            continue if part.isEmpty
+            fields.append(part)
+        }
+        continue if fields.length == 0
+        let name = fields[0]
+        let score: i64? = fields.length > 1 ? i64.tryParse(fields[1]) : null
+        if !best.contains(name) {
+            best[name] = score
+            continue
+        }
+        let old = best[name]
+        if old is null {
+            best[name] = score
+        } else if score is not null && score > old {
+            best[name] = score
+        }
+    }
+    var top: i64? = null
+    var absent = 0
+    for (name, score) in best {
+        print($"{name}: {shown(score)}")
+        let value = score ?? -1
+        if value < 0 {
+            absent += 1
+        } else if value > (top ?? -1) {
+            top = value
+        }
+    }
+    print($"top: {shown(top)}")
+    print($"absent: {absent}")
+}

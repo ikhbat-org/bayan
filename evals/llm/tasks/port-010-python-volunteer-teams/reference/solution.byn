@@ -1,0 +1,56 @@
+/// A group of volunteers with one duty.
+struct Team {
+    string       duty
+    List<string> members
+}
+
+/// Every team ever made, and which one each team name and each helper refers to.
+struct Roster {
+    List<Team>       teams
+    Map<string, i64> names
+    Map<string, i64> helpers
+
+    /// Runs one command, printing what `show` asks for; false when the command is skipped.
+    bool apply(ref this, List<string> words) {
+        let args = words.length - 1
+        if words[0] == "team" && args == 2 {
+            teams.append(Team { duty: words[2], members: List<string>() })
+            names[words[1]] = teams.length - 1
+        } else if words[0] == "join" && args == 2 && names.contains(words[2]) {
+            let at = names[words[2]]
+            teams[at].members.append(words[1])
+            helpers[words[1]] = at
+        } else if words[0] == "alias" && args == 2 && names.contains(words[1]) {
+            names[words[2]] = names[words[1]]
+        } else if words[0] == "duty" && args == 2 && helpers.contains(words[1]) {
+            teams[helpers[words[1]]].duty = words[2]
+        } else if words[0] == "show" && args == 0 {
+            for (name, at) in names {
+                print($"{name}: {teams[at].duty} [{teams[at].members.joined(by: ", ")}]")
+            }
+        } else {
+            return false
+        }
+        return true
+    }
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var roster = Roster { teams: List<Team>(), names: Map<string, i64>(), helpers: Map<string, i64>() }
+    for line in read.value.lines {
+        var words = List<string>()
+        for part in line.parts(by: " ") {
+            continue if part.isEmpty
+            words.append(part)
+        }
+        continue if words.length == 0
+        if !roster.apply(words) {
+            print($"skipped: {words.joined(by: " ")}")
+        }
+    }
+}
