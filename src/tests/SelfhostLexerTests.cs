@@ -465,7 +465,7 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
         }
     }
 
-    /// <summary>Spec 002 R7, R8 on <see cref="LexerTestsInputs"/>: <c>bayan-lex --json</c> fed the text on stdin prints exactly
+    /// <summary>Spec 002 R7, R8 on <see cref="LexerTestsInputs"/>: <c>bayan-lex --json</c> fed the text on stdin prints the bytes of
     /// <see cref="TokenDump.ToJson"/> and exits 1 on an error diagnostic, else 0.</summary>
     [Theory]
     [MemberData(nameof(LexerTestsInputs))]
