@@ -8,6 +8,7 @@ cd "$(dirname "$0")/../.."
 unix=(scripts/ci/bash32-parse.test.sh scripts/ci/install-zig.test.sh scripts/ci/install-dotnet.test.sh
   scripts/ci/sdk-patch-check.test.sh scripts/ci/known-failures.test.sh scripts/ci/script-tests.test.sh scripts/ci/pre-push.test.sh
   scripts/ci/golden-commit-check.test.sh scripts/ci/freeze-check.test.sh scripts/ci/inventory-check.test.sh scripts/ci/bootstrap-check.test.sh scripts/ci/ddc.test.sh
+  scripts/ci/fixpoint-check.test.sh
   scripts/dist.test.sh
   scripts/release/package.test.sh scripts/release/docs-pdf.test.sh scripts/release/memory-gate.test.sh scripts/release/editor-gate.test.sh
   scripts/release/refuse-draft.test.sh scripts/release/release-workflow.test.sh scripts/bayan-tool.test.sh
