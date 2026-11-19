@@ -1094,3 +1094,6 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 T41b, 2026-11-20): on Windows the compiler's own text prints `nope\deep/` and `overloads\a.byn` (sem T11/T12 diag cases); decide driver `/` or per-OS expected.
 - LOW (019 T41b, 2026-11-20): cli SelfhostDefaultT3Tests/StatsOfTheDefaultCache expects the macOS default cache path; Windows prints `%LOCALAPPDATA%\bayan\cache`; needs an `os` file or a mask.
 - LOW (019 T41b, 2026-11-20): `goldenStyleMask` keeps its own `<dir>/` fold, separate from `goldenDirSlashed`; the T41b test block leaves tmp/golden-cli-host behind.
+- LOW (019 T41b, 2026-11-20): runtime/bayan-rt.c on Windows returns `other` when the child command line is 32,767 characters or more; return `invalidInput` (copy bootstrap/bayan-rt.c at land).
+- LOW (019 T41b, 2026-11-20): the golden program command line peaks at 31,990 characters with a 60-character repo path (margin 777, about 3 path characters); a response file would remove the limit. The length check in src/driver/goldenprograms.byn skips relative arguments that the runner makes absolute, and cli cases with `<repo>` args (SelfhostDefaultT2 1,067, DriverT2 759) are outside it.
+- LOW (019 T41b, 2026-11-20): the hang test in src/driver/goldenprograms.byn leaves tmp/p/<hash> and its `.case` file; a crashed run leaves `.case` claim files.
