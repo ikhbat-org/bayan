@@ -54,11 +54,13 @@ remove_scratch "$repo"/tmp/rv-* "$repo"/tmp/rv3-* "$repo"/tmp/export-* "$repo"/t
   "$repo"/tmp/parity-csharp-bayan "$repo"/tmp/parity-csharp-bayan.log "$repo"/tmp/panic-probe \
   "$repo"/.worktrees/*/tmp/wp1 "$repo"/.worktrees/*/tmp/wlt1 "$repo"/.worktrees/*/tmp/bash32-parse-test \
   "$repo"/.worktrees/*/tmp/script-tests-test "$repo"/.worktrees/*/tmp/cache-moved-aside* \
-  "$repo"/.worktrees/*/tmp/parity-csharp-bayan "$repo"/.worktrees/*/tmp/parity-csharp-bayan.log
+  "$repo"/.worktrees/*/tmp/parity-csharp-bayan "$repo"/.worktrees/*/tmp/parity-csharp-bayan.log \
+  "$repo"/.worktrees/*/tmp/t30e-* "$repo"/.worktrees/*/tmp/t30eb "$repo"/.worktrees/*/tmp/bb0 "$repo"/.worktrees/*/tmp/bootstrap
 
 # 3. files this session's reviewers left outside the repo
 for p in /tmp/019wg-changed.txt /tmp/t20-golden-commit-check.log /tmp/t20-inventory-check.log /tmp/t20rev.out /tmp/t31bc-gate.* \
-  /tmp/x_m /tmp/x_c /tmp/icheck-fixed.sh /tmp/t30d-scratch.* /tmp/t30d-*.log /tmp/t30d-inv.out; do
+  /tmp/x_m /tmp/x_c /tmp/icheck-fixed.sh /tmp/t30d-scratch.* /tmp/t30d-*.log /tmp/t30d-inv.out \
+  /tmp/t30fb-cs.* /tmp/t30ea-inv-head.out /tmp/inv-head.txt /tmp/inv-base.txt; do
   [ -e "$p" ] || { printf 'skip:  %s gone\n' "$p"; continue; }
   if [ $execute = 1 ]; then rm -rf "$p"; printf 'removed %s\n' "$p"; else printf 'would remove %s\n' "$p"; fi
 done
