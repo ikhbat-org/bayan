@@ -18,10 +18,10 @@ groups=("$@"); [ ${#groups[@]} -gt 0 ] || groups=(unix docs)
 run=()
 for g in "${groups[@]}"; do
   case "$g" in
-    (unix) run+=("${unix[@]}" "${slow[@]}") ;;
+    (unix) run+=("${unix[@]}" ${slow[@]+"${slow[@]}"}) ;;  # bash 3.2 with set -u refuses an empty "${a[@]}"
     (quick) run+=("${unix[@]}" "${docs[@]}") ;;
     (docs) run+=("${docs[@]}") ;;
-    (list) printf '%s\n' "${unix[@]}" "${slow[@]}" "${docs[@]}"; exit 0 ;;
+    (list) printf '%s\n' "${unix[@]}" ${slow[@]+"${slow[@]}"} "${docs[@]}"; exit 0 ;;
     (list-quick) printf '%s\n' "${unix[@]}" "${docs[@]}"; exit 0 ;;
     (*) echo "script-tests: unknown group '$g' (unix, docs, quick)" >&2; exit 2 ;;
   esac
