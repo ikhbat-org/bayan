@@ -1,0 +1,21 @@
+/// The locker code of `name`: a 32-bit hash of its bytes, wrapping on overflow.
+u32 code(string name) {
+    var h: u32 = 5381
+    for b in name.bytes {
+        h = (h *% 33) ^ u32(b)
+    }
+    return h
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    for line in read.value.lines {
+        let name = line.trimmed()
+        continue if name.isEmpty
+        print($"{name}: {code(name), as: .hex, width: 8, fill: '0'}")
+    }
+}

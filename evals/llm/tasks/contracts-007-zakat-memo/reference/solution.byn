@@ -1,0 +1,16 @@
+/// One zakat payment, with a note for the treasurer.
+struct ZakatPayment {
+    string payer
+        requires it.runeCount in 1..=24
+    i64 amount
+        requires it > 0
+    string memo
+}
+
+/// The same payment with a new note; no rule reads the note.
+ZakatPayment withMemo(ZakatPayment p, to string memo) => p with { memo: memo }
+
+/// The same payment with a new amount, checked again.
+ZakatPayment withAmount(ZakatPayment p, to i64 amount) fails ValidationError<ZakatPayment> {
+    return try p with { amount: amount }
+}

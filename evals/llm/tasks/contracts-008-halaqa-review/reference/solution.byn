@@ -1,0 +1,30 @@
+/// A student joining a Quran memorisation circle.
+struct Student {
+    string name
+        requires it.runeCount in 2..=20
+        requires it == it.trimmed()
+    i32 age
+        requires it in 7..=16
+    i32 juz
+        requires it in 0..=30
+}
+
+Student enrol(string name, at i32 age, for i32 juz) fails ValidationError<Student> {
+    return try Student { name: name, age: age, juz: juz }
+}
+
+/// `accepted <name>`, or `refused:` and the field of each broken rule.
+string review(string name, at i32 age, for i32 juz) {
+    let s = enrol(name, at: age, for: juz) catch switch {
+        .invalid e => {
+            var text = "refused:"
+            var sep = " "
+            for v in e.violations {
+                text = $"{text}{sep}{v.field}"
+                sep = ", "
+            }
+            return text
+        },
+    }
+    return $"accepted {s.name}"
+}

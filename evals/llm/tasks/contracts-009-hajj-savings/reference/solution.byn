@@ -1,0 +1,43 @@
+union error SavingError {
+    /// Nothing is put aside each month.
+    noSaving
+}
+
+/// Whole months until `saved` reaches `goal`, putting aside `monthly` each month.
+i64 monthsLeft(i64 saved, until i64 goal, by i64 monthly)
+        expects saved <= goal
+        fails SavingError {
+    fail .noSaving unless monthly > 0
+    return (goal - saved + monthly - 1) / monthly
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            fields.append(part)
+        }
+        let ok = fields.length == 4
+        let saved = ok ? (i64.tryParse(fields[1]) ?? -1) : -1
+        let goal = ok ? (i64.tryParse(fields[2]) ?? -1) : -1
+        let monthly = ok ? (i64.tryParse(fields[3]) ?? -1) : -1
+        if saved < 0 || goal < 0 || monthly < 0 {
+            print($"bad line: {text}")
+            continue
+        }
+        let months = monthsLeft(saved, until: goal, by: monthly) catch switch {
+            .noSaving => {
+                print($"{fields[0]}: no monthly saving")
+                continue
+            },
+        }
+        print($"{fields[0]}: {months} months")
+    }
+}
