@@ -1,0 +1,8 @@
+error BYN2001: `بيان` is not defined
+  --> <repo>/tmp/t27-diag/CaretsCountCodePointsNotBytes/input.byn:2:14
+
+  2 │     print($"{بيان}")
+    │              ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2001

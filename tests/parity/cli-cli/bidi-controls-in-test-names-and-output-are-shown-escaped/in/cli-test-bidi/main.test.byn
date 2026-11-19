@@ -1,0 +1,7 @@
+test "a\u{202e}b" {
+    panic("x\u{2067}y")
+}
+
+test "plain" {
+    assert(false)
+}

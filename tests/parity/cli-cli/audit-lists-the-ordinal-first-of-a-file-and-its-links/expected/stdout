@@ -1,0 +1,4 @@
+== 1 exit 0
+$WORK/d/alias.byn:1:1  unsafe void poke()  no reason given
+$WORK/d/c.byn:1:1  unsafe void peek()  no reason given
+◆ 2 bypasses in $WORK/d

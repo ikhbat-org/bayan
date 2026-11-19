@@ -41,7 +41,8 @@ case "$*" in *"$FAIL_ON"*) [ -n "$FAIL_ON" ] && exit 1 ;; esac
 [ "$1" = build ] && { cp "$0" "${@: -2:1}"; exit 0; }
 [ "$1" = test ] && echo "$BAYAN_EXE" > "$LOG.exe"
 if [ -n "$PENDING" ]; then echo "  ◆ driver: $6 (pending)"; echo "◆ 0 passed · 1 pending · 1s"
-elif [ -n "$NOMATCH" ]; then echo "◆ 0 passed · 1s"; else echo "◆ 1 passed · 1s"; fi
+elif [ -n "$NOMATCH" ]; then echo "◆ 0 passed · 1s"
+else case "$*" in (*TheInputsHash*) echo "◆ 2 passed · 1s" ;; (*) echo "◆ 1 passed · 1s" ;; esac; fi
 STUB
 chmod +x "$tmp/bin/bayan"
 printf '#!/bin/bash\necho "pinned ref=$PINNED_BAYAN_REF" >> "$LOG"\necho "$BIN/bayan"\n' > "$w/scripts/pinned-bayan.sh"
@@ -52,7 +53,8 @@ export LOG="$tmp/log" BIN="$tmp/bin" BAYAN_EXE="$tmp/bin/bayan" PATH="$tmp/bin:$
 : > "$LOG"
 FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err" || fail "an all-pass gate exited non-zero: $(cat "$tmp/err")"
 grep -qx "memory-gate: PASS" "$tmp/out" || fail "an all-pass gate printed no PASS"
-[ "$(wc -l < "$LOG" | tr -d ' ')" = 4 ] || fail "the gate did not run all 4 commands: $(cat "$LOG")"
+[ "$(wc -l < "$LOG" | tr -d ' ')" = 5 ] || fail "the gate did not run all 5 commands: $(cat "$LOG")"
+grep -qxF "bayan timeout= test tests/cases --only cli/SelfhostDefaultT12Tests/TheInputsHashDoesNotFollowLinks" "$LOG" || fail "the gate did not run the T12 inputs-hash cases: $(cat "$LOG")"
 grep -qxF "bayan timeout=600000 test --package src src/driver --only $title" "$LOG" || fail "the golden runner bound did not run with a 10 minute timeout: $(cat "$LOG")"
 grep -qE "^bayan timeout=[0-9]* test --package src src/driver --only bound: $" "$LOG" || fail "the gate did not run the bound: blocks: $(cat "$LOG")"
 ! grep -q 'dotnet' <(grep -v '^#' "$gate") || fail "memory-gate.sh still runs dotnet"
@@ -63,7 +65,7 @@ grep -q '^test "bound: ' "$root/src/driver/bounds.byn" || fail "src/driver/bound
 : > "$LOG"
 if FAIL_ON="bound: " bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "$tmp/err"; then fail "a failing bound: run passed the gate"; fi
 grep -q "FAILED: $BAYAN_EXE test --package src src/driver --only bound: " "$tmp/err" || fail "the failing command was not named: $(cat "$tmp/err")"
-[ "$(wc -l < "$LOG" | tr -d ' ')" = 4 ] || fail "a failure stopped the remaining gate commands: $(cat "$LOG")"
+[ "$(wc -l < "$LOG" | tr -d ' ')" = 5 ] || fail "a failure stopped the remaining gate commands: $(cat "$LOG")"
 ! grep -q PASS "$tmp/out" || fail "a failing gate printed PASS"
 
 : > "$LOG"
@@ -84,6 +86,7 @@ if NOMATCH=1 FAIL_ON= bash "$w/scripts/release/memory-gate.sh" > "$tmp/out" 2> "
 grep -q "FAILED: the golden runner bound did not run (no test matched)" "$tmp/err" || fail "the unmatched golden runner bound was not named: $(cat "$tmp/err")"
 grep -q "FAILED: bayan-lsp bound blocks did not run (none passed)" "$tmp/err" || fail "the unrun bayan-lsp bounds were not named: $(cat "$tmp/err")"
 grep -q "FAILED: the bound: blocks did not run (none passed)" "$tmp/err" || fail "the unmatched bound: blocks were not named: $(cat "$tmp/err")"
+grep -q "FAILED: the T12 inputs-hash cases did not both pass" "$tmp/err" || fail "the unrun T12 inputs-hash cases were not named: $(cat "$tmp/err")"
 
 # BAYAN_EXE unset: the gate builds src/driver with the pinned bayan at HEAD and runs the bound with that driver.
 : > "$LOG"

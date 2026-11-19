@@ -1,0 +1,19 @@
+bool g(i32 x, at string s) uses net, fs fails IoError, Utf8Error => true
+
+bool t1(((i64, string) -> bool uses net, fs fails IoError, Utf8Error) p) => true
+
+bool t2((i32 -> bool uses net, fs fails IoError, Utf8Error) p) => true
+
+bool t3(((i32, string) -> i32 uses net, fs fails IoError, Utf8Error) p) => true
+
+bool t4(((i32, string) -> bool uses net, fs fails IoError) p) => true
+
+bool t5(((i32, string) -> bool uses net fails IoError, Utf8Error) p) => true
+
+void main() {
+    let a = t1(g)
+    let b = t2(g)
+    let c = t3(g)
+    let d = t4(g)
+    let e = t5(g)
+}

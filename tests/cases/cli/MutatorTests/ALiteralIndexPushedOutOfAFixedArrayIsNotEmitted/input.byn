@@ -1,0 +1,3 @@
+i32 ends(i32[4] xs) {
+    return xs[3] + xs[0]
+}

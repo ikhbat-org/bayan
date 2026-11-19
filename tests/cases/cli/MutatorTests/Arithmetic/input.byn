@@ -1,0 +1,5 @@
+i32 mix(i32 a) {
+    var t: i32 = a + a * 2
+    t -= a % 3
+    return t
+}

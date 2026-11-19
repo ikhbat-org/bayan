@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "input.byn",
+      "name": "max",
+      "span": {
+        "start": 50,
+        "end": 53
+      },
+      "bindings": [
+        {
+          "name": "a",
+          "kind": "param",
+          "span": {
+            "start": 64,
+            "end": 65
+          },
+          "type": "T"
+        },
+        {
+          "name": "b",
+          "kind": "param",
+          "span": {
+            "start": 72,
+            "end": 73
+          },
+          "type": "T"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "first",
+      "span": {
+        "start": 108,
+        "end": 113
+      },
+      "bindings": [
+        {
+          "name": "e",
+          "kind": "param",
+          "span": {
+            "start": 123,
+            "end": 124
+          },
+          "type": "T"
+        },
+        {
+          "name": "fallback",
+          "kind": "param",
+          "span": {
+            "start": 141,
+            "end": 149
+          },
+          "type": "T.Item"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "main",
+      "span": {
+        "start": 191,
+        "end": 195
+      },
+      "bindings": []
+    }
+  ]
+}

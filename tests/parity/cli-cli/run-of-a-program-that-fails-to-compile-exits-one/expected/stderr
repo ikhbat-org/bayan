@@ -1,0 +1,13 @@
+== 1
+error BYN1043: `i32 x` is an input form; write `let x: i32`
+  --> $WORK/p/main.byn:1:1
+
+  1 │ i32 x = "no"
+    │ ^^^^^ type before name
+    │
+  help: write `let x: i32`; local bindings put the name first
+    │ 1 │ let x: i32 = "no"
+    │   │ ++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1043

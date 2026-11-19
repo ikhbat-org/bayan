@@ -1,0 +1,14 @@
+@allow(BYN2230) because "kept for the C ABI"
+void toHex() {
+}
+
+unsafe void poke() {
+}
+
+void main() {
+    let k = input.trustUnchecked() because "a fixture"
+    unsafe because "raw write" {
+    }
+}
+
+extern i32 puts(cstr s)

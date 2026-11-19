@@ -1,0 +1,9 @@
+== 1 exit 0
+created app `local/tally` in `$WORK/tally`
+note: already inside a git repository, so no new one was created
+
+  cd $WORK/tally
+  bayan run
+  bayan test
+== 2 exit 0
+no tally/.git

@@ -1,0 +1,3 @@
+new	$WORK/tally	--vcs	none
+$ printf "Package { name: \"local/tally\" }\n" > tally/package.byn
+check	$WORK/tally

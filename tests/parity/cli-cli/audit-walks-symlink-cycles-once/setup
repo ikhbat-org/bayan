@@ -1,0 +1,1 @@
+mkdir d/sub && ln -s .. d/sub/up && ln -s .. d/sub/up2

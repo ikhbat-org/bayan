@@ -1,0 +1,1 @@
+run	--diagnostics	json	$WORK/p/main.byn

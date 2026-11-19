@@ -1,0 +1,9 @@
+bool isBig(i64 x) => x > 2
+
+bool holds<T>((T -> bool) p) => true
+
+void main() {
+    let f: i64 -> bool = isBig
+    let a = holds(isBig)
+    let b = holds(f)
+}

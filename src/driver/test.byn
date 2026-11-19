@@ -746,6 +746,35 @@ string listingName(string relative) uses alloc {
     return $"{sb.finish()}"
 }
 
+// CoverageReportTests.AnEmptyOrTruncatedCounterFileMakesCountersUnknown.
+test "merge-counters: an empty or truncated counter file merges nothing and is unknown, a good one adds, a missing one adds nothing" {
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "coverage-report"), "counters")
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    let path = Path.combine(dir, "BAYAN_COVERAGE.0")
+    for bad in ["", "bayan-coverage 1\n3", "bayan-coverage 1\n3 x\n", "bayan-c"] {
+        Io.writeFile(path, bad.bytes) catch { panic($"cannot write {path}") }
+        var hits: Map<i64, u64> = []
+        assert(!mergeCounters(path, to: ref hits))
+        assert(hits.tryGet(at: 3) is null)
+    }
+    Io.writeFile(path, "bayan-coverage 1\n3 2\n".bytes) catch { panic($"cannot write {path}") }
+    var good: Map<i64, u64> = []
+    good[3] = 1
+    assert(mergeCounters(path, to: ref good))
+    assert((good.tryGet(at: 3) ?? 0) == 3)
+    assert(mergeCounters(Path.combine(dir, "missing"), to: ref good))
+    assert((good.tryGet(at: 3) ?? 0) == 3)
+}
+
+// CoverageReportTests.ListingNamesReplaceOnlyParentSegmentsAndStayUnderOutTest.
+test "listing-name: only `..` segments become `_`, and a rooted path keeps its file name" {
+    assert(listingName("a..b.byn") == "a..b.byn")
+    assert(listingName("a..b.byn") != listingName("a_b.byn"))
+    assert(listingName(Path.combine(Path.combine(Path.combine("..", ".."), "lib"), "x.byn"))
+        == Path.combine(Path.combine(Path.combine("_", "_"), "lib"), "x.byn"))
+    assert(listingName(Path.combine(Path.combine(Path.fullPath("tmp"), "elsewhere"), "x.byn")) == "x.byn")
+}
+
 /// CliApp.cs:994 `FailureDetail`: `panic: ` dropped, the diagram under a failed `assert` moved left, drawn with `symbols` and cut
 /// to `width` columns, and `at file:line` frames as `file:line`, the top three unless `verbose`.
 List<string> failureDetail(string details, by bool verbose, for in semantics.T26Symbols symbols, through i64 width)

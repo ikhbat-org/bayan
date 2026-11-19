@@ -1,0 +1,8 @@
+<repo>/tmp/t27-mutate/Variant/lib.byn:8:18 condition `n < 0` -> `!(n < 0)`: not reached
+<repo>/tmp/t27-mutate/Variant/lib.byn:8:18 boundary `n < 0` -> `n <= 0`: not reached
+<repo>/tmp/t27-mutate/Variant/lib.byn:8:18 relational `n < 0` -> `n >= 0`: not reached
+<repo>/tmp/t27-mutate/Variant/lib.byn:8:22 literal `0` -> `1`: not reached
+<repo>/tmp/t27-mutate/Variant/lib.byn:8:22 literal `0` -> `-1`: not reached
+<repo>/tmp/t27-mutate/Variant/lib.byn:8:10 variant `.bad` -> `.worse`: not reached
+<repo>/tmp/t27-mutate/Variant/lib.byn:9:12 emptyReturn `n` -> `0`: not reached
+0 killed, 0 survived, 0 timeout, 7 not reached, 0 marked, 0 not emitted

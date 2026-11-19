@@ -1,0 +1,10 @@
+== 1
+warning BYN2311: `s` is never reassigned; declare it with `let`
+  --> $WORK/d/main.byn:2:9
+
+  2 │     var s = "abc"
+    │         ^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 2 │     let s = "abc"
+    │   │     +++

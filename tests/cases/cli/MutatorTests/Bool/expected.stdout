@@ -1,0 +1,4 @@
+<repo>/tmp/t27-mutate/Bool/lib.byn:2:12 emptyReturn `x == false` -> `false`: not reached
+<repo>/tmp/t27-mutate/Bool/lib.byn:2:12 relational `x == false` -> `x != false`: not reached
+<repo>/tmp/t27-mutate/Bool/lib.byn:2:17 bool `false` -> `true`: not reached
+0 killed, 0 survived, 0 timeout, 3 not reached, 0 marked, 0 not emitted

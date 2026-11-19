@@ -1,0 +1,7 @@
+bool g(i32 x, at string s) uses net, fs fails IoError, Utf8Error => true
+
+bool take(((i32, string) -> bool uses fs, net fails Utf8Error, IoError) p) => true
+
+void main() {
+    let a = take(g)
+}

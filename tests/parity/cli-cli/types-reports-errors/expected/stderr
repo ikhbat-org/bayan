@@ -1,0 +1,240 @@
+== 1
+error BYN8001: `@json(expose)` bypasses a safety rule and needs `because "…"`
+  --> $ROOT/tests/cases/diag/because-json-expose.byn:1:1
+
+  1 │ @json(expose)
+    │ ^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+
+error BYN1047: `/* */` is an input form; write `//` lines
+  --> $ROOT/tests/cases/diag/block-comment.byn:1:1
+
+  1 │ /* Prices are in cents.
+    │ ^^^^^^^^^^^^^^^^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // Prices are in cents.
+    │   │  ++++++++++++++++++++++
+    │ 2 │ // Discounts round down.
+    │   │ ++++++++++++++++++++++++
+
+error BYN1047: `/* */` is an input form; write `//` lines
+  --> $ROOT/tests/cases/diag/block-comment.byn:6:15
+
+  6 │     let x = 1 /* inline */ + 2
+    │               ^^^^^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │     let x = 1 // inline
+    │   │                ++++++++
+    │ 7 │      + 2
+    │   │ ++++
+
+error BYN1045: `[Cases(1, 2)]` is an input form; write `@cases(1, 2)`
+  --> $ROOT/tests/cases/diag/bracket-attribute.byn:1:1
+
+  1 │ [Cases(1, 2)]
+    │ ^
+    │
+  help: write the attribute with `@` and a camelCase name
+    │ 1 │ @cases(1, 2)
+    │   │ ++++++++++++
+
+error BYN1045: `[ExitCode(3)]` is an input form; write `@exitCode(3)`
+  --> $ROOT/tests/cases/diag/bracket-attribute.byn:7:5
+
+  7 │     [ExitCode(3)]
+    │     ^
+    │
+  help: write the attribute with `@` and a camelCase name
+    │ 7 │     @exitCode(3)
+    │   │     ++++++++++++
+
+error BYN1015: C-style `for` loops do not exist in Bayan
+  --> $ROOT/tests/cases/diag/c-style-for.byn:2:16
+
+  2 │     for (var i = 0; i < 10; i++) {
+    │                ^ expected `in`
+    │
+  help: loop over a range instead: `for i in 0..n { … }`
+
+error BYN1057: `(u8)x` is an input form; write `u8(x)`
+  --> $ROOT/tests/cases/diag/cast-input.byn:3:14
+
+  3 │ let narrow = (u8)wide
+    │              ^^^^ a cast
+    │
+  help: call the conversion: `u8(x)`
+    │ 3 │ let narrow = u8(wide)
+    │   │              ++++++++
+
+error BYN1057: `(i32)x` is an input form; write `i32(x)`
+  --> $ROOT/tests/cases/diag/cast-input.byn:4:11
+
+  4 │ let sum = (i32)(wide + 1)
+    │           ^^^^^ a cast
+    │
+  help: call the conversion: `i32(x)`
+    │ 4 │ let sum = i32(wide + 1)
+    │   │           +++
+
+error BYN1048: `char` is now `rune`
+  --> $ROOT/tests/cases/diag/char-input.byn:1:14
+
+  1 │ bool isVowel(char c) => c == 'a' or c == 'e'
+    │              ^^^^ the input form
+    │
+  help: rename the type to `rune`
+    │ 1 │ bool isVowel(rune c) => c == 'a' or c == 'e'
+    │   │              ++++
+
+error BYN1048: `char` is now `rune`
+  --> $ROOT/tests/cases/diag/char-input.byn:4:23
+
+  4 │     let letters = Map<char, bool>()
+    │                       ^^^^ the input form
+    │
+  help: rename the type to `rune`
+    │ 4 │     let letters = Map<rune, bool>()
+    │   │                       ++++
+
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+  --> $ROOT/tests/cases/diag/clause-order.byn:4:38
+
+  4 │ i64 parse(string s) fails ParseError uses io {
+    │                                      ^^^^ out of order
+    │
+  help: move `uses` before `fails`
+    │ 4 │ i64 parse(string s) uses io fails ParseError {
+    │   │                     ++++++++++++++++++++++++
+
+error BYN1065: `uses` must come before `becomes`; the order is `where`, `expects`, `uses`,
+`becomes`, `fails`
+  --> $ROOT/tests/cases/diag/clause-order.byn:12:49
+
+  12 │     void close(ref this is .open) becomes .shut uses console {
+     │                                                 ^^^^ out of order
+     │
+  help: move `uses` before `becomes`
+     │ 12 │     void close(ref this is .open) uses console becomes .shut {
+     │    │                                   ++++++++++++++++++++++++++
+
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+  --> $ROOT/tests/cases/diag/clause-order.byn:16:40
+
+  16 │ type Read = () -> i64 fails ParseError uses io
+     │                                        ^^^^ out of order
+     │
+  help: move `uses` before `fails`
+     │ 16 │ type Read = () -> i64 uses io fails ParseError
+     │    │                       ++++++++++++++++++++++++
+
+error BYN1068: `:hex` is an input form; write `, as: .hex`
+  --> $ROOT/tests/cases/diag/compact-format-spec.byn:2:15
+
+  2 │     print($"{n:hex} {x:.2}")
+    │               ^^^^ the input form
+    │
+  help: write the spec as named arguments: `, as: .hex`
+    │ 2 │     print($"{n, as: .hex} {x:.2}")
+    │   │               +++++++
+
+error BYN1068: `:.2` is an input form; write `, digits: 2`
+  --> $ROOT/tests/cases/diag/compact-format-spec.byn:2:23
+
+  2 │     print($"{n:hex} {x:.2}")
+    │                       ^^^ the input form
+    │
+  help: write the spec as named arguments: `, digits: 2`
+    │ 2 │     print($"{n:hex} {x, digits: 2}")
+    │   │                       ++++++++++
+
+error BYN6006: `context (…) { }` is now `provide … { }`
+  --> $ROOT/tests/cases/diag/context-block-input.byn:2:5
+
+  2 │     context (allocator: arena) {
+    │     ^^^^^^^ the input form
+    │
+  help: write `provide allocator: arena { }` without the parentheses
+    │ 2 │     provide allocator: arena {
+    │   │     ++++++++++++++++++++++++
+
+error BYN0012: `int` is reserved and cannot be used as an identifier
+  --> $ROOT/tests/cases/diag/csharp-name-declared.byn:1:15
+
+  1 │ void show(i32 int) {
+    │               ^^^ a C# primitive type name
+    │
+  help: choose another name
+
+error BYN0012: `long` is reserved and cannot be used as an identifier
+  --> $ROOT/tests/cases/diag/csharp-name-declared.byn:2:9
+
+  2 │     let long = 4
+    │         ^^^^ a C# primitive type name
+    │
+  help: choose another name
+
+error BYN1018: the body of `defer` must be a block
+  --> $ROOT/tests/cases/diag/defer-declaration-body.byn:2:11
+
+  2 │     defer let x = 1
+    │           ^^^^^^^^^ a single statement
+    │
+  help: wrap the statement in `{ }`
+    │ 2 │     defer { let x = 1 }
+    │   │           +++++++++++++
+
+error BYN1018: the body of `defer` must be a block
+  --> $ROOT/tests/cases/diag/defer-declaration-body.byn:3:11
+
+  3 │     defer let y: i32 = 1
+    │           ^^^^^^^^^^^^^^ a single statement
+    │
+  help: wrap the statement in `{ }`
+    │ 3 │     defer { let y: i32 = 1 }
+    │   │           ++++++++++++++++++
+
+warning BYN5103: a line starting with `&&` joins the statement above; indent it deeper
+  --> $ROOT/tests/cases/diag/line-join-and.byn:5:1
+
+  5 │ && b
+    │ ^^ joins the statement on line 4
+    │
+  help: indent it deeper than the line its statement starts on
+    │ 5 │     && b
+    │   │ ++++
+
+warning BYN5103: a line starting with `.` joins the statement above; indent it deeper
+  --> $ROOT/tests/cases/diag/line-join-enum-shorthand.byn:11:1
+
+  11 │ .green
+     │ ^ joins the statement on line 10
+     │
+  help: indent it deeper than the line its statement starts on
+     │ 11 │     .green
+     │    │ ++++
+
+warning BYN5103: a line starting with `.` joins the statement above; indent it deeper
+  --> $ROOT/tests/cases/diag/line-join-member.byn:4:1
+
+  4 │ .length
+    │ ^ joins the statement on line 3
+    │
+  help: indent it deeper than the line its statement starts on
+    │ 4 │     .length
+    │   │ ++++
+
+warning BYN5103: a line starting with `.` joins the statement above; indent it deeper
+  --> $ROOT/tests/cases/diag/line-join-member.byn:9:5
+
+  9 │     .length
+    │     ^ joins the statement on line 8
+    │
+  help: indent it deeper than the line its statement starts on
+    │ 9 │         .length
+    │   │     ++++
+… and 202 more errors (use --all to show them)

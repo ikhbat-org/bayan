@@ -1,0 +1,9 @@
+== 1 exit 0
+created app `local/tally` in `<tmp>/tally`
+initialized a git repository (nothing committed)
+
+  cd <tmp>/tally
+  bayan run
+  bayan test
+tally/.git exists
+0

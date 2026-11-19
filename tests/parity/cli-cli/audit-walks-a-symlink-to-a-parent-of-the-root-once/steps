@@ -1,0 +1,1 @@
+$ $BAYAN audit d/outer/dir > o.txt; echo "audit $?"; grep -c "unsafe void peek()" o.txt; grep -c "unsafe void prod()" o.txt

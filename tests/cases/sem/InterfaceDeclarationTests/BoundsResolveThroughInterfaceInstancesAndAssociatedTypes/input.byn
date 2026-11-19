@@ -1,0 +1,10 @@
+interface IOrder<T> {
+    bool less(T other)
+}
+
+T max<T>(move T a, by T b) where T : IOrder<T> => a
+
+T.Item first<T>(ref T e, by move T.Item fallback) where T : IEnumerator => fallback
+
+void main() {
+}

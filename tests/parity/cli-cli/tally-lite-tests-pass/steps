@@ -1,0 +1,1 @@
+$ cp -R $ROOT/examples/tally-lite tally-lite && $BAYAN test tally-lite

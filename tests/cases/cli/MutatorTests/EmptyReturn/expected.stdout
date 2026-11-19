@@ -1,0 +1,7 @@
+<repo>/tmp/t27-mutate/EmptyReturn/lib.byn:2:12 emptyReturn `x` -> `0`: not reached
+<repo>/tmp/t27-mutate/EmptyReturn/lib.byn:6:12 emptyReturn `s` -> `""`: not reached
+<repo>/tmp/t27-mutate/EmptyReturn/lib.byn:10:12 emptyReturn `x` -> `null`: not reached
+<repo>/tmp/t27-mutate/EmptyReturn/lib.byn:14:12 emptyReturn `b` -> `false`: not reached
+<repo>/tmp/t27-mutate/EmptyReturn/lib.byn:18:12 literal `0` -> `1`: not reached
+<repo>/tmp/t27-mutate/EmptyReturn/lib.byn:18:12 literal `0` -> `-1`: not reached
+0 killed, 0 survived, 0 timeout, 6 not reached, 0 marked, 0 not emitted

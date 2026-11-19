@@ -1,0 +1,4 @@
+init	$WORK/tally	--vcs	none
+$ cat tally/README.md
+check	$WORK/tally
+init	$WORK/tally
