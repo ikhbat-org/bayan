@@ -1118,3 +1118,7 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 T30g inv5, 2026-11-20): inventory-check.sh counts only the leading number of a class's EXPORT.tsv reason field; a second `N not exported:` clause in the same field is not counted.
 - LOW (019 T30g inv5, 2026-11-20): the header at src/driver/styleenv.test.byn:4-5 does not cite the 2026-11-20 no-counterpart decision for the two TimerFrames tests.
 - LOW (019 T30g inv5, 2026-11-20): clean-t3.test.byn and parser-t13.test.byn run the prebuilt `$BAYAN_EXE` as their child, so a break in src/driver shows only after a stage-1 rebuild; clean-t3.test.byn:28-39 leaves its tree locked when an assert fails between the chmod and the restore (the next run unlocks it).
+- LOW (019 cifix, 2026-11-20): docs/diagnostics/BYN2745.md example `G<i64> {}` also reports BYN2109; fix the example there and in src/driver/diagdocs.byn:231, then drop the `BYN2745/BYN2109` extra from scripts/ci/diagnostic-codes.test.sh.
+- LOW (019 cifix, 2026-11-20): cli/SelfhostDefaultT12Tests/WithoutGitThereIsNoSource on Linux exits 4 with BYN4001 "the C compiler rejected the generated C" (GCC cannot find `as` when PATH holds only `cc`); it has an `os` file `macos` for now; T17e.
+- LOW (019 cifix, 2026-11-20): about 20 BYN2311 `var` never reassigned warnings remain in src/semantics (express2.byn:1170 and others).
+- LOW (019 cifix, 2026-11-20): scripts/ci/std-source.test.sh's `| cmp -s -` makes gen-stdsource.sh print `printf: Broken pipe` whenever the file differs.

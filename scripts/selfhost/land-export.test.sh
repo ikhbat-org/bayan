@@ -129,7 +129,7 @@ rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
 rmdir "$x/cli/AlphaTests/A:b"; printf 'macos\nlinux\n' > "$d/sem/GammaTests/Two/os"
 rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
 [ $rc = 1 ] && grep -q "GammaTests/Two/os has more than one line" <<<"$out" || fail "an os file of two lines was accepted ($rc): $out"
-printf 'macos\n' > "$d/sem/GammaTests/Two/os"; printf 'class\tkind\ttests\tcases\treason\n' > "$d/EXPORT.tsv"
+printf 'macos\n' > "$d/sem/GammaTests/Two/os"; printf 'class\tkind\ttests\tcases\treason\nZetaTests\tcli\t1\t1\t1 os: Z (macos: x)\n' > "$d/EXPORT.tsv" # Z keeps its reason: find order is the host's
 rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
 [ $rc = 1 ] && grep -q "GammaTests/Two/os has no reason in EXPORT.tsv" <<<"$out" || fail "an os file with no reason was accepted ($rc): $out"
 ln -s a.txt "$c/input/link"
