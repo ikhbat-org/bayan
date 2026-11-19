@@ -1065,3 +1065,4 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 T31 t31f, 2026-11-19): `bash32-parse.test.sh` and `script-tests.test.sh` leave `tmp/bash32-parse-test` and `tmp/script-tests-test` behind.
 - LOW (019 T31b t31bc, 2026-11-19): the L012 break is caught only by C compile errors in the exported cases, not by a differing output line.
 - LOW (019 T31b t31bc, 2026-11-19): the proof notes of the eight swapped laws and 019-law-checks.md say "comment above `goldenCli`"; the text is now the end of its doc comment.
+- 019 T20/T59, 2026-11-19: `diag/circular-field-default-generic-growing`, `-list` and `-owned` (BYN2745, 019-l023fix) have FREEZE.tsv rows but no C# origin (csharp/ has no BYN2745) and no DIVERGENCES.tsv row; T59 must list them or L043 will refuse them. The FREEZE.tsv export row still names chore/019-export at 931d155f2; the branch head is 94f068624 (T31b exports). Fixing task: T59.
