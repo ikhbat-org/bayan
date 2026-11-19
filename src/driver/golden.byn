@@ -321,6 +321,23 @@ string? goldenCompare(string actual, for string input, at string expected, by st
     return goldenDiffer(actual, for: input, at: expected, by: host)
 }
 
+/// `actual` as a Windows run prints it, read against `expected`, an expected file made on macOS, when `windows`: the module directory in a
+/// `files in` help with `/` for `\` (Compilation.cs:309 makes it by `Path.GetRelativePath`), and, when `expected` names no `.exe`, a `.exe`
+/// that ends a line dropped (Targets.cs:30 `ExecutableName` names a Windows program `<name>.exe`).
+string goldenWindowsRead(string actual, for string expected, by bool windows) uses alloc {
+    return actual unless windows
+    let slashed = goldenCliSlashedAfter(goldenLf(actual), at: "files in `", by: true)
+    return slashed if goldenOffset(expected, for: ".exe") >= 0
+    var sb = StrBuf()
+    var first = true
+    for line in slashed.parts(by: "\n") {
+        sb.append("\n") unless first
+        first = false
+        sb.append(line.endsWith(".exe") ? $"{line[0..line.length - 4]}" : line)
+    }
+    return sb.finish()
+}
+
 /// Golden.cs:35 `Compare` outside update mode: null when `actual` equals the expected file at `expected` (CR LF read as LF), else the failure text,
 /// which names the input path and the first differing line, expected and actual (spec 019 R2). Both sides are read through `goldenHostMasked`
 /// for `host`, the running one (`targetHost`) when null; an empty `host` masks nothing.
@@ -328,7 +345,8 @@ string? goldenDiffer(string actual, for string input, at string expected, by str
     let text = Io.readText(expected) catch return $"{input}\nmissing expected file {expected}"
     let running = host ?? targetHost() ?? ""
     let want = goldenLines(goldenLf(goldenHostMasked(text, for: running)))
-    let got = goldenLines(goldenLf(goldenHostMasked(goldenStdModules(actual, by: text), for: running)))
+    let read = goldenWindowsRead(actual, for: text, by: Target.os == "windows")
+    let got = goldenLines(goldenLf(goldenHostMasked(goldenStdModules(read, by: text), for: running)))
     var line = 0
     while line < want.length && line < got.length && want[line] == got[line] {
         line += 1
