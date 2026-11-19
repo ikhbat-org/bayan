@@ -1,4 +1,4 @@
-# replay.py — replays a BAYAN_SNAPSHOT recording of the selfhost tests (spec 013 R14) without `dotnet test`.
+# replay.py — replays a BAYAN_SNAPSHOT recording of the selfhost tests (spec 013 R14) without rerunning `bayan test`.
 #   python3 -I scripts/selfhost/replay.py [--binary <exe>] <snapshot dir>
 # Runs the records of <dir>/runs.jsonl (program, args, cwd, stdin) whose program is <exe>, with BAYAN_MUTANT inherited, as
 # `bayan mutate --binary <exe> --sites <map.json> -- python3 -I scripts/selfhost/replay.py --binary <exe> <dir>` does per
@@ -6,10 +6,11 @@
 # must list one build (more exit 2, naming them).
 # Exit 0 when each run's exit code, stdout and stderr match the recording, 1 at the first mismatch (named on stderr),
 # 2 when the recording cannot be read, no run used <exe>, or a program cannot start.
-# The C# oracle checks run once, at record time (013-plan.md:21, "compute the C# oracle once"); the replay never runs C#.
-# A run is recorded before its test's oracle asserts, so a recording is valid only if the recording `dotnet test` exited 0.
-# A recording runs each program twice and fails when the runs differ; tests whose output is not deterministic carry
-# [Trait("Snapshot", "skip")], and a recording's `dotnet test --filter` ends in `&Snapshot!=skip` to leave them out.
+# The expected outputs are checked once, at record time (013-plan.md:21, "compute the oracle once"); the replay compares only.
+# A run is recorded before its case's expected output is compared, so a recording is valid only if the recording
+# `bayan test tests/cases --only …` (mutation-step.sh, spec 019 T48c) exited 0.
+# A recording runs each program twice and fails when the runs differ; a case whose output is not deterministic is left out
+# of the recording by the golden runner under BAYAN_SNAPSHOT.
 # Input files are read at replay time, so a recorded test must use unique input paths (one rewritten between runs cannot replay).
 import base64, json, os, subprocess, sys
 
