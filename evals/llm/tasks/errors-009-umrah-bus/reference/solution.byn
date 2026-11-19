@@ -1,0 +1,50 @@
+union error BoardError {
+    /// A name in the group is empty.
+    noName
+    /// The person is already on the bus.
+    twice(string name)
+    /// Every seat is taken.
+    full(i64 seats)
+}
+
+/// A bus to umrah and who is on it.
+struct Bus {
+    List<string> riders
+    i64 seats
+}
+
+/// True when `name` is already on `bus`.
+bool isAboard(string name, at Bus bus) {
+    for rider in bus.riders {
+        return true if rider == name
+    }
+    return false
+}
+
+/// Boards every name of `group`, or none of them.
+void board(ref Bus bus, from string group) fails BoardError {
+    let before = bus.riders.length
+    defer failing {
+        while bus.riders.length > before {
+            let _ = bus.riders.removeLast()
+        }
+    }
+    for name in group.parts(by: ",") {
+        fail .noName if name.isEmpty
+        fail .twice(name: name) if isAboard(name, at: bus)
+        fail .full(seats: bus.seats) if bus.riders.length >= bus.seats
+        bus.riders.append(name)
+    }
+}
+
+/// Boards each group that fits and returns how many did.
+i64 boardAll(ref Bus bus, from List<string> groups) {
+    var boarded = 0
+    for group in groups {
+        board(ref bus, from: group) catch {
+            continue
+        }
+        boarded += 1
+    }
+    return boarded
+}
