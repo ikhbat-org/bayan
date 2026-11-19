@@ -1,0 +1,4 @@
+== cases
+0 byn_add_i64((*self).a, (*self).b, byn_file_0, 6)
+1 (l0_t > INT64_C(10))
+count 2

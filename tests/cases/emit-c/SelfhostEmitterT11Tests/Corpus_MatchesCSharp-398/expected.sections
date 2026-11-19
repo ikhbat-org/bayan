@@ -1,0 +1,4 @@
+== helpers
+bynh_span_list_u8 static bynt_span_u8 bynh_span_list_u8(bynt_list_u8 l) | static bynt_span_u8 bynh_span_list_u8(bynt_list_u8 l) {
+    return (bynt_span_u8){l.ptr, l.len};
+}

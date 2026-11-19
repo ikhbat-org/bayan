@@ -1,0 +1,8 @@
+error BYN2001: `missingName5` is not defined
+  --> tmp/semantics-corpus/parity/seeds/fault-UnknownName-005/main.byn:51:13
+
+  51 │     total = missingName5 + 1
+     │             ^^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2001

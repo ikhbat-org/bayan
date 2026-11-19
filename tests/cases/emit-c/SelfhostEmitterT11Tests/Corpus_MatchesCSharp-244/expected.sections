@@ -1,0 +1,8 @@
+== locals
+main: e
+count:
+get:
+current:
+moveNext:
+steps: s x t t
+moves: s x

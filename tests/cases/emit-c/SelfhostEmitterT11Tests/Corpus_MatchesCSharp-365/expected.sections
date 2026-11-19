@@ -1,0 +1,5 @@
+== cases
+0 ((bynt_span_u8){l0_data.v, 1})
+1 byn_div_i64(l3_t.nanos, INT64_C(1000000000), byn_file_0, 7)
+2 l3_t.nanos
+count 3

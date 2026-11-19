@@ -1,0 +1,5 @@
+== cases
+0 (*bynh_slot_map_str_i64(&l0_m, BYN_STR("x", 1), ((int64_t){0})))
+1 (*bynh_slot_map_str_i64(&l0_m, BYN_STR("x", 1), ((int64_t){0})))
+2 (*bynh_slot_map_str_i64(&l0_m, BYN_STR("y", 1), ((int64_t){0})))
+count 3

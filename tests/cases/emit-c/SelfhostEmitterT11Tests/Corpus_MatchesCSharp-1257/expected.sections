@@ -1,0 +1,61 @@
+== cases
+1 bynh_add_list_i64(&l0_ledger.items, INT64_C(1))
+2 bynh_add_list_i64(&l0_ledger.items, INT64_C(2))
+4 l1_items.len
+5 l0_ledger.items.len
+6 bynh_add_list_i64(&l0_ledger.items, INT64_C(3))
+7 l0_ledger.items.len
+8 (*bynh_at_list_i64(l0_ledger.items, (int64_t)INT64_C(0), false, byn_file_0, 28))
+10 l0_ledger.items.len
+11 (*bynh_slot_map_str_i64(&l6_counts, BYN_STR("a", 1), ((int64_t){0})))
+12 (*bynh_slot_map_str_i64(&l6_counts, BYN_STR("b", 1), ((int64_t){0})))
+14 l7_taken.h.live
+15 l6_counts.h.live
+16 (*bynh_slot_map_str_i64(&l6_counts, BYN_STR("c", 1), ((int64_t){0})))
+17 l6_counts.h.live
+18 bynh_index_map_str_i64(l6_counts, BYN_STR("c", 1), byn_file_0, 37)
+19 byn_w_str(&l11_sb, BYN_STR("hello", 5))
+21 byn_strbuf_str(l12_text)
+22 l11_sb.len
+23 byn_w_str(&l11_sb, BYN_STR("again", 5))
+24 byn_strbuf_str(l11_sb)
+25 bynh_add_list_i64(&l15_more, INT64_C(4))
+29 l20_p.len
+31 bynh_add_list_list_i64(&l23_lists, ((bynt_list_i64){NULL, 0, 0, byn_context}))
+32 bynh_add_list_i64(&(*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 57)), INT64_C(5))
+33 (*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 57))
+34 bynh_add_list_i64(&(*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 58)), INT64_C(6))
+35 (*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 58))
+37 (*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 59))
+38 l24_first.len
+39 (*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 60)).len
+40 (*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 60))
+41 bynh_add_list_i64(&(*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 61)), INT64_C(7))
+42 (*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 61))
+43 (*bynh_at_list_i64((*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 62)), (int64_t)INT64_C(0), false, byn_file_0, 62))
+44 (*bynh_at_list_list_i64(l23_lists, (int64_t)INT64_C(0), false, byn_file_0, 62))
+45 bynh_add_list_list_list_i64(&l27_nested, ((bynt_list_list_i64){NULL, 0, 0, byn_context}))
+46 bynh_add_list_list_i64(&(*bynh_at_list_list_list_i64(l27_nested, (int64_t)INT64_C(0), false, byn_file_0, 66)), ((bynt_list_i64){NULL, 0, 0, byn_context}))
+47 (*bynh_at_list_list_list_i64(l27_nested, (int64_t)INT64_C(0), false, byn_file_0, 66))
+48 bynh_add_list_i64(&(*bynh_at_list_list_i64((*bynh_at_list_list_list_i64(l27_nested, (int64_t)INT64_C(0), false, byn_file_0, 67)), (int64_t)INT64_C(0), false, byn_file_0, 67)), INT64_C(12))
+49 (*bynh_at_list_list_i64((*bynh_at_list_list_list_i64(l27_nested, (int64_t)INT64_C(0), false, byn_file_0, 67)), (int64_t)INT64_C(0), false, byn_file_0, 67))
+50 (*bynh_at_list_list_list_i64(l27_nested, (int64_t)INT64_C(0), false, byn_file_0, 67))
+52 (*bynh_at_list_list_i64((*bynh_at_list_list_list_i64(l27_nested, (int64_t)byn_main__pick(), false, byn_file_0, 68)), (int64_t)byn_main__pick(), false, byn_file_0, 68))
+53 (*bynh_at_list_list_list_i64(l27_nested, (int64_t)byn_main__pick(), false, byn_file_0, 68))
+54 l28_inner.len
+55 (*bynh_at_list_list_i64((*bynh_at_list_list_list_i64(l27_nested, (int64_t)INT64_C(0), false, byn_file_0, 69)), (int64_t)INT64_C(0), false, byn_file_0, 69)).len
+56 (*bynh_at_list_list_i64((*bynh_at_list_list_list_i64(l27_nested, (int64_t)INT64_C(0), false, byn_file_0, 69)), (int64_t)INT64_C(0), false, byn_file_0, 69))
+57 (*bynh_at_list_list_list_i64(l27_nested, (int64_t)INT64_C(0), false, byn_file_0, 69))
+58 bynh_add_list_i64(&l34_g, INT64_C(8))
+59 (*bynh_slot_map_str_list_i64(&l33_groups, BYN_STR("x", 1), ((bynt_list_i64){0})))
+61 (*bynh_slot_map_str_list_i64(&l33_groups, BYN_STR("x", 1), ((bynt_list_i64){0})))
+62 l35_x.len
+63 bynh_index_map_str_list_i64(l33_groups, BYN_STR("x", 1), byn_file_0, 76).len
+64 bynh_index_map_str_list_i64(l33_groups, BYN_STR("x", 1), byn_file_0, 76)
+65 bynh_add_list_i64(&l38_shared, INT64_C(9))
+66 bynh_add_list_i64(&l38_shared, INT64_C(10))
+67 l39_drained.len
+68 l38_shared.len
+69 bynh_add_list_i64(&l38_shared, INT64_C(11))
+70 (*bynh_at_list_i64(l38_shared, (int64_t)INT64_C(0), false, byn_file_0, 84))
+count 71

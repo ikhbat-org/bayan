@@ -1,0 +1,21 @@
+== locals
+any: t t t
+indexWhere: i t t t
+countWhere: n t t t
+isNumber:
+firstMatch:
+findFrom:
+ordered: i
+upper: t t
+render: t t
+main: ts t t t t offset t wide t t t t t t t r t t t t e t tag t t t t
+main$lambda1:
+main$lambda2:
+main$lambda3:
+main$lambda4:
+main$lambda5:
+main$lambda6:
+main$lambda7:
+main$lambda8:
+main$lambda9:
+main$lambda10: t

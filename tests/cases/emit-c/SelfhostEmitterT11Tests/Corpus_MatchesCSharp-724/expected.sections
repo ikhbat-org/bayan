@@ -1,0 +1,4 @@
+== locals
+restock: have t t
+main: prices t t t e t t counts hand s t t t squares i t t t letters c t t answers t inv arena seen i t t t total e t t
+formatInto:

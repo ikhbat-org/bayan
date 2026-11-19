@@ -1,0 +1,18 @@
+== cases
+0 bynh_add_list_i64(&l2_xs, INT64_C(7))
+1 bynh_add_list_i64(&l2_xs, INT64_C(8))
+2 ((bynt_span_i64){l2_xs.ptr, l2_xs.len})
+3 ((bynt_span_str){l3_none.ptr, l3_none.len})
+5 (p_xs.len == INT64_C(0))
+6 p_xs.len
+7 (*bynh_at_span_i64(p_xs, (int64_t)INT64_C(0), false, byn_file_0, 14))
+8 (p_xs.len == INT64_C(0))
+9 p_xs.len
+10 (*bynh_at_span_str(p_xs, (int64_t)INT64_C(0), false, byn_file_0, 14))
+11 (p_a == p_b)
+12 byn_str_eq(p_a, p_b)
+13 bynh_eq_main__Point(p_a, p_b)
+14 (p_n == INT64_C(0))
+15 byn_add_i64(INT64_C(1), byn_main__countDown__str(p_x, byn_sub_i64(p_n, INT64_C(1), byn_file_0, 23)), byn_file_0, 23)
+16 byn_sub_i64(p_n, INT64_C(1), byn_file_0, 23)
+count 17

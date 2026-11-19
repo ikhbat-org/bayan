@@ -1,0 +1,5 @@
+== pred
+false false false false spill=1 temps=1 effect=1
+false false false false false spill=1 temps=1 effect=1
+false false false false true true spill=1 temps=1 effect=1
+false false false false false false false spill=1 temps=1 effect=1

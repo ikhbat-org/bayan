@@ -1,0 +1,4 @@
+== cases
+0 byn_mul_i64((*self).w, (*self).h, byn_file_0, 11)
+1 byn_mul_i64(byn_main__Rect__area(&(*self)), p_by, byn_file_0, 15)
+count 2

@@ -1,0 +1,7 @@
+== cases
+0 byn_w_str(&(*p_sb), p_s)
+1 byn_str_copy(p_s, byn_arena_alloc(p_a))
+2 byn_str_copy(BYN_STR("ann", 3), byn_arena_alloc(l4_arena))
+3 byn_strbuf_str(l1_sb)
+4 p_v.len
+count 5

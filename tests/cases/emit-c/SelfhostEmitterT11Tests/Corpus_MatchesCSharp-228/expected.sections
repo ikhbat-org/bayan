@@ -1,0 +1,4 @@
+== locals
+lookup: t
+orZero:
+main: a b c t t t t widened

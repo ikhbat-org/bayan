@@ -1,0 +1,17 @@
+== cases
+0 bynh_add_list_i64(&l0_a, INT64_C(1))
+1 (l3_x.len > INT64_C(5))
+2 l3_x.len
+3 l3_x.len
+4 l4_y.len
+5 bynh_add_list_i64(&l5_b, INT64_C(1))
+6 (l10_x.len > INT64_C(5))
+7 l10_x.len
+8 byn_mul_i64(l10_x.len, INT64_C(10), byn_file_0, 31)
+9 l10_x.len
+10 l11_y.len
+11 bynh_add_list_i64(&l12_c, INT64_C(1))
+12 bynh_add_list_i64(&l12_c, INT64_C(2))
+13 l15_x.len
+14 l16_y.len
+count 15

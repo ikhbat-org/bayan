@@ -1,0 +1,3 @@
+== locals
+show: d dir t
+main: p t t

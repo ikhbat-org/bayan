@@ -1,0 +1,3 @@
+== cases
+0 bynh_eq_main__Money(l0_item.unitPrice, ((bynt_main__Money){INT64_C(250)}))
+count 3

@@ -1,0 +1,2 @@
+== locals
+main: minI64 belowI64 maxI64 aboveI64 t t t t t t t minF32 belowF32 maxF32 aboveF32 t t t t t t t minF64 belowF64 maxF64 aboveF64 t t t t t t t truncMin truncMax t t t

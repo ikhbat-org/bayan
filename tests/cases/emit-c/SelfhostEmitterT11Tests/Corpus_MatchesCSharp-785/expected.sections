@@ -1,0 +1,5 @@
+== cases
+0 ((bynt_span_i64){l0_xs.v, 3})
+1 (l2_i <= INT64_C(3))
+2 (*bynh_at_span_i64(l1_s, (int64_t)l2_i, false, byn_file_0, 5))
+count 3

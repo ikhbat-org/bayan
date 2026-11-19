@@ -1,5 +1,5 @@
-== diags.panic-on-panic
-BYN2230 6:11 `onPanic` is now `handler`
-  label the old name
-  help rename it `handler`
-  fix 6:11-6:18 handler
+== diags.else-branch
+BYN7001 19:16 `ship` needs `order` to be `.paid`, but it is `Order`
+  help check the state with `is` or `switch` first
+BYN2703 10:33 variant `paid` has 1 payload field(s), but the pattern lists 0
+  help list every field: `.paid(let payment)`, or `_` to skip one

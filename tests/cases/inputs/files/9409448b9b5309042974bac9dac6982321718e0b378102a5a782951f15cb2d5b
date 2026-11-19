@@ -1,0 +1,13 @@
+void iterables(List<i64> xs, at i64[4] a, by ReadOnlySpan<i64> sp, for string s, to Map<string, i64> m) {
+    var t = 0
+    for x in xs { t = x }
+    for x in a { t = x }
+    for x in sp { t = x }
+    for ch in s { t = 1 }
+    for e in m { t = 2 }
+    for x in xs {
+        if x == 1 { break }
+    }
+}
+
+void main() { }

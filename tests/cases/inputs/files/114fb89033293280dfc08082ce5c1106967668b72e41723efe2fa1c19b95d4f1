@@ -1,0 +1,46 @@
+union error E {
+    bad
+}
+
+void cleanups(i64 n) {
+    var i = 0
+    defer i = 1
+    {
+        defer i = 2
+        defer i = 3
+        i = n
+    }
+    for k in 0..n {
+        defer i = k
+        if k == 1 { continue }
+        if k == 2 { break }
+    }
+    defer panicking print("p")
+    while i < n {
+        defer i = 5
+        i += 1
+    }
+}
+
+void failing(i64 n) fails E {
+    var m = n
+    defer failing m = 1
+    if m == 2 { fail .bad }
+    while m < 3 {
+        defer failing m = 4
+        m += 1
+    }
+}
+
+void arenas(Arena arena, by i64 n) {
+    var i = 0
+    provide allocator: arena {
+        i = n
+    }
+    {
+        using let local = Arena()
+        i = 1
+    }
+}
+
+void main() { }

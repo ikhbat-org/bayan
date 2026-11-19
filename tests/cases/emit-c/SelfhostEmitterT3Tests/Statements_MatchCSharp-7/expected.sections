@@ -1,0 +1,18 @@
+== stmts
+fn places locals=2 ctx=0 panic=0
+  local t:i64
+  local t:i64
+  block
+    assign - fld(p).x n
+    assign - fld(p).x (0 fld(p).x n):i64
+    assign - idx(fld(p).ys, lit:i64 0:1, end=0):i64 n
+    assign - idx(fld(p).ys, n, end=0):i64 (0 idx(fld(p).ys, n, end=0):i64 n):i64
+    assign - idx(a, n, end=0):i64 lit:i64 0:1
+    assign - t (0 n lit:i64 0:1):i64
+    assign - idx(a, t, end=0):i64 (1 idx(a, t, end=0):i64 lit:i64 0:2):i64
+    assign - idx(xs, n, end=0):i64 lit:i64 0:3
+    assign - idx(xs, n, end=0):i64 (0 idx(xs, n, end=0):i64 lit:i64 0:1):i64
+    assign - t (0 n lit:i64 0:1):i64
+    assign - idx(xs, t, end=0):i64 (2 idx(xs, t, end=0):i64 lit:i64 0:2):i64
+fn main locals=0 ctx=0 panic=0
+  block

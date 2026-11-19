@@ -1,0 +1,18 @@
+== helpers
+bynh_add_list_i64 static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) | static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(int64_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_at_span_i64 static int64_t* bynh_at_span_i64(bynt_span_i64 s, int64_t i, bool from_end, const char* file, int line) | static int64_t* bynh_at_span_i64(bynt_span_i64 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_at_span_str static byn_str* bynh_at_span_str(bynt_span_str s, int64_t i, bool from_end, const char* file, int line) | static byn_str* bynh_at_span_str(bynt_span_str s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_eq_main__Point static bool bynh_eq_main__Point(bynt_main__Point a, bynt_main__Point b) | static bool bynh_eq_main__Point(bynt_main__Point a, bynt_main__Point b) {
+    return (a.x == b.x)
+        && (a.y == b.y);
+}

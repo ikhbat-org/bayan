@@ -1,0 +1,4 @@
+== helpers
+bynh_vt_main__S_main__IThing_get static int64_t bynh_vt_main__S_main__IThing_get(void* self) | static int64_t bynh_vt_main__S_main__IThing_get(void* self) {
+    return byn_main__S__get((bynt_main__S*)self);
+}

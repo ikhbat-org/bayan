@@ -1,0 +1,9 @@
+== locals
+boxSizes: t
+findSmallestBox: i t t t
+pack: n i t t t i t t current j t t count k t t i grams size t box b t t t t t
+sortPicks: i t t t i t t current j t t
+computeCheckDigit: h c t t t
+report: order t boxes t count t t b t t
+main: mixed t bed t sample i t t t picks t first k t t seq t t room signedRoom
+comesAfter:

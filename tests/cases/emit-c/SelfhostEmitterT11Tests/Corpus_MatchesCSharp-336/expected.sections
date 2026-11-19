@@ -1,0 +1,4 @@
+== locals
+main: price buf
+formatInto: digits text t gap t
+formatInto:

@@ -1,0 +1,4 @@
+== cases
+0 byn_str_eq(BYN_HOST_OS, l3_name)
+1 byn_str_eq(BYN_HOST_ARCH, l6_name)
+count 2

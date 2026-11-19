@@ -1,0 +1,20 @@
+union error E {
+    gone
+}
+
+i64 risky(i64 n) fails E {
+    fail .gone if n < 0
+    return n
+}
+
+struct S {
+    i64 x = risky(1) catch {
+        for (a, b) in [(1, 2)] { let _ = a + b }
+        panic("x")
+    }
+}
+
+i32 main() {
+    let s = S {}
+    return i32(s.x)
+}

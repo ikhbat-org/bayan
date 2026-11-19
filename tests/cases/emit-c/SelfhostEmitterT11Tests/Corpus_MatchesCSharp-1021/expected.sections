@@ -1,0 +1,15 @@
+== cases
+0 bynh_add_list_i64(&l0_xs, INT64_C(1))
+1 bynh_add_list_i64(&l0_xs, INT64_C(2))
+2 byn_w_str(&l3_sb, BYN_STR("h\303\251llo", 6))
+3 byn_strbuf_str(l3_sb)
+4 l0_xs.len
+5 ((void)l1_a, INT64_C(3))
+6 ((bynt_span_i64){l1_a.v, 3}).len
+7 ((bynt_span_i64){l1_a.v, 3})
+8 l2_m.h.live
+9 l3_sb.len
+10 l4_view.len
+11 BYN_STR("h\303\251llo", 6).len
+12 byn_strbuf_str(l3_sb)
+count 13

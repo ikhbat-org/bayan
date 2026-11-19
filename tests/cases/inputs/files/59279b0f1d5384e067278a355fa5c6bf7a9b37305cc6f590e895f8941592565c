@@ -1,0 +1,17 @@
+interface IArea {
+    i64 area()
+}
+
+struct Box : IArea {
+    i64 w
+    i64 h
+    i64 area() => w * h
+}
+
+i64 biggerArea<T>(T a, to T b) where T : IArea => a.area() > b.area() ? a.area() : b.area()
+
+void main() {
+    var total: i64 = 0
+    total += biggerArea(Box { w: 1, h: 2 }, to: Box { w: 3, h: total })
+    print($"{total}")
+}

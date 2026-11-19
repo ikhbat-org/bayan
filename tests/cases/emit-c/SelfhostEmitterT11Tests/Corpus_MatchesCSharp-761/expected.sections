@@ -1,0 +1,20 @@
+== cases
+0 ((uint64_t)(l0_x ^ byn_shl_u64(l0_x, (int64_t)(((int32_t)13)))))
+1 byn_shl_u64(l0_x, (int64_t)(((int32_t)13)))
+2 ((uint64_t)(l0_x ^ byn_shr_u64(l0_x, (int64_t)(((int32_t)7)))))
+3 byn_shr_u64(l0_x, (int64_t)(((int32_t)7)))
+4 ((uint64_t)(l0_x ^ byn_shl_u64(l0_x, (int64_t)(((int32_t)17)))))
+5 byn_shl_u64(l0_x, (int64_t)(((int32_t)17)))
+6 byn_cast_i64_u((uint64_t)byn_rem_u64(l5_r, UINT64_C(64), byn_file_0, 16), byn_file_0, 16)
+7 byn_rem_u64(l5_r, UINT64_C(64), byn_file_0, 16)
+8 (byn_rem_u64(byn_shr_u64(l5_r, (int64_t)(((int32_t)8))), UINT64_C(3), byn_file_0, 17) == UINT64_C(2))
+9 byn_rem_u64(byn_shr_u64(l5_r, (int64_t)(((int32_t)8))), UINT64_C(3), byn_file_0, 17)
+10 byn_shr_u64(l5_r, (int64_t)(((int32_t)8)))
+11 bynh_remove_map_i64_i64(&l1_m, l6_key)
+12 (*bynh_slot_map_i64_i64(&l1_m, l6_key, ((int64_t){0})))
+13 ((int64_t)l2_step)
+14 l1_m.h.live
+15 t10.h.len
+16 (!t10.h.dead[t11])
+17 ((bynt_tup2_i64_i64){t10.keys[t11], t10.vals[t11]})
+count 18

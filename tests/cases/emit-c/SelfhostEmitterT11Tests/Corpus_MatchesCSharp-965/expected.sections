@@ -1,0 +1,8 @@
+== cases
+0 byn_sub_i32(l0_n, ((int32_t)1), byn_file_0, 3)
+1 byn_sub_i32(l0_n, ((int32_t)1), byn_file_0, 7)
+2 (l1_loose == l5_tight)
+3 byn_add_i32(l9_lo, ((int32_t)1), byn_file_0, 12)
+4 byn_sub_i32(byn_mul_i32(l0_n, ((int32_t)2), byn_file_0, 12), ((int32_t)3), byn_file_0, 12)
+5 byn_mul_i32(l0_n, ((int32_t)2), byn_file_0, 12)
+count 6

@@ -1,0 +1,41 @@
+== cases
+0 bynh_add_list_i64(&l0_ys, l1_i)
+1 bynh_add_list_i64(&l0_items, l1_i)
+2 bynh_add_list_i64(&l4_bag.items, INT64_C(100))
+3 l1_items.len
+4 bynh_add_list_i64(&l1_batch, ((int64_t)byn_add_i32(byn_mul_i32(l2_round, ((int32_t)100), byn_file_0, 43), l5_i, byn_file_0, 43)))
+5 ((int64_t)byn_add_i32(byn_mul_i32(l2_round, ((int32_t)100), byn_file_0, 43), l5_i, byn_file_0, 43))
+6 byn_add_i32(byn_mul_i32(l2_round, ((int32_t)100), byn_file_0, 43), l5_i, byn_file_0, 43)
+7 byn_mul_i32(l2_round, ((int32_t)100), byn_file_0, 43)
+8 bynh_add_list_list_i64(&l0_batches, l1_batch)
+9 l0_batches.len
+10 (*bynh_at_list_list_i64(l0_batches, (int64_t)INT64_C(3), false, byn_file_0, 47)).len
+11 (*bynh_at_list_list_i64(l0_batches, (int64_t)INT64_C(3), false, byn_file_0, 47))
+12 l1_batch.len
+13 bynh_add_list_i64(&l12_xs, ((int64_t)l13_round))
+14 ((int64_t)l13_round)
+15 l12_xs.len
+16 l12_xs.len
+17 l20_bag.items.len
+18 (*bynh_at_list_i64(l20_bag.items, (int64_t)INT64_C(30), false, byn_file_0, 59))
+19 bynh_add_list_i64(&l21_owner.items, ((int64_t)l22_i))
+20 ((int64_t)l22_i)
+22 bynh_add_list_i64(&l21_owner.items, INT64_C(7))
+23 l25_taken.len
+24 l21_owner.items.len
+26 byn_rem_i32(l29_i, ((int32_t)70), byn_file_0, 68)
+27 ((int64_t)l29_i)
+28 (*bynh_slot_map_str_i64(&l28_counts, BYN_STR("k0", 2), ((int64_t){0})))
+29 l35_moved.h.live
+30 bynh_index_map_str_i64(l35_moved, BYN_STR("k0", 2), byn_file_0, 71)
+31 byn_w_str(&l37_sb, BYN_STR("abc", 3))
+33 l37_sb.len
+34 l41_text.len
+35 bynh_add_list_i64(&l43_inner, INT64_C(1))
+36 bynh_add_list_i64(&l43_inner, INT64_C(2))
+37 bynh_add_list_i64(&l50_local, ((int64_t)l51_i))
+38 ((int64_t)l51_i)
+39 bynh_add_list_i64(&l54_other, ((int64_t)l46_round))
+40 ((int64_t)l46_round)
+41 l54_other.len
+count 42

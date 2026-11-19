@@ -1,0 +1,8 @@
+== cases
+0 (p_n < INT64_C(0))
+1 (p_n == INT64_C(0))
+2 byn_mul_i64(p_n, INT64_C(2), byn_file_0, 12)
+3 (l0_q > INT64_C(100))
+4 (l0_q == INT64_C(-1))
+5 (l0_q == INT64_C(-2))
+count 6

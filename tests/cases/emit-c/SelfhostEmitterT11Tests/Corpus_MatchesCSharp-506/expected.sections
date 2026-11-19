@@ -1,0 +1,4 @@
+== helpers
+bynh_span_list_str static bynt_span_str bynh_span_list_str(bynt_list_str l) | static bynt_span_str bynh_span_list_str(bynt_list_str l) {
+    return (bynt_span_str){l.ptr, l.len};
+}

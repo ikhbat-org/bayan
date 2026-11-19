@@ -60,9 +60,11 @@ List<string> goldenProgramNames() uses alloc {
     for n in [
         "SelfhostDefaultT10Tests.byn",
         "SelfhostEmitterT10Tests.byn",
+        "SelfhostEmitterT11Tests.byn",
         "SelfhostEmitterT21Tests.byn",
         "SelfhostEmitterT22Tests.byn",
         "SelfhostEmitterT2Tests.byn",
+        "SelfhostEmitterT3Tests.byn",
         "SelfhostEmitterT4Tests.byn",
         "SelfhostEmitterT5Tests.byn",
         "SelfhostEmitterT6Tests.byn",
@@ -1199,6 +1201,18 @@ List<string> goldenProgramEmitExtra(string name, at string scratch) uses alloc {
     return extra
 }
 
+/// Whether an `emit-c` sections case of `cls` named `name` checks the generated main's exit code only, the fixture's own warnings allowed:
+/// SelfhostEmitterT9Tests.cs:749, SelfhostEmitterT10Tests.cs:561, :572; SelfhostEmitterT11Tests.cs:392, :815; SelfhostEmitterT3Tests.cs:313;
+/// SelfhostEmitterT2Tests.cs:677, :837 (its other tests fail on stderr, :612).
+bool goldenProgramExitOnly(string cls, for string name) {
+    return true if cls is "SelfhostEmitterT9Tests" or "SelfhostEmitterT10Tests" or "SelfhostEmitterT11Tests" or "SelfhostEmitterT3Tests"
+    return false unless cls == "SelfhostEmitterT2Tests"
+    for t in ["Corpus_MatchesCSharp", "Lower_WithWarningsLowersLikeCSharp"] {
+        return true if name == t || name.startsWith($"{t}-")
+    }
+    return false
+}
+
 /// The index of the last space of `text`; -1 when there is none.
 i64 goldenProgramLastSpace(string text) {
     var i = text.length - 1
@@ -1299,9 +1313,16 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
         let main = goldenProgramSource(k.cases, for: "SelfhostEmitterT21Tests.byn", through: ref failure)
         prog = goldenProgram("semantics", by: k.exe, through: ref failure, main: main, buildMs: k.buildMs)
     } else if k.cls == "SelfhostEmitterT22Tests" {
-        // SelfhostEmitterT22Tests.cs:270-271: `shapes <path>`, stdout as the C# lines
-        args.append("shapes")
-        args.append(original)
+        // SelfhostEmitterT22Tests.cs:270-271: `shapes <path>`, stdout as the C# lines; a case with `args` (the locals tests) runs on them
+        // alone (:158 `Compare`)
+        if Fs.fileExists(Path.combine(k.dir, "args")) {
+            for a in cli {
+                args.append(a)
+            }
+        } else {
+            args.append("shapes")
+            args.append(original)
+        }
         let main = goldenProgramSource(k.cases, for: "SelfhostEmitterT22Tests.byn", through: ref failure)
         prog = goldenProgram("emitter", by: k.exe, through: ref failure, main: main, buildMs: k.buildMs)
     } else if sections
@@ -1360,8 +1381,7 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
         }
         goldenCliCheck(k.dir, for: "expected.c", as: res, to: ref failures)
     } else if sections {
-        if k.cls is "SelfhostEmitterT9Tests" or "SelfhostEmitterT10Tests" {
-            // SelfhostEmitterT9Tests.cs:749, SelfhostEmitterT10Tests.cs:561, :572: the exit code only, the fixture's own warnings allowed
+        if goldenProgramExitOnly(k.cls, for: k.name) {
             if o.exitCode != 0 {
                 failures.append($"{k.dir}\ngenerated main exited {o.exitCode}:\n{o.stderr}")
                 return
@@ -2148,6 +2168,43 @@ test "an emit-c T9 or T10 sections case checks the exit code only (SelfhostEmitt
     assert(t9 == "")
     assert(t10 == "")
     assert(t6.contains("generated main exited 0:\nwarning BYN2311"))
+}
+
+test "an emit-c T11 or T3 sections case, and T2's corpus and warnings cases, check the exit code only; another T2 case fails on stderr" {
+    assert(goldenProgramExitOnly("SelfhostEmitterT11Tests", for: "Fixture_MatchesCSharp-2"))
+    assert(goldenProgramExitOnly("SelfhostEmitterT3Tests", for: "Statements_MatchCSharp"))
+    assert(goldenProgramExitOnly("SelfhostEmitterT2Tests", for: "Corpus_MatchesCSharp-1011"))
+    assert(goldenProgramExitOnly("SelfhostEmitterT2Tests", for: "Lower_WithWarningsLowersLikeCSharp"))
+    assert(!goldenProgramExitOnly("SelfhostEmitterT2Tests", for: "Synth_MatchesCSharp"))
+    assert(!goldenProgramExitOnly("SelfhostEmitterT2Tests", for: "Corpus_MatchesCSharpX"))
+    assert(!goldenProgramExitOnly("SelfhostEmitterT6Tests", for: "Corpus_MatchesCSharp"))
+    var files = List<string>()
+    for f in ["input.byn", "", "expected.sections", "== expr\nx\n"] {
+        files.append(f)
+    }
+    let t11 = goldenProgramsFake(
+        "exit-only-t11",
+        for: "emit-c",
+        at: "SelfhostEmitterT11Tests",
+        as: "cat 'STDOUT'\necho 'warning BYN2311' >&2",
+        from: "== expr\nx\n",
+        by: ref files,
+    )
+    assert(t11 == "")
+}
+
+test "an emit-c T22 case with `args` runs the program on them alone (SelfhostEmitterT22Tests.cs:158), one without on `shapes <path>` (:269)" {
+    var files = List<string>()
+    for f in ["input.byn", "", "expected.c", "locals\n", "args", "input.byn\n"] {
+        files.append(f)
+    }
+    let body = "if [ \"$1\" = shapes ]; then echo shapes; else echo locals; fi"
+    let locals = goldenProgramsFake("t22-locals", for: "emit-c", at: "SelfhostEmitterT22Tests", as: body, from: "", by: ref files)
+    let _ = files.removeLast()
+    let _ = files.removeLast()
+    let shapes = goldenProgramsFake("t22-shapes", for: "emit-c", at: "SelfhostEmitterT22Tests", as: body, from: "", by: ref files)
+    assert(locals == "")
+    assert(shapes.contains("expected line 1: locals\nactual line 1: shapes"))
 }
 
 test "an `expected.sections` with no `== ` header compares every stdout line, blank ones too (SelfhostEmitterT6Tests.cs:328-333 `RawMode`)" {

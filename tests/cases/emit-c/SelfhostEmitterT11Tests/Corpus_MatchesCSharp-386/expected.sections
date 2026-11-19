@@ -1,0 +1,49 @@
+== helpers
+bynh_eq_main__Pair__i64__str static bool bynh_eq_main__Pair__i64__str(bynt_main__Pair__i64__str a, bynt_main__Pair__i64__str b) | static bool bynh_eq_main__Pair__i64__str(bynt_main__Pair__i64__str a, bynt_main__Pair__i64__str b) {
+    return (a.a == b.a)
+        && byn_str_eq(a.b, b.b);
+}
+bynh_eq_main__Option2__i64 static bool bynh_eq_main__Option2__i64(byn_main_Option2__i64 a, byn_main_Option2__i64 b) | static bool bynh_eq_main__Option2__i64(byn_main_Option2__i64 a, byn_main_Option2__i64 b) {
+    if (a.tag != b.tag) return false;
+    switch (a.tag) {
+    case 0: return (a.u.some.v == b.u.some.v);
+    default: return true;
+    }
+}
+bynh_hash_main__Suit static uint64_t bynh_hash_main__Suit(byn_main_Suit k) | static uint64_t bynh_hash_main__Suit(byn_main_Suit k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_keq_main__Suit static bool bynh_keq_main__Suit(const void* a, const void* b) | static bool bynh_keq_main__Suit(const void* a, const void* b) {
+    return (*(const byn_main_Suit*)a == *(const byn_main_Suit*)b);
+}
+bynh_slot_map_main__Suit_i64 static int64_t* bynh_slot_map_main__Suit_i64(bynt_map_main__Suit_i64* m, byn_main_Suit k, int64_t d) | static int64_t* bynh_slot_map_main__Suit_i64(bynt_map_main__Suit_i64* m, byn_main_Suit k, int64_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(byn_main_Suit), (void**)&m->vals, (int64_t)sizeof(int64_t), &k, bynh_hash_main__Suit(k), bynh_keq_main__Suit, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_hash_str static uint64_t bynh_hash_str(byn_str k) | static uint64_t bynh_hash_str(byn_str k) {
+    return byn_hash_bytes(k.ptr, k.len);
+}
+bynh_keq_str static bool bynh_keq_str(const void* a, const void* b) | static bool bynh_keq_str(const void* a, const void* b) {
+    return byn_str_eq(*(const byn_str*)a, *(const byn_str*)b);
+}
+bynh_slot_map_str_i64 static int64_t* bynh_slot_map_str_i64(bynt_map_str_i64* m, byn_str k, int64_t d) | static int64_t* bynh_slot_map_str_i64(bynt_map_str_i64* m, byn_str k, int64_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(byn_str), (void**)&m->vals, (int64_t)sizeof(int64_t), &k, bynh_hash_str(k), bynh_keq_str, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_add_list_str static void bynh_add_list_str(bynt_list_str* l, byn_str v) | static void bynh_add_list_str(bynt_list_str* l, byn_str v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_str), l->alloc);
+    l->ptr[l->len++] = v;
+}

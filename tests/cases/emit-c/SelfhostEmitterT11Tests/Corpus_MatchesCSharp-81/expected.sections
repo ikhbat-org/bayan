@@ -1,0 +1,5 @@
+== cases
+0 byn_cast_u8_i((int64_t)l1_small, byn_file_0, 5)
+1 byn_cast_i32_i((int64_t)l0_big, byn_file_0, 5)
+2 ((double)l1_small)
+count 3

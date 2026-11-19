@@ -1,0 +1,11 @@
+== cases
+0 byn_w_str(&l0_buf, p_text)
+1 byn_strbuf_str(l0_buf)
+2 (byn_str_cmp(byn_sym_text(l1_y), byn_sym_text(l0_x)) < 0)
+3 (byn_str_cmp(byn_sym_text(l4_ry), byn_sym_text(l3_rx)) < 0)
+4 (byn_str_cmp(byn_sym_text(l7_c), byn_sym_text(l6_d)) < 0)
+5 (byn_str_cmp(byn_sym_text(l7_c), byn_sym_text(l6_d)) <= 0)
+6 (byn_str_cmp(byn_sym_text(l6_d), byn_sym_text(l7_c)) > 0)
+7 (byn_str_cmp(byn_sym_text(l6_d), byn_sym_text(l7_c)) >= 0)
+8 (byn_str_cmp(byn_sym_text(l6_d), byn_sym_text(l7_c)) < 0)
+count 9

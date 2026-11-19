@@ -1,0 +1,14 @@
+== cases
+0 (p_s.len == 0)
+1 (*bynh_at_span_u8(bynh_str_bytes(p_s), (int64_t)INT64_C(0), false, byn_file_0, 10))
+2 bynh_str_bytes(p_s)
+3 ((l1_c < ((uint8_t)48)) || (l1_c > ((uint8_t)57)))
+4 (l1_c < ((uint8_t)48))
+5 (l1_c > ((uint8_t)57))
+6 ((int64_t)byn_sub_u8(l1_c, ((uint8_t)48), byn_file_0, 12))
+7 byn_sub_u8(l1_c, ((uint8_t)48), byn_file_0, 12)
+8 byn_mul_i64(l0_n, INT64_C(10), byn_file_0, 22)
+9 bynh_eq_err(p_e, ((byn_err){ .code = UINT32_C(13) }))
+10 (l1_s.len == 0)
+11 bynh_eq_err(l8_e, ((byn_err){ .code = UINT32_C(14) }))
+count 12

@@ -1,0 +1,8 @@
+== cases
+0 (l0_c == ((byn_main_Color)1))
+1 (!byn_str_eq(l1_name, BYN_STR("nuts", 4)))
+2 (l2_ratio < (1.0))
+3 (l3_done == false)
+4 byn_str_eq(l1_name, byn_main_Color_names[l0_c])
+5 byn_main_Color_names[l0_c]
+count 6

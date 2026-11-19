@@ -1,0 +1,6 @@
+== cases
+0 ((bynt_span_str){l0_setup.v, 2})
+2 ((bynt_span_str){l4_none.v, 1})
+4 ((bynt_span_str){l4_none.v, 1})
+5 ((bynt_opt_str){true, BYN_STR("sub", 3)})
+count 6

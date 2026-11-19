@@ -1,0 +1,14 @@
+== cases
+0 (p_n > INT64_C(0))
+1 ((bynt_res_i64){((byn_err){ .code = UINT32_C(13), .p.e13 = { p_n } })})
+2 ((bynt_res_i64){{0}, ((int32_t)0)})
+3 bynh_eq_err(l0_a, l1_b)
+4 bynh_eq_err(l0_a, l2_c)
+5 (!bynh_eq_err(l0_a, l1_b))
+6 bynh_eq_err(l0_a, ((byn_err){ .code = UINT32_C(14) }))
+7 (l0_a.code == ((byn_err){ .code = UINT32_C(13) }).code)
+8 (l1_b.code == ((byn_err){ .code = UINT32_C(13) }).code)
+9 bynh_eq_res_i64(byn_main__held(INT64_C(1)), byn_main__held(INT64_C(5)))
+10 bynh_eq_res_i64(byn_main__held(INT64_C(1)), byn_main__held(INT64_C(1)))
+11 bynh_eq_res_i64(byn_main__held(INT64_C(0)), byn_main__held(INT64_C(0)))
+count 12

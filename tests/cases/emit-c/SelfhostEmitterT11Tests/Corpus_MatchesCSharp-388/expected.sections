@@ -1,0 +1,23 @@
+== locals
+main: p q flag some nothing word t t w n t text t v t kids t box bySuit byName t empty full
+formatInto:
+formatInto:
+swap:
+sameFirst:
+swap:
+sameFirst:
+formatInto:
+formatInto:
+swap:
+sameFirst:
+swap:
+sameFirst:
+wrap:
+show: t v t
+show: t v t
+formatInto:
+swap:
+sameFirst:
+replace:
+total: sum e t t
+total: sum e t t

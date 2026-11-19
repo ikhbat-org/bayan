@@ -1,0 +1,8 @@
+== helpers
+bynh_at_span_u8 static uint8_t* bynh_at_span_u8(bynt_span_u8 s, int64_t i, bool from_end, const char* file, int line) | static uint8_t* bynh_at_span_u8(bynt_span_u8 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_str_bytes static bynt_span_u8 bynh_str_bytes(byn_str s) | static bynt_span_u8 bynh_str_bytes(byn_str s) {
+    return (bynt_span_u8){(uint8_t*)s.ptr, s.len};
+}

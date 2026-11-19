@@ -1,0 +1,6 @@
+== cases
+0 byn_w_str(&l0_sb, BYN_STR("before", 6))
+1 byn_strbuf_str(l0_sb)
+2 byn_w_str(&l0_sb, BYN_STR(" after", 6))
+3 byn_strbuf_str(l0_sb)
+count 4

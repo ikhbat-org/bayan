@@ -1,0 +1,135 @@
+interface IGen0 {
+    i64 m0
+    void m1(ref this, i64 by)
+    string m2() uses alloc
+    string m3() uses alloc => $"m3 {m0} {m0}"
+    i64 m4(i64 x) => m0 + m0
+}
+
+struct S00 : IGen0 {
+    i64 f0
+    i64 f1
+
+    i64 m0 => f1 + f1
+    void m1(ref this, i64 by) {
+        f0 += by * 2
+    }
+    string m2() => $"S00 {7 + f0}"
+}
+
+struct S01 : IGen0 {
+    i64 f0
+    i64 f1
+
+    i64 m0 => 7 + f0
+    void m1(ref this, i64 by) {
+        f1 = f0 - by
+    }
+    string m2() => $"S01 {f1 * f1}"
+}
+
+void roS00(S00 v) {
+    print($"m0 {v.m0}")
+    print(v.m2())
+    print(v.m3())
+    print(v.m2())
+    print(v.m3())
+}
+
+void rwS00(ref S00 v) {
+    print($"m0 {v.m0}")
+    print(v.m2())
+    print(v.m3())
+    print(v.m2())
+    print(v.m3())
+}
+
+void roS01(S01 v) {
+    print($"m0 {v.m0}")
+    print(v.m2())
+    print(v.m3())
+    print(v.m2())
+    print(v.m3())
+}
+
+void rwS01(ref S01 v) {
+    print($"m0 {v.m0}")
+    print(v.m2())
+    print(v.m3())
+    print(v.m2())
+    print(v.m3())
+}
+
+void roVia0<T>(T v) where T : IGen0 {
+    print($"m0 {v.m0}")
+    print(v.m2())
+    print(v.m3())
+    print(v.m2())
+    print(v.m3())
+}
+
+void rwVia0<T>(ref T v) where T : IGen0 {
+    print($"m0 {v.m0}")
+    print(v.m2())
+    print(v.m3())
+    print(v.m2())
+    print(v.m3())
+}
+
+void roDyn0(dyn ref readonly IGen0 v) {
+    print($"m0 {v.m0}")
+    print(v.m2())
+    print(v.m3())
+    print(v.m2())
+    print(v.m3())
+}
+
+void rwDyn0(dyn ref IGen0 v) {
+    print($"m0 {v.m0}")
+    print(v.m2())
+    print(v.m3())
+    print(v.m2())
+    print(v.m3())
+}
+
+void main() {
+    print("== direct")
+    {
+        var v = S00 { f0: 1, f1: 1 }
+        roS00(v)
+        rwS00(ref v)
+        print($"S00 {v.f0} {v.f1}")
+    }
+    {
+        var v = S01 { f0: -1, f1: 9 }
+        roS01(v)
+        rwS01(ref v)
+        print($"S01 {v.f0} {v.f1}")
+    }
+    print("== constraint")
+    {
+        var v = S00 { f0: 1, f1: 1 }
+        roVia0(v)
+        rwVia0(ref v)
+        print($"S00 {v.f0} {v.f1}")
+    }
+    {
+        var v = S01 { f0: -1, f1: 9 }
+        roVia0(v)
+        rwVia0(ref v)
+        print($"S01 {v.f0} {v.f1}")
+    }
+    print("== dyn")
+    {
+        var v = S00 { f0: 1, f1: 1 }
+        roDyn0(v)
+        rwDyn0(v)
+        print($"S00 {v.f0} {v.f1}")
+    }
+    {
+        var v = S01 { f0: -1, f1: 9 }
+        roDyn0(v)
+        rwDyn0(v)
+        print($"S01 {v.f0} {v.f1}")
+    }
+}

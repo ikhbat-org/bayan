@@ -1,0 +1,7 @@
+== locals
+push:
+show: n t t
+count: n c t t t t
+main: arena head i t t t h t t t two root leaf
+formatInto:
+total: n t

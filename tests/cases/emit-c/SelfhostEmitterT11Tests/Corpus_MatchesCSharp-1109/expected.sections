@@ -1,0 +1,8 @@
+== cases
+0 bynh_bytes_string_span_u8(((bynt_span_u8){l0_a.v, 3}))
+1 ((bynt_span_u8){l0_a.v, 3})
+2 bynh_bytes_string_span_u8(bynh_str_bytes(BYN_STR("hi", 2)))
+3 bynh_str_bytes(BYN_STR("hi", 2))
+4 bynh_bytes_string_span_u8(bynh_span_list_u8(l1_none))
+5 bynh_span_list_u8(l1_none)
+count 6

@@ -1,19 +1,5 @@
-== diags.receiver-and-conversions
-BYN5014 10:9 `plain` is not a known verb, noun or adjective
-  help add it to `grammar` in package.byn: `nouns: ["plain"]`, `verbs: ["plain"]` or `adjectives: ["plain"]`
-BYN5004 21:5 `run` has 3 unlabeled parameters; give each but one a particle
-  label 3 unlabeled parameters
-  help keep one unlabeled parameter, the object
-BYN5006 21:31 `sure` is a required parameter besides the object and needs a particle
-  label needs a particle
-  help label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
-BYN5006 21:43 `other` is a required parameter besides the object and needs a particle
-  label needs a particle
-  help label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
-BYN2202 23:20 expected `Order.paid`, found `Other`
-BYN7001 24:21 `archive` needs `any` to be `.paid or .shipped`, but it is `Order`
+== diags.not-this-is
+BYN7001 17:16 `ship` needs `order` to be `.paid`, but it is `Order`
   help check the state with `is` or `switch` first
-BYN7001 9:34 `receipt` needs `this` to be `.paid`, but it is `Order.draft`
-  help check the state with `is` or `switch` first
-BYN7001 10:20 `receipt` needs `this` to be `.paid`, but it is `Order`
-  help check the state with `is` or `switch` first
+BYN2703 10:33 variant `paid` has 1 payload field(s), but the pattern lists 0
+  help list every field: `.paid(let payment)`, or `_` to skip one

@@ -1,0 +1,6 @@
+== cases
+0 bynh_add_list_main__C(&l3_l, ((bynt_main__C){INT64_C(0)}))
+1 (*bynh_at_arr2_main__C(&l0_a, (int64_t)INT64_C(0), false, byn_file_0, 24))
+2 (*bynh_at_arr2_main__C(&l0_a, (int64_t)INT64_C(1), false, byn_file_0, 24))
+3 (*bynh_at_list_main__C(l3_l, (int64_t)INT64_C(0), false, byn_file_0, 24))
+count 4

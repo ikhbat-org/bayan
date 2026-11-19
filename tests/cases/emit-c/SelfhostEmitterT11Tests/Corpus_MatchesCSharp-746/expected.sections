@@ -1,0 +1,35 @@
+== helpers
+bynh_hash_main__Pad static uint64_t bynh_hash_main__Pad(bynt_main__Pad k) | static uint64_t bynh_hash_main__Pad(bynt_main__Pad k) {
+    uint64_t h = byn_hash_bytes(NULL, 0);
+    h = byn_hash_mix(h, bynh_hash_bool(k.flag));
+    h = byn_hash_mix(h, bynh_hash_i64(k.id));
+    return h;
+}
+bynh_hash_bool static uint64_t bynh_hash_bool(bool k) | static uint64_t bynh_hash_bool(bool k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_hash_i64 static uint64_t bynh_hash_i64(int64_t k) | static uint64_t bynh_hash_i64(int64_t k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_keq_main__Pad static bool bynh_keq_main__Pad(const void* a, const void* b) | static bool bynh_keq_main__Pad(const void* a, const void* b) {
+    return bynh_eq_main__Pad(*(const bynt_main__Pad*)a, *(const bynt_main__Pad*)b);
+}
+bynh_eq_main__Pad static bool bynh_eq_main__Pad(bynt_main__Pad a, bynt_main__Pad b) | static bool bynh_eq_main__Pad(bynt_main__Pad a, bynt_main__Pad b) {
+    return (a.flag == b.flag)
+        && (a.id == b.id);
+}
+bynh_slot_map_main__Pad_i32 static int32_t* bynh_slot_map_main__Pad_i32(bynt_map_main__Pad_i32* m, bynt_main__Pad k, int32_t d) | static int32_t* bynh_slot_map_main__Pad_i32(bynt_map_main__Pad_i32* m, bynt_main__Pad k, int32_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(bynt_main__Pad), (void**)&m->vals, (int64_t)sizeof(int32_t), &k, bynh_hash_main__Pad(k), bynh_keq_main__Pad, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_index_map_main__Pad_i32 static int32_t bynh_index_map_main__Pad_i32(bynt_map_main__Pad_i32 m, bynt_main__Pad k, const char* file, int line) | static int32_t bynh_index_map_main__Pad_i32(bynt_map_main__Pad_i32 m, bynt_main__Pad k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(bynt_main__Pad), &k, bynh_hash_main__Pad(k), bynh_keq_main__Pad);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}

@@ -1,0 +1,9 @@
+== cases
+0 bynh_add_list_str(&l0_all, l1_n)
+1 bynh_add_list_str(&(*p_totals), p_name)
+2 ((bynt_span_str){l1_e.participants.ptr, l1_e.participants.len})
+3 bynh_add_list_str(&l0_ps, BYN_STR("ann", 3))
+4 bynh_add_list_str(&l0_ps, BYN_STR("bob", 3))
+5 bynh_add_list_main__Expense(&l1_xs, ((bynt_main__Expense){BYN_STR("cy", 2), l0_ps}))
+6 bynh_span_list_main__Expense(l1_xs)
+count 7

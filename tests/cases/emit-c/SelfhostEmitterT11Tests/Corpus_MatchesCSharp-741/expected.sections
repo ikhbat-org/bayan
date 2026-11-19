@@ -1,0 +1,5 @@
+== cases
+0 (*bynh_slot_map_str_i64(&l0_stock, BYN_STR("tea", 3), ((int64_t){0})))
+1 bynh_index_map_str_i64(l0_stock, BYN_STR("tea", 3), byn_file_0, 3)
+2 bynh_index_map_str_i64(l0_stock, BYN_STR("milk", 4), byn_file_0, 4)
+count 3

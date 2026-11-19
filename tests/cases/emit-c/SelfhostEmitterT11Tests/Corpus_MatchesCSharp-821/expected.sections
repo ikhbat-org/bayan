@@ -1,0 +1,17 @@
+== cases
+0 (p_n > INT64_C(0))
+1 ((bynt_opt_i64){true, p_n})
+2 (p_n > INT64_C(0))
+3 ((bynt_opt_main__Box){true, ((bynt_main__Box){p_n})})
+15 byn_mul_i64(l0_v, INT64_C(2), byn_file_0, 43)
+16 ((int64_t)byn_sub_i32(((int32_t)3), l1_i, byn_file_0, 49))
+17 byn_sub_i32(((int32_t)3), l1_i, byn_file_0, 49)
+18 ((int64_t)byn_sub_i32(l1_i, ((int32_t)2), byn_file_0, 58))
+19 byn_sub_i32(l1_i, ((int32_t)2), byn_file_0, 58)
+21 ((bynt_opt_i64){true, INT64_C(4)})
+22 ((bynt_opt_i64){true, INT64_C(3)})
+23 ((bynt_opt_i64){true, INT64_C(1)})
+24 ((bynt_opt_i64){true, INT64_C(2)})
+25 ((bynt_opt_i64){true, INT64_C(5)})
+26 ((bynt_opt_i64){true, INT64_C(2)})
+count 27

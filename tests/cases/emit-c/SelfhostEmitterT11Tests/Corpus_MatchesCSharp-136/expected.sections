@@ -1,0 +1,5 @@
+== locals
+show:
+main: b
+count:
+run: s

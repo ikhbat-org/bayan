@@ -1,0 +1,19 @@
+== locals
+apply:
+relay:
+forward:
+shifted: offset t
+scaled: bias t
+nested: offset t
+maybe: t
+main: k source copied add t t t t name greet t s t t
+times: k t
+shifted$lambda1:
+scaled$lambda1:
+nested$lambda1: t
+nested$lambda1$lambda1:
+maybe$lambda1:
+main$lambda1:
+main$lambda2:
+main$lambda3: t
+times$lambda1:

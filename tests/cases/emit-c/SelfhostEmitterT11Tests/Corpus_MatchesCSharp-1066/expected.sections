@@ -1,0 +1,6 @@
+== helpers
+bynh_slice_str static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(s.len, a, am, b, bm, incl, file, line, &from, &to);
+    return byn_str_slice(s, from, to, file, line);
+}

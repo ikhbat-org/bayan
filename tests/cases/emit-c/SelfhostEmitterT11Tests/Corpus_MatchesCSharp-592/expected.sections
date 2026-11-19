@@ -1,0 +1,8 @@
+== locals
+any: x t t
+isBig:
+main: xs t ys t t t t t
+main$lambda1:
+main$lambda2:
+main$lambda3:
+main$lambda4:

@@ -1,0 +1,13 @@
+== cases
+0 (*bynh_slot_map_tup2_i32_sym_i32(&l0_m, ((bynt_tup2_i32_sym){((int32_t)0), ((byn_sym){0})}), ((int32_t){0})))
+1 (*bynh_slot_map_tup2_i32_sym_i32(&l0_m, ((bynt_tup2_i32_sym){((int32_t)1), ((byn_sym){0})}), ((int32_t){0})))
+2 (*bynh_slot_map_tup2_i32_sym_i32(&l0_m, ((bynt_tup2_i32_sym){((int32_t)0), ((byn_sym){1})}), ((int32_t){0})))
+3 (*bynh_slot_map_tup2_i32_sym_i32(&l0_m, ((bynt_tup2_i32_sym){((int32_t)0), ((byn_sym){0})}), ((int32_t){0})))
+4 bynh_remove_map_tup2_i32_sym_i32(&l0_m, ((bynt_tup2_i32_sym){((int32_t)1), ((byn_sym){0})}))
+5 bynh_remove_map_tup2_i32_sym_i32(&l0_m, ((bynt_tup2_i32_sym){((int32_t)1), ((byn_sym){0})}))
+6 (*bynh_slot_map_tup2_i32_sym_i32(&l0_m, ((bynt_tup2_i32_sym){((int32_t)1), ((byn_sym){0})}), ((int32_t){0})))
+7 l0_m.h.live
+8 t3.h.len
+9 (!t3.h.dead[t4])
+10 ((bynt_tup2_tup2_i32_sym_i32){t3.keys[t4], t3.vals[t4]})
+count 11

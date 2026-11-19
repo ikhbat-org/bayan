@@ -1,0 +1,7 @@
+string greet(string name) uses alloc => $"hello {name}"
+
+void main() {
+    var total: i64 = 0
+    print(greet($"{total}"))
+    print($"{total}")
+}

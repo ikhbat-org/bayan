@@ -1,9 +1,3 @@
-== diags.instrument-changes-this
-BYN5107 8:16 `OrderHasher` is a tool; `hash` must not change `this`
-  help remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step
-BYN5107 21:16 `OrderComparer` is a tool; `compare` must not change `this`
-  help remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step
-BYN5107 26:17 `OrderComparer` is a tool; `reset` must not change `this`
-  help remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step
-BYN5107 32:9 `IOrderCodec` is a tool; `encode` must not change `this`
-  help remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step
+== diags.doer-exempt
+BYN2770 7:2 unknown attribute `json`
+  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test

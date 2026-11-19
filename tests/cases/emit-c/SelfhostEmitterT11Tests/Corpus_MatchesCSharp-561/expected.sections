@@ -1,0 +1,8 @@
+== cases
+0 ((bynt_span_str){l0_script.v, 2})
+1 ((bynt_opt_millis){true, ((int64_t)INT64_C(200))})
+2 ((int64_t)INT64_C(200))
+4 ((int64_t)l6_after)
+5 ((bynt_span_str){l7_wait.v, 1})
+7 l1_r.exit_code
+count 8

@@ -1,0 +1,18 @@
+== cases
+0 (!(p_a.len == p_b.len))
+1 p_a.len
+2 p_b.len
+3 p_a.len
+4 (!((*bynh_at_span_u8(p_a, (int64_t)l1_i, false, byn_file_0, 5)) == (*bynh_at_span_u8(p_b, (int64_t)l1_i, false, byn_file_0, 5))))
+5 (*bynh_at_span_u8(p_a, (int64_t)l1_i, false, byn_file_0, 5))
+6 (*bynh_at_span_u8(p_b, (int64_t)l1_i, false, byn_file_0, 5))
+7 ((bynt_span_u8){l0_original.v, 6})
+8 bynh_span_list_u8(l2_read)
+9 l2_read.len
+10 l6_copy.len
+11 ((bynt_span_u8){l0_original.v, 6})
+12 bynh_span_list_u8(l6_copy)
+13 bynh_slice_span_u8(bynh_span_list_u8(l6_copy), (int64_t)INT64_C(0), 0, (int64_t)INT64_C(0), 0, false, byn_file_0, 18)
+14 bynh_span_list_u8(l6_copy)
+15 l13_empty.len
+count 16

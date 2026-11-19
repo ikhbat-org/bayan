@@ -1,0 +1,10 @@
+== locals
+main:
+twice: t
+main$lambda1:
+twice: t
+main$lambda2: t
+apply:
+twice$lambda1:
+apply:
+twice$lambda1:

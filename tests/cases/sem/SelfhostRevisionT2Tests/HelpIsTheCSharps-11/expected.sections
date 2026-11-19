@@ -1,15 +1,1 @@
-== diags.nested
-BYN5004 15:5 `run` has 2 unlabeled parameters; give each but one a particle
-  label 2 unlabeled parameters
-  help keep one unlabeled parameter, the object
-BYN5006 15:28 `other` is a required parameter besides the object and needs a particle
-  label needs a particle
-  help label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
-BYN7001 18:20 `ship` needs `order` to be `.paid`, but it is `Order`
-  help `isPaid` doesn't narrow; write `if order is .paid`
-BYN7001 18:35 `ship` needs `other` to be `.paid`, but it is `Order`
-  help `isPaid` doesn't narrow; write `if other is .paid`
-BYN7001 20:16 `ship` needs `order` to be `.paid`, but it is `Order`
-  help `isPaid` doesn't narrow; write `if order is .paid`
-BYN2703 10:33 variant `paid` has 1 payload field(s), but the pattern lists 0
-  help list every field: `.paid(let payment)`, or `_` to skip one
+== diags.defer-kinds

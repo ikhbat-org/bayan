@@ -1,0 +1,10 @@
+== helpers
+bynh_bytes_string_span_u8 static byn_str bynh_bytes_string_span_u8(bynt_span_u8 b) | static byn_str bynh_bytes_string_span_u8(bynt_span_u8 b) {
+    return byn_bytes_string(b.ptr, b.len, byn_context);
+}
+bynh_str_bytes static bynt_span_u8 bynh_str_bytes(byn_str s) | static bynt_span_u8 bynh_str_bytes(byn_str s) {
+    return (bynt_span_u8){(uint8_t*)s.ptr, s.len};
+}
+bynh_span_list_u8 static bynt_span_u8 bynh_span_list_u8(bynt_list_u8 l) | static bynt_span_u8 bynh_span_list_u8(bynt_list_u8 l) {
+    return (bynt_span_u8){l.ptr, l.len};
+}

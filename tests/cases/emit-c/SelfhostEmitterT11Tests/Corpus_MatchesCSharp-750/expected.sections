@@ -1,0 +1,28 @@
+== helpers
+bynh_hash_sym static uint64_t bynh_hash_sym(byn_sym k) | static uint64_t bynh_hash_sym(byn_sym k) {
+    return byn_hash_bytes(&k.id, (int64_t)sizeof k.id);
+}
+bynh_keq_sym static bool bynh_keq_sym(const void* a, const void* b) | static bool bynh_keq_sym(const void* a, const void* b) {
+    return ((*(const byn_sym*)a).id == (*(const byn_sym*)b).id);
+}
+bynh_has_map_sym_i32 static bool bynh_has_map_sym_i32(bynt_map_sym_i32 m, byn_sym k) | static bool bynh_has_map_sym_i32(bynt_map_sym_i32 m, byn_sym k) {
+    return byn_map_find(&m.h, m.keys, (int64_t)sizeof(byn_sym), &k, bynh_hash_sym(k), bynh_keq_sym) >= 0;
+}
+bynh_remove_map_sym_i32 static bool bynh_remove_map_sym_i32(bynt_map_sym_i32* m, byn_sym k) | static bool bynh_remove_map_sym_i32(bynt_map_sym_i32* m, byn_sym k) {
+    return byn_map_remove(&m->h, m->keys, (int64_t)sizeof(byn_sym), &k, bynh_hash_sym(k), bynh_keq_sym);
+}
+bynh_copy_map_sym_i32 static bynt_map_sym_i32 bynh_copy_map_sym_i32(bynt_map_sym_i32 m, byn_alloc* a) | static bynt_map_sym_i32 bynh_copy_map_sym_i32(bynt_map_sym_i32 m, byn_alloc* a) {
+    bynt_map_sym_i32 r;
+    byn_map_copy(&m.h, m.keys, (int64_t)sizeof(byn_sym), (void**)&r.keys, m.vals, (int64_t)sizeof(int32_t), (void**)&r.vals, &r.h, a);
+    return r;
+}
+bynh_slot_map_sym_i32 static int32_t* bynh_slot_map_sym_i32(bynt_map_sym_i32* m, byn_sym k, int32_t d) | static int32_t* bynh_slot_map_sym_i32(bynt_map_sym_i32* m, byn_sym k, int32_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(byn_sym), (void**)&m->vals, (int64_t)sizeof(int32_t), &k, bynh_hash_sym(k), bynh_keq_sym, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}

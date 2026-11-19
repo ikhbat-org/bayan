@@ -1,0 +1,174 @@
+import semantics
+import emitter.cprint
+import emitter.ltree
+
+type CompilationOptions = semantics.CompilationOptions
+
+i32 main(ReadOnlySpan<string> args) {
+    var rest = List<string>()
+    for i in 1..args.length { rest.append(args[i]) }
+    let symbols = semantics.t26Symbols(ascii: false)
+    let o = semantics.t26ParseBuildOptions(in rest, allowSpans: false) ?? return 2
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    var c = semantics.t26Compile(in o, by: in symbols, to: ref reported, through: ref ok)
+    var l = LCtx {}
+    let p = lower(ref c, to: ref l)
+    var sb = StrBuf()
+    sb.append("== stmts\n")
+    for f in p.functions {
+        sb.append($"fn {c.functions[f.symbol].name} locals={f.locals.length} ctx={f.contextSlots} panic={f.panicSlots}\n")
+        for local in f.locals {
+            let name = c.locals[local].name
+            let type = c.locals[local].type
+            sb.append($"  local {name}:{semantics.typeDisplay(ref c, by: type)}\n")
+        }
+        sb.append(t3Stmt(ref c, through: in l, at: 1, for: f.body))
+    }
+    Io.stdout.write($"{sb.finish()}")
+    return 0
+}
+
+string t3Pad(i64 depth) uses alloc {
+    var sb = StrBuf()
+    for k in 0..depth { sb.append("  ") }
+    return $"{sb.finish()}"
+}
+
+string t3Args(ref Ctx c, through in LCtx l, for BExpr e) uses alloc {
+    let i = i64(e & 0xFFFFFFFF)
+    let call = semantics.boundKind(e) == .call
+    let n = call ? c.bCalls[i].arguments.length : c.bBuiltinCalls[i].arguments.length
+    var sb = StrBuf()
+    for k in 0..n {
+        let a = call ? c.bCalls[i].arguments[k] : c.bBuiltinCalls[i].arguments[k]
+        let x = t3Expr(ref c, through: in l, for: a)
+        sb.append($"{k == 0 ? "" : ", "}{x}")
+    }
+    return $"{sb.finish()}"
+}
+
+string t3Value(in semantics.Constant k) uses alloc {
+    switch k.kind {
+        case .integer: return $"{k.integer.hi}:{k.integer.lo}"
+        case .text: return $"\"{k.text}\""
+        case .flag: return k.flag ? "true" : "false"
+        default: return "?"
+    }
+}
+
+string t3Type(ref Ctx c, by Type t) uses alloc => semantics.typeDisplay(ref c, by: t)
+
+string t3Expr(ref Ctx c, through in LCtx l, for BExpr e) uses alloc {
+    if e == -1 { return "-" }
+    let i = i64(e & 0xFFFFFFFF)
+    if ltree.isLowered(e) {
+        switch ltree.lKindOf(e) {
+            case .indexUnchecked:
+                let target = t3Expr(ref c, through: in l, for: l.tree.indexUncheckeds[i].target)
+                let index = t3Expr(ref c, through: in l, for: l.tree.indexUncheckeds[i].index)
+                let type = t3Type(ref c, by: l.tree.indexUncheckeds[i].type)
+                return $"idxu({target}, {index}):{type}"
+            case .nextChar:
+                let text = t3Expr(ref c, through: in l, for: l.tree.nextChars[i].text)
+                return $"nextchar({text}, {c.locals[l.tree.nextChars[i].position].name})"
+            case .neverValue: return "never"
+            default: return "?"
+        }
+    }
+    switch semantics.boundKind(e) {
+        case .literal:
+            let type = t3Type(ref c, by: c.bLiterals[i].type)
+            return $"lit:{type} {t3Value(in c.bLiterals[i].value)}"
+        case .local: return c.locals[c.bLocals[i].local].name
+        case .binary:
+            let op = c.bBinaries[i].op.ordinal
+            let left = t3Expr(ref c, through: in l, for: c.bBinaries[i].left)
+            let right = t3Expr(ref c, through: in l, for: c.bBinaries[i].right)
+            let type = t3Type(ref c, by: c.bBinaries[i].type)
+            return $"({op} {left} {right}):{type}"
+        case .index:
+            let target = t3Expr(ref c, through: in l, for: c.bIndexes[i].target)
+            let index = t3Expr(ref c, through: in l, for: c.bIndexes[i].index)
+            let type = t3Type(ref c, by: c.bIndexes[i].type)
+            return $"idx({target}, {index}, end={c.bIndexes[i].fromEnd ? 1 : 0}):{type}"
+        case .field:
+            let receiver = t3Expr(ref c, through: in l, for: c.bFields[i].receiver)
+            return $"fld({receiver}).{c.fields[c.bFields[i].field].name}"
+        case .tupleElement:
+            let receiver = t3Expr(ref c, through: in l, for: c.bTupleElements[i].receiver)
+            let type = t3Type(ref c, by: c.bTupleElements[i].type)
+            return $"tup({receiver}).{c.bTupleElements[i].index}:{type}"
+        case .unary:
+            let op = c.bUnaries[i].op.ordinal
+            let operand = t3Expr(ref c, through: in l, for: c.bUnaries[i].operand)
+            return $"un({op} {operand})"
+        case .call:
+            let receiver = t3Expr(ref c, through: in l, for: c.bCalls[i].receiver)
+            let arguments = t3Args(ref c, through: in l, for: e)
+            let type = t3Type(ref c, by: c.bCalls[i].type)
+            return $"call {c.functions[c.bCalls[i].function].name}({receiver}; {arguments}):{type}"
+        case .errorVariant: return "errvar"
+        case .conversion:
+            let operand = t3Expr(ref c, through: in l, for: c.bConversions[i].operand)
+            let type = t3Type(ref c, by: c.bConversions[i].type)
+            return $"conv{c.bConversions[i].kind.ordinal}({operand}):{type}"
+        case .builtinCall:
+            let member = c.bBuiltinCalls[i].member.ordinal
+            let receiver = t3Expr(ref c, through: in l, for: c.bBuiltinCalls[i].receiver)
+            let arguments = t3Args(ref c, through: in l, for: e)
+            let type = t3Type(ref c, by: c.bBuiltinCalls[i].type)
+            return $"bc{member}({receiver}; {arguments}):{type}"
+        default: return "?"
+    }
+}
+
+string t3Stmt(ref Ctx c, through in LCtx l, at i64 depth, for BStmt s) uses alloc {
+    let pad = t3Pad(depth)
+    let i = i64(s & 0xFFFFFFFF)
+    if ltree.isLowered(s) {
+        switch ltree.lKindOf(s) {
+            case .label: return $"{pad}label {l.tree.labels[i].name}\n"
+            case .gotoStmt: return $"{pad}goto {l.tree.gotoStmts[i].label}\n"
+            case .loop: return $"{pad}loop\n{t3Stmt(ref c, through: in l, at: depth + 1, for: l.tree.loops[i].body)}"
+            case .returnStmt: return $"{pad}lreturn {t3Expr(ref c, through: in l, for: l.tree.returnStmts[i].value)}\n"
+            case .returnError: return $"{pad}returnerror {t3Expr(ref c, through: in l, for: l.tree.returnErrors[i].code)}\n"
+            case .setContext: return $"{pad}setcontext {t3Expr(ref c, through: in l, for: l.tree.setContexts[i].arena)} {l.tree.setContexts[i].slot}\n"
+            case .freeArena: return $"{pad}freearena {t3Expr(ref c, through: in l, for: l.tree.freeArenas[i].arena)}\n"
+            case .pushPanicHandler:
+                let panic = l.tree.pushPanicHandlers[i].panic
+                return $"{pad}pushpanic {l.tree.pushPanicHandlers[i].slot} {panic == -1 ? "-" : c.locals[panic].name}\n{t3Stmt(ref c, through: in l, at: depth + 1, for: l.tree.pushPanicHandlers[i].body)}"
+            case .popPanicHandler: return $"{pad}poppanic {l.tree.popPanicHandlers[i].slot}\n"
+            default: return $"{pad}?\n"
+        }
+    }
+    switch semantics.boundKind(s) {
+        case .block:
+            var sb = StrBuf()
+            sb.append($"{pad}block\n")
+            for k in 0..c.bBlocks[i].statements.length {
+                let inner = c.bBlocks[i].statements[k]
+                sb.append(t3Stmt(ref c, through: in l, at: depth + 1, for: inner))
+            }
+            return $"{sb.finish()}"
+        case .localDecl: return $"{pad}decl {c.locals[c.bLocalDecls[i].local].name} {t3Expr(ref c, through: in l, for: c.bLocalDecls[i].initializer)}\n"
+        case .exprStmt: return $"{pad}expr {t3Expr(ref c, through: in l, for: c.bExprStmts[i].expr)}\n"
+        case .assign:
+            let op = c.bAssigns[i].op
+            var opText = "-"
+            if op is not null { opText = $"{op.ordinal}" }
+            return $"{pad}assign {opText} {t3Expr(ref c, through: in l, for: c.bAssigns[i].target)} {t3Expr(ref c, through: in l, for: c.bAssigns[i].value)}\n"
+        case .returnStmt: return $"{pad}return {t3Expr(ref c, through: in l, for: c.bReturns[i].value)}\n"
+        case .setOnPanic: return $"{pad}setonpanic\n"
+        case .ifStmt:
+            var sb = StrBuf()
+            sb.append($"{pad}if {t3Expr(ref c, through: in l, for: c.bIfs[i].condition)}\n")
+            sb.append(t3Stmt(ref c, through: in l, at: depth + 1, for: c.bIfs[i].then))
+            if c.bIfs[i].elseBranch != -1 {
+                sb.append($"{pad}else\n")
+                sb.append(t3Stmt(ref c, through: in l, at: depth + 1, for: c.bIfs[i].elseBranch))
+            }
+            return $"{sb.finish()}"
+        default: return $"{pad}?\n"
+    }
+}

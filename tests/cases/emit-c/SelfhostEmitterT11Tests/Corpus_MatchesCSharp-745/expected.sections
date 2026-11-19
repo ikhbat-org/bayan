@@ -1,0 +1,6 @@
+== cases
+0 (*bynh_slot_map_main__Pad_i32(&l0_m, ((bynt_main__Pad){true, INT64_C(7)}), ((int32_t){0})))
+1 (*bynh_slot_map_main__Pad_i32(&l0_m, byn_main__build(INT64_C(7)), ((int32_t){0})))
+2 l0_m.h.live
+3 bynh_index_map_main__Pad_i32(l0_m, ((bynt_main__Pad){true, INT64_C(7)}), byn_file_0, 19)
+count 4

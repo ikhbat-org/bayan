@@ -1,0 +1,31 @@
+== cases
+0 (((6.673E-11) * byn_main_Planet_f_mass[p_p]) / (byn_main_Planet_f_radius[p_p] * byn_main_Planet_f_radius[p_p]))
+1 ((6.673E-11) * byn_main_Planet_f_mass[p_p])
+2 byn_main_Planet_f_mass[p_p]
+3 (byn_main_Planet_f_radius[p_p] * byn_main_Planet_f_radius[p_p])
+4 byn_main_Planet_f_radius[p_p]
+5 byn_main_Planet_f_radius[p_p]
+6 ((int32_t)l0_p)
+7 byn_main_Planet_names[l0_p]
+8 byn_main_Planet_f_label[l0_p]
+9 byn_main_Planet_f_mass[l0_p]
+10 byn_main_Planet_f_radius[l0_p]
+11 byn_main_Planet_names[((byn_main_Planet)2)]
+12 (l8_home == ((byn_main_Planet)2))
+13 (!(l8_home == l9_near))
+14 byn_main_Planet_f_label[l8_home].len
+15 byn_main_Planet_f_label[l8_home]
+16 byn_main_Planet_f_label[l13_first]
+17 byn_main_Planet_f_mass[l13_first]
+18 byn_main_Planet_names[l17_parsed]
+19 ((int32_t)l17_parsed)
+20 byn_main_Planet_f_radius[l17_parsed]
+21 byn_main_Token_f_text[l21_t]
+22 byn_main_Token_f_precedence[l21_t]
+23 byn_main_Token_f_first[l21_t]
+24 byn_main_Token_f_keyword[l21_t]
+25 byn_main_Token_f_kind[l21_t]
+26 bynh_add_list_main__Token(&l28_ops, ((byn_main_Token)1))
+27 bynh_add_list_main__Token(&l28_ops, ((byn_main_Token)2))
+28 byn_main_Token_f_precedence[l30_t]
+count 29

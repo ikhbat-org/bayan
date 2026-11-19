@@ -1,0 +1,9 @@
+== cases
+0 l9_lossy.len
+1 ((bynt_span_u8){l0_hi.v, 2})
+2 ((bynt_span_u8){l1_overlongNul.v, 3})
+3 ((bynt_span_u8){l2_truncated.v, 4})
+4 ((bynt_span_u8){l3_lone.v, 3})
+5 ((bynt_span_u8){l3_lone.v, 3})
+6 ((bynt_span_u8){l0_hi.v, 2})
+count 7

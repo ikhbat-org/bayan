@@ -1,0 +1,7 @@
+== cases
+0 ((bynt_span_str){l0_script.v, 2})
+1 ((bynt_opt_millis){true, ((int64_t)INT64_C(5000))})
+2 ((int64_t)INT64_C(5000))
+3 l1_r.exit_code
+4 l1_r.out
+count 5

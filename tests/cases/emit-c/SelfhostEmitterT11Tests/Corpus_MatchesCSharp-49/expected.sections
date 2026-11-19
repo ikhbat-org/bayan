@@ -1,0 +1,5 @@
+== cases
+0 bynh_add_list_i64(&l0_xs, INT64_C(1))
+1 bynh_span_list_i64(l0_xs)
+2 (*bynh_at_span_i64(l2_s, (int64_t)INT64_C(0), false, byn_file_0, 19))
+count 3

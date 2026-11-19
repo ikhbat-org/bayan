@@ -1,0 +1,13 @@
+== cases
+0 (*bynh_at_list_i64((*p_xs), (int64_t)INT64_C(0), false, byn_file_0, 2))
+1 bynh_add_list_i64(&(*p_xs), ((int64_t)l0_i))
+2 ((int64_t)l0_i)
+3 bynh_add_list_i64(&l0_xs, INT64_C(0))
+4 (*bynh_at_list_i64(l0_xs, (int64_t)INT64_C(0), false, byn_file_0, 11))
+5 bynh_add_list_i64(&l2_ys, INT64_C(10))
+6 (*bynh_at_list_i64(l2_ys, (int64_t)INT64_C(0), false, byn_file_0, 14))
+7 (*bynh_at_list_i64(l0_xs, (int64_t)INT64_C(0), false, byn_file_0, 15))
+8 l0_xs.len
+9 (*bynh_at_list_i64(l2_ys, (int64_t)INT64_C(0), false, byn_file_0, 15))
+10 l2_ys.len
+count 11

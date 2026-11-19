@@ -1,0 +1,18 @@
+== cases
+0 bynh_eq_err(p_e, ((byn_err){ .code = UINT32_C(13) }))
+1 (l0_n < INT64_C(0))
+2 ((byn_dyn_main__IParser){&l0_d, &bynh_vtab_main__Digits_main__IParser})
+3 ((byn_dyn_main__IParser){&l0_d, &bynh_vtab_main__Digits_main__IParser})
+4 ((byn_dyn_main__IParser){&l0_d, &bynh_vtab_main__Digits_main__IParser})
+5 ((byn_dyn_main__IParser){&l0_d, &bynh_vtab_main__Digits_main__IParser})
+6 bynh_eq_err(l4_e, ((byn_err){ .code = UINT32_C(13) }))
+7 (p_s.len == 0)
+8 (*bynh_at_span_u8(bynh_str_bytes(p_s), (int64_t)INT64_C(0), false, byn_file_0, 18))
+9 bynh_str_bytes(p_s)
+10 ((l1_c < ((uint8_t)48)) || (l1_c > ((uint8_t)57)))
+11 (l1_c < ((uint8_t)48))
+12 (l1_c > ((uint8_t)57))
+13 byn_add_i64((*self).base, ((int64_t)byn_sub_u8(l1_c, ((uint8_t)48), byn_file_0, 20)), byn_file_0, 20)
+14 ((int64_t)byn_sub_u8(l1_c, ((uint8_t)48), byn_file_0, 20))
+15 byn_sub_u8(l1_c, ((uint8_t)48), byn_file_0, 20)
+count 16

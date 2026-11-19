@@ -1,0 +1,4 @@
+== locals
+make: l ll
+main: x t t
+bump:

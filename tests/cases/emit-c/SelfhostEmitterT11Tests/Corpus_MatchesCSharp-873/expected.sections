@@ -1,0 +1,7 @@
+== cases
+0 ((bynt_span_str){l0_one.v, 1})
+1 ((bynt_span_str){l1_three.v, 3})
+2 ((bynt_span_str){l2_restart.v, 4})
+3 ((bynt_span_str){l3_gaps.v, 4})
+4 bynh_span_list_str(l4_none)
+count 5

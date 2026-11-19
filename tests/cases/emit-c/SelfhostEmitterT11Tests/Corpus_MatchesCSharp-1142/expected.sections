@@ -1,0 +1,7 @@
+== helpers
+bynh_utf16_copy static bynt_list_u16 bynh_utf16_copy(byn_text_view v) | static bynt_list_u16 bynh_utf16_copy(byn_text_view v) {
+    bynt_list_u16 r = {NULL, 0, 0, byn_context};
+    r.ptr = byn_utf16_copy(v.s, &r.len, byn_context);
+    r.cap = r.len;
+    return r;
+}

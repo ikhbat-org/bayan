@@ -1,0 +1,19 @@
+== locals
+code: t
+errorName: t
+tea:
+main: order t t t t t t empty t t t e early t t t e removed t t t t t e bad t t t t e t t t t e paidOrder t t t t t t e
+plus: t t
+minus: t
+times:
+atRate: t
+formatInto: whole t
+total: sum line t t t
+statusLabel: t
+tracking: t t
+addLine: t t t t
+removeLine: t i t t t
+place: t any line t t t t
+markPaid: t t
+markShipped: payment t p t t
+cancel: t t

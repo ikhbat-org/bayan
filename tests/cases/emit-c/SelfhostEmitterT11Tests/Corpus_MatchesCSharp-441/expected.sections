@@ -1,0 +1,4 @@
+== cases
+0 byn_mul_i64(byn_main__size(), INT64_C(2), byn_file_0, 7)
+1 byn_mul_i64(byn_main__size(), INT64_C(2), byn_file_0, 7)
+count 2

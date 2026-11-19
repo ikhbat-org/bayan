@@ -1,0 +1,23 @@
+== cases
+0 ((bynt_span_str){l0_script.v, 2})
+1 ((bynt_opt_millis){true, ((int64_t)INT64_C(60000))})
+2 ((int64_t)INT64_C(60000))
+3 l1_bounded.out
+4 bynh_position(byn_str_position(l4_s, BYN_STR("\012", 1), 0, byn_file_0, 9))
+5 bynh_position(byn_str_last_position(l4_s, BYN_STR("\012", 1)))
+6 l1_bounded.exit_code
+7 bynh_str_bytes(l4_s).len
+8 bynh_str_bytes(l4_s)
+9 byn_sub_i64(byn_sub_i64(bynh_str_bytes(l4_s).len, l7_last, byn_file_0, 11), INT64_C(1), byn_file_0, 11)
+10 byn_sub_i64(bynh_str_bytes(l4_s).len, l7_last, byn_file_0, 11)
+11 bynh_str_bytes(l4_s).len
+12 bynh_str_bytes(l4_s)
+13 bynh_slice_span_u8(bynh_str_bytes(l4_s), (int64_t)byn_add_i64(l5_first, INT64_C(1), byn_file_0, 12), 0, (int64_t)l7_last, 0, false, byn_file_0, 12)
+14 bynh_str_bytes(l4_s)
+15 byn_add_i64(l5_first, INT64_C(1), byn_file_0, 12)
+16 byn_str_count(l4_s, BYN_STR("\357\277\275", 3))
+17 ((bynt_span_str){l0_script.v, 2})
+18 bynh_str_bytes(l12_whole.out).len
+19 bynh_str_bytes(l12_whole.out)
+20 l12_whole.out
+count 21

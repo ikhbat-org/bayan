@@ -1,0 +1,9 @@
+== cases
+0 bynh_add_list_i64(&l1_inner, INT64_C(3))
+1 bynh_add_list_i64(&l1_inner, INT64_C(1))
+2 bynh_add_list_list_i64(&l0_ls, l1_inner)
+3 bynh_sort_list_i64(&(*bynh_at_list_list_i64(l0_ls, (int64_t)byn_main__pick(), false, byn_file_0, 11)))
+4 (*bynh_at_list_list_i64(l0_ls, (int64_t)byn_main__pick(), false, byn_file_0, 11))
+5 (*bynh_at_list_i64((*bynh_at_list_list_i64(l0_ls, (int64_t)INT64_C(0), false, byn_file_0, 12)), (int64_t)INT64_C(0), false, byn_file_0, 12))
+6 (*bynh_at_list_list_i64(l0_ls, (int64_t)INT64_C(0), false, byn_file_0, 12))
+count 7

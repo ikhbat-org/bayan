@@ -1,0 +1,3 @@
+== cases
+5 ((bynt_opt_main__Discount){true, ((byn_main_Discount){.tag = 1, .u.fixed = {INT64_C(5), BYN_STR("five", 4)}})})
+count 6

@@ -1,0 +1,7 @@
+== locals
+report:
+attempt: n t t t t e
+run: t t
+main: d t t t e
+parse: t c t
+check: d t t

@@ -1,0 +1,4 @@
+== cases
+0 (p_n == INT64_C(0))
+1 (p_n < INT64_C(0))
+count 4

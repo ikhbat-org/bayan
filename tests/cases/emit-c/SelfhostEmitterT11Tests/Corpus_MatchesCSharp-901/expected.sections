@@ -1,0 +1,7 @@
+== cases
+0 byn_w_str(&l0_buf, BYN_STR("/a/b.txt", 8))
+1 byn_strbuf_str(l0_buf)
+2 byn_strbuf_str(l0_buf)
+3 (l0_buf.len = 0)
+4 byn_w_str(&l0_buf, BYN_STR("/other", 6))
+count 5

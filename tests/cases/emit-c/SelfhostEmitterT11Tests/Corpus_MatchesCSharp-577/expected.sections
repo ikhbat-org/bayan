@@ -1,0 +1,9 @@
+== cases
+0 bynh_io_read_all(INT32_C(0))
+1 (l0_input.err.code == 0)
+2 bynh_value_res_str(l0_input, byn_file_0, 4).len
+3 bynh_value_res_str(l0_input, byn_file_0, 4)
+4 bynh_eq_err(bynh_error_res_str(l0_input, byn_file_0, 6), ((byn_err){ .code = UINT32_C(3) }))
+5 bynh_error_res_str(l0_input, byn_file_0, 6)
+6 bynh_error_res_str(l0_input, byn_file_0, 6)
+count 7

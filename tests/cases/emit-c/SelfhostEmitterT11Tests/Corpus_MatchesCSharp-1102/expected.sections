@@ -1,0 +1,14 @@
+== helpers
+bynh_add_list_u8 static void bynh_add_list_u8(bynt_list_u8* l, uint8_t v) | static void bynh_add_list_u8(bynt_list_u8* l, uint8_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(uint8_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_span_list_u8 static bynt_span_u8 bynh_span_list_u8(bynt_list_u8 l) | static bynt_span_u8 bynh_span_list_u8(bynt_list_u8 l) {
+    return (bynt_span_u8){l.ptr, l.len};
+}
+bynh_slice_span_u8 static bynt_span_u8 bynh_slice_span_u8(bynt_span_u8 x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static bynt_span_u8 bynh_slice_span_u8(bynt_span_u8 x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(x.len, a, am, b, bm, incl, file, line, &from, &to);
+    return (bynt_span_u8){x.ptr + from, to - from};
+}

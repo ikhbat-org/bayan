@@ -1,0 +1,3 @@
+== locals
+join:
+main: pairs _ t a b

@@ -1,0 +1,174 @@
+== stmts
+fn mk locals=0 ctx=0 panic=0
+  block
+    lreturn errvar
+fn declared locals=2 ctx=0 panic=0
+  local x:i64
+  local xs:List<i64>
+  block
+    assign - x n
+    assign - xs ?
+fn bare locals=0 ctx=0 panic=0
+  block
+    if (17 n lit:i64 0:1):bool
+      block
+        lreturn -
+fn viaDefer locals=2 ctx=0 panic=0
+  local r:i32
+  local t:i64
+  block
+    assign - r lit:i32 0:0
+    assign - t (0 a b):i64
+    assign - r lit:i32 0:1
+    lreturn t
+    assign - r lit:i32 0:1
+fn more locals=9 ctx=0 panic=0
+  local r:i64
+  local t:i64
+  local t:i64
+  local b:u8
+  local t:ReadOnlySpan<u8>
+  local t:i64
+  local l:string
+  local t:LineView
+  local t:i64
+  block
+    assign - r lit:i64 0:0
+    assign - t r
+    assign - t (0 n lit:i64 0:1):i64
+    assign - r (2 t t):i64
+    assign - tup(t).0:i64 (0 tup(t).0:i64 n):i64
+    assign - t bc1(s; ):ReadOnlySpan<u8>
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 (13 t bc34(t; ):i64):bool)
+          block
+            goto break_1
+        assign - b idxu(t, t):u8
+        assign - r lit:i64 0:1
+        label continue_2
+        assign - t (5 t lit:i64 0:1):i64
+    label break_1
+    assign - t bc25(s; ):LineView
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 bc32(t; t):bool)
+          block
+            goto break_3
+        assign - l bc33(t; t):string
+        assign - r lit:i64 0:2
+        label continue_4
+    label break_3
+    assign - fld(pt).x n
+fn items locals=7 ctx=0 panic=0
+  local x:i64?
+  local t:List<i64>
+  local t:i64
+  local t:i64
+  local x:dyn ref IC
+  local t:Span<C>
+  local t:i64
+  block
+    assign - t xs
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 (13 t bc40(t; ):i64):bool)
+          block
+            goto break_1
+        assign - t idxu(t, t):i64
+        assign - x conv5(t):i64?
+        label continue_2
+        assign - t (5 t lit:i64 0:1):i64
+    label break_1
+    assign - t w
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 (13 t bc34(t; ):i64):bool)
+          block
+            goto break_3
+        assign - x conv15(idxu(t, t):C):dyn ref IC
+        expr call bump(x; ):void
+        label continue_4
+        assign - t (5 t lit:i64 0:1):i64
+    label break_3
+fn items2 locals=8 ctx=0 panic=0
+  local x:dyn ref IC
+  local t:i64
+  local t:i64
+  local t:C
+  local x:dyn ref readonly IC
+  local t:ReadOnlySpan<C>
+  local t:i64
+  local t:C
+  block
+    assign - t call count(cs; ):i64
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 (13 t t):bool)
+          block
+            goto break_1
+        assign - t call get(cs; t):C
+        assign - x conv15(t):dyn ref IC
+        label continue_2
+        assign - t (5 t lit:i64 0:1):i64
+    label break_1
+    assign - t r
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 (13 t bc34(t; ):i64):bool)
+          block
+            goto break_3
+        assign - t idxu(t, t):C
+        assign - x conv15(t):dyn ref readonly IC
+        label continue_4
+        assign - t (5 t lit:i64 0:1):i64
+    label break_3
+fn id locals=0 ctx=0 panic=0
+  block
+    lreturn n
+fn switched locals=2 ctx=0 panic=0
+  local r:i32
+  local t:i64
+  block
+    assign - r lit:i32 0:0
+    assign - t call id(-; n):i64
+    assign - r lit:i32 0:1
+    label switch_end_1
+fn hooks locals=1 ctx=0 panic=1
+  local p:Panic
+  block
+    pushpanic 0 p
+      block
+        expr call print(-; lit:string "p", ?):void
+    poppanic 0
+fn hooks2 locals=0 ctx=0 panic=0
+  block
+fn main locals=0 ctx=0 panic=0
+  block
+    setonpanic
+fn bump locals=0 ctx=0 panic=0
+  block
+    assign - fld(?).n (0 fld(?).n lit:i64 0:1):i64
+fn finish locals=1 ctx=0 panic=0
+  local t:i64
+  block
+    assign - t v
+    assign - ? t
+    assign - ? lit:i32 0:1
+fn Cn locals=0 ctx=0 panic=0
+  block
+    assign - ? ?
+    assign - fld(?).v n
+    lreturn -
+fn count locals=0 ctx=0 panic=0
+  block
+    lreturn lit:i64 0:1
+fn get locals=0 ctx=0 panic=0
+  block
+    lreturn ?

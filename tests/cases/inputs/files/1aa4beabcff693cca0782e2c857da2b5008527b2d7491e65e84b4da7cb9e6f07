@@ -1,0 +1,66 @@
+union Shape {
+    circle(i64 r)
+    square(i64 side)
+    none
+}
+
+i64 area(Shape s) => s switch {
+    .circle(let r) => r * r * 3,
+    .square(let side) => side * side,
+    .none => 0,
+}
+
+interface IArea {
+    i64 area()
+}
+
+struct Box : IArea {
+    i64 w
+    i64 h
+    i64 area() => w * h
+}
+
+i64 biggerArea<T>(T a, to T b) where T : IArea => a.area() > b.area() ? a.area() : b.area()
+
+i64 apply(i64 n, by i64 -> i64 f) => f(n)
+
+union error ParseError {
+    empty
+    badDigit(i64 at)
+}
+
+i64 parseDigit(i64 n) fails ParseError {
+    if n < 0 { fail .badDigit(n) }
+    return n
+}
+
+i64 viaTry(i64 n) fails ParseError {
+    let d = try parseDigit(n)
+    return d + 1
+}
+
+i64 safe(i64 n) => viaTry(n) catch 0
+
+i64 owned(i64 n) {
+    var a = List<i64>()
+    a.append(n)
+    let b = move a
+    return b.length
+}
+
+i64 orZero(i64? n) => n ?? 0
+
+i64 stock(Map<string, i64> m) => m.length
+
+void main() {
+    var total: i64 = 0
+    var owned3 = List<i64>()
+    owned3.append(total)
+    let taken3 = move owned3
+    total = owned3.length + taken3.length
+    if total >= 0 {
+        total += stock(["a": 1, "b": total])
+        total += 1
+    }
+    print($"{total}")
+}

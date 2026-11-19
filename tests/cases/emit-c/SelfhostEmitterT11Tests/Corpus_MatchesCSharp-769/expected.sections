@@ -1,0 +1,4 @@
+== cases
+0 byn_str_padded(BYN_STR("x", 1), INT64_C(9223372036854775807), UINT32_C(32), byn_context, byn_file_0, 5)
+1 l1_s.len
+count 2

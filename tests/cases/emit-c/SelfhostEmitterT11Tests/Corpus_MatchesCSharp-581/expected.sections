@@ -1,0 +1,18 @@
+== cases
+0 bynh_io_read_all(INT32_C(0))
+1 (!(l0_input.err.code == 0))
+2 (l0_input.err.code == 0)
+3 bynh_value_res_str(l0_input, byn_file_0, 6)
+4 l1_text.len
+5 byn_str_rune_count(l1_text)
+6 bynh_str_bytes(l1_text)
+7 (l4_b == ((uint8_t)10))
+8 (*bynh_at_span_u8(bynh_str_bytes(l1_text), (int64_t)byn_sub_i64(l1_text.len, INT64_C(1), byn_file_0, 12), false, byn_file_0, 12))
+9 bynh_str_bytes(l1_text)
+10 byn_sub_i64(l1_text.len, INT64_C(1), byn_file_0, 12)
+11 l1_text.len
+12 (*bynh_at_span_u8(bynh_str_bytes(l1_text), (int64_t)byn_sub_i64(l1_text.len, INT64_C(3), byn_file_0, 12), false, byn_file_0, 12))
+13 bynh_str_bytes(l1_text)
+14 byn_sub_i64(l1_text.len, INT64_C(3), byn_file_0, 12)
+15 l1_text.len
+count 16

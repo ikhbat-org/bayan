@@ -1,0 +1,5 @@
+== helpers
+bynh_at_arr5_str static byn_str* bynh_at_arr5_str(bynt_arr5_str* a, int64_t i, bool from_end, const char* file, int line) | static byn_str* bynh_at_arr5_str(bynt_arr5_str* a, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = 5 - i;
+    return &a->v[byn_index(i, 5, file, line)];
+}

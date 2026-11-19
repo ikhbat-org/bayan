@@ -1,0 +1,11 @@
+== cases
+0 (p_n > INT64_C(100))
+1 (p_n < INT64_C(0))
+2 (p_n == INT64_C(0))
+3 (p_n == INT64_C(7))
+4 ((bynt_opt_i64){true, p_n})
+5 (p_n == INT64_C(8))
+6 ((bynt_opt_i64){true, l4_found})
+8 (l5_e.code == ((byn_err){ .code = UINT32_C(13) }).code)
+9 bynh_eq_err(l5_e, ((byn_err){ .code = UINT32_C(15) }))
+count 10

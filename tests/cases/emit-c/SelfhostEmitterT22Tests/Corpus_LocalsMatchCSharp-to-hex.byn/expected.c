@@ -1,0 +1,1 @@
+main: 0:zero@4 0:small@22 0:big@43 6:t 6:t 0:i8Max@155 0:i8Neg@175 0:i8Min@194 6:t 6:t 0:i16Max@306 0:i16Neg@330 6:t 0:i32Max@419 0:i32Neg@448 0:i32Min@469 6:t 6:t 0:i64Max@594 0:i64Neg@632 0:i64Min@653 6:t 6:t 0:isizeNeg@787 0:u8Small@859 0:u8Max@880 6:t 0:u16Max@967 0:u32Max@1032 0:u64Max@1102 0:usizeVal@1182 0:arena@1261 0:hex@1312

@@ -1,0 +1,76 @@
+== stmts
+fn cleanups locals=4 ctx=0 panic=1
+  local i:i64
+  local k:i64
+  local t:i64
+  local t:i64
+  block
+    assign - i lit:i64 0:0
+    assign - i n
+    assign - i lit:i64 0:3
+    assign - i lit:i64 0:2
+    assign - t lit:i64 0:0
+    assign - t n
+    loop
+      block
+        if un(2 (13 t t):bool)
+          block
+            goto break_1
+        assign - k t
+        if (17 k lit:i64 0:1):bool
+          block
+            assign - i k
+            goto continue_2
+        if (17 k lit:i64 0:2):bool
+          block
+            assign - i k
+            goto break_1
+        assign - i k
+        label continue_2
+        assign - t (5 t lit:i64 0:1):i64
+    label break_1
+    pushpanic 0 -
+      block
+        expr call print(-; lit:string "p", ?):void
+    loop
+      block
+        if un(2 (13 i n):bool)
+          block
+            goto break_3
+        assign - i (0 i lit:i64 0:1):i64
+        assign - i lit:i64 0:5
+        label continue_4
+    label break_3
+    poppanic 0
+    assign - i lit:i64 0:1
+fn failing locals=2 ctx=0 panic=0
+  local m:i64
+  local t:E
+  block
+    assign - m n
+    if (17 m lit:i64 0:2):bool
+      block
+        assign - t errvar
+        assign - m lit:i64 0:1
+        returnerror t
+    loop
+      block
+        if un(2 (13 m lit:i64 0:3):bool)
+          block
+            goto break_1
+        assign - m (0 m lit:i64 0:1):i64
+        label continue_2
+    label break_1
+fn arenas locals=2 ctx=1 panic=0
+  local i:i64
+  local local:Arena
+  block
+    assign - i lit:i64 0:0
+    setcontext arena 0
+    assign - i n
+    setcontext - 0
+    assign - local call Arena(-; ):Arena
+    assign - i lit:i64 0:1
+    freearena local
+fn main locals=0 ctx=0 panic=0
+  block

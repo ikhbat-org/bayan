@@ -1,0 +1,12 @@
+== locals
+results: ok v e
+owned: v
+copies: m w a mc wc
+onCrash: m
+process: o e
+input: i all
+loops: s t n r t t u t t ln t t p t t m e t t
+maps: m k v x g h d
+radix: r s n p t
+main:
+formatInto: r d w f al dg

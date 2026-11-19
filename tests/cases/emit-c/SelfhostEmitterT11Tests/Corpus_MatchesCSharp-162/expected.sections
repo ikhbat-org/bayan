@@ -1,0 +1,17 @@
+== helpers
+bynh_eq_main__Card static bool bynh_eq_main__Card(bynt_main__Card a, bynt_main__Card b) | static bool bynh_eq_main__Card(bynt_main__Card a, bynt_main__Card b) {
+    return (a.suit == b.suit)
+        && (a.rank == b.rank);
+}
+bynh_add_list_main__Suit static void bynh_add_list_main__Suit(bynt_list_main__Suit* l, byn_main_Suit v) | static void bynh_add_list_main__Suit(bynt_list_main__Suit* l, byn_main_Suit v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_main_Suit), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_at_list_main__Suit static byn_main_Suit* bynh_at_list_main__Suit(bynt_list_main__Suit s, int64_t i, bool from_end, const char* file, int line) | static byn_main_Suit* bynh_at_list_main__Suit(bynt_list_main__Suit s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_eq_opt_main__Suit static bool bynh_eq_opt_main__Suit(bynt_opt_main__Suit a, bynt_opt_main__Suit b) | static bool bynh_eq_opt_main__Suit(bynt_opt_main__Suit a, bynt_opt_main__Suit b) {
+    return a.has == b.has && (!a.has || (a.value == b.value));
+}

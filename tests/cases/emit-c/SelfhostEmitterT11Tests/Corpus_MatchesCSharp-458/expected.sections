@@ -1,0 +1,7 @@
+== helpers
+bynh_vt_main__Person_main__INamed_greet static byn_str bynh_vt_main__Person_main__INamed_greet(void* self) | static byn_str bynh_vt_main__Person_main__INamed_greet(void* self) {
+    return byn_main__Person__greet((bynt_main__Person*)self);
+}
+bynh_vt_main__Person_main__INamed_get_name static byn_str bynh_vt_main__Person_main__INamed_get_name(void* self) | static byn_str bynh_vt_main__Person_main__INamed_get_name(void* self) {
+    return ((bynt_main__Person*)self)->name;
+}

@@ -1,3 +1,13 @@
-== diags.doer-exempt
-BYN2770 7:2 unknown attribute `json`
-  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+== diags.doer-without-verb
+BYN5106 5:15 `CsvParser` is named for the act `parse` but has no `parse` member
+  help add a member named `parse`, or rename the type for what it is
+BYN5106 11:15 `RowBuilder` is named for the act `build` but has no `build` member
+  help add a member named `build`, or rename the type for what it is
+BYN5106 21:15 `TableCodec` is named for the act `encode` but has no `encode` member
+  help add a member named `encode` or `decode`, or rename the type for what it is
+BYN5106 27:22 `RowLoader` is named for the act `load` but has no `load` member
+  help add a member named `load`, or rename the type for what it is
+BYN5106 29:15 `RowScheduler` is named for the act `schedule` but has no `schedule` member
+  help add a member named `schedule`, or rename the type for what it is
+BYN5106 17:18 `ITableWriter` is named for the act `write` but has no `write` member
+  help add a member named `write`, or rename the type for what it is
