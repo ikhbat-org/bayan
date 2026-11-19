@@ -119,9 +119,9 @@ Retired by the owner 2026-11-18 (unenacted; commit 23a0dea08). The retirement ed
 | L007 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l007-'` | T31b, not landed |
 | L008 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l008-'` | T31b, not landed |
 | L013 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l013-'` | T31b, not landed |
-| L019 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l019-'` | T31b, not landed |
-| L020 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'emit/'` | T31b, not landed. But emit/run-c.sha256 is already the port of L020's proof, `PlainBuildEmitsTheSameC` (csharp/tests/Bayan.Tests/MutantSchemataTests.cs:297-298; golden.byn:1710-1712 names it), so this line may meet the swap rule now, with the statement unchanged; for the parent to decide |
-| L021 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l021-'` | T31b, not landed |
+| L019 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L019:'` | swapped 2026-11-19 (T31b share B): the `L019:` block of src/driver/l019.test.byn, over run/*.test.byn only |
+| L020 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'emit/'` | swapped 2026-11-19 (T31b share B): emit/run-c.sha256, the port of `PlainBuildEmitsTheSameC` |
+| L021 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'mutator: a mutant that would not type-check'` | swapped 2026-11-19 (T31b share B): the 8 not-emitted rows of src/driver/mutate.test.byn; the 300 seeded programs are dropped |
 | L038 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l038-'` | T31b, not landed; L038 is proposed and, per the owner (T31 line), is repointed to the self-hosted formatter and proven after 019, so this line may never be used |
 
 ## Proof lines that name files 019b deletes
@@ -132,7 +132,7 @@ T67 deletes csharp/, src/tests/*.cs and Bayan.slnx (tests/Bayan.Tests/ is not tr
 |---|---|---|
 | L001 | src/tests/SelfhostLexerTests.cs | src/driver/golden.byn (`goldenLex`, :265) |
 | L002 | src/tests/SelfhostLexerTests.cs | no target yet: a port of its no-panic test (no task owns it) |
-| L003 | csharp/tests/Bayan.Tests/MapModelTests.cs | src/driver/mapmodel.byn (holds L003, :1, :155) |
+| L003 | csharp/tests/Bayan.Tests/MapModelTests.cs | swapped 2026-11-19 (T31b share B): src/driver/mapmodel.byn; `check:` adds `--only 'map model: '` after `run/map-` |
 | L004 | csharp/tests/Bayan.Tests/L004UnionSwitchTests.cs | src/driver/golden.byn (diag cases, `goldenDiag` :339) |
 | L005 | csharp/tests/Bayan.Tests/L005RunBatchTests.cs | runtime/tests/run.sh (its live check; holds no `L005` today) |
 | L006 | csharp/tests/Bayan.Tests/L006OwnershipGuardTests.cs | no target yet: T31b's `l006-*` cases |
@@ -148,9 +148,9 @@ T67 deletes csharp/, src/tests/*.cs and Bayan.slnx (tests/Bayan.Tests/ is not tr
 | L016 | csharp/tests/Bayan.Tests/MapKeyLawTests.cs | src/driver/mapmodel.byn (holds L016, :209) |
 | L017 | src/tests/SelfhostParserEquivalenceLawTests.cs | src/driver/golden.byn (`goldenParse`, :273) |
 | L018 | src/tests/SelfhostParserNoPanicLawTests.cs | no target yet: a port of its no-panic test (no task owns it) |
-| L019 | csharp/tests/Bayan.Tests/InstrumentedRunLawTests.cs | no target yet: T31b's `l019-*` cases |
-| L020 | csharp/tests/Bayan.Tests/MutantSchemataTests.cs | src/driver/golden.byn (`goldenEmit`, :1713), if the parent swaps L020 to `emit/`; else T31b's `l020-*` cases |
-| L021 | csharp/tests/Bayan.Tests/NotEmittedLawTests.cs | no target yet: T31b's `l021-*` cases |
+| L019 | csharp/tests/Bayan.Tests/InstrumentedRunLawTests.cs | swapped 2026-11-19 (T31b share B): src/driver/l019.test.byn |
+| L020 | csharp/tests/Bayan.Tests/MutantSchemataTests.cs | swapped 2026-11-19 (T31b share B): src/driver/golden.byn (`goldenEmit`, tagged L020) |
+| L021 | csharp/tests/Bayan.Tests/NotEmittedLawTests.cs | swapped 2026-11-19 (T31b share B): src/driver/mutate.test.byn (tagged L021) |
 | L022 | src/tests/SelfhostSemanticsEquivalenceLawTests.cs | src/driver/golden.byn (`goldenTyped`, `goldenDiag`) and src/driver/goldenprograms.byn (`goldenProgramSem`, :941), after the statement is enacted |
 | L023 | src/tests/SelfhostSemanticsNoPanicLawTests.cs | no target yet: a port of its no-panic test (no task owns it) |
 | L024 | src/tests/SelfhostEmitterEquivalenceLawTests.cs | src/driver/golden.byn (`goldenEmit`, :1713), after the statement is enacted |
