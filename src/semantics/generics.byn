@@ -797,7 +797,11 @@ const instantiationDepthLimit: i64 = 64
 /// names the outermost instance of `template` being declared and the next one inside it (`declaringInstances`).
 bool t13ExpandsWithoutEnd(ref Ctx c, for Type template, from FileId file, at TextSpan nameSpan) {
     return false if c.instantiating < instantiationDepthLimit
-    if !listContains(in c.inReportedCycle, by: template) {
+    var reported = false
+    for t in c.inReportedCycle {
+        reported = reported || t == template
+    }
+    if !reported {
         c.inReportedCycle.append(template)
         var outer: Type = template
         var deeper: Type = template
