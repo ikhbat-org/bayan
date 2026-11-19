@@ -1,0 +1,1361 @@
+// L023 (spec 019 T31c, share S3): SelfhostSemanticsNoPanicLawTests.cs without .NET. The corpora are written under tmp/l023-nopanic/ and
+// each is run through one `bayan-check --many`, the stage-1 semantics program `goldenProgram` builds. The seed programs are
+// SelfhostSemanticsGenerator.cs with LambdaGenerator.cs and InterfaceGenerator.cs, ported (the sem export does not hold them), and pinned to the
+// C# `PinnedCorpus`; the random corpus is `GenerateRandomCorpus`. `l023SeedPrograms` and `l023Mutated` are L025's too (share S4).
+
+/// SelfhostSemanticsGenerator.cs:200 and SelfhostSemanticsNoPanicLawTests.cs:414 `XorShift`: xorshift64; `next(n)` is `Next() % n`, which
+/// `MmRng.next` is not (it shifts by 11 first).
+struct L023XorShift {
+    u64 state
+
+    u64 step(ref this) {
+        this.state ^= this.state << 13
+        this.state ^= this.state >> 7
+        this.state ^= this.state << 17
+        return this.state
+    }
+
+    i64 next(ref this, i64 n) {
+        return i64(this.step() % u64(n))
+    }
+}
+
+/// LambdaGenerator.cs:72 and InterfaceGenerator.cs:44 `Next`: splitmix64; `next(n)` is their `Int`, `nextIn` their `Between`, `hits` their `Chance`.
+struct L023SplitMix {
+    u64 state
+
+    u64 step(ref this) {
+        this.state = this.state +% 0x9E3779B97F4A7C15
+        var z = this.state
+        z = (z ^ (z >> 30)) *% 0xBF58476D1CE4E5B9
+        z = (z ^ (z >> 27)) *% 0x94D049BB133111EB
+        return z ^ (z >> 31)
+    }
+
+    i64 next(ref this, i64 n) {
+        return i64(this.step() % u64(n))
+    }
+
+    i64 nextIn(ref this, i64 lo, to i64 hi) {
+        return lo + this.next(hi - lo + 1)
+    }
+
+    bool hits(ref this, i64 percent) {
+        return this.next(100) < percent
+    }
+}
+
+/// One corpus input: its file name and text.
+struct L023Input {
+    string name
+    string source
+}
+
+/// `n` in decimal, zero-padded to `width` digits (C# `{n:D3}`, `{n:D5}`).
+string l023Padded(i64 n, to i64 width) uses alloc {
+    var text = $"{n}"
+    while text.length < width {
+        text = $"0{text}"
+    }
+    return text
+}
+
+/// .NET's `\w` on the ASCII the generators write: a letter, digit or `_`.
+bool l023WordChar(u8 b) => b == 0x5F || b is 0x30..=0x39 || b is 0x41..=0x5A || b is 0x61..=0x7A
+
+/// LambdaGenerator.cs:177 `Mentions`: `name` occurs in `body` between word boundaries (`\bname\b`).
+bool l023Mentions(string body, for string name) {
+    var at: i64 = 0
+    while at + name.length <= body.length {
+        let end = at + name.length
+        if body[at..end] == name
+                && (at == 0 || !l023WordChar(body.bytes[at - 1]))
+                && (end == body.length || !l023WordChar(body.bytes[end])) {
+            return true
+        }
+        at += 1
+    }
+    return false
+}
+
+/// LambdaGenerator.cs:238: `body` with every `\bp0\b` replaced by `it`.
+string l023ItForm(string body) uses alloc {
+    var sb = StrBuf()
+    var at: i64 = 0
+    while at < body.length {
+        let end = at + 2
+        if end <= body.length && body[at..end] == "p0" && (at == 0 || !l023WordChar(body.bytes[at - 1]))
+                && (end == body.length || !l023WordChar(body.bytes[end])) {
+            sb.append("it")
+            at = end
+            continue
+        }
+        sb.append(body[at..at + 1])
+        at += 1
+    }
+    return sb.finish()
+}
+
+/// `text` without its leading `!` characters (`TrimStart('!')`).
+string l023WithoutBangs(string text) uses alloc {
+    var at: i64 = 0
+    while at < text.length && text.bytes[at] == 0x21 {
+        at += 1
+    }
+    return $"{text[at..text.length]}"
+}
+
+/// `items` joined by `sep`.
+string l023Joined(in List<string> items, by string sep) uses alloc {
+    var sb = StrBuf()
+    for i in 0..items.length {
+        if i > 0 {
+            sb.append(sep)
+        }
+        sb.append(items[i])
+    }
+    return sb.finish()
+}
+
+/// LambdaGenerator.cs:40 `Types` at `k`.
+string l023Type(i64 k) uses alloc => k == 0 ? "i64" : k == 1 ? "bool" : "string"
+
+/// LambdaGenerator.cs:111 `Literal`.
+string l023Literal(ref L023SplitMix r, for string type) uses alloc {
+    if type == "i64" {
+        return $"{r.nextIn(-9, to: 20)}"
+    }
+    if type == "bool" {
+        return r.next(2) == 0 ? "true" : "false"
+    }
+    let k = r.next(4)
+    return $"\"{k == 0 ? "ab" : k == 1 ? "x" : k == 2 ? "" : "bayan"}\""
+}
+
+/// The names in `names` whose type in `types` is `type`.
+List<string> l023Of(in List<string> names, by in List<string> types, for string type) uses alloc {
+    var picked = List<string>()
+    for i in 0..names.length {
+        if types[i] == type {
+            picked.append($"{names[i]}")
+        }
+    }
+    return picked
+}
+
+/// LambdaGenerator.cs:166 `Init`: `qNames` and `qTypes` are the case's `q` parameters.
+string l023Init(ref L023SplitMix r, for string type, by in List<string> qNames, from in List<string> qTypes)
+        uses alloc {
+    let same = l023Of(in qNames, by: in qTypes, for: type)
+    let ints = l023Of(in qNames, by: in qTypes, for: "i64")
+    if type == "i64" && ints.length > 0 && r.hits(60) {
+        let name = same[r.next(same.length)]
+        return $"{name} + {r.nextIn(1, to: 9)}"
+    }
+    if type == "bool" && ints.length > 0 && r.hits(60) {
+        let name = ints[r.next(ints.length)]
+        return $"{name} > {r.nextIn(0, to: 9)}"
+    }
+    if same.length > 0 && r.hits(40) {
+        return $"{same[r.next(same.length)]}"
+    }
+    return l023Literal(ref r, for: type)
+}
+
+/// LambdaGenerator.cs:179 `Term`.
+string l023Term(ref L023SplitMix r, by in List<string> names, from in List<string> types) uses alloc {
+    let ints = l023Of(in names, by: in types, for: "i64")
+    if ints.length > 0 && r.hits(70) {
+        return $"{ints[r.next(ints.length)]}"
+    }
+    return $"{r.nextIn(0, to: 9)}"
+}
+
+/// LambdaGenerator.cs:210 `Atom`.
+string l023Atom(ref L023SplitMix r, by in List<string> names, from in List<string> types) uses alloc {
+    let bools = l023Of(in names, by: in types, for: "bool")
+    let strings = l023Of(in names, by: in types, for: "string")
+    let roll = r.next(4)
+    if roll == 1 && bools.length > 0 {
+        let bang = r.hits(50) ? "!" : ""
+        return $"{bang}{bools[r.next(bools.length)]}"
+    }
+    if roll == 2 && strings.length > 0 {
+        let name = strings[r.next(strings.length)]
+        let k = r.next(4)
+        return $"{name} == \"{k == 0 ? "ab" : k == 1 ? "x" : k == 2 ? "" : "bayan"}\""
+    }
+    let left = l023Term(ref r, by: in names, from: in types)
+    let right = l023Term(ref r, by: in names, from: in types)
+    let k = r.next(3)
+    let op = k == 0 ? ">" : k == 1 ? "<" : "=="
+    if right == left {
+        return $"{left} {op} {r.nextIn(0, to: 9)}"
+    }
+    return $"{left} {op} {right}"
+}
+
+/// LambdaGenerator.cs:221 `Hole`.
+string l023Hole(ref L023SplitMix r, by in List<string> names) uses alloc {
+    if names.length > 0 && r.hits(80) {
+        return $"{names[r.next(names.length)]}"
+    }
+    return $"{r.nextIn(0, to: 9)}"
+}
+
+/// `+`, `-` or `*` (`Pick(["+", "-", "*"])`), or only the first two.
+string l023Op(ref L023SplitMix r, by i64 count) uses alloc {
+    let k = r.next(count)
+    return k == 0 ? "+" : k == 1 ? "-" : "*"
+}
+
+/// LambdaGenerator.cs:185 `Body`.
+string l023Body(
+    ref L023SplitMix r,
+    for string type,
+    by in List<string> names,
+    from in List<string> types,
+    through ref bool alloc
+) uses alloc {
+    if type == "i64" {
+        if r.hits(50) {
+            let a = l023Term(ref r, by: in names, from: in types)
+            let op = l023Op(ref r, by: 3)
+            let b = l023Term(ref r, by: in names, from: in types)
+            return $"{a} {op} {b}"
+        }
+        let a = l023Term(ref r, by: in names, from: in types)
+        let op = l023Op(ref r, by: 3)
+        let b = l023Term(ref r, by: in names, from: in types)
+        let op2 = l023Op(ref r, by: 2)
+        let c = l023Term(ref r, by: in names, from: in types)
+        return $"{a} {op} {b} {op2} {c}"
+    }
+    if type == "bool" {
+        let atom = l023Atom(ref r, by: in names, from: in types)
+        return atom unless r.hits(40)
+        let other = l023Atom(ref r, by: in names, from: in types)
+        return atom if l023WithoutBangs(other) == l023WithoutBangs(atom)
+        let op = r.next(2) == 0 ? "&&" : "||"
+        return $"{atom} {op} {other}"
+    }
+    let strings = l023Of(in names, by: in types, for: "string")
+    if strings.length > 0 && r.hits(25) {
+        return $"{strings[r.next(strings.length)]}"
+    }
+    alloc = true
+    let a = l023Hole(ref r, by: in names)
+    let b = l023Hole(ref r, by: in names)
+    return $"$\"{{{a}}}-{{{b}}}\""
+}
+
+/// LambdaGenerator.cs:224 `ArgList`.
+string l023ArgList(in List<string> args, by in List<string> types, for string first) uses alloc {
+    var parts = List<string>()
+    for j in 0..args.length {
+        parts.append(j == 1 ? $"to: {args[j]}" : types[j] == "bool" ? $"{first}: {args[j]}" : $"{args[j]}")
+    }
+    return l023Joined(in parts, by: ", ")
+}
+
+/// LambdaGenerator.cs:232 `ParamList`.
+string l023ParamList(in List<string> types, for string prefix) uses alloc {
+    var parts = List<string>()
+    for j in 0..types.length {
+        parts.append($"{j == 1 ? "to " : ""}{types[j]} {prefix}{j}")
+    }
+    return l023Joined(in parts, by: ", ")
+}
+
+/// LambdaGenerator.cs:48 `Case`; `kind` is 0 named, 1 pure, 2 capturing.
+struct L023Case {
+    i64          i
+    i64          kind
+    List<string> params
+    string       ret
+    List<string> qTypes
+    List<string> qArgs
+    List<string> kNames
+    List<string> kTypes
+    List<string> kInits
+    List<string> args
+    string       body
+    bool         alloc
+    bool         block
+}
+
+/// LambdaGenerator.cs:118 `NewCase`.
+L023Case l023NewCase(ref L023SplitMix r, at i64 i) uses alloc {
+    let arity = r.nextIn(0, to: 2)
+    var ps = List<string>()
+    for _ in 0..arity {
+        ps.append(l023Type(r.next(3)))
+    }
+    let k = r.next(4)
+    let kind = k == 3 ? 2 : k
+    let ret = l023Type(r.next(3))
+    var args = List<string>()
+    for p in ps {
+        args.append(l023Literal(ref r, for: p))
+    }
+    var qNames = List<string>()
+    var qTypes = List<string>()
+    var qArgs = List<string>()
+    var kNames = List<string>()
+    var kTypes = List<string>()
+    var kInits = List<string>()
+    if kind == 2 {
+        let qs = r.nextIn(0, to: 2)
+        for j in 0..qs {
+            let t = l023Type(r.next(3))
+            qNames.append($"q{j}")
+            qTypes.append(t)
+            qArgs.append(l023Literal(ref r, for: t))
+        }
+        let ks = r.nextIn(qs == 0 ? 1 : 0, to: 2)
+        for j in 0..ks {
+            // An i64 result can only read an i64 capture, so one is always there.
+            let t = j == 0 && ret == "i64" ? "i64" : l023Type(r.next(3))
+            kNames.append($"k{j}")
+            kTypes.append(t)
+            kInits.append(l023Init(ref r, for: t, by: in qNames, from: in qTypes))
+        }
+        var anyInt = false
+        for t in qTypes {
+            anyInt = anyInt || t == "i64"
+        }
+        for t in kTypes {
+            anyInt = anyInt || t == "i64"
+        }
+        if ret == "i64" && !anyInt {
+            kNames.append($"k{kNames.length}")
+            kTypes.append("i64")
+            kInits.append(l023Init(ref r, for: "i64", by: in qNames, from: in qTypes))
+        }
+    }
+    // env: the parameters, then the captures (the q parameters, then the k locals)
+    var names = List<string>()
+    var types = List<string>()
+    for j in 0..ps.length {
+        names.append($"p{j}")
+        types.append($"{ps[j]}")
+    }
+    for j in 0..qNames.length {
+        names.append($"{qNames[j]}")
+        types.append($"{qTypes[j]}")
+    }
+    for j in 0..kNames.length {
+        names.append($"{kNames[j]}")
+        types.append($"{kTypes[j]}")
+    }
+    var body = ""
+    var alloc = false
+    for _ in 0..20 {
+        alloc = false
+        body = l023Body(ref r, for: ret, by: in names, from: in types, through: ref alloc)
+        break if kind != 2
+        var mentioned = false
+        for j in ps.length..names.length {
+            mentioned = mentioned || l023Mentions(body, for: names[j])
+        }
+        break if mentioned
+    }
+    // An unread `let` is an unread C local, which -Wall rejects; keep only the ones the body reads.
+    var keptNames = List<string>()
+    var keptTypes = List<string>()
+    var keptInits = List<string>()
+    for j in 0..kNames.length {
+        continue unless l023Mentions(body, for: kNames[j])
+        keptNames.append($"{kNames[j]}")
+        keptTypes.append($"{kTypes[j]}")
+        keptInits.append($"{kInits[j]}")
+    }
+    let block = r.hits(25)
+    return L023Case {
+        i: i,
+        kind: kind,
+        params: move ps,
+        ret: ret,
+        qTypes: move qTypes,
+        qArgs: move qArgs,
+        kNames: move keptNames,
+        kTypes: move keptTypes,
+        kInits: move keptInits,
+        args: move args,
+        body: body,
+        alloc: alloc,
+        block: block,
+    }
+}
+
+/// LambdaGenerator.cs:62 `Type`.
+string l023CaseType(in L023Case c) uses alloc {
+    let ps = c.params.length == 1 ? $"{c.params[0]}" : $"({l023Joined(in c.params, by: ", ")})"
+    return $"{ps} -> {c.ret}"
+}
+
+/// LambdaGenerator.cs:235 `Lambda` and :243 `Value`.
+string l023Value(ref L023SplitMix r, for in L023Case c, at string indent, as bool argument) uses alloc {
+    if c.kind == 0 {
+        return $"fn{c.i}"
+    }
+    if argument && !c.block && c.params.length == 1 && l023Mentions(c.body, for: "p0") && r.hits(50) {
+        return l023ItForm(c.body)
+    }
+    let head = c.params.length == 0 ? "()" : c.params.length == 1 ? "p0" : "(p0, p1)"
+    if c.block {
+        return $"{head} => {{\n{indent}    return {c.body}\n{indent}}}"
+    }
+    return $"{head} => {c.body}"
+}
+
+/// LambdaGenerator.cs:245 `Declarations`.
+void l023Declarations(ref L023SplitMix r, for in L023Case c, to ref StrBuf sb) uses alloc {
+    let type = l023CaseType(in c)
+    let localType = c.alloc ? $"{type} uses alloc" : type
+    let by = $"by ({type}) f"
+    let sig = c.params.length == 0 ? by : $"{l023ParamList(in c.params, for: "a")}, {by}"
+    var names = List<string>()
+    var forward = List<string>()
+    for j in 0..c.params.length {
+        names.append($"a{j}")
+        forward.append(j == 1 ? "to: a1" : $"a{j}")
+    }
+    forward.append("by: f")
+    if c.kind == 0 {
+        sb.append($"{c.ret} fn{c.i}({l023ParamList(in c.params, for: "p")})")
+        sb.append(c.block ? $" {{\n    return {c.body}\n}}\n\n" : $" => {c.body}\n\n")
+    }
+    sb.append($"{c.ret} call{c.i}({sig}) => f({l023Joined(in names, by: ", ")})\n\n")
+    sb.append($"{c.ret} relay{c.i}({sig}) => call{c.i}({l023Joined(in forward, by: ", ")})\n\n")
+    for mode in ["direct", "local", "via1", "via2"] {
+        let title = mode == "direct" ? "Direct" : mode == "local" ? "Local" : mode == "via1" ? "Via1" : "Via2"
+        sb.append($"void host{c.i}{title}({l023ParamList(in c.qTypes, for: "q")}) {{\n")
+        for j in 0..c.kNames.length {
+            sb.append($"    let {c.kNames[j]}: {c.kTypes[j]} = {c.kInits[j]}\n")
+        }
+        let args = l023ArgList(in c.args, by: in c.params, for: "a0")
+        let withBy = c.params.length == 0 ? "by: " : $"{args}, by: "
+        if mode == "direct" && c.kind == 0 {
+            sb.append($"    let r: {c.ret} = fn{c.i}({l023ArgList(in c.args, by: in c.params, for: "p0")})\n")
+        } else if mode == "direct" {
+            for j in 0..c.params.length {
+                if l023Mentions(c.body, for: $"p{j}") {
+                    sb.append($"    let p{j}: {c.params[j]} = {c.args[j]}\n")
+                }
+            }
+            sb.append($"    let r: {c.ret} = {c.body}\n")
+        } else if mode == "local" {
+            sb.append($"    let f: {localType} = {l023Value(ref r, for: in c, at: "    ", as: false)}\n")
+            sb.append($"    let r: {c.ret} = f({l023Joined(in c.args, by: ", ")})\n")
+        } else if mode == "via1" {
+            sb.append($"    let r: {c.ret} = call{c.i}({withBy}{l023Value(ref r, for: in c, at: "    ", as: true)})\n")
+        } else if !c.alloc && r.hits(50) {
+            // A `uses alloc` local is not a value of the parameter's effect-free type (BYN2202), so only an effect-free one is passed.
+            sb.append($"    let f: {localType} = {l023Value(ref r, for: in c, at: "    ", as: false)}\n")
+            sb.append($"    let r: {c.ret} = relay{c.i}({withBy}f)\n")
+        } else {
+            sb.append($"    let r: {c.ret} = relay{c.i}({withBy}{l023Value(ref r, for: in c, at: "    ", as: true)})\n")
+        }
+        sb.append($"    print($\"c{c.i} {{r}}\")\n}}\n\n")
+    }
+}
+
+/// LambdaGenerator.cs:36 `Generate`.
+string l023LambdaProgram(u64 seed) uses alloc {
+    var r = L023SplitMix { state: seed }
+    var sb = StrBuf()
+    var hostArgs = List<string>()
+    let count = r.nextIn(3, to: 6)
+    for i in 0..count {
+        let c = l023NewCase(ref r, at: i)
+        l023Declarations(ref r, for: in c, to: ref sb)
+        hostArgs.append(l023ArgList(in c.qArgs, by: in c.qTypes, for: "q0"))
+    }
+    sb.append("void main() {\n")
+    for mode in ["direct", "local", "via1", "via2"] {
+        let title = mode == "direct" ? "Direct" : mode == "local" ? "Local" : mode == "via1" ? "Via1" : "Via2"
+        sb.append($"    print(\"== {mode}\")\n")
+        for i in 0..count {
+            sb.append($"    host{i}{title}({hostArgs[i]})\n")
+        }
+    }
+    sb.append("}\n")
+    return sb.finish()
+}
+
+/// InterfaceGenerator.cs:123 `Call`: a bare call to an abstract i64 member; kinds are 0 method, 1 property, 2 text, 3 mutator, 4 default
+/// text, 5 default method.
+string l023Call(ref L023SplitMix r, by in List<i64> kinds, as string arg = "") uses alloc {
+    var picks = List<i64>()
+    for j in 0..kinds.length {
+        if kinds[j] <= 1 {
+            picks.append(j)
+        }
+    }
+    let j = picks[r.next(picks.length)]
+    if kinds[j] == 1 {
+        return $"m{j}"
+    }
+    return arg == "" ? $"m{j}({r.nextIn(0, to: 9)})" : $"m{j}({arg})"
+}
+
+/// InterfaceGenerator.cs:129 `Term` and :137 `Expr`.
+string l023Expr(ref L023SplitMix r, for bool x) uses alloc {
+    var terms = List<string>()
+    for t in 0..2 {
+        if t == 1 {
+            terms.append(l023Op(ref r, by: 3))
+        }
+        let k = r.next(x ? 4 : 3)
+        terms.append(k == 0 ? "f0" : k == 1 ? "f1" : k == 2 ? $"{r.nextIn(1, to: 9)}" : "x")
+    }
+    return $"{terms[0]} {terms[1]} {terms[2]}"
+}
+
+/// InterfaceGenerator.cs:139 `Conformer`.
+void l023Conformer(ref L023SplitMix r, for string name, as string iface, by in List<i64> kinds, to ref StrBuf sb)
+        uses alloc {
+    sb.append($"struct {name} : {iface} {{\n    i64 f0\n    i64 f1\n\n")
+    for j in 0..kinds.length {
+        let kind = kinds[j]
+        continue if kind >= 4 && !r.hits(40)
+        if kind >= 4 {
+            sb.append("    // override\n")
+        }
+        sb.append("    ")
+        if kind == 0 {
+            sb.append($"i64 m{j}(i64 x) => {l023Expr(ref r, for: true)}")
+        } else if kind == 1 {
+            sb.append($"i64 m{j} => {l023Expr(ref r, for: false)}")
+        } else if kind == 2 {
+            sb.append($"string m{j}() => $\"{name} {{{l023Expr(ref r, for: false)}}}\"")
+        } else if kind == 3 {
+            if r.hits(50) {
+                sb.append($"void m{j}(ref this, i64 by) {{\n        f0 += by * {r.nextIn(1, to: 3)}\n    }}")
+            } else {
+                sb.append($"void m{j}(ref this, i64 by) {{\n        f1 = f0 - by\n    }}")
+            }
+        } else if kind == 4 {
+            sb.append($"string m{j}() => $\"{name} m{j} {{{l023Expr(ref r, for: false)}}}\"")
+        } else {
+            sb.append($"i64 m{j}(i64 x) => {l023Expr(ref r, for: true)}")
+        }
+        sb.append("\n")
+    }
+    sb.append("}\n\n")
+}
+
+/// InterfaceGenerator.cs:190 `Runner`.
+void l023Runner(string signature, by in List<string> steps, to ref StrBuf sb) uses alloc {
+    sb.append($"{signature} {{\n")
+    for s in steps {
+        sb.append($"    {s}\n")
+    }
+    sb.append("}\n\n")
+}
+
+/// InterfaceGenerator.cs:30 `Generate`.
+string l023InterfaceProgram(u64 seed) uses alloc {
+    var r = L023SplitMix { state: seed }
+    var sb = StrBuf()
+    var names = List<string>()
+    var fields = List<string>()
+    var owners = List<i64>()
+    let interfaces = r.nextIn(1, to: 2)
+    for k in 0..interfaces {
+        // InterfaceGenerator.cs:94 `Interface`
+        var kinds = List<i64>()
+        let abstracts = r.nextIn(2, to: 4)
+        for j in 0..abstracts {
+            kinds.append(j == 0 ? r.next(2) : r.next(4))
+        }
+        let defaults = r.nextIn(1, to: 2)
+        for _ in 0..defaults {
+            kinds.append(4 + r.next(2))
+        }
+        sb.append($"interface IGen{k} {{\n")
+        for j in 0..kinds.length {
+            let kind = kinds[j]
+            sb.append("    ")
+            if kind == 0 {
+                sb.append($"i64 m{j}(i64 x)")
+            } else if kind == 1 {
+                sb.append($"i64 m{j}")
+            } else if kind == 2 {
+                sb.append($"string m{j}() uses alloc")
+            } else if kind == 3 {
+                sb.append($"void m{j}(ref this, i64 by)")
+            } else if kind == 4 {
+                let a = l023Call(ref r, by: in kinds)
+                let b = l023Call(ref r, by: in kinds)
+                sb.append($"string m{j}() uses alloc => $\"m{j} {{{a}}} {{{b}}}\"")
+            } else {
+                let a = l023Call(ref r, by: in kinds, as: "x")
+                let b = l023Call(ref r, by: in kinds)
+                sb.append($"i64 m{j}(i64 x) => {a} + {b}")
+            }
+            sb.append("\n")
+        }
+        sb.append("}\n\n")
+        let count = r.nextIn(2, to: 3)
+        var conformers = List<string>()
+        for n in 0..count {
+            let name = $"S{k}{n}"
+            l023Conformer(ref r, for: name, as: $"IGen{k}", by: in kinds, to: ref sb)
+            let a = r.nextIn(-5, to: 9)
+            let b = r.nextIn(-5, to: 9)
+            names.append(name)
+            fields.append($"f0: {a}, f1: {b}")
+            owners.append(k)
+            conformers.append(name)
+        }
+        // InterfaceGenerator.cs:163 `Runners`
+        var steps = List<string>()
+        var readOnly = List<string>()
+        let stepCount = r.nextIn(4, to: 8)
+        for _ in 0..stepCount {
+            let j = r.next(kinds.length)
+            let kind = kinds[j]
+            if kind == 0 || kind == 5 {
+                let s = $"print($\"m{j} {{v.m{j}({r.nextIn(-3, to: 9)})}}\")"
+                readOnly.append(s)
+                steps.append(s)
+            } else if kind == 1 {
+                let s = $"print($\"m{j} {{v.m{j}}}\")"
+                readOnly.append(s)
+                steps.append(s)
+            } else if kind == 2 || kind == 4 {
+                let s = $"print(v.m{j}())"
+                readOnly.append(s)
+                steps.append(s)
+            } else {
+                steps.append($"v.m{j}({r.nextIn(-3, to: 9)})")
+            }
+        }
+        for name in conformers {
+            l023Runner($"void ro{name}({name} v)", by: in readOnly, to: ref sb)
+            l023Runner($"void rw{name}(ref {name} v)", by: in steps, to: ref sb)
+        }
+        l023Runner($"void roVia{k}<T>(T v) where T : IGen{k}", by: in readOnly, to: ref sb)
+        l023Runner($"void rwVia{k}<T>(ref T v) where T : IGen{k}", by: in steps, to: ref sb)
+        l023Runner($"void roDyn{k}(dyn ref readonly IGen{k} v)", by: in readOnly, to: ref sb)
+        l023Runner($"void rwDyn{k}(dyn ref IGen{k} v)", by: in steps, to: ref sb)
+    }
+    sb.append("void main() {\n")
+    for section in ["direct", "constraint", "dyn"] {
+        sb.append($"    print(\"== {section}\")\n")
+        for i in 0..names.length {
+            let name = names[i]
+            let k = owners[i]
+            let ro = section == "direct" ? $"ro{name}" : section == "constraint" ? $"roVia{k}" : $"roDyn{k}"
+            let rw = section == "direct" ? $"rw{name}(ref v)" : section == "constraint" ? $"rwVia{k}(ref v)" : $"rwDyn{k}(v)"
+            sb.append($"    {{\n        var v = {name} {{ {fields[i]} }}\n")
+            sb.append($"        {ro}(v)\n")
+            sb.append($"        {rw}\n")
+            sb.append($"        print($\"{name} {{v.f0}} {{v.f1}}\")\n    }}\n")
+        }
+    }
+    sb.append("}\n")
+    return sb.finish()
+}
+
+/// SelfhostSemanticsGenerator.cs:29 `Feature`.
+struct L023Feature {
+    string name
+    string decls
+    string line
+}
+
+/// SelfhostSemanticsGenerator.cs:35 `Features`, the C# text.
+List<L023Feature> l023Features() uses alloc {
+    return [
+        L023Feature {
+            name: "structs",
+            decls: "struct Point {\n    i64 x\n    i64 y\n    i64 sum() => x + y\n}\n",
+            line: "total += Point { x: total, y: 2 }.sum()",
+        },
+        L023Feature {
+            name: "enums",
+            decls: "enum Color {\n    red\n    green\n}\n\ni64 colorCode(Color c) => c switch {\n    .red => 1,\n    .green => 2,\n}\n",
+            line: "total += colorCode(Color.green)",
+        },
+        L023Feature {
+            name: "unions",
+            decls: "union Shape {\n    circle(i64 r)\n    square(i64 side)\n    none\n}\n\ni64 area(Shape s) => s switch {\n    .circle(let r) => r * r * 3,\n    .square(let side) => side * side,\n    .none => 0,\n}\n",
+            line: "total += area(.square(total))",
+        },
+        L023Feature {
+            name: "interfaces",
+            decls: "interface IArea {\n    i64 area()\n}\n\nstruct Box : IArea {\n    i64 w\n    i64 h\n    i64 area() => w * h\n}\n\ni64 biggerArea<T>(T a, to T b) where T : IArea => a.area() > b.area() ? a.area() : b.area()\n",
+            line: "total += biggerArea(Box { w: 1, h: 2 }, to: Box { w: 3, h: total })",
+        },
+        L023Feature {
+            name: "lambdas",
+            decls: "i64 apply(i64 n, by i64 -> i64 f) => f(n)\n",
+            line: "total += apply(total, by: x => x * 2)",
+        },
+        L023Feature {
+            name: "errors",
+            decls: "union error ParseError {\n    empty\n    badDigit(i64 at)\n}\n\ni64 parseDigit(i64 n) fails ParseError {\n    if n < 0 { fail .badDigit(n) }\n    return n\n}\n\ni64 viaTry(i64 n) fails ParseError {\n    let d = try parseDigit(n)\n    return d + 1\n}\n\ni64 safe(i64 n) => viaTry(n) catch 0\n",
+            line: "total += safe(total)",
+        },
+        L023Feature {
+            name: "loops",
+            decls: "i64 sumAll(List<i64> xs) {\n    var sum: i64 = 0\n    for x in xs { sum += x }\n    var i = 0\n    while i < xs.length { i += 1 }\n    return sum + i\n}\n",
+            line: "total += sumAll([1, 2, 3])",
+        },
+        L023Feature {
+            name: "ownership",
+            decls: "i64 owned(i64 n) {\n    var a = List<i64>()\n    a.append(n)\n    let b = move a\n    return b.length\n}\n",
+            line: "total += owned(total)",
+        },
+        L023Feature { name: "optionals", decls: "i64 orZero(i64? n) => n ?? 0\n", line: "total += orZero(null)" },
+        L023Feature {
+            name: "strings",
+            decls: "string greet(string name) uses alloc => $\"hello {name}\"\n",
+            line: "print(greet($\"{total}\"))",
+        },
+        L023Feature {
+            name: "maps",
+            decls: "i64 stock(Map<string, i64> m) => m.length\n",
+            line: "total += stock([\"a\": 1, \"b\": total])",
+        },
+        L023Feature { name: "constants", decls: "const limit: i64 = 100\n", line: "total += limit" },
+        L023Feature { name: "conversions", decls: "i64 widen(i32 n) => i64(n)\n", line: "total += widen(i32(3))" },
+        L023Feature {
+            name: "tuples",
+            decls: "(i64 lo, i64 hi) bounds(i64 n) => (lo: 0, hi: n)\n",
+            line: "total += bounds(total).hi",
+        },
+        L023Feature {
+            name: "tests",
+            decls: "i64 twice(i64 n) => n * 2\n\ntest \"twice doubles\" {\n    assert twice(2) == 4\n}\n",
+            line: "total += twice(total)",
+        },
+    ]
+}
+
+/// SelfhostSemanticsGenerator.cs:132 `MainOf`.
+string l023MainOf(in List<string> body) uses alloc {
+    var sb = StrBuf()
+    sb.append("void main() {\n    var total: i64 = 0\n")
+    for line in body {
+        continue if line.length == 0
+        sb.append(line.startsWith(" ") ? $"{line}\n" : $"    {line}\n")
+    }
+    sb.append("    print($\"{total}\")\n}\n")
+    return sb.finish()
+}
+
+/// SelfhostSemanticsGenerator.cs:146 `Assemble`: the source, and in `mainLine` the zero-based line of `main`.
+string l023Assemble(ref L023XorShift r, by in List<L023Feature> features, for string forced, through ref i64 mainLine)
+        uses alloc {
+    var sb = StrBuf()
+    var picked = List<string>()
+    for f in features {
+        if r.next(2) == 0 || f.name == forced {
+            picked.append($"{f.line}")
+            sb.append(f.decls)
+            sb.append("\n")
+        }
+    }
+    let depth = 1 + r.next(8)
+    var body = List<string>()
+    for d in 0..depth {
+        body.append($"{" ".repeated(4 * (d + 1))}if total >= 0 {{")
+        if picked.length > 0 {
+            body.append($"{" ".repeated(4 * (d + 2))}{picked[r.next(picked.length)]}")
+        }
+    }
+    body.append($"{" ".repeated(4 * (depth + 1))}total += 1")
+    var d = depth - 1
+    while d >= 0 {
+        body.append($"{" ".repeated(4 * (d + 1))}}}")
+        d -= 1
+    }
+    let decls = sb.finish()
+    mainLine = 0
+    for b in decls.bytes {
+        mainLine += b == 0x0A ? 1 : 0
+    }
+    return $"{decls}{l023MainOf(in body)}"
+}
+
+/// `text` split at every `\n`, the empty part after a last `\n` kept (`Split('\n')`).
+List<string> l023Split(string text) uses alloc {
+    var lines = List<string>()
+    var start: i64 = 0
+    for i in 0..text.length {
+        if text.bytes[i] == 0x0A {
+            lines.append($"{text[start..i]}")
+            start = i + 1
+        }
+    }
+    lines.append($"{text[start..text.length]}")
+    return lines
+}
+
+/// SelfhostSemanticsGenerator.cs:173 `FaultLines` of kind `kind` (0 UnknownName ... 4 UnassignedRead).
+List<string> l023FaultLines(i64 kind, at i64 k) uses alloc {
+    var lines = List<string>()
+    if kind == 0 {
+        lines.append($"total = missingName{k} + 1")
+    } else if kind == 1 {
+        lines.append($"total = \"text{k}\"")
+    } else if kind == 2 {
+        lines.append($"var owned{k} = List<i64>()")
+        lines.append($"owned{k}.append(total)")
+        lines.append($"let taken{k} = move owned{k}")
+        lines.append($"total = owned{k}.length + taken{k}.length")
+    } else if kind == 3 {
+        lines.append("total = parseDigit(total)")
+    } else {
+        lines.append($"var unset{k}: i64")
+        lines.append($"total = unset{k}")
+    }
+    return lines
+}
+
+/// SelfhostSemanticsGenerator.cs:187 `Inject`: `FaultLines` before a picked line of `main`'s body, indented like it.
+string l023Inject(string source, at i64 mainLine, for i64 kind, by i64 k, through ref L023XorShift r) uses alloc {
+    let lines = l023Split(source)
+    let firstBody = mainLine + 2
+    var print = lines.length - 1
+    while print >= 0 && lines[print] != "    print($\"{total}\")" {
+        print -= 1
+    }
+    let at = firstBody + r.next(print - firstBody + 1)
+    var indent: i64 = 0
+    while indent < lines[at].length && lines[at].bytes[indent] == 0x20 {
+        indent += 1
+    }
+    let fault = l023FaultLines(kind, at: k)
+    var kept = List<string>()
+    for i in 0..lines.length {
+        if i == at {
+            for f in fault {
+                kept.append($"{" ".repeated(indent)}{f}")
+            }
+        }
+        kept.append($"{lines[i]}")
+    }
+    return l023Joined(in kept, by: "\n")
+}
+
+/// SelfhostSemanticsGenerator.cs:19 `Seeds`.
+List<u64> l023Seeds() uses alloc {
+    return [
+        0x9E3779B97F4A7C15,
+        0x0123456789ABCDEF,
+        0xFEDCBA9876543210,
+        0xDEADBEEFCAFEF00D,
+        0x3141592653589793,
+        0x2718281828459045,
+        0x0BADF00D0BADF00D,
+        0x5EED5EED5EED5EED,
+    ]
+}
+
+/// SelfhostSemanticsGeneratorTests.cs:92 `Corpus(Seeds)`: `GenerateValid` (one program per feature, then per seed an assembled, a lambda and
+/// an interface program) and `GenerateFaulty` (per seed one program per fault kind), 79 programs. L025 reads them too.
+List<L023Input> l023SeedPrograms() uses alloc {
+    let features = l023Features()
+    let seeds = l023Seeds()
+    var programs = List<L023Input>()
+    for f in features {
+        var body = List<string>()
+        body.append($"{f.line}")
+        programs.append(L023Input { name: $"valid-{f.name}.byn", source: $"{f.decls}\n{l023MainOf(in body)}" })
+    }
+    for i in 0..seeds.length {
+        var r = L023XorShift { state: seeds[i] }
+        var mainLine: i64 = 0
+        let tag = l023Padded(i, to: 3)
+        programs.append(
+            L023Input {
+                name: $"valid-seed-{tag}.byn",
+                source: l023Assemble(ref r, by: in features, for: "", through: ref mainLine),
+            },
+        )
+        programs.append(L023Input { name: $"valid-lambda-{tag}.byn", source: l023LambdaProgram(seeds[i]) })
+        programs.append(L023Input { name: $"valid-interface-{tag}.byn", source: l023InterfaceProgram(seeds[i]) })
+    }
+    for i in 0..seeds.length {
+        var r = L023XorShift { state: seeds[i] }
+        let tag = l023Padded(i, to: 3)
+        for kind in 0..5 {
+            var mainLine: i64 = 0
+            let source = l023Assemble(ref r, by: in features, for: "errors", through: ref mainLine)
+            let name = kind == 0 ? "UnknownName" : kind == 1 ? "WrongType" : kind == 2 ? "UseAfterMove" : kind == 3 ? "MissingFails" : "UnassignedRead"
+            programs.append(
+                L023Input {
+                    name: $"fault-{name}-{tag}.byn",
+                    source: l023Inject(source, at: mainLine, for: kind, by: i, through: ref r),
+                },
+            )
+        }
+    }
+    return programs
+}
+
+/// SelfhostSemanticsNoPanicLawTests.cs:394 `TokenAt`: the token around `at`, a run of identifier bytes (ASCII letters, digits, `_` and
+/// non-ASCII) or one other non-space byte; empty at a space or the end. Returns its start; `length` is its length.
+i64 l023TokenAt(in List<u8> bytes, at i64 at, through ref i64 length) {
+    if at >= bytes.length || bytes[at] == 0x20 || bytes[at] == 0x0A || bytes[at] == 0x09 || bytes[at] == 0x0D {
+        length = 0
+        return at
+    }
+    unless l023TokenByte(bytes[at]) {
+        length = 1
+        return at
+    }
+    var start = at
+    while start > 0 && l023TokenByte(bytes[start - 1]) {
+        start -= 1
+    }
+    var end = at
+    while end < bytes.length && l023TokenByte(bytes[end]) {
+        end += 1
+    }
+    length = end - start
+    return start
+}
+
+/// `TokenAt`'s `Word`: `_`, a byte from 0x80 or an ASCII letter or digit.
+bool l023TokenByte(u8 b) => b >= 0x80 || l023WordChar(b)
+
+/// `bytes` with the `drop` bytes at `at` replaced by `insert`.
+List<u8> l023Splice(in List<u8> bytes, at i64 at, for i64 drop, by ReadOnlySpan<u8> insert) uses alloc {
+    var spliced = List<u8>()
+    for i in 0..at {
+        spliced.append(bytes[i])
+    }
+    for b in insert {
+        spliced.append(b)
+    }
+    for i in at + drop..bytes.length {
+        spliced.append(bytes[i])
+    }
+    return spliced
+}
+
+/// The `length` bytes of `bytes` at `start`.
+List<u8> l023Range(in List<u8> bytes, from i64 start, as i64 length) uses alloc {
+    var spliced = List<u8>()
+    for i in start..start + length {
+        spliced.append(bytes[i])
+    }
+    return spliced
+}
+
+/// SelfhostSemanticsNoPanicLawTests.cs:316 `InvalidUtf8` at `k`.
+List<u8> l023InvalidUtf8(i64 k) uses alloc {
+    return k == 0 ? [
+        0xFF,
+    ] : k == 1 ? [
+        0x80,
+    ] : k == 2 ? [0xC3] : k == 3 ? [0xE2, 0x82] : k == 4 ? [0xED, 0xA0, 0x80] : [0xF4, 0x90, 0x80, 0x80]
+}
+
+/// SelfhostSemanticsNoPanicLawTests.cs:319 `Tokens`, the checker-shaped tokens.
+List<string> l023Tokens() uses alloc {
+    return [
+        "let",
+        "var",
+        "const",
+        "move",
+        "ref",
+        "in",
+        "fail",
+        "fails",
+        "try",
+        "catch",
+        "return",
+        "struct",
+        "union",
+        "enum",
+        "interface",
+        "import",
+        "switch",
+        "case",
+        "default",
+        "if",
+        "else",
+        "for",
+        "while",
+        "break",
+        "continue",
+        "null",
+        "true",
+        "false",
+        "this",
+        "i32",
+        "i64",
+        "u8",
+        "f64",
+        "string",
+        "bool",
+        "void",
+        "List<i32>",
+        "Map<string, i32>",
+        "Owned<x>",
+        "?",
+        "??",
+        "!",
+        ".",
+        "..",
+        "->",
+        "=>",
+        "=",
+        "==",
+        "+",
+        "-",
+        "*",
+        "/",
+        "%",
+        "<",
+        ">",
+        "(",
+        ")",
+        "{",
+        "}",
+        "[",
+        "]",
+        ",",
+        ":",
+        "@",
+        "$\"{",
+        "\"",
+        "'a'",
+        "0",
+        "1",
+        "-1",
+        "9223372036854775808",
+        "0.5",
+        "x",
+        "main",
+    ]
+}
+
+/// SelfhostSemanticsNoPanicLawTests.cs:335 `GenerateRandomCorpus`: `count` inputs (xorshift `seed`), each a picked `bases` entry with 1 to 4
+/// byte or token mutations; the first n inputs are the same whatever `count`. L025 calls it over the seed programs.
+List<List<u8>> l023Mutated(in List<List<u8>> bases, by u64 seed, for i64 count) uses alloc {
+    let tokens = l023Tokens()
+    var r = L023XorShift { state: seed }
+    var corpus = List<List<u8>>()
+    for _ in 0..count {
+        var bytes = bases[r.next(bases.length)].copy()
+        var mutations = 1 + r.next(4)
+        while mutations > 0 {
+            mutations -= 1
+            let at = bytes.length == 0 ? 0 : r.next(bytes.length)
+            var tokenLength: i64 = 0
+            let token = l023TokenAt(in bytes, at: at, through: ref tokenLength)
+            let choice = r.next(12)
+            if choice == 0 {
+                let b: List<u8> = [u8(r.step() & 0xFF)]
+                bytes = l023Splice(in bytes, at: at, for: 0, by: b.span)
+            } else if (choice == 1 || choice == 2) && bytes.length == 0 {
+                // `case 1 when bytes.Count > 0` and `case 2 when …` fall to `case < 11`, which does nothing on an empty input
+                continue
+            } else if choice == 1 {
+                bytes = l023Splice(in bytes, at: at, for: 1, by: List<u8>().span)
+            } else if choice == 2 {
+                let b: List<u8> = [u8(r.step() & 0xFF)]
+                bytes = l023Splice(in bytes, at: at, for: 1, by: b.span)
+            } else if choice == 3 {
+                let b = l023InvalidUtf8(r.next(6))
+                bytes = l023Splice(in bytes, at: at, for: 0, by: b.span)
+            } else if choice == 4 {
+                bytes = l023Splice(in bytes, at: token, for: tokenLength, by: List<u8>().span)
+            } else if choice == 5 {
+                let b = l023Range(in bytes, from: token, as: tokenLength)
+                bytes = l023Splice(in bytes, at: token, for: 0, by: b.span)
+            } else if choice == 6 {
+                var nextLength: i64 = 0
+                let next = l023TokenAt(
+                    in bytes,
+                    at: token + tokenLength + 1 < bytes.length ? token + tokenLength + 1 : bytes.length,
+                    through: ref nextLength,
+                )
+                continue if next <= token
+                let second = l023Range(in bytes, from: next, as: nextLength)
+                let first = l023Range(in bytes, from: token, as: tokenLength)
+                bytes = l023Splice(in bytes, at: next, for: nextLength, by: first.span)
+                bytes = l023Splice(in bytes, at: token, for: tokenLength, by: second.span)
+            } else if choice == 7 {
+                let t = tokens[r.next(tokens.length)]
+                bytes = l023Splice(in bytes, at: token, for: tokenLength, by: t.bytes)
+            } else if choice < 11 {
+                var wordLength: i64 = 0
+                let word = l023TokenAt(
+                    in bytes,
+                    at: bytes.length == 0 ? 0 : r.next(bytes.length),
+                    through: ref wordLength,
+                )
+                continue if tokenLength == 0 || wordLength == 0
+                let replacement = l023Range(in bytes, from: word, as: wordLength)
+                bytes = l023Splice(in bytes, at: token, for: tokenLength, by: replacement.span)
+            } else {
+                continue if bytes.length == 0
+                var lineStart = at
+                while lineStart > 0 && bytes[lineStart - 1] != 0x0A {
+                    lineStart -= 1
+                }
+                var lineEnd = at
+                while lineEnd < bytes.length && bytes[lineEnd] != 0x0A {
+                    lineEnd += 1
+                }
+                let depth = 1 + r.next(8)
+                let close = $"{" }".repeated(depth)}\n"
+                bytes = l023Splice(in bytes, at: lineEnd, for: 0, by: close.bytes)
+                let open = $"{"if true { ".repeated(depth)}\n"
+                bytes = l023Splice(in bytes, at: lineStart, for: 0, by: open.bytes)
+            }
+        }
+        corpus.append(move bytes)
+    }
+    return corpus
+}
+
+/// The flat `*.byn` goldens of diag, typed, run, parse and lex in byte order, each named `<kind>-<file>`
+/// (SelfhostSemanticsNoPanicLawTests.cs:159 `FlatGoldens`).
+List<L023Input> l023FlatGoldens() uses alloc, fs {
+    var inputs = List<L023Input>()
+    for kind in ["diag", "typed", "run", "parse", "lex"] {
+        let dir = Path.fullPath($"tests/cases/{kind}")
+        var names = Io.listDir(dir) catch List<string>()
+        names.sort()
+        for name in names {
+            let path = Path.combine(dir, name)
+            continue if !name.endsWith(".byn") || !Fs.fileExists(path) || t6DirectoryExists(path)
+            inputs.append(L023Input { name: $"{kind}-{name}", source: Io.readText(path) catch "" })
+        }
+    }
+    return inputs
+}
+
+/// One `bayan-check --many` over `dir`, whose `*.byn` inputs are `names` (sorted): empty when it exits 0 or 1 with no `panic:`, a header per
+/// input in order, no `span out of range` line and only `exit 1` lines; else the counterexample.
+string l023Many(string check, at string dir, by in List<string> names, for string corpus)
+        uses alloc, clock, fs, process {
+    var failure = ""
+    var args = List<string>()
+    args.append("--many")
+    args.append(dir)
+    let o = goldenChild(check, by: in args, at: dir, from: in List<u8>(), through: ref failure, whole: true)
+    return $"L023 counterexample: {corpus}: {failure}" if failure != ""
+    var last = "<none>"
+    var next: i64 = 0
+    for line in goldenLines(o.stdout) {
+        if line.startsWith("== ") {
+            last = $"{line[3..line.length]}"
+            if next >= names.length || names[next] != last {
+                return $"L023 counterexample: {corpus}: header `{line}` out of order in {dir}"
+            }
+            next += 1
+        } else if line.startsWith("span out of range:") {
+            return $"L023 counterexample: {corpus}: {last} in {dir}: {line}"
+        } else if line.startsWith("exit ") && line != "exit 1" {
+            return $"L023 counterexample: {corpus}: {line} after {last} in {dir}"
+        }
+    }
+    if o.stderr.contains("panic:") || (o.exitCode != 0 && o.exitCode != 1) {
+        // A crash loses the buffered headers, so the input is the first from `last` on that dies alone in a scratch directory.
+        let alone = $"{dir}-alone"
+        for i in (next > 0 ? next - 1 : 0)..names.length {
+            deleteWorkDir(alone)
+            let bytes = Io.readFile(Path.combine(dir, names[i])) catch List<u8>()
+            Io.createDirectory(alone) catch {}
+            Io.writeFile(Path.combine(alone, names[i]), bytes.span) catch {}
+            var spans = List<string>()
+            spans.append("--spans")
+            spans.append(Path.combine(alone, names[i]))
+            let one = goldenChild(
+                check,
+                by: in spans,
+                at: alone,
+                from: in List<u8>(),
+                through: ref failure,
+                whole: true,
+            )
+            if one.stderr.contains("panic:") || (one.exitCode != 0 && one.exitCode != 1) {
+                return $"L023 counterexample: {corpus}: exit {one.exitCode} on {names[i]} in {dir}\n{one.stderr}"
+            }
+        }
+        return $"L023 counterexample: {corpus}: exit {o.exitCode} after `{last}` in {dir}\n{o.stderr}"
+    }
+    return next == names.length ? "" : $"L023 counterexample: {corpus}: {names.length - next} inputs without a header after {last} in {dir}"
+}
+
+/// Writes `inputs` to the fresh directory `dir` and runs `l023Many` over it.
+string l023Corpus(string check, at string dir, by in List<L023Input> inputs, for string corpus)
+        uses alloc, clock, fs, process {
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch return $"cannot create {dir}"
+    var names = List<string>()
+    for p in inputs {
+        Io.writeFile(Path.combine(dir, p.name), p.source.bytes) catch return $"cannot write {dir}/{p.name}"
+        names.append($"{p.name}")
+    }
+    names.sort()
+    return l023Many(check, at: dir, by: in names, for: corpus)
+}
+
+/// The SHA-256 (lower-case hex) of every program's name, `\n`, source and NUL, as SelfhostSemanticsGeneratorTests.cs:99 pins it.
+string l023SeedsHash(in List<L023Input> programs) uses alloc {
+    var sb = StrBuf()
+    for p in programs {
+        sb.append($"{p.name}\n{p.source}\0")
+    }
+    return t9Hash(sb.finish())
+}
+
+// L023: the checker never panics and keeps every diagnostic span inside its file
+test "L023: bayan-check --many over every golden, the 79 seed programs and their random mutations never panics or reports a span outside its file" {
+    let start = Io.monotonicNanos()
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(failure == "")
+    let check = goldenProgram("semantics", by: exe, through: ref failure)
+    print(failure) if check == ""
+    assert(check != "")
+    let full = (Env.get("BAYAN_LAW_TIER") ?? "") == "full"
+    let size: i64 = full ? 10000 : 1000
+    let root = Path.combine(Path.fullPath("tmp"), "l023-nopanic")
+    var problem = ""
+
+    let flat = l023FlatGoldens()
+    problem = l023Corpus(check, at: Path.combine(root, "golden"), by: in flat, for: "golden")
+    // the directory cases that have a `main.byn` (the exported class directories of parse and lex have none), each read in place
+    var dirs = List<string>()
+    for kind in ["diag", "typed", "run", "parse", "lex"] {
+        let dir = Path.fullPath($"tests/cases/{kind}")
+        var names = Io.listDir(dir) catch List<string>()
+        names.sort()
+        for name in names {
+            let path = Path.combine(dir, name)
+            continue if !t6DirectoryExists(path) || !Fs.fileExists(Path.combine(path, "main.byn"))
+            dirs.append($"{kind}/{name}")
+            continue if problem != ""
+            let files = Io.listDir(path) catch List<string>()
+            var inputs = List<string>()
+            for f in files {
+                if f.endsWith(".byn") && !t6DirectoryExists(Path.combine(path, f)) {
+                    inputs.append($"{f}")
+                }
+            }
+            inputs.sort()
+            problem = l023Many(check, at: path, by: in inputs, for: $"golden {kind}/{name}")
+        }
+    }
+
+    let seeds = l023SeedPrograms()
+    // SelfhostSemanticsGeneratorTests.cs:106 `PinnedCorpus`: the port writes the C# generator's 79 programs byte for byte
+    assert(seeds.length == 79)
+    assert(l023SeedsHash(in seeds) == "a38f8e5995f343c0eedf3062fe05e6119377dcf5114301df67504a53436290df")
+    if problem == "" {
+        problem = l023Corpus(check, at: Path.combine(root, "seeds"), by: in seeds, for: "seeds")
+    }
+
+    var bases = List<List<u8>>()
+    for p in flat {
+        bases.append(p.source.bytes.copy())
+    }
+    for p in seeds {
+        bases.append(p.source.bytes.copy())
+    }
+    let random = l023Mutated(in bases, by: 0x9E3779B97F4A7C15, for: size)
+    let again = l023Mutated(in bases, by: 0x9E3779B97F4A7C15, for: size)
+    let other = l023Mutated(in bases, by: 0x9E3779B97F4A7C16, for: size)
+    var same = true
+    var differs = false
+    for i in 0..size {
+        same = same && t8SameBytes(in random[i], as: in again[i])
+        differs = differs || !t8SameBytes(in random[i], as: in other[i])
+    }
+    assert(same && differs)
+    if problem == "" {
+        let dir = Path.combine(root, "random")
+        deleteWorkDir(dir)
+        Io.createDirectory(dir) catch {}
+        var names = List<string>()
+        for i in 0..size {
+            let name = $"{l023Padded(i, to: 5)}.byn"
+            Io.writeFile(Path.combine(dir, name), random[i].span) catch { problem = $"cannot write {dir}/{name}" }
+            names.append(name)
+        }
+        if problem == "" {
+            problem = l023Many(check, at: dir, by: in names, for: "random")
+        }
+    }
+
+    // the CLI path (SelfhostSemanticsNoPanicLawTests.cs:100 `CheckCli`): `bayan-check --spans <path>`, each flat golden alone in its own
+    // directory and each directory case's `main.byn` in a copy of the case, exits 0 or 1 with no `panic:` and no span line
+    var cli: i64 = 0
+    let cliRoot = Path.combine(root, "cli")
+    deleteWorkDir(cliRoot)
+    var paths = List<string>()
+    for p in flat {
+        let file = p.name[goldenOffset(p.name, for: "-") + 1..p.name.length]
+        goldenWrite(Path.combine(cliRoot, p.name), for: file, as: p.source)
+        paths.append(Path.combine(Path.combine(cliRoot, p.name), file))
+    }
+    for d in dirs {
+        let copy = Path.combine(cliRoot, d.replaced("/", by: "-"))
+        var files = List<string>()
+        goldenProgramFiles(Path.fullPath($"tests/cases/{d}"), at: copy, to: ref files)
+        for f in files {
+            let from = Path.fullPath($"tests/cases/{d}/{f[copy.length + 1..f.length]}")
+            let bytes = Io.readFile(from) catch List<u8>()
+            Io.createDirectory(Path.directoryName(f) ?? copy) catch {}
+            Io.writeFile(f, bytes.span) catch {}
+        }
+        paths.append(Path.combine(copy, "main.byn"))
+    }
+    // Q661's reproducer (`BareReturnInTestCatchMatchesCSharp`): a bare `return` in a test's `catch` block, with tests, exits 0 with no stderr
+    let q661 = Path.combine(cliRoot, "q661")
+    goldenWrite(
+        q661,
+        for: "a.test.byn",
+        as: "public union error E {\n    bad\n}\n\ni64 f() fails E => 1\n\ntest \"t\" {\n    let _ = f() catch { return }\n}\n",
+    )
+    for path in paths {
+        break if problem != ""
+        var args = List<string>()
+        args.append("--spans")
+        args.append(path)
+        let o = goldenChild(
+            check,
+            by: in args,
+            at: Path.directoryName(path) ?? cliRoot,
+            from: in List<u8>(),
+            through: ref failure,
+            whole: true,
+        )
+        cli += 1
+        if failure != ""
+                || (o.exitCode != 0 && o.exitCode != 1)
+                || o.stderr.contains("panic:")
+                || o.stdout.contains("span out of range:") {
+            problem = $"L023 counterexample: cli: bayan-check --spans {path}: exit {o.exitCode} {failure}\n{o.stderr}"
+        }
+    }
+    if problem == "" {
+        var args = List<string>()
+        for a in ["--golden", "--tests", "--spans", "--package", q661, Path.combine(q661, "a.test.byn")] {
+            args.append(a)
+        }
+        let o = goldenChild(check, by: in args, at: q661, from: in List<u8>(), through: ref failure, whole: true)
+        if failure != "" || o.exitCode != 0 || o.stderr != "" || o.stdout.contains("span out of range:") {
+            problem = $"L023 counterexample: q661: exit {o.exitCode} {failure}\n{o.stderr}"
+        }
+    }
+    print(
+        $"L023: golden {flat.length} flat + {dirs.length} directory cases, seeds {seeds.length}, random {size}, cli {cli} paths, {(Io.monotonicNanos() - start) / 1000000} ms",
+    )
+    print(problem) if problem != ""
+    assert(problem == "")
+    deleteWorkDir(root)
+}
