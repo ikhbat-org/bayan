@@ -1,0 +1,34 @@
+/// Whether `name` is in `names`.
+bool has(List<string> names, for string name) {
+    for n in names {
+        return true if n == name
+    }
+    return false
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var roster = List<string>()
+    var day: i64 = 0
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        day += 1
+        let before = roster
+        for name in text.parts(by: " ") {
+            continue if name.isEmpty || has(roster, for: name)
+            roster.append(name)
+        }
+        var fresh = ""
+        for name in roster {
+            continue if has(before, for: name)
+            fresh = fresh.isEmpty ? name : $"{fresh} {name}"
+        }
+        fresh = "none" if fresh.isEmpty
+        print($"day {day}: new {fresh}; {roster.length} on the roster")
+    }
+}
