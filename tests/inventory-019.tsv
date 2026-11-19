@@ -194,7 +194,7 @@ SelfhostSemanticsT7Tests	src/tests/SelfhostSemanticsT7Tests.cs	selfhost-semantic
 SelfhostSemanticsT8Tests	src/tests/SelfhostSemanticsT8Tests.cs	selfhost-semantics	6	sem	sem	sections printed by the built program compared with C# lines	
 SelfhostSemanticsT9Tests	src/tests/SelfhostSemanticsT9Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines	
 SelfhostSemanticsTests	src/tests/SelfhostSemanticsTests.cs	selfhost-semantics	36	sem	sem	sections printed by the built program compared with C# lines	owned by T13b
-SelfhostSnapshotTests	src/tests/SelfhostSnapshotTests.cs	selfhost-snapshot	10	emit-c	emit-c	tests the C# harness's BAYAN_SNAPSHOT recording (nested dotnet test, RunRecorded, RecordBuild, SnapshotSkip); no compiler output to export
+SelfhostSnapshotTests	src/tests/SelfhostSnapshotTests.cs	selfhost-snapshot	10	no counterpart		tests the C# harness's BAYAN_SNAPSHOT recording (nested dotnet test, RunRecorded, RecordBuild, SnapshotSkip); no compiler output to export
 SelfhostStdImportTests	src/tests/SelfhostStdImportTests.cs	selfhost-std	17	sem + shell	tests/cases/sem/SelfhostStdImportTests + scripts/ci/std-naming-lints.test.sh	16 sem cases; StdIsNotCheckedByTheNamingLints is in scripts/ci/std-naming-lints.test.sh	owned by T13c
 SelfhostStdSourceTests	src/tests/SelfhostStdSourceTests.cs	selfhost-std	2	shell	shell	lib/std source equals generated file: freshness check; ported 2 of 2: scripts/ci/std-source.test.sh with scripts/selfhost/gen-stdsource.sh	
 SipHashTests	csharp/tests/Bayan.Tests/SipHashTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime hash vectors	
@@ -217,7 +217,7 @@ TargetTests	csharp/tests/Bayan.Tests/TargetTests.cs	cli	8	cli	tests/parity	Targe
 TempSweepTests	csharp/tests/Bayan.Tests/TempSweepTests.cs	infrastructure	1	dropped		harness-only: temp sweep of the xUnit run	
 TestDirsTests	csharp/tests/Bayan.Tests/TestDirsTests.cs	infrastructure	2	dropped		harness-only: scratch directories go with the harness	
 TestTimeTests	csharp/tests/Bayan.Tests/TestTimeTests.cs	infrastructure	9	dropped		harness-only: timeout scaling goes with the harness (R17 sets the new one)	
-ToolchainSanitizerTests	csharp/tests/Bayan.Tests/ToolchainSanitizerTests.cs	runtime-c	5	run	run	sanitizer probe and failed-start message	
+ToolchainSanitizerTests	csharp/tests/Bayan.Tests/ToolchainSanitizerTests.cs	runtime-c	5	no counterpart		sanitizer probe and failed-start message; the self-hosted driver has no sanitizer build (src/driver/cache.byn); owner 2026-11-19: no counterpart	
 TypedDumpTests	csharp/tests/Bayan.Tests/TypedDumpTests.cs	golden-folder	401	golden	tests/cases/typed	folder runner reads the same files	no export: typed rows
 UnionValueTests	csharp/tests/Bayan.Tests/UnionValueTests.cs	csharp-internals	1	run	run/union-value-tags	declared union tag values by program output; ported 1 of 1: tests/cases/run/union-value-tags, whose stdout pins the arm dispatch, not the tag values; the emitted tags (200, 404, 405, -1, 0) are pinned only by the run/union-value-tags.byn line of tests/cases/emit/run-c.sha256, added in 192fe64dd, whose message does not say it came from the C# emitter (origin not shown, open)	
 UnobservableBindingTests	csharp/tests/Bayan.Tests/UnobservableBindingTests.cs	cli	4	cli	src/driver/quality.byn test blocks "unobservable: ..."	unobservable marks reach the report; ported 4 of 4: src/driver/quality.byn blocks "unobservable: ..." (4)	
