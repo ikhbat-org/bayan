@@ -13,18 +13,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # One job per OS and part (spec 019 T30, R17: no CI job passes 45 minutes): `part` is golden shard i of `shards`
+  # (scripts/test.sh --only golden --shard i/N) or `other`, every other part and the checks that need no shard. N from T30's
+  # figures (golden 13,375 s on ubuntu-latest, 9,702 s on windows-latest; macos-latest unmeasured, as Linux) and a driver build
+  # of about 5 minutes: 13,375 / 12 x 1.15 + 300 s = 26 min, 9,702 / 9 x 1.15 + 360 s = 27 min. Windows' 9 is also in the
+  # windows-known-failures job below.
   build:
+    name: ${{ matrix.rid }} ${{ matrix.part == 'other' && 'other parts' || format('golden {0}/{1}', matrix.part, matrix.shards) }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        part: [other, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        exclude:
+          - { os: windows-latest, part: 10 }
+          - { os: windows-latest, part: 11 }
+          - { os: windows-latest, part: 12 }
         include:
           - os: ubuntu-latest
             rid: linux-x64
+            shards: 12
           - os: macos-latest
             rid: osx-arm64
+            shards: 12
           - os: windows-latest
             rid: win-x64
+            shards: 9
     runs-on: ${{ matrix.os }}
+    # About twice the estimate: a golden shard 26-27 min, the other parts 27 min on Linux (bayan 464 s, parity 122 s, scripts
+    # 366 s, runtime 7 s, the build and the bootstrap check), about 15 on Windows (bayan only).
+    timeout-minutes: ${{ matrix.os == 'windows-latest' && matrix.part == 'other' && 30 || 55 }}
     # Ported tools and SourcesAreFormatted run on the pinned bayan; a CI checkout has no local `dev`, so pin the commit under test.
     env:
       PINNED_BAYAN_REF: HEAD
@@ -40,13 +58,13 @@ jobs:
       # The freeze manifest matches the tree (spec 019 R13, T20). The checkout has no tags, so the tag row is a note. The
       # golden-commit check (R14) needs the pushed range, deeper than this depth-2 fetch; it runs from scripts/ci/pre-push.sh.
       - name: Freeze check
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && matrix.part == 'other'
         shell: bash
         run: bash scripts/ci/freeze-check.sh HEAD
       # The API indexes and the printer boundary hold in src/, and runtime/libc-uses.txt lists what the runtime calls
       # (spec 019 T30d, the C# scan tests as scripts).
       - name: Source and doc scans
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && matrix.part == 'other'
         shell: bash
         run: bash scripts/ci/api-index-check.sh && bash scripts/ci/printer-boundary-check.sh && bash scripts/ci/libc-inventory-check.sh
       # The tests cross-compile and `bayan doctor` expects zig; no runner image has it. Windows has no cc, so zig builds stage 0.
@@ -62,7 +80,7 @@ jobs:
       # bootstrap/ is fresh and the previous commit's bootstrap still builds src/driver (spec 019 R26, R36). Windows has no
       # cc for pinned-bayan.sh (T41b).
       - name: Bootstrap check
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && matrix.part == 'other'
         shell: bash
         run: bash scripts/ci/bootstrap-check.sh
       # macos-latest hit the same 600 s zig cc timeout on src/semantics as Windows below (ci run 43583631792,
@@ -72,9 +90,14 @@ jobs:
       # macos-latest (ci run 44238254448, 2026-11-18).
       - name: Test
         if: runner.os != 'Windows'
-        env: { BAYAN_CC_TIMEOUT_S: 1800, BAYAN_TEST_TIMEOUT_MS: 300000 }
-        run: bash scripts/test.sh
-      # Windows has known failures until 019 T41b empties tests/windows-known-failures.txt; the next step decides the job.
+        shell: bash
+        env:
+          BAYAN_CC_TIMEOUT_S: 1800
+          BAYAN_TEST_TIMEOUT_MS: 300000
+          TEST_ARGS: ${{ matrix.part == 'other' && '--skip golden' || format('--only golden --shard {0}/{1}', matrix.part, matrix.shards) }}
+        run: bash scripts/test.sh $TEST_ARGS
+      # Windows has known failures until 019 T41b empties tests/windows-known-failures.txt; the windows-known-failures job
+      # decides over every Windows job's report.
       - name: Test (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true
@@ -86,20 +109,54 @@ jobs:
           # out/dist timed out at the 60 s default on windows-latest (ci run 44266558766) after passing in 44263151004. The
           # zig cache is shared by scripts/test.sh; per-case caches put the style test over 300 s (ci run 44276585184).
           BAYAN_TEST_TIMEOUT_MS: 300000
-        run: bash scripts/test.sh | tee test-report.txt
-      - name: Check known failures (Windows)
-        if: runner.os == 'Windows'
-        shell: bash
-        # The hosted Windows image names its Python `python`; `python3` is not guaranteed there.
-        run: python -I scripts/ci/known-failures.py tests/windows-known-failures.txt test-report.txt
-      # scripts/test.sh keeps tmp/test.*/ (one log per part) only when a part fails.
+          TEST_ARGS: ${{ matrix.part == 'other' && '--skip golden' || format('--only golden --shard {0}/{1}', matrix.part, matrix.shards) }}
+        run: bash scripts/test.sh $TEST_ARGS | tee test-report-${{ matrix.part }}.txt
+      # scripts/test.sh keeps tmp/test.*/ (one log per part) only when a part fails. On Windows the artifact also holds the
+      # report, which the windows-known-failures job reads with the logs it names (tmp/test.*/<part>.log under the artifact root).
       - name: Upload test logs
         if: failure() || runner.os == 'Windows'
         uses: actions/upload-artifact@v7
         with:
-          name: test-logs-${{ matrix.rid }}
-          path: tmp/test.*/
+          name: test-logs-${{ matrix.rid }}-${{ matrix.part }}
+          path: |
+            tmp/test.*/
+            test-report-*.txt
           if-no-files-found: ignore
       - name: Smoke test stage 1 binary
         shell: bash
         run: '"$BAYAN_EXE" --version'
+
+  # tests/windows-known-failures.txt against the reports of every Windows job at once (spec 019 T30), so "new failure" and "now
+  # passes" mean what they meant for the one job's report before the shards. A Windows job with no report fails this job, named.
+  # `needs: build` waits for the whole matrix: a job cannot need part of one.
+  windows-known-failures:
+    needs: build
+    if: always()
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        shell: bash
+        run: |
+          git init -q .
+          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q --detach FETCH_HEAD
+      # Into the checkout: each job's test-report-<part>.txt and tmp/test.*/, where known-failures.py looks for the logs a
+      # report names. A missing artifact is reported by the next step.
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          pattern: test-logs-win-x64-*
+          merge-multiple: true
+      - name: Check known failures (Windows)
+        shell: bash
+        # The hosted Windows image names its Python `python`; `python3` is not guaranteed there. The parts are the build
+        # matrix's for windows-latest: other and golden shards 1 to 9.
+        run: |
+          missing=""; : > test-report.txt
+          for p in other 1 2 3 4 5 6 7 8 9; do
+            if [ -f "test-report-$p.txt" ]; then cat "test-report-$p.txt" >> test-report.txt; else missing="$missing $p"; fi
+          done
+          rc=0; python -I scripts/ci/known-failures.py tests/windows-known-failures.txt test-report.txt || rc=$?
+          if [ -n "$missing" ]; then echo "known-failures: no report from the win-x64 job(s):$missing"; exit 1; fi
+          exit $rc

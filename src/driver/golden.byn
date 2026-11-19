@@ -944,6 +944,22 @@ i32 goldenTest(
         Io.stderr.write($"bayan: no case name contains {t5Join(in quoted)}\n")
         return exitUsage
     }
+    let shard = Env.get("BAYAN_TEST_SHARD") ?? ""
+    var index: i64 = 0
+    var count: i64 = 1
+    if (goldenShard(shard, to: ref index, by: ref count) is { } refused) {
+        Io.stderr.write(refused)
+        return exitUsage
+    }
+    if count > 1 {
+        var kept = List<GoldenCase>()
+        for i in 0..cases.length {
+            if i % count == index {
+                kept.append(GoldenCase { kind: cases[i].kind, name: cases[i].name, input: cases[i].input })
+            }
+        }
+        cases = move kept
+    }
     let snap = snapshot ?? Env.get("BAYAN_SNAPSHOT") ?? ""
     if snap != "" {
         for f in ["manifest.json", "runs.jsonl"] {
@@ -956,7 +972,9 @@ i32 goldenTest(
         Io.stdout.write(goldenExeReport(exe))
     }
     unless quiet {
-        print($"running {cases.length} {cases.length == 1 ? "case" : "cases"} of {root}")
+        print(
+            $"running {cases.length} {cases.length == 1 ? "case" : "cases"} of {root}{shard == "" ? "" : $" (shard {shard})"}",
+        )
     }
     var mine = List<GoldenResult>()
     // Workers need a driver that starts (T2c); without one the cases run here, each failing with the T2c text as under `--jobs 1`.
@@ -999,6 +1017,22 @@ i32 goldenTest(
         )
     }
     return failed || exit != 0 ? exitTestFailure : exitOk
+}
+
+/// `$BAYAN_TEST_SHARD` (spec 019 T30, R17: one CI job per shard): `i/n`, whole numbers with 1 <= i <= n <= 64, sets `index` to i - 1 and
+/// `count` to n, and `goldenTest` keeps the cases whose position in its case order (after `--only`) is `index` modulo `count`; empty leaves
+/// both. Null, or the refusal text for any other form.
+string? goldenShard(string value, to ref i64 index, by ref i64 count) uses alloc {
+    return null if value == ""
+    let refused = $"bayan: BAYAN_TEST_SHARD expects i/n, whole numbers with 1 <= i <= n <= 64, got `{value}`\n"
+    let slash = goldenOffset(value, for: "/")
+    return refused if slash < 0
+    let i = t9Digits(value[0..slash], until: 64) ?? 0
+    let n = t9Digits(value[slash + 1..value.length], until: 64) ?? 0
+    return refused if i < 1 || n < 1 || i > n
+    index = i - 1
+    count = n
+    return null
 }
 
 /// The workers of a run asked for `jobs`: one under `BAYAN_SNAPSHOT` (`snap` set; Decision 2026-11-19 on T48c), so one process at a time
@@ -2631,6 +2665,93 @@ test "--jobs 1 and --jobs 4 print the same report in case order, times masked, a
     assert(names[0] == "lex/bad-chars" && names[1] == "lex/bad-interpolation" && names[2] == "run/a-passes")
     assert(names[3] == "run/b-fails" && names[4] == "run/c-passes")
     assert(results[3].status == "failed" && results[4].status == "passed")
+}
+
+/// `bayan test root --jobs <jobs>` through `$BAYAN_EXE` with `$BAYAN_TEST_SHARD` set to `shard` (unset when null): its exit code, its stdout
+/// with the seconds masked (`goldenTestSeconds`) and its stderr.
+GoldenOutcome goldenShardRun(string root, as string jobs, by string? shard) uses alloc, env, fs, process {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    var args = List<string>()
+    for a in ["test", root, "--jobs", jobs] {
+        args.append(a)
+    }
+    var env = goldenEnv()
+    env["BAYAN_TEST_SHARD"] = shard
+    let r = Io.run(exe, args.span, env: env) catch return GoldenOutcome { stdout: failure, exitCode: -1 }
+    return GoldenOutcome { stdout: goldenTestSeconds(goldenLf(r.stdout)), stderr: r.stderr, exitCode: r.exitCode }
+}
+
+/// The case lines of a golden report, `<status> <kind>/<case>` (`goldenPrint`), in report order.
+List<string> goldenCaseLines(string report) uses alloc {
+    var lines = List<string>()
+    for line in goldenLines(report) {
+        for status in ["passed ", "failed ", "skipped ", "timed out "] {
+            if line.startsWith(status) {
+                lines.append(line)
+            }
+        }
+    }
+    return lines
+}
+
+// spec 019 T30: the shards of a run are disjoint and together hold every selected case
+test "BAYAN_TEST_SHARD 1/3, 2/3 and 3/3 report each case of the unsharded run once, and the header names the shard" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-shard")
+    goldenJobsFixture(root)
+    let whole = goldenShardRun(root, as: "4", by: null)
+    let empty = goldenShardRun(root, as: "4", by: "")
+    var shards = List<GoldenOutcome>()
+    for i in 1..4 {
+        shards.append(goldenShardRun(root, as: "4", by: $"{i}/3"))
+    }
+    deleteWorkDir(root)
+    let all = goldenCaseLines(whole.stdout)
+    assert(all.length == 5 && whole.exitCode == exitTestFailure && empty.stdout == whole.stdout)
+    var seen = List<string>()
+    for i in 0..3 {
+        assert(shards[i].stdout.contains($" of {root} (shard {i + 1}/3)\n"))
+        for line in goldenCaseLines(shards[i].stdout) {
+            seen.append(line)
+        }
+    }
+    assert(seen.length == all.length)
+    for line in all {
+        var times = 0
+        for s in seen {
+            if s == line {
+                times += 1
+            }
+        }
+        assert(times == 1)
+    }
+    assert(shards[0].stdout.contains("running 2 cases of ") && shards[2].stdout.contains("running 1 case of "))
+    assert(shards[0].exitCode == exitTestFailure && shards[1].exitCode == exitOk && shards[2].exitCode == exitOk)
+}
+
+test "a BAYAN_TEST_SHARD that is not i/n with 1 <= i <= n <= 64 is refused with exit 2, naming the variable" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-shard-bad")
+    goldenJobsFixture(root)
+    var outcomes = List<GoldenOutcome>()
+    for value in ["0/4", "5/4", "a/b", "3", "/4", "4/", "1/65", "1/3/3", "-1/3"] {
+        outcomes.append(goldenShardRun(root, as: "1", by: value))
+    }
+    deleteWorkDir(root)
+    for o in outcomes {
+        assert(o.exitCode == exitUsage && !o.stdout.contains("running "))
+        assert(o.stderr.contains("BAYAN_TEST_SHARD expects i/n, whole numbers with 1 <= i <= n <= 64, got `"))
+    }
+}
+
+test "--jobs 1 and --jobs 4 print the same report under BAYAN_TEST_SHARD 1/3" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-shard-jobs")
+    goldenJobsFixture(root)
+    let one = goldenShardRun(root, as: "1", by: "1/3")
+    let four = goldenShardRun(root, as: "4", by: "1/3")
+    deleteWorkDir(root)
+    assert(one.exitCode == exitTestFailure && four.exitCode == one.exitCode && four.stdout == one.stdout)
+    let lines = goldenCaseLines(one.stdout)
+    assert(lines.length == 2 && lines[0] == "passed lex/bad-chars" && lines[1] == "failed run/b-fails")
 }
 
 test "a worker resumes at its next-<k> index and stops after a batch with more of its cases left" {

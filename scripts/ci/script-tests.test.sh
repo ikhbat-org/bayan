@@ -7,7 +7,8 @@ s="$root/scripts/ci/script-tests.sh"
 fail() { echo "FAIL $1"; exit 1; }
 while IFS= read -r f; do [ -f "$root/$f" ] || fail "script-tests.sh lists a missing file: $f"; done < <(bash "$s" list)
 ci="$root/.github/workflows/ci.yml"
-grep -qx '        run: bash scripts/test.sh' "$ci" || fail "ci.yml's Test step does not run scripts/test.sh"
+grep -qx '        run: bash scripts/test.sh \$TEST_ARGS' "$ci" || fail "ci.yml's Test step does not run scripts/test.sh"
+grep -q "TEST_ARGS: \${{ matrix.part == 'other' && '--skip golden' || " "$ci" || fail "ci.yml's other-parts job does not run the parts but golden"
 ! grep -n 'script-tests.sh' "$ci" || fail "ci.yml runs script-tests.sh beside scripts/test.sh, so the script tests run twice"
 grep -q 'scripts/ci/script-tests.sh \$groups' "$root/scripts/test.sh" || fail "scripts/test.sh does not run script-tests.sh"
 grep -qx 'groups="unix"; \[ \$os = linux \] && groups="unix docs"' "$root/scripts/test.sh" || fail "scripts/test.sh does not run the docs group on Linux"
