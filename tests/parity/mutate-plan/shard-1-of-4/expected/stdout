@@ -1,3 +1,3 @@
-src/lexer/lexer.byn -> FullyQualifiedName~SelfhostLexer
-src/parser/p.byn -> FullyQualifiedName~SelfhostParser
-src/semantics/a.byn -> FullyQualifiedName~SelfhostSemanticsATests
+src/lexer/lexer.byn -> lex/SelfhostLexer
+src/parser/p.byn -> parse/SelfhostParser
+src/semantics/a.byn -> sem/SelfhostSemanticsATests/

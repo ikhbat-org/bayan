@@ -1,7 +1,9 @@
 #!/usr/bin/env bayan
 // The plan of one mutate-batch run (spec 015 T13): which src/**/*.byn files are mutated, in which group, with which test
 // filter. Port of the inline Python block of scripts/selfhost/mutate-batch.sh. Prints one `group<TAB>file<TAB>filter`
-// line per file, in file order, after --files and --shard; a plan error prints `mutate-batch: <reason>` on stderr and
+// line per file, in file order, after --files and --shard; a filter is `|`-joined `bayan test tests/cases --only` selectors
+// (`<kind>/<Class>/`, a family default `<kind>/<Family>`; spec 019 T48c), or `bayan test --mutate src/driver` for the driver
+// family (T48c decision C4: it has no golden program to record); a plan error prints `mutate-batch: <reason>` on stderr and
 // exits 1. Divergences from the Python: a task line's status mark must be one byte (`[x]`, `[ ]`), and a line break is
 // `\n`, `\r\n` or `\r` only (not the other Unicode ones `str.splitlines` knows).
 // Usage: bash scripts/bayan-tool.sh mutate-plan <files a.byn,b.byn or ""> <shard k/n or ""> <tasks.md>...
@@ -35,9 +37,17 @@ string? family(string dir) {
     return null
 }
 
-/// Whether test class `c` belongs to family `fam`: starts with its name (the driver also keeps `SelfhostDefault*`).
+/// Whether test class `c` belongs to family `fam`: starts with its name.
 bool kept(string c, for string fam) {
-    return c.startsWith(fam) || (fam == "SelfhostDriver" && c.startsWith("SelfhostDefault"))
+    return c.startsWith(fam)
+}
+
+/// The tests/cases kind holding the exported cases of family `fam` (tests/cases/EXPORT.tsv).
+string kind(string fam) {
+    if fam == "SelfhostEmitter" { return "emit-c" }
+    if fam == "SelfhostSemantics" { return "sem" }
+    if fam == "SelfhostParser" { return "parse" }
+    return "lex"
 }
 
 /// `re.findall(r'`([^`]+)`', text)`.
@@ -168,6 +178,10 @@ string plan(string only, for string shard, from List<string> tasks) uses fs, all
         if fam.isEmpty {
             fail .failed(message: $"{f}: the directory {dir}/ has no test family (src/semantics, parser, lexer, emitter, driver)")
         }
+        if fam == "SelfhostDriver" {
+            rows.append(Row { file: $"{f}", filter: "bayan test --mutate src/driver" })
+            continue
+        }
         var cls = List<string>()
         for e in entries {
             var hit = false
@@ -179,9 +193,9 @@ string plan(string only, for string shard, from List<string> tasks) uses fs, all
                 if kept(c, for: fam) { cls.append(c) }
             }
         }
-        if cls.length == 0 { cls.append(fam) }
         var parts = List<string>()
-        for c in sortedSet(cls) { parts.append($"FullyQualifiedName~{c}") }
+        if cls.length == 0 { parts.append($"{kind(fam)}/{fam}") }
+        for c in sortedSet(cls) { parts.append($"{kind(fam)}/{c}/") }
         rows.append(Row { file: $"{f}", filter: join(parts) })
     }
     var famDirs = List<string>()
