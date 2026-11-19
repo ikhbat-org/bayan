@@ -339,7 +339,8 @@ string goldenWindowsRead(string actual, for string expected, as string cls, by b
     var slashed = goldenCliSlashedAfter(goldenLf(actual), at: "files in `", by: help)
     slashed = goldenCliSlashedAfter(slashed, at: "created script `", by: script)
     slashed = goldenCliSlashedAfter(slashed, at: "run it with `bayan ", by: script)
-    let exe = (cls is "cli/SelfhostDefaultT9Tests" or "cli/SelfhostDriverT5Tests") && goldenOffset(expected, for: ".exe") < 0
+    let exe = (cls is "cli/SelfhostDefaultT9Tests" or "cli/SelfhostDriverT5Tests")
+        && goldenOffset(expected, for: ".exe") < 0
     var sb = StrBuf()
     var first = true
     for line in slashed.parts(by: "\n") {
@@ -817,8 +818,9 @@ i64 goldenLimitMs(i64 deadline) uses clock {
 /// for the two SelfhostDefaultT12Tests `dist` cases that cross-build with zig (`--target all`, `--target linux-arm64`), which ran past 60 s on
 /// the Windows runner (019-win8); the C# waited on them with no limit of its own (SelfhostDefaultT12Tests.cs:45 `WaitForExit()`).
 i64 goldenCaseLimitMs(string name, for i64 limitMs) {
-    let long = name is "cli/SelfhostDefaultT12Tests/ABadTargetIsRefused-2" or "cli/SelfhostDefaultT12Tests/ATargetIsBuilt-2"
-    return long && limitMs < 600000 ? 600000 : limitMs
+    let slow = name is "cli/SelfhostDefaultT12Tests/ABadTargetIsRefused-2"
+        or "cli/SelfhostDefaultT12Tests/ATargetIsBuilt-2"
+    return slow && limitMs < 600000 ? 600000 : limitMs
 }
 
 /// `ms` as `N s` when it is whole seconds, else `N ms`.
@@ -2192,6 +2194,13 @@ string goldenListing(string root) uses alloc, console, fs {
         text = $"{text}{c.kind}/{c.name}\n"
     }
     return text
+}
+
+test "the two T12 dist cases that cross-build with zig get the 10 minutes of one compile, any other case the limit as given" {
+    assert(goldenCaseLimitMs("cli/SelfhostDefaultT12Tests/ATargetIsBuilt-2", for: 60000) == 600000)
+    assert(goldenCaseLimitMs("cli/SelfhostDefaultT12Tests/ABadTargetIsRefused-2", for: 60000) == 600000)
+    assert(goldenCaseLimitMs("cli/SelfhostDefaultT12Tests/ATargetIsBuilt", for: 60000) == 60000)
+    assert(goldenCaseLimitMs("cli/SelfhostDefaultT12Tests/ATargetIsBuilt-2", for: 900000) == 900000)
 }
 
 test "discovery finds each kind and ignores what is not a case" {
