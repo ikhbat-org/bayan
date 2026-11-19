@@ -1,0 +1,26 @@
+/// Where shoe cubby `cubby` is: rack, then shelf.
+string placeOf(u8 cubby) => $"rack {cubby / 16 + 1}, shelf {cubby % 16 + 1}"
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            fields.append(part)
+        }
+        continue if fields.length != 2
+        let number = i64.tryParse(fields[1]) ?? -1
+        let cubby = u8.tryFrom(number)
+        if cubby is null {
+            print($"{fields[0]}: no such cubby")
+            continue
+        }
+        print($"{fields[0]}: {placeOf(cubby)}")
+    }
+}
