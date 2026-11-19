@@ -94,6 +94,12 @@ string? goldenCliSkip(string kind, at string input) uses alloc, fs {
         return $"skipped: no `args` file in {input}"
     }
     return null if kind != "cli" && !goldenExported(kind, at: input)
+    if kind == "cli" {
+        let dir = Path.directoryName(input) ?? ""
+        let cases = Path.directoryName(Path.directoryName(Path.directoryName(dir) ?? "") ?? "") ?? ""
+        let skip = goldenCliRunInputSkip(dir, from: cases, for: Target.os)
+        return skip if skip is not null
+    }
     let os = Path.combine(kind == "cli" ? Path.directoryName(input) ?? "" : input, "os")
     return null unless Fs.fileExists(os)
     let line = goldenLines(goldenLf(Io.readText(os) catch ""))[0]
@@ -101,6 +107,24 @@ string? goldenCliSkip(string kind, at string input) uses alloc, fs {
         return null if $"{word.trimmed()}" == Target.os
     }
     return $"skipped: its `os` file names {line.trimmed()}, not {Target.os}"
+}
+
+/// SelfhostDriverT5Tests.cs:77-78 `RunInputs`: the skip text of the RunAsCliAppOnEveryRunInput case `dir` on `os` (as `Target.os` names it)
+/// when the `.byn` its input.tsv points to below `cases`/inputs/files has the `// os:` line of another OS among its first two lines
+/// (`// os: unix` on windows, `// os: windows` elsewhere, as `goldenOsSkip`); null for any other case.
+string? goldenCliRunInputSkip(string dir, from string cases, for string os) uses alloc, fs {
+    return null unless Path.fileName(dir).startsWith("RunAsCliAppOnEveryRunInput")
+    let other = os == "windows" ? "// os: unix" : "// os: windows"
+    for line in goldenCliLines(Path.combine(dir, "input.tsv")) {
+        let tab = goldenOffset(line, for: "\tfile:")
+        continue if tab < 0 || !line[0..tab].endsWith(".byn")
+        let file = Path.combine(Path.combine(Path.combine(cases, "inputs"), "files"), line[tab + 6..line.length])
+        let lines = goldenLines(goldenLf(Io.readText(file) catch ""))
+        for i in 0..(lines.length < 2 ? lines.length : 2) {
+            return $"skipped: its input {line[0..tab]} has `{other}`, which the C# skips on {os}" if lines[i] == other
+        }
+    }
+    return null
 }
 
 /// The expected files of the `cli` case whose `args` is `input`, those update mode may rewrite.
@@ -683,7 +707,7 @@ string goldenCliT9Entry(string root, for string kind) uses alloc, fs {
 /// The seed (`step` 0) and `Before` action of step `step` of SelfhostDefaultT9Tests' test `method` (`name` its `Same` name), on the tree `root`
 /// with its PATH directories below `repo`, as :931-1294 write them; what only the C# side asserts on (the pointer rewritten at
 /// script-oldpointer steps 2-3) is left out. What failed, else "".
-string goldenCliT9Before(string method, as string name, at i64 step, to string root, from string repo)
+string goldenCliT9Before(string method, as string name, at i64 step, to string root, from string repo, for string host)
         uses alloc, env, fs, process {
     let v1 = Path.combine(Path.combine(root, "cache"), "v1")
     let bin = Path.combine(Path.combine(Path.combine(repo, "tmp"), "t9-cache"), $"{name}-bin")
@@ -696,7 +720,7 @@ string goldenCliT9Before(string method, as string name, at i64 step, to string r
     let runtime = goldenCliT9Entry(root, for: "runtime")
     if method == "ASecondBuildLinksFromTheCache" && step == 4 {
         return "no single programs entry" if programs == ""
-        let program = Path.combine(programs, "program")
+        let program = Path.combine(programs, targetExecutableName("program", for: host))
         Io.writeFile(program, three.span) catch return $"cannot write {program}"
     } else if method == "ABuildThatCannotPublishFails" && step == 0 {
         Io.createDirectory(v1) catch return $"cannot create {v1}"
@@ -747,16 +771,17 @@ string goldenCliT9Replay(string dir, from string cases, by string exe, at string
     let steps = goldenCliT9Steps(dir)
     let first = steps.length > 0 ? Path.fileName(steps[0]) : name
     let same = first[dash + 1..first.length]
+    let host = targetHost() ?? ""
     var failure = goldenCliT9Bins(dir, at: repo)
     return failure if failure != ""
     for k in 0..steps.length {
         let _ = goldenCliStage(steps[k], from: cases, to: scratch, through: ref failure)
         return failure if failure != ""
         if k == 0 {
-            failure = goldenCliT9Before(method, as: same, at: 0, to: scratch, from: repo)
+            failure = goldenCliT9Before(method, as: same, at: 0, to: scratch, from: repo, for: host)
             return failure if failure != ""
         }
-        failure = goldenCliT9Before(method, as: same, at: k + 1, to: scratch, from: repo)
+        failure = goldenCliT9Before(method, as: same, at: k + 1, to: scratch, from: repo, for: host)
         return failure if failure != ""
         var args = List<string>()
         for line in goldenArgLines(Path.combine(steps[k], "args")) {
@@ -778,10 +803,10 @@ string goldenCliT9Replay(string dir, from string cases, by string exe, at string
     let _ = goldenCliStage(dir, from: cases, to: scratch, through: ref failure)
     return failure if failure != ""
     if steps.length == 0 {
-        failure = goldenCliT9Before(method, as: same, at: 0, to: scratch, from: repo)
+        failure = goldenCliT9Before(method, as: same, at: 0, to: scratch, from: repo, for: host)
         return failure if failure != ""
     }
-    return goldenCliT9Before(method, as: same, at: steps.length + 1, to: scratch, from: repo)
+    return goldenCliT9Before(method, as: same, at: steps.length + 1, to: scratch, from: repo, for: host)
 }
 
 /// Whether `c` is an ASCII digit.
@@ -2812,7 +2837,14 @@ test "T9 seeds and PATH directories: an unwritable cache, a read-only `programs`
     let tree = Path.combine(root, "tree")
     let repo = Path.combine(root, "repo")
     let _ = goldenFresh(tree)
-    let unwritable = goldenCliT9Before("AnUnwritableCache", as: "unwritable", at: 0, to: tree, from: repo)
+    let unwritable = goldenCliT9Before(
+        "AnUnwritableCache",
+        as: "unwritable",
+        at: 0,
+        to: tree,
+        from: repo,
+        for: "macos-arm64",
+    )
     let cache = Fs.fileExists(Path.combine(tree, "cache"))
     Io.remove(Path.combine(tree, "cache")) catch {}
     let publish = goldenCliT9Before(
@@ -2821,6 +2853,7 @@ test "T9 seeds and PATH directories: an unwritable cache, a read-only `programs`
         at: 0,
         to: tree,
         from: repo,
+        for: "macos-arm64",
     )
     let programs = Path.combine(tree, "cache/v1/programs")
     let locked = t6DirectoryExists(programs) && goldenCliRun(["test", "-w", programs]) != ""
@@ -3040,4 +3073,94 @@ test "an exported case whose `os` line does not name this OS is skipped naming i
         $"\nskipped cli/AlphaTests/Other\n    skipped: its `os` file names plan9 beos, not {Target.os}\n",
     ))
     assert(run.stdout.contains("◆ 0 passed · 1 pending · 0 test blocks, 1 golden case · Ts"))
+}
+
+test "a run-input cli case whose `.byn` starts `// os: unix` is skipped on windows, as RunInputs skips it (SelfhostDriverT5Tests.cs:77-78)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-run-input-os")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "inputs/files/unix", as: "// os: unix\nmodule app\n")
+    goldenWrite(root, for: "inputs/files/any", as: "module app\n")
+    goldenWrite(
+        root,
+        for: "cli/SelfhostDriverT5Tests/RunAsCliAppOnEveryRunInput-1/input.tsv",
+        as: "io-run.byn\tfile:unix\n",
+    )
+    goldenWrite(
+        root,
+        for: "cli/SelfhostDriverT5Tests/RunAsCliAppOnEveryRunInput-2/input.tsv",
+        as: "hello.byn\tfile:any\n",
+    )
+    goldenWrite(root, for: "cli/SelfhostDriverT5Tests/OutputNamesAsCliApp/input.tsv", as: "io-run.byn\tfile:unix\n")
+    let unix = Path.combine(root, "cli/SelfhostDriverT5Tests/RunAsCliAppOnEveryRunInput-1")
+    let windows = goldenCliRunInputSkip(unix, from: root, for: "windows")
+    let macos = goldenCliRunInputSkip(unix, from: root, for: "macos")
+    let any = goldenCliRunInputSkip(
+        Path.combine(root, "cli/SelfhostDriverT5Tests/RunAsCliAppOnEveryRunInput-2"),
+        from: root,
+        for: "windows",
+    )
+    let other = goldenCliRunInputSkip(
+        Path.combine(root, "cli/SelfhostDriverT5Tests/OutputNamesAsCliApp"),
+        from: root,
+        for: "windows",
+    )
+    deleteWorkDir(root)
+    assert(windows == "skipped: its input io-run.byn has `// os: unix`, which the C# skips on windows")
+    assert(macos is null && any is null && other is null)
+}
+
+test "a Windows run reads a `files in` help directory with `/` and a line-final `.exe` the expected file does not name, and only on windows" {
+    let help = "  help: put the module's `.byn` files in `app\\users/` next to the entry file\r\n"
+    let built = "  arithmetic.exe\r\n  out/safe/<host>/demo.exe\r\n"
+    assert(goldenWindowsRead(
+        help,
+        for: "",
+        by: true,
+    ) == "  help: put the module's `.byn` files in `app/users/` next to the entry file\n")
+    assert(goldenWindowsRead(built, for: "  arithmetic\n", by: true) == "  arithmetic\n  out/safe/<host>/demo\n")
+    let script = "created script `sub\\tool.byn`; run it with `bayan sub\\tool.byn`\r\n"
+    assert(goldenWindowsRead(
+        script,
+        for: "",
+        by: true,
+    ) == "created script `sub/tool.byn`; run it with `bayan sub/tool.byn`\n")
+    let path = "rel tmp/t7-path/helpers tmp/t7-path/helpers/src/app/main.byn src\\app\\main.byn\ncombine rel x.byn rel\\x.byn\nfull a\\b\n"
+    assert(goldenWindowsRead(
+        path,
+        for: "",
+        by: true,
+    ) == "rel tmp/t7-path/helpers tmp/t7-path/helpers/src/app/main.byn src/app/main.byn\ncombine rel x.byn rel/x.byn\nfull a\\b\n")
+    let full = "fullpath /a/./b/../c.byn C:\\a\\c.byn\n"
+    assert(goldenWindowsRead(full, for: "", by: true) == "fullpath /a/./b/../c.byn /a/c.byn\n")
+    assert(goldenWindowsRead(built, for: "  tally.exe\n", by: true) == "  arithmetic.exe\n  out/safe/<host>/demo.exe\n")
+    assert(goldenWindowsRead(built, for: "  arithmetic\n", by: false) == built)
+}
+
+test "the T9 step that spoils the cached program writes `program.exe` for a windows host, the name the build looks up (SelfhostDefaultT9Tests.cs:881)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-t9-program-exe")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "tree/cache/v1/programs/one/kept", as: "")
+    let tree = Path.combine(root, "tree")
+    let repo = Path.combine(root, "repo")
+    let windows = goldenCliT9Before(
+        "ASecondBuildLinksFromTheCache",
+        as: "hit",
+        at: 4,
+        to: tree,
+        from: repo,
+        for: "windows-x64",
+    )
+    let exe = Fs.fileExists(Path.combine(tree, "cache/v1/programs/one/program.exe"))
+    let macos = goldenCliT9Before(
+        "ASecondBuildLinksFromTheCache",
+        as: "hit",
+        at: 4,
+        to: tree,
+        from: repo,
+        for: "macos-arm64",
+    )
+    let bare = Fs.fileExists(Path.combine(tree, "cache/v1/programs/one/program"))
+    deleteWorkDir(root)
+    assert(windows == "" && exe)
+    assert(macos == "" && bare)
 }

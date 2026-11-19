@@ -446,6 +446,14 @@ string goldenProgramUnstaged(string text, from string staged, as string plain) u
     return text.replaced(staged.replaced("\\", by: "\\\\"), by: plain).replaced(staged, by: plain)
 }
 
+/// `goldenProgramArg` of `a`, with `\` for `/` when `windows` and `a` is a `<repo>` path of a `WithFileRebinds…` case `name`: the C# passed
+/// `Path.Combine` paths, `\`-separated on Windows (SelfhostDefaultP2Tests.cs:461, 475), and `withFile` (compile.byn:178) rebinds only the
+/// entry file whose path, `Path.GetFullPath`'s, is the step's as written.
+string goldenProgramNative(string a, at string scratch, for string name, by bool windows) uses alloc, fs {
+    let arg = goldenProgramArg(a, at: scratch)
+    return windows && name.startsWith("WithFileRebinds") && a.contains("<repo>") ? arg.replaced("/", by: "\\") : arg
+}
+
 /// Argument `a` of a case run in `scratch`, which stands for the repo: `<repo>` read as it, a rooted path (a temp directory of the C#) below
 /// it, and a path below the scratch directory (its first segment there, the rest existing or not) made absolute, as the C# passed it
 /// (`RunSections` exported each repo-relative, SelfhostSemanticsHarness.cs:417).
@@ -1005,7 +1013,7 @@ void goldenProgramGenSem(GoldenExportCase k, to ref List<string> failures) uses 
     var given = goldenArgLines(Path.combine(k.dir, "args"))
     var args = List<string>()
     for a in given {
-        args.append(goldenProgramArg(a, at: k.scratch))
+        args.append(goldenProgramNative(a, at: k.scratch, for: Path.fileName(k.dir), by: Target.os == "windows"))
     }
     var none = List<u8>()
     let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
@@ -2364,6 +2372,26 @@ test "a path argument below the scratch directory is made absolute though it doe
     assert(goldenProgramArg("x.byn", at: scratch) == "x.byn")
     assert(goldenProgramArg("<repo>/a/b", at: scratch) == $"{scratch}/a/b")
     deleteWorkDir(scratch)
+}
+
+test "a WithFileRebinds step path read from `<repo>` is passed `\\`-separated on windows, as the C# Path.Combine passed it (SelfhostDefaultP2Tests.cs:461)" {
+    let name = "WithFileRebindsAFileFromTextAsCSharpDoes-2"
+    let main = "<repo>/tests/cases/run/alias-field-default-import/main.byn"
+    let windows = goldenProgramNative(main, at: "C:\\s", for: name, by: true)
+    assert(windows == "C:\\s\\tests\\cases\\run\\alias-field-default-import\\main.byn")
+    assert(goldenProgramNative(
+        main,
+        at: "/s",
+        for: name,
+        by: false,
+    ) == "/s/tests/cases/run/alias-field-default-import/main.byn")
+    assert(goldenProgramNative(
+        main,
+        at: "C:\\s",
+        for: "AssertKind",
+        by: true,
+    ) == "C:\\s/tests/cases/run/alias-field-default-import/main.byn")
+    assert(goldenProgramNative("main broken", at: "C:\\s", for: name, by: true) == "main broken")
 }
 
 test "an emit-c T9 or T10 sections case checks the exit code only (SelfhostEmitterT10Tests.cs:561), T6 fails on stderr (EmitterT6:331)" {
