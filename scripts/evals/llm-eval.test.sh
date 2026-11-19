@@ -5,6 +5,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 only=${1:-}
+case "$only" in ''|L048|L049|L050) ;; *) echo "llm-eval.test: unknown law id '$only' (L048, L049, L050)" >&2; exit 2 ;; esac
 seed=evals/llm/tasks
 root=$PWD/tmp/llm-eval-test${only:+-$only}
 rm -rf "$root"; mkdir -p "$root/tasks" "$root/cand" "$root/out" "$root/rec"
@@ -163,8 +164,12 @@ fi
 
 if [ -n "$only" ]; then
   echo "llm-eval.test $only: $pass passed, $fail failed"
+  [ $((pass + fail)) -gt 0 ] || { echo "llm-eval.test $only: no case ran" >&2; exit 1; }
   [ "$fail" = 0 ]; exit
 fi
+
+# A mistyped law id in a check: line must not read as a holding law.
+check "unknown law id refused" "$(bash "$0" l048 >/dev/null 2>&1; echo $?)" 2
 
 # A tests task passes under the sandbox from an empty cache/ (R15): the sample directory is new, so its cache/ starts empty.
 r=seed-errors-001-prayer-time
