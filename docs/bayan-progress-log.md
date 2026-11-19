@@ -484,3 +484,4 @@ One entry per working session, added at the end of the session. Entries are kept
 ## 2026-11-19 (unattended 019 + 025)
 - 025: T38 (L050 proof) landed; 025 merged into dev as 1f7dfe6d0 (partial: T43, T44, T34, T36, T38; heldout tasks open); all 33 enacted laws hold. Unpushed.
 - 019: T19d, T19f, T19e landed on feat/019-dotnet-exit; T19y running at handoff. Handoff: docs/handoffs/2026-11-19-019-025-handoff.md.
+- Later 2026-11-19 (CPU-light session): dev review fixes merged and pushed by the owner (5b753d2c2); 019 T44a editor-gate half, T17c/T19f ticks, T31d part 2 drafts, spec-index and header fixes, and three review-fix writers (scripts, driver, LSP) landed on feat/019; llm-eval timing/pin fix on `fix/llm-eval-timing`, unmerged until one test run. Bootstrap regens and test runs deferred for CPU.
