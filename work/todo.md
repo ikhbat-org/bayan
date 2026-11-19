@@ -1132,5 +1132,4 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 win8, 2026-11-20; T41b): StyleEnvironment TheEnvironmentPaintsAsCliAppRun-5, -14 and -38. TerminalStyle.cs:65 takes code page 65001 on Windows where macOS reads LC_ALL; a Windows run must show the same glyph choice.
 - LOW (019 win8, 2026-11-20; T41b): StyleCase RendersAsCliAppRun-60, "cannot write" in the cache, file not found on Windows. A Windows run must show it passing.
 - LOW (019 win8, 2026-11-20; T41b): scripts/ci/inventory-check.sh fails at HEAD on the CoverageTests, MutantSchemataTests and OwnershipCheckerTests rows.
-- LOW (019 win8, 2026-11-20; T41b): the block `an exported case whose \`os\` line does not name this OS ...` (goldenexport.byn) fails under `bayan test --package src src/driver` on macOS at HEAD as well.
 - LOW (019 win8, 2026-11-20; T41b): on Windows `goldenWindowsRead`/`goldenWindowsUnrooted` (src/driver/golden.byn:324-358) rewrite `rel `, `combine ` and `fullpath ` lines of every case kind, not only the T7 and T11 cases, so they could hide a separator defect elsewhere; narrow them to the classes that need it.
