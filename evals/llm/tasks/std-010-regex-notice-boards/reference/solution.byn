@@ -1,0 +1,87 @@
+import std.regex
+
+/// A rule that compiled: the board it sends a notice to and the pattern it looks for.
+struct Rule {
+    string      board
+    regex.Regex pattern
+}
+
+/// A board and the number of notices sent to it.
+struct Board {
+    string name
+    i64    count
+}
+
+/// What `rule <n>:` reports for a pattern `Regex.parse` refused.
+string refusal(regex.RegexError error) {
+    return error switch {
+        .syntax(_, let offset)      => $"syntax at {offset}",
+        .unsupported(_, let offset) => $"unsupported at {offset}",
+        .tooLarge(let offset)       => $"too large at {offset}",
+    }
+}
+
+/// The index in `boards` of the board named `name`, adding it with a count of 0 when it is new.
+i64 boardIndex(ref List<Board> boards, for string name) {
+    for i in 0..boards.length {
+        return i if boards[i].name == name
+    }
+    boards.append(Board { name: name, count: 0 })
+    return boards.length - 1
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var rules = List<Rule>()
+    var boards = List<Board>()
+    var unsorted: i64 = 0
+    var inRules = true
+    var number = 0
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        if inRules {
+            if text == "---" {
+                inRules = false
+                continue
+            }
+            number += 1
+            let space = text.position(" ") ?? -1
+            if space < 0 {
+                print($"rule {number}: malformed")
+                continue
+            }
+            let pattern = regex.Regex.parse(text[space + 1..]) catch switch {
+                let error => {
+                    print($"rule {number}: {refusal(error)}")
+                    continue
+                }
+            }
+            let board = text[0..space]
+            let _ = boardIndex(ref boards, for: board)
+            rules.append(Rule { board: board, pattern: move pattern })
+            continue
+        }
+        var sent = false
+        for rule in rules {
+            if rule.pattern.find(text) is not null {
+                boards[boardIndex(ref boards, for: rule.board)].count += 1
+                print($"{rule.board}: {text}")
+                sent = true
+                break
+            }
+        }
+        if !sent {
+            unsorted += 1
+            print($"unsorted: {text}")
+        }
+    }
+    for board in boards {
+        print($"{board.name} {board.count}")
+    }
+    print($"unsorted {unsorted}")
+}

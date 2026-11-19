@@ -1,0 +1,39 @@
+import std.json
+
+/// The summary of the JSON document `doc`, or null when it is not one valid document.
+string? summary(string doc) {
+    var reader = json.JsonReader.over(doc)
+    var depth = 0
+    var deepest = 0
+    var keys = 0
+    var scalars = 0
+    while true {
+        let token = (reader.next() catch return null) ?? break
+        switch token {
+            case .startObject or .startList:
+                depth += 1
+                deepest = depth if depth > deepest
+            case .endObject or .endList:
+                depth -= 1
+            case .key(_):
+                keys += 1
+            default:
+                scalars += 1
+        }
+    }
+    return $"depth {deepest}, keys {keys}, scalars {scalars}"
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var number = 0
+    for line in read.value.lines {
+        number += 1
+        continue if line.trimmed().isEmpty
+        print($"{number}: {summary(line) ?? "invalid"}")
+    }
+}
