@@ -23,9 +23,14 @@
 #   (2d) a case that fails only because (2c) left out its input (the list `removed` below) is not landed: it is printed and
 #       counted in its class's EXPORT.tsv reason as "<n> removed: <case> (<why>)" (T17c ruling 2);
 #   (3) cli/SelfhostExport/ is dropped;
+#   (3b) a case name ending in dots or spaces lands without them (Windows cannot hold such a name, T17e); a name that then equals
+#       another case's of its class, or that holds one of < > : " | ? *, stops the run (exit 1);
 #   (4) <dest>/EXPORT.tsv (class, kind, tests, cases, reason) is written: one row per class and kind with cases or with rows in
 #       <kind>/UNEXPORTED.tsv, tests from <dest>/../inventory-019.tsv, cases the case directories, reason the class's
-#       UNEXPORTED.tsv rows (root masked) and its (2d) removals, empty when it has none.
+#       UNEXPORTED.tsv rows (root masked), its (2d) removals and its (5) `os` files, empty when it has none;
+#   (5) a landed case's `os` file (T17e: the OSes its expected output was written for, one per line as the runner's `Target.os` names
+#       them, and a line `# <reason>`) is not in the export and is kept; EXPORT.tsv lists each as "<n> os: <case> (<OSes>: <reason>)".
+#       An `os` file with no `# ` line stops the run (exit 1).
 # A file is written only when its content differs, so a rerun over the same export writes nothing. A symlink or other special
 # file, or a name holding a tab, newline or backslash, under input/ stops the run. After landing, any file under <dest> holding
 # this machine's HOME, /Users/ or /opt/homebrew stops the run (exit 1). Prints the counts; exit 2 on bad arguments.
@@ -211,12 +216,18 @@ for k in "$src"/*/; do
     for c in "$cl"/*/; do
       [ -d "$c" ] || continue
       c="${c%/}"
+      # (3b) the landed name: trailing dots and spaces dropped
+      name="${c##*/}"; while [[ "$name" == *[.\ ] ]]; do name="${name%?}"; done
+      if [[ "$name" == *[\<\>:\"\|\?\*]* ]]; then echo "land-export: $kind/$class/${c##*/}: a name Windows cannot hold" >&2; exit 1; fi
+      if [ "$name" != "${c##*/}" ] && [ -d "$cl/$name" ]; then
+        echo "land-export: $kind/$class/${c##*/}: lands as $name, the name of another case" >&2; exit 1
+      fi
       why="$(printf '%s\n' "$removed" | awk -F'\t' -v id="$kind/$class/${c##*/}" '$1 == id { print $2 }')"
       if [ -n "$why" ]; then
         echo "land-export: $kind/$class/${c##*/}: removed ($why)"
         printf '%s\t%s\t%s (%s)\n' "$class" "$kind" "${c##*/}" "$why" >> "$work/removed"; continue
       fi
-      land_case "$c" "$dest/$kind/$class/${c##*/}"
+      land_case "$c" "$dest/$kind/$class/$name"
       n=$((n + 1))
     done
     [ "$n" = 0 ] || printf '%s\t%s\t%s\n' "$class" "$kind" "$n" >> "$work/counts"
@@ -227,22 +238,37 @@ for k in "$src"/*/; do
   fi
 done
 
-# EXPORT.tsv: reason "<n> not exported: <test> (<rest>); ...", the distinct rows sorted, then "<n> removed: <case> (<why>); ..."
+# (5) the landed cases' `os` files: <class>\t<kind>\t<case> (<OSes>: <reason>)
+: > "$work/os"
+while IFS= read -r -d '' f; do
+  rel="${f#"$dest"/}"; IFS=/ read -r k cl cs _ <<< "$rel"
+  [ "$k" != inputs ] || continue
+  why="$(awk '/^# / { r = substr($0, 3); next } NF { o = (o == "" ? "" : o ", ") $0 } END { if (r == "") exit 1; print o ": " r }' "$f")" ||
+    { echo "land-export: $k/$cl/$cs/os has no \`# <reason>\` line" >&2; exit 1; }
+  printf '%s\t%s\t%s (%s)\n' "$cl" "$k" "$cs" "$why" >> "$work/os"
+done < <(find "$dest" -mindepth 4 -maxdepth 4 -type f -name os -print0)
+
+# EXPORT.tsv: reason "<n> not exported: <test> (<rest>); ...", the distinct rows sorted, then "<n> removed: <case> (<why>); ...", then
+# "<n> os: <case> (<OSes>: <reason>); ..."
 LC_ALL=C sort -u "$work/unexported" > "$work/unexported.sorted"
 LC_ALL=C sort -u "$work/removed" > "$work/removed.sorted"
-awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" -v rm="$work/removed.sorted" '
+LC_ALL=C sort -u "$work/os" > "$work/os.sorted"
+awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" -v rm="$work/removed.sorted" -v os="$work/os.sorted" '
   BEGIN {
     while ((getline l < inv) > 0) { split(l, a, "\t"); if (a[1] != "class") tests[a[1]] = a[4] }
     while ((getline l < un) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
       reason[key] = (rows[key] ? reason[key] "; " : "") a[3]; rows[key]++ }
     while ((getline l < rm) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
       gone[key] = (nrm[key] ? gone[key] "; " : "") a[3]; nrm[key]++ }
+    while ((getline l < os) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
+      only[key] = (nos[key] ? only[key] "; " : "") a[3]; nos[key]++ }
   }
   { key = $1 "\t" $2; keys[key] = 1; cnt[key] = $3 }
   END {
     for (key in keys) { split(key, a, "\t")
       r = (key in rows ? rows[key] " not exported: " reason[key] : "")
       if (key in nrm) r = (r == "" ? "" : r "; ") nrm[key] " removed: " gone[key]
+      if (key in nos) r = (r == "" ? "" : r "; ") nos[key] " os: " only[key]
       print key "\t" (a[1] in tests ? tests[a[1]] : "") "\t" (key in cnt ? cnt[key] : 0) "\t" r }
   }
 ' "$work/counts" | LC_ALL=C sort -t"$tab" -k1,1 -k2,2 > "$work/body"

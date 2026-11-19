@@ -84,12 +84,20 @@ void goldenExportClasses(string root, for string kind, to ref List<GoldenCase> c
     }
 }
 
-/// The skip text of an exported case that is not run: a `cli` case without `args` (the SelfhostDriverT3Tests probe cases); null for the others.
-string? goldenCliSkip(string kind, at string input) uses alloc {
-    if kind == "cli" {
-        return input.endsWith("args") ? null : $"skipped: no `args` file in {input}"
+/// The skip text of an exported case that is not run: a `cli` case without `args` (the SelfhostDriverT3Tests probe cases), or a case whose `os`
+/// file (one OS per line, as `Target.os` names it: the OSes its expected output was written for, and a `# <reason>` line that names none, T17e)
+/// does not name this one; null for the others.
+string? goldenCliSkip(string kind, at string input) uses alloc, fs {
+    if kind == "cli" && !input.endsWith("args") {
+        return $"skipped: no `args` file in {input}"
     }
-    return null
+    return null if kind != "cli" && !goldenExported(kind, at: input)
+    let os = Path.combine(kind == "cli" ? Path.directoryName(input) ?? "" : input, "os")
+    return null unless Fs.fileExists(os)
+    for line in goldenLines(goldenLf(Io.readText(os) catch "")) {
+        return null if $"{line.trimmed()}" == Target.os
+    }
+    return $"skipped: its `os` file names another OS than {Target.os}"
 }
 
 /// The expected files of the `cli` case whose `args` is `input`, those update mode may rewrite.
@@ -2792,4 +2800,22 @@ test "a cli case without `args` is reported, and BAYAN_UPDATE=1 rewrites a cli c
     ))
     assert(again.exitCode == exitOk)
     assert(stderr == "usage: bayan audit <path>\n")
+}
+
+test "an exported case whose `os` file does not name this OS is skipped naming it; one naming it, or with no `os` file, is not (T17e)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-os-file")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "emit-c/AlphaTests/Other/os", as: "plan9\n")
+    goldenWrite(root, for: "emit-c/AlphaTests/Here/os", as: $"plan9\n{Target.os}\n")
+    goldenWrite(root, for: "emit-c/AlphaTests/None/input.name", as: "a.byn\n")
+    goldenWrite(root, for: "cli/AlphaTests/Other/args", as: "lex\n")
+    goldenWrite(root, for: "cli/AlphaTests/Other/os", as: "plan9\n")
+    let other = goldenCliSkip("emit-c", at: Path.combine(root, "emit-c/AlphaTests/Other"))
+    let here = goldenCliSkip("emit-c", at: Path.combine(root, "emit-c/AlphaTests/Here"))
+    let none = goldenCliSkip("emit-c", at: Path.combine(root, "emit-c/AlphaTests/None"))
+    let cli = goldenCliSkip("cli", at: Path.combine(root, "cli/AlphaTests/Other/args"))
+    deleteWorkDir(root)
+    assert(other == $"skipped: its `os` file names another OS than {Target.os}")
+    assert(here is null && none is null)
+    assert(cli == other)
 }

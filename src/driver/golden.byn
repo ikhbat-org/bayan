@@ -748,9 +748,11 @@ i32 goldenTest(
     // Workers need a driver that starts (T2c); without one the cases run here, each failing with the T2c text as under `--jobs 1`.
     var unusable = ""
     let driver = goldenExeOf(exe, through: ref unusable)
-    if jobs > 1 && cases.length > 1 && driver != "" && Target.os != "windows" {
-        // the workers' script builds the programs first, in processes of their own (`goldenPrebuildWorker`)
-        goldenJobs(in cases, by: exe, for: limitMs, as: jobs, to: ref mine, buildMs: buildMs)
+    let parallel = jobs > 1 && Target.os != "windows"
+    if cases.length > 1 && driver != "" && (parallel || cases.length > goldenWorkerBatch) {
+        // the workers build the programs first, in processes of their own (`goldenPrebuildWorker`); one at a time (`--jobs 1`, Windows), a
+        // run of more than `goldenWorkerBatch` cases goes through one worker too, so it restarts as the parallel ones do (T17e)
+        goldenJobs(in cases, by: exe, for: limitMs, as: parallel ? jobs : 1, to: ref mine, buildMs: buildMs)
         for r in mine {
             unless quiet {
                 goldenPrint(in r)
@@ -797,7 +799,7 @@ void goldenPrint(in GoldenResult r) uses alloc, console {
 // are N processes `exe test --golden-worker` that one `sh` starts and waits for, as xUnit runs test classes on up to `maxParallelThreads`
 // threads (csharp/tests/Bayan.Tests/xunit.runner.json: 4). Worker k runs the cases whose index is k modulo N, each through `goldenResult`, and
 // writes each result to a file named for its index; the parent reads them back in case order. Windows has no `sh`, so there the cases run one at
-// a time. Each case keeps its own work directory under tmp/ (`goldenFlat`, the style shape, the scaffold and output fact), so two never share one.
+// a time, through one worker the driver restarts itself (`goldenWorkerOne`) when there are more than `goldenWorkerBatch`. Each case keeps its own work directory under tmp/ (`goldenFlat`, the style shape, the scaffold and output fact), so two never share one.
 
 /// `sh -c` text: runs `$1 test --golden-prebuild $3 $1 $5` while it exits `goldenWorkerMore`, stderr in `$3`/err-prebuild; then starts
 /// `$1 test --golden-worker $3 <k> $2 $4` for k from 0 to `$2 - 1`, in the background, stdout dropped and stderr in `$3`/err-<k>, again while it
@@ -811,7 +813,7 @@ const goldenWorkerMore: i32  = 75
 const goldenWorkerBatch: i64 = 100
 
 /// `cases` run by `jobs` workers through the driver `exe`, each with the time limit `limitMs`, after their programs are built (each within
-/// `buildMs`): one result per case added to `results`, in case order. A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
+/// `buildMs`): one result per case added to `results`, in case order. One worker runs with no `sh` (`goldenWorkerOne`). A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
 void goldenJobs(
     in List<GoldenCase> cases,
     by string exe,
@@ -828,7 +830,10 @@ void goldenJobs(
         list.append($"{c.kind}\t{c.name}\t{c.input}\n")
     }
     let n = jobs < cases.length ? jobs : cases.length
-    if goldenWrote(Path.combine(dir, "cases"), as: list.finish()) {
+    let wrote = goldenWrote(Path.combine(dir, "cases"), as: list.finish())
+    if wrote && n == 1 {
+        goldenWorkerOne(exe, at: dir, for: $"{limitMs}", by: $"{buildMs}")
+    } else if wrote {
         var args = List<string>()
         for a in ["-c", goldenWorkersScript, "sh", exe, $"{n}", dir, $"{limitMs}", $"{buildMs}"] {
             args.append(a)
@@ -870,6 +875,37 @@ bool goldenWrote(string path, as string text) uses alloc, fs {
 /// `sh` with `args`, waited for; a failure to start leaves every result unwritten, which `goldenJobs` reports per case.
 void goldenWorkers(in List<string> args) uses alloc, process {
     let _ = Io.run("sh", args.span) catch return
+}
+
+/// `goldenWorkersScript` for one worker, run from here with no `sh` (Windows has none, T17e): `exe test --golden-prebuild` and then `exe test
+/// --golden-worker <dir> 0 1 <limit>`, each started again while it exits `goldenWorkerMore`, their stderr in `dir`/err-prebuild and `dir`/err-0.
+void goldenWorkerOne(string exe, at string dir, for string limit, by string buildMs) uses alloc, fs, process {
+    var prebuild = List<string>()
+    for a in ["test", "--golden-prebuild", dir, exe, buildMs] {
+        prebuild.append(a)
+    }
+    goldenRestarted(exe, by: in prebuild, to: Path.combine(dir, "err-prebuild"))
+    var worker = List<string>()
+    for a in ["test", "--golden-worker", dir, "0", "1", limit] {
+        worker.append(a)
+    }
+    goldenRestarted(exe, by: in worker, to: Path.combine(dir, "err-0"))
+}
+
+/// `exe args`, started again while it exits `goldenWorkerMore`; its stderr written to `err`. A failure to start ends it.
+void goldenRestarted(string exe, by in List<string> args, to string err) uses alloc, fs, process {
+    var text = StrBuf()
+    var more = true
+    while more {
+        more = false
+        let r = Io.run(exe, args.span) catch {
+            text.append($"cannot start {exe}\n")
+            continue
+        }
+        text.append(r.stderr)
+        more = r.exitCode == goldenWorkerMore
+    }
+    let _ = goldenWrote(err, as: text.finish())
 }
 
 /// `bayan test --golden-worker <dir> <k> <n> <limitMs>`: the cases of `dir`/cases (`<kind>\t<case>\t<input>` lines) whose index is `k` modulo
@@ -1041,7 +1077,7 @@ i64 goldenSecondsAt(string text, at i64 start) {
 }
 
 /// The skip of a `style` case rendered in-process by StyleTests.cs:172-208: its covering `test` block, named; null for any other case.
-string? goldenSkip(in GoldenCase c) uses alloc {
+string? goldenSkip(in GoldenCase c) uses alloc, fs {
     return goldenCliSkip(c.kind, at: c.input) if c.kind != "style"
     var block = ""
     var file = "src/driver/cc.byn"
@@ -2377,6 +2413,24 @@ test "a worker that panics fails the case it was on with its stderr, and its lat
     assert(results.length == 2)
     assert(results[0].detail.contains("stopped on it; its stderr:\npanic: slice 3..5 of a 4-byte string"))
     assert(results[1].detail.contains("did not reach it: it stopped on run/a"))
+}
+
+test "one worker runs with no `sh` and is started again while it exits goldenWorkerMore, resuming where it stopped (T17e)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-jobs-one")
+    deleteWorkDir(root)
+    // the fake worker writes the result of the case in next-0 (0 when there is none); it exits 75 after case 0, as after a batch
+    let body = "[ \"$2\" = --golden-worker ] || exit 0\ni=$(cat \"$3/next-0\" 2>/dev/null || echo 0)\nprintf 'passed\\nran %s' \"$i\" > \"$3/$i\"\n[ \"$i\" = 0 ] || exit 0\necho 1 > \"$3/next-0\"\nexit 75"
+    let exe = goldenCliFake(root, for: "bayan", as: body)
+    var cases = List<GoldenCase>()
+    for name in ["a", "b"] {
+        cases.append(GoldenCase { kind: "run", name: name, input: Path.combine(root, $"{name}.byn") })
+    }
+    var results = List<GoldenResult>()
+    goldenJobs(in cases, by: exe, for: 60000, as: 1, to: ref results)
+    deleteWorkDir(root)
+    assert(results.length == 2)
+    assert(results[0].status == "passed" && results[0].detail == "ran 0")
+    assert(results[1].status == "passed" && results[1].detail == "ran 1")
 }
 
 // The bound of a run over the full cases tree (spec 019 T9a, R9; docs/memory-leaks.md rule 8). The run takes minutes, past the 60 s of a test
