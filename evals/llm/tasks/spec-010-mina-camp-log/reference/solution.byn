@@ -1,0 +1,80 @@
+/// One line of the Mina camp log.
+union Entry {
+    tent(i64 beds, i64 pilgrims)
+    bus(i64 seats)
+    rest
+    unknown(string text)
+}
+
+/// The whole number `text` holds, or -1 when it holds none.
+i64 count(string text) {
+    return i64.tryParse(text) ?? -1
+}
+
+/// The entry `text` describes.
+Entry parse(string text) {
+    var fields = List<string>()
+    for part in text.parts(by: " ") {
+        fields.append(part)
+    }
+    let word = fields[0]
+    let first = fields.length > 1 ? count(fields[1]) : -1
+    let second = fields.length > 2 ? count(fields[2]) : -1
+    return .rest if fields.length == 1 && word == "rest"
+    return .bus(first) if fields.length == 2 && word == "bus" && first >= 0
+    let tent = fields.length == 3 && word == "tent"
+    return .tent(beds: first, pilgrims: second) if tent && first >= 0 && second >= 0
+    return .unknown(text)
+}
+
+/// The report line for one entry.
+string line(Entry entry) {
+    switch entry {
+        case .tent t:
+            let room = $"tent: {t.pilgrims} pilgrims in {t.beds} beds"
+            return $"{room}, full" if t.pilgrims == t.beds
+            return $"{room}, {t.beds - t.pilgrims} free" if t.pilgrims < t.beds
+            return $"{room}, {t.pilgrims - t.beds} short"
+        case .bus(let seats): return $"bus: {seats} seats"
+        case .rest: return "rest"
+        case .unknown(let text): return $"unknown: {text}"
+    }
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var log = List<Entry>()
+    for raw in read.value.lines {
+        let text = raw.trimmed()
+        log.append(parse(text)) unless text.isEmpty
+    }
+    var tents: i64 = 0
+    var beds: i64 = 0
+    var pilgrims: i64 = 0
+    var buses: i64 = 0
+    var seats: i64 = 0
+    var rests: i64 = 0
+    var unknown: i64 = 0
+    for entry in log {
+        print(line(entry))
+        switch entry {
+            case .tent t:
+                tents += 1
+                beds += t.beds
+                pilgrims += t.pilgrims
+            case .bus(let n):
+                buses += 1
+                seats += n
+            case .rest: rests += 1
+            case .unknown(_): unknown += 1
+        }
+    }
+    print($"tents: {tents}, beds: {beds}, pilgrims: {pilgrims}")
+    print($"buses: {buses}, seats: {seats}")
+    print($"rests: {rests}, unknown: {unknown}")
+    print($"every pilgrim seated: {pilgrims <= seats ? "yes" : "no"}")
+}

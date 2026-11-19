@@ -1,0 +1,18 @@
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var total: i64 = 0
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        let gap = text.position(" ") ?? continue
+        let host = text[0..gap]
+        let guests = i64.tryParse(text[gap + 1..text.length]) ?? 0
+        total += guests
+        print($"{host, width: 10, align: .start, fill: '.'}|{guests, width: 4, align: .end, fill: '0'}")
+    }
+    print($"{"total", width: 10, align: .center, fill: '*'}|{total, width: 4, align: .end, fill: '0'}")
+}

@@ -1,0 +1,14 @@
+ask Aisha
+children
+give Aisha 20
+give Bilal 0
+ask Bilal
+ask Aisha
+give Aisha 15
+ask Aisha
+ask aisha
+ask Zaynab
+children
+give Zaynab 5
+ask Zaynab
+children
