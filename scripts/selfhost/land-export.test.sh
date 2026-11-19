@@ -134,7 +134,7 @@ rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
 ln -s a.txt "$c/input/link"
 rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
 [ $rc = 1 ] && grep -q "unsupported input entry.*link" <<<"$out" || fail "a symlink in input/ was accepted ($rc): $out"
-rm "$c/input/link" "$d/cli/AlphaTests/One-2/leak.txt"
+rm "$c/input/link" "$d/cli/AlphaTests/One-2/leak.txt" "$d/sem/GammaTests/Two/os"
 printf 'a\r\nb\r\n' > "$c/input/crlf.txt"; hc="$(printf 'a\r\nb\r\n' | h)"
 bash "$tool" "$x" "$R" "$d" > /dev/null || fail "a CRLF input did not land"
 cmp -s "$d/inputs/files/$hc" "$c/input/crlf.txt" || fail "a CRLF input was not stored byte for byte"
