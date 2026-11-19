@@ -4,7 +4,9 @@
 #   (a) a test class (a class with a [Fact] or [Theory] member under csharp/tests or src/tests) with no row;
 #   (b) a row with disposition dropped and an empty reason;
 #   (c) a row of an exported case kind (disposition sem, emit-c, lex, parse, run, cli or diag, with a target of that one word)
-#       whose case count, the directories under tests/cases/<target>/<Class>/, is below the row's test count;
+#       whose case count, the directories under tests/cases/<target>/<Class>/, is below the row's test count; or of such a
+#       disposition with a target <kind>/<stem>,<stem>... (flat cases) naming a stem with no tests/cases/<kind>/<stem>.* file
+#       and no tests/cases/<kind>/<stem>/ folder (an empty list names the empty stem and fails);
 #   (d) a row in family csharp-internals with disposition frozen* (proven only by the frozen compiler, not allowed there).
 # (c) counts only when tests/cases/EXPORT.tsv (class, kind, tests, cases, reason) exists, else it prints
 # 'skip case counts: no tests/cases/EXPORT.tsv'. A class with a reason in EXPORT.tsv is not exported and is not counted.
@@ -71,6 +73,15 @@ while IFS="$(printf '\037')" read -r class file family tests disp target reason 
     target="$dir"
   else
     case "$disp" in (sem|emit-c|lex|parse|run|cli|diag) ;; (*) continue ;; esac
+    if [ "${target%%/*}" = "$disp" ] && [ "$target" != "$disp" ]; then
+      # target <kind>/<stem>,<stem>...: flat cases, each a <stem>.* file or <stem>/ folder under tests/cases/<kind>/
+      while read -r s; do
+        if [ -z "$s" ] || { [ ! -d "$root/tests/cases/$disp/$s" ] && ! compgen -G "$root/tests/cases/$disp/$s.*" >/dev/null; }; then
+          offend "row $class names case $disp/$s, not found under tests/cases/$disp"
+        fi
+      done <<<"$(printf '%s' "${target#*/}" | tr ',' '\n')"
+      continue
+    fi
     [ "$target" = "$disp" ] || continue
   fi
   n=0
