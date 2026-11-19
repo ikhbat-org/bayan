@@ -1,0 +1,11 @@
+error BYN2788: `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `i64`
+  --> <repo>/tmp/l006/take-on-i64/main.byn:14:15
+
+  14 │     let a = n.take()
+     │               ^^^^
+     │
+  help: copy it, or move the whole local; only an owned collection or optional has an empty value to
+        leave behind
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2788

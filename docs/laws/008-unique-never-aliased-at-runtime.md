@@ -6,8 +6,8 @@ release: 0.1.0
 sources: none recorded
 kind: property
 scope: runtime/bayan-rt.c
-proof: csharp/tests/Bayan.Tests/L008OwnershipRuntimeTests.cs
-check: dotnet test --filter Law=L008
+proof: src/driver/goldenexport.byn
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l008-'
 enacted: 2026-10-21
 ---
 
@@ -19,3 +19,5 @@ A generated program that compiles and whose debug build reports a heap use-after
 
 ## Proof notes
 `csharp/tests/Bayan.Tests/L008OwnershipRuntimeTests.cs`, tagged `[Trait("Law", "L008")]`, generates seeds 1..N with `OwnershipGenerator` (size 16; N = 24, raised by `BAYAN_L008_SEEDS`), compiles each, and for every program without errors builds the debug C (asserting the checker hooks `byn_own_` are present) with AddressSanitizer when the host C compiler has it (`Toolchain.AsanAvailable`; Apple clang does, the bundled `zig cc` does not), then runs it with `ASAN_OPTIONS=detect_leaks=0` (memory lives in allocators). It fails on a non-zero exit, a timeout, or stderr naming a panic, `second owner`, `use of moved` or `AddressSanitizer`, and if more than half the seeds are rejected. Measured 2026-10-21 on macOS arm64 with ASan: 24 seeds, 23 compiled (seed 24 rejected, BYN2780, a deliberate illegal step), all 23 containing `switch move`, all clean, 10 s; soak at 200 seeds, 179 compiled, all clean, 1 min 7 s. Re-measured after the review fixes, with the generator emitting `when` guards: 24 seeds, 23 compiled; 200 seeds, 179 compiled; all clean (2 s and 10 s with the C build cache warm). The proof's first run found a compiler hole in the other direction: `switch move x` bindings moved inside a loop were reported moved on the next iteration (BYN2781 on 21 of 24 seeds), fixed in `OwnershipAnalysis` with L006 rows guarding both sides. `CheckerCatchesAnInjectedAlias` shows the proof can fail: a generated program with an injected alias, compiled with the static check off, panics with `second owner`. The checker is compiled into debug builds only (`-DBYN_NDEBUG` for safe and fast). Limits: the checker claims ownership for `let`/`var` locals, `move` parameters, owning `switch move x` bindings (at the selected arm), and places passed by `ref`/`out` or as a method receiver (after the call; element receivers are not tracked); storage inside optionals, unions, arrays and collection elements is not tracked on its own, so an alias of such inner storage would go unseen by the checker (ASan still sees a use after free). Off ASan hosts the proof runs under the checker alone. The panic exit status is 134 on POSIX; Windows is untested.
+
+Proof 2026-11-19 (spec 019 T31b): the proof is the 24 exported cases cli/L008OwnershipRuntimeTests/l008-seed-N-debug (seeds 1..24, `run --mode debug`; seed 24 is rejected with exit 1), expected output from the v0.3.2 C# export, run by `goldenCli` in src/driver/goldenexport.byn (the L006–L016 comment block). Lost in the export: the ASan run; the `byn_own_` checker half stays. Broke it by making `byn_own_release` keep the owner record (the runtime copy in src/driver/runtime.byn that stage 1 compiles programs with): 23 of 24 failed on `panic: second owner of List<i64>`, e.g. `l008-seed-1-debug`.

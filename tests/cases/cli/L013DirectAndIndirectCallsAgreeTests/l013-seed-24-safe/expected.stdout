@@ -1,0 +1,16 @@
+== direct
+c0 true-true
+c1 false
+c2 true
+== local
+c0 true-true
+c1 false
+c2 true
+== via1
+c0 true-true
+c1 false
+c2 true
+== via2
+c0 true-true
+c1 false
+c2 true

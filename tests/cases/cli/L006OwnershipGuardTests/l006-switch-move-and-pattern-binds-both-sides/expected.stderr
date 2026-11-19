@@ -1,0 +1,10 @@
+error BYN2790: pattern `let x and let y` binds the same storage more than once in `switch move …`
+  --> <repo>/tmp/l006/switch-move-and-pattern-binds-both-sides/main.byn:17:14
+
+  17 │         case let x and let y:
+     │              ^^^^^^^^^^^^^^^
+     │
+  help: bind the whole value or its parts, not both
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2790

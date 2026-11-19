@@ -1,0 +1,4 @@
+run
+--mode
+safe
+<repo>/tmp/l013/seed-24-safe/main.byn

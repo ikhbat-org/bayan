@@ -1,0 +1,13 @@
+struct Holder {
+    Untrusted<string> value
+}
+
+void main() fails IoError {
+    let name: Untrusted<string> = Untrusted("x")
+    let many: List<Untrusted<string>> = List<Untrusted<string>>()
+    let span: ReadOnlySpan<Untrusted<string>> = many.span
+    let h: Holder = Holder { value: Untrusted("x") }
+    let holders: List<Holder> = List<Holder>()
+    let none: List<string> = List<string>()
+    let _ = try Io.runBatch(name.trustUnchecked() because "checked against the allow list", none.span)
+}

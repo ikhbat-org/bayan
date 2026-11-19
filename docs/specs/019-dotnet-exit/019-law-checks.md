@@ -9,10 +9,10 @@ Decision 2026-11-18 (owner): a live `check:` line is swapped only when the new c
 | law | drafted check | waits on |
 |---|---|---|
 | L002 | `G --only 'lex/'` | T17c: no no-panic fuzz is ported; lex/ cases do not cover it |
-| L006 | `G --only '/l006-'` | a port of the law's generator or table as golden cases named lNNN-* (no task owns it yet; placeholder selector) |
-| L007 | `G --only '/l007-'` | a port of the law's generator or table as golden cases named lNNN-* (no task owns it yet; placeholder selector) |
-| L008 | `G --only '/l008-'` | a port of the law's generator or table as golden cases named lNNN-* (no task owns it yet; placeholder selector) |
-| L013 | `G --only '/l013-'` | a port of the law's generator or table as golden cases named lNNN-* (no task owns it yet; placeholder selector) |
+| L006 | `G --only '/l006-'` | swapped 2026-11-19 (T31b share C): the 69 exported `l006-` cases of tests/cases/cli/L006OwnershipGuardTests; proof src/driver/goldenexport.byn |
+| L007 | `G --only '/l007-'` | swapped 2026-11-19 (T31b share C): the 24 exported `l007-` cases of tests/cases/cli/L007UntrustedSinkTests; proof src/driver/goldenexport.byn |
+| L008 | `G --only '/l008-'` | swapped 2026-11-19 (T31b share C): the 24 exported `l008-` cases of tests/cases/cli/L008OwnershipRuntimeTests; proof src/driver/goldenexport.byn |
+| L013 | `G --only '/l013-'` | swapped 2026-11-19 (T31b share C): the 96 exported `l013-` cases of tests/cases/cli/L013DirectAndIndirectCallsAgreeTests; proof src/driver/goldenexport.byn |
 | L018 | `G --only 'parse/'` | T17c: no no-panic fuzz is ported; parse/ cases do not cover it |
 | L019 | `G --only '/l019-'` | a port of the law's generator or table as golden cases named lNNN-* (no task owns it yet; placeholder selector) |
 | L020 | `G --only '/l020-'` | a port of the law's generator or table as golden cases named lNNN-* (no task owns it yet; placeholder selector) |
@@ -119,10 +119,10 @@ Updated 2026-11-19 (T31c) at c82175292: the four no-panic proofs are ported as B
 | L025 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L025:'` | nothing: swapped 2026-11-19 (T31c, eba6069b2); the proof is the test block in src/driver/nopanic-l025.test.byn, not `l025-*` cases |
 | L039 | none | retired 2026-11-18 (23a0dea08); no swap |
 | L027 | `bash scripts/ci/bootstrap-check.sh >/dev/null && bash scripts/ci/fixpoint-check.sh` | (1) L027 in scripts/ci/ddc-laws.txt: landed (T31). (2) scripts/ci/fixpoint-check.sh: landed (T31), builds stage 2 with stage 1, emits src/driver in `safe` and `debug`, compares the bytes, and scans for absolute paths and timestamps. |
-| L006 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l006-'` | T31b, not landed |
-| L007 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l007-'` | T31b, not landed |
-| L008 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l008-'` | T31b, not landed |
-| L013 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l013-'` | T31b, not landed |
+| L006 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l006-'` | swapped 2026-11-19 (T31b share C): the 69 exported `l006-` cases of tests/cases/cli/L006OwnershipGuardTests; proof src/driver/goldenexport.byn |
+| L007 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l007-'` | swapped 2026-11-19 (T31b share C): the 24 exported `l007-` cases of tests/cases/cli/L007UntrustedSinkTests; proof src/driver/goldenexport.byn |
+| L008 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l008-'` | swapped 2026-11-19 (T31b share C): the 24 exported `l008-` cases of tests/cases/cli/L008OwnershipRuntimeTests; proof src/driver/goldenexport.byn |
+| L013 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l013-'` | swapped 2026-11-19 (T31b share C): the 96 exported `l013-` cases of tests/cases/cli/L013DirectAndIndirectCallsAgreeTests; proof src/driver/goldenexport.byn |
 | L019 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L019:'` | swapped 2026-11-19 (T31b share B): the `L019:` block of src/driver/l019.test.byn, over run/*.test.byn only |
 | L020 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'emit/'` | swapped 2026-11-19 (T31b share B): emit/run-c.sha256, the port of `PlainBuildEmitsTheSameC` |
 | L021 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'mutator: a mutant that would not type-check'` | swapped 2026-11-19 (T31b share B): the 8 not-emitted rows of src/driver/mutate.test.byn; the 300 seeded programs are dropped |
@@ -139,17 +139,17 @@ T67 deletes csharp/, src/tests/*.cs and Bayan.slnx (tests/Bayan.Tests/ is not tr
 | L003 | csharp/tests/Bayan.Tests/MapModelTests.cs | swapped 2026-11-19 (T31b share B): src/driver/mapmodel.byn; `check:` adds `--only 'map model: '` after `run/map-` |
 | L004 | csharp/tests/Bayan.Tests/L004UnionSwitchTests.cs | src/driver/golden.byn (diag cases, `goldenDiag` :339) |
 | L005 | csharp/tests/Bayan.Tests/L005RunBatchTests.cs | runtime/tests/run.sh (its live check; holds no `L005` today) |
-| L006 | csharp/tests/Bayan.Tests/L006OwnershipGuardTests.cs | no target yet: T31b's `l006-*` cases |
-| L007 | csharp/tests/Bayan.Tests/L007UntrustedSinkTests.cs | no target yet: T31b's `l007-*` cases |
-| L008 | csharp/tests/Bayan.Tests/L008OwnershipRuntimeTests.cs | no target yet: T31b's `l008-*` cases |
+| L006 | csharp/tests/Bayan.Tests/L006OwnershipGuardTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
+| L007 | csharp/tests/Bayan.Tests/L007UntrustedSinkTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
+| L008 | csharp/tests/Bayan.Tests/L008OwnershipRuntimeTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
 | L009 | csharp/tests/Bayan.Tests/TypedDumpTests.cs | src/driver/golden.byn (`goldenTyped`, :292) |
-| L010 | csharp/tests/Bayan.Tests/L010Utf8DecodeTests.cs | src/driver/golden.byn (run cases, :1493); T31b's `l010-*` cases when they land |
+| L010 | csharp/tests/Bayan.Tests/L010Utf8DecodeTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
 | L011 | csharp/tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs | src/driver/golden.byn (style cases) |
-| L012 | csharp/tests/Bayan.Tests/L012InterfaceDispatchTests.cs | src/driver/golden.byn (run cases); T31b's `l012-*` cases when they land |
-| L013 | csharp/tests/Bayan.Tests/L013DirectAndIndirectCallsAgreeTests.cs | no target yet: T31b's `l013-*` cases |
+| L012 | csharp/tests/Bayan.Tests/L012InterfaceDispatchTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
+| L013 | csharp/tests/Bayan.Tests/L013DirectAndIndirectCallsAgreeTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
 | L014 | csharp/tests/Bayan.Tests/L014CaptureByCopyTests.cs | src/driver/golden.byn (diag and run cases) |
-| L015 | csharp/tests/Bayan.Tests/SymbolLawTests.cs | src/driver/golden.byn (run cases); T31b's `l015-*` cases when they land |
-| L016 | csharp/tests/Bayan.Tests/MapKeyLawTests.cs | src/driver/mapmodel.byn (holds L016, :209) |
+| L015 | csharp/tests/Bayan.Tests/SymbolLawTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
+| L016 | csharp/tests/Bayan.Tests/MapKeyLawTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
 | L017 | src/tests/SelfhostParserEquivalenceLawTests.cs | src/driver/golden.byn (`goldenParse`, :273) |
 | L018 | src/tests/SelfhostParserNoPanicLawTests.cs | swapped 2026-11-19 (T31c): src/driver/nopanic-l018.test.byn |
 | L019 | csharp/tests/Bayan.Tests/InstrumentedRunLawTests.cs | swapped 2026-11-19 (T31b share B): src/driver/l019.test.byn |

@@ -1,0 +1,10 @@
+error BYN2783: `items` borrows from what it was bound to and cannot be changed or moved
+  --> <repo>/tmp/l006/move-a-borrowed-pattern-binding/main.byn:16:27
+
+  16 │         let stolen = move items
+     │                           ^^^^^ moving it would take the value out of what it borrows from
+     │
+  help: move or copy the value it was bound to instead
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2783

@@ -1,0 +1,10 @@
+error BYN2782: cannot move out of an element
+  --> <repo>/tmp/l006/move-out-of-a-list-element/main.byn:15:22
+
+  15 │     let first = move lists[0]
+     │                      ^^^^^^^^
+     │
+  help: take it with `.take()`, or copy it with `.copy(to: alloc)`; its owner keeps it
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2782

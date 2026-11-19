@@ -1,0 +1,10 @@
+error BYN2786: `ReadOnlySpan<Untrusted<string>>` cannot be passed to `Io.run`: it is `Untrusted`
+  --> <repo>/tmp/l007/io-run-span-of-untrusted-as-args/main.byn:12:31
+
+  12 │     let _ = try Io.run("git", span)
+     │                               ^^^^
+     │
+  help: check the value, then clear the mark with `x.trustUnchecked() because "…"`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2786

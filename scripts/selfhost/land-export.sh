@@ -27,7 +27,8 @@
 #       another case's of its class, or that holds one of < > : " | ? *, stops the run (exit 1);
 #   (4) <dest>/EXPORT.tsv (class, kind, tests, cases, reason) is written: one row per class and kind with cases or with rows in
 #       <kind>/UNEXPORTED.tsv, tests from <dest>/../inventory-019.tsv, cases the case directories, reason the class's
-#       UNEXPORTED.tsv rows (root masked), its (2d) removals and its (5) `os` files, empty when it has none;
+#       UNEXPORTED.tsv rows (root masked), its (2d) removals and its (5) `os` files, empty when it has none; a class and kind the
+#       export holds no directory or UNEXPORTED.tsv row for keeps its old EXPORT.tsv row unchanged (an export of some classes, T31b);
 #   (5) a landed case's `os` file (T17e: one line, the OSes its expected output holds on separated by spaces, as the runner's
 #       `Target.os` names them; goldenexport.byn `goldenCliSkip` says why one line) is not in the export and is kept; EXPORT.tsv lists
 #       each as "<n> os: <case> (<OSes>: <reason>)", the reason read from that case's entry in the EXPORT.tsv being replaced (it is added
@@ -213,13 +214,14 @@ land_case() {
   cases=$((cases + 1))
 }
 
-: > "$work/counts"; : > "$work/unexported"; : > "$work/removed"; : > "$work/landed"
+: > "$work/counts"; : > "$work/unexported"; : > "$work/removed"; : > "$work/landed"; : > "$work/seen"
 for k in "$src"/*/; do
   k="${k%/}"; kind="${k##*/}"
   for cl in "$k"/*/; do
     [ -d "$cl" ] || continue
     cl="${cl%/}"; class="${cl##*/}"
     [ "$kind/$class" != cli/SelfhostExport ] || continue
+    printf '%s\t%s\n' "$class" "$kind" >> "$work/seen"
     n=0
     for c in "$cl"/*/; do
       [ -d "$c" ] || continue
@@ -269,10 +271,16 @@ done < <(find "$dest" -mindepth 4 -maxdepth 4 -type f -name os -print0)
 LC_ALL=C sort -u "$work/unexported" > "$work/unexported.sorted"
 LC_ALL=C sort -u "$work/removed" > "$work/removed.sorted"
 LC_ALL=C sort -u "$work/os" > "$work/os.sorted"
-awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" -v rm="$work/removed.sorted" -v os="$work/os.sorted" '
+# a class and kind the export holds no directory or UNEXPORTED.tsv row for keeps its old EXPORT.tsv row as it was (an export of
+# some classes, T31b; the hand-written T24b shell rows)
+: > "$work/old"; [ ! -f "$dest/EXPORT.tsv" ] || awk 'NR > 1' "$dest/EXPORT.tsv" > "$work/old"
+awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" -v rm="$work/removed.sorted" -v os="$work/os.sorted" \
+    -v seen="$work/seen" -v old="$work/old" '
   BEGIN {
     while ((getline l < inv) > 0) { split(l, a, "\t"); if (a[1] != "class") tests[a[1]] = a[4] }
-    while ((getline l < un) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
+    while ((getline l < seen) > 0) inx[l] = 1
+    while ((getline l < old) > 0) { split(l, a, "\t"); prev[a[1] "\t" a[2]] = l }
+    while ((getline l < un) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1; inx[key] = 1
       reason[key] = (rows[key] ? reason[key] "; " : "") a[3]; rows[key]++ }
     while ((getline l < rm) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
       gone[key] = (nrm[key] ? gone[key] "; " : "") a[3]; nrm[key]++ }
@@ -281,7 +289,9 @@ awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" -v rm="$work/removed.so
   }
   { key = $1 "\t" $2; keys[key] = 1; cnt[key] = $3 }
   END {
+    for (key in prev) if (!(key in inx)) print prev[key]
     for (key in keys) { split(key, a, "\t")
+      if (!(key in inx) && key in prev) continue
       r = (key in rows ? rows[key] " not exported: " reason[key] : "")
       if (key in nrm) r = (r == "" ? "" : r "; ") nrm[key] " removed: " gone[key]
       if (key in nos) r = (r == "" ? "" : r "; ") nos[key] " os: " only[key]

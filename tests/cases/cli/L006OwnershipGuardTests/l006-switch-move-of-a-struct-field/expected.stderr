@@ -1,0 +1,11 @@
+error BYN2789: `switch move …` needs a local or a `move` parameter, not field `items`
+  --> <repo>/tmp/l006/switch-move-of-a-struct-field/main.byn:15:17
+
+  15 │     switch move ledger.items {
+     │                 ^^^^^^^^^^^^
+     │
+  help: drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection
+        field into a local first
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2789

@@ -3,7 +3,7 @@
 # files and trees stored once by content (executable bit kept), the root masked in non-input text files only, cli/SelfhostExport
 # dropped, the doctor, cc, version, std-list and T5 commit masks, a binary input naming the machine left out, a removed case, EXPORT.tsv from UNEXPORTED.tsv, the case counts
 # and the inventory, a name ending in a dot and a space landed without them, a landed `os` file kept and listed with the reason the old
-# EXPORT.tsv gave it, a rerun writing nothing, and the refusals (also a stored file whose bytes lost their CRs, and inputs/files
+# EXPORT.tsv gave it, the old EXPORT.tsv rows of classes the export does not hold kept, a rerun writing nothing, and the refusals (also a stored file whose bytes lost their CRs, and inputs/files
 # without -text in a git worktree).
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -28,7 +28,8 @@ printf 'use "%s/lib"\n' "$R" > "$x/cli/AlphaTests/One-2/input.byn"              
 printf 'lex\n' > "$x/cli/AlphaTests/One-2/args"
 mkdir -p "$x/cli/AlphaTests/Dot ." "$d/sem/GammaTests/Two"; printf 'lex\n' > "$x/cli/AlphaTests/Dot ./args"   # (3b) lands as Dot
 printf 'macos linux\n' > "$d/sem/GammaTests/Two/os"                                                        # (5) kept and listed
-printf 'class\tkind\ttests\tcases\treason\nGammaTests\tsem\t2\t2\t1 os: Two (macos: names the export machine)\n' > "$d/EXPORT.tsv"
+printf 'class\tkind\ttests\tcases\treason\nGammaTests\tsem\t2\t2\t1 os: Two (macos: names the export machine)\nOmegaTests\tshell\t6\t2\tby hand\nZetaTests\tcli\t1\t1\t1 os: Z (macos: x)\n' > "$d/EXPORT.tsv"
+mkdir -p "$d/cli/ZetaTests/Z"; printf 'macos\n' > "$d/cli/ZetaTests/Z/os"      # (4) classes the export does not hold keep their rows
 D=$x/cli/SelfhostDefaultT5Tests; mkdir -p "$D/Plain" "$D/Seeded" "$D/Color" "$x/cli/SelfhostDefaultT12Tests/Cc"
 E=$(printf "\033")
 printf "◆ bayan       0.3.2\n◆ host        macos-arm64\n◆ C compiler  /Users/q/bin/zig cc (clang 22)\n◆ zig         not found; x\n◆ git         /opt/homebrew/bin/git (git 2)\n◆ cache       %s/tmp/cache (writable)\n✗ zig: <repo>/zig is bad\n%s[31m✗ cache: /c isn't writable: Access to the path '/c/.d-1' is denied.%s[0m\nx (commit 9cf2) y\n" "$R" "$E" "$E" > "$D/Plain/expected.stdout"
@@ -104,7 +105,7 @@ printf 'macos linux\n' | cmp -s - "$d/sem/GammaTests/Two/os" || fail "os file no
 [ ! -e "$d/cli/SelfhostExport" ] || fail "cli/SelfhostExport landed"
 [ ! -e "$d/cli/UNEXPORTED.tsv" ] && [ ! -e "$d/cli/counts.tsv" ] && [ ! -e "$d/runtime" ] || fail "a non-case file landed"
 # (4) EXPORT.tsv
-want="$(printf 'class\tkind\ttests\tcases\treason\nAlphaTests\tcli\t3\t3\t1 not exported: One (build <repo>/tmp/b.byn)\nBetaTests\tcli\t1\t0\t1 not exported: NoCase (cache after evicting (not exported: API-level))\nGammaTests\tsem\t2\t2\t1 os: Two (macos linux: names the export machine)\nSelfhostDefaultT12Tests\tcli\t\t1\t\nSelfhostDefaultT2Tests\tcli\t\t1\t\nSelfhostDefaultT5Tests\tcli\t\t4\t\nSelfhostDefaultT9Tests\tcli\t\t1\t\nSelfhostDriverT5Tests\tcli\t\t0\t1 removed: CannotWriteTheOutputAsCliApp-5 (its input out/safe/macos-arm64/read-only named the export machine and was left out)')"
+want="$(printf 'class\tkind\ttests\tcases\treason\nAlphaTests\tcli\t3\t3\t1 not exported: One (build <repo>/tmp/b.byn)\nBetaTests\tcli\t1\t0\t1 not exported: NoCase (cache after evicting (not exported: API-level))\nGammaTests\tsem\t2\t2\t1 os: Two (macos linux: names the export machine)\nOmegaTests\tshell\t6\t2\tby hand\nSelfhostDefaultT12Tests\tcli\t\t1\t\nSelfhostDefaultT2Tests\tcli\t\t1\t\nSelfhostDefaultT5Tests\tcli\t\t4\t\nSelfhostDefaultT9Tests\tcli\t\t1\t\nSelfhostDriverT5Tests\tcli\t\t0\t1 removed: CannotWriteTheOutputAsCliApp-5 (its input out/safe/macos-arm64/read-only named the export machine and was left out)\nZetaTests\tcli\t1\t1\t1 os: Z (macos: x)')"
 [ "$(cat "$d/EXPORT.tsv")" = "$want" ] || fail "EXPORT.tsv: $(cat "$d/EXPORT.tsv")"
 
 # a rerun over the same input writes nothing
@@ -134,7 +135,7 @@ rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
 ln -s a.txt "$c/input/link"
 rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
 [ $rc = 1 ] && grep -q "unsupported input entry.*link" <<<"$out" || fail "a symlink in input/ was accepted ($rc): $out"
-rm "$c/input/link" "$d/cli/AlphaTests/One-2/leak.txt" "$d/sem/GammaTests/Two/os"
+rm "$c/input/link" "$d/cli/AlphaTests/One-2/leak.txt" "$d/sem/GammaTests/Two/os" "$d/cli/ZetaTests/Z/os"
 printf 'a\r\nb\r\n' > "$c/input/crlf.txt"; hc="$(printf 'a\r\nb\r\n' | h)"
 bash "$tool" "$x" "$R" "$d" > /dev/null || fail "a CRLF input did not land"
 cmp -s "$d/inputs/files/$hc" "$c/input/crlf.txt" || fail "a CRLF input was not stored byte for byte"

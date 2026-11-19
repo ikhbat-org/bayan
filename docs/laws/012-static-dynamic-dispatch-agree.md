@@ -6,8 +6,8 @@ release: 0.1.0
 sources: none recorded
 kind: property
 scope: csharp/Bayan.Backend.C/CEmitter.cs
-proof: csharp/tests/Bayan.Tests/L012InterfaceDispatchTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/interface-' --only 'run/dyn-ref'
+proof: src/driver/goldenexport.byn
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l012-' --only 'run/interface-' --only 'run/dyn-ref'
 enacted: 2026-10-22
 ---
 
@@ -25,3 +25,5 @@ No flag narrowing: `-Wall -Werror` holds in full on `out.c`. The first run faile
 Mutation: in `CEmitter.Vtable`, every slot of a conformer's vtable was pointed at the next conformer's witness (with a matching cast, so the C still builds). The test failed on all 48 seeds, e.g. seed 1: `dyn section differs from direct (Debug)` with `--- direct` starting `m2 9`, `m0 8`, `m0 8`, `m3 17` and `--- dyn` starting `m2 14`, `m0 -5`, `m0 -8`, `m3 8`. Reverted, the test passes.
 
 Measured 2026-10-22 on macOS arm64 with `zig cc`: 48 seeds, all accepted and agreeing, 46 s; soak at 200 seeds, all accepted and agreeing, 3 min 13 s.
+
+Proof 2026-11-19 (spec 019 T31b): the proof is the 96 exported cases cli/L012InterfaceDispatchTests/l012-seed-N-{debug,safe} (seeds 1..48, both modes), expected output from the v0.3.2 C# export, run by `goldenCli` in src/driver/goldenexport.byn (the L006–L016 comment block); `run/interface-` and `run/dyn-ref` stay in the check. Lost in the export: the standalone `-Wall -Werror` compile. Broke it by pointing each vtable at another conformer's witnesses (one line in `vtable`, src/emitter/cprint/types.byn, no matching cast): 96 of 96 failed, each with BYN4001 (the C compiler rejected the generated C) rather than a dispatch difference.

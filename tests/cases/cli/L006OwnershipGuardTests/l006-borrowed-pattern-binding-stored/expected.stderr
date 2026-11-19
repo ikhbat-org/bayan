@@ -1,0 +1,12 @@
+error BYN2780: implicit copy of a unique value: `List<i64>` is unique: it owns its storage
+  --> <repo>/tmp/l006/borrowed-pattern-binding-stored/main.byn:16:39
+
+  16 │     if s is .full(let items) { kept = items }
+     │                                       ^^^^^
+     │
+  help: make an independent copy with `items.copy(to: alloc)`; pass it by `ref` to share it instead
+     │ 16 │     if s is .full(let items) { kept = items.copy(to: alloc) }
+     │    │                                            ++++++++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2780

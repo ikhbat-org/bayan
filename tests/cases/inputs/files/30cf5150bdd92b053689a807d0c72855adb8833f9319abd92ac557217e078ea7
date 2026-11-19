@@ -1,0 +1,25 @@
+union error E { bad, }
+void step() fails E { }
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+struct Ledger {
+    List<i64> items
+}
+union Slot {
+    empty
+    full(List<i64> items)
+}
+void main() {
+    var outer = List<i64>().span
+    {
+        let s = Slot.full(List<i64>())
+        switch s {
+            case .full(let items):
+                outer = items.span
+            default:
+                print("empty")
+        }
+    }
+    print($"{outer.length}")
+}

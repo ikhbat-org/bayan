@@ -6,8 +6,8 @@ release: 0.1.0
 sources: none recorded
 kind: property
 scope: runtime/bayan-rt.c
-proof: csharp/tests/Bayan.Tests/SymbolLawTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/symbol'
+proof: src/driver/goldenexport.byn
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l015-' --only 'run/symbol'
 enacted: 2026-10-25
 ---
 
@@ -29,3 +29,5 @@ Mutation 1 (literals numbered in source order, so the runtime does not find them
 Mutation 2 (literal table never registered): in `CEmitter.EmitMain`, the `byn_sym_init(byn_symtab, …)` line became `(void)byn_symtab;`, so runtime interns number from 0 without the literals. The test failed on 29 of 32 seeds, e.g. seed 1 at line 8, expected `true`, got `false`. Reverted, the test passes.
 
 Measured 2026-10-25 on macOS arm64: 32 seeds, all agreeing under both seeds and both modes, about 27 s.
+
+Proof 2026-11-19 (spec 019 T31b): the proof is the 64 exported cases cli/SymbolLawTests/l015-seed-N-{debug,safe} (seeds 1..32, both modes), expected output from the v0.3.2 C# export, run by `goldenCli` in src/driver/goldenexport.byn (the L006–L016 comment block); `run/symbol` stays in the check. Lost in the export: the standalone `-Wall -Werror` compile and the two fixed hash seeds (each run takes an OS-random seed, so each golden run compares the frozen output under a fresh one). The named break (literal symbols numbered in source order) is how the self-hosted emitter already numbers them (`symbolLiteral`, src/emitter/cprint/program.byn); broke it instead by ordering symbols by id, not text (src/emitter/cprint/builtin.byn): 56 of 64 failed, e.g. `l015-seed-1-debug`.
