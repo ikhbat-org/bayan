@@ -351,7 +351,7 @@ public sealed class SelfhostPathT4Tests
         var section = $"diags.{name}";
         var expected = Expected(Dir(name));
         var actual = new Dictionary<string, List<string>> { [section] = Sections.Value[section] };
-        if (expected.Count == 0) Assert.Empty(actual[section]);
+        if (expected.Count == 0 && SelfhostSemanticsHarness.ExportDir is null) Assert.Empty(actual[section]);
         else SelfhostSemanticsHarness.AssertSection(actual, section, expected);
     }
 
@@ -369,7 +369,7 @@ public sealed class SelfhostPathT4Tests
         var expected = (List<string>)T41("Sorted").Invoke(null, [T41("Expected").Invoke(null, [T41Dir(name), T41Flag(name)])])!;
         var actual = new Dictionary<string, List<string>> { [section] = (List<string>)T41("Sorted").Invoke(null, [T41Sections.Value[section]])! };
         // A program with no diagnostic and no summary prints nothing on either side.
-        if (expected.Count == 0) Assert.Empty(actual[section]);
+        if (expected.Count == 0 && SelfhostSemanticsHarness.ExportDir is null) Assert.Empty(actual[section]);
         else SelfhostSemanticsHarness.AssertSection(actual, section, expected, run: T41Sections.Value, compare: "t41");
     }
 
