@@ -107,14 +107,16 @@ Retired by the owner 2026-11-18 (unenacted; commit 23a0dea08). The retirement ed
 
 Rechecked 2026-11-19 (share 019-t31e) at 362c0e42a: no commit since d7498e9fa touches tests/cases, docs/laws or scripts/ci/ddc-laws.txt, so none of L002, L018, L022, L023, L024, L025 swaps yet. The exported lex/, parse/, sem/ and emit-c/ classes hold no `*NoPanic*` class, no SelfhostSemanticsEquivalenceLawTests and no SelfhostEmitterEquivalenceLawTests, and no case is named `l002-`, `l018-`, `l023-` or `l025-`. Of SelfhostLexerTests the export holds LexGolden, JsonOnStdinMatchesTheReferenceLexer, CorpusMatchesTheReferenceLexer, RunOnStdinRunsAPromptProgramOnce and BayanLexJsonEqualsTheReferenceLexerOnEveryInput (L001, 10021 cases), not BayanLexNeverPanicsAndKeepsSpansInsideTheInput (L002, :376). That L002 fact reads the same `StdinRuns` inputs as the exported L001 cases (SelfhostLexerTests.cs:363, :378), but those cases compare stdout only: only the 21 cases with an `expected.exitcode` compare the exit code (goldenprograms.byn:1487-1491), so they do not check L002's exit clause. L022 and L024 still have their old Statements; the drafted Statements are not enacted. So L002, L018, L023 and L025 each wait on a port of its C# no-panic test (SelfhostLexerTests.cs:376, SelfhostParserNoPanicLawTests.cs:28, SelfhostSemanticsNoPanicLawTests.cs:45, SelfhostEmitterNoPanicLawTests.cs:100) as `lNNN-*` cases, which no task owns, and L022 and L024 each wait on the owner enacting its drafted Statement.
 
+Updated 2026-11-19 (T31c) at c82175292: the four no-panic proofs are ported as Bayān test blocks under src/driver (Decision 2026-11-19 on the T31c line: generated corpus run through the stage-1 tool with `--many`, not frozen `lNNN-` cases), and the live `check:` and `proof:` lines of L002, L018, L023 and L025 are swapped. The paragraph above is the state before those landings. Still open from this table: L022 and L024 (the owner's enactment). L018's proof asserts no panic and spans inside the input; the C# oracle half of the old test (child inside parent against the reference parser) cannot run without .NET and is recorded in its Proof notes as an owner question.
+
 | law | drafted `check:` line | waits on today |
 |---|---|---|
-| L002 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l002-'` | a port of SelfhostLexerTests.cs:376 as `l002-*` cases; not in T17c's landing (2e635d6d6); no task owns it |
-| L018 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l018-'` | a port of SelfhostParserNoPanicLawTests.cs:28 as `l018-*` cases; not in T17c's landing; no task owns it |
+| L002 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L002:'` | nothing: swapped 2026-11-19 (T31c, 91ed52c6e); the proof is the test block in src/driver/nopanic-l002.test.byn, not `l002-*` cases |
+| L018 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L018:'` | nothing: swapped 2026-11-19 (T31c, 1d71369a4); the proof is the test block in src/driver/nopanic-l018.test.byn, not `l018-*` cases |
 | L022 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'typed/' --only 'diag/' --only 'sem/'` | the owner enacting the drafted statement above; the cases are in the tree (T17c cases landed 2e635d6d6, no sem/ pending row), but they do not cover the current statement (two programs agreeing) |
-| L023 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l023-'` | a port of SelfhostSemanticsNoPanicLawTests.cs:45 as `l023-*` cases; not in T17c's landing; no task owns it |
+| L023 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L023:'` | nothing: swapped 2026-11-19 (T31c, b2fa8d774); the proof is the test block in src/driver/nopanic-l023.test.byn, not `l023-*` cases |
 | L024 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'emit/'` | the owner enacting the drafted statement above; emit/run-c.sha256 is in the tree, but it does not cover every `BuildMode` or the generator seeds the current statement names |
-| L025 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l025-'` | a port of SelfhostEmitterNoPanicLawTests.cs:100 as `l025-*` cases; not in T17c's landing; no task owns it |
+| L025 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L025:'` | nothing: swapped 2026-11-19 (T31c, eba6069b2); the proof is the test block in src/driver/nopanic-l025.test.byn, not `l025-*` cases |
 | L039 | none | retired 2026-11-18 (23a0dea08); no swap |
 | L027 | `bash scripts/ci/bootstrap-check.sh >/dev/null && bash scripts/ci/fixpoint-check.sh` | (1) L027 in scripts/ci/ddc-laws.txt: T46 landed, the list is empty, the one-line edit is T31's; ddc.sh step 5 then runs `dotnet test --filter "Law=L027"` in the frozen tree (scripts/ci/ddc.sh:65-73). (2) scripts/ci/fixpoint-check.sh, a name proposed here: does not exist; it would build stage 2 with stage 1, emit src/driver in `safe` and `debug` from both, compare the bytes and grep for absolute paths and timestamps. T31 owns it (Decision, Fable open-items review); not landed |
 | L006 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l006-'` | T31b, not landed |
@@ -133,7 +135,7 @@ T67 deletes csharp/, src/tests/*.cs and Bayan.slnx (tests/Bayan.Tests/ is not tr
 | law | current `proof:` | proposed target |
 |---|---|---|
 | L001 | src/tests/SelfhostLexerTests.cs | src/driver/golden.byn (`goldenLex`, :265) |
-| L002 | src/tests/SelfhostLexerTests.cs | no target yet: a port of its no-panic test (no task owns it) |
+| L002 | src/tests/SelfhostLexerTests.cs | swapped 2026-11-19 (T31c): src/driver/nopanic-l002.test.byn |
 | L003 | csharp/tests/Bayan.Tests/MapModelTests.cs | swapped 2026-11-19 (T31b share B): src/driver/mapmodel.byn; `check:` adds `--only 'map model: '` after `run/map-` |
 | L004 | csharp/tests/Bayan.Tests/L004UnionSwitchTests.cs | src/driver/golden.byn (diag cases, `goldenDiag` :339) |
 | L005 | csharp/tests/Bayan.Tests/L005RunBatchTests.cs | runtime/tests/run.sh (its live check; holds no `L005` today) |
@@ -149,14 +151,14 @@ T67 deletes csharp/, src/tests/*.cs and Bayan.slnx (tests/Bayan.Tests/ is not tr
 | L015 | csharp/tests/Bayan.Tests/SymbolLawTests.cs | src/driver/golden.byn (run cases); T31b's `l015-*` cases when they land |
 | L016 | csharp/tests/Bayan.Tests/MapKeyLawTests.cs | src/driver/mapmodel.byn (holds L016, :209) |
 | L017 | src/tests/SelfhostParserEquivalenceLawTests.cs | src/driver/golden.byn (`goldenParse`, :273) |
-| L018 | src/tests/SelfhostParserNoPanicLawTests.cs | no target yet: a port of its no-panic test (no task owns it) |
+| L018 | src/tests/SelfhostParserNoPanicLawTests.cs | swapped 2026-11-19 (T31c): src/driver/nopanic-l018.test.byn |
 | L019 | csharp/tests/Bayan.Tests/InstrumentedRunLawTests.cs | swapped 2026-11-19 (T31b share B): src/driver/l019.test.byn |
 | L020 | csharp/tests/Bayan.Tests/MutantSchemataTests.cs | swapped 2026-11-19 (T31b share B): src/driver/golden.byn (`goldenEmit`, tagged L020) |
 | L021 | csharp/tests/Bayan.Tests/NotEmittedLawTests.cs | swapped 2026-11-19 (T31b share B): src/driver/mutate.test.byn (tagged L021) |
 | L022 | src/tests/SelfhostSemanticsEquivalenceLawTests.cs | src/driver/golden.byn (`goldenTyped`, `goldenDiag`) and src/driver/goldenprograms.byn (`goldenProgramSem`, :941), after the statement is enacted |
-| L023 | src/tests/SelfhostSemanticsNoPanicLawTests.cs | no target yet: a port of its no-panic test (no task owns it) |
+| L023 | src/tests/SelfhostSemanticsNoPanicLawTests.cs | swapped 2026-11-19 (T31c): src/driver/nopanic-l023.test.byn |
 | L024 | src/tests/SelfhostEmitterEquivalenceLawTests.cs | src/driver/golden.byn (`goldenEmit`, :1713), after the statement is enacted |
-| L025 | src/tests/SelfhostEmitterNoPanicLawTests.cs | no target yet: a port of its no-panic test (no task owns it) |
+| L025 | src/tests/SelfhostEmitterNoPanicLawTests.cs | swapped 2026-11-19 (T31c): src/driver/nopanic-l025.test.byn |
 | L026 | csharp/tests/Bayan.Tests/StdPathLawTests.cs | src/driver/golden.byn (run cases, :1493) |
 | L027 | csharp/tests/Bayan.Tests/BootstrapTests.cs | no target yet: scripts/ci/fixpoint-check.sh (T31, not written) |
 | L028 | src/tests/SelfhostDriverGoldenTests.cs | src/driver/golden.byn |
