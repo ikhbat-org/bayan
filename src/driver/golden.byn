@@ -109,6 +109,49 @@ string goldenDirSlashed(string text, at string dir, by string tag, string sep = 
     return sb.finish()
 }
 
+/// `text` with `macos-arm64`, the host the export recorded on, and `host`, the one running (`targetHost`), each as a whole token read as
+/// `<host>` when the two differ, as both sides of a compare are read (T17e decision 2026-11-19): an output naming the running host matches
+/// the export's, a third triple still differs; with no host or on a `macos-arm64` one `text` is returned as is.
+string goldenHostMasked(string text, for string host) uses alloc {
+    let recorded = "macos-arm64"
+    return text if host == "" || host == recorded
+    return goldenHostToken(goldenHostToken(text, at: recorded), at: host)
+}
+
+/// `text` with each `token` that no letter, digit, `-`, `_` or `.` touches read as `<host>`.
+string goldenHostToken(string text, at string token) uses alloc {
+    return text if !text.contains(token)
+    var sb = StrBuf()
+    var from: i64 = 0
+    var i: i64 = 0
+    while i + token.length <= text.length {
+        let end = i + token.length
+        if text.bytes[i] == token.bytes[0]
+                && text[i..end] == token
+                && (i == 0 || !goldenHostByte(text.bytes[i - 1]))
+                && (end == text.length || !goldenHostByte(text.bytes[end])) {
+            sb.append(text[from..i])
+            sb.append("<host>")
+            from = end
+            i = end
+            continue
+        }
+        i += 1
+    }
+    sb.append(text[from..text.length])
+    return sb.finish()
+}
+
+/// Whether `c` joins a host triple to a longer token: a letter, digit, `-`, `_` or `.`.
+bool goldenHostByte(u8 c) {
+    return c >= 0x30 && c <= 0x39
+        || c >= 0x41 && c <= 0x5a
+        || c >= 0x61 && c <= 0x7a
+        || c == 0x2d
+        || c == 0x5f
+        || c == 0x2e
+}
+
 /// The cases of one `.byn` kind (Golden.cs:25-27), sorted by name.
 void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit)
         uses alloc, console, fs {
@@ -255,11 +298,12 @@ string? goldenCompare(string actual, for string input, at string expected) uses 
 }
 
 /// Golden.cs:35 `Compare` outside update mode: null when `actual` equals the expected file at `expected` (CR LF read as LF), else the failure text,
-/// which names the input path and the first differing line, expected and actual (spec 019 R2).
+/// which names the input path and the first differing line, expected and actual (spec 019 R2). Both sides are read through `goldenHostMasked`.
 string? goldenDiffer(string actual, for string input, at string expected) uses alloc, fs {
     let text = Io.readText(expected) catch return $"{input}\nmissing expected file {expected}"
-    let want = goldenLines(goldenLf(text))
-    let got = goldenLines(goldenLf(goldenStdModules(actual, by: text)))
+    let host = targetHost() ?? ""
+    let want = goldenLines(goldenLf(goldenHostMasked(text, for: host)))
+    let got = goldenLines(goldenLf(goldenHostMasked(goldenStdModules(actual, by: text), for: host)))
     var line = 0
     while line < want.length && line < got.length && want[line] == got[line] {
         line += 1
@@ -2045,6 +2089,26 @@ test "a Windows scratch directory is read as `<repo>` as written and doubled in 
     assert(goldenDirMasked(text, at: dir, by: "<repo>")
         == "  --> <repo>/tmp/t27-diag/X/input.byn:2:9\nhelp: a\\b\n{\"file\": \"<repo>/tmp/a.byn\", \"m\": \"x\\n\"}\n<repo>\n")
     assert(goldenDirMasked("/s/a.byn\\n /s\n", at: "/s", by: "<repo>") == "<repo>/a.byn\\n <repo>\n")
+}
+
+test "the export host `macos-arm64` and the running host read as `<host>` when they differ, as whole tokens only (T17e)" {
+    let want = "◆ built tally (safe, macos-arm64) in 0.00s\nout/safe/macos-arm64/demo \"macos-arm64\"\n"
+    let got = "◆ built tally (safe, windows-x64) in 0.00s\nout\\safe\\windows-x64\\demo \"windows-x64\"\n"
+    assert(goldenHostMasked(
+        want,
+        for: "windows-x64",
+    ) == "◆ built tally (safe, <host>) in 0.00s\nout/safe/<host>/demo \"<host>\"\n")
+    assert(goldenHostMasked(
+        got,
+        for: "windows-x64",
+    ) == "◆ built tally (safe, <host>) in 0.00s\nout\\safe\\<host>\\demo \"<host>\"\n")
+    let third = "◆ built tally (safe, linux-x64) in 0.00s\n"
+    assert(goldenHostMasked(third, for: "windows-x64") == third)
+    assert(third != "◆ built tally (safe, <host>) in 0.00s\n")
+    let longer = "zig-macos-arm64-0.17 xmacos-arm64 macos-arm64.exe windows-x64_1 a.windows-x64\n"
+    assert(goldenHostMasked(longer, for: "windows-x64") == longer)
+    assert(goldenHostMasked(want, for: "macos-arm64") == want)
+    assert(goldenHostMasked(got, for: "macos-arm64") == got)
 }
 
 test "a changed expected line fails with the input path and the first differing line" {

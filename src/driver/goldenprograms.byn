@@ -780,7 +780,7 @@ string goldenProgramTrimEnd(string text) uses alloc {
 
 /// `actual` against the expected file `name` of case `dir` in the form `form`: `""` as `goldenCompare` (CR LF read as LF), `untimed` both
 /// sides through `Untimed`, `trim` both sides `TrimEnd` (SelfhostSemanticsT10Tests.cs:203), `bytes` byte for byte (`SequenceEqual`). Update
-/// mode rewrites the file with `actual`. The failure is added to `failures`.
+/// mode rewrites the file with `actual`. Both sides are read through `goldenHostMasked` first. The failure is added to `failures`.
 void goldenProgramCheck(string dir, for string name, as string actual, by string form, to ref List<string> failures)
         uses alloc, env, fs {
     if form == "" {
@@ -792,13 +792,14 @@ void goldenProgramCheck(string dir, for string name, as string actual, by string
         failures.append($"{path}\nmissing expected file {path}")
         return
     }
-    var want = text
-    var got = goldenStdModules(actual, by: text)
+    let host = targetHost() ?? ""
+    var want = goldenHostMasked(text, for: host)
+    var got = goldenHostMasked(goldenStdModules(actual, by: text), for: host)
     if form == "untimed" {
-        want = goldenProgramUntimed(goldenLf(text))
+        want = goldenProgramUntimed(goldenLf(want))
         got = goldenProgramUntimed(goldenLf(got))
     } else if form == "trim" {
-        want = goldenProgramTrimEnd(goldenLf(text))
+        want = goldenProgramTrimEnd(goldenLf(want))
         got = goldenProgramTrimEnd(goldenLf(got))
     }
     return if want == got

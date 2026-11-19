@@ -180,6 +180,13 @@ string goldenCliDirMasked(string text, at string target) uses alloc, fs {
     return text.replaced(masked, by: "<dir>").replaced(spelled, by: "<dir>")
 }
 
+/// What a `goldenCli` run in `scratch` printed, the scratch directory read as `tag` (`<repo>`, `<root>` or `<D>`, `goldenDirMasked`); with
+/// `t9` first the repo root of the `tmp/t9-cache/` PATH directories and its separator dropped (SelfhostDefaultT9Tests.cs:861 `Machineless`).
+string goldenCliScratchMasked(string text, at string scratch, by string tag, bool t9 = false) uses alloc {
+    let res = t9 ? goldenDirMasked(text, at: $"{scratch}-repo", by: "", drop: true) : text
+    return goldenDirMasked(res, at: scratch, by: tag)
+}
+
 /// The part of `path` below the directory `dir`, each read with `/` for `\` on Windows (`goldenSlashed`); empty when it is not below it.
 string goldenCliBelow(string path, at string dir) uses alloc {
     let p = goldenSlashed(path)
@@ -1457,19 +1464,14 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         buf = buf.replaced(args[1], by: "{D}")
         err = err.replaced(args[1], by: "{D}")
     }
-    if cls == "SelfhostDefaultT9Tests" {
-        // SelfhostDefaultT9Tests.cs:861 `Machineless`: the repo root of the `tmp/t9-cache/` PATH directories dropped
-        buf = buf.replaced($"{scratch}-repo/", by: "")
-        err = err.replaced($"{scratch}-repo/", by: "")
-    }
     if cls == "SelfhostDefaultT9Tests"
             || (cls.startsWith("SelfhostDefault") || cls.startsWith("SelfhostDriver"))
             && Fs.fileExists(Path.combine(dir, "modes")) {
         // what `modes` or a T9 seed locked, opened again for the next run's `goldenFresh`
         let _ = goldenCliRun(["chmod", "-R", "u+rwx", scratch])
     }
-    buf = goldenDirMasked(buf, at: scratch, by: tag)
-    err = goldenDirMasked(err, at: scratch, by: tag)
+    buf = goldenCliScratchMasked(buf, at: scratch, by: tag, t9: cls == "SelfhostDefaultT9Tests")
+    err = goldenCliScratchMasked(err, at: scratch, by: tag, t9: cls == "SelfhostDefaultT9Tests")
     // the T17c land-time masks of land-export.sh, on the actual side: `mask_doctor` on a doctor run's stdout (the cache row too unless
     // the case's env sets BAYAN_CACHE), `mask_cc` on SelfhostDefaultT12Tests's streams
     var doctor = false
@@ -1632,7 +1634,11 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
             if report != "" {
                 var text = "(none)"
                 if Fs.fileExists(report) {
-                    text = goldenCliMutation(goldenLf(Io.readText(report) catch "")).replaced(scratch, by: tag)
+                    text = goldenCliScratchMasked(
+                        goldenCliMutation(goldenLf(Io.readText(report) catch "")),
+                        at: scratch,
+                        by: tag,
+                    )
                 }
                 goldenCliCheck(dir, for: "expected.report", as: text, to: ref failures)
             }
@@ -2863,6 +2869,19 @@ test "the T9 mask reads times, unwritable-cache and C compiler messages, script 
         goldenCliT9($"<root>/cache/v1/scripts/{key}/x (commit abc)") == "<root>/cache/v1/scripts/<skey>/x (commit <c>)"
     )
     assert(goldenCliT9("scripts/0123 1.5s") == "scripts/0123 1.5s")
+}
+
+test "a Windows scratch directory is read as the goldenCli tag with the path after it in `/`, the T9 repo root dropped as `\\` (T17e)" {
+    let text = "PATH C:\\s-repo\\tmp\\t9-cache\\a\n  --> C:\\s\\tmp\\x.byn:1:2\n{\"file\": \"C:\\\\s\\\\a.byn\"}\n"
+    assert(goldenCliScratchMasked(text, at: "C:\\s", by: "<root>", t9: true)
+        == "PATH tmp/t9-cache/a\n  --> <root>/tmp/x.byn:1:2\n{\"file\": \"<root>/a.byn\"}\n")
+    assert(goldenCliScratchMasked(
+        "/s-repo/tmp/t9-cache/a /s/x\n",
+        at: "/s",
+        by: "<repo>",
+        t9: true,
+    ) == "tmp/t9-cache/a <repo>/x\n")
+    assert(goldenCliScratchMasked("/s-repo/tmp /s/x\n", at: "/s", by: "<repo>") == "<repo>-repo/tmp <repo>/x\n")
 }
 
 test "the argv mask reads a file below a cache's `v1/tmp/` by its name, another path as is" {
