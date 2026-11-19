@@ -11,14 +11,12 @@ A name is one field and names are compared byte for byte, so `Aisha` and `aisha`
 Example input:
 
 ```
-give Bilal 10
-ask Bilal
-children
+give Hafsa 10
+ask Hafsa
 ```
 
 Example output:
 
 ```
-Bilal: 10
-children: 1
+Hafsa: 10
 ```
