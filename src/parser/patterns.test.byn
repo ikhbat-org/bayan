@@ -2,21 +2,21 @@
 // in recover.test.byn.
 
 /// SelfhostParserT3Tests.cs:65 `t3PatternText`.
-string t3PatternText(in Pattern pattern, from ref Parser p) uses alloc {
+string t3PatternText(Pattern pattern, from ref Parser p) uses alloc {
     switch pattern {
         case .discardPattern(let n):
             return "_"
         case .varPattern(let n):
             return $"({n.value.isLet ? "let" : "var"} {p.lexed.source.getText(n.value.name)})"
         case .notPattern(let n):
-            return $"(not {t3PatternText(in n.value.operand, from: ref p)})"
+            return $"(not {t3PatternText(n.value.operand, from: ref p)})"
         case .binaryPattern(let n):
-            return $"({n.value.isAnd ? "and" : "or"} {t3PatternText(in n.value.left, from: ref p)} {t3PatternText(in n.value.right, from: ref p)})"
+            return $"({n.value.isAnd ? "and" : "or"} {t3PatternText(n.value.left, from: ref p)} {t3PatternText(n.value.right, from: ref p)})"
         case .variantPattern(let n):
             var sb = StrBuf()
             sb.append($"(variant {n.value.span.start}+{n.value.span.length}")
             for e in n.value.elements {
-                sb.append($" {t3PatternText(in e, from: ref p)}")
+                sb.append($" {t3PatternText(e, from: ref p)}")
             }
             if n.value.binding is not null {
                 sb.append($" bind {p.lexed.source.getText(n.value.binding ?? n.value.span)}")
@@ -27,7 +27,7 @@ string t3PatternText(in Pattern pattern, from ref Parser p) uses alloc {
             var sb = StrBuf()
             sb.append("(positional")
             for e in n.value.elements {
-                sb.append($" {t3PatternText(in e, from: ref p)}")
+                sb.append($" {t3PatternText(e, from: ref p)}")
             }
             sb.append(")")
             return $"{sb.finish()}"
@@ -35,17 +35,17 @@ string t3PatternText(in Pattern pattern, from ref Parser p) uses alloc {
             var sb = StrBuf()
             sb.append($"(list {n.value.span.start}+{n.value.span.length}")
             for e in n.value.elements {
-                sb.append($" {t3PatternText(in e, from: ref p)}")
+                sb.append($" {t3PatternText(e, from: ref p)}")
             }
             sb.append(")")
             return $"{sb.finish()}"
         case .slicePattern(let n):
-            return $"(.. {t3PatternText(in n.value.inner, from: ref p)})"
+            return $"(.. {t3PatternText(n.value.inner, from: ref p)})"
         case .propertyPattern(let n):
             var sb = StrBuf()
             sb.append("(property")
             for s in n.value.properties {
-                sb.append($" {s.path.length}:{t3PatternText(in s.pattern, from: ref p)}")
+                sb.append($" {s.path.length}:{t3PatternText(s.pattern, from: ref p)}")
             }
             if n.value.designation is not null {
                 sb.append($" as {p.lexed.source.getText(n.value.designation ?? n.value.span)}")
@@ -67,7 +67,7 @@ string t3PatternText(in Pattern pattern, from ref Parser p) uses alloc {
 string t3Pattern(string text) uses alloc {
     var p = t3ParserOf(text)
     let pattern = parsePattern(ref p)
-    return $"{t3PatternText(in pattern, from: ref p)} pos {p.pos} noLambda {p.noLambda}{t3Diags(ref p)}\n"
+    return $"{t3PatternText(pattern, from: ref p)} pos {p.pos} noLambda {p.noLambda}{t3Diags(ref p)}\n"
 }
 
 // SelfhostParserT3Tests.cs:127 `PatternsParse`, expected text at :148-163.

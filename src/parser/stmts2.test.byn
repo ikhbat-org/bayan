@@ -66,14 +66,47 @@ string t8SpanPattern() uses alloc {
 string t8StmtExprs() uses alloc {
     let call = Expr.callExpr(Owned(CallExpr {
         span: TextSpan { start: 0, length: 1 },
-        callee: Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 0, length: 1 }, typeArgs: List<TypeSyntax>() })),
+        callee: Expr.nameExpr(
+            Owned(
+                NameExpr {
+                    span: TextSpan { start: 0, length: 1 },
+                    name: TextSpan { start: 0, length: 1 },
+                    typeArgs: List<TypeSyntax>(),
+                },
+            ),
+        ),
         args: List<Argument>(),
         becauseKeyword: null,
     }))
-    let name = Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 0, length: 1 }, typeArgs: List<TypeSyntax>() }))
-    let jump = Expr.jumpExpr(Owned(JumpExpr { span: TextSpan { start: 0, length: 1 }, jump: Stmt.breakStmt(Owned(BreakStmt { span: TextSpan { start: 0, length: 1 }, label: null })) }))
-    let left = Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 0, length: 1 }, typeArgs: List<TypeSyntax>() }))
-    let coal = Expr.binaryExpr(Owned(BinaryExpr { span: TextSpan { start: 0, length: 1 }, op: .coalesce, left: move left, right: move jump }))
+    let name = Expr.nameExpr(
+        Owned(
+            NameExpr {
+                span: TextSpan { start: 0, length: 1 },
+                name: TextSpan { start: 0, length: 1 },
+                typeArgs: List<TypeSyntax>(),
+            },
+        ),
+    )
+    let jump = Expr.jumpExpr(
+        Owned(
+            JumpExpr {
+                span: TextSpan { start: 0, length: 1 },
+                jump: Stmt.breakStmt(Owned(BreakStmt { span: TextSpan { start: 0, length: 1 }, label: null })),
+            },
+        ),
+    )
+    let left = Expr.nameExpr(
+        Owned(
+            NameExpr {
+                span: TextSpan { start: 0, length: 1 },
+                name: TextSpan { start: 0, length: 1 },
+                typeArgs: List<TypeSyntax>(),
+            },
+        ),
+    )
+    let coal = Expr.binaryExpr(
+        Owned(BinaryExpr { span: TextSpan { start: 0, length: 1 }, op: .coalesce, left: move left, right: move jump }),
+    )
     let err = Expr.errorExpr(Owned(ErrorExpr { span: TextSpan { start: 0, length: 1 } }))
     return $"call {isStatementExpression(in call)} name {isStatementExpression(in name)} coal {isStatementExpression(in coal)} err {isStatementExpression(in err)}"
 }
@@ -86,10 +119,20 @@ string t8AssignCheck() uses alloc {
     let result = lexer.lex(move source, by: keywords)
     var p = Parser.create(move result)
     let before = p.errorCount()
-    let n = Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 0, length: 1 }, typeArgs: List<TypeSyntax>() }))
+    let n = Expr.nameExpr(
+        Owned(
+            NameExpr {
+                span: TextSpan { start: 0, length: 1 },
+                name: TextSpan { start: 0, length: 1 },
+                typeArgs: List<TypeSyntax>(),
+            },
+        ),
+    )
     checkAssignable(ref p, for: in n)
     let afterName = p.errorCount()
-    let l = Expr.literalExpr(Owned(LiteralExpr { span: TextSpan { start: 0, length: 1 }, kind: .integer, text: "1", suffix: null }))
+    let l = Expr.literalExpr(
+        Owned(LiteralExpr { span: TextSpan { start: 0, length: 1 }, kind: .integer, text: "1", suffix: null }),
+    )
     checkAssignable(ref p, for: in l)
     return $"name {afterName - before} literal {p.errorCount() - afterName}"
 }

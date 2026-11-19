@@ -9,7 +9,7 @@ void t10Span(TextSpan s, from ref Parser p, to ref StrBuf sb) uses alloc {
 }
 
 /// SelfhostParserT10Tests.cs:29 `expr`.
-void t10Expr(in Expr e, from ref Parser p, to ref StrBuf sb) uses alloc {
+void t10Expr(Expr e, from ref Parser p, to ref StrBuf sb) uses alloc {
     switch e {
         case .literalExpr(let n):
             sb.append($"(lit {n.value.kind} {n.value.text}")
@@ -44,12 +44,12 @@ void t10Expr(in Expr e, from ref Parser p, to ref StrBuf sb) uses alloc {
                 sb.append(" ")
                 t10Span(f.name, from: ref p, to: ref sb)
                 sb.append("=")
-                t10Expr(in f.value, from: ref p, to: ref sb)
+                t10Expr(f.value, from: ref p, to: ref sb)
             }
             sb.append(")")
         case .parenExpr(let n):
             sb.append("(paren ")
-            t10Expr(in n.value.inner, from: ref p, to: ref sb)
+            t10Expr(n.value.inner, from: ref p, to: ref sb)
             sb.append(")")
         case .tupleExpr(let n):
             sb.append("(tuple")
@@ -60,25 +60,25 @@ void t10Expr(in Expr e, from ref Parser p, to ref StrBuf sb) uses alloc {
                     t10Span(name, from: ref p, to: ref sb)
                     sb.append(":")
                 }
-                t10Expr(in el.value, from: ref p, to: ref sb)
+                t10Expr(el.value, from: ref p, to: ref sb)
             }
             sb.append(")")
         case .collectionExpr(let n):
             sb.append("(list")
             for el in n.value.elements {
                 sb.append(" ")
-                t10Expr(in el, from: ref p, to: ref sb)
+                t10Expr(el, from: ref p, to: ref sb)
             }
             sb.append(")")
         case .spreadExpr(let n):
             sb.append("(spread ")
-            t10Expr(in n.value.operand, from: ref p, to: ref sb)
+            t10Expr(n.value.operand, from: ref p, to: ref sb)
             sb.append(")")
         case .mapEntryExpr(let n):
             sb.append("(entry ")
-            t10Expr(in n.value.key, from: ref p, to: ref sb)
+            t10Expr(n.value.key, from: ref p, to: ref sb)
             sb.append(" ")
-            t10Expr(in n.value.value, from: ref p, to: ref sb)
+            t10Expr(n.value.value, from: ref p, to: ref sb)
             sb.append($" {n.value.span.start}..{n.value.span.end})")
         case .lambdaExpr(let n):
             sb.append("(lambda")
@@ -87,7 +87,7 @@ void t10Expr(in Expr e, from ref Parser p, to ref StrBuf sb) uses alloc {
                 t10Span(s, from: ref p, to: ref sb)
             }
             sb.append(" ")
-            t10Expr(in n.value.body, from: ref p, to: ref sb)
+            t10Expr(n.value.body, from: ref p, to: ref sb)
             sb.append(")")
         case .interpolatedExpr(let n):
             sb.append("(interp")
@@ -97,13 +97,15 @@ void t10Expr(in Expr e, from ref Parser p, to ref StrBuf sb) uses alloc {
                         sb.append(" text")
                     case .interpolationHole(let h):
                         sb.append(" (hole ")
-                        t10Expr(in h.value.expr, from: ref p, to: ref sb)
+                        t10Expr(h.value.expr, from: ref p, to: ref sb)
                         for a in h.value.specs {
                             sb.append(" ")
                             let name = a.name
-                            if name is not null { t10Span(name, from: ref p, to: ref sb) }
+                            if name is not null {
+                                t10Span(name, from: ref p, to: ref sb)
+                            }
                             sb.append("=")
-                            t10Expr(in a.value, from: ref p, to: ref sb)
+                            t10Expr(a.value, from: ref p, to: ref sb)
                         }
                         sb.append(")")
                 }
@@ -118,7 +120,7 @@ void t10Expr(in Expr e, from ref Parser p, to ref StrBuf sb) uses alloc {
                     sb.append("?")
             }
             sb.append(" ")
-            t10Expr(in n.value.count, from: ref p, to: ref sb)
+            t10Expr(n.value.count, from: ref p, to: ref sb)
             sb.append(")")
         case .patternExpr(_):
             sb.append("pattern")
@@ -136,23 +138,53 @@ test "parser t10: primaries parse as in C#" {
     var all = StrBuf()
     let keywords = Keywords.build()
     let inputs = [
-        "42u", "1.5", "'a'", "true", "false", "null", "this", "never", ".red", "foo",
-        "Point { x: 1, y: 2 }", "Point { x = 1 }", "Order.paid { at: 3 }", "point { x: 1 }",
-        "(1)", "(a: 1, 2)", "()", "[1, ..xs, k: v]", "x => 1", "(a, b) => 2", "(a, int b) => 3", "(, a) => 4",
-        "$\"a{x}b\"", "$\"{n, as: .hex}\"", "$\"{n:hex}\"", "$\"{n:.2}\"", "$\"{n:wat}\"",
-        "stackalloc u8[4]", "stackalloc char[2]", "pattern Foo", "+",
+        "42u",
+        "1.5",
+        "'a'",
+        "true",
+        "false",
+        "null",
+        "this",
+        "never",
+        ".red",
+        "foo",
+        "Point { x: 1, y: 2 }",
+        "Point { x = 1 }",
+        "Order.paid { at: 3 }",
+        "point { x: 1 }",
+        "(1)",
+        "(a: 1, 2)",
+        "()",
+        "[1, ..xs, k: v]",
+        "x => 1",
+        "(a, b) => 2",
+        "(a, int b) => 3",
+        "(, a) => 4",
+        "$\"a{x}b\"",
+        "$\"{n, as: .hex}\"",
+        "$\"{n:hex}\"",
+        "$\"{n:.2}\"",
+        "$\"{n:wat}\"",
+        "stackalloc u8[4]",
+        "stackalloc char[2]",
+        "pattern Foo",
+        "+",
     ]
     for input in inputs {
         var bytes = List<u8>()
-        for b in input.bytes { bytes.append(b) }
+        for b in input.bytes {
+            bytes.append(b)
+        }
         var p = Parser.create(lexer.lex(SourceText.create("t.byn", from: move bytes), by: keywords))
         let e = parsePrimary(ref p)
         var sb = StrBuf()
-        t10Expr(in e, from: ref p, to: ref sb)
+        t10Expr(e, from: ref p, to: ref sb)
         sb.append($" @{p.pos}")
         for d in p.lexed.diagnostics {
             sb.append($" [{d.code} {d.span.start}+{d.span.length} {d.message}")
-            if d.hasFix { sb.append($" fix={d.fixReplacement}") }
+            if d.hasFix {
+                sb.append($" fix={d.fixReplacement}")
+            }
             sb.append("]")
         }
         all.append($"{sb.finish()}\n")

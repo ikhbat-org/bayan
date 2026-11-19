@@ -15,8 +15,24 @@ test "parser t11: the dump writes declarations and statements" {
     path.append(TextSpan { start: 7, length: 1 })
     path.append(TextSpan { start: 9, length: 1 })
     var members = List<Decl>()
-    members.append(Decl.importDecl(Owned(ImportDecl { span: TextSpan { start: 0, length: 10 }, path: move path, alias: TextSpan { start: 7, length: 1 } })))
-    members.append(Decl.associatedTypeDecl(Owned(AssociatedTypeDecl { span: TextSpan { start: 0, length: 0 }, name: TextSpan { start: 9, length: 1 } })))
+    members.append(
+        Decl.importDecl(
+            Owned(
+                ImportDecl {
+                    span: TextSpan { start: 0, length: 10 },
+                    path: move path,
+                    alias: TextSpan { start: 7, length: 1 },
+                },
+            ),
+        ),
+    )
+    members.append(
+        Decl.associatedTypeDecl(
+            Owned(
+                AssociatedTypeDecl { span: TextSpan { start: 0, length: 0 }, name: TextSpan { start: 9, length: 1 } },
+            ),
+        ),
+    )
     var stmts = List<Stmt>()
     stmts.append(Stmt.emptyStmt(Owned(EmptyStmt { span: TextSpan { start: 0, length: 0 } })))
     stmts.append(Stmt.breakStmt(Owned(BreakStmt { span: TextSpan { start: 0, length: 0 }, label: null })))
