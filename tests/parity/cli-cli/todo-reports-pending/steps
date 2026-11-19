@@ -1,0 +1,2 @@
+$ $BAYAN test --json cli-test-todo | sed -E -e "s/\"durationMs\": [0-9.]+/\"durationMs\": 0/" -e "s/\"target\": \"[^\"]*\"/\"target\": \"<host>\"/"
+test	--ascii	$WORK/cli-test-todo

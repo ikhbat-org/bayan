@@ -1,0 +1,5 @@
+import util
+
+void main() {
+    print($"{util.twice(21)}")
+}

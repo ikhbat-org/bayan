@@ -1,0 +1,1 @@
+$ $BAYAN test --json --only one cli-test-only-json | sed -E -e "s/\"durationMs\": [0-9.]+/\"durationMs\": 0/" -e "s/\"target\": \"[^\"]*\"/\"target\": \"<host>\"/"

@@ -1,0 +1,1 @@
+$ $BAYAN test --ascii cli-test-quoted > o.txt; echo "test $?"; cat o.txt; q=$(sed -n "s/^  rerun the failure: bayan test --only //p" o.txt); (cd cli-test-quoted && sh -c "printf %s $q"); echo; test -e cli-test-quoted/owned && echo owned; rm o.txt

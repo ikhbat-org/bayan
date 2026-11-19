@@ -1,0 +1,10 @@
+interface IShape {
+    i64 area()
+}
+
+void show(dyn ref IShape s, to dyn ref readonly IShape r) {
+    let t: dyn ref readonly IShape = r
+}
+
+void main() {
+}

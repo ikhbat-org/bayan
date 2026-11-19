@@ -1,0 +1,4 @@
+void main() {
+    var x: i32 = 1
+    print($"{x}")
+}

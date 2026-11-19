@@ -1,0 +1,11 @@
+<repo>/tmp/t27-mutate/Boundary/lib.byn:2:12 emptyReturn `a < 10 || a >= 2` -> `false`: not reached
+<repo>/tmp/t27-mutate/Boundary/lib.byn:2:12 logical `a < 10 || a >= 2` -> `a < 10 && a >= 2`: not reached
+<repo>/tmp/t27-mutate/Boundary/lib.byn:2:12 boundary `a < 10` -> `a <= 10`: not reached
+<repo>/tmp/t27-mutate/Boundary/lib.byn:2:12 relational `a < 10` -> `a >= 10`: not reached
+<repo>/tmp/t27-mutate/Boundary/lib.byn:2:16 literal `10` -> `11`: not reached
+<repo>/tmp/t27-mutate/Boundary/lib.byn:2:16 literal `10` -> `9`: not reached
+<repo>/tmp/t27-mutate/Boundary/lib.byn:2:22 boundary `a >= 2` -> `a > 2`: not reached
+<repo>/tmp/t27-mutate/Boundary/lib.byn:2:22 relational `a >= 2` -> `a < 2`: not reached
+<repo>/tmp/t27-mutate/Boundary/lib.byn:2:27 literal `2` -> `3`: not reached
+<repo>/tmp/t27-mutate/Boundary/lib.byn:2:27 literal `2` -> `1`: not reached
+0 killed, 0 survived, 0 timeout, 10 not reached, 0 marked, 0 not emitted

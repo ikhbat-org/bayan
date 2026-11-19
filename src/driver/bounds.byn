@@ -3,7 +3,8 @@
 // (`SelfhostDefaultBoundsTests.Start`); a peak resident set is sampled by scripts/release/peak-rss.sh as `PeakSampler` sampled it. The C#
 // rows also compared each argv with the C# `bayan`; with no .NET only the driver's side and its bound remain. The release memory gate runs
 // every block whose title starts `bound: ` (docs/memory-leaks.md, *Release gate*). Blocks need `sh` and `ps`, so they are pending on Windows.
-// Not here: the M4 and M5 evict rows delegate to SelfhostDefaultT12Tests and SelfhostDefaultT9Tests and are ported with them; the rows
+// The M5 evict rows delegated to SelfhostDefaultT9Tests are the `bound: evict …` blocks (T28 part 2); the M4 row delegated to the cli case
+// cli/SelfhostDefaultT12Tests/TheInputsHashDoesNotFollowLinks, which the gate runs. Not here: the rows
 // SelfhostDefaultBoundsTests listed as skips (the M1 stream rows, Q1226; M2 and the F2 mutate row, Q1220; M7, Q1149) and the BAYAN_CC_JOBS
 // rows, which the driver does not read.
 
@@ -211,6 +212,120 @@ test "bound: a build trims the cache to BAYAN_CACHE_MAX_MB" {
         assert(name != "old0" && name != "old1")
     }
     assert(built == 1)
+}
+
+/// The names under `dir`, each `prefix`/<name>, a directory with a trailing `/` and followed by its own (`SelfhostDefaultT9Tests.Names`).
+void boundNames(string dir, as string prefix, to ref List<string> names) uses alloc, fs {
+    for name in Io.listDir(dir) catch List<string>() {
+        let path = Path.combine(dir, name)
+        let rel = prefix == "" ? name : $"{prefix}/{name}"
+        if boundIsDir(path) {
+            names.append($"{rel}/")
+            boundNames(path, as: rel, to: ref names)
+        } else {
+            names.append(rel)
+        }
+    }
+}
+
+/// tests/cases/bounds/evict/`name` (exported from the C# `Toolchain.Evict` by SelfhostDefaultT9Tests at dc7b22142, spec 019 T28; the
+/// format is that test's `EvictCase` and `EvictStep`): the `.in` tree built under tmp/selfhost-bounds/, each `age` line setting an
+/// entry's write time that many minutes back, each `evict <keep> <maxBytes> <maxEntries> <seconds>` line run through `t9Evict` on
+/// its `cache/v1`, then the names left as one `== <step>` block. "" when the blocks are the `.expected`, else the case and both.
+string boundEvictCase(string name) uses alloc, clock, console, env, fs, process, random {
+    let stem = Path.fullPath($"tests/cases/bounds/evict/{name}")
+    let input = Io.readText($"{stem}.in") catch { panic($"cannot read {stem}.in") }
+    let expected = Io.readText($"{stem}.expected") catch { panic($"cannot read {stem}.expected") }
+    let root = boundFresh($"evict-{name}")
+    var lines = List<string>()
+    for l in input.parts(by: "\n") {
+        lines.append(l)
+    }
+    var d = newDCtx()
+    var got = ""
+    var step = 0
+    var i = 0
+    while i < lines.length {
+        let line = lines[i]
+        i += 1
+        continue if line == ""
+        var f = List<string>()
+        for x in line.parts(by: " ") {
+            f.append(x)
+        }
+        let path = Path.combine(root, f[1])
+        if f[0] == "dir" {
+            Io.createDirectory(path) catch { panic($"cannot create {path}") }
+        } else if f[0] == "file" {
+            Io.writeFile(path, lines[i].bytes) catch { panic($"cannot write {path}") }
+            i += 1
+        } else if f[0] == "file64" {
+            boundSh($"printf %s '{lines[i]}' | base64 -d > \"$1\"", at: path)
+            i += 1
+        } else if f[0] == "age" {
+            let minutes = t9Digits(f[2], until: 9223372036854775807) ?? 0
+            Fs.setModified(
+                path,
+                to: Time.fromNanos(Time.now().nanos - minutes * 60 * 1000000000),
+            ) catch { panic($"cannot age {path}") }
+        } else if f[0] == "evict" {
+            step += 1
+            t9Evict(
+                f[1],
+                to: t9Digits(f[2], until: 9223372036854775807) ?? 0,
+                by: t9Digits(f[3], until: 9223372036854775807) ?? 0,
+                until: (t9Digits(f[4], until: 9223372036854775807) ?? 0) * 1000000000,
+                at: Path.combine(root, "cache/v1"),
+                through: ref d,
+            ) catch {}
+            var names = List<string>()
+            boundNames(root, as: "", to: ref names)
+            names.sort()
+            got = $"{got}== {step}\n"
+            for n in names {
+                got = $"{got}{n}\n"
+            }
+        }
+    }
+    deleteWorkDir(root)
+    return got == expected ? "" : $"evict case {name}: expected\n{expected}got\n{got}"
+}
+
+// The M5 rows SelfhostDefaultBoundsTests delegated to SelfhostDefaultT9Tests (CliMemoryBoundsTests.M5_TheProgramCacheIsTrimmedLeastRecentlyUsedFirst,
+// M5_AnEntryUsedJustNowIsNotEvicted; CacheTests.EvictionRemovesRuntimeEntries): the driver's evict against the C#'s names left.
+
+test "bound: evict trims the oldest entries first and drops the pointers to them (EvictTrimsTheOldestFirstAsToolchain)" {
+    if Target.os == "windows" {
+        todo("`sh` and `base64` decode the fixture's file64 lines; Windows has neither")
+    }
+    let failure = boundEvictCase("EvictTrimsTheOldestFirstAsToolchain")
+    print(failure)
+    assert(failure == "")
+}
+
+test "bound: evict counts runtime entries with the programs (EvictCountsRuntimeEntriesAsToolchain)" {
+    if Target.os == "windows" {
+        todo("`sh` and `base64` decode the fixture's file64 lines; Windows has neither")
+    }
+    let failure = boundEvictCase("EvictCountsRuntimeEntriesAsToolchain")
+    print(failure)
+    assert(failure == "")
+}
+
+test "bound: evict keeps an entry used just now (EvictKeepsAnEntryUsedJustNowAsToolchain-1-0, -1-120, -2-120)" {
+    if Target.os == "windows" {
+        todo("`sh` and `base64` decode the fixture's file64 lines; Windows has neither")
+    }
+    var failures = ""
+    for name in [
+        "EvictKeepsAnEntryUsedJustNowAsToolchain-1-0",
+        "EvictKeepsAnEntryUsedJustNowAsToolchain-1-120",
+        "EvictKeepsAnEntryUsedJustNowAsToolchain-2-120",
+    ] {
+        failures = $"{failures}{boundEvictCase(name)}"
+    }
+    print(failures)
+    assert(failures == "")
 }
 
 /// The names in `dir` that are files, not directories (`Directory.GetFiles`).

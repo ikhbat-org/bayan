@@ -1,0 +1,26 @@
+== 1 exit 0
+{
+  "package": null,
+  "mode": "safe",
+  "target": "<host>",
+  "tests": [
+    {
+      "name": "one",
+      "file": "$WORK/cli-test-only-json/main.test.byn",
+      "line": 1,
+      "status": "pass",
+      "durationMs": 0,
+      "output": ""
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "panicked": 0,
+    "timedOut": 0,
+    "pending": 0,
+    "skipped": 0,
+    "durationMs": 0
+  }
+}

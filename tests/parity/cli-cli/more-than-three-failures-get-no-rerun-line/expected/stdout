@@ -1,0 +1,20 @@
+== 1 exit 3
+running 4 tests in 1 module
+
+  x cli-test-many: t1
+      assert(false)
+      main.test.byn:2
+
+  x cli-test-many: t2
+      assert(false)
+      main.test.byn:6
+
+  x cli-test-many: t3
+      assert(false)
+      main.test.byn:10
+
+  x cli-test-many: t4
+      assert(false)
+      main.test.byn:14
+
+* 0 passed - x 4 failed - 0 pending - #s

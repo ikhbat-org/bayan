@@ -1,0 +1,2 @@
+new	$WORK/tally
+$ test -d tally/.git && echo "tally/.git exists" || echo "no tally/.git"

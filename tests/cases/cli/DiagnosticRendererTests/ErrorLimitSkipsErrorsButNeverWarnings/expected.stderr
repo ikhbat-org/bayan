@@ -1,0 +1,153 @@
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:2:19
+
+  2 │     let e0: i32 = "a"
+    │                   ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:3:19
+
+  3 │     let e1: i32 = "a"
+    │                   ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:4:19
+
+  4 │     let e2: i32 = "a"
+    │                   ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:5:19
+
+  5 │     let e3: i32 = "a"
+    │                   ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:6:19
+
+  6 │     let e4: i32 = "a"
+    │                   ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:7:19
+
+  7 │     let e5: i32 = "a"
+    │                   ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:8:19
+
+  8 │     let e6: i32 = "a"
+    │                   ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:9:19
+
+  9 │     let e7: i32 = "a"
+    │                   ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:10:19
+
+  10 │     let e8: i32 = "a"
+     │                   ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:11:19
+
+  11 │     let e9: i32 = "a"
+     │                   ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:12:20
+
+  12 │     let e10: i32 = "a"
+     │                    ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:13:20
+
+  13 │     let e11: i32 = "a"
+     │                    ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:14:20
+
+  14 │     let e12: i32 = "a"
+     │                    ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:15:20
+
+  15 │     let e13: i32 = "a"
+     │                    ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:16:20
+
+  16 │     let e14: i32 = "a"
+     │                    ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:17:20
+
+  17 │     let e15: i32 = "a"
+     │                    ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:18:20
+
+  18 │     let e16: i32 = "a"
+     │                    ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:19:20
+
+  19 │     let e17: i32 = "a"
+     │                    ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:20:20
+
+  20 │     let e18: i32 = "a"
+     │                    ^^^
+
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:21:20
+
+  21 │     let e19: i32 = "a"
+     │                    ^^^
+
+warning BYN2311: `w0` is never reassigned; declare it with `let`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:27:9
+
+  27 │     var w0: i32 = 1
+     │         ^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 27 │     let w0: i32 = 1
+     │    │     +++
+
+warning BYN2311: `w1` is never reassigned; declare it with `let`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:29:9
+
+  29 │     var w1: i32 = 1
+     │         ^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 29 │     let w1: i32 = 1
+     │    │     +++
+
+warning BYN2311: `w2` is never reassigned; declare it with `let`
+  --> <repo>/tmp/t27-diag/ErrorLimitSkipsErrorsButNeverWarnings/input.byn:31:9
+
+  31 │     var w2: i32 = 1
+     │         ^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 31 │     let w2: i32 = 1
+     │    │     +++
+… and 5 more errors (use --all to show them)
+
+✗ build failed: 25 errors, 3 warnings
+  explain: bayan explain BYN2202

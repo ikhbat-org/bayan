@@ -1,0 +1,1 @@
+$ $BAYAN audit d > o.txt; echo "audit $?"; grep -c "unsafe void poke()" o.txt

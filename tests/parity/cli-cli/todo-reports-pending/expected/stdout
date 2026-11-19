@@ -1,0 +1,38 @@
+== 1 exit 0
+{
+  "package": null,
+  "mode": "safe",
+  "target": "<host>",
+  "tests": [
+    {
+      "name": "one",
+      "file": "$WORK/cli-test-todo/main.test.byn",
+      "line": 1,
+      "status": "pass",
+      "durationMs": 0,
+      "output": ""
+    },
+    {
+      "name": "later",
+      "file": "$WORK/cli-test-todo/main.test.byn",
+      "line": 5,
+      "status": "pending",
+      "durationMs": 0,
+      "output": "pending: x\n  at main.test.byn:6"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 1,
+    "failed": 0,
+    "panicked": 0,
+    "timedOut": 0,
+    "pending": 1,
+    "skipped": 0,
+    "durationMs": 0
+  }
+}
+== 2 exit 0
+running 2 tests in 1 module
+
+* 1 passed - 1 pending - #s

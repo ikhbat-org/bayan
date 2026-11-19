@@ -1,0 +1,15 @@
+void init(out i32 r) {
+    r = 1
+}
+
+void pass(out i32 r) {
+    init(out r)
+}
+
+i32 use() {
+    var x: i32
+    init(out x)
+    var y: i32 = 0
+    init(out y)
+    return x + y
+}

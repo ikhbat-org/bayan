@@ -1,0 +1,10 @@
+import std.json
+
+json.JsonValue one() uses alloc fails json.JsonError {
+    return (try json.Json.parse("1")).trustUnchecked() because "literal"
+}
+
+test "one" {
+    let v = try one()
+    assert(v is .number(_, _))
+}

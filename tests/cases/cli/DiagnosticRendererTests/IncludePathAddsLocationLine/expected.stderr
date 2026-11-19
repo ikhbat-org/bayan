@@ -1,0 +1,8 @@
+error BYN2001: `c` is not defined
+  --> <repo>/tmp/t27-diag/IncludePathAddsLocationLine/dir/a.byn:2:14
+
+  2 │     print($"{c}")
+    │              ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2001

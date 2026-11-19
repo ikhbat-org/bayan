@@ -1,0 +1,1 @@
+$ $BAYAN build --emit-c $ROOT/examples/hello/main.byn > c.txt; echo "build $?"; grep -F -e "#include \"bayan-rt.h\"" -e "int main(int argc, char** argv)" c.txt | sort -u; rm c.txt

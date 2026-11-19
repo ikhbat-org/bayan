@@ -1,0 +1,8 @@
+<repo>/tmp/t27-mutate/RemovingACallThatAssignsAnOutArgumentIsNotEmitted/lib.byn:2:9 literal `1` -> `2`: not reached
+<repo>/tmp/t27-mutate/RemovingACallThatAssignsAnOutArgumentIsNotEmitted/lib.byn:2:9 literal `1` -> `0`: not reached
+<repo>/tmp/t27-mutate/RemovingACallThatAssignsAnOutArgumentIsNotEmitted/lib.byn:12:18 literal `0` -> `1`: not reached
+<repo>/tmp/t27-mutate/RemovingACallThatAssignsAnOutArgumentIsNotEmitted/lib.byn:12:18 literal `0` -> `-1`: not reached
+<repo>/tmp/t27-mutate/RemovingACallThatAssignsAnOutArgumentIsNotEmitted/lib.byn:13:5 statement `init(out y)` -> ``: not reached
+<repo>/tmp/t27-mutate/RemovingACallThatAssignsAnOutArgumentIsNotEmitted/lib.byn:14:12 emptyReturn `x + y` -> `0`: not reached
+<repo>/tmp/t27-mutate/RemovingACallThatAssignsAnOutArgumentIsNotEmitted/lib.byn:14:12 arithmetic `x + y` -> `x - y`: not reached
+0 killed, 0 survived, 0 timeout, 7 not reached, 0 marked, 0 not emitted

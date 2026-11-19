@@ -1,0 +1,5 @@
+new	tally	--vcs	none
+$ rm tally/tests/app.test.byn; mv main.byn tally/src/app/main.byn
+$ T='summary: false' perl -0pi -e 's/,?\s*\}\s*\z/,\n    test: Tests { $ENV{T} }\n}\n/' tally/package.byn; tail -3 tally/package.byn
+test	--mode	debug	tally
+$ grep -c "byn_cov\[" $(find tally/out/debug -name main.c)

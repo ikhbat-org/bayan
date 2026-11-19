@@ -1,0 +1,10 @@
+effect io = net
+
+bool a((i32 -> bool) p) => true
+
+bool b((i32 -> bool uses net) p) => true
+
+bool d((i32 -> bool uses io) p) => true
+
+void main() {
+}

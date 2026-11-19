@@ -1,0 +1,6 @@
+bool isBig(i64 x) => x > 2
+
+void main() {
+    let f: i64 -> bool = isBig
+    let b = f(3)
+}
