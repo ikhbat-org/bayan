@@ -1,0 +1,7 @@
+error BYN2005: `hidden` is not visible here
+  --> main.byn:2:13
+
+  2 │ print(probe.hidden())
+    │             ^^^^^^ not `public`
+    │
+  help: mark `hidden` `public` to use it from another module

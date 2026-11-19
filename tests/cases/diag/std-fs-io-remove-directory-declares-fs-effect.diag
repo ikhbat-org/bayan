@@ -1,0 +1,4 @@
+error BYN2014: the program has no entry point
+
+  1 │ // StdFsTests.IoRemoveDirectoryNeedsFsEffect: with `fs` declared there is no BYN6002.
+    │ ^
