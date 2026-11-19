@@ -14387,17 +14387,17 @@ file	e6be4bd86ffd77a4049a4b4044cc3d9a976e56a1	tests/cases/emit-c/SelfhostDefault
 file	c3ea755b36af57eb24aff768cc94b74bb8d832e2	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-wrapping-fast.byn --mutate/expected.c
 file	a1e2b6a677ab4ae36258944beb3a9708715c6856	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateOfALargeInputStaysBounded-std-json sites json/expected.c
 file	b8863f27ee370a2762cec268b034894c23daab43	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateSkipsAnInputWithErrorsAndMarksMutantsThatDoNotRebind-mutate failure path/expected.c
-file	5c696d7d04fb5e2b18bd34bdc0a6e0f1c3f6969b	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich --coverage --package ./expected.c
+file	5c696d7d04fb5e2b18bd34bdc0a6e0f1c3f6969b	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich --coverage --package/expected.c
 file	5c696d7d04fb5e2b18bd34bdc0a6e0f1c3f6969b	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich --coverage/expected.c
-file	98d4453316820a12761839c7e5931be342a0d2ad	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich --mutate --mode debug --package ./expected.c
+file	98d4453316820a12761839c7e5931be342a0d2ad	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich --mutate --mode debug --package/expected.c
 file	b4bc090fd99a61a68480d5c630f4002a3c6097f6	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich --mutate/expected.c
-file	0fefedcca86b2dc0436967d90280d707fdca6cef	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich --package ./expected.c
-file	109c532b3f3eca23ad7ab1a6fee99e418bf823e7	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich --tests --coverage --package ./expected.c
-file	0fefedcca86b2dc0436967d90280d707fdca6cef	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich /expected.c
+file	0fefedcca86b2dc0436967d90280d707fdca6cef	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich --package/expected.c
+file	109c532b3f3eca23ad7ab1a6fee99e418bf823e7	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich --tests --coverage --package/expected.c
 file	c450eb66e4adfb43edd0209a0f112dd2a8925e67	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich coverage-tests/expected.c
 file	c450eb66e4adfb43edd0209a0f112dd2a8925e67	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich coverage/expected.c
 file	9dbac9f3aa9cc3c070464f5c272f30fd4da3916b	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich mutate-tests/expected.c
 file	9dbac9f3aa9cc3c070464f5c272f30fd4da3916b	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich mutate/expected.c
+file	0fefedcca86b2dc0436967d90280d707fdca6cef	tests/cases/emit-c/SelfhostDefaultT10Tests/RichFixtureMatchesTheCSharpInEveryBuild-rich/expected.c
 file	8ea4b87b5af06d84bc6cbdd20322a61f3a19711f	tests/cases/emit-c/SelfhostDefaultT10Tests/SitesJsonMatchesTheCSharpOnEveryRunInput-sites json/expected.c
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SelfhostEmitterHarnessTests/BadArgumentsFailLikeBuild---color/expected.c
 file	0cfbf08886fca9a91cb753ec8734c84fcbe52c9f	tests/cases/emit-c/SelfhostEmitterHarnessTests/BadArgumentsFailLikeBuild---color/expected.exitcode
