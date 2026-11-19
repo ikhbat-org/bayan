@@ -55,14 +55,14 @@ jobs:
         run: bash scripts/ci/bootstrap-check.sh
       # macos-latest hit the same 600 s zig cc timeout on src/semantics as Windows below (ci run 43583631792,
       # 2026-11-14: 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
-      # The self-hosted runner limits each golden case and test block to 60 s (BAYAN_TEST_TIMEOUT_MS); the C# ran
+      # The self-hosted runner limits each golden case and test block to 60 s by default; this step sets 300 s (BAYAN_TEST_TIMEOUT_MS). The C# ran
       # them in-process with none. out/dist (`bayan dist`, three targets, cold zig cache) passed it on ubuntu-latest and
       # macos-latest (ci run 44238254448, 2026-11-18).
       - name: Test
         if: runner.os != 'Windows'
         env: { BAYAN_CC_TIMEOUT_S: 1800, BAYAN_TEST_TIMEOUT_MS: 300000 }
         run: bash scripts/test.sh
-      # Windows has known failures until spec 014 (Q743); the next step decides the job.
+      # Windows has known failures until 019 T41b empties tests/windows-known-failures.txt; the next step decides the job.
       - name: Test (Windows)
         if: runner.os == 'Windows'
         continue-on-error: true

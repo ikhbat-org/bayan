@@ -81,6 +81,7 @@ g="$root/.github/workflows/editor-gate.yml"; wf="$root/.github/workflows/release
 grep -qE '^ +run: bash scripts/release/editor-gate.sh$' "$g" || fail "editor-gate.yml does not run editor-gate.sh"
 grep -q 'branches: \[dev\]' "$g" || fail "editor-gate.yml does not run on push to dev"
 grep -q 'workflow_call:' "$g" || fail "editor-gate.yml is not callable"
+grep -q 'install-dotnet' "$g" && fail "editor-gate.yml still installs the .NET SDK (019 T44a)"
 grep -q 'uses: ./.github/workflows/editor-gate.yml' "$wf" || fail "release.yml does not call editor-gate.yml"
 awk '/^  release:/{r=1} r&&/needs:/{print; exit}' "$wf" | grep -q 'editor-gate' || fail "release.yml's release job does not need editor-gate"
 echo PASS

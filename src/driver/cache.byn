@@ -1239,6 +1239,9 @@ string t9KilledCompiler(string root) uses alloc, fs, process {
 
 // Q53: a compiler killed by signal n is exit 128+n, a failed compile, for the runtime object and for the program.
 test "signaled-runtime: a compiler killed by a signal fails the runtime object build as exit 128+signal" {
+    if Target.os == "windows" {
+        todo("the compiler is a `sh` script")
+    }
     let root = t9TestRoot("signaled-runtime")
     let cc = t9KilledCompiler(root)
     let work = Path.combine(root, "work")
@@ -1257,6 +1260,9 @@ test "signaled-runtime: a compiler killed by a signal fails the runtime object b
 }
 
 test "signaled-program: a compiler killed by a signal fails the program build as exit 128+signal" {
+    if Target.os == "windows" {
+        todo("the compiler is a `sh` script")
+    }
     let root = t9TestRoot("signaled-program")
     let cc = t9KilledCompiler(root)
     let work = Path.combine(root, "work")
