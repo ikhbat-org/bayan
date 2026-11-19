@@ -161,6 +161,33 @@ string goldenCliPut(string text, for string scratch) uses alloc {
     return text.replaced("<repo>", by: scratch).replaced("<root>", by: scratch).replaced("{D}", by: scratch)
 }
 
+/// SelfhostDriverFixTests.cs:64-131: `text` with the directory of the fix target `target` (the file's own for a file) as `<dir>`, both as
+/// `Path.directoryName` writes it and as the target spells it up to its last separator: the driver prints the target as given, which on
+/// Windows keeps the `/` after the scratch directory where `Path.directoryName` writes `\`.
+string goldenCliDirMasked(string text, at string target) uses alloc, fs {
+    let file = Fs.fileExists(target) || !t6DirectoryExists(target) && target.endsWith(".byn")
+    let masked = file ? Path.directoryName(target) ?? target : target
+    var cut = target.length
+    if file {
+        cut = 0
+        for i in 0..target.length {
+            if goldenCliSep(target, at: i) {
+                cut = i
+            }
+        }
+    }
+    let spelled = cut > 0 ? target[0..cut] : masked
+    return text.replaced(masked, by: "<dir>").replaced(spelled, by: "<dir>")
+}
+
+/// The part of `path` below the directory `dir`, each read with `/` for `\` on Windows (`goldenSlashed`); empty when it is not below it.
+string goldenCliBelow(string path, at string dir) uses alloc {
+    let p = goldenSlashed(path)
+    let d = goldenSlashed(dir)
+    return "" unless p.startsWith($"{d}/")
+    return p[d.length + 1..p.length]
+}
+
 /// The paths below the repo that `args`, `env` and `cwd` of case `dir` name (`args` alone with `argsOnly`), in that order, each `<repo>/…` up
 /// to the end of its line or a `:`, read below `scratch`.
 List<string> goldenCliNamed(string dir, for string scratch, bool argsOnly = false) uses alloc, fs {
@@ -303,10 +330,11 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
             )
             let repoCases = Path.combine(Path.combine(scratch, "tests"), "cases")
             let at = Path.directoryName(to) ?? scratch
-            if own && at.startsWith($"{repoCases}/") {
+            let below = goldenCliBelow(at, at: repoCases)
+            if own && below != "" {
                 // a file of the repo's tests/cases: the C# read its module, the other `.byn` files beside it (SelfhostDriverTests.cs:154
                 // `DiagnosticsJsonAsCliAppDoes`), which the export left out; they are the files of `cases` at that place
-                let from = Path.combine(cases, at[repoCases.length + 1..at.length])
+                let from = Path.combine(cases, below)
                 for file in Io.listDir(from) catch List<string>() {
                     continue if !file.endsWith(".byn") || file == Path.fileName(to)
                     let bytes = Io.readFile(Path.combine(from, file)) catch List<u8>()
@@ -805,6 +833,27 @@ string goldenCliT2(string text) uses alloc => goldenCliTimes(text, from: " in ",
 string goldenCliT5(string text) uses alloc {
     let t = goldenCliTimes(text, from: "", by: "masked", two: true).replaced("from cache", by: "masked")
     return goldenCliVersion(t.replaced(" · masked", by: ""))
+}
+
+/// `text` with each path after `tag` read with `/` for `\` up to the next space or line end, when `windows`: the driver prints the full path
+/// of a file it read with `\` there, where the export, made on macOS, holds `/` (the `<dir>/\S*` of `goldenStyleMask`).
+string goldenCliSlashedAfter(string text, at string tag, by bool windows) uses alloc {
+    return text unless windows
+    var sb = StrBuf()
+    var first = true
+    for part in text.parts(by: tag) {
+        if first {
+            sb.append(part)
+            first = false
+            continue
+        }
+        var end: i64 = 0
+        while end < part.length && !(part.bytes[end] is 0x20 or 0x09 or 0x0a or 0x0d) {
+            end += 1
+        }
+        sb.append($"{tag}{part[0..end].replaced("\\", by: "/")}{part[end..part.length]}")
+    }
+    return sb.finish()
 }
 
 /// SelfhostDefaultT5Tests.cs:25 `Mask`: `\(commit [^)]*\)` as `(commit <c>)`, then `isn't writable: [^\u001b\n]*` as `isn't writable: <message>`.
@@ -1400,13 +1449,8 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
     var buf = goldenLf(o.stdout)
     var err = goldenLf(o.stderr)
     if word == "dir-masked" && args.length > 1 {
-        // SelfhostDriverFixTests.cs:64-131: the target's directory (the file's own for a file) as `<dir>`
-        let target = args[1]
-        let masked = Fs.fileExists(target)
-            || !t6DirectoryExists(target) && target.endsWith(".byn") ? Path.directoryName(target)
-            ?? target : target
-        buf = buf.replaced(masked, by: "<dir>")
-        err = err.replaced(masked, by: "<dir>")
+        buf = goldenCliDirMasked(buf, at: args[1])
+        err = goldenCliDirMasked(err, at: args[1])
     }
     if word == "dir-seconds-masked" && args.length > 1 {
         // SelfhostDriverTests.cs:1492: the formatted directory as `{D}`
@@ -1526,7 +1570,8 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
             // SelfhostDriverT5Tests.cs:166-171: stdout byte for byte, stderr through `Mask`
             goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
             goldenCliCheck(dir, for: "expected.stdout", as: o.stdout.replaced(scratch, by: tag), to: ref failures)
-            goldenCliCheck(dir, for: "expected.stderr", as: goldenCliT5(err), to: ref failures)
+            let slashed = goldenCliSlashedAfter(err, at: tag, by: Target.os == "windows")
+            goldenCliCheck(dir, for: "expected.stderr", as: goldenCliT5(slashed), to: ref failures)
         case "masked":
             goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
             if cls == "SelfhostDefaultT4Tests" {
@@ -2299,6 +2344,9 @@ test "`dir-seconds-masked` masks the directory and times (SelfhostDriverTests.cs
 }
 
 test "`stderr-prefix` compares stderr up to its first \"`:\" for SelfhostDriverT3Tests (:450-453), a changed one fails" {
+    if Target.os == "windows" {
+        todo("the case puts a `cc` with no execute mode on PATH, and Windows has no such mode")
+    }
     let r = goldenCliPair(
         "SelfhostDriverT3Tests/ACompilerThatCannotBeStartedIsReportedAsToolchain",
         as: goldenCliSpecStderrPrefix,
@@ -2404,6 +2452,33 @@ test "`dir-masked` reads the target's directory as `<dir>` (SelfhostDriverFixTes
     ))
 }
 
+test "the `dir-masked` mask reads the target's directory as `<dir>` both as `Path.directoryName` writes it and as the target spells it" {
+    // a doubled separator, which `Path.directoryName` writes once, stands for the `/` it writes as `\` on Windows
+    let target = "/nowhere//golden-dir-mask/missing.byn/nope.byn"
+    let dir = Path.directoryName(target) ?? ""
+    assert(dir != "/nowhere//golden-dir-mask/missing.byn")
+    assert(goldenCliDirMasked($"not found: {target}", at: target) == "not found: <dir>/nope.byn")
+    assert(goldenCliDirMasked($"not found: {Path.combine(dir, "nope.byn")}", at: target)
+        == $"not found: {Path.combine("<dir>", "nope.byn")}")
+}
+
+test "on Windows the T5 stderr reads a path after `<repo>` with `/` for `\\`, as the export made on macOS holds it" {
+    let text = "  --> <repo>\\tmp\\t5\\a.byn:3:10\nhelp: a\\b <repo>\\c d\n"
+    assert(
+        goldenCliSlashedAfter(text, at: "<repo>", by: true) == "  --> <repo>/tmp/t5/a.byn:3:10\nhelp: a\\b <repo>/c d\n"
+    )
+    assert(goldenCliSlashedAfter(text, at: "<repo>", by: false) == text)
+}
+
+test "a path below tests/cases is read below it with `/` or the OS separator, so the T5 sibling `.byn` files are copied on Windows too" {
+    let cases = Path.combine(Path.combine(Path.fullPath("tmp"), "tests"), "cases")
+    assert(goldenCliBelow(Path.combine(cases, "diag"), at: cases) == "diag")
+    assert(goldenCliBelow($"{cases}/diag", at: cases) == "diag")
+    assert(goldenCliBelow($"{cases}\\diag", at: cases) == (Target.os == "windows" ? "diag" : ""))
+    assert(goldenCliBelow(cases, at: cases) == "")
+    assert(goldenCliBelow($"{cases}-other/diag", at: cases) == "")
+}
+
 test "`mutation-masked` compares stdout, stderr and the report (SelfhostDriverMutateTests.cs:40, :45-95), a changed report fails" {
     let r = goldenCliPair(
         "SelfhostDriverMutateTests/MutateExternalAsCliAppDoes-2",
@@ -2439,6 +2514,9 @@ test "`argv-masked` compares exit, stderr and the compiler's argv (SelfhostDrive
 }
 
 test "`argv-masked-arguments` compares the argv after the compiler's name (SelfhostDriverT3Tests.cs:410-423), a changed one fails" {
+    if Target.os == "windows" {
+        todo("the fake driver is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
     // this driver compiles main.c in its cache, not beside the output as the C# did (a T19 divergence), so a fake driver calls the
     // recording `cc` with the arguments the C# passed it
     let fakes = Path.combine(Path.fullPath("tmp"), "golden-cli-fake-argv")
@@ -2468,7 +2546,7 @@ test "an unknown `compare` word fails the case naming the word" {
     let failure = goldenCliFixtureRun(root, for: "SelfhostDriverT1Tests/AuditAsCliApp-10")
     deleteWorkDir(root)
     assert(
-        failure == $"{Path.combine(root, "cli/SelfhostDriverT1Tests/AuditAsCliApp-10")}\nunknown compare word `sideways`"
+        failure == $"{Path.combine(Path.combine(Path.combine(root, "cli"), "SelfhostDriverT1Tests"), "AuditAsCliApp-10")}\nunknown compare word `sideways`"
     )
 }
 
@@ -2540,6 +2618,9 @@ test "a SelfhostDefault plain `input` goes to the env path of its `input.name`, 
 }
 
 test "a T5 input tree no path names goes to its first env path, created even when empty, and `modes` lock it last" {
+    if Target.os == "windows" {
+        todo("`modes` is applied by `chmod` and read by `test -r` and `test -w`, and Windows has no POSIX modes")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-cli-stage-env")
     deleteWorkDir(root)
     let dir = Path.combine(root, "cli/SelfhostDefaultT5Tests/env")
@@ -2577,6 +2658,9 @@ test "a T5 input tree no path names goes to its first env path, created even whe
 }
 
 test "SelfhostDefault `links` are made below the input's place, a target below its original place read there" {
+    if Target.os == "windows" {
+        todo("`links` are made by `ln -s`, which on Windows copies a file and fails on a dangling target")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-cli-stage-links")
     deleteWorkDir(root)
     let dir = Path.combine(root, "cli/SelfhostDefaultT12Tests/links")
@@ -2618,6 +2702,9 @@ test "a SelfhostDefault env naming `<bin>` gets a fresh bin directory holding `e
 }
 
 test "a T9 step case replays the steps before it in one tree, each after its `Before`, and only when its first step is beside it" {
+    if Target.os == "windows" {
+        todo("the driver stand-in is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-cli-t9")
     deleteWorkDir(root)
     let cls = Path.combine(root, "cli/SelfhostDefaultT9Tests")
@@ -2650,6 +2737,9 @@ test "a T9 step case replays the steps before it in one tree, each after its `Be
 }
 
 test "T9 seeds and PATH directories: an unwritable cache, a read-only `programs`, an odd `cc`, `$PATH` and `tmp/t9-cache/` read here" {
+    if Target.os == "windows" {
+        todo("the seeds lock directories and make a non-executable `cc` by `chmod`, and Windows has no POSIX modes")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-cli-t9-seed")
     deleteWorkDir(root)
     let tree = Path.combine(root, "tree")
@@ -2729,7 +2819,9 @@ test "an `input.byn.ref` pointer with no file below inputs/files fails the case 
     deleteWorkDir(
         Path.combine(Path.fullPath("tmp"), "cli/SelfhostDriverT1Tests_AScriptRunsAndAGlobalOptionBeforeItIsTaken"),
     )
-    assert(failure.contains($"missing input file {Path.combine(root, $"inputs/files/{sha}")}"))
+    assert(
+        failure.contains($"missing input file {Path.combine(Path.combine(Path.combine(root, "inputs"), "files"), sha)}")
+    )
 }
 
 test "the T12 and time masks compare bytes, so text with multibyte characters before a match does not stop them" {
@@ -2792,14 +2884,18 @@ test "a cli case without `args` is reported, and BAYAN_UPDATE=1 rewrites a cli c
     let again = goldenUpdateRun(root, as: "1", by: null)
     let stderr = Io.readText(Path.combine(root, $"cli/{name}/expected.stderr")) catch ""
     deleteWorkDir(root)
-    let probe = Path.combine(root, "cli/SelfhostDriverT3Tests/Probe")
+    let probe = Path.combine(Path.combine(Path.combine(root, "cli"), "SelfhostDriverT3Tests"), "Probe")
+    let expected = Path.combine(
+        Path.combine(Path.combine(Path.combine(root, "cli"), "SelfhostDriverT1Tests"), "AuditAsCliApp-10"),
+        "expected.stderr",
+    )
     assert(before.exitCode == exitTestFailure)
     assert(before.stdout.contains($"\nfailed cli/{name}\n"))
     assert(
         before.stdout.contains($"\nskipped cli/SelfhostDriverT3Tests/Probe\n    skipped: no `args` file in {probe}\n")
     )
     assert(update.stdout.contains(
-        $"\npassed cli/{name}\n    rewrote {Path.combine(root, $"cli/{name}/expected.stderr")}\n",
+        $"\npassed cli/{name}\n    rewrote {expected}\n",
     ))
     assert(again.exitCode == exitOk)
     assert(stderr == "usage: bayan audit <path>\n")
@@ -2823,6 +2919,8 @@ test "an exported case whose `os` line does not name this OS is skipped naming i
     assert(other == $"skipped: its `os` file names plan9 beos, not {Target.os}")
     assert(here is null && none is null)
     assert(run.exitCode == exitOk)
-    assert(run.stdout.contains($"\nskipped cli/AlphaTests/Other\n    skipped: its `os` file names plan9 beos, not {Target.os}\n"))
+    assert(run.stdout.contains(
+        $"\nskipped cli/AlphaTests/Other\n    skipped: its `os` file names plan9 beos, not {Target.os}\n",
+    ))
     assert(run.stdout.contains("◆ 0 passed · 1 pending · 0 test blocks, 1 golden case · Ts"))
 }
