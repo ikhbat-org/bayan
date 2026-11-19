@@ -710,7 +710,9 @@ bool goldenIsCasesDir(string path) uses alloc, fs {
 /// `<status> <kind>/<case>` per case in case order, whatever order they end in, with its detail indented below (none of it when `quiet`); each
 /// result is also added to `results` with its input. test.byn prints the counts (spec 019 R8). A failed or timed-out case never stops the ones
 /// after it. `exitTestFailure` when one failed or timed out or a listing failed; `exitUsage` when `only` selects nothing (test.byn:281). The
-/// programs of the exported cases are built first (`goldenPrebuild`, each within `buildMs`); `driverPath` stands for `$BAYAN_EXE` (test blocks).
+/// programs of the exported cases are built first (`goldenPrebuild`, each within `buildMs`); `driverPath` stands for `$BAYAN_EXE` and
+/// `snapshot` for `$BAYAN_SNAPSHOT` (test blocks). Under `BAYAN_SNAPSHOT` (spec 019 T48c) its manifest.json and runs.jsonl are cleared first
+/// and the programs are built and the cases run in one worker (`goldenSnapshotJobs`), the children reading the variables themselves.
 i32 goldenTest(
     string root,
     by List<string> only,
@@ -719,7 +721,8 @@ i32 goldenTest(
     i64 jobs = 1,
     bool quiet = false,
     string? driverPath = null,
-    i64 buildMs = goldenBuildLimitMs
+    i64 buildMs = goldenBuildLimitMs,
+    string? snapshot = null
 )
         uses alloc, clock, console, env, fs, process {
     var exit = 0
@@ -737,6 +740,13 @@ i32 goldenTest(
         Io.stderr.write($"bayan: no case name contains {t5Join(in quoted)}\n")
         return exitUsage
     }
+    let snap = snapshot ?? Env.get("BAYAN_SNAPSHOT") ?? ""
+    if snap != "" {
+        for f in ["manifest.json", "runs.jsonl"] {
+            Io.remove(Path.combine(Path.fullPath(snap), f)) catch {}
+        }
+    }
+    let workers = goldenSnapshotJobs(jobs, for: snap)
     let exe = driverPath ?? Env.get("BAYAN_EXE") ?? ""
     if exe != "" && !quiet {
         Io.stdout.write(goldenExeReport(exe))
@@ -748,11 +758,13 @@ i32 goldenTest(
     // Workers need a driver that starts (T2c); without one the cases run here, each failing with the T2c text as under `--jobs 1`.
     var unusable = ""
     let driver = goldenExeOf(exe, through: ref unusable)
-    let parallel = jobs > 1 && Target.os != "windows"
-    if cases.length > 1 && driver != "" && (parallel || cases.length > goldenWorkerBatch) {
+    let parallel = workers > 1 && Target.os != "windows"
+    if driver != ""
+            && (snap != "" && cases.length > 0 || cases.length > 1 && (parallel || cases.length > goldenWorkerBatch)) {
         // the workers build the programs first, in processes of their own (`goldenPrebuildWorker`); one at a time (`--jobs 1`, Windows), a
-        // run of more than `goldenWorkerBatch` cases goes through one worker too, so it restarts as the parallel ones do (T17e)
-        goldenJobs(in cases, by: exe, for: limitMs, as: parallel ? jobs : 1, to: ref mine, buildMs: buildMs)
+        // run of more than `goldenWorkerBatch` cases goes through one worker too, so it restarts as the parallel ones do (T17e), as does a
+        // recording, whose builds and runs read BAYAN_SNAPSHOT in the processes that make them
+        goldenJobs(cases, by: exe, for: limitMs, as: parallel ? workers : 1, to: ref mine, buildMs: buildMs)
         for r in mine {
             unless quiet {
                 goldenPrint(in r)
@@ -783,6 +795,14 @@ i32 goldenTest(
         )
     }
     return failed || exit != 0 ? exitTestFailure : exitOk
+}
+
+/// The workers of a run asked for `jobs`: one under `BAYAN_SNAPSHOT` (`snap` set; Decision 2026-11-19 on T48c), so one process at a time
+/// writes manifest.json and runs.jsonl, said on stderr when more were asked for.
+i64 goldenSnapshotJobs(i64 jobs, for string snap) uses alloc, console {
+    return jobs if snap == "" || jobs <= 1
+    Io.stderr.write($"bayan: BAYAN_SNAPSHOT records one case at a time: --jobs {jobs} runs as --jobs 1\n")
+    return 1
 }
 
 /// The report lines of result `r`: `<status> <kind>/<case>`, then its detail indented.

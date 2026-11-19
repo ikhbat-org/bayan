@@ -12,6 +12,13 @@
 // Inputs. A case's `input.<ext>` and its `input/` (T17a: `input.tsv` over `<cases>/inputs`; an older export: the directory itself) are placed
 // in a fresh scratch directory tmp/programs-run/<Class>_<case>, which stands for the repo and for the C#'s temp directories; what the program
 // prints reads the scratch directory back as the repo-relative paths the export wrote (`Portable`, SelfhostSemanticsHarness.cs:449).
+//
+// Recording (spec 019 T48c). Under `BAYAN_SNAPSHOT` each program is a schemata build (`--schemata-files`) with sites only in the files of
+// `BAYAN_SNAPSHOT_FILES` (repo paths; all its files when that is empty), never in a replaced main.byn or an added file, listed in
+// `<snapshot>/manifest.json`; each run of one is run twice and appended to `<snapshot>/runs.jsonl`, and its scratch directory is kept for
+// scripts/selfhost/replay.py (SelfhostSemanticsHarness.cs:84-140, :283-315). `goldenTest` clears the two files and runs one case at a time.
+
+import std.encoding
 
 /// A case of an exported class: its directory, class and name, the cases directory over it, its scratch directory, the driver, whether it only
 /// builds its programs (`goldenPrebuild`) and their build limit.
@@ -151,6 +158,22 @@ string goldenProgram(
         key.append(Io.readText(Path.combine(src, f)) catch "")
         key.append("\0")
     }
+    let snapshot = Env.get("BAYAN_SNAPSHOT") ?? ""
+    var kept = List<string>()
+    if snapshot != "" {
+        kept = goldenSnapshotKept(
+            Env.get("BAYAN_SNAPSHOT_FILES") ?? "",
+            from: files,
+            main: main == "" ? "" : $"{pkg}/main.byn",
+            added: addAs,
+            through: ref failure,
+        )
+        return "" if failure != ""
+        key.append("snapshot\0")
+        for f in kept {
+            key.append($"{f}\0")
+        }
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-programs")
     let final = Path.combine(root, t9Hash(key.finish()))
     let prog = Path.combine(final, "prog")
@@ -188,6 +211,15 @@ string goldenProgram(
         for a in ["build", "--mode", "fast", "--package", staged, "-o", Path.combine(stage, "prog")] {
             args.append(a)
         }
+        if snapshot != "" {
+            var paths = StrBuf()
+            for i in 0..kept.length {
+                paths.append(i == 0 ? "" : ",")
+                paths.append(Path.combine(staged, kept[i]))
+            }
+            args.append("--schemata-files")
+            args.append(paths.finish())
+        }
         args.append(file ? Path.combine(staged, addAs) : Path.combine(staged, pkg))
         let none = List<u8>()
         var reason = ""
@@ -209,6 +241,17 @@ string goldenProgram(
         } else if o.exitCode != 0 || !Fs.fileExists(Path.combine(stage, "prog")) {
             let text = $"the {pkg} program did not build (exit {o.exitCode})\n{o.stdout}{o.stderr}"
             Io.writeFile(Path.combine(stage, "failed"), text.bytes) catch {}
+        } else if snapshot != "" {
+            // the staged sources are gone: each site, named by its staged path or one relative to it, names the repo's file, as
+            // `bayan mutate` reports it (mutate-batch.sh report-paths)
+            let sites = Path.combine(stage, "prog.sites.json")
+            var text = Io.readText(sites) catch ""
+            for f in kept {
+                for named in [Path.combine(staged, f), f] {
+                    text = text.replaced($"\"file\": \"{named}\"", by: $"\"file\": \"{Path.combine(src, f)}\"")
+                }
+            }
+            Io.writeFile(sites, text.bytes) catch {}
         }
         Io.createDirectory(root) catch {}
         // another run that built it first keeps its own
@@ -216,9 +259,75 @@ string goldenProgram(
             deleteWorkDir(stage)
         }
     }
-    return prog if Fs.fileExists(prog)
+    if Fs.fileExists(prog) {
+        if snapshot != "" {
+            goldenSnapshotBuild(Path.fullPath(snapshot), for: prog, through: ref failure)
+        }
+        return prog if failure == ""
+        return ""
+    }
     failure = Io.readText(failed) catch $"the {pkg} program did not build"
     return ""
+}
+
+/// The files of `files` (`<pkg>/<name>` below src/) a recording's program keeps sites in: those the comma list `list`
+/// (`BAYAN_SNAPSHOT_FILES`, repo paths) names, all when it names none, never `main` (a replaced main.byn) or `added`; empty with `failure` set
+/// when an entry is not on disk (SelfhostSemanticsHarness.cs:103 `SnapshotSkip`; one this program does not compile is ignored, Q820).
+List<string> goldenSnapshotKept(
+    string list,
+    from List<string> files,
+    through ref string failure,
+    string main = "",
+    string added = ""
+)
+        uses alloc, fs {
+    let src = Path.fullPath("src")
+    var listed = List<string>()
+    var kept = List<string>()
+    for part in list.parts(by: ",") {
+        let f = $"{part.trimmed()}"
+        continue if f == ""
+        if !Fs.fileExists(f) {
+            failure = $"BAYAN_SNAPSHOT_FILES: {f} matches no compiled source"
+            return kept
+        }
+        listed.append(Path.fullPath(f))
+    }
+    for f in files {
+        continue if f == main || f == added
+        if listed.length == 0 || t13RunnerHas(listed, for: Path.combine(src, f)) {
+            kept.append(f)
+        }
+    }
+    return kept
+}
+
+/// `binary` and its site map listed in `dir`/manifest.json once, as `{"version": 1, "builds": [{"binary", "sites"}]}` with a build a line
+/// (SelfhostSemanticsHarness.cs:119 `RecordBuild`); `failure` set when it cannot be written.
+void goldenSnapshotBuild(string dir, for string binary, through ref string failure) uses alloc, fs {
+    let path = Path.combine(dir, "manifest.json")
+    let entry = $"    {{\"binary\": {t11JsonString(binary)}, \"sites\": {t11JsonString($"{binary}.sites.json")}}}"
+    var lines = List<string>()
+    for line in (Io.readText(path) catch "").parts(by: "\n") {
+        continue unless line.startsWith("    {")
+        let l = $"{line.trimmed(from: .end)}"
+        let bare = l.endsWith(",") ? $"{l[0..l.length - 1]}" : l
+        if bare == entry {
+            return
+        }
+        lines.append(bare)
+    }
+    lines.append(entry)
+    var text = StrBuf()
+    text.append("{\n  \"version\": 1,\n  \"builds\": [\n")
+    for i in 0..lines.length {
+        text.append(lines[i])
+        text.append(i + 1 < lines.length ? ",\n" : "\n")
+    }
+    text.append("  ]\n}\n")
+    if !goldenWrote(path, as: text.finish()) {
+        failure = $"cannot write {path}"
+    }
 }
 
 /// The staging directories `<key>.<n>` of `root` (tmp/golden-programs) written more than a day ago, left by a build killed before its
@@ -712,7 +821,8 @@ void goldenProgramCheck(string dir, for string name, as string actual, by string
 }
 
 /// `prog` run with `args` in `cwd` and `input` on its stdin, its whole output kept (T17b2c: the case child running it is killed at the case
-/// limit); null with the failure added when it cannot run, and null when `k` only builds.
+/// limit); null with the failure added when it cannot run, and null when `k` only builds. Under `BAYAN_SNAPSHOT` it runs twice and is
+/// appended to runs.jsonl (SelfhostSemanticsHarness.cs:291 `RunRecorded`), null with the failure added when the two runs differ.
 GoldenOutcome? goldenProgramRun(
     GoldenExportCase k,
     for string prog,
@@ -721,15 +831,78 @@ GoldenOutcome? goldenProgramRun(
     from ref List<u8> input,
     to ref List<string> failures
 )
-        uses alloc, clock, fs, process {
+        uses alloc, clock, env, fs, process {
     return null if k.prebuild
     var failure = ""
     let o = goldenChild(prog, by: in args, at: cwd, from: in input, through: ref failure, whole: true)
+    let snapshot = Env.get("BAYAN_SNAPSHOT") ?? ""
+    if failure == "" && snapshot != "" {
+        let again = goldenChild(prog, by: args, at: cwd, from: input, through: ref failure, whole: true)
+        var differ = List<string>()
+        if failure == "" && o.exitCode != again.exitCode {
+            differ.append("exit code")
+        }
+        if failure == "" && o.stdout != again.stdout {
+            differ.append("stdout")
+        }
+        if failure == "" && o.stderr != again.stderr {
+            differ.append("stderr")
+        }
+        var shown = StrBuf()
+        shown.append(prog)
+        for a in args {
+            shown.append($" {a}")
+        }
+        if differ.length > 0 {
+            failure = $"BAYAN_SNAPSHOT: two runs of `{shown.finish()}` differ in {t5Join(differ)}"
+        } else if failure == "" {
+            goldenSnapshotRun(
+                Path.fullPath(snapshot),
+                for: prog,
+                by: args,
+                at: cwd,
+                from: input,
+                as: o,
+                through: ref failure,
+            )
+        }
+    }
     if failure != "" {
         failures.append($"{k.dir}\n{failure}")
         return null
     }
     return o
+}
+
+/// The run of `prog` with `args` in `cwd` on `input` that printed `o` appended to `dir`/runs.jsonl as the line replay.py reads: `program`,
+/// `args`, `cwd`, `stdin` (base64, null when empty), `stdout` and `stderr` (base64) and `exit`; `failure` set when it cannot be written.
+void goldenSnapshotRun(
+    string dir,
+    for string prog,
+    by List<string> args,
+    at string cwd,
+    from List<u8> input,
+    as GoldenOutcome o,
+    through ref string failure
+)
+        uses alloc, fs {
+    var line = StrBuf()
+    line.append($"{{\"program\": {t11JsonString(prog)}, \"args\": [")
+    for i in 0..args.length {
+        line.append(i == 0 ? "" : ", ")
+        line.append(t11JsonString(args[i]))
+    }
+    let stdin = input.length == 0 ? "null" : $"\"{encoding.Base64.encode(input.span)}\""
+    line.append($"], \"cwd\": {t11JsonString(cwd)}, \"stdin\": {stdin}, ")
+    line.append(
+        $"\"stdout\": \"{encoding.Base64.encode(o.stdout.bytes)}\", \"stderr\": \"{encoding.Base64.encode(o.stderr.bytes)}\", ",
+    )
+    line.append($"\"exit\": {o.exitCode}}}\n")
+    let path = Path.combine(dir, "runs.jsonl")
+    // no append in Io: the runs are written one at a time (`goldenTest` runs one case at a time under BAYAN_SNAPSHOT)
+    if !goldenWrote(path, as: $"{Io.readText(path) catch ""}{line.finish()}") {
+        failure = $"cannot write {path}"
+    }
 }
 
 /// SelfhostSemanticsHarness.cs:415 `RunSections`: the generated program exits 0 with an empty stderr; else the failure is added.
@@ -1541,7 +1714,10 @@ string? goldenProgramsCase(
         default:
             goldenProgramLex(k, to: ref failures)
     }
-    deleteWorkDir(scratch)
+    // a recording's runs read their inputs here at replay time (replay.py)
+    if (Env.get("BAYAN_SNAPSHOT") ?? "") == "" {
+        deleteWorkDir(scratch)
+    }
     return null if failures.length == 0
     var text = ""
     for f in failures {
@@ -2091,8 +2267,11 @@ test "a parse case runs bayan-parse on its input (SelfhostParserTests.cs:501-512
 // T17b2c: exported cases run through `goldenInChild` with their program's output kept whole, and their programs built by `goldenTest` before
 // any case clock starts. Each block's fake driver lives under a fresh tmp/golden-prebuild-<n>, so its programs are cold.
 
-/// A fake driver at `root`/bayan: `build` adds its `-o` path as a line of `root`/builds, sleeps `sleep` seconds and puts the shell program
-/// `body` there; any other command is `$BAYAN_EXE`'s, with `BAYAN_EXE` naming the fake so a case child builds through it too. Its path.
+/// A fake driver at `root`/bayan: `build` adds its arguments as a line of `root`/args and its `-o` path as one of `root`/builds, sleeps
+/// `sleep` seconds and puts the shell program `body` there, with a site map naming its `--schemata-files` value, and that value after its
+/// last `/src/`, when it has one; any other command is `$BAYAN_EXE`'s, with `BAYAN_EXE` naming the fake so a case child builds through it
+/// too, after sourcing `root`/env when there is one (a test block cannot set a variable, so the recording ones set BAYAN_SNAPSHOT there).
+/// Its path.
 string goldenPrebuildFake(string root, as string body, for string sleep) uses alloc, env, fs, process {
     if Target.os == "windows" {
         todo("the fake driver and program are `sh` scripts")
@@ -2103,7 +2282,7 @@ string goldenPrebuildFake(string root, as string body, for string sleep) uses al
     return goldenCliFake(
         root,
         for: "bayan",
-        as: $"if [ \"$1\" = build ]; then\n  while [ $# -gt 0 ]; do [ \"$1\" = -o ] && out=$2; shift; done\n  echo \"$out\" >> '{root}/builds'\n  sleep {sleep}\n  cp '{root}/prog' \"$out\"\n  chmod +x \"$out\"\n  exit 0\nfi\nBAYAN_EXE='{root}/bayan' exec '{real}' \"$@\"",
+        as: $"if [ \"$1\" = build ]; then\n  echo \"$*\" >> '{root}/args'\n  while [ $# -gt 0 ]; do [ \"$1\" = -o ] && out=$2; [ \"$1\" = --schemata-files ] && keep=$2; shift; done\n  echo \"$out\" >> '{root}/builds'\n  sleep {sleep}\n  cp '{root}/prog' \"$out\"\n  chmod +x \"$out\"\n  [ -n \"$keep\" ] && printf '{{\"version\": 1, \"sites\": [{{\"file\": \"%s\"}}, {{\"file\": \"%s\"}}]}}\\n' \"$keep\" \"${{keep##*/src/}}\" > \"$out.sites.json\"\n  exit 0\nfi\n[ -f '{root}/env' ] && . '{root}/env'\nBAYAN_EXE='{root}/bayan' exec '{real}' \"$@\"",
     )
 }
 
@@ -2342,7 +2521,10 @@ test "one driver copied to two paths builds a program once, and a build removes 
     for stage in [old, young] {
         Io.createDirectory(stage) catch { panic($"cannot create {stage}") }
     }
-    Fs.setModified(old, to: Time.fromNanos(Time.now().nanos - 25 * 60 * 60 * 1000000000)) catch { panic($"cannot stamp {old}") }
+    Fs.setModified(
+        old,
+        to: Time.fromNanos(Time.now().nanos - 25 * 60 * 60 * 1000000000),
+    ) catch { panic($"cannot stamp {old}") }
     let first = goldenProgramsCase("lex", at: dir, by: exe, prebuild: true) ?? ""
     let second = goldenProgramsCase("lex", at: dir, by: copy, prebuild: true) ?? ""
     let builds = goldenPrebuildBuilds(root).length
@@ -2354,4 +2536,146 @@ test "one driver copied to two paths builds a program once, and a build removes 
     assert(first == "" && second == "")
     assert(builds == 1)
     assert(swept && kept)
+}
+
+// Spec 019 T48c: the recording under BAYAN_SNAPSHOT (SelfhostSemanticsHarness.cs:84-140, :283-315), through the fake driver, whose `env` file
+// sets the variables for the processes that build and run.
+
+/// The string field `name` of the JSON line `line` as the recorder writes it (`"<name>": "<text>"`), else empty.
+string goldenSnapshotField(string line, for string name) uses alloc {
+    let at = goldenOffset(line, for: $"\"{name}\": \"")
+    return "" if at < 0
+    let rest = $"{line[at + name.length + 5..line.length]}"
+    let end = goldenOffset(rest, for: "\"")
+    return end < 0 ? "" : $"{rest[0..end]}"
+}
+
+test "a recording keeps sites in the listed files of a program, all when none is listed, never a replaced main.byn or an added file" {
+    var files = List<string>()
+    for f in ["lexer/main.byn", "lexer/lexer.byn", "t-case.byn"] {
+        files.append(f)
+    }
+    var failure = ""
+    let listed = goldenSnapshotKept(
+        " src/lexer/main.byn,src/lexer/lexer.byn , src/parser/parser.byn",
+        from: files,
+        main: "lexer/main.byn",
+        added: "",
+        through: ref failure,
+    )
+    assert(failure == "" && listed.length == 1 && listed[0] == "lexer/lexer.byn")
+    let all = goldenSnapshotKept("", from: files, main: "", added: "t-case.byn", through: ref failure)
+    assert(failure == "" && all.length == 2 && all[0] == "lexer/main.byn" && all[1] == "lexer/lexer.byn")
+    let mainKept = goldenSnapshotKept("src/lexer/main.byn", from: files, main: "", added: "", through: ref failure)
+    assert(failure == "" && mainKept.length == 1 && mainKept[0] == "lexer/main.byn")
+    let gone = goldenSnapshotKept("src/lexer/gone.byn", from: files, main: "", added: "", through: ref failure)
+    assert(gone.length == 0 && failure == "BAYAN_SNAPSHOT_FILES: src/lexer/gone.byn matches no compiled source")
+    assert(goldenSnapshotJobs(4, for: "tmp/snap") == 1 && goldenSnapshotJobs(4, for: "") == 4)
+}
+
+test "under BAYAN_SNAPSHOT a program is a schemata build of the listed files, its map naming src/, listed once, each run recorded once" {
+    let root = goldenPrebuildRoot("snapshot")
+    let tokens = "1:1 Identifier `\u{e9}\u{20ac}`\n"
+    goldenWrite(root, for: "tokens", as: tokens)
+    let exe = goldenPrebuildFake(root, as: $"cat '{Path.combine(root, "tokens")}'", for: "0")
+    goldenPrebuildCase(root, for: "LexGolden-1", as: tokens)
+    goldenPrebuildCase(root, for: "LexGolden-2", as: tokens)
+    let cases = Path.combine(root, "cases")
+    let snap = Path.combine(root, "snap")
+    let none = List<string>()
+    var plain = List<GoldenResult>()
+    let plainExit = goldenTest(cases, by: none, for: 30000, to: ref plain, quiet: true, driverPath: exe)
+    goldenWrite(
+        root,
+        for: "env",
+        as: $"export BAYAN_SNAPSHOT='{snap}' BAYAN_SNAPSHOT_FILES='src/lexer/lexer.byn,src/parser/parser.byn'\n",
+    )
+    var first = List<GoldenResult>()
+    let firstExit = goldenTest(cases, by: none, for: 30000, to: ref first, quiet: true, driverPath: exe, snapshot: snap)
+    // a second recording, asking for 4 jobs, leaves only its own records
+    var second = List<GoldenResult>()
+    let secondExit = goldenTest(
+        cases,
+        by: none,
+        for: 30000,
+        to: ref second,
+        jobs: 4,
+        quiet: true,
+        driverPath: exe,
+        snapshot: snap,
+    )
+    let entries = goldenPrebuildBuilds(root)
+    let args = goldenCliLines(Path.combine(root, "args"))
+    let prog = entries.length == 2 ? Path.combine(entries[1], "prog") : "-"
+    let sites = Io.readText($"{prog}.sites.json") catch ""
+    let manifest = Io.readText(Path.combine(snap, "manifest.json")) catch ""
+    let runs = goldenCliLines(Path.combine(snap, "runs.jsonl"))
+    let run = Path.combine(Path.fullPath("tmp"), "programs-run")
+    let scratch = Path.combine(run, "SelfhostLexerTests_LexGolden-1")
+    let kept = Fs.fileExists(Path.combine(scratch, "input.byn"))
+    goldenPrebuildClean(root)
+    deleteWorkDir(scratch)
+    deleteWorkDir(Path.combine(run, "SelfhostLexerTests_LexGolden-2"))
+    assert(plainExit == exitOk && firstExit == exitOk && secondExit == exitOk)
+    for r in [plain[0], plain[1], first[0], first[1], second[0], second[1]] {
+        assert(r.status == "passed")
+    }
+    // one plain build, one schemata build over the staged src/lexer/lexer.byn (src/parser is not this program's), reused
+    assert(entries.length == 2 && args.length == 2)
+    assert(!args[0].contains("--schemata-files"))
+    let flag = goldenOffset(args[1], for: "--schemata-files ")
+    let value = flag < 0 ? "" : $"{args[1][flag + 17..args[1].length]}"
+    let list = $"{value[0..goldenOffset(value, for: " ")]}"
+    assert(list.startsWith($"{entries[1]}.") && list.endsWith("/src/lexer/lexer.byn") && !list.contains(","))
+    // the map names the repo's file, for the staged path and the one relative to it
+    let repo = $"{{\"file\": \"{Path.combine(Path.fullPath("src"), "lexer/lexer.byn")}\"}}"
+    assert(sites == $"{{\"version\": 1, \"sites\": [{repo}, {repo}]}}\n")
+    // the build listed once
+    let at = goldenOffset(manifest, for: "\"binary\"")
+    assert(at > 0 && goldenOffset($"{manifest[at + 1..manifest.length]}", for: "\"binary\"") < 0)
+    let entry = $"{{\"binary\": \"{prog}\", \"sites\": \"{prog}.sites.json\"}}"
+    assert(manifest == $"{{\n  \"version\": 1,\n  \"builds\": [\n    {entry}\n  ]\n}}\n")
+    // one line a run, the case's arguments and scratch directory, its bytes in base64
+    assert(runs.length == 2 && kept)
+    for line in runs {
+        assert(goldenSnapshotField(line, for: "program") == prog
+            && goldenSnapshotField(line, for: "cwd").startsWith(Path.combine(run, "SelfhostLexerTests_LexGolden-")))
+        assert(line.contains("\"args\": [\"input.byn\"], ")
+            && line.contains("\"stdin\": null, ")
+            && line.endsWith("\"stderr\": \"\", \"exit\": 0}"))
+        let printed = encoding.Base64.decode(goldenSnapshotField(line, for: "stdout")) catch List<u8>()
+        assert(printed.length == tokens.bytes.length)
+        for i in 0..printed.length {
+            assert(printed[i] == tokens.bytes[i])
+        }
+    }
+}
+
+test "under BAYAN_SNAPSHOT a program whose two runs differ fails its case, naming the command and the stream, and records nothing" {
+    let root = goldenPrebuildRoot("snapshot-differ")
+    let count = Path.combine(root, "count")
+    let exe = goldenPrebuildFake(root, as: $"echo x >> '{count}'\nwc -c < '{count}'", for: "0")
+    goldenPrebuildCase(root, for: "LexGolden-1", as: "1:1 Identifier `a`\n")
+    let snap = Path.combine(root, "snap")
+    goldenWrite(root, for: "env", as: $"export BAYAN_SNAPSHOT='{snap}'\n")
+    var results = List<GoldenResult>()
+    let none = List<string>()
+    let exit = goldenTest(
+        Path.combine(root, "cases"),
+        by: none,
+        for: 30000,
+        to: ref results,
+        quiet: true,
+        driverPath: exe,
+        snapshot: snap,
+    )
+    let entries = goldenPrebuildBuilds(root)
+    let runs = Fs.fileExists(Path.combine(snap, "runs.jsonl"))
+    goldenPrebuildClean(root)
+    deleteWorkDir(Path.combine(Path.combine(Path.fullPath("tmp"), "programs-run"), "SelfhostLexerTests_LexGolden-1"))
+    assert(exit == exitTestFailure && results.length == 1 && results[0].status == "failed" && entries.length == 1)
+    assert(results[0].detail.contains(
+        $"BAYAN_SNAPSHOT: two runs of `{Path.combine(entries[0], "prog")} input.byn` differ in stdout",
+    ))
+    assert(!runs)
 }
