@@ -1,6 +1,6 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	931d155f2d79aae328e11692e5af1f587b5cc2ff
-cases	cli	4481
+cases	cli	4482
 cases	diag	676
 cases	diag-json	2
 cases	emit	1
@@ -14157,6 +14157,9 @@ file	84f59b2f2556e226f97fce09442a9ff931ada3d4	tests/cases/cli/SymbolLawTests/l01
 file	573541ac9702dd3969c9bc859d2b91ec1f7e6e56	tests/cases/cli/SymbolLawTests/l015-seed-9-safe/expected.exitcode
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SymbolLawTests/l015-seed-9-safe/expected.stderr
 file	84f59b2f2556e226f97fce09442a9ff931ada3d4	tests/cases/cli/SymbolLawTests/l015-seed-9-safe/expected.stdout
+file	573541ac9702dd3969c9bc859d2b91ec1f7e6e56	tests/cases/cli/TypedDumpTests/SelfHostSymbolTablesTypesAreByteIdentical/expected.exitcode
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/TypedDumpTests/SelfHostSymbolTablesTypesAreByteIdentical/expected.stderr
+file	de0dd514df33ff5401a747c0e276595caa108288	tests/cases/cli/TypedDumpTests/SelfHostSymbolTablesTypesAreByteIdentical/expected.stdout
 file	b78842a09384e0f11e4b3cb8c2e1fd165da7875d	tests/cases/diag-json/fix-and-help.jsonl
 file	dfc672f0b4ca71e9df6101de3467afd210c59ebf	tests/cases/diag-json/unicode-columns.jsonl
 file	09c5a9fe7d69361d5317ce2ce29a3b6785b62de1	tests/cases/diag/ambiguous-variant.diag
