@@ -147,8 +147,8 @@ SelfhostParserT9Tests	src/tests/SelfhostParserT9Tests.cs	selfhost-parser	1	parse
 SelfhostParserTests	src/tests/SelfhostParserTests.cs	selfhost-parser	264	parse	parse	tree dump equals the C# parser	owned by T16a
 SelfhostPathT4Tests	src/tests/SelfhostPathT4Tests.cs	selfhost-path	1029	sem	sem	T26 part 2: 675 exported cases under tests/cases/sem/SelfhostPathT4Tests pass on the self-hosted runner; the other tests have empty expected output and were not exported, and 12 are C#-only TheCSharpReportsDiagnostics checks	owned by T13c
 SelfhostPathT5Tests	src/tests/SelfhostPathT5Tests.cs	selfhost-path	10	emit-c	emit-c	T26 part 2: 5 programs x fast/debug as tests/cases/emit-c/SelfhostPathT5Tests/EmitsTheSameC-{directory-name,combine,combine-span,full-path,all}-{fast,debug}, expected from the v0.3.2 C# `bayan build --emit-c --mode <m>`	owned by T13c
-SelfhostPathT7Tests	src/tests/SelfhostPathT7Tests.cs	selfhost-path	10	sem	sem	T26 part 2: 9 of 10 tests exported (tests/cases/sem/SelfhostPathT7Tests), all pass; 1 not in the export	
-SelfhostPathT8Tests	src/tests/SelfhostPathT8Tests.cs	selfhost-path	3	sem	sem	T26 part 2: 2 of 3 tests exported (tests/cases/sem/SelfhostPathT8Tests), all pass; 1 not in the export	
+SelfhostPathT7Tests	src/tests/SelfhostPathT7Tests.cs	selfhost-path	10	sem + shell	tests/cases/sem/SelfhostPathT7Tests + scripts/ci/selfhost-path-dirname-root-panic.test.sh	9 sem cases; DirectoryNameOfRootPanicsWhereCSharpIsNull is the shell test scripts/ci/selfhost-path-dirname-root-panic.test.sh (exit, stdout and stderr assertions of SelfhostPathT7Tests.cs)	
+SelfhostPathT8Tests	src/tests/SelfhostPathT8Tests.cs	selfhost-path	3	sem + dropped	tests/cases/sem/SelfhostPathT8Tests	2 sem cases; ProgramNameCoversDirectoryFileTrailingSeparatorAndMain: no counterpart (Fable for the owner, 2026-11-19): it checks the C# test harness's own ProgramName helper and runs no Bayān program	
 SelfhostRevisionT2Tests	src/tests/SelfhostRevisionT2Tests.cs	selfhost-revision	20	run	run	revision examples; diag where they assert errors	owned by T13c
 SelfhostRevisionT4Tests	src/tests/SelfhostRevisionT4Tests.cs	selfhost-revision	24	run	run	revision examples; diag where they assert errors	owned by T13c
 SelfhostRevisionT7Tests	src/tests/SelfhostRevisionT7Tests.cs	selfhost-revision	14	run	run	revision examples; diag where they assert errors	owned by T13c
@@ -195,7 +195,7 @@ SelfhostSemanticsT8Tests	src/tests/SelfhostSemanticsT8Tests.cs	selfhost-semantic
 SelfhostSemanticsT9Tests	src/tests/SelfhostSemanticsT9Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines	
 SelfhostSemanticsTests	src/tests/SelfhostSemanticsTests.cs	selfhost-semantics	36	sem	sem	sections printed by the built program compared with C# lines	owned by T13b
 SelfhostSnapshotTests	src/tests/SelfhostSnapshotTests.cs	selfhost-snapshot	10	emit-c	emit-c	snapshot of emitted output (plan says kind emit)	
-SelfhostStdImportTests	src/tests/SelfhostStdImportTests.cs	selfhost-std	17	sem	sem	T26 part 2: 16 of 17 tests exported (tests/cases/sem/SelfhostStdImportTests), all pass; StdIsNotCheckedByTheNamingLints is not exported	owned by T13c
+SelfhostStdImportTests	src/tests/SelfhostStdImportTests.cs	selfhost-std	17	sem + shell	tests/cases/sem/SelfhostStdImportTests + scripts/ci/std-naming-lints.test.sh	16 sem cases; StdIsNotCheckedByTheNamingLints is in scripts/ci/std-naming-lints.test.sh	owned by T13c
 SelfhostStdSourceTests	src/tests/SelfhostStdSourceTests.cs	selfhost-std	2	shell	shell	lib/std source equals generated file: freshness check; ported 2 of 2: scripts/ci/std-source.test.sh with scripts/selfhost/gen-stdsource.sh	
 SipHashTests	csharp/tests/Bayan.Tests/SipHashTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime hash vectors	
 SnapshotSkipTraitTests	csharp/tests/Bayan.Tests/SnapshotSkipTraitTests.cs	infrastructure	10	dropped		harness-only: Snapshot=skip traits on xUnit classes go with xUnit	no export: typed rows
