@@ -319,5 +319,6 @@ test "L002: bayan-lex exits 0 or 1 with every span inside the input on the 21 le
     print(
         $"L002 ({tier} tier, as quick: the C# had no tiers): {l002CorpusSize} generated inputs equal to the frozen C# corpus and {goldens.length} lex cases under --many, {stdins.length} on stdin ({spans} JSON spans), {ms} ms",
     )
-    deleteWorkDir(dir)
+    // BAYAN_L002_KEEP=1 keeps tmp/l002-nopanic after a pass (T17f: the corpus restores the input blobs that lost their CRs)
+    deleteWorkDir(dir) unless Env.get("BAYAN_L002_KEEP") == "1"
 }
