@@ -1,0 +1,12 @@
+CompilationUnit
+  Struct S
+    Field i64 w
+
+error BYN1043: `w: i64` is an input form; write `i64 w`
+
+  1 │ struct S { w: i64 }
+    │            ^^^^^^ name before type
+    │
+  help: put the type before the name; declarations are type-first
+    │ 1 │ struct S { i64 w }
+    │   │            +++++

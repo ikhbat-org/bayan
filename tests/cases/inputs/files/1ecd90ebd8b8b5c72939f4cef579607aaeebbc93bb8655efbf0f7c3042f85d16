@@ -1,0 +1,8 @@
+enum E {
+    a
+    b
+}
+union U {
+    A(i64 x)
+    B
+}

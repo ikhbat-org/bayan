@@ -1,0 +1,11 @@
+CompilationUnit
+  ErrorSet S = A, B
+
+error BYN1044: `error union` is an input form; write `union error`
+
+  1 │ error union S = A, B
+    │ ^^^^^^^^^^^ the input form
+    │
+  help: put the kind first: `union error`
+    │ 1 │ union error S = A, B
+    │   │ +++++++++++

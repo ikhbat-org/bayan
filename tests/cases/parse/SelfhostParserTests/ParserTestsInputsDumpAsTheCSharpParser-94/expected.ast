@@ -1,0 +1,15 @@
+CompilationUnit
+  Unless (tuple (tuple (tuple (tuple (tuple (tuple (tuple (tuple (tuple (tuple (tuple (tuple (tuple (tuple (tuple (tuple (tuple <error>)))))))))))))))))
+    Expr <error>
+
+error BYN1002: expected an expression, found `)`
+
+  1 │ unless ((((((((((((((((((()
+    │                           ^
+    │
+  help: write a value; `()` is not one, and a tuple has at least two elements
+
+error BYN1001: expected `)`, found end of file
+
+  1 │ unless ((((((((((((((((((()
+    │                            ^

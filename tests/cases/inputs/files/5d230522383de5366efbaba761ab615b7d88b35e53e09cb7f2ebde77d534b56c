@@ -1,0 +1,2 @@
+void f() where T : I expects true uses io becomes .done fails E {
+}

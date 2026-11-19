@@ -1,0 +1,1 @@
+x = move p with { x: 1 }

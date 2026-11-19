@@ -1,0 +1,12 @@
+CompilationUnit
+  Let a = 1
+  Let b = 2
+
+error BYN1040: `;` is an input form; a statement ends at the newline
+
+  1 │ let a = 1; let b = 2
+    │          ^ remove `;`
+    │
+  help: put the next statement on its own line
+    │ 1 │ let a = 1
+    │ 2 │ let b = 2

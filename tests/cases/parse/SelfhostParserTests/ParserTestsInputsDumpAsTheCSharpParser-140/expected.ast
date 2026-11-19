@@ -1,0 +1,12 @@
+CompilationUnit
+  Interface I
+    Function f() -> i64
+
+error BYN1043: `f(…) -> i64` is an input form; write `i64 f(…)`
+
+  1 │ interface I { f() -> i64 }
+    │                   ^^ return type after the parameters
+    │
+  help: put the return type before the name
+    │ 1 │ interface I { i64 f() }
+    │   │               +++++++

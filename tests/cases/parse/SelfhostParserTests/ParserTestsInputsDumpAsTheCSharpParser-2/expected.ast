@@ -1,0 +1,4 @@
+CompilationUnit
+  Struct S
+    Function f(ref this is .open, i64 a) -> void
+      Block

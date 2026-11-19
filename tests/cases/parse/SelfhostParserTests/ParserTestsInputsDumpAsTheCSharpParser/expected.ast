@@ -1,0 +1,14 @@
+CompilationUnit
+  Function f() -> i64
+    Block
+      Return 1
+
+error BYN1042: `return` takes its value on the same line
+
+  3 │         1
+    │         ^ on the next line
+    │
+  help: move the value to the line of `return`
+    │ 2 │     return
+    │ 3 │         1
+    │   │ -------

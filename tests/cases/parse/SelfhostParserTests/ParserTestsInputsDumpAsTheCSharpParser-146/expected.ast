@@ -1,0 +1,4 @@
+CompilationUnit
+  Function f() -> void
+    Block
+      Return

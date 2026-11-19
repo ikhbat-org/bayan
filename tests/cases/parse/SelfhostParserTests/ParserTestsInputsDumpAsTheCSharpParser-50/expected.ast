@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (struct Point (x 1) (y 2))

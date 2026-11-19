@@ -1,0 +1,6 @@
+CompilationUnit
+  Let failing = 1
+  Var panicking = (+ failing 1)
+  Function f(i64 failing) -> void
+    Block
+      Assign panicking = failing

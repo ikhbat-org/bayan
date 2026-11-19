@@ -1,0 +1,5 @@
+CompilationUnit
+  Function f() -> void
+    Block
+      Return
+      Expr (call (. (paren (+ a b)) f))

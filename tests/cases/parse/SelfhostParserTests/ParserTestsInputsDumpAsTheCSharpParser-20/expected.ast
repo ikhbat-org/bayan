@@ -1,0 +1,17 @@
+CompilationUnit
+  ErrorEnum E
+    Variant a
+    Variant b
+
+error BYN1053: `E` declares its cases on one line; write one per line
+
+  1 │ union error E { a, b }
+    │                  ^ the first `,`
+    │
+  help: write each case on its own line
+    │ 1 │ union error E {
+    │ 2 │     a
+    │   │ +++++
+    │ 3 │     b
+    │   │ +++++
+    │ 4 │ }

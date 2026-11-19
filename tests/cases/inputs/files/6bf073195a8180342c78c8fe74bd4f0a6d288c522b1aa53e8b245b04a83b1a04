@@ -1,0 +1,2 @@
+let a = n is > 0
+    and < 10

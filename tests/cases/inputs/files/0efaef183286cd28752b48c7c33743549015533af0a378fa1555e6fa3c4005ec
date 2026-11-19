@@ -1,0 +1,2 @@
+test "t" (i32 input, bool valid) {
+}

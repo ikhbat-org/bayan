@@ -1,0 +1,11 @@
+CompilationUnit
+  ErrorSet S = A, B
+
+error BYN1029: an error set is declared `union error S = A, B`
+
+  1 │ error set S = A, B
+    │ ^^^^^^^^^ the input form
+    │
+  help: write `union error`, with `,` between the members
+    │ 1 │ union error S = A, B
+    │   │ +++++++++++

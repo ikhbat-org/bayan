@@ -1,0 +1,18 @@
+CompilationUnit
+  Let a = b
+  Attribute @c
+  Expr <error>
+
+error BYN1045: `[c]` is an input form; write `@c`
+
+  2 │ [c]
+    │ ^
+    │
+  help: write the attribute with `@` and a camelCase name
+    │ 2 │ @c
+    │   │ ++
+
+error BYN1002: expected an expression, found end of file
+
+  3 │ 
+    │ ^
