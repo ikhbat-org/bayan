@@ -28,7 +28,10 @@
 #       UNEXPORTED.tsv rows (root masked) and its (2d) removals, empty when it has none.
 # A file is written only when its content differs, so a rerun over the same export writes nothing. A symlink or other special
 # file, or a name holding a tab, newline or backslash, under input/ stops the run. After landing, any file under <dest> holding
-# this machine's HOME, /Users/ or /opt/homebrew stops the run (exit 1). Prints the counts; exit 2 on bad arguments.
+# this machine's HOME, /Users/ or /opt/homebrew stops the run (exit 1), and so does any stored file under <dest>/inputs/files a case
+# names whose bytes do not hash to its name (one already there from an earlier land too; T17f). When <dest> is in a git worktree,
+# <dest>/inputs/files must have the text attribute unset (`-text`), or `git add` would store CRLF files as LF (T17f: 1,205 blobs
+# landed under `text=auto` lost their CRs); otherwise the run stops before landing (exit 1). Prints the counts; exit 2 on bad arguments.
 set -euo pipefail
 [ $# = 3 ] || { echo "usage: land-export.sh <export dir> <export worktree root> <dest tests/cases>" >&2; exit 2; }
 src="${1%/}"; repo="${2%/}"; dest="${3%/}"
@@ -41,6 +44,10 @@ if command -v sha256sum > /dev/null 2>&1; then sum="sha256sum"; else sum="shasum
 work="$(cd "$(mktemp -d "${TMPDIR:-/tmp}/land-export.XXXXXX")" && pwd)"   # absolute: the hashing runs from inside input/
 trap 'rm -rf "$work"' EXIT
 mkdir -p "$dest/inputs/files" "$dest/inputs/trees"
+if git -C "$dest" rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+  attr="$(cd "$dest/inputs/files" && git check-attr text -- probe)"
+  [ "${attr##*: }" = unset ] || { echo "land-export: $dest/inputs/files is not -text in .gitattributes ($attr); git would strip CRs" >&2; exit 1; }
+fi
 esc="$(printf '%s' "$repo" | sed 's/[][\.*^$/]/\\&/g')"
 tab="$(printf '\t')"; nl='
 '
@@ -54,7 +61,7 @@ put() {
 
 # store <file>: copies the file into inputs/files by content; sets $stored to its sha256
 store() {
-  stored="$($sum < "$1" | cut -c1-64)"
+  stored="$($sum < "$1" | cut -c1-64)"; echo "$stored" >> "$work/landed"
   if [ ! -f "$dest/inputs/files/$stored" ]; then cp "$1" "$dest/inputs/files/$stored"; chmod 644 "$dest/inputs/files/$stored"; blobs=$((blobs + 1)); fi
 }
 
@@ -91,7 +98,7 @@ land_input() {
     while IFS="$tab" read -r p e h; do
       if [ ! -f "$dest/inputs/files/$h" ]; then cp "$in/$p" "$dest/inputs/files/$h"; chmod 644 "$dest/inputs/files/$h"; blobs=$((blobs + 1)); fi
     done < "$w/hashed"
-    cut -f1,2 "$w/hashed" > "$w/known"
+    cut -f1,2 "$w/hashed" > "$w/known"; cut -f3 "$w/hashed" >> "$work/landed"
   fi
   local depth max
   max="$(awk -F/ 'NF - 1 > m { m = NF - 1 } END { print m + 0 }' "$w/dirs")"
@@ -200,7 +207,7 @@ land_case() {
   cases=$((cases + 1))
 }
 
-: > "$work/counts"; : > "$work/unexported"; : > "$work/removed"
+: > "$work/counts"; : > "$work/unexported"; : > "$work/removed"; : > "$work/landed"
 for k in "$src"/*/; do
   k="${k%/}"; kind="${k##*/}"
   for cl in "$k"/*/; do
@@ -251,4 +258,9 @@ put "$work/EXPORT.tsv" "$dest/EXPORT.tsv"
 # nothing under dest may name the export machine: its HOME, /Users/ or /opt/homebrew (pats)
 leaks="$(grep -rl -F "${pats[@]}" -- "$dest" 2> /dev/null | head -20 || true)"
 [ -z "$leaks" ] || { echo "land-export: the landed tree names the export machine (HOME, /Users/ or /opt/homebrew) in:" >&2; echo "$leaks" >&2; exit 1; }
+# every stored file a case names hashes to its name (T17f)
+if [ -s "$work/landed" ]; then
+  wrong="$(LC_ALL=C sort -u "$work/landed" | (cd "$dest/inputs/files" && xargs $sum) | awk '{ n = $NF; sub(/^.*\//, "", n) } substr($0, 1, 64) != n { print n }')"
+  [ -z "$wrong" ] || { echo "land-export: stored input files whose bytes do not hash to their names:" >&2; echo "$wrong" >&2; exit 1; }
+fi
 echo "land-export: $cases cases, $blobs new input files, $trees new input trees, $written files written"
