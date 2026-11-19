@@ -43,7 +43,7 @@ SelfhostParserT6Tests	parse	66	66
 SelfhostParserT7Tests	parse	31	31	
 SelfhostParserT9Tests	parse	1	1	
 SelfhostParserTests	parse	264	603	3 not exported: SpanTakenBeforeTheLastChildLeavesItOutside (block-property); SpanTakenBeforeTheLastChildLeavesItOutside (not-pattern); SpanTakenBeforeTheLastChildLeavesItOutside (var-pattern)
-SelfhostPathT4Tests	sem	1029	675	
+SelfhostPathT4Tests	sem	1029	1017	12 TheCSharpReportsDiagnostics: no counterpart (Fable for the owner, 2026-11-19): they assert the C# compiler's own diagnostics and run no self-hosted code
 SelfhostPathT7Tests	sem	10	9	
 SelfhostPathT8Tests	sem	3	2	
 SelfhostRevisionT2Tests	sem	20	16	
