@@ -1,0 +1,13 @@
+/// The prayer hall of a masjid on the morning of Eid.
+struct Hall {
+    i32 capacity
+        requires it > 0
+    i32 men
+        requires it >= 0
+    i32 women
+        requires it >= 0
+    requires men + women <= capacity at.capacity
+}
+
+/// Places still free in the hall.
+i32 placesLeft(Hall h) => h.capacity - h.men - h.women

@@ -1,0 +1,18 @@
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var seal: i64 = 7
+    var count = 0
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        let ticket = i64.tryParse(text) ?? 0
+        count += 1
+        seal = seal *% 1000003 +% ticket
+        print($"ticket {ticket}: seal {seal}")
+    }
+    print($"{count} tickets, seal {seal}")
+}

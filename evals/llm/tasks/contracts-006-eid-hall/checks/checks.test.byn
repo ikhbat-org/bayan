@@ -1,0 +1,41 @@
+string brokenIn(i32 capacity, for i32 men, by i32 women) {
+    let h = Hall { capacity: capacity, men: men, women: women } catch switch {
+        .invalid e => {
+            var names = ""
+            for v in e.violations {
+                names = $"{names}<{v.field}>"
+            }
+            return names
+        },
+    }
+    return $"built {placesLeft(h)}"
+}
+
+test "a hall with room is built" {
+    let h = Hall { capacity: 120, men: 70, women: 30 }
+    assert h.capacity == 120
+    assert h.men == 70
+    assert h.women == 30
+    assert placesLeft(h) == 20
+}
+
+@cases((40, 25, 15), (1, 1, 0), (1, 0, 1), (9, 0, 0))
+test "a hall may be full or empty" (i32 capacity, i32 men, i32 women) {
+    assert brokenIn(capacity, for: men, by: women) == $"built {capacity - men - women}"
+}
+
+@cases((40, 30, 11), (1, 1, 1), (10, 0, 11), (10, 11, 0), (5, 3, 3))
+test "too many people is reported against capacity" (i32 capacity, i32 men, i32 women) {
+    assert brokenIn(capacity, for: men, by: women) == "<capacity>"
+}
+
+@cases((0, 0, 0), (-5, 0, 0))
+test "a hall of no capacity is refused" (i32 capacity, i32 men, i32 women) {
+    assert brokenIn(capacity, for: men, by: women) == "<capacity>"
+}
+
+test "a count below zero is reported against its own field" {
+    assert brokenIn(10, for: -1, by: 0) == "<men>"
+    assert brokenIn(10, for: 4, by: -2) == "<women>"
+    assert brokenIn(10, for: -1, by: -1) == "<men><women>"
+}
