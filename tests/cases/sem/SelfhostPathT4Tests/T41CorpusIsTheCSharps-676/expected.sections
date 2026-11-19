@@ -1,0 +1,9 @@
+== diags.diag/cast-input
+BYN1057 3:14 `(u8)x` is an input form; write `u8(x)`
+  label a cast
+  help call the conversion: `u8(x)`
+  fix 3:14-3:22 u8(wide)
+BYN1057 4:11 `(i32)x` is an input form; write `i32(x)`
+  label a cast
+  help call the conversion: `i32(x)`
+  fix 4:11-4:26 i32(wide + 1)

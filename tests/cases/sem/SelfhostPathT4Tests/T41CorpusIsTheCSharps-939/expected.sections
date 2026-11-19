@@ -1,0 +1,5 @@
+== diags.diag/out-not-assigned
+BYN2103 3:9 `out` parameter `value` is not assigned on every path
+  help assign `value` before every `return`
+BYN2103 10:5 `out` parameter `value` is not assigned on every path
+  help assign `value` before every `return`

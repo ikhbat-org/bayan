@@ -1,0 +1,4 @@
+== diags.diag/state-member-mutates
+BYN5002 4:10 `isEmpty` reads as state but modifies `this`
+  label declared `ref this`
+  help remove `ref this` so it only reads, or name the action with a verb

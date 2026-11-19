@@ -1,0 +1,3 @@
+== diags.diag/null-equality-no-fix
+BYN2208 3:13 `==` cannot be applied to `i32` and `null`
+BYN2208 4:13 `==` cannot be applied to `null` and `null`

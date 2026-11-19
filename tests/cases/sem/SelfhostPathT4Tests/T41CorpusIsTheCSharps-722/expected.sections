@@ -1,0 +1,4 @@
+== diags.diag/missing-associated-type
+BYN2803 1:17 `Digits` does not bind `type Item` of `IIndexable`
+  label needs `type Item`
+  help add `type Item = …` to `Digits`

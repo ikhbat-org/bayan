@@ -1,0 +1,3 @@
+== diags.diag/instance-member-without-this
+BYN2017 4:27 `count` needs an instance
+  help call it on an instance; a `static` method has no `this`

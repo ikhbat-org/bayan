@@ -1,0 +1,4 @@
+== diags.diag/non-exhaustive-data-enum
+BYN2410 7:29 `switch` does not handle every `Planet`
+  label not covered: .venus, .earth
+  help add the missing arms, or `_ => …` for the rest

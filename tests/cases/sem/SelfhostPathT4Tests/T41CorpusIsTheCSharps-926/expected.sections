@@ -1,0 +1,4 @@
+== diags.diag/interface-field-type-mismatch
+BYN2802 6:9 `Box.count` is `i32 count` but `ICount` requires `i64 count { get }`
+  label does not match `ICount`
+  help change the field's type to `i64`

@@ -1,0 +1,5 @@
+== diags.diag/ref-this-let-receiver
+BYN2104 13:1 `c` is immutable
+  label `bump` modifies it; declared with `let` on line 11
+  help declare it with `var` if it should change
+  fix 11:1-11:4 var

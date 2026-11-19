@@ -1,0 +1,8 @@
+== diags.diag/ref-this-store-through-later-method
+BYN3002 21:9 arena `arena` does not live as long as `b`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 8:9-8:16 `put` stores `w` into `this` here
+store keep 0 -1 269..270
+store put 0 -1 196..197
+store put 1 -1 206..213

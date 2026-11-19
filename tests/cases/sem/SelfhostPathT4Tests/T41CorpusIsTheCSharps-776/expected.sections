@@ -1,0 +1,2 @@
+== diags.run/panic-handler-skips-defer
+BYN2405 13:5 unreachable code

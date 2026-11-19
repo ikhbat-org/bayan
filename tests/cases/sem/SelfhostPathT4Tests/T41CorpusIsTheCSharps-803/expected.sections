@@ -1,0 +1,4 @@
+== diags.diag/dyn-by-value
+BYN2809 5:11 `dyn IShape` is not supported yet
+  label an owned dynamic value
+  help write `dyn ref IShape`

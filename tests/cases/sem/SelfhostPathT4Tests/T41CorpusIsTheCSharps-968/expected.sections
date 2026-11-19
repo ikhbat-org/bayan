@@ -1,0 +1,5 @@
+== diags.diag/state-literal-needs-state
+BYN7005 9:13 `Order` has states; a literal must name one: `Order.draft { … }`
+  help name the state the value starts in
+BYN7005 10:13 `Order` has states; a literal must name one: `Order.draft { … }`
+  help name the state the value starts in
