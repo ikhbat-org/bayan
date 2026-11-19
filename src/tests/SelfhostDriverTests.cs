@@ -37,7 +37,7 @@ public sealed class SelfhostDriverT1Tests
     internal static (int Exit, string Out, string Err) Oracle(string[] args, string? cls = null, ExportForm? form = null,
         [CallerMemberName] string test = "", [CallerFilePath] string file = "")
     {
-        var staged = SelfhostExport.Dir is null ? null : StageInputs(args.Where(IsPath));
+        var staged = SelfhostExport.Dir is null ? null : StageInputs(args.Where(IsPath), args.FirstOrDefault());
         var stdout = new StringWriter();
         var stderr = new StringWriter();
         var exit = CliApp.Run(args, stdout, stderr);
@@ -62,9 +62,12 @@ public sealed class SelfhostDriverT1Tests
     /// A copy of each of <paramref name="paths"/> under <c>tmp/export-stage/</c>, taken before the C# side runs (which may rewrite them),
     /// as <see cref="SelfhostExport.Cli"/>'s inputs; a <c>main.byn</c> is copied with its directory. A link is not copied but listed in
     /// <c>links</c> (<c>path -&gt; target</c>), and an entry without user read and write (and search, for a directory) is copied and
-    /// listed in <c>modes</c> (<c>path mode</c>), each path from the input's parent directory.
+    /// listed in <c>modes</c> (<c>path mode</c>), each path from the input's parent directory. An input whose run read through links
+    /// or beside it is copied as the directory <see cref="CaseRoot"/> names instead; a link out of the test's directory is listed in
+    /// <c>cli/UNEXPORTED.tsv</c> (<c>link-outside</c>) and the input copied as before. <paramref name="command"/> is the run's
+    /// first argument, which says whether a file is compiled with its module.
     /// </summary>
-    internal static Staged StageInputs(IEnumerable<string> paths)
+    internal static Staged StageInputs(IEnumerable<string> paths, string? command = null)
     {
         var root = Path.Combine(Golden.RepoRoot, "tmp", "export-stage", Guid.NewGuid().ToString("N"));
         var inputs = new List<string>();
@@ -102,13 +105,16 @@ public sealed class SelfhostDriverT1Tests
         foreach (var path in paths)
         {
             var full = Path.GetFullPath(path);
-            if (new FileInfo(full).LinkTarget is { } target)
+            var caseRoot = CaseRoot(full, command is "types" or "check" or "build" or "run" or "test", out var outside);
+            if (outside is not null && SelfhostExport.Dir is { } export)
+                SelfhostExport.NotExported(export, "cli", "link-outside", SelfhostExport.Repo(full), SelfhostExport.Repo(outside));
+            if (caseRoot is null && new FileInfo(full).LinkTarget is { } target)
             {
                 links.Add($"{Path.GetFileName(full)} -> {target}\n");
                 continue;
             }
-            var main = File.Exists(full) && Path.GetFileName(full) == "main.byn";
-            var from = main ? Path.GetDirectoryName(full)! : full;
+            var main = caseRoot is null && File.Exists(full) && Path.GetFileName(full) == "main.byn";
+            var from = caseRoot ?? (main ? Path.GetDirectoryName(full)! : full);
             var to = Path.Combine(root, inputs.Count.ToString(System.Globalization.CultureInfo.InvariantCulture), Path.GetFileName(from));
             Directory.CreateDirectory(Path.GetDirectoryName(to)!);
             Copy(from, to, Path.GetFileName(from));
@@ -118,6 +124,156 @@ public sealed class SelfhostDriverT1Tests
         if (links.Count > 0) extra["links"] = string.Concat(links);
         if (modes.Count > 0) extra["modes"] = string.Concat(modes);
         return new Staged(root, inputs, extra);
+    }
+
+    /// <summary>Whether <paramref name="path"/> is <paramref name="dir"/> or below it.</summary>
+    private static bool Inside(string path, string dir) => path == dir || path.StartsWith(dir + "/", StringComparison.Ordinal);
+
+    /// <summary>
+    /// The place the full path <paramref name="path"/> below <c>tmp/</c> reaches, each link on the way followed as the OS follows it (a
+    /// <c>..</c> after a link leaves the link's target); null when it reaches nothing (a missing entry, a link loop) or leaves <c>tmp/</c>,
+    /// <paramref name="outside"/> then naming the existing place it leaves for.
+    /// </summary>
+    private static string? Reached(string path, out string? outside)
+    {
+        outside = null;
+        var tmp = Path.Combine(Golden.RepoRoot, "tmp");
+        var todo = new Stack<string>(Path.GetRelativePath(tmp, path).Split('/').Reverse());
+        var at = tmp;
+        for (var hops = 0; todo.TryPop(out var part);)
+        {
+            if (part is "" or ".") continue;
+            if (part == "..")
+            {
+                if (at == tmp)
+                {
+                    outside = Path.GetDirectoryName(tmp);
+                    return null;
+                }
+                at = Path.GetDirectoryName(at)!;
+                continue;
+            }
+            var next = Path.Combine(at, part);
+            if (new FileInfo(next).LinkTarget is { } target)
+            {
+                if (++hops > 40) return null;
+                if (Path.IsPathRooted(target))
+                {
+                    if (!Inside(target, tmp) || target == tmp)
+                    {
+                        if (Path.Exists(target)) outside = target;
+                        return null;
+                    }
+                    at = tmp;
+                    target = target[(tmp.Length + 1)..];
+                }
+                foreach (var p in target.Split('/').Reverse()) todo.Push(p);
+                continue;
+            }
+            if (!Path.Exists(next)) return null;
+            at = next;
+        }
+        return at;
+    }
+
+    /// <summary>
+    /// The directory to copy for the input <paramref name="full"/> below <c>tmp/</c> instead of the input itself, so that its tree holds what
+    /// the C# run read through links and beside it: the place the input, or a directory on its way, links to; what each link in the copied
+    /// tree reaches (a <c>..</c> link's parent with its files); and, when <paramref name="module"/> (a command that compiles, CliApp.cs:278
+    /// <c>Compile</c>), for a <c>.byn</c> file that is not a <c>main.byn</c> or a <c>#!</c> script the other <c>.byn</c> files of its
+    /// directory, its module. Null when the input alone holds all that, or when a link reaches out of the
+    /// test's own directory (<c>tmp/&lt;a&gt;/&lt;b&gt;</c>, or <c>tmp/&lt;a&gt;</c> for an input right below it), <paramref name="outside"/>
+    /// then naming where; no path out of it is recorded.
+    /// </summary>
+    private static string? CaseRoot(string full, bool module, out string? outside)
+    {
+        outside = null;
+        var tmp = Path.Combine(Golden.RepoRoot, "tmp");
+        if (!Inside(full, tmp) || full == tmp) return null;
+        var parts = Path.GetRelativePath(tmp, full).Split('/');
+        if (parts.Length < 2) return null;
+        var bound = parts.Length > 2 ? Path.Combine(tmp, parts[0], parts[1]) : Path.Combine(tmp, parts[0]);
+        var from = File.Exists(full) && Path.GetFileName(full) == "main.byn" ? Path.GetDirectoryName(full)! : full;
+        var reached = new List<string>();
+        var known = new HashSet<string>(StringComparer.Ordinal);
+        bool Link(string link, out string? leaves)
+        {
+            leaves = null;
+            if (!known.Add(link)) return true;
+            reached.Add(link);
+            if (Reached(link, out leaves) is { } r)
+            {
+                if (Inside(r, bound)) reached.Add(r);
+                else leaves = r;
+            }
+            return leaves is null;
+        }
+        for (var at = full; at != bound && Inside(at, bound); at = Path.GetDirectoryName(at)!)
+            if (new FileInfo(at).LinkTarget is not null && !Link(at, out outside)) return null;
+        var name = Path.GetFileName(full);
+        if (module && from == full && File.Exists(full) && new FileInfo(full).LinkTarget is null && name.EndsWith(".byn", StringComparison.Ordinal) && !Script(full))
+        {
+            var parent = Path.GetDirectoryName(full)!;
+            if (Directory.EnumerateFiles(parent, "*.byn").Any(f => f != full && !f.EndsWith(".test.byn", StringComparison.Ordinal))) reached.Add(parent);
+        }
+        var caseRoot = from;
+        while (true)
+        {
+            foreach (var r in reached) while (!Inside(r, caseRoot)) caseRoot = Path.GetDirectoryName(caseRoot)!;
+            // a root on a link is its parent; the input itself stays (a lone link is listed in `links` as before)
+            for (var at = caseRoot == from ? Path.GetDirectoryName(from)! : caseRoot; at != bound && Inside(at, bound); at = Path.GetDirectoryName(at)!)
+                if (new FileInfo(at).LinkTarget is not null) caseRoot = Path.GetDirectoryName(at)!;
+            if (!Inside(caseRoot, bound))
+            {
+                outside = caseRoot;
+                return null;
+            }
+            var count = reached.Count;
+            foreach (var link in Links(caseRoot))
+                if (!Link(link, out outside)) return null;
+            if (reached.Count == count) break;
+        }
+        return caseRoot == from ? null : caseRoot;
+    }
+
+    /// <summary>Whether the file <paramref name="path"/> starts <c>#!</c>; an unreadable one is not taken for a script.</summary>
+    private static bool Script(string path)
+    {
+        try
+        {
+            using var stream = File.OpenRead(path);
+            return stream.ReadByte() == '#' && stream.ReadByte() == '!';
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>The links in the tree <paramref name="dir"/>, not entered; a directory that cannot be listed is passed.</summary>
+    private static IEnumerable<string> Links(string dir)
+    {
+        if (!Directory.Exists(dir) || new FileInfo(dir).LinkTarget is not null) return [];
+        var found = new List<string>();
+        void Walk(DirectoryInfo d)
+        {
+            FileSystemInfo[] entries;
+            try
+            {
+                entries = d.GetFileSystemInfos();
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                return;
+            }
+            foreach (var entry in entries.OrderBy(e => e.Name, StringComparer.Ordinal))
+            {
+                if (entry.LinkTarget is not null) found.Add(entry.FullName);
+                else if (entry is DirectoryInfo sub) Walk(sub);
+            }
+        }
+        Walk(new DirectoryInfo(dir));
+        return found;
     }
 
     /// <summary>

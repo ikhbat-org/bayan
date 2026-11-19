@@ -285,7 +285,7 @@ public sealed class SelfhostDriverT5Tests
             SelfhostExport.NotExported(export, "cli", nameof(SelfhostDriverT5Tests), test, string.Join(' ', args));
             return;
         }
-        var staged = SelfhostExport.Dir is null ? null : SelfhostDriverT1Tests.StageInputs(args.Where(SelfhostDriverT1Tests.IsPath));
+        var staged = SelfhostExport.Dir is null ? null : SelfhostDriverT1Tests.StageInputs(args.Where(SelfhostDriverT1Tests.IsPath), args.FirstOrDefault());
         var expected = InProcess(args);
         if (staged is not null)
         {
