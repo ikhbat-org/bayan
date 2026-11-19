@@ -11,7 +11,7 @@ emit-c/SelfhostDefaultT10Tests/EdgeFixtureMatchesTheCSharpInBothModes-edge mutat
 | (b) deleted, the case passes (T19a staging carried to the SelfhostDriver classes) | 33 |
 | (b) no row, the case passes (Edge input blob restored) | 1 case (6 Edge cases pass) |
 | (c) `remove` | 8 |
-| (c) `remove`, new rows (LayoutInputs, not reproducible from the recording) | 18 |
+| (b) no row, the case passes (LayoutInputs input blobs restored) | 18 cases (all 38 LayoutInputs cases pass) |
 | (a) | 0 |
 
 ## (b) Runner and land-time changes
@@ -61,22 +61,29 @@ Each row is `remove`, `pending`; the export recorded a link but not the file it 
 - cli/SelfhostDriverT5Tests/ReadsModuleFilesAndScriptsAsCliApp-4: the C# read the input's module with its sibling f.byn (`#`); the
   export recorded the input alone.
 
-## (c) Cannot be reproduced: LayoutInputs
+## (b) LayoutInputs: input blobs restored
 
 cli/SelfhostDriverStage2FormatTests/LayoutInputsFormatAsCliApp and -2, -3, -13, -18, -19, -21, -23, -24, -25, -27, -29, -30, -32, -33,
--34, -35, -38 (`remove`, `pending`). The C# test (`FormatsAsCliApp`) wrote one caseNNN.byn per string literal of a C# test file; the
-expected tree shows stray literals among them (case000 `tmp`, case001 `layout`, case002 `main.byn`), and the landed inputs are shifted
-against the expected outputs (expected stdout starts `formatted …/case004.byn`, whose landed input already equals its expected text; the
-run starts at case006). The recording holds no other copy of the inputs the C# formatted, so the cases cannot be reproduced from it.
+-34, -35, -38 failed because four input blobs their input.tsv files name had lost CRs to git's `* text=auto eol=lf` at landing, as the
+Edge blob had (change 8); the formatter's output for those caseNNN.byn files differed. Restoring the CRs makes each hash to its name:
+
+- 1fedb8e3… (`let a = 1` / `let b = 2`) and 7eb70257… (one empty line): every line ends CRLF.
+- 2b8110bf… and 93a02176…: line 2 alone ends CRLF (the one subset of CRLF line ends that hashes to the name).
+
+All four are below `tests/cases/inputs/files/** -text`, so git stores the bytes as written (`git ls-files --eol`: `attr/-text`, worktree
+`crlf` or `mixed`). The other blobs the 38 LayoutInputs input.tsv files name already hashed to their names. All 38 LayoutInputs cases
+pass (`◆ 38 passed`); their 18 rows are deleted. No expected file changed.
 
 ## Final share run
 
 `bayan test tests/cases --jobs 4 --only cli/SelfhostDefault --only cli/SelfhostDriver --only sem/ --only emit-c/` under nice, stage1
 built from this tree:
 
-    ◆ 14524 passed · ✗ 44 failed · 28 pending · 0 test blocks, 14596 golden cases · 3183.73s
+    ◆ 14589 passed · ✗ 27 failed · 28 pending · 0 test blocks, 14644 golden cases · 3493.18s
 
-Every one of the 44 failing cases has a row in tests/cases/DIVERGENCES.tsv; no failing case is without one.
+26 of the 27 failed and each has a row in tests/cases/DIVERGENCES.tsv. The 27th, cli/SelfhostDefaultT12Tests/ABadTargetIsRefused-2
+(no row), timed out after 60 s on the loaded machine; run alone it passes (`◆ 1 passed · 0 test blocks, 1 golden case · 9.30s`).
+No failing case is without a row.
 
 ## Break tests
 
