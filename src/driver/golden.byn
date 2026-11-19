@@ -82,19 +82,26 @@ string goldenDirMasked(string text, at string dir, by string tag, bool drop = fa
     return drop ? res.replaced($"{dir}/", by: tag) : res.replaced(dir, by: tag)
 }
 
-/// `text` with each `dir` followed by `sep` and a path read as `tag`, `/` (none when `drop`), and the path with each `sep` read as `/`. The
-/// path ends at a space, a quote, a `:`, a bracket or a `\` that is not `sep`.
+/// `text` with each `dir` followed by `sep` or `/` and a path read as `tag`, `/` (none when `drop`), and the path with each `sep` read as `/`:
+/// a Windows run joins the files it found below a `dir/…` argument with `\` (`<repo>/tmp/a\b.byn`). The path ends at a space, a quote, a
+/// `:`, a bracket or a `\` that is not `sep`.
 string goldenDirSlashed(string text, at string dir, by string tag, string sep = "\\", bool drop = false) uses alloc {
     var sb = StrBuf()
     var first = true
-    for part in text.parts(by: $"{dir}{sep}") {
+    for part in text.parts(by: dir) {
         if first {
             sb.append(part)
             first = false
             continue
         }
-        var end: i64 = 0
-        while end < part.length {
+        var lead: i64 = 0
+        if part.startsWith(sep) {
+            lead = sep.length
+        } else if part.startsWith("/") {
+            lead = 1
+        }
+        var end = lead
+        while lead > 0 && end < part.length {
             if part[end..part.length].startsWith(sep) {
                 end += sep.length
                 continue
@@ -102,11 +109,11 @@ string goldenDirSlashed(string text, at string dir, by string tag, string sep = 
             break if " \t\r\n\"'`:,()[]{}<>|;\\".contains(part[end..end + 1])
             end += 1
         }
-        if end == 0 {
-            sb.append($"{dir}{sep}{part}")
+        if end == lead {
+            sb.append($"{dir}{part}")
             continue
         }
-        sb.append($"{tag}{drop ? "" : "/"}{part[0..end].replaced(sep, by: "/")}{part[end..part.length]}")
+        sb.append($"{tag}{drop ? "" : "/"}{part[lead..end].replaced(sep, by: "/")}{part[end..part.length]}")
     }
     return sb.finish()
 }
@@ -303,24 +310,25 @@ bool goldenUpdate() uses alloc, env {
 }
 
 /// Golden.cs:35 `Compare`: in update mode (`goldenUpdate`, R5) a differing or missing expected file is rewritten with `actual` (LF) and null
-/// returned, unless a `.pending` file sits beside it (RunTests.cs:58); else `goldenDiffer`.
-string? goldenCompare(string actual, for string input, at string expected) uses alloc, env, fs {
+/// returned, unless a `.pending` file sits beside it (RunTests.cs:58); else `goldenDiffer` with `host`.
+string? goldenCompare(string actual, for string input, at string expected, by string? host = null) uses alloc, env, fs {
     if goldenUpdate() && !Fs.fileExists(goldenExpected(expected, for: ".pending")) {
         let lf = goldenLf(actual)
         return null if Fs.fileExists(expected) && goldenLf(Io.readText(expected) catch "") == lf
         Io.writeFile(expected, lf.bytes) catch return $"{input}\ncannot write {expected}"
         return null
     }
-    return goldenDiffer(actual, for: input, at: expected)
+    return goldenDiffer(actual, for: input, at: expected, by: host)
 }
 
 /// Golden.cs:35 `Compare` outside update mode: null when `actual` equals the expected file at `expected` (CR LF read as LF), else the failure text,
-/// which names the input path and the first differing line, expected and actual (spec 019 R2). Both sides are read through `goldenHostMasked`.
-string? goldenDiffer(string actual, for string input, at string expected) uses alloc, fs {
+/// which names the input path and the first differing line, expected and actual (spec 019 R2). Both sides are read through `goldenHostMasked`
+/// for `host`, the running one (`targetHost`) when null; an empty `host` masks nothing.
+string? goldenDiffer(string actual, for string input, at string expected, by string? host = null) uses alloc, fs {
     let text = Io.readText(expected) catch return $"{input}\nmissing expected file {expected}"
-    let host = targetHost() ?? ""
-    let want = goldenLines(goldenLf(goldenHostMasked(text, for: host)))
-    let got = goldenLines(goldenLf(goldenHostMasked(goldenStdModules(actual, by: text), for: host)))
+    let running = host ?? targetHost() ?? ""
+    let want = goldenLines(goldenLf(goldenHostMasked(text, for: running)))
+    let got = goldenLines(goldenLf(goldenHostMasked(goldenStdModules(actual, by: text), for: running)))
     var line = 0
     while line < want.length && line < got.length && want[line] == got[line] {
         line += 1
@@ -2194,6 +2202,16 @@ test "a Windows scratch directory is read as `<repo>` as written and doubled in 
     assert(goldenDirMasked(text, at: dir, by: "<repo>")
         == "  --> <repo>/tmp/t27-diag/X/input.byn:2:9\nhelp: a\\b\n{\"file\": \"<repo>/tmp/a.byn\", \"m\": \"x\\n\"}\n<repo>\n")
     assert(goldenDirMasked("/s/a.byn\\n /s\n", at: "/s", by: "<repo>") == "<repo>/a.byn\\n <repo>\n")
+}
+
+test "a Windows path joined with `\\` after a `<repo>/…` argument reads with `/`, a `\\` elsewhere kept, another file still differs (T41b)" {
+    let dir = "C:\\w\\tmp\\cli\\X"
+    let got = "formatted C:\\w\\tmp\\cli\\X/tmp/t8-layout/L-10\\case004.byn\nremoved C:\\w\\tmp\\cli\\X/cache\\v1\n{\"file\": \"C:\\\\w\\\\tmp\\\\cli\\\\X/tmp/a\\\\b.byn\", \"m\": \"x\\n\"}\nhelp: `nope\\deep/` print(\"a\\tb\")\n"
+    let want = "formatted <repo>/tmp/t8-layout/L-10/case004.byn\nremoved <repo>/cache/v1\n{\"file\": \"<repo>/tmp/a/b.byn\", \"m\": \"x\\n\"}\nhelp: `nope\\deep/` print(\"a\\tb\")\n"
+    assert(goldenDirMasked(got, at: dir, by: "<repo>") == want)
+    assert(goldenDirMasked(got.replaced("case004", by: "case005"), at: dir, by: "<repo>") != want)
+    assert(goldenDirMasked("C:\\w\\tmp\\cli\\X/a\\b C:\\w\\tmp\\cli\\X-repo/a\\b\n", at: dir, by: "<root>", drop: true)
+        == "<root>a/b C:\\w\\tmp\\cli\\X-repo/a\\b\n")
 }
 
 test "the export host `macos-arm64` and the running host read as `<host>` when they differ, as whole tokens only (T17e)" {

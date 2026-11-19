@@ -163,7 +163,8 @@ string goldenCliPut(string text, for string scratch) uses alloc {
 
 /// SelfhostDriverFixTests.cs:64-131: `text` with the directory of the fix target `target` (the file's own for a file) as `<dir>`, both as
 /// `Path.directoryName` writes it and as the target spells it up to its last separator: the driver prints the target as given, which on
-/// Windows keeps the `/` after the scratch directory where `Path.directoryName` writes `\`.
+/// Windows keeps the `/` after the scratch directory where `Path.directoryName` writes `\`. A Windows target (one holding `\`) is read
+/// through `goldenDirMasked`, so a file the driver found below it and printed as `<dir>\main.byn` reads as `<dir>/main.byn`.
 string goldenCliDirMasked(string text, at string target) uses alloc, fs {
     let file = Fs.fileExists(target) || !t6DirectoryExists(target) && target.endsWith(".byn")
     let masked = file ? Path.directoryName(target) ?? target : target
@@ -177,6 +178,9 @@ string goldenCliDirMasked(string text, at string target) uses alloc, fs {
         }
     }
     let spelled = cut > 0 ? target[0..cut] : masked
+    if target.contains("\\") {
+        return goldenDirMasked(goldenDirMasked(text, at: masked, by: "<dir>"), at: spelled, by: "<dir>")
+    }
     return text.replaced(masked, by: "<dir>").replaced(spelled, by: "<dir>")
 }
 
@@ -1302,12 +1306,28 @@ string goldenCliPassCount(string text) uses alloc {
     return ""
 }
 
-/// `actual` against the expected file `name` of case `dir` (`goldenCompare`: update mode rewrites it), the failure added to `failures`.
+/// `actual` against the expected file `name` of case `dir` (`goldenCompare`: update mode rewrites it), the failure added to `failures`. The
+/// host target is read as `<host>` on both sides as `goldenCliHost` says.
 void goldenCliCheck(string dir, for string name, as string actual, to ref List<string> failures) uses alloc, env, fs {
     let expected = Path.combine(dir, name)
-    if (goldenCompare(actual, for: expected, at: expected) is { } f) {
+    let host = goldenCliHost(dir, for: targetHost() ?? "")
+    if (goldenCompare(actual, for: expected, at: expected, by: host) is { } f) {
         failures.append(f)
     }
+}
+
+/// The host `goldenHostMasked` reads as `<host>` in case `dir`: `running`, or none when its `args` name a target other than `host`
+/// (`--target x`, `--target=x`), whose output names the target asked for; a mask there would let a run that built for the running host pass.
+string goldenCliHost(string dir, for string running) uses alloc, fs {
+    let args = goldenArgLines(Path.combine(dir, "args"))
+    for i in 0..args.length {
+        if args[i].startsWith("--target=") {
+            return "" if args[i] != "--target=host"
+        } else if args[i] == "--target" && i + 1 < args.length {
+            return "" if args[i + 1] != "host"
+        }
+    }
+    return running
 }
 
 /// SelfhostDriverTests.cs:721-731: `actual` starts with the expected file `name` of case `dir`, a prefix (update mode cannot rewrite a prefix).
@@ -2913,6 +2933,43 @@ test "a Windows scratch directory is read as the goldenCli tag with the path aft
         t9: true,
     ) == "tmp/t9-cache/a <repo>/x\n")
     assert(goldenCliScratchMasked("/s-repo/tmp /s/x\n", at: "/s", by: "<repo>") == "<repo>-repo/tmp <repo>/x\n")
+}
+
+test "a Windows fix target reads as `<dir>` with the file the driver joined with `\\` after it in `/`, another file still differs (T41b)" {
+    let target = "C:\\w\\X/tmp/t9-fix/cs/post"
+    let got = "fixed C:\\w\\X/tmp/t9-fix/cs/post\\main.byn (2)\n  --> C:\\w\\X/tmp/t9-fix/cs/post\\main.byn:4:1\nfixed C:\\w\\X/tmp/t9-fix/cs/post/.\\main.byn (2)\n"
+    let want = "fixed <dir>/main.byn (2)\n  --> <dir>/main.byn:4:1\nfixed <dir>/./main.byn (2)\n"
+    assert(goldenCliDirMasked(got, at: target) == want)
+    assert(goldenCliDirMasked(got.replaced("main.byn:4", by: "other.byn:4"), at: target) != want)
+    assert(goldenCliDirMasked("fixed /s/post/main.byn (2)\n", at: "/s/post") == "fixed <dir>/main.byn (2)\n")
+}
+
+test "a cli case's host target reads as `<host>` on both sides unless its `args` pin another target (T41b)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-host")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "plain/args", as: "dist\ntally\n")
+    goldenWrite(root, for: "named-host/args", as: "dist\ntally\n--target\nhost\n")
+    goldenWrite(root, for: "pinned/args", as: "dist\ntally\n--target\nwindows-x64\n")
+    goldenWrite(root, for: "pinned-eq/args", as: "build\n--target=macos-arm64\n")
+    let want = "built local/tally 0.1.0 (safe) for macos-arm64 in dist/0.1.0/\n"
+    goldenWrite(root, for: "expected.stdout", as: want)
+    let expected = Path.combine(root, "expected.stdout")
+    let got = "built local/tally 0.1.0 (safe) for windows-x64 in dist/0.1.0/\n"
+    for name in ["plain", "named-host"] {
+        let host = goldenCliHost(Path.combine(root, name), for: "windows-x64")
+        assert(host == "windows-x64")
+        assert(goldenDiffer(got, for: expected, at: expected, by: host) is null)
+        assert(
+            goldenDiffer(got.replaced("0.1.0 (safe)", by: "0.1.0 (fast)"), for: expected, at: expected, by: host) is { }
+        )
+        assert(goldenDiffer(got.replaced("windows-x64", by: "linux-x64"), for: expected, at: expected, by: host) is { })
+    }
+    for name in ["pinned", "pinned-eq"] {
+        let host = goldenCliHost(Path.combine(root, name), for: "windows-x64")
+        assert(host == "")
+        assert(goldenDiffer(got, for: expected, at: expected, by: host) is { })
+        assert(goldenDiffer(want, for: expected, at: expected, by: host) is null)
+    }
 }
 
 test "the argv mask reads a file below a cache's `v1/tmp/` by its name, another path as is" {
