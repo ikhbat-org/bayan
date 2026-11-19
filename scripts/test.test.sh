@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tests scripts/test.sh with each part replaced by a stub (TEST_SH_*): all passing exits 0 with one pass line per part;
 # one failing exits 1 naming it, after the parts behind it ran; --jobs reaches the golden part; --only runs one part;
-# a bad --jobs or --only exits 2. No driver is built: every part is stubbed.
+# a bad --jobs or --only exits 2; the default zig cache's o/ is trimmed to 2000 entries, a caller-set one is not.
+# No driver is built: every part is stubbed.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 s="$root/scripts/test.sh"
@@ -51,6 +52,18 @@ rc=0; (unset ZIG_GLOBAL_CACHE_DIR; "$BASH" "$s" --only runtime >/dev/null 2>&1) 
 rc=0; ZIG_GLOBAL_CACHE_DIR="$tmp/own-zig" "$BASH" "$s" --only runtime >/dev/null 2>&1 || rc=$?
 [ $rc = 0 ] && [ "$(cat "$tmp/zig.dir")" = "$tmp/own-zig" ] || fail "a set ZIG_GLOBAL_CACHE_DIR was replaced: $(cat "$tmp/zig.dir")"
 stub runtime 0
+
+# the default zig cache's o/ is trimmed to the newest 2000 entries, keeping one written in the last 10 minutes; a copy of
+# test.sh under $tmp/fake makes $tmp/fake/tmp/zig-global the default, so the checkout's own cache is not touched.
+mkdir -p "$tmp/fake/scripts" "$tmp/fake/tmp/zig-global/o" "$tmp/own-zig/o"; cp "$s" "$tmp/fake/scripts/test.sh"
+(cd "$tmp/fake/tmp/zig-global/o" && seq 1 2001 | xargs mkdir && touch -t 202001010000 * && mkdir new)
+(cd "$tmp/own-zig/o" && seq 1 2001 | xargs mkdir && touch -t 202001010000 *)
+rc=0; (unset ZIG_GLOBAL_CACHE_DIR; "$BASH" "$tmp/fake/scripts/test.sh" --only runtime >/dev/null 2>&1) || rc=$?
+[ $rc = 0 ] || fail "test.sh with an old zig cache exited $rc"
+[ "$(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l | tr -d ' ')" = 2000 ] || fail "the default zig cache's o/ has $(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l) entries, not 2000"
+[ -d "$tmp/fake/tmp/zig-global/o/new" ] || fail "an o/ entry written in the last 10 minutes was trimmed"
+rc=0; ZIG_GLOBAL_CACHE_DIR="$tmp/own-zig" "$BASH" "$s" --only runtime >/dev/null 2>&1 || rc=$?
+[ $rc = 0 ] && [ "$(ls -A "$tmp/own-zig/o" | wc -l | tr -d ' ')" = 2001 ] || fail "a caller-set ZIG_GLOBAL_CACHE_DIR was trimmed (exit $rc)"
 rc=0; "$BASH" "$s" --jobs 0 >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "--jobs 0 exited $rc, not 2"
 rc=0; "$BASH" "$s" --only nope >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "--only nope exited $rc, not 2"
 echo "test.test: all passed"
