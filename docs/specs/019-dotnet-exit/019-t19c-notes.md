@@ -1,6 +1,8 @@
 # 019 T19, share 019-t19c: notes
 
 Status: draft; working notes, 2026-11-19.
+Release: unscheduled
+Sources: docs/specs/019-dotnet-exit/019-tasks.md (T19); tests/cases/DIVERGENCES.tsv; docs/specs/019-dotnet-exit/019-t19a-notes.md
 
 The 41 rows of tests/cases/DIVERGENCES.tsv whose reason started `waits on t19a staging:`, the 18 failing
 cli/SelfhostDriverStage2FormatTests/LayoutInputsFormatAsCliApp cases with no row and the failing
