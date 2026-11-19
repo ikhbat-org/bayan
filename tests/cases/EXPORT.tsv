@@ -49,7 +49,7 @@ SelfhostEmitterT4Tests	emit-c	26	23	3 not exported: Expr_PanicsLikeCSharp(spread
 SelfhostEmitterT5Tests	emit-c	5	5	
 SelfhostEmitterT6Tests	emit-c	32	30	
 SelfhostEmitterT7Tests	emit-c	13	1379	
-SelfhostEmitterT8Tests	emit-c	7	6	5 not exported: NoEqualityOrFormat_FailsLikeCSharp(failEq, zbadEq) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); NoEqualityOrFormat_FailsLikeCSharp(failEq, zbadEqBuf) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); NoEqualityOrFormat_FailsLikeCSharp(failFmt, zbadFmt) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); NoEqualityOrFormat_FailsLikeCSharp(failFmt, zbadFmtList) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); NoEqualityOrFormat_FailsLikeCSharp(failFmt, zbadFmtBuf) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart)
+SelfhostEmitterT8Tests	emit-c	7	6	
 SelfhostEmitterT9Tests	emit-c	3	4	
 SelfhostLexerCaseTests	lex	1	1	
 SelfhostLexerTests	lex	31	20064	
