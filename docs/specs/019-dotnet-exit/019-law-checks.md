@@ -21,7 +21,7 @@ Decision 2026-11-18 (owner): a live `check:` line is swapped only when the new c
 | L023 | `G --only 'sem/'` | T17c: no sem/ kind yet |
 | L024 | `G --only 'emit/'` | T17c: emit/ holds one case, not the emitter equivalence |
 | L025 | `G --only 'emit/'` | T17c: emit/ holds one case, not the emitter equivalence |
-| L027 | `bash scripts/ci/bootstrap-check.sh` | T46 (ddc-laws.txt) and a debug-mode, no-absolute-path/no-timestamp check; bootstrap-check.sh covers neither |
+| L027 | `bash scripts/ci/bootstrap-check.sh` | covered by T31 (landed 2026-11-19), which added L027 to scripts/ci/ddc-laws.txt and wrote scripts/ci/fixpoint-check.sh |
 | L038 | `G --only '/l038-'` | a port of the law's generator or table as golden cases named lNNN-* (no task owns it yet; placeholder selector) |
 | L039 | `G --only 'cli/format'` | T17c: cli/ cases for format |
 
@@ -118,7 +118,7 @@ Updated 2026-11-19 (T31c) at c82175292: the four no-panic proofs are ported as B
 | L024 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'emit/'` | the owner enacting the drafted statement above; emit/run-c.sha256 is in the tree, but it does not cover every `BuildMode` or the generator seeds the current statement names |
 | L025 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L025:'` | nothing: swapped 2026-11-19 (T31c, eba6069b2); the proof is the test block in src/driver/nopanic-l025.test.byn, not `l025-*` cases |
 | L039 | none | retired 2026-11-18 (23a0dea08); no swap |
-| L027 | `bash scripts/ci/bootstrap-check.sh >/dev/null && bash scripts/ci/fixpoint-check.sh` | (1) L027 in scripts/ci/ddc-laws.txt: T46 landed, the list is empty, the one-line edit is T31's; ddc.sh step 5 then runs `dotnet test --filter "Law=L027"` in the frozen tree (scripts/ci/ddc.sh:65-73). (2) scripts/ci/fixpoint-check.sh, a name proposed here: does not exist; it would build stage 2 with stage 1, emit src/driver in `safe` and `debug` from both, compare the bytes and grep for absolute paths and timestamps. T31 owns it (Decision, Fable open-items review); not landed |
+| L027 | `bash scripts/ci/bootstrap-check.sh >/dev/null && bash scripts/ci/fixpoint-check.sh` | (1) L027 in scripts/ci/ddc-laws.txt: landed (T31). (2) scripts/ci/fixpoint-check.sh: landed (T31), builds stage 2 with stage 1, emits src/driver in `safe` and `debug`, compares the bytes, and scans for absolute paths and timestamps. |
 | L006 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l006-'` | T31b, not landed |
 | L007 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l007-'` | T31b, not landed |
 | L008 | `bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l008-'` | T31b, not landed |
@@ -160,7 +160,7 @@ T67 deletes csharp/, src/tests/*.cs and Bayan.slnx (tests/Bayan.Tests/ is not tr
 | L024 | src/tests/SelfhostEmitterEquivalenceLawTests.cs | src/driver/golden.byn (`goldenEmit`, :1713), after the statement is enacted |
 | L025 | src/tests/SelfhostEmitterNoPanicLawTests.cs | swapped 2026-11-19 (T31c): src/driver/nopanic-l025.test.byn |
 | L026 | csharp/tests/Bayan.Tests/StdPathLawTests.cs | src/driver/golden.byn (run cases, :1493) |
-| L027 | csharp/tests/Bayan.Tests/BootstrapTests.cs | no target yet: scripts/ci/fixpoint-check.sh (T31, not written) |
+| L027 | csharp/tests/Bayan.Tests/BootstrapTests.cs | scripts/ci/fixpoint-check.sh (T31, landed) |
 | L028 | src/tests/SelfhostDriverGoldenTests.cs | src/driver/golden.byn |
 | L031 (proposed) | csharp/tests/Bayan.Tests/RuntimeNativeTests.cs | runtime/tests/run.sh (its check; holds no `L031` today) |
 | L038 (proposed) | csharp/tests/Bayan.Tests/LayoutTests.cs | no target yet: the self-hosted formatter proof after 019 (owner, T31 line) |
