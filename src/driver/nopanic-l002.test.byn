@@ -1,0 +1,323 @@
+// L002 (spec 019 T31c): SelfhostLexerTests.cs:376 `BayanLexNeverPanicsAndKeepsSpansInsideTheInput` without .NET. The corpus of
+// SelfhostLexerTests.cs:183-232 `GenerateCorpus` (10,000 inputs) and the 21 lex/*.byn cases go through one `bayan-lex --many` run over
+// tmp/l002-nopanic; the cases and the empty input also through `bayan-lex --json` on stdin. Each generated input is compared with the frozen C#
+// corpus: the `input.byn.ref` blob of lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-<i + 1> (input 0: the case with no suffix).
+
+/// SelfhostLexerTests.cs:154-167 `XorShift`.
+struct L002Rng {
+    u64 state
+
+    u64 next(ref this) {
+        this.state ^= this.state << 13
+        this.state ^= this.state >> 7
+        this.state ^= this.state << 17
+        return this.state
+    }
+
+    /// `Below(n)`: `(int)(Next() % (ulong)n)`.
+    i64 pick(ref this, i64 n) {
+        return i64(this.next() % u64(n))
+    }
+}
+
+/// The corpus size (SelfhostLexerTests.cs:152 `CorpusSize`); the C# had no tiers.
+const l002CorpusSize: i64 = 10000
+
+/// `bytes` with `b` inserted at `at` (`op` 0), the byte at `at` removed (1) or replaced by `b` (2), SelfhostLexerTests.cs:216-222.
+List<u8> l002Mutated(in List<u8> bytes, at i64 at, as i64 op, by u8 b) uses alloc {
+    var next = List<u8>()
+    for j in 0..bytes.length {
+        if j == at {
+            if op == 0 {
+                next.append(b)
+                next.append(bytes[j])
+            } else if op == 2 {
+                next.append(b)
+            }
+        } else {
+            next.append(bytes[j])
+        }
+    }
+    return next
+}
+
+/// The first `"start":a,"end":b` in `json` with `a > b` or `b > size`, as `a..b`; empty when none (SelfhostLexerTests.cs:386-391). `count`
+/// gets the number of spans read.
+string l002Outside(string json, until i64 size, to ref i64 count) uses alloc {
+    let text = json.bytes
+    let key = "\"start\":".bytes
+    let mid = ",\"end\":".bytes
+    var i: i64 = 0
+    while i + key.length <= text.length {
+        var hit = true
+        for k in 0..key.length {
+            if text[i + k] != key[k] {
+                hit = false
+                break
+            }
+        }
+        unless hit {
+            i += 1
+            continue
+        }
+        i += key.length
+        var start: i64 = 0
+        while i < text.length && text[i] >= 0x30 && text[i] <= 0x39 {
+            start = start * 10 + i64(text[i] - 0x30)
+            i += 1
+        }
+        continue if i + mid.length > text.length
+        var after = true
+        for k in 0..mid.length {
+            if text[i + k] != mid[k] {
+                after = false
+                break
+            }
+        }
+        continue unless after
+        i += mid.length
+        var end: i64 = 0
+        while i < text.length && text[i] >= 0x30 && text[i] <= 0x39 {
+            end = end * 10 + i64(text[i] - 0x30)
+            i += 1
+        }
+        count += 1
+        return $"{start}..{end}" if start > end || end > size
+    }
+    return ""
+}
+
+/// The corpus file name of input `i`: `{i:D5}.byn` (SelfhostLexerTests.cs:244).
+string l002Name(i64 i) uses alloc {
+    let digits = $"{i}"
+    return $"{"00000"[0..5 - digits.length]}{digits}.byn"
+}
+
+// L002: the lexer never panics and keeps spans inside the input
+test "L002: bayan-lex exits 0 or 1 with every span inside the input on the 21 lex cases, 10,000 generated inputs and the empty input" {
+    let started = Io.monotonicNanos()
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    let prog = goldenProgram("lexer", by: exe, through: ref failure)
+    print(failure) if failure != ""
+    assert(failure == "")
+    // the lex cases in ordinal order, their bytes in `pool`, and their lines split after each LF (SelfhostLexerTests.cs:186-187, :224-234)
+    let cases = Path.fullPath("tests/cases/lex")
+    var listed = Io.listDir(cases) catch List<string>()
+    listed.sort()
+    var goldens = List<string>()
+    var pool = List<u8>()
+    var caseStart = List<i64>()
+    var caseEnd = List<i64>()
+    var lineStart = List<i64>()
+    var lineEnd = List<i64>()
+    for name in listed {
+        continue unless name.endsWith(".byn")
+        goldens.append(name)
+        let bytes = Io.readFile(Path.combine(cases, name)) catch List<u8>()
+        caseStart.append(pool.length)
+        var from = pool.length
+        for b in bytes {
+            pool.append(b)
+            if b == 0x0A {
+                lineStart.append(from)
+                lineEnd.append(pool.length)
+                from = pool.length
+            }
+        }
+        if from < pool.length {
+            lineStart.append(from)
+            lineEnd.append(pool.length)
+        }
+        caseEnd.append(pool.length)
+    }
+    assert(goldens.length == 21)
+    // SelfhostLexerTests.cs:169-180
+    let invalid = [
+        0xFF, 0x80, 0xC0, 0x80, 0xC3, 0xE2, 0x82, 0xED, 0xA0, 0x80, 0xF0, 0x9F, 0x98, 0xF4, 0x90, 0x80, 0x80, 0xF8,
+        0x88, 0x80, 0x80, 0x80,
+    ]
+    let invalidEnd = [1, 2, 4, 5, 7, 10, 13, 17, 22]
+    let specials = [
+        "$\"{",
+        "$\"{a",
+        "$\"x{ $\"{",
+        "$\"{}\"",
+        "$\"{\"",
+        "}",
+        "{",
+        "\"{",
+        "$\"a{b}c",
+        "$\"{{\"",
+        "e\u{301}",
+        "let cafe\u{301} = 1;",
+        "A\u{30A}",
+        "\u{212B}",
+        "\u{1100}\u{1161}\u{11A8}",
+        "a\u{307}\u{323}",
+        "a\u{323}\u{307}",
+        "x\u{301}\u{301}",
+        "\u{344}",
+        "\u{202E}",
+        "\u{2066}",
+        "\u{2069}",
+        "\u{200F}",
+        "\u{FEFF}",
+        "// \u{202E}x\n",
+        "\"a\u{2067}b\"",
+        "/* \u{202D} */",
+        "'\u{202E}'",
+        "\r\n",
+        "\r",
+        "\t",
+        "\0",
+        "///",
+        "/*",
+        "*/",
+        "'",
+        "\"",
+        "\"\"\"",
+        "0x",
+        "1e",
+        "1.",
+        "_",
+    ]
+    assert(specials.length == 42)
+    let tier = Env.get("BAYAN_LAW_TIER") ?? "quick"
+    let dir = Path.combine(Path.fullPath("tmp"), "l002-nopanic")
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    let frozen = Path.fullPath("tests/cases/lex/SelfhostLexerTests")
+    var names = List<string>()
+    var differ = ""
+    var rng = L002Rng { state: 0x9E3779B97F4A7C15 }
+    for i in 0..l002CorpusSize {
+        var bytes = List<u8>()
+        if i % 250 != 0 {
+            for _ in 0..1 + rng.pick(8) {
+                let kind = rng.pick(20)
+                if kind < 9 {
+                    let l = rng.pick(lineStart.length)
+                    for j in lineStart[l]..lineEnd[l] {
+                        bytes.append(pool[j])
+                    }
+                } else if kind < 12 {
+                    let c = rng.pick(caseStart.length)
+                    let length = caseEnd[c] - caseStart[c]
+                    let start = rng.pick(length)
+                    let take = 1 + rng.pick(64)
+                    let end = caseStart[c] + start + (length - start < take ? length - start : take)
+                    for j in caseStart[c] + start..end {
+                        bytes.append(pool[j])
+                    }
+                } else if kind < 14 {
+                    let s = rng.pick(invalidEnd.length)
+                    for j in (s == 0 ? 0 : invalidEnd[s - 1])..invalidEnd[s] {
+                        bytes.append(u8(invalid[j]))
+                    }
+                } else if kind < 19 {
+                    for b in specials[rng.pick(specials.length)].bytes {
+                        bytes.append(b)
+                    }
+                } else {
+                    let depth = 14 + rng.pick(8)
+                    for b in "$\"{".repeated(depth).bytes {
+                        bytes.append(b)
+                    }
+                    bytes.append(0x78)
+                    for b in "}\"".repeated(rng.pick(depth + 2)).bytes {
+                        bytes.append(b)
+                    }
+                }
+                let separator = rng.pick(3)
+                if separator == 1 {
+                    bytes.append(0x20)
+                } else if separator == 2 {
+                    bytes.append(0x0A)
+                }
+            }
+            var mutations = rng.pick(4)
+            while mutations > 0 && bytes.length > 0 {
+                let at = rng.pick(bytes.length)
+                let op = rng.pick(3)
+                let b = op == 1 ? u8(0) : u8(rng.next() & 0xFF)
+                bytes = l002Mutated(in bytes, at: at, as: op, by: b)
+                mutations -= 1
+            }
+            if rng.pick(8) == 0 {
+                var crlf = List<u8>()
+                for b in bytes {
+                    if b == 0x0A {
+                        crlf.append(0x0D)
+                    }
+                    crlf.append(b)
+                }
+                bytes = move crlf
+            }
+        }
+        // the frozen C# bytes (T17a2 `file:<sha256>` pointer)
+        let frozenCase = i == 0 ? "CorpusMatchesTheReferenceLexer" : $"CorpusMatchesTheReferenceLexer-{i + 1}"
+        let pointer = goldenCliLines(Path.combine(Path.combine(frozen, frozenCase), "input.byn.ref"))
+        let sha = Hex.encode(sha256(bytes.span).span)
+        if differ == "" && (pointer.length == 0 || pointer[0] != $"file:{sha}") {
+            differ = $"input {i}: sha256 {sha}, frozen {pointer.length == 0 ? "<none>" : pointer[0]} ({frozen}/{frozenCase})"
+        }
+        let name = l002Name(i)
+        names.append(name)
+        Io.writeFile(Path.combine(dir, name), bytes.span) catch { failure = $"cannot write {dir}/{name}" }
+    }
+    print(differ) if differ != ""
+    assert(differ == "" && failure == "")
+    var stdins = List<string>()
+    for name in goldens {
+        let bytes = Io.readFile(Path.combine(cases, name)) catch List<u8>()
+        names.append($"lex-{name}")
+        Io.writeFile(Path.combine(dir, $"lex-{name}"), bytes.span) catch { failure = $"cannot write {dir}/lex-{name}" }
+        stdins.append(Path.combine(cases, name))
+    }
+    stdins.append("")
+    names.sort()
+    // SelfhostLexerTests.cs:236-262: one `--many` run; every header in order, no `span out of range` line (lexer/main.byn `checkSpans`)
+    var args = List<string>()
+    args.append("--many")
+    args.append(dir)
+    let none = List<u8>()
+    let o = goldenChild(prog, by: in args, at: dir, from: in none, through: ref failure, whole: true)
+    print($"{failure}\nexit {o.exitCode}\n{o.stderr}") if failure != ""
+        || o.exitCode != 0
+        || o.stderr.contains("panic:")
+    assert(failure == "" && o.exitCode == 0 && !o.stderr.contains("panic:"))
+    var seen: i64 = 0
+    var outside = ""
+    for line in goldenLines(o.stdout) {
+        if seen < names.length && line == $"== {names[seen]}" {
+            seen += 1
+        } else if outside == "" && line.startsWith("span out of range") {
+            outside = $"{dir}/{seen > 0 ? names[seen - 1] : "<none>"}: {line}"
+        }
+    }
+    print($"bayan-lex --many stopped before {dir}/{names[seen]}") if seen < names.length
+    print(outside) if outside != ""
+    assert(seen == names.length && outside == "")
+    // SelfhostLexerTests.cs:288-301, :376-392: `--json` on stdin, exit 0 or 1, every span in [0, length]
+    var spans: i64 = 0
+    for path in stdins {
+        let input = path == "" ? List<u8>() : Io.readFile(path) catch List<u8>()
+        var json = List<string>()
+        json.append("--json")
+        let r = goldenChild(prog, by: in json, at: dir, from: in input, through: ref failure, whole: true)
+        let bad = l002Outside(r.stdout, until: input.length, to: ref spans)
+        let shown = path == "" ? "the empty input" : path
+        print($"{shown}: {failure} exit {r.exitCode}, span {bad}\n{r.stderr}") if failure != ""
+            || (r.exitCode != 0 && r.exitCode != 1)
+            || r.stderr.contains("panic:")
+            || bad != ""
+        assert(failure == "" && (r.exitCode == 0 || r.exitCode == 1) && !r.stderr.contains("panic:") && bad == "")
+    }
+    assert(spans > 0)
+    let ms = (Io.monotonicNanos() - started) / 1000000
+    print(
+        $"L002 ({tier} tier, as quick: the C# had no tiers): {l002CorpusSize} generated inputs equal to the frozen C# corpus and {goldens.length} lex cases under --many, {stdins.length} on stdin ({spans} JSON spans), {ms} ms",
+    )
+    deleteWorkDir(dir)
+}
