@@ -1,0 +1,10 @@
+error BYN2786: `Untrusted<string>` cannot be passed to `Io.run`: it is `Untrusted`
+  --> <repo>/tmp/l007/io-run-untrusted-program/main.byn:12:24
+
+  12 │     let _ = try Io.run(name, none.span)
+     │                        ^^^^
+     │
+  help: check the value, then clear the mark with `x.trustUnchecked() because "…"`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2786

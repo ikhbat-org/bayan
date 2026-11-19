@@ -1,0 +1,10 @@
+== 1
+warning BYN2311: `v` is never reassigned; declare it with `let`
+  --> $WORK/lint.byn:27:37
+
+  27 │     let r = u switch { .a => 0, var v => 1 }
+     │                                     ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 27 │     let r = u switch { .a => 0, let v => 1 }
+     │    │                                 +++

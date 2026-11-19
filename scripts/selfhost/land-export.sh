@@ -23,12 +23,22 @@
 #   (2d) a case that fails only because (2c) left out its input (the list `removed` below) is not landed: it is printed and
 #       counted in its class's EXPORT.tsv reason as "<n> removed: <case> (<why>)" (T17c ruling 2);
 #   (3) cli/SelfhostExport/ is dropped;
+#   (3b) a case name ending in dots or spaces lands without them (Windows cannot hold such a name, T17e); a name that then equals
+#       another case's of its class, or that holds one of < > : " | ? *, stops the run (exit 1);
 #   (4) <dest>/EXPORT.tsv (class, kind, tests, cases, reason) is written: one row per class and kind with cases or with rows in
 #       <kind>/UNEXPORTED.tsv, tests from <dest>/../inventory-019.tsv, cases the case directories, reason the class's
-#       UNEXPORTED.tsv rows (root masked) and its (2d) removals, empty when it has none.
+#       UNEXPORTED.tsv rows (root masked), its (2d) removals and its (5) `os` files, empty when it has none; a class and kind the
+#       export holds no directory or UNEXPORTED.tsv row for keeps its old EXPORT.tsv row unchanged (an export of some classes, T31b);
+#   (5) a landed case's `os` file (T17e: one line, the OSes its expected output holds on separated by spaces, as the runner's
+#       `Target.os` names them; goldenexport.byn `goldenCliSkip` says why one line) is not in the export and is kept; EXPORT.tsv lists
+#       each as "<n> os: <case> (<OSes>: <reason>)", the reason read from that case's entry in the EXPORT.tsv being replaced (it is added
+#       there by hand with the `os` file). An `os` file with no such entry, or with more than one line, stops the run (exit 1).
 # A file is written only when its content differs, so a rerun over the same export writes nothing. A symlink or other special
 # file, or a name holding a tab, newline or backslash, under input/ stops the run. After landing, any file under <dest> holding
-# this machine's HOME, /Users/ or /opt/homebrew stops the run (exit 1). Prints the counts; exit 2 on bad arguments.
+# this machine's HOME, /Users/ or /opt/homebrew stops the run (exit 1), and so does any stored file under <dest>/inputs/files a case
+# names whose bytes do not hash to its name (one already there from an earlier land too; T17f). When <dest> is in a git worktree,
+# <dest>/inputs/files must have the text attribute unset (`-text`), or `git add` would store CRLF files as LF (T17f: 1,205 blobs
+# landed under `text=auto` lost their CRs); otherwise the run stops before landing (exit 1). Prints the counts; exit 2 on bad arguments.
 set -euo pipefail
 [ $# = 3 ] || { echo "usage: land-export.sh <export dir> <export worktree root> <dest tests/cases>" >&2; exit 2; }
 src="${1%/}"; repo="${2%/}"; dest="${3%/}"
@@ -41,6 +51,10 @@ if command -v sha256sum > /dev/null 2>&1; then sum="sha256sum"; else sum="shasum
 work="$(cd "$(mktemp -d "${TMPDIR:-/tmp}/land-export.XXXXXX")" && pwd)"   # absolute: the hashing runs from inside input/
 trap 'rm -rf "$work"' EXIT
 mkdir -p "$dest/inputs/files" "$dest/inputs/trees"
+if git -C "$dest" rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+  attr="$(cd "$dest/inputs/files" && git check-attr text -- probe)"
+  [ "${attr##*: }" = unset ] || { echo "land-export: $dest/inputs/files is not -text in .gitattributes ($attr); git would strip CRs" >&2; exit 1; }
+fi
 esc="$(printf '%s' "$repo" | sed 's/[][\.*^$/]/\\&/g')"
 tab="$(printf '\t')"; nl='
 '
@@ -54,7 +68,7 @@ put() {
 
 # store <file>: copies the file into inputs/files by content; sets $stored to its sha256
 store() {
-  stored="$($sum < "$1" | cut -c1-64)"
+  stored="$($sum < "$1" | cut -c1-64)"; echo "$stored" >> "$work/landed"
   if [ ! -f "$dest/inputs/files/$stored" ]; then cp "$1" "$dest/inputs/files/$stored"; chmod 644 "$dest/inputs/files/$stored"; blobs=$((blobs + 1)); fi
 }
 
@@ -91,7 +105,7 @@ land_input() {
     while IFS="$tab" read -r p e h; do
       if [ ! -f "$dest/inputs/files/$h" ]; then cp "$in/$p" "$dest/inputs/files/$h"; chmod 644 "$dest/inputs/files/$h"; blobs=$((blobs + 1)); fi
     done < "$w/hashed"
-    cut -f1,2 "$w/hashed" > "$w/known"
+    cut -f1,2 "$w/hashed" > "$w/known"; cut -f3 "$w/hashed" >> "$work/landed"
   fi
   local depth max
   max="$(awk -F/ 'NF - 1 > m { m = NF - 1 } END { print m + 0 }' "$w/dirs")"
@@ -200,23 +214,30 @@ land_case() {
   cases=$((cases + 1))
 }
 
-: > "$work/counts"; : > "$work/unexported"; : > "$work/removed"
+: > "$work/counts"; : > "$work/unexported"; : > "$work/removed"; : > "$work/landed"; : > "$work/seen"
 for k in "$src"/*/; do
   k="${k%/}"; kind="${k##*/}"
   for cl in "$k"/*/; do
     [ -d "$cl" ] || continue
     cl="${cl%/}"; class="${cl##*/}"
     [ "$kind/$class" != cli/SelfhostExport ] || continue
+    printf '%s\t%s\n' "$class" "$kind" >> "$work/seen"
     n=0
     for c in "$cl"/*/; do
       [ -d "$c" ] || continue
       c="${c%/}"
+      # (3b) the landed name: trailing dots and spaces dropped
+      name="${c##*/}"; while [[ "$name" == *[.\ ] ]]; do name="${name%?}"; done
+      if [[ "$name" == *[\<\>:\"\|\?\*]* ]]; then echo "land-export: $kind/$class/${c##*/}: a name Windows cannot hold" >&2; exit 1; fi
+      if [ "$name" != "${c##*/}" ] && [ -d "$cl/$name" ]; then
+        echo "land-export: $kind/$class/${c##*/}: lands as $name, the name of another case" >&2; exit 1
+      fi
       why="$(printf '%s\n' "$removed" | awk -F'\t' -v id="$kind/$class/${c##*/}" '$1 == id { print $2 }')"
       if [ -n "$why" ]; then
         echo "land-export: $kind/$class/${c##*/}: removed ($why)"
         printf '%s\t%s\t%s (%s)\n' "$class" "$kind" "${c##*/}" "$why" >> "$work/removed"; continue
       fi
-      land_case "$c" "$dest/$kind/$class/${c##*/}"
+      land_case "$c" "$dest/$kind/$class/$name"
       n=$((n + 1))
     done
     [ "$n" = 0 ] || printf '%s\t%s\t%s\n' "$class" "$kind" "$n" >> "$work/counts"
@@ -227,22 +248,53 @@ for k in "$src"/*/; do
   fi
 done
 
-# EXPORT.tsv: reason "<n> not exported: <test> (<rest>); ...", the distinct rows sorted, then "<n> removed: <case> (<why>); ..."
+# (5) the landed cases' `os` files: <class>\t<kind>\t<case> (<OSes>: <reason>), the reason from the old EXPORT.tsv's
+# "<n> os: <case> (<OSes>: <reason>); ..." (the last part of a reason, entries split at "); ")
+: > "$work/os"; : > "$work/os-why"
+[ ! -f "$dest/EXPORT.tsv" ] || awk -F'\t' 'NR > 1 && match($5, /(^|; )[0-9]+ os: /) {
+    rest = substr($5, RSTART + RLENGTH); sub(/^[0-9]+ os: /, "", rest); sub(/\)$/, "", rest); n = split(rest, e, /\); /)
+    for (i = 1; i <= n; i++) { p = index(e[i], " ("); inner = substr(e[i], p + 2); q = index(inner, ": ")
+      if (p > 0 && q > 0) print $2 "/" $1 "/" substr(e[i], 1, p - 1) "\t" substr(inner, q + 2) }
+  }' "$dest/EXPORT.tsv" > "$work/os-why"
+while IFS= read -r -d '' f; do
+  rel="${f#"$dest"/}"; IFS=/ read -r k cl cs _ <<< "$rel"
+  [ "$k" != inputs ] || continue
+  [ "$(awk 'END { print NR }' "$f")" -le 1 ] || { echo "land-export: $k/$cl/$cs/os has more than one line" >&2; exit 1; }
+  oses="$(awk '{ $1 = $1; print; exit }' "$f")"
+  why="$(awk -F'\t' -v id="$k/$cl/$cs" '$1 == id { print $2; exit }' "$work/os-why")"
+  [ -n "$why" ] || { echo "land-export: $k/$cl/$cs/os has no reason in EXPORT.tsv: add \"1 os: $cs ($oses: <reason>)\" to its row" >&2; exit 1; }
+  printf '%s\t%s\t%s (%s: %s)\n' "$cl" "$k" "$cs" "$oses" "$why" >> "$work/os"
+done < <(find "$dest" -mindepth 4 -maxdepth 4 -type f -name os -print0)
+
+# EXPORT.tsv: reason "<n> not exported: <test> (<rest>); ...", the distinct rows sorted, then "<n> removed: <case> (<why>); ...", then
+# "<n> os: <case> (<OSes>: <reason>); ..."
 LC_ALL=C sort -u "$work/unexported" > "$work/unexported.sorted"
 LC_ALL=C sort -u "$work/removed" > "$work/removed.sorted"
-awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" -v rm="$work/removed.sorted" '
+LC_ALL=C sort -u "$work/os" > "$work/os.sorted"
+# a class and kind the export holds no directory or UNEXPORTED.tsv row for keeps its old EXPORT.tsv row as it was (an export of
+# some classes, T31b; the hand-written T24b shell rows)
+: > "$work/old"; [ ! -f "$dest/EXPORT.tsv" ] || awk 'NR > 1' "$dest/EXPORT.tsv" > "$work/old"
+awk -F'\t' -v inv="$inv" -v un="$work/unexported.sorted" -v rm="$work/removed.sorted" -v os="$work/os.sorted" \
+    -v seen="$work/seen" -v old="$work/old" '
   BEGIN {
     while ((getline l < inv) > 0) { split(l, a, "\t"); if (a[1] != "class") tests[a[1]] = a[4] }
-    while ((getline l < un) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
+    while ((getline l < seen) > 0) inx[l] = 1
+    while ((getline l < old) > 0) { split(l, a, "\t"); prev[a[1] "\t" a[2]] = l }
+    while ((getline l < un) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1; inx[key] = 1
       reason[key] = (rows[key] ? reason[key] "; " : "") a[3]; rows[key]++ }
     while ((getline l < rm) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
       gone[key] = (nrm[key] ? gone[key] "; " : "") a[3]; nrm[key]++ }
+    while ((getline l < os) > 0) { split(l, a, "\t"); key = a[1] "\t" a[2]; keys[key] = 1
+      only[key] = (nos[key] ? only[key] "; " : "") a[3]; nos[key]++ }
   }
   { key = $1 "\t" $2; keys[key] = 1; cnt[key] = $3 }
   END {
+    for (key in prev) if (!(key in inx)) print prev[key]
     for (key in keys) { split(key, a, "\t")
+      if (!(key in inx) && key in prev) continue
       r = (key in rows ? rows[key] " not exported: " reason[key] : "")
       if (key in nrm) r = (r == "" ? "" : r "; ") nrm[key] " removed: " gone[key]
+      if (key in nos) r = (r == "" ? "" : r "; ") nos[key] " os: " only[key]
       print key "\t" (a[1] in tests ? tests[a[1]] : "") "\t" (key in cnt ? cnt[key] : 0) "\t" r }
   }
 ' "$work/counts" | LC_ALL=C sort -t"$tab" -k1,1 -k2,2 > "$work/body"
@@ -251,4 +303,9 @@ put "$work/EXPORT.tsv" "$dest/EXPORT.tsv"
 # nothing under dest may name the export machine: its HOME, /Users/ or /opt/homebrew (pats)
 leaks="$(grep -rl -F "${pats[@]}" -- "$dest" 2> /dev/null | head -20 || true)"
 [ -z "$leaks" ] || { echo "land-export: the landed tree names the export machine (HOME, /Users/ or /opt/homebrew) in:" >&2; echo "$leaks" >&2; exit 1; }
+# every stored file a case names hashes to its name (T17f)
+if [ -s "$work/landed" ]; then
+  wrong="$(LC_ALL=C sort -u "$work/landed" | (cd "$dest/inputs/files" && xargs $sum) | awk '{ n = $NF; sub(/^.*\//, "", n) } substr($0, 1, 64) != n { print n }')"
+  [ -z "$wrong" ] || { echo "land-export: stored input files whose bytes do not hash to their names:" >&2; echo "$wrong" >&2; exit 1; }
+fi
 echo "land-export: $cases cases, $blobs new input files, $trees new input trees, $written files written"

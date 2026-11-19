@@ -1,0 +1,65 @@
+enum Tint {
+    red
+    green
+    blue
+}
+
+Tint tint(i64 c) {
+    if c < 1 {
+        return .red
+    }
+    if c < 2 {
+        return .green
+    }
+    return .blue
+}
+
+(Symbol, Tint, i64) make(i64 code) uses alloc {
+    return (Symbol.intern($"y{code / 1 % 8}"), tint(code / 8 % 3), (code / 24 % 8) * 1000003 + 7)
+}
+
+void main() {
+    var m = Map<(Symbol, Tint, i64), i64>()
+    var n = Map<(Symbol, Tint, i64), i64>()
+    m[("y2", Tint.green, i64(7))] = 1
+    m[make(10)] = 10
+    n[make(10)] = 1
+    n[("y2", Tint.green, i64(7))] = 10
+    m[("y3", Tint.green, i64(7))] = 1
+    m[make(11)] = 11
+    n[make(11)] = 1
+    n[("y3", Tint.green, i64(7))] = 11
+    m[("y2", Tint.blue, i64(7))] = 1
+    m[make(18)] = 18
+    n[make(18)] = 1
+    n[("y2", Tint.blue, i64(7))] = 18
+    m[("y2", Tint.green, i64(1000010))] = 1
+    m[make(34)] = 34
+    n[make(34)] = 1
+    n[("y2", Tint.green, i64(1000010))] = 34
+    m[("y2", Tint.red, i64(5000022))] = 1
+    m[make(122)] = 122
+    n[make(122)] = 1
+    n[("y2", Tint.red, i64(5000022))] = 122
+    m[("y6", Tint.red, i64(4000019))] = 1
+    m[make(102)] = 102
+    n[make(102)] = 1
+    n[("y6", Tint.red, i64(4000019))] = 102
+    m[("y0", Tint.red, i64(3000016))] = 1
+    m[make(72)] = 72
+    n[make(72)] = 1
+    n[("y0", Tint.red, i64(3000016))] = 72
+    m[("y1", Tint.blue, i64(1000010))] = 1
+    m[make(41)] = 41
+    n[make(41)] = 1
+    n[("y1", Tint.blue, i64(1000010))] = 41
+    print($"{m.length} {n.length}")
+    print($"{m[make(10)]} {n[("y2", Tint.green, i64(7))]} {m.contains(("y2", Tint.green, i64(7)))}")
+    print($"{m[make(11)]} {n[("y3", Tint.green, i64(7))]} {m.contains(("y3", Tint.green, i64(7)))}")
+    print($"{m[make(18)]} {n[("y2", Tint.blue, i64(7))]} {m.contains(("y2", Tint.blue, i64(7)))}")
+    print($"{m[make(34)]} {n[("y2", Tint.green, i64(1000010))]} {m.contains(("y2", Tint.green, i64(1000010)))}")
+    print($"{m[make(122)]} {n[("y2", Tint.red, i64(5000022))]} {m.contains(("y2", Tint.red, i64(5000022)))}")
+    print($"{m[make(102)]} {n[("y6", Tint.red, i64(4000019))]} {m.contains(("y6", Tint.red, i64(4000019)))}")
+    print($"{m[make(72)]} {n[("y0", Tint.red, i64(3000016))]} {m.contains(("y0", Tint.red, i64(3000016)))}")
+    print($"{m[make(41)]} {n[("y1", Tint.blue, i64(1000010))]} {m.contains(("y1", Tint.blue, i64(1000010)))}")
+}

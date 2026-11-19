@@ -6,8 +6,8 @@ release: 0.1.0
 sources: Q68
 kind: guard
 scope: csharp/Bayan.Semantics/Binding/OwnershipAnalysis.cs
-proof: csharp/tests/Bayan.Tests/L006OwnershipGuardTests.cs
-check: dotnet test --filter Law=L006
+proof: src/driver/goldenexport.byn
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l006-'
 enacted: 2026-10-21
 ---
 
@@ -19,3 +19,5 @@ A program that compiles where `var b = move a;` is followed on some path by `a.a
 
 ## Proof notes
 `csharp/tests/Bayan.Tests/L006OwnershipGuardTests.cs`, tagged `[Trait("Law", "L006")]`, compiles a table through `Compilation.Create` with a shared prelude. 43 rows must be rejected with their ownership diagnostic: moved-local uses on every listed path, implicit copies of unique types and types containing them, escaping borrows, moves out of a field, element or plain parameter, a moved pattern binding of a borrowed subject (BYN2783), a use of `x` after `switch move x`, of a binding after it was moved on in the same arm, and of `switch move s` on a later loop iteration when `s` is declared outside the loop (BYN2781), `switch move …` on a field or plain parameter (BYN2789), an owning pattern that binds both sides of an `and` or a designation and a part inside it (BYN2790), a guard of `switch move …` that mutates its binding (BYN2791), and `take()` on a `let` local or plain parameter (BYN2104) or on `i64`/`string` (BYN2788). 26 rows must be accepted: explicit `.copy(to:)`, reassignment before use, borrows that end before their owner, `take()` from a `List` field, list element, `Map` element, optional field, `ref` parameter and `StrBuf` local (a `StrBuf` cannot be a struct field, BYN3001), and `switch move x` in statement and expression form and on a `move` parameter, with the bindings moved on, with two disjoint bindings of one variant both moved on, with two disjoint bindings reached through one field written twice, and with a binding next to an `i64` copy of its length. Amended 2026-10-21 (spec 003) to add the `take()` and `switch move x` rows; a break making owning bindings borrow fails 4 rows, and silencing BYN2789 fails 2. The review of spec 003 added the BYN2790 rows; silencing BYN2790 fails both and its golden. The `.copy(to:)` rows cover `List`, `Map` and `StrBuf`, the types that have one (spec §9.3: "when the type has one"); a struct, union, tuple or optional holding a unique part has no `.copy`, so it has no accepted copy row (Q68).
+
+Proof 2026-11-19 (spec 019 T31b): the proof is the 69 exported cases cli/L006OwnershipGuardTests/l006-* (43 rejected, 26 accepted, each `bayan check` of one table row), expected output from the v0.3.2 C# export, run by `goldenCli` in src/driver/goldenexport.byn (the L006–L016 comment block); warning text is now compared too. Broke it by skipping the moved-local use check in `t24Expr` (src/semantics/ownership.byn, `if false && …`): 8 of 69 failed, e.g. `l006-read-after-switch-move-s`.

@@ -1,0 +1,29 @@
+note BYN1079: the type is known from the target; write `[]`
+  --> <repo>/tmp/l007/io-run-trusted-program/main.byn:7:41
+
+  7 │     let many: List<Untrusted<string>> = List<Untrusted<string>>()
+    │                                         ^^^^^^^^^^^^^^^^^^^^^^^^^ spells out the declared type
+    │
+  help: write `[]`
+    │ 7 │     let many: List<Untrusted<string>> = []
+    │   │                                         ++
+
+note BYN1079: the type is known from the target; write `[]`
+  --> <repo>/tmp/l007/io-run-trusted-program/main.byn:10:33
+
+  10 │     let holders: List<Holder> = List<Holder>()
+     │                                 ^^^^^^^^^^^^^^ spells out the declared type
+     │
+  help: write `[]`
+     │ 10 │     let holders: List<Holder> = []
+     │    │                                 ++
+
+note BYN1079: the type is known from the target; write `[]`
+  --> <repo>/tmp/l007/io-run-trusted-program/main.byn:11:30
+
+  11 │     let none: List<string> = List<string>()
+     │                              ^^^^^^^^^^^^^^ spells out the declared type
+     │
+  help: write `[]`
+     │ 11 │     let none: List<string> = []
+     │    │                              ++

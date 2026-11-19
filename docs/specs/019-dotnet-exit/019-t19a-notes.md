@@ -1,5 +1,9 @@
 # 019 T19, share 019-t19a: the `cli/SelfhostDefault*` rows of tests/cases/DIVERGENCES.tsv
 
+Status: draft; working notes, 2026-11-19.
+Release: unscheduled
+Sources: docs/specs/019-dotnet-exit/019-tasks.md (T19); tests/cases/DIVERGENCES.tsv
+
 82 rows. 77 now pass and are deleted (outcome b), 2 are deliberate (a), 3 cannot be reproduced (c).
 
 ## (b) What made the 77 pass

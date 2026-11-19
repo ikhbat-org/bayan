@@ -1,0 +1,12 @@
+== 1 exit 0
+build 0
+void byn_main__pick(int64_t p_x) {
+#line 2 "main.byn"
+    if ((p_x > INT64_C(2))) {
+#line 2 "main.byn"
+        (void)byn_print(((byn_builtin_Stream)0), BYN_STR("a", 1));
+    } else {
+#line 2 "main.byn"
+        (void)byn_print(((byn_builtin_Stream)0), BYN_STR("b", 1));
+    }
+}

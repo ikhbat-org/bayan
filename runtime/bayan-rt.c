@@ -1270,7 +1270,7 @@ bool byn_view_more(byn_text_view v, int64_t pos, int32_t kind) {
 byn_text_view byn_parts(byn_str s, byn_str sep, int64_t limit, const char* file, int line) {
     if (sep.len == 0) byn_panic("parts with an empty separator", file, line);
     if (limit < 0) byn_panic("parts with a negative limit", file, line);
-    return (byn_text_view){s, sep, limit, 0};
+    return (byn_text_view){s, sep, limit, 0, {0}};
 }
 
 byn_text_view byn_parts_rune(byn_str s, uint32_t c, int64_t limit, const char* file, int line) {
@@ -1316,7 +1316,7 @@ byn_str byn_parts_next(byn_text_view* v, int64_t* pos) {
 }
 
 uint16_t* byn_utf16_copy(byn_str s, int64_t* len, byn_alloc* to) {
-    byn_text_view v = {s, {NULL, 0}, 0, 0};
+    byn_text_view v = {s, {NULL, 0}, 0, 0, {0}};
     int64_t n = 0;
     for (int64_t pos = 0; byn_view_more(v, pos, 1); byn_utf16_next(&v, &pos)) n++;
     *len = n;
@@ -3126,7 +3126,10 @@ uint32_t byn_io_list_dir(byn_str path, byn_str** ptr, int64_t* len, byn_alloc* a
 uint32_t byn_io_remove(byn_str path) {
     if (byn_path_effectively_empty(path) || memchr(path.ptr, 0, (size_t)path.len)) return BYN_IO_NOT_FOUND;
 #ifdef _WIN32
-    wchar_t* wpath = byn_wide(path.ptr, path.len);
+    /* As .NET `File.Delete`: `Path.GetFullPath`, then DeleteFileW; a missing file is not an error, a missing directory is. */
+    byn_path_buf f = byn_path_full(path, "Io.remove", NULL, 0);
+    wchar_t* wpath = byn_wide(f.p, f.n);
+    free(f.p);
     BOOL ok = DeleteFileW(wpath);
     DWORD e = ok ? 0 : GetLastError();
     free(wpath);

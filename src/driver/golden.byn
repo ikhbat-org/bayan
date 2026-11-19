@@ -62,6 +62,96 @@ string goldenSlashed(string path) uses alloc {
     return text
 }
 
+/// `text` with the directory `dir` read as `tag` (with the `/` after it dropped too when `drop`). A Windows `dir` (one holding `\`) is also
+/// matched as JSON writes it, each `\` doubled, and the path that follows it there is read with `/` for each `\` (`\\` in JSON), as the
+/// export, made on macOS, holds it (T17e); text that does not follow `dir` keeps its `\`.
+string goldenDirMasked(string text, at string dir, by string tag, bool drop = false) uses alloc {
+    var res = text
+    if dir.contains("\\") {
+        let json = dir.replaced("\\", by: "\\\\")
+        res = goldenDirSlashed(
+            goldenDirSlashed(res, at: json, by: tag, sep: "\\\\", drop: drop),
+            at: dir,
+            by: tag,
+            drop: drop,
+        )
+        res = drop ? res : res.replaced(json, by: tag)
+    }
+    return drop ? res.replaced($"{dir}/", by: tag) : res.replaced(dir, by: tag)
+}
+
+/// `text` with each `dir` followed by `sep` and a path read as `tag`, `/` (none when `drop`), and the path with each `sep` read as `/`. The
+/// path ends at a space, a quote, a `:`, a bracket or a `\` that is not `sep`.
+string goldenDirSlashed(string text, at string dir, by string tag, string sep = "\\", bool drop = false) uses alloc {
+    var sb = StrBuf()
+    var first = true
+    for part in text.parts(by: $"{dir}{sep}") {
+        if first {
+            sb.append(part)
+            first = false
+            continue
+        }
+        var end: i64 = 0
+        while end < part.length {
+            if part[end..part.length].startsWith(sep) {
+                end += sep.length
+                continue
+            }
+            break if " \t\r\n\"'`:,()[]{}<>|;\\".contains(part[end..end + 1])
+            end += 1
+        }
+        if end == 0 {
+            sb.append($"{dir}{sep}{part}")
+            continue
+        }
+        sb.append($"{tag}{drop ? "" : "/"}{part[0..end].replaced(sep, by: "/")}{part[end..part.length]}")
+    }
+    return sb.finish()
+}
+
+/// `text` with `macos-arm64`, the host the export recorded on, and `host`, the one running (`targetHost`), each as a whole token read as
+/// `<host>` when the two differ, as both sides of a compare are read (T17e decision 2026-11-19): an output naming the running host matches
+/// the export's, a third triple still differs; with no host or on a `macos-arm64` one `text` is returned as is.
+string goldenHostMasked(string text, for string host) uses alloc {
+    let recorded = "macos-arm64"
+    return text if host == "" || host == recorded
+    return goldenHostToken(goldenHostToken(text, at: recorded), at: host)
+}
+
+/// `text` with each `token` that no letter, digit, `-`, `_` or `.` touches read as `<host>`.
+string goldenHostToken(string text, at string token) uses alloc {
+    return text if !text.contains(token)
+    var sb = StrBuf()
+    var from: i64 = 0
+    var i: i64 = 0
+    while i + token.length <= text.length {
+        let end = i + token.length
+        if text.bytes[i] == token.bytes[0]
+                && text[i..end] == token
+                && (i == 0 || !goldenHostByte(text.bytes[i - 1]))
+                && (end == text.length || !goldenHostByte(text.bytes[end])) {
+            sb.append(text[from..i])
+            sb.append("<host>")
+            from = end
+            i = end
+            continue
+        }
+        i += 1
+    }
+    sb.append(text[from..text.length])
+    return sb.finish()
+}
+
+/// Whether `c` joins a host triple to a longer token: a letter, digit, `-`, `_` or `.`.
+bool goldenHostByte(u8 c) {
+    return c >= 0x30 && c <= 0x39
+        || c >= 0x41 && c <= 0x5a
+        || c >= 0x61 && c <= 0x7a
+        || c == 0x2d
+        || c == 0x5f
+        || c == 0x2e
+}
+
 /// The cases of one `.byn` kind (Golden.cs:25-27), sorted by name.
 void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit)
         uses alloc, console, fs {
@@ -208,11 +298,12 @@ string? goldenCompare(string actual, for string input, at string expected) uses 
 }
 
 /// Golden.cs:35 `Compare` outside update mode: null when `actual` equals the expected file at `expected` (CR LF read as LF), else the failure text,
-/// which names the input path and the first differing line, expected and actual (spec 019 R2).
+/// which names the input path and the first differing line, expected and actual (spec 019 R2). Both sides are read through `goldenHostMasked`.
 string? goldenDiffer(string actual, for string input, at string expected) uses alloc, fs {
     let text = Io.readText(expected) catch return $"{input}\nmissing expected file {expected}"
-    let want = goldenLines(goldenLf(text))
-    let got = goldenLines(goldenLf(goldenStdModules(actual, by: text)))
+    let host = targetHost() ?? ""
+    let want = goldenLines(goldenLf(goldenHostMasked(text, for: host)))
+    let got = goldenLines(goldenLf(goldenHostMasked(goldenStdModules(actual, by: text), for: host)))
     var line = 0
     while line < want.length && line < got.length && want[line] == got[line] {
         line += 1
@@ -710,7 +801,9 @@ bool goldenIsCasesDir(string path) uses alloc, fs {
 /// `<status> <kind>/<case>` per case in case order, whatever order they end in, with its detail indented below (none of it when `quiet`); each
 /// result is also added to `results` with its input. test.byn prints the counts (spec 019 R8). A failed or timed-out case never stops the ones
 /// after it. `exitTestFailure` when one failed or timed out or a listing failed; `exitUsage` when `only` selects nothing (test.byn:281). The
-/// programs of the exported cases are built first (`goldenPrebuild`, each within `buildMs`); `driverPath` stands for `$BAYAN_EXE` (test blocks).
+/// programs of the exported cases are built first (`goldenPrebuild`, each within `buildMs`); `driverPath` stands for `$BAYAN_EXE` and
+/// `snapshot` for `$BAYAN_SNAPSHOT` (test blocks). Under `BAYAN_SNAPSHOT` (spec 019 T48c) its manifest.json and runs.jsonl are cleared first
+/// and the programs are built and the cases run in one worker (`goldenSnapshotJobs`), the children reading the variables themselves.
 i32 goldenTest(
     string root,
     by List<string> only,
@@ -719,7 +812,8 @@ i32 goldenTest(
     i64 jobs = 1,
     bool quiet = false,
     string? driverPath = null,
-    i64 buildMs = goldenBuildLimitMs
+    i64 buildMs = goldenBuildLimitMs,
+    string? snapshot = null
 )
         uses alloc, clock, console, env, fs, process {
     var exit = 0
@@ -737,6 +831,13 @@ i32 goldenTest(
         Io.stderr.write($"bayan: no case name contains {t5Join(in quoted)}\n")
         return exitUsage
     }
+    let snap = snapshot ?? Env.get("BAYAN_SNAPSHOT") ?? ""
+    if snap != "" {
+        for f in ["manifest.json", "runs.jsonl"] {
+            Io.remove(Path.combine(Path.fullPath(snap), f)) catch {}
+        }
+    }
+    let workers = goldenSnapshotJobs(jobs, for: snap)
     let exe = driverPath ?? Env.get("BAYAN_EXE") ?? ""
     if exe != "" && !quiet {
         Io.stdout.write(goldenExeReport(exe))
@@ -748,9 +849,13 @@ i32 goldenTest(
     // Workers need a driver that starts (T2c); without one the cases run here, each failing with the T2c text as under `--jobs 1`.
     var unusable = ""
     let driver = goldenExeOf(exe, through: ref unusable)
-    if jobs > 1 && cases.length > 1 && driver != "" && Target.os != "windows" {
-        // the workers' script builds the programs first, in processes of their own (`goldenPrebuildWorker`)
-        goldenJobs(in cases, by: exe, for: limitMs, as: jobs, to: ref mine, buildMs: buildMs)
+    let parallel = workers > 1 && Target.os != "windows"
+    if driver != ""
+            && (snap != "" && cases.length > 0 || cases.length > 1 && (parallel || cases.length > goldenWorkerBatch)) {
+        // the workers build the programs first, in processes of their own (`goldenPrebuildWorker`); one at a time (`--jobs 1`, Windows), a
+        // run of more than `goldenWorkerBatch` cases goes through one worker too, so it restarts as the parallel ones do (T17e), as does a
+        // recording, whose builds and runs read BAYAN_SNAPSHOT in the processes that make them
+        goldenJobs(cases, by: exe, for: limitMs, as: parallel ? workers : 1, to: ref mine, buildMs: buildMs)
         for r in mine {
             unless quiet {
                 goldenPrint(in r)
@@ -783,6 +888,14 @@ i32 goldenTest(
     return failed || exit != 0 ? exitTestFailure : exitOk
 }
 
+/// The workers of a run asked for `jobs`: one under `BAYAN_SNAPSHOT` (`snap` set; Decision 2026-11-19 on T48c), so one process at a time
+/// writes manifest.json and runs.jsonl, said on stderr when more were asked for.
+i64 goldenSnapshotJobs(i64 jobs, for string snap) uses alloc, console {
+    return jobs if snap == "" || jobs <= 1
+    Io.stderr.write($"bayan: BAYAN_SNAPSHOT records one case at a time: --jobs {jobs} runs as --jobs 1\n")
+    return 1
+}
+
 /// The report lines of result `r`: `<status> <kind>/<case>`, then its detail indented.
 void goldenPrint(in GoldenResult r) uses alloc, console {
     print($"{r.status} {r.name}")
@@ -797,7 +910,7 @@ void goldenPrint(in GoldenResult r) uses alloc, console {
 // are N processes `exe test --golden-worker` that one `sh` starts and waits for, as xUnit runs test classes on up to `maxParallelThreads`
 // threads (csharp/tests/Bayan.Tests/xunit.runner.json: 4). Worker k runs the cases whose index is k modulo N, each through `goldenResult`, and
 // writes each result to a file named for its index; the parent reads them back in case order. Windows has no `sh`, so there the cases run one at
-// a time. Each case keeps its own work directory under tmp/ (`goldenFlat`, the style shape, the scaffold and output fact), so two never share one.
+// a time, through one worker the driver restarts itself (`goldenWorkerOne`) when there are more than `goldenWorkerBatch`. Each case keeps its own work directory under tmp/ (`goldenFlat`, the style shape, the scaffold and output fact), so two never share one.
 
 /// `sh -c` text: runs `$1 test --golden-prebuild $3 $1 $5` while it exits `goldenWorkerMore`, stderr in `$3`/err-prebuild; then starts
 /// `$1 test --golden-worker $3 <k> $2 $4` for k from 0 to `$2 - 1`, in the background, stdout dropped and stderr in `$3`/err-<k>, again while it
@@ -811,7 +924,7 @@ const goldenWorkerMore: i32  = 75
 const goldenWorkerBatch: i64 = 100
 
 /// `cases` run by `jobs` workers through the driver `exe`, each with the time limit `limitMs`, after their programs are built (each within
-/// `buildMs`): one result per case added to `results`, in case order. A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
+/// `buildMs`): one result per case added to `results`, in case order. One worker runs with no `sh` (`goldenWorkerOne`). A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
 void goldenJobs(
     in List<GoldenCase> cases,
     by string exe,
@@ -828,7 +941,10 @@ void goldenJobs(
         list.append($"{c.kind}\t{c.name}\t{c.input}\n")
     }
     let n = jobs < cases.length ? jobs : cases.length
-    if goldenWrote(Path.combine(dir, "cases"), as: list.finish()) {
+    let wrote = goldenWrote(Path.combine(dir, "cases"), as: list.finish())
+    if wrote && n == 1 {
+        goldenWorkerOne(exe, at: dir, for: $"{limitMs}", by: $"{buildMs}")
+    } else if wrote {
         var args = List<string>()
         for a in ["-c", goldenWorkersScript, "sh", exe, $"{n}", dir, $"{limitMs}", $"{buildMs}"] {
             args.append(a)
@@ -870,6 +986,37 @@ bool goldenWrote(string path, as string text) uses alloc, fs {
 /// `sh` with `args`, waited for; a failure to start leaves every result unwritten, which `goldenJobs` reports per case.
 void goldenWorkers(in List<string> args) uses alloc, process {
     let _ = Io.run("sh", args.span) catch return
+}
+
+/// `goldenWorkersScript` for one worker, run from here with no `sh` (Windows has none, T17e): `exe test --golden-prebuild` and then `exe test
+/// --golden-worker <dir> 0 1 <limit>`, each started again while it exits `goldenWorkerMore`, their stderr in `dir`/err-prebuild and `dir`/err-0.
+void goldenWorkerOne(string exe, at string dir, for string limit, by string buildMs) uses alloc, fs, process {
+    var prebuild = List<string>()
+    for a in ["test", "--golden-prebuild", dir, exe, buildMs] {
+        prebuild.append(a)
+    }
+    goldenRestarted(exe, by: in prebuild, to: Path.combine(dir, "err-prebuild"))
+    var worker = List<string>()
+    for a in ["test", "--golden-worker", dir, "0", "1", limit] {
+        worker.append(a)
+    }
+    goldenRestarted(exe, by: in worker, to: Path.combine(dir, "err-0"))
+}
+
+/// `exe args`, started again while it exits `goldenWorkerMore`; its stderr written to `err`. A failure to start ends it.
+void goldenRestarted(string exe, by in List<string> args, to string err) uses alloc, fs, process {
+    var text = StrBuf()
+    var more = true
+    while more {
+        more = false
+        let r = Io.run(exe, args.span) catch {
+            text.append($"cannot start {exe}\n")
+            continue
+        }
+        text.append(r.stderr)
+        more = r.exitCode == goldenWorkerMore
+    }
+    let _ = goldenWrote(err, as: text.finish())
 }
 
 /// `bayan test --golden-worker <dir> <k> <n> <limitMs>`: the cases of `dir`/cases (`<kind>\t<case>\t<input>` lines) whose index is `k` modulo
@@ -1041,7 +1188,7 @@ i64 goldenSecondsAt(string text, at i64 start) {
 }
 
 /// The skip of a `style` case rendered in-process by StyleTests.cs:172-208: its covering `test` block, named; null for any other case.
-string? goldenSkip(in GoldenCase c) uses alloc {
+string? goldenSkip(in GoldenCase c) uses alloc, fs {
     return goldenCliSkip(c.kind, at: c.input) if c.kind != "style"
     var block = ""
     var file = "src/driver/cc.byn"
@@ -1707,6 +1854,7 @@ string? goldenOut(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, 
     return goldenCompare(actual, for: c.input, at: c.input)
 }
 
+// L020: a normal build's generated C is byte-identical with or without the test tooling (the `emit/run-c` case)
 /// MutantSchemataTests.cs:292 `PlainBuildEmitsTheSameC` over the `run` cases of the cases root `root`: a `<sha256>  run/<path>` line each,
 /// the digest of the C `CliApp.EmitC` emits in the case's `// mode:` (:20 `ModeOf`), a `.test.byn` compiled with its tests as a library
 /// (:29 `CompileCase`), in path order. A case that does not compile gives `did not compile` for its digest.
@@ -1880,7 +2028,7 @@ test "lex, parse and typed cases pass over tests/cases" {
 test "diag, manifest and diag-json cases pass over tests/cases" {
     var count: i64 = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "diag", to: ref count).length == 0)
-    assert(count == 648)
+    assert(count == 676)
     count = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "manifest", to: ref count).length == 0)
     assert(count == 21)
@@ -1935,6 +2083,34 @@ test "an unreadable package.byn renders as the empty grammar of diag/naming-pack
     assert(goldenDiffer(text, for: main, at: expected) is null)
 }
 
+test "a Windows scratch directory is read as `<repo>` as written and doubled in JSON, the path after it with `/`, other `\\` kept (T17e)" {
+    let dir = "C:\\w\\tmp\\cli\\X"
+    let text = "  --> C:\\w\\tmp\\cli\\X\\tmp\\t27-diag\\X\\input.byn:2:9\nhelp: a\\b\n{\"file\": \"C:\\\\w\\\\tmp\\\\cli\\\\X\\\\tmp\\\\a.byn\", \"m\": \"x\\n\"}\nC:\\w\\tmp\\cli\\X\n"
+    assert(goldenDirMasked(text, at: dir, by: "<repo>")
+        == "  --> <repo>/tmp/t27-diag/X/input.byn:2:9\nhelp: a\\b\n{\"file\": \"<repo>/tmp/a.byn\", \"m\": \"x\\n\"}\n<repo>\n")
+    assert(goldenDirMasked("/s/a.byn\\n /s\n", at: "/s", by: "<repo>") == "<repo>/a.byn\\n <repo>\n")
+}
+
+test "the export host `macos-arm64` and the running host read as `<host>` when they differ, as whole tokens only (T17e)" {
+    let want = "◆ built tally (safe, macos-arm64) in 0.00s\nout/safe/macos-arm64/demo \"macos-arm64\"\n"
+    let got = "◆ built tally (safe, windows-x64) in 0.00s\nout\\safe\\windows-x64\\demo \"windows-x64\"\n"
+    assert(goldenHostMasked(
+        want,
+        for: "windows-x64",
+    ) == "◆ built tally (safe, <host>) in 0.00s\nout/safe/<host>/demo \"<host>\"\n")
+    assert(goldenHostMasked(
+        got,
+        for: "windows-x64",
+    ) == "◆ built tally (safe, <host>) in 0.00s\nout\\safe\\<host>\\demo \"<host>\"\n")
+    let third = "◆ built tally (safe, linux-x64) in 0.00s\n"
+    assert(goldenHostMasked(third, for: "windows-x64") == third)
+    assert(third != "◆ built tally (safe, <host>) in 0.00s\n")
+    let longer = "zig-macos-arm64-0.17 xmacos-arm64 macos-arm64.exe windows-x64_1 a.windows-x64\n"
+    assert(goldenHostMasked(longer, for: "windows-x64") == longer)
+    assert(goldenHostMasked(want, for: "macos-arm64") == want)
+    assert(goldenHostMasked(got, for: "macos-arm64") == got)
+}
+
 test "a changed expected line fails with the input path and the first differing line" {
     let root = Path.combine(Path.fullPath("tmp"), "golden-compare")
     deleteWorkDir(root)
@@ -1955,7 +2131,7 @@ test "a changed expected line fails with the input path and the first differing 
     }
     deleteWorkDir(root)
     let want = goldenLines(expected)
-    assert(failure.startsWith(Path.combine(root, "lex/a.byn")))
+    assert(failure.startsWith(Path.combine(Path.combine(root, "lex"), "a.byn")))
     assert(failure.contains($"expected line 3: changed line\nactual line 3: {want[2]}"))
 }
 
@@ -2019,6 +2195,9 @@ string goldenFakeDriver(string root, for string name, as bool exec, by i64 code 
 }
 
 test "BAYAN_EXE names a driver that starts, and the report prints its path and version line" {
+    if Target.os == "windows" {
+        todo("the fake driver is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-exe")
     deleteWorkDir(root)
     let path = goldenFakeDriver(root, for: "ok", as: true)
@@ -2098,7 +2277,7 @@ test "a changed expected .color line fails naming the file and the first differi
     let root = Path.combine(Path.fullPath("tmp"), "golden-style-compare")
     deleteWorkDir(root)
     goldenStyleCopy(root, for: "check-ok")
-    let path = Path.combine(root, "style/check-ok.color")
+    let path = Path.combine(Path.combine(root, "style"), "check-ok.color")
     let expected = Io.readText(path) catch ""
     var changed = goldenLines(expected)
     let was = changed[3]
@@ -2117,6 +2296,11 @@ test "a changed expected .color line fails naming the file and the first differi
 }
 
 test "a style child killed by a signal fails that case and the next case still runs" {
+    if Target.os == "windows" {
+        todo(
+            "the crashing driver is a `#!/bin/sh` script that runs `kill -SEGV`, which Windows can neither start nor send",
+        )
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-style-crash")
     deleteWorkDir(root)
     var failure = ""
@@ -2202,7 +2386,7 @@ test "a failing case and a case that never exits are each reported and the cases
     assert(exit == exitTestFailure)
     assert(results.length == 3)
     assert(results[0].name == "run/a-fails" && results[0].status == "failed")
-    assert(results[0].detail.contains(Path.combine(root, "run/a-fails.stdout"))
+    assert(results[0].detail.contains(Path.combine(Path.combine(root, "run"), "a-fails.stdout"))
         && results[0].detail.contains("expected line 1: changed line"))
     assert(results[1].name == "run/b-loops" && results[1].status == "timed out")
     assert(results[1].detail.startsWith("timed out after 5 s"))
@@ -2210,6 +2394,9 @@ test "a failing case and a case that never exits are each reported and the cases
 }
 
 test "an in-process case that never exits is reported as timed out and the cases after it still run" {
+    if Target.os == "windows" {
+        todo("the hanging driver is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
     var failure = ""
     let exe = goldenExe(through: ref failure)
     assert(exe != "")
@@ -2352,7 +2539,7 @@ test "--jobs 8 fails the changed case naming its path and the expected and actua
     let stdout = Io.readText(Path.fullPath("tests/cases/run/arithmetic.stdout")) catch ""
     let fourth = goldenLines(goldenLf(stdout))[3]
     let eight = goldenJobsRun(root, as: "8")
-    let expected = Path.combine(root, "run/b-fails.stdout")
+    let expected = Path.combine(Path.combine(root, "run"), "b-fails.stdout")
     deleteWorkDir(root)
     assert(eight.exitCode == exitTestFailure)
     assert(eight.stdout.contains(
@@ -2364,6 +2551,9 @@ test "--jobs 8 fails the changed case naming its path and the expected and actua
 }
 
 test "a worker that panics fails the case it was on with its stderr, and its later cases naming that case" {
+    if Target.os == "windows" {
+        todo("the panicking worker is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-jobs-panic")
     deleteWorkDir(root)
     let exe = goldenCliFake(root, for: "bayan", as: "echo 'panic: slice 3..5 of a 4-byte string' >&2\nexit 101")
@@ -2377,6 +2567,27 @@ test "a worker that panics fails the case it was on with its stderr, and its lat
     assert(results.length == 2)
     assert(results[0].detail.contains("stopped on it; its stderr:\npanic: slice 3..5 of a 4-byte string"))
     assert(results[1].detail.contains("did not reach it: it stopped on run/a"))
+}
+
+test "one worker runs with no `sh` and is started again while it exits goldenWorkerMore, resuming where it stopped (T17e)" {
+    if Target.os == "windows" {
+        todo("the restarted worker is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), "golden-jobs-one")
+    deleteWorkDir(root)
+    // the fake worker writes the result of the case in next-0 (0 when there is none); it exits 75 after case 0, as after a batch
+    let body = "[ \"$2\" = --golden-worker ] || exit 0\ni=$(cat \"$3/next-0\" 2>/dev/null || echo 0)\nprintf 'passed\\nran %s' \"$i\" > \"$3/$i\"\n[ \"$i\" = 0 ] || exit 0\necho 1 > \"$3/next-0\"\nexit 75"
+    let exe = goldenCliFake(root, for: "bayan", as: body)
+    var cases = List<GoldenCase>()
+    for name in ["a", "b"] {
+        cases.append(GoldenCase { kind: "run", name: name, input: Path.combine(root, $"{name}.byn") })
+    }
+    var results = List<GoldenResult>()
+    goldenJobs(in cases, by: exe, for: 60000, as: 1, to: ref results)
+    deleteWorkDir(root)
+    assert(results.length == 2)
+    assert(results[0].status == "passed" && results[0].detail == "ran 0")
+    assert(results[1].status == "passed" && results[1].detail == "ran 1")
 }
 
 // The bound of a run over the full cases tree (spec 019 T9a, R9; docs/memory-leaks.md rule 8). The run takes minutes, past the 60 s of a test
@@ -2514,9 +2725,9 @@ test "BAYAN_UPDATE=1 with --jobs 4 rewrites only the differing expected files, l
     let pendingAfter = $"{goldenModified(pending)} {Io.readText(pending) catch ""}"
     deleteWorkDir(root)
     assert(four.exitCode == exitOk && again.exitCode == exitOk)
-    let b = Path.combine(root, "lex/b-changed.tokens")
-    let d = Path.combine(root, "run/d-changed.stdout")
-    let c = Path.combine(root, "lex/c-pending.pending")
+    let b = Path.combine(Path.combine(root, "lex"), "b-changed.tokens")
+    let d = Path.combine(Path.combine(root, "run"), "d-changed.stdout")
+    let c = Path.combine(Path.combine(root, "lex"), "c-pending.pending")
     assert(four.stdout.contains(
         $"\npassed lex/a-same\npassed lex/b-changed\n    rewrote {b}\nskipped lex/c-pending\n    pending: {c}\npassed run/d-changed\n    rewrote {d}\n",
     ))
@@ -2557,8 +2768,8 @@ test "a .pending case that now matches fails saying to remove its .pending file"
     let kept = Io.readText(tokens) catch ""
     deleteWorkDir(root)
     assert(results.length == 1 && results[0].status == "failed")
-    let input = Path.combine(root, "lex/bad-chars.byn")
-    let pending = Path.combine(root, "lex/bad-chars.pending")
+    let input = Path.combine(Path.combine(root, "lex"), "bad-chars.byn")
+    let pending = Path.combine(Path.combine(root, "lex"), "bad-chars.pending")
     assert(results[0].detail == $"{input}\nnow matches its expected output: remove {pending}")
     assert(kept == (Io.readText(Path.fullPath("tests/cases/lex/bad-chars.tokens")) catch "-"))
 }
@@ -2601,7 +2812,7 @@ test "a .pending case that does not build fails with its build error, and one th
         && results[2].name == "run/q")
     assert(results[0].status == "skipped" && results[2].status == "skipped")
     assert(results[1].status == "failed")
-    let input = Path.combine(root, "run/broken.byn")
+    let input = Path.combine(Path.combine(root, "run"), "broken.byn")
     assert(results[1].detail.startsWith($"{input}\nrun/broken did not build:\n")
         && results[1].detail.contains("error BYN2001: `nope` is not defined"))
 }
@@ -2636,8 +2847,15 @@ test "a .pending case with BAYAN_EXE unset or naming a missing file fails naming
     assert(unset.exitCode == exitTestFailure && missing.exitCode == exitTestFailure)
     assert(unsetDefault.exitCode == exitTestFailure && missingDefault.exitCode == exitTestFailure)
     assert(unsetDefault.stdout == unset.stdout && missingDefault.stdout == missing.stdout)
-    for stem in ["lex/p", "run/broken", "run/q"] {
-        let input = Path.combine(root, $"{stem}.byn")
+    let stems = ["lex/p", "run/broken", "run/q"]
+    let inputs = [
+        Path.combine(Path.combine(root, "lex"), "p.byn"),
+        Path.combine(Path.combine(root, "run"), "broken.byn"),
+        Path.combine(Path.combine(root, "run"), "q.byn"),
+    ]
+    for i in 0..3 {
+        let stem = stems[i]
+        let input = inputs[i]
         assert(unset.stdout.contains(
             $"\nfailed {stem}\n    {input}\n    BAYAN_EXE is not set: set it to the path of the bayan driver\n",
         ))
@@ -2689,7 +2907,7 @@ test "a changed run expected line or a missing .exitcode fails naming the expect
     let root = Path.combine(Path.fullPath("tmp"), "golden-run-fail")
     deleteWorkDir(root)
     goldenRunCopy(root, for: "main-args")
-    let stdout = Path.combine(root, "run/main-args.stdout")
+    let stdout = Path.combine(Path.combine(root, "run"), "main-args.stdout")
     let was = goldenLines(Io.readText(stdout) catch "")[1]
     goldenWrite(root, for: "run/main-args.stdout", as: goldenChangeLine(Io.readText(stdout) catch "", at: 1))
     goldenRunCopy(root, for: "assert-and-right")
@@ -2698,7 +2916,7 @@ test "a changed run expected line or a missing .exitcode fails naming the expect
     let failures = goldenFailures(root, for: "run", to: ref count)
     deleteWorkDir(root)
     assert(failures.length == 2)
-    assert(failures[0].contains(Path.combine(root, "run/assert-and-right.exitcode"))
+    assert(failures[0].contains(Path.combine(Path.combine(root, "run"), "assert-and-right.exitcode"))
         && failures[0].contains("missing expected file"))
     assert(failures[1].startsWith($"{stdout}\n")
         && failures[1].contains($"expected line 2: changed line\nactual line 2: {was}"))
@@ -2741,9 +2959,13 @@ test "a changed new, emit or quality expected line fails naming the file and the
     }
     deleteWorkDir(root)
     assert(failures.length == 3)
-    let rels = ["new/lib.tree", "emit/run-c.sha256", "quality/mutation-report.json"]
+    let paths = [
+        Path.combine(Path.combine(root, "new"), "lib.tree"),
+        Path.combine(Path.combine(root, "emit"), "run-c.sha256"),
+        Path.combine(Path.combine(root, "quality"), "mutation-report.json"),
+    ]
     for i in 0..3 {
-        assert(failures[i].startsWith($"{Path.combine(root, rels[i])}\n"))
+        assert(failures[i].startsWith($"{paths[i]}\n"))
         assert(failures[i].contains($"expected line 2: changed line\nactual line 2: {wants[i]}"))
     }
 }
@@ -2889,7 +3111,7 @@ test "a non-constant @cases value is BYN2774 under check, as the frozen diag cas
     let root = Path.combine(Path.fullPath("tmp"), "golden-cases-constant")
     deleteWorkDir(root)
     goldenCopy(root, for: "diag/cases-not-constant.byn")
-    let input = Path.combine(root, "diag/cases-not-constant.byn")
+    let input = Path.combine(Path.combine(root, "diag"), "cases-not-constant.byn")
     var failure = ""
     let exe = goldenExe(through: ref failure)
     var args = List<string>()

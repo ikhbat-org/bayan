@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Tests scripts/ci/golden-commit-check.sh in a scratch repo under tmp/: a mixed commit is refused, a golden-only commit with
-# no cause is refused, with a sha cause it passes, manifest plus golden passes, an unrelated commit passes, merges are skipped.
+# no cause is refused, with a sha cause it passes, manifest plus golden passes, an unrelated commit passes, merges are skipped,
+# a mixed commit in scripts/ci/golden-commit-allow.txt passes and one not in it is refused.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 fail() { echo "FAIL $1"; exit 1; }
@@ -40,4 +41,12 @@ expect "merge commit" 0
 run_check "$(git rev-list --max-parents=0 HEAD)"; [ "$rc" = 1 ] || fail "whole range exit $rc"
 [ "$(grep -c 'golden-commit-check: [0-9a-f]\{7\} ' <<<"$out")" = 3 ] || fail "whole range should name 3 commits: $out"
 rc=0; bash "$gc" nonsense >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "bad usage exit $rc"
+# a mixed commit listed in scripts/ci/golden-commit-allow.txt (as of the range's head) passes; one not listed is refused
+start="$(git rev-parse HEAD)"
+echo l > tests/cases/diag/a.diag; echo l > src/a.txt; git commit -qam "listed mixed commit"; listed="$(git rev-parse HEAD)"
+mkdir -p scripts/ci; printf '# comment\n%s  # listed\n' "$listed" > scripts/ci/golden-commit-allow.txt; git add -A; git commit -qm "allow list"
+run_check "$start"; [ "$rc" = 0 ] || fail "a listed mixed commit was refused: $out"
+echo m > tests/cases/diag/a.diag; echo m > src/a.txt; git commit -qam "unlisted mixed commit"
+run_check "$start"; [ "$rc" = 1 ] || fail "an unlisted mixed commit after a listed one exit $rc"
+[ "$(grep -c 'together with a file' <<<"$out")" = 1 ] && grep -q 'unlisted mixed commit' <<<"$out" || fail "only the unlisted commit should be refused: $out"
 echo "golden-commit-check.test: ok"

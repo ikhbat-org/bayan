@@ -1,0 +1,4 @@
+Package {
+    name: "local/seed",
+    version: "0.1.0",
+}

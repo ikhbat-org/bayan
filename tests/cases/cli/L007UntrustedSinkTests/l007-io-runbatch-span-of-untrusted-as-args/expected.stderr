@@ -1,0 +1,11 @@
+error BYN2786: `ReadOnlySpan<Untrusted<string>>` cannot be passed to `Io.runBatch`: it is
+`Untrusted`
+  --> <repo>/tmp/l007/io-runbatch-span-of-untrusted-as-args/main.byn:12:44
+
+  12 │     let _ = try Io.runBatch("./build.cmd", span)
+     │                                            ^^^^
+     │
+  help: check the value, then clear the mark with `x.trustUnchecked() because "…"`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2786

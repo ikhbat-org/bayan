@@ -1,0 +1,12 @@
+error BYN2788: `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not
+`string`
+  --> <repo>/tmp/l006/take-on-string/main.byn:14:15
+
+  14 │     let a = s.take()
+     │               ^^^^
+     │
+  help: copy it, or move the whole local; only an owned collection or optional has an empty value to
+        leave behind
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2788

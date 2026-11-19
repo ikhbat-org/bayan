@@ -577,6 +577,13 @@ T9Runtime t9RuntimeIn(
     args.append("-o")
     args.append(obj)
     let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
+        // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:397-402).
+        .signaled(let s, let streamOut, let streamErr) => return T9Runtime {
+            result: NativeBuild {
+                errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
+                rejected: true,
+            },
+        },
         IoError e => return T9Runtime {
             result: NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`: {e}" },
         },
@@ -684,6 +691,11 @@ NativeBuild t9CompileIn(
     // `CommandLineToArgvW` (program arguments) is in shell32.
     args.append(windows ? "-lshell32" : "-lm")
     let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
+        // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:440).
+        .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
+            errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
+            rejected: true,
+        },
         IoError e => return NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`: {e}" },
     }
     return NativeBuild {
@@ -757,7 +769,13 @@ Map<string, string?> zigCacheEnv(List<string> compiler) uses alloc, clock, env, 
 }
 
 /// `zigCacheEnv` with the driver's `ZIG_GLOBAL_CACHE_DIR` (`set`), its cache directory, the entry limit and the minimum age given.
-Map<string, string?> zigCacheEnvFor(List<string> compiler, from string? set, at string cache, by i64 limit, until i64 minAgeNanos)
+Map<string, string?> zigCacheEnvFor(
+    List<string> compiler,
+    from string? set,
+    at string cache,
+    by i64 limit,
+    until i64 minAgeNanos
+)
         uses alloc, clock, fs {
     var env: Map<string, string?> = []
     let zig = compiler.length > 1 && compiler[1] == "cc" && ccWithoutExtension(Path.fileName(compiler[0])) == "zig"
@@ -1154,7 +1172,10 @@ string zigTestCache(string root, at i64 count) uses alloc, fs {
         let entry = Path.combine(o, $"e{i}")
         Io.createDirectory(entry) catch { panic($"cannot create {entry}") }
         Io.writeFile(Path.combine(entry, "obj"), "x".bytes) catch { panic($"cannot write in {entry}") }
-        Fs.setModified(entry, to: Time.fromNanos((1609459200 + i * 3600) * 1000000000)) catch { panic($"cannot stamp {entry}") }
+        Fs.setModified(
+            entry,
+            to: Time.fromNanos((1609459200 + i * 3600) * 1000000000),
+        ) catch { panic($"cannot stamp {entry}") }
     }
     return o
 }
@@ -1206,4 +1227,59 @@ test "zig-cache-young: an entry written within the minimum age survives past the
     for name in ["e3", "e4"] {
         assert(Fs.fileExists(Path.combine(Path.combine(o, name), "obj")))
     }
+}
+
+/// A fake C compiler that kills itself with SIGKILL, as a one-word compiler.
+string t9KilledCompiler(string root) uses alloc, fs, process {
+    let cc = Path.combine(root, "cc")
+    Io.writeFile(cc, "#!/bin/sh\nkill -9 $$\n".bytes) catch { panic($"cannot write {cc}") }
+    let _ = Io.run("chmod", boundList(["+x", cc]).span) catch { panic($"cannot chmod {cc}") }
+    return cc
+}
+
+// Q53: a compiler killed by signal n is exit 128+n, a failed compile, for the runtime object and for the program.
+test "signaled-runtime: a compiler killed by a signal fails the runtime object build as exit 128+signal" {
+    if Target.os == "windows" {
+        todo("the compiler is a `sh` script")
+    }
+    let root = t9TestRoot("signaled-runtime")
+    let cc = t9KilledCompiler(root)
+    let work = Path.combine(root, "work")
+    Io.createDirectory(work) catch { panic($"cannot create {work}") }
+    var d = newDCtx()
+    let r = t9RuntimeIn(
+        work,
+        by: boundList([cc]),
+        through: List<string>(),
+        for: "key",
+        to: ref d,
+    ) catch { panic("t9RuntimeIn failed") }
+    assert(r.result.rejected)
+    assert(!r.result.succeeded)
+    assert(r.result.errors == "C compiler failed (exit 137):\n")
+}
+
+test "signaled-program: a compiler killed by a signal fails the program build as exit 128+signal" {
+    if Target.os == "windows" {
+        todo("the compiler is a `sh` script")
+    }
+    let root = t9TestRoot("signaled-program")
+    let cc = t9KilledCompiler(root)
+    let work = Path.combine(root, "work")
+    Io.createDirectory(work) catch { panic($"cannot create {work}") }
+    var d = newDCtx()
+    let r = t9CompileIn(
+        work,
+        by: boundList([cc]),
+        through: List<string>(),
+        from: "int main(void) { return 0; }\n",
+        for: "key",
+        as: "prog",
+        until: Path.combine(root, "rt.o"),
+        at: false,
+        to: ref d,
+    ) catch { panic("t9CompileIn failed") }
+    assert(r.rejected)
+    assert(!r.succeeded)
+    assert(r.errors == "C compiler failed (exit 137):\n")
 }

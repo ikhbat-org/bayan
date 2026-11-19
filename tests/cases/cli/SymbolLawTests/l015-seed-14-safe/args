@@ -1,0 +1,4 @@
+run
+--mode
+safe
+<repo>/tmp/l015/seed-14-safe/main.byn

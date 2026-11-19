@@ -27,6 +27,10 @@ fi
 grep -qx '  workflow_call:' "$ln" || fail "laws-nightly.yml is not callable"
 grep -q "cron: '0 4 \* \* \*'" "$ln" || fail "laws-nightly.yml lost its schedule"
 grep -q 'timeout-minutes: 180' "$ln" || fail "laws-nightly.yml's job no longer allows 180 min"
+# bootstrap-check.sh builds from HEAD^1, which a depth-1 fetch does not have
+if grep -qE '^check:.*bootstrap-check\.sh' "$root"/docs/laws/*.md; then
+  grep -qE 'git fetch .*--depth=([2-9]|[1-9][0-9]+) ' "$ln" || fail "laws-nightly.yml fetches no parent commit, but a law's check: runs bootstrap-check.sh (needs HEAD^1)"
+fi
 grep -qF '$(bash scripts/release/package.sh release-flags "$v")' "$wf" || fail "release.yml's gh release create lost release-flags (0.x prerelease)"
 # 019 R37: each archive holds bayan-lsp, built by the shipped (stage 2) bayan after its smoke test and before Package;
 # the C# server (editors/language-server/*.csproj) is never built or shipped.
@@ -39,4 +43,15 @@ l_pkg=$(grep -nxF -- '        run: bash scripts/release/package.sh pack ${{ matr
 [ -n "$l_lsp" ] || fail "release.yml does not build bayan-lsp with the shipped bayan into publish/"
 [ -n "$l_sm" ] && [ -n "$l_pkg" ] && [ "$l_sm" -lt "$l_lsp" ] && [ "$l_lsp" -lt "$l_pkg" ] || fail "release.yml builds bayan-lsp outside the smoke test .. Package span"
 ! grep -qE 'LanguageServer|\.csproj' "$wf" || fail "release.yml builds the C# language server"
+# spec 019 R24/R25: no .NET in the build job, which builds from the bootstrap, nor in the memory gate (its bayan-lsp part
+# runs the Bayān server since T38b)
+build=$(awk '/^  build:/{j=1;next} j&&/^  [^ #]/{exit} j' "$wf")
+echo "$build" | grep -qi 'dotnet' && fail "release.yml's build job still uses .NET"
+echo "$build" | grep -q 'bash scripts/bootstrap-build.sh' || fail "release.yml's build job does not build from the bootstrap"
+echo "$build" | grep -qF -- '--mode safe --package src -o publish/' || fail "release.yml's build job does not build the shipped stage from src/"
+echo "$build" | grep -qF -- '(selfhost)' || fail "release.yml's build job lost the (selfhost) smoke test"
+mg=$(awk '/^  memory-gate:/{j=1;next} j&&/^  [^ #]/{exit} j' "$wf")
+[ -n "$mg" ] || fail "release.yml has no memory-gate job"
+echo "$mg" | grep -qi 'dotnet' && fail "release.yml's memory-gate job still uses .NET"
+grep -qi 'dotnet' "$root/scripts/dist.sh" && fail "scripts/dist.sh still uses .NET"
 echo PASS

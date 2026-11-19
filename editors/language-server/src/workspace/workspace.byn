@@ -301,7 +301,7 @@ public struct ParsedUri {
 /// `new Uri(uri)` on Unix for the forms a client sends: a `file://` URI with an empty host (scheme in any case; the query and fragment
 /// dropped; `%XX` runs that spell UTF-8 unescaped, others kept), an absolute path (an implicit file URI, kept as written), another
 /// scheme (not a file). A `file:` URI without `//`, a relative reference or a bad scheme is invalid. A `file:` URI with a host (UNC on
-/// Windows) is taken as not a file.
+/// Windows) is taken as not a file. A path `/C:` followed by `/` or its end is the drive path `C:...` on every OS.
 public ParsedUri parseUri(string uri) uses alloc {
     let b = uri.bytes
     return ParsedUri { kind: .file, localPath: uri } if b.length > 0 && b[0] == '/'
@@ -322,6 +322,10 @@ public ParsedUri parseUri(string uri) uses alloc {
         e += 1
     }
     let path = p < e ? unescaped(uri[p..e]) : "/"
+    let pb = path.bytes
+    if pb.length >= 3 && pb[0] == '/' && isSchemeByte(pb[1], as: true) && pb[2] == ':' && (pb.length == 3 || pb[3] == '/') {
+        return ParsedUri { kind: .file, localPath: path[1..path.length] }
+    }
     return ParsedUri { kind: .file, localPath: path }
 }
 
@@ -365,14 +369,20 @@ string unescaped(string s) uses alloc {
     return Utf8.decode(result.span, invalid: .replace)
 }
 
-/// `new Uri(path).AbsoluteUri` for a full path: `file://` and the path with the characters `Uri` escapes as `%XX` of their UTF-8.
+/// `new Uri(path).AbsoluteUri` for a full path: `file://` and the path with the characters `Uri` escapes as `%XX` of their UTF-8. A
+/// drive path (`C:\proj`) takes `file:///`; on Windows `\` is written as `/`.
 public string fileUri(string path) uses alloc {
+    let windows = Target.os == "windows"
+    let pb = path.bytes
+    let drive = pb.length >= 2 && isSchemeByte(pb[0], as: true) && pb[1] == ':' && (pb.length == 2 || pb[2] == '/' || pb[2] == '\\')
     var b = StrBuf()
-    b.append("file://")
-    for c in path.bytes {
+    b.append(drive ? "file:///" : "file://")
+    for c in pb {
         let escape = c < 0x20 || c >= 0x7F || c == ' ' || c == '"' || c == '#' || c == '%' || c == '<' || c == '>' || c == '?' ||
             c == '\\' || c == '^' || c == '`' || c == '{' || c == '|' || c == '}'
-        if escape {
+        if windows && c == '\\' {
+            b.append("/")
+        } else if escape {
             b.append("%")
             b.append(rune(u32(hexDigit(c >> 4))))
             b.append(rune(u32(hexDigit(c & 15))))
@@ -464,8 +474,17 @@ bool isBynName(string name, as bool caseless) {
     return b[n - 4] == 0x2e && (b[n - 3] | 0x20) == 0x62 && (b[n - 2] | 0x20) == 0x79 && (b[n - 1] | 0x20) == 0x6e
 }
 
-/// `Path.TrimEndingDirectorySeparator`.
-string trimEndingSeparator(string p) => p.length > 1 && p.endsWith("/") ? p[0..p.length - 1] : p
+/// `Path.TrimEndingDirectorySeparator`: one trailing separator goes, unless it ends a root (`/`, or `C:\` on Windows). `\` is a
+/// separator on Windows only; on Unix it is a file-name byte.
+string trimEndingSeparator(string p) {
+    let windows = Target.os == "windows"
+    return p if p.length <= 1 || !(p.endsWith("/") || (windows && p.endsWith("\\")))
+    return p if windows && p.length == 3 && p.bytes[1] == ':'
+    return p[0..p.length - 1]
+}
+
+/// `p` with `\` written as `/` on Windows, where both are directory separators; on Unix `\` is a file-name byte and stays.
+string slashed(string p) uses alloc => Target.os == "windows" ? p.replaced("\\", by: "/") : p
 
 /// `RealPath`: `full` with every symbolic link along it resolved; a part that cannot be resolved (missing) is kept as written.
 string realPath(string full) uses alloc, fs {
@@ -587,9 +606,9 @@ public struct Workspace {
 
     bool isExcludedKey(string fullPath) uses alloc {
         return false if roots.length == 0
-        let path = folded(fullPath)
+        let path = slashed(folded(fullPath))
         for r in roots {
-            let root = folded(r)
+            let root = slashed(folded(r))
             continue if !path.startsWith(root) || path.length <= root.length
             continue if path.bytes[root.length] != '/' && !root.endsWith("/")
             let rest = path[root.length..path.length]
@@ -814,7 +833,9 @@ public struct Workspace {
         let k = key(uri)
         // Nothing is indexed under an excluded path.
         return removed if !(parseUri(uri).kind is .file) || isExcludedKey(k)
-        let prefix = folded($"{trimEndingSeparator(k)}/")
+        // Keys use the OS separator: `\` on Windows.
+        let sep = Target.os == "windows" ? "\\" : "/"
+        let prefix = folded($"{trimEndingSeparator(k)}{sep}")
         var slots = List<i64>()
         for e in index {
             slots.append(e.value)
@@ -1258,4 +1279,54 @@ public i64 utf16Length(string s) {
 public bool dirExists(string path) uses alloc, fs {
     let _ = Io.listDir(path) catch { return false }
     return true
+}
+
+test "a file URI with an escaped drive colon is the drive path on every OS, as VS Code sends it on Windows" {
+    assert(parseUri("file:///c%3A/proj/a.byn").localPath == "c:/proj/a.byn")
+    assert(parseUri("file:///C:").localPath == "C:")
+    assert(parseUri("file:///proj/a.byn").localPath == "/proj/a.byn")
+}
+
+test "fileUri writes a drive path as file:///C:/..., which parseUri reads back" {
+    let u = fileUri("C:/proj/a.byn")
+    assert(u == "file:///C:/proj/a.byn")
+    assert(parseUri(u).localPath == "C:/proj/a.byn")
+    assert(fileUri("/proj/a.byn") == "file:///proj/a.byn")
+    if Target.os == "windows" {
+        assert(fileUri("C:\\proj\\a.byn") == "file:///C:/proj/a.byn")
+    }
+}
+
+test "on Windows a key under an indexed drive root is not excluded and the root keeps its separator; on Unix a backslash is a file-name byte" {
+    var ws = Workspace.create()
+    ws.roots.append("C:\\proj")
+    if Target.os == "windows" {
+        assert(!ws.isExcludedKey("C:\\proj\\a.byn"))
+        assert(!ws.isExcludedKey("C:\\proj\\src\\a.byn"))
+        assert(ws.isExcludedKey("C:\\proj\\tmp\\a.byn"))
+        assert(ws.isExcludedKey("C:\\other\\a.byn"))
+        assert(trimEndingSeparator("C:\\proj\\") == "C:\\proj")
+        assert(trimEndingSeparator("C:\\") == "C:\\")
+    } else {
+        assert(ws.isExcludedKey("C:\\proj\\src\\a.byn"))
+        assert(trimEndingSeparator("/proj\\") == "/proj\\")
+        assert(trimEndingSeparator("/proj/") == "/proj")
+    }
+}
+
+test "removeFolder removes the documents under a deleted folder and no sibling; on Windows its prefix ends in a backslash, as the keys do" {
+    let windows = Target.os == "windows"
+    let dir = windows ? "C:\\proj\\sub" : "/proj/sub"
+    let file = windows ? "C:\\proj\\sub\\a.byn" : "/proj/sub/a.byn"
+    let sibling = windows ? "C:\\proj\\subway.byn" : "/proj/subway.byn"
+    var ws = Workspace.create()
+    for path in [file, sibling] {
+        let uri = fileUri(path)
+        let k = ws.key(uri)
+        let _ = ws.add(k, from: Document.create(uri, from: "f() {}\n".utf16.copy(), at: 0, as: false))
+    }
+    assert(ws.slots().length == 2)
+    let removed = ws.removeFolder(fileUri(dir))
+    assert(removed.length == 1 && removed[0] == fileUri(file))
+    assert(ws.slots().length == 1)
 }

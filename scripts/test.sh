@@ -10,7 +10,7 @@
 #   runtime  runtime/tests/run.sh; skipped with no C compiler (no $CC, cc or zig)
 # --jobs (default: the CPU count) goes to the golden runner, the one part that runs in parallel.
 # BAYAN_EXE: the self-hosted driver; unset, src/driver is built with the pinned bayan (scripts/pinned-bayan.sh) into the
-# run's log directory, as scripts/selfhost/t10-compare.sh does. Each part's output is in <root>/tmp/test.XXXXXX/<part>.log,
+# run's log directory. Each part's output is in <root>/tmp/test.XXXXXX/<part>.log,
 # removed when every part passes. One summary line per part; exit 1 when any part fails, 2 on a usage error.
 # Tests only: TEST_SH_GOLDEN, TEST_SH_BAYAN, TEST_SH_PARITY, TEST_SH_SCRIPTS, TEST_SH_RUNTIME replace a part's command (golden's gets
 # `--jobs N`), and no driver is built for a replaced part. bash 3.2.
@@ -37,7 +37,19 @@ mkdir -p "$root/tmp"
 # Every part shares one zig cache unless the caller names one: the driver puts zig's cache under each BAYAN_CACHE when
 # ZIG_GLOBAL_CACHE_DIR is unset (T17d), and the per-case caches of the golden runner then rebuild libc and compiler_rt
 # per case, past the 300 s limit on windows-latest (ci run 44276585184, 2026-11-18).
-export ZIG_GLOBAL_CACHE_DIR="${ZIG_GLOBAL_CACHE_DIR:-$root/tmp/zig-global}"
+if [ -n "${ZIG_GLOBAL_CACHE_DIR:-}" ]; then
+  export ZIG_GLOBAL_CACHE_DIR
+else
+  export ZIG_GLOBAL_CACHE_DIR="$root/tmp/zig-global"
+  # Its o/ keeps the newest 2000 entries, past them only those written in the last 10 minutes (a concurrent zig cc), as the
+  # driver trims its own (zigCacheEntries, zigCacheMinAge in src/driver/cache.byn). A caller's directory is the caller's to trim.
+  zig_o="$ZIG_GLOBAL_CACHE_DIR/o"
+  if [ -d "$zig_o" ]; then
+    zig_keep=$(( $(find "$zig_o" -mindepth 1 -maxdepth 1 -mmin -10 | wc -l) ))
+    [ "$zig_keep" -gt 2000 ] || zig_keep=2000
+    ls -At "$zig_o" | tail -n +$((zig_keep + 1)) | while IFS= read -r e; do rm -rf "${zig_o:?}/$e"; done
+  fi
+fi
 logs="$(mktemp -d "$root/tmp/test.XXXXXX")" || exit 2
 failed=""
 

@@ -1,0 +1,8 @@
+error BYN2202: expected `string`, found `Holder`
+  --> <repo>/tmp/l007/io-runbatch-struct-holding-untrusted-as-program/main.byn:12:29
+
+  12 │     let _ = try Io.runBatch(h, none.span)
+     │                             ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202

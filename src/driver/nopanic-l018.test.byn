@@ -1,0 +1,721 @@
+// L018 (spec 019 T31c): SelfhostParserNoPanicLawTests.cs without .NET. The corrupted seed corpus (SelfhostParserGenerator.cs
+// `GenerateCorrupt(Seeds)`) and the random corpus (`GenerateRandomCorpus`) are generated here with the C# generators' rng and call
+// order, written under tmp/l018-nopanic/<kind>/ and run through one `bayan-parse --many` each. The C# tree's own span walker is not
+// ported: the child-outside-parent count is printed, not compared (docs/laws/018-no-parser-panic.md, Proof notes).
+
+import lexer
+
+/// SelfhostParserGenerator.cs:346 `XorShift`: xorshift64; `next(n)` is `Below(n)`, `(int)(Next() % (ulong)n)`.
+struct L018Rng {
+    u64 state
+
+    u64 step(ref this) {
+        this.state ^= this.state << 13
+        this.state ^= this.state >> 7
+        this.state ^= this.state << 17
+        return this.state
+    }
+
+    i64 next(ref this, i64 n) {
+        return i64(this.step() % u64(n))
+    }
+}
+
+/// SelfhostParserGenerator.cs:25 `Seeds`.
+List<u64> l018Seeds() uses alloc {
+    var seeds = List<u64>()
+    seeds.append(0x9E3779B97F4A7C15)
+    seeds.append(0x0123456789ABCDEF)
+    seeds.append(0xFEDCBA9876543210)
+    seeds.append(0xDEADBEEFCAFEF00D)
+    seeds.append(0x3141592653589793)
+    seeds.append(0x2718281828459045)
+    seeds.append(0x0BADF00D0BADF00D)
+    seeds.append(0x5EED5EED5EED5EED)
+    return seeds
+}
+
+/// SelfhostParserGenerator.cs:32 `RecordTypes`: the 120 concrete `Node` records of csharp/Bayan.Syntax/Ast/Nodes.cs, in ordinal order.
+List<string> l018RecordTypes() uses alloc {
+    var names = List<string>()
+    for name in [
+        "Argument",
+        "ArrayType",
+        "AssertStmt",
+        "AssignStmt",
+        "AssociatedTypeDecl",
+        "AttributeSyntax",
+        "BecauseClause",
+        "BecomeStmt",
+        "BinaryExpr",
+        "BinaryPattern",
+        "BlockExpr",
+        "BlockStmt",
+        "BreakStmt",
+        "CallExpr",
+        "CastExpr",
+        "CatchExpr",
+        "CaughtErrorExpr",
+        "CollectionExpr",
+        "CompilationUnit",
+        "ConditionalExpr",
+        "ConstantPattern",
+        "ConstructorDecl",
+        "ContextStmt",
+        "ContinueStmt",
+        "DeclarationPattern",
+        "DeferStmt",
+        "DiscardPattern",
+        "DoWhileStmt",
+        "DynType",
+        "EffectDecl",
+        "EmptyStmt",
+        "EnumDecl",
+        "EnumMember",
+        "ErrorEnumDecl",
+        "ErrorExpr",
+        "ErrorSetDecl",
+        "ErrorStmt",
+        "ErrorVariant",
+        "ExceptExpr",
+        "ExprStmt",
+        "ExtensionDecl",
+        "FailStmt",
+        "FailsClause",
+        "FieldDecl",
+        "FieldInit",
+        "ForStmt",
+        "FunctionDecl",
+        "FunctionTypeSyntax",
+        "GetterDecl",
+        "GlobalStatement",
+        "GuardedStmt",
+        "IfStmt",
+        "ImportDecl",
+        "InExpr",
+        "IncDecStmt",
+        "IndexExpr",
+        "InterfaceDecl",
+        "InterpolatedExpr",
+        "InterpolationHole",
+        "InterpolationText",
+        "IsExpr",
+        "JumpExpr",
+        "LabeledStmt",
+        "LambdaExpr",
+        "ListPattern",
+        "LiteralExpr",
+        "LocalDecl",
+        "MapEntryExpr",
+        "MemberExpr",
+        "MoveExpr",
+        "Name",
+        "NameExpr",
+        "NamedArg",
+        "NamedType",
+        "NotPattern",
+        "OptionalType",
+        "Param",
+        "ParenExpr",
+        "PatternExpr",
+        "PointerType",
+        "PositionalPattern",
+        "PropertyDecl",
+        "PropertyPattern",
+        "PropertySubpattern",
+        "RangeExpr",
+        "RefinedType",
+        "RelationalPattern",
+        "RequiresRule",
+        "ReturnStmt",
+        "SlicePattern",
+        "SpreadExpr",
+        "StackallocExpr",
+        "StructDecl",
+        "StructLiteralExpr",
+        "SwitchArm",
+        "SwitchExpr",
+        "SwitchLabel",
+        "SwitchSection",
+        "SwitchStmt",
+        "TargetMemberExpr",
+        "TestDecl",
+        "ThisExpr",
+        "TryExpr",
+        "TupleElement",
+        "TupleExpr",
+        "TupleType",
+        "TupleTypeElement",
+        "TypeAliasDecl",
+        "UnaryExpr",
+        "UnionDecl",
+        "UnionField",
+        "UnionVariant",
+        "UnlessStmt",
+        "UsesClause",
+        "VarPattern",
+        "VariantPattern",
+        "WhereClause",
+        "WhileLetStmt",
+        "WhileStmt",
+        "WithExpr",
+    ] {
+        names.append(name)
+    }
+    return names
+}
+
+/// SelfhostParserGenerator.cs:38 `TemplateFor`: the one valid program per record type.
+string l018Template(string name) {
+    switch name {
+        // Names, compilation unit and declaration support.
+        case "Name": return "let name = 1\n"
+        case "CompilationUnit": return ""
+        case "AttributeSyntax": return "@experimental\nvoid run() { }\n"
+        case "BecauseClause": return "@allow(unusedValue) because \"x\"\nvoid warm() { }\n"
+        case "RequiresRule":
+            return "struct SignupForm {\n    string username\n    string password\n    requires password != username at .password\n}\n"
+        case "ImportDecl": return "import money\n"
+        case "GlobalStatement": return "print(\"hi\")\n"
+        case "Param": return "void f(i64 a) { }\n"
+        case "FailsClause": return "void f() fails IoError { }\n"
+        case "UsesClause": return "void f() uses io { }\n"
+        case "FunctionDecl": return "void f() { }\n"
+        case "WhereClause": return "T max<T>(T a, T b) where T : IOrder<T> => a\n"
+        case "StructDecl": return "struct S { }\n"
+        case "InterfaceDecl": return "interface I { }\n"
+        case "GetterDecl": return "interface I { string name }\n"
+        case "AssociatedTypeDecl": return "interface I { type Item }\n"
+        case "ExtensionDecl": return "extension Cents : IShape\n"
+        case "FieldDecl": return "struct S { i64 x }\n"
+        case "PropertyDecl": return "struct S {\n    i64 total\n    i64 doubled => total * 2\n}\n"
+        case "ConstructorDecl": return "struct Money {\n    i64 cents\n    Money(i64 cents) { this.cents = cents }\n}\n"
+        case "ErrorVariant": return "union error CarrierError { timeout(Millis after) }\n"
+        case "ErrorEnumDecl": return "union error CarrierError { timeout(Millis after) }\n"
+        case "ErrorSetDecl": return "union error SignupError = EmailError, DbError\n"
+        case "EnumMember": return "enum Color { red }\n"
+        case "EnumDecl": return "enum Color { red }\n"
+        case "UnionField": return "union Shape { circle(f32 r) }\n"
+        case "UnionVariant": return "union Shape { circle(f32 r) }\n"
+        case "UnionDecl": return "union Shape { circle(f32 r) }\n"
+        case "TypeAliasDecl": return "type Cents = i64\n"
+        case "EffectDecl": return "effect db = net, fs\n"
+        case "TestDecl": return "test \"plain\" { }\n"
+        // Types.
+        case "NamedType": return "type Cents = i64\n"
+        case "OptionalType": return "struct S {\n    i64? note\n}\n"
+        case "ArrayType": return "struct S { i64[4] history }\n"
+        case "TupleTypeElement": return "void f((i64, string) pair) { }\n"
+        case "TupleType": return "void f((i64, string) pair) { }\n"
+        case "FunctionTypeSyntax": return "type Pred = i32 -> bool\n"
+        case "DynType": return "void show(dyn ref IShape s) { }\n"
+        case "RefinedType": return "struct Order {\n    i64 id\n    states { paid }\n}\ntype Done = Order is .paid\n"
+        case "PointerType": return "extern void f(i64* p) { }\n"
+        // Statements.
+        case "BlockStmt": return "void f() { }\n"
+        case "LocalDecl": return "let x = 1\n"
+        case "ExprStmt": return "print(\"hi\")\n"
+        case "AssignStmt": return "void f() {\n    x = 1\n}\n"
+        case "IncDecStmt": return "void f() {\n    x++\n}\n"
+        case "ReturnStmt": return "i64 f() { return 0 }\n"
+        case "FailStmt": return "union error E { bad }\nvoid f() fails E { fail .bad }\n"
+        case "BreakStmt": return "void f() {\n    while true { break }\n}\n"
+        case "ContinueStmt": return "void f() {\n    for x in xs { continue }\n}\n"
+        case "BecomeStmt": return "void f() {\n    become .done\n}\n"
+        case "IfStmt": return "void f(bool a) {\n    if a { print(\"x\") }\n}\n"
+        case "UnlessStmt": return "void f(bool ok) {\n    unless ok { print(\"x\") }\n}\n"
+        case "GuardedStmt": return "void f(bool b) {\n    print(\"x\") if b\n}\n"
+        case "WhileStmt": return "void f(bool b) {\n    while b { break }\n}\n"
+        case "DoWhileStmt": return "void f() {\n    var x = 0\n    do { x++ } while x < 10\n}\n"
+        case "WhileLetStmt": return "void f() {\n    while let x = next() { use(x) }\n}\n"
+        case "ForStmt": return "void f() {\n    for x in xs { use(x) }\n}\n"
+        case "LabeledStmt": return "void f() {\n    outer: for row in grid { break outer }\n}\n"
+        case "SwitchLabel": return "void f(i64 n) {\n    switch n {\n        case 1: print(\"x\")\n    }\n}\n"
+        case "SwitchSection": return "void f(i64 n) {\n    switch n {\n        case 1: print(\"x\")\n    }\n}\n"
+        case "SwitchStmt":
+            return "void f(i64 n) {\n    switch n {\n        case 1: print(\"x\")\n        default: print(\"y\")\n    }\n}\n"
+        case "DeferStmt": return "void f() {\n    defer close()\n}\n"
+        case "AssertStmt": return "void f(bool a) {\n    assert a\n}\n"
+        case "NamedArg": return "void f(Arena a) {\n    provide allocator: a {\n        print(\"x\")\n    }\n}\n"
+        case "ContextStmt": return "void f(Arena a) {\n    provide allocator: a {\n        print(\"x\")\n    }\n}\n"
+        case "EmptyStmt": return "void f() {\n    ;\n}\n"
+        case "ErrorStmt": return "void f() {\n    else\n}\n"
+        // Expressions.
+        case "LiteralExpr": return "let x = 1\n"
+        case "InterpolationText": return "let s = $\"a {x}\"\n"
+        case "InterpolationHole": return "let s = $\"a {x}\"\n"
+        case "InterpolatedExpr": return "let s = $\"a {x}\"\n"
+        case "NameExpr": return "let y = x\n"
+        case "ThisExpr": return "void f() {\n    let me = this\n}\n"
+        case "MemberExpr": return "let y = a.b\n"
+        case "TargetMemberExpr": return "void f() {\n    return .notFound\n}\n"
+        case "Argument": return "let y = f(x)\n"
+        case "CallExpr": return "let y = f(x)\n"
+        case "IndexExpr": return "let y = xs[0]\n"
+        case "UnaryExpr": return "let y = -x\n"
+        case "BinaryExpr": return "let y = a + b\n"
+        case "RangeExpr": return "let r = 0..n\n"
+        case "ConditionalExpr": return "let y = a ? b : c\n"
+        case "CastExpr": return "let y = (i64)x\n"
+        case "IsExpr": return "let b = x is not null\n"
+        case "ExceptExpr": return "let rest = code except .a\n"
+        case "InExpr": return "let b = x in 0..=10\n"
+        case "SwitchArm": return "let s = n switch { 0 => \"none\", _ => \"many\" }\n"
+        case "SwitchExpr": return "let s = n switch { 0 => \"none\", _ => \"many\" }\n"
+        case "TryExpr": return "let y = try parse(s)\n"
+        case "MoveExpr": return "let y = move x\n"
+        case "CatchExpr": return "let y = parse(s) catch 0\n"
+        case "CaughtErrorExpr": return "let y = parse(s) catch switch { .bad => 1 }\n"
+        case "JumpExpr": return "let y = db.find(id) ?? return\n"
+        case "BlockExpr": return "let n = parse(s) catch { return -1 }\n"
+        case "FieldInit": return "let p = Money { cents: 250 }\n"
+        case "StructLiteralExpr": return "let p = Money { cents: 250 }\n"
+        case "WithExpr": return "let more = item with { name: \"coffee\" }\n"
+        case "SpreadExpr": return "let spread = [..a, ..b]\n"
+        case "MapEntryExpr": return "let stock = [\"A\": 12]\n"
+        case "CollectionExpr": return "let fixed = [1, 2, 3]\n"
+        case "TupleElement": return "let t = (x: 1, y: 2)\n"
+        case "TupleExpr": return "let t = (1, \"a\")\n"
+        case "ParenExpr": return "let y = (a)\n"
+        case "LambdaExpr": return "let inc = x => x + 1\n"
+        case "StackallocExpr": return "let buf = stackalloc u8[64]\n"
+        case "PatternExpr": return "const p = pattern Order { total: 0 }\n"
+        case "ErrorExpr": return "let x = ()\n"
+        // Patterns.
+        case "ConstantPattern": return "let b = x is 1\n"
+        case "RelationalPattern": return "let b = x is > 0\n"
+        case "VarPattern": return "let b = x is var y\n"
+        case "DiscardPattern": return "let b = x is _\n"
+        case "DeclarationPattern": return "let b = x is DbError e\n"
+        case "NotPattern": return "let b = x is not null\n"
+        case "BinaryPattern": return "let b = x is > 0 and <= 10\n"
+        case "PropertySubpattern": return "let b = x is { cents: > 0 }\n"
+        case "PropertyPattern": return "let b = x is { cents: > 0 }\n"
+        case "PositionalPattern": return "let b = x is (0, var y)\n"
+        case "VariantPattern": return "let a = s switch {\n    .circle(let r) => r * r,\n    .none => 0\n}\n"
+        case "SlicePattern": return "let b = xs is [var first, .. var rest]\n"
+        case "ListPattern": return "let b = xs is [1, .., 9]\n"
+    }
+    return "\0no template\0"
+}
+
+/// SelfhostParserGenerator.cs:258 `Assemble`: declaration templates kept on `Below(2) == 0`, then `if total >= 0 {` blocks nested
+/// `1 + Below(8)` deep (`NestingCap`), each with a picked statement, and a picked expression in the innermost.
+string l018Assemble(ref L018Rng rng) uses alloc {
+    let decls = [
+        "ImportDecl",
+        "StructDecl",
+        "FunctionDecl",
+        "InterfaceDecl",
+        "ExtensionDecl",
+        "FieldDecl",
+        "PropertyDecl",
+        "ConstructorDecl",
+        "ErrorEnumDecl",
+        "ErrorSetDecl",
+        "EnumDecl",
+        "UnionDecl",
+        "TypeAliasDecl",
+        "EffectDecl",
+        "TestDecl",
+    ]
+    let statements = [
+        "let a = 1",
+        "var b = a + 2",
+        "a = b",
+        "a++",
+        "if a > 0 { b = 1 }",
+        "unless b > 0 { a = 1 }",
+        "while a < 10 { a++ }",
+        "for x in xs { use(x) }",
+        "switch a { case 1: b = 1 }",
+        "defer close()",
+        "assert a > 0",
+        "print(\"x\")",
+        "return",
+    ]
+    let expressions = [
+        "a + b",
+        "a * b + c",
+        "a ? b : c",
+        "a && b",
+        "f(a, b)",
+        "xs[0]",
+        "a == b",
+        "a..b",
+        "-a",
+        "!a",
+        "this",
+        "a.b",
+        "move a",
+        "try f(a)",
+    ]
+    var sb = StrBuf()
+    for decl in decls {
+        if rng.next(2) == 0 {
+            sb.append(l018Template(decl))
+        }
+    }
+    let depth = 1 + rng.next(8)
+    sb.append("void main() {\n")
+    sb.append("    var total = 0\n")
+    for d in 0..depth {
+        sb.appendRepeated(' ', by: 4 * (d + 1))
+        sb.append("if total >= 0 {\n")
+        sb.appendRepeated(' ', by: 4 * (d + 2))
+        sb.append($"{statements[rng.next(statements.length)]}\n")
+    }
+    sb.appendRepeated(' ', by: 4 * (depth + 1))
+    sb.append($"total = {expressions[rng.next(expressions.length)]}\n")
+    var d = depth - 1
+    while d >= 0 {
+        sb.appendRepeated(' ', by: 4 * (d + 1))
+        sb.append("}\n")
+        d -= 1
+    }
+    sb.append("}\n")
+    return sb.finish()
+}
+
+/// `bytes[from..until]` appended to `to`.
+void l018Append(List<u8> bytes, from i64 start, until i64 end, to ref List<u8> buf) uses alloc {
+    for i in start..end {
+        buf.append(bytes[i])
+    }
+}
+
+/// The UTF-8 bytes of `text` appended to `to`.
+void l018AppendText(string text, to ref List<u8> buf) uses alloc {
+    for b in text.bytes {
+        buf.append(b)
+    }
+}
+
+/// SelfhostParserGenerator.cs:282 `Corrupt`: one token of `source` (the lexer's tokens, end of file excluded) dropped, duplicated or
+/// swapped with another, `rng` shared across the corpus.
+List<u8> l018Corrupt(string source, by ref L018Rng rng) uses alloc {
+    var bytes = List<u8>()
+    l018AppendText(source, to: ref bytes)
+    var copy = List<u8>()
+    l018Append(bytes, from: 0, until: bytes.length, to: ref copy)
+    let lexed = lexer.lex(lexer.SourceText.create("corrupt.byn", from: move copy), by: lexer.Keywords.build())
+    var starts = List<i64>()
+    var ends = List<i64>()
+    for t in lexed.tokens {
+        continue if t.kind == .endOfFile
+        starts.append(t.start)
+        ends.append(t.end)
+    }
+    return bytes if starts.length == 0
+    let n = starts.length
+    let op = rng.next(3)
+    let first = rng.next(n)
+    let second = op == 2 ? rng.next(n) : first
+    var buf = List<u8>()
+    if op == 0 {
+        l018Append(bytes, from: 0, until: starts[first], to: ref buf)
+        l018Append(bytes, from: ends[first], until: bytes.length, to: ref buf)
+    } else if first == second {
+        l018Append(bytes, from: 0, until: ends[first], to: ref buf)
+        l018Append(bytes, from: starts[first], until: ends[first], to: ref buf)
+        l018Append(bytes, from: ends[first], until: bytes.length, to: ref buf)
+    } else {
+        let a = starts[first] > starts[second] ? second : first
+        let b = starts[first] > starts[second] ? first : second
+        l018Append(bytes, from: 0, until: starts[a], to: ref buf)
+        l018Append(bytes, from: starts[b], until: ends[b], to: ref buf)
+        l018Append(bytes, from: ends[a], until: starts[b], to: ref buf)
+        l018Append(bytes, from: starts[a], until: ends[a], to: ref buf)
+        l018Append(bytes, from: ends[b], until: bytes.length, to: ref buf)
+    }
+    return buf
+}
+
+/// The corpus written as `names[i]` with the bytes `pool[starts[i]..ends[i]]` under a fresh `dir`.
+void l018Write(string dir, by List<string> names, from List<u8> pool, at List<i64> starts, until List<i64> ends)
+        uses alloc, fs {
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch {}
+    for i in 0..names.length {
+        var bytes = List<u8>()
+        l018Append(pool, from: starts[i], until: ends[i], to: ref bytes)
+        let path = Path.combine(dir, names[i])
+        Io.writeFile(path, bytes.span) catch {
+            assert(path == "")
+        }
+    }
+}
+
+/// SelfhostParserNoPanicLawTests.cs:136 `InvalidUtf8`, as hex.
+List<u8> l018Invalid(i64 k) uses alloc {
+    let all = ["FF", "80", "C080", "C3", "E282", "EDA080", "F09F98", "F4908080", "F888808080"]
+    let hex = all[k]
+    var buf = List<u8>()
+    var i: i64 = 0
+    while i < hex.length {
+        let hi = hex.bytes[i]
+        let lo = hex.bytes[i + 1]
+        let h = hi <= 0x39 ? hi - 0x30 : hi - 0x37
+        let l = lo <= 0x39 ? lo - 0x30 : lo - 0x37
+        buf.append(u8(h * 16 + l))
+        i += 2
+    }
+    return buf
+}
+
+/// SelfhostParserNoPanicLawTests.cs:154 `GenerateRandomCorpus`: `size` inputs mixed from the flat tests/cases/parse/*.byn (lines, slices),
+/// invalid UTF-8, parser specials and `if true { ` nesting capped at 8, then byte mutations; every 250th input empty. Each input is
+/// appended to `pool`, its bounds to `starts` and `ends`. No C# parser decides which candidates crash it (none since 1127c91).
+void l018Random(i64 size, to ref List<u8> pool, at ref List<i64> starts, until ref List<i64> ends) uses alloc, fs {
+    let specials = [
+        "move ",
+        "fail ",
+        "break ",
+        "continue ",
+        "except ",
+        "?.",
+        "?.x",
+        "if true { ",
+        "unless false { ",
+        "while true { break }",
+        "for x in xs { use(x) }",
+        "switch n { case 1: use(n) }",
+        "$\"{",
+        "}\"",
+        "\"",
+        "'",
+        "/*",
+        "*/",
+        "//\n",
+        "\\",
+        "let x = ",
+        "x = ",
+        "return ",
+        "..",
+        "..=",
+        "->",
+        "=>",
+        "==",
+        "!=",
+        "[",
+        "]",
+        "{",
+        "}",
+        "(",
+        ")",
+        ";",
+        ",",
+        ":",
+        ".",
+        "@",
+        "#",
+        "\0",
+        "\r\n",
+        "\r",
+        "\t",
+        "é",
+    ]
+    let dir = Path.fullPath("tests/cases/parse")
+    var names = Io.listDir(dir) catch List<string>()
+    names.sort()
+    // every case, then every line of every case (split after `\n`), as bounds into `cases`
+    var cases = List<u8>()
+    var caseStarts = List<i64>()
+    var caseEnds = List<i64>()
+    var lineStarts = List<i64>()
+    var lineEnds = List<i64>()
+    for name in names {
+        continue unless name.endsWith(".byn")
+        let bytes = Io.readFile(Path.combine(dir, name)) catch List<u8>()
+        let at = cases.length
+        l018Append(bytes, from: 0, until: bytes.length, to: ref cases)
+        caseStarts.append(at)
+        caseEnds.append(cases.length)
+        var start = at
+        for i in at..cases.length {
+            continue if cases[i] != 0x0a
+            lineStarts.append(start)
+            lineEnds.append(i + 1)
+            start = i + 1
+        }
+        if start < cases.length {
+            lineStarts.append(start)
+            lineEnds.append(cases.length)
+        }
+    }
+    assert(caseStarts.length > 0)
+    var rng = L018Rng { state: 0x9E3779B97F4A7C15 }
+    for i in 0..size {
+        starts.append(pool.length)
+        if i % 250 == 0 {
+            ends.append(pool.length)
+            continue
+        }
+        var bytes = List<u8>()
+        var pieces = 1 + rng.next(8)
+        while pieces > 0 {
+            let kind = rng.next(16)
+            if kind < 7 {
+                let k = rng.next(lineStarts.length)
+                l018Append(cases, from: lineStarts[k], until: lineEnds[k], to: ref bytes)
+            } else if kind < 9 {
+                let k = rng.next(caseStarts.length)
+                let length = caseEnds[k] - caseStarts[k]
+                let start = rng.next(length)
+                let take = 1 + rng.next(64)
+                let count = length - start < take ? length - start : take
+                l018Append(cases, from: caseStarts[k] + start, until: caseStarts[k] + start + count, to: ref bytes)
+            } else if kind < 11 {
+                let invalid = l018Invalid(rng.next(9))
+                l018Append(invalid, from: 0, until: invalid.length, to: ref bytes)
+            } else if kind < 15 {
+                l018AppendText(specials[rng.next(specials.length)], to: ref bytes)
+            } else {
+                let depth = 1 + rng.next(8)
+                for _ in 0..depth {
+                    l018AppendText("if true { ", to: ref bytes)
+                }
+                l018AppendText("x", to: ref bytes)
+                for _ in 0..depth {
+                    l018AppendText(" }", to: ref bytes)
+                }
+            }
+            let sep = rng.next(3)
+            if sep == 1 {
+                l018AppendText(" ", to: ref bytes)
+            } else if sep == 2 {
+                l018AppendText("\n", to: ref bytes)
+            }
+            pieces -= 1
+        }
+        var mutations = rng.next(4)
+        while mutations > 0 && bytes.length > 0 {
+            let at = rng.next(bytes.length)
+            let op = rng.next(3)
+            var next = List<u8>()
+            l018Append(bytes, from: 0, until: at, to: ref next)
+            if op == 0 {
+                next.append(u8(rng.step() & 0xff))
+                l018Append(bytes, from: at, until: bytes.length, to: ref next)
+            } else if op == 1 {
+                l018Append(bytes, from: at + 1, until: bytes.length, to: ref next)
+            } else {
+                next.append(u8(rng.step() & 0xff))
+                l018Append(bytes, from: at + 1, until: bytes.length, to: ref next)
+            }
+            bytes = move next
+            mutations -= 1
+        }
+        l018Append(bytes, from: 0, until: bytes.length, to: ref pool)
+        ends.append(pool.length)
+    }
+}
+
+/// SelfhostParserNoPanicLawTests.cs:39 `CheckCorpus` without the C# tree: `bayan-parse --many` over `dir` exits 0 or 1, prints no
+/// `panic:`, prints every `== <name>` header of `names` (sorted) in order, and no `span out of range:` line without ` outside `. Empty when
+/// it holds, else why; `outside` is the number of inputs with a ` outside ` (child outside its parent) line.
+string l018Check(string kind, by string prog, at string dir, for List<string> names, to ref i64 outside)
+        uses alloc, clock, fs, process {
+    var failure = ""
+    var args = List<string>()
+    args.append("--many")
+    args.append(dir)
+    let o = goldenChild(prog, by: in args, at: dir, from: in List<u8>(), through: ref failure, whole: true)
+    return $"{kind}: {failure}" if failure != ""
+    return $"{kind}: exit {o.exitCode}\n{o.stderr}" if o.exitCode != 0 && o.exitCode != 1
+    return $"{kind}: panic on stderr\n{o.stderr}" if o.stderr.contains("panic:")
+    var next: i64 = 0
+    var current = ""
+    var counted = false
+    for line in o.stdout.parts(by: "\n") {
+        if next < names.length && line == $"== {names[next]}" {
+            current = names[next]
+            counted = false
+            next += 1
+            continue
+        }
+        continue unless line.startsWith("span out of range:")
+        let where = Path.combine(dir, current)
+        return $"{kind}: {where}: a node span lies outside the input\n{line}" unless line.contains(" outside ")
+        if !counted {
+            outside += 1
+            counted = true
+        }
+    }
+    return $"{kind}: bayan-parse --many stopped before {names[next]}" if next < names.length
+    return ""
+}
+
+// L018: the Bayan parser never panics and keeps every span inside the input
+test "L018: bayan-parse --many never panics and keeps every node span inside the input over the corrupted seeds and the random corpus" {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(failure == "")
+    let prog = goldenProgram("parser", by: exe, through: ref failure)
+    if failure != "" {
+        print(failure)
+    }
+    assert(failure == "")
+    let root = Path.combine(Path.fullPath("tmp"), "l018-nopanic")
+    deleteWorkDir(root)
+
+    // SelfhostParserGenerator.cs:181 `GenerateValid` then :190 `GenerateCorrupt`
+    let seeds = l018Seeds()
+    var valid = List<string>()
+    var validNames = List<string>()
+    for name in l018RecordTypes() {
+        let template = l018Template(name)
+        assert(template != "\0no template\0")
+        validNames.append($"valid-{name}.byn")
+        valid.append(template)
+    }
+    assert(validNames.length == 120)
+    for i in 0..seeds.length {
+        var rng = L018Rng { state: seeds[i] }
+        validNames.append($"valid-seed-{i < 10 ? "00" : i < 100 ? "0" : ""}{i}.byn")
+        valid.append(l018Assemble(ref rng))
+    }
+    var corruptNames = List<string>()
+    var corrupt = List<u8>()
+    var corruptStarts = List<i64>()
+    var corruptEnds = List<i64>()
+    var rng = L018Rng { state: seeds[0] }
+    for i in 0..valid.length {
+        corruptNames.append($"corrupt-{validNames[i]}")
+        corruptStarts.append(corrupt.length)
+        let bytes = l018Corrupt(valid[i], by: ref rng)
+        l018Append(bytes, from: 0, until: bytes.length, to: ref corrupt)
+        corruptEnds.append(corrupt.length)
+    }
+    assert(corruptNames.length == 128)
+
+    // SelfhostParserNoPanicLawTests.cs:15-22: the first 400 inputs, all 4,000 with BAYAN_LAW_TIER=full
+    let size = (Env.get("BAYAN_LAW_TIER") ?? "") == "full" ? 4000 : 400
+    var random = List<u8>()
+    var randomStarts = List<i64>()
+    var randomEnds = List<i64>()
+    l018Random(size, to: ref random, at: ref randomStarts, until: ref randomEnds)
+    var randomNames = List<string>()
+    for i in 0..size {
+        randomNames.append($"{i < 10 ? "0000" : i < 100 ? "000" : i < 1000 ? "00" : i < 10000 ? "0" : ""}{i}.byn")
+    }
+    assert(randomNames.length == size)
+
+    let corruptDir = Path.combine(root, "corrupt")
+    let randomDir = Path.combine(root, "random")
+    l018Write(corruptDir, by: corruptNames, from: corrupt, at: corruptStarts, until: corruptEnds)
+    l018Write(randomDir, by: randomNames, from: random, at: randomStarts, until: randomEnds)
+    corruptNames.sort()
+    var corruptOutside: i64 = 0
+    var randomOutside: i64 = 0
+    let corruptFailure = l018Check("corrupt", by: prog, at: corruptDir, for: corruptNames, to: ref corruptOutside)
+    let randomFailure = l018Check("random", by: prog, at: randomDir, for: randomNames, to: ref randomOutside)
+    print($"L018 corrupt: {corruptNames.length} inputs, {corruptOutside} with a child outside its parent")
+    print($"L018 random: {size} inputs, {randomOutside} with a child outside its parent")
+    if corruptFailure != "" || randomFailure != "" {
+        print(corruptFailure)
+        print(randomFailure)
+    }
+    assert(corruptFailure == "" && randomFailure == "")
+    deleteWorkDir(root)
+}

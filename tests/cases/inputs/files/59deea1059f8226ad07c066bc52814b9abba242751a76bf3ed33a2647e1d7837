@@ -1,0 +1,19 @@
+union error E { bad, }
+void step() fails E { }
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+struct Ledger {
+    List<i64> items
+}
+union Slot {
+    empty
+    full(List<i64> items)
+}
+void main() {
+    var ledger = Ledger { items: List<i64>() }
+    ledger.items.append(1)
+    let items = ledger.items.take()
+    ledger.items.append(2)
+    print($"{items.length} {ledger.items.length}")
+}

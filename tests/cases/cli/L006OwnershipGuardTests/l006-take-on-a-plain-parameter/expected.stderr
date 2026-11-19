@@ -1,0 +1,10 @@
+error BYN2104: `plain` is immutable
+  --> <repo>/tmp/l006/take-on-a-plain-parameter/main.byn:14:14
+
+  14 │     let ys = plain.take()
+     │              ^^^^^ `take` modifies it; parameters are immutable
+     │
+  help: copy it into a local `var`, or take it by `ref` if the caller's value should change
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2104

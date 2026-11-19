@@ -1,14 +1,17 @@
 #!/bin/bash
 # mutate-batch.sh — the batch mutation run (spec 013 T28, R14): guard.sh's mutation step (mutation-step.sh) over every
-# src/**/*.byn with its test filter, then the scores into tests/quality-baseline.json. Run from the repo root after `dotnet build`.
+# src/**/*.byn with its test filter, then the scores into tests/quality-baseline.json. Run from the repo root; the recording runs
+# on BAYAN_EXE, else the stage-1 driver scripts/bootstrap-build.sh prints (no dotnet, spec 019 T48c).
 #   bash scripts/selfhost/mutate-batch.sh [--list] [--files a.byn,b.byn] [--shard k/n] [--tasks <tasks.md>]...
 # A file's filter is derived from the --tasks files (repeatable; default docs/specs/010-self-hosted-semantics/010-tasks.md and
 # docs/specs/017-selfhost-default/017-tasks.md, where the driver's task lines live): every task line whose
-# `files:` list names the file contributes the *Tests.cs classes of that same list, as FullyQualifiedName~<Class> joined by `|`;
-# a glob class name such as SelfhostSemanticsT*Tests.cs is skipped (no FQN substring), and only classes of the file's own family are kept
-# (src/semantics: SelfhostSemantics*, parser: SelfhostParser*, lexer: SelfhostLexer*, emitter and its subdirectories cprint/, ltree/: SelfhostEmitter*,
-# driver: SelfhostDriver* and SelfhostDefault*, whose tests build src/driver through SelfhostDriverHarness: another build does not contain the file);
-# a file with none left uses SelfhostSemantics, SelfhostParser, SelfhostLexer, SelfhostEmitter or SelfhostDriver; another directory fails. One group per family and shard (Q910):
+# `files:` list names the file contributes the *Tests.cs classes of that same list, as `<kind>/<Class>/` selectors of the exported
+# golden cases (`bayan test tests/cases --only`) joined by `|`; a glob class name such as SelfhostSemanticsT*Tests.cs is skipped,
+# and only classes of the file's own family are kept (src/semantics: sem/SelfhostSemantics*, parser: parse/SelfhostParser*, lexer:
+# lex/SelfhostLexer*, emitter and its subdirectories cprint/, ltree/: emit-c/SelfhostEmitter*); a file with none left uses
+# sem/SelfhostSemantics, parse/SelfhostParser, lex/SelfhostLexer or emit-c/SelfhostEmitter; another directory fails. src/driver has
+# no golden program to record: its filter is `bayan test --mutate src/driver` (spec 019 T48c decision C4), a route this script does
+# not run yet, so its group is printed as not run and neither fails nor raises the baseline. One group per family and shard (Q910):
 # its filter is the union of its files' filters, so the tests are recorded once per (shard, family); src/emitter/ and its subdirectories are one family.
 # --list prints file -> group filter and runs nothing; --shard k/n gives file i of each family to shard (i mod n)+1; --files narrows
 # which files are mutated (BAYAN_SNAPSHOT_FILES) but each group keeps the union filter of all its (shard's) files, the one a full run
@@ -22,13 +25,12 @@
 # (Compilation.DisplayRoot; SelfhostLexerCaseTests imports `lexer`), and is resolved there; a path that is no file there either fails the group;
 # one run at a time: tmp/mutate-batch.lock (a directory holding the holder's pid) is taken for the run, a lock whose pid is gone is taken over;
 # exit codes: 0 done and the baseline raised; 1 a score fell below the baseline (nothing raised); 2 usage or plan error;
-# 3 setup-class failure that says nothing about the file (the lock is held, no pinned bayan, the recording failed with no failed test,
+# 3 setup-class failure that says nothing about the file (the lock is held, no pinned bayan, no driver to record with, the recording failed with no failed test,
 # quality-baseline check/update crashed or could not read the baseline); 4 a group failed for its files (tests failed in the recording, mutant 0 does not replay,
 # no or unreadable manifest, no report, a report path that is no file): rerunning the same file fails the same way;
 # a lock without a pid file is held for 60 s (its holder may be between mkdir and the pid write), then stale;
 # CI shards (.github/workflows/mutation.yml) upload only the reports, and a final job runs one `update` over all of them.
 set -u
-export MSBUILDDISABLENODEREUSE=1 DOTNET_CLI_USE_MSBUILD_SERVER=0  # no MSBuild worker or build server outlives the run
 TASKS=(); LIST=0; FILES=""; SHARD=""
 while [ $# -gt 0 ]; do case "$1" in
   --list) LIST=1; shift;; --files) FILES=$2; shift 2;; --shard) SHARD=$2; shift 2;; --tasks) TASKS+=("$2"); shift 2;;
@@ -54,10 +56,17 @@ fi
 echo $$ > "$LOCK/pid"; trap 'rm -r "$LOCK"' EXIT
 FAIL=(); note() { FAIL+=("$1"); }
 . "$HERE/mutation-step.sh"
+# the recording's driver: BAYAN_EXE, else the stage-1 binary (as guard.sh's check 3)
+if [ -z "${BAYAN_EXE:-}" ]; then
+  mkdir -p "$OUT"; BAYAN_EXE=$(bash "$HERE/../bootstrap-build.sh" 2> "$OUT/build.txt" | tail -1) && [ -x "$BAYAN_EXE" ] \
+    || { echo "mutate-batch: scripts/bootstrap-build.sh failed — $(tail -1 "$OUT/build.txt")"; exit 3; }
+fi
+export BAYAN_EXE
 BAD=0; SETUP=0; OK=()
 while IFS= read -r g <&3; do
   flt=$(awk -F'\t' -v g="$g" '$1==g{print $3; exit}' <<< "$PLAN")
   mut=$(awk -F'\t' -v g="$g" '$1==g{print $2}' <<< "$PLAN" | paste -sd, -)
+  case $flt in "bayan test --mutate "*) echo "== group $g: not run: $mut mutate under \`$flt\` (spec 019 T48c C4)"; continue;; esac
   LOG="$OUT/$g"; rm -rf "$LOG"; mkdir -p "$LOG"; FAIL=()
   echo "== group $g ($flt): $mut"
   mutation_step "$LOG" "$flt" "$mut" 0
@@ -70,7 +79,7 @@ while IFS= read -r g <&3; do
   else
     BAD=1
     for x in "${FAIL[@]}"; do echo "group $g: $x"
-      case $x in "mutation: no pinned bayan"*|"mutation: recording the tests under BAYAN_SNAPSHOT failed"*) SETUP=1;; esac; done
+      case $x in "mutation: no pinned bayan"*|"mutation: BAYAN_EXE="*|"mutation: recording the tests under BAYAN_SNAPSHOT failed"*) SETUP=1;; esac; done
     mkdir -p "$LOG/rejected"
     for rp in "$LOG"/quality-*.json; do
       [ -f "$rp" ] && mv "$rp" "$LOG/rejected/rejected-$(basename "$rp")"

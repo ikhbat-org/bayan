@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Refuses a commit range with a golden-update commit that breaks spec 019 R14 (decision 006 §2).
 #   scripts/ci/golden-commit-check.sh <base>..<head>
-# Every non-merge commit in the range is checked (merge commits are skipped):
+# Every non-merge commit in the range is checked (merge commits are skipped, as are the commits listed in
+# scripts/ci/golden-commit-allow.txt as of <head>):
 #   - it changes no expected file: passes;
 #   - it changes an expected file and any file that is neither an expected file nor the manifest: refused;
 #   - it changes only expected files (and the manifest) and its message names no cause: refused.
@@ -33,9 +34,11 @@ has_cause() {
   return 1
 }
 commits=$(git rev-list --reverse --no-merges "$1") || { echo "golden-commit-check: bad range '$1'" >&2; exit 2; }
+allowed=" $(git show "${1##*..}:scripts/ci/golden-commit-allow.txt" 2>/dev/null | sed 's/#.*//' | tr -s ' \t\n' '   ') "
 bad=0; n=0
 for c in $commits; do
   n=$((n + 1))
+  case "$allowed" in (*" $c "*) echo "golden-commit-check: $(git log -1 --format='%h' "$c"): allowed by scripts/ci/golden-commit-allow.txt"; continue ;; esac
   exp=0; other=0
   while IFS= read -r f; do
     [ -n "$f" ] || continue

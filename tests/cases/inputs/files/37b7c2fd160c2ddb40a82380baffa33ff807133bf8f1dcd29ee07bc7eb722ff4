@@ -1,0 +1,313 @@
+interface IGen0 {
+    i64 m0(i64 x)
+    void m1(ref this, i64 by)
+    string m2() uses alloc => $"m2 {m0(3)} {m0(9)}"
+    i64 m3(i64 x) => m0(x) + m0(9)
+}
+
+struct S00 : IGen0 {
+    i64 f0
+    i64 f1
+
+    i64 m0(i64 x) => 5 + f0
+    void m1(ref this, i64 by) {
+        f0 += by * 2
+    }
+    // override
+    string m2() => $"S00 m2 {1 * f0}"
+}
+
+struct S01 : IGen0 {
+    i64 f0
+    i64 f1
+
+    i64 m0(i64 x) => 1 * f1
+    void m1(ref this, i64 by) {
+        f1 = f0 - by
+    }
+    // override
+    string m2() => $"S01 m2 {3 + f0}"
+}
+
+void roS00(S00 v) {
+    print(v.m2())
+    print($"m3 {v.m3(8)}")
+    print($"m3 {v.m3(8)}")
+}
+
+void rwS00(ref S00 v) {
+    v.m1(3)
+    v.m1(-2)
+    v.m1(2)
+    print(v.m2())
+    print($"m3 {v.m3(8)}")
+    print($"m3 {v.m3(8)}")
+}
+
+void roS01(S01 v) {
+    print(v.m2())
+    print($"m3 {v.m3(8)}")
+    print($"m3 {v.m3(8)}")
+}
+
+void rwS01(ref S01 v) {
+    v.m1(3)
+    v.m1(-2)
+    v.m1(2)
+    print(v.m2())
+    print($"m3 {v.m3(8)}")
+    print($"m3 {v.m3(8)}")
+}
+
+void roVia0<T>(T v) where T : IGen0 {
+    print(v.m2())
+    print($"m3 {v.m3(8)}")
+    print($"m3 {v.m3(8)}")
+}
+
+void rwVia0<T>(ref T v) where T : IGen0 {
+    v.m1(3)
+    v.m1(-2)
+    v.m1(2)
+    print(v.m2())
+    print($"m3 {v.m3(8)}")
+    print($"m3 {v.m3(8)}")
+}
+
+void roDyn0(dyn ref readonly IGen0 v) {
+    print(v.m2())
+    print($"m3 {v.m3(8)}")
+    print($"m3 {v.m3(8)}")
+}
+
+void rwDyn0(dyn ref IGen0 v) {
+    v.m1(3)
+    v.m1(-2)
+    v.m1(2)
+    print(v.m2())
+    print($"m3 {v.m3(8)}")
+    print($"m3 {v.m3(8)}")
+}
+
+interface IGen1 {
+    i64 m0(i64 x)
+    void m1(ref this, i64 by)
+    i64 m2
+    void m3(ref this, i64 by)
+    i64 m4(i64 x) => m2 + m2
+}
+
+struct S10 : IGen1 {
+    i64 f0
+    i64 f1
+
+    i64 m0(i64 x) => f0 - f1
+    void m1(ref this, i64 by) {
+        f1 = f0 - by
+    }
+    i64 m2 => f1 + 9
+    void m3(ref this, i64 by) {
+        f1 = f0 - by
+    }
+}
+
+struct S11 : IGen1 {
+    i64 f0
+    i64 f1
+
+    i64 m0(i64 x) => x * f1
+    void m1(ref this, i64 by) {
+        f0 += by * 1
+    }
+    i64 m2 => 2 - 9
+    void m3(ref this, i64 by) {
+        f1 = f0 - by
+    }
+}
+
+struct S12 : IGen1 {
+    i64 f0
+    i64 f1
+
+    i64 m0(i64 x) => 8 + f0
+    void m1(ref this, i64 by) {
+        f0 += by * 1
+    }
+    i64 m2 => f1 - f1
+    void m3(ref this, i64 by) {
+        f0 += by * 3
+    }
+    // override
+    i64 m4(i64 x) => 2 - 6
+}
+
+void roS10(S10 v) {
+    print($"m4 {v.m4(-2)}")
+    print($"m4 {v.m4(-2)}")
+    print($"m2 {v.m2}")
+}
+
+void rwS10(ref S10 v) {
+    print($"m4 {v.m4(-2)}")
+    print($"m4 {v.m4(-2)}")
+    v.m3(-1)
+    v.m3(6)
+    print($"m2 {v.m2}")
+    v.m1(-3)
+}
+
+void roS11(S11 v) {
+    print($"m4 {v.m4(-2)}")
+    print($"m4 {v.m4(-2)}")
+    print($"m2 {v.m2}")
+}
+
+void rwS11(ref S11 v) {
+    print($"m4 {v.m4(-2)}")
+    print($"m4 {v.m4(-2)}")
+    v.m3(-1)
+    v.m3(6)
+    print($"m2 {v.m2}")
+    v.m1(-3)
+}
+
+void roS12(S12 v) {
+    print($"m4 {v.m4(-2)}")
+    print($"m4 {v.m4(-2)}")
+    print($"m2 {v.m2}")
+}
+
+void rwS12(ref S12 v) {
+    print($"m4 {v.m4(-2)}")
+    print($"m4 {v.m4(-2)}")
+    v.m3(-1)
+    v.m3(6)
+    print($"m2 {v.m2}")
+    v.m1(-3)
+}
+
+void roVia1<T>(T v) where T : IGen1 {
+    print($"m4 {v.m4(-2)}")
+    print($"m4 {v.m4(-2)}")
+    print($"m2 {v.m2}")
+}
+
+void rwVia1<T>(ref T v) where T : IGen1 {
+    print($"m4 {v.m4(-2)}")
+    print($"m4 {v.m4(-2)}")
+    v.m3(-1)
+    v.m3(6)
+    print($"m2 {v.m2}")
+    v.m1(-3)
+}
+
+void roDyn1(dyn ref readonly IGen1 v) {
+    print($"m4 {v.m4(-2)}")
+    print($"m4 {v.m4(-2)}")
+    print($"m2 {v.m2}")
+}
+
+void rwDyn1(dyn ref IGen1 v) {
+    print($"m4 {v.m4(-2)}")
+    print($"m4 {v.m4(-2)}")
+    v.m3(-1)
+    v.m3(6)
+    print($"m2 {v.m2}")
+    v.m1(-3)
+}
+
+void main() {
+    print("== direct")
+    {
+        var v = S00 { f0: -3, f1: -2 }
+        roS00(v)
+        rwS00(ref v)
+        print($"S00 {v.f0} {v.f1}")
+    }
+    {
+        var v = S01 { f0: 4, f1: 3 }
+        roS01(v)
+        rwS01(ref v)
+        print($"S01 {v.f0} {v.f1}")
+    }
+    {
+        var v = S10 { f0: 8, f1: 7 }
+        roS10(v)
+        rwS10(ref v)
+        print($"S10 {v.f0} {v.f1}")
+    }
+    {
+        var v = S11 { f0: -5, f1: 1 }
+        roS11(v)
+        rwS11(ref v)
+        print($"S11 {v.f0} {v.f1}")
+    }
+    {
+        var v = S12 { f0: 1, f1: -1 }
+        roS12(v)
+        rwS12(ref v)
+        print($"S12 {v.f0} {v.f1}")
+    }
+    print("== constraint")
+    {
+        var v = S00 { f0: -3, f1: -2 }
+        roVia0(v)
+        rwVia0(ref v)
+        print($"S00 {v.f0} {v.f1}")
+    }
+    {
+        var v = S01 { f0: 4, f1: 3 }
+        roVia0(v)
+        rwVia0(ref v)
+        print($"S01 {v.f0} {v.f1}")
+    }
+    {
+        var v = S10 { f0: 8, f1: 7 }
+        roVia1(v)
+        rwVia1(ref v)
+        print($"S10 {v.f0} {v.f1}")
+    }
+    {
+        var v = S11 { f0: -5, f1: 1 }
+        roVia1(v)
+        rwVia1(ref v)
+        print($"S11 {v.f0} {v.f1}")
+    }
+    {
+        var v = S12 { f0: 1, f1: -1 }
+        roVia1(v)
+        rwVia1(ref v)
+        print($"S12 {v.f0} {v.f1}")
+    }
+    print("== dyn")
+    {
+        var v = S00 { f0: -3, f1: -2 }
+        roDyn0(v)
+        rwDyn0(v)
+        print($"S00 {v.f0} {v.f1}")
+    }
+    {
+        var v = S01 { f0: 4, f1: 3 }
+        roDyn0(v)
+        rwDyn0(v)
+        print($"S01 {v.f0} {v.f1}")
+    }
+    {
+        var v = S10 { f0: 8, f1: 7 }
+        roDyn1(v)
+        rwDyn1(v)
+        print($"S10 {v.f0} {v.f1}")
+    }
+    {
+        var v = S11 { f0: -5, f1: 1 }
+        roDyn1(v)
+        rwDyn1(v)
+        print($"S11 {v.f0} {v.f1}")
+    }
+    {
+        var v = S12 { f0: 1, f1: -1 }
+        roDyn1(v)
+        rwDyn1(v)
+        print($"S12 {v.f0} {v.f1}")
+    }
+}

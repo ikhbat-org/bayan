@@ -6,8 +6,8 @@ release: 0.1.0
 sources: Q415
 kind: property
 scope: csharp/Bayan.Backend.C/CEmitter.cs
-proof: csharp/tests/Bayan.Tests/MapKeyLawTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/map-'
+proof: src/driver/goldenexport.byn
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l016-' --only 'run/map-'
 enacted: 2026-10-25
 ---
 
@@ -31,3 +31,5 @@ Mutations (`CEmitter`, restored after each run, `git diff` empty):
 - C: composites hash `byn_hash_bytes(&k, sizeof k)` again. 9 of 12 `EqualKeysAreOneEntry` seeds, 7 L003 seeds and `PaddedKeysBuiltApartAreOneEntry` failed. All of these failures come from the `string` parts: raw bytes hash the string's pointer. Under this mutation the padding program prints `1 1 1 2 1 1 2`, so the padding-only maps keep one entry. On zig cc and Apple clang (macOS arm64), no Bayan program I wrote gives equal keys different padding bytes, in debug or safe mode (Q415). So the padding half of the claim holds today by construction rather than being shown by a failing mutation.
 
 Measured 2026-10-25 on macOS arm64: 61 tests under the L003|L016 filter, about 30 s.
+
+Proof 2026-11-19 (spec 019 T31b): the proof is the 26 exported cases cli/MapKeyLawTests/l016-* (seeds 1..12 and the padded keys, both modes), expected output from the v0.3.2 C# export, run by `goldenCli` in src/driver/goldenexport.byn (the L006–L016 comment block); `run/map-` stays in the check. Lost in the export: the standalone `-Wall -Werror` compile. Broke it by making the struct equality and key hash helpers skip the last field (src/emitter/cprint/helpers.byn): 8 of 26 failed, e.g. `l016-seed-12-debug`.

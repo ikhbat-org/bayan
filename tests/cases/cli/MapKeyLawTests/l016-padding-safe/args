@@ -1,0 +1,4 @@
+run
+--mode
+safe
+<repo>/tmp/l016/padding-safe/main.byn

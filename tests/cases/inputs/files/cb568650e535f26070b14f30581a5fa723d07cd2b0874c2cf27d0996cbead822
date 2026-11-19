@@ -1,0 +1,111 @@
+string fn0(i64 p0) {
+    return $"{p0}-{p0}"
+}
+
+string call0(i64 a0, by (i64 -> string) f) => f(a0)
+
+string relay0(i64 a0, by (i64 -> string) f) => call0(a0, by: f)
+
+void host0Direct() {
+    let r: string = fn0(-9)
+    print($"c0 {r}")
+}
+
+void host0Local() {
+    let f: i64 -> string uses alloc = fn0
+    let r: string = f(-9)
+    print($"c0 {r}")
+}
+
+void host0Via1() {
+    let r: string = call0(-9, by: fn0)
+    print($"c0 {r}")
+}
+
+void host0Via2() {
+    let r: string = relay0(-9, by: fn0)
+    print($"c0 {r}")
+}
+
+string call1(by (() -> string) f) => f()
+
+string relay1(by (() -> string) f) => call1(by: f)
+
+void host1Direct() {
+    let r: string = $"{7}-{5}"
+    print($"c1 {r}")
+}
+
+void host1Local() {
+    let f: () -> string uses alloc = () => {
+        return $"{7}-{5}"
+    }
+    let r: string = f()
+    print($"c1 {r}")
+}
+
+void host1Via1() {
+    let r: string = call1(by: () => {
+        return $"{7}-{5}"
+    })
+    print($"c1 {r}")
+}
+
+void host1Via2() {
+    let r: string = relay1(by: () => {
+        return $"{7}-{5}"
+    })
+    print($"c1 {r}")
+}
+
+i64 call2(by (() -> i64) f) => f()
+
+i64 relay2(by (() -> i64) f) => call2(by: f)
+
+void host2Direct(i64 q0) {
+    let k0: i64 = 4
+    let k1: i64 = q0 + 2
+    let r: i64 = k0 + k1 + 5
+    print($"c2 {r}")
+}
+
+void host2Local(i64 q0) {
+    let k0: i64 = 4
+    let k1: i64 = q0 + 2
+    let f: () -> i64 = () => k0 + k1 + 5
+    let r: i64 = f()
+    print($"c2 {r}")
+}
+
+void host2Via1(i64 q0) {
+    let k0: i64 = 4
+    let k1: i64 = q0 + 2
+    let r: i64 = call2(by: () => k0 + k1 + 5)
+    print($"c2 {r}")
+}
+
+void host2Via2(i64 q0) {
+    let k0: i64 = 4
+    let k1: i64 = q0 + 2
+    let r: i64 = relay2(by: () => k0 + k1 + 5)
+    print($"c2 {r}")
+}
+
+void main() {
+    print("== direct")
+    host0Direct()
+    host1Direct()
+    host2Direct(2)
+    print("== local")
+    host0Local()
+    host1Local()
+    host2Local(2)
+    print("== via1")
+    host0Via1()
+    host1Via1()
+    host2Via1(2)
+    print("== via2")
+    host0Via2()
+    host1Via2()
+    host2Via2(2)
+}

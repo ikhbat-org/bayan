@@ -1,0 +1,21 @@
+warning BYN2311: `l` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l006/switch-move-designation-with-a-nested-binding/main.byn:14:9
+
+  14 │     var l = Ledger { items: List<i64>() }
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 14 │     let l = Ledger { items: List<i64>() }
+     │    │     +++
+
+error BYN2790: pattern `Ledger { items: let it } whole` binds the same storage more than once in
+`switch move …`
+  --> <repo>/tmp/l006/switch-move-designation-with-a-nested-binding/main.byn:16:14
+
+  16 │         case Ledger { items: let it } whole:
+     │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     │
+  help: bind the whole value or its parts, not both
+
+✗ build failed: 1 error, 1 warning
+  explain: bayan explain BYN2790

@@ -6,8 +6,8 @@ release: 0.1.0
 sources: none recorded
 kind: invariant
 scope: csharp/Bayan.Semantics/Binding/BuiltinMembers.cs
-proof: csharp/tests/Bayan.Tests/MapModelTests.cs
-check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/map-'
+proof: src/driver/mapmodel.byn
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/map-' && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'map model: '
 enacted: 2026-10-20
 ---
 
@@ -16,3 +16,6 @@ After any sequence of `map[k] = v`, `remove`, `clear` and `slot(k)` on a `Map<K,
 
 ## Counterexample looks like
 `m[a] = 1; m[b] = 2; m.remove(a); m[a] = 3` iterating as `a, b` instead of `b, a`, `m.length` being 3 after it, or `m[c]` returning a default instead of panicking.
+
+## Proof notes
+Proof 2026-11-19 (spec 019 T31b): the proof is the `map model: ` test blocks of src/driver/mapmodel.byn, the port of all 49 MapModelTests (generated sources byte-equal with the C#, the same custom RNG and seeds), so no export is needed. The check runs them (49 passed) after the `run/map-` cases (12 passed); `--only 'map model: zzz-nomatch'` exits 2 (`no test name contains`). The re-insertion break was not rerun in this part.

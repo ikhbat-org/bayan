@@ -1,0 +1,6 @@
+# Commits scripts/ci/golden-commit-check.sh does not check (spec 019 R14): mixed golden-update commits that landed on
+# feat/019-dotnet-exit, where the pre-push hook does not run the check (it runs on pushes to dev and main), before the first
+# push of 019 to dev. One full sha per line; # starts a comment. A new mixed commit is split, not listed.
+5fb35f47a56d4955e792a09a075d20f3eb28fe82  # 019-t27p2a
+ab4f72f77452899a5e952c9c6904b9115b78dea1  # 019-t33
+2e635d6d6f40f3f926c8e6730072503f6dc2640e  # 019-t17c2

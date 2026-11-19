@@ -1,0 +1,36 @@
+// L023 (spec 019 T31c): random-corpus counterexample 07899, a token swap of tests/cases/diag/circular-field-default-generic.byn whose
+// instances each need a deeper one, and its `Owned` and `List` variants; the checker recursed until the stack ran out (exit 139). Since
+// Decision 2026-11-19 each is BYN2745. Bayan only: the frozen C# was not run on them.
+
+test "L023 07899: a struct whose field needs an ever-deeper instance of itself is BYN2745, not a crash" {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    print(failure) if failure != ""
+    assert(failure == "")
+    let inputs = [
+        "struct G<T> { G<Owned<T>>? g = Owned(G<T> {}) }\nlet x = G<i64> {}\n",
+        "struct G<T> { Owned<G<Owned<T>>>? g }\nlet x = G<i64> {}\n",
+        "struct G<T> { List<G<Owned<T>>> g }\nlet x = G<i64> {}\n",
+    ]
+    let root = Path.combine(Path.fullPath("tmp"), "l023-07899")
+    Io.createDirectory(root) catch {}
+    for i in 0..inputs.length {
+        // each input alone in its directory: a check reads the whole directory
+        let dir = Path.combine(root, $"{i}")
+        Io.createDirectory(dir) catch {}
+        Io.writeFile(Path.combine(dir, "a.byn"), inputs[i].bytes) catch { failure = $"cannot write {dir}/a.byn" }
+        assert(failure == "")
+        var args = List<string>()
+        args.append("check")
+        args.append("a.byn")
+        let none = List<u8>()
+        let o = goldenChild(exe, by: args, at: dir, from: none, through: ref failure, whole: true)
+        let shown = $"{o.stdout}{o.stderr}"
+        let reported = shown.contains(
+            "error BYN2745: `G<Owned<T>>` needs `G<Owned<Owned<T>>>`, itself with a larger type argument",
+        )
+        print($"{dir}/a.byn: {failure}\nexit {o.exitCode}\n{shown}") if failure != "" || o.exitCode != 1 || !reported
+            || shown.contains("panic:")
+        assert(failure == "" && o.exitCode == 1 && reported && !shown.contains("panic:"))
+    }
+}

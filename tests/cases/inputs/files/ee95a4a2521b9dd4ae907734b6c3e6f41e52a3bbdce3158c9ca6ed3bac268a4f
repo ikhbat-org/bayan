@@ -1,0 +1,1206 @@
+union error E { bad, }
+void step() fails E { }
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+void peek(List<i64> xs) {
+    print($"{xs.length}")
+}
+void bump(ref List<i64> xs) {
+    xs.append(1)
+}
+List<i64> fresh(i64 n) {
+    var xs = List<i64>()
+    xs.append(n)
+    return move xs
+}
+List<i64> pass(move List<i64> xs) {
+    return move xs
+}
+struct Ledger {
+    List<i64> items
+}
+union Slot {
+    empty
+    full(List<i64> items)
+}
+void g0() {
+    using let arena = Arena()
+    var t = 0
+    var v0: List<i64>? = fresh(4)
+    print($"{v0 is null}")
+    var v1: List<i64>? = move v0
+    print($"{v1 is null}")
+    if t % 3 == 0 {
+        var v2: List<i64>? = move v1
+        print($"{v2 is null}")
+    } else {
+        print($"{v1 is null}")
+    }
+    var v3 = List<List<i64>>()
+    v3.append(fresh(7))
+    var v4 = 0
+    while v4 < 1 {
+        t += 1
+        for v5 in 0..2 {
+            t += 1
+            v3 = List<List<i64>>()
+            v3.append(fresh(9))
+            for v6 in v3 { print($"{v6.length}") }
+        }
+        let v7 = v3[0].take()
+        v4 += 1
+    }
+    for v8 in 0..2 {
+        t += 1
+        if t > 1000 { return }
+        print($"{v3.length} {v3[0].length}")
+        v1 = fresh(8)
+    }
+    var v9 = 0
+    while v9 < 3 {
+        t += 1
+        print($"{v3.length} {v3[0].length}")
+        v3 = List<List<i64>>()
+        v3.append(fresh(6))
+        v0 = fresh(2)
+        v9 += 1
+    }
+    print($"{v3.length} {v3[0].length}")
+    if t % 2 == 0 {
+        if t % 3 == 0 {
+            for v10 in v3 { print($"{v10.length}") }
+        } else {
+            let v11 = Ledger { items: fresh(2) }
+            var v12 = List<List<i64>>()
+            v12.append(fresh(7))
+        }
+        for v13 in v3 { print($"{v13.length}") }
+    } else {
+        let v14 = fresh(5)
+        var v15 = Slot.full(fresh(8))
+        var v16 = 0
+        while v16 < 1 {
+            t += 1
+            let v17 = v3[0].take()
+            v16 += 1
+        }
+    }
+    var v18 = List<List<i64>>()
+    v18.append(fresh(4))
+    for v19 in v18 { print($"{v19.length}") }
+    print($"{v18.length} {v18[0].length}")
+    v3 = List<List<i64>>()
+    v3.append(fresh(6))
+    v0 = fresh(8)
+}
+
+void g1() {
+    using let arena = Arena()
+    var t = 1
+    var v0: List<i64>? = fresh(1)
+    print($"{v0 is null}")
+    var v1 = 0
+    while v1 < 1 {
+        t += 1
+        for v2 in 0..3 {
+            t += 1
+            let v3 = v0.take()
+            let v4 = v0.take()
+            var v5: List<i64>? = move v0
+            v0 = fresh(2)
+        }
+        if t % 3 == 0 {
+            let v6 = Slot.full(fresh(1))
+            switch move v6 {
+                case .full(let v7):
+                    consume(move v7)
+                default:
+                    print("empty")
+            }
+        } else {
+            if t > 1000 { return }
+        }
+        if t % 3 == 0 {
+            var v8: List<i64>? = move v0
+        } else {
+            print($"{v0 is null}")
+            print($"{v0 is null}")
+        }
+        v0 = fresh(2)
+        v1 += 1
+    }
+    if t > 1000 { return }
+    let v9 = Ledger { items: fresh(5) }
+    if t > 1000 { return }
+    var v10 = 0
+    while v10 < 2 {
+        t += 1
+        let v11 = v0.take()
+        v0 = fresh(9)
+        print($"{v9.items.length}")
+        v10 += 1
+    }
+    let v12 = v0.take()
+    var v13 = 0
+    while v13 < 1 {
+        t += 1
+        var v14: List<i64>? = move v0
+        if t % 4 == 0 {
+            let v15 = v14.take()
+            print($"{v15 is null}")
+        } else {
+            print($"{v9.items.length}")
+            print($"{v9.items.length}")
+        }
+        var v16: List<i64>? = move v14
+        v0 = fresh(5)
+        v13 += 1
+    }
+    var v17 = List<List<i64>>()
+    v17.append(fresh(6))
+    let v18 = v17[0].take()
+    let v19 = v0.take()
+    v0 = fresh(5)
+    for v20 in v17 { print($"{v20.length}") }
+    let v21 = v18.copy(to: arena)
+    var v22 = 0
+    while v22 < 3 {
+        t += 1
+        var v23 = move v17
+        if t > 1000 { return }
+        v17 = List<List<i64>>()
+        v17.append(fresh(8))
+        v22 += 1
+    }
+}
+
+void g2() {
+    using let arena = Arena()
+    var t = 2
+    if t > 1000 { return }
+    var v0 = 0
+    while v0 < 2 {
+        t += 1
+        var v1 = List<List<i64>>()
+        v1.append(fresh(3))
+        let v2 = fresh(0)
+        for v3 in v1 { print($"{v3.length}") }
+        v0 += 1
+    }
+    var v4 = Slot.full(fresh(6))
+    print($"{v4 is .empty}")
+    for v5 in 0..2 {
+        t += 1
+        print($"{v4 is .empty}")
+        print($"{v4 is .empty}")
+    }
+    if t % 2 == 0 {
+        var v6 = 0
+        while v6 < 2 {
+            t += 1
+            var v7 = Ledger { items: fresh(0) }
+            print($"{v7.items.length}")
+            var v8 = Slot.full(fresh(7))
+            v6 += 1
+        }
+        for v9 in 0..2 {
+            t += 1
+            print($"{v4 is .empty}")
+            switch move v4 {
+                case .full(let v10):
+                    consume(move v10)
+                default:
+                    print("empty")
+            }
+            var v11 = Slot.full(fresh(7))
+            v4 = Slot.full(fresh(0))
+        }
+    } else {
+        if t > 1000 { return }
+        if t > 1000 { return }
+    }
+    print($"{v4 is .empty}")
+    print($"{v4 is .empty}")
+    for v12 in 0..1 {
+        t += 1
+        var v13 = Ledger { items: fresh(8) }
+        switch move v4 {
+            case .full(let v14):
+                consume(move v14)
+            default:
+                print("empty")
+        }
+        v4 = Slot.full(fresh(7))
+    }
+    print($"{v4 is .empty}")
+    switch move v4 {
+        case .full(let v16) when v16.length > 0:
+            consume(move v16)
+        case .full(let v15):
+            consume(move v15)
+        default:
+            print("empty")
+    }
+    v4 = Slot.full(fresh(0))
+    if t % 3 == 0 {
+        print($"{v4 is .empty}")
+    } else {
+        print($"{v4 is .empty}")
+        var v17 = 0
+        while v17 < 1 {
+            t += 1
+            var v18 = Slot.full(fresh(6))
+            var v19 = fresh(2)
+            switch move v4 {
+                case .full(let v20):
+                    consume(move v20)
+                default:
+                    print("empty")
+            }
+            v4 = Slot.full(fresh(2))
+            v17 += 1
+        }
+        for v21 in 0..2 {
+            t += 1
+            switch move v4 {
+                case .full(let v23) when v23.length > 2:
+                    consume(move v23)
+                case .full(let v22):
+                    consume(move v22)
+                default:
+                    print("empty")
+            }
+            v4 = Slot.full(fresh(2))
+        }
+    }
+    print($"{v4 is .empty}")
+    for v24 in 0..1 {
+        t += 1
+        var v25 = move v4
+        switch move v25 {
+            case .full(let v26):
+                consume(move v26)
+            default:
+                print("empty")
+        }
+        if t % 4 == 0 {
+            v25 = Slot.full(fresh(5))
+        } else {
+            v25 = Slot.full(fresh(5))
+            switch move v25 {
+                case .full(let v27):
+                    consume(move v27)
+                default:
+                    print("empty")
+            }
+        }
+        v4 = Slot.full(fresh(1))
+    }
+    print($"{v4 is .empty}")
+}
+
+void g3() {
+    using let arena = Arena()
+    var t = 3
+    var v0 = fresh(1)
+    var v1 = move v0
+    print($"{v1.length}")
+    let v2 = Ledger { items: fresh(6) }
+    {
+        let v3 = v1.span
+        print($"{v3.length}")
+    }
+    let v4 = v1.take()
+    var v5 = move v2
+    var v6 = List<List<i64>>()
+    v6.append(fresh(5))
+    if t % 3 == 0 {
+        peek(v1)
+        for v7 in 0..1 {
+            t += 1
+            {
+                let v8 = v4.span
+                print($"{v8.length}")
+            }
+            let v9 = v6[0].take()
+        }
+    } else {
+        var v10 = move v5
+    }
+    var v11 = 0
+    while v11 < 3 {
+        t += 1
+        var v12 = pass(move v1)
+        var v13 = Ledger { items: fresh(2) }
+        print($"{v13.items.length}")
+        v1 = fresh(9)
+        v11 += 1
+    }
+    {
+        let v14 = v1.span
+        print($"{v14.length}")
+    }
+    var v15 = 0
+    while v15 < 2 {
+        t += 1
+        var v16 = move v1
+        var v17 = fresh(7)
+        let v18 = v16.copy(to: arena)
+        v1 = fresh(6)
+        v15 += 1
+    }
+    v5 = Ledger { items: fresh(8) }
+    print($"{v5.items.length}")
+    v0 = fresh(9)
+    consume(move v1)
+}
+
+void g4() {
+    using let arena = Arena()
+    var t = 4
+    if t % 2 == 0 {
+        let v0 = Slot.full(fresh(4))
+        if t % 4 == 0 {
+            let v1 = fresh(1)
+        } else {
+            var v2 = move v0
+        }
+    } else {
+        var v3 = Slot.full(fresh(7))
+    }
+    var v4 = 0
+    while v4 < 1 {
+        t += 1
+        if t % 4 == 0 {
+            var v5 = Ledger { items: fresh(9) }
+            v5 = Ledger { items: fresh(5) }
+        } else {
+            var v6 = Ledger { items: fresh(0) }
+            let v7 = v6.items.take()
+        }
+        let v8 = fresh(1)
+        print($"{v8.length}")
+        v4 += 1
+    }
+    var v9 = List<List<i64>>()
+    v9.append(fresh(6))
+    print($"{v9.length} {v9[0].length}")
+    print($"{v9.length} {v9[0].length}")
+    print($"{v9.length} {v9[0].length}")
+    for v10 in 0..3 {
+        t += 1
+        for v11 in v9 { print($"{v11.length}") }
+    }
+    v9 = List<List<i64>>()
+    v9.append(fresh(7))
+    print($"{v9.length} {v9[0].length}")
+    var v12 = 0
+    while v12 < 1 {
+        t += 1
+        var v13 = List<List<i64>>()
+        v13.append(fresh(6))
+        let v14 = v9[0].take()
+        print($"{v9.length} {v9[0].length}")
+        v12 += 1
+    }
+    var v15 = move v9
+    var v16 = 0
+    while v16 < 3 {
+        t += 1
+        let v17 = v15[0].take()
+        peek(v17)
+        v16 += 1
+    }
+    var v18: List<i64>? = fresh(8)
+    let v19 = Ledger { items: fresh(7) }
+    var v20 = 0
+    while v20 < 2 {
+        t += 1
+        if t % 3 == 0 {
+            print($"{v19.items.length}")
+        } else {
+            var v21 = List<List<i64>>()
+            v21.append(fresh(7))
+            print($"{v21.length} {v21[0].length}")
+            print($"{v18 is null}")
+        }
+        for v22 in 0..1 {
+            t += 1
+            let v23 = v18.take()
+        }
+        v20 += 1
+    }
+    print($"{v15.length} {v15[0].length}")
+}
+
+void g5() {
+    using let arena = Arena()
+    var t = 5
+    if t % 3 == 0 {
+        let v0 = Ledger { items: fresh(1) }
+    } else {
+        var v1: List<i64>? = fresh(1)
+        for v2 in 0..1 {
+            t += 1
+            print($"{v1 is null}")
+        }
+        if t % 2 == 0 {
+            print($"{v1 is null}")
+        } else {
+            print($"{v1 is null}")
+        }
+    }
+    var v3 = 0
+    while v3 < 1 {
+        t += 1
+        var v4 = List<List<i64>>()
+        v4.append(fresh(1))
+        v3 += 1
+    }
+    var v5: List<i64>? = fresh(5)
+    var v6 = Ledger { items: fresh(4) }
+    if t % 3 == 0 {
+        var v7: List<i64>? = move v5
+    } else {
+        var v8 = move v6
+        var v9 = move v8
+    }
+    if t % 3 == 0 {
+        v5 = fresh(9)
+        let v10 = v5.take()
+        v6 = Ledger { items: fresh(8) }
+    } else {
+        if t % 4 == 0 {
+            v5 = fresh(2)
+            print($"{v5 is null}")
+        } else {
+            let v11 = Slot.full(fresh(2))
+            v5 = fresh(4)
+            switch move v11 {
+                case .full(let v12):
+                    consume(move v12)
+                default:
+                    print("empty")
+            }
+        }
+        print($"{v5 is null}")
+        for v13 in 0..3 {
+            t += 1
+            print($"{v5 is null}")
+            print($"{v5 is null}")
+            print($"{v5 is null}")
+        }
+    }
+    var v14 = 0
+    while v14 < 3 {
+        t += 1
+        var v15: List<i64>? = move v5
+        if t % 4 == 0 {
+            print($"{v15 is null}")
+        } else {
+            if t > 1000 { return }
+            print($"{v15 is null}")
+            print($"{v15 is null}")
+        }
+        v5 = fresh(2)
+        v14 += 1
+    }
+    var v16 = List<List<i64>>()
+    v16.append(fresh(8))
+    if t % 3 == 0 {
+        let v17 = Slot.full(fresh(8))
+        v6 = Ledger { items: fresh(6) }
+    } else {
+        let v18 = v5.take()
+        v6 = Ledger { items: fresh(5) }
+    }
+    for v19 in v16 { print($"{v19.length}") }
+    let v20 = v16[0].take()
+    v6 = Ledger { items: fresh(6) }
+    print($"{v16.length} {v16[0].length}")
+    for v21 in 0..3 {
+        t += 1
+        var v22: List<i64>? = fresh(8)
+    }
+    {
+        let v23 = v20.span
+        print($"{v23.length}")
+    }
+    let v24 = fresh(6)
+}
+
+void g6() {
+    using let arena = Arena()
+    var t = 6
+    for v0 in 0..2 {
+        t += 1
+        var v1: List<i64>? = fresh(1)
+        for v2 in 0..2 {
+            t += 1
+            let v3 = v1.take()
+            let v4 = v1.take()
+        }
+        let v5 = v1.take()
+    }
+    var v6 = 0
+    while v6 < 3 {
+        t += 1
+        var v7 = List<List<i64>>()
+        v7.append(fresh(1))
+        v6 += 1
+    }
+    var v8: List<i64>? = fresh(6)
+    let v9 = v8.take()
+    print($"{v8 is null}")
+    var v10: List<i64>? = move v8
+    let v11 = Ledger { items: fresh(7) }
+    print($"{v9 is null}")
+    var v12 = 0
+    while v12 < 3 {
+        t += 1
+        print($"{v9 is null}")
+        var v13: List<i64>? = move v10
+        v10 = fresh(7)
+        v12 += 1
+    }
+    for v14 in 0..3 {
+        t += 1
+        if t % 2 == 0 {
+            print($"{v9 is null}")
+            if t > 1000 { return }
+        } else {
+            let v15 = v10.take()
+            let v16 = v10.take()
+        }
+        print($"{v10 is null}")
+        let v17 = Slot.full(fresh(3))
+    }
+    print($"{v10 is null}")
+    if t % 3 == 0 {
+        let v18 = v10.take()
+    } else {
+        var v19 = 0
+        while v19 < 3 {
+            t += 1
+            v10 = fresh(8)
+            var v20 = Slot.full(fresh(3))
+            v20 = Slot.full(fresh(9))
+            v19 += 1
+        }
+        print($"{v11.items.length}")
+    }
+    var v21 = fresh(8)
+    v8 = fresh(2)
+    print($"{v9 is null}")
+    var v22 = move v11
+}
+
+void g7() {
+    using let arena = Arena()
+    var t = 7
+    let v0 = Slot.full(fresh(1))
+    switch move v0 {
+        case .full(let v2) when v2.length > 2:
+            consume(move v2)
+        case .full(let v1):
+            consume(move v1)
+        default:
+            print("empty")
+    }
+    if t % 3 == 0 {
+        var v3 = 0
+        while v3 < 1 {
+            t += 1
+            var v4 = Ledger { items: fresh(0) }
+            v3 += 1
+        }
+        var v5: List<i64>? = fresh(1)
+        print($"{v5 is null}")
+    } else {
+        if t % 3 == 0 {
+            var v6: List<i64>? = fresh(4)
+        } else {
+            var v7: List<i64>? = fresh(8)
+            var v8: List<i64>? = fresh(2)
+            var v9: List<i64>? = move v8
+        }
+    }
+    var v10 = fresh(8)
+    v10.append(7)
+    if t % 4 == 0 {
+        v10.append(8)
+        print($"{v10.length}")
+    } else {
+        var v11: List<i64>? = fresh(5)
+        let v12 = v10.copy(to: arena)
+        if t % 4 == 0 {
+            print($"{v11 is null}")
+        } else {
+            var v13 = List<List<i64>>()
+            v13.append(fresh(5))
+            var v14 = move v12
+            print($"{v13.length} {v13[0].length}")
+        }
+    }
+    let v15 = v10.copy(to: arena)
+    print($"{v15.length}")
+    v10.append(3)
+    let v16 = v15.copy(to: arena)
+    v10.append(7)
+    var v17: List<i64>? = fresh(8)
+    let v18 = v16.copy(to: arena)
+    print($"{v18.length}")
+    print($"{v16.length}")
+    peek(v18)
+}
+
+void g8() {
+    using let arena = Arena()
+    var t = 8
+    var v0 = List<List<i64>>()
+    v0.append(fresh(5))
+    let v1 = v0[0].take()
+    print($"{v1.length}")
+    var v2 = move v0
+    var v3 = Slot.full(fresh(1))
+    let v4 = v2[0].take()
+    if v3 is .full(let v5) {
+        v0 = List<List<i64>>()
+        v0.append(fresh(1))
+        let v6 = v4.copy(to: arena)
+    }
+    let v7 = Ledger { items: fresh(3) }
+    v0 = List<List<i64>>()
+    v0.append(fresh(9))
+    print($"{v1.length}")
+    let v8 = v4.copy(to: arena)
+    print($"{v1.length}")
+    var v9 = Slot.full(fresh(8))
+    switch move v9 {
+        case .full(let v11) when v11.length > 1:
+            consume(move v11)
+        case .full(let v10):
+            consume(move v10)
+        default:
+            print("empty")
+    }
+    let v12 = v0[0].take()
+    let v13 = v0[0].take()
+}
+
+void g9() {
+    using let arena = Arena()
+    var t = 9
+    for v0 in 0..1 {
+        t += 1
+        if t % 2 == 0 {
+            let v1 = Slot.full(fresh(6))
+            print($"{v1 is .empty}")
+        } else {
+            if t > 1000 { return }
+        }
+        var v2 = 0
+        while v2 < 2 {
+            t += 1
+            let v3 = Slot.full(fresh(5))
+            v2 += 1
+        }
+    }
+    var v4: List<i64>? = fresh(4)
+    var v5 = Ledger { items: fresh(9) }
+    var v6: List<i64>? = fresh(3)
+    print($"{v4 is null}")
+    if t % 2 == 0 {
+        var v7 = move v5
+        let v8 = v4.take()
+    } else {
+        let v9 = fresh(6)
+        var v10: List<i64>? = move v4
+        var v11 = 0
+        while v11 < 2 {
+            t += 1
+            peek(v9)
+            let v12 = Ledger { items: fresh(9) }
+            v11 += 1
+        }
+    }
+    if t % 3 == 0 {
+        let v13 = v6.take()
+        if t % 2 == 0 {
+            let v14 = v6.take()
+            let v15 = v6.take()
+            var v16: List<i64>? = fresh(5)
+        } else {
+            var v17 = Ledger { items: fresh(0) }
+            var v18 = Ledger { items: fresh(0) }
+            var v19: List<i64>? = move v6
+        }
+        var v20: List<i64>? = move v13
+    } else {
+        var v21: List<i64>? = fresh(6)
+        var v22: List<i64>? = move v21
+        if t % 3 == 0 {
+            if t > 1000 { return }
+        } else {
+            let v23 = Ledger { items: fresh(2) }
+        }
+    }
+    v5 = Ledger { items: fresh(9) }
+    print($"{v5.items.length}")
+    let v24 = v5.items.take()
+    let v25 = v5.items.take()
+    var v26 = move v24
+    let v27 = v26.take()
+    var v28 = 0
+    while v28 < 3 {
+        t += 1
+        for v29 in 0..1 {
+            t += 1
+            let v30 = v26.copy(to: arena)
+        }
+        let v31 = v26.copy(to: arena)
+        let v32 = v26.take()
+        v28 += 1
+    }
+    print($"{v5.items.length}")
+    var v33 = move v27
+}
+
+void g10() {
+    using let arena = Arena()
+    var t = 10
+    var v0 = Slot.full(fresh(9))
+    if t % 2 == 0 {
+        print($"{v0 is .empty}")
+    } else {
+        var v1 = List<List<i64>>()
+        v1.append(fresh(7))
+    }
+    switch move v0 {
+        case .full(let v3) when v3.length > 2:
+            consume(move v3)
+        case .full(let v2):
+            consume(move v2)
+        default:
+            print("empty")
+    }
+    var v4 = fresh(7)
+    {
+        let v5 = v4.span
+        print($"{v5.length}")
+    }
+    let v6 = v4.copy(to: arena)
+    print($"{v6.length}")
+    var v7 = move v6
+    {
+        let v8 = v4.span
+        print($"{v8.length}")
+    }
+    v0 = Slot.full(fresh(3))
+    let v9 = v4.copy(to: arena)
+    v7.append(5)
+    print($"{v0 is .empty}")
+    var v10 = move v4
+    var v11 = move v7
+    if v0 is .full(let v12) {
+        for v13 in 0..1 {
+            t += 1
+            var v14 = move v11
+            print($"{v9.length}")
+            v14.append(4)
+            v11 = fresh(4)
+        }
+        var v15 = 0
+        while v15 < 2 {
+            t += 1
+            print($"{v10.length}")
+            v15 += 1
+        }
+    }
+}
+
+void g11() {
+    using let arena = Arena()
+    var t = 11
+    if t % 3 == 0 {
+        var v0: List<i64>? = fresh(8)
+        let v1 = v0.take()
+    } else {
+        if t > 1000 { return }
+    }
+    var v2 = 0
+    while v2 < 1 {
+        t += 1
+        var v3 = Slot.full(fresh(0))
+        v2 += 1
+    }
+    var v4 = Slot.full(fresh(6))
+    if t % 2 == 0 {
+        if v4 is .full(let v5) {
+            print($"{v4 is .empty}")
+        }
+    } else {
+        var v6 = move v4
+        let v7 = Ledger { items: fresh(8) }
+    }
+    if t % 3 == 0 {
+        var v8 = Slot.full(fresh(2))
+    } else {
+        for v9 in 0..1 {
+            t += 1
+            var v10 = List<List<i64>>()
+            v10.append(fresh(9))
+            print($"{v10.length} {v10[0].length}")
+            for v11 in v10 { print($"{v11.length}") }
+        }
+    }
+    var v12: List<i64>? = fresh(4)
+    print($"{v12 is null}")
+    let v13 = fresh(5)
+    var v14 = 0
+    while v14 < 2 {
+        t += 1
+        {
+            let v15 = v13.span
+            print($"{v15.length}")
+        }
+        v4 = Slot.full(fresh(4))
+        peek(v13)
+        v14 += 1
+    }
+    var v16 = 0
+    while v16 < 1 {
+        t += 1
+        var v17 = 0
+        while v17 < 3 {
+            t += 1
+            let v18 = v13.copy(to: arena)
+            print($"{v13.length}")
+            v17 += 1
+        }
+        print($"{v13.length}")
+        var v19 = 0
+        while v19 < 3 {
+            t += 1
+            var v20: List<i64>? = fresh(2)
+            var v21: List<i64>? = move v12
+            print($"{v13.length}")
+            v12 = fresh(5)
+            v19 += 1
+        }
+        v16 += 1
+    }
+    print($"{v12 is null}")
+    if t % 2 == 0 {
+        print($"{v13.length}")
+        print($"{v13.length}")
+        let v22 = v13.copy(to: arena)
+    } else {
+        {
+            let v23 = v13.span
+            print($"{v23.length}")
+        }
+        let v24 = v12.take()
+        var v25: List<i64>? = move v24
+    }
+    print($"{v12 is null}")
+    let v26 = Slot.full(fresh(0))
+    peek(v13)
+    print($"{v12 is null}")
+}
+
+void g12() {
+    using let arena = Arena()
+    var t = 12
+    if t % 2 == 0 {
+        if t > 1000 { return }
+        var v0: List<i64>? = fresh(9)
+    } else {
+        var v1 = Slot.full(fresh(6))
+        print($"{v1 is .empty}")
+        var v2 = move v1
+    }
+    if t % 3 == 0 {
+        if t % 4 == 0 {
+            let v3 = Slot.full(fresh(3))
+            var v4 = move v3
+            print($"{v4 is .empty}")
+        } else {
+            var v5 = List<List<i64>>()
+            v5.append(fresh(1))
+            var v6 = fresh(3)
+        }
+    } else {
+        var v7 = Slot.full(fresh(3))
+        var v8 = Ledger { items: fresh(4) }
+    }
+    if t > 1000 { return }
+    for v9 in 0..3 {
+        t += 1
+        for v10 in 0..2 {
+            t += 1
+            var v11 = Ledger { items: fresh(8) }
+        }
+        var v12 = Slot.full(fresh(5))
+        var v13 = move v12
+    }
+    var v14 = List<List<i64>>()
+    v14.append(fresh(2))
+    print($"{v14.length} {v14[0].length}")
+    if t % 2 == 0 {
+        for v15 in 0..2 {
+            t += 1
+            if t > 1000 { return }
+            var v16 = fresh(3)
+            v14 = List<List<i64>>()
+            v14.append(fresh(3))
+        }
+        var v17 = 0
+        while v17 < 3 {
+            t += 1
+            print($"{v14.length} {v14[0].length}")
+            v17 += 1
+        }
+    } else {
+        print($"{v14.length} {v14[0].length}")
+        print($"{v14.length} {v14[0].length}")
+    }
+    var v18 = move v14
+    for v19 in 0..1 {
+        t += 1
+        var v20 = move v18
+        for v21 in v20 { print($"{v21.length}") }
+        v18 = List<List<i64>>()
+        v18.append(fresh(2))
+    }
+    var v22 = 0
+    while v22 < 1 {
+        t += 1
+        var v23 = 0
+        while v23 < 2 {
+            t += 1
+            v14 = List<List<i64>>()
+            v14.append(fresh(8))
+            v23 += 1
+        }
+        v22 += 1
+    }
+    var v24 = move v18
+    var v25 = 0
+    while v25 < 3 {
+        t += 1
+        if t > 1000 { return }
+        var v26 = List<List<i64>>()
+        v26.append(fresh(0))
+        var v27 = move v26
+        v25 += 1
+    }
+    let v28 = v24[0].take()
+    var v29 = pass(move v28)
+    print($"{v29.length}")
+    print($"{v29.length}")
+}
+
+void g13() {
+    using let arena = Arena()
+    var t = 13
+    var v0 = Slot.full(fresh(3))
+    for v1 in 0..1 {
+        t += 1
+        print($"{v0 is .empty}")
+        print($"{v0 is .empty}")
+        v0 = Slot.full(fresh(6))
+    }
+    for v2 in 0..1 {
+        t += 1
+        let v3 = fresh(2)
+        var v4 = List<List<i64>>()
+        v4.append(fresh(0))
+        var v5 = Ledger { items: fresh(5) }
+    }
+    var v6 = fresh(7)
+    print($"{v0 is .empty}")
+    {
+        let v7 = v6.span
+        print($"{v7.length}")
+    }
+    {
+        let v8 = v6.span
+        print($"{v8.length}")
+    }
+    var v9 = List<List<i64>>()
+    v9.append(fresh(4))
+    let v10 = v6.take()
+    let v11 = v10.copy(to: arena)
+    for v12 in 0..3 {
+        t += 1
+        if t % 2 == 0 {
+            let v13 = v10.copy(to: arena)
+        } else {
+            let v14 = v9[0].take()
+        }
+        let v15 = fresh(2)
+    }
+    let v16 = v6.copy(to: arena)
+    var v17 = move v16
+    if v0 is .full(let v18) {
+        print($"{v10.length}")
+        let v19 = v6.take()
+    }
+    {
+        let v20 = v11.span
+        print($"{v20.length}")
+    }
+    peek(v6)
+}
+
+void g14() {
+    using let arena = Arena()
+    var t = 14
+    var v0 = 0
+    while v0 < 2 {
+        t += 1
+        if t % 4 == 0 {
+            let v1 = Slot.full(fresh(7))
+            switch move v1 {
+                case .full(let v3) when v3.length > 0:
+                    consume(move v3)
+                case .full(let v2):
+                    consume(move v2)
+                default:
+                    print("empty")
+            }
+        } else {
+            if t > 1000 { return }
+            var v4 = List<List<i64>>()
+            v4.append(fresh(1))
+        }
+        v0 += 1
+    }
+    var v5 = List<List<i64>>()
+    v5.append(fresh(8))
+    var v6 = 0
+    while v6 < 1 {
+        t += 1
+        let v7 = v5[0].take()
+        v6 += 1
+    }
+    if t % 3 == 0 {
+        let v8 = fresh(8)
+        {
+            let v9 = v8.span
+            print($"{v9.length}")
+        }
+        var v10 = move v5
+    } else {
+        if t % 4 == 0 {
+            var v11 = move v5
+        } else {
+            print($"{v5.length} {v5[0].length}")
+            print($"{v5.length} {v5[0].length}")
+            var v12: List<i64>? = fresh(6)
+        }
+    }
+    v5 = List<List<i64>>()
+    v5.append(fresh(1))
+    print($"{v5.length} {v5[0].length}")
+    if t % 2 == 0 {
+        var v13 = List<List<i64>>()
+        v13.append(fresh(6))
+    } else {
+        for v14 in v5 { print($"{v14.length}") }
+        print($"{v5.length} {v5[0].length}")
+        let v15 = v5[0].take()
+    }
+    var v16 = move v5
+    print($"{v16.length} {v16[0].length}")
+    var v17 = move v16
+    print($"{v17.length} {v17[0].length}")
+    print($"{v17.length} {v17[0].length}")
+    var v18 = move v17
+    let v19 = v18[0].take()
+    let v20 = v18[0].take()
+    for v21 in 0..1 {
+        t += 1
+        v16 = List<List<i64>>()
+        v16.append(fresh(0))
+        let v22 = v19.copy(to: arena)
+        print($"{v18.length} {v18[0].length}")
+    }
+}
+
+void g15() {
+    using let arena = Arena()
+    var t = 15
+    var v0 = fresh(0)
+    for v1 in 0..3 {
+        t += 1
+        v0.append(9)
+        {
+            let v2 = v0.span
+            print($"{v2.length}")
+        }
+    }
+    v0.append(9)
+    {
+        let v3 = v0.span
+        print($"{v3.length}")
+    }
+    var v4 = Slot.full(fresh(2))
+    let v5 = v0.take()
+    let v6 = Ledger { items: fresh(3) }
+    switch move v4 {
+        case .full(let v8) when v8.length > 2:
+            consume(move v8)
+        case .full(let v7):
+            consume(move v7)
+        default:
+            print("empty")
+    }
+    v0.append(5)
+    if t > 1000 { return }
+    v4 = Slot.full(fresh(3))
+    let v9 = v0.copy(to: arena)
+    switch move v4 {
+        case .full(let v11) when v11.length > 2:
+            consume(move v11)
+        case .full(let v10):
+            consume(move v10)
+        default:
+            print("empty")
+    }
+    if t % 2 == 0 {
+        var v12 = move v5
+        {
+            let v13 = v9.span
+            print($"{v13.length}")
+        }
+        peek(v0)
+    } else {
+        var v14 = move v6
+        let v15 = v9.copy(to: arena)
+        v4 = Slot.full(fresh(7))
+    }
+    var v16 = move v0
+    print($"{v16.length}")
+}
+
+void main() {
+    g0()
+    g1()
+    g2()
+    g3()
+    g4()
+    g5()
+    g6()
+    g7()
+    g8()
+    g9()
+    g10()
+    g11()
+    g12()
+    g13()
+    g14()
+    g15()
+}

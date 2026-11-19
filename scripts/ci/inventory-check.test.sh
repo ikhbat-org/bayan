@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Tests scripts/ci/inventory-check.sh on fixture trees under tmp/: a clean pass, then each failure alone (class with no row,
 # dropped row with no reason, also with the 8th column memberdata set, case count below the test count, frozen row in
-# csharp-internals), and the skip without EXPORT.tsv.
+# csharp-internals, a flat-case target naming a missing case or none), and the skip without EXPORT.tsv.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 fail() { echo "FAIL $1"; exit 1; }
@@ -56,6 +56,16 @@ expect "case count met" 0 "inventory-check: ok"
 rm -rf "$t/tests/cases/sem"
 printf 'AlphaTests\tsem\t3\t0\tno export: typed rows\n' >> "$t/tests/cases/EXPORT.tsv"
 expect "class not exported" 0
+
+good
+printf 'class\tkind\ttests\tcases\treason\n' > "$t/tests/cases/EXPORT.tsv"
+sed -i.bak 's/^AlphaTests.*/AlphaTests\ta\tcsharp-internals\t3\tsem\tsem\/flat-a,flat-b\tr/' "$t/tests/inventory-019.tsv"; rm "$t/tests/inventory-019.tsv.bak"
+mkdir -p "$t/tests/cases/sem/flat-b"; touch "$t/tests/cases/sem/flat-a.byn" "$t/tests/cases/sem/flat-a.diag"
+expect "flat cases named" 0 "inventory-check: ok"
+rm "$t/tests/cases/sem/flat-a.byn" "$t/tests/cases/sem/flat-a.diag"
+expect "flat case missing" 1 "row AlphaTests names case sem/flat-a, not found under tests/cases/sem"
+sed -i.bak 's/^AlphaTests\(.*\)\tsem\/flat-a,flat-b\t/AlphaTests\1\tsem\/\t/' "$t/tests/inventory-019.tsv"; rm "$t/tests/inventory-019.tsv.bak"
+expect "flat target naming nothing" 1 "row AlphaTests names case sem/, not found"
 
 good
 printf 'class\tkind\ttests\tcases\treason\n' > "$t/tests/cases/EXPORT.tsv"
