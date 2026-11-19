@@ -1,8 +1,8 @@
 // L023 (spec 019 T31c): random-corpus counterexample 07899, a token swap of tests/cases/diag/circular-field-default-generic.byn whose
 // instances each need a deeper one, and its `Owned` and `List` variants; the checker recursed until the stack ran out (exit 139). Since
-// Decision 2026-11-19 each is BYN2763. Bayan only: the frozen C# was not run on them.
+// Decision 2026-11-19 each is BYN2745. Bayan only: the frozen C# was not run on them.
 
-test "L023 07899: a struct whose field needs an ever-deeper instance of itself is BYN2763, not a crash" {
+test "L023 07899: a struct whose field needs an ever-deeper instance of itself is BYN2745, not a crash" {
     var failure = ""
     let exe = goldenExe(through: ref failure)
     print(failure) if failure != ""
@@ -26,7 +26,9 @@ test "L023 07899: a struct whose field needs an ever-deeper instance of itself i
         let none = List<u8>()
         let o = goldenChild(exe, by: args, at: dir, from: none, through: ref failure, whole: true)
         let shown = $"{o.stdout}{o.stderr}"
-        let reported = shown.contains("error BYN2763: `G` needs an instance of itself")
+        let reported = shown.contains(
+            "error BYN2745: `G<Owned<T>>` needs `G<Owned<Owned<T>>>`, itself with a larger type argument",
+        )
         print($"{dir}/a.byn: {failure}\nexit {o.exitCode}\n{shown}") if failure != "" || o.exitCode != 1 || !reported
             || shown.contains("panic:")
         assert(failure == "" && o.exitCode == 1 && reported && !shown.contains("panic:"))

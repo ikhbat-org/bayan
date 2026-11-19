@@ -1,5 +1,5 @@
-error BYN2763: `G` needs an instance of itself at ever-deeper type arguments: more than 64 nested
-instances
+error BYN2745: `G<Owned<T>>` needs `G<Owned<Owned<T>>>`, itself with a larger type argument, without
+end
 
   1 │ struct G<T> { Owned<G<Owned<T>>>? g }
     │        ^

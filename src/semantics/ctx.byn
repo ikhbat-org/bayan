@@ -520,6 +520,8 @@ public struct Ctx {
     public Map<string, i64>    instanceKeys             = []
     /// C# `_instantiating`: depth of `Instantiating` calls.
     public i64                 instantiating            = 0
+    /// Bayan only (L023): `(template, instance)` of each struct or union instance whose members are being declared, outermost first.
+    public List<(Type, Type)>  declaringInstances       = []
     /// C# `_instantiationSite`: whether it is set, and its file and span.
     public bool                hasInstantiationSite     = false
     public FileId              instantiationSiteFile    = -1
