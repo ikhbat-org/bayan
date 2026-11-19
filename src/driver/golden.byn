@@ -952,7 +952,7 @@ i32 goldenTest(
         return exitUsage
     }
     if count > 1 {
-        cases = goldenShardCases(in cases, at: index, by: count, through: goldenShardSplit)
+        cases = goldenShardCases(cases, at: index, by: count, through: goldenShardSplit)
     }
     let snap = snapshot ?? Env.get("BAYAN_SNAPSHOT") ?? ""
     if snap != "" {
@@ -1044,7 +1044,7 @@ string goldenShardGroup(string kind, for string name) uses alloc {
 /// programs they share, are in one shard and a shard prebuilds only its own classes' programs; a larger group's case j (in case order within
 /// the group) is in shard (group + j) mod `count`. The listing (`goldenDiscover`) gives a class's cases one after another, so a group starts
 /// where the previous case's group differs.
-List<GoldenCase> goldenShardCases(in List<GoldenCase> cases, at i64 index, by i64 count, through i64 split) uses alloc {
+List<GoldenCase> goldenShardCases(List<GoldenCase> cases, at i64 index, by i64 count, through i64 split) uses alloc {
     var sizes = List<i64>()
     var size: i64 = 0
     var last = ""
@@ -2784,7 +2784,7 @@ test "BAYAN_TEST_SHARD puts all cases of one class in one shard, a flat case bei
     var total = 0
     for i in 0..3 {
         var sb = StrBuf()
-        for c in goldenShardCases(in cases, at: i, by: 3, through: goldenShardSplit) {
+        for c in goldenShardCases(cases, at: i, by: 3, through: goldenShardSplit) {
             sb.append($"{c.input} ")
             total += 1
         }
@@ -2810,7 +2810,7 @@ test "BAYAN_TEST_SHARD spreads a group over the split threshold over the shards 
     var total = 0
     for i in 0..3 {
         var sb = StrBuf()
-        for c in goldenShardCases(in cases, at: i, by: 3, through: 2) {
+        for c in goldenShardCases(cases, at: i, by: 3, through: 2) {
             sb.append($"{c.input} ")
             total += 1
         }
