@@ -1,0 +1,53 @@
+/// `names` as one phrase: `A`, `A and B`, or `A, B and C`.
+string phrase(List<string> names) {
+    var text = StrBuf()
+    for i in 0..names.length {
+        if i == names.length - 1 && i > 0 {
+            text.append(" and ")
+        } else if i > 0 {
+            text.append(", ")
+        }
+        text.append(names[i])
+    }
+    return text.finish().copy()
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var cooks = List<string>()
+    var dishes = List<string>()
+    var order = List<string>()
+    var seen = Map<string, bool>()
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            fields.append(part)
+        }
+        if fields.length != 2 {
+            print($"skipped: {text}")
+            continue
+        }
+        cooks.append(fields[0])
+        dishes.append(fields[1])
+        if !seen.contains(fields[1]) {
+            seen[fields[1]] = true
+            order.append(fields[1])
+        }
+    }
+    for dish in order {
+        var names = List<string>()
+        for i in 0..dishes.length {
+            if dishes[i] == dish {
+                names.append(cooks[i])
+            }
+        }
+        print($"{dish}: {phrase(names)}")
+    }
+    print($"dishes: {order.length}")
+}

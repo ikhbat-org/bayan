@@ -1,0 +1,40 @@
+/// `a` divided by `b`, rounded down, for `b` above 0.
+i64 floorDiv(i64 a, by i64 b) {
+    let q = a / b
+    return a % b < 0 ? q - 1 : q
+}
+
+/// The remainder of `floorDiv`, from 0 up to `b`.
+i64 floorMod(i64 a, by i64 b) {
+    let r = a % b
+    return r < 0 ? r + b : r
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    let day: i64 = 24 * 60
+    let week = 7 * day
+    var moved: i64 = 0
+    for line in read.value.lines {
+        var fields = List<string>()
+        for part in line.parts(by: " ") {
+            continue if part.isEmpty
+            fields.append(part)
+        }
+        continue if fields.length != 3
+        let clock = fields[1]
+        let shift = i64.tryParse(fields[2]) ?? 0
+        let hours = i64.tryParse(clock[0..2]) ?? 0
+        let minutes = i64.tryParse(clock[3..5]) ?? 0
+        let total = hours * 60 + minutes + shift
+        let rest = floorMod(total, by: day)
+        let days = floorDiv(total, by: day)
+        print($"{fields[0]} {clock} -> {rest / 60, width: 2, fill: '0'}:{rest % 60, width: 2, fill: '0'} day {days}")
+        moved += shift
+    }
+    print($"moved {moved} minutes, {floorDiv(moved, by: week)} weeks and {floorMod(moved, by: week)} minutes")
+}

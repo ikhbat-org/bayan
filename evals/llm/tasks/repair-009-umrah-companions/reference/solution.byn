@@ -1,0 +1,58 @@
+/// One line of the sign-up sheet.
+struct Pilgrim {
+    string name
+    /// The companion the pilgrim brings, or "" for none.
+    string companion
+}
+
+/// Whether `name` is in `names`.
+bool has(List<string> names, for string name) {
+    for n in names {
+        return true if n == name
+    }
+    return false
+}
+
+/// The companion `name` signed up with, or "" for none.
+string companionOf(List<Pilgrim> pilgrims, for string name) {
+    for p in pilgrims {
+        return p.companion if p.name == name
+    }
+    return ""
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var pilgrims = List<Pilgrim>()
+    var group = List<string>()
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            fields.append(part)
+        }
+        continue if fields.length > 2 || has(group, for: fields[0])
+        let companion = fields.length == 2 ? fields[1] : ""
+        pilgrims.append(Pilgrim { name: fields[0], companion: companion })
+        group.append(fields[0])
+    }
+    var extra = List<string>()
+    for name in group {
+        let companion = companionOf(pilgrims, for: name)
+        continue if companion.isEmpty || has(group, for: companion) || has(extra, for: companion)
+        extra.append(companion)
+    }
+    for name in extra {
+        group.append(name)
+    }
+    var seat: i64 = 0
+    for name in group {
+        seat += 1
+        print($"{seat}. {name}")
+    }
+}

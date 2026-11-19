@@ -1,0 +1,99 @@
+/// What an amount in the ledger counts as.
+public enum Kind {
+    gold
+    silver
+    cash
+    debt
+}
+
+/// One owner's sums.
+public struct Holding {
+    string owner
+    i64    wealth
+    i64    debts
+}
+
+/// The zakat ledger: holdings in the order their owners first appear.
+public struct Ledger {
+    i64 nisab
+    List<Holding> holdings
+}
+
+/// The kind a word names, if any.
+public Kind? kindNamed(string word) {
+    return .gold if word == "gold"
+    return .silver if word == "silver"
+    return .cash if word == "cash"
+    return .debt if word == "debt"
+    return null
+}
+
+/// An empty ledger with the nisab `nisab`.
+public Ledger newLedger(i64 nisab) uses alloc => Ledger { nisab: nisab, holdings: List<Holding>() }
+
+/// Adds `amount` of `kind` to the holding of `owner`.
+public void record(ref Ledger ledger, for string owner, as Kind kind, by i64 amount) uses alloc {
+    var at: i64 = -1
+    for i in 0..ledger.holdings.length {
+        at = i if ledger.holdings[i].owner == owner
+    }
+    if at < 0 {
+        ledger.holdings.append(Holding { owner: owner, wealth: 0, debts: 0 })
+        at = ledger.holdings.length - 1
+    }
+    switch kind {
+        case .debt: ledger.holdings[at].debts += amount
+        default: ledger.holdings[at].wealth += amount
+    }
+}
+
+/// What `holding` is worth after its debts.
+public i64 netOf(Holding holding) => holding.wealth - holding.debts
+
+/// Reads the ledger from standard input, or null when it cannot be read.
+public Ledger? readLedger() uses alloc, console {
+    let read = Io.stdin.readAll()
+    return null if !read.isOk
+    var ledger = newLedger(0)
+    var first = true
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        if first {
+            ledger.nisab = i64.tryParse(text) ?? 0
+            first = false
+            continue
+        }
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            fields.append(part)
+        }
+        continue if fields.length != 3
+        let kind = kindNamed(fields[1])
+        let amount = i64.tryParse(fields[2]) ?? -1
+        continue if kind is null || amount < 0
+        record(ref ledger, for: fields[0], as: kind, by: amount)
+    }
+    return ledger
+}
+
+/// Prints one line per owner.
+public void report(Ledger ledger) uses console {
+    for holding in ledger.holdings {
+        let net = netOf(holding)
+        if net < ledger.nisab {
+            print($"{holding.owner}: below nisab")
+        } else {
+            print($"{holding.owner}: zakat {net / 40}")
+        }
+    }
+}
+
+void main() {
+    let ledger = readLedger()
+    if ledger is null {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    report(ledger)
+}

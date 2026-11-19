@@ -1,0 +1,127 @@
+Library library() {
+    var books = List<Book>()
+    books.append(Book { code: "B1", holder: "" })
+    books.append(Book { code: "B2", holder: "Zaynab" })
+    books.append(Book { code: "B3", holder: "" })
+    books.append(Book { code: "B4", holder: "" })
+    var members = List<Member>()
+    members.append(Member { name: "Aisha", limit: 2, holding: 0 })
+    members.append(Member { name: "Bilal", limit: 1, holding: 1 })
+    members.append(Member { name: "Zaynab", limit: 3, holding: 1 })
+    return Library { books: move books, members: move members }
+}
+
+List<string> listOf(string joined) {
+    var list = List<string>()
+    for part in joined.parts(by: "|") {
+        list.append(part)
+    }
+    return list
+}
+
+string outcome(ref Library lib, for string request) {
+    lend(ref lib, for: request) catch switch {
+        BookError e   => return explainBook(e),
+        MemberError e => return explainMember(e),
+    }
+    return "lent"
+}
+
+string holdersOf(Library lib) {
+    var text = ""
+    for book in lib.books {
+        text = $"{text}{book.code}={book.holder};"
+    }
+    return text
+}
+
+string holdingsOf(Library lib) {
+    var text = ""
+    for member in lib.members {
+        text = $"{text}{member.name}={member.holding};"
+    }
+    return text
+}
+
+test "explainBook says why a book was refused" {
+    assert explainBook(BookError.unknownBook(code: "Q7")) == "no book Q7"
+    assert explainBook(BookError.onLoan(holder: "Hamza")) == "on loan to Hamza"
+}
+
+test "explainMember says why a member was refused" {
+    assert explainMember(MemberError.unknownMember(name: "Hamza")) == "no member Hamza"
+    assert explainMember(MemberError.atLimit(limit: 7)) == "limit of 7 reached"
+}
+
+test "lend gives the book to the member" {
+    var lib = library()
+    try lend(ref lib, for: "B1 Aisha")
+    assert holdersOf(lib) == "B1=Aisha;B2=Zaynab;B3=;B4=;"
+    assert holdingsOf(lib) == "Aisha=1;Bilal=1;Zaynab=1;"
+    try lend(ref lib, for: "B3 Aisha")
+    assert holdingsOf(lib) == "Aisha=2;Bilal=1;Zaynab=1;"
+}
+
+test "lend checks the member first" {
+    var lib = library()
+    assert lend(ref lib, for: "B1 Hamza") fails MemberError.unknownMember
+    assert lend(ref lib, for: "B9 Hamza") fails MemberError.unknownMember
+    assert lend(ref lib, for: "B2 aisha") fails MemberError.unknownMember
+    assert outcome(ref lib, for: "B9 Hamza") == "no member Hamza"
+}
+
+test "lend refuses a book it does not have" {
+    var lib = library()
+    assert lend(ref lib, for: "B9 Aisha") fails BookError.unknownBook
+    assert lend(ref lib, for: "b1 Aisha") fails BookError.unknownBook
+    assert outcome(ref lib, for: "B9 Bilal") == "no book B9"
+}
+
+test "lend refuses a book on loan before the limit" {
+    var lib = library()
+    assert lend(ref lib, for: "B2 Aisha") fails BookError.onLoan
+    assert outcome(ref lib, for: "B2 Bilal") == "on loan to Zaynab"
+    assert outcome(ref lib, for: "B2 Zaynab") == "on loan to Zaynab"
+}
+
+test "lend refuses a member at the limit" {
+    var lib = library()
+    assert lend(ref lib, for: "B1 Bilal") fails MemberError.atLimit
+    assert outcome(ref lib, for: "B1 Bilal") == "limit of 1 reached"
+}
+
+test "a refused request changes nothing" {
+    var lib = library()
+    let _ = outcome(ref lib, for: "B1 Hamza")
+    let _ = outcome(ref lib, for: "B9 Aisha")
+    let _ = outcome(ref lib, for: "B2 Aisha")
+    let _ = outcome(ref lib, for: "B1 Bilal")
+    assert holdersOf(lib) == "B1=;B2=Zaynab;B3=;B4=;"
+    assert holdingsOf(lib) == "Aisha=0;Bilal=1;Zaynab=1;"
+}
+
+test "lendAll keeps each refusal in order" {
+    var lib = library()
+    let report = lendAll(
+        ref lib,
+        from: listOf("B1 Aisha|B1 Zaynab|B3 Hamza|B9 Zaynab|B3 Aisha|B4 Aisha|B4 Bilal|B4 Zaynab"),
+    )
+    assert report.lent == 3
+    assert report.bookErrors.length == 2
+    assert explainBook(report.bookErrors[0]) == "on loan to Aisha"
+    assert explainBook(report.bookErrors[1]) == "no book B9"
+    assert report.memberErrors.length == 3
+    assert explainMember(report.memberErrors[0]) == "no member Hamza"
+    assert explainMember(report.memberErrors[1]) == "limit of 2 reached"
+    assert explainMember(report.memberErrors[2]) == "limit of 1 reached"
+    assert holdersOf(lib) == "B1=Aisha;B2=Zaynab;B3=Aisha;B4=Zaynab;"
+    assert holdingsOf(lib) == "Aisha=2;Bilal=1;Zaynab=2;"
+}
+
+test "lendAll of no requests lends nothing" {
+    var lib = library()
+    let report = lendAll(ref lib, from: List<string>())
+    assert report.lent == 0
+    assert report.bookErrors.length == 0
+    assert report.memberErrors.length == 0
+}

@@ -1,0 +1,46 @@
+# Nightly and on-demand re-check of every dev task of the LLM eval set (spec 025 R29, T31): each reference must score all
+# four results on the commit under test. The ci job's step took 5 min 39 s at 40 tasks (run 44477075278, 2026-11-19), over the
+# spec's 3 minutes, so ci.yml re-checks the 12 tasks of evals/llm/smoke.txt on every push and the whole set runs here.
+# Linux only, like the ci step. It only measures: it never commits or pushes.
+name: llm-eval-nightly
+
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: llm-eval-nightly-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  recheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # A CI checkout has no local `dev`, so pin the commit under test, as ci.yml does.
+    env:
+      PINNED_BAYAN_REF: HEAD
+    steps:
+      # Replaces actions/checkout (spec 015 handoff, T4): the exact commit at depth 1. The repo is public, so no token.
+      - name: Checkout
+        shell: bash
+        run: |
+          git init -q .
+          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q --detach FETCH_HEAD
+      # Replaces actions/setup-dotnet: the SDK pinned in install-dotnet.sh, sha512-checked. pinned-bayan.sh builds the CLI with it.
+      - name: Install .NET SDK
+        shell: bash
+        run: |
+          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
+          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
+          echo "$dotnet_root" >> "$GITHUB_PATH"
+      # The scorer copies zig into its tools directory and compiles every reference with it; no runner image has it.
+      - name: Install zig
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      - name: LLM eval re-check (whole set)
+        run: bash scripts/bayan-tool.sh llm-eval recheck evals/llm/tasks

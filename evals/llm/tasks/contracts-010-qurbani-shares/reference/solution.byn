@@ -1,0 +1,54 @@
+/// A share of a qurbani cow: one to seven.
+type distinct Shares = i32 requires it in 1..=7
+
+/// One family's part of a cow, paid at 900 a share.
+struct Booking {
+    string family
+        requires it.runeCount in 1..=16
+    Shares shares
+    i64 paid
+        requires it >= 0
+    requires paid >= shares.value * 900
+}
+
+/// A cow and how many of its seven shares are taken.
+struct Cow {
+    i32 taken
+        requires it in 0..=7
+}
+
+Booking booking(string family, for i32 shares, by i64 paid) fails ValidationError<Shares>, ValidationError<Booking> {
+    return try Booking { family: family, shares: try Shares(shares), paid: paid }
+}
+
+/// What is paid beyond the price of the shares.
+i64 change(Booking b) => b.paid - b.shares.value * 900
+
+/// One line saying whether the booking was taken.
+string verdict(string family, for i32 shares, by i64 paid) {
+    let b = booking(family, for: shares, by: paid) catch switch {
+        ValidationError<Shares> e  => return $"refused {family}: shares",
+        ValidationError<Booking> e => return $"refused {family}: booking",
+    }
+    return $"booked {b.family}: {b.shares.value} shares, change {change(b)}"
+}
+
+/// A cow with no share taken.
+Cow emptyCow() => Cow { taken: 0 }
+
+/// The cow after one more booking.
+Cow added(Cow cow, by Booking b) fails ValidationError<Cow> {
+    return try cow with { taken: cow.taken + b.shares.value }
+}
+
+/// The cow after each booking in turn, stopping at the first that does not fit.
+Cow addedAll(Cow cow, from List<Booking> bookings) fails ValidationError<Cow> {
+    var current = cow
+    for b in bookings {
+        current = try added(current, by: b)
+    }
+    return current
+}
+
+/// Shares still free on the cow.
+i32 sharesLeft(Cow cow) => 7 - cow.taken
