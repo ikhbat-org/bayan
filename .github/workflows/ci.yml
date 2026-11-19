@@ -43,6 +43,12 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: bash scripts/ci/freeze-check.sh HEAD
+      # The API indexes and the printer boundary hold in src/ (spec 019 T30d, the C# scan tests as scripts). The libc list
+      # check (scripts/ci/libc-inventory-check.sh) waits until runtime/libc-uses.txt lists `_read`.
+      - name: Source and doc scans
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bash scripts/ci/api-index-check.sh && bash scripts/ci/printer-boundary-check.sh
       # The tests cross-compile and `bayan doctor` expects zig; no runner image has it. Windows has no cc, so zig builds stage 0.
       - name: Install zig
         shell: bash
