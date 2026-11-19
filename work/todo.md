@@ -1074,3 +1074,7 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 T30f, 2026-11-19): the `typed-dump` golden kind (src/driver/golden.byn, `goldenDumpCases`) is discovered only when the cases root has a `typed/` folder; a root with only `run/` gets no determinism cases.
 - LOW (019 T30f, 2026-11-19): `scripts/ci/inventory-check.sh` does not count compound dispositions in tests/inventory-019.tsv, so a row with one is skipped without a report.
 - LOW (019 T30f, 2026-11-19): `bayan test tests/cases --only typed` also selects the `typed-dump/` cases (prefix match); `--only 'typed/'` is needed to pick the 18 alone.
+- LOW (019 T30e, 2026-11-19): the T30e brief names src/tests/SelfhostDriverStyleEnvironmentTests.cs; the class is in src/tests/SelfhostDriverTests.cs:1630.
+- LOW (019 T30e, 2026-11-19): no builtin reads a file mode, so `scaffold: a script with an empty PATH panics at chmod` reads the execute bits from `ls -l`.
+- LOW (019 T30e, 2026-11-19): the frame counts in `style env: the timer draws as Progress does` come from one run of the v0.3.2 C# Progress; the block allows 2 frames up to one more than that run for waits of 400 ms or more, as the C# test does, so a slow host can still fail it.
+- LOW (019 T30e, 2026-11-19): `Io.run` reports a child that panics through a signal as the `.signaled` error, not as a non-zero exit, so a bare `catch` in a test reports "cannot run" instead of the panic; goldenChild maps it to an exit code.
