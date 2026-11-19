@@ -142,7 +142,7 @@ T67 deletes csharp/, src/tests/*.cs and Bayan.slnx (tests/Bayan.Tests/ is not tr
 | L006 | csharp/tests/Bayan.Tests/L006OwnershipGuardTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
 | L007 | csharp/tests/Bayan.Tests/L007UntrustedSinkTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
 | L008 | csharp/tests/Bayan.Tests/L008OwnershipRuntimeTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
-| L009 | csharp/tests/Bayan.Tests/TypedDumpTests.cs | src/driver/golden.byn (`goldenTyped`, :292) |
+| L009 | csharp/tests/Bayan.Tests/TypedDumpTests.cs | src/driver/golden.byn (`goldenTyped`, :383): one typed dump per tests/cases/typed case, compared with its frozen `.types`. It leaves out the rest of the C# `DumpIsDeterministic` (typed and run cases): the second dump, the dump of a copy in another directory, and every tests/cases/run case (open: R11 inventory debt, TypedDumpTests) |
 | L010 | csharp/tests/Bayan.Tests/L010Utf8DecodeTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
 | L011 | csharp/tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs | src/driver/golden.byn (style cases) |
 | L012 | csharp/tests/Bayan.Tests/L012InterfaceDispatchTests.cs | swapped 2026-11-19 (T31b share C): src/driver/goldenexport.byn (the L006–L016 comment above `goldenCli`) |
