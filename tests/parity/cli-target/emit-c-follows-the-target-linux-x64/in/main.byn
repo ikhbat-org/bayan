@@ -1,0 +1,1 @@
+print($"{Target.os}-{Target.arch}")

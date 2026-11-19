@@ -1,0 +1,1 @@
+$ $BAYAN build --emit-c main.byn > c.txt; echo "build $?"; grep -F -e 'byn_hash_seed_init' -e '--test' c.txt; rm c.txt

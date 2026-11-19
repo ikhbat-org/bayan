@@ -1572,6 +1572,9 @@ string goldenProgramsFake(
     by ref List<string> files
 )
         uses alloc, clock, env, fs, process {
+    if Target.os == "windows" {
+        todo("the fake driver and program are `sh` scripts")
+    }
     let root = Path.combine(Path.fullPath("tmp"), $"golden-programs-{tag}")
     deleteWorkDir(root)
     goldenWrite(root, for: "stdout", as: stdout)
@@ -1811,6 +1814,9 @@ test "an emit-c harness case runs bayan-emit without `build` and `--emit-c` (Sel
 }
 
 test "an emit-c T7 case compares the section its name ends with, the thunk case on its local (SelfhostEmitterT7Tests.cs:352-360, :515-522)" {
+    if Target.os == "windows" {
+        todo("the fake driver and program are `sh` scripts")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-programs-t7")
     deleteWorkDir(root)
     goldenWrite(
@@ -1835,6 +1841,9 @@ test "an emit-c T7 case compares the section its name ends with, the thunk case 
 }
 
 test "an emit-c case with `input.name` runs on its input staged under that name, which `args` and the C name; without it the plain name" {
+    if Target.os == "windows" {
+        todo("the fake driver and program are `sh` scripts")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-programs-original")
     deleteWorkDir(root)
     goldenWrite(root, for: "prog", as: "#!/bin/sh\necho \"$@\"\nfor a; do :; done\ncat \"$a\"\n")
@@ -2085,6 +2094,9 @@ test "a parse case runs bayan-parse on its input (SelfhostParserTests.cs:501-512
 /// A fake driver at `root`/bayan: `build` adds its `-o` path as a line of `root`/builds, sleeps `sleep` seconds and puts the shell program
 /// `body` there; any other command is `$BAYAN_EXE`'s, with `BAYAN_EXE` naming the fake so a case child builds through it too. Its path.
 string goldenPrebuildFake(string root, as string body, for string sleep) uses alloc, env, fs, process {
+    if Target.os == "windows" {
+        todo("the fake driver and program are `sh` scripts")
+    }
     var failure = ""
     let real = goldenExe(through: ref failure)
     goldenWrite(root, for: "prog", as: $"#!/bin/sh\n{body}\n")

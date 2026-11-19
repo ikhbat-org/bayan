@@ -1,0 +1,5 @@
+struct Target {
+    i32 os
+}
+let t: Target = Target { os: 1 }
+print($"{t.os}")

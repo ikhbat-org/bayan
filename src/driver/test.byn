@@ -1056,7 +1056,9 @@ test "a golden run's summary states both counts and its results.json lists each 
         args.append(a)
     }
     let o = t11Through(root, by: in args)
-    let results = Io.readText(Path.combine(root, "out/test/results.json")) catch ""
+    let json = Io.readText(Path.combine(root, "out/test/results.json")) catch ""
+    // results.json keeps native separators (spec 019 T41b): on Windows each `\\` of a path is read as `/`
+    let results = Target.os == "windows" ? json.replaced("\\\\", by: "/") : json
     let written = Fs.fileExists(Path.combine(root, "cases/out/test/results.json"))
     deleteWorkDir(root)
     assert(o.exitCode == exitTestFailure)
@@ -1091,7 +1093,9 @@ test "a golden run with --json writes only the report, the same entries as resul
     assert(o.stdout.contains(
         "\"status\": \"pass\",\n      \"durationMs\": 0,\n      \"output\": \"\",\n      \"kind\": \"golden\"",
     ))
-    assert(o.stdout.contains("\"caseKind\": \"run\",\n      \"path\": \"cases/run/b-fails.byn\""))
+    // native separators kept: on Windows each `\\` of a path is read as `/`
+    let slashed = Target.os == "windows" ? o.stdout.replaced("\\\\", by: "/") : o.stdout
+    assert(slashed.contains("\"caseKind\": \"run\",\n      \"path\": \"cases/run/b-fails.byn\""))
     assert(!o.stdout.contains("running ") && !o.stdout.contains("golden cases ·"))
 }
 

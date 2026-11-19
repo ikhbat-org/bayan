@@ -1,6 +1,6 @@
 name: release
 
-# A v* tag builds the NativeAOT compiler on each target's own runner and opens a draft GitHub Release with the
+# A v* tag builds the self-hosted compiler (from bootstrap/bayan.c, no .NET) on each target's own runner and opens a draft GitHub Release with the
 # archives and SHA256SUMS; publishing the draft is a manual step. Decision 2026-11-02 (handoff progress log).
 on:
   push:
@@ -53,29 +53,23 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: bash scripts/docs/check.sh
-      - name: Install .NET SDK
-        shell: bash
-        env:
-          DOTNET_RID: ${{ matrix.rid }}
-        run: |
-          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
-          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
-          echo "$dotnet_root" >> "$GITHUB_PATH"
-      - name: Publish (NativeAOT)
-        run: dotnet publish csharp/Bayan.Cli -c Release -r ${{ matrix.rid }} -o publish
-      # The shipped `bayan` is the self-hosted compiler (spec 017): the C# build above only bootstraps it. Stage 1 is
-      # the driver built by the C# compiler, stage 2 the driver built by stage 1, native for this runner (no --target).
-      # The C# `build` needs a C compiler; zig is the one the memory-gate job installs.
+      # No .NET (spec 019 R24): zig is the C compiler where a runner has no cc (Windows) and the cross-build driver.
       - name: Install zig
         shell: bash
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
-      - name: Build stage 1
+      # The shipped `bayan` is the self-hosted compiler (spec 017, 019 R25). Stage 0 is bootstrap/bayan.c built by a C
+      # compiler, stage 1 is src/driver built by stage 0 (scripts/bootstrap-build.sh), stage 2 is src/driver built by
+      # stage 1, native for this runner (no --target).
+      - name: Build stage 1 from the bootstrap
         shell: bash
-        run: ./publish/${{ matrix.exe }} build --mode safe --package src -o "$RUNNER_TEMP/stage1-${{ matrix.exe }}" src/driver
+        run: |
+          s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }
+          echo "STAGE1=$s1" >> "$GITHUB_ENV"
       - name: Build stage 2 (the shipped bayan)
         shell: bash
         run: |
-          "$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package src -o publish/${{ matrix.exe }} src/driver
+          mkdir -p publish
+          "$STAGE1" build --mode safe --package src -o publish/${{ matrix.exe }} src/driver
       - name: Smoke test
         shell: bash
         run: ./publish/${{ matrix.exe }} --version | grep -F "bayan $(cat VERSION) (selfhost)"
@@ -106,12 +100,7 @@ jobs:
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
-      - name: Install .NET SDK
-        shell: bash
-        run: |
-          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
-          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
-          echo "$dotnet_root" >> "$GITHUB_PATH"
+      # No .NET (spec 019 R24): the bayan-lsp bounds run on the Bayān server since T38b; the pinned bayan comes from the bootstrap.
       - name: Install zig
         shell: bash
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
