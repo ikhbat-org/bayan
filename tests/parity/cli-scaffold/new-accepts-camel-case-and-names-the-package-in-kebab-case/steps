@@ -1,0 +1,2 @@
+new	$WORK/myApp	--vcs	none
+$ grep -F "name: \"local/my-app\"" myApp/package.byn

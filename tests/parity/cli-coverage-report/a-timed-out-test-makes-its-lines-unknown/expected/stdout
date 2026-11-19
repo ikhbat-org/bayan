@@ -1,0 +1,130 @@
+== 1 exit 0
+created app `local/tally` in `tally`
+
+  cd tally
+  bayan run
+  bayan test
+== 2 exit 0
+== 3 exit 3
+running 2 tests in 1 module
+
+  ✗ app: spin
+      timed out after 2 s
+
+◆ 1 passed · ✗ 1 failed · 0 pending · #s
+  rerun the failure: bayan test --only "spin"
+coverage: lines 1/5 (20%), branches 1/4 (25%), error paths 1/2 (50%)
+  src/app/main.byn: lines 1/5, branches 1/4, error paths 1/2
+unknown branch: src/app/main.byn:7:16 never false
+unknown branch: src/app/main.byn:8:16 never true
+unknown branch: src/app/main.byn:8:16 never false
+unknown error path: src/app/main.byn: f E.b
+== 4 exit 0
+{
+  "version": 1,
+  "kind": "coverage",
+  "tool": "bayan test --coverage",
+  "timing": {
+    "build_s": 0,
+    "total_s": 0
+  },
+  "files": [
+    {
+      "path": "src/app/main.byn",
+      "lines": {
+        "covered": 1,
+        "total": 5,
+        "missed": [],
+        "unknown": [
+          8,
+          9,
+          21,
+          24
+        ]
+      },
+      "branches": {
+        "covered": 1,
+        "total": 4,
+        "missed": [],
+        "unknown": [
+          {
+            "line": 7,
+            "column": 16,
+            "outcome": false
+          },
+          {
+            "line": 8,
+            "column": 16,
+            "outcome": true
+          },
+          {
+            "line": 8,
+            "column": 16,
+            "outcome": false
+          }
+        ]
+      },
+      "errorPaths": [
+        {
+          "function": "f",
+          "variant": "E.a",
+          "hit": true,
+          "origins": [
+            "fail 7:5"
+          ]
+        },
+        {
+          "function": "f",
+          "variant": "E.b",
+          "hit": false,
+          "unknown": true,
+          "origins": []
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "lines": {
+      "covered": 1,
+      "total": 5
+    },
+    "branches": {
+      "covered": 1,
+      "total": 4
+    },
+    "errorPaths": {
+      "covered": 1,
+      "total": 2
+    }
+  }
+}
+== 5 exit 0
+  union error E {
+      a
+      b
+  }
+  
+  i64 f(i64 n) fails E {
++     fail .a if n < 0
+~     fail .b if n > 100
+~     return n
+  }
+  
+  test "negative" {
+      let r = f(-1) catch switch {
+          E.a => 1,
+          E.b => 2
+      }
+      assert(r == 1)
+  }
+  
+  i64 unused() {
+~     return 7
+  }
+  
+~ print("x")
+  
+  test "spin" {
+      while true {
+      }
+  }

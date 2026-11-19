@@ -1,0 +1,24 @@
+union error E {
+    a
+    b
+}
+
+i64 f(i64 n) fails E {
+    fail .a if n < 0
+    fail .b if n > 100
+    return n
+}
+
+test "negative" {
+    let r = f(-1) catch switch {
+        E.a => 1,
+        E.b => 2
+    }
+    assert(r == 1)
+}
+
+i64 unused() {
+    return 7
+}
+
+print("x")

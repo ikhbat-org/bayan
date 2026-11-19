@@ -1,0 +1,5 @@
+new	tally	--vcs	none
+$ rm tally/tests/app.test.byn; mv main.byn tally/src/app/main.byn
+test	--mode	debug	tally
+$ test -f tally/out/test/bayan-quality.json && echo "bayan-quality.json written" || echo "no bayan-quality.json"
+test	--mode	debug	--coverage	tally

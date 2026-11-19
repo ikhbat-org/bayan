@@ -1,0 +1,3 @@
+run	$WORK/s/main.byn	-v
+run	$WORK/s/main.byn	--verbose
+run	$WORK/s/main.byn	--all

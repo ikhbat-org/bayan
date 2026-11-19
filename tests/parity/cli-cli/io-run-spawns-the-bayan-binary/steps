@@ -1,0 +1,1 @@
+$ printf "#!/bin/sh\nexec %s \"\$@\"\n" "$BAYAN" > b.sh; chmod +x b.sh; $BAYAN run p/main.byn -- "$PWD/b.sh"

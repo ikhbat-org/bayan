@@ -1,0 +1,3 @@
+types	$WORK/s/main.byn	-v
+types	$WORK/s/main.byn	--verbose
+types	$WORK/s/main.byn	--all

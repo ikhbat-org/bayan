@@ -1,0 +1,8 @@
+== 1 exit 0
+created app `local/tally` in `$WORK/tally`
+
+  cd $WORK/tally
+  bayan run
+  bayan test
+== 2 exit 0
+== 3 exit 1

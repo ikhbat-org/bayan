@@ -1,0 +1,14 @@
+== 1 exit 0
+created app `local/tally` in `tally`
+
+  cd tally
+  bayan run
+  bayan test
+== 2 exit 0
+build 0
+Salam, world!
+run 0
+== 3 exit 0
+running 1 test in 1 module
+
+◆ 1 passed · #s
