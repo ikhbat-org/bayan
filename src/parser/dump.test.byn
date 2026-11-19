@@ -1,0 +1,46 @@
+// SelfhostParserT11Tests.cs (019 T30e): the declaration and statement halves of the tree dump; the expected text is the C#
+// test's.
+
+import lexer
+
+// SelfhostParserT11Tests.cs:45 `DumpWritesDeclarationsAndStatements`, expected text at :84-96.
+test "parser t11: the dump writes declarations and statements" {
+    var bytes = List<u8>()
+    for b in "import a.b".bytes {
+        bytes.append(b)
+    }
+    let source = SourceText.create("t", from: move bytes)
+    var p = Parser.create(lexer.lex(move source, by: Keywords.build()))
+    var path = List<TextSpan>()
+    path.append(TextSpan { start: 7, length: 1 })
+    path.append(TextSpan { start: 9, length: 1 })
+    var members = List<Decl>()
+    members.append(Decl.importDecl(Owned(ImportDecl { span: TextSpan { start: 0, length: 10 }, path: move path, alias: TextSpan { start: 7, length: 1 } })))
+    members.append(Decl.associatedTypeDecl(Owned(AssociatedTypeDecl { span: TextSpan { start: 0, length: 0 }, name: TextSpan { start: 9, length: 1 } })))
+    var stmts = List<Stmt>()
+    stmts.append(Stmt.emptyStmt(Owned(EmptyStmt { span: TextSpan { start: 0, length: 0 } })))
+    stmts.append(Stmt.breakStmt(Owned(BreakStmt { span: TextSpan { start: 0, length: 0 }, label: null })))
+    members.append(Decl.globalStatement(Owned(GlobalStatement {
+        span: TextSpan { start: 0, length: 0 },
+        statement: Stmt.blockStmt(Owned(BlockStmt { span: TextSpan { start: 0, length: 0 }, statements: move stmts })),
+    })))
+    let unit = CompilationUnit { span: TextSpan { start: 0, length: 10 }, members: move members }
+    var sb = StrBuf()
+    dump(in unit, from: ref p, to: ref sb)
+    sb.append($"[{mods(modifierPublic | modifierReadonly)}]\n")
+    sb.append($"{bindingKindText(.letKeyword)}\n")
+    sb.append($"{assignText(.add)}\n")
+    let expected = """
+            CompilationUnit
+              Import a.b as a
+              AssociatedType b
+              Block
+                Empty
+                Break
+            [public readonly ]
+            Let
+            +=
+
+            """
+    assert sb.finish() == expected
+}

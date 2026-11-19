@@ -1,0 +1,124 @@
+// SelfhostParserT8Tests.cs (019 T30e): the self-contained parts of stmts2.byn; the expected text is the C# test's.
+
+import lexer
+
+/// SelfhostParserT8Tests.cs:50 `probe`.
+string t8Probe(string src) uses alloc {
+    var bytes = List<u8>()
+    for b in src.bytes {
+        bytes.append(b)
+    }
+    let source = SourceText.create("t", from: move bytes)
+    let keywords = Keywords.build()
+    let result = lexer.lex(move source, by: keywords)
+    var p = Parser.create(move result)
+    let op = tryAssignOp(ref p)
+    if (op is { } v) {
+        return $"{v}"
+    }
+    return "none"
+}
+
+/// SelfhostParserT8Tests.cs:62 `gotoKind`.
+string t8GotoKind(string src) uses alloc {
+    var bytes = List<u8>()
+    for b in src.bytes {
+        bytes.append(b)
+    }
+    let source = SourceText.create("t", from: move bytes)
+    let keywords = Keywords.build()
+    let result = lexer.lex(move source, by: keywords)
+    var p = Parser.create(move result)
+    let stmt = parseGoto(ref p, at: p.current().start)
+    switch stmt {
+        case .breakStmt(let b):
+            if b.value.label is null {
+                return "break"
+            }
+            return "breakLabeled"
+        case .errorStmt(_):
+            return "error"
+        default:
+            return "?"
+    }
+}
+
+/// SelfhostParserT8Tests.cs:81 `spanExpr`.
+string t8SpanExpr() uses alloc {
+    let lit = Expr.literalExpr(Owned(LiteralExpr {
+        span: TextSpan { start: 3, length: 5 },
+        kind: .integer,
+        text: "1",
+        suffix: null,
+    }))
+    let s = exprSpan(in lit)
+    return $"expr {s.start} {s.end}"
+}
+
+/// SelfhostParserT8Tests.cs:92 `spanPattern`.
+string t8SpanPattern() uses alloc {
+    let d = Pattern.discardPattern(Owned(DiscardPattern { span: TextSpan { start: 7, length: 2 } }))
+    let s = patternSpan(in d)
+    return $"pattern {s.start} {s.end}"
+}
+
+/// SelfhostParserT8Tests.cs:98 `stmtExprs`.
+string t8StmtExprs() uses alloc {
+    let call = Expr.callExpr(Owned(CallExpr {
+        span: TextSpan { start: 0, length: 1 },
+        callee: Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 0, length: 1 }, typeArgs: List<TypeSyntax>() })),
+        args: List<Argument>(),
+        becauseKeyword: null,
+    }))
+    let name = Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 0, length: 1 }, typeArgs: List<TypeSyntax>() }))
+    let jump = Expr.jumpExpr(Owned(JumpExpr { span: TextSpan { start: 0, length: 1 }, jump: Stmt.breakStmt(Owned(BreakStmt { span: TextSpan { start: 0, length: 1 }, label: null })) }))
+    let left = Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 0, length: 1 }, typeArgs: List<TypeSyntax>() }))
+    let coal = Expr.binaryExpr(Owned(BinaryExpr { span: TextSpan { start: 0, length: 1 }, op: .coalesce, left: move left, right: move jump }))
+    let err = Expr.errorExpr(Owned(ErrorExpr { span: TextSpan { start: 0, length: 1 } }))
+    return $"call {isStatementExpression(in call)} name {isStatementExpression(in name)} coal {isStatementExpression(in coal)} err {isStatementExpression(in err)}"
+}
+
+/// SelfhostParserT8Tests.cs:113 `assignCheck`.
+string t8AssignCheck() uses alloc {
+    let bytes = List<u8>()
+    let source = SourceText.create("t", from: move bytes)
+    let keywords = Keywords.build()
+    let result = lexer.lex(move source, by: keywords)
+    var p = Parser.create(move result)
+    let before = p.errorCount()
+    let n = Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 0, length: 1 }, typeArgs: List<TypeSyntax>() }))
+    checkAssignable(ref p, for: in n)
+    let afterName = p.errorCount()
+    let l = Expr.literalExpr(Owned(LiteralExpr { span: TextSpan { start: 0, length: 1 }, kind: .integer, text: "1", suffix: null }))
+    checkAssignable(ref p, for: in l)
+    return $"name {afterName - before} literal {p.errorCount() - afterName}"
+}
+
+// SelfhostParserT8Tests.cs:45 `SelfContainedStatementsBuildAndRun`, expected text at :151-164.
+test "parser t8: self-contained statements build and run" {
+    var sb = StrBuf()
+    sb.append($"plusEquals {t8Probe("+=")}\n")
+    sb.append($"equals {t8Probe("=")}\n")
+    sb.append($"shl {t8Probe("<<=")}\n")
+    sb.append($"plus {t8Probe("+")}\n")
+    sb.append($"goto {t8GotoKind("goto")}\n")
+    sb.append($"gotoCase {t8GotoKind("goto case")}\n")
+    sb.append($"{t8SpanExpr()}\n")
+    sb.append($"{t8SpanPattern()}\n")
+    sb.append($"{t8StmtExprs()}\n")
+    sb.append($"{t8AssignCheck()}\n")
+    let expected = """
+            plusEquals add
+            equals assign
+            shl shl
+            plus none
+            goto break
+            gotoCase error
+            expr 3 8
+            pattern 7 9
+            call true name false coal true err true
+            name 0 literal 1
+
+            """
+    assert sb.finish() == expected
+}

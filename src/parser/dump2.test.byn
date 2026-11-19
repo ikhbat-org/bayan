@@ -1,0 +1,321 @@
+// SelfhostParserT12Tests.cs (019 T30e): the S-expression dump (dump2.byn) and the span walker (spans.byn) over built
+// nodes; the expected texts are the C# test's.
+
+import lexer
+
+// SelfhostParserT12Tests.cs:61 `DumpExprTypePatternAndCheckSpans`, expected text at :121-133.
+test "parser t12: dump an expression, a type and a pattern, and check spans" {
+    var all = StrBuf()
+    var bytes = List<u8>()
+    bytes.append(0x61)
+    bytes.append(0x2B)
+    bytes.append(0x62)
+    var p = Parser.create(lexer.lex(SourceText.create("<test>", from: move bytes), by: Keywords.build()))
+    let left = Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 0, length: 1 }, typeArgs: List<TypeSyntax>() }))
+    let right = Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 2, length: 1 }, name: TextSpan { start: 2, length: 1 }, typeArgs: List<TypeSyntax>() }))
+    let bin = Expr.binaryExpr(Owned(BinaryExpr { span: TextSpan { start: 0, length: 3 }, op: .add, left: move left, right: move right }))
+    var sb = StrBuf()
+    dumpExpr(in bin, from: ref p, to: ref sb)
+    all.append($"expr {sb.finish()}\n")
+
+    var path = List<TextSpan>()
+    path.append(TextSpan { start: 0, length: 1 })
+    let ty = TypeSyntax.namedType(Owned(NamedType { span: TextSpan { start: 0, length: 1 }, path: move path, args: List<TypeSyntax>() }))
+    var tb = StrBuf()
+    dumpType(in ty, from: ref p, to: ref tb)
+    all.append($"type {tb.finish()}\n")
+
+    let pat = Pattern.varPattern(Owned(VarPattern { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 0, length: 1 }, isLet: true }))
+    var pb = StrBuf()
+    dumpPattern(in pat, from: ref p, to: ref pb)
+    all.append($"pattern {pb.finish()}\n")
+
+    var members = List<Decl>()
+    members.append(Decl.globalStatement(Owned(GlobalStatement {
+        span: TextSpan { start: 0, length: 3 },
+        statement: Stmt.exprStmt(Owned(ExprStmt { span: TextSpan { start: 0, length: 3 }, expr: move bin })),
+    })))
+    let unit = CompilationUnit { span: TextSpan { start: 0, length: 3 }, members: move members }
+    var cb = StrBuf()
+    checkSpans(in unit, until: 3, to: ref cb)
+    all.append($"spans [{cb.finish()}]\n")
+
+    var bad = List<Decl>()
+    var badPath = List<TextSpan>()
+    badPath.append(TextSpan { start: 12, length: 3 })
+    bad.append(Decl.importDecl(Owned(ImportDecl { span: TextSpan { start: 0, length: 10 }, path: move badPath, alias: null })))
+    let badUnit = CompilationUnit { span: TextSpan { start: 0, length: 15 }, members: move bad }
+    var bb = StrBuf()
+    checkSpans(in badUnit, until: 15, to: ref bb)
+    all.append($"bad [{bb.finish()}]\n")
+
+    var big = List<Decl>()
+    big.append(Decl.importDecl(Owned(ImportDecl { span: TextSpan { start: 0, length: 10 }, path: List<TextSpan>(), alias: null })))
+    let bigUnit = CompilationUnit { span: TextSpan { start: 0, length: 10 }, members: move big }
+    var bc = StrBuf()
+    checkSpans(in bigUnit, until: 3, to: ref bc)
+    all.append($"big [{bc.finish()}]\n")
+    let expected = """
+            expr (+ a b)
+            type a
+            pattern (let a)
+            spans []
+            bad [span out of range: importDecl path 12+3 outside 0+10
+            ]
+            big [span out of range: compilationUnit 0+10
+            span out of range: importDecl 0+10
+            ]
+
+            """
+    assert all.finish() == expected
+}
+
+/// SelfhostParserT12Tests.cs:147 `mkName`.
+Expr t12MkName(i64 pos) uses alloc => Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: pos, length: 1 }, name: TextSpan { start: pos, length: 1 }, typeArgs: List<TypeSyntax>() }))
+/// SelfhostParserT12Tests.cs:148 `mkInt`.
+Expr t12MkInt(i64 v) uses alloc => Expr.literalExpr(Owned(LiteralExpr { span: TextSpan { start: 0, length: 1 }, kind: .integer, text: $"{v}", suffix: null }))
+/// SelfhostParserT12Tests.cs:149 `mkNamed`.
+TypeSyntax t12MkNamed(i64 pos) uses alloc => TypeSyntax.namedType(Owned(NamedType { span: TextSpan { start: pos, length: 1 }, path: [TextSpan { start: pos, length: 1 }], args: List<TypeSyntax>() }))
+/// SelfhostParserT12Tests.cs:150 `mkDiscard`.
+Pattern t12MkDiscard() uses alloc => Pattern.discardPattern(Owned(DiscardPattern { span: TextSpan { start: 0, length: 1 } }))
+/// SelfhostParserT12Tests.cs:151 `exprStr`.
+string t12ExprStr(in Expr e, from ref Parser p) uses alloc {
+    var s = StrBuf()
+    dumpExpr(in e, from: ref p, to: ref s)
+    return $"{s.finish()}"
+}
+/// SelfhostParserT12Tests.cs:156 `typeStr`.
+string t12TypeStr(in TypeSyntax t, from ref Parser p) uses alloc {
+    var s = StrBuf()
+    dumpType(in t, from: ref p, to: ref s)
+    return $"{s.finish()}"
+}
+/// SelfhostParserT12Tests.cs:161 `patternStr`.
+string t12PatternStr(in Pattern pat, from ref Parser p) uses alloc {
+    var s = StrBuf()
+    dumpPattern(in pat, from: ref p, to: ref s)
+    return $"{s.finish()}"
+}
+/// SelfhostParserT12Tests.cs:166 `bytesOf`.
+List<u8> t12BytesOf(string text) uses alloc {
+    var result = List<u8>()
+    for i in 0..text.length { result.append(text.bytes[i]) }
+    return result
+}
+
+// SelfhostParserT12Tests.cs:143 `DumpCoversEveryExprTypeAndPatternCase`, expected text at :248-320.
+test "parser t12: the dump covers every expression, type and pattern case" {
+    var all = StrBuf()
+    var p = Parser.create(lexer.lex(SourceText.create("<t>", from: t12BytesOf("abcdfxytTm")), by: Keywords.build()))
+    all.append(t12ExprStr(in t12MkName(5), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in t12MkInt(1), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.nameExpr(Owned(NameExpr { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 5, length: 1 }, typeArgs: [t12MkNamed(8)] })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.thisExpr(Owned(ThisExpr { span: TextSpan { start: 0, length: 1 } })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.memberExpr(Owned(MemberExpr { span: TextSpan { start: 0, length: 1 }, target: t12MkName(5), member: TextSpan { start: 9, length: 1 }, nullConditional: false, typeArgs: List<TypeSyntax>() })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.memberExpr(Owned(MemberExpr { span: TextSpan { start: 0, length: 1 }, target: t12MkName(5), member: TextSpan { start: 9, length: 1 }, nullConditional: true, typeArgs: List<TypeSyntax>() })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.targetMemberExpr(Owned(TargetMemberExpr { span: TextSpan { start: 0, length: 1 }, member: TextSpan { start: 9, length: 1 } })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.callExpr(Owned(CallExpr { span: TextSpan { start: 0, length: 1 }, callee: t12MkName(4), args: List<Argument>(), becauseKeyword: null })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.callExpr(Owned(CallExpr { span: TextSpan { start: 0, length: 1 }, callee: t12MkName(4), args: [Argument { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 6, length: 1 }, modifier: .none, value: t12MkInt(2) }, Argument { span: TextSpan { start: 0, length: 1 }, name: null, modifier: .refKeyword, value: t12MkName(5) }], becauseKeyword: null })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.callExpr(Owned(CallExpr { span: TextSpan { start: 0, length: 1 }, callee: t12MkName(4), args: List<Argument>(), becauseKeyword: BecauseClause { span: TextSpan { start: 0, length: 1 }, reason: "r" } })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.indexExpr(Owned(IndexExpr { span: TextSpan { start: 0, length: 1 }, target: t12MkName(5), index: t12MkInt(1) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.unaryExpr(Owned(UnaryExpr { span: TextSpan { start: 0, length: 1 }, op: .negate, operand: t12MkName(5) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.binaryExpr(Owned(BinaryExpr { span: TextSpan { start: 0, length: 1 }, op: .add, left: t12MkName(5), right: t12MkName(6) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.rangeExpr(Owned(RangeExpr { span: TextSpan { start: 0, length: 1 }, start: .none, end: .none, inclusive: false })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.rangeExpr(Owned(RangeExpr { span: TextSpan { start: 0, length: 1 }, start: t12MkName(5), end: t12MkName(6), inclusive: true })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.conditionalExpr(Owned(ConditionalExpr { span: TextSpan { start: 0, length: 1 }, condition: t12MkName(5), whenTrue: t12MkInt(1), whenFalse: t12MkInt(2) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.castExpr(Owned(CastExpr { span: TextSpan { start: 0, length: 1 }, type: t12MkNamed(8), operand: t12MkName(5) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.isExpr(Owned(IsExpr { span: TextSpan { start: 0, length: 1 }, value: t12MkName(5), pattern: t12MkDiscard() })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.exceptExpr(Owned(ExceptExpr { span: TextSpan { start: 0, length: 1 }, value: t12MkName(5), pattern: t12MkDiscard() })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.inExpr(Owned(InExpr { span: TextSpan { start: 0, length: 1 }, value: t12MkName(5), range: t12MkName(6) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.switchExpr(Owned(SwitchExpr { span: TextSpan { start: 0, length: 1 }, value: t12MkName(5), arms: [SwitchArm { span: TextSpan { start: 0, length: 1 }, pattern: t12MkDiscard(), guard: .none, value: t12MkInt(1) }] })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.tryExpr(Owned(TryExpr { span: TextSpan { start: 0, length: 1 }, operand: t12MkName(5) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.moveExpr(Owned(MoveExpr { span: TextSpan { start: 0, length: 1 }, operand: t12MkName(5) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.catchExpr(Owned(CatchExpr { span: TextSpan { start: 0, length: 1 }, operand: t12MkName(5), binding: null, variant: .none, handler: t12MkName(6) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.caughtErrorExpr(Owned(CaughtErrorExpr { span: TextSpan { start: 0, length: 1 } })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.jumpExpr(Owned(JumpExpr { span: TextSpan { start: 0, length: 1 }, jump: Stmt.returnStmt(Owned(ReturnStmt { span: TextSpan { start: 0, length: 1 }, value: .none })) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.jumpExpr(Owned(JumpExpr { span: TextSpan { start: 0, length: 1 }, jump: Stmt.returnStmt(Owned(ReturnStmt { span: TextSpan { start: 0, length: 1 }, value: t12MkName(5) })) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.jumpExpr(Owned(JumpExpr { span: TextSpan { start: 0, length: 1 }, jump: Stmt.breakStmt(Owned(BreakStmt { span: TextSpan { start: 0, length: 1 }, label: null })) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.jumpExpr(Owned(JumpExpr { span: TextSpan { start: 0, length: 1 }, jump: Stmt.continueStmt(Owned(ContinueStmt { span: TextSpan { start: 0, length: 1 }, label: TextSpan { start: 9, length: 1 } })) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.jumpExpr(Owned(JumpExpr { span: TextSpan { start: 0, length: 1 }, jump: Stmt.failStmt(Owned(FailStmt { span: TextSpan { start: 0, length: 1 }, error: t12MkName(5) })) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.blockExpr(Owned(BlockExpr { span: TextSpan { start: 0, length: 1 }, block: Stmt.blockStmt(Owned(BlockStmt { span: TextSpan { start: 0, length: 1 }, statements: List<Stmt>() })) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.structLiteralExpr(Owned(StructLiteralExpr { span: TextSpan { start: 0, length: 1 }, type: .none, fields: List<FieldInit>() })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.withExpr(Owned(WithExpr { span: TextSpan { start: 0, length: 1 }, target: t12MkName(5), fields: List<FieldInit>() })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.spreadExpr(Owned(SpreadExpr { span: TextSpan { start: 0, length: 1 }, operand: t12MkName(5) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.mapEntryExpr(Owned(MapEntryExpr { span: TextSpan { start: 0, length: 1 }, key: t12MkInt(1), value: t12MkInt(2) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.collectionExpr(Owned(CollectionExpr { span: TextSpan { start: 0, length: 1 }, elements: [t12MkInt(1), t12MkInt(2)] })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.collectionExpr(Owned(CollectionExpr { span: TextSpan { start: 0, length: 1 }, elements: [Expr.mapEntryExpr(Owned(MapEntryExpr { span: TextSpan { start: 0, length: 1 }, key: t12MkInt(1), value: t12MkInt(2) }))] })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.tupleExpr(Owned(TupleExpr { span: TextSpan { start: 0, length: 1 }, elements: [TupleElement { span: TextSpan { start: 0, length: 1 }, name: null, value: t12MkInt(1) }, TupleElement { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 5, length: 1 }, value: t12MkInt(2) }] })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.parenExpr(Owned(ParenExpr { span: TextSpan { start: 0, length: 1 }, inner: t12MkName(5) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.lambdaExpr(Owned(LambdaExpr { span: TextSpan { start: 0, length: 1 }, params: [TextSpan { start: 5, length: 1 }], body: t12MkName(5), block: .none })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.stackallocExpr(Owned(StackallocExpr { span: TextSpan { start: 0, length: 1 }, element: t12MkNamed(8), count: t12MkInt(3) })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.patternExpr(Owned(PatternExpr { span: TextSpan { start: 0, length: 1 }, pattern: t12MkDiscard() })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.errorExpr(Owned(ErrorExpr { span: TextSpan { start: 0, length: 1 } })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.literalExpr(Owned(LiteralExpr { span: TextSpan { start: 0, length: 1 }, kind: .string, text: "a\"b", suffix: null })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.literalExpr(Owned(LiteralExpr { span: TextSpan { start: 0, length: 1 }, kind: .cString, text: "a", suffix: null })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.literalExpr(Owned(LiteralExpr { span: TextSpan { start: 0, length: 1 }, kind: .trueKeyword, text: "true", suffix: null })), from: ref p))
+    all.append("\n")
+    all.append(t12ExprStr(in Expr.interpolatedExpr(Owned(InterpolatedExpr { span: TextSpan { start: 0, length: 1 }, parts: [InterpolationPart.interpolationText(Owned(InterpolationText { span: TextSpan { start: 0, length: 1 }, text: "a" })), InterpolationPart.interpolationHole(Owned(InterpolationHole { span: TextSpan { start: 0, length: 1 }, expr: t12MkName(5), specs: List<Argument>() }))] })), from: ref p))
+    all.append("\n")
+    all.append(t12TypeStr(in t12MkNamed(0), from: ref p))
+    all.append("\n")
+    all.append(t12TypeStr(in TypeSyntax.namedType(Owned(NamedType { span: TextSpan { start: 0, length: 1 }, path: [TextSpan { start: 0, length: 1 }], args: [t12MkNamed(8)] })), from: ref p))
+    all.append("\n")
+    all.append(t12TypeStr(in TypeSyntax.optionalType(Owned(OptionalType { span: TextSpan { start: 0, length: 1 }, inner: t12MkNamed(0) })), from: ref p))
+    all.append("\n")
+    all.append(t12TypeStr(in TypeSyntax.arrayType(Owned(ArrayType { span: TextSpan { start: 0, length: 1 }, element: t12MkNamed(0), size: t12MkInt(3) })), from: ref p))
+    all.append("\n")
+    all.append(t12TypeStr(in TypeSyntax.tupleType(Owned(TupleType { span: TextSpan { start: 0, length: 1 }, elements: [TupleTypeElement { span: TextSpan { start: 0, length: 1 }, type: t12MkNamed(0), name: null }, TupleTypeElement { span: TextSpan { start: 0, length: 1 }, type: t12MkNamed(1), name: TextSpan { start: 7, length: 1 } }] })), from: ref p))
+    all.append("\n")
+    all.append(t12TypeStr(in TypeSyntax.functionTypeSyntax(Owned(FunctionTypeSyntax { span: TextSpan { start: 0, length: 1 }, params: [t12MkNamed(0)], returnKeyword: t12MkNamed(1), failsKeyword: null, usesKeyword: null })), from: ref p))
+    all.append("\n")
+    all.append(t12TypeStr(in TypeSyntax.dynType(Owned(DynType { span: TextSpan { start: 0, length: 1 }, isRef: true, isReadOnly: true, inner: t12MkNamed(0) })), from: ref p))
+    all.append("\n")
+    all.append(t12TypeStr(in TypeSyntax.refinedType(Owned(RefinedType { span: TextSpan { start: 0, length: 1 }, inner: t12MkNamed(0), states: [TextSpan { start: 5, length: 1 }] })), from: ref p))
+    all.append("\n")
+    all.append(t12TypeStr(in TypeSyntax.pointerType(Owned(PointerType { span: TextSpan { start: 0, length: 1 }, pointee: t12MkNamed(0), readOnly: true })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.constantPattern(Owned(ConstantPattern { span: TextSpan { start: 0, length: 1 }, value: t12MkInt(1) })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.relationalPattern(Owned(RelationalPattern { span: TextSpan { start: 0, length: 1 }, op: .lt, value: t12MkInt(1) })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.varPattern(Owned(VarPattern { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 5, length: 1 }, isLet: true })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.varPattern(Owned(VarPattern { span: TextSpan { start: 0, length: 1 }, name: TextSpan { start: 5, length: 1 }, isLet: false })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in t12MkDiscard(), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.declarationPattern(Owned(DeclarationPattern { span: TextSpan { start: 0, length: 1 }, type: t12MkNamed(8), name: TextSpan { start: 7, length: 1 } })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.notPattern(Owned(NotPattern { span: TextSpan { start: 0, length: 1 }, operand: t12MkDiscard() })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.binaryPattern(Owned(BinaryPattern { span: TextSpan { start: 0, length: 1 }, isAnd: true, left: t12MkDiscard(), right: t12MkDiscard() })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.propertyPattern(Owned(PropertyPattern { span: TextSpan { start: 0, length: 1 }, type: .none, properties: [PropertySubpattern { span: TextSpan { start: 0, length: 1 }, path: [TextSpan { start: 0, length: 1 }, TextSpan { start: 1, length: 1 }], pattern: t12MkDiscard() }], designation: null })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.positionalPattern(Owned(PositionalPattern { span: TextSpan { start: 0, length: 1 }, type: .none, elements: [t12MkDiscard()] })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.variantPattern(Owned(VariantPattern { span: TextSpan { start: 0, length: 1 }, variant: Expr.targetMemberExpr(Owned(TargetMemberExpr { span: TextSpan { start: 0, length: 1 }, member: TextSpan { start: 9, length: 1 } })), elements: [t12MkDiscard()], binding: null })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.slicePattern(Owned(SlicePattern { span: TextSpan { start: 0, length: 1 }, inner: .none })), from: ref p))
+    all.append("\n")
+    all.append(t12PatternStr(in Pattern.listPattern(Owned(ListPattern { span: TextSpan { start: 0, length: 1 }, elements: [t12MkDiscard(), t12MkDiscard()] })), from: ref p))
+    all.append("\n")
+    let expected = """
+            x
+            1
+            x<T>
+            this
+            (. x m)
+            (?. x m)
+            .m
+            (call f)
+            (call f (y: 2) (ref x))
+            (call f because `r`)
+            (index x 1)
+            (- x)
+            (+ x y)
+            (.. _ _)
+            (..= x y)
+            (? x 1 2)
+            (cast T x)
+            (is x _)
+            (except x _)
+            (in x y)
+            (switch x (_ => 1))
+            (try x)
+            (move x)
+            (catch x y)
+            (caught)
+            (return)
+            (return x)
+            (break)
+            (continue m)
+            (fail x)
+            (block)
+            (struct _)
+            (with x)
+            (spread x)
+            (entry 1 2)
+            (list 1 2)
+            (map (entry 1 2))
+            (tuple 1 (x: 2))
+            (paren x)
+            (lambda (x) x)
+            (stackalloc T 3)
+            (pattern _)
+            <error>
+            "a\"b"
+            c"a"
+            true
+            (interp "a" x)
+            a
+            a<T>
+            a?
+            a[3]
+            (a, b t)
+            a -> b
+            dyn ref readonly a
+            a is .x
+            readonly a*
+            1
+            (< 1)
+            (let x)
+            (var x)
+            _
+            (decl T t)
+            (not _)
+            (and _ _)
+            (props (a.b: _))
+            (pos _)
+            (variant .m _)
+            (slice)
+            (listp _ _)
+
+            """
+    assert all.finish() == expected
+}
