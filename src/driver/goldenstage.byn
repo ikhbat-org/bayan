@@ -2,6 +2,9 @@
 // in goldenexport.byn, which place a case's inputs, links and modes as SelfhostDriverTests.cs:66-120 `StageInputs` did.
 
 test "a SelfhostDriver plain `input` goes to the path of its `input.name`, and its `links` are made below the input's place" {
+    if Target.os == "windows" {
+        todo("`ln -s` makes no symbolic link on Windows")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-stage-driver")
     deleteWorkDir(root)
     let dir = Path.combine(root, "cli/SelfhostDriverT2Tests/dash")
@@ -26,6 +29,9 @@ test "a SelfhostDriver plain `input` goes to the path of its `input.name`, and i
 }
 
 test "a `links` line naming no directory is made at the path `args` names when one ends in that name" {
+    if Target.os == "windows" {
+        todo("`ln -s` makes no symbolic link on Windows")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-stage-toplink")
     deleteWorkDir(root)
     let dir = Path.combine(root, "cli/SelfhostDriverT1Tests/loop")
@@ -41,8 +47,9 @@ test "a `links` line naming no directory is made at the path `args` names when o
 }
 
 test "an input's place takes `..` lexically, and a `main.byn` stands for its directory" {
-    assert(goldenCliTarget("/a/b/link/../c.byn") == "/a/b/c.byn")
-    assert(goldenCliTarget("/a/b/link/../main.byn") == "/a/b")
+    let a = Path.fullPath("/a/b")
+    assert(goldenCliTarget(Path.combine(a, "link/../c.byn")) == Path.combine(a, "c.byn"))
+    assert(goldenCliTarget(Path.combine(a, "link/../main.byn")) == a)
 }
 
 test "an empty T1 input.tsv is the empty directory `args` names, and another class's empty input.tsv creates nothing" {
@@ -91,6 +98,9 @@ test "an input below the repo's tests/cases gets the other `.byn` files of the c
 }
 
 test "a T3 `exit` case runs in the fresh directory of its `-o` output, and a SelfhostDriver case with `modes` is opened again after its run" {
+    if Target.os == "windows" {
+        todo("the driver is a `sh` script, and `chmod 500` locks no directory on Windows")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-stage-run")
     deleteWorkDir(root)
     let exe = Path.combine(root, "exe")
