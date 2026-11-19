@@ -232,7 +232,10 @@ public sealed class SelfhostEmitterT11Tests
         Compilation.Create([SourceText.FromFile(path)], Path.GetDirectoryName(path)!);
 
     private static (int Exit, string Out, string Err) Run(string path, string file, string flags, bool errors = false) =>
-        SelfhostParserTests.Run(Build(), [errors ? "errors" : "cases", file, flags.Length == 0 ? "-" : flags, path]);
+        SelfhostParserTests.Run(Build(), Args(path, file, flags, errors));
+
+    private static string[] Args(string path, string file, string flags, bool errors) =>
+        [errors ? "errors" : "cases", file, flags.Length == 0 ? "-" : flags, path];
 
     private static object? Field(object target, string name) =>
         target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(target);
@@ -385,11 +388,26 @@ public sealed class SelfhostEmitterT11Tests
         return failures;
     }
 
+    /// <summary>Under <c>BAYAN_EXPORT_DIR</c>: each section <paramref name="o"/> gives, as the generated main prints it, written as a case
+    /// (<see cref="SelfhostEmitterHarness.AssertSection"/>); the cases in index order, then their count.</summary>
+    private static void Export(Oracle o, string stdout, string path, bool errors = false)
+    {
+        var actual = SelfhostEmitterHarness.Sections(stdout, Args(path, o.File, o.Flags, errors));
+        var cases = o.Cases.OrderBy(c => c.Key).Select(c => $"{c.Key} {c.Value}").Append($"count {o.Count}").ToList();
+        foreach (var (section, lines) in new[] { ("cases", cases), ("helpers", o.Helpers), ("types", o.Types), ("locals", o.Locals) })
+            SelfhostEmitterHarness.AssertSection(actual, section, lines);
+    }
+
     private static Oracle RunAndCompare(string path, bool errors = false)
     {
         var o = CSharp(Compile(path), errors: errors);
         var (exit, stdout, stderr) = Run(path, o.File, o.Flags, errors);
         Assert.True(exit == 0, $"generated main exited {exit}:\n{stderr}");
+        if (SelfhostExport.Dir is not null)
+        {
+            Export(o, stdout, path, errors);
+            return o;
+        }
         var failures = Compare(o, stdout);
         Assert.True(failures.Count == 0, string.Join('\n', failures.Take(8)));
         return o;
@@ -805,7 +823,7 @@ public sealed class SelfhostEmitterT11Tests
         var emitted = new HashSet<BuiltinMember>();
         var comparedMembers = new HashSet<BuiltinMember>();
         Build();
-        Parallel.ForEach(files, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, corpus => WithFixture(File.ReadAllText(corpus), path =>
+        void One(string corpus) => WithFixture(File.ReadAllText(corpus), path =>
         {
             if (Skipped.Contains(Path.GetFileName(corpus))) return;
             var c = Compile(path);
@@ -817,8 +835,8 @@ public sealed class SelfhostEmitterT11Tests
                 failures.Add($"{Path.GetFileName(corpus)}: exited {exit}: {stderr}");
                 return;
             }
-            var differences = Compare(o, stdout);
-            foreach (var f in differences) failures.Add($"{Path.GetFileName(corpus)} {f}");
+            if (SelfhostExport.Dir is not null) Export(o, stdout, path);
+            else foreach (var f in Compare(o, stdout)) failures.Add($"{Path.GetFileName(corpus)} {f}");
             lock (emitted)
             {
                 emitted.UnionWith(o.Emitted);
@@ -826,7 +844,10 @@ public sealed class SelfhostEmitterT11Tests
             }
             Interlocked.Increment(ref compared);
             Interlocked.Add(ref cases, o.Cases.Count);
-        }));
+        });
+        // The export names its cases in call order, so it runs the files one after another.
+        if (SelfhostExport.Dir is null) Parallel.ForEach(files, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, One);
+        else foreach (var corpus in files) One(corpus);
         Assert.True(compared > 100, $"only {compared} corpus files compared:\n{string.Join('\n', failures.Order(StringComparer.Ordinal).Take(4))}");
         Assert.True(failures.IsEmpty, $"{failures.Count} mismatches:\n{string.Join('\n', failures.Order(StringComparer.Ordinal).Take(8))}");
         Assert.True(cases > 100, $"only {cases} cases compared");

@@ -56,8 +56,8 @@ public static class SelfhostExport
         return dir;
     }
 
-    /// <summary>A compare call that writes no case: appends <paramref name="columns"/> as a row of <c>&lt;kind&gt;/UNEXPORTED.tsv</c>
-    /// (a previous process's file is replaced).</summary>
+    /// <summary>A compare call that writes no case: adds <paramref name="columns"/> as a row of <c>&lt;kind&gt;/UNEXPORTED.tsv</c>, rows in
+    /// ordinal order (a previous process's file is replaced).</summary>
     internal static void NotExported(string root, string kind, params string[] columns)
     {
         lock (ExportLock)
@@ -67,6 +67,8 @@ public static class SelfhostExport
             var path = Path.Combine(dir, "UNEXPORTED.tsv");
             if (Unexported.Add(path)) File.Delete(path);
             File.AppendAllText(path, string.Join('\t', columns) + "\n");
+            // Classes run in parallel, so the rows are kept in ordinal order: two exports of the same tests write the same file.
+            File.WriteAllText(path, string.Concat(File.ReadAllLines(path).Order(StringComparer.Ordinal).Select(r => r + "\n")));
         }
     }
 

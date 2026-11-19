@@ -675,6 +675,12 @@ public sealed class SelfhostEmitterT2Tests
         Assert.Contains(c.Diagnostics.Items, d => !d.IsError);
         var (exit, stdout, _) = Run("lower", path);
         Assert.Equal(0, exit);
+        // The export writes the whole `lower` section the C# produces for the input.
+        if (SelfhostExport.Dir is not null)
+        {
+            SelfhostEmitterHarness.AssertSection(SelfhostEmitterHarness.Sections(stdout, "lower", "-", "-", path), "lower", LowerOracle(c));
+            return;
+        }
         var main = LowerOracle(c).Single(s => s.StartsWith("main ", StringComparison.Ordinal));
         Assert.Contains(main, SelfhostSemanticsHarness.Sections(stdout)["lower"]);
     });
@@ -827,7 +833,7 @@ public sealed class SelfhostEmitterT2Tests
         var compared = 0;
         Build();
         // Each file alone in a directory: bayan-check reads a file's directory as its package.
-        Parallel.ForEach(files, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, corpus => WithFixture(File.ReadAllText(corpus), path =>
+        void One(string corpus) => WithFixture(File.ReadAllText(corpus), path =>
         {
             var c = Compile(path);
             if (c.Diagnostics.HasErrors) return;
@@ -839,10 +845,16 @@ public sealed class SelfhostEmitterT2Tests
                 failures.Add($"{Path.GetFileName(corpus)}: exited {exit}: {stderr}");
                 return;
             }
-            var actual = SelfhostSemanticsHarness.Sections(stdout);
+            var actual = SelfhostEmitterHarness.Sections(stdout, "corpus", file, linePath, path);
             foreach (var (section, lines) in expected)
             {
                 if ((section == "pred" || section == "keys") && PredSkipped.Contains(Path.GetFileName(corpus))) continue;
+                // The export writes each file's section as a case.
+                if (SelfhostExport.Dir is not null)
+                {
+                    SelfhostEmitterHarness.AssertSection(actual, section, lines);
+                    continue;
+                }
                 var got = actual.GetValueOrDefault(section) ?? [];
                 for (var i = 0; i < Math.Max(got.Count, lines.Count); i++)
                 {
@@ -854,7 +866,10 @@ public sealed class SelfhostEmitterT2Tests
                 }
             }
             Interlocked.Increment(ref compared);
-        }));
+        });
+        // The export names its cases in call order, so it runs the files one after another.
+        if (SelfhostExport.Dir is null) Parallel.ForEach(files, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, One);
+        else foreach (var corpus in files) One(corpus);
         Assert.True(compared > 100, $"only {compared} corpus files compared:\n{string.Join('\n', failures.Order(StringComparer.Ordinal).Take(4))}");
         Assert.True(failures.IsEmpty, $"{failures.Count} mismatches:\n{string.Join('\n', failures.Order(StringComparer.Ordinal).Take(8))}");
     }

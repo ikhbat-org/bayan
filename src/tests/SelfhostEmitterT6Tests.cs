@@ -479,10 +479,14 @@ public sealed class SelfhostEmitterT6Tests
             var path = Path.Combine(dir, "a.byn");
             File.WriteAllText(path, Library);
             var e = NewEmitter(Lowerer.Lower(Compile(path)));
-            var (exit, stdout, stderr) = SelfhostParserTests.Run(Build(), ["corpus", .. paths]);
+            string[] args = ["corpus", .. paths];
+            var (exit, stdout, stderr) = SelfhostParserTests.Run(Build(), args);
             Assert.True(exit == 0 && stderr.Length == 0, $"generated main exited {exit}:\n{stderr}");
             var lines = stdout.Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries);
             Assert.True(lines.Count(l => l[0] == 'r') > 20 && lines.Count(l => l[0] == 's') > 50, "the corpus has too few constants to mean anything");
+            // The export writes the C# line of each constant the port printed as one case.
+            var export = SelfhostExport.Dir is not null;
+            var want = new List<string>();
             foreach (var line in lines)
             {
                 var parts = line.Split(' ', 3);
@@ -491,16 +495,17 @@ public sealed class SelfhostEmitterT6Tests
                 {
                     var rest = parts[2].Split(' ', 2);
                     var d = parts[1] switch { "inf" => double.PositiveInfinity, "-inf" => double.NegativeInfinity, "nan" or "NaN" => double.NaN, var t => double.Parse(t, System.Globalization.CultureInfo.InvariantCulture) };
-                    expected = $"{e.Constant(new ConstantValue(d), PrimitiveType.F64)} {e.Constant(new ConstantValue(d), PrimitiveType.F32)}";
-                    Assert.Equal($"r {parts[1]} {expected}", line);
+                    expected = $"r {parts[1]} {e.Constant(new ConstantValue(d), PrimitiveType.F64)} {e.Constant(new ConstantValue(d), PrimitiveType.F32)}";
                 }
                 else
                 {
                     var bytes = parts[1].Split(',', StringSplitOptions.RemoveEmptyEntries).Select(byte.Parse).ToArray();
-                    expected = e.Constant(new ConstantValue(Encoding.UTF8.GetString(bytes)), PrimitiveType.I32);
-                    Assert.Equal($"s {parts[1]} {expected}", line);
+                    expected = $"s {parts[1]} {e.Constant(new ConstantValue(Encoding.UTF8.GetString(bytes)), PrimitiveType.I32)}";
                 }
+                if (export) want.Add(expected);
+                else Assert.Equal(expected, line);
             }
+            if (export) SelfhostEmitterHarness.AssertSection(SelfhostEmitterHarness.Sections(stdout, args), "", want);
         }
         finally { Directory.Delete(dir, true); }
     }

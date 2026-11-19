@@ -413,7 +413,12 @@ public sealed class SelfhostRevisionT8Tests
         if (code is null) Assert.DoesNotContain(expected, l => l.StartsWith("BYN5106 ", StringComparison.Ordinal) || l.StartsWith("BYN5107 ", StringComparison.Ordinal));
         else Assert.Contains(expected, l => l.StartsWith(code + " ", StringComparison.Ordinal));
         var actual = new Dictionary<string, List<string>> { [section] = Sections.Value[section] };
-        if (expected.Count == 0) Assert.Empty(actual[section]);
+        // A program with no diagnostic prints nothing on either side; the export still writes its case.
+        if (expected.Count == 0)
+        {
+            SelfhostSemanticsHarness.ExportSection(actual, section, expected, run: Sections.Value, printed: section);
+            if (SelfhostSemanticsHarness.ExportDir is null) Assert.Empty(actual[section]);
+        }
         else SelfhostSemanticsHarness.AssertSection(actual, section, expected);
     }
 

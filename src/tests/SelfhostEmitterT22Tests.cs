@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Bayan.Lowering;
 using Bayan.Semantics;
 using Bayan.Semantics.Binding;
@@ -151,10 +152,18 @@ public sealed class SelfhostEmitterT22Tests
     private static string Local(LocalSymbol l) =>
         $" {(int)l.Kind}:{l.Name}" + (l.Kind == LocalKind.Temp ? "" : $"@{l.Location?.Span.Start ?? 0}");
 
-    /// <summary>Compares one input; null when every function matches, else the first differing function and the count of differing ones.</summary>
-    private static (string First, int Count)? Compare(string path)
+    /// <summary>
+    /// Compares one input; null when every function matches, else the first differing function and the count of differing ones. Under
+    /// <c>BAYAN_EXPORT_DIR</c> it writes the case through <see cref="SelfhostEmitterHarness.AssertSame"/> (row <paramref name="name"/>) and returns null.
+    /// </summary>
+    private static (string First, int Count)? Compare(string path, string name, [CallerMemberName] string test = "")
     {
         var expected = CSharp(Compile(path));
+        if (SelfhostExport.Dir is not null)
+        {
+            SelfhostEmitterHarness.AssertSame(name, string.Concat(expected.Select(l => l + "\n")), "", path, test, args: [path]);
+            return null;
+        }
         var (exit, stdout, stderr) = SelfhostParserTests.Run(Build(), [path]);
         if (exit != 0) return ($"exited {exit}: {stderr.Split('\n').FirstOrDefault(l => l.Contains("panic", StringComparison.Ordinal)) ?? stderr}", expected.Count);
         var actual = stdout.Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -186,7 +195,7 @@ public sealed class SelfhostEmitterT22Tests
             if (Skipped.Contains(Path.GetFileName(corpus))) return 0;
             if (Compile(path).Diagnostics.HasErrors) return 0;
             Interlocked.Increment(ref compared);
-            if (Compare(path) is not { } d) return 0;
+            if (Compare(path, Path.GetFileName(corpus), nameof(Corpus_LocalsMatchCSharp)) is not { } d) return 0;
             Interlocked.Add(ref differing, d.Count);
             failures.Add($"{Path.GetFileName(corpus)} {d.First}");
             return 0;
@@ -302,7 +311,7 @@ public sealed class SelfhostEmitterT22Tests
     {
         var c = Compile(path);
         Assert.False(c.Diagnostics.HasErrors, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
-        Assert.Null(Compare(path));
+        Assert.Null(Compare(path, "locals"));
         return 0;
     });
 
@@ -340,7 +349,7 @@ public sealed class SelfhostEmitterT22Tests
         var c = Compile(path);
         Assert.False(c.Diagnostics.HasErrors, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true));
         Assert.Contains(CSharp(c), x => x.StartsWith("total:", StringComparison.Ordinal) && x.Contains(" 5:_@", StringComparison.Ordinal));
-        Assert.Null(Compare(path));
+        Assert.Null(Compare(path, "locals"));
         return 0;
     });
 
@@ -360,7 +369,7 @@ public sealed class SelfhostEmitterT22Tests
             {
                 if (Compile(path).Diagnostics.HasErrors) return 0;
                 compared.Add(name);
-                if (Compare(path) is { } d) failures.Add($"{name} ({d.Count}) {d.First}");
+                if (Compare(path, name) is { } d) failures.Add($"{name} ({d.Count}) {d.First}");
                 return 0;
             });
         Assert.True(compared.Count >= 10, $"only {compared.Count} fixtures compared");

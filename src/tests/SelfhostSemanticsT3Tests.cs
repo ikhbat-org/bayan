@@ -77,9 +77,17 @@ public sealed class SelfhostSemanticsT3Tests
     [Fact]
     public void SymbolLookupsMatchCSharp() => Compare("lookups", Cases.Value.LookupStart, Cases.Value.LookupCount);
 
-    private static void Compare(string section, int start, int count)
+    private static void Compare(string section, int start, int count, [System.Runtime.CompilerServices.CallerMemberName] string test = "")
     {
         var cases = Cases.Value;
+        // The export lists the test without a case: the generated main prints no `== name` header and the sem runner has
+        // no word that compares a line range of the output, so it cannot replay the range this test compares.
+        if (SelfhostSemanticsHarness.ExportDir is not null)
+        {
+            SelfhostSemanticsHarness.ExportSection([], section, [], test, noExport:
+                $"output lines {start + 1}-{start + count}: the generated main prints no `== name` header and the sem runner has no line-range compare word");
+            return;
+        }
         var (lines, error) = Executed.Value;
         Assert.True(error.Length == 0, error);
         Assert.True(lines.Length == cases.Expected.Count, $"{section}: printed {lines.Length} lines, expected {cases.Expected.Count}");
