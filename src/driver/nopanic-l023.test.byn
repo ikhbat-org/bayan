@@ -106,7 +106,7 @@ string l023WithoutBangs(string text) uses alloc {
 }
 
 /// `items` joined by `sep`.
-string l023Joined(in List<string> items, by string sep) uses alloc {
+string l023Joined(List<string> items, by string sep) uses alloc {
     var sb = StrBuf()
     for i in 0..items.length {
         if i > 0 {
@@ -133,7 +133,7 @@ string l023Literal(ref L023SplitMix r, for string type) uses alloc {
 }
 
 /// The names in `names` whose type in `types` is `type`.
-List<string> l023Of(in List<string> names, by in List<string> types, for string type) uses alloc {
+List<string> l023Of(List<string> names, by List<string> types, for string type) uses alloc {
     var picked = List<string>()
     for i in 0..names.length {
         if types[i] == type {
@@ -144,10 +144,10 @@ List<string> l023Of(in List<string> names, by in List<string> types, for string 
 }
 
 /// LambdaGenerator.cs:166 `Init`: `qNames` and `qTypes` are the case's `q` parameters.
-string l023Init(ref L023SplitMix r, for string type, by in List<string> qNames, from in List<string> qTypes)
+string l023Init(ref L023SplitMix r, for string type, by List<string> qNames, from List<string> qTypes)
         uses alloc {
-    let same = l023Of(in qNames, by: in qTypes, for: type)
-    let ints = l023Of(in qNames, by: in qTypes, for: "i64")
+    let same = l023Of(qNames, by: qTypes, for: type)
+    let ints = l023Of(qNames, by: qTypes, for: "i64")
     if type == "i64" && ints.length > 0 && r.hits(60) {
         let name = same[r.next(same.length)]
         return $"{name} + {r.nextIn(1, to: 9)}"
@@ -163,8 +163,8 @@ string l023Init(ref L023SplitMix r, for string type, by in List<string> qNames, 
 }
 
 /// LambdaGenerator.cs:179 `Term`.
-string l023Term(ref L023SplitMix r, by in List<string> names, from in List<string> types) uses alloc {
-    let ints = l023Of(in names, by: in types, for: "i64")
+string l023Term(ref L023SplitMix r, by List<string> names, from List<string> types) uses alloc {
+    let ints = l023Of(names, by: types, for: "i64")
     if ints.length > 0 && r.hits(70) {
         return $"{ints[r.next(ints.length)]}"
     }
@@ -172,9 +172,9 @@ string l023Term(ref L023SplitMix r, by in List<string> names, from in List<strin
 }
 
 /// LambdaGenerator.cs:210 `Atom`.
-string l023Atom(ref L023SplitMix r, by in List<string> names, from in List<string> types) uses alloc {
-    let bools = l023Of(in names, by: in types, for: "bool")
-    let strings = l023Of(in names, by: in types, for: "string")
+string l023Atom(ref L023SplitMix r, by List<string> names, from List<string> types) uses alloc {
+    let bools = l023Of(names, by: types, for: "bool")
+    let strings = l023Of(names, by: types, for: "string")
     let roll = r.next(4)
     if roll == 1 && bools.length > 0 {
         let bang = r.hits(50) ? "!" : ""
@@ -185,8 +185,8 @@ string l023Atom(ref L023SplitMix r, by in List<string> names, from in List<strin
         let k = r.next(4)
         return $"{name} == \"{k == 0 ? "ab" : k == 1 ? "x" : k == 2 ? "" : "bayan"}\""
     }
-    let left = l023Term(ref r, by: in names, from: in types)
-    let right = l023Term(ref r, by: in names, from: in types)
+    let left = l023Term(ref r, by: names, from: types)
+    let right = l023Term(ref r, by: names, from: types)
     let k = r.next(3)
     let op = k == 0 ? ">" : k == 1 ? "<" : "=="
     if right == left {
@@ -196,7 +196,7 @@ string l023Atom(ref L023SplitMix r, by in List<string> names, from in List<strin
 }
 
 /// LambdaGenerator.cs:221 `Hole`.
-string l023Hole(ref L023SplitMix r, by in List<string> names) uses alloc {
+string l023Hole(ref L023SplitMix r, by List<string> names) uses alloc {
     if names.length > 0 && r.hits(80) {
         return $"{names[r.next(names.length)]}"
     }
@@ -213,58 +213,58 @@ string l023Op(ref L023SplitMix r, by i64 count) uses alloc {
 string l023Body(
     ref L023SplitMix r,
     for string type,
-    by in List<string> names,
-    from in List<string> types,
+    by List<string> names,
+    from List<string> types,
     through ref bool alloc
 ) uses alloc {
     if type == "i64" {
         if r.hits(50) {
-            let a = l023Term(ref r, by: in names, from: in types)
+            let a = l023Term(ref r, by: names, from: types)
             let op = l023Op(ref r, by: 3)
-            let b = l023Term(ref r, by: in names, from: in types)
+            let b = l023Term(ref r, by: names, from: types)
             return $"{a} {op} {b}"
         }
-        let a = l023Term(ref r, by: in names, from: in types)
+        let a = l023Term(ref r, by: names, from: types)
         let op = l023Op(ref r, by: 3)
-        let b = l023Term(ref r, by: in names, from: in types)
+        let b = l023Term(ref r, by: names, from: types)
         let op2 = l023Op(ref r, by: 2)
-        let c = l023Term(ref r, by: in names, from: in types)
+        let c = l023Term(ref r, by: names, from: types)
         return $"{a} {op} {b} {op2} {c}"
     }
     if type == "bool" {
-        let atom = l023Atom(ref r, by: in names, from: in types)
+        let atom = l023Atom(ref r, by: names, from: types)
         return atom unless r.hits(40)
-        let other = l023Atom(ref r, by: in names, from: in types)
+        let other = l023Atom(ref r, by: names, from: types)
         return atom if l023WithoutBangs(other) == l023WithoutBangs(atom)
         let op = r.next(2) == 0 ? "&&" : "||"
         return $"{atom} {op} {other}"
     }
-    let strings = l023Of(in names, by: in types, for: "string")
+    let strings = l023Of(names, by: types, for: "string")
     if strings.length > 0 && r.hits(25) {
         return $"{strings[r.next(strings.length)]}"
     }
     alloc = true
-    let a = l023Hole(ref r, by: in names)
-    let b = l023Hole(ref r, by: in names)
+    let a = l023Hole(ref r, by: names)
+    let b = l023Hole(ref r, by: names)
     return $"$\"{{{a}}}-{{{b}}}\""
 }
 
 /// LambdaGenerator.cs:224 `ArgList`.
-string l023ArgList(in List<string> args, by in List<string> types, for string first) uses alloc {
+string l023ArgList(List<string> args, by List<string> types, for string first) uses alloc {
     var parts = List<string>()
     for j in 0..args.length {
         parts.append(j == 1 ? $"to: {args[j]}" : types[j] == "bool" ? $"{first}: {args[j]}" : $"{args[j]}")
     }
-    return l023Joined(in parts, by: ", ")
+    return l023Joined(parts, by: ", ")
 }
 
 /// LambdaGenerator.cs:232 `ParamList`.
-string l023ParamList(in List<string> types, for string prefix) uses alloc {
+string l023ParamList(List<string> types, for string prefix) uses alloc {
     var parts = List<string>()
     for j in 0..types.length {
         parts.append($"{j == 1 ? "to " : ""}{types[j]} {prefix}{j}")
     }
-    return l023Joined(in parts, by: ", ")
+    return l023Joined(parts, by: ", ")
 }
 
 /// LambdaGenerator.cs:48 `Case`; `kind` is 0 named, 1 pure, 2 capturing.
@@ -318,7 +318,7 @@ L023Case l023NewCase(ref L023SplitMix r, at i64 i) uses alloc {
             let t = j == 0 && ret == "i64" ? "i64" : l023Type(r.next(3))
             kNames.append($"k{j}")
             kTypes.append(t)
-            kInits.append(l023Init(ref r, for: t, by: in qNames, from: in qTypes))
+            kInits.append(l023Init(ref r, for: t, by: qNames, from: qTypes))
         }
         var anyInt = false
         for t in qTypes {
@@ -330,7 +330,7 @@ L023Case l023NewCase(ref L023SplitMix r, at i64 i) uses alloc {
         if ret == "i64" && !anyInt {
             kNames.append($"k{kNames.length}")
             kTypes.append("i64")
-            kInits.append(l023Init(ref r, for: "i64", by: in qNames, from: in qTypes))
+            kInits.append(l023Init(ref r, for: "i64", by: qNames, from: qTypes))
         }
     }
     // env: the parameters, then the captures (the q parameters, then the k locals)
@@ -352,7 +352,7 @@ L023Case l023NewCase(ref L023SplitMix r, at i64 i) uses alloc {
     var alloc = false
     for _ in 0..20 {
         alloc = false
-        body = l023Body(ref r, for: ret, by: in names, from: in types, through: ref alloc)
+        body = l023Body(ref r, for: ret, by: names, from: types, through: ref alloc)
         break if kind != 2
         var mentioned = false
         for j in ps.length..names.length {
@@ -389,13 +389,13 @@ L023Case l023NewCase(ref L023SplitMix r, at i64 i) uses alloc {
 }
 
 /// LambdaGenerator.cs:62 `Type`.
-string l023CaseType(in L023Case c) uses alloc {
-    let ps = c.params.length == 1 ? $"{c.params[0]}" : $"({l023Joined(in c.params, by: ", ")})"
+string l023CaseType(L023Case c) uses alloc {
+    let ps = c.params.length == 1 ? $"{c.params[0]}" : $"({l023Joined(c.params, by: ", ")})"
     return $"{ps} -> {c.ret}"
 }
 
 /// LambdaGenerator.cs:235 `Lambda` and :243 `Value`.
-string l023Value(ref L023SplitMix r, for in L023Case c, at string indent, as bool argument) uses alloc {
+string l023Value(ref L023SplitMix r, for L023Case c, at string indent, as bool argument) uses alloc {
     if c.kind == 0 {
         return $"fn{c.i}"
     }
@@ -410,11 +410,11 @@ string l023Value(ref L023SplitMix r, for in L023Case c, at string indent, as boo
 }
 
 /// LambdaGenerator.cs:245 `Declarations`.
-void l023Declarations(ref L023SplitMix r, for in L023Case c, to ref StrBuf sb) uses alloc {
-    let type = l023CaseType(in c)
+void l023Declarations(ref L023SplitMix r, for L023Case c, to ref StrBuf sb) uses alloc {
+    let type = l023CaseType(c)
     let localType = c.alloc ? $"{type} uses alloc" : type
     let by = $"by ({type}) f"
-    let sig = c.params.length == 0 ? by : $"{l023ParamList(in c.params, for: "a")}, {by}"
+    let sig = c.params.length == 0 ? by : $"{l023ParamList(c.params, for: "a")}, {by}"
     var names = List<string>()
     var forward = List<string>()
     for j in 0..c.params.length {
@@ -423,21 +423,21 @@ void l023Declarations(ref L023SplitMix r, for in L023Case c, to ref StrBuf sb) u
     }
     forward.append("by: f")
     if c.kind == 0 {
-        sb.append($"{c.ret} fn{c.i}({l023ParamList(in c.params, for: "p")})")
+        sb.append($"{c.ret} fn{c.i}({l023ParamList(c.params, for: "p")})")
         sb.append(c.block ? $" {{\n    return {c.body}\n}}\n\n" : $" => {c.body}\n\n")
     }
-    sb.append($"{c.ret} call{c.i}({sig}) => f({l023Joined(in names, by: ", ")})\n\n")
-    sb.append($"{c.ret} relay{c.i}({sig}) => call{c.i}({l023Joined(in forward, by: ", ")})\n\n")
+    sb.append($"{c.ret} call{c.i}({sig}) => f({l023Joined(names, by: ", ")})\n\n")
+    sb.append($"{c.ret} relay{c.i}({sig}) => call{c.i}({l023Joined(forward, by: ", ")})\n\n")
     for mode in ["direct", "local", "via1", "via2"] {
         let title = mode == "direct" ? "Direct" : mode == "local" ? "Local" : mode == "via1" ? "Via1" : "Via2"
-        sb.append($"void host{c.i}{title}({l023ParamList(in c.qTypes, for: "q")}) {{\n")
+        sb.append($"void host{c.i}{title}({l023ParamList(c.qTypes, for: "q")}) {{\n")
         for j in 0..c.kNames.length {
             sb.append($"    let {c.kNames[j]}: {c.kTypes[j]} = {c.kInits[j]}\n")
         }
-        let args = l023ArgList(in c.args, by: in c.params, for: "a0")
+        let args = l023ArgList(c.args, by: c.params, for: "a0")
         let withBy = c.params.length == 0 ? "by: " : $"{args}, by: "
         if mode == "direct" && c.kind == 0 {
-            sb.append($"    let r: {c.ret} = fn{c.i}({l023ArgList(in c.args, by: in c.params, for: "p0")})\n")
+            sb.append($"    let r: {c.ret} = fn{c.i}({l023ArgList(c.args, by: c.params, for: "p0")})\n")
         } else if mode == "direct" {
             for j in 0..c.params.length {
                 if l023Mentions(c.body, for: $"p{j}") {
@@ -446,16 +446,16 @@ void l023Declarations(ref L023SplitMix r, for in L023Case c, to ref StrBuf sb) u
             }
             sb.append($"    let r: {c.ret} = {c.body}\n")
         } else if mode == "local" {
-            sb.append($"    let f: {localType} = {l023Value(ref r, for: in c, at: "    ", as: false)}\n")
-            sb.append($"    let r: {c.ret} = f({l023Joined(in c.args, by: ", ")})\n")
+            sb.append($"    let f: {localType} = {l023Value(ref r, for: c, at: "    ", as: false)}\n")
+            sb.append($"    let r: {c.ret} = f({l023Joined(c.args, by: ", ")})\n")
         } else if mode == "via1" {
-            sb.append($"    let r: {c.ret} = call{c.i}({withBy}{l023Value(ref r, for: in c, at: "    ", as: true)})\n")
+            sb.append($"    let r: {c.ret} = call{c.i}({withBy}{l023Value(ref r, for: c, at: "    ", as: true)})\n")
         } else if !c.alloc && r.hits(50) {
             // A `uses alloc` local is not a value of the parameter's effect-free type (BYN2202), so only an effect-free one is passed.
-            sb.append($"    let f: {localType} = {l023Value(ref r, for: in c, at: "    ", as: false)}\n")
+            sb.append($"    let f: {localType} = {l023Value(ref r, for: c, at: "    ", as: false)}\n")
             sb.append($"    let r: {c.ret} = relay{c.i}({withBy}f)\n")
         } else {
-            sb.append($"    let r: {c.ret} = relay{c.i}({withBy}{l023Value(ref r, for: in c, at: "    ", as: true)})\n")
+            sb.append($"    let r: {c.ret} = relay{c.i}({withBy}{l023Value(ref r, for: c, at: "    ", as: true)})\n")
         }
         sb.append($"    print($\"c{c.i} {{r}}\")\n}}\n\n")
     }
@@ -469,8 +469,8 @@ string l023LambdaProgram(u64 seed) uses alloc {
     let count = r.nextIn(3, to: 6)
     for i in 0..count {
         let c = l023NewCase(ref r, at: i)
-        l023Declarations(ref r, for: in c, to: ref sb)
-        hostArgs.append(l023ArgList(in c.qArgs, by: in c.qTypes, for: "q0"))
+        l023Declarations(ref r, for: c, to: ref sb)
+        hostArgs.append(l023ArgList(c.qArgs, by: c.qTypes, for: "q0"))
     }
     sb.append("void main() {\n")
     for mode in ["direct", "local", "via1", "via2"] {
@@ -486,7 +486,7 @@ string l023LambdaProgram(u64 seed) uses alloc {
 
 /// InterfaceGenerator.cs:123 `Call`: a bare call to an abstract i64 member; kinds are 0 method, 1 property, 2 text, 3 mutator, 4 default
 /// text, 5 default method.
-string l023Call(ref L023SplitMix r, by in List<i64> kinds, as string arg = "") uses alloc {
+string l023Call(ref L023SplitMix r, by List<i64> kinds, as string arg = "") uses alloc {
     var picks = List<i64>()
     for j in 0..kinds.length {
         if kinds[j] <= 1 {
@@ -514,7 +514,7 @@ string l023Expr(ref L023SplitMix r, for bool x) uses alloc {
 }
 
 /// InterfaceGenerator.cs:139 `Conformer`.
-void l023Conformer(ref L023SplitMix r, for string name, as string iface, by in List<i64> kinds, to ref StrBuf sb)
+void l023Conformer(ref L023SplitMix r, for string name, as string iface, by List<i64> kinds, to ref StrBuf sb)
         uses alloc {
     sb.append($"struct {name} : {iface} {{\n    i64 f0\n    i64 f1\n\n")
     for j in 0..kinds.length {
@@ -547,7 +547,7 @@ void l023Conformer(ref L023SplitMix r, for string name, as string iface, by in L
 }
 
 /// InterfaceGenerator.cs:190 `Runner`.
-void l023Runner(string signature, by in List<string> steps, to ref StrBuf sb) uses alloc {
+void l023Runner(string signature, by List<string> steps, to ref StrBuf sb) uses alloc {
     sb.append($"{signature} {{\n")
     for s in steps {
         sb.append($"    {s}\n")
@@ -587,12 +587,12 @@ string l023InterfaceProgram(u64 seed) uses alloc {
             } else if kind == 3 {
                 sb.append($"void m{j}(ref this, i64 by)")
             } else if kind == 4 {
-                let a = l023Call(ref r, by: in kinds)
-                let b = l023Call(ref r, by: in kinds)
+                let a = l023Call(ref r, by: kinds)
+                let b = l023Call(ref r, by: kinds)
                 sb.append($"string m{j}() uses alloc => $\"m{j} {{{a}}} {{{b}}}\"")
             } else {
-                let a = l023Call(ref r, by: in kinds, as: "x")
-                let b = l023Call(ref r, by: in kinds)
+                let a = l023Call(ref r, by: kinds, as: "x")
+                let b = l023Call(ref r, by: kinds)
                 sb.append($"i64 m{j}(i64 x) => {a} + {b}")
             }
             sb.append("\n")
@@ -602,7 +602,7 @@ string l023InterfaceProgram(u64 seed) uses alloc {
         var conformers = List<string>()
         for n in 0..count {
             let name = $"S{k}{n}"
-            l023Conformer(ref r, for: name, as: $"IGen{k}", by: in kinds, to: ref sb)
+            l023Conformer(ref r, for: name, as: $"IGen{k}", by: kinds, to: ref sb)
             let a = r.nextIn(-5, to: 9)
             let b = r.nextIn(-5, to: 9)
             names.append(name)
@@ -634,13 +634,13 @@ string l023InterfaceProgram(u64 seed) uses alloc {
             }
         }
         for name in conformers {
-            l023Runner($"void ro{name}({name} v)", by: in readOnly, to: ref sb)
-            l023Runner($"void rw{name}(ref {name} v)", by: in steps, to: ref sb)
+            l023Runner($"void ro{name}({name} v)", by: readOnly, to: ref sb)
+            l023Runner($"void rw{name}(ref {name} v)", by: steps, to: ref sb)
         }
-        l023Runner($"void roVia{k}<T>(T v) where T : IGen{k}", by: in readOnly, to: ref sb)
-        l023Runner($"void rwVia{k}<T>(ref T v) where T : IGen{k}", by: in steps, to: ref sb)
-        l023Runner($"void roDyn{k}(dyn ref readonly IGen{k} v)", by: in readOnly, to: ref sb)
-        l023Runner($"void rwDyn{k}(dyn ref IGen{k} v)", by: in steps, to: ref sb)
+        l023Runner($"void roVia{k}<T>(T v) where T : IGen{k}", by: readOnly, to: ref sb)
+        l023Runner($"void rwVia{k}<T>(ref T v) where T : IGen{k}", by: steps, to: ref sb)
+        l023Runner($"void roDyn{k}(dyn ref readonly IGen{k} v)", by: readOnly, to: ref sb)
+        l023Runner($"void rwDyn{k}(dyn ref IGen{k} v)", by: steps, to: ref sb)
     }
     sb.append("void main() {\n")
     for section in ["direct", "constraint", "dyn"] {
@@ -737,7 +737,7 @@ List<L023Feature> l023Features() uses alloc {
 }
 
 /// SelfhostSemanticsGenerator.cs:132 `MainOf`.
-string l023MainOf(in List<string> body) uses alloc {
+string l023MainOf(List<string> body) uses alloc {
     var sb = StrBuf()
     sb.append("void main() {\n    var total: i64 = 0\n")
     for line in body {
@@ -749,7 +749,7 @@ string l023MainOf(in List<string> body) uses alloc {
 }
 
 /// SelfhostSemanticsGenerator.cs:146 `Assemble`: the source, and in `mainLine` the zero-based line of `main`.
-string l023Assemble(ref L023XorShift r, by in List<L023Feature> features, for string forced, through ref i64 mainLine)
+string l023Assemble(ref L023XorShift r, by List<L023Feature> features, for string forced, through ref i64 mainLine)
         uses alloc {
     var sb = StrBuf()
     var picked = List<string>()
@@ -779,7 +779,7 @@ string l023Assemble(ref L023XorShift r, by in List<L023Feature> features, for st
     for b in decls.bytes {
         mainLine += b == 0x0A ? 1 : 0
     }
-    return $"{decls}{l023MainOf(in body)}"
+    return $"{decls}{l023MainOf(body)}"
 }
 
 /// `text` split at every `\n`, the empty part after a last `\n` kept (`Split('\n')`).
@@ -840,7 +840,7 @@ string l023Inject(string source, at i64 mainLine, for i64 kind, by i64 k, throug
         }
         kept.append($"{lines[i]}")
     }
-    return l023Joined(in kept, by: "\n")
+    return l023Joined(kept, by: "\n")
 }
 
 /// SelfhostSemanticsGenerator.cs:19 `Seeds`.
@@ -866,7 +866,7 @@ List<L023Input> l023SeedPrograms() uses alloc {
     for f in features {
         var body = List<string>()
         body.append($"{f.line}")
-        programs.append(L023Input { name: $"valid-{f.name}.byn", source: $"{f.decls}\n{l023MainOf(in body)}" })
+        programs.append(L023Input { name: $"valid-{f.name}.byn", source: $"{f.decls}\n{l023MainOf(body)}" })
     }
     for i in 0..seeds.length {
         var r = L023XorShift { state: seeds[i] }
@@ -875,7 +875,7 @@ List<L023Input> l023SeedPrograms() uses alloc {
         programs.append(
             L023Input {
                 name: $"valid-seed-{tag}.byn",
-                source: l023Assemble(ref r, by: in features, for: "", through: ref mainLine),
+                source: l023Assemble(ref r, by: features, for: "", through: ref mainLine),
             },
         )
         programs.append(L023Input { name: $"valid-lambda-{tag}.byn", source: l023LambdaProgram(seeds[i]) })
@@ -886,7 +886,7 @@ List<L023Input> l023SeedPrograms() uses alloc {
         let tag = l023Padded(i, to: 3)
         for kind in 0..5 {
             var mainLine: i64 = 0
-            let source = l023Assemble(ref r, by: in features, for: "errors", through: ref mainLine)
+            let source = l023Assemble(ref r, by: features, for: "errors", through: ref mainLine)
             let name = kind == 0 ? "UnknownName" : kind == 1 ? "WrongType" : kind == 2 ? "UseAfterMove" : kind == 3 ? "MissingFails" : "UnassignedRead"
             programs.append(
                 L023Input {
@@ -901,7 +901,7 @@ List<L023Input> l023SeedPrograms() uses alloc {
 
 /// SelfhostSemanticsNoPanicLawTests.cs:394 `TokenAt`: the token around `at`, a run of identifier bytes (ASCII letters, digits, `_` and
 /// non-ASCII) or one other non-space byte; empty at a space or the end. Returns its start; `length` is its length.
-i64 l023TokenAt(in List<u8> bytes, at i64 at, through ref i64 length) {
+i64 l023TokenAt(List<u8> bytes, at i64 at, through ref i64 length) {
     if at >= bytes.length || bytes[at] == 0x20 || bytes[at] == 0x0A || bytes[at] == 0x09 || bytes[at] == 0x0D {
         length = 0
         return at
@@ -926,7 +926,7 @@ i64 l023TokenAt(in List<u8> bytes, at i64 at, through ref i64 length) {
 bool l023TokenByte(u8 b) => b >= 0x80 || l023WordChar(b)
 
 /// `bytes` with the `drop` bytes at `at` replaced by `insert`.
-List<u8> l023Splice(in List<u8> bytes, at i64 at, for i64 drop, by ReadOnlySpan<u8> insert) uses alloc {
+List<u8> l023Splice(List<u8> bytes, at i64 at, for i64 drop, by ReadOnlySpan<u8> insert) uses alloc {
     var spliced = List<u8>()
     for i in 0..at {
         spliced.append(bytes[i])
@@ -941,7 +941,7 @@ List<u8> l023Splice(in List<u8> bytes, at i64 at, for i64 drop, by ReadOnlySpan<
 }
 
 /// The `length` bytes of `bytes` at `start`.
-List<u8> l023Range(in List<u8> bytes, from i64 start, as i64 length) uses alloc {
+List<u8> l023Range(List<u8> bytes, from i64 start, as i64 length) uses alloc {
     var spliced = List<u8>()
     for i in start..start + length {
         spliced.append(bytes[i])
@@ -1040,7 +1040,7 @@ List<string> l023Tokens() uses alloc {
 
 /// SelfhostSemanticsNoPanicLawTests.cs:335 `GenerateRandomCorpus`: `count` inputs (xorshift `seed`), each a picked `bases` entry with 1 to 4
 /// byte or token mutations; the first n inputs are the same whatever `count`. L025 calls it over the seed programs.
-List<List<u8>> l023Mutated(in List<List<u8>> bases, by u64 seed, for i64 count) uses alloc {
+List<List<u8>> l023Mutated(List<List<u8>> bases, by u64 seed, for i64 count) uses alloc {
     let tokens = l023Tokens()
     var r = L023XorShift { state: seed }
     var corpus = List<List<u8>>()
@@ -1051,52 +1051,52 @@ List<List<u8>> l023Mutated(in List<List<u8>> bases, by u64 seed, for i64 count) 
             mutations -= 1
             let at = bytes.length == 0 ? 0 : r.next(bytes.length)
             var tokenLength: i64 = 0
-            let token = l023TokenAt(in bytes, at: at, through: ref tokenLength)
+            let token = l023TokenAt(bytes, at: at, through: ref tokenLength)
             let choice = r.next(12)
             if choice == 0 {
                 let b: List<u8> = [u8(r.step() & 0xFF)]
-                bytes = l023Splice(in bytes, at: at, for: 0, by: b.span)
+                bytes = l023Splice(bytes, at: at, for: 0, by: b.span)
             } else if (choice == 1 || choice == 2) && bytes.length == 0 {
                 // `case 1 when bytes.Count > 0` and `case 2 when …` fall to `case < 11`, which does nothing on an empty input
                 continue
             } else if choice == 1 {
-                bytes = l023Splice(in bytes, at: at, for: 1, by: List<u8>().span)
+                bytes = l023Splice(bytes, at: at, for: 1, by: List<u8>().span)
             } else if choice == 2 {
                 let b: List<u8> = [u8(r.step() & 0xFF)]
-                bytes = l023Splice(in bytes, at: at, for: 1, by: b.span)
+                bytes = l023Splice(bytes, at: at, for: 1, by: b.span)
             } else if choice == 3 {
                 let b = l023InvalidUtf8(r.next(6))
-                bytes = l023Splice(in bytes, at: at, for: 0, by: b.span)
+                bytes = l023Splice(bytes, at: at, for: 0, by: b.span)
             } else if choice == 4 {
-                bytes = l023Splice(in bytes, at: token, for: tokenLength, by: List<u8>().span)
+                bytes = l023Splice(bytes, at: token, for: tokenLength, by: List<u8>().span)
             } else if choice == 5 {
-                let b = l023Range(in bytes, from: token, as: tokenLength)
-                bytes = l023Splice(in bytes, at: token, for: 0, by: b.span)
+                let b = l023Range(bytes, from: token, as: tokenLength)
+                bytes = l023Splice(bytes, at: token, for: 0, by: b.span)
             } else if choice == 6 {
                 var nextLength: i64 = 0
                 let next = l023TokenAt(
-                    in bytes,
+                    bytes,
                     at: token + tokenLength + 1 < bytes.length ? token + tokenLength + 1 : bytes.length,
                     through: ref nextLength,
                 )
                 continue if next <= token
-                let second = l023Range(in bytes, from: next, as: nextLength)
-                let first = l023Range(in bytes, from: token, as: tokenLength)
-                bytes = l023Splice(in bytes, at: next, for: nextLength, by: first.span)
-                bytes = l023Splice(in bytes, at: token, for: tokenLength, by: second.span)
+                let second = l023Range(bytes, from: next, as: nextLength)
+                let first = l023Range(bytes, from: token, as: tokenLength)
+                bytes = l023Splice(bytes, at: next, for: nextLength, by: first.span)
+                bytes = l023Splice(bytes, at: token, for: tokenLength, by: second.span)
             } else if choice == 7 {
                 let t = tokens[r.next(tokens.length)]
-                bytes = l023Splice(in bytes, at: token, for: tokenLength, by: t.bytes)
+                bytes = l023Splice(bytes, at: token, for: tokenLength, by: t.bytes)
             } else if choice < 11 {
                 var wordLength: i64 = 0
                 let word = l023TokenAt(
-                    in bytes,
+                    bytes,
                     at: bytes.length == 0 ? 0 : r.next(bytes.length),
                     through: ref wordLength,
                 )
                 continue if tokenLength == 0 || wordLength == 0
-                let replacement = l023Range(in bytes, from: word, as: wordLength)
-                bytes = l023Splice(in bytes, at: token, for: tokenLength, by: replacement.span)
+                let replacement = l023Range(bytes, from: word, as: wordLength)
+                bytes = l023Splice(bytes, at: token, for: tokenLength, by: replacement.span)
             } else {
                 continue if bytes.length == 0
                 var lineStart = at
@@ -1109,9 +1109,9 @@ List<List<u8>> l023Mutated(in List<List<u8>> bases, by u64 seed, for i64 count) 
                 }
                 let depth = 1 + r.next(8)
                 let close = $"{" }".repeated(depth)}\n"
-                bytes = l023Splice(in bytes, at: lineEnd, for: 0, by: close.bytes)
+                bytes = l023Splice(bytes, at: lineEnd, for: 0, by: close.bytes)
                 let open = $"{"if true { ".repeated(depth)}\n"
-                bytes = l023Splice(in bytes, at: lineStart, for: 0, by: open.bytes)
+                bytes = l023Splice(bytes, at: lineStart, for: 0, by: open.bytes)
             }
         }
         corpus.append(move bytes)
@@ -1138,13 +1138,13 @@ List<L023Input> l023FlatGoldens() uses alloc, fs {
 
 /// One `bayan-check --many` over `dir`, whose `*.byn` inputs are `names` (sorted): empty when it exits 0 or 1 with no `panic:`, a header per
 /// input in order, no `span out of range` line and only `exit 1` lines; else the counterexample.
-string l023Many(string check, at string dir, by in List<string> names, for string corpus)
+string l023Many(string check, at string dir, by List<string> names, for string corpus)
         uses alloc, clock, fs, process {
     var failure = ""
     var args = List<string>()
     args.append("--many")
     args.append(dir)
-    let o = goldenChild(check, by: in args, at: dir, from: in List<u8>(), through: ref failure, whole: true)
+    let o = goldenChild(check, by: args, at: dir, from: List<u8>(), through: ref failure, whole: true)
     return $"L023 counterexample: {corpus}: {failure}" if failure != ""
     var last = "<none>"
     var next: i64 = 0
@@ -1174,9 +1174,9 @@ string l023Many(string check, at string dir, by in List<string> names, for strin
             spans.append(Path.combine(alone, names[i]))
             let one = goldenChild(
                 check,
-                by: in spans,
+                by: spans,
                 at: alone,
-                from: in List<u8>(),
+                from: List<u8>(),
                 through: ref failure,
                 whole: true,
             )
@@ -1190,7 +1190,7 @@ string l023Many(string check, at string dir, by in List<string> names, for strin
 }
 
 /// Writes `inputs` to the fresh directory `dir` and runs `l023Many` over it.
-string l023Corpus(string check, at string dir, by in List<L023Input> inputs, for string corpus)
+string l023Corpus(string check, at string dir, by List<L023Input> inputs, for string corpus)
         uses alloc, clock, fs, process {
     deleteWorkDir(dir)
     Io.createDirectory(dir) catch return $"cannot create {dir}"
@@ -1200,11 +1200,11 @@ string l023Corpus(string check, at string dir, by in List<L023Input> inputs, for
         names.append($"{p.name}")
     }
     names.sort()
-    return l023Many(check, at: dir, by: in names, for: corpus)
+    return l023Many(check, at: dir, by: names, for: corpus)
 }
 
 /// The SHA-256 (lower-case hex) of every program's name, `\n`, source and NUL, as SelfhostSemanticsGeneratorTests.cs:99 pins it.
-string l023SeedsHash(in List<L023Input> programs) uses alloc {
+string l023SeedsHash(List<L023Input> programs) uses alloc {
     var sb = StrBuf()
     for p in programs {
         sb.append($"{p.name}\n{p.source}\0")
@@ -1227,7 +1227,7 @@ test "L023: bayan-check --many over every golden, the 79 seed programs and their
     var problem = ""
 
     let flat = l023FlatGoldens()
-    problem = l023Corpus(check, at: Path.combine(root, "golden"), by: in flat, for: "golden")
+    problem = l023Corpus(check, at: Path.combine(root, "golden"), by: flat, for: "golden")
     // the directory cases that have a `main.byn` (the exported class directories of parse and lex have none), each read in place
     var dirs = List<string>()
     for kind in ["diag", "typed", "run", "parse", "lex"] {
@@ -1247,16 +1247,16 @@ test "L023: bayan-check --many over every golden, the 79 seed programs and their
                 }
             }
             inputs.sort()
-            problem = l023Many(check, at: path, by: in inputs, for: $"golden {kind}/{name}")
+            problem = l023Many(check, at: path, by: inputs, for: $"golden {kind}/{name}")
         }
     }
 
     let seeds = l023SeedPrograms()
     // SelfhostSemanticsGeneratorTests.cs:106 `PinnedCorpus`: the port writes the C# generator's 79 programs byte for byte
     assert(seeds.length == 79)
-    assert(l023SeedsHash(in seeds) == "a38f8e5995f343c0eedf3062fe05e6119377dcf5114301df67504a53436290df")
+    assert(l023SeedsHash(seeds) == "a38f8e5995f343c0eedf3062fe05e6119377dcf5114301df67504a53436290df")
     if problem == "" {
-        problem = l023Corpus(check, at: Path.combine(root, "seeds"), by: in seeds, for: "seeds")
+        problem = l023Corpus(check, at: Path.combine(root, "seeds"), by: seeds, for: "seeds")
     }
 
     var bases = List<List<u8>>()
@@ -1266,14 +1266,14 @@ test "L023: bayan-check --many over every golden, the 79 seed programs and their
     for p in seeds {
         bases.append(p.source.bytes.copy())
     }
-    let random = l023Mutated(in bases, by: 0x9E3779B97F4A7C15, for: size)
-    let again = l023Mutated(in bases, by: 0x9E3779B97F4A7C15, for: size)
-    let other = l023Mutated(in bases, by: 0x9E3779B97F4A7C16, for: size)
+    let random = l023Mutated(bases, by: 0x9E3779B97F4A7C15, for: size)
+    let again = l023Mutated(bases, by: 0x9E3779B97F4A7C15, for: size)
+    let other = l023Mutated(bases, by: 0x9E3779B97F4A7C16, for: size)
     var same = true
     var differs = false
     for i in 0..size {
-        same = same && t8SameBytes(in random[i], as: in again[i])
-        differs = differs || !t8SameBytes(in random[i], as: in other[i])
+        same = same && t8SameBytes(random[i], as: again[i])
+        differs = differs || !t8SameBytes(random[i], as: other[i])
     }
     assert(same && differs)
     if problem == "" {
@@ -1287,7 +1287,7 @@ test "L023: bayan-check --many over every golden, the 79 seed programs and their
             names.append(name)
         }
         if problem == "" {
-            problem = l023Many(check, at: dir, by: in names, for: "random")
+            problem = l023Many(check, at: dir, by: names, for: "random")
         }
     }
 
@@ -1328,9 +1328,9 @@ test "L023: bayan-check --many over every golden, the 79 seed programs and their
         args.append(path)
         let o = goldenChild(
             check,
-            by: in args,
+            by: args,
             at: Path.directoryName(path) ?? cliRoot,
-            from: in List<u8>(),
+            from: List<u8>(),
             through: ref failure,
             whole: true,
         )
@@ -1347,7 +1347,7 @@ test "L023: bayan-check --many over every golden, the 79 seed programs and their
         for a in ["--golden", "--tests", "--spans", "--package", q661, Path.combine(q661, "a.test.byn")] {
             args.append(a)
         }
-        let o = goldenChild(check, by: in args, at: q661, from: in List<u8>(), through: ref failure, whole: true)
+        let o = goldenChild(check, by: args, at: q661, from: List<u8>(), through: ref failure, whole: true)
         if failure != "" || o.exitCode != 0 || o.stderr != "" || o.stdout.contains("span out of range:") {
             problem = $"L023 counterexample: q661: exit {o.exitCode} {failure}\n{o.stderr}"
         }
