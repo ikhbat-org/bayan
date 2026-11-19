@@ -17,7 +17,7 @@
 # coverage: it leaves the report at tmp/guard-run/coverage/bayan-quality.json, and land.sh records it (raise-only) in
 # tests/quality-baseline.json. 5 banned C#-isms in changed .byn, 6 mutation (spec 013 R14): every
 # mutation site of the --mutate files must make the filtered tests fail (`bayan mutate --binary` over a BAYAN_SNAPSHOT
-# recording; a survivor = an untested change; `@unobservable because "…"` marks a statement whose mutants no test can see),
+# recording of the --filter selectors on the stage-1 bayan, mutation-step.sh; a survivor = an untested change; `@unobservable because "…"` marks a statement whose mutants no test can see),
 # and no file's score may fall below tests/quality-baseline.json (only with --mutate),
 # 7 content checks from tools/guard-checks.byn (C# oracle in the tests, no stubs or empty bodies left, ctx.byn only in the
 # task's own section, no open gating Question, docs: progress log entry and Question line citations that hold).
@@ -132,7 +132,7 @@ else note "checks: no --task, so the content checks cannot run (pass --task T<n>
 # tmp/guard-run/ as quality-<n>-<binary>.json
 if [ ${#FAIL[@]} = 0 ] && [ -n "$MUTATE" ]; then
   . "$(dirname "$0")/mutation-step.sh"
-  if mutation_step "$LOG" "$FILTER" "$MUTATE" 1; then
+  if BAYAN_EXE=$BEXE mutation_step "$LOG" "$FILTER" "$MUTATE" 1; then
     # a score below tests/quality-baseline.json fails (mutate-batch.sh, the batch run, raises the baseline)
     if ls "$LOG/quality-"*.json > /dev/null 2>&1; then
       # exit 1 with lines: the drops; a non-zero exit without them: quality-baseline failed on its inputs

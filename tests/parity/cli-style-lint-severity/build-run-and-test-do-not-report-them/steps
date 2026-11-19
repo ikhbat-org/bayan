@@ -1,0 +1,2 @@
+$ $BAYAN build p --emit-c > /dev/null
+test	p

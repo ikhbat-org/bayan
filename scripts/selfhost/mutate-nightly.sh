@@ -1,5 +1,5 @@
 #!/bin/bash
-# mutate-nightly.sh — the batch mutation run spread over nights, one selfhost .byn file at a time. Run from the repo root after `dotnet build`.
+# mutate-nightly.sh — the batch mutation run spread over nights, one selfhost .byn file at a time. Run from the repo root.
 #   bash scripts/selfhost/mutate-nightly.sh --deadline HH:MM [--state <dir>] [--tasks <tasks.md>]...
 # The queue is every file of `mutate-batch.sh --list` (--tasks passed through), in path order; <state> (default
 # $HOME/mutate-nightly) keeps `cursor` (the last file run) and `secs/<file-slug>` (the last run time of each file; the slowest

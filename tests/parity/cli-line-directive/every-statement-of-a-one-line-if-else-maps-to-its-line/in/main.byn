@@ -1,0 +1,7 @@
+void pick(i64 x) {
+    if x > 2 { print("a") } else { print("b") }
+}
+
+void main() {
+    pick(3)
+}

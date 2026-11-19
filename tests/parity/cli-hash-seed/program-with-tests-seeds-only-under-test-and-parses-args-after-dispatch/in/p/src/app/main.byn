@@ -1,0 +1,4 @@
+void main(ReadOnlySpan<string> args) {
+    var m = Map<i64, i64>()
+    m[1] = 10
+}

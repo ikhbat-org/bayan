@@ -1,0 +1,10 @@
+== 1 exit 0
+build 0
+50:#line 2 "main.byn"
+48:int64_t byn_main__twice(int64_t p_x) {
+101:int main(int argc, char** argv) {
+54-}
+55:#line 56 "main.c"
+--
+98-}
+99:#line 100 "main.c"

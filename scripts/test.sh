@@ -10,7 +10,7 @@
 #   runtime  runtime/tests/run.sh; skipped with no C compiler (no $CC, cc or zig)
 # --jobs (default: the CPU count) goes to the golden runner, the one part that runs in parallel.
 # BAYAN_EXE: the self-hosted driver; unset, src/driver is built with the pinned bayan (scripts/pinned-bayan.sh) into the
-# run's log directory, as scripts/selfhost/t10-compare.sh does. Each part's output is in <root>/tmp/test.XXXXXX/<part>.log,
+# run's log directory. Each part's output is in <root>/tmp/test.XXXXXX/<part>.log,
 # removed when every part passes. One summary line per part; exit 1 when any part fails, 2 on a usage error.
 # Tests only: TEST_SH_GOLDEN, TEST_SH_BAYAN, TEST_SH_PARITY, TEST_SH_SCRIPTS, TEST_SH_RUNTIME replace a part's command (golden's gets
 # `--jobs N`), and no driver is built for a replaced part. bash 3.2.
