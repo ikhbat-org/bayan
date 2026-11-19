@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# The corpus-wide theories of CoverageTests.cs, MutantSchemataTests.cs and OwnershipCheckerTests.cs over the `run` cases, through the
-# self-hosted driver $BAYAN_EXE alone (spec 019 T30h item 2, the nightly tier; laws-nightly.yml runs it, scripts/test.sh does not).
-#   BAYAN_EXE=<driver> bash scripts/ci/nightly-modes.sh [--mode coverage|mutate|ownership]... [--only TEXT] [--limit N] [--jobs N]
-#                                                       [--cases DIR]
+# The corpus-wide theories of CoverageTests.cs, MutantSchemataTests.cs, OwnershipCheckerTests.cs and the emitted-C half of
+# SelfhostDriverT8Tests over the `run` cases, through the self-hosted driver $BAYAN_EXE alone (spec 019 T30h item 2 and T30d, the
+# nightly tier; laws-nightly.yml runs it, scripts/test.sh does not).
+#   BAYAN_EXE=<driver> bash scripts/ci/nightly-modes.sh [--mode coverage|mutate|ownership|libc]... [--only TEXT] [--limit N]
+#                                                       [--jobs N] [--cases DIR]
 # The cases are those of RunTests (`*.byn` at the top of DIR, default tests/cases/run, and `<dir>/main.byn`), ordinal order; --only
 # keeps the names holding TEXT, --limit the first N of each mode. A flat case is built from a copy alone in a directory, as
 # golden.byn does, since the driver compiles every file of a file's directory; a `*.test.byn` case is a one-module package.
@@ -15,18 +16,23 @@
 #              (src/driver/build.byn:52-109; src/driver/l019.test.byn:4); the programs are counted as left out.
 #   ownership  SafeAndFastCHaveNoChecker: the C of `build --emit-c` (a test case: `out/<mode>/<host>/c/main.c` of `test`) in
 #              `safe` and `fast` holds no `byn_own`.
+#   libc       EmittedCHasOnlyInventoryExtensionTokens and EmittedCDirectLibcCallsAreListed: the C of `build --emit-c` in `debug`,
+#              `safe` and `fast` (a test case: `out/safe/<host>/c/main.c` of `test`, the C# default mode) passes
+#              `scripts/ci/libc-inventory-check.sh --emitted`, but for its "no emitted unit calls it" lines, which hold only for the
+#              whole corpus: with no --only and no --limit, one more check over every unit reports them as `libc corpus`. As the
+#              C# test, the top-level `*.byn` alone; the `<dir>/main.byn` cases are counted as left out.
 # Prints one line per failing case, then the counts of each mode. Everything goes under tmp/nightly-modes/. No run has a time
 # limit. Exit 0 when no case failed, 1 when one did, 2 on a usage error. bash 3.2.
 set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root" || exit 2
 
-usage() { echo "nightly-modes.sh: $1 (--mode coverage|mutate|ownership, --only TEXT, --limit N, --jobs N, --cases DIR)" >&2; exit 2; }
+usage() { echo "nightly-modes.sh: $1 (--mode coverage|mutate|ownership|libc, --only TEXT, --limit N, --jobs N, --cases DIR)" >&2; exit 2; }
 modes=(); only=""; limit=0; jobs=1; cases=tests/cases/run
 while [ $# -gt 0 ]; do
   case $1 in
     (--mode) [ $# -ge 2 ] || usage "--mode expects a mode"
-      case $2 in (coverage|mutate|ownership) modes+=("$2") ;; (*) usage "unknown mode '$2'" ;; esac; shift 2 ;;
+      case $2 in (coverage|mutate|ownership|libc) modes+=("$2") ;; (*) usage "unknown mode '$2'" ;; esac; shift 2 ;;
     (--only) [ $# -ge 2 ] || usage "--only expects text"; only=$2; shift 2 ;;
     (--limit|--jobs) [ $# -ge 2 ] || usage "$1 expects a number"
       case $2 in (''|*[!0-9]*) usage "$1 expects a number, not '$2'" ;; esac
@@ -36,7 +42,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 [ "$jobs" -gt 0 ] || usage "--jobs expects a number above 0"
-[ ${#modes[@]} -gt 0 ] || modes=(coverage mutate ownership)
+[ ${#modes[@]} -gt 0 ] || modes=(coverage mutate ownership libc)
 [ -n "${BAYAN_EXE:-}" ] && [ -x "$BAYAN_EXE" ] || { echo "nightly-modes.sh: BAYAN_EXE names no driver ('${BAYAN_EXE:-}')" >&2; exit 2; }
 exe=$(cd "$(dirname "$BAYAN_EXE")" && pwd)/$(basename "$BAYAN_EXE")
 cases=$(cd "$cases" && pwd)
@@ -176,6 +182,26 @@ ownership() {
   done
 }
 
+# libc for the case $2 in the scratch directory $1: its units go to $1/c/, then the failure, or nothing
+libc() {
+  local d=$1 src=$2 m c r
+  mkdir -p "$d/c"
+  if [ "${src%.test.byn}" != "$src" ]; then
+    package "$d/test" "$src" safe
+    c=$(built "$d/test" safe c/main.c) || { echo "\`test\` left no C: $(said "$d/test.log")"; return; }
+    cp "$c" "$d/c/test.c"
+  else
+    src=$(program "$d" "$src" "$3") || { echo "cannot copy to $d/src"; return; }
+    for m in debug safe fast; do
+      if ! driver "$root" "$d/$m" build --emit-c --mode "$m" "$src"; then echo "--mode $m: build --emit-c failed: $(said "$d/$m")"; return; fi
+      cp "$d/$m.out" "$d/c/$m.c"
+    done
+  fi
+  r=$(bash "$root/scripts/ci/libc-inventory-check.sh" --emitted "$d/c" "$root" 2>&1 | sed 's/^libc-inventory-check: //' \
+    | grep -v -e '^ok$' -e '^listed in 011-c-inventory.md but no emitted unit calls it: ' | paste -sd ';' - | sed 's/;/; /g')
+  [ -z "$r" ] || echo "$r"
+}
+
 # the cases: the top-level *.byn, then each <dir>/main.byn, in ordinal order
 names=$( (cd "$cases" && { ls | grep '\.byn$' | while IFS= read -r f; do [ -f "$f" ] && echo "$f"; done
   for f in */main.byn; do [ -f "$f" ] && echo "$f"; done; }) | LC_ALL=C sort)
@@ -188,6 +214,7 @@ for mode in "${modes[@]}"; do
     [ -n "$name" ] || continue
     case $name in (*"$only"*) ;; (*) continue ;; esac
     if [ "$mode" = coverage ] && [ "${name%.test.byn}" = "$name" ]; then left=$((left + 1)); continue; fi
+    case $mode/$name in (libc/*/*) left=$((left + 1)); continue ;; esac
     [ "$limit" = 0 ] || [ "$taken" -lt "$limit" ] || continue
     taken=$((taken + 1)); echo "$mode $name" >> "$out/units"
   done <<EOF
@@ -203,6 +230,7 @@ worker() {
     if [ $((i % jobs)) = "$k" ]; then
       src="$cases/$name"; d="$out/$mode/$(echo "${name%.byn}" | tr / _)"; mkdir -p "$d"
       if [ "$mode" = ownership ]; then r=$(ownership "$d" "$src" "$name")
+      elif [ "$mode" = libc ]; then r=$(libc "$d" "$src" "$name")
       elif [ "${name%.test.byn}" != "$name" ]; then r=$(test_binary "$d" "$src" "$mode")
       elif head -2 "$src" | tr -d '\r' | grep -qxF "$other"; then r=skip
       else r=$(mutant_program "$d" "$src" "$name")
@@ -226,10 +254,19 @@ while IFS=' ' read -r mode name; do
   esac
   i=$((i + 1))
 done < "$out/units"
+# libc corpus: the direct library calls of every unit together are the listed ones, no fewer (a full run alone)
+if [ -z "$only" ] && [ "$limit" = 0 ] && grep -q '^libc ' "$out/units"; then
+  mkdir -p "$out/libc-all"
+  for c in "$out"/libc/*/c/*.c; do [ -f "$c" ] && cp "$c" "$out/libc-all/$(basename "$(dirname "$(dirname "$c")")")-$(basename "$c")"; done
+  r=$(bash "$root/scripts/ci/libc-inventory-check.sh" --emitted "$out/libc-all" "$root" 2>&1 \
+    | sed -n 's/^libc-inventory-check: \(listed in 011-c-inventory.md but no emitted unit calls it: .*\)/\1/p' | paste -sd ';' - | sed 's/;/; /g')
+  [ -z "$r" ] || { echo "nightly-modes: FAIL libc corpus: $r"; failed=1; }
+fi
 for mode in "${modes[@]}"; do
   eval "o=\$ok_$mode f=\$fail_$mode s=\$skip_$mode l=\$left_$mode"
   part="$mode $o ok, $f failed, $s skipped (os)"
   [ "$mode" != coverage ] || part="$part, $l left out (programs: no bayan build --coverage)"
+  [ "$mode" != libc ] || part="$part, $l left out (<dir>/main.byn: not in the C# selection)"
   summary="${summary:+$summary; }$part"
 done
 echo "nightly-modes: $summary"
