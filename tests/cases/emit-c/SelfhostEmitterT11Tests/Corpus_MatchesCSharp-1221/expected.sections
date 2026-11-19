@@ -1,0 +1,10 @@
+== cases
+0 bynh_add_list_i64(&l0_a, INT64_C(1))
+1 bynh_add_list_i64(&l0_a, INT64_C(2))
+2 bynh_add_list_i64(&l3_items, INT64_C(3))
+3 l4_h.items.len
+4 bynh_add_list_i64(&l5_b, INT64_C(4))
+5 bynh_add_list_i64(&l7_c, INT64_C(5))
+6 bynh_add_list_i64(&l7_c, INT64_C(6))
+7 l14_items.len
+count 8

@@ -1,0 +1,11 @@
+== cases
+0 bynh_add_list_i64(&l0_xs, INT64_C(10))
+1 bynh_add_list_i64(&l0_xs, INT64_C(20))
+2 bynh_try_get_list_i64(l0_xs, INT64_C(0))
+3 bynh_try_get_list_i64(l0_xs, INT64_C(1))
+4 bynh_try_get_list_i64(l0_xs, INT64_C(2))
+5 bynh_try_get_list_i64(l0_xs, INT64_C(-1))
+6 bynh_add_list_str(&l7_names, BYN_STR("ada", 3))
+7 bynh_try_get_list_str(l7_names, INT64_C(0))
+8 bynh_try_get_list_str(l7_names, INT64_C(1))
+count 9

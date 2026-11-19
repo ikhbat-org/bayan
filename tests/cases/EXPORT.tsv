@@ -42,13 +42,15 @@ SelfhostDriverT5Tests	cli	16	761	3 not exported: EmitsAPackageAsCliApp (build --
 SelfhostEmitterHarnessTests	emit-c	1422	2097	
 SelfhostEmitterParityTests	emit-c	353	353	
 SelfhostEmitterT10Tests	emit-c	7	3	
+SelfhostEmitterT11Tests	emit-c	6	1376	1 not exported: Take_FailsLikeCSharp (message taken from C# by reflection; private harness mode; owner 2026-11-19: drop)
 SelfhostEmitterT13Tests	emit-c	1	1	
 SelfhostEmitterT21Tests	emit-c	2	33	
-SelfhostEmitterT22Tests	emit-c	5	1	
-SelfhostEmitterT2Tests	emit-c	10	3	
+SelfhostEmitterT22Tests	emit-c	5	364	
+SelfhostEmitterT2Tests	emit-c	10	1366	5 not exported: Lower_WithErrorsFailsLikeCSharp(row 1) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); Lower_WithErrorsFailsLikeCSharp(row 2) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); Lower_WithErrorsFailsLikeCSharp(row 3) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); Lower_WithErrorsFailsLikeCSharp(row 4) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); Key_OfATypeParameterFailsLikeCSharp (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart)
+SelfhostEmitterT3Tests	emit-c	11	10	1 not exported: Lower_WithErrorsFailsLikeCSharp (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart)
 SelfhostEmitterT4Tests	emit-c	26	23	3 not exported: Expr_PanicsLikeCSharp(spread, lazy, a6) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); Expr_PanicsLikeCSharp(void, lazy, a1) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); Expr_PanicsLikeCSharp(failing, fails1, a) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart)
 SelfhostEmitterT5Tests	emit-c	5	5	
-SelfhostEmitterT6Tests	emit-c	32	30	
+SelfhostEmitterT6Tests	emit-c	32	31	1 not exported: FunctionName_OfAnUnnumberedTestFailsLikeCSharp (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart)
 SelfhostEmitterT7Tests	emit-c	13	1379	
 SelfhostEmitterT8Tests	emit-c	7	6	
 SelfhostEmitterT9Tests	emit-c	3	4	
@@ -71,10 +73,11 @@ SelfhostPathT4Tests	sem	1029	1017	12 TheCSharpReportsDiagnostics: no counterpart
 SelfhostPathT5Tests	emit-c	10	10	
 SelfhostPathT7Tests	sem	10	9	
 SelfhostPathT8Tests	sem	3	2	
-SelfhostRevisionT2Tests	sem	20	16	
+SelfhostRevisionT2Tests	sem	20	20	
 SelfhostRevisionT4Tests	sem	24	24	
 SelfhostRevisionT7Tests	sem	14	14	
-SelfhostRevisionT8Tests	sem	9	7	
+SelfhostRevisionT8Tests	sem	9	9	
+SelfhostSemanticsCorpusParityTests	sem	2	79	
 SelfhostSemanticsHostTests	sem	5	5	
 SelfhostSemanticsParityTests	sem	1302	1302	
 SelfhostSemanticsT10Tests	sem	94	92	2 not exported: DiagPackagesReadClean (typed asserts on sections compared whole by ManifestMatchesCSharp-9, -5); LibraryEntryModuleIsCamelShortName (typed asserts on sections compared whole by ManifestMatchesCSharp-82, -11)
@@ -99,9 +102,11 @@ SelfhostSemanticsT36Tests	sem	29	29
 SelfhostSemanticsT37Tests	sem	98	98	
 SelfhostSemanticsT38Tests	sem	4	4	
 SelfhostSemanticsT39Tests	sem	48	48	
+SelfhostSemanticsT3Tests	sem	5	0	5 not exported: DisplayNamesMatchCSharp (display output lines 1-374: the generated main prints no `== name` header and the sem runner has no line-range compare word); InterningIsCanonical (interning output lines 375-402: the generated main prints no `== name` header and the sem runner has no line-range compare word); KeysAndOccursMatchCSharp (keys output lines 477-666: the generated main prints no `== name` header and the sem runner has no line-range compare word); PrimitiveRangesMatchCSharp (ranges output lines 403-476: the generated main prints no `== name` header and the sem runner has no line-range compare word); SymbolLookupsMatchCSharp (lookups output lines 667-678: the generated main prints no `== name` header and the sem runner has no line-range compare word)
 SelfhostSemanticsT40Tests	sem	5	5	
 SelfhostSemanticsT41Tests	sem	993	992	1 not exported: RunArgumentsStayUnderTheCommandLineLimit (checks the C# harness's argv chunking, no compiler output)
 SelfhostSemanticsT4Tests	sem	5	4	1 not exported: EveryRecordHasAStruct (records compares bound.byn's struct fields, not a program's output)
+SelfhostSemanticsT5Tests	sem	3	0	3 not exported: FloatConversionsMatchCSharp (float conversions output lines 3924-3953: the generated main prints no `== name` header and the sem runner has no line-range compare word); LiteralsMatchBigInteger (literals output lines 3903-3923: the generated main prints no `== name` header and the sem runner has no line-range compare word); OperationsMatchInt128 (operations output lines 1-3902: the generated main prints no `== name` header and the sem runner has no line-range compare word)
 SelfhostSemanticsT6Tests	sem	8	8	
 SelfhostSemanticsT7Tests	sem	39	38	1 not exported: EveryFormIsReached (meta-assert on the C# oracle; the frozen expected.sections of the 38 cases reach every code)
 SelfhostSemanticsT8Tests	sem	6	10	

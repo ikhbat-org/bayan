@@ -1,0 +1,12 @@
+== helpers
+bynh_str_bytes static bynt_span_u8 bynh_str_bytes(byn_str s) | static bynt_span_u8 bynh_str_bytes(byn_str s) {
+    return (bynt_span_u8){(uint8_t*)s.ptr, s.len};
+}
+bynh_add_list_u8 static void bynh_add_list_u8(bynt_list_u8* l, uint8_t v) | static void bynh_add_list_u8(bynt_list_u8* l, uint8_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(uint8_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_span_list_u8 static bynt_span_u8 bynh_span_list_u8(bynt_list_u8 l) | static bynt_span_u8 bynh_span_list_u8(bynt_list_u8 l) {
+    return (bynt_span_u8){l.ptr, l.len};
+}

@@ -1,0 +1,7 @@
+== keys
+main__Discount byn_main_Discount
+i64 int64_t
+i64 int64_t
+opt_main__Discount bynt_opt_main__Discount
+void void
+void void

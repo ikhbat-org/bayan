@@ -1,0 +1,26 @@
+== helpers
+bynh_add_list_i64 static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) | static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(int64_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_copy_span_i64 static bynt_list_i64 bynh_copy_span_i64(bynt_span_i64 s, byn_alloc* a) | static bynt_list_i64 bynh_copy_span_i64(bynt_span_i64 s, byn_alloc* a) {
+    bynt_list_i64 r = {NULL, 0, 0, a};
+    if (s.len > 0) {
+        r.ptr = (int64_t*)byn_copy_bytes(s.ptr, s.len * (int64_t)sizeof(int64_t), a);
+        r.len = r.cap = s.len;
+    }
+    return r;
+}
+bynh_copy_list_i64 static bynt_list_i64 bynh_copy_list_i64(bynt_list_i64 l, byn_alloc* a) | static bynt_list_i64 bynh_copy_list_i64(bynt_list_i64 l, byn_alloc* a) {
+    bynt_list_i64 r = {NULL, 0, 0, a};
+    if (l.len > 0) {
+        r.ptr = (int64_t*)byn_copy_bytes(l.ptr, l.len * (int64_t)sizeof(int64_t), a);
+        r.len = r.cap = l.len;
+    }
+    return r;
+}
+bynh_at_list_i64 static int64_t* bynh_at_list_i64(bynt_list_i64 s, int64_t i, bool from_end, const char* file, int line) | static int64_t* bynh_at_list_i64(bynt_list_i64 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}

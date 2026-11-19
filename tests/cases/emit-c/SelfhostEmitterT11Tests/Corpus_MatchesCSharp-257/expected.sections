@@ -1,0 +1,7 @@
+== cases
+0 bynh_add_list_main__B(&l0_bs, ((bynt_main__B){((bynt_list_i64){NULL, 0, 0, byn_context})}))
+1 (*bynh_at_list_i64((*bynh_at_list_main__B(l0_bs, (int64_t)INT64_C(0), false, byn_file_0, 14)).items, (int64_t)INT64_C(0), false, byn_file_0, 14))
+2 (*bynh_at_list_main__B(l0_bs, (int64_t)INT64_C(0), false, byn_file_0, 14))
+3 ((*self).items.len = 0)
+4 bynh_add_list_i64(&(*self).items, INT64_C(7))
+count 5

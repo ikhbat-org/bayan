@@ -1,0 +1,13 @@
+== cases
+0 (l1_b == p_target)
+1 bynh_str_bytes(l0_text)
+2 bynh_slice_span_u8(l1_bytes, (int64_t)INT64_C(1), 0, (int64_t)INT64_C(1), 1, false, byn_file_0, 19)
+3 bynh_add_list_i64(&l3_numbers, INT64_C(4))
+4 bynh_add_list_i64(&l3_numbers, INT64_C(5))
+5 ((bynt_span_i64){l4_fixed.v, 3})
+6 ((bynt_span_u8){(uint8_t*)l0_text.ptr, l0_text.len})
+7 l2_middle.len
+8 ((bynt_span_i64){l3_numbers.ptr, l3_numbers.len})
+9 ((bynt_span_i64){l4_fixed.v, 3})
+10 bynh_slice_span_i64(l5_view, (int64_t)INT64_C(1), 0, 0, 2, false, byn_file_0, 26)
+count 11

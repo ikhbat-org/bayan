@@ -1,0 +1,17 @@
+== helpers
+bynh_add_list_i64 static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) | static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(int64_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_try_get_list_i64 static bynt_opt_i64 bynh_try_get_list_i64(bynt_list_i64 l, int64_t i) | static bynt_opt_i64 bynh_try_get_list_i64(bynt_list_i64 l, int64_t i) {
+    return i < 0 || i >= l.len ? (bynt_opt_i64){0} : (bynt_opt_i64){true, l.ptr[i]};
+}
+bynh_add_list_str static void bynh_add_list_str(bynt_list_str* l, byn_str v) | static void bynh_add_list_str(bynt_list_str* l, byn_str v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_str), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_try_get_list_str static bynt_opt_str bynh_try_get_list_str(bynt_list_str l, int64_t i) | static bynt_opt_str bynh_try_get_list_str(bynt_list_str l, int64_t i) {
+    return i < 0 || i >= l.len ? (bynt_opt_str){0} : (bynt_opt_str){true, l.ptr[i]};
+}

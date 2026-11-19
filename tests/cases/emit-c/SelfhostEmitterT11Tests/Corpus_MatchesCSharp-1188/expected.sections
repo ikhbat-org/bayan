@@ -1,0 +1,12 @@
+== locals
+find: x t t
+viaReturn: t k doubled
+viaLongReturn: t k
+viaParameter: k
+viaLet: found k
+viaWhile: total i t k
+viaContinue: total v t t t k
+hitOnly: total t k
+inAnd: t k t
+varOperand: found t k
+main: xs t t t t t t t t

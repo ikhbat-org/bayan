@@ -1,0 +1,7 @@
+== cases
+0 byn_w_str(&l0_buf, BYN_STR("name", 4))
+1 byn_strbuf_str(l0_buf)
+2 (l0_buf.len = 0)
+3 byn_w_str(&l0_buf, BYN_STR("other", 5))
+4 byn_sym_text(l1_s)
+count 5

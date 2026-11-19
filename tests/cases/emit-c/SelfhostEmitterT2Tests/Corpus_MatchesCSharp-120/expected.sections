@@ -1,0 +1,81 @@
+== lines
+line 30 loc byn_file_0, 30
+#line 30 "a.byn"
+    a;
+#line 30 "a.byn"
+        b;
+line 30 loc byn_file_0, 30
+    a;
+        b;
+line 35 loc byn_file_0, 35
+#line 35 "a.byn"
+    a;
+#line 35 "a.byn"
+        b;
+line 35 loc byn_file_0, 35
+    a;
+        b;
+line 11 loc byn_file_0, 11
+#line 11 "a.byn"
+    a;
+#line 11 "a.byn"
+        b;
+line 11 loc byn_file_0, 11
+    a;
+        b;
+line 13 loc byn_file_0, 13
+#line 13 "a.byn"
+    a;
+#line 13 "a.byn"
+        b;
+line 13 loc byn_file_0, 13
+    a;
+        b;
+line 15 loc byn_file_0, 15
+#line 15 "a.byn"
+    a;
+#line 15 "a.byn"
+        b;
+line 15 loc byn_file_0, 15
+    a;
+        b;
+line 21 loc byn_file_0, 21
+#line 21 "a.byn"
+    a;
+#line 21 "a.byn"
+        b;
+line 21 loc byn_file_0, 21
+    a;
+        b;
+line 23 loc byn_file_0, 23
+#line 23 "a.byn"
+    a;
+#line 23 "a.byn"
+        b;
+line 23 loc byn_file_0, 23
+    a;
+        b;
+line 25 loc byn_file_0, 25
+#line 25 "a.byn"
+    a;
+#line 25 "a.byn"
+        b;
+line 25 loc byn_file_0, 25
+    a;
+        b;
+line 27 loc byn_file_0, 27
+#line 27 "a.byn"
+    a;
+#line 27 "a.byn"
+        b;
+line 27 loc byn_file_0, 27
+    a;
+        b;
+line 5 loc byn_file_0, 5
+#line 5 "a.byn"
+    a;
+#line 5 "a.byn"
+        b;
+line 5 loc byn_file_0, 5
+    a;
+        b;

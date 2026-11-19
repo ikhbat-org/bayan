@@ -1,0 +1,7 @@
+== cases
+0 l1_p.message
+1 l1_p.message.len
+2 l1_p.message
+3 byn_div_i64(INT64_C(10), byn_sub_i64(p_n, p_n, byn_file_0, 7), byn_file_0, 7)
+4 byn_sub_i64(p_n, p_n, byn_file_0, 7)
+count 5

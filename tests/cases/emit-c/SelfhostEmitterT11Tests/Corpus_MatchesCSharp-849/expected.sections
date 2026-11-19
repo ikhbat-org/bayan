@@ -1,0 +1,18 @@
+== cases
+0 ((bynt_opt_own_main__Node){true, bynh_own_main__Node(((bynt_main__Node){p_item, p_head}))})
+1 (*l0_n)
+2 (*l0_n)
+3 ((int64_t)l2_i)
+4 (*l6_h)
+5 (*l6_h)
+6 (*l6_h)
+7 ((bynt_opt_own_main__Node){true, bynh_own_main__Node(((bynt_main__Node){INT64_C(1), ((bynt_opt_own_main__Node){0})}))})
+8 bynh_eq_main__Node((*l10_two), (*bynh_own_main__Node(((bynt_main__Node){INT64_C(2), ((bynt_opt_own_main__Node){true, bynh_own_main__Node(((bynt_main__Node){INT64_C(1), ((bynt_opt_own_main__Node){0})}))})}))))
+9 ((bynt_opt_own_main__Node){true, bynh_own_main__Node(((bynt_main__Node){INT64_C(1), ((bynt_opt_own_main__Node){0})}))})
+10 bynh_eq_main__Node((*l10_two), (*l6_h))
+11 bynh_add_list_main__Tree(&l12_leaf.children, ((bynt_main__Tree){BYN_STR("deep", 4), ((bynt_list_main__Tree){NULL, 0, 0, byn_context})}))
+12 bynh_add_list_main__Tree(&l11_root.children, l12_leaf)
+13 bynh_add_list_main__Tree(&l11_root.children, ((bynt_main__Tree){BYN_STR("other", 5), ((bynt_list_main__Tree){NULL, 0, 0, byn_context})}))
+15 byn_add_i64((*self).item, byn_main__Node__total(&(*l0_n)), byn_file_0, 10)
+16 (*l0_n)
+count 17

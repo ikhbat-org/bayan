@@ -1,0 +1,13 @@
+== diags.not-this-bodies
+BYN7001 16:16 `go` needs `g` to be `.open`, but it is `Gate`
+  help check the state with `is` or `switch` first
+BYN7001 19:16 `go` needs `g` to be `.open`, but it is `Gate`
+  help check the state with `is` or `switch` first
+BYN7001 22:16 `go` needs `g` to be `.open`, but it is `Gate`
+  help check the state with `is` or `switch` first
+BYN7001 25:16 `go` needs `g` to be `.open`, but it is `Gate`
+  help check the state with `is` or `switch` first
+BYN2003 9:28 `open` is not a member of `Gate`
+BYN2311 10:27 `g` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 10:23-10:26 let

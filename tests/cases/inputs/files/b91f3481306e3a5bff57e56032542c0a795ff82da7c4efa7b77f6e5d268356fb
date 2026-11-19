@@ -1,0 +1,18 @@
+struct Q {
+    i64 a
+    i64 b
+}
+
+void typed(List<i32> xs, at ref u8[4] a, by ReadOnlySpan<i16> sp, through ref (i64 a, i64 b) t, to ref Q q, for ref List<i64> ys, as i32 n, from i64 m) {
+    for x in xs { let y = x }
+    for x in a { let y = x }
+    for x in sp { let y = x }
+    for k in 0..n { let y = k }
+    t.b += 1
+    q.b += 2
+    ys[^1] = 3
+    ys[^(m + 1)] += 4
+    a[^(m + 2)] = 5
+}
+
+void main() { }

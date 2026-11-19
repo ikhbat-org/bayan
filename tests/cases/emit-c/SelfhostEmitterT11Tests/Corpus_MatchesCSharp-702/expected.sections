@@ -1,0 +1,14 @@
+== helpers
+bynh_add_list_str static void bynh_add_list_str(bynt_list_str* l, byn_str v) | static void bynh_add_list_str(bynt_list_str* l, byn_str v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_str), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_add_list_main__Expense static void bynh_add_list_main__Expense(bynt_list_main__Expense* l, bynt_main__Expense v) | static void bynh_add_list_main__Expense(bynt_list_main__Expense* l, bynt_main__Expense v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_main__Expense), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_span_list_main__Expense static bynt_span_main__Expense bynh_span_list_main__Expense(bynt_list_main__Expense l) | static bynt_span_main__Expense bynh_span_list_main__Expense(bynt_list_main__Expense l) {
+    return (bynt_span_main__Expense){l.ptr, l.len};
+}

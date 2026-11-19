@@ -1,0 +1,128 @@
+== helpers
+bynh_str_bytes static bynt_span_u8 bynh_str_bytes(byn_str s) | static bynt_span_u8 bynh_str_bytes(byn_str s) {
+    return (bynt_span_u8){(uint8_t*)s.ptr, s.len};
+}
+bynh_copy_span_u8 static bynt_list_u8 bynh_copy_span_u8(bynt_span_u8 s, byn_alloc* a) | static bynt_list_u8 bynh_copy_span_u8(bynt_span_u8 s, byn_alloc* a) {
+    bynt_list_u8 r = {NULL, 0, 0, a};
+    if (s.len > 0) {
+        r.ptr = (uint8_t*)byn_copy_bytes(s.ptr, s.len * (int64_t)sizeof(uint8_t), a);
+        r.len = r.cap = s.len;
+    }
+    return r;
+}
+bynh_span_list_u8 static bynt_span_u8 bynh_span_list_u8(bynt_list_u8 l) | static bynt_span_u8 bynh_span_list_u8(bynt_list_u8 l) {
+    return (bynt_span_u8){l.ptr, l.len};
+}
+bynh_bytes_string_span_u8 static byn_str bynh_bytes_string_span_u8(bynt_span_u8 b) | static byn_str bynh_bytes_string_span_u8(bynt_span_u8 b) {
+    return byn_bytes_string(b.ptr, b.len, byn_context);
+}
+bynh_try_parse_opt_i32 static bynt_opt_i32 bynh_try_parse_opt_i32(byn_str s, byn_builtin_Radix radix) | static bynt_opt_i32 bynh_try_parse_opt_i32(byn_str s, byn_builtin_Radix radix) {
+    int64_t v;
+    if (!byn_int_parse(s, 32, true, radix, &v)) return (bynt_opt_i32){0};
+    return (bynt_opt_i32){true, (int32_t)v};
+}
+bynh_try_parse_opt_u8 static bynt_opt_u8 bynh_try_parse_opt_u8(byn_str s, byn_builtin_Radix radix) | static bynt_opt_u8 bynh_try_parse_opt_u8(byn_str s, byn_builtin_Radix radix) {
+    int64_t v;
+    if (!byn_int_parse(s, 8, false, radix, &v)) return (bynt_opt_u8){0};
+    return (bynt_opt_u8){true, (uint8_t)v};
+}
+bynh_try_parse_opt_f64 static bynt_opt_f64 bynh_try_parse_opt_f64(byn_str s) | static bynt_opt_f64 bynh_try_parse_opt_f64(byn_str s) {
+    double v;
+    if (!byn_float_parse(s, false, &v)) return (bynt_opt_f64){0};
+    return (bynt_opt_f64){true, (double)v};
+}
+bynh_try_parse_opt_f32 static bynt_opt_f32 bynh_try_parse_opt_f32(byn_str s) | static bynt_opt_f32 bynh_try_parse_opt_f32(byn_str s) {
+    double v;
+    if (!byn_float_parse(s, true, &v)) return (bynt_opt_f32){0};
+    return (bynt_opt_f32){true, (float)v};
+}
+bynh_joined_list_str static byn_str bynh_joined_list_str(bynt_list_str xs, byn_str sep) | static byn_str bynh_joined_list_str(bynt_list_str xs, byn_str sep) {
+    return byn_str_joined(xs.ptr, xs.len, sep, byn_context);
+}
+bynh_slice_str static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(s.len, a, am, b, bm, incl, file, line, &from, &to);
+    return byn_str_slice(s, from, to, file, line);
+}
+bynh_copy_list_i64 static bynt_list_i64 bynh_copy_list_i64(bynt_list_i64 l, byn_alloc* a) | static bynt_list_i64 bynh_copy_list_i64(bynt_list_i64 l, byn_alloc* a) {
+    bynt_list_i64 r = {NULL, 0, 0, a};
+    if (l.len > 0) {
+        r.ptr = (int64_t*)byn_copy_bytes(l.ptr, l.len * (int64_t)sizeof(int64_t), a);
+        r.len = r.cap = l.len;
+    }
+    return r;
+}
+bynh_span_list_i64 static bynt_span_i64 bynh_span_list_i64(bynt_list_i64 l) | static bynt_span_i64 bynh_span_list_i64(bynt_list_i64 l) {
+    return (bynt_span_i64){l.ptr, l.len};
+}
+bynh_try_get_list_i64 static bynt_opt_i64 bynh_try_get_list_i64(bynt_list_i64 l, int64_t i) | static bynt_opt_i64 bynh_try_get_list_i64(bynt_list_i64 l, int64_t i) {
+    return i < 0 || i >= l.len ? (bynt_opt_i64){0} : (bynt_opt_i64){true, l.ptr[i]};
+}
+bynh_at_list_i64 static int64_t* bynh_at_list_i64(bynt_list_i64 s, int64_t i, bool from_end, const char* file, int line) | static int64_t* bynh_at_list_i64(bynt_list_i64 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_at_span_i64 static int64_t* bynh_at_span_i64(bynt_span_i64 s, int64_t i, bool from_end, const char* file, int line) | static int64_t* bynh_at_span_i64(bynt_span_i64 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_slice_span_i64 static bynt_span_i64 bynh_slice_span_i64(bynt_span_i64 x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static bynt_span_i64 bynh_slice_span_i64(bynt_span_i64 x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(x.len, a, am, b, bm, incl, file, line, &from, &to);
+    return (bynt_span_i64){x.ptr + from, to - from};
+}
+bynh_slice_list_i64 static bynt_span_i64 bynh_slice_list_i64(bynt_list_i64 x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static bynt_span_i64 bynh_slice_list_i64(bynt_list_i64 x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(x.len, a, am, b, bm, incl, file, line, &from, &to);
+    return (bynt_span_i64){x.ptr + from, to - from};
+}
+bynh_copy_span_i64 static bynt_list_i64 bynh_copy_span_i64(bynt_span_i64 s, byn_alloc* a) | static bynt_list_i64 bynh_copy_span_i64(bynt_span_i64 s, byn_alloc* a) {
+    bynt_list_i64 r = {NULL, 0, 0, a};
+    if (s.len > 0) {
+        r.ptr = (int64_t*)byn_copy_bytes(s.ptr, s.len * (int64_t)sizeof(int64_t), a);
+        r.len = r.cap = s.len;
+    }
+    return r;
+}
+bynh_less_i64 static bool bynh_less_i64(const void* a, const void* b) | static bool bynh_less_i64(const void* a, const void* b) {
+    return *(const int64_t*)a < *(const int64_t*)b;
+}
+bynh_sort_list_i64 static void bynh_sort_list_i64(bynt_list_i64* l) | static void bynh_sort_list_i64(bynt_list_i64* l) {
+    byn_sort(l->ptr, l->len, sizeof(*l->ptr), bynh_less_i64);
+}
+bynh_copy_list_str static bynt_list_str bynh_copy_list_str(bynt_list_str l, byn_alloc* a) | static bynt_list_str bynh_copy_list_str(bynt_list_str l, byn_alloc* a) {
+    bynt_list_str r = {NULL, 0, 0, a};
+    if (l.len > 0) {
+        r.ptr = (byn_str*)byn_copy_bytes(l.ptr, l.len * (int64_t)sizeof(byn_str), a);
+        r.len = r.cap = l.len;
+    }
+    return r;
+}
+bynh_less_str static bool bynh_less_str(const void* a, const void* b) | static bool bynh_less_str(const void* a, const void* b) {
+    return byn_str_cmp(*(const byn_str*)a, *(const byn_str*)b) < 0;
+}
+bynh_sort_list_str static void bynh_sort_list_str(bynt_list_str* l) | static void bynh_sort_list_str(bynt_list_str* l) {
+    byn_sort(l->ptr, l->len, sizeof(*l->ptr), bynh_less_str);
+}
+bynh_pop_list_i64 static int64_t bynh_pop_list_i64(bynt_list_i64* l, const char* file, int line) | static int64_t bynh_pop_list_i64(bynt_list_i64* l, const char* file, int line) {
+    if (l->len == 0) byn_panic("removeLast on an empty list", file, line);
+    return l->ptr[--l->len];
+}
+bynh_remove_range_list_i64 static void bynh_remove_range_list_i64(bynt_list_i64* l, int64_t start, int64_t end, const char* file, int line) | static void bynh_remove_range_list_i64(bynt_list_i64* l, int64_t start, int64_t end, const char* file, int line) {
+    byn_slice_check(start, end, l->len, file, line);
+    if (end > start) memmove(l->ptr + start, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));
+    l->len -= end - start;
+}
+bynh_remove_through_list_i64 static void bynh_remove_through_list_i64(bynt_list_i64* l, int64_t start, int64_t end, int mode, const char* file, int line) | static void bynh_remove_through_list_i64(bynt_list_i64* l, int64_t start, int64_t end, int mode, const char* file, int line) {
+    if (mode == 2) {
+        if (start < 0 || start >= l->len) bayan_trap_bounds(file, line);
+        end = start;
+    }
+    if (mode != 0) {
+        byn_slice_check(start, end, l->len - 1, file, line);
+        end++;
+    }
+    byn_slice_check(start, end, l->len, file, line);
+    if (end > start) memmove(l->ptr + start, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));
+    l->len -= end - start;
+}

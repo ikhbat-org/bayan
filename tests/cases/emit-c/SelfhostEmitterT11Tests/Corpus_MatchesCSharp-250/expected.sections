@@ -1,0 +1,6 @@
+== helpers
+bynh_add_list_main__Sq static void bynh_add_list_main__Sq(bynt_list_main__Sq* l, bynt_main__Sq v) | static void bynh_add_list_main__Sq(bynt_list_main__Sq* l, bynt_main__Sq v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_main__Sq), l->alloc);
+    l->ptr[l->len++] = v;
+}

@@ -1,0 +1,3 @@
+== cases
+0 bynh_add_list_main__S(&l0_xs, ((bynt_main__S){INT64_C(1)}))
+count 1

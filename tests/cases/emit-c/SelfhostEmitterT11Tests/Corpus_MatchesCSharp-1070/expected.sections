@@ -1,0 +1,17 @@
+== helpers
+bynh_reverse static void bynh_reverse(uint8_t* p, int64_t n) | static void bynh_reverse(uint8_t* p, int64_t n) {
+    for (int64_t i = 0, j = n - 1; i < j; i++, j--) {
+        uint8_t t = p[i];
+        p[i] = p[j];
+        p[j] = t;
+    }
+}
+bynh_strbuf_insert static void bynh_strbuf_insert(byn_writer* w, byn_str s, int64_t at, const char* file, int line) | static void bynh_strbuf_insert(byn_writer* w, byn_str s, int64_t at, const char* file, int line) {
+    byn_slice_check(at, w->len, w->len, file, line);
+    if (at < w->len && (w->buf[at] & 0xC0) == 0x80) byn_panic("string slice splits a code point", file, line);
+    int64_t end = w->len;
+    byn_w_bytes(w, s.ptr, s.len);
+    bynh_reverse(w->buf + at, end - at);
+    bynh_reverse(w->buf + end, s.len);
+    bynh_reverse(w->buf + at, end - at + s.len);
+}

@@ -1,0 +1,5 @@
+== cases
+0 bynh_slice_span_i32(((bynt_span_i32){l0_xs.v, 3}), (int64_t)INT64_C(0), 0, (int64_t)l1_n, 0, true, byn_file_0, 4).len
+1 bynh_slice_span_i32(((bynt_span_i32){l0_xs.v, 3}), (int64_t)INT64_C(0), 0, (int64_t)l1_n, 0, true, byn_file_0, 4)
+2 ((bynt_span_i32){l0_xs.v, 3})
+count 3

@@ -1,0 +1,11 @@
+== cases
+0 bynh_position(byn_str_position(l0_s, BYN_STR("bb", 2), 0, byn_file_0, 4))
+1 bynh_position(byn_str_position(l0_s, BYN_STR("bb", 2), INT64_C(3), byn_file_0, 4))
+2 bynh_position(byn_str_position(l0_s, BYN_STR("zz", 2), 0, byn_file_0, 4))
+3 bynh_position(byn_str_last_position(l0_s, BYN_STR("a", 1)))
+4 bynh_position(byn_str_last_position(l0_s, BYN_STR("zz", 2)))
+5 byn_str_count(l0_s, BYN_STR("bb", 2))
+6 byn_str_count(BYN_STR("aaaa", 4), BYN_STR("aa", 2))
+7 byn_str_count(l0_s, BYN_STR("", 0))
+8 bynh_position(byn_str_position(BYN_STR("h\303\251llo", 6), BYN_STR("l", 1), 0, byn_file_0, 7))
+count 9

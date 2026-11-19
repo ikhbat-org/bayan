@@ -1,0 +1,8 @@
+== cases
+0 bynh_add_list_i64(&l0_xs, ((int64_t)l1_i))
+1 ((int64_t)l1_i)
+2 bynh_remove_through_list_i64(&l0_xs, INT64_C(0), INT64_C(2), 1, byn_file_0, 3)
+3 l0_xs.len
+4 bynh_add_list_i64(&l0_xs, INT64_C(5))
+5 bynh_remove_through_list_i64(&l0_xs, INT64_C(0), INT64_C(1), 1, byn_file_0, 6)
+count 6

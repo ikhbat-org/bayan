@@ -1,0 +1,17 @@
+union Shape {
+    circle(i64 r)
+    square(i64 side)
+    none
+}
+
+i64 area(Shape s) => s switch {
+    .circle(let r) => r * r * 3,
+    .square(let side) => side * side,
+    .none => 0,
+}
+
+void main() {
+    var total: i64 = 0
+    total += area(.square(total))
+    print($"{total}")
+}

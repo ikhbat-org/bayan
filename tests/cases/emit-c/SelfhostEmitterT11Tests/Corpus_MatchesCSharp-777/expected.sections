@@ -1,0 +1,29 @@
+== cases
+0 bynh_add_list_i64(&l0_xs, byn_mul_i64(l1_i, l1_i, byn_file_0, 9))
+1 byn_mul_i64(l1_i, l1_i, byn_file_0, 9)
+2 l1_xs.len
+3 (*bynh_at_list_i64(l1_xs, (int64_t)INT64_C(4), false, byn_file_0, 18))
+4 (l1_xs.len == 0)
+5 bynh_add_list_i64(&l1_xs, INT64_C(100))
+6 bynh_pop_list_i64(&l1_xs, byn_file_0, 20)
+7 l1_xs.len
+8 bynh_add_list_main__Item(&l5_items, ((bynt_main__Item){BYN_STR("pen", 3), INT64_C(2)}))
+9 bynh_add_list_main__Item(&l5_items, ((bynt_main__Item){BYN_STR("ink", 3), INT64_C(5)}))
+10 l5_items.len
+11 (*bynh_at_list_main__Item(l5_items, (int64_t)INT64_C(1), false, byn_file_0, 29))
+12 bynh_copy_span_i64(bynh_slice_span_i64(bynh_span_list_i64(l1_xs), (int64_t)INT64_C(1), 0, (int64_t)INT64_C(3), 0, false, byn_file_0, 30), byn_arena_alloc(l0_arena))
+13 bynh_slice_span_i64(bynh_span_list_i64(l1_xs), (int64_t)INT64_C(1), 0, (int64_t)INT64_C(3), 0, false, byn_file_0, 30)
+14 bynh_span_list_i64(l1_xs)
+15 l10_copy.len
+16 (*bynh_at_list_i64(l10_copy, (int64_t)INT64_C(0), false, byn_file_0, 31))
+17 (*bynh_at_list_i64(l10_copy, (int64_t)INT64_C(1), false, byn_file_0, 31))
+18 (l1_xs.len = 0)
+19 l1_xs.len
+20 l10_copy.len
+21 byn_str_copy(BYN_STR("temporary", 9), byn_arena_alloc(l0_arena))
+22 bynh_add_list_i64(&l14_many, ((int64_t)l15_i))
+23 ((int64_t)l15_i)
+24 l14_many.len
+25 (*bynh_at_list_i64(l14_many, (int64_t)INT64_C(999), false, byn_file_0, 41))
+26 byn_arena_reset(l0_arena)
+count 27

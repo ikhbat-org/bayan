@@ -1,0 +1,7 @@
+== cases
+0 byn_str_case(l0_s, false, byn_context)
+1 byn_str_case(l0_s, true, byn_context)
+2 (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(BYN_STR("ABC", 3), BYN_STR("abc", 3)) : byn_str_eq(BYN_STR("ABC", 3), BYN_STR("abc", 3)))
+3 byn_str_eq(BYN_STR("ABC", 3), BYN_STR("abc", 3))
+4 (((byn_builtin_Comparison)1) == 1 ? byn_str_eq_caseless(BYN_STR("ABC", 3), BYN_STR("abd", 3)) : byn_str_eq(BYN_STR("ABC", 3), BYN_STR("abd", 3)))
+count 5

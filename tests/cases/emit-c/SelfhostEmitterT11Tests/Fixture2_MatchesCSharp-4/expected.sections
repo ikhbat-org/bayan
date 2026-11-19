@@ -1,0 +1,7 @@
+== locals
+risky: t
+strings2: s t n k ch eq po po2 lp cn tr rl rsp tb rp rr pd ps ps2 pr pr2 rs rt rk rl us uc ls sc so
+lists2: xs ys i j r sp ms w ch k s m ml arr al asp amp av asl u xu
+numbers2: a b u v x s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 s12 st
+errors2: e same bare n full left ne p q ba bo bx none
+main:

@@ -1,0 +1,5 @@
+== helpers
+bynh_strbuf_repeat static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line) | static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line) {
+    if (n < 0) byn_panic("repeated a negative number of times", file, line);
+    for (int64_t i = 0; i < n; i++) byn_w_char(w, c);
+}

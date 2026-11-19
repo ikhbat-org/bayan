@@ -1,0 +1,15 @@
+== helpers
+bynh_add_list_str static void bynh_add_list_str(bynt_list_str* l, byn_str v) | static void bynh_add_list_str(bynt_list_str* l, byn_str v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_str), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_add_list_main__Outer static void bynh_add_list_main__Outer(bynt_list_main__Outer* l, bynt_main__Outer v) | static void bynh_add_list_main__Outer(bynt_list_main__Outer* l, bynt_main__Outer v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_main__Outer), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_at_list_str static byn_str* bynh_at_list_str(bynt_list_str s, int64_t i, bool from_end, const char* file, int line) | static byn_str* bynh_at_list_str(bynt_list_str s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}

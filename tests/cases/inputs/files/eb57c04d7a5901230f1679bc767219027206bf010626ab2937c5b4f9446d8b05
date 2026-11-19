@@ -1,0 +1,11 @@
+struct Point {
+    i64 x
+    i64 y
+    i64 sum() => x + y
+}
+
+void main() {
+    var total: i64 = 0
+    total += Point { x: total, y: 2 }.sum()
+    print($"{total}")
+}

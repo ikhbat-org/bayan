@@ -1,0 +1,4 @@
+== locals
+risky: t
+safe: t t
+main:

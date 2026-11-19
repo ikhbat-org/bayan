@@ -1,0 +1,16 @@
+== cases
+0 (byn_rem_i64(l1_i, INT64_C(4), byn_file_0, 4) == INT64_C(0))
+1 byn_rem_i64(l1_i, INT64_C(4), byn_file_0, 4)
+2 byn_w_str(&(*p_sb), BYN_STR("abc", 3))
+4 byn_rem_i64(l1_i, INT64_C(10), byn_file_0, 8)
+5 l1_sb.len
+6 (l1_sb.len == l2_sum)
+7 l1_sb.len
+8 bynh_slice_str(byn_strbuf_str(l1_sb), (int64_t)INT64_C(0), 0, (int64_t)INT64_C(12), 0, false, byn_file_0, 22)
+9 byn_strbuf_str(l1_sb)
+10 (l1_sb.len = 0)
+11 byn_w_str(&l1_sb, BYN_STR("again", 5))
+12 byn_strbuf_str(l1_sb)
+13 l1_sb.len
+14 l6_general.len
+count 15

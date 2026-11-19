@@ -1,0 +1,7 @@
+i64 widen(i32 n) => i64(n)
+
+void main() {
+    var total: i64 = 0
+    total += widen(i32(3))
+    print($"{total}")
+}

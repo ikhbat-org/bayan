@@ -1,0 +1,4 @@
+== cases
+0 ((bynt_span_u8){l0_a.v, 1})
+1 ((bynt_span_u8){l1_b.v, 1})
+count 2

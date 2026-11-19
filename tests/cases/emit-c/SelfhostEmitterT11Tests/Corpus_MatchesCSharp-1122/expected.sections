@@ -1,0 +1,4 @@
+== helpers
+bynh_position static bynt_opt_i64 bynh_position(int64_t p) | static bynt_opt_i64 bynh_position(int64_t p) {
+    return p < 0 ? (bynt_opt_i64){0} : (bynt_opt_i64){true, p};
+}

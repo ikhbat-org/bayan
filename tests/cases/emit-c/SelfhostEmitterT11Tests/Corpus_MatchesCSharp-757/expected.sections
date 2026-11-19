@@ -1,0 +1,38 @@
+== cases
+0 (*bynh_slot_map_i64_i64(&l0_m, ((int64_t)byn_rem_i32(byn_mul_i32(l1_i, ((int32_t)7), byn_file_0, 3), ((int32_t)1000), byn_file_0, 3)), ((int64_t){0})))
+1 ((int64_t)byn_rem_i32(byn_mul_i32(l1_i, ((int32_t)7), byn_file_0, 3), ((int32_t)1000), byn_file_0, 3))
+2 byn_rem_i32(byn_mul_i32(l1_i, ((int32_t)7), byn_file_0, 3), ((int32_t)1000), byn_file_0, 3)
+3 byn_mul_i32(l1_i, ((int32_t)7), byn_file_0, 3)
+4 ((int64_t)l1_i)
+5 l0_m.h.live
+6 (byn_rem_i32(byn_mul_i32(l10_i, ((int32_t)7), byn_file_0, 10), ((int32_t)1000), byn_file_0, 10) == l6_k)
+7 byn_rem_i32(byn_mul_i32(l10_i, ((int32_t)7), byn_file_0, 10), ((int32_t)1000), byn_file_0, 10)
+8 byn_mul_i32(l10_i, ((int32_t)7), byn_file_0, 10)
+9 ((int64_t)l10_i)
+10 (!(bynh_index_map_i64_i64(l0_m, ((int64_t)l6_k), byn_file_0, 12) == l9_last))
+11 bynh_index_map_i64_i64(l0_m, ((int64_t)l6_k), byn_file_0, 12)
+12 ((int64_t)l6_k)
+13 ((byn_rem_i32(l15_k, ((int32_t)3), byn_file_0, 18) == ((int32_t)0)) && bynh_remove_map_i64_i64(&l0_m, ((int64_t)l15_k)))
+14 (byn_rem_i32(l15_k, ((int32_t)3), byn_file_0, 18) == ((int32_t)0))
+15 byn_rem_i32(l15_k, ((int32_t)3), byn_file_0, 18)
+16 bynh_remove_map_i64_i64(&l0_m, ((int64_t)l15_k))
+17 ((int64_t)l15_k)
+18 l0_m.h.live
+19 bynh_has_map_i64_i64(l0_m, INT64_C(0))
+20 bynh_has_map_i64_i64(l0_m, INT64_C(1))
+21 (*bynh_slot_map_i64_i64(&l0_m, INT64_C(0), ((int64_t){0})))
+22 l0_m.h.live
+23 byn_rem_i32(l29_i, ((int32_t)500), byn_file_0, 39)
+24 (*bynh_slot_map_str_i64(&l28_words, l32_key, ((int64_t){0})))
+26 bynh_try_get_map_str_i64(l28_words, l32_key)
+27 l28_words.h.live
+28 bynh_index_map_str_i64(l28_words, BYN_STR("w0", 2), byn_file_0, 42)
+29 bynh_index_map_str_i64(l28_words, BYN_STR("w499", 4), byn_file_0, 42)
+30 bynh_has_map_str_i64(l28_words, BYN_STR("w500", 4))
+31 t21.h.len
+32 (!t21.h.dead[t22])
+33 ((bynt_tup2_i64_i64){t21.keys[t22], t21.vals[t22]})
+34 t26.h.len
+35 (!t26.h.dead[t27])
+36 ((bynt_tup2_i64_i64){t26.keys[t27], t26.vals[t27]})
+count 37

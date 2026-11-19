@@ -1,0 +1,15 @@
+union error E {
+    bad(i64 code)
+    gone
+}
+
+i64 risky(i64 n) fails E {
+    fail .gone if n < 0
+    return n
+}
+
+i64 safe(i64 n) {
+    return risky(n) catch 0
+}
+
+void main() { }

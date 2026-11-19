@@ -1,0 +1,3 @@
+== locals
+show: line x t t t
+main: xs ys last front empty

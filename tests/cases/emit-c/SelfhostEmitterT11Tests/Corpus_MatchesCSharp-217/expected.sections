@@ -1,0 +1,14 @@
+== cases
+0 (p_n > INT64_C(100))
+1 byn_mul_i64(p_n, INT64_C(10), byn_file_0, 16)
+2 (p_n < INT64_C(0))
+3 (p_n == INT64_C(0))
+4 (p_n == INT64_C(42))
+5 l6_reason.len
+6 byn_neg_i64(l7_age, byn_file_0, 36)
+10 (p_n > INT64_C(0))
+11 ((bynt_res_i64){((byn_err){ .code = UINT32_C(13), .p.e13 = { p_n } })})
+12 ((bynt_res_i64){{0}, ((int32_t)0)})
+13 (p_r.err.code == 0)
+14 bynh_error_res_i64(p_r, byn_file_0, 65)
+count 15

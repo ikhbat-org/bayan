@@ -1,0 +1,36 @@
+interface IArea {
+    i64 area()
+}
+
+struct Box : IArea {
+    i64 w
+    i64 h
+    i64 area() => w * h
+}
+
+i64 biggerArea<T>(T a, to T b) where T : IArea => a.area() > b.area() ? a.area() : b.area()
+
+i64 orZero(i64? n) => n ?? 0
+
+string greet(string name) uses alloc => $"hello {name}"
+
+i64 stock(Map<string, i64> m) => m.length
+
+const limit: i64 = 100
+
+i64 widen(i32 n) => i64(n)
+
+i64 twice(i64 n) => n * 2
+
+test "twice doubles" {
+    assert twice(2) == 4
+}
+
+void main() {
+    var total: i64 = 0
+    if total >= 0 {
+        total += twice(total)
+        total += 1
+    }
+    print($"{total}")
+}

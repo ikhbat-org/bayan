@@ -1,0 +1,16 @@
+== locals
+code: t
+quote: subtotal grams line t t t t t discount freeShipping promo t t applies t threshold fee t t shipping afterDiscount t t taxable t t tax t t
+bestDiscount: best promo t t amount t rateBp minimumCents key buy free
+percentDiscount: off t t
+freeUnitsDiscount: line t t
+shippingFee: band t t t
+describe: q t t t t t t total t t t t
+myr:
+main: standard t t tea t rug t bed t lamps t mixed t
+plus: t t
+minus: t
+times:
+atRate: t
+formatInto: whole t
+total: afterDiscount t t withShipping t t t t

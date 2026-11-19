@@ -1,0 +1,9 @@
+== locals
+g: t t t
+h: inner got t t
+main:
+h$lambda1:
+main$lambda1:
+main$lambda1$lambda1:
+main$lambda2:
+main$lambda2$lambda1:

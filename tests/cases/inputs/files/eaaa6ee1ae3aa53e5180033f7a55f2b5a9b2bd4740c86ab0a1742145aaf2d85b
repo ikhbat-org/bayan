@@ -1,0 +1,11 @@
+i64 twice(i64 n) => n * 2
+
+test "twice doubles" {
+    assert twice(2) == 4
+}
+
+void main() {
+    var total: i64 = 0
+    total += twice(total)
+    print($"{total}")
+}

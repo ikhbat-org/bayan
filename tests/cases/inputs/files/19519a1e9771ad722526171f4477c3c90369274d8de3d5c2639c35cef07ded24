@@ -1,0 +1,13 @@
+i64 sumAll(List<i64> xs) {
+    var sum: i64 = 0
+    for x in xs { sum += x }
+    var i = 0
+    while i < xs.length { i += 1 }
+    return sum + i
+}
+
+void main() {
+    var total: i64 = 0
+    total += sumAll([1, 2, 3])
+    print($"{total}")
+}

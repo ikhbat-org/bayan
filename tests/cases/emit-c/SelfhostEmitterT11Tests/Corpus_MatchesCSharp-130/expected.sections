@@ -1,0 +1,10 @@
+== helpers
+bynh_vt_main__Counter_main__ICounter_bump static void bynh_vt_main__Counter_main__ICounter_bump(void* self, int64_t a0) | static void bynh_vt_main__Counter_main__ICounter_bump(void* self, int64_t a0) {
+    byn_main__Counter__bump((bynt_main__Counter*)self, a0);
+}
+bynh_vt_main__Counter_main__ICounter_report static void bynh_vt_main__Counter_main__ICounter_report(void* self) | static void bynh_vt_main__Counter_main__ICounter_report(void* self) {
+    byn_main__Counter__report((bynt_main__Counter*)self);
+}
+bynh_vt_main__Counter_main__ICounter_get_value static int64_t bynh_vt_main__Counter_main__ICounter_get_value(void* self) | static int64_t bynh_vt_main__Counter_main__ICounter_get_value(void* self) {
+    return byn_main__Counter__get_value((bynt_main__Counter*)self);
+}

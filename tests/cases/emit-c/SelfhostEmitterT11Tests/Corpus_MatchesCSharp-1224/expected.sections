@@ -1,0 +1,4 @@
+== locals
+keep: total x t t
+drain: t items
+main: a s t items h b t c t total t t items u items t items

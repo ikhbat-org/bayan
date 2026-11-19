@@ -1,0 +1,7 @@
+== cases
+0 l0_count.len
+1 byn_add_i64(l1_count, INT64_C(1), byn_file_0, 3)
+2 (((void)l2_items, INT64_C(3)) > INT64_C(0))
+3 ((void)l2_items, INT64_C(3))
+4 (*bynh_at_arr3_i32(&l2_items, (int64_t)INT64_C(0), false, byn_file_0, 6))
+count 5

@@ -1,0 +1,9 @@
+warning BYN2311: `total` is never reassigned; declare it with `let`
+  --> tmp/semantics-corpus/parity/seeds/valid-strings/main.byn:4:9
+
+  4 │     var total: i64 = 0
+    │         ^^^^^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 4 │     let total: i64 = 0
+    │   │     +++

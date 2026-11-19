@@ -1,0 +1,6 @@
+== locals
+apply:
+twice:
+main: limit pick t
+main$lambda1: t t
+main$lambda2:

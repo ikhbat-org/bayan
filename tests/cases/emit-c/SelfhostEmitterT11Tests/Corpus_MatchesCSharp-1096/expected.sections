@@ -1,0 +1,3 @@
+== locals
+keep: buf s
+main: arena

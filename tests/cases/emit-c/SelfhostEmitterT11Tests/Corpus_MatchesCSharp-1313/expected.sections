@@ -1,0 +1,9 @@
+== cases
+0 l0_u.len
+1 l0_u
+2 (l0_u.len == 0)
+3 l0_u
+4 byn_str_eq(l0_u, BYN_STR("hello", 5))
+5 l0_u
+6 l4_b
+count 7

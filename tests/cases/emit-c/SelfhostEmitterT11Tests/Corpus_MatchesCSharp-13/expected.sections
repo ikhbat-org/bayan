@@ -1,0 +1,6 @@
+== cases
+0 (((l0_a > INT64_C(3)) ? byn_add_i64(byn_main__bump(&l1_calls), l0_a, byn_file_0, 8) : byn_sub_i64(l0_a, l1_calls, byn_file_0, 8)) == INT64_C(9))
+1 (l0_a > INT64_C(3))
+2 byn_add_i64(byn_main__bump(&l1_calls), l0_a, byn_file_0, 8)
+3 byn_sub_i64(l0_a, l1_calls, byn_file_0, 8)
+count 4

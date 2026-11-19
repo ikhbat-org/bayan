@@ -1,0 +1,20 @@
+== cases
+0 ((bynt_opt_sym){true, ((byn_sym){0})})
+1 byn_sym_text(l0_typed)
+2 byn_sym_text(l1_mutable)
+3 byn_sym_text(byn_main__same(((byn_sym){1})))
+4 byn_sym_text(l3_entry.name)
+5 byn_sym_text(l4_defaulted.name)
+6 byn_sym_text(byn_main__keyword())
+7 (*bynh_at_list_sym(l5_names, (int64_t)INT64_C(0), false, byn_file_0, 28))
+8 (*bynh_at_list_sym(l5_names, (int64_t)INT64_C(1), false, byn_file_0, 28))
+9 ((((byn_sym){2})).id == (l0_typed).id)
+10 (!((l0_typed).id == (((byn_sym){3})).id))
+11 (byn_str_cmp(byn_sym_text(l0_typed), byn_sym_text(((byn_sym){4}))) < 0)
+12 (byn_str_cmp(byn_sym_text(((byn_sym){5})), byn_sym_text(l0_typed)) <= 0)
+13 (byn_str_cmp(byn_sym_text(l0_typed), byn_sym_text(((byn_sym){5}))) > 0)
+14 (byn_str_cmp(byn_sym_text(((byn_sym){6})), byn_sym_text(l0_typed)) >= 0)
+15 t11.h.len
+16 (!t11.h.dead[t12])
+17 ((bynt_tup2_sym_i32){t11.keys[t12], t11.vals[t12]})
+count 18

@@ -1,0 +1,12 @@
+== cases
+0 bynh_add_list_i64(&l1_ys, INT64_C(4))
+1 bynh_copy_span_i64(((bynt_span_i64){l0_xs.v, 3}), byn_context)
+2 ((bynt_span_i64){l0_xs.v, 3})
+3 bynh_add_list_i64(&l2_a, INT64_C(5))
+4 bynh_copy_list_i64(l1_ys, byn_context)
+5 bynh_add_list_i64(&l1_ys, INT64_C(6))
+6 l2_a.len
+7 (*bynh_at_list_i64(l2_a, (int64_t)INT64_C(3), false, byn_file_0, 9))
+8 l3_b.len
+9 l1_ys.len
+count 10

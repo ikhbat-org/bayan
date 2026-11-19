@@ -1,0 +1,4 @@
+== cases
+0 (l0_i == ((int32_t)0))
+1 (l0_i == ((int32_t)2))
+count 2

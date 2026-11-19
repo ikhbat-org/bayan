@@ -1,0 +1,6 @@
+== cases
+0 (byn_cast_i32_i((int64_t)l0_big, byn_file_0, 2) > ((int32_t)3))
+1 byn_cast_i32_i((int64_t)l0_big, byn_file_0, 2)
+2 (byn_cast_i32_i((int64_t)l0_big, byn_file_0, 5) > ((int32_t)9))
+3 byn_cast_i32_i((int64_t)l0_big, byn_file_0, 5)
+count 4

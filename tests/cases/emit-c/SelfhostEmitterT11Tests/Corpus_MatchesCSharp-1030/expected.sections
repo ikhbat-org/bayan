@@ -1,0 +1,37 @@
+== helpers
+bynh_add_list_main__Token static void bynh_add_list_main__Token(bynt_list_main__Token* l, bynt_main__Token v) | static void bynh_add_list_main__Token(bynt_list_main__Token* l, bynt_main__Token v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_main__Token), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_vt_main__Num_main__INode_eval static int64_t bynh_vt_main__Num_main__INode_eval(void* self) | static int64_t bynh_vt_main__Num_main__INode_eval(void* self) {
+    return byn_main__Num__eval((bynt_main__Num*)self);
+}
+bynh_vt_main__Num_main__INode_describe static byn_str bynh_vt_main__Num_main__INode_describe(void* self) | static byn_str bynh_vt_main__Num_main__INode_describe(void* self) {
+    return byn_main__Num__describe((bynt_main__Num*)self);
+}
+bynh_vt_main__Num_main__INode_get_name static byn_str bynh_vt_main__Num_main__INode_get_name(void* self) | static byn_str bynh_vt_main__Num_main__INode_get_name(void* self) {
+    return byn_main__Num__get_name((bynt_main__Num*)self);
+}
+bynh_vt_main__Add_main__INode_eval static int64_t bynh_vt_main__Add_main__INode_eval(void* self) | static int64_t bynh_vt_main__Add_main__INode_eval(void* self) {
+    return byn_main__Add__eval((bynt_main__Add*)self);
+}
+bynh_vt_main__Add_main__INode_describe static byn_str bynh_vt_main__Add_main__INode_describe(void* self) | static byn_str bynh_vt_main__Add_main__INode_describe(void* self) {
+    return byn_main__Add__describe((bynt_main__Add*)self);
+}
+bynh_vt_main__Add_main__INode_get_name static byn_str bynh_vt_main__Add_main__INode_get_name(void* self) | static byn_str bynh_vt_main__Add_main__INode_get_name(void* self) {
+    return byn_main__Add__get_name((bynt_main__Add*)self);
+}
+bynh_vt_main__Mul_main__INode_eval static int64_t bynh_vt_main__Mul_main__INode_eval(void* self) | static int64_t bynh_vt_main__Mul_main__INode_eval(void* self) {
+    return byn_main__Mul__eval((bynt_main__Mul*)self);
+}
+bynh_vt_main__Mul_main__INode_describe static byn_str bynh_vt_main__Mul_main__INode_describe(void* self) | static byn_str bynh_vt_main__Mul_main__INode_describe(void* self) {
+    return byn_main__Mul__describe((bynt_main__Mul*)self);
+}
+bynh_vt_main__Mul_main__INode_get_name static byn_str bynh_vt_main__Mul_main__INode_get_name(void* self) | static byn_str bynh_vt_main__Mul_main__INode_get_name(void* self) {
+    return byn_main__Mul__get_name((bynt_main__Mul*)self);
+}
+bynh_at_list_main__Token static bynt_main__Token* bynh_at_list_main__Token(bynt_list_main__Token s, int64_t i, bool from_end, const char* file, int line) | static bynt_main__Token* bynh_at_list_main__Token(bynt_list_main__Token s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}

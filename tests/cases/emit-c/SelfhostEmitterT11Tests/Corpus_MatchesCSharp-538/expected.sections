@@ -1,0 +1,12 @@
+== helpers
+bynh_position static bynt_opt_i64 bynh_position(int64_t p) | static bynt_opt_i64 bynh_position(int64_t p) {
+    return p < 0 ? (bynt_opt_i64){0} : (bynt_opt_i64){true, p};
+}
+bynh_str_bytes static bynt_span_u8 bynh_str_bytes(byn_str s) | static bynt_span_u8 bynh_str_bytes(byn_str s) {
+    return (bynt_span_u8){(uint8_t*)s.ptr, s.len};
+}
+bynh_slice_span_u8 static bynt_span_u8 bynh_slice_span_u8(bynt_span_u8 x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static bynt_span_u8 bynh_slice_span_u8(bynt_span_u8 x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(x.len, a, am, b, bm, incl, file, line, &from, &to);
+    return (bynt_span_u8){x.ptr + from, to - from};
+}

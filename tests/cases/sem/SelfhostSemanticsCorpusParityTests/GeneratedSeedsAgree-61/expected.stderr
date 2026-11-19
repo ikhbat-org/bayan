@@ -1,0 +1,8 @@
+error BYN2202: expected `i64`, found `string`
+  --> tmp/semantics-corpus/parity/seeds/fault-WrongType-004/main.byn:52:13
+
+  52 │     total = "text4"
+     │             ^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202

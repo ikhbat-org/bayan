@@ -1,0 +1,25 @@
+== helpers
+bynh_vt_main__Square_main__IShape_area static int64_t bynh_vt_main__Square_main__IShape_area(void* self) | static int64_t bynh_vt_main__Square_main__IShape_area(void* self) {
+    return byn_main__Square__area((bynt_main__Square*)self);
+}
+bynh_vt_main__Square_main__IShape_times static int64_t bynh_vt_main__Square_main__IShape_times(void* self, int64_t a0) | static int64_t bynh_vt_main__Square_main__IShape_times(void* self, int64_t a0) {
+    return byn_main__Square__times((bynt_main__Square*)self, a0);
+}
+bynh_vt_main__Square_main__IShape_describe static void bynh_vt_main__Square_main__IShape_describe(void* self) | static void bynh_vt_main__Square_main__IShape_describe(void* self) {
+    byn_main__Square__describe((bynt_main__Square*)self);
+}
+bynh_vt_main__Square_main__IShape_get_name static byn_str bynh_vt_main__Square_main__IShape_get_name(void* self) | static byn_str bynh_vt_main__Square_main__IShape_get_name(void* self) {
+    return byn_main__Square__get_name((bynt_main__Square*)self);
+}
+bynh_vt_main__Circle_main__IShape_area static int64_t bynh_vt_main__Circle_main__IShape_area(void* self) | static int64_t bynh_vt_main__Circle_main__IShape_area(void* self) {
+    return byn_main__Circle__area((bynt_main__Circle*)self);
+}
+bynh_vt_main__Circle_main__IShape_times static int64_t bynh_vt_main__Circle_main__IShape_times(void* self, int64_t a0) | static int64_t bynh_vt_main__Circle_main__IShape_times(void* self, int64_t a0) {
+    return byn_main__Circle__times((bynt_main__Circle*)self, a0);
+}
+bynh_vt_main__Circle_main__IShape_describe static void bynh_vt_main__Circle_main__IShape_describe(void* self) | static void bynh_vt_main__Circle_main__IShape_describe(void* self) {
+    byn_main__Circle__describe((bynt_main__Circle*)self);
+}
+bynh_vt_main__Circle_main__IShape_get_name static byn_str bynh_vt_main__Circle_main__IShape_get_name(void* self) | static byn_str bynh_vt_main__Circle_main__IShape_get_name(void* self) {
+    return byn_main__Circle__get_name((bynt_main__Circle*)self);
+}

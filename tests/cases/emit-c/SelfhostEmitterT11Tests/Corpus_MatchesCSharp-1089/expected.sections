@@ -1,0 +1,12 @@
+== cases
+0 byn_str_replaced(BYN_STR("a-b-c", 5), BYN_STR("-", 1), BYN_STR(", ", 2), byn_context, byn_file_0, 3)
+1 byn_str_replaced(BYN_STR("aaa", 3), BYN_STR("aa", 2), BYN_STR("b", 1), byn_context, byn_file_0, 4)
+2 byn_str_repeated(BYN_STR("ab", 2), INT64_C(3), byn_context, byn_file_0, 5)
+3 byn_str_repeated(BYN_STR("ab", 2), INT64_C(0), byn_context, byn_file_0, 5)
+4 bynh_add_list_str(&l1_xs, BYN_STR("x", 1))
+5 bynh_add_list_str(&l1_xs, BYN_STR("y", 1))
+6 bynh_add_list_str(&l1_xs, BYN_STR("z", 1))
+7 bynh_joined_list_str(l1_xs, BYN_STR(" / ", 3))
+8 bynh_joined_span_str(bynh_span_list_str(l1_xs), BYN_STR("", 0))
+9 bynh_span_list_str(l1_xs)
+count 10

@@ -1,0 +1,10 @@
+error BYN2102: `unset6` is used before it is assigned
+  --> tmp/semantics-corpus/parity/seeds/fault-UnassignedRead-006/main.byn:94:13
+
+  94 │     total = unset6
+     │             ^^^^^^ declared without a value on line 93
+     │
+  help: assign it on every path before this, or give the declaration a value
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2102

@@ -1,0 +1,5 @@
+== cases
+0 (byn_mul_i64(byn_main__next(&l0_calls), INT64_C(10), byn_file_0, 7) == byn_add_i64(l0_calls, INT64_C(100), byn_file_0, 7))
+1 byn_mul_i64(byn_main__next(&l0_calls), INT64_C(10), byn_file_0, 7)
+2 byn_add_i64(l0_calls, INT64_C(100), byn_file_0, 7)
+count 3

@@ -1,0 +1,69 @@
+struct Point {
+    i64 x
+    i64 y
+    i64 sum() => x + y
+}
+
+enum Color {
+    red
+    green
+}
+
+i64 colorCode(Color c) => c switch {
+    .red => 1,
+    .green => 2,
+}
+
+union Shape {
+    circle(i64 r)
+    square(i64 side)
+    none
+}
+
+i64 area(Shape s) => s switch {
+    .circle(let r) => r * r * 3,
+    .square(let side) => side * side,
+    .none => 0,
+}
+
+i64 apply(i64 n, by i64 -> i64 f) => f(n)
+
+union error ParseError {
+    empty
+    badDigit(i64 at)
+}
+
+i64 parseDigit(i64 n) fails ParseError {
+    if n < 0 { fail .badDigit(n) }
+    return n
+}
+
+i64 viaTry(i64 n) fails ParseError {
+    let d = try parseDigit(n)
+    return d + 1
+}
+
+i64 safe(i64 n) => viaTry(n) catch 0
+
+const limit: i64 = 100
+
+(i64 lo, i64 hi) bounds(i64 n) => (lo: 0, hi: n)
+
+i64 twice(i64 n) => n * 2
+
+test "twice doubles" {
+    assert twice(2) == 4
+}
+
+void main() {
+    var total: i64 = 0
+    if total >= 0 {
+        total += safe(total)
+        if total >= 0 {
+            total += twice(total)
+            total += 1
+        }
+    }
+    total = "text2"
+    print($"{total}")
+}

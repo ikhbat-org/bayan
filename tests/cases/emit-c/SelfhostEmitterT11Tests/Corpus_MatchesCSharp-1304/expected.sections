@@ -1,0 +1,6 @@
+== locals
+sum: total x t t
+grow: ys i t t
+pack: items i t t bag
+count: t items
+main: batches batch round t t i t t t t t total xs round t t t t t t bag owner i t t taken t t counts i t t t t t moved t sb i t t text p inner t kept round t t arena local i t t other t t

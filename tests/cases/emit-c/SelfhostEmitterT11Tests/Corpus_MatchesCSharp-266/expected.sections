@@ -1,0 +1,15 @@
+== helpers
+bynh_add_list_main__C static void bynh_add_list_main__C(bynt_list_main__C* l, bynt_main__C v) | static void bynh_add_list_main__C(bynt_list_main__C* l, bynt_main__C v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_main__C), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_add_list_list_main__C static void bynh_add_list_list_main__C(bynt_list_list_main__C* l, bynt_list_main__C v) | static void bynh_add_list_list_main__C(bynt_list_list_main__C* l, bynt_list_main__C v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_list_main__C), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_at_list_list_main__C static bynt_list_main__C* bynh_at_list_list_main__C(bynt_list_list_main__C s, int64_t i, bool from_end, const char* file, int line) | static bynt_list_main__C* bynh_at_list_list_main__C(bynt_list_list_main__C s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}

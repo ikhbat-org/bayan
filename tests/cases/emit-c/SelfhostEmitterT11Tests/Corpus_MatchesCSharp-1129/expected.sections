@@ -1,0 +1,9 @@
+== cases
+0 l0_s.len
+1 byn_str_rune_count(l0_s)
+2 byn_str_is_ascii(l0_s)
+3 byn_str_rune_count(BYN_STR("", 0))
+4 byn_str_is_ascii(BYN_STR("", 0))
+5 byn_str_rune_count(BYN_STR("plain", 5))
+6 byn_str_is_ascii(BYN_STR("plain", 5))
+count 7

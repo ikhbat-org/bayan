@@ -1,0 +1,17 @@
+== helpers
+bynh_hash_str static uint64_t bynh_hash_str(byn_str k) | static uint64_t bynh_hash_str(byn_str k) {
+    return byn_hash_bytes(k.ptr, k.len);
+}
+bynh_keq_str static bool bynh_keq_str(const void* a, const void* b) | static bool bynh_keq_str(const void* a, const void* b) {
+    return byn_str_eq(*(const byn_str*)a, *(const byn_str*)b);
+}
+bynh_slot_map_str_opt_str static bynt_opt_str* bynh_slot_map_str_opt_str(bynt_map_str_opt_str* m, byn_str k, bynt_opt_str d) | static bynt_opt_str* bynh_slot_map_str_opt_str(bynt_map_str_opt_str* m, byn_str k, bynt_opt_str d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(byn_str), (void**)&m->vals, (int64_t)sizeof(bynt_opt_str), &k, bynh_hash_str(k), bynh_keq_str, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}

@@ -1,0 +1,4 @@
+== cases
+0 ((bynt_span_str){l0_killed.v, 2})
+3 l1_r.exit_code
+count 4

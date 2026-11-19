@@ -1,0 +1,118 @@
+== helpers
+bynh_slice_str static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(s.len, a, am, b, bm, incl, file, line, &from, &to);
+    return byn_str_slice(s, from, to, file, line);
+}
+bynh_at_list_map_sym_i32 static bynt_map_sym_i32* bynh_at_list_map_sym_i32(bynt_list_map_sym_i32 s, int64_t i, bool from_end, const char* file, int line) | static bynt_map_sym_i32* bynh_at_list_map_sym_i32(bynt_list_map_sym_i32 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_hash_sym static uint64_t bynh_hash_sym(byn_sym k) | static uint64_t bynh_hash_sym(byn_sym k) {
+    return byn_hash_bytes(&k.id, (int64_t)sizeof k.id);
+}
+bynh_keq_sym static bool bynh_keq_sym(const void* a, const void* b) | static bool bynh_keq_sym(const void* a, const void* b) {
+    return ((*(const byn_sym*)a).id == (*(const byn_sym*)b).id);
+}
+bynh_has_map_sym_i32 static bool bynh_has_map_sym_i32(bynt_map_sym_i32 m, byn_sym k) | static bool bynh_has_map_sym_i32(bynt_map_sym_i32 m, byn_sym k) {
+    return byn_map_find(&m.h, m.keys, (int64_t)sizeof(byn_sym), &k, bynh_hash_sym(k), bynh_keq_sym) >= 0;
+}
+bynh_index_map_sym_i32 static int32_t bynh_index_map_sym_i32(bynt_map_sym_i32 m, byn_sym k, const char* file, int line) | static int32_t bynh_index_map_sym_i32(bynt_map_sym_i32 m, byn_sym k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(byn_sym), &k, bynh_hash_sym(k), bynh_keq_sym);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}
+bynh_add_list_sym static void bynh_add_list_sym(bynt_list_sym* l, byn_sym v) | static void bynh_add_list_sym(bynt_list_sym* l, byn_sym v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_sym), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_add_list_map_sym_i32 static void bynh_add_list_map_sym_i32(bynt_list_map_sym_i32* l, bynt_map_sym_i32 v) | static void bynh_add_list_map_sym_i32(bynt_list_map_sym_i32* l, bynt_map_sym_i32 v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_map_sym_i32), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_at_list_sym static byn_sym* bynh_at_list_sym(bynt_list_sym s, int64_t i, bool from_end, const char* file, int line) | static byn_sym* bynh_at_list_sym(bynt_list_sym s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_has_map_sym_main__TokenKind static bool bynh_has_map_sym_main__TokenKind(bynt_map_sym_main__TokenKind m, byn_sym k) | static bool bynh_has_map_sym_main__TokenKind(bynt_map_sym_main__TokenKind m, byn_sym k) {
+    return byn_map_find(&m.h, m.keys, (int64_t)sizeof(byn_sym), &k, bynh_hash_sym(k), bynh_keq_sym) >= 0;
+}
+bynh_index_map_sym_main__TokenKind static byn_main_TokenKind bynh_index_map_sym_main__TokenKind(bynt_map_sym_main__TokenKind m, byn_sym k, const char* file, int line) | static byn_main_TokenKind bynh_index_map_sym_main__TokenKind(bynt_map_sym_main__TokenKind m, byn_sym k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(byn_sym), &k, bynh_hash_sym(k), bynh_keq_sym);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}
+bynh_slot_map_sym_i32 static int32_t* bynh_slot_map_sym_i32(bynt_map_sym_i32* m, byn_sym k, int32_t d) | static int32_t* bynh_slot_map_sym_i32(bynt_map_sym_i32* m, byn_sym k, int32_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(byn_sym), (void**)&m->vals, (int64_t)sizeof(int32_t), &k, bynh_hash_sym(k), bynh_keq_sym, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_hash_tup2_i32_sym static uint64_t bynh_hash_tup2_i32_sym(bynt_tup2_i32_sym k) | static uint64_t bynh_hash_tup2_i32_sym(bynt_tup2_i32_sym k) {
+    uint64_t h = byn_hash_bytes(NULL, 0);
+    h = byn_hash_mix(h, bynh_hash_i32(k.item1));
+    h = byn_hash_mix(h, bynh_hash_sym(k.item2));
+    return h;
+}
+bynh_hash_i32 static uint64_t bynh_hash_i32(int32_t k) | static uint64_t bynh_hash_i32(int32_t k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_keq_tup2_i32_sym static bool bynh_keq_tup2_i32_sym(const void* a, const void* b) | static bool bynh_keq_tup2_i32_sym(const void* a, const void* b) {
+    return bynh_eq_tup2_i32_sym(*(const bynt_tup2_i32_sym*)a, *(const bynt_tup2_i32_sym*)b);
+}
+bynh_eq_tup2_i32_sym static bool bynh_eq_tup2_i32_sym(bynt_tup2_i32_sym a, bynt_tup2_i32_sym b) | static bool bynh_eq_tup2_i32_sym(bynt_tup2_i32_sym a, bynt_tup2_i32_sym b) {
+    return (a.item1 == b.item1)
+        && ((a.item2).id == (b.item2).id);
+}
+bynh_has_map_tup2_i32_sym_i32 static bool bynh_has_map_tup2_i32_sym_i32(bynt_map_tup2_i32_sym_i32 m, bynt_tup2_i32_sym k) | static bool bynh_has_map_tup2_i32_sym_i32(bynt_map_tup2_i32_sym_i32 m, bynt_tup2_i32_sym k) {
+    return byn_map_find(&m.h, m.keys, (int64_t)sizeof(bynt_tup2_i32_sym), &k, bynh_hash_tup2_i32_sym(k), bynh_keq_tup2_i32_sym) >= 0;
+}
+bynh_index_map_tup2_i32_sym_i32 static int32_t bynh_index_map_tup2_i32_sym_i32(bynt_map_tup2_i32_sym_i32 m, bynt_tup2_i32_sym k, const char* file, int line) | static int32_t bynh_index_map_tup2_i32_sym_i32(bynt_map_tup2_i32_sym_i32 m, bynt_tup2_i32_sym k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(bynt_tup2_i32_sym), &k, bynh_hash_tup2_i32_sym(k), bynh_keq_tup2_i32_sym);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}
+bynh_slot_map_tup2_i32_sym_i32 static int32_t* bynh_slot_map_tup2_i32_sym_i32(bynt_map_tup2_i32_sym_i32* m, bynt_tup2_i32_sym k, int32_t d) | static int32_t* bynh_slot_map_tup2_i32_sym_i32(bynt_map_tup2_i32_sym_i32* m, bynt_tup2_i32_sym k, int32_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(bynt_tup2_i32_sym), (void**)&m->vals, (int64_t)sizeof(int32_t), &k, bynh_hash_tup2_i32_sym(k), bynh_keq_tup2_i32_sym, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_hash_main__MemberKey static uint64_t bynh_hash_main__MemberKey(bynt_main__MemberKey k) | static uint64_t bynh_hash_main__MemberKey(bynt_main__MemberKey k) {
+    uint64_t h = byn_hash_bytes(NULL, 0);
+    h = byn_hash_mix(h, bynh_hash_i32(k.owner));
+    h = byn_hash_mix(h, bynh_hash_sym(k.name));
+    return h;
+}
+bynh_keq_main__MemberKey static bool bynh_keq_main__MemberKey(const void* a, const void* b) | static bool bynh_keq_main__MemberKey(const void* a, const void* b) {
+    return bynh_eq_main__MemberKey(*(const bynt_main__MemberKey*)a, *(const bynt_main__MemberKey*)b);
+}
+bynh_eq_main__MemberKey static bool bynh_eq_main__MemberKey(bynt_main__MemberKey a, bynt_main__MemberKey b) | static bool bynh_eq_main__MemberKey(bynt_main__MemberKey a, bynt_main__MemberKey b) {
+    return (a.owner == b.owner)
+        && ((a.name).id == (b.name).id);
+}
+bynh_slot_map_main__MemberKey_main__TokenKind static byn_main_TokenKind* bynh_slot_map_main__MemberKey_main__TokenKind(bynt_map_main__MemberKey_main__TokenKind* m, bynt_main__MemberKey k, byn_main_TokenKind d) | static byn_main_TokenKind* bynh_slot_map_main__MemberKey_main__TokenKind(bynt_map_main__MemberKey_main__TokenKind* m, bynt_main__MemberKey k, byn_main_TokenKind d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(bynt_main__MemberKey), (void**)&m->vals, (int64_t)sizeof(byn_main_TokenKind), &k, bynh_hash_main__MemberKey(k), bynh_keq_main__MemberKey, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_index_map_main__MemberKey_main__TokenKind static byn_main_TokenKind bynh_index_map_main__MemberKey_main__TokenKind(bynt_map_main__MemberKey_main__TokenKind m, bynt_main__MemberKey k, const char* file, int line) | static byn_main_TokenKind bynh_index_map_main__MemberKey_main__TokenKind(bynt_map_main__MemberKey_main__TokenKind m, bynt_main__MemberKey k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(bynt_main__MemberKey), &k, bynh_hash_main__MemberKey(k), bynh_keq_main__MemberKey);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}

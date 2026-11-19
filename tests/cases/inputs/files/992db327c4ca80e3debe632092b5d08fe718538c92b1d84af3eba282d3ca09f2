@@ -1,0 +1,55 @@
+struct Point {
+    i64 x
+    i64 y
+    i64 sum() => x + y
+}
+
+i64 apply(i64 n, by i64 -> i64 f) => f(n)
+
+union error ParseError {
+    empty
+    badDigit(i64 at)
+}
+
+i64 parseDigit(i64 n) fails ParseError {
+    if n < 0 { fail .badDigit(n) }
+    return n
+}
+
+i64 viaTry(i64 n) fails ParseError {
+    let d = try parseDigit(n)
+    return d + 1
+}
+
+i64 safe(i64 n) => viaTry(n) catch 0
+
+string greet(string name) uses alloc => $"hello {name}"
+
+const limit: i64 = 100
+
+i64 widen(i32 n) => i64(n)
+
+void main() {
+    var total: i64 = 0
+    if total >= 0 {
+        total += safe(total)
+        if total >= 0 {
+            total += apply(total, by: x => x * 2)
+            if total >= 0 {
+                total += Point { x: total, y: 2 }.sum()
+                if total >= 0 {
+                    total += apply(total, by: x => x * 2)
+                    if total >= 0 {
+                        total += safe(total)
+                        if total >= 0 {
+                            total += apply(total, by: x => x * 2)
+                            total += 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+    total = "text3"
+    print($"{total}")
+}

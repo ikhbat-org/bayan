@@ -1,0 +1,16 @@
+== cases
+0 p_violations.len
+4 byn_str_rune_count((*self).name)
+8 (!(!byn_str_eq((*self).password, BYN_STR("secret", 6))))
+9 (!byn_str_eq((*self).password, BYN_STR("secret", 6)))
+10 bynh_add_list_builtin__Violation__main__Signup(&l3_violations, ((bynt_builtin__Violation__main__Signup){((byn_main_Signup_Field)2), ((byn_builtin_Rule){.tag = 2})}))
+11 ((!l0_broken_password) && ((!l2_broken_name) && (!(!byn_str_eq((*self).name, (*self).password)))))
+12 (!l0_broken_password)
+13 ((!l2_broken_name) && (!(!byn_str_eq((*self).name, (*self).password))))
+14 (!l2_broken_name)
+15 (!(!byn_str_eq((*self).name, (*self).password)))
+16 (!byn_str_eq((*self).name, (*self).password))
+17 bynh_add_list_builtin__Violation__main__Signup(&l3_violations, ((bynt_builtin__Violation__main__Signup){((byn_main_Signup_Field)2), ((byn_builtin_Rule){.tag = 2})}))
+18 (!(l3_violations.len == 0))
+19 (l3_violations.len == 0)
+count 20

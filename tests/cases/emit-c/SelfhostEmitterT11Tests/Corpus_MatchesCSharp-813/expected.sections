@@ -1,0 +1,10 @@
+== cases
+0 (p_n < INT64_C(1))
+1 bynh_add_list_i64(&l0_a, p_n)
+2 bynh_add_list_i64(&l0_a, byn_add_i64(p_n, INT64_C(1), byn_file_0, 6))
+3 byn_add_i64(p_n, INT64_C(1), byn_file_0, 6)
+4 ((bynt_opt_list_i64){true, l0_a})
+6 l1_c.len
+7 l4_l.len
+8 (*bynh_at_list_i64(l4_l, (int64_t)INT64_C(0), false, byn_file_0, 20))
+count 9

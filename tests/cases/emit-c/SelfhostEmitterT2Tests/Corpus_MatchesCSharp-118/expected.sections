@@ -1,0 +1,16 @@
+== keys
+dyn_main__IShape byn_dyn_main__IShape
+void void
+void void
+main__Square bynt_main__Square
+main__Circle bynt_main__Circle
+i64 int64_t
+str byn_str
+i64 int64_t
+i64 int64_t
+i64 int64_t
+str byn_str
+i64 int64_t
+i64 int64_t
+void void
+void void

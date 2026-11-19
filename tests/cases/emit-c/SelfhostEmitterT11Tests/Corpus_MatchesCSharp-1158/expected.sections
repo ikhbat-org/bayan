@@ -1,0 +1,6 @@
+== helpers
+bynh_add_list_builtin__Violation__main__Box static void bynh_add_list_builtin__Violation__main__Box(bynt_list_builtin__Violation__main__Box* l, bynt_builtin__Violation__main__Box v) | static void bynh_add_list_builtin__Violation__main__Box(bynt_list_builtin__Violation__main__Box* l, bynt_builtin__Violation__main__Box v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_builtin__Violation__main__Box), l->alloc);
+    l->ptr[l->len++] = v;
+}

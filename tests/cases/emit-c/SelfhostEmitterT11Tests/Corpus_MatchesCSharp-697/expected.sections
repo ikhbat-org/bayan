@@ -1,0 +1,8 @@
+== cases
+0 bynh_add_list_str(&l0_ps, BYN_STR("ann", 3))
+1 bynh_add_list_str(&l1_qs, BYN_STR("bob", 3))
+2 ((bynt_span_str){l4_e.list.ptr, l4_e.list.len})
+3 bynh_add_list_str(&l3_kept, l6_s)
+4 (*bynh_at_list_str(l3_kept, (int64_t)INT64_C(0), false, byn_file_0, 19))
+5 (*bynh_at_list_str(l3_kept, (int64_t)INT64_C(1), false, byn_file_0, 19))
+count 6

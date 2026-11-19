@@ -1,0 +1,7 @@
+i64 apply(i64 n, by i64 -> i64 f) => f(n)
+
+void main() {
+    var total: i64 = 0
+    total += apply(total, by: x => x * 2)
+    print($"{total}")
+}

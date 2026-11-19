@@ -1,0 +1,4 @@
+== helpers
+bynh_span_list_main__PriceLine static bynt_span_main__PriceLine bynh_span_list_main__PriceLine(bynt_list_main__PriceLine l) | static bynt_span_main__PriceLine bynh_span_list_main__PriceLine(bynt_list_main__PriceLine l) {
+    return (bynt_span_main__PriceLine){l.ptr, l.len};
+}

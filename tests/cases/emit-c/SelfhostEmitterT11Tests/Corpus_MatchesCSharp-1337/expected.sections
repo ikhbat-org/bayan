@@ -1,0 +1,12 @@
+== cases
+0 (l1_i < p_xs.len)
+1 p_xs.len
+2 (*bynh_at_span_i64(p_xs, (int64_t)l1_i, false, byn_file_0, 9))
+3 byn_add_i64(l1_i, INT64_C(1), byn_file_0, 10)
+4 bynh_add_list_i64(&l0_xs, INT64_C(3000000000))
+5 bynh_add_list_i64(&l0_xs, INT64_C(4000000000))
+6 ((bynt_span_i64){l0_xs.ptr, l0_xs.len})
+7 byn_mul_i64(l2_picked, INT64_C(2), byn_file_0, 28)
+8 byn_add_i64(byn_main__pick__i64(l2_picked, INT64_C(2), true), INT64_C(5000000000), byn_file_0, 29)
+9 byn_addw_i32(l4_k, ((int32_t)1))
+count 10

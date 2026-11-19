@@ -1,0 +1,11 @@
+== cases
+0 (*bynh_at_span_i64(l0_buf, (int64_t)((int64_t)l2_i), false, byn_file_0, 3))
+1 ((int64_t)l2_i)
+2 ((int64_t)byn_mul_i32(byn_add_i32(l2_i, ((int32_t)1), byn_file_0, 3), ((int32_t)11), byn_file_0, 3))
+3 byn_mul_i32(byn_add_i32(l2_i, ((int32_t)1), byn_file_0, 3), ((int32_t)11), byn_file_0, 3)
+4 byn_add_i32(l2_i, ((int32_t)1), byn_file_0, 3)
+5 l0_buf.len
+6 (*bynh_at_span_i64(l0_buf, (int64_t)INT64_C(1), true, byn_file_0, 9))
+7 byn_w_str(&l12_sb, BYN_STR("total=", 6))
+9 byn_strbuf_str(l12_sb)
+count 10

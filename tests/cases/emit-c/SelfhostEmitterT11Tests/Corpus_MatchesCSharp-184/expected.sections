@@ -1,0 +1,9 @@
+== locals
+digit: t c t
+check: d t t
+orMinusOne: n t t
+failed:
+describe: n t t t t e
+sumDigits: total s t t d t t
+mustDigit: d t t
+main: t t t t t t t t e t

@@ -1,0 +1,5 @@
+== locals
+viaDyn: t t
+main: p
+greet: t
+viaConstraint: t

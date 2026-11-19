@@ -1,0 +1,7 @@
+== locals
+signup: t t
+report: v t t rule t bounds bounds
+byPosition: s t t t t violations
+byValue: s t t t t e
+main:
+requires: broken_password broken_age broken_name violations t t
