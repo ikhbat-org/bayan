@@ -558,6 +558,42 @@ public sealed class SelfhostDefaultT9Tests
         return (cs, self);
     }
 
+    /// <summary>
+    /// Under the export (spec 019 T28): writes <c>bounds/evict/&lt;name&gt;.in</c> with the tree <paramref name="cs"/> holds (<c>dir &lt;path&gt;</c>;
+    /// <c>file &lt;path&gt; &lt;byte length&gt;</c> and a line of the content when it is printable ASCII, else <c>file64 &lt;path&gt; &lt;byte length&gt;</c>
+    /// and a line of its base64) and one <c>age &lt;path&gt; &lt;minutes&gt;</c> per entry directly under <c>cache/v1/programs</c> or <c>cache/v1/runtime</c>
+    /// (whole minutes before the run's now; 0 for an entry not in <paramref name="ages"/>), and returns the path
+    /// without the extension. The <c>evict</c> lines' last field is the minimum age in seconds (600), not minutes; <see cref="EvictStep"/> then adds one <c>evict</c> line and one <c>expected</c> block per step. Null when not exporting.
+    /// </summary>
+    private static string? EvictCase(string name, string cs, (string Path, int Minutes)[] ages)
+    {
+        if (SelfhostExport.Dir is not { } root) return null;
+        var os = Path.Combine(root, "bounds", "evict");
+        Directory.CreateDirectory(os);
+        var tree = Directory.EnumerateFileSystemEntries(cs, "*", SearchOption.AllDirectories)
+            .Select(p => (Path: Path.GetRelativePath(cs, p).Replace('\\', '/'), Full: p)).OrderBy(e => e.Path, StringComparer.Ordinal)
+            .Select(e =>
+            {
+                if (Directory.Exists(e.Full)) return (e.Path, Text: $"dir {e.Path}\n");
+                var bytes = File.ReadAllBytes(e.Full);
+                return (e.Path, Text: bytes.All(b => b is >= 0x20 and < 0x7f) ? $"file {e.Path} {bytes.Length}\n{Encoding.ASCII.GetString(bytes)}\n" : $"file64 {e.Path} {bytes.Length}\n{Convert.ToBase64String(bytes)}\n");
+            }).ToList();
+        var entries = tree.Select(e => e.Path).Where(p => p.Split('/') is ["cache", "v1", "programs" or "runtime", _]).ToList();
+        SelfhostExport.WriteExpected(os, name + ".in", string.Concat(tree.Select(e => e.Text)) + string.Concat(entries.Select(p => $"age {p} {ages.Where(a => a.Path == p).Select(a => a.Minutes).FirstOrDefault()}\n")));
+        SelfhostExport.WriteExpected(os, name + ".expected", "");
+        return Path.Combine(os, name);
+    }
+
+    /// <summary>Under the export, appends <c>evict &lt;keep&gt; &lt;maxBytes&gt; &lt;maxEntries&gt; 600</c> to the <c>.in</c> and <c>== &lt;n&gt;</c> with the names left in <paramref name="cs"/> to the <c>.expected</c>.</summary>
+    private static void EvictStep(string? stem, string cs, string keep, string maxBytes, int entries)
+    {
+        if (stem is null) return;
+        var n = File.ReadLines(stem + ".in").Count(l => l.StartsWith("evict ", StringComparison.Ordinal)) + 1;
+        File.AppendAllText(stem + ".in", $"evict {keep} {maxBytes} {entries} 600\n");
+        var names = Names(cs);
+        File.AppendAllText(stem + ".expected", $"== {n}\n" + (names.Length == 0 ? "" : names + "\n"));
+    }
+
     private static void Programs(string root, params string[] keys)
     {
         foreach (var key in keys)
@@ -572,6 +608,7 @@ public sealed class SelfhostDefaultT9Tests
     [Fact]
     public void EvictTrimsTheOldestFirstAsToolchain()
     {
+        var ages = Enumerable.Range(0, 6).Select(i => ($"cache/v1/programs/k{i}", (10 - i) * 60)).ToArray();
         var (cs, self) = Aged("evict", root =>
         {
             Programs(root, "k0", "k1", "k2", "k3", "k4", "k5");
@@ -580,10 +617,12 @@ public sealed class SelfhostDefaultT9Tests
             File.WriteAllText(Path.Combine(scripts, "old"), "k0\n");
             // A pointer's second line is the C compiler's stamp (Toolchain.cs:609); its program key is the first (:513).
             File.WriteAllText(Path.Combine(scripts, "new"), "k5\n/bin/zig:1\n");
-        }, Enumerable.Range(0, 6).Select(i => ($"cache/v1/programs/k{i}", (10 - i) * 60)).ToArray());
+        }, ages);
+        var export = EvictCase(nameof(EvictTrimsTheOldestFirstAsToolchain), cs, ages);
         foreach (var (keep, entries) in new[] { ("k0", 3), ("k5", 1) })
         {
             With("BAYAN_CACHE", Path.Combine(cs, "cache"), () => { Toolchain.Evict(keep, long.MaxValue, entries, TimeSpan.FromMinutes(10)); return 0; });
+            EvictStep(export, cs, keep, long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture), entries);
             Driver(Path.Combine(self, "cache"), "evict", keep, long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture), entries.ToString(System.Globalization.CultureInfo.InvariantCulture), "600");
             SameTree($"cache after evicting to {entries} keeping {keep}", Names(cs), Names(self));
         }
@@ -594,6 +633,7 @@ public sealed class SelfhostDefaultT9Tests
     [Fact]
     public void EvictCountsRuntimeEntriesAsToolchain()
     {
+        (string, int)[] ages = [("cache/v1/runtime/r0", 300), ("cache/v1/programs/k0", 240), ("cache/v1/runtime/r1", 180), ("cache/v1/programs/k1", 120)];
         var (cs, self) = Aged("evict-runtime", root =>
         {
             Programs(root, "k0", "k1");
@@ -603,10 +643,12 @@ public sealed class SelfhostDefaultT9Tests
                 Directory.CreateDirectory(entry);
                 File.WriteAllText(Path.Combine(entry, "bayan-rt.o"), "x");
             }
-        }, ("cache/v1/runtime/r0", 300), ("cache/v1/programs/k0", 240), ("cache/v1/runtime/r1", 180), ("cache/v1/programs/k1", 120));
+        }, ages);
+        var export = EvictCase(nameof(EvictCountsRuntimeEntriesAsToolchain), cs, ages);
         foreach (var entries in new[] { 3, 1 })
         {
             With("BAYAN_CACHE", Path.Combine(cs, "cache"), () => { Toolchain.Evict("none", long.MaxValue, entries, TimeSpan.FromMinutes(10)); return 0; });
+            EvictStep(export, cs, "none", long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture), entries);
             Driver(Path.Combine(self, "cache"), "evict", "none", long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture), entries.ToString(System.Globalization.CultureInfo.InvariantCulture), "600");
             SameTree($"cache after evicting to {entries}", Names(cs), Names(self));
         }
@@ -620,9 +662,11 @@ public sealed class SelfhostDefaultT9Tests
     [InlineData("2", 120)]
     public void EvictKeepsAnEntryUsedJustNowAsToolchain(string maxBytes, int minutes)
     {
-        var (cs, self) = Aged($"evict-young-{maxBytes}-{minutes}", root => Programs(root, "a", "b", "c"),
-            ("cache/v1/programs/b", minutes), ("cache/v1/programs/c", minutes * 2));
+        (string, int)[] ages = [("cache/v1/programs/b", minutes), ("cache/v1/programs/c", minutes * 2)];
+        var (cs, self) = Aged($"evict-young-{maxBytes}-{minutes}", root => Programs(root, "a", "b", "c"), ages);
+        var export = EvictCase($"{nameof(EvictKeepsAnEntryUsedJustNowAsToolchain)}-{maxBytes}-{minutes}", cs, ages);
         With("BAYAN_CACHE", Path.Combine(cs, "cache"), () => { Toolchain.Evict("a", long.Parse(maxBytes, System.Globalization.CultureInfo.InvariantCulture), 4000, TimeSpan.FromMinutes(10)); return 0; });
+        EvictStep(export, cs, "a", maxBytes, 4000);
         Driver(Path.Combine(self, "cache"), "evict", "a", maxBytes, "4000", "600");
         SameTree("cache after evicting", Names(cs), Names(self));
     }
