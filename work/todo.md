@@ -1060,3 +1060,8 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 T26c): runtime/tests/std-fs-cases.c creates links with `SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE`; a Windows build before 10 1703 rejects the flag with `ERROR_INVALID_PARAMETER` and the fs cases would fail, not skip. wp1 accepts it. Fixing task: T41b.
 - LOW (019 T26d, 2026-11-19): `byn_io_remove` on Windows does not add .NET's `\\?\` prefix to a full path of 260 or more characters. Fixing task: T41b.
 - LOW (019 T26d, 2026-11-19): the `_WIN32` half of `byn_io_remove_directory` does not make the path full, unlike its POSIX half. Fixing task: T41b.
+- LOW (019 T31 t31f, 2026-11-19): `scripts/ci/fixpoint-check.sh` skips its temp-dir scan on Linux when `TMPDIR` is unset. Fixing task: T32.
+- LOW (019 T31 t31f, 2026-11-19): the timestamp scan in `scripts/ci/fixpoint-check.sh` has no general date-time pattern (`fs/fs.test.byn` holds `2001-01-01T00:00:00Z`). Fixing task: T32.
+- LOW (019 T31 t31f, 2026-11-19): `bash32-parse.test.sh` and `script-tests.test.sh` leave `tmp/bash32-parse-test` and `tmp/script-tests-test` behind.
+- LOW (019 T31b t31bc, 2026-11-19): the L012 break is caught only by C compile errors in the exported cases, not by a differing output line.
+- LOW (019 T31b t31bc, 2026-11-19): the proof notes of the eight swapped laws and 019-law-checks.md say "comment above `goldenCli`"; the text is now the end of its doc comment.
