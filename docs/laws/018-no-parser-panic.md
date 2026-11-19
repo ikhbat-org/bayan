@@ -6,8 +6,8 @@ release: 0.1.0
 sources: Q473, Q486, Q508, Q509, Q510, Q744, Q748, Q874
 kind: property
 scope: src/parser/parser.byn
-proof: src/tests/SelfhostParserNoPanicLawTests.cs
-check: dotnet test -v q --filter "Law=L018"
+proof: src/driver/nopanic-l018.test.byn
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L018:'
 timeout: 300
 ---
 
@@ -18,7 +18,33 @@ For every byte sequence, `bayan-parse` terminates without a panic. Every node sp
 `bayan-parse --many` over a directory whose input ends in a dropped value prints `span out of range: errorExpr 267+0 outside 260+6`, or any input on which `bayan-parse` exits 134 with `panic:`.
 
 ## Proof notes
-Proof: `src/tests/SelfhostParserNoPanicLawTests.cs`, one `--many` process per corpus (not one
+Bayān port (2026-11-19, spec 019 T31c): the proof is the test block `L018: …` in `src/driver/nopanic-l018.test.byn`, run by the
+`check:` line with no .NET. It builds `bayan-parse` once through `goldenProgram("parser", …)`, generates both corpora as the C# did
+(`SelfhostParserGenerator.GenerateCorrupt(Seeds)` with its 120 templates in ordinal record-name order, `Assemble` and `Corrupt` over the
+Bayān lexer's token spans, and `GenerateRandomCorpus` over the flat `tests/cases/parse/*.byn`, same xorshift64 and call order), writes
+them under `tmp/l018-nopanic/<kind>/`, runs one `bayan-parse --many` per corpus and removes the directory after a pass. It asserts
+exit 0 or 1, no `panic:` on stderr, every `== <name>` header in order, and no `span out of range:` line without ` outside `, and prints
+the count of inputs with a ` outside ` (child outside its parent) line.
+
+- Counts per tier (`BAYAN_LAW_TIER`): quick 128 corrupted + 400 random, full 128 + 4,000. Measured 2026-11-19 on the Mac: 29 of 128
+  corrupted and 116 of 400 (quick) or 1,119 of 4,000 (full) random inputs have a child outside its parent.
+- Wall time, `bayan test --only 'L018:'` with the stage-1 driver: the block itself 0.4-1.0 s (quick) and 1.0-2.0 s (full) once the
+  parser program is cached in `tmp/golden-programs`; 8-15 s for the whole command when the driver's test binary is cached, 76 s when it is
+  rebuilt, 135 s when the parser program is rebuilt as well.
+- The child-within-parent half has no oracle without .NET: the C# tree walker (`CSharpSpanViolations`) is not ported, so the port's
+  child-outside set is printed, not compared. Whether the Statement drops that clause or the gap stays recorded here is an owner question
+  (T31c Decision 2026-11-19).
+- The random corpus is not the C# one: its pool is today's 64 `parse/*.byn` (59 on 2026-11-03), so the 1,085-index list below no longer
+  describes it. The corrupted corpus has no frozen copy to compare bytes with; its child-outside set differs from the 2026-11-03 list by
+  `corrupt-valid-BinaryPattern.byn` and `corrupt-valid-SwitchArm.byn` (no longer reported) and `corrupt-valid-SlicePattern.byn` (now
+  reported). The BinaryPattern input is the template with `<=` duplicated (`x is > 0 and <=<= 10`), the dropped-value case of the C# list,
+  so this reads as parser drift since 2026-11-03 rather than a different corpus; without .NET it is not checked.
+- Break: `src/parser/parser.byn:136` (was :105) `spanFrom`, `prevEnd > start ? prevEnd : start` changed to
+  `prevEnd > start ? prevEnd + 1 : start`. The block failed (`random: …/tmp/l018-nopanic/random/00007.byn: a node span lies outside the
+  input`, `span out of range: globalStatement 73+19`; the corrupted corpus still passed, 22 child-outside inputs). The line was edited
+  back, `git diff` showed no change in the file, and the rerun passed.
+
+History, the C# proof (to 2026-11-19): `src/tests/SelfhostParserNoPanicLawTests.cs`, one `--many` process per corpus (not one
 per input), built once via `SelfhostParserTests.Built`. Two corpora, both run through `--many`:
 
 - the corrupted seed corpus (`SelfhostParserGenerator.GenerateCorrupt(Seeds)`), 128 inputs;
