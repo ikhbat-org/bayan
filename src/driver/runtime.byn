@@ -3541,6 +3541,25 @@ static wchar_t* byn_wide(const uint8_t* p, int64_t n) {
     return w;
 }
 
+/* With BAYAN_IO_TRACE naming a file, appends `<site> <Win32 code> <pid>` to it for an error the runtime reports as
+ * BYN_IO_OTHER (spec 019 T41b); a trace that cannot be written is dropped. The thread's last error is kept. */
+static void byn_io_trace(const char* site, DWORD e) {
+    DWORD keep = GetLastError();
+    wchar_t path[1024];
+    DWORD n = GetEnvironmentVariableW(L"BAYAN_IO_TRACE", path, 1024);
+    if (n > 0 && n < 1024) {
+        HANDLE h = CreateFileW(path, FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h != INVALID_HANDLE_VALUE) {
+            char line[96];
+            int len = snprintf(line, sizeof line, "%s %lu %lu\n", site, (unsigned long)e, (unsigned long)GetCurrentProcessId());
+            DWORD wrote;
+            if (len > 0 && len < (int)sizeof line) WriteFile(h, line, (DWORD)len, &wrote, NULL);
+            CloseHandle(h);
+        }
+    }
+    SetLastError(keep);
+}
+
 static uint32_t byn_win_error(DWORD e) {
     switch (e) {
     case ERROR_FILE_NOT_FOUND:
@@ -3549,7 +3568,7 @@ static uint32_t byn_win_error(DWORD e) {
     case ERROR_BAD_PATHNAME: return BYN_IO_NOT_FOUND;
     case ERROR_ACCESS_DENIED: return BYN_IO_PERMISSION_DENIED;
     case ERROR_DIRECTORY: return BYN_IO_NOT_A_DIRECTORY;
-    default: return BYN_IO_OTHER;
+    default: byn_io_trace("win_error", e); return BYN_IO_OTHER;
     }
 }
 #else
@@ -4594,8 +4613,13 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, 
     int64_t start = byn_io_monotonic_nanos();
     DWORD waited = WaitForSingleObject(pi.hProcess, limit);
     bool expired = waited == WAIT_TIMEOUT;
-    if (!expired && waited != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
-    else if (!expired && !GetExitCodeProcess(pi.hProcess, &status)) *outcome = BYN_WAIT_QUERY_FAILED;
+    if (!expired && waited != WAIT_OBJECT_0) {
+        *outcome = BYN_WAIT_FAILED;
+        byn_io_trace("spawn_wait", GetLastError());
+    } else if (!expired && !GetExitCodeProcess(pi.hProcess, &status)) {
+        *outcome = BYN_WAIT_QUERY_FAILED;
+        byn_io_trace("spawn_query", GetLastError());
+    }
     HANDLE joins[3] = {threads[0], threads[1], ft};
     /* A descendant in the job can hold the pipes after the child ended in time, so the joins get what is left of the
      * timeout; once it passes the job is terminated as if the child had run on. */
@@ -4606,21 +4630,31 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, 
     }
     if (expired) {
         *outcome = BYN_WAIT_TIMED_OUT;
-        if (!TerminateJobObject(job, 1) || WaitForSingleObject(pi.hProcess, INFINITE) != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
+        if (!TerminateJobObject(job, 1) || WaitForSingleObject(pi.hProcess, INFINITE) != WAIT_OBJECT_0) {
+            *outcome = BYN_WAIT_FAILED;
+            byn_io_trace("spawn_terminate", GetLastError());
+        }
     }
     CloseHandle(pi.hProcess);
     /* After the deadline the job's kill closed every holder of the pipes, so the joins end; the bound is for one that
      * did not, and for a terminate that failed. */
     DWORD bound = expired ? BYN_RUN_DRAIN_MS : INFINITE;
     bool abandoned = false;
+    DWORD drain_error = 0;
     for (int i = 0; i < 3; i++) {
         if (!joins[i]) continue;
-        if (WaitForSingleObject(joins[i], bound) != WAIT_OBJECT_0) abandoned = true;
+        if (WaitForSingleObject(joins[i], bound) != WAIT_OBJECT_0) {
+            abandoned = true;
+            drain_error = GetLastError();
+        }
         CloseHandle(joins[i]);
     }
     *raw = (uint32_t)status;
     if (abandoned) {
-        if (*outcome != BYN_WAIT_TIMED_OUT) *outcome = BYN_WAIT_FAILED;
+        if (*outcome != BYN_WAIT_TIMED_OUT) {
+            *outcome = BYN_WAIT_FAILED;
+            byn_io_trace("spawn_drain", drain_error);
+        }
     } else {
         CloseHandle(reads[0]);
         CloseHandle(reads[1]);

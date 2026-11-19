@@ -110,6 +110,9 @@ jobs:
           # out/dist timed out at the 60 s default on windows-latest (ci run 44266558766) after passing in 44263151004. The
           # zig cache is shared by scripts/test.sh; per-case caches put the style test over 300 s (ci run 44276585184).
           BAYAN_TEST_TIMEOUT_MS: 300000
+          # One `<site> <Win32 code> <pid>` line per error the runtime reports as "An input or output operation failed"
+          # (019 T41b); uploaded by the test-report-*.txt glob below, and not one of the reports known-failures reads.
+          BAYAN_IO_TRACE: ${{ github.workspace }}/test-report-${{ matrix.part }}-iotrace.txt
           TEST_ARGS: ${{ matrix.part == 'other' && '--skip golden' || format('--only golden --shard {0}/{1}', matrix.part, matrix.shards) }}
         run: bash scripts/test.sh $TEST_ARGS | tee test-report-${{ matrix.part }}.txt
       # scripts/test.sh keeps tmp/test.*/ (one log per part) only when a part fails. On Windows the artifact also holds the

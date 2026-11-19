@@ -15,6 +15,7 @@ FindFirstFileW
 FindNextFileW
 FreeEnvironmentStringsW
 GetCommandLineW
+GetCurrentProcessId
 GetEnvironmentStringsW
 GetEnvironmentVariableW
 GetExitCodeProcess
