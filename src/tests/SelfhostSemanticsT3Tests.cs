@@ -80,12 +80,19 @@ public sealed class SelfhostSemanticsT3Tests
     private static void Compare(string section, int start, int count, [System.Runtime.CompilerServices.CallerMemberName] string test = "")
     {
         var cases = Cases.Value;
-        // The export lists the test without a case: the generated main prints no `== name` header and the sem runner has
-        // no word that compares a line range of the output, so it cannot replay the range this test compares.
-        if (SelfhostSemanticsHarness.ExportDir is not null)
+        // The export writes one case per test: the zero-based start and the count of the range of the generated main's
+        // non-empty stdout lines this test compares, the C# lines for it, and the main once per class under `programs/`.
+        if (SelfhostExport.Dir is { } export)
         {
-            SelfhostSemanticsHarness.ExportSection([], section, [], test, noExport:
-                $"output lines {start + 1}-{start + count}: the generated main prints no `== name` header and the sem runner has no line-range compare word");
+            const string program = nameof(SelfhostSemanticsT3Tests) + ".byn";
+            Directory.CreateDirectory(Path.Combine(export, "programs"));
+            SelfhostExport.WriteExpected(Path.Combine(export, "programs"), program, cases.Source);
+            var dir = SelfhostExport.Case(export, "sem", nameof(SelfhostSemanticsT3Tests), test);
+            SelfhostExport.WriteExpected(dir, "program", program + "\n");
+            SelfhostExport.WriteExpected(dir, "section", section + "\n");
+            SelfhostExport.WriteExpected(dir, "range", $"{start}\n{count}\n");
+            SelfhostExport.WriteExpected(dir, "total", $"{cases.Expected.Count}\n");
+            SelfhostExport.WriteExpected(dir, "expected.lines", string.Concat(cases.Expected.Skip(start).Take(count).Select(l => l + "\n")));
             return;
         }
         var (lines, error) = Executed.Value;
