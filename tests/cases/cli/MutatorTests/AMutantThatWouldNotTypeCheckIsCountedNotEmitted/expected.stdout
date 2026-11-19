@@ -1,0 +1,8 @@
+<repo>/tmp/t27-mutate/AMutantThatWouldNotTypeCheckIsCountedNotEmitted/lib.byn:2:12 emptyReturn `2147483647 - 1` -> `0`: not reached
+<repo>/tmp/t27-mutate/AMutantThatWouldNotTypeCheckIsCountedNotEmitted/lib.byn:2:12 literal `2147483647` -> `2147483646`: not reached
+<repo>/tmp/t27-mutate/AMutantThatWouldNotTypeCheckIsCountedNotEmitted/lib.byn:2:25 literal `1` -> `2`: not reached
+<repo>/tmp/t27-mutate/AMutantThatWouldNotTypeCheckIsCountedNotEmitted/lib.byn:2:25 literal `1` -> `0`: not reached
+<repo>/tmp/t27-mutate/AMutantThatWouldNotTypeCheckIsCountedNotEmitted/lib.byn:6:12 emptyReturn `255` -> `0`: not reached
+<repo>/tmp/t27-mutate/AMutantThatWouldNotTypeCheckIsCountedNotEmitted/lib.byn:6:12 literal `255` -> `254`: not reached
+<repo>/tmp/t27-mutate/AMutantThatWouldNotTypeCheckIsCountedNotEmitted/lib.byn:11:16 emptyReturn `n` -> `0`: not reached
+0 killed, 0 survived, 0 timeout, 7 not reached, 0 marked, 0 not emitted

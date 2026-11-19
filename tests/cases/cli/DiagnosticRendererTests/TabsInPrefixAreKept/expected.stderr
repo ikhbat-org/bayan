@@ -1,0 +1,8 @@
+error BYN2001: `x` is not defined
+  --> <repo>/tmp/t27-diag/TabsInPrefixAreKept/input.byn:2:11
+
+  2 │ 	print($"{x}")
+    │ 	         ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2001

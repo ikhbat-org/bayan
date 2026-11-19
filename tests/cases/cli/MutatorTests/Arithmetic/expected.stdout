@@ -1,0 +1,11 @@
+<repo>/tmp/t27-mutate/Arithmetic/lib.byn:2:18 arithmetic `a + a * 2` -> `a - a * 2`: not reached
+<repo>/tmp/t27-mutate/Arithmetic/lib.byn:2:22 arithmetic `a * 2` -> `a / 2`: not reached
+<repo>/tmp/t27-mutate/Arithmetic/lib.byn:2:26 literal `2` -> `3`: not reached
+<repo>/tmp/t27-mutate/Arithmetic/lib.byn:2:26 literal `2` -> `1`: not reached
+<repo>/tmp/t27-mutate/Arithmetic/lib.byn:3:5 statement `t -= a % 3` -> ``: not reached
+<repo>/tmp/t27-mutate/Arithmetic/lib.byn:3:5 arithmetic `t -= a % 3` -> `t += a % 3`: not reached
+<repo>/tmp/t27-mutate/Arithmetic/lib.byn:3:10 arithmetic `a % 3` -> `a * 3`: not reached
+<repo>/tmp/t27-mutate/Arithmetic/lib.byn:3:14 literal `3` -> `4`: not reached
+<repo>/tmp/t27-mutate/Arithmetic/lib.byn:3:14 literal `3` -> `2`: not reached
+<repo>/tmp/t27-mutate/Arithmetic/lib.byn:4:12 emptyReturn `t` -> `0`: not reached
+0 killed, 0 survived, 0 timeout, 10 not reached, 0 marked, 0 not emitted

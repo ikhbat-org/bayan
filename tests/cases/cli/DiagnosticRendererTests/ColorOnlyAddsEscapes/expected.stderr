@@ -1,0 +1,12 @@
+[1m[31merror BYN2104[0m: `total` is immutable
+[2m  -->[0m <repo>/tmp/t27-diag/ColorOnlyAddsEscapes/input.byn:8:9
+
+  [2m8[0m [2m│[0m         total += l.amount
+    [2m│[0m         [1m[31m^^^^^ declared with `let` on line 6[0m
+    [2m│[0m
+  [1m[34mhelp:[0m declare it with `var` if it should change
+    [2m│[0m [2m6[0m [2m│[0m     var total: i64 = 0
+    [2m│[0m   [2m│[0m     [34m+++[0m
+
+[31m✗ build failed: 1 error, 0 warnings[0m
+  explain: bayan explain BYN2104

@@ -1,0 +1,13 @@
+error BYN2801: `W` does not provide `area` required by `IShape`
+  --> <repo>/tmp/t27-diag/GutterWidensForFixOnLongerLineNumber/input.byn:9:12
+
+   9 │ struct W : IShape {
+     │            ^^^^^^ needs `area`
+     │
+  help: add `i64 area()` to `W`
+     │ 10 │     i64 area() => todo("area")
+     │    │ ++++++++++++++++++++++++++++++
+     │ 11 │ }
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2801
