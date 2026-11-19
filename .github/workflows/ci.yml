@@ -14,10 +14,11 @@ concurrency:
 
 jobs:
   # One job per OS and part (spec 019 T30, R17: no CI job passes 45 minutes): `part` is golden shard i of `shards`
-  # (scripts/test.sh --only golden --shard i/N) or `other`, every other part and the checks that need no shard. N from T30's
-  # figures (golden 13,375 s on ubuntu-latest, 9,702 s on windows-latest; macos-latest unmeasured, as Linux) and a driver build
-  # of about 5 minutes: 13,375 / 12 x 1.15 + 300 s = 26 min, 9,702 / 9 x 1.15 + 360 s = 27 min. Windows' 9 is also in the
-  # windows-known-failures job below.
+  # (scripts/test.sh --only golden --shard i/N) or `other`, every other part and the checks that need no shard. N from the
+  # slowest shard of the split as it is (src/driver/golden.byn goldenShardCases: whole classes, a class over 500 cases split by
+  # case): each kind's cases per shard x its mb1 seconds per case (T30), x 13,375 / 5,136 on ubuntu-latest and 9,702 / 5,136 on
+  # windows-latest (macos-latest unmeasured, as Linux), plus a driver build of about 5 minutes: N = 12, 481 s x 2.60 + 300 s
+  # = 26 min; N = 9, 601 s x 1.89 + 360 s = 25 min. Windows' 9 is also in the windows-known-failures job below.
   build:
     name: ${{ matrix.rid }} ${{ matrix.part == 'other' && 'other parts' || format('golden {0}/{1}', matrix.part, matrix.shards) }}
     strategy:
@@ -40,7 +41,7 @@ jobs:
             rid: win-x64
             shards: 9
     runs-on: ${{ matrix.os }}
-    # About twice the estimate: a golden shard 26-27 min, the other parts 27 min on Linux (bayan 464 s, parity 122 s, scripts
+    # About twice the estimate: a golden shard 25-26 min, the other parts 27 min on Linux (bayan 464 s, parity 122 s, scripts
     # 366 s, runtime 7 s, the build and the bootstrap check), about 15 on Windows (bayan only).
     timeout-minutes: ${{ matrix.os == 'windows-latest' && matrix.part == 'other' && 30 || 55 }}
     # Ported tools and SourcesAreFormatted run on the pinned bayan; a CI checkout has no local `dev`, so pin the commit under test.

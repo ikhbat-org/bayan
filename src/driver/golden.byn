@@ -952,7 +952,7 @@ i32 goldenTest(
         return exitUsage
     }
     if count > 1 {
-        cases = goldenShardCases(in cases, at: index, by: count)
+        cases = goldenShardCases(in cases, at: index, by: count, through: goldenShardSplit)
     }
     let snap = snapshot ?? Env.get("BAYAN_SNAPSHOT") ?? ""
     if snap != "" {
@@ -1029,22 +1029,49 @@ string? goldenShard(string value, to ref i64 index, by ref i64 count) uses alloc
     return null
 }
 
-/// The cases of `cases` (in case order, after `--only`) whose group number modulo `count` is `index`. A group is `<kind>/<Class>` for a nested
-/// case (`<Class>/<case>`, the exported kinds) and the case itself for a flat one, numbered in case order (Decision 2026-11-20, Fable for the
-/// owner): a class's cases, and the programs they share, are in one shard, so a shard prebuilds only its own classes' programs. The listing
-/// (`goldenDiscover`) gives a class's cases one after another, so a group starts where the previous case's group differs.
-List<GoldenCase> goldenShardCases(in List<GoldenCase> cases, at i64 index, by i64 count) uses alloc {
-    var kept = List<GoldenCase>()
-    var group: i64 = -1
+/// A shard group of more cases than this is split by case (second amendment, Decision 2026-11-20, Fable for the owner): one class
+/// (lex/SelfhostLexerTests, 20,075 cases) would otherwise set the slowest shard.
+const goldenShardSplit: i64 = 500
+
+/// The shard group of a case: `<kind>/<Class>` for a nested case (`<Class>/<case>`, the exported kinds), the case itself for a flat one.
+string goldenShardGroup(string kind, for string name) uses alloc {
+    let slash = goldenOffset(name, for: "/")
+    return slash < 0 ? $"{kind}/{name}" : $"{kind}/{name[0..slash]}"
+}
+
+/// The cases of `cases` (in case order, after `--only`) in shard `index` of `count`. Groups (`goldenShardGroup`) are numbered in case order
+/// (Decision 2026-11-20, Fable for the owner); a group of at most `split` cases is in shard group mod `count`, so a class's cases, and the
+/// programs they share, are in one shard and a shard prebuilds only its own classes' programs; a larger group's case j (in case order within
+/// the group) is in shard (group + j) mod `count`. The listing (`goldenDiscover`) gives a class's cases one after another, so a group starts
+/// where the previous case's group differs.
+List<GoldenCase> goldenShardCases(in List<GoldenCase> cases, at i64 index, by i64 count, through i64 split) uses alloc {
+    var sizes = List<i64>()
+    var size: i64 = 0
     var last = ""
     for c in cases {
-        let slash = goldenOffset(c.name, for: "/")
-        let key = slash < 0 ? $"{c.kind}/{c.name}" : $"{c.kind}/{c.name[0..slash]}"
+        let key = goldenShardGroup(c.kind, for: c.name)
+        if size > 0 && key != last {
+            sizes.append(size)
+            size = 0
+        }
+        size += 1
+        last = key
+    }
+    sizes.append(size)
+    var kept = List<GoldenCase>()
+    var group: i64 = -1
+    var j: i64 = 0
+    last = ""
+    for c in cases {
+        let key = goldenShardGroup(c.kind, for: c.name)
         if group < 0 || key != last {
             group += 1
+            j = 0
             last = key
         }
-        if group % count == index {
+        let shard = sizes[group] > split ? (group + j) % count : group % count
+        j += 1
+        if shard == index {
             kept.append(GoldenCase { kind: c.kind, name: c.name, input: c.input })
         }
     }
@@ -2757,7 +2784,7 @@ test "BAYAN_TEST_SHARD puts all cases of one class in one shard, a flat case bei
     var total = 0
     for i in 0..3 {
         var sb = StrBuf()
-        for c in goldenShardCases(in cases, at: i, by: 3) {
+        for c in goldenShardCases(in cases, at: i, by: 3, through: goldenShardSplit) {
             sb.append($"{c.input} ")
             total += 1
         }
@@ -2768,6 +2795,32 @@ test "BAYAN_TEST_SHARD puts all cases of one class in one shard, a flat case bei
     assert(shards[0] == "lex/flat-a sem/One/p ")
     assert(shards[1] == "lex/One/x lex/One/y lex/One/z sem/Two/q sem/Two/r ")
     assert(shards[2] == "lex/flat-b ")
+}
+
+test "BAYAN_TEST_SHARD spreads a group over the split threshold over the shards by case, and a group at the threshold stays whole" {
+    var cases = List<GoldenCase>()
+    for name in [
+        "lex/Big/a", "lex/Big/b", "lex/Big/c", "lex/Big/d", "lex/flat", "lex/Two/p", "lex/Two/q", "sem/Big/x",
+        "sem/Big/y", "sem/Big/z",
+    ] {
+        let slash = goldenOffset(name, for: "/")
+        cases.append(GoldenCase { kind: name[0..slash], name: name[slash + 1..name.length], input: name })
+    }
+    var shards = List<string>()
+    var total = 0
+    for i in 0..3 {
+        var sb = StrBuf()
+        for c in goldenShardCases(in cases, at: i, by: 3, through: 2) {
+            sb.append($"{c.input} ")
+            total += 1
+        }
+        shards.append(sb.finish())
+    }
+    // groups in case order: lex/Big (4 cases, split from shard 0), lex/flat, lex/Two (2, whole), sem/Big (3, split from shard 0)
+    assert(total == cases.length)
+    assert(shards[0] == "lex/Big/a lex/Big/d sem/Big/x ")
+    assert(shards[1] == "lex/Big/b lex/flat sem/Big/y ")
+    assert(shards[2] == "lex/Big/c lex/Two/p lex/Two/q sem/Big/z ")
 }
 
 test "a BAYAN_TEST_SHARD that is not i/n with 1 <= i <= n <= 64 is refused with exit 2, naming the variable" {
