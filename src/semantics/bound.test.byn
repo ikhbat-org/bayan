@@ -1,0 +1,156 @@
+// SelfhostSemanticsT4Tests (src/tests/SelfhostSemanticsT4Tests.cs) `EveryRecordHasAStruct` ported to a test block (spec 019 T30g): the
+// struct fields of bound.byn, read from its text as the C# reads them, against the C# records' fields.
+
+/// The text before the first `sep` of `text`, all of it when there is none (C# `Split(sep)[0]`).
+string t4Before(string text, by string sep) uses alloc {
+    for part in text.parts(by: sep) {
+        return part
+    }
+    return text
+}
+
+/// The last ` `-separated word of `text` (C# `Split(' ')[^1]`).
+string t4LastWord(string text) uses alloc {
+    var last = text
+    for part in text.parts(by: " ") {
+        last = part
+    }
+    return last
+}
+
+/// SelfhostSemanticsT4Tests.cs:611-614: each `struct` (or `public struct`) of `source` whose body lines all start with four spaces,
+/// mapped to its fields joined by ` `, a field being the last word of a body line before ` = `, `///` lines left out.
+Map<string, string> t4Structs(string source) uses alloc {
+    var structs: Map<string, string> = []
+    var name = ""
+    var fields = StrBuf()
+    var open = false
+    var first = true
+    for line in source.parts(by: "\n") {
+        if open && line == "}" {
+            structs[name] = fields.finish()
+            open = false
+        } else if open && line.startsWith("    ") {
+            let l = line.trimmed(from: .start)
+            if !l.startsWith("///") {
+                fields.append(" ") unless first
+                first = false
+                fields.append(t4LastWord(t4Before(line, by: " = ").trimmed()))
+            }
+        } else {
+            open = false
+            let head = line.startsWith("public ") ? line.runes.skip(7) : line
+            if head.startsWith("struct ") && head.endsWith(" {") {
+                name = head[7..head.length - 2]
+                open = !name.contains(" ")
+                fields = StrBuf()
+                first = true
+            }
+        }
+    }
+    return structs
+}
+
+// SelfhostSemanticsT4Tests.cs:590 `EveryRecordHasAStruct`; expected lines are `{bayan}: {fields}` for each record of BoundNodes.cs
+// (but `ConstantValue`) and the three groups, the fields renamed as at :30-48, read from the v0.3.2 C# (csharp/ unchanged since) by
+// a scratch program in tmp/, not kept.
+test "bound t4: every record has a struct" {
+    var want = StrBuf()
+    want.append("BLiteral: span type value\n")
+    want.append("BSymbolLiteral: span text\n")
+    want.append("BHostTarget: span isOs\n")
+    want.append("BDefault: span type\n")
+    want.append("BLocal: span local type\n")
+    want.append("BThis: span type\n")
+    want.append("BField: span receiver field type\n")
+    want.append("BTupleElement: span receiver index type\n")
+    want.append("BCall: span function receiver arguments type\n")
+    want.append("BBuiltinCall: span member receiver arguments type\n")
+    want.append("BUnary: span op operand type\n")
+    want.append("BBinary: span op left right type\n")
+    want.append("BConversion: span operand type kind\n")
+    want.append("BTryFrom: span operand target type\n")
+    want.append("BConditional: span condition whenTrue whenFalse type\n")
+    want.append("BCoalesce: span left right type\n")
+    want.append("BStructLiteral: span structId fields state payload type\n")
+    want.append("BWith: span target updates type\n")
+    want.append("BTuple: span tupleType elements\n")
+    want.append("BCollection: span type elements\n")
+    want.append("BSpread: span operand type\n")
+    want.append("BIndex: span target index fromEnd type\n")
+    want.append("BSlice: span target start startFromEnd end endFromEnd inclusive type\n")
+    want.append("BRange: span start end inclusive type\n")
+    want.append("BIs: span value pattern\n")
+    want.append("BSwitchArm: span pattern guard value\n")
+    want.append("BSwitchExpr: span value arms type\n")
+    want.append("BInterpolationPart: text value spec\n")
+    want.append("BFormatSpec: radix debug width fill align digits\n")
+    want.append("BInterpolated: span parts\n")
+    want.append("BMove: span operand type\n")
+    want.append("BTry: span operand type\n")
+    want.append("BCatch: span operand binding variant handler type\n")
+    want.append("BJump: span jump\n")
+    want.append("BBlockExpr: span block type\n")
+    want.append("BErrorVariant: span variant payload type\n")
+    want.append("BEnumMember: span member type\n")
+    want.append("BUnionNew: span variant payload type\n")
+    want.append("BEnumValues: span enumId type\n")
+    want.append("BStaticArray: span constId type\n")
+    want.append("BStackalloc: span element count type\n")
+    want.append("BErrorExpr: span\n")
+    want.append("BTypeRef: span referenced\n")
+    want.append("BModuleRef: span module\n")
+    want.append("BLambda: span lambda captures functionType\n")
+    want.append("BFunctionRef: span function functionType\n")
+    want.append("BBlock: span statements\n")
+    want.append("BLocalDecl: span local initializer\n")
+    want.append("BExprStmt: span expr\n")
+    want.append("BAssign: span target value op\n")
+    want.append("BReturn: span value\n")
+    want.append("BFail: span error\n")
+    want.append("BBecome: span state payload\n")
+    want.append("BBreak: span target\n")
+    want.append("BContinue: span target\n")
+    want.append("BIf: span condition then elseBranch isNever guarded\n")
+    want.append("BWhile: span condition body target\n")
+    want.append("BDoWhile: span body condition target\n")
+    want.append("BFor: span variable iterable body target userIteration\n")
+    want.append("UserIteration: kind advance item spill advanceField itemField\n")
+    want.append("BSwitchSection: span pattern guard body\n")
+    want.append("BSwitch: span value sections target exhaustive\n")
+    want.append("BDefer: span body\n")
+    want.append("BAssert: span condition failsWith failsCase\n")
+    want.append("BErrdefer: span error body\n")
+    want.append("BPanicDefer: span panic body\n")
+    want.append("BSetOnPanic: span handler\n")
+    want.append("BContext: span allocator body\n")
+    want.append("BErrorStmt: span\n")
+    want.append("BConstantPattern: span inputType value\n")
+    want.append("BRelationalPattern: span inputType op value\n")
+    want.append("BRangePattern: span inputType start end inclusive\n")
+    want.append("BBindPattern: span inputType local\n")
+    want.append("BNotPattern: span inputType operand\n")
+    want.append("BBinaryPattern: span inputType isAnd left right\n")
+    want.append("BSubpattern: path pattern\n")
+    want.append("BMemberStep: field propertyId tupleIndex builtin type\n")
+    want.append("BPropertyPattern: span inputType valueType subpatterns designation\n")
+    want.append("BUnionField: span receiver variant index type\n")
+    want.append("BUnionPattern: span inputType variant subpatterns designation\n")
+    want.append("BErrorField: span receiver variant index type\n")
+    want.append("BErrorPattern: span inputType variant subpatterns\n")
+    want.append("StructChecks: check rules\n")
+    want.append("StructRule: span field condition reads\n")
+    want.append("BMethodGroup: span receiver function typeArgs\n")
+    want.append("BVariantGroup: span variant\n")
+    want.append("BBuiltinGroup: span receiver name\n")
+    let structs = t4Structs(Io.readText("src/semantics/bound.byn") catch "")
+    let expected = want.finish()
+    var got = StrBuf()
+    for line in expected.parts(by: "\n") {
+        if line != "" {
+            let name = t4Before(line, by: ":")
+            got.append($"{name}: {structs.tryGet(at: name) ?? "<missing>"}\n")
+        }
+    }
+    assert got.finish() == expected
+}

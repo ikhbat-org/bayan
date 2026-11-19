@@ -90,7 +90,7 @@ SelfhostDefaultT10Tests	src/tests/SelfhostDefaultT10Tests.cs	selfhost-default	70
 SelfhostDefaultT12Tests	src/tests/SelfhostDefaultT12Tests.cs	selfhost-default	86	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDefaultT1Tests	src/tests/SelfhostDefaultT1Tests.cs	selfhost-default	32	cli	cli	stage 2 command output equals the C# CLI	owned by T15e
 SelfhostDefaultT2Tests	src/tests/SelfhostDefaultT2Tests.cs	selfhost-default	25	cli	cli	stage 2 command output equals the C# CLI	owned by T15e
-SelfhostDefaultT3Tests	src/tests/SelfhostDefaultT3Tests.cs	selfhost-default	31	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDefaultT3Tests	src/tests/SelfhostDefaultT3Tests.cs	selfhost-default	31	cli	cli	stage 2 command output equals the C# CLI; ported 2 not exported: src/driver/clean-t3.test.byn (`clean t3: ` blocks, CleanDoesNotReportAFileItCannotRemove and CleanDoesNotReportADirectoryItCannotRemove, `$BAYAN_EXE clean` as a child over the locked tree)	
 SelfhostDefaultT4Tests	src/tests/SelfhostDefaultT4Tests.cs	selfhost-default	65	cli	cli	stage 2 command output equals the C# CLI; ported 1 of 1 not exported: src/driver/scaffold.byn (ScriptWithAnEmptyPathPanicsAtChmod); NewMatchesTheTreeGoldens (3) covered by tests/cases/new via golden.byn goldenNew	
 SelfhostDefaultT5Tests	src/tests/SelfhostDefaultT5Tests.cs	selfhost-default	19	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDefaultT9Tests	src/tests/SelfhostDefaultT9Tests.cs	selfhost-default	94	cli	cli	stage 2 command output equals the C# CLI; EvictTrimsTheOldestFirst, EvictCountsRuntimeEntries, EvictKeepsAnEntryUsedJustNow AsToolchain: bound: evict blocks in src/driver/bounds.byn over tests/cases/bounds/evict (exported at dc7b22142, T28)	
@@ -102,7 +102,7 @@ SelfhostDriverMutateTests	src/tests/SelfhostDriverMutateTests.cs	selfhost-driver
 SelfhostDriverRuntimeTests	src/tests/SelfhostDriverRuntimeTests.cs	selfhost-driver	2	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDriverStage2FormatTests	src/tests/SelfhostDriverTests.cs	selfhost-driver	139	cli	cli	stage 2 command output equals the C# CLI	owned by T15b
 SelfhostDriverStyleCaseTests	src/tests/SelfhostDriverTests.cs	selfhost-driver	147	cli	cli	stage 2 command output equals the C# CLI	owned by T15b
-SelfhostDriverStyleEnvironmentTests	src/tests/SelfhostDriverTests.cs	selfhost-driver	84	cli	cli	stage 2 command output equals the C# CLI; ported 40 of 42 not exported: src/driver/styleenv.test.byn (`style env: ` blocks, values from the C# InlineData and a run of the v0.3.2 Progress); 2 TimerFrames facts test C# harness helpers	owned by T15b
+SelfhostDriverStyleEnvironmentTests	src/tests/SelfhostDriverTests.cs	selfhost-driver	84	cli	cli	stage 2 command output equals the C# CLI; ported 40 of 42 not exported: src/driver/styleenv.test.byn (`style env: ` blocks, values from the C# InlineData and a run of the v0.3.2 Progress); 2 TimerFrames facts have no counterpart: they test the C# harness helper (Decision 2026-11-20 (Fable for the owner))	owned by T15b
 SelfhostDriverStyleLintsTests	src/tests/SelfhostDriverStyleLintsTests.cs	selfhost-driver	13	cli	cli	stage 2 command output equals the C# CLI	owned by T15c
 SelfhostDriverT1Tests	src/tests/SelfhostDriverTests.cs	selfhost-driver	181	cli	cli	stage 2 command output equals the C# CLI	owned by T15b
 SelfhostDriverT2Tests	src/tests/SelfhostDriverT2Tests.cs	selfhost-driver	761	cli	cli	stage 2 command output equals the C# CLI	owned by T15c
@@ -181,7 +181,7 @@ SelfhostSemanticsT22Tests	src/tests/SelfhostSemanticsT22Tests.cs	selfhost-semant
 SelfhostSemanticsT23Tests	src/tests/SelfhostSemanticsT23Tests.cs	selfhost-semantics	51	sem	sem	sections printed by the built program compared with C# lines	exported by T13
 SelfhostSemanticsT24Tests	src/tests/SelfhostSemanticsT24Tests.cs	selfhost-semantics	100	sem	sem	sections printed by the built program compared with C# lines	exported by T13
 SelfhostSemanticsT25Tests	src/tests/SelfhostSemanticsT25Tests.cs	selfhost-semantics	152	sem	sem	sections printed by the built program compared with C# lines	exported by T13
-SelfhostSemanticsT2Tests	src/tests/SelfhostSemanticsT2Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines; ported 6 of 8: src/semantics/diag.test.byn `diag t2: ` blocks (EveryDiagCaseRendersLikeCSharp hand-built lists, ErrorLimitCapsErrorsNotWarnings, RemoveRepeatsMatchesCSharp, ReportBuildsTheDiag, SinkGoesToTheInnermostBag, FormatMatchesStringFormat); not ported: Builds (asserts only that the C# harness built the driver), CodeTableMatchesDiagnosticCodes (outside T30e)	
+SelfhostSemanticsT2Tests	src/tests/SelfhostSemanticsT2Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines; ported 7 of 8: src/semantics/diag.test.byn `diag t2: ` blocks (EveryDiagCaseRendersLikeCSharp hand-built lists, ErrorLimitCapsErrorsNotWarnings, RemoveRepeatsMatchesCSharp, ReportBuildsTheDiag, SinkGoesToTheInnermostBag, FormatMatchesStringFormat, CodeTableMatchesDiagnosticCodes); not ported: Builds (asserts only that the C# harness built the driver)	
 SelfhostSemanticsT34Tests	src/tests/SelfhostSemanticsT34Tests.cs	selfhost-semantics	95	sem	sem	sections printed by the built program compared with C# lines	exported by T13
 SelfhostSemanticsT35Tests	src/tests/SelfhostSemanticsT35Tests.cs	selfhost-semantics	161	sem	sem	sections printed by the built program compared with C# lines	exported by T13
 SelfhostSemanticsT36Tests	src/tests/SelfhostSemanticsT36Tests.cs	selfhost-semantics	29	sem	sem	sections printed by the built program compared with C# lines	exported by T13
@@ -191,7 +191,7 @@ SelfhostSemanticsT39Tests	src/tests/SelfhostSemanticsT39Tests.cs	selfhost-semant
 SelfhostSemanticsT3Tests	src/tests/SelfhostSemanticsT3Tests.cs	selfhost-semantics	5	sem	sem	sections printed by the built program compared with C# lines	
 SelfhostSemanticsT40Tests	src/tests/SelfhostSemanticsT40Tests.cs	selfhost-semantics	5	sem	sem	sections printed by the built program compared with C# lines	
 SelfhostSemanticsT41Tests	src/tests/SelfhostSemanticsT41Tests.cs	selfhost-semantics	993	sem	sem	sections printed by the built program compared with C# lines	owned by T13
-SelfhostSemanticsT4Tests	src/tests/SelfhostSemanticsT4Tests.cs	selfhost-semantics	5	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsT4Tests	src/tests/SelfhostSemanticsT4Tests.cs	selfhost-semantics	5	sem	sem	sections printed by the built program compared with C# lines; EveryRecordHasAStruct ported: src/semantics/bound.test.byn `bound t4: every record has a struct`	
 SelfhostSemanticsT5Tests	src/tests/SelfhostSemanticsT5Tests.cs	selfhost-semantics	3	sem	sem	sections printed by the built program compared with C# lines	
 SelfhostSemanticsT6Tests	src/tests/SelfhostSemanticsT6Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines	
 SelfhostSemanticsT7Tests	src/tests/SelfhostSemanticsT7Tests.cs	selfhost-semantics	39	sem	sem	sections printed by the built program compared with C# lines	owned by T13

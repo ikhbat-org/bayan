@@ -1,0 +1,58 @@
+// SelfhostDefaultT3Tests (src/tests/SelfhostDefaultT3Tests.cs) `clean` over a locked tree, ported to test blocks (spec 019 T30g):
+// `$BAYAN_EXE clean` run as a child in the form of parser-t13.test.byn `t13Run`, on the tree the C# seeds and locks. Each assertion
+// is the C# test's own.
+
+/// SelfhostDefaultT3Tests.cs:179 `RefusesToReport`: `name`'s tree under tmp/driver-t3/s2, made by `seed` (`Project` plus the
+/// entry under out/locked), with `locked` made read and execute only for the run of `clean`; asserts what the C# asserts.
+void t3RefusesToReport(string name, by string locked, for string culprit, as bool file)
+        uses alloc, clock, console, env, fs, process {
+    if Target.os == "windows" {
+        todo("the lock is a POSIX mode set by `chmod`, and Windows has no POSIX modes")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), Path.combine("driver-t3/s2", name))
+    let _ = goldenCliRun(["chmod", "-R", "u+rwx", root])
+    deleteWorkDir(root)
+    // SelfhostDefaultT3Tests.cs:117 `Project`
+    goldenWrite(root, for: "package.byn", as: "package demo\n")
+    goldenWrite(root, for: "out/safe/x/main.c", as: "0123456789")
+    goldenWrite(root, for: "out/safe/x/demo", as: "01234567890123456789")
+    goldenWrite(root, for: "dist/demo.tar", as: "012345678901234567890123456789")
+    goldenWrite(root, for: "other/keep", as: "0")
+    if file {
+        goldenWrite(root, for: culprit, as: "0")
+    } else {
+        Io.createDirectory(Path.combine(root, culprit)) catch { assert false }
+    }
+    let dir = Path.combine(root, locked)
+    assert(goldenCliRun(["chmod", "555", dir]) == "")
+    if goldenCliRun(["test", "-w", dir]) == "" {
+        let _ = goldenCliRun(["chmod", "755", dir])
+        todo("running as root, which removes a locked entry anyway")
+    }
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    print(failure) if exe == ""
+    assert(exe != "")
+    var args = List<string>()
+    args.append("clean")
+    let o = goldenChild(exe, by: in args, at: root, from: in List<u8>(), through: ref failure)
+    let _ = goldenCliRun(["chmod", "755", dir])
+    print(failure) if failure != ""
+    assert(failure == "")
+    print(o.stderr)
+    assert(o.exitCode != 0)
+    assert(!goldenLf(o.stdout).contains("removed"))
+    assert(goldenCliRun(["test", "-d", Path.combine(root, "out")]) == "")
+    assert(goldenLf(o.stderr).contains($"cannot remove {Path.combine(root, culprit)}"))
+    deleteWorkDir(root)
+}
+
+// SelfhostDefaultT3Tests.cs:196 `CleanDoesNotReportAFileItCannotRemove`
+test "clean t3: CleanDoesNotReportAFileItCannotRemove" {
+    t3RefusesToReport("clean-locked-file", by: "out/locked", for: "out/locked/f", as: true)
+}
+
+// SelfhostDefaultT3Tests.cs:203 `CleanDoesNotReportADirectoryItCannotRemove`
+test "clean t3: CleanDoesNotReportADirectoryItCannotRemove" {
+    t3RefusesToReport("clean-locked-dir", by: "out/locked", for: "out/locked/empty", as: false)
+}
