@@ -16,7 +16,8 @@ unix=(scripts/ci/bash32-parse.test.sh scripts/ci/install-zig.test.sh scripts/ci/
   scripts/ci/diagnostic-codes.test.sh scripts/ci/std-naming-lints.test.sh scripts/ci/selfhost-path-dirname-root-panic.test.sh
   scripts/ci/windows-paths.test.sh
   scripts/quality/coverage.test.sh
-  scripts/quality/converters.test.sh)
+  scripts/quality/converters.test.sh
+  scripts/dotnet-env.test.sh)
 docs=(scripts/release/set-version.test.sh scripts/release/cut.test.sh scripts/docs/*.test.sh scripts/docs/check.sh)
 groups=("$@"); [ ${#groups[@]} -gt 0 ] || groups=(unix docs)
 run=()
