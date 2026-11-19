@@ -1,0 +1,100 @@
+union error BookError {
+    /// The library has no book with this code.
+    unknownBook(string code)
+    /// The book is lent to someone.
+    onLoan(string holder)
+}
+
+union error MemberError {
+    /// Nobody of this name is a member.
+    unknownMember(string name)
+    /// The member holds as many books as allowed.
+    atLimit(i64 limit)
+}
+
+/// A book of the masjid library; an empty `holder` means it is on the shelf.
+struct Book {
+    string code
+    string holder
+}
+
+/// A member, how many books they may hold and how many they hold.
+struct Member {
+    string name
+    i64    limit
+    i64    holding
+}
+
+/// The books and the members.
+struct Library {
+    List<Book>   books
+    List<Member> members
+}
+
+/// What a list of requests came to, with each refusal kept in order.
+struct Report {
+    i64               lent
+    List<BookError>   bookErrors
+    List<MemberError> memberErrors
+}
+
+/// Lends the book of a `<code> <name>` request.
+void lend(ref Library library, for string request) fails BookError, MemberError {
+    var fields = List<string>()
+    for part in request.parts(by: " ") {
+        fields.append(part)
+    }
+    let code = fields[0]
+    let name = fields[1]
+    var member = -1
+    for i in 0..library.members.length {
+        member = i if library.members[i].name == name
+    }
+    fail .unknownMember(name: name) if member < 0
+    var book = -1
+    for i in 0..library.books.length {
+        book = i if library.books[i].code == code
+    }
+    fail .unknownBook(code: code) if book < 0
+    let holder = library.books[book].holder
+    fail .onLoan(holder: holder) unless holder.isEmpty
+    let limit = library.members[member].limit
+    fail .atLimit(limit: limit) if library.members[member].holding >= limit
+    library.books[book].holder = name
+    library.members[member].holding += 1
+}
+
+/// Lends what each request asks for and keeps every refusal.
+Report lendAll(ref Library library, from List<string> requests) {
+    var report = Report { lent: 0, bookErrors: List<BookError>(), memberErrors: List<MemberError>() }
+    for request in requests {
+        lend(ref library, for: request) catch switch {
+            BookError e => {
+                report.bookErrors.append(e)
+                continue
+            },
+            MemberError e => {
+                report.memberErrors.append(e)
+                continue
+            },
+        }
+        report.lent += 1
+    }
+    return report
+}
+
+/// One line saying why a book could not be lent.
+string explainBook(BookError error) {
+    return error switch {
+        .unknownBook(let code) => $"no book {code}",
+        .onLoan(let holder)    => $"on loan to {holder}",
+    }
+}
+
+/// One line saying why a member could not borrow.
+string explainMember(MemberError error) {
+    return error switch {
+        .unknownMember(let name) => $"no member {name}",
+        .atLimit(let limit)      => $"limit of {limit} reached",
+    }
+}

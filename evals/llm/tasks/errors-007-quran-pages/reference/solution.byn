@@ -1,0 +1,24 @@
+union error PageError {
+    /// The text is empty.
+    blank
+    /// The text is not a page number.
+    notNumber
+    /// The page is past the last page.
+    pastEnd(i64 last)
+}
+
+union error ResumeError = PageError except .blank
+
+/// A page of the mushaf, 1 through 604.
+i64 pageOf(string text) fails PageError {
+    fail .blank if text.isEmpty
+    let page = i64.tryParse(text) ?? fail .notNumber
+    fail .notNumber if page < 1
+    fail .pastEnd(last: 604) if page > 604
+    return page
+}
+
+/// The page to resume from; no page written means page 1.
+i64 resumePage(string text) fails ResumeError {
+    return pageOf(text) catch (PageError.blank) 1
+}

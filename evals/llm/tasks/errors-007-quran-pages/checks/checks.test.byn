@@ -1,0 +1,53 @@
+i64 strict(string text) fails ResumeError {
+    return try resumePage(text)
+}
+
+i64 lastPage(string text) {
+    let _ = resumePage(text) catch switch {
+        .notNumber         => return -1,
+        .pastEnd(let last) => return last,
+    }
+    return 0
+}
+
+@cases(("1", 1), ("77", 77), ("604", 604), ("0012", 12))
+test "pageOf reads a page" (string text, i64 expected) {
+    assert (try pageOf(text)) == expected
+}
+
+test "pageOf refuses empty text" {
+    assert pageOf("") fails PageError.blank
+}
+
+@cases("0", "-4", "baqarah", "3.5", "12 ", "+9")
+test "pageOf refuses what is not a page" (string text) {
+    assert pageOf(text) fails PageError.notNumber
+}
+
+@cases("605", "1000")
+test "pageOf refuses a page past the end" (string text) {
+    assert pageOf(text) fails PageError.pastEnd
+}
+
+test "resumePage starts at page 1 when nothing is written" {
+    assert (try resumePage("")) == 1
+    assert (try strict("")) == 1
+}
+
+test "resumePage reads a written page" {
+    assert (try resumePage("250")) == 250
+    assert (try strict("604")) == 604
+}
+
+test "resumePage passes the other errors on" {
+    assert resumePage("juz") fails PageError.notNumber
+    assert resumePage("0") fails PageError.notNumber
+    assert resumePage("700") fails PageError.pastEnd
+    assert strict("700") fails PageError.pastEnd
+}
+
+test "the past-end error carries the last page" {
+    assert lastPage("605") == 604
+    assert lastPage("x") == -1
+    assert lastPage("9") == 0
+}
