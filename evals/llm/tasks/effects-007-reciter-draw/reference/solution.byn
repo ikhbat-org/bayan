@@ -1,0 +1,4 @@
+/// The place, from 0, of the reciter drawn at random from `count` reciters.
+public i64 drawReciter(i64 count) uses random {
+    return i64(Io.randomU64() % u64(count))
+}

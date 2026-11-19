@@ -1,0 +1,25 @@
+/// What posting a notice may do: build its text and print it.
+public effect notice = alloc, console
+
+/// The text of the notice that tells a family when to come for the Eid prayer.
+public string noticeLine(string family, at i64 hour) uses alloc {
+    return $"Eid prayer for the {family} family at {hour}:00"
+}
+
+/// How many notices a list of families needs.
+public i64 noticeCount(List<string> families) {
+    return families.length
+}
+
+/// Prints the notice for one family.
+public void postNotice(string family, at i64 hour) uses notice {
+    print(noticeLine(family, at: hour))
+}
+
+/// Prints the notice for each family in order, then one line with how many were posted.
+public void postAll(List<string> families, at i64 hour) uses notice {
+    for family in families {
+        postNotice(family, at: hour)
+    }
+    print($"{noticeCount(families)} notices posted")
+}

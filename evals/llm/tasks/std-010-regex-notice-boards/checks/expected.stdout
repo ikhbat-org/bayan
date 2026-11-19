@@ -1,0 +1,23 @@
+rule 2: unsupported at 0
+rule 5: malformed
+rule 7: syntax at 0
+rule 8: syntax at 2
+rule 9: unsupported at 3
+rule 10: too large at 10
+rule 11: syntax at 6
+zakat: zakat due before Ramadan
+iftar: Iftar at the masjid on Friday
+sadaqah: sadaqah box by the door
+iftar: suhoor packs for the night
+zakat: zakat nisab 85 grams of gold
+classes: Quran class after Isha
+unsorted: weekly Quran class
+unsorted: the zakatfund meeting
+unsorted: lost keys at the gate
+unsorted: ---
+unsorted: Eid prayer at 07:30
+zakat 2
+iftar 2
+sadaqah 1
+classes 1
+unsorted 5

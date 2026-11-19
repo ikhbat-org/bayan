@@ -1,0 +1,81 @@
+/// One gift put in the sadaqah box.
+public struct Gift {
+    public string donor
+    public i64    amount
+}
+
+/// The gifts put in the box, in the order they were given.
+public struct SadaqahBox {
+    List<Gift> gifts
+
+    public SadaqahBox() {
+        gifts = List<Gift>()
+    }
+
+    /// How many gifts are in the box.
+    public i64 count => gifts.length
+
+    /// What the gifts come to.
+    public i64 total => sum()
+
+    /// Puts a gift in the box.
+    public void put(ref this, string donor, for i64 amount) uses alloc {
+        gifts.append(Gift { donor: donor, amount: amount })
+    }
+
+    /// The gift at `index`, counting from 0.
+    public Gift entryAt(i64 index) => gifts[index]
+
+    i64 sum() {
+        var total: i64 = 0
+        for gift in gifts {
+            total += gift.amount
+        }
+        return total
+    }
+}
+
+/// Writes one line for each gift, the donor then a space then the amount, to the file at `path`.
+public void saveBox(SadaqahBox box, to string path) uses fs, alloc fails IoError {
+    var text = ""
+    var i = 0
+    while i < box.count {
+        let gift = box.entryAt(i)
+        text = $"{text}{gift.donor} {gift.amount}\n"
+        i += 1
+    }
+    try Io.writeFile(path, text.bytes)
+}
+
+/// How many gifts the file at `path` holds: one for each line.
+public i64 savedGifts(string path) uses fs, alloc fails IoError {
+    let text = try Io.readText(path)
+    var lines: i64 = 0
+    for b in text.bytes {
+        if b == 10 {
+            lines += 1
+        }
+    }
+    return lines
+}
+
+/// Whether a box has been saved at `path`.
+public bool boxSaved(string path) uses fs {
+    return Fs.fileExists(path)
+}
+
+/// Removes the file at `path`.
+public void discardBox(string path) uses fs fails IoError {
+    try Io.remove(path)
+}
+
+/// Prints each gift's line, then one line with the total.
+public void announceBox(SadaqahBox box) uses alloc, console {
+    var i = 0
+    while i < box.count {
+        let gift = box.entryAt(i)
+        print($"{gift.donor} {gift.amount}")
+        i += 1
+    }
+    print($"total {box.total}")
+}

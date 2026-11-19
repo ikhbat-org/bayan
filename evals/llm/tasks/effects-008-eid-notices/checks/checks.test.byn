@@ -1,0 +1,44 @@
+List<string> families() {
+    var list = List<string>()
+    list.append("Hamza")
+    list.append("Maryam")
+    return list
+}
+
+public void postTwice(string family) uses notice {
+    postNotice(family, at: 7)
+    postAll(families(), at: 8)
+}
+
+test "noticeLine gives the family and the hour" {
+    assert noticeLine("Bilal", at: 7) == "Eid prayer for the Bilal family at 7:00"
+    assert noticeLine("Aisha", at: 10) == "Eid prayer for the Aisha family at 10:00"
+}
+
+test "noticeCount counts the families" {
+    assert noticeCount(families()) == 2
+    assert noticeCount(List<string>()) == 0
+}
+
+test "the posting functions can be called" {
+    postNotice("Zaynab", at: 9)
+    postAll(families(), at: 9)
+    postAll(List<string>(), at: 9)
+    postTwice("Yusuf")
+}
+
+test "the alias stands for alloc and console" {
+    let viaAlias: (string, i64) -> void uses notice = postNotice
+    let spelled: (string, i64) -> void uses alloc, console = postNotice
+    let many: (List<string>, i64) -> void uses notice = postAll
+    viaAlias("Bilal", 6)
+    spelled("Bilal", 6)
+    many(families(), 6)
+}
+
+test "the other two declare no more than they need" {
+    let line: (string, i64) -> string uses alloc = noticeLine
+    let count: List<string> -> i64 = noticeCount
+    assert line("Hamza", 8) == "Eid prayer for the Hamza family at 8:00"
+    assert count(families()) == 2
+}
