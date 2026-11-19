@@ -1,0 +1,26 @@
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var eidi = Map<string, i64>()
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        let gap = text.position(" ") ?? -1
+        let word = gap < 0 ? text : text[0..gap]
+        let rest = gap < 0 ? "" : text[gap + 1..text.length]
+        if word == "ask" {
+            print($"{rest}: {eidi.tryGet(at: rest) ?? 0}")
+        } else if word == "children" {
+            print($"children: {eidi.length}")
+        } else {
+            let space = rest.position(" ") ?? -1
+            continue if space < 0
+            let name = rest[0..space]
+            let amount = i64.tryParse(rest[space + 1..rest.length]) ?? 0
+            eidi.slot(name) += amount
+        }
+    }
+}

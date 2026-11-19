@@ -1,0 +1,17 @@
+tent 40 38
+bus 50
+rest
+
+tent 12 12
+  tent 10 13  
+bus 0
+tent 0 0
+Rest
+bus
+bus 20 5
+tent 8
+tent eight 4
+bus -3
+rest now
+camel 2
+bus 13

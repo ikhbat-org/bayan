@@ -1,0 +1,23 @@
+/// What each family gets when `zakat` dirhams are shared among `families`.
+i64 share(i64 zakat, for i64 families) {
+    return zakat / families
+}
+
+/// What is left over once each family has its share.
+i64 leftover(i64 zakat, for i64 families) {
+    return zakat - share(zakat, for: families) * families
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    for line in read.value.lines {
+        let gap = line.position(" ") ?? continue
+        let zakat = i64.tryParse(line[0..gap]) ?? 0
+        let families = i64.tryParse(line[gap + 1..line.length]) ?? 1
+        print($"{zakat} for {families}: {share(zakat, for: families)} each, {leftover(zakat, for: families)} left")
+    }
+}

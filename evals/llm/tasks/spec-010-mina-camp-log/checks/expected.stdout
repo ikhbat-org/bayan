@@ -1,0 +1,20 @@
+tent: 38 pilgrims in 40 beds, 2 free
+bus: 50 seats
+rest
+tent: 12 pilgrims in 12 beds, full
+tent: 13 pilgrims in 10 beds, 3 short
+bus: 0 seats
+tent: 0 pilgrims in 0 beds, full
+unknown: Rest
+unknown: bus
+unknown: bus 20 5
+unknown: tent 8
+unknown: tent eight 4
+unknown: bus -3
+unknown: rest now
+unknown: camel 2
+bus: 13 seats
+tents: 4, beds: 62, pilgrims: 63
+buses: 3, seats: 63
+rests: 1, unknown: 8
+every pilgrim seated: yes
