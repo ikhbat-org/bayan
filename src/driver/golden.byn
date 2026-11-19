@@ -952,13 +952,7 @@ i32 goldenTest(
         return exitUsage
     }
     if count > 1 {
-        var kept = List<GoldenCase>()
-        for i in 0..cases.length {
-            if i % count == index {
-                kept.append(GoldenCase { kind: cases[i].kind, name: cases[i].name, input: cases[i].input })
-            }
-        }
-        cases = move kept
+        cases = goldenShardCases(in cases, at: index, by: count)
     }
     let snap = snapshot ?? Env.get("BAYAN_SNAPSHOT") ?? ""
     if snap != "" {
@@ -1020,8 +1014,8 @@ i32 goldenTest(
 }
 
 /// `$BAYAN_TEST_SHARD` (spec 019 T30, R17: one CI job per shard): `i/n`, whole numbers with 1 <= i <= n <= 64, sets `index` to i - 1 and
-/// `count` to n, and `goldenTest` keeps the cases whose position in its case order (after `--only`) is `index` modulo `count`; empty leaves
-/// both. Null, or the refusal text for any other form.
+/// `count` to n, and `goldenTest` keeps the cases of shard i (`goldenShardCases`); empty leaves both. Null, or the refusal text for any other
+/// form.
 string? goldenShard(string value, to ref i64 index, by ref i64 count) uses alloc {
     return null if value == ""
     let refused = $"bayan: BAYAN_TEST_SHARD expects i/n, whole numbers with 1 <= i <= n <= 64, got `{value}`\n"
@@ -1033,6 +1027,28 @@ string? goldenShard(string value, to ref i64 index, by ref i64 count) uses alloc
     index = i - 1
     count = n
     return null
+}
+
+/// The cases of `cases` (in case order, after `--only`) whose group number modulo `count` is `index`. A group is `<kind>/<Class>` for a nested
+/// case (`<Class>/<case>`, the exported kinds) and the case itself for a flat one, numbered in case order (Decision 2026-11-20, Fable for the
+/// owner): a class's cases, and the programs they share, are in one shard, so a shard prebuilds only its own classes' programs. The listing
+/// (`goldenDiscover`) gives a class's cases one after another, so a group starts where the previous case's group differs.
+List<GoldenCase> goldenShardCases(in List<GoldenCase> cases, at i64 index, by i64 count) uses alloc {
+    var kept = List<GoldenCase>()
+    var group: i64 = -1
+    var last = ""
+    for c in cases {
+        let slash = goldenOffset(c.name, for: "/")
+        let key = slash < 0 ? $"{c.kind}/{c.name}" : $"{c.kind}/{c.name[0..slash]}"
+        if group < 0 || key != last {
+            group += 1
+            last = key
+        }
+        if group % count == index {
+            kept.append(GoldenCase { kind: c.kind, name: c.name, input: c.input })
+        }
+    }
+    return kept
 }
 
 /// The workers of a run asked for `jobs`: one under `BAYAN_SNAPSHOT` (`snap` set; Decision 2026-11-19 on T48c), so one process at a time
@@ -2727,6 +2743,31 @@ test "BAYAN_TEST_SHARD 1/3, 2/3 and 3/3 report each case of the unsharded run on
     }
     assert(shards[0].stdout.contains("running 2 cases of ") && shards[2].stdout.contains("running 1 case of "))
     assert(shards[0].exitCode == exitTestFailure && shards[1].exitCode == exitOk && shards[2].exitCode == exitOk)
+}
+
+test "BAYAN_TEST_SHARD puts all cases of one class in one shard, a flat case being its own group" {
+    var cases = List<GoldenCase>()
+    for name in [
+        "lex/flat-a", "lex/One/x", "lex/One/y", "lex/One/z", "lex/flat-b", "sem/One/p", "sem/Two/q", "sem/Two/r",
+    ] {
+        let slash = goldenOffset(name, for: "/")
+        cases.append(GoldenCase { kind: name[0..slash], name: name[slash + 1..name.length], input: name })
+    }
+    var shards = List<string>()
+    var total = 0
+    for i in 0..3 {
+        var sb = StrBuf()
+        for c in goldenShardCases(in cases, at: i, by: 3) {
+            sb.append($"{c.input} ")
+            total += 1
+        }
+        shards.append(sb.finish())
+    }
+    // groups in case order: lex/flat-a, lex/One, lex/flat-b, sem/One, sem/Two
+    assert(total == cases.length)
+    assert(shards[0] == "lex/flat-a sem/One/p ")
+    assert(shards[1] == "lex/One/x lex/One/y lex/One/z sem/Two/q sem/Two/r ")
+    assert(shards[2] == "lex/flat-b ")
 }
 
 test "a BAYAN_TEST_SHARD that is not i/n with 1 <= i <= n <= 64 is refused with exit 2, naming the variable" {
