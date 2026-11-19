@@ -14,7 +14,7 @@ Example input:
 ```
 Aisha 300 1000 200
 Bilal 50 x 10
-Zaynab 10 10 0
+Sumayya 10 10 0
 Omar 900 100 5
 Hamza 0 10 1
 ```
@@ -24,5 +24,5 @@ Example output, ending with exit code 134:
 ```
 Aisha: 4 months
 bad line: Bilal 50 x 10
-Zaynab: no monthly saving
+Sumayya: no monthly saving
 ```
