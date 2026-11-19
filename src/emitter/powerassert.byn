@@ -216,3 +216,87 @@ List<PowerAssertPiece> powerAssertDiagram(List<i64> columns, by List<bool> alway
     }
     return pieces
 }
+
+/// PowerAssertTests.cs:11 `Render`: the text `pieces` write when the columns in `shown` are shown, a value as `<column>`.
+string powerAssertRender(List<PowerAssertPiece> pieces, by List<i64> columns, for List<bool> shown) uses alloc {
+    var sb = StrBuf()
+    for p in pieces {
+        var written = true
+        for k in p.allShown {
+            written = written && shown[k]
+        }
+        for k in p.noneShown {
+            written = written && !shown[k]
+        }
+        if p.anyFrom != -1 {
+            var any = false
+            for k in p.anyFrom..shown.length {
+                any = any || shown[k]
+            }
+            written = written && any
+        }
+        continue unless written
+        sb.append(p.value < 0 ? p.text : $"<{columns[p.value]}>")
+    }
+    return $"{sb.finish()}"
+}
+
+/// PowerAssertTests.cs:17 `Always`: the diagram of `columns`, each always shown.
+string powerAssertAlways(List<i64> columns) uses alloc {
+    var always = List<bool>()
+    for _ in columns {
+        always.append(true)
+    }
+    return powerAssertRender(powerAssertDiagram(columns, by: always), by: columns, for: always)
+}
+
+// PowerAssertTests.BarsSitUnderEachColumnAndValuesHangRightToLeft.
+test "power-assert: bars sit under each column and values hang right to left" {
+    let i = powerAssertIndent
+    assert(powerAssertAlways([2, 6, 9]) == $"\n{i}  │   │  │\n{i}  │   │  <9>\n{i}  │   <6>\n{i}  <2>")
+    for p in powerAssertDiagram([2, 6, 9], by: [true, true, true]) {
+        assert(p.allShown.length == 0 && p.noneShown.length == 0 && p.anyFrom == -1)
+    }
+}
+
+// PowerAssertTests.AColumnThatDidNotRunIsLeftOut.
+test "power-assert: a column that did not run is left out" {
+    let columns: List<i64> = [2, 6, 9, 12]
+    let always: List<bool> = [true, false, true, false]
+    let pieces = powerAssertDiagram(columns, by: always)
+    for six in [false, true] {
+        for twelve in [false, true] {
+            var shown = List<i64>()
+            for k in 0..columns.length {
+                if always[k] || (columns[k] == 6 ? six : twelve) {
+                    shown.append(columns[k])
+                }
+            }
+            assert(powerAssertAlways(shown) == powerAssertRender(pieces, by: columns, for: [true, six, true, twelve]))
+        }
+    }
+    for p in pieces {
+        for k in p.allShown {
+            assert(!always[k])
+        }
+        for k in p.noneShown {
+            assert(!always[k])
+        }
+    }
+}
+
+// PowerAssertTests.NoTrailingBlankWhenTheLastColumnsDidNotRun.
+test "power-assert: no trailing blank when the last columns did not run" {
+    let columns: List<i64> = [2, 6]
+    let pieces = powerAssertDiagram(columns, by: [false, false])
+    assert(powerAssertRender(pieces, by: columns, for: [false, false]) == "")
+    assert(powerAssertRender(pieces, by: columns, for: [true, false]) == powerAssertAlways([2]))
+    assert(powerAssertRender(pieces, by: columns, for: [false, true]) == powerAssertAlways([6]))
+}
+
+// PowerAssertTests.ColumnsCountOnTheFlattenedStatement.
+test "power-assert: columns count on the flattened statement" {
+    assert(powerAssertFlatten("assert a   \n      .b == 1") == "assert a .b == 1")
+    assert(powerAssertColumn("assert a\n    .") == 10)
+    assert(powerAssertColumn("assert \"é\"") == 10)
+}

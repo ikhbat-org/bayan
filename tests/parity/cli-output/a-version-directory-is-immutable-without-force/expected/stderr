@@ -1,0 +1,5 @@
+== 1
+== 2
+bayan: `dist/0.1.0/` already exists, and a released version never changes
+  help: bump `version` in package.byn, or pass `--force` to rebuild this one
+== 3

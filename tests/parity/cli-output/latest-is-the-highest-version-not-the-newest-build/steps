@@ -1,0 +1,7 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"
+$ perl -pi -e 's/version: "[^"]*"/version: "0.1.0"/' tally/package.byn; $BAYAN dist tally > /dev/null; echo "dist 0.1.0 $?"; cat tally/dist/latest/VERSION
+$ perl -pi -e 's/version: "[^"]*"/version: "0.2.0-rc.1"/' tally/package.byn; $BAYAN dist tally > /dev/null; echo "dist 0.2.0-rc.1 $?"; cat tally/dist/latest/VERSION
+$ perl -pi -e 's/version: "[^"]*"/version: "0.0.9"/' tally/package.byn; $BAYAN dist tally > /dev/null; echo "dist 0.0.9 $?"; cat tally/dist/latest/VERSION
+$ perl -pi -e 's/version: "[^"]*"/version: "0.2.0"/' tally/package.byn; $BAYAN dist tally > /dev/null; echo "dist 0.2.0 $?"; cat tally/dist/latest/VERSION
+$ perl -pi -e 's/version: "[^"]*"/version: "0.10.0"/' tally/package.byn; $BAYAN dist tally > /dev/null; echo "dist 0.10.0 $?"; cat tally/dist/latest/VERSION
+$ cmp tally/dist/0.10.0/BUILDINFO.json tally/dist/latest/BUILDINFO.json && echo "latest BUILDINFO.json is 0.10.0's"; ls tally/dist | LC_ALL=C sort

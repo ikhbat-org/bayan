@@ -813,6 +813,45 @@ List<string> failureDetail(string details, by bool verbose, for in semantics.T26
     return lines
 }
 
+/// PowerAssertTests.cs:61 `Details`: a failed `assert total == 3` whose `total` is `value`.
+string failureDetailFixture(string value) uses alloc {
+    let indent = "       "
+    return $"panic: assert total == 3\n{indent}       │     │\n{indent}       │     false\n{indent}       {value}\n  at main.test.byn:4"
+}
+
+/// The lines `failureDetail` gives, one per line.
+string failureDetailText(string details, for bool ascii, through i64 width) uses alloc =>
+    failureDetail(details, by: false, for: semantics.t26Symbols(ascii: ascii), through: width).joined(by: "\n")
+
+// PowerAssertTests.TheDiagramMovesLeftWithTheStatement.
+test "failure-detail: the diagram moves left with the statement" {
+    let lines = failureDetailText(failureDetailFixture("12"), for: false, through: 80)
+    assert(lines == "assert total == 3\n       │     │\n       │     false\n       12\nmain.test.byn:4")
+}
+
+// PowerAssertTests.AsciiDrawsBarsAsPipes.
+test "failure-detail: ascii draws bars as pipes" {
+    let lines = failureDetailText(failureDetailFixture("12"), for: true, through: 80)
+    assert(lines == "assert total == 3\n       |     |\n       |     false\n       12\nmain.test.byn:4")
+}
+
+// PowerAssertTests.LongValuesAreCutAtTheWidth.
+test "failure-detail: long values are cut at the width" {
+    let details = failureDetailFixture("12345678901234567890")
+    let unicode = failureDetail(details, by: false, for: semantics.t26Symbols(ascii: false), through: 15)
+    assert(unicode[3] == "       1234567…")
+    assert(
+        failureDetail(details, by: false, for: semantics.t26Symbols(ascii: true), through: 15)[3] == "       12345..."
+    )
+    assert(unicode[1] == "       │     │")
+}
+
+// PowerAssertTests.OtherPanicsKeepTheirIndentedLines.
+test "failure-detail: other panics keep their indented lines" {
+    let lines = failureDetailText("panic: boom\n       │ not a diagram\n  at main.test.byn:4", for: true, through: 80)
+    assert(lines == "boom\n       │ not a diagram\nmain.test.byn:4")
+}
+
 /// `ChangedSet` (CliApp.cs:1022): `directories` as a set.
 struct T11ChangedSet {
     bool all = false

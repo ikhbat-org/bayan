@@ -1,0 +1,3 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; git -C tally init --quiet; echo "git init $?"
+dist	tally
+$ test -d tally/dist || echo "no dist/"; $BAYAN dist tally --allow-dirty > /dev/null; echo "dist --allow-dirty $?"; perl -0ne 'print "commit null, dirty\n" if /"source": \{\n    "commit": null,\n    "dirty": true\n  \}/' tally/dist/0.1.0/BUILDINFO.json

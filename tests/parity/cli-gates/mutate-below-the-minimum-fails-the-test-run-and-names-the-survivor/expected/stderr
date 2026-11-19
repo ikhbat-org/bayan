@@ -1,0 +1,5 @@
+== 1
+== 2
+bayan: mutation 0% < 100%
+survived mutant: src/app/main.byn:3:12 emptyReturn `"Salam, world!"` -> `""`
+survived mutant: src/app/main.byn:6:1 statement `print(greeting())` -> ``
