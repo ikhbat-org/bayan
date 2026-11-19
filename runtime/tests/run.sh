@@ -93,36 +93,50 @@ for name in batch-cmdline path-relative; do
     fi
 done
 
-# Spec 019 T26 fixtures (StdEnvTests, StdFsTests, StdPathTests rows exported at 3e54b7e91): tests/cases/<os>/<case>.in is replayed
-# through the runtime by the family's driver and its stdout must equal <case>.expected; the path drivers' `--unmask` first turns the
-# working-directory markers of the expected file into this directory's hex. std-fs-cases.c builds its tree under $work/<case>.root
-# with umask 022 and the fixture's modes, so the modes it prints are set, not the host's. Only macOS has an export yet (Linux and
-# Windows wait for theirs), so there a missing fixture is a skip; on macOS it is a failure.
+# Spec 019 T26 fixtures (StdEnvTests, StdFsTests, StdPathTests rows exported at 3e54b7e91 on macOS and at 08b3f29b0 on Windows, wp1):
+# tests/cases/<os>/<case>.in is replayed through the runtime by the family's driver and its stdout must equal <case>.expected; the
+# path drivers' `--unmask` first turns the working-directory markers of the expected file into this directory's hex. An expected
+# `panic <hex>` (.NET threw) wants a non-zero exit, no stdout and `panic: <message>` as the first stderr line. std-fs-cases.c builds its
+# tree under $work/<case>.root with umask 022 and the fixture's modes, so the modes it prints are set, not the host's. The
+# short-names row replays through path-relative-cases.c, as StdPathTests does. Windows-only rows are skipped elsewhere and the invalid
+# UTF-8 row (raw bytes set through /bin/sh) on Windows. Linux has no export yet, so there a missing fixture is a skip; on macOS and
+# Windows it is a failure.
 : >"$work/none.c"
 for name in std-env-get-matches-dotnet std-env-invalid-utf8-value-matches-dotnet std-fs-file-exists-matches-dotnet \
     std-fs-io-remove-matches-dotnet std-fs-io-create-directory-matches-dotnet std-fs-io-remove-directory-matches-dotnet \
-    std-fs-rename-matches-dotnet std-fs-copy-matches-dotnet std-path-each-function-matches-dotnet \
-    std-path-case-tables-match-dotnet std-path-full-path-panics-where-dotnet-throws-space; do
+    std-fs-io-create-directory-extended-path-matches-dotnet std-fs-rename-matches-dotnet std-fs-copy-matches-dotnet \
+    std-path-each-function-matches-dotnet std-path-case-tables-match-dotnet std-path-full-path-panics-where-dotnet-throws-space \
+    std-path-short-names-expand-as-dotnet; do
     fx="$cases/$os/$name"
     case $name in
         std-env-*) drv=std-env-cases ;;
         std-fs-*) drv=std-fs-cases ;;
         std-path-case-tables-*) drv=std-path-case-tables-cases ;;
+        std-path-short-names-*) drv=path-relative-cases ;;
         *) drv=std-path-cases ;;
     esac
+    case $name in
+        *-extended-path-*|std-path-short-names-*) [ $os = windows ] || { skip "$drv.c $name" "Windows only"; continue; } ;;
+        std-env-invalid-utf8-*) [ $os != windows ] || { skip "$drv.c $name" "POSIX only"; continue; } ;;
+    esac
     if [ ! -f "$fx.in" ] || [ ! -f "$fx.expected" ]; then
-        if [ $os = macos ]; then bad "$drv.c $name" "no fixture $fx.{in,expected}"; else skip "$drv.c $name" "no $os export"; fi
+        if [ $os = macos ] || [ $os = windows ]; then bad "$drv.c $name" "no fixture $fx.{in,expected}"; else skip "$drv.c $name" "no $os export"; fi
         continue
     fi
     if [ ! -f "$work/$drv.exe" ]; then
         if [ $drv = std-path-case-tables-cases ]; then build $drv "$work/none.c"; else build $drv; fi ||
             { bad "$drv.c $name" "build failed: $(cat "$work/$drv.build")"; continue; }
     fi
-    if [ $drv = std-path-cases ]; then "$work/$drv.exe" --unmask <"$fx.expected" >"$work/$name.want"
+    if [ $drv = std-path-cases ]; then "$work/$drv.exe" --unmask <"$fx.expected" | tr -d '\r' >"$work/$name.want"
     else cp "$fx.expected" "$work/$name.want"; fi
     "$work/$drv.exe" "$(pwd -P)/$name.root" <"$fx.in" 2>"$work/$name.err" | tr -d '\r' >"$work/$name.out"
     rc=${PIPESTATUS[0]}
-    if [ $rc -eq 0 ] && cmp -s "$work/$name.out" "$work/$name.want"; then ok "$drv.c $name"
+    panic=$(sed -n 's/^panic \([0-9a-f]*\)$/\1/p' "$work/$name.want")
+    if [ -n "$panic" ]; then
+        got=$(head -n 1 "$work/$name.err" | tr -d '\r')
+        if [ $rc -ne 0 ] && [ ! -s "$work/$name.out" ] && [ "$(hex "$got")" = "$(hex 'panic: ')$panic" ]; then ok "$drv.c $name"
+        else bad "$drv.c $name" "exit $rc, want the panic of $fx.expected, got stderr: $(echo "$got" | cut -c1-80)"; fi
+    elif [ $rc -eq 0 ] && cmp -s "$work/$name.out" "$work/$name.want"; then ok "$drv.c $name"
     else
         line=$(cmp "$work/$name.out" "$work/$name.want" 2>&1 | sed -n 's/.*line \([0-9]*\).*/\1/p')
         if [ -n "$line" ]; then
