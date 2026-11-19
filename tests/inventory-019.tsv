@@ -81,9 +81,9 @@ ScaffoldTests	csharp/tests/Bayan.Tests/ScaffoldTests.cs	cli	17	cli	tests/parity	
 SelfhostCoverageTests	src/tests/SelfhostCoverageTests.cs	selfhost-coverage	4	cli	quality	coverage output (plan says kind quality)	
 SelfhostDefaultBoundsTests	src/tests/SelfhostDefaultBoundsTests.cs	selfhost-default	17	bayan-test	src/driver/bounds.byn bound: blocks; M5 evict rows: the bound: evict blocks; M4 inputs hash: cli/SelfhostDefaultT12Tests/TheInputsHashDoesNotFollowLinks (and -2)	bounds; Bayan test builds a large tree; M4 and M5 delegated to T12 and T9, all run by scripts/release/memory-gate.sh (T28)	
 SelfhostDefaultJsonCountTests	src/tests/SelfhostDefaultJsonCountTests.cs	selfhost-default	1	cli	cli	generated-docs/JSON counts through the command	
-SelfhostDefaultP2Tests	src/tests/SelfhostDefaultP2Tests.cs	selfhost-default	3	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDefaultP2Tests	src/tests/SelfhostDefaultP2Tests.cs	selfhost-default	3	sem	sem	stage 2 command output equals the C# CLI	
 SelfhostDefaultSpeedTests	src/tests/SelfhostDefaultSpeedTests.cs	selfhost-default	1	bayan-test	lib/std bound tests	speed bound; Bayan test measures	
-SelfhostDefaultT10Tests	src/tests/SelfhostDefaultT10Tests.cs	selfhost-default	701	cli	cli	stage 2 command output equals the C# CLI	owned by T15g
+SelfhostDefaultT10Tests	src/tests/SelfhostDefaultT10Tests.cs	selfhost-default	701	emit-c	emit-c	stage 2 command output equals the C# CLI	owned by T15g
 SelfhostDefaultT12Tests	src/tests/SelfhostDefaultT12Tests.cs	selfhost-default	86	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDefaultT1Tests	src/tests/SelfhostDefaultT1Tests.cs	selfhost-default	32	cli	cli	stage 2 command output equals the C# CLI	owned by T15e
 SelfhostDefaultT2Tests	src/tests/SelfhostDefaultT2Tests.cs	selfhost-default	25	cli	cli	stage 2 command output equals the C# CLI	owned by T15e
@@ -149,10 +149,10 @@ SelfhostPathT4Tests	src/tests/SelfhostPathT4Tests.cs	selfhost-path	1029	sem	sem	
 SelfhostPathT5Tests	src/tests/SelfhostPathT5Tests.cs	selfhost-path	10	emit-c	emit-c	T26 part 2: 5 programs x fast/debug as tests/cases/emit-c/SelfhostPathT5Tests/EmitsTheSameC-{directory-name,combine,combine-span,full-path,all}-{fast,debug}, expected from the v0.3.2 C# `bayan build --emit-c --mode <m>`	owned by T13c
 SelfhostPathT7Tests	src/tests/SelfhostPathT7Tests.cs	selfhost-path	10	sem + shell	tests/cases/sem/SelfhostPathT7Tests + scripts/ci/selfhost-path-dirname-root-panic.test.sh	9 sem cases; DirectoryNameOfRootPanicsWhereCSharpIsNull is the shell test scripts/ci/selfhost-path-dirname-root-panic.test.sh (exit, stdout and stderr assertions of SelfhostPathT7Tests.cs)	
 SelfhostPathT8Tests	src/tests/SelfhostPathT8Tests.cs	selfhost-path	3	sem + dropped	tests/cases/sem/SelfhostPathT8Tests	2 sem cases; ProgramNameCoversDirectoryFileTrailingSeparatorAndMain: no counterpart (Fable for the owner, 2026-11-19): it checks the C# test harness's own ProgramName helper and runs no Bayān program	
-SelfhostRevisionT2Tests	src/tests/SelfhostRevisionT2Tests.cs	selfhost-revision	20	run	run	revision examples; diag where they assert errors	owned by T13c
-SelfhostRevisionT4Tests	src/tests/SelfhostRevisionT4Tests.cs	selfhost-revision	24	run	run	revision examples; diag where they assert errors	owned by T13c
-SelfhostRevisionT7Tests	src/tests/SelfhostRevisionT7Tests.cs	selfhost-revision	14	run	run	revision examples; diag where they assert errors	owned by T13c
-SelfhostRevisionT8Tests	src/tests/SelfhostRevisionT8Tests.cs	selfhost-revision	9	run	run	revision examples; diag where they assert errors	owned by T13c
+SelfhostRevisionT2Tests	src/tests/SelfhostRevisionT2Tests.cs	selfhost-revision	20	sem	sem	revision examples; diag where they assert errors	owned by T13c
+SelfhostRevisionT4Tests	src/tests/SelfhostRevisionT4Tests.cs	selfhost-revision	24	sem	sem	revision examples; diag where they assert errors	owned by T13c
+SelfhostRevisionT7Tests	src/tests/SelfhostRevisionT7Tests.cs	selfhost-revision	14	sem	sem	revision examples; diag where they assert errors	owned by T13c
+SelfhostRevisionT8Tests	src/tests/SelfhostRevisionT8Tests.cs	selfhost-revision	9	sem	sem	revision examples; diag where they assert errors	owned by T13c
 SelfhostSemanticsApiTests	src/tests/SelfhostSemanticsApiTests.cs	selfhost-semantics	1	sem	sem	sections printed by the built program compared with C# lines	
 SelfhostSemanticsCorpusParityTests	src/tests/SelfhostSemanticsGeneratorTests.cs	selfhost-semantics	2	sem	sem	generated corpus compared with bayan-check; export keeps the inputs	
 SelfhostSemanticsEquivalenceLawTests	src/tests/SelfhostSemanticsEquivalenceLawTests.cs	selfhost-semantics	1	check	check:L022	law proof becomes a check: command (R18)	

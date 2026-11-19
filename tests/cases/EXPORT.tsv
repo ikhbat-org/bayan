@@ -54,10 +54,16 @@ SelfhostEmitterT9Tests	emit-c	3	4
 SelfhostLexerCaseTests	lex	1	1	
 SelfhostLexerTests	lex	31	20064	
 SelfhostParserO3Tests	parse	7	7	
+SelfhostParserT10Tests	parse	1	0	1 not exported: PrimariesParseAsInCSharp (typed expected text, no C# value to compare)
+SelfhostParserT11Tests	parse	1	0	1 not exported: DumpWritesDeclarationsAndStatements (typed expected text, no C# value to compare)
+SelfhostParserT12Tests	parse	2	0	2 not exported: DumpCoversEveryExprTypeAndPatternCase (typed expected text, no C# value to compare); DumpExprTypePatternAndCheckSpans (typed expected text, no C# value to compare)
+SelfhostParserT13Tests	parse	5	0	5 not exported: ManyOnAMissingDirectoryExitsTwo (typed expected text, no C# value to compare); ManyPrintsHeadersInNameOrderAndSkipsNonByn (typed expected text, no C# value to compare); MissingPathExitsFour (typed expected text, no C# value to compare); TimePrintsANumberAndExitsZero (typed expected text, no C# value to compare); UnknownOptionExitsTwo (typed expected text, no C# value to compare)
+SelfhostParserT3Tests	parse	2	0	2 not exported: PatternsParse (typed expected text, no C# value to compare); RecoveryAndLineStructure (typed expected text, no C# value to compare)
 SelfhostParserT4Tests	parse	1	1	
 SelfhostParserT5Tests	parse	1	1	
 SelfhostParserT6Tests	parse	66	66	
 SelfhostParserT7Tests	parse	31	31	
+SelfhostParserT8Tests	parse	1	0	1 not exported: SelfContainedStatementsBuildAndRun (typed expected text, no C# value to compare)
 SelfhostParserT9Tests	parse	1	1	
 SelfhostParserTests	parse	264	603	3 not exported: SpanTakenBeforeTheLastChildLeavesItOutside (block-property); SpanTakenBeforeTheLastChildLeavesItOutside (not-pattern); SpanTakenBeforeTheLastChildLeavesItOutside (var-pattern)
 SelfhostPathT4Tests	sem	1029	1017	12 TheCSharpReportsDiagnostics: no counterpart (Fable for the owner, 2026-11-19): they assert the C# compiler's own diagnostics and run no self-hosted code

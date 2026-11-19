@@ -7,7 +7,7 @@ fail() { echo "FAIL: $1" >&2; exit 1; }
 # A tool whose interpreter is not installed (CI runners have no deno) is skipped, not failed.
 needs() { read -r cmd _ < "$1/impl"; command -v "$cmd" > /dev/null; }
 for t in "$root"/tests/parity/*/; do
-  # The cli-* cases were recorded from the C# `bayan` (scripts/parity/csharp-bayan.sh); scripts/test.sh runs them against the driver.
+  # The cli-* cases were recorded from the C# `bayan` at v0.3.2 (frozen; --record refuses them); scripts/test.sh runs them against the driver.
   case "$(basename "$t")" in cli-*) echo "SKIP $(basename "$t"): recorded from the C# bayan, run by scripts/test.sh --only parity"; continue ;; esac
   needs "$t" || { echo "SKIP $(basename "$t"): $(read -r c _ < "$t/impl"; echo "$c") not installed"; continue; }
   bash "$root/scripts/parity/run.sh" "$(basename "$t")" > /dev/null || fail "$(basename "$t") no longer matches its baseline: $(bash "$root/scripts/parity/run.sh" "$(basename "$t")" | head -3)"
@@ -53,6 +53,17 @@ out=$(bash "$root/scripts/parity/run.sh" ../parity 2>&1) && fail "tool ../parity
 grep -q 'bad tool name' <<< "$out" || fail "tool ../parity was not refused: $out"
 # --record reports a case it could not record.
 if bash "$root/scripts/parity/run.sh" probe --record no-such-case > /dev/null; then fail "--record of a missing case exited 0"; fi
+# --record of a cli-* tool is refused before anything runs: its expected/ stays as recorded. The fixture lives under
+# tests/parity/ only for this check (run.sh reads no other place) and is removed on exit.
+cli="$root/tests/parity/cli-record-fixture"
+trap 'rm -rf "$cli"' EXIT
+rm -rf "$cli"; mkdir -p "$cli/one/expected"; echo 'echo new' > "$cli/impl"; echo old > "$cli/one/expected/stdout"
+rc=0; out=$(bash "$root/scripts/parity/run.sh" cli-record-fixture --record 2>&1) || rc=$?
+[ "$rc" = 2 ] || fail "--record of a cli-* tool exited $rc: $out"
+[ "$out" = "parity: the expected files of the cli-* tools are frozen from the C# CLI at v0.3.2 and are not re-recorded" ] \
+  || fail "--record of a cli-* tool printed: $out"
+{ [ "$(ls "$cli/one/expected")" = stdout ] && [ "$(cat "$cli/one/expected/stdout")" = old ]; } || fail "--record of a cli-* tool changed expected/"
+rm -rf "$cli"
 # Masks (spec 019 T25): a time, a staging key and the .NET text after `bayan: cannot …` read the same whatever their value;
 # a time inside a word, a key with a 33rd hex digit and a `bayan: cannot` line without a path or name stay exact.
 cat > "$t/impl.sh" <<'STUB'

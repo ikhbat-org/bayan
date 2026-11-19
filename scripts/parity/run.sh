@@ -3,9 +3,11 @@
 # work directory afterwards with what the original (Python/Deno/PowerShell) script produced when the case was recorded.
 # Usage: scripts/parity/run.sh <tool> [--impl '<command>'] [--record] [case...]
 #   <tool>     a directory under tests/parity/
-#   --impl     the command under test (default: the tool's `impl` file, the original script); a port passes its own,
+#   --impl     the command under test (default: the tool's `impl` file: the original script, or for the cli-* tools the
+#              stage-1 driver tmp/bootstrap-check/bayan that scripts/ci/bootstrap-check.sh leaves); a port passes its own,
 #              e.g. --impl "$(scripts/pinned-bayan.sh) run tools/mutation-exempt.byn"
-#   --record   write expected/ from this run instead of comparing (only ever with the original script)
+#   --record   write expected/ from this run instead of comparing (only ever with the original script); refused (exit 2)
+#              for a cli-* tool, whose expected files are frozen from the C# CLI at v0.3.2
 # A case is tests/parity/<tool>/<case>/ holding:
 #   args       arguments, one per line (optional); `$ROOT` and `$WORK` in a line become the repo root and the work directory
 #   in/        inputs; copied to a scratch directory that becomes the working directory (files in in/bin/ made executable)
@@ -41,6 +43,7 @@ while [ $# -gt 0 ]; do
     *) cases+=("$1"); shift ;;
   esac
 done
+case "$tool" in cli-*) [ $record = 0 ] || { echo "parity: the expected files of the cli-* tools are frozen from the C# CLI at v0.3.2 and are not re-recorded" >&2; exit 2; } ;; esac
 [ -n "$impl" ] || impl="$(sed "s|\$ROOT|$root|g" "$dir/impl")"
 [ ${#cases[@]} -gt 0 ] || for c in "$dir"/*/; do cases+=("$(basename "$c")"); done
 
