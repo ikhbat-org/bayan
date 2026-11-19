@@ -1408,7 +1408,8 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         err = err.replaced($"{scratch}-repo/", by: "")
     }
     if cls == "SelfhostDefaultT9Tests"
-            || (cls.startsWith("SelfhostDefault") || cls.startsWith("SelfhostDriver")) && Fs.fileExists(Path.combine(dir, "modes")) {
+            || (cls.startsWith("SelfhostDefault") || cls.startsWith("SelfhostDriver"))
+            && Fs.fileExists(Path.combine(dir, "modes")) {
         // what `modes` or a T9 seed locked, opened again for the next run's `goldenFresh`
         let _ = goldenCliRun(["chmod", "-R", "u+rwx", scratch])
     }
