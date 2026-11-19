@@ -34,7 +34,7 @@ SelfhostDriverMutateTests	cli	46	58
 SelfhostDriverRuntimeTests	cli	2	0	2 not exported: RuntimeConstantsEqualRuntimeFiles (compares src/driver/runtime.byn with runtime/bayan-rt.h and bayan-rt.c, no compiler output; the same comparison is scripts/selfhost/gen-driver-files.sh --check, run on the tree by scripts/selfhost/gen-driver-files.test.sh in scripts/ci/script-tests.sh); StageOneBuildsWithRuntimeText (build only: asserts the stage-1 binary exists; ci.yml builds stage 1 with scripts/bootstrap-build.sh)
 SelfhostDriverStage2FormatTests	cli	139	173	1 not exported: FormatTreesAsCliApp-84 (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
 SelfhostDriverStyleCaseTests	cli	147	147	
-SelfhostDriverStyleEnvironmentTests	cli	84	42	42 not exported: ThePaletteIsTheOneTheEnvironmentNames x4, FitCutsTheLineAsProgressDoes x10, VisibleEscapesControlsAsTerminalStyleDoes x8, TheLineIsDrawnAndClearedAsProgressDoes x8, LaterTicksAndASecondDoneAsProgressDoes x3, TheTimerDrawsAsProgressDoes x7 (ported to src/driver/styleenv.test.byn `style env: ` blocks: they call Progress and TerminalStyle, not a CLI command); TimerFramesSplitsTheFramesAndRefusesARunWithoutTheClear, TimerFramesMayDifferInCountButNotInAFrame (test the C# harness helpers TimerFrames, AssertSameTimerFrames and AssertTimerRepeats, no driver code); the helper TimerFrames itself is ported as src/driver/styleenv.test.byn `styleEnvFrames`, run by `style env: the timer draws as Progress does`
+SelfhostDriverStyleEnvironmentTests	cli	84	42	40 not exported: ThePaletteIsTheOneTheEnvironmentNames x4, FitCutsTheLineAsProgressDoes x10, VisibleEscapesControlsAsTerminalStyleDoes x8, TheLineIsDrawnAndClearedAsProgressDoes x8, LaterTicksAndASecondDoneAsProgressDoes x3, TheTimerDrawsAsProgressDoes x7 (ported to src/driver/styleenv.test.byn `style env: ` blocks: they call Progress and TerminalStyle, not a CLI command); not named, no cover: TimerFramesSplitsTheFramesAndRefusesARunWithoutTheClear, TimerFramesMayDifferInCountButNotInAFrame (test the C# harness helpers TimerFrames, AssertSameTimerFrames and AssertTimerRepeats, no driver code); the helper TimerFrames itself is ported as src/driver/styleenv.test.byn `styleEnvFrames`, run by `style env: the timer draws as Progress does`
 SelfhostDriverStyleLintsTests	cli	13	12	1 not exported: CoversTheFolderCases (guard on the C# row list, asserts Cases().Count is 6, no compiler output; its 6 rows are the 12 cases)
 SelfhostDriverT1Tests	cli	181	205	1 not exported: FormatAsCliApp-32 (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
 SelfhostDriverT2Tests	cli	761	774	
@@ -108,7 +108,7 @@ SelfhostSemanticsT39Tests	sem	48	48
 SelfhostSemanticsT3Tests	sem	5	5	
 SelfhostSemanticsT40Tests	sem	5	5	
 SelfhostSemanticsT41Tests	sem	993	992	1 not exported: RunArgumentsStayUnderTheCommandLineLimit (checks the C# harness's argv chunking, no compiler output)
-SelfhostSemanticsT4Tests	sem	5	4	1 not exported: EveryRecordHasAStruct (records compares bound.byn's struct fields, not a program's output)
+SelfhostSemanticsT4Tests	sem	5	4	not named, no cover: EveryRecordHasAStruct (not exported: records compares bound.byn's struct fields, not a program's output)
 SelfhostSemanticsT5Tests	sem	3	3	
 SelfhostSemanticsT6Tests	sem	8	8	
 SelfhostSemanticsT7Tests	sem	39	38	1 not exported: EveryFormIsReached (meta-assert on the C# oracle; the frozen expected.sections of the 38 cases reach every code)
