@@ -2386,6 +2386,11 @@ test "`stdout-exact-stderr-masked` compares stdout byte for byte (SelfhostDriver
 }
 
 test "the T5 cases pass in their C# directories: emit in tmp/t5/emit, run in tmp/t5/cwd, a named build in tmp/t5/cs, stubs on PATH" {
+    if Target.os == "windows" {
+        todo(
+            "OutputNamesAsCliApp-2's stdout names the export host `macos-arm64`, and the PATH stubs of goldenCliT5Stub are `#!/bin/sh` scripts made executable by `chmod`, which Windows cannot start",
+        )
+    }
     var failure = ""
     let exe = goldenExe(through: ref failure)
     assert(exe != "")
@@ -2397,10 +2402,7 @@ test "the T5 cases pass in their C# directories: emit in tmp/t5/emit, run in tmp
         "LeavesNoLinkByProductAsCliApp",
         "RejectedCAsCliApp",
     ] {
-        let args = Path.combine(Path.combine(root, name), "args")
-        // as the runner does: OutputNamesAsCliApp-2's stdout names the export's host, its `os` file `macos`
-        continue if goldenCliSkip("cli", at: args) is not null
-        assert(goldenCli(args, by: exe) is null)
+        assert(goldenCli(Path.combine(Path.combine(root, name), "args"), by: exe) is null)
         deleteWorkDir(Path.combine(Path.fullPath("tmp/cli"), $"SelfhostDriverT5Tests_{name}"))
     }
 }
