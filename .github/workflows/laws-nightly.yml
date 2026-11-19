@@ -22,12 +22,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
-      # Replaces actions/checkout (spec 015 handoff, T4): the exact commit at depth 1. The repo is public, so no token.
+      # Replaces actions/checkout (spec 015 handoff, T4): the exact commit and its parent (depth 2, as ci.yml): the `check:` of
+      # several laws runs scripts/ci/bootstrap-check.sh, which builds from HEAD^1. The repo is public, so no token.
       - name: Checkout
         shell: bash
         run: |
           git init -q .
-          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git fetch -q --depth=2 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
       # Replaces actions/setup-dotnet: the SDK pinned in install-dotnet.sh, sha512-checked.
       - name: Install .NET SDK
