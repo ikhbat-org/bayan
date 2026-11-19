@@ -44,6 +44,7 @@ jobs:
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
+      # Goes with the recording below (dotnet test in mutation-step.sh): both go in T48c (spec 019).
       # Replaces actions/setup-dotnet: the SDK pinned in install-dotnet.sh, sha512-checked.
       - name: Install .NET SDK
         shell: bash
@@ -55,6 +56,7 @@ jobs:
       - name: Install zig
         shell: bash
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      # Goes in T48c (spec 019) with the xunit recorder that needs it.
       - name: Build
         run: dotnet build Bayan.slnx
       - name: Mutate
@@ -87,13 +89,11 @@ jobs:
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
-      # The baseline tool runs on the pinned bayan (scripts/bayan-tool.sh), built from the checked-out dev commit.
-      - name: Install .NET SDK
+      # The baseline tool runs on the pinned bayan (scripts/bayan-tool.sh), built from bootstrap/bayan.c of the checked-out
+      # commit by scripts/pinned-bayan.sh (spec 019 R24); `bayan run` compiles the tool with zig.
+      - name: Install zig
         shell: bash
-        run: |
-          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
-          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
-          echo "$dotnet_root" >> "$GITHUB_PATH"
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
       - uses: actions/download-artifact@v8
         with:
           pattern: mutation-reports-*

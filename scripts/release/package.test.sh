@@ -132,16 +132,16 @@ mkdir -p "$t/empty"; bash "$s" sums "$t/empty" 2>/dev/null && fail "sums over no
 [ "$(bash "$s" notes 1.2.3)" = "$(printf '\n### Added\n- one\n\nKnown limit: the stage-2 build of `src/driver` peaks at 1.69 GB of memory.')" ] || fail "notes: $(bash "$s" notes 1.2.3)"
 bash "$s" notes 9.9.9 2>/dev/null && fail "missing CHANGELOG section accepted"
 
-# release.yml builds the shipped bayan as stage 2 and smoke-tests the "(selfhost)" version line (spec 017 R5).
+# release.yml builds the shipped bayan as stage 2 from the bootstrap (stage 0 by bootstrap-build.sh, no .NET) and smoke-tests the "(selfhost)" version line (spec 017 R5).
 y="$root/.github/workflows/release.yml"
 yline() { grep -nxF -m1 -- "$1" "$y" | cut -d: -f1 || true; } # the line number of a whole line, with its indent; empty when absent
-l_pub="$(yline '      - name: Publish (NativeAOT)')"; l_pkg="$(yline '      - name: Package')"; l_mg="$(yline '  memory-gate:')"
+l_pkg="$(yline '      - name: Package')"; l_mg="$(yline '  memory-gate:')"
 l_zig="$(yline '        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"')"
-l_s1="$(yline '        run: ./publish/${{ matrix.exe }} build --mode safe --package src -o "$RUNNER_TEMP/stage1-${{ matrix.exe }}" src/driver')"
-l_s2="$(yline '          "$RUNNER_TEMP/stage1-${{ matrix.exe }}" build --mode safe --package src -o publish/${{ matrix.exe }} src/driver')"
+l_s1="$(yline '          s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }')"
+l_s2="$(yline '          "$STAGE1" build --mode safe --package src -o publish/${{ matrix.exe }} src/driver')"
 l_sm="$(yline '        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan $(cat VERSION) (selfhost)"')"
-[ -n "$l_pub" ] && [ -n "$l_pkg" ] && [ -n "$l_mg" ] || fail "release.yml lacks the Publish or Package step or the memory-gate job"
-[ -n "$l_zig" ] && [ "$l_zig" -gt "$l_pub" ] && [ "$l_zig" -lt "$l_mg" ] || fail "release.yml: no Install zig run in the build job after Publish"
+[ -n "$l_pkg" ] && [ -n "$l_mg" ] || fail "release.yml lacks the Package step or the memory-gate job"
+[ -n "$l_zig" ] && [ "$l_zig" -lt "$l_mg" ] || fail "release.yml: no Install zig run in the build job"
 [ -n "$l_s1" ] || fail "release.yml lacks the stage 1 build"
 [ -n "$l_s2" ] || fail "release.yml lacks the stage 2 build"
 [ -n "$l_sm" ] || fail "release.yml smoke test lacks (selfhost)"
