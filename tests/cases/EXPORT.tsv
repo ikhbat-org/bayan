@@ -28,7 +28,6 @@ SelfhostDriverStyleCaseTests	cli	147	147
 SelfhostDriverStyleEnvironmentTests	cli	84	42	
 SelfhostDriverStyleLintsTests	cli	13	12	
 SelfhostDriverT1Tests	cli	181	205	1 not exported: FormatAsCliApp-32 (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
-SelfhostDriverT1Tests	emit-c	181	0	9 not exported: ManifestForAsFormat (manifestFor); PackageNamesWithNamesAsFormat (package names); QualityReportAsCSharpDoes (killed a.byn b.byn); QualityReportAsCSharpDoes (killed lib.test.byn); QualityReportAsCSharpDoes (nosources lib.test.byn); QualityReportAsCSharpDoes (outcome b.byn a.byn); QualityReportAsCSharpDoes (outcome lib.test.byn); QualityReportAsCSharpDoes (timeout lib.test.byn); WalkAsFormatBynFiles (walk)
 SelfhostDriverT2Tests	cli	761	774	
 SelfhostDriverT3Tests	cli	62	70	
 SelfhostDriverT5Tests	cli	16	761	3 not exported: EmitsAPackageAsCliApp (build --emit-c --mode debug --package src src/driver); EmitsAPackageAsCliApp (build --emit-c --mode debug --package src src/lexer); FailuresAsCliApp (build --emit-c --package <repo>/src <repo>/tmp/t5/self/broken/broken.byn); 2 removed: CannotWriteTheOutputAsCliApp-5 (its input out/safe/macos-arm64/read-only named the export machine and was left out); CannotWriteTheOutputAsCliApp-6 (its input out/safe/macos-arm64/read-only named the export machine and was left out); EmitCAsCliAppOnEveryRunInput (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
