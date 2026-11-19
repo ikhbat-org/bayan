@@ -138,7 +138,7 @@ public sealed class StdPathTests
             source.Append($"print(Path.fullPath({Literal(p)}))\n");
             expected.Add(full);
             ops.Add($"fullPath {Hex(p)}");
-            results.Add(export ? CwdField(full, b => Path.GetFullPath(p, b)) : "");
+            results.Add(export ? CwdField(full, b => FullPathAt(p, b)) : "");
         }
         foreach (var (from, to) in Pairs(1014, 400))
         {
@@ -147,7 +147,7 @@ public sealed class StdPathTests
             source.Append($"print(Path.relative(from: {Literal(from)}, to: {Literal(to)}))\n");
             expected.Add(r);
             ops.Add($"relative {Hex(from)} {Hex(to)}");
-            results.Add(export ? CwdField(r, b => Relative(Path.GetFullPath(from, b), Path.GetFullPath(to, b))) : "");
+            results.Add(export ? CwdField(r, b => Relative(FullPathAt(from, b), FullPathAt(to, b))) : "");
         }
         // `combine` brackets its result: an empty one is a line too.
         foreach (var (a, b) in Pairs(2014, 200))
@@ -397,6 +397,26 @@ public sealed class StdPathTests
 
     /// <summary>A working directory unlike the test's, deeper than any corpus input climbs, to find the results that depend on it.</summary>
     private static readonly string OtherCwd = Path.Combine([Path.GetPathRoot(Directory.GetCurrentDirectory())!, "t26", .. Enumerable.Range(1, 15).Select(i => $"w{i}")]);
+
+    /// <summary>
+    /// <c>Path.GetFullPath(<paramref name="path"/>)</c> with <paramref name="cwd"/> as the working directory, for <see cref="CwdField"/>.
+    /// On Unix that is the two-argument form. On Windows the one-argument form resolves as GetFullPathNameW: any character before a
+    /// colon is a drive (`1:\x` stays `1:\x`), and a drive-relative path (`C:x`) joins the working directory only on its drive (letter
+    /// case aside), else that drive's own directory; the two-argument form takes only a letter as a drive (`1:\x` joins the base) and
+    /// matches the drive by its own rule. So a colon second or two leading separators (drive, UNC, device) is the one-argument form, which
+    /// does not move with the working directory, a drive-relative path on the working directory's drive joins it, and the rest (`x`,
+    /// `\x`, `\??\`) is the two-argument form.
+    /// </summary>
+    private static string FullPathAt(string path, string cwd)
+    {
+        if (!OperatingSystem.IsWindows()) return Path.GetFullPath(path, cwd);
+        static bool Sep(char c) => c is '\\' or '/';
+        if (path.Length >= 2 && path[1] == ':')
+            return (path.Length == 2 || !Sep(path[2])) && cwd.Length >= 2 && cwd[1] == ':' && char.ToUpperInvariant(path[0]) == char.ToUpperInvariant(cwd[0])
+                ? Path.GetFullPath(Path.Join(cwd, path[2..]))
+                : Path.GetFullPath(path);
+        return path.Length >= 2 && Sep(path[0]) && Sep(path[1]) ? Path.GetFullPath(path) : Path.GetFullPath(path, cwd);
+    }
 
     /// <summary>The value for <paramref name="cwd"/> of a working-directory marker (<c>CWD</c>, <c>CWDREL</c>, <c>CWDTAIL</c>, <c>UP</c>) with numbers <paramref name="a"/> and <paramref name="b"/>.</summary>
     private static string CwdMarker(string name, int a, int b, string cwd)
