@@ -1,0 +1,2 @@
+struct G<T> { List<G<Owned<T>>> g }
+let x = G<i64> {}

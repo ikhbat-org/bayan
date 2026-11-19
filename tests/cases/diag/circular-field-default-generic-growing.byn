@@ -1,0 +1,2 @@
+struct G<T> { G<Owned<T>>? g = Owned(G<T> {}) }
+let x = G<i64> {}
