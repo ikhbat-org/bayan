@@ -11,7 +11,8 @@
 # (c) counts only when tests/cases/EXPORT.tsv (class, kind, tests, cases, reason) exists, else it prints
 # 'skip case counts: no tests/cases/EXPORT.tsv'. A class with a reason in EXPORT.tsv is not exported and is not counted.
 # A golden row (disposition golden, target tests/cases/<dir>) counts the cases in that flat folder, one per distinct file stem
-# or subdirectory, against the summed tests of all golden rows sharing the folder; with a tests/cases/<dir>/<Class>/ folder,
+# or subdirectory (not a <Class>/ subdirectory of a class EXPORT.tsv names with kind <dir>, which holds that class's cases),
+# against the summed tests of all golden rows sharing the folder; with a tests/cases/<dir>/<Class>/ folder,
 # it counts the directories under tests/cases/<dir>/<Class>/ against the row alone. A row with target tests/cases itself counts
 # the cases of every kind folder under tests/cases (stems as above; in a <kind>/<Class>/<test> layout, one per test, a directory
 # with main.byn or without subdirectories being one case) against the row alone.
@@ -65,7 +66,12 @@ while IFS="$(printf '\037')" read -r class file family tests disp target reason 
     fi
     if [ ! -d "$root/tests/cases/$dir/$class" ]; then
       [ -d "$root/tests/cases/$dir" ] || { offend "row $class has 0 cases, no $target folder, for its $tests tests"; continue; }
-      n="$(find "$root/tests/cases/$dir" -mindepth 1 -maxdepth 1 | sed 's|.*/||; s|\..*||' | sort -u | wc -l | tr -d ' ')"
+      # a <Class>/ subfolder of an exported class (EXPORT.tsv class of kind <dir>) holds that class's cases, not this folder's
+      exported="$(awk -F'\t' -v k="$dir" '$2 == k { print $1 }' "$export_tsv")"
+      n="$(find "$root/tests/cases/$dir" -mindepth 1 -maxdepth 1 | while read -r e; do
+        if [ -d "$e" ] && grep -qxF -- "${e##*/}" <<<"$exported"; then continue; fi
+        printf '%s\n' "${e##*/}"
+      done | sed 's|\..*||' | sort -u | wc -l | tr -d ' ')"
       want="$(awk -F'\t' -v t="$target" '$5 == "golden" && $6 == t { s += $4 } END { print s }' "$inv")"
       [ "$n" -ge "$want" ] || offend "row $class has $n cases in $target, below the $want tests of its golden rows"
       continue
