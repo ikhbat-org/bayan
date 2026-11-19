@@ -10,8 +10,8 @@
 // `programs/` first); a row whose program file is missing fails naming it.
 //
 // Inputs. A case's `input.<ext>` and its `input/` (T17a: `input.tsv` over `<cases>/inputs`; an older export: the directory itself) are placed
-// in a fresh scratch directory tmp/programs-run/<Class>_<case>, which stands for the repo and for the C#'s temp directories; what the program
-// prints reads the scratch directory back as the repo-relative paths the export wrote (`Portable`, SelfhostSemanticsHarness.cs:449).
+// in a fresh scratch directory tmp/p/<hash> (`goldenProgramScratch`), which stands for the repo and for the C#'s temp directories; what the
+// program prints reads the scratch directory back as the repo-relative paths the export wrote (`Portable`, SelfhostSemanticsHarness.cs:449).
 //
 // Recording (spec 019 T48c). Under `BAYAN_SNAPSHOT` each program is a schemata build (`--schemata-files`) with sites only in the files of
 // `BAYAN_SNAPSHOT_FILES` (repo paths; all its files when that is empty), never in a replaced main.byn or an added file, listed in
@@ -440,6 +440,12 @@ void goldenProgramPut(string dir, for string plain, at string path, through ref 
     }
 }
 
+/// `text` with the staged input path `staged` read as `plain`, as is and as JSON writes it (each `\` doubled): `--diagnostics json` on
+/// Windows names the file `C:\\w\\input.byn` (T41b).
+string goldenProgramUnstaged(string text, from string staged, as string plain) uses alloc {
+    return text.replaced(staged.replaced("\\", by: "\\\\"), by: plain).replaced(staged, by: plain)
+}
+
 /// Argument `a` of a case run in `scratch`, which stands for the repo: `<repo>` read as it, a rooted path (a temp directory of the C#) below
 /// it, and a path below the scratch directory (its first segment there, the rest existing or not) made absolute, as the C# passed it
 /// (`RunSections` exported each repo-relative, SelfhostSemanticsHarness.cs:417).
@@ -450,6 +456,39 @@ string goldenProgramArg(string a, at string scratch) uses alloc, fs {
     let slash = goldenOffset(a, for: "/")
     let top = Path.combine(scratch, slash < 0 ? a : a[0..slash])
     return Fs.fileExists(top) || t6DirectoryExists(top) ? Path.combine(scratch, a) : a
+}
+
+/// The length of the Windows command line `prog` and `args` make (runtime/bayan-rt.c `byn_quote_arg`): each argument after a space, as it
+/// is when not empty and free of space, tab, LF, VT and `"`, else quoted, each `"` and the `\` run before it or before the closing quote
+/// escaped. It counts bytes, the UTF-16 units of an ASCII line and no fewer than those of another.
+i64 goldenWindowsLineLength(string prog, by ref List<string> args) {
+    var n = goldenWindowsArgLength(prog)
+    for a in args {
+        n += 1 + goldenWindowsArgLength(a)
+    }
+    return n
+}
+
+/// The length `byn_quote_arg` gives the argument `s` (`goldenWindowsLineLength`).
+i64 goldenWindowsArgLength(string s) {
+    var plain = s.length > 0
+    for i in 0..s.length {
+        if s.bytes[i] is 0x20 or 0x09 or 0x0a or 0x0b or 0x22 {
+            plain = false
+        }
+    }
+    return s.length if plain
+    var n = 2
+    var slashes = 0
+    for i in 0..s.length {
+        if s.bytes[i] == 0x5c {
+            slashes += 1
+        } else {
+            n += (s.bytes[i] == 0x22 ? slashes * 2 + 1 : slashes) + 1
+            slashes = 0
+        }
+    }
+    return n + slashes * 2
 }
 
 /// What the program printed in `scratch`, read back as the export wrote it (`Portable`, SelfhostSemanticsHarness.cs:449): each rooted argument
@@ -1434,7 +1473,7 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
     var none = List<u8>()
     let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
     let res = goldenProgramPortable(
-        staged != original ? o.stdout.replaced(staged, by: plain) : o.stdout,
+        staged != original ? goldenProgramUnstaged(o.stdout, from: staged, as: plain) : o.stdout,
         at: k.scratch,
         by: ref args,
     )
@@ -1473,7 +1512,7 @@ void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses al
             k.dir,
             for: "expected.stderr",
             as: goldenProgramPortable(
-                staged != original ? o.stderr.replaced(staged, by: plain) : o.stderr,
+                staged != original ? goldenProgramUnstaged(o.stderr, from: staged, as: plain) : o.stderr,
                 at: k.scratch,
                 by: ref args,
             ),
@@ -1779,6 +1818,40 @@ void goldenProgramLex(GoldenExportCase k, to ref List<string> failures) uses all
     }
 }
 
+/// The scratch directory of the case `<cls>/<name>` (spec 019 T41b): tmp/p/ and the first 8 hex digits of the SHA-256 of `<cls>_<name>`,
+/// short so that `<repo>` read as it keeps a case's Windows command line under 32,767 characters (the test "every exported case's command
+/// line ...").
+string goldenProgramScratch(string cls, for string name) uses alloc, fs {
+    let hash = t9Hash($"{cls}_{name}")
+    return Path.combine(Path.combine(Path.fullPath("tmp"), "p"), $"{hash[0..8]}")
+}
+
+/// `scratch` claimed for the case `key` through the file `<scratch>.case` holding its name: empty when it is the case's, else the other
+/// case named there, whose name hashes alike. The workers are processes of their own; the file is what they share.
+string goldenProgramClaim(string scratch, for string key) uses alloc, fs {
+    let claim = $"{scratch}.case"
+    let held = Io.readText(claim) catch ""
+    return held if held != "" && held != key
+    Io.createDirectory(Path.directoryName(claim) ?? ".") catch {}
+    Io.writeFile(claim, key.bytes) catch {}
+    let now = Io.readText(claim) catch ""
+    return now == key ? "" : now
+}
+
+/// The claim of the case `key` on `scratch` given up: empty when it was still its own or is gone, else the case that took it meanwhile.
+string goldenProgramRelease(string scratch, for string key) uses alloc, fs {
+    let claim = $"{scratch}.case"
+    let held = Io.readText(claim) catch ""
+    return held if held != "" && held != key
+    Io.remove(claim) catch {}
+    return ""
+}
+
+/// The failure of the case `dir` named `key` whose scratch directory `scratch` the case `other` holds.
+string goldenProgramShared(string dir, for string key, at string scratch, by string other) uses alloc {
+    return $"{dir}\nthe scratch directory {scratch} of {key} is also {other}'s: their names hash alike, rename one of the two cases"
+}
+
 /// The exported case directory `dir` of `kind` through the driver `exe` (spec 019 T17b2b): null when it passes, else the failures, each
 /// naming its expected file and first differing line. With `prebuild` it only builds the programs the case needs, each within `buildMs`.
 string? goldenProgramsCase(
@@ -1792,8 +1865,13 @@ string? goldenProgramsCase(
     let classDir = Path.directoryName(dir) ?? ""
     let cls = Path.fileName(classDir)
     let name = Path.fileName(dir)
-    let scratch = Path.combine(Path.combine(Path.fullPath("tmp"), "programs-run"), $"{cls}_{name}")
-    return $"{dir}\ncannot create {scratch}" unless goldenFresh(scratch)
+    let scratch = goldenProgramScratch(cls, for: name)
+    let other = goldenProgramClaim(scratch, for: $"{cls}_{name}")
+    return goldenProgramShared(dir, for: $"{cls}_{name}", at: scratch, by: other) if other != ""
+    if !goldenFresh(scratch) {
+        let _ = goldenProgramRelease(scratch, for: $"{cls}_{name}")
+        return $"{dir}\ncannot create {scratch}"
+    }
     let k = GoldenExportCase {
         dir: dir,
         cls: cls,
@@ -1818,6 +1896,10 @@ string? goldenProgramsCase(
     // a recording's runs read their inputs here at replay time (replay.py)
     if (Env.get("BAYAN_SNAPSHOT") ?? "") == "" {
         deleteWorkDir(scratch)
+    }
+    let late = goldenProgramRelease(scratch, for: $"{cls}_{name}")
+    if late != "" {
+        failures.append(goldenProgramShared(dir, for: $"{cls}_{name}", at: scratch, by: late))
     }
     return null if failures.length == 0
     var text = ""
@@ -2382,15 +2464,95 @@ test "an `expected.sections` with no `== ` header compares every stdout line, bl
 }
 
 test "a Windows scratch directory and its `\\` are dropped from what a program printed, in text and in JSON, the path after it read with `/` (T17e)" {
-    let scratch = "C:\\w\\tmp\\programs-run\\C_X"
+    let scratch = "C:\\w\\tmp\\p\\1a2b3c4d"
     var args = List<string>()
-    let text = "  --> C:\\w\\tmp\\programs-run\\C_X\\sub\\input.byn:7:12\n{\"path\": \"C:\\\\w\\\\tmp\\\\programs-run\\\\C_X\\\\input.byn\"}\n"
+    let text = "  --> C:\\w\\tmp\\p\\1a2b3c4d\\sub\\input.byn:7:12\n{\"path\": \"C:\\\\w\\\\tmp\\\\p\\\\1a2b3c4d\\\\input.byn\"}\n"
     assert(goldenProgramPortable(
         text,
         at: scratch,
         by: ref args,
     ) == "  --> sub/input.byn:7:12\n{\"path\": \"input.byn\"}\n")
     assert(goldenProgramPortable("  --> /s/input.byn:1:2 /s\n", at: "/s", by: ref args) == "  --> input.byn:1:2 /s\n")
+}
+
+test "a staged Windows input path is read as its plain name in text and in JSON, where each `\\` is doubled (T41b)" {
+    let staged = "C:\\w\\tmp\\p\\1a2b3c4d\\ambiguous-variant.byn"
+    let text = "  --> C:\\w\\tmp\\p\\1a2b3c4d\\ambiguous-variant.byn:7:12\n{\"file\":\"C:\\\\w\\\\tmp\\\\p\\\\1a2b3c4d\\\\ambiguous-variant.byn\"}\n"
+    assert(
+        goldenProgramUnstaged(text, from: staged, as: "input.byn") == "  --> input.byn:7:12\n{\"file\":\"input.byn\"}\n"
+    )
+    // a POSIX path has no `\`: read as before
+    assert(goldenProgramUnstaged("/s/a.byn:1 {\"file\":\"/s/a.byn\"}", from: "/s/a.byn", as: "input.byn")
+        == "input.byn:1 {\"file\":\"input.byn\"}")
+}
+
+test "two cases whose names hash alike never share a scratch directory: the one that finds the other's claim fails naming both (T41b)" {
+    let dir = Path.combine(Path.fullPath("tmp"), "golden-programs-claim/sem/SomeClass/SomeCase")
+    let scratch = goldenProgramScratch("SomeClass", for: "SomeCase")
+    assert(Path.fileName(scratch).length == 8 && Path.fileName(Path.directoryName(scratch) ?? "") == "p")
+    // the other case holds the claim, as its worker does while it runs
+    assert(goldenProgramClaim(scratch, for: "OtherClass_OtherCase") == "")
+    let failed = goldenProgramsCase("sem", at: dir, by: "-") ?? ""
+    let held = Io.readText($"{scratch}.case") catch ""
+    assert(goldenProgramRelease(scratch, for: "OtherClass_OtherCase") == "")
+    assert(
+        failed == $"{dir}\nthe scratch directory {scratch} of SomeClass_SomeCase is also OtherClass_OtherCase's: their names hash alike, rename one of the two cases"
+    )
+    assert(held == "OtherClass_OtherCase" && !Fs.fileExists($"{scratch}.case"))
+    // a claim the other case took meanwhile is found when the case gives it up
+    assert(goldenProgramClaim(scratch, for: "SomeClass_SomeCase") == "")
+    Io.writeFile($"{scratch}.case", "OtherClass_OtherCase".bytes) catch {}
+    assert(goldenProgramRelease(scratch, for: "SomeClass_SomeCase") == "OtherClass_OtherCase")
+    Io.remove($"{scratch}.case") catch {}
+}
+
+test "every exported case's Windows command line, `<repo>` read as its scratch directory below a 60-character repo path, is under 32,767 characters (T41b)" {
+    var repo = StrBuf()
+    repo.append("C:\\")
+    for _ in 0..57 {
+        repo.append("r")
+    }
+    let root = repo.finish()
+    let prog = $"{root}\\tmp\\golden-programs\\{t9Hash("")}\\prog.exe"
+    let tmp = Path.fullPath("tmp")
+    let cases = Path.fullPath("tests/cases")
+    var over = StrBuf()
+    for kind in ["sem", "emit-c", "lex", "parse"] {
+        let kindDir = Path.combine(cases, kind)
+        let classes = Io.listDir(kindDir) catch List<string>()
+        for cls in classes {
+            let names = Io.listDir(Path.combine(kindDir, cls)) catch List<string>()
+            for name in names {
+                let path = Path.combine(Path.combine(Path.combine(kindDir, cls), name), "args")
+                let text = Io.readText(path) catch ""
+                if text.contains("<repo>") {
+                    let below = goldenProgramScratch(cls, for: name)
+                    let scratch = $"{root}\\tmp{below[tmp.length..below.length]}".replaced("/", by: "\\")
+                    // `goldenProgramArg` with no scratch directory on disk: a relative argument as it is
+                    var length = goldenWindowsArgLength(prog)
+                    for a in goldenArgLines(path) {
+                        let arg = a.contains(
+                            "<repo>",
+                        ) ? goldenCliPut(a, for: scratch) : a.startsWith("/") ? $"{scratch}{a}" : a
+                        length += 1 + goldenWindowsArgLength(arg)
+                    }
+                    if length >= 32767 {
+                        over.append($"{kind}/{cls}/{name}: {length}\n")
+                    }
+                }
+            }
+        }
+    }
+    let failed = over.finish()
+    if failed != "" {
+        panic($"command lines at or over 32,767 characters:\n{failed}")
+    }
+    var quoted = List<string>()
+    for a in ["a b", "x\\\"y", "c:\\d e\\", "c:\\d", ""] {
+        quoted.append(a)
+    }
+    // `p "a b" "x\\\"y" "c:\d e\\" c:\d ""`
+    assert(goldenWindowsLineLength("p", by: ref quoted) == 1 + 6 + 9 + 11 + 5 + 3)
 }
 
 test "a sem CheckParity case runs on its `<repo>` argument as the full path below the scratch directory, stderr read repo-relative as `Portable` wrote it, not `<repo>` (SelfhostSemanticsTests.cs:583-614)" {
@@ -2595,11 +2757,12 @@ test "an exported case whose program never exits is timed out at the case limit,
         todo("`ps` lists the processes left; Windows has none")
     }
     let root = goldenPrebuildRoot("hang")
+    let hung = goldenProgramScratch("SelfhostLexerTests", for: "LexGolden-1")
     let tokens = "1:1 Identifier `a`\n"
     goldenWrite(root, for: "tokens", as: tokens)
     let exe = goldenPrebuildFake(
         root,
-        as: $"case \"$PWD\" in *_LexGolden-1) while :; do sleep 1; done ;; esac\ncat '{Path.combine(root, "tokens")}'",
+        as: $"case \"$PWD\" in */{Path.fileName(hung)}) while :; do sleep 1; done ;; esac\ncat '{Path.combine(root, "tokens")}'",
         for: "0",
     )
     goldenPrebuildCase(root, for: "LexGolden-1", as: tokens)
@@ -2847,12 +3010,12 @@ test "under BAYAN_SNAPSHOT a program is a schemata build of the listed files, it
     let sites = Io.readText($"{prog}.sites.json") catch ""
     let manifest = Io.readText(Path.combine(snap, "manifest.json")) catch ""
     let runs = goldenCliLines(Path.combine(snap, "runs.jsonl"))
-    let run = Path.combine(Path.fullPath("tmp"), "programs-run")
-    let scratch = Path.combine(run, "SelfhostLexerTests_LexGolden-1")
+    let scratch = goldenProgramScratch("SelfhostLexerTests", for: "LexGolden-1")
+    let scratch2 = goldenProgramScratch("SelfhostLexerTests", for: "LexGolden-2")
     let kept = Fs.fileExists(Path.combine(scratch, "input.byn"))
     goldenPrebuildClean(root)
     deleteWorkDir(scratch)
-    deleteWorkDir(Path.combine(run, "SelfhostLexerTests_LexGolden-2"))
+    deleteWorkDir(scratch2)
     assert(plainExit == exitOk && firstExit == exitOk && secondExit == exitOk)
     for r in [plain[0], plain[1], first[0], first[1], second[0], second[1]] {
         assert(r.status == "passed")
@@ -2876,7 +3039,7 @@ test "under BAYAN_SNAPSHOT a program is a schemata build of the listed files, it
     assert(runs.length == 2 && kept)
     for line in runs {
         assert(goldenSnapshotField(line, for: "program") == prog
-            && goldenSnapshotField(line, for: "cwd").startsWith(Path.combine(run, "SelfhostLexerTests_LexGolden-")))
+            && (goldenSnapshotField(line, for: "cwd") == scratch || goldenSnapshotField(line, for: "cwd") == scratch2))
         assert(line.contains("\"args\": [\"input.byn\"], ")
             && line.contains("\"stdin\": null, ")
             && line.endsWith("\"stderr\": \"\", \"exit\": 0}"))
@@ -2909,7 +3072,7 @@ test "under BAYAN_SNAPSHOT a program whose two runs differ fails its case, namin
     let entries = goldenPrebuildBuilds(root)
     let runs = Fs.fileExists(Path.combine(snap, "runs.jsonl"))
     goldenPrebuildClean(root)
-    deleteWorkDir(Path.combine(Path.combine(Path.fullPath("tmp"), "programs-run"), "SelfhostLexerTests_LexGolden-1"))
+    deleteWorkDir(goldenProgramScratch("SelfhostLexerTests", for: "LexGolden-1"))
     assert(exit == exitTestFailure && results.length == 1 && results[0].status == "failed" && entries.length == 1)
     assert(results[0].detail.contains(
         $"BAYAN_SNAPSHOT: two runs of `{Path.combine(entries[0], "prog")} input.byn` differ in stdout",
