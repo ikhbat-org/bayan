@@ -62,6 +62,53 @@ string goldenSlashed(string path) uses alloc {
     return text
 }
 
+/// `text` with the directory `dir` read as `tag` (with the `/` after it dropped too when `drop`). A Windows `dir` (one holding `\`) is also
+/// matched as JSON writes it, each `\` doubled, and the path that follows it there is read with `/` for each `\` (`\\` in JSON), as the
+/// export, made on macOS, holds it (T17e); text that does not follow `dir` keeps its `\`.
+string goldenDirMasked(string text, at string dir, by string tag, bool drop = false) uses alloc {
+    var res = text
+    if dir.contains("\\") {
+        let json = dir.replaced("\\", by: "\\\\")
+        res = goldenDirSlashed(
+            goldenDirSlashed(res, at: json, by: tag, sep: "\\\\", drop: drop),
+            at: dir,
+            by: tag,
+            drop: drop,
+        )
+        res = drop ? res : res.replaced(json, by: tag)
+    }
+    return drop ? res.replaced($"{dir}/", by: tag) : res.replaced(dir, by: tag)
+}
+
+/// `text` with each `dir` followed by `sep` and a path read as `tag`, `/` (none when `drop`), and the path with each `sep` read as `/`. The
+/// path ends at a space, a quote, a `:`, a bracket or a `\` that is not `sep`.
+string goldenDirSlashed(string text, at string dir, by string tag, string sep = "\\", bool drop = false) uses alloc {
+    var sb = StrBuf()
+    var first = true
+    for part in text.parts(by: $"{dir}{sep}") {
+        if first {
+            sb.append(part)
+            first = false
+            continue
+        }
+        var end: i64 = 0
+        while end < part.length {
+            if part[end..part.length].startsWith(sep) {
+                end += sep.length
+                continue
+            }
+            break if " \t\r\n\"'`:,()[]{}<>|;\\".contains(part[end..end + 1])
+            end += 1
+        }
+        if end == 0 {
+            sb.append($"{dir}{sep}{part}")
+            continue
+        }
+        sb.append($"{tag}{drop ? "" : "/"}{part[0..end].replaced(sep, by: "/")}{part[end..part.length]}")
+    }
+    return sb.finish()
+}
+
 /// The cases of one `.byn` kind (Golden.cs:25-27), sorted by name.
 void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit)
         uses alloc, console, fs {
@@ -1990,6 +2037,14 @@ test "an unreadable package.byn renders as the empty grammar of diag/naming-pack
     assert(made)
     return if readable
     assert(goldenDiffer(text, for: main, at: expected) is null)
+}
+
+test "a Windows scratch directory is read as `<repo>` as written and doubled in JSON, the path after it with `/`, other `\\` kept (T17e)" {
+    let dir = "C:\\w\\tmp\\cli\\X"
+    let text = "  --> C:\\w\\tmp\\cli\\X\\tmp\\t27-diag\\X\\input.byn:2:9\nhelp: a\\b\n{\"file\": \"C:\\\\w\\\\tmp\\\\cli\\\\X\\\\tmp\\\\a.byn\", \"m\": \"x\\n\"}\nC:\\w\\tmp\\cli\\X\n"
+    assert(goldenDirMasked(text, at: dir, by: "<repo>")
+        == "  --> <repo>/tmp/t27-diag/X/input.byn:2:9\nhelp: a\\b\n{\"file\": \"<repo>/tmp/a.byn\", \"m\": \"x\\n\"}\n<repo>\n")
+    assert(goldenDirMasked("/s/a.byn\\n /s\n", at: "/s", by: "<repo>") == "<repo>/a.byn\\n <repo>\n")
 }
 
 test "a changed expected line fails with the input path and the first differing line" {

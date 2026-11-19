@@ -127,7 +127,7 @@ string goldenProgramText(string path, through ref string failure) uses alloc, fs
 /// (`main` empty), dropped (`-`) or replaced by the file `main`, and the file `add` added as src/<`addAs`>; the build target is src/<pkg>, or
 /// src/<`addAs`> when `file`. Built once through `exe` within `buildMs` and kept (see the head of this file), a build past it kept as a `failed`
 /// file too, so it is not retried; its path, or empty with `failure` set. `goldenPrebuild` builds them before any case runs (T17b2c); a case
-/// that finds its program unbuilt (`--golden-case`, a test block) builds it here.
+/// that finds its program unbuilt (`--golden-case`, a test block) builds it here. Its file is named for `host` (the host's target when null).
 string goldenProgram(
     string pkg,
     by string exe,
@@ -136,7 +136,8 @@ string goldenProgram(
     string add = "",
     string addAs = "",
     bool file = false,
-    i64 buildMs = goldenBuildLimitMs
+    i64 buildMs = goldenBuildLimitMs,
+    string? host = null
 )
         uses alloc, clock, env, fs, process {
     let src = Path.fullPath("src")
@@ -176,7 +177,9 @@ string goldenProgram(
     }
     let root = Path.combine(Path.fullPath("tmp"), "golden-programs")
     let final = Path.combine(root, t9Hash(key.finish()))
-    let prog = Path.combine(final, "prog")
+    // `prog.exe` on Windows (Targets.cs:30 `ExecutableName`): CreateProcess adds `.exe` to a name without one (T17e)
+    let name = targetExecutableName("prog", for: host ?? t5HostTarget())
+    let prog = Path.combine(final, name)
     let failed = Path.combine(final, "failed")
     if !Fs.fileExists(prog) && !Fs.fileExists(failed) {
         goldenProgramsSweep(root)
@@ -208,7 +211,7 @@ string goldenProgram(
             return ""
         }
         var args = List<string>()
-        for a in ["build", "--mode", "fast", "--package", staged, "-o", Path.combine(stage, "prog")] {
+        for a in ["build", "--mode", "fast", "--package", staged, "-o", Path.combine(stage, name)] {
             args.append(a)
         }
         if snapshot != "" {
@@ -236,15 +239,15 @@ string goldenProgram(
         if late {
             // kept, never retried by itself (Fable ruling on T17b2b, Unmet 2)
             let text = $"the {pkg} program did not build within {goldenLimitText(buildMs)}: delete {final} to build it again"
-            Io.remove(Path.combine(stage, "prog")) catch {}
+            Io.remove(Path.combine(stage, name)) catch {}
             Io.writeFile(Path.combine(stage, "failed"), text.bytes) catch {}
-        } else if o.exitCode != 0 || !Fs.fileExists(Path.combine(stage, "prog")) {
+        } else if o.exitCode != 0 || !Fs.fileExists(Path.combine(stage, name)) {
             let text = $"the {pkg} program did not build (exit {o.exitCode})\n{o.stdout}{o.stderr}"
             Io.writeFile(Path.combine(stage, "failed"), text.bytes) catch {}
         } else if snapshot != "" {
             // the staged sources are gone: each site, named by its staged path or one relative to it, names the repo's file, as
             // `bayan mutate` reports it (mutate-batch.sh report-paths)
-            let sites = Path.combine(stage, "prog.sites.json")
+            let sites = Path.combine(stage, $"{name}.sites.json")
             var text = Io.readText(sites) catch ""
             for f in kept {
                 for named in [Path.combine(staged, f), f] {
@@ -446,7 +449,7 @@ string goldenProgramArg(string a, at string scratch) uses alloc, fs {
 }
 
 /// What the program printed in `scratch`, read back as the export wrote it (`Portable`, SelfhostSemanticsHarness.cs:449): each rooted argument
-/// of `args` as itself, then the scratch directory and its separator dropped.
+/// of `args` as itself, then the scratch directory and its separator dropped (`goldenDirMasked`: on Windows the path after it read with `/`).
 string goldenProgramPortable(string text, at string scratch, by ref List<string> args) uses alloc {
     var res = goldenLf(text)
     for a in args {
@@ -454,7 +457,7 @@ string goldenProgramPortable(string text, at string scratch, by ref List<string>
             res = res.replaced($"{scratch}{a}", by: a)
         }
     }
-    return res.replaced($"{scratch}/", by: "")
+    return goldenDirMasked(res, at: scratch, by: "", drop: true)
 }
 
 /// SelfhostSemanticsHarness.cs:453 `Sections` for the section `printed`: its non-empty lines (before the first `== name` header for `""`);
@@ -1110,7 +1113,7 @@ void goldenProgramBayanCheck(GoldenExportCase k, to ref List<string> failures) u
         goldenCliCheck(
             k.dir,
             for: "expected.stderr",
-            as: goldenLf(o.stderr).replaced($"{k.scratch}/", by: ""),
+            as: goldenDirMasked(goldenLf(o.stderr), at: k.scratch, by: "", drop: true),
             to: ref failures,
         )
         goldenCliCheck(k.dir, for: "expected.exitcode", as: exit, to: ref failures)
@@ -2172,6 +2175,18 @@ test "an `expected.sections` with no `== ` header compares every stdout line, bl
     assert(failed.contains("expected line 2: b\nactual line 2: "))
 }
 
+test "a Windows scratch directory and its `\\` are dropped from what a program printed, in text and in JSON, the path after it read with `/` (T17e)" {
+    let scratch = "C:\\w\\tmp\\programs-run\\C_X"
+    var args = List<string>()
+    let text = "  --> C:\\w\\tmp\\programs-run\\C_X\\sub\\input.byn:7:12\n{\"path\": \"C:\\\\w\\\\tmp\\\\programs-run\\\\C_X\\\\input.byn\"}\n"
+    assert(goldenProgramPortable(
+        text,
+        at: scratch,
+        by: ref args,
+    ) == "  --> sub/input.byn:7:12\n{\"path\": \"input.byn\"}\n")
+    assert(goldenProgramPortable("  --> /s/input.byn:1:2 /s\n", at: "/s", by: ref args) == "  --> input.byn:1:2 /s\n")
+}
+
 test "a sem CheckParity case runs on its `<repo>` argument as the full path below the scratch directory, stderr read repo-relative as `Portable` wrote it, not `<repo>` (SelfhostSemanticsTests.cs:583-614)" {
     var files = List<string>()
     for f in [
@@ -2319,6 +2334,22 @@ string goldenPrebuildRoot(string tag) uses alloc, clock, fs {
     let root = Path.combine(Path.fullPath("tmp"), $"golden-prebuild-{tag}-{Io.monotonicNanos()}")
     deleteWorkDir(root)
     return root
+}
+
+test "a program built for windows-x64 is built, kept and found again as prog.exe, the name CreateProcess starts (T17e)" {
+    let root = goldenPrebuildRoot("exe")
+    let exe = goldenPrebuildFake(root, as: "echo ran", for: "0")
+    var failure = ""
+    let prog = goldenProgram("lexer", by: exe, through: ref failure, host: "windows-x64")
+    let again = goldenProgram("lexer", by: exe, through: ref failure, host: "windows-x64")
+    var builds = List<string>()
+    for path in goldenCliLines(Path.combine(root, "builds")) {
+        builds.append(path) if path != ""
+    }
+    goldenPrebuildClean(root)
+    assert(failure == "")
+    assert(Path.fileName(prog) == "prog.exe" && again == prog)
+    assert(builds.length == 1 && Path.fileName(builds[0]) == "prog.exe")
 }
 
 test "an exported case whose program prints 1 MiB compares every byte: it passes, and fails naming the line when one byte past 64 KiB differs" {
