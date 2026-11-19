@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tests scripts/test.sh with each part replaced by a stub (TEST_SH_*): all passing exits 0 with one pass line per part;
 # one failing exits 1 naming it, after the parts behind it ran; --jobs reaches the golden part; --only runs one part;
-# a bad --jobs or --only exits 2; the default zig cache's o/ is trimmed to 2000 entries, a caller-set one is not.
+# --skip golden runs the others; --shard i/n reaches only the golden part as BAYAN_TEST_SHARD; a bad --jobs, --only, --skip
+# or --shard exits 2; the default zig cache's o/ is trimmed to 2000 entries, a caller-set one is not.
 # No driver is built: every part is stubbed.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -44,6 +45,35 @@ rc=0; out="$("$BASH" "$s" --only runtime --jobs 5 2>&1)" || rc=$?
 [ $rc = 0 ] || fail "--only runtime exited $rc: $out"
 [ -f "$tmp/runtime.args" ] && [ ! -f "$tmp/golden.args" ] && [ ! -f "$tmp/bayan.args" ] && [ ! -f "$tmp/parity.args" ] && [ ! -f "$tmp/scripts.args" ] \
   || fail "--only runtime ran another part: $out"
+
+# --skip golden runs the other four parts; --shard i/n reaches the golden part as BAYAN_TEST_SHARD and no other part, a caller's
+# value included (the bayan part's test blocks start the runner).
+rm -f "$tmp"/*.args
+rc=0; out="$("$BASH" "$s" --skip golden 2>&1)" || rc=$?
+[ $rc = 0 ] && [ ! -f "$tmp/golden.args" ] && ! grep -q '^test: golden ' <<<"$out" || fail "--skip golden ran the golden part (exit $rc): $out"
+for p in bayan parity scripts runtime; do
+  [ -f "$tmp/$p.args" ] || fail "--skip golden did not run $p: $out"
+done
+for p in golden bayan parity scripts runtime; do
+  printf '#!/bin/sh\necho "${BAYAN_TEST_SHARD-unset}" > "%s/%s.shard"\n' "$tmp" "$p" > "$tmp/$p"; chmod +x "$tmp/$p"
+done
+rc=0; out="$(BAYAN_TEST_SHARD=9/9 "$BASH" "$s" --shard 2/5 2>&1)" || rc=$?
+[ $rc = 0 ] || fail "--shard 2/5 exited $rc: $out"
+[ "$(cat "$tmp/golden.shard")" = 2/5 ] || fail "the golden part saw BAYAN_TEST_SHARD=$(cat "$tmp/golden.shard"), not 2/5"
+for p in bayan parity scripts runtime; do
+  [ "$(cat "$tmp/$p.shard")" = unset ] || fail "the $p part saw BAYAN_TEST_SHARD=$(cat "$tmp/$p.shard")"
+done
+grep -q '^test: golden  *pass .*shard 2/5' <<<"$out" || fail "the golden summary line does not name the shard: $out"
+for v in 0/4 5/4 a/b 3 /4 4/ 1/65 1/3/3 ""; do
+  rc=0; out="$("$BASH" "$s" --shard "$v" --only golden 2>&1)" || rc=$?
+  if [ -z "$v" ]; then
+    [ $rc = 0 ] || fail "an empty --shard exited $rc: $out"
+  else
+    [ $rc = 2 ] && grep -q "^test.sh: --shard expects i/n" <<<"$out" || fail "--shard '$v' exited $rc: $out"
+  fi
+done
+rc=0; "$BASH" "$s" --skip nope >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "--skip nope exited $rc, not 2"
+for p in golden bayan parity scripts runtime; do stub "$p" 0; done
 
 
 printf '#!/bin/sh\necho "$ZIG_GLOBAL_CACHE_DIR" > "%s/zig.dir"\n' "$tmp" > "$tmp/runtime"; chmod +x "$tmp/runtime"

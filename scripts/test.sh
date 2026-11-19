@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The full suite with no dotnet call (spec 019 R15, T23): golden cases, Bayān tests, CLI parity cases, script tests,
 # runtime C tests.
-#   bash scripts/test.sh [--jobs N] [--only golden|bayan|parity|scripts|runtime] [--coverage]
+#   bash scripts/test.sh [--jobs N] [--only golden|bayan|parity|scripts|runtime] [--skip <part>]... [--shard i/n] [--coverage]
 # Parts, in order:
 #   golden   $BAYAN_EXE test tests/cases --jobs N (the self-hosted golden runner, src/driver/golden.byn)
 #   bayan    $BAYAN_EXE test --package src src/<m> for each src/<m> with a test block, then test lib/std/<m> for each module
@@ -9,6 +9,10 @@
 #   scripts  scripts/ci/script-tests.sh: unix on macOS, unix and docs on Linux (ci.yml's split); skipped on Windows
 #   runtime  runtime/tests/run.sh; skipped with no C compiler (no $CC, cc or zig)
 # --jobs (default: the CPU count) goes to the golden runner, the one part that runs in parallel.
+# --skip <part> (repeatable) leaves that part out, as --only leaves out the others (ci.yml: `--skip golden` beside the golden shards).
+# --shard i/n (1 <= i <= n <= 64): the golden part runs shard i of n (BAYAN_TEST_SHARD, src/driver/golden.byn goldenShard; spec 019
+# T30, R17). The variable is set for the golden part only; one from the caller is dropped, since the bayan part's test blocks start the
+# runner.
 # --coverage: the bayan part runs the src/ packages through scripts/quality/coverage.sh (`test --coverage`, then the
 # ratchet against tests/quality-baseline.json, spec 019 R16, T29; report in tmp/quality/bayan-quality.json); the other
 # parts have no coverage build and run as without it.
@@ -21,16 +25,30 @@ set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root" || exit 2
 
-jobs=""; only=""; coverage=0
+jobs=""; only=""; skips=""; shard=""; coverage=0
 while [ $# -gt 0 ]; do
   case "$1" in
     (--jobs) [ $# -ge 2 ] || { echo "test.sh: --jobs expects a number" >&2; exit 2; }; jobs=$2; shift 2 ;;
     (--only) [ $# -ge 2 ] || { echo "test.sh: --only expects a part" >&2; exit 2; }; only=$2; shift 2 ;;
+    (--skip) [ $# -ge 2 ] || { echo "test.sh: --skip expects a part" >&2; exit 2; }
+      case "$2" in (golden|bayan|parity|scripts|runtime) ;; (*) echo "test.sh: unknown part '$2' (golden, bayan, parity, scripts, runtime)" >&2; exit 2 ;; esac
+      skips="$skips $2"; shift 2 ;;
+    (--shard) [ $# -ge 2 ] || { echo "test.sh: --shard expects i/n" >&2; exit 2; }; shard=$2; shift 2 ;;
     (--coverage) coverage=1; shift ;;
-    (*) echo "test.sh: unexpected argument '$1' (--jobs N, --only golden|bayan|parity|scripts|runtime, --coverage)" >&2; exit 2 ;;
+    (*) echo "test.sh: unexpected argument '$1' (--jobs N, --only golden|bayan|parity|scripts|runtime, --skip <part>, --shard i/n, --coverage)" >&2; exit 2 ;;
   esac
 done
 case "$only" in (""|golden|bayan|parity|scripts|runtime) ;; (*) echo "test.sh: unknown part '$only' (golden, bayan, parity, scripts, runtime)" >&2; exit 2 ;; esac
+# --shard as the runner reads BAYAN_TEST_SHARD: i/n, whole numbers with 1 <= i <= n <= 64.
+unset BAYAN_TEST_SHARD
+if [ -n "$shard" ]; then
+  si=${shard%%/*}; sn=${shard#*/}; ok=1
+  case "$shard" in (*/*) ;; (*) ok=0 ;; esac
+  case "$si" in (""|*[!0-9]*|?????????*) ok=0 ;; esac
+  case "$sn" in (""|*[!0-9]*|?????????*) ok=0 ;; esac
+  [ $ok = 1 ] && [ $((10#$si)) -ge 1 ] && [ $((10#$si)) -le $((10#$sn)) ] && [ $((10#$sn)) -le 64 ] \
+    || { echo "test.sh: --shard expects i/n, whole numbers with 1 <= i <= n <= 64, got '$shard'" >&2; exit 2; }
+fi
 if [ -z "$jobs" ]; then
   jobs=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
 fi
@@ -83,6 +101,9 @@ need_driver() {
 
 golden_run() { "$driver" test tests/cases --jobs "$jobs"; }
 
+# with_shard <command...>: the command with BAYAN_TEST_SHARD set to --shard's value (the golden part only).
+with_shard() { BAYAN_TEST_SHARD="$shard" "$@"; }
+
 bayan_tests() {
   local rc=0 d
   if [ $coverage = 1 ]; then
@@ -116,6 +137,7 @@ parity_run() {
 part() {
   local name=$1 stub=$2 detail=$3 start rc; shift 3
   [ -z "$only" ] || [ "$only" = "$name" ] || return 0
+  case "$skips " in (*" $name "*) return 0 ;; esac
   start=$(date +%s)
   if [ -n "$stub" ]; then
     "$@" >"$logs/$name.log" 2>&1; rc=$?
@@ -135,10 +157,15 @@ part() {
 }
 
 # skip <name> <reason>
-skip() { [ -z "$only" ] || [ "$only" = "$1" ] || return 0; summary "$1" skip 0 "$2"; }
+skip() {
+  [ -z "$only" ] || [ "$only" = "$1" ] || return 0
+  case "$skips " in (*" $1 "*) return 0 ;; esac
+  summary "$1" skip 0 "$2"
+}
 
-if [ -n "${TEST_SH_GOLDEN:-}" ]; then part golden "$TEST_SH_GOLDEN" "golden cases" "$TEST_SH_GOLDEN" --jobs "$jobs"
-else part golden "" "bayan test tests/cases --jobs $jobs" golden_run; fi
+shard_detail=""; [ -z "$shard" ] || shard_detail=", shard $shard"
+if [ -n "${TEST_SH_GOLDEN:-}" ]; then part golden "$TEST_SH_GOLDEN" "golden cases$shard_detail" with_shard "$TEST_SH_GOLDEN" --jobs "$jobs"
+else part golden "" "bayan test tests/cases --jobs $jobs$shard_detail" with_shard golden_run; fi
 
 if [ -n "${TEST_SH_BAYAN:-}" ]; then part bayan "$TEST_SH_BAYAN" "Bayān tests" "$TEST_SH_BAYAN"
 elif [ $coverage = 1 ]; then part bayan "" "test blocks of src/ under coverage and the ratchet, and of lib/std/" bayan_tests
