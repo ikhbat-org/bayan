@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tests scripts/ci/inventory-check.sh on fixture trees under tmp/: a clean pass, then each failure alone (class with no row,
 # dropped row with no reason, also with the 8th column memberdata set, case count below the test count, frozen row in
-# csharp-internals, a flat-case target naming a missing case or none), and the skip without EXPORT.tsv.
+# csharp-internals, a flat-case target naming a missing case or none, a golden folder's exported <Class>/ subfolder counted as
+# a case), and the skip without EXPORT.tsv.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 fail() { echo "FAIL $1"; exit 1; }
@@ -77,6 +78,12 @@ mkdir -p "$t/tests/cases/sem/AlphaTests/a" "$t/tests/cases/sem/AlphaTests/b" "$t
 expect "golden below" 1 "row DeltaTests has 4 cases in tests/cases/fmt, below the 5 tests of its golden rows"
 touch "$t/tests/cases/fmt/c5.byn"
 expect "golden met" 0 "inventory-check: ok"
+rm "$t/tests/cases/fmt/c5.byn"; mkdir -p "$t/tests/cases/fmt/KappaTests/k1"
+printf 'KappaTests\tfmt\t1\t1\t\n' >> "$t/tests/cases/EXPORT.tsv"
+expect "golden exported class subfolder not a case" 1 "row DeltaTests has 4 cases in tests/cases/fmt, below the 5 tests"
+mkdir "$t/tests/cases/fmt/c5"
+expect "golden case subfolder" 0 "inventory-check: ok"
+rm -rf "$t/tests/cases/fmt/KappaTests" "$t/tests/cases/fmt/c5"; touch "$t/tests/cases/fmt/c5.byn"
 printf 'ZetaTests\tz\tcli\t12\tgolden\ttests/cases\tr\n' >> "$t/tests/inventory-019.tsv"
 printf 'public class ZetaTests { [Fact] public void A() {} }\n' > "$t/src/tests/ZetaTests.cs"
 expect "golden tests/cases below" 1 "row ZetaTests has 8 cases across the kind folders of tests/cases, below its 12 tests"
