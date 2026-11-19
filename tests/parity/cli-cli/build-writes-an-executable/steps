@@ -1,0 +1,1 @@
+$ $BAYAN build -o hello $ROOT/examples/hello/main.byn > /dev/null; echo "build $?"; test -f hello && echo "hello exists"

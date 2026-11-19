@@ -1,0 +1,7 @@
+i64 cents(i64 units) {
+    return units * 100
+}
+
+test "leftover cents" {
+    assert(cents(2) == 201)
+}

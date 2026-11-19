@@ -1,0 +1,9 @@
+void main(ReadOnlySpan<string> args) fails IoError {
+    let bytes = stackalloc u8[64]
+    var sb = StrBuf(bytes)
+    for a in args {
+        print(a)
+        sb.append($"{a}\n")
+    }
+    try Io.writeFile("args.txt", sb.finish().bytes)
+}

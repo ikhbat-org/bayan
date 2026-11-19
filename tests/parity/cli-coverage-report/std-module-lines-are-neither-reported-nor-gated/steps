@@ -1,0 +1,5 @@
+new	tally	--vcs	none
+$ rm tally/tests/app.test.byn; mv main.byn tally/src/app/main.byn
+$ T='lines: 50' perl -0pi -e 's/,?\s*\}\s*\z/,\n    test: Tests { $ENV{T} }\n}\n/' tally/package.byn; tail -3 tally/package.byn
+test	--coverage	tally
+$ sed -E "s/\"(build|total)_s\": [0-9.eE+-]+/\"\\1_s\": 0/" tally/out/test/bayan-quality.json

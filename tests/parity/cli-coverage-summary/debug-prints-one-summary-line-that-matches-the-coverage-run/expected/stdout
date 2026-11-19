@@ -1,0 +1,21 @@
+== 1 exit 0
+created app `local/tally` in `tally`
+
+  cd tally
+  bayan run
+  bayan test
+== 2 exit 0
+== 3 exit 0
+running 1 test in 1 module
+
+◆ 1 passed · #s
+coverage: lines 2/3 (66.667%), branches 1/2 (50%), error paths 0/0 (100%)
+== 4 exit 0
+no bayan-quality.json
+== 5 exit 0
+running 1 test in 1 module
+
+◆ 1 passed · #s
+coverage: lines 2/3 (66.667%), branches 1/2 (50%), error paths 0/0 (100%)
+  src/app/main.byn: lines 2/3, branches 1/2, error paths 0/0
+uncovered branch: src/app/main.byn:2:8 never true

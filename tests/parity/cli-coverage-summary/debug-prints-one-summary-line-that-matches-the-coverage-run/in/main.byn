@@ -1,0 +1,10 @@
+i64 f(i64 n) {
+    if n < 0 {
+        return 0
+    }
+    return n
+}
+
+test "f" {
+    assert(f(1) == 1)
+}

@@ -5,12 +5,12 @@ CInventoryTests	csharp/tests/Bayan.Tests/CInventoryTests.cs	csharp-internals	14	
 CacheTests	csharp/tests/Bayan.Tests/CacheTests.cs	cli	24	cli	tests/parity	changes BAYAN_CACHE; parity case sets it up; ported 24 of 24: tests/parity/cli-cache (10), src/driver/cache.byn blocks script-key, compiler-stamp, replace-file (3), tests/cases/DIVERGENCES.tsv Q976 (9), tests/parity/UNEXPORTED.tsv (2, plus the PATH rows of ASingleWordOrZigCompilerKeepsItsStamp)	
 CliEnvironmentTests	csharp/tests/Bayan.Tests/CliEnvironmentTests.cs;csharp/tests/Bayan.Tests/CliSummaryTests.cs	cli	28	cli	tests/parity	changes environment variables; parity case sets them up (two files, one partial class); ported 28 of 28: tests/parity/cli-environment (21), src/driver/doctor.byn blocks doctor-render-plain, -ascii, -colour (3), tests/cases/DIVERGENCES.tsv Q976 (1) and Q1117 (2 whole, 4 tty asserts of ported cases), tests/parity/UNEXPORTED.tsv (1)	
 CliMemoryBoundsTests	csharp/tests/Bayan.Tests/CliMemoryBoundsTests.cs	cli	25	bayan-test	lib/std bound tests	bounds on memory and disk; a Bayan test builds a large tree and measures	
-CliTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	64	cli	cli	exit code and text of bayan commands	
+CliTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	64	cli	tests/parity	exit code and text of bayan commands; ported 64 of 64: tests/parity/cli-cli (64; version-prints-version masks the build id, Q1091), tests/cases/DIVERGENCES.tsv new (1: ParseRendersItsDiagnosticsInTheChosenSymbols, its case fails until parse without --ast (Q940) and parse --ast --ascii land)	
 CliToolchainTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	7	cli	tests/parity	needs toolchain set-up; ported 7 of 7: tests/parity/cli-toolchain (1), tests/cases/DIVERGENCES.tsv Q976 (6)	
 CollectionLiteralTests	csharp/tests/Bayan.Tests/CollectionLiteralTests.cs	csharp-internals	3	emit-c	emit-c	span literals on stack, checked in emitted C	
 ContrastTests	csharp/tests/Bayan.Tests/ContrastTests.cs	cli	6	shell	shell	WCAG contrast over docs table; no compiler involved; ported 6 of 6: scripts/docs/contrast.test.sh (the C# Palette and Style.Paint read as the driver's t7Prefix and t5Paint)	
-CoverageReportTests	csharp/tests/Bayan.Tests/CoverageReportTests.cs	cli	8	cli	cli	coverage report through bayan test	
-CoverageSummaryTests	csharp/tests/Bayan.Tests/CoverageSummaryTests.cs	cli	4	cli	cli	one-line summary through bayan test	
+CoverageReportTests	csharp/tests/Bayan.Tests/CoverageReportTests.cs	cli	8	cli	tests/parity	coverage report through bayan test; ported 8 of 8: tests/parity/cli-coverage-report (6), src/driver/test.byn blocks merge-counters, listing-name (2)	
+CoverageSummaryTests	csharp/tests/Bayan.Tests/CoverageSummaryTests.cs	cli	4	cli	tests/parity	one-line summary through bayan test; ported 4 of 4: tests/parity/cli-coverage-summary (4)	
 CoverageTests	csharp/tests/Bayan.Tests/CoverageTests.cs	golden-folder	350	golden	tests/cases/coverage	folder runner reads the same files	no export: typed rows
 DiagJsonTests	csharp/tests/Bayan.Tests/DiagJsonTests.cs	golden-folder	3	golden	tests/cases/diag-json	folder runner reads the same files	no export: typed rows
 DiagTests	csharp/tests/Bayan.Tests/DiagTests.cs	golden-folder	642	golden	tests/cases/diag	folder runner reads the same files	no export: typed rows
@@ -77,7 +77,7 @@ RegionAnalysisPerfTests	csharp/tests/Bayan.Tests/RegionAnalysisPerfTests.cs	csha
 RunTests	csharp/tests/Bayan.Tests/RunTests.cs	golden-folder	346	golden	tests/cases/run	folder runner reads the same files	no export: typed rows
 RuntimeNativeTests	csharp/tests/Bayan.Tests/RuntimeNativeTests.cs	runtime-c	15	shell	runtime/tests/*.c	shell runner over C harness; Windows runBatch fact becomes a run case	
 RuntimeSizeOverflowTests	csharp/tests/Bayan.Tests/RuntimeSizeOverflowTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime behaviour	
-ScaffoldTests	csharp/tests/Bayan.Tests/ScaffoldTests.cs	cli	17	cli	cli	bayan new and init output	
+ScaffoldTests	csharp/tests/Bayan.Tests/ScaffoldTests.cs	cli	17	cli	tests/parity	bayan new and init output; ported 17 of 17: tests/cases/new (3: NewWritesTheLayout app, lib, script), tests/parity/cli-scaffold (14)	
 SelfhostCoverageTests	src/tests/SelfhostCoverageTests.cs	selfhost-coverage	4	cli	quality	coverage output (plan says kind quality)	
 SelfhostDefaultBoundsTests	src/tests/SelfhostDefaultBoundsTests.cs	selfhost-default	17	bayan-test	lib/std bound tests	bounds; Bayan test builds a large tree	
 SelfhostDefaultJsonCountTests	src/tests/SelfhostDefaultJsonCountTests.cs	selfhost-default	1	cli	cli	generated-docs/JSON counts through the command	

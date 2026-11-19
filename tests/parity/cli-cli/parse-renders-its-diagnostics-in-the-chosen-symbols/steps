@@ -1,0 +1,2 @@
+--ascii	parse	$WORK/d/bad.byn
+--ascii	parse	--ast	$WORK/d/bad.byn

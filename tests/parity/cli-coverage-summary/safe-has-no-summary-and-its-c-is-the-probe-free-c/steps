@@ -1,0 +1,6 @@
+new	tally	--vcs	none
+$ rm tally/tests/app.test.byn; mv main.byn tally/src/app/main.byn
+test	tally
+$ grep -c "byn_cov\[" $(find tally/out/safe -name main.c)
+$ mkdir off; cp -R tally off/; rm -rf off/tally/out; T="summary: false" perl -0pi -e "s/,?\\s*\\}\\s*\\z/,\\n    test: Tests { \$ENV{T} }\\n}\\n/" off/tally/package.byn; $BAYAN test off/tally > /dev/null 2>&1; echo "off $?"
+$ cmp $(find tally/out/safe -name main.c) $(find off/tally/out/safe -name main.c) && echo "same C"

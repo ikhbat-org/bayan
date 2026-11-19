@@ -1,0 +1,11 @@
+== 1 exit 0
+test 3
+running 1 test in 1 module
+
+  x cli-test-quoted: x $(touch owned) `id` it's "hi" \ bye
+      assert(false)
+      main.test.byn:2
+
+* 0 passed - x 1 failed - 0 pending - #s
+  rerun the failure: bayan test --only 'x $(touch owned) `id` it'\''s "hi" \ bye'
+x $(touch owned) `id` it's "hi" \ bye

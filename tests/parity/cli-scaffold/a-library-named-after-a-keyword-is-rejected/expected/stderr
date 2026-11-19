@@ -1,0 +1,3 @@
+== 1
+bayan: `test` is a keyword, so `import test` couldn't name the library
+  help: pick another name, e.g. `test-lib`

@@ -1,0 +1,7 @@
+== 1
+error BYN1002: expected an expression, found `}`
+  --> $WORK/d/bad.byn:3:1
+
+  3 | }
+    | ^
+== 2
