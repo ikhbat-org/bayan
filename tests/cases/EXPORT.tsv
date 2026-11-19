@@ -1,4 +1,15 @@
 class	kind	tests	cases	reason
+BuiltinResultsTests	sem	13	13	
+CollectionLiteralTests	emit-c	3	3	
+DiagnosticRendererTests	cli	19	19	
+DynRefEmitTests	emit-c	3	3	
+ErrorUnionTypeTests	sem	1	1	
+FunctionTypeTests	sem	12	12	
+GenericsTests	emit-c	2	2	
+InterfaceDeclarationTests	sem	4	4	
+LambdaEmitTests	emit-c	2	2	
+MapKeyEmitTests	emit-c	5	5	
+MutatorTests	cli	17	17	
 SelfhostDefaultJsonCountTests	cli	1	1	
 SelfhostDefaultP2Tests	sem	3	1014	
 SelfhostDefaultT10Tests	emit-c	701	718	
@@ -44,6 +55,7 @@ SelfhostParserT7Tests	parse	31	31
 SelfhostParserT9Tests	parse	1	1	
 SelfhostParserTests	parse	264	603	3 not exported: SpanTakenBeforeTheLastChildLeavesItOutside (block-property); SpanTakenBeforeTheLastChildLeavesItOutside (not-pattern); SpanTakenBeforeTheLastChildLeavesItOutside (var-pattern)
 SelfhostPathT4Tests	sem	1029	1017	12 TheCSharpReportsDiagnostics: no counterpart (Fable for the owner, 2026-11-19): they assert the C# compiler's own diagnostics and run no self-hosted code
+SelfhostPathT5Tests	emit-c	10	10	
 SelfhostPathT7Tests	sem	10	9	
 SelfhostPathT8Tests	sem	3	2	
 SelfhostRevisionT2Tests	sem	20	16	
@@ -83,3 +95,4 @@ SelfhostSemanticsT8Tests	sem	6	10
 SelfhostSemanticsT9Tests	sem	8	6	2 not exported: AliasesBindAsTheCSharp (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19)); FunctionsMatchTheCSharpBuiltins (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
 SelfhostSemanticsTests	sem	36	61	2 not exported: UnobservableMarksMatchCompilation (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19)); UnobservableMarksMatchCompilation-2 (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
 SelfhostStdImportTests	sem	17	16	
+SymbolEmitTests	emit-c	3	3	
