@@ -1,1 +1,2 @@
-f.byn -> ../g.byn
+link-through-dir-nodecoy/proj/sub -> ../real/deep
+link-through-dir-nodecoy/real/deep/f.byn -> ../g.byn

@@ -30,10 +30,11 @@ SelfhostDefaultT9Tests	cli	94	59	61 not exported: ABuildSweepsStaleDirectories (
 SelfhostDriverApiTests	cli	2	1	
 SelfhostDriverFixTests	cli	33	64	
 SelfhostDriverMutateTests	cli	46	58	
+SelfhostDriverRuntimeTests	cli	2	0	2 not exported: RuntimeConstantsEqualRuntimeFiles (compares src/driver/runtime.byn with runtime/bayan-rt.h and bayan-rt.c, no compiler output; the same comparison is scripts/selfhost/gen-driver-files.sh --check, run on the tree by scripts/selfhost/gen-driver-files.test.sh in scripts/ci/script-tests.sh); StageOneBuildsWithRuntimeText (build only: asserts the stage-1 binary exists; ci.yml builds stage 1 with scripts/bootstrap-build.sh)
 SelfhostDriverStage2FormatTests	cli	139	173	1 not exported: FormatTreesAsCliApp-84 (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
 SelfhostDriverStyleCaseTests	cli	147	147	
 SelfhostDriverStyleEnvironmentTests	cli	84	42	
-SelfhostDriverStyleLintsTests	cli	13	12	
+SelfhostDriverStyleLintsTests	cli	13	12	1 not exported: CoversTheFolderCases (guard on the C# row list, asserts Cases().Count is 6, no compiler output; its 6 rows are the 12 cases)
 SelfhostDriverT1Tests	cli	181	205	1 not exported: FormatAsCliApp-32 (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
 SelfhostDriverT2Tests	cli	761	774	
 SelfhostDriverT3Tests	cli	62	70	1 os: ACompilerThatCannotBeStartedIsReportedAsToolchain (macos linux: its env PATH holds a `cc` with no execute mode, which Windows has no form of)
@@ -45,7 +46,7 @@ SelfhostEmitterT13Tests	emit-c	1	1
 SelfhostEmitterT21Tests	emit-c	2	33	
 SelfhostEmitterT22Tests	emit-c	5	1	
 SelfhostEmitterT2Tests	emit-c	10	3	
-SelfhostEmitterT4Tests	emit-c	26	23	
+SelfhostEmitterT4Tests	emit-c	26	23	3 not exported: Expr_PanicsLikeCSharp(spread, lazy, a6) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); Expr_PanicsLikeCSharp(void, lazy, a1) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart); Expr_PanicsLikeCSharp(failing, fails1, a) (internal guard no bayan input reaches; private harness mode; owner 2026-11-19: no counterpart)
 SelfhostEmitterT5Tests	emit-c	5	5	
 SelfhostEmitterT6Tests	emit-c	32	30	
 SelfhostEmitterT7Tests	emit-c	13	1379	
@@ -79,7 +80,7 @@ SelfhostSemanticsParityTests	sem	1302	1302
 SelfhostSemanticsT10Tests	sem	94	92	2 not exported: DiagPackagesReadClean (typed asserts on sections compared whole by ManifestMatchesCSharp-9, -5); LibraryEntryModuleIsCamelShortName (typed asserts on sections compared whole by ManifestMatchesCSharp-82, -11)
 SelfhostSemanticsT11Tests	sem	35	35	
 SelfhostSemanticsT12Tests	sem	11	11	
-SelfhostSemanticsT13Tests	sem	18	17	
+SelfhostSemanticsT13Tests	sem	18	17	1 not exported: HeldInstantiationErrorIsInternalError (internal guard marked coverage-exempt Q746, reached only by a generated main; owner 2026-11-19: no counterpart)
 SelfhostSemanticsT14Tests	sem	8	8	
 SelfhostSemanticsT15Tests	sem	47	47	
 SelfhostSemanticsT16Tests	sem	25	25	
@@ -113,4 +114,5 @@ StdFsTests	shell	17	7	T24b route (Decision 2026-11-19): runtime/tests/run.sh rep
 StdPathTests	shell	5	4	T24b route (Decision 2026-11-19): runtime/tests/run.sh replays runtime/tests/cases/<os>/std-path-*.{in,expected} through std-path-cases.c, std-path-case-tables-cases.c and path-relative-cases.c; macOS from export 3e54b7e91 (each-function, case-tables, full-path-panics-where-dotnet-throws-space), Windows from export 08b3f29b0 on wp1 (the same and short-names-expand-as-dotnet, Windows only); no Linux export
 SymbolEmitTests	emit-c	3	3	
 SymbolLawTests	cli	2	64	
+ToolchainSanitizerTests	run	5	0	5 not exported: ProbeRejectsACompilerThatFailsAndTakesTheNextOne (the self-hosted driver has no sanitizer build (src/driver/cache.byn); owner 2026-11-19: no counterpart); ProbeKillsAndRejectsACandidateThatHangsAndTakesTheNextOne (the self-hosted driver has no sanitizer build (src/driver/cache.byn); owner 2026-11-19: no counterpart); ProbeRejectsEveryCandidateWhenAllOfThemHangAndReturnsNull (the self-hosted driver has no sanitizer build (src/driver/cache.byn); owner 2026-11-19: no counterpart); ProbeIsCachedAndAvailabilityFollowsIt (the self-hosted driver has no sanitizer build (src/driver/cache.byn); owner 2026-11-19: no counterpart); StartFailureNamesTheSanitizerCompilerThatWasStarted (the self-hosted driver has no sanitizer build (src/driver/cache.byn); owner 2026-11-19: no counterpart)
 TypedDumpTests	cli	401	1	
