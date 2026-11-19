@@ -50,12 +50,25 @@ jobs:
       - name: Install zig
         shell: bash
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
-      # The 12 dev tasks of evals/llm/smoke.txt must score all four results on the commit under test (spec 025, R29, T31); the
-      # whole set took 5 min 39 s here at 40 tasks (run 44477075278), so it runs in llm-eval-nightly.yml. Before Script tests so a
-      # broken reference turns this step red instead of being skipped behind a failed earlier step.
+      # The 12 dev tasks of evals/llm/smoke.txt and every task the push changed must score all four results on the commit under
+      # test (spec 025, R29, T31); the whole set took 5 min 39 s here at 40 tasks (run 44477075278), so it runs nightly on `dev`
+      # in llm-eval-nightly.yml. The previous commit (the push's `before`, or the pull request's base) is fetched at depth 1 for
+      # --changed-since; when it is unknown (empty, all-zero on a new branch, gone after a force push, a failed fetch) the
+      # script re-checks the whole set. Before Script tests so a broken reference turns this step red instead of being skipped
+      # behind a failed earlier step.
       - name: LLM eval re-check
         if: runner.os == 'Linux'
-        run: bash scripts/ci/llm-eval-smoke.sh
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          prev="$BEFORE"; [ "$EVENT" != pull_request ] || prev="$BASE_SHA"
+          case "$prev" in
+            (*[!0]*) git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$prev" ||
+              echo "llm-eval re-check: fetching $prev failed" ;;
+          esac
+          bash scripts/ci/llm-eval-smoke.sh --changed-since "$prev"
       - name: Script tests
         if: runner.os != 'Windows'
         run: bash scripts/ci/script-tests.sh unix  # the list lives there; run it before a push (docs/bayan-contributing.md)
