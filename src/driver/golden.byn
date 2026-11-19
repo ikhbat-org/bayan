@@ -321,19 +321,40 @@ string? goldenCompare(string actual, for string input, at string expected, by st
     return goldenDiffer(actual, for: input, at: expected, by: host)
 }
 
-/// `actual` as a Windows run prints it, read against `expected`, an expected file made on macOS, when `windows`: the module directory in a
-/// `files in` help with `/` for `\` (Compilation.cs:309 makes it by `Path.GetRelativePath`), and, when `expected` names no `.exe`, a `.exe`
-/// that ends a line dropped (Targets.cs:30 `ExecutableName` names a Windows program `<name>.exe`).
+/// `actual` as a Windows run prints it, read against `expected`, an expected file made on macOS, when `windows`: with `/` for `\` in the module
+/// directory of a `files in` help (Compilation.cs:309 makes it by `Path.GetRelativePath`), in the script path `bayan new` names after
+/// `created script` and `run it with `bayan` (SelfhostDefaultT4Tests NewWritesTheLayoutAsCSharp), and in a `rel` or `combine` line of
+/// SelfhostPathT7Tests (:180 `Path.GetRelativePath`, `Path.Combine`) and a `fullpath` line of SelfhostSemanticsT11Tests, there with the drive
+/// `Path.GetFullPath` puts before a rooted path dropped (`C:\a\c.byn` read as `/a/c.byn`); and, when `expected` names no `.exe`, a `.exe` that ends a line dropped
+/// (Targets.cs:30 `ExecutableName` names a Windows program `<name>.exe`).
 string goldenWindowsRead(string actual, for string expected, by bool windows) uses alloc {
     return actual unless windows
-    let slashed = goldenCliSlashedAfter(goldenLf(actual), at: "files in `", by: true)
-    return slashed if goldenOffset(expected, for: ".exe") >= 0
+    var slashed = goldenCliSlashedAfter(goldenLf(actual), at: "files in `", by: true)
+    slashed = goldenCliSlashedAfter(slashed, at: "created script `", by: true)
+    slashed = goldenCliSlashedAfter(slashed, at: "run it with `bayan ", by: true)
+    let exe = goldenOffset(expected, for: ".exe") < 0
     var sb = StrBuf()
     var first = true
     for line in slashed.parts(by: "\n") {
         sb.append("\n") unless first
         first = false
-        sb.append(line.endsWith(".exe") ? $"{line[0..line.length - 4]}" : line)
+        let path = line.startsWith("rel ") || line.startsWith("combine ") ? line.replaced("\\", by: "/")
+            : line.startsWith("fullpath ") ? goldenWindowsUnrooted(line.replaced("\\", by: "/")) : $"{line}"
+        sb.append(exe && path.endsWith(".exe") ? $"{path[0..path.length - 4]}" : path)
+    }
+    return sb.finish()
+}
+
+/// `line` with each space-separated field that starts with a drive and `/` (`C:/a`) read without the drive (`/a`).
+string goldenWindowsUnrooted(string line) uses alloc {
+    var sb = StrBuf()
+    var first = true
+    for part in line.parts(by: " ") {
+        sb.append(" ") unless first
+        first = false
+        sb.append(
+            part.length > 2 && part.bytes[1] == 0x3a && part.bytes[2] == 0x2f ? $"{part[2..part.length]}" : $"{part}",
+        )
     }
     return sb.finish()
 }

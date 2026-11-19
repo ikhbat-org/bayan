@@ -3118,6 +3118,20 @@ test "a Windows run reads a `files in` help directory with `/` and a line-final 
         by: true,
     ) == "  help: put the module's `.byn` files in `app/users/` next to the entry file\n")
     assert(goldenWindowsRead(built, for: "  arithmetic\n", by: true) == "  arithmetic\n  out/safe/<host>/demo\n")
+    let script = "created script `sub\\tool.byn`; run it with `bayan sub\\tool.byn`\r\n"
+    assert(goldenWindowsRead(
+        script,
+        for: "",
+        by: true,
+    ) == "created script `sub/tool.byn`; run it with `bayan sub/tool.byn`\n")
+    let path = "rel tmp/t7-path/helpers tmp/t7-path/helpers/src/app/main.byn src\\app\\main.byn\ncombine rel x.byn rel\\x.byn\nfull a\\b\n"
+    assert(goldenWindowsRead(
+        path,
+        for: "",
+        by: true,
+    ) == "rel tmp/t7-path/helpers tmp/t7-path/helpers/src/app/main.byn src/app/main.byn\ncombine rel x.byn rel/x.byn\nfull a\\b\n")
+    let full = "fullpath /a/./b/../c.byn C:\\a\\c.byn\n"
+    assert(goldenWindowsRead(full, for: "", by: true) == "fullpath /a/./b/../c.byn /a/c.byn\n")
     assert(goldenWindowsRead(built, for: "  tally.exe\n", by: true) == "  arithmetic.exe\n  out/safe/<host>/demo.exe\n")
     assert(goldenWindowsRead(built, for: "  arithmetic\n", by: false) == built)
 }
