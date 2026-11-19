@@ -1,0 +1,79 @@
+enum Tint {
+    red
+    green
+    blue
+}
+
+Tint tint(i64 c) {
+    if c < 1 {
+        return .red
+    }
+    if c < 2 {
+        return .green
+    }
+    return .blue
+}
+
+struct K0 {
+    i64 f0
+    Symbol f1
+    string f2
+    Tint f3
+}
+
+struct K1 {
+    K0 f0
+    bool f1
+    string f2
+    bool f3
+}
+
+K1 make(i64 code) uses alloc {
+    return K1 { f0: K0 { f0: (code / 1 % 8) * 1000003 + 7, f1: Symbol.intern($"y{code / 8 % 8}"), f2: $"s{code / 64 % 8}", f3: tint(code / 512 % 3) }, f1: code / 1536 % 2 == 1, f2: $"s{code / 3072 % 8}", f3: code / 24576 % 2 == 1 }
+}
+
+void main() {
+    var m = Map<K1, i64>()
+    var n = Map<K1, i64>()
+    m[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false }] = 1
+    m[make(20741)] = 20741
+    n[make(20741)] = 1
+    n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false }] = 20741
+    m[K1 { f0: K0 { f0: i64(6000025), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false }] = 1
+    m[make(20742)] = 20742
+    n[make(20742)] = 1
+    n[K1 { f0: K0 { f0: i64(6000025), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false }] = 20742
+    m[K1 { f0: K0 { f0: i64(5000022), f1: "y1", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false }] = 1
+    m[make(20749)] = 20749
+    n[make(20749)] = 1
+    n[K1 { f0: K0 { f0: i64(5000022), f1: "y1", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false }] = 20749
+    m[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s5", f3: Tint.green }, f1: true, f2: "s6", f3: false }] = 1
+    m[make(20805)] = 20805
+    n[make(20805)] = 1
+    n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s5", f3: Tint.green }, f1: true, f2: "s6", f3: false }] = 20805
+    m[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.blue }, f1: true, f2: "s6", f3: false }] = 1
+    m[make(21253)] = 21253
+    n[make(21253)] = 1
+    n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.blue }, f1: true, f2: "s6", f3: false }] = 21253
+    m[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: false, f2: "s6", f3: false }] = 1
+    m[make(19205)] = 19205
+    n[make(19205)] = 1
+    n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: false, f2: "s6", f3: false }] = 19205
+    m[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s7", f3: false }] = 1
+    m[make(23813)] = 23813
+    n[make(23813)] = 1
+    n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s7", f3: false }] = 23813
+    m[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: true }] = 1
+    m[make(45317)] = 45317
+    n[make(45317)] = 1
+    n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: true }] = 45317
+    print($"{m.length} {n.length}")
+    print($"{m[make(20741)]} {n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false }]} {m.contains(K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false })}")
+    print($"{m[make(20742)]} {n[K1 { f0: K0 { f0: i64(6000025), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false }]} {m.contains(K1 { f0: K0 { f0: i64(6000025), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false })}")
+    print($"{m[make(20749)]} {n[K1 { f0: K0 { f0: i64(5000022), f1: "y1", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false }]} {m.contains(K1 { f0: K0 { f0: i64(5000022), f1: "y1", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: false })}")
+    print($"{m[make(20805)]} {n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s5", f3: Tint.green }, f1: true, f2: "s6", f3: false }]} {m.contains(K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s5", f3: Tint.green }, f1: true, f2: "s6", f3: false })}")
+    print($"{m[make(21253)]} {n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.blue }, f1: true, f2: "s6", f3: false }]} {m.contains(K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.blue }, f1: true, f2: "s6", f3: false })}")
+    print($"{m[make(19205)]} {n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: false, f2: "s6", f3: false }]} {m.contains(K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: false, f2: "s6", f3: false })}")
+    print($"{m[make(23813)]} {n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s7", f3: false }]} {m.contains(K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s7", f3: false })}")
+    print($"{m[make(45317)]} {n[K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: true }]} {m.contains(K1 { f0: K0 { f0: i64(5000022), f1: "y0", f2: "s4", f3: Tint.green }, f1: true, f2: "s6", f3: true })}")
+}

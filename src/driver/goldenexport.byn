@@ -1320,6 +1320,10 @@ string goldenCliT5Stub(string bin, at string scratch) uses alloc, fs, process {
     return ""
 }
 
+// Laws proven by exported cli cases run here (spec 019 T31b), each selected by its case-name prefix:
+// L006 `cli/L006OwnershipGuardTests/l006-`, L007 `cli/L007UntrustedSinkTests/l007-`, L008 `cli/L008OwnershipRuntimeTests/l008-`,
+// L010 `cli/L010Utf8DecodeTests/l010-`, L012 `cli/L012InterfaceDispatchTests/l012-`, L013 `cli/L013DirectAndIndirectCallsAgreeTests/l013-`,
+// L015 `cli/SymbolLawTests/l015-`, L016 `cli/MapKeyLawTests/l016-`
 /// The `cli` case whose `args` is `input` through the driver `exe` (spec 019 T17b): null when it passes, else the failures, each naming its
 /// expected file and first differing line. The word's comparison is the one its C# call site makes, named on each branch.
 string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clock, env, fs, process {

@@ -1,0 +1,16 @@
+== direct
+c0 23
+c1 3-true
+c2 1-8
+== local
+c0 23
+c1 3-true
+c2 1-8
+== via1
+c0 23
+c1 3-true
+c2 1-8
+== via2
+c0 23
+c1 3-true
+c2 1-8

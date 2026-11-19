@@ -1,0 +1,10 @@
+error BYN2781: `a` is used after it was moved
+  --> <repo>/tmp/l006/use-after-move-after-if/main.byn:18:14
+
+  18 │     print($"{a.length}")
+     │              ^ moved on line 16
+     │
+  help: assign `a` a new value before using it again, or move a `.copy(to: alloc)` of it instead
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2781

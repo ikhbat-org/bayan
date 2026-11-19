@@ -1,0 +1,12 @@
+error BYN2780: implicit copy of a unique value: `List<i64>` is unique: it owns its storage
+  --> <repo>/tmp/l006/borrowed-loop-binding-stored/main.byn:16:30
+
+  16 │     for xs in lists { kept = xs }
+     │                              ^^
+     │
+  help: make an independent copy with `xs.copy(to: alloc)`; pass it by `ref` to share it instead
+     │ 16 │     for xs in lists { kept = xs.copy(to: alloc) }
+     │    │                                ++++++++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2780

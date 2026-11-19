@@ -1,0 +1,10 @@
+error BYN2781: `xs` is used after it was moved
+  --> <repo>/tmp/l006/use-after-move-errdefer-on-failing-exit/main.byn:16:13
+
+  16 │     consume(move xs)
+     │             ^^^^^^^ a `defer failing` on line 15 uses it at scope exit
+     │
+  help: move `xs` before the `defer failing`, or move a `.copy(to: alloc)` of it instead
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2781

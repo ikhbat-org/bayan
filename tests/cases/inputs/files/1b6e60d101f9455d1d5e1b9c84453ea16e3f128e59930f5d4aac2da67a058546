@@ -1,0 +1,199 @@
+bool call0(bool a0, by (bool -> bool) f) => f(a0)
+
+bool relay0(bool a0, by (bool -> bool) f) => call0(a0, by: f)
+
+void host0Direct(i64 q0, to bool q1) {
+    let r: bool = q0 < 2
+    print($"c0 {r}")
+}
+
+void host0Local(i64 q0, to bool q1) {
+    let f: bool -> bool = p0 => q0 < 2
+    let r: bool = f(true)
+    print($"c0 {r}")
+}
+
+void host0Via1(i64 q0, to bool q1) {
+    let r: bool = call0(a0: true, by: p0 => q0 < 2)
+    print($"c0 {r}")
+}
+
+void host0Via2(i64 q0, to bool q1) {
+    let r: bool = relay0(a0: true, by: p0 => q0 < 2)
+    print($"c0 {r}")
+}
+
+i64 call1(string a0, to i64 a1, by ((string, i64) -> i64) f) => f(a0, a1)
+
+i64 relay1(string a0, to i64 a1, by ((string, i64) -> i64) f) => call1(a0, to: a1, by: f)
+
+void host1Direct() {
+    let p1: i64 = 16
+    let r: i64 = 3 + p1 + p1
+    print($"c1 {r}")
+}
+
+void host1Local() {
+    let f: (string, i64) -> i64 = (p0, p1) => {
+        return 3 + p1 + p1
+    }
+    let r: i64 = f("x", 16)
+    print($"c1 {r}")
+}
+
+void host1Via1() {
+    let r: i64 = call1("x", to: 16, by: (p0, p1) => {
+        return 3 + p1 + p1
+    })
+    print($"c1 {r}")
+}
+
+void host1Via2() {
+    let r: i64 = relay1("x", to: 16, by: (p0, p1) => {
+        return 3 + p1 + p1
+    })
+    print($"c1 {r}")
+}
+
+bool call2(bool a0, to bool a1, by ((bool, bool) -> bool) f) => f(a0, a1)
+
+bool relay2(bool a0, to bool a1, by ((bool, bool) -> bool) f) => call2(a0, to: a1, by: f)
+
+void host2Direct() {
+    let r: bool = 2 > 8
+    print($"c2 {r}")
+}
+
+void host2Local() {
+    let f: (bool, bool) -> bool = (p0, p1) => {
+        return 2 > 8
+    }
+    let r: bool = f(true, false)
+    print($"c2 {r}")
+}
+
+void host2Via1() {
+    let r: bool = call2(a0: true, to: false, by: (p0, p1) => {
+        return 2 > 8
+    })
+    print($"c2 {r}")
+}
+
+void host2Via2() {
+    let r: bool = relay2(a0: true, to: false, by: (p0, p1) => {
+        return 2 > 8
+    })
+    print($"c2 {r}")
+}
+
+i64 call3(string a0, to bool a1, by ((string, bool) -> i64) f) => f(a0, a1)
+
+i64 relay3(string a0, to bool a1, by ((string, bool) -> i64) f) => call3(a0, to: a1, by: f)
+
+void host3Direct() {
+    let r: i64 = 4 * 6 - 6
+    print($"c3 {r}")
+}
+
+void host3Local() {
+    let f: (string, bool) -> i64 = (p0, p1) => 4 * 6 - 6
+    let r: i64 = f("bayan", false)
+    print($"c3 {r}")
+}
+
+void host3Via1() {
+    let r: i64 = call3("bayan", to: false, by: (p0, p1) => 4 * 6 - 6)
+    print($"c3 {r}")
+}
+
+void host3Via2() {
+    let r: i64 = relay3("bayan", to: false, by: (p0, p1) => 4 * 6 - 6)
+    print($"c3 {r}")
+}
+
+i64 fn4() => 3 - 6
+
+i64 call4(by (() -> i64) f) => f()
+
+i64 relay4(by (() -> i64) f) => call4(by: f)
+
+void host4Direct() {
+    let r: i64 = fn4()
+    print($"c4 {r}")
+}
+
+void host4Local() {
+    let f: () -> i64 = fn4
+    let r: i64 = f()
+    print($"c4 {r}")
+}
+
+void host4Via1() {
+    let r: i64 = call4(by: fn4)
+    print($"c4 {r}")
+}
+
+void host4Via2() {
+    let r: i64 = relay4(by: fn4)
+    print($"c4 {r}")
+}
+
+i64 fn5(bool p0, to bool p1) {
+    return 4 * 5
+}
+
+i64 call5(bool a0, to bool a1, by ((bool, bool) -> i64) f) => f(a0, a1)
+
+i64 relay5(bool a0, to bool a1, by ((bool, bool) -> i64) f) => call5(a0, to: a1, by: f)
+
+void host5Direct() {
+    let r: i64 = fn5(p0: true, to: true)
+    print($"c5 {r}")
+}
+
+void host5Local() {
+    let f: (bool, bool) -> i64 = fn5
+    let r: i64 = f(true, true)
+    print($"c5 {r}")
+}
+
+void host5Via1() {
+    let r: i64 = call5(a0: true, to: true, by: fn5)
+    print($"c5 {r}")
+}
+
+void host5Via2() {
+    let r: i64 = relay5(a0: true, to: true, by: fn5)
+    print($"c5 {r}")
+}
+
+void main() {
+    print("== direct")
+    host0Direct(6, to: true)
+    host1Direct()
+    host2Direct()
+    host3Direct()
+    host4Direct()
+    host5Direct()
+    print("== local")
+    host0Local(6, to: true)
+    host1Local()
+    host2Local()
+    host3Local()
+    host4Local()
+    host5Local()
+    print("== via1")
+    host0Via1(6, to: true)
+    host1Via1()
+    host2Via1()
+    host3Via1()
+    host4Via1()
+    host5Via1()
+    print("== via2")
+    host0Via2(6, to: true)
+    host1Via2()
+    host2Via2()
+    host3Via2()
+    host4Via2()
+    host5Via2()
+}

@@ -1,0 +1,20 @@
+union error E { bad, }
+void step() fails E { }
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+struct Ledger {
+    List<i64> items
+}
+union Slot {
+    empty
+    full(List<i64> items)
+}
+void main(ReadOnlySpan<string> args) {
+    var a = List<i64>()
+    if args.length > 0 {
+        consume(move a)
+        a = List<i64>()
+    }
+    print($"{a.length}")
+}

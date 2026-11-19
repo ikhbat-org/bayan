@@ -1,0 +1,11 @@
+error BYN3003: cannot return a borrow of the `stackalloc` buffer on line 14, which is freed when
+`leak` returns
+  --> <repo>/tmp/l006/slice-returned-past-its-owner/main.byn:15:12
+
+  15 │     return buf[1..]
+     │            ^^^^^^^^
+     │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3003

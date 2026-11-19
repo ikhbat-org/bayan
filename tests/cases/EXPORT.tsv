@@ -7,8 +7,15 @@ ErrorUnionTypeTests	sem	1	1
 FunctionTypeTests	sem	12	12	
 GenericsTests	emit-c	2	2	
 InterfaceDeclarationTests	sem	4	4	
+L006OwnershipGuardTests	cli	69	69	
+L007UntrustedSinkTests	cli	24	24	
+L008OwnershipRuntimeTests	cli	3	24	
+L010Utf8DecodeTests	cli	1	1	
+L012InterfaceDispatchTests	cli	2	96	
+L013DirectAndIndirectCallsAgreeTests	cli	2	96	
 LambdaEmitTests	emit-c	2	2	
 MapKeyEmitTests	emit-c	5	5	
+MapKeyLawTests	cli	13	26	
 MutatorTests	cli	17	17	
 SelfhostDefaultJsonCountTests	cli	1	1	
 SelfhostDefaultP2Tests	sem	3	1014	
@@ -98,3 +105,4 @@ StdEnvTests	shell	6	2	T24b route (Decision 2026-11-19): runtime/tests/run.sh rep
 StdFsTests	shell	17	7	T24b route (Decision 2026-11-19): runtime/tests/run.sh replays runtime/tests/cases/<os>/std-fs-*.{in,expected} through std-fs-cases.c; macOS from export 3e54b7e91 (file-exists, io-remove, io-create-directory, io-remove-directory, rename, copy), Windows from export 08b3f29b0 on wp1 (the same and io-create-directory-extended-path, Windows only); no Linux export
 StdPathTests	shell	5	4	T24b route (Decision 2026-11-19): runtime/tests/run.sh replays runtime/tests/cases/<os>/std-path-*.{in,expected} through std-path-cases.c, std-path-case-tables-cases.c and path-relative-cases.c; macOS from export 3e54b7e91 (each-function, case-tables, full-path-panics-where-dotnet-throws-space), Windows from export 08b3f29b0 on wp1 (the same and short-names-expand-as-dotnet, Windows only); no Linux export
 SymbolEmitTests	emit-c	3	3	
+SymbolLawTests	cli	2	64	
