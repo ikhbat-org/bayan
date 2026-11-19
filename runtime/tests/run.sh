@@ -99,8 +99,8 @@ done
 # `panic <hex>` (.NET threw) wants a non-zero exit, no stdout and `panic: <message>` as the first stderr line. std-fs-cases.c builds its
 # tree under $work/<case>.root with umask 022 and the fixture's modes, so the modes it prints are set, not the host's. The
 # short-names row replays through path-relative-cases.c, as StdPathTests does. Windows-only rows are skipped elsewhere and the invalid
-# UTF-8 row (raw bytes set through /bin/sh) on Windows. Linux has no export yet, so there a missing fixture is a skip; on macOS and
-# Windows it is a failure.
+# UTF-8 row (raw bytes set through /bin/sh) on Windows; on Windows the env and fs cases are skipped until T26c. Linux has no export
+# yet, so there a missing fixture is a skip; on macOS and Windows it is a failure.
 : >"$work/none.c"
 for name in std-env-get-matches-dotnet std-env-invalid-utf8-value-matches-dotnet std-fs-file-exists-matches-dotnet \
     std-fs-io-remove-matches-dotnet std-fs-io-create-directory-matches-dotnet std-fs-io-remove-directory-matches-dotnet \
@@ -115,10 +115,17 @@ for name in std-env-get-matches-dotnet std-env-invalid-utf8-value-matches-dotnet
         std-path-short-names-*) drv=path-relative-cases ;;
         *) drv=std-path-cases ;;
     esac
+    # The Windows fixtures hold what wp1 saw: each-function's drive results are literal C: (run with $work on C:), short-names
+    # needs C:\Program Files as PROGRA~1 (8.3 names on) and no NOPE~1, and case-tables matches the runtime's `_WIN32` tables as
+    # .NET 10.0.404 generated them. std-env-cases.c and std-fs-cases.c are POSIX only until T26c ports them.
     case $name in
         *-extended-path-*|std-path-short-names-*) [ $os = windows ] || { skip "$drv.c $name" "Windows only"; continue; } ;;
         std-env-invalid-utf8-*) [ $os != windows ] || { skip "$drv.c $name" "POSIX only"; continue; } ;;
     esac
+    if [ $os = windows ] && { [ $drv = std-env-cases ] || [ $drv = std-fs-cases ]; }; then
+        skip "$drv.c $name" "driver is POSIX only (T26c)"
+        continue
+    fi
     if [ ! -f "$fx.in" ] || [ ! -f "$fx.expected" ]; then
         if [ $os = macos ] || [ $os = windows ]; then bad "$drv.c $name" "no fixture $fx.{in,expected}"; else skip "$drv.c $name" "no $os export"; fi
         continue
