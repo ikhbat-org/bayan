@@ -1,0 +1,31 @@
+union error KeyError {
+    /// No key was given.
+    noKey
+    /// The key does not open this door.
+    wrongKey
+}
+
+union error HourError {
+    /// The masjid is not open yet.
+    closed(i64 opens)
+}
+
+union error DoorError = KeyError, HourError
+
+/// Fails unless `key` is the door's key.
+void checkKey(string key) fails KeyError {
+    fail .noKey if key.isEmpty
+    fail .wrongKey if key != "bab-salam"
+}
+
+/// Fails before the masjid opens at 4.
+void checkHour(i64 hour) fails HourError {
+    fail .closed(opens: 4) if hour < 4
+}
+
+/// Opens the door at `hour` with `key`.
+string openDoor(string key, at i64 hour) fails DoorError {
+    try checkHour(hour)
+    try checkKey(key)
+    return $"open at {hour}"
+}

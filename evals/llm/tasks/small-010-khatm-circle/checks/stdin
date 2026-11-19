@@ -1,0 +1,33 @@
+status
+claim Aisha 1
+claim Bilal 2
+claim Zaynab 30
+claim Zaynab 30
+claim Bilal 1
+done Bilal 1
+done Aisha 1
+claim Hamza 1
+done Aisha 1
+release Aisha 1
+  claim Maryam 5  
+status
+release Maryam 5
+release Maryam 5
+done Yusuf 7
+claim Yusuf 7
+release Bilal 7
+done Bilal 2
+claim Bilal 2
+claim Idris 0
+claim Idris 31
+claim Idris seven
+claim Idris
+claim Idris 3 4
+recite Idris 3
+status now
+
+claim Sumayya 29
+done Zaynab 30
+claim Ruqayya 3
+claim Hamza 5
+status

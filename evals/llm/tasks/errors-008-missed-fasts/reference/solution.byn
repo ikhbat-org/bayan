@@ -1,0 +1,44 @@
+union error FastError {
+    /// A day is listed twice.
+    repeated(i64 day)
+}
+
+/// A fast of Ramadan that was missed and its reason, when one was written.
+struct Fast {
+    i64     day
+    string? reason
+}
+
+/// The day of Ramadan written in `text`, or `null`.
+i64? dayOf(string text) {
+    let day = u8.tryParse(text) ?? return null
+    return day >= 1 && day <= 30 ? day : null
+}
+
+/// How many days `lines` lists; lines that are not days are skipped.
+i64 missedCount(List<string> lines) fails FastError {
+    var seen = List<i64>()
+    for line in lines {
+        let day = dayOf(line) ?? continue
+        for earlier in seen {
+            fail .repeated(day: day) if earlier == day
+        }
+        seen.append(day)
+    }
+    return seen.length
+}
+
+/// The reason for `fast`, or a stand-in when none was written.
+string reasonOf(Fast fast) {
+    return fast.reason ?? "no reason given"
+}
+
+/// The latest day among `fasts`, or `null` when there are none.
+i64? latestDay(List<Fast> fasts) {
+    var latest: i64? = null
+    for fast in fasts {
+        let current = latest ?? fast.day
+        latest = fast.day if fast.day >= current
+    }
+    return latest
+}

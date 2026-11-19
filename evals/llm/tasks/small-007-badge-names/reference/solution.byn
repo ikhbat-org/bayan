@@ -1,0 +1,27 @@
+const room: i64 = 6
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    for line in read.value.lines {
+        let name = line.trimmed()
+        continue if name.isEmpty
+        let count = name.runeCount
+        if count <= room {
+            print($"{name} ({count})")
+            continue
+        }
+        var badge = StrBuf()
+        var taken: i64 = 0
+        for r in name.runes {
+            break if taken == room - 1
+            badge.append(r)
+            taken += 1
+        }
+        badge.append("~")
+        print($"{badge.finish()} ({count})")
+    }
+}

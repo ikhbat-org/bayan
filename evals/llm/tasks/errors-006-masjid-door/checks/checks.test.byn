@@ -1,0 +1,56 @@
+void keyAsDoor(string key) fails DoorError {
+    try checkKey(key)
+}
+
+i64 opensAt(i64 hour) {
+    let _ = openDoor("bab-salam", at: hour) catch switch {
+        .closed(let opens) => return opens,
+        KeyError => return -1,
+    }
+    return 0
+}
+
+test "checkKey accepts the door's key" {
+    try checkKey("bab-salam")
+}
+
+@cases("Bab-Salam", "bab-salam ", "bab", "bab salam")
+test "checkKey refuses another key" (string key) {
+    assert checkKey(key) fails KeyError.wrongKey
+}
+
+test "checkKey refuses an empty key" {
+    assert checkKey("") fails KeyError.noKey
+}
+
+@cases(4, 5, 23)
+test "checkHour lets the door open" (i64 hour) {
+    try checkHour(hour)
+}
+
+@cases(0, 3)
+test "checkHour refuses an hour before 4" (i64 hour) {
+    assert checkHour(hour) fails HourError.closed
+}
+
+test "openDoor says when it opened" {
+    assert (try openDoor("bab-salam", at: 4)) == "open at 4"
+    assert (try openDoor("bab-salam", at: 18)) == "open at 18"
+}
+
+test "openDoor checks the hour before the key" {
+    assert openDoor("", at: 2) fails HourError.closed
+    assert openDoor("wrong", at: 3) fails HourError.closed
+    assert openDoor("", at: 9) fails KeyError.noKey
+    assert openDoor("wrong", at: 9) fails KeyError.wrongKey
+}
+
+test "the closed error carries the opening hour" {
+    assert opensAt(1) == 4
+    assert opensAt(6) == 0
+}
+
+test "a key error converts to a door error" {
+    try keyAsDoor("bab-salam")
+    assert keyAsDoor("") fails KeyError.noKey
+}

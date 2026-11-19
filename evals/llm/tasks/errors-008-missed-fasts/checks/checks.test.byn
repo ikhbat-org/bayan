@@ -1,0 +1,71 @@
+List<string> listOf(string joined) {
+    var list = List<string>()
+    for part in joined.parts(by: "|") {
+        list.append(part)
+    }
+    return list
+}
+
+i64 repeatedDay(string joined) {
+    let _ = missedCount(listOf(joined)) catch switch {
+        .repeated(let day) => return day,
+    }
+    return 0
+}
+
+@cases(("1", 1), ("30", 30), ("07", 7), ("19", 19))
+test "dayOf reads a day of Ramadan" (string text, i64 expected) {
+    assert dayOf(text) == expected
+}
+
+@cases("", "0", "31", "300", "-2", "ten", "2 ", "1.5")
+test "dayOf gives null for what is not a day" (string text) {
+    assert dayOf(text) is null
+}
+
+test "missedCount counts the days" {
+    assert (try missedCount(List<string>())) == 0
+    assert (try missedCount(listOf("3|5|9"))) == 3
+    assert (try missedCount(listOf("30"))) == 1
+}
+
+test "missedCount skips lines that are not days" {
+    assert (try missedCount(listOf("3|x||31|5"))) == 2
+    assert (try missedCount(listOf("none|0"))) == 0
+}
+
+test "missedCount refuses a day listed twice" {
+    assert missedCount(listOf("4|9|4")) fails FastError.repeated
+    assert repeatedDay("4|9|4") == 4
+    assert repeatedDay("04|4") == 4
+    assert repeatedDay("4|9|9|4") == 9
+    assert repeatedDay("2|x|2") == 2
+    assert repeatedDay("2|3") == 0
+}
+
+test "reasonOf gives the written reason" {
+    assert reasonOf(Fast { day: 3, reason: "travel" }) == "travel"
+    assert reasonOf(Fast { day: 3, reason: "" }) == ""
+}
+
+test "reasonOf stands in for a missing reason" {
+    assert reasonOf(Fast { day: 12, reason: null }) == "no reason given"
+}
+
+test "latestDay finds the latest day" {
+    var fasts = List<Fast>()
+    fasts.append(Fast { day: 3, reason: null })
+    fasts.append(Fast { day: 17, reason: "illness" })
+    fasts.append(Fast { day: 9, reason: null })
+    assert latestDay(fasts) == 17
+}
+
+test "latestDay of one fast is its day" {
+    var fasts = List<Fast>()
+    fasts.append(Fast { day: 1, reason: null })
+    assert latestDay(fasts) == 1
+}
+
+test "latestDay of no fasts is null" {
+    assert latestDay(List<Fast>()) is null
+}

@@ -1,0 +1,32 @@
+finished: 0 claimed: 0 open: 1-30
+Aisha claims juz 1
+Bilal claims juz 2
+Zaynab claims juz 30
+juz 30 is taken by Zaynab
+juz 1 is taken by Aisha
+juz 1 is taken by Aisha
+Aisha finished juz 1
+juz 1 was finished by Aisha
+juz 1 was finished by Aisha
+juz 1 was finished by Aisha
+Maryam claims juz 5
+finished: 1 claimed: 3 open: 3-4, 6-29
+juz 5 is open again
+juz 5 is not claimed
+juz 7 is not claimed
+Yusuf claims juz 7
+juz 7 is taken by Yusuf
+Bilal finished juz 2
+juz 2 was finished by Bilal
+bad command: claim Idris 0
+bad command: claim Idris 31
+bad command: claim Idris seven
+bad command: claim Idris
+bad command: claim Idris 3 4
+bad command: recite Idris 3
+bad command: status now
+Sumayya claims juz 29
+Zaynab finished juz 30
+Ruqayya claims juz 3
+Hamza claims juz 5
+finished: 3 claimed: 4 open: 4, 6, 8-28
