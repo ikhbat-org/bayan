@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "input.byn",
+      "name": "apply",
+      "span": {
+        "start": 4,
+        "end": 9
+      },
+      "bindings": [
+        {
+          "name": "x",
+          "kind": "param",
+          "span": {
+            "start": 14,
+            "end": 15
+          },
+          "type": "i64"
+        },
+        {
+          "name": "f",
+          "kind": "param",
+          "span": {
+            "start": 40,
+            "end": 41
+          },
+          "type": "(i64, i64) -> i64"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "main",
+      "span": {
+        "start": 60,
+        "end": 64
+      },
+      "bindings": []
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+warning BYN2311: `aVeryLongNameThatKeepsGoingAndGoing` is never reassigned; declare it with `let`
+  --> <repo>/tmp/t27-diag/SourceAndFixLinesNeverWrap/input.byn:2:9
+
+  2 │     var aVeryLongNameThatKeepsGoingAndGoing: i64 = 1000000 + 2000000 + 3000000 + 4000000 + 5000000 + 6000000 + 7000000
+    │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 2 │     let aVeryLongNameThatKeepsGoingAndGoing: i64 = 1000000 + 2000000 + 3000000 + 4000000 + 5000000 + 6000000 + 7000000
+    │   │     +++

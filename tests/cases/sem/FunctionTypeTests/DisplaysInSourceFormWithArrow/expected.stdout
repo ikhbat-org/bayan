@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "input.byn",
+      "name": "s1",
+      "span": {
+        "start": 5,
+        "end": 7
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 22,
+            "end": 23
+          },
+          "type": "i32 -> bool"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "s2",
+      "span": {
+        "start": 35,
+        "end": 37
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 61,
+            "end": 62
+          },
+          "type": "(i32, string) -> i32"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "s3",
+      "span": {
+        "start": 74,
+        "end": 76
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 90,
+            "end": 91
+          },
+          "type": "() -> void"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "s4",
+      "span": {
+        "start": 103,
+        "end": 105
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 135,
+            "end": 136
+          },
+          "type": "() -> string fails IoError"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "s5",
+      "span": {
+        "start": 148,
+        "end": 150
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 178,
+            "end": 179
+          },
+          "type": "i32 -> void uses fs, net"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "s6",
+      "span": {
+        "start": 191,
+        "end": 193
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 216,
+            "end": 217
+          },
+          "type": "i32 -> bool -> rune"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "s7",
+      "span": {
+        "start": 229,
+        "end": 231
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 256,
+            "end": 257
+          },
+          "type": "(i32 -> bool) -> rune"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "s8",
+      "span": {
+        "start": 269,
+        "end": 271
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 295,
+            "end": 296
+          },
+          "type": "((i32, i32)) -> bool"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "s9",
+      "span": {
+        "start": 308,
+        "end": 310
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 349,
+            "end": 350
+          },
+          "type": "i32 -> (bool -> rune) fails IoError"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "main",
+      "span": {
+        "start": 362,
+        "end": 366
+      },
+      "bindings": []
+    }
+  ]
+}

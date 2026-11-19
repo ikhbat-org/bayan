@@ -1,0 +1,5 @@
+<repo>/tmp/t27-mutate/ALiteralIndexPushedOutOfAFixedArrayIsNotEmitted/lib.byn:2:12 emptyReturn `xs[3] + xs[0]` -> `0`: not reached
+<repo>/tmp/t27-mutate/ALiteralIndexPushedOutOfAFixedArrayIsNotEmitted/lib.byn:2:12 arithmetic `xs[3] + xs[0]` -> `xs[3] - xs[0]`: not reached
+<repo>/tmp/t27-mutate/ALiteralIndexPushedOutOfAFixedArrayIsNotEmitted/lib.byn:2:15 literal `3` -> `2`: not reached
+<repo>/tmp/t27-mutate/ALiteralIndexPushedOutOfAFixedArrayIsNotEmitted/lib.byn:2:23 literal `0` -> `1`: not reached
+0 killed, 0 survived, 0 timeout, 4 not reached, 0 marked, 0 not emitted

@@ -1,0 +1,3 @@
+<repo>/tmp/t27-mutate/Negation/lib.byn:2:12 emptyReturn `-x` -> `0`: not reached
+<repo>/tmp/t27-mutate/Negation/lib.byn:2:12 negation `-x` -> `x`: not reached
+0 killed, 0 survived, 0 timeout, 2 not reached, 0 marked, 0 not emitted

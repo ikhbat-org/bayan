@@ -1,0 +1,25 @@
+<repo>/tmp/t27-mutate/Condition/lib.byn:2:18 literal `0` -> `1`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:2:18 literal `0` -> `-1`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:3:11 condition `i < n` -> `!(i < n)`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:3:11 boundary `i < n` -> `i <= n`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:3:11 relational `i < n` -> `i >= n`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:4:9 statement `i += 1` -> ``: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:4:9 arithmetic `i += 1` -> `i -= 1`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:4:14 literal `1` -> `2`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:4:14 literal `1` -> `0`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:6:8 condition `i > 3` -> `!(i > 3)`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:6:8 boundary `i > 3` -> `i >= 3`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:6:8 relational `i > 3` -> `i <= 3`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:6:12 literal `3` -> `4`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:6:12 literal `3` -> `2`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:7:16 emptyReturn `3` -> `0`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:7:16 literal `3` -> `4`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:7:16 literal `3` -> `2`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:9:17 condition `n == 0` -> `!(n == 0)`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:9:17 relational `n == 0` -> `n != 0`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:9:22 literal `0` -> `1`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:9:22 literal `0` -> `-1`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:9:12 literal `0` -> `1`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:9:12 literal `0` -> `-1`: not reached
+<repo>/tmp/t27-mutate/Condition/lib.byn:10:12 emptyReturn `i` -> `0`: not reached
+0 killed, 0 survived, 0 timeout, 24 not reached, 0 marked, 0 not emitted

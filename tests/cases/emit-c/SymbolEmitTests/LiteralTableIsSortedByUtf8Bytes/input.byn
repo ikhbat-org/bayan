@@ -1,0 +1,8 @@
+void main() {
+    let a: Symbol = "b"
+    let b: Symbol = "\u{1F600}"
+    let c: Symbol = "\u{FF61}"
+    let d: Symbol = "B"
+    let e: Symbol = "b"
+    print($"{a}{b}{c}{d}{e}")
+}

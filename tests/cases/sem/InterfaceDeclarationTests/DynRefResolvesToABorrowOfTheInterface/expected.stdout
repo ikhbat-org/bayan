@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "input.byn",
+      "name": "show",
+      "span": {
+        "start": 42,
+        "end": 46
+      },
+      "bindings": [
+        {
+          "name": "s",
+          "kind": "param",
+          "span": {
+            "start": 62,
+            "end": 63
+          },
+          "type": "dyn ref IShape"
+        },
+        {
+          "name": "r",
+          "kind": "param",
+          "span": {
+            "start": 92,
+            "end": 93
+          },
+          "type": "dyn ref readonly IShape"
+        },
+        {
+          "name": "t",
+          "kind": "let",
+          "span": {
+            "start": 105,
+            "end": 106
+          },
+          "type": "dyn ref readonly IShape"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "main",
+      "span": {
+        "start": 144,
+        "end": 148
+      },
+      "bindings": []
+    }
+  ]
+}

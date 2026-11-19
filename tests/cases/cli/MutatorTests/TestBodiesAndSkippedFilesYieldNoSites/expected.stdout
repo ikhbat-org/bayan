@@ -1,0 +1,5 @@
+<repo>/tmp/t27-mutate/TestBodiesAndSkippedFilesYieldNoSites/lib.test.byn:2:12 emptyReturn `x * 2` -> `0`: killed
+<repo>/tmp/t27-mutate/TestBodiesAndSkippedFilesYieldNoSites/lib.test.byn:2:12 arithmetic `x * 2` -> `x / 2`: killed
+<repo>/tmp/t27-mutate/TestBodiesAndSkippedFilesYieldNoSites/lib.test.byn:2:16 literal `2` -> `3`: killed
+<repo>/tmp/t27-mutate/TestBodiesAndSkippedFilesYieldNoSites/lib.test.byn:2:16 literal `2` -> `1`: killed
+4 killed, 0 survived, 0 timeout, 0 not reached, 0 marked, 0 not emitted

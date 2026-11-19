@@ -1,13 +1,13 @@
 class	file	family	tests	disposition	target	reason	memberdata
 BootstrapTests	csharp/tests/Bayan.Tests/BootstrapTests.cs	runtime-c	7	shell	shell	bootstrap fixpoint is L027 and the R26/R27 jobs	
-BuiltinResultsTests	csharp/tests/Bayan.Tests/BuiltinResultsTests.cs	csharp-internals	13	sem	sem	region-analysis builtin results table through sem sections	
+BuiltinResultsTests	csharp/tests/Bayan.Tests/BuiltinResultsTests.cs	csharp-internals	13	sem	sem	region-analysis builtin results table through sem sections; ported 13 of 13: tests/cases/sem/BuiltinResultsTests	
 CInventoryTests	csharp/tests/Bayan.Tests/CInventoryTests.cs	csharp-internals	14	bayan-test	lib/std bound tests	extension inventory scan; a Bayan test over runtime C and cprint/*.byn literals; ported 14 of 14: src/driver/cinventory.byn (`c inventory: ` blocks; the C# regexes as std.regex patterns, the emitted C through `$BAYAN_EXE build --emit-c --mode debug`)	
 CacheTests	csharp/tests/Bayan.Tests/CacheTests.cs	cli	24	cli	tests/parity	changes BAYAN_CACHE; parity case sets it up; ported 24 of 24: tests/parity/cli-cache (10), src/driver/cache.byn blocks script-key, compiler-stamp, replace-file (3), tests/cases/DIVERGENCES.tsv Q976 (9), tests/parity/UNEXPORTED.tsv (2, plus the PATH rows of ASingleWordOrZigCompilerKeepsItsStamp)	
 CliEnvironmentTests	csharp/tests/Bayan.Tests/CliEnvironmentTests.cs;csharp/tests/Bayan.Tests/CliSummaryTests.cs	cli	28	cli	tests/parity	changes environment variables; parity case sets them up (two files, one partial class); ported 28 of 28: tests/parity/cli-environment (21), src/driver/doctor.byn blocks doctor-render-plain, -ascii, -colour (3), tests/cases/DIVERGENCES.tsv Q976 (1) and Q1117 (2 whole, 4 tty asserts of ported cases), tests/parity/UNEXPORTED.tsv (1)	
 CliMemoryBoundsTests	csharp/tests/Bayan.Tests/CliMemoryBoundsTests.cs	cli	25	bayan-test	lib/std bound tests	bounds on memory and disk; a Bayan test builds a large tree and measures	
 CliTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	64	cli	tests/parity	exit code and text of bayan commands; 63 ported, 1 waits Q940 (DIVERGENCES.tsv): tests/parity/cli-cli (63; version-prints-version masks the build id, Q1091), tests/cases/DIVERGENCES.tsv Q940 (1: ParseRendersItsDiagnosticsInTheChosenSymbols)	
 CliToolchainTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	7	cli	tests/parity	needs toolchain set-up; ported 7 of 7: tests/parity/cli-toolchain (1), tests/cases/DIVERGENCES.tsv Q976 (6)	
-CollectionLiteralTests	csharp/tests/Bayan.Tests/CollectionLiteralTests.cs	csharp-internals	3	emit-c	emit-c	span literals on stack, checked in emitted C	
+CollectionLiteralTests	csharp/tests/Bayan.Tests/CollectionLiteralTests.cs	csharp-internals	3	emit-c	emit-c	span literals on stack, checked in emitted C; ported 3 of 3: tests/cases/emit-c/CollectionLiteralTests	
 ContrastTests	csharp/tests/Bayan.Tests/ContrastTests.cs	cli	6	shell	shell	WCAG contrast over docs table; no compiler involved; ported 6 of 6: scripts/docs/contrast.test.sh (the C# Palette and Style.Paint read as the driver's t7Prefix and t5Paint)	
 CoverageReportTests	csharp/tests/Bayan.Tests/CoverageReportTests.cs	cli	8	cli	tests/parity	coverage report through bayan test; ported 8 of 8: tests/parity/cli-coverage-report (6), src/driver/test.byn blocks merge-counters, listing-name (2)	
 CoverageSummaryTests	csharp/tests/Bayan.Tests/CoverageSummaryTests.cs	cli	4	cli	tests/parity	one-line summary through bayan test; ported 4 of 4: tests/parity/cli-coverage-summary (4)	
@@ -15,20 +15,20 @@ CoverageTests	csharp/tests/Bayan.Tests/CoverageTests.cs	golden-folder	350	golden
 DiagJsonTests	csharp/tests/Bayan.Tests/DiagJsonTests.cs	golden-folder	3	golden	tests/cases/diag-json	folder runner reads the same files	no export: typed rows
 DiagTests	csharp/tests/Bayan.Tests/DiagTests.cs	golden-folder	642	golden	tests/cases/diag	folder runner reads the same files	no export: typed rows
 DiagnosticCodesTests	csharp/tests/Bayan.Tests/DiagnosticCodesTests.cs	csharp-internals	11	check	check	diagnostic-code table against cases; becomes a check: command; ported 11 of 11: scripts/ci/diagnostic-codes.test.sh (one check per [Fact], the codes from the docs/DIAGNOSTICS.md registered table, run from scripts/ci/script-tests.sh)	
-DiagnosticRendererTests	csharp/tests/Bayan.Tests/DiagnosticRendererTests.cs	csharp-internals	19	cli	cli	renderer output reached by bayan check text; covering case per row in T18	
-DynRefEmitTests	csharp/tests/Bayan.Tests/DynRefEmitTests.cs	csharp-internals	3	emit-c	emit-c	vtables in emitted C	
-ErrorUnionTypeTests	csharp/tests/Bayan.Tests/ErrorUnionTypeTests.cs	csharp-internals	1	sem	sem	type model through sem sections	
+DiagnosticRendererTests	csharp/tests/Bayan.Tests/DiagnosticRendererTests.cs	csharp-internals	19	cli	cli	renderer output reached by bayan check text; covering case per row in T18; ported 19 of 19: tests/cases/cli/DiagnosticRendererTests; the Width 26 and 40 rows (LongMessageAndLabelWrapAtTheStyleWidth, BacktickedCodeInAMessageIsNeverSplit, SourceAndFixLinesNeverWrap; DiagnosticRendererTests.cs:263-304) are also the Bayān blocks "renderer: …" in src/semantics/diag.test.byn, at widths 26 and 40 with the C# literals	
+DynRefEmitTests	csharp/tests/Bayan.Tests/DynRefEmitTests.cs	csharp-internals	3	emit-c	emit-c	vtables in emitted C; ported 3 of 3: tests/cases/emit-c/DynRefEmitTests	
+ErrorUnionTypeTests	csharp/tests/Bayan.Tests/ErrorUnionTypeTests.cs	csharp-internals	1	sem	sem	type model through sem sections; ported 1 of 1: tests/cases/sem/ErrorUnionTypeTests	
 ExternalModeTests	csharp/tests/Bayan.Tests/ExternalModeTests.cs	cli	11	cli	tests/parity	BAYAN_MUTANT command run per site; stub tools; ported 11 of 11: tests/parity/cli-external-mode (10), src/driver/mutate.byn block site-map (1)	
 FormatTests	csharp/tests/Bayan.Tests/FormatTests.cs	golden-folder	76	golden	tests/cases/format	folder runner reads the same files	no export: typed rows
-FunctionTypeTests	csharp/tests/Bayan.Tests/FunctionTypeTests.cs	csharp-internals	12	sem	sem	function-type model through sem sections	
+FunctionTypeTests	csharp/tests/Bayan.Tests/FunctionTypeTests.cs	csharp-internals	12	sem	sem	function-type model through sem sections; ported 11 of 12: tests/cases/sem/FunctionTypeTests (12 cases, EqualByParametersReturnErrorSetsAndEffects as two); IsABorrow: no counterpart (owner, 2026-11-19), named case diag/function-type-placement; the Optional half of OccursFindsATypeParameterInside: the same case	
 GatesTests	csharp/tests/Bayan.Tests/GatesTests.cs	cli	8	cli	cli	manifest minimums through the command	
-GenericsTests	csharp/tests/Bayan.Tests/GenericsTests.cs	csharp-internals	2	emit-c	emit-c	monomorphization checked in emitted C	
+GenericsTests	csharp/tests/Bayan.Tests/GenericsTests.cs	csharp-internals	2	emit-c	emit-c	monomorphization checked in emitted C; ported 2 of 2: tests/cases/emit-c/GenericsTests	
 GoldenTests	csharp/tests/Bayan.Tests/GoldenTests.cs	infrastructure	7	dropped		harness-only: tests of the C# golden runner; the new runner has its own checks (R1)	
 GrammarDictionaryTests	csharp/tests/Bayan.Tests/GrammarDictionaryTests.cs	csharp-internals	8	check	src/semantics/grammardict.byn test blocks "grammar dictionary: the manifest reads the grammar", "...: the grammar is empty without the field", "...: map entries need a value", "...: help verbs are checker verbs" (4 @cases), "...: word classes are lowercase words"	grammar dictionary freshness; ported 8 of 8: src/semantics/grammardict.byn (`grammar dictionary: ` blocks)	
 HashSeedTests	csharp/tests/Bayan.Tests/HashSeedTests.cs	cli	2	run	run	map hashing seed under --test	
 HelpLanguageTests	csharp/tests/Bayan.Tests/HelpLanguageTests.cs	cli	2	cli	cli	help text	
 InstrumentedRunLawTests	csharp/tests/Bayan.Tests/InstrumentedRunLawTests.cs	law	1	check	check:L019	law proof becomes a check: command (R18)	
-InterfaceDeclarationTests	csharp/tests/Bayan.Tests/InterfaceDeclarationTests.cs	csharp-internals	4	sem	sem	interface declaration model	
+InterfaceDeclarationTests	csharp/tests/Bayan.Tests/InterfaceDeclarationTests.cs	csharp-internals	4	sem	sem	interface declaration model; ported 4 of 4: tests/cases/sem/InterfaceDeclarationTests	
 InterfaceUseTests	csharp/tests/Bayan.Tests/InterfaceUseTests.cs	csharp-internals	2	diag	diag	constraint checks and dyn ref conversions as diagnostics	
 L004UnionSwitchTests	csharp/tests/Bayan.Tests/L004UnionSwitchTests.cs	law	38	check	check:L004	law proof becomes a check: command (R18)	no export: typed rows
 L005RunBatchTests	csharp/tests/Bayan.Tests/L005RunBatchTests.cs	law	23	check	check:L005	law proof becomes a check: command (R18)	
@@ -40,10 +40,10 @@ L011ColourAddsOnlyEscapesTests	csharp/tests/Bayan.Tests/L011ColourAddsOnlyEscape
 L012InterfaceDispatchTests	csharp/tests/Bayan.Tests/L012InterfaceDispatchTests.cs	law	2	check	check:L012	law proof becomes a check: command (R18)	
 L013DirectAndIndirectCallsAgreeTests	csharp/tests/Bayan.Tests/L013DirectAndIndirectCallsAgreeTests.cs	law	2	check	check:L013	law proof becomes a check: command (R18)	
 L014CaptureByCopyTests	csharp/tests/Bayan.Tests/L014CaptureByCopyTests.cs	law	13	check	check:L014	law proof becomes a check: command (R18)	no export: typed rows
-LambdaEmitTests	csharp/tests/Bayan.Tests/LambdaEmitTests.cs	csharp-internals	2	emit-c	emit-c	emitted C for lambdas	
+LambdaEmitTests	csharp/tests/Bayan.Tests/LambdaEmitTests.cs	csharp-internals	2	emit-c	emit-c	emitted C for lambdas; ported 2 of 2: tests/cases/emit-c/LambdaEmitTests	
 LanguageServerLeakTests	csharp/tests/Bayan.Tests/LanguageServerLeakTests.cs	language-server	22	shell	sessions + bayan-test	protocol parts become recorded sessions, bound parts Bayan tests; belongs to the server port	
 LanguageServerWorkspaceTests	csharp/tests/Bayan.Tests/LanguageServerWorkspaceTests.cs	language-server	20	shell	sessions	recorded sessions; belongs to the server port	
-LayoutTests	csharp/tests/Bayan.Tests/LayoutTests.cs	csharp-internals	1393	golden	tests/cases/format	Layout.Apply rows become format cases (many theory rows)	no export: typed rows
+LayoutTests	csharp/tests/Bayan.Tests/LayoutTests.cs	csharp-internals	1393	dropped		covered by cli/SelfhostDriverStage2FormatTests: LayoutInputsFormatAsCliApp (38), ComposedInputsFormatAsCliApp (11), ManifestInputsFormatAsCliApp (2), CorpusFormatsAsCliApp (3); ADifferenceKeepsTheInput (4 rows) is the Bayān block in src/driver/layout.test.byn	no export: typed rows
 LexDiffTests	csharp/tests/Bayan.Tests/LexDiffTests.cs	infrastructure	5	shell	shell	tools/lex-diff against bayan lex and lex goldens	
 LexerCaseSnapshotRecordingTests	src/tests/SelfhostLexerCaseTests.cs	selfhost-lexer	1	dropped		mutation snapshot recording hook; goes with xUnit	
 LexerSnapshotRecordingTests	src/tests/SelfhostLexerTests.cs	selfhost-lexer	1	dropped		mutation snapshot recording hook; goes with xUnit	owned by T16d
@@ -52,13 +52,13 @@ LfOutputTests	csharp/tests/Bayan.Tests/LfOutputTests.cs	cli	2	run	run	output car
 LineDirectiveTests	csharp/tests/Bayan.Tests/LineDirectiveTests.cs	cli	7	emit-c	emit-c	#line directives in emitted C	
 LoweringInvariantTests	csharp/tests/Bayan.Tests/LoweringInvariantTests.cs	csharp-internals	5	no counterpart		asserts on C# bound nodes mutated in memory; the self-hosted lowerer raises no such error (src/driver/cc.byn:373-374); BYN4002 rendering covered by tests/cases/style/lower-ice.*; owner approved 2026-11-17 on Fable's reading (OQ4)	
 ManifestTests	csharp/tests/Bayan.Tests/ManifestTests.cs	cli	70	cli	cli	reads cases; command output	no export: typed rows
-MapKeyEmitTests	csharp/tests/Bayan.Tests/MapKeyEmitTests.cs	csharp-internals	5	emit-c	emit-c	key hash helpers in emitted C	
+MapKeyEmitTests	csharp/tests/Bayan.Tests/MapKeyEmitTests.cs	csharp-internals	5	emit-c	emit-c	key hash helpers in emitted C; ported 5 of 5: tests/cases/emit-c/MapKeyEmitTests	
 MapKeyLawTests	csharp/tests/Bayan.Tests/MapKeyLawTests.cs	law	13	check	check:L016	law proof becomes a check: command (R18)	no export: typed rows
 MapModelTests	csharp/tests/Bayan.Tests/MapModelTests.cs	csharp-internals	49	bayan-test	lib/std map model test	reference model becomes a Bayan test; run/map-model.byn already golden (L003); ported 49 of 49: src/driver/mapmodel.byn (`map model: ` blocks, theory rows as @cases; the 40 generated sources are byte-equal to the C# generator's)	no export: typed rows
 MessagesTests	csharp/tests/Bayan.Tests/MessagesTests.cs	csharp-internals	4	no counterpart		tests checked C# CLI source layout (a Messages registry with dotted ids, numbered placeholders, no prose literals in CliApp/Doctor/Dist); the self-hosted driver writes its text inline and has no registry, so a port would invent one; printed text stays covered line for line by the cli/ golden cases; owner approved 2026-11-18 on Fable's reading (OQ4)	
 MutantSchemataTests	csharp/tests/Bayan.Tests/MutantSchemataTests.cs	golden-folder	362	golden	tests/cases/mutate	folder runner reads the same files	no export: typed rows
 MutationRunnerTests	csharp/tests/Bayan.Tests/MutationRunnerTests.cs	cli	6	cli	cli	mutation statuses through bayan mutate	
-MutatorTests	csharp/tests/Bayan.Tests/MutatorTests.cs	csharp-internals	17	cli	cli	mutation sites through bayan mutate --list	
+MutatorTests	csharp/tests/Bayan.Tests/MutatorTests.cs	csharp-internals	17	cli	cli	mutation sites through bayan mutate --list; ported 17 of 17: tests/cases/cli/MutatorTests; the per-operator NotEmitted counts (MutatorTests.cs:101, 110-115, 123, 131, 139) and the skipFiles half of TestBodiesAndSkippedFilesYieldNoSites (:160) are the Bayān blocks "mutator: …" in src/driver/mutate.test.byn, over emitter.find (the port of Mutator.Find, its per-operator notEmitted counts and skipFiles)	
 NamingGrammarTests	csharp/tests/Bayan.Tests/NamingGrammarTests.cs	csharp-internals	25	diag	diag	BYN5001 verb-form diagnostics	
 NamingPackageGrammarTests	csharp/tests/Bayan.Tests/NamingPackageGrammarTests.cs	csharp-internals	2	diag	diag	package.byn dictionary through BYN5001; ported 2 of 2: tests/cases/diag/naming-package-empty (the empty half of AnUnreadablePackageIsAnEmptyGrammar), src/driver/golden.byn block "an unreadable package.byn renders as the empty grammar of diag/naming-package-empty" (the mode-0 half, chmod 000 through Io.run, that case's .diag expected; pending on Windows), scripts/ci/std-naming-lints.test.sh (StdSourcesHaveOnlyTheKnownNamingLintHits)	
 NeverReassignedVarLintTests	csharp/tests/Bayan.Tests/NeverReassignedVarLintTests.cs	cli	24	diag	diag	BYN2311 diagnostics	
@@ -209,7 +209,7 @@ StdTestFilesTests	csharp/tests/Bayan.Tests/StdTestFilesTests.cs	std	3	shell	shel
 StyleGuideExamplesTests	csharp/tests/Bayan.Tests/StyleGuideExamplesTests.cs	cli	34	diag	diag	style-guide examples through bayan check	no export: typed rows
 StyleLintSeverityTests	csharp/tests/Bayan.Tests/StyleLintSeverityTests.cs	cli	5	diag	diag	lints at package.byn severity in bayan check output	
 StyleTests	csharp/tests/Bayan.Tests/StyleTests.cs	golden-folder	22	golden	tests/cases/style	folder runner reads the same files	no export: typed rows
-SymbolEmitTests	csharp/tests/Bayan.Tests/SymbolEmitTests.cs	csharp-internals	3	emit-c	emit-c	symbol table in emitted C	
+SymbolEmitTests	csharp/tests/Bayan.Tests/SymbolEmitTests.cs	csharp-internals	3	emit-c	emit-c	symbol table in emitted C; ported 3 of 3: tests/cases/emit-c/SymbolEmitTests	
 SymbolLawTests	csharp/tests/Bayan.Tests/SymbolLawTests.cs	law	2	check	check:L015	law proof becomes a check: command (R18)	
 SymbolLoweringTests	csharp/tests/Bayan.Tests/SymbolLoweringTests.cs	csharp-internals	1	run	run	interpolated Symbol text by program output	
 SyntaxFuzzTests	csharp/tests/Bayan.Tests/SyntaxFuzzTests.cs	infrastructure	1	dropped		subject tools/Bayan.SyntaxFuzz is removed (OQ5, R33); the no-panic property it drove is L002 (lexer) and L018 (parser, enacted, check: command); the one fact (empty cases dir exits 2) has no law and goes with the tool	

@@ -1,0 +1,13 @@
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+  --> <repo>/tmp/t27-diag/LongMessageAndLabelWrapAtTheStyleWidth/input.byn:1:29
+
+  1 │ bool g(i32 x) fails IoError uses net => true
+    │                             ^^^^ out of order
+    │
+  help: move `uses` before `fails`
+    │ 1 │ bool g(i32 x) uses net fails IoError => true
+    │   │               ++++++++++++++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1065
