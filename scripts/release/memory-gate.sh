@@ -35,6 +35,9 @@ case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*) ;;
   *) if grep -qE '(^|[^0-9])0 passed' "$log"; then failed+=("the bound: blocks did not run (none passed)"); fi ;;
 esac
+run "$BAYAN_EXE" test tests/cases --only cli/SelfhostDefaultT12Tests/TheInputsHashDoesNotFollowLinks
+# The selector also selects TheInputsHashDoesNotFollowLinks-2 (`--only` matches by substring): both cases must have passed.
+grep -qE '(^|[^0-9])2 passed' "$log" || failed+=("the T12 inputs-hash cases did not both pass")
 run bash scripts/pinned-bayan.test.sh
 run env BAYAN_TEST_TIMEOUT_MS=600000 "$BAYAN_EXE" test --package src src/driver --only 'a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'
 # The block is pending only on Windows (no sh or ps); anywhere else pending, or a title that selects nothing, means it did

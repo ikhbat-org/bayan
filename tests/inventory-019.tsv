@@ -4,7 +4,7 @@ BuiltinResultsTests	csharp/tests/Bayan.Tests/BuiltinResultsTests.cs	csharp-inter
 CInventoryTests	csharp/tests/Bayan.Tests/CInventoryTests.cs	csharp-internals	14	bayan-test	lib/std bound tests	extension inventory scan; a Bayan test over runtime C and cprint/*.byn literals; ported 14 of 14: src/driver/cinventory.byn (`c inventory: ` blocks; the C# regexes as std.regex patterns, the emitted C through `$BAYAN_EXE build --emit-c --mode debug`)	
 CacheTests	csharp/tests/Bayan.Tests/CacheTests.cs	cli	24	cli	tests/parity	changes BAYAN_CACHE; parity case sets it up; ported 24 of 24: tests/parity/cli-cache (10), src/driver/cache.byn blocks script-key, compiler-stamp, replace-file (3), tests/cases/DIVERGENCES.tsv Q976 (9), tests/parity/UNEXPORTED.tsv (2, plus the PATH rows of ASingleWordOrZigCompilerKeepsItsStamp)	
 CliEnvironmentTests	csharp/tests/Bayan.Tests/CliEnvironmentTests.cs;csharp/tests/Bayan.Tests/CliSummaryTests.cs	cli	28	cli	tests/parity	changes environment variables; parity case sets them up (two files, one partial class); ported 28 of 28: tests/parity/cli-environment (21), src/driver/doctor.byn blocks doctor-render-plain, -ascii, -colour (3), tests/cases/DIVERGENCES.tsv Q976 (1) and Q1117 (2 whole, 4 tty asserts of ported cases), tests/parity/UNEXPORTED.tsv (1)	
-CliMemoryBoundsTests	csharp/tests/Bayan.Tests/CliMemoryBoundsTests.cs	cli	25	bayan-test	lib/std bound tests	bounds on memory and disk; a Bayan test builds a large tree and measures	
+CliMemoryBoundsTests	csharp/tests/Bayan.Tests/CliMemoryBoundsTests.cs	cli	25	bayan-test	src/driver/bounds.byn bound: blocks; M5 rows: the bound: evict blocks over tests/cases/bounds/evict (exported at dc7b22142); M4 inputs hash: cli/SelfhostDefaultT12Tests/TheInputsHashDoesNotFollowLinks (and -2)	bounds on memory and disk; a Bayan test builds a large tree and measures; all run by scripts/release/memory-gate.sh (T28)	
 CliTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	64	cli	cli	exit code and text of bayan commands	
 CliToolchainTests	csharp/tests/Bayan.Tests/CliTests.cs	cli	7	cli	tests/parity	needs toolchain set-up; ported 7 of 7: tests/parity/cli-toolchain (1), tests/cases/DIVERGENCES.tsv Q976 (6)	
 CollectionLiteralTests	csharp/tests/Bayan.Tests/CollectionLiteralTests.cs	csharp-internals	3	emit-c	emit-c	span literals on stack, checked in emitted C	
@@ -79,7 +79,7 @@ RuntimeNativeTests	csharp/tests/Bayan.Tests/RuntimeNativeTests.cs	runtime-c	15	s
 RuntimeSizeOverflowTests	csharp/tests/Bayan.Tests/RuntimeSizeOverflowTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime behaviour	
 ScaffoldTests	csharp/tests/Bayan.Tests/ScaffoldTests.cs	cli	17	cli	cli	bayan new and init output	
 SelfhostCoverageTests	src/tests/SelfhostCoverageTests.cs	selfhost-coverage	4	cli	quality	coverage output (plan says kind quality)	
-SelfhostDefaultBoundsTests	src/tests/SelfhostDefaultBoundsTests.cs	selfhost-default	17	bayan-test	lib/std bound tests	bounds; Bayan test builds a large tree	
+SelfhostDefaultBoundsTests	src/tests/SelfhostDefaultBoundsTests.cs	selfhost-default	17	bayan-test	src/driver/bounds.byn bound: blocks; M5 evict rows: the bound: evict blocks; M4 inputs hash: cli/SelfhostDefaultT12Tests/TheInputsHashDoesNotFollowLinks (and -2)	bounds; Bayan test builds a large tree; M4 and M5 delegated to T12 and T9, all run by scripts/release/memory-gate.sh (T28)	
 SelfhostDefaultJsonCountTests	src/tests/SelfhostDefaultJsonCountTests.cs	selfhost-default	1	cli	cli	generated-docs/JSON counts through the command	
 SelfhostDefaultP2Tests	src/tests/SelfhostDefaultP2Tests.cs	selfhost-default	3	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDefaultSpeedTests	src/tests/SelfhostDefaultSpeedTests.cs	selfhost-default	1	bayan-test	lib/std bound tests	speed bound; Bayan test measures	
@@ -90,7 +90,7 @@ SelfhostDefaultT2Tests	src/tests/SelfhostDefaultT2Tests.cs	selfhost-default	25	c
 SelfhostDefaultT3Tests	src/tests/SelfhostDefaultT3Tests.cs	selfhost-default	31	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDefaultT4Tests	src/tests/SelfhostDefaultT4Tests.cs	selfhost-default	65	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDefaultT5Tests	src/tests/SelfhostDefaultT5Tests.cs	selfhost-default	19	cli	cli	stage 2 command output equals the C# CLI	
-SelfhostDefaultT9Tests	src/tests/SelfhostDefaultT9Tests.cs	selfhost-default	94	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDefaultT9Tests	src/tests/SelfhostDefaultT9Tests.cs	selfhost-default	94	cli	cli	stage 2 command output equals the C# CLI; EvictTrimsTheOldestFirst, EvictCountsRuntimeEntries, EvictKeepsAnEntryUsedJustNow AsToolchain: bound: evict blocks in src/driver/bounds.byn over tests/cases/bounds/evict (exported at dc7b22142, T28)	
 SelfhostDriverApiTests	src/tests/SelfhostDriverApiTests.cs	selfhost-driver	2	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDriverFixTests	src/tests/SelfhostDriverFixTests.cs	selfhost-driver	33	cli	cli	stage 2 command output equals the C# CLI	owned by T15d
 SelfhostDriverGoldenListTests	src/tests/SelfhostDriverGoldenListTests.cs	selfhost-driver	2	shell	shell	019 T1 list-cases contract; a script test of `bayan test --list-cases` replaces it	

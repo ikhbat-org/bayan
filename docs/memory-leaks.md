@@ -112,6 +112,7 @@ these fail:
 ```sh
 "$BAYAN_EXE" test --package editors/language-server/src editors/language-server/src/bounds     # LSP walk, budgets, retention, depth, buffers
 "$BAYAN_EXE" test --package src src/driver --only 'bound: '       # CLI capture, cache eviction, walks, timeouts
+"$BAYAN_EXE" test tests/cases --only cli/SelfhostDefaultT12Tests/TheInputsHashDoesNotFollowLinks  # inputs hash skips links
 bash scripts/pinned-bayan.test.sh                                  # pinned build cache eviction
 env BAYAN_TEST_TIMEOUT_MS=600000 "$BAYAN_EXE" test --package src src/driver --only 'a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'  # golden runner bound
 ```
@@ -122,7 +123,11 @@ they are pending on Windows (no `sh` or `ps`), and on Linux and macOS the gate f
 The second line runs the `bound: ` test blocks of `src/driver/bounds.byn` (spec 019 T28, R9, R15): the bounds
 `CliMemoryBoundsTests` and `SelfhostDefaultBoundsTests` checked, with the same numbers, measured by
 `scripts/release/peak-rss.sh`. They are pending on Windows (no `sh` or `ps`) and the Linux-only C-compiler row is pending
-elsewhere; on Linux and macOS the gate fails when none of them passed.
+elsewhere; on Linux and macOS the gate fails when none of them passed. The `bound: evict …` blocks run the driver's evict over
+the trees of `tests/cases/bounds/evict/`, exported from the C# `Toolchain.Evict` (spec 019 T28 part 2).
+
+The third line runs the cli cases `TheInputsHashDoesNotFollowLinks` and `-2` (the M4 row `SelfhostDefaultBoundsTests` delegated to
+`SelfhostDefaultT12Tests`); the gate fails unless both passed.
 
 The last line is the `src/driver/golden.byn` test block "a run over tests/cases keeps the runner and each worker
 under 15 MB and leaves no scratch directory" (spec 019 R9): a run of `$BAYAN_EXE test tests/cases` keeps the runner and
