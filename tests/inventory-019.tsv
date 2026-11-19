@@ -133,16 +133,16 @@ SelfhostParserEquivalenceLawTests	src/tests/SelfhostParserEquivalenceLawTests.cs
 SelfhostParserGeneratorTests	src/tests/SelfhostParserGeneratorTests.cs	selfhost-parser	6	dropped		tests the C# corpus generator (R7); generator goes with .NET, the seeds are exported into parse cases	
 SelfhostParserNoPanicLawTests	src/tests/SelfhostParserNoPanicLawTests.cs	selfhost-parser	1	check	check:L018	law proof becomes a check: command (R18)	
 SelfhostParserO3Tests	src/tests/SelfhostParserO3Tests.cs	selfhost-parser	7	parse	parse	tree dump equals the C# parser	
-SelfhostParserT10Tests	src/tests/SelfhostParserT10Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
-SelfhostParserT11Tests	src/tests/SelfhostParserT11Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
-SelfhostParserT12Tests	src/tests/SelfhostParserT12Tests.cs	selfhost-parser	2	parse	parse	tree dump equals the C# parser	
-SelfhostParserT13Tests	src/tests/SelfhostParserT13Tests.cs	selfhost-parser	5	parse	parse	tree dump equals the C# parser	
-SelfhostParserT3Tests	src/tests/SelfhostParserT3Tests.cs	selfhost-parser	2	parse	parse	tree dump equals the C# parser	
+SelfhostParserT10Tests	src/tests/SelfhostParserT10Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser; ported 1 of 1: src/parser/exprs2.test.byn block `parser t10: primaries parse as in C#`	
+SelfhostParserT11Tests	src/tests/SelfhostParserT11Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser; ported 1 of 1: src/parser/dump.test.byn block `parser t11: the dump writes declarations and statements`	
+SelfhostParserT12Tests	src/tests/SelfhostParserT12Tests.cs	selfhost-parser	2	parse	parse	tree dump equals the C# parser; ported 2 of 2: src/parser/dump2.test.byn blocks `parser t12: dump an expression, a type and a pattern, and check spans` and `parser t12: the dump covers every expression, type and pattern case`	
+SelfhostParserT13Tests	src/tests/SelfhostParserT13Tests.cs	selfhost-parser	5	parse	parse	tree dump equals the C# parser; ported 0 of 5: each test runs the bayan-parse binary as a child process and asserts its exit code, stdout and stderr, which a test block cannot do	
+SelfhostParserT3Tests	src/tests/SelfhostParserT3Tests.cs	selfhost-parser	2	parse	parse	tree dump equals the C# parser; ported 2 of 2: src/parser/recover.test.byn block `parser t3: recovery and line structure`, src/parser/patterns.test.byn block `parser t3: patterns parse`	
 SelfhostParserT4Tests	src/tests/SelfhostParserT4Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
 SelfhostParserT5Tests	src/tests/SelfhostParserT5Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
 SelfhostParserT6Tests	src/tests/SelfhostParserT6Tests.cs	selfhost-parser	66	parse	parse	tree dump equals the C# parser	
 SelfhostParserT7Tests	src/tests/SelfhostParserT7Tests.cs	selfhost-parser	31	parse	parse	tree dump equals the C# parser	
-SelfhostParserT8Tests	src/tests/SelfhostParserT8Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
+SelfhostParserT8Tests	src/tests/SelfhostParserT8Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser; ported 1 of 1: src/parser/stmts2.test.byn block `parser t8: self-contained statements build and run`	
 SelfhostParserT9Tests	src/tests/SelfhostParserT9Tests.cs	selfhost-parser	1	parse	parse	tree dump equals the C# parser	
 SelfhostParserTests	src/tests/SelfhostParserTests.cs	selfhost-parser	264	parse	parse	tree dump equals the C# parser	owned by T16a
 SelfhostPathT4Tests	src/tests/SelfhostPathT4Tests.cs	selfhost-path	1029	sem	sem	T26 part 2: 1017 exported cases under tests/cases/sem/SelfhostPathT4Tests pass on the self-hosted runner (675, then 342 with empty expected output from chore/019-export 0541e46b5 at 9682418be); 12 are C#-only TheCSharpReportsDiagnostics checks with no counterpart	owned by T13c
@@ -177,7 +177,7 @@ SelfhostSemanticsT22Tests	src/tests/SelfhostSemanticsT22Tests.cs	selfhost-semant
 SelfhostSemanticsT23Tests	src/tests/SelfhostSemanticsT23Tests.cs	selfhost-semantics	51	sem	sem	sections printed by the built program compared with C# lines	exported by T13
 SelfhostSemanticsT24Tests	src/tests/SelfhostSemanticsT24Tests.cs	selfhost-semantics	100	sem	sem	sections printed by the built program compared with C# lines	exported by T13
 SelfhostSemanticsT25Tests	src/tests/SelfhostSemanticsT25Tests.cs	selfhost-semantics	152	sem	sem	sections printed by the built program compared with C# lines	exported by T13
-SelfhostSemanticsT2Tests	src/tests/SelfhostSemanticsT2Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsT2Tests	src/tests/SelfhostSemanticsT2Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines; ported 6 of 8: src/semantics/diag.test.byn `diag t2: ` blocks (EveryDiagCaseRendersLikeCSharp hand-built lists, ErrorLimitCapsErrorsNotWarnings, RemoveRepeatsMatchesCSharp, ReportBuildsTheDiag, SinkGoesToTheInnermostBag, FormatMatchesStringFormat); not ported: Builds (asserts only that the C# harness built the driver), CodeTableMatchesDiagnosticCodes (outside T30e)	
 SelfhostSemanticsT34Tests	src/tests/SelfhostSemanticsT34Tests.cs	selfhost-semantics	95	sem	sem	sections printed by the built program compared with C# lines	exported by T13
 SelfhostSemanticsT35Tests	src/tests/SelfhostSemanticsT35Tests.cs	selfhost-semantics	161	sem	sem	sections printed by the built program compared with C# lines	exported by T13
 SelfhostSemanticsT36Tests	src/tests/SelfhostSemanticsT36Tests.cs	selfhost-semantics	29	sem	sem	sections printed by the built program compared with C# lines	exported by T13

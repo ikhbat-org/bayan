@@ -1,0 +1,118 @@
+// SelfhostParserT3Tests.cs (009 T3, 019 T30e): recover.byn and patterns.byn driven directly; the expected texts are the
+// C# test's, which follow the C# parser.
+
+import lexer
+
+/// SelfhostParserT3Tests.cs:45 `parserOf`.
+Parser t3ParserOf(string text) uses alloc {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    return Parser.create(lexer.lex(SourceText.create("t.byn", from: move bytes), by: Keywords.build()))
+}
+
+/// SelfhostParserT3Tests.cs:51 `diags`.
+string t3Diags(ref Parser p) uses alloc {
+    var sb = StrBuf()
+    for d in p.lexed.diagnostics {
+        sb.append($" [{d.code} {d.span.start}+{d.span.length} {d.message}")
+        if d.hasFix {
+            sb.append($" fix {d.fixSpan.start}+{d.fixSpan.length} \"")
+            lexer.escape(d.fixReplacement.bytes, to: ref sb)
+            sb.append("\"")
+        }
+        sb.append("]")
+    }
+    return $"{sb.finish()}"
+}
+
+// SelfhostParserT3Tests.cs:172 `RecoveryAndLineStructure`, expected text at :236-255.
+test "parser t3: recovery and line structure" {
+    var sb = StrBuf()
+    var a = t3ParserOf("  x y")
+    let _ = a.advance()
+    expectEnd(ref a)
+    sb.append($"missing line break{t3Diags(ref a)}\n")
+
+    var b = t3ParserOf("  x ; y")
+    let _ = b.advance()
+    expectEnd(ref b)
+    sb.append($"semicolon before y{t3Diags(ref b)}\n")
+
+    var c = t3ParserOf("x ;  \ny")
+    let _ = c.advance()
+    expectEnd(ref c)
+    sb.append($"semicolon at line end{t3Diags(ref c)} pos {c.pos}\n")
+
+    var d = t3ParserOf("a b { c ; d } e\nlet f")
+    synchronize(ref d)
+    sb.append($"synchronize stops at {d.pos} {d.kind()}\n")
+
+    var e = t3ParserOf("a ; b")
+    synchronize(ref e)
+    sb.append($"synchronize past ; at {e.pos}\n")
+
+    var f = t3ParserOf("a ) b")
+    let _ = f.advance()
+    recoverIfNeeded(ref f, from: 0)
+    sb.append($"no new error stays at {f.pos}\n")
+    let _ = f.report(.expected, at: TextSpan { start: 2, length: 1 }, arg0: "x", arg1: "y")
+    recoverIfNeeded(ref f, from: 0)
+    sb.append($"new error skips to {f.pos} {f.kind()}\n")
+
+    var g = t3ParserOf("x\n\n  .y\n// c\nz")
+    sb.append($"blank {hasBlankLineBefore(ref g, at: 1)} {hasBlankLineBefore(ref g, at: 3)}\n")
+    sb.append(
+        $"wasl {isWasl(ref g, at: 1)} {isWasl(ref g, at: 3)} breaks {breaksLine(ref g, at: 1)} {breaksLine(ref g, at: 3)}\n",
+    )
+    sb.append($"ends {endsBefore(ref g, at: 2)} {endsBefore(ref g, at: 3)} {endsBefore(ref g, at: 9)}\n")
+
+    var h = t3ParserOf("f(a,\n b) +\n where x: c")
+    sb.append(
+        $"group {breaksLine(ref h, at: 4)} continues {lineContinues(ref h, at: 7)} {lineContinues(ref h, at: 4)} where {isWasl(ref h, at: 7)}\n",
+    )
+    sb.append($"inGroup {inGroup(ref h, at: 1, for: .comma)} {inGroup(ref h, at: 1, for: .plus)}\n")
+    h.pos = 7
+    sb.append($"stopsHere {stopsHere(ref h)}\n")
+
+    var i = t3ParserOf("(a) b")
+    let first = i.report(.parenthesizedCondition, at: TextSpan { start: 0, length: 3 })
+    let second = i.report(.expected, at: TextSpan { start: 4, length: 1 }, arg0: "x", arg1: "y")
+    unreport(ref i, at: first)
+    unreport(ref i, at: -1)
+    sb.append(
+        $"unreport count {i.errorCount()} of {i.lexed.diagnostics.length} syntaxErrors {i.syntaxErrors} lastErrorAt {i.lastErrorAt}{t3Diags(ref i)}\n",
+    )
+
+    var j = t3ParserOf("error")
+    let isNameError = isName(j.kind())
+    let named = expectName(ref j)
+    let missing = expectName(ref j)
+    sb.append(
+        $"names {isNameError} {isName(.structKeyword)} {named.start}+{named.length} missing {missing.start}+{missing.length}{t3Diags(ref j)}\n",
+    )
+    sb.append(
+        $"tables {isParticle("until")} {isParticle("of")} {isItName("it")} {isCSharpPrimitive("nuint")} {isCSharpPrimitive("u8")} {isStatementKeyword(.distinctKeyword)} {isContextualKeyword(.effectKeyword)}\n",
+    )
+    let expected = """
+            missing line break [BYN1005 3+0 expected a line break after the statement fix 3+1 "`\n  `"]
+            semicolon before y [BYN1040 4+1 `;` is an input form; a statement ends at the newline fix 3+3 "`\n  `"]
+            semicolon at line end [BYN1040 2+1 `;` is an input form; a statement ends at the newline fix 1+2 "``"] pos 2
+            synchronize stops at 7 identifier
+            synchronize past ; at 2
+            no new error stays at 1
+            new error skips to 3 endOfFile
+            blank true false
+            wasl true false breaks true true
+            ends false true true
+            group false continues true true where true
+            inGroup true false
+            stopsHere false
+            unreport count 1 of 2 syntaxErrors 1 lastErrorAt 4 [ 0+3 parentheses around a condition are an input form] [BYN1001 4+1 expected x, found y]
+            names true false 0+5 missing 5+0 [BYN1001 5+0 expected a name, found end of file]
+            tables true false true true false true true
+
+            """
+    assert sb.finish() == expected
+}
