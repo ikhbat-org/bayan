@@ -174,6 +174,6 @@ Class file is `SemanticsT<N>` = `SelfhostSemanticsT<N>Tests.cs`. "RS" is the `Ru
 - Lex Corpus and BayanLexJson cases: the C# call form (`--many <dir>`) does not match the one-file case. The port uses the single-file form.
 - Parse T4, T5, T9: programs and cases are embedded in the C# (`Program()`, `Cases`); one case each.
 - Golden.cs is `csharp/tests/Bayan.Tests/Golden.cs` on the export branch (`Compare` :35).
-- `UNEXPORTED.tsv` rows have no case: emit-c PathT5, DriverT1, EmitterEquivalenceLaw; sem T4 `records`; parse T13 (4 tests) and SpanTakenBeforeTheLastChildLeavesItOutside (:614); lex `batch-cmdline.*` and `path-relative.*`.
+- `UNEXPORTED.tsv` rows have no case: emit-c PathT5, DriverT1, EmitterEquivalenceLaw; sem T4 `records`; parse T13 (5 tests) and SpanTakenBeforeTheLastChildLeavesItOutside (:614); lex `batch-cmdline.*` and `path-relative.*`.
 - Tests that call `Run(...)` directly (ModeFlagsWantTheirArguments, CleanInputsExitLike...) and T22 `Corpus_LocalsMatchCSharp` (:184) are plain asserts and are not exported.
 - runtime/macos was not sampled.

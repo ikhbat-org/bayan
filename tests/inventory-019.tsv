@@ -194,7 +194,7 @@ SelfhostSemanticsT7Tests	src/tests/SelfhostSemanticsT7Tests.cs	selfhost-semantic
 SelfhostSemanticsT8Tests	src/tests/SelfhostSemanticsT8Tests.cs	selfhost-semantics	6	sem	sem	sections printed by the built program compared with C# lines	
 SelfhostSemanticsT9Tests	src/tests/SelfhostSemanticsT9Tests.cs	selfhost-semantics	8	sem	sem	sections printed by the built program compared with C# lines	
 SelfhostSemanticsTests	src/tests/SelfhostSemanticsTests.cs	selfhost-semantics	36	sem	sem	sections printed by the built program compared with C# lines	owned by T13b
-SelfhostSnapshotTests	src/tests/SelfhostSnapshotTests.cs	selfhost-snapshot	10	emit-c	emit-c	snapshot of emitted output (plan says kind emit)	
+SelfhostSnapshotTests	src/tests/SelfhostSnapshotTests.cs	selfhost-snapshot	10	emit-c	emit-c	tests the C# harness's BAYAN_SNAPSHOT recording (nested dotnet test, RunRecorded, RecordBuild, SnapshotSkip); no compiler output to export
 SelfhostStdImportTests	src/tests/SelfhostStdImportTests.cs	selfhost-std	17	sem + shell	tests/cases/sem/SelfhostStdImportTests + scripts/ci/std-naming-lints.test.sh	16 sem cases; StdIsNotCheckedByTheNamingLints is in scripts/ci/std-naming-lints.test.sh	owned by T13c
 SelfhostStdSourceTests	src/tests/SelfhostStdSourceTests.cs	selfhost-std	2	shell	shell	lib/std source equals generated file: freshness check; ported 2 of 2: scripts/ci/std-source.test.sh with scripts/selfhost/gen-stdsource.sh	
 SipHashTests	csharp/tests/Bayan.Tests/SipHashTests.cs	runtime-c	1	shell	runtime/tests/*.c	C runtime hash vectors	

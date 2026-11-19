@@ -76,7 +76,7 @@ SelfhostRevisionT7Tests	sem	14	14
 SelfhostRevisionT8Tests	sem	9	7	
 SelfhostSemanticsHostTests	sem	5	5	
 SelfhostSemanticsParityTests	sem	1302	1302	
-SelfhostSemanticsT10Tests	sem	94	92	
+SelfhostSemanticsT10Tests	sem	94	92	2 not exported: DiagPackagesReadClean (typed asserts on sections compared whole by ManifestMatchesCSharp-9, -5); LibraryEntryModuleIsCamelShortName (typed asserts on sections compared whole by ManifestMatchesCSharp-82, -11)
 SelfhostSemanticsT11Tests	sem	35	35	
 SelfhostSemanticsT12Tests	sem	11	11	
 SelfhostSemanticsT13Tests	sem	18	17	
@@ -99,13 +99,14 @@ SelfhostSemanticsT37Tests	sem	98	98
 SelfhostSemanticsT38Tests	sem	4	4	
 SelfhostSemanticsT39Tests	sem	48	48	
 SelfhostSemanticsT40Tests	sem	5	5	
-SelfhostSemanticsT41Tests	sem	993	992	
+SelfhostSemanticsT41Tests	sem	993	992	1 not exported: RunArgumentsStayUnderTheCommandLineLimit (checks the C# harness's argv chunking, no compiler output)
 SelfhostSemanticsT4Tests	sem	5	4	1 not exported: EveryRecordHasAStruct (records compares bound.byn's struct fields, not a program's output)
 SelfhostSemanticsT6Tests	sem	8	8	
-SelfhostSemanticsT7Tests	sem	39	38	
+SelfhostSemanticsT7Tests	sem	39	38	1 not exported: EveryFormIsReached (meta-assert on the C# oracle; the frozen expected.sections of the 38 cases reach every code)
 SelfhostSemanticsT8Tests	sem	6	10	
 SelfhostSemanticsT9Tests	sem	8	6	2 not exported: AliasesBindAsTheCSharp (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19)); FunctionsMatchTheCSharpBuiltins (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
 SelfhostSemanticsTests	sem	36	61	2 not exported: UnobservableMarksMatchCompilation (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19)); UnobservableMarksMatchCompilation-2 (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
+SelfhostSnapshotTests	emit-c	10	0	10 not exported: AFailedRecordingFailsTheRecordHelper (tests the C# harness's BAYAN_SNAPSHOT recording, no compiler output); ASecondRecordingReplacesTheFirst (tests the C# harness's BAYAN_SNAPSHOT recording, no compiler output); DifferingRecordRunsFailTheRecording (tests the C# harness's BAYAN_SNAPSHOT recording, no compiler output); OwnBuildCallerRecordsAgainstASchemataBuild (tests the C# harness's BAYAN_SNAPSHOT recording, no compiler output); RelativeModulePathsResolveAgainstTheRoot (tests the C# harness's BAYAN_SNAPSHOT recording, no compiler output); ReplayMatchesMutantZeroAndFailsOnAKilledMutant (tests the C# harness's BAYAN_SNAPSHOT recording, no compiler output); ReplayRunsOnlyTheNamedBuild (tests the C# harness's BAYAN_SNAPSHOT recording, no compiler output); RunsAloneAfterTheParallelClasses (tests the C# harness's BAYAN_SNAPSHOT recording, no compiler output); SnapshotFilesAreTrimmedAndMustMatchACompiledSource (tests the C# harness's BAYAN_SNAPSHOT recording, no compiler output); SnapshotFilesOnDiskButNotCompiledAreIgnored (tests the C# harness's BAYAN_SNAPSHOT recording, no compiler output)
 SelfhostStdImportTests	sem	17	16	
 StdEnvTests	shell	6	2	T24b route (Decision 2026-11-19): runtime/tests/run.sh replays runtime/tests/cases/<os>/std-env-*.{in,expected} through std-env-cases.c; macOS from export 3e54b7e91 (get-matches-dotnet, invalid-utf8-value-matches-dotnet), Windows from export 08b3f29b0 on wp1 (get-matches-dotnet; invalid-utf8-value is POSIX only); no Linux export
 StdFsTests	shell	17	7	T24b route (Decision 2026-11-19): runtime/tests/run.sh replays runtime/tests/cases/<os>/std-fs-*.{in,expected} through std-fs-cases.c; macOS from export 3e54b7e91 (file-exists, io-remove, io-create-directory, io-remove-directory, rename, copy), Windows from export 08b3f29b0 on wp1 (the same and io-create-directory-extended-path, Windows only); no Linux export
