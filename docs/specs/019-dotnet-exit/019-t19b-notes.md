@@ -1,6 +1,8 @@
 # 019 T19, share 019-t19b: notes
 
 Status: draft; working notes, 2026-11-19.
+Release: unscheduled
+Sources: docs/specs/019-dotnet-exit/019-tasks.md (T19); tests/cases/DIVERGENCES.tsv
 
 The 99 pending rows of tests/cases/DIVERGENCES.tsv whose case does not start with `cli/SelfhostDefault`. Each ends as one of: deleted (it
 passes), a question number and side, `new` (question below), `remove` (cannot be reproduced, below) or `waits on t19a staging:`.
