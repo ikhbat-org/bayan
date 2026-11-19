@@ -378,7 +378,7 @@ string l018Assemble(ref L018Rng rng) uses alloc {
 }
 
 /// `bytes[from..until]` appended to `to`.
-void l018Append(in List<u8> bytes, from i64 start, until i64 end, to ref List<u8> buf) uses alloc {
+void l018Append(List<u8> bytes, from i64 start, until i64 end, to ref List<u8> buf) uses alloc {
     for i in start..end {
         buf.append(bytes[i])
     }
@@ -397,7 +397,7 @@ List<u8> l018Corrupt(string source, by ref L018Rng rng) uses alloc {
     var bytes = List<u8>()
     l018AppendText(source, to: ref bytes)
     var copy = List<u8>()
-    l018Append(in bytes, from: 0, until: bytes.length, to: ref copy)
+    l018Append(bytes, from: 0, until: bytes.length, to: ref copy)
     let lexed = lexer.lex(lexer.SourceText.create("corrupt.byn", from: move copy), by: lexer.Keywords.build())
     var starts = List<i64>()
     var ends = List<i64>()
@@ -413,38 +413,32 @@ List<u8> l018Corrupt(string source, by ref L018Rng rng) uses alloc {
     let second = op == 2 ? rng.next(n) : first
     var buf = List<u8>()
     if op == 0 {
-        l018Append(in bytes, from: 0, until: starts[first], to: ref buf)
-        l018Append(in bytes, from: ends[first], until: bytes.length, to: ref buf)
+        l018Append(bytes, from: 0, until: starts[first], to: ref buf)
+        l018Append(bytes, from: ends[first], until: bytes.length, to: ref buf)
     } else if first == second {
-        l018Append(in bytes, from: 0, until: ends[first], to: ref buf)
-        l018Append(in bytes, from: starts[first], until: ends[first], to: ref buf)
-        l018Append(in bytes, from: ends[first], until: bytes.length, to: ref buf)
+        l018Append(bytes, from: 0, until: ends[first], to: ref buf)
+        l018Append(bytes, from: starts[first], until: ends[first], to: ref buf)
+        l018Append(bytes, from: ends[first], until: bytes.length, to: ref buf)
     } else {
         let a = starts[first] > starts[second] ? second : first
         let b = starts[first] > starts[second] ? first : second
-        l018Append(in bytes, from: 0, until: starts[a], to: ref buf)
-        l018Append(in bytes, from: starts[b], until: ends[b], to: ref buf)
-        l018Append(in bytes, from: ends[a], until: starts[b], to: ref buf)
-        l018Append(in bytes, from: starts[a], until: ends[a], to: ref buf)
-        l018Append(in bytes, from: ends[b], until: bytes.length, to: ref buf)
+        l018Append(bytes, from: 0, until: starts[a], to: ref buf)
+        l018Append(bytes, from: starts[b], until: ends[b], to: ref buf)
+        l018Append(bytes, from: ends[a], until: starts[b], to: ref buf)
+        l018Append(bytes, from: starts[a], until: ends[a], to: ref buf)
+        l018Append(bytes, from: ends[b], until: bytes.length, to: ref buf)
     }
     return buf
 }
 
 /// The corpus written as `names[i]` with the bytes `pool[starts[i]..ends[i]]` under a fresh `dir`.
-void l018Write(
-    string dir,
-    by in List<string> names,
-    from in List<u8> pool,
-    at in List<i64> starts,
-    until in List<i64> ends
-)
+void l018Write(string dir, by List<string> names, from List<u8> pool, at List<i64> starts, until List<i64> ends)
         uses alloc, fs {
     deleteWorkDir(dir)
     Io.createDirectory(dir) catch {}
     for i in 0..names.length {
         var bytes = List<u8>()
-        l018Append(in pool, from: starts[i], until: ends[i], to: ref bytes)
+        l018Append(pool, from: starts[i], until: ends[i], to: ref bytes)
         let path = Path.combine(dir, names[i])
         Io.writeFile(path, bytes.span) catch {
             assert(path == "")
@@ -534,7 +528,7 @@ void l018Random(i64 size, to ref List<u8> pool, at ref List<i64> starts, until r
         continue unless name.endsWith(".byn")
         let bytes = Io.readFile(Path.combine(dir, name)) catch List<u8>()
         let at = cases.length
-        l018Append(in bytes, from: 0, until: bytes.length, to: ref cases)
+        l018Append(bytes, from: 0, until: bytes.length, to: ref cases)
         caseStarts.append(at)
         caseEnds.append(cases.length)
         var start = at
@@ -563,17 +557,17 @@ void l018Random(i64 size, to ref List<u8> pool, at ref List<i64> starts, until r
             let kind = rng.next(16)
             if kind < 7 {
                 let k = rng.next(lineStarts.length)
-                l018Append(in cases, from: lineStarts[k], until: lineEnds[k], to: ref bytes)
+                l018Append(cases, from: lineStarts[k], until: lineEnds[k], to: ref bytes)
             } else if kind < 9 {
                 let k = rng.next(caseStarts.length)
                 let length = caseEnds[k] - caseStarts[k]
                 let start = rng.next(length)
                 let take = 1 + rng.next(64)
                 let count = length - start < take ? length - start : take
-                l018Append(in cases, from: caseStarts[k] + start, until: caseStarts[k] + start + count, to: ref bytes)
+                l018Append(cases, from: caseStarts[k] + start, until: caseStarts[k] + start + count, to: ref bytes)
             } else if kind < 11 {
                 let invalid = l018Invalid(rng.next(9))
-                l018Append(in invalid, from: 0, until: invalid.length, to: ref bytes)
+                l018Append(invalid, from: 0, until: invalid.length, to: ref bytes)
             } else if kind < 15 {
                 l018AppendText(specials[rng.next(specials.length)], to: ref bytes)
             } else {
@@ -599,20 +593,20 @@ void l018Random(i64 size, to ref List<u8> pool, at ref List<i64> starts, until r
             let at = rng.next(bytes.length)
             let op = rng.next(3)
             var next = List<u8>()
-            l018Append(in bytes, from: 0, until: at, to: ref next)
+            l018Append(bytes, from: 0, until: at, to: ref next)
             if op == 0 {
                 next.append(u8(rng.step() & 0xff))
-                l018Append(in bytes, from: at, until: bytes.length, to: ref next)
+                l018Append(bytes, from: at, until: bytes.length, to: ref next)
             } else if op == 1 {
-                l018Append(in bytes, from: at + 1, until: bytes.length, to: ref next)
+                l018Append(bytes, from: at + 1, until: bytes.length, to: ref next)
             } else {
                 next.append(u8(rng.step() & 0xff))
-                l018Append(in bytes, from: at + 1, until: bytes.length, to: ref next)
+                l018Append(bytes, from: at + 1, until: bytes.length, to: ref next)
             }
             bytes = move next
             mutations -= 1
         }
-        l018Append(in bytes, from: 0, until: bytes.length, to: ref pool)
+        l018Append(bytes, from: 0, until: bytes.length, to: ref pool)
         ends.append(pool.length)
     }
 }
@@ -620,7 +614,7 @@ void l018Random(i64 size, to ref List<u8> pool, at ref List<i64> starts, until r
 /// SelfhostParserNoPanicLawTests.cs:39 `CheckCorpus` without the C# tree: `bayan-parse --many` over `dir` exits 0 or 1, prints no
 /// `panic:`, prints every `== <name>` header of `names` (sorted) in order, and no `span out of range:` line without ` outside `. Empty when
 /// it holds, else why; `outside` is the number of inputs with a ` outside ` (child outside its parent) line.
-string l018Check(string kind, by string prog, at string dir, for in List<string> names, to ref i64 outside)
+string l018Check(string kind, by string prog, at string dir, for List<string> names, to ref i64 outside)
         uses alloc, clock, fs, process {
     var failure = ""
     var args = List<string>()
@@ -690,7 +684,7 @@ test "L018: bayan-parse --many never panics and keeps every node span inside the
         corruptNames.append($"corrupt-{validNames[i]}")
         corruptStarts.append(corrupt.length)
         let bytes = l018Corrupt(valid[i], by: ref rng)
-        l018Append(in bytes, from: 0, until: bytes.length, to: ref corrupt)
+        l018Append(bytes, from: 0, until: bytes.length, to: ref corrupt)
         corruptEnds.append(corrupt.length)
     }
     assert(corruptNames.length == 128)
@@ -709,13 +703,13 @@ test "L018: bayan-parse --many never panics and keeps every node span inside the
 
     let corruptDir = Path.combine(root, "corrupt")
     let randomDir = Path.combine(root, "random")
-    l018Write(corruptDir, by: in corruptNames, from: in corrupt, at: in corruptStarts, until: in corruptEnds)
-    l018Write(randomDir, by: in randomNames, from: in random, at: in randomStarts, until: in randomEnds)
+    l018Write(corruptDir, by: corruptNames, from: corrupt, at: corruptStarts, until: corruptEnds)
+    l018Write(randomDir, by: randomNames, from: random, at: randomStarts, until: randomEnds)
     corruptNames.sort()
     var corruptOutside: i64 = 0
     var randomOutside: i64 = 0
-    let corruptFailure = l018Check("corrupt", by: prog, at: corruptDir, for: in corruptNames, to: ref corruptOutside)
-    let randomFailure = l018Check("random", by: prog, at: randomDir, for: in randomNames, to: ref randomOutside)
+    let corruptFailure = l018Check("corrupt", by: prog, at: corruptDir, for: corruptNames, to: ref corruptOutside)
+    let randomFailure = l018Check("random", by: prog, at: randomDir, for: randomNames, to: ref randomOutside)
     print($"L018 corrupt: {corruptNames.length} inputs, {corruptOutside} with a child outside its parent")
     print($"L018 random: {size} inputs, {randomOutside} with a child outside its parent")
     if corruptFailure != "" || randomFailure != "" {
