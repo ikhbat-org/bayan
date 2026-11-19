@@ -3126,7 +3126,10 @@ uint32_t byn_io_list_dir(byn_str path, byn_str** ptr, int64_t* len, byn_alloc* a
 uint32_t byn_io_remove(byn_str path) {
     if (byn_path_effectively_empty(path) || memchr(path.ptr, 0, (size_t)path.len)) return BYN_IO_NOT_FOUND;
 #ifdef _WIN32
-    wchar_t* wpath = byn_wide(path.ptr, path.len);
+    /* As .NET `File.Delete`: `Path.GetFullPath`, then DeleteFileW; a missing file is not an error, a missing directory is. */
+    byn_path_buf f = byn_path_full(path, "Io.remove", NULL, 0);
+    wchar_t* wpath = byn_wide(f.p, f.n);
+    free(f.p);
     BOOL ok = DeleteFileW(wpath);
     DWORD e = ok ? 0 : GetLastError();
     free(wpath);
