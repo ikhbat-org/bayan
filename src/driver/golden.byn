@@ -2412,6 +2412,9 @@ test "--jobs 8 fails the changed case naming its path and the expected and actua
 }
 
 test "a worker that panics fails the case it was on with its stderr, and its later cases naming that case" {
+    if Target.os == "windows" {
+        todo("the panicking worker is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-jobs-panic")
     deleteWorkDir(root)
     let exe = goldenCliFake(root, for: "bayan", as: "echo 'panic: slice 3..5 of a 4-byte string' >&2\nexit 101")
@@ -2428,6 +2431,9 @@ test "a worker that panics fails the case it was on with its stderr, and its lat
 }
 
 test "one worker runs with no `sh` and is started again while it exits goldenWorkerMore, resuming where it stopped (T17e)" {
+    if Target.os == "windows" {
+        todo("the restarted worker is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
     let root = Path.combine(Path.fullPath("tmp"), "golden-jobs-one")
     deleteWorkDir(root)
     // the fake worker writes the result of the case in next-0 (0 when there is none); it exits 75 after case 0, as after a batch

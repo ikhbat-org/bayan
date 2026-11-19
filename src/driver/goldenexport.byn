@@ -2397,7 +2397,10 @@ test "the T5 cases pass in their C# directories: emit in tmp/t5/emit, run in tmp
         "LeavesNoLinkByProductAsCliApp",
         "RejectedCAsCliApp",
     ] {
-        assert(goldenCli(Path.combine(Path.combine(root, name), "args"), by: exe) is null)
+        let args = Path.combine(Path.combine(root, name), "args")
+        // as the runner does: OutputNamesAsCliApp-2's stdout names the export's host, its `os` file `macos`
+        continue if goldenCliSkip("cli", at: args) is not null
+        assert(goldenCli(args, by: exe) is null)
         deleteWorkDir(Path.combine(Path.fullPath("tmp/cli"), $"SelfhostDriverT5Tests_{name}"))
     }
 }
