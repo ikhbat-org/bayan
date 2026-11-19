@@ -13,6 +13,8 @@
 //   `quality`: one case, `mutation-report.json`. QualityReportTests.cs:58.
 //   For `new`, `out`, `emit` and `quality` the xUnit classes name each file; here every regular file directly in the kind directory is a case, named
 //   for the file without its last extension.
+//   `typed-dump` (L009, spec 019 T30f): no directory of its own; one case per `run` and `typed` case, named `run-<case>` and `typed-<case>`,
+//     when the cases directory has a `typed/` (a fixture without one lists only its own kinds). TypedDumpTests.cs:43 `L009Cases`.
 //
 // The walk is `bynFiles` of walk.byn: bounded to the kind directory's real path, so a link that leads out is not entered (docs/memory-leaks.md
 // rule 1; walk.byn has no file budget of its own, T9a bounds the whole run).
@@ -220,18 +222,33 @@ void goldenFileCases(
     }
 }
 
+/// The `typed-dump` cases of `root` (L009): `run-<case>` for each `run` case, then `typed-<case>` for each `typed` one, their input the
+/// case's; none when `root` has no `typed/`.
+void goldenDumpCases(string root, to ref List<GoldenCase> cases, through ref i32 exit) uses alloc, console, fs {
+    return unless t6DirectoryExists(Path.combine(root, "typed"))
+    for kind in ["run", "typed"] {
+        var found = List<GoldenCase>()
+        goldenBynCases(root, for: kind, to: ref found, through: ref exit)
+        for c in found {
+            cases.append(GoldenCase { kind: "typed-dump", name: $"{kind}-{c.name}", input: c.input })
+        }
+    }
+}
+
 /// Every case under `root` (a cases directory), kind by kind in name order. A listing error is reported and sets `exit` to 1.
 List<GoldenCase> goldenDiscover(string root, through ref i32 exit) uses alloc, console, fs {
     var cases = List<GoldenCase>()
     // Alphabetical, so the listing is in `<kind>/<case>` order.
     let kinds = [
         "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem",
-        "style", "typed",
+        "style", "typed", "typed-dump",
     ]
     for kind in kinds {
         // the exported kinds (T17b, goldenexport.byn): `cli` cases, and a `<Class>/<case>` directory each of the others
         if kind == "cli" {
             goldenCliCases(root, to: ref cases)
+        } else if kind == "typed-dump" {
+            goldenDumpCases(root, to: ref cases, through: ref exit)
         } else if kind is "emit-c" or "sem" {
             goldenExportClasses(root, for: kind, to: ref cases)
         } else if kind == "style" {
@@ -388,6 +405,92 @@ string goldenTyped(string input) uses alloc, clock, fs {
         return semantics.renderAll(in c, from: in c.diagnostics, by: true, until: 2147483647, to: ref omitted)
     }
     return semantics.typedDump(ref c)
+}
+
+/// TypedDumpTests.cs:67 `Dump`: `TypedDump.ToJson(Compilation.FromPath(file, wholeDirectory: module))`, a fresh compilation of `file` by its
+/// absolute path, as `bayan types file.byn` makes it; dumped whether or not it has errors, as the C# does.
+string goldenDumpOf(string file, bool module = false) uses alloc, clock, fs {
+    let options = GoldenOptions {}
+    var c = semantics.fromPath(Path.fullPath(file), by: in options, wholeDirectory: module)
+    return semantics.typedDump(ref c)
+}
+
+/// Copies directory `from` into `dest`, its subdirectories too, at most 8 levels down (a link that loops stops there); false when an
+/// entry cannot be read or written.
+bool goldenCopyTree(string from, to string dest, at i64 depth = 0) uses alloc, fs {
+    return false if depth > 8
+    Io.createDirectory(dest) catch return false
+    let names = Io.listDir(from) catch return false
+    for name in names {
+        let f = Path.combine(from, name)
+        if t6DirectoryExists(f) {
+            return false unless goldenCopyTree(f, to: Path.combine(dest, name), at: depth + 1)
+        } else {
+            let bytes = Io.readFile(f) catch return false
+            Io.writeFile(Path.combine(dest, name), bytes.span) catch return false
+        }
+    }
+    return true
+}
+
+/// L009, TypedDumpTests.cs:63 `DumpIsDeterministic`: the `typed-dump` case `c` dumped twice from its input in place and once from a copy
+/// at tmp/l009/<case>/<the input's path below the working directory> (the case's directory with every file below it for a multi-module
+/// case, the file alone otherwise), the scratch directory removed after. Null when the three dumps are equal, else the input and each pair
+/// that differs with its first differing line.
+string? goldenDeterministic(in GoldenCase c) uses alloc, clock, fs {
+    let full = Path.fullPath(c.input)
+    // TypedDumpTests.cs:66: a `main.byn` below the kind directory is a whole-directory module
+    let module = Path.fileName(full) == "main.byn" && !(c.name == "run-main" || c.name == "typed-main")
+    let root = Path.combine(Path.combine(Path.fullPath("tmp"), "l009"), c.name.replaced("/", by: "_"))
+    return $"{c.input}\ncannot create {root}" unless goldenFresh(root)
+    var rel = goldenSlashed(Path.relative(Path.fullPath("."), to: full))
+    if rel.startsWith("../") {
+        rel = module ? $"{Path.fileName(Path.directoryName(full) ?? "")}/main.byn" : Path.fileName(full)
+    }
+    let copy = Path.combine(root, rel)
+    var copied = true
+    Io.createDirectory(Path.directoryName(copy) ?? root) catch {
+        copied = false
+    }
+    if module {
+        copied = copied && goldenCopyTree(Path.directoryName(full) ?? "", to: Path.directoryName(copy) ?? root)
+    } else if copied {
+        let bytes = Io.readFile(full) catch List<u8>()
+        Io.writeFile(copy, bytes.span) catch {
+            copied = false
+        }
+    }
+    unless copied {
+        deleteWorkDir(root)
+        return $"{c.input}\ncannot copy it to {copy}"
+    }
+    let dumps = [
+        goldenDumpOf(full, module: module),
+        goldenDumpOf(full, module: module),
+        goldenDumpOf(copy, module: module),
+    ]
+    deleteWorkDir(root)
+    let names = ["dump 1 (in place)", "dump 2 (in place)", $"dump 3 (copy at {copy})"]
+    var failure = ""
+    let firsts = [0, 0, 1]
+    let seconds = [1, 2, 2]
+    for k in 0..3 {
+        let a = dumps[firsts[k]]
+        let b = dumps[seconds[k]]
+        continue if a == b
+        let x = goldenLines(a)
+        let y = goldenLines(b)
+        var line = 0
+        while line < x.length && line < y.length && x[line] == y[line] {
+            line += 1
+        }
+        let xLine = line < x.length ? x[line] : "<end of dump>"
+        let yLine = line < y.length ? y[line] : "<end of dump>"
+        let first = names[firsts[k]]
+        let second = names[seconds[k]]
+        failure = $"{failure}\n{first} and {second} differ at line {line + 1}\n{first}: {xLine}\n{second}: {yLine}"
+    }
+    return failure == "" ? null : $"{c.input}{failure}"
 }
 
 /// A copy of `d`, which a list of diagnostics of two sources needs.
@@ -588,6 +691,7 @@ string? goldenRun(in GoldenCase c, i64 deadline = 0) uses alloc, clock, console,
         return goldenCompare(goldenEmit(root), for: c.input, at: c.input)
     }
     return goldenCompare(goldenQuality(), for: c.input, at: c.input) if c.kind == "quality"
+    return goldenDeterministic(in c) if c.kind == "typed-dump"
     let ending = goldenEnding(c.kind)
     return $"{c.input}\nkind `{c.kind}` is not compared yet" if ending == ""
     return goldenCompare(goldenProduce(in c), for: c.input, at: goldenExpected(c.input, for: ending))
@@ -671,7 +775,7 @@ i32 goldenCaseChild(string kind, for string name, at string input) uses alloc, c
     return exitOk
 }
 
-/// An in-process case (`lex`, `parse`, `typed`, `diag`, `manifest`, `diag-json`, `emit`, `quality`) or an exported one (`emit-c`, `sem`,
+/// An in-process case (`lex`, `parse`, `typed`, `typed-dump`, `diag`, `manifest`, `diag-json`, `emit`, `quality`) or an exported one (`emit-c`, `sem`,
 /// `parse`, `lex`; its program's output kept whole, T17b2c) in a child `exe test --golden-case <kind>
 /// <name> <input>`, killed at `deadline`, as CliApp.cs:1077 `RunTest` runs each test block as `executable --test <index>` so a hang is stopped:
 /// null when it exits 0, else its failure text, or what says it was killed, did not exit or could not start.
@@ -734,7 +838,8 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
         }
     }
     let pending = goldenExpected(c.input, for: ".pending")
-    if Fs.fileExists(pending) {
+    // a `typed-dump` case's input is a `run` or `typed` case's: that case's `.pending` is not its own
+    if c.kind != "typed-dump" && Fs.fileExists(pending) {
         if (failure is { } f) {
             if goldenOnlyDiffers(f) {
                 return GoldenResult { name: name, status: "skipped", detail: $"pending: {pending}" }
@@ -1977,7 +2082,7 @@ test "discovery finds each kind and ignores what is not a case" {
     goldenFixture(root, for: "README.md")
     goldenFixture(root, for: "lex/.hidden/h.byn")
     let first = "diag/a\ndiag/b.test\ndiag/deep/one\ndiag/pkg\ndiag-json/j\nemit/run-c\nlex/l\nmanifest/m\nnew/app\nout/out\nout/results-fail\n"
-    let second = "parse/p\nquality/report\nrun/r\nstyle/s1\nstyle/s2\ntyped/t\n"
+    let second = "parse/p\nquality/report\nrun/r\nstyle/s1\nstyle/s2\ntyped/t\ntyped-dump/run-r\ntyped-dump/typed-t\n"
     let actual = goldenListing(root)
     deleteWorkDir(root)
     assert(actual == $"{first}{second}")

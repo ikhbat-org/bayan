@@ -113,3 +113,4 @@ StdFsTests	shell	17	7	T24b route (Decision 2026-11-19): runtime/tests/run.sh rep
 StdPathTests	shell	5	4	T24b route (Decision 2026-11-19): runtime/tests/run.sh replays runtime/tests/cases/<os>/std-path-*.{in,expected} through std-path-cases.c, std-path-case-tables-cases.c and path-relative-cases.c; macOS from export 3e54b7e91 (each-function, case-tables, full-path-panics-where-dotnet-throws-space), Windows from export 08b3f29b0 on wp1 (the same and short-names-expand-as-dotnet, Windows only); no Linux export
 SymbolEmitTests	emit-c	3	3	
 SymbolLawTests	cli	2	64	
+TypedDumpTests	cli	401	1	
