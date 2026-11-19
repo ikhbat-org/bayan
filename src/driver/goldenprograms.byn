@@ -3,8 +3,9 @@
 // each class and test, and `goldenProgramsCase` follows that table row by row, naming the C# call site on each branch.
 //
 // Programs. Each is built from this checkout's src/ with `$BAYAN_EXE build --mode fast --package <src>` (`BAYAN_CACHE` tmp/cache) once and
-// kept in tmp/golden-programs/<key>, `key` the SHA-256 of the driver path, the package sources it reads and the program's own changes, so
-// every case of a run (and the next run, until a source changes) reuses it. A build that fails is kept as a `failed` file and reported by
+// kept in tmp/golden-programs/<key>, `key` the SHA-256 of the driver's bytes, the package sources it reads and the program's own changes, so
+// every case of a run (and the next run, until the driver or a source changes) reuses it; a build first removes the staging directories
+// older than a day (`goldenProgramsSweep`). A build that fails is kept as a `failed` file and reported by
 // each case that needs it. The generated `main` sources the C# held as string constants are in tests/cases/programs (the cases directory's
 // `programs/` first); a row whose program file is missing fails naming it.
 //
@@ -139,9 +140,11 @@ string goldenProgram(
     let mainText = main == "-" ? "" : goldenProgramText(main, through: ref failure)
     let addText = goldenProgramText(add, through: ref failure)
     return "" if failure != ""
+    // the driver's bytes, not its path: scripts/test.sh copies it to a fresh directory each run
+    let driver = t9HashFile(exe) catch exe
     var key = StrBuf()
     key.append(
-        $"{exe}\0{pkg}\0{main == "-" ? "drop" : main == "" ? "keep" : "replace"}\0{mainText}\0{addAs}\0{addText}\0{file ? "file" : "dir"}\0",
+        $"{driver}\0{pkg}\0{main == "-" ? "drop" : main == "" ? "keep" : "replace"}\0{mainText}\0{addAs}\0{addText}\0{file ? "file" : "dir"}\0",
     )
     for f in files {
         key.append($"{f}\0")
@@ -153,6 +156,7 @@ string goldenProgram(
     let prog = Path.combine(final, "prog")
     let failed = Path.combine(final, "failed")
     if !Fs.fileExists(prog) && !Fs.fileExists(failed) {
+        goldenProgramsSweep(root)
         let stage = $"{final}.{Io.monotonicNanos()}"
         let staged = Path.combine(stage, "src")
         for f in files {
@@ -215,6 +219,20 @@ string goldenProgram(
     return prog if Fs.fileExists(prog)
     failure = Io.readText(failed) catch $"the {pkg} program did not build"
     return ""
+}
+
+/// The staging directories `<key>.<n>` of `root` (tmp/golden-programs) written more than a day ago, left by a build killed before its
+/// rename, removed before a build; the `<key>` entries stay. Errors are ignored.
+void goldenProgramsSweep(string root) uses alloc, clock, fs {
+    let cutoff = Time.now().nanos - 24 * 60 * 60 * 1000000000
+    let listed = Io.listDir(root) catch return
+    for name in listed {
+        continue if goldenOffset(name, for: ".") < 0
+        let path = Path.combine(root, name)
+        let written = Fs.modified(path) catch continue
+        continue if written.nanos >= cutoff
+        deleteWorkDir(path)
+    }
 }
 
 /// The name of the plain input file of case `dir` (`input.byn`, `input.test.byn`; `input.byn` for its T17a2 pointer `input.byn.ref`); empty
@@ -2286,4 +2304,42 @@ test "a section line or a program file expecting `import one of <std modules>` m
     goldenProgramCheck(root, for: "expected.stdout", as: "help: import two of `std.fs`\n", by: "trim", to: ref failures)
     assert(failures.length == 3)
     deleteWorkDir(root)
+}
+
+test "one driver copied to two paths builds a program once, and a build removes the staging directories older than a day" {
+    if Target.os == "windows" {
+        todo("the fake driver is a `sh` script")
+    }
+    let root = goldenPrebuildRoot("copy")
+    let tokens = "1:1 Identifier `a`\n"
+    goldenWrite(root, for: "tokens", as: tokens)
+    let exe = goldenPrebuildFake(root, as: $"cat '{Path.combine(root, "tokens")}'", for: "0")
+    let copy = Path.combine(Path.combine(root, "copy"), "bayan")
+    let bytes = Io.readFile(exe) catch { panic($"cannot read {exe}") }
+    Io.createDirectory(Path.directoryName(copy) ?? root) catch { panic($"cannot create the directory of {copy}") }
+    Io.writeFile(copy, bytes.span) catch { panic($"cannot write {copy}") }
+    var mode = List<string>()
+    mode.append("a+x")
+    mode.append(copy)
+    let _ = Io.run("chmod", mode.span) catch { panic($"cannot make {copy} executable") }
+    goldenPrebuildCase(root, for: "LexGolden-1", as: tokens)
+    let dir = Path.combine(root, "cases/lex/SelfhostLexerTests/LexGolden-1")
+    let programs = Path.combine(Path.fullPath("tmp"), "golden-programs")
+    let old = Path.combine(programs, $"{Path.fileName(root)}.1")
+    let young = Path.combine(programs, $"{Path.fileName(root)}.2")
+    for stage in [old, young] {
+        Io.createDirectory(stage) catch { panic($"cannot create {stage}") }
+    }
+    Fs.setModified(old, to: Time.fromNanos(Time.now().nanos - 25 * 60 * 60 * 1000000000)) catch { panic($"cannot stamp {old}") }
+    let first = goldenProgramsCase("lex", at: dir, by: exe, prebuild: true) ?? ""
+    let second = goldenProgramsCase("lex", at: dir, by: copy, prebuild: true) ?? ""
+    let builds = goldenPrebuildBuilds(root).length
+    let swept = !t6DirectoryExists(old)
+    let kept = t6DirectoryExists(young)
+    deleteWorkDir(old)
+    deleteWorkDir(young)
+    goldenPrebuildClean(root)
+    assert(first == "" && second == "")
+    assert(builds == 1)
+    assert(swept && kept)
 }
