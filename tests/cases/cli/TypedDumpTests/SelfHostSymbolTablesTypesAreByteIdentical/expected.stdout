@@ -1,0 +1,269 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "selfhost-symbol-tables.byn",
+      "name": "readName",
+      "span": {
+        "start": 266,
+        "end": 274
+      },
+      "bindings": [
+        {
+          "name": "src",
+          "kind": "param",
+          "span": {
+            "start": 282,
+            "end": 285
+          },
+          "type": "string"
+        },
+        {
+          "name": "start",
+          "kind": "param",
+          "span": {
+            "start": 296,
+            "end": 301
+          },
+          "type": "i64"
+        },
+        {
+          "name": "end",
+          "kind": "param",
+          "span": {
+            "start": 313,
+            "end": 316
+          },
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "path": "selfhost-symbol-tables.byn",
+      "name": "resolve",
+      "span": {
+        "start": 380,
+        "end": 387
+      },
+      "bindings": [
+        {
+          "name": "name",
+          "kind": "param",
+          "span": {
+            "start": 395,
+            "end": 399
+          },
+          "type": "Symbol"
+        },
+        {
+          "name": "scopes",
+          "kind": "param",
+          "span": {
+            "start": 432,
+            "end": 438
+          },
+          "type": "List<Map<Symbol, i32>>"
+        },
+        {
+          "name": "i",
+          "kind": "var",
+          "span": {
+            "start": 450,
+            "end": 451
+          },
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "path": "selfhost-symbol-tables.byn",
+      "name": "main",
+      "span": {
+        "start": 597,
+        "end": 601
+      },
+      "bindings": [
+        {
+          "name": "keywords",
+          "kind": "let",
+          "span": {
+            "start": 614,
+            "end": 622
+          },
+          "type": "Map<Symbol, TokenKind>"
+        },
+        {
+          "name": "src",
+          "kind": "let",
+          "span": {
+            "start": 720,
+            "end": 723
+          },
+          "type": "string"
+        },
+        {
+          "name": "words",
+          "kind": "var",
+          "span": {
+            "start": 872,
+            "end": 877
+          },
+          "type": "List<Symbol>"
+        },
+        {
+          "name": "start",
+          "kind": "var",
+          "span": {
+            "start": 903,
+            "end": 908
+          },
+          "type": "i64"
+        },
+        {
+          "name": "i",
+          "kind": "for",
+          "span": {
+            "start": 926,
+            "end": 927
+          },
+          "type": "i64"
+        },
+        {
+          "name": "scopes",
+          "kind": "var",
+          "span": {
+            "start": 1241,
+            "end": 1247
+          },
+          "type": "List<Map<Symbol, i32>>"
+        },
+        {
+          "name": "declared",
+          "kind": "var",
+          "span": {
+            "start": 1321,
+            "end": 1329
+          },
+          "type": "Map<(i32 scope, Symbol name), i32>"
+        },
+        {
+          "name": "members",
+          "kind": "var",
+          "span": {
+            "start": 1379,
+            "end": 1386
+          },
+          "type": "Map<MemberKey, TokenKind>"
+        },
+        {
+          "name": "order",
+          "kind": "var",
+          "span": {
+            "start": 1427,
+            "end": 1432
+          },
+          "type": "List<Symbol>"
+        },
+        {
+          "name": "next",
+          "kind": "var",
+          "span": {
+            "start": 1458,
+            "end": 1462
+          },
+          "type": "i32"
+        },
+        {
+          "name": "w",
+          "kind": "for",
+          "span": {
+            "start": 1480,
+            "end": 1481
+          },
+          "type": "i64"
+        },
+        {
+          "name": "kind",
+          "kind": "let",
+          "span": {
+            "start": 1519,
+            "end": 1523
+          },
+          "type": "TokenKind"
+        },
+        {
+          "name": "name",
+          "kind": "let",
+          "span": {
+            "start": 1654,
+            "end": 1658
+          },
+          "type": "Symbol"
+        },
+        {
+          "name": "scope",
+          "kind": "let",
+          "span": {
+            "start": 1686,
+            "end": 1691
+          },
+          "type": "i32"
+        },
+        {
+          "name": "text",
+          "kind": "for",
+          "span": {
+            "start": 2316,
+            "end": 2320
+          },
+          "type": "string"
+        },
+        {
+          "name": "_",
+          "kind": "for",
+          "span": {
+            "start": 2710,
+            "end": 2722
+          },
+          "type": "((i32 scope, Symbol name) key, i32 value)"
+        },
+        {
+          "name": "key",
+          "kind": "for",
+          "span": {
+            "start": 2711,
+            "end": 2714
+          },
+          "type": "(i32 scope, Symbol name)"
+        },
+        {
+          "name": "value",
+          "kind": "for",
+          "span": {
+            "start": 2716,
+            "end": 2721
+          },
+          "type": "i32"
+        },
+        {
+          "name": "line",
+          "kind": "var",
+          "span": {
+            "start": 2865,
+            "end": 2869
+          },
+          "type": "StrBuf"
+        },
+        {
+          "name": "name",
+          "kind": "for",
+          "span": {
+            "start": 2889,
+            "end": 2893
+          },
+          "type": "Symbol"
+        }
+      ]
+    }
+  ]
+}
