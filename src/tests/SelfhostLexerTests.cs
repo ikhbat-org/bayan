@@ -430,6 +430,57 @@ public sealed class SelfhostLexerTests(ITestOutputHelper output)
         }
     }
 
+    /// <summary>Spec 019 T30f: each text a <see cref="LexerTests"/> fact hands the C# lexer, as <c>&lt;method&gt;[-&lt;k&gt;]</c> (k: the k-th
+    /// distinct text, from 2). Taken by running each fact with <see cref="LexerTests.Lexed"/> set; a failing assertion is left to
+    /// <see cref="LexerTests"/> itself. Not run, no source text: GoldenCase (MemberData, the <c>lex/</c> cases), EveryKeywordLexesToItsKind,
+    /// SyntaxTakesUnicodeDataOnlyFromGeneratedTables, OneMegabyteAllocatesOnlyTheTokenArray.</summary>
+    public static TheoryData<string, string> LexerTestsInputs
+    {
+        get
+        {
+            string[] skip = [nameof(LexerTests.EveryKeywordLexesToItsKind), nameof(LexerTests.SyntaxTakesUnicodeDataOnlyFromGeneratedTables), nameof(LexerTests.OneMegabyteAllocatesOnlyTheTokenArray)];
+            var data = new TheoryData<string, string>();
+            var methods = typeof(LexerTests).GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly)
+                .Where(m => m.IsDefined(typeof(FactAttribute), true) && !m.IsDefined(typeof(MemberDataAttribute), true) && !skip.Contains(m.Name))
+                .OrderBy(m => m.MetadataToken);
+            foreach (var m in methods)
+            {
+                var texts = new List<string>();
+                var old = LexerTests.Lexed.Value;
+                try
+                {
+                    LexerTests.Lexed.Value = t => { if (!texts.Contains(t)) texts.Add(t); };
+                    m.Invoke(new LexerTests(), []);
+                }
+                catch (System.Reflection.TargetInvocationException)
+                {
+                }
+                finally
+                {
+                    LexerTests.Lexed.Value = old;
+                }
+                for (var k = 0; k < texts.Count; k++) data.Add(m.Name + (k > 0 ? $"-{k + 1}" : ""), texts[k]);
+            }
+            return data;
+        }
+    }
+
+    /// <summary>Spec 002 R7, R8 on <see cref="LexerTestsInputs"/>: <c>bayan-lex --json</c> fed the text on stdin prints exactly
+    /// <see cref="TokenDump.ToJson"/> and exits 1 on an error diagnostic, else 0.</summary>
+    [Theory]
+    [MemberData(nameof(LexerTestsInputs))]
+    public void LexerTestsInputsLexAsTheReferenceLexer(string name, string source)
+    {
+        var bytes = Encoding.UTF8.GetBytes(source);
+        var result = Lexer.Lex(new SourceText("<stdin>", bytes));
+        if (Export(null, bytes, "json", TokenDump.ToJson(result), result.Diagnostics.Any(d => d.IsError) ? 1 : 0)) return;
+        var (exit, stdout, stderr) = RunBytes(Built, bytes, "--json");
+        var expected = Encoding.UTF8.GetBytes(TokenDump.ToJson(result));
+        Assert.True(expected.AsSpan().SequenceEqual(stdout),
+            $"{name}: --json differs\nexpected: {Encoding.UTF8.GetString(expected)}\nactual:   {Encoding.UTF8.GetString(stdout)}\n{stderr}");
+        Assert.Equal(result.Diagnostics.Any(d => d.IsError) ? 1 : 0, exit);
+    }
+
     /// <summary>Law L002: on every input <c>bayan-lex</c> exits 0 or 1 in time and every span in its output lies in <c>[0, length]</c>.</summary>
     [Fact]
     [Trait("Law", "L002")]

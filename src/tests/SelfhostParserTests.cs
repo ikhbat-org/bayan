@@ -584,6 +584,51 @@ public sealed class SelfhostParserTests(ITestOutputHelper output)
     [InlineData("braceless-empty-body-unless", "void main() {\n    unless (!x) }\n")]
     public void BodyAndNameEdgesDumpAsTheCSharpParser(string name, string source) => DumpsAsTheCSharpParser("body-name", name, source, nameof(BodyAndNameEdgesDumpAsTheCSharpParser));
 
+    /// <summary>Spec 019 T30f: each text a <see cref="ParserTests"/> test hands the C# parser, as <c>&lt;method&gt;[-&lt;row&gt;][-&lt;k&gt;]</c>
+    /// (row: its <c>InlineData</c>, 1-based; k: the k-th distinct text of that call, from 2). Taken by running each test with
+    /// <see cref="ParserTests.Parsed"/> set; a failing assertion is left to <see cref="ParserTests"/> itself. Not run: ParseGolden
+    /// (MemberData, the <c>parse/</c> cases) and EveryTokenSequenceTerminates (2000 random joins, no source text).</summary>
+    public static TheoryData<string, string> ParserTestsInputs
+    {
+        get
+        {
+            var data = new TheoryData<string, string>();
+            var methods = typeof(ParserTests).GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly)
+                .Where(m => m.IsDefined(typeof(FactAttribute), true) && !m.IsDefined(typeof(MemberDataAttribute), true)
+                    && m.Name != nameof(ParserTests.EveryTokenSequenceTerminates))
+                .OrderBy(m => m.MetadataToken);
+            foreach (var m in methods)
+            {
+                var rows = m.GetCustomAttributes(typeof(InlineDataAttribute), true).Cast<InlineDataAttribute>().Select(a => a.GetData(m).Single()).ToList();
+                if (rows.Count == 0) rows.Add([]);
+                for (var row = 0; row < rows.Count; row++)
+                {
+                    var texts = new List<string>();
+                    var old = ParserTests.Parsed.Value;
+                    try
+                    {
+                        ParserTests.Parsed.Value = t => { if (!texts.Contains(t)) texts.Add(t); };
+                        m.Invoke(new ParserTests(), rows[row]);
+                    }
+                    catch (System.Reflection.TargetInvocationException)
+                    {
+                    }
+                    finally
+                    {
+                        ParserTests.Parsed.Value = old;
+                    }
+                    for (var k = 0; k < texts.Count; k++)
+                        data.Add(m.Name + (rows.Count > 1 ? $"-{row + 1}" : "") + (k > 0 ? $"-{k + 1}" : ""), texts[k]);
+                }
+            }
+            return data;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(ParserTestsInputs))]
+    public void ParserTestsInputsDumpAsTheCSharpParser(string name, string source) => DumpsAsTheCSharpParser("parsertests", name, source, nameof(ParserTestsInputsDumpAsTheCSharpParser));
+
     /// <summary><paramref name="source"/>, written under <c>tmp/parser-&lt;kind&gt;/</c>, dumps as the C# parser dumps it (written under
     /// <c>tmp/parser-ref/</c>), and the exit codes agree.</summary>
     private void DumpsAsTheCSharpParser(string kind, string name, string source, string test)
