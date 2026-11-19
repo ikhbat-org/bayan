@@ -1,0 +1,12 @@
+== 1 exit 3
+running 1 test in 1 module
+
+  x cli-test-values: leftover cents
+      assert(cents(2) == 201)
+             |        |
+             |        false
+             200
+      main.test.byn:6
+
+* 0 passed - x 1 failed - 0 pending - #s
+  rerun the failure: bayan test --only "leftover cents"

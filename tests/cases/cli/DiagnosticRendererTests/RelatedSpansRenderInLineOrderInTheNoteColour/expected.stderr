@@ -1,0 +1,12 @@
+[1m[38;2;255;138;128merror BYN2104[0m: `total` is immutable
+[38;2;180;178;169m  -->[0m <repo>/tmp/t27-diag/RelatedSpansRenderInLineOrderInTheNoteColour/input.byn:8:9
+
+  [38;2;180;178;169m8[0m [38;2;180;178;169m│[0m         total += l.amount
+    [38;2;180;178;169m│[0m         [1m[38;2;255;138;128m^^^^^ declared with `let` on line 6[0m
+    [38;2;180;178;169m│[0m
+  [1m[38;2;141;184;242mhelp:[0m declare it with `var` if it should change
+    [38;2;180;178;169m│[0m [38;2;180;178;169m6[0m [38;2;180;178;169m│[0m     var total: i64 = 0
+    [38;2;180;178;169m│[0m   [38;2;180;178;169m│[0m     [38;2;141;184;242m+++[0m
+
+[38;2;255;138;128m✗ build failed: 1 error, 0 warnings[0m
+  explain: bayan explain BYN2104

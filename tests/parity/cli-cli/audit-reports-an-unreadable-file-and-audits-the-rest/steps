@@ -1,0 +1,2 @@
+$ $BAYAN audit "$PWD/d" 2> e.txt; echo "audit $?"; sed -E "s/^(bayan: [^:]+): .*/\\1: <error>/" e.txt >&2; rm e.txt
+$ chmod 600 d/a.byn

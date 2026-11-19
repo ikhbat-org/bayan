@@ -1,0 +1,15 @@
+interface IShape {
+    i64 area()
+    string describe() => "shape"
+}
+
+struct Tokens : IShape {
+    i64 n
+
+    i64 area() => n
+}
+
+void show<T>(ref T shape) where T : IShape, IEnumerator { }
+
+void main() {
+}

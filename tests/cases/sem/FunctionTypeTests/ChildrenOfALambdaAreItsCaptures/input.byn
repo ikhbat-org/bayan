@@ -1,0 +1,7 @@
+bool keep(i32 x, by (i32 -> bool) p) => p(x)
+
+void main() {
+    let limit: i32
+    let name: string
+    let k = keep(3, by: x => x > limit && name.length > 0)
+}

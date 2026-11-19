@@ -1,0 +1,46 @@
+error BYN2801: `Wrong` does not provide `moveNext` required by `IEnumerator`
+  --> input.byn:21:16
+
+  21 │ struct Wrong : IEnumerator, IIndexable {
+     │                ^^^^^^^^^^^ needs `moveNext`
+     │
+  help: add `bool moveNext(ref this)` to `Wrong`
+     │ 23 │     bool moveNext(ref this) => todo("moveNext")
+     │    │ +++++++++++++++++++++++++++++++++++++++++++++++
+     │ 24 │ }
+
+error BYN2801: `Wrong` does not provide `current` required by `IEnumerator`
+  --> input.byn:21:16
+
+  21 │ struct Wrong : IEnumerator, IIndexable {
+     │                ^^^^^^^^^^^ needs `current`
+     │
+  help: add `i64 current { get }` to `Wrong`
+     │ 23 │     i64 current => todo("current")
+     │    │ ++++++++++++++++++++++++++++++++++
+     │ 24 │ }
+
+error BYN2801: `Wrong` does not provide `count` required by `IIndexable`
+  --> input.byn:21:29
+
+  21 │ struct Wrong : IEnumerator, IIndexable {
+     │                             ^^^^^^^^^^ needs `count`
+     │
+  help: add `i64 count { get }` to `Wrong`
+     │ 23 │     i64 count => todo("count")
+     │    │ ++++++++++++++++++++++++++++++
+     │ 24 │ }
+
+error BYN2801: `Wrong` does not provide `get` required by `IIndexable`
+  --> input.byn:21:29
+
+  21 │ struct Wrong : IEnumerator, IIndexable {
+     │                             ^^^^^^^^^^ needs `get`
+     │
+  help: add `i64 get(i64 index)` to `Wrong`
+     │ 23 │     i64 get(i64 index) => todo("get")
+     │    │ +++++++++++++++++++++++++++++++++++++
+     │ 24 │ }
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2801

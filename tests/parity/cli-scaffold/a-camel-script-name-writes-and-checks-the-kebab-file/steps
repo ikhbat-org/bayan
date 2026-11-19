@@ -1,0 +1,5 @@
+new	$WORK/myTool	--script
+$ test -f my-tool.byn && echo "my-tool.byn exists"
+new	$WORK/myTool	--script
+$ mkdir dot
+new	$WORK/dot/myTool/.	--script

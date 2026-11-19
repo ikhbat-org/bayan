@@ -1,0 +1,14 @@
+== 1 exit 3
+running 2 tests in 1 module
+
+  x cli-test-bidi: a\u{202e}b
+      x\u{2067}y
+      main.test.byn:2
+
+  x cli-test-bidi: plain
+      assert(false)
+      main.test.byn:6
+
+* 0 passed - x 2 failed - 0 pending - #s
+  rerun the failure: bayan test --only "plain"
+  a failing test's name contains control characters and cannot be selected from a shell

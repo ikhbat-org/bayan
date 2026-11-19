@@ -1,0 +1,12 @@
+bool isBig(i64 x) => x > 2
+
+List<i64> many(i32 n) => List<i64>()
+
+bool holds<T>((T -> bool) p) => true
+
+i64 makes<T>((i32 -> List<T>) p) => 1
+
+void main() {
+    let a = holds(isBig)
+    let b = makes(many)
+}

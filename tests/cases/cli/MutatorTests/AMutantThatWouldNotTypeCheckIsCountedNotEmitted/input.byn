@@ -1,0 +1,13 @@
+i32 big() {
+    return 2147483647 - 1
+}
+
+u8 top() {
+    return 255
+}
+
+i32 spin(i32 n) {
+    while true {
+        return n
+    }
+}

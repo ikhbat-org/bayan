@@ -1,0 +1,2 @@
+test	--ascii	-v	$WORK/cli-test-verbose
+test	--ascii	--verbose	$WORK/cli-test-verbose

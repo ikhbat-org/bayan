@@ -1,0 +1,5 @@
+new	tally	--vcs	none
+$ rm tally/tests/app.test.byn; mv main.byn tally/src/app/main.byn
+test	--coverage	tally
+$ sed -E "s/\"(build|total)_s\": [0-9.eE+-]+/\"\\1_s\": 0/" tally/out/test/bayan-quality.json
+$ cat tally/out/test/src/app/main.byn.cov.txt

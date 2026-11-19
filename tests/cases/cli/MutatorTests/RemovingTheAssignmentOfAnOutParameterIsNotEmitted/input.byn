@@ -1,0 +1,3 @@
+void set(out i32 r) {
+    r = 1
+}

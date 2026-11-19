@@ -1,0 +1,12 @@
+error BYN2104: `total` is immutable
+  --> <repo>/tmp/t27-diag/RendersHandoffExample/input.byn:8:9
+
+  8 │         total += l.amount
+    │         ^^^^^ declared with `let` on line 6
+    │
+  help: declare it with `var` if it should change
+    │ 6 │     var total: i64 = 0
+    │   │     +++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2104

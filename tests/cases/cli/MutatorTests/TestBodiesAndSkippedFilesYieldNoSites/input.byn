@@ -1,0 +1,10 @@
+i32 twice(i32 x) {
+    return x * 2
+}
+
+test "twice" {
+    assert twice(2) == 4
+    let dbl: i32 -> i32 = x => x * 2
+    assert dbl(1 + 1) == 4
+    assert 1 < 2 && true
+}

@@ -1,0 +1,5 @@
+void main() {
+    var m = Map<string, i64>()
+    m["a"] = 1
+    print($"{m.length}")
+}

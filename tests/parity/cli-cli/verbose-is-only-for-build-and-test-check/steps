@@ -1,0 +1,3 @@
+check	$WORK/s/main.byn	-v
+check	$WORK/s/main.byn	--verbose
+check	$WORK/s/main.byn	--all

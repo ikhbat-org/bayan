@@ -1,16 +1,22 @@
 #!/bin/bash
-# pre-push-laws.sh — the full tier of every enacted law (docs/laws/*.md with `status: enacted`): BAYAN_LAW_TIER=full runs a proof's
-# whole corpus where the quick tier (unset, what `laws-check.js --run` and the merge gate run) runs a fixed seeded subset (spec 011 D11).
-# Run it from the repo root before pushing; the laws-nightly workflow runs it too. It never pushes.
-#   bash scripts/selfhost/pre-push-laws.sh
+# pre-push-laws.sh — the full tier of every enacted law (docs/laws/*.md with `status: enacted`): runs each law's own `check:` line
+# with BAYAN_LAW_TIER=full, where the quick tier (unset, what `laws-check.js --run` and the merge gate run) runs a fixed seeded subset (spec 011 D11).
+# An enacted law with no `check:` line fails the gate. Run it from the repo root before pushing; the laws-nightly workflow runs it too. It never pushes.
+#   bash scripts/selfhost/pre-push-laws.sh [laws-dir]     (default docs/laws; BAYAN_LAWS_DIR also sets it)
 set -u
 cd "$(dirname "$0")/../.."
+dir=${1:-${BAYAN_LAWS_DIR:-docs/laws}}
+export BAYAN_LAW_TIER=full
 failed=()
-for f in docs/laws/0*.md; do
-  [ "$(sed -n 's/^status: *//p' "$f" | head -1)" = enacted ] || continue
-  id=$(sed -n 's/^id: *//p' "$f" | head -1)
+for f in "$dir"/0*.md; do
+  [ -e "$f" ] || continue
+  front() { awk -v k="$1" '/^---[ \t]*$/ { if (++n == 2) exit; next } n == 1 && index($0, k ":") == 1 { sub(/^[^:]*: */, ""); print; exit }' "$f"; }
+  [ "$(front status)" = enacted ] || continue
+  id=$(front id)
   echo "== $id (full tier)"
-  BAYAN_LAW_TIER=full dotnet test -v q --filter "Law=$id" || failed+=("$id")
+  check=$(front check)
+  if [ -z "$check" ]; then echo "$id: no check: line in $f"; failed+=("$id"); continue; fi
+  bash -c "$check" || failed+=("$id")
 done
 if [ ${#failed[@]} = 0 ]; then echo "All enacted laws hold (full tier)."; exit 0; fi
 echo "LAWS FAILED (full tier): ${failed[*]}"; exit 1

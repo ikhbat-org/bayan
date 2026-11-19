@@ -1,0 +1,5 @@
+new	my-lib	--lib	--vcs	none
+$ test -f my-lib/src/myLib/myLib.byn && echo "my-lib/src/myLib/myLib.byn exists"
+test	my-lib
+$ $BAYAN check my-lib > /dev/null 2>&1; echo "check $?"
+run	my-lib

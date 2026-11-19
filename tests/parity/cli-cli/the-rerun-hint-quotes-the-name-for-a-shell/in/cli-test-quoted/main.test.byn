@@ -1,0 +1,3 @@
+test "x $(touch owned) `id` it's \"hi\" \\ bye" {
+    assert(false)
+}

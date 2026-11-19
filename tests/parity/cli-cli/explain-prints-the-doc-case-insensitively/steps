@@ -1,0 +1,1 @@
+$ $BAYAN explain byn0003 > o.txt; echo "explain $?"; head -1 o.txt; rm o.txt

@@ -1,0 +1,7 @@
+test "one" {
+    assert(true)
+}
+
+test "two" {
+    assert(true)
+}

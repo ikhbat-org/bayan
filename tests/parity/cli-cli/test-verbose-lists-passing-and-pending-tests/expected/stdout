@@ -1,0 +1,12 @@
+== 1 exit 0
+running 2 tests in 1 module
+  * cli-test-verbose: one
+  * cli-test-verbose: later (pending)
+
+* 1 passed - 1 pending - #s
+== 2 exit 0
+running 2 tests in 1 module
+  * cli-test-verbose: one
+  * cli-test-verbose: later (pending)
+
+* 1 passed - 1 pending - #s

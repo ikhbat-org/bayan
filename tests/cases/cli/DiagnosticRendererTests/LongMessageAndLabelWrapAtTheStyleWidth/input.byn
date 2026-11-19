@@ -1,0 +1,4 @@
+bool g(i32 x) fails IoError uses net => true
+
+void main() {
+}

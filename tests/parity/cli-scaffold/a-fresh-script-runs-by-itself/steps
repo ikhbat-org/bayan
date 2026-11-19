@@ -1,0 +1,3 @@
+new	$WORK/hi	--script
+$WORK/hi.byn
+$ test -x hi.byn && echo "hi.byn is executable"

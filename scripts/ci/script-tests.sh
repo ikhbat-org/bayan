@@ -11,7 +11,7 @@ unix=(scripts/ci/bash32-parse.test.sh scripts/ci/install-zig.test.sh scripts/ci/
   scripts/release/package.test.sh scripts/release/docs-pdf.test.sh scripts/release/memory-gate.test.sh scripts/release/editor-gate.test.sh
   scripts/release/refuse-draft.test.sh scripts/release/release-workflow.test.sh scripts/bayan-tool.test.sh
   scripts/parity/run.test.sh scripts/test.test.sh scripts/bootstrap-build.test.sh scripts/selfhost/gen-driver-files.test.sh
-  scripts/ci/std-test-files.test.sh scripts/ci/std-source.test.sh scripts/selfhost/land-export.test.sh
+  scripts/ci/std-test-files.test.sh scripts/ci/std-source.test.sh scripts/selfhost/land-export.test.sh scripts/selfhost/pre-push-laws.test.sh
   scripts/ci/diagnostic-codes.test.sh scripts/ci/std-naming-lints.test.sh scripts/quality/coverage.test.sh
   scripts/quality/converters.test.sh)
 docs=(scripts/release/set-version.test.sh scripts/release/cut.test.sh scripts/docs/*.test.sh scripts/docs/check.sh)

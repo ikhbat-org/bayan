@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "input.byn",
+      "name": "a",
+      "span": {
+        "start": 30,
+        "end": 31
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 37,
+            "end": 38
+          },
+          "type": "i32 -> bool"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "b",
+      "span": {
+        "start": 54,
+        "end": 55
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 61,
+            "end": 62
+          },
+          "type": "i32 -> bool"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "d",
+      "span": {
+        "start": 78,
+        "end": 79
+      },
+      "bindings": [
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 94,
+            "end": 95
+          },
+          "type": "i32 -> bool"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "main",
+      "span": {
+        "start": 111,
+        "end": 115
+      },
+      "bindings": []
+    }
+  ]
+}

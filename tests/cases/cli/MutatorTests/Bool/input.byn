@@ -1,0 +1,3 @@
+bool no(bool x) {
+    return x == false
+}
