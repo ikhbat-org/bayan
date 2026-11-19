@@ -50,7 +50,7 @@ remove_scratch() {
 # 2. repo and worktree tmp/ scratch (globs expand at run time)
 shopt -s nullglob
 remove_scratch "$repo"/tmp/rv-* "$repo"/tmp/rv3-* "$repo"/tmp/export-* "$repo"/tmp/*-build-out* "$repo"/tmp/t19d-feat \
-  "$repo"/tmp/bb "$repo"/tmp/gate-l025* "$repo"/tmp/gate-l023fix "$repo"/tmp/delx "$repo"/tmp/t31ba-ex1 \
+  "$repo"/tmp/bb "$repo"/tmp/gate-l025* "$repo"/tmp/gate-l023fix "$repo"/tmp/delx "$repo"/tmp/t31ba-ex1 "$repo"/tmp/t30ba-ex1 "$repo"/tmp/t30fa-ex1 \
   "$repo"/tmp/parity-csharp-bayan "$repo"/tmp/parity-csharp-bayan.log "$repo"/tmp/panic-probe \
   "$repo"/.worktrees/*/tmp/wp1 "$repo"/.worktrees/*/tmp/wlt1 "$repo"/.worktrees/*/tmp/bash32-parse-test \
   "$repo"/.worktrees/*/tmp/script-tests-test "$repo"/.worktrees/*/tmp/cache-moved-aside* \
