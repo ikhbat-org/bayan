@@ -51,6 +51,7 @@ WriteFile
 _create_locale
 _exit
 _fileno
+_read
 _setmode
 _strtod_l
 _strtof_l
