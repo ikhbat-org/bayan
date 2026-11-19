@@ -47,3 +47,10 @@ jobs:
         env:
           BAYAN_TEST_TIME_SCALE: 3
         run: bash scripts/selfhost/pre-push-laws.sh
+      # Spec 019 T30h item 2: the corpus-wide coverage, mutate and ownership theories over tests/cases/run, through the stage-1
+      # driver bootstrap-build.sh builds with no .NET (scripts/ci/nightly-modes.sh; scripts/test.sh does not run it).
+      - name: Run cases under coverage, mutate and ownership
+        shell: bash
+        run: |
+          bayan="$(bash scripts/bootstrap-build.sh)"
+          BAYAN_EXE="$bayan" bash scripts/ci/nightly-modes.sh --jobs 4
