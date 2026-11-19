@@ -87,6 +87,11 @@ public sealed class StdEnvTests
             source.Append($"print($\"[{{Env.get({Literal(name)}) ?? \"<null>\"}}]\")\n");
             expected.Add($"[{Dotnet(name) ?? "<null>"}]");
         }
+        // Spec 019 T26: the variables this test sets, then each `get` and .NET's value: hex when the test set it, `host` when the
+        // machine did (not exported), `null` when unset (format at StdPathTests.Export).
+        StdPathTests.Export("std-env-get-matches-dotnet",
+            Set.Select(s => $"set {StdPathTests.Hex(s.Name)} {StdPathTests.Hex(s.Value)}").Concat(Names.Select(n => $"get {StdPathTests.Hex(n)}")),
+            Names.Select(n => Dotnet(n) is not { } v ? "null" : Set.Any(s => s.Value == v) ? StdPathTests.Hex(v) : "host"));
         var (code, stdout, stderr) = await RunAsync(source.ToString(), Path.Combine(Golden.RepoRoot, "tmp", "std-env"));
         Assert.True(code == 0, stderr);
         var actual = stdout.Split('\n');
@@ -195,6 +200,12 @@ public sealed class StdEnvTests
         Sh("dotnet", "test", typeof(StdEnvTests).Assembly.Location, "--no-build", "--filter", "FullyQualifiedName~StdEnvTests.OracleChild");
         var expected = File.ReadAllLines(oracleFile);
         Assert.Equal(RawValues.Length, expected.Length);
+        // Spec 019 T26: each raw value as the bytes the shell sets, then each `get` and the hex of the UTF-8 .NET gives (format at StdPathTests.Export).
+        static string Bytes(string v) => Convert.ToHexStringLower(System.Text.RegularExpressions.Regex.Split(v, @"(\\[0-7]{3})")
+            .SelectMany(t => t.StartsWith('\\') ? new[] { Convert.ToByte(t[1..], 8) } : Encoding.UTF8.GetBytes(t)).ToArray());
+        StdPathTests.Export("std-env-invalid-utf8-value-matches-dotnet",
+            RawValues.Select((v, i) => $"set {StdPathTests.Hex($"BYN_ENV_T16_RAW{i}")} {Bytes(v)}").Concat(RawValues.Select((_, i) => $"get {StdPathTests.Hex($"BYN_ENV_T16_RAW{i}")}")),
+            expected.Select(e => e.ToLowerInvariant()));
 
         var source = string.Concat(RawValues.Select((_, i) => $"print(Env.get(\"BYN_ENV_T16_RAW{i}\") ?? \"<null>\")\n"));
         var actual = Sh(Build(source, Path.Combine(dir, "prog"))).Split('\n')[..RawValues.Length]

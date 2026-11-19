@@ -113,20 +113,32 @@ public sealed class StdPathTests
 
         var source = new StringBuilder();
         var expected = new List<string>();
+        // Spec 019 T26: per call, the operation and its arguments, and .NET's result (see Export).
+        var export = ExportDir is not null;
+        var ops = new List<string>();
+        var results = new List<string>();
         foreach (var p in Corpus(14, 300))
         {
             source.Append($"print(Path.isRooted({Literal(p)}) ? \"true\" : \"false\")\n");
             expected.Add(Path.IsPathRooted(p) ? "true" : "false");
+            ops.Add($"isRooted {Hex(p)}");
+            results.Add(expected[^1]);
             source.Append($"print(Path.fileName({Literal(p)}))\n");
             expected.Add(Path.GetFileName(p));
+            ops.Add($"fileName {Hex(p)}");
+            results.Add(Hex(expected[^1]));
             // .NET's null (a root, an empty path) prints as a marker no path in the corpus holds.
             source.Append($"print(Path.directoryName({Literal(p)}) ?? \"<null>\")\n");
             expected.Add(Path.GetDirectoryName(p) ?? "<null>");
+            ops.Add($"directoryName {Hex(p)}");
+            results.Add(Path.GetDirectoryName(p) is { } dn ? Hex(dn) : "null");
             // Relative inputs resolve against the working directory on both sides. .NET throws on an empty path (and on Windows a
             // blank one); that is FullPathPanicsWhereDotNetThrows.
             if (FullPath(p) is not { } full) continue;
             source.Append($"print(Path.fullPath({Literal(p)}))\n");
             expected.Add(full);
+            ops.Add($"fullPath {Hex(p)}");
+            results.Add(export ? CwdField(full, b => Path.GetFullPath(p, b)) : "");
         }
         foreach (var (from, to) in Pairs(1014, 400))
         {
@@ -134,12 +146,16 @@ public sealed class StdPathTests
             if (Relative(from, to) is not { } r) continue;
             source.Append($"print(Path.relative(from: {Literal(from)}, to: {Literal(to)}))\n");
             expected.Add(r);
+            ops.Add($"relative {Hex(from)} {Hex(to)}");
+            results.Add(export ? CwdField(r, b => Relative(Path.GetFullPath(from, b), Path.GetFullPath(to, b))) : "");
         }
         // `combine` brackets its result: an empty one is a line too.
         foreach (var (a, b) in Pairs(2014, 200))
         {
             source.Append($"print($\"[{{Path.combine({Literal(a)}, {Literal(b)})}}]\")\n");
             expected.Add($"[{Path.Combine(a, b)}]");
+            ops.Add($"combine {Hex(a)} {Hex(b)}");
+            results.Add(Hex(Path.Combine(a, b)));
         }
         // Spans of 0-4 parts from the atoms and the shapes, which hold rooted ones, so a later rooted part restarts the result.
         var spanRandom = new Random(3014);
@@ -149,8 +165,11 @@ public sealed class StdPathTests
             var parts = Enumerable.Range(0, i % 5).Select(_ => spanParts[spanRandom.Next(spanParts.Length)]).ToArray();
             source.Append($"print($\"[{{Path.combine([{string.Join(", ", parts.Select(Literal))}])}}]\")\n");
             expected.Add($"[{Path.Combine(parts)}]");
+            ops.Add(string.Join(' ', parts.Select(Hex).Prepend("combineAll")));
+            results.Add(Hex(Path.Combine(parts)));
         }
         Assert.True(expected.Count > 900, $"only {expected.Count} lines");
+        Export("std-path-each-function-matches-dotnet", ops, results);
         Assert.True(source.ToString().Split('\n').Count(l => l.StartsWith("print(Path.fullPath(\"") && !l.StartsWith("print(Path.fullPath(\"/")) > 100, "too few relative fullPath inputs");
 
         var c = Compilation.Create([new SourceText("paths.byn", Encoding.UTF8.GetBytes(source.ToString()))], dir);
@@ -196,6 +215,10 @@ public sealed class StdPathTests
             var full = FullPath(p);
             // Only a blank path differs by OS: .NET throws on it on Windows alone.
             Assert.True(full is null || p == " ", $"GetFullPath([{p}]) does not throw ArgumentException");
+            // Spec 019 T26: the blank row, `<cwd>/ ` with the working directory masked, or the panic where .NET throws.
+            if (p == " ")
+                Export("std-path-full-path-panics-where-dotnet-throws-space", [$"fullPath {Hex(p)}"],
+                    [full is null ? $"panic {Hex($"Path.fullPath: {panic}")}" : Field(full, ("@CWD@", Directory.GetCurrentDirectory()))]);
             var source = $"print(Path.fullPath({Literal(p).Replace("\0", "\\0")}))\n";
             var c = Compilation.Create([new SourceText("full.byn", Encoding.UTF8.GetBytes(source))], dir);
             Assert.False(c.Diagnostics.HasErrors);
@@ -316,7 +339,8 @@ public sealed class StdPathTests
             "C:\\PROGRA~1\\a", "C:\\PROGRA~1", "C:\\PROGRA~1\\NOPE~1\\x", "C:\\NOPE~1\\a", "\\\\.\\C:\\PROGRA~1\\a",
             "C:\\PROGRA~1\\" + string.Join("\\", Enumerable.Repeat("abcdefghij", 30)),
         ];
-        static string Hex(string s) => Convert.ToHexStringLower(Encoding.UTF8.GetBytes(s));
+        // Spec 019 T26: the driver's stdin and the hex of .NET's full path, which `relative` from another root gives (Windows only).
+        Export("std-path-short-names-expand-as-dotnet", paths.Select(p => Hex(elsewhere) + " " + Hex(p)), paths.Select(p => Hex(Path.GetFullPath(p))));
         var actual = await RunDriver(string.Concat(paths.Select(p => Hex(elsewhere) + " " + Hex(p) + "\n")));
         Assert.Equal(paths.Length + 1, actual.Length);
         var steps = paths.Select((p, i) => (Path: p, Full: Path.GetFullPath(p), Relative: Relative(elsewhere, p),
@@ -330,8 +354,110 @@ public sealed class StdPathTests
     private static readonly AsyncLocal<string?> ExportOverride = new();
 
     /// <summary>The directory <c>BAYAN_EXPORT_DIR</c> names (spec 019 T24b), or the override; null when unset.</summary>
-    private static string? ExportDir =>
+    internal static string? ExportDir =>
         ExportOverride.Value ?? (Environment.GetEnvironmentVariable("BAYAN_EXPORT_DIR") is { Length: > 0 } dir ? dir : null);
+
+    // Spec 019 T26 export format (StdEnvTests, StdFsTests, StdPathTests). Each row writes `runtime/<os>/<case>.in` and `<case>.expected`
+    // under BAYAN_EXPORT_DIR (UTF-8, LF), `<case>` the class and test in kebab case. A line is fields separated by one space, and a field
+    // may be empty: a word (an operation, `true`, `false`, `null`, `ok`, ...) or a string as the lowercase hex of its UTF-8. In a string
+    // field a marker stands for a machine-specific part, between hex runs: `@ROOT@` the scratch root of an Fs fixture, `@RELROOT@` that
+    // root relative to the working directory, `@TEMP@` Path.GetTempPath(), `@EXE@` the running executable, `@CWD@` the working directory
+    // and `@CWD-n@` it less its last n components, `@CWDREL@` / `@CWDREL-n@` the same without the root, `@CWDTAIL-a-b@` its components
+    // from the a-th last to before the b-th last, and `@UP@` / `@UP+k@` / `@UP-k@` `..` repeated (the working directory's component
+    // count + k) times, joined by the separator. Fs fixtures and trees are StdFsTests.Tree lines.
+
+    /// <summary>Spec 019 T26: writes <paramref name="input"/> and <paramref name="expected"/>, a line each, as <c>&lt;name&gt;.in</c> and <c>.expected</c> under <see cref="ExportDir"/>; nothing when it is unset.</summary>
+    internal static void Export(string name, IEnumerable<string> input, IEnumerable<string> expected)
+    {
+        if (ExportDir is not { } export) return;
+        var os = Path.Combine(export, "runtime", OperatingSystem.IsWindows() ? "windows" : OperatingSystem.IsMacOS() ? "macos" : "linux");
+        Directory.CreateDirectory(os);
+        var utf8 = new UTF8Encoding(false);
+        File.WriteAllText(Path.Combine(os, name + ".in"), string.Concat(input.Select(l => l + "\n")), utf8);
+        File.WriteAllText(Path.Combine(os, name + ".expected"), string.Concat(expected.Select(l => l + "\n")), utf8);
+    }
+
+    internal static string Hex(string s) => Convert.ToHexStringLower(Encoding.UTF8.GetBytes(s));
+
+    /// <summary>The string field of <paramref name="s"/>: hex, with each occurrence of a mask's value replaced by its marker (the first mask that matches wins).</summary>
+    internal static string Field(string s, params (string Marker, string Value)[] masks)
+    {
+        var sb = new StringBuilder();
+        var run = new StringBuilder();
+        for (var i = 0; i < s.Length;)
+        {
+            var m = masks.FirstOrDefault(m => m.Value.Length > 0 && string.CompareOrdinal(s, i, m.Value, 0, m.Value.Length) == 0);
+            if (m.Marker is null) { run.Append(s[i++]); continue; }
+            sb.Append(Hex(run.ToString())).Append(m.Marker);
+            run.Clear();
+            i += m.Value.Length;
+        }
+        return sb.Append(Hex(run.ToString())).ToString();
+    }
+
+    /// <summary>A working directory unlike the test's, deeper than any corpus input climbs, to find the results that depend on it.</summary>
+    private static readonly string OtherCwd = Path.Combine([Path.GetPathRoot(Directory.GetCurrentDirectory())!, "t26", .. Enumerable.Range(1, 15).Select(i => $"w{i}")]);
+
+    /// <summary>The value for <paramref name="cwd"/> of a working-directory marker (<c>CWD</c>, <c>CWDREL</c>, <c>CWDTAIL</c>, <c>UP</c>) with numbers <paramref name="a"/> and <paramref name="b"/>.</summary>
+    private static string CwdMarker(string name, int a, int b, string cwd)
+    {
+        var root = Path.GetPathRoot(cwd)!;
+        var parts = cwd[root.Length..].Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
+        var d = parts.Length;
+        var sep = Path.DirectorySeparatorChar.ToString();
+        return name switch
+        {
+            "CWD" => root + string.Join(sep, parts[..(d - a)]),
+            "CWDREL" => string.Join(sep, parts[..(d - a)]),
+            "CWDTAIL" => string.Join(sep, parts[(d - a)..(d - b)]),
+            _ => string.Join(sep, Enumerable.Repeat("..", d + a)),
+        };
+    }
+
+    private static string Unmask(string field, string cwd) =>
+        string.Concat(Regex.Split(field, "(@[A-Z]+(?:[-+][0-9]+)*@)").Select(t => Regex.Match(t, "^@([A-Z]+)([-+][0-9]+)?(?:-([0-9]+))?@$") is { Success: true } m
+            ? CwdMarker(m.Groups[1].Value, m.Groups[2].Success ? (m.Groups[1].Value == "UP" ? 1 : -1) * int.Parse(m.Groups[2].Value) : 0,
+                m.Groups[3].Success ? int.Parse(m.Groups[3].Value) : 0, cwd)
+            : Encoding.UTF8.GetString(Convert.FromHexString(t))));
+
+    /// <summary>
+    /// The field of <paramref name="result"/>, .NET's answer in the working directory, where <paramref name="at"/> gives the answer for a
+    /// given one: plain hex when another directory gives the same, else a <c>..</c> run (a marker when its length differs elsewhere), then
+    /// the working directory, its start or a run of its components as a marker, then hex; the first that gives back both answers.
+    /// </summary>
+    private static string CwdField(string result, Func<string, string?> at)
+    {
+        var cwd = Directory.GetCurrentDirectory();
+        Assert.True(at(cwd) == result, $"[{result}] is not what the export's model gives");
+        var other = at(OtherCwd);
+        if (other == result) return Hex(result);
+        var sep = Path.DirectorySeparatorChar;
+        var parts = cwd[Path.GetPathRoot(cwd)!.Length..].Split(sep, StringSplitOptions.RemoveEmptyEntries);
+        var d = parts.Length;
+        var up = result.Split(sep).TakeWhile(s => s == "..").Count();
+        var upText = up == 0 ? "" : result[..(3 * up - 1)];
+        var upField = up == 0 || other?.Split(sep).TakeWhile(s => s == "..").Count() == up ? Hex(upText) : up == d ? "@UP@" : $"@UP{up - d:+0;-0}@";
+        var rest = result[upText.Length..];
+        var lead = up > 0 ? sep.ToString() : "";
+        var candidates = new List<(string Marker, string Text)>();
+        for (var n = 0; n < d; n++)
+        {
+            candidates.Add((n == 0 ? "@CWD@" : $"@CWD-{n}@", CwdMarker("CWD", n, 0, cwd)));
+            candidates.Add((n == 0 ? "@CWDREL@" : $"@CWDREL-{n}@", CwdMarker("CWDREL", n, 0, cwd)));
+        }
+        for (var b = 0; b < d; b++)
+            for (var a = d; a > b; a--)
+                candidates.Add(($"@CWDTAIL-{a}-{b}@", CwdMarker("CWDTAIL", a, b, cwd)));
+        foreach (var (marker, text) in candidates)
+        {
+            if (!(rest == lead + text || rest.StartsWith(lead + text + sep, StringComparison.Ordinal))) continue;
+            var masked = upField + Hex(lead) + marker + Hex(rest[(lead.Length + text.Length)..]);
+            if (Unmask(masked, cwd) == result && Unmask(masked, OtherCwd) == other) return masked;
+        }
+        if (upField + Hex(rest) is var plain && Unmask(plain, cwd) == result && Unmask(plain, OtherCwd) == other) return plain;
+        Assert.Fail($"cannot mask the working directory in [{result}] ([{other}] elsewhere)");
+        return "";
+    }
 
     /// <summary>The export path: <see cref="InvalidUtf8MatchesDotNet"/> with an export directory writes the driver's fixtures.</summary>
     [Fact]
@@ -491,6 +617,12 @@ public sealed class StdPathTests
         Assert.True(begin >= 0 && end > begin, "no case tables in the runtime");
         var block = text[begin..(end + TablesEnd.Length)];
         var generated = GenerateTables();
+        // Spec 019 T26: per range, each code .NET's casing moves, as `<table> <code> <upper>` in hex; a code not listed maps to itself.
+        if (ExportDir is not null)
+            Export("std-path-case-tables-match-dotnet", ["invariant 0000 ffff", "ordinal 0000 ffff", "scalar 10000 10ffff"],
+                Enumerable.Range(0, 0x10000).Where(c => char.ToUpperInvariant((char)c) != c).Select(c => $"invariant {c:x4} {(int)char.ToUpperInvariant((char)c):x4}")
+                    .Concat(Enumerable.Range(0, 0x10000).Where(c => OrdinalUpper((char)c) != c).Select(c => $"ordinal {c:x4} {(int)OrdinalUpper((char)c):x4}"))
+                    .Concat(Enumerable.Range(0x10000, 0x100000).Where(c => ScalarUpper((uint)c) != c).Select(c => $"scalar {c:x} {ScalarUpper((uint)c):x}")));
         if (Golden.UpdateMode && block != generated)
         {
             File.WriteAllText(path, text[..begin] + generated + text[(end + TablesEnd.Length)..]);

@@ -45,6 +45,35 @@ public sealed class StdFsTests
         }
     }
 
+    /// <summary>
+    /// Spec 019 T26: the tree under <paramref name="root"/> as fixture lines (format at StdPathTests.Export), parents first and siblings in
+    /// ordinal order: <c>dir &lt;path&gt; &lt;mode&gt;</c>, <c>file &lt;path&gt; &lt;mode&gt; &lt;bytes&gt;</c> and <c>link &lt;path&gt; &lt;target&gt; file|dir</c>, the path
+    /// relative to the root with <c>/</c>, the mode octal (<c>-</c> on Windows) and applied once every entry exists.
+    /// </summary>
+    private static List<string> Tree(string root)
+    {
+        var lines = new List<string>();
+        void Walk(string dir)
+        {
+            foreach (var e in Directory.EnumerateFileSystemEntries(dir).Order(StringComparer.Ordinal))
+            {
+                lines.Add(Entry(Path.GetRelativePath(root, e).Replace('\\', '/'), e, root));
+                if (new FileInfo(e).LinkTarget is null && Directory.Exists(e)) Walk(e);
+            }
+        }
+        Walk(root);
+        return lines;
+    }
+
+    /// <summary>The <see cref="Tree"/> line of the entry at <paramref name="path"/>, named <paramref name="name"/>.</summary>
+    private static string Entry(string name, string path, string root)
+    {
+        if (new FileInfo(path).LinkTarget is { } target)
+            return $"link {StdPathTests.Hex(name)} {StdPathTests.Field(target, ("@ROOT@", root))} {(Directory.Exists(path) ? "dir" : "file")}";
+        var mode = OperatingSystem.IsWindows() ? "-" : Convert.ToString((int)File.GetUnixFileMode(path), 8);
+        return Directory.Exists(path) ? $"dir {StdPathTests.Hex(name)} {mode}" : $"file {StdPathTests.Hex(name)} {mode} {Convert.ToHexStringLower(File.ReadAllBytes(path))}";
+    }
+
     [Fact]
     public async Task FileExistsMatchesDotNet()
     {
@@ -102,6 +131,13 @@ public sealed class StdFsTests
             }
             Assert.Contains("true", actual);
             Assert.Contains("false", actual);
+            // Spec 019 T26: the fixture, then each `fileExists` and .NET's answer (format at StdPathTests.Export).
+            if (StdPathTests.ExportDir is not null)
+            {
+                (string, string)[] masks = [("@EXE@", Environment.ProcessPath!), ("@TEMP@", Path.GetTempPath()), ("@ROOT@", dir), ("@RELROOT@", Path.GetRelativePath(Directory.GetCurrentDirectory(), dir))];
+                StdPathTests.Export("std-fs-file-exists-matches-dotnet", Tree(dir).Concat(paths.Select(p => "fileExists " + StdPathTests.Field(p, masks))),
+                    paths.Select(p => File.Exists(p) ? "true" : "false"));
+            }
         }
         finally
         {
@@ -162,6 +198,7 @@ public sealed class StdFsTests
             }
 
             var bayan = Fixture("bayan");
+            var setup = StdPathTests.ExportDir is null ? [] : Tree(bayan);
             var source = string.Concat(rows.Select(r => $"print(removed({Literal(Full(bayan, r))}))\n"));
             var program = "string removed(string path) uses fs {\n    Io.remove(path) catch { return \"fail\" }\n    return \"ok\"\n}\n\n" + $"void main() uses console, fs {{\n{source}}}\n";
             var psi = new ProcessStartInfo(Build(program, Path.Combine(Golden.RepoRoot, "tmp", "std-io-remove-build"))) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
@@ -177,6 +214,9 @@ public sealed class StdFsTests
             Assert.Equal(Listing(net), Listing(bayan));
             Assert.Contains("ok", expected);
             Assert.Contains("fail", expected);
+            // Spec 019 T26: the fixture and each `remove`; .NET's outcomes and the tree it leaves (format at StdPathTests.Export).
+            if (StdPathTests.ExportDir is not null)
+                StdPathTests.Export("std-fs-io-remove-matches-dotnet", setup.Concat(rows.Select(r => "remove " + StdPathTests.Field(Full(bayan, r), ("@ROOT@", bayan)))), expected.Concat(Tree(net)));
         }
         finally
         {
@@ -227,6 +267,7 @@ public sealed class StdFsTests
             }
 
             var bayan = Fixture("bayan");
+            var setup = StdPathTests.ExportDir is null ? [] : Tree(bayan);
             var source = string.Concat(rows.Select(r => $"print(done({Literal(Full(bayan, r))}))\n"));
             var program = $"string done(string path) uses fs {{\n    Io.{builtin}(path) catch {{ return \"fail\" }}\n    return \"ok\"\n}}\n\nvoid main() uses console, fs {{\n{source}}}\n";
             var psi = new ProcessStartInfo(Build(program, Path.Combine(Golden.RepoRoot, "tmp", $"std-io-{builtin}-build"))) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
@@ -242,6 +283,10 @@ public sealed class StdFsTests
             Assert.Equal(Listing(netDir), Listing(bayan));
             Assert.True(expectOk == expected.Contains("ok"), string.Join(",", expected));
             Assert.Equal(expectFail, expected.Contains("fail"));
+            // Spec 019 T26: the fixture and each call; .NET's outcomes and the tree it leaves (format at StdPathTests.Export).
+            if (StdPathTests.ExportDir is not null)
+                StdPathTests.Export($"std-fs-io-{System.Text.RegularExpressions.Regex.Replace(builtin, "[A-Z]", m => "-" + m.Value.ToLowerInvariant())}{(prefix.Length > 0 ? "-extended-path" : "")}-matches-dotnet",
+                    setup.Concat(rows.Select(r => $"{builtin} {StdPathTests.Field(Full(bayan, r), ("@ROOT@", bayan))}")), expected.Concat(Tree(netDir)));
         }
         finally
         {
@@ -414,6 +459,7 @@ public sealed class StdFsTests
             })).ToList();
             expected.Add(File.ReadAllText(Path.Combine(net, "b.txt")));
             var bayan = Fixture("bayan");
+            var setup = StdPathTests.ExportDir is null ? [] : Tree(bayan);
             var calls = string.Concat(rows.Select(r => $"    print(renamed({Literal(Path.Combine(bayan, r.From))}, to: {Literal(Path.Combine(bayan, r.To))}))\n"));
             var program = $"string renamed(string path, to string dest) uses fs {{\n    Fs.rename(path, to: dest) catch switch {{\n{Arms}    return \"ok\"\n}}\n\n" +
                 $"void main() uses console, fs, alloc fails IoError {{\n{calls}    print(try Io.readText({Literal(Path.Combine(bayan, "b.txt"))}))\n}}\n";
@@ -421,6 +467,11 @@ public sealed class StdFsTests
             Assert.Equal(["ok", "fail", "notFound", "invalidInput", "invalidInput", "from a"], expected);
             Assert.Equal(expected, actual);
             Assert.False(File.Exists(Path.Combine(bayan, "a.txt")));
+            // Spec 019 T26: the fixture, each `rename` and a `readText` of b.txt; .NET's outcomes, the text and the tree it leaves (format at StdPathTests.Export).
+            string F(string rel) => StdPathTests.Field(Path.Combine(bayan, rel), ("@ROOT@", bayan));
+            if (StdPathTests.ExportDir is not null)
+                StdPathTests.Export("std-fs-rename-matches-dotnet", setup.Concat(rows.Select(r => $"rename {F(r.From)} {F(r.To)}")).Append($"readText {F("b.txt")}"),
+                    expected.Take(rows.Length).Append(StdPathTests.Hex(expected[^1])).Concat(Tree(net)));
         }
         finally
         {
@@ -447,6 +498,7 @@ public sealed class StdFsTests
             File.WriteAllText(Path.Combine(work, "existing.bin"), "old");
             var copiedScript = Path.Combine(work, "copy-" + Path.GetFileName(script));
             (string From, string To)[] rows = [(script, copiedScript), (data, Path.Combine(work, "existing.bin")), (Path.Combine(work, "dir"), Path.Combine(work, "dir-copy")), (Path.Combine(work, "missing"), Path.Combine(work, "missing-copy"))];
+            var setup = StdPathTests.ExportDir is null ? [] : Tree(work);
             var netDir = Path.Combine(work, "net");
             Directory.CreateDirectory(netDir);
             var expected = rows.Select(r => Net(() => File.Copy(r.From, Path.Combine(netDir, Path.GetFileName(r.To)), overwrite: true))).ToArray();
@@ -465,6 +517,13 @@ public sealed class StdFsTests
             Assert.True(proc.WaitForExit(60_000), "copied script timed out");
             Assert.Equal(0, proc.ExitCode);
             Assert.Equal("copied", output.TrimEnd());
+            // Spec 019 T26: the fixture and each `copy`; the outcomes (.NET's, with Q1131's `isDirectory` for the directory) and each
+            // destination as .NET's copy left it, or `absent <path>` (format at StdPathTests.Export).
+            if (StdPathTests.ExportDir is not null)
+                StdPathTests.Export("std-fs-copy-matches-dotnet",
+                    setup.Concat(rows.Select(r => $"copy {StdPathTests.Field(r.From, ("@ROOT@", work))} {StdPathTests.Field(r.To, ("@ROOT@", work))}")),
+                    expected.Concat(rows.Select(r => (Name: Path.GetRelativePath(work, r.To).Replace('\\', '/'), Net: Path.Combine(netDir, Path.GetFileName(r.To))))
+                        .Select(d => File.Exists(d.Net) ? Entry(d.Name, d.Net, work) : $"absent {StdPathTests.Hex(d.Name)}")));
         }
         finally
         {
