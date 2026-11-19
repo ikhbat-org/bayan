@@ -2,7 +2,7 @@
 # Tests scripts/ci/inventory-check.sh on fixture trees under tmp/: a clean pass, then each failure alone (class with no row,
 # dropped row with no reason, also with the 8th column memberdata set, case count below the test count, frozen row in
 # csharp-internals, a flat-case target naming a missing case or none, a golden folder's exported <Class>/ subfolder counted as
-# a case), and the skip without EXPORT.tsv.
+# a case, a nightly row whose script is missing or not in laws-nightly.yml), and the skip without EXPORT.tsv.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 fail() { echo "FAIL $1"; exit 1; }
@@ -97,6 +97,16 @@ for i in 1 2 3 4; do mkdir "$t/tests/cases/emit-c/KlassA/t$i"; done; for i in 1 
 expect "golden tests/cases per-test layout" 1 "row ZetaTests has 18 cases across"
 mkdir "$t/tests/cases/emit-c/KlassB/t6" "$t/tests/cases/emit-c/KlassB/t7"
 expect "golden tests/cases per-test layout met" 0 "inventory-check: ok"
+
+good
+rm -rf "$t/scripts" "$t/.github"
+sed -i.bak 's/^GammaTests.*/GammaTests\tg\tcli\t1\tnightly\tscripts\/ci\/n.sh --mode a\tr/' "$t/tests/inventory-019.tsv"; rm "$t/tests/inventory-019.tsv.bak"
+expect "nightly script missing" 1 "row GammaTests names nightly script 'scripts/ci/n.sh', not found"
+mkdir -p "$t/scripts/ci" "$t/.github/workflows"; touch "$t/scripts/ci/n.sh"
+expect "nightly script not in the workflow" 1 "row GammaTests names nightly script scripts/ci/n.sh, not run by .github/workflows/laws-nightly.yml"
+printf '      - run: bash scripts/ci/n.sh\n' > "$t/.github/workflows/laws-nightly.yml"
+expect "nightly script run by the workflow" 0 "inventory-check: ok"
+rm -rf "$t/scripts" "$t/.github"
 
 good
 printf 'class\tkind\ttests\tcases\treason\n' > "$t/tests/cases/EXPORT.tsv"

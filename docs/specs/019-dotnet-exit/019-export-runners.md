@@ -63,6 +63,8 @@ Default compare when the `compare` file is absent: exact, line by line (CRLF rea
 
 Class file is `SemanticsT<N>` = `SelfhostSemanticsT<N>Tests.cs`. "RS" is the `RunSections` call, "AS" is the assert line. Classes with an `args` file take argv from it (repo-relative paths staged under `input/`). Classes without `args` use the argv written in the cited RS call.
 
+The `range` case form (T3, T5; T30b): the case has `program` (one line, the main's file name under `tests/cases/programs/`), `section` (the C# failure label, not printed), `range` (two lines: zero-based start, then count), `total` and `expected.lines`, and no `input.byn` or `args`. The runner builds GenSem with that file as `main.byn` (one build per class, the program key covers its text), runs it with no argv and no stdin, and requires exit 0 and an empty stderr. Stdout is split on LF with the empty lines dropped and no CR removed (`Split('\n', RemoveEmptyEntries)`); the line count must equal `total`, then lines [start, start+count) must equal `expected.lines` line by line. A failure prints `<section>: printed N lines, expected <total>` or `<section>: case i (line start+i+1)` with the two lines. The runner checks for `range` before `section`.
+
 | class | test-name prefix | program | call (argv) | compared output | compare | C# file:line |
 |---|---|---|---|---|---|---|
 | DefaultP2 (1014) | * | GenSem(input.byn) | `args` | section vs `expected.sections` | default | DefaultP2:167 RS, :176 AS, :438, :487-493 |
@@ -108,6 +110,8 @@ Class file is `SemanticsT<N>` = `SelfhostSemanticsT<N>Tests.cs`. "RS" is the `Ru
 | T7 (38) | * | GenSem | no `args`; argv in RS | section | `sorted-end` (36 cases), else default | SemanticsT7:142, :176-189 |
 | T8 (10) | * | GenSem | no `args`; argv in RS | section | `sorted` (5 cases), else default | SemanticsT8:321, :359, :366 |
 | T9 (8) | * | GenSem | no `args`; argv in RS | section | default | SemanticsT9:175, :381-448 |
+| T3 (5) | * (`range` cases) | GenSem(programs/SelfhostSemanticsT3Tests.byn) | no argv | stdout lines [start, start+count) vs `expected.lines`, after the line count vs `total` | `range` | SemanticsT3:36-58 (build), :80-98 (`Compare`) |
+| T5 (3) | * (`range` cases) | GenSem(programs/SelfhostSemanticsT5Tests.byn) | no argv | as T3 | `range` | SemanticsT5:32-54 (build), :72-90 (`Compare`) |
 | StdImport (16) | * | GenSem | `args` | section | default | StdImport:130, :158 |
 | SemanticsTests (51) | SameAsCli cases | bayan-check (`Built`, :45) | `args` = C# CLI args; self argv = `SelfArgs(cli)`: drop the `check` word, `types` becomes `--types` (:226-240); one case passes an explicit self argv: `CheckCleanFile-2` (`SemanticsTests:299`) runs `bayan-check --spans <hello.byn>` while its `args` are `check <hello.byn>`, so `SelfArgs` would drop `--spans`; all other cases use `SelfArgs(args)` | stderr, stdout (both `Untimed`) via `AssertSameLines`, exit | `untimed` | SemanticsTests:200 (`Untimed`), :206 (`AssertSameLines`), :268-289, :274 (writes `compare`) |
 | SemanticsTests (7) | RunSections cases | GenSem | `args` | section | default | SemanticsTests:147-153 |

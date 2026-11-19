@@ -8,6 +8,8 @@
 #       disposition with a target <kind>/<stem>,<stem>... (flat cases) naming a stem with no tests/cases/<kind>/<stem>.* file
 #       and no tests/cases/<kind>/<stem>/ folder (an empty list names the empty stem and fails);
 #   (d) a row in family csharp-internals with disposition frozen* (proven only by the frozen compiler, not allowed there).
+#   (e) a row with disposition nightly (a nightly script runs its tests) whose target's first word is no file under root, or
+#       a file .github/workflows/laws-nightly.yml does not name.
 # (c) counts only when tests/cases/EXPORT.tsv (class, kind, tests, cases, reason) exists, else it prints
 # 'skip case counts: no tests/cases/EXPORT.tsv'. A class with a reason in EXPORT.tsv is not exported and is not counted.
 # A golden row (disposition golden, target tests/cases/<dir>) counts the cases in that flat folder, one per distinct file stem
@@ -45,6 +47,14 @@ while IFS="$(printf '\037')" read -r class file family tests disp target reason 
   [ "$class" = class ] && continue
   if [ "$disp" = dropped ] && [ -z "$reason" ]; then offend "row $class is dropped with no reason"; fi
   case "$disp" in (frozen*) [ "$family" = csharp-internals ] && offend "row $class is csharp-internals and proven only by the frozen compiler ($disp)" ;; esac
+  if [ "$disp" = nightly ]; then
+    s="${target%% *}"
+    if [ -z "$s" ] || [ ! -f "$root/$s" ]; then offend "row $class names nightly script '$s', not found"
+    elif ! grep -qF -- "$s" "$root/.github/workflows/laws-nightly.yml" 2>/dev/null; then
+      offend "row $class names nightly script $s, not run by .github/workflows/laws-nightly.yml"
+    fi
+    continue
+  fi
   [ "$counting" = 1 ] || continue
   # a class named in EXPORT.tsv with a reason is not exported
   if awk -F'\t' -v c="$class" '$1 == c && $5 != "" { f = 1 } END { exit !f }' "$export_tsv"; then continue; fi

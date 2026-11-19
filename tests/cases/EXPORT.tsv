@@ -102,11 +102,11 @@ SelfhostSemanticsT36Tests	sem	29	29
 SelfhostSemanticsT37Tests	sem	98	98	
 SelfhostSemanticsT38Tests	sem	4	4	
 SelfhostSemanticsT39Tests	sem	48	48	
-SelfhostSemanticsT3Tests	sem	5	0	5 not exported: DisplayNamesMatchCSharp (display output lines 1-374: the generated main prints no `== name` header and the sem runner has no line-range compare word); InterningIsCanonical (interning output lines 375-402: the generated main prints no `== name` header and the sem runner has no line-range compare word); KeysAndOccursMatchCSharp (keys output lines 477-666: the generated main prints no `== name` header and the sem runner has no line-range compare word); PrimitiveRangesMatchCSharp (ranges output lines 403-476: the generated main prints no `== name` header and the sem runner has no line-range compare word); SymbolLookupsMatchCSharp (lookups output lines 667-678: the generated main prints no `== name` header and the sem runner has no line-range compare word)
+SelfhostSemanticsT3Tests	sem	5	5	
 SelfhostSemanticsT40Tests	sem	5	5	
 SelfhostSemanticsT41Tests	sem	993	992	1 not exported: RunArgumentsStayUnderTheCommandLineLimit (checks the C# harness's argv chunking, no compiler output)
 SelfhostSemanticsT4Tests	sem	5	4	1 not exported: EveryRecordHasAStruct (records compares bound.byn's struct fields, not a program's output)
-SelfhostSemanticsT5Tests	sem	3	0	3 not exported: FloatConversionsMatchCSharp (float conversions output lines 3924-3953: the generated main prints no `== name` header and the sem runner has no line-range compare word); LiteralsMatchBigInteger (literals output lines 3903-3923: the generated main prints no `== name` header and the sem runner has no line-range compare word); OperationsMatchInt128 (operations output lines 1-3902: the generated main prints no `== name` header and the sem runner has no line-range compare word)
+SelfhostSemanticsT5Tests	sem	3	3	
 SelfhostSemanticsT6Tests	sem	8	8	
 SelfhostSemanticsT7Tests	sem	39	38	1 not exported: EveryFormIsReached (meta-assert on the C# oracle; the frozen expected.sections of the 38 cases reach every code)
 SelfhostSemanticsT8Tests	sem	6	10	
