@@ -1,0 +1,6 @@
+error BYN2003: `remov` is not a member of `Io`
+
+  3 │     let x = Io.remov("A")
+    │                ^^^^^
+    │
+  help: did you mean `remove`?

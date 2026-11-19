@@ -1,0 +1,4 @@
+void main() uses alloc {
+    let d: string? = Path.directoryName("/a/b")
+    print(d ?? "")
+}

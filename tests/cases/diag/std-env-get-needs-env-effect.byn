@@ -1,0 +1,4 @@
+// StdEnvTests.GetNeedsEnvEffect: `Env.get` needs `env` and `alloc` (BYN6002).
+void f() uses console {
+    print(Env.get("PATH") ?? "")
+}

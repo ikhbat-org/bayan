@@ -1,0 +1,8 @@
+error BYN6002: `f` uses `fs` but does not declare it
+
+  3 │     try Io.remove(p)
+    │         ^^^^^^^^^^^^ uses `fs`
+    │
+  help: add `fs` to the `uses` clause, or remove the call
+    │ 2 │ void f(string p) uses console, fs fails IoError {
+    │   │                              ++++

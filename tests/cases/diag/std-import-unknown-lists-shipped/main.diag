@@ -1,0 +1,15 @@
+error BYN2032: no std module `std.nope`
+  --> main.byn:1:8
+
+  1 │ import std.nope
+    │        ^^^^^^^^
+    │
+  help: import one of `std.a.b`, `std.probe`, `std.zeta`
+
+error BYN2032: no std module `std`
+  --> main.byn:2:8
+
+  2 │ import std
+    │        ^^^
+    │
+  help: import one of `std.a.b`, `std.probe`, `std.zeta`

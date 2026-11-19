@@ -1,0 +1,4 @@
+// StdFsTests.FileExistsNeedsFsEffect: with `fs` declared there is no BYN6002.
+void f() uses console, fs {
+    print($"{Fs.fileExists("a")}")
+}

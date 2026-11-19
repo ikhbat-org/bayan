@@ -1,0 +1,7 @@
+error BYN6004: `save` uses `fs`, which package `local/p` does not declare in `capabilities`
+  --> <std>/probe/probe.byn:9:31
+
+  9 │ public void save(string text) uses fs {
+    │                               ^^^^^^^ uses `fs`
+    │
+  help: add `.fs` to `capabilities`, or remove the use

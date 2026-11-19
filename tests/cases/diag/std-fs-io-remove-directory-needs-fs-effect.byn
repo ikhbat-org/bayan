@@ -1,0 +1,4 @@
+// StdFsTests.IoRemoveDirectoryNeedsFsEffect: `Io.removeDirectory` needs `fs` (BYN6002).
+void f(string p) uses console fails IoError {
+    try Io.removeDirectory(p)
+}

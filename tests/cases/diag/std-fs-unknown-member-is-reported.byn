@@ -1,0 +1,4 @@
+// StdFsTests.UnknownMemberIsReported: `Fs.exists` is not a member and gets no help (BYN2003).
+void f() uses fs {
+    let x = Fs.exists("A")
+}

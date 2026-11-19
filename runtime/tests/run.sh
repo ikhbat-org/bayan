@@ -20,7 +20,7 @@ esac
 
 mkdir -p "$root/tmp"
 work=$(mktemp -d "$root/tmp/rt-tests.XXXXXX") || exit 2
-trap 'rm -rf "$work"' EXIT
+trap 'chmod -R u+rwx "$work" 2>/dev/null; rm -rf "$work"' EXIT
 
 pass=0; fail=0; skipped=0
 
@@ -90,6 +90,44 @@ for name in batch-cmdline path-relative; do
         rc=${PIPESTATUS[1]}
         if [ $rc -eq 0 ] && cmp -s "$work/$name.out" "$fx.expected"; then ok "$name-cases.c"
         else bad "$name-cases.c" "exit $rc, output differs from $fx.expected"; fi
+    fi
+done
+
+# Spec 019 T26 fixtures (StdEnvTests, StdFsTests, StdPathTests rows exported at 3e54b7e91): tests/cases/<os>/<case>.in is replayed
+# through the runtime by the family's driver and its stdout must equal <case>.expected; the path drivers' `--unmask` first turns the
+# working-directory markers of the expected file into this directory's hex. std-fs-cases.c builds its tree under $work/<case>.root
+# with umask 022 and the fixture's modes, so the modes it prints are set, not the host's. Only macOS has an export yet (Linux and
+# Windows wait for theirs), so there a missing fixture is a skip; on macOS it is a failure.
+: >"$work/none.c"
+for name in std-env-get-matches-dotnet std-env-invalid-utf8-value-matches-dotnet std-fs-file-exists-matches-dotnet \
+    std-fs-io-remove-matches-dotnet std-fs-io-create-directory-matches-dotnet std-fs-io-remove-directory-matches-dotnet \
+    std-fs-rename-matches-dotnet std-fs-copy-matches-dotnet std-path-each-function-matches-dotnet \
+    std-path-case-tables-match-dotnet std-path-full-path-panics-where-dotnet-throws-space; do
+    fx="$cases/$os/$name"
+    case $name in
+        std-env-*) drv=std-env-cases ;;
+        std-fs-*) drv=std-fs-cases ;;
+        std-path-case-tables-*) drv=std-path-case-tables-cases ;;
+        *) drv=std-path-cases ;;
+    esac
+    if [ ! -f "$fx.in" ] || [ ! -f "$fx.expected" ]; then
+        if [ $os = macos ]; then bad "$drv.c $name" "no fixture $fx.{in,expected}"; else skip "$drv.c $name" "no $os export"; fi
+        continue
+    fi
+    if [ ! -f "$work/$drv.exe" ]; then
+        if [ $drv = std-path-case-tables-cases ]; then build $drv "$work/none.c"; else build $drv; fi ||
+            { bad "$drv.c $name" "build failed: $(cat "$work/$drv.build")"; continue; }
+    fi
+    if [ $drv = std-path-cases ]; then "$work/$drv.exe" --unmask <"$fx.expected" >"$work/$name.want"
+    else cp "$fx.expected" "$work/$name.want"; fi
+    "$work/$drv.exe" "$(pwd -P)/$name.root" <"$fx.in" 2>"$work/$name.err" | tr -d '\r' >"$work/$name.out"
+    rc=${PIPESTATUS[0]}
+    if [ $rc -eq 0 ] && cmp -s "$work/$name.out" "$work/$name.want"; then ok "$drv.c $name"
+    else
+        line=$(cmp "$work/$name.out" "$work/$name.want" 2>&1 | sed -n 's/.*line \([0-9]*\).*/\1/p')
+        if [ -n "$line" ]; then
+            bad "$drv.c $name" "exit $rc, $name.expected line $line: want $(sed -n "${line}p" "$work/$name.want" | cut -c1-80), got $(sed -n "${line}p" "$work/$name.out" | cut -c1-80)"
+        else bad "$drv.c $name" "exit $rc, output differs from $fx.expected in length: $(head -c 200 "$work/$name.err")"; fi
     fi
 done
 
