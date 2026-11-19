@@ -11,7 +11,8 @@
 #   (e) a row with disposition nightly (a nightly script runs its tests) whose target's first word is no file under root, or
 #       a file .github/workflows/laws-nightly.yml does not name.
 # (c) counts only when tests/cases/EXPORT.tsv (class, kind, tests, cases, reason) exists, else it prints
-# 'skip case counts: no tests/cases/EXPORT.tsv'. A class with a reason in EXPORT.tsv is not exported and is not counted.
+# 'skip case counts: no tests/cases/EXPORT.tsv'. The tests a class's EXPORT.tsv reasons name, the leading count of each reason
+# ('N not exported: Name (cover); ...'), are added to its cases: a row passes when cases plus named tests reach its test count.
 # A golden row (disposition golden, target tests/cases/<dir>) counts the cases in that flat folder, one per distinct file stem
 # or subdirectory (not a <Class>/ subdirectory of a class EXPORT.tsv names with kind <dir>, which holds that class's cases),
 # against the summed tests of all golden rows sharing the folder; with a tests/cases/<dir>/<Class>/ folder,
@@ -56,8 +57,8 @@ while IFS="$(printf '\037')" read -r class file family tests disp target reason 
     continue
   fi
   [ "$counting" = 1 ] || continue
-  # a class named in EXPORT.tsv with a reason is not exported
-  if awk -F'\t' -v c="$class" '$1 == c && $5 != "" { f = 1 } END { exit !f }' "$export_tsv"; then continue; fi
+  # tests named by the class's EXPORT.tsv reasons (the leading count of each reason) count as accounted for
+  named="$(awk -F'\t' -v c="$class" '$1 == c && match($5, /^[0-9]+ /) { s += substr($5, 1, RLENGTH - 1) } END { print s + 0 }' "$export_tsv")"
   if [ "$disp" = golden ]; then
     dir="${target#tests/cases}"; dir="${dir#/}"
     if [ -z "$dir" ]; then
@@ -71,11 +72,14 @@ while IFS="$(printf '\037')" read -r class file family tests disp target reason 
           else basename "$e" | sed 's|\..*||'; fi
         done | sort -u | wc -l | tr -d ' ')"; n=$((n + c))
       done
-      [ "$n" -ge "$tests" ] || offend "row $class has $n cases across the kind folders of tests/cases, below its $tests tests"
+      [ $((n + named)) -ge "$tests" ] || offend "row $class has $n cases across the kind folders of tests/cases and $named tests named by reasons, below its $tests tests"
       continue
     fi
     if [ ! -d "$root/tests/cases/$dir/$class" ]; then
-      [ -d "$root/tests/cases/$dir" ] || { offend "row $class has 0 cases, no $target folder, for its $tests tests"; continue; }
+      if [ ! -d "$root/tests/cases/$dir" ]; then
+        [ "$named" -ge "$tests" ] || offend "row $class has 0 cases, no $target folder, and $named tests named by reasons, for its $tests tests"
+        continue
+      fi
       # a <Class>/ subfolder of an exported class (EXPORT.tsv class of kind <dir>) holds that class's cases, not this folder's
       exported="$(awk -F'\t' -v k="$dir" '$2 == k { print $1 }' "$export_tsv")"
       n="$(find "$root/tests/cases/$dir" -mindepth 1 -maxdepth 1 | while read -r e; do
@@ -83,7 +87,7 @@ while IFS="$(printf '\037')" read -r class file family tests disp target reason 
         printf '%s\n' "${e##*/}"
       done | sed 's|\..*||' | sort -u | wc -l | tr -d ' ')"
       want="$(awk -F'\t' -v t="$target" '$5 == "golden" && $6 == t { s += $4 } END { print s }' "$inv")"
-      [ "$n" -ge "$want" ] || offend "row $class has $n cases in $target, below the $want tests of its golden rows"
+      [ $((n + named)) -ge "$want" ] || offend "row $class has $n cases in $target and $named tests named by reasons, below the $want tests of its golden rows"
       continue
     fi
     target="$dir"
@@ -102,7 +106,7 @@ while IFS="$(printf '\037')" read -r class file family tests disp target reason 
   fi
   n=0
   if [ -d "$root/tests/cases/$target/$class" ]; then n="$(find "$root/tests/cases/$target/$class" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"; fi
-  [ "$n" -ge "$tests" ] || offend "row $class has $n cases under tests/cases/$target/$class, below its $tests tests"
+  [ $((n + named)) -ge "$tests" ] || offend "row $class has $n cases under tests/cases/$target/$class and $named tests named by reasons, below its $tests tests"
 done < <(tr '\t' '\037' < "$inv")
 
 [ "$bad" = 0 ] && echo "inventory-check: ok"
