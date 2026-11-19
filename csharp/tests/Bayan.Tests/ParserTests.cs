@@ -14,7 +14,14 @@ public sealed class ParserTests
     public void ParseGolden(string name) =>
         Golden.Check(name, ".ast", path => AstDump.Dump(SyntaxTree.Parse(Golden.Load(path))));
 
-    private static SyntaxTree Parse(string text) => SyntaxTree.Parse(SourceText.FromString("t.byn", text));
+    /// <summary>Sees each text <see cref="Parse"/> hands the C# parser; <c>SelfhostParserTests.ParserTestsInputs</c> collects them (spec 019 T30f).</summary>
+    internal static readonly AsyncLocal<Action<string>?> Parsed = new();
+
+    private static SyntaxTree Parse(string text)
+    {
+        Parsed.Value?.Invoke(text);
+        return SyntaxTree.Parse(SourceText.FromString("t.byn", text));
+    }
 
     private static string Expr(string text)
     {

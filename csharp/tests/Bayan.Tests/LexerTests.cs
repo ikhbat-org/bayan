@@ -16,8 +16,17 @@ public sealed class LexerTests
     public void GoldenCase(string name) =>
         Golden.Check(name, ".tokens", path => TokenDump.Dump(Lexer.Lex(Golden.Load(path))));
 
+    /// <summary>Sees each text <see cref="Lex"/> hands the C# lexer; <c>SelfhostLexerTests.LexerTestsInputs</c> collects them (spec 019 T30f).</summary>
+    internal static readonly AsyncLocal<Action<string>?> Lexed = new();
+
+    private static LexResult Lex(string text)
+    {
+        Lexed.Value?.Invoke(text);
+        return Lexer.Lex(SourceText.FromString("t.byn", text));
+    }
+
     private static TokenKind[] Kinds(string text) =>
-        Lexer.Lex(SourceText.FromString("t.byn", text)).Tokens.ToArray().Select(t => t.Kind).ToArray();
+        Lex(text).Tokens.ToArray().Select(t => t.Kind).ToArray();
 
     [Fact]
     public void EveryKeywordLexesToItsKind()
@@ -52,7 +61,7 @@ public sealed class LexerTests
     [Fact]
     public void AdjacentGreaterTokensHaveNoTriviaBetween()
     {
-        var tokens = Lexer.Lex(SourceText.FromString("t.byn", "a >> b > > c")).Tokens.ToArray();
+        var tokens = Lex("a >> b > > c").Tokens.ToArray();
         Assert.False(tokens[2].HasTriviaBefore);
         Assert.True(tokens[5].HasTriviaBefore);
     }
@@ -60,16 +69,16 @@ public sealed class LexerTests
     [Fact]
     public void DocCommentAttachesToNextTokenOnly()
     {
-        var tokens = Lexer.Lex(SourceText.FromString("t.byn", "/// Summary.\n/// More.\nstruct S {}")).Tokens.ToArray();
+        var tokens = Lex("/// Summary.\n/// More.\nstruct S {}").Tokens.ToArray();
         Assert.True(tokens[0].HasDoc);
-        Assert.Equal("/// Summary.\n/// More.", Lexer.Lex(SourceText.FromString("t.byn", "/// Summary.\n/// More.\nstruct S {}")).Source.GetText(tokens[0].Doc));
+        Assert.Equal("/// Summary.\n/// More.", Lex("/// Summary.\n/// More.\nstruct S {}").Source.GetText(tokens[0].Doc));
         Assert.False(tokens[1].HasDoc);
     }
 
     [Fact]
     public void LexingContinuesAfterInvalidCharacter()
     {
-        var result = Lexer.Lex(SourceText.FromString("t.byn", "a ` b"));
+        var result = Lex("a ` b");
         Assert.Single(result.Diagnostics);
         Assert.Equal([TokenKind.Identifier, TokenKind.Identifier, TokenKind.EndOfFile],
             result.Tokens.ToArray().Select(t => t.Kind).ToArray());
@@ -79,7 +88,7 @@ public sealed class LexerTests
     public void LastTokenIsAlwaysEndOfFile()
     {
         foreach (var text in new[] { "", "$\"{", "\"", "'", "/*", "0x" })
-            Assert.Equal(TokenKind.EndOfFile, Lexer.Lex(SourceText.FromString("t.byn", text)).Tokens[^1].Kind);
+            Assert.Equal(TokenKind.EndOfFile, Lex(text).Tokens[^1].Kind);
     }
 
     /// <summary>About 1 MB of ordinary Bayan code: a repeated unit padded with spaces.</summary>
