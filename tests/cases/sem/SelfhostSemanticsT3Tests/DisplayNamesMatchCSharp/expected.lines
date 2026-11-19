@@ -1,0 +1,374 @@
+d0 i8
+d1 i16
+d2 i32
+d3 i64
+d4 u8
+d5 u16
+d6 u32
+d7 u64
+d8 isize
+d9 usize
+d10 f32
+d11 f64
+d12 bool
+d13 rune
+d14 string
+d15 void
+d16 never
+d17 ?
+d18 null
+d19 RuneView
+d20 Utf16View
+d21 LineView
+d22 PartView
+d23 Arena
+d24 StrBuf
+d25 Io
+d26 Hex
+d27 Utf8
+d28 IoStream
+d29 IoInput
+d30 ProcessResult
+d31 Panic
+d32 FormatSpec
+d33 Symbol
+d34 Path
+d35 Target
+d36 Point
+d37 Box<T>
+d38 Point
+d39 Holder
+d40 NoEq
+d41 Show<T>
+d42 Color
+d43 Shape<T>
+d44 Err
+d45 Err
+d46 MathError
+d47 T
+d48 i8?
+d49 List<i8>
+d50 Span<i8>
+d51 i8[3]
+d52 i16?
+d53 List<i16>
+d54 Span<i16>
+d55 i16[3]
+d56 i32?
+d57 List<i32>
+d58 Span<i32>
+d59 i32[3]
+d60 i64?
+d61 List<i64>
+d62 Span<i64>
+d63 i64[3]
+d64 u8?
+d65 List<u8>
+d66 Span<u8>
+d67 u8[3]
+d68 u16?
+d69 List<u16>
+d70 Span<u16>
+d71 u16[3]
+d72 u32?
+d73 List<u32>
+d74 Span<u32>
+d75 u32[3]
+d76 u64?
+d77 List<u64>
+d78 Span<u64>
+d79 u64[3]
+d80 isize?
+d81 List<isize>
+d82 Span<isize>
+d83 isize[3]
+d84 usize?
+d85 List<usize>
+d86 Span<usize>
+d87 usize[3]
+d88 f32?
+d89 List<f32>
+d90 Span<f32>
+d91 f32[3]
+d92 f64?
+d93 List<f64>
+d94 Span<f64>
+d95 f64[3]
+d96 bool?
+d97 List<bool>
+d98 Span<bool>
+d99 bool[3]
+d100 rune?
+d101 List<rune>
+d102 Span<rune>
+d103 rune[3]
+d104 string?
+d105 List<string>
+d106 Span<string>
+d107 string[3]
+d108 void?
+d109 List<void>
+d110 Span<void>
+d111 void[3]
+d112 never?
+d113 List<never>
+d114 Span<never>
+d115 never[3]
+d116 ReadOnlySpan<u8>
+d117 dyn ref Show<T>
+d118 dyn ref readonly Show<T>
+d119 Map<string, i32>
+d120 Owned<i32>
+d121 Untrusted<u8>
+d122 Range<i64>
+d123 Result<i32, MathError>
+d124 Point.circle
+d125 Point is .circle or .square
+d126 Err | MathError
+d127 Err | MathError except .underflow
+d128 a.Err | b.Err
+d129 (i32, string)
+d130 (string key, i32 value)
+d131 (i32, i32) -> bool
+d132 i32 -> void uses net fails MathError
+d133 List<i32>?
+d134 List<i32?>
+d135 Map<string, List<i32>>
+d136 ReadOnlySpan<u8?>
+d137 List<i8>[4]
+d138 Owned<Span<u8>>
+d139 Range<i64?>
+d140 i32??
+d141 Map<Point, i32>
+d142 List<Point>
+d143 List<i8>?
+d144 List<i8?>
+d145 Map<string, i8?>
+d146 Span<List<i8>>
+d147 i8?[2]
+d148 List<i16>?
+d149 List<i16?>
+d150 Map<string, i16?>
+d151 Span<List<i16>>
+d152 i16?[2]
+d153 List<i32>?
+d154 List<i32?>
+d155 Map<string, i32?>
+d156 Span<List<i32>>
+d157 i32?[2]
+d158 List<i64>?
+d159 List<i64?>
+d160 Map<string, i64?>
+d161 Span<List<i64>>
+d162 i64?[2]
+d163 List<u8>?
+d164 List<u8?>
+d165 Map<string, u8?>
+d166 Span<List<u8>>
+d167 u8?[2]
+d168 List<f64>?
+d169 List<f64?>
+d170 Map<string, f64?>
+d171 Span<List<f64>>
+d172 f64?[2]
+d173 List<string>?
+d174 List<string?>
+d175 Map<string, string?>
+d176 Span<List<string>>
+d177 string?[2]
+d178 T?
+d179 Span<T>
+d180 List<T>
+d181 Map<T, i32>
+d182 T[2]
+d183 Result<T, Err>
+d184 Box<T>.circle
+d185 (T, i32 n)
+d186 T -> bool
+q0 i8
+q1 i16
+q2 i32
+q3 i64
+q4 u8
+q5 u16
+q6 u32
+q7 u64
+q8 isize
+q9 usize
+q10 f32
+q11 f64
+q12 bool
+q13 rune
+q14 string
+q15 void
+q16 never
+q17 ?
+q18 null
+q19 RuneView
+q20 Utf16View
+q21 LineView
+q22 PartView
+q23 Arena
+q24 StrBuf
+q25 Io
+q26 Hex
+q27 Utf8
+q28 IoStream
+q29 IoInput
+q30 ProcessResult
+q31 Panic
+q32 FormatSpec
+q33 Symbol
+q34 Path
+q35 Target
+q36 a.Point
+q37 Box<T>
+q38 b.Point
+q39 a.Holder
+q40 a.NoEq
+q41 Show<T>
+q42 a.Color
+q43 Shape<T>
+q44 a.Err
+q45 b.Err
+q46 a.MathError
+q47 T
+q48 i8?
+q49 List<i8>
+q50 Span<i8>
+q51 i8[3]
+q52 i16?
+q53 List<i16>
+q54 Span<i16>
+q55 i16[3]
+q56 i32?
+q57 List<i32>
+q58 Span<i32>
+q59 i32[3]
+q60 i64?
+q61 List<i64>
+q62 Span<i64>
+q63 i64[3]
+q64 u8?
+q65 List<u8>
+q66 Span<u8>
+q67 u8[3]
+q68 u16?
+q69 List<u16>
+q70 Span<u16>
+q71 u16[3]
+q72 u32?
+q73 List<u32>
+q74 Span<u32>
+q75 u32[3]
+q76 u64?
+q77 List<u64>
+q78 Span<u64>
+q79 u64[3]
+q80 isize?
+q81 List<isize>
+q82 Span<isize>
+q83 isize[3]
+q84 usize?
+q85 List<usize>
+q86 Span<usize>
+q87 usize[3]
+q88 f32?
+q89 List<f32>
+q90 Span<f32>
+q91 f32[3]
+q92 f64?
+q93 List<f64>
+q94 Span<f64>
+q95 f64[3]
+q96 bool?
+q97 List<bool>
+q98 Span<bool>
+q99 bool[3]
+q100 rune?
+q101 List<rune>
+q102 Span<rune>
+q103 rune[3]
+q104 string?
+q105 List<string>
+q106 Span<string>
+q107 string[3]
+q108 void?
+q109 List<void>
+q110 Span<void>
+q111 void[3]
+q112 never?
+q113 List<never>
+q114 Span<never>
+q115 never[3]
+q116 ReadOnlySpan<u8>
+q117 dyn ref Show<T>
+q118 dyn ref readonly Show<T>
+q119 Map<string, i32>
+q120 Owned<i32>
+q121 Untrusted<u8>
+q122 Range<i64>
+q123 Result<i32, a.MathError>
+q124 a.Point.circle
+q125 a.Point is .circle or .square
+q126 a.Err | a.MathError
+q127 a.Err | a.MathError except .underflow
+q128 a.Err | b.Err
+q129 (i32, string)
+q130 (string key, i32 value)
+q131 (i32, i32) -> bool
+q132 i32 -> void uses net fails a.MathError
+q133 List<i32>?
+q134 List<i32?>
+q135 Map<string, List<i32>>
+q136 ReadOnlySpan<u8?>
+q137 List<i8>[4]
+q138 Owned<Span<u8>>
+q139 Range<i64?>
+q140 i32??
+q141 Map<a.Point, i32>
+q142 List<a.Point>
+q143 List<i8>?
+q144 List<i8?>
+q145 Map<string, i8?>
+q146 Span<List<i8>>
+q147 i8?[2]
+q148 List<i16>?
+q149 List<i16?>
+q150 Map<string, i16?>
+q151 Span<List<i16>>
+q152 i16?[2]
+q153 List<i32>?
+q154 List<i32?>
+q155 Map<string, i32?>
+q156 Span<List<i32>>
+q157 i32?[2]
+q158 List<i64>?
+q159 List<i64?>
+q160 Map<string, i64?>
+q161 Span<List<i64>>
+q162 i64?[2]
+q163 List<u8>?
+q164 List<u8?>
+q165 Map<string, u8?>
+q166 Span<List<u8>>
+q167 u8?[2]
+q168 List<f64>?
+q169 List<f64?>
+q170 Map<string, f64?>
+q171 Span<List<f64>>
+q172 f64?[2]
+q173 List<string>?
+q174 List<string?>
+q175 Map<string, string?>
+q176 Span<List<string>>
+q177 string?[2]
+q178 T?
+q179 Span<T>
+q180 List<T>
+q181 Map<T, i32>
+q182 T[2]
+q183 Result<T, a.Err>
+q184 Box<T>.circle
+q185 (T, i32 n)
+q186 T -> bool

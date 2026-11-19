@@ -1,0 +1,3902 @@
+o 0 0
+neg 0 0
+not 0 -1
+fromu64 0 0
+toi64 0 0
+fromi64 0 0
+fits 0 8 false true
+wrap 0 8 false 0
+sat 0 8 false 0
+min 0 8 false 0
+max 0 8 false 255
+fits 0 8 true true
+wrap 0 8 true 0
+sat 0 8 true 0
+min 0 8 true -128
+max 0 8 true 127
+fits 0 16 false true
+wrap 0 16 false 0
+sat 0 16 false 0
+min 0 16 false 0
+max 0 16 false 65535
+fits 0 16 true true
+wrap 0 16 true 0
+sat 0 16 true 0
+min 0 16 true -32768
+max 0 16 true 32767
+fits 0 32 false true
+wrap 0 32 false 0
+sat 0 32 false 0
+min 0 32 false 0
+max 0 32 false 4294967295
+fits 0 32 true true
+wrap 0 32 true 0
+sat 0 32 true 0
+min 0 32 true -2147483648
+max 0 32 true 2147483647
+fits 0 64 false true
+wrap 0 64 false 0
+sat 0 64 false 0
+min 0 64 false 0
+max 0 64 false 18446744073709551615
+fits 0 64 true true
+wrap 0 64 true 0
+sat 0 64 true 0
+min 0 64 true -9223372036854775808
+max 0 64 true 9223372036854775807
+o 1 1
+neg 1 -1
+not 1 -2
+fromu64 1 1
+toi64 1 1
+fromi64 1 1
+fits 1 8 false true
+wrap 1 8 false 1
+sat 1 8 false 1
+min 1 8 false 0
+max 1 8 false 255
+fits 1 8 true true
+wrap 1 8 true 1
+sat 1 8 true 1
+min 1 8 true -128
+max 1 8 true 127
+fits 1 16 false true
+wrap 1 16 false 1
+sat 1 16 false 1
+min 1 16 false 0
+max 1 16 false 65535
+fits 1 16 true true
+wrap 1 16 true 1
+sat 1 16 true 1
+min 1 16 true -32768
+max 1 16 true 32767
+fits 1 32 false true
+wrap 1 32 false 1
+sat 1 32 false 1
+min 1 32 false 0
+max 1 32 false 4294967295
+fits 1 32 true true
+wrap 1 32 true 1
+sat 1 32 true 1
+min 1 32 true -2147483648
+max 1 32 true 2147483647
+fits 1 64 false true
+wrap 1 64 false 1
+sat 1 64 false 1
+min 1 64 false 0
+max 1 64 false 18446744073709551615
+fits 1 64 true true
+wrap 1 64 true 1
+sat 1 64 true 1
+min 1 64 true -9223372036854775808
+max 1 64 true 9223372036854775807
+o 2 -1
+neg 2 1
+not 2 0
+fromu64 2 18446744073709551615
+toi64 2 -1
+fromi64 2 -1
+fits 2 8 false false
+wrap 2 8 false 255
+sat 2 8 false 0
+min 2 8 false 0
+max 2 8 false 255
+fits 2 8 true true
+wrap 2 8 true -1
+sat 2 8 true -1
+min 2 8 true -128
+max 2 8 true 127
+fits 2 16 false false
+wrap 2 16 false 65535
+sat 2 16 false 0
+min 2 16 false 0
+max 2 16 false 65535
+fits 2 16 true true
+wrap 2 16 true -1
+sat 2 16 true -1
+min 2 16 true -32768
+max 2 16 true 32767
+fits 2 32 false false
+wrap 2 32 false 4294967295
+sat 2 32 false 0
+min 2 32 false 0
+max 2 32 false 4294967295
+fits 2 32 true true
+wrap 2 32 true -1
+sat 2 32 true -1
+min 2 32 true -2147483648
+max 2 32 true 2147483647
+fits 2 64 false false
+wrap 2 64 false 18446744073709551615
+sat 2 64 false 0
+min 2 64 false 0
+max 2 64 false 18446744073709551615
+fits 2 64 true true
+wrap 2 64 true -1
+sat 2 64 true -1
+min 2 64 true -9223372036854775808
+max 2 64 true 9223372036854775807
+o 3 2
+neg 3 -2
+not 3 -3
+fromu64 3 2
+toi64 3 2
+fromi64 3 2
+fits 3 8 false true
+wrap 3 8 false 2
+sat 3 8 false 2
+min 3 8 false 0
+max 3 8 false 255
+fits 3 8 true true
+wrap 3 8 true 2
+sat 3 8 true 2
+min 3 8 true -128
+max 3 8 true 127
+fits 3 16 false true
+wrap 3 16 false 2
+sat 3 16 false 2
+min 3 16 false 0
+max 3 16 false 65535
+fits 3 16 true true
+wrap 3 16 true 2
+sat 3 16 true 2
+min 3 16 true -32768
+max 3 16 true 32767
+fits 3 32 false true
+wrap 3 32 false 2
+sat 3 32 false 2
+min 3 32 false 0
+max 3 32 false 4294967295
+fits 3 32 true true
+wrap 3 32 true 2
+sat 3 32 true 2
+min 3 32 true -2147483648
+max 3 32 true 2147483647
+fits 3 64 false true
+wrap 3 64 false 2
+sat 3 64 false 2
+min 3 64 false 0
+max 3 64 false 18446744073709551615
+fits 3 64 true true
+wrap 3 64 true 2
+sat 3 64 true 2
+min 3 64 true -9223372036854775808
+max 3 64 true 9223372036854775807
+o 4 -2
+neg 4 2
+not 4 1
+fromu64 4 18446744073709551614
+toi64 4 -2
+fromi64 4 -2
+fits 4 8 false false
+wrap 4 8 false 254
+sat 4 8 false 0
+min 4 8 false 0
+max 4 8 false 255
+fits 4 8 true true
+wrap 4 8 true -2
+sat 4 8 true -2
+min 4 8 true -128
+max 4 8 true 127
+fits 4 16 false false
+wrap 4 16 false 65534
+sat 4 16 false 0
+min 4 16 false 0
+max 4 16 false 65535
+fits 4 16 true true
+wrap 4 16 true -2
+sat 4 16 true -2
+min 4 16 true -32768
+max 4 16 true 32767
+fits 4 32 false false
+wrap 4 32 false 4294967294
+sat 4 32 false 0
+min 4 32 false 0
+max 4 32 false 4294967295
+fits 4 32 true true
+wrap 4 32 true -2
+sat 4 32 true -2
+min 4 32 true -2147483648
+max 4 32 true 2147483647
+fits 4 64 false false
+wrap 4 64 false 18446744073709551614
+sat 4 64 false 0
+min 4 64 false 0
+max 4 64 false 18446744073709551615
+fits 4 64 true true
+wrap 4 64 true -2
+sat 4 64 true -2
+min 4 64 true -9223372036854775808
+max 4 64 true 9223372036854775807
+o 5 42
+neg 5 -42
+not 5 -43
+fromu64 5 42
+toi64 5 42
+fromi64 5 42
+fits 5 8 false true
+wrap 5 8 false 42
+sat 5 8 false 42
+min 5 8 false 0
+max 5 8 false 255
+fits 5 8 true true
+wrap 5 8 true 42
+sat 5 8 true 42
+min 5 8 true -128
+max 5 8 true 127
+fits 5 16 false true
+wrap 5 16 false 42
+sat 5 16 false 42
+min 5 16 false 0
+max 5 16 false 65535
+fits 5 16 true true
+wrap 5 16 true 42
+sat 5 16 true 42
+min 5 16 true -32768
+max 5 16 true 32767
+fits 5 32 false true
+wrap 5 32 false 42
+sat 5 32 false 42
+min 5 32 false 0
+max 5 32 false 4294967295
+fits 5 32 true true
+wrap 5 32 true 42
+sat 5 32 true 42
+min 5 32 true -2147483648
+max 5 32 true 2147483647
+fits 5 64 false true
+wrap 5 64 false 42
+sat 5 64 false 42
+min 5 64 false 0
+max 5 64 false 18446744073709551615
+fits 5 64 true true
+wrap 5 64 true 42
+sat 5 64 true 42
+min 5 64 true -9223372036854775808
+max 5 64 true 9223372036854775807
+o 6 126
+neg 6 -126
+not 6 -127
+fromu64 6 126
+toi64 6 126
+fromi64 6 126
+fits 6 8 false true
+wrap 6 8 false 126
+sat 6 8 false 126
+min 6 8 false 0
+max 6 8 false 255
+fits 6 8 true true
+wrap 6 8 true 126
+sat 6 8 true 126
+min 6 8 true -128
+max 6 8 true 127
+fits 6 16 false true
+wrap 6 16 false 126
+sat 6 16 false 126
+min 6 16 false 0
+max 6 16 false 65535
+fits 6 16 true true
+wrap 6 16 true 126
+sat 6 16 true 126
+min 6 16 true -32768
+max 6 16 true 32767
+fits 6 32 false true
+wrap 6 32 false 126
+sat 6 32 false 126
+min 6 32 false 0
+max 6 32 false 4294967295
+fits 6 32 true true
+wrap 6 32 true 126
+sat 6 32 true 126
+min 6 32 true -2147483648
+max 6 32 true 2147483647
+fits 6 64 false true
+wrap 6 64 false 126
+sat 6 64 false 126
+min 6 64 false 0
+max 6 64 false 18446744073709551615
+fits 6 64 true true
+wrap 6 64 true 126
+sat 6 64 true 126
+min 6 64 true -9223372036854775808
+max 6 64 true 9223372036854775807
+o 7 127
+neg 7 -127
+not 7 -128
+fromu64 7 127
+toi64 7 127
+fromi64 7 127
+fits 7 8 false true
+wrap 7 8 false 127
+sat 7 8 false 127
+min 7 8 false 0
+max 7 8 false 255
+fits 7 8 true true
+wrap 7 8 true 127
+sat 7 8 true 127
+min 7 8 true -128
+max 7 8 true 127
+fits 7 16 false true
+wrap 7 16 false 127
+sat 7 16 false 127
+min 7 16 false 0
+max 7 16 false 65535
+fits 7 16 true true
+wrap 7 16 true 127
+sat 7 16 true 127
+min 7 16 true -32768
+max 7 16 true 32767
+fits 7 32 false true
+wrap 7 32 false 127
+sat 7 32 false 127
+min 7 32 false 0
+max 7 32 false 4294967295
+fits 7 32 true true
+wrap 7 32 true 127
+sat 7 32 true 127
+min 7 32 true -2147483648
+max 7 32 true 2147483647
+fits 7 64 false true
+wrap 7 64 false 127
+sat 7 64 false 127
+min 7 64 false 0
+max 7 64 false 18446744073709551615
+fits 7 64 true true
+wrap 7 64 true 127
+sat 7 64 true 127
+min 7 64 true -9223372036854775808
+max 7 64 true 9223372036854775807
+o 8 128
+neg 8 -128
+not 8 -129
+fromu64 8 128
+toi64 8 128
+fromi64 8 128
+fits 8 8 false true
+wrap 8 8 false 128
+sat 8 8 false 128
+min 8 8 false 0
+max 8 8 false 255
+fits 8 8 true false
+wrap 8 8 true -128
+sat 8 8 true 127
+min 8 8 true -128
+max 8 8 true 127
+fits 8 16 false true
+wrap 8 16 false 128
+sat 8 16 false 128
+min 8 16 false 0
+max 8 16 false 65535
+fits 8 16 true true
+wrap 8 16 true 128
+sat 8 16 true 128
+min 8 16 true -32768
+max 8 16 true 32767
+fits 8 32 false true
+wrap 8 32 false 128
+sat 8 32 false 128
+min 8 32 false 0
+max 8 32 false 4294967295
+fits 8 32 true true
+wrap 8 32 true 128
+sat 8 32 true 128
+min 8 32 true -2147483648
+max 8 32 true 2147483647
+fits 8 64 false true
+wrap 8 64 false 128
+sat 8 64 false 128
+min 8 64 false 0
+max 8 64 false 18446744073709551615
+fits 8 64 true true
+wrap 8 64 true 128
+sat 8 64 true 128
+min 8 64 true -9223372036854775808
+max 8 64 true 9223372036854775807
+o 9 -127
+neg 9 127
+not 9 126
+fromu64 9 18446744073709551489
+toi64 9 -127
+fromi64 9 -127
+fits 9 8 false false
+wrap 9 8 false 129
+sat 9 8 false 0
+min 9 8 false 0
+max 9 8 false 255
+fits 9 8 true true
+wrap 9 8 true -127
+sat 9 8 true -127
+min 9 8 true -128
+max 9 8 true 127
+fits 9 16 false false
+wrap 9 16 false 65409
+sat 9 16 false 0
+min 9 16 false 0
+max 9 16 false 65535
+fits 9 16 true true
+wrap 9 16 true -127
+sat 9 16 true -127
+min 9 16 true -32768
+max 9 16 true 32767
+fits 9 32 false false
+wrap 9 32 false 4294967169
+sat 9 32 false 0
+min 9 32 false 0
+max 9 32 false 4294967295
+fits 9 32 true true
+wrap 9 32 true -127
+sat 9 32 true -127
+min 9 32 true -2147483648
+max 9 32 true 2147483647
+fits 9 64 false false
+wrap 9 64 false 18446744073709551489
+sat 9 64 false 0
+min 9 64 false 0
+max 9 64 false 18446744073709551615
+fits 9 64 true true
+wrap 9 64 true -127
+sat 9 64 true -127
+min 9 64 true -9223372036854775808
+max 9 64 true 9223372036854775807
+o 10 -128
+neg 10 128
+not 10 127
+fromu64 10 18446744073709551488
+toi64 10 -128
+fromi64 10 -128
+fits 10 8 false false
+wrap 10 8 false 128
+sat 10 8 false 0
+min 10 8 false 0
+max 10 8 false 255
+fits 10 8 true true
+wrap 10 8 true -128
+sat 10 8 true -128
+min 10 8 true -128
+max 10 8 true 127
+fits 10 16 false false
+wrap 10 16 false 65408
+sat 10 16 false 0
+min 10 16 false 0
+max 10 16 false 65535
+fits 10 16 true true
+wrap 10 16 true -128
+sat 10 16 true -128
+min 10 16 true -32768
+max 10 16 true 32767
+fits 10 32 false false
+wrap 10 32 false 4294967168
+sat 10 32 false 0
+min 10 32 false 0
+max 10 32 false 4294967295
+fits 10 32 true true
+wrap 10 32 true -128
+sat 10 32 true -128
+min 10 32 true -2147483648
+max 10 32 true 2147483647
+fits 10 64 false false
+wrap 10 64 false 18446744073709551488
+sat 10 64 false 0
+min 10 64 false 0
+max 10 64 false 18446744073709551615
+fits 10 64 true true
+wrap 10 64 true -128
+sat 10 64 true -128
+min 10 64 true -9223372036854775808
+max 10 64 true 9223372036854775807
+o 11 -129
+neg 11 129
+not 11 128
+fromu64 11 18446744073709551487
+toi64 11 -129
+fromi64 11 -129
+fits 11 8 false false
+wrap 11 8 false 127
+sat 11 8 false 0
+min 11 8 false 0
+max 11 8 false 255
+fits 11 8 true false
+wrap 11 8 true 127
+sat 11 8 true -128
+min 11 8 true -128
+max 11 8 true 127
+fits 11 16 false false
+wrap 11 16 false 65407
+sat 11 16 false 0
+min 11 16 false 0
+max 11 16 false 65535
+fits 11 16 true true
+wrap 11 16 true -129
+sat 11 16 true -129
+min 11 16 true -32768
+max 11 16 true 32767
+fits 11 32 false false
+wrap 11 32 false 4294967167
+sat 11 32 false 0
+min 11 32 false 0
+max 11 32 false 4294967295
+fits 11 32 true true
+wrap 11 32 true -129
+sat 11 32 true -129
+min 11 32 true -2147483648
+max 11 32 true 2147483647
+fits 11 64 false false
+wrap 11 64 false 18446744073709551487
+sat 11 64 false 0
+min 11 64 false 0
+max 11 64 false 18446744073709551615
+fits 11 64 true true
+wrap 11 64 true -129
+sat 11 64 true -129
+min 11 64 true -9223372036854775808
+max 11 64 true 9223372036854775807
+o 12 255
+neg 12 -255
+not 12 -256
+fromu64 12 255
+toi64 12 255
+fromi64 12 255
+fits 12 8 false true
+wrap 12 8 false 255
+sat 12 8 false 255
+min 12 8 false 0
+max 12 8 false 255
+fits 12 8 true false
+wrap 12 8 true -1
+sat 12 8 true 127
+min 12 8 true -128
+max 12 8 true 127
+fits 12 16 false true
+wrap 12 16 false 255
+sat 12 16 false 255
+min 12 16 false 0
+max 12 16 false 65535
+fits 12 16 true true
+wrap 12 16 true 255
+sat 12 16 true 255
+min 12 16 true -32768
+max 12 16 true 32767
+fits 12 32 false true
+wrap 12 32 false 255
+sat 12 32 false 255
+min 12 32 false 0
+max 12 32 false 4294967295
+fits 12 32 true true
+wrap 12 32 true 255
+sat 12 32 true 255
+min 12 32 true -2147483648
+max 12 32 true 2147483647
+fits 12 64 false true
+wrap 12 64 false 255
+sat 12 64 false 255
+min 12 64 false 0
+max 12 64 false 18446744073709551615
+fits 12 64 true true
+wrap 12 64 true 255
+sat 12 64 true 255
+min 12 64 true -9223372036854775808
+max 12 64 true 9223372036854775807
+o 13 256
+neg 13 -256
+not 13 -257
+fromu64 13 256
+toi64 13 256
+fromi64 13 256
+fits 13 8 false false
+wrap 13 8 false 0
+sat 13 8 false 255
+min 13 8 false 0
+max 13 8 false 255
+fits 13 8 true false
+wrap 13 8 true 0
+sat 13 8 true 127
+min 13 8 true -128
+max 13 8 true 127
+fits 13 16 false true
+wrap 13 16 false 256
+sat 13 16 false 256
+min 13 16 false 0
+max 13 16 false 65535
+fits 13 16 true true
+wrap 13 16 true 256
+sat 13 16 true 256
+min 13 16 true -32768
+max 13 16 true 32767
+fits 13 32 false true
+wrap 13 32 false 256
+sat 13 32 false 256
+min 13 32 false 0
+max 13 32 false 4294967295
+fits 13 32 true true
+wrap 13 32 true 256
+sat 13 32 true 256
+min 13 32 true -2147483648
+max 13 32 true 2147483647
+fits 13 64 false true
+wrap 13 64 false 256
+sat 13 64 false 256
+min 13 64 false 0
+max 13 64 false 18446744073709551615
+fits 13 64 true true
+wrap 13 64 true 256
+sat 13 64 true 256
+min 13 64 true -9223372036854775808
+max 13 64 true 9223372036854775807
+o 14 -256
+neg 14 256
+not 14 255
+fromu64 14 18446744073709551360
+toi64 14 -256
+fromi64 14 -256
+fits 14 8 false false
+wrap 14 8 false 0
+sat 14 8 false 0
+min 14 8 false 0
+max 14 8 false 255
+fits 14 8 true false
+wrap 14 8 true 0
+sat 14 8 true -128
+min 14 8 true -128
+max 14 8 true 127
+fits 14 16 false false
+wrap 14 16 false 65280
+sat 14 16 false 0
+min 14 16 false 0
+max 14 16 false 65535
+fits 14 16 true true
+wrap 14 16 true -256
+sat 14 16 true -256
+min 14 16 true -32768
+max 14 16 true 32767
+fits 14 32 false false
+wrap 14 32 false 4294967040
+sat 14 32 false 0
+min 14 32 false 0
+max 14 32 false 4294967295
+fits 14 32 true true
+wrap 14 32 true -256
+sat 14 32 true -256
+min 14 32 true -2147483648
+max 14 32 true 2147483647
+fits 14 64 false false
+wrap 14 64 false 18446744073709551360
+sat 14 64 false 0
+min 14 64 false 0
+max 14 64 false 18446744073709551615
+fits 14 64 true true
+wrap 14 64 true -256
+sat 14 64 true -256
+min 14 64 true -9223372036854775808
+max 14 64 true 9223372036854775807
+o 15 32766
+neg 15 -32766
+not 15 -32767
+fromu64 15 32766
+toi64 15 32766
+fromi64 15 32766
+fits 15 8 false false
+wrap 15 8 false 254
+sat 15 8 false 255
+min 15 8 false 0
+max 15 8 false 255
+fits 15 8 true false
+wrap 15 8 true -2
+sat 15 8 true 127
+min 15 8 true -128
+max 15 8 true 127
+fits 15 16 false true
+wrap 15 16 false 32766
+sat 15 16 false 32766
+min 15 16 false 0
+max 15 16 false 65535
+fits 15 16 true true
+wrap 15 16 true 32766
+sat 15 16 true 32766
+min 15 16 true -32768
+max 15 16 true 32767
+fits 15 32 false true
+wrap 15 32 false 32766
+sat 15 32 false 32766
+min 15 32 false 0
+max 15 32 false 4294967295
+fits 15 32 true true
+wrap 15 32 true 32766
+sat 15 32 true 32766
+min 15 32 true -2147483648
+max 15 32 true 2147483647
+fits 15 64 false true
+wrap 15 64 false 32766
+sat 15 64 false 32766
+min 15 64 false 0
+max 15 64 false 18446744073709551615
+fits 15 64 true true
+wrap 15 64 true 32766
+sat 15 64 true 32766
+min 15 64 true -9223372036854775808
+max 15 64 true 9223372036854775807
+o 16 32767
+neg 16 -32767
+not 16 -32768
+fromu64 16 32767
+toi64 16 32767
+fromi64 16 32767
+fits 16 8 false false
+wrap 16 8 false 255
+sat 16 8 false 255
+min 16 8 false 0
+max 16 8 false 255
+fits 16 8 true false
+wrap 16 8 true -1
+sat 16 8 true 127
+min 16 8 true -128
+max 16 8 true 127
+fits 16 16 false true
+wrap 16 16 false 32767
+sat 16 16 false 32767
+min 16 16 false 0
+max 16 16 false 65535
+fits 16 16 true true
+wrap 16 16 true 32767
+sat 16 16 true 32767
+min 16 16 true -32768
+max 16 16 true 32767
+fits 16 32 false true
+wrap 16 32 false 32767
+sat 16 32 false 32767
+min 16 32 false 0
+max 16 32 false 4294967295
+fits 16 32 true true
+wrap 16 32 true 32767
+sat 16 32 true 32767
+min 16 32 true -2147483648
+max 16 32 true 2147483647
+fits 16 64 false true
+wrap 16 64 false 32767
+sat 16 64 false 32767
+min 16 64 false 0
+max 16 64 false 18446744073709551615
+fits 16 64 true true
+wrap 16 64 true 32767
+sat 16 64 true 32767
+min 16 64 true -9223372036854775808
+max 16 64 true 9223372036854775807
+o 17 32768
+neg 17 -32768
+not 17 -32769
+fromu64 17 32768
+toi64 17 32768
+fromi64 17 32768
+fits 17 8 false false
+wrap 17 8 false 0
+sat 17 8 false 255
+min 17 8 false 0
+max 17 8 false 255
+fits 17 8 true false
+wrap 17 8 true 0
+sat 17 8 true 127
+min 17 8 true -128
+max 17 8 true 127
+fits 17 16 false true
+wrap 17 16 false 32768
+sat 17 16 false 32768
+min 17 16 false 0
+max 17 16 false 65535
+fits 17 16 true false
+wrap 17 16 true -32768
+sat 17 16 true 32767
+min 17 16 true -32768
+max 17 16 true 32767
+fits 17 32 false true
+wrap 17 32 false 32768
+sat 17 32 false 32768
+min 17 32 false 0
+max 17 32 false 4294967295
+fits 17 32 true true
+wrap 17 32 true 32768
+sat 17 32 true 32768
+min 17 32 true -2147483648
+max 17 32 true 2147483647
+fits 17 64 false true
+wrap 17 64 false 32768
+sat 17 64 false 32768
+min 17 64 false 0
+max 17 64 false 18446744073709551615
+fits 17 64 true true
+wrap 17 64 true 32768
+sat 17 64 true 32768
+min 17 64 true -9223372036854775808
+max 17 64 true 9223372036854775807
+o 18 -32767
+neg 18 32767
+not 18 32766
+fromu64 18 18446744073709518849
+toi64 18 -32767
+fromi64 18 -32767
+fits 18 8 false false
+wrap 18 8 false 1
+sat 18 8 false 0
+min 18 8 false 0
+max 18 8 false 255
+fits 18 8 true false
+wrap 18 8 true 1
+sat 18 8 true -128
+min 18 8 true -128
+max 18 8 true 127
+fits 18 16 false false
+wrap 18 16 false 32769
+sat 18 16 false 0
+min 18 16 false 0
+max 18 16 false 65535
+fits 18 16 true true
+wrap 18 16 true -32767
+sat 18 16 true -32767
+min 18 16 true -32768
+max 18 16 true 32767
+fits 18 32 false false
+wrap 18 32 false 4294934529
+sat 18 32 false 0
+min 18 32 false 0
+max 18 32 false 4294967295
+fits 18 32 true true
+wrap 18 32 true -32767
+sat 18 32 true -32767
+min 18 32 true -2147483648
+max 18 32 true 2147483647
+fits 18 64 false false
+wrap 18 64 false 18446744073709518849
+sat 18 64 false 0
+min 18 64 false 0
+max 18 64 false 18446744073709551615
+fits 18 64 true true
+wrap 18 64 true -32767
+sat 18 64 true -32767
+min 18 64 true -9223372036854775808
+max 18 64 true 9223372036854775807
+o 19 -32768
+neg 19 32768
+not 19 32767
+fromu64 19 18446744073709518848
+toi64 19 -32768
+fromi64 19 -32768
+fits 19 8 false false
+wrap 19 8 false 0
+sat 19 8 false 0
+min 19 8 false 0
+max 19 8 false 255
+fits 19 8 true false
+wrap 19 8 true 0
+sat 19 8 true -128
+min 19 8 true -128
+max 19 8 true 127
+fits 19 16 false false
+wrap 19 16 false 32768
+sat 19 16 false 0
+min 19 16 false 0
+max 19 16 false 65535
+fits 19 16 true true
+wrap 19 16 true -32768
+sat 19 16 true -32768
+min 19 16 true -32768
+max 19 16 true 32767
+fits 19 32 false false
+wrap 19 32 false 4294934528
+sat 19 32 false 0
+min 19 32 false 0
+max 19 32 false 4294967295
+fits 19 32 true true
+wrap 19 32 true -32768
+sat 19 32 true -32768
+min 19 32 true -2147483648
+max 19 32 true 2147483647
+fits 19 64 false false
+wrap 19 64 false 18446744073709518848
+sat 19 64 false 0
+min 19 64 false 0
+max 19 64 false 18446744073709551615
+fits 19 64 true true
+wrap 19 64 true -32768
+sat 19 64 true -32768
+min 19 64 true -9223372036854775808
+max 19 64 true 9223372036854775807
+o 20 -32769
+neg 20 32769
+not 20 32768
+fromu64 20 18446744073709518847
+toi64 20 -32769
+fromi64 20 -32769
+fits 20 8 false false
+wrap 20 8 false 255
+sat 20 8 false 0
+min 20 8 false 0
+max 20 8 false 255
+fits 20 8 true false
+wrap 20 8 true -1
+sat 20 8 true -128
+min 20 8 true -128
+max 20 8 true 127
+fits 20 16 false false
+wrap 20 16 false 32767
+sat 20 16 false 0
+min 20 16 false 0
+max 20 16 false 65535
+fits 20 16 true false
+wrap 20 16 true 32767
+sat 20 16 true -32768
+min 20 16 true -32768
+max 20 16 true 32767
+fits 20 32 false false
+wrap 20 32 false 4294934527
+sat 20 32 false 0
+min 20 32 false 0
+max 20 32 false 4294967295
+fits 20 32 true true
+wrap 20 32 true -32769
+sat 20 32 true -32769
+min 20 32 true -2147483648
+max 20 32 true 2147483647
+fits 20 64 false false
+wrap 20 64 false 18446744073709518847
+sat 20 64 false 0
+min 20 64 false 0
+max 20 64 false 18446744073709551615
+fits 20 64 true true
+wrap 20 64 true -32769
+sat 20 64 true -32769
+min 20 64 true -9223372036854775808
+max 20 64 true 9223372036854775807
+o 21 65535
+neg 21 -65535
+not 21 -65536
+fromu64 21 65535
+toi64 21 65535
+fromi64 21 65535
+fits 21 8 false false
+wrap 21 8 false 255
+sat 21 8 false 255
+min 21 8 false 0
+max 21 8 false 255
+fits 21 8 true false
+wrap 21 8 true -1
+sat 21 8 true 127
+min 21 8 true -128
+max 21 8 true 127
+fits 21 16 false true
+wrap 21 16 false 65535
+sat 21 16 false 65535
+min 21 16 false 0
+max 21 16 false 65535
+fits 21 16 true false
+wrap 21 16 true -1
+sat 21 16 true 32767
+min 21 16 true -32768
+max 21 16 true 32767
+fits 21 32 false true
+wrap 21 32 false 65535
+sat 21 32 false 65535
+min 21 32 false 0
+max 21 32 false 4294967295
+fits 21 32 true true
+wrap 21 32 true 65535
+sat 21 32 true 65535
+min 21 32 true -2147483648
+max 21 32 true 2147483647
+fits 21 64 false true
+wrap 21 64 false 65535
+sat 21 64 false 65535
+min 21 64 false 0
+max 21 64 false 18446744073709551615
+fits 21 64 true true
+wrap 21 64 true 65535
+sat 21 64 true 65535
+min 21 64 true -9223372036854775808
+max 21 64 true 9223372036854775807
+o 22 65536
+neg 22 -65536
+not 22 -65537
+fromu64 22 65536
+toi64 22 65536
+fromi64 22 65536
+fits 22 8 false false
+wrap 22 8 false 0
+sat 22 8 false 255
+min 22 8 false 0
+max 22 8 false 255
+fits 22 8 true false
+wrap 22 8 true 0
+sat 22 8 true 127
+min 22 8 true -128
+max 22 8 true 127
+fits 22 16 false false
+wrap 22 16 false 0
+sat 22 16 false 65535
+min 22 16 false 0
+max 22 16 false 65535
+fits 22 16 true false
+wrap 22 16 true 0
+sat 22 16 true 32767
+min 22 16 true -32768
+max 22 16 true 32767
+fits 22 32 false true
+wrap 22 32 false 65536
+sat 22 32 false 65536
+min 22 32 false 0
+max 22 32 false 4294967295
+fits 22 32 true true
+wrap 22 32 true 65536
+sat 22 32 true 65536
+min 22 32 true -2147483648
+max 22 32 true 2147483647
+fits 22 64 false true
+wrap 22 64 false 65536
+sat 22 64 false 65536
+min 22 64 false 0
+max 22 64 false 18446744073709551615
+fits 22 64 true true
+wrap 22 64 true 65536
+sat 22 64 true 65536
+min 22 64 true -9223372036854775808
+max 22 64 true 9223372036854775807
+o 23 2147483646
+neg 23 -2147483646
+not 23 -2147483647
+fromu64 23 2147483646
+toi64 23 2147483646
+fromi64 23 2147483646
+fits 23 8 false false
+wrap 23 8 false 254
+sat 23 8 false 255
+min 23 8 false 0
+max 23 8 false 255
+fits 23 8 true false
+wrap 23 8 true -2
+sat 23 8 true 127
+min 23 8 true -128
+max 23 8 true 127
+fits 23 16 false false
+wrap 23 16 false 65534
+sat 23 16 false 65535
+min 23 16 false 0
+max 23 16 false 65535
+fits 23 16 true false
+wrap 23 16 true -2
+sat 23 16 true 32767
+min 23 16 true -32768
+max 23 16 true 32767
+fits 23 32 false true
+wrap 23 32 false 2147483646
+sat 23 32 false 2147483646
+min 23 32 false 0
+max 23 32 false 4294967295
+fits 23 32 true true
+wrap 23 32 true 2147483646
+sat 23 32 true 2147483646
+min 23 32 true -2147483648
+max 23 32 true 2147483647
+fits 23 64 false true
+wrap 23 64 false 2147483646
+sat 23 64 false 2147483646
+min 23 64 false 0
+max 23 64 false 18446744073709551615
+fits 23 64 true true
+wrap 23 64 true 2147483646
+sat 23 64 true 2147483646
+min 23 64 true -9223372036854775808
+max 23 64 true 9223372036854775807
+o 24 2147483647
+neg 24 -2147483647
+not 24 -2147483648
+fromu64 24 2147483647
+toi64 24 2147483647
+fromi64 24 2147483647
+fits 24 8 false false
+wrap 24 8 false 255
+sat 24 8 false 255
+min 24 8 false 0
+max 24 8 false 255
+fits 24 8 true false
+wrap 24 8 true -1
+sat 24 8 true 127
+min 24 8 true -128
+max 24 8 true 127
+fits 24 16 false false
+wrap 24 16 false 65535
+sat 24 16 false 65535
+min 24 16 false 0
+max 24 16 false 65535
+fits 24 16 true false
+wrap 24 16 true -1
+sat 24 16 true 32767
+min 24 16 true -32768
+max 24 16 true 32767
+fits 24 32 false true
+wrap 24 32 false 2147483647
+sat 24 32 false 2147483647
+min 24 32 false 0
+max 24 32 false 4294967295
+fits 24 32 true true
+wrap 24 32 true 2147483647
+sat 24 32 true 2147483647
+min 24 32 true -2147483648
+max 24 32 true 2147483647
+fits 24 64 false true
+wrap 24 64 false 2147483647
+sat 24 64 false 2147483647
+min 24 64 false 0
+max 24 64 false 18446744073709551615
+fits 24 64 true true
+wrap 24 64 true 2147483647
+sat 24 64 true 2147483647
+min 24 64 true -9223372036854775808
+max 24 64 true 9223372036854775807
+o 25 2147483648
+neg 25 -2147483648
+not 25 -2147483649
+fromu64 25 2147483648
+toi64 25 2147483648
+fromi64 25 2147483648
+fits 25 8 false false
+wrap 25 8 false 0
+sat 25 8 false 255
+min 25 8 false 0
+max 25 8 false 255
+fits 25 8 true false
+wrap 25 8 true 0
+sat 25 8 true 127
+min 25 8 true -128
+max 25 8 true 127
+fits 25 16 false false
+wrap 25 16 false 0
+sat 25 16 false 65535
+min 25 16 false 0
+max 25 16 false 65535
+fits 25 16 true false
+wrap 25 16 true 0
+sat 25 16 true 32767
+min 25 16 true -32768
+max 25 16 true 32767
+fits 25 32 false true
+wrap 25 32 false 2147483648
+sat 25 32 false 2147483648
+min 25 32 false 0
+max 25 32 false 4294967295
+fits 25 32 true false
+wrap 25 32 true -2147483648
+sat 25 32 true 2147483647
+min 25 32 true -2147483648
+max 25 32 true 2147483647
+fits 25 64 false true
+wrap 25 64 false 2147483648
+sat 25 64 false 2147483648
+min 25 64 false 0
+max 25 64 false 18446744073709551615
+fits 25 64 true true
+wrap 25 64 true 2147483648
+sat 25 64 true 2147483648
+min 25 64 true -9223372036854775808
+max 25 64 true 9223372036854775807
+o 26 -2147483647
+neg 26 2147483647
+not 26 2147483646
+fromu64 26 18446744071562067969
+toi64 26 -2147483647
+fromi64 26 -2147483647
+fits 26 8 false false
+wrap 26 8 false 1
+sat 26 8 false 0
+min 26 8 false 0
+max 26 8 false 255
+fits 26 8 true false
+wrap 26 8 true 1
+sat 26 8 true -128
+min 26 8 true -128
+max 26 8 true 127
+fits 26 16 false false
+wrap 26 16 false 1
+sat 26 16 false 0
+min 26 16 false 0
+max 26 16 false 65535
+fits 26 16 true false
+wrap 26 16 true 1
+sat 26 16 true -32768
+min 26 16 true -32768
+max 26 16 true 32767
+fits 26 32 false false
+wrap 26 32 false 2147483649
+sat 26 32 false 0
+min 26 32 false 0
+max 26 32 false 4294967295
+fits 26 32 true true
+wrap 26 32 true -2147483647
+sat 26 32 true -2147483647
+min 26 32 true -2147483648
+max 26 32 true 2147483647
+fits 26 64 false false
+wrap 26 64 false 18446744071562067969
+sat 26 64 false 0
+min 26 64 false 0
+max 26 64 false 18446744073709551615
+fits 26 64 true true
+wrap 26 64 true -2147483647
+sat 26 64 true -2147483647
+min 26 64 true -9223372036854775808
+max 26 64 true 9223372036854775807
+o 27 -2147483648
+neg 27 2147483648
+not 27 2147483647
+fromu64 27 18446744071562067968
+toi64 27 -2147483648
+fromi64 27 -2147483648
+fits 27 8 false false
+wrap 27 8 false 0
+sat 27 8 false 0
+min 27 8 false 0
+max 27 8 false 255
+fits 27 8 true false
+wrap 27 8 true 0
+sat 27 8 true -128
+min 27 8 true -128
+max 27 8 true 127
+fits 27 16 false false
+wrap 27 16 false 0
+sat 27 16 false 0
+min 27 16 false 0
+max 27 16 false 65535
+fits 27 16 true false
+wrap 27 16 true 0
+sat 27 16 true -32768
+min 27 16 true -32768
+max 27 16 true 32767
+fits 27 32 false false
+wrap 27 32 false 2147483648
+sat 27 32 false 0
+min 27 32 false 0
+max 27 32 false 4294967295
+fits 27 32 true true
+wrap 27 32 true -2147483648
+sat 27 32 true -2147483648
+min 27 32 true -2147483648
+max 27 32 true 2147483647
+fits 27 64 false false
+wrap 27 64 false 18446744071562067968
+sat 27 64 false 0
+min 27 64 false 0
+max 27 64 false 18446744073709551615
+fits 27 64 true true
+wrap 27 64 true -2147483648
+sat 27 64 true -2147483648
+min 27 64 true -9223372036854775808
+max 27 64 true 9223372036854775807
+o 28 -2147483649
+neg 28 2147483649
+not 28 2147483648
+fromu64 28 18446744071562067967
+toi64 28 -2147483649
+fromi64 28 -2147483649
+fits 28 8 false false
+wrap 28 8 false 255
+sat 28 8 false 0
+min 28 8 false 0
+max 28 8 false 255
+fits 28 8 true false
+wrap 28 8 true -1
+sat 28 8 true -128
+min 28 8 true -128
+max 28 8 true 127
+fits 28 16 false false
+wrap 28 16 false 65535
+sat 28 16 false 0
+min 28 16 false 0
+max 28 16 false 65535
+fits 28 16 true false
+wrap 28 16 true -1
+sat 28 16 true -32768
+min 28 16 true -32768
+max 28 16 true 32767
+fits 28 32 false false
+wrap 28 32 false 2147483647
+sat 28 32 false 0
+min 28 32 false 0
+max 28 32 false 4294967295
+fits 28 32 true false
+wrap 28 32 true 2147483647
+sat 28 32 true -2147483648
+min 28 32 true -2147483648
+max 28 32 true 2147483647
+fits 28 64 false false
+wrap 28 64 false 18446744071562067967
+sat 28 64 false 0
+min 28 64 false 0
+max 28 64 false 18446744073709551615
+fits 28 64 true true
+wrap 28 64 true -2147483649
+sat 28 64 true -2147483649
+min 28 64 true -9223372036854775808
+max 28 64 true 9223372036854775807
+o 29 4294967295
+neg 29 -4294967295
+not 29 -4294967296
+fromu64 29 4294967295
+toi64 29 4294967295
+fromi64 29 4294967295
+fits 29 8 false false
+wrap 29 8 false 255
+sat 29 8 false 255
+min 29 8 false 0
+max 29 8 false 255
+fits 29 8 true false
+wrap 29 8 true -1
+sat 29 8 true 127
+min 29 8 true -128
+max 29 8 true 127
+fits 29 16 false false
+wrap 29 16 false 65535
+sat 29 16 false 65535
+min 29 16 false 0
+max 29 16 false 65535
+fits 29 16 true false
+wrap 29 16 true -1
+sat 29 16 true 32767
+min 29 16 true -32768
+max 29 16 true 32767
+fits 29 32 false true
+wrap 29 32 false 4294967295
+sat 29 32 false 4294967295
+min 29 32 false 0
+max 29 32 false 4294967295
+fits 29 32 true false
+wrap 29 32 true -1
+sat 29 32 true 2147483647
+min 29 32 true -2147483648
+max 29 32 true 2147483647
+fits 29 64 false true
+wrap 29 64 false 4294967295
+sat 29 64 false 4294967295
+min 29 64 false 0
+max 29 64 false 18446744073709551615
+fits 29 64 true true
+wrap 29 64 true 4294967295
+sat 29 64 true 4294967295
+min 29 64 true -9223372036854775808
+max 29 64 true 9223372036854775807
+o 30 4294967296
+neg 30 -4294967296
+not 30 -4294967297
+fromu64 30 4294967296
+toi64 30 4294967296
+fromi64 30 4294967296
+fits 30 8 false false
+wrap 30 8 false 0
+sat 30 8 false 255
+min 30 8 false 0
+max 30 8 false 255
+fits 30 8 true false
+wrap 30 8 true 0
+sat 30 8 true 127
+min 30 8 true -128
+max 30 8 true 127
+fits 30 16 false false
+wrap 30 16 false 0
+sat 30 16 false 65535
+min 30 16 false 0
+max 30 16 false 65535
+fits 30 16 true false
+wrap 30 16 true 0
+sat 30 16 true 32767
+min 30 16 true -32768
+max 30 16 true 32767
+fits 30 32 false false
+wrap 30 32 false 0
+sat 30 32 false 4294967295
+min 30 32 false 0
+max 30 32 false 4294967295
+fits 30 32 true false
+wrap 30 32 true 0
+sat 30 32 true 2147483647
+min 30 32 true -2147483648
+max 30 32 true 2147483647
+fits 30 64 false true
+wrap 30 64 false 4294967296
+sat 30 64 false 4294967296
+min 30 64 false 0
+max 30 64 false 18446744073709551615
+fits 30 64 true true
+wrap 30 64 true 4294967296
+sat 30 64 true 4294967296
+min 30 64 true -9223372036854775808
+max 30 64 true 9223372036854775807
+o 31 9223372036854775806
+neg 31 -9223372036854775806
+not 31 -9223372036854775807
+fromu64 31 9223372036854775806
+toi64 31 9223372036854775806
+fromi64 31 9223372036854775806
+fits 31 8 false false
+wrap 31 8 false 254
+sat 31 8 false 255
+min 31 8 false 0
+max 31 8 false 255
+fits 31 8 true false
+wrap 31 8 true -2
+sat 31 8 true 127
+min 31 8 true -128
+max 31 8 true 127
+fits 31 16 false false
+wrap 31 16 false 65534
+sat 31 16 false 65535
+min 31 16 false 0
+max 31 16 false 65535
+fits 31 16 true false
+wrap 31 16 true -2
+sat 31 16 true 32767
+min 31 16 true -32768
+max 31 16 true 32767
+fits 31 32 false false
+wrap 31 32 false 4294967294
+sat 31 32 false 4294967295
+min 31 32 false 0
+max 31 32 false 4294967295
+fits 31 32 true false
+wrap 31 32 true -2
+sat 31 32 true 2147483647
+min 31 32 true -2147483648
+max 31 32 true 2147483647
+fits 31 64 false true
+wrap 31 64 false 9223372036854775806
+sat 31 64 false 9223372036854775806
+min 31 64 false 0
+max 31 64 false 18446744073709551615
+fits 31 64 true true
+wrap 31 64 true 9223372036854775806
+sat 31 64 true 9223372036854775806
+min 31 64 true -9223372036854775808
+max 31 64 true 9223372036854775807
+o 32 9223372036854775807
+neg 32 -9223372036854775807
+not 32 -9223372036854775808
+fromu64 32 9223372036854775807
+toi64 32 9223372036854775807
+fromi64 32 9223372036854775807
+fits 32 8 false false
+wrap 32 8 false 255
+sat 32 8 false 255
+min 32 8 false 0
+max 32 8 false 255
+fits 32 8 true false
+wrap 32 8 true -1
+sat 32 8 true 127
+min 32 8 true -128
+max 32 8 true 127
+fits 32 16 false false
+wrap 32 16 false 65535
+sat 32 16 false 65535
+min 32 16 false 0
+max 32 16 false 65535
+fits 32 16 true false
+wrap 32 16 true -1
+sat 32 16 true 32767
+min 32 16 true -32768
+max 32 16 true 32767
+fits 32 32 false false
+wrap 32 32 false 4294967295
+sat 32 32 false 4294967295
+min 32 32 false 0
+max 32 32 false 4294967295
+fits 32 32 true false
+wrap 32 32 true -1
+sat 32 32 true 2147483647
+min 32 32 true -2147483648
+max 32 32 true 2147483647
+fits 32 64 false true
+wrap 32 64 false 9223372036854775807
+sat 32 64 false 9223372036854775807
+min 32 64 false 0
+max 32 64 false 18446744073709551615
+fits 32 64 true true
+wrap 32 64 true 9223372036854775807
+sat 32 64 true 9223372036854775807
+min 32 64 true -9223372036854775808
+max 32 64 true 9223372036854775807
+o 33 9223372036854775808
+neg 33 -9223372036854775808
+not 33 -9223372036854775809
+fromu64 33 9223372036854775808
+fits 33 8 false false
+wrap 33 8 false 0
+sat 33 8 false 255
+min 33 8 false 0
+max 33 8 false 255
+fits 33 8 true false
+wrap 33 8 true 0
+sat 33 8 true 127
+min 33 8 true -128
+max 33 8 true 127
+fits 33 16 false false
+wrap 33 16 false 0
+sat 33 16 false 65535
+min 33 16 false 0
+max 33 16 false 65535
+fits 33 16 true false
+wrap 33 16 true 0
+sat 33 16 true 32767
+min 33 16 true -32768
+max 33 16 true 32767
+fits 33 32 false false
+wrap 33 32 false 0
+sat 33 32 false 4294967295
+min 33 32 false 0
+max 33 32 false 4294967295
+fits 33 32 true false
+wrap 33 32 true 0
+sat 33 32 true 2147483647
+min 33 32 true -2147483648
+max 33 32 true 2147483647
+fits 33 64 false true
+wrap 33 64 false 9223372036854775808
+sat 33 64 false 9223372036854775808
+min 33 64 false 0
+max 33 64 false 18446744073709551615
+fits 33 64 true false
+wrap 33 64 true -9223372036854775808
+sat 33 64 true 9223372036854775807
+min 33 64 true -9223372036854775808
+max 33 64 true 9223372036854775807
+o 34 -9223372036854775807
+neg 34 9223372036854775807
+not 34 9223372036854775806
+fromu64 34 9223372036854775809
+toi64 34 -9223372036854775807
+fromi64 34 -9223372036854775807
+fits 34 8 false false
+wrap 34 8 false 1
+sat 34 8 false 0
+min 34 8 false 0
+max 34 8 false 255
+fits 34 8 true false
+wrap 34 8 true 1
+sat 34 8 true -128
+min 34 8 true -128
+max 34 8 true 127
+fits 34 16 false false
+wrap 34 16 false 1
+sat 34 16 false 0
+min 34 16 false 0
+max 34 16 false 65535
+fits 34 16 true false
+wrap 34 16 true 1
+sat 34 16 true -32768
+min 34 16 true -32768
+max 34 16 true 32767
+fits 34 32 false false
+wrap 34 32 false 1
+sat 34 32 false 0
+min 34 32 false 0
+max 34 32 false 4294967295
+fits 34 32 true false
+wrap 34 32 true 1
+sat 34 32 true -2147483648
+min 34 32 true -2147483648
+max 34 32 true 2147483647
+fits 34 64 false false
+wrap 34 64 false 9223372036854775809
+sat 34 64 false 0
+min 34 64 false 0
+max 34 64 false 18446744073709551615
+fits 34 64 true true
+wrap 34 64 true -9223372036854775807
+sat 34 64 true -9223372036854775807
+min 34 64 true -9223372036854775808
+max 34 64 true 9223372036854775807
+o 35 -9223372036854775808
+neg 35 9223372036854775808
+not 35 9223372036854775807
+fromu64 35 9223372036854775808
+toi64 35 -9223372036854775808
+fromi64 35 -9223372036854775808
+fits 35 8 false false
+wrap 35 8 false 0
+sat 35 8 false 0
+min 35 8 false 0
+max 35 8 false 255
+fits 35 8 true false
+wrap 35 8 true 0
+sat 35 8 true -128
+min 35 8 true -128
+max 35 8 true 127
+fits 35 16 false false
+wrap 35 16 false 0
+sat 35 16 false 0
+min 35 16 false 0
+max 35 16 false 65535
+fits 35 16 true false
+wrap 35 16 true 0
+sat 35 16 true -32768
+min 35 16 true -32768
+max 35 16 true 32767
+fits 35 32 false false
+wrap 35 32 false 0
+sat 35 32 false 0
+min 35 32 false 0
+max 35 32 false 4294967295
+fits 35 32 true false
+wrap 35 32 true 0
+sat 35 32 true -2147483648
+min 35 32 true -2147483648
+max 35 32 true 2147483647
+fits 35 64 false false
+wrap 35 64 false 9223372036854775808
+sat 35 64 false 0
+min 35 64 false 0
+max 35 64 false 18446744073709551615
+fits 35 64 true true
+wrap 35 64 true -9223372036854775808
+sat 35 64 true -9223372036854775808
+min 35 64 true -9223372036854775808
+max 35 64 true 9223372036854775807
+o 36 -9223372036854775809
+neg 36 9223372036854775809
+not 36 9223372036854775808
+fromu64 36 9223372036854775807
+fits 36 8 false false
+wrap 36 8 false 255
+sat 36 8 false 0
+min 36 8 false 0
+max 36 8 false 255
+fits 36 8 true false
+wrap 36 8 true -1
+sat 36 8 true -128
+min 36 8 true -128
+max 36 8 true 127
+fits 36 16 false false
+wrap 36 16 false 65535
+sat 36 16 false 0
+min 36 16 false 0
+max 36 16 false 65535
+fits 36 16 true false
+wrap 36 16 true -1
+sat 36 16 true -32768
+min 36 16 true -32768
+max 36 16 true 32767
+fits 36 32 false false
+wrap 36 32 false 4294967295
+sat 36 32 false 0
+min 36 32 false 0
+max 36 32 false 4294967295
+fits 36 32 true false
+wrap 36 32 true -1
+sat 36 32 true -2147483648
+min 36 32 true -2147483648
+max 36 32 true 2147483647
+fits 36 64 false false
+wrap 36 64 false 9223372036854775807
+sat 36 64 false 0
+min 36 64 false 0
+max 36 64 false 18446744073709551615
+fits 36 64 true false
+wrap 36 64 true 9223372036854775807
+sat 36 64 true -9223372036854775808
+min 36 64 true -9223372036854775808
+max 36 64 true 9223372036854775807
+o 37 18446744073709551615
+neg 37 -18446744073709551615
+not 37 -18446744073709551616
+fromu64 37 18446744073709551615
+fits 37 8 false false
+wrap 37 8 false 255
+sat 37 8 false 255
+min 37 8 false 0
+max 37 8 false 255
+fits 37 8 true false
+wrap 37 8 true -1
+sat 37 8 true 127
+min 37 8 true -128
+max 37 8 true 127
+fits 37 16 false false
+wrap 37 16 false 65535
+sat 37 16 false 65535
+min 37 16 false 0
+max 37 16 false 65535
+fits 37 16 true false
+wrap 37 16 true -1
+sat 37 16 true 32767
+min 37 16 true -32768
+max 37 16 true 32767
+fits 37 32 false false
+wrap 37 32 false 4294967295
+sat 37 32 false 4294967295
+min 37 32 false 0
+max 37 32 false 4294967295
+fits 37 32 true false
+wrap 37 32 true -1
+sat 37 32 true 2147483647
+min 37 32 true -2147483648
+max 37 32 true 2147483647
+fits 37 64 false true
+wrap 37 64 false 18446744073709551615
+sat 37 64 false 18446744073709551615
+min 37 64 false 0
+max 37 64 false 18446744073709551615
+fits 37 64 true false
+wrap 37 64 true -1
+sat 37 64 true 9223372036854775807
+min 37 64 true -9223372036854775808
+max 37 64 true 9223372036854775807
+o 38 18446744073709551616
+neg 38 -18446744073709551616
+not 38 -18446744073709551617
+fromu64 38 0
+fits 38 8 false false
+wrap 38 8 false 0
+sat 38 8 false 255
+min 38 8 false 0
+max 38 8 false 255
+fits 38 8 true false
+wrap 38 8 true 0
+sat 38 8 true 127
+min 38 8 true -128
+max 38 8 true 127
+fits 38 16 false false
+wrap 38 16 false 0
+sat 38 16 false 65535
+min 38 16 false 0
+max 38 16 false 65535
+fits 38 16 true false
+wrap 38 16 true 0
+sat 38 16 true 32767
+min 38 16 true -32768
+max 38 16 true 32767
+fits 38 32 false false
+wrap 38 32 false 0
+sat 38 32 false 4294967295
+min 38 32 false 0
+max 38 32 false 4294967295
+fits 38 32 true false
+wrap 38 32 true 0
+sat 38 32 true 2147483647
+min 38 32 true -2147483648
+max 38 32 true 2147483647
+fits 38 64 false false
+wrap 38 64 false 0
+sat 38 64 false 18446744073709551615
+min 38 64 false 0
+max 38 64 false 18446744073709551615
+fits 38 64 true false
+wrap 38 64 true 0
+sat 38 64 true 9223372036854775807
+min 38 64 true -9223372036854775808
+max 38 64 true 9223372036854775807
+o 39 -18446744073709551616
+neg 39 18446744073709551616
+not 39 18446744073709551615
+fromu64 39 0
+fits 39 8 false false
+wrap 39 8 false 0
+sat 39 8 false 0
+min 39 8 false 0
+max 39 8 false 255
+fits 39 8 true false
+wrap 39 8 true 0
+sat 39 8 true -128
+min 39 8 true -128
+max 39 8 true 127
+fits 39 16 false false
+wrap 39 16 false 0
+sat 39 16 false 0
+min 39 16 false 0
+max 39 16 false 65535
+fits 39 16 true false
+wrap 39 16 true 0
+sat 39 16 true -32768
+min 39 16 true -32768
+max 39 16 true 32767
+fits 39 32 false false
+wrap 39 32 false 0
+sat 39 32 false 0
+min 39 32 false 0
+max 39 32 false 4294967295
+fits 39 32 true false
+wrap 39 32 true 0
+sat 39 32 true -2147483648
+min 39 32 true -2147483648
+max 39 32 true 2147483647
+fits 39 64 false false
+wrap 39 64 false 0
+sat 39 64 false 0
+min 39 64 false 0
+max 39 64 false 18446744073709551615
+fits 39 64 true false
+wrap 39 64 true 0
+sat 39 64 true -9223372036854775808
+min 39 64 true -9223372036854775808
+max 39 64 true 9223372036854775807
+o 40 9223372036854775808
+neg 40 -9223372036854775808
+not 40 -9223372036854775809
+fromu64 40 9223372036854775808
+fits 40 8 false false
+wrap 40 8 false 0
+sat 40 8 false 255
+min 40 8 false 0
+max 40 8 false 255
+fits 40 8 true false
+wrap 40 8 true 0
+sat 40 8 true 127
+min 40 8 true -128
+max 40 8 true 127
+fits 40 16 false false
+wrap 40 16 false 0
+sat 40 16 false 65535
+min 40 16 false 0
+max 40 16 false 65535
+fits 40 16 true false
+wrap 40 16 true 0
+sat 40 16 true 32767
+min 40 16 true -32768
+max 40 16 true 32767
+fits 40 32 false false
+wrap 40 32 false 0
+sat 40 32 false 4294967295
+min 40 32 false 0
+max 40 32 false 4294967295
+fits 40 32 true false
+wrap 40 32 true 0
+sat 40 32 true 2147483647
+min 40 32 true -2147483648
+max 40 32 true 2147483647
+fits 40 64 false true
+wrap 40 64 false 9223372036854775808
+sat 40 64 false 9223372036854775808
+min 40 64 false 0
+max 40 64 false 18446744073709551615
+fits 40 64 true false
+wrap 40 64 true -9223372036854775808
+sat 40 64 true 9223372036854775807
+min 40 64 true -9223372036854775808
+max 40 64 true 9223372036854775807
+o 41 1267650600228229401496703205377
+neg 41 -1267650600228229401496703205377
+not 41 -1267650600228229401496703205378
+fromu64 41 1
+fits 41 8 false false
+wrap 41 8 false 1
+sat 41 8 false 255
+min 41 8 false 0
+max 41 8 false 255
+fits 41 8 true false
+wrap 41 8 true 1
+sat 41 8 true 127
+min 41 8 true -128
+max 41 8 true 127
+fits 41 16 false false
+wrap 41 16 false 1
+sat 41 16 false 65535
+min 41 16 false 0
+max 41 16 false 65535
+fits 41 16 true false
+wrap 41 16 true 1
+sat 41 16 true 32767
+min 41 16 true -32768
+max 41 16 true 32767
+fits 41 32 false false
+wrap 41 32 false 1
+sat 41 32 false 4294967295
+min 41 32 false 0
+max 41 32 false 4294967295
+fits 41 32 true false
+wrap 41 32 true 1
+sat 41 32 true 2147483647
+min 41 32 true -2147483648
+max 41 32 true 2147483647
+fits 41 64 false false
+wrap 41 64 false 1
+sat 41 64 false 18446744073709551615
+min 41 64 false 0
+max 41 64 false 18446744073709551615
+fits 41 64 true false
+wrap 41 64 true 1
+sat 41 64 true 9223372036854775807
+min 41 64 true -9223372036854775808
+max 41 64 true 9223372036854775807
+o 42 -1267650600228229401496703205377
+neg 42 1267650600228229401496703205377
+not 42 1267650600228229401496703205376
+fromu64 42 18446744073709551615
+fits 42 8 false false
+wrap 42 8 false 255
+sat 42 8 false 0
+min 42 8 false 0
+max 42 8 false 255
+fits 42 8 true false
+wrap 42 8 true -1
+sat 42 8 true -128
+min 42 8 true -128
+max 42 8 true 127
+fits 42 16 false false
+wrap 42 16 false 65535
+sat 42 16 false 0
+min 42 16 false 0
+max 42 16 false 65535
+fits 42 16 true false
+wrap 42 16 true -1
+sat 42 16 true -32768
+min 42 16 true -32768
+max 42 16 true 32767
+fits 42 32 false false
+wrap 42 32 false 4294967295
+sat 42 32 false 0
+min 42 32 false 0
+max 42 32 false 4294967295
+fits 42 32 true false
+wrap 42 32 true -1
+sat 42 32 true -2147483648
+min 42 32 true -2147483648
+max 42 32 true 2147483647
+fits 42 64 false false
+wrap 42 64 false 18446744073709551615
+sat 42 64 false 0
+min 42 64 false 0
+max 42 64 false 18446744073709551615
+fits 42 64 true false
+wrap 42 64 true -1
+sat 42 64 true -9223372036854775808
+min 42 64 true -9223372036854775808
+max 42 64 true 9223372036854775807
+o 43 170141183460469231731687303715884105727
+neg 43 -170141183460469231731687303715884105727
+not 43 -170141183460469231731687303715884105728
+fromu64 43 18446744073709551615
+fits 43 8 false false
+wrap 43 8 false 255
+sat 43 8 false 255
+min 43 8 false 0
+max 43 8 false 255
+fits 43 8 true false
+wrap 43 8 true -1
+sat 43 8 true 127
+min 43 8 true -128
+max 43 8 true 127
+fits 43 16 false false
+wrap 43 16 false 65535
+sat 43 16 false 65535
+min 43 16 false 0
+max 43 16 false 65535
+fits 43 16 true false
+wrap 43 16 true -1
+sat 43 16 true 32767
+min 43 16 true -32768
+max 43 16 true 32767
+fits 43 32 false false
+wrap 43 32 false 4294967295
+sat 43 32 false 4294967295
+min 43 32 false 0
+max 43 32 false 4294967295
+fits 43 32 true false
+wrap 43 32 true -1
+sat 43 32 true 2147483647
+min 43 32 true -2147483648
+max 43 32 true 2147483647
+fits 43 64 false false
+wrap 43 64 false 18446744073709551615
+sat 43 64 false 18446744073709551615
+min 43 64 false 0
+max 43 64 false 18446744073709551615
+fits 43 64 true false
+wrap 43 64 true -1
+sat 43 64 true 9223372036854775807
+min 43 64 true -9223372036854775808
+max 43 64 true 9223372036854775807
+o 44 170141183460469231731687303715884105726
+neg 44 -170141183460469231731687303715884105726
+not 44 -170141183460469231731687303715884105727
+fromu64 44 18446744073709551614
+fits 44 8 false false
+wrap 44 8 false 254
+sat 44 8 false 255
+min 44 8 false 0
+max 44 8 false 255
+fits 44 8 true false
+wrap 44 8 true -2
+sat 44 8 true 127
+min 44 8 true -128
+max 44 8 true 127
+fits 44 16 false false
+wrap 44 16 false 65534
+sat 44 16 false 65535
+min 44 16 false 0
+max 44 16 false 65535
+fits 44 16 true false
+wrap 44 16 true -2
+sat 44 16 true 32767
+min 44 16 true -32768
+max 44 16 true 32767
+fits 44 32 false false
+wrap 44 32 false 4294967294
+sat 44 32 false 4294967295
+min 44 32 false 0
+max 44 32 false 4294967295
+fits 44 32 true false
+wrap 44 32 true -2
+sat 44 32 true 2147483647
+min 44 32 true -2147483648
+max 44 32 true 2147483647
+fits 44 64 false false
+wrap 44 64 false 18446744073709551614
+sat 44 64 false 18446744073709551615
+min 44 64 false 0
+max 44 64 false 18446744073709551615
+fits 44 64 true false
+wrap 44 64 true -2
+sat 44 64 true 9223372036854775807
+min 44 64 true -9223372036854775808
+max 44 64 true 9223372036854775807
+o 45 -170141183460469231731687303715884105728
+neg 45 -170141183460469231731687303715884105728
+not 45 170141183460469231731687303715884105727
+fromu64 45 0
+fits 45 8 false false
+wrap 45 8 false 0
+sat 45 8 false 0
+min 45 8 false 0
+max 45 8 false 255
+fits 45 8 true false
+wrap 45 8 true 0
+sat 45 8 true -128
+min 45 8 true -128
+max 45 8 true 127
+fits 45 16 false false
+wrap 45 16 false 0
+sat 45 16 false 0
+min 45 16 false 0
+max 45 16 false 65535
+fits 45 16 true false
+wrap 45 16 true 0
+sat 45 16 true -32768
+min 45 16 true -32768
+max 45 16 true 32767
+fits 45 32 false false
+wrap 45 32 false 0
+sat 45 32 false 0
+min 45 32 false 0
+max 45 32 false 4294967295
+fits 45 32 true false
+wrap 45 32 true 0
+sat 45 32 true -2147483648
+min 45 32 true -2147483648
+max 45 32 true 2147483647
+fits 45 64 false false
+wrap 45 64 false 0
+sat 45 64 false 0
+min 45 64 false 0
+max 45 64 false 18446744073709551615
+fits 45 64 true false
+wrap 45 64 true 0
+sat 45 64 true -9223372036854775808
+min 45 64 true -9223372036854775808
+max 45 64 true 9223372036854775807
+o 46 -170141183460469231731687303715884105727
+neg 46 170141183460469231731687303715884105727
+not 46 170141183460469231731687303715884105726
+fromu64 46 1
+fits 46 8 false false
+wrap 46 8 false 1
+sat 46 8 false 0
+min 46 8 false 0
+max 46 8 false 255
+fits 46 8 true false
+wrap 46 8 true 1
+sat 46 8 true -128
+min 46 8 true -128
+max 46 8 true 127
+fits 46 16 false false
+wrap 46 16 false 1
+sat 46 16 false 0
+min 46 16 false 0
+max 46 16 false 65535
+fits 46 16 true false
+wrap 46 16 true 1
+sat 46 16 true -32768
+min 46 16 true -32768
+max 46 16 true 32767
+fits 46 32 false false
+wrap 46 32 false 1
+sat 46 32 false 0
+min 46 32 false 0
+max 46 32 false 4294967295
+fits 46 32 true false
+wrap 46 32 true 1
+sat 46 32 true -2147483648
+min 46 32 true -2147483648
+max 46 32 true 2147483647
+fits 46 64 false false
+wrap 46 64 false 1
+sat 46 64 false 0
+min 46 64 false 0
+max 46 64 false 18446744073709551615
+fits 46 64 true false
+wrap 46 64 true 1
+sat 46 64 true -9223372036854775808
+min 46 64 true -9223372036854775808
+max 46 64 true 9223372036854775807
+p 0 3 0 2
+add 0 3 2
+sub 0 3 -2
+mul 0 3 0
+div 0 3 0
+rem 0 3 0
+and 0 3 0
+or 0 3 2
+xor 0 3 2
+cmp 0 3 -1
+eq 0 3 false
+shl 0 3 0 0
+shr 0 3 0 0
+shl 0 3 1 0
+shr 0 3 1 0
+shl 0 3 63 0
+shr 0 3 63 0
+shl 0 3 64 0
+shr 0 3 64 0
+shl 0 3 127 0
+shr 0 3 127 0
+p 1 10 1 -128
+add 1 10 -127
+sub 1 10 129
+mul 1 10 -128
+div 1 10 0
+rem 1 10 1
+and 1 10 0
+or 1 10 -127
+xor 1 10 -127
+cmp 1 10 1
+eq 1 10 false
+shl 1 10 0 1
+shr 1 10 0 1
+shl 1 10 1 2
+shr 1 10 1 0
+shl 1 10 63 9223372036854775808
+shr 1 10 63 0
+shl 1 10 64 18446744073709551616
+shr 1 10 64 0
+shl 1 10 127 -170141183460469231731687303715884105728
+shr 1 10 127 0
+p 2 17 -1 32768
+add 2 17 32767
+sub 2 17 -32769
+mul 2 17 -32768
+div 2 17 0
+rem 2 17 -1
+and 2 17 32768
+or 2 17 -1
+xor 2 17 -32769
+cmp 2 17 -1
+eq 2 17 false
+shl 2 17 0 -1
+shr 2 17 0 -1
+shl 2 17 1 -2
+shr 2 17 1 -1
+shl 2 17 63 -9223372036854775808
+shr 2 17 63 -1
+shl 2 17 64 -18446744073709551616
+shr 2 17 64 -1
+shl 2 17 127 -170141183460469231731687303715884105728
+shr 2 17 127 -1
+p 3 24 2 2147483647
+add 3 24 2147483649
+sub 3 24 -2147483645
+mul 3 24 4294967294
+div 3 24 0
+rem 3 24 2
+and 3 24 2
+or 3 24 2147483647
+xor 3 24 2147483645
+cmp 3 24 -1
+eq 3 24 false
+shl 3 24 0 2
+shr 3 24 0 2
+shl 3 24 1 4
+shr 3 24 1 1
+shl 3 24 63 18446744073709551616
+shr 3 24 63 0
+shl 3 24 64 36893488147419103232
+shr 3 24 64 0
+shl 3 24 127 0
+shr 3 24 127 0
+p 4 31 -2 9223372036854775806
+add 4 31 9223372036854775804
+sub 4 31 -9223372036854775808
+mul 4 31 -18446744073709551612
+div 4 31 0
+rem 4 31 -2
+and 4 31 9223372036854775806
+or 4 31 -2
+xor 4 31 -9223372036854775808
+cmp 4 31 -1
+eq 4 31 false
+shl 4 31 0 -2
+shr 4 31 0 -2
+shl 4 31 1 -4
+shr 4 31 1 -1
+shl 4 31 63 -18446744073709551616
+shr 4 31 63 -1
+shl 4 31 64 -36893488147419103232
+shr 4 31 64 -1
+shl 4 31 127 0
+shr 4 31 127 -1
+p 5 38 42 18446744073709551616
+add 5 38 18446744073709551658
+sub 5 38 -18446744073709551574
+mul 5 38 774763251095801167872
+div 5 38 0
+rem 5 38 42
+and 5 38 0
+or 5 38 18446744073709551658
+xor 5 38 18446744073709551658
+cmp 5 38 -1
+eq 5 38 false
+shl 5 38 0 42
+shr 5 38 0 42
+shl 5 38 1 84
+shr 5 38 1 21
+shl 5 38 63 387381625547900583936
+shr 5 38 63 0
+shl 5 38 64 774763251095801167872
+shr 5 38 64 0
+shl 5 38 127 0
+shr 5 38 127 0
+p 6 45 126 -170141183460469231731687303715884105728
+add 6 45 -170141183460469231731687303715884105602
+sub 6 45 -170141183460469231731687303715884105602
+mul 6 45 0
+div 6 45 0
+rem 6 45 126
+and 6 45 0
+or 6 45 -170141183460469231731687303715884105602
+xor 6 45 -170141183460469231731687303715884105602
+cmp 6 45 1
+eq 6 45 false
+shl 6 45 0 126
+shr 6 45 0 126
+shl 6 45 1 252
+shr 6 45 1 63
+shl 6 45 63 1162144876643701751808
+shr 6 45 63 0
+shl 6 45 64 2324289753287403503616
+shr 6 45 64 0
+shl 6 45 127 0
+shr 6 45 127 0
+p 7 5 127 42
+add 7 5 169
+sub 7 5 85
+mul 7 5 5334
+div 7 5 3
+rem 7 5 1
+and 7 5 42
+or 7 5 127
+xor 7 5 85
+cmp 7 5 1
+eq 7 5 false
+shl 7 5 0 127
+shr 7 5 0 127
+shl 7 5 1 254
+shr 7 5 1 63
+shl 7 5 63 1171368248680556527616
+shr 7 5 63 0
+shl 7 5 64 2342736497361113055232
+shr 7 5 64 0
+shl 7 5 127 -170141183460469231731687303715884105728
+shr 7 5 127 0
+p 8 12 128 255
+add 8 12 383
+sub 8 12 -127
+mul 8 12 32640
+div 8 12 0
+rem 8 12 128
+and 8 12 128
+or 8 12 255
+xor 8 12 127
+cmp 8 12 -1
+eq 8 12 false
+shl 8 12 0 128
+shr 8 12 0 128
+shl 8 12 1 256
+shr 8 12 1 64
+shl 8 12 63 1180591620717411303424
+shr 8 12 63 0
+shl 8 12 64 2361183241434822606848
+shr 8 12 64 0
+shl 8 12 127 0
+shr 8 12 127 0
+p 9 19 -127 -32768
+add 9 19 -32895
+sub 9 19 32641
+mul 9 19 4161536
+div 9 19 0
+rem 9 19 -127
+and 9 19 -32768
+or 9 19 -127
+xor 9 19 32641
+cmp 9 19 1
+eq 9 19 false
+shl 9 19 0 -127
+shr 9 19 0 -127
+shl 9 19 1 -254
+shr 9 19 1 -64
+shl 9 19 63 -1171368248680556527616
+shr 9 19 63 -1
+shl 9 19 64 -2342736497361113055232
+shr 9 19 64 -1
+shl 9 19 127 -170141183460469231731687303715884105728
+shr 9 19 127 -1
+p 10 26 -128 -2147483647
+add 10 26 -2147483775
+sub 10 26 2147483519
+mul 10 26 274877906816
+div 10 26 0
+rem 10 26 -128
+and 10 26 -2147483648
+or 10 26 -127
+xor 10 26 2147483521
+cmp 10 26 1
+eq 10 26 false
+shl 10 26 0 -128
+shr 10 26 0 -128
+shl 10 26 1 -256
+shr 10 26 1 -64
+shl 10 26 63 -1180591620717411303424
+shr 10 26 63 -1
+shl 10 26 64 -2361183241434822606848
+shr 10 26 64 -1
+shl 10 26 127 0
+shr 10 26 127 -1
+p 11 33 -129 9223372036854775808
+add 11 33 9223372036854775679
+sub 11 33 -9223372036854775937
+mul 11 33 -1189814992754266079232
+div 11 33 0
+rem 11 33 -129
+and 11 33 9223372036854775808
+or 11 33 -129
+xor 11 33 -9223372036854775937
+cmp 11 33 -1
+eq 11 33 false
+shl 11 33 0 -129
+shr 11 33 0 -129
+shl 11 33 1 -258
+shr 11 33 1 -65
+shl 11 33 63 -1189814992754266079232
+shr 11 33 63 -1
+shl 11 33 64 -2379629985508532158464
+shr 11 33 64 -1
+shl 11 33 127 -170141183460469231731687303715884105728
+shr 11 33 127 -1
+p 12 33 255 9223372036854775808
+add 12 33 9223372036854776063
+sub 12 33 -9223372036854775553
+mul 12 33 2351959869397967831040
+div 12 33 0
+rem 12 33 255
+and 12 33 0
+or 12 33 9223372036854776063
+xor 12 33 9223372036854776063
+cmp 12 33 -1
+eq 12 33 false
+shl 12 33 0 255
+shr 12 33 0 255
+shl 12 33 1 510
+shr 12 33 1 127
+shl 12 33 63 2351959869397967831040
+shr 12 33 63 0
+shl 12 33 64 4703919738795935662080
+shr 12 33 64 0
+shl 12 33 127 -170141183460469231731687303715884105728
+shr 12 33 127 0
+p 13 1 256 1
+add 13 1 257
+sub 13 1 255
+mul 13 1 256
+div 13 1 256
+rem 13 1 0
+and 13 1 0
+or 13 1 257
+xor 13 1 257
+cmp 13 1 1
+eq 13 1 false
+shl 13 1 0 256
+shr 13 1 0 256
+shl 13 1 1 512
+shr 13 1 1 128
+shl 13 1 63 2361183241434822606848
+shr 13 1 63 0
+shl 13 1 64 4722366482869645213696
+shr 13 1 64 0
+shl 13 1 127 0
+shr 13 1 127 0
+p 14 7 -256 127
+add 14 7 -129
+sub 14 7 -383
+mul 14 7 -32512
+div 14 7 -2
+rem 14 7 -2
+and 14 7 0
+or 14 7 -129
+xor 14 7 -129
+cmp 14 7 -1
+eq 14 7 false
+shl 14 7 0 -256
+shr 14 7 0 -256
+shl 14 7 1 -512
+shr 14 7 1 -128
+shl 14 7 63 -2361183241434822606848
+shr 14 7 63 -1
+shl 14 7 64 -4722366482869645213696
+shr 14 7 64 -1
+shl 14 7 127 0
+shr 14 7 127 -1
+p 15 14 32766 -256
+add 15 14 32510
+sub 15 14 33022
+mul 15 14 -8388096
+div 15 14 -127
+rem 15 14 254
+and 15 14 32512
+or 15 14 -2
+xor 15 14 -32514
+cmp 15 14 1
+eq 15 14 false
+shl 15 14 0 32766
+shr 15 14 0 32766
+shl 15 14 1 65532
+shr 15 14 1 16383
+shl 15 14 63 302213008159583584124928
+shr 15 14 63 0
+shl 15 14 64 604426016319167168249856
+shr 15 14 64 0
+shl 15 14 127 0
+shr 15 14 127 0
+p 16 21 32767 65535
+add 16 21 98302
+sub 16 21 -32768
+mul 16 21 2147385345
+div 16 21 0
+rem 16 21 32767
+and 16 21 32767
+or 16 21 65535
+xor 16 21 32768
+cmp 16 21 -1
+eq 16 21 false
+shl 16 21 0 32767
+shr 16 21 0 32767
+shl 16 21 1 65534
+shr 16 21 1 16383
+shl 16 21 63 302222231531620438900736
+shr 16 21 63 0
+shl 16 21 64 604444463063240877801472
+shr 16 21 64 0
+shl 16 21 127 -170141183460469231731687303715884105728
+shr 16 21 127 0
+p 17 28 32768 -2147483649
+add 17 28 -2147450881
+sub 17 28 2147516417
+mul 17 28 -70368744210432
+div 17 28 0
+rem 17 28 32768
+and 17 28 32768
+or 17 28 -2147483649
+xor 17 28 -2147516417
+cmp 17 28 1
+eq 17 28 false
+shl 17 28 0 32768
+shr 17 28 0 32768
+shl 17 28 1 65536
+shr 17 28 1 16384
+shl 17 28 63 302231454903657293676544
+shr 17 28 63 0
+shl 17 28 64 604462909807314587353088
+shr 17 28 64 0
+shl 17 28 127 0
+shr 17 28 127 0
+p 18 35 -32767 -9223372036854775808
+add 18 35 -9223372036854808575
+sub 18 35 9223372036854743041
+mul 18 35 302222231531620438900736
+div 18 35 0
+rem 18 35 -32767
+and 18 35 -9223372036854775808
+or 18 35 -32767
+xor 18 35 9223372036854743041
+cmp 18 35 1
+eq 18 35 false
+shl 18 35 0 -32767
+shr 18 35 0 -32767
+shl 18 35 1 -65534
+shr 18 35 1 -16384
+shl 18 35 63 -302222231531620438900736
+shr 18 35 63 -1
+shl 18 35 64 -604444463063240877801472
+shr 18 35 64 -1
+shl 18 35 127 -170141183460469231731687303715884105728
+shr 18 35 127 -1
+p 19 42 -32768 -1267650600228229401496703205377
+add 19 42 -1267650600228229401496703238145
+sub 19 42 1267650600228229401496703172609
+mul 19 42 41538374868278621028243970633793536
+div 19 42 0
+rem 19 42 -32768
+and 19 42 -1267650600228229401496703238144
+or 19 42 -1
+xor 19 42 1267650600228229401496703238143
+cmp 19 42 1
+eq 19 42 false
+shl 19 42 0 -32768
+shr 19 42 0 -32768
+shl 19 42 1 -65536
+shr 19 42 1 -16384
+shl 19 42 63 -302231454903657293676544
+shr 19 42 63 -1
+shl 19 42 64 -604462909807314587353088
+shr 19 42 64 -1
+shl 19 42 127 0
+shr 19 42 127 -1
+p 20 2 -32769 -1
+add 20 2 -32770
+sub 20 2 -32768
+mul 20 2 32769
+div 20 2 32769
+rem 20 2 0
+and 20 2 -32769
+or 20 2 -1
+xor 20 2 32768
+cmp 20 2 -1
+eq 20 2 false
+shl 20 2 0 -32769
+shr 20 2 0 -32769
+shl 20 2 1 -65538
+shr 20 2 1 -16385
+shl 20 2 63 -302240678275694148452352
+shr 20 2 63 -1
+shl 20 2 64 -604481356551388296904704
+shr 20 2 64 -1
+shl 20 2 127 -170141183460469231731687303715884105728
+shr 20 2 127 -1
+p 21 9 65535 -127
+add 21 9 65408
+sub 21 9 65662
+mul 21 9 -8322945
+div 21 9 -516
+rem 21 9 3
+and 21 9 65409
+or 21 9 -1
+xor 21 9 -65410
+cmp 21 9 1
+eq 21 9 false
+shl 21 9 0 65535
+shr 21 9 0 65535
+shl 21 9 1 131070
+shr 21 9 1 32767
+shl 21 9 63 604453686435277732577280
+shr 21 9 63 0
+shl 21 9 64 1208907372870555465154560
+shr 21 9 64 0
+shl 21 9 127 -170141183460469231731687303715884105728
+shr 21 9 127 0
+p 22 16 65536 32767
+add 22 16 98303
+sub 22 16 32769
+mul 22 16 2147418112
+div 22 16 2
+rem 22 16 2
+and 22 16 0
+or 22 16 98303
+xor 22 16 98303
+cmp 22 16 1
+eq 22 16 false
+shl 22 16 0 65536
+shr 22 16 0 65536
+shl 22 16 1 131072
+shr 22 16 1 32768
+shl 22 16 63 604462909807314587353088
+shr 22 16 63 0
+shl 22 16 64 1208925819614629174706176
+shr 22 16 64 0
+shl 22 16 127 0
+shr 22 16 127 0
+p 23 23 2147483646 2147483646
+add 23 23 4294967292
+sub 23 23 0
+mul 23 23 4611686009837453316
+div 23 23 1
+rem 23 23 0
+and 23 23 2147483646
+or 23 23 2147483646
+xor 23 23 0
+cmp 23 23 0
+eq 23 23 true
+shl 23 23 0 2147483646
+shr 23 23 0 2147483646
+shl 23 23 1 4294967292
+shr 23 23 1 1073741823
+shl 23 23 63 19807040610119340324676435968
+shr 23 23 63 0
+shl 23 23 64 39614081220238680649352871936
+shr 23 23 64 0
+shl 23 23 127 0
+shr 23 23 127 0
+p 24 30 2147483647 4294967296
+add 24 30 6442450943
+sub 24 30 -2147483649
+mul 24 30 9223372032559808512
+div 24 30 0
+rem 24 30 2147483647
+and 24 30 0
+or 24 30 6442450943
+xor 24 30 6442450943
+cmp 24 30 -1
+eq 24 30 false
+shl 24 30 0 2147483647
+shr 24 30 0 2147483647
+shl 24 30 1 4294967294
+shr 24 30 1 1073741823
+shl 24 30 63 19807040619342712361531211776
+shr 24 30 63 0
+shl 24 30 64 39614081238685424723062423552
+shr 24 30 64 0
+shl 24 30 127 -170141183460469231731687303715884105728
+shr 24 30 127 0
+p 25 37 2147483648 18446744073709551615
+add 25 37 18446744075857035263
+sub 25 37 -18446744071562067967
+mul 25 37 39614081257132168794624491520
+div 25 37 0
+rem 25 37 2147483648
+and 25 37 2147483648
+or 25 37 18446744073709551615
+xor 25 37 18446744071562067967
+cmp 25 37 -1
+eq 25 37 false
+shl 25 37 0 2147483648
+shr 25 37 0 2147483648
+shl 25 37 1 4294967296
+shr 25 37 1 1073741824
+shl 25 37 63 19807040628566084398385987584
+shr 25 37 63 0
+shl 25 37 64 39614081257132168796771975168
+shr 25 37 64 0
+shl 25 37 127 0
+shr 25 37 127 0
+p 26 44 -2147483647 170141183460469231731687303715884105726
+add 26 44 170141183460469231731687303713736622079
+sub 26 44 170141183460469231731687303713736622083
+mul 26 44 -170141183460469231731687303711589138434
+div 26 44 0
+rem 26 44 -2147483647
+and 26 44 170141183460469231731687303713736622080
+or 26 44 -1
+xor 26 44 -170141183460469231731687303713736622081
+cmp 26 44 -1
+eq 26 44 false
+shl 26 44 0 -2147483647
+shr 26 44 0 -2147483647
+shl 26 44 1 -4294967294
+shr 26 44 1 -1073741824
+shl 26 44 63 -19807040619342712361531211776
+shr 26 44 63 -1
+shl 26 44 64 -39614081238685424723062423552
+shr 26 44 64 -1
+shl 26 44 127 -170141183460469231731687303715884105728
+shr 26 44 127 -1
+p 27 4 -2147483648 -2
+add 27 4 -2147483650
+sub 27 4 -2147483646
+mul 27 4 4294967296
+div 27 4 1073741824
+rem 27 4 0
+and 27 4 -2147483648
+or 27 4 -2
+xor 27 4 2147483646
+cmp 27 4 -1
+eq 27 4 false
+shl 27 4 0 -2147483648
+shr 27 4 0 -2147483648
+shl 27 4 1 -4294967296
+shr 27 4 1 -1073741824
+shl 27 4 63 -19807040628566084398385987584
+shr 27 4 63 -1
+shl 27 4 64 -39614081257132168796771975168
+shr 27 4 64 -1
+shl 27 4 127 0
+shr 27 4 127 -1
+p 28 11 -2147483649 -129
+add 28 11 -2147483778
+sub 28 11 -2147483520
+mul 28 11 277025390721
+div 28 11 16647160
+rem 28 11 -9
+and 28 11 -2147483777
+or 28 11 -1
+xor 28 11 2147483776
+cmp 28 11 -1
+eq 28 11 false
+shl 28 11 0 -2147483649
+shr 28 11 0 -2147483649
+shl 28 11 1 -4294967298
+shr 28 11 1 -1073741825
+shl 28 11 63 -19807040637789456435240763392
+shr 28 11 63 -1
+shl 28 11 64 -39614081275578912870481526784
+shr 28 11 64 -1
+shl 28 11 127 -170141183460469231731687303715884105728
+shr 28 11 127 -1
+p 29 18 4294967295 -32767
+add 29 18 4294934528
+sub 29 18 4295000062
+mul 29 18 -140733193355265
+div 29 18 -131076
+rem 29 18 3
+and 29 18 4294934529
+or 29 18 -1
+xor 29 18 -4294934530
+cmp 29 18 1
+eq 29 18 false
+shl 29 18 0 4294967295
+shr 29 18 0 4294967295
+shl 29 18 1 8589934590
+shr 29 18 1 2147483647
+shl 29 18 63 39614081247908796759917199360
+shr 29 18 63 0
+shl 29 18 64 79228162495817593519834398720
+shr 29 18 64 0
+shl 29 18 127 -170141183460469231731687303715884105728
+shr 29 18 127 0
+p 30 25 4294967296 2147483648
+add 30 25 6442450944
+sub 30 25 2147483648
+mul 30 25 9223372036854775808
+div 30 25 2
+rem 30 25 0
+and 30 25 0
+or 30 25 6442450944
+xor 30 25 6442450944
+cmp 30 25 1
+eq 30 25 false
+shl 30 25 0 4294967296
+shr 30 25 0 4294967296
+shl 30 25 1 8589934592
+shr 30 25 1 2147483648
+shl 30 25 63 39614081257132168796771975168
+shr 30 25 63 0
+shl 30 25 64 79228162514264337593543950336
+shr 30 25 64 0
+shl 30 25 127 0
+shr 30 25 127 0
+p 31 32 9223372036854775806 9223372036854775807
+add 31 32 18446744073709551613
+sub 31 32 -1
+mul 31 32 85070591730234615838173535747377725442
+div 31 32 0
+rem 31 32 9223372036854775806
+and 31 32 9223372036854775806
+or 31 32 9223372036854775807
+xor 31 32 1
+cmp 31 32 -1
+eq 31 32 false
+shl 31 32 0 9223372036854775806
+shr 31 32 0 9223372036854775806
+shl 31 32 1 18446744073709551612
+shr 31 32 1 4611686018427387903
+shl 31 32 63 85070591730234615847396907784232501248
+shr 31 32 63 0
+shl 31 32 64 170141183460469231694793815568465002496
+shr 31 32 64 0
+shl 31 32 127 0
+shr 31 32 127 0
+p 32 39 9223372036854775807 -18446744073709551616
+add 32 39 -9223372036854775809
+sub 32 39 27670116110564327423
+mul 32 39 -170141183460469231713240559642174554112
+div 32 39 0
+rem 32 39 9223372036854775807
+and 32 39 0
+or 32 39 -9223372036854775809
+xor 32 39 -9223372036854775809
+cmp 32 39 1
+eq 32 39 false
+shl 32 39 0 9223372036854775807
+shr 32 39 0 9223372036854775807
+shl 32 39 1 18446744073709551614
+shr 32 39 1 4611686018427387903
+shl 32 39 63 85070591730234615856620279821087277056
+shr 32 39 63 0
+shl 32 39 64 170141183460469231713240559642174554112
+shr 32 39 64 0
+shl 32 39 127 -170141183460469231731687303715884105728
+shr 32 39 127 0
+p 33 46 9223372036854775808 -170141183460469231731687303715884105727
+add 33 46 -170141183460469231722463931679029329919
+sub 33 46 -170141183460469231722463931679029329921
+mul 33 46 9223372036854775808
+div 33 46 0
+rem 33 46 9223372036854775808
+and 33 46 0
+or 33 46 -170141183460469231722463931679029329919
+xor 33 46 -170141183460469231722463931679029329919
+cmp 33 46 1
+eq 33 46 false
+shl 33 46 0 9223372036854775808
+shr 33 46 0 9223372036854775808
+shl 33 46 1 18446744073709551616
+shr 33 46 1 4611686018427387904
+shl 33 46 63 85070591730234615865843651857942052864
+shr 33 46 63 1
+shl 33 46 64 -170141183460469231731687303715884105728
+shr 33 46 64 0
+shl 33 46 127 0
+shr 33 46 127 0
+p 34 6 -9223372036854775807 126
+add 34 6 -9223372036854775681
+sub 34 6 -9223372036854775933
+mul 34 6 -1162144876643701751682
+div 34 6 -73201365371863300
+rem 34 6 -7
+and 34 6 0
+or 34 6 -9223372036854775681
+xor 34 6 -9223372036854775681
+cmp 34 6 -1
+eq 34 6 false
+shl 34 6 0 -9223372036854775807
+shr 34 6 0 -9223372036854775807
+shl 34 6 1 -18446744073709551614
+shr 34 6 1 -4611686018427387904
+shl 34 6 63 -85070591730234615856620279821087277056
+shr 34 6 63 -1
+shl 34 6 64 -170141183460469231713240559642174554112
+shr 34 6 64 -1
+shl 34 6 127 -170141183460469231731687303715884105728
+shr 34 6 127 -1
+p 35 13 -9223372036854775808 256
+add 35 13 -9223372036854775552
+sub 35 13 -9223372036854776064
+mul 35 13 -2361183241434822606848
+div 35 13 -36028797018963968
+rem 35 13 0
+and 35 13 0
+or 35 13 -9223372036854775552
+xor 35 13 -9223372036854775552
+cmp 35 13 -1
+eq 35 13 false
+shl 35 13 0 -9223372036854775808
+shr 35 13 0 -9223372036854775808
+shl 35 13 1 -18446744073709551616
+shr 35 13 1 -4611686018427387904
+shl 35 13 63 -85070591730234615865843651857942052864
+shr 35 13 63 -1
+shl 35 13 64 -170141183460469231731687303715884105728
+shr 35 13 64 -1
+shl 35 13 127 0
+shr 35 13 127 -1
+p 36 20 -9223372036854775809 -32769
+add 36 20 -9223372036854808578
+sub 36 20 -9223372036854743040
+mul 36 20 302240678275694148485121
+div 36 20 281466387038200
+rem 36 20 -9
+and 36 20 -9223372036854808577
+or 36 20 -1
+xor 36 20 9223372036854808576
+cmp 36 20 -1
+eq 36 20 false
+shl 36 20 0 -9223372036854775809
+shr 36 20 0 -9223372036854775809
+shl 36 20 1 -18446744073709551618
+shr 36 20 1 -4611686018427387905
+shl 36 20 63 -85070591730234615875067023894796828672
+shr 36 20 63 -2
+shl 36 20 64 170141183460469231713240559642174554112
+shr 36 20 64 -1
+shl 36 20 127 -170141183460469231731687303715884105728
+shr 36 20 127 -1
+p 37 27 18446744073709551615 -2147483648
+add 37 27 18446744071562067967
+sub 37 27 18446744075857035263
+mul 37 27 -39614081257132168794624491520
+div 37 27 -8589934591
+rem 37 27 2147483647
+and 37 27 18446744071562067968
+or 37 27 -1
+xor 37 27 -18446744071562067969
+cmp 37 27 1
+eq 37 27 false
+shl 37 27 0 18446744073709551615
+shr 37 27 0 18446744073709551615
+shl 37 27 1 36893488147419103230
+shr 37 27 1 9223372036854775807
+shl 37 27 63 170141183460469231722463931679029329920
+shr 37 27 63 1
+shl 37 27 64 -18446744073709551616
+shr 37 27 64 0
+shl 37 27 127 -170141183460469231731687303715884105728
+shr 37 27 127 0
+p 38 34 18446744073709551616 -9223372036854775807
+add 38 34 9223372036854775809
+sub 38 34 27670116110564327423
+mul 38 34 -170141183460469231713240559642174554112
+div 38 34 -2
+rem 38 34 2
+and 38 34 18446744073709551616
+or 38 34 -9223372036854775807
+xor 38 34 -27670116110564327423
+cmp 38 34 1
+eq 38 34 false
+shl 38 34 0 18446744073709551616
+shr 38 34 0 18446744073709551616
+shl 38 34 1 36893488147419103232
+shr 38 34 1 9223372036854775808
+shl 38 34 63 -170141183460469231731687303715884105728
+shr 38 34 63 2
+shl 38 34 64 0
+shr 38 34 64 1
+shl 38 34 127 0
+shr 38 34 127 0
+p 39 41 -18446744073709551616 1267650600228229401496703205377
+add 39 41 1267650600209782657422993653761
+sub 39 41 -1267650600246676145570412756993
+mul 39 41 -18446744073709551616
+div 39 41 0
+rem 39 41 -18446744073709551616
+and 39 41 1267650600228229401496703205376
+or 39 41 -18446744073709551615
+xor 39 41 -1267650600246676145570412756991
+cmp 39 41 -1
+eq 39 41 false
+shl 39 41 0 -18446744073709551616
+shr 39 41 0 -18446744073709551616
+shl 39 41 1 -36893488147419103232
+shr 39 41 1 -9223372036854775808
+shl 39 41 63 -170141183460469231731687303715884105728
+shr 39 41 63 -2
+shl 39 41 64 0
+shr 39 41 64 -1
+shl 39 41 127 0
+shr 39 41 127 -1
+p 33 1 9223372036854775808 1
+add 33 1 9223372036854775809
+sub 33 1 9223372036854775807
+mul 33 1 9223372036854775808
+div 33 1 9223372036854775808
+rem 33 1 0
+and 33 1 0
+or 33 1 9223372036854775809
+xor 33 1 9223372036854775809
+cmp 33 1 1
+eq 33 1 false
+shl 33 1 0 9223372036854775808
+shr 33 1 0 9223372036854775808
+shl 33 1 1 18446744073709551616
+shr 33 1 1 4611686018427387904
+shl 33 1 63 85070591730234615865843651857942052864
+shr 33 1 63 1
+shl 33 1 64 -170141183460469231731687303715884105728
+shr 33 1 64 0
+shl 33 1 127 0
+shr 33 1 127 0
+p 41 8 1267650600228229401496703205377 128
+add 41 8 1267650600228229401496703205505
+sub 41 8 1267650600228229401496703205249
+mul 41 8 162259276829213363391578010288256
+div 41 8 9903520314283042199192993792
+rem 41 8 1
+and 41 8 0
+or 41 8 1267650600228229401496703205505
+xor 41 8 1267650600228229401496703205505
+cmp 41 8 1
+eq 41 8 false
+shl 41 8 0 1267650600228229401496703205377
+shr 41 8 0 1267650600228229401496703205377
+shl 41 8 1 2535301200456458802993406410754
+shr 41 8 1 633825300114114700748351602688
+shl 41 8 63 9223372036854775808
+shr 41 8 63 137438953472
+shl 41 8 64 18446744073709551616
+shr 41 8 64 68719476736
+shl 41 8 127 -170141183460469231731687303715884105728
+shr 41 8 127 0
+p 42 15 -1267650600228229401496703205377 32766
+add 42 15 -1267650600228229401496703172611
+sub 42 15 -1267650600228229401496703238143
+mul 42 15 -41535839567078164569440977227382782
+div 42 15 -38687987555033553118986242
+rem 42 15 -5
+and 42 15 32766
+or 42 15 -1267650600228229401496703205377
+xor 42 15 -1267650600228229401496703238143
+cmp 42 15 -1
+eq 42 15 false
+shl 42 15 0 -1267650600228229401496703205377
+shr 42 15 0 -1267650600228229401496703205377
+shl 42 15 1 -2535301200456458802993406410754
+shr 42 15 1 -633825300114114700748351602689
+shl 42 15 63 -9223372036854775808
+shr 42 15 63 -137438953473
+shl 42 15 64 -18446744073709551616
+shr 42 15 64 -68719476737
+shl 42 15 127 -170141183460469231731687303715884105728
+shr 42 15 127 -1
+p 43 22 170141183460469231731687303715884105727 65536
+add 43 22 -170141183460469231731687303715884040193
+sub 43 22 170141183460469231731687303715884040191
+mul 43 22 -65536
+div 43 22 2596148429267413814265248164610047
+rem 43 22 65535
+and 43 22 65536
+or 43 22 170141183460469231731687303715884105727
+xor 43 22 170141183460469231731687303715884040191
+cmp 43 22 1
+eq 43 22 false
+shl 43 22 0 170141183460469231731687303715884105727
+shr 43 22 0 170141183460469231731687303715884105727
+shl 43 22 1 -2
+shr 43 22 1 85070591730234615865843651857942052863
+shl 43 22 63 -9223372036854775808
+shr 43 22 63 18446744073709551615
+shl 43 22 64 -18446744073709551616
+shr 43 22 64 9223372036854775807
+shl 43 22 127 -170141183460469231731687303715884105728
+shr 43 22 127 0
+p 44 29 170141183460469231731687303715884105726 4294967295
+add 44 29 -170141183460469231731687303711589138435
+sub 44 29 170141183460469231731687303711589138431
+mul 44 29 170141183460469231731687303707294171138
+div 44 29 39614081266355540835774234624
+rem 44 29 2147483646
+and 44 29 4294967294
+or 44 29 170141183460469231731687303715884105727
+xor 44 29 170141183460469231731687303711589138433
+cmp 44 29 1
+eq 44 29 false
+shl 44 29 0 170141183460469231731687303715884105726
+shr 44 29 0 170141183460469231731687303715884105726
+shl 44 29 1 -4
+shr 44 29 1 85070591730234615865843651857942052863
+shl 44 29 63 -18446744073709551616
+shr 44 29 63 18446744073709551615
+shl 44 29 64 -36893488147419103232
+shr 44 29 64 9223372036854775807
+shl 44 29 127 0
+shr 44 29 127 0
+p 45 36 -170141183460469231731687303715884105728 -9223372036854775809
+add 45 36 170141183460469231722463931679029329919
+sub 45 36 -170141183460469231722463931679029329919
+mul 45 36 -170141183460469231731687303715884105728
+div 45 36 18446744073709551614
+rem 45 36 -2
+and 45 36 -170141183460469231731687303715884105728
+or 45 36 -9223372036854775809
+xor 45 36 170141183460469231722463931679029329919
+cmp 45 36 -1
+eq 45 36 false
+shl 45 36 0 -170141183460469231731687303715884105728
+shr 45 36 0 -170141183460469231731687303715884105728
+shl 45 36 1 0
+shr 45 36 1 -85070591730234615865843651857942052864
+shl 45 36 63 0
+shr 45 36 63 -18446744073709551616
+shl 45 36 64 0
+shr 45 36 64 -9223372036854775808
+shl 45 36 127 0
+shr 45 36 127 -1
+p 46 43 -170141183460469231731687303715884105727 170141183460469231731687303715884105727
+add 46 43 0
+sub 46 43 2
+mul 46 43 -1
+div 46 43 -1
+rem 46 43 0
+and 46 43 1
+or 46 43 -1
+xor 46 43 -2
+cmp 46 43 -1
+eq 46 43 false
+shl 46 43 0 -170141183460469231731687303715884105727
+shr 46 43 0 -170141183460469231731687303715884105727
+shl 46 43 1 2
+shr 46 43 1 -85070591730234615865843651857942052864
+shl 46 43 63 9223372036854775808
+shr 46 43 63 -18446744073709551616
+shl 46 43 64 18446744073709551616
+shr 46 43 64 -9223372036854775808
+shl 46 43 127 -170141183460469231731687303715884105728
+shr 46 43 127 -1
+p 47 48 21429133299182919786240540262233710584 6717189507976381139978018297077200676
+add 47 48 28146322807159300926218558559310911260
+sub 47 48 14711943791206538646262521965156509908
+mul 47 48 72111006197083870741296348015433008864
+div 47 48 3
+rem 47 48 1277564775253776366306485371002108556
+and 47 48 67682648438473719149447465513654048
+or 47 48 28078640158720827207069111093797257212
+xor 47 48 28010957510282353487919663628283603164
+cmp 47 48 1
+eq 47 48 false
+shl 47 48 0 21429133299182919786240540262233710584
+shr 47 48 0 21429133299182919786240540262233710584
+shl 47 48 1 42858266598365839572481080524467421168
+shr 47 48 1 10714566649591459893120270131116855292
+shl 47 48 63 95566879206941788713530742750807326720
+shr 47 48 63 2323351287745558669
+shl 47 48 64 -149148608507054886036313121930153558016
+shr 47 48 64 1161675643872779334
+shl 47 48 127 0
+shr 47 48 127 0
+p 49 50 6177005705828742336309578613123838085 138580198933955817306491721611756894206
+add 49 50 144757204639784559642801300224880732291
+sub 49 50 -132403193228127074970182142998633056121
+mul 49 50 -62284945483529993471102467931341392138
+div 49 50 0
+rem 49 50 6177005705828742336309578613123838085
+and 49 50 7813798495658986955077589429710980
+or 49 50 144749390841288900655846222635451021311
+xor 49 50 144741577042793241668891145046021310331
+cmp 49 50 -1
+eq 49 50 false
+shl 49 50 0 6177005705828742336309578613123838085
+shr 49 50 0 6177005705828742336309578613123838085
+shl 49 50 1 12354011411657484672619157226247676170
+shr 49 50 1 3088502852914371168154789306561919042
+shl 49 50 63 1058190020959728922957380123157856256
+shr 49 50 63 669712300571487916
+shl 49 50 64 2116380041919457845914760246315712512
+shr 49 50 64 334856150285743958
+shl 49 50 127 -170141183460469231731687303715884105728
+shr 49 50 127 0
+p 51 52 3624091094747837088593211780915169658 38010846023883461541652190206002956197
+add 51 52 41634937118631298630245401986918125855
+sub 51 52 -34386754929135624453058978425087786539
+mul 51 52 -79859065036037570423620739446627110494
+div 51 52 0
+rem 51 52 3624091094747837088593211780915169658
+and 51 52 792340254316851097784481056626737440
+or 51 52 40842596864314447532460920930291388415
+xor 51 52 40050256609997596434676439873664650975
+cmp 51 52 -1
+eq 51 52 false
+shl 51 52 0 3624091094747837088593211780915169658
+shr 51 52 0 3624091094747837088593211780915169658
+shl 51 52 1 7248182189495674177186423561830339316
+shr 51 52 1 1812045547373918544296605890457584829
+shl 51 52 63 165903947316866989469858970676607582208
+shr 51 52 63 392924743821097505
+shl 51 52 64 -8474472287204484523656666078553047040
+shr 51 52 64 196462371910548752
+shl 51 52 127 0
+shr 51 52 127 0
+p 53 54 5877582554145723077245485042031408676 621199167989673519108789305231777834
+add 53 54 6498781722135396596354274347263186510
+sub 53 54 5256383386156049558136695736799630842
+mul 53 54 115190204627077451451909961269971214824
+div 53 54 9
+rem 53 54 286790042238661405266381294945408170
+and 53 54 517347343715330595788172716394684448
+or 53 54 5981434378420066000566101630868502062
+xor 53 54 5464087034704735404777928914473817614
+cmp 53 54 1
+eq 53 54 false
+shl 53 54 0 5877582554145723077245485042031408676
+shr 53 54 0 5877582554145723077245485042031408676
+shl 53 54 1 11755165108291446154490970084062817352
+shr 53 54 1 2938791277072861538622742521015704338
+shl 53 54 63 -32814477151899904848296453060517953536
+shr 53 54 63 637248777416769295
+shl 53 54 64 -65628954303799809696592906121035907072
+shr 53 54 64 318624388708384647
+shl 53 54 127 0
+shr 53 54 127 0
+p 55 56 32285172335365995396639429913410627044 16753589112529478515916262580774018207
+add 55 56 49038761447895473912555692494184645251
+sub 55 56 15531583222836516880723167332636608837
+mul 55 56 146167795224238436208712929215146440860
+div 55 56 1
+rem 55 56 15531583222836516880723167332636608837
+and 55 56 10678072895353151573165272643466691716
+or 55 56 38360688552542322339390419850717953535
+xor 55 56 27682615657189170766225147207251261819
+cmp 55 56 1
+eq 55 56 false
+shl 55 56 0 32285172335365995396639429913410627044
+shr 55 56 0 32285172335365995396639429913410627044
+shl 55 56 1 64570344670731990793278859826821254088
+shr 55 56 1 16142586167682997698319714956705313522
+shl 55 56 63 -123408401227376736200024707335131758592
+shr 55 56 63 3500365398507271894
+shl 55 56 64 93465564466184991063325192761504694272
+shr 55 56 64 1750182699253635947
+shl 55 56 127 0
+shr 55 56 127 0
+p 57 58 569444965974825905284029688796504636 16669733977238922517834928513987311520
+add 57 58 17239178943213748423118958202783816156
+sub 57 58 -16100289011264096612550898825190806884
+mul 57 58 45281582043618779549695949847945628032
+div 57 58 0
+rem 57 58 569444965974825905284029688796504636
+and 57 58 42375415472833957935736199665705504
+or 57 58 17196803527740914465183222003118110652
+xor 57 58 17154428112268080507247485803452405148
+cmp 57 58 -1
+eq 57 58 false
+shl 57 58 0 569444965974825905284029688796504636
+shr 57 58 0 569444965974825905284029688796504636
+shl 57 58 1 1138889931949651810568059377593009272
+shr 57 58 1 284722482987412952642014844398252318
+shl 57 58 63 -2255967159498288462281721440918044672
+shr 57 58 63 61739346922084039
+shl 57 58 64 -4511934318996576924563442881836089344
+shr 57 58 64 30869673461042019
+shl 57 58 127 0
+shr 57 58 127 0
+p 59 60 2922008406510580999964929014179844324 10391125724022187263502904607358151430
+add 59 60 13313134130532768263467833621537995754
+sub 59 60 -7469117317511606263537975593178307106
+mul 59 60 -101092160474653746403086779627953376936
+div 59 60 0
+rem 59 60 2922008406510580999964929014179844324
+and 59 60 2742871460893375211215050992108191748
+or 59 60 10570262669639393052252782629429804006
+xor 59 60 7827391208746017841037731637321612258
+cmp 59 60 -1
+eq 59 60 false
+shl 59 60 0 2922008406510580999964929014179844324
+shr 59 60 0 2922008406510580999964929014179844324
+shl 59 60 1 5844016813021161999929858028359688648
+shr 59 60 1 1461004203255290499982464507089922162
+shl 59 60 63 159182786698237641457467074208658882560
+shr 59 60 63 316804786235967889
+shl 59 60 64 -21916793524463180548440459014450446336
+shr 59 60 64 158402393117983944
+shl 59 60 127 0
+shr 59 60 127 0
+p 61 62 1284798089179049801469604421797967050 144432271377780796421990707326599210025
+add 61 62 145717069466959846223460311748397177075
+sub 61 62 -143147473288601746620521102904801242975
+mul 61 62 52604884997655137383886017568815455322
+div 61 62 0
+rem 61 62 1284798089179049801469604421797967050
+and 61 62 831422018866497515127587275536606216
+or 61 62 144885647448093348708332724472860570859
+xor 61 62 144054225429226851193205137197323964643
+cmp 61 62 -1
+eq 61 62 false
+shl 61 62 0 1284798089179049801469604421797967050
+shr 61 62 0 1284798089179049801469604421797967050
+shl 61 62 1 2569596178358099602939208843595934100
+shr 61 62 1 642399044589524900734802210898983525
+shl 61 62 63 -163758801882825830123996513524726628352
+shr 61 62 63 139298087949315066
+shl 61 62 64 12764763155286803215381580382314954752
+shr 61 62 64 69649043974657533
+shl 61 62 127 0
+shr 61 62 127 0
+p 63 64 16681683770581580410006214938439514777 17450573682544770761663362049527458712
+add 63 64 34132257453126351171669576987966973489
+sub 63 64 -768889911963190351657147111087943935
+mul 63 64 -43022773268035025926035964005646369320
+div 63 64 0
+rem 63 64 16681683770581580410006214938439514777
+and 63 64 15954680917702191203511916349611846296
+or 63 64 18177576535424159968157660638355127193
+xor 63 64 2222895617721968764645744288743280897
+cmp 63 64 -1
+eq 63 64 false
+shl 63 64 0 16681683770581580410006214938439514777
+shr 63 64 0 16681683770581580410006214938439514777
+shl 63 64 1 33363367541163160820012429876879029554
+shr 63 64 1 8340841885290790205003107469219757388
+shl 63 64 63 -161218043301401110350445079664504340480
+shr 63 64 63 1808631778478073062
+shl 63 64 64 17846280318136242762484448102759530496
+shr 63 64 64 904315889239036531
+shl 63 64 127 -170141183460469231731687303715884105728
+shr 63 64 127 0
+p 65 66 41079357446123548697149660792420550948 6680597571740583628643081495083259771
+add 65 66 47759955017864132325792742287503810719
+sub 65 66 34398759874382965068506579297337291177
+mul 65 66 -127713599346727879661758356916767170484
+div 65 66 6
+rem 65 66 995772015680046925291171821920992322
+and 65 66 5350674714586919480875152753890984224
+or 65 66 42409280303277212844917589533612826495
+xor 65 66 37058605588690293364042436779721842271
+cmp 65 66 1
+eq 65 66 false
+shl 65 66 0 41079357446123548697149660792420550948
+shr 65 66 0 41079357446123548697149660792420550948
+shl 65 66 1 82158714892247097394299321584841101896
+shr 65 66 1 20539678723061774348574830396210275474
+shl 65 66 63 -135538824780034116689755365851285946368
+shr 65 66 63 4453832858739573466
+shl 65 66 64 69204717360870230083863875729196318720
+shr 65 66 64 2226916429369786733
+shl 65 66 127 0
+shr 65 66 127 0
+p 67 68 32837682154197215788210653100275196264 4099373697126274656690963841423212163
+add 67 68 36937055851323490444901616941698408427
+sub 67 68 28738308457070941131519689258851984101
+mul 67 68 92803666714194669116839461537951287352
+div 67 68 8
+rem 67 68 42692577187018534682942368889498960
+and 67 68 103901244637374997838153044770447360
+or 67 68 36833154606686115447063463896927961067
+xor 67 68 36729253362048740449225310852157513707
+cmp 67 68 1
+eq 67 68 false
+shl 67 68 0 32837682154197215788210653100275196264
+shr 67 68 0 32837682154197215788210653100275196264
+shl 67 68 1 65675364308394431576421306200550392528
+shr 67 68 1 16418841077098607894105326550137598132
+shl 67 68 63 19743478690392407471660026113113980928
+shr 67 68 63 3560268633096910056
+shl 67 68 64 39486957380784814943320052226227961856
+shr 67 68 64 1780134316548455028
+shl 67 68 127 0
+shr 67 68 127 0
+p 69 70 86816283538965668631997706579830837601 7448633655134123648920727223346793730
+add 69 70 94264917194099792280918433803177631331
+sub 69 70 79367649883831544983076979356484043871
+mul 69 70 53752745330930047491076549421182095298
+div 69 70 11
+rem 69 70 4881313332490308493869707123016106571
+and 69 70 1412411233279528874432343978582868224
+or 69 70 92852505960820263406486089824594763107
+xor 69 70 91440094727540734532053745846011894883
+cmp 69 70 1
+eq 69 70 false
+shl 69 70 0 86816283538965668631997706579830837601
+shr 69 70 0 86816283538965668631997706579830837601
+shl 69 70 1 -166649799843007126199379194272106536254
+shr 69 70 1 43408141769482834315998853289915418800
+shl 69 70 63 54957733624547750280914938942701174784
+shr 69 70 63 9412640322006411516
+shl 69 70 64 109915467249095500561829877885402349568
+shr 69 70 64 4706320161003205758
+shl 69 70 127 -170141183460469231731687303715884105728
+shr 69 70 127 0
+p 71 72 104501829303580079711914778920910953 1731571846419366721562480623694505515
+add 71 72 1836073675722946801274395402615416468
+sub 71 72 -1627070017115786641850565844773594562
+mul 71 72 23749063657231245257620638532421216163
+div 71 72 0
+rem 71 72 104501829303580079711914778920910953
+and 71 72 21419809346789298681216150679355433
+or 71 72 1814653866376157502593179251936061035
+xor 71 72 1793234057029368203911963101256705602
+cmp 71 72 -1
+eq 71 72 false
+shl 71 72 0 104501829303580079711914778920910953
+shr 71 72 0 104501829303580079711914778920910953
+shl 71 72 1 209003658607160159423829557841821906
+shr 71 72 1 52250914651790039855957389460455476
+shl 71 72 63 -74110358456614394121903663998207787008
+shr 71 72 63 11330111035965087
+shl 71 72 64 -148220716913228788243807327996415574016
+shr 71 72 64 5665055517982543
+shl 71 72 127 -170141183460469231731687303715884105728
+shr 71 72 127 0
+p 73 74 40327259990114227343191342008093950059 31559132232281064152656974049286759259
+add 73 74 71886392222395291495848316057380709318
+sub 73 74 8768127757833163190534367958807190800
+mul 73 74 -89660001504920451188912716242671106295
+div 73 74 1
+rem 73 74 8768127757833163190534367958807190800
+and 73 74 29357597033322012205416862348358975563
+or 73 74 42528795189073279290431453709021733755
+xor 73 74 13171198155751267085014591360662758192
+cmp 73 74 1
+eq 73 74 false
+shl 73 74 0 40327259990114227343191342008093950059
+shr 73 74 0 40327259990114227343191342008093950059
+shl 73 74 1 80654519980228454686382684016187900118
+shr 73 74 1 20163629995057113671595671004046975029
+shl 73 74 63 -83695451164077481338587611461930975232
+shr 73 74 63 4372290289166960735
+shl 73 74 64 -167390902328154962677175222923861950464
+shr 73 74 64 2186145144583480367
+shl 73 74 127 -170141183460469231731687303715884105728
+shr 73 74 127 0
+p 75 76 65588979649404958606783717102705913489 15212595672697001565670786541036226093
+add 75 76 80801575322101960172454503643742139582
+sub 75 76 50376383976707957041112930561669687396
+mul 75 76 -134612482180471692980650522056906091139
+div 75 76 4
+rem 75 76 4738596958616952344100570938561009117
+and 75 76 1754070765488374604060699688901740033
+or 75 76 79047504556613585568393803954840399549
+xor 75 76 77293433791125210964333104265938659516
+cmp 75 76 1
+eq 75 76 false
+shl 75 76 0 65588979649404958606783717102705913489
+shr 75 76 0 65588979649404958606783717102705913489
+shl 75 76 1 131177959298809917213567434205411826978
+shr 75 76 1 32794489824702479303391858551352956744
+shl 75 76 63 -77791148097363470714574079752195276800
+shr 75 76 63 7111171422699239507
+shl 75 76 64 -155582296194726941429148159504390553600
+shr 75 76 64 3555585711349619753
+shl 75 76 127 -170141183460469231731687303715884105728
+shr 75 76 127 0
+p 77 78 71775194502089824967475281954930140117 5573752190252230920155172458908162869
+add 77 78 77348946692342055887630454413838302986
+sub 77 78 66201442311837594047320109496021977248
+mul 77 78 53408685030236378403237657554521514521
+div 77 78 12
+rem 77 78 4890168219063053925613212448032185689
+and 77 78 5573403494728990749655396347971699477
+or 77 78 71775543197613065137975058065866603509
+xor 77 78 66202139702884074388319661717894904032
+cmp 77 78 1
+eq 77 78 false
+shl 77 78 0 71775194502089824967475281954930140117
+shr 77 78 0 71775194502089824967475281954930140117
+shl 77 78 1 143550389004179649934950563909860280234
+shr 77 78 1 35887597251044912483737640977465070058
+shl 77 78 63 -73598919655222698335667151391904759808
+shr 77 78 63 7781882180973542195
+shl 77 78 64 -147197839310445396671334302783809519616
+shr 77 78 64 3890941090486771097
+shl 77 78 127 -170141183460469231731687303715884105728
+shr 77 78 127 0
+p 79 80 121846014981055895420358094211995251044 31066701550839368018261027372580248095
+add 79 80 152912716531895263438619121584575499139
+sub 79 80 90779313430216527402097066839415002949
+mul 79 80 -105996913581354361740135158814543273188
+div 79 80 3
+rem 79 80 28645910328537791365575012094254506759
+and 79 80 25308228507296041575199922391277932548
+or 79 80 127604488024599221863419199193297566591
+xor 79 80 102296259517303180288219276802019634043
+cmp 79 80 1
+eq 79 80 false
+shl 79 80 0 121846014981055895420358094211995251044
+shr 79 80 0 121846014981055895420358094211995251044
+shl 79 80 1 -96590336958826672622658419007777709368
+shr 79 80 1 60923007490527947710179047105997625522
+shl 79 80 63 64638814061374293210897102226820431872
+shr 79 80 63 13210571415116212120
+shl 79 80 64 129277628122748586421794204453640863744
+shr 79 80 64 6605285707558106060
+shl 79 80 127 0
+shr 79 80 127 0
+p 81 82 3487617223718189810523732014018331984 61304664269224753723626191200207357855
+add 81 82 64792281492942943534149923214225689839
+sub 81 82 -57817047045506563913102459186189025871
+mul 81 82 -113649889709777498987911713276660253520
+div 81 82 0
+rem 81 82 3487617223718189810523732014018331984
+and 81 82 2817151749416299477434389127640384784
+or 81 82 61975129743526644056715534086585305055
+xor 81 82 59157977994110344579281144958944920271
+cmp 81 82 -1
+eq 81 82 false
+shl 81 82 0 3487617223718189810523732014018331984
+shr 81 82 0 3487617223718189810523732014018331984
+shl 81 82 1 6975234447436379621047464028036663968
+shr 81 82 1 1743808611859094905261866007009165992
+shl 81 82 63 125173228888710644305461876991652265984
+shr 81 82 63 378128217075312493
+shl 81 82 64 -89935909143517174852450853448463679488
+shr 81 82 64 189064108537656246
+shl 81 82 127 0
+shr 81 82 127 0
+p 83 84 57867228271185486680865905573259990939 1272314343533847115640695846540877470
+add 83 84 59139542614719333796506601419800868409
+sub 83 84 56594913927651639565225209726719113469
+mul 83 84 -138409445387940499294006618745679823958
+div 83 84 45
+rem 83 84 613082812162366477034592478920504789
+and 83 84 664626689650363547374282185331775130
+or 83 84 58474915925068970249132319234469093279
+xor 83 84 57810289235418606701758037049137318149
+cmp 83 84 1
+eq 83 84 false
+shl 83 84 0 57867228271185486680865905573259990939
+shr 83 84 0 57867228271185486680865905573259990939
+shl 83 84 1 115734456542370973361731811146519981878
+shr 83 84 1 28933614135592743340432952786629995469
+shl 83 84 63 -139057522276318380002984614284522160128
+shr 83 84 63 6273977460733390558
+shl 83 84 64 62167322368301703457405378862723891200
+shr 83 84 64 3136988730366695279
+shl 83 84 127 -170141183460469231731687303715884105728
+shr 83 84 127 0
+p 85 86 60528488616482706781745585413122973591 3284089614187264530107345632270817144
+add 85 86 63812578230669971311852931045393790735
+sub 85 86 57244399002295442251638239780852156447
+mul 85 86 88469683228306078277244585934032363464
+div 85 86 18
+rem 85 86 1414875561111945239813364032248264999
+and 85 86 43404684608493952807823315710777104
+or 85 86 63769173546061477359045107729683013631
+xor 85 86 63725768861452983406237284413972236527
+cmp 85 86 1
+eq 85 86 false
+shl 85 86 0 60528488616482706781745585413122973591
+shr 85 86 0 60528488616482706781745585413122973591
+shl 85 86 1 121056977232965413563491170826245947182
+shr 85 86 1 30264244308241353390872792706561486795
+shl 85 86 63 -167761928676298355930627208926849925120
+shr 85 86 63 6562511885525467530
+shl 85 86 64 4758509568341751602120189578068361216
+shr 85 86 64 3281255942762733765
+shl 85 86 127 -170141183460469231731687303715884105728
+shr 85 86 127 0
+p 87 88 4210458482560072342314214492376485738 1563248214555683392060847396160737285
+add 87 88 5773706697115755734375061888537223023
+sub 87 88 2647210268004388950253367096215748453
+mul 87 88 158646455959404158689424249677102132498
+div 87 88 2
+rem 87 88 1083962053448705558192519700055011168
+and 87 88 1536960464665752251051372006563446784
+or 87 88 4236746232450003483323689881973776239
+xor 87 88 2699785767784251232272317875410329455
+cmp 87 88 1
+eq 87 88 false
+shl 87 88 0 4210458482560072342314214492376485738
+shr 87 88 0 4210458482560072342314214492376485738
+shl 87 88 1 8420916965120144684628428984752971476
+shr 87 88 1 2105229241280036171157107246188242869
+shl 87 88 63 140378431846663612733872843977532637184
+shr 87 88 63 456498823395165081
+shl 87 88 64 -59525503227611237995628919476702937088
+shr 87 88 64 228249411697582540
+shl 87 88 127 0
+shr 87 88 127 0
+p 89 90 2651067083805137239044874415894994897 19058316901803664245539128228384344427
+add 89 90 21709383985608801484584002644279339324
+sub 89 90 -16407249817998527006494253812489349530
+mul 89 90 89086990239770054023054941311661057371
+div 89 90 0
+rem 89 90 2651067083805137239044874415894994897
+and 89 90 446934371404082986571666438007818561
+or 89 90 21262449614204718498012336206271520763
+xor 89 90 20815515242800635511440669768263702202
+cmp 89 90 -1
+eq 89 90 false
+shl 89 90 0 2651067083805137239044874415894994897
+shr 89 90 0 2651067083805137239044874415894994897
+shl 89 90 1 5302134167610274478089748831789989794
+shr 89 90 1 1325533541902568619522437207947497448
+shl 89 90 63 28661453297730018925708761237007892480
+shr 89 90 63 287429269166634064
+shl 89 90 64 57322906595460037851417522474015784960
+shr 89 90 64 143714634583317032
+shl 89 90 127 -170141183460469231731687303715884105728
+shr 89 90 127 0
+p 91 92 4326602470119072582923258694292596785 17001026712581579887356098341402023371
+add 91 92 21327629182700652470279357035694620156
+sub 91 92 -12674424242462507304432839647109426586
+mul 91 92 120554613837680602051320872133895131
+div 91 92 0
+rem 91 92 4326602470119072582923258694292596785
+and 91 92 333712833368463008313007045877006337
+or 91 92 20993916349332189461966349989817613819
+xor 91 92 20660203515963726453653342943940607482
+cmp 91 92 -1
+eq 91 92 false
+shl 91 92 0 4326602470119072582923258694292596785
+shr 91 92 0 4326602470119072582923258694292596785
+shl 91 92 1 8653204940238145165846517388585193570
+shr 91 92 1 2163301235059536291461629347146298392
+shl 91 92 63 -30102613919195035385906184868029530112
+shr 91 92 63 469091179758424827
+shl 91 92 64 -60205227838390070771812369736059060224
+shr 91 92 64 234545589879212413
+shl 91 92 127 -170141183460469231731687303715884105728
+shr 91 92 127 0
+p 93 94 11182290902601261850171423980553243370 39678444841021126377250524000093782319
+add 93 94 50860735743622388227421947980647025689
+sub 93 94 -28496153938419864527079100019540538949
+mul 93 94 -45577723004300267542136737817246012682
+div 93 94 0
+rem 93 94 11182290902601261850171423980553243370
+and 93 94 11015457834912840129585916391989444650
+or 93 94 39845277908709548097836031588657581039
+xor 93 94 28829820073796707968250115196668136389
+cmp 93 94 -1
+eq 93 94 false
+shl 93 94 0 11182290902601261850171423980553243370
+shr 93 94 0 11182290902601261850171423980553243370
+shl 93 94 1 22364581805202523700342847961106486740
+shr 93 94 1 5591145451300630925085711990276621685
+shl 93 94 63 29525540460836599402973138174770937856
+shr 93 94 63 1212386408996518036
+shl 93 94 64 59051080921673198805946276349541875712
+shr 93 94 64 606193204498259018
+shl 93 94 127 0
+shr 93 94 127 0
+p 45 2 -170141183460469231731687303715884105728 -1
+add 45 2 170141183460469231731687303715884105727
+sub 45 2 -170141183460469231731687303715884105727
+mul 45 2 -170141183460469231731687303715884105728
+div 45 2 -170141183460469231731687303715884105728
+rem 45 2 0
+and 45 2 -170141183460469231731687303715884105728
+or 45 2 -1
+xor 45 2 170141183460469231731687303715884105727
+cmp 45 2 -1
+eq 45 2 false
+shl 45 2 0 -170141183460469231731687303715884105728
+shr 45 2 0 -170141183460469231731687303715884105728
+shl 45 2 1 0
+shr 45 2 1 -85070591730234615865843651857942052864
+shl 45 2 63 0
+shr 45 2 63 -18446744073709551616
+shl 45 2 64 0
+shr 45 2 64 -9223372036854775808
+shl 45 2 127 0
+shr 45 2 127 -1
+p 45 1 -170141183460469231731687303715884105728 1
+add 45 1 -170141183460469231731687303715884105727
+sub 45 1 170141183460469231731687303715884105727
+mul 45 1 -170141183460469231731687303715884105728
+div 45 1 -170141183460469231731687303715884105728
+rem 45 1 0
+and 45 1 0
+or 45 1 -170141183460469231731687303715884105727
+xor 45 1 -170141183460469231731687303715884105727
+cmp 45 1 -1
+eq 45 1 false
+shl 45 1 0 -170141183460469231731687303715884105728
+shr 45 1 0 -170141183460469231731687303715884105728
+shl 45 1 1 0
+shr 45 1 1 -85070591730234615865843651857942052864
+shl 45 1 63 0
+shr 45 1 63 -18446744073709551616
+shl 45 1 64 0
+shr 45 1 64 -9223372036854775808
+shl 45 1 127 0
+shr 45 1 127 -1
+p 45 3 -170141183460469231731687303715884105728 2
+add 45 3 -170141183460469231731687303715884105726
+sub 45 3 170141183460469231731687303715884105726
+mul 45 3 0
+div 45 3 -85070591730234615865843651857942052864
+rem 45 3 0
+and 45 3 0
+or 45 3 -170141183460469231731687303715884105726
+xor 45 3 -170141183460469231731687303715884105726
+cmp 45 3 -1
+eq 45 3 false
+shl 45 3 0 -170141183460469231731687303715884105728
+shr 45 3 0 -170141183460469231731687303715884105728
+shl 45 3 1 0
+shr 45 3 1 -85070591730234615865843651857942052864
+shl 45 3 63 0
+shr 45 3 63 -18446744073709551616
+shl 45 3 64 0
+shr 45 3 64 -9223372036854775808
+shl 45 3 127 0
+shr 45 3 127 -1
+p 43 2 170141183460469231731687303715884105727 -1
+add 43 2 170141183460469231731687303715884105726
+sub 43 2 -170141183460469231731687303715884105728
+mul 43 2 -170141183460469231731687303715884105727
+div 43 2 -170141183460469231731687303715884105727
+rem 43 2 0
+and 43 2 170141183460469231731687303715884105727
+or 43 2 -1
+xor 43 2 -170141183460469231731687303715884105728
+cmp 43 2 1
+eq 43 2 false
+shl 43 2 0 170141183460469231731687303715884105727
+shr 43 2 0 170141183460469231731687303715884105727
+shl 43 2 1 -2
+shr 43 2 1 85070591730234615865843651857942052863
+shl 43 2 63 -9223372036854775808
+shr 43 2 63 18446744073709551615
+shl 43 2 64 -18446744073709551616
+shr 43 2 64 9223372036854775807
+shl 43 2 127 -170141183460469231731687303715884105728
+shr 43 2 127 0
+p 43 3 170141183460469231731687303715884105727 2
+add 43 3 -170141183460469231731687303715884105727
+sub 43 3 170141183460469231731687303715884105725
+mul 43 3 -2
+div 43 3 85070591730234615865843651857942052863
+rem 43 3 1
+and 43 3 2
+or 43 3 170141183460469231731687303715884105727
+xor 43 3 170141183460469231731687303715884105725
+cmp 43 3 1
+eq 43 3 false
+shl 43 3 0 170141183460469231731687303715884105727
+shr 43 3 0 170141183460469231731687303715884105727
+shl 43 3 1 -2
+shr 43 3 1 85070591730234615865843651857942052863
+shl 43 3 63 -9223372036854775808
+shr 43 3 63 18446744073709551615
+shl 43 3 64 -18446744073709551616
+shr 43 3 64 9223372036854775807
+shl 43 3 127 -170141183460469231731687303715884105728
+shr 43 3 127 0
+p 43 43 170141183460469231731687303715884105727 170141183460469231731687303715884105727
+add 43 43 -2
+sub 43 43 0
+mul 43 43 1
+div 43 43 1
+rem 43 43 0
+and 43 43 170141183460469231731687303715884105727
+or 43 43 170141183460469231731687303715884105727
+xor 43 43 0
+cmp 43 43 0
+eq 43 43 true
+shl 43 43 0 170141183460469231731687303715884105727
+shr 43 43 0 170141183460469231731687303715884105727
+shl 43 43 1 -2
+shr 43 43 1 85070591730234615865843651857942052863
+shl 43 43 63 -9223372036854775808
+shr 43 43 63 18446744073709551615
+shl 43 43 64 -18446744073709551616
+shr 43 43 64 9223372036854775807
+shl 43 43 127 -170141183460469231731687303715884105728
+shr 43 43 127 0
+p 37 37 18446744073709551615 18446744073709551615
+add 37 37 36893488147419103230
+sub 37 37 0
+mul 37 37 -36893488147419103231
+div 37 37 1
+rem 37 37 0
+and 37 37 18446744073709551615
+or 37 37 18446744073709551615
+xor 37 37 0
+cmp 37 37 0
+eq 37 37 true
+shl 37 37 0 18446744073709551615
+shr 37 37 0 18446744073709551615
+shl 37 37 1 36893488147419103230
+shr 37 37 1 9223372036854775807
+shl 37 37 63 170141183460469231722463931679029329920
+shr 37 37 63 1
+shl 37 37 64 -18446744073709551616
+shr 37 37 64 0
+shl 37 37 127 -170141183460469231731687303715884105728
+shr 37 37 127 0
+p 38 38 18446744073709551616 18446744073709551616
+add 38 38 36893488147419103232
+sub 38 38 0
+mul 38 38 0
+div 38 38 1
+rem 38 38 0
+and 38 38 18446744073709551616
+or 38 38 18446744073709551616
+xor 38 38 0
+cmp 38 38 0
+eq 38 38 true
+shl 38 38 0 18446744073709551616
+shr 38 38 0 18446744073709551616
+shl 38 38 1 36893488147419103232
+shr 38 38 1 9223372036854775808
+shl 38 38 63 -170141183460469231731687303715884105728
+shr 38 38 63 2
+shl 38 38 64 0
+shr 38 38 64 1
+shl 38 38 127 0
+shr 38 38 127 0
+p 2 45 -1 -170141183460469231731687303715884105728
+add 2 45 170141183460469231731687303715884105727
+sub 2 45 170141183460469231731687303715884105727
+mul 2 45 -170141183460469231731687303715884105728
+div 2 45 0
+rem 2 45 -1
+and 2 45 -170141183460469231731687303715884105728
+or 2 45 -1
+xor 2 45 170141183460469231731687303715884105727
+cmp 2 45 1
+eq 2 45 false
+shl 2 45 0 -1
+shr 2 45 0 -1
+shl 2 45 1 -2
+shr 2 45 1 -1
+shl 2 45 63 -9223372036854775808
+shr 2 45 63 -1
+shl 2 45 64 -18446744073709551616
+shr 2 45 64 -1
+shl 2 45 127 -170141183460469231731687303715884105728
+shr 2 45 127 -1
+p 95 96 5 -7
+add 95 96 -2
+sub 95 96 12
+mul 95 96 -35
+div 95 96 0
+rem 95 96 5
+and 95 96 1
+or 95 96 -3
+xor 95 96 -4
+cmp 95 96 1
+eq 95 96 false
+shl 95 96 0 5
+shr 95 96 0 5
+shl 95 96 1 10
+shr 95 96 1 2
+shl 95 96 63 46116860184273879040
+shr 95 96 63 0
+shl 95 96 64 92233720368547758080
+shr 95 96 64 0
+shl 95 96 127 -170141183460469231731687303715884105728
+shr 95 96 127 0
+p 97 98 -5 7
+add 97 98 2
+sub 97 98 -12
+mul 97 98 -35
+div 97 98 0
+rem 97 98 -5
+and 97 98 3
+or 97 98 -1
+xor 97 98 -4
+cmp 97 98 -1
+eq 97 98 false
+shl 97 98 0 -5
+shr 97 98 0 -5
+shl 97 98 1 -10
+shr 97 98 1 -3
+shl 97 98 63 -46116860184273879040
+shr 97 98 63 -1
+shl 97 98 64 -92233720368547758080
+shr 97 98 64 -1
+shl 97 98 127 -170141183460469231731687303715884105728
+shr 97 98 127 -1
+p 98 97 7 -5
+add 98 97 2
+sub 98 97 12
+mul 98 97 -35
+div 98 97 -1
+rem 98 97 2
+and 98 97 3
+or 98 97 -1
+xor 98 97 -4
+cmp 98 97 1
+eq 98 97 false
+shl 98 97 0 7
+shr 98 97 0 7
+shl 98 97 1 14
+shr 98 97 1 3
+shl 98 97 63 64563604257983430656
+shr 98 97 63 0
+shl 98 97 64 129127208515966861312
+shr 98 97 64 0
+shl 98 97 127 -170141183460469231731687303715884105728
+shr 98 97 127 0
+p 96 95 -7 5
+add 96 95 -2
+sub 96 95 -12
+mul 96 95 -35
+div 96 95 -1
+rem 96 95 -2
+and 96 95 1
+or 96 95 -3
+xor 96 95 -4
+cmp 96 95 -1
+eq 96 95 false
+shl 96 95 0 -7
+shr 96 95 0 -7
+shl 96 95 1 -14
+shr 96 95 1 -4
+shl 96 95 63 -64563604257983430656
+shr 96 95 63 -1
+shl 96 95 64 -129127208515966861312
+shr 96 95 64 -1
+shl 96 95 127 -170141183460469231731687303715884105728
+shr 96 95 127 -1

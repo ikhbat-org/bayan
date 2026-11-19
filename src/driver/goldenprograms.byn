@@ -75,6 +75,8 @@ List<string> goldenProgramNames() uses alloc {
         "SelfhostParserT7Tests.byn",
         "SelfhostParserTests.CollectorsProgram.byn",
         "SelfhostParserTests.StatementSpansProgram.byn",
+        "SelfhostSemanticsT3Tests.byn",
+        "SelfhostSemanticsT5Tests.byn",
     ] {
         names.append(n)
     }
@@ -1134,9 +1136,81 @@ void goldenProgramChmod(string mode, for ref List<string> paths) uses alloc, pro
     let _ = Io.run("chmod", args.span) catch return
 }
 
-/// A `sem` case: GenSem with a `section` file, else a `bayan-check` row.
+/// A `sem` case with a `range` file (SelfhostSemanticsT3Tests.cs:80-98, SelfhostSemanticsT5Tests.cs:72-90 `Compare`): GenSem(programs/<the
+/// `program` line>) run with no arguments exits 0 with an empty stderr; its stdout split at LF with the empty lines dropped holds `total`
+/// lines, and lines [start, start+count) (`range`: start, then count) are `expected.lines`. A failure names the `section` label and the
+/// first differing line.
+void goldenProgramRange(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
+    let file = goldenCliLines(Path.combine(k.dir, "program"))
+    let range = goldenCliLines(Path.combine(k.dir, "range"))
+    let total = goldenCliLines(Path.combine(k.dir, "total"))
+    let start = range.length == 2 ? i64.tryParse(range[0]) ?? -1 : -1
+    let count = range.length == 2 ? i64.tryParse(range[1]) ?? -1 : -1
+    let lines = total.length == 1 ? i64.tryParse(total[0]) ?? -1 : -1
+    if file.length != 1 || start < 0 || count < 0 || lines < 0 {
+        failures.append(
+            $"{k.dir}\na `range` case needs one `program` line, a `range` of start and count, and one `total` line",
+        )
+        return
+    }
+    var failure = ""
+    let main = goldenProgramSource(k.cases, for: file[0], through: ref failure)
+    let prog = goldenProgram("semantics", by: k.exe, through: ref failure, main: main, buildMs: k.buildMs)
+    if failure != "" {
+        failures.append($"{k.dir}\n{failure}")
+        return
+    }
+    var args = List<string>()
+    var none = List<u8>()
+    let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
+    return unless goldenProgramClean(k, for: in o, to: ref failures)
+    let section = goldenCliLines(Path.combine(k.dir, "section"))
+    let label = section.length > 0 ? section[0] : k.name
+    // `Split('\n', RemoveEmptyEntries)`: no CR dropped
+    var got = List<string>()
+    for line in goldenLines(o.stdout) {
+        if line != "" {
+            got.append(line)
+        }
+    }
+    if got.length != lines {
+        failures.append($"{k.dir}\n{label}: printed {got.length} lines, expected {lines}")
+        return
+    }
+    let path = Path.combine(k.dir, "expected.lines")
+    unless Fs.fileExists(path) {
+        failures.append($"{path}\nmissing expected file {path}")
+        return
+    }
+    let want = goldenCliLines(path)
+    var i = 0
+    while i < count && i < want.length && start + i < got.length && want[i] == got[start + i] {
+        i += 1
+    }
+    return if i == count && want.length == count
+    if goldenUpdate() && !Fs.fileExists(goldenExpected(path, for: ".pending")) {
+        var sb = StrBuf()
+        for j in start..start + count {
+            if j < got.length {
+                sb.append($"{got[j]}\n")
+            }
+        }
+        let text = sb.finish()
+        Io.writeFile(path, text.bytes) catch {
+            failures.append($"{path}\ncannot write {path}")
+        }
+        return
+    }
+    let w = i < want.length ? want[i] : "<end of file>"
+    let g = i < count && start + i < got.length ? got[start + i] : "<end of range>"
+    failures.append($"{path}\n{label}: case {i} (line {start + i + 1})\nexpected: {w}\nactual: {g}")
+}
+
+/// A `sem` case: a line range with a `range` file, GenSem with a `section` file, else a `bayan-check` row.
 void goldenProgramSem(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
-    if Fs.fileExists(Path.combine(k.dir, "section")) {
+    if Fs.fileExists(Path.combine(k.dir, "range")) {
+        goldenProgramRange(k, to: ref failures)
+    } else if Fs.fileExists(Path.combine(k.dir, "section")) {
         goldenProgramGenSem(k, to: ref failures)
     } else if Fs.fileExists(Path.combine(k.dir, "args")) {
         goldenProgramBayanCheck(k, to: ref failures)
@@ -1205,7 +1279,10 @@ List<string> goldenProgramEmitExtra(string name, at string scratch) uses alloc {
 /// SelfhostEmitterT9Tests.cs:749, SelfhostEmitterT10Tests.cs:561, :572; SelfhostEmitterT11Tests.cs:392, :815; SelfhostEmitterT3Tests.cs:313;
 /// SelfhostEmitterT2Tests.cs:677, :837 (its other tests fail on stderr, :612).
 bool goldenProgramExitOnly(string cls, for string name) {
-    return true if cls is "SelfhostEmitterT9Tests" or "SelfhostEmitterT10Tests" or "SelfhostEmitterT11Tests" or "SelfhostEmitterT3Tests"
+    return true if cls is "SelfhostEmitterT9Tests"
+        or "SelfhostEmitterT10Tests"
+        or "SelfhostEmitterT11Tests"
+        or "SelfhostEmitterT3Tests"
     return false unless cls == "SelfhostEmitterT2Tests"
     for t in ["Corpus_MatchesCSharp", "Lower_WithWarningsLowersLikeCSharp"] {
         return true if name == t || name.startsWith($"{t}-")
@@ -1862,6 +1939,63 @@ test "`t25-pure` sorts each line's lists and lends (SelfhostSemanticsT25Tests.cs
     assert(goldenProgramCaseWord(Path.combine(t25, "ComputeMatches")) == "")
 }
 
+test "a sem `range` case compares lines [start, start+count) of the non-empty stdout lines after their `total`; a changed line or total fails" {
+    var files = List<string>()
+    for f in [
+        "section",
+        "s\n",
+        "program",
+        "Words.byn\n",
+        "range",
+        "1\n2\n",
+        "total",
+        "4\n",
+        "expected.lines",
+        "b\nc\n",
+        "../../../programs/Words.byn",
+        "",
+    ] {
+        files.append(f)
+    }
+    let pass = goldenProgramsFake(
+        "range",
+        for: "sem",
+        at: "Words",
+        as: "cat 'STDOUT'",
+        from: "a\n\nb\nc\nd\n",
+        by: ref files,
+    )
+    let line = goldenProgramsFake(
+        "range",
+        for: "sem",
+        at: "Words",
+        as: "cat 'STDOUT'",
+        from: "a\nb\nx\nd\n",
+        by: ref files,
+    )
+    let total = goldenProgramsFake(
+        "range",
+        for: "sem",
+        at: "Words",
+        as: "cat 'STDOUT'",
+        from: "a\nb\nc\n",
+        by: ref files,
+    )
+    files[3] = "Missing.byn\n"
+    let missing = goldenProgramsFake(
+        "range",
+        for: "sem",
+        at: "Words",
+        as: "cat 'STDOUT'",
+        from: "a\nb\nc\nd\n",
+        by: ref files,
+    )
+    assert(pass == "")
+    assert(line.contains("expected.lines\ns: case 1 (line 3)\nexpected: c\nactual: x"))
+    assert(total.contains("s: printed 3 lines, expected 4"))
+    assert(missing.contains("missing program file tests/cases/programs/Missing.byn"))
+}
+
 test "a SelfhostSemanticsT18Tests case runs with the module `other` the C# wrote (SelfhostSemanticsT18Tests.cs:446-450), another class not" {
     var files = List<string>()
     for f in ["input.byn", "", "section", "s\n", "expected.sections", "== s\nconst oc: i32 = 1\n"] {
@@ -2199,10 +2333,24 @@ test "an emit-c T22 case with `args` runs the program on them alone (SelfhostEmi
         files.append(f)
     }
     let body = "if [ \"$1\" = shapes ]; then echo shapes; else echo locals; fi"
-    let locals = goldenProgramsFake("t22-locals", for: "emit-c", at: "SelfhostEmitterT22Tests", as: body, from: "", by: ref files)
+    let locals = goldenProgramsFake(
+        "t22-locals",
+        for: "emit-c",
+        at: "SelfhostEmitterT22Tests",
+        as: body,
+        from: "",
+        by: ref files,
+    )
     let _ = files.removeLast()
     let _ = files.removeLast()
-    let shapes = goldenProgramsFake("t22-shapes", for: "emit-c", at: "SelfhostEmitterT22Tests", as: body, from: "", by: ref files)
+    let shapes = goldenProgramsFake(
+        "t22-shapes",
+        for: "emit-c",
+        at: "SelfhostEmitterT22Tests",
+        as: body,
+        from: "",
+        by: ref files,
+    )
     assert(locals == "")
     assert(shapes.contains("expected line 1: locals\nactual line 1: shapes"))
 }
