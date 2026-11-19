@@ -6,6 +6,7 @@
 import lexer
 import semantics
 import emitter
+import emitter.cprint
 
 type T5T26Options         = semantics.T26Options
 type T5CompilationOptions = semantics.CompilationOptions
@@ -13,15 +14,17 @@ type T5CompilationOptions = semantics.CompilationOptions
 /// The `BuildOptions` (CliApp.cs:149) fields `build` and `run` read; the test-only ones stay C# (R3).
 struct T5Options {
     string       path
-    string       mode        = "safe"
-    string?      output      = null
-    bool         emitC       = false
-    bool         json        = false
-    List<string> programArgs = []
-    string?      target      = null
-    bool         verbose     = false
-    bool         all         = false
-    string?      package     = null
+    string       mode          = "safe"
+    string?      output        = null
+    bool         emitC         = false
+    bool         json          = false
+    List<string> programArgs   = []
+    string?      target        = null
+    bool         verbose       = false
+    bool         all           = false
+    string?      package       = null
+    /// `--schemata-files` (spec 019 T48c, not in `usageText`): the comma list of files a schemata build keeps sites in.
+    string?      schemataFiles = null
 }
 
 /// The C# `Directory.Exists`: `path` lists.
@@ -43,6 +46,7 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
     var all = false
     var verbose = false
     var emitC = false
+    var schemataFiles: string? = null
     var programArgs = List<string>()
     var i: i64 = 0
     while i < args.length {
@@ -84,6 +88,9 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
                 Io.stderr.write($"bayan: unknown target `{args[i]}` (expected host, {t5Join(in targetNames())})\n")
                 return null
             }
+        } else if a == "--schemata-files" && allowOutput && i + 1 < args.length {
+            i += 1
+            schemataFiles = args[i]
         } else if a == "--all" {
             all = true
         } else if (a is "-v" or "--verbose") && allowVerbose {
@@ -99,6 +106,10 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
             path = a
         }
         i += 1
+    }
+    if emitC && schemataFiles is not null {
+        Io.stderr.write("bayan: --schemata-files cannot be used with --emit-c\n")
+        return null
     }
     // `File.Exists("package.byn")`: a relative name resolves against the working directory.
     if path is null && t1FileExists("package.byn") {
@@ -123,6 +134,7 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
         verbose: verbose,
         all: all,
         package: package,
+        schemataFiles: schemataFiles,
     }
 }
 
@@ -243,6 +255,49 @@ semantics.Ctx t5Compile(
 /// CliApp.cs:409 `EmitC`: the C translation unit for an error-free compilation.
 string t5EmitC(ref semantics.Ctx c, by string mode) uses alloc => emitter.t12Emit(ref c, by: mode)
 
+/// The C a `build` compiles: `t5EmitC` without `--schemata-files` (L020); with it a schemata build (SelfhostSemanticsHarness.cs:84-86)
+/// with sites only in the listed files, its site map appended to `sites`. Null after reporting a listed file that is neither
+/// compiled nor on disk.
+string? t5Source(ref semantics.Ctx c, by in T5Options o, to ref StrBuf sites) uses alloc, clock, console, fs {
+    return t5EmitC(ref c, by: o.mode) if o.schemataFiles is null
+    let keep = t5SchemataKeep(o.schemataFiles ?? "")
+    var skip = List<string>()
+    var compiled = List<string>()
+    for f in c.files {
+        let full = Path.isRooted(f.path) ? f.path : Path.fullPath(Path.combine(c.displayRoot, f.path))
+        compiled.append(full)
+        if !t13RunnerHas(in keep, for: full) {
+            skip.append(f.path)
+        }
+    }
+    // SelfhostSemanticsHarness.cs:106-108 `SnapshotSkip`: a listed file on disk that this compilation does not compile is ignored (Q820).
+    for k in keep {
+        if !t13RunnerHas(in compiled, for: k) && !t1FileExists(k) {
+            Io.stderr.write($"bayan: --schemata-files: {k} matches no compiled source\n")
+            return null
+        }
+    }
+    var schema = emitter.buildSchema(ref c, for: in skip)
+    sites.append(emitter.sitesJson(in schema))
+    var l = T11LCtx {}
+    l.mutating = true
+    l.mutants = schema.switches.take()
+    let program = emitter.lower(ref c, to: ref l)
+    return cprint.emit(ref c, from: in l.tree, through: in program, by: o.mode == "debug")
+}
+
+/// The full paths `--schemata-files` lists, each comma-separated entry trimmed, empty ones dropped.
+List<string> t5SchemataKeep(string files) uses alloc, fs {
+    var keep = List<string>()
+    for part in files.parts(by: ",") {
+        let f = $"{part.trimmed()}"
+        if f.length > 0 {
+            keep.append(Path.fullPath(f))
+        }
+    }
+    return keep
+}
+
 /// CliApp.cs:435 `PrepareOut`: a project's `out/<mode>/<target>/`, with the emitted C written to its `c/`; null outside a
 /// project.
 string? t5PrepareOut(in semantics.Ctx compiled, by string mode, for string target, from string source) uses alloc, fs {
@@ -305,6 +360,7 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
     var outputBuf = StrBuf()
     var nameBuf = StrBuf()
     var shownBuf = StrBuf()
+    var sitesBuf = StrBuf()
     var parseTime: i64 = 0
     var checkTime: i64 = 0
     var emitTime: i64 = 0
@@ -327,7 +383,7 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
             }
             return exitUsage if refuseLibrary(compiled, by: "build")
             let emit = Io.monotonicNanos()
-            let source = t5EmitC(ref compiled, by: o.mode)
+            let source = t5Source(ref compiled, by: in o, to: ref sitesBuf) ?? return exitUsage
             emitTime = Io.monotonicNanos() - emit
             var output = ""
             if (o.output is { } given) {
@@ -364,6 +420,11 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
     unless built.result.succeeded {
         t5ReportToolchain(built.result, by: o.json, for: symbols)
         return exitToolchain
+    }
+    if o.schemataFiles is not null {
+        let path = emitter.sitesPath(built.exe)
+        // coverage-exempt: Q1258 an IO failure, as `mutateTests` lets it escape
+        Io.writeFile(path, sitesBuf.finish().bytes) catch { panic($"cannot write {path}") }
     }
     return exitOk if o.json
     if o.verbose {
@@ -527,5 +588,75 @@ test "out: the emitted C directory holds the runtime header" {
     assert(dir == Path.combine(Path.combine(Path.combine(p, "out"), "safe"), t5HostTarget()))
     let header = Io.readText(Path.combine(Path.combine(dir, "c"), "bayan-rt.h")) catch "no header"
     assert(header == runtimeHeader)
+    deleteWorkDir(p)
+}
+
+/// A two-file program under `tmp/schemata-files/<name>` for the `--schemata-files` tests: `a.byn` with `main`, `b.byn` with a
+/// helper; each has mutation sites.
+string t5SchemataFixture(string name) uses alloc, fs {
+    let p = Path.combine(Path.combine(Path.fullPath("tmp"), "schemata-files"), name)
+    deleteWorkDir(p)
+    goldenWrite(
+        p,
+        for: "a.byn",
+        as: "i64 big(i64 n) {\n    if n > 5 { return 1 }\n    return 0\n}\n\nvoid main() {\n    print($\"{big(3) + small(2)}\")\n}\n",
+    )
+    goldenWrite(p, for: "b.byn", as: "i64 small(i64 n) {\n    if n < 2 { return n + 1 }\n    return n - 1\n}\n")
+    return p
+}
+
+// Spec 019 T48c: `--schemata-files` keeps sites only in the files it lists (SelfhostSemanticsHarness.cs:103 `SnapshotSkip`).
+test "build --schemata-files: every site is in the listed file, and there is one" {
+    let p = t5SchemataFixture("listed")
+    var c = semantics.fromPath(p, by: T5CompilationOptions {})
+    let a = Path.combine(p, "a.byn")
+    var sites = StrBuf()
+    let _ = t5Source(ref c, by: T5Options { path: p, schemataFiles: $" {a} ," }, to: ref sites)
+        ?? panic("a.byn is compiled")
+    let map = externalSiteReadAll(sites.finish()) ?? panic("not a site map")
+    assert(map.length > 0)
+    for s in map {
+        assert(Path.fullPath(s.file) == a)
+    }
+    deleteWorkDir(p)
+}
+
+// SelfhostSemanticsHarness.cs:106-108: a listed file not on disk is refused (exit 2), one on disk but not compiled is ignored (Q820).
+test "build --schemata-files: a listed file not on disk exits 2, one on disk but not compiled leaves no sites" {
+    let p = t5SchemataFixture("missing")
+    let gone = Path.combine(p, "gone.byn")
+    var c = semantics.fromPath(p, by: T5CompilationOptions {})
+    var none = StrBuf()
+    assert(t5Source(ref c, by: T5Options { path: p, schemataFiles: gone }, to: ref none) is null)
+    var d = newDCtx()
+    var kept = List<string>()
+    for a in ["build", "--schemata-files", gone, "-o", Path.combine(p, "prog"), p] {
+        kept.append(a)
+    }
+    assert(buildCommand(in kept, by: ref d) == exitUsage)
+    goldenWrite(p, for: "notes.txt", as: "if n > 1\n")
+    var again = semantics.fromPath(p, by: T5CompilationOptions {})
+    var sites = StrBuf()
+    let o = T5Options { path: p, schemataFiles: Path.combine(p, "notes.txt") }
+    let _ = t5Source(ref again, by: o, to: ref sites) ?? panic("an uncompiled file on disk is ignored")
+    let map = externalSiteReadAll(sites.finish()) ?? panic("not a site map")
+    assert(map.length == 0)
+    deleteWorkDir(p)
+}
+
+// L020: without the flag the C is `t5EmitC`'s; the flag with `--emit-c` is refused.
+test "build without --schemata-files compiles the t5EmitC C (L020), and --emit-c refuses the flag" {
+    let p = t5SchemataFixture("plain")
+    var c = semantics.fromPath(p, by: T5CompilationOptions {})
+    var plain = semantics.fromPath(p, by: T5CompilationOptions {})
+    var sites = StrBuf()
+    let source = t5Source(ref c, by: T5Options { path: p }, to: ref sites) ?? panic("no flag, nothing to refuse")
+    assert(source == t5EmitC(ref plain, by: "safe"))
+    assert(sites.finish().length == 0)
+    var args = List<string>()
+    for a in ["--emit-c", "--schemata-files", Path.combine(p, "a.byn"), p] {
+        args.append(a)
+    }
+    assert(t5ParseBuildOptions(in args, by: true, for: true) is null)
     deleteWorkDir(p)
 }

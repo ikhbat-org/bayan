@@ -1,0 +1,9 @@
+== 1
+error BYN2003: `name` is not a member of `Target`
+  --> $WORK/main.byn:1:14
+
+  1 │ print(Target.name)
+    │              ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2003

@@ -1,0 +1,10 @@
+== 1
+warning BYN2311: `a` is never reassigned; declare it with `let`
+  --> $WORK/lint.byn:27:9
+
+  27 │     var a = [C { n: 0 }]
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 27 │     let a = [C { n: 0 }]
+     │    │     +++

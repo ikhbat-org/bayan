@@ -43,4 +43,15 @@ l_pkg=$(grep -nxF -- '        run: bash scripts/release/package.sh pack ${{ matr
 [ -n "$l_lsp" ] || fail "release.yml does not build bayan-lsp with the shipped bayan into publish/"
 [ -n "$l_sm" ] && [ -n "$l_pkg" ] && [ "$l_sm" -lt "$l_lsp" ] && [ "$l_lsp" -lt "$l_pkg" ] || fail "release.yml builds bayan-lsp outside the smoke test .. Package span"
 ! grep -qE 'LanguageServer|\.csproj' "$wf" || fail "release.yml builds the C# language server"
+# spec 019 R24/R25: no .NET in the build job, which builds from the bootstrap, nor in the memory gate (its bayan-lsp part
+# runs the Bayān server since T38b)
+build=$(awk '/^  build:/{j=1;next} j&&/^  [^ #]/{exit} j' "$wf")
+echo "$build" | grep -qi 'dotnet' && fail "release.yml's build job still uses .NET"
+echo "$build" | grep -q 'bash scripts/bootstrap-build.sh' || fail "release.yml's build job does not build from the bootstrap"
+echo "$build" | grep -qF -- '--mode safe --package src -o publish/' || fail "release.yml's build job does not build the shipped stage from src/"
+echo "$build" | grep -qF -- '(selfhost)' || fail "release.yml's build job lost the (selfhost) smoke test"
+mg=$(awk '/^  memory-gate:/{j=1;next} j&&/^  [^ #]/{exit} j' "$wf")
+[ -n "$mg" ] || fail "release.yml has no memory-gate job"
+echo "$mg" | grep -qi 'dotnet' && fail "release.yml's memory-gate job still uses .NET"
+grep -qi 'dotnet' "$root/scripts/dist.sh" && fail "scripts/dist.sh still uses .NET"
 echo PASS

@@ -1,0 +1,1 @@
+$ $BAYAN build --emit-c --mode safe main.byn > c.txt; echo "build $?"; grep -n -m1 '^#line' c.txt; grep -n -e '^int64_t byn_main__twice(.* {$' -e '^int main(' c.txt; grep -n -B1 '^#line [0-9]* "main.c"$' c.txt; rm c.txt
