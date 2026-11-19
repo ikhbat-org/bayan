@@ -57,6 +57,8 @@ public sealed class L007UntrustedSinkTests
     private static void Check(string name, string api, string program, string args, string expected)
     {
         var source = $"{Prelude}    let _ = try {api}({program}, {args})\n}}\n";
+        // Spec 019 T31b: under the export, the row as a `check` case (see L006OwnershipGuardTests.Export).
+        if (L006OwnershipGuardTests.Export(nameof(L007UntrustedSinkTests), "l007", $"{L006OwnershipGuardTests.Slug(api)}-{L006OwnershipGuardTests.Slug(name)}", source, ["check"])) return;
         var c = Compilation.Create([new SourceText("l007.byn", System.Text.Encoding.UTF8.GetBytes(source))], ".");
         var errors = c.Diagnostics.Items.Where(d => d.IsError).ToList();
         if (expected.Length == 0)

@@ -56,7 +56,7 @@ public sealed class MapKeyLawTests(ITestOutputHelper output)
             source.Append($"    print($\"{{m[make({c})]}} {{n[{gen.Literal(c)}]}} {{m.contains({gen.Literal(c)})}}\")\n");
         source.Append("}\n");
         var expected = $"{codes.Count} {codes.Count}\n" + string.Concat(codes.Select(c => $"{c} {c} true\n"));
-        Check($"l016-{seed}.byn", source.ToString(), expected);
+        Check($"seed-{seed}", source.ToString(), expected);
     }
 
     /// <summary>
@@ -165,12 +165,19 @@ public sealed class MapKeyLawTests(ITestOutputHelper output)
                 print($"{a[pad(7)]} {b[small(7)]} {c[tail(7)]} {d[named(7)]} {e[outer(7)]} {f[(true, i64(7))]} {g[(i8(-93), "n7")]}")
             }
             """;
-        Check("l016-padding.byn", source, "1 1 1 1 1 1 1\n-4 -4 -4 -4 -4 -4 -4\n");
+        Check("padding", source, "1 1 1 1 1 1 1\n-4 -4 -4 -4 -4 -4 -4\n");
     }
 
     private void Check(string name, string source, string expected)
     {
-        var c = Compilation.Create([SourceText.FromString(name, source)], ".");
+        // Spec 019 T31b: under the export, the program as a `run` case per mode (the -Wall -Werror half is not exported).
+        if (SelfhostExport.Dir is not null)
+        {
+            foreach (var mode in new[] { "debug", "safe" })
+                L006OwnershipGuardTests.Export(nameof(MapKeyLawTests), "l016", $"{name}-{mode}", source, ["run", "--mode", mode]);
+            return;
+        }
+        var c = Compilation.Create([SourceText.FromString($"l016-{name}.byn", source)], ".");
         Assert.True(c.Diagnostics.Items.Count == 0, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: true) + "\n" + source);
         var compiler = Toolchain.FindCompiler();
         if (compiler is null)
