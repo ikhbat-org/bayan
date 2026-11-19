@@ -1,0 +1,6 @@
+struct Holder {
+    Span<i64> items
+}
+
+void main() {
+}

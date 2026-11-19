@@ -1,0 +1,28 @@
+// LayoutTests.ADifferenceKeepsTheInput (LayoutTests.cs:937-940): the C# injects `broken` through `Layout.OutputHook`, which no CLI
+// run reaches, so these rows call `layoutCheck` with `broken` as the output directly. Each source is the row's with `=` spaced to
+// `  =  `, as the C# test spaces it.
+
+import lexer
+import parser
+
+/// `layoutCheck` of `source` against `broken`, as `layoutApplyWith` calls it.
+string? layoutCheckAgainst(string source, for string broken) uses alloc {
+    let bytes = source.bytes.copy()
+    let lexed = layoutLex(bytes, by: lexer.Keywords.build())
+    let tokens = lexed.tokens.copy()
+    var gaps = List<LayoutGap>()
+    assert layoutGaps(bytes, from: tokens, at: layoutBom(bytes), to: ref gaps)
+    var p = parser.Parser.create(move lexed)
+    let tree = parser.parseCompilationUnit(ref p)
+    return layoutCheck(bytes, from: tokens, by: gaps, at: tree, through: ref p, for: broken.bytes.copy())
+}
+
+@cases(
+    ("let a  =  1\nlet b  =  2\n", "let a = 1\nlet b = 3\n", "the tokens changed"),
+    ("let a  =  1\nlet b  =  2\n", "let a = 1 let b = 2\n", "the diagnostics changed"),
+    ("let a  =  1 // one\n", "let a = 1 // two\n", "the comments changed"),
+    ("let a  =  1\nlet b  =  x >> 2\n", "let a = 1\nlet b = x > > 2\n", "the spacing the parser reads changed"),
+)
+test "a difference keeps the input" (string source, string broken, string reason) {
+    assert layoutCheckAgainst(source, for: broken) == reason
+}

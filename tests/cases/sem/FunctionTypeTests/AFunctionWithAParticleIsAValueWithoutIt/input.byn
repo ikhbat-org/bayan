@@ -1,0 +1,5 @@
+i64 clamp(i64 x, to i64 max) => max
+
+void main() {
+    let f: (i64, i64) -> i64 = clamp
+}

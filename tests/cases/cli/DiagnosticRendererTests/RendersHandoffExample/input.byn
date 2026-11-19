@@ -1,0 +1,14 @@
+struct Line {
+    i64 amount
+}
+
+i64 sum(List<Line> lines) {
+    let total: i64 = 0
+    for l in lines {
+        total += l.amount
+    }
+    return total
+}
+
+void main() {
+}
