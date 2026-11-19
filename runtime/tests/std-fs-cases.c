@@ -7,7 +7,7 @@
  * prints what the export does: nothing after `fileExists`, each `copy` destination's tree line (or `absent <path>`) after
  * `copy`, else the tree. In a path field `@ROOT@` is the root, `@RELROOT@` it relative to the working directory, `@TEMP@` the
  * temp directory as .NET's Path.GetTempPath gives it and `@EXE@` argv[0]; a link target under the root prints as `@ROOT@`.
- * On Windows the fixture's modes are `-` and print as `-`, the root's `/` (MSYS hands `/c/...` over as `C:/...`) become `\` as in
+ * On Windows a mode is `r` for a file with the read-only attribute (set as the file is written) and `-` otherwise, the root's `/` (MSYS hands `/c/...` over as `C:/...`) become `\` as in
  * .NET's root, the tree is built and read under `\\?\` so its long names fit, `@EXE@` is the module's path, and a `link` line that
  * lacks the symlink privilege ends the run with exit 3 and a `skip: ` line on stderr. */
 #include "bayan-rt.h"
@@ -182,7 +182,7 @@ static void entry(const char* name, const char* path) {
     int dir = (attrs & FILE_ATTRIBUTE_DIRECTORY) != 0;
     printf("%s ", dir ? "dir" : "file");
     hex(name, strlen(name));
-    printf(" -");
+    printf(!dir && (attrs & FILE_ATTRIBUTE_READONLY) ? " r" : " -");
     if (!dir) {
         printf(" ");
         FILE* f = _wfopen(w, L"rb");
@@ -373,7 +373,6 @@ int main(int argc, char** argv) {
             put(&full, "/", 1);
             put(&full, a.p, a.n);
 #ifdef _WIN32
-            (void)m;
             wchar_t* w = wide(full.p, 1);
             BOOL ok;
             if (strcmp(op, "link") == 0) {
@@ -396,6 +395,7 @@ int main(int argc, char** argv) {
                 DWORD wrote = 0;
                 ok = h != INVALID_HANDLE_VALUE && WriteFile(h, bytes.p, (DWORD)bytes.n, &wrote, NULL) && wrote == bytes.n;
                 if (h != INVALID_HANDLE_VALUE && !CloseHandle(h)) ok = FALSE;
+                if (ok && m[0] == ' ' && m[1] == 'r' && m[2] == ' ') ok = SetFileAttributesW(w, FILE_ATTRIBUTE_READONLY);
                 free(bytes.p);
             }
             free(w);
