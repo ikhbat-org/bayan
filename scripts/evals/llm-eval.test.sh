@@ -96,37 +96,66 @@ if law L049; then
   for c in broken wrong-code lint unformatted loop; do twice "$c" "$exit3" "$root/cand/$c.byn"; done
 fi
 
-# L050: for every `dev` seed task, the prompt the runner sends holds no line of checks/ or reference/, except a line of
-# prompt.md that is also a line of the task's starter/ or source.* (R3). Lines are trimmed; blank lines are not compared.
-# A stub model records each prompt; the n-th record of records.jsonl is the task of the n-th prompt.
-# Run only when named: 11 seed tasks fail it (spec 025 T38, PLAN-CHANGE), so it stays out of the whole run until they are fixed.
-if [ "$only" = L050 ]; then
-  mkdir -p "$root/l050"
-  cat > "$root/l050.sh" <<'EOF'
-n=$(( $(cat "$1/l050/count" 2> /dev/null || echo 0) + 1 ))
-echo "$n" > "$1/l050/count"
-cat > "$1/l050/prompt.$n"
+# L050: for every `dev` seed task (R3), (a) the prompt the runner sends is the preamble, the context file, then prompt.md,
+# each unchanged and nothing else; (b) it is the same prompt from a copy of the task without checks/ and reference/; (c) no
+# compared line of a file under checks/ or reference/ is a line of the preamble; (d) no such file has all its compared lines
+# in prompt.md, where a line of the task's starter/ or source.* does not count as in prompt.md. Lines are trimmed; blank lines
+# and lines with no letter or digit are not compared; a file with no compared line is skipped. A stub model records each
+# prompt; the n-th record of records.jsonl is the task of the n-th prompt.
+if law L050; then
+  mkdir -p "$root/l050/a" "$root/l050/b" "$root/l050/tasks"
+  printf 'Some words about Bayan.\n' > "$root/l050/context.md"
+  cat > "$root/l050.sh" <<'EOF2'
+n=$(( $(cat "$1/l050/$2/count" 2> /dev/null || echo 0) + 1 ))
+echo "$n" > "$1/l050/$2/count"
+cat > "$1/l050/$2/prompt.$n"
 cat "$1/cand/broken.byn"
-EOF
-  bash scripts/bayan-tool.sh llm-eval run "$seed" --model "sh $root/l050.sh $root" --machine m --out "$root/out/l050" \
-    > "$root/rec/l050" 2> "$root/rec/l050.err"
-  check "L050: the runner sends a prompt for every seed task" "$? $(wc -l < "$root/out/l050/1/records.jsonl" | tr -d ' ')" "0 $(ls -d "$seed"/*/ | wc -l | tr -d ' ')"
+EOF2
+  # The same seed without checks/ and reference/.
+  for t in "$seed"/*/; do
+    d=$root/l050/tasks/$(basename "$t"); mkdir -p "$d/checks" "$d/reference"
+    for f in "$t"*; do case $(basename "$f") in (checks|reference) ;; (*) cp -R "$f" "$d/" ;; esac; done
+  done
+  bash scripts/bayan-tool.sh llm-eval run "$seed" --model "sh $root/l050.sh $root a" --context "$root/l050/context.md" --machine m \
+    --out "$root/out/l050a" > "$root/rec/l050a" 2> "$root/rec/l050a.err"
+  codeA=$?
+  bash scripts/bayan-tool.sh llm-eval run "$root/l050/tasks" --model "sh $root/l050.sh $root b" --context "$root/l050/context.md" --machine m \
+    --out "$root/out/l050b" > "$root/rec/l050b" 2> "$root/rec/l050b.err"
+  codeB=$?
+  total=$(ls -d "$seed"/*/ | wc -l | tr -d ' ')
+  check "L050: the runner sends a prompt for every seed task, with and without checks/ and reference/" \
+    "$codeA $codeB $(wc -l < "$root/out/l050a/1/records.jsonl" | tr -d ' ') $(wc -l < "$root/out/l050b/1/records.jsonl" | tr -d ' ')" "0 0 $total $total"
+  # trimmed <file>: the compared lines of <file>, one per line.
+  trimmed() { sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$1" | grep '[[:alnum:]]' || true; }
   n=0 dev=0 seen=0
-  for name in $(sed -n 's/^{"task": "\([^"]*\)".*/\1/p' "$root/out/l050/1/records.jsonl"); do
+  for name in $(sed -n 's/^{"task": "\([^"]*\)".*/\1/p' "$root/out/l050a/1/records.jsonl"); do
     n=$((n + 1)); t=$seed/$name
     grep -q '^Split: dev$' "$t/task.md" || continue
     seen=$((seen + 1))
-    quoted=$(find "$t/starter" "$t"/source.* -type f 2> /dev/null)
-    hidden=$(find "$t/checks" "$t/reference" -type f | sort)
-    leaks=$(awk 'function trim(s) { gsub(/^[ \t\r]+|[ \t\r]+$/, "", s); return s }
-      { l = trim($0); if (l == "") next }
-      mode == "q" { q[l] = 1; next }
-      mode == "m" { m[l] = 1; next }
-      mode == "p" { p[l] = 1; next }
-      mode == "h" { if (!(l in h)) h[l] = FILENAME; next }
-      (l in h) && !((l in m) && (l in q) && !(l in p)) { print h[l] ": \"" l "\"" }' \
-      mode=q $quoted mode=m "$t/prompt.md" mode=p evals/llm/preamble.md mode=h $hidden mode=s "$root/l050/prompt.$n")
-    check "L050: $name: no line of checks/ or reference/ in the prompt sent" "$leaks" ""
+    { cat evals/llm/preamble.md; echo; cat "$root/l050/context.md"; echo; cat "$t/prompt.md"; } > "$root/l050/want"
+    if cmp -s "$root/l050/a/prompt.$n" "$root/l050/want"; then got=same; else got="prompt sent differs from preamble, context and prompt.md: $(diff "$root/l050/want" "$root/l050/a/prompt.$n" | head -3 | tr '\n' '|')"; fi
+    check "L050: $name: prompt sent is preamble, context, prompt.md" "$got" "same"
+    if cmp -s "$root/l050/a/prompt.$n" "$root/l050/b/prompt.$n"; then got=same; else got="prompt sent differs without checks/ and reference/: $(diff "$root/l050/a/prompt.$n" "$root/l050/b/prompt.$n" | head -3 | tr '\n' '|')"; fi
+    check "L050: $name: same prompt without checks/ and reference/" "$got" "same"
+    trimmed evals/llm/preamble.md > "$root/l050/preamble.lines"
+    trimmed "$t/prompt.md" > "$root/l050/prompt.lines"
+    : > "$root/l050/quoted.lines"
+    for q in $(find "$t/starter" "$t"/source.* -type f 2> /dev/null); do trimmed "$q" >> "$root/l050/quoted.lines"; done
+    inpre="" whole=""
+    for h in $(find "$t/checks" "$t/reference" -type f | sort); do
+      trimmed "$h" > "$root/l050/hidden.lines"
+      [ -s "$root/l050/hidden.lines" ] || continue
+      while IFS= read -r l; do
+        grep -qxF -- "$l" "$root/l050/preamble.lines" && inpre="$inpre $h: \"$l\" is a line of the preamble;"
+      done < "$root/l050/hidden.lines"
+      all=yes
+      while IFS= read -r l; do
+        if grep -qxF -- "$l" "$root/l050/prompt.lines" && ! grep -qxF -- "$l" "$root/l050/quoted.lines"; then :; else all=no; break; fi
+      done < "$root/l050/hidden.lines"
+      [ "$all" = yes ] && whole="$whole $h: every line is in prompt.md;"
+    done
+    check "L050: $name: no line of checks/ or reference/ in the preamble" "$inpre" ""
+    check "L050: $name: no file of checks/ or reference/ wholly in prompt.md" "$whole" ""
   done
   for t in "$seed"/*/; do grep -q '^Split: dev$' "$t/task.md" && dev=$((dev + 1)); done
   check "L050: every dev task checked" "$seen" "$dev"
