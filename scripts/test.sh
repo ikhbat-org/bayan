@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The full suite with no dotnet call (spec 019 R15, T23): golden cases, Bayān tests, CLI parity cases, script tests,
 # runtime C tests.
-#   bash scripts/test.sh [--jobs N] [--only golden|bayan|parity|scripts|runtime]
+#   bash scripts/test.sh [--jobs N] [--only golden|bayan|parity|scripts|runtime] [--coverage]
 # Parts, in order:
 #   golden   $BAYAN_EXE test tests/cases --jobs N (the self-hosted golden runner, src/driver/golden.byn)
 #   bayan    $BAYAN_EXE test --package src src/<m> for each src/<m> with a test block, then test lib/std/<m> for each module
@@ -9,6 +9,9 @@
 #   scripts  scripts/ci/script-tests.sh: unix on macOS, unix and docs on Linux (ci.yml's split); skipped on Windows
 #   runtime  runtime/tests/run.sh; skipped with no C compiler (no $CC, cc or zig)
 # --jobs (default: the CPU count) goes to the golden runner, the one part that runs in parallel.
+# --coverage: the bayan part runs the src/ packages through scripts/quality/coverage.sh (`test --coverage`, then the
+# ratchet against tests/quality-baseline.json, spec 019 R16, T29; report in tmp/quality/bayan-quality.json); the other
+# parts have no coverage build and run as without it.
 # BAYAN_EXE: the self-hosted driver; unset, src/driver is built with the pinned bayan (scripts/pinned-bayan.sh) into the
 # run's log directory. Each part's output is in <root>/tmp/test.XXXXXX/<part>.log,
 # removed when every part passes. One summary line per part; exit 1 when any part fails, 2 on a usage error.
@@ -18,12 +21,13 @@ set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root" || exit 2
 
-jobs=""; only=""
+jobs=""; only=""; coverage=0
 while [ $# -gt 0 ]; do
   case "$1" in
     (--jobs) [ $# -ge 2 ] || { echo "test.sh: --jobs expects a number" >&2; exit 2; }; jobs=$2; shift 2 ;;
     (--only) [ $# -ge 2 ] || { echo "test.sh: --only expects a part" >&2; exit 2; }; only=$2; shift 2 ;;
-    (*) echo "test.sh: unexpected argument '$1' (--jobs N, --only golden|bayan|parity|scripts|runtime)" >&2; exit 2 ;;
+    (--coverage) coverage=1; shift ;;
+    (*) echo "test.sh: unexpected argument '$1' (--jobs N, --only golden|bayan|parity|scripts|runtime, --coverage)" >&2; exit 2 ;;
   esac
 done
 case "$only" in (""|golden|bayan|parity|scripts|runtime) ;; (*) echo "test.sh: unknown part '$only' (golden, bayan, parity, scripts, runtime)" >&2; exit 2 ;; esac
@@ -81,11 +85,15 @@ golden_run() { "$driver" test tests/cases --jobs "$jobs"; }
 
 bayan_tests() {
   local rc=0 d
-  for d in src/*/; do
-    d=${d%/}
-    grep -lq '^test "' "$d"/*.byn 2>/dev/null || continue
-    echo "== $d"; "$driver" test --package src "$d" || rc=1
-  done
+  if [ $coverage = 1 ]; then
+    bash scripts/quality/coverage.sh || rc=1
+  else
+    for d in src/*/; do
+      d=${d%/}
+      grep -lq '^test "' "$d"/*.byn 2>/dev/null || continue
+      echo "== $d"; "$driver" test --package src "$d" || rc=1
+    done
+  fi
   for d in lib/std/*/; do
     d=${d%/}
     echo "== $d"; "$driver" test "$d" || rc=1
@@ -133,6 +141,7 @@ if [ -n "${TEST_SH_GOLDEN:-}" ]; then part golden "$TEST_SH_GOLDEN" "golden case
 else part golden "" "bayan test tests/cases --jobs $jobs" golden_run; fi
 
 if [ -n "${TEST_SH_BAYAN:-}" ]; then part bayan "$TEST_SH_BAYAN" "Bayān tests" "$TEST_SH_BAYAN"
+elif [ $coverage = 1 ]; then part bayan "" "test blocks of src/ under coverage and the ratchet, and of lib/std/" bayan_tests
 else part bayan "" "test blocks of src/ and lib/std/" bayan_tests; fi
 
 if [ -n "${TEST_SH_PARITY:-}" ]; then part parity "$TEST_SH_PARITY" "CLI parity cases" "$TEST_SH_PARITY"
