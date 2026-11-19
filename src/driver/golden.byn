@@ -2713,6 +2713,25 @@ test "one worker runs with no `sh` and is started again while it exits goldenWor
     assert(results[1].status == "passed" && results[1].detail == "ran 1")
 }
 
+test "one worker of the driver itself runs more than a batch of cases, started again after each batch, on every OS (T17e)" {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    print(failure) if exe == ""
+    assert(exe != "")
+    let input = Path.fullPath("tests/cases/lex/bad-chars.byn")
+    var cases = List<GoldenCase>()
+    for _ in 0..goldenWorkerBatch + 2 {
+        cases.append(GoldenCase { kind: "lex", name: "bad-chars", input: input })
+    }
+    var results = List<GoldenResult>()
+    goldenJobs(in cases, by: exe, for: 60000, as: 1, to: ref results)
+    assert(results.length == goldenWorkerBatch + 2)
+    for r in results {
+        print(r.detail) if r.status != "passed"
+        assert(r.status == "passed")
+    }
+}
+
 // The bound of a run over the full cases tree (spec 019 T9a, R9; docs/memory-leaks.md rule 8). The run takes minutes, past the 60 s of a test
 // block, so the block is pending unless `$BAYAN_TEST_TIMEOUT_MS` gives it 10 minutes, as the release memory gate does (T9b).
 

@@ -717,8 +717,15 @@ List<string> goldenProgramWord(string stdout, for string word, at string printed
 
 /// `got` against the lines of the expected file `path` (a final LF dropped) below its `== name` header when `header`, every line and the
 /// count, as SelfhostSemanticsHarness.cs:477 `AssertSection` compares them. Update mode rewrites the file as the export wrote it
-/// (SelfhostSemanticsHarness.cs:426; SelfhostEmitterHarness.cs:212-213, the lines joined by LF without a header). The failure is added to `failures`.
-void goldenProgramSame(string path, as ref List<string> got, by bool header, to ref List<string> failures)
+/// (SelfhostSemanticsHarness.cs:426; SelfhostEmitterHarness.cs:212-213, the lines joined by LF without a header). Each line of both sides is read
+/// through `goldenHostMasked` for `host` (none when empty). The failure is added to `failures`.
+void goldenProgramSame(
+    string path,
+    as ref List<string> got,
+    by bool header,
+    to ref List<string> failures,
+    string host = ""
+)
         uses alloc, env, fs {
     unless Fs.fileExists(path) {
         failures.append($"{path}\nmissing expected file {path}")
@@ -727,9 +734,9 @@ void goldenProgramSame(string path, as ref List<string> got, by bool header, to 
     let want = goldenCliLines(path)
     let head = header && want.length > 0 ? 1 : 0
     var line = 0
-    while line + head < want.length
-            && line < got.length
-            && want[line + head] == goldenStdModules(got[line], by: want[line + head]) {
+    while line + head < want.length && line < got.length {
+        let w = want[line + head]
+        break if goldenHostMasked(w, for: host) != goldenHostMasked(goldenStdModules(got[line], by: w), for: host)
         line += 1
     }
     return if line + head == want.length && line == got.length
@@ -759,8 +766,15 @@ void goldenProgramSame(string path, as ref List<string> got, by bool header, to 
 
 /// The section of `stdout` the expected file `name` of case `dir` holds (`== printed` and the C# lines, SelfhostSemanticsHarness.cs:426; no
 /// header for the emitter's `""`), through the case's `compare` word, against it. With no header every line of `stdout` is compared, blank
-/// ones too (SelfhostEmitterT6Tests.cs:328-333 `RawMode`).
-void goldenProgramSections(string dir, for string name, from string stdout, to ref List<string> failures)
+/// ones too (SelfhostEmitterT6Tests.cs:328-333 `RawMode`). The host target, `host` or the running one (`targetHost`) when null, is read as
+/// `<host>` on both sides as `goldenCliHost` says (T17e).
+void goldenProgramSections(
+    string dir,
+    for string name,
+    from string stdout,
+    to ref List<string> failures,
+    string? host = null
+)
         uses alloc, env, fs {
     let path = Path.combine(dir, name)
     let want = goldenCliLines(path)
@@ -781,7 +795,8 @@ void goldenProgramSections(string dir, for string name, from string stdout, to r
         failures.append($"{dir}\n{failure}")
         return
     }
-    goldenProgramSame(path, as: ref got, by: header, to: ref failures)
+    let running = goldenCliHost(dir, for: host ?? targetHost() ?? "")
+    goldenProgramSame(path, as: ref got, by: header, to: ref failures, host: running)
 }
 
 /// SelfhostSemanticsTests.cs:200 `Untimed` on one line: ` in [0-9]+\.[0-9]{2}s` at its end (before a CR) as ` in <time>`.
@@ -3078,4 +3093,41 @@ test "under BAYAN_SNAPSHOT a program whose two runs differ fails its case, namin
         $"BAYAN_SNAPSHOT: two runs of `{Path.combine(entries[0], "prog")} input.byn` differ in stdout",
     ))
     assert(!runs)
+}
+
+test "an `expected.sections` compare reads the host target as `<host>` on both sides unless the case's `args` pin another target (T17e)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-sections-host")
+    deleteWorkDir(root)
+    let want = "== hosts\nrunning macos-arm64\n[linux-x64] literals=[linux][x64]\n"
+    for name in ["plain", "pinned"] {
+        goldenWrite(root, for: $"{name}/expected.sections", as: want)
+    }
+    goldenWrite(root, for: "pinned/args", as: "--target\nwindows-x64\n")
+    let plain = Path.combine(root, "plain")
+    let pinned = Path.combine(root, "pinned")
+    let members = Path.fullPath("tests/cases/sem/SelfhostSemanticsT9Tests/TargetMembersMatchTheCSharp")
+    let recorded = Io.readText(Path.combine(members, "expected.sections")) catch ""
+    var failures = List<string>()
+    for host in ["windows-x64", "linux-x64"] {
+        let got = want.replaced("running macos-arm64", by: $"running {host}")
+        goldenProgramSections(plain, for: "expected.sections", from: got, to: ref failures, host: host)
+        goldenProgramSections(members, for: "expected.sections", from: recorded, to: ref failures, host: host)
+    }
+    assert(recorded.startsWith("== target\n") && failures.length == 0)
+    let changed = want
+        .replaced("running macos-arm64", by: "running windows-x64")
+        .replaced("[linux][x64]", by: "[linux][arm64]")
+    goldenProgramSections(plain, for: "expected.sections", from: changed, to: ref failures, host: "windows-x64")
+    let third = want.replaced("running macos-arm64", by: "running wasm32")
+    goldenProgramSections(plain, for: "expected.sections", from: third, to: ref failures, host: "windows-x64")
+    let windows = want.replaced("running macos-arm64", by: "running windows-x64")
+    goldenProgramSections(pinned, for: "expected.sections", from: windows, to: ref failures, host: "windows-x64")
+    goldenProgramSections(pinned, for: "expected.sections", from: want, to: ref failures, host: "windows-x64")
+    deleteWorkDir(root)
+    assert(failures.length == 3)
+    assert(failures[0].contains(
+        "expected line 3: [linux-x64] literals=[linux][x64]\nactual line 3: [linux-x64] literals=[linux][arm64]",
+    ))
+    assert(failures[1].contains("expected line 2: running macos-arm64\nactual line 2: running wasm32"))
+    assert(failures[2].contains("expected line 2: running macos-arm64\nactual line 2: running windows-x64"))
 }
