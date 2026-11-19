@@ -1,0 +1,5 @@
+== 1
+== 2
+bayan: the git tree has uncommitted changes, so this build couldn't be traced to a commit
+  help: commit first, or pass `--allow-dirty` (recorded in BUILDINFO.json)
+== 3

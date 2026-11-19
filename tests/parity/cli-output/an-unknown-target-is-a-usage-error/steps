@@ -1,0 +1,2 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"
+build	tally	--target	plan9-mips

@@ -1,0 +1,2 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"
+$ $BAYAN test tally --json > json.txt; echo "test --json $?"; cmp json.txt tally/out/test/results.json && echo "stdout is results.json"; grep -c '"status": "pass"' json.txt; grep -q running json.txt || echo "no running line"

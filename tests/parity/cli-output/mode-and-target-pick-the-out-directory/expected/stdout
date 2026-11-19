@@ -1,0 +1,10 @@
+== 1 exit 0
+new 0
+== 2 exit 0
+build debug 0
+build linux-x64 0
+build windows-x64 0
+== 3 exit 0
+debug host tally
+safe linux-x64 tally
+safe windows-x64 tally.exe

@@ -1203,3 +1203,173 @@ void t10AppendScalar(ref List<u8> buf, by i64 v) {
         buf.append(u8(0x80 | (v & 0x3F)))
     }
 }
+
+/// ManifestTests.cs:78 `ParseTests`: a manifest whose `test` holds `tests`.
+Manifest manifestParseTests(string tests) uses alloc =>
+    grammarDictParse($"Package {{ name: \"local/t\", version: \"0.1.0\", test: Tests {{ {tests} }} }}")
+
+/// ManifestTests.cs:128 `ParseStyle`: a manifest whose `style` holds `style`.
+Manifest manifestParseStyle(string style) uses alloc =>
+    grammarDictParse($"Package {{ name: \"local/t\", version: \"0.1.0\", style: Style {{ {style} }} }}")
+
+// ManifestTests.KebabNames.
+@cases(
+    ("tally", true),
+    ("my-app2", true),
+    ("My-app", false),
+    ("my--app", false),
+    ("my-app-", false),
+    ("2app", false),
+    ("my_app", false),
+)
+test "manifest: kebab names" (string name, bool valid) {
+    assert(t10IsKebabName(name.bytes) == valid)
+}
+
+// ManifestTests.SemanticVersions.
+@cases(
+    ("0.1.0", true),
+    ("10.20.30-rc.1", true),
+    ("1.0", false),
+    ("01.0.0", false),
+    ("1.0.0-", false),
+    ("1.0.0-rc..1", false),
+    ("1.0.0-a/b", false),
+    ("1.0.0-a\\b", false),
+    ("1.0.0-x-y.2", true),
+    ("1.0.0-rc.1+build.5", true),
+    ("1.0.0+", false),
+    ("1.0.0+a/b", false),
+    ("123456789012345678.0.0", true),
+)
+test "manifest: semantic versions" (string version, bool valid) {
+    assert(t10IsSemanticVersion(version) == valid)
+}
+
+// ManifestTests.ManifestVersions: a version names `dist/<version>/`, so it can't hold a path or overflow an `i64`.
+@cases(("1.0.0-x/../..", false), ("99999999999999999999.0.0", false), ("1.0.0-rc.1", true))
+test "manifest: manifest versions" (string version, bool valid) {
+    let m = grammarDictParse($"Package {{ name: \"local/tally\", version: \"{version}\", edition: 2027, kind: .app }}")
+    if valid {
+        assert(m.diagnostics.length == 0 && m.version == version)
+    } else {
+        var found = false
+        for d in m.diagnostics {
+            found = found || d.message.contains("`version` must be a semantic version string")
+        }
+        assert(found)
+    }
+}
+
+// ManifestTests.VersionOrder.
+@cases(
+    ("0.2.0", "0.10.0", -1),
+    ("1.0.0", "1.0.0-rc.1", 1),
+    ("1.0.0-alpha", "1.0.0-beta", -1),
+    ("2.0.0", "2.0.0", 0),
+    ("1.0.0+build.5", "1.0.0", 0),
+    ("1.0.0-rc.1+x", "1.0.0", -1),
+)
+test "manifest: version order" (string a, string b, i64 sign) {
+    let c = compareVersions(a, to: b)
+    assert((c < 0 ? -1 : c > 0 ? 1 : 0) == sign)
+}
+
+// ManifestTests.TestsFieldsDefaultWhenAbsent.
+test "manifest: tests fields default when absent" {
+    let m = manifestParseTests("nightly: [.fuzz]")
+    assert(m.diagnostics.length == 0)
+    assert(m.minLines is null && m.minBranches is null && m.minErrorPaths is null && m.minMutation is null)
+    assert(m.summary)
+}
+
+// ManifestTests.TestsFieldsParse.
+test "manifest: tests fields parse" {
+    let m = manifestParseTests(
+        "lines: 100, branches: 0, errorPaths: 90, mutation: 75, summary: false, diffCoverage: \"anything\", nightly: [.fuzz]",
+    )
+    assert(m.diagnostics.length == 0)
+    assert(m.minLines == 100 && m.minBranches == 0 && m.minErrorPaths == 90 && m.minMutation == 75)
+    assert(!m.summary)
+}
+
+// ManifestTests.PercentFieldsRejectWrongTypeAndRange.
+@cases("lines", "branches", "errorPaths", "mutation")
+test "manifest: percent fields reject wrong type and range" (string field) {
+    for bad in ["\"80\"", "true", "101", ".x"] {
+        let m = manifestParseTests($"{field}: {bad}")
+        assert(m.diagnostics.length == 1 && m.diagnostics[0].code == "BYN3102")
+    }
+}
+
+// ManifestTests.SummaryRejectsNonBool.
+test "manifest: summary rejects a non-bool" {
+    let m = manifestParseTests("summary: 1")
+    assert(m.diagnostics.length == 1 && m.diagnostics[0].code == "BYN3102")
+}
+
+// ManifestTests.StyleKnobsDefaultWhenAbsent.
+test "manifest: style knobs default when absent" {
+    let m = manifestParseStyle("booleans: .words")
+    assert(m.diagnostics.length == 0)
+    assert(m.indent == 4 && m.width == 120 && m.align == .runs && m.trailingCommas == .multiline)
+    assert(m.lints.length == 9 && m.lints["functions.length"] == .none)
+    for name in [
+        "guards.postfix",
+        "lambdas.it",
+        "nesting.depth",
+        "conditions.named",
+        "sections.banner",
+        "conditions.patterns",
+        "literals.empty",
+        "optionals.bind",
+    ] {
+        assert(m.lints[name] == .suggestion)
+    }
+    assert(grammarDictParse("Package { name: \"local/t\", version: \"0.1.0\" }").indent == 4)
+}
+
+// ManifestTests.StyleKnobsParse.
+test "manifest: style knobs parse" {
+    let m = manifestParseStyle(
+        "indent: 2, width: 80, align: .none, trailingCommas: .never, lints: [\"guards.postfix\": .warning, \"functions.length\": .error, \"lambdas.it\": .none, \"nesting.depth\": .suggestion]",
+    )
+    assert(m.diagnostics.length == 0)
+    assert(m.indent == 2 && m.width == 80 && m.align == .none && m.trailingCommas == .omit)
+    assert(m.lints["guards.postfix"] == .warning && m.lints["functions.length"] == .error)
+    assert(m.lints["lambdas.it"] == .none && m.lints["nesting.depth"] == .suggestion)
+    assert(m.lints["conditions.named"] == .suggestion)
+    let explicitRuns = manifestParseStyle("align: .runs, trailingCommas: .multiline, lints: []")
+    assert(explicitRuns.diagnostics.length == 0)
+    assert(explicitRuns.align == .runs && explicitRuns.trailingCommas == .multiline)
+}
+
+// ManifestTests.StyleRejects.
+@cases(
+    ("braces: .sameLine", "`style.braces` must be removed: there is no brace knob, `{` always ends the line"),
+    ("maxLine: 100", "`style.maxLine` must be removed: use `style.width`"),
+    ("trailingCommas: true", "`style.trailingCommas` must be `.multiline` or `.never`, not `true` or `false`"),
+    ("trailingCommas: .always", "`style.trailingCommas` must be `.multiline` or `.never`"),
+    ("indent: 0", "`style.indent` must be a positive integer, e.g. `4`"),
+    ("width: \"80\"", "`style.width` must be a positive integer, e.g. `120`"),
+    ("align: .left", "`style.align` must be `.runs` or `.none`"),
+    (
+        "lints: [\"guards.prefix\": .warning]",
+        "`style.lints` must be a known lint name: `guards.postfix`, `lambdas.it`, `nesting.depth`, `functions.length`, `conditions.named`, `sections.banner`, `conditions.patterns`, `literals.empty`, `optionals.bind`"
+    ),
+    ("lints: [\"lambdas.it\": .loud]", "`style.lints` must be `.none`, `.suggestion`, `.warning` or `.error` for `lambdas.it`"),
+    (
+        "lints: [\"lambdas.it\"]",
+        "`style.lints` must be a map from a lint name to `.none`, `.suggestion`, `.warning` or `.error`, e.g. `[\"guards.postfix\": .warning]`"
+    ),
+)
+test "manifest: style rejects" (string style, string message) {
+    let m = manifestParseStyle(style)
+    assert(m.diagnostics.length == 1 && m.diagnostics[0].code == "BYN3102" && m.diagnostics[0].message == message)
+}
+
+// ManifestTests.NamesConvertBetweenKebabAndCamel.
+test "manifest: names convert between kebab and camel" {
+    assert(kebabOf("macosArm64") == "macos-arm64")
+    assert(camelOf("my-lib") == "myLib")
+}
