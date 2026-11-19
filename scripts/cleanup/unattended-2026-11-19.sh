@@ -51,13 +51,14 @@ remove_scratch() {
 shopt -s nullglob
 remove_scratch "$repo"/tmp/rv-* "$repo"/tmp/rv3-* "$repo"/tmp/export-* "$repo"/tmp/*-build-out* "$repo"/tmp/t19d-feat \
   "$repo"/tmp/bb "$repo"/tmp/gate-l025* "$repo"/tmp/gate-l023fix "$repo"/tmp/delx "$repo"/tmp/t31ba-ex1 \
-  "$repo"/tmp/parity-csharp-bayan "$repo"/tmp/parity-csharp-bayan.log \
+  "$repo"/tmp/parity-csharp-bayan "$repo"/tmp/parity-csharp-bayan.log "$repo"/tmp/panic-probe \
   "$repo"/.worktrees/*/tmp/wp1 "$repo"/.worktrees/*/tmp/wlt1 "$repo"/.worktrees/*/tmp/bash32-parse-test \
   "$repo"/.worktrees/*/tmp/script-tests-test "$repo"/.worktrees/*/tmp/cache-moved-aside* \
   "$repo"/.worktrees/*/tmp/parity-csharp-bayan "$repo"/.worktrees/*/tmp/parity-csharp-bayan.log
 
 # 3. files this session's reviewers left outside the repo
-for p in /tmp/019wg-changed.txt /tmp/t20-golden-commit-check.log /tmp/t20-inventory-check.log /tmp/t20rev.out /tmp/t31bc-gate.*; do
+for p in /tmp/019wg-changed.txt /tmp/t20-golden-commit-check.log /tmp/t20-inventory-check.log /tmp/t20rev.out /tmp/t31bc-gate.* \
+  /tmp/x_m /tmp/x_c /tmp/icheck-fixed.sh /tmp/t30d-scratch.* /tmp/t30d-*.log /tmp/t30d-inv.out; do
   [ -e "$p" ] || { printf 'skip:  %s gone\n' "$p"; continue; }
   if [ $execute = 1 ]; then rm -rf "$p"; printf 'removed %s\n' "$p"; else printf 'would remove %s\n' "$p"; fi
 done
