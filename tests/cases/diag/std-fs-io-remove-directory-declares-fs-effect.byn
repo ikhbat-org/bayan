@@ -1,0 +1,4 @@
+// StdFsTests.IoRemoveDirectoryNeedsFsEffect: with `fs` declared there is no BYN6002.
+void f(string p) uses console, fs fails IoError {
+    try Io.removeDirectory(p)
+}

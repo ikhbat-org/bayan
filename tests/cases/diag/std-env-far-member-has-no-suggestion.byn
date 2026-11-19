@@ -1,0 +1,4 @@
+// StdEnvTests.FarMemberHasNoSuggestion: a member far from every name gets no help (BYN2003).
+void f() uses env {
+    let x = Env.zzzzzzzz("A")
+}

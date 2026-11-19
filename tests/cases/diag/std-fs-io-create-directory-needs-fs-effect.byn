@@ -1,0 +1,4 @@
+// StdFsTests.IoCreateDirectoryNeedsFsEffect: `Io.createDirectory` needs `fs` (BYN6002).
+void f(string p) uses console fails IoError {
+    try Io.createDirectory(p)
+}

@@ -1,0 +1,4 @@
+// StdFsTests.IoUnknownMemberSuggestsRemove: `Io.remov` is not a member; the nearest is `remove` (BYN2003).
+void f() uses fs {
+    let x = Io.remov("A")
+}
