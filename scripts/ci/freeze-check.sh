@@ -18,7 +18,8 @@
 #   - the tag resolves to another commit than its row (a tag that does not resolve, as in a shallow clone, is a note);
 #   - a file row whose file is gone or whose blob differs, a frozen file with no row, a cases row that differs from the recount;
 #   - an EXPORT.tsv row whose cases differ from its case directories, a class directory under cli, sem, emit-c, parse or lex
-#     with no EXPORT.tsv row;
+#     with no EXPORT.tsv row (a row of kind `shell` is only checked for a numeric count: its cases are the files under
+#     runtime/tests/cases that runtime/tests/run.sh replays, outside tests/cases);
 #   - a DIVERGENCES.tsv row with a field `pending`, or whose case starts with a kind directory and is no frozen file's case key.
 # Exit 0 clean, 1 refused (on stderr), 2 usage or git error.
 set -uo pipefail
@@ -157,6 +158,7 @@ awk -F'\t' -v write=$write -v view="$work/view" -v overlay="$work/overlay" -v mf
       key = a[2] "\t" a[1]
       if (key in exrow) { bad("EXPORT.tsv line " ln ": duplicate row " a[1] " " a[2]); continue }
       exrow[key] = 1
+      if (a[2] == "shell") { if (a[4] !~ /^[0-9]+$/) bad("EXPORT.tsv row " a[1] " shell: cases " a[4] " is not a count"); continue }
       if (a[4] + 0 != ncdir[key] + 0 || a[4] !~ /^[0-9]+$/)
         bad("EXPORT.tsv row " a[1] " " a[2] ": cases " a[4] ", " ncdir[key] + 0 " case directories under tests/cases/" a[2] "/" a[1])
     }

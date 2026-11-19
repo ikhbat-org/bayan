@@ -109,6 +109,12 @@ git checkout -q "$start" -- tests
 mkdir -p tests/cases/sem/OtherTests/c; echo x > tests/cases/sem/OtherTests/c/args; git add -A; git commit -qm export2
 expect "EXPORT class" 1 "EXPORT.tsv has no row for class OtherTests"
 git rm -q -r tests/cases/sem/OtherTests; git commit -qm back
+printf 'StdEnvTests\tshell\t6\t2\truntime/tests\n' >> tests/cases/EXPORT.tsv; git commit -qam shell
+expect "EXPORT shell row" 0
+sed "s/^StdEnvTests${tab}shell${tab}6${tab}2/StdEnvTests${tab}shell${tab}6${tab}x/" tests/cases/EXPORT.tsv > "$t/m"; cat "$t/m" > tests/cases/EXPORT.tsv
+git commit -qam shell2
+expect "EXPORT shell count" 1 "EXPORT.tsv row StdEnvTests shell: cases x is not a count"
+git checkout -q "$start" -- tests; git commit -qm back
 
 # 11 DIVERGENCES: pending in the question or the right column, and a kind path that names no case
 for row in "cli/CliTests/Shows-1${tab}pending${tab}csharp${tab}r" "cli/CliTests/Shows-1${tab}remove${tab}pending${tab}r"; do
