@@ -21,6 +21,9 @@ jobs:
   laws:
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    # L048-L050 run tools through bayan-tool.sh on the pinned bayan; a depth-1 checkout has no local `dev` (as ci.yml).
+    env:
+      PINNED_BAYAN_REF: HEAD
     steps:
       # Replaces actions/checkout (spec 015 handoff, T4): the exact commit at depth 1. The repo is public, so no token.
       - name: Checkout
