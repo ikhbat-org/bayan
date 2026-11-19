@@ -764,7 +764,7 @@ i32 goldenTest(
         // the workers build the programs first, in processes of their own (`goldenPrebuildWorker`); one at a time (`--jobs 1`, Windows), a
         // run of more than `goldenWorkerBatch` cases goes through one worker too, so it restarts as the parallel ones do (T17e), as does a
         // recording, whose builds and runs read BAYAN_SNAPSHOT in the processes that make them
-        goldenJobs(in cases, by: exe, for: limitMs, as: parallel ? workers : 1, to: ref mine, buildMs: buildMs)
+        goldenJobs(cases, by: exe, for: limitMs, as: parallel ? workers : 1, to: ref mine, buildMs: buildMs)
         for r in mine {
             unless quiet {
                 goldenPrint(in r)

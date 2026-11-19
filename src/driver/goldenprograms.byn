@@ -163,7 +163,7 @@ string goldenProgram(
     if snapshot != "" {
         kept = goldenSnapshotKept(
             Env.get("BAYAN_SNAPSHOT_FILES") ?? "",
-            from: in files,
+            from: files,
             main: main == "" ? "" : $"{pkg}/main.byn",
             added: addAs,
             through: ref failure,
@@ -275,7 +275,7 @@ string goldenProgram(
 /// when an entry is not on disk (SelfhostSemanticsHarness.cs:103 `SnapshotSkip`; one this program does not compile is ignored, Q820).
 List<string> goldenSnapshotKept(
     string list,
-    from in List<string> files,
+    from List<string> files,
     through ref string failure,
     string main = "",
     string added = ""
@@ -295,7 +295,7 @@ List<string> goldenSnapshotKept(
     }
     for f in files {
         continue if f == main || f == added
-        if listed.length == 0 || t13RunnerHas(in listed, for: Path.combine(src, f)) {
+        if listed.length == 0 || t13RunnerHas(listed, for: Path.combine(src, f)) {
             kept.append(f)
         }
     }
@@ -837,7 +837,7 @@ GoldenOutcome? goldenProgramRun(
     let o = goldenChild(prog, by: in args, at: cwd, from: in input, through: ref failure, whole: true)
     let snapshot = Env.get("BAYAN_SNAPSHOT") ?? ""
     if failure == "" && snapshot != "" {
-        let again = goldenChild(prog, by: in args, at: cwd, from: in input, through: ref failure, whole: true)
+        let again = goldenChild(prog, by: args, at: cwd, from: input, through: ref failure, whole: true)
         var differ = List<string>()
         if failure == "" && o.exitCode != again.exitCode {
             differ.append("exit code")
@@ -854,15 +854,15 @@ GoldenOutcome? goldenProgramRun(
             shown.append($" {a}")
         }
         if differ.length > 0 {
-            failure = $"BAYAN_SNAPSHOT: two runs of `{shown.finish()}` differ in {t5Join(in differ)}"
+            failure = $"BAYAN_SNAPSHOT: two runs of `{shown.finish()}` differ in {t5Join(differ)}"
         } else if failure == "" {
             goldenSnapshotRun(
                 Path.fullPath(snapshot),
                 for: prog,
-                by: in args,
+                by: args,
                 at: cwd,
-                from: in input,
-                as: in o,
+                from: input,
+                as: o,
                 through: ref failure,
             )
         }
@@ -879,10 +879,10 @@ GoldenOutcome? goldenProgramRun(
 void goldenSnapshotRun(
     string dir,
     for string prog,
-    by in List<string> args,
+    by List<string> args,
     at string cwd,
-    from in List<u8> input,
-    as in GoldenOutcome o,
+    from List<u8> input,
+    as GoldenOutcome o,
     through ref string failure
 )
         uses alloc, fs {
@@ -2558,17 +2558,17 @@ test "a recording keeps sites in the listed files of a program, all when none is
     var failure = ""
     let listed = goldenSnapshotKept(
         " src/lexer/main.byn,src/lexer/lexer.byn , src/parser/parser.byn",
-        from: in files,
+        from: files,
         main: "lexer/main.byn",
         added: "",
         through: ref failure,
     )
     assert(failure == "" && listed.length == 1 && listed[0] == "lexer/lexer.byn")
-    let all = goldenSnapshotKept("", from: in files, main: "", added: "t-case.byn", through: ref failure)
+    let all = goldenSnapshotKept("", from: files, main: "", added: "t-case.byn", through: ref failure)
     assert(failure == "" && all.length == 2 && all[0] == "lexer/main.byn" && all[1] == "lexer/lexer.byn")
-    let mainKept = goldenSnapshotKept("src/lexer/main.byn", from: in files, main: "", added: "", through: ref failure)
+    let mainKept = goldenSnapshotKept("src/lexer/main.byn", from: files, main: "", added: "", through: ref failure)
     assert(failure == "" && mainKept.length == 1 && mainKept[0] == "lexer/main.byn")
-    let gone = goldenSnapshotKept("src/lexer/gone.byn", from: in files, main: "", added: "", through: ref failure)
+    let gone = goldenSnapshotKept("src/lexer/gone.byn", from: files, main: "", added: "", through: ref failure)
     assert(gone.length == 0 && failure == "BAYAN_SNAPSHOT_FILES: src/lexer/gone.byn matches no compiled source")
     assert(goldenSnapshotJobs(4, for: "tmp/snap") == 1 && goldenSnapshotJobs(4, for: "") == 4)
 }
