@@ -1097,3 +1097,21 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 T41b, 2026-11-20): runtime/bayan-rt.c on Windows returns `other` when the child command line is 32,767 characters or more; return `invalidInput` (copy bootstrap/bayan-rt.c at land).
 - LOW (019 T41b, 2026-11-20): the golden program command line peaks at 31,990 characters with a 60-character repo path (margin 777, about 3 path characters); a response file would remove the limit. The length check in src/driver/goldenprograms.byn skips relative arguments that the runner makes absolute, and cli cases with `<repo>` args (SelfhostDefaultT2 1,067, DriverT2 759) are outside it.
 - LOW (019 T41b, 2026-11-20): the hang test in src/driver/goldenprograms.byn leaves tmp/p/<hash> and its `.case` file; a crashed run leaves `.case` claim files.
+- LOW (019 inv4, 2026-11-20): land-export.sh rewrites the EXPORT.tsv row of any class an export holds from UNEXPORTED.tsv, so the hand-written T30g reasons (SelfhostEmitterT8/T10/T11, TypedDumpTests and others) are lost on the next export of those classes.
+- LOW (019 inv4, 2026-11-20): inventory-check.sh counts the leading number of a reason, not the names in it; nothing checks that the count equals the names listed.
+- LOW (019 inv4, 2026-11-20): tests/inventory-019.tsv FormatTests row (:23) still targets tests/cases/format (no such folder, reason "folder runner reads the same files"); its covers are the cli classes named in its EXPORT.tsv row.
+- LOW (019 inv4, 2026-11-20): SelfhostDefaultT3Tests CleanDoesNotReportAFileItCannotRemove and CleanDoesNotReportADirectoryItCannotRemove have no case or block (chmod-locked trees); they need a Bayan block or an owner "no counterpart".
+- LOW (019 inv4, 2026-11-20): SelfhostSemanticsT2Tests.CodeTableMatchesDiagnosticCodes: no check compares the severity column of the ported code table; code and message are covered by `diag t2: format matches string.Format`.
+- LOW (019 inv4, 2026-11-20): SelfhostDriverStyleEnvironmentTests TimerFrames* x2 and SelfhostSemanticsT4Tests.EveryRecordHasAStruct have no cover and are reported by inventory-check.sh; they need a block/check or an owner "no counterpart".
+- LOW (019 T30e t30ec, 2026-11-20): Bayān `string` has no index-of; parser-t13.test.byn:21 compares whole lines instead of the C# `IndexOf("== a.byn\n")`.
+- LOW (019 T30e t30ec, 2026-11-20): FixKeepsTheSameC's emitted-C compare has no break that reaches it (a comment-only fix cannot change C without breaking the build).
+- LOW (019 T30e t30ec, 2026-11-20): The driver test package builds with many BYN2311/BYN5014 warnings in src/semantics and src/driver (unrelated noise in every `--only` run).
+- LOW (019 T30d t30dc, 2026-11-20): the header of scripts/ci/libc-inventory-check.sh:10 still says "Nothing here emits the C"; it could name nightly-modes.sh --mode libc as the caller.
+- LOW (019 T30d t30dc, 2026-11-20): nightly-modes.sh --mode libc has not run over the full corpus; the first nightly may report C# `Dropped` inputs, tokens or listed calls no unit reaches.
+- LOW (019 T30d t30dc, 2026-11-20): work/todo.md:1071 (T30d emitted-C entry) can close once the first full libc run passes.
+- LOW (019 T17e t17eb, 2026-11-20): emit-c/SelfhostEmitterT6Tests/Constants_OfTheRunCorpusMatchCSharp expected.sections holds `BYN_STR("macos", 5)` and `BYN_STR("arm64", 5)` (lines 667, 670); if that class compares sections on Linux/Windows the triple mask cannot match it.
+- LOW (019 T17e t17eb, 2026-11-20): 019-tasks.md T17e line: the win5 note says TargetMembersMatchTheCSharp prints host output; its output is host-independent (every row pins its target).
+- LOW (019 T29 t29a, 2026-11-20): scripts/quality/cobertura_to_quality.py and its converters.test.sh fixtures have no caller now that coverage.sh dropped coverlet; delete with T67.
+- LOW (019 T29 t29a, 2026-11-20): docs/specs/015-tooling/015-spec.md:45 still names coverage.sh as cobertura_to_quality.py's caller.
+- LOW (019 T29 t29a, 2026-11-20): `bayan test --coverage --package src src/<m>` writes src/out/test/ inside the source tree (root = package root); coverage.sh removes it, a manual run leaves untracked src/out/.
+- LOW (019 T29 t29a, 2026-11-20): work/todo.md:948 (coverage.test.sh wiping real tmp/quality) is fixed by 019-t29a; strike it.
