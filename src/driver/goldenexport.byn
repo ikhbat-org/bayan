@@ -1468,8 +1468,8 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         // what `modes` or a T9 seed locked, opened again for the next run's `goldenFresh`
         let _ = goldenCliRun(["chmod", "-R", "u+rwx", scratch])
     }
-    buf = buf.replaced(scratch, by: tag)
-    err = err.replaced(scratch, by: tag)
+    buf = goldenDirMasked(buf, at: scratch, by: tag)
+    err = goldenDirMasked(err, at: scratch, by: tag)
     // the T17c land-time masks of land-export.sh, on the actual side: `mask_doctor` on a doctor run's stdout (the cache row too unless
     // the case's env sets BAYAN_CACHE), `mask_cc` on SelfhostDefaultT12Tests's streams
     var doctor = false
@@ -1569,7 +1569,12 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         case "stdout-exact-stderr-masked":
             // SelfhostDriverT5Tests.cs:166-171: stdout byte for byte, stderr through `Mask`
             goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
-            goldenCliCheck(dir, for: "expected.stdout", as: o.stdout.replaced(scratch, by: tag), to: ref failures)
+            goldenCliCheck(
+                dir,
+                for: "expected.stdout",
+                as: goldenDirMasked(o.stdout, at: scratch, by: tag),
+                to: ref failures,
+            )
             let slashed = goldenCliSlashedAfter(err, at: tag, by: Target.os == "windows")
             goldenCliCheck(dir, for: "expected.stderr", as: goldenCliT5(slashed), to: ref failures)
         case "masked":
