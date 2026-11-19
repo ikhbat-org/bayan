@@ -30,6 +30,7 @@ SelfhostDefaultT9Tests	cli	94	59	61 not exported: ABuildSweepsStaleDirectories (
 SelfhostDriverApiTests	cli	2	1	
 SelfhostDriverFixTests	cli	33	64	
 SelfhostDriverMutateTests	cli	46	58	
+SelfhostDriverRuntimeTests	cli	2	0	2 not exported: RuntimeConstantsEqualRuntimeFiles (compares src/driver/runtime.byn with runtime/bayan-rt.h and bayan-rt.c, no compiler output; the same comparison is scripts/selfhost/gen-driver-files.sh --check, run on the tree by scripts/selfhost/gen-driver-files.test.sh in scripts/ci/script-tests.sh); StageOneBuildsWithRuntimeText (build only: asserts the stage-1 binary exists; ci.yml builds stage 1 with scripts/bootstrap-build.sh)
 SelfhostDriverStage2FormatTests	cli	139	173	1 not exported: FormatTreesAsCliApp-84 (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
 SelfhostDriverStyleCaseTests	cli	147	147	
 SelfhostDriverStyleEnvironmentTests	cli	84	42	
