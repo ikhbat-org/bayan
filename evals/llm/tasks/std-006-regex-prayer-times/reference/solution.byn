@@ -1,0 +1,23 @@
+import std.regex
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    let time = regex.Regex.parse("\\b[0-9]{2}:[0-9]{2}\\b") catch {
+        print("bad pattern", to: .stderr)
+        return
+    }
+    var number = 0
+    var count = 0
+    for line in read.value.lines {
+        number += 1
+        for m in time.findAll(line) {
+            count += 1
+            print($"{number}:{m.span.start} {m.group(0) ?? ""}")
+        }
+    }
+    print($"times: {count}")
+}

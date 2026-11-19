@@ -1,0 +1,24 @@
+/// Coins in each purse when `coins` are shared out evenly into `purses`.
+i64 perPurse(i64 coins, by i64 purses)
+        expects purses >= 1 && purses <= coins {
+    return coins / purses
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    for line in read.value.lines {
+        var fields = List<string>()
+        for part in line.parts(by: " ") {
+            fields.append(part)
+        }
+        continue if fields.length != 3
+        let coins = i64.tryParse(fields[1]) ?? 0
+        let purses = i64.tryParse(fields[2]) ?? 0
+        let each = perPurse(coins, by: purses)
+        print($"{fields[0]}: {each} in each purse, {coins - each * purses} left over")
+    }
+}

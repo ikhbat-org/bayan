@@ -1,0 +1,24 @@
+import std.regex
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var lines = List<string>()
+    for line in read.value.lines {
+        lines.append(line)
+    }
+    return if lines.isEmpty
+    let name = regex.Regex.parse(regex.Regex.escaped(lines[0])) catch {
+        print("bad name", to: .stderr)
+        return
+    }
+    var hidden = 0
+    for i in 1..lines.length {
+        hidden += name.findAll(lines[i]).length
+        print(name.replaced(lines[i], by: "[hidden]"))
+    }
+    print($"hidden: {hidden}")
+}
