@@ -1,0 +1,105 @@
+// DiagnosticRendererTests.cs at widths 26 and 40 (019 T27): the C# builds these diagnostics by hand, which no CLI run does, so
+// these render them through `render` at that width.
+
+import lexer
+
+/// DiagnosticRendererTests.cs:26 `Find` and `DiagnosticRenderer.Render(diagnostic, includePath: false, Style.Plain with { Width = width })`
+/// of `d` in `text`, the one file `a.byn`.
+string t27Render(string text, for move Diag d, by i64 width) uses alloc, clock, fs {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+    let c = create(from: move sources, at: ".", by: CompilationOptions {})
+    var at: i64 = -1
+    for i in 0..c.files.length {
+        at = i if c.files[i].path == "a.byn"
+    }
+    var diag = move d
+    diag.file = at
+    return render(in c, for: diag, by: false, through: t26Symbols(ascii: false, width: width))
+}
+
+/// The span of the first `needle` in `text`, as `Find` gives it.
+TextSpan t27Find(string text, for string needle) {
+    let t = text.bytes
+    let n = needle.bytes
+    for i in 0..t.length - n.length + 1 {
+        var same = true
+        for j in 0..n.length {
+            same = same && t[i + j] == n[j]
+        }
+        return TextSpan { start: i, length: n.length } if same
+    }
+    return TextSpan { start: -1, length: 0 }
+}
+
+/// `rendered.Split('\n')`.
+List<string> t27Split(string rendered) uses alloc {
+    let t = rendered.bytes
+    var lines = List<string>()
+    var from: i64 = 0
+    for i in 0..t.length {
+        if t[i] == 0x0A {
+            lines.append(rendered[from..i])
+            from = i + 1
+        }
+    }
+    lines.append(rendered[from..t.length])
+    return lines
+}
+
+// DiagnosticRendererTests.cs:263-280 `LongMessageAndLabelWrapAtTheStyleWidth`, its expected text as the C# writes it.
+test "renderer: a long message and label wrap at the style width" {
+    let text = "let x = 1\n"
+    let d = Diag {
+        code: "BYN2000",
+        span: t27Find(text, for: "x"),
+        message: "one two three four five six",
+        label: "alpha beta gamma delta",
+        fixSpan: TextSpan { start: 0, length: 0 },
+        related: List<Related>(),
+    }
+    let expected = "error BYN2000: one two\nthree four five six\n\n  1 │ let x = 1\n    │     ^ alpha beta\n    │       gamma delta\n"
+    assert t27Render(text, for: move d, by: 26) == expected
+}
+
+// DiagnosticRendererTests.cs:282-291 `BacktickedCodeInAMessageIsNeverSplit`.
+test "renderer: backticked code in a message is never split" {
+    let text = "let x = 1\n"
+    let type = "`(string alpha, string bravo, string charlie, i64 delta)`"
+    let d = Diag {
+        code: "BYN2000",
+        span: t27Find(text, for: "x"),
+        message: $"expected `i64`, found {type} here",
+        fixSpan: TextSpan { start: 0, length: 0 },
+        related: List<Related>(),
+    }
+    let rendered = t27Split(t27Render(text, for: move d, by: 40))
+    assert rendered[0] == "error BYN2000: expected `i64`, found"
+    assert rendered[1] == type
+    assert rendered[2] == "here"
+}
+
+// DiagnosticRendererTests.cs:293-304 `SourceAndFixLinesNeverWrap`.
+test "renderer: source and fix lines never wrap" {
+    var code = "let x = 1"
+    for n in 2..=60 {
+        code = $"{code} + {n}"
+    }
+    let text = $"{code}\n"
+    let d = Diag {
+        code: "BYN2000",
+        span: t27Find(text, for: "x"),
+        message: "m",
+        hasFix: true,
+        fixSpan: t27Find(text, for: "let"),
+        fixReplacement: "var",
+        related: List<Related>(),
+    }
+    let rendered = t27Split(t27Render(text, for: move d, by: 40))
+    assert rendered[2] == $"  1 │ {code}"
+    assert rendered[5] == $"    │ 1 │ var{code[3..code.length]}"
+}

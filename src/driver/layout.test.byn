@@ -26,3 +26,12 @@ string? layoutCheckAgainst(string source, for string broken) uses alloc {
 test "a difference keeps the input" (string source, string broken, string reason) {
     assert layoutCheckAgainst(source, for: broken) == reason
 }
+
+// The same guard inside `layoutApplyWith`: spacing the tight product of `u8*p` makes it a multiplication, `layoutCheck` refuses
+// that output, and the result is the input itself with the reason.
+test "a difference keeps the input inside layoutApplyWith" {
+    let source = "void f(u8*p) {\n}\n".bytes.copy()
+    let result = layoutApplyWith(source, by: LayoutOptions {}, for: true)
+    assert result.skipReason is { }
+    assert t8SameBytes(in result.output, as: in source)
+}
