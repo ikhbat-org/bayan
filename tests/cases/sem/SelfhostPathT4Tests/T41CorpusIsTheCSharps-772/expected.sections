@@ -1,0 +1,3 @@
+== diags.diag/lambda-move
+BYN2782 2:29 cannot move out of a fresh value
+  help remove the `move`; a fresh value needs none

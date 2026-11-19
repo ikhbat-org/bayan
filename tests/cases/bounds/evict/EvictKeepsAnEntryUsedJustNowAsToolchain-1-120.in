@@ -1,0 +1,16 @@
+dir cache
+dir cache/v1
+dir cache/v1/programs
+dir cache/v1/programs/a
+file cache/v1/programs/a/program 1
+x
+dir cache/v1/programs/b
+file cache/v1/programs/b/program 1
+x
+dir cache/v1/programs/c
+file cache/v1/programs/c/program 1
+x
+age cache/v1/programs/a 0
+age cache/v1/programs/b 120
+age cache/v1/programs/c 240
+evict a 1 4000 600

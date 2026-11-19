@@ -1,0 +1,13 @@
+== diags.diag/function-value-mismatch
+BYN2202 34:18 expected `i64 -> bool`, found `bool isChecked(i64) fails LexError`
+  help pass a function of type `i64 -> bool`
+BYN2202 35:25 expected `i64 -> bool fails LexError`, found `bool isBig(i64)`
+  help pass a function of type `i64 -> bool fails LexError`
+BYN2202 36:22 expected `i64 -> bool fails ReadError`, found `bool isChecked(i64) fails LexError`
+  help pass a function of type `i64 -> bool fails ReadError`
+BYN2202 37:25 expected `i64 -> i64`, found `bool isBig(i64)`
+  help pass a function of type `i64 -> i64`
+BYN2202 38:25 expected `i64 -> bool fails LexError`, found `bool isInferred(i64) fails`
+  help declare the error sets of `isInferred`: `fails LexError`
+BYN2202 39:22 expected `i64 -> void`, found `void bump(ref i64)`
+  help pass a function of type `i64 -> void`

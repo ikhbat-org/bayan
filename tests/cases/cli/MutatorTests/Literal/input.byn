@@ -1,0 +1,7 @@
+i64 seven() {
+    return 7
+}
+
+i64 neg() {
+    return -5
+}

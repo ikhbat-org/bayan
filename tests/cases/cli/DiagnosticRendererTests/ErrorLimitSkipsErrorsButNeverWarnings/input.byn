@@ -1,0 +1,33 @@
+void main() {
+    let e0: i32 = "a"
+    let e1: i32 = "a"
+    let e2: i32 = "a"
+    let e3: i32 = "a"
+    let e4: i32 = "a"
+    let e5: i32 = "a"
+    let e6: i32 = "a"
+    let e7: i32 = "a"
+    let e8: i32 = "a"
+    let e9: i32 = "a"
+    let e10: i32 = "a"
+    let e11: i32 = "a"
+    let e12: i32 = "a"
+    let e13: i32 = "a"
+    let e14: i32 = "a"
+    let e15: i32 = "a"
+    let e16: i32 = "a"
+    let e17: i32 = "a"
+    let e18: i32 = "a"
+    let e19: i32 = "a"
+    let e20: i32 = "a"
+    let e21: i32 = "a"
+    let e22: i32 = "a"
+    let e23: i32 = "a"
+    let e24: i32 = "a"
+    var w0: i32 = 1
+    print($"{w0}")
+    var w1: i32 = 1
+    print($"{w1}")
+    var w2: i32 = 1
+    print($"{w2}")
+}

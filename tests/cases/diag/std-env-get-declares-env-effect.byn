@@ -1,0 +1,4 @@
+// StdEnvTests.GetNeedsEnvEffect: with `alloc` and `env` declared there is no BYN6002.
+void f() uses console, alloc, env {
+    print(Env.get("PATH") ?? "")
+}

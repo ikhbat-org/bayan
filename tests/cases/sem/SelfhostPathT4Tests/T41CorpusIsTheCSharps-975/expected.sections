@@ -1,0 +1,11 @@
+== diags.diag/payload-not-in-state
+BYN7002 13:27 `payment` is a payload of `.paid`; `order` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`
+BYN7002 19:12 `tracking` is a payload of `.shipped`; `order` is not known to be `.shipped`
+  help match `.shipped` with `is` or `switch` before reading `tracking`
+BYN7012 25:5 `order` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7002 54:26 `price` is a payload of `.sold`; `t` is not known to be `.sold`
+  help match `.sold` with `is` or `switch` before reading `price`
+BYN7002 10:43 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`

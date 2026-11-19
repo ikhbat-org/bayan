@@ -1,0 +1,19 @@
+i32 size(i32 x) {
+    return x
+}
+
+string name(string s) {
+    return s
+}
+
+i32? find(i32 x) {
+    return x
+}
+
+bool ok(bool b) {
+    return b
+}
+
+i32 zero() {
+    return 0
+}

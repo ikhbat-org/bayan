@@ -1,0 +1,4 @@
+error BYN2003: `zzzzzzzz` is not a member of `Fs`
+
+  3 │     let x = Fs.zzzzzzzz("A")
+    │                ^^^^^^^^

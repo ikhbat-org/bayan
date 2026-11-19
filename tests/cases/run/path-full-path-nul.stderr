@@ -1,0 +1,2 @@
+panic: Path.fullPath: the path has a NUL byte
+  at path-full-path-nul.byn:2

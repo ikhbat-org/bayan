@@ -1,0 +1,3 @@
+== diags.diag/borrow-field
+BYN3001 2:5 a struct field cannot hold a borrowed `Span<u8>`
+  help store a `List` copied with `.copy(to: alloc)` instead; storing borrows in structs arrives in a later version

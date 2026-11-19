@@ -1,0 +1,4 @@
+// StdEnvTests.UnknownMemberIsReported: `Env.set` is not a member; the nearest is `get` (BYN2003).
+void f() uses env {
+    let x = Env.set("A")
+}

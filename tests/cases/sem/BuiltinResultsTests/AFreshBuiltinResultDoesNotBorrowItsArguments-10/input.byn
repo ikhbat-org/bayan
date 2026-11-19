@@ -1,0 +1,11 @@
+string f() {
+    using let arena = Arena()
+    let name = "ann".copy(to: arena)
+    let bytes = name.bytes
+    var args = List<string>()
+    args.append(name)
+    return Hex.encode(bytes)
+}
+
+void main() {
+}

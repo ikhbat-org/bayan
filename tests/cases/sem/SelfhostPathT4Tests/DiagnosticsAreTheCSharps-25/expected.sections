@@ -1,0 +1,3 @@
+== diags.escape-combine-span
+BYN3003 4:16 cannot return a borrow of arena `arena`, which is freed when `f` returns
+  help let the caller pass the buffer or allocator in, and borrow or allocate from that

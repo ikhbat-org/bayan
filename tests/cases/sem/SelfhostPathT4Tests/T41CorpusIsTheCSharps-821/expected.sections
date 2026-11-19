@@ -1,0 +1,5 @@
+== diags.diag/variant-has-no-payload
+BYN2706 7:13 variant `none` has no payload
+  help write `Shape.none` without parentheses
+BYN2706 9:13 variant `none` has no payload
+  help match it with `.none`

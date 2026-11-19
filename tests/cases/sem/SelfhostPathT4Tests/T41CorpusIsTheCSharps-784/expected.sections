@@ -1,0 +1,3 @@
+== diags.diag/count-name-exempt
+BYN2770 3:6 unknown attribute `json`
+  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test

@@ -1,0 +1,2 @@
+== diags.diag/from-end-outside-index
+BYN2214 1:9 `^` is only allowed inside an index or slice

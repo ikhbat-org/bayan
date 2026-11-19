@@ -1,0 +1,2 @@
+== diags.diag/circular-field-default-instance
+BYN2034 1:29 the default of field `A.b` depends on itself

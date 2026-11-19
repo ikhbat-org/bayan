@@ -1,0 +1,5 @@
+== diags.diag/context-block-input
+BYN6006 2:5 `context (…) { }` is now `provide … { }`
+  label the input form
+  help write `provide allocator: arena { }` without the parentheses
+  fix 2:5-2:31 provide allocator: arena

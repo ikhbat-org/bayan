@@ -1,0 +1,10 @@
+error BYN3003: cannot return a borrow of arena `arena`, which is freed when `f` returns
+  --> input.byn:7:12
+
+  7 │     return name
+    │            ^^^^
+    │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3003

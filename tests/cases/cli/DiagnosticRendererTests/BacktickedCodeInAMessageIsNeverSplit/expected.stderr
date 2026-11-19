@@ -1,0 +1,11 @@
+error BYN2202: expected `(i64, string) -> bool uses fs, net fails IoError, Utf8Error`, found
+`bool g(i32, string) fails IoError, Utf8Error`
+  --> <repo>/tmp/t27-diag/BacktickedCodeInAMessageIsNeverSplit/input.byn:6:16
+
+  6 │     let a = t1(g)
+    │                ^
+    │
+  help: pass a function of type `(i64, string) -> bool uses fs, net fails IoError, Utf8Error`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202

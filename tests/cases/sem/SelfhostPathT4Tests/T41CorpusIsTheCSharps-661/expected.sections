@@ -1,0 +1,5 @@
+== diags.diag/run-untrusted
+BYN2786 4:24 `Untrusted<string>` cannot be passed to `Io.run`: it is `Untrusted`
+  help check the value, then clear the mark with `x.trustUnchecked() because "…"`
+BYN2786 5:39 `Untrusted<string>` cannot be passed to `Io.run`: it is `Untrusted`
+  help check the value, then clear the mark with `x.trustUnchecked() because "…"`

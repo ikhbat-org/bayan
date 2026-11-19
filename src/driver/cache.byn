@@ -461,7 +461,7 @@ string? t9LookupEntry(string dir, by string file, from string sumName, through r
             return exe
         }
     }
-    try discard(dir, through: ref d)
+    try discard(dir, at: t9Staging(), through: ref d)
     return null
 }
 
@@ -645,7 +645,7 @@ NativeBuild t9Compile(
 /// The `finally` of `Compile` (Toolchain.cs:461-464).
 void t9DiscardLeft(string work, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     if t9DirectoryExists(work) {
-        try discard(work, through: ref d)
+        try discard(work, at: t9Staging(), through: ref d)
     }
 }
 
@@ -825,19 +825,21 @@ i64? t9Digits(string text, until i64 max) {
 /// Toolchain.cs:490 `Evict(keep, maxBytes, maxEntries, minAge)`: an IO error ends it.
 void evictWith(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, through ref DCtx d)
         uses alloc, clock, env, fs, random {
-    t9Evict(keep, to: maxBytes, by: maxEntries, until: minAgeNanos, through: ref d) catch return
+    t9Evict(keep, to: maxBytes, by: maxEntries, until: minAgeNanos, at: cacheData(), through: ref d) catch return
 }
 
-/// The `try` body of `Evict` (Toolchain.cs:490-516). `FileInfo.Length` has no builtin: a file's size is its bytes, read (Q1149).
-void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, through ref DCtx d)
+/// The `try` body of `Evict` (Toolchain.cs:490-516) on the cache data directory `data` (`cacheData()`; the evict blocks of bounds.byn
+/// give another). `FileInfo.Length` has no builtin: a file's size is its bytes, read (Q1149).
+void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, at string data, through ref DCtx d)
         uses alloc, clock, env, fs, random
         fails IoError {
-    let programs = t9Programs()
+    let programs = Path.combine(data, "programs")
+    let runtime = Path.combine(data, "runtime")
     // Runtime objects share the cap and the LRU order with programs (Toolchain.cs:494-496).
     var parents = List<string>()
     parents.append(programs)
-    if t9DirectoryExists(t9Runtime()) {
-        parents.append(t9Runtime())
+    if t9DirectoryExists(runtime) {
+        parents.append(runtime)
     }
     var keys = List<string>()
     var dirs = List<string>()
@@ -888,11 +890,11 @@ void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNa
     for i in order {
         break if count <= maxEntries && bytes <= maxBytes
         continue if keys[i] == keep || used[i] > cutoff
-        try discard(dirs[i], through: ref d)
+        try discard(dirs[i], at: Path.combine(data, "tmp"), through: ref d)
         count -= 1
         bytes -= sizes[i]
     }
-    let scripts = t9Scripts()
+    let scripts = Path.combine(data, "scripts")
     unless t9DirectoryExists(scripts) {
         return
     }
@@ -989,20 +991,22 @@ void t9DeleteTree(string dir) uses alloc, fs fails IoError {
 }
 
 /// Toolchain.cs:557 `Discard`: `Directory.CreateDirectory(Staging)`, whose `UnauthorizedAccessException` the C# does not catch, so
-/// a permission error fails; any other error is the caught `IOException`.
-void discard(string dir, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
-    Io.createDirectory(t9Staging()) catch switch {
+/// a permission error fails; any other error is the caught `IOException`. `staging` is `Staging` (`t9Staging()`).
+void discard(string dir, at string staging, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
+    Io.createDirectory(staging) catch switch {
         IoError.permissionDenied => fail .permissionDenied,
         IoError e => return,
     }
-    try t9MoveAndDelete(dir, through: ref d)
+    try t9MoveAndDelete(dir, at: staging, through: ref d)
 }
 
 /// `Directory.Move(dir, trash)` and `Directory.Delete(trash, recursive: true)` of `Discard`, `trash` being `trash-<Guid>` in
 /// `Staging`, so a half-deleted entry is never visible. A failed move is the caught `IOException`: .NET's `Directory.Move` throws
 /// `IOException` for `EACCES` on Unix and `ERROR_ACCESS_DENIED` on Windows (Q1114).
-void t9MoveAndDelete(string dir, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
-    let trash = Path.combine(t9Staging(), $"trash-{t9Unique(ref d)}")
+void t9MoveAndDelete(string dir, at string staging, through ref DCtx d)
+        uses alloc, clock, env, fs, random
+        fails IoError {
+    let trash = Path.combine(staging, $"trash-{t9Unique(ref d)}")
     t9MoveDirectory(dir, to: trash) catch return
     t9DeleteTree(trash) catch switch {
         IoError.permissionDenied => fail .permissionDenied,

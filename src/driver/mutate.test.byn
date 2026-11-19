@@ -1,0 +1,84 @@
+// MutatorTests.cs not-emitted counts and skipFiles half (019 T27): `mutate --list` prints neither, so these call `emitter.find`,
+// the port of `Mutator.Find`, as the C# test does.
+
+import semantics
+import emitter
+import lexer
+
+/// MutatorTests.cs:12 `Find`: `emitter.find` over `text` as the one file `file` of a library, its test blocks kept for a `.test.byn`.
+emitter.Mutations t27Find(string text, by string file, for in List<string> skipFiles) uses alloc, clock, fs {
+    var files = List<lexer.SourceText>()
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    files.append(lexer.SourceText.create(file, from: move bytes))
+    let options = GoldenOptions { includeTests: file.endsWith(".test.byn"), library: true }
+    var c = semantics.create(from: move files, at: ".", by: options)
+    assert(!t5HasErrors(c))
+    return emitter.find(ref c, for: skipFiles)
+}
+
+// MutatorTests.cs:101, 110-115, 123, 131, 139: the not-emitted count of each operator, the C# literals.
+@cases(
+    (
+        "union error E {\n    bad\n    worse\n    other(i32 code)\n}\n\ni64 check(i64 n) fails E {\n    fail .bad if n < 0\n    return n\n}\n",
+        "variant",
+        1
+    ),
+    (
+        "i32 big() {\n    return 2147483647 - 1\n}\n\nu8 top() {\n    return 255\n}\n\ni32 spin(i32 n) {\n    while true {\n        return n\n    }\n}\n",
+        "arithmetic",
+        1
+    ),
+    (
+        "i32 big() {\n    return 2147483647 - 1\n}\n\nu8 top() {\n    return 255\n}\n\ni32 spin(i32 n) {\n    while true {\n        return n\n    }\n}\n",
+        "literal",
+        2
+    ),
+    (
+        "i32 big() {\n    return 2147483647 - 1\n}\n\nu8 top() {\n    return 255\n}\n\ni32 spin(i32 n) {\n    while true {\n        return n\n    }\n}\n",
+        "bool",
+        1
+    ),
+    (
+        "i32 big() {\n    return 2147483647 - 1\n}\n\nu8 top() {\n    return 255\n}\n\ni32 spin(i32 n) {\n    while true {\n        return n\n    }\n}\n",
+        "condition",
+        1
+    ),
+    ("void set(out i32 r) {\n    r = 1\n}\n", "statement", 1),
+    (
+        "void init(out i32 r) {\n    r = 1\n}\n\nvoid pass(out i32 r) {\n    init(out r)\n}\n\ni32 use() {\n    var x: i32\n    init(out x)\n    var y: i32 = 0\n    init(out y)\n    return x + y\n}\n",
+        "statement",
+        3
+    ),
+    ("i32 ends(i32[4] xs) {\n    return xs[3] + xs[0]\n}\n", "literal", 2),
+)
+test "mutator: a mutant that would not type-check is counted not emitted" (string text, string op, i64 count) {
+    let none = List<string>()
+    let m = t27Find(text, by: "lib.byn", for: none)
+    assert(m.notEmitted[op] == count)
+}
+
+// MutatorTests.cs:115: the not-emitted counts have every operator of `Mutator.Operators` and no other.
+test "mutator: the not-emitted counts have every operator" {
+    let none = List<string>()
+    let m = t27Find(
+        "i32 big() {\n    return 2147483647 - 1\n}\n\nu8 top() {\n    return 255\n}\n\ni32 spin(i32 n) {\n    while true {\n        return n\n    }\n}\n",
+        by: "lib.byn",
+        for: none,
+    )
+    let ops = emitter.mutatorOperators()
+    assert(m.notEmitted.length == ops.length)
+    for op in ops {
+        assert(m.notEmitted.contains(op))
+    }
+}
+
+// MutatorTests.cs:160: a skipped file yields no sites.
+test "mutator: a skipped file yields no sites" {
+    var skip = List<string>()
+    skip.append("main.byn")
+    let m = t27Find("i32 twice(i32 x) {\n    return x * 2\n}\n", by: "main.byn", for: skip)
+    assert(m.sites.length == 0)
+}

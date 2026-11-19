@@ -1,0 +1,3 @@
+i32 flip(i32 x) {
+    return -x
+}
