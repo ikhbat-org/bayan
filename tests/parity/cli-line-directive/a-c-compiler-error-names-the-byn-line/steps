@@ -1,0 +1,2 @@
+$ $BAYAN build p > /dev/null; echo "build $?"
+$ c=$(ls -d p/out/safe/*/c); perl -0pi -e 's/(#line 9 "[^"]*main.byn"\n)[^\n]*/$1        no_such_c_name;/' "$c/main.c"; grep -c no_such_c_name "$c/main.c"; ${CC:-cc} -fsyntax-only -I "$c" "$c/main.c" > cc.txt 2>&1; echo "cc $?"; grep -o 'main.byn:9:' cc.txt | sort -u; rm cc.txt

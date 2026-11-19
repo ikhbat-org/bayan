@@ -1,0 +1,6 @@
+== 1 exit 0
+build 0
+build host 0
+same
+        byn_w_str(w, BYN_HOST_OS);
+        byn_w_str(w, BYN_HOST_ARCH);

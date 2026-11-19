@@ -1,0 +1,12 @@
+== 1
+error BYN2783: `items` borrows from what it was bound to and cannot be changed or moved
+  --> $WORK/lint.byn:28:33
+
+  28 │     if l is .items(var items) { items.append(1) }
+     │                                 ^^^^^ `append` modifies it
+     │
+  help: change the subject itself, or work on a `.copy(to: alloc)`; a loop or pattern variable of a
+        unique type borrows from its subject
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2783

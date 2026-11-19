@@ -1,0 +1,9 @@
+== 1
+== 2
+warning BYN1076: this function body is 61 lines; split it into named steps
+  --> src/app/main.byn:1:13
+
+  1 │ void main() {
+    │             ^ 61 lines
+    │
+  help: split it into named steps
