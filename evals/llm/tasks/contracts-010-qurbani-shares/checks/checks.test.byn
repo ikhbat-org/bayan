@@ -1,0 +1,82 @@
+Booking made(string family, for i32 shares) => booking(family, for: shares, by: 900 * shares) catch {
+    panic("the booking was refused")
+}
+
+test "a booking is built" {
+    let b = try booking("Aisha", for: 2, by: 2000)
+    assert b.family == "Aisha"
+    assert b.shares.value == 2
+    assert b.paid == 2000
+    assert change(b) == 200
+}
+
+test "a booking paid to the fils has no change" {
+    assert change(try booking("Bilal", for: 7, by: 6300)) == 0
+    assert change(try booking("Bilal", for: 1, by: 900)) == 0
+}
+
+@cases(0, 8, -1)
+test "a share count outside 1 through 7 is refused" (i32 shares) {
+    assert booking("Aisha", for: shares, by: 9000) fails ValidationError<Shares>
+}
+
+@cases(("", 1, 900), ("abcdefghijklmnopq", 1, 900), ("Aisha", 2, 1799), ("Aisha", 1, 0), ("Aisha", 1, -900))
+test "a booking that breaks a rule is refused" (string family, i32 shares, i64 paid) {
+    assert booking(family, for: shares, by: paid) fails ValidationError<Booking>
+}
+
+test "the shares are checked before the booking" {
+    assert booking("", for: 9, by: -1) fails ValidationError<Shares>
+}
+
+test "verdict says what happened" {
+    assert verdict("Zaynab", for: 3, by: 3000) == "booked Zaynab: 3 shares, change 300"
+    assert verdict("Hamza", for: 8, by: 9000) == "refused Hamza: shares"
+    assert verdict("Hamza", for: 0, by: 9000) == "refused Hamza: shares"
+    assert verdict("Hamza", for: 2, by: 1000) == "refused Hamza: booking"
+    assert verdict("Hamza", for: 9, by: 0) == "refused Hamza: shares"
+}
+
+test "an empty cow has seven shares left" {
+    assert emptyCow().taken == 0
+    assert sharesLeft(emptyCow()) == 7
+}
+
+test "added takes the booking's shares" {
+    let cow = try added(emptyCow(), by: made("Aisha", for: 3))
+    assert cow.taken == 3
+    assert sharesLeft(cow) == 4
+    let full = try added(cow, by: made("Bilal", for: 4))
+    assert sharesLeft(full) == 0
+}
+
+test "a cow cannot take more than seven shares" {
+    let cow = try added(emptyCow(), by: made("Aisha", for: 5))
+    assert added(cow, by: made("Bilal", for: 3)) fails ValidationError<Cow>
+}
+
+test "a full cow takes no more" {
+    let full = try added(emptyCow(), by: made("Omar", for: 7))
+    assert added(full, by: made("Bilal", for: 1)) fails ValidationError<Cow>
+}
+
+test "addedAll adds every booking" {
+    var list = List<Booking>()
+    list.append(made("Aisha", for: 2))
+    list.append(made("Bilal", for: 1))
+    list.append(made("Zaynab", for: 4))
+    assert sharesLeft(try addedAll(emptyCow(), from: list)) == 0
+    assert (try addedAll(emptyCow(), from: List<Booking>())).taken == 0
+}
+
+test "addedAll fails when the bookings overflow the cow" {
+    var list = List<Booking>()
+    list.append(made("Aisha", for: 6))
+    list.append(made("Bilal", for: 2))
+    assert addedAll(emptyCow(), from: list) fails ValidationError<Cow>
+}
+
+test "a share count known while compiling needs no try" {
+    let b = try Booking { family: "Idris", shares: Shares(4), paid: 4000 }
+    assert change(b) == 400
+}
