@@ -11,7 +11,7 @@ emit-c/SelfhostDefaultT10Tests/EdgeFixtureMatchesTheCSharpInBothModes-edge mutat
 | (b) deleted, the case passes (T19a staging carried to the SelfhostDriver classes) | 33 |
 | (b) no row, the case passes (Edge input blob restored) | 1 case (6 Edge cases pass) |
 | (c) `remove` | 8 |
-| `pending`, not reproducible from the recording (LayoutInputs) | 18 new rows |
+| (c) `remove`, new rows (LayoutInputs, not reproducible from the recording) | 18 |
 | (a) | 0 |
 
 ## (b) Runner and land-time changes
@@ -61,13 +61,22 @@ Each row is `remove`, `pending`; the export recorded a link but not the file it 
 - cli/SelfhostDriverT5Tests/ReadsModuleFilesAndScriptsAsCliApp-4: the C# read the input's module with its sibling f.byn (`#`); the
   export recorded the input alone.
 
-## Pending, not reproducible from the recording
+## (c) Cannot be reproduced: LayoutInputs
 
 cli/SelfhostDriverStage2FormatTests/LayoutInputsFormatAsCliApp and -2, -3, -13, -18, -19, -21, -23, -24, -25, -27, -29, -30, -32, -33,
--34, -35, -38 (`pending`, `pending`). The C# test (`FormatsAsCliApp`) wrote one caseNNN.byn per string literal of a C# test file; the
+-34, -35, -38 (`remove`, `pending`). The C# test (`FormatsAsCliApp`) wrote one caseNNN.byn per string literal of a C# test file; the
 expected tree shows stray literals among them (case000 `tmp`, case001 `layout`, case002 `main.byn`), and the landed inputs are shifted
 against the expected outputs (expected stdout starts `formatted …/case004.byn`, whose landed input already equals its expected text; the
-run starts at case006). The exporter was not changed.
+run starts at case006). The recording holds no other copy of the inputs the C# formatted, so the cases cannot be reproduced from it.
+
+## Final share run
+
+`bayan test tests/cases --jobs 4 --only cli/SelfhostDefault --only cli/SelfhostDriver --only sem/ --only emit-c/` under nice, stage1
+built from this tree:
+
+    ◆ 14524 passed · ✗ 44 failed · 28 pending · 0 test blocks, 14596 golden cases · 3183.73s
+
+Every one of the 44 failing cases has a row in tests/cases/DIVERGENCES.tsv; no failing case is without one.
 
 ## Break tests
 
