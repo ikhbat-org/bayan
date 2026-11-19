@@ -1,0 +1,23 @@
+// L023 (spec 019 T31c): random-corpus counterexample 07899, a token swap of tests/cases/diag/circular-field-default-generic.byn whose
+// instances each need a deeper one; the checker recursed until the stack ran out (exit 139). Bayan only: the frozen C# was not run on it.
+
+test "L023 07899: a struct whose field needs an ever-deeper instance of itself is a diagnostic, not a crash" {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    print(failure) if failure != ""
+    assert(failure == "")
+    let dir = Path.combine(Path.fullPath("tmp"), "l023-07899")
+    Io.createDirectory(dir) catch {}
+    let text = "struct G<T> { G<Owned<T>>? g = Owned(G<T> {}) }\nlet x = G<i64> {}\n"
+    Io.writeFile(Path.combine(dir, "a.byn"), text.bytes) catch { failure = $"cannot write {dir}/a.byn" }
+    assert(failure == "")
+    var args = List<string>()
+    args.append("check")
+    args.append("a.byn")
+    let none = List<u8>()
+    let o = goldenChild(exe, by: args, at: dir, from: none, through: ref failure, whole: true)
+    let shown = $"{o.stdout}{o.stderr}"
+    print($"{failure}\nexit {o.exitCode}\n{shown}") if failure != "" || o.exitCode != 1 || !shown.contains("error BYN")
+        || shown.contains("panic:")
+    assert(failure == "" && o.exitCode == 1 && shown.contains("error BYN") && !shown.contains("panic:"))
+}

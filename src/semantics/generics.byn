@@ -788,6 +788,31 @@ string t13MissingMember(ref Ctx c, for Type t, to InterfaceId i) {
     return $": {typeDisplay(ref c, by: interfaceTypeOf(i))}"
 }
 
+/// How deep instances may nest while declaring members before a type counts as expanding without end
+/// (Bayan only, L023: `struct G<T> { G<Owned<T>>? g }` otherwise recurses until the stack runs out).
+const instantiationDepthLimit: i64 = 64
+
+/// True, after reporting BYN2761 once per template, when instantiating `template` now would nest past
+/// `instantiationDepthLimit`: each instance's members need a deeper instance of the same template.
+bool t13ExpandsWithoutEnd(ref Ctx c, for Type template, by string name, from FileId file, at TextSpan nameSpan) {
+    return false if c.instantiating < instantiationDepthLimit
+    if !listContains(in c.inReportedCycle, by: template) {
+        c.inReportedCycle.append(template)
+        // Straight to `Diagnostics`: the instantiating scopes would hold it as an instance error.
+        let outer = c.sink
+        c.sink = -1
+        report(
+            ref c,
+            for: .recursiveByValue,
+            from: file,
+            at: nameSpan,
+            by: (name, $"each instance of `{name}` needs a deeper one", "", "", ""),
+        )
+        c.sink = outer
+    }
+    return true
+}
+
 /// Compilation.cs:1615 InstantiateType: the instantiation of a generic struct, union or interface at
 /// `args`, with its members.
 Type instantiateType(ref Ctx c, for Type template, by in List<Type> args, from FileId site, at TextSpan span) {
@@ -802,6 +827,10 @@ Type instantiateType(ref Ctx c, for Type template, by in List<Type> args, from F
     switch kindOf(template) {
         case .structType:
             let s = StructId(typeIndex(template))
+            let name = c.structs[s].name
+            let file = c.structs[s].file
+            let nameSpan = c.structs[s].nameSpan
+            return errorType() if t13ExpandsWithoutEnd(ref c, for: template, by: name, from: file, at: nameSpan)
             let typeMap = t13Substitution(in c, from: null, for: in c.structs[s].typeParams, by: in args)
             let id = newStruct(ref c, by: StructSymbol {
                 name: c.structs[s].name,
@@ -865,6 +894,10 @@ Type instantiateType(ref Ctx c, for Type template, by in List<Type> args, from F
             return instance
         case .unionType:
             let u = UnionId(typeIndex(template))
+            let name = c.unions[u].name
+            let file = c.unions[u].file
+            let nameSpan = c.unions[u].nameSpan
+            return errorType() if t13ExpandsWithoutEnd(ref c, for: template, by: name, from: file, at: nameSpan)
             let typeMap = t13Substitution(in c, from: null, for: in c.unions[u].typeParams, by: in args)
             let id = newUnion(ref c, by: UnionSymbol {
                 name: c.unions[u].name,
