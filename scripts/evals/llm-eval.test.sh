@@ -77,20 +77,20 @@ if law L048; then
   done
 fi
 
-# L049: every seed reference and one candidate of each failing kind, scored twice, each time in a new --out directory, give
-# the same record (R9). The two scorings run at the same time, so the case fits the gate's time limit.
+# L049: seed references and one candidate of each failing kind, scored twice, each time in a new --out directory, give
+# the same record (R9). Quick tier (BAYAN_LAW_TIER unset, spec 011 D11): a fixed subset that fits the gate's time limit, one
+# reference of each check shape (a tests task, a stdout task with stdin, a stdout task without); BAYAN_LAW_TIER=full: every
+# seed reference.
 twice() {
-  local s
-  for s in a b; do
-    { score "l049-$1-$s" "$2" "$3"; echo "$code" > "$root/rec/l049-$1-$s.code"; } &
-  done
-  wait
+  score "l049-$1-a" "$2" "$3"; local first=$code
+  score "l049-$1-b" "$2" "$3"
   check "L049: $1: $(basename "$3") scored twice in two --out directories, same record" \
-    "$(cat "$root/rec/l049-$1-a.code") $(cat "$root/rec/l049-$1-b.code") $([ -s "$root/rec/l049-$1-a" ] && echo record) $(cat "$root/rec/l049-$1-b")" \
-    "0 0 record $(cat "$root/rec/l049-$1-a")"
+    "$first $code $([ -s "$root/rec/l049-$1-a" ] && echo record) $(cat "$root/rec/l049-$1-b")" "0 0 record $(cat "$root/rec/l049-$1-a")"
 }
 if law L049; then
-  for t in "$seed"/*/; do
+  refs="$seed/errors-001-prayer-time $seed/small-001-zakat-due $seed/spec-001-sadaqah-counters"
+  [ "${BAYAN_LAW_TIER:-}" = full ] && refs="$seed"/*/
+  for t in $refs; do
     t=${t%/}; twice "$(basename "$t")" "$t" "$t/reference/solution.byn"
   done
   for c in broken wrong-code lint unformatted loop; do twice "$c" "$exit3" "$root/cand/$c.byn"; done
