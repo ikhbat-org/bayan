@@ -1,0 +1,11 @@
+== 1
+error BYN2202: expected `i64`, found `string`
+  --> $WORK/bad/bad.byn:2:18
+
+  2 │     let x: i64 = "s"
+    │                  ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202
+== 2
+== 3

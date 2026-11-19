@@ -1,0 +1,4 @@
+== 1 exit 0
+build 0
+        byn_w_str(w, BYN_STR("wasi", 4));
+        byn_w_str(w, BYN_STR("wasm32", 6));

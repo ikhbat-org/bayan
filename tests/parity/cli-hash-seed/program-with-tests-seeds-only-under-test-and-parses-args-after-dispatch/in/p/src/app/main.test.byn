@@ -1,0 +1,3 @@
+test "one" {
+    assert(1 == 1)
+}

@@ -1,0 +1,12 @@
+i64 twice(i64 x) {
+    let y = x * 2
+    return y
+}
+
+void main() {
+    var total = 0
+    for i in 0..3 {
+        total += twice(i)
+    }
+    print($"{total}")
+}

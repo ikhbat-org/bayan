@@ -1,0 +1,1 @@
+$ $BAYAN build --emit-c main.byn > a.txt; echo "build $?"; $BAYAN build --emit-c --target host main.byn > b.txt; echo "build host $?"; cmp -s a.txt b.txt && echo same; grep -F -e BYN_HOST_OS -e BYN_HOST_ARCH -e '"windows"' -e '"macos"' -e '"linux"' -e '"wasi"' -e '"x64"' -e '"arm64"' -e '"wasm32"' a.txt; rm a.txt b.txt
