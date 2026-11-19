@@ -833,7 +833,9 @@ public struct Workspace {
         let k = key(uri)
         // Nothing is indexed under an excluded path.
         return removed if !(parseUri(uri).kind is .file) || isExcludedKey(k)
-        let prefix = folded($"{trimEndingSeparator(k)}/")
+        // Keys use the OS separator: `\` on Windows.
+        let sep = Target.os == "windows" ? "\\" : "/"
+        let prefix = folded($"{trimEndingSeparator(k)}{sep}")
         var slots = List<i64>()
         for e in index {
             slots.append(e.value)
@@ -1310,4 +1312,21 @@ test "on Windows a key under an indexed drive root is not excluded and the root 
         assert(trimEndingSeparator("/proj\\") == "/proj\\")
         assert(trimEndingSeparator("/proj/") == "/proj")
     }
+}
+
+test "removeFolder removes the documents under a deleted folder and no sibling; on Windows its prefix ends in a backslash, as the keys do" {
+    let windows = Target.os == "windows"
+    let dir = windows ? "C:\\proj\\sub" : "/proj/sub"
+    let file = windows ? "C:\\proj\\sub\\a.byn" : "/proj/sub/a.byn"
+    let sibling = windows ? "C:\\proj\\subway.byn" : "/proj/subway.byn"
+    var ws = Workspace.create()
+    for path in [file, sibling] {
+        let uri = fileUri(path)
+        let k = ws.key(uri)
+        let _ = ws.add(k, from: Document.create(uri, from: "f() {}\n".utf16.copy(), at: 0, as: false))
+    }
+    assert(ws.slots().length == 2)
+    let removed = ws.removeFolder(fileUri(dir))
+    assert(removed.length == 1 && removed[0] == fileUri(file))
+    assert(ws.slots().length == 1)
 }
