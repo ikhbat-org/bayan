@@ -437,7 +437,7 @@ bool goldenCopyTree(string from, to string dest, at i64 depth = 0) uses alloc, f
 /// at tmp/l009/<case>/<the input's path below the working directory> (the case's directory with every file below it for a multi-module
 /// case, the file alone otherwise), the scratch directory removed after. Null when the three dumps are equal, else the input and each pair
 /// that differs with its first differing line.
-string? goldenDeterministic(in GoldenCase c) uses alloc, clock, fs {
+string? goldenDeterministic(GoldenCase c) uses alloc, clock, fs {
     let full = Path.fullPath(c.input)
     // TypedDumpTests.cs:66: a `main.byn` below the kind directory is a whole-directory module
     let module = Path.fileName(full) == "main.byn" && !(c.name == "run-main" || c.name == "typed-main")
@@ -691,7 +691,7 @@ string? goldenRun(in GoldenCase c, i64 deadline = 0) uses alloc, clock, console,
         return goldenCompare(goldenEmit(root), for: c.input, at: c.input)
     }
     return goldenCompare(goldenQuality(), for: c.input, at: c.input) if c.kind == "quality"
-    return goldenDeterministic(in c) if c.kind == "typed-dump"
+    return goldenDeterministic(c) if c.kind == "typed-dump"
     let ending = goldenEnding(c.kind)
     return $"{c.input}\nkind `{c.kind}` is not compared yet" if ending == ""
     return goldenCompare(goldenProduce(in c), for: c.input, at: goldenExpected(c.input, for: ending))
