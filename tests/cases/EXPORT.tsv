@@ -1,4 +1,15 @@
 class	kind	tests	cases	reason
+BuiltinResultsTests	sem	13	13	
+CollectionLiteralTests	emit-c	3	3	
+DiagnosticRendererTests	cli	19	19	
+DynRefEmitTests	emit-c	3	3	
+ErrorUnionTypeTests	sem	1	1	
+FunctionTypeTests	sem	12	12	
+GenericsTests	emit-c	2	2	
+InterfaceDeclarationTests	sem	4	4	
+LambdaEmitTests	emit-c	2	2	
+MapKeyEmitTests	emit-c	5	5	
+MutatorTests	cli	17	17	
 SelfhostDefaultJsonCountTests	cli	1	1	
 SelfhostDefaultP2Tests	sem	3	1014	
 SelfhostDefaultT10Tests	emit-c	701	718	
@@ -17,7 +28,6 @@ SelfhostDriverStyleCaseTests	cli	147	147
 SelfhostDriverStyleEnvironmentTests	cli	84	42	
 SelfhostDriverStyleLintsTests	cli	13	12	
 SelfhostDriverT1Tests	cli	181	205	1 not exported: FormatAsCliApp-32 (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
-SelfhostDriverT1Tests	emit-c	181	0	9 not exported: ManifestForAsFormat (manifestFor); PackageNamesWithNamesAsFormat (package names); QualityReportAsCSharpDoes (killed a.byn b.byn); QualityReportAsCSharpDoes (killed lib.test.byn); QualityReportAsCSharpDoes (nosources lib.test.byn); QualityReportAsCSharpDoes (outcome b.byn a.byn); QualityReportAsCSharpDoes (outcome lib.test.byn); QualityReportAsCSharpDoes (timeout lib.test.byn); WalkAsFormatBynFiles (walk)
 SelfhostDriverT2Tests	cli	761	774	
 SelfhostDriverT3Tests	cli	62	70	
 SelfhostDriverT5Tests	cli	16	761	3 not exported: EmitsAPackageAsCliApp (build --emit-c --mode debug --package src src/driver); EmitsAPackageAsCliApp (build --emit-c --mode debug --package src src/lexer); FailuresAsCliApp (build --emit-c --package <repo>/src <repo>/tmp/t5/self/broken/broken.byn); 2 removed: CannotWriteTheOutputAsCliApp-5 (its input out/safe/macos-arm64/read-only named the export machine and was left out); CannotWriteTheOutputAsCliApp-6 (its input out/safe/macos-arm64/read-only named the export machine and was left out); EmitCAsCliAppOnEveryRunInput (removed, cannot be reproduced from the export (T19 (c), owner 2026-11-19))
@@ -44,6 +54,7 @@ SelfhostParserT7Tests	parse	31	31
 SelfhostParserT9Tests	parse	1	1	
 SelfhostParserTests	parse	264	603	3 not exported: SpanTakenBeforeTheLastChildLeavesItOutside (block-property); SpanTakenBeforeTheLastChildLeavesItOutside (not-pattern); SpanTakenBeforeTheLastChildLeavesItOutside (var-pattern)
 SelfhostPathT4Tests	sem	1029	1017	12 TheCSharpReportsDiagnostics: no counterpart (Fable for the owner, 2026-11-19): they assert the C# compiler's own diagnostics and run no self-hosted code
+SelfhostPathT5Tests	emit-c	10	10	
 SelfhostPathT7Tests	sem	10	9	
 SelfhostPathT8Tests	sem	3	2	
 SelfhostRevisionT2Tests	sem	20	16	
@@ -86,3 +97,4 @@ SelfhostStdImportTests	sem	17	16
 StdEnvTests	shell	6	2	T24b route (Decision 2026-11-19): runtime/tests/run.sh replays runtime/tests/cases/<os>/std-env-*.{in,expected} through std-env-cases.c; macOS from export 3e54b7e91 (get-matches-dotnet, invalid-utf8-value-matches-dotnet), Windows from export 08b3f29b0 on wp1 (get-matches-dotnet; invalid-utf8-value is POSIX only); no Linux export
 StdFsTests	shell	17	7	T24b route (Decision 2026-11-19): runtime/tests/run.sh replays runtime/tests/cases/<os>/std-fs-*.{in,expected} through std-fs-cases.c; macOS from export 3e54b7e91 (file-exists, io-remove, io-create-directory, io-remove-directory, rename, copy), Windows from export 08b3f29b0 on wp1 (the same and io-create-directory-extended-path, Windows only); no Linux export
 StdPathTests	shell	5	4	T24b route (Decision 2026-11-19): runtime/tests/run.sh replays runtime/tests/cases/<os>/std-path-*.{in,expected} through std-path-cases.c, std-path-case-tables-cases.c and path-relative-cases.c; macOS from export 3e54b7e91 (each-function, case-tables, full-path-panics-where-dotnet-throws-space), Windows from export 08b3f29b0 on wp1 (the same and short-names-expand-as-dotnet, Windows only); no Linux export
+SymbolEmitTests	emit-c	3	3	

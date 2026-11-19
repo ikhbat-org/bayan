@@ -1743,6 +1743,7 @@ string? goldenOut(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, 
     return goldenCompare(actual, for: c.input, at: c.input)
 }
 
+// L020: a normal build's generated C is byte-identical with or without the test tooling (the `emit/run-c` case)
 /// MutantSchemataTests.cs:292 `PlainBuildEmitsTheSameC` over the `run` cases of the cases root `root`: a `<sha256>  run/<path>` line each,
 /// the digest of the C `CliApp.EmitC` emits in the case's `// mode:` (:20 `ModeOf`), a `.test.byn` compiled with its tests as a library
 /// (:29 `CompileCase`), in path order. A case that does not compile gives `did not compile` for its digest.

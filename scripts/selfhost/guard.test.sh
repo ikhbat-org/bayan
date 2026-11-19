@@ -1,6 +1,7 @@
 #!/bin/bash
 # guard.sh on a tiny fixture with stub `scripts/test.sh`, `scripts/bootstrap-build.sh` and `bayan` (the stage-1 binary, BAYAN_EXE), plus a stub `dotnet`
-# that only mutation-step.sh calls until T48c (no dotnet needed): --mutate records once under BAYAN_SNAPSHOT (the --mutate files, the filter with Snapshot!=skip), then runs
+# that fails the test when called (spec 019 T48c): --mutate records once under BAYAN_SNAPSHOT as `bayan test tests/cases --only <selector>`
+# on BAYAN_EXE (the --mutate files, the --filter selector words, a part word dropped), then runs
 # `bayan mutate --binary` with replay.py per build of the manifest and prints its summary. A survivor fails with its site,
 # all killed passes (marked sites included), each build of a two-build manifest replays with its own --binary, a mutant-0 mismatch fails, a bayan error
 # with only an earlier run's report beside the binary fails, a score below tests/quality-baseline.json fails, a
@@ -13,7 +14,7 @@
 # red test run is not checked for coverage.
 # Tests (T48a): --filter words run one by one, a part word as `scripts/test.sh --only <part>` and any other as
 # `bayan test tests/cases --only <word>`; a failing part, a failing selector, a selector matching no case, a skipped part and a
-# failing bootstrap-build.sh each fail naming the word; no --task fails the content checks; the guard calls dotnet only for mutation.
+# failing bootstrap-build.sh each fail naming the word; no --task fails the content checks; the guard never calls dotnet.
 # A changed file the coverage report has no entry for (b.byn's run reports only b.byn) fails naming it (Q820).
 # lib/std (spec 016 T3): a changed lib/std/<m>/x.byn is in BAYAN_COVERAGE_FILES and adds the `bayan` part to the filter;
 # misformatted it fails the format check naming it, formatted it passes; covered it passes, a missed line of it fails by file:line.
@@ -43,22 +44,10 @@ echo "$PINNED_BAYAN"
 STUB
 git add -A && git commit -qm "test: base" && git branch -q base
 printf '# Handoff\n- **T99** landed.\n' > docs/bayan-progress-log.md
-# stub dotnet, called only by mutation-step.sh (T48c): under BAYAN_SNAPSHOT it logs the filter and files and writes a one-build manifest
-# (two builds with $AUX/two, none with $AUX/nomanifest); any other call is logged in $AUX/dotnet-calls.txt
+# stub dotnet: any call is logged in $AUX/dotnet-calls.txt and fails (T48c: the guard calls no dotnet)
 cat > $aux/dotnet <<'STUB'
 #!/bin/bash
-[ -n "${BAYAN_SNAPSHOT:-}" ] || echo "$*" >> $AUX/dotnet-calls.txt
-[ "$1" = test ] || exit 0
-echo "Total tests: 1  Passed: 1"
-if [ -n "${BAYAN_SNAPSHOT:-}" ]; then
-  echo "$BAYAN_SNAPSHOT_FILES ${@: -3:1}" > $AUX/record.txt
-  [ -f $AUX/recordfail ] && { printf '  Failed T99 [1 ms]\n  Error Message:\n   recording broke\n'; exit 1; }
-  b=$(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin/prog $AUX/bin/prog.sites.json)
-  [ -f $AUX/two ] && b="$b, $(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin2/prog2 $AUX/bin2/prog2.sites.json)"
-  [ -f $AUX/nomanifest ] || { mkdir -p "$BAYAN_SNAPSHOT"; echo "{\"version\": 1, \"builds\": [$b]}" > "$BAYAN_SNAPSHOT/manifest.json"; }
-  [ -f $AUX/badmanifest ] && echo '{"version": 1, "builds": [' > "$BAYAN_SNAPSHOT/manifest.json"
-fi
-exit 0
+echo "$*" >> $AUX/dotnet-calls.txt; exit 1
 STUB
 # the coverage report a test run writes: both test stubs run this
 cat > $aux/cover.sh <<'STUB'
@@ -67,7 +56,9 @@ if [ -n "${BAYAN_COVERAGE:-}" ]; then
   [ -f $AUX/nocov ] || { mkdir -p "$BAYAN_COVERAGE"; cp $AUX/cov.json "$BAYAN_COVERAGE/bayan-quality.json"; cp $AUX/fns.json "$BAYAN_COVERAGE/functions.json"; }
 fi
 STUB
-# stub bayan: logs its arguments; with $AUX/mismatch it fails as on mutant 0, with $AUX/usage as on bad arguments, else prints $AUX/out.txt and writes $AUX/report.json
+# stub bayan: logs its arguments; with $AUX/mismatch it fails as on mutant 0, with $AUX/usage as on bad arguments, else prints $AUX/out.txt and writes $AUX/report.json;
+# `test` under BAYAN_SNAPSHOT (mutation-step.sh's recording) logs the files and selectors and writes a one-build manifest (two builds with
+# $AUX/two, none with $AUX/nomanifest, a malformed one with $AUX/badmanifest; a failed case's result lines with $AUX/recordfail)
 mkdir -p csharp/Bayan.Cli/bin/Debug/net10.0
 cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 #!/bin/bash
@@ -77,6 +68,13 @@ cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 [ "$1" = run ] && case $2 in */quality-baseline.byn|*/report-paths.byn|*/coverage-missing.byn|*/coverage-gate.byn|*/guard-checks.byn) exec "$REAL_BAYAN" "$@";; esac
 [ "$1" = run ] && { m=${@: -1}; grep -q ']}$' "$m" || { echo "manifest-builds: $m: malformed" >&2; exit 1; }
   tr '{' '\n' < "$m" | sed -n 's/^"binary": "\([^"]*\)", "sites": "\([^"]*\)".*/\1 \2/p' | tr ' ' '\t'; exit 0; }
+[ "$1" = test ] && [ -n "${BAYAN_SNAPSHOT:-}" ] && { echo "$BAYAN_SNAPSHOT_FILES ${*:3}" > $AUX/record.txt
+  [ -f $AUX/recordfail ] && { printf 'failed run/T99\n    recording broke\n'; exit 1; }
+  b=$(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin/prog $AUX/bin/prog.sites.json)
+  [ -f $AUX/two ] && b="$b, $(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin2/prog2 $AUX/bin2/prog2.sites.json)"
+  [ -f $AUX/nomanifest ] || { mkdir -p "$BAYAN_SNAPSHOT"; echo "{\"version\": 1, \"builds\": [$b]}" > "$BAYAN_SNAPSHOT/manifest.json"; }
+  [ -f $AUX/badmanifest ] && echo '{"version": 1, "builds": [' > "$BAYAN_SNAPSHOT/manifest.json"
+  exit 0; }
 [ "$1" = test ] && { echo "bayan $*" >> $AUX/runs.txt; bash $AUX/cover.sh
   [ -f $AUX/nomatch ] && { echo "bayan: no case name contains \`${@: -1}\`" >&2; exit 2; }
   [ -f $AUX/selfail ] && { echo "run/x: failed: expected differs"; exit 1; }
@@ -187,7 +185,7 @@ cd "$root"; rm -rf "$r" "$aux"
 fail() { echo "FAIL: $1"; echo "$2"; exit 1; }
 echo "$pass" | grep -q '^GUARD PASS$' || fail "all killed (one marked) did not pass" "$pass"
 echo "$pass" | grep -q '^mutation: 2 killed, 0 survived, 0 timeout, 1 marked' || fail "the bayan mutate summary was not printed" "$pass"
-[ "$rec" = "src/semantics/a.byn (run/ bayan)&Snapshot!=skip" ] || fail "recorded with the wrong files or filter" "$rec"
+[ "$rec" = "src/semantics/a.byn --only run/" ] || fail "recorded with the wrong files or filter" "$rec"
 [ "$args" = "mutate --binary $aux/bin/prog --sites $aux/bin/prog.sites.json -- python3 -I $root/scripts/selfhost/replay.py --binary $aux/bin/prog $r/tmp/guard-run/snap" ] || fail "bayan mutate ran with the wrong arguments" "$args"
 S="$r/tmp/guard-run/snap"; R="python3 -I $root/scripts/selfhost/replay.py"
 [ "$twoargs" = "mutate --binary $aux/bin/prog --sites $aux/bin/prog.sites.json -- $R --binary $aux/bin/prog $S
@@ -203,7 +201,7 @@ echo "$nullbase" | grep -q '^- mutation survived' || fail "the null-baseline run
 echo "$nomanifest" | grep -q '^- mutation: the recording wrote no tmp/guard-run/snap/manifest.json' || fail "a missing manifest did not fail with a message" "$nomanifest"
 echo "$badmanifest" | grep -q '^GUARD FAIL' && echo "$badmanifest" | grep -q '^- mutation: tmp/guard-run/snap/manifest.json is unreadable — ' || fail "a malformed manifest did not fail naming it" "$badmanifest"
 echo "$badbase" | grep -q '^GUARD FAIL' && echo "$badbase" | grep -q '^- baseline: quality-baseline check failed on tests/quality-baseline.json and tmp/guard-run/quality-\*.json — ' || fail "a malformed baseline did not fail naming it" "$badbase"
-echo "$recordfail" | grep -q '^- mutation: recording under BAYAN_SNAPSHOT: 1 test(s) failed (tmp/guard-run/record.txt): T99 — first: .*recording broke' || fail "a failed recording did not fail with its message" "$recordfail"
+echo "$recordfail" | grep -q '^- mutation: recording under BAYAN_SNAPSHOT: 1 test(s) failed (tmp/guard-run/record.txt): run/T99 — first: recording broke$' || fail "a failed recording did not fail with its message" "$recordfail"
 # guard-checks runs on the pinned bayan too (spec 015 T15), so the missing CLI fails the content checks before mutation
 echo "$nocli" | grep -q '^- checks: guard-checks failed: pinned-bayan: PINNED_BAYAN=.*/csharp/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not fail with a message" "$nocli"
 echo "$plain" | grep -q '^GUARD PASS$' && [ $plainrec = 0 ] && [ $plainrep = 0 ] || fail "a guard without --mutate recorded or left a report" "$plain"
@@ -237,7 +235,7 @@ echo "$nomatch" | grep -qxF -- "- tests: 'run/' matched no tests" || fail "a sel
 echo "$skip" | grep -qxF -- "- tests: skipped tests present ('bayan')" || fail "a skipped part did not fail" "$skip"
 echo "$buildfail" | grep -qxF -- "- build: bootstrap-build.sh failed — bootstrap-build.sh: stage 1 failed" || fail "a failing bootstrap-build.sh did not fail the build" "$buildfail"
 echo "$notask" | grep -qxF -- "- checks: no --task, so the content checks cannot run (pass --task T<n>)" || fail "no --task did not fail the content checks" "$notask"
-[ -z "$dotnetcalls" ] || fail "the guard called dotnet outside mutation" "$dotnetcalls"
+[ -z "$dotnetcalls" ] || fail "the guard called dotnet" "$dotnetcalls"
 echo "$covpass" | grep -q 'is in no build' && fail "a changed file in the coverage report was reported absent" "$covpass"
 echo "$covmissfail" | grep -q '^GUARD FAIL' && echo "$covmissfail" | grep -qxF -- "- coverage: coverage-missing failed: bayan: pinned build failed" \
   || fail "a failed coverage-missing run was not a FAIL item" "$covmissfail"
