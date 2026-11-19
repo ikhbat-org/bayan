@@ -1,0 +1,34 @@
+List<i64> sizes(rest ReadOnlySpan<i64> counts) {
+    var list = List<i64>()
+    for n in counts {
+        list.append(n)
+    }
+    return list
+}
+
+public i64 owedWithoutEffects(List<i64> households) {
+    return fitraOwed(households, at: 9)
+}
+
+test "fitraOwed charges the rate for every person in every household" {
+    assert fitraOwed(sizes(4, 1, 6), at: 10) == 110
+    assert fitraOwed(sizes(2, 2, 2), at: 7) == 42
+}
+
+test "a household of no people owes nothing" {
+    assert fitraOwed(sizes(0, 3, 0), at: 12) == 36
+    assert fitraOwed(sizes(0, 0, 0), at: 12) == 0
+}
+
+test "no households owe nothing" {
+    assert fitraOwed(List<i64>(), at: 15) == 0
+}
+
+test "fitraOwed can be called from a function that declares no effect" {
+    assert owedWithoutEffects(sizes(1, 1, 1)) == 27
+}
+
+test "fitraOwed declares no effect" {
+    let owed: (List<i64>, i64) -> i64 = fitraOwed
+    assert owed(sizes(5, 0, 1), 3) == 18
+}

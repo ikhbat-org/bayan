@@ -1,0 +1,96 @@
+SadaqahBox fridayBox() {
+    var box = SadaqahBox()
+    box.put("Aisha", for: 40)
+    box.put("Bilal", for: 15)
+    box.put("Zaynab", for: 5)
+    return box
+}
+
+public bool savedWithoutAlloc(string path) uses fs {
+    return boxSaved(path)
+}
+
+public void discardWithoutAlloc(string path) uses fs fails IoError {
+    try discardBox(path)
+}
+
+public i64 sizeWithoutEffects(SadaqahBox box) {
+    return box.count + box.total + box.entryAt(0).amount
+}
+
+bool countFails(string path) {
+    let _ = savedGifts(path) catch switch {
+        .notFound => return true,
+        _ => return false,
+    }
+    return false
+}
+
+test "a box keeps its gifts in order" {
+    let box = fridayBox()
+    assert box.count == 3
+    assert box.total == 60
+    assert box.entryAt(0).donor == "Aisha"
+    assert box.entryAt(2).amount == 5
+    let empty = SadaqahBox()
+    assert empty.count == 0
+    assert empty.total == 0
+}
+
+test "count, total and entryAt declare no effect" {
+    assert sizeWithoutEffects(fridayBox()) == 103
+}
+
+test "a saved box has one line for each gift" {
+    let path = "sadaqah-friday.txt"
+    try saveBox(fridayBox(), to: path)
+    assert boxSaved(path)
+    assert savedWithoutAlloc(path)
+    assert (try savedGifts(path)) == 3
+    try discardBox(path)
+    assert !boxSaved(path)
+}
+
+test "saving again replaces the file" {
+    let path = "sadaqah-again.txt"
+    try saveBox(fridayBox(), to: path)
+    var small = SadaqahBox()
+    small.put("Hamza", for: 2)
+    try saveBox(small, to: path)
+    assert (try savedGifts(path)) == 1
+    try discardWithoutAlloc(path)
+    assert !boxSaved(path)
+}
+
+test "an empty box saves an empty file" {
+    let path = "sadaqah-empty.txt"
+    try saveBox(SadaqahBox(), to: path)
+    assert boxSaved(path)
+    assert (try savedGifts(path)) == 0
+    try discardBox(path)
+}
+
+test "a missing file is reported when it is read" {
+    assert !boxSaved("sadaqah-missing.txt")
+    assert countFails("sadaqah-missing.txt")
+    try discardBox("sadaqah-missing.txt")
+    assert !boxSaved("sadaqah-missing.txt")
+}
+
+test "announceBox can be called" {
+    announceBox(fridayBox())
+    announceBox(SadaqahBox())
+}
+
+test "each function declares no more than it needs" {
+    let save: (SadaqahBox, string) -> void uses fs, alloc fails IoError = saveBox
+    let count: string -> i64 uses fs, alloc fails IoError = savedGifts
+    let saved: string -> bool uses fs = boxSaved
+    let discard: string -> void uses fs fails IoError = discardBox
+    let announce: SadaqahBox -> void uses alloc, console = announceBox
+    try save(fridayBox(), "sadaqah-bound.txt")
+    assert saved("sadaqah-bound.txt")
+    assert (try count("sadaqah-bound.txt")) == 3
+    try discard("sadaqah-bound.txt")
+    announce(SadaqahBox())
+}
