@@ -959,7 +959,9 @@ test "gates: an absent minimum and an empty measure never fail" {
         from: [QualityErrorPath { function: "f", variant: "E.a" }],
     )
     assert(gatesCoverage(r, by: null, for: null, through: null).length == 0)
-    assert(gatesCoverage(gatesCov([], by: [], for: [], through: [], from: []), by: 100, for: 100, through: 100).length == 0)
+    assert(
+        gatesCoverage(gatesCov([], by: [], for: [], through: [], from: []), by: 100, for: 100, through: 100).length == 0
+    )
     assert(gatesMutation(gatesMut(0, by: 0, for: 3, through: 0), by: null).length == 0)
     assert(gatesMutation(gatesMut(0, by: 0, for: 0, through: 0), by: 100).length == 0)
 }
@@ -992,5 +994,6 @@ test "gates: the mutation score is killed and timeout over those and survivors" 
     let below = gatesMutation(r, by: 76)
     assert(below.length == 1)
     assert(gatesFmt(below[0].covered, by: below[0].total) == "75")
-    assert(below[0].missing.length == 1 && below[0].missing[0] == "survived mutant: a.byn:3:5 arithmetic `a + b` -> `a - b`")
+    assert(below[0].missing.length == 1
+        && below[0].missing[0] == "survived mutant: a.byn:3:5 arithmetic `a + b` -> `a - b`")
 }

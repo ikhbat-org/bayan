@@ -1357,7 +1357,10 @@ test "manifest: style knobs parse" {
         "lints: [\"guards.prefix\": .warning]",
         "`style.lints` must be a known lint name: `guards.postfix`, `lambdas.it`, `nesting.depth`, `functions.length`, `conditions.named`, `sections.banner`, `conditions.patterns`, `literals.empty`, `optionals.bind`"
     ),
-    ("lints: [\"lambdas.it\": .loud]", "`style.lints` must be `.none`, `.suggestion`, `.warning` or `.error` for `lambdas.it`"),
+    (
+        "lints: [\"lambdas.it\": .loud]",
+        "`style.lints` must be `.none`, `.suggestion`, `.warning` or `.error` for `lambdas.it`"
+    ),
     (
         "lints: [\"lambdas.it\"]",
         "`style.lints` must be a map from a lint name to `.none`, `.suggestion`, `.warning` or `.error`, e.g. `[\"guards.postfix\": .warning]`"

@@ -840,7 +840,9 @@ test "failure-detail: long values are cut at the width" {
     let details = failureDetailFixture("12345678901234567890")
     let unicode = failureDetail(details, by: false, for: semantics.t26Symbols(ascii: false), through: 15)
     assert(unicode[3] == "       1234567…")
-    assert(failureDetail(details, by: false, for: semantics.t26Symbols(ascii: true), through: 15)[3] == "       12345...")
+    assert(
+        failureDetail(details, by: false, for: semantics.t26Symbols(ascii: true), through: 15)[3] == "       12345..."
+    )
     assert(unicode[1] == "       │     │")
 }
 

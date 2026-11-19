@@ -495,7 +495,10 @@ void distCopyDirectory(string from, to string dest, through ref DistWalk w, at i
 // OutputTests.LatestTakesTheOrdinalFirstOfEqualVersions: among equal versions the ordinal first is `latest`, whatever the
 // file system's directory order: each set created in both orders.
 test "dist: latest takes the ordinal first of equal versions" {
-    let sets: List<List<string>> = [["1.0.0-rc.2", "1.0.0-rc.2+meta", "1.0.0-rc.2+a"], ["1.0.0+z", "1.0.0", "1.0.0+b", "0.9.0"]]
+    let sets: List<List<string>> = [
+        ["1.0.0-rc.2", "1.0.0-rc.2+meta", "1.0.0-rc.2+a"],
+        ["1.0.0+z", "1.0.0", "1.0.0+b", "0.9.0"],
+    ]
     let tops: List<string> = ["1.0.0-rc.2", "1.0.0"]
     let dist = Path.combine(Path.combine(Path.fullPath("tmp"), "output"), "dist-latest-tie")
     for s in 0..sets.length {

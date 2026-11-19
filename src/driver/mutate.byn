@@ -823,3 +823,164 @@ test "site-map: the reader reads back each site of a schemata build's sites JSON
     }
     assert(externalSiteReadAll("{ \"version\": 2, \"sites\": [] }") is null)
 }
+
+/// MutationRunnerTests.cs:14 `Fixture`.
+const t13RunnerFixture: string = "i64 big(i64 n) {\n    if n > 5 { return 1 }\n    return 0\n}\n\ni64 inc(i64 n) {\n    return n + 1\n}\n\ni64 count() {\n    var i = 0\n    while i < 3 {\n        i += 1\n    }\n    return i\n}\n\ni64 hidden(i64 n) {\n    var y = n\n    @unobservable because \"no test can see it\"\n    y += 0\n    return y\n}\n\ni64 unused(i64 n) {\n    return n * 2\n}\n\ntest \"big\" {\n    assert big(9) == 1\n    assert big(2) == 0\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n\ntest \"inc again\" {\n    assert inc(2) == 3\n}\n\ntest \"count\" {\n    assert count() == 3\n}\n\ntest \"hidden\" {\n    assert hidden(4) == 4\n}\n\n"
+
+/// A fresh `tmp/<name>` and `source` compiled there as `lib.test.byn`, a library with its tests.
+semantics.Ctx t13RunnerCompile(string name, by string source, at ref string dir) uses alloc, clock, fs {
+    dir = Path.combine(Path.fullPath("tmp"), name)
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    var files = List<lexer.SourceText>()
+    var bytes = List<u8>()
+    for b in source.bytes {
+        bytes.append(b)
+    }
+    files.append(lexer.SourceText.create(Path.combine(dir, "lib.test.byn"), from: move bytes))
+    let options = GoldenOptions { includeTests: true, library: true }
+    var c = semantics.create(from: move files, at: dir, by: options)
+    assert(!t5HasErrors(c))
+    return c
+}
+
+/// The one mutant of `result` at `op`, `original` and `mutated`.
+MutantResult t13RunnerMutant(in MutationResult result, by string op, for string original, to string mutated) {
+    for m in result.mutants {
+        return m if m.site.op == op && m.site.original == original && m.site.mutated == mutated
+    }
+    panic($"no {op} mutant {original} -> {mutated}")
+}
+
+/// `Processes`: the wrapper's log lines for `mutant`.
+i64 t13RunnerProcesses(in List<string> log, for i64 mutant) uses alloc {
+    var n: i64 = 0
+    for line in log {
+        n += line.startsWith($"{mutant} ") ? 1 : 0
+    }
+    return n
+}
+
+/// True when `log` holds the line `line`.
+bool t13RunnerHas(in List<string> log, for string line) {
+    for l in log {
+        return true if l == line
+    }
+    return false
+}
+
+// MutationRunnerTests.StatusesAreKilledSurvivedTimeoutNotReachedMarked, AMutantRunsOnlyTheTestsThatReachItAndStopsAtTheFirstFailure,
+// ATimedOutMutantCountsAsKilledAndIsNamed and SitesJsonCarriesTheMark, on the C#'s one shared run: the fixture built once, every
+// mutant run through a wrapper that logs `mutant test` per process. Sites are found by line, as `ExternalSite` has no function.
+test "mutation-runner: statuses, reach, the first failure, timeouts and the mark" {
+    if Target.os == "windows" {
+        todo("the wrapper is a `sh` script")
+    }
+    var dir = ""
+    var c = t13RunnerCompile("mutation-runner", by: t13RunnerFixture, at: ref dir)
+    let none = List<string>()
+    var schema = emitter.buildSchema(ref c, for: none)
+    assert(emitter.sitesJson(schema).contains("\"unobservable\": \"no test can see it\""))
+    var l = T11LCtx {}
+    l.mutating = true
+    l.mutants = schema.switches.take()
+    let program = emitter.lower(ref c, to: ref l)
+    assert(program.tests.length == 5)
+    let source = cprint.emit(ref c, from: l.tree, through: program, by: false)
+    var d = newDCtx()
+    let native = t9Build(source, by: "safe", to: null, for: null, through: ref d)
+    print(native.result.errors) unless native.result.succeeded
+    assert(native.result.succeeded)
+    let log = Path.combine(dir, "log.txt")
+    goldenWrite(
+        dir,
+        for: "wrapper.sh",
+        as: $"#!/bin/sh\necho \"$BAYAN_MUTANT $2\" >> '{log}'\nexec '{native.exe}' \"$@\"\n",
+    )
+    boundSh("chmod 700 \"$1/wrapper.sh\"", at: dir)
+    let result = mutationRun(Path.combine(dir, "wrapper.sh"), by: schema, for: [0, 1, 2, 3, 4], through: dir, as: 60000)
+    let lines = t11ReadAllLines(Io.readText(log) catch "")
+    // Statuses.
+    let killed = t13RunnerMutant(result, by: "arithmetic", for: "n + 1", to: "n - 1")
+    let survived = t13RunnerMutant(result, by: "boundary", for: "n > 5", to: "n >= 5")
+    let spin = t13RunnerMutant(result, by: "statement", for: "i += 1", to: "")
+    assert(killed.status == .killed && survived.status == .survived && spin.status == .timeout)
+    var unused: i64 = 0
+    var hidden: i64 = 0
+    var hiddenRan = false
+    for m in result.mutants {
+        if m.site.line == 26 {
+            unused += 1
+            assert(m.status == .notReached)
+        }
+        if m.site.line == 21 {
+            hidden += 1
+            assert(m.status is .marked or .killed or .timeout)
+            hiddenRan = hiddenRan || m.runs > 0
+        }
+    }
+    assert(unused > 0 && hidden > 0 && hiddenRan)
+    // `inc` is reached by tests 1 and 2: the kill by test 1 ends the mutant. `big` is reached by test 0 only.
+    assert(killed.runs == 1 && t13RunnerProcesses(lines, for: killed.site.id) == 1)
+    assert(t13RunnerHas(lines, for: $"{killed.site.id} 1"))
+    assert(t13RunnerProcesses(lines, for: survived.site.id) == 1 && t13RunnerHas(lines, for: $"{survived.site.id} 0"))
+    // Mutants not run start no process; the total is mutant 0 once per test plus every counted run.
+    var runs: i64 = 0
+    for m in result.mutants {
+        if m.status is .notReached or .notEmitted {
+            assert(t13RunnerProcesses(lines, for: m.site.id) == 0)
+        }
+        assert(m.runs == t13RunnerProcesses(lines, for: m.site.id))
+        runs += m.runs
+    }
+    assert(t13RunnerProcesses(lines, for: 0) == 5)
+    assert(lines.length == 5 + runs && result.processes == lines.length)
+    // A timed-out mutant counts as killed and is named.
+    assert(spin.killedBy == 3 && spin.runs == 1)
+    deleteWorkDir(dir)
+}
+
+// MutationRunnerTests.TheWorkDirectoryIsTouchedSoAnotherProcessDoesNotSweepItMidRun.
+test "mutation-runner: the work directory is touched so another process does not sweep it mid-run" {
+    var dir = ""
+    var c = t13RunnerCompile("mutation-runner-touch", by: "i64 inc(i64 n) {\n    return n + 1\n}\n", at: ref dir)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: none)
+    assert(schema.sites.length > 0)
+    Fs.setModified(
+        dir,
+        to: Time.fromNanos(Time.now().nanos - 3 * 60 * 60 * 1000000000),
+    ) catch { panic($"cannot age {dir}") }
+    let tests = List<i64>()
+    let _ = mutationRun("none", by: schema, for: tests, through: dir, as: 1000)
+    let modified = (Fs.modified(dir) catch Time.fromNanos(0)).nanos
+    assert(modified > Time.now().nanos - 5 * 60 * 1000000000)
+    deleteWorkDir(dir)
+}
+
+// MutationRunnerTests.AWorkDirectoryAnotherProcessSweptIsRecreatedAndARemovedReachFileReachesNothing.
+test "mutation-runner: a work directory another process swept leaves a removed reach file reaching nothing" {
+    if Target.os == "windows" {
+        todo("the test is a `sh` script")
+    }
+    var root = ""
+    var c = t13RunnerCompile("mutation-runner-swept", by: "i64 inc(i64 n) {\n    return n + 1\n}\n", at: ref root)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: none)
+    assert(schema.sites.length > 0)
+    goldenWrite(
+        root,
+        for: "test.sh",
+        as: "#!/bin/sh\necho 0 > \"$BAYAN_SITE_REACH\"\nrm -rf \"$(dirname \"$BAYAN_SITE_REACH\")\"\n",
+    )
+    boundSh("chmod 700 \"$1/test.sh\"", at: root)
+    let work = Path.combine(root, "work")
+    let result = mutationRun(Path.combine(root, "test.sh"), by: schema, for: [0, 1], through: work, as: 10000)
+    assert(result.excluded.length == 0)
+    for m in result.mutants {
+        if m.site.emitted {
+            assert(m.status == .notReached)
+        }
+    }
+    deleteWorkDir(root)
+}
