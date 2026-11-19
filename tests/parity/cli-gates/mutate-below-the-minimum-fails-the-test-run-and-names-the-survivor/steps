@@ -1,0 +1,2 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; perl -0pi -e 's/\s*\}[^}]*\z//; s/,\z//; $_ .= ",\n    test: Tests { mutation: 100 }\n}\n"' tally/package.byn
+$ $BAYAN test --mutate --run true tally > out.txt; echo "test --mutate $?"; grep -v "^timing: " out.txt

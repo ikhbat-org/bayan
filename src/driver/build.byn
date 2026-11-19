@@ -511,3 +511,21 @@ i32 t5Start(string executable, by in List<string> programArgs) uses alloc, conso
     Io.stderr.write(r.stderr)
     return r.exitCode
 }
+
+// OutputTests.BuildRunAndTestWriteToOut's last assert (the tree is the `out` golden): `out/<mode>/<target>/c/bayan-rt.h` is the
+// runtime header.
+test "out: the emitted C directory holds the runtime header" {
+    let p = Path.combine(Path.combine(Path.fullPath("tmp"), "output"), "runtime-header")
+    deleteWorkDir(p)
+    goldenWrite(p, for: "package.byn", as: "Package { name: \"local/tally\", version: \"0.1.0\" }\n")
+    goldenWrite(p, for: "src/app/main.byn", as: "void main() {\n    print(\"hi\")\n}\n")
+    let options = T5CompilationOptions {}
+    var c = semantics.fromProject(p, for: "app", by: options)
+    c.manifest = semantics.manifestRead(Path.combine(p, "package.byn")) catch { panic("cannot read package.byn") }
+    assert(!t5HasErrors(c))
+    let dir = t5PrepareOut(c, by: "safe", for: t5HostTarget(), from: "") ?? panic("not a project")
+    assert(dir == Path.combine(Path.combine(Path.combine(p, "out"), "safe"), t5HostTarget()))
+    let header = Io.readText(Path.combine(Path.combine(dir, "c"), "bayan-rt.h")) catch "no header"
+    assert(header == runtimeHeader)
+    deleteWorkDir(p)
+}

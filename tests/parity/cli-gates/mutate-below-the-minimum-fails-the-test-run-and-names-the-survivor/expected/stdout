@@ -1,0 +1,23 @@
+== 1 exit 0
+new 0
+== 2 exit 0
+test --mutate 3
+src/app/main.byn:3:12 emptyReturn `"Salam, world!"` -> `""`: survived
+src/app/main.byn:6:1 statement `print(greeting())` -> ``: survived
+mutation: 0 killed, 2 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+survived: src/app/main.byn:3:12: "Salam, world!" → "" [emptyReturn]
+  suggestion: assert the returned value is not the empty value
+survived: src/app/main.byn:6:1: print(greeting()) →  [statement]
+  suggestion: assert the effect of this statement
+operators:
+  boundary: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  relational: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  logical: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  condition: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  bool: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  arithmetic: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  literal: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  negation: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  statement: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  emptyReturn: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  variant: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted

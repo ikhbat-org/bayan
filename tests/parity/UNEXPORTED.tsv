@@ -3,3 +3,5 @@ CacheTests	AsanAndCrossBuildsGetTheirOwnRuntime	calls Toolchain.Build on raw C w
 CacheTests	EvictionRemovesRuntimeEntries	calls Toolchain.Evict with a one-entry cap in-process; the CLI cannot set the cap and the driver has no Env.set
 CacheTests	ASingleWordOrZigCompilerKeepsItsStamp	its PATH rows only (a word found on PATH, zig on PATH): they set PATH in-process and the driver has no Env.set; the rest is the compiler-stamp block in src/driver/cache.byn
 CliEnvironmentTests	PendingLinesAreNotCountedAsRun	tests the C# test helper Ran (a regex over -v output), not the CLI; the parity cases carry the same filter in their steps
+ProgressTests	CiPrintsNothing	injects CI=1 through the getenv lambda Progress.Start takes; the driver reads CI from the environment and has no Env.set, and the progress line shows only on a tty, which no builtin tells (Q1117)
+ProgressTests	EmptyCiDoesNotSuppress	injects an empty CI through the getenv lambda Progress.Start takes; the driver reads CI from the environment and has no Env.set, and the progress line shows only on a tty, which no builtin tells (Q1117)

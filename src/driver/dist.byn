@@ -491,3 +491,46 @@ void distCopyDirectory(string from, to string dest, through ref DistWalk w, at i
         try distCopyDirectory(Path.combine(from, name), to: Path.combine(dest, name), through: ref w, at: depth + 1)
     }
 }
+
+// OutputTests.LatestTakesTheOrdinalFirstOfEqualVersions: among equal versions the ordinal first is `latest`, whatever the
+// file system's directory order: each set created in both orders.
+test "dist: latest takes the ordinal first of equal versions" {
+    let sets: List<List<string>> = [
+        ["1.0.0-rc.2", "1.0.0-rc.2+meta", "1.0.0-rc.2+a"],
+        ["1.0.0+z", "1.0.0", "1.0.0+b", "0.9.0"],
+    ]
+    let tops: List<string> = ["1.0.0-rc.2", "1.0.0"]
+    let dist = Path.combine(Path.combine(Path.fullPath("tmp"), "output"), "dist-latest-tie")
+    for s in 0..sets.length {
+        for reversed in [false, true] {
+            deleteWorkDir(dist)
+            for k in 0..sets[s].length {
+                let name = sets[s][reversed ? sets[s].length - 1 - k : k]
+                Io.createDirectory(Path.combine(dist, name)) catch { panic($"cannot create {name}") }
+            }
+            var w = DistWalk {}
+            let top = distRefreshLatest(dist, through: ref w) catch { panic("cannot refresh latest") }
+            assert(top == tops[s])
+            let version = Io.readText(Path.combine(Path.combine(dist, "latest"), "VERSION")) catch "no VERSION"
+            assert(version == $"{tops[s]}\n")
+        }
+    }
+    deleteWorkDir(dist)
+}
+
+// OutputTests.TheInputsHashCoversSourcesOnly.
+test "dist: the inputs hash covers sources only" {
+    let p = Path.combine(Path.combine(Path.fullPath("tmp"), "output"), "dist-inputs")
+    deleteWorkDir(p)
+    goldenWrite(p, for: "package.byn", as: "Package { name: \"local/tally\", version: \"0.1.0\" }\n")
+    goldenWrite(p, for: "src/app/main.byn", as: "void main() {\n}\n")
+    let before = distInputsHash(p) catch { panic("cannot hash") }
+    goldenWrite(p, for: "out/debug/tally", as: "built")
+    goldenWrite(p, for: "README.md", as: "changed")
+    let same = distInputsHash(p) catch { panic("cannot hash") }
+    assert(before is not null && same == before)
+    goldenWrite(p, for: "src/app/main.byn", as: "void main() {\n}\n\n")
+    let after = distInputsHash(p) catch { panic("cannot hash") }
+    assert(after != before)
+    deleteWorkDir(p)
+}

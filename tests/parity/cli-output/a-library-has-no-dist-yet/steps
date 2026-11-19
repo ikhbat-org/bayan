@@ -1,0 +1,3 @@
+$ $BAYAN new tally --vcs none --lib > /dev/null; echo "new $?"
+dist	tally
+$ test -d tally/dist || echo "no dist/"

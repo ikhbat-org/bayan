@@ -1,0 +1,2 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"
+dist	tally/src/app/main.byn
