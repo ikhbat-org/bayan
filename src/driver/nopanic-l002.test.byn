@@ -24,7 +24,7 @@ struct L002Rng {
 const l002CorpusSize: i64 = 10000
 
 /// `bytes` with `b` inserted at `at` (`op` 0), the byte at `at` removed (1) or replaced by `b` (2), SelfhostLexerTests.cs:216-222.
-List<u8> l002Mutated(in List<u8> bytes, at i64 at, as i64 op, by u8 b) uses alloc {
+List<u8> l002Mutated(List<u8> bytes, at i64 at, as i64 op, by u8 b) uses alloc {
     var next = List<u8>()
     for j in 0..bytes.length {
         if j == at {
@@ -241,7 +241,7 @@ test "L002: bayan-lex exits 0 or 1 with every span inside the input on the 21 le
                 let at = rng.pick(bytes.length)
                 let op = rng.pick(3)
                 let b = op == 1 ? u8(0) : u8(rng.next() & 0xFF)
-                bytes = l002Mutated(in bytes, at: at, as: op, by: b)
+                bytes = l002Mutated(bytes, at: at, as: op, by: b)
                 mutations -= 1
             }
             if rng.pick(8) == 0 {
@@ -282,7 +282,7 @@ test "L002: bayan-lex exits 0 or 1 with every span inside the input on the 21 le
     args.append("--many")
     args.append(dir)
     let none = List<u8>()
-    let o = goldenChild(prog, by: in args, at: dir, from: in none, through: ref failure, whole: true)
+    let o = goldenChild(prog, by: args, at: dir, from: none, through: ref failure, whole: true)
     print($"{failure}\nexit {o.exitCode}\n{o.stderr}") if failure != ""
         || o.exitCode != 0
         || o.stderr.contains("panic:")
@@ -305,7 +305,7 @@ test "L002: bayan-lex exits 0 or 1 with every span inside the input on the 21 le
         let input = path == "" ? List<u8>() : Io.readFile(path) catch List<u8>()
         var json = List<string>()
         json.append("--json")
-        let r = goldenChild(prog, by: in json, at: dir, from: in input, through: ref failure, whole: true)
+        let r = goldenChild(prog, by: json, at: dir, from: input, through: ref failure, whole: true)
         let bad = l002Outside(r.stdout, until: input.length, to: ref spans)
         let shown = path == "" ? "the empty input" : path
         print($"{shown}: {failure} exit {r.exitCode}, span {bad}\n{r.stderr}") if failure != ""
