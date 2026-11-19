@@ -792,7 +792,7 @@ string t13MissingMember(ref Ctx c, for Type t, to InterfaceId i) {
 /// (Bayan only, L023: `struct G<T> { G<Owned<T>>? g }` otherwise recurses until the stack runs out).
 const instantiationDepthLimit: i64 = 64
 
-/// True, after reporting BYN2761 once per template, when instantiating `template` now would nest past
+/// True, after reporting BYN2763 once per template, when instantiating `template` now would nest past
 /// `instantiationDepthLimit`: each instance's members need a deeper instance of the same template.
 bool t13ExpandsWithoutEnd(ref Ctx c, for Type template, by string name, from FileId file, at TextSpan nameSpan) {
     return false if c.instantiating < instantiationDepthLimit
@@ -803,10 +803,10 @@ bool t13ExpandsWithoutEnd(ref Ctx c, for Type template, by string name, from Fil
         c.sink = -1
         report(
             ref c,
-            for: .recursiveByValue,
+            for: .infiniteInstantiation,
             from: file,
             at: nameSpan,
-            by: (name, $"each instance of `{name}` needs a deeper one", "", "", ""),
+            by: (name, $"more than {instantiationDepthLimit} nested instances", "", "", ""),
         )
         c.sink = outer
     }

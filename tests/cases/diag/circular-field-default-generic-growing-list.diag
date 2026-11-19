@@ -1,0 +1,12 @@
+error BYN2763: `G` needs an instance of itself at ever-deeper type arguments: more than 64 nested
+instances
+
+  1 │ struct G<T> { List<G<Owned<T>>> g }
+    │        ^
+
+error BYN2109: `G` needs a value for `g`
+
+  2 │ let x = G<i64> {}
+    │         ^^^^^^^^^
+    │
+  help: set it: `G { g: … }`

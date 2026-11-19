@@ -1,4 +1,5 @@
-error BYN2761: `G` contains itself by value: each instance of `G` needs a deeper one
+error BYN2763: `G` needs an instance of itself at ever-deeper type arguments: more than 64 nested
+instances
 
   1 │ struct G<T> { G<Owned<T>>? g = Owned(G<T> {}) }
     │        ^

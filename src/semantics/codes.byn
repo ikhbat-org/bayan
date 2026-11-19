@@ -157,6 +157,8 @@ enum SemaCode {
     invalidMapKey
     recursiveByValue
     sharedStorageCopy
+    /// Bayan only (L023, Decision 2026-11-19): no `DiagnosticCodes.cs` descriptor.
+    infiniteInstantiation
     unknownAttribute
     invalidMainSignature
     untrustedSink
@@ -433,6 +435,7 @@ string codeText(SemaCode code) => code switch {
     .invalidMapKey               => "BYN2760",
     .recursiveByValue            => "BYN2761",
     .sharedStorageCopy           => "BYN2762",
+    .infiniteInstantiation       => "BYN2763",
     .unknownAttribute            => "BYN2770",
     .invalidMainSignature        => "BYN2771",
     .untrustedSink               => "BYN2786",
@@ -709,6 +712,7 @@ string messageFormat(SemaCode code) => code switch {
     .invalidMapKey => "`{0}` cannot be a `Map` key",
     .recursiveByValue => "`{0}` contains itself by value: {1}",
     .sharedStorageCopy => "a `{0}` cannot be copied",
+    .infiniteInstantiation => "`{0}` needs an instance of itself at ever-deeper type arguments: {1}",
     .unknownAttribute => "unknown attribute `{0}`",
     .invalidMainSignature => "`main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`",
     .untrustedSink => "`{0}` cannot be passed to `{1}`: it is `Untrusted`",
