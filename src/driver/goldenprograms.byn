@@ -446,6 +446,55 @@ List<string> goldenProgramT41(ref List<string> lines) uses alloc {
     return res
 }
 
+/// The names of the list `s` joined by `,` in ordinal order, empty ones dropped (SelfhostSemanticsT25Tests.cs:724 `Sort`).
+string goldenProgramT25Sort(string s) uses alloc {
+    var names = List<string>()
+    var start = 0
+    for i in 0..s.length + 1 {
+        if i == s.length || s.bytes[i] == 0x2c {
+            if i > start {
+                names.append(s[start..i])
+            }
+            start = i + 1
+        }
+    }
+    names.sort()
+    var sb = StrBuf()
+    for i in 0..names.length {
+        sb.append(i > 0 ? $",{names[i]}" : names[i])
+    }
+    return sb.finish()
+}
+
+/// `name [regions] [owners] lends` with both lists and the lends sorted (SelfhostSemanticsT25Tests.cs:716-726 `Canon`); `line` as it is
+/// when it has not that shape.
+string goldenProgramT25Canon(string line) uses alloc {
+    let space = goldenOffset(line, for: " ")
+    return line if space < 0
+    let rest = line[space + 1..line.length]
+    let close = goldenOffset(rest, for: "]")
+    return line if close < 1 || close + 2 > rest.length
+    let regions = rest[1..close]
+    let tail = rest[close + 2..rest.length]
+    let close2 = goldenOffset(tail, for: "]")
+    return line if close2 < 1 || close2 + 2 > tail.length
+    let owners = tail[1..close2]
+    let lends = tail[close2 + 2..tail.length]
+    let sorted = lends == "-" ? "-" : goldenProgramT25Sort(lends)
+    return $"{line[0..space]} [{goldenProgramT25Sort(regions)}] [{goldenProgramT25Sort(owners)}] {sorted}"
+}
+
+/// The `compare` word of section case `dir`: its `compare` file's, else that of a C# test that changed the lines before comparing them
+/// while its export wrote no `compare` file (SelfhostSemanticsT25Tests.cs:347-348 `RunMatches`, :732 `UnionAndLentMatch`).
+string goldenProgramCaseWord(string dir) uses alloc, fs {
+    let word = goldenCliWord(dir)
+    return word if word != ""
+    return "" if Path.fileName(Path.directoryName(dir) ?? "") != "SelfhostSemanticsT25Tests"
+    let name = Path.fileName(dir)
+    return "t25-run" if name == "RunMatches" || name.startsWith("RunMatches-")
+    return name == "UnionAndLentMatch" ? "t25-pure" : ""
+}
+
 /// The lines of section `printed` of `stdout` the `compare` word `word` compares (spec 019 export runners, "Section compare words"); `failure`
 /// says when the section was not printed once or the word is unknown.
 List<string> goldenProgramWord(string stdout, for string word, at string printed, through ref string failure)
@@ -473,6 +522,20 @@ List<string> goldenProgramWord(string stdout, for string word, at string printed
         // SelfhostSemanticsT7Tests.cs:185-190
         lines.sort()
         lines.append("end")
+    } else if word == "t25-run" {
+        // SelfhostSemanticsT25Tests.cs:347-348 `RunMatches`: the lists of each ` local ` line sorted (`CanonLocal`), then the lines
+        for i in 0..lines.length {
+            let at = goldenOffset(lines[i], for: " local ")
+            if at >= 0 {
+                lines[i] = $"{lines[i][0..at + 7]}{goldenProgramT25Canon(lines[i][at + 7..lines[i].length])}"
+            }
+        }
+        lines.sort()
+    } else if word == "t25-pure" {
+        // SelfhostSemanticsT25Tests.cs:732 `UnionAndLentMatch`: the lists of each line sorted (`Canon`)
+        for i in 0..lines.length {
+            lines[i] = goldenProgramT25Canon(lines[i])
+        }
     } else if word != "" {
         failure = $"unknown compare word `{word}`"
     }
@@ -533,7 +596,7 @@ void goldenProgramSections(string dir, for string name, from string stdout, to r
     var failure = ""
     var got = List<string>()
     if header {
-        got = goldenProgramWord(stdout, for: goldenCliWord(dir), at: printed, through: ref failure)
+        got = goldenProgramWord(stdout, for: goldenProgramCaseWord(dir), at: printed, through: ref failure)
     } else {
         let all = goldenLines(goldenLf(stdout))
         for i in 0..all.length {
@@ -658,6 +721,9 @@ bool goldenProgramClean(GoldenExportCase k, for in GoldenOutcome o, to ref List<
     return false
 }
 
+/// SelfhostSemanticsT18Tests.cs:23-31 `Other`, with the LF `WriteOther` adds (:449).
+const goldenProgramT18Other: string = "const oc: i32 = 1\n\nvoid hiddenFn() {\n}\n\nprivate void privFn() {\n}\n"
+
 /// A `sem` case with a `section` file: GenSem(`input.byn`) with `args` (none for the classes whose C# call passed none) in the scratch
 /// directory, its `input/` placed there as the repo paths `args` name (SelfhostSemanticsHarness.cs:392-426), the section compared.
 void goldenProgramGenSem(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
@@ -670,6 +736,15 @@ void goldenProgramGenSem(GoldenExportCase k, to ref List<string> failures) uses 
         buildMs: k.buildMs,
     )
     goldenProgramTree(k.dir, from: k.cases, to: k.scratch, through: ref failure)
+    if k.cls == "SelfhostSemanticsT18Tests" {
+        // SelfhostSemanticsT18Tests.cs:446-450 `WriteOther`: the module `other` the world imports, written before the run; the export
+        // does not record it
+        let path = Path.combine(k.scratch, "tmp/t18-cases/other/other.byn")
+        Io.createDirectory(Path.directoryName(path) ?? k.scratch) catch {}
+        Io.writeFile(path, goldenProgramT18Other.bytes) catch {
+            failure = $"cannot write {path}"
+        }
+    }
     if failure != "" {
         failures.append($"{k.dir}\n{failure}")
         return
@@ -1539,6 +1614,50 @@ test "`sorted-end` compares the sorted section and an `end` line (SelfhostSemant
     let failed = goldenProgramsWordCase("sorted-end", for: "sorted-end", as: "== s\nb\na\n", by: "== s\na\nb\n")
     assert(pass == "")
     assert(failed.contains("expected line 4: <end of file>\nactual line 4: end"))
+}
+
+test "`t25-run` sorts each ` local ` line's lists, then the lines (SelfhostSemanticsT25Tests.cs:347-348), an unsorted one fails" {
+    let stdout = "== s\nf depth s 1 -1\nf local x [1:b,0:a] [l2,l1] l2=1,l1=3\nf depth r 2 7\n"
+    let want = "== s\nf depth r 2 7\nf depth s 1 -1\nf local x [0:a,1:b] [l1,l2] l1=3,l2=1\n"
+    let pass = goldenProgramsWordCase("t25-run", for: "t25-run", as: stdout, by: want)
+    let failed = goldenProgramsWordCase("t25-run", for: "t25-run", as: stdout, by: stdout)
+    assert(pass == "")
+    assert(failed.contains("expected line 2: f depth s 1 -1\nactual line 2: f depth r 2 7"))
+}
+
+test "`t25-pure` sorts each line's lists and lends (SelfhostSemanticsT25Tests.cs:732), and the T25 run cases take the T25 words" {
+    let stdout = "== s\nempty-left [1:x,0:y] [l2,l1] -\nboth-empty [] [] -\nmerge [1:x,0:y] [l1] l3=2,l1=5\n"
+    let want = "== s\nempty-left [0:y,1:x] [l1,l2] -\nboth-empty [] [] -\nmerge [0:y,1:x] [l1] l1=5,l3=2\n"
+    let pass = goldenProgramsWordCase("t25-pure", for: "t25-pure", as: stdout, by: want)
+    let failed = goldenProgramsWordCase("t25-pure", for: "t25-pure", as: stdout, by: stdout)
+    assert(pass == "")
+    assert(failed.contains(
+        "expected line 2: empty-left [1:x,0:y] [l2,l1] -\nactual line 2: empty-left [0:y,1:x] [l1,l2] -",
+    ))
+    let t25 = Path.fullPath("tests/cases/sem/SelfhostSemanticsT25Tests")
+    assert(goldenProgramCaseWord(Path.combine(t25, "RunMatches")) == "t25-run")
+    assert(goldenProgramCaseWord(Path.combine(t25, "RunMatches-2")) == "t25-run")
+    assert(goldenProgramCaseWord(Path.combine(t25, "UnionAndLentMatch")) == "t25-pure")
+    assert(goldenProgramCaseWord(Path.combine(t25, "ComputeMatches")) == "")
+}
+
+test "a SelfhostSemanticsT18Tests case runs with the module `other` the C# wrote (SelfhostSemanticsT18Tests.cs:446-450), another class not" {
+    var files = List<string>()
+    for f in ["input.byn", "", "section", "s\n", "expected.sections", "== s\nconst oc: i32 = 1\n"] {
+        files.append(f)
+    }
+    let body = "echo '== s'; head -n 1 tmp/t18-cases/other/other.byn 2>/dev/null; true"
+    let t18 = goldenProgramsFake(
+        "t18-module",
+        for: "sem",
+        at: "SelfhostSemanticsT18Tests",
+        as: body,
+        from: "",
+        by: ref files,
+    )
+    let other = goldenProgramsFake("t18-module-other", for: "sem", at: "Words", as: body, from: "", by: ref files)
+    assert(t18 == "")
+    assert(other.contains("expected line 2: const oc: i32 = 1\nactual line 2: <end of file>"))
 }
 
 test "`prefix:<name>` compares the lines of section `all` starting `<name> ` (SelfhostPathT7Tests.cs:189), another line fails" {
