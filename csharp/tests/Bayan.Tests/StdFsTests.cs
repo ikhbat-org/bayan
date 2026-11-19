@@ -70,7 +70,7 @@ public sealed class StdFsTests
     {
         if (new FileInfo(path).LinkTarget is { } target)
             return $"link {StdPathTests.Hex(name)} {StdPathTests.Field(target, ("@ROOT@", root))} {(Directory.Exists(path) ? "dir" : "file")}";
-        var mode = OperatingSystem.IsWindows() ? "-" : Convert.ToString((int)File.GetUnixFileMode(path), 8);
+        var mode = OperatingSystem.IsWindows() ? (File.Exists(path) && File.GetAttributes(path).HasFlag(FileAttributes.ReadOnly) ? "r" : "-") : Convert.ToString((int)File.GetUnixFileMode(path), 8);
         return Directory.Exists(path) ? $"dir {StdPathTests.Hex(name)} {mode}" : $"file {StdPathTests.Hex(name)} {mode} {Convert.ToHexStringLower(File.ReadAllBytes(path))}";
     }
 
