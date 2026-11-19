@@ -1,4 +1,7 @@
 # 025 — proposed L050 amendment (Fable, 2026-11-19; awaits the owner)
+Status: proposed (2026-11-19, awaits the owner)
+Release: unscheduled
+Sources: ./025-spec.md; `docs/laws/050-eval-hidden-stays-hidden.md`; the 40 seed tasks measured 2026-11-19
 
 **Ruling: (B), amend the law. (A) cannot satisfy L050 as written, and the 11 failures are not leaks.**
 
