@@ -91,7 +91,7 @@ SelfhostDefaultT3Tests	src/tests/SelfhostDefaultT3Tests.cs	selfhost-default	31	c
 SelfhostDefaultT4Tests	src/tests/SelfhostDefaultT4Tests.cs	selfhost-default	65	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDefaultT5Tests	src/tests/SelfhostDefaultT5Tests.cs	selfhost-default	19	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDefaultT9Tests	src/tests/SelfhostDefaultT9Tests.cs	selfhost-default	94	cli	cli	stage 2 command output equals the C# CLI; EvictTrimsTheOldestFirst, EvictCountsRuntimeEntries, EvictKeepsAnEntryUsedJustNow AsToolchain: bound: evict blocks in src/driver/bounds.byn over tests/cases/bounds/evict (exported at dc7b22142, T28)	
-SelfhostDriverApiTests	src/tests/SelfhostDriverApiTests.cs	selfhost-driver	2	cli	cli	stage 2 command output equals the C# CLI	
+SelfhostDriverApiTests	src/tests/SelfhostDriverApiTests.cs	selfhost-driver	2	cli + shell	tests/cases/cli/SelfhostDriverApiTests + scripts/ci/api-index-check.test.sh	VersionConstantIsTheCompilersVersion is a cli case; EveryIndexedEntryPointExists is scripts/ci/api-index-check.sh (012-api.md against src/)	
 SelfhostDriverFixTests	src/tests/SelfhostDriverFixTests.cs	selfhost-driver	33	cli	cli	stage 2 command output equals the C# CLI	owned by T15d
 SelfhostDriverGoldenListTests	src/tests/SelfhostDriverGoldenListTests.cs	selfhost-driver	2	shell	shell	019 T1 list-cases contract; a script test of `bayan test --list-cases` replaces it	
 SelfhostDriverGoldenTests	src/tests/SelfhostDriverGoldenTests.cs	selfhost-driver	187	golden	tests/cases	L028: the cases directory itself	no export: typed rows
@@ -106,12 +106,12 @@ SelfhostDriverT2Tests	src/tests/SelfhostDriverT2Tests.cs	selfhost-driver	761	cli
 SelfhostDriverT3Tests	src/tests/SelfhostDriverT3Tests.cs	selfhost-driver	62	cli	cli	stage 2 command output equals the C# CLI	owned by T15c
 SelfhostDriverT5Tests	src/tests/SelfhostDriverT5Tests.cs	selfhost-driver	16	cli	cli	stage 2 command output equals the C# CLI	
 SelfhostDriverT8Tests	src/tests/SelfhostDriverInventoryTests.cs	selfhost-driver	5	cli	cli	stage 2 command output equals the C# CLI	
-SelfhostEmitterApiTests	src/tests/SelfhostEmitterApiTests.cs	selfhost-emitter	2	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterApiTests	src/tests/SelfhostEmitterApiTests.cs	selfhost-emitter	2	shell	scripts/ci/api-index-check.test.sh	ported 2 of 2: scripts/ci/api-index-check.sh (011-api.md against src/, the round-four table and the ltree.byn marker)	
 SelfhostEmitterEquivalenceLawTests	src/tests/SelfhostEmitterEquivalenceLawTests.cs	selfhost-emitter	7	check	check:L024	law proof becomes a check: command (R18)	
 SelfhostEmitterHarnessTests	src/tests/SelfhostEmitterParityTests.cs	selfhost-emitter	1422	emit-c	emit-c	bayan-emit error inputs and CLI shape over the diag, lex, parse, typed, diag-json and manifest corpora against the C# CLI	owned by T14
 SelfhostEmitterNoPanicLawTests	src/tests/SelfhostEmitterNoPanicLawTests.cs	selfhost-emitter	3	check	check:L025	law proof becomes a check: command (R18)	
 SelfhostEmitterParityTests	src/tests/SelfhostEmitterParityTests.cs	selfhost-emitter	353	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	owned by T14
-SelfhostEmitterPrinterBoundaryTests	src/tests/SelfhostEmitterPrinterBoundaryTests.cs	selfhost-emitter	9	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
+SelfhostEmitterPrinterBoundaryTests	src/tests/SelfhostEmitterPrinterBoundaryTests.cs	selfhost-emitter	9	shell	scripts/ci/printer-boundary-check.test.sh	ported 9 of 9: scripts/ci/printer-boundary-check.sh (the 7 Scan* rows are fixture rows of its .test.sh)	
 SelfhostEmitterSpeedTests	src/tests/SelfhostEmitterSpeedTests.cs	selfhost-emitter	1	bayan-test	lib/std bound tests	speed bound; Bayan test measures	
 SelfhostEmitterT10Tests	src/tests/SelfhostEmitterT10Tests.cs	selfhost-emitter	7	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
 SelfhostEmitterT11Tests	src/tests/SelfhostEmitterT11Tests.cs	selfhost-emitter	6	emit-c	emit-c	emitted C equals the C# compiler; whole-program equality stays in the R27 job	
@@ -153,7 +153,7 @@ SelfhostRevisionT2Tests	src/tests/SelfhostRevisionT2Tests.cs	selfhost-revision	2
 SelfhostRevisionT4Tests	src/tests/SelfhostRevisionT4Tests.cs	selfhost-revision	24	sem	sem	revision examples; diag where they assert errors	owned by T13c
 SelfhostRevisionT7Tests	src/tests/SelfhostRevisionT7Tests.cs	selfhost-revision	14	sem	sem	revision examples; diag where they assert errors	owned by T13c
 SelfhostRevisionT8Tests	src/tests/SelfhostRevisionT8Tests.cs	selfhost-revision	9	sem	sem	revision examples; diag where they assert errors	owned by T13c
-SelfhostSemanticsApiTests	src/tests/SelfhostSemanticsApiTests.cs	selfhost-semantics	1	sem	sem	sections printed by the built program compared with C# lines	
+SelfhostSemanticsApiTests	src/tests/SelfhostSemanticsApiTests.cs	selfhost-semantics	1	shell	scripts/ci/api-index-check.test.sh	ported 1 of 1: scripts/ci/api-index-check.sh (010-api.md against src/semantics)	
 SelfhostSemanticsCorpusParityTests	src/tests/SelfhostSemanticsGeneratorTests.cs	selfhost-semantics	2	sem	sem	generated corpus compared with bayan-check; export keeps the inputs	
 SelfhostSemanticsEquivalenceLawTests	src/tests/SelfhostSemanticsEquivalenceLawTests.cs	selfhost-semantics	1	check	check:L022	law proof becomes a check: command (R18)	
 SelfhostSemanticsGeneratorTests	src/tests/SelfhostSemanticsGeneratorTests.cs	selfhost-semantics	6	dropped		tests the C# program generator (verdict per generated program); generator goes with .NET, generated inputs are exported into diag cases	
