@@ -19,6 +19,7 @@ emitter.Mutations t27Find(string text, by string file, for in List<string> skipF
     return emitter.find(ref c, for: skipFiles)
 }
 
+// L021: a mutant that does not type-check is never counted as killed or survived
 // MutatorTests.cs:101, 110-115, 123, 131, 139: the not-emitted count of each operator, the C# literals.
 @cases(
     (
