@@ -1,0 +1,6 @@
+void f() {
+    return if a
+    if b {
+        g()
+    }
+}

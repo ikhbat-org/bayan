@@ -1,0 +1,5 @@
+CompilationUnit
+  Function main() -> void
+    Block
+      If x
+        Block

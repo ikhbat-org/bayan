@@ -1,0 +1,12 @@
+CompilationUnit
+  ErrorEnum public E
+    Variant a
+
+error BYN1044: `error union` is an input form; write `union error`
+
+  1 │ public error union E {
+    │        ^^^^^^^^^^^ the input form
+    │
+  help: put the kind first: `union error`
+    │ 1 │ public union error E {
+    │   │        +++++++++++

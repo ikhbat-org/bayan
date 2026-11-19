@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (map (entry "a" 1) (entry k (+ v 1)))

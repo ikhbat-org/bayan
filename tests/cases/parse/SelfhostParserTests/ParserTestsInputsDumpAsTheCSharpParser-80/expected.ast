@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (&& (is a .shipped) b)

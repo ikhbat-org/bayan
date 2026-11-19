@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (with (- p) (x 1))

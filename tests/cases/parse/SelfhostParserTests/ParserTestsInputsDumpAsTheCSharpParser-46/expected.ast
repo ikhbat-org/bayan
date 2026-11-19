@@ -1,0 +1,12 @@
+CompilationUnit
+  Function f(i64 a) -> void
+    Block
+
+error BYN1043: `a: i64` is an input form; write `i64 a`
+
+  1 │ void f(a: i64) { }
+    │        ^^^^^^ name before type
+    │
+  help: put the type before the name; declarations are type-first
+    │ 1 │ void f(i64 a) { }
+    │   │        +++++

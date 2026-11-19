@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (call f a (b: 2) (ref c))

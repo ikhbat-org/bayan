@@ -1,0 +1,12 @@
+CompilationUnit
+  Defer
+    Expr failing
+  Expr (call close)
+
+error BYN1012: this expression does nothing as a statement
+
+  1 │ defer failing
+    │       ^^^^^^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone

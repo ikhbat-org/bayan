@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (with (move p) (x 1))

@@ -1,0 +1,6 @@
+struct S {
+    i64 a
+    i64 b {
+        return a
+    }
+}

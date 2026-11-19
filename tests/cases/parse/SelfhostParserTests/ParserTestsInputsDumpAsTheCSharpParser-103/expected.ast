@@ -1,0 +1,12 @@
+CompilationUnit
+  TypeAlias F = () -> void uses io fails E
+
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+
+  1 │ type F = () -> void fails E uses io
+    │                             ^^^^ out of order
+    │
+  help: move `uses` before `fails`
+    │ 1 │ type F = () -> void uses io fails E
+    │   │                     +++++++++++++++

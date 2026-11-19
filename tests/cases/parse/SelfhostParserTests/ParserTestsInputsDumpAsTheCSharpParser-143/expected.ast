@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (try (+ (call f) 1))

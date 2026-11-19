@@ -1,0 +1,5 @@
+struct S {
+  i64 a = )
+  i64 b
+}
+let x = 1

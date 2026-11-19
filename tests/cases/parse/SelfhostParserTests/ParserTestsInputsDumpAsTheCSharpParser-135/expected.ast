@@ -1,0 +1,13 @@
+CompilationUnit
+  Function f() -> void uses io fails E
+    Block
+
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+
+  1 │ void f() fails E uses io {
+    │                  ^^^^ out of order
+    │
+  help: move `uses` before `fails`
+    │ 1 │ void f() uses io fails E {
+    │   │          +++++++++++++++

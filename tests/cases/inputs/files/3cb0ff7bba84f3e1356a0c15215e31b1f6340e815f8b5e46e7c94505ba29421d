@@ -1,0 +1,5 @@
+void f(i32 n)
+    expects n > 0
+    expects n < 9
+    fails E {
+}

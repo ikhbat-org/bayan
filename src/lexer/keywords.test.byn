@@ -1,0 +1,27 @@
+// LexerTests.cs:23 `EveryKeywordLexesToItsKind` (019 T30f part 4): the keyword texts of `Keywords.cs:7` `All`, in its order;
+// each lexes to its kind and end of file, and a reserved one (`TokenKind.cs:194`, actor..select) to an identifier.
+
+test "lexer: every keyword lexes to its kind, a reserved one to an identifier" {
+    let texts = [
+        "struct", "unique", "union", "enum", "flags", "open", "extensible", "interface", "delegate", "extension",
+        "derivation", "attribute", "error", "set", "unit", "distinct", "type", "import", "as", "public", "private",
+        "static", "readonly", "required", "const", "let", "var", "embed", "extern", "unsafe", "if", "else", "unless",
+        "switch", "case", "default", "for", "in", "while", "do", "break", "continue", "return", "yield", "defer",
+        "errdefer", "using", "context", "fails", "try", "catch", "never", "noalloc", "nosuspend", "suspends", "async",
+        "await", "is", "and", "or", "not", "with", "move", "ref", "out", "this", "null", "true", "false", "comptime",
+        "checked", "test", "assert", "property", "fuzz", "model", "foreach", "new", "goto", "actor", "effect", "macro",
+        "select", "become", "fail", "law", "requires", "because", "uses", "except", "provide",
+    ]
+    assert texts.length == 91
+    let keywords = Keywords.build()
+    for text in texts {
+        var bytes = List<u8>()
+        for b in text.bytes {
+            bytes.append(b)
+        }
+        let r = lex(SourceText.create("t.byn", from: move bytes), by: keywords)
+        let reserved = text == "actor" || text == "macro" || text == "select"
+        let expected = reserved ? "identifier" : $"{text}Keyword"
+        assert r.tokens.length == 2 && r.tokens[0].kind.name == expected && r.tokens[1].kind == .endOfFile
+    }
+}

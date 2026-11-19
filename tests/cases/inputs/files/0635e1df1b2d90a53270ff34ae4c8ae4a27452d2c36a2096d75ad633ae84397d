@@ -1,0 +1,4 @@
+T id<T>(T a)
+    where T : IA
+    expects a == a
+    fails E => a

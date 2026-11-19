@@ -1,0 +1,6 @@
+CompilationUnit
+  Struct S
+    Field i64 a
+    Property i64 b
+      Block
+        Return a

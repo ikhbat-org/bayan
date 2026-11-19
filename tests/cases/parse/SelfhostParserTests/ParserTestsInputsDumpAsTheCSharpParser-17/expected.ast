@@ -1,0 +1,12 @@
+CompilationUnit
+  Let x: i64 = 1
+  Assign (. y x) = 2
+
+error BYN1043: `i64 x` is an input form; write `let x: i64`
+
+  1 │ i64 x = 1
+    │ ^^^^^ type before name
+    │
+  help: write `let x: i64`; local bindings put the name first
+    │ 1 │ let x: i64 = 1
+    │   │ ++++++++++

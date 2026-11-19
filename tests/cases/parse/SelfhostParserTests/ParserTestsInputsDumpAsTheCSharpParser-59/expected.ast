@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (is n (and (> 0) (< 10)))

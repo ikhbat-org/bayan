@@ -1,0 +1,15 @@
+CompilationUnit
+  Label outer
+    While x
+      Block
+        Break outer
+
+error BYN1042: `break` takes its value on the same line
+
+  3 │         outer
+    │         ^^^^^ on the next line
+    │
+  help: move the value to the line of `break`
+    │ 2 │     break
+    │ 3 │         outer
+    │   │ -------

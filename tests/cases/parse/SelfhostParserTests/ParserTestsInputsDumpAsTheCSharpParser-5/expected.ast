@@ -1,0 +1,4 @@
+CompilationUnit
+  Defer failing (e)
+    Block
+      Expr (call close)

@@ -1,0 +1,11 @@
+CompilationUnit
+  Function f() -> void
+    Block
+      Expr (call g (pattern (props S (a: 0))))
+
+error BYN1046: `pattern` is allowed only after `=` in a `const`
+
+  2 │     g(pattern S { a: 0 })
+    │       ^^^^^^^ `pattern` outside a `const`
+    │
+  help: declare the pattern as `const name = pattern T { … }`

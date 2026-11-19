@@ -1,0 +1,13 @@
+CompilationUnit
+  Function f() -> void uses io becomes .done
+    Block
+
+error BYN1065: `uses` must come before `becomes`; the order is `where`, `expects`, `uses`,
+`becomes`, `fails`
+
+  1 │ void f() becomes .done uses io {
+    │                        ^^^^ out of order
+    │
+  help: move `uses` before `becomes`
+    │ 1 │ void f() uses io becomes .done {
+    │   │          +++++++++++++++++++++
