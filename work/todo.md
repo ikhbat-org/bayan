@@ -1115,3 +1115,6 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 T29 t29a, 2026-11-20): docs/specs/015-tooling/015-spec.md:45 still names coverage.sh as cobertura_to_quality.py's caller.
 - LOW (019 T29 t29a, 2026-11-20): `bayan test --coverage --package src src/<m>` writes src/out/test/ inside the source tree (root = package root); coverage.sh removes it, a manual run leaves untracked src/out/.
 - LOW (019 T29 t29a, 2026-11-20): work/todo.md:948 (coverage.test.sh wiping real tmp/quality) is fixed by 019-t29a; strike it.
+- LOW (019 T30g inv5, 2026-11-20): inventory-check.sh counts only the leading number of a class's EXPORT.tsv reason field; a second `N not exported:` clause in the same field is not counted.
+- LOW (019 T30g inv5, 2026-11-20): the header at src/driver/styleenv.test.byn:4-5 does not cite the 2026-11-20 no-counterpart decision for the two TimerFrames tests.
+- LOW (019 T30g inv5, 2026-11-20): clean-t3.test.byn and parser-t13.test.byn run the prebuilt `$BAYAN_EXE` as their child, so a break in src/driver shows only after a stage-1 rebuild; clean-t3.test.byn:28-39 leaves its tree locked when an assert fails between the chmod and the restore (the next run unlocks it).
