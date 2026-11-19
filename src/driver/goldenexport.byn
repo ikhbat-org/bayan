@@ -85,8 +85,10 @@ void goldenExportClasses(string root, for string kind, to ref List<GoldenCase> c
 }
 
 /// The skip text of an exported case that is not run: a `cli` case without `args` (the SelfhostDriverT3Tests probe cases), or a case whose `os`
-/// file (one OS per line, as `Target.os` names it: the OSes its expected output was written for, and a `# <reason>` line that names none, T17e)
-/// does not name this one; null for the others.
+/// file does not name this OS; null for the others. An `os` file (T17e) is one line: the OSes the case's expected output can hold on, one or
+/// several separated by spaces, each as `Target.os` names it (`macos`, `linux`, `windows`), e.g. `macos linux` for output that names a POSIX
+/// path. One line, because the file says one thing, which OSes, and a case that holds on two of three needs both on it; the reason a case has
+/// one is not in it but in its class's EXPORT.tsv row (`<n> os: <case> (<OSes>: <reason>)`), where T17e lists it and land-export.sh keeps it.
 string? goldenCliSkip(string kind, at string input) uses alloc, fs {
     if kind == "cli" && !input.endsWith("args") {
         return $"skipped: no `args` file in {input}"
@@ -94,10 +96,11 @@ string? goldenCliSkip(string kind, at string input) uses alloc, fs {
     return null if kind != "cli" && !goldenExported(kind, at: input)
     let os = Path.combine(kind == "cli" ? Path.directoryName(input) ?? "" : input, "os")
     return null unless Fs.fileExists(os)
-    for line in goldenLines(goldenLf(Io.readText(os) catch "")) {
-        return null if $"{line.trimmed()}" == Target.os
+    let line = goldenLines(goldenLf(Io.readText(os) catch ""))[0]
+    for word in line.parts(by: " ") {
+        return null if $"{word.trimmed()}" == Target.os
     }
-    return $"skipped: its `os` file names another OS than {Target.os}"
+    return $"skipped: its `os` file names {line.trimmed()}, not {Target.os}"
 }
 
 /// The expected files of the `cli` case whose `args` is `input`, those update mode may rewrite.
@@ -2802,20 +2805,24 @@ test "a cli case without `args` is reported, and BAYAN_UPDATE=1 rewrites a cli c
     assert(stderr == "usage: bayan audit <path>\n")
 }
 
-test "an exported case whose `os` file does not name this OS is skipped naming it; one naming it, or with no `os` file, is not (T17e)" {
+test "an exported case whose `os` line does not name this OS is skipped naming its OSes and counted pending; one naming it among others runs (T17e)" {
     let root = Path.combine(Path.fullPath("tmp"), "golden-os-file")
     deleteWorkDir(root)
-    goldenWrite(root, for: "emit-c/AlphaTests/Other/os", as: "plan9\n")
-    goldenWrite(root, for: "emit-c/AlphaTests/Here/os", as: $"plan9\n{Target.os}\n")
+    goldenWrite(root, for: "emit-c/AlphaTests/Other/os", as: "plan9 beos\n")
+    goldenWrite(root, for: "emit-c/AlphaTests/Here/os", as: $"plan9 {Target.os} beos\n")
     goldenWrite(root, for: "emit-c/AlphaTests/None/input.name", as: "a.byn\n")
-    goldenWrite(root, for: "cli/AlphaTests/Other/args", as: "lex\n")
-    goldenWrite(root, for: "cli/AlphaTests/Other/os", as: "plan9\n")
     let other = goldenCliSkip("emit-c", at: Path.combine(root, "emit-c/AlphaTests/Other"))
     let here = goldenCliSkip("emit-c", at: Path.combine(root, "emit-c/AlphaTests/Here"))
     let none = goldenCliSkip("emit-c", at: Path.combine(root, "emit-c/AlphaTests/None"))
-    let cli = goldenCliSkip("cli", at: Path.combine(root, "cli/AlphaTests/Other/args"))
     deleteWorkDir(root)
-    assert(other == $"skipped: its `os` file names another OS than {Target.os}")
+    // the runner over a cli case whose `os` line names two other OSes: reported skipped with its reason, counted as pending, exit 0
+    goldenWrite(root, for: "cli/AlphaTests/Other/args", as: "lex\n")
+    goldenWrite(root, for: "cli/AlphaTests/Other/os", as: "plan9 beos\n")
+    let run = goldenJobsRun(root, as: "1")
+    deleteWorkDir(root)
+    assert(other == $"skipped: its `os` file names plan9 beos, not {Target.os}")
     assert(here is null && none is null)
-    assert(cli == other)
+    assert(run.exitCode == exitOk)
+    assert(run.stdout.contains($"\nskipped cli/AlphaTests/Other\n    skipped: its `os` file names plan9 beos, not {Target.os}\n"))
+    assert(run.stdout.contains("◆ 0 passed · 1 pending · 0 test blocks, 1 golden case · Ts"))
 }

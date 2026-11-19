@@ -28,9 +28,10 @@
 #   (4) <dest>/EXPORT.tsv (class, kind, tests, cases, reason) is written: one row per class and kind with cases or with rows in
 #       <kind>/UNEXPORTED.tsv, tests from <dest>/../inventory-019.tsv, cases the case directories, reason the class's
 #       UNEXPORTED.tsv rows (root masked), its (2d) removals and its (5) `os` files, empty when it has none;
-#   (5) a landed case's `os` file (T17e: the OSes its expected output was written for, one per line as the runner's `Target.os` names
-#       them, and a line `# <reason>`) is not in the export and is kept; EXPORT.tsv lists each as "<n> os: <case> (<OSes>: <reason>)".
-#       An `os` file with no `# ` line stops the run (exit 1).
+#   (5) a landed case's `os` file (T17e: one line, the OSes its expected output holds on separated by spaces, as the runner's
+#       `Target.os` names them; goldenexport.byn `goldenCliSkip` says why one line) is not in the export and is kept; EXPORT.tsv lists
+#       each as "<n> os: <case> (<OSes>: <reason>)", the reason read from that case's entry in the EXPORT.tsv being replaced (it is added
+#       there by hand with the `os` file). An `os` file with no such entry, or with more than one line, stops the run (exit 1).
 # A file is written only when its content differs, so a rerun over the same export writes nothing. A symlink or other special
 # file, or a name holding a tab, newline or backslash, under input/ stops the run. After landing, any file under <dest> holding
 # this machine's HOME, /Users/ or /opt/homebrew stops the run (exit 1). Prints the counts; exit 2 on bad arguments.
@@ -238,14 +239,22 @@ for k in "$src"/*/; do
   fi
 done
 
-# (5) the landed cases' `os` files: <class>\t<kind>\t<case> (<OSes>: <reason>)
-: > "$work/os"
+# (5) the landed cases' `os` files: <class>\t<kind>\t<case> (<OSes>: <reason>), the reason from the old EXPORT.tsv's
+# "<n> os: <case> (<OSes>: <reason>); ..." (the last part of a reason, entries split at "); ")
+: > "$work/os"; : > "$work/os-why"
+[ ! -f "$dest/EXPORT.tsv" ] || awk -F'\t' 'NR > 1 && match($5, /(^|; )[0-9]+ os: /) {
+    rest = substr($5, RSTART + RLENGTH); sub(/^[0-9]+ os: /, "", rest); sub(/\)$/, "", rest); n = split(rest, e, /\); /)
+    for (i = 1; i <= n; i++) { p = index(e[i], " ("); inner = substr(e[i], p + 2); q = index(inner, ": ")
+      if (p > 0 && q > 0) print $2 "/" $1 "/" substr(e[i], 1, p - 1) "\t" substr(inner, q + 2) }
+  }' "$dest/EXPORT.tsv" > "$work/os-why"
 while IFS= read -r -d '' f; do
   rel="${f#"$dest"/}"; IFS=/ read -r k cl cs _ <<< "$rel"
   [ "$k" != inputs ] || continue
-  why="$(awk '/^# / { r = substr($0, 3); next } NF { o = (o == "" ? "" : o ", ") $0 } END { if (r == "") exit 1; print o ": " r }' "$f")" ||
-    { echo "land-export: $k/$cl/$cs/os has no \`# <reason>\` line" >&2; exit 1; }
-  printf '%s\t%s\t%s (%s)\n' "$cl" "$k" "$cs" "$why" >> "$work/os"
+  [ "$(awk 'END { print NR }' "$f")" -le 1 ] || { echo "land-export: $k/$cl/$cs/os has more than one line" >&2; exit 1; }
+  oses="$(awk '{ $1 = $1; print; exit }' "$f")"
+  why="$(awk -F'\t' -v id="$k/$cl/$cs" '$1 == id { print $2; exit }' "$work/os-why")"
+  [ -n "$why" ] || { echo "land-export: $k/$cl/$cs/os has no reason in EXPORT.tsv: add \"1 os: $cs ($oses: <reason>)\" to its row" >&2; exit 1; }
+  printf '%s\t%s\t%s (%s: %s)\n' "$cl" "$k" "$cs" "$oses" "$why" >> "$work/os"
 done < <(find "$dest" -mindepth 4 -maxdepth 4 -type f -name os -print0)
 
 # EXPORT.tsv: reason "<n> not exported: <test> (<rest>); ...", the distinct rows sorted, then "<n> removed: <case> (<why>); ...", then
