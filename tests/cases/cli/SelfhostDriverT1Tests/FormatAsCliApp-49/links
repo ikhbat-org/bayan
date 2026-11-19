@@ -1,1 +1,1 @@
-link.byn -> real.byn
+symlink/link.byn -> real.byn
