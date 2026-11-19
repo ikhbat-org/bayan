@@ -92,3 +92,30 @@ reverted in goldenexport.byn, the blob's CR stripped) and all seven failed: `ass
 `assert(goldenCliTarget("/a/b/link/../c.byn") == "/a/b/c.byn")`, `assert(made)`, `assert(y == "y\n")`,
 `assert(cwd == $"{scratch}/tmp/t3/out\n")`, `assert(Hex.encode(sha256(bytes.span).span) == name)` (`◆ 0 passed · ✗ 7 failed`). The
 modes reopen was then broken alone: `assert(writable)` failed. The file and the blob were restored afterwards.
+
+## T19d: the 8 `new pending` rows
+
+- cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-1006: (b). Cause: the help line `import one of `std.json`` was landed
+  without the land-time std mask (scripts/selfhost/land-export.sh:154-158 `mask_std`). Action: `mask_std` itself (extracted from the
+  script and run on the file) rewrote expected.stderr to `import one of <std modules>`, which src/driver/golden.byn:226 matches; the case
+  passes; row deleted.
+- cli/SelfhostDriverT3Tests/ACompilerKilledBySignalIsAFailure: (a), Q53, `csharp`. Q53 (docs/decisions/2026-11-14-004-answered-questions.md:982):
+  "A child killed by a signal reports exit code 128+signal". Cause: src/driver/cache.byn:579-581 (runtime object) and :686-687 (program)
+  catch `IoError.signaled` as any IoError and print `cannot run the C compiler …: {e}`; src/driver/cc.byn:272-276 and :285-289 already map
+  it to `C compiler failed (exit 128+n)`. Action: row `Q53 csharp`; expected file kept; driver fix left to a task.
+- sem/SelfhostSemanticsT18Tests/CaseMatches-22, -47, -107: (b). First differing line: expected `literal|i32|-|-|-|-|-|2362:8|1`
+  (-47 `methodGroup|?|-1|privFn|…|2412:12|-`, -107 `methodGroup|?|-1|hiddenFn|…|2384:14|-`), actual `errorExpr|?|-|-|-|-|-|2362:5|-` with
+  `BYN2001 124:14 `other` is not defined`. Cause: the C# test writes the module `other` to tmp/t18-cases/other/other.byn before the run
+  (src/tests/SelfhostSemanticsT18Tests.cs:446-450 `WriteOther`); the export did not record it, so the runner ran the world without it.
+  Not a semantics difference. Action: src/driver/goldenprograms.byn `goldenProgramGenSem` writes `Other` (:23-31) there for the class;
+  all 125 T18 cases pass; rows deleted.
+- sem/SelfhostSemanticsT25Tests/RunMatches, RunMatches-2: (b). First differing line: expected `area depth r 2 727`, actual
+  `area depth s 1 -1` (the program prints `depthOf` in map order). Cause: the C# test sorts the lines and the lists of each ` local `
+  line before comparing (src/tests/SelfhostSemanticsT25Tests.cs:347-348); the export wrote no `compare` word. Action: compare word
+  `t25-run` in src/driver/goldenprograms.byn `goldenProgramWord`, chosen by `goldenProgramCaseWord` for these cases; both pass; rows deleted.
+- sem/SelfhostSemanticsT25Tests/UnionAndLentMatch: (b). First differing line: expected `empty-left [0:y,1:x] [l1,l2] -`, actual
+  `empty-left [1:x,0:y] [l1,l2] -`. Cause: the C# test sorts each line's lists (src/tests/SelfhostSemanticsT25Tests.cs:732, `Canon`
+  :716-726); no `compare` word was exported. Action: compare word `t25-pure`; the case passes; row deleted.
+
+All 152 T25 cases pass with the two words. Each runner change has a test block in src/driver/goldenprograms.byn (`t25-run`, `t25-pure`
+with the case-word mapping, and the T18 `other` module).
