@@ -36,7 +36,8 @@ export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@example.com GIT_COMMITTER_NAME=t GIT
 
 r="$tmp/repo"; mkdir -p "$r/scripts/ci" "$r/src/driver" "$r/bootstrap" "$r/csharp/Bayan.Cli"; cd "$r"
 git init -q -b dev; git config core.hooksPath /dev/null
-cp "$root/scripts/ci/ddc.sh" "$root/scripts/ci/ddc-laws.txt" scripts/ci/
+cp "$root/scripts/ci/ddc.sh" scripts/ci/
+printf '# no laws yet\n' > scripts/ci/ddc-laws.txt # the repo's own list is not empty since T31f; the empty case is this one
 printf '/tmp/\n' > .gitignore; echo frozen > VERSION; touch csharp/Bayan.Cli/Bayan.Cli.csproj
 printf 'a\nb\nc\n' > src/driver/main.byn; printf 'line 1\na\nb\nc\n' > bootstrap/bayan.c
 git add -A; git commit -qm good; git tag good

@@ -238,7 +238,7 @@ public bool t26StyleLints(
     var lintManifest: Manifest? = null
     if lintRoot is not null && t26FileExists(t11Combine(lintRoot, by: "package.byn")) {
         // An unreadable one reads as an empty one (Q565), whose BYN3100 leaves the defaults.
-        var read = manifestRead(
+        let read = manifestRead(
             t11Combine(lintRoot, by: "package.byn"),
         ) catch manifestParse(lexer.SourceText.create("package.byn", from: List<u8>()))
         if manifestErrorCount(in read) == 0 {

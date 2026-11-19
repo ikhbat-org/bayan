@@ -237,8 +237,9 @@ string resolved(string path) uses fs, alloc {
     return r
 }
 
-/// Makes `link` a symbolic link to `target` with `ln`; false where there is none (Windows).
+/// Makes `link` a symbolic link to `target` with `ln`; false where there is none (Windows, whose Git Bash `ln -s` copies the file).
 bool link(string link, to string target) uses fs, alloc, process {
+    return false if Target.os == "windows"
     let args: string[3] = ["-s", target, link]
     let _ = Io.run("ln", args.span) catch { return false }
     return true

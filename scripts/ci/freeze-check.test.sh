@@ -142,7 +142,7 @@ touch tests/cases/lex/crlf.tokens; run; [ "$rc" = 0 ] || fail "crlf worktree exi
 git checkout -q "$start" -- tests; git rm -q tests/cases/lex/crlf.tokens; git commit -qm back
 
 # 14 a duplicate file row
-grep "lex/a.tokens" tests/cases/FREEZE.tsv >> tests/cases/FREEZE.tsv; git commit -qam dup
+row="$(grep "lex/a.tokens" tests/cases/FREEZE.tsv)"; printf '%s\n' "$row" >> tests/cases/FREEZE.tsv;git commit -qam dup
 expect "duplicate row" 1 "duplicate file row: tests/cases/lex/a.tokens"
 git checkout -q "$start" -- tests; git commit -qm back
 
