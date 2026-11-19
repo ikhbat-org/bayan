@@ -1,7 +1,0 @@
-◆ bayan       <version>
-◆ host        <host>
-◆ C compiler  <host>
-◆ zig         <host>
-◆ git         <host>
-✗ cache: <repo>/tmp/t5-doctor/cache/file/sub isn't writable: <message>
-  help: set BAYAN_CACHE to a writable directory
