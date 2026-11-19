@@ -321,25 +321,32 @@ string? goldenCompare(string actual, for string input, at string expected, by st
     return goldenDiffer(actual, for: input, at: expected, by: host)
 }
 
-/// `actual` as a Windows run prints it, read against `expected`, an expected file made on macOS, when `windows`: with `/` for `\` in the module
-/// directory of a `files in` help (Compilation.cs:309 makes it by `Path.GetRelativePath`), in the script path `bayan new` names after
-/// `created script` and `run it with `bayan` (SelfhostDefaultT4Tests NewWritesTheLayoutAsCSharp), and in a `rel` or `combine` line of
-/// SelfhostPathT7Tests (:180 `Path.GetRelativePath`, `Path.Combine`) and a `fullpath` line of SelfhostSemanticsT11Tests, there with the drive
-/// `Path.GetFullPath` puts before a rooted path dropped (`C:\a\c.byn` read as `/a/c.byn`); and, when `expected` names no `.exe`, a `.exe` that ends a line dropped
-/// (Targets.cs:30 `ExecutableName` names a Windows program `<name>.exe`).
-string goldenWindowsRead(string actual, for string expected, by bool windows) uses alloc {
+/// `actual` as a Windows run prints it, read against `expected`, an expected file made on macOS of the class `cls` (`<kind>/<class>`,
+/// `goldenWindowsClass`), when `windows`, each rule only for the classes a Windows run showed it for (019-win8): with `/` for `\` in the module
+/// directory of a `files in` help (Compilation.cs:309 makes it by `Path.GetRelativePath`; cli/SelfhostDefaultT2Tests,
+/// emit-c/SelfhostEmitterHarnessTests, sem/SelfhostPathT7Tests, sem/SelfhostSemanticsT11Tests), in the script path `bayan new` names after
+/// `created script` and `run it with `bayan` (cli/SelfhostDefaultT4Tests NewWritesTheLayoutAsCSharp), and in a `rel` or `combine` line of
+/// sem/SelfhostPathT7Tests (:180 `Path.GetRelativePath`, `Path.Combine`) and a `fullpath` line of sem/SelfhostSemanticsT11Tests, there with the
+/// drive `Path.GetFullPath` puts before a rooted path dropped (`C:\a\c.byn` read as `/a/c.byn`); and, in cli/SelfhostDefaultT9Tests and
+/// cli/SelfhostDriverT5Tests when `expected` names no `.exe`, a `.exe` that ends a line dropped (Targets.cs:30 `ExecutableName` names a Windows
+/// program `<name>.exe`). Another class's `actual` is read as is.
+string goldenWindowsRead(string actual, for string expected, as string cls, by bool windows) uses alloc {
     return actual unless windows
-    var slashed = goldenCliSlashedAfter(goldenLf(actual), at: "files in `", by: true)
-    slashed = goldenCliSlashedAfter(slashed, at: "created script `", by: true)
-    slashed = goldenCliSlashedAfter(slashed, at: "run it with `bayan ", by: true)
-    let exe = goldenOffset(expected, for: ".exe") < 0
+    let rel = cls == "sem/SelfhostPathT7Tests"
+    let full = cls == "sem/SelfhostSemanticsT11Tests"
+    let help = rel || full || cls is "cli/SelfhostDefaultT2Tests" or "emit-c/SelfhostEmitterHarnessTests"
+    let script = cls == "cli/SelfhostDefaultT4Tests"
+    var slashed = goldenCliSlashedAfter(goldenLf(actual), at: "files in `", by: help)
+    slashed = goldenCliSlashedAfter(slashed, at: "created script `", by: script)
+    slashed = goldenCliSlashedAfter(slashed, at: "run it with `bayan ", by: script)
+    let exe = (cls is "cli/SelfhostDefaultT9Tests" or "cli/SelfhostDriverT5Tests") && goldenOffset(expected, for: ".exe") < 0
     var sb = StrBuf()
     var first = true
     for line in slashed.parts(by: "\n") {
         sb.append("\n") unless first
         first = false
-        let path = line.startsWith("rel ") || line.startsWith("combine ") ? line.replaced("\\", by: "/")
-            : line.startsWith("fullpath ") ? goldenWindowsUnrooted(line.replaced("\\", by: "/")) : $"{line}"
+        let path = rel && (line.startsWith("rel ") || line.startsWith("combine ")) ? line.replaced("\\", by: "/")
+            : full && line.startsWith("fullpath ") ? goldenWindowsUnrooted(line.replaced("\\", by: "/")) : $"{line}"
         sb.append(exe && path.endsWith(".exe") ? $"{path[0..path.length - 4]}" : path)
     }
     return sb.finish()
@@ -359,6 +366,13 @@ string goldenWindowsUnrooted(string line) uses alloc {
     return sb.finish()
 }
 
+/// The `<kind>/<class>` of the expected file at `path`, `<cases>/<kind>/<class>/<case>/expected.*`: the names of its directory's grandparent
+/// and parent.
+string goldenWindowsClass(string path) uses alloc {
+    let classDir = Path.directoryName(Path.directoryName(path) ?? "") ?? ""
+    return $"{Path.fileName(Path.directoryName(classDir) ?? "")}/{Path.fileName(classDir)}"
+}
+
 /// Golden.cs:35 `Compare` outside update mode: null when `actual` equals the expected file at `expected` (CR LF read as LF), else the failure text,
 /// which names the input path and the first differing line, expected and actual (spec 019 R2). Both sides are read through `goldenHostMasked`
 /// for `host`, the running one (`targetHost`) when null; an empty `host` masks nothing.
@@ -366,7 +380,7 @@ string? goldenDiffer(string actual, for string input, at string expected, by str
     let text = Io.readText(expected) catch return $"{input}\nmissing expected file {expected}"
     let running = host ?? targetHost() ?? ""
     let want = goldenLines(goldenLf(goldenHostMasked(text, for: running)))
-    let read = goldenWindowsRead(actual, for: text, by: Target.os == "windows")
+    let read = goldenWindowsRead(actual, for: text, as: goldenWindowsClass(expected), by: Target.os == "windows")
     let got = goldenLines(goldenLf(goldenHostMasked(goldenStdModules(read, by: text), for: running)))
     var line = 0
     while line < want.length && line < got.length && want[line] == got[line] {
@@ -799,6 +813,14 @@ i64 goldenLimitMs(i64 deadline) uses clock {
     return left > 0 ? left : 1
 }
 
+/// The time limit of case `name` (`<kind>/<case>`): `limitMs`, but at least the 10 minutes of one compile (Toolchain.cs:145 `CompileTimeout`)
+/// for the two SelfhostDefaultT12Tests `dist` cases that cross-build with zig (`--target all`, `--target linux-arm64`), which ran past 60 s on
+/// the Windows runner (019-win8); the C# waited on them with no limit of its own (SelfhostDefaultT12Tests.cs:45 `WaitForExit()`).
+i64 goldenCaseLimitMs(string name, for i64 limitMs) {
+    let long = name is "cli/SelfhostDefaultT12Tests/ABadTargetIsRefused-2" or "cli/SelfhostDefaultT12Tests/ATargetIsBuilt-2"
+    return long && limitMs < 600000 ? 600000 : limitMs
+}
+
 /// `ms` as `N s` when it is whole seconds, else `N ms`.
 string goldenLimitText(i64 ms) uses alloc => ms % 1000 == 0 ? $"{ms / 1000} s" : $"{ms} ms"
 
@@ -861,7 +883,8 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
     for path in files {
         before.append(goldenSnapshot(path))
     }
-    let deadline = Io.monotonicNanos() + limitMs * 1000000
+    let caseMs = goldenCaseLimitMs(name, for: limitMs)
+    let deadline = Io.monotonicNanos() + caseMs * 1000000
     var failure: string? = null
     if c.kind is "style" or "run" or "new" or "out" or "cli" {
         failure = goldenRun(in c, deadline: deadline)
@@ -881,7 +904,7 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
         return GoldenResult {
             name: name,
             status: "timed out",
-            detail: $"timed out after {goldenLimitText(limitMs)}{shown.length > 0 ? $"\n{shown}" : ""}{rewrote == "" ? "" : $"\n{rewrote}"}",
+            detail: $"timed out after {goldenLimitText(caseMs)}{shown.length > 0 ? $"\n{shown}" : ""}{rewrote == "" ? "" : $"\n{rewrote}"}",
         }
     }
     let pending = goldenExpected(c.input, for: ".pending")
