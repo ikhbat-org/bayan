@@ -109,6 +109,8 @@ public sealed class L010Utf8DecodeTests(ITestOutputHelper output)
         }
         var random = new Random(Seed);
         for (var i = 0; i < RandomCount; i++) inputs.Add(RandomSequence(random));
+        // Spec 019 T31b: under the export, the driver as a debug `run` case with the inputs as its stdin.
+        if (L006OwnershipGuardTests.Export(nameof(L010Utf8DecodeTests), "l010", "decode", Driver, ["run", "--mode", "debug"], Stdin(inputs))) return;
 
         var lines = RunDriver(inputs);
         Assert.Equal(inputs.Count, lines.Length);
@@ -176,6 +178,9 @@ public sealed class L010Utf8DecodeTests(ITestOutputHelper output)
         return -1;
     }
 
+    /// <summary>The driver's stdin: each input as a line of lowercase hex.</summary>
+    private static string Stdin(List<byte[]> inputs) => string.Concat(inputs.Select(bytes => Convert.ToHexStringLower(bytes) + "\n"));
+
     private static string[] RunDriver(List<byte[]> inputs)
     {
         var c = Compilation.Create([SourceText.FromString("l010.byn", Driver)], ".");
@@ -194,9 +199,7 @@ public sealed class L010Utf8DecodeTests(ITestOutputHelper output)
         using var p = Process.Start(psi)!;
         var stdout = p.StandardOutput.ReadToEndLfAsync();
         var stderr = p.StandardError.ReadToEndLfAsync();
-        var stdin = new StringBuilder();
-        foreach (var bytes in inputs) stdin.Append(Convert.ToHexStringLower(bytes)).Append('\n');
-        p.StandardInput.Write(stdin.ToString());
+        p.StandardInput.Write(Stdin(inputs));
         p.StandardInput.Close();
         var waitMs = TestTime.Scale(120_000);
         if (!p.WaitForExit(waitMs))

@@ -40,10 +40,19 @@ public sealed class SymbolLawTests(ITestOutputHelper output)
         Parallel.For(1, seeds + 1, seed =>
         {
             var g = Generate(seed);
+            // Spec 019 T31b: under the export, the seed as a `run` case per mode under the runtime's own hash seed (the two fixed
+            // seeds and -Wall -Werror are not exported).
+            if (SelfhostExport.Dir is not null)
+            {
+                foreach (var mode in new[] { "debug", "safe" })
+                    L006OwnershipGuardTests.Export(nameof(SymbolLawTests), "l015", $"seed-{seed}-{mode}", g.Source, ["run", "--mode", mode]);
+                return;
+            }
             foreach (var c in g.Choices) choices.Add(c);
             if (Failure(compiler, g.Source, g.Expected, $"gen-{seed}.byn") is { } failure)
                 failures.Add((seed, $"seed {seed}: {failure}\nprogram:\n{g.Source}"));
         });
+        if (SelfhostExport.Dir is not null) return;
         output.WriteLine($"seeds {seeds}, failed {failures.Count}");
         Assert.True(failures.IsEmpty, string.Join("\n\n", failures.OrderBy(f => f.Seed).Select(f => f.Message)));
         // Every generator choice is drawn by some seed.

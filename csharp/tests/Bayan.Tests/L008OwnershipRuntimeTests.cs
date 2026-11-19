@@ -40,6 +40,8 @@ public sealed class L008OwnershipRuntimeTests(ITestOutputHelper output) : IDispo
         Parallel.For(1, seeds + 1, seed =>
         {
             var source = OwnershipGenerator.Generate((ulong)seed, Size);
+            // Spec 019 T31b: under the export, the seed as a debug `run` case (the ASan half is not exported).
+            if (L006OwnershipGuardTests.Export(nameof(L008OwnershipRuntimeTests), "l008", $"seed-{seed}-debug", source, ["run", "--mode", "debug"])) return;
             var c = Compilation.Create([SourceText.FromString($"gen-{seed}.byn", source)], ".");
             var errors = c.Diagnostics.Items.Where(d => d.IsError).ToList();
             if (errors.Count > 0)
@@ -53,6 +55,7 @@ public sealed class L008OwnershipRuntimeTests(ITestOutputHelper output) : IDispo
             if (Failure(run) is { } failure)
                 failures.Add((seed, $"seed {seed}: {failure}\nexit {run.ExitCode}\nstderr:\n{run.Stderr}\nprogram:\n{source}"));
         });
+        if (SelfhostExport.Dir is not null) return;
         foreach (var line in rejected.Order()) output.WriteLine(line);
         output.WriteLine($"seeds {seeds}, compiled {compiled}, rejected {rejected.Count}, asan {Toolchain.AsanAvailable}, switch move in {switchMoves}");
         Assert.True(failures.IsEmpty, string.Join("\n\n", failures.OrderBy(f => f.Seed).Select(f => f.Message)));

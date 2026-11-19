@@ -34,10 +34,18 @@ public sealed class L013DirectAndIndirectCallsAgreeTests(ITestOutputHelper outpu
         Parallel.For(1, seeds + 1, seed =>
         {
             var source = LambdaGenerator.Generate((ulong)seed);
+            // Spec 019 T31b: under the export, the seed as a `run` case per mode (the -Wall -Werror half is not exported).
+            if (SelfhostExport.Dir is not null)
+            {
+                foreach (var mode in new[] { "debug", "safe" })
+                    L006OwnershipGuardTests.Export(nameof(L013DirectAndIndirectCallsAgreeTests), "l013", $"seed-{seed}-{mode}", source, ["run", "--mode", mode]);
+                return;
+            }
             sources.Add(source);
             if (Failure(compiler, source, $"gen-{seed}.byn") is { } failure)
                 failures.Add((seed, $"seed {seed}: {failure}\nprogram:\n{source}"));
         });
+        if (SelfhostExport.Dir is not null) return;
         output.WriteLine($"seeds {seeds}, failed {failures.Count}");
         Assert.True(failures.IsEmpty, string.Join("\n\n", failures.OrderBy(f => f.Seed).Select(f => f.Message)));
         // Every grammar choice is drawn by some seed.

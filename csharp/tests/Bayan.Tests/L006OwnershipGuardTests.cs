@@ -1,3 +1,7 @@
+using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
+using Bayan.Cli;
 using Bayan.Semantics;
 using Bayan.Syntax.Text;
 
@@ -674,8 +678,50 @@ public sealed class L006OwnershipGuardTests
     [MemberData(nameof(Accepted))]
     public void AcceptsSingleOwner(string name, string program) => Check(name, program, "");
 
+    /// <summary>A row name as a case name: lowercase, each run of other characters one <c>-</c>.</summary>
+    internal static string Slug(string name) => Regex.Replace(name.ToLowerInvariant(), "[^a-z0-9]+", "-").Trim('-');
+
+    /// <summary>
+    /// Spec 019 T31b: under the export, writes <paramref name="source"/> as <c>tmp/&lt;law&gt;/&lt;slug&gt;/main.byn</c>, runs the C# CLI
+    /// as a process on <paramref name="command"/> and the file (in-process <c>run</c> lets the program write to the test's own stdout),
+    /// with <paramref name="stdin"/> as its input, and records it as <c>cli/&lt;cls&gt;/&lt;law&gt;-&lt;slug&gt;</c>, the repo root as <c>&lt;repo&gt;</c> and the
+    /// times as <c>seconds-masked</c> words them;
+    /// returns false without the export.
+    /// </summary>
+    internal static bool Export(string cls, string law, string slug, string source, string[] command, string? stdin = null)
+    {
+        if (SelfhostExport.Dir is null) return false;
+        var dir = Path.Combine(Golden.RepoRoot, "tmp", law, slug);
+        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
+        Directory.CreateDirectory(dir);
+        var file = Path.Combine(dir, "main.byn");
+        File.WriteAllText(file, source);
+        string[] args = [.. command, file];
+        var psi = new ProcessStartInfo("dotnet") { WorkingDirectory = Golden.RepoRoot, RedirectStandardInput = true, RedirectStandardOutput = true, StandardOutputEncoding = Encoding.UTF8, RedirectStandardError = true, StandardErrorEncoding = Encoding.UTF8, UseShellExecute = false };
+        psi.ArgumentList.Add(typeof(CliApp).Assembly.Location);
+        foreach (var a in args) psi.ArgumentList.Add(a);
+        using var p = Process.Start(psi)!;
+        var stdout = p.StandardOutput.ReadToEndLfAsync();
+        var stderr = p.StandardError.ReadToEndLfAsync();
+        p.StandardInput.Write(stdin ?? "");
+        p.StandardInput.Close();
+        var waitMs = TestTime.Scale(300_000);
+        if (!p.WaitForExit(waitMs))
+        {
+            p.Kill();
+            Assert.Fail($"{string.Join(' ', args)}: timed out after {waitMs} ms");
+        }
+        static string Mask(string text) => Regex.Replace(SelfhostExport.Repo(text), @" in \d+\.\d\ds", " in masked");
+        var extra = new Dictionary<string, string> { ["compare"] = "seconds-masked\n" };
+        if (stdin is not null) extra["stdin"] = stdin;
+        SelfhostExport.Cli(args, p.ExitCode, Mask(stdout.Result), Mask(stderr.Result), [file], extra, cls, $"{law}-{slug}");
+        Directory.Delete(dir, recursive: true);
+        return true;
+    }
+
     private static void Check(string name, string program, string expected)
     {
+        if (Export(nameof(L006OwnershipGuardTests), "l006", Slug(name), Prelude + program + "\n", ["check"])) return;
         var source = Prelude + program + "\n";
         var c = Compilation.Create([new SourceText("l006.byn", System.Text.Encoding.UTF8.GetBytes(source))], ".");
         var errors = c.Diagnostics.Items.Where(d => d.IsError).ToList();
