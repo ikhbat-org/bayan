@@ -372,12 +372,17 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
             placed.append(false)
         }
         var any = false
+        // the directory of the first entry placed at a named path: the root of a widened input tree (019-t19x export)
+        var beside = scratch
         for path in named {
             let target = goldenCliTarget(path)
             for k in 0..entries.length {
                 if !placed[k] && goldenCliEntryName(entries[k]) == Path.fileName(target) {
                     goldenCliPlace(entries[k], at: target, from: cases, to: ref exec, through: ref failure)
                     placed[k] = true
+                    if !any {
+                        beside = Path.directoryName(target) ?? scratch
+                    }
                     any = true
                 }
             }
@@ -391,6 +396,23 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
                 if Path.fileName(path) == "main.byn" {
                     whole = goldenCliTarget(path)
                     break
+                }
+            }
+            if own {
+                // a widened input tree (019-t19x export): `input/` was the case root, an ancestor of the named path, which the
+                // first segment of a `links` line names when it is not the named path's own name
+                for line in goldenCliLines(Path.combine(dir, "links")) {
+                    let slash = goldenOffset(line, for: "/")
+                    let arrow = goldenOffset(line, for: " -> ")
+                    continue if slash < 0 || arrow >= 0 && slash > arrow || line[0..slash] == Path.fileName(whole)
+                    var up = Path.directoryName(whole) ?? ""
+                    while up.length > scratch.length {
+                        if Path.fileName(up) == line[0..slash] {
+                            whole = up
+                            break
+                        }
+                        up = Path.directoryName(up) ?? ""
+                    }
                 }
             }
             if cls == "SelfhostDefaultT5Tests" && given.length == 0 && named.length > 0 {
@@ -415,20 +437,29 @@ string goldenCliStage(string dir, from string cases, to string scratch, through 
             let name = goldenCliEntryName(entries[k])
             var target = Path.combine(whole, name)
             if any {
+                var found = false
                 for path in named {
                     if Path.fileName(path) == name {
                         // a named `main.byn` beside another named entry: its own path, not its directory's
                         target = path
+                        found = true
                     }
                     var up = Path.directoryName(path) ?? ""
                     while up.length > scratch.length {
                         if Path.fileName(up) == name {
                             target = up
                             cwd = up
+                            found = true
                             break
                         }
                         up = Path.directoryName(up) ?? ""
                     }
+                }
+                if !found && beside != scratch {
+                    // an entry no path names, in a widened input tree (019-t19x export): beside the named entry, at the case root,
+                    // where the `links` lines start
+                    target = Path.combine(beside, name)
+                    home = beside
                 }
             }
             goldenCliPlace(entries[k], at: target, from: cases, to: ref exec, through: ref failure)
