@@ -47,6 +47,9 @@ chmod +x "$t/compiler" "$g/scripts/bootstrap-build.sh"
 git -C "$g" init -q && git -C "$g" add -A && GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t git -C "$g" -c core.hooksPath=/dev/null commit -qm "test: fixture"
 check "scratch repo committed" "$(git -C "$g" rev-list --count HEAD 2>/dev/null)" 1
 export FAKE_COMPILER="$t/compiler"
+# a dotnet that fails loudly and leaves a mark: no dist.sh run may reach for it (spec 019 R25)
+printf '#!/usr/bin/env bash\necho "dotnet $*" >> "%s"\nexit 97\n' "$t/dotnet-calls" > "$t/bin/dotnet"; chmod +x "$t/bin/dotnet"
+export PATH="$t/bin:$PATH"
 run() { bash "$g/scripts/dist.sh" --dist "$d" "$@"; }
 # what the fake compiler writes for <rid> <n>: the host rid is built without --target, any other with the release target name
 case "$(uname -s)-$(uname -m)" in Darwin-arm64) hrid=osx-arm64 ;; Darwin-x86_64) hrid=osx-x64 ;; Linux-aarch64|Linux-arm64) hrid=linux-arm64 ;; Linux-x86_64) hrid=linux-x64 ;; *) hrid=none ;; esac
@@ -177,4 +180,5 @@ FAKE_BOOT_FAIL=1 run --rid linux-x64 --label 5.1.0 >/dev/null 2>&1; check "faile
 check "failed bootstrap makes no version dir" "$([ -e "$d/linux-x64/5.1.0" ] && echo y || echo n)" n
 check "failed bootstrap frees the build lock" "$([ -e "$g/tmp/dist-publish.lock" ] && echo y || echo n)" n
 check "dist.sh has no dotnet" "$(grep -ci dotnet "$root/scripts/dist.sh")" 0
+check "no run called dotnet" "$(cat "$t/dotnet-calls" 2>/dev/null)" ""
 exit $fail
