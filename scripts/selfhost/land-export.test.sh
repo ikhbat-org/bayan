@@ -3,14 +3,15 @@
 # files and trees stored once by content (executable bit kept), the root masked in non-input text files only, cli/SelfhostExport
 # dropped, the doctor, cc, version, std-list and T5 commit masks, a binary input naming the machine left out, a removed case, EXPORT.tsv from UNEXPORTED.tsv, the case counts
 # and the inventory, a name ending in a dot and a space landed without them, a landed `os` file kept and listed with the reason the old
-# EXPORT.tsv gave it, a rerun writing nothing, and
-# the refusals.
+# EXPORT.tsv gave it, a rerun writing nothing, and the refusals (also a stored file whose bytes lost their CRs, and inputs/files
+# without -text in a git worktree).
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 tool="$root/scripts/selfhost/land-export.sh"
 fail() { echo "FAIL $1"; exit 1; }
 t="$root/tmp/land-export-test"; rm -rf "$t"; mkdir -p "$t/tmp"
 export TMPDIR="$t/tmp"
+printf 'tests/cases/inputs/files/** -text\n' > "$t/.gitattributes"                  # the fixture is inside this worktree
 if command -v sha256sum > /dev/null 2>&1; then h() { sha256sum | cut -c1-64; }; else h() { shasum -a 256 | cut -c1-64; }; fi
 R=/machine/wt/chore-019-export
 x="$t/export"; d="$t/tests/cases"
@@ -133,5 +134,15 @@ rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
 ln -s a.txt "$c/input/link"
 rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
 [ $rc = 1 ] && grep -q "unsupported input entry.*link" <<<"$out" || fail "a symlink in input/ was accepted ($rc): $out"
+rm "$c/input/link" "$d/cli/AlphaTests/One-2/leak.txt" "$d/sem/GammaTests/Two/os"
+printf 'a\r\nb\r\n' > "$c/input/crlf.txt"; hc="$(printf 'a\r\nb\r\n' | h)"
+bash "$tool" "$x" "$R" "$d" > /dev/null || fail "a CRLF input did not land"
+cmp -s "$d/inputs/files/$hc" "$c/input/crlf.txt" || fail "a CRLF input was not stored byte for byte"
+printf 'a\nb\n' > "$d/inputs/files/$hc"                                              # an earlier land that lost its CRs
+rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
+[ $rc = 1 ] && grep -q "do not hash to their names" <<<"$out" && grep -qx "$hc" <<<"$out" || fail "a stored file not hashing to its name was accepted ($rc): $out"
+rm "$t/.gitattributes"
+rc=0; out="$(bash "$tool" "$x" "$R" "$d" 2>&1)" || rc=$?
+[ $rc = 1 ] && grep -q "is not -text" <<<"$out" || fail "inputs/files without -text was accepted ($rc): $out"
 rm -rf "$t"
 echo "land-export.test: ok"
