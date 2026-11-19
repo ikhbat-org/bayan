@@ -209,6 +209,12 @@ public sealed class SelfhostSemanticsCorpusParityTests(ITestOutputHelper output)
     {
         foreach (var (_, path) in SelfhostSemanticsGeneratorTests.WriteCorpus(CorpusDir))
         {
+            // The export writes each seed as a bayan-check case (`compare` untimed), the C# `bayan check` run its expected output.
+            if (SelfhostExport.Dir is not null)
+            {
+                SelfhostSemanticsTests.SameAsCli(path, ["check", path], cls: nameof(SelfhostSemanticsCorpusParityTests));
+                continue;
+            }
             var expected = SelfhostSemanticsGeneratorTests.CliCheck(path);
             var (exit, stdout, stderr) = SelfhostParserTests.Run(BayanCheck, path);
             var actualOut = SelfhostSemanticsGeneratorTests.WithoutSummary(stdout);

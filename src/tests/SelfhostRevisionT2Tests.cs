@@ -320,8 +320,12 @@ public sealed class SelfhostRevisionT2Tests
         var section = $"diags.{name}";
         var expected = Expected(Dir(name));
         var actual = new Dictionary<string, List<string>> { [section] = Sections.Value[section] };
-        // A program with no diagnostic prints nothing on either side; it is here for the code it runs.
-        if (expected.Count == 0) Assert.Empty(actual[section]);
+        // A program with no diagnostic prints nothing on either side; it is here for the code it runs. The export still writes its case.
+        if (expected.Count == 0)
+        {
+            SelfhostSemanticsHarness.ExportSection(actual, section, expected, run: Sections.Value, printed: section);
+            if (SelfhostSemanticsHarness.ExportDir is null) Assert.Empty(actual[section]);
+        }
         else SelfhostSemanticsHarness.AssertSection(actual, section, expected);
     }
 

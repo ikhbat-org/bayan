@@ -307,11 +307,11 @@ public sealed class SelfhostEmitterT3Tests
         }
     }
 
-    private static List<string> Generated(string path)
+    private static Dictionary<string, List<string>> Generated(string path)
     {
         var (exit, stdout, stderr) = SelfhostParserTests.Run(Build(), ["stmts", path]);
         Assert.True(exit == 0, $"generated main exited {exit}:\n{stderr}");
-        return SelfhostSemanticsHarness.Sections(stdout)["stmts"];
+        return SelfhostEmitterHarness.Sections(stdout, "stmts", path);
     }
 
     private static void AssertMatches(string source) => WithFixture(source, path =>
@@ -320,7 +320,7 @@ public sealed class SelfhostEmitterT3Tests
         Assert.False(c.Diagnostics.HasErrors, DiagnosticRenderer.RenderAll(c.Diagnostics.Items, includePath: false));
         var expected = Oracle(c);
         Assert.Contains(expected, l => l.Length > 0);
-        Assert.Equal(expected, Generated(path));
+        SelfhostEmitterHarness.AssertSection(Generated(path), "stmts", expected);
     });
 
     // ── Fixtures: trivial expressions only, since `lowerExpr` is T4's ─────────────
