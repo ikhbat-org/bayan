@@ -48,6 +48,9 @@ jobs:
         shell: bash
         env:
           BAYAN_TEST_TIME_SCALE: 3
+          # The .byn test runner reads this, not the scale. L025's test runs bayan-emit --many in three modes with a 120 s bound
+          # each (l025RunBoundMs); the 60 s default killed it first (release dry runs 44740598481, 44759382772).
+          BAYAN_TEST_TIMEOUT_MS: 600000
           # L043 re-exports with the frozen C# compiler; ddc.yml, the one job with .NET, runs it (spec 019 R27).
           BAYAN_LAWS_LEFT: L043 L028
         run: |
