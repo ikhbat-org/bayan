@@ -125,8 +125,18 @@ test "binder t29: expects after a tab or a line break, constant lists and spans,
 
         void main() {}
         """
-    let text = $"{head}\n        n > 0 \{\}\n    void b(i64 n) expects\tn > 0 \{\}\n    void d(i64 n) expects\r\n{tail}"
+    let text = $"{head}\n        n > 0 {{}}\n    void b(i64 n) expects\tn > 0 {{}}\n    void d(i64 n) expects\r\n{tail}"
     let c = t29s1Compile(text)
-    print(t29s1Diags(in c))
-    assert false
+    let expected = """
+        BYN2229 module-level `const` array `l` must hold literal numbers, `bool`s, `rune`s or `string`s
+        BYN2229 module-level `const` array `s` must hold literal numbers, `bool`s, `rune`s or `string`s
+        BYN2202 expected `i64`, found `a collection literal`
+        BYN2229 module-level `const` array `v` must hold literal numbers, `bool`s, `rune`s or `string`s
+        BYN2001 `m` is not defined
+        BYN5011 this `expects` reads only `n`; a type with `requires` checks it once
+        BYN5011 this `expects` reads only `n`; a type with `requires` checks it once
+        BYN5011 this `expects` reads only `n`; a type with `requires` checks it once
+
+        """
+    assert t29s1Diags(in c) == expected
 }
