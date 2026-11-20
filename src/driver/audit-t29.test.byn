@@ -1,0 +1,39 @@
+// 019 T29 (coverage ratchet): audit.byn paths no golden case reaches: a call that opens the file before `because`, a name
+// first in the file, and token lists with no end-of-file token (a `because` or an `unsafe` last). The expected values
+// are the output of the self-hosted driver at the commit that added the test.
+
+import lexer
+
+/// `text` lexed as t.byn, without its end-of-file token when `trim`.
+lexer.LexResult t29AuditLex(string text, by bool trim) uses alloc {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var lexed = lexer.lex(lexer.SourceText.create("t.byn", from: move bytes), by: lexer.Keywords.build())
+    if trim {
+        let _ = lexed.tokens.removeLast()
+    }
+    return lexed
+}
+
+/// Each bypass as `line:column construct reason`, one per line.
+string t29AuditShow(in List<T6Bypass> found) uses alloc {
+    var sb = StrBuf()
+    for b in found {
+        sb.append($"{b.line}:{b.column} {b.construct} {b.reason ?? "-"}\n")
+    }
+    return sb.finish()
+}
+
+test "driver t29: t6Bypasses names a call or a name that starts the file" {
+    var call = t29AuditLex("f() because \"r\"\n", by: false)
+    t29Same(t29AuditShow(in t6Bypasses(ref call)), as: "1:1 f() \"r\"\n")
+    var name = t29AuditLex("x because\n", by: true)
+    t29Same(t29AuditShow(in t6Bypasses(ref name)), as: "1:1 x -\n")
+}
+
+test "driver t29: t6Bypasses reads an unsafe that is the last token" {
+    var lexed = t29AuditLex("unsafe", by: true)
+    t29Same(t29AuditShow(in t6Bypasses(ref lexed)), as: "1:1 unsafe -\n")
+}

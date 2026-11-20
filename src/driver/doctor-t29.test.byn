@@ -1,0 +1,17 @@
+// 019 T29 (coverage ratchet): doctor.byn paths no golden case reaches: a render that differs from its shape, and
+// `BAYAN_CC` unset. The expected values are the output of the self-hosted driver at the commit that added the test.
+
+test "driver t29: t5RenderCompare names the first difference from the shape" {
+    let checks = t25RenderChecks()
+    let failure = t5RenderCompare(in checks, for: "doctor-ok") ?? ""
+    assert failure.contains("tests/cases/style/doctor-ok.color\nexpected line 3: ")
+    assert failure.contains("<version> (commit a1b2c3d4e5f6)\nactual line 3: ")
+}
+
+test "driver t29: t5FindCompiler with BAYAN_CC unset is the found compiler" {
+    if (Env.get("BAYAN_CC") ?? "").length == 0 {
+        let found = t5FindCompiler()
+        let expected = ccFindCompiler()
+        assert found.length == expected.length
+    }
+}

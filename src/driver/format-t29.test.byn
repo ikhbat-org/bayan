@@ -1,0 +1,29 @@
+// 019 T29 (coverage ratchet): format.byn paths no golden case reaches. The expected values are the output of the
+// self-hosted driver at the commit that added the test.
+
+import semantics
+
+test "driver t29: formatFile with no pass left reports the file as still changing" {
+    var bytes = List<u8>()
+    for b in "let x = 1\n".bytes {
+        bytes.append(b)
+    }
+    let declared: Map<string, bool> = []
+    var unfixable = false
+    let got = formatFile(
+        "t.byn",
+        from: in bytes,
+        by: semantics.BooleanStyle.symbols,
+        for: semantics.PrimitiveStyle.sized,
+        at: in declared,
+        until: 0,
+        to: ref unfixable,
+        as: LayoutOptions {},
+    )
+    assert unfixable
+    if (got is { } fixed) {
+        assert fixed.length == 10
+    } else {
+        assert false
+    }
+}
