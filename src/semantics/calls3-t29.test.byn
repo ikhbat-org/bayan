@@ -150,3 +150,159 @@ test "calls3 t29: catch bindings" {
         """
     assert t29s1Diags(in c) == expected
 }
+
+test "calls3 t29: owning switches and member patterns" {
+    let text = """
+        struct Ledger {
+            List<i64> items
+            public i64 size => 1
+        }
+
+        union Box {
+            full(Ledger ledger)
+            empty
+        }
+
+        struct Order {
+            i64 id
+            states {
+                draft
+                paid(i64 payment)
+            }
+        }
+
+        struct Q {
+            P? v
+        }
+
+        struct P {
+            i64 x
+        }
+
+        union error G {}
+
+        union Other {
+            box(i64 w)
+        }
+
+        void keep(move List<i64> xs) {}
+
+        void own() {
+            let a = List<i64>()
+            switch move a {
+                case not null when true: {}
+                default:
+            }
+            let l = Ledger { items: List<i64>() }
+            switch move l {
+                case { items: (let p and _) } when p.length > 0: keep(move p)
+                case { items: not null } whole when true: {}
+                default:
+            }
+            let b = Box.full(Ledger { items: List<i64>() })
+            switch move b {
+                case (.full(let x) and _) when true: {}
+                case .full({ items: let y }) when true: {}
+                case not .empty when true: {}
+                default:
+            }
+            let d = Box.empty
+            let n = (move d) switch {
+                (.full({ items: let z }) and _) when z.length > 0 => 1,
+                _ => 0,
+            }
+        }
+
+        void pats(Box s, Order o, i64 n, f64 f, string text, Q q, Ledger l) {
+            switch s {
+                case not .full(let x) or .empty: print("a")
+                case .full({ items: null }) or .empty: print("b")
+                case .full(_) or .empty: print("c")
+                default: {}
+            }
+            if o is Order.paid(_) {
+                print("d")
+            }
+            if o is .nope(1) {
+                print("e")
+            }
+            if o is Order.nope {
+                print("f")
+            }
+            if s is Other.box(1) {
+                print("g")
+            }
+            if s is .ful(_) {
+                print("h")
+            }
+            if n is .foo(1) {
+                print("i")
+            }
+            let k = 1
+            switch n {
+                case k: print("j")
+                case ..5: print("k")
+                case 5..: print("l")
+                default: {}
+            }
+            if f is 1.0..2.0 {
+                print("m")
+            }
+            if (q is { v: { x: 1 } }) {
+                print("n")
+            }
+            if (text is { length: 0 }) {
+                print("p")
+            }
+            if (l is { size: 1, items: { count: 0 } }) {
+                print("q")
+            }
+            if (l is { nope: 1 }) {
+                print("r")
+            }
+            if (q is Ledger { size: 1 }) {
+                print("s")
+            }
+        }
+
+        void errs(G g) {
+            if g is G {
+                print("t")
+            }
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2609 error enum `G` has no variants
+        BYN5004 `pats` has 7 unlabeled parameters; give each but one a particle
+        BYN5006 `o` is a required parameter besides the object and needs a particle
+        BYN5006 `n` is a required parameter besides the object and needs a particle
+        BYN5006 `f` is a required parameter besides the object and needs a particle
+        BYN5006 `text` is a required parameter besides the object and needs a particle
+        BYN5006 `q` is a required parameter besides the object and needs a particle
+        BYN5006 `l` is a required parameter besides the object and needs a particle
+        BYN2411 `null` cannot match `List<i64>`
+        BYN2411 `null` cannot match `List<i64>`
+        BYN2712 `_` hides future cases of `Box`, declared in this package
+        BYN2022 variables inside `or` patterns is not supported in v0.1
+        BYN2411 `null` cannot match `List<i64>`
+        BYN2022 deconstruction patterns is not supported in v0.1
+        BYN7007 `Order` has no state `.nope`
+        BYN2003 `nope` is not a member of `Order`
+        BYN2411 `Other.box` cannot match `Box`
+        BYN2700 `ful` is not a variant of union `Box`
+        BYN2411 `.foo(…)` cannot match `i64`
+        BYN2219 a pattern must be a compile-time constant
+        BYN2215 a range needs both ends here
+        BYN2215 a range needs both ends here
+        BYN2411 a range cannot match `f64`
+        BYN2003 `count` is not a member of `List<i64>`
+        BYN2003 `nope` is not a member of `Ledger`
+        BYN2411 `Ledger` cannot match `Q`
+        BYN2003 `size` is not a member of `Q`
+
+        """
+    assert t29s1Diags(in c) == expected
+}

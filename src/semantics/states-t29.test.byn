@@ -79,3 +79,117 @@ test "states t29: become, state patterns and becomes calls" {
         """
     assert t29s1Diags(in c) == expected
 }
+
+test "states t29: fixes, narrowing and payloads across states" {
+    let text = """
+        interface IShow {
+            void show()
+        }
+
+        struct Order {
+            i64 id
+            states {
+                draft
+                paid(i64 payment)
+                held(i64 payment)
+                moved(string why, i64 payment)
+                lost(string payment)
+            }
+            bool isDraft => this is .draft
+            bool isPaid => this is .paid(_)
+            bool isNot => this is not .draft
+            void pay(ref this, i64 amount) uses alloc {
+                become .paid(amount)
+            }
+            void hold<T>(ref this, T t) where T : IShow {
+                become .draft
+            }
+            void check(ref this, i64 n) expects n > 0 {
+                become .draft
+            }
+            void plain() {
+                become .draft
+            }
+            void ship(ref this is .paid) becomes .held {
+                become .held(1)
+            }
+            void again(ref this) becomes .draft {
+                this.ship()
+            }
+            void late(ref this) becomes .draft fails {
+                become .draft
+            }
+        }
+
+        Order make() => Order.draft { id: 1 }
+
+        void look() {
+            let o = make()
+            if o.isDraft {
+                o.ship()
+            }
+            if o.isPaid {
+                o.ship()
+            }
+            if o.isNot {
+                o.ship()
+            }
+            if o is .paid or .held {
+                let a = o.payment
+            }
+            if o is .paid or .moved {
+                let b = o.payment
+            }
+            if o is .paid or .lost {
+                let d = o.payment
+            }
+            if !(o is .draft) && o is not .lost {
+                let e = o.payment
+            }
+            if o is not (.draft or .moved(_, _)) {
+                let f = o.payment
+            }
+            if o is (.paid(_) and _) or .held(1) {
+                let g = o.payment
+            }
+            if o is .paid(1) and .paid(_) {
+                let h = o.payment
+            }
+            var m = make()
+            if m is .paid {
+                m.late() catch return
+                print("x")
+                let i = m.payment
+            }
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2022 generic methods is not supported in v0.1
+        BYN5014 `plain` is not a known verb, noun or adjective
+        BYN7001 `ship` needs `o` to be `.paid`, but it is `Order`
+        BYN7001 `ship` needs `o` to be `.paid`, but it is `Order`
+        BYN7001 `ship` needs `o` to be `.paid`, but it is `Order`
+        BYN2022 reading `payment` from states that hold it at different places is not supported in v0.1
+        BYN7002 `payment` is a payload of `.paid`; `o` is not known to be `.paid`
+        BYN2022 reading `payment` from states that hold it at different places is not supported in v0.1
+        BYN7002 `payment` is a payload of `.paid`; `o` is not known to be `.paid`
+        BYN7002 `payment` is a payload of `.paid`; `o` is not known to be `.paid`
+        BYN7002 `payment` is a payload of `.paid`; `m` is not known to be `.paid`
+        BYN7003 `become` needs `becomes .paid` on `pay`
+        BYN7003 `become` needs `becomes .draft` on `hold`
+        BYN5011 this `expects` reads only `n`; a type with `requires` checks it once
+        BYN7003 `become` needs `becomes .draft` on `check`
+        BYN7003 `become` needs `becomes .draft` on `plain`
+        BYN7001 `ship` needs `this` to be `.paid`, but it is `Order`
+        BYN7003 `again` calls `ship`, which changes the state; declare `becomes` on `again`
+        BYN2104 `o` is immutable
+        BYN2104 `o` is immutable
+        BYN2104 `o` is immutable
+        BYN2115 `plain` modifies `this` but is not declared `ref this`
+
+        """
+    assert t29s1Diags(in c) == expected
+}

@@ -117,3 +117,108 @@ test "declare t29: names declared twice and union values" {
         """
     assert t29s1Diags(in c) == expected
 }
+
+test "declare t29: struct members, interfaces and enum parameters" {
+    let text = """
+        interface IHas {
+            type Item
+            void f(i64 a)
+            void f(i64 b)
+        }
+
+        struct C : IHas {
+            type Item = i64
+            type Other = i64
+            i64 n
+            C(i64 a) {}
+            C(i64 b, i64 c) {}
+            void f(i64 a) {}
+        }
+
+        void g() {}
+
+        const g = 1
+
+        void h() {}
+
+        struct h {}
+
+        enum Plain {
+            x
+        }
+
+        enum Data(i64 v) {
+            y(1)
+        }
+
+        enum Params(ref i64 a, move i64 b, out i64 d, in i64 e, Plain p, Data q, C r, i64 s = 1) {
+            z(1, 2, 3, 4, .x, .y, 1, 2)
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2006 `g` is declared twice
+        BYN2006 `h` is declared twice
+        BYN2008 type name `h` must be PascalCase
+        BYN2006 `f` is declared twice
+        BYN2724 enum parameter `a` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `b` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `d` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `e` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `q` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `r` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `s` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2022 this kind of struct member is not supported in v0.1
+        BYN5004 `C` has 2 unlabeled parameters; give each but one a particle
+        BYN5006 `c` is a required parameter besides the object and needs a particle
+        BYN2022 overloaded constructors is not supported in v0.1
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "declare t29: which overloads overlap" {
+    let text = """
+        interface IShow {
+            void show(i64 a)
+        }
+
+        struct S {
+            i64 n
+            i64 total => 1
+            S(i64 a) {}
+        }
+
+        void f(i64 a) {}
+
+        void f(i64 a, by i64 b) {}
+
+        void f(i64 a, at i64 b = 1) {}
+
+        void f(rest ReadOnlySpan<i64> xs) {}
+
+        void f(at i64 b, i64 c = 2) {}
+
+        void main() {}
+        """
+    var c = t29s1Compile(text)
+    var fns = List<FuncId>()
+    for fn in 0..c.functions.length {
+        if c.functions[fn].declIndex >= 0 && c.functions[fn].name is "f" or "show" or "S" or "total" {
+            fns.append(fn)
+        }
+    }
+    var sb = StrBuf()
+    for a in fns {
+        sb.append($"{c.functions[a].name}{t12Params(in c, for: a).length} ")
+        for b in fns {
+            sb.append(overlap(ref c, for: a, as: b) ? "y" : "n")
+        }
+        sb.append("\n")
+    }
+    sb.append($"{t12LocationOf(in c, for: prim(.i64)) is null} {t12ModifierName(.none)}\n")
+    print($"{t29s1Diags(in c)}{sb.finish()}")
+    assert false
+}
