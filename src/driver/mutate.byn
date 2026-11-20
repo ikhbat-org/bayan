@@ -181,7 +181,7 @@ i64 t13Index(MutantStatus s) {
 /// CliApp.cs:888 `MutateBinary`: `bayan mutate --binary <exe> --sites <map.json> [--jobs N] -- <cmd>`, the command run once per site
 /// of a prebuilt schemata binary, up to N sites at once (`--jobs`, else `$BAYAN_MUTATE_JOBS`, else 1; `mutationRunExternal`).
 i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, process {
-    return mutateWorker(in args) if args.length > 0 && args[0] == "--mutate-worker"
+    return mutateWorker(args) if args.length > 0 && args[0] == "--mutate-worker"
     var binary: string? = null
     var sites: string? = null
     var jobsText: string? = null
@@ -622,7 +622,7 @@ List<ExternalResult>? mutationRunExternal(
     let timeout = t13ExternalLimit(baseline.elapsedNanos)
     var dir = ""
     if jobs > 1 {
-        dir = t13Workers(in sites, by: in command, for: binary, as: timeout, to: jobs, through: driver)
+        dir = t13Workers(sites, by: command, for: binary, as: timeout, to: jobs, through: driver)
     }
     var results = List<ExternalResult>()
     for i in 0..sites.length {
@@ -656,8 +656,8 @@ const t13WorkersScript: string = "exe=$1 n=$2 dir=$3 limit=$4 bin=$5; shift 5; k
 /// returned directory, a file per site index (`t13WorkerOutcome`). The directory, under the temp path and named for this run, is the
 /// only one the workers write; each writes only the files of its own sites and its own err-<k>.
 string t13Workers(
-    in List<ExternalSite> sites,
-    by in List<string> command,
+    List<ExternalSite> sites,
+    by List<string> command,
     for string binary,
     as i64 limitMs,
     to i64 jobs,
@@ -713,7 +713,7 @@ string t13WorkerErr(string dir, by i64 jobs) uses alloc, fs {
 /// (an id per line, `-` for one not emitted), the emitted ones whose position among the emitted is `k` modulo `n`, each run through
 /// `t13RunCommand` within `limitMs`, its outcome written to `dir`/<index> as `<timed out 0|1> <failed 0|1> <elapsed ns>`.
 /// `exitUsage` on bad arguments; `exitFailure` when the command cannot start or an outcome cannot be written.
-i32 mutateWorker(in List<string> args) uses alloc, clock, console, fs, process {
+i32 mutateWorker(List<string> args) uses alloc, clock, console, fs, process {
     if args.length < 8 || args[6] != "--" {
         Io.stderr.write("bayan: usage: bayan mutate --mutate-worker <dir> <k> <n> <limitMs> <binary> -- <command>\n")
         return exitUsage

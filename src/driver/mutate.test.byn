@@ -115,7 +115,7 @@ string t13JobsFixture(string name) uses alloc, fs {
 
 /// `bayan mutate` over the `t13JobsFixture` in `dir` through `$BAYAN_EXE` with `extra` before `--` and `$BAYAN_MUTATE_JOBS` set to `jobs`
 /// (unset when null): its exit code, its stdout and the report it wrote, each without the `timing` lines, and its stderr.
-GoldenOutcome t13JobsRun(string dir, by in List<string> extra, as string? jobs) uses alloc, env, fs, process {
+GoldenOutcome t13JobsRun(string dir, by List<string> extra, as string? jobs) uses alloc, env, fs, process {
     var failure = ""
     let exe = goldenExe(through: ref failure)
     assert(failure == "")
