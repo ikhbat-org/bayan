@@ -50,3 +50,7 @@ test "declare2 t29: an interface holding a field and a nested type, and two reje
         as: "BYN1001 21+3 expected a method, getter or `type Name`, found `i64`;BYN1001 35+6 expected a method, getter or `type Name`, found keyword `struct`;BYN1016 164+6 `static` is not allowed here;",
     )
 }
+
+test "declare2 t29: the text of two modifiers set at once" {
+    assert t38ModifierText(u16(4 | 32)) == "static, const"
+}
