@@ -1,0 +1,182 @@
+// 019 T29 (coverage ratchet): conversions.byn paths no golden case reaches, called on the types of one small program: the
+// widening table, `common` around error, never and null, and the implicit conversions a program never asks for between
+// spans, `dyn ref`s, state types, results and error unions. The expected values are the output of the self-hosted checker
+// at the commit that added the test.
+
+import lexer
+
+/// `text` compiled as the one entry file `a.byn`.
+Ctx t29s1Compile(string text) uses alloc, clock, fs {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+    return create(from: move sources, at: ".", by: CompilationOptions {})
+}
+
+/// The diagnostics of `c`, one `code message` line each.
+string t29s1Diags(in Ctx c) uses alloc {
+    var sb = StrBuf()
+    for d in c.diagnostics {
+        sb.append($"{d.code} {d.message}\n")
+    }
+    return sb.finish()
+}
+
+/// The type `name` declares in any module of `c`, or -1.
+Type t29s1Type(in Ctx c, for string name) {
+    for m in c.modules {
+        return m.types[name] if m.types.contains(name)
+    }
+    return -1
+}
+
+test "conversions t29: the widening table" {
+    let kinds = [
+        PrimitiveKind.i8,
+        .i16,
+        .i32,
+        .i64,
+        .u8,
+        .u16,
+        .u32,
+        .u64,
+        .isize,
+        .usize,
+        .f32,
+        .f64,
+    ]
+    var sb = StrBuf()
+    for a in kinds {
+        for t in kinds {
+            sb.append(isWidening(prim(a), to: prim(t)) ? "1" : "0")
+        }
+        sb.append("\n")
+    }
+    let expected = """
+        011100001011
+        001100001011
+        000100001001
+        000000000000
+        011101111111
+        001100111111
+        000100011101
+        000000000000
+        000000000000
+        000000000000
+        000000000001
+        000000000000
+
+        """
+    assert sb.finish() == expected
+}
+
+test "conversions t29: common types and explicit casts" {
+    var c = t26EmptyCtx()
+    assert common(ref c, for: errorType(), as: prim(.i64)) == prim(.i64)
+    assert common(ref c, for: prim(.i64), as: errorType()) == prim(.i64)
+    assert common(ref c, for: prim(.neverKind), as: prim(.i64)) == prim(.i64)
+    assert common(ref c, for: prim(.i64), as: prim(.neverKind)) == prim(.i64)
+    assert common(ref c, for: nullType(), as: prim(.i64)) == -1
+    assert explicit(ref c, from: builtinType(.millis), to: prim(.i32)) is null
+    assert implicit(ref c, from: prim(.i64), to: errorType()) == .identity
+    assert implicit(ref c, from: nullType(), to: prim(.i64)) is null
+    assert implicit(ref c, from: prim(.i32), to: internOptional(ref c, by: prim(.i64))) == .toOptional
+    assert implicit(ref c, from: internSpan(ref c, by: prim(.u8), readOnly: false), to: prim(.i64)) is null
+    let bytes = internSpan(ref c, by: prim(.u8), readOnly: true)
+    assert implicit(ref c, from: internArray(ref c, by: prim(.i64), at: 2), to: bytes, argument: true) is null
+    let writable = internSpan(ref c, by: prim(.u8), readOnly: false)
+    assert implicit(ref c, from: prim(.string), to: writable, argument: true) is null
+    let numbers = internSpan(ref c, by: prim(.i64), readOnly: true)
+    assert implicit(ref c, from: prim(.string), to: numbers, argument: true) is null
+}
+
+test "conversions t29: dyn refs, states, results and error unions" {
+    let text = """
+        interface IThing {
+            i64 get()
+        }
+
+        interface IOther {
+            i64 other()
+        }
+
+        struct C : IThing {
+            i64 n
+
+            i64 get() => n
+        }
+
+        struct D {
+            i64 n
+        }
+
+        union U {
+            a
+            b
+        }
+
+        union error E1 {
+            x
+        }
+
+        union error E2 {
+            y
+        }
+
+        union error E3 {
+            z
+        }
+
+        i64 count<T>(T x) => 0
+
+        i64 one(i64 a) => a
+
+        void main() {}
+        """
+    var c = t29s1Compile(text)
+    assert t29s1Diags(in c) == ""
+    let thing = typeIndex(t29s1Type(in c, for: "IThing"))
+    let other = typeIndex(t29s1Type(in c, for: "IOther"))
+    let toOther = internDynRef(ref c, by: other, readOnly: false)
+    assert implicit(ref c, from: internDynRef(ref c, by: thing, readOnly: false), to: toOther) is null
+    assert implicit(ref c, from: t29s1Type(in c, for: "C"), to: toOther) is null
+    var param: Type = -1
+    for i in 0..c.typeParams.length {
+        param = makeType(.typeParam, at: i) if c.typeParams[i].name == "T"
+    }
+    assert implicit(ref c, from: param, to: toOther) is null
+    let cs = typeIndex(t29s1Type(in c, for: "C"))
+    let ds = typeIndex(t29s1Type(in c, for: "D"))
+    var states = List<VariantId>()
+    states.append(c.unions[typeIndex(t29s1Type(in c, for: "U"))].variants[0])
+    let state = internState(ref c, by: cs, for: in states)
+    assert implicit(ref c, from: state, to: prim(.i64)) is null
+    assert implicit(ref c, from: state, to: internState(ref c, by: ds, for: in states)) is null
+    assert implicit(ref c, from: state, to: internOptional(ref c, by: prim(.i64))) is null
+    let e1 = t29s1Type(in c, for: "E1")
+    let e2 = t29s1Type(in c, for: "E2")
+    let e3 = t29s1Type(in c, for: "E3")
+    assert implicit(ref c, from: e2, to: internResult(ref c, by: prim(.i64), to: e1)) is null
+    var sets = List<ErrorSetId>()
+    sets.append(typeIndex(e1))
+    sets.append(typeIndex(e2))
+    let sum = errorUnionOf(ref c, for: in sets, as: in List<VariantId>())
+    assert implicit(ref c, from: e2, to: sum) == .identity
+    assert implicit(ref c, from: e3, to: sum) is null
+    c.errorUnionTypes.append(ErrorUnionData { sets: List<ErrorSetId>(), excluded: List<VariantId>() })
+    assert implicit(ref c, from: e3, to: makeType(.errorUnion, at: c.errorUnionTypes.length - 1)) == .identity
+    var fn: FuncId = -1
+    for i in 0..c.functions.length {
+        fn = i if c.functions[i].name == "one"
+    }
+    assert implicitFunction(ref c, from: fn, to: prim(.i64)) is null
+    var none = List<Type>()
+    let noArgs = internFunction(ref c, for: in none, to: prim(.i64), by: in List<ErrorSetId>(), as: in List<string>())
+    assert implicitFunction(ref c, from: fn, to: noArgs) is null
+    none.append(prim(.i64))
+    let oneArg = internFunction(ref c, for: in none, to: prim(.i64), by: in List<ErrorSetId>(), as: in List<string>())
+    assert implicitFunction(ref c, from: fn, to: oneArg) == .toFunction
+}

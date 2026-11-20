@@ -1,0 +1,148 @@
+// 019 T29 (coverage ratchet): types.byn paths no golden case reaches: the C# primitive names, kinds no program displays
+// or checks for borrows, and the key and occurs walks over tuples, structs and interfaces. The expected values are the
+// output of the self-hosted checker at the commit that added the test.
+
+import lexer
+
+test "types t29: primitive kinds, names and bits" {
+    assert primKindOf(16) == .neverKind
+    assert primitiveName(.neverKind) == "never"
+    var names = StrBuf()
+    for n in ["sbyte", "short", "int", "long", "byte", "ushort", "uint", "ulong", "nint", "nuint", "float", "double"] {
+        let t = primitiveByName(n) ?? errorType()
+        names.append($"{primitiveName(primKindOf(typeIndex(t)))} ")
+    }
+    assert names.finish() == "i8 i16 i32 i64 u8 u16 u32 u64 isize usize f32 f64 "
+    assert primitiveByName("decimal") is null
+    var bits = StrBuf()
+    for k in [PrimitiveKind.f32, .f64, .bool, .char, .string, .void, .neverKind] {
+        bits.append($"{primitiveBits(k)} ")
+    }
+    assert bits.finish() == "32 64 0 32 0 0 0 "
+    assert !isSignedInteger(nullType())
+    assert !isUnsignedInteger(prim(.i32))
+    let r = range(.bool)
+    assert bigText(r.min) == "0" && bigText(r.max) == "0"
+}
+
+test "types t29: borrows, displays and tuple indexes" {
+    var c = t26EmptyCtx()
+    assert isBorrow(ref c, by: textViewType(.runes))
+    var fields = List<TupleField>()
+    fields.append(TupleField { name: "a", type: prim(.i64) })
+    fields.append(TupleField { name: null, type: internSpan(ref c, by: prim(.u8), readOnly: true) })
+    let borrowing = internTuple(ref c, for: in fields)
+    assert isBorrow(ref c, by: borrowing)
+    var plain = List<TupleField>()
+    plain.append(TupleField { name: "a", type: prim(.i64) })
+    let tuple = internTuple(ref c, for: in plain)
+    assert !isBorrow(ref c, by: tuple)
+    assert isBorrow(ref c, by: internResult(ref c, by: textViewType(.lines), to: prim(.i64)))
+    var params = List<Type>()
+    params.append(tuple)
+    let none = List<ErrorSetId>()
+    var effects = List<string>()
+    effects.append("io")
+    let inner = internFunction(ref c, for: in params, to: prim(.i64), by: in none, as: in List<string>())
+    let outer = internFunction(ref c, for: in params, to: inner, by: in none, as: in effects)
+    assert isBorrow(ref c, by: outer)
+    assert typeDisplay(ref c, by: outer) == "((i64 a)) -> (((i64 a)) -> i64) uses io"
+    var views = StrBuf()
+    for k in [TextViewKind.runes, .utf16, .lines, .parts] {
+        views.append($"{typeDisplay(ref c, by: textViewType(k))} ")
+    }
+    assert views.finish() == "RuneView Utf16View LineView PartView "
+    var builtins = StrBuf()
+    for k in [BuiltinKind.ioStream, .ioInput, .processResult, .panic] {
+        builtins.append($"{typeDisplay(ref c, by: builtinType(k))} ")
+    }
+    assert builtins.finish() == "IoStream IoInput ProcessResult Panic "
+    c.aliases.append(AliasPlaceholder { name: "Cents" })
+    assert typeDisplay(ref c, by: makeType(.alias, at: 0)) == "Cents"
+    assert tupleIndexOf(ref c, by: tuple, for: "b") == -1
+    assert tupleIndexOf(ref c, by: tuple, for: "item1") == 0
+    assert fieldPartName(in fields[0], at: 0) == "a"
+}
+
+test "types t29: keys and occurs over tuples, structs and interfaces" {
+    var bytes = List<u8>()
+    let text = """
+        interface IThing {
+            i64 get()
+        }
+
+        struct Node {
+            i64 n
+            f64 x
+        }
+
+        struct Pair {
+            i64 a
+            string b
+        }
+
+        union U {
+            a
+            b
+        }
+
+        union error E1 {
+            x
+            y
+        }
+
+        union error E2 {
+            z
+        }
+
+        void main() {}
+        """
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+    var c = create(from: move sources, at: ".", by: CompilationOptions {})
+    assert t29s1Diags(in c) == ""
+    var thing: Type = -1
+    var node: Type = -1
+    var pair: Type = -1
+    for m in c.modules {
+        thing = m.types["IThing"] if m.types.contains("IThing")
+        node = m.types["Node"] if m.types.contains("Node")
+        pair = m.types["Pair"] if m.types.contains("Pair")
+    }
+    assert !occurs(ref c, by: thing)
+    assert !occurs(ref c, by: internDynRef(ref c, by: typeIndex(thing), readOnly: false))
+    assert isValidKey(ref c, by: pair)
+    assert invalidKeyPart(ref c, by: pair) is null
+    assert !isValidKey(ref c, by: node)
+    var fields = List<TupleField>()
+    fields.append(TupleField { name: "p", type: pair })
+    fields.append(TupleField { name: null, type: prim(.f64) })
+    let tuple = internTuple(ref c, for: in fields)
+    assert !isValidKey(ref c, by: tuple)
+    let part = invalidKeyPart(ref c, by: tuple) ?? InvalidKeyPart { part: "", type: -1 }
+    assert part.part == "2" && part.type == prim(.f64)
+    var keys = List<TupleField>()
+    keys.append(TupleField { name: "p", type: pair })
+    assert invalidKeyPart(ref c, by: internTuple(ref c, for: in keys)) is null
+    assert isBorrow(ref c, by: internDynRef(ref c, by: typeIndex(thing), readOnly: true))
+    let v = c.unions[typeIndex(t29s1Type(in c, for: "U"))].variants[0]
+    var twice = List<VariantId>()
+    twice.append(v)
+    twice.append(v)
+    let pairs = typeIndex(pair)
+    assert typeDisplay(ref c, by: internState(ref c, by: pairs, for: in twice)) == "Pair.a"
+    var sets = List<ErrorSetId>()
+    sets.append(typeIndex(t29s1Type(in c, for: "E1")))
+    sets.append(typeIndex(t29s1Type(in c, for: "E2")))
+    var excluded = List<VariantId>()
+    for i in 0..c.errorVariants.length {
+        excluded.append(i) if c.errorVariants[i].name is "x" or "y"
+    }
+    assert typeDisplay(ref c, by: errorUnionOf(ref c, for: in sets, as: in excluded)) == "E1 | E2 except .x, .y"
+    var map = List<TupleField>()
+    map.append(TupleField { name: null, type: internMap(ref c, by: prim(.i64), to: prim(.string)) })
+    assert !occurs(ref c, by: internTuple(ref c, for: in map))
+}

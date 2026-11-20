@@ -1,0 +1,363 @@
+// 019 T29 (coverage ratchet): express3.byn paths no golden case reaches: the text of every operator, constant unary
+// overflow, operators on types that do not take them, struct literals and `with` naming fields twice or not at all,
+// ranges and `in` of the wrong types, and a conditional of `null`s. The expected values are the output of the
+// self-hosted checker at the commit that added the test.
+
+import parser
+
+test "express3 t29: operator texts" {
+    var sb = StrBuf()
+    let unary: List<parser.UnaryOp> = [.notKeyword, .complement, .negate, .plus, .fromEnd]
+    for op in unary {
+        sb.append($"{t19UnaryText(op)} ")
+    }
+    let binary: List<parser.BinaryOp> = [
+        .add,
+        .sub,
+        .mul,
+        .div,
+        .rem,
+        .addWrap,
+        .subWrap,
+        .mulWrap,
+        .addSat,
+        .subSat,
+        .mulSat,
+        .shl,
+        .shr,
+        .lt,
+        .gt,
+        .le,
+        .ge,
+        .eq,
+        .ne,
+        .bitAnd,
+        .bitOr,
+        .bitXor,
+        .logicalAnd,
+        .logicalOr,
+        .coalesce,
+    ]
+    for op in binary {
+        sb.append($"{binaryText(op)} ")
+    }
+    assert sb.finish() == "! ~ - + ^ + - * / % +% -% *% +| -| *| << >> < > <= >= == != & | ^ && || ?? "
+}
+
+test "express3 t29: operators, literals and ranges that do not fit" {
+    let text = """
+        struct P {
+            i64 x
+            i64 y = 0
+        }
+
+        struct Order {
+            i64 id
+            states {
+                draft
+                paid(i64 payment)
+            }
+        }
+
+        union error E {
+            bad
+        }
+
+        void f(i64 n, from string s, by f64 d) {
+            let a = -i8(0 - 128)
+            let b = ~d
+            let c = +true
+            let u = -u8(5)
+            let p = P { x: 1, z: 2 }
+            let q = P { x: 1, x: 2 }
+            let r = P { y: 1 }
+            let o = Order.paid { id: 1, payment: 2, payment: 3 }
+            let o2 = Order.paid { id: 1 }
+            let w = p with { z: 1 }
+            let w2 = p with { x: 1, x: 2 }
+            let g = "a".."b"
+            let h = n in s
+            let i = true ? null : null
+            let j = true ? 1 : 2
+            let k = 1 << 2.0
+            let l = 'a' + 1
+            let m = 1 / 0
+            let v = s == E.bad
+            let t = (1, 2) == (1, 2)
+            let z = n in 1..s
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2204 constant arithmetic overflows `i8`
+        BYN2207 `~` cannot be applied to `f64`
+        BYN2207 `+` cannot be applied to `bool`
+        BYN2207 `-` cannot be applied to `u8`
+        BYN2003 `z` is not a member of `P`
+        BYN2110 field `x` is set twice
+        BYN2109 `P` needs a value for `x`
+        BYN2110 field `payment` is set twice
+        BYN2109 `Order` needs a value for `payment`
+        BYN2003 `z` is not a member of `P`
+        BYN2110 field `x` is set twice
+        BYN2208 `..` cannot be applied to `string` and `string`
+        BYN2208 `in` cannot be applied to `i64` and `string`
+        BYN2217 cannot infer the type of `null`
+        BYN2208 `<<` cannot be applied to `i32` and `f64`
+        BYN2208 `+` cannot be applied to `rune` and `i32`
+        BYN2205 division by zero
+        BYN2208 `==` cannot be applied to `string` and `E`
+        BYN2208 `..` cannot be applied to `i32` and `string`
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "express3 t29: constants, type parameters and equality" {
+    let text = """
+        struct P {
+            i64 x
+        }
+
+        struct Node {
+            i64 v
+            Owned<Node>? next
+        }
+
+        struct Bag {
+            List<i64> items
+        }
+
+        union Shape {
+            dot
+            box(i64 w)
+        }
+
+        union error E {
+            bad
+            worse(i64 code)
+        }
+
+        T? pick<T>(T a, by T? b) {
+            let s = a + a
+            let t = b * b
+            return b
+        }
+
+        void f(i64 n, from u64 u, by string s, as E e) {
+            let a = i8(1) + u
+            let b = u + i8(1)
+            let d = ("a") == s
+            let g = "a" + s
+            let h = s + "a"
+            let i = 1 << 100
+            let j = 5.0 % 0.0
+            let k = 1.0 << 2
+            let l = e == E.bad
+            let m = -true
+            let o = -'a'
+            let p = !true
+            let q = 1 < 2.0
+            let r = 1..
+            let v = nope in 1..2
+            let w = n in 'a'..'z'
+            let x = true ? n : 2
+            let y = 1 == 1 ? 3 : 4
+            let z: P? = { x: 1 }
+            let n1 = Node { v: 1 } == Node { v: 1 }
+            let n2 = Bag { items: List<i64>() } == Bag { items: List<i64>() }
+            let n3 = Shape.dot == Shape.box(1)
+            let n4 = E.worse(1) == E.bad
+            let n5 = (1, s) == (1, s)
+            let n6 = [1, 2] == [1, 2]
+            let n7: P? = null
+            let n8 = n7 == n7
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2743 `+` cannot be applied to a value of type parameter `T`
+        BYN2743 `*` cannot be applied to a value of type parameter `T`
+        BYN2209 strings cannot be joined with `+`; use interpolation
+        BYN2209 strings cannot be joined with `+`; use interpolation
+        BYN2208 `<<` cannot be applied to `f64` and `i32`
+        BYN2207 `-` cannot be applied to `bool`
+        BYN2207 `-` cannot be applied to `rune`
+        BYN2215 a range needs both ends here
+        BYN2001 `nope` is not defined
+        BYN2208 `in` cannot be applied to `i64` and `Range<rune>`
+        BYN2109 `Node` needs a value for `next`
+        BYN2109 `Node` needs a value for `next`
+        BYN2208 `==` cannot be applied to `Bag` and `Bag`
+        BYN2780 implicit copy of a unique value: `T?` is unique because it holds a `T`
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "express3 t29: which types compare and which operators apply" {
+    let text = """
+        struct Node {
+            i64 v
+            Owned<Node>? next
+        }
+
+        struct Bag {
+            List<i64> items
+        }
+
+        union Shape {
+            dot
+            box(i64 w)
+        }
+
+        union Held {
+            bag(List<i64> items)
+        }
+
+        union error E {
+            bad
+            worse(i64 code)
+        }
+
+        union error F {
+            lost(List<i64> items)
+        }
+
+        enum K {
+            x
+        }
+
+        struct W {
+            i64 a
+            Untrusted<i64> b
+            Node c
+            Bag d
+            Shape e
+            Held f
+            E g
+            F h
+            K i
+            i64[2] j
+            List<i64>[2] k
+            Symbol l
+            StrBuf m
+            Map<i64, i64> n
+            i64? o
+        }
+
+        void main() {}
+        """
+    var c = t29s1Compile(text)
+    let w = typeIndex(t29s1Type(in c, for: "W"))
+    var sb = StrBuf()
+    for f in copyIds(in c.structs[w].fields) {
+        sb.append($"{c.fields[f].name}:{isEquatable(ref c, for: c.fields[f].type)} ")
+    }
+    sb.append("|")
+    let ops: List<parser.BinaryOp> = [.add, .addWrap, .bitAnd, .lt, .eq, .logicalAnd]
+    let types = [prim(.i64), prim(.f64), prim(.bool), prim(.char), builtinType(.symbol)]
+    for op in ops {
+        sb.append(" ")
+        for t in types {
+            sb.append(operatorApplies(ref c, for: op, as: t) ? "y" : "n")
+        }
+    }
+    let expected = "a:true b:true c:true d:false e:true f:false g:true h:false i:true j:true k:false l:true m:false n:false o:true | yynnn ynnnn ynynn yynyy yyyyy nnnnn"
+    assert sb.finish() == expected
+}
+
+test "express3 t29: mixed operands, ranges, casts and literals that miss" {
+    let q = "\"\"\""
+    let head = """
+        struct P {
+            i64 x
+        }
+
+        struct R {
+            required i64 a
+        }
+
+        void f(i64 n, from bool b, by string s, as i64? o, at string? p) {
+            let a1 = 1 + b
+            let a2 = b + 1
+            let a4 = 5.0 / 0.0
+            let a5 = i8(1) + u32(1)
+            let a6 = 'a' + 1.0
+            let a7 = o ?? p
+            let a8: i64 = 1..2
+            let a9 = nope..2
+            let b1 = "a"..="b"
+            let b2 = nope in s
+            let b3 = n in nope
+            let b4 = false ? 1 : 2
+            let b5 = Nope(n)
+            let b6: i64? = { x: 1 }
+            let b7 = P { x: 1, qwertyuiop: 2 }
+            let b8 = R {}
+            let b9 = i32(1.5)
+        """
+    let text = $"{head}\n    let c1 = {q}\n        x\n        {q} + \"a\"\n}}\n\nvoid main() {{}}\n"
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2208 `+` cannot be applied to `i32` and `bool`
+        BYN2208 `+` cannot be applied to `bool` and `i32`
+        BYN2208 `+` cannot be applied to `rune` and `f64`
+        BYN2202 expected `i64`, found `string?`
+        BYN2202 expected `i64`, found `Range<i32>`
+        BYN2001 `nope` is not defined
+        BYN2208 `..=` cannot be applied to `string` and `string`
+        BYN2001 `nope` is not defined
+        BYN2001 `nope` is not defined
+        BYN2001 `Nope` is not defined
+        BYN2114 `i64?` is not a struct
+        BYN2003 `qwertyuiop` is not a member of `P`
+        BYN2109 `R` needs a value for `a`
+        BYN2209 strings cannot be joined with `+`; use interpolation
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "express3 t29: equatability of results, unions and repeated sets" {
+    let text = """
+        union error E {
+            bad
+        }
+
+        union error F {
+            lost(List<i64> items)
+        }
+
+        struct W {
+            E a
+            E b
+        }
+
+        void main() {}
+        """
+    var c = t29s1Compile(text)
+    let e = t29s1Type(in c, for: "E")
+    let f = t29s1Type(in c, for: "F")
+    var sb = StrBuf()
+    sb.append($"{isEquatable(ref c, for: prim(.void))} {isEquatable(ref c, for: prim(.neverKind))} ")
+    sb.append($"{isEquatable(ref c, for: internResult(ref c, by: prim(.i64), to: e))} ")
+    sb.append($"{isEquatable(ref c, for: internResult(ref c, by: internList(ref c, by: prim(.i64)), to: e))} ")
+    sb.append($"{isEquatable(ref c, for: internResult(ref c, by: prim(.i64), to: f))} ")
+    var one = List<ErrorSetId>()
+    one.append(typeIndex(e))
+    sb.append($"{isEquatable(ref c, for: errorUnionOf(ref c, for: in one, as: in List<VariantId>()))} ")
+    one.append(typeIndex(f))
+    sb.append($"{isEquatable(ref c, for: errorUnionOf(ref c, for: in one, as: in List<VariantId>()))} ")
+    let w = typeIndex(t29s1Type(in c, for: "W"))
+    for fd in copyIds(in c.structs[w].fields) {
+        sb.append($"{c.fields[fd].name}:{isEquatable(ref c, for: c.fields[fd].type)} ")
+    }
+    let wt = t29s1Type(in c, for: "W")
+    sb.append($"{isEquatable(ref c, for: wt)}")
+    assert $"{t29s1Diags(in c)}{sb.finish()}" == "false false true false false true false a:true b:true true"
+}

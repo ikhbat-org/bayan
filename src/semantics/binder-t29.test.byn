@@ -1,0 +1,142 @@
+// 019 T29 (coverage ratchet): binder.byn paths no golden case reaches: bodies whose first statement is an increment, a
+// `continue`, a `do`-`while`, a `;` or a parse error, and `requires` rules that are not `bool`, read no field, repeat a
+// field, measure `runeCount` or overflow. The expected values are the output of the self-hosted checker at the commit that
+// added the test.
+
+test "binder t29: requires rules of every shape" {
+    let text = """
+        struct A {
+            i64 n
+                requires it + 1
+        }
+
+        struct B {
+            i64 n
+            requires 1 + 1 == 2
+        }
+
+        struct C {
+            i64 n
+                requires it > 0
+                requires it < 10
+        }
+
+        struct D {
+            string s
+                requires it.runeCount in 1..=5
+        }
+
+        struct E {
+            i64 n
+                requires it in 1..=(1 << 62) * 4
+        }
+
+        void inc(ref i64 n) {
+            n++
+        }
+
+        void loop() {
+            do {
+            } while false
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2320 a `requires` clause must be `bool`, got `i64`
+        BYN2204 constant arithmetic overflows `i64`
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "binder t29: a first statement that is a continue, a semicolon or a parse error" {
+    let c1 = t29s1Compile("void f() {\n    continue\n}\n\nvoid main() {}\n")
+    assert t29s1Diags(in c1) == "BYN2406 `continue` outside a loop\n"
+    let c2 = t29s1Compile("void f() {\n    ;\n}\n\nvoid main() {}\n")
+    assert t29s1Diags(in c2) == "BYN1040 `;` is an input form; a statement ends at the newline\n"
+    let c3 = t29s1Compile("void f() {\n    )\n}\n\nvoid main() {}\n")
+    assert t29s1Diags(in c3) == "BYN1002 expected an expression, found `)`\n"
+}
+
+test "binder t29: constants without a value, constant arrays, array lengths and parameter defaults" {
+    let text = """
+        const x: i64
+        const y
+        const z: i64[2] = [1, 2]
+        const a: i64[2] = z
+        const e: i64[2] = [1, nope]
+        const q: i64[2] = nope
+        const w = [[1]]
+        const v = [1, h()]
+        const n = 0 - 1
+        const t = true
+
+        i64 h() => 1
+
+        void g(i64 x = h()) {}
+
+        void k1(i64[n] xs) {}
+
+        void k3(i64[t] xs) {}
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2203 -1 does not fit in an array length
+        BYN2202 expected `i64`, found `bool`
+        BYN2101 `const x` needs a value
+        BYN2101 `const y` needs a value
+        BYN2229 module-level `const` array `a` must hold literal numbers, `bool`s, `rune`s or `string`s
+        BYN2001 `nope` is not defined
+        BYN2001 `nope` is not defined
+        BYN2229 module-level `const` array `w` must hold literal numbers, `bool`s, `rune`s or `string`s
+        BYN2202 expected `i32`, found `i64`
+        BYN2219 a parameter default must be a compile-time constant
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "binder t29: expects after a tab or a line break, constant lists and spans, and a length that is no constant" {
+    let head = """
+        struct P {
+            i64 x
+
+            void a(i64 n) expects
+
+        """
+    let tail = """
+        n > 0 {}
+        }
+
+        const l: List<i64> = [1, 2]
+        const s: ReadOnlySpan<i64> = [1]
+        const u: i64 = [1]
+        const v: i64[2] = [1, h()]
+
+        i64 h() => 1
+
+        void k(i64 m) {
+            let xs: i64[m] = [1]
+        }
+
+        void main() {}
+        """
+    let text = $"{head}\n        n > 0 {{}}\n    void b(i64 n) expects\tn > 0 {{}}\n    void d(i64 n) expects\r\n{tail}"
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2229 module-level `const` array `l` must hold literal numbers, `bool`s, `rune`s or `string`s
+        BYN2229 module-level `const` array `s` must hold literal numbers, `bool`s, `rune`s or `string`s
+        BYN2202 expected `i64`, found `a collection literal`
+        BYN2229 module-level `const` array `v` must hold literal numbers, `bool`s, `rune`s or `string`s
+        BYN2001 `m` is not defined
+        BYN5011 this `expects` reads only `n`; a type with `requires` checks it once
+        BYN5011 this `expects` reads only `n`; a type with `requires` checks it once
+        BYN5011 this `expects` reads only `n`; a type with `requires` checks it once
+
+        """
+    assert t29s1Diags(in c) == expected
+}
