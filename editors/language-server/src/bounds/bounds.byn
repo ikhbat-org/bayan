@@ -476,7 +476,7 @@ test "16 messages of 2 MiB read and 16 written grow the resident set by less tha
     print($"resident set {before} KB, {read} KB after the reads, {after} KB after the writes")
     assert(t.bufferBytes <= (64 << 10) + 256)
     // macOS: less than four messages. The hosted macos-15 runner grew 6288 KB on the reads and 4160 KB on the writes (release dry run
-    // 44688158908, 2026-11-20); on macOS arm64 the growth stays flat from 16 to 64 messages (0-560 KB, docs/memory-leaks.md), so it is the
+    // 44688158908, 2026-11-20); on macOS arm64 the growth stays flat from 16 to 256 messages (under 3.6 MB, docs/memory-leaks.md), so it is the
     // allocator keeping pages, not a message kept. A kept message per read is 32768 KB at 16, still over.
     let limit: i64 = Target.os == "macos" ? 8192 : 4096
     assert(read - before < limit)

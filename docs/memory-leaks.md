@@ -121,11 +121,14 @@ The first line runs the bound blocks of `editors/language-server/src/bounds/boun
 they are pending on Windows (no `sh` or `ps`), and on Linux and macOS the gate fails when any is pending or none passed.
 The block "16 messages of 2 MiB read and 16 written …" allows less than four messages (8192 KB) of growth on macOS for the reads
 and for the writes, two (4096 KB) elsewhere (spec 019 T43, 2026-11-20). The hosted macos-15 runner grew 6288 KB on the reads and
-4160 KB on the writes (release dry run 44688158908); on macOS arm64, a scratch copy of the block grew read/write 16/16, 16/32 and
-16/0 KB at 16 messages and 560/0, 16/32 and 560/0 KB at 64, flat as the count rose fourfold, so the growth is the allocator keeping
-pages, not a message kept (a kept message would add 32768 KB at 16 and 131072 KB at 64). At 256 messages the 3 GB test process was
-paged out on the loaded machine and every figure was negative. Break: the server kept each message read in a list; the block
-failed at +32928 KB on the reads (two earlier runs under the same load passed, the kept pages compressed out of the resident set).
+4160 KB on the writes (release dry run 44688158908). On macOS arm64 a scratch copy of the block, its input framed once and
+moved into the transport (0.5 GB resident at 256 messages instead of 3 GB, which the loaded machine paged out), grew on the
+reads 16, 496 and 16 KB at 16 messages, 1376, 1792 and 1616 KB at 64, 528, 1616 and -3056 KB at 256; the writes alone (no
+input held beside them) grew 1184, 2640 and 32 KB at 16, 1520, 2128 and 3104 KB at 64, 2896, 3584 and 3408 KB at 256. Kept
+messages would add 32768, 131072 and 524288 KB: the growth stays flat as the count rises sixteenfold, so it is the allocator
+keeping pages, not a message kept. Break: the server kept each message read in a list; the block failed in 6 of 8 runs at
++32928 to +33248 KB on the reads; the 2 passes came under heavier memory pressure (swap 5.5 of 7 GB), the kept pages
+compressed out of the resident set that `ps` reads.
 
 The second line runs the `bound: ` test blocks of `src/driver/bounds.byn` (spec 019 T28, R9, R15): the bounds
 `CliMemoryBoundsTests` and `SelfhostDefaultBoundsTests` checked, with the same numbers, measured by
