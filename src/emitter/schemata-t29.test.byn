@@ -114,3 +114,206 @@ test "emitter t29: mutatorOpText, mutatorEmptyText, the string searches and t10J
     assert t10LastIndexOf("abcabc", for: "zz", at: 5) == -1
     assert t10Json("a\"b\\c\u{8}\t\n\u{C}\r\u{1}z") == "\"a\\\"b\\\\c\\b\\t\\n\\f\\r\\u0001z\""
 }
+
+/// The sites of `source`'s schema, one `line:column op original -> mutated emitted` line each, and its switch count.
+string t29SchemaDump(string source) {
+    var c = t29Compile(source)
+    let errors = t29Errors(in c)
+    return $"errors: {errors}" if errors != ""
+    let schema = buildSchema(ref c, for: in List<string>())
+    var sb = StrBuf()
+    for s in schema.sites {
+        sb.append($"{s.site.line}:{s.site.column} {s.site.op} `{s.site.original}` -> `{s.site.mutated}` {s.emitted}")
+        if (s.unobservable is { } u) {
+            sb.append($" unobservable: {u}")
+        }
+        sb.append("\n")
+    }
+    sb.append($"switches {schema.switches.length}")
+    return sb.finish()
+}
+
+test "emitter t29: buildSchema transfers a generic's sites to its other instances" {
+    let d = t29SchemaDump(
+        """
+        union error E {
+            a(i64 x)
+            b(i64 y)
+            c
+        }
+
+        void note(i64 n) {}
+
+        bool less<T>(T a, by T b, at i64 n) fails E {
+            var k = n
+            k += 1
+            k = -k
+            note(k)
+            fail .a(k) if k == 3
+            if a == b && k > 0 {
+                return true
+            }
+            while k < 10 {
+                k += 2
+            }
+            return false
+        }
+
+        i64 keep<T>(T a, as bool f) {
+            return 1 if f
+            return 0
+        }
+
+        T? maybe<T>(move T a, as bool f) {
+            let o: T? = move a
+            return o if f
+            return null
+        }
+
+        void main() {
+            let p = less(1, by: 2, at: 3) catch { return }
+            let q = less("a", by: "b", at: 3) catch { return }
+            let r = keep(1, as: true)
+            let s = keep("x", as: false)
+            let m = maybe(1, as: true)
+            let n = maybe("x", as: true)
+            do {
+                note(1)
+            } while p && q
+        }
+        """,
+    )
+    // The first instance of each generic owns its sites; the other instances' twins become switch arms through
+    // `schemataTransfer`, and `maybe<string>`'s `o` (a `string?`, not an `i64?`) gets none.
+    for line in [
+        "14:10 variant `.a(k)` -> `.b(k)` true",
+        "12:9 negation `-k` -> `k` true",
+        "15:8 logical `a == b && k > 0` -> `a == b || k > 0` true",
+        "16:16 emptyReturn `true` -> `false` true",
+        "19:9 arithmetic `k += 2` -> `k -= 2` true",
+        "25:12 emptyReturn `1` -> `0` true",
+        "31:12 emptyReturn `o` -> `null` true",
+        "44:13 condition `p && q` -> `!(p && q)` true",
+    ] {
+        assert d.contains($"{line}\n")
+    }
+    assert d.endsWith("\nswitches 58")
+}
+
+test "emitter t29: t10BigDiv sets quotient bits past 64" {
+    let q = t10BigDiv(Big { lo: 0, hi: 4 }, by: t10Big(2), as: false)
+    assert q.hi == 2 && q.lo == 0
+    let r = t10BigDiv(Big { lo: 5, hi: 4 }, by: t10Big(2), as: true)
+    assert semantics.bigText(r) == "1"
+}
+
+test "emitter t29: buildSchema over compound assignments, fixed-array indexes, suffixes and marks" {
+    let d = t29SchemaDump(
+        """
+        union error E {
+            a(i64 x)
+            c
+        }
+
+        interface IShape {
+            i64 area()
+        }
+
+        const five: i64 = 5
+
+        union Shape {
+            circle(i64 r)
+            none
+        }
+
+        T same<T>(move T a) {
+            return move a
+        }
+
+        struct P {
+            i64 x = 0
+        }
+
+        void setOut(out i64 x) {
+            x = 1
+        }
+
+        void touch(i64 n) fails E {
+            fail .c if n == 8
+        }
+
+        i64 probe(i64 n) fails E {
+            var k = n
+            k *= 2
+            k /= 2
+            k %= 3
+            let f = 2.0 * 1.5
+            let u: u64 = 7
+            let w = 1 + k
+            let z = five + k
+            fail .c if k != 4
+            let s = "é" == "e" || k > 1
+            let sh = Shape.circle(k)
+            if sh is .circle(let r) && r > 1 {
+                k = r
+            }
+            let xs: i64[3] = [1, 2, 3]
+            let y1 = xs[1u]
+            let su = 5l
+            let y2 = xs[u8(1)]
+            let y3 = xs[u8(k)]
+            if false {
+                k = 3
+            }
+            let ch: u8 = 'a'
+            var held: () -> i64 = () => 2
+            assert k > -5
+            try touch(k)
+            var pt = P {}
+            setOut(out pt.x)
+            let last = xs[^1]
+            for i in 0..3 {
+                k += i
+            }
+            unless k > 2 {
+                k = 1
+            }
+            let err = E.c
+            fail err if k == 9
+            @unobservable(boundary) because "clamped"
+            k = k + 1 if k < 7
+            @unobservable because "any"
+            k = k - 1 if k > 70
+            return k
+        }
+
+        void main() {
+            let a = same(1)
+            let b = same("x")
+            let p = probe(1) catch { return }
+        }
+        """,
+    )
+    for line in [
+        "36:5 arithmetic `k /= 2` -> `k *= 2` true",
+        "37:5 arithmetic `k %= 3` -> `k *= 3` true",
+        "38:13 arithmetic `2.0 * 1.5` -> `2.0 / 1.5` true",
+        "39:18 literal `7` -> `8` true",
+        "43:13 relational `\"é\" == \"e\"` -> `\"é\" != \"e\"` true",
+        "45:32 boundary `r > 1` -> `r >= 1` true",
+        "49:17 literal `1u` -> `0u` true",
+        "50:14 literal `5l` -> `4l` true",
+        "53:8 condition `false` -> `!(false)` true",
+        "61:5 statement `setOut(out pt.x)` -> `` true",
+        "66:12 condition `k > 2` -> `!(k > 2)` false",
+        "72:18 boundary `k < 7` -> `k <= 7` true unobservable: clamped",
+        "72:18 relational `k < 7` -> `k >= 7` true",
+        "74:9 arithmetic `k - 1` -> `k + 1` true unobservable: any",
+        "18:12 emptyReturn `move` -> `0` false",
+    ] {
+        assert d.contains($"{line}\n")
+    }
+    // `r > 1` reads what `sh is .circle(let r)` proved, so the `&&` is not flipped.
+    assert !d.contains("logical `sh is")
+    assert d.endsWith("\nswitches 59")
+}
