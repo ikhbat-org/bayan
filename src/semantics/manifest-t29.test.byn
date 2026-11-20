@@ -3,7 +3,7 @@
 // The expected values are the output of the self-hosted checker at the commit that added the test.
 
 /// The diagnostics of manifest `m`, one `code message` line each.
-string t29s2bManifestDiags(in Manifest m) uses alloc {
+string t29s2bManifestDiags(Manifest m) uses alloc {
     var sb = StrBuf()
     for d in m.diagnostics {
         sb.append($"{d.code} {d.message}\n")
@@ -12,7 +12,7 @@ string t29s2bManifestDiags(in Manifest m) uses alloc {
 }
 
 /// The diagnostic codes of manifest `m`, each followed by a space.
-string t29s2bManifestCodes(in Manifest m) uses alloc {
+string t29s2bManifestCodes(Manifest m) uses alloc {
     var sb = StrBuf()
     for d in m.diagnostics {
         sb.append($"{d.code} ")

@@ -15,7 +15,7 @@ Ctx t29s2bCompile(string text) uses alloc, clock, fs {
 }
 
 /// The diagnostics of `c`, one `code message` line each.
-string t29s2bDiags(in Ctx c) uses alloc {
+string t29s2bDiags(Ctx c) uses alloc {
     var sb = StrBuf()
     for d in c.diagnostics {
         sb.append($"{d.code} {d.message}\n")
