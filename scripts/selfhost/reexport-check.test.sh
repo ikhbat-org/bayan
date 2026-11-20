@@ -173,7 +173,7 @@ rm -rf tmp/reexport.*
 
 rep=(--class sem/FunctionTypeTests --class cli/DiagnosticRendererTests --class parse)
 [ "$(run "${rep[@]}")" = 0 ] || fail "the replay: want exit 0" "$(cat "$tmp/out")"
-grep -q "replay: 11 files compared, 0 on the divergence list, 0 failed" "$tmp/out" && [ "$(tail -1 "$aux/log")" = build ] \
+grep -q "replay: 11 files compared by bytes, 0 through the golden runner's masks, 0 on the divergence list, 0 failed" "$tmp/out" && [ "$(tail -1 "$aux/log")" = build ] \
   || fail "the replay: want 11 files compared and the CLI built, no export run" "$(cat "$tmp/out"; tail -1 "$aux/log")"
 [ -z "$(ls -d tmp/reexport.* 2> /dev/null)" ] || fail "a passing replay left its work dir"
 [ "$(run --seed 5)" = 0 ] && sed -n '/replayed through the C# CLI/,/left out/p' "$tmp/out" | tr '\n' ' ' |
@@ -195,13 +195,13 @@ printf 'file\t%s\ttests/cases/sem/FunctionTypeTests/A/expected.report\n' "$(git 
 rm -rf tmp/reexport.* tests/cases/sem/FunctionTypeTests/A/expected.report; git checkout -q -- tests/cases
 printf 'B\n' > tests/cases/sem/FunctionTypeTests/B-2/expected.stdout
 printf 'FunctionTypeTests.B\tT59\tcsharp\tx\n' >> tests/cases/DIVERGENCES.tsv
-[ "$(run "${rep[@]}")" = 0 ] && grep -q "replay: 8 files compared, 3 on the divergence list, 0 failed" "$tmp/out" \
+[ "$(run "${rep[@]}")" = 0 ] && grep -q "replay: 8 files compared by bytes, 0 through the golden runner's masks, 3 on the divergence list, 0 failed" "$tmp/out" \
   || fail "the replay: a divergence row: want exit 0, 3 on the list" "$(cat "$tmp/out")"
 git checkout -q -- tests/cases
 gold=(--class emit --class run)
-[ "$(run "${gold[@]}")" = 0 ] && grep -q "replay: 5 files compared, 0 on the divergence list, 0 failed" "$tmp/out" &&
+[ "$(run "${gold[@]}")" = 0 ] && grep -q "replay: 4 files compared by bytes, 1 through the golden runner's masks, 0 on the divergence list, 0 failed" "$tmp/out" &&
   grep -q "^runner: args: version in 0.42s$" "$aux/log" \
-  || fail "the emit and golden replay: want 5 files compared, BAYAN_EXE the C# CLI" "$(cat "$tmp/out" "$aux/log")"
+  || fail "the emit and golden replay: want 4 by bytes and 1 through the masks, BAYAN_EXE the C# CLI" "$(cat "$tmp/out" "$aux/log")"
 printf '0%s\n' "$(cut -c2- tests/cases/emit/modes/expected.safe.sha256)" > tests/cases/emit/modes/expected.safe.sha256
 [ "$(run "${gold[@]}")" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/emit/modes/expected.safe.sha256 (the line of run/r.byn" "$tmp/out" \
   || fail "the emit replay: a changed line is not named" "$(cat "$tmp/out")"

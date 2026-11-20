@@ -28,13 +28,22 @@
 #            runner, every other argv to the C# CLI; with BAYAN_TERMINAL set and NO_COLOR unset (the style env) it sets FORCE_COLOR=1,
 #            the CLI's form of the terminal StyleTests.cs:161 rendered to in process (`new CliApp.Terminal(true, true, 100)`). The
 #            runner builds, runs and masks each case as the C# RunTests, StyleTests, ScaffoldTests and OutputTests did; a case it
-#            passes counts its FREEZE.tsv files (<case>.<ending>, <case>/main.<ending>) as compared, a failed one its first differing
-#            file, a skipped one (a style shape rendered in process, an `// os:` line) is printed and not counted
-# A produced file is compared by bytes with the tree's when that tree path has a FREEZE.tsv file row (an exit-code line: when the input
-# has a line there), unless its case is on DIVERGENCES.tsv (<kind>/<Class>/<case>, <Class>.<case> or <Class>.<Test> for a case
-# <Test>-<n>; flat: <kind>/<stem>). A differing file is printed with its first differing line; a frozen file the replay did not
-# produce is printed as missing. Prints `replay: <n> files compared, <d> on the divergence list, <f> failed`; exit 0 when none failed,
-# 1 when one did, 2 on a usage error.
+#            passes counts its FREEZE.tsv files (<case>.<ending>, <case>/main.<ending>) as compared through the runner's masks (not
+#            by bytes), a failed one its first differing file, a skipped one (a style shape rendered in process, an `// os:` line)
+#            is printed and not counted. The masks, each with the src/driver/golden.byn function that applies it:
+#              host       goldenHostMasked: the export host `macos-arm64` and the running host as `<host>`, both sides (goldenDiffer)
+#              std        goldenStdModules: the list after `import one of ` as `<std modules>` (goldenDiffer)
+#              seconds    goldenTestSeconds: `<n>.<nn>s` at a line end as `Ts` in `test -v` output (run .test.byn cases)
+#              style      goldenStyleMask: line endings, the scratch dir, the cache dir, the host target, the version, `.exe`,
+#                         `<n>.<n>s` as `0.00s` (style)
+#              out        goldenOutMask: the host as `<host>`, `"durationMs": <n>` as 0, a sha256 digest at a line start as
+#                         `<sha256>` (out)
+# Outside the golden route, a produced file is compared by bytes with the tree's when that tree path has a FREEZE.tsv file row (an
+# exit-code line: when the input has a line there), unless its case is on DIVERGENCES.tsv (<kind>/<Class>/<case>, <Class>.<case> or
+# <Class>.<Test> for a case <Test>-<n>; flat: <kind>/<stem>). A differing file is printed with its first differing line; a frozen
+# file the replay did not produce is printed as missing. Prints `replay: <n> files compared by bytes, <g> through the golden
+# runner's masks, <d> on the divergence list, <f> failed` (<g>: the golden route); exit 0 when none failed, 1 when one did, 2 on a
+# usage error.
 # DIVERGENCES.tsv rows with question T59 for wall times in frozen bytes (the `untimed` compare word of the T27 sem cases):
 #   grep -l -E ' in [0-9]+\.[0-9][0-9]s' tests/cases/sem/{BuiltinResultsTests,FunctionTypeTests}/*/expected.stdout
 # and for the compiler version a dist manifest records (the C# CLI at the export head is `bayan 0.3.2`), the row out/dist:
@@ -86,7 +95,7 @@ mkdir -p "$w/cache" "$w/s"
 list > "$w/routes"
 awk -F'\t' '$1 == "file" { print $3 }' "$cases/FREEZE.tsv" > "$w/frozen"
 awk -F'\t' 'NR > 1 { print $1 }' "$cases/DIVERGENCES.tsv" > "$w/divkeys"
-n=0; ndiv=0; bad=0
+n=0; ng=0; ndiv=0; bad=0
 
 # put <text file> <from> <to>: the file with each <from> read as <to> (literal text), in place
 put() {
@@ -252,10 +261,10 @@ EOF
     k=$(wc -l < "$w/gfiles" | tr -d ' '); [ "$k" -gt 0 ] || continue
     if grep -qxF "$c" "$w/divkeys"; then ndiv=$((ndiv + k)); continue; fi
     case "$st" in
-      (passed) n=$((n + k)) ;;
+      (passed) ng=$((ng + k)) ;;
       (skipped) echo "replay: not replayed: $c ($k files, not checked): ${path#skipped: }" ;;
       (failed|timed)
-        n=$((n + 1)); bad=$((bad + 1))
+        ng=$((ng + 1)); bad=$((bad + 1))
         if grep -qxF "$path" "$w/gfiles"; then echo "replay: differs from the frozen compiler: $path (first difference: $line)"
         else echo "replay: the frozen compiler did not reproduce $c: $path: $line"; fi ;;
       (*) echo "replay: no result for $c from the golden runner: $(tail -n 1 "$w/golden.log")"; bad=$((bad + 1)) ;;
@@ -280,5 +289,5 @@ while IFS= read -r u; do
 done < "$units"
 [ ! -s "$w/emit.pick" ] || replay_emit
 [ ! -s "$w/golden.pick" ] || replay_golden
-echo "replay: $n files compared, $ndiv on the divergence list, $bad failed"
+echo "replay: $n files compared by bytes, $ng through the golden runner's masks, $ndiv on the divergence list, $bad failed"
 [ $bad = 0 ]
