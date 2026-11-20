@@ -20,7 +20,8 @@ esac
 
 mkdir -p "$root/tmp"
 work=$(mktemp -d "$root/tmp/rt-tests.XXXXXX") || exit 2
-trap 'chmod -R u+rwx "$work" 2>/dev/null; rm -rf "$work"' EXIT
+pathcwd=$(mktemp -d "${TMPDIR:-/tmp}/rt-path.XXXXXX") || exit 2
+trap 'chmod -R u+rwx "$work" 2>/dev/null; rm -rf "$work" "$pathcwd"' EXIT
 
 pass=0; fail=0; skipped=0
 
@@ -102,6 +103,11 @@ done
 # UTF-8 row (raw bytes set through /bin/sh) on Windows. On Windows the drivers run without the `_` that bash exports (the export's
 # process had none), and std-fs-cases.c exits 3 with a `skip: ` line when the fixture's links need a symlink privilege this account
 # lacks, which is a skip. Linux has no export yet, so there a missing fixture is a skip; on macOS and Windows it is a failure.
+# std-path-cases.c unmasks and replays in $pathcwd, a temporary directory outside the checkout: its rows from rooted names (`\a`)
+# hold the export's working directory only where that directory's first component is none of them, and a checkout can start with
+# one (hosted Windows checks out at D:\a\...). On Windows it is entered by its long name, as a short one (RUNNER~1) in the working
+# directory would expand in .NET's results but not in the markers.
+[ $windows = 0 ] || pathcwd=$(cygpath -ml "$pathcwd")
 : >"$work/none.c"
 for name in std-env-get-matches-dotnet std-env-invalid-utf8-value-matches-dotnet std-fs-file-exists-matches-dotnet \
     std-fs-io-remove-matches-dotnet std-fs-io-create-directory-matches-dotnet std-fs-io-remove-directory-matches-dotnet \
@@ -132,12 +138,13 @@ for name in std-env-get-matches-dotnet std-env-invalid-utf8-value-matches-dotnet
         if [ $drv = std-path-case-tables-cases ]; then build $drv "$work/none.c"; else build $drv; fi ||
             { bad "$drv.c $name" "build failed: $(cat "$work/$drv.build")"; continue; }
     fi
-    if [ $drv = std-path-cases ]; then "$work/$drv.exe" --unmask <"$fx.expected" | tr -d '\r' >"$work/$name.want"
+    if [ $drv = std-path-cases ]; then cd "$pathcwd" || exit 2; "$work/$drv.exe" --unmask <"$fx.expected" | tr -d '\r' >"$work/$name.want"
     else cp "$fx.expected" "$work/$name.want"; fi
     run=()
     [ $os != windows ] || run=(env -u _)
     "${run[@]}" "$work/$drv.exe" "$(pwd -P)/$name.root" <"$fx.in" 2>"$work/$name.err" | tr -d '\r' >"$work/$name.out"
     rc=${PIPESTATUS[0]}
+    cd "$work" || exit 2
     if [ $os = windows ] && [ $rc -eq 3 ] && grep -q '^skip: ' "$work/$name.err"; then
         skip "$drv.c $name" "$(sed -n 's/^skip: //p' "$work/$name.err" | head -n 1 | tr -d '\r')"
         continue
@@ -148,6 +155,7 @@ for name in std-env-get-matches-dotnet std-env-invalid-utf8-value-matches-dotnet
         if [ $rc -ne 0 ] && [ ! -s "$work/$name.out" ] && [ "$(hex "$got")" = "$(hex 'panic: ')$panic" ]; then ok "$drv.c $name"
         else bad "$drv.c $name" "exit $rc, want the panic of $fx.expected, got stderr: $(echo "$got" | cut -c1-80)"; fi
     elif [ $rc -eq 0 ] && cmp -s "$work/$name.out" "$work/$name.want"; then ok "$drv.c $name"
+    elif [ $rc -ne 0 ] && [ -s "$work/$name.err" ]; then bad "$drv.c $name" "exit $rc: $(head -n 1 "$work/$name.err" | tr -d '\r' | cut -c1-200)"
     else
         line=$(cmp "$work/$name.out" "$work/$name.want" 2>&1 | sed -n 's/.*line \([0-9]*\).*/\1/p')
         if [ -n "$line" ]; then
