@@ -1,0 +1,119 @@
+// 019 T29 (coverage ratchet): declare.byn paths no golden case reaches: every kind of type, function and constant
+// declared twice, fields and payloads named twice, union values at the `i32` edge or not integer literals, and a
+// generic method. The expected values are the output of the self-hosted checker at the commit that added the test.
+
+test "declare t29: names declared twice and union values" {
+    let text = """
+        struct A {
+            i64 x
+            i64 x
+        }
+
+        struct A {}
+
+        union error E {
+            bad(i64 a, i64 a)
+        }
+
+        union error E {}
+
+        enum K {
+            x
+            y
+        }
+
+        enum K {}
+
+        union U {
+            a(i64 v, i64 v)
+            b
+        }
+
+        union U {}
+
+        interface IThing {}
+
+        interface IThing {}
+
+        type Alias = i64
+
+        type Alias = i64
+
+        void A() {}
+
+        const k = 1
+
+        const k = 2
+
+        void k() {}
+
+        void IThing() {}
+
+        void Alias() {}
+
+        void E() {}
+
+        void U() {}
+
+        void K() {}
+
+        union Big {
+            a = 2147483647
+            b
+        }
+
+        union Neg {
+            a = -5
+            b = -(1)
+            c = 1i64
+            d = !1
+            e = -3000000000
+        }
+
+        struct S<T> {
+            i64 n
+
+            S<T> make<T>() => S<T> { n: 1 }
+        }
+
+        enum Twice(i64 a, i64 a) {
+            x(1, 2)
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2006 `A` is declared twice
+        BYN2006 `E` is declared twice
+        BYN2006 `K` is declared twice
+        BYN2006 `U` is declared twice
+        BYN2006 `IThing` is declared twice
+        BYN2006 `Alias` is declared twice
+        BYN2009 `A` must be camelCase
+        BYN2006 `A` is declared twice
+        BYN2006 `k` is declared twice
+        BYN2006 `k` is declared twice
+        BYN2009 `IThing` must be camelCase
+        BYN2006 `IThing` is declared twice
+        BYN2009 `Alias` must be camelCase
+        BYN2006 `Alias` is declared twice
+        BYN2009 `E` must be camelCase
+        BYN2006 `E` is declared twice
+        BYN2009 `U` must be camelCase
+        BYN2006 `U` is declared twice
+        BYN2009 `K` must be camelCase
+        BYN2006 `K` is declared twice
+        BYN2721 enum `Twice` already has a member `a`
+        BYN2006 `v` is declared twice
+        BYN2709 a case value must be an integer constant
+        BYN2709 a case value must be an integer constant
+        BYN2709 a case value must be an integer constant
+        BYN2709 a case value must be an integer constant
+        BYN2006 `a` is declared twice
+        BYN2006 `x` is declared twice
+        BYN2022 generic methods is not supported in v0.1
+
+        """
+    assert t29s1Diags(in c) == expected
+}

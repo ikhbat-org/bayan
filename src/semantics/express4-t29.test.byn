@@ -1,0 +1,136 @@
+// 019 T29 (coverage ratchet): express4.byn paths no golden case reaches: collection literals with no type or the wrong
+// one, `null` elements, keys and values, `stackalloc` lengths, format specs out of range or repeated, and `formatInto`
+// methods of every wrong shape. The expected values are the output of the self-hosted checker at the commit that added
+// the test.
+
+test "express4 t29: collections, stackalloc and format specs" {
+    let text = """
+        struct P {
+            i64 x
+
+            void formatInto(ref StrBuf sb, as FormatSpec spec) {}
+        }
+
+        struct Q {
+            i64 x
+
+            void formatInto(in StrBuf sb) {}
+        }
+
+        union error E {
+            bad
+        }
+
+        struct Q1 {
+            i64 x
+
+            void formatInto(ref StrBuf sb, ref FormatSpec spec) {}
+        }
+
+        struct Q2 {
+            i64 x
+
+            void formatInto(ref StrBuf sb, as i64 spec) {}
+        }
+
+        struct Q3 {
+            i64 x
+
+            void formatInto(ref StrBuf sb) fails E {}
+        }
+
+        struct Q4 {
+            i64 x
+
+            static void formatInto(ref StrBuf sb) {}
+        }
+
+        struct Q5 {
+            i64 x
+
+            void formatInto(ref List<i64> xs) {}
+        }
+
+        struct Q7 {
+            i64 x
+
+            void formatInto(ref StrBuf sb, as FormatSpec spec, to i64 n) {}
+        }
+
+        struct H {
+            (i64) -> i64 fn = v => v
+        }
+
+        void f(i64 n) {
+            let a: i64 = [1, 2]
+            let b = [null, null]
+            let m: Map<string, i64> = ["a": 1]
+            let e = []
+            let t = (null, 1)
+            let s1 = stackalloc i64[n]
+            let s2 = stackalloc i64[0]
+            let s3 = stackalloc i64[2000000]
+            let s4 = stackalloc nope[2]
+            let x = 3.5
+            print($"{n, as: .hex}")
+            print($"{x, as: .hex}")
+            print($"{n, as: .nope}")
+            print($"{n, width: n}")
+            print($"{n, width: 2000}")
+            print($"{x, digits: 20}")
+            print($"{n, digits: 2}")
+            print($"{n, fill: 'a', width: 3}")
+            print($"{n, fill: 'a', fill: 'b'}")
+            print($"{P { x: 1 }, as: .hex, digits: 2}")
+            print($"{Q { x: 1 }}")
+            print($"{Q1 { x: 1 }}")
+            print($"{Q2 { x: 1 }}")
+            print($"{Q3 { x: 1 }}")
+            print($"{Q4 { x: 1 }}")
+            print($"{Q5 { x: 1 }}")
+            print($"{Q7 { x: 1 }}")
+            let z = [null: 1]
+            let y = ["a": null]
+            let w = [[1]: 1]
+        }
+
+        i64 apply((i64) -> i64 fn) => fn(1)
+
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN5004 `formatInto` has 2 unlabeled parameters; give each but one a particle
+        BYN5006 `spec` is a required parameter besides the object and needs a particle
+        BYN2822 a function type is not supported as a field yet
+        BYN2022 a lambda outside a function body is not supported in v0.1
+        BYN2202 expected `i64`, found `a collection literal`
+        BYN2217 cannot infer the type of `null`
+        BYN2218 `[ … ]` needs a known type here
+        BYN2217 cannot infer the type of `null`
+        BYN2219 a `stackalloc` length must be a compile-time constant
+        BYN2203 0 does not fit in a `stackalloc` length (1 to 1048576)
+        BYN2203 2000000 does not fit in a `stackalloc` length (1 to 1048576)
+        BYN2002 unknown type `nope`
+        BYN2021 `f64` has no parameter `as: .hex`
+        BYN2720 `nope` is not a member of `Radix`
+        BYN2219 a format spec's `width` must be a compile-time constant
+        BYN2203 2000 does not fit in a format spec's `width` (0 to 1024)
+        BYN2203 20 does not fit in a format spec's `digits` (0 to 15)
+        BYN2021 `i64` has no parameter `digits`
+        BYN2303 `fill` is passed twice
+        BYN2225 `Q` cannot be formatted
+        BYN2225 `Q1` cannot be formatted
+        BYN2225 `Q2` cannot be formatted
+        BYN2225 `Q3` cannot be formatted
+        BYN2225 `Q4` cannot be formatted
+        BYN2225 `Q5` cannot be formatted
+        BYN2225 `Q7` cannot be formatted
+        BYN2760 `null` cannot be a `Map` key
+        BYN2217 cannot infer the type of `null`
+        BYN2760 `i32[1]` cannot be a `Map` key
+
+        """
+    assert t29s1Diags(in c) == expected
+}

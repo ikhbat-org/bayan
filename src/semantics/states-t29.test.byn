@@ -1,0 +1,81 @@
+// 019 T29 (coverage ratchet): states.byn paths no golden case reaches: `become` in an interface method and a free
+// function, state tests with `or`, `not` and `and` patterns, and a `becomes` call that can fail. The expected values
+// are the output of the self-hosted checker at the commit that added the test.
+
+test "states t29: become, state patterns and becomes calls" {
+    let text = """
+        struct Order {
+            i64 id
+            states {
+                draft
+                paid(i64 payment)
+                shipped
+            }
+            void pay(ref this is .draft, i64 amount) becomes .paid {
+                become .paid(amount)
+            }
+            void ship(ref this is .paid) becomes .shipped fails {
+                become .shipped
+            }
+        }
+
+        extension Order {
+            void reset(ref this) {
+                become .draft
+            }
+        }
+
+        interface IReset {
+            void again(ref this) {
+                become .draft
+            }
+        }
+
+        void top() {
+            become .draft
+        }
+
+        void look(Order o) {
+            if o is .draft or .shipped {
+                print("a")
+            }
+            if o is not .draft {
+                print("b")
+            }
+            if o is .paid(_) and _ {
+                print("c")
+            }
+            if !(o is .draft) {
+                print("d")
+            }
+            if o is not (.draft or .paid(1)) {
+                print("e")
+            }
+            if o is .paid(1) or .shipped {
+                print("f")
+            }
+        }
+
+        void run(ref Order.draft o) {
+            o.pay(1)
+            var p = o
+            p.ship()
+            let q = o
+            if q is .paid {
+                print("g")
+            }
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2022 `extension` declarations is not supported in v0.1
+        BYN7007 `top` has no state `.draft`
+        BYN7011 `pay` changes the state of `o`, a `ref` parameter; a state changes in place only through `ref this`
+        BYN2602 `ship` can fail; handle the error or pass it on
+        BYN7007 `again` has no state `.draft`
+
+        """
+    assert t29s1Diags(in c) == expected
+}

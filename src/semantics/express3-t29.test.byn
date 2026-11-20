@@ -1,0 +1,93 @@
+// 019 T29 (coverage ratchet): express3.byn paths no golden case reaches: the text of every operator, constant unary
+// overflow, operators on types that do not take them, struct literals and `with` naming fields twice or not at all,
+// ranges and `in` of the wrong types, and a conditional of `null`s. The expected values are the output of the
+// self-hosted checker at the commit that added the test.
+
+import parser
+
+test "express3 t29: operator texts" {
+    var sb = StrBuf()
+    let unary: List<parser.UnaryOp> = [.notKeyword, .complement, .negate, .plus, .fromEnd]
+    for op in unary {
+        sb.append($"{t19UnaryText(op)} ")
+    }
+    let binary: List<parser.BinaryOp> = [
+        .add, .sub, .mul, .div, .rem, .addWrap, .subWrap, .mulWrap, .addSat, .subSat, .mulSat, .shl, .shr, .lt, .gt,
+        .le, .ge, .eq, .ne, .bitAnd, .bitOr, .bitXor, .logicalAnd, .logicalOr, .coalesce,
+    ]
+    for op in binary {
+        sb.append($"{binaryText(op)} ")
+    }
+    assert sb.finish() == "! ~ - + ^ + - * / % +% -% *% +| -| *| << >> < > <= >= == != & | ^ && || ?? "
+}
+
+test "express3 t29: operators, literals and ranges that do not fit" {
+    let text = """
+        struct P {
+            i64 x
+            i64 y = 0
+        }
+
+        struct Order {
+            i64 id
+            states {
+                draft
+                paid(i64 payment)
+            }
+        }
+
+        union error E {
+            bad
+        }
+
+        void f(i64 n, from string s, by f64 d) {
+            let a = -i8(0 - 128)
+            let b = ~d
+            let c = +true
+            let u = -u8(5)
+            let p = P { x: 1, z: 2 }
+            let q = P { x: 1, x: 2 }
+            let r = P { y: 1 }
+            let o = Order.paid { id: 1, payment: 2, payment: 3 }
+            let o2 = Order.paid { id: 1 }
+            let w = p with { z: 1 }
+            let w2 = p with { x: 1, x: 2 }
+            let g = "a".."b"
+            let h = n in s
+            let i = true ? null : null
+            let j = true ? 1 : 2
+            let k = 1 << 2.0
+            let l = 'a' + 1
+            let m = 1 / 0
+            let v = s == E.bad
+            let t = (1, 2) == (1, 2)
+            let z = n in 1..s
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2204 constant arithmetic overflows `i8`
+        BYN2207 `~` cannot be applied to `f64`
+        BYN2207 `+` cannot be applied to `bool`
+        BYN2207 `-` cannot be applied to `u8`
+        BYN2003 `z` is not a member of `P`
+        BYN2110 field `x` is set twice
+        BYN2109 `P` needs a value for `x`
+        BYN2110 field `payment` is set twice
+        BYN2109 `Order` needs a value for `payment`
+        BYN2003 `z` is not a member of `P`
+        BYN2110 field `x` is set twice
+        BYN2208 `..` cannot be applied to `string` and `string`
+        BYN2208 `in` cannot be applied to `i64` and `string`
+        BYN2217 cannot infer the type of `null`
+        BYN2208 `<<` cannot be applied to `i32` and `f64`
+        BYN2208 `+` cannot be applied to `rune` and `i32`
+        BYN2205 division by zero
+        BYN2208 `==` cannot be applied to `string` and `E`
+        BYN2208 `..` cannot be applied to `i32` and `string`
+
+        """
+    assert t29s1Diags(in c) == expected
+}

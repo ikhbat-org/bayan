@@ -1,0 +1,152 @@
+// 019 T29 (coverage ratchet): calls3.byn paths no golden case reaches: `try` and `catch` in parentheses or on calls that
+// cannot fail, catch bindings, `catch switch` arms of another error set, and `or`, `not`, `and`, list, range, property
+// and variant patterns that do not fit their subject. The expected values are the output of the self-hosted checker at
+// the commit that added the test.
+
+test "calls3 t29: try, catch and patterns that do not fit" {
+    let text = """
+        union error E {
+            bad
+        }
+
+        union error F {
+            worse
+        }
+
+        union Shape {
+            dot
+            box(i64 w, i64 h)
+        }
+
+        struct P {
+            i64 x
+            i64 y
+        }
+
+        struct Order {
+            i64 id
+            states {
+                draft
+                paid(i64 payment)
+            }
+        }
+
+        i64 may(i64 n) fails E {
+            fail .bad if n < 0
+            return n
+        }
+
+        i64 plain(i64 n) => n
+
+        i64 one(i64 n) fails {
+            let a = (try may(n))
+            let b = (may(n) catch return 0)
+            let c = try plain(n)
+            let h = may(n) catch switch {
+                F e => 2,
+            }
+            return a + b + c + h
+        }
+
+        void pats(Shape s, P p, (i64, i64) t, i64 n, string text, Order o) {
+            switch s {
+                case .box(let w, _) or .dot: print("a")
+                default: {}
+            }
+            switch p {
+                case not { x: 1 }: print("b")
+                case { x: let a } and { y: let b }: print("c")
+                case let q and { x: 2 }: print("d")
+                default: {}
+            }
+            switch n {
+                case [1, 2]: print("e")
+                case 1..text: print("f")
+                default: {}
+            }
+            if s is .nope {
+                print("g")
+            }
+            if s is Shape.nope {
+                print("h")
+            }
+            if s is E.bad {
+                print("i")
+            }
+            if p is .dot {
+                print("j")
+            }
+            if text is "a"..="b" {
+                print("k")
+            }
+            if (p is not { x: let z }) {
+                print("l")
+            }
+            let m = t.item3
+            let k = p.nope
+            let l = o.nope
+            let tl = t.item1
+            if o is .draft {
+                let pay = o.payment
+            }
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN5004 `pats` has 6 unlabeled parameters; give each but one a particle
+        BYN5006 `p` is a required parameter besides the object and needs a particle
+        BYN5006 `t` is a required parameter besides the object and needs a particle
+        BYN5006 `n` is a required parameter besides the object and needs a particle
+        BYN5006 `text` is a required parameter besides the object and needs a particle
+        BYN5006 `o` is a required parameter besides the object and needs a particle
+        BYN2605 `try` needs a call that can fail
+        BYN2411 `F` cannot match `E`
+        BYN2410 `switch` does not handle every `E`
+        BYN2022 variables inside `or` patterns is not supported in v0.1
+        BYN2022 list patterns is not supported in v0.1
+        BYN2202 expected `i64`, found `string`
+        BYN2700 `nope` is not a variant of union `Shape`
+        BYN2700 `nope` is not a variant of union `Shape`
+        BYN2202 expected `Shape`, found `E`
+        BYN2003 `dot` is not a member of `P`
+        BYN2411 a range cannot match `string`
+        BYN2003 `item3` is not a member of `(i64, i64)`
+        BYN2003 `nope` is not a member of `P`
+        BYN2003 `nope` is not a member of `Order`
+        BYN7002 `payment` is a payload of `.paid`; `o` is not known to be `.paid`
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "calls3 t29: catch bindings" {
+    let text = """
+        union error E {
+            bad
+        }
+
+        i64 may(i64 n) fails E {
+            fail .bad if n < 0
+            return n
+        }
+
+        i64 plain(i64 n) => n
+
+        i64 one(i64 n) {
+            let d = plain(n) catch (e) return 0
+            let g = may(n) catch (e) return 1
+            return d + g
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN1025 `catch (e)` is an input form; bind the error in a `catch switch` arm
+        BYN1025 `catch (e)` is an input form; bind the error in a `catch switch` arm
+
+        """
+    assert t29s1Diags(in c) == expected
+}

@@ -1,0 +1,69 @@
+// 019 T29 (coverage ratchet): naming.byn word helpers no golden case reaches, called on words chosen for each spelling
+// rule: doer nouns, plurals, bases, participle stems, case changes and word splits. The expected values are the output
+// of the self-hosted checker at the commit that added the test.
+
+/// `words` joined by spaces.
+string t29s1Join(List<string> words) uses alloc {
+    var sb = StrBuf()
+    for w in words {
+        sb.append($"{w} ")
+    }
+    return sb.finish()
+}
+
+test "naming t29: doer nouns" {
+    var sb = StrBuf()
+    let verbs: List<string> = ["a", "write", "copy", "play", "run", "show", "fix", "read", "sort"]
+    for v in verbs {
+        sb.append($"{v}: {t29s1Join(doerNouns(v))}| ")
+    }
+    let expected = "a: | write: writer | copy: copier | play: player | run: runer runner | show: shower | fix: fixer | read: reader readder | sort: sorter | "
+    assert sb.finish() == expected
+}
+
+test "naming t29: plurals, singulars and case" {
+    var c = t26EmptyCtx()
+    let grammar = Grammar {}
+    var sb = StrBuf()
+    let words: List<string> = ["city", "day", "y", "bus", "box", "quiz", "match", "wish", "cat"]
+    for w in words {
+        sb.append($"{plural(ref c, for: w, by: grammar)} ")
+    }
+    let maybe: List<string> = ["cats", "glass", "bus", "axis", "cat"]
+    for w in maybe {
+        sb.append($"{looksPlural(ref c, for: w, by: grammar)} ")
+    }
+    sb.append($"{matchCase("Line", as: "")} {matchCase("line", as: "lines")} {matchCase("Line", as: "lines")}")
+    let expected = "cities days ys buses boxes quizes matches wishes cats true false false false false  lines Lines"
+    assert sb.finish() == expected
+}
+
+test "naming t29: bases and participle stems" {
+    var sb = StrBuf()
+    sb.append($"{t29s1Join(bases("players"))}| ")
+    let words: List<string> = [
+        "copied", "trimmed", "reversed", "parsed", "passed", "doubled", "rolled", "named", "sawed", "boxed", "keyed",
+        "traced", "valued", "sized", "joined", "fooled",
+    ]
+    for w in words {
+        sb.append($"{w}: {t29s1Join(participleStems(w))}| ")
+    }
+    let expected = "player play playe | copied: copy copi copie | trimmed: trim trimm trimme | reversed: reverse revers | parsed: parse pars | passed: pass passe | doubled: double doubl | rolled: roll rolle | named: name nam | sawed: saw sawe | boxed: box boxe | keyed: key keye | traced: trace trac | valued: value valu | sized: size siz | joined: join joine | fooled: fool foole | "
+    assert sb.finish() == expected
+}
+
+test "naming t29: word splits and case changes" {
+    var sb = StrBuf()
+    let names: List<string> = ["a__b_", "parse_url", "HTTPClient", "IOError", "a1B", "aBc"]
+    for n in names {
+        for w in wordSpans(n) {
+            sb.append($"{w.start}:{w.text} ")
+        }
+        sb.append("| ")
+    }
+    sb.append($"{toPascal("_")} {toCamel("__")} [{capitalize("")}] {capitalize("IO")} {upperAscii("aB1")} ")
+    sb.append($"{isAllAscii("é")} {trimDigits("abc12")} [{trimDigits("12")}] ")
+    sb.append($"{isStateName("isOpen")} {isStateName("hasX")} {isStateName("canY")} {isStateName("is")} {isStateName("island")}")
+    let expected = "0:a 3:b | 0:parse 6:url | 0:HTTP 4:Client | 0:IO 2:Error | 0:a1 2:B | 0:a 1:Bc | _ __ [] IO AB1 false abc [] true true true false false"
+    assert sb.finish() == expected
+}
