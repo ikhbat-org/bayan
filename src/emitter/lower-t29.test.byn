@@ -813,3 +813,144 @@ test "emitter t29: states, interface slots by ref, out, failing and never, and f
     let emitted = t29Emit(source)
     assert emitted.contains("int main(")
 }
+
+test "emitter t29: constructor defaults, become with constant and never payloads, and moved operands lower" {
+    let source = """
+        struct Pt {
+            i64 x = 7
+            i64 y
+
+            Pt(i64 y) {
+                this.y = y
+            }
+        }
+
+        struct Door {
+            i64 id = 0
+
+            states {
+                ajar
+                shut
+            }
+
+            void close(ref this) becomes .shut {
+                become .shut
+            }
+        }
+
+        struct Order {
+            i64 id = 0
+
+            states {
+                draft
+                paid(i64 amount)
+            }
+
+            void pay(ref this) becomes .paid {
+                become .paid(5)
+            }
+
+            void stop(ref this) becomes .paid {
+                become .paid(panic("no"))
+            }
+        }
+
+        void take(move string s, by i64 n) {
+            print($"{s}{n}")
+        }
+
+        void two(bool b) {
+            let t = "cd"
+            take(move t, by: b ? t.length : 0)
+            let u = "ef"
+            take(move u, by: t.length switch {
+                2 => u.length,
+                _ => 0,
+            })
+        }
+
+        void main() {
+            let p = Pt(2)
+            var d = Door.ajar { id: 1 }
+            d.close()
+            var o = Order.draft { id: 1 }
+            o.pay()
+            let s = "ab"
+            take(move s, by: s.length)
+            two(b: true)
+            print($"{p.x}")
+        }
+        """
+    let emitted = t29Emit(source)
+    assert emitted.contains("    (*self) = ((bynt_main__Pt){INT64_C(7), ((int64_t){0})});\n")
+    assert emitted.contains("    (*self).u.paid.amount = INT64_C(5);\n")
+    assert emitted.contains(
+        "void byn_main__Door__close(bynt_main__Door* self) {\n#line 19 \"t29.byn\"\n    (*self).tag = ((int32_t)1);\n}",
+    )
+    assert emitted.contains("    (void)byn_panic_str(BYN_STR(\"no\", 2), byn_file_0, 36);\n}\n")
+    assert emitted.contains("    t4 = l3_s;\n#line 61 \"t29.byn\"\n    (void)byn_main__take(t4, l3_s.len);\n")
+    assert emitted.contains("    t5 = l2_u;\n#line 48 \"t29.byn\"\n    t3 = l0_t.len;\n")
+}
+
+test "emitter t29: literals, and, spill, emitAssign, emitEffect, captureGuard and operands on made-up nodes" {
+    var c = t29Compile("void main() {\n    var a = 1\n    var b = 2\n    print($\"{a}{b}\")\n}\n")
+    var l = LCtx { fn: c.modules[c.entryModule].main }
+    l.outs.append(List<BStmt>())
+    l.scopes.append(LScope {})
+    let span = TextSpan { start: 0, length: 1 }
+    let type = semantics.prim(.i64)
+    let local = localExpr(ref c, at: span, for: 0)
+    let negative = i64Literal(ref c, at: span, by: -5)
+    let big = c.bLiterals[i64(negative & 0xFFFFFFFF)].value.integer
+    assert big.lo == 0xFFFFFFFFFFFFFFFB
+    assert big.hi == 0xFFFFFFFFFFFFFFFF
+    let yes = boolLiteral(ref c, at: span, by: true)
+    let no = boolLiteral(ref c, at: span, by: false)
+    assert !isTrueLiteral(in c, for: negative)
+    assert !isTrueLiteral(in c, for: no)
+    assert andExpr(ref c, through: in l, for: yes, by: no) == no
+    let nothing = ltree.addLVoid(ref l.tree, from: T4LVoid { span: span })
+    assert spill(ref c, through: ref l, for: nothing) == nothing
+    emitAssign(ref c, through: ref l, to: local, as: nothing)
+    assert l.outs[0].length == 0
+    let setter = semantics.addBuiltinCall(
+        ref c,
+        from: BBuiltinCall { span: span, member: .mapIndexSet, receiver: local, type: type },
+    )
+    emitEffect(ref c, through: ref l, for: setter)
+    assert l.outs[0].length == 1
+    assert semantics.boundKind(l.outs[0][0]) == .exprStmt
+    let halting = semantics.addBuiltinCall(
+        ref c,
+        from: BBuiltinCall { span: span, member: .mapIndexSet, receiver: local, type: semantics.prim(.neverKind) },
+    )
+    emitAssign(ref c, through: ref l, to: local, as: halting)
+    assert l.outs[0].length == 2
+    assert semantics.boundKind(l.outs[0][1]) == .exprStmt
+    let moved = semantics.addMove(ref c, from: T4BMove { span: span, operand: local, type: type })
+    let assign = ltree.addLAssignExpr(ref l.tree, from: T4LAssignExpr { span: span, target: local, value: moved })
+    let value = ltree.addLOptionalValue(ref l.tree, from: T4LOptionalValue { span: span, optional: assign, type: type })
+    assert hasEffects(in c, through: in l, for: value)
+    let body = block(ref c, at: span, for: List<BStmt>())
+    let unguarded = semantics.addIf(ref c, from: BIf { span: span, condition: yes, then: body })
+    assert !hasEffects(in c, through: in l, for: unguarded)
+    assert captureGuard(ref c, through: ref l, for: nothing) == nothing
+    assert captureGuard(ref c, through: ref l, for: unguarded) == unguarded
+    let withElse = semantics.addIf(
+        ref c,
+        from: BIf { span: span, condition: yes, then: body, elseBranch: body, guarded: true },
+    )
+    assert captureGuard(ref c, through: ref l, for: withElse) == withElse
+    var ops = List<BExpr>()
+    ops.append(moved)
+    ops.append(localExpr(ref c, at: span, for: 0))
+    var values = List<BExpr>()
+    assert operands(ref c, through: ref l, for: in ops, as: in List<bool>(), to: ref values)
+    assert values.length == 2
+    assert semantics.boundKind(values[0]) == .local
+    assert c.bLocals[i64(values[0] & 0xFFFFFFFF)].local == c.locals.length - 1
+    assert c.locals[c.locals.length - 1].kind == .temp
+    assert values[1] == ops[1]
+    assert l.outs[0].length == 3
+    assert semantics.boundKind(l.outs[0][2]) == .assign
+}
