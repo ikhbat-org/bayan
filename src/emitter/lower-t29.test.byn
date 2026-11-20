@@ -561,20 +561,35 @@ List<string> t29Corpus() {
 
 test "emitter t29: the corpus lowers and emits in debug, safe and fast" {
     let corpus = t29Corpus()
+    // One line of each program's lowered C, in corpus order.
+    let marks = [
+        "    t1 = byn_main__pick(p_x, &t2);\n",
+        "        t2 = byn_neg_i64(l1_total, byn_file_0, 37);\n",
+        "    t2 = bynh_span_list_i64(p_xs);\n",
+        "        t3 = t1.ptr[t2];\n",
+        "    t3 = byn_main__opt(((bynt_opt_i64){true, INT64_C(3)}));\n",
+        "    return byn_mul_i64(p_x, INT64_C(2), byn_file_0, 1);\n",
+        "    t6 = byn_main__rems((5.5), l1_f);\n",
+        "    t2 = byn_main__useB(((byn_dyn_main__IB){&l0_s, &bynh_vtab_main__Both_main__IB}));\n",
+        "    t1 = byn_main__claims(((byn_main_Shape){.tag = 2}));\n",
+        "        t0 = l1_c.u.circle.r;\n",
+        "    t4 = bynh_index_map_str_i64(l2_m, t3, byn_file_0, 22);\n",
+    ]
+    assert corpus.length == marks.length
     var failed = StrBuf()
     for k in 0..corpus.length {
         let safe = t29Emit(corpus[k], by: "safe")
-        if !safe.contains("int main(") {
+        unless safe.contains(marks[k]) {
             failed.append($"{k}: {safe}\n")
             continue
         }
         let debug = t29Emit(corpus[k], by: "debug")
         let fast = t29Emit(corpus[k], by: "fast")
         let tested = t29Emit(corpus[k], tests: true)
-        assert safe.contains("int main(")
-        assert fast.contains("int main(")
-        assert tested.contains("int main(")
-        assert debug.length > safe.length
+        assert fast == safe
+        assert debug.contains("#ifndef BYN_DEBUG\n#define BYN_DEBUG\n")
+        assert !safe.contains("BYN_DEBUG")
+        assert tested.contains("void byn_test_0(void) {\n") == (k == 1 || k == 5 || k == 8)
     }
     assert failed.finish() == ""
 }
@@ -811,7 +826,16 @@ test "emitter t29: states, interface slots by ref, out, failing and never, and f
         }
         """
     let emitted = t29Emit(source)
-    assert emitted.contains("int main(")
+    assert emitted.contains("    l0_a = ((bynt_main__Door){INT64_C(1), .tag = 0});\n")
+    assert emitted.contains("    l2_o = ((bynt_main__Order){INT64_C(1), .tag = 1, .u.paid = {INT64_C(5)}});\n")
+    assert emitted.contains("    case 1: return (a.u.paid.amount == b.u.paid.amount);\n")
+    assert emitted.contains("    (void)p_s.vt->put(p_s.data, &l0_v);\n")
+    assert emitted.contains("    (void)p_s.vt->fill(p_s.data, &l0_v);\n")
+    assert emitted.contains("    t1 = p_s.vt->check(p_s.data);\n")
+    assert emitted.contains("    (void)l5_f.fn(l5_f.env, INT64_C(3));\n")
+    assert emitted.contains(
+        "    if (bynh_eq_main__Door(l0_a, l1_b)) {\n#line 76 \"t29.byn\"\n        (void)l6_g.fn(l6_g.env, INT64_C(1));\n    }\n",
+    )
 }
 
 test "emitter t29: constructor defaults, become with constant and never payloads, and moved operands lower" {
