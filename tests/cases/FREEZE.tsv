@@ -3,7 +3,7 @@ export	chore/019-export	931d155f2d79aae328e11692e5af1f587b5cc2ff
 cases	cli	4482
 cases	diag	676
 cases	diag-json	2
-cases	emit	1
+cases	emit	3
 cases	emit-c	7797
 cases	lex	20097
 cases	manifest	21
@@ -26897,6 +26897,12 @@ file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SymbolEmitTests
 file	5fd59ddaf3a81f9f54509caf6688c2b3a82546f6	tests/cases/emit-c/SymbolEmitTests/ProgramWithoutSymbolEmitsNoSymbolCode/expected.c
 file	573541ac9702dd3969c9bc859d2b91ec1f7e6e56	tests/cases/emit-c/SymbolEmitTests/ProgramWithoutSymbolEmitsNoSymbolCode/expected.exitcode
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SymbolEmitTests/ProgramWithoutSymbolEmitsNoSymbolCode/expected.stderr
+file	372dbf4923805abfe69e7f2ac0be632cc7da6c23	tests/cases/emit/exit/expected.diag.exitcode
+file	a58bab2e18ff571c4cfdeea89584268e676fad09	tests/cases/emit/exit/expected.parse.exitcode
+file	ca7477ba324e6700e65d2909abdc95961c690a8d	tests/cases/emit/exit/expected.typed.exitcode
+file	529aa41685db69912fc86b8555bdba90469be384	tests/cases/emit/modes/expected.debug.sha256
+file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.fast.sha256
+file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.safe.sha256
 file	917013ef0787fe9b9884df99b999077c4032b51b	tests/cases/emit/run-c.sha256
 file	5632f257bed073221ea48c32c421b3d2d3dec760	tests/cases/lex/SelfhostLexerCaseTests/FirstScalarCaseMatchesCSharpCharIsUpperAndIsLower/expected.stdout
 file	8b6aef7042b6694802718d15bd5aabe01d9c479e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-10/expected.json
