@@ -96,3 +96,17 @@ test "driver t29: build --schemata-files writes the sites file next to the progr
     assert Fs.fileExists(emitter.sitesPath(exe))
     deleteWorkDir(dir)
 }
+
+test "driver t29: build --coverage --counters exits 3 when a gate of the manifest fails" {
+    let project = t29BuildDir("failing")
+    goldenWrite(
+        project,
+        for: "package.byn",
+        as: "Package {\n    name: \"local/failing\",\n    version: \"0.1.0\",\n    test: Tests { lines: 100 },\n}\n",
+    )
+    goldenWrite(project, for: "src/app/main.byn", as: "let n = 2\nprint(n > 1 ? \"big\" : \"small\")\n")
+    let prefix = Path.combine(project, "BAYAN_COVERAGE")
+    var d = newDCtx()
+    t29Same($"{buildCommand(["build", "--coverage", "--counters", prefix, project], by: ref d)}", as: "3")
+    deleteWorkDir(project)
+}
