@@ -1,0 +1,57 @@
+import semantics
+import lexer
+
+// T29: data.byn's enum value table on its second request, integer constants of float type and the boundary of
+// `INT64_MIN`, and the float literals of NaN and the infinities. The expected values are the output of the self-hosted
+// emitter at the commit that added the test.
+
+type DtOptions  = semantics.CompilationOptions
+type DtConstant = semantics.Constant
+type DtBig      = semantics.Big
+
+Ctx dtCompile(string source) {
+    var bytes = List<u8>()
+    for b in source.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("dt.byn", from: move bytes))
+    let options = DtOptions { includeTests: false }
+    return semantics.create(from: move sources, at: Path.fullPath("tmp"), by: in options)
+}
+
+test "data t29: an enum's value table is registered once" {
+    var c = dtCompile("enum Tone {\n    low\n    high\n}\n\nprint(\"a\")\n")
+    var cc = CCtx { packageRoot: c.packageRoot }
+    var tone = -1
+    for i in 0..c.enums.length {
+        tone = i if c.enums[i].name == "Tone"
+    }
+    let first = enumValues(ref cc, from: ref c, for: tone)
+    let second = enumValues(ref cc, from: ref c, for: tone)
+    assert first == "byn_main_Tone_values"
+    assert second == first
+    assert cc.staticOrder.length == 1
+}
+
+test "data t29: integer constants of float and i64 types" {
+    var c = dtCompile("print(\"a\")\n")
+    var cc = CCtx { packageRoot: c.packageRoot }
+    let two = DtConstant { kind: .integer, integer: DtBig { lo: 2, hi: 0 } }
+    assert constant(ref cc, from: ref c, for: two, as: semantics.prim(.f64)) == "(2.0)"
+    assert constant(ref cc, from: ref c, for: two, as: semantics.prim(.f32)) == "((float)2.0)"
+    let min = DtConstant { kind: .integer, integer: DtBig { lo: 0x8000000000000000, hi: 0xFFFFFFFFFFFFFFFF } }
+    assert constant(ref cc, from: ref c, for: min, as: semantics.prim(.i64)) == "INT64_MIN"
+    let wide = DtConstant { kind: .integer, integer: DtBig { lo: 0x8000000000000000, hi: 0 } }
+    assert constant(ref cc, from: ref c, for: wide, as: semantics.prim(.i64)) == "INT64_C(9223372036854775808)"
+}
+
+test "data t29: NaN and the infinities" {
+    let zero = 0.0
+    assert t6FloatLiteral(zero / zero, by: false) == "((double)NAN)"
+    assert t6FloatLiteral(zero / zero, by: true) == "((float)NAN)"
+    assert t6FloatLiteral(1.0 / zero, by: false) == "((double)INFINITY)"
+    assert t6FloatLiteral(-1.0 / zero, by: false) == "(-(double)INFINITY)"
+    assert t6FloatLiteral(1.0 / zero, by: true) == "((float)INFINITY)"
+    assert t6FloatLiteral(-1.0 / zero, by: true) == "(-(float)INFINITY)"
+}

@@ -1,0 +1,165 @@
+import semantics
+import emitter.ltree
+import lexer
+
+// T29: expr.byn's node names, constants the emitter does not print (a parameter, a void and a never value), a move of
+// what is not a local, an empty fixed array, a lowered named argument of `Io.run` and an `out` argument with a moved
+// slot. Nodes the binder does not make are built by hand. The expected values are the output of the self-hosted
+// emitter at the commit that added the test.
+
+type ExOptions  = semantics.CompilationOptions
+type ExConstant = semantics.Constant
+type ExBig      = semantics.Big
+type ExLowered  = ltree.LoweredFunction
+type ExTree     = ltree.LTree
+type ExMutant   = ltree.LMutantIs
+type ExMove     = semantics.BMove
+type ExList     = semantics.BCollection
+type ExSpan     = semantics.TextSpan
+
+Ctx exCompile(string source) {
+    var bytes = List<u8>()
+    for b in source.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("ex.byn", from: move bytes))
+    let options = ExOptions { includeTests: false }
+    return semantics.create(from: move sources, at: Path.fullPath("tmp"), by: in options)
+}
+
+string exErrors(in Ctx c) {
+    var sb = StrBuf()
+    for d in c.diagnostics {
+        sb.append($"{d.code} {d.span.start} {d.message}\n") if !d.isWarning
+    }
+    return sb.finish()
+}
+
+FuncId exNamed(in Ctx c, for string name) {
+    var found: FuncId = -1
+    for i in 0..c.functions.length {
+        found = i if c.functions[i].name == name && c.functions[i].body != -1
+    }
+    return found
+}
+
+/// A frame for `name` as `emitFunction` builds it.
+CFunc exFrame(ref CCtx cc, from ref Ctx c, for string name) {
+    let fn = exNamed(in c, for: name)
+    var locals = List<i64>()
+    for l in c.functions[fn].locals {
+        locals.append(l) if !c.locals[l].isParameter
+    }
+    let lowered = ExLowered { symbol: fn, locals: move locals, contextSlots: 0, panicSlots: 0, body: c.functions[fn].body }
+    var fe = functionEmitter(ref cc, from: ref c, for: in lowered)
+    fe.lineStarts = lineStartsOf(in c, for: c.functions[fn].file)
+    return fe
+}
+
+/// Statement `k` of `name`'s body.
+i64 exStatement(in Ctx c, for string name, at i64 k) {
+    return c.bBlocks[c.functions[exNamed(in c, for: name)].body & 0xFFFFFFFF].statements[k]
+}
+
+string exSource() {
+    return """
+        struct Bag {
+            List<i64> items
+        }
+
+        void fill(out List<i64> xs) {
+            xs = List<i64>()
+        }
+
+        i64 viaOut() {
+            var xs: List<i64>
+            fill(out xs)
+            var b = Bag { items: List<i64>() }
+            fill(out b.items)
+            return xs.length + b.items.length
+        }
+
+        i64 param(i64 x) {
+            return x
+        }
+
+        void runs(ReadOnlySpan<string> names) uses alloc, console, process {
+            let r = Io.run("ls", names, directory: "/") catch { return }
+            print(r.stdout)
+        }
+
+        Bag bag() {
+            return Bag { items: List<i64>() }
+        }
+
+        print($"{viaOut()} {param(1)}")
+        """
+}
+
+test "expr t29: the names of lowered and bound node kinds" {
+    assert t10LoweredName(.label) == "LLabel"
+    assert t10LoweredName(.voidValue) == "LVoid"
+    assert t10BoundName(.literal) == "BoundLiteral"
+    assert t10BoundName(.builtinGroup) == "BoundBuiltinGroup"
+}
+
+test "expr t29: constants of a parameter, a void and a never value are not printed" {
+    var c = exCompile(exSource())
+    assert exErrors(in c) == ""
+    var cc = CCtx { packageRoot: c.packageRoot }
+    var t = ExTree {}
+    let five = ExConstant { kind: .integer, integer: ExBig { lo: 5, hi: 0 } }
+    var fe = exFrame(ref cc, from: ref c, for: "param")
+    let x = c.bReturns[exStatement(in c, for: "param", at: 0) & 0xFFFFFFFF].value
+    semantics.setConstant(ref c, for: x, to: five)
+    assert emitExpr(ref cc, for: ref fe, from: ref c, through: in t, at: x) == "p_x"
+    c.bLocals[x & 0xFFFFFFFF].type = semantics.prim(.neverKind)
+    assert emitExpr(ref cc, for: ref fe, from: ref c, through: in t, at: x) == "p_x"
+    var fv = exFrame(ref cc, from: ref c, for: "viaOut")
+    let fill = c.bExprStmts[exStatement(in c, for: "viaOut", at: 1) & 0xFFFFFFFF].expr
+    semantics.setConstant(ref c, for: fill, to: five)
+    assert emitExpr(ref cc, for: ref fv, from: ref c, through: in t, at: fill) == "byn_main__fill(&l0_xs)"
+}
+
+test "expr t29: a move of a field and an empty fixed array" {
+    var c = exCompile(exSource())
+    var cc = CCtx { packageRoot: c.packageRoot }
+    let t = ExTree {}
+    var fe = exFrame(ref cc, from: ref c, for: "viaOut")
+    let ret = c.bReturns[exStatement(in c, for: "viaOut", at: 4) & 0xFFFFFFFF].value
+    let field = c.bBuiltinCalls[c.bBinaries[ret & 0xFFFFFFFF].right & 0xFFFFFFFF].receiver
+    let span = c.bReturns[exStatement(in c, for: "viaOut", at: 4) & 0xFFFFFFFF].span
+    let moved = semantics.addMove(ref c, from: ExMove { span: span, operand: field, type: semantics.exprType(in c, for: field) })
+    assert emitExpr(ref cc, for: ref fe, from: ref c, through: in t, at: moved) == "l1_b.items"
+    let array = semantics.internArray(ref c, by: semantics.prim(.i64), at: 0)
+    let empty = semantics.addCollection(ref c, from: ExList { span: span, type: array })
+    assert emitExpr(ref cc, for: ref fe, from: ref c, through: in t, at: empty) == "((bynt_arr0_i64){0})"
+}
+
+test "expr t29: a lowered named argument of Io.run" {
+    var c = exCompile(exSource())
+    var cc = CCtx { packageRoot: c.packageRoot }
+    var t = ExTree {}
+    var fe = exFrame(ref cc, from: ref c, for: "runs")
+    var run = -1
+    for n in 0..c.bCalls.length {
+        run = n if c.functions[c.bCalls[n].function].builtin == .ioRun
+    }
+    let mutant = ltree.addLMutantIs(ref t, from: ExMutant { span: c.bCalls[run].span, id: 3 })
+    c.bCalls[run].arguments[2] = mutant
+    let text = call(ref cc, for: ref fe, from: ref c, through: t, at: semantics.makeBound(.call, at: run), to: "&r")
+    assert text.contains("byn_mutant_is(3)")
+    assert cc.helpers.contains("bynh_io_run_with")
+}
+
+test "expr t29: an out argument of an owned local with a slot" {
+    var c = exCompile(exSource())
+    var cc = CCtx { ownershipChecks: true, packageRoot: c.packageRoot }
+    let t = ExTree {}
+    var fe = exFrame(ref cc, from: ref c, for: "viaOut")
+    let fill = c.bExprStmts[exStatement(in c, for: "viaOut", at: 1) & 0xFFFFFFFF].expr
+    assert call(ref cc, for: ref fe, from: ref c, through: t, at: fill, to: null) == "byn_main__fill((own_l0_xs.line = 0, &l0_xs))"
+    let field = c.bExprStmts[exStatement(in c, for: "viaOut", at: 3) & 0xFFFFFFFF].expr
+    assert call(ref cc, for: ref fe, from: ref c, through: t, at: field, to: null) == "byn_main__fill(&(*(byn_own_read(&own_l1_b, \"Bag\", byn_file_0, 13), &l1_b)).items)"
+}
