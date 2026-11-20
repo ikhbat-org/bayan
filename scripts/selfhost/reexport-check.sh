@@ -20,7 +20,8 @@
 # A row a golden update changed since the freeze differs from the frozen compiler's output: it belongs on DIVERGENCES.tsv.
 # The work dir is removed when the run passes and kept, and named, otherwise. Exit 0 when every compared file matches, 1 when
 # one does not, the export run fails or no .NET is on PATH (nothing is checked then: never a pass), 2 on a usage error or an
-# export head not in the clone. Tests only: REEXPORT_DOTNET replaces `dotnet`. bash 3.2.
+# export head not in the clone. Tests only: REEXPORT_DOTNET replaces `dotnet`, REEXPORT_RUNNER the golden runner
+# the replay builds from src/driver. bash 3.2.
 set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root" || exit 2
@@ -78,7 +79,14 @@ awk -F'\t' -v left="$w/left" -v yes="$w/ryes" -v no="$w/rno" '
 [ -f "$w/ryes" ] || : > "$w/ryes"; [ -f "$w/rno" ] || : > "$w/rno"
 mkdir -p "$w/flat"
 for kind in $(grep -v / "$w/ryes"); do
-  case "$kind" in (parse) e=ast ;; (typed) e=types ;; (*) e="" ;; esac
+  case "$kind" in
+    (emit) sed -n 's/^[^ ]*  /emit /p' "$cases/emit/modes/expected.debug.sha256" "$cases/emit/exit/expected.diag.exitcode" 2> /dev/null |
+      LC_ALL=C sort -u > "$w/flat/emit"; continue ;;
+    (run|style|new|out)
+      awk -F'\t' -v k="$kind" '$1 == "file" { p = substr($3, 13); if (index(p, k "/") != 1 || p !~ /\.(stdout|stderr|exitcode|color|plain|ascii|tree|json)$/) next
+        sub(/\.[a-z]+$/, "", p); sub(/\/main$/, "", p); print "golden " p }' "$cases/FREEZE.tsv" | LC_ALL=C sort -u > "$w/flat/$kind"; continue ;;
+    (parse) e=ast ;; (typed) e=types ;; (*) e="" ;;
+  esac
   awk -F'\t' -v k="$kind" -v e="$e" -v rows="$w/rows" '
     BEGIN { while ((getline l < rows) > 0) cls[l] = 1 }
     $1 == "file" { p = substr($3, 13); n = split(p, a, "/"); if (a[1] != k || (k "/" a[2]) in cls || n < 2) next
@@ -226,8 +234,18 @@ if [ -s "$w/runits" ]; then
   # the C# CLI from the same tree (dotnet test built its projects already when there was an export run)
   (cd "$w/tree" && GIT_CEILING_DIRECTORIES="$root/tmp" "$dotnet" build csharp/Bayan.Cli -v q -o "$w/cs") > "$w/build.out" 2>&1 ||
     { tail -20 "$w/build.out" >&2; die "the C# CLI build failed (log: $w/build.out)"; }
+  # the golden runner for the run, style, new and out cases: src/driver of this checkout, built with the pinned bayan
+  runner=""
+  if grep -q '^golden ' "$w/runits"; then
+    runner="${REEXPORT_RUNNER:-$w/drv/bayan}"
+    if [ -z "${REEXPORT_RUNNER:-}" ]; then
+      pinned="$(bash scripts/pinned-bayan.sh 2> "$w/drv.out")" && mkdir -p "$w/drv" &&
+        "$pinned" build --mode safe --package src -o "$runner" src/driver >> "$w/drv.out" 2>&1 ||
+        { tail -20 "$w/drv.out" >&2; die "the golden runner build failed (log: $w/drv.out)"; }
+    fi
+  fi
   mkdir -p "$w/replay"
-  bash scripts/selfhost/replay-csharp.sh "$w/cs/bayan" "$w/runits" "$w/replay"
+  bash scripts/selfhost/replay-csharp.sh "$w/cs/bayan" "$w/runits" "$w/replay" ${runner:+"$runner"}
   prc=$?
 fi
 [ $crc = 0 ] && [ $trc = 0 ] && [ $prc = 0 ] || die "L043 does not hold for the classes above"

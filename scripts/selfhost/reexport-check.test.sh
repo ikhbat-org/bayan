@@ -7,7 +7,8 @@
 # filter; a class whose source names no SelfhostExport type at the head is printed as left out, never compared, and
 # refused by --class; the C# CLI replay (a stub CLI) passes, names a changed expected file, a frozen file it did not write and an
 # exit-code difference (a file and a flat exit-code line), honours a divergence row, picks one unit per kind weekly and refuses a
-# class it does not run under --class; no dotnet fails without a pass; usage errors exit 2.
+# class it does not run under --class; the emit lines (through freeze-csharp.sh) and a golden case (a stub runner, REEXPORT_RUNNER,
+# with BAYAN_EXE the C# CLI) pass, and a changed emit line and a failed golden case are named; no dotnet fails without a pass; usage errors exit 2.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -37,8 +38,21 @@ last="${@: -1}"; echo "args: $* in 0.42s"; [ ! -f "$last" ] || echo "file: $(< "
 [ ! -f input.byn ] || echo "at $PWD/input.byn"; echo "foo $FOO" >&2
 exit "${STUB_EXIT:-0}"
 STUB
-chmod +x "$aux/dotnet" "$aux/bayan"
-export AUX="$aux" REEXPORT_DOTNET="$aux/dotnet"
+# the stub golden runner: logs what BAYAN_EXE answers to `version`, then passes each --only case, or fails $GOLDEN_FAIL naming its
+# .stdout
+cat > "$aux/runner" <<'STUB'
+#!/bin/bash
+echo "runner: $("$BAYAN_EXE" version)" >> "$AUX/log"
+while [ $# -gt 0 ]; do
+  if [ "$1" = --only ]; then
+    if [ "$2" = "${GOLDEN_FAIL:-}" ]; then printf 'failed %s\n    tests/cases/%s.stdout\n    expected line 1: a\n' "$2" "$2"; else echo "passed $2"; fi
+    shift
+  fi
+  shift
+done
+STUB
+chmod +x "$aux/dotnet" "$aux/bayan" "$aux/runner"
+export AUX="$aux" REEXPORT_DOTNET="$aux/dotnet" REEXPORT_RUNNER="$aux/runner"
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@example.com GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@example.com
 
 # the export: three classes, two kinds; the tree holds what land-export.sh makes of it
@@ -51,7 +65,8 @@ mk "$aux/extra" sem/ASemTests/Four "four"
 
 r="$tmp/repo"; mkdir -p "$r/scripts/selfhost" "$r/tests/cases"; cd "$r"
 git init -q -b dev; git config core.hooksPath /dev/null
-cp "$root/scripts/selfhost/reexport-check.sh" "$root/scripts/selfhost/land-export.sh" "$root/scripts/selfhost/replay-csharp.sh" scripts/selfhost/
+cp "$root/scripts/selfhost/reexport-check.sh" "$root/scripts/selfhost/land-export.sh" "$root/scripts/selfhost/replay-csharp.sh" \
+  "$root/scripts/selfhost/freeze-csharp.sh" scripts/selfhost/
 printf '/tmp/\n' > .gitignore; printf '* text=auto eol=lf\ntests/cases/inputs/files/** -text\n' > .gitattributes
 # export mode at the head: ACliTests and BSemTests name SelfhostExport, ASemTests names a Selfhost harness, CSemTests neither
 mkdir -p src/tests csharp/tests
@@ -82,9 +97,18 @@ printf 'FOO=<repo>/f\nBAYAN_THEME\n' > tests/cases/cli/DiagnosticRendererTests/C
 rc cli/MutatorTests/M 'test\n--mutate\n' 'fn m' 'm\n' ''
 mkdir -p tests/cases/parse tests/cases/emit/exit; printf 'p' > tests/cases/parse/p.byn
 printf 'args: parse --ast p.byn in 0.42s\nfile: p\n' > tests/cases/parse/p.ast; printf '0  parse/p.byn\n' > tests/cases/emit/exit/expected.parse.exitcode
+# a run input: its golden .stdout (the stub runner passes it) and its emit lines, each the sha256 of what the stub C# CLI prints
+mkdir -p tests/cases/run tests/cases/emit/modes; printf 'r' > tests/cases/run/r.byn; printf 'r\n' > tests/cases/run/r.stdout
+if command -v sha256sum > /dev/null 2>&1; then sum="sha256sum"; else sum="shasum -a 256"; fi
+for m in debug safe fast; do
+  printf '%s  run/r.byn\n' "$(cd tests/cases/run && "$aux/bayan" build --emit-c --mode $m --package . r.byn 2> /dev/null | $sum | cut -c1-64)" \
+    > tests/cases/emit/modes/expected.$m.sha256
+done
+cp tests/cases/emit/modes/expected.safe.sha256 tests/cases/emit/run-c.sha256
 printf 'FunctionTypeTests\tsem\t1\t2\t\nDiagnosticRendererTests\tcli\t1\t1\t\nMutatorTests\tcli\t1\t1\t\n' >> tests/cases/EXPORT.tsv
 { printf 'tag\tv0\t%s\nexport\tchore/export\t%s\n' "$head" "$head"
-  { find tests/cases -name 'expected.*'; echo tests/cases/parse/p.ast; } | LC_ALL=C sort |
+  { find tests/cases -name 'expected.*'; echo tests/cases/parse/p.ast; echo tests/cases/run/r.stdout; echo tests/cases/emit/run-c.sha256; } |
+    LC_ALL=C sort |
     while IFS= read -r p; do printf 'file\t%s\t%s\n' "$(git hash-object "$p")" "$p"; done
 } > tests/cases/FREEZE.tsv
 git add -A; git commit -qm tree
@@ -174,6 +198,18 @@ printf 'FunctionTypeTests.B\tT59\tcsharp\tx\n' >> tests/cases/DIVERGENCES.tsv
 [ "$(run "${rep[@]}")" = 0 ] && grep -q "replay: 8 files compared, 3 on the divergence list, 0 failed" "$tmp/out" \
   || fail "the replay: a divergence row: want exit 0, 3 on the list" "$(cat "$tmp/out")"
 git checkout -q -- tests/cases
+gold=(--class emit --class run)
+[ "$(run "${gold[@]}")" = 0 ] && grep -q "replay: 5 files compared, 0 on the divergence list, 0 failed" "$tmp/out" &&
+  grep -q "^runner: args: version in 0.42s$" "$aux/log" \
+  || fail "the emit and golden replay: want 5 files compared, BAYAN_EXE the C# CLI" "$(cat "$tmp/out" "$aux/log")"
+printf '0%s\n' "$(cut -c2- tests/cases/emit/modes/expected.safe.sha256)" > tests/cases/emit/modes/expected.safe.sha256
+[ "$(run "${gold[@]}")" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/emit/modes/expected.safe.sha256 (the line of run/r.byn" "$tmp/out" \
+  || fail "the emit replay: a changed line is not named" "$(cat "$tmp/out")"
+git checkout -q -- tests/cases; rm -rf tmp/reexport.*
+[ "$(GOLDEN_FAIL=run/r run "${gold[@]}")" = 1 ] &&
+  grep -q "differs from the frozen compiler: tests/cases/run/r.stdout (first difference: expected line 1: a)" "$tmp/out" \
+  || fail "the golden replay: a failed case is not named" "$(cat "$tmp/out")"
+rm -rf tmp/reexport.*
 
 [ "$(REEXPORT_DOTNET=$tmp/no-dotnet run "${all[@]}")" = 1 ] || fail "no dotnet: want exit 1" "$(cat "$tmp/out")"
 grep -q "no dotnet on PATH: L043 is not checked" "$tmp/out" && ! grep -q "ok in" "$tmp/out" || fail "no dotnet: want the message and no pass" "$(cat "$tmp/out")"

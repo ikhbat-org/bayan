@@ -2,11 +2,11 @@
 # Spec 019 T59 part 2 (019-t59b), the L043 replay: the frozen expected files export mode does not write, run again through the C# CLI
 # built from the export head. scripts/selfhost/reexport-check.sh builds that CLI, picks the units and calls this (one entry point).
 #   bash scripts/selfhost/replay-csharp.sh --list
-#   bash scripts/selfhost/replay-csharp.sh <C# bayan> <units file> <work dir>
+#   bash scripts/selfhost/replay-csharp.sh <C# bayan> <units file> <work dir> [<golden runner>]
 # --list prints `<unit>\t<route>\t<reason>` for each EXPORT.tsv class export mode leaves out (<kind>/<Class>) and each flat kind (<kind>):
-# the route `case`, `scratch` or `flat` when it is replayed, `-` and the reason when it is not.
-# <units file>: lines `<kind>/<Class>` (every case of the class) or `<kind> <kind>/<rel path>` (one flat input, named as freeze-csharp.sh
-# names it). Every run has CI=1, BAYAN_CACHE <work dir>/cache and stdin empty (a case's `stdin` file aside); routes:
+# the route `case`, `scratch`, `flat`, `emit` or `golden` when it is replayed, `-` and the reason when it is not.
+# <units file>: lines `<kind>/<Class>` (every case of the class), `<kind> <kind>/<rel path>` (one flat input, named as freeze-csharp.sh
+# names it), `emit <kind>/<rel path>` (a run/ or diag/ input of the emit files) or `golden <kind>/<case>` (a run, style, new or out case). Every run has CI=1, BAYAN_CACHE <work dir>/cache and stdin empty (a case's `stdin` file aside); routes:
 #   case     emit-c and sem classes the T27 route recorded with relative paths: the argv of the case's `args` runs in the case's
 #            directory of the tree (its input.byn or input/ in place); stdout is expected.c (emit-c) or expected.stdout, with expected.stderr and
 #            expected.exitcode; the case directory reads back as the relative path (`<dir>/input.byn` as
@@ -20,6 +20,16 @@
 #   flat     the argv of freeze-csharp.sh in the input's directory of the tree: parse `parse --ast <file>` (stdout is <stem>.ast),
 #            typed `types --package . <file>` (stdout is <stem>.types); the exit code is compared with the input's line of
 #            tests/cases/emit/exit/expected.<kind>.exitcode
+#   emit     scripts/selfhost/freeze-csharp.sh, the script that wrote them, with the inputs as its pick file: each input's line of
+#            emit/modes/expected.<mode>.sha256 (run/ inputs) or emit/exit/expected.diag.exitcode (diag/ inputs) against the tree's,
+#            and its run-c.sha256 line through the script's own check
+#   golden   the golden runner (`<golden runner> test tests/cases --only <case> ... --jobs <cpus>` in the repo root, src/driver/golden.byn,
+#            built by reexport-check.sh from src/driver) with BAYAN_EXE a wrapper: `test --golden-*` (the runner's workers) goes to the
+#            runner, every other argv to the C# CLI; with BAYAN_TERMINAL set and NO_COLOR unset (the style env) it sets FORCE_COLOR=1,
+#            the CLI's form of the terminal StyleTests.cs:161 rendered to in process (`new CliApp.Terminal(true, true, 100)`). The
+#            runner builds, runs and masks each case as the C# RunTests, StyleTests, ScaffoldTests and OutputTests did; a case it
+#            passes counts its FREEZE.tsv files (<case>.<ending>, <case>/main.<ending>) as compared, a failed one its first differing
+#            file, a skipped one (a style shape rendered in process, an `// os:` line) is printed and not counted
 # A produced file is compared by bytes with the tree's when that tree path has a FREEZE.tsv file row (an exit-code line: when the input
 # has a line there), unless its case is on DIVERGENCES.tsv (<kind>/<Class>/<case>, <Class>.<case> or <Class>.<Test> for a case
 # <Test>-<n>; flat: <kind>/<stem>). A differing file is printed with its first differing line; a frozen file the replay did not
@@ -27,6 +37,8 @@
 # 1 when one did, 2 on a usage error.
 # DIVERGENCES.tsv rows with question T59 for wall times in frozen bytes (the `untimed` compare word of the T27 sem cases):
 #   grep -l -E ' in [0-9]+\.[0-9][0-9]s' tests/cases/sem/{BuiltinResultsTests,FunctionTypeTests}/*/expected.stdout
+# and for the compiler version a dist manifest records (the C# CLI at the export head is `bayan 0.3.2`), the row out/dist:
+#   grep -l '"compiler": "bayan ' tests/cases/out/*.tree
 # bash 3.2.
 set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -36,7 +48,6 @@ cases=tests/cases; tab="$(printf '\t')"
 list() {
   local why_mut="its stdout went through the C# MaskMutation (SelfhostDriverMutateTests.cs:52-71), which the replay does not carry"
   local why_inproc="the C# golden test rendered it in process (golden.byn:704 goldenProduce); no CLI argv writes these bytes"
-  local why_slice="a CLI route exists but is not replayed in this slice (019-t59b)"
   printf '%s\t%s\t%s\n' \
     cli/DiagnosticRendererTests scratch "" \
     cli/L007UntrustedSinkTests scratch "" \
@@ -55,19 +66,19 @@ list() {
     sem/InterfaceDeclarationTests case "" \
     parse flat "" \
     typed flat "" \
-    diag - "$why_inproc" \
+    diag - "$why_inproc (its exit codes, emit/exit/expected.diag.exitcode, are replayed under emit)" \
     diag-json - "$why_inproc" \
     lex - "$why_inproc" \
     manifest - "$why_inproc" \
-    emit - "$why_slice (freeze-csharp.sh writes it; its exit-code files are checked line by line through parse and typed)" \
-    run - "$why_slice" \
-    style - "$why_slice" \
-    new - "$why_slice" \
-    out - "$why_slice"
+    emit emit "" \
+    run golden "" \
+    style golden "" \
+    new golden "" \
+    out golden ""
 }
 if [ $# = 1 ] && [ "$1" = --list ]; then list; exit 0; fi
-[ $# = 3 ] || { echo "usage: replay-csharp.sh --list | <C# bayan> <units file> <work dir>" >&2; exit 2; }
-cs="$1"; units="$2"; w="$3"
+[ $# = 3 ] || [ $# = 4 ] || { echo "usage: replay-csharp.sh --list | <C# bayan> <units file> <work dir> [<golden runner>]" >&2; exit 2; }
+cs="$1"; units="$2"; w="$3"; runner="${4:-}"
 case "$cs" in (/*) ;; (*) cs="$PWD/$cs" ;; esac
 [ -x "$cs" ] && [ -f "$units" ] && [ -d "$w" ] || { echo "replay-csharp: no executable $cs, units file $units or work dir $w" >&2; exit 2; }
 w="$(cd "$w" && pwd)"
@@ -172,9 +183,92 @@ replay_flat() {
   fi
 }
 
+# the emit inputs: freeze-csharp.sh with them as its pick file, then each input's line against the tree's
+replay_emit() {
+  local out="$w/emit" name f p got key x l
+  mkdir -p "$out"
+  TMPDIR="$w" bash scripts/selfhost/freeze-csharp.sh "$cs" "$cases" "$out" "$w/emit.pick" > "$w/emit.log" 2>&1
+  grep -F "$cases/emit/" "$w/frozen" > "$w/efrozen"
+  while IFS= read -r name; do
+    key="${name%.byn}"; [ "${name##*/}" != main.byn ] || key="${name%/main.byn}"
+    case "$name" in
+      (run/*) set -- modes/expected.debug.sha256 modes/expected.safe.sha256 modes/expected.fast.sha256 ;;
+      (*) set -- exit/expected.diag.exitcode ;;
+    esac
+    for f in "$@"; do
+      p="$cases/emit/$f"
+      grep -qxF "$p" "$w/efrozen" && grep -q "  $name\$" "$p" || continue
+      grep -qxF "$key" "$w/divkeys" && { ndiv=$((ndiv + 1)); continue; }
+      n=$((n + 1))
+      got="$(awk -v k="$name" 'substr($0, index($0, "  ") + 2) == k' "$out/emit/$f" 2> /dev/null)"
+      [ -n "$got" ] && grep -qxF "$got" "$p" ||
+        { echo "replay: differs from the frozen compiler: $p (the line of $name: ${got:-none})"; bad=$((bad + 1)); }
+    done
+  done < "$w/emit.pick"
+  p="$cases/emit/run-c.sha256"
+  grep -qxF "$p" "$w/frozen" || return 0
+  x="$(sed -n 's/^freeze-csharp: run-c.sha256 [0-9]* of \([0-9]*\) lines reproduced$/\1/p' "$w/emit.log")"
+  [ -n "$x" ] || { echo "replay: freeze-csharp.sh did not finish: $(tail -n 1 "$w/emit.log")"; bad=$((bad + 1)); return 0; }
+  n=$((n + x))
+  grep '^run-c mismatch: ' "$w/emit.log" > "$w/emit.bad"
+  while IFS= read -r l; do
+    name="${l#run-c mismatch: *  }"; name="${name% (*}"
+    key="${name%.byn}"; [ "${name##*/}" != main.byn ] || key="${name%/main.byn}"
+    if grep -qxF "$key" "$w/divkeys"; then n=$((n - 1)); ndiv=$((ndiv + 1)); continue; fi
+    case "$name|$l" in (*.test.byn\|*": exit:"*\))
+      n=$((n - 1)); echo "replay: not replayed: the run-c.sha256 line of $name (the C of a test file; freeze-csharp.sh's \`build --emit-c\` refuses it)"
+      continue ;; esac
+    echo "replay: differs from the frozen compiler: $p (${l#run-c mismatch: })"; bad=$((bad + 1))
+  done < "$w/emit.bad"
+}
+
+# the golden cases: the runner over them with BAYAN_EXE the wrapper; each case's result read back from the runner's output
+replay_golden() {
+  [ -n "$runner" ] && [ -x "$runner" ] || { echo "replay: the run, style, new and out cases need the golden runner (none given)"; bad=$((bad + 1)); return 0; }
+  mkdir -p "$w/exe"
+  { echo '#!/bin/sh'
+    echo "if [ \"\$1\" = test ]; then case \"\$2\" in (--golden-*) exec \"$runner\" \"\$@\" ;; esac; fi"
+    echo 'if [ -n "${BAYAN_TERMINAL:-}" ] && [ -z "${NO_COLOR:-}" ]; then FORCE_COLOR=1; export FORCE_COLOR; fi'
+    echo "exec \"$cs\" \"\$@\""; } > "$w/exe/bayan"
+  chmod +x "$w/exe/bayan"
+  local -a only; only=(); local c st name path line e p k
+  while IFS= read -r c; do only+=(--only "$c"); done < "$w/golden.pick"
+  BAYAN_EXE="$w/exe/bayan" "$runner" test "$cases" --jobs "$(getconf _NPROCESSORS_ONLN 2> /dev/null || echo 4)" "${only[@]}" \
+    > "$w/golden.log" 2>&1
+  grep -F -e "$cases/run/" -e "$cases/style/" -e "$cases/new/" -e "$cases/out/" "$w/frozen" > "$w/gfrozen"
+  awk '/^(passed|failed|skipped|timed out) / { if (st != "") print st "\t" name "\t" path "\t" line; st = $1; name = $NF; path = ""; line = ""; next }
+    st != "" && path == "" { path = $0; sub(/^ +/, "", path); next }
+    st != "" && line == "" { line = $0; sub(/^ +/, "", line) }
+    END { if (st != "") print st "\t" name "\t" path "\t" line }' "$w/golden.log" > "$w/golden.res"
+  while IFS= read -r c; do
+    st=""; path=""; line=""
+    IFS="$tab" read -r st name path line <<EOF
+$(awk -F'\t' -v c="$c" '$2 == c' "$w/golden.res")
+EOF
+    : > "$w/gfiles"
+    for e in stdout stderr exitcode color plain ascii tree json; do
+      for p in "$cases/$c.$e" "$cases/$c/main.$e"; do grep -qxF "$p" "$w/gfrozen" && echo "$p" >> "$w/gfiles"; done
+    done
+    k=$(wc -l < "$w/gfiles" | tr -d ' '); [ "$k" -gt 0 ] || continue
+    if grep -qxF "$c" "$w/divkeys"; then ndiv=$((ndiv + k)); continue; fi
+    case "$st" in
+      (passed) n=$((n + k)) ;;
+      (skipped) echo "replay: not replayed: $c ($k files, not checked): ${path#skipped: }" ;;
+      (failed|timed)
+        n=$((n + 1)); bad=$((bad + 1))
+        if grep -qxF "$path" "$w/gfiles"; then echo "replay: differs from the frozen compiler: $path (first difference: $line)"
+        else echo "replay: the frozen compiler did not reproduce $c: $path: $line"; fi ;;
+      (*) echo "replay: no result for $c from the golden runner: $(tail -n 1 "$w/golden.log")"; bad=$((bad + 1)) ;;
+    esac
+  done < "$w/golden.pick"
+}
+
+: > "$w/emit.pick"; : > "$w/golden.pick"
 while IFS= read -r u; do
   [ -n "$u" ] || continue
   case "$u" in
+    ("emit "*) echo "${u#emit }" >> "$w/emit.pick" ;;
+    ("golden "*) echo "${u#golden }" >> "$w/golden.pick" ;;
     (*" "*) replay_flat "${u%% *}" "${u#* }" ;;
     (*)
       route="$(awk -F'\t' -v u="$u" '$1 == u { print $2 }' "$w/routes")"
@@ -184,5 +278,7 @@ while IFS= read -r u; do
       esac ;;
   esac
 done < "$units"
+[ ! -s "$w/emit.pick" ] || replay_emit
+[ ! -s "$w/golden.pick" ] || replay_golden
 echo "replay: $n files compared, $ndiv on the divergence list, $bad failed"
 [ $bad = 0 ]
