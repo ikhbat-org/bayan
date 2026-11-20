@@ -3,7 +3,8 @@
 #   bash scripts/selfhost/reexport-check.sh [--seed S | --class <kind>/<Class> ... | --full]
 # The classes: the EXPORT.tsv rows with cases (kind `shell` aside) that export mode writes at the export head (derived from
 # that head's sources, below); the others are printed as left out and never count as checked. Default: one class per kind, picked by the seed (S, else the
-# ISO week `date -u +%G%V`): of a kind's classes sorted (LC_ALL=C), number 1 + (cksum of "S kind") mod n. --class names classes
+# ISO week `date -u +%G%V`): of a kind's classes of at most 2,000 EXPORT.tsv cases sorted (LC_ALL=C), number 1 + (cksum of
+# "S kind") mod n; larger classes are printed as left to --full, and a kind with none prints so. --class names classes
 # instead; --full takes them all. The chosen classes are printed first.
 # Steps, in <root>/tmp/reexport.XXXXXX (no worktree: the checkout's git state is left alone):
 #   1. `git archive` of the export head tests/cases/FREEZE.tsv names (its `export` row) into tree/;
@@ -75,14 +76,23 @@ elif [ -n "$picked" ]; then
   what="named classes"
 else
   seed="${seed:-$(date -u +%G%V)}"; : > "$w/sel"
+  # the weekly pick: classes of at most 2,000 EXPORT.tsv cases (the R27 job's 60 minutes); larger ones are left to --full
+  awk -F'\t' 'NR > 1 && $4 + 0 > 2000 { print $2 "/" $1 }' "$cases/EXPORT.tsv" | LC_ALL=C sort -u > "$w/bigrows"
+  grep -vxF -f "$w/bigrows" "$w/all" > "$w/small"; grep -xF -f "$w/bigrows" "$w/all" > "$w/big"
   for kind in $(cut -d/ -f1 "$w/all" | uniq); do
-    k=$(grep -c "^$kind/" "$w/all"); h=$(printf '%s %s' "$seed" "$kind" | cksum | cut -d' ' -f1)
-    grep "^$kind/" "$w/all" | sed -n "$((h % k + 1))p" >> "$w/sel"
+    k=$(grep -c "^$kind/" "$w/small"); h=$(printf '%s %s' "$seed" "$kind" | cksum | cut -d' ' -f1)
+    [ "$k" -gt 0 ] || { echo "reexport-check: $kind has no weekly class (each is over 2,000 cases; --full or --class checks it)" >> "$w/nokind"; continue; }
+    grep "^$kind/" "$w/small" | sed -n "$((h % k + 1))p" >> "$w/sel"
   done
   what="seed $seed"
 fi
 echo "== reexport-check: export $ref ($(echo "$sha" | cut -c1-12)), $what: $(wc -l < "$w/sel" | tr -d ' ') classes"
 [ $full = 1 ] || sed 's/^/  /' "$w/sel"
+[ ! -f "$w/nokind" ] || cat "$w/nokind"
+if [ -s "$w/big" ]; then
+  echo "reexport-check: left to --full (over 2,000 cases): $(wc -l < "$w/big" | tr -d ' ') classes"
+  sed 's/^/  /' "$w/big"
+fi
 if [ -s "$w/left" ]; then
   echo "reexport-check: left out, not checked (export mode writes no case for them at this head; T59b): $(wc -l < "$w/left" | tr -d ' ') classes"
   sed 's/^/  /' "$w/left"

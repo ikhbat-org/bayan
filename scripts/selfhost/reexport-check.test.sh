@@ -50,12 +50,13 @@ printf 'class ACliTests { SelfhostExport e; }\n' > src/tests/ACliTests.cs
 printf 'class ASemTests { SelfhostFakeHarness h; }\n' > src/tests/ASemTests.cs
 printf 'class BSemTests { SelfhostExport e; }\n' > csharp/tests/BSemTests.cs
 printf 'class CSemTests { Cli c; }\n' > src/tests/CSemTests.cs
+printf 'class DLexTests { SelfhostExport e; }\nclass ESemTests { SelfhostExport e; }\n' > src/tests/Big.cs
 git add -A; git commit -qm export; head="$(git rev-parse HEAD)"
 cp -R "$aux/export/." tests/cases/
 mk tests/cases sem/CSemTests/Five "five"
 printf 'class\tfile\tfamily\ttests\tdisposition\ttarget\treason\tmemberdata\n' > tests/inventory-019.tsv
 for c in ACliTests ASemTests BSemTests CSemTests; do printf '%s\tx.cs\tf\t1\tcli\tcli\t\t\n' "$c" >> tests/inventory-019.tsv; done
-printf 'class\tkind\ttests\tcases\treason\nACliTests\tcli\t1\t1\t\nASemTests\tsem\t1\t2\t\nBSemTests\tsem\t1\t1\t\nCSemTests\tsem\t1\t1\t\nShellTests\tshell\t1\t3\t\n' \
+printf 'class\tkind\ttests\tcases\treason\nACliTests\tcli\t1\t1\t\nASemTests\tsem\t1\t2\t\nBSemTests\tsem\t1\t1\t\nCSemTests\tsem\t1\t1\t\nDLexTests\tlex\t1\t2001\t\nESemTests\tsem\t1\t2500\t\nShellTests\tshell\t1\t3\t\n' \
   > tests/cases/EXPORT.tsv
 printf 'case\tquestion\tright\treason\n' > tests/cases/DIVERGENCES.tsv
 { printf 'tag\tv0\t%s\nexport\tchore/export\t%s\n' "$head" "$head"
@@ -82,6 +83,12 @@ grep -q "4 files compared, 0 on the divergence list, 0 skipped by an os file, 0 
 grep -A2 "seed 5: 2 classes" "$tmp/out" | tail -2 > "$tmp/pick1"
 grep -q "^  cli/ACliTests$" "$tmp/pick1" && grep -q "^  sem/" "$tmp/pick1" || fail "the sample is one class per kind" "$(cat "$tmp/out")"
 run --seed 5 > /dev/null; grep -A2 "seed 5: 2 classes" "$tmp/out" | tail -2 | cmp -s - "$tmp/pick1" || fail "the same seed picks other classes"
+for s in 1 2 3 4 5 6 7 8; do
+  run --seed $s > /dev/null; ! grep -q "^  sem/ESemTests$" <(grep -A2 "seed $s: 2 classes" "$tmp/out") || fail "seed $s picks a class over 2,000 cases" "$(cat "$tmp/out")"
+done
+grep -q "^reexport-check: lex has no weekly class" "$tmp/out" && grep -A2 "left to --full (over 2,000 cases): 2 classes" "$tmp/out" |
+  tr '\n' ' ' | grep -q "  lex/DLexTests   sem/ESemTests" || fail "the classes over 2,000 cases are not printed" "$(cat "$tmp/out")"
+[ "$(run --class lex/DLexTests)" = 0 ] || fail "--class takes a class over 2,000 cases" "$(cat "$tmp/out")"
 run > /dev/null; grep -q "seed $(date -u +%G%V): 2 classes" "$tmp/out" || fail "no seed: want the ISO week" "$(cat "$tmp/out")"
 grep -A1 "left out, not checked .*: 1 classes" "$tmp/out" | grep -q "^  sem/CSemTests$" || fail "the left-out class is not printed" "$(cat "$tmp/out")"
 [ "$(run --full)" = 0 ] && [ "$(tail -1 "$aux/log")" = "filter=" ] || fail "--full: want exit 0 and no filter" "$(cat "$tmp/out")"
