@@ -390,3 +390,46 @@ test "driver t29: qualityWarnings finds the marked file among other sources" {
         as: "",
     )
 }
+
+/// `emitter.Schema` and `emitter.SchemaSite`, named here so a test can build a schema by hand.
+type T29Schema     = emitter.Schema
+type T29SchemaSite = emitter.SchemaSite
+
+test "driver t29: qrResults of not-emitted marked sites and qualityInMark across files and past the end of the source" {
+    let text = "i64 f(i64 n) {\n    @unobservable(literal) because \"x\"\n    let k = 7 > n ? 1 : 2\n    return k\n}\n"
+    var marked = qrBuild(text)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref marked, for: in none)
+    var hidden = T29Schema {}
+    for s in schema.sites {
+        hidden.sites.append(T29SchemaSite { id: s.id, site: s.site, emitted: false, unobservable: "x" })
+    }
+    var statuses = List<string>()
+    for m in qrResults(in hidden, by: true).mutants {
+        statuses.append($"{m.site.op}={m.status}")
+    }
+    t29Same(
+        statuses.joined(by: " "),
+        as: "boundary=survived relational=killed literal=notEmitted literal=notEmitted literal=notEmitted literal=notEmitted literal=notEmitted literal=notEmitted emptyReturn=notEmitted",
+    )
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var source = lexer.SourceText.create("lib.test.byn", from: move bytes)
+    let mark = marked.unobservable[0]
+    var elsewhere = schema.sites[2].site
+    elsewhere.file = "other.byn"
+    var past = schema.sites[2].site
+    past.column = 1000
+    var inside = List<string>()
+    for s in schema.sites {
+        inside.append($"{s.site.line}:{s.site.column}={qualityInMark(in mark, for: in s.site, through: ref source)}")
+    }
+    inside.append($"elsewhere={qualityInMark(in mark, for: in elsewhere, through: ref source)}")
+    inside.append($"past={qualityInMark(in mark, for: in past, through: ref source)}")
+    t29Same(
+        inside.joined(by: " "),
+        as: "3:13=false 3:13=false 3:13=true 3:13=true 3:21=true 3:21=true 3:25=true 3:25=true 4:12=false elsewhere=false past=false",
+    )
+}
