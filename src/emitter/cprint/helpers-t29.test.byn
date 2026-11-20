@@ -1,0 +1,88 @@
+// 019 T29 (coverage ratchet): `formatInto` and `formatIntoWithSpec` on structs whose `formatInto` methods are static,
+// failing, by value, of the wrong arity or of the wrong parameter types. The expected values are the output of the
+// self-hosted emitter at the commit that added the test.
+
+test "cprint t29: formatInto picks only the instance formatInto(ref StrBuf[, FormatSpec]) with the fewest parameters" {
+    var c = t29Ctx(
+        """
+        union error E {
+            bad
+        }
+
+        struct S1 {
+            i64 x = 0
+
+            static void formatInto(ref StrBuf sb) {
+                sb.append("s1")
+            }
+        }
+
+        struct S2 {
+            i64 x = 0
+
+            void formatInto(ref StrBuf sb) fails E {
+                fail .bad if this.x < 0
+                sb.append("s2")
+            }
+        }
+
+        struct S3 {
+            i64 x = 0
+
+            void formatInto(ref StrBuf sb, by i64 a, at i64 b) {
+                sb.append("s3")
+            }
+        }
+
+        struct S4 {
+            i64 x = 0
+
+            void formatInto(StrBuf sb) {}
+        }
+
+        struct S5 {
+            i64 x = 0
+
+            void formatInto(ref i64 n) {
+                n = 1
+            }
+        }
+
+        struct S6 {
+            i64 x = 0
+
+            void formatInto(ref StrBuf sb, by i64 n) {
+                sb.append("s6")
+            }
+        }
+
+        struct S7 {
+            i64 x = 0
+
+            void formatInto(ref StrBuf sb, as FormatSpec spec) {
+                sb.append("s7")
+            }
+
+            void formatInto(ref StrBuf sb) {
+                sb.append("s7")
+            }
+        }
+
+        void main() {}
+        """,
+    )
+    var plain = StrBuf()
+    var spec = StrBuf()
+    for name in ["S1", "S2", "S3", "S4", "S5", "S6", "S7"] {
+        var s: i64 = 0
+        while c.structs[s].name != name {
+            s += 1
+        }
+        let f = formatInto(ref c, for: s)
+        plain.append(f == -1 ? "- " : $"{c.functions[f].parameters.length} ")
+        let g = formatIntoWithSpec(ref c, for: s)
+        spec.append(g == -1 ? "- " : $"{c.functions[g].parameters.length} ")
+    }
+    assert plain.finish() == "- - - - - - 1 "
+    assert spec.finish() == "- - - - - - 2 "
+}

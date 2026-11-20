@@ -377,6 +377,185 @@ List<string> t29Corpus() {
         }
         """,
     )
+    corpus.append(
+        """
+        union Shape {
+            circle(i64 r)
+            square(i64 side)
+            none
+        }
+
+        struct Box {
+            i64 w = 1
+            i64 h = 2
+
+            public i64 area => this.w * this.h
+        }
+
+        i64 opt(i64? o) {
+            return 1 if o is > 3
+            return 2 if o is 1..=3
+            return 3 if o is 0..1
+            return 4
+        }
+
+        i64 claims(Shape s) {
+            switch s {
+                case not .none:
+                    return 1
+                default:
+                    return 0
+            }
+        }
+
+        i64 named(Shape s) {
+            switch s {
+                case .circle c:
+                    return 5
+                default:
+                    return 0
+            }
+        }
+
+        i64 props(Box b, at string t, by (i64, i64) p) {
+            return 1 if b is { area: > 3 }
+            return 2 if t is { length: 0 }
+            return 3 if b is { }
+            return 4
+        }
+
+        i64 allPanic(i64 x) => x switch {
+            1 => panic("one"),
+            _ => panic("other"),
+        }
+
+        i64 conv(f64 f, by i64 big) {
+            let a = i32.tryFrom(big) ?? 0
+            let b = i64.tryFrom(f) ?? 0
+            return a + b
+        }
+
+        void main() {
+            print($"{opt(5)} {claims(.none)} {named(.circle(1))} {props(Box {}, at: "", by: (1, 2))} {conv(1.5, by: 7)}")
+        }
+
+        test "asserts" {
+            let x: i64 = 3
+            assert (x) == 3
+            assert -1 < x
+            assert x == +3
+            var m = Map<string, i64>()
+            m["a"] = 1
+            assert m["a"] == 1
+        }
+        """,
+    )
+    corpus.append(
+        """
+        union Shape {
+            circle(i64 r)
+            square(i64 side)
+            none
+        }
+
+        struct Box {
+            i64 w = 1
+            i64 h = 2
+        }
+
+        i64 named(Shape s) => s switch {
+            .circle c => c.r,
+            _ => 0,
+        }
+
+        i64 owned(Shape s) {
+            let t = s
+            switch t {
+                case .square q:
+                    return q.side
+                default:
+                    return 0
+            }
+        }
+
+        i64 boxed(Box b) {
+            switch b {
+                case { w: > 0 } whole:
+                    return whole.h
+                default:
+                    return 0
+            }
+        }
+
+        i64 pair((i64 x, i64 y) p) {
+            return 1 if p is { y: 2 }
+            return 0
+        }
+
+        void main() {
+            print($"{named(.circle(1))} {owned(.square(2))} {boxed(Box {})} {pair((1, 2))}")
+        }
+        """,
+    )
+    corpus.append(
+        """
+        union error E {
+            bad
+            worse
+        }
+
+        struct Pt {
+            i64 x = 0
+        }
+
+        i64 key(i64 k) => k + 1
+
+        string name(i64 k) => k > 0 ? "a" : "b"
+
+        void compound() {
+            var xs = List<i64>()
+            xs.append(1)
+            xs.append(2)
+            xs[key(0)] += 3
+            var m = Map<string, i64>()
+            m["a"] = 1
+            m["b"] = 2
+            m[name(1)] += 4
+            var p = Pt {}
+            p.x += 2
+            var t: (i64 a, i64 b) = (1, 2)
+            t.a = 5
+            t.b += 1
+            var arr: i64[3] = [1, 2, 3]
+            arr[key(0)] = 9
+            print($"{xs[1]} {m["a"]} {p.x} {t.a} {t.b} {arr[1]}")
+        }
+
+        E failing(bool b) {
+            defer {
+                print("d")
+            }
+            return .bad if b
+            return .worse
+        }
+
+        i64 guarded(i64? o, by i64 n) {
+            switch n {
+                case 1 when (o ?? 0) > 0:
+                    return 1
+                case 2 when n > (o ?? 5):
+                    return 2
+                default:
+                    return 0
+            }
+        }
+
+        void main() {
+            compound()
+            print($"{failing(b: true)} {guarded(3, by: 1)}")
+        }
+        """,
+    )
     return corpus
 }
 
@@ -549,4 +728,88 @@ test "emitter t29: isTrivial, isRepeatable, isLvalue and anyNode on made-up node
     assert moves.finish() == "tftfftttftttffffft"
     assert anyNode(in c, through: in l, for: local, by: .readsLocalMovedBy(moved))
     assert !anyNode(in c, through: in l, for: other, by: .readsLocalMovedBy(moved))
+}
+
+test "emitter t29: states, interface slots by ref, out, failing and never, and function values emit" {
+    let source = """
+        union error E {
+            bad
+        }
+
+        struct Door {
+            i64 id = 0
+
+            states {
+                ajar
+                shut
+            }
+        }
+
+        struct Order {
+            i64 id = 0
+
+            states {
+                draft
+                paid(i64 amount)
+            }
+        }
+
+        interface ISlots {
+            never stop()
+            void put(ref i64 x)
+            void fill(out i64 x)
+            void check() fails E
+        }
+
+        struct Impl : ISlots {
+            i64 n = 0
+
+            never stop() {
+                panic("stop")
+            }
+
+            void put(ref i64 x) {
+                x += 1
+            }
+
+            void fill(out i64 x) {
+                x = 2
+            }
+
+            void check() fails E {
+                fail .bad if this.n < 0
+            }
+        }
+
+        void sink(i64 x) {
+            let _ = x + 1
+        }
+
+        never halt(i64 x) {
+            panic($"{x}")
+        }
+
+        void useSlots(dyn ref ISlots s) {
+            var v: i64 = 0
+            s.put(ref v)
+            s.fill(out v)
+            s.check() catch {}
+        }
+
+        void main() {
+            let a: Door = Door.ajar { id: 1 }
+            let b: Door = Door.shut { id: 1 }
+            let o: Order = Order.paid { id: 1, amount: 5 }
+            let p: Order = Order.draft { id: 1 }
+            print($"{a == b} {o == p}")
+            var i = Impl {}
+            useSlots(i)
+            let f: (i64 -> void) = sink
+            f(3)
+            let g: (i64 -> never) = halt
+            g(1) if a == b
+        }
+        """
+    let emitted = t29Emit(source)
+    assert emitted.contains("int main(")
 }

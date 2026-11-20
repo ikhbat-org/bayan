@@ -47,7 +47,7 @@ test "cprint t29: key and cType of builtin, error, text view, dyn ref and range 
         shape += 1
     }
     assert key(ref c, for: semantics.internDynRef(ref c, by: shape, readOnly: true)) == "dyn_main__IShape"
-    assert key(ref c, for: semantics.internRange(ref c, by: semantics.prim(.i64))) == "range_i64"
+    assert key(ref c, for: semantics.internRange(ref c, by: semantics.prim(.i64))) == "tup3_i64_i64_bool"
 }
 
 test "cprint t29: mapLine writes nothing without a line path or on the line it just wrote" {

@@ -28,3 +28,128 @@ test "emitter t29: t4TypeName of the lowered and bound kinds" {
     let expectedBound = "BoundSpread BoundErrorExpr BoundTypeRef BoundModuleRef BoundMethodGroup BoundVariantGroup BoundBuiltinGroup literal "
     assert bound.finish() == expectedBound
 }
+
+test "emitter t29: a program whose expressions hold a never-returning operand lowers" {
+    let source = """
+        union Shape {
+            circle(i64 r)
+            none
+        }
+
+        union error E {
+            bad
+        }
+
+        struct Pt {
+            i64 x = 0
+            i64 y = 0
+        }
+
+        i64 two(i64 a, by i64 b) => a + b
+
+        i64 failer(i64 a) fails E {
+            fail .bad if a < 0
+            return a
+        }
+
+        void n01() {
+            let s = Shape.circle(panic("a"))
+        }
+
+        void n02() {
+            let x = 1 + panic("a")
+        }
+
+        void n03() {
+            let x: i64 = panic("a")
+        }
+
+        void n04() {
+            let p = Pt { x: 1, y: panic("a") }
+        }
+
+
+        void n06() {
+            let r = 0..panic("a")
+        }
+
+
+
+        void n09() {
+            let xs: List<i64> = [1, panic("a")]
+        }
+
+        void n10(bool b) {
+            let x = b && panic("a")
+        }
+
+        void n11(bool b) {
+            let x = b ? panic("a") : 1
+        }
+
+        void n12(i64? o) {
+            let x = o ?? panic("a")
+        }
+
+        void n13() {
+            let m: Map<string, i64> = ["a": panic("a")]
+        }
+
+        void n14() {
+            let x = two(1, by: panic("a"))
+        }
+
+        void n15() {
+            let x = failer(panic("a")) catch { return }
+        }
+
+        void n16() fails E {
+            let x = try failer(panic("a"))
+        }
+
+        void n17() {
+            return panic("a")
+        }
+
+        void n18() {
+            if panic("a") {
+                print("x")
+            }
+        }
+
+        void n19() {
+            while panic("a") {
+                print("x")
+            }
+        }
+
+        void n20() {
+            for i in 0..panic("a") {
+                print("x")
+            }
+        }
+
+        void n21() {
+            switch panic("a") {
+                default:
+                    print("x")
+            }
+        }
+
+        void n22() {
+            var x: i64 = 0
+            x += panic("a")
+        }
+
+
+
+
+
+
+        void main() {
+            print("never")
+        }
+        """
+    let emitted = t29Emit(source)
+    assert emitted.contains("int main(")
+}
