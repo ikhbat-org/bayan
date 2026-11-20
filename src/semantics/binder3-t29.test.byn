@@ -319,6 +319,55 @@ test "binder3 t29: for over generic, enumerator and fallible iterables" {
     )
 }
 
+test "binder3 t29: for try over values whose next is static, does not fail or is not optional" {
+    let text = """
+            union error ReadError { broken }
+
+            struct Other {
+                i64 at
+
+                i64 size() => at
+            }
+
+            struct Static {
+                i64 at
+
+                static i64? next() fails ReadError => null
+            }
+
+            struct Plain {
+                i64 at
+
+                i64? next(ref this) => null
+            }
+
+            struct Bare {
+                i64 at
+
+                i64 next(ref this) fails ReadError => at
+            }
+
+            void main2() fails ReadError {
+                for try r in (Other { at: 0 }) {
+                    print("r")
+                }
+                for try r in (Static { at: 0 }) {
+                    print("r")
+                }
+                for try r in (Plain { at: 0 }) {
+                    print("r")
+                }
+                for try r in (Bare { at: 0 }) {
+                    print("r")
+                }
+            }
+            """
+    assert t29b3Is(
+        text,
+        as: "BYN2221 347+17 `Other` cannot be iterated | BYN2221 409+18 `Static` cannot be iterated | BYN2221 472+17 `Plain` cannot be iterated | BYN2221 534+16 `Bare` cannot be iterated",
+    )
+}
+
 test "binder3 t29: Panic.handler set to a bound method, a static method, a value-returning function or an undefined name" {
     let text = """
             struct H {
