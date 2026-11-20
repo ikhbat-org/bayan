@@ -1,0 +1,231 @@
+// 019 T29 (coverage ratchet): stmts2.byn paths no golden case reaches: stacked labels with `default`, unterminated and
+// stray switch sections, `context ()`, `goto default`, values and labels on the next line, assignment targets that are
+// not assignable and postfix conditions after a block. The helper `t29Bodies` is dump-t29.test.byn's. The expected text
+// is the output of the self-hosted parser at the commit that added the test.
+
+test "parser t29: rare statement forms" {
+    let bodies = [
+        "switch x {\n    default:\n    case 1:\n        f()\n}",
+        "switch x {\n    case 1:\n    default:\n        f()\n}",
+        "switch x {\n    case 1:\n        f()",
+        "switch x {\n    foo bar\n}",
+        "defer 1",
+        "context () {\n}",
+        "context (allocator: a) {\n}",
+        "goto default",
+        "goto\nfoo",
+        "return\n    1",
+        "return\n\n1",
+        "return\n)",
+        "return\nwhile",
+        "fail\n    .a",
+        "fail\n\n.a",
+        "fail\nwhile",
+        "x\n++",
+        "while true {\n    break\nouter\n}",
+        "while true {\n    break\n\nouter\n}",
+        "while true {\n    continue\nouter x\n}",
+        "x ?? 1",
+        "x > >= 1",
+        "x >>= 1",
+        "a?.b = 1",
+        "a.b(k) = 1",
+        "a.slot(k) = 1",
+        "f(k) = 1",
+        "(x) = 1",
+        "(f()) = 1",
+        "{\n} if x",
+        "{\n} if x {\n}",
+        "f()\nif x",
+    ]
+    var text = StrBuf()
+    text.append(t29Bodies(bodies))
+    let expected = """
+            == 0
+            Function f() -> void
+              Block
+                Switch x
+                  Default
+                    Expr (call f)
+            [BYN1014 39+4]
+            == 1
+            Function f() -> void
+              Block
+                Switch x
+                  Case 1
+                    Expr (call f)
+            [BYN1014 38+7]
+            == 2
+            Function f() -> void
+              Block
+                Switch x
+                  Case 1
+                    Expr (call f)
+            [BYN1001 48+0]
+            == 3
+            Function f() -> void
+              Block
+                Switch x
+            [BYN1001 26+3]
+            == 4
+            Function f() -> void
+              Block
+                Defer
+                  Expr 1
+            [BYN1012 17+1]
+            == 5
+            Function f() -> void
+              Block
+                Provide 
+                  Block
+            [BYN6006 11+7]
+            == 6
+            Function f() -> void
+              Block
+                Provide allocator: a
+                  Block
+            [BYN6006 11+7]
+            == 7
+            Function f() -> void
+              Block
+                <error>
+            [BYN1010 11+4]
+            == 8
+            Function f() -> void
+              Block
+                Break
+                Expr foo
+            [BYN1010 11+4]
+            [BYN1012 16+3]
+            == 9
+            Function f() -> void
+              Block
+                Return 1
+            [BYN1042 22+1]
+            == 10
+            Function f() -> void
+              Block
+                Return
+                Expr 1
+            [BYN1012 19+1]
+            == 11
+            Function f() -> void
+              Block
+                Return
+                Expr <error>
+            [BYN1002 18+1]
+            == 12
+            Function f() -> void
+              Block
+                Return
+                While <error>
+                  Block
+            [BYN1002 24+1]
+            == 13
+            Function f() -> void
+              Block
+                Fail .a
+            [BYN1042 20+1]
+            == 14
+            Function f() -> void
+              Block
+                Fail .a
+            == 15
+            Function f() -> void
+              Block
+                Fail <error>
+                While <error>
+                  Block
+            [BYN1002 16+5]
+            [BYN1002 22+1]
+            == 16
+            Function f() -> void
+              Block
+                Expr x
+            [BYN1012 11+1]
+            == 17
+            Function f() -> void
+              Block
+                While true
+                  Block
+                    Break outer
+            [BYN1042 34+5]
+            == 18
+            Function f() -> void
+              Block
+                While true
+                  Block
+                    Break
+                    Expr outer
+            [BYN1012 35+5]
+            == 19
+            Function f() -> void
+              Block
+                While true
+                  Block
+                    Continue
+                    Var x: outer
+            [BYN1043 37+7]
+            == 20
+            Function f() -> void
+              Block
+                Expr (?? x 1)
+            [BYN1012 11+6]
+            == 21
+            Function f() -> void
+              Block
+                Expr (>= (> x <error>) 1)
+            [BYN1002 15+2]
+            == 22
+            Function f() -> void
+              Block
+                Assign x >>= 1
+            == 23
+            Function f() -> void
+              Block
+                Assign (?. a b) = 1
+            [BYN1011 11+3]
+            == 24
+            Function f() -> void
+              Block
+                Assign (call (. a b) k) = 1
+            [BYN1011 11+6]
+            == 25
+            Function f() -> void
+              Block
+                Assign (call (. a slot) k) = 1
+            == 26
+            Function f() -> void
+              Block
+                Assign (call f k) = 1
+            [BYN1011 11+4]
+            == 27
+            Function f() -> void
+              Block
+                Assign (paren x) = 1
+            == 28
+            Function f() -> void
+              Block
+                Assign (paren (call f)) = 1
+            [BYN1011 12+3]
+            == 29
+            Function f() -> void
+              Block
+                Block
+            [BYN1008 15+2]
+            == 30
+            Function f() -> void
+              Block
+                Block
+                If x
+                  Block
+            == 31
+            Function f() -> void
+              Block
+                Guarded if x
+                  Expr (call f)
+            [BYN1042 15+2]
+
+            """
+    assert text.finish() == expected
+}

@@ -1,0 +1,244 @@
+// 019 T29 (coverage ratchet): exprs.byn paths no golden case reaches: operators at a lower precedence than the one being
+// parsed, a blank line after a trailing operator, `except` conditions, `new`, jumps after `return`, `switch` and `with`
+// after a prefix operator, `catch switch` block arms, and `trust(…)` calls in every closing position. The helper
+// `t29Bodies` is dump-t29.test.byn's and `t3ParserOf` is recover.test.byn's. The expected text is the output of the
+// self-hosted parser at the commit that added the test.
+
+test "parser t29: rare binary, unary and postfix forms" {
+    let bodies = [
+        "x = (a ?)",
+        "x = 1..=3",
+        "x = a + b in c",
+        "x = a + b catch 0",
+        "x = a +\n\nb",
+        "x = a except _",
+        "x = a except 1",
+        "x = a except 1 )",
+        "x = a except 1 + 2",
+        "x = a except 1 ?? 2",
+        "x = a except 1 is b",
+        "x = a except 1 in b",
+        "x = a except (1 +) < 2",
+        "x = [a.. ..b, a.. ..=b]",
+        "x = a catch (e.b) 0",
+        "x = a catch { b: 1\n    c }",
+        "x = -a switch { _ => 1 }",
+        "x = -a switch b",
+        "x = -a with b",
+        "x = new Foo()",
+        "x = a ?? return return",
+        "x = a ?? return break",
+        "x = a ?? return continue",
+        "x = a switch b",
+        "x = a switch { , }",
+        "x = a catch switch {\n    .b => { c: 1 },\n    .d => { e: 1\n        f },\n    .g => { h },\n}",
+        "x = trust(a: y, reason: \"r\")",
+        "x = trust(ref y, reason: \"r\")",
+        "x = trust(y, reason: ref z)",
+        "x = trust(y, z)",
+        "x = trust(y, reason: \"r\")\nf()",
+        "g(trust(y, reason: \"r\"))",
+        "g(trust(y, reason: \"r\"), 1)",
+        "x = [trust(y, reason: \"r\")]",
+        "x = $\"{trust(y, reason: \"r\")}\"",
+        "x = Foo { a: trust(y, reason: \"r\") }",
+    ]
+    var sb = StrBuf()
+    sb.append(t29Bodies(bodies))
+    sb.append($"== x = a switch {{\n{t29Brief("x = a switch {")}")
+    var p = t3ParserOf("1 + 2")
+    let _ = parseExceptPattern(ref p)
+    let span = blockSpan(in Stmt.none)
+    sb.append($"{p.pos} {p.lexed.diagnostics.length} {span.start}+{span.length}\n")
+    let expected = """
+            == 0
+            Function f() -> void
+              Block
+                Assign x = (paren (? a <error> <error>))
+            [BYN1002 19+1]
+            == 1
+            Function f() -> void
+              Block
+                Assign x = (..= 1 3)
+            == 2
+            Function f() -> void
+              Block
+                Assign x = (in (+ a b) c)
+            == 3
+            Function f() -> void
+              Block
+                Assign x = (catch (+ a b) 0)
+            == 4
+            Function f() -> void
+              Block
+                Assign x = (+ a b)
+            [BYN1002 18+0]
+            == 5
+            Function f() -> void
+              Block
+                Assign x = (except a _)
+            == 6
+            Function f() -> void
+              Block
+                Assign x = (except a 1)
+            == 7
+            Function f() -> void
+              Block
+                Assign x = (except a 1)
+                Expr <error>
+            [BYN1005 25+0]
+            [BYN1002 26+1]
+            == 8
+            Function f() -> void
+              Block
+                Assign x = (except a (+ 1 2))
+            == 9
+            Function f() -> void
+              Block
+                Assign x = (?? (except a 1) 2)
+            == 10
+            Function f() -> void
+              Block
+                Assign x = (except a (is 1 b))
+            [BYN1052 24+6]
+            == 11
+            Function f() -> void
+              Block
+                Assign x = (except a (in 1 b))
+            [BYN1052 24+6]
+            == 12
+            Function f() -> void
+              Block
+                Assign x = (except a (< (+ 1 <error>) 2))
+            [BYN1002 28+1]
+            [BYN1052 25+8]
+            == 13
+            Function f() -> void
+              Block
+                Assign x = (list (.. (.. a _) b) (..= (.. a _) b))
+            == 14
+            Function f() -> void
+              Block
+                Assign x = (catch a (variant (. e b)) 0)
+            == 15
+            Function f() -> void
+              Block
+                Assign x = (catch a (block {Label b; Expr 1} {Expr c}))
+            [BYN1012 28+1]
+            [BYN1012 34+1]
+            == 16
+            Function f() -> void
+              Block
+                Assign x = (- (switch a (_ => 1)))
+            == 17
+            Function f() -> void
+              Block
+                Assign x = (- a)
+                Switch b
+            [BYN1005 17+0]
+            [BYN1001 27+1]
+            [BYN1001 29+0]
+            == 18
+            Function f() -> void
+              Block
+                Assign x = (- a)
+                Expr <error>
+            [BYN1005 17+0]
+            [BYN1002 18+4]
+            == 19
+            Function f() -> void
+              Block
+                Assign x = (call Foo)
+            == 20
+            Function f() -> void
+              Block
+                Assign x = (?? a (return))
+                Return
+            [BYN1005 26+0]
+            == 21
+            Function f() -> void
+              Block
+                Assign x = (?? a (return))
+                Break
+            [BYN1005 26+0]
+            == 22
+            Function f() -> void
+              Block
+                Assign x = (?? a (return))
+                Continue
+            [BYN1005 26+0]
+            == 23
+            Function f() -> void
+              Block
+                Assign x = a
+                Switch b
+            [BYN1005 16+0]
+            [BYN1001 26+1]
+            [BYN1001 28+0]
+            == 24
+            Function f() -> void
+              Block
+                Assign x = (switch a (<error> => <error>))
+            [BYN1002 26+1]
+            == 25
+            Function f() -> void
+              Block
+                Assign x = (catch a (switch (caught) (.b => (struct _ (c 1))) (.d => (block {Label e; Expr 1} {Expr f})) (.g => (block {Expr h}))))
+            [BYN1012 67+1]
+            [BYN1012 77+1]
+            [BYN1012 94+1]
+            == 26
+            Function f() -> void
+              Block
+                Assign x = (call trust (a: y) (reason: "r"))
+            == 27
+            Function f() -> void
+              Block
+                Assign x = (call trust (ref y) (reason: "r"))
+            == 28
+            Function f() -> void
+              Block
+                Assign x = (call trust y (reason: ref z))
+            == 29
+            Function f() -> void
+              Block
+                Assign x = (call trust y z)
+            == 30
+            Function f() -> void
+              Block
+                Assign x = (call trust y (reason: "r"))
+                Expr (call f)
+            [BYN1062 15+5]
+            == 31
+            Function f() -> void
+              Block
+                Expr (call g (call trust y (reason: "r")))
+            [BYN1062 13+5]
+            == 32
+            Function f() -> void
+              Block
+                Expr (call g (call trust y (reason: "r")) 1)
+            [BYN1062 13+5]
+            == 33
+            Function f() -> void
+              Block
+                Assign x = (list (call trust y (reason: "r")))
+            [BYN1062 16+5]
+            == 34
+            Function f() -> void
+              Block
+                Assign x = (interp (call trust y (reason: "r")))
+            [BYN1062 18+5]
+            == 35
+            Function f() -> void
+              Block
+                Assign x = (struct Foo (a (call trust y (reason: "r"))))
+            [BYN1062 24+5]
+            == x = a switch {
+            Assign x = (switch a)
+            [BYN1001 14+0]
+            3 0 0+0
+
+            """
+    assert sb.finish() == expected
+}
