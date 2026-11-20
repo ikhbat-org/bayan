@@ -1,0 +1,161 @@
+// MutantSchemataTests.cs (csharp/tests/Bayan.Tests) SelectingAMutantRunsIt and ArmsWithPreludesBranch, ported to test blocks
+// (spec 019 T30h, 019-t30h34): `$BAYAN_EXE build --schemata-files` on a one-file package, in the form of clean-t3.test.byn, then
+// the built program, its site map (`<exe>.sites.json`) and its C (`out/safe/<host>/c/main.c`). Each assertion is the C# test's own.
+
+import emitter
+
+/// MutantSchemataTests.cs:167 `Program`: `text` as the one file `src/app/main.byn` of package `local/<name>` under
+/// tmp/mutate-t30h/<name>, built by `$BAYAN_EXE build --schemata-files src/app/main.byn .`; the package root.
+string t30hSchemata(string name, by string text) uses alloc, clock, console, env, fs, process {
+    let root = Path.combine(Path.combine(Path.fullPath("tmp"), "mutate-t30h"), name)
+    deleteWorkDir(root)
+    goldenWrite(root, for: "package.byn", as: $"Package {{ name: \"local/{name}\", version: \"0.1.0\" }}\n")
+    goldenWrite(root, for: "src/app/main.byn", as: text)
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    print(failure) if exe == ""
+    assert(exe != "")
+    var args = List<string>()
+    for a in ["build", "--schemata-files", "src/app/main.byn", "."] {
+        args.append(a)
+    }
+    let o = goldenChild(exe, by: in args, at: root, from: in List<u8>(), through: ref failure)
+    print(failure) if failure != ""
+    print(o.stderr) if o.exitCode != 0
+    assert(failure == "" && o.exitCode == 0)
+    return root
+}
+
+/// The program `t30hSchemata` built under `root` for package `local/<name>`.
+string t30hExe(string root, for string name) uses alloc {
+    let host = t5HostTarget()
+    return Path.combine(
+        Path.combine(Path.combine(Path.combine(root, "out"), "safe"), host),
+        targetExecutableName(name, for: host),
+    )
+}
+
+/// MutantSchemataTests.cs:49 `Run`: the stdout of `exe` with `$BAYAN_MUTANT` set to `mutant`, or unset when it is null.
+string t30hRun(string exe, by string? mutant) uses alloc, clock, console, fs, process {
+    var failure = ""
+    var env = goldenEnv()
+    env["BAYAN_MUTANT"] = mutant
+    let o = goldenChild(
+        exe,
+        by: in List<string>(),
+        at: Path.fullPath("tmp"),
+        from: in List<u8>(),
+        through: ref failure,
+        env: env,
+    )
+    print(failure) if failure != ""
+    assert(failure == "")
+    return goldenLf(o.stdout)
+}
+
+/// MutantSchemataTests.cs:177 `Variants`.
+string t30hVariants() =>
+    "union error E {\n    bad\n    worse\n}\n\ni64 check(i64 n) fails E {\n    fail .bad if n < 0\n    return n\n}\n\ni64 handle(i64 n) => check(n) catch switch {\n    E.bad => 1,\n    E.worse => 2\n}\n\nprint($\"{handle(-1)}\")\n"
+
+// MutantSchemataTests.cs:197-209 `SelectingAMutantRunsIt`: selecting a mutant's id runs that mutant, and only it; one row per
+// operator family (the C# InlineData rows; `variant` is the `Variants` program).
+@cases(
+    (
+        "boundary",
+        "bool f(i32 a) {\n    return a < 10\n}\n\nprint($\"{f(10)}\")\n",
+        "a < 10",
+        "a <= 10",
+        "false",
+        "true"
+    ),
+    (
+        "relational",
+        "bool f(i32 a) {\n    return a == 2\n}\n\nprint($\"{f(2)}\")\n",
+        "a == 2",
+        "a != 2",
+        "true",
+        "false"
+    ),
+    (
+        "logical",
+        "bool f(bool a, bool b) {\n    return a && b\n}\n\nprint($\"{f(a: true, b: false)}\")\n",
+        "a && b",
+        "a || b",
+        "false",
+        "true"
+    ),
+    (
+        "condition",
+        "i32 f(i32 n) {\n    if n > 3 {\n        return 1\n    }\n    return 0\n}\n\nprint($\"{f(5)}\")\n",
+        "n > 3",
+        "!(n > 3)",
+        "1",
+        "0"
+    ),
+    ("bool", "bool f() {\n    return true\n}\n\nprint($\"{f()}\")\n", "true", "false", "true", "false"),
+    ("arithmetic", "i32 f(i32 a) {\n    return a + 1\n}\n\nprint($\"{f(2)}\")\n", "a + 1", "a - 1", "3", "1"),
+    ("literal", "i32 f() {\n    return 7\n}\n\nprint($\"{f()}\")\n", "7", "8", "7", "8"),
+    ("negation", "i32 f(i32 x) {\n    return -x\n}\n\nprint($\"{f(3)}\")\n", "-x", "x", "-3", "3"),
+    ("statement", "void f() {\n    print(\"hi\")\n}\n\nf()\n", "print(\"hi\")", "", "hi", ""),
+    ("emptyReturn", "i32 f(i32 x) {\n    return x\n}\n\nprint($\"{f(5)}\")\n", "x", "0", "5", "0"),
+    ("variant", "", ".bad", ".worse", "1", "2"),
+)
+test "mutate t30h: SelectingAMutantRunsIt" (
+    string op,
+    string text,
+    string original,
+    string mutated,
+    string plain,
+    string expected
+) {
+    let name = op == "emptyReturn" ? "select-empty-return" : $"select-{op}"
+    let root = t30hSchemata(name, by: op == "variant" ? t30hVariants() : text)
+    let exe = t30hExe(root, for: name)
+    let map = externalSiteReadAll(Io.readText(emitter.sitesPath(exe)) catch "") ?? panic("not a site map")
+    var ids = List<i64>()
+    for s in map {
+        if s.op == op && s.original == original && s.mutated == mutated {
+            ids.append(s.id)
+            assert(s.emitted)
+        }
+    }
+    assert(ids.length == 1)
+    let plainOut = plain.length == 0 ? "" : $"{plain}\n"
+    let expectedOut = expected.length == 0 ? "" : $"{expected}\n"
+    assert(t30hRun(exe, by: null) == plainOut)
+    assert(t30hRun(exe, by: $"{ids[0]}") == expectedOut)
+    deleteWorkDir(root)
+}
+
+// MutantSchemataTests.cs:266 `ArmsWithPreludesBranch`: a switch is a C conditional only when no arm has a prelude; otherwise each
+// arm's prelude runs inside its own branch.
+test "mutate t30h: ArmsWithPreludesBranch" {
+    let host = t5HostTarget()
+    let plainRoot = t30hSchemata("arms-plain", by: "i32 f(i32 a) {\n    return a + 1\n}\n\nprint($\"{f(2)}\")\n")
+    let plain = Io.readText(Path.combine(plainRoot, $"out/safe/{host}/c/main.c")) catch ""
+    assert(plain.contains("return (byn_mutant_is(1) ? "))
+    assert(!plain.contains("if (byn_mutant_is"))
+    deleteWorkDir(plainRoot)
+    // `try` lowers to a failing call before the `+`: the `-` mutant gets its own call in its own branch.
+    let root = t30hSchemata(
+        "arms-prelude",
+        by: t30hVariants().replaced("return n", by: "return (try check(n - 1)) + 1"),
+    )
+    let prelude = Io.readText(Path.combine(root, $"out/safe/{host}/c/main.c")) catch ""
+    let map = externalSiteReadAll(Io.readText(emitter.sitesPath(t30hExe(root, for: "arms-prelude"))) catch "")
+        ?? panic("not a site map")
+    var ids = List<i64>()
+    for s in map {
+        if s.op == "arithmetic" && s.original == "(try check(n - 1)) + 1" {
+            ids.append(s.id)
+        }
+    }
+    assert(ids.length == 1)
+    let branch = prelude.position($"if (byn_mutant_is({ids[0]})) {{") ?? -1
+    print(prelude) if branch < 0
+    assert(branch >= 0)
+    let end = prelude.position("\n}\n", from: branch) ?? prelude.length
+    let body = prelude[branch..end]
+    assert(body.count("= byn_main__check(") == 2)
+    deleteWorkDir(root)
+}
