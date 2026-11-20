@@ -1,0 +1,7 @@
+// 019 T29 (coverage ratchet): explain.byn paths no golden case reaches. The expected values are the output of the
+// self-hosted driver at the commit that added the test.
+
+test "driver t29: t1Trim stops the continuation scan at the start of the text" {
+    assert t1Trim("é ") == "é"
+    assert t1Trim(" é\u{3000}") == "é"
+}

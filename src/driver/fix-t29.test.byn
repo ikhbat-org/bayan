@@ -1,0 +1,7 @@
+// 019 T29 (coverage ratchet): fix.byn paths no golden case reaches. The expected values are the output of the
+// self-hosted driver at the commit that added the test.
+
+test "driver t29: fixCommand refuses an option" {
+    let d = newDCtx()
+    assert fixCommand(["fix", "--no-such"], by: d) == exitUsage
+}

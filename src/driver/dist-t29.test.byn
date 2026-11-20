@@ -1,0 +1,92 @@
+// 019 T29 (coverage ratchet): dist.byn paths no golden case reaches: the depth, directory, file and byte budgets of the
+// source walk and the copy into `latest/`, a walk already stopped, a `dist/` with no version, a project with no `src/`,
+// and a target named twice. The expected values are the output of the self-hosted driver at the commit that added the test.
+
+/// tmp/dist-t29/<name> under the working directory, emptied, holding `a.byn` and `sub/b.byn`.
+string t29DistDir(string name) uses alloc, fs {
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "dist-t29"), name)
+    deleteWorkDir(dir)
+    goldenWrite(dir, for: "a.byn", as: "let a = 1\n")
+    goldenWrite(dir, for: "sub/b.byn", as: "let b = 2\n")
+    return dir
+}
+
+test "driver t29: distCollect stops at each budget and after a stop" {
+    let dir = t29DistDir("collect")
+    var deep = DistWalk {}
+    distCollect(dir, by: "src", through: ref deep, at: 65) catch { panic("collect") }
+    assert deep.over && deep.dirCount == 0
+    var dirs = DistWalk { dirCount: 4000 }
+    distCollect(dir, by: "src", through: ref dirs, at: 0) catch { panic("collect") }
+    assert dirs.over && dirs.names.length == 0
+    var files = DistWalk { fileCount: 20000 }
+    distCollect(dir, by: "src", through: ref files, at: 0) catch { panic("collect") }
+    assert files.over && files.names.length == 0
+    var stopped = DistWalk { over: true }
+    distCollect(dir, by: "src", through: ref stopped, at: 0) catch { panic("collect") }
+    assert stopped.dirCount == 1 && stopped.names.length == 0
+    deleteWorkDir(dir)
+}
+
+test "driver t29: distCopyDirectory stops at each budget and after a stop" {
+    let dir = t29DistDir("copy")
+    let dest = Path.combine(Path.combine(Path.fullPath("tmp"), "dist-t29"), "copy-out")
+    var deep = DistWalk {}
+    deleteWorkDir(dest)
+    distCopyDirectory(dir, to: dest, through: ref deep, at: 65) catch { panic("copy") }
+    assert deep.over && !t5DirectoryExists(dest)
+    var dirs = DistWalk { dirCount: 4000 }
+    distCopyDirectory(dir, to: dest, through: ref dirs, at: 0) catch { panic("copy") }
+    assert dirs.over && !t5DirectoryExists(dest)
+    var files = DistWalk { fileCount: 20000 }
+    distCopyDirectory(dir, to: dest, through: ref files, at: 0) catch { panic("copy") }
+    assert files.over && !Fs.fileExists(Path.combine(dest, "a.byn"))
+    deleteWorkDir(dest)
+    var stopped = DistWalk { over: true }
+    distCopyDirectory(dir, to: dest, through: ref stopped, at: 0) catch { panic("copy") }
+    assert Fs.fileExists(Path.combine(dest, "a.byn")) && !t5DirectoryExists(Path.combine(dest, "sub"))
+    deleteWorkDir(dest)
+    deleteWorkDir(dir)
+}
+
+test "driver t29: distRefreshLatest with no version, and with a copy past its budget" {
+    let dir = t29DistDir("latest")
+    var none = DistWalk {}
+    assert (distRefreshLatest(dir, through: ref none) catch { panic("latest") }) is null
+    goldenWrite(dir, for: "1.0.0/x", as: "x\n")
+    var over = DistWalk { dirCount: 4000 }
+    assert (distRefreshLatest(dir, through: ref over) catch { panic("latest") }) is null
+    assert over.over && !t5DirectoryExists(Path.combine(dir, ".latest.tmp"))
+    deleteWorkDir(dir)
+}
+
+test "driver t29: distInputsHash without src, past the depth budget and past the byte budget" {
+    let root = Path.combine(Path.combine(Path.fullPath("tmp"), "dist-t29"), "hash")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "package.byn", as: "p\n")
+    let bare = distInputsHash(root) catch { panic("hash") }
+    var all = List<u8>()
+    for b in "package.byn\u{0}p\n\u{0}".bytes {
+        all.append(b)
+    }
+    assert bare == $"sha256:{Hex.encode(sha256(all.span).span)}"
+    var deep = Path.combine(root, "src")
+    for i in 0..66 {
+        deep = Path.combine(deep, "d")
+    }
+    goldenWrite(deep, for: "x.byn", as: "let x = 1\n")
+    assert (distInputsHash(root) catch { panic("hash") }) is null
+    deleteWorkDir(Path.combine(root, "src"))
+    Io.createDirectory(Path.combine(root, "src")) catch { panic("src") }
+    let big = Path.combine(Path.combine(root, "src"), "big.byn")
+    let r = Io.run("/bin/dd", ["if=/dev/zero", $"of={big}", "bs=1048576", "count=65"].span) catch { panic("dd") }
+    assert r.exitCode == 0
+    assert (distInputsHash(root) catch { panic("hash") }) is null
+    deleteWorkDir(root)
+}
+
+test "driver t29: distResolveTargets keeps a target named twice once" {
+    let host = t5HostTarget()
+    let targets = distResolveTargets(null, by: ["host", host]) ?? []
+    assert targets.length == 1 && targets[0] == host
+}

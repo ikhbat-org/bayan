@@ -1,0 +1,7 @@
+// 019 T29 (coverage ratchet): diagdocs.byn entries no golden case reaches. The expected values are the output of the
+// self-hosted driver at the commit that added the test.
+
+test "driver t29: diagDoc returns the BYN2745 page" {
+    let doc = diagDoc("BYN2745") ?? ""
+    assert doc.startsWith("# BYN2745: generic type needs itself with a larger type argument, without end\n")
+}
