@@ -2,7 +2,8 @@
 # Spec 019 T30d: SelfhostEmitterPrinterBoundaryTests (011 D9) without .NET. src/emitter/cprint/ is the only module with C text in
 # its string literals: no other src/emitter/**/*.byn has a literal (outside a trailing // comment; `\n` read as a line break)
 # holding #include, #line, #define, typedef, int64_t, uint8_t, byn_, BYN_, bynt_, (void), ->, `goto `, `static `, `;\n` or
-# `{\n`. The JSON literals listed below are exempt, and each must still be a literal in its file.
+# `{\n`. The JSON literals listed below are exempt, and each must still be a literal in its file. `*.test.byn` files are
+# skipped: their literals are expected C and mutant labels, test data rather than emitter code (spec 019 T29 tests).
 # Exit 1 prints one line per hit (`<file>:<line>: "<literal>" has `<word>``) and per stale JSON entry.
 #   bash scripts/ci/printer-boundary-check.sh [root]   (root defaults to the repo; scans <root>/src/emitter)
 set -uo pipefail
@@ -10,7 +11,7 @@ root="${1:-$(cd "$(dirname "$0")/../.." && pwd)}"
 export LC_ALL=C
 dir="$root/src/emitter"
 [ -d "$dir" ] || { echo "printer-boundary-check: no $dir" >&2; exit 2; }
-files="$(cd "$dir" && find . -name '*.byn' -type f ! -path './cprint/*' | sed 's|^\./||' | sort)"
+files="$(cd "$dir" && find . -name '*.byn' -type f ! -path './cprint/*' ! -name '*.test.byn' | sed 's|^\./||' | sort)"
 [ -n "$files" ] || { echo "printer-boundary-check: no .byn under src/emitter outside cprint"; exit 1; }
 
 out="$(cd "$dir" && printf '%s\n' "$files" | awk '
