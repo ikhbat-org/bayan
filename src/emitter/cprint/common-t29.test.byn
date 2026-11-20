@@ -68,3 +68,21 @@ test "cprint t29: mapLine writes nothing without a line path or on the line it j
     mapLine(ref sb, from: in c, through: ref f, at: span)
     assert sb.finish() == "#line 2 \"t29.byn\"\n"
 }
+
+test "cprint t29: key of a state type is its struct's key, and lineOf is 0 in a function with no file" {
+    var c = t29Ctx("struct Door {\n    i64 width\n}\n\nvoid main() {}\n")
+    var door: i64 = 0
+    while c.structs[door].name != "Door" {
+        door += 1
+    }
+    let states = List<i64>()
+    assert key(ref c, for: semantics.internState(ref c, by: door, for: in states)) == "main__Door"
+    var fn: i64 = 0
+    while c.functions[fn].file != -1 {
+        fn += 1
+    }
+    var f = CFunc { fn: fn }
+    f.lineStarts.append(0)
+    f.lineStarts.append(14)
+    assert lineOf(in c, by: in f, at: TextSpan { start: 18, length: 1 }) == 0
+}
