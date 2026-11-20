@@ -162,7 +162,13 @@ bool goldenHostByte(u8 c) {
 }
 
 /// The cases of one `.byn` kind (Golden.cs:25-27), sorted by name; with `flat` only the files directly in its directory.
-void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit, bool flat = false)
+void goldenBynCases(
+    string root,
+    for string kind,
+    to ref List<GoldenCase> cases,
+    through ref i32 exit,
+    bool flat = false
+)
         uses alloc, console, fs {
     let dir = Path.combine(root, kind)
     return unless t6DirectoryExists(dir)
@@ -291,7 +297,15 @@ List<GoldenCase> goldenDiscover(string root, through ref i32 exit) uses alloc, c
 /// (`goldenShardCases` with `split`), added to `kept` as `<kind>\t<case>\t<input>` lines in case order; whether `only` matched a case. Each kind,
 /// and each class of the exported kinds, is listed in an arena of its own, and a class's case names in a nested one, so only one class's names
 /// are held at a time (2026-11-20: 45 MB to list the 41,125 cases at once, 21 MB for lex/SelfhostLexerTests).
-bool goldenListed(string root, for List<string> only, at i64 index, by i64 count, until i64 split, to ref StrBuf kept, through ref i32 exit)
+bool goldenListed(
+    string root,
+    for List<string> only,
+    at i64 index,
+    by i64 count,
+    until i64 split,
+    to ref StrBuf kept,
+    through ref i32 exit
+)
         uses alloc, console, fs {
     var matched = false
     // the shard groups listed so far: the groups of the whole listing are numbered in case order
@@ -1178,7 +1192,15 @@ i32 goldenTest(
     let refused = goldenShard(shard, to: ref index, by: ref count)
     // the listing is freed class by class (`goldenListed`); the cases this run keeps leave it as `<kind>\t<case>\t<input>` lines
     var kept = StrBuf()
-    let matched = goldenListed(root, for: only, at: index, by: count, until: goldenShardSplit, to: ref kept, through: ref exit)
+    let matched = goldenListed(
+        root,
+        for: only,
+        at: index,
+        by: count,
+        until: goldenShardSplit,
+        to: ref kept,
+        through: ref exit,
+    )
     if only.length > 0 && !matched {
         var quoted = List<string>()
         for s in only {
@@ -3139,8 +3161,20 @@ test "the listing a class at a time keeps the cases goldenShardCases keeps of go
     let root = Path.combine(Path.fullPath("tmp"), "golden-listed")
     deleteWorkDir(root)
     for rel in [
-        "cli/Alpha/one/args", "cli/Alpha/two/expected", "diag/d.byn", "lex/flat.byn", "lex/Big/a/x", "lex/Big/b/x", "lex/Big/c/x",
-        "lex/Big/d/x", "lex/Two/p/x", "lex/Two/q/x", "run/r.byn", "sem/Big/x/x", "sem/Big/y/x", "sem/Big/z/x",
+        "cli/Alpha/one/args",
+        "cli/Alpha/two/expected",
+        "diag/d.byn",
+        "lex/flat.byn",
+        "lex/Big/a/x",
+        "lex/Big/b/x",
+        "lex/Big/c/x",
+        "lex/Big/d/x",
+        "lex/Two/p/x",
+        "lex/Two/q/x",
+        "run/r.byn",
+        "sem/Big/x/x",
+        "sem/Big/y/x",
+        "sem/Big/z/x",
     ] {
         goldenWrite(root, for: rel, as: "")
     }
@@ -3316,7 +3350,9 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     var index: i64 = 0
     var count: i64 = 0
     let refused = goldenShard(shard, to: ref index, by: ref count)
-    print($"BAYAN_GOLDEN_BOUND_SHARD expects i/n, whole numbers with 1 <= i <= n <= 64, got `{shard}`") if refused is not null
+    print(
+        $"BAYAN_GOLDEN_BOUND_SHARD expects i/n, whole numbers with 1 <= i <= n <= 64, got `{shard}`",
+    ) if refused is not null
     assert(refused is null)
     let limit = testTimeout()
     if limit < 600000 {
