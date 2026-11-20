@@ -5,7 +5,9 @@
 # naming the path; an extra file with no row is listed and passes; a
 # DIVERGENCES.tsv row (case key or Class.Test) lets its case differ; the seed picks the same classes twice; --full has no
 # filter; a class whose source names no SelfhostExport type at the head is printed as left out, never compared, and
-# refused by --class; no dotnet fails without a pass; usage errors exit 2.
+# refused by --class; the C# CLI replay (a stub CLI) passes, names a changed expected file, a frozen file it did not write and an
+# exit-code difference (a file and a flat exit-code line), honours a divergence row, picks one unit per kind weekly and refuses a
+# class it does not run under --class; no dotnet fails without a pass; usage errors exit 2.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -16,6 +18,7 @@ fail() { echo "FAIL: $1" >&2; [ -z "${2:-}" ] || echo "$2" >&2; exit 1; }
 
 cat > "$aux/dotnet" <<'STUB'
 #!/bin/bash
+if [ "$1 $2 $5" = "build csharp/Bayan.Cli -o" ]; then mkdir -p "$6" && cp "$AUX/bayan" "$6/bayan"; echo "build" >> "$AUX/log"; exit 0; fi
 [ "$1 $2" = "test csharp/tests/Bayan.Tests" ] || exit 9
 f=""; while [ $# -gt 0 ]; do [ "$1" = --filter ] && f=$2; shift; done
 echo "filter=$f" >> "$AUX/log"
@@ -27,7 +30,14 @@ done
 [ -z "${DROP:-}" ] || rm -rf "$BAYAN_EXPORT_DIR/$DROP"
 [ -z "${EXTRA:-}" ] || cp -R "$AUX/extra/." "$BAYAN_EXPORT_DIR/"
 STUB
-chmod +x "$aux/dotnet"
+# the stub C# CLI: its argv, the input it was given and a wall time on stdout, its directory on stderr; exit $STUB_EXIT (else 0)
+cat > "$aux/bayan" <<'STUB'
+#!/bin/bash
+last="${@: -1}"; echo "args: $* in 0.42s"; [ ! -f "$last" ] || echo "file: $(< "$last")"
+[ ! -f input.byn ] || echo "at $PWD/input.byn"; echo "foo $FOO" >&2
+exit "${STUB_EXIT:-0}"
+STUB
+chmod +x "$aux/dotnet" "$aux/bayan"
 export AUX="$aux" REEXPORT_DOTNET="$aux/dotnet"
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@example.com GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@example.com
 
@@ -41,7 +51,7 @@ mk "$aux/extra" sem/ASemTests/Four "four"
 
 r="$tmp/repo"; mkdir -p "$r/scripts/selfhost" "$r/tests/cases"; cd "$r"
 git init -q -b dev; git config core.hooksPath /dev/null
-cp "$root/scripts/selfhost/reexport-check.sh" "$root/scripts/selfhost/land-export.sh" scripts/selfhost/
+cp "$root/scripts/selfhost/reexport-check.sh" "$root/scripts/selfhost/land-export.sh" "$root/scripts/selfhost/replay-csharp.sh" scripts/selfhost/
 printf '/tmp/\n' > .gitignore; printf '* text=auto eol=lf\ntests/cases/inputs/files/** -text\n' > .gitattributes
 # export mode at the head: ACliTests and BSemTests name SelfhostExport, ASemTests names a Selfhost harness, CSemTests neither
 mkdir -p src/tests csharp/tests
@@ -59,8 +69,23 @@ for c in ACliTests ASemTests BSemTests CSemTests; do printf '%s\tx.cs\tf\t1\tcli
 printf 'class\tkind\ttests\tcases\treason\nACliTests\tcli\t1\t1\t\nASemTests\tsem\t1\t2\t\nBSemTests\tsem\t1\t1\t\nCSemTests\tsem\t1\t1\t\nDLexTests\tlex\t1\t2001\t\nESemTests\tsem\t1\t2500\t\nShellTests\tshell\t1\t3\t\n' \
   > tests/cases/EXPORT.tsv
 printf 'case\tquestion\tright\treason\n' > tests/cases/DIVERGENCES.tsv
+# the replay (T59 part 2): two left-out classes the C# CLI replays (routes `case` and `scratch`), one it does not, a flat parse input
+# with its exit-code line; the expected files are what the stub C# CLI prints, through the replay's path and time masks
+rc() { mkdir -p "tests/cases/$1"; printf "$2" > "tests/cases/$1/args"; printf "$3" > "tests/cases/$1/input.byn"
+  printf "$4" > "tests/cases/$1/expected.stdout"; printf "$5" > "tests/cases/$1/expected.stderr"; printf '0\n' > "tests/cases/$1/expected.exitcode"; }
+rc sem/FunctionTypeTests/A 'types\ninput.byn\n' 'fn a' 'args: types input.byn in 0.42s\nfile: fn a\nat input.byn\n' 'foo \n'
+rc sem/FunctionTypeTests/B-2 'types\ninput.byn\n' 'fn b' 'args: types input.byn in 0.42s\nfile: fn b\nat input.byn\n' 'foo \n'
+rc cli/DiagnosticRendererTests/C 'check\n<repo>/tmp/x/C/input.byn\n' 'fn c' 'args: check <repo>/tmp/x/C/input.byn in masked\nfile: fn c\n' \
+  'foo <repo>/f\n'
+printf 'seconds-masked\n' > tests/cases/cli/DiagnosticRendererTests/C/compare
+printf 'FOO=<repo>/f\nBAYAN_THEME\n' > tests/cases/cli/DiagnosticRendererTests/C/env
+rc cli/MutatorTests/M 'test\n--mutate\n' 'fn m' 'm\n' ''
+mkdir -p tests/cases/parse tests/cases/emit/exit; printf 'p' > tests/cases/parse/p.byn
+printf 'args: parse --ast p.byn in 0.42s\nfile: p\n' > tests/cases/parse/p.ast; printf '0  parse/p.byn\n' > tests/cases/emit/exit/expected.parse.exitcode
+printf 'FunctionTypeTests\tsem\t1\t2\t\nDiagnosticRendererTests\tcli\t1\t1\t\nMutatorTests\tcli\t1\t1\t\n' >> tests/cases/EXPORT.tsv
 { printf 'tag\tv0\t%s\nexport\tchore/export\t%s\n' "$head" "$head"
-  find tests/cases -name 'expected.*' | LC_ALL=C sort | while IFS= read -r p; do printf 'file\t%s\t%s\n' "$(git hash-object "$p")" "$p"; done
+  { find tests/cases -name 'expected.*'; echo tests/cases/parse/p.ast; } | LC_ALL=C sort |
+    while IFS= read -r p; do printf 'file\t%s\t%s\n' "$(git hash-object "$p")" "$p"; done
 } > tests/cases/FREEZE.tsv
 git add -A; git commit -qm tree
 run() { bash scripts/selfhost/reexport-check.sh "$@" > "$tmp/out" 2>&1 && echo 0 || echo $?; }
@@ -90,8 +115,8 @@ grep -q "^reexport-check: lex has no weekly class" "$tmp/out" && grep -A2 "left 
   tr '\n' ' ' | grep -q "  lex/DLexTests   sem/ESemTests" || fail "the classes over 2,000 cases are not printed" "$(cat "$tmp/out")"
 [ "$(run --class lex/DLexTests)" = 0 ] || fail "--class takes a class over 2,000 cases" "$(cat "$tmp/out")"
 run > /dev/null; grep -q "seed $(date -u +%G%V): 2 classes" "$tmp/out" || fail "no seed: want the ISO week" "$(cat "$tmp/out")"
-grep -A1 "left out, not checked .*: 1 classes" "$tmp/out" | grep -q "^  sem/CSemTests$" || fail "the left-out class is not printed" "$(cat "$tmp/out")"
-[ "$(run --full)" = 0 ] && [ "$(tail -1 "$aux/log")" = "filter=" ] || fail "--full: want exit 0 and no filter" "$(cat "$tmp/out")"
+grep -q "^  sem/CSemTests: no replay route$" "$tmp/out" || fail "the left-out class is not printed" "$(cat "$tmp/out")"
+[ "$(run --full)" = 0 ] && [ "$(grep "^filter=" "$aux/log" | tail -1)" = "filter=" ] || fail "--full: want exit 0 and no filter" "$(cat "$tmp/out")"
 grep -q "4 files compared" "$tmp/out" && ! grep -q "^  sem/CSemTests$" <(sed -n '/^== /,/left out/p' "$tmp/out") \
   || fail "--full counts a left-out class" "$(cat "$tmp/out")"
 
@@ -121,6 +146,34 @@ printf 'file\t%s\ttests/cases/sem/ASemTests/Four/expected.stdout\n' "$(printf 'f
 grep -q "extra (re-exported, not in the tree): tests/cases/sem/ASemTests/Four/expected.stdout" "$tmp/out" || fail "the extra file is not named" "$(cat "$tmp/out")"
 git checkout -q -- tests/cases
 rm -rf tmp/reexport.*
+
+rep=(--class sem/FunctionTypeTests --class cli/DiagnosticRendererTests --class parse)
+[ "$(run "${rep[@]}")" = 0 ] || fail "the replay: want exit 0" "$(cat "$tmp/out")"
+grep -q "replay: 11 files compared, 0 on the divergence list, 0 failed" "$tmp/out" && [ "$(tail -1 "$aux/log")" = build ] \
+  || fail "the replay: want 11 files compared and the CLI built, no export run" "$(cat "$tmp/out"; tail -1 "$aux/log")"
+[ -z "$(ls -d tmp/reexport.* 2> /dev/null)" ] || fail "a passing replay left its work dir"
+[ "$(run --seed 5)" = 0 ] && sed -n '/replayed through the C# CLI/,/left out/p' "$tmp/out" | tr '\n' ' ' |
+  grep -q "  cli/DiagnosticRendererTests   sem/FunctionTypeTests   flat/parse " || fail "the weekly replay: one unit per kind" "$(cat "$tmp/out")"
+[ "$(run --class cli/MutatorTests)" = 2 ] && grep -q "MaskMutation" "$tmp/out" \
+  || fail "a class the replay does not run: want exit 2 and the reason" "$(cat "$tmp/out")"
+printf 'X\n' >> tests/cases/sem/FunctionTypeTests/A/expected.stdout
+[ "$(run "${rep[@]}")" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/sem/FunctionTypeTests/A/expected.stdout (first difference" "$tmp/out" \
+  || fail "the replay: a changed expected file is not named" "$(cat "$tmp/out")"
+git checkout -q -- tests/cases; rm -rf tmp/reexport.*
+[ "$(STUB_EXIT=4 run "${rep[@]}")" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/cli/DiagnosticRendererTests/C/expected.exitcode" "$tmp/out" &&
+  grep -q "differs from the frozen compiler: tests/cases/emit/exit/expected.parse.exitcode (the line of parse/p.byn: exit 4)" "$tmp/out" \
+  || fail "the replay: an exit-code difference is not named" "$(cat "$tmp/out")"
+rm -rf tmp/reexport.*
+printf 'r\n' > tests/cases/sem/FunctionTypeTests/A/expected.report
+printf 'file\t%s\ttests/cases/sem/FunctionTypeTests/A/expected.report\n' "$(git hash-object tests/cases/sem/FunctionTypeTests/A/expected.report)" >> tests/cases/FREEZE.tsv
+[ "$(run "${rep[@]}")" = 1 ] && grep -q "missing from the replay: tests/cases/sem/FunctionTypeTests/A/expected.report" "$tmp/out" \
+  || fail "the replay: a frozen file it did not write is not named" "$(cat "$tmp/out")"
+rm -rf tmp/reexport.* tests/cases/sem/FunctionTypeTests/A/expected.report; git checkout -q -- tests/cases
+printf 'B\n' > tests/cases/sem/FunctionTypeTests/B-2/expected.stdout
+printf 'FunctionTypeTests.B\tT59\tcsharp\tx\n' >> tests/cases/DIVERGENCES.tsv
+[ "$(run "${rep[@]}")" = 0 ] && grep -q "replay: 8 files compared, 3 on the divergence list, 0 failed" "$tmp/out" \
+  || fail "the replay: a divergence row: want exit 0, 3 on the list" "$(cat "$tmp/out")"
+git checkout -q -- tests/cases
 
 [ "$(REEXPORT_DOTNET=$tmp/no-dotnet run "${all[@]}")" = 1 ] || fail "no dotnet: want exit 1" "$(cat "$tmp/out")"
 grep -q "no dotnet on PATH: L043 is not checked" "$tmp/out" && ! grep -q "ok in" "$tmp/out" || fail "no dotnet: want the message and no pass" "$(cat "$tmp/out")"

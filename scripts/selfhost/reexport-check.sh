@@ -64,12 +64,37 @@ git grep -o -w -E "(class|record) [A-Za-z0-9_]+" "$sha" -- $src | sed "s|^$sha:|
     { i = index($0, ":"); split(substr($0, i + 1), a, " "); if (substr($0, 1, i - 1) in x) ok[a[2]] = 1 }
     END { while ((getline l < rows) > 0) { c = l; sub(/^[^\/]*\//, "", c); if (c in ok) print l; else print l > left } }' > "$w/all"
 [ -f "$w/left" ] || : > "$w/left"
+# The replay (T59 part 2, scripts/selfhost/replay-csharp.sh): of the left-out classes and the flat kinds, ryes are the units it runs
+# through the C# CLI, rno (`<unit>\t<reason>`) the ones it does not. A flat kind's inputs (flat/<kind>) are its FREEZE.tsv rows
+# `tests/cases/<kind>/<path>.<ending>` outside the EXPORT.tsv classes, read as `<kind>/<path>.byn`.
+bash scripts/selfhost/replay-csharp.sh --list > "$w/routes"
+awk -F'\t' -v left="$w/left" -v yes="$w/ryes" -v no="$w/rno" '
+  BEGIN { while ((getline l < left) > 0) { L[l] = 1; order[++m] = l } }
+  { r[$1] = $2; why[$1] = $3; if ($1 !~ /\//) flat[++f] = $1 }
+  END {
+    for (i = 1; i <= m; i++) { c = order[i]; if ((c in r) && r[c] != "-") print c > yes; else print c "\t" ((c in r) ? why[c] : "no replay route") > no }
+    for (i = 1; i <= f; i++) { c = flat[i]; if (r[c] != "-") print c > yes; else print c "\t" why[c] > no }
+  }' "$w/routes"
+[ -f "$w/ryes" ] || : > "$w/ryes"; [ -f "$w/rno" ] || : > "$w/rno"
+mkdir -p "$w/flat"
+for kind in $(grep -v / "$w/ryes"); do
+  case "$kind" in (parse) e=ast ;; (typed) e=types ;; (*) e="" ;; esac
+  awk -F'\t' -v k="$kind" -v e="$e" -v rows="$w/rows" '
+    BEGIN { while ((getline l < rows) > 0) cls[l] = 1 }
+    $1 == "file" { p = substr($3, 13); n = split(p, a, "/"); if (a[1] != k || (k "/" a[2]) in cls || n < 2) next
+      if (substr(p, length(p) - length(e)) != "." e) next; print k " " substr(p, 1, length(p) - length(e)) "byn" }' "$cases/FREEZE.tsv" |
+    LC_ALL=C sort > "$w/flat/$kind"
+done
+: > "$w/rsel"
 if [ $full = 1 ]; then
   cp "$w/all" "$w/sel"; what="all classes"
+  cp "$w/ryes" "$w/rsel"
 elif [ -n "$picked" ]; then
   : > "$w/sel"
   for c in $picked; do
-    grep -qxF "$c" "$w/left" && { echo "reexport-check: export mode writes no case for $c at $ref; it is not checked here (T59b)" >&2; rm -rf "$w"; exit 2; }
+    if grep -qxF "$c" "$w/ryes"; then echo "$c" >> "$w/rsel"; continue; fi
+    r="$(awk -F'\t' -v c="$c" '$1 == c { print $2 }' "$w/rno")"
+    [ -z "$r" ] || { echo "reexport-check: export mode writes no case for $c at $ref and the C# CLI replay does not run it ($r); it is not checked here" >&2; rm -rf "$w"; exit 2; }
     grep -qxF "$c" "$w/all" || { echo "reexport-check: $c is no EXPORT.tsv class with cases" >&2; rm -rf "$w"; exit 2; }
     echo "$c" >> "$w/sel"
   done
@@ -84,8 +109,31 @@ else
     [ "$k" -gt 0 ] || { echo "reexport-check: $kind has no weekly class (each is over 2,000 cases; --full or --class checks it)" >> "$w/nokind"; continue; }
     grep "^$kind/" "$w/small" | sed -n "$((h % k + 1))p" >> "$w/sel"
   done
+  # the weekly replay: per kind one replayed class, number 1 + (cksum of "S replay kind") mod n; per flat kind a slice of $slice inputs
+  # from number 1 + (that cksum) mod n of its sorted inputs, wrapping
+  slice=20
+  for kind in $(sed 's|/.*||' "$w/ryes" | uniq); do
+    h=$(printf '%s replay %s' "$seed" "$kind" | cksum | cut -d' ' -f1)
+    if grep -qxF "$kind" "$w/ryes"; then
+      k=$(wc -l < "$w/flat/$kind" | tr -d ' '); [ "$k" -gt 0 ] || continue
+      awk -v s=$((h % k)) -v z=$slice -v k="$k" '{ l[NR - 1] = $0 } END { for (i = 0; i < z && i < k; i++) print l[(s + i) % k] }' \
+        "$w/flat/$kind" > "$w/slice.$kind"
+      echo "flat/$kind" >> "$w/rsel"
+    else
+      k=$(grep -c "^$kind/" "$w/ryes"); grep "^$kind/" "$w/ryes" | sed -n "$((h % k + 1))p" >> "$w/rsel"
+    fi
+  done
   what="seed $seed"
 fi
+# the replay's units: a class as is, a flat kind as its inputs (the weekly slice when one was drawn)
+: > "$w/runits"
+while IFS= read -r u; do
+  case "$u" in
+    (flat/*) cat "$w/slice.${u#flat/}" >> "$w/runits" ;;
+    (*/*) echo "$u" >> "$w/runits" ;;
+    (*) cat "$w/flat/$u" >> "$w/runits" ;;
+  esac
+done < "$w/rsel"
 echo "== reexport-check: export $ref ($(echo "$sha" | cut -c1-12)), $what: $(wc -l < "$w/sel" | tr -d ' ') classes"
 [ $full = 1 ] || sed 's/^/  /' "$w/sel"
 [ ! -f "$w/nokind" ] || cat "$w/nokind"
@@ -93,9 +141,13 @@ if [ -s "$w/big" ]; then
   echo "reexport-check: left to --full (over 2,000 cases): $(wc -l < "$w/big" | tr -d ' ') classes"
   sed 's/^/  /' "$w/big"
 fi
-if [ -s "$w/left" ]; then
-  echo "reexport-check: left out, not checked (export mode writes no case for them at this head; T59b): $(wc -l < "$w/left" | tr -d ' ') classes"
-  sed 's/^/  /' "$w/left"
+if [ -s "$w/rsel" ]; then
+  echo "reexport-check: replayed through the C# CLI (export mode writes no case for them at this head): $(wc -l < "$w/rsel" | tr -d ' ') units, $(wc -l < "$w/runits" | tr -d ' ') lines"
+  sed 's/^/  /' "$w/rsel"
+fi
+if [ -s "$w/rno" ]; then
+  echo "reexport-check: left out, not checked (no export case and no C# CLI replay): $(wc -l < "$w/rno" | tr -d ' ') classes and flat kinds"
+  sed "s/^/  /; s/$tab/: /" "$w/rno"
 fi
 
 dotnet="${REEXPORT_DOTNET:-dotnet}"
@@ -106,6 +158,8 @@ start=$(date +%s)
 
 mkdir -p "$w/tree" "$w/export" "$w/land/cases"
 git archive --format=tar "$sha" | tar -xf - -C "$w/tree" || die "cannot extract $sha into $w/tree"
+trc=0; crc=0; prc=0
+if [ -s "$w/sel" ]; then
 filter=""
 if [ $full = 0 ]; then
   for c in $(cut -d/ -f2 "$w/sel" | LC_ALL=C sort -u); do filter="${filter:+$filter|}FullyQualifiedName~.$c."; done
@@ -167,6 +221,15 @@ awk -F'\t' -v tb="$w/tb" -v eb="$w/eb" -v dv="$cases/DIVERGENCES.tsv" -v oss="$w
     printf "reexport-check: %d files compared, %d on the divergence list, %d skipped by an os file, %d failed\n", n, ndiv, nos, bad
     exit (bad > 0) }' "$w/paths"
 crc=$?
-[ $crc = 0 ] && [ $trc = 0 ] || die "L043 does not hold for the classes above"
+fi
+if [ -s "$w/runits" ]; then
+  # the C# CLI from the same tree (dotnet test built its projects already when there was an export run)
+  (cd "$w/tree" && GIT_CEILING_DIRECTORIES="$root/tmp" "$dotnet" build csharp/Bayan.Cli -v q -o "$w/cs") > "$w/build.out" 2>&1 ||
+    { tail -20 "$w/build.out" >&2; die "the C# CLI build failed (log: $w/build.out)"; }
+  mkdir -p "$w/replay"
+  bash scripts/selfhost/replay-csharp.sh "$w/cs/bayan" "$w/runits" "$w/replay"
+  prc=$?
+fi
+[ $crc = 0 ] && [ $trc = 0 ] && [ $prc = 0 ] || die "L043 does not hold for the classes above"
 rm -rf "$w"
 echo "reexport-check: ok in $(( $(date +%s) - start ))s"
