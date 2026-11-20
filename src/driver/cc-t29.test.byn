@@ -93,3 +93,13 @@ test "driver t29: ZigOrCc refuses, fails to write, rejects a source and builds o
     ccReportToolchain(rejected)
     deleteWorkDir(dir)
 }
+
+test "driver t29: ZigOrCc reports a runtime object it cannot write" {
+    var z = ZigOrCc {}
+    let dir = t29CcDir("runtime")
+    // a directory where the runtime object goes: the compiler of the runtime exits 1 (zig: `failed to open output binary: IsDir`)
+    Io.createDirectory(Path.combine(dir, "bayan-rt.o")) catch { panic("mkdir") }
+    let failed = z.compile(dir, from: "", to: Path.combine(dir, "a"), by: "safe", for: null)
+    assert failed.rejected && !failed.succeeded && failed.errors.startsWith("C compiler failed (exit 1):\n")
+    deleteWorkDir(dir)
+}
