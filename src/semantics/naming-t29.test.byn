@@ -2,6 +2,8 @@
 // rule: doer nouns, plurals, bases, participle stems, case changes and word splits. The expected values are the output
 // of the self-hosted checker at the commit that added the test.
 
+import parser
+
 /// `words` joined by spaces.
 string t29s1Join(List<string> words) uses alloc {
     var sb = StrBuf()
@@ -118,6 +120,39 @@ test "naming t29: return spans and parameters of every kind of function" {
         get 168+3 1
         -1
 
+        """
+    assert $"{t29s1Diags(in c)}{sb.finish()}" == expected
+}
+
+test "naming t29: listed words, bool states, word checks and out-of-range members" {
+    var c = t29s1Compile("void main() {}\n")
+    let grammar = Grammar { collectives: ["herd"] }
+    var sb = StrBuf()
+    let words: List<string> = ["people", "fleet", "herd", "zzqx", "of"]
+    for w in words {
+        sb.append($"{isListed(ref c, for: w, by: grammar)} ")
+    }
+    sb.append($"{capitalize("Ab")} {capitalize("AB")}|")
+    let states: List<string> = ["containsX", "equalsY", "matchesZ", "startsWithA", "endsWithB", "tryOpen", "open"]
+    for s in states {
+        checkBoolState(ref c, from: 0, at: TextSpan { start: 0, length: 0 }, for: s)
+    }
+    let names: List<string> = ["é", "sinValue", "a1bValue", "zzqxValue"]
+    for n in names {
+        checkWords(ref c, by: grammar, from: 0, at: TextSpan { start: 0, length: 0 }, for: n, as: "nouns")
+    }
+    let none = List<parser.Decl>()
+    let r1 = memberReturnSpan(in none, at: -1)
+    let r2 = memberReturnSpan(in none, at: 0)
+    sb.append($"{r1.length} {r2.length} {memberParamFacts(in none, at: -1).length} {memberParamFacts(in none, at: 0).length}|")
+    let participles: List<string> = ["loved", "aimed", "spied", "stopped", "lulled", "fizzed", "tied"]
+    for w in participles {
+        sb.append($"{w}: {t29s1Join(participleStems(w))}| ")
+    }
+    let expected = """
+        BYN5102 `open` is a `bool` state; prefix with `is`, `has` or `can`
+        BYN5014 `zzqx` is not a known verb, noun or adjective
+        true false true false true Ab AB|0 0 0 0|loved: love lov | aimed: aim aime | spied: spy spi spie | stopped: stop stopp stoppe | lulled: lull lulle | fizzed: fiz fizze fizz | tied: | 
         """
     assert $"{t29s1Diags(in c)}{sb.finish()}" == expected
 }

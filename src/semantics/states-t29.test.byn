@@ -193,3 +193,74 @@ test "states t29: fixes, narrowing and payloads across states" {
         """
     assert t29s1Diags(in c) == expected
 }
+
+test "states t29: facts kept or dropped by loops, and guarded switch arms" {
+    let text = """
+        struct Order {
+            i64 id
+            states {
+                draft
+                paid(i64 payment)
+            }
+            void peek(Order other) {
+                if this is .paid {
+                    if other is .paid {
+                        while true {
+                            break
+                        }
+                        let a = other.payment
+                    }
+                    let b = this.payment
+                }
+            }
+            void bump(ref this) {
+                if this is .paid {
+                    while true {
+                        break
+                    }
+                    let d = this.payment
+                }
+            }
+        }
+
+        void loops(ref Order r, by Order p) {
+            var v = Order.draft { id: 1 }
+            if v is .paid {
+                if r is .paid {
+                    if p is .paid {
+                        while true {
+                            break
+                        }
+                        let a = v.payment
+                        let e = r.payment
+                        let f = p.payment
+                    }
+                }
+            }
+        }
+
+        void sw(Order o) {
+            switch o {
+                case .draft when o.id > 0: print("a")
+                default: print("b")
+            }
+            switch o {
+
+        """
+    let tail = """
+            }
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile($"{text}\t\tcase .draft: print(\"c\")\n{tail}")
+    let expected = """
+        BYN7002 `payment` is a payload of `.paid`; `v` is not known to be `.paid`
+        BYN7002 `payment` is a payload of `.paid`; `r` is not known to be `.paid`
+        BYN7004 the switch does not handle state `.paid`
+        BYN7002 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+        BYN2311 `v` is never reassigned; declare it with `let`
+
+        """
+    assert t29s1Diags(in c) == expected
+}

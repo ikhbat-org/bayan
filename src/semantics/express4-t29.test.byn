@@ -274,3 +274,82 @@ test "express4 t29: which types format" {
         """
     assert sb.finish() == expected
 }
+
+test "express4 t29: which formatInto takes a spec and which types cannot be inferred" {
+    let text = """
+        union error E {
+            bad
+        }
+
+        struct A {
+            i64 x
+
+            void show() {}
+        }
+
+        struct B {
+            i64 x
+
+            static void formatInto(ref StrBuf sb, as FormatSpec spec) {}
+        }
+
+        struct C {
+            i64 x
+
+            void formatInto(ref StrBuf sb, as FormatSpec spec) fails E {}
+        }
+
+        struct D {
+            i64 x
+
+            void formatInto(ref StrBuf sb) {}
+        }
+
+        struct F {
+            i64 x
+
+            void formatInto(in StrBuf sb, as FormatSpec spec) {}
+        }
+
+        struct G {
+            i64 x
+
+            void formatInto(ref i64 sb, as FormatSpec spec) {}
+        }
+
+        struct H {
+            i64 x
+
+            void formatInto(ref StrBuf sb, ref FormatSpec spec) {}
+        }
+
+        struct J {
+            i64 x
+
+            void formatInto(ref StrBuf sb, as i64 spec) {}
+        }
+
+        struct K {
+            i64 x
+
+            void formatInto(ref StrBuf sb, as FormatSpec spec) {}
+        }
+
+        void main() {}
+        """
+    var c = t29s1Compile(text)
+    var sb = StrBuf()
+    let names: List<string> = ["A", "B", "C", "D", "F", "G", "H", "J", "K"]
+    for n in names {
+        sb.append($"{n}:{t35TakesFormatSpec(ref c, for: t29s1Type(in c, for: n))} ")
+    }
+    sb.append($"{t35TakesFormatSpec(ref c, for: prim(.i64))} ")
+    sb.append($"{t35CannotInfer(prim(.void))} {t35CannotInfer(prim(.neverKind))} {t35CannotInfer(prim(.i64))} ")
+    sb.append($"{isFormattable(ref c, for: prim(.void))} {isFormattable(ref c, for: prim(.neverKind))}")
+    let expected = """
+        BYN5004 `formatInto` has 2 unlabeled parameters; give each but one a particle
+        BYN5006 `spec` is a required parameter besides the object and needs a particle
+        A:false B:false C:false D:false F:false G:false H:false J:false K:true false true true false false false
+        """
+    assert $"{t29s1Diags(in c)}{sb.finish()}" == expected
+}

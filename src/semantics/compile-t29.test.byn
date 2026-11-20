@@ -137,3 +137,54 @@ test "compile t29: a project with only tests" {
     assert c.entryFiles.length == 1
     assert t29s1Diags(in c) == ""
 }
+
+test "compile t29: more main signatures, aliases twice and top-level values in a test file" {
+    var sb = StrBuf()
+    let mains: List<string> = [
+        "Nope main() {}\n",
+        "void main(i64 a, by i64 b) {}\n",
+        "void main(ReadOnlySpan<i64> args) {}\n",
+        "i64 main() => 0\n",
+    ]
+    for m in mains {
+        let c = t29s1Compile(m)
+        sb.append($"{t29s1Diags(in c)}|\n")
+    }
+    let text = """
+        type Al = i64
+
+        type Al = i32
+
+        @unobservable because "why"
+        void f() {}
+
+        void sw(i64 n) {
+            switch n {
+                case ~1: print("a")
+                default: {}
+            }
+        }
+
+        void main() {}
+        """
+    var sources = List<lexer.SourceText>()
+    sources.append(t29s1Source("a.byn", from: text))
+    sources.append(t29s1Source("b.test.byn", from: "i64 make() => 1\n\nlet g = make()\n"))
+    let c = create(from: move sources, at: ".", by: CompilationOptions {})
+    sb.append(t29s1Diags(in c))
+    let expected = """
+        BYN2002 unknown type `Nope`
+        |
+        BYN2771 `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`
+        |
+        BYN2771 `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`
+        |
+        BYN2771 `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`
+        |
+        BYN2006 `Al` is declared twice
+        BYN2770 unknown attribute `unobservable`
+        BYN2015 top-level statements are allowed only in the entry module
+
+        """
+    assert sb.finish() == expected
+}

@@ -2,6 +2,8 @@
 // declared twice, fields and payloads named twice, union values at the `i32` edge or not integer literals, and a
 // generic method. The expected values are the output of the self-hosted checker at the commit that added the test.
 
+import lexer
+
 test "declare t29: names declared twice and union values" {
     let text = """
         struct A {
@@ -219,6 +221,74 @@ test "declare t29: which overloads overlap" {
         sb.append("\n")
     }
     sb.append($"{t12LocationOf(in c, for: prim(.i64)) is null} {t12ModifierName(.none)}\n")
-    print($"{t29s1Diags(in c)}{sb.finish()}")
-    assert false
+    let expected = """
+        BYN2006 `f` is declared twice
+        BYN2006 `f` is declared twice
+        f1 ynyynyy
+        f2 nynnnnn
+        f2 ynyyyyy
+        f1 ynyynyy
+        f2 nnynynn
+        show1 ynyynyy
+        S1 ynyynyy
+        true none
+
+        """
+    assert $"{t29s1Diags(in c)}{sb.finish()}" == expected
+}
+
+test "declare t29: members named twice, positional counts and a duplicate in another file" {
+    let text = """
+        struct P {
+            i64 n
+            void n() {}
+            void g(i64 a) {}
+            void g(string a, by i64 b) {}
+            void g(i64 c) {}
+        }
+
+        interface IItem {
+            type Item
+        }
+
+        struct Q : IItem {
+            type Item = i64
+            type Item = i64
+        }
+
+        enum Bad(Nope v) {
+            w(1)
+        }
+
+        void k(i64 a, i64 b) {}
+
+        void k() {}
+
+        void dup() {}
+
+        void main() {}
+        """
+    var sources = List<lexer.SourceText>()
+    sources.append(t29s1Source("a.byn", from: text))
+    sources.append(t29s1Source("b.byn", from: "void dup() {}\n"))
+    var c = create(from: move sources, at: ".", by: CompilationOptions {})
+    var sb = StrBuf()
+    var ks = List<FuncId>()
+    for fn in 0..c.functions.length {
+        if c.functions[fn].declIndex >= 0 && c.functions[fn].name == "k" {
+            ks.append(fn)
+        }
+    }
+    sb.append($"{overlap(ref c, for: ks[0], as: ks[1])} {overlap(ref c, for: ks[1], as: ks[0])} ")
+    let expected = """
+        BYN2002 unknown type `Nope`
+        BYN2006 `n` is declared twice
+        BYN2006 `g` is declared twice
+        BYN2006 `Item` is declared twice
+        BYN5004 `k` has 2 unlabeled parameters; give each but one a particle
+        BYN5006 `b` is a required parameter besides the object and needs a particle
+        BYN2006 `dup` is declared twice
+        false false 
+        """
+    assert $"{t29s1Diags(in c)}{sb.finish()}" == expected
 }

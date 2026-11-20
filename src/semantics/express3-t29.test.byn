@@ -247,3 +247,94 @@ test "express3 t29: which types compare and which operators apply" {
     let expected = "a:true b:true c:true d:false e:true f:false g:true h:false i:true j:true k:false l:true m:false n:false o:true | yynnn ynnnn ynynn yynyy yyyyy nnnnn"
     assert sb.finish() == expected
 }
+
+test "express3 t29: mixed operands, ranges, casts and literals that miss" {
+    let q = "\"\"\""
+    let head = """
+        struct P {
+            i64 x
+        }
+
+        struct R {
+            required i64 a
+        }
+
+        void f(i64 n, from bool b, by string s, as i64? o, at string? p) {
+            let a1 = 1 + b
+            let a2 = b + 1
+            let a4 = 5.0 / 0.0
+            let a5 = i8(1) + u32(1)
+            let a6 = 'a' + 1.0
+            let a7 = o ?? p
+            let a8: i64 = 1..2
+            let a9 = nope..2
+            let b1 = "a"..="b"
+            let b2 = nope in s
+            let b3 = n in nope
+            let b4 = false ? 1 : 2
+            let b5 = Nope(n)
+            let b6: i64? = { x: 1 }
+            let b7 = P { x: 1, qwertyuiop: 2 }
+            let b8 = R {}
+            let b9 = i32(1.5)
+        """
+    let text = $"{head}\n    let c1 = {q}\n        x\n        {q} + \"a\"\n}}\n\nvoid main() {{}}\n"
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2208 `+` cannot be applied to `i32` and `bool`
+        BYN2208 `+` cannot be applied to `bool` and `i32`
+        BYN2208 `+` cannot be applied to `rune` and `f64`
+        BYN2202 expected `i64`, found `string?`
+        BYN2202 expected `i64`, found `Range<i32>`
+        BYN2001 `nope` is not defined
+        BYN2208 `..=` cannot be applied to `string` and `string`
+        BYN2001 `nope` is not defined
+        BYN2001 `nope` is not defined
+        BYN2001 `Nope` is not defined
+        BYN2114 `i64?` is not a struct
+        BYN2003 `qwertyuiop` is not a member of `P`
+        BYN2109 `R` needs a value for `a`
+        BYN2209 strings cannot be joined with `+`; use interpolation
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "express3 t29: equatability of results, unions and repeated sets" {
+    let text = """
+        union error E {
+            bad
+        }
+
+        union error F {
+            lost(List<i64> items)
+        }
+
+        struct W {
+            E a
+            E b
+        }
+
+        void main() {}
+        """
+    var c = t29s1Compile(text)
+    let e = t29s1Type(in c, for: "E")
+    let f = t29s1Type(in c, for: "F")
+    var sb = StrBuf()
+    sb.append($"{isEquatable(ref c, for: prim(.void))} {isEquatable(ref c, for: prim(.neverKind))} ")
+    sb.append($"{isEquatable(ref c, for: internResult(ref c, by: prim(.i64), to: e))} ")
+    sb.append($"{isEquatable(ref c, for: internResult(ref c, by: internList(ref c, by: prim(.i64)), to: e))} ")
+    sb.append($"{isEquatable(ref c, for: internResult(ref c, by: prim(.i64), to: f))} ")
+    var one = List<ErrorSetId>()
+    one.append(typeIndex(e))
+    sb.append($"{isEquatable(ref c, for: errorUnionOf(ref c, for: in one, as: in List<VariantId>()))} ")
+    one.append(typeIndex(f))
+    sb.append($"{isEquatable(ref c, for: errorUnionOf(ref c, for: in one, as: in List<VariantId>()))} ")
+    let w = typeIndex(t29s1Type(in c, for: "W"))
+    for fd in copyIds(in c.structs[w].fields) {
+        sb.append($"{c.fields[fd].name}:{isEquatable(ref c, for: c.fields[fd].type)} ")
+    }
+    let wt = t29s1Type(in c, for: "W")
+    sb.append($"{isEquatable(ref c, for: wt)}")
+    assert $"{t29s1Diags(in c)}{sb.finish()}" == "false false true false false true false a:true b:true true"
+}

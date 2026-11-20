@@ -306,3 +306,47 @@ test "calls3 t29: owning switches and member patterns" {
         """
     assert t29s1Diags(in c) == expected
 }
+
+test "calls3 t29: bindings inside or patterns" {
+    let text = """
+        union Shape {
+            dot
+            box(i64 w, i64 h)
+        }
+
+        struct P {
+            i64 x
+            i64 y
+        }
+
+        void f(Shape s, by P p, at i64 n) {
+            switch s {
+                case (.box(let a, _) and _) or .dot: {}
+                case (_ and .box(let b, _)) or .dot: {}
+                case .dot or .box(let w, _): {}
+                default: {}
+            }
+            switch p {
+                case { x: 1 } q or { y: 2 }: {}
+                case { x: let e } or { y: 2 }: {}
+                default: {}
+            }
+            if nope is .foo(1) {
+                return
+            }
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2022 variables inside `or` patterns is not supported in v0.1
+        BYN2022 variables inside `or` patterns is not supported in v0.1
+        BYN2022 variables inside `or` patterns is not supported in v0.1
+        BYN2022 variables inside `or` patterns is not supported in v0.1
+        BYN2022 variables inside `or` patterns is not supported in v0.1
+        BYN2001 `nope` is not defined
+
+        """
+    assert t29s1Diags(in c) == expected
+}

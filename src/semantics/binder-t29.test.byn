@@ -99,3 +99,34 @@ test "binder t29: constants without a value, constant arrays, array lengths and 
         """
     assert t29s1Diags(in c) == expected
 }
+
+test "binder t29: expects after a tab or a line break, constant lists and spans, and a length that is no constant" {
+    let head = """
+        struct P {
+            i64 x
+
+            void a(i64 n) expects
+
+        """
+    let tail = """
+        n > 0 {}
+        }
+
+        const l: List<i64> = [1, 2]
+        const s: ReadOnlySpan<i64> = [1]
+        const u: i64 = [1]
+        const v: i64[2] = [1, h()]
+
+        i64 h() => 1
+
+        void k(i64 m) {
+            let xs: i64[m] = [1]
+        }
+
+        void main() {}
+        """
+    let text = $"{head}\n        n > 0 \{\}\n    void b(i64 n) expects\tn > 0 \{\}\n    void d(i64 n) expects\r\n{tail}"
+    let c = t29s1Compile(text)
+    print(t29s1Diags(in c))
+    assert false
+}
