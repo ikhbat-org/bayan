@@ -934,3 +934,46 @@ test "emitter t29: a probed condition that never returns has no outcome counters
     """
     assert got == expected
 }
+
+test "emitter t29: a conditional that never returns ends at its arms" {
+    t29LxCase(
+        """
+        void f(bool b) {
+            let v = b ? panic("a") : panic("b")
+        }
+        """,
+        by: """
+        void byn_main__f(bool p_b) {
+        #line 32 "t29.byn"
+            if (p_b) {
+        #line 32 "t29.byn"
+                (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+            } else {
+        #line 32 "t29.byn"
+                (void)byn_panic_str(BYN_STR("b", 1), byn_file_0, 32);
+            }
+        }
+        """,
+    )
+}
+
+test "emitter t29: a slice of an array field of a list element slices it in place" {
+    t29LxCase(
+        """
+        void f(List<A> xs) {
+            let n = sumSpan(xs[0].a[0..1])
+        }
+
+        struct A {
+            i64[2] a
+        }
+        """,
+        by: """
+        void byn_main__f(bynt_list_main__A p_xs) {
+            int64_t l0_n = {0};
+        #line 32 "t29.byn"
+            l0_n = byn_main__sumSpan(bynh_slice_arr2_i64(&(*bynh_at_list_main__A(p_xs, (int64_t)INT64_C(0), false, byn_file_0, 32)).a, (int64_t)INT64_C(0), 0, (int64_t)INT64_C(1), 0, false, byn_file_0, 32));
+        }
+        """,
+    )
+}
