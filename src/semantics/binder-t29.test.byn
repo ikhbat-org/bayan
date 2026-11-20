@@ -1,0 +1,61 @@
+// 019 T29 (coverage ratchet): binder.byn paths no golden case reaches: bodies whose first statement is an increment, a
+// `continue`, a `do`-`while`, a `;` or a parse error, and `requires` rules that are not `bool`, read no field, repeat a
+// field, measure `runeCount` or overflow. The expected values are the output of the self-hosted checker at the commit that
+// added the test.
+
+test "binder t29: requires rules of every shape" {
+    let text = """
+        struct A {
+            i64 n
+                requires it + 1
+        }
+
+        struct B {
+            i64 n
+            requires 1 + 1 == 2
+        }
+
+        struct C {
+            i64 n
+                requires it > 0
+                requires it < 10
+        }
+
+        struct D {
+            string s
+                requires it.runeCount in 1..=5
+        }
+
+        struct E {
+            i64 n
+                requires it in 1..=(1 << 62) * 4
+        }
+
+        void inc(ref i64 n) {
+            n++
+        }
+
+        void loop() {
+            do {
+            } while false
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2320 a `requires` clause must be `bool`, got `i64`
+        BYN2204 constant arithmetic overflows `i64`
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "binder t29: a first statement that is a continue, a semicolon or a parse error" {
+    let c1 = t29s1Compile("void f() {\n    continue\n}\n\nvoid main() {}\n")
+    assert t29s1Diags(in c1) == "BYN2406 `continue` outside a loop\n"
+    let c2 = t29s1Compile("void f() {\n    ;\n}\n\nvoid main() {}\n")
+    assert t29s1Diags(in c2) == "BYN1040 `;` is an input form; a statement ends at the newline\n"
+    let c3 = t29s1Compile("void f() {\n    )\n}\n\nvoid main() {}\n")
+    assert t29s1Diags(in c3) == "BYN1002 expected an expression, found `)`\n"
+}
