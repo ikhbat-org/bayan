@@ -11,9 +11,10 @@
 #              `x1` in an empty work directory with the case's .args and .stdin, against its .stdout, .stderr and .exitcode (a case
 #              whose `// os:` line names the other OS is skipped). MutantZeroIsThePlainTestBinary: each test (`--test i`) of the
 #              `test --mutate --run true` binary with BAYAN_MUTANT unset, `0` and `x1` against the plain `test` binary.
-#   coverage   CoverageBuildIsThePlainTestBinary: each test of the `test --coverage` binary with BAYAN_COVERAGE unset and set
-#              against the plain one. CoverageBuildIsThePlainProgram is left out: `bayan build` has no `--coverage`
-#              (src/driver/build.byn:52-109; src/driver/l019.test.byn:4); the programs are counted as left out.
+#   coverage   CoverageBuildIsThePlainProgram: `build --coverage`, run with BAYAN_COVERAGE unset and set (to a prefix in the
+#              case's scratch directory) as mutate runs its build, against the same expected files; the set run must leave a
+#              `cov.<pid>` counter file, a panic's too. CoverageBuildIsThePlainTestBinary: each test of the `test --coverage`
+#              binary with BAYAN_COVERAGE unset and set against the plain one.
 #   ownership  SafeAndFastCHaveNoChecker: the C of `build --emit-c` (a test case: `out/<mode>/<host>/c/main.c` of `test`) in
 #              `safe` and `fast` holds no `byn_own`.
 #   libc       EmittedCHasOnlyInventoryExtensionTokens and EmittedCDirectLibcCallsAreListed: the C of `build --emit-c` in `debug`,
@@ -143,26 +144,41 @@ program() {
   mkdir -p "$1/src/$kind" && cp "$2" "$1/src/$kind/" && echo "$1/src/$kind/$(basename "$2")"
 }
 
-# the program half of mutate for the case $2 in the scratch directory $1: the failure, or nothing
-mutant_program() {
-  local d=$1 src=$2 name=$3 m files mut base want got s
+# the program half of mutate or coverage ($4) for the case $2 in the scratch directory $1: the failure, or nothing. mutate runs the
+# `--schemata-files` build with BAYAN_MUTANT unset, `0` and `x1`; coverage the `--coverage` build with BAYAN_COVERAGE unset and
+# set, which must write a counter file
+program_case() {
+  local d=$1 src=$2 name=$3 mode=$4 m files v base want got s at
+  local flags=(--coverage) runs=(- "$d/counters/cov")
   m=$(mode_of "$src")
   src=$(program "$d" "$src" "$name") || { echo "cannot copy to $d/src"; return; }
-  files=$(find "$(dirname "$src")" -name '*.byn' | LC_ALL=C sort | paste -sd, -)
-  if ! driver "$root" "$d/build" build --mode "$m" --schemata-files "$files" -o "$d/prog$x" "$src"; then
-    echo "the schemata build failed: $(said "$d/build")"; return
+  if [ "$mode" = mutate ]; then
+    files=$(find "$(dirname "$src")" -name '*.byn' | LC_ALL=C sort | paste -sd, -)
+    flags=(--schemata-files "$files"); runs=(- 0 x1)
+  fi
+  if ! driver "$root" "$d/build" build --mode "$m" "${flags[@]}" -o "$d/prog$x" "$src"; then
+    echo "the $([ "$mode" = mutate ] && echo schemata || echo coverage) build failed: $(said "$d/build")"; return
   fi
   base="$cases/${name%.byn}"
-  for mut in - 0 x1; do
-    run "$d/prog$x" "$d/w" "$mut" - "$base.stdin" "$base.args"
+  mkdir -p "$d/counters"
+  for v in "${runs[@]}"; do
+    if [ "$mode" = mutate ]; then
+      at="BAYAN_MUTANT=${v/-/unset}"; run "$d/prog$x" "$d/w" "$v" - "$base.stdin" "$base.args"
+    else
+      at="BAYAN_COVERAGE $([ "$v" = - ] && echo unset || echo set)"; run "$d/prog$x" "$d/w" - "$v" "$base.stdin" "$base.args"
+    fi
     for s in stdout:o stderr:e; do
       if [ -f "$base.${s%:*}" ]; then tr -d '\r' < "$base.${s%:*}" > "$d/want"; else : > "$d/want"; fi
-      cmp -s "$d/want" "$d/w.${s#*:}" || { echo "BAYAN_MUTANT=${mut/-/unset}: ${s%:*} differs from $kind/${name%.byn}.${s%:*}"; return; }
+      cmp -s "$d/want" "$d/w.${s#*:}" || { echo "$at: ${s%:*} differs from $kind/${name%.byn}.${s%:*}"; return; }
     done
     want=""; [ ! -f "$base.exitcode" ] || want=$(tr -d ' \t\r\n' < "$base.exitcode")
     got=$(cat "$d/w.c"); [ "$got" != 0 ] || got=""
-    [ "$want" = "$got" ] || { echo "BAYAN_MUTANT=${mut/-/unset}: exit code '${got}', $kind/${name%.byn}.exitcode says '${want}'"; return; }
+    [ "$want" = "$got" ] || { echo "$at: exit code '${got}', $kind/${name%.byn}.exitcode says '${want}'"; return; }
   done
+  # a panic writes them too (bayan-rt.c `byn_cov_flush`)
+  if [ "$mode" = coverage ] && ! ls "$d/counters" | grep -q '^cov\.'; then
+    echo "BAYAN_COVERAGE set: no counter file cov.<pid>"
+  fi
 }
 
 # ownership for the case $2 in the scratch directory $1: the failure, or nothing
@@ -206,14 +222,13 @@ libc() {
 names=$( (cd "$cases" && { ls | grep '\.byn$' | while IFS= read -r f; do [ -f "$f" ] && echo "$f"; done
   for f in */main.byn; do [ -f "$f" ] && echo "$f"; done; }) | LC_ALL=C sort)
 
-# the units, `<mode> <name>`; programs coverage cannot reach are counted in left_<mode>
+# the units, `<mode> <name>`; cases a mode leaves out are counted in left_<mode>
 : > "$out/units"
 for mode in "${modes[@]}"; do
   taken=0; left=0
   while IFS= read -r name; do
     [ -n "$name" ] || continue
     case $name in (*"$only"*) ;; (*) continue ;; esac
-    if [ "$mode" = coverage ] && [ "${name%.test.byn}" = "$name" ]; then left=$((left + 1)); continue; fi
     case $mode/$name in (libc/*/*) left=$((left + 1)); continue ;; esac
     [ "$limit" = 0 ] || [ "$taken" -lt "$limit" ] || continue
     taken=$((taken + 1)); echo "$mode $name" >> "$out/units"
@@ -233,7 +248,7 @@ worker() {
       elif [ "$mode" = libc ]; then r=$(libc "$d" "$src" "$name")
       elif [ "${name%.test.byn}" != "$name" ]; then r=$(test_binary "$d" "$src" "$mode")
       elif head -2 "$src" | tr -d '\r' | grep -qxF "$other"; then r=skip
-      else r=$(mutant_program "$d" "$src" "$name")
+      else r=$(program_case "$d" "$src" "$name" "$mode")
       fi
       case $r in ('') echo ok ;; (skip) echo skip ;; (*) echo "fail $r" ;; esac > "$out/result/$i"
     fi
@@ -265,7 +280,6 @@ fi
 for mode in "${modes[@]}"; do
   eval "o=\$ok_$mode f=\$fail_$mode s=\$skip_$mode l=\$left_$mode"
   part="$mode $o ok, $f failed, $s skipped (os)"
-  [ "$mode" != coverage ] || part="$part, $l left out (programs: no bayan build --coverage)"
   [ "$mode" != libc ] || part="$part, $l left out (<dir>/main.byn: not in the C# selection)"
   summary="${summary:+$summary; }$part"
 done
