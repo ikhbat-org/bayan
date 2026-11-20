@@ -1,0 +1,160 @@
+// 019 T29 (coverage ratchet): typeresolve.byn paths no golden case reaches: `Result`, `dec`, `Time` and `Rule`
+// types, tuple and function types with bad parts, dotted names, associated types without a declaring bound and error
+// unions joined from unions with excluded cases. The expected values are the output of the self-hosted checker at the
+// commit that added the test.
+
+import lexer
+
+test "typeresolve t29: builtin and generic type names" {
+    let text = """
+        struct S {
+            i64 x
+        }
+
+        union error A {
+            a1
+        }
+
+        void r1(Result<i64> x) {}
+        void r2(Result<i64, i64> x) {}
+        void r3(Result<void, A> x) {}
+        void r4(Result<Nope, A> x) {}
+        void r5(Result<i64, Nope> x) {}
+        void d(dec x) {}
+        void t(Time x) {}
+        void u(Rule x) {}
+        struct Checked {
+            i64 n requires it > 0
+        }
+
+        void v0(Violation<Checked> x) {}
+        void f0(Checked.Field x) {}
+        void v1(Violation<i64> x) {}
+        void v2(Violation<S> x) {}
+        void v3(Violation<S, S> x) {}
+        void w(Strng x) {}
+        void w2(Sx x) {}
+        void f1(S.Field x) {}
+        void f2(A.Field x) {}
+        void p3(a.b.C x) {}
+        void up(S.Big x) {}
+
+        void main() {}
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2023 `Result` takes 2 type argument(s), not 1
+        BYN2608 `i64` is not an error enum
+        BYN2025 `void` is not a value type
+        BYN2002 unknown type `Nope`
+        BYN2002 unknown type `Nope`
+        BYN2022 the `dec` type is not supported in v0.1
+        BYN2002 unknown type `Violation`
+        BYN2002 unknown type `Violation`
+        BYN2002 unknown type `Violation`
+        BYN2002 unknown type `Strng`
+        BYN2002 unknown type `Sx`
+        BYN2002 unknown type `S.Field`
+        BYN2002 unknown type `A.Field`
+        BYN2002 unknown type `a.b.C`
+        BYN2002 unknown type `S.Big`
+
+        """
+    assert t29s2bDiags(in c) == expected
+}
+
+test "typeresolve t29: tuple and function types with bad parts" {
+    let text = """
+        union error A {
+            a1
+        }
+
+        union error B {
+            b1
+        }
+
+        union error AB = A, B
+
+        void t1((i64, Nope) x) {}
+        void g1((() -> i64 fails AB) f) {}
+        void g2((() -> i64 fails A, A) f) {}
+        void g3((() -> i64 fails i64) f) {}
+        void g4((() -> Nope) f) {}
+
+        void main() {}
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2002 unknown type `Nope`
+        BYN2608 `i64` is not an error enum
+        BYN2002 unknown type `Nope`
+
+        """
+    assert t29s2bDiags(in c) == expected
+}
+
+test "typeresolve t29: associated types without a declaring bound" {
+    let text = """
+        interface INamed {
+            string name()
+        }
+
+        interface IHolder {
+            type Other
+            string name()
+        }
+
+        void a<T>(T.Item x) {}
+        void b<T>(T.Item x) where T : INamed {}
+        void c<T>(T.Item x) where T : IHolder {}
+
+        void main() {}
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2002 unknown type `T.Item`
+        BYN2002 unknown type `T.Item`
+        BYN2002 unknown type `T.Item`
+
+        """
+    assert t29s2bDiags(in c) == expected
+}
+
+test "typeresolve t29: error unions joined from unions with excluded cases" {
+    let text = """
+        union error A {
+            a1
+            a2
+        }
+
+        union error B {
+            b1
+            b2
+        }
+
+        union error S = A, B except .a1, .b1
+        union error T = S, A
+        union error U = S, S
+        union error V = i64
+
+        i64 t() fails T => 1
+        i64 u() fails U => 1
+
+        void main() {}
+        """
+    let c = t29s2bCompile(text)
+    assert t29s2bDiags(in c) == "BYN2608 `i64` is not an error enum\n"
+}
+
+test "typeresolve t29: a type of an imported module that it does not have" {
+    var files = List<StdSource>()
+    files.append(StdSource { path: "m/a.byn", text: "struct Hidden {\n    i64 x\n}\n" })
+    var bytes = List<u8>()
+    for b in "import std.m\n\nvoid a(m.Nope x) {}\nvoid b(m.Hidden x) {}\n\nvoid main() {}\n".bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+    let c = create(from: move sources, at: ".", by: CompilationOptions { std: move files })
+    assert t29s2bDiags(in c) == "BYN2002 unknown type `m.Nope`\nBYN2005 `Hidden` is not visible here\n"
+}
