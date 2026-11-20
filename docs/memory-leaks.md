@@ -166,9 +166,9 @@ and `laws-nightly.yml`'s `golden-bound` job samples the full tree every night on
 (`scripts/ci/nightly-modes.sh --mode bound`, 5 hours for the block, 330 minutes for the job; not run when `release.yml`
 calls the workflow). A block that ran and failed is reported once, as failed; "did not run (no test matched)" means no
 test ran.
-Open (2026-11-20, macOS arm64, stage-1 driver, shard 1/12, 3,395 cases, 483 s): runner 73,680 KB, largest worker
-133,104 KB, over the 15 MB bound, and the sampled run exited 3 (five `MutateArgumentsAsCliAppDoes` cases); the 9–10 MB
-figures above were measured on 2026-11-17 over the full tree; the cause of the growth is not found.
+Measured 2026-11-20 (macOS arm64, stage-1 driver at 4c8dff730, shard 1/12): sampled run exit 0, runner 9,904 KB,
+largest worker 13,680 KB, under the 15 MB bound. An earlier run that day (483 s) gave runner 73,680 KB and worker
+133,104 KB; 019-t43a fixed it: each case frees its allocations when it ends, and the case listing peaks at 10.7 MB, not 45 MB.
 
 `bash scripts/release/memory-gate.sh` runs this block and names every failing command; `release.yml`'s
 `memory-gate` job runs it on Linux and macOS, and no draft release is made without it. The VS Code
