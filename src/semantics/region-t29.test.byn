@@ -61,3 +61,74 @@ test "region t29: a rest tail named twice keeps the last name" {
     assert r.restTails.length == 2
     assert r.restTails[1].tail == "zs"
 }
+
+test "region t29: a dyn ref loop over a user type holds no loan" {
+    let text = """
+        interface IThing {
+            i64 get()
+        }
+
+        struct S : IThing {
+            i64 n
+
+            i64 get() => n
+        }
+
+        struct Rows : IIndexable {
+            type Item = S
+
+            i64 count => 2
+
+            S get(i64 index) => S { n: index + 1 }
+        }
+
+        i64 viaList() {
+            var xs = List<S>()
+            xs.append(S { n: 1 })
+            var sum: i64 = 0
+            for x: dyn ref IThing in xs {
+                xs.append(S { n: 2 })
+                sum += x.get()
+            }
+            return sum
+        }
+
+        i64 viaRows() {
+            var rows = Rows {}
+            var sum: i64 = 0
+            for x: dyn ref IThing in rows {
+                rows = Rows {}
+                sum += x.get()
+            }
+            return sum
+        }
+
+        void main() {
+            print($"{viaList()} {viaRows()}")
+        }
+        """
+    let c = t29s1Compile(text)
+    assert t29s1Diags(in c) == "BYN3004 `xs` is modified while the `for` loop still borrows it\n"
+    assert c.diagnostics[0].span.start == 329
+    assert c.diagnostics[0].span.length == 21
+}
+
+test "region t29: ref this outside a struct is no store target" {
+    let text = """
+        void f(ref this) {}
+
+        void main() {
+            f()
+        }
+        """
+    var c = t29s1Compile(text)
+    assert t29s1Diags(in c) == "BYN2022 `ref this` outside a struct is not supported in v0.1\n"
+    var seen = 0
+    for fn in 0..c.functions.length {
+        if c.functions[fn].name == "f" && c.functions[fn].isMutating {
+            assert !t41HasTargets(ref c, for: fn)
+            seen += 1
+        }
+    }
+    assert seen == 1
+}
