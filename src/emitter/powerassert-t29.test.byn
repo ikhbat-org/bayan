@@ -1,0 +1,10 @@
+// 019 T29 (coverage ratchet): `Flatten`'s trimming of a last line and of tabs and carriage returns before a break. The
+// expected values are the output of the self-hosted emitter at the commit that added the test.
+
+test "emitter t29: powerAssertLine and powerAssertFlatten trim tabs and carriage returns" {
+    let last = powerAssertLine("a ", at: 0, by: false)
+    print($"last {last.from} {last.until} {last.next}")
+    let tabbed = powerAssertLine("a\t\r\nb", at: 0, by: true)
+    print($"tabbed {tabbed.from} {tabbed.until} {tabbed.next}")
+    print($"flat [{powerAssertFlatten("x \t\r\n\ty\t\nz")}]")
+}

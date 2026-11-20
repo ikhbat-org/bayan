@@ -1,0 +1,22 @@
+// 019 T29 (coverage ratchet): `buildSchema` and a `--mutate` emit over the corpus of lower-t29.test.byn. The expected
+// values are the output of the self-hosted emitter at the commit that added the test.
+
+test "emitter t29: buildSchema's sites over the corpus" {
+    let corpus = t29Corpus()
+    for k in 0..corpus.length {
+        var c = t29Compile(corpus[k])
+        let schema = buildSchema(ref c, for: in List<string>())
+        var sb = StrBuf()
+        for s in schema.sites {
+            sb.append($" {s.site.op}:{s.site.original}>{s.site.mutated}:{s.emitted}")
+        }
+        print($"== {k} sites{sb.finish()}")
+        var counts = StrBuf()
+        for op in mutatorOperators() {
+            counts.append($" {op}={schema.notEmitted.tryGet(at: op) ?? 0}")
+        }
+        print($"== {k} notEmitted{counts.finish()} switches {schema.switches.length}")
+        let text = t29Emit(corpus[k], mutating: true)
+        print($"== {k} mutated {text.length}")
+    }
+}

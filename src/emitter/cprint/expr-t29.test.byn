@@ -1,0 +1,7 @@
+// 019 T29 (coverage ratchet): the C# class names `t10LoweredName` and `t10BoundName` give the panics of `emitExpr`.
+// The expected values are the output of the self-hosted emitter at the commit that added the test.
+
+test "cprint t29: t10LoweredName and t10BoundName" {
+    print($"{t10LoweredName(.label)} {t10LoweredName(.count)} {t10LoweredName(.voidValue)}")
+    print($"{t10BoundName(.literal)} {t10BoundName(.local)}")
+}

@@ -1,0 +1,28 @@
+// 019 T29 (coverage ratchet): `t4TypeName`, the C# class names `lowerExpr` panics with, on every lowered kind and the
+// bound kinds it names. The expected values are the output of the self-hosted emitter at the commit that added the test.
+
+import semantics
+import emitter.ltree
+
+test "emitter t29: t4TypeName of the lowered and bound kinds" {
+    var sb = StrBuf()
+    for k in 0..28 {
+        let kind = ltree.LKind.fromOrdinal(k) ?? .voidValue
+        sb.append($"{t4TypeName(ltree.lNode(kind, at: 0))} ")
+    }
+    print(sb.finish())
+    var bound = StrBuf()
+    for kind in [
+        semantics.BoundKind.spread,
+        semantics.BoundKind.errorExpr,
+        semantics.BoundKind.typeRef,
+        semantics.BoundKind.moduleRef,
+        semantics.BoundKind.methodGroup,
+        semantics.BoundKind.variantGroup,
+        semantics.BoundKind.builtinGroup,
+        semantics.BoundKind.literal,
+    ] {
+        bound.append($"{t4TypeName(i64(kind.ordinal) << 32)} ")
+    }
+    print(bound.finish())
+}

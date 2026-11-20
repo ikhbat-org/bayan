@@ -1,0 +1,10 @@
+// 019 T29 (coverage ratchet): `t6FloatLiteral` of a NaN and the infinities. The expected values are the output of the
+// self-hosted emitter at the commit that added the test.
+
+test "cprint t29: t6FloatLiteral of NaN and the infinities" {
+    let inf = 1.0 / 0.0
+    print($"nan {t6FloatLiteral(inf - inf, by: false)} {t6FloatLiteral(inf - inf, by: true)}")
+    print($"inf {t6FloatLiteral(inf, by: false)} {t6FloatLiteral(inf, by: true)}")
+    print($"neg {t6FloatLiteral(-inf, by: false)} {t6FloatLiteral(-inf, by: true)}")
+    print($"half {t6FloatLiteral(0.5, by: false)} {t6FloatLiteral(2.0, by: true)}")
+}

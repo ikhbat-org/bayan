@@ -1,0 +1,338 @@
+// 019 T29 (coverage ratchet): `lower` and `cprint.emit` on programs that reach the shapes no golden case lowers. Each
+// program is compiled alone as `RunTests` does (`t12Compile`); the other `*-t29.test.byn` files of the package use the
+// helpers here. The expected values are the output of the self-hosted emitter at the commit that added the test.
+
+import semantics
+
+/// `source` as `t29.byn`, compiled alone with tmp/ as its package root, its tests when `tests`.
+semantics.Ctx t29Compile(string source, by bool tests = false) {
+    var bytes = List<u8>()
+    for b in source.bytes {
+        bytes.append(b)
+    }
+    return t12Compile(Path.fullPath("tmp"), at: move bytes, for: "t29.byn", by: tests)
+}
+
+/// The errors of `c`, one `code message` line each.
+string t29Errors(in semantics.Ctx c) {
+    var sb = StrBuf()
+    for d in c.diagnostics {
+        sb.append($"{d.code} {d.message}\n") if !d.isWarning
+    }
+    return sb.finish()
+}
+
+/// The C of `source` in `mode` (`t12Emit`), or of a `--coverage`/`--mutate` build (`t10Emit`); `errors: …` when it
+/// does not compile.
+string t29Emit(
+    string source,
+    by string mode = "safe",
+    bool tests = false,
+    bool covering = false,
+    bool mutating = false
+) {
+    var c = t29Compile(source, by: tests)
+    let errors = t29Errors(in c)
+    return $"errors: {errors}" if errors != ""
+    return covering || mutating ? t10Emit(ref c, by: mode, through: covering, as: mutating) : t12Emit(ref c, by: mode)
+}
+
+/// The programs the `*-t29` tests lower, instrument and mutate.
+List<string> t29Corpus() {
+    var corpus = List<string>()
+    corpus.append(
+        """
+        union error E {
+            bad
+            worse(i64 code)
+        }
+
+        union error F {
+            a
+            b
+        }
+
+        union error G = F except .b
+
+        struct Counter {
+            i64 n = 0
+
+            public i64 bump(ref this, i64 by) fails F {
+                fail .a if by < 0
+                this.n += by
+                return this.n
+            }
+
+            public i64 twice(ref this) fails F {
+                let v = try this.bump(1)
+                let w = this.bump(2) catch (F.a) 0
+                return v + w
+            }
+        }
+
+        i64 pick(i64 x) fails F {
+            fail .a if x == 1
+            fail .b if x == 2
+            return x
+        }
+
+        i64 narrow(i64 x) fails G {
+            fail .a if x == 5
+            return x
+        }
+
+        i64 viaTry(i64 x) fails E, F {
+            let v = try pick(x)
+            let w = try narrow(v)
+            fail .worse(w) if w > 100
+            return w
+        }
+
+        i64 viaCatch(i64 x) fails F {
+            let v = pick(x) catch (F.a) 0
+            let w = narrow(x) catch (F.a) 1
+            return v + w
+        }
+
+        i64 viaSwitch(i64 x) {
+            return pick(x) catch switch {
+                F.a => 1,
+                F.b => 2,
+            }
+        }
+
+        void main() {
+            var c = Counter {}
+            let t = c.twice() catch { return }
+            let a = viaTry(3) catch { return }
+            let b = viaCatch(4) catch { return }
+            print($"{t} {a} {b} {viaSwitch(1)}")
+        }
+        """,
+    )
+    corpus.append(
+        """
+        union Shape {
+            circle(i64 r)
+            square(i64 side)
+            none
+        }
+
+        i64 area(Shape s) {
+            switch s {
+                case .circle(let r) when r > 10:
+                    return r * r * 3
+                case .circle(let r):
+                    return r
+                case .square(let side) when side > 0 && side < 100:
+                    return side * side
+                default:
+                    return 0
+            }
+        }
+
+        i64 sized(Shape s) => s switch {
+            .circle(let r) when r > 1 => r,
+            .square(let q) => q,
+            _ => 0,
+        }
+
+        i64 loops(i64 n) {
+            var i: i64 = 0
+            var total: i64 = 0
+            do {
+                total += i
+                i += 1
+            } while i < n
+            while total > 100 {
+                total -= 7
+            }
+            unless total == 3 {
+                total = -total
+            }
+            total += 1 if n > 2
+            let arr: i64[3] = [1, 2, 3]
+            total += arr[0] + arr[2]
+            i++
+            i--
+            return total * 2 / 3 % 5
+        }
+
+        void setOut(out i64 x) {
+            x = 4
+        }
+
+        bool logic(i64 a, i64 b) => a < b && (b > 3 || a == 0) && !(a == b) && a <= b && b >= a
+
+        test "loops" {
+            assert loops(3) == 4
+        }
+
+        void main() {
+            var y: i64
+            setOut(out y)
+            print($"{loops(5)} {area(.circle(3))} {sized(.none)} {logic(1, 2)} {y}")
+        }
+        """,
+    )
+    corpus.append(
+        """
+        i64 check(i64 n) {
+            let v = n > 0 ? n : panic($"bad {n}")
+            return v
+        }
+
+        i64 maybe(i64? x) {
+            let v = x ?? return -1
+            return v
+        }
+
+        i64 sum(List<i64> xs) {
+            var t: i64 = 0
+            for x in xs.span {
+                t += x
+            }
+            return t
+        }
+
+        List<i64> make() {
+            var xs = List<i64>()
+            xs.append(1)
+            xs.append(2)
+            return xs
+        }
+
+        i64 key() => 1
+
+        void main() {
+            var xs = make()
+            xs[key()] += 2
+            var m = Map<i64, i64>()
+            m[key()] = 3
+            m[key()] += 4
+            print($"{check(1)} {maybe(null)} {sum(make())} {xs[0]} {m[1]}")
+        }
+        """,
+    )
+    corpus.append(
+        """
+        interface IShape {
+            i64 area()
+            string name
+            void describe() => print($"{name} with area {area()}")
+        }
+
+        struct Square : IShape {
+            i64 side
+
+            i64 area() => side * side
+
+            string name => "square"
+        }
+
+        struct Box<T> {
+            T value
+
+            public T get(this) => value
+        }
+
+        void all(List<Square> shapes) {
+            for x: dyn ref readonly IShape in shapes {
+                print(x.area())
+            }
+        }
+
+        void show(dyn ref readonly IShape s) {
+            s.describe()
+        }
+
+        void main() {
+            var shapes = List<Square>()
+            shapes.append(Square { side: 3 })
+            all(shapes)
+            show(Square { side: 2 })
+            let b = Box<i64> { value: 4 }
+            print($"{b.get()}")
+        }
+        """,
+    )
+    corpus.append(
+        """
+        struct Cfg {
+            i64 a = 1
+            string b = "x"
+        }
+
+        i64 opt(i64? x) {
+            switch x {
+                case 3:
+                    return 1
+                case null:
+                    return 0
+                default:
+                    return 2
+            }
+        }
+
+        string word(string? s) => s switch {
+            "a" => "A",
+            _ => "?",
+        }
+
+        void main() {
+            using let arena = Arena()
+            let c = Cfg {}
+            let pair = (1, "two")
+            print($"{c.a}{c.b} {opt(3)} {word(null)} {pair.item1}")
+        }
+        """,
+    )
+    corpus.append(
+        """
+        i64 twice(i64 x) => x * 2
+
+        struct P {
+            i64 x
+            List<i64> xs
+        }
+
+        test "asserts" {
+            let xs = [1, 2, 3]
+            let p = P { x: 1, xs: [4] }
+            let n: i64? = 2
+            let f = 2.5
+            assert xs[0] == 1
+            assert (xs[1] + 1) == 3
+            assert -1 < xs[2]
+            assert twice(xs[0]) == 2
+            assert p.x == 1 && p.xs.length == 1
+            assert p.xs[0] != -4
+            assert n! == 2
+            assert i64(f) == 2
+            assert f64(xs[0]) == 1.0
+            assert $"{p.x}" == "1"
+            assert xs.length
+                == 3
+        }
+
+        void main() {
+            print("main")
+        }
+        """,
+    )
+    return corpus
+}
+
+test "emitter t29: the corpus lowers and emits in debug, safe and fast" {
+    let corpus = t29Corpus()
+    for k in 0..corpus.length {
+        for mode in ["debug", "safe", "fast"] {
+            let text = t29Emit(corpus[k], by: mode)
+            print($"== {k} {mode} {text.length}")
+            print(text) if text.startsWith("errors")
+        }
+        let tested = t29Emit(corpus[k], tests: true)
+        print($"== {k} tests {tested.length}")
+        print(tested) if tested.startsWith("errors")
+    }
+}

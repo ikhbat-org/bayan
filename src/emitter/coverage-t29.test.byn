@@ -1,0 +1,31 @@
+// 019 T29 (coverage ratchet): `instrument` and a `--coverage` emit over the corpus of lower-t29.test.byn (guards, `do`,
+// `fail`, `try` and `catch` in failing functions and methods, an error union less a case), and `skipFiles`. The
+// expected values are the output of the self-hosted emitter at the commit that added the test.
+
+test "emitter t29: instrument counts the corpus's lines, branches and error paths" {
+    let corpus = t29Corpus()
+    for k in 0..corpus.length {
+        var c = t29Compile(corpus[k], by: true)
+        let map = instrument(ref c, for: in List<string>())
+        var lines = 0
+        var branches = 0
+        var errors = StrBuf()
+        for counter in map.counters {
+            if counter.kind == "line" {
+                lines += 1
+            } else if counter.kind == "branch" {
+                branches += 1
+            } else {
+                errors.append(
+                    $" {counter.function ?? ""}:{counter.variant ?? ""}:{counter.origin ?? ""}@{counter.line}",
+                )
+            }
+        }
+        print($"== {k} lines {lines} branches {branches} errors{errors.finish()}")
+        var skip = List<string>()
+        skip.append(c.files[0].path)
+        print($"== {k} skipped {instrument(ref c, for: in skip).counters.length} of {c.files.length}")
+        let text = t29Emit(corpus[k], covering: true)
+        print($"== {k} covered {text.length} {text.contains("byn_cov[")}")
+    }
+}
