@@ -1,0 +1,109 @@
+// 019 T29 (coverage ratchet): bigint.byn paths no golden case reaches. Each value is shown as `lo hi` (the two u64 halves)
+// or as text; the expected text is the output of these functions at the commit that added the test.
+
+bool t29BigTextIs(string got, as string expected) uses alloc, console {
+    if got != expected {
+        print($"T29GOT {got}")
+    }
+    return got == expected
+}
+
+bool t29BigIs(Big got, as string expected) uses alloc, console => t29BigTextIs($"{got.lo} {got.hi}", as: expected)
+
+string t29BigParseText(string text) uses alloc {
+    let p = bigParse(text)
+    return $"{p.ok} {p.overflow} {bigText(p.value)}"
+}
+
+/// A runtime division, so that `0.0 / 0.0` is not folded.
+f64 t29BigQuotient(f64 a, by f64 b) => a / b
+
+test "bigint t29: bigParse refuses bad digits and flags overflow" {
+    assert t29BigTextIs(t29BigParseText("12z"), as: "false false 0")
+    assert t29BigTextIs(t29BigParseText("19a"), as: "false false 0")
+    assert t29BigTextIs(t29BigParseText("0b102"), as: "false false 0")
+    assert t29BigTextIs(t29BigParseText("0z1"), as: "false false 0")
+    assert t29BigTextIs(t29BigParseText("0x"), as: "false false 0")
+    assert t29BigTextIs(t29BigParseText("0xFfA_1"), as: "true false 65441")
+    assert t29BigTextIs(t29BigParseText("170141183460469231731687303715884105727"), as: "true false 170141183460469231731687303715884105727")
+    assert t29BigTextIs(t29BigParseText("1701411834604692317316873037158841057280"), as: "true true 17014118346046923173168730371588410572")
+}
+
+test "bigint t29: literalDecimalText reads every base and digit case" {
+    assert t29BigTextIs(literalDecimalText("7"), as: "7")
+    assert t29BigTextIs(literalDecimalText(""), as: "0")
+    assert t29BigTextIs(literalDecimalText("1_000"), as: "1000")
+    assert t29BigTextIs(literalDecimalText("05"), as: "5")
+    assert t29BigTextIs(literalDecimalText("0xFf"), as: "255")
+    assert t29BigTextIs(literalDecimalText("0XaB"), as: "171")
+    assert t29BigTextIs(literalDecimalText("0b101"), as: "5")
+    assert t29BigTextIs(literalDecimalText("0B11"), as: "3")
+    assert t29BigTextIs(literalDecimalText("1z"), as: "10")
+    assert t29BigTextIs(literalDecimalText("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), as: "87112285931760246646623899502532662132735")
+}
+
+test "bigint t29: text, equality and negation with a zero low half" {
+    assert t29BigTextIs(bigText(Big { lo: 0, hi: 1 }), as: "18446744073709551616")
+    assert t29BigTextIs(bigText(bigFromI64(-42)), as: "-42")
+    assert !bigEq(Big { lo: 1, hi: 0 }, as: Big { lo: 1, hi: 2 })
+    assert bigEq(Big { lo: 1, hi: 2 }, as: Big { lo: 1, hi: 2 })
+    assert t29BigIs(bigNeg(Big { lo: 0, hi: 1 }), as: "0 18446744073709551615")
+    assert t29BigIs(bigAdd(Big { lo: 0xFFFFFFFFFFFFFFFF, hi: 0 }, by: Big { lo: 1, hi: 0 }), as: "0 1")
+}
+
+test "bigint t29: signed division and remainder in every sign" {
+    assert t29BigTextIs(bigText(bigDiv(bigFromI64(7), by: bigFromI64(2))), as: "3")
+    assert t29BigTextIs(bigText(bigDiv(bigFromI64(-7), by: bigFromI64(2))), as: "-3")
+    assert t29BigTextIs(bigText(bigDiv(bigFromI64(7), by: bigFromI64(-2))), as: "-3")
+    assert t29BigTextIs(bigText(bigDiv(bigFromI64(-7), by: bigFromI64(-2))), as: "3")
+    assert t29BigTextIs(bigText(bigRem(bigFromI64(7), by: bigFromI64(2))), as: "1")
+    assert t29BigTextIs(bigText(bigRem(bigFromI64(-7), by: bigFromI64(2))), as: "-1")
+    assert t29BigTextIs(bigText(bigRem(bigFromI64(7), by: bigFromI64(-2))), as: "1")
+    assert t29BigTextIs(bigText(bigRem(bigFromI64(-7), by: bigFromI64(-2))), as: "-1")
+    assert t29BigIs(bigUDiv(Big { lo: 5, hi: 3 }, by: Big { lo: 0, hi: 1 }), as: "3 0")
+}
+
+test "bigint t29: unsigned compare, shifts and bit length" {
+    assert bigUCmp(Big { lo: 0, hi: 1 }, as: Big { lo: 0, hi: 2 }) == -1
+    assert bigUCmp(Big { lo: 0, hi: 2 }, as: Big { lo: 0, hi: 1 }) == 1
+    assert bigUCmp(Big { lo: 1, hi: 1 }, as: Big { lo: 2, hi: 1 }) == -1
+    assert bigUCmp(Big { lo: 2, hi: 1 }, as: Big { lo: 1, hi: 1 }) == 1
+    assert bigUCmp(Big { lo: 2, hi: 1 }, as: Big { lo: 2, hi: 1 }) == 0
+    assert t29BigIs(bigUShr(Big { lo: 3, hi: 5 }, by: 0), as: "3 5")
+    assert t29BigIs(bigUShr(Big { lo: 3, hi: 5 }, by: 65), as: "2 0")
+    assert t29BigIs(bigUShr(Big { lo: 3, hi: 5 }, by: 1), as: "9223372036854775809 2")
+    assert bigUBitLength(Big { lo: 0, hi: 5 }) == 67
+    assert t29BigIs(bigShl(Big { lo: 3, hi: 5 }, by: 0), as: "3 5")
+    assert t29BigIs(bigShl(Big { lo: 3, hi: 5 }, by: 65), as: "0 6")
+    assert t29BigIs(bigShr(Big { lo: 3, hi: 5 }, by: 0), as: "3 5")
+    assert t29BigIs(bigShr(bigFromI64(-8), by: 1), as: "18446744073709551612 18446744073709551615")
+    assert t29BigIs(bigShr(Big { lo: 3, hi: 0x8000000000000005 }, by: 64), as: "9223372036854775813 18446744073709551615")
+    assert t29BigIs(bigShr(Big { lo: 3, hi: 0x8000000000000005 }, by: 66), as: "16140901064495857665 18446744073709551615")
+    assert t29BigIs(bigShr(Big { lo: 3, hi: 5 }, by: 66), as: "1 0")
+}
+
+test "bigint t29: fitting, wrapping and saturating at a width" {
+    assert !bigFits(bigFromI64(-129), to: 8, signed: true)
+    assert !bigFits(bigFromI64(128), to: 8, signed: true)
+    assert bigFits(bigFromI64(-128), to: 8, signed: true)
+    assert t29BigTextIs(bigText(bigWrap(bigFromI64(200), to: 8, signed: true)), as: "-56")
+    assert t29BigTextIs(bigText(bigWrap(bigFromI64(100), to: 8, signed: true)), as: "100")
+    assert t29BigTextIs(bigText(bigWrap(bigFromI64(300), to: 8, signed: false)), as: "44")
+    assert t29BigTextIs(bigText(bigSaturate(bigFromI64(-300), to: 8, signed: true)), as: "-128")
+    assert t29BigTextIs(bigText(bigSaturate(bigFromI64(300), to: 8, signed: true)), as: "127")
+    assert t29BigTextIs(bigText(bigSaturate(bigFromI64(5), to: 8, signed: true)), as: "5")
+}
+
+test "bigint t29: doubles round to even and truncate" {
+    assert t29BigTextIs($"{bigToF64(bigFromI64(9007199254740993))}", as: "9.007199254740992e15")
+    assert t29BigTextIs($"{bigToF64(bigFromI64(9007199254740995))}", as: "9.007199254740996e15")
+    assert t29BigTextIs($"{bigToF64(bigFromI64(18014398509481987))}", as: "1.8014398509481988e16")
+    assert t29BigTextIs($"{bigToF64(bigFromI64(-18014398509481987))}", as: "-1.8014398509481988e16")
+    assert t29BigTextIs($"{bigToF64(bigFromI64(-5))}", as: "-5")
+    assert t29BigTextIs(bigText(bigFromF64(t29BigQuotient(0.0, by: 0.0))), as: "0")
+    assert t29BigTextIs(bigText(bigFromF64(0.5)), as: "0")
+    assert t29BigTextIs(bigText(bigFromF64(-0.5)), as: "0")
+    assert t29BigTextIs(bigText(bigFromF64(-12.75)), as: "-12")
+    assert t29BigTextIs(bigText(bigFromF64(12345678901.0)), as: "12345678901")
+    assert t29BigTextIs(bigText(bigFromF64(36893488147419103232.0)), as: "36893488147419103232")
+}

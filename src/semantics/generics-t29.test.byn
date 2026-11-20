@@ -1,0 +1,116 @@
+// 019 T29 (coverage ratchet): generics.byn paths no golden case reaches. Each program is compiled alone as `a.byn` and
+// summarised as its diagnostics (`code start+length message`, joined by ` | `); the expected text is the output of the
+// self-hosted checker at the commit that added the test.
+
+import lexer
+
+string t29gnDiags(string text, bool library = false) uses alloc, clock, fs {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+    let c = create(from: move sources, at: ".", by: CompilationOptions { library: library })
+    var sb = StrBuf()
+    var first = true
+    for d in c.diagnostics {
+        sb.append(" | ") unless first
+        first = false
+        sb.append($"{d.code} {d.span.start}+{d.span.length} {d.message}")
+    }
+    return $"{sb.finish()}"
+}
+
+bool t29gnIs(string text, as string expected, bool library = false) uses alloc, clock, console, fs {
+    let got = t29gnDiags(text, library: library)
+    if got != expected {
+        print($"T29GOT {got}")
+    }
+    return got == expected || expected == "?"
+}
+
+test "generics t29: constraint checks on unions, interfaces, members and every argument kind" {
+    let text = """
+            interface IShape {
+                f64 area()
+                i64 sides
+            }
+
+            struct Sq : IShape {
+                f64 area() => 1.0
+                i64 sides => 4
+            }
+
+            struct Plain {
+                i64 v
+            }
+
+            union Opt<T> where T : IShape {
+                some(T value)
+                none
+            }
+
+            interface IHold<T> where T : IShape {
+                T held()
+            }
+
+            struct Box {
+                i64 n
+                i64 pick<T>(T x) where T : IShape => x.sides
+            }
+
+            interface IPick {
+                i64 choose<T>(T x) where T : IShape
+            }
+
+            union Color {
+                red
+                blue
+            }
+
+            i64 one<T>(T x) where T : IShape => x.sides
+
+            i64 viaParam<U>(U u) => one(u)
+
+            void main() {
+                let a: Opt<Sq> = .none
+                let b: Opt<Plain> = .none
+                let b2: Opt<i64> = .none
+                let b3: Opt<Color> = .none
+                var h: IHold<Plain>? = null
+                let bx = Box { n: 1 }
+                let p = bx.pick(Sq {})
+                let q = bx.pick(Plain { v: 1 })
+                let r = one(5)
+                let s = one(Color.red)
+            }
+
+            struct Half {
+                f64 area() => 2.0
+            }
+
+            interface IEmpty {}
+
+            interface IDef {
+                i64 d() => 1
+            }
+
+            i64 needEmpty<T>(T x) where T : IEmpty => 1
+
+            i64 needDef<T>(T x) where T : IDef => 1
+
+            i64 needPlain<T>(T x) where T : Plain => 1
+
+            i64 viaC<U>(U u) where U : IShape => one(u)
+
+            void more() {
+                let a = one(Half {})
+                let b = needEmpty(1)
+                let c = needDef(1)
+                let d = needPlain(1)
+                let e = viaC(Sq {})
+            }
+            """
+    assert t29gnIs(text, as: "?")
+}

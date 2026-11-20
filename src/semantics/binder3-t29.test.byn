@@ -1,0 +1,304 @@
+// 019 T29 (coverage ratchet): binder3.byn paths no golden case reaches. Each program is compiled alone as `a.byn` and
+// summarised as its diagnostics (`code start+length message`, joined by ` | `); the expected text is the output of the
+// self-hosted checker at the commit that added the test.
+
+import lexer
+
+string t29b3Diags(string text, bool library = false) uses alloc, clock, fs {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+    let c = create(from: move sources, at: ".", by: CompilationOptions { library: library })
+    var sb = StrBuf()
+    var first = true
+    for d in c.diagnostics {
+        sb.append(" | ") unless first
+        first = false
+        sb.append($"{d.code} {d.span.start}+{d.span.length} {d.message}")
+    }
+    return $"{sb.finish()}"
+}
+
+bool t29b3Is(string text, as string expected, bool library = false) uses alloc, clock, console, fs {
+    let got = t29b3Diags(text, library: library)
+    if got != expected {
+        print($"T29GOT {got}")
+    }
+    return got == expected || expected == "?"
+}
+
+test "binder3 t29: return in failing functions picks, refuses or passes on a case" {
+    let text = """
+            union error A {
+                x
+            }
+
+            union error B {
+                x
+            }
+
+            i64 f(i64 n) fails A, B {
+                return .x if n < 0
+                return n
+            }
+
+            void g(i64 n) fails {
+                return .nope if n < 0
+            }
+
+            i64 h(i64 n) fails A {
+                return .y if n < 0
+                return n
+            }
+
+            enum Color {
+                red
+            }
+
+            Color k(i64 n) fails A {
+                return .red
+            }
+
+            Missing m() {
+                return
+            }
+
+            void v() {
+                return panic("x")
+            }
+
+            f(1) catch return
+            """
+    assert t29b3Is(text, as: "?")
+}
+
+test "binder3 t29: fail with an ambiguous, inferred, undeclared or non-error value" {
+    let text = """
+            union error A {
+                x
+                y(i64 n)
+            }
+
+            union error B {
+                x
+                z
+            }
+
+            void f1(i64 n) fails A, B {
+                fail .x(1) if n < 0
+                fail .q
+            }
+
+            void f2(i64 n) fails {
+                fail .nope
+            }
+
+            void f3(i64 n) fails A {
+                fail B.z
+            }
+
+            void f4(i64 n) fails A {
+                fail 5
+            }
+
+            void f5(A e) fails A, B {
+                fail e
+            }
+
+            void f6(i64 n) {
+                for i in 0..3 {
+                    defer {
+                        break
+                    }
+                }
+            }
+            """
+    assert t29b3Is(text, as: "?")
+}
+
+test "binder3 t29: Panic.handler set to functions of the wrong shape" {
+    let text = """
+            void two(Panic p, i64 n) {
+            }
+
+            void failing(Panic p) fails {
+            }
+
+            void gen<T>(Panic p) {
+            }
+
+            void ok(Panic p) {
+            }
+
+            void other() {
+                Panic.handler = ok
+            }
+
+            void main() {
+                Panic.handler = two
+                Panic.handler = 5
+                Panic.handler = failing
+                Panic.handler = gen
+                Panic.onPanic = ok
+            }
+            """
+    assert t29b3Is(text, as: "?")
+}
+
+test "binder3 t29: Panic.handler set outside the entry function" {
+    let text = """
+            void ok(Panic p) {
+            }
+
+            void setIt() {
+                Panic.handler = ok
+            }
+            """
+    assert t29b3Is(text, as: "?")
+}
+
+test "binder3 t29: Panic.handler set in a library" {
+    let text = """
+            void ok(Panic p) {
+            }
+
+            void setIt() {
+                Panic.handler = ok
+            }
+            """
+    assert t29b3Is(text, as: "?", library: true)
+}
+
+test "binder3 t29: Panic.handler set twice" {
+    let text = """
+            void ok(Panic p) {
+            }
+
+            void main() {
+                Panic.handler = ok
+                Panic.handler = ok
+            }
+            """
+    assert t29b3Is(text, as: "?")
+}
+
+test "binder3 t29: context with no allocator or only other handlers" {
+    let text = """
+            void run(Arena arena) {
+                context () {
+                    print("x")
+                }
+                context (net: arena, suspend: arena, foo: arena) {
+                    print("y")
+                }
+            }
+            """
+    assert t29b3Is(text, as: "?")
+}
+
+test "binder3 t29: for over generic, enumerator and fallible iterables" {
+    let text = """
+            union error ReadError { broken }
+
+            struct Rows {
+                i64 at
+
+                i64? next(ref this) fails ReadError {
+                    at += 1
+                    return at < 3 ? at : null
+                }
+            }
+
+            struct NoNext {
+                i64 at
+
+                i64? next(ref this, i64 by) fails ReadError {
+                    return null
+                }
+            }
+
+            interface IMark {
+                i64 mark()
+            }
+
+            struct Countdown : IMark, IEnumerator {
+                type Item = i64
+
+                i64 left
+
+                i64 mark() => 1
+
+                bool moveNext(ref this) {
+                    left -= 1
+                    return left >= 0
+                }
+
+                i64 current => left
+            }
+
+            struct NoItem : IEnumerator {
+                i64 left
+
+                bool moveNext(ref this) => false
+
+                i64 current => left
+            }
+
+            Rows makeRows() => Rows { at: 0 }
+
+            NoNext noNext() => NoNext { at: 0 }
+
+            NoItem noItem() => NoItem { left: 1 }
+
+            Countdown from(i64 n) => Countdown { left: n }
+
+            void loose<T>(T xs) {
+                for x in xs {
+                    print("x")
+                }
+            }
+
+            void steps<T>(T xs) where T : IEnumerator {
+                for x in xs {
+                    print("x")
+                }
+            }
+
+            T same<T>(T x) => x
+
+            void steps2<T>(T xs) where T : IEnumerator {
+                for x in same(xs) {
+                    print("x")
+                }
+            }
+
+            void main2(List<i64> xs) fails ReadError {
+                var rows = Rows { at: 0 }
+                for try r: string in rows {
+                    print("r")
+                }
+                for try r in (rows) {
+                    print("r")
+                }
+                for try r in makeRows() {
+                    print("r")
+                }
+                for try r in noNext() {
+                    print("r")
+                }
+                for n: string in xs {
+                    print("n")
+                }
+                for n in from(2) {
+                    print($"{n}")
+                }
+                for n in noItem() {
+                    print($"{n}")
+                }
+            }
+            """
+    assert t29b3Is(text, as: "?")
+}
