@@ -836,11 +836,21 @@ i64 goldenLimitMs(i64 deadline) uses clock {
 
 /// The time limit of case `name` (`<kind>/<case>`): `limitMs`, but at least the 10 minutes of one compile (Toolchain.cs:145 `CompileTimeout`)
 /// for the two SelfhostDefaultT12Tests `dist` cases that cross-build with zig (`--target all`, `--target linux-arm64`), which ran past 60 s on
-/// the Windows runner (019-win8); the C# waited on them with no limit of its own (SelfhostDefaultT12Tests.cs:45 `WaitForExit()`).
+/// the Windows runner (019-win8); the C# waited on them with no limit of its own (SelfhostDefaultT12Tests.cs:45 `WaitForExit()`). The same for
+/// `out/dist` (`bayan dist` for three targets), which ran past 120 s on the hosted macOS runner (019-macci); the C# ran it in-process with no
+/// limit (OutputTests.cs:124 `Run("dist", p)`).
 i64 goldenCaseLimitMs(string name, for i64 limitMs) {
     let slow = name is "cli/SelfhostDefaultT12Tests/ABadTargetIsRefused-2"
         or "cli/SelfhostDefaultT12Tests/ATargetIsBuilt-2"
+        or "out/dist"
     return slow && limitMs < 600000 ? 600000 : limitMs
+}
+
+/// The deadline `goldenFailures` gives case `name` (`<kind>/<case>`): `goldenCaseLimitMs` from now for a case with a bound of its own, else 0
+/// (each child the 120 s of `goldenLimitMs`).
+i64 goldenCaseDeadline(string name) uses clock {
+    let ms = goldenCaseLimitMs(name, for: 0)
+    return ms > 0 ? Io.monotonicNanos() + ms * 1000000 : 0
 }
 
 /// `ms` as `N s` when it is whole seconds, else `N ms`.
@@ -2223,6 +2233,16 @@ test "the two T12 dist cases that cross-build with zig get the 10 minutes of one
     assert(goldenCaseLimitMs("cli/SelfhostDefaultT12Tests/ATargetIsBuilt-2", for: 900000) == 900000)
 }
 
+test "out/dist gets the 10 minutes of one compile in the runner and in goldenFailures, the other out cases the limit as given" {
+    assert(goldenCaseLimitMs("out/dist", for: 60000) == 600000)
+    assert(goldenCaseLimitMs("out/dist", for: 300000) == 600000)
+    assert(goldenCaseLimitMs("out/out", for: 60000) == 60000)
+    assert(goldenCaseLimitMs("out/results-fail", for: 300000) == 300000)
+    let now = Io.monotonicNanos()
+    assert(goldenCaseDeadline("out/dist") >= now + 600000 * 1000000)
+    assert(goldenCaseDeadline("out/out") == 0 && goldenCaseDeadline("out/results-fail") == 0)
+}
+
 test "discovery finds each kind and ignores what is not a case" {
     let root = Path.combine(Path.fullPath("tmp"), "golden-discover")
     deleteWorkDir(root)
@@ -2283,7 +2303,7 @@ List<string> goldenFailures(string root, for string kind, to ref i64 count, bool
     for c in goldenDiscover(root, through: ref exit) {
         continue if c.kind != kind || top && c.name.contains("/")
         count += 1
-        if (goldenRun(in c) is { } failure) {
+        if (goldenRun(in c, deadline: goldenCaseDeadline($"{c.kind}/{c.name}")) is { } failure) {
             failures.append(failure)
         }
     }
