@@ -1,7 +1,8 @@
 # Diverse double-compiling (spec 019 R27, T46): scripts/ci/ddc.sh builds the frozen C# compiler from its tag, builds the
 # self-hosted compiler from the frozen tree with it, and fails unless the C it emits for src/driver equals that tree's
-# bootstrap/bayan.c; then it runs the laws listed in scripts/ci/ddc-laws.txt on the frozen compiler. Weekly, and a required
-# job of every release (release.yml). This is the only workflow that installs .NET (019 plan). A red run on release day
+# bootstrap/bayan.c; then it runs the laws listed in scripts/ci/ddc-laws.txt on the frozen compiler, and
+# scripts/selfhost/reexport-check.sh re-exports a sample of the frozen files (L043; every class on a dispatch with `full`).
+# Weekly, and a required job of every release (release.yml). This is the only workflow that installs .NET (019 plan). A red run on release day
 # most often means the surroundings changed (SDK download, runner image): fix those and re-run (019 OQ6).
 name: ddc
 
@@ -11,6 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       ref: { description: 'Frozen ref', required: false, default: 'v0.3.2' }
+      full: { description: 'Re-export every class (L043), not the weekly sample', type: boolean, required: false, default: false }
   # release.yml calls it: the job is required by a release.
   workflow_call:
 
@@ -24,7 +26,7 @@ concurrency:
 jobs:
   ddc:
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: ${{ inputs.full && 300 || 60 }}
     env:
       # v0.3.2 (the C# oracle freeze) until the owner tags csharp-final (T65); T65 switches both defaults.
       DDC_REF: ${{ inputs.ref || 'v0.3.2' }}
@@ -52,3 +54,15 @@ jobs:
         env:
           BAYAN_TEST_TIME_SCALE: 3
         run: bash scripts/ci/ddc.sh "$DDC_REF"
+      # L043 (spec 019 T59): the C# compiler at the export head tests/cases/FREEZE.tsv names re-exports one class per kind
+      # (seeded by the ISO week), or every class on a dispatch with `full`; each compared frozen file must match the tree.
+      - name: Frozen files re-export
+        if: ${{ !cancelled() }}
+        shell: bash
+        env:
+          BAYAN_TEST_TIME_SCALE: 3
+          REEXPORT_FULL: ${{ inputs.full && '--full' || '' }}
+        run: |
+          sha="$(awk -F'\t' '$1 == "export" { print $3 }' tests/cases/FREEZE.tsv)"
+          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$sha"
+          bash scripts/selfhost/reexport-check.sh $REEXPORT_FULL
