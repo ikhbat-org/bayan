@@ -1,142 +1,8 @@
-// 019 T29 (coverage ratchet): the span walker over every parse case of the golden corpus, and the out-of-range lines
-// of `nodeSpan` and `childSpan`. The expected values are the output of the self-hosted parser at the commit that added
-// the test.
+// 019 T29 (coverage ratchet): the span walker over inline copies of the parse cases of the golden corpus, and the
+// out-of-range lines of `nodeSpan` and `childSpan`. The expected values are the output of the self-hosted parser at the
+// commit that added the test.
 
 import lexer
-
-test "parser t29: every parse case keeps its spans inside the input" {
-    let keywords = Keywords.build()
-    let dir = "tests/cases/parse"
-    let names = Io.listDir(dir) catch {
-        assert false
-        return
-    }
-    var count = 0
-    var all = StrBuf()
-    for name in names {
-        unless name.endsWith(".byn") {
-            continue
-        }
-        let bytes = Io.readFile($"{dir}/{name}") catch {
-            assert false
-            return
-        }
-        var p = Parser.create(lexer.lex(SourceText.create(name, from: move bytes), by: keywords))
-        let unit = parseCompilationUnit(ref p)
-        var sb = StrBuf()
-        checkSpans(in unit, until: p.lexed.source.bytes.length, to: ref sb)
-        let text = sb.finish()
-        if text.length > 0 {
-            all.append($"== {name}\n{text}")
-        }
-        count += 1
-    }
-    assert count == 64
-    let expected = """
-            == attributes.byn
-            span out of range: attributeSyntax 30+12 outside 87+9
-            == because.byn
-            span out of range: becauseClause 132+32 outside 113+18
-            span out of range: becauseClause 20+44 outside 0+19
-            span out of range: becauseClause 75+11 outside 65+9
-            == catch-block-assign.byn
-            span out of range: targetMemberExpr 70+4 outside 65+4
-            span out of range: targetMemberExpr 143+4 outside 138+4
-            == catch-struct-literal.byn
-            span out of range: targetMemberExpr 96+4 outside 91+4
-            == collection-literals.byn
-            span out of range: literalExpr 20+2 outside 13+6
-            span out of range: literalExpr 31+1 outside 24+6
-            span out of range: collectionExpr 136+6 outside 131+4
-            span out of range: parenExpr 149+11 outside 144+4
-            span out of range: structLiteralExpr 203+20 outside 196+6
-            span out of range: structLiteralExpr 232+13 outside 225+6
-            span out of range: structLiteralExpr 268+20 outside 260+7
-            == control-flow-bare.byn
-            span out of range: forStmt 762+100 outside 755+6
-            span out of range: breakStmt label 824+5 outside 818+0
-            span out of range: blockStmt 899+12 outside 867+31
-            == defer-family.byn
-            span out of range: exprStmt 21+7 outside 15+5
-            span out of range: exprStmt 47+10 outside 33+13
-            span out of range: blockStmt 80+10 outside 62+17
-            span out of range: exprStmt 111+7 outside 95+15
-            span out of range: blockStmt 143+18 outside 123+19
-            span out of range: exprStmt 184+6 outside 166+17
-            span out of range: exprStmt 201+9 outside 195+5
-            span out of range: exprStmt 221+17 outside 215+5
-            == error-payload.byn
-            span out of range: unionField 66+12 outside 58+7
-            span out of range: unionField 93+13 outside 84+8
-            span out of range: unionField 108+8 outside 84+8
-            == except-expr.byn
-            span out of range: constantPattern 23+2 outside 11+11
-            span out of range: constantPattern 57+4 outside 37+19
-            == except-wasl.byn
-            span out of range: constantPattern 27+2 outside 11+15
-            == expressions.byn
-            span out of range: memberExpr member 613+1 outside 610+3
-            == function-types.byn
-            span out of range: namedType 113+8 outside 107+5
-            span out of range: usesClause effects 153+3 outside 148+4
-            span out of range: namedType 195+8 outside 189+5
-            span out of range: usesClause effects 186+2 outside 181+4
-            span out of range: namedType 387+1 outside 381+5
-            span out of range: namedType 390+1 outside 381+5
-            == input-fails-shorthand-forms.byn
-            span out of range: namedType 45+1 outside 51+7
-            span out of range: namedType 76+1 outside 82+7
-            == interpolation-specs.byn
-            span out of range: targetMemberExpr 46+4 outside 42+3
-            span out of range: literalExpr 64+1 outside 56+7
-            span out of range: literalExpr 78+1 outside 71+6
-            span out of range: literalExpr 87+3 outside 81+5
-            span out of range: targetMemberExpr 99+6 outside 92+6
-            == lambdas.byn
-            span out of range: blockStmt 216+28 outside 209+6
-            == null-checks.byn
-            span out of range: constantPattern 23+4 outside 19+3
-            span out of range: constantPattern 71+4 outside 67+3
-            span out of range: constantPattern 88+4 outside 84+3
-            span out of range: constantPattern 105+4 outside 101+3
-            == pattern-branches-unicode.byn
-            span out of range: constantPattern 40+0 outside 35+4
-            span out of range: constantPattern 56+0 outside 51+4
-            span out of range: constantPattern 277+0 outside 272+4
-            span out of range: exprStmt 382+1 outside 379+2
-            span out of range: exprStmt 405+1 outside 402+2
-            == patterns.byn
-            span out of range: constantPattern 32+4 outside 28+3
-            span out of range: varPattern name 88+1 outside 84+3
-            span out of range: varPattern name 235+5 outside 231+3
-            span out of range: varPattern name 249+4 outside 245+3
-            span out of range: varPattern name 318+1 outside 314+3
-            span out of range: varPattern name 343+4 outside 339+3
-            == receiver-pattern-property.byn
-            span out of range: blockStmt 53+50 outside 34+18
-            == statements.byn
-            span out of range: forStmt 631+123 outside 624+6
-            span out of range: breakStmt label 693+5 outside 687+0
-            span out of range: continueStmt label 733+5 outside 724+0
-            span out of range: exprStmt 765+8 outside 759+5
-            span out of range: exprStmt 792+10 outside 778+13
-            span out of range: blockStmt 825+10 outside 807+17
-            == struct-literal-colon.byn
-            span out of range: forStmt 323+41 outside 316+6
-            span out of range: breakStmt label 353+5 outside 347+0
-            span out of range: targetMemberExpr 438+4 outside 433+4
-            == struct-literal-unicode-upper.byn
-            span out of range: exprStmt 168+1 outside 165+2
-            span out of range: exprStmt 188+1 outside 185+2
-            == switch.byn
-            span out of range: varPattern name 171+5 outside 167+3
-            == unions.byn
-            span out of range: varPattern name 215+1 outside 211+3
-            span out of range: varPattern name 247+1 outside 243+3
-
-            """
-    assert all.finish() == expected
-}
 
 test "parser t29: attributes on every declaration and statement keep their spans" {
     let text = """
@@ -283,6 +149,1245 @@ test "parser t29: a span before the input or of negative length is out of range"
             span out of range: b 1+-1
             span out of range: d 1+4
             span out of range: e 0+1 outside 1+2
+
+            """
+    assert sb.finish() == expected
+}
+
+test "parser t29: the parse cases written inline keep their spans inside the input" {
+    let sources = [
+        """
+            void check(i64 a, Cart cart) {
+                assert a == 1
+                assert(a == 1)
+                assert cart.subtotal.cents > 0 && a < 10
+                assert !cart.isEmpty
+            }
+
+        """,
+        """
+            union error ConfigError {
+                @exitCode(3)
+                /// The configuration is malformed.
+                malformed
+                /// Something else.
+                other
+            }
+
+            /// Runs the tool.
+            @experimental
+            @tag(level: 2)
+            public void run() { }
+
+            @experimental
+            /// Stops the tool.
+            void stop() { }
+
+        """,
+        """
+            struct Circle : IShape {
+                f32 r
+
+                f32 area() => r * r
+            }
+
+            struct Wrapper<T> : IShape, m.IDescribe where T : IShape, IOrder<T> {
+                T inner
+            }
+
+            struct Stream : IEnumerator {
+                type Item = Token
+                i64 i
+            }
+
+            union Shape : IShape {
+                circle(f32 r)
+                none
+            }
+
+            union Box<T> : IShape where T : IShape {
+                full(T v)
+                empty
+            }
+
+            enum Color : IShape {
+                red
+                green
+            }
+
+            enum Planet(f64 mass) : IShape where T : IShape {
+                earth(1.0)
+                mars(0.1)
+            }
+
+            T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+
+            T parse<T>(string s) where T : IParse<T> fails {
+                return T.parse(s)
+            }
+
+            T read<T>(string s) where T : IParse<T>, IShape where U : IShape expects s.length > 0 fails IoError {
+                return T.parse(s)
+            }
+
+        """,
+        """
+            @allow(unusedValue) because "the cache is warmed for its effect"
+            @cases(1) because "x"
+            void warm() {
+                let n = countUnchecked(xs) because "xs is never empty here"
+            }
+
+        """,
+        """
+            union error MkError { bad }
+
+            i32 mk(bool ok) fails MkError {
+                fail .bad if !ok
+                return 7
+            }
+
+            void touch(bool ok) fails MkError {
+                fail .bad if !ok
+            }
+
+            i32 get(bool ok) {
+                var failed = false
+                let n = mk(ok) catch {
+                    failed = true
+                    return -1
+                }
+                return n
+            }
+
+            var hit = false
+            touch(ok: false) catch { hit = true }
+            print($"{get(ok: true)} {get(ok: false)} {hit}")
+
+        """,
+        """
+            let n = parse(s) catch { return -1 }
+            let m = parse(s) catch {
+                log("failed")
+                break
+            }
+            save(x) catch { log("x") }
+
+        """,
+        """
+            union error MkError { bad }
+
+            struct P {
+                i64 x = 0
+            }
+
+            P mk(bool ok) fails MkError {
+                fail .bad if !ok
+                return { x: 7 }
+            }
+
+            let a: P = mk(ok: false) catch { x: 1 }
+            let b: P = mk(ok: true) catch { x: 1 }
+            let c: P = mk(ok: false) catch P{}
+            print($"{a.x} {b.x} {c.x}")
+
+        """,
+        """
+            let resp = signUp(form) catch switch {
+                EmailError => .badRequest("Invalid email"),
+                DbError.timeout => .unavailable,
+                DbError e => .serverError(e),
+            }
+            save(x) catch switch {
+                IoError e => log(e),
+                _ => log("other"),
+            }
+            let old = parse(s) catch switch {
+                .empty => 0,
+                _ => 1,
+            }
+            let n = parse(s) catch switch {
+                ParseError e => fallback(e),
+            }
+
+        """,
+        """
+            T parse<T>(string s, i64 limit)
+                where T : IParse<T>
+                expects s.length > 0
+                expects limit > 0
+                uses fs
+                fails IoError {
+                return T.parse(s)
+            }
+
+            void close(move this is .open)
+                uses console
+                becomes .closed
+                fails {
+                let expects = 1
+                print(expects)
+                become .closed
+            }
+
+            interface IStore {
+                T load<T>(string key)
+                    where T : IParse<T>
+                    expects key.length > 0
+                    uses fs
+                    fails IoError
+                void close(move this is .open)
+                    becomes .closed
+                    fails IoError
+                i64 size()
+            }
+
+        """,
+        """
+            let stock = ["A-1": 12, "B-2": 0]
+            var prices: Map<Sku, Money> = []
+            let all = [..xs, ..more, 4]
+            let fixed = [1, 2, 3]
+            let nested = ["k": [1, 2], "j": (a ? b : c)]
+            let prices: Map<string, Money> = ["tea": Money { cents: 250 }, "jam": { cents: 99 }]
+            let typed = ["cake": Money { cents: 300 }]
+
+        """,
+        """
+            // Declaration-only keywords are names wherever the grammar does not need them (spec 004 R3).
+            type Code = i64
+
+            union error Failure {
+                error
+                set
+                law
+            }
+
+            struct Names {
+                i64 error
+                i64 flags
+                i64 unit
+                i64 distinct
+                i64 open
+                i64 extensible
+                i64 set
+                i64 type
+                i64 law
+                i64 derivation
+                i64 attribute
+                i64 embed
+            }
+
+            i64 error(i64 error) => error
+            i64 flags(i64 flags) => flags
+            i64 unit(i64 unit) => unit
+            i64 distinct(i64 distinct) => distinct
+            i64 open(i64 open) => open
+            i64 extensible(i64 extensible) => extensible
+            i64 set(i64 set) => set
+            i64 type(i64 type) => type
+            i64 law(i64 law) => law
+            i64 derivation(i64 derivation) => derivation
+            i64 attribute(i64 attribute) => attribute
+            i64 embed(i64 embed) => embed
+            (i64 type, i64 law) swap((i64 flags, i64 unit) pair) => (pair.unit, pair.flags)
+
+            let error = 3
+            let flags = 1
+            var unit = 2
+            let distinct: i64 = 4
+            let open = true
+            let extensible = false
+            let set = [1, 2]
+            let type = 5
+            let law = 6
+            let derivation = 7
+            let attribute = 8
+            let embed = 9
+            let pair: (i64 error, i64 set) = (1, 2)
+            type = 1
+            set.add(1)
+            let n = Names { error: 1, set: 2, type: 3 }
+            let total = n.error + n.flags + n.unit + n.distinct + n.open + n.extensible + n.set + n.type + n.law + n.derivation + n.attribute + n.embed
+            let f = Failure.set
+            print(error(type: 1))
+
+        """,
+        """
+            void f(i64 n, Point p, List<i64> xs, Map<string, i64> prices) fails ReadError {
+                if n > 0 { a() } else if n < 0 { b() } else { c() }
+                if (p == Point { x: 0, y: 0 }) { origin() }
+                if (p is { x: 0 }) { origin() }
+                if (n + 1) * 2 > 3 { big() }
+                if n > 0 { return }
+                unless p.isValid { reject(p) }
+                while queue.hasItems { step() }
+                while try socket.hasMore() { read() }
+                do { n++ } while n < 10
+                do { n++ } while n < 20
+                switch n {
+                    case 1: one()
+                    default: other()
+                }
+                for x in xs { use(x) }
+                for i in 0..n { use(i) }
+                for x: i64 in xs { use(x) }
+                for (key, value) in prices { use(value) }
+                for try row in rows { use(row) }
+                for try (a, b) in pairs { use(a) }
+                for x in xs { use(x) }
+                outer: for row in grid {
+                    for cell in row {
+                        break outer if cell.isTarget
+                    }
+                }
+                while let row = try rows.next() { use(row) }
+                if unlikely buf.isFull { flush() }
+                if never state is .corrupt { panic("corrupt") }
+                if unlikely { variable() }
+                flush() if unlikely buf.isFull
+                flush() if unlikely(buf)
+            }
+
+        """,
+        """
+            void g(bool Ready, Shape s, List<i64> Items) {
+                if Ready {}
+                while Ready {}
+                if s is Circle { draw(s) }
+                if s is Circle {}
+                if (s is Circle { radius: 1 }) { draw(s) }
+                for x in Items {}
+                switch s { default: other() }
+            }
+
+        """,
+        """
+            void f(bool a, bool b) {
+                if a { x() } if b { y() }
+                while a { x() } unless b { y() }
+            }
+
+        """,
+        """
+            enum Planet(f64 mass, f64 radius) {
+                mercury(3.3e23, 2.4e6)
+                earth(6e24, 6.4e6)
+            }
+
+            public enum Token(string text, bool keyword, rune first, Kind kind) {
+                /// The `if` keyword.
+                ifKeyword("if", true, 'i', .word)
+                plus(text: "+", keyword: false, first: '+', kind: Kind.symbol)
+            }
+
+            enum Kind {
+                word
+                symbol
+            }
+
+        """,
+        """
+            import money
+            import app.users as u
+
+            type Cents = i64
+
+            /// Things that go wrong with money.
+            public union error MoneyError {
+                /// The text is not a number.
+                invalid
+                /// Too many digits after the point.
+                tooPrecise
+            }
+
+            /// Adds two amounts.
+            public i64 add(i64 a, i64 b) => a + b
+
+            void bump(ref i64 total, i64 by = 1) { total += by }
+
+            Money parse(string text) fails MoneyError { return Money { cents: 0 } }
+
+            Money parseAny(string text) fails MoneyError, ParseError => Money { cents: 1 }
+
+            i64 helper() fails { return 0 }
+
+            List<string> names(Span<(string name, i64 cents)> pairs, move Owned<Buf> buf) { return [] }
+
+            test "adds" {
+                assert(add(1, 2) == 3)
+            }
+
+        """,
+        """
+            void f() {
+                defer close()
+                defer failing rollback()
+                defer failing (e) { log(e) }
+                defer panicking flush()
+                defer panicking (p) { log(p.message) }
+                defer failing (e) log(e)
+                defer failing()
+                defer panicking.flush()
+            }
+
+        """,
+        """
+            void show(dyn ref IShape s, dyn ref readonly ICounter c) {
+                let t: dyn ref IShape = s
+                let u: dyn ref readonly IShape = s
+                for x: dyn ref IShape in shapes {
+                    print(x.area())
+                }
+                for y: dyn ref readonly IShape in shapes {
+                    print(y.area())
+                }
+            }
+
+            dyn IShape make() => circle
+
+            var dyn = 1
+            dyn = dyn + 1
+            for dyn in xs {
+                print(dyn)
+            }
+
+        """,
+        """
+            effect db = net, fs
+            public effect io = fs, console
+
+            let effect = 1
+
+            void save() uses db {
+            }
+
+        """,
+        """
+            enum Color {
+                red
+                green
+                blue
+            }
+
+            public enum Direction {
+                /// Toward the top.
+                north
+                south
+                east
+                west
+            }
+
+            enum Planet {
+                mercury
+                venus
+                earth
+            }
+
+            private enum Empty { }
+
+        """,
+        """
+            union error CarrierError {
+                /// No answer in time.
+                timeout(Millis after)
+                rejected(string reason, i64 code)
+                closed
+            }
+
+        """,
+        """
+            union error SignupError = EmailError, DbError
+            public union error AnyError = SignupError, IoError
+            union error Retryable = SignupError except .timeout, .busy
+            i64 signUp(Form f) fails SignupError => 0
+
+        """,
+        """
+            let rest = code except .a
+            let kind = tok is .word except "if"
+
+        """,
+        """
+            Shape pick(Shape s) {
+                switch s {
+                    case .square except .circle: return s
+                    default: return s
+                }
+            }
+
+        """,
+        """
+            let rest = code
+                except .a
+
+        """,
+        """
+            interface I {
+                void close() uses io fails
+                Token next()
+            }
+
+        """,
+        """
+            interface J {
+                void close()
+                    fails
+                    uses io
+                Token next()
+            }
+
+        """,
+        """
+            void f() {
+                for (let  in xs) {
+                }
+            }
+
+        """,
+        """
+            type Pred = i32 -> bool
+            type Combine = (i32, string) -> i32
+            type Tick = () -> void
+            type Next = () -> Token fails LexError
+            type Send = Order -> void uses net
+            type Read = () -> Token uses fs fails LexError
+            type Curried = A -> B -> C
+            type MaybeB = A -> B?
+
+            bool any((Token -> bool) p, i32 n) => true
+            i32 indexWhere(Span<Token> items, by (Token -> bool) p) => 0
+            void pull((() -> Token fails A, B) next, i32 limit) {
+            }
+
+            void main() {
+                let f: Pred = isBig
+                let g: i32 -> bool = isBig
+            }
+
+        """,
+        """
+            T pick<T>(bool first, T a, T b) => first ? a : b
+
+            Map<K, V> single<K, V>(K key, V value) {
+                var m = Map<K, V>()
+                m.set(key, value)
+                return m
+            }
+
+            struct Pair<A, B> {
+                A a
+                B b
+
+                Pair<B, A> swap() => Pair<B, A> { a: b, b: a }
+            }
+
+            union Option2<T> {
+                some(T v)
+                nothing
+            }
+
+            let x = pick<i64>(first: true, a: 1, b: 2)
+            let p = Pair<i64, string> { a: 1, b: "x" }
+            let o = Option2<i64>.some(5)
+
+        """,
+        """
+            struct unique File {
+                i64 fd
+            }
+            type distinct Sku = string
+
+        """,
+        """
+            print("Salam, world!")
+
+        """,
+        """
+            union error E { a }
+            union error F { b }
+
+            i32!E g() fails F { return 1 }
+            i32!E h() fails E { return 1 }
+
+        """,
+        """
+            struct P {
+                i32 x
+                i32 y
+            }
+
+            void main() {
+                let p = P { x = 1, y: 2 }
+                let q = P { x = 3, y: 4 }
+                print($"{p.x} {q.x}")
+            }
+            int f(long x) { return 0 } void g() {
+                let xs: List<double> = List<double>()
+                print($"{xs.length}")
+            }
+
+        """,
+        """
+            interface IShape {
+                f32 area()
+                string name
+                string describe() => $"area {area()}"
+                string shout() {
+                    return name
+                }
+            }
+
+            interface IEnumerator {
+                type Item
+                bool moveNext(ref this)
+                Item current
+            }
+
+            interface IOrder<T> {
+                bool less(T other)
+                bool more(T other) => other.less(this)
+            }
+
+            interface IParse<T> where T : IOrder<T> {
+                static T parse(string text)
+                T get<U>()
+            }
+
+            extension Money : IShape, IOrder<Money> {
+                f32 area() => 0
+            }
+
+            extension Cents : IShape
+
+        """,
+        """
+            void show(i64 n, f64 x) {
+                print($"{n, as: .hex} {x, digits: 2} {n, width: 8, fill: "0", align: .right}")
+            }
+
+        """,
+        """
+            delegate bool F(A -> B f)
+
+            delegate bool G((A, B) -> C f)
+
+            void main() {
+                let r = a < b => b > (a)
+                let s = a switch { 1 when a < b => c > (a), _ => false }
+                let f = (, a) => 1
+                let g = (a] => 1
+                let h = (a,,b) => 1
+            }
+
+        """,
+        """
+            bool isBig(i32 x) => x > 2
+
+            struct Lines {
+                List<string> lines
+                bool isEmpty => lines.isEmpty
+            }
+
+            void main() {
+                let inc = x => x + 1
+                let first = (a, b) => a
+                let zero = () => 0
+                let block = (a) => {
+                    return a + 1
+                }
+                let later = x =>
+                    x * 2
+                let i = indexWhere(items, t => t.size > 2, 3)
+                let k = v switch {
+                    Foo => 1,
+                    Bar => apply(x => x, 2),
+                    _ => 0,
+                }
+                (a, b) => a
+            }
+
+        """,
+        """
+            let present = x is not null
+            let absent = x is null
+            let both = a is not null && b is not null
+            if p is not null { use(p) }
+            if p is null { return }
+            let order = db.find(id) ?? return .notFound
+            let quiet = db.find(id) ?? return
+            let next = rows.next() ?? break
+            let item = items.get(i) ?? continue
+
+        """,
+        """
+            void tag(for string label, as string alias) {
+                print(label)
+            }
+
+        """,
+        """
+            void copy(from Buf src, to Buf dst, until i32 stop, through i32 last, at i32 pos, by i32 step) {
+                copy(from: src, to: dst, for: 1, as: 2)
+            }
+
+        """,
+        """
+            let pa = x is .pair(1, 2)
+            let pb = x is .
+            let pc = x is .5
+            let pd = x is _.y
+            let pe = x is _(1)
+            let pf = x is Text()
+            let pg = s is Text name
+            switch v {
+                case Money when ok:
+                    print("m")
+                case Δ when ok:
+                    print("d")
+                default:
+                    print("o")
+            }
+            if x is { }
+            }
+            let sa = stackalloc
+            let sb = stackalloc + 1
+            let ta = Order.paid { x = 1 }
+            let tb = order.paid { x: 1 }
+            if Order.paid { x: 1 }
+            }
+            switch v {
+                case .paid when ok:
+                    print("p")
+                default:
+                    print("o")
+            }
+
+        """,
+        """
+            let a = x is 1
+            let b = x is not null
+            let c = x is > 0 and <= 10 or 100
+            let d = x is var y
+            let e = x is _
+            let f = x is { cents: > 0 } m
+            let g = x is Money { cents: 0, currency: "MYR" }
+            let h = x is { inner.value: 1 }
+            let i = xs is [var first, .. var rest]
+            let j = xs is [1, .., 9]
+            let k = xs is []
+            let l = r is (0, var y)
+            let m = s is Text(var body)
+            let n = e is MoneyError.invalid
+            let o = c is >= 'a' and <= 'z'
+            let p = code is 500..=599
+            let q = x is (1 or 2)
+
+        """,
+        """
+            i64 f(i64 n) {
+                return 0 if n == 0
+                return .notFound unless db.find(id) is { } order
+                d++ if debtor.amount == 0
+                total = 0 unless keep
+                panic("bad") if n < 0
+                log(n) if verbose
+                break if done
+                continue unless ready
+                return n
+            }
+
+        """,
+        """
+            void run(Arena arena) {
+                provide allocator: arena {
+                    print("x")
+                }
+                become .done
+                become .retry(1)
+            }
+
+        """,
+        """
+            struct Order {
+                i64 total
+
+                public i64 doubled {
+                    let t = total * 2
+                    return t
+                }
+
+                public void pay(ref this is .placed, i64 amount) {
+                    total = amount
+                }
+
+                public i64 tracking(this is .shipped) => total
+            }
+
+            const inactive = pattern Order { total: 0 or 1 }
+            let pattern = 1
+
+            test "bounds" (i32 input, bool valid) {
+                assert(input >= 0)
+            }
+
+        """,
+        """
+            struct Order {
+                i64 id
+                states {
+                    draft
+                    paid(i64 payment)
+                    shipped
+                }
+                void pay(move this is .draft, i64 amount) becomes .paid {
+                    become .paid(amount)
+                }
+                void ship(move this) becomes .shipped {
+                    become .shipped
+                }
+                i64 total(this is .paid or .shipped) => id
+            }
+
+            void archive(Order order is .paid or .shipped) {
+                print(order.id)
+            }
+
+            void refund(Order.paid order) {
+                print(order.payment)
+            }
+
+        """,
+        """
+            struct Counter {
+                i64 n
+
+                void bump(ref this) {
+                    n += 1
+                }
+
+                void add(ref this, i64 by) {
+                    n += by
+                }
+
+                i64 peek() => n
+            }
+
+        """,
+        """
+            struct Order {
+                i64 id
+                states {
+                    placed
+                    paid
+                    shipped
+                }
+            }
+
+            type Done = Order is .paid or .shipped
+            type Moving = Order is .placed or .paid or .shipped
+
+            void archive(Order o) {
+                let x: Order is .paid or .shipped = o
+                var y: Order is .placed or .paid or .shipped = o
+                print(x.id)
+            }
+
+        """,
+        """
+            void f(i32 n) expects n > Limit {}
+            void g() {}
+
+        """,
+        """
+            type distinct Email = string requires it.length > 3
+
+            struct SignupForm {
+                Email email
+                string username
+                    requires it.length in 3..=32
+                string password
+                    requires it.length in 8..=128
+                i32 age requires it in 13..=120
+
+                requires password != username at .password
+            }
+
+        """,
+        """
+            i32 discount(i32 total, i32 percent)
+                expects percent in 0..=100
+                expects total >= 0
+                => total - total * percent / 100
+
+            void check(i32 n) expects n in 1..10 && n != 5 fails {
+                print($"{n in 0..=n * 2}")
+            }
+
+        """,
+        """
+            void log(rest ReadOnlySpan<Display> items, to Stream stream = .stdout, string sep = " ") {
+                print(items)
+            }
+
+            i64 sum(rest ReadOnlySpan<i64> xs) {
+                return 0
+            }
+
+        """,
+        """
+            void main() {
+                let a = 1
+                var b = 2
+                const c = 3
+                let d: i64 = 4
+                var e: u8 = 5
+                let f: i64 = 6
+                var m: Money
+                using let arena = Arena()
+                b = 7
+                b += 1
+                b -= 1
+                b *= 2
+                b /= 2
+                b %= 3
+                b <<= 1
+                b >>= 1
+                b &= 1
+                b |= 2
+                b ^= 3
+                m.cents = 9
+                xs[0] = 1
+                b++
+                b--
+                ++b
+                _ = f()
+                if a > 0 { print("pos") } else if a < 0 { print("neg") } else { print("zero") }
+                unless ok { retry() }
+                while b > 0 { b-- }
+                do { b++ } while b < 10
+                for i in 0..10 { total += i }
+                for x in xs { print(x) }
+                for i: i64 in 0..=n {}
+                for y in ys {}
+                outer: for row in grid {
+                    for cell in row {
+                        break outer if cell == 0
+                        continue outer
+                    }
+                }
+                defer close(f)
+                defer failing rollback()
+                defer failing (e) { log(e) }
+                provide allocator: arena {
+                    work()
+                }
+                {
+                    nested()
+                }
+
+                return
+            }
+
+        """,
+        """
+            struct Money {
+                i64 cents = 0
+            }
+
+            struct LineItem {
+                string name
+                Money unitPrice
+                i64 qty = 1
+            }
+
+            let price = Money { cents: 250 }
+            let item = LineItem { name: "tea", unitPrice: { cents: 250 }, qty: 2 }
+            let more = item with { name: "coffee", qty: 3 }
+            let none = Money {}
+            Money pick() => { cents: 1 }
+            {
+                outer: for i in 0..2 {
+                    break outer
+                }
+            }
+            union error MkError { bad }
+            Money mk(bool ok) fails MkError {
+                fail .bad if !ok
+                return { cents: 7 }
+            }
+            let caught: Money = mk(ok: false) catch { cents: 1 }
+
+        """,
+        """
+            let a = Åp { x: 1 }
+            let b = Ω { }
+            let c = Δ { y: 2 }
+            let d = Ω.ω { x: 1 }
+            let e = Ä.ö { }
+            let f = v is Ä { x: 1 }
+            let g = v is Δ { y: 2 }
+            let h = v is ω { x: 1 }
+            let i = ω { x: 1 }
+            let j = Åp { x: 1 }
+
+        """,
+        """
+            /// A sum of money.
+            public struct Money {
+                public required i64 cents
+                public readonly string currency = "MYR"
+                private i64? note
+                i64[4] history
+
+                public bool isZero => cents == 0
+
+                public Money(i64 cents) { this.cents = cents }
+
+                public Money plus(Money other) => Money { cents: cents + other.cents }
+
+                void reset() {
+                    cents = 0
+                }
+            }
+
+        """,
+        """
+            string name(Day d) {
+                switch d {
+                    case .sat or .sun:
+                        return "weekend"
+                    case .mon:
+                        print("ugh")
+                        break
+                    case var other when other.isHoliday:
+                        return "holiday"
+                    default:
+                        return "weekday"
+                }
+                let size = n switch {
+                    0 => "none",
+                    1 or 2 => "few",
+                    < 10 => "some",
+                    _ => "many",
+                }
+                return size
+            }
+
+        """,
+        """
+            @cases((0, false), (1, true))
+            test "quantity bounds" (i32 input, bool valid) {
+                assert(input >= 0)
+            }
+
+            @cases(1, 2, 3) test "positive" (i32 n) { assert(n > 0) }
+
+            test "plain" {
+            }
+
+        """,
+        """
+            union Shape {
+                circle(f32 r)
+                rect(f32 w, f32 h)
+                /// Nothing at all.
+                none
+            }
+
+            public union Token {
+                number(i64 value)
+                word(string text)
+                end
+            }
+
+            f32 area(Shape s) => s switch {
+                .circle(let r) => r * r,
+                Shape.rect(var w, _) => w,
+                .none => 0,
+            }
+
+            union Mode {
+                read = 1
+                write = 2
+                append
+                none = -1
+            }
+
+        """,
+        """
+            void log(string msg) uses allocator, io {
+                print(msg)
+            }
+            i32 next(i32 n) uses allocator becomes .done fails ParseError => n
+
+        """,
+        """
+            void f<T>(T x) where T : I uses io becomes .done fails E {
+                print(x)
+            }
+
+        """,
+        """
+            void main() {
+                let a = not true and false or true
+                let b = !true && false || true
+                let c = a and not b
+                    or a
+                print("x") unless not a
+            }
+
+        """,
+    ]
+    var sb = StrBuf()
+    var i = 0
+    for source in sources {
+        var p = t3ParserOf(source)
+        let unit = parseCompilationUnit(ref p)
+        var one = StrBuf()
+        checkSpans(in unit, until: p.lexed.source.bytes.length, to: ref one)
+        sb.append($"== {i}\n{one.finish()}")
+        i += 1
+    }
+    let expected = """
+            == 0
+            == 1
+            span out of range: attributeSyntax 38+12 outside 103+9
+            == 2
+            == 3
+            span out of range: becauseClause 148+32 outside 129+18
+            span out of range: becauseClause 24+44 outside 4+19
+            span out of range: becauseClause 83+11 outside 73+9
+            == 4
+            span out of range: targetMemberExpr 82+4 outside 77+4
+            span out of range: targetMemberExpr 171+4 outside 166+4
+            == 5
+            == 6
+            span out of range: targetMemberExpr 120+4 outside 115+4
+            == 7
+            == 8
+            == 9
+            span out of range: literalExpr 24+2 outside 17+6
+            span out of range: literalExpr 35+1 outside 28+6
+            span out of range: collectionExpr 156+6 outside 151+4
+            span out of range: parenExpr 169+11 outside 164+4
+            span out of range: structLiteralExpr 227+20 outside 220+6
+            span out of range: structLiteralExpr 256+13 outside 249+6
+            span out of range: structLiteralExpr 296+20 outside 288+7
+            == 10
+            == 11
+            span out of range: forStmt 854+116 outside 847+6
+            span out of range: breakStmt label 924+5 outside 918+0
+            span out of range: blockStmt 1011+12 outside 979+31
+            == 12
+            == 13
+            == 14
+            == 15
+            == 16
+            span out of range: exprStmt 29+7 outside 23+5
+            span out of range: exprStmt 59+10 outside 45+13
+            span out of range: blockStmt 96+10 outside 78+17
+            span out of range: exprStmt 131+7 outside 115+15
+            span out of range: blockStmt 167+18 outside 147+19
+            span out of range: exprStmt 212+6 outside 194+17
+            span out of range: exprStmt 233+9 outside 227+5
+            span out of range: exprStmt 257+17 outside 251+5
+            == 17
+            == 18
+            == 19
+            == 20
+            span out of range: unionField 78+12 outside 70+7
+            span out of range: unionField 109+13 outside 100+8
+            span out of range: unionField 124+8 outside 100+8
+            == 21
+            == 22
+            span out of range: constantPattern 27+2 outside 15+11
+            span out of range: constantPattern 65+4 outside 45+19
+            == 23
+            == 24
+            span out of range: constantPattern 35+2 outside 15+19
+            == 25
+            == 26
+            == 27
+            == 28
+            span out of range: namedType 129+8 outside 123+5
+            span out of range: usesClause effects 173+3 outside 168+4
+            span out of range: namedType 219+8 outside 213+5
+            span out of range: usesClause effects 210+2 outside 205+4
+            span out of range: namedType 431+1 outside 425+5
+            span out of range: namedType 434+1 outside 425+5
+            == 29
+            == 30
+            == 31
+            == 32
+            span out of range: namedType 57+1 outside 63+7
+            span out of range: namedType 92+1 outside 98+7
+            == 33
+            == 34
+            == 35
+            span out of range: targetMemberExpr 54+4 outside 50+3
+            span out of range: literalExpr 72+1 outside 64+7
+            span out of range: literalExpr 86+1 outside 79+6
+            span out of range: literalExpr 95+3 outside 89+5
+            span out of range: targetMemberExpr 107+6 outside 100+6
+            == 36
+            == 37
+            span out of range: blockStmt 256+36 outside 249+6
+            == 38
+            span out of range: constantPattern 27+4 outside 23+3
+            span out of range: constantPattern 83+4 outside 79+3
+            span out of range: constantPattern 100+4 outside 96+3
+            span out of range: constantPattern 121+4 outside 117+3
+            == 39
+            == 40
+            == 41
+            span out of range: constantPattern 48+0 outside 43+4
+            span out of range: constantPattern 68+0 outside 63+4
+            span out of range: constantPattern 341+0 outside 336+4
+            span out of range: exprStmt 466+1 outside 463+2
+            span out of range: exprStmt 493+1 outside 490+2
+            == 42
+            span out of range: constantPattern 40+4 outside 36+3
+            span out of range: varPattern name 104+1 outside 100+3
+            span out of range: varPattern name 271+5 outside 267+3
+            span out of range: varPattern name 285+4 outside 281+3
+            span out of range: varPattern name 366+1 outside 362+3
+            span out of range: varPattern name 395+4 outside 391+3
+            == 43
+            == 44
+            == 45
+            span out of range: blockStmt 65+62 outside 46+18
+            == 46
+            == 47
+            == 48
+            == 49
+            == 50
+            == 51
+            == 52
+            == 53
+            span out of range: forStmt 771+143 outside 764+6
+            span out of range: breakStmt label 841+5 outside 835+0
+            span out of range: continueStmt label 885+5 outside 876+0
+            span out of range: exprStmt 929+8 outside 923+5
+            span out of range: exprStmt 960+10 outside 946+13
+            span out of range: blockStmt 997+10 outside 979+17
+            == 54
+            span out of range: forStmt 383+49 outside 376+6
+            span out of range: breakStmt label 417+5 outside 411+0
+            span out of range: targetMemberExpr 522+4 outside 517+4
+            == 55
+            span out of range: exprStmt 200+1 outside 197+2
+            span out of range: exprStmt 224+1 outside 221+2
+            == 56
+            == 57
+            span out of range: varPattern name 203+5 outside 199+3
+            == 58
+            == 59
+            span out of range: varPattern name 267+1 outside 263+3
+            span out of range: varPattern name 303+1 outside 299+3
+            == 60
+            == 61
+            == 62
 
             """
     assert sb.finish() == expected
