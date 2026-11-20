@@ -1,0 +1,126 @@
+// 019 T29 (coverage ratchet): diag.byn's line, UTF-8 and fix-view paths no golden case reaches. The expected text is the
+// output of the self-hosted code at the commit that added the test. The `t29s0` helpers serve the other `-t29` files of
+// this package too.
+
+import lexer
+
+/// `got == expected`, printing `got` as a string literal when it differs so a failing run shows the value.
+bool t29s0Same(string got, as string expected) uses alloc, console {
+    if got != expected {
+        print($"T29GOT {expected} {t29s0Literal(got)}")
+    }
+    return got == expected
+}
+
+/// `text` as a Bayan string literal: quotes, backslashes, controls and bidi controls escaped.
+string t29s0Literal(string text) uses alloc {
+    var sb = StrBuf()
+    sb.append("\"")
+    let bytes = text.bytes
+    var i: i64 = 0
+    while i < bytes.length {
+        let d = decodeAt(bytes, at: i)
+        let v = i64(d.value)
+        if v == 0x22 || v == 0x5C {
+            sb.append("\\")
+            sb.append(text[i..i + 1])
+        } else if v == 0x0A {
+            sb.append("\\n")
+        } else if v < 0x20 || v == 0x7F || (v >= 0x80 && v < 0xA0) || (v >= 0x2028 && v <= 0x2069) {
+            sb.append($"\\u{{{t26Hex4(v)}}}")
+        } else {
+            sb.append(text[i..i + d.length])
+        }
+        i += d.length
+    }
+    sb.append("\"")
+    return $"{sb.finish()}"
+}
+
+/// `text` compiled as the one entry file `a.byn`.
+Ctx t29s0Compile(string text) uses alloc, clock, fs {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+    return create(from: move sources, at: ".", by: CompilationOptions {})
+}
+
+/// The diagnostics of `text` compiled as `a.byn`, each as `code start+length message;`.
+string t29s0Diags(string text) uses alloc, clock, fs {
+    let c = t29s0Compile(text)
+    var sb = StrBuf()
+    for d in c.diagnostics {
+        sb.append($"{d.code} {d.span.start}+{d.span.length} {d.message};")
+    }
+    return $"{sb.finish()}"
+}
+
+/// The decodings of `bytes` from its start, each as `value/length/valid;`.
+string t29s0Decode(ReadOnlySpan<u8> bytes) uses alloc {
+    var sb = StrBuf()
+    var pos: i64 = 0
+    while pos < bytes.length {
+        let d = decodeAt(bytes, at: pos)
+        sb.append($"{d.value}/{d.length}/{d.valid};")
+        pos += d.length
+    }
+    return $"{sb.finish()}"
+}
+
+test "diag t29: invalid UTF-8 sequences decode as their maximal subparts" {
+    let a: List<u8> = [0xC2, 0x41, 0xE0, 0x80, 0xE1, 0x80, 0x41, 0xF0, 0x80, 0xF1, 0x80, 0x41, 0xF1, 0x80, 0x80, 0x41, 0xFF]
+    assert t29s0Same(t29s0Decode(a), as: "65533/1/false;65/1/true;65533/1/false;65533/1/false;65533/2/false;65/1/true;65533/1/false;65533/1/false;65533/2/false;65/1/true;65533/3/false;65/1/true;65533/1/false;")
+}
+
+test "diag t29: the highest scalars and the last before the surrogates decode" {
+    let b: List<u8> = [0xF4, 0x8F, 0xBF, 0xBF, 0xED, 0x9F, 0xBF]
+    assert t29s0Same(t29s0Decode(b), as: "1114111/4/true;55295/3/true;")
+}
+
+test "diag t29: line starts and spans past the last line and before a carriage return" {
+    let t = "ab\r\ncd".bytes
+    assert lineStart(t, at: 5) == 6
+    let s = lineSpanOf(t, at: 0)
+    assert s.start == 0 && s.length == 2
+}
+
+test "diag t29: a fix view backs off a continuation byte at its head" {
+    var lines = List<string>()
+    let v = applyFix("x é y".bytes, from: TextSpan { start: 2, length: 2 }, by: "è", to: ref lines)
+    assert t29s0Same($"{v.markStart} {v.markEnd} {lines[0]}", as: "2 4 x è y")
+}
+
+test "diag t29: a fix view backs off a continuation byte at its tail" {
+    var lines2 = List<string>()
+    let w = applyFix("x é y".bytes, from: TextSpan { start: 2, length: 2 }, by: "ĩ", to: ref lines2)
+    assert t29s0Same($"{w.markStart} {w.markEnd} {lines2[0]}", as: "2 4 x ĩ y")
+}
+
+test "diag t29: a warning marked past the end of its line" {
+    let text = "let x = 1\r\nlet y\u{202B} = 2\n"
+    let d = Diag {
+        code: "BYN2000",
+        span: TextSpan { start: 10, length: 1 },
+        message: "m",
+        isWarning: true,
+        fixSpan: TextSpan { start: 0, length: 0 },
+        related: List<Related>(),
+    }
+    assert t29s0Same(t27Render(text, for: move d, by: 40), as: "warning BYN2000: m\n\n  1 │ let x = 1\n    │           ^\n")
+}
+
+test "diag t29: a note and a hidden bidi control" {
+    let text = "let x = 1\r\nlet y\u{202B} = 2\n"
+    let e = Diag {
+        code: "BYN2000",
+        span: t27Find(text, for: "y"),
+        message: "m",
+        isNote: true,
+        fixSpan: TextSpan { start: 0, length: 0 },
+        related: List<Related>(),
+    }
+    assert t29s0Same(t27Render(text, for: move e, by: 40), as: "note BYN2000: m\n\n  2 │ let y\u{FFFD} = 2\n    │     ^\n")
+}

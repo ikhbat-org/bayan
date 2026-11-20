@@ -1,0 +1,95 @@
+// 019 T29 (coverage ratchet): fold.byn's operators and casts on constants, and the `expects` clauses they fold, which no
+// golden case reaches. Each fold is shown as `kind:value` (`null` when it is left to run time); the expected text is the
+// output of the self-hosted code at the commit that added the test.
+
+import parser
+
+/// A fold's result as `kind:value`, or `null`.
+string t29s0K(Constant? k) uses alloc {
+    if (k is { } v) {
+        return $"{v.kind}:{constantText(in v)}"
+    }
+    return "null"
+}
+
+Constant t29s0Int(i64 n) => t6Integer(bigFromI64(n))
+
+Constant t29s0Rune(u32 r) => Constant { kind: .rune, rune: r }
+
+Constant t29s0Text(string s) => Constant { kind: .text, text: s }
+
+test "fold t29: unary operators" {
+    var c = t2Ctx()
+    var sb = StrBuf()
+    let i = prim(.i64)
+    sb.append($"{t29s0K(foldUnary(ref c, for: .plus, by: in t29s0Int(3), as: i))} ")
+    sb.append($"{t29s0K(foldUnary(ref c, for: .negate, by: in t29s0Int(3), as: i))} ")
+    sb.append($"{t29s0K(foldUnary(ref c, for: .negate, by: in t6Real(1.5), as: prim(.f64)))} ")
+    sb.append($"{t29s0K(foldUnary(ref c, for: .negate, by: in t6Flag(true), as: prim(.bool)))} ")
+    sb.append($"{t29s0K(foldUnary(ref c, for: .notKeyword, by: in t6Flag(true), as: prim(.bool)))} ")
+    sb.append($"{t29s0K(foldUnary(ref c, for: .notKeyword, by: in t29s0Int(1), as: i))} ")
+    sb.append($"{t29s0K(foldUnary(ref c, for: .complement, by: in t29s0Int(5), as: prim(.u8)))} ")
+    sb.append($"{t29s0K(foldUnary(ref c, for: .complement, by: in t29s0Int(5), as: makeType(.error, at: 0)))} ")
+    sb.append($"{t29s0K(foldUnary(ref c, for: .complement, by: in t6Flag(true), as: prim(.bool)))} ")
+    sb.append($"{t29s0K(foldUnary(ref c, for: .fromEnd, by: in t29s0Int(1), as: i))}")
+    assert t29s0Same($"{sb.finish()}", as: "?f1")
+}
+
+test "fold t29: binary operators on reals, flags, runes and text" {
+    var c = t2Ctx()
+    var sb = StrBuf()
+    let f = prim(.f64)
+    let ops: List<parser.BinaryOp> = [.add, .sub, .mul, .div, .rem, .lt, .gt, .le, .ge, .eq, .ne, .bitAnd, .bitOr, .bitXor,
+        .logicalAnd, .logicalOr, .shl]
+    for op in ops {
+        sb.append($"{op} {t29s0K(foldBinary(ref c, for: op, from: in t6Real(7.5), by: in t6Real(2.0), as: f))} ")
+        sb.append($"{t29s0K(foldBinary(ref c, for: op, from: in t6Flag(true), by: in t6Flag(false), as: prim(.bool)))} ")
+        sb.append($"{t29s0K(foldBinary(ref c, for: op, from: in t29s0Rune(98), by: in t29s0Rune(97), as: prim(.char)))} ")
+        sb.append($"{t29s0K(foldBinary(ref c, for: op, from: in t29s0Rune(97), by: in t29s0Rune(98), as: prim(.char)))} ")
+        sb.append($"{t29s0K(foldBinary(ref c, for: op, from: in t29s0Text("a"), by: in t29s0Text("b"), as: prim(.string)))};")
+    }
+    sb.append(t29s0K(foldBinary(ref c, for: .add, from: in t29s0Int(1), by: in t6Real(1.0), as: f)))
+    assert t29s0Same($"{sb.finish()}", as: "?f2")
+}
+
+test "fold t29: integer operators, wrapping, saturating and shifts" {
+    var sb = StrBuf()
+    let ops: List<parser.BinaryOp> = [.div, .rem, .bitAnd, .bitOr, .bitXor, .addWrap, .subWrap, .mulWrap, .addSat, .subSat,
+        .mulSat, .shl, .shr, .lt, .coalesce]
+    for op in ops {
+        sb.append($"{op} {t29s0K(t6IntegerOp(op, from: bigFromI64(100), by: bigFromI64(3), as: prim(.i8)))} ")
+        sb.append($"{t29s0K(t6IntegerOp(op, from: bigFromI64(-100), by: bigFromI64(0), as: prim(.i8)))} ")
+        sb.append($"{t29s0K(t6IntegerOp(op, from: bigFromI64(100), by: bigFromI64(9), as: prim(.i8)))} ")
+        sb.append($"{t29s0K(t6IntegerOp(op, from: bigFromI64(2), by: bigFromI64(1), as: prim(.f64)))};")
+    }
+    assert t29s0Same($"{sb.finish()}", as: "?f3")
+}
+
+test "fold t29: NaN orders below every number and equals itself" {
+    let z = 0.0
+    let nan = z / z
+    assert t29s0Same($"{t6RealOrder(nan, as: nan)} {t6RealOrder(nan, as: 1.0)} {t6RealOrder(1.0, as: nan)}", as: "?f4")
+}
+
+test "fold t29: casts of constants" {
+    var c = t2Ctx()
+    var sb = StrBuf()
+    let z = 0.0
+    let nan = z / z
+    let targets: List<PrimitiveKind> = [.u8, .i64, .f32, .f64, .char, .bool]
+    let values: List<Constant> = [t29s0Int(65), t29s0Int(300), t29s0Int(-1), t29s0Int(0xD800), t29s0Int(0x110000), t6Real(1.25),
+        t6Real(nan), t6Real(-1e30), t6Real(1e30), t29s0Rune(65), t29s0Rune(0x100), t6Flag(true), t29s0Text("a")]
+    for v in values {
+        for t in targets {
+            sb.append($"{t29s0K(foldCast(ref c, for: in v, from: prim(.bool), to: prim(t)))} ")
+        }
+        sb.append(";")
+    }
+    sb.append(t29s0K(foldCast(ref c, for: in t29s0Int(1), from: prim(.i64), to: makeType(.error, at: 0))))
+    assert t29s0Same($"{sb.finish()}", as: "?f5")
+}
+
+test "fold t29: `expects` clauses fold casts, unary operators, short circuits and ranges" {
+    let text = "void a(i32 n) expects i64(n) > 0 {}\nvoid b(f64 d) expects -d < 0.0 {}\nvoid c(bool x) expects !x || x && x {}\nvoid d(i64 n) expects n > 0 && n < 5 {}\nvoid e(i64 n) expects n is 1..5 {}\nvoid f(f64 d) expects i32(d) > 0 {}\nvoid g(i64 n, i64 m) expects n > m {}\nvoid h(i64 n) expects n is 1..=5 {}\n\na(-1)\nb(2.0)\nc(true)\nd(0)\nd(7)\ne(9)\nf(0.5)\ng(1, m: 2)\nh(5)\nh(6)\n"
+    assert t29s0Same(t29s0Diags(text), as: "?f6")
+}

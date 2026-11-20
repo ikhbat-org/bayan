@@ -1,0 +1,24 @@
+// 019 T29 (coverage ratchet): typed.byn's JSON escapes, hex digits and path separators, which no golden case reaches. The
+// expected text is the output of the self-hosted code at the commit that added the test.
+
+import lexer
+
+test "typed t29: a JSON string escapes quotes, controls, separators and astral code points" {
+    assert t29s0Same(t26JsonString("\"\\\u{8}\t\n\u{C}\r\u{1}\u{7F}\u{85}\u{2028}\u{1F600}é"), as: "\"\\\"\\\\\\b\\t\\n\\f\\r\\u0001\\u007F\\u0085\\u2028\\uD83D\\uDE00é\"")
+}
+
+test "typed t29: four hex digits" {
+    assert t26Hex4(0xABCD) == "ABCD"
+    assert t26Hex4(0x0009) == "0009"
+}
+
+test "typed t29: a path with backslashes and a module file index" {
+    var c = t29s0Compile("T id<T>(T x) => x\n\nvoid main() {\n    let n: i64 = id(1)\n    let f: () -> i64 = () => n + 1\n    print($\"{f()}\")\n}\n")
+    assert t26PathOf(ref c, for: "a\\b\\c.byn") == "a/b/c.byn"
+    assert t26FileIndex(ref c, by: c.entryModule, for: 9999) == -1
+    var last = ""
+    for part in typedDump(ref c).parts(by: "\"captures\": ") {
+        last = part
+    }
+    assert t29s0Same(last, as: "[\n        {\n          \"name\": \"n\",\n          \"type\": \"i64\"\n        }\n      ]\n    }\n  ]\n}\n")
+}
