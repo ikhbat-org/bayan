@@ -116,7 +116,8 @@ for name in std-env-get-matches-dotnet std-env-invalid-utf8-value-matches-dotnet
         std-path-short-names-*) drv=path-relative-cases ;;
         *) drv=std-path-cases ;;
     esac
-    # The Windows fixtures hold what wp1 saw: each-function's drive results are literal C: (run with $work on C:), short-names
+    # The Windows fixtures hold what wp1 saw: each-function's drive results are literal C: (run with $work on C:; on another drive
+    # std-path-cases.c trades that drive's letter with C in its arguments and results, so the rows read as on C:), short-names
     # needs C:\Program Files as PROGRA~1 (8.3 names on) and no NOPE~1, and case-tables matches the runtime's `_WIN32` tables as
     # .NET 10.0.404 generated them.
     case $name in

@@ -298,16 +298,19 @@ List<string> goldenSnapshotKept(
             failure = $"BAYAN_SNAPSHOT_FILES: {f} matches no compiled source"
             return kept
         }
-        listed.append(Path.fullPath(f))
+        listed.append(goldenSnapshotPath(Path.fullPath(f)))
     }
     for f in files {
         continue if f == main || f == added
-        if listed.length == 0 || t13RunnerHas(listed, for: Path.combine(src, f)) {
+        if listed.length == 0 || t13RunnerHas(listed, for: goldenSnapshotPath(Path.combine(src, f))) {
             kept.append(f)
         }
     }
     return kept
 }
+
+/// `path` with `/` for `\`: on Windows `Path.fullPath` gives `\` throughout, while `Path.combine` keeps the `/` of a `<pkg>/<name>` file.
+string goldenSnapshotPath(string path) uses alloc => path.replaced("\\", by: "/")
 
 /// `binary` and its site map listed in `dir`/manifest.json once, as `{"version": 1, "builds": [{"binary", "sites"}]}` with a build a line
 /// (SelfhostSemanticsHarness.cs:119 `RecordBuild`); `failure` set when it cannot be written.
@@ -775,25 +778,34 @@ void goldenProgramSame(
 /// The section of `stdout` the expected file `name` of case `dir` holds (`== printed` and the C# lines, SelfhostSemanticsHarness.cs:426; no
 /// header for the emitter's `""`), through the case's `compare` word, against it. With no header every line of `stdout` is compared, blank
 /// ones too (SelfhostEmitterT6Tests.cs:328-333 `RawMode`). The host target, `host` or the running one (`targetHost`) when null, is read as
-/// `<host>` on both sides as `goldenCliHost` says (T17e).
+/// `<host>` on both sides as `goldenCliHost` says (T17e). On Windows (`windows`, the running OS when null) `stdout` is read first through
+/// `goldenWindowsRead` for the case's class, as `goldenDiffer` reads it (019-win9).
 void goldenProgramSections(
     string dir,
     for string name,
     from string stdout,
     to ref List<string> failures,
-    string? host = null
+    string? host = null,
+    bool? windows = null
 )
         uses alloc, env, fs {
     let path = Path.combine(dir, name)
     let want = goldenCliLines(path)
+    let expected = Io.readText(path) catch ""
+    let read = goldenWindowsRead(
+        stdout,
+        for: expected,
+        as: goldenWindowsClass(path),
+        by: windows ?? (Target.os == "windows"),
+    )
     let header = want.length > 0 && want[0].startsWith("== ")
     let printed = header ? want[0][3..want[0].length] : ""
     var failure = ""
     var got = List<string>()
     if header {
-        got = goldenProgramWord(stdout, for: goldenProgramCaseWord(dir), at: printed, through: ref failure)
+        got = goldenProgramWord(read, for: goldenProgramCaseWord(dir), at: printed, through: ref failure)
     } else {
-        let all = goldenLines(goldenLf(stdout))
+        let all = goldenLines(goldenLf(read))
         for i in 0..all.length {
             continue if i == all.length - 1 && all[i] == ""
             got.append(all[i])
@@ -3014,6 +3026,9 @@ test "a recording keeps sites in the listed files of a program, all when none is
     let gone = goldenSnapshotKept("src/lexer/gone.byn", from: files, main: "", added: "", through: ref failure)
     assert(gone.length == 0 && failure == "BAYAN_SNAPSHOT_FILES: src/lexer/gone.byn matches no compiled source")
     assert(goldenSnapshotJobs(4, for: "tmp/snap") == 1 && goldenSnapshotJobs(4, for: "") == 4)
+    // a Windows full path of a listed file against the src/ file it names
+    let combined = goldenSnapshotPath(Path.combine("C:\\r\\src", "lexer/lexer.byn"))
+    assert(combined == goldenSnapshotPath("C:\\r\\src\\lexer\\lexer.byn"))
 }
 
 test "under BAYAN_SNAPSHOT a program is a schemata build of the listed files, its map naming src/, listed once, each run recorded once" {
@@ -3121,6 +3136,34 @@ test "under BAYAN_SNAPSHOT a program whose two runs differ fails its case, namin
         $"BAYAN_SNAPSHOT: two runs of `{Path.combine(entries[0], "prog")} input.byn` differ in stdout",
     ))
     assert(!runs)
+}
+
+test "on Windows an `expected.sections` compare reads a `rel` line and a `files in` help through the case class's Windows read (019-win9)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-sections-windows")
+    deleteWorkDir(root)
+    let want = "combine rel x.byn rel/x.byn\nput the module's `.byn` files in `nope/deep/` next to the entry file\n"
+    goldenWrite(root, for: "sem/SelfhostPathT7Tests/AssertKind-3/expected.sections", as: want)
+    goldenWrite(root, for: "sem/SelfhostSemanticsT9Tests/Other/expected.sections", as: want)
+    let path = Path.combine(root, "sem/SelfhostPathT7Tests/AssertKind-3")
+    let other = Path.combine(root, "sem/SelfhostSemanticsT9Tests/Other")
+    let got = "combine rel x.byn rel\\x.byn\r\nput the module's `.byn` files in `nope\\deep/` next to the entry file\r\n"
+    var failures = List<string>()
+    goldenProgramSections(path, for: "expected.sections", from: got, to: ref failures, host: "", windows: true)
+    assert(failures.length == 0)
+    goldenProgramSections(path, for: "expected.sections", from: got, to: ref failures, host: "", windows: false)
+    goldenProgramSections(other, for: "expected.sections", from: got, to: ref failures, host: "", windows: true)
+    let help = got.replaced("rel\\x.byn", by: "rel/x.byn")
+    goldenProgramSections(path, for: "expected.sections", from: help, to: ref failures, host: "", windows: true)
+    goldenProgramSections(path, for: "expected.sections", from: help, to: ref failures, host: "", windows: false)
+    deleteWorkDir(root)
+    assert(failures.length == 3)
+    assert(failures[2].contains(
+        "expected line 2: put the module's `.byn` files in `nope/deep/` next to the entry file\nactual line 2: put the module's `.byn` files in `nope\\deep/` next",
+    ))
+    assert(failures[0].contains(
+        "expected line 1: combine rel x.byn rel/x.byn\nactual line 1: combine rel x.byn rel\\x.byn",
+    ))
+    assert(failures[1].contains("actual line 1: combine rel x.byn rel\\x.byn"))
 }
 
 test "an `expected.sections` compare reads the host target as `<host>` on both sides unless the case's `args` pin another target (T17e)" {
