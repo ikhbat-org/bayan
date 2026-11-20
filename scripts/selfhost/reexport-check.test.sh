@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tests scripts/selfhost/reexport-check.sh on a scratch repo with a stub `dotnet` (REEXPORT_DOTNET): its `test` logs the filter
 # and copies the classes the filter names from $AUX/export into BAYAN_EXPORT_DIR, less the case in $DROP and plus $AUX/extra
-# when $EXTRA is set. The tree passes; a changed expected file, a missing row and an extra file each fail naming the path; a
+# when $EXTRA is set. The tree passes; a changed expected file, a missing row and an extra file with a FREEZE.tsv row each fail
+# naming the path; an extra file with no row is listed and passes; a
 # DIVERGENCES.tsv row (case key or Class.Test) lets its case differ; the seed picks the same classes twice; --full has no
 # filter; a class whose source names no SelfhostExport type at the head is printed as left out, never compared, and
 # refused by --class; no dotnet fails without a pass; usage errors exit 2.
@@ -104,8 +105,14 @@ git checkout -q -- tests/cases
 [ "$(DROP=sem/ASemTests/One run "${all[@]}")" = 1 ] || fail "a missing row: want exit 1" "$(cat "$tmp/out")"
 grep -q "missing from the re-export: tests/cases/sem/ASemTests/One/expected.stdout" "$tmp/out" || fail "the missing row is not named" "$(cat "$tmp/out")"
 rm -rf tmp/reexport.*
-[ "$(EXTRA=1 run "${all[@]}")" = 1 ] || fail "an extra file: want exit 1" "$(cat "$tmp/out")"
+[ "$(EXTRA=1 run "${all[@]}")" = 0 ] || fail "an extra file with no manifest row: want exit 0" "$(cat "$tmp/out")"
+grep -A1 "re-exported with no manifest row (no L043 row, not compared): 1 files" "$tmp/out" |
+  grep -q "^  tests/cases/sem/ASemTests/Four/expected.stdout$" && grep -q "4 files compared, .* 0 failed" "$tmp/out" \
+  || fail "the file with no manifest row is not listed apart" "$(cat "$tmp/out")"
+printf 'file\t%s\ttests/cases/sem/ASemTests/Four/expected.stdout\n' "$(printf 'four\n' | git hash-object --stdin)" >> tests/cases/FREEZE.tsv
+[ "$(EXTRA=1 run "${all[@]}")" = 1 ] || fail "an extra file with a manifest row: want exit 1" "$(cat "$tmp/out")"
 grep -q "extra (re-exported, not in the tree): tests/cases/sem/ASemTests/Four/expected.stdout" "$tmp/out" || fail "the extra file is not named" "$(cat "$tmp/out")"
+git checkout -q -- tests/cases
 rm -rf tmp/reexport.*
 
 [ "$(REEXPORT_DOTNET=$tmp/no-dotnet run "${all[@]}")" = 1 ] || fail "no dotnet: want exit 1" "$(cat "$tmp/out")"

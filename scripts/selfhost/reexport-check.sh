@@ -14,7 +14,8 @@
 #      in the tree or in land/cases, is compared by git blob id (the attributes of the tree's path, as FREEZE.tsv records);
 #      one that differs, is missing from the re-export or is extra (landed, not in the tree) fails with its path, unless its
 #      case is on tests/cases/DIVERGENCES.tsv (the case key <kind>/<Class>/<case>, or <Class>.<Test> for <case> <Test> or
-#      <Test>-<n>) or holds an `os` file that does not name this host's OS (macos, linux, windows); both are counted.
+#      <Test>-<n>) or holds an `os` file that does not name this host's OS (macos, linux, windows); both are counted. A landed
+#      file with no FREEZE.tsv row and not in the tree (a case the owner removed) is no L043 row: it is listed, not failed.
 # A row a golden update changed since the freeze differs from the frozen compiler's output: it belongs on DIVERGENCES.tsv.
 # The work dir is removed when the run passes and kept, and named, otherwise. Exit 0 when every compared file matches, 1 when
 # one does not, the export run fails or no .NET is on PATH (nothing is checked then: never a pass), 2 on a usage error or an
@@ -130,8 +131,9 @@ while IFS= read -r kc; do
   [ ! -d "$cases/$kc" ] || find "$cases/$kc" -mindepth 2 -maxdepth 2 -type f -name os
 done < "$w/sel" | while IFS= read -r f; do grep -qw "$os" "$f" || printf '%s\n' "${f%/os}"; done | sed 's|^tests/cases/||' > "$w/os-skip"
 
-awk -F'\t' -v tb="$w/tb" -v eb="$w/eb" -v dv="$cases/DIVERGENCES.tsv" -v oss="$w/os-skip" '
+awk -F'\t' -v tb="$w/tb" -v eb="$w/eb" -v dv="$cases/DIVERGENCES.tsv" -v oss="$w/os-skip" -v fz="$cases/FREEZE.tsv" '
   BEGIN {
+    while ((getline l < fz) > 0) { split(l, a, "\t"); if (a[1] == "file") row[a[3]] = 1 }
     while ((getline l < tb) > 0) { i = index(l, "\t"); t[substr(l, 1, i - 1)] = substr(l, i + 1) }
     while ((getline l < eb) > 0) { i = index(l, "\t"); e[substr(l, 1, i - 1)] = substr(l, i + 1) }
     while ((getline l < dv) > 0) { split(l, a, "\t"); if (a[1] != "case") div[a[1]] = 1 }
@@ -141,12 +143,18 @@ awk -F'\t' -v tb="$w/tb" -v eb="$w/eb" -v dv="$cases/DIVERGENCES.tsv" -v oss="$w
     p = $0; key = substr(p, 13); sub(/\/[^\/]*$/, "", key); split(key, k, "/"); name = k[3]; base = name; sub(/-[0-9]+$/, "", base)
     if (key in div || (k[2] "." name) in div || (k[2] "." base) in div) { ndiv++; next }
     if (key in skipos) { nos++; next }
+    if ((p in e) && !(p in t) && !(p in row)) { norow[++nnr] = p; next }
     n++
     if (!(p in e)) { print "reexport-check: missing from the re-export: " p; bad++ }
     else if (!(p in t)) { print "reexport-check: extra (re-exported, not in the tree): " p; bad++ }
     else if (t[p] != e[p]) { print "reexport-check: differs from the frozen compiler: " p; bad++ }
   }
-  END { printf "reexport-check: %d files compared, %d on the divergence list, %d skipped by an os file, %d failed\n", n, ndiv, nos, bad
+  END {
+    if (nnr > 0) {
+      printf "reexport-check: re-exported with no manifest row (no L043 row, not compared): %d files\n", nnr
+      for (i = 1; i <= nnr; i++) print "  " norow[i]
+    }
+    printf "reexport-check: %d files compared, %d on the divergence list, %d skipped by an os file, %d failed\n", n, ndiv, nos, bad
     exit (bad > 0) }' "$w/paths"
 crc=$?
 [ $crc = 0 ] && [ $trc = 0 ] || die "L043 does not hold for the classes above"
