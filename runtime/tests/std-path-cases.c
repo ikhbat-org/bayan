@@ -20,12 +20,27 @@ static int nibble(char c) {
     return c <= '9' ? c - '0' : c - 'a' + 10;
 }
 
+/* The Windows fixture was exported with the working directory on C:. When it is on another drive here, that drive's letter and C
+ * trade places (either case) wherever a letter is followed by `:`, in every argument and in every printed result, the cwd markers'
+ * root included: a path that takes the current drive (`\x`) then prints C: on any drive, and a C: argument names the current drive
+ * as it did on wp1. Off Windows, and on C:, nothing changes. */
+static char drive = 'C';
+
+static uint8_t swap(uint8_t c, uint8_t next) {
+    if (next != ':') return c;
+    uint8_t up = c >= 'a' && c <= 'z' ? (uint8_t)(c - 32) : c, low = (uint8_t)(c - up);
+    if (up == 'C') return (uint8_t)(drive + low);
+    if (up == drive) return (uint8_t)('C' + low);
+    return c;
+}
+
 /* Decodes the field at `p` in place and returns its end. */
 static char* field(char* p, byn_str* out) {
     char* end = p;
     while (*end && *end != ' ') end++;
     int64_t n = 0;
     for (char* q = p; q < end; q += 2) p[n++] = (char)(nibble(q[0]) * 16 + nibble(q[1]));
+    for (int64_t i = 0; i + 1 < n; i++) p[i] = (char)swap((uint8_t)p[i], (uint8_t)p[i + 1]);
     *out = (byn_str){(const uint8_t*)p, n};
     return end;
 }
@@ -52,7 +67,7 @@ static char* line(void) {
 }
 
 static void hex(byn_str s) {
-    for (int64_t i = 0; i < s.len; i++) printf("%02x", s.ptr[i]);
+    for (int64_t i = 0; i < s.len; i++) printf("%02x", swap(s.ptr[i], i + 1 < s.len ? s.ptr[i + 1] : 0));
 }
 
 static void hexc(const char* s) {
@@ -98,6 +113,14 @@ static void unmask(const char* l) {
 
 int main(int argc, char** argv) {
     char* l;
+#ifdef _WIN32
+    {
+        static char cwd[4096];
+        if (!getcwd(cwd, sizeof cwd)) return 2;
+        if (cwd[0] >= 'a' && cwd[0] <= 'z') drive = (char)(cwd[0] - 32);
+        else if (cwd[0] >= 'A' && cwd[0] <= 'Z') drive = cwd[0];
+    }
+#endif
     if (argc > 1 && strcmp(argv[1], "--unmask") == 0) {
         static char cwd[4096];
         if (!getcwd(cwd, sizeof cwd)) return 2;
