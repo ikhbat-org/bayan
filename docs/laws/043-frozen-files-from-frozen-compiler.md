@@ -16,3 +16,6 @@ For every manifest row unchanged since the freeze, the C# compiler built from th
 
 ## Counterexample looks like
 A manifest row unchanged since the freeze and outside the divergence list, with the expected file in the tree and the first byte where the frozen C# compiler's output for the same input differs.
+
+## Proof notes
+- 2026-11-20 (T59 part 1): `scripts/selfhost/reexport-check.sh` checks the classes export mode writes at the export head (95 of 110 at e0cf66ea9); the 15 recorded through the C# CLI, and the flat kinds, are printed as left out and wait for T59b. Break: one byte appended to tests/cases/parse/SelfhostParserO3Tests/FieldRulesSplitAsTheCSharpParser-2/expected.ast; `--class parse/SelfhostParserO3Tests` exited 1 with `differs from the frozen compiler: tests/cases/parse/SelfhostParserO3Tests/FieldRulesSplitAsTheCSharpParser-2/expected.ast` and `14 files compared, 0 on the divergence list, 0 skipped by an os file, 1 failed`; restored by hand.

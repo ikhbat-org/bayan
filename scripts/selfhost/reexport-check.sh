@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Spec 019 T59, the L043 check: re-exports golden cases with the frozen C# compiler and compares them with the tree.
 #   bash scripts/selfhost/reexport-check.sh [--seed S | --class <kind>/<Class> ... | --full]
-# The classes: the EXPORT.tsv rows with cases (kind `shell` aside). Default: one class per kind, picked by the seed (S, else the
+# The classes: the EXPORT.tsv rows with cases (kind `shell` aside) that export mode writes at the export head (derived from
+# that head's sources, below); the others are printed as left out and never count as checked. Default: one class per kind, picked by the seed (S, else the
 # ISO week `date -u +%G%V`): of a kind's classes sorted (LC_ALL=C), number 1 + (cksum of "S kind") mod n. --class names classes
 # instead; --full takes them all. The chosen classes are printed first.
 # Steps, in <root>/tmp/reexport.XXXXXX (no worktree: the checkout's git state is left alone):
@@ -45,12 +46,28 @@ EOF
 git cat-file -e "$sha^{commit}" 2> /dev/null || { echo "reexport-check: the export head $sha ($ref) is not in this clone; fetch it" >&2; exit 2; }
 
 mkdir -p tmp; w="$(mktemp -d "$root/tmp/reexport.XXXXXX")"
-awk -F'\t' 'NR > 1 && $2 != "shell" && $4 + 0 > 0 { print $2 "/" $1 }' "$cases/EXPORT.tsv" | LC_ALL=C sort -u > "$w/all"
+awk -F'\t' 'NR > 1 && $2 != "shell" && $4 + 0 > 0 { print $2 "/" $1 }' "$cases/EXPORT.tsv" | LC_ALL=C sort -u > "$w/rows"
+# Export mode at the head: a class writes cases when a file declaring it names SelfhostExport, or a Selfhost* type declared in a
+# file that does (the harnesses, or another class's tests it runs). The other classes (recorded through the C# CLI, T59b) are
+# left out of the sample and of --full, and printed.
+src="csharp/tests src/tests"
+git grep -l -w SelfhostExport "$sha" -- $src | sed "s|^$sha:||" > "$w/hooked"
+: > "$w/helpers"; : > "$w/xfiles"
+[ ! -s "$w/hooked" ] || git grep -h -o -E "(class|record) Selfhost[A-Za-z0-9_]*" "$sha" -- $(cat "$w/hooked") |
+  awk '{ print $2 }' | LC_ALL=C sort -u > "$w/helpers"
+[ ! -s "$w/helpers" ] || git grep -l -w -F -f "$w/helpers" "$sha" -- $src | sed "s|^$sha:||" > "$w/xfiles"
+git grep -o -w -E "(class|record) [A-Za-z0-9_]+" "$sha" -- $src | sed "s|^$sha:||" |
+  awk -v xf="$w/xfiles" -v rows="$w/rows" -v left="$w/left" '
+    BEGIN { while ((getline l < xf) > 0) x[l] = 1 }
+    { i = index($0, ":"); split(substr($0, i + 1), a, " "); if (substr($0, 1, i - 1) in x) ok[a[2]] = 1 }
+    END { while ((getline l < rows) > 0) { c = l; sub(/^[^\/]*\//, "", c); if (c in ok) print l; else print l > left } }' > "$w/all"
+[ -f "$w/left" ] || : > "$w/left"
 if [ $full = 1 ]; then
   cp "$w/all" "$w/sel"; what="all classes"
 elif [ -n "$picked" ]; then
   : > "$w/sel"
   for c in $picked; do
+    grep -qxF "$c" "$w/left" && { echo "reexport-check: export mode writes no case for $c at $ref; it is not checked here (T59b)" >&2; rm -rf "$w"; exit 2; }
     grep -qxF "$c" "$w/all" || { echo "reexport-check: $c is no EXPORT.tsv class with cases" >&2; rm -rf "$w"; exit 2; }
     echo "$c" >> "$w/sel"
   done
@@ -65,6 +82,10 @@ else
 fi
 echo "== reexport-check: export $ref ($(echo "$sha" | cut -c1-12)), $what: $(wc -l < "$w/sel" | tr -d ' ') classes"
 [ $full = 1 ] || sed 's/^/  /' "$w/sel"
+if [ -s "$w/left" ]; then
+  echo "reexport-check: left out, not checked (export mode writes no case for them at this head; T59b): $(wc -l < "$w/left" | tr -d ' ') classes"
+  sed 's/^/  /' "$w/left"
+fi
 
 dotnet="${REEXPORT_DOTNET:-dotnet}"
 command -v "$dotnet" > /dev/null 2>&1 ||

@@ -3,7 +3,8 @@
 # and copies the classes the filter names from $AUX/export into BAYAN_EXPORT_DIR, less the case in $DROP and plus $AUX/extra
 # when $EXTRA is set. The tree passes; a changed expected file, a missing row and an extra file each fail naming the path; a
 # DIVERGENCES.tsv row (case key or Class.Test) lets its case differ; the seed picks the same classes twice; --full has no
-# filter; no dotnet fails without a pass; usage errors exit 2.
+# filter; a class whose source names no SelfhostExport type at the head is printed as left out, never compared, and
+# refused by --class; no dotnet fails without a pass; usage errors exit 2.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -41,11 +42,19 @@ r="$tmp/repo"; mkdir -p "$r/scripts/selfhost" "$r/tests/cases"; cd "$r"
 git init -q -b dev; git config core.hooksPath /dev/null
 cp "$root/scripts/selfhost/reexport-check.sh" "$root/scripts/selfhost/land-export.sh" scripts/selfhost/
 printf '/tmp/\n' > .gitignore; printf '* text=auto eol=lf\ntests/cases/inputs/files/** -text\n' > .gitattributes
+# export mode at the head: ACliTests and BSemTests name SelfhostExport, ASemTests names a Selfhost harness, CSemTests neither
+mkdir -p src/tests csharp/tests
+printf 'class SelfhostExport { }\nclass SelfhostFakeHarness { SelfhostExport e; }\n' > src/tests/SelfhostExport.cs
+printf 'class ACliTests { SelfhostExport e; }\n' > src/tests/ACliTests.cs
+printf 'class ASemTests { SelfhostFakeHarness h; }\n' > src/tests/ASemTests.cs
+printf 'class BSemTests { SelfhostExport e; }\n' > csharp/tests/BSemTests.cs
+printf 'class CSemTests { Cli c; }\n' > src/tests/CSemTests.cs
 git add -A; git commit -qm export; head="$(git rev-parse HEAD)"
 cp -R "$aux/export/." tests/cases/
+mk tests/cases sem/CSemTests/Five "five"
 printf 'class\tfile\tfamily\ttests\tdisposition\ttarget\treason\tmemberdata\n' > tests/inventory-019.tsv
-for c in ACliTests ASemTests BSemTests; do printf '%s\tx.cs\tf\t1\tcli\tcli\t\t\n' "$c" >> tests/inventory-019.tsv; done
-printf 'class\tkind\ttests\tcases\treason\nACliTests\tcli\t1\t1\t\nASemTests\tsem\t1\t2\t\nBSemTests\tsem\t1\t1\t\nShellTests\tshell\t1\t3\t\n' \
+for c in ACliTests ASemTests BSemTests CSemTests; do printf '%s\tx.cs\tf\t1\tcli\tcli\t\t\n' "$c" >> tests/inventory-019.tsv; done
+printf 'class\tkind\ttests\tcases\treason\nACliTests\tcli\t1\t1\t\nASemTests\tsem\t1\t2\t\nBSemTests\tsem\t1\t1\t\nCSemTests\tsem\t1\t1\t\nShellTests\tshell\t1\t3\t\n' \
   > tests/cases/EXPORT.tsv
 printf 'case\tquestion\tright\treason\n' > tests/cases/DIVERGENCES.tsv
 { printf 'tag\tv0\t%s\nexport\tchore/export\t%s\n' "$head" "$head"
@@ -58,6 +67,8 @@ all=(--class cli/ACliTests --class sem/ASemTests --class sem/BSemTests)
 [ "$(run --full --seed 1)" = 2 ] || fail "--full with --seed: want exit 2" "$(cat "$tmp/out")"
 [ "$(run --bogus)" = 2 ] || fail "an unknown option: want exit 2" "$(cat "$tmp/out")"
 [ "$(run --class sem/NoSuchTests)" = 2 ] || fail "an unknown class: want exit 2" "$(cat "$tmp/out")"
+[ "$(run --class sem/CSemTests)" = 2 ] && grep -q "export mode writes no case for sem/CSemTests" "$tmp/out" \
+  || fail "a left-out class: want exit 2 and the reason" "$(cat "$tmp/out")"
 
 [ "$(run "${all[@]}")" = 0 ] || fail "the tree: want exit 0" "$(cat "$tmp/out")"
 grep -q "4 files compared, 0 on the divergence list, 0 skipped by an os file, 0 failed" "$tmp/out" \
@@ -71,7 +82,10 @@ grep -A2 "seed 5: 2 classes" "$tmp/out" | tail -2 > "$tmp/pick1"
 grep -q "^  cli/ACliTests$" "$tmp/pick1" && grep -q "^  sem/" "$tmp/pick1" || fail "the sample is one class per kind" "$(cat "$tmp/out")"
 run --seed 5 > /dev/null; grep -A2 "seed 5: 2 classes" "$tmp/out" | tail -2 | cmp -s - "$tmp/pick1" || fail "the same seed picks other classes"
 run > /dev/null; grep -q "seed $(date -u +%G%V): 2 classes" "$tmp/out" || fail "no seed: want the ISO week" "$(cat "$tmp/out")"
+grep -A1 "left out, not checked .*: 1 classes" "$tmp/out" | grep -q "^  sem/CSemTests$" || fail "the left-out class is not printed" "$(cat "$tmp/out")"
 [ "$(run --full)" = 0 ] && [ "$(tail -1 "$aux/log")" = "filter=" ] || fail "--full: want exit 0 and no filter" "$(cat "$tmp/out")"
+grep -q "4 files compared" "$tmp/out" && ! grep -q "^  sem/CSemTests$" <(sed -n '/^== /,/left out/p' "$tmp/out") \
+  || fail "--full counts a left-out class" "$(cat "$tmp/out")"
 
 printf 'TWO\n' > tests/cases/sem/ASemTests/Two-2/expected.stdout
 [ "$(run "${all[@]}")" = 1 ] || fail "a changed expected file: want exit 1" "$(cat "$tmp/out")"
