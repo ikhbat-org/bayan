@@ -1,0 +1,23 @@
+// 019 T29 (coverage ratchet): express2.byn's unknown members of builtins, of modules and of error sets, renamed members
+// named without a call, and index values that are not integers, which no golden case reaches. The expected text is the
+// output of the self-hosted code at the commit that added the test.
+
+test "express2 t29: unknown members of the builtins and of `string`" {
+    let text = "void main() {\n    let a = Hex.dec\n    let b = Symbol.inter\n    let c = Utf8.decod\n    let d = Time.nw\n    let e = string.foo\n    let f = string.invalidUtf8A\n    let g = Env.gett\n    let h = Target.oss\n    let i = Io.readFil\n    let j = Hex.zzzzzz\n    let k = Symbol.zzzzzz\n    let m = Utf8.zzzzzz\n    let n = Time.zzzzzz\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "?x1")
+}
+
+test "express2 t29: members of an imported module and a private field" {
+    let text = "import std.encoding\n\nstruct P {\n    private i64 x\n}\n\nstruct Q {\n    i64 y\n    i64 peek(P p) => p.x\n}\n\nvoid main() {\n    let a = encoding.alphabet\n    let b = encoding.nope\n    let c = encoding.digit(1)\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "?x2")
+}
+
+test "express2 t29: unknown and ambiguous error variants, a method named through its struct and suggestions" {
+    let text = "union error E {\n    bad\n    worse\n}\n\nunion error F {\n    bad\n}\n\nunion error R = E except .bad\nunion error B = E | F\n\nstruct S {\n    i64 a\n    i64 size => 1\n    i64 m() => 1\n}\n\nenum Color {\n    red\n    green\n}\n\ninterface IA {\n    i64 a()\n}\n\ninterface IB {\n    i64 b()\n}\n\ni64 g<T>(T x) where T : IA, IB => x.c()\n\nvoid main() {\n    let a = E.nope\n    let b = R.bad\n    let c = B.bad\n    let d = B.nope\n    let e = S.m\n    let f = S.sizz\n    let h = Color.gren\n    let s = S { a: 1 }\n    let k = s.aa\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "?x3")
+}
+
+test "express2 t29: renamed members named without a call and index values that are not integers" {
+    let text = "void main() {\n    var xs = [1, 2, 3]\n    var m: Map<string, i64> = [\"a\": 1]\n    let n: i64 = 5\n    let s = \"abc\"\n    let a = xs.removeRange\n    let b = xs.replaceRange\n    let c = m.getOr\n    let d = s.asSpan\n    let e = s.toUtf16\n    let f = n.toHex\n    let g = n.toBinary()\n    let h = xs[-1]\n    let i = xs[\"a\"]\n    let j = xs[-1..2]\n    let k = xs[1..-1]\n    let o = xs[\"a\"..\"b\"]\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "?x4")
+}

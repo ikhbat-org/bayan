@@ -1,0 +1,18 @@
+// 019 T29 (coverage ratchet): calls2.byn's calls of a type, `string(x)`, `trust`, `move` of what cannot move and
+// `switch move`, which no golden case reaches. The expected text is the output of the self-hosted code at the commit that
+// added the test.
+
+test "calls2 t29: calling a struct, a collection, a primitive and an unknown type" {
+    let text = "struct One {\n    i64 a\n}\n\nstruct Two {\n    i64 a\n    i64 b\n    i64 c\n}\n\nstruct Def {\n    i64 a = 1\n}\n\nvoid main() {\n    let a = One(1)\n    let b = Two(1, 2)\n    let c = Two()\n    let d = One()\n    let e = Def()\n    let f = List<i64>(1)\n    let g = Map<string, i64>(1, 2)\n    let h = Nope(1)\n    let i = i64(1, 2)\n    let j = bool(1)\n    let k = char(65)\n    let m = string(\"x\")\n    let n = string(1.5)\n    let o = i64()\n    print($\"{e.a}{k}{m}{n}\")\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "?m1")
+}
+
+test "calls2 t29: `trust` with a reason that is not a literal and of a trusted value" {
+    let text = "void main() {\n    let why = \"checked\"\n    let u = Untrusted<i64>(5)\n    let a = trust(u, reason: why)\n    let b = trust(5, reason: \"ok\")\n    let c = trust(u, reason: \"\")\n    let d = trust(u)\n    print($\"{a}{b}{c}{d}\")\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "?m2")
+}
+
+test "calls2 t29: `move` of a loop variable, an element, a field and `this`, and `switch move` of each" {
+    let text = "struct P {\n    List<i64> xs\n    void go(ref this) {\n        let t = move this\n        switch move this {\n            _ => {}\n        }\n    }\n}\n\nvoid take(move List<i64> xs) {}\ni64 n() => 1\n\nvoid main() {\n    var ls = [[1], [2]]\n    for x in ls {\n        take(move x)\n        switch move x {\n            _ => {}\n        }\n    }\n    take(move ls[0])\n    var p = P { xs: [1] }\n    take(move p.xs)\n    switch move ls[0] {\n        _ => {}\n    }\n    switch move p.xs {\n        _ => {}\n    }\n    switch move n() {\n        _ => {}\n    }\n    switch move (p) {\n        _ => {}\n    }\n    var sb = StrBuf()\n    sb.append(main)\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "?m3")
+}

@@ -1,0 +1,30 @@
+// 019 T29 (coverage ratchet): region2.byn's type walks over tuples, unions and optionals, and the fields `ref this`
+// methods change through each other, which no golden case reaches. The expected text is the output of the self-hosted code
+// at the commit that added the test.
+
+/// The return type of the function `name` in `c`.
+Type t29s0ReturnOf(in Ctx c, by string name) {
+    for f in c.functions {
+        return f.returnType if f.name == name
+    }
+    return errorType()
+}
+
+test "region2 t29: what tuples, unions, optionals and structs may lend and whether they hold a list" {
+    let text = "struct P {\n    i64 a\n}\n\nstruct L {\n    List<i64> xs\n}\n\nstruct H {\n    (i64, List<i64>) t\n}\n\nunion U {\n    one(i64 a)\n    two(List<i64> xs)\n}\n\nunion V {\n    none\n    some(i64 a)\n}\n\n(i64, i64) f1() => todo(\"f1\")\n(i64, string) f2() => todo(\"f2\")\n(i64, List<i64>) f3() => todo(\"f3\")\nU f4() => todo(\"f4\")\nV f5() => todo(\"f5\")\nP f6() => todo(\"f6\")\nList<i64>? f7() => todo(\"f7\")\nL f8() => todo(\"f8\")\nH f9() => todo(\"f9\")\ni64? f10() => todo(\"f10\")\nUntrusted<List<i64>> f11() => todo(\"f11\")\nResult<List<i64>, E> f12() => todo(\"f12\")\n\nunion error E { bad }\n"
+    var c = t29s0Compile(text)
+    var sb = StrBuf()
+    let names = ["f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12"]
+    for name in names {
+        let t = t29s0ReturnOf(in c, by: name)
+        var seen = List<Type>()
+        var seen2 = List<Type>()
+        sb.append($"{name} {mayLend(ref c, for: t, by: ref seen)} {containsList(ref c, for: t, by: ref seen2)};")
+    }
+    assert t29s0Same($"{sb.finish()}", as: "f1 false false;f2 true false;f3 true true;f4 true true;f5 false false;f6 false false;f7 true true;f8 true true;f9 true true;f10 false false;f11 true true;f12 true true;")
+}
+
+test "region2 t29: `ref this` methods that call each other on `this` share what they change" {
+    let text = "struct In {\n    i64 n\n    void bump(ref this) {\n        n += 1\n    }\n}\n\nvoid add(to ref List<i64> xs) {\n    xs.append(1)\n}\n\nstruct Out {\n    In inner\n    List<i64> xs\n    i64 k\n    void start(ref this) {\n        top()\n    }\n    void top(ref this) {\n        go()\n        a()\n    }\n    void a(ref this) {\n        b()\n    }\n    void b(ref this) {\n        k += 1\n        top()\n    }\n    void go(ref this) {\n        inner.bump()\n        add(to: ref xs)\n    }\n}\n\nvoid main() {\n    var o = Out { inner: In { n: 0 }, xs: [], k: 0 }\n    let first = o.xs[0]\n    o.start()\n    print($\"{first}\")\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "")
+}

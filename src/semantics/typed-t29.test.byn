@@ -13,7 +13,7 @@ test "typed t29: four hex digits" {
 }
 
 test "typed t29: a path with backslashes and a module file index" {
-    var c = t29s0Compile("T id<T>(T x) => x\n\nvoid main() {\n    let n: i64 = id(1)\n    let f: () -> i64 = () => n + 1\n    print($\"{f()}\")\n}\n")
+    var c = t29s0Compile("T id<T>(T x) => x\n\ninterface IArea {\n    i64 area() => 1\n    i64 run(by () -> i64 g = () => 1)\n}\n\ni64 call(by () -> i64 g = () => 2) => g()\n\nstruct Sq : IArea {\n    i64 side\n    i64 run(by () -> i64 g = () => 1) => g()\n}\n\nstruct Ci : IArea {\n    i64 r\n    i64 run(by () -> i64 g = () => 1) => g()\n}\n\nvoid main() {\n    let n: i64 = id(1)\n    let f: () -> i64 = () => n + 1\n    print($\"{f()}\")\n}\n")
     assert t26PathOf(ref c, for: "a\\b\\c.byn") == "a/b/c.byn"
     assert t26FileIndex(ref c, by: c.entryModule, for: 9999) == -1
     var last = ""

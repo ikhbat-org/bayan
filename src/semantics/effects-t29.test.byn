@@ -9,5 +9,5 @@ test "effects t29: an alias named like an effect or declared twice, and a nested
 
 test "effects t29: a partial catch at the top level and an interface member's effects" {
     let text = "union error E {\n    bad\n    worse\n}\n\nunion error F {\n    gone\n}\n\ni64 two(i64 n) fails E, F {\n    fail .bad if n == 0\n    fail .gone if n == 1\n    return n\n}\n\ninterface IShape {\n    i64 area() uses console {\n        print(\"a\")\n        return 0\n    }\n}\n\nstruct Money : IShape {\n    i64 cents\n}\n\ni64 apply(i64 x, by ((i64) -> i64) f) => f(x)\n\nlet x = two(3) catch (E.bad) 0\nlet m = Money { cents: 1 }\nprint($\"{x} {m.area()}\")\nlet g: (i64) -> i64 = (v) => v + 1\nprint($\"{apply(1, by: g)} {apply(2, by: (v) => v * 2)}\")\n"
-    assert t29s0Same(t29s0Diags(text), as: "?e2")
+    assert t29s0Same(t29s0Diags(text), as: "")
 }
