@@ -1,5 +1,6 @@
-// 019 T29 (coverage ratchet): `intSuffix` of the integer kinds whose suffix is not their name. The expected values are
-// the output of the self-hosted emitter at the commit that added the test.
+// 019 T29 (coverage ratchet): `intSuffix` of the integer kinds whose suffix is not their name, and the own statements of
+// owned, untrusted and state types. The expected values are the output of the self-hosted emitter at the commit that added
+// the test.
 
 import semantics
 
@@ -8,4 +9,34 @@ test "cprint t29: intSuffix of isize, usize and char" {
     assert intSuffix(semantics.prim(.usize)) == "u64"
     assert intSuffix(semantics.prim(.char)) == "char"
     assert intSuffix(semantics.prim(.u8)) == "u8"
+}
+
+test "cprint t29: own statements of owned, untrusted and state types" {
+    var c = t29Ctx(
+        """
+        struct P {
+            List<i64> xs = []
+            i64 n = 0
+        }
+
+        void main() {}
+        """,
+    )
+    var p: i64 = 0
+    while c.structs[p].name != "P" {
+        p += 1
+    }
+    let owned = semantics.internOwned(ref c, by: semantics.prim(.i64))
+    let untrusted = semantics.internUntrusted(ref c, by: owned)
+    let state = semantics.internState(ref c, by: p, for: in List<semantics.VariantId>())
+    assert ownsStorage(ref c, for: owned)
+    assert t7OwnStatements(
+        ref c,
+        for: owned,
+        at: "v",
+        as: .claim,
+    ) == "    byn_own_claim(v, &v, \"Owned<i64>\", file, line);\n"
+    assert t7OwnStatements(ref c, for: untrusted, at: "u", as: .drop) == "    byn_own_drop(u, &u);\n"
+    assert t7OwnStatements(ref c, for: state, at: "s", as: .release) == "    byn_own_release(s.xs.ptr);\n"
+    assert !ownsStorage(ref c, for: semantics.internUntrusted(ref c, by: semantics.prim(.i64)))
 }
