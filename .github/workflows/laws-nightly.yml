@@ -49,7 +49,7 @@ jobs:
         env:
           BAYAN_TEST_TIME_SCALE: 3
           # L043 re-exports with the frozen C# compiler; ddc.yml, the one job with .NET, runs it (spec 019 R27).
-          BAYAN_LAWS_LEFT: L043
+          BAYAN_LAWS_LEFT: L043 L028
         run: |
           mkdir -p tmp
           bash scripts/selfhost/pre-push-laws.sh 2>&1 | tee tmp/ci-laws.log
@@ -72,6 +72,46 @@ jobs:
             tmp/ci-*.log
             tmp/test.*/
             tmp/bootstrap-build/stage*.log
+          if-no-files-found: ignore
+
+  # L028 (golden tree) runs the whole tests/cases tree: about 3 hours on one hosted runner (889 s per twelfth at --jobs 3), past the
+  # laws job's 180 min after the other laws' 97 (run 44695875114 was cancelled inside L028). Decision 2026-11-20 (Fable for the
+  # owner): the laws job leaves it here (BAYAN_LAWS_LEFT), six shards through BAYAN_TEST_SHARD, the law's own `check:` line.
+  l028:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        shell: bash
+        run: |
+          git init -q .
+          git fetch -q --depth=2 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q --detach FETCH_HEAD
+      - name: Install zig
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      - name: L028 shard ${{ matrix.shard }}/6
+        shell: bash
+        env:
+          BAYAN_TEST_TIME_SCALE: 3
+          BAYAN_TEST_SHARD: ${{ matrix.shard }}/6
+        run: |
+          mkdir -p tmp
+          check="$(sed -n 's/^check: //p' docs/laws/028-*.md)"
+          [ -n "$check" ] || { echo "L028: no check: line"; exit 1; }
+          bash -c "$check" 2>&1 | tee tmp/ci-l028.log; exit "${PIPESTATUS[0]}"
+      - name: Upload the logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: laws-nightly-l028-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            tmp/ci-*.log
+            tmp/test.*/
           if-no-files-found: ignore
 
   # The golden runner bound (docs/memory-leaks.md rule 8) over the full tests/cases tree, which the release memory gate samples
