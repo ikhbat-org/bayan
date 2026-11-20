@@ -18,7 +18,9 @@ jobs:
   # slowest shard of the split as it is (src/driver/golden.byn goldenShardCases: whole classes, a class over 500 cases split by
   # case): each kind's cases per shard x its mb1 seconds per case (T30), x 13,375 / 5,136 on ubuntu-latest and 9,702 / 5,136 on
   # windows-latest (macos-latest unmeasured, as Linux), plus a driver build of about 5 minutes: N = 12, 481 s x 2.60 + 300 s
-  # = 26 min; N = 9, 601 s x 1.89 + 360 s = 25 min. Windows' 9 is also in the windows-known-failures job below.
+  # = 26 min; N = 9, 601 s x 1.89 + 360 s = 25 min by that estimate, but hosted run 44638732821 (2026-11-20) took 46 min for
+  # win-x64 shard 2/9 and 38-40 for three more, so Windows runs 12 as well (46 x 9 / 12 = 35 min). The 12 is also in the
+  # windows-known-failures job below.
   build:
     name: ${{ matrix.rid }} ${{ matrix.part == 'other' && 'other parts' || format('golden {0}/{1}', matrix.part, matrix.shards) }}
     strategy:
@@ -26,10 +28,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         part: [other, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-        exclude:
-          - { os: windows-latest, part: 10 }
-          - { os: windows-latest, part: 11 }
-          - { os: windows-latest, part: 12 }
         include:
           - os: ubuntu-latest
             rid: linux-x64
@@ -39,7 +37,7 @@ jobs:
             shards: 12
           - os: windows-latest
             rid: win-x64
-            shards: 9
+            shards: 12
     runs-on: ${{ matrix.os }}
     # About twice the estimate: a golden shard 25-26 min, the other parts 27 min on Linux (bayan 464 s, parity 122 s, scripts
     # 366 s, runtime 7 s, the build and the bootstrap check), about 15 on Windows (bayan only).
@@ -155,10 +153,10 @@ jobs:
       - name: Check known failures (Windows)
         shell: bash
         # The hosted Windows image names its Python `python`; `python3` is not guaranteed there. The parts are the build
-        # matrix's for windows-latest: other and golden shards 1 to 9.
+        # matrix's for windows-latest: other and golden shards 1 to 12.
         run: |
           missing=""; : > test-report.txt
-          for p in other 1 2 3 4 5 6 7 8 9; do
+          for p in other 1 2 3 4 5 6 7 8 9 10 11 12; do
             if [ -f "test-report-$p.txt" ]; then cat "test-report-$p.txt" >> test-report.txt; else missing="$missing $p"; fi
           done
           rc=0; python -I scripts/ci/known-failures.py tests/windows-known-failures.txt test-report.txt || rc=$?
