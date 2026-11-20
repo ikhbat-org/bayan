@@ -62,6 +62,7 @@ jobs:
         env:
           BAYAN_TEST_TIME_SCALE: 3
           REEXPORT_FULL: ${{ inputs.full && '--full' || '' }}
+          PINNED_BAYAN_REF: HEAD  # the golden runner's compiler; a depth-1 checkout has no dev branch
         run: |
           sha="$(awk -F'\t' '$1 == "export" { print $3 }' tests/cases/FREEZE.tsv)"
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$sha"
