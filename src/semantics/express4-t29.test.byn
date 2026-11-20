@@ -14,7 +14,7 @@ test "express4 t29: collections, stackalloc and format specs" {
         struct Q {
             i64 x
 
-            void formatInto(in StrBuf sb) {}
+            void formatInto(StrBuf sb) {}
         }
 
         union error E {
@@ -308,7 +308,7 @@ test "express4 t29: which formatInto takes a spec and which types cannot be infe
         struct F {
             i64 x
 
-            void formatInto(in StrBuf sb, as FormatSpec spec) {}
+            void formatInto(StrBuf sb, as FormatSpec spec) {}
         }
 
         struct G {

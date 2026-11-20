@@ -65,7 +65,9 @@ test "naming t29: word splits and case changes" {
     }
     sb.append($"{toPascal("_")} {toCamel("__")} [{capitalize("")}] {capitalize("IO")} {upperAscii("aB1")} ")
     sb.append($"{isAllAscii("é")} {trimDigits("abc12")} [{trimDigits("12")}] ")
-    sb.append($"{isStateName("isOpen")} {isStateName("hasX")} {isStateName("canY")} {isStateName("is")} {isStateName("island")}")
+    sb.append(
+        $"{isStateName("isOpen")} {isStateName("hasX")} {isStateName("canY")} {isStateName("is")} {isStateName("island")}",
+    )
     let expected = "0:a 3:b | 0:parse 6:url | 0:HTTP 4:Client | 0:IO 2:Error | 0:a1 2:B | 0:a 1:Bc | _ __ [] IO AB1 false abc [] true true true false false"
     assert sb.finish() == expected
 }
@@ -144,7 +146,9 @@ test "naming t29: listed words, bool states, word checks and out-of-range member
     let none = List<parser.Decl>()
     let r1 = memberReturnSpan(in none, at: -1)
     let r2 = memberReturnSpan(in none, at: 0)
-    sb.append($"{r1.length} {r2.length} {memberParamFacts(in none, at: -1).length} {memberParamFacts(in none, at: 0).length}|")
+    sb.append(
+        $"{r1.length} {r2.length} {memberParamFacts(in none, at: -1).length} {memberParamFacts(in none, at: 0).length}|",
+    )
     let participles: List<string> = ["loved", "aimed", "spied", "stopped", "lulled", "fizzed", "tied"]
     for w in participles {
         sb.append($"{w}: {t29s1Join(participleStems(w))}| ")

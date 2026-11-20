@@ -12,8 +12,31 @@ test "express3 t29: operator texts" {
         sb.append($"{t19UnaryText(op)} ")
     }
     let binary: List<parser.BinaryOp> = [
-        .add, .sub, .mul, .div, .rem, .addWrap, .subWrap, .mulWrap, .addSat, .subSat, .mulSat, .shl, .shr, .lt, .gt,
-        .le, .ge, .eq, .ne, .bitAnd, .bitOr, .bitXor, .logicalAnd, .logicalOr, .coalesce,
+        .add,
+        .sub,
+        .mul,
+        .div,
+        .rem,
+        .addWrap,
+        .subWrap,
+        .mulWrap,
+        .addSat,
+        .subSat,
+        .mulSat,
+        .shl,
+        .shr,
+        .lt,
+        .gt,
+        .le,
+        .ge,
+        .eq,
+        .ne,
+        .bitAnd,
+        .bitOr,
+        .bitXor,
+        .logicalAnd,
+        .logicalOr,
+        .coalesce,
     ]
     for op in binary {
         sb.append($"{binaryText(op)} ")

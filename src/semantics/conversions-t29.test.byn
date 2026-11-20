@@ -35,7 +35,18 @@ Type t29s1Type(in Ctx c, for string name) {
 
 test "conversions t29: the widening table" {
     let kinds = [
-        PrimitiveKind.i8, .i16, .i32, .i64, .u8, .u16, .u32, .u64, .isize, .usize, .f32, .f64,
+        PrimitiveKind.i8,
+        .i16,
+        .i32,
+        .i64,
+        .u8,
+        .u16,
+        .u32,
+        .u64,
+        .isize,
+        .usize,
+        .f32,
+        .f64,
     ]
     var sb = StrBuf()
     for a in kinds {
