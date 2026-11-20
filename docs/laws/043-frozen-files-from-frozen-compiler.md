@@ -7,6 +7,8 @@ release: unscheduled
 sources: spec 019 R10, R12, R13, R27
 kind: property
 scope: tests/cases/FREEZE.tsv, tests/cases/DIVERGENCES.tsv, scripts/ci/ddc.sh
+proof: scripts/selfhost/reexport-check.test.sh
+check: bash scripts/selfhost/reexport-check.sh
 ---
 
 ## Statement
