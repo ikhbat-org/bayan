@@ -130,7 +130,7 @@ test "conversions t29: dyn refs, states, results and error unions" {
             z
         }
 
-        i64 count<T>(in T x) => 0
+        i64 count<T>(T x) => 0
 
         i64 one(i64 a) => a
 
