@@ -129,3 +129,16 @@ test "calls2 t29: `requires` rules that call a function, and defaults declared a
         as: "BYN3207 95+13 a literal of `Rq` can fail its `requires`; write `try Rq { … }`;BYN2321 125+7 `Late {}` violates `requires it >= 0` of `Late`;BYN2602 203+5 `run` can fail; handle the error or pass it on;",
     )
 }
+
+test "calls2 t29: `trust(move x, reason:)` past the parser's check, a type call without type arguments and `move` of a `const`" {
+    let text = "void f(Untrusted<i64> u, Untrusted<i64> w, Untrusted<i64> z) {\n    let a = trust(move u, reason: \"why\")\n    let b = trust(move w, reason: \"\")\n    let c = trust(move 5, reason: \"why\")\n    let d = trust(move nope, reason: \"why\")\n    let e = trust(z, reason: move \"why\")\n}\n\nvoid main() {\n    let g = List(1)\n    let h = ValidationError(1)\n    const k = [1]\n    let m = move k\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5004 5+1 `f` has 3 unlabeled parameters; give each but one a particle;BYN5006 40+1 `w` is a required parameter besides the object and needs a particle;BYN5006 58+1 `z` is a required parameter besides the object and needs a particle;BYN2787 138+2 `trust` needs a reason: a non-empty string literal;BYN2202 165+1 expected `Untrusted<i32>`, found `i32`;BYN2001 206+4 `nope` is not defined;BYN2023 297+4 `List` takes 1 type argument(s), not 0;BYN2023 317+15 `ValidationError` takes 1 type argument(s), not 0;BYN2219 350+3 a `const` must be a compile-time constant;BYN2782 371+1 cannot move out of `k`;",
+    )
+}
+
+test "calls2 t29: `mutableSpan()` of a constant static array" {
+    let text = "const k = [1, 2, 3]\n\nvoid main() {\n    let s = k.mutableSpan()\n    print($\"{s.length}\")\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "BYN2106 47+1 cannot modify this value;")
+}
