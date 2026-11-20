@@ -44,3 +44,29 @@ test "typed t29: a lambda in a field default has no enclosing body to find it in
         as: "{\n  \"version\": 1,\n  \"functions\": [\n    {\n      \"path\": \"a.byn\",\n      \"name\": \"main\",\n      \"span\": {\n        \"start\": 63,\n        \"end\": 67\n      },\n      \"bindings\": [\n        {\n          \"name\": \"s\",\n          \"kind\": \"let\",\n          \"span\": {\n            \"start\": 80,\n            \"end\": 81\n          },\n          \"type\": \"S\"\n        }\n      ]\n    }\n  ]\n}\n",
     )
 }
+
+test "typed t29: equal spans, a lambda with no enclosing function and a function with no file" {
+    var c = t29s0Compile(
+        "void main() {\n    let n: i64 = 1\n    let f: () -> i64 = () => n + 1\n    print($\"{f()}\")\n}\n",
+    )
+    var main: FuncId = -1
+    var lambda: FuncId = -1
+    for f in c.modules[c.entryModule].allFunctions {
+        if c.functions[f].kind == .lambda {
+            lambda = f
+        } else if c.functions[f].name == "main" {
+            main = f
+        }
+    }
+    assert !t26FunctionBefore(ref c, by: c.entryModule, from: main, to: main)
+    c.functions[lambda].enclosing = -1
+    var sb = StrBuf()
+    t26WriteCaptures(ref c, for: lambda, to: ref sb)
+    assert t29s0Same($"{sb.finish()}", as: ",\n      \"captures\": []")
+    c.functions[lambda].file = -1
+    var parts = 0
+    for part in typedDump(ref c).parts(by: "\"captures\"") {
+        parts += 1
+    }
+    assert parts == 1
+}
