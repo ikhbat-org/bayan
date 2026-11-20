@@ -1184,3 +1184,6 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): scripts/selfhost/pre-push-laws.sh always exports BAYAN_LAW_TIER=full, so it has no quick tier.
 - LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): the gate pattern "0 passed" (README:68) also matches counts such as "10 passed".
 - LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): break runs were reverted with `git show HEAD:<path> >` because a hook refused `git checkout --` in the worker worktree.
+- LOW (019 019-winpath, 2026-11-20; T41b): `cygpath -ml` returning the long name of the hosted runner's TEMP (`RUNNER~1`) is not confirmed until the next hosted windows run.
+- LOW (019 019-winpath, 2026-11-20; T41b): the same-first-folder check in runtime/tests/std-path-cases.c ignores letter case for ASCII only.
+- LOW (019 019-winpath, 2026-11-20; T41b): the other runtime drivers (batch-cmdline, path-relative, case-tables, short-names) still run inside the checkout and are not checked for expected rows that depend on the checkout path.
