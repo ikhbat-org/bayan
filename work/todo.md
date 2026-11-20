@@ -1209,3 +1209,7 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 019-t29par, 2026-11-20; T29): `src/parser/main-t29.test.byn:8-15` writes fixtures under `tmp/parser-t29/` and never removes them.
 - LOW (019 019-t29lex, 2026-11-20; T29): lexer lines no test block reaches: `src/lexer/lexer.byn:929-935` (a limit check that can never trigger: dead arm), `lexer.byn:832` and `:874-876` (guards that always hold), `diagnostics.byn:314:93`, `tokens.byn:189/192`, `source.byn:46-47` (panic arm), and `main.byn`'s stdin/stdout entry paths. The first three are candidates for removal.
 - LOW (019 019-t29sem2b, 2026-11-20; T29): `src/semantics/calls4.byn:389`, `:413` (`this = ...` assignment paths) sit behind parser refusal BYN1011 and no test block reaches them; dead in v0.1.
+- 019 T43a LOW (2026-11-20): hosted macos-15 memory gate (run 44688158908) also failed the bayan-lsp bounds (26 passed, 1 failed) and `bound:` (12 passed, 1 failed, 1 pending); re-check on the next release dry run.
+- 019 T43a LOW (2026-11-20): `scripts/ci/nightly-modes.sh --mode bound` alone still resolves --cases and prints a cd error when tests/cases/run is absent.
+- 019 T43a LOW (2026-11-20): the golden bound samples the runner and `--golden-worker` processes only; the prebuild process (0.8–1.17 GB) is not sampled.
+- 019 T43a LOW (2026-11-20): a cli T2 worker reaches 22 MB, over the 15 MB worker bound outside shard 1/12; `--jobs 1` runner reaches 155 MB.
