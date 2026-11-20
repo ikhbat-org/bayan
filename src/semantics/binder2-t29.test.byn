@@ -1,0 +1,327 @@
+// 019 T29 (coverage ratchet): binder2.byn paths no golden case reaches. Each program is compiled alone as `a.byn` and
+// summarised as its diagnostics (`code start+length message`, joined by ` | `); the expected text is the output of the
+// self-hosted checker at the commit that added the test.
+
+import lexer
+
+string t29b2Diags(string text, bool library = false) uses alloc, clock, fs {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+    let c = create(from: move sources, at: ".", by: CompilationOptions { library: library })
+    var sb = StrBuf()
+    var first = true
+    for d in c.diagnostics {
+        sb.append(" | ") unless first
+        first = false
+        sb.append($"{d.code} {d.span.start}+{d.span.length} {d.message}")
+    }
+    return $"{sb.finish()}"
+}
+
+bool t29b2Is(string text, as string expected, bool library = false) uses alloc, clock, console, fs {
+    let got = t29b2Diags(text, library: library)
+    if got != expected {
+        print($"T29GOT {got}")
+    }
+    return got == expected
+}
+
+test "binder2 t29: @unobservable on every statement kind" {
+    let text = """
+            union error E {
+                bad
+            }
+
+            i64 next() => 1
+
+            i64 f(i64 x) fails E {
+                var n = x
+                @unobservable because "r"
+                {
+                    n += 1
+                }
+                @unobservable because "r"
+                n++
+                @unobservable(1 + 2) because "r"
+                n += 1
+                @unobservable because "r"
+                unless n > 3 {
+                    n += 1
+                }
+                @unobservable because "r"
+                while n < 10 {
+                    @unobservable because "r"
+                    n += 1
+                    @unobservable because "r"
+                    break
+                }
+                @unobservable because "r"
+                do {
+                    n += 1
+                    @unobservable because "r"
+                    continue
+                } while n < 20
+                @unobservable because "r"
+                while let k = next() {
+                    break
+                }
+                @unobservable because "r"
+                outer: for i in 0..3 {
+                    break outer
+                }
+                @unobservable because "r"
+                switch n {
+                    case 1: n += 1
+                    default: n += 2
+                }
+                @unobservable because "r"
+                defer {
+                    print("d")
+                }
+                @unobservable because "r"
+                assert n > 0
+                @unobservable because "r"
+                become .done
+                @unobservable because "r"
+                provide limit: 1 {
+                    n += 1
+                }
+                @unobservable because "r"
+                fail .bad if n > 100
+                return n
+            }
+            """
+    assert t29b2Is(
+        text,
+        as: "BYN3219 194+5 `1 + 2` is not a mutation operator | BYN2234 618+6 `while let` needs a `T?` value, got `i64` | BYN7007 984+4 `f` has no state `.done` | BYN6007 1031+5 `limit` is not a handler; `provide` takes `alloc`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console` or `log`",
+    )
+}
+
+test "binder2 t29: writable dyn ref loops over borrowed and owned places" {
+    let text = """
+            interface IC {
+                void bump(ref this)
+                i64 n
+            }
+            struct C : IC {
+                i64 n
+                void bump(ref this) { n += 1 }
+            }
+            struct W {
+                List<C> items
+                i64 k
+            }
+            union error E {
+                bad
+            }
+            List<C> make() fails E => List<C>()
+            void t1(List<C> a, i64 n) {
+                for x: dyn ref IC in (n switch { 1 => a, _ => a }) { x.bump() }
+            }
+            void t2(List<C> a) {
+                for x: dyn ref IC in a.copy() { x.bump() }
+            }
+            void t3(List<C> a) {
+                let t = (a, 1)
+                for x: dyn ref IC in t.item1 { x.bump() }
+            }
+            void t4(W w) {
+                for x: dyn ref IC in (w with { items: List<C>() }).items { x.bump() }
+            }
+            void t5(List<C> a) {
+                for x: dyn ref IC in (make() catch a) { x.bump() }
+            }
+            void t6(List<C> a) fails E {
+                for x: dyn ref IC in try make() { x.bump() }
+            }
+            void t7(List<C>? a) {
+                for x: dyn ref IC in a ?? List<C>() { x.bump() }
+            }
+            """
+    assert t29b2Is(
+        text,
+        as: "BYN5004 222+2 `t1` has 2 unlabeled parameters; give each but one a particle | BYN5006 240+1 `n` is a required parameter besides the object and needs a particle | BYN2106 270+29 cannot modify this value | BYN2104 450+7 `t` is immutable | BYN2106 610+16 cannot modify this value | BYN2106 769+14 cannot modify this value | BYN2780 419+1 implicit copy of a unique value: `List<C>` is unique: it owns its storage",
+    )
+}
+
+test "binder2 t29: exit codes, assert fails, labels, consts and using" {
+    let text = """
+            i64 seven() => 7
+
+            union error ConfigError {
+                @exitCode(n: 3)
+                named
+                @exitCode(nope)
+                unknown
+                @exitCode(seven())
+                call
+                @exitCode(-1)
+                negative
+            }
+
+            union error ParseError {
+                empty
+            }
+
+            i64 f(string s) fails ParseError {
+                fail .empty if s.isEmpty
+                return 1
+            }
+
+            void v() {
+            }
+
+            struct unique Box {
+                List<i64> items
+            }
+
+            void g(i64 n) {
+                assert (f("")) fails ParseError.empty
+                assert 5 fails ParseError
+                assert missing() fails ParseError
+                assert f("") fails 5
+                assert f("") fails ParseError.empy
+                outer: for i in 0..3 {
+                    outer: for j in 0..3 {
+                        break
+                    }
+                }
+                const k = seven()
+                const m: i64
+                let w = v()
+                let p = panic("x")
+                using u = n
+                using z = missing2
+                unless true {
+                    print("never")
+                }
+                print("a")
+                const bx = Box { items: List<i64>() }
+            }
+            """
+    assert t29b2Is(
+        text,
+        as: "BYN2772 48+15 `@exitCode` needs one integer constant from 1 to 255 | BYN2001 88+4 `nope` is not defined | BYN2772 120+7 `@exitCode` needs one integer constant from 1 to 255 | BYN2772 152+2 `@exitCode` needs one integer constant from 1 to 255 | BYN2605 416+1 `assert … fails` needs a call that can fail | BYN2001 446+7 `missing` is not defined | BYN2411 496+1 `5` cannot match `ParseError` | BYN2411 521+15 `ParseError.empy` cannot match `ParseError` | BYN2006 572+5 `outer` is declared twice | BYN2219 643+7 a `const` must be a compile-time constant | BYN2101 661+1 `const m` needs a value | BYN2025 680+3 `void` is not a value type | BYN2226 717+1 `using` needs a value that owns memory, not `i64` | BYN2001 737+8 `missing2` is not defined | BYN3209 812+5 a `unique` type cannot be `const` | BYN2405 711+11 unreachable code | BYN2405 772+14 unreachable code",
+    )
+}
+
+test "binder2 t29: borrowed places through every arm, Panic members, patterns and locals" {
+    let text = """
+            interface IC {
+                void bump(ref this)
+                i64 n
+            }
+            struct C : IC {
+                i64 n
+                void bump(ref this) { n += 1 }
+            }
+            struct W {
+                List<C> items
+                i64 k
+            }
+            union error E {
+                bad
+            }
+            List<C> make() fails E => List<C>()
+            List<C>? maybe() => null
+            W mk() => W { items: List<C>(), k: 0 }
+            i64 h() fails => 1
+            void t8(List<C> a, by i64 n) {
+                for x: dyn ref IC in (n > 0 ? a.copy() : a) { x.bump() }
+                for x: dyn ref IC in (n > 0 ? a.copy() : a.copy()) { x.bump() }
+                for x: dyn ref IC in (maybe() ?? a) { x.bump() }
+                for x: dyn ref IC in (n switch { 1 => a.copy(), _ => List<C>() }) { x.bump() }
+                for x: dyn ref IC in (mk() with { k: 1 }).items { x.bump() }
+                for x: dyn ref IC in (make() catch List<C>()) { x.bump() }
+            }
+            void t9(Owned<List<C>> o) {
+                for x: dyn ref IC in o.value { x.bump() }
+            }
+            void t10() {
+                Panic.other = 1
+                Panic.onPanic = 1
+            }
+            void t11() {
+                var Panic = mk()
+                Panic.handler = 1
+            }
+            void t12(i64? a) {
+                if a is not 1 {
+                    print("x")
+                }
+                if a is 1 {
+                    print("y")
+                }
+                unless 1 {
+                    print("z")
+                }
+                assert h() fails E
+                assert make() fails W
+                p: for i in 0..3 {
+                    q: for j in 0..3 {
+                        break p
+                    }
+                }
+                const q = missing3()
+                const lst = List<i64>()
+                using u = List<i64>()
+            }
+            """
+    assert t29b2Is(
+        text,
+        as: "BYN2106 356+22 cannot modify this value | BYN2106 485+14 cannot modify this value | BYN2106 779+7 cannot modify this value | BYN2003 825+5 `other` is not a member of `Panic` | BYN2230 845+7 `onPanic` is now `handler` | BYN2202 855+1 expected `void f(Panic p)`, found `i32` | BYN2614 839+17 `Panic.handler` may be set only as the first statement of `main` | BYN2009 880+5 `Panic` must be camelCase | BYN2003 903+7 `handler` is not a member of `W` | BYN2202 1033+1 expected `bool`, found `i32` | BYN2411 1109+1 `W` cannot match `E` | BYN2001 1211+8 `missing3` is not defined | BYN2219 1238+11 a `const` must be a compile-time constant | BYN2311 880+5 `Panic` is never reassigned; declare it with `let`",
+    )
+}
+
+test "binder2 t29: exit code modifiers, bang conditions and owned places" {
+    let text = """
+            union error E {
+                @exitCode(ref 3)
+                bad
+            }
+            interface IC {
+                void bump(ref this)
+                i64 n
+            }
+            struct C : IC {
+                i64 n
+                void bump(ref this) { n += 1 }
+            }
+            List<C>? maybe() => null
+            List<C> make() fails E => List<C>()
+            struct Order {
+                i64 id
+                states {
+                    draft
+                    paid(i64 payment)
+                    shipped(i64 payment, i64 tracking)
+                }
+            }
+            Order mkOrder() => Order.draft { id: 1 }
+            void t14(bool flag) {
+                let a = mkOrder()
+                let b = mkOrder()
+                if a is .paid && b is .paid {
+                    if flag {
+                        print("p")
+                    }
+                }
+                if a is .paid && a is not .draft {
+                    if flag {
+                        print("q")
+                    }
+                }
+            }
+            void t13(List<C>? a) {
+                if !(a is null) {
+                    print("x")
+                }
+                for x: dyn ref IC in (maybe() ?? List<C>()) { x.bump() }
+            }
+            """
+    assert t29b2Is(text, as: "BYN2772 20+16 `@exitCode` needs one integer constant from 1 to 255")
+}
