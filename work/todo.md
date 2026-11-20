@@ -1165,3 +1165,7 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 019-t59, 2026-11-20; T59b): sem/SelfhostSemanticsTests/MessagesMatchCli-4 has a time line and no compare word, so it is compared as bytes.
 - LOW (019 019-t59, 2026-11-20; T31/T44a): L043's `check:` needs .NET and the export sha; laws-nightly.yml fetches at depth 2 and (after 019-t31f) has no .NET, so the check exits 2 there. The nightly must leave L043 to the R27 job in ddc.yml.
 - LOW (019 019-t59, 2026-11-20; T44a): `timeout-minutes` with an `inputs` expression and the depth-1 fetch of the export sha in ddc.yml are untried on a hosted run.
+- LOW (019 019-t30h4, 2026-11-20; T30h): GoldenOutcome (src/driver/golden.byn:1669) has no pid; coverage-t30h.test.byn reads it through `sh -c 'echo $$; exec'`, so its 4 blocks are todo on Windows.
+- LOW (019 019-t30h4, 2026-11-20; T30h): the `bayan` command line cannot print the coverage map (counter id to kind, line, outcome); coverage-t30h.test.byn rebuilds it in-process with `t5Instrument`, which matches the child's ids only because both compile the same source with the same code.
+- LOW (019 019-t30h4, 2026-11-20; T30h): the coverage C writes counters only through `atexit` at a normal end and on `exit()` (src/emitter/cprint/program.byn:503); a counter-file test cannot tell a `todo` exit from a normal end.
+- LOW (019 019-t30h4, 2026-11-20; T30h): the four break runs of coverage-t30h.test.byn were made before the `in` modifiers left the helper signatures and were not repeated on the final text.
