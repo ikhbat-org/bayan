@@ -59,7 +59,10 @@ test "driver t29: ccRuntimeArguments and ccArguments for the host, a cross targe
         ccArguments(in compiler, for: "/w", to: "/w/a.exe", by: "fast", through: "windows-x64").joined(by: " "),
         as: "cc -target x86_64-windows-gnu -std=c11 -fwrapv -ffp-contract=off -w -O2 -DBYN_NDEBUG -ffile-prefix-map=/w=. -I /w /w/main.c /w/bayan-rt.o -o /w/a.exe -lshell32",
     )
-    t29Same(ccArguments(in compiler, for: "/w", to: "/w/a", by: "safe", through: null).joined(by: " "), as: "cc -std=c11 -fwrapv -ffp-contract=off -w -O2 -DBYN_NDEBUG -ffile-prefix-map=/w=. -I /w /w/main.c /w/bayan-rt.o -o /w/a -lm")
+    t29Same(
+        ccArguments(in compiler, for: "/w", to: "/w/a", by: "safe", through: null).joined(by: " "),
+        as: "cc -std=c11 -fwrapv -ffp-contract=off -w -O2 -DBYN_NDEBUG -ffile-prefix-map=/w=. -I /w /w/main.c /w/bayan-rt.o -o /w/a -lm",
+    )
 }
 
 test "driver t29: ZigOrCc refuses, fails to write, rejects a source and builds one" {

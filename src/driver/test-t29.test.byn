@@ -42,11 +42,29 @@ string t29TestRun(List<string> args) uses alloc, clock, console, env, fs, proces
 test "driver t29: t11ParseBuildOptions reads every option and refuses a bad one" {
     let file = "src/driver/test.byn"
     t29Same(
-        t29TestParse(["--mode", "debug", "--diagnostics", "json", "--all", "--json", "--mutate", "--run", "r", file, "--", "a", "b"]),
+        t29TestParse(
+            [
+                "--mode",
+                "debug",
+                "--diagnostics",
+                "json",
+                "--all",
+                "--json",
+                "--mutate",
+                "--run",
+                "r",
+                file,
+                "--",
+                "a",
+                "b",
+            ],
+        ),
         as: "src/driver/test.byn debug true [a,b] true false - false true - true false r - -",
     )
     t29Same(
-        t29TestParse(["--diagnostics", "text", "--changed", "--coverage", "--only", "x", "--only", "y", "--jobs", "3", file]),
+        t29TestParse(
+            ["--diagnostics", "text", "--changed", "--coverage", "--only", "x", "--only", "y", "--jobs", "3", file],
+        ),
         as: "src/driver/test.byn safe false [] false true - false false x,y false true - - 3",
     )
     t29Same(
@@ -135,7 +153,8 @@ test "driver t29: changedModules in a repository of its own" {
     goldenWrite(dir, for: "lone.byn", as: "print(\"lone\")\n")
     let lone = Path.combine(dir, "lone.byn")
     let plain = semantics.fromPath(lone, by: T5CompilationOptions {}, wholeDirectory: false)
-    let some = changedModules(in plain, by: in T11Options { path: lone, baseRef: empty }, for: "app") ?? T11ChangedSet {}
+    let some = changedModules(in plain, by: in T11Options { path: lone, baseRef: empty }, for: "app")
+        ?? T11ChangedSet {}
     assert !some.all && some.directories.contains(dir)
     assert changedModules(in plain, by: in T11Options { path: dir, baseRef: "t29-no-such-ref" }, for: "app") is null
     assert changedModules(in plain, by: in T11Options { path: "/" }, for: "app") is null
@@ -147,6 +166,75 @@ test "driver t29: changedModules in a repository of its own" {
 test "driver t29: failureDetail drops carriage returns and frames past the third" {
     let details = "panic: assert x\r\n         │\n  at a.byn:1\r\n  at a.byn:2\n  at a.byn:3\n  at a.byn:4\n"
     let symbols = semantics.t26Symbols(ascii: true)
-    t29Same(failureDetail(details, by: false, for: in symbols, through: 80).joined(by: "|"), as: "assert x|  ||a.byn:1|a.byn:2|a.byn:3|")
-    t29Same(failureDetail(details, by: true, for: in symbols, through: 80).joined(by: "|"), as: "assert x|  ||a.byn:1|a.byn:2|a.byn:3|a.byn:4|")
+    t29Same(
+        failureDetail(details, by: false, for: in symbols, through: 80).joined(by: "|"),
+        as: "assert x|  ||a.byn:1|a.byn:2|a.byn:3|",
+    )
+    t29Same(
+        failureDetail(details, by: true, for: in symbols, through: 80).joined(by: "|"),
+        as: "assert x|  ||a.byn:1|a.byn:2|a.byn:3|a.byn:4|",
+    )
+}
+
+test "driver t29: t11ParseBuildOptions on an option without its value and on each mode" {
+    var got = List<string>()
+    got.append(t29TestParse(["--package"]))
+    got.append(t29TestParse(["--mode"]))
+    got.append(t29TestParse(["--diagnostics"]))
+    got.append(t29TestParse(["--base"]))
+    got.append(t29TestParse(["--run"]))
+    got.append(t29TestParse(["--jobs"]))
+    got.append(t29TestParse(["--mode", "debug", "a.byn"]))
+    got.append(t29TestParse(["--mode", "safe", "a.byn"]))
+    let symbols = semantics.t26Symbols(ascii: true)
+    got.append(failureDetail("panic: assert x\nafter\n", by: false, for: in symbols, through: 80).joined(by: "/"))
+    t29Same(got.joined(by: "|"), as: "null|null|null|null|null|null|null|null|assert x/after/")
+}
+
+test "driver t29: testCommand in debug mode, with --json, --diagnostics json, an unselectable failure and a gate" {
+    let dir = t29TestDir("runs")
+    goldenWrite(dir, for: "package.byn", as: "Package {\n    name: \"local/runs\",\n    version: \"0.1.0\",\n}\n")
+    goldenWrite(
+        dir,
+        for: "src/app/main.byn",
+        as: "print(\"main\")\n\ntest \"p ok\" {\n    print(\"a\")\n}\n\ntest \"f1\" {\n    assert 1 == 2\n}\n\ntest \"f2\" {\n    assert 1 == 2\n}\n\ntest \"f3\" {\n    assert 1 == 2\n}\n\ntest \"u \\u{1} name\" {\n    assert 1 == 2\n}\n",
+    )
+    var got = List<string>()
+    got.append(t29TestRun(["--mode", "debug", dir]))
+    got.append(t29TestRun(["--mode", "debug", "--json", "-v", dir]))
+    got.append(t29TestRun(["--mode", "debug", "--only", "u ", dir]))
+    got.append(t29TestRun(["--coverage", "--json", dir]))
+    got.append(t29TestRun(["--diagnostics", "json", "--only", "p ok", dir]))
+    let gated = t29TestDir("gated")
+    goldenWrite(
+        gated,
+        for: "package.byn",
+        as: "Package {\n    name: \"local/gated\",\n    version: \"0.1.0\",\n    test: Tests { lines: 100 },\n}\n",
+    )
+    goldenWrite(
+        gated,
+        for: "src/app/main.byn",
+        as: "let n = 2\nif n > 5 {\n    print(\"big\")\n}\n\ntest \"ok\" {\n    assert 1 == 1\n}\n",
+    )
+    got.append(t29TestRun(["--coverage", gated]))
+    t29Same(got.joined(by: " "), as: "3 3 3 3 0 3")
+    deleteWorkDir(dir)
+    deleteWorkDir(gated)
+}
+
+test "driver t29: testCommand --changed against git's empty tree, on a project and on a lone file" {
+    let git = ccFindOnPath("git", for: Target.os) ?? ""
+    assert git != ""
+    let dir = t29TestDir("changed")
+    goldenWrite(dir, for: "package.byn", as: "Package {\n    name: \"local/changed\",\n    version: \"0.1.0\",\n}\n")
+    goldenWrite(dir, for: "src/app/main.byn", as: "print(\"main\")\n\ntest \"ok\" {\n    assert 1 == 1\n}\n")
+    let init = Io.run(git, boundList(["init", "-q", dir]).span) catch { panic("git") }
+    assert init.exitCode == 0
+    let empty = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+    var got = List<string>()
+    got.append(t29TestRun(["--changed", "--base", empty, dir]))
+    goldenWrite(dir, for: "loose/lone.byn", as: "print(\"lone\")\n\ntest \"ok\" {\n    assert 1 == 1\n}\n")
+    got.append(t29TestRun(["--changed", "--base", empty, Path.combine(Path.combine(dir, "loose"), "lone.byn")]))
+    t29Same(got.joined(by: " "), as: "0 0")
+    deleteWorkDir(dir)
 }

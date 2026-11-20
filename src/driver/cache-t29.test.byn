@@ -53,7 +53,11 @@ test "driver t29: t9Intact and t9DirectoryExists on entries that cannot be read"
     let exe = Path.combine(dir, "exe")
     let sum = Path.combine(dir, "exe.sha256")
     goldenWrite(dir, for: "exe", as: "x")
-    goldenWrite(dir, for: "exe.sha256", as: "\u{FEFF} 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\n")
+    goldenWrite(
+        dir,
+        for: "exe.sha256",
+        as: "\u{FEFF} 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\n",
+    )
     t29Same(t29Intact(exe, by: sum), as: "true")
     t29Same(t29Intact(exe, by: Path.combine(dir, "missing")), as: "false")
     t29Same(t29Intact(dir, by: sum), as: "false")
@@ -92,7 +96,14 @@ test "driver t29: t9Evict passes over a file among the programs" {
     goldenWrite(data, for: "programs/f", as: "x")
     goldenWrite(data, for: "programs/k/exe", as: "x")
     var d = newDCtx()
-    t9Evict("", to: 9223372036854775807, by: 9223372036854775807, until: 0, at: data, through: ref d) catch { panic("evict") }
+    t9Evict(
+        "",
+        to: 9223372036854775807,
+        by: 9223372036854775807,
+        until: 0,
+        at: data,
+        through: ref d,
+    ) catch { panic("evict") }
     assert Fs.fileExists(Path.combine(data, "programs/f")) && Fs.fileExists(Path.combine(data, "programs/k/exe"))
     deleteWorkDir(data)
 }
@@ -204,4 +215,97 @@ test "driver t29: lookupScript and rememberScript on an unreadable, a damaged an
             Io.remove(Path.combine(scripts, name)) catch { panic("remove") }
         }
     }
+}
+
+test "driver t29: identity of a second command, a cc that is not zig, and a launcher's flag word" {
+    var d = newDCtx()
+    t29Same(t9CompilerIdentity(boundList(["/t29/no/a"]), through: ref d), as: "/t29/no/a\u{0}")
+    assert t9CompilerIdentity(boundList(["/t29/no/b", "cc"]), through: ref d).startsWith("/t29/no/b cc\u{0}")
+    let stamp = t9CompilerStamp(boundList(["/bin/echo", "-n"]))
+    assert stamp.startsWith("/bin/echo:") && !stamp.contains("\n")
+}
+
+test "driver t29: zigCacheEnvFor, zigTrimEntries under the limit and over a link, t3RemoveEntry on a file" {
+    let dir = t29CacheDir("zigenv")
+    assert !zigCacheEnvFor(
+        boundList(["/t29/no/x", "-c"]),
+        from: null,
+        at: dir,
+        by: 1,
+        until: 0,
+    ).contains("ZIG_GLOBAL_CACHE_DIR")
+    assert !zigCacheEnvFor(
+        boundList(["/t29/no/x", "cc"]),
+        from: null,
+        at: dir,
+        by: 1,
+        until: 0,
+    ).contains("ZIG_GLOBAL_CACHE_DIR")
+    goldenWrite(dir, for: "target", as: "x")
+    goldenWrite(dir, for: "trim/a", as: "x")
+    let trim = Path.combine(dir, "trim")
+    zigTrimEntries(trim, by: 5, until: 0) catch { panic("trim") }
+    assert Fs.fileExists(Path.combine(trim, "a"))
+    Io.remove(Path.combine(trim, "a")) catch { panic("remove") }
+    t29CacheRun("ln", by: ["-s", Path.combine(dir, "target"), Path.combine(trim, "l")])
+    zigTrimEntries(trim, by: 0, until: 0) catch { panic("trim") }
+    let left = Io.listDir(trim) catch { panic("list") }
+    assert left.length == 0 && Fs.fileExists(Path.combine(dir, "target"))
+    t3RemoveEntry(Path.combine(dir, "target"))
+    assert !Fs.fileExists(Path.combine(dir, "target"))
+    deleteWorkDir(dir)
+}
+
+test "driver t29: t9Evict drops a dangling pointer and passes over a temporary file and a directory" {
+    let data = t29CacheDir("evict-scripts")
+    goldenWrite(data, for: "programs/k/exe", as: "x")
+    goldenWrite(data, for: "scripts/a.tmp", as: "gone\n")
+    goldenWrite(data, for: "scripts/d/f", as: "x")
+    goldenWrite(data, for: "scripts/p", as: "gone\n")
+    goldenWrite(data, for: "scripts/q", as: "k\n")
+    var d = newDCtx()
+    t9Evict(
+        "",
+        to: 9223372036854775807,
+        by: 9223372036854775807,
+        until: 0,
+        at: data,
+        through: ref d,
+    ) catch { panic("evict") }
+    let scripts = Path.combine(data, "scripts")
+    assert Fs.fileExists(Path.combine(scripts, "a.tmp")) && Fs.fileExists(Path.combine(scripts, "d/f"))
+    assert !Fs.fileExists(Path.combine(scripts, "p")) && Fs.fileExists(Path.combine(scripts, "q"))
+    deleteWorkDir(data)
+}
+
+test "driver t29: t9CompileIn when the compiler exits non-zero or leaves no program, t9LookupEntry without a sum" {
+    let work = t29CacheDir("compile-fails")
+    var d = newDCtx()
+    for code in ["3", "0"] {
+        let built = t9CompileIn(
+            work,
+            by: boundList(["/bin/sh", "-c", $"exit {code}"]),
+            through: boundList([]),
+            from: "int main(void) { return 0; }\n",
+            for: "k",
+            as: "a.out",
+            until: "rt.o",
+            at: false,
+            to: ref d,
+        ) catch { panic("compile") }
+        assert !built.succeeded && built.rejected
+        t29Same(built.errors, as: $"C compiler failed (exit {code}):\n")
+    }
+    let entry = t29CacheDir("lookup-nosum")
+    goldenWrite(entry, for: "exe", as: "x")
+    let found = t9LookupEntry(entry, by: "exe", from: "exe.sha256", through: ref d) catch { panic("lookup") }
+    assert found is null && !t9DirectoryExists(entry)
+    deleteWorkDir(work)
+}
+
+test "driver t29: t9Build of C the compiler rejects" {
+    var d = newDCtx()
+    let built = t9Build("int main(", by: "safe", to: null, for: null, through: ref d)
+    assert !built.result.succeeded && built.result.rejected
+    assert built.result.errors.startsWith("C compiler failed (exit ")
 }
