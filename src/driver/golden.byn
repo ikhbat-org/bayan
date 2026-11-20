@@ -329,7 +329,9 @@ string? goldenCompare(string actual, for string input, at string expected, by st
 /// sem/SelfhostPathT7Tests (:180 `Path.GetRelativePath`, `Path.Combine`) and a `fullpath` line of sem/SelfhostSemanticsT11Tests, there with the
 /// drive `Path.GetFullPath` puts before a rooted path dropped (`C:\a\c.byn` read as `/a/c.byn`); and, in cli/SelfhostDefaultT9Tests and
 /// cli/SelfhostDriverT5Tests when `expected` names no `.exe`, a `.exe` that ends a line dropped (Targets.cs:30 `ExecutableName` names a Windows
-/// program `<name>.exe`). Another class's `actual` is read as is.
+/// program `<name>.exe`); and, in a cli/SelfhostDefaultT5Tests line that says `can't be run`, `/` for `\` and a `.exe` before a space, a
+/// backtick or the line end dropped (doctor.byn names the tool `ccFindOnPath` found, `Path.combine(dir, "zig.exe")`). Another class's
+/// `actual` is read as is.
 string goldenWindowsRead(string actual, for string expected, as string cls, by bool windows) uses alloc {
     return actual unless windows
     let rel = cls == "sem/SelfhostPathT7Tests"
@@ -341,16 +343,24 @@ string goldenWindowsRead(string actual, for string expected, as string cls, by b
     slashed = goldenCliSlashedAfter(slashed, at: "run it with `bayan ", by: script)
     let exe = (cls is "cli/SelfhostDefaultT9Tests" or "cli/SelfhostDriverT5Tests")
         && goldenOffset(expected, for: ".exe") < 0
+    let tools = cls == "cli/SelfhostDefaultT5Tests"
     var sb = StrBuf()
     var first = true
     for line in slashed.parts(by: "\n") {
         sb.append("\n") unless first
         first = false
         let path = rel && (line.startsWith("rel ") || line.startsWith("combine ")) ? line.replaced("\\", by: "/")
-            : full && line.startsWith("fullpath ") ? goldenWindowsUnrooted(line.replaced("\\", by: "/")) : $"{line}"
+            : full && line.startsWith("fullpath ") ? goldenWindowsUnrooted(line.replaced("\\", by: "/"))
+            : tools && line.contains("can't be run") ? goldenWindowsTool(line.replaced("\\", by: "/")) : $"{line}"
         sb.append(exe && path.endsWith(".exe") ? $"{path[0..path.length - 4]}" : path)
     }
     return sb.finish()
+}
+
+/// `line` with a `.exe` before a space, a backtick or the line end dropped.
+string goldenWindowsTool(string line) uses alloc {
+    let dropped = line.replaced(".exe ", by: " ").replaced(".exe`", by: "`")
+    return dropped.endsWith(".exe") ? $"{dropped[0..dropped.length - 4]}" : dropped
 }
 
 /// `line` with each space-separated field that starts with a drive and `/` (`C:/a`) read without the drive (`/a`).

@@ -1496,10 +1496,18 @@ string goldenCliT3Mode(string text) {
     return "nothing"
 }
 
+/// The `.mode` word of the SelfhostDefaultT5Tests /bin/sh tool `text` (SelfhostDefaultT5Tests.cs:38-42 `Script`, `exit <code>`): `nothing`
+/// (exit 0) when it exits 0, else `reject` (exit 1). Doctor reads only the exit code of a tool (doctor.byn `t5Version`), and an ok row's
+/// version is read as `<host>` (`goldenCliDoctorLine`).
+string goldenCliT5Mode(string text) => text.contains("\nexit 0\n") ? "nothing" : "reject"
+
 /// SelfhostDriverT3Tests.cs:121-131 `Script` and :566 on Windows: in each directory of the PATH `path` (split at `;`), beside each /bin/sh
 /// fake `name` a copy of the fake compiler `exe` as `name.exe` and its behaviour in `name.mode`, and beside each directory `name` a directory
-/// `name.exe`, which FindOnPath must skip (Toolchain.cs:288 tries `.exe` first). What failed, else "".
-string goldenCliT3Fakes(string path, by string exe) uses alloc, fs {
+/// `name.exe`, which FindOnPath must skip (Toolchain.cs:288 tries `.exe` first). For the class `cls` SelfhostDefaultT5Tests the mode is
+/// `goldenCliT5Mode`, no directory is staged, and the /bin/sh tool itself is overwritten by the fake too: `BAYAN_CC` names it with no
+/// extension, and the runtime starts a path as named (bayan-rt.c `byn_find_program`). What failed, else "".
+string goldenCliT3Fakes(string path, by string exe, for string cls) uses alloc, fs {
+    let t5 = cls == "SelfhostDefaultT5Tests"
     for part in path.parts(by: ";") {
         let dir = $"{part}"
         continue if dir.length == 0
@@ -1507,6 +1515,7 @@ string goldenCliT3Fakes(string path, by string exe) uses alloc, fs {
             continue if name.contains(".")
             let at = Path.combine(dir, name)
             if t6DirectoryExists(at) {
+                continue if t5
                 Io.createDirectory($"{at}.exe") catch return $"cannot create {at}.exe"
                 continue
             }
@@ -1514,7 +1523,11 @@ string goldenCliT3Fakes(string path, by string exe) uses alloc, fs {
             continue unless text.startsWith("#!/bin/sh\n")
             let bytes = Io.readFile(exe) catch return $"cannot read {exe}"
             Io.writeFile($"{at}.exe", bytes.span) catch return $"cannot write {at}.exe"
-            Io.writeFile($"{at}.mode", goldenCliT3Mode(text).bytes) catch return $"cannot write {at}.mode"
+            let mode = t5 ? goldenCliT5Mode(text) : goldenCliT3Mode(text)
+            Io.writeFile($"{at}.mode", mode.bytes) catch return $"cannot write {at}.mode"
+            if t5 {
+                Io.writeFile(at, bytes.span) catch return $"cannot write {at}"
+            }
         }
     }
     return ""
@@ -1597,6 +1610,7 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
     var bin = scratch
     let gitBin = $"{scratch}-bin"
     let host = targetHost() ?? ""
+    var ccDir = ""
     if cls.startsWith("SelfhostDefault") {
         failure = goldenCliBin(dir, at: gitBin)
         return $"{dir}\n{failure}" if failure != ""
@@ -1621,6 +1635,9 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
             if line[0..at] == "PATH" {
                 bin = value
             }
+            if line[0..at] == "BAYAN_CC" {
+                ccDir = Path.directoryName(value) ?? ""
+            }
         }
     }
     if cls == "SelfhostDriverT5Tests" {
@@ -1631,7 +1648,15 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         // SelfhostDriverT3Tests.cs:121-131: on Windows the C# staged a FakeSource `.exe` and its `.mode` for each /bin/sh fake
         let fake = goldenCliFakeExe(through: ref failure)
         return $"{dir}\n{failure}" if failure != ""
-        failure = goldenCliT3Fakes(bin, by: fake)
+        failure = goldenCliT3Fakes(bin, by: fake, for: cls)
+        return $"{dir}\n{failure}" if failure != ""
+    }
+    if cls == "SelfhostDefaultT5Tests" && host.startsWith("windows-") {
+        // SelfhostDefaultT5Tests.cs:80-94 `Same` asserted on Windows too: the /bin/sh tools of :38-50 (PATH, and the directory of BAYAN_CC)
+        // as the fake compiler with the exit code of each (criterion 13, Decision 2026-11-20)
+        let fake = goldenCliFakeExe(through: ref failure)
+        return $"{dir}\n{failure}" if failure != ""
+        failure = goldenCliT3Fakes(bin == scratch ? ccDir : $"{bin};{ccDir}", by: fake, for: cls)
         return $"{dir}\n{failure}" if failure != ""
     }
     let cwdLines = goldenCliLines(Path.combine(dir, "cwd"))
@@ -3358,6 +3383,32 @@ test "a Windows run reads a case of a class no Windows rule names as is, CR LF r
     assert(goldenWindowsClass(expected) == "cli/SelfhostDriverT5Tests")
 }
 
+test "a Windows run reads a SelfhostDefaultT5Tests `can't be run` tool with `/` and no `.exe`, other lines and classes as is (019-win9)" {
+    let cc = "✗ C compiler: `<repo>/tmp/t5-doctor/path-broken\\zig.exe cc` can't be run\n"
+    let zig = "✗ zig: <repo>/tmp/t5-doctor/path-broken\\zig.exe can't be run"
+    let bare = "✗ C compiler: `<repo>/tmp/t5-doctor/path-cc\\cc.exe` can't be run\n"
+    let help = "  help: put a.exe in b\\c\n"
+    let t5 = "cli/SelfhostDefaultT5Tests"
+    assert(goldenWindowsRead(
+        cc,
+        for: "",
+        as: t5,
+        by: true,
+    ) == "✗ C compiler: `<repo>/tmp/t5-doctor/path-broken/zig cc` can't be run\n")
+    assert(
+        goldenWindowsRead(zig, for: "", as: t5, by: true) == "✗ zig: <repo>/tmp/t5-doctor/path-broken/zig can't be run"
+    )
+    assert(goldenWindowsRead(
+        bare,
+        for: "",
+        as: t5,
+        by: true,
+    ) == "✗ C compiler: `<repo>/tmp/t5-doctor/path-cc/cc` can't be run\n")
+    assert(goldenWindowsRead(help, for: "", as: t5, by: true) == help)
+    assert(goldenWindowsRead(cc, for: "", as: t5, by: false) == cc)
+    assert(goldenWindowsRead(cc, for: "", as: "cli/SelfhostDefaultT4Tests", by: true) == cc)
+}
+
 test "on a Windows host the T3 argv mask reads a `\\` path below a cache's `v1\\tmp\\` and a `\\` runtime object by name, elsewhere as is" {
     let argv = "zig\ncc\nC:\\r\\tmp\\cache\\v1\\tmp\\ab-1\\main.c\nC:\\r\\tmp\\cache\\v1\\runtime\\k\\bayan-rt.o\n-o\nC:\\r\\tmp\\cache\\v1\\tmp\\ab-1\\program.exe\n"
     assert(goldenCliArgv(argv, at: "C:\\s", for: "windows-x64") == "zig\ncc\nmain.c\nbayan-rt.o\n-o\nprogram.exe")
@@ -3400,7 +3451,7 @@ test "on a Windows host a T3 PATH is joined with `;` and each /bin/sh fake gets 
     let raw = "<repo>/bin/first::<repo>/bin/second"
     let path = goldenCliPathJoined(raw, for: root, by: "", at: "windows-x64")
     let unix = goldenCliPathJoined(raw, for: root, by: "", at: "macos-arm64")
-    let staged = goldenCliT3Fakes(path, by: Path.combine(root, "fake.exe"))
+    let staged = goldenCliT3Fakes(path, by: Path.combine(root, "fake.exe"), for: "SelfhostDriverT3Tests")
     let second = Path.combine(root, "bin/second")
     let dirExe = t6DirectoryExists(Path.combine(root, "bin/first/cc.exe"))
     let exe = Io.readText(Path.combine(second, "cc.exe")) catch ""
@@ -3415,6 +3466,27 @@ test "on a Windows host a T3 PATH is joined with `;` and each /bin/sh fake gets 
     assert(dirExe)
     assert(exe == "MZ")
     assert(modes[0] == "record" && modes[1] == "bare" && modes[2] == "reject" && modes[3] == "nothing")
+}
+
+test "on a Windows host each SelfhostDefaultT5Tests /bin/sh tool is the fake compiler, as `.exe` and as itself, exiting as the script did (SelfhostDefaultT5Tests.cs:38-50, 019-win9)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-t5-fakes")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "path/zig", as: "#!/bin/sh\necho '0.99.0'\nexit 0\n")
+    goldenWrite(root, for: "path/git/kept", as: "")
+    goldenWrite(root, for: "cc/fakecc", as: "#!/bin/sh\necho 'x'\nexit 1\n")
+    goldenWrite(root, for: "fake.exe", as: "MZ")
+    let path = $"{Path.combine(root, "path")};{Path.combine(root, "cc")}"
+    let staged = goldenCliT3Fakes(path, by: Path.combine(root, "fake.exe"), for: "SelfhostDefaultT5Tests")
+    let zigMode = Io.readText(Path.combine(root, "path/zig.mode")) catch ""
+    let ccMode = Io.readText(Path.combine(root, "cc/fakecc.mode")) catch ""
+    let zigExe = Io.readText(Path.combine(root, "path/zig.exe")) catch ""
+    let cc = Io.readText(Path.combine(root, "cc/fakecc")) catch ""
+    let dirExe = t6DirectoryExists(Path.combine(root, "path/git.exe"))
+    deleteWorkDir(root)
+    assert(staged == "")
+    assert(zigMode == "nothing" && ccMode == "reject")
+    assert(zigExe == "MZ" && cc == "MZ")
+    assert(!dirExe)
 }
 
 test "on a Windows host the T9 PATH is joined and split at `;`, so a directory that starts with a drive survives" {
