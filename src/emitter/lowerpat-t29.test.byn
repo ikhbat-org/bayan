@@ -103,3 +103,25 @@ test "lowerpat t29: the binder refuses null on a non-optional and an optional co
     }
     assert sb.finish() == "BYN2219 16 a `const` must be a compile-time constant\nBYN2411 41 `null` cannot match `i64`\n"
 }
+
+test "lowerpat t29: an optional-typed constant is compared with the optional itself" {
+    var c = lpCompile(
+        """
+        bool m(i64? x) => x is 7
+
+        void main() {
+        }
+        """,
+    )
+    // The binder refuses an optional constant (BYN2219 above), so the literal's type is made `i64?` here.
+    let optional = semantics.internOptional(ref c, by: semantics.prim(.i64))
+    for p in c.bConstantPatterns {
+        if semantics.boundKind(p.value) == .literal {
+            c.bLiterals[p.value & 0xFFFFFFFF].type = optional
+        }
+    }
+    let text = t10Emit(ref c, by: "safe", through: false, as: false)
+    assert text.contains(
+        "bool byn_main__m(bynt_opt_i64 p_x) {\n#line 1 \"lp.byn\"\n    return bynh_eq_opt_i64(p_x, ((bynt_opt_i64)7));\n}",
+    )
+}
