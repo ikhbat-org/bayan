@@ -1,0 +1,257 @@
+import semantics
+import emitter.ltree
+
+string laEmit(string source) {
+    var bytes = List<u8>()
+    for b in source.bytes {
+        bytes.append(b)
+    }
+    var c = t12Compile(Path.fullPath("tmp"), at: move bytes, for: "la.byn", by: false)
+    var sb = StrBuf()
+    for d in c.diagnostics {
+        sb.append($"{d.code} {d.span.start} {d.message}\n") if !d.isWarning
+    }
+    let errors = sb.finish()
+    return $"errors: {errors}" if errors != ""
+    return t12Emit(ref c, by: "safe")
+}
+
+test "scratch" {
+    let dir = "/Users/sy/Developer/ikhbat.org/bayan/.worktrees/worker-019-t29emi2/tmp/t29emi2/out"
+    Io.createDirectory(dir) catch {}
+    var sources = List<string>()
+    sources.append(
+        """
+        union error F {
+            a
+            b
+        }
+
+        union Shape {
+            circle(i64 r)
+            none
+        }
+
+        struct Pt {
+            i64 x = 0
+
+            public i64 get() fails F {
+                fail .a if this.x == 1
+                return this.x
+            }
+
+            public static Pt make(i64 x) => Pt { x: x }
+        }
+
+        i64 pick(i64 x) fails F {
+            fail .a if x == 1
+            return x
+        }
+
+        i64 one() => 1
+
+        i64 id(i64 x) => x
+
+        i32 small() => 1
+
+        bool yes() => true
+
+        List<i64> list() => [1, 2]
+
+        void a1() {
+            let x = one()
+            let y = one()
+            let n = small()
+            let b = yes()
+            let xs = list()
+            assert (x + 1) == 2
+            assert (x == 2)
+            assert (id(x)) == 2
+            assert xs[0] == 2
+            assert n == y
+            assert x == (1) && x == -1 && x == -(2) && b == !true && x == -y && x == +3
+            assert x > 5 || y > 5 || one() > 5
+            assert x > 5 && (y > 5 || one() > 5)
+            assert pick(x) fails F
+            assert pick(x) fails F.a
+            let p = Pt { x: 1 }
+            assert p.get() fails F
+            assert Pt.make(x).x == 2
+            assert (b ? x : y) == 3
+            let s = Shape.circle(x)
+            assert s is .none
+        }
+
+        struct Pt2 {
+            i64 x = 0
+
+            public void check() {
+                assert x == 1
+            }
+        }
+
+        void a6() {
+            let x = one()
+            assert (pick(x)) fails F
+            assert later() == 4
+            assert apply(v => v + 1) == 2
+        }
+
+        i64 apply((i64) -> i64 f) {
+            let g: (i64) -> i64 = v => f(v) + 1
+            return g(1)
+        }
+
+        i64 later(i64 v = 1 + 2) => v
+
+        void a2() {
+            assert pick(id(panic("a"))) fails F
+        }
+
+        void a3() {
+            let x = one()
+            assert x == id(panic("a"))
+        }
+
+        void a4() {
+            let b = yes()
+            assert b || one() == id(panic("a"))
+        }
+
+        void main() {
+        }
+        """,
+    )
+    sources.append(
+        """
+        struct Pt {
+            i64 x = 0
+            List<i64> xs = []
+        }
+
+        struct Q {
+            i64 x = 1
+            i64 y = 2
+        }
+
+        i64 one() => 1
+
+        i64 id(i64 x) => x
+
+        List<i64> make() => [1]
+
+        StrBuf buf() => StrBuf()
+
+        void b1(ref List<StrBuf> sbs) {
+            sbs[id(panic("a"))].append($"{one()}")
+        }
+
+        void b2(ref List<List<i64>> ls) {
+            let t = ls[id(panic("a"))].take()
+        }
+
+        void b3(ref Map<i64, Q> m) {
+            let q = m.slot(1)
+            m.slot(2).x += 1
+            m.slot(one()).x = 3
+        }
+
+        void b4() {
+        }
+
+        void b4b(ref List<i64> xs) {
+            xs.append(id(panic("a")))
+        }
+
+        void b5() {
+            let s = make().span
+            let v = buf().view
+        }
+
+        void b6(ref Map<i64, List<i64>> ml) {
+            var u = (make(), 1)
+            let a = u.item1.take()
+            let b = ml[one() + 1].take()
+        }
+
+        struct Cell<T> {
+            i64 n = 3
+        }
+
+        void b10(ref Map<i64, Cell<i64>> m) {
+            let q = m.slot(1)
+        }
+
+        void b7() {
+            let x = one()
+            panic($"x {x}")
+        }
+
+        void b8() {
+            print($"{id(panic("a"))}")
+        }
+
+        void b9() {
+            print($"{one()} {one()}", to: one() > 0 ? .stdout : .stderr)
+        }
+
+        void main() {
+        }
+        """,
+    )
+    sources.append(
+        """
+        i64 one() => 1
+
+        i64 id(i64 x) => x
+
+        bool ok(i64 x) => x > 0
+
+        i64? opt(i64 x) => x
+
+        f64 real() => 1.5
+
+        f32 single() => 1.5
+
+        i32 small() => 1
+
+        void c1() {
+            let x = id(panic("a")) switch {
+                1 => 2,
+                _ => 3,
+            }
+        }
+
+        never c2(i64 v) => v switch {
+            1 => panic("a"),
+            _ => panic("b"),
+        }
+
+        void c3(i64 v) {
+            let x = v switch {
+                var w when (opt(w) ?? 0) > 1 => 2,
+                var w when ok(w) => 4,
+                _ => 3,
+            }
+        }
+
+        void d1() {
+            let a = i32.tryFrom(id(panic("a")))
+        }
+
+        void d2() {
+            let b = i32.tryFrom(one())
+            let c = i32.tryFrom(real())
+            let d = i64.tryFrom(single())
+            let e = i64.tryFrom(small())
+            let h = f64.tryFrom(one())
+        }
+
+        void main() {
+        }
+        """,
+    )
+    for k in 0..sources.length {
+        Io.writeFile($"{dir}/p{k}.c", laEmit(sources[k]).bytes) catch {}
+    }
+}
