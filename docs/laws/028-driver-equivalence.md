@@ -12,13 +12,10 @@ timeout: 1200
 ---
 
 ## Statement
-For every case of the R10 corpus and the R2 usage corpus, stage 2's stdout, stderr and exit code equal `CliApp.Run`'s with elapsed time masked (before comparing, every match of the regex `[0-9]+\.[0-9]{2}s` — the `build.seconds` and `test.seconds` messages, `CliApp.cs` `Seconds` — becomes `<t>s`, and every JSON `"durationMs": <number>` value — `TestReport.cs` — becomes `"durationMs": 0`; nothing else is masked); the comparison runs with stderr not a terminal and `CI` set.
-
-## Proposed statement (019 T31, owner-approved template 2026-11-18)
 
 For every lex, parse, typed, diag and run case (the R10 corpus) and every R2 usage case in the freeze manifest, the stage-2 driver prints the frozen expected output byte for byte, with the same time masks (before comparing, every match of the regex `[0-9]+\.[0-9]{2}s` becomes `<t>s`, and every JSON `"durationMs": <number>` value becomes `"durationMs": 0`; nothing else is masked). The comparison runs with stderr not a terminal and `CI` set, as the freeze did. The frozen files are the C# compiler's output at the freeze (L043).
 
-The frozen output is the file or files each case holds: for a lex, parse, typed or diag case one file (`*.tokens`, `*.ast`, `*.types`, `*.diag`); for a run case stdout, and where present stderr and the exit code (`*.stdout`, `*.stderr`, `*.exitcode`). Dropped from the current Statement: the comparison of stderr and the exit code for the lex, parse, typed and diag cases, which hold no file for them.
+The frozen output is the file or files each case holds: for a lex, parse, typed or diag case one file (`*.tokens`, `*.ast`, `*.types`, `*.diag`); for a run case stdout, and where present stderr and the exit code (`*.stdout`, `*.stderr`, `*.exitcode`). Dropped from the statement in force before 2026-11-20: the comparison of stderr and the exit code for the lex, parse, typed and diag cases, which hold no file for them.
 
 ## Counterexample looks like
 A corpus case (its argv and input files), and the first differing stream (stdout, stderr or exit code) between stage 2 and `CliApp.Run`, both outputs shown with elapsed seconds masked.

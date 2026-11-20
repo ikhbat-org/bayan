@@ -10,16 +10,14 @@ proof: csharp/tests/Bayan.Tests/StdPathLawTests.cs
 check: bash runtime/tests/run.sh && bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/path'
 timeout: 300
 enacted: 2026-11-05
+amended: 2026-11-20
 ---
 
 ## Statement
-For every input in a seeded corpus of separators (`/`, and `\` on Windows), drive letters (`C:\x`, `C:x`), UNC roots, `.`/`..` and empty segments, a compiled Bayan program calling `Path.combine` (both forms), `Path.fileName`, `Path.directoryName`, `Path.isRooted`, `Path.fullPath` and `Path.relative` prints what .NET's `Path.Combine`, `GetFileName`, `GetDirectoryName`, `IsPathRooted`, `GetFullPath` and `GetRelativePath` return when .NET runs on the same host. Expected outputs are per host (macOS and Windows `Path` semantics differ); the corpus runs on both. Where .NET throws, the program panics with a nonzero exit.
-
-## Proposed statement (019 T31, owner-approved template 2026-11-18)
 
 For every `run/path` case in the freeze manifest, the compiled Bayan program prints the frozen expected stdout byte for byte and, for the cases that hold them (`path-full-path-empty`, `path-relative-empty`, `path-relative-nul`), the frozen stderr and exit code. The frozen files are the C# compiler's output at the freeze (L043).
 
-Dropped from the current Statement: the corpus is the fixed `run/path` cases, not a seeded one, and the clause that expected outputs are per host with .NET run on the same host. The frozen files are one set, so the `path-windows-*` cases are frozen output too. The clause that a .NET throw becomes a panic with a nonzero exit is kept through the three cases above, which record a nonzero exit code.
+Dropped from the statement in force before 2026-11-20: the corpus is the fixed `run/path` cases, not a seeded one, and the clause that expected outputs are per host with .NET run on the same host. The frozen files are one set, so the `path-windows-*` cases are frozen output too. The clause that a .NET throw becomes a panic with a nonzero exit is kept through the three cases above, which record a nonzero exit code.
 
 ## Counterexample looks like
 An input and function name, the Bayan output, and the .NET result (or exception) on the same OS, for example `directoryName("C:\\")` printing `C:\` where .NET returns null.

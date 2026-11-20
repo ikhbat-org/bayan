@@ -10,16 +10,14 @@ proof: src/tests/SelfhostSemanticsEquivalenceLawTests.cs
 check: dotnet test -v q --filter "Law=L022"
 timeout: 1800
 enacted: 2026-11-01
+amended: 2026-11-20
 ---
 
 ## Statement
-For every program that parses without errors, `bayan-check --types` and `bayan types` print the same typed dump, and `bayan-check` and `bayan check` report the same diagnostics and exit with the same code.
-
-## Proposed statement (019 T31, owner-approved template 2026-11-18)
 
 For every typed and diag case in the freeze manifest, `bayan-check` (with `--types` for a typed case) prints the frozen expected output byte for byte; for a diag case that output is the rendered diagnostics. The frozen files are the C# compiler's output at the freeze (L043).
 
-The current Statement's exit-code clause is dropped: the frozen typed and diag cases hold only the typed dump (`*.types`) and the rendered diagnostics (`*.diag`), and no expected exit code.
+The pre-2026-11-20 statement's exit-code clause is dropped: the frozen typed and diag cases hold only the typed dump (`*.types`) and the rendered diagnostics (`*.diag`), and no expected exit code.
 
 ## Counterexample looks like
 A program that parses without errors on which `bayan-check` and `bayan check` differ in one stderr line (a missing, extra or reordered diagnostic, or one whose code, location, message, label or help differs), on which `bayan-check --types` and `bayan types` differ in one line of the typed dump (a binding's kind, name, span or type, or a function's order), or on which either pair exits with different codes.

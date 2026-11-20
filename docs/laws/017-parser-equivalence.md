@@ -5,6 +5,7 @@ status: enacted
 release: 0.1.0
 sources: Q486, Q505, Q506
 enacted: 2026-10-26
+amended: 2026-11-20
 kind: property
 scope: src/parser/main.byn
 proof: src/tests/SelfhostParserEquivalenceLawTests.cs
@@ -13,13 +14,10 @@ timeout: 1800
 ---
 
 ## Statement
-For every byte sequence, `bayan-parse` and the C# parser produce the same tree dump and the same diagnostics, and exit with the same code.
-
-## Proposed statement (019 T31, owner-approved template 2026-11-18)
 
 For every parse case in the freeze manifest, `bayan-parse` prints the frozen expected output byte for byte. The frozen files are the C# compiler's output at the freeze (L043).
 
-Dropped from the current Statement: the clause that both parsers exit with the same code. The frozen parse cases hold the tree dump (`*.ast`) and no expected exit code.
+Dropped from the statement in force before 2026-11-20: the clause that both parsers exit with the same code. The frozen parse cases hold the tree dump (`*.ast`) and no expected exit code.
 
 ## Counterexample looks like
 An input on which the two dumps differ in one line (a node kind, a span, the text or the order of a diagnostic, or an operator's spelling), on which the two diagnostics differ by more than line wrapping, or on which `bayan-parse <file>` exits 0 while the C# parser would exit 1 (or the reverse).
