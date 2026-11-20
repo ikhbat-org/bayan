@@ -66,6 +66,38 @@ static void trade_row(byn_str* s, int64_t n) {
         for (int64_t i = 0; i + 1 < s[k].len; i++) ((uint8_t*)s[k].ptr)[i] = swap(s[k].ptr[i], s[k].ptr[i + 1]);
 }
 
+/* The export masked a `relative` result by the working directory only where that directory shares no first component with a rooted
+ * argument (`/a`, on Windows also `\a` and `C:\a` on its drive): from `\a` with the working directory under `\a`, .NET's answer starts
+ * inside it, not with the `..` the markers stand for. So a row whose rooted argument names this directory's first component (ASCII
+ * case aside on Windows) exits 2 with that row: the run fails on where it runs, not on a result. */
+static char first[4096];
+
+static int names_first(byn_str s) {
+    const uint8_t* p = s.ptr;
+    int64_t n = s.len, i = 0, j;
+#ifdef _WIN32
+    if (n >= 2 && sep(p[0]) && sep(p[1])) return 0;
+    if (n >= 3 && (p[0] | 32) == (drive | 32) && p[1] == ':') i = 2;
+    if (i >= n || !sep(p[i])) return 0;
+    while (i < n && sep(p[i])) i++;
+    for (j = i; j < n && !sep(p[j]); j++) {}
+#else
+    if (n < 1 || p[0] != '/') return 0;
+    while (i < n && p[i] == '/') i++;
+    for (j = i; j < n && p[j] != '/'; j++) {}
+#endif
+    if (!first[0] || (size_t)(j - i) != strlen(first)) return 0;
+    for (int64_t k = i; k < j; k++) {
+        uint8_t c = p[k], f = (uint8_t)first[k - i];
+#ifdef _WIN32
+        if (c >= 'A' && c <= 'Z') c += 32;
+        if (f >= 'A' && f <= 'Z') f += 32;
+#endif
+        if (c != f) return 0;
+    }
+    return 1;
+}
+
 /* One line of stdin without its line end, in a buffer that grows; NULL at the end. */
 static char* line(void) {
     static char* buf;
@@ -142,6 +174,21 @@ int main(int argc, char** argv) {
         else if (cwd[0] >= 'A' && cwd[0] <= 'Z') drive = cwd[0];
     }
 #endif
+    {
+        static char cwd[4096];
+        if (!getcwd(cwd, sizeof cwd)) return 2;
+#ifdef _WIN32
+        const char* p = cwd[0] && cwd[1] == ':' ? cwd + 2 : cwd;
+#define CWDSEP(c) ((c) == '/' || (c) == '\\')
+#else
+        const char* p = cwd;
+#define CWDSEP(c) ((c) == '/')
+#endif
+        while (CWDSEP(*p)) p++;
+        size_t k = 0;
+        while (p[k] && !CWDSEP(p[k])) k++;
+        memcpy(first, p, k);
+    }
     if (argc > 1 && strcmp(argv[1], "--unmask") == 0) {
         static char cwd[4096];
         if (!getcwd(cwd, sizeof cwd)) return 2;
@@ -177,7 +224,11 @@ int main(int argc, char** argv) {
             if (byn_path_directory_name(a, &d, &byn_general)) hex(d);
             else printf("null");
         } else if (IS("fullPath")) hex(byn_path_full_path(a, &byn_general, __FILE__, __LINE__));
-        else if (IS("relative")) hex(byn_path_relative(a, b, &byn_general, __FILE__, __LINE__));
+        else if (IS("relative") && (names_first(a) || names_first(b))) {
+            fprintf(stderr, "relative row names the working directory's first component %s: [%.*s] [%.*s]\n", first, (int)a.len,
+                    (const char*)a.ptr, (int)b.len, (const char*)b.ptr);
+            return 2;
+        } else if (IS("relative")) hex(byn_path_relative(a, b, &byn_general, __FILE__, __LINE__));
         else if (IS("combine")) hex(byn_path_combine(a, b, &byn_general));
         else if (IS("combineAll")) {
             static byn_str ps[64];
