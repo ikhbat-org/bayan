@@ -1,0 +1,109 @@
+// 019 T29 (coverage ratchet): calls.byn's search for `it` in each kind of argument, inference through each kind of
+// parameter type, and misused `tryFrom` and implied names, which no golden case reaches. The expected text is the output
+// of the self-hosted code at the commit that added the test.
+
+test "calls t29: an `it` argument found in each kind of expression" {
+    let text = "struct P {\n    i64 a\n}\n\nunion error E { bad }\n\ni64 apply(by (i64) -> i64 f) => f(1)\ni64 h(i64 a, by i64 b) => a + b\ni64 fail1(i64 a) fails E => a\n\nvoid main() {\n    let xs = [1]\n    let p = P { a: 1 }\n    let s = [\n        apply(by: it(1)),\n        apply(by: h(1, by: it)),\n        apply(by: h(1, by: 2)),\n        apply(by: (it)),\n        apply(by: xs[it]),\n        apply(by: -it),\n        apply(by: 1 + it),\n        apply(by: 1..it),\n        apply(by: true ? 1 : it),\n        apply(by: it is 1),\n        apply(by: 1 in 0..it),\n        apply(by: 0 switch { 1 => 2, _ => it }),\n        apply(by: 0 switch { 1 => 2, _ => 3 }),\n        apply(by: try fail1(it)),\n        apply(by: move it),\n        apply(by: fail1(1) catch (E.bad) it),\n        apply(by: P { a: it }),\n        apply(by: P { a: 1 }),\n        apply(by: p with { a: it }),\n        apply(by: p with { a: 1 }),\n        apply(by: [1, ..it]),\n        apply(by: [1: it]),\n        apply(by: [1, it]),\n        apply(by: [1]),\n        apply(by: (1, it)),\n        apply(by: (1, 2)),\n        apply(by: $\"{1}{it}\"),\n        apply(by: $\"a{1}\"),\n    ]\n    print($\"{s.length}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2220 233+2 `i64` cannot be called;BYN2202 292+11 expected `i64 -> i64`, found `i64`;BYN2202 427+5 expected `i64`, found `Range<i64>`;BYN2202 487+7 expected `i64`, found `bool`;BYN2202 515+10 expected `i64`, found `bool`;BYN2202 595+27 expected `i64 -> i64`, found `i32`;BYN2782 682+2 cannot move out of a fresh value;BYN2202 751+11 expected `i64`, found `P`;BYN2202 783+10 expected `i64 -> i64`, found `P`;BYN2202 814+16 expected `i64`, found `P`;BYN2202 851+15 expected `i64 -> i64`, found `P`;BYN2202 887+9 expected `i64`, found `a collection literal`;BYN2022 891+4 spreads (`..xs`) outside a collection literal is not supported in v0.1;BYN2202 917+7 expected `i64`, found `a map literal`;BYN2202 945+7 expected `i64`, found `a collection literal`;BYN2202 973+3 expected `i64 -> i64`, found `a collection literal`;BYN2202 997+7 expected `i64`, found `(i32, i64)`;BYN2202 1025+6 expected `i64 -> i64`, found `(i32, i32)`;BYN2202 1052+10 expected `i64`, found `string`;BYN2202 1083+7 expected `i64 -> i64`, found `string`;BYN2604 643+13 `main$lambda12` cannot fail, so it cannot pass on `E`;",
+    )
+}
+
+test "calls t29: inference through optional, span, tuple, function, map, result and generic parameters" {
+    let text = "struct Box<T> {\n    T v\n}\n\nunion error E { bad }\n\nT opt<T>(T? x) => todo(\"opt\")\nT sp<T>(ReadOnlySpan<T> s) => todo(\"sp\")\nT tup<T>((T, i64) p) => todo(\"tup\")\nT fun<T>((T) -> i64 f) => todo(\"fun\")\nT bx<T>(Box<T> b) => todo(\"bx\")\nT res<T>(Result<T, E> r) => todo(\"res\")\nT mp<T>(Map<string, T> m) => todo(\"mp\")\nT ls<T>(List<T> m) => todo(\"ls\")\n\ni64 len(string s) => 1\n\nvoid main() {\n    let o: i64? = 1\n    let a = opt(o)\n    let b = opt(2)\n    let c = sp([1, 2])\n    let d = sp(3)\n    let e = tup((1, 2))\n    let f = tup((1, 2, 3))\n    let g = tup(4)\n    let h = fun(len)\n    let i = fun(5)\n    let j = bx(Box { v: 1 })\n    let k = bx(6)\n    let m: Map<string, i64> = [\"a\": 1]\n    let n = mp(m)\n    let q = mp(7)\n    let r = ls([1])\n    let t = ls(8)\n    print($\"{a}{b}{c}{d}{e}{f}{g}{h}{i}{j}{k}{n}{q}{r}{t}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2740 472+2 cannot infer type argument `T` of `sp`;BYN2202 494+6 expected `(i32, i64)`, found `(i32, i32)`;BYN2740 514+3 cannot infer type argument `T` of `tup`;BYN2740 541+3 cannot infer type argument `T` of `tup`;BYN2740 581+3 cannot infer type argument `T` of `fun`;BYN2023 603+3 `Box` takes 1 type argument(s), not 0;BYN2740 600+2 cannot infer type argument `T` of `bx`;BYN2740 629+2 cannot infer type argument `T` of `bx`;BYN2740 704+2 cannot infer type argument `T` of `mp`;BYN2740 722+2 cannot infer type argument `T` of `ls`;BYN2740 742+2 cannot infer type argument `T` of `ls`;",
+    )
+}
+
+test "calls t29: `tryFrom` with two arguments or a text and implied names" {
+    let text = "struct Opts {\n    bool verbose\n}\n\nvoid run(bool verbose) {}\nT id<T>(T x) => x\ni64 one() => 1\n\nvoid main() {\n    let a = u8.tryFrom(1, 2)\n    let b = u8.tryFrom(\"x\")\n    let o: Opts? = Opts { verbose: true }\n    run(o?.verbose)\n    run(id<bool>)\n    print($\"{a}{b}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2302 120+10 `u8.tryFrom` takes 1 argument(s);BYN2206 160+3 cannot convert `string` to `u8`;BYN2305 215+3 argument for `verbose` must be named;BYN2022 215+3 `?.` is not supported in v0.1;BYN2305 235+8 argument for `verbose` must be named;BYN2019 235+8 `id` is a function, not a value;BYN2780 76+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;",
+    )
+}
+
+test "calls t29: a spread of a non-collection, an `out` argument of a known state and a `ref` argument of another type" {
+    let text = "struct S {\n    i64 n\n}\n\ni64 sum(rest ReadOnlySpan<i64> xs) => xs.length\nvoid setOut(out i64 v) {\n    v = 1\n}\nvoid bump(ref i64 v) {\n    v += 1\n}\n\nvoid main() {\n    let n = 3\n    let a = sum(..n)\n    let xs = [1, 2]\n    let b = sum(..xs)\n    let c = sum(1, 2, 3)\n    var k: i64 = 0\n    setOut(out k)\n    var w: i32 = 0\n    bump(ref w)\n    print($\"{a}{b}{c}{k}{w}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2215 190+3 a range needs both ends here;BYN2202 233+2 expected `ReadOnlySpan<i64>`, found `i32[2]`;BYN2202 331+1 expected `i64`, found `i32`;BYN2311 307+1 `w` is never reassigned; declare it with `let`;",
+    )
+}
+
+test "calls t29: `it` found in an `in`, except, move and `with` argument" {
+    let text = "struct P {\n    i64 x\n}\n\nbool keep((i64) -> bool f) => true\nP mk((i64) -> P f) => P { x: 1 }\ni64? opt((i64) -> i64? f) => 1\n\nvoid main() {\n    let p = P { x: 1 }\n    let a = keep(it in 0..3)\n    let d = opt(move it)\n    let e = mk(p with { x: it })\n    let g = opt(it except null)\n    print($\"{a}{d}{e.x}{g}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2782 211+2 cannot move out of a fresh value;BYN2022 264+9 this expression is not supported in v0.1;",
+    )
+}
+
+test "calls t29: inference from typed map, result, generic struct, span and function parameters" {
+    let text = "struct Box<T> {\n    T v\n}\n\nunion error E {\n    bad\n}\n\nT mp<T>(Map<string, T> a, Map<string, T> b) => todo(\"mp\")\nT res<T>(Result<T, E> r) => todo(\"res\")\nT bx<T>(Box<T> a, Box<T> b) => todo(\"bx\")\nT sp<T>(ReadOnlySpan<T> s) => todo(\"sp\")\nT fun<T>((T) -> i64 f) => todo(\"fun\")\nT tup<T>((T, i64) p) => todo(\"tup\")\n\nvoid use(\n    Map<string, i64> m1,\n    Map<string, string> m2,\n    Result<i64, E> r,\n    Box<i64> b1,\n    Box<string> b2,\n    ReadOnlySpan<i64> s,\n    (i64, i64) -> i64 f2,\n    (string, i64) t\n) {\n    let a = mp(m1, m2)\n    let b = mp(m1, m1)\n    let c = res(r)\n    let d = bx(b1, b2)\n    let e = bx(b1, b1)\n    let g = sp(s)\n    let h = fun(f2)\n    let k = tup(t)\n    let n = i64.parse(\"12\")\n    print($\"{a}{b}{c}{d}{e}{g}{h}{k}{n}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5004 56+2 `mp` has 2 unlabeled parameters; give each but one a particle;BYN5006 95+1 `b` is a required parameter besides the object and needs a particle;BYN5004 154+2 `bx` has 2 unlabeled parameters; give each but one a particle;BYN5006 177+1 `b` is a required parameter besides the object and needs a particle;BYN5004 315+3 `use` has 8 unlabeled parameters; give each but one a particle;BYN5006 369+2 `m2` is a required parameter besides the object and needs a particle;BYN5006 392+1 `r` is a required parameter besides the object and needs a particle;BYN5006 408+2 `b1` is a required parameter besides the object and needs a particle;BYN5006 428+2 `b2` is a required parameter besides the object and needs a particle;BYN5006 454+1 `s` is a required parameter besides the object and needs a particle;BYN5006 479+2 `f2` is a required parameter besides the object and needs a particle;BYN5006 501+1 `t` is a required parameter besides the object and needs a particle;BYN2741 526+2 type argument `T` of `mp` is inferred as both `i64` and `string`;BYN2741 591+2 type argument `T` of `bx` is inferred as both `i64` and `string`;BYN2740 648+3 cannot infer type argument `T` of `fun`;BYN2602 687+15 `i64.parse` can fail; handle the error or pass it on;",
+    )
+}
+
+test "calls t29: member calls that are not trust, conversion, parse or log builtins, and overloads that refuse a call" {
+    let text = "struct P {\n    i64 x\n\n    i64 m() => 1\n}\n\ni64 g(i64 a, at i64 k = 0, by i64 b) => 1\ni64 g(i64 a) => 2\ni64 h(i64 a, i64 b) => 1\ni64 h(by i64 z, rest ReadOnlySpan<i64> xs) => 2\n\nvoid main() {\n    let p = P { x: 1 }\n    let o: P? = p\n    let z = o?.m()\n    let a = p.trustUnchecked(1)\n    let b = P.tryFrom(1)\n    let d = P.tryParse(\"1\")\n    let e = bool.tryParse(\"1\")\n    let f = bool.parse(\"1\")\n    let k = Log.loud(\"x\")\n    let m = Log<i64>.debug(\"x\")\n    let n = StrBuf<i64>.over(1)\n    let q = g(1)\n    let r = h(1)\n    let s = h(1, 2, 3)\n    let t = h(1, 2, 3, by: 1)\n    print($\"{z}{a}{b}{d}{e}{f}{k}{m}{n}{q}{r}{s}{t}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5004 106+1 `h` has 2 unlabeled parameters; give each but one a particle;BYN5006 119+1 `b` is a required parameter besides the object and needs a particle;BYN2022 243+3 `?.` is not supported in v0.1;BYN8001 262+19 `trustUnchecked()` bypasses a safety rule and needs `because \"…\"`;BYN2003 264+14 `trustUnchecked` is not a member of `P`;BYN2003 296+7 `tryFrom` is not a member of `P`;BYN2003 321+8 `tryParse` is not a member of `P`;BYN2003 352+8 `tryParse` is not a member of `bool`;BYN2003 383+5 `parse` is not a member of `bool`;BYN2001 406+3 `Log` is not defined;BYN2002 432+3 unknown type `Log`;BYN2023 464+11 `StrBuf` takes 0 type argument(s), not 1;BYN2003 476+4 `over` is not a member of `StrBuf`;BYN2301 513+4 missing argument `b` for `h`;BYN2302 538+1 `h` takes 2 argument(s);BYN5005 555+1 `z` is passed without its particle `by:`;BYN2303 564+5 `by` is passed twice;",
+    )
+}
+
+test "calls t29: `Log` and `StrBuf` calls on locals of those names" {
+    let text = "void main() {\n    let Log = 1\n    let StrBuf = 2\n    let a = Log.debug(\"x\")\n    let b = StrBuf.over(1)\n    print($\"{a}{b}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2009 22+3 `Log` must be camelCase;BYN2009 38+6 `StrBuf` must be camelCase;BYN2003 65+5 `debug` is not a member of `i32`;BYN2003 95+4 `over` is not a member of `i32`;",
+    )
+}
+
+test "calls t29: `Log` and `StrBuf` calls on module types of those names" {
+    let text = "struct Log {\n    i64 n\n}\n\nstruct StrBuf {\n    i64 n\n}\n\nvoid main() {\n    Log.debug(\"x\")\n    StrBuf.over(1)\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2003 77+5 `debug` is not a member of `Log`;BYN2003 99+4 `over` is not a member of `StrBuf`;",
+    )
+}
+
+test "calls t29: a `Log` call on a module function named `Log`" {
+    let text = "void Log() {}\n\nvoid main() {\n    Log.debug(\"x\")\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "BYN2009 5+3 `Log` must be camelCase;")
+}
+
+test "calls t29: a `Log` call on a module constant named `Log`" {
+    let text = "const Log: i64 = 1\n\nvoid main() {\n    Log.debug(\"x\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2009 6+3 `Log` must be camelCase;BYN2003 42+5 `debug` is not a member of `i64`;",
+    )
+}
+
+test "calls t29: a `Log` call on an imported name `Log`" {
+    let text = "import Log\n\nvoid main() {\n    Log.debug(\"x\")\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "BYN2004 7+3 no module `Log`;")
+}
+
+test "calls t29: inference through arrays, lists, maps, tuples, results, functions, structs and unions that disagree" {
+    let text = "struct Box<T> {\n    T v\n}\n\nstruct Other<T> {\n    T v\n}\n\nunion Opt<T> {\n    some(T v)\n    none\n}\n\nunion Two<T> {\n    one(T v)\n    zero\n}\n\nunion Plain {\n    a\n    b\n}\n\nstruct P {\n    i64 x\n}\n\nunion error E {\n    bad\n}\n\nT nv<T>(T x) => x\nT ar<T>(T x, T[2] a) => x\nT ls<T>(T x, List<T> a) => x\nT mk<T>(T x, Map<T, i64> m) => x\nT mv<T>(T x, Map<string, T> m) => x\nT tp<T>((T, T) p) => todo(\"tp\")\nT rs<T>(T x, Result<T, E> r) => x\nT fn<T>(T x, (T) -> i64 f) => x\nT ps<T>((P, T) p) => todo(\"ps\")\nT bx<T>(Box<T> b) => todo(\"bx\")\nT op<T>(Opt<T> o) => todo(\"op\")\nT op2<T>(T x, Opt<T> o) => x\nT pl<T>((Plain, T) p) => todo(\"pl\")\n\nvoid use(\n    List<i64> xs,\n    Map<i64, i64> m1,\n    Map<string, i64> m2,\n    Result<i64, E> r,\n    (i64) -> i64 f1,\n    Other<i64> o1,\n    Two<i64> t1,\n    Opt<i64> p1\n) {\n    let a = nv(todo(\"x\"))\n    let b = ar(1, [1, 2])\n    let b2 = ar(\"s\", [1, 2])\n    let b3 = ar(1, 5)\n    let c = ls(\"s\", xs)\n    let d = mk(\"s\", m1)\n    let e = mv(\"s\", m2)\n    let g = tp((1, \"x\"))\n    let h = rs(1, 5)\n    let h2 = rs(\"s\", r)\n    let k = fn(\"s\", f1)\n    let n = ps((P { x: 1 }, 1))\n    let q = bx(o1)\n    let s = op(5)\n    let t = op(t1)\n    let u = op2(\"s\", p1)\n    let v = pl((Plain.a, 1))\n    print($\"{a}{b}{b2}{b3}{c}{d}{e}{g}{h}{h2}{k}{n}{q}{s}{t}{u}{v}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5004 237+2 `ar` has 2 unlabeled parameters; give each but one a particle;BYN5006 253+1 `a` is a required parameter besides the object and needs a particle;BYN5004 263+2 `ls` has 2 unlabeled parameters; give each but one a particle;BYN5006 282+1 `a` is a required parameter besides the object and needs a particle;BYN5004 292+2 `mk` has 2 unlabeled parameters; give each but one a particle;BYN5006 315+1 `m` is a required parameter besides the object and needs a particle;BYN5004 325+2 `mv` has 2 unlabeled parameters; give each but one a particle;BYN5006 351+1 `m` is a required parameter besides the object and needs a particle;BYN5004 393+2 `rs` has 2 unlabeled parameters; give each but one a particle;BYN5006 417+1 `r` is a required parameter besides the object and needs a particle;BYN5004 427+2 `fn` has 2 unlabeled parameters; give each but one a particle;BYN5006 449+1 `f` is a required parameter besides the object and needs a particle;BYN5004 555+3 `op2` has 2 unlabeled parameters; give each but one a particle;BYN5006 574+1 `o` is a required parameter besides the object and needs a particle;BYN5004 624+3 `use` has 8 unlabeled parameters; give each but one a particle;BYN5006 665+2 `m1` is a required parameter besides the object and needs a particle;BYN5006 690+2 `m2` is a required parameter besides the object and needs a particle;BYN5006 713+1 `r` is a required parameter besides the object and needs a particle;BYN5006 733+2 `f1` is a required parameter besides the object and needs a particle;BYN5006 752+2 `o1` is a required parameter besides the object and needs a particle;BYN5006 769+2 `t1` is a required parameter besides the object and needs a particle;BYN5006 786+2 `p1` is a required parameter besides the object and needs a particle;BYN2740 805+2 cannot infer type argument `T` of `nv`;BYN2741 866+6 type argument `T` of `ar` is inferred as both `string` and `i32`;BYN2202 893+1 expected `i32[2]`, found `i32`;BYN2741 916+2 type argument `T` of `ls` is inferred as both `string` and `i64`;BYN2741 940+2 type argument `T` of `mk` is inferred as both `string` and `i64`;BYN2741 964+2 type argument `T` of `mv` is inferred as both `string` and `i64`;BYN2741 983+8 type argument `T` of `tp` is inferred as both `i32` and `string`;BYN2741 1035+1 type argument `T` of `rs` is inferred as both `string` and `i64`;BYN2741 1058+2 type argument `T` of `fn` is inferred as both `string` and `i64`;BYN2740 1106+2 cannot infer type argument `T` of `bx`;BYN2740 1125+2 cannot infer type argument `T` of `op`;BYN2740 1143+2 cannot infer type argument `T` of `op`;BYN2741 1171+2 type argument `T` of `op2` is inferred as both `string` and `i64`;BYN2780 233+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;BYN2780 259+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;BYN2780 288+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;BYN2780 321+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;BYN2780 357+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;BYN2780 423+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;BYN2780 455+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;BYN2780 580+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;",
+    )
+}
+
+test "calls t29: rest tails, argument modifiers and builtins called without their arguments" {
+    let text = "struct S {\n    i64 n\n\n    void m() {\n        reset(out this)\n    }\n}\n\nvoid reset(out S s) {\n    s = S { n: 0 }\n}\ni64 sm(i64 a, rest ReadOnlySpan<i64> xs) => a\ni64 sum(rest ReadOnlySpan<i64> xs) => xs.length\nvoid ok(i64 a) {}\nvoid setOut(out i64 v) {\n    v = 1\n}\nvoid bump(ref i64 v) {\n    v += 1\n}\ni64 apply((i64) -> i64 f) => f(1)\nS mk2((S) -> S f) => S { n: 1 }\nT id<T>(T x) => x\n\nvoid main() {\n    var k: i64 = 0\n    let xs = [1, 2]\n    let a = sm(1, 2, 3)\n    let b = sum(xs: xs)\n    let d = sum(1..3)\n    let e = sum(..=xs)\n    let f = sum(..nope)\n    let g = sum(move xs)\n    ok(ref k)\n    setOut(k)\n    bump(move k)\n    bump(ref nope2)\n    print()\n    log()\n    let r = Io.run()\n    let h = apply(id<i64>)\n    let s = mk2(it with { n: 1 })\n    print($\"{a}{b}{d}{e}{f}{g}{h}{s.n}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2202 480+2 expected `ReadOnlySpan<i64>`, found `i32[2]`;BYN2202 500+4 expected `i64`, found `Range<i32>`;BYN2215 522+5 a range needs both ends here;BYN2001 547+4 `nope` is not defined;BYN2202 574+2 expected `i64`, found `i32[2]`;BYN2306 585+5 argument for `a` must be passed as a plain value;BYN2306 603+1 argument for `v` must be passed as `out`;BYN2306 615+6 argument for `v` must be passed as `ref`;BYN2001 636+5 `nope2` is not defined;BYN2301 647+7 missing argument `text` for `print`;BYN2301 659+5 missing argument `text` for `log`;BYN2301 677+8 missing argument `program`, `args` for `run`;BYN2602 677+8 `run` can fail; handle the error or pass it on;BYN2824 704+7 `id<i64>` cannot be used as a value: it is generic;BYN2115 55+4 `m` modifies `this` but is not declared `ref this`;BYN2780 380+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;",
+    )
+}

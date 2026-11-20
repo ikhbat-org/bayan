@@ -1,0 +1,28 @@
+// 019 T29 (coverage ratchet): symbols.byn's display names of generic interfaces, unions and members, which no golden case
+// reaches. The expected text is the output of the self-hosted code at the commit that added the test.
+
+test "symbols t29: generic interfaces, unions and member signatures display" {
+    var c = t29s0Compile(
+        "interface IShape<T> {\n    T area()\n}\n\nstruct Sq : IShape<i64> {\n    i64 side\n    i64 area() => side * side\n}\n\nunion Tree<T> {\n    leaf(T v)\n    none\n}\n\nvoid main() {\n    let t = Tree<i64>.leaf(1)\n    let s = Sq { side: 2 }\n    print($\"{s.area()}\")\n}\n",
+    )
+    var sb = StrBuf()
+    for i in 0..c.interfaces.length {
+        if c.interfaces[i].name == "IShape" {
+            sb.append($"{interfaceDisplayName(ref c, by: i)} {interfaceIsGeneric(ref c, by: i)};")
+        }
+    }
+    for u in 0..c.unions.length {
+        if c.unions[u].name == "Tree" {
+            sb.append($"{unionDisplayName(ref c, by: u)} {unionIsGeneric(ref c, by: u)};")
+        }
+    }
+    for f in 0..c.functions.length {
+        if c.functions[f].name == "area" {
+            sb.append($"{functionDisplaySignature(ref c, by: f)};")
+        }
+    }
+    assert t29s0Same(
+        $"{sb.finish()}",
+        as: "IShape<T> true;IShape<i64> false;Tree<T> true;Tree<i64> false;area();area();Sq.area();",
+    )
+}
