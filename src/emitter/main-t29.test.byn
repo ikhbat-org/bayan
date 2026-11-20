@@ -79,6 +79,7 @@ test "emitter t29: main's --package, --many and --time" {
     assert main(["--time", app]) == 0
     assert main(["--time", app, ok]) == 2
     assert main(["--time"]) == 2
+    assert main(["--time", Path.combine(dir, "missing.byn")]) == 2
     assert main(["--time", Path.combine(dir, "bad/main.byn")]) == 1
 }
 
