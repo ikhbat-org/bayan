@@ -1,6 +1,6 @@
 # Bayān — Language Specification
 
-Version: 0.3.3-dev (matches `bayan --version`)
+Version: 0.4.0-dev (matches `bayan --version`)
 Revisions applied: 0001–0024
 
 > **Status:** normative for `bayan 0.3.0` unless a section says otherwise. It describes the language as designed; a `(not in 0.3)` or `(partial in 0.3: …)` tag marks what `bayan 0.3.0` does not implement yet.

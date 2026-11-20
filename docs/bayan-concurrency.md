@@ -1,6 +1,6 @@
 # Bayān — Concurrency design
 
-Version: 0.3.3-dev (matches `bayan --version`)
+Version: 0.4.0-dev (matches `bayan --version`)
 
 Nov 1, 2026 · Confirmed design, to be specced in round 4 and implemented in v0.2. Nothing here changes 010–013.
 
