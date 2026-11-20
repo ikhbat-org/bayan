@@ -25,6 +25,11 @@ struct T5Options {
     string?      package       = null
     /// `--schemata-files` (spec 019 T48c, not in `usageText`): the comma list of files a schemata build keeps sites in.
     string?      schemataFiles = null
+    /// `--coverage` (spec 019 T30h item 2): the counters `bayan test --coverage` inserts; the program writes
+    /// `<BAYAN_COVERAGE>.<pid>` at exit when that variable is set.
+    bool         coverage      = false
+    /// `--counters <prefix>` with `--coverage`: no build, the report of every `<prefix>.*` counter file, as `bayan test --coverage`.
+    string?      counters      = null
 }
 
 /// The C# `Directory.Exists`: `path` lists.
@@ -34,7 +39,8 @@ bool t5DirectoryExists(string path) {
 }
 
 /// CliApp.cs:151 `ParseBuildOptions` with `allowTestJson: false` (the `--changed`, `--base`, `--json`, `--mutate`, `--run`,
-/// `--coverage` and `--only` arms are then the `default` arm's). Null after reporting.
+/// `--only` arms are then the `default` arm's); `--coverage` and `--counters` are `build`'s (spec 019 T30h item 2). Null after
+/// reporting.
 T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bool allowVerbose)
         uses alloc, console, fs {
     var path: string? = null
@@ -47,6 +53,8 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
     var verbose = false
     var emitC = false
     var schemataFiles: string? = null
+    var coverage = false
+    var counters: string? = null
     var programArgs = List<string>()
     var i: i64 = 0
     while i < args.length {
@@ -91,6 +99,11 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
         } else if a == "--schemata-files" && allowOutput && i + 1 < args.length {
             i += 1
             schemataFiles = args[i]
+        } else if a == "--coverage" && allowOutput {
+            coverage = true
+        } else if a == "--counters" && allowOutput && i + 1 < args.length {
+            i += 1
+            counters = args[i]
         } else if a == "--all" {
             all = true
         } else if (a is "-v" or "--verbose") && allowVerbose {
@@ -109,6 +122,14 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
     }
     if emitC && schemataFiles is not null {
         Io.stderr.write("bayan: --schemata-files cannot be used with --emit-c\n")
+        return null
+    }
+    if coverage && (emitC || schemataFiles is not null) {
+        Io.stderr.write($"bayan: --coverage cannot be used with {emitC ? "--emit-c" : "--schemata-files"}\n")
+        return null
+    }
+    if counters is not null && !coverage {
+        Io.stderr.write("bayan: --counters needs --coverage\n")
         return null
     }
     // `File.Exists("package.byn")`: a relative name resolves against the working directory.
@@ -135,6 +156,8 @@ T5Options? t5ParseBuildOptions(in List<string> args, by bool allowOutput, for bo
         all: all,
         package: package,
         schemataFiles: schemataFiles,
+        coverage: coverage,
+        counters: counters,
     }
 }
 
@@ -259,6 +282,12 @@ string t5EmitC(ref semantics.Ctx c, by string mode) uses alloc => emitter.t12Emi
 /// with sites only in the listed files, its site map appended to `sites`. Null after reporting a listed file that is neither
 /// compiled nor on disk.
 string? t5Source(ref semantics.Ctx c, by in T5Options o, to ref StrBuf sites) uses alloc, clock, console, fs {
+    if o.coverage {
+        var l = T11LCtx {}
+        let _ = t5Instrument(ref c, to: ref l)
+        let program = emitter.lower(ref c, to: ref l)
+        return cprint.emit(ref c, from: in l.tree, through: in program, by: o.mode == "debug")
+    }
     return t5EmitC(ref c, by: o.mode) if o.schemataFiles is null
     let keep = t5SchemataKeep(o.schemataFiles ?? "")
     var skip = List<string>()
@@ -284,6 +313,40 @@ string? t5Source(ref semantics.Ctx c, by in T5Options o, to ref StrBuf sites) us
     l.mutants = schema.switches.take()
     let program = emitter.lower(ref c, to: ref l)
     return cprint.emit(ref c, from: in l.tree, through: in program, by: o.mode == "debug")
+}
+
+/// The counters of `bayan test --coverage` (test.byn `probes`) on `c`, set in `l` for `emitter.lower`; the map names each counter.
+T11CoverageMap t5Instrument(ref semantics.Ctx c, to ref T11LCtx l) uses alloc {
+    let none = List<string>()
+    var map = emitter.instrument(ref c, for: in none)
+    l.covering = true
+    l.coverage.count = map.probes.count
+    l.coverage.statements = map.probes.statements.take()
+    l.coverage.branches = map.probes.branches.take()
+    l.coverage.errors = map.probes.errors.take()
+    return map
+}
+
+/// `build --coverage --counters <prefix>`: every `<prefix>.*` counter file of the program's coverage build merged into one
+/// report, which `writeCoverage` prints and writes as `bayan test --coverage` does (`out/test/bayan-quality.json`); no build.
+/// Exit 3 when a gate of the manifest fails.
+i32 t5CoverageReport(ref semantics.Ctx c, by string path, for string prefix) uses alloc, console, fs {
+    var l = T11LCtx {}
+    let map = t5Instrument(ref c, to: ref l)
+    var hits: Map<i64, u64> = []
+    var unknown = false
+    let dir = Path.directoryName(Path.fullPath(prefix)) ?? ""
+    let start = $"{Path.fileName(prefix)}."
+    var names = Io.listDir(dir) catch List<string>()
+    names.sort()
+    for name in names {
+        if name.startsWith(start) && !mergeCounters(Path.combine(dir, name), to: ref hits) {
+            unknown = true
+        }
+    }
+    let o = T11Options { path: path, coverage: true }
+    let gated = writeCoverage(in o, by: in c, from: in map, through: in hits, for: unknown, as: false, to: 0, at: 0)
+    return gated ? exitTestFailure : exitOk
 }
 
 /// The full paths `--schemata-files` lists, each comma-separated entry trimmed, empty ones dropped.
@@ -382,6 +445,9 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
                 return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols)
             }
             return exitUsage if refuseLibrary(compiled, by: "build")
+            if (o.counters is { } prefix) {
+                return t5CoverageReport(ref compiled, by: o.path, for: prefix)
+            }
             let emit = Io.monotonicNanos()
             let source = t5Source(ref compiled, by: in o, to: ref sitesBuf) ?? return exitUsage
             emitTime = Io.monotonicNanos() - emit
@@ -658,5 +724,101 @@ test "build without --schemata-files compiles the t5EmitC C (L020), and --emit-c
         args.append(a)
     }
     assert(t5ParseBuildOptions(in args, by: true, for: true) is null)
+    deleteWorkDir(p)
+}
+
+/// `$BAYAN_EXE` with `args` in `dir`, `BAYAN_COVERAGE` set to `coverage` (unset when null).
+GoldenOutcome t5CoverageChild(
+    string exe,
+    by List<string> args,
+    at string dir,
+    for string? coverage,
+    through ref string failure
+)
+        uses alloc, clock, env, fs, process {
+    var env = goldenEnv()
+    env["BAYAN_COVERAGE"] = coverage
+    return goldenChild(exe, by: in args, at: dir, from: in List<u8>(), through: ref failure, env: env)
+}
+
+// Spec 019 T30h item 2 (CoverageTests.CoverageBuildIsThePlainProgram): a `build --coverage` program gives the plain build's
+// stdout, stderr and exit code with BAYAN_COVERAGE unset and set, and `--counters` reports the lines its run reached.
+test "build --coverage: the program prints what the plain build prints, and its counters name the lines it ran" {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(failure == "")
+    let p = Path.combine(Path.combine(Path.fullPath("tmp"), "build-coverage"), "plain")
+    deleteWorkDir(p)
+    goldenWrite(
+        p,
+        for: "main.byn",
+        as: "i64 sign(i64 n) {\n    if n < 0 {\n        return -1\n    }\n    return 1\n}\n\ni32 main() {\n    print($\"{sign(3)}\")\n    return 3\n}\n",
+    )
+    let main = Path.combine(p, "main.byn")
+    var exes = List<string>()
+    for flag in ["", "--coverage"] {
+        let output = Path.combine(p, targetExecutableName(flag == "" ? "plain" : "covered", for: t5HostTarget()))
+        var args = List<string>()
+        args.append("build")
+        if flag != "" {
+            args.append(flag)
+        }
+        for a in ["-o", output, main] {
+            args.append(a)
+        }
+        let built = t5CoverageChild(exe, by: move args, at: p, for: null, through: ref failure)
+        assert(built.exitCode == 0)
+        exes.append(output)
+    }
+    let counters = Path.combine(Path.combine(p, "counters"), "cov")
+    Io.createDirectory(Path.combine(p, "counters")) catch { failure = $"cannot create {p}/counters" }
+    let plain = t5CoverageChild(exes[0], by: List<string>(), at: p, for: null, through: ref failure)
+    let unset = t5CoverageChild(exes[1], by: List<string>(), at: p, for: null, through: ref failure)
+    let set = t5CoverageChild(exes[1], by: List<string>(), at: p, for: counters, through: ref failure)
+    assert(failure == "")
+    assert(goldenLf(plain.stdout) == "1\n" && plain.exitCode == 3)
+    assert(unset.stdout == plain.stdout && unset.stderr == plain.stderr && unset.exitCode == plain.exitCode)
+    assert(set.stdout == plain.stdout && set.stderr == plain.stderr && set.exitCode == plain.exitCode)
+    // one `<prefix>.<pid>` file, read by the report: the lines the run reached are `+`, the branch it did not take `-`
+    var report = List<string>()
+    for a in ["build", "--coverage", "--counters", counters, main] {
+        report.append(a)
+    }
+    let r = t5CoverageChild(exe, by: move report, at: p, for: null, through: ref failure)
+    assert(r.exitCode == 0 && r.stdout.startsWith("coverage: lines "))
+    let listing = Io.readText(Path.combine(Path.combine(Path.combine(p, "out"), "test"), "main.byn.cov.txt")) catch ""
+    assert(listing.contains("+     return 1\n")
+        && listing.contains("+     print(")
+        && listing.contains("-         return -1\n"))
+    deleteWorkDir(p)
+}
+
+// `--coverage` with `--emit-c` or `--schemata-files`, and `--counters` without `--coverage`, are usage errors (exit 2).
+test "build --coverage: --emit-c, --schemata-files and a --counters without it are refused with exit 2" {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(failure == "")
+    let p = t5SchemataFixture("coverage-usage")
+    let a = Path.combine(p, "a.byn")
+    let said = [
+        "bayan: --coverage cannot be used with --emit-c\n",
+        "bayan: --coverage cannot be used with --schemata-files\n",
+        "bayan: --counters needs --coverage\n",
+    ]
+    for i in 0..said.length {
+        var args = List<string>()
+        args.append("build")
+        if i < 2 {
+            args.append("--coverage")
+        }
+        args.append(["--emit-c", "--schemata-files", "--counters"][i])
+        if i > 0 {
+            args.append(i == 1 ? a : Path.combine(p, "cov"))
+        }
+        args.append(p)
+        let o = t5CoverageChild(exe, by: move args, at: p, for: null, through: ref failure)
+        assert(o.exitCode == exitUsage && goldenLf(o.stderr) == said[i] && o.stdout == "")
+    }
+    assert(failure == "")
     deleteWorkDir(p)
 }
