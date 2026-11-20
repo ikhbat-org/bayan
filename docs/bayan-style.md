@@ -1051,4 +1051,4 @@ const rotation = [
 ]
 ```
 
-`@unformatted because "…"` is the only opt-out. It applies to declarations only; there are no comment toggles, and `bayan audit` lists every use (not in 0.3).
+`@unformatted because "…"` is the only opt-out. It applies to declarations only; there are no comment toggles, and `bayan audit` lists every use (not in 0.4).
