@@ -1,0 +1,8 @@
+// 019 T29 (coverage ratchet): tokens.byn paths no golden case reaches: the text of a keyword kind and a lookup of text
+// that starts above `z`. The expected values are the output of the self-hosted lexer at the commit that added the test.
+
+test "lexer t29: kindText of a keyword is its text, lookup above z is an identifier" {
+    assert kindText(.letKeyword) == "let"
+    assert kindText(.whileKeyword) == "while"
+    assert Keywords.build().lookup("{let".bytes) == .identifier
+}

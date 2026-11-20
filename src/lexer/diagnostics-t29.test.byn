@@ -1,0 +1,81 @@
+// 019 T29 (coverage ratchet): diagnostics.byn paths no golden case reaches: a span that starts past its line's end, a
+// label with a line break, fixes that split a UTF-8 sequence, tabs and DEL in the shown line, and `format` on templates
+// with a stray brace. The expected text is the output of the self-hosted lexer at the commit that added the test.
+
+string t29Render(string text, at TextSpan span, by string replacement, string label = "", bool hasFix = false)
+        uses alloc {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var source = SourceText.create("t.byn", from: move bytes)
+    let diagnostic = Diagnostic {
+        code: "BYN0002",
+        span: span,
+        message: "m",
+        label: label,
+        help: "",
+        hasFix: hasFix,
+        fixSpan: span,
+        fixReplacement: replacement,
+    }
+    var sb = StrBuf()
+    render(diagnostic, to: ref sb, from: ref source)
+    return $"{sb.finish()}"
+}
+
+test "lexer t29: render a span past the line end and a label with a line break" {
+    let got = t29Render("ab\r\ncd", at: TextSpan { start: 3, length: 1 }, by: "", label: "one\ntwo")
+    assert got == "error BYN0002: m\n\n  1 │ ab\n    │    ^ one\n    │      two\n"
+}
+
+test "lexer t29: render fixes that end inside a UTF-8 sequence" {
+    var sb = StrBuf()
+    sb.append(t29Render("é", at: TextSpan { start: 0, length: 2 }, by: "è", hasFix: true))
+    sb.append(t29Render("é", at: TextSpan { start: 0, length: 2 }, by: "©", hasFix: true))
+    sb.append(t29Render("ab", at: TextSpan { start: 0, length: 2 }, by: "a", hasFix: true))
+    sb.append(t29Render("a", at: TextSpan { start: 0, length: 1 }, by: "ab", hasFix: true))
+    let expected = """
+            error BYN0002: m
+
+              1 │ é
+                │ ^
+                │
+                │ 1 │ è
+                │   │ +
+            error BYN0002: m
+
+              1 │ é
+                │ ^
+                │
+                │ 1 │ ©
+                │   │ +
+            error BYN0002: m
+
+              1 │ ab
+                │ ^^
+                │
+                │ 1 │ ab
+                │   │  -
+            error BYN0002: m
+
+              1 │ a
+                │ ^
+                │
+                │ 1 │ ab
+                │   │  +
+
+            """
+    assert sb.finish() == expected
+}
+
+test "lexer t29: render shows a tab and hides DEL in the source line" {
+    let got = t29Render("\tx\u{7F}y", at: TextSpan { start: 3, length: 1 }, by: "")
+    assert got == "error BYN0002: m\n\n  1 │ \tx\u{FFFD}y\n    │ \t  ^\n"
+}
+
+test "lexer t29: format keeps a stray brace" {
+    assert format("a{", by: (arg0: "x", arg1: "y")) == "a{"
+    assert format("{0", by: (arg0: "x", arg1: "y")) == "{0"
+    assert format("{0x}", by: (arg0: "x", arg1: "y")) == "{0x}"
+}
