@@ -1152,3 +1152,11 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 019-t64a, 2026-11-20; T64): run-c.sha256:148 (run/io-stdin-read.byn, ab4f72f77) is a self-hosted hash the C# cannot produce (BYN2003); owner: keep it or record a divergence.
 - LOW (019 019-t64a, 2026-11-20; T64): diag/circular-field-default-generic-growing{,-list,-owned}.byn crash the C# checker (stack overflow, exit 134); their frozen exit code is a crash code.
 - LOW (019 019-t64a, 2026-11-20; T64): 4 run/*.test.byn have no CLI route to their emitted C; their run-c.sha256 rows depend on the frozen test project until T67.
+- LOW (019 019-t30h34, 2026-11-20; T30h): `assert(x)` followed by a line starting with an identifier parses as a cast (BYN1057); put such an assert last in its block.
+- LOW (019 019-t30h34, 2026-11-20; T30h): the test-binary half of CoverageTests.CounterFilesAreNamedByTestIndexOrPid is reachable through `bayan test --coverage` now; port it with the program half after 019-bcov.
+- LOW (019 019-t30h34, 2026-11-20; T30h): lowerexpr.byn:612's `simple` initialiser is not reachable by ArmsWithPreludesBranch on its own (the arm loop at :616 also clears it).
+- LOW (019 019-bcov, 2026-11-20; before the 0.3.3 cut): `bayan help` lists neither `test --coverage` nor `build --coverage` (`usageText`, src/driver/main.byn:18); adding them changes 36 frozen tests/cases/cli goldens, which go through the golden-update route (R14, DIVERGENCES rows).
+- LOW (019 019-bcov, 2026-11-20; T29): the report `build --coverage --counters` prints is still labelled "bayan test --coverage" (src/driver/test.byn:667).
+- LOW (019 019-bcov, 2026-11-20; T29): counter files are named `<prefix>.<pid>`; a run of many cases must use one prefix per case, since a reused pid overwrites a file.
+- LOW (019 019-bcov, 2026-11-20; T51): `--counters` with `--package src` writes its report to `src/out/test`, and `.gitignore` covers only `/out/`.
+- LOW (019 019-bcov, 2026-11-20; T51): src/driver/l019.test.byn:4 has a stale comment and the file fails `format --check` at HEAD.

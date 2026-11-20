@@ -84,13 +84,15 @@ created app `local/my-app` in `my-app`
 ◆ checked my-app in 0.00s</code></pre>
 
 <h3 id="build"><code>bayan build &lt;path&gt;</code></h3>
-<pre><code>bayan build [path] [-o file] [--mode debug|safe|fast] [--target t] [--emit-c] [-v]</code></pre>
+<pre><code>bayan build [path] [-o file] [--mode debug|safe|fast] [--target t] [--emit-c] [--coverage [--counters prefix]] [-v]</code></pre>
 <table>
 <tr><th>Flag</th><th>Meaning</th></tr>
 <tr><td><code>-o &lt;file&gt;</code></td><td>Write the executable to this file instead of the default place.</td></tr>
 <tr><td><code>--mode</code></td><td><code>debug</code>, <code>safe</code> (the default) or <code>fast</code>. Bounds checks and region checks run in every mode; the mode only changes optimization and debug information.</td></tr>
 <tr><td><code>--target</code></td><td>The platform to build for. See the list below.</td></tr>
 <tr><td><code>--emit-c</code></td><td>Keep the generated C next to the executable, in <code>c/</code>.</td></tr>
+<tr><td><code>--coverage</code></td><td>Build with the counters <code>bayan test --coverage</code> inserts. The program behaves as the plain build. When <code>BAYAN_COVERAGE</code> is set to a prefix, it writes its counts at exit, a panic included, to <code>&lt;prefix&gt;.&lt;pid&gt;</code>; when it is unset or empty, it writes nothing. Not with <code>--emit-c</code>.</td></tr>
+<tr><td><code>--counters &lt;prefix&gt;</code></td><td>With <code>--coverage</code>: build nothing, add up every <code>&lt;prefix&gt;.*</code> counter file of the program's coverage build and print and write the coverage report as <code>bayan test --coverage</code> does, to <code>out/test/</code>.</td></tr>
 <tr><td><code>-v</code></td><td>Print the time each phase took and the output path.</td></tr>
 </table>
 <pre><code>$ bayan build -v
