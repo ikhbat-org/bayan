@@ -48,7 +48,7 @@ GoldenOutcome t30hOwnRun(string exe) uses alloc, clock, console, fs, process {
 string t30hOwnCase(string file) uses alloc, fs => Io.readText(Path.fullPath($"tests/cases/run/{file}")) catch ""
 
 /// Whether `bytes` hold the bytes of `needle` in a row (OwnershipCheckerTests.cs:394, the Latin-1 text of an executable).
-bool t30hOwnHas(in List<u8> bytes, for string needle) {
+bool t30hOwnHas(List<u8> bytes, for string needle) {
     let n = needle.bytes
     for i in 0..bytes.length - n.length + 1 {
         var k: i64 = 0
@@ -150,6 +150,6 @@ test "ownership t30h: SafeAndFastExecutablesHaveNoChecker" (string mode) {
     let _ = t30hOwnBuild(name, by: t30hOwnCase("switch-move-guard.byn"), for: ["--mode", mode, "-o", t30hOwnExe(name)])
     let bytes = Io.readFile(t30hOwnExe(name)) catch List<u8>()
     assert(bytes.length > 0)
-    assert(!t30hOwnHas(in bytes, for: "byn_own_"))
+    assert(!t30hOwnHas(bytes, for: "byn_own_"))
     deleteWorkDir(t30hOwnDir(name))
 }
