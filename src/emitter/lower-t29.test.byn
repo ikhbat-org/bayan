@@ -3,6 +3,7 @@
 // helpers here. The expected values are the output of the self-hosted emitter at the commit that added the test.
 
 import semantics
+import emitter.ltree
 
 /// `source` as `t29.byn`, compiled alone with tmp/ as its package root, its tests when `tests`.
 semantics.Ctx t29Compile(string source, by bool tests = false) {
@@ -162,7 +163,7 @@ List<string> t29Corpus() {
             x = 4
         }
 
-        bool logic(i64 a, i64 b) => a < b && (b > 3 || a == 0) && !(a == b) && a <= b && b >= a
+        bool logic(i64 a, by i64 b) => a < b && (b > 3 || a == 0) && !(a == b) && a <= b && b >= a
 
         test "loops" {
             assert loops(3) == 4
@@ -171,7 +172,7 @@ List<string> t29Corpus() {
         void main() {
             var y: i64
             setOut(out y)
-            print($"{loops(5)} {area(.circle(3))} {sized(.none)} {logic(1, 2)} {y}")
+            print($"{loops(5)} {area(.circle(3))} {sized(.none)} {logic(1, by: 2)} {y}")
         }
         """,
     )
@@ -232,13 +233,11 @@ List<string> t29Corpus() {
 
         struct Box<T> {
             T value
-
-            public T get(this) => value
         }
 
         void all(List<Square> shapes) {
             for x: dyn ref readonly IShape in shapes {
-                print(x.area())
+                print($"{x.area()}")
             }
         }
 
@@ -252,7 +251,7 @@ List<string> t29Corpus() {
             all(shapes)
             show(Square { side: 2 })
             let b = Box<i64> { value: 4 }
-            print($"{b.get()}")
+            print($"{b.value}")
         }
         """,
     )
@@ -302,21 +301,79 @@ List<string> t29Corpus() {
             let n: i64? = 2
             let f = 2.5
             assert xs[0] == 1
-            assert (xs[1] + 1) == 3
+            assert 3 == (xs[1] + 1)
             assert -1 < xs[2]
             assert twice(xs[0]) == 2
             assert p.x == 1 && p.xs.length == 1
             assert p.xs[0] != -4
-            assert n! == 2
+            assert 2 == (n ?? 0)
             assert i64(f) == 2
             assert f64(xs[0]) == 1.0
             assert $"{p.x}" == "1"
-            assert xs.length
-                == 3
+            assert xs.length == 3
         }
 
         void main() {
             print("main")
+        }
+        """,
+    )
+    corpus.append(
+        """
+        i64 bits(i64 x, by i64 y) => (x & y) | (x ^ y)
+
+        u8 small(u8 a, by u8 b) => (a & b) | (a ^ b)
+
+        i64 unary(i64 x) => +x + ~x
+
+        f64 rems(f64 a, by f32 b) => a % 2.0 + f64(b % b)
+
+        rune toChar(i64 x) => rune(x)
+
+        i64? none() => null
+
+        bool has(string s) => s.contains("b")
+
+        i64 lowest() => -9223372036854775808
+
+        void main() {
+            let xs: List<i64> = []
+            let f: f32 = 3.5
+            print($"{bits(6, by: 3)} {small(6, by: 3)} {unary(5)} {rems(5.5, by: f)} {toChar(65)} {none() ?? 0}")
+            print($"{has("abc")} {lowest()} {xs.length}")
+        }
+        """,
+    )
+    corpus.append(
+        """
+        interface IA {
+            i64 a()
+        }
+
+        interface IB {
+            i64 b()
+        }
+
+        struct Both : IA, IB {
+            i64 a() => 1
+
+            i64 b() => 2
+        }
+
+        i64 useA(dyn ref readonly IA x) => x.a()
+
+        i64 useB(dyn ref readonly IB x) => x.b()
+
+        never stop(string why) {
+            panic(why)
+        }
+
+        i64 apply(i64 x, by (i64 -> i64) f) => f(x)
+
+        void main() {
+            let s = Both {}
+            print($"{useA(s)} {useB(s)} {apply(2, by: x => x + 1)}")
+            stop("done") if s.a() > 5
         }
         """,
     )
@@ -325,14 +382,171 @@ List<string> t29Corpus() {
 
 test "emitter t29: the corpus lowers and emits in debug, safe and fast" {
     let corpus = t29Corpus()
+    var failed = StrBuf()
     for k in 0..corpus.length {
-        for mode in ["debug", "safe", "fast"] {
-            let text = t29Emit(corpus[k], by: mode)
-            print($"== {k} {mode} {text.length}")
-            print(text) if text.startsWith("errors")
+        let safe = t29Emit(corpus[k], by: "safe")
+        if !safe.contains("int main(") {
+            failed.append($"{k}: {safe}\n")
+            continue
         }
+        let debug = t29Emit(corpus[k], by: "debug")
+        let fast = t29Emit(corpus[k], by: "fast")
         let tested = t29Emit(corpus[k], tests: true)
-        print($"== {k} tests {tested.length}")
-        print(tested) if tested.startsWith("errors")
+        assert safe.contains("int main(")
+        assert fast.contains("int main(")
+        assert tested.contains("int main(")
+        assert debug.length > safe.length
     }
+    assert failed.finish() == ""
+}
+
+test "emitter t29: isTrivial, isRepeatable, isLvalue and anyNode on made-up nodes" {
+    var c = t29Compile(
+        "struct P {\n    i64 x\n}\n\nvoid main() {\n    let a = P { x: 1 }\n    let b = 2\n    print($\"{a.x}{b}\")\n}\n",
+    )
+    var l = LCtx {}
+    let span = TextSpan { start: 0, length: 1 }
+    let type = semantics.prim(.i64)
+    let local = localExpr(ref c, at: span, for: 0)
+    let other = localExpr(ref c, at: span, for: 1)
+    let literal = semantics.addLiteral(
+        ref c,
+        from: BLiteral { span: span, type: type, value: Constant { kind: .integer } },
+    )
+    let moved = semantics.addMove(ref c, from: T4BMove { span: span, operand: local, type: type })
+    let movedOther = semantics.addMove(ref c, from: T4BMove { span: span, operand: other, type: type })
+    let movedLiteral = semantics.addMove(ref c, from: T4BMove { span: span, operand: literal, type: type })
+    let field = semantics.addField(ref c, from: BField { span: span, receiver: local, field: 0, type: type })
+    let element = semantics.addTupleElement(
+        ref c,
+        from: BTupleElement { span: span, receiver: moved, index: 0, type: type },
+    )
+    let setter = semantics.addBuiltinCall(
+        ref c,
+        from: BBuiltinCall { span: span, member: .mapIndexSet, receiver: local, type: type },
+    )
+    let trivialVariant = semantics.addErrorVariant(
+        ref c,
+        from: BErrorVariant { span: span, variant: 0, payload: [literal, local], type: type },
+    )
+    let movingVariant = semantics.addErrorVariant(
+        ref c,
+        from: BErrorVariant { span: span, variant: 0, payload: [literal, moved], type: type },
+    )
+    let callingVariant = semantics.addErrorVariant(
+        ref c,
+        from: BErrorVariant { span: span, variant: 0, payload: [setter], type: type },
+    )
+    let movedThenField = semantics.addMove(ref c, from: T4BMove { span: span, operand: field, type: type })
+    let lowered = semantics.addMove(
+        ref c,
+        from: T4BMove { span: span, operand: ltree.addLVoid(ref l.tree, from: T4LVoid { span: span }), type: type },
+    )
+    let nothing = ltree.addLVoid(ref l.tree, from: T4LVoid { span: span })
+    let value = ltree.addLOptionalValue(ref l.tree, from: T4LOptionalValue { span: span, optional: local, type: type })
+    let valueOfIndex = ltree.addLOptionalValue(
+        ref l.tree,
+        from: T4LOptionalValue {
+            span: span,
+            optional: ltree.addLIndexUnchecked(
+                ref l.tree,
+                from: T4LIndexUnchecked { span: span, target: local, index: literal, type: type },
+            ) because "the node is only asked whether it is an lvalue, never emitted",
+            type: type,
+        },
+    )
+    let has = ltree.addLOptionalHas(ref l.tree, from: T4LOptionalHas { span: span, optional: moved })
+    let tag = ltree.addLUnionTag(ref l.tree, from: LUnionTag { span: span, unionValue: moved })
+    let unionField = ltree.addLUnionField(
+        ref l.tree,
+        from: LUnionField { span: span, unionValue: local, variant: 0, index: 0 },
+    )
+    let code = ltree.addLErrorCode(ref l.tree, from: T4LErrorCode { span: span, error: local })
+    let errorField = ltree.addLErrorField(
+        ref l.tree,
+        from: T4LErrorField { span: span, error: moved, variant: 0, index: 0 },
+    )
+    let assignFrom = ltree.addLAssignExpr(ref l.tree, from: T4LAssignExpr { span: span, target: local, value: moved })
+    let assignTo = ltree.addLAssignExpr(ref l.tree, from: T4LAssignExpr { span: span, target: moved, value: local })
+    let assignNeither = ltree.addLAssignExpr(
+        ref l.tree,
+        from: T4LAssignExpr { span: span, target: local, value: literal },
+    )
+    let effectMoves = ltree.addLSequence(
+        ref l.tree,
+        from: T10LSequence { span: span, effects: [moved], value: literal },
+    )
+    let valueMoves = ltree.addLSequence(ref l.tree, from: T10LSequence { span: span, effects: [local], value: moved })
+    let failing = ltree.addLFailingCall(ref l.tree, from: T4LFailingCall { span: span, error: 0, call: moved })
+    var trivial = StrBuf()
+    for e in [
+        nothing,
+        value,
+        tag,
+        unionField,
+        code,
+        errorField,
+        trivialVariant,
+        movingVariant,
+        callingVariant,
+        field,
+        element,
+    ] {
+        trivial.append(isTrivial(in c, through: in l, for: e) ? "t" : "f")
+    }
+    assert trivial.finish() == "ttttttttftt"
+    var repeatable = StrBuf()
+    for e in [
+        value,
+        tag,
+        unionField,
+        code,
+        errorField,
+        nothing,
+        moved,
+        field,
+        element,
+        trivialVariant,
+        movingVariant,
+        setter,
+    ] {
+        repeatable.append(isRepeatable(in c, through: in l, for: e) ? "t" : "f")
+    }
+    assert repeatable.finish() == "tfttftftftff"
+    var lvalue = StrBuf()
+    for e in [valueOfIndex, value, nothing, local, setter, field, element, literal] {
+        lvalue.append(isLvalue(in c, through: in l, for: e) ? "t" : "f")
+    }
+    assert lvalue.finish() == "ttftttff"
+    var effects = StrBuf()
+    for e in [assignFrom, effectMoves, valueMoves, nothing, local, literal] {
+        effects.append(hasEffects(in c, through: in l, for: e) ? "t" : "f")
+    }
+    assert effects.finish() == "tttfff"
+    var moves = StrBuf()
+    for e in [
+        has,
+        value,
+        tag,
+        unionField,
+        code,
+        errorField,
+        assignFrom,
+        assignTo,
+        assignNeither,
+        effectMoves,
+        valueMoves,
+        failing,
+        nothing,
+        lowered,
+        movedOther,
+        movedLiteral,
+        movedThenField,
+        element,
+    ] {
+        moves.append(anyNode(in c, through: in l, for: e, by: .movesLocal(0)) ? "t" : "f")
+    }
+    assert moves.finish() == "tftfftttftttffffft"
+    assert anyNode(in c, through: in l, for: local, by: .readsLocalMovedBy(moved))
+    assert !anyNode(in c, through: in l, for: other, by: .readsLocalMovedBy(moved))
 }

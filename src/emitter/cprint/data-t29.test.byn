@@ -3,8 +3,12 @@
 
 test "cprint t29: t6FloatLiteral of NaN and the infinities" {
     let inf = 1.0 / 0.0
-    print($"nan {t6FloatLiteral(inf - inf, by: false)} {t6FloatLiteral(inf - inf, by: true)}")
-    print($"inf {t6FloatLiteral(inf, by: false)} {t6FloatLiteral(inf, by: true)}")
-    print($"neg {t6FloatLiteral(-inf, by: false)} {t6FloatLiteral(-inf, by: true)}")
-    print($"half {t6FloatLiteral(0.5, by: false)} {t6FloatLiteral(2.0, by: true)}")
+    assert t6FloatLiteral(inf - inf, by: false) == "((double)NAN)"
+    assert t6FloatLiteral(inf - inf, by: true) == "((float)NAN)"
+    assert t6FloatLiteral(inf, by: false) == "((double)INFINITY)"
+    assert t6FloatLiteral(inf, by: true) == "((float)INFINITY)"
+    assert t6FloatLiteral(-inf, by: false) == "(-(double)INFINITY)"
+    assert t6FloatLiteral(-inf, by: true) == "(-(float)INFINITY)"
+    assert t6FloatLiteral(0.5, by: false) == "(0.5)"
+    assert t6FloatLiteral(2.0, by: true) == "((float)2.0)"
 }

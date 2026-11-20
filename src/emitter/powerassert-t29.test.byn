@@ -3,8 +3,8 @@
 
 test "emitter t29: powerAssertLine and powerAssertFlatten trim tabs and carriage returns" {
     let last = powerAssertLine("a ", at: 0, by: false)
-    print($"last {last.from} {last.until} {last.next}")
+    assert last.from == 0 && last.until == 2 && last.next == -1
     let tabbed = powerAssertLine("a\t\r\nb", at: 0, by: true)
-    print($"tabbed {tabbed.from} {tabbed.until} {tabbed.next}")
-    print($"flat [{powerAssertFlatten("x \t\r\n\ty\t\nz")}]")
+    assert tabbed.from == 0 && tabbed.until == 1 && tabbed.next == 4
+    assert powerAssertFlatten("x \t\r\n\ty\t\nz") == "x y z"
 }

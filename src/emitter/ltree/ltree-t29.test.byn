@@ -2,6 +2,7 @@
 // values are the output of the self-hosted emitter at the commit that added the test.
 
 import lexer
+import semantics
 
 type T29Options = semantics.CompilationOptions
 
@@ -27,11 +28,15 @@ test "ltree t29: typeOf and spanOf of lowered nodes" {
         ref t,
         from: LErrorField { span: TextSpan { start: 17, length: 18 }, error: count, variant: 0, index: 0 },
     )
+    var types = StrBuf()
     for n in [count, mutant, nothing, code, assign, noValue, tag, label] {
-        print($"type {semantics.typeDisplay(ref c, by: typeOf(in c, through: in t, for: n))}")
+        types.append($"{semantics.typeDisplay(ref c, by: typeOf(in c, through: in t, for: n))} ")
     }
+    assert types.finish() == "void bool void u32 bool i64 i32 ? "
+    var spans = StrBuf()
     for n in [count, mutant, nothing, code, assign, noValue, tag, label, field] {
         let span = spanOf(in c, through: in t, for: n)
-        print($"span {span.start} {span.length}")
+        spans.append($"{span.start}+{span.length} ")
     }
+    assert spans.finish() == "1+2 3+4 5+6 7+8 9+10 11+12 13+14 15+16 17+18 "
 }

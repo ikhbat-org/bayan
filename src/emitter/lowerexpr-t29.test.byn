@@ -10,7 +10,8 @@ test "emitter t29: t4TypeName of the lowered and bound kinds" {
         let kind = ltree.LKind.fromOrdinal(k) ?? .voidValue
         sb.append($"{t4TypeName(ltree.lNode(kind, at: 0))} ")
     }
-    print(sb.finish())
+    let expected = "label gotoStmt loop returnStmt returnError failingCall write panic setContext freeArena pushPanicHandler popPanicHandler claim LOptionalHas LOptionalValue LUnionTag LUnionField LErrorCode LErrorField LAssignExpr LSequence LIndexUnchecked LNextChar LNever LFunctionValue LMutantIs LCount LVoid "
+    assert sb.finish() == expected
     var bound = StrBuf()
     for kind in [
         semantics.BoundKind.spread,
@@ -24,5 +25,6 @@ test "emitter t29: t4TypeName of the lowered and bound kinds" {
     ] {
         bound.append($"{t4TypeName(i64(kind.ordinal) << 32)} ")
     }
-    print(bound.finish())
+    let expectedBound = "BoundSpread BoundErrorExpr BoundTypeRef BoundModuleRef BoundMethodGroup BoundVariantGroup BoundBuiltinGroup literal "
+    assert bound.finish() == expectedBound
 }

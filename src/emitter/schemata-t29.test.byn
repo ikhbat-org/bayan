@@ -3,20 +3,37 @@
 
 test "emitter t29: buildSchema's sites over the corpus" {
     let corpus = t29Corpus()
+    var failed = StrBuf()
     for k in 0..corpus.length {
         var c = t29Compile(corpus[k])
-        let schema = buildSchema(ref c, for: in List<string>())
-        var sb = StrBuf()
-        for s in schema.sites {
-            sb.append($" {s.site.op}:{s.site.original}>{s.site.mutated}:{s.emitted}")
+        let compiled = t29Errors(in c)
+        if compiled != "" {
+            failed.append($"{k}: {compiled}")
+            continue
         }
-        print($"== {k} sites{sb.finish()}")
+        let schema = buildSchema(ref c, for: in List<string>())
+        var emitted = 0
+        for s in schema.sites {
+            emitted += 1 if s.emitted
+        }
         var counts = StrBuf()
         for op in mutatorOperators() {
             counts.append($" {op}={schema.notEmitted.tryGet(at: op) ?? 0}")
         }
-        print($"== {k} notEmitted{counts.finish()} switches {schema.switches.length}")
-        let text = t29Emit(corpus[k], mutating: true)
-        print($"== {k} mutated {text.length}")
+        let notEmitted = counts.finish()
+        if k == 0 {
+            assert emitted == 57
+            assert schema.switches.length == 32
+            let expected = " boundary=0 relational=0 logical=0 condition=0 bool=0 arithmetic=0 literal=0 negation=0 statement=0 emptyReturn=0 variant=2"
+            assert notEmitted == expected
+        } else if k == 2 {
+            assert emitted > 0
+            assert schema.switches.length == 23
+        } else if k == 4 {
+            assert emitted > 0
+            assert schema.switches.length == 6
+        }
+        assert t29Emit(corpus[k], mutating: true).contains("int main(")
     }
+    assert failed.finish() == ""
 }

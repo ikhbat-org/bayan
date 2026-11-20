@@ -4,8 +4,14 @@
 
 test "emitter t29: instrument counts the corpus's lines, branches and error paths" {
     let corpus = t29Corpus()
+    var failed = StrBuf()
     for k in 0..corpus.length {
         var c = t29Compile(corpus[k], by: true)
+        let compiled = t29Errors(in c)
+        if compiled != "" {
+            failed.append($"{k}: {compiled}")
+            continue
+        }
         let map = instrument(ref c, for: in List<string>())
         var lines = 0
         var branches = 0
@@ -21,11 +27,16 @@ test "emitter t29: instrument counts the corpus's lines, branches and error path
                 )
             }
         }
-        print($"== {k} lines {lines} branches {branches} errors{errors.finish()}")
+        assert lines > 0
+        if k == 0 {
+            assert lines == 27 && branches == 10
+            let expected = " pick:F.a:fail@30 pick:F.b:fail@31 narrow:F.a:fail@36 viaTry:F.a:try@41 viaTry:F.b:try@41 viaTry:F.a:try@42 viaTry:E.worse:fail@43 viaCatch:F.b:catch@48 Counter.bump:F.a:fail@17 Counter.twice:F.a:try@23 Counter.twice:F.b:try@23 Counter.twice:F.b:catch@24"
+            assert errors.finish() == expected
+        }
         var skip = List<string>()
         skip.append(c.files[0].path)
-        print($"== {k} skipped {instrument(ref c, for: in skip).counters.length} of {c.files.length}")
-        let text = t29Emit(corpus[k], covering: true)
-        print($"== {k} covered {text.length} {text.contains("byn_cov[")}")
+        assert instrument(ref c, for: in skip).counters.length == 0
+        assert t29Emit(corpus[k], covering: true).contains("byn_cov[")
     }
+    assert failed.finish() == ""
 }

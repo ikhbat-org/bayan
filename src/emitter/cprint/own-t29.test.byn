@@ -1,9 +1,11 @@
 // 019 T29 (coverage ratchet): `intSuffix` of the integer kinds whose suffix is not their name. The expected values are
 // the output of the self-hosted emitter at the commit that added the test.
 
+import semantics
+
 test "cprint t29: intSuffix of isize, usize and char" {
-    print($"isize {intSuffix(semantics.prim(.isize))}")
-    print($"usize {intSuffix(semantics.prim(.usize))}")
-    print($"char {intSuffix(semantics.prim(.char))}")
-    print($"u8 {intSuffix(semantics.prim(.u8))}")
+    assert intSuffix(semantics.prim(.isize)) == "i64"
+    assert intSuffix(semantics.prim(.usize)) == "u64"
+    assert intSuffix(semantics.prim(.char)) == "char"
+    assert intSuffix(semantics.prim(.u8)) == "u8"
 }

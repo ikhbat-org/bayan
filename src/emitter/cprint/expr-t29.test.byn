@@ -2,6 +2,9 @@
 // The expected values are the output of the self-hosted emitter at the commit that added the test.
 
 test "cprint t29: t10LoweredName and t10BoundName" {
-    print($"{t10LoweredName(.label)} {t10LoweredName(.count)} {t10LoweredName(.voidValue)}")
-    print($"{t10BoundName(.literal)} {t10BoundName(.local)}")
+    assert t10LoweredName(.label) == "LLabel"
+    assert t10LoweredName(.count) == "LCount"
+    assert t10LoweredName(.voidValue) == "LVoid"
+    assert t10BoundName(.literal) == "BoundLiteral"
+    assert t10BoundName(.local) == "BoundLocal"
 }

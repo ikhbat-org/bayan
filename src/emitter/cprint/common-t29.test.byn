@@ -1,0 +1,70 @@
+// 019 T29 (coverage ratchet): `key` and `cType` of the builtin, error, text view, dyn ref and range types no golden
+// case names, and `mapLine` with no line path and on a repeated line. The other `*-t29.test.byn` files of cprint use
+// `t29Ctx`. The expected values are the output of the self-hosted emitter at the commit that added the test.
+
+import lexer
+import semantics
+
+type T29Options = semantics.CompilationOptions
+
+/// `source` as `t29.byn`, compiled alone with tmp/ as its package root.
+semantics.Ctx t29Ctx(string source) {
+    var bytes = List<u8>()
+    for b in source.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("t29.byn", from: move bytes))
+    let options = T29Options {}
+    return semantics.create(from: move sources, at: Path.fullPath("tmp"), by: in options)
+}
+
+test "cprint t29: key and cType of builtin, error, text view, dyn ref and range types" {
+    var c = t29Ctx("interface IShape {\n    i64 area()\n}\n\nvoid main() {}\n")
+    var cc = CCtx {}
+    var keys = StrBuf()
+    for k in [
+        semantics.BuiltinKind.arena,
+        semantics.BuiltinKind.strBuf,
+        semantics.BuiltinKind.processResult,
+        semantics.BuiltinKind.panic,
+        semantics.BuiltinKind.formatSpec,
+        semantics.BuiltinKind.symbol,
+        semantics.BuiltinKind.time,
+        semantics.BuiltinKind.millis,
+        semantics.BuiltinKind.ioStream,
+    ] {
+        keys.append($"{key(ref c, for: semantics.builtinType(k))} ")
+    }
+    assert keys.finish() == "arena strbuf process panic formatspec sym time millis iostream "
+    assert cType(ref cc, from: ref c, for: semantics.builtinType(.ioStream)) == "int32_t"
+    assert cType(ref cc, from: ref c, for: semantics.builtinType(.ioInput)) == "int32_t"
+    assert cType(ref cc, from: ref c, for: semantics.builtinType(.hex)) == "bynt_iostream"
+    assert key(ref c, for: semantics.errorSetTypeOf(0)) == "err"
+    assert key(ref c, for: semantics.textViewType(.runes)) == "textview"
+    var shape: i64 = 0
+    while c.interfaces[shape].name != "IShape" {
+        shape += 1
+    }
+    assert key(ref c, for: semantics.internDynRef(ref c, by: shape, readOnly: true)) == "dyn_main__IShape"
+    assert key(ref c, for: semantics.internRange(ref c, by: semantics.prim(.i64))) == "range_i64"
+}
+
+test "cprint t29: mapLine writes nothing without a line path or on the line it just wrote" {
+    let c = t29Ctx("void main() {\n    print(\"a\")\n}\n")
+    var fn: i64 = 0
+    while c.functions[fn].file == -1 {
+        fn += 1
+    }
+    var f = CFunc { fn: fn }
+    f.lineStarts.append(0)
+    f.lineStarts.append(14)
+    let span = TextSpan { start: 18, length: 1 }
+    var sb = StrBuf()
+    mapLine(ref sb, from: in c, through: ref f, at: span)
+    assert sb.length == 0
+    f.linePath = "\"t29.byn\""
+    mapLine(ref sb, from: in c, through: ref f, at: span)
+    mapLine(ref sb, from: in c, through: ref f, at: span)
+    assert sb.finish() == "#line 2 \"t29.byn\"\n"
+}
