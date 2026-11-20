@@ -98,6 +98,10 @@ grep -qx "coverage.sh: --corpus $d/none: no such counter directory" "$d/err.txt"
 mkdir -p "$d/empty"
 out=$(CORPUS=lift run --corpus "$d/empty") && fail "a counter directory with no c.* exited 0" "$out"
 grep -qx "coverage.sh: --corpus $d/empty: no counter file c.\*" "$d/err.txt" || fail "no message for the empty directory" "$(cat "$d/err.txt")"
+# more counter files than one argv holds: the existence check must not expand them into a command line
+mkdir -p "$d/many"; long=$(printf 'x%.0s' $(seq 1 200)); (cd "$d/many" && seq 1 12000 | sed "s/^/c.$long./" | xargs touch)
+out=$(CORPUS=lift run --corpus "$d/many") || true
+grep -q "no counter file" "$d/err.txt" && fail "a directory of 12000 counter files was reported as empty" "$(head -3 "$d/err.txt")"
 
 [ ! -e "$d/calls" ] || fail "dotnet was called" "$(cat "$d/calls")"
 echo PASS

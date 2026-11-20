@@ -55,7 +55,7 @@ fi
 if [ -n "$corpus" ]; then
   [ -d "$corpus" ] || { echo "coverage.sh: --corpus $corpus: no such counter directory" >&2; exit 2; }
   corpus="$(cd "$corpus" && pwd)"
-  ls "$corpus"/c.* > /dev/null 2>&1 || { echo "coverage.sh: --corpus $corpus: no counter file c.*" >&2; exit 2; }
+  [ -n "$(find "$corpus" -maxdepth 1 -type f -name 'c.*' -print -quit)" ] || { echo "coverage.sh: --corpus $corpus: no counter file c.*" >&2; exit 2; }
 fi
 reports="$root/tmp/quality/coverage-reports"
 rm -rf "$reports"
