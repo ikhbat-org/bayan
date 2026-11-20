@@ -27,7 +27,7 @@ bool t29b3Is(string text, as string expected, bool library = false) uses alloc, 
     if got != expected {
         print($"T29GOT {got}")
     }
-    return got == expected || expected == "?"
+    return got == expected
 }
 
 test "binder3 t29: return in failing functions picks, refuses or passes on a case" {
@@ -72,7 +72,10 @@ test "binder3 t29: return in failing functions picks, refuses or passes on a cas
 
             f(1) catch return
             """
-    assert t29b3Is(text, as: "?")
+    assert t29b3Is(
+        text,
+        as: "BYN2002 296+7 unknown type `Missing` | BYN2227 87+2 `.x` is ambiguous; it exists in `A`, `B` | BYN2228 148+5 `nope` is not a variant of `the inferred error set` | BYN2003 201+1 `y` is not a member of `i64` | BYN3201 360+17 the value of this `f(1) catch return` is unused",
+    )
 }
 
 test "binder3 t29: fail with an ambiguous, inferred, undeclared or non-error value" {
@@ -116,7 +119,10 @@ test "binder3 t29: fail with an ambiguous, inferred, undeclared or non-error val
                 }
             }
             """
-    assert t29b3Is(text, as: "?")
+    assert t29b3Is(
+        text,
+        as: "BYN2227 106+2 `.x` is ambiguous; it exists in `A`, `B` | BYN2603 130+2 `.q` is not in the `fails` clause of `f1` | BYN2228 168+5 `nope` is not a variant of `the inferred error set` | BYN2603 211+3 `B` is not in the `fails` clause of `f3` | BYN2202 252+1 expected `an error`, found `i32` | BYN2610 362+0 `break` cannot leave a `defer` or `defer failing` body",
+    )
 }
 
 test "binder3 t29: Panic.handler set to functions of the wrong shape" {
@@ -145,7 +151,10 @@ test "binder3 t29: Panic.handler set to functions of the wrong shape" {
                 Panic.onPanic = ok
             }
             """
-    assert t29b3Is(text, as: "?")
+    assert t29b3Is(
+        text,
+        as: "BYN5004 5+3 `two` has 2 unlabeled parameters; give each but one a particle | BYN5006 22+1 `n` is a required parameter besides the object and needs a particle | BYN2614 130+18 `Panic.handler` may be set only as the first statement of `main` | BYN2202 186+3 expected `void f(Panic p)`, found `void two(Panic, i64)` | BYN2202 210+1 expected `void f(Panic p)`, found `i32` | BYN2614 194+17 `Panic.handler` may be set only as the first statement of `main` | BYN2202 232+7 expected `void f(Panic p)`, found `void failing(Panic)` | BYN2614 216+23 `Panic.handler` may be set only as the first statement of `main` | BYN2202 260+3 expected `void f(Panic p)`, found `void gen(Panic)` | BYN2614 244+19 `Panic.handler` may be set only as the first statement of `main` | BYN2230 274+7 `onPanic` is now `handler` | BYN2614 268+18 `Panic.handler` may be set only as the first statement of `main`",
+    )
 }
 
 test "binder3 t29: Panic.handler set outside the entry function" {
@@ -157,7 +166,7 @@ test "binder3 t29: Panic.handler set outside the entry function" {
                 Panic.handler = ok
             }
             """
-    assert t29b3Is(text, as: "?")
+    assert t29b3Is(text, as: "BYN2614 41+18 `Panic.handler` may be set only as the first statement of `main`")
 }
 
 test "binder3 t29: Panic.handler set in a library" {
@@ -169,7 +178,11 @@ test "binder3 t29: Panic.handler set in a library" {
                 Panic.handler = ok
             }
             """
-    assert t29b3Is(text, as: "?", library: true)
+    assert t29b3Is(
+        text,
+        as: "BYN2614 41+18 `Panic.handler` may be set only as the first statement of `main`",
+        library: true,
+    )
 }
 
 test "binder3 t29: Panic.handler set twice" {
@@ -182,21 +195,21 @@ test "binder3 t29: Panic.handler set twice" {
                 Panic.handler = ok
             }
             """
-    assert t29b3Is(text, as: "?")
+    assert t29b3Is(text, as: "BYN2614 63+18 `Panic.handler` may be set only as the first statement of `main`")
 }
 
-test "binder3 t29: context with no allocator or only other handlers" {
+test "binder3 t29: provide with only other handlers" {
     let text = """
             void run(Arena arena) {
-                context () {
-                    print("x")
-                }
-                context (net: arena, suspend: arena, foo: arena) {
+                provide net: arena, suspend: arena, foo: arena {
                     print("y")
                 }
             }
             """
-    assert t29b3Is(text, as: "?")
+    assert t29b3Is(
+        text,
+        as: "BYN2022 36+3 the `net` handler is not supported in v0.1 | BYN6007 48+7 `suspend` is not a handler; `provide` takes `alloc`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console` or `log` | BYN6007 64+3 `foo` is not a handler; `provide` takes `alloc`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console` or `log`",
+    )
 }
 
 test "binder3 t29: for over generic, enumerator and fallible iterables" {
@@ -300,5 +313,40 @@ test "binder3 t29: for over generic, enumerator and fallible iterables" {
                 }
             }
             """
-    assert t29b3Is(text, as: "?")
+    assert t29b3Is(
+        text,
+        as: "BYN2803 523+11 `NoItem` does not bind `type Item` of `IEnumerator` | BYN2221 810+2 `T` cannot be iterated | BYN2202 1139+6 expected `string`, found `i64` | BYN2221 1304+8 `NoNext` cannot be iterated | BYN2202 1351+6 expected `string`, found `i64` | BYN2104 900+2 `xs` is immutable | BYN2780 951+1 implicit copy of a unique value: type parameter `T` may stand for a unique type",
+    )
+}
+
+test "binder3 t29: Panic.handler set to a bound method, a static method, a value-returning function or an undefined name" {
+    let text = """
+            struct H {
+                i64 k
+
+                void onP(Panic p) {
+                }
+
+                static void st(Panic p) {
+                }
+            }
+
+            i64 ret(Panic p) => 1
+
+            void inP(in Panic p) {
+            }
+
+            void main() {
+                let h = H { k: 0 }
+                Panic.handler = h.onP
+                Panic.handler = H.st
+                Panic.handler = ret
+                Panic.handler = inP
+                Panic.handler = missing
+            }
+            """
+    assert t29b3Is(
+        text,
+        as: "BYN5014 69+2 `st` is not a known verb, noun or adjective | BYN2202 198+5 expected `void f(Panic p)`, found `void onP(Panic)` | BYN2614 182+21 `Panic.handler` may be set only as the first statement of `main` | BYN2202 224+4 expected `void f(Panic p)`, found `void st(Panic)` | BYN2614 208+20 `Panic.handler` may be set only as the first statement of `main` | BYN2202 249+3 expected `void f(Panic p)`, found `i64 ret(Panic)` | BYN2614 233+19 `Panic.handler` may be set only as the first statement of `main` | BYN2202 273+3 expected `void f(Panic p)`, found `void inP(Panic)` | BYN2614 257+19 `Panic.handler` may be set only as the first statement of `main` | BYN2001 297+7 `missing` is not defined | BYN2614 281+23 `Panic.handler` may be set only as the first statement of `main`",
+    )
 }

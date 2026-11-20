@@ -25,8 +25,14 @@ test "bigint t29: bigParse refuses bad digits and flags overflow" {
     assert t29BigTextIs(t29BigParseText("0z1"), as: "false false 0")
     assert t29BigTextIs(t29BigParseText("0x"), as: "false false 0")
     assert t29BigTextIs(t29BigParseText("0xFfA_1"), as: "true false 65441")
-    assert t29BigTextIs(t29BigParseText("170141183460469231731687303715884105727"), as: "true false 170141183460469231731687303715884105727")
-    assert t29BigTextIs(t29BigParseText("1701411834604692317316873037158841057280"), as: "true true 17014118346046923173168730371588410572")
+    assert t29BigTextIs(
+        t29BigParseText("170141183460469231731687303715884105727"),
+        as: "true false 170141183460469231731687303715884105727",
+    )
+    assert t29BigTextIs(
+        t29BigParseText("1701411834604692317316873037158841057280"),
+        as: "true true 17014118346046923173168730371588410572",
+    )
 }
 
 test "bigint t29: literalDecimalText reads every base and digit case" {
@@ -39,7 +45,10 @@ test "bigint t29: literalDecimalText reads every base and digit case" {
     assert t29BigTextIs(literalDecimalText("0b101"), as: "5")
     assert t29BigTextIs(literalDecimalText("0B11"), as: "3")
     assert t29BigTextIs(literalDecimalText("1z"), as: "10")
-    assert t29BigTextIs(literalDecimalText("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"), as: "87112285931760246646623899502532662132735")
+    assert t29BigTextIs(
+        literalDecimalText("0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"),
+        as: "87112285931760246646623899502532662132735",
+    )
 }
 
 test "bigint t29: text, equality and negation with a zero low half" {
@@ -77,8 +86,14 @@ test "bigint t29: unsigned compare, shifts and bit length" {
     assert t29BigIs(bigShl(Big { lo: 3, hi: 5 }, by: 65), as: "0 6")
     assert t29BigIs(bigShr(Big { lo: 3, hi: 5 }, by: 0), as: "3 5")
     assert t29BigIs(bigShr(bigFromI64(-8), by: 1), as: "18446744073709551612 18446744073709551615")
-    assert t29BigIs(bigShr(Big { lo: 3, hi: 0x8000000000000005 }, by: 64), as: "9223372036854775813 18446744073709551615")
-    assert t29BigIs(bigShr(Big { lo: 3, hi: 0x8000000000000005 }, by: 66), as: "16140901064495857665 18446744073709551615")
+    assert t29BigIs(
+        bigShr(Big { lo: 3, hi: 0x8000000000000005 }, by: 64),
+        as: "9223372036854775813 18446744073709551615",
+    )
+    assert t29BigIs(
+        bigShr(Big { lo: 3, hi: 0x8000000000000005 }, by: 66),
+        as: "16140901064495857665 18446744073709551615",
+    )
     assert t29BigIs(bigShr(Big { lo: 3, hi: 5 }, by: 66), as: "1 0")
 }
 
