@@ -4,6 +4,8 @@
 import parser
 import semantics
 
+type T29Mark = semantics.UnobservableMark
+
 test "emitter t29: buildSchema's sites over the corpus" {
     let corpus = t29Corpus()
     var failed = StrBuf()
@@ -324,4 +326,95 @@ test "emitter t29: buildSchema over compound assignments, fixed-array indexes, s
     // `r > 1` reads what `sh is .circle(let r)` proved, so the `&&` is not flipped.
     assert !d.contains("logical `sh is")
     assert d.endsWith("\nswitches 59")
+}
+
+test "emitter t29: buildSchema mutates a requires rule's comparisons, not the checks the binder made for it" {
+    let d = t29SchemaDump(
+        """
+        union error E {
+            a
+            b
+        }
+
+        struct Bounds {
+            i64 lo
+                requires it >= 0
+                requires it < 100
+            i64 hi
+            requires lo <= hi
+        }
+
+        i64 sum(List<i64> xs) fails E {
+            var k: i64 = 0
+            for x in xs {
+                k += x
+            }
+            fail .a if k == 3
+            return k
+        }
+
+        i64 mk(i64 n) fails ValidationError<Bounds> {
+            let b = try Bounds { lo: n, hi: 2 }
+            return b.lo
+        }
+
+        void main() {
+            let b = mk(1) catch { return }
+            var xs = List<i64>()
+            xs.append(1)
+            let s = sum(xs) catch { return }
+        }
+        """,
+    )
+    for line in [
+        "8:18 boundary `it >= 0` -> `it > 0` true",
+        "8:24 literal `0` -> `-1` true",
+        "9:18 relational `it < 100` -> `it >= 100` true",
+        "11:14 boundary `lo <= hi` -> `lo < hi` true",
+        "11:14 relational `lo <= hi` -> `lo > hi` true",
+        "19:10 variant `.a` -> `.b` true",
+        "25:12 emptyReturn `b.lo` -> `0` true",
+    ] {
+        assert d.contains($"{line}\n")
+    }
+    // The `if`, `fail` and flag assignment the binder builds for each rule carry the rule's syntax: no condition,
+    // statement or variant site comes from them.
+    assert !d.contains("condition `it")
+    assert !d.contains("condition `lo")
+    assert !d.contains("statement `it")
+    assert !d.contains("statement `lo")
+    assert !d.contains("variant `.invalid")
+    assert d.endsWith("\nswitches 16")
+}
+
+test "emitter t29: t10BigDiv by a divisor past 64 bits" {
+    let q = t10BigDiv(Big { lo: 0, hi: 6 }, by: Big { lo: 0, hi: 4 }, as: false)
+    assert q.hi == 0 && q.lo == 1
+    let r = t10BigDiv(Big { lo: 0, hi: 6 }, by: Big { lo: 0, hi: 4 }, as: true)
+    assert r.hi == 2 && r.lo == 0
+}
+
+test "emitter t29: schemataMarkOf skips a mark of another file" {
+    var c = t29Compile(
+        "i64 f(i64 k) {\n    @unobservable(boundary) because \"clamped\"\n    return 1 if k < 7\n    return 0\n}\n\nvoid main() {\n    let x = f(1)\n}\n",
+    )
+    assert t29Errors(in c) == ""
+    let schema = buildSchema(ref c, for: in List<string>())
+    var at: i64 = -1
+    for k in 0..schema.sites.length {
+        at = k if schema.sites[k].site.op == mutatorBoundary
+    }
+    assert at != -1
+    let site = schema.sites[at].site
+    assert schemataMarkOf(in c, for: in site) == "clamped"
+    let own = c.unobservable[0]
+    var marks = List<T29Mark>()
+    marks.append(
+        T29Mark { file: "other.byn", span: own.span, op: null, reason: "elsewhere" },
+    )
+    c.unobservable = marks.copy()
+    assert schemataMarkOf(in c, for: in site) is null
+    marks.append(T29Mark { file: own.file, span: own.span, op: own.op, reason: own.reason })
+    c.unobservable = move marks
+    assert schemataMarkOf(in c, for: in site) == "clamped"
 }
