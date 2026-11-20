@@ -14,9 +14,9 @@ Decision 2026-11-18 (owner): a live `check:` line is swapped only when the new c
 | L008 | `G --only '/l008-'` | swapped 2026-11-19 (T31b share C): the 24 exported `l008-` cases of tests/cases/cli/L008OwnershipRuntimeTests; proof src/driver/goldenexport.byn |
 | L013 | `G --only '/l013-'` | swapped 2026-11-19 (T31b share C): the 96 exported `l013-` cases of tests/cases/cli/L013DirectAndIndirectCallsAgreeTests; proof src/driver/goldenexport.byn |
 | L018 | `G --only 'parse/'` | T17c: no no-panic fuzz is ported; parse/ cases do not cover it |
-| L019 | `G --only '/l019-'` | a port of the law's generator or table as golden cases named lNNN-* (no task owns it yet; placeholder selector) |
-| L020 | `G --only '/l020-'` | a port of the law's generator or table as golden cases named lNNN-* (no task owns it yet; placeholder selector) |
-| L021 | `G --only '/l021-'` | a port of the law's generator or table as golden cases named lNNN-* (no task owns it yet; placeholder selector) |
+| L019 | `G --only '/l019-'` | swapped 2026-11-19 (T31b share B): the check is the `L019:` block of src/driver/l019.test.byn, not `l019-` cases; see the Part 2 row |
+| L020 | `G --only '/l020-'` | swapped 2026-11-19 (T31b share B): the check is `G --only 'emit/'` (emit/run-c.sha256), not `l020-` cases; see the Part 2 row |
+| L021 | `G --only '/l021-'` | swapped 2026-11-19 (T31b share B): the check is the 8 not-emitted rows of src/driver/mutate.test.byn, not `l021-` cases; see the Part 2 row |
 | L022 | `G --only 'typed/' && G --only 'diag/'` | swapped 2026-11-20 (T31f), after the owner enacted the frozen-output Statement: the 18 typed and 676 diag cases; proof src/driver/golden.byn |
 | L023 | `G --only 'sem/'` | T17c: no sem/ kind yet |
 | L024 | `G --only 'emit/'` | swapped 2026-11-20 (T31f), after the owner enacted the frozen-output Statement: the `emit/run-c` case; proof src/driver/golden.byn |

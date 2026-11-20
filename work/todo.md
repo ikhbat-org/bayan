@@ -1145,3 +1145,34 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 winblk, 2026-11-20; T41b): `goldenSnapshotPath` reads `\` as `/` on POSIX too, where `\` is a legal name byte; harmless for src/ names.
 - LOW (019 windrive, 2026-11-20; T41b): runtime/tests/run.sh reports only the first differing line of a std-path case file, which hid seven more drive rows behind row 10 in hosted run 44638732821.
 - LOW (019 windrive, 2026-11-20; T41b): the drive swap in runtime/tests/std-path-cases.c ran on wp1 from C: and a `subst Q:` drive (22 ok each); a hosted run on D: is still owed.
+- LOW (019 019-t31b2, 2026-11-20; T28): the src/driver build prints a warning at `copyIds(in c.errorUnionTypes[idx].sets)` (line 729 of a file the writer did not name); find the file and clear it.
+- LOW (019 019-t31b2, 2026-11-20; tooling): the worker hook blocks `git checkout --`, so writers restore break runs by hand; allow `git checkout -- <path>` inside a worker worktree or give the rules another restore step.
+- LOW (019 019-t64a, 2026-11-20; T64): safe and fast emitted C are identical for every input (CliApp.cs:453 only branches on Debug), so expected.fast.sha256 duplicates safe.
+- LOW (019 019-t64a, 2026-11-20; T64): "every parse case" was taken as the 64 flat parse/*.byn (C# Golden.Cases); the 864 exported parse class cases are not run (349 hold expected.exitcode already, the rest are collector/shape dumps).
+- LOW (019 019-t64a, 2026-11-20; T64): run-c.sha256:148 (run/io-stdin-read.byn, ab4f72f77) is a self-hosted hash the C# cannot produce (BYN2003); owner: keep it or record a divergence.
+- LOW (019 019-t64a, 2026-11-20; T64): diag/circular-field-default-generic-growing{,-list,-owned}.byn crash the C# checker (stack overflow, exit 134); their frozen exit code is a crash code.
+- LOW (019 019-t64a, 2026-11-20; T64): 4 run/*.test.byn have no CLI route to their emitted C; their run-c.sha256 rows depend on the frozen test project until T67.
+- LOW (019 019-t30h34, 2026-11-20; T30h): `assert(x)` followed by a line starting with an identifier parses as a cast (BYN1057); put such an assert last in its block.
+- LOW (019 019-t30h34, 2026-11-20; T30h): the test-binary half of CoverageTests.CounterFilesAreNamedByTestIndexOrPid is reachable through `bayan test --coverage` now; port it with the program half after 019-bcov.
+- LOW (019 019-t30h34, 2026-11-20; T30h): lowerexpr.byn:612's `simple` initialiser is not reachable by ArmsWithPreludesBranch on its own (the arm loop at :616 also clears it).
+- LOW (019 019-bcov, 2026-11-20; before the 0.3.3 cut): `bayan help` lists neither `test --coverage` nor `build --coverage` (`usageText`, src/driver/main.byn:18); adding them changes 36 frozen tests/cases/cli goldens, which go through the golden-update route (R14, DIVERGENCES rows).
+- LOW (019 019-bcov, 2026-11-20; T29): the report `build --coverage --counters` prints is still labelled "bayan test --coverage" (src/driver/test.byn:667).
+- LOW (019 019-bcov, 2026-11-20; T29): counter files are named `<prefix>.<pid>`; a run of many cases must use one prefix per case, since a reused pid overwrites a file.
+- LOW (019 019-bcov, 2026-11-20; T51): `--counters` with `--package src` writes its report to `src/out/test`, and `.gitignore` covers only `/out/`.
+- LOW (019 019-bcov, 2026-11-20; T51): src/driver/l019.test.byn:4 has a stale comment and the file fails `format --check` at HEAD.
+- LOW (019 019-t59, 2026-11-20; T59b): scripts/selfhost/land-export.sh loops in bash per case and takes over 20 minutes at about 20,000 cases; the weekly re-export leaves out classes over 2,000 cases (lex/SelfhostLexerTests, emit-c/SelfhostEmitterHarnessTests) until it is faster.
+- LOW (019 019-t59, 2026-11-20; T59b): 48 wall-time cases (177 files; cli/SelfhostDriverT3Tests 34, sem/BuiltinResultsTests 12, sem/FunctionTypeTests 2) are on tests/cases/DIVERGENCES.tsv:29-76 with question `T59`; the rows came from a scratch script (kept at tmp/w2/t59-walltime-rows.sh, untracked). An L043 amendment to compare after the case's mask would bring them back (owner).
+- LOW (019 019-t59, 2026-11-20; T59b): sem/SelfhostSemanticsTests/MessagesMatchCli-4 has a time line and no compare word, so it is compared as bytes.
+- LOW (019 019-t59, 2026-11-20; T31/T44a): L043's `check:` needs .NET and the export sha; laws-nightly.yml fetches at depth 2 and (after 019-t31f) has no .NET, so the check exits 2 there. The nightly must leave L043 to the R27 job in ddc.yml.
+- LOW (019 019-t59, 2026-11-20; T44a): `timeout-minutes` with an `inputs` expression and the depth-1 fetch of the export sha in ddc.yml are untried on a hosted run.
+- LOW (019 019-t30h4, 2026-11-20; T30h): GoldenOutcome (src/driver/golden.byn:1669) has no pid; coverage-t30h.test.byn reads it through `sh -c 'echo $$; exec'`, so its 4 blocks are todo on Windows.
+- LOW (019 019-t30h4, 2026-11-20; T30h): the `bayan` command line cannot print the coverage map (counter id to kind, line, outcome); coverage-t30h.test.byn rebuilds it in-process with `t5Instrument`, which matches the child's ids only because both compile the same source with the same code.
+- LOW (019 019-t30h4, 2026-11-20; T30h): the coverage C writes counters only through `atexit` at a normal end and on `exit()` (src/emitter/cprint/program.byn:503); a counter-file test cannot tell a `todo` exit from a normal end.
+- LOW (019 019-t30h4, 2026-11-20; T30h): the four break runs of coverage-t30h.test.byn were made before the `in` modifiers left the helper signatures and were not repeated on the final text.
+- LOW (019 019-t29b, 2026-11-20; T29): the exported cases (lex, parse, sem, emit-c) run their own programs, which are plain builds, so the src/ code those programs run is not counted. It would need `--coverage` builds of those programs and one `--counters` report per program.
+- LOW (019 019-t29b, 2026-11-20; T29) (unverified): on Windows, BAYAN_COVERAGE_CASES is a Git Bash path passed in the environment to the native driver. It relies on the MSYS conversion that test.sh already relies on for BAYAN_EXE, which is not checked here.
+- LOW (019 019-t29b, 2026-11-20; T29) (unverified): whether counter ids from a Windows or Linux coverage build match a `--counters` merge run on another OS. Build every shard from the same commit; ids per target are not compared.
+- LOW (019 019-t29b, 2026-11-20; T29): two processes of the same case still share a prefix and differ only by pid. An overwrite needs a pid wrap within one case.
+- LOW (019 019-t29b, 2026-11-20; T29): `--counters` adds any `<prefix>.*` file. A counter file from another program in the directory is added silently, because the files carry no program id.
+- LOW (019 019-t29b, 2026-11-20; T29): `scripts/test.sh --coverage` still runs the gate on test blocks alone. It has no flag to pass `--corpus DIR`.
+- LOW (019 019-t29b, 2026-11-20; T29): BAYAN_COVERAGE_CASES is not named in site/content (ref-cli.page has BAYAN_COVERAGE only).
