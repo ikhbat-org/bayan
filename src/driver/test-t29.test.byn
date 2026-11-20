@@ -238,3 +238,28 @@ test "driver t29: testCommand --changed against git's empty tree, on a project a
     t29Same(got.joined(by: " "), as: "0 0")
     deleteWorkDir(dir)
 }
+
+test "driver t29: fast mode, a debug run without the summary, two modules and --changed with a bad ref" {
+    let git = ccFindOnPath("git", for: Target.os) ?? ""
+    assert git != ""
+    var got = List<string>()
+    got.append(t29TestParse(["--mode", "fast", "tmp/test-t29-no-such.byn"]))
+    let dir = t29TestDir("quiet")
+    goldenWrite(
+        dir,
+        for: "package.byn",
+        as: "Package {\n    name: \"local/quiet\",\n    version: \"0.1.0\",\n    test: Tests { summary: false },\n}\n",
+    )
+    goldenWrite(
+        dir,
+        for: "src/app/main.byn",
+        as: "import util\n\nprint(\"main\")\n\ntest \"ok\" {\n    assert 1 == 1\n}\n",
+    )
+    goldenWrite(dir, for: "src/util/util.byn", as: "test \"more\" {\n    assert 2 == 2\n}\n")
+    got.append(t29TestRun(["--mode", "debug", dir]))
+    let init = Io.run(git, boundList(["init", "-q", dir]).span) catch { panic("git") }
+    assert init.exitCode == 0
+    got.append(t29TestRun(["--changed", "--base", "t29-no-such-ref", dir]))
+    t29Same(got.joined(by: " "), as: "null 0 2")
+    deleteWorkDir(dir)
+}
