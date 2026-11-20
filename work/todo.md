@@ -1152,3 +1152,6 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 019-t64a, 2026-11-20; T64): run-c.sha256:148 (run/io-stdin-read.byn, ab4f72f77) is a self-hosted hash the C# cannot produce (BYN2003); owner: keep it or record a divergence.
 - LOW (019 019-t64a, 2026-11-20; T64): diag/circular-field-default-generic-growing{,-list,-owned}.byn crash the C# checker (stack overflow, exit 134); their frozen exit code is a crash code.
 - LOW (019 019-t64a, 2026-11-20; T64): 4 run/*.test.byn have no CLI route to their emitted C; their run-c.sha256 rows depend on the frozen test project until T67.
+- LOW (019 019-t30h34, 2026-11-20; T30h): `assert(x)` followed by a line starting with an identifier parses as a cast (BYN1057); put such an assert last in its block.
+- LOW (019 019-t30h34, 2026-11-20; T30h): the test-binary half of CoverageTests.CounterFilesAreNamedByTestIndexOrPid is reachable through `bayan test --coverage` now; port it with the program half after 019-bcov.
+- LOW (019 019-t30h34, 2026-11-20; T30h): lowerexpr.byn:612's `simple` initialiser is not reachable by ArmsWithPreludesBranch on its own (the arm loop at :616 also clears it).
