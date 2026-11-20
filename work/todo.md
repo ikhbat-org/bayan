@@ -1199,3 +1199,6 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 019-mutspeed-a, 2026-11-20; mutation speed writer 2): sites are split among workers by index modulo N, not taken from a queue, so slow mutants leave workers uneven.
 - LOW (019 019-mutspeed-a, 2026-11-20; mutation speed writer 2): with N > 1 no site line prints until every worker has ended (no live progress).
 - LOW (019 019-mutspeed-a, 2026-11-20; mutation speed writer 2): replays inherit `BAYAN_EXE` set to the pinned bayan; Windows falls back to N = 1.
+- LOW (019 019-t59c, 2026-11-20; T59): the weekly flat/diag slice of `scripts/selfhost/reexport-check.sh` draws 20 of all 676 diag inputs, so most weekly picks land in the not-replayed groups (28 checkable); draw from the checkable ones only.
+- LOW (019 019-t59c, 2026-11-20; T59): 616 diag files with an error and 27 flat ones with diagnostics have no CLI argv that writes their bytes (the `✗ build failed` trailer; `includePath: false`); checking them needs a trailer/path mask, which is a law question (L043), not a route.
+- LOW (019 019-t59c, 2026-11-20; T59): `run/io-stdin-read` remains the one known failure of `reexport-check.sh --full` (unchanged from 019-t59b).
