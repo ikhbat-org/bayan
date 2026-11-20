@@ -2721,6 +2721,9 @@ test "the T5 cases pass in their C# directories: emit in tmp/t5/emit, run in tmp
 
 test "a SelfhostDriverStyleEnvironmentTests case runs in the C#'s terminal env, not under a host's UTF-8 LC_ALL, LC_CTYPE or TERM" {
     // TheEnvironmentPaintsAsCliAppRun-38 sets LANG=C, so its success line has `*`; a host LC_ALL naming UTF-8 would win over it (`t7Utf8`)
+    if Target.os == "windows" {
+        todo("the case's `os` file names macos and linux, so Windows skips it")
+    }
     var failure = ""
     let exe = goldenExe(through: ref failure)
     assert(exe != "")

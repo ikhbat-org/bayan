@@ -65,7 +65,7 @@ jobs:
       - name: Source and doc scans
         if: runner.os == 'Linux' && matrix.part == 'other'
         shell: bash
-        run: bash scripts/ci/api-index-check.sh && bash scripts/ci/printer-boundary-check.sh && bash scripts/ci/libc-inventory-check.sh
+        run: bash scripts/ci/api-index-check.sh && bash scripts/ci/printer-boundary-check.sh && bash scripts/ci/libc-inventory-check.sh && bash scripts/ci/inventory-check.sh
       # The tests cross-compile and `bayan doctor` expects zig; no runner image has it. Windows has no cc, so zig builds stage 0.
       - name: Install zig
         shell: bash

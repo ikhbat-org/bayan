@@ -879,14 +879,20 @@ i32 goldenCaseChild(string kind, for string name, at string input) uses alloc, c
 /// An in-process case (`lex`, `parse`, `typed`, `typed-dump`, `diag`, `manifest`, `diag-json`, `emit`, `quality`) or an exported one (`emit-c`, `sem`,
 /// `parse`, `lex`; its program's output kept whole, T17b2c) in a child `exe test --golden-case <kind>
 /// <name> <input>`, killed at `deadline`, as CliApp.cs:1077 `RunTest` runs each test block as `executable --test <index>` so a hang is stopped:
-/// null when it exits 0, else its failure text, or what says it was killed, did not exit or could not start.
-string? goldenInChild(in GoldenCase c, by string exe, until i64 deadline) uses alloc, clock, process {
+/// null when it exits 0, else its failure text, or what says it was killed, did not exit or could not start. With `coverage` the
+/// child's `BAYAN_COVERAGE` is set to it (spec 019 T29), else the child has this process's.
+string? goldenInChild(in GoldenCase c, by string exe, until i64 deadline, string? coverage = null)
+        uses alloc, clock, process {
     var args = List<string>()
     for a in ["test", "--golden-case", c.kind, c.name, c.input] {
         args.append(a)
     }
+    var env: Map<string, string?> = []
+    if (coverage is { } prefix) {
+        env["BAYAN_COVERAGE"] = prefix
+    }
     let limit = goldenLimitMs(deadline)
-    let r = Io.run(exe, args.span, timeout: Millis(limit)) catch switch {
+    let r = Io.run(exe, args.span, env: env, timeout: Millis(limit)) catch switch {
         .timeout(_, let streamOut, let streamErr) => return $"{c.input}\n`{exe} test --golden-case` did not exit within {goldenLimitText(limit)}\n{streamOut}{streamErr}",
         .signaled(let s, let streamOut, let streamErr) => return $"{c.input}\n`{exe} test --golden-case` was killed by signal {s}\n{streamOut}{streamErr}",
         IoError e => return $"{c.input}\ncannot run {exe}: {e}",
@@ -896,12 +902,31 @@ string? goldenInChild(in GoldenCase c, by string exe, until i64 deadline) uses a
     return $"{c.input}\n`{exe} test --golden-case` exited {r.exitCode}\n{r.stdout}{r.stderr}"
 }
 
+/// `prefix`.`<kind>/<name>` with each byte other than a letter, digit or `-` written as `_` and two hex digits: a counter file
+/// prefix of its own per case (spec 019 T29), so two cases never write one file whatever pids repeat over a run.
+string goldenCoveragePrefix(string prefix, for string kind, at string name) uses alloc {
+    let key = $"{kind}/{name}"
+    var sb = StrBuf()
+    sb.append($"{prefix}.")
+    for i in 0..key.length {
+        let b = key.bytes[i]
+        if b >= 0x30 && b <= 0x39 || b >= 0x41 && b <= 0x5a || b >= 0x61 && b <= 0x7a || b == 0x2d {
+            sb.append(key[i..i + 1])
+        } else {
+            sb.append($"_{b < 16 ? "0" : ""}{string(b, as: .hex)}")
+        }
+    }
+    return sb.finish()
+}
+
 /// Case `c` with the time limit `limitMs` (R2, R3): `skipped` when `goldenSkip` or its `// os:` (RunTests.cs:46) skips it; `timed out` when it
 /// is still running once the limit has passed (a child running then was killed), whatever it returned, with the time-out line of CliApp.cs:737
 /// and what it reported; else `passed`, or `failed` with the failure text. Every kind runs in a child killed at the limit: `style`, `run`, `new`
 /// `out` and `cli` have their own, the others (exported ones included) `goldenInChild` through `exe` (`$BAYAN_EXE` when null, T2c: unset or not
-/// a driver fails the case).
-GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
+/// a driver fails the case). With a `cases` prefix (`$BAYAN_COVERAGE_CASES` when null; spec 019 T29) every kind runs through
+/// `goldenInChild` with `BAYAN_COVERAGE` set to `goldenCoveragePrefix`, so a coverage build of the driver and the drivers it starts
+/// write each case's counters under a prefix of its own.
+GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null, string? cases = null)
         uses alloc, clock, console, env, fs, process {
     let name = $"{c.kind}/{c.name}"
     if (goldenSkip(in c) is { } skip) {
@@ -918,12 +943,19 @@ GoldenResult goldenResult(GoldenCase c, for i64 limitMs, by string? exe = null)
     let caseMs = goldenCaseLimitMs(name, for: limitMs)
     let deadline = Io.monotonicNanos() + caseMs * 1000000
     var failure: string? = null
-    if c.kind is "style" or "run" or "new" or "out" or "cli" {
+    let prefix = cases ?? Env.get("BAYAN_COVERAGE_CASES") ?? ""
+    if prefix == "" && (c.kind is "style" or "run" or "new" or "out" or "cli") {
         failure = goldenRun(in c, deadline: deadline)
     } else {
         var missing = ""
         let driver = exe ?? goldenExe(through: ref missing)
-        failure = driver == "" ? $"{c.input}\n{missing}" : goldenInChild(in c, by: driver, until: deadline)
+        let coverage: string? = prefix == "" ? null : goldenCoveragePrefix(prefix, for: c.kind, at: c.name)
+        failure = driver == "" ? $"{c.input}\n{missing}" : goldenInChild(
+            in c,
+            by: driver,
+            until: deadline,
+            coverage: coverage,
+        )
     }
     var rewrote = ""
     for i in 0..files.length {
@@ -2519,6 +2551,37 @@ test "BAYAN_EXE names a driver that starts, and the report prints its path and v
     assert(found == path)
     assert(failure == "")
     assert(report == $"driver: {path}\nbayan 9.9 (fake)\n")
+}
+
+// spec 019 T29: under a `cases` prefix a `lex` case and a `run` case each start a child `test --golden-case` whose BAYAN_COVERAGE
+// is a prefix of its own, its bytes other than letters, digits and `-` written as `_` and hex
+test "a cases prefix runs each case, a run case too, in a child with a BAYAN_COVERAGE of its own" {
+    if Target.os == "windows" {
+        todo("the fake driver is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), "golden-coverage-cases")
+    deleteWorkDir(root)
+    let log = Path.combine(root, "log")
+    goldenWrite(root, for: "drv", as: $"#!/bin/sh\necho \"$1 $2 $3 $4 [$BAYAN_COVERAGE]\" >> \"{log}\"\n")
+    let drv = Path.combine(root, "drv")
+    var args = List<string>()
+    args.append("a+x")
+    args.append(drv)
+    let _ = Io.run("chmod", args.span) catch { panic($"cannot make {drv} executable") }
+    let prefix = Path.combine(root, "c")
+    var statuses = List<string>()
+    for c in [
+        GoldenCase { kind: "lex", name: "a", input: Path.combine(root, "a.byn") },
+        GoldenCase { kind: "run", name: "Cls/a_b.c", input: Path.combine(root, "b.byn") },
+    ] {
+        statuses.append(goldenResult(c, for: 60000, by: drv, cases: prefix).status)
+    }
+    let text = Io.readText(log) catch ""
+    deleteWorkDir(root)
+    assert(statuses.length == 2 && statuses[0] == "passed" && statuses[1] == "passed")
+    assert(
+        text == $"test --golden-case lex a [{prefix}.lex_2fa]\ntest --golden-case run Cls/a_b.c [{prefix}.run_2fCls_2fa_5fb_2ec]\n"
+    )
 }
 
 test "an unset, empty or non-executable BAYAN_EXE fails naming BAYAN_EXE" {
