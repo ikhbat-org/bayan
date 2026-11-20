@@ -13,8 +13,11 @@ on:
 permissions:
   contents: read
 
+# One run at a time per branch for a scheduled or dispatched run. A run called by release.yml gets a group of its own
+# (github.workflow is then the caller's name): in one shared group a second waiting run cancels the first, which on
+# 2026-11-20 cancelled a dispatched run (44689818294) and the laws job of a release dry run (44695267947) before either started.
 concurrency:
-  group: laws-nightly-${{ github.ref }}
+  group: laws-nightly-${{ github.workflow == 'laws-nightly' && github.ref || github.run_id }}
   cancel-in-progress: false
 
 jobs:
@@ -47,10 +50,26 @@ jobs:
           BAYAN_TEST_TIME_SCALE: 3
           # L043 re-exports with the frozen C# compiler; ddc.yml, the one job with .NET, runs it (spec 019 R27).
           BAYAN_LAWS_LEFT: L043
-        run: bash scripts/selfhost/pre-push-laws.sh
+        run: |
+          mkdir -p tmp
+          bash scripts/selfhost/pre-push-laws.sh 2>&1 | tee tmp/ci-laws.log
       # Spec 019 T30h item 2 and T30d: the corpus-wide coverage, mutate and ownership theories and the emitted-C libc inventory
       # (libc mode) over tests/cases/run, through the stage-1 driver of the build step (scripts/ci/nightly-modes.sh;
       # scripts/test.sh does not run it).
       - name: Run cases under coverage, mutate, ownership and libc
         shell: bash
-        run: bash scripts/ci/nightly-modes.sh --jobs 4
+        run: |
+          mkdir -p tmp
+          bash scripts/ci/nightly-modes.sh --jobs 4 2>&1 | tee tmp/ci-nightly-modes.log
+      # Traces: the two long steps' full output and the test runner's logs, kept whether the job passed, failed or was
+      # cancelled, so a failure is readable without waiting for the whole calling run to end.
+      - name: Upload the logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: laws-nightly-logs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            tmp/ci-*.log
+            tmp/test.*/
+            tmp/bootstrap-build/stage*.log
+          if-no-files-found: ignore
