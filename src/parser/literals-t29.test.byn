@@ -14,13 +14,35 @@ string t29Escaped(string text) uses alloc {
 
 test "parser t29: literal decoding at the edges" {
     var sb = StrBuf()
-    let strings = ["\"", "\"abc", "abc", "\"a\\\"", "\"\\u\"", "\"\\ux\"", "\"\\u{}\"", "\"\\u{zz}\"", "\"\\u{g}\"",
-        "\"\\u{1100000}\"", "\"\\u{110000}\"", "\"\\u{D800}\"", "\"\\u{41}\""]
+    let strings = [
+        "\"",
+        "\"abc",
+        "abc",
+        "\"a\\\"",
+        "\"\\u\"",
+        "\"\\ux\"",
+        "\"\\u{}\"",
+        "\"\\u{zz}\"",
+        "\"\\u{g}\"",
+        "\"\\u{1100000}\"",
+        "\"\\u{110000}\"",
+        "\"\\u{D800}\"",
+        "\"\\u{41}\"",
+    ]
     for s in strings {
         sb.append($"string {t29Escaped(s)} {t29Escaped(decodeString(s.bytes))}\n")
     }
-    let raws = ["\"\"", "\"\"\"ab", "\"\"\"abc\"x\"", "\"\"\"abcd\"\"", "\"\"\"abc\"\"\"", "\"\"\"\nabc\"\"\"",
-        "\"\"\"\nx\nab\"\"\"", "\"\"\"\nx\n \tz\"\"\"", "\"\"\"\n  x\n  \"\"\""]
+    let raws = [
+        "\"\"",
+        "\"\"\"ab",
+        "\"\"\"abc\"x\"",
+        "\"\"\"abcd\"\"",
+        "\"\"\"abc\"\"\"",
+        "\"\"\"\nabc\"\"\"",
+        "\"\"\"\nx\nab\"\"\"",
+        "\"\"\"\nx\n \tz\"\"\"",
+        "\"\"\"\n  x\n  \"\"\"",
+    ]
     for i in 0..raws.length {
         sb.append($"raw {i} {t29Escaped(decodeRawString(raws[i].bytes))}\n")
     }
@@ -34,9 +56,21 @@ test "parser t29: literal decoding at the edges" {
     unescape(runesOf("a{{b{".bytes).span, to: ref runes, interpolated: true)
     sb.append($"interpolated {t29Escaped(stringOf(move runes))}\n")
     sb.append($"startsWith {startsWith(runesOf("ab".bytes).span, by: runesOf("b".bytes).span)}\n")
-    let invalid: List<List<u8>> = [[0xC2, 0x41], [0xC2], [0xE0, 0xA0, 0x80], [0xED, 0x9F, 0xBF], [0xE1, 0x41],
-        [0xE1, 0x80, 0x41], [0xF5], [0x80], [0xF1, 0x41], [0xF1, 0x80, 0x41], [0xF1, 0x80, 0x80, 0x41],
-        [0xF0, 0x90, 0x80, 0x80], [0xF4, 0x8F, 0xBF, 0xBF]]
+    let invalid: List<List<u8>> = [
+        [0xC2, 0x41],
+        [0xC2],
+        [0xE0, 0xA0, 0x80],
+        [0xED, 0x9F, 0xBF],
+        [0xE1, 0x41],
+        [0xE1, 0x80, 0x41],
+        [0xF5],
+        [0x80],
+        [0xF1, 0x41],
+        [0xF1, 0x80, 0x41],
+        [0xF1, 0x80, 0x80, 0x41],
+        [0xF0, 0x90, 0x80, 0x80],
+        [0xF4, 0x8F, 0xBF, 0xBF],
+    ]
     for bytes in invalid {
         sb.append("runes")
         for r in runesOf(bytes.span) {

@@ -22,7 +22,15 @@ test "parser t29: the S-expression dump of rare expressions and types" {
         dumpType(in t, from: ref p, to: ref sb)
         sb.append("\n")
     }
-    for text in ["$\"{n:hex}\"", "$\"{n:.2}\"", "a.b<int>()", "x => { while true { break outer } }", "x ?? break outer", "x ?? break", "x ?? continue"] {
+    for text in [
+        "$\"{n:hex}\"",
+        "$\"{n:.2}\"",
+        "a.b<int>()",
+        "x => { while true { break outer } }",
+        "x ?? break outer",
+        "x ?? break",
+        "x ?? continue",
+    ] {
         var p = t3ParserOf(text)
         let e = parseExpression(ref p)
         dumpExpr(in e, from: ref p, to: ref sb)
