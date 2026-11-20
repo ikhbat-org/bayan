@@ -1176,3 +1176,11 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 019-t29b, 2026-11-20; T29): `--counters` adds any `<prefix>.*` file. A counter file from another program in the directory is added silently, because the files carry no program id.
 - LOW (019 019-t29b, 2026-11-20; T29): `scripts/test.sh --coverage` still runs the gate on test blocks alone. It has no flag to pass `--corpus DIR`.
 - LOW (019 019-t29b, 2026-11-20; T29): BAYAN_COVERAGE_CASES is not named in site/content (ref-cli.page has BAYAN_COVERAGE only).
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): L024 `scope:` still names csharp/Bayan.Lowering/ and csharp/Bayan.Backend.C/CEmitter.cs (owner field).
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): L022 and L024 Proof notes keep the old `dotnet test` text above the new line; the old proof files go with T67.
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): L022 `timeout: 1800` and L024 `timeout: 300` are far above the new checks (about 1.5 min with a fresh build); owner fields.
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): scripts/ci/ddc.sh:11 comment says laws-nightly.yml runs laws by `dotnet test`; it runs scripts/selfhost/pre-push-laws.sh.
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): scripts/ci/inventory-check.sh was seen exiting 1 locally on rows with 0 cases (MutantSchemataTests, OwnershipCheckerTests); not rechecked at the branch head.
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): scripts/selfhost/pre-push-laws.sh always exports BAYAN_LAW_TIER=full, so it has no quick tier.
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): the gate pattern "0 passed" (README:68) also matches counts such as "10 passed".
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): break runs were reverted with `git show HEAD:<path> >` because a hook refused `git checkout --` in the worker worktree.
