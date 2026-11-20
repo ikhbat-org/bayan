@@ -1,0 +1,936 @@
+// 019 T29 (coverage ratchet): `t4TypeName`, the C# class names `lowerExpr` panics with, on every lowered kind and the
+// bound kinds it names. The expected values are the output of the self-hosted emitter at the commit that added the test.
+
+import semantics
+import emitter.ltree
+
+test "emitter t29: t4TypeName of the lowered and bound kinds" {
+    var sb = StrBuf()
+    for k in 0..28 {
+        let kind = ltree.LKind.fromOrdinal(k) ?? .voidValue
+        sb.append($"{t4TypeName(ltree.lNode(kind, at: 0))} ")
+    }
+    let expected = "label gotoStmt loop returnStmt returnError failingCall write panic setContext freeArena pushPanicHandler popPanicHandler claim LOptionalHas LOptionalValue LUnionTag LUnionField LErrorCode LErrorField LAssignExpr LSequence LIndexUnchecked LNextChar LNever LFunctionValue LMutantIs LCount LVoid "
+    assert sb.finish() == expected
+    var bound = StrBuf()
+    for kind in [
+        semantics.BoundKind.spread,
+        semantics.BoundKind.errorExpr,
+        semantics.BoundKind.typeRef,
+        semantics.BoundKind.moduleRef,
+        semantics.BoundKind.methodGroup,
+        semantics.BoundKind.variantGroup,
+        semantics.BoundKind.builtinGroup,
+        semantics.BoundKind.literal,
+    ] {
+        bound.append($"{t4TypeName(i64(kind.ordinal) << 32)} ")
+    }
+    let expectedBound = "BoundSpread BoundErrorExpr BoundTypeRef BoundModuleRef BoundMethodGroup BoundVariantGroup BoundBuiltinGroup literal "
+    assert bound.finish() == expectedBound
+}
+
+test "emitter t29: a program whose expressions hold a never-returning operand lowers" {
+    let source = """
+        union Shape {
+            circle(i64 r)
+            none
+        }
+
+        union error E {
+            bad
+        }
+
+        struct Pt {
+            i64 x = 0
+            i64 y = 0
+        }
+
+        i64 two(i64 a, by i64 b) => a + b
+
+        i64 failer(i64 a) fails E {
+            fail .bad if a < 0
+            return a
+        }
+
+        void n01() {
+            let s = Shape.circle(panic("a"))
+        }
+
+        void n02() {
+            let x = 1 + panic("a")
+        }
+
+        void n03() {
+            let x: i64 = panic("a")
+        }
+
+        void n04() {
+            let p = Pt { x: 1, y: panic("a") }
+        }
+
+
+        void n06() {
+            let r = 0..panic("a")
+        }
+
+
+
+        void n09() {
+            let xs: List<i64> = [1, panic("a")]
+        }
+
+        void n10(bool b) {
+            let x = b && panic("a")
+        }
+
+        void n11(bool b) {
+            let x = b ? panic("a") : 1
+        }
+
+        void n12(i64? o) {
+            let x = o ?? panic("a")
+        }
+
+        void n13() {
+            let m: Map<string, i64> = ["a": panic("a")]
+        }
+
+        void n14() {
+            let x = two(1, by: panic("a"))
+        }
+
+        void n15() {
+            let x = failer(panic("a")) catch { return }
+        }
+
+        void n16() fails E {
+            let x = try failer(panic("a"))
+        }
+
+        void n17() {
+            return panic("a")
+        }
+
+        void n18() {
+            if panic("a") {
+                print("x")
+            }
+        }
+
+        void n19() {
+            while panic("a") {
+                print("x")
+            }
+        }
+
+        void n20() {
+            for i in 0..panic("a") {
+                print("x")
+            }
+        }
+
+        void n21() {
+            switch panic("a") {
+                default:
+                    print("x")
+            }
+        }
+
+        void n22() {
+            var x: i64 = 0
+            x += panic("a")
+        }
+
+
+
+
+
+
+        void main() {
+            print("never")
+        }
+        """
+    let emitted = t29Emit(source)
+    var sb = StrBuf()
+    var on = false
+    var seen = false
+    for line in emitted.lines {
+        if !on && line.contains("byn_main__n") && line.endsWith("{") {
+            on = true
+            if seen {
+                sb.append("\n")
+            }
+            seen = true
+        } else if on {
+            sb.append("\n")
+        }
+        if on {
+            sb.append(line)
+        }
+        if on && line == "}" {
+            on = false
+        }
+    }
+    let expected = """
+        void byn_main__n01(void) {
+            byn_main_Shape l0_s = {0};
+        #line 23 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 23);
+        }
+        void byn_main__n02(void) {
+            int32_t l0_x = {0};
+        #line 27 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 27);
+        }
+        void byn_main__n03(void) {
+            int64_t l0_x = {0};
+        #line 31 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 31);
+        }
+        void byn_main__n04(void) {
+            bynt_main__Pt l0_p = {0};
+        #line 35 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 35);
+        }
+        void byn_main__n06(void) {
+            bynt_tup3_i32_i32_bool l0_r = {0};
+        #line 40 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 40);
+        }
+        void byn_main__n09(void) {
+            bynt_list_i64 l0_xs = {0};
+            bynt_list_i64 t1 = {0};
+        #line 46 "t29.byn"
+            t1 = ((bynt_list_i64){NULL, 0, 0, byn_context});
+        #line 46 "t29.byn"
+            (void)bynh_add_list_i64(&t1, INT64_C(1));
+        #line 46 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 46);
+        }
+        void byn_main__n10(bool p_b) {
+            bool l0_x = {0};
+            bool t1 = {0};
+        #line 50 "t29.byn"
+            t1 = p_b;
+        #line 50 "t29.byn"
+            if (t1) {
+        #line 50 "t29.byn"
+                (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 50);
+            }
+        #line 50 "t29.byn"
+            l0_x = t1;
+        }
+        void byn_main__n11(bool p_b) {
+            int32_t l0_x = {0};
+            int32_t t1 = {0};
+        #line 54 "t29.byn"
+            if (p_b) {
+        #line 54 "t29.byn"
+                (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 54);
+            } else {
+        #line 54 "t29.byn"
+                t1 = ((int32_t)1);
+            }
+        #line 54 "t29.byn"
+            l0_x = t1;
+        }
+        void byn_main__n12(bynt_opt_i64 p_o) {
+            int64_t l0_x = {0};
+            int64_t t1 = {0};
+        #line 58 "t29.byn"
+            if (p_o.has) {
+        #line 58 "t29.byn"
+                t1 = p_o.value;
+            } else {
+        #line 58 "t29.byn"
+                (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 58);
+            }
+        #line 58 "t29.byn"
+            l0_x = t1;
+        }
+        void byn_main__n13(void) {
+            bynt_map_str_i64 l0_m = {0};
+            bynt_map_str_i64 t1 = {0};
+        #line 62 "t29.byn"
+            t1 = ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL});
+        #line 62 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 62);
+        }
+        void byn_main__n14(void) {
+            int64_t l0_x = {0};
+        #line 66 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 66);
+        }
+        void byn_main__n15(void) {
+            int64_t l0_x = {0};
+        #line 70 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 70);
+        }
+        byn_err byn_main__n16(void) {
+            int64_t l0_x = {0};
+        #line 74 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 74);
+            return (byn_err){0};
+        }
+        void byn_main__n17(void) {
+        #line 78 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 78);
+        }
+        void byn_main__n18(void) {
+        #line 82 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 82);
+        }
+        void byn_main__n19(void) {
+        #line 88 "t29.byn"
+            for (;;) {
+        #line 88 "t29.byn"
+                (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 88);
+        #line 89 "t29.byn"
+                (void)byn_print(((byn_builtin_Stream)0), BYN_STR("x", 1));
+            continue_2:;
+            }
+        break_1:;
+        }
+        void byn_main__n20(void) {
+            int32_t l0_i = {0};
+        #line 94 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 94);
+        }
+        void byn_main__n21(void) {
+        #line 100 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 100);
+        }
+        void byn_main__n22(void) {
+            int64_t l0_x = {0};
+            int64_t t1 = {0};
+        #line 107 "t29.byn"
+            l0_x = INT64_C(0);
+        #line 108 "t29.byn"
+            t1 = l0_x;
+        #line 108 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 108);
+        }
+        """
+    assert sb.finish() == expected
+}
+
+string t29LxPrelude() => """
+    union error E {
+        bad
+        worse(i64 code)
+    }
+
+    struct Pt {
+        i64 x = 0
+        i64 y = 0
+    }
+
+    struct Pos {
+        i64 v requires it >= 0
+    }
+
+    i64 two(i64 a, by i64 b) => a + b
+    Pt mkPt(i64 a) => Pt { x: a, y: 0 }
+    (i64 a, i64 b) mkTup(i64 a) => (a, a)
+    bool yes(i64 a) => a > 0
+    i64[2] mkArr(i64 a) => [a, a]
+    List<i64> mkList(i64 a) => [a]
+    i64 sumSpan(ReadOnlySpan<i64> s) => s.length
+
+    i64? mkOpt(i64 a) {
+        return null if a < 0
+        return a
+    }
+
+    never stop() fails E {
+        fail .bad
+    }
+
+    """
+
+/// The C function `f` of `source` after `t29LxPrelude()` (`f` is on line 32), or `errors: …`.
+string t29LxFn(string source, by bool covering = false) {
+    var program = StrBuf()
+    program.append(t29LxPrelude())
+    program.append(source)
+    program.append("\nvoid main() {\n    print(\"m\")\n}\n")
+    let text = t29Emit(program.finish(), covering: covering)
+    return text if text.startsWith("errors:")
+    var sb = StrBuf()
+    var on = false
+    for line in text.lines {
+        if !on && line.contains("byn_main__f(") && line.endsWith("{") {
+            on = true
+        } else if on {
+            sb.append("\n")
+        }
+        if on {
+            sb.append(line)
+        }
+        return sb.finish() if on && line == "}"
+    }
+    return sb.finish()
+}
+
+/// One lowering case: the C of `f` in `source` is `expected`.
+void t29LxCase(string source, by string expected) {
+    let got = t29LxFn(source)
+    assert got == expected
+}
+
+test "emitter t29: an operand that never returns ends the expression at the panic" {
+    t29LxCase(
+        """
+        void f() fails E {
+            fail .worse(panic("a"))
+        }
+        """,
+        by: """
+        byn_err byn_main__f(void) {
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+            return (byn_err){0};
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let v = mkPt(panic("a")).x
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            int64_t l0_v = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let v = mkTup(panic("a")).a
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            int64_t l0_v = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let v = -two(1, by: panic("a"))
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            int64_t l0_v = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let p = mkPt(panic("a")) with { x: 1 }
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            bynt_main__Pt l0_p = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f(Pt q) {
+            let p = q with { x: panic("a") }
+        }
+        """,
+        by: """
+        void byn_main__f(bynt_main__Pt p_q) {
+            bynt_main__Pt l0_p = {0};
+            bynt_main__Pt t1 = {0};
+        #line 32 "t29.byn"
+            t1 = p_q;
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let t: (i64, i64) = (1, panic("a"))
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            bynt_tup2_i64_i64 l0_t = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f(List<i64> xs) {
+            let v = xs[two(0, by: panic("a"))]
+        }
+        """,
+        by: """
+        void byn_main__f(bynt_list_i64 p_xs) {
+            int64_t l0_v = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let b = two(1, by: panic("a")) in 1..=3
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            bool l0_b = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f(i64 n) {
+            let b = n in two(1, by: panic("a"))..=n
+        }
+        """,
+        by: """
+        void byn_main__f(int64_t p_n) {
+            bool l0_b = {0};
+            int64_t t1 = {0};
+        #line 32 "t29.byn"
+            t1 = p_n;
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f(i64 n) {
+            let b = n in 0..=two(1, by: panic("a"))
+        }
+        """,
+        by: """
+        void byn_main__f(int64_t p_n) {
+            bool l0_b = {0};
+            int64_t t1 = {0};
+        #line 32 "t29.byn"
+            t1 = p_n;
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let s = $"x{two(1, by: panic("a"))}"
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            byn_str l0_s = {0};
+            byn_writer t1 = {0};
+        #line 32 "t29.byn"
+            t1 = byn_strbuf_grow(byn_context);
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f(bool b) {
+            let v = yes(panic("a")) && b
+        }
+        """,
+        by: """
+        void byn_main__f(bool p_b) {
+            bool l0_v = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let v = yes(panic("a")) ? 1 : 2
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            int32_t l0_v = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let v = mkOpt(panic("a")) ?? 1
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            int64_t l0_v = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let s: Span<i64> = [1, panic("a")]
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            bynt_span_i64 l0_s = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let a: i64[2] = [1, panic("a")]
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            bynt_arr2_i64 l0_a = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let xs: i64[2] = [1, 2]
+            let a: i64[3] = [..xs, panic("a")]
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            bynt_arr2_i64 l0_xs = {0};
+            bynt_arr3_i64 l1_a = {0};
+            bynt_arr2_i64 t2 = {0};
+        #line 32 "t29.byn"
+            l0_xs = ((bynt_arr2_i64){{INT64_C(1), INT64_C(2)}});
+        #line 33 "t29.byn"
+            t2 = l0_xs;
+        #line 33 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 33);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let a: i64[3] = [1, 2, 3]
+            let s = a[0..two(1, by: panic("a"))]
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            bynt_arr3_i64 l0_a = {0};
+            bynt_span_i64 l1_s = {0};
+        #line 32 "t29.byn"
+            l0_a = ((bynt_arr3_i64){{INT64_C(1), INT64_C(2), INT64_C(3)}});
+        #line 33 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 33);
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() fails ValidationError<Pos> {
+            let p = try Pos { v: panic("a") }
+        }
+        """,
+        by: """
+        byn_err byn_main__f(void) {
+            bynt_main__Pos l0_p = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+            return (byn_err){0};
+        }
+        """,
+    )
+}
+
+test "emitter t29: operands that are not trivial are stored first" {
+    t29LxCase(
+        """
+        i64 f() {
+            return sumSpan(mkList(1))
+        }
+        """,
+        by: """
+        int64_t byn_main__f(void) {
+            bynt_list_i64 t0 = {0};
+        #line 32 "t29.byn"
+            t0 = byn_main__mkList(INT64_C(1));
+        #line 32 "t29.byn"
+            return byn_main__sumSpan(((bynt_span_i64){t0.ptr, t0.len}));
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        i64 f() {
+            return mkArr(1)[0]
+        }
+        """,
+        by: """
+        int64_t byn_main__f(void) {
+            bynt_arr2_i64 t0 = {0};
+        #line 32 "t29.byn"
+            t0 = byn_main__mkArr(INT64_C(1));
+        #line 32 "t29.byn"
+            return (*bynh_at_arr2_i64(&t0, (int64_t)INT64_C(0), false, byn_file_0, 32));
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        bool f(i64 n) {
+            return 5 in 0..=n
+        }
+        """,
+        by: """
+        bool byn_main__f(int64_t p_n) {
+        #line 32 "t29.byn"
+            return ((INT64_C(5) >= INT64_C(0)) && (INT64_C(5) <= p_n));
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        bool f(i64 n) {
+            return n in two(1, by: n)..=10
+        }
+        """,
+        by: """
+        bool byn_main__f(int64_t p_n) {
+            int64_t t0 = {0};
+            int64_t t1 = {0};
+        #line 32 "t29.byn"
+            t0 = p_n;
+        #line 32 "t29.byn"
+            t1 = byn_main__two(INT64_C(1), p_n);
+        #line 32 "t29.byn"
+            return ((t0 >= t1) && (t0 <= INT64_C(10)));
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f(i64 n) {
+            let xs: i64[2] = [1, 2]
+            let a: i64[3] = [..xs, two(n, by: 2)]
+        }
+        """,
+        by: """
+        void byn_main__f(int64_t p_n) {
+            bynt_arr2_i64 l0_xs = {0};
+            bynt_arr3_i64 l1_a = {0};
+            bynt_arr2_i64 t2 = {0};
+            int64_t t3 = {0};
+        #line 32 "t29.byn"
+            l0_xs = ((bynt_arr2_i64){{INT64_C(1), INT64_C(2)}});
+        #line 33 "t29.byn"
+            t2 = l0_xs;
+        #line 33 "t29.byn"
+            t3 = byn_main__two(p_n, INT64_C(2));
+        #line 33 "t29.byn"
+            l1_a = ((bynt_arr3_i64){{t2.v[INT64_C(0)], t2.v[INT64_C(1)], t3}});
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f(Span<i64> sp) {
+            let l: List<i64> = [..sp]
+        }
+        """,
+        by: """
+        void byn_main__f(bynt_span_i64 p_sp) {
+            bynt_list_i64 l0_l = {0};
+            bynt_list_i64 t1 = {0};
+            bynt_span_i64 t2 = {0};
+            int64_t t3 = {0};
+        #line 32 "t29.byn"
+            t1 = ((bynt_list_i64){NULL, 0, 0, byn_context});
+        #line 32 "t29.byn"
+            t2 = p_sp;
+        #line 32 "t29.byn"
+            t3 = INT64_C(0);
+        #line 32 "t29.byn"
+            for (;;) {
+        #line 32 "t29.byn"
+                if ((!(t3 < t2.len))) {
+        #line 32 "t29.byn"
+                    goto break_1;
+                }
+        #line 32 "t29.byn"
+                (void)bynh_add_list_i64(&t1, t2.ptr[t3]);
+        #line 32 "t29.byn"
+                t3 = byn_addw_i64(t3, INT64_C(1));
+            }
+        break_1:;
+        #line 32 "t29.byn"
+            l0_l = t1;
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() {
+            let s = mkArr(1)[0..1]
+        }
+        """,
+        by: """
+        void byn_main__f(void) {
+            bynt_span_i64 l0_s = {0};
+            bynt_arr2_i64 t1 = {0};
+        #line 32 "t29.byn"
+            t1 = byn_main__mkArr(INT64_C(1));
+        #line 32 "t29.byn"
+            l0_s = bynh_slice_arr2_i64(&t1, (int64_t)INT64_C(0), 0, (int64_t)INT64_C(1), 0, false, byn_file_0, 32);
+        }
+        """,
+    )
+}
+
+test "emitter t29: a never-typed conditional and a never-returning failing call" {
+    t29LxCase(
+        """
+        void f(bool b) {
+            let v: i64 = b ? panic("a") : panic("b")
+        }
+        """,
+        by: """
+        void byn_main__f(bool p_b) {
+            int64_t l0_v = {0};
+            int64_t t1 = {0};
+        #line 32 "t29.byn"
+            if (p_b) {
+        #line 32 "t29.byn"
+                (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+            } else {
+        #line 32 "t29.byn"
+                (void)byn_panic_str(BYN_STR("b", 1), byn_file_0, 32);
+            }
+        #line 32 "t29.byn"
+            l0_v = t1;
+        }
+        """,
+    )
+    t29LxCase(
+        """
+        void f() fails E {
+            try stop()
+        }
+        """,
+        by: """
+        byn_err byn_main__f(void) {
+            byn_err t0 = {0};
+        #line 32 "t29.byn"
+            t0 = byn_main__stop();
+        #line 32 "t29.byn"
+            if ((!(t0.code == ((uint32_t)0)))) {
+        #line 32 "t29.byn"
+                return t0;
+            }
+            return (byn_err){0};
+        }
+        """,
+    )
+}
+
+test "emitter t29: an assert column that never returns keeps its ran flag unset" {
+    let got = t29LxFn(
+        """
+        void f(bool b) {
+            assert b && yes(two(1, by: panic("a")))
+        }
+        """,
+    )
+    assert got.startsWith(
+        """
+        void byn_main__f(bool p_b) {
+            bool t0 = {0};
+            bool t1 = {0};
+            bool t2 = {0};
+            bool t3 = {0};
+            bool t4 = {0};
+            bool t5 = {0};
+        #line 32 "t29.byn"
+            t0 = false;
+        #line 32 "t29.byn"
+            t1 = false;
+        #line 32 "t29.byn"
+            t2 = false;
+        #line 32 "t29.byn"
+            t3 = p_b;
+        #line 32 "t29.byn"
+            t4 = t3;
+        #line 32 "t29.byn"
+            if (t4) {
+        #line 32 "t29.byn"
+                (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+            }
+        #line 32 "t29.byn"
+            t5 = t4;
+        """,
+    )
+}
+
+test "emitter t29: a probed condition that never returns has no outcome counters" {
+    let got = t29LxFn(
+        """
+        void f() {
+            if panic("a") {
+                print("x")
+            }
+        }
+        """,
+        by: true,
+    )
+    let expected = """
+    void byn_main__f(void) {
+    #line 32 "t29.byn"
+        (void)byn_cov[6]++;
+    #line 32 "t29.byn"
+        (void)byn_panic_str(BYN_STR("a", 1), byn_file_0, 32);
+    }
+    """
+    assert got == expected
+}

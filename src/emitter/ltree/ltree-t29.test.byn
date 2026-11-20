@@ -1,0 +1,42 @@
+// 019 T29 (coverage ratchet): `typeOf` and `spanOf` on the lowered kinds no golden case asks them about. The expected
+// values are the output of the self-hosted emitter at the commit that added the test.
+
+import lexer
+import semantics
+
+type T29Options = semantics.CompilationOptions
+
+test "ltree t29: typeOf and spanOf of lowered nodes" {
+    let options = T29Options {}
+    var c = semantics.create(from: List<lexer.SourceText>(), at: Path.fullPath("tmp"), by: in options)
+    var t = LTree {}
+    let count = addLCount(ref t, from: LCount { span: TextSpan { start: 1, length: 2 }, id: 0 })
+    let mutant = addLMutantIs(ref t, from: LMutantIs { span: TextSpan { start: 3, length: 4 }, id: 1 })
+    let nothing = addLVoid(ref t, from: LVoid { span: TextSpan { start: 5, length: 6 } })
+    let code = addLErrorCode(ref t, from: LErrorCode { span: TextSpan { start: 7, length: 8 }, error: count })
+    let assign = addLAssignExpr(
+        ref t,
+        from: LAssignExpr { span: TextSpan { start: 9, length: 10 }, target: mutant, value: count },
+    )
+    let noValue = addLNever(
+        ref t,
+        from: LNever { span: TextSpan { start: 11, length: 12 }, type: semantics.prim(.i64) },
+    )
+    let tag = addLUnionTag(ref t, from: LUnionTag { span: TextSpan { start: 13, length: 14 }, unionValue: count })
+    let label = addLLabel(ref t, from: LLabel { span: TextSpan { start: 15, length: 16 }, name: "l" })
+    let field = addLErrorField(
+        ref t,
+        from: LErrorField { span: TextSpan { start: 17, length: 18 }, error: count, variant: 0, index: 0 },
+    )
+    var types = StrBuf()
+    for n in [count, mutant, nothing, code, assign, noValue, tag, label] {
+        types.append($"{semantics.typeDisplay(ref c, by: typeOf(in c, through: in t, for: n))} ")
+    }
+    assert types.finish() == "void bool void u32 bool i64 i32 ? "
+    var spans = StrBuf()
+    for n in [count, mutant, nothing, code, assign, noValue, tag, label, field] {
+        let span = spanOf(in c, through: in t, for: n)
+        spans.append($"{span.start}+{span.length} ")
+    }
+    assert spans.finish() == "1+2 3+4 5+6 7+8 9+10 11+12 13+14 15+16 17+18 "
+}
