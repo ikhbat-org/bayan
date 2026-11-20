@@ -1,0 +1,152 @@
+// 019 T29 (coverage ratchet): test.byn paths no golden case reaches in process: every option of `t11ParseBuildOptions` and its
+// refusals, the `--golden-*` arms and the refusals of `testCommand`, a `--coverage --only` run of a project's tests that pass,
+// print a carriage return, fail and carry a control character, a `--changed --json` run, a run of golden cases that pass, fail
+// and are pending, `changedModules` in a repository of its own, and `failureDetail` past three frames. The expected values are
+// the output of the self-hosted driver at the commit that added the test.
+
+import semantics
+
+/// tmp/test-t29/<name> under the working directory, emptied.
+string t29TestDir(string name) uses alloc, fs {
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "test-t29"), name)
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    return dir
+}
+
+/// `t11ParseBuildOptions` of `args`: `null`, or its fields in declaration order.
+string t29TestParse(List<string> args) uses alloc, console, fs {
+    let o = t11ParseBuildOptions(in args) ?? return "null"
+    var only = "-"
+    if (o.only is { } wanted) {
+        only = wanted.joined(by: ",")
+    }
+    var jobs = "-"
+    if (o.jobs is { } n) {
+        jobs = $"{n}"
+    }
+    return $"{o.path} {o.mode} {o.json} [{o.programArgs.joined(by: ",")}] {o.testJson} {o.changed} {o.baseRef ?? "-"} {o.verbose} {o.all} {only} {o.mutate} {o.coverage} {o.run ?? "-"} {o.package ?? "-"} {jobs}"
+}
+
+/// `testCommand` of `args` after `test`, as its exit code.
+string t29TestRun(List<string> args) uses alloc, clock, console, env, fs, process, random {
+    var kept = List<string>()
+    kept.append("test")
+    for a in args {
+        kept.append(a)
+    }
+    var d = newDCtx()
+    return $"{testCommand(in kept, by: ref d)}"
+}
+
+test "driver t29: t11ParseBuildOptions reads every option and refuses a bad one" {
+    let file = "src/driver/test.byn"
+    t29Same(
+        t29TestParse(["--mode", "debug", "--diagnostics", "json", "--all", "--json", "--mutate", "--run", "r", file, "--", "a", "b"]),
+        as: "src/driver/test.byn debug true [a,b] true false - false true - true false r - -",
+    )
+    t29Same(
+        t29TestParse(["--diagnostics", "text", "--changed", "--coverage", "--only", "x", "--only", "y", "--jobs", "3", file]),
+        as: "src/driver/test.byn safe false [] false true - false false x,y false true - - 3",
+    )
+    t29Same(
+        t29TestParse(["--base", "main", "-v", "--package", "src", file]),
+        as: "src/driver/test.byn safe false [] false true main true false - false false - src -",
+    )
+    t29Same(t29TestParse(["--mode", "slow", file]), as: "null")
+    t29Same(t29TestParse(["--diagnostics", "xml", file]), as: "null")
+    t29Same(t29TestParse(["--jobs", "0", file]), as: "null")
+    t29Same(t29TestParse(["--jobs", "x", file]), as: "null")
+    t29Same(t29TestParse([file, file]), as: "null")
+    t29Same(t29TestParse(["--nope"]), as: "null")
+    t29Same(t29TestParse([]), as: "null")
+    t29Same(t29TestParse(["tmp/test-t29-no-such.byn"]), as: "null")
+    t29Same(t29TestParse(["--mode", "--diagnostics", "--base", "--run", "--only", "--jobs", "--package"]), as: "null")
+}
+
+test "driver t29: testCommand's golden arms and its refusals before a build" {
+    let dir = t29TestDir("refuse")
+    goldenWrite(dir, for: "good.byn", as: "test \"t29 one\" {\n    assert 1 + 1 == 2\n}\n")
+    goldenWrite(dir, for: "bad/bad.byn", as: "print(nope)\n")
+    let good = Path.combine(dir, "good.byn")
+    t29Same(t29TestRun(["--list-cases", Path.combine(dir, "missing")]), as: "1")
+    t29Same(t29TestRun(["--golden-worker", dir, "x", "1", "1"]), as: "2")
+    t29Same(t29TestRun(["--golden-prebuild", dir, "exe", "x"]), as: "2")
+    t29Same(t29TestRun(["--golden-case", "lex", "bad-chars", "tests/cases/lex/bad-chars.byn"]), as: "0")
+    t29Same(t29TestRun(["--jobs", "2", good]), as: "2")
+    t29Same(t29TestRun([Path.combine(Path.combine(dir, "bad"), "bad.byn")]), as: "1")
+    t29Same(t29TestRun(["--run", "r", good]), as: "2")
+    t29Same(t29TestRun(["--mutate", "--coverage", good]), as: "2")
+    t29Same(t29TestRun(["--mutate", "--json", good]), as: "2")
+    t29Same(t29TestRun(["--coverage", "--only", "t29-none", "--only", "t29-other", good]), as: "2")
+    deleteWorkDir(dir)
+}
+
+test "driver t29: testCommand runs a project's selected tests with coverage, then none with --changed --json" {
+    let dir = t29TestDir("project")
+    goldenWrite(dir, for: "package.byn", as: "Package {\n    name: \"local/project\",\n    version: \"0.1.0\",\n}\n")
+    goldenWrite(
+        dir,
+        for: "src/app/main.byn",
+        as: "print(\"main\")\n\ntest \"t29 pass\" {\n    print(\"a\\r\")\n    print(\"b\")\n}\n\ntest \"t29 fail\" {\n    assert 1 == 2\n}\n\ntest \"t29 \\u{1} name\" {\n    assert 1 == 2\n}\n\ntest \"other\" {\n    assert 1 == 1\n}\n",
+    )
+    t29Same(t29TestRun(["--coverage", "-v", "--only", "t29", dir]), as: "3")
+    assert Fs.fileExists(Path.combine(dir, "out/test/results.json"))
+    t29Same(t29TestRun(["--changed", "--json", dir]), as: "0")
+    deleteWorkDir(dir)
+}
+
+test "driver t29: testCommand on a cases directory with a case that passes, one that fails and one pending" {
+    let dir = t29TestDir("cases")
+    let source = Io.readText("tests/cases/lex/bad-chars.byn") catch { panic("source") }
+    let tokens = Io.readText("tests/cases/lex/bad-chars.tokens") catch { panic("tokens") }
+    goldenWrite(dir, for: "lex/ok.byn", as: source)
+    goldenWrite(dir, for: "lex/ok.tokens", as: tokens)
+    goldenWrite(dir, for: "lex/bad.byn", as: source)
+    goldenWrite(dir, for: "lex/bad.tokens", as: "t29\n")
+    goldenWrite(dir, for: "lex/pend.byn", as: source)
+    goldenWrite(dir, for: "lex/pend.tokens", as: "t29\n")
+    goldenWrite(dir, for: "lex/pend.pending", as: "t29\n")
+    t29Same(t29TestRun([dir]), as: "3")
+    t29Same(t29TestRun(["--json", "--only", "ok", dir]), as: "0")
+    t29Same(t29TestRun(["--only", "t29-none", dir]), as: "2")
+    deleteWorkDir(dir)
+}
+
+test "driver t29: changedModules in a repository of its own" {
+    let git = ccFindOnPath("git", for: Target.os) ?? ""
+    assert git != ""
+    let dir = t29TestDir("repo")
+    goldenWrite(dir, for: "package.byn", as: "Package {\n    name: \"local/repo\",\n    version: \"0.1.0\",\n}\n")
+    goldenWrite(dir, for: "src/app/main.byn", as: "print(\"repo\")\n")
+    goldenWrite(dir, for: "notes.txt", as: "t29\n")
+    let init = Io.run(git, boundList(["init", "-q", dir]).span) catch { panic("git") }
+    assert init.exitCode == 0
+    let symbols = t19Symbols(in DStyle {})
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    let project = t5Compile(in T5Options { path: dir }, by: in symbols, to: ref reported, through: ref ok)
+    assert ok
+    // git's empty tree: a repository with no commit has no `HEAD` to compare with
+    let empty = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+    let o = T11Options { path: dir, changed: true, baseRef: empty }
+    let all = changedModules(in project, by: in o, for: "app") ?? T11ChangedSet {}
+    assert all.all
+    goldenWrite(dir, for: "lone.byn", as: "print(\"lone\")\n")
+    let lone = Path.combine(dir, "lone.byn")
+    let plain = semantics.fromPath(lone, by: T5CompilationOptions {}, wholeDirectory: false)
+    let some = changedModules(in plain, by: in T11Options { path: lone, baseRef: empty }, for: "app") ?? T11ChangedSet {}
+    assert !some.all && some.directories.contains(dir)
+    assert changedModules(in plain, by: in T11Options { path: dir, baseRef: "t29-no-such-ref" }, for: "app") is null
+    assert changedModules(in plain, by: in T11Options { path: "/" }, for: "app") is null
+    let tests = Path.combine(Path.combine(project.displayRoot, "tests"), "a.byn")
+    t29Same(moduleDirectory(in project, for: tests, by: "app").replaced(dir, by: "<d>"), as: "<d>/src/app")
+    deleteWorkDir(dir)
+}
+
+test "driver t29: failureDetail drops carriage returns and frames past the third" {
+    let details = "panic: assert x\r\n         │\n  at a.byn:1\r\n  at a.byn:2\n  at a.byn:3\n  at a.byn:4\n"
+    let symbols = semantics.t26Symbols(ascii: true)
+    t29Same(failureDetail(details, by: false, for: in symbols, through: 80).joined(by: "|"), as: "assert x|  ||a.byn:1|a.byn:2|a.byn:3|")
+    t29Same(failureDetail(details, by: true, for: in symbols, through: 80).joined(by: "|"), as: "assert x|  ||a.byn:1|a.byn:2|a.byn:3|a.byn:4|")
+}

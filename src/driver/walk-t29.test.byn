@@ -1,6 +1,7 @@
 // 019 T29 (coverage ratchet): walk.byn paths no golden case reaches: the macOS and Windows `.byn` match, bounds that end in
-// a separator, a missing walk root, a dangling directory link, an unlistable directory and an unreadable file. The
-// expected values are the output of the self-hosted driver at the commit that added the test.
+// a separator, a missing walk root, a dangling link, an unlistable directory, a directory that can be listed but not
+// searched, and an unreadable file. The expected values are the output of the self-hosted driver at the commit that added
+// the test.
 
 /// tmp/walk-t29/<name> under the working directory, emptied.
 string t29WalkDir(string name) uses alloc, fs {
@@ -47,6 +48,9 @@ test "driver t29: bynFiles skips a dangling link, an unlistable directory and wh
     t29WalkRun("ln", by: ["-s", "missing", Path.combine(dir, "link")])
     t29WalkRun("mkdir", by: [Path.combine(dir, "locked")])
     t29WalkRun("chmod", by: ["000", Path.combine(dir, "locked")])
+    // listable but not searchable: its entry `inner` has no real path
+    t29WalkRun("mkdir", by: ["-p", Path.combine(Path.combine(dir, "unsearchable"), "inner")])
+    t29WalkRun("chmod", by: ["644", Path.combine(dir, "unsearchable")])
     var exit = exitOk
     let files = bynFiles(dir, through: ref exit)
     assert exit == 1 && files.length == 2
@@ -56,6 +60,7 @@ test "driver t29: bynFiles skips a dangling link, an unlistable directory and wh
     var bounded = exitOk
     assert bynFiles(dir, through: ref bounded, by: Path.combine(dir, "elsewhere"), for: true).length == 0
     t29WalkRun("chmod", by: ["755", Path.combine(dir, "locked")])
+    t29WalkRun("chmod", by: ["755", Path.combine(dir, "unsearchable")])
     deleteWorkDir(dir)
 }
 
