@@ -920,7 +920,7 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (019 T6) `goldenTest` starts the driver's version command twice per run (the `driver:` header and the BAYAN_EXE check); run it once.
 - LOW (019 T6) in the `new`, `out`, `emit` and `quality` kinds every regular file is a case, so a `<stem>.pending` file there would be found as a case itself.
 - LOW (019 T6) `goldenStyleCompare` reads `tests/cases/style` under the working directory, not the cases root, and takes no part in update mode.
-- LOW (019 T5) `src/driver/main.byn` help text does not mention cases directories, `--jobs` or `--only`.
+- LOW (019 T5) `src/driver/main.byn` help text does not mention cases directories, `--jobs` or `--only`. Decision 2026-11-20 (Fable for the owner): done right after the 019a merge, before 0.3.3 (the cli help goldens are frozen C# output until then; changing help earlier adds divergence rows).
 - LOW (019 T7) building src/ with stage 0 warns BYN2311 at `src/semantics/types.byn:729` (`var sets` should be `let`) and suggests `let` near line 561 (`params = copyIds(...)`); fix the declarations in the next src/semantics pass.
 - LOW (019 T8) golden entries in results.json carry `durationMs: 0`; `GoldenResult` records no elapsed time.
 - LOW (019 T8) a failing golden case gets no `--only` rerun suggestion.
@@ -1149,7 +1149,7 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 019-t31b2, 2026-11-20; tooling): the worker hook blocks `git checkout --`, so writers restore break runs by hand; allow `git checkout -- <path>` inside a worker worktree or give the rules another restore step.
 - LOW (019 019-t64a, 2026-11-20; T64): safe and fast emitted C are identical for every input (CliApp.cs:453 only branches on Debug), so expected.fast.sha256 duplicates safe.
 - LOW (019 019-t64a, 2026-11-20; T64): "every parse case" was taken as the 64 flat parse/*.byn (C# Golden.Cases); the 864 exported parse class cases are not run (349 hold expected.exitcode already, the rest are collector/shape dumps).
-- LOW (019 019-t64a, 2026-11-20; T64): run-c.sha256:148 (run/io-stdin-read.byn, ab4f72f77) is a self-hosted hash the C# cannot produce (BYN2003); owner: keep it or record a divergence.
+- LOW (019 019-t64a, 2026-11-20; T64): run-c.sha256:148 (run/io-stdin-read.byn, ab4f72f77) is a self-hosted hash the C# cannot produce (BYN2003); owner: keep it or record a divergence. Decision 2026-11-20 (owner): keep the row.
 - LOW (019 019-t64a, 2026-11-20; T64): diag/circular-field-default-generic-growing{,-list,-owned}.byn crash the C# checker (stack overflow, exit 134); their frozen exit code is a crash code.
 - LOW (019 019-t64a, 2026-11-20; T64): 4 run/*.test.byn have no CLI route to their emitted C; their run-c.sha256 rows depend on the frozen test project until T67.
 - LOW (019 019-t30h34, 2026-11-20; T30h): `assert(x)` followed by a line starting with an identifier parses as a cast (BYN1057); put such an assert last in its block.
@@ -1176,3 +1176,11 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 019-t29b, 2026-11-20; T29): `--counters` adds any `<prefix>.*` file. A counter file from another program in the directory is added silently, because the files carry no program id.
 - LOW (019 019-t29b, 2026-11-20; T29): `scripts/test.sh --coverage` still runs the gate on test blocks alone. It has no flag to pass `--corpus DIR`.
 - LOW (019 019-t29b, 2026-11-20; T29): BAYAN_COVERAGE_CASES is not named in site/content (ref-cli.page has BAYAN_COVERAGE only).
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): L024 `scope:` still names csharp/Bayan.Lowering/ and csharp/Bayan.Backend.C/CEmitter.cs (owner field).
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): L022 and L024 Proof notes keep the old `dotnet test` text above the new line; the old proof files go with T67.
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): L022 `timeout: 1800` and L024 `timeout: 300` are far above the new checks (about 1.5 min with a fresh build); owner fields.
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): scripts/ci/ddc.sh:11 comment says laws-nightly.yml runs laws by `dotnet test`; it runs scripts/selfhost/pre-push-laws.sh.
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): scripts/ci/inventory-check.sh was seen exiting 1 locally on rows with 0 cases (MutantSchemataTests, OwnershipCheckerTests); not rechecked at the branch head.
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): scripts/selfhost/pre-push-laws.sh always exports BAYAN_LAW_TIER=full, so it has no quick tier.
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): the gate pattern "0 passed" (README:68) also matches counts such as "10 passed".
+- LOW (019 019-t31f, 2026-11-20; T31/T32/T44a): break runs were reverted with `git show HEAD:<path> >` because a hook refused `git checkout --` in the worker worktree.

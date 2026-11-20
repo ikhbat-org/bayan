@@ -5,6 +5,7 @@
 #   repo tmp/: reviewer scratch (tmp/rv-*), export staging (tmp/export-*), worker build output moved aside before a
 #     land (tmp/*-build-out*), gate and break-test scratch, the stage-1 build the writers shared (tmp/bb)
 #   worktree tmp/: the bundles sent to wp1 and wlt1 (tmp/wp1, tmp/wlt1), script-test leftovers, moved-aside caches
+#   worktree editors/vscode/node_modules: an untracked npm install neither the owner nor the session needs (2026-11-20)
 #   /tmp: the files this session's reviewers wrote outside the repo
 #   zig caches: tmp/zig-global (28 GB on 2026-11-19) and ~/.cache/zig (6.1 GB), with --clear-zig-cache
 #   on wp1 and wlt1: the <sha8>-sp checkouts and <sha8>.bundle files under the repo's tmp\, with --remove-remote
@@ -55,7 +56,7 @@ remove_scratch "$repo"/tmp/rv-* "$repo"/tmp/rv3-* "$repo"/tmp/export-* "$repo"/t
   "$repo"/.worktrees/*/tmp/wp1 "$repo"/.worktrees/*/tmp/wlt1 "$repo"/.worktrees/*/tmp/bash32-parse-test \
   "$repo"/.worktrees/*/tmp/script-tests-test "$repo"/.worktrees/*/tmp/cache-moved-aside* \
   "$repo"/.worktrees/*/tmp/parity-csharp-bayan "$repo"/.worktrees/*/tmp/parity-csharp-bayan.log \
-  "$repo"/.worktrees/*/tmp/t30e-* "$repo"/.worktrees/*/tmp/t30eb "$repo"/.worktrees/*/tmp/bb0 "$repo"/.worktrees/*/tmp/bootstrap
+  "$repo"/.worktrees/*/editors/vscode/node_modules "$repo"/.worktrees/*/tmp/t30e-* "$repo"/.worktrees/*/tmp/t30eb "$repo"/.worktrees/*/tmp/bb0 "$repo"/.worktrees/*/tmp/bootstrap
 
 # 3. files this session's reviewers left outside the repo
 for p in /tmp/019wg-changed.txt /tmp/t20-golden-commit-check.log /tmp/t20-inventory-check.log /tmp/t20rev.out /tmp/t31bc-gate.* \

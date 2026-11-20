@@ -12,7 +12,7 @@ allow="scripts/ci/install-dotnet.sh scripts/ci/install-dotnet.test.sh scripts/ci
 scripts/ci/sdk-patch-check.test.sh scripts/ci/ddc.sh scripts/ci/ddc.test.sh .github/workflows/ddc.yml
 scripts/selfhost/reexport-check.sh"
 # One per line: <file> <task that removes its .NET call>.
-pending=".github/workflows/laws-nightly.yml T44a"
+pending=""
 
 cmd_re='(^|[;&|({]|\$\(|(^|[[:space:]])(if|then|do|else|elif|while|until|exec|command|time|!)[[:space:]])[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*"?\$?([^[:space:]";&|()]*/)?dotnet"?([[:space:]]|$)'
 
