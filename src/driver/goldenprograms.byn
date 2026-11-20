@@ -298,16 +298,19 @@ List<string> goldenSnapshotKept(
             failure = $"BAYAN_SNAPSHOT_FILES: {f} matches no compiled source"
             return kept
         }
-        listed.append(Path.fullPath(f))
+        listed.append(goldenSnapshotPath(Path.fullPath(f)))
     }
     for f in files {
         continue if f == main || f == added
-        if listed.length == 0 || t13RunnerHas(listed, for: Path.combine(src, f)) {
+        if listed.length == 0 || t13RunnerHas(listed, for: goldenSnapshotPath(Path.combine(src, f))) {
             kept.append(f)
         }
     }
     return kept
 }
+
+/// `path` with `/` for `\`: on Windows `Path.fullPath` gives `\` throughout, while `Path.combine` keeps the `/` of a `<pkg>/<name>` file.
+string goldenSnapshotPath(string path) uses alloc => path.replaced("\\", by: "/")
 
 /// `binary` and its site map listed in `dir`/manifest.json once, as `{"version": 1, "builds": [{"binary", "sites"}]}` with a build a line
 /// (SelfhostSemanticsHarness.cs:119 `RecordBuild`); `failure` set when it cannot be written.
@@ -3023,6 +3026,9 @@ test "a recording keeps sites in the listed files of a program, all when none is
     let gone = goldenSnapshotKept("src/lexer/gone.byn", from: files, main: "", added: "", through: ref failure)
     assert(gone.length == 0 && failure == "BAYAN_SNAPSHOT_FILES: src/lexer/gone.byn matches no compiled source")
     assert(goldenSnapshotJobs(4, for: "tmp/snap") == 1 && goldenSnapshotJobs(4, for: "") == 4)
+    // a Windows full path of a listed file against the src/ file it names
+    let combined = goldenSnapshotPath(Path.combine("C:\\r\\src", "lexer/lexer.byn"))
+    assert(combined == goldenSnapshotPath("C:\\r\\src\\lexer\\lexer.byn"))
 }
 
 test "under BAYAN_SNAPSHOT a program is a schemata build of the listed files, its map naming src/, listed once, each run recorded once" {
