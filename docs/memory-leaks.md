@@ -119,12 +119,28 @@ env BAYAN_TEST_TIMEOUT_MS=600000 "$BAYAN_EXE" test --package src src/driver --on
 
 The first line runs the bound blocks of `editors/language-server/src/bounds/bounds.byn` (spec 019 T38a, R22) with no .NET;
 they are pending on Windows (no `sh` or `ps`), and on Linux and macOS the gate fails when any is pending or none passed.
+The block "16 messages of 2 MiB read and 16 written …" allows less than four messages (8192 KB) of growth on macOS for the reads
+and for the writes, two (4096 KB) elsewhere (spec 019 T43, 2026-11-20). The hosted macos-15 runner grew 6288 KB on the reads and
+4160 KB on the writes (release dry run 44688158908). On macOS arm64 a scratch copy of the block, its input framed once and
+moved into the transport (0.5 GB resident at 256 messages instead of 3 GB, which the loaded machine paged out), grew on the
+reads 16, 496 and 16 KB at 16 messages, 1376, 1792 and 1616 KB at 64, 528, 1616 and -3056 KB at 256; the writes alone (no
+input held beside them) grew 1184, 2640 and 32 KB at 16, 1520, 2128 and 3104 KB at 64, 2896, 3584 and 3408 KB at 256. Kept
+messages would add 32768, 131072 and 524288 KB: the growth stays flat as the count rises sixteenfold, so it is the allocator
+keeping pages, not a message kept. Break: the server kept each message read in a list; the block failed in 6 of 8 runs at
++32928 to +33248 KB on the reads; the 2 passes came under heavier memory pressure (swap 5.5 of 7 GB), the kept pages
+compressed out of the resident set that `ps` reads.
 
 The second line runs the `bound: ` test blocks of `src/driver/bounds.byn` (spec 019 T28, R9, R15): the bounds
 `CliMemoryBoundsTests` and `SelfhostDefaultBoundsTests` checked, with the same numbers, measured by
 `scripts/release/peak-rss.sh`. They are pending on Windows (no `sh` or `ps`) and the Linux-only C-compiler row is pending
 elsewhere; on Linux and macOS the gate fails when none of them passed. The `bound: evict …` blocks run the driver's evict over
 the trees of `tests/cases/bounds/evict/`, exported from the C# `Toolchain.Evict` (spec 019 T28 part 2).
+The macOS bound of "bound: check of the driver stays under its plan 014 bound" is 520 MB (spec 019 T43, 2026-11-20; was 480):
+the bound follows the size of src/driver, as the check reads the whole package. Plan 014 set 480 on 396 MB for `selfhost/driver`
+at 780,342 bytes of `.byn` (package `selfhost` 3,441,419 bytes); at bd0ba8688 src/driver is 1,745,700 bytes (package `src`
+4,950,529 bytes) and peaked at 481 MB on the hosted macos-15 runner (release dry run 44688158908) and at 429, 486, 299, 318 and
+290 MB in five runs on macOS arm64 (stage-1 driver, loaded machine), so the peak per source byte fell. 486 MB plus 5%, rounded
+up to the next 10. Linux (560) and Windows (1,700) are unchanged.
 
 The third line runs the cli cases `TheInputsHashDoesNotFollowLinks` and `-2` (the M4 row `SelfhostDefaultBoundsTests` delegated to
 `SelfhostDefaultT12Tests`); the gate fails unless both passed.

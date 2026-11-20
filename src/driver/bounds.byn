@@ -516,13 +516,16 @@ test "bound: a coverage work directory another process swept does not change the
 
 // SelfhostDefaultBoundsTests `CheckPeakBoundMb`: plan 014's max RSS after both arenas plus about 80 MB, one per OS (macOS 480, Linux 560);
 // Windows was never measured after plan 014 and keeps plan 013's 1,700 MB.
+// macOS 520 (2026-11-20): the bound follows the size of src/driver, as the check reads the whole package. Plan 014's 396 MB was for
+// selfhost/driver at 780,342 bytes of .byn; src/driver is now 1,745,700 bytes and peaked at 481 MB on the hosted macos-15 runner and
+// 290-486 MB in five runs on macOS arm64, so the peak per source byte fell; 486 MB plus 5%, rounded up to the next 10 (docs/memory-leaks.md).
 test "bound: check of the driver stays under its plan 014 bound" {
     if Target.os == "windows" {
         todo("`sh` and `ps` sample the resident set; Windows has neither")
     }
     let exe = boundExe()
     let dir = boundFresh("check-driver")
-    let bound: i64 = Target.os == "macos" ? 480 : Target.os == "linux" ? 560 : 1700
+    let bound: i64 = Target.os == "macos" ? 520 : Target.os == "linux" ? 560 : 1700
     let cmd = boundList([exe, "check", "--package", Path.fullPath("src"), Path.fullPath("src/driver")])
     let run = boundStart(cmd, at: dir, as: List<string>())
     deleteWorkDir(dir)
