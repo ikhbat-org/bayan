@@ -340,3 +340,188 @@ test "generics t29: a requires clause false on a constant argument while another
             """
     assert t29gnIs(text, as: "BYN2321 123+1 `0` violates `requires a > 0 && b > 0` of `three`")
 }
+
+test "generics t29: a first pass bound again for a wide var, with an instance, a requires check and a bound pending" {
+    let text = """
+            union error E {
+                bad
+            }
+
+            interface IGo {
+                void go() fails
+            }
+
+            struct Sq : IGo {
+                void go() fails {}
+            }
+
+            struct Need<T> where T : IGo {
+                T v
+            }
+
+            i64 two(i64 a, to i64 b) expects a > 0 => a + b
+
+            i64 seven() => 7
+
+            T keep<T>(T x) => x
+
+            void wide(i64 v) {}
+
+            void first() {
+                let y = two(seven(), to: 1)
+            }
+
+            void second(i64 p) {
+                var n = 0
+                let k = keep(p)
+                let q: Need<Sq>? = null
+                wide(n)
+            }
+
+            void main() fails E {
+                fail .bad
+            }
+
+            void other() fails E {
+                try main()
+            }
+            """
+    assert t29gnIs(
+        text,
+        as: "BYN5011 177+7 this `expects` reads only `a`; a type with `requires` checks it once | BYN2780 237+1 implicit copy of a unique value: type parameter `T` may stand for a unique type | BYN2311 340+1 `n` is never reassigned; declare it with `let`",
+    )
+}
+
+test "generics t29: where clauses per parameter, an unresolved bound, a mutating call and expects in an instance" {
+    let text = """
+            interface IA {
+                i64 a()
+            }
+
+            interface IB {
+                i64 b()
+            }
+
+            struct OnlyB : IB {
+                i64 b() => 1
+            }
+
+            struct Ctr {
+                i64 n
+
+                void bump(ref this) {
+                    this.n += 1
+                }
+            }
+
+            i64 both<T>(T x) where T : IA where T : IB => 1
+
+            i64 pair<T, U>(T x, to U y) where T : IA where U : IB => 1
+
+            i64 lost<T>(T x) where T : Missing, IB => 1
+
+            void poke<T>(T x) {
+                var c = Ctr { n: 0 }
+                c.bump()
+            }
+
+            T pick<T>(T x, to i64 a) expects a > 0 => x
+
+            void main() {
+                let p = both(OnlyB {})
+                let q = pair(OnlyB {}, to: OnlyB {})
+                let r = lost(OnlyB {})
+                poke(1)
+                let s = pick(1, to: 2)
+            }
+            """
+    assert t29gnIs(
+        text,
+        as: "BYN2002 315+7 unknown type `Missing` | BYN5011 419+7 this `expects` reads only `a`; a type with `requires` checks it once | BYN2807 465+14 `OnlyB` does not conform to `IA`: missing `a` | BYN2807 492+28 `OnlyB` does not conform to `IA`: missing `a` | BYN2780 436+1 implicit copy of a unique value: type parameter `T` may stand for a unique type",
+    )
+}
+
+test "generics t29: types that expand without end, alone, through another template and in a pair" {
+    let text = """
+            struct Wrap<T> {
+                T? w
+            }
+
+            struct Gx<T> {
+                Gx<List<T>>? g
+            }
+
+            struct Gy<T> {
+                Gy<List<T>>? g
+            }
+
+            struct Gz<T> {
+                Wrap<Gz<List<T>>>? g
+            }
+
+            union Gu<T> {
+                some(Gu<List<T>>? v)
+                none
+            }
+
+            struct Ma<T> {
+                Mb<List<T>>? b
+            }
+
+            struct Mb<T> {
+                Ma<T>? a
+            }
+
+            void main() {
+                let a: Gx<i64>? = null
+                let b: Gy<i64>? = null
+                let c: Gx<bool>? = null
+                let d: Gz<i64>? = null
+                let e: Gu<i64>? = null
+                let f: Ma<i64>? = null
+            }
+            """
+    assert t29gnIs(
+        text,
+        as: "BYN2745 152+2 `Gu<List<T>>` needs `Gu<List<List<T>>>`, itself with a larger type argument, without end | BYN2745 36+2 `Gx<List<T>>` needs `Gx<List<List<T>>>`, itself with a larger type argument, without end | BYN2745 73+2 `Gy<List<T>>` needs `Gy<List<List<T>>>`, itself with a larger type argument, without end | BYN2745 110+2 `Gz<List<T>>` needs `Gz<List<List<T>>>`, itself with a larger type argument, without end | BYN2745 241+2 `Mb<List<T>>` needs `Mb<List<List<T>>>`, itself with a larger type argument, without end | BYN2745 204+2 `Ma<T>` needs `Ma<List<T>>`, itself with a larger type argument, without end",
+    )
+}
+
+/// The diagnostics (`code file start+length message`) of `a` and `b` compiled together as `a.byn` (file 0) and `b.byn` (file 1).
+string t29gnTwo(string a, to string b) uses alloc, clock, fs {
+    var sources = List<lexer.SourceText>()
+    var ab = List<u8>()
+    for x in a.bytes {
+        ab.append(x)
+    }
+    sources.append(lexer.SourceText.create("a.byn", from: move ab))
+    var bb = List<u8>()
+    for x in b.bytes {
+        bb.append(x)
+    }
+    sources.append(lexer.SourceText.create("b.byn", from: move bb))
+    let c = create(from: move sources, at: ".", by: CompilationOptions {})
+    var sb = StrBuf()
+    var first = true
+    for d in c.diagnostics {
+        sb.append(" | ") unless first
+        first = false
+        sb.append($"{d.code} {d.file} {d.span.start}+{d.span.length} {d.message}")
+    }
+    return $"{sb.finish()}"
+}
+
+test "generics t29: a requires clause false on a default written in another file" {
+    let a = """
+            void main() {
+                let y = h2(1)
+            }
+            """
+    let b = """
+            i64 h2(i64 x, i64 a = 0) expects a > 0 => a + x
+            """
+    assert t29gnTextIs(
+        t29gnTwo(a, to: b),
+        as: "BYN5011 1 25+7 this `expects` reads only `a`; a type with `requires` checks it once | BYN2321 0 26+5 `h2(1)` violates `requires a > 0` of `h2`",
+    )
+}
