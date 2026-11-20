@@ -79,6 +79,10 @@ test "driver t29: distInputsHash without src, past the depth budget and past the
     deleteWorkDir(Path.combine(root, "src"))
     Io.createDirectory(Path.combine(root, "src")) catch { panic("src") }
     let big = Path.combine(Path.combine(root, "src"), "big.byn")
+    // the 65 MB file is written by `/bin/dd` from `/dev/zero`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`/bin/dd` and `/dev/zero` are Unix-only")
+    }
     let r = Io.run("/bin/dd", ["if=/dev/zero", $"of={big}", "bs=1048576", "count=65"].span) catch { panic("dd") }
     assert r.exitCode == 0
     assert (distInputsHash(root) catch { panic("hash") }) is null

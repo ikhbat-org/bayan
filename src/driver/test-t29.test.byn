@@ -159,7 +159,10 @@ test "driver t29: changedModules in a repository of its own" {
     assert changedModules(in plain, by: in T11Options { path: dir, baseRef: "t29-no-such-ref" }, for: "app") is null
     assert changedModules(in plain, by: in T11Options { path: "/" }, for: "app") is null
     let tests = Path.combine(Path.combine(project.displayRoot, "tests"), "a.byn")
-    t29Same(moduleDirectory(in project, for: tests, by: "app").replaced(dir, by: "<d>"), as: "<d>/src/app")
+    t29Same(
+        moduleDirectory(in project, for: tests, by: "app").replaced(dir, by: "<d>"),
+        as: Path.combine(Path.combine("<d>", "src"), "app"),
+    )
     deleteWorkDir(dir)
 }
 

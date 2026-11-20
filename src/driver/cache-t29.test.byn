@@ -41,11 +41,15 @@ string t29Discard(string dir, at string staging, for bool moving) uses alloc, cl
 }
 
 test "driver t29: a launcher's identity, its stamp, and a rooted word naming no file" {
+    t29Same(t9FileStamp("/t29/no/such/cc"), as: "")
+    // the launcher is `/bin/echo` and its word `/bin/ls`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`/bin/echo` and `/bin/ls` are Unix-only")
+    }
     let identity = t9ComputeIdentity(boundList(["/bin/echo", "x"]))
     assert identity.startsWith("x --version\n\u{0}/bin/echo:")
     let stamp = t9CompilerStamp(boundList(["/bin/echo", "/bin/ls"]))
     assert stamp.startsWith("/bin/echo:") && stamp.contains("\n/bin/ls:")
-    t29Same(t9FileStamp("/t29/no/such/cc"), as: "")
 }
 
 test "driver t29: t9Intact and t9DirectoryExists on entries that cannot be read" {
@@ -60,7 +64,12 @@ test "driver t29: t9Intact and t9DirectoryExists on entries that cannot be read"
     )
     t29Same(t29Intact(exe, by: sum), as: "true")
     t29Same(t29Intact(exe, by: Path.combine(dir, "missing")), as: "false")
-    t29Same(t29Intact(dir, by: sum), as: "false")
+    // a directory read as a file is a permission error on Windows (.NET's `UnauthorizedAccessException`), else an IO error
+    t29Same(t29Intact(dir, by: sum), as: Target.os == "windows" ? "fails Permission denied." : "false")
+    // the unreadable entries are made by `/bin/chmod 000`, and Windows has no permission bits that deny a read
+    if Target.os == "windows" {
+        todo("`chmod` permission bits are Unix-only")
+    }
     t29CacheRun("chmod", by: ["000", sum])
     t29Same(t29Intact(exe, by: sum), as: "fails Permission denied.")
     t29CacheRun("chmod", by: ["644", sum])
@@ -109,6 +118,10 @@ test "driver t29: t9Evict passes over a file among the programs" {
 }
 
 test "driver t29: sweepStale removes a stale link, skips a file and a tree it cannot delete" {
+    // the link and the read-only tree are made by `/bin/ln` and `/bin/chmod`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`ln -s` and `chmod` permission bits are Unix-only")
+    }
     let root = t29CacheDir("sweep")
     let old = Time.fromNanos(1609459200 * 1000000000)
     goldenWrite(root, for: "target/x", as: "x")
@@ -134,6 +147,10 @@ test "driver t29: discard and t9MoveAndDelete when staging or the delete fails" 
     goldenWrite(root, for: "file", as: "x")
     let victim = Path.combine(root, "victim")
     t29Same(t29Discard(victim, at: Path.combine(Path.combine(root, "file"), "staging"), for: false), as: "ok")
+    // the read-only directories are made by `/bin/chmod 555`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`chmod` permission bits are Unix-only")
+    }
     goldenWrite(root, for: "ro/keep", as: "x")
     let ro = Path.combine(root, "ro")
     t29CacheRun("chmod", by: ["555", ro])
@@ -176,14 +193,22 @@ test "driver t29: t9CompileIn with a compiler that cannot start, and touch on a 
     ) catch { panic("compile") }
     assert !built.succeeded && !built.rejected
     assert built.errors.startsWith("cannot run the C compiler `/t29/no/such/cc`: ")
+    deleteWorkDir(work)
+    // `/` is not the user's on Unix, so permission bits refuse its stamp; a Windows runner may stamp the drive's root
+    if Target.os == "windows" {
+        todo("the root's permission bits are Unix-only")
+    }
     let before = Fs.modified("/") catch { panic("stat") }
     touch("/")
     let after = Fs.modified("/") catch { panic("stat") }
     assert before.nanos == after.nanos
-    deleteWorkDir(work)
 }
 
 test "driver t29: lookupScript and rememberScript on an unreadable, a damaged and a blocked pointer" {
+    // the unreadable pointer and sum are made by `/bin/chmod 000`, and Windows has no permission bits that deny a read
+    if Target.os == "windows" {
+        todo("`chmod` permission bits are Unix-only")
+    }
     var d = newDCtx()
     let scripts = t9Scripts()
     let programs = t9Programs()
@@ -221,6 +246,10 @@ test "driver t29: identity of a second command, a cc that is not zig, and a laun
     var d = newDCtx()
     t29Same(t9CompilerIdentity(boundList(["/t29/no/a"]), through: ref d), as: "/t29/no/a\u{0}")
     assert t9CompilerIdentity(boundList(["/t29/no/b", "cc"]), through: ref d).startsWith("/t29/no/b cc\u{0}")
+    // the launcher is `/bin/echo`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`/bin/echo` is Unix-only")
+    }
     let stamp = t9CompilerStamp(boundList(["/bin/echo", "-n"]))
     assert stamp.startsWith("/bin/echo:") && !stamp.contains("\n")
 }
@@ -247,6 +276,10 @@ test "driver t29: zigCacheEnvFor, zigTrimEntries under the limit and over a link
     zigTrimEntries(trim, by: 5, until: 0) catch { panic("trim") }
     assert Fs.fileExists(Path.combine(trim, "a"))
     Io.remove(Path.combine(trim, "a")) catch { panic("remove") }
+    // the link is made by `/bin/ln -s`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`ln -s` is Unix-only")
+    }
     t29CacheRun("ln", by: ["-s", Path.combine(dir, "target"), Path.combine(trim, "l")])
     zigTrimEntries(trim, by: 0, until: 0) catch { panic("trim") }
     let left = Io.listDir(trim) catch { panic("list") }
@@ -279,8 +312,16 @@ test "driver t29: t9Evict drops a dangling pointer and passes over a temporary f
 }
 
 test "driver t29: t9CompileIn when the compiler exits non-zero or leaves no program, t9LookupEntry without a sum" {
-    let work = t29CacheDir("compile-fails")
     var d = newDCtx()
+    let entry = t29CacheDir("lookup-nosum")
+    goldenWrite(entry, for: "exe", as: "x")
+    let found = t9LookupEntry(entry, by: "exe", from: "exe.sha256", through: ref d) catch { panic("lookup") }
+    assert found is null && !t9DirectoryExists(entry)
+    // the compiler is `/bin/sh -c 'exit N'`, and Windows has no `/bin/sh`
+    if Target.os == "windows" {
+        todo("`/bin/sh` is Unix-only")
+    }
+    let work = t29CacheDir("compile-fails")
     for code in ["3", "0"] {
         let built = t9CompileIn(
             work,
@@ -296,10 +337,6 @@ test "driver t29: t9CompileIn when the compiler exits non-zero or leaves no prog
         assert !built.succeeded && built.rejected
         t29Same(built.errors, as: $"C compiler failed (exit {code}):\n")
     }
-    let entry = t29CacheDir("lookup-nosum")
-    goldenWrite(entry, for: "exe", as: "x")
-    let found = t9LookupEntry(entry, by: "exe", from: "exe.sha256", through: ref d) catch { panic("lookup") }
-    assert found is null && !t9DirectoryExists(entry)
     deleteWorkDir(work)
 }
 
