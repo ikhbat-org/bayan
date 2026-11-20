@@ -1,4 +1,5 @@
-// 019 T29 (coverage ratchet): commands.byn paths no golden case reaches: `lex --json` and `parse` without `--ast`.
+// 019 T29 (coverage ratchet): commands.byn paths no golden case reaches: `lex --json`, `parse` without `--ast`, and `lex -`
+// (stdin, empty under `bayan test`).
 // The expected values are the output of the self-hosted driver at the commit that added the test.
 
 /// Asserts `got == want`, printing both when they differ (the shared check of the driver's `-t29` tests).
@@ -13,4 +14,8 @@ test "driver t29: lex and parse refuse what the self-hosted compiler lacks" {
     assert lexCommand(["lex", "--json"]) == exitUsage
     assert parseCommand(["parse", "src/driver/commands.byn"]) == exitUsage
     assert refuse("x") == exitUsage
+}
+
+test "driver t29: lex - lexes stdin, which bayan test gives empty" {
+    t29Same($"{lexCommand(["lex", "-"])}", as: "0")
 }

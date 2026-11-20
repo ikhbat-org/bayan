@@ -952,6 +952,8 @@ struct T11Outcome {
 /// CliApp.cs:1077 `RunTest`: `executable --test <index>` with `$BAYAN_COVERAGE` set to `coveragePrefix`, killed after `timeoutMs`.
 /// `Io.run` with `timeout:` keeps each stream's first and last 64 KiB, as `BoundedCapture.cs`, and a timed-out test keeps what it
 /// printed before the kill (Q1216). A signal-killed test is exit 128 + the signal, as `Process.ExitCode` reports it.
+/// Unlike the C#, which passes its own stdin on, the test gets an empty stdin (`input:` of no bytes), as `go test` gives the null
+/// device: a test that reads stdin neither waits on a terminal nor eats the caller's piped input (owner decision 2026-11-21, option A).
 T11Outcome runTest(string executable, at i64 index, by string? coveragePrefix, for i64 timeoutMs)
         uses alloc, clock, process {
     var args = List<string>()
@@ -962,7 +964,7 @@ T11Outcome runTest(string executable, at i64 index, by string? coveragePrefix, f
         env["BAYAN_COVERAGE"] = coveragePrefix
     }
     let clock = Io.monotonicNanos()
-    let r = Io.run(executable, args.span, env: env, timeout: Millis(timeoutMs)) catch switch {
+    let r = Io.run(executable, args.span, env: env, input: "".bytes, timeout: Millis(timeoutMs)) catch switch {
         .timeout(_, let streamOut, let streamErr) => return T11Outcome {
             exitCode: -1,
             timedOut: true,

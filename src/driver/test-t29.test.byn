@@ -114,6 +114,18 @@ test "driver t29: testCommand runs a project's selected tests with coverage, the
     deleteWorkDir(dir)
 }
 
+test "driver t29: a test block reads an empty stdin, not the stdin of bayan test" {
+    let dir = t29TestDir("stdin")
+    goldenWrite(dir, for: "package.byn", as: "Package {\n    name: \"local/stdin\",\n    version: \"0.1.0\",\n}\n")
+    goldenWrite(
+        dir,
+        for: "src/app/main.byn",
+        as: "print(\"main\")\n\ntest \"t29 stdin\" {\n    let b = Io.stdin.readAllBytes() catch { panic(\"read\") }\n    assert b.length == 0\n}\n",
+    )
+    t29Same(t29TestRun([dir]), as: "0")
+    deleteWorkDir(dir)
+}
+
 test "driver t29: testCommand on a cases directory with a case that passes, one that fails and one pending" {
     let dir = t29TestDir("cases")
     let source = Io.readText("tests/cases/lex/bad-chars.byn") catch { panic("source") }
