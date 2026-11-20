@@ -443,7 +443,7 @@ semantics.Ctx goldenCompile(string input, by in semantics.CompilationOptions opt
     return semantics.create(from: move sources, at: Path.directoryName(Path.fullPath(input)) ?? "", by: in options)
 }
 
-/// TypedDumpTests.cs:17: `TypedDump.ToJson`; the C# asserts there is no error, here the rendered errors are the text, so the case fails.
+/// L022 (typed cases): TypedDumpTests.cs:17: `TypedDump.ToJson`; the C# asserts there is no error, here the rendered errors are the text, so the case fails.
 string goldenTyped(string input) uses alloc, clock, fs {
     let options = GoldenOptions { includeTests: false }
     var c = goldenCompile(input, by: in options)
@@ -575,7 +575,7 @@ List<semantics.StdSource>? goldenStd(string dir, through ref i32 exit) uses allo
     return sources
 }
 
-/// DiagTests.cs:16: `DiagnosticRenderer.RenderAll` of the front end's diagnostics (and, for a `style-*` case, the style lints), with the path
+/// L022 (diag cases): DiagTests.cs:16: `DiagnosticRenderer.RenderAll` of the front end's diagnostics (and, for a `style-*` case, the style lints), with the path
 /// when the case is a subdirectory package: its `package.byn` names the package and bounds its capabilities, its `stdlib/` replaces the shipped std.
 string goldenDiag(string input) uses alloc, clock, console, fs {
     let dir = Path.directoryName(Path.fullPath(input)) ?? ""
@@ -2083,7 +2083,7 @@ string? goldenOut(in GoldenCase c, by string exe, i64 deadline = 0) uses alloc, 
     return goldenCompare(actual, for: c.input, at: c.input)
 }
 
-// L020: a normal build's generated C is byte-identical with or without the test tooling (the `emit/run-c` case)
+// L020: a normal build's generated C is byte-identical with or without the test tooling (the `emit/run-c` case); L024: its digests are the frozen run-c.sha256
 /// MutantSchemataTests.cs:292 `PlainBuildEmitsTheSameC` over the `run` cases of the cases root `root`: a `<sha256>  run/<path>` line each,
 /// the digest of the C `CliApp.EmitC` emits in the case's `// mode:` (:20 `ModeOf`), a `.test.byn` compiled with its tests as a library
 /// (:29 `CompileCase`), in path order. A case that does not compile gives `did not compile` for its digest.
