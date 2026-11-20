@@ -1,12 +1,14 @@
 #!/bin/bash
 # mutation-step.sh — the mutation step shared by guard.sh (check 6) and mutate-batch.sh (spec 013 T28); source it, do not run it.
-#   mutation_step <log dir (absolute, under $PWD)> <filter> <file.byn>[,…] <1 = survivors are FAIL items | 0 = they are not>
+#   mutation_step <log dir (absolute, under $PWD)> <filter> <file.byn>[,…] <1 = survivors are FAIL items | 0 = they are not> [<jobs>]
 # <filter> is `<kind>/<Class>/` selectors joined by `|` or spaces (mutate-plan's, guard.sh's --filter words); a scripts/test.sh
 # part word (golden|bayan|parity|scripts|runtime) records nothing and is skipped. The selected golden cases are recorded once
 # (`$BAYAN_EXE test tests/cases --only <selector>…` under BAYAN_SNAPSHOT, spec 019 T48c; no dotnet) against schemata builds whose
 # sites lie only in the files, then `bayan mutate --binary` runs every site of each build, replaying the recording per mutant
 # (replay.py); sites under `@unobservable because "…"` come back marked, not survived. The reports are copied to
 # <log dir>/quality-<n>-<binary>.json. BAYAN_EXE is the driver under test (the caller sets it).
+# <jobs> (default 1): the mutants `bayan mutate` runs at once; above 1 it gets `--jobs <jobs>` and BAYAN_EXE naming the pinned bayan
+# itself, which starts its workers (src/driver/mutate.byn `t13Workers`); 1 passes no flag, so a pin from before `--jobs` still runs.
 # `bayan mutate` runs with BAYAN_TEST_TIMEOUT_MS (its mutant-0 limit) at the caller's value, else 1800000 (30 min; 60 s cut a 90 s replay, T48c).
 # Problems go to the caller's note() (which fills its FAIL array: the step runs only while FAIL is empty). Returns 0 when it
 # reached the per-build runs, 1 when the CLI, the recording or the manifest stopped it before. A recording whose cases ran and
@@ -14,7 +16,7 @@
 # N test(s) failed`, naming each; any other recording failure (no case ran, the driver crashed) as `mutation: recording the
 # tests under BAYAN_SNAPSHOT failed`.
 mutation_step() {
-  local LOG=$1 FILTER=$2 MUTATE=$3 SURV=$4 REL=${1#$PWD/} n name bin sites l MX failed first w
+  local LOG=$1 FILTER=$2 MUTATE=$3 SURV=$4 JOBS=${5:-1} REL=${1#$PWD/} n name bin sites l MX failed first w JOBARGS=()
   local BAYAN SNAP=$1/snap REPLAY ONLY TMS=${BAYAN_TEST_TIMEOUT_MS:-1800000} alone
   REPLAY=$(dirname "${BASH_SOURCE[0]}")/replay.py
   # `bayan mutate` is tooling: it runs from the pinned build of dev (scripts/pinned-bayan.sh), never the branch under test
@@ -47,11 +49,12 @@ mutation_step() {
       || note "mutation: $REL/snap/manifest.json is unreadable — $(tail -1 "$LOG/manifest.txt")"
   fi
   [ ${#FAIL[@]} = 0 ] || return 1
+  [ "$JOBS" = 1 ] || JOBARGS=(--jobs "$JOBS")
   n=0
   while IFS=$'\t' read -r bin sites; do
     [ -n "$bin" ] || continue; n=$((n+1)); name=$n-$(basename "$bin"); rm -f "$(dirname "$bin")/bayan-quality.json"
     # site ids are per build: the replay runs only this build's recorded runs
-    BAYAN_TEST_TIMEOUT_MS=$TMS "$BAYAN" mutate --binary "$bin" --sites "$sites" -- python3 -I "$REPLAY" --binary "$bin" "$SNAP" > "$LOG/mutate-$name.txt" 2>&1; MX=$?
+    BAYAN_TEST_TIMEOUT_MS=$TMS BAYAN_EXE=$BAYAN "$BAYAN" mutate --binary "$bin" --sites "$sites" ${JOBARGS[@]+"${JOBARGS[@]}"} -- python3 -I "$REPLAY" --binary "$bin" "$SNAP" > "$LOG/mutate-$name.txt" 2>&1; MX=$?
     # bayan mutate exits 1 only when mutant 0 fails (usage errors exit 2, a gate below its minimum 3)
     # a rerun that passes alone means mutant 0 ran out of the limit, not that the recording differs
     if [ $MX = 1 ]; then
