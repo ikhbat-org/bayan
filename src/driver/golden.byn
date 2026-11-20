@@ -161,8 +161,8 @@ bool goldenHostByte(u8 c) {
         || c == 0x2e
 }
 
-/// The cases of one `.byn` kind (Golden.cs:25-27), sorted by name.
-void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit)
+/// The cases of one `.byn` kind (Golden.cs:25-27), sorted by name; with `flat` only the files directly in its directory.
+void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit, bool flat = false)
         uses alloc, console, fs {
     let dir = Path.combine(root, kind)
     return unless t6DirectoryExists(dir)
@@ -174,7 +174,7 @@ void goldenBynCases(string root, for string kind, to ref List<GoldenCase> cases,
         }
     }
     var found = List<GoldenCase>()
-    for file in bynFiles(dir, through: ref exit, by: real) {
+    for file in bynFiles(dir, through: ref exit, by: real, flat: flat) {
         let rel = goldenSlashed(Path.relative(dir, to: file))
         let base = Path.fileName(file)
         if base == "main.byn" && rel != "main.byn" {
@@ -242,34 +242,142 @@ void goldenDumpCases(string root, to ref List<GoldenCase> cases, through ref i32
     }
 }
 
+/// The kinds of a cases directory, alphabetical, so a listing kind by kind is in `<kind>/<case>` order.
+List<string> goldenKinds() uses alloc {
+    var kinds = List<string>()
+    for kind in [
+        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem",
+        "style", "typed", "typed-dump",
+    ] {
+        kinds.append(kind)
+    }
+    return kinds
+}
+
+/// The cases of `kind` under `root` (a cases directory) in name order, added to `cases`. A listing error is reported and sets `exit` to 1.
+void goldenDiscoverKind(string root, for string kind, to ref List<GoldenCase> cases, through ref i32 exit)
+        uses alloc, console, fs {
+    // the exported kinds (T17b, goldenexport.byn): `cli` cases, and a `<Class>/<case>` directory each of the others
+    if kind == "cli" {
+        goldenCliCases(root, to: ref cases)
+    } else if kind == "typed-dump" {
+        goldenDumpCases(root, to: ref cases, through: ref exit)
+    } else if kind is "emit-c" or "sem" {
+        goldenExportClasses(root, for: kind, to: ref cases)
+    } else if kind == "style" {
+        goldenFileCases(root, for: kind, to: ref cases, through: ref exit, by: ".color")
+    } else if kind is "emit" or "new" or "out" or "quality" {
+        goldenFileCases(root, for: kind, to: ref cases, through: ref exit)
+    } else if kind is "lex" or "parse" {
+        // each directory of lex/ and parse/ is a class of exported cases, so only the files directly in it are `.byn` cases: the walk
+        // does not enter the 20,075 case directories of lex/SelfhostLexerTests (2026-11-20: 51 MB to list lex/)
+        goldenBynCases(root, for: kind, to: ref cases, through: ref exit, flat: true)
+        goldenExportClasses(root, for: kind, to: ref cases)
+    } else {
+        goldenBynCases(root, for: kind, to: ref cases, through: ref exit)
+    }
+}
+
 /// Every case under `root` (a cases directory), kind by kind in name order. A listing error is reported and sets `exit` to 1.
 List<GoldenCase> goldenDiscover(string root, through ref i32 exit) uses alloc, console, fs {
     var cases = List<GoldenCase>()
-    // Alphabetical, so the listing is in `<kind>/<case>` order.
-    let kinds = [
-        "cli", "diag", "diag-json", "emit", "emit-c", "lex", "manifest", "new", "out", "parse", "quality", "run", "sem",
-        "style", "typed", "typed-dump",
-    ]
-    for kind in kinds {
-        // the exported kinds (T17b, goldenexport.byn): `cli` cases, and a `<Class>/<case>` directory each of the others
-        if kind == "cli" {
-            goldenCliCases(root, to: ref cases)
-        } else if kind == "typed-dump" {
-            goldenDumpCases(root, to: ref cases, through: ref exit)
-        } else if kind is "emit-c" or "sem" {
-            goldenExportClasses(root, for: kind, to: ref cases)
-        } else if kind == "style" {
-            goldenFileCases(root, for: kind, to: ref cases, through: ref exit, by: ".color")
-        } else if kind is "emit" or "new" or "out" or "quality" {
-            goldenFileCases(root, for: kind, to: ref cases, through: ref exit)
-        } else {
-            goldenBynCases(root, for: kind, to: ref cases, through: ref exit)
-            if kind is "lex" or "parse" {
-                goldenExportClasses(root, for: kind, to: ref cases)
+    for kind in goldenKinds() {
+        goldenDiscoverKind(root, for: kind, to: ref cases, through: ref exit)
+    }
+    return cases
+}
+
+/// The cases of `goldenDiscover(root)` that `only` matches (every case when it is empty) and that shard `index` of `count` keeps
+/// (`goldenShardCases` with `split`), added to `kept` as `<kind>\t<case>\t<input>` lines in case order; whether `only` matched a case. Each kind,
+/// and each class of the exported kinds, is listed in an arena of its own, and a class's case names in a nested one, so only one class's names
+/// are held at a time (2026-11-20: 45 MB to list the 41,125 cases at once, 21 MB for lex/SelfhostLexerTests).
+bool goldenListed(string root, for List<string> only, at i64 index, by i64 count, until i64 split, to ref StrBuf kept, through ref i32 exit)
+        uses alloc, console, fs {
+    var matched = false
+    // the shard groups listed so far: the groups of the whole listing are numbered in case order
+    var groups: i64 = 0
+    for kind in goldenKinds() {
+        let classed = kind is "cli" or "emit-c" or "sem" or "lex" or "parse"
+        {
+            using let arena = Arena()
+            provide allocator: arena {
+                var cases = List<GoldenCase>()
+                if !classed {
+                    goldenDiscoverKind(root, for: kind, to: ref cases, through: ref exit)
+                } else if kind is "lex" or "parse" {
+                    goldenBynCases(root, for: kind, to: ref cases, through: ref exit, flat: true)
+                }
+                var listed = List<GoldenCase>()
+                for c in cases {
+                    if only.length == 0 || t11Matches($"{c.kind}/{c.name}", by: in only) {
+                        listed.append(GoldenCase { kind: c.kind, name: c.name, input: c.input })
+                    }
+                }
+                matched = matched || listed.length > 0
+                // a shard of `count` that is `index` places on from the first of these groups
+                let at = ((index - groups) % count + count) % count
+                for c in goldenShardCases(listed, at: at, by: count, through: split) {
+                    kept.append($"{c.kind}\t{c.name}\t{c.input}\n")
+                }
+                var last = ""
+                for c in listed {
+                    let key = goldenShardGroup(c.kind, for: c.name)
+                    if key != last {
+                        groups += 1
+                        last = key
+                    }
+                }
+            }
+        }
+        // the `<Class>/<case>` directories of the exported kinds (`goldenCliCases`, `goldenExportClasses`), a class at a time
+        let dir = Path.combine(root, kind)
+        var classes = StrBuf()
+        if classed {
+            using let arena = Arena()
+            provide allocator: arena {
+                for cls in goldenCliDirs(dir) {
+                    classes.append($"{cls}\n")
+                }
+            }
+        }
+        for cls in classes.finish().parts(by: "\n") {
+            continue if cls == ""
+            using let arena = Arena()
+            provide allocator: arena {
+                let at = Path.combine(dir, cls)
+                var names = StrBuf()
+                {
+                    using let inner = Arena()
+                    provide allocator: inner {
+                        for name in goldenCliDirs(at) {
+                            names.append($"{name}\n")
+                        }
+                    }
+                }
+                var hits = List<string>()
+                for name in names.finish().parts(by: "\n") {
+                    if name != "" && (only.length == 0 || t11Matches($"{kind}/{cls}/{name}", by: in only)) {
+                        hits.append(name)
+                    }
+                }
+                // one group (`goldenShardCases`): in shard group mod `count`, or case j in shard (group + j) mod `count` when over `split`
+                for j in 0..hits.length {
+                    let shard = hits.length > split ? (groups + j) % count : groups % count
+                    if shard == index {
+                        let path = Path.combine(at, hits[j])
+                        let args = Path.combine(path, "args")
+                        let input = kind == "cli" && Fs.fileExists(args) ? args : path
+                        kept.append($"{kind}\t{cls}/{hits[j]}\t{input}\n")
+                    }
+                }
+                if hits.length > 0 {
+                    matched = true
+                    groups += 1
+                }
             }
         }
     }
-    return cases
+    return matched
 }
 
 /// `bayan test --list-cases <dir>`: one `<kind>/<case>` line per case. 1 when `dir` is not a directory or a listing failed.
@@ -762,7 +870,15 @@ string? goldenRun(in GoldenCase c, i64 deadline = 0) uses alloc, clock, console,
         var failure = ""
         let exe = goldenExe(through: ref failure)
         return $"{c.input}\n{failure}" if exe == ""
-        return goldenCli(c.input, by: exe, deadline: deadline) if c.kind == "cli"
+        if c.kind == "cli" {
+            let failed = goldenCli(c.input, by: exe, deadline: deadline)
+            // the case's scratch goes when it ends, not with the run (2026-11-20: 965,489 entries under tmp/cli after the 1,069 cases of
+            // cli/SelfhostDefaultT2Tests, and the runner grew to 65 MB removing them)
+            let scratch = goldenCliScratch(c.input)
+            deleteWorkDir(scratch)
+            deleteWorkDir($"{scratch}-bin")
+            return failed
+        }
         return goldenRunCase(in c, by: exe, deadline: deadline) if c.kind == "run"
         return goldenNew(in c, by: exe, deadline: deadline) if c.kind == "new"
         return goldenOut(in c, by: exe, deadline: deadline) if c.kind == "out"
@@ -1056,13 +1172,14 @@ i32 goldenTest(
 )
         uses alloc, clock, console, env, fs, process {
     var exit = 0
-    var cases = List<GoldenCase>()
-    for c in goldenDiscover(root, through: ref exit) {
-        if only.length == 0 || t11Matches($"{c.kind}/{c.name}", by: in only) {
-            cases.append(GoldenCase { kind: c.kind, name: c.name, input: c.input })
-        }
-    }
-    if only.length > 0 && cases.length == 0 {
+    let shard = Env.get("BAYAN_TEST_SHARD") ?? ""
+    var index: i64 = 0
+    var count: i64 = 1
+    let refused = goldenShard(shard, to: ref index, by: ref count)
+    // the listing is freed class by class (`goldenListed`); the cases this run keeps leave it as `<kind>\t<case>\t<input>` lines
+    var kept = StrBuf()
+    let matched = goldenListed(root, for: only, at: index, by: count, until: goldenShardSplit, to: ref kept, through: ref exit)
+    if only.length > 0 && !matched {
         var quoted = List<string>()
         for s in only {
             quoted.append($"`{s}`")
@@ -1070,15 +1187,19 @@ i32 goldenTest(
         Io.stderr.write($"bayan: no case name contains {t5Join(in quoted)}\n")
         return exitUsage
     }
-    let shard = Env.get("BAYAN_TEST_SHARD") ?? ""
-    var index: i64 = 0
-    var count: i64 = 1
-    if (goldenShard(shard, to: ref index, by: ref count) is { } refused) {
-        Io.stderr.write(refused)
+    if (refused is { } text) {
+        Io.stderr.write(text)
         return exitUsage
     }
-    if count > 1 {
-        cases = goldenShardCases(cases, at: index, by: count, through: goldenShardSplit)
+    var cases = List<GoldenCase>()
+    for line in kept.finish().parts(by: "\n") {
+        var fields = List<string>()
+        for f in line.parts(by: "\t") {
+            fields.append(f)
+        }
+        if fields.length == 3 {
+            cases.append(GoldenCase { kind: fields[0], name: fields[1], input: fields[2] })
+        }
     }
     let snap = snapshot ?? Env.get("BAYAN_SNAPSHOT") ?? ""
     if snap != "" {
@@ -1125,8 +1246,12 @@ i32 goldenTest(
         }
     }
     // each case clears its work directory when it starts (docs/memory-leaks.md rule 7); the run removes them all when it ends
-    for sub in ["run", "run-build", "style", "style-cache", "scaffold", "output", "cli"] {
+    for sub in ["run", "run-build", "style", "style-cache", "scaffold", "output", "cli", "l009"] {
         deleteWorkDir(Path.combine(Path.fullPath("tmp"), sub))
+    }
+    // tmp/p holds the exported cases' scratch directories (`goldenProgramScratch`); a recording's replay reads its inputs there
+    if snap == "" {
+        deleteWorkDir(Path.combine(Path.fullPath("tmp"), "p"))
     }
     var failed = false
     for i in 0..mine.length {
@@ -1274,7 +1399,15 @@ void goldenJobs(
     }
     for i in 0..cases.length {
         let name = $"{cases[i].kind}/{cases[i].name}"
-        let text = Io.readText(Path.combine(dir, $"{i}")) catch ""
+        // the read is freed once its text is copied out (2026-11-20: 15 MB in the runner for the 3,395 results of shard 1/12)
+        var copy = StrBuf()
+        {
+            using let arena = Arena()
+            provide allocator: arena {
+                copy.append(Io.readText(Path.combine(dir, $"{i}")) catch "")
+            }
+        }
+        let text = copy.finish()
         let at = goldenOffset(text, for: "\n")
         if at < 0 {
             let k = n > 0 ? i % n : 0
@@ -1358,13 +1491,18 @@ i32 goldenWorker(string dir, at string k, for string n, by string limit) uses al
             return goldenWrote(next, as: $"{i}\n") ? goldenWorkerMore : exitFailure
         }
         ran += 1
-        var fields = List<string>()
-        for f in lines[i].parts(by: "\t") {
-            fields.append(f)
+        // what a case allocates is freed when it ends, so a worker's peak is its largest case, not the sum of its batch (2026-11-20)
+        using let arena = Arena()
+        provide allocator: arena {
+            var fields = List<string>()
+            for f in lines[i].parts(by: "\t") {
+                fields.append(f)
+            }
+            if fields.length == 3 {
+                let r = goldenResult(GoldenCase { kind: fields[0], name: fields[1], input: fields[2] }, for: limitMs)
+                let _ = goldenWrote(Path.combine(dir, $"{i}"), as: $"{r.status}\n{r.detail}")
+            }
         }
-        continue if fields.length != 3
-        let r = goldenResult(GoldenCase { kind: fields[0], name: fields[1], input: fields[2] }, for: limitMs)
-        let _ = goldenWrote(Path.combine(dir, $"{i}"), as: $"{r.status}\n{r.detail}")
     }
     return exitOk
 }
@@ -2997,6 +3135,46 @@ test "BAYAN_TEST_SHARD spreads a group over the split threshold over the shards 
     assert(shards[2] == "lex/Big/c lex/Two/p lex/Two/q sem/Big/z ")
 }
 
+test "the listing a class at a time keeps the cases goldenShardCases keeps of goldenDiscover, with and without --only" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-listed")
+    deleteWorkDir(root)
+    for rel in [
+        "cli/Alpha/one/args", "cli/Alpha/two/expected", "diag/d.byn", "lex/flat.byn", "lex/Big/a/x", "lex/Big/b/x", "lex/Big/c/x",
+        "lex/Big/d/x", "lex/Two/p/x", "lex/Two/q/x", "run/r.byn", "sem/Big/x/x", "sem/Big/y/x", "sem/Big/z/x",
+    ] {
+        goldenWrite(root, for: rel, as: "")
+    }
+    var exit = 0
+    let all = goldenDiscover(root, through: ref exit)
+    var total = 0
+    for pass in 0..2 {
+        var only = List<string>()
+        if pass == 1 {
+            only.append("Big")
+        }
+        var listed = List<GoldenCase>()
+        for c in all {
+            if only.length == 0 || t11Matches($"{c.kind}/{c.name}", by: in only) {
+                listed.append(GoldenCase { kind: c.kind, name: c.name, input: c.input })
+            }
+        }
+        for i in 0..3 {
+            var expected = StrBuf()
+            for c in goldenShardCases(listed, at: i, by: 3, through: 2) {
+                expected.append($"{c.kind}\t{c.name}\t{c.input}\n")
+                total += 1
+            }
+            var kept = StrBuf()
+            assert(goldenListed(root, for: only, at: i, by: 3, until: 2, to: ref kept, through: ref exit))
+            assert(kept.finish() == expected.finish())
+        }
+    }
+    deleteWorkDir(root)
+    // cli/Alpha/one's input is its args file, cli/Alpha/two's its directory
+    assert(exit == 0 && all.length == 14 && total == 14 + 7)
+    assert(all[0].input.endsWith("args") && all[1].input.endsWith("two"))
+}
+
 test "a BAYAN_TEST_SHARD that is not i/n with 1 <= i <= n <= 64 is refused with exit 2, naming the variable" {
     let root = Path.combine(Path.fullPath("tmp"), "golden-shard-bad")
     goldenJobsFixture(root)
@@ -3184,15 +3362,16 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     // 9,792 KB; the bounds are 1.5 times that. The runner lists the cases, starts the workers and reads their results; each worker runs its
     // share of the cases in itself, so it is sampled on its own. The drivers a worker starts to build or run a case are not counted.
     // `cache` is the program cache `goldenEnv` names (CACHEDIR.TAG, kept between runs as the C# classes keep it), not scratch: a fresh
-    // clone has no tmp/cache before the first run.
+    // clone has no tmp/cache before the first run. `golden-programs` is the exported cases' program cache (`goldenProgram`, its `<key>`
+    // entries kept between runs), not scratch either.
     var left = List<string>()
     for name in after {
-        continue if name == "cache"
+        continue if name is "cache" or "golden-programs"
         var old = false
         for b in before {
             old = old || b == name
         }
-        if !old || name is "run" or "run-build" or "style" or "style-cache" or "scaffold" or "output" {
+        if !old || name is "run" or "run-build" or "style" or "style-cache" or "scaffold" or "output" or "l009" or "p" {
             left.append(name)
         }
     }
