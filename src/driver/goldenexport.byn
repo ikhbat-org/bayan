@@ -48,7 +48,15 @@ List<string> goldenCliDirs(string dir) uses alloc, fs {
     var names = List<string>()
     let listed = Io.listDir(dir) catch return names
     for name in listed {
-        if t6DirectoryExists(Path.combine(dir, name)) && !name.startsWith(".") {
+        // the listing of each entry is freed after its check (2026-11-20: 3.5 MB for the 20,075 of lex/SelfhostLexerTests)
+        var found = false
+        {
+            using let arena = Arena()
+            provide allocator: arena {
+                found = t6DirectoryExists(Path.combine(dir, name))
+            }
+        }
+        if found && !name.startsWith(".") {
             names.append(name)
         }
     }
@@ -1573,6 +1581,14 @@ string goldenCliT3Windows(string argv, for string target, at string host) uses a
     return sb.finish()
 }
 
+/// The scratch directory `goldenCli` runs the `cli` case whose `args` is `input` in: tmp/cli/<Class>_<case>, its `bin` directory beside it with
+/// `-bin` added.
+string goldenCliScratch(string input) uses alloc, fs {
+    let dir = Path.directoryName(input) ?? ""
+    let cls = Path.fileName(Path.directoryName(dir) ?? "")
+    return Path.combine(Path.combine(Path.fullPath("tmp"), "cli"), $"{cls}_{Path.fileName(dir)}")
+}
+
 /// The `cli` case whose `args` is `input` through the driver `exe` (spec 019 T17b): null when it passes, else the failures, each naming its
 /// expected file and first differing line. The word's comparison is the one its C# call site makes, named on each branch. Laws proven by exported cli cases run here (spec 019 T31b), by case-name prefix: L006 `cli/L006OwnershipGuardTests/l006-`, L007 `cli/L007UntrustedSinkTests/l007-`, L008 `cli/L008OwnershipRuntimeTests/l008-`, L010 `cli/L010Utf8DecodeTests/l010-`, L012 `cli/L012InterfaceDispatchTests/l012-`, L013 `cli/L013DirectAndIndirectCallsAgreeTests/l013-`, L015 `cli/SymbolLawTests/l015-`, L016 `cli/MapKeyLawTests/l016-`.
 string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clock, env, fs, process {
@@ -1586,7 +1602,7 @@ string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clo
         known = known || w == word
     }
     return $"{dir}\nunknown compare word `{word}`" unless known
-    let scratch = Path.combine(Path.combine(Path.fullPath("tmp"), "cli"), $"{cls}_{Path.fileName(dir)}")
+    let scratch = goldenCliScratch(input)
     return $"{dir}\ncannot create {scratch}" unless goldenFresh(scratch)
     var failure = ""
     var cwd = goldenCliStage(dir, from: cases, to: scratch, through: ref failure)
@@ -2717,6 +2733,15 @@ test "the T5 cases pass in their C# directories: emit in tmp/t5/emit, run in tmp
         assert(goldenCli(Path.combine(Path.combine(root, name), "args"), by: exe) is null)
         deleteWorkDir(Path.combine(Path.fullPath("tmp/cli"), $"SelfhostDriverT5Tests_{name}"))
     }
+}
+
+test "a cli case run as a golden case leaves neither its scratch directory nor its bin directory under tmp/cli" {
+    let input = Path.fullPath("tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli/args")
+    let scratch = goldenCliScratch(input)
+    let c = GoldenCase { kind: "cli", name: "SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli", input: input }
+    let failure = goldenRun(in c)
+    assert(failure is null)
+    assert(!t6DirectoryExists(scratch) && !t6DirectoryExists($"{scratch}-bin"))
 }
 
 test "a SelfhostDriverStyleEnvironmentTests case runs in the C#'s terminal env, not under a host's UTF-8 LC_ALL, LC_CTYPE or TERM" {

@@ -2,7 +2,7 @@
 # The corpus-wide theories of CoverageTests.cs, MutantSchemataTests.cs, OwnershipCheckerTests.cs and the emitted-C half of
 # SelfhostDriverT8Tests over the `run` cases, through the self-hosted driver $BAYAN_EXE alone (spec 019 T30h item 2 and T30d, the
 # nightly tier; laws-nightly.yml runs it, scripts/test.sh does not).
-#   BAYAN_EXE=<driver> bash scripts/ci/nightly-modes.sh [--mode coverage|mutate|ownership|libc]... [--only TEXT] [--limit N]
+#   BAYAN_EXE=<driver> bash scripts/ci/nightly-modes.sh [--mode coverage|mutate|ownership|libc|bound]... [--only TEXT] [--limit N]
 #                                                       [--jobs N] [--cases DIR]
 # The cases are those of RunTests (`*.byn` at the top of DIR, default tests/cases/run, and `<dir>/main.byn`), ordinal order; --only
 # keeps the names holding TEXT, --limit the first N of each mode. A flat case is built from a copy alone in a directory, as
@@ -22,18 +22,24 @@
 #              `scripts/ci/libc-inventory-check.sh --emitted`, but for its "no emitted unit calls it" lines, which hold only for the
 #              whole corpus: with no --only and no --limit, one more check over every unit reports them as `libc corpus`. As the
 #              C# test, the top-level `*.byn` alone; the `<dir>/main.byn` cases are counted as left out.
+#   bound      the golden runner bound of docs/memory-leaks.md rule 8 (src/driver/golden.byn, "a run over tests/cases keeps the
+#              runner and each worker under 15 MB ...") over the full tests/cases tree: BAYAN_GOLDEN_BOUND_SHARD and
+#              BAYAN_TEST_SHARD unset, BAYAN_TEST_TIMEOUT_MS 5 hours (a hosted runner took 889 s for one twelfth of the tree at
+#              --jobs 3, so about 3 hours). The release memory gate samples shard 1/12 only (Decision 2026-11-20, Fable for the
+#              owner). Not a default mode and not per case (--only, --limit and --cases do not apply): laws-nightly.yml runs it in
+#              a job of its own. Its output goes to tmp/nightly-modes/bound.log.
 # Prints one line per failing case, then the counts of each mode. Everything goes under tmp/nightly-modes/. No run has a time
 # limit. Exit 0 when no case failed, 1 when one did, 2 on a usage error. bash 3.2.
 set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root" || exit 2
 
-usage() { echo "nightly-modes.sh: $1 (--mode coverage|mutate|ownership|libc, --only TEXT, --limit N, --jobs N, --cases DIR)" >&2; exit 2; }
+usage() { echo "nightly-modes.sh: $1 (--mode coverage|mutate|ownership|libc|bound, --only TEXT, --limit N, --jobs N, --cases DIR)" >&2; exit 2; }
 modes=(); only=""; limit=0; jobs=1; cases=tests/cases/run
 while [ $# -gt 0 ]; do
   case $1 in
     (--mode) [ $# -ge 2 ] || usage "--mode expects a mode"
-      case $2 in (coverage|mutate|ownership|libc) modes+=("$2") ;; (*) usage "unknown mode '$2'" ;; esac; shift 2 ;;
+      case $2 in (coverage|mutate|ownership|libc|bound) modes+=("$2") ;; (*) usage "unknown mode '$2'" ;; esac; shift 2 ;;
     (--only) [ $# -ge 2 ] || usage "--only expects text"; only=$2; shift 2 ;;
     (--limit|--jobs) [ $# -ge 2 ] || usage "$1 expects a number"
       case $2 in (''|*[!0-9]*) usage "$1 expects a number, not '$2'" ;; esac
@@ -225,6 +231,7 @@ names=$( (cd "$cases" && { ls | grep '\.byn$' | while IFS= read -r f; do [ -f "$
 # the units, `<mode> <name>`; cases a mode leaves out are counted in left_<mode>
 : > "$out/units"
 for mode in "${modes[@]}"; do
+  [ "$mode" != bound ] || continue
   taken=0; left=0
   while IFS= read -r name; do
     [ -n "$name" ] || continue
@@ -258,6 +265,22 @@ worker() {
 k=0; while [ $k -lt "$jobs" ]; do worker $k & k=$((k + 1)); done
 wait
 
+# bound: the block passed when the driver exited 0 and reported 1 passed and nothing pending; result/bound holds `ok` or `fail <message>`
+title='a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'
+case " ${modes[*]} " in
+  (*" bound "*)
+    ( unset BAYAN_GOLDEN_BOUND_SHARD BAYAN_TEST_SHARD BAYAN_MUTANT BAYAN_COVERAGE
+      cd "$root" && BAYAN_TEST_TIMEOUT_MS=18000000 exec "$exe" test --package src src/driver --only "$title" > "$out/bound.log" 2>&1 )
+    code=$?
+    if grep -qF '(pending)' "$out/bound.log"; then r="fail the block reported pending"
+    elif [ "$code" != 0 ] || ! grep -qE '(^|[^0-9])1 passed' "$out/bound.log"; then
+      r="fail exit $code: $(grep -v '│' "$out/bound.log" | grep -v '^[[:space:]]*$' | tail -6 | paste -sd ';' - | cut -c1-400)"
+    else r=ok
+    fi
+    echo "$r" > "$out/result/bound"
+    grep -E '^ *(full tree|shard [0-9]+/[0-9]+): runner ' "$out/bound.log" | sed 's/^ */nightly-modes: bound: /' ;;
+esac
+
 summary=""; failed=0; i=0
 for mode in "${modes[@]}"; do eval "ok_$mode=0 fail_$mode=0 skip_$mode=0"; done
 while IFS=' ' read -r mode name; do
@@ -278,6 +301,11 @@ if [ -z "$only" ] && [ "$limit" = 0 ] && grep -q '^libc ' "$out/units"; then
   [ -z "$r" ] || { echo "nightly-modes: FAIL libc corpus: $r"; failed=1; }
 fi
 for mode in "${modes[@]}"; do
+  if [ "$mode" = bound ]; then
+    r=$(cat "$out/result/bound")
+    if [ "$r" = ok ]; then part="bound passed"; else echo "nightly-modes: FAIL bound: ${r#fail }"; part="bound failed"; failed=1; fi
+    summary="${summary:+$summary; }$part"; continue
+  fi
   eval "o=\$ok_$mode f=\$fail_$mode s=\$skip_$mode l=\$left_$mode"
   part="$mode $o ok, $f failed, $s skipped (os)"
   [ "$mode" != libc ] || part="$part, $l left out (<dir>/main.byn: not in the C# selection)"

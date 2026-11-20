@@ -6,7 +6,20 @@
 # Exit 0 only when all of them pass; every failing command is named.
 # BAYAN_EXE  the self-hosted driver the golden runner bound runs; unset, the gate builds src/driver with the pinned bayan
 #            (PINNED_BAYAN_REF, default HEAD: the commit being released) into tmp/memory-gate/.
+# The golden runner bound samples shard 1/12 of tests/cases (BAYAN_GOLDEN_BOUND_SHARD) with a 30 minute BAYAN_TEST_TIMEOUT_MS:
+# a hosted runner took 889 s for one twelfth of the tree at --jobs 3 (ci.yml, osx-arm64 golden 11/12), so the full tree needs
+# about 3 hours there, and the 10 minutes it had ended it (release dry run 44688158908). Decision 2026-11-20 (Fable for the
+# owner): the release gate samples one shard, laws-nightly.yml samples the full tree every night.
+#   --full   samples the full tree, with the caller's BAYAN_TEST_TIMEOUT_MS (required: the run takes hours).
 set -uo pipefail
+
+bound_shard=1/12; bound_ms=1800000
+case "${1:-}" in
+  '') ;;
+  --full) bound_shard=""; bound_ms="${BAYAN_TEST_TIMEOUT_MS:-}"
+    [ -n "$bound_ms" ] || { echo "memory-gate: --full needs BAYAN_TEST_TIMEOUT_MS (the full tree takes hours)" >&2; exit 2; } ;;
+  *) echo "memory-gate: unexpected argument '$1' (--full)" >&2; exit 2 ;;
+esac
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 failed=()
@@ -39,13 +52,14 @@ run "$BAYAN_EXE" test tests/cases --only cli/SelfhostDefaultT12Tests/TheInputsHa
 # The selector also selects TheInputsHashDoesNotFollowLinks-2 (`--only` matches by substring): both cases must have passed.
 grep -qE '(^|[^0-9])2 passed' "$log" || failed+=("the T12 inputs-hash cases did not both pass")
 run bash scripts/pinned-bayan.test.sh
-run env BAYAN_TEST_TIMEOUT_MS=600000 "$BAYAN_EXE" test --package src src/driver --only 'a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'
+run env BAYAN_GOLDEN_BOUND_SHARD="$bound_shard" BAYAN_TEST_TIMEOUT_MS="$bound_ms" "$BAYAN_EXE" test --package src src/driver --only 'a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'
 # The block is pending only on Windows (no sh or ps); anywhere else pending, or a title that selects nothing, means it did
-# not run, which must not pass.
+# not run, which must not pass. A block that ran and failed is named once, by run.
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*) ;;
   *)
     if grep -qF '(pending)' "$log"; then failed+=("the golden runner bound reported pending")
+    elif grep -qE '(^|[^0-9])[1-9][0-9]* failed' "$log"; then :
     elif ! grep -qE '(^|[^0-9])1 passed' "$log"; then failed+=("the golden runner bound did not run (no test matched)")
     fi ;;
 esac

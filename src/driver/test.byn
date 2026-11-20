@@ -168,8 +168,12 @@ T5Options t11T5(in T11Options o) uses alloc =>
 
 /// CliApp.cs:627 `DeleteWorkDir`: errors are ignored.
 void deleteWorkDir(string dir) uses alloc, fs {
-    // coverage-exempt: Q1219 an IO failure the C# ignores
-    t9DeleteTree(dir) catch return
+    // the walk is freed when it ends (2026-11-20: 23 MB in the runner to remove the scratch of a shard of tests/cases)
+    using let arena = Arena()
+    provide allocator: arena {
+        // coverage-exempt: Q1219 an IO failure the C# ignores
+        t9DeleteTree(dir) catch {}
+    }
 }
 
 /// CliApp.cs:634 `TestTimeout`: `$BAYAN_TEST_TIMEOUT_MS` when it is a positive `int`, else 60 s; milliseconds.

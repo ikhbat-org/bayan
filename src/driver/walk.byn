@@ -47,8 +47,14 @@ string realPath(string path) uses alloc, fs fails IoError => try Fs.realPath(pat
 
 /// Format.cs:119 `BynFiles`: every `.byn` file under `dir`. A directory that cannot be listed is reported to stderr (not when `silent`, the
 /// `TextWriter.Null` of `PackageNames`), sets `exit` to 1, and is skipped. With `within`, a file or directory whose real path lies outside it is
-/// neither listed nor entered.
-List<string> bynFiles(string dir, through ref i32 exit, by string? within = null, for bool silent = false)
+/// neither listed nor entered. With `flat`, no directory below `dir` is entered.
+List<string> bynFiles(
+    string dir,
+    through ref i32 exit,
+    by string? within = null,
+    for bool silent = false,
+    bool flat = false
+)
         uses alloc, console, fs {
     var files = List<string>()
     var seenFiles: Map<string, bool> = []
@@ -94,6 +100,7 @@ List<string> bynFiles(string dir, through ref i32 exit, by string? within = null
             }
         }
         for name in names {
+            break if flat
             continue if Fs.fileExists(Path.combine(canonical, name))
             continue if t6IsSkippedDirectory(name, atRoot: at.path == dir)
             let sub = Path.combine(at.path, name)
