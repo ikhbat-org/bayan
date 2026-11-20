@@ -42,6 +42,10 @@ test "driver t29: bynFiles and packageNames on a missing root" {
 }
 
 test "driver t29: bynFiles skips a dangling link, an unlistable directory and what lies outside its bound" {
+    // the link and the locked directories are made by `/bin/ln` and `/bin/chmod`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`ln -s` and `chmod` permission bits are Unix-only")
+    }
     let dir = t29WalkDir("odd")
     goldenWrite(dir, for: "a.byn", as: "let a = 1\n")
     goldenWrite(dir, for: "sub/b.byn", as: "let b = 2\n")
@@ -65,6 +69,10 @@ test "driver t29: bynFiles skips a dangling link, an unlistable directory and wh
 }
 
 test "driver t29: packageNames skips a file it cannot read" {
+    // the unreadable file is made by `/bin/chmod 000`, and Windows has no permission bits that deny a read
+    if Target.os == "windows" {
+        todo("`chmod` permission bits are Unix-only")
+    }
     let dir = t29WalkDir("unreadable")
     goldenWrite(dir, for: "a.byn", as: "let a = 1\nprint($\"{a}\")\n")
     goldenWrite(dir, for: "b.byn", as: "let b = 2\n")

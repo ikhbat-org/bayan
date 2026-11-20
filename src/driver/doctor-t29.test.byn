@@ -4,7 +4,9 @@
 test "driver t29: t5RenderCompare names the first difference from the shape" {
     let checks = t25RenderChecks()
     let failure = t5RenderCompare(in checks, for: "doctor-ok") ?? ""
-    assert failure.contains("tests/cases/style/doctor-ok.color\nexpected line 3: ")
+    // the golden's full path, which has `\` separators on Windows
+    let golden = Path.fullPath("tests/cases/style/doctor-ok.color")
+    assert failure.contains($"{golden}\nexpected line 3: ")
     assert failure.contains("<version> (commit a1b2c3d4e5f6)\nactual line 3: ")
 }
 

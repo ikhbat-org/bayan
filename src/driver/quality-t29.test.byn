@@ -32,6 +32,8 @@ test "driver t29: qualityCoverage, its JSON, listing and summary with some count
     var hits: Map<i64, u64> = []
     let map = t29QualityMap(ref hits)
     let f = Path.combine(Path.combine(Path.fullPath("tmp"), "quality-t29"), "main.byn")
+    // the path as JSON writes it: a Windows path's `\` is escaped
+    let fj = f.replaced("\\", by: "\\\\")
     let report = qualityCoverage("t29", by: in map, from: in hits, for: false, through: 1500000000, as: 2500000000)
     let json = """
         {
@@ -97,7 +99,7 @@ test "driver t29: qualityCoverage, its JSON, listing and summary with some count
         }
 
         """
-    t29Same(qualityJson(in report).replaced(f, by: "<f>"), as: json)
+    t29Same(qualityJson(in report).replaced(fj, by: "<f>"), as: json)
     t29Same(
         qualityCoverageSummary(in report).replaced(f, by: "<f>"),
         as: "coverage: lines 3/4 (75%), branches 2/4 (50%), error paths 0/1 (0%)\n  <f>: lines 3/4, branches 2/4, error paths 0/1\nuncovered branch: <f>:6:18 never true\nuncovered branch: <f>:13:7 never true\nuncovered error path: <f>: check E.bad\n",
@@ -170,7 +172,7 @@ test "driver t29: qualityCoverage, its JSON, listing and summary with some count
         }
 
         """
-    t29Same(qualityJson(in timedOut).replaced(f, by: "<f>"), as: timedOutJson)
+    t29Same(qualityJson(in timedOut).replaced(fj, by: "<f>"), as: timedOutJson)
     t29Same(
         qualityCoverageSummary(in timedOut).replaced(f, by: "<f>"),
         as: "coverage: lines 3/4 (75%), branches 2/4 (50%), error paths 0/1 (0%)\n  <f>: lines 3/4, branches 2/4, error paths 0/1\nunknown branch: <f>:6:18 never true\nunknown branch: <f>:13:7 never true\nunknown error path: <f>: check E.bad\n",

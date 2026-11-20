@@ -9,7 +9,10 @@ test "json t29: program names and path pieces" {
     assert programName(ref c, for: "tmp/t29s1-json/main") == "main"
     assert programName(ref c, for: "tmp/t29s1-json/main/main.byn") == "main"
     assert t26FileNameWithoutExtension("a/b") == "b"
-    assert t26TrimEndSlash("a/b//") == "a/b"
+    // the host's separator, `\` on Windows, is the one trimmed
+    let ab = Path.combine("a", "b")
+    let separator = ab[1..2]
+    assert t26TrimEndSlash($"{ab}{separator}{separator}") == ab
     assert t26TrimEndSlash("") == ""
 }
 
