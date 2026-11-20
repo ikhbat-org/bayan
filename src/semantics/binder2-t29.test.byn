@@ -276,3 +276,52 @@ test "binder2 t29: borrowed places through every arm, Panic members, patterns an
         as: "BYN2106 356+22 cannot modify this value | BYN2106 485+14 cannot modify this value | BYN2106 779+7 cannot modify this value | BYN2003 825+5 `other` is not a member of `Panic` | BYN2230 845+7 `onPanic` is now `handler` | BYN2202 855+1 expected `void f(Panic p)`, found `i32` | BYN2614 839+17 `Panic.handler` may be set only as the first statement of `main` | BYN2009 880+5 `Panic` must be camelCase | BYN2003 903+7 `handler` is not a member of `W` | BYN2202 1033+1 expected `bool`, found `i32` | BYN2411 1109+1 `W` cannot match `E` | BYN2001 1211+8 `missing3` is not defined | BYN2219 1238+11 a `const` must be a compile-time constant | BYN2311 880+5 `Panic` is never reassigned; declare it with `let`",
     )
 }
+
+test "binder2 t29: exit code modifiers, bang conditions and owned places" {
+    let text = """
+            union error E {
+                @exitCode(ref 3)
+                bad
+            }
+            interface IC {
+                void bump(ref this)
+                i64 n
+            }
+            struct C : IC {
+                i64 n
+                void bump(ref this) { n += 1 }
+            }
+            List<C>? maybe() => null
+            List<C> make() fails E => List<C>()
+            struct Order {
+                i64 id
+                states {
+                    draft
+                    paid(i64 payment)
+                    shipped(i64 payment, i64 tracking)
+                }
+            }
+            Order mkOrder() => Order.draft { id: 1 }
+            void t14(bool flag) {
+                let a = mkOrder()
+                let b = mkOrder()
+                if a is .paid && b is .paid {
+                    if flag {
+                        print("p")
+                    }
+                }
+                if a is .paid && a is not .draft {
+                    if flag {
+                        print("q")
+                    }
+                }
+            }
+            void t13(List<C>? a) {
+                if !(a is null) {
+                    print("x")
+                }
+                for x: dyn ref IC in (maybe() ?? List<C>()) { x.bump() }
+            }
+            """
+    assert t29b2Is(text, as: "BYN2772 20+16 `@exitCode` needs one integer constant from 1 to 255")
+}
