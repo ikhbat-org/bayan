@@ -36,7 +36,15 @@ test "emitter t29: buildSchema's sites over the corpus" {
             assert emitted > 0
             assert schema.switches.length == 6
         }
-        assert t29Emit(corpus[k], mutating: true).contains("int main(")
+        // The `--mutate` emit selects site `id` with `byn_mutant_is(id)` exactly when the schema emitted that site.
+        let e = t29Emit(corpus[k], mutating: true)
+        for s in schema.sites {
+            if e.contains($"byn_mutant_is({s.id})") != s.emitted {
+                failed.append($"{k}: site {s.id} emitted {s.emitted}")
+            }
+        }
+        assert !e.contains($"byn_mutant_is({schema.sites.length + 1})")
+        assert e.contains("byn_mutant_read();")
     }
     assert failed.finish() == ""
 }
