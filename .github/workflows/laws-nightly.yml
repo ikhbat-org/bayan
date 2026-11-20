@@ -73,3 +73,46 @@ jobs:
             tmp/test.*/
             tmp/bootstrap-build/stage*.log
           if-no-files-found: ignore
+
+  # The golden runner bound (docs/memory-leaks.md rule 8) over the full tests/cases tree, which the release memory gate samples
+  # one shard of (Decision 2026-11-20, Fable for the owner): a hosted runner took 889 s for one twelfth of the tree at --jobs 3,
+  # so about 3 hours; scripts/ci/nightly-modes.sh --mode bound gives the block 5 hours, the job 330 min. Not in a run release.yml
+  # calls (github.workflow is then the caller's name): the release gate's shard is the release sample.
+  golden-bound:
+    if: github.workflow == 'laws-nightly'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        shell: bash
+        run: |
+          git init -q .
+          git fetch -q --depth=2 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q --detach FETCH_HEAD
+      - name: Install zig
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      - name: Build from the bootstrap
+        shell: bash
+        run: |
+          s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }
+          echo "BAYAN_EXE=$s1" >> "$GITHUB_ENV"
+      - name: Golden runner bound over the full tree
+        shell: bash
+        run: |
+          mkdir -p tmp
+          bash scripts/ci/nightly-modes.sh --mode bound 2>&1 | tee tmp/ci-golden-bound.log
+      - name: Upload the logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: golden-bound-logs-${{ matrix.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            tmp/ci-*.log
+            tmp/nightly-modes/bound.log
+            tmp/bootstrap-build/stage*.log
+          if-no-files-found: ignore

@@ -3,7 +3,9 @@
 # copy passes in every mode; an altered .stdout of the copy fails mutate and coverage naming the case; a stand-in driver that
 # drops `build --coverage` fails coverage on the missing counter file, naming the case; a stand-in driver whose `--emit-c` adds
 # `byn_own` fails ownership naming the case; a stand-in driver whose `--emit-c` adds a call to an unlisted function fails libc
-# naming the case; libc with no --limit runs the corpus check, which the three cases alone fail; an unknown mode is a usage error.
+# naming the case; libc with no --limit runs the corpus check, which the three cases alone fail; bound runs the golden runner
+# bound block through a stand-in driver over the full tree with a 5 hour timeout and fails on a failed or pending block; an
+# unknown mode is a usage error.
 # BAYAN_EXE: the self-hosted driver; unset, bootstrap/bayan.c is built with cc into tmp/. bash 3.2, no dotnet.
 set -euo pipefail
 
@@ -68,6 +70,29 @@ BAYAN_EXE=$bayan bash "$tmp/repo/scripts/ci/nightly-modes.sh" --cases "$tmp/case
 grep -q '^nightly-modes: FAIL libc corpus: listed in 011-c-inventory.md but no emitted unit calls it: ' "$tmp/out" \
   || fail "the corpus check did not run" "$(cat "$tmp/out")"
 grep -q '^nightly-modes: libc 3 ok, 0 failed' "$tmp/out" || fail "a case failed the per-case check" "$(cat "$tmp/out")"
+
+# bound: a stand-in driver logs its environment and arguments and reports what BOUND_SAYS says
+cat > "$tmp/stand-in" <<'STUB'
+#!/usr/bin/env bash
+echo "timeout=${BAYAN_TEST_TIMEOUT_MS:-} shard=${BAYAN_GOLDEN_BOUND_SHARD-unset} test-shard=${BAYAN_TEST_SHARD-unset} $*" > "$BOUND_LOG"
+case $BOUND_SAYS in
+  (pass) echo "  full tree: runner 9000 KB, largest worker 9100 KB"; echo "◆ 1 passed · 1s" ;;
+  (fail) echo "  ✗ driver: the bound"; echo "◆ 0 passed · ✗ 1 failed · 0 pending · 1s"; exit 3 ;;
+  (pending) echo "  ◆ driver: the bound (pending)"; echo "◆ 0 passed · 1 pending · 1s" ;;
+esac
+STUB
+chmod +x "$tmp/stand-in"
+bound() { BOUND_SAYS=$1 BOUND_LOG="$tmp/bound-args" BAYAN_GOLDEN_BOUND_SHARD=1/12 BAYAN_TEST_SHARD=2/3 BAYAN_EXE="$tmp/stand-in" \
+  bash "$tmp/repo/scripts/ci/nightly-modes.sh" --cases "$tmp/cases/run" --mode bound > "$tmp/out" 2>&1 && echo pass || echo fail; }
+[ "$(bound pass)" = pass ] || fail "a passing bound failed" "$(cat "$tmp/out")"
+grep -qx 'timeout=18000000 shard=unset test-shard=unset test --package src src/driver --only a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory' "$tmp/bound-args" \
+  || fail "bound did not run the block over the full tree with a 5 hour timeout" "$(cat "$tmp/bound-args")"
+grep -qx 'nightly-modes: bound passed' "$tmp/out" || fail "the bound counts line is not the expected one" "$(cat "$tmp/out")"
+grep -qx 'nightly-modes: bound: full tree: runner 9000 KB, largest worker 9100 KB' "$tmp/out" || fail "the bound figures were not printed" "$(cat "$tmp/out")"
+[ "$(bound fail)" = fail ] || fail "a failed bound passed" "$(cat "$tmp/out")"
+grep -q '^nightly-modes: FAIL bound: exit 3: ' "$tmp/out" && grep -qx 'nightly-modes: bound failed' "$tmp/out" || fail "the failed bound was not named" "$(cat "$tmp/out")"
+[ "$(bound pending)" = fail ] || fail "a pending bound passed" "$(cat "$tmp/out")"
+grep -qx 'nightly-modes: FAIL bound: the block reported pending' "$tmp/out" || fail "the pending bound was not named" "$(cat "$tmp/out")"
 
 [ "$(run "$bayan" --mode bad)" = fail ] && grep -q "unknown mode 'bad'" "$tmp/out" || fail "an unknown mode was not a usage error" "$(cat "$tmp/out")"
 echo "nightly-modes.test: ok"

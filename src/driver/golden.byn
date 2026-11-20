@@ -3122,7 +3122,9 @@ test "one worker of the driver itself runs more than a batch of cases, started a
 }
 
 // The bound of a run over the full cases tree (spec 019 T9a, R9; docs/memory-leaks.md rule 8). The run takes minutes, past the 60 s of a test
-// block, so the block is pending unless `$BAYAN_TEST_TIMEOUT_MS` gives it 10 minutes, as the release memory gate does (T9b).
+// block, so the block is pending unless `$BAYAN_TEST_TIMEOUT_MS` gives it 10 minutes. `$BAYAN_GOLDEN_BOUND_SHARD` (`i/n`, as
+// `$BAYAN_TEST_SHARD`) samples one shard of the tree: the sampled run gets it as `$BAYAN_TEST_SHARD`, the outer run is not sharded by it.
+// Decision 2026-11-20 (Fable for the owner, T43): the release memory gate samples shard 1/12 (T9b), laws-nightly.yml the full tree.
 
 /// `sh -c` text: runs `BAYAN_EXE=$1 $1 test $2`, output dropped, writing its exit code to the file `$4` when it ends; until then, every 50 ms,
 /// the resident set (`ps`, KB) of it and of each `$1 test --golden-worker $3…`. Prints `<exit> <runner peak KB> <largest worker peak KB>`.
@@ -3132,6 +3134,12 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     if Target.os == "windows" {
         todo("`sh` and `ps` sample the resident set; Windows has neither")
     }
+    let shard = Env.get("BAYAN_GOLDEN_BOUND_SHARD") ?? ""
+    var index: i64 = 0
+    var count: i64 = 0
+    let refused = goldenShard(shard, to: ref index, by: ref count)
+    print($"BAYAN_GOLDEN_BOUND_SHARD expects i/n, whole numbers with 1 <= i <= n <= 64, got `{shard}`") if refused is not null
+    assert(refused is null)
     let limit = testTimeout()
     if limit < 600000 {
         todo("the run takes minutes: set BAYAN_TEST_TIMEOUT_MS to 600000 or more")
@@ -3157,14 +3165,19 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     ] {
         args.append(a)
     }
-    let r = Io.run("sh", args.span, timeout: Millis(limit - 10000)) catch { panic("the sampled run did not end") }
+    var env: Map<string, string?> = []
+    env["BAYAN_TEST_SHARD"] = shard == "" ? null : shard
+    let over = shard == "" ? "full tree" : $"shard {shard}"
+    let r = Io.run("sh", args.span, env: env, timeout: Millis(limit - 10000)) catch {
+        panic($"the sampled run over the {over} did not end")
+    }
     deleteWorkDir(root)
     let after = Io.listDir(tmp) catch List<string>()
     var fields = List<string>()
     for f in r.stdout.trimmed(from: .end).parts(by: " ") {
         fields.append(f)
     }
-    assert(fields.length == 3 && fields[0] == "0")
+    assert(fields.length == 3)
     let runner = t9Digits(fields[1], until: 9223372036854775807) ?? 0
     let worker = t9Digits(fields[2], until: 9223372036854775807) ?? 0
     // measured 2026-11-17 on macOS arm64 (10 CPUs, shared), default --jobs 4, four runs: runner 9,296 to 9,984 KB, largest worker 9,568 to
@@ -3184,8 +3197,9 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
         }
     }
     print(
-        $"runner {runner} KB, largest worker {worker} KB (measured 9,984 and 9,792), left in {tmp}: {t5Join(in left)}",
+        $"{over}: exit {fields[0]}, runner {runner} KB, largest worker {worker} KB (measured 9,984 and 9,792), left in {tmp}: {t5Join(in left)}",
     )
+    assert(fields[0] == "0")
     assert(runner > 0 && runner < 15 * 1024)
     assert(worker > 0 && worker < 15 * 1024)
     assert(left.length == 0)

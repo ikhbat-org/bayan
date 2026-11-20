@@ -32,7 +32,10 @@ caches, buffers child output, recurses on input, or runs for longer than one com
 7. **Temp dirs are removed in `finally` and swept on start** (entries older than 24 h), because
    a killed process never runs its `finally`.
 8. **Long-lived processes get a memory-bound test** that fails when the bound breaks. No release
-   ships without them green (see *Release gate*).
+   ships without them green (see *Release gate*). 2026-11-20 (Decision, Fable for the owner, spec 019 T43): the golden
+   runner bound is sampled on shard 1/12 of `tests/cases` by the release gate and on the full tree every night
+   (`laws-nightly.yml` job `golden-bound`, `scripts/ci/nightly-modes.sh --mode bound`, Linux and macOS): a hosted runner
+   took 889 s for one twelfth of the tree at `--jobs 3`, so the full tree needs about 3 hours there.
 9. **Builds don't leave servers behind.** Scripts that run `dotnet` set
    `MSBUILDDISABLENODEREUSE=1` and `DOTNET_CLI_USE_MSBUILD_SERVER=0`.
 
@@ -114,7 +117,7 @@ these fail:
 "$BAYAN_EXE" test --package src src/driver --only 'bound: '       # CLI capture, cache eviction, walks, timeouts
 "$BAYAN_EXE" test tests/cases --only cli/SelfhostDefaultT12Tests/TheInputsHashDoesNotFollowLinks  # inputs hash skips links
 bash scripts/pinned-bayan.test.sh                                  # pinned build cache eviction
-env BAYAN_TEST_TIMEOUT_MS=600000 "$BAYAN_EXE" test --package src src/driver --only 'a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'  # golden runner bound
+env BAYAN_GOLDEN_BOUND_SHARD="$bound_shard" BAYAN_TEST_TIMEOUT_MS="$bound_ms" "$BAYAN_EXE" test --package src src/driver --only 'a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory'  # golden runner bound: shard 1/12, 30 min
 ```
 
 The first line runs the bound blocks of `editors/language-server/src/bounds/bounds.byn` (spec 019 T38a, R22) with no .NET;
@@ -136,6 +139,20 @@ each `--golden-worker` under 15 MB of resident set and leaves no scratch directo
 `BAYAN_TEST_TIMEOUT_MS` (it needs minutes) or on Windows (no `sh` or `ps`) the block reports pending; the gate fails a
 pending result on Linux and macOS. `BAYAN_EXE` is the self-hosted driver; when it is unset, the gate builds `src/driver`
 with the pinned bayan at `HEAD` into `tmp/memory-gate/`.
+
+`BAYAN_GOLDEN_BOUND_SHARD` (`i/n`) has the block sample one shard: the sampled run gets it as `BAYAN_TEST_SHARD`; empty or
+unset, the full tree; another form fails the block, naming the variable. The gate sets `bound_shard=1/12` and
+`bound_ms=1800000` (30 minutes); `memory-gate.sh --full` samples the full tree with the caller's `BAYAN_TEST_TIMEOUT_MS`.
+2026-11-20 (spec 019 T43): release dry run 44688158908 gave the full tree 10 minutes and the block failed on both hosts
+after 590 s ("the sampled run did not end"); a hosted runner took 889 s for shard 11/12 at `--jobs 3` (ci.yml, osx-arm64),
+so the full tree needs about 3 hours there. Decision 2026-11-20 (Fable for the owner): the release gate samples shard 1/12,
+and `laws-nightly.yml`'s `golden-bound` job samples the full tree every night on ubuntu-24.04 and macos-15
+(`scripts/ci/nightly-modes.sh --mode bound`, 5 hours for the block, 330 minutes for the job; not run when `release.yml`
+calls the workflow). A block that ran and failed is reported once, as failed; "did not run (no test matched)" means no
+test ran.
+Open (2026-11-20, macOS arm64, stage-1 driver, shard 1/12, 3,395 cases, 483 s): runner 73,680 KB, largest worker
+133,104 KB, over the 15 MB bound, and the sampled run exited 3 (five `MutateArgumentsAsCliAppDoes` cases); the 9–10 MB
+figures above were measured on 2026-11-17 over the full tree; the cause of the growth is not found.
 
 `bash scripts/release/memory-gate.sh` runs this block and names every failing command; `release.yml`'s
 `memory-gate` job runs it on Linux and macOS, and no draft release is made without it. The VS Code
