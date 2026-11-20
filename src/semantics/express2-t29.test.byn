@@ -57,3 +57,66 @@ test "express2 t29: misspelled members of an error set, a struct, a union, an en
         as: "BYN2228 166+3 `bda` is not a variant of `E`;BYN2003 184+4 `mkae` is not a member of `P`;BYN2700 205+3 `oen` is not a variant of union `U`;BYN2720 227+8 `zzzzzzzz` is not a member of `Color`;BYN2003 251+6 `stdoot` is not a member of `Io`;BYN2003 273+8 `qqqqqqqq` is not a member of `Io`;BYN2003 299+5 `decod` is not a member of `Utf8`;BYN2003 322+6 `combin` is not a member of `Path`;BYN2003 346+8 `qqqqqqqq` is not a member of `Path`;BYN2003 394+1 `r` is not a member of `(i32 p, i32 q)`;",
     )
 }
+
+test "express2 t29: renamed list, map, string and integer members called with and without the old arguments" {
+    let text = "void main() {\n    var xs = List<i64>()\n    xs.append(1)\n    var m = Map<string, i64>()\n    m[\"a\"] = 1\n    let n: i64 = 5\n    let s = \"abc\"\n    xs.removeRange(0, 1)\n    xs.removeRange(0)\n    xs.removeRange(from: 0, 1)\n    xs.replaceRange(0, 1)\n    xs.replaceRange(0)\n    xs.replaceRange(at: 0, 1)\n    let a = m.getOr(\"a\", 1)\n    let b = m.getOr(\"a\")\n    let d = m.getOr(key: \"a\", 1)\n    let e = xs.asSpan()\n    let f = xs.asSpan(1)\n    let h = s.toUtf16()\n    let i = s.toUtf16(1)\n    let j = n.toHex()\n    let k = n.toOctal(1)\n    let o = n.toBinary\n    let p = xs.removeRange.length\n    let q = xs.replaceRange.length\n}\n"
+    assert t29s0Same(
+        t29s0Fixes(text),
+        as: "BYN2230 `removeRange` is now `remove(from:until:)` => 146+17 remove(from: 0, until: 1);BYN2230 `removeRange` is now `remove(from:until:)`;BYN2230 `removeRange` is now `remove(from:until:)`;BYN2230 `replaceRange` is now `replace(at:by:)` => 224+18 replace(at: 0, by: 1);BYN2230 `replaceRange` is now `replace(at:by:)`;BYN2230 `replaceRange` is now `replace(at:by:)`;BYN2230 `getOr` is now `tryGet(at:) ??` => 308+15 (m.tryGet(at: \"a\") ?? 1);BYN2230 `getOr` is now `tryGet(at:) ??`;BYN2230 `getOr` is now `tryGet(at:) ??`;BYN2230 `asSpan()` is now `span` => 397+8 span;BYN2230 `asSpan()` is now `span`;BYN2230 `toUtf16()` is now `utf16` => 445+9 utf16;BYN2230 `toUtf16()` is now `utf16`;BYN2230 `toHex()` is now `string(x, as: .hex)` => 492+9 string(n, as: .hex);BYN2230 `toOctal()` is now `string(x, as: .octal)`;BYN2230 `toBinary()` is now `string(x, as: .binary)`;BYN2230 `removeRange` is now `remove(from:until:)`;BYN2230 `replaceRange` is now `replace(at:by:)`;",
+    )
+}
+
+/// The diagnostics of `text` compiled as `a.byn`, each as `code message | help;`.
+string t29s0Helps(string text) uses alloc, clock, fs {
+    let c = t29s0Compile(text)
+    var sb = StrBuf()
+    for d in c.diagnostics {
+        sb.append($"{d.code} {d.message} | {d.help};")
+    }
+    return $"{sb.finish()}"
+}
+
+test "express2 t29: near-miss names of an error case, a union variant, a `Hex` member and a field named on its struct" {
+    let text = "union error E {\n    timeout\n}\n\nunion U {\n    circle\n}\n\nstruct S {\n    i64 a\n    i64 size => 1\n    i64 m() => 1\n}\n\nvoid main() {\n    let a = E.timeoot\n    let b = U.circl\n    let c = Hex.decodd\n    let d = S.a\n    let e = S.size\n    let f: S = .m\n}\n"
+    assert t29s0Same(
+        t29s0Helps(text),
+        as: "BYN2228 `timeoot` is not a variant of `E` | did you mean `timeout`?;BYN2700 `circl` is not a variant of union `U` | did you mean `circle`?;BYN2003 `decodd` is not a member of `Hex` | did you mean `decode`?;BYN2003 `a` is not a member of `S` | call it on a `S` value; `a` belongs to a value, not the type;BYN2003 `size` is not a member of `S` | call it on a `S` value; `size` belongs to a value, not the type;BYN2003 `m` is not a member of `S` | ;",
+    )
+}
+
+test "express2 t29: members of union, error, states, owned, untrusted and dyn values" {
+    let text = "union error E {\n    bad(i64 code)\n}\n\nunion U {\n    one(i64 v)\n    two(i64 w)\n}\n\nstruct O {\n    i64 n\n    states {\n        draft\n        paid(i64 payment)\n    }\n}\n\ninterface IA {\n    i64 a()\n}\n\nU mk() => U.two(w: 1)\n\nE mkE() => E.bad(code: 1)\n\ni64 viaDyn(dyn ref IA d) => d.zzz\n\ni64 own(Owned<Nope> w) => w.zzz\n\ni64 ownOk(Owned<O> w) => w.zzz\n\nvoid main() {\n    let u = mk()\n    let a = u.zzz\n    let b = mk().v\n    let c = mkE().code\n    let o = O.draft { n: 1 }\n    let d = o.zzz\n    let t: Untrusted<string> = Untrusted(\"x\")\n    let f = t.zzz\n    let g: Untrusted<i64> = Untrusted(1)\n    let h = g.length\n    let n: i64 = 1\n    let i = n.matches\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2002 292+4 unknown type `Nope`;BYN2003 273+3 `zzz` is not a member of `dyn ref IA`;BYN2003 338+3 `zzz` is not a member of `O`;BYN2003 388+3 `zzz` is not a member of `U`;BYN2704 409+1 the payload of a `U` is read with a pattern, not `.v`;BYN2003 429+4 `code` is not a member of `E`;BYN2003 477+3 `zzz` is not a member of `O.draft`;BYN2003 541+3 `zzz` is not a member of `Untrusted<string>`;BYN2003 600+6 `length` is not a member of `Untrusted<i64>`;BYN2003 640+7 `matches` is not a member of `i64`;",
+    )
+}
+
+test "express2 t29: array indexes from the end, unsigned and failing indexes, and a failing map key" {
+    let text = "void main() {\n    let xs = [1, 2, 3]\n    var m = Map<string, i64>()\n    m[\"a\"] = 1\n    let u: u64 = 1\n    let v: u32 = 1\n    let a = xs[^0]\n    let b = xs[^5]\n    let c = xs[^1]\n    let d = xs[nope]\n    let e = xs[u]\n    let f = xs[v]\n    let g = m[nope]\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2213 136+2 index ^0 is out of range for `i32[3]`;BYN2213 155+2 index ^5 is out of range for `i32[3]`;BYN2001 193+4 `nope` is not defined;BYN2001 249+4 `nope` is not defined;",
+    )
+}
+
+test "express2 t29: the `+=` fix for a string writes each right-hand side as interpolation source" {
+    let text = "void main() {\n    var s = \"a\"\n    let n: i64 = 1\n    s += \"x{y\"\n    s += \"plain\"\n    s += n\n    s += $\"v{n}\"\n}\n"
+    assert t29s0Same(
+        t29s0Fixes(text),
+        as: "BYN2209 strings cannot be joined with `+`; use interpolation => 53+10 s = $\"{s}{\"x{y\"}\";BYN2209 strings cannot be joined with `+`; use interpolation => 68+12 s = $\"{s}plain\";BYN2209 strings cannot be joined with `+`; use interpolation => 85+6 s = $\"{s}{n}\";BYN2209 strings cannot be joined with `+`; use interpolation => 96+12 s = $\"{s}v{n}\";",
+    )
+}
+
+test "express2 t29: generic and associated-type interface members through a type parameter" {
+    let text = "interface IIt {\n    type Item\n    Item first()\n    i64 size()\n    T id<T>(T x)\n}\n\nstruct W : IIt {\n    type Item = i64\n    i64 first() => 1\n    i64 size() => 2\n    T id<T>(T x) => x\n}\n\ni64 g<X>(X x) where X : IIt => x.size() + x.id(1)\n\nX.Item h<X>(X x) where X : IIt => x.first()\n\nvoid main() {\n    print($\"{g(W {})}{h(W {})}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2022 169+1 generic methods is not supported in v0.1;BYN2022 229+2 calling a generic interface method is not supported in v0.1;BYN2780 180+1 implicit copy of a unique value: type parameter `T` may stand for a unique type;",
+    )
+}
+
+test "express2 t29: private members read inside and outside their struct" {
+    let text = "struct P {\n    private i64 x\n    i64 same(P o) => o.x + x\n    static P make() => P { x: 1 }\n}\n\nvoid main() {\n    let p = P.make()\n    print($\"{p.same(p)}\")\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "")
+}
