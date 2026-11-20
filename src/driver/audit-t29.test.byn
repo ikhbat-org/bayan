@@ -18,7 +18,7 @@ lexer.LexResult t29AuditLex(string text, by bool trim) uses alloc {
 }
 
 /// Each bypass as `line:column construct reason`, one per line.
-string t29AuditShow(in List<T6Bypass> found) uses alloc {
+string t29AuditShow(List<T6Bypass> found) uses alloc {
     var sb = StrBuf()
     for b in found {
         sb.append($"{b.line}:{b.column} {b.construct} {b.reason ?? "-"}\n")
