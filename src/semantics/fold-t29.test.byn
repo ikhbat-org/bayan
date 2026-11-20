@@ -213,3 +213,21 @@ test "fold t29: struct `requires` rules on constants with integer ranges, flag o
     let text = "struct In {\n    i64 a\n}\n\nstruct R {\n    In inner\n    i64 n\n    bool f\n    bool g\n    i32 w\n    requires inner.a > 0\n    requires n is 1..10\n    requires n is 1..=10\n    requires (f | g) == true\n    requires (f & g) == false\n    requires f && g\n    requires f || g\n    requires i64(w) > 0\n    requires f64(n) > 0.0\n}\n\nvoid main() fails ValidationError<R> {\n    let a = try R { inner: In { a: 1 }, n: 0, f: false, g: true, w: 1 }\n    let b = try R { inner: In { a: 1 }, n: 20, f: false, g: false, w: 2 }\n    let c = try R { inner: In { a: 1 }, n: 5, f: true, g: true, w: 3 }\n    print($\"{a.n}{b.n}{c.n}\")\n}\n"
     assert t29s0Same(t29s0Diags(text), as: "")
 }
+
+test "fold t29: `expects` clauses with a field of a parameter, conversions and a value below its range" {
+    let text = "struct P {\n    i64 x\n}\n\nvoid a(i64 n, by P p) expects p.x > n {}\nvoid c(i32 n, by i64 m) expects n < m {}\nvoid d(rune r) expects i64(r) > 100 {}\nvoid f(i64 n) expects n is 1..5 {}\nvoid m(i64? n) expects n == 1 {}\nvoid u(Untrusted<i64> w, by i64 n) expects w > n {}\n\nvoid z(Untrusted<i64> w) {\n    a(1, by: P { x: 0 })\n    c(5, by: 2)\n    d('a')\n    f(0)\n    m(2)\n    u(w, by: 1)\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5011 121+7 this `expects` reads only `r`; a type with `requires` checks it once;BYN5011 159+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 195+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN8006 256+1 `expects` reads `w`, which is `Untrusted`; a violation would trap on outside data;BYN2321 324+1 `5` violates `requires n < m` of `c`;BYN2321 351+1 `0` violates `requires n is 1..5` of `f`;",
+    )
+}
+
+test "fold t29: flag bit or of two false flags" {
+    var c = t2Ctx()
+    assert t29s0Same(
+        t29s0K(
+            foldBinary(ref c, for: .bitOr, from: in t6Flag(flag: false), by: in t6Flag(flag: false), as: prim(.bool)),
+        ),
+        as: "flag:false",
+    )
+}
