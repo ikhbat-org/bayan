@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tests scripts/selfhost/pre-push-laws.sh against a fixture laws dir with stub check commands (the real laws are never run):
 # BAYAN_LAW_TIER=full reaches the check, a failing check fails the gate and names the id, proposed and retired laws are not run,
-# an enacted law with no check: line fails the gate and is named.
+# an enacted law with no check: line fails the gate and is named, a law in BAYAN_LAWS_LEFT is printed and not run, and an id
+# there that is not an enacted law fails the gate.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 fail() { echo "FAIL $1"; exit 1; }
@@ -30,4 +31,12 @@ gate
 [ $rc = 1 ] || fail "a missing check line exited $rc"
 echo "$out" | grep -q 'L904: no check: line' || fail "the missing check is not named: $out"
 echo "$out" | grep -q 'LAWS FAILED (full tier): L904$' || fail "the missing check did not fail the gate"
+
+law L904 enacted "touch '$t/ran-left'" 0904
+rc=0; out="$(BAYAN_LAWS_LEFT=L904 bash "$root/scripts/selfhost/pre-push-laws.sh" "$t/laws" 2>&1)" || rc=$?
+[ $rc = 0 ] && [ ! -e "$t/ran-left" ] || fail "a law in BAYAN_LAWS_LEFT was run or failed the gate ($rc): $out"
+echo "$out" | grep -qx '== L904 left to another job (BAYAN_LAWS_LEFT)' || fail "the left law is not printed: $out"
+rc=0; out="$(BAYAN_LAWS_LEFT=L902 bash "$root/scripts/selfhost/pre-push-laws.sh" "$t/laws" 2>&1)" || rc=$?
+[ $rc = 1 ] || fail "a BAYAN_LAWS_LEFT id that is not enacted exited $rc"
+echo "$out" | grep -q 'L902: in BAYAN_LAWS_LEFT but not an enacted law' || fail "the stale left id is not named: $out"
 echo "pre-push-laws.test: ok"
