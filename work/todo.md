@@ -1214,3 +1214,4 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - 019 T43a LOW (2026-11-20): the golden bound samples the runner and `--golden-worker` processes only; the prebuild process (0.8–1.17 GB) is not sampled.
 - 019 T43a LOW (2026-11-20): a cli T2 worker reaches 22 MB, over the 15 MB worker bound outside shard 1/12; `--jobs 1` runner reaches 155 MB.
 - LOW (019 019-t29drv, 2026-11-20; T29): `src/driver/commands.byn:39` outcomes 39:8 true and 39:28 true are listed unreachable (stdin read in `lexCommand`) without a category letter; they fit (d) only loosely. Give them a letter or a test that feeds stdin.
+- LOW (019 019-t29sem2a, 2026-11-20; T29): `src/semantics/binder2.byn:50:9` false is dead (line 46 already returns when `vConst is null`); it fits no unreachable category, so it stays uncovered. Remove the dead test or add a category for dead arms.
