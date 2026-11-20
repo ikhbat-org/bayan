@@ -100,8 +100,11 @@ fi
 # each unchanged and nothing else; (b) it is the same prompt from a copy of the task without checks/ and reference/; (c) no
 # compared line of a file under checks/ or reference/ is a line of the preamble; (d) no such file has all its compared lines
 # in prompt.md, where a line of the task's starter/ or source.* does not count as in prompt.md. Lines are trimmed; blank lines
-# and lines with no letter or digit are not compared; a file with no compared line is skipped. A stub model records each
-# prompt; the n-th record of records.jsonl is the task of the n-th prompt.
+# and lines with no letter or digit are not compared; a file with no compared line is skipped. The runs use
+# --retry-diagnostics (R42) and the stub always answers a program that does not compile, so each task gets a retry: (e) its
+# prompt is the first prompt, the program and the compiler's errors; (f) it is the same without checks/ and reference/; (g) on
+# a `tests` task the errors name no file of checks/ and hold no compared line of one. A stub model records each prompt; the
+# n-th record of records.jsonl is the task of prompts 2n-1 (first) and 2n (retry).
 if law L050; then
   mkdir -p "$root/l050/a" "$root/l050/b" "$root/l050/tasks"
   printf 'Some words about Bayan.\n' > "$root/l050/context.md"
@@ -117,26 +120,46 @@ EOF2
     for f in "$t"*; do case $(basename "$f") in (checks|reference) ;; (*) cp -R "$f" "$d/" ;; esac; done
   done
   bash scripts/bayan-tool.sh llm-eval run "$seed" --model "sh $root/l050.sh $root a" --context "$root/l050/context.md" --machine m \
-    --out "$root/out/l050a" > "$root/rec/l050a" 2> "$root/rec/l050a.err"
+    --retry-diagnostics --out "$root/out/l050a" > "$root/rec/l050a" 2> "$root/rec/l050a.err"
   codeA=$?
   bash scripts/bayan-tool.sh llm-eval run "$root/l050/tasks" --model "sh $root/l050.sh $root b" --context "$root/l050/context.md" --machine m \
-    --out "$root/out/l050b" > "$root/rec/l050b" 2> "$root/rec/l050b.err"
+    --retry-diagnostics --out "$root/out/l050b" > "$root/rec/l050b" 2> "$root/rec/l050b.err"
   codeB=$?
   total=$(ls -d "$seed"/*/ | wc -l | tr -d ' ')
   check "L050: the runner sends a prompt for every seed task, with and without checks/ and reference/" \
     "$codeA $codeB $(wc -l < "$root/out/l050a/1/records.jsonl" | tr -d ' ') $(wc -l < "$root/out/l050b/1/records.jsonl" | tr -d ' ')" "0 0 $total $total"
+  check "L050: every seed task gets one retry, with and without checks/ and reference/" \
+    "$(cat "$root/l050/a/count") $(cat "$root/l050/b/count")" "$((2 * total)) $((2 * total))"
   # trimmed <file>: the compared lines of <file>, one per line.
   trimmed() { sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$1" | grep '[[:alnum:]]' || true; }
   n=0 dev=0 seen=0
   for name in $(sed -n 's/^{"task": "\([^"]*\)".*/\1/p' "$root/out/l050a/1/records.jsonl"); do
-    n=$((n + 1)); t=$seed/$name
+    n=$((n + 1)); t=$seed/$name; p=$((2 * n - 1)); q=$((2 * n))
     grep -q '^Split: dev$' "$t/task.md" || continue
     seen=$((seen + 1))
     { cat evals/llm/preamble.md; echo; cat "$root/l050/context.md"; echo; cat "$t/prompt.md"; } > "$root/l050/want"
-    if cmp -s "$root/l050/a/prompt.$n" "$root/l050/want"; then got=same; else got="prompt sent differs from preamble, context and prompt.md: $(diff "$root/l050/want" "$root/l050/a/prompt.$n" | head -3 | tr '\n' '|')"; fi
+    if cmp -s "$root/l050/a/prompt.$p" "$root/l050/want"; then got=same; else got="prompt sent differs from preamble, context and prompt.md: $(diff "$root/l050/want" "$root/l050/a/prompt.$p" | head -3 | tr '\n' '|')"; fi
     check "L050: $name: prompt sent is preamble, context, prompt.md" "$got" "same"
-    if cmp -s "$root/l050/a/prompt.$n" "$root/l050/b/prompt.$n"; then got=same; else got="prompt sent differs without checks/ and reference/: $(diff "$root/l050/a/prompt.$n" "$root/l050/b/prompt.$n" | head -3 | tr '\n' '|')"; fi
+    if cmp -s "$root/l050/a/prompt.$p" "$root/l050/b/prompt.$p"; then got=same; else got="prompt sent differs without checks/ and reference/: $(diff "$root/l050/a/prompt.$p" "$root/l050/b/prompt.$p" | head -3 | tr '\n' '|')"; fi
     check "L050: $name: same prompt without checks/ and reference/" "$got" "same"
+    # The retry: the first prompt, the program, then the compiler's errors, which are the rest.
+    { cat "$root/l050/want"; printf '\nYour program:\n'; cat "$root/cand/broken.byn"; printf '\nThe compiler said:\n'; } > "$root/l050/retry-head"
+    head -c "$(wc -c < "$root/l050/retry-head")" "$root/l050/a/prompt.$q" > "$root/l050/retry-got"
+    tail -c +"$(($(wc -c < "$root/l050/retry-head") + 1))" "$root/l050/a/prompt.$q" > "$root/l050/said"
+    check "L050: $name: retry prompt is the prompt, the program, the compiler's errors" \
+      "$(cmp -s "$root/l050/retry-got" "$root/l050/retry-head" && echo same) $(grep -c 'error BYN' "$root/l050/said")" "same 1"
+    if cmp -s "$root/l050/a/prompt.$q" "$root/l050/b/prompt.$q"; then got=same; else got="retry prompt differs without checks/ and reference/: $(diff "$root/l050/a/prompt.$q" "$root/l050/b/prompt.$q" | head -3 | tr '\n' '|')"; fi
+    check "L050: $name: same retry prompt without checks/ and reference/" "$got" "same"
+    if grep -q '^Check: tests$' "$t/task.md"; then
+      hid=""
+      for h in $(find "$t/checks" -type f | sort); do
+        grep -qF -- "$(basename "$h")" "$root/l050/said" && hid="$hid $h: its name is in the errors;"
+        while IFS= read -r l; do
+          grep -qF -- "$l" "$root/l050/said" && hid="$hid $h: \"$l\" is in the errors;"
+        done < <(trimmed "$h")
+      done
+      check "L050: $name: no hidden file name or check line in the retry prompt's errors" "$hid" ""
+    fi
     trimmed evals/llm/preamble.md > "$root/l050/preamble.lines"
     trimmed "$t/prompt.md" > "$root/l050/prompt.lines"
     : > "$root/l050/quoted.lines"
@@ -595,6 +618,84 @@ seen() { grep -c "/work/small-900-salam/$1/" "$root/rec/t44.ps"; }
 check "run: two samples start zig from one tools directory, removed at the end" \
   "$code $zigs $([ "$(seen 1)" -gt 0 ] && [ "$(seen 2)" -gt 0 ] && echo both) $([ -e "$root/out/t44/1/tools" ] && echo left || echo gone)" \
   "0 $root/out/t44/1/tools/zig/zig both gone"
+
+# Retry with diagnostics (T45, R42). A stub model answers its n-th request with the n-th planned candidate and records each
+# prompt; with no n-th candidate it answers nothing.
+#   sh retry.sh <dir>
+cat > "$root/retry.sh" <<'EOF'
+n=$(( $(cat "$1/count" 2> /dev/null || echo 0) + 1 ))
+echo "$n" > "$1/count"
+cat > "$1/prompt.$n"
+cat "$1/$n.byn" 2> /dev/null
+EOF
+good retry small-900-salam small
+# A tests task whose hidden checks/entry.byn holds the entry point: a candidate with a main of its own compiles alone and fails
+# to compile only beside the hidden file.
+mkdir -p "$root/sets/rloud"
+cp -R "$loud" "$root/sets/rloud/"
+printf 'Write a function `shout` that prints a line.\n' > "$root/sets/rloud/errors-900-loud/prompt.md"
+printf '/// Says nothing.\nvoid quiet() {\n}\n\nvoid main() {\n}\n' > "$root/cand/quiet.byn"
+# rtry <case> <set> [--no-retry] <candidate>...: a run over <set> with --retry-diagnostics whose stub answers request n with the
+# n-th candidate; after --no-retry, a run without the flag and one sample per candidate. Prompts in $root/rq/<case>/prompt.<n>,
+# the request count in $asked.
+rtry() {
+  local c=$1 set=$2 n=1 f flag=--retry-diagnostics; shift 2
+  [ "$1" = --no-retry ] && { shift; flag="--samples $#"; }
+  mkdir -p "$root/rq/$c"
+  for f in "$@"; do cp "$root/cand/$f.byn" "$root/rq/$c/$n.byn"; n=$((n + 1)); done
+  bash scripts/bayan-tool.sh llm-eval run "$set" --model "sh $root/retry.sh $root/rq/$c" --machine m $flag \
+    --out "$root/out/rq-$c" > "$root/rec/rq-$c" 2> "$root/rec/rq-$c.err"
+  code=$?
+  asked=$(cat "$root/rq/$c/count" 2> /dev/null || echo 0)
+}
+rtry fix "$root/sets/retry" broken right
+check "retry: no-compile, then a pass: two requests, both outcomes in the record" \
+  "$code $asked $(get rq-fix outcome) $(get rq-fix retryOutcome) $(grep -c '"reply": "void main() {.*"retryReply": "i32 main() {' "$root/out/rq-fix/1/records.jsonl")" \
+  '0 2 "no-compile" "pass" 1'
+{ cat "$root/rq/fix/prompt.1"; printf '\nYour program:\n'; cat "$root/cand/broken.byn"; printf '\nThe compiler said:\n'; } > "$root/rq/fix/head"
+check "retry: the second prompt is the prompt, the first program, the compiler's errors for it" \
+  "$(head -c "$(wc -c < "$root/rq/fix/head")" "$root/rq/fix/prompt.2" | cmp -s - "$root/rq/fix/head" && echo same) $(grep -c '^error BYN2001: `nope` is not defined$' "$root/rq/fix/prompt.2") $(grep -c -- '--> solution.byn:2:11$' "$root/rq/fix/prompt.2") $(grep -cF "$root" "$root/rq/fix/prompt.2")" \
+  "same 1 1 0"
+flat=$(tr -d ' \n' < "$root/out/rq-fix/1/summary.json")
+after='"pass@1":{"count":0,"rate":0.0000},"pass@1afterretry":{"count":1,"rate":1.0000},"pass@k":{"count":0,'
+check "retry: pass@1 0 from the first reply, pass@1 after retry 1, overall and per category, tier and revision" \
+  "$(holds "\"overall\":{\"tasks\":1,$after") $(holds "\"small\":{\"tasks\":1,$after") $(holds "\"1\":{\"tasks\":1,$after") $(holds "\"0023\":{\"tasks\":1,$after")" \
+  "holds holds holds holds"
+rtry twice "$root/sets/retry" broken broken broken
+check "retry: a second no-compile gets no third request" \
+  "$code $asked $(get rq-twice outcome) $(get rq-twice retryOutcome)" '0 2 "no-compile" "no-compile"'
+check "retry: pass@1 after retry 0 when the retry does not pass" \
+  "$(tr -d ' \n' < "$root/out/rq-twice/1/summary.json" | grep -c '"overall":{"tasks":1,"pass@1":{"count":0,"rate":0.0000},"pass@1afterretry":{"count":0,')" "1"
+for c in right:pass wrong-code:fail loop:limit; do
+  rtry "${c%%:*}" "$root/sets/retry" "${c%%:*}" right
+  check "retry: a first reply that gives ${c#*:} gets no retry" \
+    "$code $asked $(get "rq-${c%%:*}" outcome) $(grep -c retry "$root/rec/rq-${c%%:*}")" "0 1 \"${c#*:}\" 0"
+done
+# Only the hidden test fails the candidate: the retry is sent with no error line, and nothing of checks/.
+rtry hidden "$root/sets/rloud" quiet quiet
+said=$(sed -n '/^The compiler said:$/,$p' "$root/rq/hidden/prompt.2")
+check "retry: an error caused only by the hidden checks is not sent" \
+  "$code $asked $(get rq-hidden outcome) $(grep -c 'shout()\|checks.test\|entry.byn\|BYN' "$root/rq/hidden/prompt.2") $(echo "$said" | wc -l | tr -d ' ')" \
+  '0 2 "no-compile" 0 1'
+# Without the flag, records and summary are the base commit's for the same replies (wall times set to 0). The base tool runs
+# from a copy of the files it needs.
+base=52b9b1ce765464b8c654c44f6e210523a07ade99
+brepo=$root/base-repo
+mkdir -p "$brepo/scripts/evals" "$brepo/tools" "$brepo/evals/llm"
+cp scripts/bayan-tool.sh scripts/pinned-bayan.sh "$brepo/scripts/"
+cp scripts/evals/llm-sandbox.sh scripts/evals/llm-prime.c "$brepo/scripts/evals/"
+cp evals/llm/preamble.md "$brepo/evals/llm/"
+git show "$base:tools/llm-eval.byn" > "$brepo/tools/llm-eval.byn"
+mkdir -p "$root/rq/base"
+cp "$root/cand/broken.byn" "$root/rq/base/1.byn"; cp "$root/cand/right.byn" "$root/rq/base/2.byn"; cp "$root/cand/wrong-code.byn" "$root/rq/base/3.byn"
+PINNED_BAYAN=$(bash scripts/pinned-bayan.sh) bash "$brepo/scripts/bayan-tool.sh" llm-eval run "$root/sets/retry" \
+  --model "sh $root/retry.sh $root/rq/base" --samples 3 --machine m --out "$root/out/rq-base" > "$root/rec/rq-base" 2> "$root/rec/rq-base.err"
+codeBase=$?
+rtry plain "$root/sets/retry" --no-retry broken right wrong-code
+nowall() { sed 's/"wallMs": [0-9]*/"wallMs": 0/g' "$1"; }
+check "retry: without the flag, records and summary are the base commit's" \
+  "$codeBase $code $asked $(nowall "$root/out/rq-plain/1/records.jsonl" | cmp -s - <(nowall "$root/out/rq-base/1/records.jsonl") && echo same) $(nowall "$root/out/rq-plain/1/summary.json" | cmp -s - <(nowall "$root/out/rq-base/1/summary.json") && echo same) $(nowall "$root/rec/rq-plain" | cmp -s - <(nowall "$root/rec/rq-base") && echo same)" \
+  "0 0 3 same same same"
 
 echo "llm-eval.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]
