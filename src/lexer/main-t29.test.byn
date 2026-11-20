@@ -1,0 +1,42 @@
+// 019 T29 (coverage ratchet): main.byn paths no golden case reaches: `checkSpans` on spans outside the input, and the
+// exit codes of a missing input and a usage error. The expected values are the output of the self-hosted lexer at the
+// commit that added the test.
+
+test "lexer t29: checkSpans names every span outside the input" {
+    var bytes = List<u8>()
+    for b in "a".bytes {
+        bytes.append(b)
+    }
+    var result = lex(SourceText.create("t.byn", from: move bytes), by: Keywords.build())
+    var sb = StrBuf()
+    checkSpans(ref result, to: ref sb)
+    assert sb.finish() == ""
+    result.tokens.append(Token { kind: .identifier, tokenFlags: 0, start: 1, length: 1, docStart: -1, docLength: 0 })
+    result.diagnostics.append(Diagnostic {
+        code: "BYN0002",
+        span: TextSpan { start: 0, length: 5 },
+        message: "m",
+        label: "",
+        help: "",
+        hasFix: true,
+        fixSpan: TextSpan { start: 2, length: 0 },
+        fixReplacement: "",
+    })
+    var bad = StrBuf()
+    checkSpans(ref result, to: ref bad)
+    let expected = """
+            span out of range: token 1+1
+            span out of range: doc -1+0
+            span out of range: BYN0002 0+5
+            span out of range: BYN0002 fix 2+0
+
+            """
+    assert bad.finish() == expected
+}
+
+test "lexer t29: a missing input and a usage error give their exit codes" {
+    let keywords = Keywords.build()
+    assert lexOne("src/lexer/t29-no-such-file.byn", by: keywords, json: false) == 4
+    assert lexTimed("src/lexer/t29-no-such-file.byn", by: keywords) == 2
+    assert main(["--no-such-option"]) == 2
+}
