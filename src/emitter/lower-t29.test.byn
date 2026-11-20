@@ -978,3 +978,37 @@ test "emitter t29: literals, and, spill, emitAssign, emitEffect, captureGuard an
     assert l.outs[0].length == 3
     assert semantics.boundKind(l.outs[0][2]) == .assign
 }
+
+test "emitter t29: become stores a negative state tag" {
+    var c = t29Compile("""
+        struct Lamp {
+            i64 id = 0
+
+            states {
+                on
+                off
+            }
+
+            void dim(ref this) becomes .off {
+                become .off
+            }
+        }
+
+        void main() {
+            var p = Lamp.on { id: 1 }
+            p.dim()
+        }
+        """)
+    assert t29Errors(in c) == ""
+    // A `states` block takes no `= value` (BYN1001), so the negative tag is set on the compiled variant.
+    for v in 0..c.unionVariants.length {
+        if c.unionVariants[v].name == "off" {
+            c.unionVariants[v].tag = -3
+        }
+    }
+    var tags = StrBuf()
+    for line in t12Emit(ref c, by: "safe").lines {
+        tags.append($"{line}\n") if line.contains(".tag = ")
+    }
+    assert tags.finish() == "    l0_p = ((bynt_main__Lamp){INT64_C(1), .tag = 0});\n    (*self).tag = ((int32_t)-3);\n"
+}
