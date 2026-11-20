@@ -32,43 +32,95 @@ test "fold t29: unary operators" {
     sb.append($"{t29s0K(foldUnary(ref c, for: .complement, by: in t29s0Int(5), as: makeType(.error, at: 0)))} ")
     sb.append($"{t29s0K(foldUnary(ref c, for: .complement, by: in t6Flag(flag: true), as: prim(.bool)))} ")
     sb.append($"{t29s0K(foldUnary(ref c, for: .fromEnd, by: in t29s0Int(1), as: i))}")
-    assert t29s0Same($"{sb.finish()}", as: "integer:3 integer:-3 real:-1.5 null flag:false null integer:250 null null null")
+    assert t29s0Same(
+        $"{sb.finish()}",
+        as: "integer:3 integer:-3 real:-1.5 null flag:false null integer:250 null null null",
+    )
 }
 
 test "fold t29: binary operators on reals, flags, runes and text" {
     var c = t2Ctx()
     var sb = StrBuf()
     let f = prim(.f64)
-    let ops: List<parser.BinaryOp> = [.add, .sub, .mul, .div, .rem, .lt, .gt, .le, .ge, .eq, .ne, .bitAnd, .bitOr, .bitXor,
-        .logicalAnd, .logicalOr, .shl]
+    let ops: List<parser.BinaryOp> = [
+        .add,
+        .sub,
+        .mul,
+        .div,
+        .rem,
+        .lt,
+        .gt,
+        .le,
+        .ge,
+        .eq,
+        .ne,
+        .bitAnd,
+        .bitOr,
+        .bitXor,
+        .logicalAnd,
+        .logicalOr,
+        .shl,
+    ]
     for op in ops {
         sb.append($"{op} {t29s0K(foldBinary(ref c, for: op, from: in t6Real(7.5), by: in t6Real(2.0), as: f))} ")
-        sb.append($"{t29s0K(foldBinary(ref c, for: op, from: in t6Flag(flag: true), by: in t6Flag(flag: false), as: prim(.bool)))} ")
-        sb.append($"{t29s0K(foldBinary(ref c, for: op, from: in t29s0Rune(98), by: in t29s0Rune(97), as: prim(.char)))} ")
-        sb.append($"{t29s0K(foldBinary(ref c, for: op, from: in t29s0Rune(97), by: in t29s0Rune(98), as: prim(.char)))} ")
-        sb.append($"{t29s0K(foldBinary(ref c, for: op, from: in t29s0Text("a"), by: in t29s0Text("b"), as: prim(.string)))};")
+        sb.append(
+            $"{t29s0K(foldBinary(ref c, for: op, from: in t6Flag(flag: true), by: in t6Flag(flag: false), as: prim(.bool)))} ",
+        )
+        sb.append(
+            $"{t29s0K(foldBinary(ref c, for: op, from: in t29s0Rune(98), by: in t29s0Rune(97), as: prim(.char)))} ",
+        )
+        sb.append(
+            $"{t29s0K(foldBinary(ref c, for: op, from: in t29s0Rune(97), by: in t29s0Rune(98), as: prim(.char)))} ",
+        )
+        sb.append(
+            $"{t29s0K(foldBinary(ref c, for: op, from: in t29s0Text("a"), by: in t29s0Text("b"), as: prim(.string)))};",
+        )
     }
     sb.append(t29s0K(foldBinary(ref c, for: .add, from: in t29s0Int(1), by: in t6Real(1.0), as: f)))
-    assert t29s0Same($"{sb.finish()}", as: "add real:9.5 null null null null;sub real:5.5 null null null null;mul real:15 null null null null;div real:3.75 null null null null;rem real:1.5 null null null null;lt flag:false null flag:false flag:true null;gt flag:true null flag:true flag:false null;le flag:false null flag:false flag:true null;ge flag:true null flag:true flag:false null;eq flag:false flag:false flag:false flag:false flag:false;ne flag:true flag:true flag:true flag:true flag:true;bitAnd null flag:false null null null;bitOr null flag:true null null null;bitXor null flag:true null null null;logicalAnd null flag:false null null null;logicalOr null flag:true null null null;shl null null null null null;null")
+    assert t29s0Same(
+        $"{sb.finish()}",
+        as: "add real:9.5 null null null null;sub real:5.5 null null null null;mul real:15 null null null null;div real:3.75 null null null null;rem real:1.5 null null null null;lt flag:false null flag:false flag:true null;gt flag:true null flag:true flag:false null;le flag:false null flag:false flag:true null;ge flag:true null flag:true flag:false null;eq flag:false flag:false flag:false flag:false flag:false;ne flag:true flag:true flag:true flag:true flag:true;bitAnd null flag:false null null null;bitOr null flag:true null null null;bitXor null flag:true null null null;logicalAnd null flag:false null null null;logicalOr null flag:true null null null;shl null null null null null;null",
+    )
 }
 
 test "fold t29: integer operators, wrapping, saturating and shifts" {
     var sb = StrBuf()
-    let ops: List<parser.BinaryOp> = [.div, .rem, .bitAnd, .bitOr, .bitXor, .addWrap, .subWrap, .mulWrap, .addSat, .subSat,
-        .mulSat, .shl, .shr, .lt, .coalesce]
+    let ops: List<parser.BinaryOp> = [
+        .div,
+        .rem,
+        .bitAnd,
+        .bitOr,
+        .bitXor,
+        .addWrap,
+        .subWrap,
+        .mulWrap,
+        .addSat,
+        .subSat,
+        .mulSat,
+        .shl,
+        .shr,
+        .lt,
+        .coalesce,
+    ]
     for op in ops {
         sb.append($"{op} {t29s0K(t6IntegerOp(op, from: bigFromI64(100), by: bigFromI64(3), as: prim(.i8)))} ")
         sb.append($"{t29s0K(t6IntegerOp(op, from: bigFromI64(-100), by: bigFromI64(0), as: prim(.i8)))} ")
         sb.append($"{t29s0K(t6IntegerOp(op, from: bigFromI64(100), by: bigFromI64(9), as: prim(.i8)))} ")
         sb.append($"{t29s0K(t6IntegerOp(op, from: bigFromI64(2), by: bigFromI64(1), as: prim(.f64)))};")
     }
-    assert t29s0Same($"{sb.finish()}", as: "div integer:33 null integer:11 integer:2;rem integer:1 null integer:1 integer:0;bitAnd integer:0 integer:0 integer:0 integer:0;bitOr integer:103 integer:-100 integer:109 integer:3;bitXor integer:103 integer:-100 integer:109 integer:3;addWrap integer:103 integer:-100 integer:109 null;subWrap integer:97 integer:-100 integer:91 null;mulWrap integer:44 integer:0 integer:-124 null;addSat integer:103 integer:-100 integer:109 null;subSat integer:97 integer:-100 integer:91 null;mulSat integer:127 integer:0 integer:127 null;shl integer:32 integer:-100 null null;shr integer:12 integer:-100 null null;lt flag:false flag:true flag:false flag:false;coalesce null null null null;")
+    assert t29s0Same(
+        $"{sb.finish()}",
+        as: "div integer:33 null integer:11 integer:2;rem integer:1 null integer:1 integer:0;bitAnd integer:0 integer:0 integer:0 integer:0;bitOr integer:103 integer:-100 integer:109 integer:3;bitXor integer:103 integer:-100 integer:109 integer:3;addWrap integer:103 integer:-100 integer:109 null;subWrap integer:97 integer:-100 integer:91 null;mulWrap integer:44 integer:0 integer:-124 null;addSat integer:103 integer:-100 integer:109 null;subSat integer:97 integer:-100 integer:91 null;mulSat integer:127 integer:0 integer:127 null;shl integer:32 integer:-100 null null;shr integer:12 integer:-100 null null;lt flag:false flag:true flag:false flag:false;coalesce null null null null;",
+    )
 }
 
 test "fold t29: NaN orders below every number and equals itself" {
     let z = 0.0
     let nan = z / z
-    assert t29s0Same($"{t6RealOrder(nan, as: nan)} {t6RealOrder(nan, as: 1.0)} {t6RealOrder(1.0, as: nan)}", as: "0 -1 1")
+    assert t29s0Same(
+        $"{t6RealOrder(nan, as: nan)} {t6RealOrder(nan, as: 1.0)} {t6RealOrder(1.0, as: nan)}",
+        as: "0 -1 1",
+    )
 }
 
 test "fold t29: casts of constants" {
@@ -77,8 +129,21 @@ test "fold t29: casts of constants" {
     let z = 0.0
     let nan = z / z
     let targets: List<PrimitiveKind> = [.u8, .i64, .f32, .f64, .char, .bool]
-    let values: List<Constant> = [t29s0Int(65), t29s0Int(300), t29s0Int(-1), t29s0Int(0xD800), t29s0Int(0x110000), t6Real(1.25),
-        t6Real(nan), t6Real(-1e30), t6Real(1e30), t29s0Rune(65), t29s0Rune(0x100), t6Flag(flag: true), t29s0Text("a")]
+    let values: List<Constant> = [
+        t29s0Int(65),
+        t29s0Int(300),
+        t29s0Int(-1),
+        t29s0Int(0xD800),
+        t29s0Int(0x110000),
+        t6Real(1.25),
+        t6Real(nan),
+        t6Real(-1e30),
+        t6Real(1e30),
+        t29s0Rune(65),
+        t29s0Rune(0x100),
+        t6Flag(flag: true),
+        t29s0Text("a"),
+    ]
     for v in values {
         for t in targets {
             sb.append($"{t29s0K(foldCast(ref c, for: in v, from: prim(.bool), to: prim(t)))} ")
@@ -86,12 +151,18 @@ test "fold t29: casts of constants" {
         sb.append(";")
     }
     sb.append(t29s0K(foldCast(ref c, for: in t29s0Int(1), from: prim(.i64), to: makeType(.error, at: 0))))
-    assert t29s0Same($"{sb.finish()}", as: "integer:65 integer:65 real:65 real:65 rune:A integer:65 ;null integer:300 real:300 real:300 rune:Ĭ integer:300 ;null integer:-1 real:-1 real:-1 null integer:-1 ;null integer:55296 real:55296 real:55296 null integer:55296 ;null integer:1114112 real:1114112 real:1114112 null integer:1114112 ;integer:1 integer:1 real:1.25 real:1.25 null real:1.25 ;integer:0 integer:0 real:NaN real:NaN null real:NaN ;integer:0 integer:-9223372036854775808 real:-1.0000000150474662E+30 real:-1E+30 null real:-1E+30 ;integer:255 integer:9223372036854775807 real:1.0000000150474662E+30 real:1E+30 null real:1E+30 ;integer:65 integer:65 null null null rune:A ;null integer:256 null null null rune:Ā ;null null null null null flag:true ;null null null null null text:\"a\" ;null")
+    assert t29s0Same(
+        $"{sb.finish()}",
+        as: "integer:65 integer:65 real:65 real:65 rune:A integer:65 ;null integer:300 real:300 real:300 rune:Ĭ integer:300 ;null integer:-1 real:-1 real:-1 null integer:-1 ;null integer:55296 real:55296 real:55296 null integer:55296 ;null integer:1114112 real:1114112 real:1114112 null integer:1114112 ;integer:1 integer:1 real:1.25 real:1.25 null real:1.25 ;integer:0 integer:0 real:NaN real:NaN null real:NaN ;integer:0 integer:-9223372036854775808 real:-1.0000000150474662E+30 real:-1E+30 null real:-1E+30 ;integer:255 integer:9223372036854775807 real:1.0000000150474662E+30 real:1E+30 null real:1E+30 ;integer:65 integer:65 null null null rune:A ;null integer:256 null null null rune:Ā ;null null null null null flag:true ;null null null null null text:\"a\" ;null",
+    )
 }
 
 test "fold t29: `expects` clauses fold casts, unary operators, short circuits and ranges" {
     let text = "void a(i32 n) expects i64(n) > 0 {}\nvoid b(f64 d) expects -d < 0.0 {}\nvoid c(bool x) expects !x || x && x {}\nvoid d(i64 n) expects n > 0 && n < 5 {}\nvoid e(i64 n) expects n is 1..5 {}\nvoid f(f64 d) expects i32(d) > 0 {}\nvoid g(i64 n, i64 m) expects n > m {}\nvoid h(i64 n) expects n is 1..=5 {}\n\na(-1)\nb(2.0)\nc(true)\nd(0)\nd(7)\ne(9)\nf(0.5)\ng(1, m: 2)\nh(5)\nh(6)\n"
-    assert t29s0Same(t29s0Diags(text), as: "BYN5004 225+1 `g` has 2 unlabeled parameters; give each but one a particle;BYN5006 238+1 `m` is a required parameter besides the object and needs a particle;BYN5011 14+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 50+7 this `expects` reads only `d`; a type with `requires` checks it once;BYN5011 85+7 this `expects` reads only `x`; a type with `requires` checks it once;BYN5011 123+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 163+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 198+7 this `expects` reads only `d`; a type with `requires` checks it once;BYN5011 272+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN2305 310+4 argument for `x` must be named;BYN2321 297+2 `-1` violates `requires i64(n) > 0` of `a`;BYN2321 318+1 `0` violates `requires n > 0 && n < 5` of `d`;BYN2321 323+1 `7` violates `requires n > 0 && n < 5` of `d`;BYN2321 328+1 `9` violates `requires n is 1..5` of `e`;BYN2321 333+3 `0.5` violates `requires i32(d) > 0` of `f`;BYN2321 340+1 `1` violates `requires n > m` of `g`;BYN2321 356+1 `6` violates `requires n is 1..=5` of `h`;")
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5004 225+1 `g` has 2 unlabeled parameters; give each but one a particle;BYN5006 238+1 `m` is a required parameter besides the object and needs a particle;BYN5011 14+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 50+7 this `expects` reads only `d`; a type with `requires` checks it once;BYN5011 85+7 this `expects` reads only `x`; a type with `requires` checks it once;BYN5011 123+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 163+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 198+7 this `expects` reads only `d`; a type with `requires` checks it once;BYN5011 272+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN2305 310+4 argument for `x` must be named;BYN2321 297+2 `-1` violates `requires i64(n) > 0` of `a`;BYN2321 318+1 `0` violates `requires n > 0 && n < 5` of `d`;BYN2321 323+1 `7` violates `requires n > 0 && n < 5` of `d`;BYN2321 328+1 `9` violates `requires n is 1..5` of `e`;BYN2321 333+3 `0.5` violates `requires i32(d) > 0` of `f`;BYN2321 340+1 `1` violates `requires n > m` of `g`;BYN2321 356+1 `6` violates `requires n is 1..=5` of `h`;",
+    )
 }
 
 test "fold t29: flag bit operators and equal reals" {
@@ -99,8 +170,12 @@ test "fold t29: flag bit operators and equal reals" {
     var sb = StrBuf()
     let ops: List<parser.BinaryOp> = [.bitAnd, .bitOr]
     for op in ops {
-        sb.append($"{t29s0K(foldBinary(ref c, for: op, from: in t6Flag(flag: false), by: in t6Flag(flag: true), as: prim(.bool)))} ")
-        sb.append($"{t29s0K(foldBinary(ref c, for: op, from: in t6Flag(flag: true), by: in t6Flag(flag: true), as: prim(.bool)))} ")
+        sb.append(
+            $"{t29s0K(foldBinary(ref c, for: op, from: in t6Flag(flag: false), by: in t6Flag(flag: true), as: prim(.bool)))} ",
+        )
+        sb.append(
+            $"{t29s0K(foldBinary(ref c, for: op, from: in t6Flag(flag: true), by: in t6Flag(flag: true), as: prim(.bool)))} ",
+        )
     }
     sb.append($"{t6RealOrder(1.0, as: 1.0)}")
     assert t29s0Same($"{sb.finish()}", as: "flag:false flag:true flag:true flag:true 0")
@@ -108,10 +183,33 @@ test "fold t29: flag bit operators and equal reals" {
 
 test "fold t29: `expects` clauses left to run time" {
     let text = "struct P {\n    i64 x\n}\n\nbool pos(i64 n) => n > 0\n\nvoid a(i32 n) expects i64(n) > 0 {}\nvoid b(i64 n) expects -n < 0 {}\nvoid c(i64 n) expects n > 0 || n < -5 {}\nvoid d(i64 n) expects n > 0 && n < 5 {}\nvoid e(i64 n) expects n is 1..5 {}\nvoid f(i64 n) expects pos(n) {}\nvoid g(by P p) expects p.x > 0 {}\nvoid h(i64 n) expects n is 3 {}\nvoid k(string s) expects s is \"a\"..\"z\" {}\n\nvoid z(i64 m, by i32 w) {\n    a(w)\n    b(m)\n    c(m)\n    d(m)\n    e(m)\n    f(0)\n    g(by: P { x: 0 })\n    h(4)\n    k(\"b\")\n}\n"
-    assert t29s0Same(t29s0Diags(text), as: "BYN5011 64+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 100+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 132+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 173+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 213+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 248+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 281+7 this `expects` reads only `p`; a type with `requires` checks it once;BYN5011 314+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN2411 362+8 a range cannot match `string`;BYN5011 349+7 this `expects` reads only `s`; a type with `requires` checks it once;")
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5011 64+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 100+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 132+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 173+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 213+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 248+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 281+7 this `expects` reads only `p`; a type with `requires` checks it once;BYN5011 314+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN2411 362+8 a range cannot match `string`;BYN5011 349+7 this `expects` reads only `s`; a type with `requires` checks it once;",
+    )
 }
 
 test "fold t29: `expects` clauses with a call in each place" {
     let text = "i64 dbl(i64 n) => n * 2\nbool pos(i64 n) => n > 0\n\nvoid a(i64 n) expects i32(dbl(n)) > 0 {}\nvoid b(i64 n) expects -dbl(n) < 0 {}\nvoid c(i64 n) expects pos(n) || n > 5 {}\nvoid d(i64 n) expects dbl(n) > 0 {}\nvoid e(i64 n) expects n > dbl(n) {}\nvoid f(i64 n) expects dbl(n) is 1..5 {}\nvoid g(i64 n) expects n is dbl(1)..5 {}\nvoid h(i64 n) expects n is 1..dbl(3) {}\n\na(1)\nb(1)\nc(1)\nd(1)\ne(1)\nf(1)\ng(1)\nh(1)\n"
-    assert t29s0Same(t29s0Diags(text), as: "BYN5011 64+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 105+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 142+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 183+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 219+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 255+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN2219 308+6 a pattern must be a compile-time constant;BYN5011 295+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN2219 351+6 a pattern must be a compile-time constant;BYN5011 335+7 this `expects` reads only `n`; a type with `requires` checks it once;")
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5011 64+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 105+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 142+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 183+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 219+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN5011 255+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN2219 308+6 a pattern must be a compile-time constant;BYN5011 295+7 this `expects` reads only `n`; a type with `requires` checks it once;BYN2219 351+6 a pattern must be a compile-time constant;BYN5011 335+7 this `expects` reads only `n`; a type with `requires` checks it once;",
+    )
+}
+
+test "fold t29: a non-integer type leaves a wrapped value as it is" {
+    assert t29s0Same(t29s0K(t6Integer(t6Wrap(bigFromI64(300), as: prim(.f64)))), as: "integer:300")
+}
+
+test "fold t29: `requires` rules on constants that read a nested field, an optional and a rune range" {
+    let text = "struct In {\n    i64 a\n}\n\nstruct Out {\n    In inner\n    i64? o\n    rune r\n    f64 d\n    requires inner.a > 0\n    requires o == 1\n    requires r is 'a'..'z'\n    requires d is 0.0..1.0\n    requires i64(d) == 0\n}\n\nvoid main() {\n    let x = try Out { inner: In { a: 1 }, o: 1, r: 'b', d: 0.5 }\n    let y = try Out { inner: In { a: 0 }, o: null, r: 'B', d: 2.0 }\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2411 173+8 a range cannot match `f64`;BYN2604 236+52 `main` cannot fail, so it cannot pass on `ValidationError<Out>`;BYN2604 301+55 `main` cannot fail, so it cannot pass on `ValidationError<Out>`;",
+    )
+}
+
+test "fold t29: struct `requires` rules on constants with integer ranges, flag operators and conversions" {
+    let text = "struct In {\n    i64 a\n}\n\nstruct R {\n    In inner\n    i64 n\n    bool f\n    bool g\n    i32 w\n    requires inner.a > 0\n    requires n is 1..10\n    requires n is 1..=10\n    requires (f | g) == true\n    requires (f & g) == false\n    requires f && g\n    requires f || g\n    requires i64(w) > 0\n    requires f64(n) > 0.0\n}\n\nvoid main() fails ValidationError<R> {\n    let a = try R { inner: In { a: 1 }, n: 0, f: false, g: true, w: 1 }\n    let b = try R { inner: In { a: 1 }, n: 20, f: false, g: false, w: 2 }\n    let c = try R { inner: In { a: 1 }, n: 5, f: true, g: true, w: 3 }\n    print($\"{a.n}{b.n}{c.n}\")\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "")
 }

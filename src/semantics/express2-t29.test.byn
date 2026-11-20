@@ -4,20 +4,56 @@
 
 test "express2 t29: unknown members of the builtins and of `string`" {
     let text = "void main() {\n    let a = Hex.dec\n    let b = Symbol.inter\n    let c = Utf8.decod\n    let d = Time.nw\n    let e = string.foo\n    let f = string.invalidUtf8A\n    let g = Env.gett\n    let h = Target.oss\n    let i = Io.readFil\n    let j = Hex.zzzzzz\n    let k = Symbol.zzzzzz\n    let m = Utf8.zzzzzz\n    let n = Time.zzzzzz\n}\n"
-    assert t29s0Same(t29s0Diags(text), as: "?x1")
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2003 30+3 `dec` is not a member of `Hex`;BYN2003 53+5 `inter` is not a member of `Symbol`;BYN2003 76+5 `decod` is not a member of `Utf8`;BYN2003 99+2 `nw` is not a member of `Time`;BYN2003 121+3 `foo` is not a member of `string`;BYN2003 144+12 `invalidUtf8A` is not a member of `string`;BYN2003 173+4 `gett` is not a member of `Env`;BYN2003 197+3 `oss` is not a member of `Target`;BYN2003 216+7 `readFil` is not a member of `Io`;BYN2003 240+6 `zzzzzz` is not a member of `Hex`;BYN2003 266+6 `zzzzzz` is not a member of `Symbol`;BYN2003 290+6 `zzzzzz` is not a member of `Utf8`;BYN2003 314+6 `zzzzzz` is not a member of `Time`;",
+    )
 }
 
 test "express2 t29: members of an imported module and a private field" {
     let text = "import std.encoding\n\nstruct P {\n    private i64 x\n}\n\nstruct Q {\n    i64 y\n    i64 peek(P p) => p.x\n}\n\nvoid main() {\n    let a = encoding.alphabet\n    let b = encoding.nope\n    let c = encoding.digit(1)\n}\n"
-    assert t29s0Same(t29s0Diags(text), as: "?x2")
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2005 137+8 `alphabet` is not visible here;BYN2003 167+4 `nope` is not a member of `module std.encoding`;BYN2005 193+5 `digit` is not visible here;BYN2005 97+1 `x` is not visible here;",
+    )
 }
 
 test "express2 t29: unknown and ambiguous error variants, a method named through its struct and suggestions" {
-    let text = "union error E {\n    bad\n    worse\n}\n\nunion error F {\n    bad\n}\n\nunion error R = E except .bad\nunion error B = E | F\n\nstruct S {\n    i64 a\n    i64 size => 1\n    i64 m() => 1\n}\n\nenum Color {\n    red\n    green\n}\n\ninterface IA {\n    i64 a()\n}\n\ninterface IB {\n    i64 b()\n}\n\ni64 g<T>(T x) where T : IA, IB => x.c()\n\nvoid main() {\n    let a = E.nope\n    let b = R.bad\n    let c = B.bad\n    let d = B.nope\n    let e = S.m\n    let f = S.sizz\n    let h = Color.gren\n    let s = S { a: 1 }\n    let k = s.aa\n}\n"
-    assert t29s0Same(t29s0Diags(text), as: "?x3")
+    let text = "union error E {\n    bad\n    worse\n}\n\nunion error F {\n    bad\n}\n\nunion error R = E except .bad\nunion error B = E, F\n\nstruct S {\n    i64 a\n    i64 size => 1\n    i64 m() => 1\n}\n\nenum Color {\n    red\n    green\n}\n\ninterface IA {\n    i64 a()\n}\n\ninterface IB {\n    i64 b()\n}\n\ni64 g<T>(T x) where T : IA, IB => x.c()\n\nvoid main() {\n    let a = E.nope\n    let b = R.bad\n    let c = B.bad\n    let d = B.nope\n    let e = S.m\n    let f = S.sizz\n    let h = Color.gren\n    let s = S { a: 1 }\n    let k = s.aa\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN3202 94+11 `E` and `F` both have a case `bad`;BYN2806 305+1 `T` has no member `c` in its constraints (`IA`, `IB`);BYN2228 338+4 `nope` is not a variant of `E`;BYN2003 357+3 `bad` is not a member of `E except .bad`;BYN2003 375+3 `bad` is not a member of `E | F`;BYN2003 393+4 `nope` is not a member of `E | F`;BYN2003 412+1 `m` is not a member of `S`;BYN2003 428+4 `sizz` is not a member of `S`;BYN2720 451+4 `gren` is not a member of `Color`;BYN2003 493+2 `aa` is not a member of `S`;",
+    )
 }
 
 test "express2 t29: renamed members named without a call and index values that are not integers" {
     let text = "void main() {\n    var xs = [1, 2, 3]\n    var m: Map<string, i64> = [\"a\": 1]\n    let n: i64 = 5\n    let s = \"abc\"\n    let a = xs.removeRange\n    let b = xs.replaceRange\n    let c = m.getOr\n    let d = s.asSpan\n    let e = s.toUtf16\n    let f = n.toHex\n    let g = n.toBinary()\n    let h = xs[-1]\n    let i = xs[\"a\"]\n    let j = xs[-1..2]\n    let k = xs[1..-1]\n    let o = xs[\"a\"..\"b\"]\n}\n"
-    assert t29s0Same(t29s0Diags(text), as: "?x4")
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2003 128+11 `removeRange` is not a member of `i32[3]`;BYN2003 155+12 `replaceRange` is not a member of `i32[3]`;BYN2230 182+5 `getOr` is now `tryGet(at:) ??`;BYN2003 202+6 `asSpan` is not a member of `string`;BYN2230 223+7 `toUtf16()` is now `utf16`;BYN2230 245+5 `toHex()` is now `string(x, as: .hex)`;BYN2230 265+8 `toBinary()` is now `string(x, as: .binary)`;BYN2213 291+2 index -1 is out of range for `i32[3]`;BYN2202 310+3 expected `an integer index`, found `string`;BYN2202 374+3 expected `an integer index`, found `string`;BYN2202 379+3 expected `an integer index`, found `string`;BYN2311 22+2 `xs` is never reassigned; declare it with `let`;BYN2311 45+1 `m` is never reassigned; declare it with `let`;",
+    )
+}
+
+test "express2 t29: `.name` against an error set, an error union, a function, a struct, an enum and an optional" {
+    let text = "union error E {\n    bad\n    worse\n}\n\nunion error F {\n    bad\n    gone\n}\n\nunion error R = E except .bad\nunion error B = E, F\n\nstruct S {\n    i64 size\n    i64 m() => 1\n    static S make() => S { size: 1 }\n}\n\nenum Color {\n    red\n    green\n}\n\nunion Shape {\n    dot\n}\n\nvoid main() {\n    let a: E = .nope\n    let b: E = .bad\n    let c: R = .bad\n    let d: R = .worse\n    let e: B = .bad\n    let f: B = .gone\n    let g: B = .nope\n    let h: () -> i64 = .size\n    let i: S = .make\n    let j: S = .sizz\n    let k: Color = .gren\n    let m: Color? = .gren\n    let n: Shape = .circle\n    let o: Color = .Length\n    let p = .red\n    let q: i64 = .max\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN3202 103+11 `E` and `F` both have a case `bad`;BYN2228 295+4 `nope` is not a variant of `E`;BYN2228 336+3 `bad` is not a variant of `E except .bad`;BYN2227 377+4 `.bad` is ambiguous; it exists in `E`, `F`;BYN2228 419+4 `nope` is not a variant of `E | F`;BYN2823 447+5 `.size` is a member, not a lambda;BYN2019 468+5 `make` is a method, not a value;BYN2003 490+4 `sizz` is not a member of `S`;BYN2720 515+4 `gren` is not a member of `Color`;BYN2720 541+4 `gren` is not a member of `Color`;BYN2700 566+6 `circle` is not a variant of union `Shape`;BYN2720 593+6 `Length` is not a member of `Color`;BYN2218 612+4 `red` needs a known type here;BYN2003 635+3 `max` is not a member of `i64`;",
+    )
+}
+
+test "express2 t29: implicit `this` members from a field default, a static method and a near-miss name" {
+    let text = "struct S {\n    i64 a\n    i64 b = a\n    static i64 make() => 1\n    static i64 s() => a\n    i64 m() {\n        let f = make\n        let g = this.make\n        return a + f() + g()\n    }\n}\n\nvoid main() {\n    let x = S { a: 1 }\n    print($\"{x.m()}{S.s()}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2017 33+1 `a` needs an instance;BYN2017 84+1 `a` needs an instance;BYN2019 116+4 `make` is a method, not a value;BYN2019 137+9 `make` is a method, not a value;BYN2220 166+1 `?` cannot be called;BYN2220 172+1 `?` cannot be called;",
+    )
+}
+
+test "express2 t29: misspelled members of an error set, a struct, a union, an enum and the builtin modules" {
+    let text = "union error E {\n    bad\n}\n\nstruct P {\n    i64 n\n    static i64 make() => 1\n}\n\nunion U {\n    one(i64 v)\n    two\n}\n\nenum Color {\n    red\n}\n\nvoid main() {\n    let a = E.bda\n    let b = P.mkae()\n    let c = U.oen\n    let d = Color.zzzzzzzz\n    let e = Io.stdoot\n    let f = Io.qqqqqqqq\n    let g = Utf8.decod\n    let h = Path.combin\n    let k = Path.qqqqqqqq\n    let t = (p: 1, q: 2)\n    let m = t.r\n    print($\"{a}{b}{c}{d}{e}{f}{g}{h}{k}{m}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2228 166+3 `bda` is not a variant of `E`;BYN2003 184+4 `mkae` is not a member of `P`;BYN2700 205+3 `oen` is not a variant of union `U`;BYN2720 227+8 `zzzzzzzz` is not a member of `Color`;BYN2003 251+6 `stdoot` is not a member of `Io`;BYN2003 273+8 `qqqqqqqq` is not a member of `Io`;BYN2003 299+5 `decod` is not a member of `Utf8`;BYN2003 322+6 `combin` is not a member of `Path`;BYN2003 346+8 `qqqqqqqq` is not a member of `Path`;BYN2003 394+1 `r` is not a member of `(i32 p, i32 q)`;",
+    )
 }

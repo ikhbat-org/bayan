@@ -4,15 +4,128 @@
 
 test "calls2 t29: calling a struct, a collection, a primitive and an unknown type" {
     let text = "struct One {\n    i64 a\n}\n\nstruct Two {\n    i64 a\n    i64 b\n    i64 c\n}\n\nstruct Def {\n    i64 a = 1\n}\n\nvoid main() {\n    let a = One(1)\n    let b = Two(1, 2)\n    let c = Two()\n    let d = One()\n    let e = Def()\n    let f = List<i64>(1)\n    let g = Map<string, i64>(1, 2)\n    let h = Nope(1)\n    let i = i64(1, 2)\n    let j = bool(1)\n    let k = char(65)\n    let m = string(\"x\")\n    let n = string(1.5)\n    let o = i64()\n    print($\"{e.a}{k}{m}{n}\")\n}\n"
-    assert t29s0Same(t29s0Diags(text), as: "?m1")
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2112 128+3 `One` has no constructor;BYN2112 147+3 `Two` has no constructor;BYN2109 169+5 `Two` needs a value for `a`, `b`, `c`;BYN2109 187+5 `One` needs a value for `a`;BYN2302 233+1 `List<i64>` takes 0 argument(s);BYN2302 265+1 `Map<string, i64>` takes 0 argument(s);BYN2001 283+4 `Nope` is not defined;BYN2220 303+3 `i64` cannot be called;BYN2220 325+4 `bool` cannot be called;BYN2001 345+4 `char` is not defined;BYN2022 366+6 `string(x)` of a `string` is not supported in v0.1;BYN2022 390+6 `string(x)` of a `f64` is not supported in v0.1;BYN2220 414+3 `i64` cannot be called;",
+    )
 }
 
-test "calls2 t29: `trust` with a reason that is not a literal and of a trusted value" {
-    let text = "void main() {\n    let why = \"checked\"\n    let u = Untrusted<i64>(5)\n    let a = trust(u, reason: why)\n    let b = trust(5, reason: \"ok\")\n    let c = trust(u, reason: \"\")\n    let d = trust(u)\n    print($\"{a}{b}{c}{d}\")\n}\n"
-    assert t29s0Same(t29s0Diags(text), as: "?m2")
+test "calls2 t29: `trust` with no reason, no value or an unnamed reason" {
+    let text = "void main() {\n    let u = Untrusted<i64>(5)\n    let a = trust(u)\n    let b = trust()\n    let c = trust(u, \"why\")\n    let d = trust(reason: \"x\")\n    print($\"{a}{b}{c}{d}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2220 26+14 `Untrusted<i64>` cannot be called;BYN2787 56+8 `trust` needs a reason: a non-empty string literal;BYN2787 77+7 `trust` needs a reason: a non-empty string literal;BYN2787 97+15 `trust` needs a reason: a non-empty string literal;BYN2787 125+18 `trust` needs a reason: a non-empty string literal;",
+    )
 }
 
 test "calls2 t29: `move` of a loop variable, an element, a field and `this`, and `switch move` of each" {
-    let text = "struct P {\n    List<i64> xs\n    void go(ref this) {\n        let t = move this\n        switch move this {\n            _ => {}\n        }\n    }\n}\n\nvoid take(move List<i64> xs) {}\ni64 n() => 1\n\nvoid main() {\n    var ls = [[1], [2]]\n    for x in ls {\n        take(move x)\n        switch move x {\n            _ => {}\n        }\n    }\n    take(move ls[0])\n    var p = P { xs: [1] }\n    take(move p.xs)\n    switch move ls[0] {\n        _ => {}\n    }\n    switch move p.xs {\n        _ => {}\n    }\n    switch move n() {\n        _ => {}\n    }\n    switch move (p) {\n        _ => {}\n    }\n    var sb = StrBuf()\n    sb.append(main)\n}\n"
-    assert t29s0Same(t29s0Diags(text), as: "?m3")
+    let text = "struct P {\n    List<i64> xs\n    void go(ref this) {\n        let t = move this\n        switch move this {\n            default: {}\n        }\n    }\n}\n\nvoid take(move List<i64> xs) {}\ni64 n() => 1\n\nvoid main() {\n    var ls = [[1], [2]]\n    for x in ls {\n        take(move x)\n        switch move x {\n            default: {}\n        }\n    }\n    take(move ls[0])\n    var p = P { xs: [1] }\n    take(move p.xs)\n    switch move ls[0] {\n        default: {}\n    }\n    switch move p.xs {\n        default: {}\n    }\n    switch move n() {\n        default: {}\n    }\n    switch move (p) {\n        default: {}\n    }\n    var sb = StrBuf()\n    sb.append(main)\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2202 268+1 expected `List<i64>`, found `i32[1]`;BYN2789 291+1 `switch move …` needs a local or a `move` parameter, not `x`;BYN2782 349+5 cannot move out of an element;BYN2202 349+5 expected `List<i64>`, found `i32[1]`;BYN2782 396+4 cannot move out of field `xs`;BYN2789 418+5 `switch move …` needs a local or a `move` parameter, not an element;BYN2789 468+4 `switch move …` needs a local or a `move` parameter, not field `xs`;BYN2789 517+3 `switch move …` needs a local or a `move` parameter, not a fresh value;BYN2019 633+4 `main` is a function, not a value;BYN2782 73+4 cannot move out of `this`;BYN2789 98+4 `switch move …` needs a local or a `move` parameter, not `this`;BYN2311 216+2 `ls` is never reassigned; declare it with `let`;BYN2311 364+1 `p` is never reassigned; declare it with `let`;",
+    )
+}
+
+test "calls2 t29: `move` of by-reference and plain parameters, an optional field, a tuple element and a map element" {
+    let text = "struct Q {\n    List<i64>? xs\n    List<i64> ys\n}\n\nvoid byRef(in List<i64> a, ref List<i64> b, List<i64> d) {\n    let x1 = move a\n    let x2 = move b\n    let x3 = move d\n    print($\"{x1.length}{x2.length}{x3.length}\")\n}\n\nvoid main() {\n    var q = Q { xs: null, ys: [1] }\n    let a = move q.xs\n    var t = (a: [1], b: [2])\n    let b = move t.a\n    var m: Map<string, List<i64>> = [\"a\": [1]]\n    let c = move m[\"a\"]\n    var o: List<i64>? = [1]\n    if (o is { } v) {\n        let d = move o\n    }\n    let f = move 3\n    let g = move [1]\n    print($\"{f}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5004 54+5 `byRef` has 3 unlabeled parameters; give each but one a particle;BYN5006 90+1 `b` is a required parameter besides the object and needs a particle;BYN5006 103+1 `d` is a required parameter besides the object and needs a particle;BYN2782 126+1 cannot move out of parameter `a`;BYN2782 146+1 cannot move out of `ref` parameter `b`;BYN2782 166+1 cannot move out of parameter `d`;BYN2782 286+4 cannot move out of field `xs`;BYN2782 337+3 cannot move out of a tuple element;BYN2782 405+6 cannot move out of an element;BYN2782 508+1 cannot move out of a fresh value;BYN2782 527+3 cannot move out of a fresh value;BYN2311 241+1 `q` is never reassigned; declare it with `let`;BYN2311 299+1 `t` is never reassigned; declare it with `let`;BYN2311 349+1 `m` is never reassigned; declare it with `let`;BYN2311 420+1 `o` is never reassigned; declare it with `let`;",
+    )
+}
+
+test "calls2 t29: `switch move` of a parameter, a tuple element, a map element, a literal and a sum" {
+    let text = "void sw(List<i64> d, in List<i64> e, move List<i64> f) {\n    switch move d {\n        default: {}\n    }\n    switch move e {\n        default: {}\n    }\n    switch move f {\n        default: {}\n    }\n}\n\nvoid main() {\n    var t = (a: [1], b: [2])\n    var m: Map<string, List<i64>> = [\"a\": [1]]\n    var o: List<i64>? = [1]\n    switch move t.a {\n        default: {}\n    }\n    switch move m[\"a\"] {\n        default: {}\n    }\n    switch move 3 {\n        default: {}\n    }\n    switch move (1 + 2) {\n        default: {}\n    }\n    switch move ((o)) {\n        default: {}\n    }\n    switch move nope {\n        default: {}\n    }\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5004 5+2 `sw` has 3 unlabeled parameters; give each but one a particle;BYN5006 34+1 `e` is a required parameter besides the object and needs a particle;BYN5006 52+1 `f` is a required parameter besides the object and needs a particle;BYN2789 73+1 `switch move …` needs a local or a `move` parameter, not parameter `d`;BYN2789 119+1 `switch move …` needs a local or a `move` parameter, not parameter `e`;BYN2789 332+3 `switch move …` needs a local or a `move` parameter, not a tuple element;BYN2789 380+6 `switch move …` needs a local or a `move` parameter, not an element;BYN2789 431+1 `switch move …` needs a local or a `move` parameter, not a fresh value;BYN2789 477+7 `switch move …` needs a local or a `move` parameter, not this expression;BYN2001 579+4 `nope` is not defined;BYN2311 220+1 `t` is never reassigned; declare it with `let`;BYN2311 249+1 `m` is never reassigned; declare it with `let`;BYN2311 296+1 `o` is never reassigned; declare it with `let`;",
+    )
+}
+
+test "calls2 t29: `Owned` and `Untrusted` built against an expected type, a required field and `Io.stdin.readAll()`" {
+    let text = "struct Req {\n    required i64 a = 1\n    i64 b = 2\n}\n\nvoid main() {\n    let a: Owned<i64> = Owned(5)\n    let b: Untrusted<i64> = Untrusted(5)\n    let c: Owned<i64> = Owned(value: 5)\n    let d: Untrusted<string> = Untrusted(\"x\", 2)\n    let e = Req()\n    let f = Io.stdin.readAll()\n    let g = Owned(main())\n    let h = Untrusted(main())\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2108 30+1 required field `a` has a default value;BYN2302 227+1 `Untrusted` takes 1 argument(s);BYN2109 242+5 `Req` needs a value for `a`;BYN2025 297+6 `void` is not a value type;BYN2025 291+13 `void` is not a value type;BYN2025 327+6 `void` is not a value type;BYN2025 317+17 `void` is not a value type;",
+    )
+}
+
+test "calls2 t29: `parts`, `trimmed` and `equals` with each argument form, and `take` of a map entry" {
+    let text = "void main() {\n    let s = \"a,b\"\n    let a = s.parts(by: ',')\n    let b = s.parts(by: \",\", limit: 2)\n    let c = s.trimmed(by: [' '])\n    let d = s.trimmed(from: .start)\n    let e = s.trimmed()\n    let f = s.equals(\"A,B\", as: .ignoreCase)\n    var m: Map<string, i64> = [\"a\": 1]\n    let g = m.take(at: \"a\")\n    var o: i64? = 1\n    let h = o.take()\n    var sb = StrBuf()\n    sb.append($\"{a.count()}\")\n    sb.append(1)\n    sb.append(main)\n    print($\"{b}{c}{d}{e}{f}{g}{h}{sb.take()}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2720 226+10 `ignoreCase` is not a member of `Comparison`;BYN2021 296+2 `take` has no parameter `at`;BYN2788 339+4 `take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `i64?`;BYN2003 387+5 `count` is not a member of `PartView`;BYN2019 429+4 `main` is a function, not a value;BYN2225 448+1 `PartView` cannot be formatted;BYN2225 469+9 `StrBuf` cannot be formatted;BYN2311 313+1 `o` is never reassigned; declare it with `let`;",
+    )
+}
+
+test "calls2 t29: a struct whose default does not convert, `Owned`, `Untrusted`, `Millis`, `string(x)` and primitives" {
+    let text = "struct D {\n    i64 a = \"x\"\n}\n\nvoid main() {\n    let a = D()\n    let b = Owned(5)\n    let c = Owned<i64>()\n    let d = Owned()\n    let e = Owned(x: 1)\n    let f = Untrusted(5)\n    let g = Untrusted<i64>()\n    let h = Untrusted()\n    let i = Untrusted(x: 1)\n    let j = Owned(nope)\n    let k = Untrusted(nope)\n    let m = Millis(5)\n    let n = Millis(a: 5)\n    let o = string(1, as: .hex)\n    let p = string()\n    let r = string(a: 1)\n    let s = string(nope)\n    let t = string(\"ab\".bytes)\n    let u = rune(65)\n    let v = f64(1)\n    let w = i64(a: 1)\n    let x = bool(true)\n    let y = 5.trustUnchecked() because \"fine\"\n    let z = nope.trustUnchecked() because \"fine\"\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2202 23+3 expected `i64`, found `string`;BYN2301 93+12 missing argument `value` for `Owned`;BYN2301 118+7 missing argument `value` for `Owned`;BYN2021 144+1 `Owned` has no parameter `x`;BYN2220 187+14 `Untrusted<i64>` cannot be called;BYN2301 216+11 missing argument `value` for `Untrusted`;BYN2021 250+1 `Untrusted` has no parameter `x`;BYN2001 274+4 `nope` is not defined;BYN2001 302+4 `nope` is not defined;BYN2220 342+6 `Millis` cannot be called;BYN2220 399+6 `string` cannot be called;BYN2220 420+6 `string` cannot be called;BYN2001 452+4 `nope` is not defined;BYN2220 541+3 `i64` cannot be called;BYN2220 563+4 `bool` cannot be called;BYN2202 586+1 expected `Untrusted<i32>`, found `i32`;BYN2001 632+4 `nope` is not defined;",
+    )
+}
+
+test "calls2 t29: `requires` rules decided on constants, at run time, and through `with`" {
+    let text = "struct Rg {\n    i64 low requires it >= 0\n    i64 high\n    requires low <= high at .high\n}\n\nRg mk(i64 n) => Rg { low: n, high: n }\n\nvoid main() {\n    let a = Rg { low: -1, high: -5 }\n    let b = Rg { low: 1, high: 5 }\n    let c = b with { high: 0 }\n    let d = b with { low: 2 }\n    let e = Rg { low: 4, high: 2 }\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN3207 107+22 a literal of `Rg` can fail its `requires`; write `try Rg { … }`;BYN2321 167+2 `-1` violates `requires it >= 0` of `Rg`;BYN2602 229+18 `Rg` can fail; handle the error or pass it on;BYN2602 260+17 `Rg` can fail; handle the error or pass it on;BYN2321 290+22 `Rg { low: 4, high: 2 }` violates `requires low <= high` of `Rg`;",
+    )
+}
+
+test "calls2 t29: `remove(at:)` by index, by range and by a held range, `append` of what does not format" {
+    let text = "struct NoFmt {\n    i64 a\n}\n\nvoid main() {\n    var xs = List<i64>()\n    xs.append(1)\n    xs.remove(at: 0)\n    xs.remove(at: 0..1)\n    let r = 0..1\n    xs.remove(at: r)\n    xs.remove(0, through: 1)\n    xs.remove(at: \"a\")\n    var sb = StrBuf()\n    sb.append(NoFmt { a: 1 })\n    sb.append(xs)\n    sb.append(nope)\n    var ys = List<Owned<i64>>()\n    let zs = ys.copy()\n    var mm = Map<string, Owned<i64>>()\n    let nn = mm.copy()\n    let parts = \"a,b\".split(by: ',')\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2202 164+1 expected `Range<i64>`, found `Range<i32>`;BYN2202 214+3 expected `i64`, found `string`;BYN2225 255+14 `NoFmt` cannot be formatted;BYN2225 285+2 `List<i64>` cannot be formatted;BYN2001 303+4 `nope` is not defined;BYN2784 354+9 a `List<Owned<i64>>` holding `Owned<i64>` cannot be copied: the copy would share its storage;BYN2301 416+9 missing argument `to` for `copy`;BYN2784 416+9 a `Map<string, Owned<i64>>` holding `Owned<i64>` cannot be copied: the copy would share its storage;BYN2003 448+5 `split` is not a member of `string`;BYN2311 317+2 `ys` is never reassigned; declare it with `let`;BYN2311 372+2 `mm` is never reassigned; declare it with `let`;",
+    )
+}
+
+test "calls2 t29: `try` around a checked literal, a checked literal inside a `try` call, a state literal and non-constant rules" {
+    let text = "struct Rg {\n    i64 low requires it >= 0\n    i64 high\n    requires low <= high at .high\n}\n\nstruct Order {\n    i64 id requires it > 0\n    states {\n        draft\n        paid(i64 payment)\n    }\n}\n\ni64 use(Rg r) => r.low\n\ni64 run(i64 n) fails ValidationError<Rg>, ValidationError<Order> {\n    let a = try Rg { low: n, high: n }\n    let b = try use(Rg { low: n, high: 5 })\n    let c = try Order.draft { id: n }\n    let d = Order.paid { id: 0, payment: 1 }\n    let e = Rg { low: -1, high: n }\n    let f = Rg { low: n, high: -1 }\n    return a.low + b\n}\n\nvoid main() {\n    print($\"{run(1)}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN1054 341+27 `try` covers `use(Rg { low: n, high: 5 })`, which cannot fail;BYN2321 436+1 `0` violates `requires it > 0` of `Order`;BYN3207 464+23 a literal of `Rg` can fail its `requires`; write `try Rg { … }`;BYN3207 500+23 a literal of `Rg` can fail its `requires`; write `try Rg { … }`;BYN2602 575+6 `run` can fail; handle the error or pass it on;",
+    )
+}
+
+test "calls2 t29: `StrBuf`, `Arena` and `Millis` calls with each argument form" {
+    let text = "void main() {\n    let a = StrBuf()\n    let b = StrBuf(capacity: 8)\n    let c = StrBuf(8)\n    let d = StrBuf(capacity: \"x\")\n    let e = Arena()\n    let f = Arena(1)\n    let g = Millis(5)\n    let h = Millis(ms: 5)\n    let i = Millis()\n    let j: Millis = Millis(5)\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2202 86+1 expected `Span<u8>`, found `i32`;BYN2202 118+3 expected `i64`, found `string`;BYN2302 161+1 `Arena` takes 0 argument(s);BYN2220 198+6 `Millis` cannot be called;BYN2220 224+6 `Millis` cannot be called;",
+    )
+}
+
+test "calls2 t29: `move` of an `out` parameter, a loop variable, a narrowed local, a plain field and a plain element" {
+    let text = "struct P {\n    i64 n\n}\n\nvoid outs(out List<i64> c) {\n    c = [1]\n    let x = move c\n}\n\nvoid main() {\n    var ls = List<List<i64>>()\n    for x in ls {\n        let y = move x\n    }\n    var o: List<i64>? = null\n    if o is not null {\n        let d = move o\n        switch move o {\n            default: {}\n        }\n    }\n    var p = P { n: 1 }\n    let e = move p.n\n    var xs = List<i64>()\n    let f = move xs[0]\n    switch move xs.length {\n        default: {}\n    }\n    let g = Nope<i64>(1)\n    let h = Owned<Nope>(1)\n    print($\"{e}{f}\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2782 82+1 cannot move out of `out` parameter `c`;BYN2783 171+1 `x` borrows from what it was bound to and cannot be changed or moved;BYN2782 358+3 cannot move out of field `n`;BYN2782 404+5 cannot move out of an element;BYN2789 426+9 `switch move …` needs a local or a `move` parameter, not a fresh value;BYN2002 476+4 unknown type `Nope`;BYN2002 507+4 unknown type `Nope`;BYN2781 274+1 `o` is used after it was moved;BYN2311 109+2 `ls` is never reassigned; declare it with `let`;BYN2311 187+1 `o` is never reassigned; declare it with `let`;BYN2311 326+1 `p` is never reassigned; declare it with `let`;BYN2311 370+2 `xs` is never reassigned; declare it with `let`;",
+    )
+}
+
+test "calls2 t29: `switch move` of a pattern variable and a value a switch borrows" {
+    let text = "union Shape {\n    circle(List<i64> r)\n    dot\n}\n\nvoid main() {\n    var s = Shape.dot\n    switch s {\n        case .circle(let r):\n            let a = move r\n            switch move r {\n                default: {}\n            }\n        default: {}\n    }\n    switch move s {\n        case .circle(let r):\n            switch move r {\n                default: {}\n            }\n        default: {}\n    }\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2783 154+1 `r` borrows from what it was bound to and cannot be changed or moved;BYN2783 180+1 `r` borrows from what it was bound to and cannot be changed or moved;BYN2311 71+1 `s` is never reassigned; declare it with `let`;",
+    )
+}
+
+test "calls2 t29: builtin method argument forms: `parts()`, `remove` without `at`, `slot` defaults and spans of arrays" {
+    let text = "struct NoDef {\n    i64 a\n}\n\nvoid main() {\n    let s = \"a,b\"\n    let a = s.parts()\n    var xs = List<i64>()\n    xs.remove(0)\n    xs.remove()\n    xs.remove(0, 1)\n    var sb = StrBuf()\n    sb.append($\"a{1}\")\n    var m1 = Map<string, rune>()\n    let b = m1.slot(key: \"a\")\n    var m2 = Map<string, Symbol>()\n    let c = m2.slot(key: \"a\")\n    var m3 = Map<string, NoDef>()\n    let d = m3.slot(key: \"a\")\n    var m4 = Map<string, List<i64>>()\n    let e = m4.slot(key: \"a\")\n    var m5 = Map<string, i64?>()\n    let f = m5.slot(key: \"a\")\n    let g = [1, 2, 3].mutableSpan()\n    var ar = [1, 2, 3]\n    let h = ar.mutableSpan()\n    let i = move nope\n    let j = move xs.length\n    for k in 0..3 {\n        let q = move k\n    }\n    let r = StrBuf(1, 2)\n    let t = Symbol(1)\n    let u = rune(1, 2)\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2301 72+9 missing argument `by` for `parts`;BYN2301 111+12 missing argument `until` for `remove`;BYN2301 128+11 missing argument `from`, `until` for `remove`;BYN2785 379+17 `slot` needs a default value, and `NoDef` has none;BYN2785 447+17 `slot` needs a default value, and `List<i64>` has none;BYN2106 540+9 cannot modify this value;BYN2001 633+4 `nope` is not defined;BYN2782 655+9 cannot move out of a fresh value;BYN2202 733+1 expected `Span<u8>`, found `i32`;BYN2302 736+1 `StrBuf` takes 1 argument(s);BYN2220 751+6 `Symbol` cannot be called;BYN2220 773+4 `rune` cannot be called;BYN2780 447+17 implicit copy of a unique value: `List<i64>` is unique: it owns its storage;",
+    )
+}
+
+test "calls2 t29: `requires` rules that call a function, and defaults declared after the literal" {
+    let text = "struct Rq {\n    i64 low requires ok(it)\n}\n\ni64 run() fails ValidationError<Late> {\n    let a = Rq { low: 1 }\n    let b = try Late {}\n    return b.n\n}\n\nbool ok(i64 n) => n > 0\n\nvoid main() {\n    print($\"{run()}\")\n}\n\nstruct Late {\n    i64 n = -1 requires it >= 0\n    i64 m = 5\n    requires n <= m at .n\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN3207 95+13 a literal of `Rq` can fail its `requires`; write `try Rq { … }`;BYN2321 125+7 `Late {}` violates `requires it >= 0` of `Late`;BYN2602 203+5 `run` can fail; handle the error or pass it on;",
+    )
 }

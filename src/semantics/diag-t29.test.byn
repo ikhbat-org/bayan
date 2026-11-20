@@ -71,8 +71,13 @@ string t29s0Decode(ReadOnlySpan<u8> bytes) uses alloc {
 }
 
 test "diag t29: invalid UTF-8 sequences decode as their maximal subparts" {
-    let a: List<u8> = [0xC2, 0x41, 0xE0, 0x80, 0xE1, 0x80, 0x41, 0xF0, 0x80, 0xF1, 0x80, 0x41, 0xF1, 0x80, 0x80, 0x41, 0xFF]
-    assert t29s0Same(t29s0Decode(a), as: "65533/1/false;65/1/true;65533/1/false;65533/1/false;65533/2/false;65/1/true;65533/1/false;65533/1/false;65533/2/false;65/1/true;65533/3/false;65/1/true;65533/1/false;")
+    let a: List<u8> = [
+        0xC2, 0x41, 0xE0, 0x80, 0xE1, 0x80, 0x41, 0xF0, 0x80, 0xF1, 0x80, 0x41, 0xF1, 0x80, 0x80, 0x41, 0xFF,
+    ]
+    assert t29s0Same(
+        t29s0Decode(a),
+        as: "65533/1/false;65/1/true;65533/1/false;65533/1/false;65533/2/false;65/1/true;65533/1/false;65533/1/false;65533/2/false;65/1/true;65533/3/false;65/1/true;65533/1/false;",
+    )
 }
 
 test "diag t29: the highest scalars and the last before the surrogates decode" {
@@ -109,7 +114,10 @@ test "diag t29: a warning marked past the end of its line" {
         fixSpan: TextSpan { start: 0, length: 0 },
         related: List<Related>(),
     }
-    assert t29s0Same(t27Render(text, for: move d, by: 40), as: "warning BYN2000: m\n\n  1 │ let x = 1\n    │           ^\n")
+    assert t29s0Same(
+        t27Render(text, for: move d, by: 40),
+        as: "warning BYN2000: m\n\n  1 │ let x = 1\n    │           ^\n",
+    )
 }
 
 test "diag t29: a note and a hidden bidi control" {
@@ -122,5 +130,8 @@ test "diag t29: a note and a hidden bidi control" {
         fixSpan: TextSpan { start: 0, length: 0 },
         related: List<Related>(),
     }
-    assert t29s0Same(t27Render(text, for: move e, by: 40), as: "note BYN2000: m\n\n  2 │ let y\u{FFFD} = 2\n    │     ^\n")
+    assert t29s0Same(
+        t27Render(text, for: move e, by: 40),
+        as: "note BYN2000: m\n\n  2 │ let y\u{FFFD} = 2\n    │     ^\n",
+    )
 }

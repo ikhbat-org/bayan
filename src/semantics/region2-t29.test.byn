@@ -21,10 +21,18 @@ test "region2 t29: what tuples, unions, optionals and structs may lend and wheth
         var seen2 = List<Type>()
         sb.append($"{name} {mayLend(ref c, for: t, by: ref seen)} {containsList(ref c, for: t, by: ref seen2)};")
     }
-    assert t29s0Same($"{sb.finish()}", as: "f1 false false;f2 true false;f3 true true;f4 true true;f5 false false;f6 false false;f7 true true;f8 true true;f9 true true;f10 false false;f11 true true;f12 true true;")
+    assert t29s0Same(
+        $"{sb.finish()}",
+        as: "f1 false false;f2 true false;f3 true true;f4 true true;f5 false false;f6 false false;f7 true true;f8 true true;f9 true true;f10 false false;f11 true true;f12 true true;",
+    )
 }
 
 test "region2 t29: `ref this` methods that call each other on `this` share what they change" {
     let text = "struct In {\n    i64 n\n    void bump(ref this) {\n        n += 1\n    }\n}\n\nvoid add(to ref List<i64> xs) {\n    xs.append(1)\n}\n\nstruct Out {\n    In inner\n    List<i64> xs\n    i64 k\n    void start(ref this) {\n        top()\n    }\n    void top(ref this) {\n        go()\n        a()\n    }\n    void a(ref this) {\n        b()\n    }\n    void b(ref this) {\n        k += 1\n        top()\n    }\n    void go(ref this) {\n        inner.bump()\n        add(to: ref xs)\n    }\n}\n\nvoid main() {\n    var o = Out { inner: In { n: 0 }, xs: [], k: 0 }\n    let first = o.xs[0]\n    o.start()\n    print($\"{first}\")\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "")
+}
+
+test "region2 t29: text-returning builtins called inside a `provide` block borrow its arena" {
+    let text = "void main() uses fs, env, process {\n    using let arena = Arena()\n    let bytes = \"ab\".bytes\n    provide allocator: arena {\n        let a = Io.readText(\"x.txt\") catch { return }\n        let b = Utf8.decode(bytes) catch { return }\n        let d = Utf8.decode(bytes, invalid: .replace)\n        let e = Hex.encode(bytes)\n        let f = Env.get(\"HOME\")\n        let g = Path.relative(\"a/b\", to: \"a\")\n        let h = Path.fileName(\"a/b\")\n        let i = Path.directoryName(\"a/b\")\n        let j = Path.combine(\"a\", \"b\")\n        let k = Path.fullPath(\"a\")\n        let m = Fs.realPath(\"a\") catch { return }\n        print($\"{a}{b}{d}{e}{f}{g}{h}{i}{j}{k}{m}\")\n    }\n}\n"
     assert t29s0Same(t29s0Diags(text), as: "")
 }

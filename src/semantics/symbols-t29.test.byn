@@ -2,7 +2,9 @@
 // reaches. The expected text is the output of the self-hosted code at the commit that added the test.
 
 test "symbols t29: generic interfaces, unions and member signatures display" {
-    var c = t29s0Compile("interface IShape<T> {\n    T area()\n}\n\nstruct Sq : IShape<i64> {\n    i64 side\n    i64 area() => side * side\n}\n\nunion Tree<T> {\n    leaf(T v)\n    none\n}\n\nvoid main() {\n    let t = Tree<i64>.leaf(1)\n    let s = Sq { side: 2 }\n    print($\"{s.area()}\")\n}\n")
+    var c = t29s0Compile(
+        "interface IShape<T> {\n    T area()\n}\n\nstruct Sq : IShape<i64> {\n    i64 side\n    i64 area() => side * side\n}\n\nunion Tree<T> {\n    leaf(T v)\n    none\n}\n\nvoid main() {\n    let t = Tree<i64>.leaf(1)\n    let s = Sq { side: 2 }\n    print($\"{s.area()}\")\n}\n",
+    )
     var sb = StrBuf()
     for i in 0..c.interfaces.length {
         if c.interfaces[i].name == "IShape" {
@@ -19,5 +21,8 @@ test "symbols t29: generic interfaces, unions and member signatures display" {
             sb.append($"{functionDisplaySignature(ref c, by: f)};")
         }
     }
-    assert t29s0Same($"{sb.finish()}", as: "IShape<T> true;IShape<i64> false;Tree<T> true;Tree<i64> false;area();area();Sq.area();")
+    assert t29s0Same(
+        $"{sb.finish()}",
+        as: "IShape<T> true;IShape<i64> false;Tree<T> true;Tree<i64> false;area();area();Sq.area();",
+    )
 }
