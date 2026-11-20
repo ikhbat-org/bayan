@@ -1,0 +1,142 @@
+  // 019 T29 (coverage ratchet): recover.byn paths no golden case reaches: `;` at the start and end of the input, after a tab
+  // and before another `;`, the postfix-guard lint over `;`-ended exits, the `it` lambda lint over its early returns, a
+  // function body over 60 lines, fixes that would drop a comment, and the line helpers at the ends of the token list. The
+  // helper `t3ParserOf` is recover.test.byn's. The expected texts are the output of the self-hosted parser at the commit
+  // that added the test.
+  
+  import lexer
+  
+  /// The diagnostics, style lints and typed lints of `text` parsed as a compilation unit after `keepComments`, one line each:
+  /// code, span and, when it has one, the fix.
+  string t29Lints(string text) uses alloc {
+~     var p = t3ParserOf(text)
+~     let _ = parseCompilationUnit(ref p)
+~     keepComments(ref p)
+~     var all = List<Diagnostic>()
+~     for d in p.lexed.diagnostics {
+~         all.append(d)
+      }
+~     for d in p.styleLints {
+~         all.append(d)
+      }
+~     for t in p.typedLints {
+~         all.append(t.lint)
+~         if (t.otherwise is { } o) {
+~             all.append(o)
+          }
+      }
+~     var sb = StrBuf()
+~     for d in all {
+~         sb.append($"[{d.code} {d.span.start}+{d.span.length}")
+~         if d.hasFix {
+~             sb.append($" fix {d.fixSpan.start}+{d.fixSpan.length} \"")
+~             lexer.escape(d.fixReplacement.bytes, to: ref sb)
+~             sb.append("\"")
+          }
+~         sb.append("]\n")
+      }
+~     return $"{sb.finish()}"
+  }
+  
+  test "parser t29: semicolons, guards, it lambdas and comments under fixes" {
+      let sources = [
+          "print(1)\t;\nprint(2)\n",
+          "print(1);;\n",
+          "print(1);",
+          "print(1);\tprint(2)\n",
+          "void f() {\n\tprint(1); print(2)\n}\n",
+          "void f() {\n    if (x) {\n        return;\n    }\n}\n",
+          "void f() {\n    if (x) {\n        return ;\n    }\n}\n",
+          "void f() {\n    if (x) {\n        return /* c */\n    }\n}\n",
+          "void f() {\n    if (x) // c\n    {\n        return\n    }\n}\n",
+          "void f() {\n    if (x) return\n}\n",
+          "void f() {\n    g(it => it.y)\n    g(x => x?.y)\n    g(x => x.y<int>)\n    g(x => z.y)\n}\n",
+          "void f() {\n    g(x => x<int>.y)\n}\n",
+          "void f() {\n    g(x /* c */ => x.y)\n}\n",
+          "void f() {\n    if (x is { } k) {\n        print(k)\n    } else {\n        return\n    }\n}\n",
+          "void f() {\n    if (x is { } k) {\n        return k\n    }\n    return 0\n}\n",
+          "void f() {\n    a.long()\n}\n",
+          "void f() {\n    if x {\n        return;\n    }\n    if x {\n        return ;\n    }\n}\n",
+          "long\n",
+      ]
+      var sb = StrBuf()
+      for i in 0..sources.length {
+          sb.append($"== {i}\n{t29Lints(sources[i])}")
+      }
+      var body = StrBuf()
+      body.append("void f() {\n")
+      for _ in 0..61 {
+          body.append("    print(1)\n")
+      }
+      body.append("}\n")
+      sb.append($"== long\n{t29Lints(body.finish())}")
+      let expected = """
+              == 0
+              [BYN1040 9+1 fix 8+2 "``"]
+              == 1
+              [BYN1040 8+1 fix 8+1 "``"]
+              [BYN1040 9+1 fix 9+1 "``"]
+              == 2
+              [BYN1040 8+1 fix 8+1 "``"]
+              == 3
+              [BYN1040 8+1 fix 8+2 "`\n`"]
+              == 4
+              [BYN1040 20+1 fix 20+2 "`\n\t`"]
+              == 5
+              [BYN1017 18+3 fix 18+3 "`x`"]
+              [BYN1040 38+1 fix 38+1 "``"]
+              == 6
+              [BYN1017 18+3 fix 18+3 "`x`"]
+              [BYN1040 39+1 fix 38+2 "``"]
+              == 7
+              [BYN1047 39+7 fix 39+7 "`// c`"]
+              [BYN1017 18+3 fix 18+3 "`x`"]
+              == 8
+              [BYN1017 18+3 fix 18+3 "`x`"]
+              == 9
+              [BYN1017 18+3 fix 18+10 "`x { return }`"]
+              [BYN1018 22+6]
+              == 10
+              [BYN1002 65+1]
+              == 11
+              == 12
+              [BYN1047 19+7 fix 19+7 "`// c\n    `"]
+              [BYN1073 17+16]
+              == 13
+              [BYN1080 18+12 fix 18+37 "`x is not null {\n        print(x)\n    }`"]
+              [BYN1080 18+12 fix 15+68 "`let k = x\n    return if k is null\n    print(k)`"]
+              == 14
+              [BYN1080 18+12 fix 18+37 "`x is not null {\n        return x\n    }`"]
+              == 15
+              == 16
+              [BYN1040 36+1 fix 36+1 "``"]
+              [BYN1040 70+1 fix 69+2 "``"]
+              [BYN1072 15+5 fix 15+28 "`return if x`"]
+              [BYN1072 48+5 fix 48+29 "`return if x`"]
+              == 17
+              [BYN1012 0+4]
+              == long
+              [BYN1076 9+1]
+  
+              """
+      assert sb.finish() == expected
+  }
+  
+  test "parser t29: the line helpers at the ends of the token list" {
+      var p = t3ParserOf("a ;")
+      var sb = StrBuf()
+      sb.append($"{breaksLine(ref p, at: p.count)} {hasBlankLineBefore(ref p, at: 0)} ")
+      sb.append($"{hasBlankLineBefore(ref p, at: p.count)} {afterLa(ref p, at: 0)} ")
+      sb.append($"{isTriviaSpace('\t')} {isTriviaSpace('\r')} {isTriviaSpace('x')}\n")
+      reportSemicolon(ref p, for: p.lexed.tokens[1])
+      var q = t3ParserOf(";")
+      reportSemicolon(ref q, for: q.lexed.tokens[0])
+      var r = t3ParserOf("   ")
+      sb.append($"[{indentAt(ref r, at: 0)}]{t3Diags(ref p)}{t3Diags(ref q)}\n")
+      let expected = """
+              false false false false true true false
+              [   ] [BYN1040 2+1 `;` is an input form; a statement ends at the newline fix 1+2 "`\n`"] [BYN1040 0+1 `;` is an input form; a statement ends at the newline fix 0+1 "``"]
+  
+              """
+      assert sb.finish() == expected
+  }

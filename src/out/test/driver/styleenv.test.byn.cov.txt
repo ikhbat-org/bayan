@@ -1,0 +1,326 @@
+  // SelfhostDriverStyleEnvironmentTests (src/tests/SelfhostDriverTests.cs:1630) ported to test blocks (spec 019 T30e). Every expected value is
+  // the C# test's literal or what its C# code path returned for the row: `Progress.Fit`, `TerminalStyle.Visible` and the text `Progress`
+  // wrote to a `StringWriter`, read from bayan.dll v0.3.2 (csharp/Bayan.Cli unchanged since) by a scratch program in tmp/, not kept.
+  // The 42 `TheEnvironmentPaintsAsCliAppRun` rows are the cli cases; `TimerFramesSplitsTheFramesAndRefusesARunWithoutTheClear` and
+  // `TimerFramesMayDifferInCountButNotInAFrame` test the C# harness's own `TimerFrames` helpers and have no block.
+  
+  /// SelfhostDriverTests.cs:1734 `ProgressProbe`: the probe `main` the C# compiled beside dctx.byn and progress.byn.
+  const styleEnvProgressProbe: string = """
+  i32 main(ReadOnlySpan<string> args) uses alloc, clock, console, env {
+      if args[0] == "timed" {
+          // timed <phase> <after ms> <ascii> <wait ms>: a timer start, a busy wait, done
+          var after: i64 = 0
+          for b in args[2].bytes {
+              after = after * 10 + i64(b) - 48
+          }
+          var wait: i64 = 0
+          for b in args[4].bytes {
+              wait = wait * 10 + i64(b) - 48
+          }
+          let timedStyle = DStyle { ascii: args[3] == "true" }
+          var timed = start(in timedStyle, by: true, through: false, for: args[1], after: after * 1000000)
+          let begun = Io.monotonicNanos()
+          while Io.monotonicNanos() - begun < wait * 1000000 {}
+          done(ref timed)
+          return 0
+      }
+      if args[0] == "fit" {
+          let ascii = args[3] == "true"
+          var room: i64 = 0
+          for b in args[2].bytes {
+              room = room * 10 + i64(b) - 48
+          }
+          Io.stdout.write(fit(args[1], to: room, by: ascii ? "..." : "…", for: ascii ? 3 : 1))
+          return 0
+      }
+      if args[0] == "visible" {
+          Io.stdout.write(visible(args[1]))
+          return 0
+      }
+      var width: i64 = 0
+      for b in args[2].bytes {
+          width = width * 10 + i64(b) - 48
+      }
+      var extra: i64 = 0
+      if args.length > 6 {
+          for b in args[6].bytes {
+              extra = extra * 10 + i64(b) - 48
+          }
+      }
+      let style = DStyle { ascii: args[3] == "true", width: width }
+      var p = start(in style, by: args[4] == "true", through: args[5] == "true", for: args[1], after: 0)
+      for _ in 0..extra {
+          tick(ref p)
+      }
+      done(ref p)
+      if extra > 0 {
+          done(ref p)
+          tick(ref p)
+      }
+      return 0
+  }
+  """
+  
+  /// SelfhostDriverTests.cs:1791 `ProgressBuilt` and :1802 `RunProgress`: dctx.byn and progress.byn, read unchanged, with the probe `main` in
+  /// tmp/progress-probe/<name>, built by `$BAYAN_EXE build`, then run with `args` and `CI` set to `ci`.
+  GoldenOutcome styleEnvProgress(string name, by List<string> args, for string ci)
+          uses alloc, clock, console, env, fs, process {
+~     var failure = ""
+~     let exe = goldenExe(through: ref failure)
+~     print(failure) if exe == ""
+~     assert(exe != "")
+~     let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "progress-probe"), name)
+~     deleteWorkDir(dir)
+~     let src = Path.combine(dir, "src")
+~     for file in ["dctx.byn", "progress.byn"] {
+~         goldenWrite(src, for: file, as: Io.readText(Path.combine(Path.fullPath("src/driver"), file)) catch "")
+      }
+~     goldenWrite(src, for: "progressprobe.byn", as: styleEnvProgressProbe)
+~     let program = Path.combine(dir, targetExecutableName("probe", for: t5HostTarget()))
+~     var build = List<string>()
+~     for a in ["build", "-o", program, src] {
+~         build.append(a)
+      }
+~     let none = List<u8>()
+~     let built = goldenChild(exe, by: in build, at: Path.fullPath("."), from: in none, through: ref failure)
+~     print($"{failure}{built.stdout}{built.stderr}") if failure != "" || built.exitCode != 0
+~     assert(failure == "" && built.exitCode == 0)
+~     var env: Map<string, string?> = []
+~     env["CI"] = ci
+~     let o = goldenChild(program, by: in args, at: dir, from: in none, through: ref failure, env: env)
+~     print(failure) if failure != ""
+~     assert(failure == "")
+~     deleteWorkDir(dir)
+~     return o
+  }
+  
+  /// SelfhostDriverTests.cs:1946 `TimerFrames`: the frames (each `\r`-led line before the closing clear) of a timer run; fails unless the
+  /// run starts with a frame and ends in the clear.
+  List<string> styleEnvFrames(string drawn) uses alloc {
+~     let clear = "\r\u{1b}[2K"
+~     assert(drawn.endsWith(clear))
+~     let body = drawn[0..drawn.length - clear.length]
+~     assert(body.startsWith("\r") && body.length > 1)
+~     var frames = List<string>()
+~     var rest = body[1..body.length]
+~     while true {
+~         if (rest.position("\r") is { } at) {
+~             frames.append(rest[0..at])
+~             rest = rest[at + 1..rest.length]
+          } else {
+~             frames.append(rest)
+~             break
+          }
+      }
+~     return frames
+  }
+  
+  // SelfhostDriverTests.cs:1722 `ThePaletteIsTheOneTheEnvironmentNames`: `--color always audit` of `AuditFixture` (:1632) under the
+  // terminal environment of CliEnvironmentTests.cs:35 `WithTerminalEnv` and the row's variables paints the warning in the row's SGR codes.
+  @cases(
+      ("COLORTERM=", "\u{1b}[33m"),
+      ("COLORTERM=truecolor|BAYAN_THEME=light", "\u{1b}[38;2;138;83;0m"),
+      ("COLORTERM=truecolor|BAYAN_THEME=dark", "\u{1b}[38;2;242;193;78m"),
+      ("COLORTERM=24bit|COLORFGBG=0;15", "\u{1b}[38;2;138;83;0m"),
+  )
+  test "style env: the palette is the one the environment names" (string vars, string warning) {
+      var failure = ""
+      let exe = goldenExe(through: ref failure)
+      print(failure) if exe == ""
+      assert(exe != "")
+      let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "t7-env"), "audit")
+      goldenWrite(
+          dir,
+          for: "main.byn",
+          as: "@allow(BYN2230) because \"kept for the C ABI\"\nvoid toHex() {\n}\n\nunsafe void poke() {\n}\n",
+      )
+      let none: string? = null
+      var env: Map<string, string?> = []
+      for name in ["NO_COLOR", "FORCE_COLOR", "TERM", "COLORTERM", "BAYAN_THEME", "COLORFGBG", "LC_ALL", "LC_CTYPE"] {
+          env[name] = none
+      }
+      env["LANG"] = "en_US.UTF-8"
+      var rest = vars
+      while rest.length > 0 {
+          let bar = rest.position("|") ?? rest.length
+          let pair = rest[0..bar]
+          let eq = pair.position("=") ?? pair.length
+          env[pair[0..eq]] = pair[eq + 1..pair.length]
+          rest = bar < rest.length ? rest[bar + 1..rest.length] : ""
+      }
+      var args = List<string>()
+      for a in ["--color", "always", "audit", Path.combine(dir, "main.byn")] {
+          args.append(a)
+      }
+      let r = Io.run(exe, args.span, env: env) catch { panic($"cannot run {exe}") }
+      print(r.stdout) if !r.stdout.contains($"{warning}no reason given")
+      assert(r.stdout.contains($"{warning}no reason given"))
+  }
+  
+  // SelfhostDriverTests.cs:1818 `FitCutsTheLineAsProgressDoes`: the probe's `fit` (:1754) against `Progress.Fit(phase, room, ellipsis)`.
+  @cases(
+      (
+          "testing wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+          35,
+          false,
+          "testing wwwwwwwwwwwwwwwwwwwwwwwwww…"
+      ),
+      (
+          "testing wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+          35,
+          true,
+          "testing wwwwwwwwwwwwwwwwwwwwwwww..."
+      ),
+      ("testing www", 35, false, "testing www"),
+      ("漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢", 35, false, "漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢…"),
+      ("漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢xy", 35, false, "漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢漢…"),
+      ("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\u{301}", 35, false, "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\u{301}"),
+      (
+          "\u{2ff}\u{300}\u{36f}Ͱჿᄀᅟᅠ\u{2e7f}⺀\u{a4cf}ꓐ\u{abff}가힣\u{d7a4}\u{f8ff}豈\u{faff}ﬀ\u{fe2f}︰\u{fe4f}﹐\u{feff}\u{ff00}\u{ff60}｡\u{ffdf}\u{ffe0}\u{ffe6}\u{ffe7}\u{1f2ff}🌀🙏🙐\u{1f8ff}🤀🧿🨀𠀀\u{3fffd}\u{3fffe}",
+          100,
+          false,
+          "\u{2ff}\u{300}\u{36f}Ͱჿᄀᅟᅠ\u{2e7f}⺀\u{a4cf}ꓐ\u{abff}가힣\u{d7a4}\u{f8ff}豈\u{faff}ﬀ\u{fe2f}︰\u{fe4f}﹐\u{feff}\u{ff00}\u{ff60}｡\u{ffdf}\u{ffe0}\u{ffe6}\u{ffe7}\u{1f2ff}🌀🙏🙐\u{1f8ff}🤀🧿🨀𠀀\u{3fffd}\u{3fffe}"
+      ),
+      ("abcdef", 2, true, "..."),
+      ("abcdef", 0, false, "…"),
+      ("😀😀😀😀", 5, false, "😀😀…"),
+  )
+  test "style env: fit cuts the line as Progress does" (string phase, i64 room, bool ascii, string want) {
+      assert(fit(phase, to: room, by: ascii ? "..." : "…", for: ascii ? 3 : 1) == want)
+  }
+  
+  // SelfhostDriverTests.cs:1838 `VisibleEscapesControlsAsTerminalStyleDoes`: `visible` against `TerminalStyle.Visible(text)`.
+  @cases(
+      ("plain", "plain"),
+      ("a\u{1b}]0;PWNED\u{7}b", "a\\u{1b}]0;PWNED\\u{7}b"),
+      ("tab\u{9}here\u{7f}\u{85}", "tab\\u{9}here\\u{7f}\\u{85}"),
+      ("bidi\u{202e}evil\u{2066}x\u{61c}\u{200f}", "bidi\\u{202e}evil\\u{2066}x\\u{61c}\\u{200f}"),
+      ("é漢😀", "é漢😀"),
+      ("é漢😀\u{1b}\u{85}x", "é漢😀\\u{1b}\\u{85}x"),
+      (
+          "\u{61c}\u{200d}\u{200e}\u{200f}\u{2029}\u{202a}\u{202b}\u{202c}\u{202d}\u{202e}\u{202f}\u{2065}\u{2066}\u{2067}\u{2068}\u{2069}\u{206a}\u{9f}\u{a0}~\u{1f} ",
+          "\\u{61c}\u{200d}\\u{200e}\\u{200f}\u{2029}\\u{202a}\\u{202b}\\u{202c}\\u{202d}\\u{202e}\u{202f}\u{2065}\\u{2066}\\u{2067}\\u{2068}\\u{2069}\u{206a}\\u{9f}\u{a0}~\\u{1f} "
+      ),
+      ("", ""),
+  )
+  test "style env: visible escapes controls as TerminalStyle does" (string text, string want) {
+      assert(visible(text) == want)
+  }
+  
+  // SelfhostDriverTests.cs:1854 `TheLineIsDrawnAndClearedAsProgressDoes` (:1959 `AssertLine`, no extra ticks): the probe's stderr against
+  // what `Progress.Start(writer, style, tty, json, CI, phase, TimeSpan.Zero)` and `Done` wrote.
+  @cases(
+      (1, "compiling", 100, false, true, false, "", "\r◆◇◇ compiling\r\u{1b}[2K"),
+      (2, "compiling", 100, true, true, false, "", "\r... compiling\n"),
+      (3, "compiling", 100, false, false, false, "", ""),
+      (4, "compiling", 100, false, true, true, "", ""),
+      (5, "compiling", 100, false, true, false, "1", ""),
+      (
+          6,
+          "testing y\u{1b}]0;PWNED\u{7}\u{1b}[2J",
+          100,
+          false,
+          true,
+          false,
+          "",
+          "\r◆◇◇ testing y\\u{1b}]0;PWNED\\u{7}\\u{1b}[2J\r\u{1b}[2K"
+      ),
+      (
+          7,
+          "testing wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+          40,
+          true,
+          true,
+          false,
+          "",
+          "\r... testing wwwwwwwwwwwwwwwwwwwwwwww...\n"
+      ),
+      (
+          8,
+          "testing wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+          40,
+          false,
+          true,
+          false,
+          "",
+          "\r◆◇◇ testing wwwwwwwwwwwwwwwwwwwwwwwwww…\r\u{1b}[2K"
+      ),
+  )
+  test "style env: the line is drawn and cleared as Progress does" (
+      i64 row,
+      string phase,
+      i64 width,
+      bool ascii,
+      bool tty,
+      bool json,
+      string ci,
+      string want
+  ) {
+      var args = List<string>()
+      for a in [
+          "line",
+          phase,
+          $"{width}",
+          (ascii ? "true" : "false"),
+          (tty ? "true" : "false"),
+          (json ? "true" : "false"),
+          "0",
+      ] {
+          args.append(a)
+      }
+      let o = styleEnvProgress($"line-{row}", by: args, for: ci)
+      assert(o.exitCode == 0)
+      assert(o.stderr == want)
+  }
+  
+  // SelfhostDriverTests.cs:1867 `LaterTicksAndASecondDoneAsProgressDoes` (:1959 `AssertLine` of "compiling", width 100, a terminal, no JSON,
+  // `CI` empty): `extra` ticks, `Done`, a second `Done` and a tick after it.
+  @cases(
+      (1, false, 3, "\r◆◇◇ compiling\r◇◆◇ compiling\r◇◇◆ compiling\r◆◇◇ compiling\r\u{1b}[2K"),
+      (2, true, 3, "\r... compiling\n"),
+      (3, false, 1, "\r◆◇◇ compiling\r◇◆◇ compiling\r\u{1b}[2K"),
+  )
+  test "style env: later ticks and a second done as Progress does" (i64 row, bool ascii, i64 extra, string want) {
+      var args = List<string>()
+      for a in ["line", "compiling", "100", (ascii ? "true" : "false"), "true", "false", $"{extra}"] {
+          args.append(a)
+      }
+      let o = styleEnvProgress($"ticks-{row}", by: args, for: "")
+      assert(o.exitCode == 0)
+      assert(o.stderr == want)
+  }
+  
+  // SelfhostDriverTests.cs:1877 `TheTimerDrawsAsProgressDoes`: `want` is what the C# `Progress` with a `Timer` wrote in one run of the row; a
+  // passed threshold compares frame by frame up to the shorter run (:1916 `AssertSameTimerFrames`), and a wait of 400 ms or more draws at
+  // least two frames and at most one more than the C# (:1908 `AssertTimerRepeats`).
+  @cases(
+      (1, false, 1, 125, "\r◆◇◇ compiling\r\u{1b}[2K"),
+      (2, false, 1, 400, "\r◆◇◇ compiling\r◇◆◇ compiling\r\u{1b}[2K"),
+      (3, true, 1, 400, "\r... compiling\n"),
+      (4, false, 0, 400, "\r◆◇◇ compiling\r\u{1b}[2K"),
+      (5, true, 0, 400, "\r... compiling\n"),
+      (6, false, 10000, 150, ""),
+      (7, true, 10000, 150, ""),
+  )
+  test "style env: the timer draws as Progress does" (i64 row, bool ascii, i64 afterMs, i64 waitMs, string want) {
+      var args = List<string>()
+      for a in ["timed", "compiling", $"{afterMs}", (ascii ? "true" : "false"), $"{waitMs}"] {
+          args.append(a)
+      }
+      let o = styleEnvProgress($"timer-{row}", by: args, for: "")
+      assert(o.exitCode == 0)
+      assert((afterMs > waitMs) == (o.stderr.length == 0))
+      if ascii || afterMs == 0 || afterMs > waitMs {
+          assert(o.stderr == want)
+      } else {
+          let w = styleEnvFrames(want)
+          let g = styleEnvFrames(o.stderr)
+          let shared = w.length < g.length ? w.length : g.length
+          for i in 0..shared {
+              assert(w[i] == g[i])
+          }
+          if waitMs >= 400 {
+              assert(g.length >= 2 && g.length <= w.length + 1)
+          }
+      }
+  }

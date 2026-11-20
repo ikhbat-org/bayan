@@ -1,0 +1,148 @@
+  // 019 T29 (coverage ratchet): types.byn paths no golden case reaches: `readonly` pointers with other suffixes, prefix
+  // pointer input forms inside and outside `extern`, function types with parenthesized and repeated clauses and named
+  // parameters, sized arrays and grouped function types; and the type scans of local declarations. The helpers are
+  // `t3ParserOf` (recover.test.byn) and `t29Bodies` (dump-t29.test.byn). The expected text is the output of the
+  // self-hosted parser at the commit that added the test.
+  
+  /// The dump of `text` parsed as one type, the position after it and its `[code start+length]` diagnostics.
+  string t29TypeOf(string text, bool inExtern = false) uses alloc {
+~     var p = t3ParserOf(text)
+~     let _ = p.setInExtern(value: inExtern)
+~     let t = parseType(ref p)
+~     var sb = StrBuf()
+~     dumpType(in t, from: ref p, to: ref sb)
+~     sb.append($" @{p.pos}")
+~     for d in p.lexed.diagnostics {
+~         sb.append($" [{d.code} {d.span.start}+{d.span.length}]")
+      }
+~     sb.append("\n")
+~     return $"{sb.finish()}"
+  }
+  
+  test "parser t29: rare type forms" {
+      var sb = StrBuf()
+      let inputs = [
+          "readonly u8*",
+          "readonly u8**",
+          "readonly u8*?",
+          "readonly u8*[4]",
+          "readonly u8* -> int",
+          "readonly int",
+          "*mut u8",
+          "*const u8",
+          "**u8",
+          "*mut",
+          "A -> B uses (fs, net) fails (E, F)",
+          "A -> B fails E uses fs",
+          "A -> B uses fs uses net",
+          "A -> B fails E, F",
+          "(A a) -> B",
+          "A => B",
+          "u8[n]",
+          "u8[4]",
+          "u8[x y]",
+          "(A -> B)",
+          "(A -> B, C)",
+          "(A -> B) c",
+          "m.Name<A>",
+          "Name.x.y",
+          "u8*[4]",
+          "u8 *",
+      ]
+      for input in inputs {
+          sb.append(t29TypeOf(input))
+      }
+      sb.append(t29TypeOf("*u8", inExtern: true))
+      sb.append(t29TypeOf("u8*", inExtern: true))
+      sb.append(t29Bodies([
+          "(A -> B) f = g",
+          "u8 *p",
+          "a*b",
+          "u8** p = q",
+          "(a, b) => x",
+          "(A -> B fails E uses fs) h = g",
+          "(A -> B fails (E, F) uses (fs)) h = g",
+          "(A -> B uses fs, net) h = g",
+          "(A -> B fails) h = g",
+      ]))
+      let expected = """
+              <missing> @0 [BYN1003 0+8]
+              <missing> @0 [BYN1003 0+8]
+              <missing> @0 [BYN1003 0+8]
+              <missing> @0 [BYN1003 0+8]
+              <missing> @0 [BYN1003 0+8]
+              <missing> @0 [BYN1003 0+8]
+              u8* @3 [BYN1066 0+1] [BYN1067 0+7]
+              readonly u8* @3 [BYN1066 0+1] [BYN1067 0+9]
+              u8** @3 [BYN1066 1+1] [BYN1067 1+3] [BYN1066 0+1]
+              mut* @2 [BYN1066 0+1] [BYN1067 0+4]
+              A -> B uses fs, net fails E, F @15
+              A -> B uses fs fails E @7 [BYN1065 15+4]
+              A -> B uses fs @5
+              A -> B fails E @5
+              A -> B @6 [BYN1001 3+1]
+              A @1
+              u8[n] @4
+              u8[4] @4
+              u8 @1
+              A -> B @5
+              (A -> B, C) @7
+              A -> B @5
+              m.Name<A> @6
+              Name.x.y @5
+              u8*[4] @5 [BYN1067 0+3]
+              u8 @1
+              u8* @2 [BYN1066 0+1]
+              u8* @2
+              == 0
+              Function f() -> void
+                Block
+                  Let f: A -> B = g
+              [BYN1043 11+10]
+              == 1
+              Function f() -> void
+                Block
+                  Expr (* u8 p)
+              [BYN1012 11+5]
+              == 2
+              Function f() -> void
+                Block
+                  Expr (* a b)
+              [BYN1012 11+3]
+              == 3
+              Function f() -> void
+                Block
+                  Let p: u8** = q
+              [BYN1067 11+4]
+              [BYN1043 11+6]
+              == 4
+              Function f() -> void
+                Block
+                  Expr (lambda (a b) x)
+              [BYN1012 11+11]
+              == 5
+              Function f() -> void
+                Block
+                  Let h: A -> B uses fs fails E = g
+              [BYN1065 27+4]
+              [BYN1043 11+26]
+              == 6
+              Function f() -> void
+                Block
+                  Let h: A -> B uses fs fails E, F = g
+              [BYN1065 32+4]
+              [BYN1043 11+33]
+              == 7
+              Function f() -> void
+                Block
+                  Let h: A -> B uses fs, net = g
+              [BYN1043 11+23]
+              == 8
+              Function f() -> void
+                Block
+                  Expr (tuple A)
+              [BYN1001 14+2]
+  
+              """
+      assert sb.finish() == expected
+  }

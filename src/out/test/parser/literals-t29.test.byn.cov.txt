@@ -1,0 +1,130 @@
+  // 019 T29 (coverage ratchet): literals.byn paths no golden case reaches: unterminated and short string, raw string and
+  // char tokens, raw strings whose closing line holds text, doc lines without `///`, `\u{…}` escapes that are not scalars,
+  // carriage returns and invalid UTF-8. The functions are driven directly; the expected text is their output at the commit
+  // that added the test.
+  
+  import lexer
+  
+  /// `text` escaped as the lexer's tests print it.
+  string t29Escaped(string text) uses alloc {
+~     var sb = StrBuf()
+~     lexer.escape(text.bytes, to: ref sb)
+~     return $"{sb.finish()}"
+  }
+  
+  test "parser t29: literal decoding at the edges" {
+      var sb = StrBuf()
+      let strings = [
+          "\"",
+          "\"abc",
+          "abc",
+          "\"a\\\"",
+          "\"\\u\"",
+          "\"\\ux\"",
+          "\"\\u{}\"",
+          "\"\\u{zz}\"",
+          "\"\\u{g}\"",
+          "\"\\u{1100000}\"",
+          "\"\\u{110000}\"",
+          "\"\\u{D800}\"",
+          "\"\\u{41}\"",
+      ]
+      for s in strings {
+          sb.append($"string {t29Escaped(s)} {t29Escaped(decodeString(s.bytes))}\n")
+      }
+      let raws = [
+          "\"\"",
+          "\"\"\"ab",
+          "\"\"\"abc\"x\"",
+          "\"\"\"abcd\"\"",
+          "\"\"\"abc\"\"\"",
+          "\"\"\"\nabc\"\"\"",
+          "\"\"\"\nx\nab\"\"\"",
+          "\"\"\"\nx\n \tz\"\"\"",
+          "\"\"\"\n  x\n  \"\"\"",
+      ]
+      for i in 0..raws.length {
+          sb.append($"raw {i} {t29Escaped(decodeRawString(raws[i].bytes))}\n")
+      }
+      for s in ["", "'", "'ab", "'ab'", "'a'"] {
+          sb.append($"char {t29Escaped(s)} {decodeChar(s.bytes)}\n")
+      }
+      for s in ["   \n/x\n//x\n///y", "a\r\nb\r", "\rx"] {
+          sb.append($"doc {t29Escaped(s)} {t29Escaped(decodeDoc(s.bytes))}\n")
+      }
+      var runes = List<rune>()
+      unescape(runesOf("a{{b{".bytes).span, to: ref runes, interpolated: true)
+      sb.append($"interpolated {t29Escaped(stringOf(move runes))}\n")
+      sb.append($"startsWith {startsWith(runesOf("ab".bytes).span, by: runesOf("b".bytes).span)}\n")
+      let invalid: List<List<u8>> = [
+          [0xC2, 0x41],
+          [0xC2],
+          [0xE0, 0xA0, 0x80],
+          [0xED, 0x9F, 0xBF],
+          [0xE1, 0x41],
+          [0xE1, 0x80, 0x41],
+          [0xF5],
+          [0x80],
+          [0xF1, 0x41],
+          [0xF1, 0x80, 0x41],
+          [0xF1, 0x80, 0x80, 0x41],
+          [0xF0, 0x90, 0x80, 0x80],
+          [0xF4, 0x8F, 0xBF, 0xBF],
+      ]
+      for bytes in invalid {
+          sb.append("runes")
+          for r in runesOf(bytes.span) {
+              sb.append($" {u32(r)}")
+          }
+          sb.append("\n")
+      }
+      let expected = """
+              string `"` ``
+              string `"abc` `abc`
+              string `abc` `abc`
+              string `"a\"` `a\`
+              string `"\u"` `\u`
+              string `"\ux"` `\ux`
+              string `"\u{}"` `\u{}`
+              string `"\u{zz}"` `\u{zz}`
+              string `"\u{g}"` `\u{g}`
+              string `"\u{1100000}"` `\u{1100000}`
+              string `"\u{110000}"` `\u{110000}`
+              string `"\u{D800}"` `\u{D800}`
+              string `"\u{41}"` `A`
+              raw 0 ``
+              raw 1 `ab`
+              raw 2 `abc"x"`
+              raw 3 `abcd""`
+              raw 4 `abc`
+              raw 5 ``
+              raw 6 `x\nab`
+              raw 7 `x\n \tz`
+              raw 8 `x`
+              char `` -1
+              char `'` -1
+              char `'ab` -1
+              char `'ab'` -1
+              char `'a'` 97
+              doc `   \n/x\n//x\n///y` `\n/x\n//x\ny`
+              doc `a\r\nb\r` `a\nb\r`
+              doc `\rx` `x`
+              interpolated `a{b{`
+              startsWith false
+              runes 65533 65
+              runes 65533
+              runes 2048
+              runes 55295
+              runes 65533 65
+              runes 65533 65
+              runes 65533
+              runes 65533
+              runes 65533 65
+              runes 65533 65
+              runes 65533 65
+              runes 65536
+              runes 1114111
+  
+              """
+      assert sb.finish() == expected
+  }

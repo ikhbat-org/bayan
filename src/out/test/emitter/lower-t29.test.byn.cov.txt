@@ -1,0 +1,980 @@
+  // 019 T29 (coverage ratchet): `lower` and `cprint.emit` on programs that reach the shapes no golden case lowers. Each
+  // program is compiled alone as `RunTests` does (`t12Compile`); the other `*-t29.test.byn` files of the package use the
+  // helpers here. The expected values are the output of the self-hosted emitter at the commit that added the test.
+  
+  import semantics
+  import emitter.ltree
+  
+  /// `source` as `t29.byn`, compiled alone with tmp/ as its package root, its tests when `tests`.
+  semantics.Ctx t29Compile(string source, by bool tests = false) {
+~     var bytes = List<u8>()
+~     for b in source.bytes {
+~         bytes.append(b)
+      }
+~     return t12Compile(Path.fullPath("tmp"), at: move bytes, for: "t29.byn", by: tests)
+  }
+  
+  /// The errors of `c`, one `code message` line each.
+  string t29Errors(in semantics.Ctx c) {
+~     var sb = StrBuf()
+~     for d in c.diagnostics {
+~         sb.append($"{d.code} {d.message}\n") if !d.isWarning
+      }
+~     return sb.finish()
+  }
+  
+  /// The C of `source` in `mode` (`t12Emit`), or of a `--coverage`/`--mutate` build (`t10Emit`); `errors: …` when it
+  /// does not compile.
+  string t29Emit(
+      string source,
+      by string mode = "safe",
+      bool tests = false,
+      bool covering = false,
+      bool mutating = false
+  ) {
+~     var c = t29Compile(source, by: tests)
+~     let errors = t29Errors(in c)
+~     return $"errors: {errors}" if errors != ""
+~     return covering || mutating ? t10Emit(ref c, by: mode, through: covering, as: mutating) : t12Emit(ref c, by: mode)
+  }
+  
+  /// The programs the `*-t29` tests lower, instrument and mutate.
+  List<string> t29Corpus() {
+~     var corpus = List<string>()
+~     corpus.append(
+          """
+          union error E {
+              bad
+              worse(i64 code)
+          }
+  
+          union error F {
+              a
+              b
+          }
+  
+          union error G = F except .b
+  
+          struct Counter {
+              i64 n = 0
+  
+              public i64 bump(ref this, i64 by) fails F {
+                  fail .a if by < 0
+                  this.n += by
+                  return this.n
+              }
+  
+              public i64 twice(ref this) fails F {
+                  let v = try this.bump(1)
+                  let w = this.bump(2) catch (F.a) 0
+                  return v + w
+              }
+          }
+  
+          i64 pick(i64 x) fails F {
+              fail .a if x == 1
+              fail .b if x == 2
+              return x
+          }
+  
+          i64 narrow(i64 x) fails G {
+              fail .a if x == 5
+              return x
+          }
+  
+          i64 viaTry(i64 x) fails E, F {
+              let v = try pick(x)
+              let w = try narrow(v)
+              fail .worse(w) if w > 100
+              return w
+          }
+  
+          i64 viaCatch(i64 x) fails F {
+              let v = pick(x) catch (F.a) 0
+              let w = narrow(x) catch (F.a) 1
+              return v + w
+          }
+  
+          i64 viaSwitch(i64 x) {
+              return pick(x) catch switch {
+                  F.a => 1,
+                  F.b => 2,
+              }
+          }
+  
+          void main() {
+              var c = Counter {}
+              let t = c.twice() catch { return }
+              let a = viaTry(3) catch { return }
+              let b = viaCatch(4) catch { return }
+              print($"{t} {a} {b} {viaSwitch(1)}")
+          }
+          """,
+      )
+~     corpus.append(
+          """
+          union Shape {
+              circle(i64 r)
+              square(i64 side)
+              none
+          }
+  
+          i64 area(Shape s) {
+              switch s {
+                  case .circle(let r) when r > 10:
+                      return r * r * 3
+                  case .circle(let r):
+                      return r
+                  case .square(let side) when side > 0 && side < 100:
+                      return side * side
+                  default:
+                      return 0
+              }
+          }
+  
+          i64 sized(Shape s) => s switch {
+              .circle(let r) when r > 1 => r,
+              .square(let q) => q,
+              _ => 0,
+          }
+  
+          i64 loops(i64 n) {
+              var i: i64 = 0
+              var total: i64 = 0
+              do {
+                  total += i
+                  i += 1
+              } while i < n
+              while total > 100 {
+                  total -= 7
+              }
+              unless total == 3 {
+                  total = -total
+              }
+              total += 1 if n > 2
+              let arr: i64[3] = [1, 2, 3]
+              total += arr[0] + arr[2]
+              i++
+              i--
+              return total * 2 / 3 % 5
+          }
+  
+          void setOut(out i64 x) {
+              x = 4
+          }
+  
+          bool logic(i64 a, by i64 b) => a < b && (b > 3 || a == 0) && !(a == b) && a <= b && b >= a
+  
+          test "loops" {
+              assert loops(3) == 4
+          }
+  
+          void main() {
+              var y: i64
+              setOut(out y)
+              print($"{loops(5)} {area(.circle(3))} {sized(.none)} {logic(1, by: 2)} {y}")
+          }
+          """,
+      )
+~     corpus.append(
+          """
+          i64 check(i64 n) {
+              let v = n > 0 ? n : panic($"bad {n}")
+              return v
+          }
+  
+          i64 maybe(i64? x) {
+              let v = x ?? return -1
+              return v
+          }
+  
+          i64 sum(List<i64> xs) {
+              var t: i64 = 0
+              for x in xs.span {
+                  t += x
+              }
+              return t
+          }
+  
+          List<i64> make() {
+              var xs = List<i64>()
+              xs.append(1)
+              xs.append(2)
+              return xs
+          }
+  
+          i64 key() => 1
+  
+          void main() {
+              var xs = make()
+              xs[key()] += 2
+              var m = Map<i64, i64>()
+              m[key()] = 3
+              m[key()] += 4
+              print($"{check(1)} {maybe(null)} {sum(make())} {xs[0]} {m[1]}")
+          }
+          """,
+      )
+~     corpus.append(
+          """
+          interface IShape {
+              i64 area()
+              string name
+              void describe() => print($"{name} with area {area()}")
+          }
+  
+          struct Square : IShape {
+              i64 side
+  
+              i64 area() => side * side
+  
+              string name => "square"
+          }
+  
+          struct Box<T> {
+              T value
+          }
+  
+          void all(List<Square> shapes) {
+              for x: dyn ref readonly IShape in shapes {
+                  print($"{x.area()}")
+              }
+          }
+  
+          void show(dyn ref readonly IShape s) {
+              s.describe()
+          }
+  
+          void main() {
+              var shapes = List<Square>()
+              shapes.append(Square { side: 3 })
+              all(shapes)
+              show(Square { side: 2 })
+              let b = Box<i64> { value: 4 }
+              print($"{b.value}")
+          }
+          """,
+      )
+~     corpus.append(
+          """
+          struct Cfg {
+              i64 a = 1
+              string b = "x"
+          }
+  
+          i64 opt(i64? x) {
+              switch x {
+                  case 3:
+                      return 1
+                  case null:
+                      return 0
+                  default:
+                      return 2
+              }
+          }
+  
+          string word(string? s) => s switch {
+              "a" => "A",
+              _ => "?",
+          }
+  
+          void main() {
+              using let arena = Arena()
+              let c = Cfg {}
+              let pair = (1, "two")
+              print($"{c.a}{c.b} {opt(3)} {word(null)} {pair.item1}")
+          }
+          """,
+      )
+~     corpus.append(
+          """
+          i64 twice(i64 x) => x * 2
+  
+          struct P {
+              i64 x
+              List<i64> xs
+          }
+  
+          test "asserts" {
+              let xs = [1, 2, 3]
+              let p = P { x: 1, xs: [4] }
+              let n: i64? = 2
+              let f = 2.5
+              assert xs[0] == 1
+              assert 3 == (xs[1] + 1)
+              assert -1 < xs[2]
+              assert twice(xs[0]) == 2
+              assert p.x == 1 && p.xs.length == 1
+              assert p.xs[0] != -4
+              assert 2 == (n ?? 0)
+              assert i64(f) == 2
+              assert f64(xs[0]) == 1.0
+              assert $"{p.x}" == "1"
+              assert xs.length == 3
+          }
+  
+          void main() {
+              print("main")
+          }
+          """,
+      )
+~     corpus.append(
+          """
+          i64 bits(i64 x, by i64 y) => (x & y) | (x ^ y)
+  
+          u8 small(u8 a, by u8 b) => (a & b) | (a ^ b)
+  
+          i64 unary(i64 x) => +x + ~x
+  
+          f64 rems(f64 a, by f32 b) => a % 2.0 + f64(b % b)
+  
+          rune toChar(i64 x) => rune(x)
+  
+          i64? none() => null
+  
+          bool has(string s) => s.contains("b")
+  
+          i64 lowest() => -9223372036854775808
+  
+          void main() {
+              let xs: List<i64> = []
+              let f: f32 = 3.5
+              print($"{bits(6, by: 3)} {small(6, by: 3)} {unary(5)} {rems(5.5, by: f)} {toChar(65)} {none() ?? 0}")
+              print($"{has("abc")} {lowest()} {xs.length}")
+          }
+          """,
+      )
+~     corpus.append(
+          """
+          interface IA {
+              i64 a()
+          }
+  
+          interface IB {
+              i64 b()
+          }
+  
+          struct Both : IA, IB {
+              i64 a() => 1
+  
+              i64 b() => 2
+          }
+  
+          i64 useA(dyn ref readonly IA x) => x.a()
+  
+          i64 useB(dyn ref readonly IB x) => x.b()
+  
+          never stop(string why) {
+              panic(why)
+          }
+  
+          i64 apply(i64 x, by (i64 -> i64) f) => f(x)
+  
+          void main() {
+              let s = Both {}
+              print($"{useA(s)} {useB(s)} {apply(2, by: x => x + 1)}")
+              stop("done") if s.a() > 5
+          }
+          """,
+      )
+~     corpus.append(
+          """
+          union Shape {
+              circle(i64 r)
+              square(i64 side)
+              none
+          }
+  
+          struct Box {
+              i64 w = 1
+              i64 h = 2
+  
+              public i64 area => this.w * this.h
+          }
+  
+          i64 opt(i64? o) {
+              return 1 if o is > 3
+              return 2 if o is 1..=3
+              return 3 if o is 0..1
+              return 4
+          }
+  
+          i64 claims(Shape s) {
+              switch s {
+                  case not .none:
+                      return 1
+                  default:
+                      return 0
+              }
+          }
+  
+          i64 named(Shape s) {
+              switch s {
+                  case .circle c:
+                      return 5
+                  default:
+                      return 0
+              }
+          }
+  
+          i64 props(Box b, at string t, by (i64, i64) p) {
+              return 1 if b is { area: > 3 }
+              return 2 if t is { length: 0 }
+              return 3 if b is { }
+              return 4
+          }
+  
+          i64 allPanic(i64 x) => x switch {
+              1 => panic("one"),
+              _ => panic("other"),
+          }
+  
+          i64 conv(f64 f, by i64 big) {
+              let a = i32.tryFrom(big) ?? 0
+              let b = i64.tryFrom(f) ?? 0
+              return a + b
+          }
+  
+          void main() {
+              print($"{opt(5)} {claims(.none)} {named(.circle(1))} {props(Box {}, at: "", by: (1, 2))} {conv(1.5, by: 7)}")
+          }
+  
+          test "asserts" {
+              let x: i64 = 3
+              assert (x) == 3
+              assert -1 < x
+              assert x == +3
+              var m = Map<string, i64>()
+              m["a"] = 1
+              assert m["a"] == 1
+          }
+          """,
+      )
+~     corpus.append(
+          """
+          union Shape {
+              circle(i64 r)
+              square(i64 side)
+              none
+          }
+  
+          struct Box {
+              i64 w = 1
+              i64 h = 2
+          }
+  
+          i64 named(Shape s) => s switch {
+              .circle c => c.r,
+              _ => 0,
+          }
+  
+          i64 owned(Shape s) {
+              let t = s
+              switch t {
+                  case .square q:
+                      return q.side
+                  default:
+                      return 0
+              }
+          }
+  
+          i64 boxed(Box b) {
+              switch b {
+                  case { w: > 0 } whole:
+                      return whole.h
+                  default:
+                      return 0
+              }
+          }
+  
+          i64 pair((i64 x, i64 y) p) {
+              return 1 if p is { y: 2 }
+              return 0
+          }
+  
+          void main() {
+              print($"{named(.circle(1))} {owned(.square(2))} {boxed(Box {})} {pair((1, 2))}")
+          }
+          """,
+      )
+~     corpus.append(
+          """
+          union error E {
+              bad
+              worse
+          }
+  
+          struct Pt {
+              i64 x = 0
+          }
+  
+          i64 key(i64 k) => k + 1
+  
+          string name(i64 k) => k > 0 ? "a" : "b"
+  
+          void compound() {
+              var xs = List<i64>()
+              xs.append(1)
+              xs.append(2)
+              xs[key(0)] += 3
+              var m = Map<string, i64>()
+              m["a"] = 1
+              m["b"] = 2
+              m[name(1)] += 4
+              var p = Pt {}
+              p.x += 2
+              var t: (i64 a, i64 b) = (1, 2)
+              t.a = 5
+              t.b += 1
+              var arr: i64[3] = [1, 2, 3]
+              arr[key(0)] = 9
+              print($"{xs[1]} {m["a"]} {p.x} {t.a} {t.b} {arr[1]}")
+          }
+  
+          E failing(bool b) {
+              defer {
+                  print("d")
+              }
+              return .bad if b
+              return .worse
+          }
+  
+          i64 guarded(i64? o, by i64 n) {
+              switch n {
+                  case 1 when (o ?? 0) > 0:
+                      return 1
+                  case 2 when n > (o ?? 5):
+                      return 2
+                  default:
+                      return 0
+              }
+          }
+  
+          void main() {
+              compound()
+              print($"{failing(b: true)} {guarded(3, by: 1)}")
+          }
+          """,
+      )
+~     return corpus
+  }
+  
+  test "emitter t29: the corpus lowers and emits in debug, safe and fast" {
+      let corpus = t29Corpus()
+      // One line of each program's lowered C, in corpus order.
+      let marks = [
+          "    t1 = byn_main__pick(p_x, &t2);\n",
+          "        t2 = byn_neg_i64(l1_total, byn_file_0, 37);\n",
+          "    t2 = bynh_span_list_i64(p_xs);\n",
+          "        t3 = t1.ptr[t2];\n",
+          "    t3 = byn_main__opt(((bynt_opt_i64){true, INT64_C(3)}));\n",
+          "    return byn_mul_i64(p_x, INT64_C(2), byn_file_0, 1);\n",
+          "    t6 = byn_main__rems((5.5), l1_f);\n",
+          "    t2 = byn_main__useB(((byn_dyn_main__IB){&l0_s, &bynh_vtab_main__Both_main__IB}));\n",
+          "    t1 = byn_main__claims(((byn_main_Shape){.tag = 2}));\n",
+          "        t0 = l1_c.u.circle.r;\n",
+          "    t4 = bynh_index_map_str_i64(l2_m, t3, byn_file_0, 22);\n",
+      ]
+      assert corpus.length == marks.length
+      var failed = StrBuf()
+      for k in 0..corpus.length {
+          let safe = t29Emit(corpus[k], by: "safe")
+          unless safe.contains(marks[k]) {
+              failed.append($"{k}: {safe}\n")
+              continue
+          }
+          let debug = t29Emit(corpus[k], by: "debug")
+          let fast = t29Emit(corpus[k], by: "fast")
+          let tested = t29Emit(corpus[k], tests: true)
+          assert fast == safe
+          assert debug.contains("#ifndef BYN_DEBUG\n#define BYN_DEBUG\n")
+          assert !safe.contains("BYN_DEBUG")
+          assert tested.contains("void byn_test_0(void) {\n") == (k == 1 || k == 5 || k == 8)
+      }
+      assert failed.finish() == ""
+  }
+  
+  test "emitter t29: isTrivial, isRepeatable, isLvalue and anyNode on made-up nodes" {
+      var c = t29Compile(
+          "struct P {\n    i64 x\n}\n\nvoid main() {\n    let a = P { x: 1 }\n    let b = 2\n    print($\"{a.x}{b}\")\n}\n",
+      )
+      var l = LCtx {}
+      let span = TextSpan { start: 0, length: 1 }
+      let type = semantics.prim(.i64)
+      let local = localExpr(ref c, at: span, for: 0)
+      let other = localExpr(ref c, at: span, for: 1)
+      let literal = semantics.addLiteral(
+          ref c,
+          from: BLiteral { span: span, type: type, value: Constant { kind: .integer } },
+      )
+      let moved = semantics.addMove(ref c, from: T4BMove { span: span, operand: local, type: type })
+      let movedOther = semantics.addMove(ref c, from: T4BMove { span: span, operand: other, type: type })
+      let movedLiteral = semantics.addMove(ref c, from: T4BMove { span: span, operand: literal, type: type })
+      let field = semantics.addField(ref c, from: BField { span: span, receiver: local, field: 0, type: type })
+      let element = semantics.addTupleElement(
+          ref c,
+          from: BTupleElement { span: span, receiver: moved, index: 0, type: type },
+      )
+      let setter = semantics.addBuiltinCall(
+          ref c,
+          from: BBuiltinCall { span: span, member: .mapIndexSet, receiver: local, type: type },
+      )
+      let trivialVariant = semantics.addErrorVariant(
+          ref c,
+          from: BErrorVariant { span: span, variant: 0, payload: [literal, local], type: type },
+      )
+      let movingVariant = semantics.addErrorVariant(
+          ref c,
+          from: BErrorVariant { span: span, variant: 0, payload: [literal, moved], type: type },
+      )
+      let callingVariant = semantics.addErrorVariant(
+          ref c,
+          from: BErrorVariant { span: span, variant: 0, payload: [setter], type: type },
+      )
+      let movedThenField = semantics.addMove(ref c, from: T4BMove { span: span, operand: field, type: type })
+      let lowered = semantics.addMove(
+          ref c,
+          from: T4BMove { span: span, operand: ltree.addLVoid(ref l.tree, from: T4LVoid { span: span }), type: type },
+      )
+      let nothing = ltree.addLVoid(ref l.tree, from: T4LVoid { span: span })
+      let value = ltree.addLOptionalValue(ref l.tree, from: T4LOptionalValue { span: span, optional: local, type: type })
+      let valueOfIndex = ltree.addLOptionalValue(
+          ref l.tree,
+          from: T4LOptionalValue {
+              span: span,
+              optional: ltree.addLIndexUnchecked(
+                  ref l.tree,
+                  from: T4LIndexUnchecked { span: span, target: local, index: literal, type: type },
+              ) because "the node is only asked whether it is an lvalue, never emitted",
+              type: type,
+          },
+      )
+      let has = ltree.addLOptionalHas(ref l.tree, from: T4LOptionalHas { span: span, optional: moved })
+      let tag = ltree.addLUnionTag(ref l.tree, from: LUnionTag { span: span, unionValue: moved })
+      let unionField = ltree.addLUnionField(
+          ref l.tree,
+          from: LUnionField { span: span, unionValue: local, variant: 0, index: 0 },
+      )
+      let code = ltree.addLErrorCode(ref l.tree, from: T4LErrorCode { span: span, error: local })
+      let errorField = ltree.addLErrorField(
+          ref l.tree,
+          from: T4LErrorField { span: span, error: moved, variant: 0, index: 0 },
+      )
+      let assignFrom = ltree.addLAssignExpr(ref l.tree, from: T4LAssignExpr { span: span, target: local, value: moved })
+      let assignTo = ltree.addLAssignExpr(ref l.tree, from: T4LAssignExpr { span: span, target: moved, value: local })
+      let assignNeither = ltree.addLAssignExpr(
+          ref l.tree,
+          from: T4LAssignExpr { span: span, target: local, value: literal },
+      )
+      let effectMoves = ltree.addLSequence(
+          ref l.tree,
+          from: T10LSequence { span: span, effects: [moved], value: literal },
+      )
+      let valueMoves = ltree.addLSequence(ref l.tree, from: T10LSequence { span: span, effects: [local], value: moved })
+      let failing = ltree.addLFailingCall(ref l.tree, from: T4LFailingCall { span: span, error: 0, call: moved })
+      var trivial = StrBuf()
+      for e in [
+          nothing,
+          value,
+          tag,
+          unionField,
+          code,
+          errorField,
+          trivialVariant,
+          movingVariant,
+          callingVariant,
+          field,
+          element,
+      ] {
+          trivial.append(isTrivial(in c, through: in l, for: e) ? "t" : "f")
+      }
+      assert trivial.finish() == "ttttttttftt"
+      var repeatable = StrBuf()
+      for e in [
+          value,
+          tag,
+          unionField,
+          code,
+          errorField,
+          nothing,
+          moved,
+          field,
+          element,
+          trivialVariant,
+          movingVariant,
+          setter,
+      ] {
+          repeatable.append(isRepeatable(in c, through: in l, for: e) ? "t" : "f")
+      }
+      assert repeatable.finish() == "tfttftftftff"
+      var lvalue = StrBuf()
+      for e in [valueOfIndex, value, nothing, local, setter, field, element, literal] {
+          lvalue.append(isLvalue(in c, through: in l, for: e) ? "t" : "f")
+      }
+      assert lvalue.finish() == "ttftttff"
+      var effects = StrBuf()
+      for e in [assignFrom, effectMoves, valueMoves, nothing, local, literal] {
+          effects.append(hasEffects(in c, through: in l, for: e) ? "t" : "f")
+      }
+      assert effects.finish() == "tttfff"
+      var moves = StrBuf()
+      for e in [
+          has,
+          value,
+          tag,
+          unionField,
+          code,
+          errorField,
+          assignFrom,
+          assignTo,
+          assignNeither,
+          effectMoves,
+          valueMoves,
+          failing,
+          nothing,
+          lowered,
+          movedOther,
+          movedLiteral,
+          movedThenField,
+          element,
+      ] {
+          moves.append(anyNode(in c, through: in l, for: e, by: .movesLocal(0)) ? "t" : "f")
+      }
+      assert moves.finish() == "tftfftttftttffffft"
+      assert anyNode(in c, through: in l, for: local, by: .readsLocalMovedBy(moved))
+      assert !anyNode(in c, through: in l, for: other, by: .readsLocalMovedBy(moved))
+  }
+  
+  test "emitter t29: states, interface slots by ref, out, failing and never, and function values emit" {
+      let source = """
+          union error E {
+              bad
+          }
+  
+          struct Door {
+              i64 id = 0
+  
+              states {
+                  ajar
+                  shut
+              }
+          }
+  
+          struct Order {
+              i64 id = 0
+  
+              states {
+                  draft
+                  paid(i64 amount)
+              }
+          }
+  
+          interface ISlots {
+              never stop()
+              void put(ref i64 x)
+              void fill(out i64 x)
+              void check() fails E
+          }
+  
+          struct Impl : ISlots {
+              i64 n = 0
+  
+              never stop() {
+                  panic("stop")
+              }
+  
+              void put(ref i64 x) {
+                  x += 1
+              }
+  
+              void fill(out i64 x) {
+                  x = 2
+              }
+  
+              void check() fails E {
+                  fail .bad if this.n < 0
+              }
+          }
+  
+          void sink(i64 x) {
+              let _ = x + 1
+          }
+  
+          never halt(i64 x) {
+              panic($"{x}")
+          }
+  
+          void useSlots(dyn ref ISlots s) {
+              var v: i64 = 0
+              s.put(ref v)
+              s.fill(out v)
+              s.check() catch {}
+          }
+  
+          void main() {
+              let a: Door = Door.ajar { id: 1 }
+              let b: Door = Door.shut { id: 1 }
+              let o: Order = Order.paid { id: 1, amount: 5 }
+              let p: Order = Order.draft { id: 1 }
+              print($"{a == b} {o == p}")
+              var i = Impl {}
+              useSlots(i)
+              let f: (i64 -> void) = sink
+              f(3)
+              let g: (i64 -> never) = halt
+              g(1) if a == b
+          }
+          """
+      let emitted = t29Emit(source)
+      assert emitted.contains("    l0_a = ((bynt_main__Door){INT64_C(1), .tag = 0});\n")
+      assert emitted.contains("    l2_o = ((bynt_main__Order){INT64_C(1), .tag = 1, .u.paid = {INT64_C(5)}});\n")
+      assert emitted.contains("    case 1: return (a.u.paid.amount == b.u.paid.amount);\n")
+      assert emitted.contains("    (void)p_s.vt->put(p_s.data, &l0_v);\n")
+      assert emitted.contains("    (void)p_s.vt->fill(p_s.data, &l0_v);\n")
+      assert emitted.contains("    t1 = p_s.vt->check(p_s.data);\n")
+      assert emitted.contains("    (void)l5_f.fn(l5_f.env, INT64_C(3));\n")
+      assert emitted.contains(
+          "    if (bynh_eq_main__Door(l0_a, l1_b)) {\n#line 76 \"t29.byn\"\n        (void)l6_g.fn(l6_g.env, INT64_C(1));\n    }\n",
+      )
+  }
+  
+  test "emitter t29: constructor defaults, become with constant and never payloads, and moved operands lower" {
+      let source = """
+          struct Pt {
+              i64 x = 7
+              i64 y
+  
+              Pt(i64 y) {
+                  this.y = y
+              }
+          }
+  
+          struct Door {
+              i64 id = 0
+  
+              states {
+                  ajar
+                  shut
+              }
+  
+              void close(ref this) becomes .shut {
+                  become .shut
+              }
+          }
+  
+          struct Order {
+              i64 id = 0
+  
+              states {
+                  draft
+                  paid(i64 amount)
+              }
+  
+              void pay(ref this) becomes .paid {
+                  become .paid(5)
+              }
+  
+              void stop(ref this) becomes .paid {
+                  become .paid(panic("no"))
+              }
+          }
+  
+          void take(move string s, by i64 n) {
+              print($"{s}{n}")
+          }
+  
+          void two(bool b) {
+              let t = "cd"
+              take(move t, by: b ? t.length : 0)
+              let u = "ef"
+              take(move u, by: t.length switch {
+                  2 => u.length,
+                  _ => 0,
+              })
+          }
+  
+          void main() {
+              let p = Pt(2)
+              var d = Door.ajar { id: 1 }
+              d.close()
+              var o = Order.draft { id: 1 }
+              o.pay()
+              let s = "ab"
+              take(move s, by: s.length)
+              two(b: true)
+              print($"{p.x}")
+          }
+          """
+      let emitted = t29Emit(source)
+      assert emitted.contains("    (*self) = ((bynt_main__Pt){INT64_C(7), ((int64_t){0})});\n")
+      assert emitted.contains("    (*self).u.paid.amount = INT64_C(5);\n")
+      assert emitted.contains(
+          "void byn_main__Door__close(bynt_main__Door* self) {\n#line 19 \"t29.byn\"\n    (*self).tag = ((int32_t)1);\n}",
+      )
+      assert emitted.contains("    (void)byn_panic_str(BYN_STR(\"no\", 2), byn_file_0, 36);\n}\n")
+      assert emitted.contains("    t4 = l3_s;\n#line 61 \"t29.byn\"\n    (void)byn_main__take(t4, l3_s.len);\n")
+      assert emitted.contains("    t5 = l2_u;\n#line 48 \"t29.byn\"\n    t3 = l0_t.len;\n")
+  }
+  
+  test "emitter t29: literals, and, spill, emitAssign, emitEffect, captureGuard and operands on made-up nodes" {
+      var c = t29Compile("void main() {\n    var a = 1\n    var b = 2\n    print($\"{a}{b}\")\n}\n")
+      var l = LCtx { fn: c.modules[c.entryModule].main }
+      l.outs.append(List<BStmt>())
+      l.scopes.append(LScope {})
+      let span = TextSpan { start: 0, length: 1 }
+      let type = semantics.prim(.i64)
+      let local = localExpr(ref c, at: span, for: 0)
+      let negative = i64Literal(ref c, at: span, by: -5)
+      let big = c.bLiterals[i64(negative & 0xFFFFFFFF)].value.integer
+      assert big.lo == 0xFFFFFFFFFFFFFFFB
+      assert big.hi == 0xFFFFFFFFFFFFFFFF
+      let yes = boolLiteral(ref c, at: span, by: true)
+      let no = boolLiteral(ref c, at: span, by: false)
+      assert !isTrueLiteral(in c, for: negative)
+      assert !isTrueLiteral(in c, for: no)
+      assert andExpr(ref c, through: in l, for: yes, by: no) == no
+      let nothing = ltree.addLVoid(ref l.tree, from: T4LVoid { span: span })
+      assert spill(ref c, through: ref l, for: nothing) == nothing
+      emitAssign(ref c, through: ref l, to: local, as: nothing)
+      assert l.outs[0].length == 0
+      let setter = semantics.addBuiltinCall(
+          ref c,
+          from: BBuiltinCall { span: span, member: .mapIndexSet, receiver: local, type: type },
+      )
+      emitEffect(ref c, through: ref l, for: setter)
+      assert l.outs[0].length == 1
+      assert semantics.boundKind(l.outs[0][0]) == .exprStmt
+      let halting = semantics.addBuiltinCall(
+          ref c,
+          from: BBuiltinCall { span: span, member: .mapIndexSet, receiver: local, type: semantics.prim(.neverKind) },
+      )
+      emitAssign(ref c, through: ref l, to: local, as: halting)
+      assert l.outs[0].length == 2
+      assert semantics.boundKind(l.outs[0][1]) == .exprStmt
+      let moved = semantics.addMove(ref c, from: T4BMove { span: span, operand: local, type: type })
+      let assign = ltree.addLAssignExpr(ref l.tree, from: T4LAssignExpr { span: span, target: local, value: moved })
+      let value = ltree.addLOptionalValue(ref l.tree, from: T4LOptionalValue { span: span, optional: assign, type: type })
+      assert hasEffects(in c, through: in l, for: value)
+      let body = block(ref c, at: span, for: List<BStmt>())
+      let unguarded = semantics.addIf(ref c, from: BIf { span: span, condition: yes, then: body })
+      assert !hasEffects(in c, through: in l, for: unguarded)
+      assert captureGuard(ref c, through: ref l, for: nothing) == nothing
+      assert captureGuard(ref c, through: ref l, for: unguarded) == unguarded
+      let withElse = semantics.addIf(
+          ref c,
+          from: BIf { span: span, condition: yes, then: body, elseBranch: body, guarded: true },
+      )
+      assert captureGuard(ref c, through: ref l, for: withElse) == withElse
+      var ops = List<BExpr>()
+      ops.append(moved)
+      ops.append(localExpr(ref c, at: span, for: 0))
+      var values = List<BExpr>()
+      assert operands(ref c, through: ref l, for: in ops, as: in List<bool>(), to: ref values)
+      assert values.length == 2
+      assert semantics.boundKind(values[0]) == .local
+      assert c.bLocals[i64(values[0] & 0xFFFFFFFF)].local == c.locals.length - 1
+      assert c.locals[c.locals.length - 1].kind == .temp
+      assert values[1] == ops[1]
+      assert l.outs[0].length == 3
+      assert semantics.boundKind(l.outs[0][2]) == .assign
+  }

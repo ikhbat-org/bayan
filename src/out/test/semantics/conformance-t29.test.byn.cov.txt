@@ -1,0 +1,131 @@
+  // 019 T29 (coverage ratchet): conformance.byn's signature texts, fixes, associated types and generic defaults, which no
+  // golden case reaches. The expected text is the output of the self-hosted code at the commit that added the test.
+  
+  /// The diagnostics of `text` compiled as `a.byn`, each as `code message => fix;` (the fix's replacement, when it has one).
+  string t29s0Fixes(string text) uses alloc, clock, fs {
+~     let c = t29s0Compile(text)
+~     var sb = StrBuf()
+~     for d in c.diagnostics {
+~         sb.append($"{d.code} {d.message}")
+~         if d.hasFix {
+~             sb.append($" => {d.fixSpan.start}+{d.fixSpan.length} {d.fixReplacement}")
+          }
+~         sb.append(";")
+      }
+~     return $"{sb.finish()}"
+  }
+  
+  test "conformance t29: missing members show their parameter modifiers and `fails`" {
+      let text = "union error E { bad }\n\ninterface IAll {\n    void m(ref i64 a, move string b, out i64 c, in string d, i64 e)\n    void f() fails\n    void g() fails E\n    i64 count\n}\n\nstruct S : IAll { }\n"
+      assert t29s0Same(
+          t29s0Fixes(text),
+          as: "BYN5004 `m` has 5 unlabeled parameters; give each but one a particle;BYN5006 `b` is a required parameter besides the object and needs a particle;BYN5006 `c` is a required parameter besides the object and needs a particle;BYN5006 `d` is a required parameter besides the object and needs a particle;BYN5006 `e` is a required parameter besides the object and needs a particle;BYN2801 `S` does not provide `m` required by `IAll` => 183+0 void m(ref i64 a, move string b, out i64 c, in string d, i64 e) => todo(\"m\") ;BYN2801 `S` does not provide `f` required by `IAll` => 183+0 void f() fails => todo(\"f\") ;BYN2801 `S` does not provide `g` required by `IAll` => 183+0 void g() fails E => todo(\"g\") ;BYN2801 `S` does not provide `count` required by `IAll` => 183+0 i64 count => todo(\"count\") ;",
+      )
+  }
+  
+  test "conformance t29: witnesses that differ in shape" {
+      let text = "union error E { bad }\nunion error F { worse }\n\ninterface IShape {\n    void a(i64 x)\n    void b(i64 x)\n    void c(ref i64 x)\n    void d(i64 x)\n    void e() fails E\n    void f()\n    void g() fails E\n}\n\nstruct S : IShape {\n    static void a(i64 x) {}\n    void b() {}\n    void c(i64 x) {}\n    void d(string x) {}\n    void e() fails F {}\n    void f() fails E {}\n    void g() {}\n}\n"
+      assert t29s0Same(
+          t29s0Fixes(text),
+          as: "BYN2802 `S.a` is `static void a(i64 x)` but `IShape` requires `void a(i64 x)`;BYN2802 `S.b` is `void b()` but `IShape` requires `void b(i64 x)`;BYN2802 `S.c` is `void c(i64 x)` but `IShape` requires `void c(ref i64 x)`;BYN2802 `S.d` is `void d(string x)` but `IShape` requires `void d(i64 x)`;BYN2802 `S.e` is `void e() fails F` but `IShape` requires `void e() fails E`;BYN2802 `S.f` is `void f() fails E` but `IShape` requires `void f()`;BYN2802 `S.g` is `void g()` but `IShape` requires `void g() fails E`;",
+      )
+  }
+  
+  test "conformance t29: `ref this` added before parameters and removed from them" {
+      let text = "interface ICount {\n    i64 next(ref this, i64 by)\n    void reset(i64 to)\n}\n\nstruct S : ICount {\n    i64 n\n    i64 next(i64 by) => by\n    void reset(ref this, i64 to) {}\n}\n"
+      assert t29s0Same(
+          t29s0Fixes(text),
+          as: "BYN2814 `S.next` must match `ICount.next`, which takes `ref this` => 119+0 ref this, ;BYN2814 `S.reset` must match `ICount.reset`, which does not take `ref this` => 148+10 ;",
+      )
+  }
+  
+  test "conformance t29: associated types among other members" {
+      let text = "interface IIt {\n    type Item\n    Item first()\n}\n\nstruct V : IIt {\n    type Other = i64\n    i64 n\n    type Item = i64\n    i64 first() => 1\n}\n\nstruct W : IIt {\n    i64 n\n    i64 first() => 1\n}\n"
+      assert t29s0Same(
+          t29s0Fixes(text),
+          as: "BYN2022 this kind of struct member is not supported in v0.1;BYN2803 `W` does not bind `type Item` of `IIt`;",
+      )
+  }
+  
+  test "conformance t29: an associated type named through a struct that does not bind it" {
+      let text = "interface IIt {\n    type Item\n    Item first()\n}\n\nstruct W : IIt {\n    type Other = i64\n    i64 n\n    i64 first() => 1\n}\n\nstruct P {\n    i64 a\n}\n\ni64 q(W.Item x) => 1\ni64 r(P.Item x) => 1\n"
+      assert t29s0Same(
+          t29s0Fixes(text),
+          as: "BYN2022 this kind of struct member is not supported in v0.1;BYN2002 unknown type `W.Item`;BYN2002 unknown type `P.Item`;BYN2803 `W` does not bind `type Item` of `IIt`;",
+      )
+  }
+  
+  test "conformance t29: a default from one base where another wants `ref this`" {
+      let text = "interface IA {\n    void step() {}\n}\n\ninterface IB {\n    void step(ref this)\n}\n\nstruct S : IA, IB {\n    i64 n\n}\n"
+      assert t29s0Same(t29s0Fixes(text), as: "BYN2802 `S.step` is `IA.step` but `IB` requires `void step(ref this)`;")
+  }
+  
+  test "conformance t29: an abstract member a later base's property default would stand for" {
+      let text = "interface IA {\n    i64 size()\n}\n\ninterface IB {\n    i64 width => 2\n    i64 size => 3\n}\n\nstruct S : IA, IB {\n    i64 n\n}\n"
+      assert t29s0Same(t29s0Fixes(text), as: "BYN2802 `S.size` is `IB.size` but `IA` requires `i64 size()`;")
+  }
+  
+  test "conformance t29: a generic interface's defaults are cloned for an instance" {
+      let text = "interface IBox<T> {\n    T get()\n    i64 size() => 1\n    i64 width => 2\n}\n\nstruct B : IBox<i64> {\n    i64 n\n    i64 get() => 1\n}\n\nvoid main() {\n    let b = B { n: 1 }\n    print($\"{b.size()} {b.width}\")\n}\n"
+      assert t29s0Same(t29s0Fixes(text), as: "")
+  }
+  
+  test "conformance t29: an associated type read through a generic instance of a binding and a non-binding struct" {
+      let text = "interface IIt {\n    type Item\n    Item first()\n}\n\nstruct V : IIt {\n    i64 n\n    type Item = i64\n    i64 first() => 1\n}\n\nstruct W : IIt {\n    i64 n\n    i64 first() => 1\n}\n\nstruct P {\n    i64 a\n}\n\nT.Item firstOf<T>(T x) where T : IIt => x.first()\n\nvoid main() {\n    let a = firstOf(V { n: 1 })\n    let b = firstOf(W { n: 1 })\n    let d = firstOf(P { a: 1 })\n    print($\"{a}{b}\")\n}\n"
+      assert t29s0Same(
+          t29s0Fixes(text),
+          as: "BYN2803 `W` does not bind `type Item` of `IIt`;BYN2807 `P` does not conform to `IIt`: missing `first`;",
+      )
+  }
+  
+  test "conformance t29: witnesses whose `fails` sets, exclusions, modifiers, kind or declared type differ" {
+      let text = "union error E {\n    bad\n    worse\n}\n\nunion error F {\n    gone\n}\n\nunion error R = E except .bad\n\ninterface I {\n    i64 a() fails E\n    i64 b() fails E, F\n    i64 c() fails E\n    i64 d(ref i64 x)\n    i64 e\n    Nope g()\n}\n\nstruct S : I {\n    i64 n\n    i64 a() fails R => 1\n    i64 b() fails E => 1\n    i64 c() fails E, F => 1\n    i64 d(i64 x) => x\n    i64 e() => 1\n    i64 g() => 1\n}\n\nvoid main() {\n    let s = S { n: 1 }\n    print($\"{s.n}\")\n}\n"
+      assert t29s0Same(
+          t29s0Fixes(text),
+          as: "BYN2800 `I` must start with `I` and an uppercase letter => 106+1 II;BYN2002 unknown type `Nope`;BYN2802 `S.a` is `i64 a() fails E except .bad` but `I` requires `i64 a() fails E`;BYN2802 `S.b` is `i64 b() fails E` but `I` requires `i64 b() fails E, F`;BYN2802 `S.c` is `i64 c() fails E, F` but `I` requires `i64 c() fails E`;BYN2802 `S.d` is `i64 d(i64 x)` but `I` requires `i64 d(ref i64 x)`;BYN2802 `S.e` is `i64 e()` but `I` requires `i64 e { get }`;",
+      )
+  }
+  
+  test "conformance t29: an instance's associated type read through a struct whose only alias is another name" {
+      let text = "interface IIt {\n    type Item\n    Item first()\n}\n\nstruct W : IIt {\n    type Other = i64\n    i64 n\n    i64 first() => 1\n}\n\nT.Item firstOf<T>(T x) where T : IIt => x.first()\n\nvoid main() {\n    let b = firstOf(W { n: 1 })\n    print($\"{b}\")\n}\n"
+      assert t29s0Same(
+          t29s0Fixes(text),
+          as: "BYN2022 this kind of struct member is not supported in v0.1;BYN2803 `W` does not bind `type Item` of `IIt`;",
+      )
+  }
+  
+  test "conformance t29: a later base with another default and an abstract property of the same name" {
+      let text = "interface IA {\n    i64 size()\n}\n\ninterface IB {\n    i64 other() => 1\n    i64 size\n}\n\nstruct S : IA, IB {\n    i64 n\n}\n"
+      assert t29s0Same(
+          t29s0Fixes(text),
+          as: "BYN2801 `S` does not provide `size` required by `IA` => 115+0     i64 size() => todo(\"size\")\n;BYN2801 `S` does not provide `size` required by `IB` => 115+0     i64 size => todo(\"size\")\n;",
+      )
+  }
+  
+  test "conformance t29: a witness whose return type is unknown matches" {
+      let text = "interface IG {\n    i64 g()\n}\n\nstruct S : IG {\n    Nope g() => 1\n}\n"
+      assert t29s0Same(t29s0Fixes(text), as: "BYN2002 unknown type `Nope`;")
+  }
+  
+  test "conformance t29: an expected signature that instantiates a generic struct stays in the arena" {
+      let text = "interface IIt {\n    type Item\n    Box<Item> get()\n}\n\nstruct Box<T> {\n    T v\n    T val() => v\n}\n\nstruct S : IIt {\n    type Item = i64\n    i64 get() => 1\n}\n"
+      assert t29s0Same(
+          t29s0Fixes(text),
+          as: "BYN5014 `val` is not a known verb, noun or adjective;BYN2802 `S.get` is `i64 get()` but `IIt` requires `Box<i64> get()`;BYN2780 implicit copy of a unique value: type parameter `T` may stand for a unique type;",
+      )
+  }
+  
+  test "conformance t29: an inferred `fails` on either side matches any error set" {
+      let text = "union error E { bad }\n\ninterface IF {\n    void f() fails\n    void g() fails\n}\n\nstruct S : IF {\n    i64 n\n    void f() fails {}\n    void g() fails E {}\n}\n"
+      assert t29s0Same(t29s0Fixes(text), as: "BYN2014 the program has no entry point;")
+  }
+  
+  test "conformance t29: a function instance made while declaring is not a struct to conform" {
+      let text = "i64 three<T>() => 3\n\nconst n: i64 = three<i64>()\n\ninterface IA {\n    i64 a()\n}\n\nstruct S : IA {\n    i64[n] xs\n    i64 a() => 1\n}\n"
+      assert t29s0Same(t29s0Fixes(text), as: "BYN2219 a `const` must be a compile-time constant;")
+  }
+  
+  test "conformance t29: an instance's unique field whose template type is unknown is not an implicit copy" {
+      let text = "interface IIt {\n    type Item\n}\n\ninterface IShow {\n    List<i64> size\n}\n\nstruct V : IIt {\n    i64 n\n    type Item = List<i64>\n}\n\nstruct Box<T> : IShow {\n    T.Item size\n}\n\nvoid main() {\n    let b = Box<V> { size: [] }\n    print($\"{b.size.length}\")\n}\n"
+      assert t29s0Same(t29s0Fixes(text), as: "BYN2002 unknown type `T.Item`;")
+  }

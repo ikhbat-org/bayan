@@ -1,0 +1,45 @@
+  // 019 T29 (coverage ratchet): ctx.byn paths no golden case reaches. The expected values are the output of the self-hosted
+  // checker at the commit that added the test. The helpers here serve the other `-t29.test.byn` files of writer 019-t29sem2b.
+  
+  import lexer
+  
+  /// `text` compiled as the one file `a.byn`.
+  Ctx t29s2bCompile(string text) uses alloc, clock, fs {
+~     var bytes = List<u8>()
+~     for b in text.bytes {
+~         bytes.append(b)
+      }
+~     var sources = List<lexer.SourceText>()
+~     sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+~     return create(from: move sources, at: ".", by: CompilationOptions {})
+  }
+  
+  /// The diagnostics of `c`, one `code message` line each.
+  string t29s2bDiags(Ctx c) uses alloc {
+~     var sb = StrBuf()
+~     for d in c.diagnostics {
+~         sb.append($"{d.code} {d.message}\n")
+      }
+~     return sb.finish()
+  }
+  
+  test "ctx t29: a call whose second argument has a modifier" {
+      let text = """
+          void f(i64 a, ref i64 b) {
+              b = a
+          }
+  
+          void main() {
+              var x: i64 = 0
+              f(1, ref x)
+              print($"{x}")
+          }
+          """
+      let c = t29s2bCompile(text)
+      let expected = """
+          BYN5004 `f` has 2 unlabeled parameters; give each but one a particle
+          BYN5006 `b` is a required parameter besides the object and needs a particle
+  
+          """
+      assert t29s2bDiags(in c) == expected
+  }

@@ -1,0 +1,133 @@
+  import semantics
+  import lexer
+  
+  // T29: types.byn's definitions, vtables and function thunks on a bound program.
+  
+  type TyOptions = semantics.CompilationOptions
+  type TyFnData  = semantics.FunctionData
+  
+  Ctx tyCompile(string source) {
+~     var bytes = List<u8>()
+~     for b in source.bytes {
+~         bytes.append(b)
+      }
+~     var sources = List<lexer.SourceText>()
+~     sources.append(lexer.SourceText.create("ty.byn", from: move bytes))
+~     let options = TyOptions { includeTests: false }
+~     return semantics.create(from: move sources, at: Path.fullPath("tmp"), by: in options)
+  }
+  
+  string tyErrors(in Ctx c) {
+~     var sb = StrBuf()
+~     for d in c.diagnostics {
+~         sb.append($"{d.code} {d.span.start} {d.message}\n") if !d.isWarning
+      }
+~     return sb.finish()
+  }
+  
+  i64 tyStruct(in Ctx c, for string name) {
+~     var found = -1
+~     for i in 0..c.structs.length {
+~         found = i if c.structs[i].name == name
+      }
+~     return found
+  }
+  
+  i64 tyInterface(in Ctx c, for string name) {
+~     var found = -1
+~     for i in 0..c.interfaces.length {
+~         found = i if c.interfaces[i].name == name
+      }
+~     return found
+  }
+  
+  test "types t29: a state of unit cases has a tag and no union" {
+      var c = tyCompile(
+          "struct Cart {\n    i64 count\n    states {\n        empty\n        full\n    }\n}\n\nvoid main() {}\n",
+      )
+      assert tyErrors(in c) == ""
+      var cc = CCtx {}
+      let name = cType(ref cc, from: ref c, for: semantics.makeType(.structType, at: tyStruct(in c, for: "Cart")))
+      assert name == "bynt_main__Cart"
+      let text = emitTypes(ref cc, from: ref c)
+      assert text == "typedef struct bynt_main__Cart bynt_main__Cart;\n\nstruct bynt_main__Cart {\n    int64_t count;\n    uint8_t tag;\n};\n\n"
+  }
+  
+  test "types t29: an error union with no payload cases has only its code" {
+      var c = tyCompile("void main() {}\n")
+      assert tyErrors(in c) == ""
+      c.errorVariants = []
+      var cc = CCtx {}
+      assert errorCType(ref cc, from: ref c) == "byn_err"
+      let text = emitTypes(ref cc, from: ref c)
+      assert text == "typedef struct byn_err byn_err;\n\nstruct byn_err {\n    uint32_t code;\n};\n\n"
+  }
+  
+  test "types t29: vtables pass ref and out by pointer, do not return never, and pick the conformance" {
+      var c = tyCompile(
+          """
+          interface IPut {
+              void put(ref i64 x, to out i64 y)
+              never stop()
+          }
+  
+          interface IGet {
+              i64 get()
+          }
+  
+          struct S : IPut, IGet {
+              i64 n
+  
+              void put(ref i64 x, to out i64 y) {
+                  y = x
+              }
+  
+              never stop() {
+                  panic("s")
+              }
+  
+              i64 get() => n
+          }
+  
+          void main() {}
+  
+          """,
+      )
+      assert tyErrors(in c) == ""
+      let s = tyStruct(in c, for: "S")
+      var cc = CCtx {}
+      let put = vtable(ref cc, from: ref c, for: s, as: tyInterface(in c, for: "IPut"))
+      assert put == "bynh_vtab_main__S_main__IPut"
+      let get = vtable(ref cc, from: ref c, for: s, as: tyInterface(in c, for: "IGet"))
+      assert get == "bynh_vtab_main__S_main__IGet"
+      assert cc.vtables[put] == "static const struct byn_vt_main__IPut bynh_vtab_main__S_main__IPut = { bynh_vt_main__S_main__IPut_put, bynh_vt_main__S_main__IPut_stop };\n"
+      assert cc.vtables[get] == "static const struct byn_vt_main__IGet bynh_vtab_main__S_main__IGet = { bynh_vt_main__S_main__IGet_get };\n"
+      assert cc.helpers["bynh_vt_main__S_main__IPut_put"].proto == "static void bynh_vt_main__S_main__IPut_put(void* self, int64_t* a0, int64_t* a1)"
+      assert cc.helpers["bynh_vt_main__S_main__IPut_put"].body == "static void bynh_vt_main__S_main__IPut_put(void* self, int64_t* a0, int64_t* a1) {\n    byn_main__S__put((bynt_main__S*)self, a0, a1);\n}\n"
+      assert cc.helpers["bynh_vt_main__S_main__IPut_stop"].body == "static void bynh_vt_main__S_main__IPut_stop(void* self) {\n    byn_main__S__stop((bynt_main__S*)self);\n}\n"
+      assert cc.helpers["bynh_vt_main__S_main__IGet_get"].body == "static int64_t bynh_vt_main__S_main__IGet_get(void* self) {\n    return byn_main__S__get((bynt_main__S*)self);\n}\n"
+  }
+  
+  test "types t29: function thunks for failing void, failing never and never function types" {
+      var c = tyCompile("never halt() {\n    panic(\"h\")\n}\n\nvoid main() {}\n")
+      assert tyErrors(in c) == ""
+      var fn: semantics.FuncId = -1
+      for i in 0..c.functions.length {
+          fn = i if c.functions[i].name == "halt"
+      }
+      let k = c.functionTypes.length
+      c.functionTypes.append(TyFnData { parameters: [], ret: semantics.prim(.void), errorSets: [0], effects: [] })
+      c.functionTypes.append(TyFnData { parameters: [], ret: semantics.prim(.neverKind), errorSets: [0], effects: [] })
+      c.functionTypes.append(TyFnData { parameters: [], ret: semantics.prim(.neverKind), errorSets: [], effects: [] })
+      var bodies = List<string>()
+      for j in 0..3 {
+          var cc = CCtx {}
+          let name = functionThunk(ref cc, from: ref c, for: fn, as: semantics.makeType(.function, at: k + j))
+          assert name == "bynh_fnthunk_byn_main__halt"
+          bodies.append(cc.helpers[name].body)
+      }
+      let failing = "static byn_err bynh_fnthunk_byn_main__halt(void* env) {\n    (void)env;\n    return byn_main__halt();\n}\n"
+      assert bodies[0] == failing
+      assert bodies[1] == failing
+      assert bodies[2] == "static void bynh_fnthunk_byn_main__halt(void* env) {\n    (void)env;\n    byn_main__halt();\n}\n"
+  }

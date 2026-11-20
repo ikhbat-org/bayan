@@ -1,0 +1,3204 @@
+  // The exported `emit-c`, `sem`, `parse` and `lex` cases of the golden runner (spec 019 T17b2b). A case is a directory `<kind>/<Class>/<case>/`;
+  // it never names the program it ran, the C# built it. docs/specs/019-dotnet-exit/019-export-runners.md records that program and its call for
+  // each class and test, and `goldenProgramsCase` follows that table row by row, naming the C# call site on each branch.
+  //
+  // Programs. Each is built from this checkout's src/ with `$BAYAN_EXE build --mode fast --package <src>` (`BAYAN_CACHE` tmp/cache) once and
+  // kept in tmp/golden-programs/<key>, `key` the SHA-256 of the driver's bytes, the package sources it reads and the program's own changes, so
+  // every case of a run (and the next run, until the driver or a source changes) reuses it; a build first removes the staging directories
+  // older than a day (`goldenProgramsSweep`). A build that fails is kept as a `failed` file and reported by
+  // each case that needs it. The generated `main` sources the C# held as string constants are in tests/cases/programs (the cases directory's
+  // `programs/` first); a row whose program file is missing fails naming it.
+  //
+  // Inputs. A case's `input.<ext>` and its `input/` (T17a: `input.tsv` over `<cases>/inputs`; an older export: the directory itself) are placed
+  // in a fresh scratch directory tmp/p/<hash> (`goldenProgramScratch`), which stands for the repo and for the C#'s temp directories; what the
+  // program prints reads the scratch directory back as the repo-relative paths the export wrote (`Portable`, SelfhostSemanticsHarness.cs:449).
+  //
+  // Recording (spec 019 T48c). Under `BAYAN_SNAPSHOT` each program is a schemata build (`--schemata-files`) with sites only in the files of
+  // `BAYAN_SNAPSHOT_FILES` (repo paths; all its files when that is empty), never in a replaced main.byn or an added file, listed in
+  // `<snapshot>/manifest.json`; each run of one is run twice and appended to `<snapshot>/runs.jsonl`, and its scratch directory is kept for
+  // scripts/selfhost/replay.py (SelfhostSemanticsHarness.cs:84-140, :283-315). `goldenTest` clears the two files and runs one case at a time.
+  
+  import std.encoding
+  
+  /// A case of an exported class: its directory, class and name, the cases directory over it, its scratch directory, the driver, whether it only
+  /// builds its programs (`goldenPrebuild`) and their build limit.
+  struct GoldenExportCase {
+      string dir
+      string cls
+      string name
+      string cases
+      string scratch
+      string exe
+      bool   prebuild = false
+      i64    buildMs  = goldenBuildLimitMs
+  }
+  
+  /// The time limit of one program build (T17b2c), apart from a case's: the C# harness built its programs untimed, outside any test's limit.
+  const goldenBuildLimitMs: i64 = 1200000
+  
+  /// Whether the case of `kind` whose input is `input` is an exported case directory run here: every `emit-c` and `sem` case, and the `lex` and
+  /// `parse` ones that are not a `.byn` golden file.
+  bool goldenExported(string kind, at string input) {
+~     return kind is "emit-c" or "sem" || kind is "lex" or "parse" && !input.endsWith(".byn")
+  }
+  
+  /// The expected files of the exported case directory `dir`, those update mode may rewrite.
+  List<string> goldenExportedFiles(string dir) uses alloc, fs {
+~     var files = List<string>()
+~     let listed = Io.listDir(dir) catch return files
+~     for name in listed {
+~         if name.startsWith("expected.") {
+~             files.append(Path.combine(dir, name))
+          }
+      }
+~     return files
+  }
+  
+  /// The generated program files the rows name, as tests/cases/programs holds them.
+  List<string> goldenProgramNames() uses alloc {
+~     var names = List<string>()
+~     for n in [
+          "SelfhostDefaultT10Tests.byn",
+          "SelfhostEmitterT10Tests.byn",
+          "SelfhostEmitterT11Tests.byn",
+          "SelfhostEmitterT21Tests.byn",
+          "SelfhostEmitterT22Tests.byn",
+          "SelfhostEmitterT2Tests.byn",
+          "SelfhostEmitterT3Tests.byn",
+          "SelfhostEmitterT4Tests.byn",
+          "SelfhostEmitterT5Tests.byn",
+          "SelfhostEmitterT6Tests.byn",
+          "SelfhostEmitterT7Tests.byn",
+          "SelfhostEmitterT8Tests.byn",
+          "SelfhostEmitterT9Tests.byn",
+          "SelfhostParserT6Tests.byn",
+          "SelfhostParserT7Tests.byn",
+          "SelfhostParserTests.CollectorsProgram.byn",
+          "SelfhostParserTests.StatementSpansProgram.byn",
+          "SelfhostSemanticsT3Tests.byn",
+          "SelfhostSemanticsT5Tests.byn",
+      ] {
+~         names.append(n)
+      }
+~     return names
+  }
+  
+  /// The program file `file` of `cases`/programs, else of this repo's tests/cases/programs; empty with `failure` set when neither has it.
+  string goldenProgramSource(string cases, for string file, through ref string failure) uses alloc, fs {
+~     let own = Path.combine(Path.combine(cases, "programs"), file)
+~     return own if Fs.fileExists(own)
+~     let repo = Path.combine(Path.fullPath("tests/cases/programs"), file)
+~     return repo if Fs.fileExists(repo)
+~     failure = $"missing program file tests/cases/programs/{file}"
+~     return ""
+  }
+  
+  /// The packages below src/ a program of `pkg` reads: its own and those before it (the emitter imports the other three).
+  List<string> goldenProgramPackages(string pkg) uses alloc {
+~     var names = List<string>()
+~     for p in ["lexer", "parser", "semantics", "emitter"] {
+~         names.append(p)
+~         break if p == pkg
+      }
+~     return names
+  }
+  
+  /// The files below `dir`, each as `rel`/<path>, in byte order.
+  void goldenProgramFiles(string dir, at string rel, to ref List<string> files) uses alloc, fs {
+~     let listed = Io.listDir(dir) catch return
+~     for name in listed {
+~         let path = Path.combine(dir, name)
+~         let sub = $"{rel}/{name}"
+~         if t6DirectoryExists(path) {
+~             goldenProgramFiles(path, at: sub, to: ref files)
+          } else {
+~             files.append(sub)
+          }
+      }
+  }
+  
+  /// The text of `path`, empty for an empty `path`; `failure` says when it cannot be read.
+  string goldenProgramText(string path, through ref string failure) uses alloc, fs {
+~     return "" if path == ""
+~     let text = Io.readText(path) catch {
+~         failure = $"cannot read {path}"
+~         return ""
+      }
+~     return text
+  }
+  
+  /// The program of package `pkg` (spec 019 export runners, "Shared programs"): src/<pkg> and the packages it imports, its `main.byn` kept
+  /// (`main` empty), dropped (`-`) or replaced by the file `main`, and the file `add` added as src/<`addAs`>; the build target is src/<pkg>, or
+  /// src/<`addAs`> when `file`. Built once through `exe` within `buildMs` and kept (see the head of this file), a build past it kept as a `failed`
+  /// file too, so it is not retried; its path, or empty with `failure` set. `goldenPrebuild` builds them before any case runs (T17b2c); a case
+  /// that finds its program unbuilt (`--golden-case`, a test block) builds it here. Its file is named for `host` (the host's target when null).
+  string goldenProgram(
+      string pkg,
+      by string exe,
+      through ref string failure,
+      string main = "",
+      string add = "",
+      string addAs = "",
+      bool file = false,
+      i64 buildMs = goldenBuildLimitMs,
+      string? host = null
+  )
+          uses alloc, clock, env, fs, process {
+~     let src = Path.fullPath("src")
+~     var files = List<string>()
+~     for p in goldenProgramPackages(pkg) {
+~         goldenProgramFiles(Path.combine(src, p), at: p, to: ref files)
+      }
+~     let mainText = main == "-" ? "" : goldenProgramText(main, through: ref failure)
+~     let addText = goldenProgramText(add, through: ref failure)
+~     return "" if failure != ""
+      // the driver's bytes, not its path: scripts/test.sh copies it to a fresh directory each run
+~     let driver = t9HashFile(exe) catch exe
+~     var key = StrBuf()
+~     key.append(
+          $"{driver}\0{pkg}\0{main == "-" ? "drop" : main == "" ? "keep" : "replace"}\0{mainText}\0{addAs}\0{addText}\0{file ? "file" : "dir"}\0",
+      )
+~     for f in files {
+~         key.append($"{f}\0")
+~         key.append(Io.readText(Path.combine(src, f)) catch "")
+~         key.append("\0")
+      }
+~     let snapshot = Env.get("BAYAN_SNAPSHOT") ?? ""
+~     var kept = List<string>()
+~     if snapshot != "" {
+~         kept = goldenSnapshotKept(
+              Env.get("BAYAN_SNAPSHOT_FILES") ?? "",
+              from: files,
+              main: main == "" ? "" : $"{pkg}/main.byn",
+              added: addAs,
+              through: ref failure,
+          )
+~         return "" if failure != ""
+~         key.append("snapshot\0")
+~         for f in kept {
+~             key.append($"{f}\0")
+          }
+      }
+~     let root = Path.combine(Path.fullPath("tmp"), "golden-programs")
+~     let final = Path.combine(root, t9Hash(key.finish()))
+      // `prog.exe` on Windows (Targets.cs:30 `ExecutableName`): CreateProcess adds `.exe` to a name without one (T17e)
+~     let name = targetExecutableName("prog", for: host ?? t5HostTarget())
+~     let prog = Path.combine(final, name)
+~     let failed = Path.combine(final, "failed")
+~     if !Fs.fileExists(prog) && !Fs.fileExists(failed) {
+~         goldenProgramsSweep(root)
+~         let stage = $"{final}.{Io.monotonicNanos()}"
+~         let staged = Path.combine(stage, "src")
+~         for f in files {
+~             continue if main != "" && f == $"{pkg}/main.byn"
+~             let bytes = Io.readFile(Path.combine(src, f)) catch List<u8>()
+~             let to = Path.combine(staged, f)
+~             Io.createDirectory(Path.directoryName(to) ?? staged) catch {}
+~             Io.writeFile(to, bytes.span) catch {
+~                 failure = $"cannot write {to}"
+              }
+          }
+~         if main != "" && main != "-" {
+~             Io.writeFile(Path.combine(Path.combine(staged, pkg), "main.byn"), mainText.bytes) catch {
+~                 failure = $"cannot write the {pkg} main.byn"
+              }
+          }
+~         if addAs != "" {
+~             let to = Path.combine(staged, addAs)
+~             Io.createDirectory(Path.directoryName(to) ?? staged) catch {}
+~             Io.writeFile(to, addText.bytes) catch {
+~                 failure = $"cannot write {to}"
+              }
+          }
+~         if failure != "" {
+~             deleteWorkDir(stage)
+~             return ""
+          }
+~         var args = List<string>()
+~         for a in ["build", "--mode", "fast", "--package", staged, "-o", Path.combine(stage, name)] {
+~             args.append(a)
+          }
+~         if snapshot != "" {
+~             var paths = StrBuf()
+~             for i in 0..kept.length {
+~                 paths.append(i == 0 ? "" : ",")
+~                 paths.append(Path.combine(staged, kept[i]))
+              }
+~             args.append("--schemata-files")
+~             args.append(paths.finish())
+          }
+~         args.append(file ? Path.combine(staged, addAs) : Path.combine(staged, pkg))
+~         let none = List<u8>()
+~         var reason = ""
+~         let deadline = Io.monotonicNanos() + buildMs * 1000000
+~         let o = goldenChild(exe, by: in args, at: stage, from: in none, through: ref reason, deadline: deadline)
+~         let late = reason != "" && Io.monotonicNanos() >= deadline
+~         if reason != "" && !late {
+              // not kept: a driver that cannot start may start the next time
+~             deleteWorkDir(stage)
+~             failure = $"cannot build the {pkg} program: {reason}"
+~             return ""
+          }
+~         deleteWorkDir(staged)
+~         if late {
+              // kept, never retried by itself (Fable ruling on T17b2b, Unmet 2)
+~             let text = $"the {pkg} program did not build within {goldenLimitText(buildMs)}: delete {final} to build it again"
+~             Io.remove(Path.combine(stage, name)) catch {}
+~             Io.writeFile(Path.combine(stage, "failed"), text.bytes) catch {}
+~         } else if o.exitCode != 0 || !Fs.fileExists(Path.combine(stage, name)) {
+~             let text = $"the {pkg} program did not build (exit {o.exitCode})\n{o.stdout}{o.stderr}"
+~             Io.writeFile(Path.combine(stage, "failed"), text.bytes) catch {}
+~         } else if snapshot != "" {
+              // the staged sources are gone: each site, named by its staged path or one relative to it, names the repo's file, as
+              // `bayan mutate` reports it (mutate-batch.sh report-paths)
+~             let sites = Path.combine(stage, $"{name}.sites.json")
+~             var text = Io.readText(sites) catch ""
+~             for f in kept {
+~                 for named in [Path.combine(staged, f), f] {
+~                     text = text.replaced($"\"file\": \"{named}\"", by: $"\"file\": \"{Path.combine(src, f)}\"")
+                  }
+              }
+~             Io.writeFile(sites, text.bytes) catch {}
+          }
+~         Io.createDirectory(root) catch {}
+          // another run that built it first keeps its own
+~         Fs.rename(stage, to: final) catch {
+~             deleteWorkDir(stage)
+          }
+      }
+~     if Fs.fileExists(prog) {
+~         if snapshot != "" {
+~             goldenSnapshotBuild(Path.fullPath(snapshot), for: prog, through: ref failure)
+          }
+~         return prog if failure == ""
+~         return ""
+      }
+~     failure = Io.readText(failed) catch $"the {pkg} program did not build"
+~     return ""
+  }
+  
+  /// The files of `files` (`<pkg>/<name>` below src/) a recording's program keeps sites in: those the comma list `list`
+  /// (`BAYAN_SNAPSHOT_FILES`, repo paths) names, all when it names none, never `main` (a replaced main.byn) or `added`; empty with `failure` set
+  /// when an entry is not on disk (SelfhostSemanticsHarness.cs:103 `SnapshotSkip`; one this program does not compile is ignored, Q820).
+  List<string> goldenSnapshotKept(
+      string list,
+      from List<string> files,
+      through ref string failure,
+      string main = "",
+      string added = ""
+  )
+          uses alloc, fs {
+~     let src = Path.fullPath("src")
+~     var listed = List<string>()
+~     var kept = List<string>()
+~     for part in list.parts(by: ",") {
+~         let f = $"{part.trimmed()}"
+~         continue if f == ""
+~         if !Fs.fileExists(f) {
+~             failure = $"BAYAN_SNAPSHOT_FILES: {f} matches no compiled source"
+~             return kept
+          }
+~         listed.append(goldenSnapshotPath(Path.fullPath(f)))
+      }
+~     for f in files {
+~         continue if f == main || f == added
+~         if listed.length == 0 || t13RunnerHas(listed, for: goldenSnapshotPath(Path.combine(src, f))) {
+~             kept.append(f)
+          }
+      }
+~     return kept
+  }
+  
+  /// `path` with `/` for `\`: on Windows `Path.fullPath` gives `\` throughout, while `Path.combine` keeps the `/` of a `<pkg>/<name>` file.
+  string goldenSnapshotPath(string path) uses alloc => path.replaced("\\", by: "/")
+  
+  /// `binary` and its site map listed in `dir`/manifest.json once, as `{"version": 1, "builds": [{"binary", "sites"}]}` with a build a line
+  /// (SelfhostSemanticsHarness.cs:119 `RecordBuild`); `failure` set when it cannot be written.
+  void goldenSnapshotBuild(string dir, for string binary, through ref string failure) uses alloc, fs {
+~     let path = Path.combine(dir, "manifest.json")
+~     let entry = $"    {{\"binary\": {t11JsonString(binary)}, \"sites\": {t11JsonString($"{binary}.sites.json")}}}"
+~     var lines = List<string>()
+~     for line in (Io.readText(path) catch "").parts(by: "\n") {
+~         continue unless line.startsWith("    {")
+~         let l = $"{line.trimmed(from: .end)}"
+~         let bare = l.endsWith(",") ? $"{l[0..l.length - 1]}" : l
+~         if bare == entry {
+~             return
+          }
+~         lines.append(bare)
+      }
+~     lines.append(entry)
+~     var text = StrBuf()
+~     text.append("{\n  \"version\": 1,\n  \"builds\": [\n")
+~     for i in 0..lines.length {
+~         text.append(lines[i])
+~         text.append(i + 1 < lines.length ? ",\n" : "\n")
+      }
+~     text.append("  ]\n}\n")
+~     if !goldenWrote(path, as: text.finish()) {
+~         failure = $"cannot write {path}"
+      }
+  }
+  
+  /// The staging directories `<key>.<n>` of `root` (tmp/golden-programs) written more than a day ago, left by a build killed before its
+  /// rename, removed before a build; the `<key>` entries stay. Errors are ignored.
+  void goldenProgramsSweep(string root) uses alloc, clock, fs {
+~     let cutoff = Time.now().nanos - 24 * 60 * 60 * 1000000000
+~     let listed = Io.listDir(root) catch return
+~     for name in listed {
+~         continue if goldenOffset(name, for: ".") < 0
+~         let path = Path.combine(root, name)
+~         let written = Fs.modified(path) catch continue
+~         continue if written.nanos >= cutoff
+~         deleteWorkDir(path)
+      }
+  }
+  
+  /// The name of the plain input file of case `dir` (`input.byn`, `input.test.byn`; `input.byn` for its T17a2 pointer `input.byn.ref`); empty
+  /// when it has none. `input.name` is not an input.
+  string goldenProgramPlain(string dir) uses alloc, fs {
+~     let listed = Io.listDir(dir) catch return ""
+~     for name in listed {
+~         continue if !(name.startsWith("input.")
+              && name != "input.tsv"
+              && name != "input.name"
+              && Fs.fileExists(Path.combine(dir, name)))
+~         return name == "input.byn.ref" ? "input.byn" : name
+      }
+~     return ""
+  }
+  
+  /// The file holding the plain input `plain` of case `dir`: itself, else the file its pointer `<plain>.ref` (`file:<sha256>`, T17a2) names in
+  /// the inputs/files of the cases root above `dir`.
+  string goldenProgramInput(string dir, for string plain) uses alloc, fs {
+~     let path = Path.combine(dir, plain)
+~     let pointer = goldenCliLines(Path.combine(dir, $"{plain}.ref"))
+~     return path if Fs.fileExists(path) || pointer.length == 0 || !pointer[0].startsWith("file:")
+~     let cases = Path.directoryName(Path.directoryName(Path.directoryName(dir) ?? "") ?? "") ?? ""
+~     return Path.combine(
+          Path.combine(Path.combine(cases, "inputs"), "files"),
+          pointer[0]["file:".length..pointer[0].length],
+      )
+  }
+  
+  /// Whether case `dir` has an `input/` tree (its `input.tsv`, or the directory of an export before T17a).
+  bool goldenProgramHasTree(string dir) uses alloc, fs {
+~     return Fs.fileExists(Path.combine(dir, "input.tsv")) || t6DirectoryExists(Path.combine(dir, "input"))
+  }
+  
+  /// The files and directories of `from` copied to `dest`.
+  void goldenProgramCopy(string from, to string dest, through ref string failure) uses alloc, fs {
+~     Io.createDirectory(dest) catch {
+~         failure = $"cannot create {dest}"
+~         return
+      }
+~     let listed = Io.listDir(from) catch return
+~     for name in listed {
+~         let path = Path.combine(from, name)
+~         if t6DirectoryExists(path) {
+~             goldenProgramCopy(path, to: Path.combine(dest, name), through: ref failure)
+          } else {
+~             let bytes = Io.readFile(path) catch List<u8>()
+~             Io.writeFile(Path.combine(dest, name), bytes.span) catch {
+~                 failure = $"cannot write {Path.combine(dest, name)}"
+              }
+          }
+      }
+  }
+  
+  /// The `input/` tree of case `dir` placed at `target` (SelfhostExport.cs:91 `WriteInput` read back): the entries of its input.tsv over
+  /// `cases`/inputs, else the files of its `input/` directory.
+  void goldenProgramTree(string dir, from string cases, to string target, through ref string failure) uses alloc, fs {
+~     let tsv = Path.combine(dir, "input.tsv")
+~     if Fs.fileExists(tsv) {
+~         var exec = List<string>()
+~         Io.createDirectory(target) catch {}
+~         for line in goldenCliLines(tsv) {
+~             continue if line == ""
+~             goldenCliPlace(
+                  line,
+                  at: Path.combine(target, goldenCliEntryName(line)),
+                  from: cases,
+                  to: ref exec,
+                  through: ref failure,
+              )
+          }
+~         return
+      }
+~     let input = Path.combine(dir, "input")
+~     if t6DirectoryExists(input) {
+~         goldenProgramCopy(input, to: target, through: ref failure)
+      }
+  }
+  
+  /// The plain input of case `dir` copied to `path`.
+  void goldenProgramPut(string dir, for string plain, at string path, through ref string failure) uses alloc, fs {
+~     let bytes = Io.readFile(goldenProgramInput(dir, for: plain)) catch {
+~         failure = $"cannot read {goldenProgramInput(dir, for: plain)}"
+~         return
+      }
+~     Io.createDirectory(Path.directoryName(path) ?? ".") catch {}
+~     Io.writeFile(path, bytes.span) catch {
+~         failure = $"cannot write {path}"
+      }
+  }
+  
+  /// `text` with the staged input path `staged` read as `plain`, as is and as JSON writes it (each `\` doubled): `--diagnostics json` on
+  /// Windows names the file `C:\\w\\input.byn` (T41b).
+  string goldenProgramUnstaged(string text, from string staged, as string plain) uses alloc {
+~     return text.replaced(staged.replaced("\\", by: "\\\\"), by: plain).replaced(staged, by: plain)
+  }
+  
+  /// `goldenProgramArg` of `a`, with `\` for `/` when `windows` and `a` is a `<repo>` path of a `WithFileRebinds…` case `name`: the C# passed
+  /// `Path.Combine` paths, `\`-separated on Windows (SelfhostDefaultP2Tests.cs:461, 475), and `withFile` (compile.byn:178) rebinds only the
+  /// entry file whose path, `Path.GetFullPath`'s, is the step's as written.
+  string goldenProgramNative(string a, at string scratch, for string name, by bool windows) uses alloc, fs {
+~     let arg = goldenProgramArg(a, at: scratch)
+~     return windows && name.startsWith("WithFileRebinds") && a.contains("<repo>") ? arg.replaced("/", by: "\\") : arg
+  }
+  
+  /// Argument `a` of a case run in `scratch`, which stands for the repo: `<repo>` read as it, a rooted path (a temp directory of the C#) below
+  /// it, and a path below the scratch directory (its first segment there, the rest existing or not) made absolute, as the C# passed it
+  /// (`RunSections` exported each repo-relative, SelfhostSemanticsHarness.cs:417).
+  string goldenProgramArg(string a, at string scratch) uses alloc, fs {
+~     return goldenCliPut(a, for: scratch) if a.contains("<repo>")
+~     return $"{scratch}{a}" if a.startsWith("/")
+~     return a if a == ""
+~     let slash = goldenOffset(a, for: "/")
+~     let top = Path.combine(scratch, slash < 0 ? a : a[0..slash])
+~     return Fs.fileExists(top) || t6DirectoryExists(top) ? Path.combine(scratch, a) : a
+  }
+  
+  /// The length of the Windows command line `prog` and `args` make (runtime/bayan-rt.c `byn_quote_arg`): each argument after a space, as it
+  /// is when not empty and free of space, tab, LF, VT and `"`, else quoted, each `"` and the `\` run before it or before the closing quote
+  /// escaped. It counts bytes, the UTF-16 units of an ASCII line and no fewer than those of another.
+  i64 goldenWindowsLineLength(string prog, by ref List<string> args) {
+~     var n = goldenWindowsArgLength(prog)
+~     for a in args {
+~         n += 1 + goldenWindowsArgLength(a)
+      }
+~     return n
+  }
+  
+  /// The length `byn_quote_arg` gives the argument `s` (`goldenWindowsLineLength`).
+  i64 goldenWindowsArgLength(string s) {
+~     var plain = s.length > 0
+~     for i in 0..s.length {
+~         if s.bytes[i] is 0x20 or 0x09 or 0x0a or 0x0b or 0x22 {
+~             plain = false
+          }
+      }
+~     return s.length if plain
+~     var n = 2
+~     var slashes = 0
+~     for i in 0..s.length {
+~         if s.bytes[i] == 0x5c {
+~             slashes += 1
+          } else {
+~             n += (s.bytes[i] == 0x22 ? slashes * 2 + 1 : slashes) + 1
+~             slashes = 0
+          }
+      }
+~     return n + slashes * 2
+  }
+  
+  /// What the program printed in `scratch`, read back as the export wrote it (`Portable`, SelfhostSemanticsHarness.cs:449): each rooted argument
+  /// of `args` as itself, then the scratch directory and its separator dropped (`goldenDirMasked`: on Windows the path after it read with `/`).
+  string goldenProgramPortable(string text, at string scratch, by ref List<string> args) uses alloc {
+~     var res = goldenLf(text)
+~     for a in args {
+~         if a.startsWith("/") {
+~             res = res.replaced($"{scratch}{a}", by: a)
+          }
+      }
+~     return goldenDirMasked(res, at: scratch, by: "", drop: true)
+  }
+  
+  /// SelfhostSemanticsHarness.cs:453 `Sections` for the section `printed`: its non-empty lines (before the first `== name` header for `""`);
+  /// `failure` says when a header was printed twice or `printed` not at all (:477 `AssertSection`).
+  List<string> goldenProgramSection(string stdout, for string printed, through ref string failure) uses alloc {
+~     var lines = List<string>()
+~     var seen = List<string>()
+~     seen.append("")
+~     var current = ""
+~     var found = printed == ""
+~     for line in goldenLines(stdout) {
+~         if line.startsWith("== ") {
+~             let name = line[3..line.length]
+~             for s in seen {
+~                 if s == name {
+~                     failure = $"section '{name}' printed twice"
+~                     return lines
+                  }
+              }
+~             seen.append(name)
+~             current = name
+~             found = found || name == printed
+~         } else if line.length > 0 && current == printed {
+~             lines.append(line)
+          }
+      }
+~     if !found {
+~         failure = $"section '{printed}' was not printed"
+      }
+~     return lines
+  }
+  
+  /// `w` as `int.Parse(w).ToString()` writes it: no `+`, no leading zeros, `-0` as `0`; `w` itself when it is not a number.
+  string goldenProgramNumber(string w) uses alloc {
+~     var neg = w.startsWith("-")
+~     var digits = neg || w.startsWith("+") ? w[1..w.length] : w
+~     return w if digits.length == 0
+~     for i in 0..digits.length {
+~         return w unless goldenCliDigit(digits.bytes[i])
+      }
+~     var k = 0
+~     while k < digits.length - 1 && digits.bytes[k] == 0x30 {
+~         k += 1
+      }
+~     digits = digits[k..digits.length]
+~     neg = neg && digits != "0"
+~     return neg ? $"-{digits}" : $"{digits}"
+  }
+  
+  /// Whether the number `a` (`goldenProgramNumber` form) is less than `b`.
+  bool goldenProgramLess(string a, for string b) {
+~     let na = a.startsWith("-")
+~     let nb = b.startsWith("-")
+~     return na if na != nb
+~     let x = na ? a[1..a.length] : a
+~     let y = nb ? b[1..b.length] : b
+~     var less = x.length < y.length
+~     if x.length == y.length {
+~         for i in 0..x.length {
+~             if x.bytes[i] != y.bytes[i] {
+~                 less = x.bytes[i] < y.bytes[i]
+~                 break
+              }
+          }
+      }
+~     return na ? !less && x != y : less
+  }
+  
+  /// SelfhostSemanticsT41Tests.cs:731 `Set`: a `returns <fn>` line with its indices in numeric order.
+  string goldenProgramT41Set(string line) uses alloc {
+~     return line unless line.startsWith("returns ")
+~     var words = List<string>()
+~     for part in line.parts(by: " ") {
+~         words.append($"{part}")
+      }
+~     var nums = List<string>()
+~     for i in 2..words.length {
+~         nums.append(goldenProgramNumber(words[i]))
+      }
+~     for i in 1..nums.length {
+~         var j = i
+~         while j > 0 && goldenProgramLess(nums[j], for: nums[j - 1]) {
+~             let t = nums[j]
+~             nums[j] = nums[j - 1]
+~             nums[j - 1] = t
+~             j -= 1
+          }
+      }
+~     var sb = StrBuf()
+~     sb.append(words[0])
+~     if words.length > 1 {
+~         sb.append($" {words[1]}")
+      }
+~     for n in nums {
+~         sb.append($" {n}")
+      }
+~     return sb.finish()
+  }
+  
+  /// SelfhostSemanticsT41Tests.cs:728 `Sorted`: the diagnostics in order, then the `store ` and `returns ` summary lines (each `returns` with
+  /// its indices sorted) in ordinal order.
+  List<string> goldenProgramT41(ref List<string> lines) uses alloc {
+~     var res = List<string>()
+~     var summary = List<string>()
+~     for l in lines {
+~         if l.startsWith("store ") || l.startsWith("returns ") {
+~             summary.append(goldenProgramT41Set(l))
+          } else {
+~             res.append(l)
+          }
+      }
+~     summary.sort()
+~     for l in summary {
+~         res.append(l)
+      }
+~     return res
+  }
+  
+  /// The names of the list `s` joined by `,` in ordinal order, empty ones dropped (SelfhostSemanticsT25Tests.cs:724 `Sort`).
+  string goldenProgramT25Sort(string s) uses alloc {
+~     var names = List<string>()
+~     var start = 0
+~     for i in 0..s.length + 1 {
+~         if i == s.length || s.bytes[i] == 0x2c {
+~             if i > start {
+~                 names.append(s[start..i])
+              }
+~             start = i + 1
+          }
+      }
+~     names.sort()
+~     var sb = StrBuf()
+~     for i in 0..names.length {
+~         sb.append(i > 0 ? $",{names[i]}" : names[i])
+      }
+~     return sb.finish()
+  }
+  
+  /// `name [regions] [owners] lends` with both lists and the lends sorted (SelfhostSemanticsT25Tests.cs:716-726 `Canon`); `line` as it is
+  /// when it has not that shape.
+  string goldenProgramT25Canon(string line) uses alloc {
+~     let space = goldenOffset(line, for: " ")
+~     return line if space < 0
+~     let rest = line[space + 1..line.length]
+~     let close = goldenOffset(rest, for: "]")
+~     return line if close < 1 || close + 2 > rest.length
+~     let regions = rest[1..close]
+~     let tail = rest[close + 2..rest.length]
+~     let close2 = goldenOffset(tail, for: "]")
+~     return line if close2 < 1 || close2 + 2 > tail.length
+~     let owners = tail[1..close2]
+~     let lends = tail[close2 + 2..tail.length]
+~     let sorted = lends == "-" ? "-" : goldenProgramT25Sort(lends)
+~     return $"{line[0..space]} [{goldenProgramT25Sort(regions)}] [{goldenProgramT25Sort(owners)}] {sorted}"
+  }
+  
+  /// The `compare` word of section case `dir`: its `compare` file's, else that of a C# test that changed the lines before comparing them
+  /// while its export wrote no `compare` file (SelfhostSemanticsT25Tests.cs:347-348 `RunMatches`, :732 `UnionAndLentMatch`).
+  string goldenProgramCaseWord(string dir) uses alloc, fs {
+~     let word = goldenCliWord(dir)
+~     return word if word != ""
+~     return "" if Path.fileName(Path.directoryName(dir) ?? "") != "SelfhostSemanticsT25Tests"
+~     let name = Path.fileName(dir)
+~     return "t25-run" if name == "RunMatches" || name.startsWith("RunMatches-")
+~     return name == "UnionAndLentMatch" ? "t25-pure" : ""
+  }
+  
+  /// The lines of section `printed` of `stdout` the `compare` word `word` compares (spec 019 export runners, "Section compare words"); `failure`
+  /// says when the section was not printed once or the word is unknown.
+  List<string> goldenProgramWord(string stdout, for string word, at string printed, through ref string failure)
+          uses alloc {
+~     var lines = goldenProgramSection(stdout, for: printed, through: ref failure)
+~     if word.startsWith("prefix:") {
+          // SelfhostPathT7Tests.cs:189-190, SelfhostPathT8Tests.cs:100-101, :108-109: the printed lines of the kind
+~         let lead = $"{word[7..word.length]} "
+~         var kept = List<string>()
+~         for l in lines {
+~             if l.startsWith(lead) {
+~                 kept.append(l)
+              }
+          }
+~         return kept
+      }
+~     if word == "t41" {
+          // SelfhostSemanticsT41Tests.cs:697, :728; SelfhostPathT4Tests.cs:365-373
+~         return goldenProgramT41(ref lines)
+      }
+~     if word == "sorted" {
+          // SelfhostRevisionT4Tests.cs:298-299, SelfhostSemanticsT8Tests.cs:366-367
+~         lines.sort()
+~     } else if word == "sorted-end" {
+          // SelfhostSemanticsT7Tests.cs:185-190
+~         lines.sort()
+~         lines.append("end")
+~     } else if word == "t25-run" {
+          // SelfhostSemanticsT25Tests.cs:347-348 `RunMatches`: the lists of each ` local ` line sorted (`CanonLocal`), then the lines
+~         for i in 0..lines.length {
+~             let at = goldenOffset(lines[i], for: " local ")
+~             if at >= 0 {
+~                 lines[i] = $"{lines[i][0..at + 7]}{goldenProgramT25Canon(lines[i][at + 7..lines[i].length])}"
+              }
+          }
+~         lines.sort()
+~     } else if word == "t25-pure" {
+          // SelfhostSemanticsT25Tests.cs:732 `UnionAndLentMatch`: the lists of each line sorted (`Canon`)
+~         for i in 0..lines.length {
+~             lines[i] = goldenProgramT25Canon(lines[i])
+          }
+~     } else if word != "" {
+~         failure = $"unknown compare word `{word}`"
+      }
+~     return lines
+  }
+  
+  /// `got` against the lines of the expected file `path` (a final LF dropped) below its `== name` header when `header`, every line and the
+  /// count, as SelfhostSemanticsHarness.cs:477 `AssertSection` compares them. Update mode rewrites the file as the export wrote it
+  /// (SelfhostSemanticsHarness.cs:426; SelfhostEmitterHarness.cs:212-213, the lines joined by LF without a header). Each line of both sides is read
+  /// through `goldenHostMasked` for `host` (none when empty). The failure is added to `failures`.
+  void goldenProgramSame(
+      string path,
+      as ref List<string> got,
+      by bool header,
+      to ref List<string> failures,
+      string host = ""
+  )
+          uses alloc, env, fs {
+~     unless Fs.fileExists(path) {
+~         failures.append($"{path}\nmissing expected file {path}")
+~         return
+      }
+~     let want = goldenCliLines(path)
+~     let head = header && want.length > 0 ? 1 : 0
+~     var line = 0
+~     while line + head < want.length && line < got.length {
+~         let w = want[line + head]
+~         break if goldenHostMasked(w, for: host) != goldenHostMasked(goldenStdModules(got[line], by: w), for: host)
+~         line += 1
+      }
+~     return if line + head == want.length && line == got.length
+~     if goldenUpdate() && !Fs.fileExists(goldenExpected(path, for: ".pending")) {
+~         var sb = StrBuf()
+~         if head == 1 {
+~             sb.append($"{want[0]}\n")
+          }
+~         for i in 0..got.length {
+~             if header {
+~                 sb.append($"{got[i]}\n")
+              } else {
+~                 sb.append(i > 0 ? $"\n{got[i]}" : got[i])
+              }
+          }
+~         let text = sb.finish()
+~         Io.writeFile(path, text.bytes) catch {
+~             failures.append($"{path}\ncannot write {path}")
+          }
+~         return
+      }
+~     let n = line + head
+~     let w = n < want.length ? want[n] : "<end of file>"
+~     let g = line < got.length ? got[line] : "<end of file>"
+~     failures.append($"{path}\nexpected line {n + 1}: {w}\nactual line {n + 1}: {g}")
+  }
+  
+  /// The section of `stdout` the expected file `name` of case `dir` holds (`== printed` and the C# lines, SelfhostSemanticsHarness.cs:426; no
+  /// header for the emitter's `""`), through the case's `compare` word, against it. With no header every line of `stdout` is compared, blank
+  /// ones too (SelfhostEmitterT6Tests.cs:328-333 `RawMode`). The host target, `host` or the running one (`targetHost`) when null, is read as
+  /// `<host>` on both sides as `goldenCliHost` says (T17e). On Windows (`windows`, the running OS when null) `stdout` is read first through
+  /// `goldenWindowsRead` for the case's class, as `goldenDiffer` reads it (019-win9).
+  void goldenProgramSections(
+      string dir,
+      for string name,
+      from string stdout,
+      to ref List<string> failures,
+      string? host = null,
+      bool? windows = null
+  )
+          uses alloc, env, fs {
+~     let path = Path.combine(dir, name)
+~     let want = goldenCliLines(path)
+~     let expected = Io.readText(path) catch ""
+~     let read = goldenWindowsRead(
+          stdout,
+          for: expected,
+          as: goldenWindowsClass(path),
+          by: windows ?? (Target.os == "windows"),
+      )
+~     let header = want.length > 0 && want[0].startsWith("== ")
+~     let printed = header ? want[0][3..want[0].length] : ""
+~     var failure = ""
+~     var got = List<string>()
+~     if header {
+~         got = goldenProgramWord(read, for: goldenProgramCaseWord(dir), at: printed, through: ref failure)
+      } else {
+~         let all = goldenLines(goldenLf(read))
+~         for i in 0..all.length {
+~             continue if i == all.length - 1 && all[i] == ""
+~             got.append(all[i])
+          }
+      }
+~     if failure != "" {
+~         failures.append($"{dir}\n{failure}")
+~         return
+      }
+~     let running = goldenCliHost(dir, for: host ?? targetHost() ?? "")
+~     goldenProgramSame(path, as: ref got, by: header, to: ref failures, host: running)
+  }
+  
+  /// SelfhostSemanticsTests.cs:200 `Untimed` on one line: ` in [0-9]+\.[0-9]{2}s` at its end (before a CR) as ` in <time>`.
+  string goldenProgramUntimedLine(string line) uses alloc {
+~     let cr = line.endsWith("\r")
+~     let core = cr ? line[0..line.length - 1] : line
+~     return line if core.length < 9 || !core.endsWith("s")
+~     let s = core.length - 1
+~     return line if !goldenCliDigit(core.bytes[s - 1]) || !goldenCliDigit(core.bytes[s - 2]) || core.bytes[s - 3] != 0x2e
+~     var k = s - 3
+~     while k > 0 && goldenCliDigit(core.bytes[k - 1]) {
+~         k -= 1
+      }
+~     return line if k == s - 3 || k < 4 || core[k - 4..k] != " in "
+~     return $"{core[0..k - 4]} in <time>{cr ? "\r" : ""}"
+  }
+  
+  /// SelfhostSemanticsTests.cs:200 `Untimed` (multiline).
+  string goldenProgramUntimed(string text) uses alloc {
+~     var sb = StrBuf()
+~     let lines = goldenLines(text)
+~     for i in 0..lines.length {
+~         if i > 0 {
+~             sb.append("\n")
+          }
+~         sb.append(goldenProgramUntimedLine(lines[i]))
+      }
+~     return sb.finish()
+  }
+  
+  /// `text` without its trailing white space (`TrimEnd`).
+  string goldenProgramTrimEnd(string text) uses alloc {
+~     var n = text.length
+~     while n > 0 && text.bytes[n - 1] is 0x20 or 0x09 or 0x0a or 0x0b or 0x0c or 0x0d {
+~         n -= 1
+      }
+~     return $"{text[0..n]}"
+  }
+  
+  /// `actual` against the expected file `name` of case `dir` in the form `form`: `""` as `goldenCompare` (CR LF read as LF), `untimed` both
+  /// sides through `Untimed`, `trim` both sides `TrimEnd` (SelfhostSemanticsT10Tests.cs:203), `bytes` byte for byte (`SequenceEqual`). Update
+  /// mode rewrites the file with `actual`. Both sides are read through `goldenHostMasked` first. The failure is added to `failures`.
+  void goldenProgramCheck(string dir, for string name, as string actual, by string form, to ref List<string> failures)
+          uses alloc, env, fs {
+~     if form == "" {
+~         goldenCliCheck(dir, for: name, as: actual, to: ref failures)
+~         return
+      }
+~     let path = Path.combine(dir, name)
+~     let text = Io.readText(path) catch {
+~         failures.append($"{path}\nmissing expected file {path}")
+~         return
+      }
+~     let host = targetHost() ?? ""
+~     var want = goldenHostMasked(text, for: host)
+~     var got = goldenHostMasked(goldenStdModules(actual, by: text), for: host)
+~     if form == "untimed" {
+~         want = goldenProgramUntimed(goldenLf(want))
+~         got = goldenProgramUntimed(goldenLf(got))
+~     } else if form == "trim" {
+~         want = goldenProgramTrimEnd(goldenLf(want))
+~         got = goldenProgramTrimEnd(goldenLf(got))
+      }
+~     return if want == got
+~     if goldenUpdate() && !Fs.fileExists(goldenExpected(path, for: ".pending")) {
+~         Io.writeFile(path, actual.bytes) catch {
+~             failures.append($"{path}\ncannot write {path}")
+          }
+~         return
+      }
+~     let w = goldenLines(goldenLf(want))
+~     let g = goldenLines(goldenLf(got))
+~     var line = 0
+~     while line < w.length && line < g.length && w[line] == g[line] {
+~         line += 1
+      }
+~     if line == w.length && line == g.length {
+~         failures.append($"{path}\nexpected line 1: (its bytes)\nactual line 1: (other line endings)")
+~         return
+      }
+~     let wl = line < w.length ? w[line] : "<end of file>"
+~     let gl = line < g.length ? g[line] : "<end of file>"
+~     failures.append($"{path}\nexpected line {line + 1}: {wl}\nactual line {line + 1}: {gl}")
+  }
+  
+  /// `prog` run with `args` in `cwd` and `input` on its stdin, its whole output kept (T17b2c: the case child running it is killed at the case
+  /// limit); null with the failure added when it cannot run, and null when `k` only builds. Under `BAYAN_SNAPSHOT` it runs twice and is
+  /// appended to runs.jsonl (SelfhostSemanticsHarness.cs:291 `RunRecorded`), null with the failure added when the two runs differ.
+  GoldenOutcome? goldenProgramRun(
+      GoldenExportCase k,
+      for string prog,
+      by ref List<string> args,
+      at string cwd,
+      from ref List<u8> input,
+      to ref List<string> failures
+  )
+          uses alloc, clock, env, fs, process {
+~     return null if k.prebuild
+~     var failure = ""
+~     let o = goldenChild(prog, by: in args, at: cwd, from: in input, through: ref failure, whole: true)
+~     let snapshot = Env.get("BAYAN_SNAPSHOT") ?? ""
+~     if failure == "" && snapshot != "" {
+~         let again = goldenChild(prog, by: args, at: cwd, from: input, through: ref failure, whole: true)
+~         var differ = List<string>()
+~         if failure == "" && o.exitCode != again.exitCode {
+~             differ.append("exit code")
+          }
+~         if failure == "" && o.stdout != again.stdout {
+~             differ.append("stdout")
+          }
+~         if failure == "" && o.stderr != again.stderr {
+~             differ.append("stderr")
+          }
+~         var shown = StrBuf()
+~         shown.append(prog)
+~         for a in args {
+~             shown.append($" {a}")
+          }
+~         if differ.length > 0 {
+~             failure = $"BAYAN_SNAPSHOT: two runs of `{shown.finish()}` differ in {t5Join(differ)}"
+~         } else if failure == "" {
+~             goldenSnapshotRun(
+                  Path.fullPath(snapshot),
+                  for: prog,
+                  by: args,
+                  at: cwd,
+                  from: input,
+                  as: o,
+                  through: ref failure,
+              )
+          }
+      }
+~     if failure != "" {
+~         failures.append($"{k.dir}\n{failure}")
+~         return null
+      }
+~     return o
+  }
+  
+  /// The run of `prog` with `args` in `cwd` on `input` that printed `o` appended to `dir`/runs.jsonl as the line replay.py reads: `program`,
+  /// `args`, `cwd`, `stdin` (base64, null when empty), `stdout` and `stderr` (base64) and `exit`; `failure` set when it cannot be written.
+  void goldenSnapshotRun(
+      string dir,
+      for string prog,
+      by List<string> args,
+      at string cwd,
+      from List<u8> input,
+      as GoldenOutcome o,
+      through ref string failure
+  )
+          uses alloc, fs {
+~     var line = StrBuf()
+~     line.append($"{{\"program\": {t11JsonString(prog)}, \"args\": [")
+~     for i in 0..args.length {
+~         line.append(i == 0 ? "" : ", ")
+~         line.append(t11JsonString(args[i]))
+      }
+~     let stdin = input.length == 0 ? "null" : $"\"{encoding.Base64.encode(input.span)}\""
+~     line.append($"], \"cwd\": {t11JsonString(cwd)}, \"stdin\": {stdin}, ")
+~     line.append(
+          $"\"stdout\": \"{encoding.Base64.encode(o.stdout.bytes)}\", \"stderr\": \"{encoding.Base64.encode(o.stderr.bytes)}\", ",
+      )
+~     line.append($"\"exit\": {o.exitCode}}}\n")
+~     let path = Path.combine(dir, "runs.jsonl")
+      // no append in Io: the runs are written one at a time (`goldenTest` runs one case at a time under BAYAN_SNAPSHOT)
+~     if !goldenWrote(path, as: $"{Io.readText(path) catch ""}{line.finish()}") {
+~         failure = $"cannot write {path}"
+      }
+  }
+  
+  /// SelfhostSemanticsHarness.cs:415 `RunSections`: the generated program exits 0 with an empty stderr; else the failure is added.
+  bool goldenProgramClean(GoldenExportCase k, for in GoldenOutcome o, to ref List<string> failures) uses alloc {
+~     return true if o.exitCode == 0 && o.stderr == ""
+~     failures.append($"{k.dir}\ngenerated main exited {o.exitCode}:\n{o.stderr}")
+~     return false
+  }
+  
+  /// SelfhostSemanticsT18Tests.cs:23-31 `Other`, with the LF `WriteOther` adds (:449).
+  const goldenProgramT18Other: string = "const oc: i32 = 1\n\nvoid hiddenFn() {\n}\n\nprivate void privFn() {\n}\n"
+  
+  /// A `sem` case with a `section` file: GenSem(`input.byn`) with `args` (none for the classes whose C# call passed none) in the scratch
+  /// directory, its `input/` placed there as the repo paths `args` name (SelfhostSemanticsHarness.cs:392-426), the section compared.
+  void goldenProgramGenSem(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
+~     var failure = ""
+~     let prog = goldenProgram(
+          "semantics",
+          by: k.exe,
+          through: ref failure,
+          main: goldenProgramInput(k.dir, for: "input.byn"),
+          buildMs: k.buildMs,
+      )
+~     goldenProgramTree(k.dir, from: k.cases, to: k.scratch, through: ref failure)
+~     if k.cls == "SelfhostSemanticsT18Tests" {
+          // SelfhostSemanticsT18Tests.cs:446-450 `WriteOther`: the module `other` the world imports, written before the run; the export
+          // does not record it
+~         let path = Path.combine(k.scratch, "tmp/t18-cases/other/other.byn")
+~         Io.createDirectory(Path.directoryName(path) ?? k.scratch) catch {}
+~         Io.writeFile(path, goldenProgramT18Other.bytes) catch {
+~             failure = $"cannot write {path}"
+          }
+      }
+~     if failure != "" {
+~         failures.append($"{k.dir}\n{failure}")
+~         return
+      }
+~     var given = goldenArgLines(Path.combine(k.dir, "args"))
+~     var args = List<string>()
+~     for a in given {
+~         args.append(goldenProgramNative(a, at: k.scratch, for: Path.fileName(k.dir), by: Target.os == "windows"))
+      }
+~     var none = List<u8>()
+~     let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
+~     return unless goldenProgramClean(k, for: in o, to: ref failures)
+~     goldenProgramSections(
+          k.dir,
+          for: "expected.sections",
+          from: goldenProgramPortable(o.stdout, at: k.scratch, by: ref given),
+          to: ref failures,
+      )
+  }
+  
+  /// SelfhostSemanticsTests.cs:226-240 `SelfArgs`: `bayan`'s arguments as `bayan-check` takes them, no `check` word and `types` as `--types`.
+  List<string> goldenProgramSelfArgs(ref List<string> cli) uses alloc {
+~     var res = List<string>()
+~     var done = false
+~     var i = 0
+~     while i < cli.length {
+~         let a = cli[i]
+~         if done {
+~             res.append(a)
+~         } else if a == "--color" {
+~             res.append(a)
+~             if i + 1 < cli.length {
+~                 res.append(cli[i + 1])
+              }
+~             i += 1
+~         } else if a.startsWith("-") {
+~             res.append(a)
+          } else {
+~             done = true
+~             if a == "types" {
+~                 res.append("--types")
+~             } else if a != "check" {
+~                 res.append(a)
+              }
+          }
+~         i += 1
+      }
+~     return res
+  }
+  
+  /// Below `scratch`, the path argument `a` names.
+  string goldenProgramUnder(string a, at string scratch) uses alloc {
+~     return goldenCliPut(a, for: scratch) if a.contains("<repo>")
+~     return a.startsWith("/") ? $"{scratch}{a}" : Path.combine(scratch, a)
+  }
+  
+  /// The inputs of a `bayan-check` case `dir` placed where its CLI arguments `cli` read them below `scratch`: the plain input at the first
+  /// argument ending in its extension, the `input/` tree at the first argument that is not an option and holds a `/` (a `.byn` one its
+  /// directory); each at the scratch root when none does. The tree's directory.
+  string goldenProgramPlace(
+      string dir,
+      by ref List<string> cli,
+      from string cases,
+      to string scratch,
+      through ref string failure
+  ) uses alloc, fs {
+~     let plain = goldenProgramPlain(dir)
+~     if plain != "" {
+~         let ext = plain["input".length..plain.length]
+~         var at = Path.combine(scratch, plain)
+~         for a in cli {
+~             if !a.startsWith("-") && a.endsWith(ext) {
+~                 at = goldenProgramUnder(a, at: scratch)
+~                 break
+              }
+          }
+~         goldenProgramPut(dir, for: plain, at: at, through: ref failure)
+      }
+~     var tree = Path.combine(scratch, "input")
+~     if goldenProgramHasTree(dir) {
+~         for a in cli {
+~             if !a.startsWith("-") && a.contains("/") {
+~                 var p = a.endsWith(".byn") ? Path.directoryName(a) ?? a : a
+~                 while p.endsWith("/") {
+~                     p = p[0..p.length - 1]
+                  }
+~                 tree = goldenProgramUnder(p, at: scratch)
+~                 break
+              }
+          }
+~         goldenProgramTree(dir, from: cases, to: tree, through: ref failure)
+      }
+~     return tree
+  }
+  
+  /// The `bayan-check` rows of `sem` (SemanticsTests SameAsCli and GoldenAgrees, Parity, T10's unreadable package, T40's two): the program
+  /// with `main.byn` (SelfhostSemanticsTests.cs:31-45 `Built`) run on the case's arguments in the scratch directory.
+  void goldenProgramBayanCheck(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
+~     var failure = ""
+~     let prog = goldenProgram("semantics", by: k.exe, through: ref failure, buildMs: k.buildMs)
+~     var cli = goldenArgLines(Path.combine(k.dir, "args"))
+~     let tree = goldenProgramPlace(k.dir, by: ref cli, from: k.cases, to: k.scratch, through: ref failure)
+~     if failure != "" {
+~         failures.append($"{k.dir}\n{failure}")
+~         return
+      }
+      // SelfhostSemanticsT10Tests.cs:192-193: `<name> None` is a file of the package nobody may read
+~     var locked = List<string>()
+~     for line in goldenCliLines(Path.combine(k.dir, "modes")) {
+~         if line.endsWith(" None") {
+~             locked.append(Path.combine(tree, line[0..line.length - 5]))
+          }
+      }
+~     goldenProgramChmod("000", for: ref locked)
+~     var args = List<string>()
+~     for a in cli {
+~         args.append(goldenProgramArg(a, at: k.scratch))
+      }
+~     let same = Fs.fileExists(Path.combine(k.dir, "expected.stdout"))
+~     var self = List<string>()
+~     if same && k.name == "CheckCleanFile-2" && args.length > 0 {
+          // SelfhostSemanticsTests.cs:299: this case alone passes its own argv, `--spans <hello.byn>`
+~         self.append("--spans")
+~         self.append(args[args.length - 1])
+~     } else if same {
+~         self = goldenProgramSelfArgs(ref args)
+      } else {
+          // `CheckSame` (SelfhostSemanticsTests.cs:600-612): the copy's full path, which `args` holds as `<repo>/…`, below the scratch directory
+~         for a in args {
+~             self.append(a)
+          }
+      }
+~     var none = List<u8>()
+~     let ran = goldenProgramRun(k, for: prog, by: ref self, at: k.scratch, from: ref none, to: ref failures)
+~     goldenProgramChmod("644", for: ref locked)
+~     let o = ran ?? return
+~     let exit = $"{o.exitCode}\n"
+~     if Fs.fileExists(Path.combine(k.dir, "expected.golden")) {
+          // SelfhostSemanticsTests.cs:546-567 `GoldenSame`: exit 0, no stderr, stdout line by line; SelfhostSemanticsT10Tests.cs:203 `TrimEnd`
+~         if o.exitCode != 0 || o.stderr != "" {
+~             failures.append($"{k.dir}\nbayan-check exited {o.exitCode}:\n{o.stderr}")
+~             return
+          }
+~         let form = Fs.fileExists(Path.combine(k.dir, "modes")) ? "trim" : ""
+~         goldenProgramCheck(
+              k.dir,
+              for: "expected.golden",
+              as: goldenProgramPortable(o.stdout, at: k.scratch, by: ref cli),
+              by: form,
+              to: ref failures,
+          )
+~     } else if same {
+          // SelfhostSemanticsTests.cs:268-289 `SameAsCli`: stderr, stdout (both `Untimed` with the `untimed` word), exit
+~         let form = goldenCliWord(k.dir) == "untimed" ? "untimed" : ""
+~         goldenProgramCheck(
+              k.dir,
+              for: "expected.stderr",
+              as: goldenProgramPortable(o.stderr, at: k.scratch, by: ref cli),
+              by: form,
+              to: ref failures,
+          )
+~         goldenProgramCheck(
+              k.dir,
+              for: "expected.stdout",
+              as: goldenProgramPortable(o.stdout, at: k.scratch, by: ref cli),
+              by: form,
+              to: ref failures,
+          )
+~         goldenCliCheck(k.dir, for: "expected.exitcode", as: exit, to: ref failures)
+      } else {
+          // SelfhostSemanticsTests.cs:583-614 `CheckSame`: stderr with the scratch directory (the repo) dropped, as `Portable` (:607) wrote it, and exit
+~         goldenCliCheck(
+              k.dir,
+              for: "expected.stderr",
+              as: goldenDirMasked(goldenLf(o.stderr), at: k.scratch, by: "", drop: true),
+              to: ref failures,
+          )
+~         goldenCliCheck(k.dir, for: "expected.exitcode", as: exit, to: ref failures)
+      }
+  }
+  
+  /// `chmod mode` on `paths` (there is no file-mode builtin); nothing when there are none.
+  void goldenProgramChmod(string mode, for ref List<string> paths) uses alloc, process {
+~     return if paths.length == 0
+~     var args = List<string>()
+~     args.append(mode)
+~     for p in paths {
+~         args.append(p)
+      }
+~     let _ = Io.run("chmod", args.span) catch return
+  }
+  
+  /// A `sem` case with a `range` file (SelfhostSemanticsT3Tests.cs:80-98, SelfhostSemanticsT5Tests.cs:72-90 `Compare`): GenSem(programs/<the
+  /// `program` line>) run with no arguments exits 0 with an empty stderr; its stdout split at LF with the empty lines dropped holds `total`
+  /// lines, and lines [start, start+count) (`range`: start, then count) are `expected.lines`. A failure names the `section` label and the
+  /// first differing line.
+  void goldenProgramRange(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
+~     let file = goldenCliLines(Path.combine(k.dir, "program"))
+~     let range = goldenCliLines(Path.combine(k.dir, "range"))
+~     let total = goldenCliLines(Path.combine(k.dir, "total"))
+~     let start = range.length == 2 ? i64.tryParse(range[0]) ?? -1 : -1
+~     let count = range.length == 2 ? i64.tryParse(range[1]) ?? -1 : -1
+~     let lines = total.length == 1 ? i64.tryParse(total[0]) ?? -1 : -1
+~     if file.length != 1 || start < 0 || count < 0 || lines < 0 {
+~         failures.append(
+              $"{k.dir}\na `range` case needs one `program` line, a `range` of start and count, and one `total` line",
+          )
+~         return
+      }
+~     var failure = ""
+~     let main = goldenProgramSource(k.cases, for: file[0], through: ref failure)
+~     let prog = goldenProgram("semantics", by: k.exe, through: ref failure, main: main, buildMs: k.buildMs)
+~     if failure != "" {
+~         failures.append($"{k.dir}\n{failure}")
+~         return
+      }
+~     var args = List<string>()
+~     var none = List<u8>()
+~     let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
+~     return unless goldenProgramClean(k, for: in o, to: ref failures)
+~     let section = goldenCliLines(Path.combine(k.dir, "section"))
+~     let label = section.length > 0 ? section[0] : k.name
+      // `Split('\n', RemoveEmptyEntries)`: no CR dropped
+~     var got = List<string>()
+~     for line in goldenLines(o.stdout) {
+~         if line != "" {
+~             got.append(line)
+          }
+      }
+~     if got.length != lines {
+~         failures.append($"{k.dir}\n{label}: printed {got.length} lines, expected {lines}")
+~         return
+      }
+~     let path = Path.combine(k.dir, "expected.lines")
+~     unless Fs.fileExists(path) {
+~         failures.append($"{path}\nmissing expected file {path}")
+~         return
+      }
+~     let want = goldenCliLines(path)
+~     var i = 0
+~     while i < count && i < want.length && start + i < got.length && want[i] == got[start + i] {
+~         i += 1
+      }
+~     return if i == count && want.length == count
+~     if goldenUpdate() && !Fs.fileExists(goldenExpected(path, for: ".pending")) {
+~         var sb = StrBuf()
+~         for j in start..start + count {
+~             if j < got.length {
+~                 sb.append($"{got[j]}\n")
+              }
+          }
+~         let text = sb.finish()
+~         Io.writeFile(path, text.bytes) catch {
+~             failures.append($"{path}\ncannot write {path}")
+          }
+~         return
+      }
+~     let w = i < want.length ? want[i] : "<end of file>"
+~     let g = i < count && start + i < got.length ? got[start + i] : "<end of range>"
+~     failures.append($"{path}\n{label}: case {i} (line {start + i + 1})\nexpected: {w}\nactual: {g}")
+  }
+  
+  /// A `sem` case: a line range with a `range` file, GenSem with a `section` file, else a `bayan-check` row.
+  void goldenProgramSem(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
+~     if Fs.fileExists(Path.combine(k.dir, "range")) {
+~         goldenProgramRange(k, to: ref failures)
+~     } else if Fs.fileExists(Path.combine(k.dir, "section")) {
+~         goldenProgramGenSem(k, to: ref failures)
+~     } else if Fs.fileExists(Path.combine(k.dir, "args")) {
+~         goldenProgramBayanCheck(k, to: ref failures)
+      } else {
+~         failures.append(
+              $"{k.dir}\nno row of 019-export-runners.md runs a `sem` case of {k.cls} without `section` or `args`",
+          )
+      }
+  }
+  
+  /// The C# CLI arguments `cli` of an emitter harness case as `bayan-emit` takes them (SelfhostEmitterHarness.cs `SameAsCli`): the first
+  /// command word `build` and each `--emit-c` dropped, `test` as `--tests`; arguments without a command word as they are.
+  List<string> goldenProgramEmitArgs(ref List<string> cli) uses alloc {
+~     var command = -1
+~     var i = 0
+~     while i < cli.length && command < 0 {
+~         if cli[i] == "--color" {
+~             i += 1
+~         } else if !cli[i].startsWith("-") {
+~             command = cli[i] is "build" or "test" ? i : cli.length
+          }
+~         i += 1
+      }
+~     var res = List<string>()
+~     for j in 0..cli.length {
+~         if j == command {
+~             if cli[j] == "test" {
+~                 res.append("--tests")
+              }
+~         } else if !(command >= 0 && command < cli.length && cli[j] == "--emit-c") {
+~             res.append(cli[j])
+          }
+      }
+~     return res
+  }
+  
+  /// The arguments the C# added before an emitter harness case's own (they are not in `args`): `--time`, `--package <scratch>` or the
+  /// instrumentation flag, by the case's test and label.
+  List<string> goldenProgramEmitExtra(string name, at string scratch) uses alloc {
+~     var extra = List<string>()
+~     for label in ["ModeAndTimeFailLikeBuildOnAnErrorInput---time", "BadArgumentsFailLikeBuild-missing --time"] {
+~         if name == label || name.startsWith($"{label}-") {
+~             extra.append("--time")
+          }
+      }
+~     for label in [
+          "PackageAndTestsFailLikeBuildOnAnErrorInput---package",
+          "PackageAndTestsFailLikeBuildOnAnErrorInput-test.byn --package --tests",
+          "WarningsDoNotStopEmission---package",
+      ] {
+~         if name == label || name.startsWith($"{label}-") {
+~             extra.append("--package")
+~             extra.append(scratch)
+          }
+      }
+~     for flag in ["--coverage", "--mutate"] {
+~         let label = $"FixtureCMatchesAndAnInputWithErrorsFailsAsBuildDoes-errors {flag}"
+~         if name == label || name.startsWith($"{label}-") {
+~             extra.append(flag)
+          }
+      }
+~     return extra
+  }
+  
+  /// Whether an `emit-c` sections case of `cls` named `name` checks the generated main's exit code only, the fixture's own warnings allowed:
+  /// SelfhostEmitterT9Tests.cs:749, SelfhostEmitterT10Tests.cs:561, :572; SelfhostEmitterT11Tests.cs:392, :815; SelfhostEmitterT3Tests.cs:313;
+  /// SelfhostEmitterT2Tests.cs:677, :837 (its other tests fail on stderr, :612).
+  bool goldenProgramExitOnly(string cls, for string name) {
+~     return true if cls is "SelfhostEmitterT9Tests"
+          or "SelfhostEmitterT10Tests"
+          or "SelfhostEmitterT11Tests"
+          or "SelfhostEmitterT3Tests"
+~     return false unless cls == "SelfhostEmitterT2Tests"
+~     for t in ["Corpus_MatchesCSharp", "Lower_WithWarningsLowersLikeCSharp"] {
+~         return true if name == t || name.startsWith($"{t}-")
+      }
+~     return false
+  }
+  
+  /// The index of the last space of `text`; -1 when there is none.
+  i64 goldenProgramLastSpace(string text) {
+~     var i = text.length - 1
+~     while i >= 0 && text.bytes[i] != 0x20 {
+~         i -= 1
+      }
+~     return i
+  }
+  
+  /// SelfhostEmitterT7Tests.cs:515-522: the local each thunk case's function returns.
+  string goldenProgramThunkLocal(string fn) {
+~     switch fn {
+          case "plain":
+~             return "a"
+          case "unit":
+~             return "b"
+          case "failing":
+~             return "c"
+          case "failingUnit":
+~             return "d"
+          case "halt":
+~             return "e"
+          case "haltFails":
+~             return "g"
+          default:
+~             return ""
+      }
+  }
+  
+  /// The name the C# wrote the plain input of case `dir` as, which the emitted C names (`byn_file_0`): the case's `input.name` (`a.byn`,
+  /// `lib/a.byn`), else `plain`.
+  string goldenProgramOriginal(string dir, for string plain) uses alloc, fs {
+~     let lines = goldenCliLines(Path.combine(dir, "input.name"))
+~     return lines.length > 0 && lines[0] != "" ? lines[0] : plain
+  }
+  
+  /// An `emit-c` case. Its plain input (under the name the C# ran it on, `goldenProgramOriginal`) and `input/` are placed in the scratch
+  /// directory, which `args` uses, and the program runs there.
+  void goldenProgramEmit(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
+~     var failure = ""
+~     let plain = goldenProgramPlain(k.dir)
+~     let original = goldenProgramOriginal(k.dir, for: plain)
+~     if plain != "" {
+~         goldenProgramPut(k.dir, for: plain, at: Path.combine(k.scratch, original), through: ref failure)
+      }
+~     if goldenProgramHasTree(k.dir) {
+~         goldenProgramTree(k.dir, from: k.cases, to: Path.combine(k.scratch, "input"), through: ref failure)
+      }
+~     let fixture = "FixtureCMatchesAndAnInputWithErrorsFailsAsBuildDoes-"
+~     if k.cls == "SelfhostDefaultT10Tests" && k.name.startsWith($"{fixture}errors ") {
+          // SelfhostDefaultT10Tests.cs:350-355: the input with errors ran beside the fixtures b.byn and w.byn the test wrote first, whose
+          // text is the input of their own cases
+~         for file in ["b.byn", "w.byn"] {
+~             let sibling = Path.combine(Path.directoryName(k.dir) ?? ".", $"{fixture}{file} --coverage")
+~             goldenProgramPut(sibling, for: "input.byn", at: Path.combine(k.scratch, file), through: ref failure)
+          }
+      }
+~     let sections = Fs.fileExists(Path.combine(k.dir, "expected.sections"))
+~     let harness = Fs.fileExists(Path.combine(k.dir, "expected.stderr"))
+          && Fs.fileExists(Path.combine(k.dir, "expected.c"))
+      // `SameAsCli` ran on the input's full path, which `Mapped` (SelfhostEmitterHarness.cs:262) wrote as `plain`; a bare name it kept
+~     let staged = harness && original != plain ? Path.combine(k.scratch, original) : original
+~     var cli = goldenArgLines(Path.combine(k.dir, "args"))
+~     for i in 0..cli.length {
+~         if plain != "" && cli[i] == plain {
+~             cli[i] = staged
+          }
+~         if cli[i].contains("<repo>") {
+~             cli[i] = goldenCliPut(cli[i], for: k.scratch)
+          }
+      }
+~     var prog = ""
+~     var args = List<string>()
+~     var joined = ""
+~     if k.cls == "SelfhostEmitterT7Tests" {
+          // SelfhostEmitterT7Tests.cs:352-360, :472: `<test>-<label> <section>`, the generated main on `corpus`, `iface` or `thunk`
+~         let space = goldenProgramLastSpace(k.name)
+~         joined = space < 0 ? "" : k.name[space + 1..k.name.length]
+~         let lead = "Thunk_MatchesCSharp-thunk "
+~         if k.name.startsWith(lead) {
+~             let stop = space < lead.length ? k.name.length : space
+~             let fn = k.name[lead.length..stop]
+~             for a in ["thunk", fn, goldenProgramThunkLocal(fn)] {
+~                 args.append(a)
+              }
+          } else {
+~             args.append(k.name.startsWith("Types_OfATypeNoCaseMatches") ? "iface" : "corpus")
+          }
+~         args.append(original)
+~         let main = goldenProgramSource(k.cases, for: "SelfhostEmitterT7Tests.byn", through: ref failure)
+~         prog = goldenProgram("emitter", by: k.exe, through: ref failure, main: main, buildMs: k.buildMs)
+~     } else if k.cls == "SelfhostEmitterT21Tests" {
+          // SelfhostEmitterT21Tests.cs:136-143: GenSem with the T21 main on the input's path (`+` for the all-expression mode), its section
+~         let dash = goldenOffset(k.name, for: "-")
+~         let plus = dash >= 0 && k.name[dash + 1..k.name.length].startsWith("+")
+~         joined = $"{plus ? "+" : ""}{plain != "" ? original : "input"}"
+~         args.append(joined)
+~         let main = goldenProgramSource(k.cases, for: "SelfhostEmitterT21Tests.byn", through: ref failure)
+~         prog = goldenProgram("semantics", by: k.exe, through: ref failure, main: main, buildMs: k.buildMs)
+~     } else if k.cls == "SelfhostEmitterT22Tests" {
+          // SelfhostEmitterT22Tests.cs:270-271: `shapes <path>`, stdout as the C# lines; a case with `args` (the locals tests) runs on them
+          // alone (:158 `Compare`)
+~         if Fs.fileExists(Path.combine(k.dir, "args")) {
+~             for a in cli {
+~                 args.append(a)
+              }
+          } else {
+~             args.append("shapes")
+~             args.append(original)
+          }
+~         let main = goldenProgramSource(k.cases, for: "SelfhostEmitterT22Tests.byn", through: ref failure)
+~         prog = goldenProgram("emitter", by: k.exe, through: ref failure, main: main, buildMs: k.buildMs)
+~     } else if sections
+              || k.cls == "SelfhostDefaultT10Tests"
+              && !harness
+              && cli.length > 0
+              && (cli[0].startsWith("coverage") || cli[0].startsWith("mutate")) {
+          // the class's generated main with `args` (SelfhostEmitterHarness.cs:194-215; SelfhostDefaultT10Tests.cs:360-380), its mode
+          // `coverage` or `mutate` with `-skip` or `-tests` (:40-55)
+~         for a in cli {
+~             args.append(a)
+          }
+~         let main = goldenProgramSource(k.cases, for: $"{k.cls}.byn", through: ref failure)
+~         prog = goldenProgram("emitter", by: k.exe, through: ref failure, main: main, buildMs: k.buildMs)
+~     } else if harness || k.cls is "SelfhostDefaultT10Tests" or "SelfhostEmitterParityTests" {
+          // bayan-emit (SelfhostEmitterHarness.cs:29-42): the C# CLI arguments as it takes them
+~         for a in goldenProgramEmitExtra(k.name, at: k.scratch) {
+~             args.append(a)
+          }
+~         for a in goldenProgramEmitArgs(ref cli) {
+~             args.append(a)
+          }
+~         prog = goldenProgram("emitter", by: k.exe, through: ref failure, buildMs: k.buildMs)
+      } else {
+~         failures.append($"{k.dir}\nno row of 019-export-runners.md runs an `emit-c` case of {k.cls}")
+~         return
+      }
+~     if failure != "" {
+~         failures.append($"{k.dir}\n{failure}")
+~         return
+      }
+~     var none = List<u8>()
+~     let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
+~     let res = goldenProgramPortable(
+          staged != original ? goldenProgramUnstaged(o.stdout, from: staged, as: plain) : o.stdout,
+          at: k.scratch,
+          by: ref args,
+      )
+~     if k.cls is "SelfhostEmitterT7Tests" or "SelfhostEmitterT21Tests" {
+          // the section's lines joined by LF against `expected.c` (SelfhostEmitterHarness.cs:50 `AssertSame`)
+~         if o.exitCode != 0 {
+~             failures.append($"{k.dir}\ngenerated main exited {o.exitCode}:\n{o.stderr}")
+~             return
+          }
+~         var failure2 = ""
+~         var got = goldenProgramSection(res, for: joined, through: ref failure2)
+~         if failure2 != "" {
+~             failures.append($"{k.dir}\n{failure2}")
+~             return
+          }
+~         goldenProgramSame(Path.combine(k.dir, "expected.c"), as: ref got, by: false, to: ref failures)
+~     } else if k.cls == "SelfhostEmitterT22Tests" {
+~         if o.exitCode != 0 {
+~             failures.append($"{k.dir}\ngenerated main exited {o.exitCode}:\n{o.stderr}")
+~             return
+          }
+~         goldenCliCheck(k.dir, for: "expected.c", as: res, to: ref failures)
+~     } else if sections {
+~         if goldenProgramExitOnly(k.cls, for: k.name) {
+~             if o.exitCode != 0 {
+~                 failures.append($"{k.dir}\ngenerated main exited {o.exitCode}:\n{o.stderr}")
+~                 return
+              }
+          } else {
+~             return unless goldenProgramClean(k, for: in o, to: ref failures)
+          }
+~         goldenProgramSections(k.dir, for: "expected.sections", from: res, to: ref failures)
+~     } else if harness {
+          // SelfhostEmitterHarness.cs `SameAsCli`: stderr, then stdout as `expected.c`, then exit
+~         goldenCliCheck(
+              k.dir,
+              for: "expected.stderr",
+              as: goldenProgramPortable(
+                  staged != original ? goldenProgramUnstaged(o.stderr, from: staged, as: plain) : o.stderr,
+                  at: k.scratch,
+                  by: ref args,
+              ),
+              to: ref failures,
+          )
+~         goldenCliCheck(k.dir, for: "expected.c", as: res, to: ref failures)
+~         goldenCliCheck(k.dir, for: "expected.exitcode", as: $"{o.exitCode}\n", to: ref failures)
+      } else {
+          // SelfhostDefaultT10Tests.cs:360-380, :755-775; SelfhostEmitterParityTests.cs:46-48: stdout as `expected.c`
+~         goldenCliCheck(k.dir, for: "expected.c", as: res, to: ref failures)
+      }
+  }
+  
+  /// A `parse` case: its plain input in the scratch directory, the class's program run on it there (019-export-runners.md, "parse").
+  void goldenProgramParse(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
+~     var failure = ""
+~     var plain = goldenProgramPlain(k.dir)
+~     if plain != "" {
+~         goldenProgramPut(k.dir, for: plain, at: Path.combine(k.scratch, plain), through: ref failure)
+~     } else if goldenProgramHasTree(k.dir) {
+          // SelfhostExport.cs:93: an input named main.byn was exported as its directory
+~         goldenProgramTree(k.dir, from: k.cases, to: Path.combine(k.scratch, "input"), through: ref failure)
+~         plain = "input/main.byn"
+      }
+~     if failure != "" {
+~         failures.append($"{k.dir}\n{failure}")
+~         return
+      }
+~     var none = List<u8>()
+~     if k.cls is "SelfhostParserT4Tests" or "SelfhostParserT5Tests" or "SelfhostParserT9Tests" {
+          // ParserT4:143-159, T5:133-149, T9:257-272: the parser without `main.byn` plus `Program()` (the case's input) as t<N>-test.byn, no argv
+~         let n = k.cls["SelfhostParserT".length..k.cls.length - "Tests".length]
+~         let prog = goldenProgram(
+              "parser",
+              by: k.exe,
+              through: ref failure,
+              main: "-",
+              add: goldenProgramInput(k.dir, for: plain),
+              addAs: $"parser/t{n}-test.byn",
+              buildMs: k.buildMs,
+          )
+~         if failure != "" {
+~             failures.append($"{k.dir}\n{failure}")
+~             return
+          }
+~         var args = List<string>()
+~         let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
+~         goldenCliCheck(k.dir, for: "expected.stdout", as: goldenLf(o.stdout), to: ref failures)
+~         return
+      }
+~     if k.cls is "SelfhostParserT6Tests" or "SelfhostParserT7Tests" {
+          // ParserT6:330, :360 `Run(BuiltPath, input, <args>)`; ParserT7:83-86, :198 `Run(path, input)`: exit 0, stdout
+~         let n = k.cls == "SelfhostParserT6Tests" ? "6" : "7"
+~         let main = goldenProgramSource(k.cases, for: $"{k.cls}.byn", through: ref failure)
+~         let prog = goldenProgram(
+              "parser",
+              by: k.exe,
+              through: ref failure,
+              main: "-",
+              add: main,
+              addAs: $"parser/t{n}-test.byn",
+              buildMs: k.buildMs,
+          )
+~         if failure != "" {
+~             failures.append($"{k.dir}\n{failure}")
+~             return
+          }
+~         var args = List<string>()
+~         args.append(plain)
+~         for a in goldenArgLines(Path.combine(k.dir, "args")) {
+~             args.append(a)
+          }
+~         let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
+~         if o.exitCode != 0 {
+~             failures.append($"{k.dir}\nexited {o.exitCode}, not 0\n{o.stderr}")
+~             return
+          }
+~         for name in ["expected.literals", "expected.type", "expected.shapes"] {
+~             if Fs.fileExists(Path.combine(k.dir, name)) {
+~                 goldenCliCheck(
+                      k.dir,
+                      for: name,
+                      as: goldenProgramPortable(o.stdout, at: k.scratch, by: ref args),
+                      to: ref failures,
+                  )
+              }
+          }
+~         return
+      }
+      // SelfhostParserTests and SelfhostParserO3Tests, by the expected file the C# wrote
+~     var ran = false
+~     if Fs.fileExists(Path.combine(k.dir, "expected.ast")) {
+          // ParserTests:501-512, :545-555, :138, :552, :599; ParserO3:42-45: bayan-parse on the input, stdout and exit
+~         ran = true
+~         let prog = goldenProgram("parser", by: k.exe, through: ref failure, buildMs: k.buildMs)
+~         var args = List<string>()
+~         args.append(plain)
+~         if failure == "" {
+~             if (goldenProgramRun(
+                  k,
+                  for: prog,
+                  by: ref args,
+                  at: k.scratch,
+                  from: ref none,
+                  to: ref failures,
+              ) is { } o) {
+~                 goldenCliCheck(k.dir, for: "expected.ast", as: goldenLf(o.stdout), to: ref failures)
+~                 if Fs.fileExists(Path.combine(k.dir, "expected.exitcode")) {
+~                     goldenCliCheck(k.dir, for: "expected.exitcode", as: $"{o.exitCode}\n", to: ref failures)
+                  }
+              }
+          }
+      }
+~     if Fs.fileExists(Path.combine(k.dir, "expected.codes")) {
+          // ParserTests:632-649: `--codes`, exit 0, as many lines as the C# codes, each a code of them with its message
+~         ran = true
+~         let prog = goldenProgram("parser", by: k.exe, through: ref failure, buildMs: k.buildMs)
+~         var args = List<string>()
+~         args.append("--codes")
+~         if failure == "" {
+~             if (goldenProgramRun(
+                  k,
+                  for: prog,
+                  by: ref args,
+                  at: k.scratch,
+                  from: ref none,
+                  to: ref failures,
+              ) is { } o) {
+~                 goldenProgramCodes(k.dir, as: in o, to: ref failures)
+              }
+          }
+      }
+~     for pair in [
+          "expected.collectors collectors-test.byn SelfhostParserTests.CollectorsProgram.byn",
+          "expected.spans statement-spans-test.byn SelfhostParserTests.StatementSpansProgram.byn",
+      ] {
+          // ParserTests:407, :421, :472 (collectors); :339, :379 (statement spans): the parser without `main.byn` plus the test program
+~         var words = List<string>()
+~         for part in pair.parts(by: " ") {
+~             words.append($"{part}")
+          }
+~         continue unless Fs.fileExists(Path.combine(k.dir, words[0]))
+~         ran = true
+~         let main = goldenProgramSource(k.cases, for: words[2], through: ref failure)
+~         let prog = goldenProgram(
+              "parser",
+              by: k.exe,
+              through: ref failure,
+              main: "-",
+              add: main,
+              addAs: $"parser/{words[1]}",
+              buildMs: k.buildMs,
+          )
+~         var args = List<string>()
+~         args.append(plain)
+~         if failure == "" {
+~             if (goldenProgramRun(
+                  k,
+                  for: prog,
+                  by: ref args,
+                  at: k.scratch,
+                  from: ref none,
+                  to: ref failures,
+              ) is { } o) {
+~                 goldenCliCheck(k.dir, for: words[0], as: goldenLf(o.stdout), to: ref failures)
+              }
+          }
+      }
+~     if failure != "" {
+~         failures.append($"{k.dir}\n{failure}")
+~     } else if !ran {
+~         failures.append(
+              $"{k.dir}\nno row of 019-export-runners.md runs a `parse` case of {k.cls} with these expected files",
+          )
+      }
+  }
+  
+  /// SelfhostParserTests.cs:651 `PostfixOnNewLineMessage`, the one message of `--codes` the C# descriptor (BYN1042) words otherwise.
+  const goldenProgramPostfixMessage: string = "a postfix `{0}` must be on the line of its statement"
+  
+  /// SelfhostParserTests.cs:632-649 `CodesMatchDiagnosticCodes`: `--codes` exits 0 and prints 70 `<code>\t<message>` lines, each a code
+  /// of `expected.codes` with its message (BYN1042 may print `goldenProgramPostfixMessage`); the first difference is added.
+  void goldenProgramCodes(string dir, as in GoldenOutcome o, to ref List<string> failures) uses alloc, fs {
+~     let path = Path.combine(dir, "expected.codes")
+~     unless Fs.fileExists(path) {
+~         failures.append($"{path}\nmissing expected file {path}")
+~         return
+      }
+~     if o.exitCode != 0 {
+~         failures.append($"{path}\n--codes exited {o.exitCode}, not 0\n{o.stderr}")
+~         return
+      }
+~     var want = List<string>()
+~     for line in goldenCliLines(path) {
+~         if line.length > 0 {
+~             want.append(line)
+          }
+      }
+~     var got = List<string>()
+~     for line in goldenLines(goldenLf(o.stdout)) {
+~         if line.length > 0 {
+~             got.append(line)
+          }
+      }
+      // the C# asserts 70 lines (Q433), not the count of its descriptors
+~     if got.length != 70 {
+~         failures.append($"{path}\nexpected 70 codes\nactual {got.length} codes")
+~         return
+      }
+~     for line in got {
+~         let tab = goldenOffset(line, for: "\t")
+~         if tab <= 0 {
+~             failures.append($"{path}\nno tab in --codes line: {line}")
+~             return
+          }
+~         let code = line[0..tab]
+~         var found = false
+~         var same = false
+~         for w in want {
+~             if w.startsWith($"{code}\t") {
+~                 found = true
+~                 same = w == line || code == "BYN1042" && line[tab + 1..line.length] == goldenProgramPostfixMessage
+              }
+          }
+~         if !found {
+~             failures.append($"{path}\nno C# descriptor for {code}")
+~             return
+          }
+~         if !same {
+~             failures.append($"{path}\n{code} message differs\nactual line: {line}")
+~             return
+          }
+      }
+  }
+  
+  /// A `lex` case (019-export-runners.md, "lex"): bayan-lex on the input path or on stdin with `--json`, or LexerCaseTests' program.
+  void goldenProgramLex(GoldenExportCase k, to ref List<string> failures) uses alloc, clock, env, fs, process {
+~     var failure = ""
+~     let plain = goldenProgramPlain(k.dir)
+~     if plain != "" {
+~         goldenProgramPut(k.dir, for: plain, at: Path.combine(k.scratch, plain), through: ref failure)
+      }
+~     if k.cls == "SelfhostLexerCaseTests" {
+          // SelfhostLexerCaseTests.cs:24-38: the input is the program, built as src/t-case.byn over src/ and run without arguments
+~         let prog = goldenProgram(
+              "lexer",
+              by: k.exe,
+              through: ref failure,
+              add: goldenProgramInput(k.dir, for: plain),
+              addAs: "t-case.byn",
+              file: true,
+              buildMs: k.buildMs,
+          )
+~         if failure != "" {
+~             failures.append($"{k.dir}\n{failure}")
+~             return
+          }
+~         var args = List<string>()
+~         var none = List<u8>()
+~         let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref none, to: ref failures) ?? return
+~         goldenCliCheck(k.dir, for: "expected.stdout", as: goldenLf(o.stdout), to: ref failures)
+~         return
+      }
+~     let prog = goldenProgram("lexer", by: k.exe, through: ref failure, buildMs: k.buildMs)
+~     if failure != "" {
+~         failures.append($"{k.dir}\n{failure}")
+~         return
+      }
+~     var args = List<string>()
+~     var input = List<u8>()
+~     let json = Fs.fileExists(Path.combine(k.dir, "expected.json"))
+~     if json {
+          // LexerTests.cs:154-168, :399-432: the input on stdin, `--json`; RunOnStdinRunsAPromptProgramOnce types `x` and LF
+~         args.append("--json")
+~         if k.name.startsWith("RunOnStdin") {
+~             input = "x\n".bytes.copy()
+          } else {
+~             input = Io.readFile(goldenProgramInput(k.dir, for: plain)) catch List<u8>()
+          }
+      } else {
+          // LexerTests.cs:113-121 (`LexGolden`), :294-333 (`Corpus`, one file of the C#'s `--many` run): the input path
+~         args.append(plain)
+      }
+~     let o = goldenProgramRun(k, for: prog, by: ref args, at: k.scratch, from: ref input, to: ref failures) ?? return
+~     if json {
+~         goldenProgramCheck(k.dir, for: "expected.json", as: o.stdout, by: "bytes", to: ref failures)
+~         if Fs.fileExists(Path.combine(k.dir, "expected.exitcode")) {
+~             goldenCliCheck(k.dir, for: "expected.exitcode", as: $"{o.exitCode}\n", to: ref failures)
+          }
+~     } else if Fs.fileExists(Path.combine(k.dir, "expected.tokens")) {
+          // `Golden.Compare` for LexGolden (Golden.cs:35-47), byte for byte for the corpus (LexerTests.cs:327)
+~         goldenProgramCheck(
+              k.dir,
+              for: "expected.tokens",
+              as: o.stdout,
+              by: k.name.startsWith("Corpus") ? "bytes" : "",
+              to: ref failures,
+          )
+      } else {
+~         failures.append(
+              $"{k.dir}\nno row of 019-export-runners.md runs a `lex` case of {k.cls} with these expected files",
+          )
+      }
+  }
+  
+  /// The scratch directory of the case `<cls>/<name>` (spec 019 T41b): tmp/p/ and the first 8 hex digits of the SHA-256 of `<cls>_<name>`,
+  /// short so that `<repo>` read as it keeps a case's Windows command line under 32,767 characters (the test "every exported case's command
+  /// line ...").
+  string goldenProgramScratch(string cls, for string name) uses alloc, fs {
+~     let hash = t9Hash($"{cls}_{name}")
+~     return Path.combine(Path.combine(Path.fullPath("tmp"), "p"), $"{hash[0..8]}")
+  }
+  
+  /// `scratch` claimed for the case `key` through the file `<scratch>.case` holding its name: empty when it is the case's, else the other
+  /// case named there, whose name hashes alike. The workers are processes of their own; the file is what they share.
+  string goldenProgramClaim(string scratch, for string key) uses alloc, fs {
+~     let claim = $"{scratch}.case"
+~     let held = Io.readText(claim) catch ""
+~     return held if held != "" && held != key
+~     Io.createDirectory(Path.directoryName(claim) ?? ".") catch {}
+~     Io.writeFile(claim, key.bytes) catch {}
+~     let now = Io.readText(claim) catch ""
+~     return now == key ? "" : now
+  }
+  
+  /// The claim of the case `key` on `scratch` given up: empty when it was still its own or is gone, else the case that took it meanwhile.
+  string goldenProgramRelease(string scratch, for string key) uses alloc, fs {
+~     let claim = $"{scratch}.case"
+~     let held = Io.readText(claim) catch ""
+~     return held if held != "" && held != key
+~     Io.remove(claim) catch {}
+~     return ""
+  }
+  
+  /// The failure of the case `dir` named `key` whose scratch directory `scratch` the case `other` holds.
+  string goldenProgramShared(string dir, for string key, at string scratch, by string other) uses alloc {
+~     return $"{dir}\nthe scratch directory {scratch} of {key} is also {other}'s: their names hash alike, rename one of the two cases"
+  }
+  
+  /// The exported case directory `dir` of `kind` through the driver `exe` (spec 019 T17b2b): null when it passes, else the failures, each
+  /// naming its expected file and first differing line. With `prebuild` it only builds the programs the case needs, each within `buildMs`.
+  string? goldenProgramsCase(
+      string kind,
+      at string dir,
+      by string exe,
+      bool prebuild = false,
+      i64 buildMs = goldenBuildLimitMs
+  )
+          uses alloc, clock, env, fs, process {
+~     let classDir = Path.directoryName(dir) ?? ""
+~     let cls = Path.fileName(classDir)
+~     let name = Path.fileName(dir)
+~     let scratch = goldenProgramScratch(cls, for: name)
+~     let other = goldenProgramClaim(scratch, for: $"{cls}_{name}")
+~     return goldenProgramShared(dir, for: $"{cls}_{name}", at: scratch, by: other) if other != ""
+~     if !goldenFresh(scratch) {
+~         let _ = goldenProgramRelease(scratch, for: $"{cls}_{name}")
+~         return $"{dir}\ncannot create {scratch}"
+      }
+~     let k = GoldenExportCase {
+          dir: dir,
+          cls: cls,
+          name: name,
+          cases: Path.directoryName(Path.directoryName(classDir) ?? "") ?? "",
+          scratch: scratch,
+          exe: exe,
+          prebuild: prebuild,
+          buildMs: buildMs,
+      }
+~     var failures = List<string>()
+~     switch kind {
+          case "sem":
+~             goldenProgramSem(k, to: ref failures)
+          case "emit-c":
+~             goldenProgramEmit(k, to: ref failures)
+          case "parse":
+~             goldenProgramParse(k, to: ref failures)
+          default:
+~             goldenProgramLex(k, to: ref failures)
+      }
+      // a recording's runs read their inputs here at replay time (replay.py)
+~     if (Env.get("BAYAN_SNAPSHOT") ?? "") == "" {
+~         deleteWorkDir(scratch)
+      }
+~     let late = goldenProgramRelease(scratch, for: $"{cls}_{name}")
+~     if late != "" {
+~         failures.append(goldenProgramShared(dir, for: $"{cls}_{name}", at: scratch, by: late))
+      }
+~     return null if failures.length == 0
+~     var text = ""
+~     for f in failures {
+~         text = text == "" ? f : $"{text}\n{f}"
+      }
+~     return text
+  }
+  
+  /// The programs the exported cases of `cases` need, built through `exe` within `buildMs` one after another in this process before any case
+  /// clock starts (T17b2c): a case never waits on a build, and two workers never build one program at once. What fails is each case's to report.
+  void goldenPrebuild(ref List<GoldenCase> cases, by string exe, i64 buildMs = goldenBuildLimitMs)
+          uses alloc, clock, env, fs, process {
+~     for c in cases {
+~         if goldenExported(c.kind, at: c.input) {
+~             let _ = goldenProgramsCase(c.kind, at: c.input, by: exe, prebuild: true, buildMs: buildMs)
+          }
+      }
+  }
+  
+  /// The `kind` case `<cls>/Case` written under tmp/golden-programs-`tag` from `files` (name, text, name, text, ...) and run through a fake
+  /// driver whose every build is the shell program `body` (`STDOUT` read as a file holding `stdout`): its failure text, empty when it passes.
+  string goldenProgramsFake(
+      string tag,
+      for string kind,
+      at string cls,
+      as string body,
+      from string stdout,
+      by ref List<string> files
+  )
+          uses alloc, clock, env, fs, process {
+~     if Target.os == "windows" {
+~         todo("the fake driver and program are `sh` scripts")
+      }
+~     let root = Path.combine(Path.fullPath("tmp"), $"golden-programs-{tag}")
+~     deleteWorkDir(root)
+~     goldenWrite(root, for: "stdout", as: stdout)
+~     goldenWrite(root, for: "prog", as: $"#!/bin/sh\n{body.replaced("STDOUT", by: Path.combine(root, "stdout"))}\n")
+~     let exe = goldenCliFake(
+          root,
+          for: "bayan",
+          as: $"while [ $# -gt 0 ]; do [ \"$1\" = -o ] && out=$2; shift; done\ncp '{Path.combine(root, "prog")}' \"$out\"\nchmod +x \"$out\"",
+      )
+~     var i = 0
+~     while i + 1 < files.length {
+~         goldenWrite(root, for: $"cases/{kind}/{cls}/Case/{files[i]}", as: files[i + 1])
+~         i += 2
+      }
+~     let r = goldenProgramsCase(kind, at: Path.combine(root, $"cases/{kind}/{cls}/Case"), by: exe) ?? ""
+~     deleteWorkDir(root)
+~     return r
+  }
+  
+  /// A GenSem section case whose program prints `stdout`, with the `compare` word `word` and the `expected.sections` `expected`: its failure text.
+  string goldenProgramsWordCase(string tag, for string word, as string stdout, by string expected)
+          uses alloc, clock, env, fs, process {
+~     var files = List<string>()
+~     for f in ["input.byn", "", "section", "s\n", "compare", $"{word}\n", "expected.sections", expected] {
+~         files.append(f)
+      }
+~     return goldenProgramsFake(tag, for: "sem", at: "Words", as: "cat 'STDOUT'", from: stdout, by: ref files)
+  }
+  
+  test "`t41` puts the store and returns lines last in order, each returns set sorted (SelfhostSemanticsT41Tests.cs:728), a changed line fails" {
+      let stdout = "== s\nreturns f 3 01 2\nerror x\nstore b\nstore a\n"
+      let pass = goldenProgramsWordCase(
+          "t41",
+          for: "t41",
+          as: stdout,
+          by: "== s\nerror x\nreturns f 1 2 3\nstore a\nstore b\n",
+      )
+      let failed = goldenProgramsWordCase(
+          "t41",
+          for: "t41",
+          as: stdout,
+          by: "== s\nerror x\nreturns f 3 01 2\nstore a\nstore b\n",
+      )
+      assert(pass == "")
+      assert(failed.contains("expected.sections\nexpected line 3: returns f 3 01 2\nactual line 3: returns f 1 2 3"))
+      assert(goldenProgramT41Set("returns g -1 10 -0 9") == "returns g -1 0 9 10")
+  }
+  
+  test "`sorted` compares the section in ordinal order (SelfhostRevisionT4Tests.cs:298), an unsorted expected file fails" {
+      let pass = goldenProgramsWordCase("sorted", for: "sorted", as: "== s\nb\na\nB\n", by: "== s\nB\na\nb\n")
+      let failed = goldenProgramsWordCase("sorted", for: "sorted", as: "== s\nb\na\nB\n", by: "== s\nb\na\nB\n")
+      assert(pass == "")
+      assert(failed.contains("expected line 2: b\nactual line 2: B"))
+  }
+  
+  test "`sorted-end` compares the sorted section and an `end` line (SelfhostSemanticsT7Tests.cs:185-190), one without it fails" {
+      let pass = goldenProgramsWordCase("sorted-end", for: "sorted-end", as: "== s\nb\na\n", by: "== s\na\nb\nend\n")
+      let failed = goldenProgramsWordCase("sorted-end", for: "sorted-end", as: "== s\nb\na\n", by: "== s\na\nb\n")
+      assert(pass == "")
+      assert(failed.contains("expected line 4: <end of file>\nactual line 4: end"))
+  }
+  
+  test "`t25-run` sorts each ` local ` line's lists, then the lines (SelfhostSemanticsT25Tests.cs:347-348), an unsorted one fails" {
+      let stdout = "== s\nf depth s 1 -1\nf local x [1:b,0:a] [l2,l1] l2=1,l1=3\nf depth r 2 7\n"
+      let want = "== s\nf depth r 2 7\nf depth s 1 -1\nf local x [0:a,1:b] [l1,l2] l1=3,l2=1\n"
+      let pass = goldenProgramsWordCase("t25-run", for: "t25-run", as: stdout, by: want)
+      let failed = goldenProgramsWordCase("t25-run", for: "t25-run", as: stdout, by: stdout)
+      assert(pass == "")
+      assert(failed.contains("expected line 2: f depth s 1 -1\nactual line 2: f depth r 2 7"))
+  }
+  
+  test "`t25-pure` sorts each line's lists and lends (SelfhostSemanticsT25Tests.cs:732), and the T25 run cases take the T25 words" {
+      let stdout = "== s\nempty-left [1:x,0:y] [l2,l1] -\nboth-empty [] [] -\nmerge [1:x,0:y] [l1] l3=2,l1=5\n"
+      let want = "== s\nempty-left [0:y,1:x] [l1,l2] -\nboth-empty [] [] -\nmerge [0:y,1:x] [l1] l1=5,l3=2\n"
+      let pass = goldenProgramsWordCase("t25-pure", for: "t25-pure", as: stdout, by: want)
+      let failed = goldenProgramsWordCase("t25-pure", for: "t25-pure", as: stdout, by: stdout)
+      assert(pass == "")
+      assert(failed.contains(
+          "expected line 2: empty-left [1:x,0:y] [l2,l1] -\nactual line 2: empty-left [0:y,1:x] [l1,l2] -",
+      ))
+      let t25 = Path.fullPath("tests/cases/sem/SelfhostSemanticsT25Tests")
+      assert(goldenProgramCaseWord(Path.combine(t25, "RunMatches")) == "t25-run")
+      assert(goldenProgramCaseWord(Path.combine(t25, "RunMatches-2")) == "t25-run")
+      assert(goldenProgramCaseWord(Path.combine(t25, "UnionAndLentMatch")) == "t25-pure")
+      assert(goldenProgramCaseWord(Path.combine(t25, "ComputeMatches")) == "")
+  }
+  
+  test "a sem `range` case compares lines [start, start+count) of the non-empty stdout lines after their `total`; a changed line or total fails" {
+      var files = List<string>()
+      for f in [
+          "section",
+          "s\n",
+          "program",
+          "Words.byn\n",
+          "range",
+          "1\n2\n",
+          "total",
+          "4\n",
+          "expected.lines",
+          "b\nc\n",
+          "../../../programs/Words.byn",
+          "",
+      ] {
+          files.append(f)
+      }
+      let pass = goldenProgramsFake(
+          "range",
+          for: "sem",
+          at: "Words",
+          as: "cat 'STDOUT'",
+          from: "a\n\nb\nc\nd\n",
+          by: ref files,
+      )
+      let line = goldenProgramsFake(
+          "range",
+          for: "sem",
+          at: "Words",
+          as: "cat 'STDOUT'",
+          from: "a\nb\nx\nd\n",
+          by: ref files,
+      )
+      let total = goldenProgramsFake(
+          "range",
+          for: "sem",
+          at: "Words",
+          as: "cat 'STDOUT'",
+          from: "a\nb\nc\n",
+          by: ref files,
+      )
+      files[3] = "Missing.byn\n"
+      let missing = goldenProgramsFake(
+          "range",
+          for: "sem",
+          at: "Words",
+          as: "cat 'STDOUT'",
+          from: "a\nb\nc\nd\n",
+          by: ref files,
+      )
+      assert(pass == "")
+      assert(line.contains("expected.lines\ns: case 1 (line 3)\nexpected: c\nactual: x"))
+      assert(total.contains("s: printed 3 lines, expected 4"))
+      assert(missing.contains("missing program file tests/cases/programs/Missing.byn"))
+  }
+  
+  test "a SelfhostSemanticsT18Tests case runs with the module `other` the C# wrote (SelfhostSemanticsT18Tests.cs:446-450), another class not" {
+      var files = List<string>()
+      for f in ["input.byn", "", "section", "s\n", "expected.sections", "== s\nconst oc: i32 = 1\n"] {
+          files.append(f)
+      }
+      let body = "echo '== s'; head -n 1 tmp/t18-cases/other/other.byn 2>/dev/null; true"
+      let t18 = goldenProgramsFake(
+          "t18-module",
+          for: "sem",
+          at: "SelfhostSemanticsT18Tests",
+          as: body,
+          from: "",
+          by: ref files,
+      )
+      let other = goldenProgramsFake("t18-module-other", for: "sem", at: "Words", as: body, from: "", by: ref files)
+      assert(t18 == "")
+      assert(other.contains("expected line 2: const oc: i32 = 1\nactual line 2: <end of file>"))
+  }
+  
+  test "`prefix:<name>` compares the lines of section `all` starting `<name> ` (SelfhostPathT7Tests.cs:189), another line fails" {
+      let stdout = "== all\nstore a\nload b\nstores c\nstore d\n"
+      let pass = goldenProgramsWordCase("prefix", for: "prefix:store", as: stdout, by: "== all\nstore a\nstore d\n")
+      let failed = goldenProgramsWordCase(
+          "prefix",
+          for: "prefix:store",
+          as: stdout,
+          by: "== all\nstore a\nload b\nstore d\n",
+      )
+      assert(pass == "")
+      assert(failed.contains("expected line 3: load b\nactual line 3: store d"))
+  }
+  
+  test "a section printed twice or not at all fails, as does an unknown compare word (SelfhostSemanticsHarness.cs:453-477)" {
+      let twice = goldenProgramsWordCase("twice", for: "", as: "== s\na\n== s\n", by: "== s\na\n")
+      let none = goldenProgramsWordCase("none", for: "", as: "== t\na\n", by: "== s\na\n")
+      let word = goldenProgramsWordCase("word", for: "shuffled", as: "== s\na\n", by: "== s\na\n")
+      assert(twice.contains("section 's' printed twice"))
+      assert(none.contains("section 's' was not printed"))
+      assert(word.contains("unknown compare word `shuffled`"))
+  }
+  
+  test "`untimed` reads ` in <n>.<nn>s` at a line's end as ` in <time>` on both sides (SelfhostSemanticsTests.cs:200), other text still fails" {
+      var files = List<string>()
+      for f in [
+          "args",
+          "check input.byn\n",
+          "input.byn",
+          "",
+          "compare",
+          "untimed\n",
+          "expected.stdout",
+          "checked in 0.12s\n",
+          "expected.stderr",
+          "",
+          "expected.exitcode",
+          "0\n",
+      ] {
+          files.append(f)
+      }
+      let pass = goldenProgramsFake(
+          "untimed",
+          for: "sem",
+          at: "SelfhostSemanticsTests",
+          as: "cat 'STDOUT'",
+          from: "checked in 13.45s\n",
+          by: ref files,
+      )
+      let failed = goldenProgramsFake(
+          "untimed",
+          for: "sem",
+          at: "SelfhostSemanticsTests",
+          as: "cat 'STDOUT'",
+          from: "checked 2 in 13.45s\n",
+          by: ref files,
+      )
+      assert(pass == "")
+      assert(failed.contains("expected.stdout\nexpected line 1: checked in <time>\nactual line 1: checked 2 in <time>"))
+      assert(goldenProgramUntimedLine("ok in 1.5s") == "ok in 1.5s")
+      assert(goldenProgramUntimedLine("ok in 10.25s\r") == "ok in <time>\r")
+  }
+  
+  test "a sem `bayan-check` case passes the C# arguments as SelfArgs makes them (SelfhostSemanticsTests.cs:226-240)" {
+      var files = List<string>()
+      for f in [
+          "args",
+          "--color\nnever\ntypes\ninput.byn\n",
+          "input.byn",
+          "f() {}\n",
+          "expected.stdout",
+          "--color never --types input.byn\n",
+          "expected.stderr",
+          "",
+          "expected.exitcode",
+          "0\n",
+      ] {
+          files.append(f)
+      }
+      let r = goldenProgramsFake(
+          "self",
+          for: "sem",
+          at: "SelfhostSemanticsTests",
+          as: "echo \"$@\"",
+          from: "",
+          by: ref files,
+      )
+      assert(r == "")
+  }
+  
+  test "an emit-c harness case runs bayan-emit without `build` and `--emit-c` (SelfhostEmitterHarness.cs), a changed expected.c fails" {
+      var files = List<string>()
+      for f in [
+          "args",
+          "build\n--emit-c\ninput.byn\n",
+          "input.byn",
+          "f() {}\n",
+          "expected.c",
+          "input.byn\n",
+          "expected.stderr",
+          "",
+          "expected.exitcode",
+          "0\n",
+      ] {
+          files.append(f)
+      }
+      let pass = goldenProgramsFake(
+          "emit",
+          for: "emit-c",
+          at: "SelfhostEmitterHarnessTests",
+          as: "echo \"$@\"",
+          from: "",
+          by: ref files,
+      )
+      files[5] = "--emit-c input.byn\n"
+      let failed = goldenProgramsFake(
+          "emit",
+          for: "emit-c",
+          at: "SelfhostEmitterHarnessTests",
+          as: "echo \"$@\"",
+          from: "",
+          by: ref files,
+      )
+      assert(pass == "")
+      assert(failed.contains("expected.c\nexpected line 1: --emit-c input.byn\nactual line 1: input.byn"))
+      var cli = List<string>()
+      for a in ["--color", "never", "test", "--emit-c", "x.test.byn"] {
+          cli.append(a)
+      }
+      let self = goldenProgramEmitArgs(ref cli)
+      assert(self.length == 4 && self[2] == "--tests" && self[3] == "x.test.byn")
+  }
+  
+  test "an emit-c T7 case compares the section its name ends with, the thunk case on its local (SelfhostEmitterT7Tests.cs:352-360, :515-522)" {
+      if Target.os == "windows" {
+          todo("the fake driver and program are `sh` scripts")
+      }
+      let root = Path.combine(Path.fullPath("tmp"), "golden-programs-t7")
+      deleteWorkDir(root)
+      goldenWrite(
+          root,
+          for: "prog",
+          as: "#!/bin/sh\necho '== x'\necho \"$1 $3\"\necho \"$4\"\necho '== thunk'\necho \"$1 $3\"\necho \"$4\"\n",
+      )
+      let exe = goldenCliFake(
+          root,
+          for: "bayan",
+          as: $"while [ $# -gt 0 ]; do [ \"$1\" = -o ] && out=$2; shift; done\ncp '{Path.combine(root, "prog")}' \"$out\"\nchmod +x \"$out\"",
+      )
+      let dir = Path.combine(root, "cases/emit-c/SelfhostEmitterT7Tests/Thunk_MatchesCSharp-thunk unit thunk")
+      goldenWrite(dir, for: "input.byn", as: "f() {}\n")
+      goldenWrite(dir, for: "expected.c", as: "thunk b\ninput.byn")
+      let pass = goldenProgramsCase("emit-c", at: dir, by: exe) ?? ""
+      goldenWrite(dir, for: "expected.c", as: "thunk a\ninput.byn")
+      let failed = goldenProgramsCase("emit-c", at: dir, by: exe) ?? ""
+      deleteWorkDir(root)
+      assert(pass == "")
+      assert(failed.contains("expected.c\nexpected line 1: thunk a\nactual line 1: thunk b"))
+  }
+  
+  test "an emit-c case with `input.name` runs on its input staged under that name, which `args` and the C name; without it the plain name" {
+      if Target.os == "windows" {
+          todo("the fake driver and program are `sh` scripts")
+      }
+      let root = Path.combine(Path.fullPath("tmp"), "golden-programs-original")
+      deleteWorkDir(root)
+      goldenWrite(root, for: "prog", as: "#!/bin/sh\necho \"$@\"\nfor a; do :; done\ncat \"$a\"\n")
+      let exe = goldenCliFake(
+          root,
+          for: "bayan",
+          as: $"while [ $# -gt 0 ]; do [ \"$1\" = -o ] && out=$2; shift; done\ncp '{Path.combine(root, "prog")}' \"$out\"\nchmod +x \"$out\"",
+      )
+      let t10 = Path.combine(
+          root,
+          "cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-arithmetic.byn --coverage",
+      )
+      goldenWrite(t10, for: "args", as: "--coverage\n--mode\nsafe\n--package\n.\ninput.byn\n")
+      goldenWrite(t10, for: "input.byn", as: "f() {}\n")
+      goldenWrite(t10, for: "input.name", as: "arithmetic.byn\n")
+      goldenWrite(t10, for: "expected.c", as: "--coverage --mode safe --package . arithmetic.byn\nf() {}\n")
+      let pass = goldenProgramsCase("emit-c", at: t10, by: exe) ?? ""
+      let parity = Path.combine(root, "cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_x")
+      goldenWrite(parity, for: "args", as: "--mode\nsafe\n--package\n.\ninput.byn\n")
+      goldenWrite(parity, for: "input.byn", as: "f() {}\n")
+      goldenWrite(parity, for: "input.name", as: "lib/a.byn\n")
+      goldenWrite(parity, for: "expected.c", as: "--mode safe --package . lib/a.byn\nf() {}\n")
+      let passParity = goldenProgramsCase("emit-c", at: parity, by: exe) ?? ""
+      // a `SameAsCli` case runs on the full path, read back as `plain` as `Mapped` wrote it; the bare name stays
+      let same = Path.combine(root, "cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_goto.byn --all")
+      goldenWrite(same, for: "args", as: "build\n--emit-c\n--all\ninput.byn\n")
+      goldenWrite(same, for: "input.byn", as: "goto.byn\n")
+      goldenWrite(same, for: "input.name", as: "goto.byn\n")
+      goldenWrite(same, for: "expected.c", as: "--all input.byn\ngoto.byn\n")
+      goldenWrite(same, for: "expected.stderr", as: "")
+      goldenWrite(same, for: "expected.exitcode", as: "0\n")
+      let passSame = goldenProgramsCase("emit-c", at: same, by: exe) ?? ""
+      Io.remove(Path.combine(t10, "input.name")) catch {}
+      let failed = goldenProgramsCase("emit-c", at: t10, by: exe) ?? ""
+      deleteWorkDir(root)
+      assert(pass == "")
+      assert(passParity == "")
+      assert(passSame == "")
+      assert(failed.contains(
+          "expected line 1: --coverage --mode safe --package . arithmetic.byn\nactual line 1: --coverage --mode safe --package . input.byn",
+      ))
+  }
+  
+  test "an `args` line reads `\\\\`, `\\n` and `\\r` as a backslash, an LF and a CR (019-export-runners.md), the program getting one argument each" {
+      var files = List<string>()
+      for f in [
+          "input.byn",
+          "",
+          "section",
+          "s\n",
+          "args",
+          "a\\nb\nc\\\\nd\ne\\rf\\x\n",
+          "expected.sections",
+          "== s\n[a\nb]\n[c\\nd]\n[e\rf\\x]\n",
+      ] {
+          files.append(f)
+      }
+      let pass = goldenProgramsFake(
+          "args-escape",
+          for: "sem",
+          at: "Words",
+          as: "echo '== s'\nprintf '[%s]\\n' \"$@\"",
+          from: "",
+          by: ref files,
+      )
+      files[7] = "== s\n[a\\nb]\n[c\\\\nd]\n[e\\rf\\x]\n"
+      let failed = goldenProgramsFake(
+          "args-escape",
+          for: "sem",
+          at: "Words",
+          as: "echo '== s'\nprintf '[%s]\\n' \"$@\"",
+          from: "",
+          by: ref files,
+      )
+      assert(pass == "")
+      assert(failed.contains("expected line 2: [a\\nb]\nactual line 2: [a"))
+      assert(goldenArgUnescape("\\\\r\\") == "\\r\\")
+  }
+  
+  test "a path argument below the scratch directory is made absolute though it does not exist there, another argument kept (SelfhostPathT7Tests.cs)" {
+      let scratch = Path.combine(Path.fullPath("tmp"), "golden-programs-arg")
+      deleteWorkDir(scratch)
+      goldenWrite(scratch, for: "tmp/h/x.byn", as: "")
+      assert(goldenProgramArg("tmp/h/other", at: scratch) == Path.combine(scratch, "tmp/h/other"))
+      assert(goldenProgramArg("tmp/h/x.byn", at: scratch) == Path.combine(scratch, "tmp/h/x.byn"))
+      assert(goldenProgramArg("src", at: scratch) == "src")
+      assert(goldenProgramArg("x.byn", at: scratch) == "x.byn")
+      assert(goldenProgramArg("<repo>/a/b", at: scratch) == $"{scratch}/a/b")
+      deleteWorkDir(scratch)
+  }
+  
+  test "a WithFileRebinds step path read from `<repo>` is passed `\\`-separated on windows, as the C# Path.Combine passed it (SelfhostDefaultP2Tests.cs:461)" {
+      let name = "WithFileRebindsAFileFromTextAsCSharpDoes-2"
+      let main = "<repo>/tests/cases/run/alias-field-default-import/main.byn"
+      let windows = goldenProgramNative(main, at: "C:\\s", for: name, by: true)
+      assert(windows == "C:\\s\\tests\\cases\\run\\alias-field-default-import\\main.byn")
+      assert(goldenProgramNative(
+          main,
+          at: "/s",
+          for: name,
+          by: false,
+      ) == "/s/tests/cases/run/alias-field-default-import/main.byn")
+      assert(goldenProgramNative(
+          main,
+          at: "C:\\s",
+          for: "AssertKind",
+          by: true,
+      ) == "C:\\s/tests/cases/run/alias-field-default-import/main.byn")
+      assert(goldenProgramNative("main broken", at: "C:\\s", for: name, by: true) == "main broken")
+  }
+  
+  test "an emit-c T9 or T10 sections case checks the exit code only (SelfhostEmitterT10Tests.cs:561), T6 fails on stderr (EmitterT6:331)" {
+      var files = List<string>()
+      for f in ["input.byn", "", "expected.sections", "== expr\nx\n"] {
+          files.append(f)
+      }
+      let body = "cat 'STDOUT'\necho 'warning BYN2311' >&2"
+      let t9 = goldenProgramsFake(
+          "exit-only",
+          for: "emit-c",
+          at: "SelfhostEmitterT9Tests",
+          as: body,
+          from: "== expr\nx\n",
+          by: ref files,
+      )
+      let t10 = goldenProgramsFake(
+          "exit-only",
+          for: "emit-c",
+          at: "SelfhostEmitterT10Tests",
+          as: body,
+          from: "== expr\nx\n",
+          by: ref files,
+      )
+      let t6 = goldenProgramsFake(
+          "exit-only",
+          for: "emit-c",
+          at: "SelfhostEmitterT6Tests",
+          as: body,
+          from: "== expr\nx\n",
+          by: ref files,
+      )
+      assert(t9 == "")
+      assert(t10 == "")
+      assert(t6.contains("generated main exited 0:\nwarning BYN2311"))
+  }
+  
+  test "an emit-c T11 or T3 sections case, and T2's corpus and warnings cases, check the exit code only; another T2 case fails on stderr" {
+      assert(goldenProgramExitOnly("SelfhostEmitterT11Tests", for: "Fixture_MatchesCSharp-2"))
+      assert(goldenProgramExitOnly("SelfhostEmitterT3Tests", for: "Statements_MatchCSharp"))
+      assert(goldenProgramExitOnly("SelfhostEmitterT2Tests", for: "Corpus_MatchesCSharp-1011"))
+      assert(goldenProgramExitOnly("SelfhostEmitterT2Tests", for: "Lower_WithWarningsLowersLikeCSharp"))
+      assert(!goldenProgramExitOnly("SelfhostEmitterT2Tests", for: "Synth_MatchesCSharp"))
+      assert(!goldenProgramExitOnly("SelfhostEmitterT2Tests", for: "Corpus_MatchesCSharpX"))
+      assert(!goldenProgramExitOnly("SelfhostEmitterT6Tests", for: "Corpus_MatchesCSharp"))
+      var files = List<string>()
+      for f in ["input.byn", "", "expected.sections", "== expr\nx\n"] {
+          files.append(f)
+      }
+      let t11 = goldenProgramsFake(
+          "exit-only-t11",
+          for: "emit-c",
+          at: "SelfhostEmitterT11Tests",
+          as: "cat 'STDOUT'\necho 'warning BYN2311' >&2",
+          from: "== expr\nx\n",
+          by: ref files,
+      )
+      assert(t11 == "")
+  }
+  
+  test "an emit-c T22 case with `args` runs the program on them alone (SelfhostEmitterT22Tests.cs:158), one without on `shapes <path>` (:269)" {
+      var files = List<string>()
+      for f in ["input.byn", "", "expected.c", "locals\n", "args", "input.byn\n"] {
+          files.append(f)
+      }
+      let body = "if [ \"$1\" = shapes ]; then echo shapes; else echo locals; fi"
+      let locals = goldenProgramsFake(
+          "t22-locals",
+          for: "emit-c",
+          at: "SelfhostEmitterT22Tests",
+          as: body,
+          from: "",
+          by: ref files,
+      )
+      let _ = files.removeLast()
+      let _ = files.removeLast()
+      let shapes = goldenProgramsFake(
+          "t22-shapes",
+          for: "emit-c",
+          at: "SelfhostEmitterT22Tests",
+          as: body,
+          from: "",
+          by: ref files,
+      )
+      assert(locals == "")
+      assert(shapes.contains("expected line 1: locals\nactual line 1: shapes"))
+  }
+  
+  test "an `expected.sections` with no `== ` header compares every stdout line, blank ones too (SelfhostEmitterT6Tests.cs:328-333 `RawMode`)" {
+      var files = List<string>()
+      for f in ["input.byn", "", "expected.sections", "a\n\nb\n"] {
+          files.append(f)
+      }
+      let pass = goldenProgramsFake(
+          "raw",
+          for: "emit-c",
+          at: "SelfhostEmitterT6Tests",
+          as: "cat 'STDOUT'",
+          from: "a\n\nb\n",
+          by: ref files,
+      )
+      files[3] = "a\nb\n"
+      let failed = goldenProgramsFake(
+          "raw",
+          for: "emit-c",
+          at: "SelfhostEmitterT6Tests",
+          as: "cat 'STDOUT'",
+          from: "a\n\nb\n",
+          by: ref files,
+      )
+      assert(pass == "")
+      assert(failed.contains("expected line 2: b\nactual line 2: "))
+  }
+  
+  test "a Windows scratch directory and its `\\` are dropped from what a program printed, in text and in JSON, the path after it read with `/` (T17e)" {
+      let scratch = "C:\\w\\tmp\\p\\1a2b3c4d"
+      var args = List<string>()
+      let text = "  --> C:\\w\\tmp\\p\\1a2b3c4d\\sub\\input.byn:7:12\n{\"path\": \"C:\\\\w\\\\tmp\\\\p\\\\1a2b3c4d\\\\input.byn\"}\n"
+      assert(goldenProgramPortable(
+          text,
+          at: scratch,
+          by: ref args,
+      ) == "  --> sub/input.byn:7:12\n{\"path\": \"input.byn\"}\n")
+      assert(goldenProgramPortable("  --> /s/input.byn:1:2 /s\n", at: "/s", by: ref args) == "  --> input.byn:1:2 /s\n")
+  }
+  
+  test "a staged Windows input path is read as its plain name in text and in JSON, where each `\\` is doubled (T41b)" {
+      let staged = "C:\\w\\tmp\\p\\1a2b3c4d\\ambiguous-variant.byn"
+      let text = "  --> C:\\w\\tmp\\p\\1a2b3c4d\\ambiguous-variant.byn:7:12\n{\"file\":\"C:\\\\w\\\\tmp\\\\p\\\\1a2b3c4d\\\\ambiguous-variant.byn\"}\n"
+      assert(
+          goldenProgramUnstaged(text, from: staged, as: "input.byn") == "  --> input.byn:7:12\n{\"file\":\"input.byn\"}\n"
+      )
+      // a POSIX path has no `\`: read as before
+      assert(goldenProgramUnstaged("/s/a.byn:1 {\"file\":\"/s/a.byn\"}", from: "/s/a.byn", as: "input.byn")
+          == "input.byn:1 {\"file\":\"input.byn\"}")
+  }
+  
+  test "two cases whose names hash alike never share a scratch directory: the one that finds the other's claim fails naming both (T41b)" {
+      let dir = Path.combine(Path.fullPath("tmp"), "golden-programs-claim/sem/SomeClass/SomeCase")
+      let scratch = goldenProgramScratch("SomeClass", for: "SomeCase")
+      assert(Path.fileName(scratch).length == 8 && Path.fileName(Path.directoryName(scratch) ?? "") == "p")
+      // the other case holds the claim, as its worker does while it runs
+      assert(goldenProgramClaim(scratch, for: "OtherClass_OtherCase") == "")
+      let failed = goldenProgramsCase("sem", at: dir, by: "-") ?? ""
+      let held = Io.readText($"{scratch}.case") catch ""
+      assert(goldenProgramRelease(scratch, for: "OtherClass_OtherCase") == "")
+      assert(
+          failed == $"{dir}\nthe scratch directory {scratch} of SomeClass_SomeCase is also OtherClass_OtherCase's: their names hash alike, rename one of the two cases"
+      )
+      assert(held == "OtherClass_OtherCase" && !Fs.fileExists($"{scratch}.case"))
+      // a claim the other case took meanwhile is found when the case gives it up
+      assert(goldenProgramClaim(scratch, for: "SomeClass_SomeCase") == "")
+      Io.writeFile($"{scratch}.case", "OtherClass_OtherCase".bytes) catch {}
+      assert(goldenProgramRelease(scratch, for: "SomeClass_SomeCase") == "OtherClass_OtherCase")
+      Io.remove($"{scratch}.case") catch {}
+  }
+  
+  test "every exported case's Windows command line, `<repo>` read as its scratch directory below a 60-character repo path, is under 32,767 characters (T41b)" {
+      var repo = StrBuf()
+      repo.append("C:\\")
+      for _ in 0..57 {
+          repo.append("r")
+      }
+      let root = repo.finish()
+      let prog = $"{root}\\tmp\\golden-programs\\{t9Hash("")}\\prog.exe"
+      let tmp = Path.fullPath("tmp")
+      let cases = Path.fullPath("tests/cases")
+      var over = StrBuf()
+      for kind in ["sem", "emit-c", "lex", "parse"] {
+          let kindDir = Path.combine(cases, kind)
+          let classes = Io.listDir(kindDir) catch List<string>()
+          for cls in classes {
+              let names = Io.listDir(Path.combine(kindDir, cls)) catch List<string>()
+              for name in names {
+                  let path = Path.combine(Path.combine(Path.combine(kindDir, cls), name), "args")
+                  let text = Io.readText(path) catch ""
+                  if text.contains("<repo>") {
+                      let below = goldenProgramScratch(cls, for: name)
+                      let scratch = $"{root}\\tmp{below[tmp.length..below.length]}".replaced("/", by: "\\")
+                      // `goldenProgramArg` with no scratch directory on disk: a relative argument as it is
+                      var length = goldenWindowsArgLength(prog)
+                      for a in goldenArgLines(path) {
+                          let arg = a.contains(
+                              "<repo>",
+                          ) ? goldenCliPut(a, for: scratch) : a.startsWith("/") ? $"{scratch}{a}" : a
+                          length += 1 + goldenWindowsArgLength(arg)
+                      }
+                      if length >= 32767 {
+                          over.append($"{kind}/{cls}/{name}: {length}\n")
+                      }
+                  }
+              }
+          }
+      }
+      let failed = over.finish()
+      if failed != "" {
+          panic($"command lines at or over 32,767 characters:\n{failed}")
+      }
+      var quoted = List<string>()
+      for a in ["a b", "x\\\"y", "c:\\d e\\", "c:\\d", ""] {
+          quoted.append(a)
+      }
+      // `p "a b" "x\\\"y" "c:\d e\\" c:\d ""`
+      assert(goldenWindowsLineLength("p", by: ref quoted) == 1 + 6 + 9 + 11 + 5 + 3)
+  }
+  
+  test "a sem CheckParity case runs on its `<repo>` argument as the full path below the scratch directory, stderr read repo-relative as `Portable` wrote it, not `<repo>` (SelfhostSemanticsTests.cs:583-614)" {
+      var files = List<string>()
+      for f in [
+          "args",
+          "<repo>/tmp/t26-tests/cli/diag_x.byn/x.byn\n",
+          "input.byn",
+          "f() {}\n",
+          "expected.stderr",
+          "--> tmp/t26-tests/cli/diag_x.byn/x.byn:1:1\n",
+          "expected.exitcode",
+          "1\n",
+      ] {
+          files.append(f)
+      }
+      let pass = goldenProgramsFake(
+          "check-same",
+          for: "sem",
+          at: "SelfhostSemanticsParityTests",
+          as: "test -f \"$1\" && echo \"--> $1:1:1\" >&2\nexit 1",
+          from: "",
+          by: ref files,
+      )
+      files[5] = "--> <repo>/tmp/t26-tests/cli/diag_x.byn/x.byn:1:1\n"
+      let failed = goldenProgramsFake(
+          "check-same",
+          for: "sem",
+          at: "SelfhostSemanticsParityTests",
+          as: "test -f \"$1\" && echo \"--> $1:1:1\" >&2\nexit 1",
+          from: "",
+          by: ref files,
+      )
+      assert(pass == "")
+      assert(failed.contains(
+          "expected.stderr\nexpected line 1: --> <repo>/tmp/t26-tests/cli/diag_x.byn/x.byn:1:1\nactual line 1: --> tmp/t26-tests/cli/diag_x.byn/x.byn:1:1",
+      ))
+  }
+  
+  test "a row whose program file is missing fails naming it, and every program file the rows name is in tests/cases/programs" {
+      var failure = ""
+      let none = goldenProgramSource(
+          Path.fullPath("tmp/golden-programs-none"),
+          for: "SelfhostNoSuchTests.byn",
+          through: ref failure,
+      )
+      assert(none == "")
+      assert(failure == "missing program file tests/cases/programs/SelfhostNoSuchTests.byn")
+      for name in goldenProgramNames() {
+          assert(Fs.fileExists(Path.combine(Path.fullPath("tests/cases/programs"), name)))
+      }
+  }
+  
+  test "a lex case runs bayan-lex on its input (SelfhostLexerTests.cs:113-121), a changed expected.tokens fails" {
+      let root = Path.combine(Path.fullPath("tmp"), "golden-programs-lex")
+      deleteWorkDir(root)
+      let dir = Path.combine(root, "cases/lex/SelfhostLexerTests/LexGolden-19")
+      goldenWrite(dir, for: "input.byn", as: "a /* never closed\nb\n")
+      let tokens = "1:1 Identifier `a`\n3:1 EndOfFile\n\nerror BYN0004: unterminated block comment\n\n  1 │ a /* never closed\n    │   ^^ comment starts here\n    │\n  help: close it with `*/`\n"
+      goldenWrite(dir, for: "expected.tokens", as: tokens)
+      var failure = ""
+      let exe = goldenExe(through: ref failure)
+      let pass = goldenProgramsCase("lex", at: dir, by: exe) ?? ""
+      goldenWrite(dir, for: "expected.tokens", as: tokens.replaced("3:1 EndOfFile", by: "3:2 EndOfFile"))
+      let failed = goldenProgramsCase("lex", at: dir, by: exe) ?? ""
+      deleteWorkDir(root)
+      assert(failure == "")
+      assert(pass == "")
+      assert(failed.contains("expected.tokens\nexpected line 2: 3:2 EndOfFile\nactual line 2: 3:1 EndOfFile"))
+  }
+  
+  test "a parse case runs bayan-parse on its input (SelfhostParserTests.cs:501-512), a changed expected.ast fails" {
+      let root = Path.combine(Path.fullPath("tmp"), "golden-programs-parse")
+      deleteWorkDir(root)
+      let dir = Path.combine(root, "cases/parse/SelfhostParserTests/ParseGolden-30")
+      goldenWrite(
+          dir,
+          for: "input.byn",
+          as: "union error SignupError = EmailError, DbError\ni64 signUp(Form f) fails SignupError => 0\n",
+      )
+      let ast = "CompilationUnit\n  ErrorSet SignupError = EmailError, DbError\n  Function signUp(Form f) -> i64 fails SignupError => 0\n"
+      goldenWrite(dir, for: "expected.ast", as: ast)
+      goldenWrite(dir, for: "expected.exitcode", as: "0\n")
+      var failure = ""
+      let exe = goldenExe(through: ref failure)
+      let pass = goldenProgramsCase("parse", at: dir, by: exe) ?? ""
+      goldenWrite(dir, for: "expected.exitcode", as: "1\n")
+      let failed = goldenProgramsCase("parse", at: dir, by: exe) ?? ""
+      deleteWorkDir(root)
+      assert(failure == "")
+      assert(pass == "")
+      assert(failed.contains("expected.exitcode\nexpected line 1: 1\nactual line 1: 0"))
+  }
+  
+  // T17b2c: exported cases run through `goldenInChild` with their program's output kept whole, and their programs built by `goldenTest` before
+  // any case clock starts. Each block's fake driver lives under a fresh tmp/golden-prebuild-<n>, so its programs are cold.
+  
+  /// A fake driver at `root`/bayan: `build` adds its arguments as a line of `root`/args and its `-o` path as one of `root`/builds, sleeps
+  /// `sleep` seconds and puts the shell program `body` there, with a site map naming its `--schemata-files` value, and that value after its
+  /// last `/src/`, when it has one; any other command is `$BAYAN_EXE`'s, with `BAYAN_EXE` naming the fake so a case child builds through it
+  /// too, after sourcing `root`/env when there is one (a test block cannot set a variable, so the recording ones set BAYAN_SNAPSHOT there).
+  /// Its path.
+  string goldenPrebuildFake(string root, as string body, for string sleep) uses alloc, env, fs, process {
+~     if Target.os == "windows" {
+~         todo("the fake driver and program are `sh` scripts")
+      }
+~     var failure = ""
+~     let real = goldenExe(through: ref failure)
+~     goldenWrite(root, for: "prog", as: $"#!/bin/sh\n{body}\n")
+~     return goldenCliFake(
+          root,
+          for: "bayan",
+          as: $"if [ \"$1\" = build ]; then\n  echo \"$*\" >> '{root}/args'\n  while [ $# -gt 0 ]; do [ \"$1\" = -o ] && out=$2; [ \"$1\" = --schemata-files ] && keep=$2; shift; done\n  echo \"$out\" >> '{root}/builds'\n  sleep {sleep}\n  cp '{root}/prog' \"$out\"\n  chmod +x \"$out\"\n  [ -n \"$keep\" ] && printf '{{\"version\": 1, \"sites\": [{{\"file\": \"%s\"}}, {{\"file\": \"%s\"}}]}}\\n' \"$keep\" \"${{keep##*/src/}}\" > \"$out.sites.json\"\n  exit 0\nfi\n[ -f '{root}/env' ] && . '{root}/env'\nBAYAN_EXE='{root}/bayan' exec '{real}' \"$@\"",
+      )
+  }
+  
+  /// A `lex` case `name` of `root`/cases whose `expected.tokens` is `tokens`.
+  void goldenPrebuildCase(string root, for string name, as string tokens) uses alloc, fs {
+~     let dir = $"cases/lex/SelfhostLexerTests/{name}"
+~     goldenWrite(root, for: $"{dir}/input.byn", as: "a\n")
+~     goldenWrite(root, for: $"{dir}/expected.tokens", as: tokens)
+  }
+  
+  /// The tmp/golden-programs entry of each build the fake of `root` ran (its `-o` path is `<entry>.<n>/prog`).
+  List<string> goldenPrebuildBuilds(string root) uses alloc, fs {
+~     var entries = List<string>()
+~     for path in goldenCliLines(Path.combine(root, "builds")) {
+~         continue if path == ""
+~         let stage = Path.directoryName(path) ?? ""
+~         let name = Path.fileName(stage)
+~         let dot = goldenOffset(name, for: ".")
+~         entries.append(Path.combine(Path.directoryName(stage) ?? "", dot < 0 ? name : name[0..dot]))
+      }
+~     return entries
+  }
+  
+  /// `root` and the tmp/golden-programs entries its fake built removed.
+  void goldenPrebuildClean(string root) uses alloc, fs {
+~     for entry in goldenPrebuildBuilds(root) {
+~         deleteWorkDir(entry)
+      }
+~     deleteWorkDir(root)
+  }
+  
+  /// A fresh tmp/golden-prebuild-<n> for the block `tag`.
+  string goldenPrebuildRoot(string tag) uses alloc, clock, fs {
+~     let root = Path.combine(Path.fullPath("tmp"), $"golden-prebuild-{tag}-{Io.monotonicNanos()}")
+~     deleteWorkDir(root)
+~     return root
+  }
+  
+  test "a program built for windows-x64 is built, kept and found again as prog.exe, the name CreateProcess starts (T17e)" {
+      let root = goldenPrebuildRoot("exe")
+      let exe = goldenPrebuildFake(root, as: "echo ran", for: "0")
+      var failure = ""
+      let prog = goldenProgram("lexer", by: exe, through: ref failure, host: "windows-x64")
+      let again = goldenProgram("lexer", by: exe, through: ref failure, host: "windows-x64")
+      var builds = List<string>()
+      for path in goldenCliLines(Path.combine(root, "builds")) {
+          builds.append(path) if path != ""
+      }
+      goldenPrebuildClean(root)
+      assert(failure == "")
+      assert(Path.fileName(prog) == "prog.exe" && again == prog)
+      assert(builds.length == 1 && Path.fileName(builds[0]) == "prog.exe")
+  }
+  
+  test "an exported case whose program prints 1 MiB compares every byte: it passes, and fails naming the line when one byte past 64 KiB differs" {
+      let root = goldenPrebuildRoot("big")
+      var text = StrBuf()
+      for i in 0..20000 {
+          text.append($"{i + 1}:1 Identifier `x` 0123456789abcdef0123456789abcdef\n")
+      }
+      let big = text.finish()
+      goldenWrite(root, for: "big", as: big)
+      let exe = goldenPrebuildFake(root, as: $"cat '{Path.combine(root, "big")}'", for: "0")
+      goldenPrebuildCase(root, for: "LexGolden-1", as: big)
+      goldenPrebuildCase(root, for: "LexGolden-2", as: big.replaced("10000:1 Identifier", by: "10000:2 Identifier"))
+      var results = List<GoldenResult>()
+      let none = List<string>()
+      let exit = goldenTest(
+          Path.combine(root, "cases"),
+          by: none,
+          for: 30000,
+          to: ref results,
+          quiet: true,
+          driverPath: exe,
+      )
+      let builds = goldenPrebuildBuilds(root).length
+      goldenPrebuildClean(root)
+      assert(big.length >= 1048576)
+      assert(exit == exitTestFailure && results.length == 2 && builds == 1)
+      assert(results[0].status == "passed")
+      assert(results[1].status == "failed")
+      assert(results[1].detail.contains(
+          "expected.tokens\nexpected line 10000: 10000:2 Identifier `x` 0123456789abcdef0123456789abcdef\nactual line 10000: 10000:1 Identifier",
+      ))
+  }
+  
+  test "an exported case whose program never exits is timed out at the case limit, leaves no process, and the case after it still runs" {
+      if Target.os == "windows" {
+          todo("`ps` lists the processes left; Windows has none")
+      }
+      let root = goldenPrebuildRoot("hang")
+      let hung = goldenProgramScratch("SelfhostLexerTests", for: "LexGolden-1")
+      let tokens = "1:1 Identifier `a`\n"
+      goldenWrite(root, for: "tokens", as: tokens)
+      let exe = goldenPrebuildFake(
+          root,
+          as: $"case \"$PWD\" in */{Path.fileName(hung)}) while :; do sleep 1; done ;; esac\ncat '{Path.combine(root, "tokens")}'",
+          for: "0",
+      )
+      goldenPrebuildCase(root, for: "LexGolden-1", as: tokens)
+      goldenPrebuildCase(root, for: "LexGolden-2", as: tokens)
+      var results = List<GoldenResult>()
+      let none = List<string>()
+      let exit = goldenTest(
+          Path.combine(root, "cases"),
+          by: none,
+          for: 3000,
+          to: ref results,
+          quiet: true,
+          driverPath: exe,
+      )
+      let entries = goldenPrebuildBuilds(root)
+      var args = List<string>()
+      for a in ["-A", "-ww", "-o", "args="] {
+          args.append(a)
+      }
+      let ps = Io.run("ps", args.span, timeout: Millis(10000)) catch { panic("ps did not run") }
+      goldenPrebuildClean(root)
+      assert(exit == exitTestFailure && results.length == 2 && entries.length == 1)
+      assert(results[0].status == "timed out" && results[0].detail.startsWith("timed out after 3 s"))
+      assert(results[1].status == "passed")
+      assert(!ps.stdout.contains(Path.combine(entries[0], "prog")))
+  }
+  
+  test "goldenTest builds a program before the case clock starts: a build longer than the case limit leaves the case passing" {
+      let root = goldenPrebuildRoot("slow")
+      let tokens = "1:1 Identifier `a`\n"
+      goldenWrite(root, for: "tokens", as: tokens)
+      let exe = goldenPrebuildFake(root, as: $"cat '{Path.combine(root, "tokens")}'", for: "4")
+      goldenPrebuildCase(root, for: "LexGolden-1", as: tokens)
+      var results = List<GoldenResult>()
+      let none = List<string>()
+      let exit = goldenTest(
+          Path.combine(root, "cases"),
+          by: none,
+          for: 2000,
+          to: ref results,
+          quiet: true,
+          driverPath: exe,
+      )
+      let builds = goldenPrebuildBuilds(root).length
+      goldenPrebuildClean(root)
+      assert(builds == 1)
+      assert(exit == exitOk && results.length == 1 && results[0].status == "passed")
+  }
+  
+  test "with --jobs 4 and five cases needing one cold program, build is invoked once" {
+      let root = goldenPrebuildRoot("jobs")
+      let tokens = "1:1 Identifier `a`\n"
+      goldenWrite(root, for: "tokens", as: tokens)
+      let exe = goldenPrebuildFake(root, as: $"cat '{Path.combine(root, "tokens")}'", for: "1")
+      for n in ["1", "2", "3", "4", "5"] {
+          goldenPrebuildCase(root, for: $"LexGolden-{n}", as: tokens)
+      }
+      var results = List<GoldenResult>()
+      let none = List<string>()
+      let exit = goldenTest(
+          Path.combine(root, "cases"),
+          by: none,
+          for: 30000,
+          to: ref results,
+          jobs: 4,
+          quiet: true,
+          driverPath: exe,
+      )
+      let builds = goldenPrebuildBuilds(root).length
+      goldenPrebuildClean(root)
+      assert(builds == 1)
+      assert(exit == exitOk && results.length == 5)
+      for r in results {
+          assert(r.status == "passed")
+      }
+  }
+  
+  test "a build past the build limit is kept as a failed file naming the program, the limit and the directory, each case failing with it, never rebuilt" {
+      let root = goldenPrebuildRoot("limit")
+      let tokens = "1:1 Identifier `a`\n"
+      goldenWrite(root, for: "tokens", as: tokens)
+      let exe = goldenPrebuildFake(root, as: $"cat '{Path.combine(root, "tokens")}'", for: "30")
+      goldenPrebuildCase(root, for: "LexGolden-1", as: tokens)
+      goldenPrebuildCase(root, for: "LexGolden-2", as: tokens)
+      let cases = Path.combine(root, "cases")
+      let none = List<string>()
+      var first = List<GoldenResult>()
+      let _ = goldenTest(cases, by: none, for: 30000, to: ref first, quiet: true, driverPath: exe, buildMs: 1000)
+      let once = goldenPrebuildBuilds(root)
+      var next = List<GoldenResult>()
+      let _ = goldenTest(cases, by: none, for: 30000, to: ref next, quiet: true, driverPath: exe, buildMs: 1000)
+      let builds = goldenPrebuildBuilds(root).length
+      let failed = once.length == 1 ? Io.readText(Path.combine(once[0], "failed")) catch "" : ""
+      goldenPrebuildClean(root)
+      assert(once.length == 1 && builds == 1)
+      let text = once.length == 1 ? $"the lexer program did not build within 1 s: delete {once[0]} to build it again" : "-"
+      assert(failed == text)
+      assert(first.length == 2 && next.length == 2)
+      for r in [first[0], first[1], next[0], next[1]] {
+          assert(r.status == "failed" && r.detail.contains(text))
+      }
+      assert(goldenBuildLimitMs == 1200000)
+  }
+  
+  test "a section line or a program file expecting `import one of <std modules>` matches any std module list; an expected list only itself" {
+      let root = Path.combine(Path.fullPath("tmp"), "golden-program-std-modules")
+      deleteWorkDir(root)
+      goldenWrite(root, for: "sections", as: "== all\nerror: import one of <std modules>\n")
+      goldenWrite(root, for: "listed", as: "== all\nerror: import one of `std.json`\n")
+      goldenWrite(root, for: "expected.stdout", as: "help: import one of <std modules>\n")
+      var got = List<string>()
+      got.append("error: import one of `std.fs`, `std.json`")
+      var failures = List<string>()
+      goldenProgramSame(Path.combine(root, "sections"), as: ref got, by: true, to: ref failures)
+      assert(failures.length == 0)
+      goldenProgramSame(Path.combine(root, "listed"), as: ref got, by: true, to: ref failures)
+      assert(failures.length == 1)
+      var other = List<string>()
+      other.append("error: import two of `std.fs`")
+      goldenProgramSame(Path.combine(root, "sections"), as: ref other, by: true, to: ref failures)
+      assert(failures.length == 2)
+      goldenProgramCheck(
+          root,
+          for: "expected.stdout",
+          as: "help: import one of `std.fs`, `std.json`\n",
+          by: "trim",
+          to: ref failures,
+      )
+      assert(failures.length == 2)
+      goldenProgramCheck(root, for: "expected.stdout", as: "help: import two of `std.fs`\n", by: "trim", to: ref failures)
+      assert(failures.length == 3)
+      deleteWorkDir(root)
+  }
+  
+  test "one driver copied to two paths builds a program once, and a build removes the staging directories older than a day" {
+      if Target.os == "windows" {
+          todo("the fake driver is a `sh` script")
+      }
+      let root = goldenPrebuildRoot("copy")
+      let tokens = "1:1 Identifier `a`\n"
+      goldenWrite(root, for: "tokens", as: tokens)
+      let exe = goldenPrebuildFake(root, as: $"cat '{Path.combine(root, "tokens")}'", for: "0")
+      let copy = Path.combine(Path.combine(root, "copy"), "bayan")
+      let bytes = Io.readFile(exe) catch { panic($"cannot read {exe}") }
+      Io.createDirectory(Path.directoryName(copy) ?? root) catch { panic($"cannot create the directory of {copy}") }
+      Io.writeFile(copy, bytes.span) catch { panic($"cannot write {copy}") }
+      var mode = List<string>()
+      mode.append("a+x")
+      mode.append(copy)
+      let _ = Io.run("chmod", mode.span) catch { panic($"cannot make {copy} executable") }
+      goldenPrebuildCase(root, for: "LexGolden-1", as: tokens)
+      let dir = Path.combine(root, "cases/lex/SelfhostLexerTests/LexGolden-1")
+      let programs = Path.combine(Path.fullPath("tmp"), "golden-programs")
+      let old = Path.combine(programs, $"{Path.fileName(root)}.1")
+      let young = Path.combine(programs, $"{Path.fileName(root)}.2")
+      for stage in [old, young] {
+          Io.createDirectory(stage) catch { panic($"cannot create {stage}") }
+      }
+      Fs.setModified(
+          old,
+          to: Time.fromNanos(Time.now().nanos - 25 * 60 * 60 * 1000000000),
+      ) catch { panic($"cannot stamp {old}") }
+      let first = goldenProgramsCase("lex", at: dir, by: exe, prebuild: true) ?? ""
+      let second = goldenProgramsCase("lex", at: dir, by: copy, prebuild: true) ?? ""
+      let builds = goldenPrebuildBuilds(root).length
+      let swept = !t6DirectoryExists(old)
+      let kept = t6DirectoryExists(young)
+      deleteWorkDir(old)
+      deleteWorkDir(young)
+      goldenPrebuildClean(root)
+      assert(first == "" && second == "")
+      assert(builds == 1)
+      assert(swept && kept)
+  }
+  
+  // Spec 019 T48c: the recording under BAYAN_SNAPSHOT (SelfhostSemanticsHarness.cs:84-140, :283-315), through the fake driver, whose `env` file
+  // sets the variables for the processes that build and run.
+  
+  /// The string field `name` of the JSON line `line` as the recorder writes it (`"<name>": "<text>"`), else empty.
+  string goldenSnapshotField(string line, for string name) uses alloc {
+~     let at = goldenOffset(line, for: $"\"{name}\": \"")
+~     return "" if at < 0
+~     let rest = $"{line[at + name.length + 5..line.length]}"
+~     let end = goldenOffset(rest, for: "\"")
+~     return end < 0 ? "" : $"{rest[0..end]}"
+  }
+  
+  test "a recording keeps sites in the listed files of a program, all when none is listed, never a replaced main.byn or an added file" {
+      var files = List<string>()
+      for f in ["lexer/main.byn", "lexer/lexer.byn", "t-case.byn"] {
+          files.append(f)
+      }
+      var failure = ""
+      let listed = goldenSnapshotKept(
+          " src/lexer/main.byn,src/lexer/lexer.byn , src/parser/parser.byn",
+          from: files,
+          main: "lexer/main.byn",
+          added: "",
+          through: ref failure,
+      )
+      assert(failure == "" && listed.length == 1 && listed[0] == "lexer/lexer.byn")
+      let all = goldenSnapshotKept("", from: files, main: "", added: "t-case.byn", through: ref failure)
+      assert(failure == "" && all.length == 2 && all[0] == "lexer/main.byn" && all[1] == "lexer/lexer.byn")
+      let mainKept = goldenSnapshotKept("src/lexer/main.byn", from: files, main: "", added: "", through: ref failure)
+      assert(failure == "" && mainKept.length == 1 && mainKept[0] == "lexer/main.byn")
+      let gone = goldenSnapshotKept("src/lexer/gone.byn", from: files, main: "", added: "", through: ref failure)
+      assert(gone.length == 0 && failure == "BAYAN_SNAPSHOT_FILES: src/lexer/gone.byn matches no compiled source")
+      assert(goldenSnapshotJobs(4, for: "tmp/snap") == 1 && goldenSnapshotJobs(4, for: "") == 4)
+      // a Windows full path of a listed file against the src/ file it names
+      let combined = goldenSnapshotPath(Path.combine("C:\\r\\src", "lexer/lexer.byn"))
+      assert(combined == goldenSnapshotPath("C:\\r\\src\\lexer\\lexer.byn"))
+  }
+  
+  test "under BAYAN_SNAPSHOT a program is a schemata build of the listed files, its map naming src/, listed once, each run recorded once" {
+      let root = goldenPrebuildRoot("snapshot")
+      let tokens = "1:1 Identifier `\u{e9}\u{20ac}`\n"
+      goldenWrite(root, for: "tokens", as: tokens)
+      let exe = goldenPrebuildFake(root, as: $"cat '{Path.combine(root, "tokens")}'", for: "0")
+      goldenPrebuildCase(root, for: "LexGolden-1", as: tokens)
+      goldenPrebuildCase(root, for: "LexGolden-2", as: tokens)
+      let cases = Path.combine(root, "cases")
+      let snap = Path.combine(root, "snap")
+      let none = List<string>()
+      var plain = List<GoldenResult>()
+      let plainExit = goldenTest(cases, by: none, for: 30000, to: ref plain, quiet: true, driverPath: exe)
+      goldenWrite(
+          root,
+          for: "env",
+          as: $"export BAYAN_SNAPSHOT='{snap}' BAYAN_SNAPSHOT_FILES='src/lexer/lexer.byn,src/parser/parser.byn'\n",
+      )
+      var first = List<GoldenResult>()
+      let firstExit = goldenTest(cases, by: none, for: 30000, to: ref first, quiet: true, driverPath: exe, snapshot: snap)
+      // a second recording, asking for 4 jobs, leaves only its own records
+      var second = List<GoldenResult>()
+      let secondExit = goldenTest(
+          cases,
+          by: none,
+          for: 30000,
+          to: ref second,
+          jobs: 4,
+          quiet: true,
+          driverPath: exe,
+          snapshot: snap,
+      )
+      let entries = goldenPrebuildBuilds(root)
+      let args = goldenCliLines(Path.combine(root, "args"))
+      let prog = entries.length == 2 ? Path.combine(entries[1], "prog") : "-"
+      let sites = Io.readText($"{prog}.sites.json") catch ""
+      let manifest = Io.readText(Path.combine(snap, "manifest.json")) catch ""
+      let runs = goldenCliLines(Path.combine(snap, "runs.jsonl"))
+      let scratch = goldenProgramScratch("SelfhostLexerTests", for: "LexGolden-1")
+      let scratch2 = goldenProgramScratch("SelfhostLexerTests", for: "LexGolden-2")
+      let kept = Fs.fileExists(Path.combine(scratch, "input.byn"))
+      goldenPrebuildClean(root)
+      deleteWorkDir(scratch)
+      deleteWorkDir(scratch2)
+      assert(plainExit == exitOk && firstExit == exitOk && secondExit == exitOk)
+      for r in [plain[0], plain[1], first[0], first[1], second[0], second[1]] {
+          assert(r.status == "passed")
+      }
+      // one plain build, one schemata build over the staged src/lexer/lexer.byn (src/parser is not this program's), reused
+      assert(entries.length == 2 && args.length == 2)
+      assert(!args[0].contains("--schemata-files"))
+      let flag = goldenOffset(args[1], for: "--schemata-files ")
+      let value = flag < 0 ? "" : $"{args[1][flag + 17..args[1].length]}"
+      let list = $"{value[0..goldenOffset(value, for: " ")]}"
+      assert(list.startsWith($"{entries[1]}.") && list.endsWith("/src/lexer/lexer.byn") && !list.contains(","))
+      // the map names the repo's file, for the staged path and the one relative to it
+      let repo = $"{{\"file\": \"{Path.combine(Path.fullPath("src"), "lexer/lexer.byn")}\"}}"
+      assert(sites == $"{{\"version\": 1, \"sites\": [{repo}, {repo}]}}\n")
+      // the build listed once
+      let at = goldenOffset(manifest, for: "\"binary\"")
+      assert(at > 0 && goldenOffset($"{manifest[at + 1..manifest.length]}", for: "\"binary\"") < 0)
+      let entry = $"{{\"binary\": \"{prog}\", \"sites\": \"{prog}.sites.json\"}}"
+      assert(manifest == $"{{\n  \"version\": 1,\n  \"builds\": [\n    {entry}\n  ]\n}}\n")
+      // one line a run, the case's arguments and scratch directory, its bytes in base64
+      assert(runs.length == 2 && kept)
+      for line in runs {
+          assert(goldenSnapshotField(line, for: "program") == prog
+              && (goldenSnapshotField(line, for: "cwd") == scratch || goldenSnapshotField(line, for: "cwd") == scratch2))
+          assert(line.contains("\"args\": [\"input.byn\"], ")
+              && line.contains("\"stdin\": null, ")
+              && line.endsWith("\"stderr\": \"\", \"exit\": 0}"))
+          let printed = encoding.Base64.decode(goldenSnapshotField(line, for: "stdout")) catch List<u8>()
+          assert(printed.length == tokens.bytes.length)
+          for i in 0..printed.length {
+              assert(printed[i] == tokens.bytes[i])
+          }
+      }
+  }
+  
+  test "under BAYAN_SNAPSHOT a program whose two runs differ fails its case, naming the command and the stream, and records nothing" {
+      let root = goldenPrebuildRoot("snapshot-differ")
+      let count = Path.combine(root, "count")
+      let exe = goldenPrebuildFake(root, as: $"echo x >> '{count}'\nwc -c < '{count}'", for: "0")
+      goldenPrebuildCase(root, for: "LexGolden-1", as: "1:1 Identifier `a`\n")
+      let snap = Path.combine(root, "snap")
+      goldenWrite(root, for: "env", as: $"export BAYAN_SNAPSHOT='{snap}'\n")
+      var results = List<GoldenResult>()
+      let none = List<string>()
+      let exit = goldenTest(
+          Path.combine(root, "cases"),
+          by: none,
+          for: 30000,
+          to: ref results,
+          quiet: true,
+          driverPath: exe,
+          snapshot: snap,
+      )
+      let entries = goldenPrebuildBuilds(root)
+      let runs = Fs.fileExists(Path.combine(snap, "runs.jsonl"))
+      goldenPrebuildClean(root)
+      deleteWorkDir(goldenProgramScratch("SelfhostLexerTests", for: "LexGolden-1"))
+      assert(exit == exitTestFailure && results.length == 1 && results[0].status == "failed" && entries.length == 1)
+      assert(results[0].detail.contains(
+          $"BAYAN_SNAPSHOT: two runs of `{Path.combine(entries[0], "prog")} input.byn` differ in stdout",
+      ))
+      assert(!runs)
+  }
+  
+  test "on Windows an `expected.sections` compare reads a `rel` line and a `files in` help through the case class's Windows read (019-win9)" {
+      let root = Path.combine(Path.fullPath("tmp"), "golden-sections-windows")
+      deleteWorkDir(root)
+      let want = "combine rel x.byn rel/x.byn\nput the module's `.byn` files in `nope/deep/` next to the entry file\n"
+      goldenWrite(root, for: "sem/SelfhostPathT7Tests/AssertKind-3/expected.sections", as: want)
+      goldenWrite(root, for: "sem/SelfhostSemanticsT9Tests/Other/expected.sections", as: want)
+      let path = Path.combine(root, "sem/SelfhostPathT7Tests/AssertKind-3")
+      let other = Path.combine(root, "sem/SelfhostSemanticsT9Tests/Other")
+      let got = "combine rel x.byn rel\\x.byn\r\nput the module's `.byn` files in `nope\\deep/` next to the entry file\r\n"
+      var failures = List<string>()
+      goldenProgramSections(path, for: "expected.sections", from: got, to: ref failures, host: "", windows: true)
+      assert(failures.length == 0)
+      goldenProgramSections(path, for: "expected.sections", from: got, to: ref failures, host: "", windows: false)
+      goldenProgramSections(other, for: "expected.sections", from: got, to: ref failures, host: "", windows: true)
+      let help = got.replaced("rel\\x.byn", by: "rel/x.byn")
+      goldenProgramSections(path, for: "expected.sections", from: help, to: ref failures, host: "", windows: true)
+      goldenProgramSections(path, for: "expected.sections", from: help, to: ref failures, host: "", windows: false)
+      deleteWorkDir(root)
+      assert(failures.length == 3)
+      assert(failures[2].contains(
+          "expected line 2: put the module's `.byn` files in `nope/deep/` next to the entry file\nactual line 2: put the module's `.byn` files in `nope\\deep/` next",
+      ))
+      assert(failures[0].contains(
+          "expected line 1: combine rel x.byn rel/x.byn\nactual line 1: combine rel x.byn rel\\x.byn",
+      ))
+      assert(failures[1].contains("actual line 1: combine rel x.byn rel\\x.byn"))
+  }
+  
+  test "an `expected.sections` compare reads the host target as `<host>` on both sides unless the case's `args` pin another target (T17e)" {
+      let root = Path.combine(Path.fullPath("tmp"), "golden-sections-host")
+      deleteWorkDir(root)
+      let want = "== hosts\nrunning macos-arm64\n[linux-x64] literals=[linux][x64]\n"
+      for name in ["plain", "pinned"] {
+          goldenWrite(root, for: $"{name}/expected.sections", as: want)
+      }
+      goldenWrite(root, for: "pinned/args", as: "--target\nwindows-x64\n")
+      let plain = Path.combine(root, "plain")
+      let pinned = Path.combine(root, "pinned")
+      let members = Path.fullPath("tests/cases/sem/SelfhostSemanticsT9Tests/TargetMembersMatchTheCSharp")
+      let recorded = Io.readText(Path.combine(members, "expected.sections")) catch ""
+      var failures = List<string>()
+      for host in ["windows-x64", "linux-x64"] {
+          let got = want.replaced("running macos-arm64", by: $"running {host}")
+          goldenProgramSections(plain, for: "expected.sections", from: got, to: ref failures, host: host)
+          goldenProgramSections(members, for: "expected.sections", from: recorded, to: ref failures, host: host)
+      }
+      assert(recorded.startsWith("== target\n") && failures.length == 0)
+      let changed = want
+          .replaced("running macos-arm64", by: "running windows-x64")
+          .replaced("[linux][x64]", by: "[linux][arm64]")
+      goldenProgramSections(plain, for: "expected.sections", from: changed, to: ref failures, host: "windows-x64")
+      let third = want.replaced("running macos-arm64", by: "running wasm32")
+      goldenProgramSections(plain, for: "expected.sections", from: third, to: ref failures, host: "windows-x64")
+      let windows = want.replaced("running macos-arm64", by: "running windows-x64")
+      goldenProgramSections(pinned, for: "expected.sections", from: windows, to: ref failures, host: "windows-x64")
+      goldenProgramSections(pinned, for: "expected.sections", from: want, to: ref failures, host: "windows-x64")
+      deleteWorkDir(root)
+      assert(failures.length == 3)
+      assert(failures[0].contains(
+          "expected line 3: [linux-x64] literals=[linux][x64]\nactual line 3: [linux-x64] literals=[linux][arm64]",
+      ))
+      assert(failures[1].contains("expected line 2: running macos-arm64\nactual line 2: running wasm32"))
+      assert(failures[2].contains("expected line 2: running macos-arm64\nactual line 2: running windows-x64"))
+  }

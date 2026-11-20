@@ -1,0 +1,123 @@
+  // 019 T29 (coverage ratchet): bound.byn paths no golden case reaches. The node accessors are read back from nodes added
+  // to the context of an empty program; the expected text is the output of these functions at the commit that added the
+  // test.
+  
+  import lexer
+  
+  Ctx t29BoundCtx() uses alloc, clock, fs {
+~     var sources = List<lexer.SourceText>()
+~     sources.append(lexer.SourceText.create("a.byn", from: List<u8>()))
+~     return create(from: move sources, at: ".", by: CompilationOptions {})
+  }
+  
+  TextSpan t29bdAt(i64 start) => TextSpan { start: start, length: 1 }
+  
+  bool t29BoundIs(string got, as string expected) uses alloc, console {
+~     if got != expected {
+~         print($"T29GOT {got}")
+      }
+~     return got == expected
+  }
+  
+  /// `start` of `nodeSpan` and the display of `exprType` (or `patternInput` when `pattern`) of `n`.
+  string t29bdNode(ref Ctx c, for BNode n, bool pattern = false) uses alloc {
+~     let type = pattern ? patternInput(in c, for: n) : exprType(in c, for: n)
+~     return $"{nodeSpan(in c, for: n).start} {typeDisplay(ref c, by: type)}"
+  }
+  
+  test "bound t29: constantText shows every kind" {
+      assert t29BoundIs(constantText(Constant { kind: .integer, integer: bigFromI64(-12) }), as: "-12")
+      assert t29BoundIs(constantText(Constant { kind: .real, real: 2.5 }), as: "2.5")
+      assert t29BoundIs(constantText(Constant { kind: .flag, flag: true }), as: "true")
+      assert t29BoundIs(constantText(Constant { kind: .flag, flag: false }), as: "false")
+      assert t29BoundIs(constantText(Constant { kind: .text, text: "hi" }), as: "\"hi\"")
+      assert t29BoundIs(constantText(Constant { kind: .rune, rune: 0x41 }), as: "A")
+  }
+  
+  /// A runtime division, so that `0.0 / 0.0` and `1.0 / 0.0` are not folded.
+  f64 t29BoundQuotient(f64 a, by f64 b) => a / b
+  
+  test "bound t29: realText names the non-finite values" {
+      assert t29BoundIs(realText(t29BoundQuotient(0.0, by: 0.0)), as: "NaN")
+      assert t29BoundIs(realText(t29BoundQuotient(1.0, by: 0.0)), as: "Infinity")
+      assert t29BoundIs(realText(t29BoundQuotient(-1.0, by: 0.0)), as: "-Infinity")
+  }
+  
+  test "bound t29: pattern and expression kinds" {
+      assert isPatternKind(.errorPattern)
+      assert !isPatternKind(.local)
+      assert !isExprKind(.errorStmt)
+      assert !isExprKind(.notPattern)
+      assert isExprKind(.local)
+  }
+  
+  test "bound t29: spans and types of nodes no binder pass reads back" {
+      var c = t29BoundCtx()
+      let spread = addSpread(ref c, from: BSpread { span: t29bdAt(1), operand: -1, type: prim(.i64) })
+      assert t29BoundIs(t29bdNode(ref c, for: spread), as: "1 i64")
+      let typeRef = addTypeRef(ref c, from: BTypeRef { span: t29bdAt(2), referenced: prim(.i64) })
+      assert t29BoundIs(t29bdNode(ref c, for: typeRef), as: "2 ?")
+      let moduleRef = addModuleRef(ref c, from: BModuleRef { span: t29bdAt(3), module: 0 })
+      assert t29BoundIs(t29bdNode(ref c, for: moduleRef), as: "3 ?")
+      let variantGroup = addVariantGroup(ref c, from: BVariantGroup { span: t29bdAt(4), variant: 0 })
+      assert t29BoundIs(t29bdNode(ref c, for: variantGroup), as: "4 ?")
+      let builtinGroup = addBuiltinGroup(ref c, from: BBuiltinGroup { span: t29bdAt(5), receiver: -1, name: "append" })
+      assert t29BoundIs(t29bdNode(ref c, for: builtinGroup), as: "5 ?")
+      let errorStmt = addErrorStmt(ref c, from: BErrorStmt { span: t29bdAt(6) })
+      assert t29BoundIs(t29bdNode(ref c, for: errorStmt), as: "6 ?")
+      assert t29BoundIs(t29bdNode(ref c, for: errorStmt, pattern: true), as: "6 ?")
+  }
+  
+  test "bound t29: the input type of every pattern" {
+      var c = t29BoundCtx()
+      let constant = addConstantPattern(
+          ref c,
+          from: BConstantPattern { span: t29bdAt(10), inputType: prim(.i8), value: -1 },
+      )
+      assert t29BoundIs(t29bdNode(ref c, for: constant, pattern: true), as: "10 i8")
+      let relational = addRelationalPattern(
+          ref c,
+          from: BRelationalPattern { span: t29bdAt(11), inputType: prim(.i16), op: .add, value: -1 },
+      )
+      assert t29BoundIs(t29bdNode(ref c, for: relational, pattern: true), as: "11 i16")
+      let range = addRangePattern(
+          ref c,
+          from: BRangePattern { span: t29bdAt(12), inputType: prim(.i32), start: -1, end: -1 },
+      )
+      assert t29BoundIs(t29bdNode(ref c, for: range, pattern: true), as: "12 i32")
+      let bind = addBindPattern(ref c, from: BBindPattern { span: t29bdAt(13), inputType: prim(.i64) })
+      assert t29BoundIs(t29bdNode(ref c, for: bind, pattern: true), as: "13 i64")
+      let notP = addNotPattern(ref c, from: BNotPattern { span: t29bdAt(14), inputType: prim(.u8), operand: bind })
+      assert t29BoundIs(t29bdNode(ref c, for: notP, pattern: true), as: "14 u8")
+      let binary = addBinaryPattern(
+          ref c,
+          from: BBinaryPattern { span: t29bdAt(15), inputType: prim(.u16), left: bind, right: constant },
+      )
+      assert t29BoundIs(t29bdNode(ref c, for: binary, pattern: true), as: "15 u16")
+      let propP = addPropertyPattern(
+          ref c,
+          from: BPropertyPattern { span: t29bdAt(16), inputType: prim(.i64), valueType: prim(.i64) },
+      )
+      assert t29BoundIs(t29bdNode(ref c, for: propP, pattern: true), as: "16 i64")
+      let unionP = addUnionPattern(ref c, from: BUnionPattern { span: t29bdAt(17), inputType: prim(.i32), variant: 0 })
+      assert t29BoundIs(t29bdNode(ref c, for: unionP, pattern: true), as: "17 i32")
+      let error = addErrorPattern(ref c, from: BErrorPattern { span: t29bdAt(18), inputType: prim(.i16), variant: 0 })
+      assert t29BoundIs(t29bdNode(ref c, for: error, pattern: true), as: "18 i16")
+  }
+  
+  test "bound t29: syntax records skip -1, share a node's syntax and type a state literal" {
+      var c = t29BoundCtx()
+      let plain = addSpread(ref c, from: BSpread { span: t29bdAt(1), operand: -1, type: prim(.i64) })
+      assert recordSyntaxNode(ref c, for: plain, at: -1) == plain
+      assert c.exprSyntaxOf.tryGet(at: plain) is null
+      let block = addSpread(ref c, from: BSpread { span: t29bdAt(2), operand: -1, type: prim(.i64) })
+      let _ = recordNodeSyntax(ref c, for: block, as: .blockStmt, at: t29bdAt(2))
+      let shared = shareSyntax(
+          ref c,
+          for: addSpread(ref c, from: BSpread { span: t29bdAt(3), operand: -1, type: prim(.i64) }),
+          from: block,
+      )
+      assert (c.nodeSyntaxOf.tryGet(at: shared) ?? -1) == (c.nodeSyntaxOf.tryGet(at: block) ?? -2)
+      let state = addStructLiteral(ref c, from: BStructLiteral { span: t29bdAt(4), structId: 0, state: 1 })
+      assert kindOf(exprType(in c, for: state)) == .structType
+  }

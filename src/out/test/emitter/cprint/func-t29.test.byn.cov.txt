@@ -1,0 +1,476 @@
+  import semantics
+  import emitter.ltree
+  import lexer
+  
+  // T29: func.byn's statements and ownership checks on a bound program and a hand-built `LTree`; this module cannot
+  // import the lowerer (emitter imports emitter.cprint), so each test builds the lowered nodes it emits.
+  
+  type FnOptions = semantics.CompilationOptions
+  type FnTree    = ltree.LTree
+  type FnLowered = ltree.LoweredFunction
+  type FnMutant  = ltree.LMutantIs
+  type FnPanic   = ltree.LPanic
+  type FnCall    = ltree.LFailingCall
+  type FnClaim   = ltree.LClaim
+  type FnWrite   = ltree.LWrite
+  type FnSpec    = semantics.BFormatSpec
+  type FnAssign  = semantics.BAssign
+  type FnPart    = semantics.BInterpolationPart
+  
+  Ctx fnCompile(string source) {
+~     var bytes = List<u8>()
+~     for b in source.bytes {
+~         bytes.append(b)
+      }
+~     var sources = List<lexer.SourceText>()
+~     sources.append(lexer.SourceText.create("fn.byn", from: move bytes))
+~     let options = FnOptions { includeTests: false }
+~     return semantics.create(from: move sources, at: Path.fullPath("tmp"), by: in options)
+  }
+  
+  string fnErrors(in Ctx c) {
+~     var sb = StrBuf()
+~     for d in c.diagnostics {
+~         sb.append($"{d.code} {d.span.start} {d.message}\n") if !d.isWarning
+      }
+~     return sb.finish()
+  }
+  
+  FuncId fnNamed(in Ctx c, for string name) {
+~     var found: FuncId = -1
+~     for i in 0..c.functions.length {
+~         if c.functions[i].name == name && c.functions[i].body != -1 {
+~             found = i
+          }
+      }
+~     return found
+  }
+  
+  List<i64> fnBody(in Ctx c, for string name) {
+~     return t9Copy(c.bBlocks[c.functions[fnNamed(in c, for: name)].body & 0xFFFFFFFF].statements)
+  }
+  
+  /// The lowered form of `name` as the lowerer leaves a body without lowered statements: its locals but not its parameters.
+  FnLowered fnLowered(in Ctx c, for string name) {
+~     let fn = fnNamed(in c, for: name)
+~     var locals = List<i64>()
+~     for l in c.functions[fn].locals {
+~         locals.append(l) if !c.locals[l].isParameter
+      }
+~     return FnLowered { symbol: fn, locals: move locals, contextSlots: 0, panicSlots: 0, body: c.functions[fn].body }
+  }
+  
+  /// A frame for `f` with its file's line starts, as `emitFunction` lends them.
+  CFunc fnFrame(ref CCtx cc, from ref Ctx c, for in FnLowered f) {
+~     var fe = functionEmitter(ref cc, from: ref c, for: in f)
+~     fe.lineStarts = lineStartsOf(in c, for: c.functions[f.symbol].file)
+~     return fe
+  }
+  
+  string fnLines(List<string> lines) {
+~     var sb = StrBuf()
+~     for x in lines {
+~         sb.append(x)
+~         sb.append("\n")
+      }
+~     return sb.finish()
+  }
+  
+  TextSpan fnNoSpan() => TextSpan { start: 0, length: 0 }
+  
+  string fnSource() {
+~     return """
+          struct Money {
+              i64 cents = 0
+  
+              public void formatInto(ref StrBuf output, as FormatSpec spec) uses alloc {
+                  output.append("m")
+              }
+  
+              public i64 total() => cents
+          }
+  
+          i64 one() => 1
+  
+          bool check(ref List<i64> xs) => xs.length > 0
+  
+          never stop() {
+              panic("x")
+          }
+  
+          void tuples(ref List<i64> rp, by i64 vp, to ref Map<i64, i64> m) {
+              var t = (one(), [1])
+              t.item1 = 2
+              var xs: List<i64> = [1, 2]
+              xs[0] = 3
+              m[1] = 2
+              var n = one()
+              n += 1
+              if check(ref xs) {
+                  n = 2
+              }
+              let money = Money { cents: 1 }
+              let held = money
+              rp[0] = vp
+          }
+  
+          void runs(List<string> args) {
+              let r = Io.run("true", args.span) catch {
+                  return
+              }
+          }
+  
+          void main() {
+          }
+          """
+  }
+  
+  test "func t29: a never function ends in byn_unreachable, or returns a zero error when it fails, and has no #line without a file" {
+      var c = fnCompile(fnSource())
+      assert fnErrors(in c) == ""
+      var cc = CCtx { ownershipChecks: true, packageRoot: c.packageRoot }
+      let t = FnTree {}
+      var f = fnLowered(in c, for: "stop")
+      let plain = emitFunction(ref cc, from: ref c, through: in t, for: in f)
+      assert plain == fnLines(
+          [
+              "BYN_NORETURN void byn_main__stop(void) {",
+              "#line 16 \"fn.byn\"",
+              "    (void)byn_panic_str(BYN_STR(\"x\", 1), byn_file_0, 16);",
+              "    byn_unreachable(byn_file_0, 15);",
+              "}",
+              "#line generated",
+          ],
+      )
+      // A local of type never is not declared.
+      let tuples = fnNamed(in c, for: "tuples")
+      let held = c.functions[tuples].locals[c.functions[tuples].locals.length - 1]
+      c.locals[held].type = c.functions[f.symbol].returnType
+      f.locals.append(held)
+      c.functions[f.symbol].hasFails = true
+      let failing = emitFunction(ref cc, from: ref c, through: in t, for: in f)
+      assert failing == fnLines(
+          [
+              "byn_err byn_main__stop(void) {",
+              "#line 16 \"fn.byn\"",
+              "    (void)byn_panic_str(BYN_STR(\"x\", 1), byn_file_0, 16);",
+              "    return (byn_err){0};",
+              "}",
+              "#line generated",
+          ],
+      )
+      c.functions[f.symbol].hasFails = false
+      c.functions[f.symbol].file = -1
+      let fileless = emitFunction(ref cc, from: ref c, through: in t, for: in f)
+      assert fileless == fnLines(
+          [
+              "BYN_NORETURN void byn_main__stop(void) {",
+              "    (void)byn_panic_str(BYN_STR(\"x\", 1), byn_file_1, 0);",
+              "    byn_unreachable(byn_file_1, 0);",
+              "}",
+          ],
+      )
+  }
+  
+  test "func t29: a failing constructor's signature has no byn_out" {
+      var c = fnCompile(fnSource())
+      var cc = CCtx { ownershipChecks: true, packageRoot: c.packageRoot }
+      let f = fnLowered(in c, for: "total")
+      c.functions[f.symbol].kind = .constructor
+      c.functions[f.symbol].hasFails = true
+      let fe = functionEmitter(ref cc, from: ref c, for: in f)
+      assert frameSignature(ref cc, for: fe, from: ref c) == "byn_err byn_main__Money__init-1(void)"
+  }
+  
+  test "func t29: roots and places through tuple items, parameters and lowered nodes" {
+      var c = fnCompile(fnSource())
+      var cc = CCtx { ownershipChecks: true, packageRoot: c.packageRoot }
+      var t = FnTree {}
+      let mutant = ltree.addLMutantIs(ref t, from: FnMutant { span: fnNoSpan(), id: 7 })
+      let f = fnLowered(in c, for: "tuples")
+      var fe = fnFrame(ref cc, from: ref c, for: in f)
+      let body = fnBody(in c, for: "tuples")
+      let item = c.bAssigns[body[1] & 0xFFFFFFFF].target
+      let tuple = c.bLocals[c.bTupleElements[item & 0xFFFFFFFF].receiver & 0xFFFFFFFF].local
+      let rp = c.bIndexes[c.bAssigns[body[10] & 0xFFFFFFFF].target & 0xFFFFFFFF].target
+      let vp = c.bAssigns[body[10] & 0xFFFFFFFF].value
+      let xs = c.bIndexes[c.bAssigns[body[3] & 0xFFFFFFFF].target & 0xFFFFFFFF].target
+      assert c.locals[tuple].name == "t"
+      assert ownerRoot(c, for: item) == tuple
+      assert root(c, for: item) == tuple
+      assert ownerRoot(c, for: mutant) == -1
+      assert root(c, for: mutant) == -1
+      assert placeOf(ref cc, for: ref fe, from: ref c, through: t, at: item) == "l0_t.item1"
+      assert placeOf(ref cc, for: ref fe, from: ref c, through: t, at: mutant) == "byn_mutant_is(7)"
+      assert placeOf(ref cc, for: ref fe, from: ref c, through: t, at: rp) == "(*p_rp)"
+      assert placeOf(ref cc, for: ref fe, from: ref c, through: t, at: vp) == "p_vp"
+      assert checkedStore(ref cc, for: ref fe, from: ref c, through: t, at: mutant, to: vp) is null
+      // A place passed by pointer is claimed after the statement unless the statement moves it.
+      claimAfterCall(ref cc, for: ref fe, from: ref c, through: t, at: xs, to: fnNoSpan())
+      assert fe.afterCalls.length == 1
+      assert fe.afterCalls[0] == "bynh_chk_claim_list_i64(&l1_xs, byn_file_0, 1);"
+      fe.moved[c.bLocals[xs & 0xFFFFFFFF].local] = true
+      claimAfterCall(ref cc, for: ref fe, from: ref c, through: t, at: xs, to: fnNoSpan())
+      assert fe.afterCalls.length == 1
+  }
+  
+  test "func t29: assignments, an if with claims after its condition, and blocks" {
+      var c = fnCompile(fnSource())
+      var cc = CCtx { ownershipChecks: true, packageRoot: c.packageRoot }
+      var t = FnTree {}
+      let f = fnLowered(in c, for: "tuples")
+      var fe = fnFrame(ref cc, from: ref c, for: in f)
+      let body = fnBody(in c, for: "tuples")
+      var sb = StrBuf()
+      for k in 0..body.length {
+          let s = body[k]
+          if semantics.boundKind(s) is .assign or .ifStmt {
+              sb.append($"-- {k}\n")
+              statement(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: s)
+          }
+      }
+      sb.append("-- then\n")
+      statement(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: c.bIfs[body[7] & 0xFFFFFFFF].then)
+      sb.append("-- block of a statement\n")
+      block(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: body[1])
+      let p = ltree.addLPanic(ref t, from: FnPanic { span: fnNoSpan(), message: "boom" })
+      sb.append("-- block of a lowered statement\n")
+      block(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: p)
+      assert sb.finish() == fnLines(
+          [
+              "-- 1",
+              "#line 21 \"fn.byn\"",
+              "    l0_t.item1 = INT64_C(2);",
+              "-- 3",
+              "#line 23 \"fn.byn\"",
+              "    (*bynh_at_list_i64((*(byn_own_read(&own_l1_xs, \"List<i64>\", byn_file_0, 23), &l1_xs)), (int64_t)INT64_C(0), false, byn_file_0, 23)) = INT64_C(3);",
+              "-- 4",
+              "#line 24 \"fn.byn\"",
+              "    (*bynh_slot_map_i64_i64(&(*p_m), INT64_C(1), ((int64_t){0}))) = INT64_C(2);",
+              "-- 6",
+              "#line 26 \"fn.byn\"",
+              "    l2_n = INT64_C(1);",
+              "-- 7",
+              "#line 27 \"fn.byn\"",
+              "    if (byn_main__check(&(*(byn_own_read(&own_l1_xs, \"List<i64>\", byn_file_0, 27), &l1_xs)))) {",
+              "        bynh_chk_claim_list_i64(&l1_xs, byn_file_0, 27);",
+              "#line 28 \"fn.byn\"",
+              "        l2_n = INT64_C(2);",
+              "    } else {",
+              "        bynh_chk_claim_list_i64(&l1_xs, byn_file_0, 27);",
+              "    }",
+              "-- 10",
+              "#line 32 \"fn.byn\"",
+              "    (*bynh_at_list_i64((*p_rp), (int64_t)INT64_C(0), false, byn_file_0, 32)) = p_vp;",
+              "-- then",
+              "    {",
+              "#line 28 \"fn.byn\"",
+              "        l2_n = INT64_C(2);",
+              "    }",
+              "-- block of a statement",
+              "#line 21 \"fn.byn\"",
+              "        l0_t.item1 = INT64_C(2);",
+              "-- block of a lowered statement",
+              "#line 1 \"fn.byn\"",
+              "        byn_panic(\"boom\", byn_file_0, 1);",
+          ],
+      )
+  }
+  
+  test "func t29: a map entry is claimed only for an owned map set" {
+      var c = fnCompile(fnSource())
+      var cc = CCtx { ownershipChecks: true, packageRoot: c.packageRoot }
+      var t = FnTree {}
+      let mutant = ltree.addLMutantIs(ref t, from: FnMutant { span: fnNoSpan(), id: 7 })
+      let f = fnLowered(in c, for: "tuples")
+      var fe = fnFrame(ref cc, from: ref c, for: in f)
+      let a = fnBody(in c, for: "tuples")[4]
+      let call = c.bAssigns[a & 0xFFFFFFFF].target & 0xFFFFFFFF
+      var sb = StrBuf()
+      // `m[1] = 2` on a `ref` parameter: the map has no owner here.
+      assert c.bBuiltinCalls[call].member == .mapIndexSet
+      claimMapEntry(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: a)
+      c.bBuiltinCalls[call].member = .mapSlot
+      claimMapEntry(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: a)
+      c.bBuiltinCalls[call].receiver = -1
+      claimMapEntry(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: a)
+      c.bBuiltinCalls[call].member = .mapIndex
+      claimMapEntry(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: a)
+      c.bAssigns.append(FnAssign { span: fnNoSpan(), target: mutant, value: mutant })
+      let lowered = semantics.makeBound(.assign, at: c.bAssigns.length - 1)
+      claimMapEntry(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: lowered)
+      assert sb.finish() == ""
+  }
+  
+  test "func t29: Io.run's failing call, claims with nothing to claim, and a write's empty part" {
+      var c = fnCompile(fnSource())
+      var cc = CCtx { ownershipChecks: true, packageRoot: c.packageRoot }
+      var t = FnTree {}
+      let f = fnLowered(in c, for: "runs")
+      var fe = fnFrame(ref cc, from: ref c, for: in f)
+      var run: BExpr = -1
+      for i in 0..c.bCalls.length {
+          if c.functions[c.bCalls[i].function].builtin == .ioRun {
+              run = semantics.makeBound(.call, at: i)
+          }
+      }
+      let r = f.locals[0]
+      let fc = ltree.addLFailingCall(ref t, from: FnCall { span: fnNoSpan(), error: r, call: run })
+      let tuples = fnNamed(in c, for: "tuples")
+      let held = c.functions[tuples].locals[c.functions[tuples].locals.length - 1]
+      let vp = c.functions[tuples].parameters[1]
+      assert c.locals[held].name == "held"
+      assert c.locals[vp].name == "vp"
+      let notOwned = ltree.addLClaim(ref t, from: FnClaim { span: fnNoSpan(), local: vp })
+      let noStorage = ltree.addLClaim(ref t, from: FnClaim { span: fnNoSpan(), local: held })
+      var parts = List<FnPart>()
+      parts.append(FnPart { text: "", value: -1 })
+      parts.append(FnPart { text: "a" })
+      let w = ltree.addLWrite(ref t, from: FnWrite { span: fnNoSpan(), sink: .panic, parts: move parts })
+      var sb = StrBuf()
+      statement(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: fc)
+      sb.append("-- claims\n")
+      statement(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: notOwned)
+      statement(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: noStorage)
+      sb.append("-- write\n")
+      statement(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: w)
+      assert sb.finish() == fnLines(
+          [
+              "#line 1 \"fn.byn\"",
+              "    {",
+              "        int64_t detail = 0;",
+              "        byn_process proc = {0};",
+              "        l0_r = (byn_err){ .code = bynh_io_run(BYN_STR(\"true\", 4), bynh_span_list_str(p_args), &proc, &detail) };",
+              "        if (l0_r.code == UINT32_C(10)) l0_r.p.e10.signal = (int32_t)detail;",
+              "        if (l0_r.code == UINT32_C(10)) { l0_r.p.e10.stdout_ = proc.out; l0_r.p.e10.stderr_ = proc.err; }",
+              "        if (l0_r.code == UINT32_C(11)) l0_r.p.e11.after = (int64_t)detail;",
+              "        if (l0_r.code == UINT32_C(11)) { l0_r.p.e11.stdout_ = proc.out; l0_r.p.e11.stderr_ = proc.err; }",
+              "    }",
+              "-- claims",
+              "-- write",
+              "#line 1 \"fn.byn\"",
+              "    {",
+              "        uint8_t wb[1024];",
+              "        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 1};",
+              "        byn_writer* w = &wv;",
+              "        byn_w_str(w, BYN_STR(\"a\", 1));",
+              "        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 1);",
+              "    }",
+          ],
+      )
+  }
+  
+  test "func t29: Io.run fills a held detail variant without its streams when it has no three fields" {
+      var c = fnCompile(fnSource())
+      var cc = CCtx { ownershipChecks: true, packageRoot: c.packageRoot }
+      var t = FnTree {}
+      let f = fnLowered(in c, for: "runs")
+      var fe = fnFrame(ref cc, from: ref c, for: in f)
+      var run: BExpr = -1
+      var hex: FuncId = -1
+      for i in 0..c.bCalls.length {
+          if c.functions[c.bCalls[i].function].builtin == .ioRun {
+              run = semantics.makeBound(.call, at: i)
+          }
+      }
+      for i in 0..c.functions.length {
+          if c.functions[i].builtin == .hexDecode {
+              hex = i
+          }
+      }
+      let callee = c.bCalls[run & 0xFFFFFFFF].function
+      c.functions[callee].errorSets.append(c.functions[hex].errorSets[0])
+      let fc = ltree.addLFailingCall(ref t, from: FnCall { span: fnNoSpan(), error: f.locals[0], call: run })
+      var sb = StrBuf()
+      statement(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: fc)
+      assert sb.finish() == fnLines(
+          [
+              "#line 1 \"fn.byn\"",
+              "    {",
+              "        int64_t detail = 0;",
+              "        byn_process proc = {0};",
+              "        l0_r = (byn_err){ .code = bynh_io_run(BYN_STR(\"true\", 4), bynh_span_list_str(p_args), &proc, &detail) };",
+              "        if (l0_r.code == UINT32_C(10)) l0_r.p.e10.signal = (int32_t)detail;",
+              "        if (l0_r.code == UINT32_C(10)) { l0_r.p.e10.stdout_ = proc.out; l0_r.p.e10.stderr_ = proc.err; }",
+              "        if (l0_r.code == UINT32_C(11)) l0_r.p.e11.after = (int64_t)detail;",
+              "        if (l0_r.code == UINT32_C(11)) { l0_r.p.e11.stdout_ = proc.out; l0_r.p.e11.stderr_ = proc.err; }",
+              "        if (l0_r.code == UINT32_C(13)) l0_r.p.e13.at = (int64_t)detail;",
+              "    }",
+          ],
+      )
+  }
+  
+  test "func t29: format specs on a struct that formats itself, an unsigned radix and the debug view" {
+      var c = fnCompile(fnSource())
+      var cc = CCtx { ownershipChecks: true, packageRoot: c.packageRoot }
+      var t = FnTree {}
+      let f = fnLowered(in c, for: "tuples")
+      var fe = fnFrame(ref cc, from: ref c, for: in f)
+      let money = c.bLocalDecls[fnBody(in c, for: "tuples")[9] & 0xFFFFFFFF].initializer
+      let type = c.bLocals[money & 0xFFFFFFFF].type
+      assert formatWithSpec(
+          ref cc,
+          for: ref fe,
+          from: ref c,
+          through: t,
+          at: money,
+          by: FnSpec { radix: 2 },
+      ) == "{ bynt_main__Money fv = l3_money; byn_main__Money__formatInto(&fv, w, (byn_format_spec){0, false, 0, 32u, 0, -1}); }"
+      assert formatWithSpec(
+          ref cc,
+          for: ref fe,
+          from: ref c,
+          through: t,
+          at: money,
+          by: FnSpec { radix: 8, align: 1 },
+      ) == "{ bynt_main__Money fv = l3_money; byn_main__Money__formatInto(&fv, w, (byn_format_spec){1, false, 0, 32u, 1, -1}); }"
+      assert formatInner(
+          ref cc,
+          from: ref c,
+          for: semantics.prim(.u64),
+          at: "x",
+          by: FnSpec { radix: 16 },
+          to: "w",
+      ) == "bynh_w_radix(w, (uint64_t)(x), false, 16);"
+      assert debug(ref cc, from: ref c, for: type, at: "v", to: "w") == "bynh_fmt_main__Money(w, v);"
+  }
+  
+  test "func t29: the statement names Statement's panic reports" {
+      let names = t9StmtNames()
+      assert names.length == 49
+      assert names[0] == "BoundBlock"
+      assert names[t9BoundStmtCount - 1] == "BoundErrorStmt"
+      assert names[t9BoundStmtCount] == "LLabel"
+      assert names[names.length - 1] == "LVoid"
+  }
+  
+  test "func t29: a statement that reads and moves one local is emitted after a dry run" {
+      // BYN2781 refuses the source; its bound call is still the read and move the dry run looks for.
+      var c = fnCompile(
+          """
+          void eat(move List<i64> xs, by i64 n) {
+          }
+  
+          void moves() {
+              var xs: List<i64> = [1, 2]
+              eat(move xs, by: xs.length)
+          }
+  
+          void main() {
+          }
+          """,
+      )
+      assert fnErrors(in c) == "BYN2781 110 `xs` is used after it was moved\n"
+      var cc = CCtx { ownershipChecks: true, packageRoot: c.packageRoot }
+      var t = FnTree {}
+      let f = fnLowered(in c, for: "moves")
+      var fe = fnFrame(ref cc, from: ref c, for: in f)
+      var sb = StrBuf()
+      statement(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: fnBody(in c, for: "moves")[1])
+      assert sb.finish() == fnLines(
+          [
+              "#line 6 \"fn.byn\"",
+              "    (void)byn_main__eat((*bynh_chk_move_list_i64(&l0_xs, NULL, byn_file_0, 6)), (*(byn_own_read(&own_l0_xs, \"List<i64>\", byn_file_0, 6), &l0_xs)).len);",
+          ],
+      )
+  }

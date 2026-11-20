@@ -1,0 +1,265 @@
+  // 019 T29 (coverage ratchet): `instrument` and a `--coverage` emit over the corpus of lower-t29.test.byn (guards, `do`,
+  // `fail`, `try` and `catch` in failing functions and methods, an error union less a case), `skipFiles`, and the
+  // counters of small programs: generic instances, `while true`, `catch` in a function that cannot fail, `fail e`,
+  // `expects`, a struct rule after a field rule, and error sets that share a set. The
+  // expected values are the output of the self-hosted emitter at the commit that added the test.
+  
+  test "emitter t29: instrument counts the corpus's lines, branches and error paths" {
+      let corpus = t29Corpus()
+      var failed = StrBuf()
+      for k in 0..corpus.length {
+          var c = t29Compile(corpus[k], by: true)
+          let compiled = t29Errors(in c)
+          if compiled != "" {
+              failed.append($"{k}: {compiled}")
+              continue
+          }
+          let map = instrument(ref c, for: in List<string>())
+          var lines = 0
+          var branches = 0
+          var errors = StrBuf()
+          for counter in map.counters {
+              if counter.kind == "line" {
+                  lines += 1
+              } else if counter.kind == "branch" {
+                  branches += 1
+              } else {
+                  errors.append(
+                      $" {counter.function ?? ""}:{counter.variant ?? ""}:{counter.origin ?? ""}@{counter.line}",
+                  )
+              }
+          }
+          assert lines > 0
+          if k == 0 {
+              assert lines == 27 && branches == 10
+              let expected = " pick:F.a:fail@30 pick:F.b:fail@31 narrow:F.a:fail@36 viaTry:F.a:try@41 viaTry:F.b:try@41 viaTry:F.a:try@42 viaTry:E.worse:fail@43 viaCatch:F.b:catch@48 Counter.bump:F.a:fail@17 Counter.twice:F.a:try@23 Counter.twice:F.b:try@23 Counter.twice:F.b:catch@24"
+              assert errors.finish() == expected
+          }
+          var skip = List<string>()
+          skip.append(c.files[0].path)
+          assert instrument(ref c, for: in skip).counters.length == 0
+          assert t29Emit(corpus[k], covering: true).contains("byn_cov[")
+      }
+      assert failed.finish() == ""
+  }
+  
+  /// The counters `instrument` makes for `source`, one `kind line:column function variant origin outcome` each.
+  string t29CoverageDump(string source) {
+~     var c = t29Compile(source)
+~     let errors = t29Errors(in c)
+~     return $"errors: {errors}" if errors != ""
+~     var sb = StrBuf()
+~     for counter in instrument(ref c, for: in List<string>()).counters {
+~         sb.append($"{counter.kind} {counter.line}:{counter.column}")
+~         sb.append($" {counter.function ?? "-"} {counter.variant ?? "-"} {counter.origin ?? "-"}")
+~         sb.append($" {counter.outcome}\n")
+      }
+~     return sb.finish()
+  }
+  
+  test "emitter t29: instrument shares an instance's counters, skips `while true` and re-raises a caught set" {
+      let dump = t29CoverageDump("""
+          union error F {
+              a
+              b
+          }
+  
+          union error G = F except .b
+  
+          union error H {
+              only
+          }
+  
+          struct Box<T> {
+              T v
+  
+              public i64 get(by i64 k) fails F {
+                  fail .a if k < 0
+                  return k
+              }
+          }
+  
+          i64 ident<T>(in T x, by i64 k) fails F {
+              fail .b if k > 1
+              return k
+          }
+  
+          i64 one(i64 k) fails H {
+              fail .only if k == 5
+              return k
+          }
+  
+          i64 both(i64 k) fails F, G {
+              fail .a if k == 0
+              return k
+          }
+  
+          i64 loop() {
+              var n = 0
+              while true {
+                  n += 1
+                  break if n > 3
+              }
+              return n
+          }
+  
+          i64 plain(i64 k) {
+              return one(k) catch (H.only) 0
+          }
+  
+          i64 relay(i64 k) fails F {
+              return both(k) catch switch {
+                  F.a => 0,
+                  F e => fail e,
+              }
+          }
+  
+          void main() {
+              let b = Box<i64> { v: 1 }
+              let s = Box<string> { v: "x" }
+              let x = b.get(by: 1) catch { return }
+              let y = s.get(by: 1) catch { return }
+              let i = ident(1, by: 0) catch { return }
+              let j = ident("a", by: 0) catch { return }
+              print($"{x} {y} {i} {j} {loop()} {plain(1)}")
+          }
+          """)
+      let expected = """
+          line 27:5 - - - null
+          branch 27:19 - - - true
+          branch 27:19 - - - false
+          error 27:5 one H.only fail null
+          line 28:5 - - - null
+          line 32:5 - - - null
+          branch 32:16 - - - true
+          branch 32:16 - - - false
+          error 32:5 both F.a fail null
+          line 33:5 - - - null
+          line 37:5 - - - null
+          line 38:5 - - - null
+          line 39:9 - - - null
+          line 40:9 - - - null
+          branch 40:18 - - - true
+          branch 40:18 - - - false
+          line 42:5 - - - null
+          line 46:5 - - - null
+          line 50:5 - - - null
+          line 52:16 - - - null
+          error 52:16 relay F.a fail null
+          error 52:16 relay F.b fail null
+          line 57:5 - - - null
+          line 58:5 - - - null
+          line 59:5 - - - null
+          line 59:34 - - - null
+          line 60:5 - - - null
+          line 60:34 - - - null
+          line 61:5 - - - null
+          line 61:37 - - - null
+          line 62:5 - - - null
+          line 62:39 - - - null
+          line 63:5 - - - null
+          line 16:9 - - - null
+          branch 16:20 - - - true
+          branch 16:20 - - - false
+          error 16:9 Box.get F.a fail null
+          line 17:9 - - - null
+          line 22:5 - - - null
+          branch 22:16 - - - true
+          branch 22:16 - - - false
+          error 22:5 ident F.b fail null
+          line 23:5 - - - null
+          """
+      assert dump == $"{expected}\n"
+  }
+  
+  test "emitter t29: instrument counts `expects`, a struct rule after a field rule and overlapping error sets" {
+      let dump = t29CoverageDump("""
+          union error E {
+              bad
+          }
+  
+          union error X {
+              odd
+          }
+  
+          union error F {
+              a
+              b
+          }
+  
+          union error FE = F, E
+  
+          union error FX = F, X
+  
+          struct Bounds {
+              i64 lo
+                  requires it >= 0
+              i64 hi
+              requires lo <= hi
+          }
+  
+          i64 wide(i64 k) fails FE, F {
+              fail .a if k == 0
+              return k
+          }
+  
+          i64 twin(i64 k) fails FE, FX {
+              fail .bad if k == 0
+              return k
+          }
+  
+          i64 viaTwin(i64 k) fails FE, FX {
+              let v = try twin(k)
+              return v
+          }
+  
+          i64 viaWide(i64 k) fails FE, F {
+              let v = try wide(k)
+              return v
+          }
+  
+          i32 discount(i32 total, by i32 percent)
+              expects percent in 0..=100
+              => total - total * percent / 100
+  
+          bool fits(i64 a, by i64 b) {
+              let s = Bounds { lo: a, hi: b } catch { return false }
+              return s.lo < 9
+          }
+  
+          void main() {
+              print($"{fits(1, by: 2)} {discount(10, by: 5)}")
+          }
+          """)
+      let expected = """
+          line 26:5 - - - null
+          branch 26:16 - - - true
+          branch 26:16 - - - false
+          error 26:5 wide F.a fail null
+          line 27:5 - - - null
+          line 31:5 - - - null
+          branch 31:18 - - - true
+          branch 31:18 - - - false
+          error 31:5 twin E.bad fail null
+          line 32:5 - - - null
+          line 36:5 - - - null
+          error 36:13 viaTwin F.a try null
+          error 36:13 viaTwin F.b try null
+          error 36:13 viaTwin E.bad try null
+          error 36:13 viaTwin X.odd try null
+          line 37:5 - - - null
+          line 41:5 - - - null
+          error 41:13 viaWide F.a try null
+          error 41:13 viaWide F.b try null
+          error 41:13 viaWide E.bad try null
+          line 42:5 - - - null
+          branch 46:13 - - - true
+          branch 46:13 - - - false
+          line 50:5 - - - null
+          line 50:45 - - - null
+          line 51:5 - - - null
+          line 55:5 - - - null
+          error 18:1 Bounds.requires ValidationError.invalid fail null
+          """
+      assert dump == $"{expected}\n"
+  }

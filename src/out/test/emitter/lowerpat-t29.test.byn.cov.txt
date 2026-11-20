@@ -1,0 +1,105 @@
+  import semantics
+  
+  semantics.Ctx lpCompile(string source) {
+~     var bytes = List<u8>()
+~     for b in source.bytes {
+~         bytes.append(b)
+      }
+~     return t12Compile(Path.fullPath("tmp"), at: move bytes, for: "lp.byn", by: false)
+  }
+  
+  string lpEmit(string source) {
+~     var c = lpCompile(source)
+~     var sb = StrBuf()
+~     for d in c.diagnostics {
+~         sb.append($"{d.code} {d.span.start} {d.message}\n") if !d.isWarning
+      }
+~     let errors = sb.finish()
+~     return $"errors: {errors}" if errors != ""
+~     return t10Emit(ref c, by: "safe", through: false, as: false)
+  }
+  
+  test "lowerpat t29: optional, property, step and owning patterns" {
+      let text = lpEmit(
+          """
+          struct Bag {
+              List<i64> items
+          }
+  
+          union Slot {
+              full(Bag b)
+              empty
+          }
+  
+          struct Q {
+              i64 x
+  
+              i64 dbl => x * 2
+          }
+  
+          bool rel(i64? x) => x is > 3
+  
+          bool rng(i64? x) => x is 1..5
+  
+          bool none(Q q) => q is { }
+  
+          bool prop(Q q) => q is { dbl: 4 }
+  
+          bool built(string s) => s is { length: 3 }
+  
+          bool tup((i64, i64) t) => t is { item2: 1 }
+  
+          bool borrowed(Q q) {
+              switch q {
+                  case { x: 1 } r:
+                      return r.x == 1
+                  default:
+                      return false
+              }
+          }
+  
+          i64 own(move Slot s) {
+              switch move s {
+                  case .full f:
+                      return f is .full(_) ? 1 : 2
+                  case not .full(_):
+                      return 0
+                  default:
+                      return 3
+              }
+          }
+  
+          void main() {
+          }
+          """,
+      )
+      assert text.contains("return (p_x.has && (p_x.value > INT64_C(3)));")
+      assert text.contains("return (p_x.has && ((p_x.value >= INT64_C(1)) && (p_x.value < INT64_C(5))));")
+      assert text.contains("bool byn_main__none(bynt_main__Q p_q) {\n#line 20 \"lp.byn\"\n    return true;\n}")
+      assert text.contains("return (byn_main__Q__get_dbl(&p_q) == INT64_C(4));")
+      assert text.contains("return (p_s.len == INT64_C(3));")
+      assert text.contains("return (p_t.item2 == INT64_C(1));")
+      assert text.contains("if (((p_q.x == INT64_C(1)) && ((l0_r = p_q), true))) {")
+      assert text.contains("if (((t0.tag == ((int32_t)0)) && ((l1_f = t0), true))) {")
+      assert text.contains("if ((!(t0.tag == ((int32_t)0)))) {")
+  }
+  
+  test "lowerpat t29: the binder refuses null on a non-optional and an optional constant" {
+      var c = lpCompile(
+          """
+          const k: i64? = 1
+  
+          bool n(i64 x) => x is null
+  
+          bool m(i64? x) => x is k
+  
+          void main() {
+          }
+          """,
+      )
+      var sb = StrBuf()
+      for d in c.diagnostics {
+          sb.append($"{d.code} {d.span.start} {d.message}\n") if !d.isWarning
+      }
+      assert sb.finish() == "BYN2219 16 a `const` must be a compile-time constant\nBYN2411 41 `null` cannot match `i64`\n"
+  }

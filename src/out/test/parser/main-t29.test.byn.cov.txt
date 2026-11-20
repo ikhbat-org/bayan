@@ -1,0 +1,56 @@
+  // 019 T29 (coverage ratchet): main.byn paths no golden case reaches: `--many` over a directory with a non-`.byn` entry,
+  // over a `.byn` directory and over a missing directory, `--time`, `--codes`, a path argument and the usage errors. The
+  // inputs are files the test writes under `tmp/parser-t29`. The standard-input path of `parseOne` is not reached. The
+  // expected values are the exit codes of the self-hosted parser at the commit that added the test.
+  
+  /// `tmp/parser-t29/<name>` holding `main.byn`, `notes.txt` and, given `withDir`, a directory named `sub.byn`.
+  string t29Fixture(string name, bool withDir) uses alloc, fs {
+~     Io.createDirectory("tmp") catch {}
+~     Io.createDirectory("tmp/parser-t29") catch {}
+~     let dir = $"tmp/parser-t29/{name}"
+~     Io.createDirectory(dir) catch {}
+~     Io.writeFile($"{dir}/main.byn", "void f() { }\n".bytes) catch { assert false }
+~     Io.writeFile($"{dir}/notes.txt", "x\n".bytes) catch { assert false }
+~     Io.createDirectory($"{dir}/sub.byn") catch {} if withDir
+~     return dir
+  }
+  
+  test "parser t29: the driver modes give their exit codes" {
+      let keywords = Keywords.build()
+      let dir = t29Fixture("modes", withDir: false)
+      let withDir = t29Fixture("modes-dir", withDir: true)
+      let file = $"{dir}/main.byn"
+      let codes = [
+          parseMany(dir, by: keywords),
+          parseMany(withDir, by: keywords),
+          parseMany("tmp/parser-t29/no-such-dir", by: keywords),
+          parseTimed(file, by: keywords),
+          parseTimed("tmp/parser-t29/no-such-file.byn", by: keywords),
+          parseOne(file, by: keywords),
+          parseOne("tmp/parser-t29/no-such-file.byn", by: keywords),
+          printCodes(),
+      ]
+      var sb = StrBuf()
+      for c in codes {
+          sb.append($"{c} ")
+      }
+      assert sb.finish() == "0 2 2 0 2 0 4 0 "
+  }
+  
+  test "parser t29: main routes its arguments" {
+      let dir = t29Fixture("route", withDir: false)
+      let codes = [
+          main([$"{dir}/main.byn"]),
+          main(["--many", dir]),
+          main(["--time", $"{dir}/main.byn"]),
+          main(["--codes"]),
+          main(["--no-such-option"]),
+          main(["--many", "a", "b"]),
+          main(["--no-such-option", "a"]),
+      ]
+      var sb = StrBuf()
+      for c in codes {
+          sb.append($"{c} ")
+      }
+      assert sb.finish() == "0 0 0 0 2 2 2 "
+  }

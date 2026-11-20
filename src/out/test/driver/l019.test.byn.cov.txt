@@ -1,0 +1,112 @@
+  // L019 (spec 019 T31b): InstrumentedRunLawTests.cs over the `run/*.test.byn` cases. Each case is built three times by the driver
+  // `$BAYAN_EXE` names, as a one-module package: `bayan test`, `bayan test --coverage` and `bayan test --mutate`, which leave their test
+  // binary under `out/<mode>/<host>/`. Each test of the plain binary is then compared with the same test of the other two (`--test i`),
+  // over stdout, stderr and exit code. Plain `run/*.byn` cases are not covered: `bayan build` has no `--coverage` or `--mutate`.
+  
+  /// The outcome of `exe --test index` in a fresh `work`, with `$BAYAN_COVERAGE` and `$BAYAN_MUTANT` set to `coverage` and `mutant`
+  /// (unset when null), as InstrumentedRunLawTests.cs:84 `Run`.
+  GoldenOutcome l019Run(string exe, at i64 index, from string work, by string? coverage, for string? mutant, through ref string failure)
+          uses alloc, clock, fs, process {
+~     deleteWorkDir(work)
+~     Io.createDirectory(work) catch { failure = $"cannot create {work}" }
+~     var env = goldenEnv()
+~     env["BAYAN_COVERAGE"] = coverage
+~     env["BAYAN_MUTANT"] = mutant
+~     var args = List<string>()
+~     args.append("--test")
+~     args.append($"{index}")
+~     return goldenChild(exe, by: in args, at: work, from: in List<u8>(), through: ref failure, env: env)
+  }
+  
+  // L019: an instrumented run's output and exit code equal the plain run's
+  test "L019: each test of a run/*.test.byn case gives the plain build's stdout, stderr and exit code under --coverage and --mutate" {
+      var failure = ""
+      let exe = goldenExe(through: ref failure)
+      assert(failure == "")
+      let dir = Path.fullPath("tests/cases/run")
+      var names = Io.listDir(dir) catch List<string>()
+      names.sort()
+      let host = t5HostTarget()
+      var cases: i64 = 0
+      var counted = false
+      var mismatch = ""
+      for name in names {
+          continue unless name.endsWith(".test.byn")
+          let input = Path.combine(dir, name)
+          continue if goldenOsSkip(input)
+          // in debug mode `bayan test` adds the coverage probes to the plain build too (test.byn `probes`)
+          assert(goldenMode(input) == "safe")
+          cases += 1
+          let stem = name[0..name.length - ".test.byn".length]
+          let scratch = Path.combine(Path.combine(Path.fullPath("tmp"), "l019"), stem)
+          let source = Io.readText(input) catch ""
+          var exes = List<string>()
+          var tests: i64 = 0
+          for flag in ["", "--coverage", "--mutate"] {
+              let root = Path.combine(scratch, flag == "" ? "plain" : flag[2..flag.length])
+              deleteWorkDir(root)
+              goldenWrite(root, for: "package.byn", as: "Package { name: \"local/l019\", version: \"0.1.0\" }\n")
+              goldenWrite(root, for: $"src/app/{name}", as: source)
+              var args = List<string>()
+              args.append("test")
+              if flag != "" {
+                  args.append(flag)
+              }
+              var env = goldenEnv()
+              env["BAYAN_COVERAGE"] = null
+              env["BAYAN_MUTANT"] = null
+              let o = goldenChild(exe, by: in args, at: root, from: in List<u8>(), through: ref failure, env: env)
+              if flag == "" {
+                  // `running <n> test(s) in ...`
+                  let lines = goldenLines(goldenLf(o.stdout))
+                  let line = lines.length > 0 ? lines[0] : ""
+                  var end: i64 = "running ".length
+                  while end < line.length && line.bytes[end] != 0x20 {
+                      end += 1
+                  }
+                  tests = line.startsWith("running ") ? t9Digits(line["running ".length..end], until: 1000000) ?? 0 : 0
+              }
+              let binary = targetExecutableName(flag == "--mutate" ? "l019-mutate" : "l019-test", for: host)
+              exes.append(Path.combine(Path.combine(Path.combine(Path.combine(root, "out"), "safe"), host), binary))
+          }
+          assert(failure == "" && tests > 0)
+          let counters = Path.combine(Path.combine(scratch, "counters"), "cov")
+          Io.createDirectory(Path.combine(scratch, "counters")) catch { failure = $"cannot create {scratch}/counters" }
+          for t in 0..tests {
+              let expected = l019Run(exes[0], at: t, from: Path.combine(scratch, "run-plain"), by: null, for: null, through: ref failure)
+              for i in 0..4 {
+                  let actual = l019Run(
+                      i < 2 ? exes[1] : exes[2],
+                      at: t,
+                      from: Path.combine(scratch, $"run{i}"),
+                      by: i == 1 ? counters : null,
+                      for: i == 3 ? "0" : null,
+                      through: ref failure,
+                  )
+                  let label = ["--coverage, BAYAN_COVERAGE unset", "--coverage, BAYAN_COVERAGE set", "--mutate, BAYAN_MUTANT unset",
+                      "--mutate, BAYAN_MUTANT=0"][i]
+                  var stream = ""
+                  if goldenLf(expected.stdout) != goldenLf(actual.stdout) {
+                      stream = $"stdout:\n{actual.stdout}\nexpected:\n{expected.stdout}"
+                  } else if goldenLf(expected.stderr) != goldenLf(actual.stderr) {
+                      stream = $"stderr:\n{actual.stderr}\nexpected:\n{expected.stderr}"
+                  } else if expected.exitCode != actual.exitCode {
+                      stream = $"exit code {actual.exitCode}, expected {expected.exitCode}"
+                  }
+                  if stream != "" && mismatch == "" {
+                      mismatch = $"L019 counterexample: run/{name}, test {t}, {label}: differs from the plain run in {stream}"
+                  }
+              }
+              counted = counted || Fs.fileExists($"{counters}.{t}")
+          }
+          if mismatch != "" {
+              print(mismatch)
+              break
+          }
+          deleteWorkDir(scratch)
+      }
+      assert(failure == "")
+      assert(mismatch == "")
+      // the run/*.test.byn cases exist, and the --coverage build wrote its counters
+      assert(cases > 0 && counted)
+  }

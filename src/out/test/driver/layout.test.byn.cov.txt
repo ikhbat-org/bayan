@@ -1,0 +1,211 @@
+  // LayoutTests.ADifferenceKeepsTheInput (LayoutTests.cs:937-940): the C# injects `broken` through `Layout.OutputHook`, which no CLI
+  // run reaches, so these rows call `layoutCheck` with `broken` as the output directly. Each source is the row's with `=` spaced to
+  // `  =  `, as the C# test spaces it.
+  
+  import lexer
+  import parser
+  
+  /// `layoutCheck` of `source` against `broken`, as `layoutApplyWith` calls it.
+  string? layoutCheckAgainst(string source, for string broken) uses alloc {
+~     let bytes = source.bytes.copy()
+~     let lexed = layoutLex(bytes, by: lexer.Keywords.build())
+~     let tokens = lexed.tokens.copy()
+~     var gaps = List<LayoutGap>()
+~     assert layoutGaps(bytes, from: tokens, at: layoutBom(bytes), to: ref gaps)
+~     var p = parser.Parser.create(move lexed)
+~     let tree = parser.parseCompilationUnit(ref p)
+~     return layoutCheck(bytes, from: tokens, by: gaps, at: tree, through: ref p, for: broken.bytes.copy())
+  }
+  
+  @cases(
+      ("let a  =  1\nlet b  =  2\n", "let a = 1\nlet b = 3\n", "the tokens changed"),
+      ("let a  =  1\nlet b  =  2\n", "let a = 1 let b = 2\n", "the diagnostics changed"),
+      ("let a  =  1 // one\n", "let a = 1 // two\n", "the comments changed"),
+      ("let a  =  1\nlet b  =  x >> 2\n", "let a = 1\nlet b = x > > 2\n", "the spacing the parser reads changed"),
+  )
+  test "a difference keeps the input" (string source, string broken, string reason) {
+      assert layoutCheckAgainst(source, for: broken) == reason
+  }
+  
+  // The same guard inside `layoutApplyWith`: spacing the tight product of `u8*p` makes it a multiplication, `layoutCheck` refuses
+  // that output, and the result is the input itself with the reason.
+  test "a difference keeps the input inside layoutApplyWith" {
+      let source = "void f(u8*p) {\n}\n".bytes.copy()
+      let result = layoutApplyWith(source, by: LayoutOptions {}, for: true)
+      assert result.skipReason is { }
+      assert t8SameBytes(in result.output, as: in source)
+  }
+  
+  /// StyleGuideExamplesTests.cs:30 `Examples`: a `###` section of docs/bayan-style.md with its Do and Don't blocks, whether it is
+  /// under `## Style lints`, and the width its "Shown at width N." sentence names (120 without one).
+  struct SgExample {
+      string title
+      string good
+      string bad
+      bool   lint
+      i64    width
+  }
+  
+  /// StyleGuideExamplesTests.cs:30 `Examples`: the `Sections` regex (`^### title\n` up to the next `^#{2,3} ` line or the end), each
+  /// with its first `Pairs` match.
+  List<SgExample> sgExamples() uses alloc, fs {
+~     let bytes = Io.readFile("docs/bayan-style.md") catch { panic("cannot read docs/bayan-style.md") }
+~     let doc = Utf8.decode(bytes, invalid: .replace).replaced("\r\n", by: "\n")
+~     let lints = doc.position("\n## Style lints", from: 0) ?? -1
+~     var list = List<SgExample>()
+~     var title: string? = null
+~     var titleAt: i64 = 0
+~     var bodyAt: i64 = 0
+~     var at: i64 = 0
+~     while at < doc.length {
+~         let end = doc.position("\n", from: at) ?? doc.length
+~         let line = doc[at..end]
+~         if line.startsWith("## ") || line.startsWith("### ") {
+~             if (title is { } t) {
+~                 if (sgPair(t, from: doc[bodyAt..at], by: titleAt > lints) is { } e) {
+~                     list.append(e)
+                  }
+              }
+~             title = null
+~             if line.startsWith("### ") && line.length > 4 && end < doc.length {
+~                 title = line[4..line.length]
+~                 titleAt = at
+~                 bodyAt = end + 1
+              }
+          }
+~         at = end + 1
+      }
+~     if (title is { } t) {
+~         if (sgPair(t, from: doc[bodyAt..doc.length], by: titleAt > lints) is { } e) {
+~             list.append(e)
+          }
+      }
+~     return list
+  }
+  
+  /// StyleGuideExamplesTests.cs:24 `Pairs`: the first `Do:` at a line start followed by a `bayan` block, `Don't:` and a second one.
+  SgExample? sgPair(string title, from string body, by bool lint) uses alloc {
+~     let open = "Do:\n\n```bayan\n"
+~     let middle = "```\n\nDon't:\n\n```bayan\n"
+~     var from: i64 = 0
+~     while from < body.length {
+~         let d = body.position(open, from: from) ?? return null
+~         from = d + 1
+~         continue if d > 0 && body[d - 1..d] != "\n"
+~         let goodAt = d + open.length
+~         if (body.position(middle, from: goodAt) is { } m) {
+~             let badAt = m + middle.length
+~             if (body.position("```", from: badAt) is { } e) {
+~                 return SgExample { title: title, good: body[goodAt..m], bad: body[badAt..e], lint: lint, width: sgWidth(body) }
+              }
+          }
+      }
+~     return null
+  }
+  
+  /// StyleGuideExamplesTests.cs:27 `ShownAtWidth`: the first "Shown at width N." of `body`, else 120.
+  i64 sgWidth(string body) uses alloc {
+~     let key = "Shown at width "
+~     var from: i64 = 0
+~     while from < body.length {
+~         let k = body.position(key, from: from) ?? return 120
+~         var i = k + key.length
+~         var n: i64 = 0
+~         while i < body.length {
+~             let digit = "0123456789".position(body[i..i + 1], from: 0) ?? break
+~             n = n * 10 + digit
+~             i += 1
+          }
+~         return n if i > k + key.length && i < body.length && body[i..i + 1] == "."
+~         from = k + 1
+      }
+~     return 120
+  }
+  
+  /// StyleGuideExamplesTests.cs:84 `CodesOf`: the style lint codes of `source` parsed as `example.byn`, as `bayan check` finds them.
+  List<string> sgCodes(string source) uses alloc {
+~     var bytes = List<u8>()
+~     for b in source.bytes {
+~         bytes.append(b)
+      }
+~     var p = parser.Parser.create(lexer.lex(lexer.SourceText.create("example.byn", from: move bytes), by: lexer.Keywords.build()))
+~     let _ = parser.parseCompilationUnit(ref p)
+~     parser.lintBanners(ref p)
+~     parser.lintPatterns(ref p)
+~     parser.keepComments(ref p)
+~     var codes = List<string>()
+~     for d in p.styleLints {
+~         codes.append(d.code)
+      }
+~     return codes
+  }
+  
+  // StyleGuideExamplesTests.TheDocHasLayoutAndLintPairs.
+  test "style guide: the doc has layout and lint pairs" {
+      var layout: i64 = 0
+      var lint: i64 = 0
+      for e in sgExamples() {
+          if e.lint {
+              lint += 1
+          } else {
+              layout += 1
+          }
+      }
+      assert(layout >= 20)
+      assert(lint == 5)
+  }
+  
+  // StyleGuideExamplesTests.DontFormatsToDo, one row per layout section but Naming.
+  test "style guide: each layout don't formats to its do" {
+      var rows: i64 = 0
+      for e in sgExamples() {
+          continue if e.lint || e.title == "Naming"
+          rows += 1
+          var bytes = List<u8>()
+          for b in e.bad.bytes {
+              bytes.append(b)
+          }
+          let result = layoutApply(bytes, by: LayoutOptions { width: e.width })
+          if (result.skipReason is { } why) {
+              panic($"{e.title}: layout skipped: {why}")
+          }
+          if Utf8.decode(result.output, invalid: .replace) != e.good {
+              panic($"{e.title}: the Don't block does not format to the Do block at width {e.width}")
+          }
+      }
+      assert(rows >= 20)
+  }
+  
+  // StyleGuideExamplesTests.DontReportsTheLintAndDoReportsNone, one row per section under `## Style lints`.
+  test "style guide: each lint don't reports the lint and its do none" {
+      let known = ["BYN1072", "BYN1073", "BYN1074", "BYN1075", "BYN1076"]
+      var rows: i64 = 0
+      for e in sgExamples() {
+          continue if !e.lint || e.title == "Naming"
+          rows += 1
+          let k = e.title.position("BYN", from: 0) ?? panic($"{e.title}: no BYN code in the title")
+          let code = e.title[k..k + 7]
+          var isKnown = false
+          for c in known {
+              if c == code {
+                  isKnown = true
+              }
+          }
+          if !isKnown {
+              panic($"{e.title}: {code} is not one of the five style lints")
+          }
+          var reported = false
+          for c in sgCodes(e.bad) {
+              if c == code {
+                  reported = true
+              }
+          }
+          if !reported {
+              panic($"{e.title}: the Don't block does not report {code}")
+          }
+          if sgCodes(e.good).length > 0 {
+              panic($"{e.title}: the Do block reports a style lint")
+          }
+      }
+      assert(rows == 5)
+  }

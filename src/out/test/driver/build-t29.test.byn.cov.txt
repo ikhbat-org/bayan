@@ -1,0 +1,112 @@
+  // 019 T29 (coverage ratchet): build.byn paths no golden case reaches: the `--coverage` and `--counters` options and their
+  // refusals, the style lints of a `--package` compile, the instrumented C of `build --coverage`, and the counter report of
+  // `build --coverage --counters` for a file and for a project. The expected values are the output of the self-hosted
+  // driver at the commit that added the test.
+  
+  import emitter
+  import semantics
+  
+  /// tmp/build-t29/<name> under the working directory, emptied.
+  string t29BuildDir(string name) uses alloc, fs {
+~     let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "build-t29"), name)
+~     deleteWorkDir(dir)
+~     Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+~     return dir
+  }
+  
+  /// `t5ParseBuildOptions` of `args` for `build`: `null`, or `coverage counters`.
+  string t29BuildParse(List<string> args, by bool allowOutput) uses alloc, console, fs {
+~     let o = t5ParseBuildOptions(in args, by: allowOutput, for: true) ?? return "null"
+~     return $"{o.coverage} {o.counters ?? "-"}"
+  }
+  
+  test "driver t29: t5ParseBuildOptions reads --coverage and --counters and refuses their bad mixes" {
+      t29Same(t29BuildParse(["--coverage", "src/driver/build.byn"], by: true), as: "true -")
+      t29Same(t29BuildParse(["--coverage", "--counters", "p", "src/driver/build.byn"], by: true), as: "true p")
+      t29Same(t29BuildParse(["--counters", "p", "src/driver/build.byn"], by: true), as: "null")
+      t29Same(t29BuildParse(["--coverage", "--emit-c", "src/driver/build.byn"], by: true), as: "null")
+      t29Same(t29BuildParse(["--coverage", "--schemata-files", "f", "src/driver/build.byn"], by: true), as: "null")
+      t29Same(t29BuildParse(["--coverage"], by: false), as: "null")
+      t29Same(t29BuildParse(["--counters", "p"], by: false), as: "null")
+      t29Same(t29BuildParse(["--counters"], by: true), as: "null")
+      t29Same(t29BuildParse(["--schemata-files"], by: true), as: "null")
+      t29Same(t29BuildParse(["--schemata-files", "f"], by: false), as: "null")
+  }
+  
+  test "driver t29: t5Compile runs the style lints of a --package compile only when it compiled" {
+      let dir = t29BuildDir("lints")
+      goldenWrite(dir, for: "good.byn", as: "print(\"hi\")\n")
+      goldenWrite(dir, for: "bad.byn", as: "print(nope)\n")
+      let symbols = t19Symbols(in DStyle {})
+      for file in ["good.byn", "bad.byn"] {
+          let o = T5Options { path: Path.combine(dir, file), package: dir }
+          var reported = List<semantics.T26Reported>()
+          var ok = false
+          let _ = t5Compile(in o, by: in symbols, to: ref reported, through: ref ok, styleLints: true)
+          assert ok == (file == "good.byn")
+      }
+      deleteWorkDir(dir)
+  }
+  
+  test "driver t29: t5Source with --coverage is the instrumented C" {
+      let dir = t29BuildDir("source")
+      goldenWrite(dir, for: "main.byn", as: "let n = 2\nprint(n > 1 ? \"big\" : \"small\")\n")
+      let path = Path.combine(dir, "main.byn")
+      var c = semantics.fromPath(path, by: T5CompilationOptions {}, wholeDirectory: false)
+      var sites = StrBuf()
+      let covered = t5Source(ref c, by: T5Options { path: path, coverage: true }, to: ref sites) ?? ""
+      var plain = semantics.fromPath(path, by: T5CompilationOptions {}, wholeDirectory: false)
+      let emitted = t5EmitC(ref plain, by: "safe")
+      assert covered.length > emitted.length && covered.contains("BAYAN_COVERAGE") && !emitted.contains("BAYAN_COVERAGE")
+      assert sites.finish() == ""
+      deleteWorkDir(dir)
+  }
+  
+  test "driver t29: build --coverage --counters reports the counter files of a file and of a project" {
+      let dir = t29BuildDir("counters")
+      goldenWrite(dir, for: "main.byn", as: "let n = 2\nprint(n > 1 ? \"big\" : \"small\")\n")
+      goldenWrite(dir, for: "c/BAYAN_COVERAGE.1", as: "bayan-coverage 1\n0 1\n")
+      goldenWrite(dir, for: "c/BAYAN_COVERAGE.2", as: "not counters\n")
+      goldenWrite(dir, for: "c/other", as: "x\n")
+      let prefix = Path.combine(Path.combine(dir, "c"), "BAYAN_COVERAGE")
+      var d = newDCtx()
+      let file = Path.combine(dir, "main.byn")
+      t29Same($"{buildCommand(["build", "--coverage", "--counters", prefix, file], by: ref d)}", as: "0")
+      let quality = Io.readText(Path.combine(dir, "out/test/bayan-quality.json")) catch { panic("quality") }
+      assert quality.contains("\"unknown\": [")
+      let project = t29BuildDir("gated")
+      goldenWrite(
+          project,
+          for: "package.byn",
+          as: "Package {\n    name: \"local/gated\",\n    version: \"0.1.0\",\n    test: Tests { lines: 100 },\n}\n",
+      )
+      goldenWrite(project, for: "src/app/main.byn", as: "let n = 2\nprint(n > 1 ? \"big\" : \"small\")\n")
+      t29Same($"{buildCommand(["build", "--coverage", "--counters", prefix, project], by: ref d)}", as: "0")
+      deleteWorkDir(dir)
+      deleteWorkDir(project)
+  }
+  
+  test "driver t29: build --schemata-files writes the sites file next to the program" {
+      let dir = t29BuildDir("schemata")
+      goldenWrite(dir, for: "main.byn", as: "let n = 2\nprint(n > 1 ? \"big\" : \"small\")\n")
+      let file = Path.combine(dir, "main.byn")
+      let exe = Path.combine(dir, "main")
+      var d = newDCtx()
+      t29Same($"{buildCommand(["build", "--schemata-files", file, "-o", exe, file], by: ref d)}", as: "0")
+      assert Fs.fileExists(emitter.sitesPath(exe))
+      deleteWorkDir(dir)
+  }
+  
+  test "driver t29: build --coverage --counters exits 3 when a gate of the manifest fails" {
+      let project = t29BuildDir("failing")
+      goldenWrite(
+          project,
+          for: "package.byn",
+          as: "Package {\n    name: \"local/failing\",\n    version: \"0.1.0\",\n    test: Tests { lines: 100 },\n}\n",
+      )
+      goldenWrite(project, for: "src/app/main.byn", as: "let n = 2\nprint(n > 1 ? \"big\" : \"small\")\n")
+      let prefix = Path.combine(project, "BAYAN_COVERAGE")
+      var d = newDCtx()
+      t29Same($"{buildCommand(["build", "--coverage", "--counters", prefix, project], by: ref d)}", as: "3")
+      deleteWorkDir(project)
+  }

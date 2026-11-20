@@ -1,0 +1,155 @@
+  // OwnershipCheckerTests.cs (csharp/tests/Bayan.Tests) tests whose program the static check accepts, ported to test blocks (spec 019
+  // T30h, 019-t30h34): `$BAYAN_EXE build` on the program alone in a directory under tmp/ownership-t30h, in the form of
+  // clean-t3.test.byn. The tests on programs the static check rejects need `SkipOwnershipCheck`, which no `bayan` command has; their
+  // rows in tests/inventory-019.tsv say so. Each assertion is the C# test's own.
+  
+  /// `$BAYAN_EXE build <args> <dir>` at the repository root, `text` written as `<dir>/main.byn` alone, `dir` being
+  /// tmp/ownership-t30h/<name>; the outcome, its failure asserted empty.
+  GoldenOutcome t30hOwnBuild(string name, by string text, for ReadOnlySpan<string> args)
+          uses alloc, clock, console, env, fs, process {
+~     let dir = t30hOwnDir(name)
+~     deleteWorkDir(dir)
+~     goldenWrite(dir, for: "main.byn", as: text)
+~     var failure = ""
+~     let exe = goldenExe(through: ref failure)
+~     print(failure) if exe == ""
+~     assert(exe != "")
+~     var all = List<string>()
+~     all.append("build")
+~     for a in args {
+~         all.append(a)
+      }
+~     all.append(dir)
+~     let o = goldenChild(exe, by: in all, at: Path.fullPath("."), from: in List<u8>(), through: ref failure)
+~     print(failure) if failure != ""
+~     print(o.stderr) if o.exitCode != 0
+~     assert(failure == "" && o.exitCode == 0)
+~     return o
+  }
+  
+  /// tmp/ownership-t30h/<name>, a full path.
+  string t30hOwnDir(string name) uses alloc, fs =>
+      Path.combine(Path.combine(Path.fullPath("tmp"), "ownership-t30h"), name)
+  
+  /// The program `t30hOwnBuild` built with `-o <dir>/prog` for `name`.
+  string t30hOwnExe(string name) uses alloc, fs =>
+      Path.combine(t30hOwnDir(name), targetExecutableName("prog", for: t5HostTarget()))
+  
+  /// `exe` run with no arguments in tmp/: its outcome, its failure asserted empty.
+  GoldenOutcome t30hOwnRun(string exe) uses alloc, clock, console, fs, process {
+~     var failure = ""
+~     let o = goldenChild(exe, by: in List<string>(), at: Path.fullPath("tmp"), from: in List<u8>(), through: ref failure)
+~     print(failure) if failure != ""
+~     assert(failure == "")
+~     return o
+  }
+  
+  /// Run case `tests/cases/run/<file>`, read.
+  string t30hOwnCase(string file) uses alloc, fs => Io.readText(Path.fullPath($"tests/cases/run/{file}")) catch ""
+  
+  /// Whether `bytes` hold the bytes of `needle` in a row (OwnershipCheckerTests.cs:394, the Latin-1 text of an executable).
+  bool t30hOwnHas(List<u8> bytes, for string needle) {
+~     let n = needle.bytes
+~     for i in 0..bytes.length - n.length + 1 {
+~         var k: i64 = 0
+~         while k < n.length && bytes[i + k] == n[k] {
+~             k += 1
+          }
+~         return true if k == n.length
+      }
+~     return false
+  }
+  
+  // OwnershipCheckerTests.cs:84 `DebugBuildOfSwitchMoveRuns`
+  test "ownership t30h: DebugBuildOfSwitchMoveRuns" {
+      let name = "switch-move-runs"
+      let _ = t30hOwnBuild(name, by: t30hOwnCase("switch-move.byn"), for: ["--mode", "debug", "-o", t30hOwnExe(name)])
+      let o = t30hOwnRun(t30hOwnExe(name))
+      print(o.stderr) if o.exitCode != 0
+      assert(o.exitCode == 0)
+      assert(goldenLf(o.stdout) == goldenLf(t30hOwnCase("switch-move.stdout")))
+      deleteWorkDir(t30hOwnDir(name))
+  }
+  
+  // OwnershipCheckerTests.cs:102 `DebugCMovesASwitchSubjectOnce`
+  test "ownership t30h: DebugCMovesASwitchSubjectOnce" {
+      let name = "switch-move-once"
+      let source = t30hOwnCase("switch-move.byn")
+      let text = goldenLines(goldenLf(source))
+      var lines = List<i64>()
+      for i in 0..text.length {
+          if text[i].trimmed().startsWith("switch move ") || text[i].contains(") switch {") {
+              lines.append(i + 1)
+          }
+      }
+      assert(lines.length == 4)
+      let emitted = goldenLines(goldenLf(t30hOwnBuild(name, by: source, for: ["--mode", "debug", "--emit-c"]).stdout))
+      for line in lines {
+          var count: i64 = 0
+          for l in emitted {
+              if l.contains("bynh_chk_move_") && l.contains($", {line})") && !l.startsWith("static") {
+                  count += 1
+              }
+          }
+          print($"line {line}: {count} moves") if count != 1
+          assert(count == 1)
+      }
+      deleteWorkDir(t30hOwnDir(name))
+  }
+  
+  // OwnershipCheckerTests.cs:293-301 `DebugBuildDoesNotClaimStorageItsOwnerGaveUp`: a claim after a call is not made for a
+  // receiver the statement moves (the `GrowThenMoveReceiver` row).
+  test "ownership t30h: DebugBuildDoesNotClaimStorageItsOwnerGaveUp" {
+      let name = "grow-then-move"
+      let program = "struct Bag {\n    List<i64> items\n    public i64 grow(ref this) uses alloc {\n        this.items.append(1)\n        return this.items.length\n    }\n}\nBag keep(i64 n, from move Bag b) => b\nvoid main() {\n    var b = Bag { items: List<i64>() }\n    let d = keep(b.grow(), from: move b)\n    print($\"{d.items.length}\")\n}\n"
+      let _ = t30hOwnBuild(name, by: program, for: ["--mode", "debug", "-o", t30hOwnExe(name)])
+      let o = t30hOwnRun(t30hOwnExe(name))
+      print(o.stderr) if o.exitCode != 0
+      assert(o.exitCode == 0)
+      assert(goldenLf(o.stdout) == "1\n")
+      deleteWorkDir(t30hOwnDir(name))
+  }
+  
+  // OwnershipCheckerTests.cs:349-363 `DebugCCompilesStandalone`, its first half: `bayan build --mode debug --emit-c` output compiles by
+  // hand against the runtime, without -DBYN_DEBUG, and runs as the case says. The second half builds a program the static check
+  // rejects (`SkipOwnershipCheck`); its row says so.
+  test "ownership t30h: DebugCCompilesStandalone" {
+      let compiler = ccFindCompiler()
+      assert(compiler.length > 0)
+      let name = "standalone"
+      let o = t30hOwnBuild(name, by: t30hOwnCase("switch-move-guard.byn"), for: ["--mode", "debug", "--emit-c"])
+      let dir = t30hOwnDir(name)
+      goldenWrite(dir, for: "out.c", as: o.stdout)
+      goldenWrite(dir, for: "bayan-rt.c", as: runtimeSource)
+      goldenWrite(dir, for: "bayan-rt.h", as: runtimeHeader)
+      let exe = Path.combine(dir, Target.os == "windows" ? "out.exe" : "out")
+      var args = List<string>()
+      for i in 1..compiler.length {
+          args.append(compiler[i])
+      }
+      for a in ["-std=c11", "out.c", "bayan-rt.c", "-I.", "-o", exe, (Target.os == "windows" ? "-lshell32" : "-lm")] {
+          args.append(a)
+      }
+      var failure = ""
+      let cc = goldenChild(compiler[0], by: in args, at: dir, from: in List<u8>(), through: ref failure)
+      print($"{failure}{cc.stdout}{cc.stderr}") if failure != "" || cc.exitCode != 0
+      assert(failure == "" && cc.exitCode == 0)
+      let r = t30hOwnRun(exe)
+      print(r.stderr) if r.exitCode != 0
+      assert(r.exitCode == 0)
+      assert(goldenLf(r.stdout) == goldenLf(t30hOwnCase("switch-move-guard.stdout")))
+      deleteWorkDir(dir)
+  }
+  
+  // OwnershipCheckerTests.cs:387-395 `SafeAndFastExecutablesHaveNoChecker`: a safe or fast executable holds no `byn_own_` symbol.
+  // The C# builds `SecondOwner` with `SkipOwnershipCheck`; this builds run/switch-move-guard.byn, a `// mode: debug` case the static
+  // check accepts.
+  @cases("safe", "fast")
+  test "ownership t30h: SafeAndFastExecutablesHaveNoChecker" (string mode) {
+      let name = $"no-checker-{mode}"
+      let _ = t30hOwnBuild(name, by: t30hOwnCase("switch-move-guard.byn"), for: ["--mode", mode, "-o", t30hOwnExe(name)])
+      let bytes = Io.readFile(t30hOwnExe(name)) catch List<u8>()
+      assert(bytes.length > 0)
+      assert(!t30hOwnHas(bytes, for: "byn_own_"))
+      deleteWorkDir(t30hOwnDir(name))
+  }

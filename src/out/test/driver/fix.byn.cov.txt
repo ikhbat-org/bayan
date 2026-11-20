@@ -1,0 +1,268 @@
+  // `bayan fix [<path>…]` of the self-hosted driver (spec 022 T9). Ports `FixCommand.cs` `Run`, `FixModule`, `TypedFixes`,
+  // `ErrorCount` and `Roots`.
+  
+  import lexer
+  import parser
+  import semantics
+  
+  /// A typed lint's fix in the file at `path` (a `TypedFixes` entry).
+  struct T9PathFix {
+      string path
+      T8Fix  fix
+  }
+  
+  /// Applies the fix of every style lint (BYN1072–BYN1080), whatever its severity in `lints`; overlapping fixes wait for the next
+  /// pass, up to `d.maxPasses`. It does not run the formatter.
+  // FixCommand.cs: Run
+  i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, fs {
+~     let args = t2Rest(in kept)
+~     for a in args {
+~         if a.startsWith("-") {
+~             Io.stderr.write("usage: bayan fix [<path>…]\n")
+~             return exitUsage
+          }
+      }
+~     var paths = List<string>()
+~     if args.length == 0 {
+~         paths.append(".")
+      } else {
+~         for a in args {
+~             paths.append(a)
+          }
+      }
+~     for path in paths {
+~         continue if t6DirectoryExists(path) || Fs.fileExists(path)
+~         Io.stderr.write($"bayan: not found: {path}\n")
+~         return exitUsage
+      }
+~     var exit = exitOk
+~     var files = List<string>()
+~     for path in paths {
+~         if t6DirectoryExists(path) {
+~             let root = realPath(path) catch switch {
+                  // coverage-exempt: Q1106 a directory that exists resolves
+                  IoError e => {
+~                     Io.stderr.write($"bayan: {path}: {e}\n")
+~                     return exitFailure
+                  }
+              }
+~             for f in bynFiles(path, through: ref exit, by: root) {
+~                 files.append(f)
+              }
+          } else {
+~             files.append(path)
+          }
+      }
+      // The C# `SortedSet<string>(StringComparer.Ordinal)`: sorted, each once.
+~     files.sort()
+~     var sorted = List<string>()
+      // A file named twice (`dup ./dup`, `. src`) is fixed once: a second copy would apply the fixes found before the first rewrote it.
+~     var reals: Map<string, bool> = []
+~     for f in files {
+~         continue if sorted.length > 0 && sorted[sorted.length - 1] == f
+~         if Path.fileName(f) != "package.byn" {
+~             let real = realPath(f) catch switch {
+                  // coverage-exempt: Q1106 a file that exists resolves
+                  IoError e => {
+~                     Io.stderr.write($"bayan: {f}: {e}\n")
+~                     return exitFailure
+                  }
+              }
+~             unless reals.contains(real) {
+~                 reals[real] = true
+~                 sorted.append(f)
+              }
+          }
+      }
+      // `GroupBy` the full directory, in the order a directory first appears.
+~     var dirs = List<string>()
+~     for f in sorted {
+~         let dir = Path.directoryName(Path.fullPath(f)) ?? ""
+~         var seen = false
+~         for g in dirs {
+~             if g == dir {
+~                 seen = true
+              }
+          }
+~         unless seen {
+~             dirs.append(dir)
+          }
+      }
+~     for dir in dirs {
+~         var module = List<string>()
+~         for f in sorted {
+~             if (Path.directoryName(Path.fullPath(f)) ?? "") == dir {
+~                 module.append(f)
+              }
+          }
+~         fixModule(dir, for: in module, until: d.maxPasses, through: ref exit) catch switch {
+              IoError e => {
+~                 Io.stderr.write($"bayan: {dir}: {e}\n")
+~                 exit = exitFailure
+              }
+          }
+      }
+~     return exit
+  }
+  
+  /// Fixes the files of one module until no fix applies, then prints each changed file's count. As `bayan format`, a file with a blocking
+  /// parse error is not fixed and its errors are rendered, and a pass whose fixed bytes no longer parse is abandoned for that file; either
+  /// sets `exit` to 1 (the C# `false`).
+  // FixCommand.cs: FixModule
+  void fixModule(string dir, for in List<string> files, until i64 maxPasses, through ref i32 exit)
+          uses alloc, clock, console, fs
+          fails IoError {
+~     var counts = List<i64>()
+~     var refused = List<bool>()
+~     for _ in files {
+~         counts.append(0)
+~         refused.append(false)
+      }
+~     for _ in 0..maxPasses {
+~         let typed = try typedFixes(dir)
+~         var changed = false
+~         for k in 0..files.length {
+~             continue if refused[k]
+~             let real = try realPath(files[k])
+~             let bytes = try Io.readFile(real)
+~             var p = t8Parser(files[k], from: in bytes)
+~             let _ = parser.parseCompilationUnit(ref p)
+~             let blocking = fixBlocking(in p.lexed.diagnostics)
+~             if blocking.length > 0 {
+~                 Io.stderr.write(t8RenderAll(files[k], from: in bytes, for: in blocking))
+~                 refused[k] = true
+~                 exit = exitFailure
+~                 continue
+              }
+~             parser.lintBanners(ref p)
+~             parser.keepComments(ref p)
+~             var fixes = List<T8Fix>()
+~             for lint in p.styleLints {
+~                 if lint.hasFix {
+~                     fixes.append(T8Fix { span: lint.fixSpan, replacement: lint.fixReplacement })
+                  }
+              }
+~             for t in typed {
+~                 if t.path == real {
+~                     fixes.append(t.fix)
+                  }
+              }
+~             continue if fixes.length == 0
+~             var applied: i64 = 0
+~             let fixedBytes = applyFixesCounting(in bytes, for: in fixes, to: ref applied)
+~             continue if t8SameBytes(in fixedBytes, as: in bytes)
+~             var check = t8Parser(files[k], from: in fixedBytes)
+~             let _ = parser.parseCompilationUnit(ref check)
+~             if fixBlocking(in check.lexed.diagnostics).length > 0 {
+                  // coverage-exempt: Q1122 through `rewriting it made it unparsable`
+~                 Io.stderr.write(
+                      $"bayan: {files[k]}: rewriting it made it unparsable, so the rewrite was abandoned and the file left unchanged\n",
+                  )
+~                 refused[k] = true
+~                 exit = exitFailure
+~                 continue
+              }
+~             try writeReplacing(real, from: in fixedBytes)
+~             counts[k] += applied
+~             changed = true
+          }
+~         unless changed {
+~             break
+          }
+      }
+~     for k in 0..files.length {
+~         if counts[k] > 0 {
+~             Io.stdout.write($"fixed {files[k]} ({counts[k]})\n")
+          }
+      }
+  }
+  
+  /// The tree's blocking errors: every code but an input form's. A report the parser withdrew (`unreport`, Q440) is gone from the C# bag.
+  // FixCommand.cs: FixModule (its `Blocking`)
+  List<T8Diagnostic> fixBlocking(in List<T8Diagnostic> diagnostics) uses alloc {
+~     var blocking = List<T8Diagnostic>()
+~     for d in diagnostics {
+~         if !d.code.isEmpty && !inputForms(d.code) {
+~             blocking.append(d)
+          }
+      }
+~     return blocking
+  }
+  
+  /// The fixes of the lints that need types (BYN1078, and BYN1080 on a local), by full path, from a compilation of the module with
+  /// tests. Imports resolve under the first root that compiles cleanly: a project's `src/`, then the module's directory and its two
+  /// parents; otherwise under the one with the fewest errors.
+  // FixCommand.cs: TypedFixes
+  List<T9PathFix> typedFixes(string dir) uses alloc, clock, console, fs fails IoError {
+~     var paths = List<string>()
+~     for f in t5ModuleFiles(dir, includeTests: true) {
+~         if Path.fileName(f) != "package.byn" {
+~             paths.append(try realPath(f))
+          }
+      }
+~     var best: semantics.Ctx? = null
+~     var bestErrors: i64 = 0
+~     for root in fixRoots(dir) {
+~         var sources = List<lexer.SourceText>()
+~         for path in paths {
+~             let bytes = try Io.readFile(path)
+~             sources.append(lexer.SourceText.create(path, from: move bytes))
+          }
+~         let options = T5CompilationOptions { includeTests: true }
+~         let c = semantics.create(from: move sources, at: root, by: in options)
+~         let errors = fixErrorCount(in c)
+~         if best is null || errors < bestErrors {
+~             bestErrors = errors
+~             best = move c
+          }
+~         break if errors == 0
+      }
+~     var fixes = List<T9PathFix>()
+~     if (best is { } found) {
+~         for lint in found.styleLints {
+~             if lint.hasFix {
+~                 fixes.append(
+                      T9PathFix {
+                          path: found.files[lint.file].path,
+                          fix: T8Fix { span: lint.fixSpan, replacement: lint.fixReplacement },
+                      },
+                  )
+              }
+          }
+      }
+~     return fixes
+  }
+  
+  // FixCommand.cs: ErrorCount
+  i64 fixErrorCount(in semantics.Ctx c) {
+~     var n: i64 = 0
+~     for d in c.diagnostics {
+~         if !d.isWarning && !d.isNote {
+~             n += 1
+          }
+      }
+~     return n
+  }
+  
+  // FixCommand.cs: Roots
+  List<string> fixRoots(string dir) uses alloc, fs {
+~     var roots = List<string>()
+~     var up = Path.directoryName(dir)
+~     while let u = up {
+          let src = Path.combine(u, "src")
+          if t1FileExists(Path.combine(u, "package.byn")) && dir.startsWith($"{src}/") {
+              roots.append(src)
+              break
+          }
+          up = Path.directoryName(u)
+      }
+~     var at: string? = dir
+~     var i: i64 = 0
+~     while let a = at {
+          break if i == 3
+          roots.append(a)
+          at = Path.directoryName(a)
+          i += 1
+      }
+~     return roots
+  }

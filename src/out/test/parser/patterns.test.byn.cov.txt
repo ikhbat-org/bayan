@@ -1,0 +1,104 @@
+  // SelfhostParserT3Tests.cs (009 T3, 019 T30e): patterns.byn driven directly; the helpers `t3ParserOf` and `t3Diags` are
+  // in recover.test.byn.
+  
+  /// SelfhostParserT3Tests.cs:65 `t3PatternText`.
+  string t3PatternText(Pattern pattern, from ref Parser p) uses alloc {
+~     switch pattern {
+          case .discardPattern(let n):
+~             return "_"
+          case .varPattern(let n):
+~             return $"({n.value.isLet ? "let" : "var"} {p.lexed.source.getText(n.value.name)})"
+          case .notPattern(let n):
+~             return $"(not {t3PatternText(n.value.operand, from: ref p)})"
+          case .binaryPattern(let n):
+~             return $"({n.value.isAnd ? "and" : "or"} {t3PatternText(n.value.left, from: ref p)} {t3PatternText(n.value.right, from: ref p)})"
+          case .variantPattern(let n):
+~             var sb = StrBuf()
+~             sb.append($"(variant {n.value.span.start}+{n.value.span.length}")
+~             for e in n.value.elements {
+~                 sb.append($" {t3PatternText(e, from: ref p)}")
+              }
+~             if n.value.binding is not null {
+~                 sb.append($" bind {p.lexed.source.getText(n.value.binding ?? n.value.span)}")
+              }
+~             sb.append(")")
+~             return $"{sb.finish()}"
+          case .positionalPattern(let n):
+~             var sb = StrBuf()
+~             sb.append("(positional")
+~             for e in n.value.elements {
+~                 sb.append($" {t3PatternText(e, from: ref p)}")
+              }
+~             sb.append(")")
+~             return $"{sb.finish()}"
+          case .listPattern(let n):
+~             var sb = StrBuf()
+~             sb.append($"(list {n.value.span.start}+{n.value.span.length}")
+~             for e in n.value.elements {
+~                 sb.append($" {t3PatternText(e, from: ref p)}")
+              }
+~             sb.append(")")
+~             return $"{sb.finish()}"
+          case .slicePattern(let n):
+~             return $"(.. {t3PatternText(n.value.inner, from: ref p)})"
+          case .propertyPattern(let n):
+~             var sb = StrBuf()
+~             sb.append("(property")
+~             for s in n.value.properties {
+~                 sb.append($" {s.path.length}:{t3PatternText(s.pattern, from: ref p)}")
+              }
+~             if n.value.designation is not null {
+~                 sb.append($" as {p.lexed.source.getText(n.value.designation ?? n.value.span)}")
+              }
+~             sb.append(")")
+~             return $"{sb.finish()}"
+          case .constantPattern(let n):
+~             return "const"
+          case .relationalPattern(let n):
+~             return $"(rel {n.value.op})"
+          case .none:
+~             return "none"
+          default:
+~             return "?"
+      }
+  }
+  
+  /// SelfhostParserT3Tests.cs:114 `pattern`: the line it prints, with its newline.
+  string t3Pattern(string text) uses alloc {
+~     var p = t3ParserOf(text)
+~     let pattern = parsePattern(ref p)
+~     return $"{t3PatternText(pattern, from: ref p)} pos {p.pos} noLambda {p.noLambda}{t3Diags(ref p)}\n"
+  }
+  
+  // SelfhostParserT3Tests.cs:127 `PatternsParse`, expected text at :148-163.
+  test "parser t3: patterns parse" {
+      var sb = StrBuf()
+      sb.append(t3Pattern("_"))
+      sb.append(t3Pattern("var x or let y and not _"))
+      sb.append(t3Pattern(".some(let v, _)"))
+      sb.append(t3Pattern(".percentOff p"))
+      sb.append(t3Pattern(".percentOff when"))
+      sb.append(t3Pattern("(_)"))
+      sb.append(t3Pattern("(_, var a)"))
+      sb.append(t3Pattern("[_, .., .. var r]"))
+      sb.append(t3Pattern("{ a.b: _, c: var d } e"))
+      sb.append(t3Pattern("{ a: _ "))
+      sb.append(t3Pattern("< 3"))
+      sb.append(t3Pattern("var int"))
+      let expected = """
+              _ pos 1 noLambda false
+              (or (var x) (and (let y) (not _))) pos 8 noLambda false
+              (variant 0+15 (let v) _) pos 8 noLambda false
+              (variant 0+13 bind p) pos 3 noLambda false
+              const pos 2 noLambda false
+              _ pos 3 noLambda false
+              (positional _ (var a)) pos 6 noLambda false
+              (list 0+17 _ (.. none) (.. (var r))) pos 9 noLambda false
+              (property 2:_ 1:(var d) as e) pos 13 noLambda false
+              (property 1:_) pos 4 noLambda false [BYN1001 7+0 expected `}`, found end of file]
+              (rel lt) pos 2 noLambda false
+              (var int) pos 2 noLambda false [BYN0012 4+3 `int` is reserved and cannot be used as an identifier]
+  
+              """
+      assert sb.finish() == expected
+  }

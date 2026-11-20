@@ -1,0 +1,1572 @@
+  // DiagnosticRendererTests.cs at widths 26 and 40 (019 T27): the C# builds these diagnostics by hand, which no CLI run does, so
+  // these render them through `render` at that width.
+  
+  import lexer
+  import parser
+  
+  /// DiagnosticRendererTests.cs:26 `Find` and `DiagnosticRenderer.Render(diagnostic, includePath: false, Style.Plain with { Width = width })`
+  /// of `d` in `text`, the one file `a.byn`.
+  string t27Render(string text, for move Diag d, by i64 width) uses alloc, clock, fs {
+~     var bytes = List<u8>()
+~     for b in text.bytes {
+~         bytes.append(b)
+      }
+~     var sources = List<lexer.SourceText>()
+~     sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+~     let c = create(from: move sources, at: ".", by: CompilationOptions {})
+~     var at: i64 = -1
+~     for i in 0..c.files.length {
+~         at = i if c.files[i].path == "a.byn"
+      }
+~     var diag = move d
+~     diag.file = at
+~     return render(in c, for: diag, by: false, through: t26Symbols(ascii: false, width: width))
+  }
+  
+  /// The span of the first `needle` in `text`, as `Find` gives it.
+  TextSpan t27Find(string text, for string needle) {
+~     let t = text.bytes
+~     let n = needle.bytes
+~     for i in 0..t.length - n.length + 1 {
+~         var same = true
+~         for j in 0..n.length {
+~             same = same && t[i + j] == n[j]
+          }
+~         return TextSpan { start: i, length: n.length } if same
+      }
+~     return TextSpan { start: -1, length: 0 }
+  }
+  
+  /// `rendered.Split('\n')`.
+  List<string> t27Split(string rendered) uses alloc {
+~     let t = rendered.bytes
+~     var lines = List<string>()
+~     var from: i64 = 0
+~     for i in 0..t.length {
+~         if t[i] == 0x0A {
+~             lines.append(rendered[from..i])
+~             from = i + 1
+          }
+      }
+~     lines.append(rendered[from..t.length])
+~     return lines
+  }
+  
+  // DiagnosticRendererTests.cs:263-280 `LongMessageAndLabelWrapAtTheStyleWidth`, its expected text as the C# writes it.
+  test "renderer: a long message and label wrap at the style width" {
+      let text = "let x = 1\n"
+      let d = Diag {
+          code: "BYN2000",
+          span: t27Find(text, for: "x"),
+          message: "one two three four five six",
+          label: "alpha beta gamma delta",
+          fixSpan: TextSpan { start: 0, length: 0 },
+          related: List<Related>(),
+      }
+      let expected = "error BYN2000: one two\nthree four five six\n\n  1 │ let x = 1\n    │     ^ alpha beta\n    │       gamma delta\n"
+      assert t27Render(text, for: move d, by: 26) == expected
+  }
+  
+  // DiagnosticRendererTests.cs:282-291 `BacktickedCodeInAMessageIsNeverSplit`.
+  test "renderer: backticked code in a message is never split" {
+      let text = "let x = 1\n"
+      let type = "`(string alpha, string bravo, string charlie, i64 delta)`"
+      let d = Diag {
+          code: "BYN2000",
+          span: t27Find(text, for: "x"),
+          message: $"expected `i64`, found {type} here",
+          fixSpan: TextSpan { start: 0, length: 0 },
+          related: List<Related>(),
+      }
+      let rendered = t27Split(t27Render(text, for: move d, by: 40))
+      assert rendered[0] == "error BYN2000: expected `i64`, found"
+      assert rendered[1] == type
+      assert rendered[2] == "here"
+  }
+  
+  // DiagnosticRendererTests.cs:293-304 `SourceAndFixLinesNeverWrap`.
+  test "renderer: source and fix lines never wrap" {
+      var code = "let x = 1"
+      for n in 2..=60 {
+          code = $"{code} + {n}"
+      }
+      let text = $"{code}\n"
+      let d = Diag {
+          code: "BYN2000",
+          span: t27Find(text, for: "x"),
+          message: "m",
+          hasFix: true,
+          fixSpan: t27Find(text, for: "let"),
+          fixReplacement: "var",
+          related: List<Related>(),
+      }
+      let rendered = t27Split(t27Render(text, for: move d, by: 40))
+      assert rendered[2] == $"  1 │ {code}"
+      assert rendered[5] == $"    │ 1 │ var{code[3..code.length]}"
+  }
+  
+  // SelfhostSemanticsT2Tests.cs (009 T2, 019 T30e): the T2 driver modes as blocks. The expected values are what the frozen C#
+  // code paths the C# test calls (`DiagnosticRenderer.RenderAll`, `DiagnosticBag.RemoveRepeats`, `DiagnosticDescriptor.Format`)
+  // return for the same inputs.
+  
+  /// SelfhostSemanticsT2Tests.cs:89 `makeFile`.
+  SourceFile t2File(string display, by string text) uses alloc {
+~     let empty = List<u8>()
+~     let source = lexer.SourceText.create("<t2>", from: move empty)
+~     var p = parser.Parser.create(lexer.lex(move source, by: lexer.Keywords.build()))
+~     let unit = parser.parseCompilationUnit(ref p)
+~     var textBytes = List<u8>()
+~     for b in text.bytes {
+~         textBytes.append(b)
+      }
+~     return SourceFile {
+          path: display,
+          displayPath: display,
+          text: move textBytes,
+          unit: move unit,
+          imports: Map<string, i64>(),
+      }
+  }
+  
+  /// SelfhostSemanticsT2Tests.cs:141 `emptyCtx`.
+  Ctx t2Ctx() uses alloc {
+~     return Ctx { files: List<SourceFile>(), modules: List<Mod>(), diagnostics: List<Diag>(), bags: List<DiagBag>() }
+  }
+  
+  /// SelfhostSemanticsT2Tests.cs:167-171, the `==T2Q==` query: the omitted count, then the rendered text.
+  string t2Render(Ctx c, by bool includePath, until i64 errorLimit) uses alloc {
+~     var omitted: i64 = 0
+~     let rendered = renderAll(in c, from: in c.diagnostics, by: includePath, until: errorLimit, to: ref omitted)
+~     return $"omitted {omitted}\n{rendered}"
+  }
+  
+  /// SelfhostSemanticsT2Tests.cs:199 `noArgs`.
+  (string a0, string a1, string a2, string a3, string a4) t2NoArgs() => (a0: "", a1: "", a2: "", a3: "", a4: "")
+  
+  // SelfhostSemanticsT2Tests.cs:477 `EveryDiagCaseRendersLikeCSharp`, the hand-built lists at :491-543 (the golden cases are
+  // the diag goldens' own run); expected values are `DiagnosticRenderer.RenderAll(list, includePath: true)` with 0 omitted.
+  test "diag t2: hand-built lists render like the C# renderer" {
+      // multi
+      var c1 = t2Ctx()
+      c1.files.append(t2File("b.byn", by: "let y = 2\n"))
+      c1.files.append(t2File("a.byn", by: "let x = 1\n"))
+      c1.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 0,
+              span: TextSpan { start: 4, length: 1 },
+              message: "`y` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c1.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 1,
+              span: TextSpan { start: 4, length: 1 },
+              message: "`x` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      let expected1 = """
+          omitted 0
+          error BYN2001: `x` is not defined
+            --> a.byn:1:5
+  
+            1 │ let x = 1
+              │     ^
+  
+          error BYN2001: `y` is not defined
+            --> b.byn:1:5
+  
+            1 │ let y = 2
+              │     ^
+  
+          """
+      assert t2Render(c1, by: true, until: 2147483647) == expected1
+  
+      // prefix
+      var c2 = t2Ctx()
+      c2.files.append(t2File("b/x.byn", by: "let bx = 1\n"))
+      c2.files.append(t2File("a/y.byn", by: "let ay = 1\n"))
+      c2.files.append(t2File("a/x.byn", by: "let ax = 1\n"))
+      c2.files.append(t2File("ab.byn", by: "let ab = 1\n"))
+      c2.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 0,
+              span: TextSpan { start: 4, length: 2 },
+              message: "`bx` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c2.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 1,
+              span: TextSpan { start: 4, length: 2 },
+              message: "`ay` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c2.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 2,
+              span: TextSpan { start: 4, length: 2 },
+              message: "`ax` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c2.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 3,
+              span: TextSpan { start: 4, length: 2 },
+              message: "`ab` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      let expected2 = """
+          omitted 0
+          error BYN2001: `ax` is not defined
+            --> a/x.byn:1:5
+  
+            1 │ let ax = 1
+              │     ^^
+  
+          error BYN2001: `ay` is not defined
+            --> a/y.byn:1:5
+  
+            1 │ let ay = 1
+              │     ^^
+  
+          error BYN2001: `ab` is not defined
+            --> ab.byn:1:5
+  
+            1 │ let ab = 1
+              │     ^^
+  
+          error BYN2001: `bx` is not defined
+            --> b/x.byn:1:5
+  
+            1 │ let bx = 1
+              │     ^^
+  
+          """
+      assert t2Render(c2, by: true, until: 2147483647) == expected2
+  
+      // unicode
+      var c3 = t2Ctx()
+      c3.files.append(t2File("u.byn", by: "\tlet s = \"ஂ𐀀\u{1}é\"\n"))
+      c3.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 0,
+              span: TextSpan { start: 10, length: 3 },
+              message: "`s` is not defined",
+              label: "label `in code`",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c3.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 0,
+              span: TextSpan { start: 20, length: 3 },
+              message: "`p` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      let expected3 = "omitted 0\nerror BYN2001: `s` is not defined\n  --> u.byn:1:11\n\n  1 │ \tlet s = \"ஂ𐀀�é\"\n    │ \t         ^ label `in code`\n\nerror BYN2001: `p` is not defined\n  --> u.byn:1:15\n\n  1 │ \tlet s = \"ஂ𐀀�é\"\n    │ \t             ^\n"
+      assert t2Render(c3, by: true, until: 2147483647) == expected3
+  
+      // synthetic
+      var c4 = t2Ctx()
+      c4.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: -1,
+              span: TextSpan { start: 0, length: 0 },
+              message: "`x` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c4.diagnostics.append(
+          Diag {
+              code: "BYN2002",
+              file: -1,
+              span: TextSpan { start: 3, length: 2 },
+              message: "unknown type `y`",
+              isWarning: true,
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c4.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: -1,
+              span: TextSpan { start: 0, length: 0 },
+              message: "`a` is not defined and this message is long enough that it must wrap onto the second and third lines so that the first line's narrower width is compared against the rest width",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      let expected4 = """
+          omitted 0
+          error BYN2001: `x` is not defined
+  
+          error BYN2001: `a` is not defined and this message is long enough that it must wrap onto the second
+          and third lines so that the first line's narrower width is compared against the rest width
+  
+          warning BYN2002: unknown type `y`
+  
+          """
+      assert t2Render(c4, by: true, until: 2147483647) == expected4
+  }
+  
+  // SelfhostSemanticsT2Tests.cs:557 `ErrorLimitCapsErrorsNotWarnings`: the first three v0.3.2 diag cases with an error and a
+  // warning at limits 0, 1, 2 and `int.MaxValue`; expected values are the C# `RenderAll(items, includePath, Style.Plain, limit,
+  // out omitted)`.
+  test "diag t2: the error limit caps errors, not warnings" {
+      // diag/clause-order-uses-fix.byn includePath False
+      var c1 = t2Ctx()
+      c1.files.append(
+          t2File(
+              "clause-order-uses-fix.byn",
+              by: "union error E {\n    a\n}\npublic void log(i64 n) expects n > 0 fails E {\n    print(\"log\")\n}\n",
+          ),
+      )
+      c1.diagnostics.append(
+          Diag {
+              code: "BYN5011",
+              file: 0,
+              span: TextSpan { start: 47, length: 7 },
+              message: "this `expects` reads only `n`; a type with `requires` checks it once",
+              help: "declare a type with `requires` for `n`",
+              isWarning: true,
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c1.diagnostics.append(
+          Diag {
+              code: "BYN6002",
+              file: 0,
+              span: TextSpan { start: 75, length: 12 },
+              message: "`log` uses `console` but does not declare it",
+              label: "uses `console`",
+              help: "add `console` to the `uses` clause, or remove the call",
+              hasFix: true,
+              fixReplacement: " uses console",
+              fixSpan: TextSpan { start: 60, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      let case1Limit0 = """
+          omitted 1
+          warning BYN5011: this `expects` reads only `n`; a type with `requires` checks it once
+  
+            4 │ public void log(i64 n) expects n > 0 fails E {
+              │                        ^^^^^^^
+              │
+            help: declare a type with `requires` for `n`
+  
+          """
+      assert t2Render(c1, by: false, until: 0) == case1Limit0
+      let case1Limit1 = """
+          omitted 0
+          warning BYN5011: this `expects` reads only `n`; a type with `requires` checks it once
+  
+            4 │ public void log(i64 n) expects n > 0 fails E {
+              │                        ^^^^^^^
+              │
+            help: declare a type with `requires` for `n`
+  
+          error BYN6002: `log` uses `console` but does not declare it
+  
+            5 │     print("log")
+              │     ^^^^^^^^^^^^ uses `console`
+              │
+            help: add `console` to the `uses` clause, or remove the call
+              │ 4 │ public void log(i64 n) expects n > 0 uses console fails E {
+              │   │                                     +++++++++++++
+  
+          """
+      assert t2Render(c1, by: false, until: 1) == case1Limit1
+      let case1Limit2 = """
+          omitted 0
+          warning BYN5011: this `expects` reads only `n`; a type with `requires` checks it once
+  
+            4 │ public void log(i64 n) expects n > 0 fails E {
+              │                        ^^^^^^^
+              │
+            help: declare a type with `requires` for `n`
+  
+          error BYN6002: `log` uses `console` but does not declare it
+  
+            5 │     print("log")
+              │     ^^^^^^^^^^^^ uses `console`
+              │
+            help: add `console` to the `uses` clause, or remove the call
+              │ 4 │ public void log(i64 n) expects n > 0 uses console fails E {
+              │   │                                     +++++++++++++
+  
+          """
+      assert t2Render(c1, by: false, until: 2) == case1Limit2
+      let case1LimitMax = """
+          omitted 0
+          warning BYN5011: this `expects` reads only `n`; a type with `requires` checks it once
+  
+            4 │ public void log(i64 n) expects n > 0 fails E {
+              │                        ^^^^^^^
+              │
+            help: declare a type with `requires` for `n`
+  
+          error BYN6002: `log` uses `console` but does not declare it
+  
+            5 │     print("log")
+              │     ^^^^^^^^^^^^ uses `console`
+              │
+            help: add `console` to the `uses` clause, or remove the call
+              │ 4 │ public void log(i64 n) expects n > 0 uses console fails E {
+              │   │                                     +++++++++++++
+  
+          """
+      assert t2Render(c1, by: false, until: 2147483647) == case1LimitMax
+  
+      // diag/generic-guard-mutate-rebind.byn includePath False
+      var c2 = t2Ctx()
+      c2.files.append(
+          t2File(
+              "generic-guard-mutate-rebind.byn",
+              by: "struct Bag {\n    List<i64> items\n\n    public i64 grow(ref this) uses alloc {\n        this.items.append(1)\n        return this.items.length\n    }\n}\n\nunion Slot {\n    full(Bag b)\n    empty\n}\n\ni64 pick<T>(move Slot s, T v) uses alloc, console {\n    switch move s {\n        case .full(var x) when x.grow() > 5:\n            print(\"call\")\n        default:\n    }\n    return 0\n}\n\nvoid usePick() uses alloc, console {\n    let _ = pick(Slot.empty, 1)\n}\n\nvoid take(u8 x) {}\n\nvoid rebound() {\n    let k = Bag { items: List<i64>() }\n    var v = 5\n    let _ = k.grow()\n    take(v)\n}\n",
+          ),
+      )
+      c2.diagnostics.append(
+          Diag {
+              code: "BYN5004",
+              file: 0,
+              span: TextSpan { start: 194, length: 4 },
+              message: "`pick` has 2 unlabeled parameters; give each but one a particle",
+              label: "2 unlabeled parameters",
+              help: "keep one unlabeled parameter, the object",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c2.diagnostics.append(
+          Diag {
+              code: "BYN5006",
+              file: 0,
+              span: TextSpan { start: 217, length: 1 },
+              message: "`v` is a required parameter besides the object and needs a particle",
+              label: "needs a particle",
+              help: "label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c2.diagnostics.append(
+          Diag {
+              code: "BYN2791",
+              file: 0,
+              span: TextSpan { start: 293, length: 1 },
+              message: "`x` is mutated in the guard of `switch move …`; a guard that fails gives the value back",
+              label: "`grow` modifies it",
+              help: "read it in the guard and change it in the arm's body",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c2.diagnostics.append(
+          Diag {
+              code: "BYN2104",
+              file: 0,
+              span: TextSpan { start: 546, length: 1 },
+              message: "`k` is immutable",
+              label: "`grow` modifies it; declared with `let` on line 31",
+              help: "declare it with `var` if it should change",
+              hasFix: true,
+              fixReplacement: "var",
+              fixSpan: TextSpan { start: 485, length: 3 },
+              related: List<Related>(),
+          },
+      )
+      c2.diagnostics.append(
+          Diag {
+              code: "BYN2791",
+              file: 0,
+              span: TextSpan { start: 293, length: 1 },
+              message: "`x` is mutated in the guard of `switch move …`; a guard that fails gives the value back",
+              label: "`grow` modifies it",
+              help: "read it in the guard and change it in the arm's body",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c2.diagnostics.append(
+          Diag {
+              code: "BYN2311",
+              file: 0,
+              span: TextSpan { start: 528, length: 1 },
+              message: "`v` is never reassigned; declare it with `let`",
+              help: "declare it with `let` to tell the reader the value never changes",
+              isWarning: true,
+              hasFix: true,
+              fixReplacement: "let",
+              fixSpan: TextSpan { start: 524, length: 3 },
+              related: List<Related>(),
+          },
+      )
+      let case2Limit0 = """
+          omitted 5
+          warning BYN2311: `v` is never reassigned; declare it with `let`
+  
+            32 │     var v = 5
+               │         ^
+               │
+            help: declare it with `let` to tell the reader the value never changes
+               │ 32 │     let v = 5
+               │    │     +++
+  
+          """
+      assert t2Render(c2, by: false, until: 0) == case2Limit0
+      let case2Limit1 = """
+          omitted 4
+          error BYN5004: `pick` has 2 unlabeled parameters; give each but one a particle
+  
+            15 │ i64 pick<T>(move Slot s, T v) uses alloc, console {
+               │     ^^^^ 2 unlabeled parameters
+               │
+            help: keep one unlabeled parameter, the object
+  
+          warning BYN2311: `v` is never reassigned; declare it with `let`
+  
+            32 │     var v = 5
+               │         ^
+               │
+            help: declare it with `let` to tell the reader the value never changes
+               │ 32 │     let v = 5
+               │    │     +++
+  
+          """
+      assert t2Render(c2, by: false, until: 1) == case2Limit1
+      let case2Limit2 = """
+          omitted 3
+          error BYN5004: `pick` has 2 unlabeled parameters; give each but one a particle
+  
+            15 │ i64 pick<T>(move Slot s, T v) uses alloc, console {
+               │     ^^^^ 2 unlabeled parameters
+               │
+            help: keep one unlabeled parameter, the object
+  
+          error BYN5006: `v` is a required parameter besides the object and needs a particle
+  
+            15 │ i64 pick<T>(move Slot s, T v) uses alloc, console {
+               │                            ^ needs a particle
+               │
+            help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+  
+          warning BYN2311: `v` is never reassigned; declare it with `let`
+  
+            32 │     var v = 5
+               │         ^
+               │
+            help: declare it with `let` to tell the reader the value never changes
+               │ 32 │     let v = 5
+               │    │     +++
+  
+          """
+      assert t2Render(c2, by: false, until: 2) == case2Limit2
+      let case2LimitMax = """
+          omitted 0
+          error BYN5004: `pick` has 2 unlabeled parameters; give each but one a particle
+  
+            15 │ i64 pick<T>(move Slot s, T v) uses alloc, console {
+               │     ^^^^ 2 unlabeled parameters
+               │
+            help: keep one unlabeled parameter, the object
+  
+          error BYN5006: `v` is a required parameter besides the object and needs a particle
+  
+            15 │ i64 pick<T>(move Slot s, T v) uses alloc, console {
+               │                            ^ needs a particle
+               │
+            help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+  
+          error BYN2791: `x` is mutated in the guard of `switch move …`; a guard that fails gives the value
+          back
+  
+            17 │         case .full(var x) when x.grow() > 5:
+               │                                ^ `grow` modifies it
+               │
+            help: read it in the guard and change it in the arm's body
+  
+          error BYN2791: `x` is mutated in the guard of `switch move …`; a guard that fails gives the value
+          back
+  
+            17 │         case .full(var x) when x.grow() > 5:
+               │                                ^ `grow` modifies it
+               │
+            help: read it in the guard and change it in the arm's body
+  
+          warning BYN2311: `v` is never reassigned; declare it with `let`
+  
+            32 │     var v = 5
+               │         ^
+               │
+            help: declare it with `let` to tell the reader the value never changes
+               │ 32 │     let v = 5
+               │    │     +++
+  
+          error BYN2104: `k` is immutable
+  
+            33 │     let _ = k.grow()
+               │             ^ `grow` modifies it; declared with `let` on line 31
+               │
+            help: declare it with `var` if it should change
+               │ 31 │     var k = Bag { items: List<i64>() }
+               │    │     +++
+  
+          """
+      assert t2Render(c2, by: false, until: 2147483647) == case2LimitMax
+  
+      // diag/grammar-dictionary/main.byn includePath True
+      var c3 = t2Ctx()
+      c3.files.append(
+          t2File(
+              "main.byn",
+              by: "struct Catalog {\n    i64 count\n\n    void upsertRow(ref this) {\n        count += 1\n    }\n\n    i64 skuCount => count\n\n    bool isIdempotent => true\n\n    // `forms` gives the irregular `-ed` spelling, so this member changes `this` under an `-ed` name.\n    void reground(ref this) {\n        count += 1\n    }\n\n    i64 kycLevel => 0\n}\n\nprint(\"ok\")\n",
+          ),
+      )
+      c3.diagnostics.append(
+          Diag {
+              code: "BYN5001",
+              file: 0,
+              span: TextSpan { start: 258, length: 8 },
+              message: "`reground` changes `this`; name it `regrind`",
+              help: "name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c3.diagnostics.append(
+          Diag {
+              code: "BYN5014",
+              file: 0,
+              span: TextSpan { start: 313, length: 3 },
+              message: "`kyc` is not a known verb, noun or adjective",
+              help: "add it to `grammar` in package.byn: `nouns: [\"kyc\"]`, `verbs: [\"kyc\"]` or `adjectives: [\"kyc\"]`",
+              isWarning: true,
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      let case3Limit0 = """
+          omitted 1
+          warning BYN5014: `kyc` is not a known verb, noun or adjective
+            --> main.byn:17:9
+  
+            17 │     i64 kycLevel => 0
+               │         ^^^
+               │
+            help: add it to `grammar` in package.byn: `nouns: ["kyc"]`, `verbs: ["kyc"]` or
+                  `adjectives: ["kyc"]`
+  
+          """
+      assert t2Render(c3, by: true, until: 0) == case3Limit0
+      let case3Limit1 = """
+          omitted 0
+          error BYN5001: `reground` changes `this`; name it `regrind`
+            --> main.byn:13:10
+  
+            13 │     void reground(ref this) {
+               │          ^^^^^^^^
+               │
+            help: name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view
+  
+          warning BYN5014: `kyc` is not a known verb, noun or adjective
+            --> main.byn:17:9
+  
+            17 │     i64 kycLevel => 0
+               │         ^^^
+               │
+            help: add it to `grammar` in package.byn: `nouns: ["kyc"]`, `verbs: ["kyc"]` or
+                  `adjectives: ["kyc"]`
+  
+          """
+      assert t2Render(c3, by: true, until: 1) == case3Limit1
+      let case3Limit2 = """
+          omitted 0
+          error BYN5001: `reground` changes `this`; name it `regrind`
+            --> main.byn:13:10
+  
+            13 │     void reground(ref this) {
+               │          ^^^^^^^^
+               │
+            help: name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view
+  
+          warning BYN5014: `kyc` is not a known verb, noun or adjective
+            --> main.byn:17:9
+  
+            17 │     i64 kycLevel => 0
+               │         ^^^
+               │
+            help: add it to `grammar` in package.byn: `nouns: ["kyc"]`, `verbs: ["kyc"]` or
+                  `adjectives: ["kyc"]`
+  
+          """
+      assert t2Render(c3, by: true, until: 2) == case3Limit2
+      let case3LimitMax = """
+          omitted 0
+          error BYN5001: `reground` changes `this`; name it `regrind`
+            --> main.byn:13:10
+  
+            13 │     void reground(ref this) {
+               │          ^^^^^^^^
+               │
+            help: name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view
+  
+          warning BYN5014: `kyc` is not a known verb, noun or adjective
+            --> main.byn:17:9
+  
+            17 │     i64 kycLevel => 0
+               │         ^^^
+               │
+            help: add it to `grammar` in package.byn: `nouns: ["kyc"]`, `verbs: ["kyc"]` or
+                  `adjectives: ["kyc"]`
+  
+          """
+      assert t2Render(c3, by: true, until: 2147483647) == case3LimitMax
+  }
+  
+  // SelfhostSemanticsT2Tests.cs:600 `RemoveRepeatsMatchesCSharp`, input at :605-617; expected value is `DiagnosticBag.RemoveRepeats`
+  // on the same list, printed as at :629-631.
+  test "diag t2: removeRepeats keeps the first of each group" {
+      var c = t2Ctx()
+      c.files.append(t2File("a.byn", by: "let a = 1\n"))
+      c.files.append(t2File("b.byn", by: "let a = 1\n"))
+      c.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 0,
+              span: TextSpan { start: 0, length: 3 },
+              message: "`a` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 0,
+              span: TextSpan { start: 0, length: 3 },
+              message: "`a` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c.diagnostics.append(
+          Diag {
+              code: "BYN2002",
+              file: 0,
+              span: TextSpan { start: 0, length: 3 },
+              message: "`a` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 1,
+              span: TextSpan { start: 0, length: 3 },
+              message: "`a` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 0,
+              span: TextSpan { start: 0, length: 4 },
+              message: "`a` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 0,
+              span: TextSpan { start: 1, length: 2 },
+              message: "`a` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 0,
+              span: TextSpan { start: 0, length: 3 },
+              message: "`b` is not defined",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: 0,
+              span: TextSpan { start: 0, length: 3 },
+              message: "`a` is not defined",
+              isWarning: true,
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: -1,
+              span: TextSpan { start: 0, length: 3 },
+              message: "no source",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      c.diagnostics.append(
+          Diag {
+              code: "BYN2001",
+              file: -1,
+              span: TextSpan { start: 0, length: 3 },
+              message: "no source",
+              fixSpan: TextSpan { start: 0, length: 0 },
+              related: List<Related>(),
+          },
+      )
+      let expected = """
+          BYN2001|0|0|3|`a` is not defined
+          BYN2002|0|0|3|`a` is not defined
+          BYN2001|1|0|3|`a` is not defined
+          BYN2001|0|0|4|`a` is not defined
+          BYN2001|0|1|2|`a` is not defined
+          BYN2001|0|0|3|`b` is not defined
+          BYN2001|-1|0|3|no source
+          ==T2N== 7
+  
+          """
+      removeRepeats(ref c)
+      var sb = StrBuf()
+      for d in c.diagnostics {
+          sb.append($"{d.code}|{d.file}|{d.span.start}|{d.span.length}|{d.message}\n")
+      }
+      sb.append($"==T2N== {c.diagnostics.length}\n")
+      assert sb.finish() == expected
+  }
+  
+  // SelfhostSemanticsT2Tests.cs:637 `ReportBuildsTheDiag`, driver at :234-249; expected value is `RenderAll(items, includePath: true)`
+  // of the items at :643-648, then `==T2R== 3 0`.
+  test "diag t2: report builds the diag" {
+      var c = t2Ctx()
+      c.files.append(t2File("r.byn", by: "let total = 0\nlet count = 1\n"))
+      report(
+          ref c,
+          for: .undefinedName,
+          from: 0,
+          at: TextSpan { start: 4, length: 5 },
+          by: (a0: "total", a1: "", a2: "", a3: "", a4: ""),
+          label: "not in scope",
+          help: "declare it first",
+      )
+      report(ref c, for: .unreachableCode, from: 0, at: TextSpan { start: 4, length: 5 }, by: t2NoArgs())
+      report(
+          ref c,
+          for: .undefinedName,
+          from: 0,
+          at: TextSpan { start: 18, length: 5 },
+          by: t2NoArgs(),
+          label: "here",
+          hasFix: true,
+          fixSpan: TextSpan { start: 18, length: 5 },
+          fixReplacement: "value",
+      )
+      var omitted: i64 = 0
+      let text = renderAll(in c, from: in c.diagnostics, by: true, until: 1000, to: ref omitted)
+      let expected = """
+          error BYN2001: `total` is not defined
+            --> r.byn:1:5
+  
+            1 │ let total = 0
+              │     ^^^^^ not in scope
+              │
+            help: declare it first
+  
+          warning BYN2405: unreachable code
+            --> r.byn:1:5
+  
+            1 │ let total = 0
+              │     ^^^^^
+  
+          error BYN2001: `` is not defined
+            --> r.byn:2:5
+  
+            2 │ let count = 1
+              │     ^^^^^ here
+              │
+              │ 2 │ let value = 1
+              │   │     +++++
+          ==T2R== 3 0
+  
+          """
+      assert $"{text}==T2R== {c.diagnostics.length} {omitted}\n" == expected
+  }
+  
+  // SelfhostSemanticsT2Tests.cs:655 `SinkGoesToTheInnermostBag`, driver at :204-230, expected text at :661.
+  test "diag t2: a report goes to the innermost bag" {
+      var c = t2Ctx()
+      report(ref c, for: .undefinedName, from: -1, at: TextSpan { start: 0, length: 1 }, by: t2NoArgs())
+      let outer = pushBag(ref c)
+      report(ref c, for: .unknownType, from: -1, at: TextSpan { start: 0, length: 1 }, by: t2NoArgs())
+      let inner = pushBag(ref c)
+      report(ref c, for: .unknownMember, from: -1, at: TextSpan { start: 0, length: 1 }, by: t2NoArgs())
+      popBag(ref c, to: inner)
+      report(ref c, for: .notVisible, from: -1, at: TextSpan { start: 0, length: 1 }, by: t2NoArgs())
+      popBag(ref c, to: outer)
+      report(ref c, for: .shadowing, from: -1, at: TextSpan { start: 0, length: 1 }, by: t2NoArgs())
+      c.quiet = true
+      report(ref c, for: .duplicateDeclaration, from: -1, at: TextSpan { start: 0, length: 1 }, by: t2NoArgs())
+      c.quiet = false
+      report(ref c, for: .importCycle, from: -1, at: TextSpan { start: 0, length: 1 }, by: t2NoArgs())
+      var sb = StrBuf()
+      sb.append("top")
+      for d in c.diagnostics {
+          sb.append($" {d.code}")
+      }
+      sb.append("\n")
+      for i in 0..c.bags.length {
+          sb.append($"bag{i} {c.bags[i].previous}")
+          for d in c.bags[i].items {
+              sb.append($" {d.code}")
+          }
+          sb.append("\n")
+      }
+      assert sb.finish() == "top BYN2001 BYN2007 BYN2010\nbag0 -1 BYN2002 BYN2005\nbag1 0 BYN2003\n"
+  }
+  
+  // SelfhostSemanticsT2Tests.cs:680 `FormatMatchesStringFormat`, driver at :259-265; expected lines are
+  // `d.Format("a0", "a1", "a2", "a3", "a4")` for each descriptor of `SemanticTable()` (:448).
+  test "diag t2: format matches string.Format" {
+      var want = StrBuf()
+      want.append("BYN1016\t`a0` is not allowed here\n")
+      want.append("BYN1054\t`try` covers `a0`, which cannot fail\n")
+      want.append("BYN1056\t`return .a0` returns an error; write `fail .a0`\n")
+      want.append("BYN2001\t`a0` is not defined\n")
+      want.append("BYN2002\tunknown type `a0`\n")
+      want.append("BYN2003\t`a0` is not a member of `a1`\n")
+      want.append("BYN2004\tno module `a0`\n")
+      want.append("BYN2005\t`a0` is not visible here\n")
+      want.append("BYN2006\t`a0` is declared twice\n")
+      want.append("BYN2007\t`a0` is already a local here\n")
+      want.append("BYN2008\ttype name `a0` must be PascalCase\n")
+      want.append("BYN2009\t`a0` must be camelCase\n")
+      want.append("BYN2010\timport cycle: a0\n")
+      want.append("BYN2011\ttype alias `a0` refers to itself\n")
+      want.append("BYN2012\tconstant `a0` depends on itself\n")
+      want.append("BYN2013\tthe program has two entry points\n")
+      want.append("BYN2014\tthe program has no entry point\n")
+      want.append("BYN2015\ttop-level statements are allowed only in the entry module\n")
+      want.append("BYN2017\t`a0` needs an instance\n")
+      want.append("BYN2018\t`this` is only available inside instance methods\n")
+      want.append("BYN2019\t`a0` is a a1, not a value\n")
+      want.append("BYN2020\tno enclosing loop is labeled `a0`\n")
+      want.append("BYN2021\t`a0` has no parameter `a1`\n")
+      want.append("BYN2022\ta0 is not supported in v0.1\n")
+      want.append("BYN2023\t`a0` takes a1 type argument(s), not a2\n")
+      want.append("BYN2024\t`a0?` is already optional\n")
+      want.append("BYN2025\t`void` is not a value type\n")
+      want.append("BYN2026\ta declaration cannot be the whole body of a statement\n")
+      want.append("BYN2027\tcompare with `is null` / `is not null`, not `==`\n")
+      want.append("BYN2028\t`a0` shadows an earlier `a0` of the same type `a1`\n")
+      want.append("BYN2029\t`it` inside a lambda that already uses `it`; name one lambda\n")
+      want.append("BYN2031\tBayan has no `toString()`; display is `format()` (derived from `formatInto(ref StrBuf)`)\n")
+      want.append("BYN2032\tno std module `a0`\n")
+      want.append("BYN2033\tstd module `a0` imports `a1`, which is not a std module\n")
+      want.append("BYN2034\tthe default of field `a0` depends on itself\n")
+      want.append("BYN2101\t`a0 a1` needs a value\n")
+      want.append("BYN2102\t`a0` is used before it is assigned\n")
+      want.append("BYN2103\t`out` parameter `a0` is not assigned on every path\n")
+      want.append("BYN2104\t`a0` is immutable\n")
+      want.append("BYN2105\tfield `a0` is readonly\n")
+      want.append("BYN2106\tcannot modify this value\n")
+      want.append("BYN2107\tproperty `a0` modifies the value\n")
+      want.append("BYN2108\trequired field `a0` has a default value\n")
+      want.append("BYN2109\t`a0` needs a value for `a1`\n")
+      want.append("BYN2110\tfield `a0` is set twice\n")
+      want.append("BYN2111\t`a0` has a constructor; call it instead of using a struct literal\n")
+      want.append("BYN2112\t`a0` has no constructor\n")
+      want.append("BYN2113\tstruct `a0` contains itself\n")
+      want.append("BYN2114\t`a0` is not a struct\n")
+      want.append("BYN2115\t`a0` modifies `this` but is not declared `ref this`\n")
+      want.append("BYN2116\toperators cannot take `ref this`\n")
+      want.append("BYN2117\t`ref this` must be the first parameter\n")
+      want.append("BYN2201\ta `string` cannot be indexed\n")
+      want.append("BYN2202\texpected `a1`, found `a0`\n")
+      want.append("BYN2203\ta0 does not fit in a1\n")
+      want.append("BYN2204\tconstant arithmetic overflows `a0`\n")
+      want.append("BYN2205\tdivision by zero\n")
+      want.append("BYN2206\tcannot convert `a0` to `a1`\n")
+      want.append("BYN2207\t`a0` cannot be applied to `a1`\n")
+      want.append("BYN2208\t`a0` cannot be applied to `a1` and `a2`\n")
+      want.append("BYN2209\tstrings cannot be joined with `+`; use interpolation\n")
+      want.append("BYN2210\t`??` needs an optional value on the left, found `a0`\n")
+      want.append("BYN2211\t`a0` is not a member of `a1`; the value may be null\n")
+      want.append("BYN2212\t`a0` cannot be indexed\n")
+      want.append("BYN2213\tindex a0 is out of range for `a1`\n")
+      want.append("BYN2214\t`^` is only allowed inside an index or slice\n")
+      want.append("BYN2215\ta range needs both ends here\n")
+      want.append("BYN2216\tbranches have different types: `a0` and `a1`\n")
+      want.append("BYN2217\tcannot infer the type of `a0`\n")
+      want.append("BYN2218\t`a0` needs a known type here\n")
+      want.append("BYN2219\ta0 must be a compile-time constant\n")
+      want.append("BYN2220\t`a0` cannot be called\n")
+      want.append("BYN2221\t`a0` cannot be iterated\n")
+      want.append("BYN2222\t`a0` needs exactly its length in elements, found a1\n")
+      want.append("BYN2223\ttuple element `a0` is named `a1` in the target type\n")
+      want.append("BYN2224\tan interpolated string must be passed directly to an output\n")
+      want.append("BYN2225\t`a0` cannot be formatted\n")
+      want.append("BYN2226\t`using` needs a value that owns memory, not `a0`\n")
+      want.append("BYN2227\t`.a0` is ambiguous; it exists in `a1`\n")
+      want.append("BYN2228\t`a0` is not a variant of `a1`\n")
+      want.append("BYN2229\tmodule-level `const` array `a0` must hold literal numbers, `bool`s, `rune`s or `string`s\n")
+      want.append("BYN2230\t`a0` is now `a1`\n")
+      want.append("BYN2234\t`while let` needs a `T?` value, got `a0`\n")
+      want.append("BYN2235\t`..a0` spreads a `a1`, which is not a sequence\n")
+      want.append("BYN2236\ta map literal needs `key: value` in every element\n")
+      want.append("BYN2301\tmissing argument `a0` for `a1`\n")
+      want.append("BYN2302\t`a0` takes a1 argument(s)\n")
+      want.append("BYN2303\t`a0` is passed twice\n")
+      want.append("BYN2304\ta positional argument cannot follow a named one\n")
+      want.append("BYN2305\targument for `a0` must be named\n")
+      want.append("BYN2306\targument for `a0` must be passed as a1\n")
+      want.append("BYN2307\tretired: particles replace the same-type naming rule\n")
+      want.append("BYN2310\t`a0` is never written through; use `ReadOnlySpan<a1>`\n")
+      want.append("BYN2311\t`a0` is never reassigned; declare it with `let`\n")
+      want.append("BYN2320\ta `requires` clause must be `bool`, got `a0`\n")
+      want.append("BYN2321\t`a0` violates `requires a1` of `a2`\n")
+      want.append("BYN2322\tretired: `requires` is checked at construction\n")
+      want.append("BYN2401\t`a0` must return `a1` on every path\n")
+      want.append("BYN2402\tthis function returns `a0`; `return` needs a value\n")
+      want.append("BYN2403\t`a0` returns nothing, but `return` has a value\n")
+      want.append("BYN2404\t`a0` returns `never` but can reach its end\n")
+      want.append("BYN2405\tunreachable code\n")
+      want.append("BYN2406\t`a0` outside a loop\n")
+      want.append("BYN2407\t`continue a0` refers to a `switch`, not a loop\n")
+      want.append("BYN2408\tlabel `a0` must be on a loop or `switch`\n")
+      want.append("BYN2409\t`switch` has more than one `default` section\n")
+      want.append("BYN2410\t`switch` does not handle every `a0`\n")
+      want.append("BYN2411\ta0 cannot match `a1`\n")
+      want.append("BYN2601\t`try` is not allowed in `defer`\n")
+      want.append("BYN2602\t`a0` can fail; handle the error or pass it on\n")
+      want.append("BYN2603\t`a0` is not in the `fails` clause of `a1`\n")
+      want.append("BYN2604\t`a0` cannot fail, so it cannot pass on `a1`\n")
+      want.append("BYN2605\t`a0` needs a call that can fail\n")
+      want.append("BYN2606\t`defer failing` in a function that cannot fail\n")
+      want.append("BYN2607\tpublic function `a0` must list its errors\n")
+      want.append("BYN2608\t`a0` is not an error enum\n")
+      want.append("BYN2609\terror enum `a0` has no variants\n")
+      want.append("BYN2610\t`a0` cannot leave a `defer` or `defer failing` body\n")
+      want.append(
+          "BYN2611\tthis `catch` block can complete normally; end it with `return`, `break`, `continue` or a panic\n",
+      )
+      want.append("BYN2612\ta0 is not allowed in a panic handler\n")
+      want.append("BYN2613\ta panic handler reads only `let` bindings and parameters\n")
+      want.append("BYN2614\t`Panic.handler` may be set only as the first statement of `main`\n")
+      want.append("BYN2615\ta panic handler reads `a0`, which is moved after the handler is registered\n")
+      want.append("BYN2700\t`a0` is not a variant of union `a1`\n")
+      want.append("BYN2701\tunion `a0` already has a variant `a1`\n")
+      want.append("BYN2702\tunion `a0` has no variants\n")
+      want.append("BYN2703\tvariant `a0` has a1 payload field(s), but the pattern lists a2\n")
+      want.append("BYN2704\tthe payload of a `a0` is read with a pattern, not `.a1`\n")
+      want.append("BYN2705\tvariant `a0` carries a payload\n")
+      want.append("BYN2706\tvariant `a0` has no payload\n")
+      want.append("BYN2707\tunion `a0` contains itself\n")
+      want.append("BYN2708\ta union payload cannot hold a borrowed `a0`\n")
+      want.append("BYN2709\ta case value must be an integer constant\n")
+      want.append("BYN2710\t`a0` carries data and cannot have a value\n")
+      want.append("BYN2711\t`a0` and `a1` share the value a2\n")
+      want.append("BYN2712\t`_` hides future cases of `a0`, declared in this package\n")
+      want.append("BYN2720\t`a0` is not a member of `a1`\n")
+      want.append("BYN2721\tenum `a0` already has a member `a1`\n")
+      want.append("BYN2722\tenum `a0` has no members\n")
+      want.append("BYN2723\targument `a0` of `a1` must be a compile-time constant\n")
+      want.append("BYN2724\tenum parameter `a0` must be a number, `bool`, `rune`, `string` or a plain enum\n")
+      want.append("BYN2740\tcannot infer type argument `a0` of `a1`\n")
+      want.append("BYN2741\ttype argument `a0` of `a1` is inferred as both `a2` and `a3`\n")
+      want.append("BYN2742\t`a0` takes a1 type argument(s), not a2\n")
+      want.append("BYN2743\t`a0` cannot be applied to a value of type parameter `a1`\n")
+      want.append("BYN2744\t`a0` is not a member of type parameter `a1`\n")
+      want.append("BYN2760\t`a0` cannot be a `Map` key\n")
+      want.append("BYN2761\t`a0` contains itself by value: a1\n")
+      want.append("BYN2762\ta `a0` cannot be copied\n")
+      want.append("BYN2770\tunknown attribute `a0`\n")
+      want.append("BYN2771\t`main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`\n")
+      want.append("BYN2786\t`a0` cannot be passed to `a1`: it is `Untrusted`\n")
+      want.append("BYN2787\t`trust` needs a reason: a non-empty string literal\n")
+      want.append("BYN2788\t`take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `a0`\n")
+      want.append("BYN2789\t`switch move …` needs a local or a `move` parameter, not a0\n")
+      want.append("BYN2790\tpattern `a0` binds the same storage more than once in `switch move …`\n")
+      want.append("BYN2791\t`a0` is mutated in the guard of `switch move …`; a guard that fails gives the value back\n")
+      want.append("BYN2772\t`@exitCode` needs one integer constant from 1 to 255\n")
+      want.append("BYN2775\t`assert` needs a `bool`, got `a0`\n")
+      want.append("BYN2773\t`@cases` gives a0 values but the test takes a1 parameters\n")
+      want.append("BYN2774\teach `@cases` value must be a constant\n")
+      want.append("BYN2780\timplicit copy of a unique value: a0\n")
+      want.append("BYN2781\t`a0` is used after it was moved\n")
+      want.append("BYN2782\tcannot move out of a0\n")
+      want.append("BYN2783\t`a0` borrows from what it was bound to and cannot be changed or moved\n")
+      want.append("BYN2784\ta `a0` holding `a1` cannot be copied: the copy would share its storage\n")
+      want.append("BYN2785\t`slot` needs a default value, and `a0` has none\n")
+      want.append("BYN2800\t`a0` must start with `I` and an uppercase letter\n")
+      want.append("BYN2801\t`a0` does not provide `a1` required by `a2`\n")
+      want.append("BYN2802\t`a0.a1` is `a2` but `a3` requires `a4`\n")
+      want.append("BYN2803\t`a0` does not bind `type a1` of `a2`\n")
+      want.append("BYN2804\t`a0` is not an interface\n")
+      want.append("BYN2805\t`a0` lists `a1` twice\n")
+      want.append("BYN2806\t`a0` has no member `a1` in its constraints (a2)\n")
+      want.append("BYN2807\t`a0` does not conform to `a1`: missing `a2`\n")
+      want.append("BYN2808\t`a0` cannot be used with `dyn`: `a1` a2\n")
+      want.append("BYN2809\t`dyn a0` is not supported yet\n")
+      want.append("BYN2810\t`static` interface members are not supported yet\n")
+      want.append("BYN2811\t`extension a0 : a1` is not supported yet\n")
+      want.append("BYN2812\t`where` names `a0`, which is not a type parameter\n")
+      want.append("BYN2813\t`a0` takes `ref this`, but the receiver is `dyn ref readonly a1`\n")
+      want.append("BYN2814\t`a0.a1` must match `a2.a1`, which a3 `ref this`\n")
+      want.append("BYN2815\t`a0` is a1; only structs can conform yet\n")
+      want.append("BYN2816\t`a0` is an interface, not a type\n")
+      want.append("BYN2820\tthis lambda takes a0 parameter(s) but `a1` takes a2\n")
+      want.append("BYN2821\t`a0` cannot be captured: a1\n")
+      want.append("BYN2822\ta function type is not supported as a0 yet\n")
+      want.append("BYN2823\t`.a0` is a member, not a lambda\n")
+      want.append("BYN2824\t`a0` cannot be used as a value: a1\n")
+      want.append("BYN2830\t`HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order\n")
+      want.append("BYN2831\t`a0` cannot be a `Map` key: a1 `a2` is a `a3`\n")
+      want.append("BYN2832\ta `string` value is not a `Symbol`; only a string literal converts\n")
+      want.append("BYN3001\ta struct field cannot hold a borrowed `a0`\n")
+      want.append("BYN3002\ta0 does not live as long as `a1`, which borrows it\n")
+      want.append("BYN3003\tcannot return a borrow of a0, which is freed when `a1` returns\n")
+      want.append("BYN3004\t`a0` is modified while a1 still borrows it\n")
+      want.append("BYN3005\t`a0` is passed by `ref` and again in the same call\n")
+      want.append("BYN3006\t`a0` is moved while a1 still borrows it\n")
+      want.append("BYN3201\tthe value of this `a0` is unused\n")
+      want.append("BYN3202\t`a0` and `a1` both have a case `a2`\n")
+      want.append("BYN3204\t`a0` is not a `a1`\n")
+      want.append("BYN3206\t`at .a0` names no field of `a1`\n")
+      want.append("BYN3207\ta literal of `a0` can fail its `requires`; write `try a0 { … }`\n")
+      want.append(
+          "BYN3208\tfields of `a0` cannot be assigned one at a time; its `requires` are checked at construction\n",
+      )
+      want.append("BYN3209\ta `unique` type cannot be `const`\n")
+      want.append("BYN3213\t`a0` and `a1` both accept `a2`\n")
+      want.append("BYN3214\t`a0` is borrowed for the call and cannot be stored\n")
+      want.append("BYN3215\t`a0` is overloaded; give the reference a function type\n")
+      want.append("BYN3216\t`a0.a1` can be written only by `a0`'s own methods or with `with`: `a0` a2\n")
+      want.append("BYN3217\t`a0` holds a reference into `a1` and cannot be passed to a fiber that may outlive it\n")
+      want.append("BYN3218\tthis `requires` reads `it` and other fields\n")
+      want.append("BYN3219\t`a0` is not a mutation operator\n")
+      want.append("BYN3100\t`package.byn` is data only: expected a0\n")
+      want.append("BYN3101\t`a0` is not a field of `a1`\n")
+      want.append("BYN3102\t`a0` must be a1\n")
+      want.append("BYN3103\t`package.byn` has no `a0`\n")
+      want.append("BYN3104\t`package.byn` uses `field: value`\n")
+      want.append(
+          "BYN4001\tinternal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler\n",
+      )
+      want.append(
+          "BYN4002\tinternal compiler error: a bound error expression reached lowering with no error reported; this is a bug in the Bayan compiler\n",
+      )
+      want.append("BYN5001\t`a0` changes `this`; name it `a1`\n")
+      want.append("BYN5002\t`a0` reads as state but modifies `this`\n")
+      want.append("BYN5003\t`trya0` must return `a1?` or `bool`; it is derived from `a2() fails`\n")
+      want.append("BYN5004\t`a0` has a1 unlabeled parameters; give each but one a particle\n")
+      want.append("BYN5005\t`a0` is passed without its particle `a1:`\n")
+      want.append("BYN5006\t`a0` is a required parameter besides the object and needs a particle\n")
+      want.append("BYN5007\t`Log.a0` names a level, not the act; write `log(…, as: .a0)`\n")
+      want.append("BYN5008\t`a0` is not a particle\n")
+      want.append("BYN5009\t`a0` is a particle; name the member with a verb or a noun\n")
+      want.append("BYN5009\t`a0` spells a conversion with `a1`; write `a2`\n")
+      want.append("BYN5011\tthis `expects` reads only `a0`; a type with `requires` checks it once\n")
+      want.append("BYN5013\t`a0` uses the particle `a1` twice\n")
+      want.append("BYN5014\t`a0` is not a known verb, noun or adjective\n")
+      want.append("BYN5101\t`a0` is a noun on a `ref this` member; name the action\n")
+      want.append("BYN5102\t`a0` is a `bool` state; prefix with `is`, `has` or `can`\n")
+      want.append("BYN5103\ta line starting with `a0` joins the statement above; indent it deeper\n")
+      want.append("BYN1072\tan early exit in a block can be a postfix guard\n")
+      want.append("BYN1073\t`a0 => a0.…` reads one member and can use `it`\n")
+      want.append("BYN1074\tthis condition wraps; name it with a `let`\n")
+      want.append("BYN1075\tblocks nested more than 4 deep; flatten them with early exits\n")
+      want.append("BYN1076\tthis function body is a0 lines; split it into named steps\n")
+      want.append("BYN1077\ta banner comment ends at column a0; fill it with `─` to column a1\n")
+      want.append("BYN1078\t`a0` is tested against constants a1 times; write one pattern\n")
+      want.append("BYN1079\tthe type is known from the target; write `a0`\n")
+      want.append("BYN1080\t`a0 is { } a1` binds an optional with a pattern; a2\n")
+      want.append("BYN5104\t`a0` holds a collection; name it with a plural, `a1`\n")
+      want.append("BYN5104\t`a0` holds one `a1`; name it with a singular noun\n")
+      want.append("BYN5105\t`a0` counts items; name it `a1`\n")
+      want.append("BYN5106\t`a0` is named for the act `a1` but has no `a1` member\n")
+      want.append("BYN5107\t`a0` is a tool; `a1` must not change `this`\n")
+      want.append("BYN6001\t`a0` is removed; a function without `uses` is already pure\n")
+      want.append("BYN6002\t`a0` uses `a1` but does not declare it\n")
+      want.append("BYN6003\t`a0` is not an effect\n")
+      want.append("BYN6004\t`a0` uses `a1`, which package `a2` does not declare in `capabilities`\n")
+      want.append("BYN6005\t`a0` uses `a1`, beyond the bound `a2` declared by `a3`\n")
+      want.append("BYN6006\t`context (…) { }` is now `provide … { }`\n")
+      want.append(
+          "BYN6007\t`a0` is not a handler; `provide` takes `alloc`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console` or `log`\n",
+      )
+      want.append("BYN7001\t`a0` needs `a1` to be `.a2`, but it is `a3`\n")
+      want.append("BYN7002\t`a0` is a payload of `.a1`; `a2` is not known to be `.a1`\n")
+      want.append("BYN7003\t`become` needs `becomes .a0` on `a1`\n")
+      want.append("BYN7003\t`become .a0` is not declared; `a1` becomes `.a2`\n")
+      want.append("BYN7003\t`a0` calls `a1`, which changes the state; declare `becomes` on `a0`\n")
+      want.append("BYN7004\tthe switch does not handle state `.a0`\n")
+      want.append("BYN7005\t`a0` has states; a literal must name one: `a0.a1 { … }`\n")
+      want.append("BYN7006\t`a0 is .a1` is an input form; write `a2`\n")
+      want.append("BYN7007\t`a0` has no state `.a1`\n")
+      want.append("BYN7008\tstate `.a0` has the same name as static member `a1.a0`\n")
+      want.append("BYN7009\t`a0` declares `becomes .a1` but returns here without `become`\n")
+      want.append("BYN7010\t`a0` declares `becomes .a1` but takes `a2`; a transition needs `ref this`\n")
+      want.append(
+          "BYN7011\t`a0` changes the state of `a1`, a `ref` parameter; a state changes in place only through `ref this`\n",
+      )
+      want.append("BYN7012\t`a0` would change state here; a state changes only through `become`\n")
+      want.append("BYN8001\t`a0` bypasses a safety rule and needs `because \"…\"`\n")
+      want.append("BYN8006\t`expects` reads `a0`, which is `Untrusted`; a violation would trap on outside data\n")
+      var got = StrBuf()
+      let args = (a0: "a0", a1: "a1", a2: "a2", a3: "a3", a4: "a4")
+      for code in allSemaCodes() {
+          // codes.byn:157: BYN2745 is Bayan only (L023, Decision 2026-11-19), with no `DiagnosticCodes.cs` descriptor to match.
+          if code != .endlessInstantiation {
+              got.append($"{codeText(code)}\t{format(messageFormat(code), by: args)}\n")
+          }
+      }
+      assert got.finish() == want.finish()
+  }
+  
+  // SelfhostSemanticsT2Tests.cs:667 `CodeTableMatchesDiagnosticCodes`, driver at :251-257; expected lines are `{d.Code}\t{warning ? 1 : 0}\t{d.MessageFormat}`
+  // for each descriptor of `SemanticTable()` (:458), read from the v0.3.2 C# (csharp/ unchanged since) by a scratch program in tmp/, not kept.
+  test "diag t2: the code table matches DiagnosticCodes" {
+      var want = StrBuf()
+      want.append("BYN1016\t0\t`{0}` is not allowed here\n")
+      want.append("BYN1054\t0\t`try` covers `{0}`, which cannot fail\n")
+      want.append("BYN1056\t0\t`return .{0}` returns an error; write `fail .{0}`\n")
+      want.append("BYN2001\t0\t`{0}` is not defined\n")
+      want.append("BYN2002\t0\tunknown type `{0}`\n")
+      want.append("BYN2003\t0\t`{0}` is not a member of `{1}`\n")
+      want.append("BYN2004\t0\tno module `{0}`\n")
+      want.append("BYN2005\t0\t`{0}` is not visible here\n")
+      want.append("BYN2006\t0\t`{0}` is declared twice\n")
+      want.append("BYN2007\t0\t`{0}` is already a local here\n")
+      want.append("BYN2008\t0\ttype name `{0}` must be PascalCase\n")
+      want.append("BYN2009\t0\t`{0}` must be camelCase\n")
+      want.append("BYN2010\t0\timport cycle: {0}\n")
+      want.append("BYN2011\t0\ttype alias `{0}` refers to itself\n")
+      want.append("BYN2012\t0\tconstant `{0}` depends on itself\n")
+      want.append("BYN2013\t0\tthe program has two entry points\n")
+      want.append("BYN2014\t0\tthe program has no entry point\n")
+      want.append("BYN2015\t0\ttop-level statements are allowed only in the entry module\n")
+      want.append("BYN2017\t0\t`{0}` needs an instance\n")
+      want.append("BYN2018\t0\t`this` is only available inside instance methods\n")
+      want.append("BYN2019\t0\t`{0}` is a {1}, not a value\n")
+      want.append("BYN2020\t0\tno enclosing loop is labeled `{0}`\n")
+      want.append("BYN2021\t0\t`{0}` has no parameter `{1}`\n")
+      want.append("BYN2022\t0\t{0} is not supported in v0.1\n")
+      want.append("BYN2023\t0\t`{0}` takes {1} type argument(s), not {2}\n")
+      want.append("BYN2024\t0\t`{0}?` is already optional\n")
+      want.append("BYN2025\t0\t`void` is not a value type\n")
+      want.append("BYN2026\t0\ta declaration cannot be the whole body of a statement\n")
+      want.append("BYN2027\t0\tcompare with `is null` / `is not null`, not `==`\n")
+      want.append("BYN2028\t1\t`{0}` shadows an earlier `{0}` of the same type `{1}`\n")
+      want.append("BYN2029\t0\t`it` inside a lambda that already uses `it`; name one lambda\n")
+      want.append(
+          "BYN2031\t0\tBayan has no `toString()`; display is `format()` (derived from `formatInto(ref StrBuf)`)\n",
+      )
+      want.append("BYN2032\t0\tno std module `{0}`\n")
+      want.append("BYN2033\t0\tstd module `{0}` imports `{1}`, which is not a std module\n")
+      want.append("BYN2034\t0\tthe default of field `{0}` depends on itself\n")
+      want.append("BYN2101\t0\t`{0} {1}` needs a value\n")
+      want.append("BYN2102\t0\t`{0}` is used before it is assigned\n")
+      want.append("BYN2103\t0\t`out` parameter `{0}` is not assigned on every path\n")
+      want.append("BYN2104\t0\t`{0}` is immutable\n")
+      want.append("BYN2105\t0\tfield `{0}` is readonly\n")
+      want.append("BYN2106\t0\tcannot modify this value\n")
+      want.append("BYN2107\t0\tproperty `{0}` modifies the value\n")
+      want.append("BYN2108\t0\trequired field `{0}` has a default value\n")
+      want.append("BYN2109\t0\t`{0}` needs a value for `{1}`\n")
+      want.append("BYN2110\t0\tfield `{0}` is set twice\n")
+      want.append("BYN2111\t0\t`{0}` has a constructor; call it instead of using a struct literal\n")
+      want.append("BYN2112\t0\t`{0}` has no constructor\n")
+      want.append("BYN2113\t0\tstruct `{0}` contains itself\n")
+      want.append("BYN2114\t0\t`{0}` is not a struct\n")
+      want.append("BYN2115\t0\t`{0}` modifies `this` but is not declared `ref this`\n")
+      want.append("BYN2116\t0\toperators cannot take `ref this`\n")
+      want.append("BYN2117\t0\t`ref this` must be the first parameter\n")
+      want.append("BYN2201\t0\ta `string` cannot be indexed\n")
+      want.append("BYN2202\t0\texpected `{1}`, found `{0}`\n")
+      want.append("BYN2203\t0\t{0} does not fit in {1}\n")
+      want.append("BYN2204\t0\tconstant arithmetic overflows `{0}`\n")
+      want.append("BYN2205\t0\tdivision by zero\n")
+      want.append("BYN2206\t0\tcannot convert `{0}` to `{1}`\n")
+      want.append("BYN2207\t0\t`{0}` cannot be applied to `{1}`\n")
+      want.append("BYN2208\t0\t`{0}` cannot be applied to `{1}` and `{2}`\n")
+      want.append("BYN2209\t0\tstrings cannot be joined with `+`; use interpolation\n")
+      want.append("BYN2210\t0\t`??` needs an optional value on the left, found `{0}`\n")
+      want.append("BYN2211\t0\t`{0}` is not a member of `{1}`; the value may be null\n")
+      want.append("BYN2212\t0\t`{0}` cannot be indexed\n")
+      want.append("BYN2213\t0\tindex {0} is out of range for `{1}`\n")
+      want.append("BYN2214\t0\t`^` is only allowed inside an index or slice\n")
+      want.append("BYN2215\t0\ta range needs both ends here\n")
+      want.append("BYN2216\t0\tbranches have different types: `{0}` and `{1}`\n")
+      want.append("BYN2217\t0\tcannot infer the type of `{0}`\n")
+      want.append("BYN2218\t0\t`{0}` needs a known type here\n")
+      want.append("BYN2219\t0\t{0} must be a compile-time constant\n")
+      want.append("BYN2220\t0\t`{0}` cannot be called\n")
+      want.append("BYN2221\t0\t`{0}` cannot be iterated\n")
+      want.append("BYN2222\t0\t`{0}` needs exactly its length in elements, found {1}\n")
+      want.append("BYN2223\t0\ttuple element `{0}` is named `{1}` in the target type\n")
+      want.append("BYN2224\t0\tan interpolated string must be passed directly to an output\n")
+      want.append("BYN2225\t0\t`{0}` cannot be formatted\n")
+      want.append("BYN2226\t0\t`using` needs a value that owns memory, not `{0}`\n")
+      want.append("BYN2227\t0\t`.{0}` is ambiguous; it exists in `{1}`\n")
+      want.append("BYN2228\t0\t`{0}` is not a variant of `{1}`\n")
+      want.append(
+          "BYN2229\t0\tmodule-level `const` array `{0}` must hold literal numbers, `bool`s, `rune`s or `string`s\n",
+      )
+      want.append("BYN2230\t0\t`{0}` is now `{1}`\n")
+      want.append("BYN2234\t0\t`while let` needs a `T?` value, got `{0}`\n")
+      want.append("BYN2235\t0\t`..{0}` spreads a `{1}`, which is not a sequence\n")
+      want.append("BYN2236\t0\ta map literal needs `key: value` in every element\n")
+      want.append("BYN2301\t0\tmissing argument `{0}` for `{1}`\n")
+      want.append("BYN2302\t0\t`{0}` takes {1} argument(s)\n")
+      want.append("BYN2303\t0\t`{0}` is passed twice\n")
+      want.append("BYN2304\t0\ta positional argument cannot follow a named one\n")
+      want.append("BYN2305\t0\targument for `{0}` must be named\n")
+      want.append("BYN2306\t0\targument for `{0}` must be passed as {1}\n")
+      want.append("BYN2307\t0\tretired: particles replace the same-type naming rule\n")
+      want.append("BYN2310\t1\t`{0}` is never written through; use `ReadOnlySpan<{1}>`\n")
+      want.append("BYN2311\t1\t`{0}` is never reassigned; declare it with `let`\n")
+      want.append("BYN2320\t0\ta `requires` clause must be `bool`, got `{0}`\n")
+      want.append("BYN2321\t0\t`{0}` violates `requires {1}` of `{2}`\n")
+      want.append("BYN2322\t0\tretired: `requires` is checked at construction\n")
+      want.append("BYN2401\t0\t`{0}` must return `{1}` on every path\n")
+      want.append("BYN2402\t0\tthis function returns `{0}`; `return` needs a value\n")
+      want.append("BYN2403\t0\t`{0}` returns nothing, but `return` has a value\n")
+      want.append("BYN2404\t0\t`{0}` returns `never` but can reach its end\n")
+      want.append("BYN2405\t1\tunreachable code\n")
+      want.append("BYN2406\t0\t`{0}` outside a loop\n")
+      want.append("BYN2407\t0\t`continue {0}` refers to a `switch`, not a loop\n")
+      want.append("BYN2408\t0\tlabel `{0}` must be on a loop or `switch`\n")
+      want.append("BYN2409\t0\t`switch` has more than one `default` section\n")
+      want.append("BYN2410\t0\t`switch` does not handle every `{0}`\n")
+      want.append("BYN2411\t0\t{0} cannot match `{1}`\n")
+      want.append("BYN2601\t0\t`try` is not allowed in `defer`\n")
+      want.append("BYN2602\t0\t`{0}` can fail; handle the error or pass it on\n")
+      want.append("BYN2603\t0\t`{0}` is not in the `fails` clause of `{1}`\n")
+      want.append("BYN2604\t0\t`{0}` cannot fail, so it cannot pass on `{1}`\n")
+      want.append("BYN2605\t0\t`{0}` needs a call that can fail\n")
+      want.append("BYN2606\t0\t`defer failing` in a function that cannot fail\n")
+      want.append("BYN2607\t0\tpublic function `{0}` must list its errors\n")
+      want.append("BYN2608\t0\t`{0}` is not an error enum\n")
+      want.append("BYN2609\t0\terror enum `{0}` has no variants\n")
+      want.append("BYN2610\t0\t`{0}` cannot leave a `defer` or `defer failing` body\n")
+      want.append(
+          "BYN2611\t0\tthis `catch` block can complete normally; end it with `return`, `break`, `continue` or a panic\n",
+      )
+      want.append("BYN2612\t0\t{0} is not allowed in a panic handler\n")
+      want.append("BYN2613\t0\ta panic handler reads only `let` bindings and parameters\n")
+      want.append("BYN2614\t0\t`Panic.handler` may be set only as the first statement of `main`\n")
+      want.append("BYN2615\t0\ta panic handler reads `{0}`, which is moved after the handler is registered\n")
+      want.append("BYN2700\t0\t`{0}` is not a variant of union `{1}`\n")
+      want.append("BYN2701\t0\tunion `{0}` already has a variant `{1}`\n")
+      want.append("BYN2702\t0\tunion `{0}` has no variants\n")
+      want.append("BYN2703\t0\tvariant `{0}` has {1} payload field(s), but the pattern lists {2}\n")
+      want.append("BYN2704\t0\tthe payload of a `{0}` is read with a pattern, not `.{1}`\n")
+      want.append("BYN2705\t0\tvariant `{0}` carries a payload\n")
+      want.append("BYN2706\t0\tvariant `{0}` has no payload\n")
+      want.append("BYN2707\t0\tunion `{0}` contains itself\n")
+      want.append("BYN2708\t0\ta union payload cannot hold a borrowed `{0}`\n")
+      want.append("BYN2709\t0\ta case value must be an integer constant\n")
+      want.append("BYN2710\t0\t`{0}` carries data and cannot have a value\n")
+      want.append("BYN2711\t0\t`{0}` and `{1}` share the value {2}\n")
+      want.append("BYN2712\t1\t`_` hides future cases of `{0}`, declared in this package\n")
+      want.append("BYN2720\t0\t`{0}` is not a member of `{1}`\n")
+      want.append("BYN2721\t0\tenum `{0}` already has a member `{1}`\n")
+      want.append("BYN2722\t0\tenum `{0}` has no members\n")
+      want.append("BYN2723\t0\targument `{0}` of `{1}` must be a compile-time constant\n")
+      want.append("BYN2724\t0\tenum parameter `{0}` must be a number, `bool`, `rune`, `string` or a plain enum\n")
+      want.append("BYN2740\t0\tcannot infer type argument `{0}` of `{1}`\n")
+      want.append("BYN2741\t0\ttype argument `{0}` of `{1}` is inferred as both `{2}` and `{3}`\n")
+      want.append("BYN2742\t0\t`{0}` takes {1} type argument(s), not {2}\n")
+      want.append("BYN2743\t0\t`{0}` cannot be applied to a value of type parameter `{1}`\n")
+      want.append("BYN2744\t0\t`{0}` is not a member of type parameter `{1}`\n")
+      want.append("BYN2760\t0\t`{0}` cannot be a `Map` key\n")
+      want.append("BYN2761\t0\t`{0}` contains itself by value: {1}\n")
+      want.append("BYN2762\t0\ta `{0}` cannot be copied\n")
+      want.append("BYN2770\t0\tunknown attribute `{0}`\n")
+      want.append("BYN2771\t0\t`main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`\n")
+      want.append("BYN2786\t0\t`{0}` cannot be passed to `{1}`: it is `Untrusted`\n")
+      want.append("BYN2787\t0\t`trust` needs a reason: a non-empty string literal\n")
+      want.append("BYN2788\t0\t`take()` needs a `List`, `Map`, `StrBuf` or an optional of a unique type, not `{0}`\n")
+      want.append("BYN2789\t0\t`switch move …` needs a local or a `move` parameter, not {0}\n")
+      want.append("BYN2790\t0\tpattern `{0}` binds the same storage more than once in `switch move …`\n")
+      want.append(
+          "BYN2791\t0\t`{0}` is mutated in the guard of `switch move …`; a guard that fails gives the value back\n",
+      )
+      want.append("BYN2772\t0\t`@exitCode` needs one integer constant from 1 to 255\n")
+      want.append("BYN2775\t0\t`assert` needs a `bool`, got `{0}`\n")
+      want.append("BYN2773\t0\t`@cases` gives {0} values but the test takes {1} parameters\n")
+      want.append("BYN2774\t0\teach `@cases` value must be a constant\n")
+      want.append("BYN2780\t0\timplicit copy of a unique value: {0}\n")
+      want.append("BYN2781\t0\t`{0}` is used after it was moved\n")
+      want.append("BYN2782\t0\tcannot move out of {0}\n")
+      want.append("BYN2783\t0\t`{0}` borrows from what it was bound to and cannot be changed or moved\n")
+      want.append("BYN2784\t0\ta `{0}` holding `{1}` cannot be copied: the copy would share its storage\n")
+      want.append("BYN2785\t0\t`slot` needs a default value, and `{0}` has none\n")
+      want.append("BYN2800\t0\t`{0}` must start with `I` and an uppercase letter\n")
+      want.append("BYN2801\t0\t`{0}` does not provide `{1}` required by `{2}`\n")
+      want.append("BYN2802\t0\t`{0}.{1}` is `{2}` but `{3}` requires `{4}`\n")
+      want.append("BYN2803\t0\t`{0}` does not bind `type {1}` of `{2}`\n")
+      want.append("BYN2804\t0\t`{0}` is not an interface\n")
+      want.append("BYN2805\t0\t`{0}` lists `{1}` twice\n")
+      want.append("BYN2806\t0\t`{0}` has no member `{1}` in its constraints ({2})\n")
+      want.append("BYN2807\t0\t`{0}` does not conform to `{1}`: missing `{2}`\n")
+      want.append("BYN2808\t0\t`{0}` cannot be used with `dyn`: `{1}` {2}\n")
+      want.append("BYN2809\t0\t`dyn {0}` is not supported yet\n")
+      want.append("BYN2810\t0\t`static` interface members are not supported yet\n")
+      want.append("BYN2811\t0\t`extension {0} : {1}` is not supported yet\n")
+      want.append("BYN2812\t0\t`where` names `{0}`, which is not a type parameter\n")
+      want.append("BYN2813\t0\t`{0}` takes `ref this`, but the receiver is `dyn ref readonly {1}`\n")
+      want.append("BYN2814\t0\t`{0}.{1}` must match `{2}.{1}`, which {3} `ref this`\n")
+      want.append("BYN2815\t0\t`{0}` is {1}; only structs can conform yet\n")
+      want.append("BYN2816\t0\t`{0}` is an interface, not a type\n")
+      want.append("BYN2820\t0\tthis lambda takes {0} parameter(s) but `{1}` takes {2}\n")
+      want.append("BYN2821\t0\t`{0}` cannot be captured: {1}\n")
+      want.append("BYN2822\t0\ta function type is not supported as {0} yet\n")
+      want.append("BYN2823\t0\t`.{0}` is a member, not a lambda\n")
+      want.append("BYN2824\t0\t`{0}` cannot be used as a value: {1}\n")
+      want.append("BYN2830\t0\t`HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order\n")
+      want.append("BYN2831\t0\t`{0}` cannot be a `Map` key: {1} `{2}` is a `{3}`\n")
+      want.append("BYN2832\t0\ta `string` value is not a `Symbol`; only a string literal converts\n")
+      want.append("BYN3001\t0\ta struct field cannot hold a borrowed `{0}`\n")
+      want.append("BYN3002\t0\t{0} does not live as long as `{1}`, which borrows it\n")
+      want.append("BYN3003\t0\tcannot return a borrow of {0}, which is freed when `{1}` returns\n")
+      want.append("BYN3004\t0\t`{0}` is modified while {1} still borrows it\n")
+      want.append("BYN3005\t0\t`{0}` is passed by `ref` and again in the same call\n")
+      want.append("BYN3006\t0\t`{0}` is moved while {1} still borrows it\n")
+      want.append("BYN3201\t0\tthe value of this `{0}` is unused\n")
+      want.append("BYN3202\t0\t`{0}` and `{1}` both have a case `{2}`\n")
+      want.append("BYN3204\t0\t`{0}` is not a `{1}`\n")
+      want.append("BYN3206\t0\t`at .{0}` names no field of `{1}`\n")
+      want.append("BYN3207\t0\ta literal of `{0}` can fail its `requires`; write `try {0} {{ … }}`\n")
+      want.append(
+          "BYN3208\t0\tfields of `{0}` cannot be assigned one at a time; its `requires` are checked at construction\n",
+      )
+      want.append("BYN3209\t0\ta `unique` type cannot be `const`\n")
+      want.append("BYN3213\t0\t`{0}` and `{1}` both accept `{2}`\n")
+      want.append("BYN3214\t0\t`{0}` is borrowed for the call and cannot be stored\n")
+      want.append("BYN3215\t0\t`{0}` is overloaded; give the reference a function type\n")
+      want.append("BYN3216\t0\t`{0}.{1}` can be written only by `{0}`'s own methods or with `with`: `{0}` {2}\n")
+      want.append("BYN3217\t0\t`{0}` holds a reference into `{1}` and cannot be passed to a fiber that may outlive it\n")
+      want.append("BYN3218\t0\tthis `requires` reads `it` and other fields\n")
+      want.append("BYN3219\t0\t`{0}` is not a mutation operator\n")
+      want.append("BYN3100\t0\t`package.byn` is data only: expected {0}\n")
+      want.append("BYN3101\t0\t`{0}` is not a field of `{1}`\n")
+      want.append("BYN3102\t0\t`{0}` must be {1}\n")
+      want.append("BYN3103\t0\t`package.byn` has no `{0}`\n")
+      want.append("BYN3104\t0\t`package.byn` uses `field: value`\n")
+      want.append(
+          "BYN4001\t0\tinternal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler\n",
+      )
+      want.append(
+          "BYN4002\t0\tinternal compiler error: a bound error expression reached lowering with no error reported; this is a bug in the Bayan compiler\n",
+      )
+      want.append("BYN5001\t0\t`{0}` changes `this`; name it `{1}`\n")
+      want.append("BYN5002\t0\t`{0}` reads as state but modifies `this`\n")
+      want.append("BYN5003\t0\t`try{0}` must return `{1}?` or `bool`; it is derived from `{2}() fails`\n")
+      want.append("BYN5004\t0\t`{0}` has {1} unlabeled parameters; give each but one a particle\n")
+      want.append("BYN5005\t0\t`{0}` is passed without its particle `{1}:`\n")
+      want.append("BYN5006\t0\t`{0}` is a required parameter besides the object and needs a particle\n")
+      want.append("BYN5007\t0\t`Log.{0}` names a level, not the act; write `log(…, as: .{0})`\n")
+      want.append("BYN5008\t0\t`{0}` is not a particle\n")
+      want.append("BYN5009\t0\t`{0}` is a particle; name the member with a verb or a noun\n")
+      want.append("BYN5009\t0\t`{0}` spells a conversion with `{1}`; write `{2}`\n")
+      want.append("BYN5011\t1\tthis `expects` reads only `{0}`; a type with `requires` checks it once\n")
+      want.append("BYN5013\t0\t`{0}` uses the particle `{1}` twice\n")
+      want.append("BYN5014\t1\t`{0}` is not a known verb, noun or adjective\n")
+      want.append("BYN5101\t1\t`{0}` is a noun on a `ref this` member; name the action\n")
+      want.append("BYN5102\t1\t`{0}` is a `bool` state; prefix with `is`, `has` or `can`\n")
+      want.append("BYN5103\t1\ta line starting with `{0}` joins the statement above; indent it deeper\n")
+      want.append("BYN1072\t0\tan early exit in a block can be a postfix guard\n")
+      want.append("BYN1073\t0\t`{0} => {0}.…` reads one member and can use `it`\n")
+      want.append("BYN1074\t0\tthis condition wraps; name it with a `let`\n")
+      want.append("BYN1075\t0\tblocks nested more than 4 deep; flatten them with early exits\n")
+      want.append("BYN1076\t0\tthis function body is {0} lines; split it into named steps\n")
+      want.append("BYN1077\t0\ta banner comment ends at column {0}; fill it with `─` to column {1}\n")
+      want.append("BYN1078\t0\t`{0}` is tested against constants {1} times; write one pattern\n")
+      want.append("BYN1079\t0\tthe type is known from the target; write `{0}`\n")
+      want.append("BYN1080\t0\t`{0} is {{ }} {1}` binds an optional with a pattern; {2}\n")
+      want.append("BYN5104\t1\t`{0}` holds a collection; name it with a plural, `{1}`\n")
+      want.append("BYN5104\t1\t`{0}` holds one `{1}`; name it with a singular noun\n")
+      want.append("BYN5105\t1\t`{0}` counts items; name it `{1}`\n")
+      want.append("BYN5106\t1\t`{0}` is named for the act `{1}` but has no `{1}` member\n")
+      want.append("BYN5107\t1\t`{0}` is a tool; `{1}` must not change `this`\n")
+      want.append("BYN6001\t0\t`{0}` is removed; a function without `uses` is already pure\n")
+      want.append("BYN6002\t0\t`{0}` uses `{1}` but does not declare it\n")
+      want.append("BYN6003\t0\t`{0}` is not an effect\n")
+      want.append("BYN6004\t0\t`{0}` uses `{1}`, which package `{2}` does not declare in `capabilities`\n")
+      want.append("BYN6005\t0\t`{0}` uses `{1}`, beyond the bound `{2}` declared by `{3}`\n")
+      want.append("BYN6006\t0\t`context (…) {{ }}` is now `provide … {{ }}`\n")
+      want.append(
+          "BYN6007\t0\t`{0}` is not a handler; `provide` takes `alloc`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console` or `log`\n",
+      )
+      want.append("BYN7001\t0\t`{0}` needs `{1}` to be `.{2}`, but it is `{3}`\n")
+      want.append("BYN7002\t0\t`{0}` is a payload of `.{1}`; `{2}` is not known to be `.{1}`\n")
+      want.append("BYN7003\t0\t`become` needs `becomes .{0}` on `{1}`\n")
+      want.append("BYN7003\t0\t`become .{0}` is not declared; `{1}` becomes `.{2}`\n")
+      want.append("BYN7003\t0\t`{0}` calls `{1}`, which changes the state; declare `becomes` on `{0}`\n")
+      want.append("BYN7004\t0\tthe switch does not handle state `.{0}`\n")
+      want.append("BYN7005\t0\t`{0}` has states; a literal must name one: `{0}.{1} {{ … }}`\n")
+      want.append("BYN7006\t0\t`{0} is .{1}` is an input form; write `{2}`\n")
+      want.append("BYN7007\t0\t`{0}` has no state `.{1}`\n")
+      want.append("BYN7008\t0\tstate `.{0}` has the same name as static member `{1}.{0}`\n")
+      want.append("BYN7009\t0\t`{0}` declares `becomes .{1}` but returns here without `become`\n")
+      want.append("BYN7010\t0\t`{0}` declares `becomes .{1}` but takes `{2}`; a transition needs `ref this`\n")
+      want.append(
+          "BYN7011\t0\t`{0}` changes the state of `{1}`, a `ref` parameter; a state changes in place only through `ref this`\n",
+      )
+      want.append("BYN7012\t0\t`{0}` would change state here; a state changes only through `become`\n")
+      want.append("BYN8001\t0\t`{0}` bypasses a safety rule and needs `because \"…\"`\n")
+      want.append("BYN8006\t0\t`expects` reads `{0}`, which is `Untrusted`; a violation would trap on outside data\n")
+      var got = StrBuf()
+      for code in allSemaCodes() {
+          // codes.byn:157: BYN2745 is Bayan only (L023, Decision 2026-11-19), with no `DiagnosticCodes.cs` descriptor to match.
+          if code != .endlessInstantiation {
+              let warning = isWarning(code) ? "1" : "0"
+              got.append($"{codeText(code)}\t{warning}\t{messageFormat(code)}\n")
+          }
+      }
+      assert got.finish() == want.finish()
+  }

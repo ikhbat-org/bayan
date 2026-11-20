@@ -1,0 +1,268 @@
+  // CoverageTests.cs (csharp/tests/Bayan.Tests) ProbesCountWhatRan, CountersFlushOnExitAndPanic and
+  // CounterFilesAreNamedByTestIndexOrPid, ported to test blocks (spec 019 T30h, 019-t30h4): the program built by
+  // `$BAYAN_EXE build --coverage` (the test binary by `$BAYAN_EXE test --coverage`), run with `BAYAN_COVERAGE=<prefix>` through
+  // `sh -c 'echo $$; exec "$0"'` for its pid, its counter file read by `readCounters` against the map `t5Instrument` gives for
+  // the same source. Each assertion is the C# test's own.
+  
+  import semantics
+  import emitter
+  
+  /// CoverageTests.cs:158 `Dir`: tmp/coverage-t30h/<name>, emptied.
+  string t30h4Dir(string name) uses alloc, fs {
+~     let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "coverage-t30h"), name)
+~     deleteWorkDir(dir)
+~     Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+~     return dir
+  }
+  
+  /// CoverageTests.cs:160 `Build`: `text` as `dir/main.byn`, built by `$BAYAN_EXE build --coverage -o <exe> main.byn`; the exe.
+  string t30h4Build(string dir, by string text) uses alloc, clock, console, env, fs, process {
+~     goldenWrite(dir, for: "main.byn", as: text)
+~     var failure = ""
+~     let exe = goldenExe(through: ref failure)
+~     print(failure) if exe == ""
+~     assert(exe != "")
+~     let output = Path.combine(dir, targetExecutableName("covered", for: t5HostTarget()))
+~     var args = List<string>()
+~     for a in ["build", "--coverage", "-o", output, Path.combine(dir, "main.byn")] {
+~         args.append(a)
+      }
+~     let o = t5CoverageChild(exe, by: move args, at: dir, for: null, through: ref failure)
+~     print(failure) if failure != ""
+~     print(o.stderr) if o.exitCode != 0
+~     assert(failure == "" && o.exitCode == 0)
+~     return output
+  }
+  
+  /// The counter map of the file `path`, with its tests when `tests`: `t5Instrument`'s, the one `build --coverage` and
+  /// `test --coverage` insert.
+  T11CoverageMap t30h4Map(string path, by bool tests) uses alloc, clock, fs {
+~     var c = semantics.fromPath(
+          path,
+          by: T5CompilationOptions { includeTests: tests },
+          wholeDirectory: !t1IsScript(path),
+      )
+~     var l = T11LCtx {}
+~     return t5Instrument(ref c, to: ref l)
+  }
+  
+  /// CoverageTests.cs:26 `Run`: `exe args` in `dir` with `BAYAN_COVERAGE` set to `prefix` (unset when null), through
+  /// `sh -c 'echo $$; exec "$0"'`; the outcome, its stdout without the first line, which is the pid, returned in `pid`.
+  GoldenOutcome t30h4Run(string exe, by string? prefix, at string dir, for List<string> args, through ref string pid)
+          uses alloc, clock, console, env, fs, process {
+~     var all = List<string>()
+~     for a in ["-c", "echo $$; exec \"$0\" \"$@\"", exe] {
+~         all.append(a)
+      }
+~     for a in args {
+~         all.append(a)
+      }
+~     var failure = ""
+~     var o = t5CoverageChild("/bin/sh", by: move all, at: dir, for: prefix, through: ref failure)
+~     print(failure) if failure != ""
+~     assert(failure == "")
+~     let text = goldenLf(o.stdout)
+~     let end = text.position("\n") ?? -1
+~     assert(end > 0)
+~     pid = $"{text[0..end]}"
+~     o.stdout = $"{text[end + 1..text.length]}"
+~     return o
+  }
+  
+  /// CoverageTests.cs:180 `Counts`: the single counter file under `prefix`, `<prefix>.<suffix>`, read.
+  Map<i64, u64> t30h4Counts(string prefix, for string suffix) uses alloc, console, fs {
+~     let dir = Path.directoryName(prefix) ?? ""
+~     let start = $"{Path.fileName(prefix)}."
+~     var files = List<string>()
+~     for name in Io.listDir(dir) catch List<string>() {
+~         if name.startsWith(start) {
+~             files.append(name)
+          }
+      }
+~     print(t5Join(in files)) if files.length != 1
+~     assert(files.length == 1 && files[0] == $"{start}{suffix}")
+~     return readCounters($"{prefix}.{suffix}") ?? panic($"{prefix}.{suffix} is not a counter file")
+  }
+  
+  /// CoverageTests.cs:187 `LineOf`: the 1-based line `snippet` starts on in `text`.
+  i64 t30h4LineOf(string text, by string snippet) uses alloc {
+~     let at = text.position(snippet) ?? -1
+~     assert(at >= 0)
+~     return text[0..at].count("\n") + 1
+  }
+  
+  /// CoverageTests.cs:194 `Hits`.
+  u64 t30h4Hits(Map<i64, u64> counts, for emitter.CoverageCounter counter) => counts.tryGet(at: counter.id) ?? 0
+  
+  /// CoverageTests.cs:203 `ProbesCountWhatRan`'s `At`: the `nth` counter of `kind` on `snippet`'s line, of `outcome` when set.
+  emitter.CoverageCounter t30h4At(
+      T11CoverageMap map,
+      by string kind,
+      for string snippet,
+      as bool? outcome = null,
+      i64 nth = 0
+  ) uses alloc {
+~     let line = t30h4LineOf(t30h4Paths(), by: snippet)
+~     var seen: i64 = 0
+~     for c in map.counters {
+~         continue if c.kind != kind || c.line != line
+~         if (outcome is { } want) {
+~             continue if c.outcome != want
+          }
+~         return c if seen == nth
+~         seen += 1
+      }
+~     panic($"no {kind} counter {nth} on line {line}")
+  }
+  
+  /// The hits of the true and the false counter of the `nth` branch on `snippet`'s line, as `true false`.
+  string t30h4Branch(T11CoverageMap map, by Map<i64, u64> counts, for string snippet, i64 nth = 0) uses alloc {
+~     let t = t30h4Hits(counts, for: t30h4At(map, by: "branch", for: snippet, as: true, nth: nth))
+~     let f = t30h4Hits(counts, for: t30h4At(map, by: "branch", for: snippet, as: false, nth: nth))
+~     return $"{t} {f}"
+  }
+  
+  /// CoverageTests.cs:196 `Paths`.
+  string t30h4Paths() =>
+      "union error E {\n    bad\n    worse\n}\n\ni64 check(i64 n) fails E {\n    fail .bad if n < 0\n    return n\n}\n\ni64 pass(i64 n) fails E {\n    return try check(n)\n}\n\ni64 count(i64 n) {\n    var i: i64 = 0\n    while i < n {\n        i += 1\n    }\n    return i\n}\n\nstring sign(i64 n) {\n    if n > 0 {\n        return \"pos\"\n    }\n    return n == 0 ? \"zero\" : \"neg\"\n}\n\nbool both(bool a, bool b) => a && b\n\nbool either(bool a, bool b) => a || b\n\nprint(sign(1))\nprint(sign(-1))\nprint($\"{count(3)}\")\nprint($\"{both(a: true, b: false)} {either(a: false, b: false)}\")\nlet r = pass(-1) catch switch {\n    E.bad => 1,\n    E.worse => 2\n}\nprint($\"{r}\")\n"
+  
+  // CoverageTests.cs:240 `ProbesCountWhatRan` (R9): statements, both outcomes of if, while, ternary, `&&` and `||`, and error
+  // paths by (function, variant) with their origin.
+  test "coverage t30h: ProbesCountWhatRan" {
+      if Target.os == "windows" {
+          todo("the pid is read through `sh -c 'echo $$; exec'`, and Windows has no `sh`")
+      }
+      let dir = t30h4Dir("paths")
+      let exe = t30h4Build(dir, by: t30h4Paths())
+      let map = t30h4Map(Path.combine(dir, "main.byn"), by: false)
+      let prefix = Path.combine(dir, "paths")
+      var pid = ""
+      let outcome = t30h4Run(exe, by: prefix, at: dir, for: List<string>(), through: ref pid)
+      assert(outcome.stdout == "pos\nneg\n3\nfalse false\n1\n")
+      let counts = t30h4Counts(prefix, for: pid)
+      // Statements: one per statement, the main program's too.
+      assert(t30h4Hits(counts, for: t30h4At(map, by: "line", for: "i += 1")) == 3)
+      assert(t30h4Hits(counts, for: t30h4At(map, by: "line", for: "return \"pos\"")) == 1)
+      assert(t30h4Hits(counts, for: t30h4At(map, by: "line", for: "print(sign(-1))")) == 1)
+      assert(t30h4Hits(counts, for: t30h4At(map, by: "line", for: "return n\n")) == 0)
+      // Branches: each outcome its own counter.
+      assert(t30h4Branch(map, by: counts, for: "if n > 0") == "1 1")
+      assert(t30h4Branch(map, by: counts, for: "while i < n") == "3 1")
+      assert(t30h4Branch(map, by: counts, for: "n == 0 ?") == "0 1")
+      assert(t30h4Branch(map, by: counts, for: "a && b", nth: 0) == "1 0")
+      assert(t30h4Branch(map, by: counts, for: "a && b", nth: 1) == "0 1")
+      assert(t30h4Branch(map, by: counts, for: "a || b", nth: 0) == "0 1")
+      assert(t30h4Branch(map, by: counts, for: "a || b", nth: 1) == "0 1")
+      assert(t30h4Branch(map, by: counts, for: "fail .bad if n < 0") == "1 0")
+      // Error paths: `check` raises E.bad with `fail`, `pass` passes it on through `try`; E.worse never happens.
+      var raised = List<emitter.CoverageCounter>()
+      var passed = List<emitter.CoverageCounter>()
+      for c in map.counters {
+          continue if c.kind != "error"
+          if c.function == "check" {
+              raised.append(c)
+          } else if c.function == "pass" {
+              passed.append(c)
+          }
+      }
+      assert(raised.length == 1)
+      assert(raised[0].variant == "E.bad"
+          && raised[0].origin == "fail"
+          && raised[0].line == t30h4LineOf(t30h4Paths(), by: "fail .bad"))
+      assert(t30h4Hits(counts, for: raised[0]) == 1)
+      assert(passed.length == 2 && passed[0].variant == "E.bad" && passed[1].variant == "E.worse")
+      for c in passed {
+          assert(c.origin == "try" && c.line == t30h4LineOf(t30h4Paths(), by: "try check"))
+      }
+      assert(t30h4Hits(counts, for: passed[0]) == 1 && t30h4Hits(counts, for: passed[1]) == 0)
+      deleteWorkDir(dir)
+  }
+  
+  // CoverageTests.cs:283-286 `CountersFlushOnExitAndPanic` (R10): counters reach the file when the program stops through `exit()`
+  // (`todo` exits 4) and on a panic (`byn_cov_flush`); one row per C# InlineData.
+  @cases(("todo(\"later\")", 4), ("panic(\"boom\")", 134))
+  test "coverage t30h: CountersFlushOnExitAndPanic" (string stop, i32 exitCode) {
+      if Target.os == "windows" {
+          todo("the pid is read through `sh -c 'echo $$; exec'`, and Windows has no `sh`")
+      }
+      let dir = t30h4Dir(exitCode == 4 ? "stop-todo" : "stop-panic")
+      let exe = t30h4Build(dir, by: $"void step() {{\n    print(\"step\")\n}}\n\nstep()\nstep()\n{stop}\n")
+      let map = t30h4Map(Path.combine(dir, "main.byn"), by: false)
+      let prefix = Path.combine(dir, "stop")
+      var pid = ""
+      let outcome = t30h4Run(exe, by: prefix, at: dir, for: List<string>(), through: ref pid)
+      assert(outcome.stdout == "step\nstep\n" && outcome.exitCode == exitCode)
+      let counts = t30h4Counts(prefix, for: pid)
+      for line in [2, 7] {
+          var at = List<emitter.CoverageCounter>()
+          for c in map.counters {
+              if c.kind == "line" && c.line == line {
+                  at.append(c)
+              }
+          }
+          assert(at.length == 1)
+          assert(t30h4Hits(counts, for: at[0]) == (line == 2 ? 2 : 1))
+      }
+      deleteWorkDir(dir)
+  }
+  
+  // CoverageTests.cs:303 `CounterFilesAreNamedByTestIndexOrPid`: each process writes `<BAYAN_COVERAGE>.<test index>` under
+  // `--test` and `<BAYAN_COVERAGE>.<pid>` without it; stale files are deleted first; with `BAYAN_COVERAGE` unset nothing is
+  // written; test bodies have no counters. The test binary is the one `$BAYAN_EXE test --coverage` leaves under out/.
+  test "coverage t30h: CounterFilesAreNamedByTestIndexOrPid" {
+      if Target.os == "windows" {
+          todo("the pid is read through `sh -c 'echo $$; exec'`, and Windows has no `sh`")
+      }
+      let root = t30h4Dir("tests")
+      goldenWrite(root, for: "package.byn", as: "Package { name: \"local/tests\", version: \"0.1.0\" }\n")
+      goldenWrite(
+          root,
+          for: "src/app/main.byn",
+          as: "i64 twice(i64 n) {\n    return n * 2\n}\n\ntest \"one\" {\n    assert(twice(1) == 2)\n}\n\ntest \"two\" {\n    assert(twice(2) == 4)\n    assert(twice(3) == 6)\n}\n",
+      )
+      var failure = ""
+      let bayan = goldenExe(through: ref failure)
+      assert(bayan != "")
+      var args = List<string>()
+      for a in ["test", "--coverage", "."] {
+          args.append(a)
+      }
+      let built = t5CoverageChild(bayan, by: move args, at: root, for: null, through: ref failure)
+      print($"{failure}{built.stdout}{built.stderr}") if failure != "" || built.exitCode != 0
+      assert(failure == "" && built.exitCode == 0)
+      let map = t30h4Map(Path.combine(root, "src/app/main.byn"), by: true)
+      assert(map.counters.length == 1 && map.counters[0].line == 2)
+      let host = t5HostTarget()
+      let exe = Path.combine(
+          Path.combine(Path.combine(Path.combine(root, "out"), "safe"), host),
+          targetExecutableName("tests-test", for: host),
+      )
+      let prefix = Path.combine(root, "tests")
+      goldenWrite(root, for: "tests.7", as: "stale")
+      deleteStale(prefix)
+      var pid = ""
+      var test1 = List<string>()
+      test1.append("--test")
+      test1.append("1")
+      assert(t30h4Run(exe, by: prefix, at: root, for: test1, through: ref pid).exitCode == 0)
+      assert(t30h4Hits(t30h4Counts(prefix, for: "1"), for: map.counters[0]) == 2)
+      deleteStale(prefix)
+      var test0 = List<string>()
+      test0.append("--test")
+      test0.append("0")
+      assert(t30h4Run(exe, by: null, at: root, for: test0, through: ref pid).exitCode == 0)
+      for name in Io.listDir(root) catch List<string>() {
+          assert(!name.startsWith("tests."))
+      }
+      deleteWorkDir(root)
+  
+      let dir = t30h4Dir("program")
+      let programExe = t30h4Build(dir, by: "print(\"hi\")\n")
+      let program = t30h4Map(Path.combine(dir, "main.byn"), by: false)
+      assert(program.counters.length == 1)
+      let programPrefix = Path.combine(dir, "program")
+      let outcome = t30h4Run(programExe, by: programPrefix, at: dir, for: List<string>(), through: ref pid)
+      assert(outcome.stdout == "hi\n")
+      assert(t30h4Hits(t30h4Counts(programPrefix, for: pid), for: program.counters[0]) == 1)
+      deleteWorkDir(dir)
+  }

@@ -1,0 +1,98 @@
+  // 019 T29 (coverage ratchet): main.byn's arguments, `--package`, `--many`, `--time`, the library refusal and the
+  // `--coverage`/`--mutate` emits, on inputs written under tmp/t29emi-main. The expected exit codes are the output of the
+  // self-hosted emitter at the commit that added the test.
+  
+  /// tmp/t29emi-main with one directory per app input (ok/, warn/, bad/), a `--package`/`--many` directory (pkg/: an
+  /// app input, one with an error, a test file and a file that is not `*.byn`), and a library project under lib/.
+  string t29MainDir() {
+~     let dir = Path.combine(Path.fullPath("tmp"), "t29emi-main")
+~     for sub in ["ok", "warn", "bad", "pkg", "lib/src/t29lib"] {
+~         Io.createDirectory(Path.combine(dir, sub)) catch {}
+      }
+~     let ok = "void main() {\n    print(\"hi\")\n}\n"
+~     let bad = "void main() {\n    let x: i64 = \"s\"\n}\n"
+~     let tested = "public i64 one() => 1\n\ntest \"one\" {\n    assert one() == 1\n}\n"
+~     t29MainWrite(dir, for: "ok/main.byn", as: ok)
+~     t29MainWrite(dir, for: "warn/main.byn", as: "void main() {\n    var x = 1\n    print($\"{x}\")\n}\n")
+~     t29MainWrite(dir, for: "bad/main.byn", as: bad)
+~     t29MainWrite(dir, for: "pkg/ok.byn", as: ok)
+~     t29MainWrite(dir, for: "pkg/bad.byn", as: bad)
+~     t29MainWrite(dir, for: "pkg/ok.test.byn", as: tested)
+~     t29MainWrite(dir, for: "pkg/notes.txt", as: "not an input\n")
+~     t29MainWrite(
+          dir,
+          for: "lib/package.byn",
+          as: "Package {\n    name: \"local/t29lib\",\n    version: \"0.1.0\",\n    edition: 2027,\n    kind: .lib,\n}\n",
+      )
+~     t29MainWrite(dir, for: "lib/src/t29lib/lib.byn", as: tested)
+~     return dir
+  }
+  
+  void t29MainWrite(string dir, for string name, as string text) {
+~     Io.writeFile(Path.combine(dir, name), text.bytes) catch {}
+  }
+  
+  test "emitter t29: main's options and their exit codes" {
+      let dir = t29MainDir()
+      let ok = Path.combine(dir, "ok/main.byn")
+      let bad = Path.combine(dir, "bad/main.byn")
+      let lib = Path.combine(dir, "lib")
+      assert usage() == 2
+      assert main(["--", ok]) == 2
+      assert main(["--ascii", "--color", "auto", "--mode", "debug", ok]) == 0
+      assert main(["--color=always", ok]) == 0
+      assert main(["--color", "never", "--mode", "fast", ok]) == 0
+      assert main(["--color=bogus", ok]) == 2
+      assert main(["--color"]) == 2
+      assert main(["--mode"]) == 2
+      assert main(["--mode", "bogus", ok]) == 2
+      assert main(["--coverage", ok]) == 0
+      assert main(["--mutate", ok]) == 0
+      assert main(["--coverage", "--mutate", ok]) == 0
+      assert main([bad]) == 1
+      assert main(["--tests", bad]) == 1
+      assert main([Path.combine(dir, "warn/main.byn")]) == 0
+      assert main([lib]) == 2
+      assert main(["--tests", lib]) == 0
+      assert main([Path.combine(dir, "missing.byn")]) == 2
+  }
+  
+  test "emitter t29: main's --package, --many and --time" {
+      let dir = t29MainDir()
+      let pkg = Path.combine(dir, "pkg")
+      let ok = Path.combine(pkg, "ok.byn")
+      let bad = Path.combine(pkg, "bad.byn")
+      let app = Path.combine(dir, "ok/main.byn")
+      assert main(["--package", pkg, ok]) == 0
+      assert main(["--tests", "--package", pkg, Path.combine(pkg, "ok.test.byn")]) == 0
+      assert main(["--coverage", "--package", pkg, ok]) == 0
+      assert main(["--mutate", "--package", pkg, ok]) == 0
+      assert main(["--package", pkg, bad]) == 1
+      assert main(["--tests", "--package", pkg, bad]) == 1
+      assert main(["--package", pkg, Path.combine(pkg, "missing.byn")]) == 1
+      assert main(["--package", pkg]) == 2
+      assert main(["--package"]) == 2
+      assert main(["--many", pkg]) == 0
+      assert main(["--many", pkg, ok]) == 2
+      assert main(["--many"]) == 2
+      assert main(["--many", Path.combine(pkg, "missing")]) == 2
+      assert main(["--time", app]) == 0
+      assert main(["--time", app, ok]) == 2
+      assert main(["--time"]) == 2
+      assert main(["--time", Path.combine(dir, "missing.byn")]) == 2
+      assert main(["--time", Path.combine(dir, "bad/main.byn")]) == 1
+  }
+  
+  test "emitter t29: t12HasErrors tells a warning from an error" {
+      let dir = t29MainDir()
+      var errors = List<bool>()
+      var counts = List<i64>()
+      for name in ["ok", "warn", "bad"] {
+          let bytes = Io.readFile(Path.combine(dir, $"{name}/main.byn")) catch List<u8>()
+          let c = t12Compile(Path.combine(dir, name), at: move bytes, for: "main.byn", by: false)
+          counts.append(c.diagnostics.length)
+          errors.append(t12HasErrors(in c))
+      }
+      assert counts[0] == 0 && counts[1] == 1 && counts[2] == 1
+      assert !errors[0] && !errors[1] && errors[2]
+  }
