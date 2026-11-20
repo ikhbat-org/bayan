@@ -6,7 +6,8 @@
 # DIVERGENCES.tsv row (case key or Class.Test) lets its case differ; the seed picks the same classes twice; --full has no
 # filter; a class whose source names no SelfhostExport type at the head is printed as left out, never compared, and
 # refused by --class; the C# CLI replay (a stub CLI) passes, names a changed expected file, a frozen file it did not write and an
-# exit-code difference (a file and a flat exit-code line), honours a divergence row, picks one unit per kind weekly and refuses a
+# exit-code difference (a file and a flat exit-code line), passes an `untimed` file that differs in its wall time only and names
+# one with another byte changed, replays a diag package case and names its changed .diag, honours a divergence row, picks one unit per kind weekly and refuses a
 # class it does not run under --class; the emit lines (through freeze-csharp.sh) and a golden case (a stub runner, REEXPORT_RUNNER,
 # with BAYAN_EXE the C# CLI) pass, and a changed emit line and a failed golden case are named; no dotnet fails without a pass; usage errors exit 2.
 set -euo pipefail
@@ -90,6 +91,9 @@ rc() { mkdir -p "tests/cases/$1"; printf "$2" > "tests/cases/$1/args"; printf "$
   printf "$4" > "tests/cases/$1/expected.stdout"; printf "$5" > "tests/cases/$1/expected.stderr"; printf '0\n' > "tests/cases/$1/expected.exitcode"; }
 rc sem/FunctionTypeTests/A 'types\ninput.byn\n' 'fn a' 'args: types input.byn in 0.42s\nfile: fn a\nat input.byn\n' 'foo \n'
 rc sem/FunctionTypeTests/B-2 'types\ninput.byn\n' 'fn b' 'args: types input.byn in 0.42s\nfile: fn b\nat input.byn\n' 'foo \n'
+# an `untimed` case: its frozen wall time is not the stub's, so it compares through the wall-time mask only
+rc sem/FunctionTypeTests/U 'types\ninput.byn\n' 'fn u' 'args: types input.byn in 0.13s\nfile: fn u\nat input.byn\n' 'foo \n'
+printf 'untimed\n' > tests/cases/sem/FunctionTypeTests/U/compare
 rc cli/DiagnosticRendererTests/C 'check\n<repo>/tmp/x/C/input.byn\n' 'fn c' 'args: check <repo>/tmp/x/C/input.byn in masked\nfile: fn c\n' \
   'foo <repo>/f\n'
 printf 'seconds-masked\n' > tests/cases/cli/DiagnosticRendererTests/C/compare
@@ -97,6 +101,9 @@ printf 'FOO=<repo>/f\nBAYAN_THEME\n' > tests/cases/cli/DiagnosticRendererTests/C
 rc cli/MutatorTests/M 'test\n--mutate\n' 'fn m' 'm\n' ''
 mkdir -p tests/cases/parse tests/cases/emit/exit; printf 'p' > tests/cases/parse/p.byn
 printf 'args: parse --ast p.byn in 0.42s\nfile: p\n' > tests/cases/parse/p.ast; printf '0  parse/p.byn\n' > tests/cases/emit/exit/expected.parse.exitcode
+# diag: a package case the replay runs (its .diag is the stub's stderr) and a case with an error it counts as not replayed
+mkdir -p tests/cases/diag/pk; printf 'k' > tests/cases/diag/pk/main.byn; printf 'foo \n' > tests/cases/diag/pk/main.diag
+printf 'e' > tests/cases/diag/e.byn; printf 'error BYN1: e\n' > tests/cases/diag/e.diag
 # a run input: its golden .stdout (the stub runner passes it) and its emit lines, each the sha256 of what the stub C# CLI prints
 mkdir -p tests/cases/run tests/cases/emit/modes; printf 'r' > tests/cases/run/r.byn; printf 'r\n' > tests/cases/run/r.stdout
 if command -v sha256sum > /dev/null 2>&1; then sum="sha256sum"; else sum="shasum -a 256"; fi
@@ -107,7 +114,7 @@ done
 cp tests/cases/emit/modes/expected.safe.sha256 tests/cases/emit/run-c.sha256
 printf 'FunctionTypeTests\tsem\t1\t2\t\nDiagnosticRendererTests\tcli\t1\t1\t\nMutatorTests\tcli\t1\t1\t\n' >> tests/cases/EXPORT.tsv
 { printf 'tag\tv0\t%s\nexport\tchore/export\t%s\n' "$head" "$head"
-  { find tests/cases -name 'expected.*'; echo tests/cases/parse/p.ast; echo tests/cases/run/r.stdout; echo tests/cases/emit/run-c.sha256; } |
+  { find tests/cases -name 'expected.*'; echo tests/cases/parse/p.ast; echo tests/cases/diag/pk/main.diag; echo tests/cases/diag/e.diag; echo tests/cases/run/r.stdout; echo tests/cases/emit/run-c.sha256; } |
     LC_ALL=C sort |
     while IFS= read -r p; do printf 'file\t%s\t%s\n' "$(git hash-object "$p")" "$p"; done
 } > tests/cases/FREEZE.tsv
@@ -173,8 +180,8 @@ rm -rf tmp/reexport.*
 
 rep=(--class sem/FunctionTypeTests --class cli/DiagnosticRendererTests --class parse)
 [ "$(run "${rep[@]}")" = 0 ] || fail "the replay: want exit 0" "$(cat "$tmp/out")"
-grep -q "replay: 11 files compared by bytes, 0 through the golden runner's masks, 0 on the divergence list, 0 failed" "$tmp/out" && [ "$(tail -1 "$aux/log")" = build ] \
-  || fail "the replay: want 11 files compared and the CLI built, no export run" "$(cat "$tmp/out"; tail -1 "$aux/log")"
+grep -q "replay: 11 files compared by bytes, 3 through the wall-time mask, 0 through the golden runner's masks, 0 on the divergence list, 0 failed" "$tmp/out" && [ "$(tail -1 "$aux/log")" = build ] \
+  || fail "the replay: want 11 files compared by bytes, 3 through the wall-time mask (a wall-time-only difference passes) and the CLI built, no export run" "$(cat "$tmp/out"; tail -1 "$aux/log")"
 [ -z "$(ls -d tmp/reexport.* 2> /dev/null)" ] || fail "a passing replay left its work dir"
 [ "$(run --seed 5)" = 0 ] && sed -n '/replayed through the C# CLI/,/left out/p' "$tmp/out" | tr '\n' ' ' |
   grep -q "  cli/DiagnosticRendererTests   sem/FunctionTypeTests   flat/parse " || fail "the weekly replay: one unit per kind" "$(cat "$tmp/out")"
@@ -195,11 +202,23 @@ printf 'file\t%s\ttests/cases/sem/FunctionTypeTests/A/expected.report\n' "$(git 
 rm -rf tmp/reexport.* tests/cases/sem/FunctionTypeTests/A/expected.report; git checkout -q -- tests/cases
 printf 'B\n' > tests/cases/sem/FunctionTypeTests/B-2/expected.stdout
 printf 'FunctionTypeTests.B\tT59\tcsharp\tx\n' >> tests/cases/DIVERGENCES.tsv
-[ "$(run "${rep[@]}")" = 0 ] && grep -q "replay: 8 files compared by bytes, 0 through the golden runner's masks, 3 on the divergence list, 0 failed" "$tmp/out" \
+[ "$(run "${rep[@]}")" = 0 ] && grep -q "replay: 8 files compared by bytes, 3 through the wall-time mask, 0 through the golden runner's masks, 3 on the divergence list, 0 failed" "$tmp/out" \
   || fail "the replay: a divergence row: want exit 0, 3 on the list" "$(cat "$tmp/out")"
 git checkout -q -- tests/cases
+printf 'args: types input.byn in 0.13s\nfile: fn U\nat input.byn\n' > tests/cases/sem/FunctionTypeTests/U/expected.stdout
+[ "$(run "${rep[@]}")" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/sem/FunctionTypeTests/U/expected.stdout (first difference" "$tmp/out" &&
+  grep -q "replay: 11 files compared by bytes, 3 through the wall-time mask, 0 through the golden runner's masks, 0 on the divergence list, 1 failed" "$tmp/out" \
+  || fail "the replay: a wall-time file with one other byte changed passes" "$(cat "$tmp/out")"
+git checkout -q -- tests/cases; rm -rf tmp/reexport.*
+[ "$(run --class diag)" = 0 ] && grep -q "replay: 1 files compared by bytes, 0 through the wall-time mask, 0 through the golden runner's masks, 0 on the divergence list, 0 failed" "$tmp/out" &&
+  grep -q "^replay: not replayed: 1 diag files (not checked): a case with an error" "$tmp/out" \
+  || fail "the diag replay: want 1 compared by bytes and 1 not replayed" "$(cat "$tmp/out")"
+printf 'fooX\n' > tests/cases/diag/pk/main.diag
+[ "$(run --class diag)" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/diag/pk/main.diag (first difference" "$tmp/out" \
+  || fail "the diag replay: a changed .diag is not named" "$(cat "$tmp/out")"
+git checkout -q -- tests/cases; rm -rf tmp/reexport.*
 gold=(--class emit --class run)
-[ "$(run "${gold[@]}")" = 0 ] && grep -q "replay: 4 files compared by bytes, 1 through the golden runner's masks, 0 on the divergence list, 0 failed" "$tmp/out" &&
+[ "$(run "${gold[@]}")" = 0 ] && grep -q "replay: 4 files compared by bytes, 0 through the wall-time mask, 1 through the golden runner's masks, 0 on the divergence list, 0 failed" "$tmp/out" &&
   grep -q "^runner: args: version in 0.42s$" "$aux/log" \
   || fail "the emit and golden replay: want 4 by bytes and 1 through the masks, BAYAN_EXE the C# CLI" "$(cat "$tmp/out" "$aux/log")"
 printf '0%s\n' "$(cut -c2- tests/cases/emit/modes/expected.safe.sha256)" > tests/cases/emit/modes/expected.safe.sha256

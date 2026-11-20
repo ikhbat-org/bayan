@@ -49,6 +49,7 @@ In each entry, *Current choice* or *Conservative option* is the option in force,
 | Q1280 | Spec 022: should a parameter list take a trailing comma? | see the entry | grammar unchanged; a wrapped parameter list has no trailing comma. | the user (designer) |
 | Q1281 | Spec 022: the proposal §3.1 After block cannot be a formatter test as written | see the entry | the formatter inserts no paragraph breaks; the test uses the width-100 run. | the user (designer) |
 | Q1284 | 019 T8: how golden cases and test blocks share one report (R8) | one kind per run, or golden cases in package runs or several paths; `results.json` of a cases directory under the current directory, its parent, or none | decided for 019 T8 (user, 2026-11-17): one kind per run, no new CLI form, no implicit `tests/cases` in a package run (Q1 (a)); a cases-directory run writes `out/test/results.json` under the current directory, never under the cases directory, `/out/` ignored (Q2 (b)). Its JSON entries add `kind`, `caseKind` and `path` and its summary `testBlocks` and `goldenCases`, and its summary line states both counts; a run of test blocks keeps the C# output unchanged, since L028 (enacted) compares it with the frozen C# CLI, until L028 is amended or retired. | the user (designer) |
+| Q1285 | 019 T59: wall times in the frozen cli/SelfhostDriverT3Tests files (L043) | see the entry | the 34 cases stay on tests/cases/DIVERGENCES.tsv under this number; the export comparison of reexport-check.sh compares by blob id with no wall-time mask. | the user (designer) |
 
 ### Q60
 
@@ -201,6 +202,10 @@ In each entry, *Current choice* or *Conservative option* is the option in force,
 ### Q1281
 
 1277. **Spec 022: the proposal §3.1 After block cannot be a formatter test as written.** Its blank lines between paragraphs cannot come from the formatter, which never inserts one inside a function, and its header wraps only below width 120, so T5's test runs it at width 100. The block stays in the proposal as the author's intent; the formatter test uses the width-100 run and the author's own blank lines. *Conservative option:* the formatter inserts no paragraph breaks and the test uses the width-100 run; the user decides whether the formatter should insert them.
+
+### Q1285
+
+1278. **019 T59: wall times in the frozen cli/SelfhostDriverT3Tests files (L043).** The expected.stdout of 34 cases of `cli/SelfhostDriverT3Tests` holds a wall time of the export run (` in 0.59s` and the like; the golden runner's compare words `argv-masked`, `argv-masked-arguments` and `exit` mask it or leave the file out), so no re-export gives the same bytes: 135 files (33 cases of 4 files, 1 of 3). The rows, by case key on tests/cases/DIVERGENCES.tsv: `cli/SelfhostDriverT3Tests/ArgumentListAsToolchain` and its `-2` to `-24`, `ArgumentListWithCcOnly`, `ArgumentsWithoutATargetAreTheHostsAsToolchain` and `-2`, `ClangIsTriedAfterCc`, `FindOnPathSkipsDirectoriesAndEmptyEntriesAsToolchain`, `GccIsTheLastResort`, `TheFirstOfCcClangGccIsChosen`, `-2` and `-3`, `TheHostNameBuildsWithPlainCc`. They carried the placeholder `T59` until 019-t59c. The replay's wall-time mask (scripts/selfhost/replay-csharp.sh, the L043 amendment of 2026-11-20) covers the `untimed` sem cases only; this class is written by export mode and compared by reexport-check.sh by git blob id. *Conservative option:* the 34 rows stay on the divergence list under this number. *Options:* the export comparison masks the same duration pattern for these files, so they are compared and the rows leave the list; or the rows stay.
 
 ## Self-hosting ports (specs 009 and 010)
 

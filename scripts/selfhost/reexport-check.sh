@@ -85,7 +85,7 @@ for kind in $(grep -v / "$w/ryes"); do
     (run|style|new|out)
       awk -F'\t' -v k="$kind" '$1 == "file" { p = substr($3, 13); if (index(p, k "/") != 1 || p !~ /\.(stdout|stderr|exitcode|color|plain|ascii|tree|json)$/) next
         sub(/\.[a-z]+$/, "", p); sub(/\/main$/, "", p); print "golden " p }' "$cases/FREEZE.tsv" | LC_ALL=C sort -u > "$w/flat/$kind"; continue ;;
-    (parse) e=ast ;; (typed) e=types ;; (*) e="" ;;
+    (parse) e=ast ;; (typed) e=types ;; (diag) e=diag ;; (*) e="" ;;
   esac
   awk -F'\t' -v k="$kind" -v e="$e" -v rows="$w/rows" '
     BEGIN { while ((getline l < rows) > 0) cls[l] = 1 }

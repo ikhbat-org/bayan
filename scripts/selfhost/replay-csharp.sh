@@ -19,7 +19,15 @@
 #            COLORTERM, BAYAN_THEME and COLORFGBG unset (goldenexport.byn:639)
 #   flat     the argv of freeze-csharp.sh in the input's directory of the tree: parse `parse --ast <file>` (stdout is <stem>.ast),
 #            typed `types --package . <file>` (stdout is <stem>.types); the exit code is compared with the input's line of
-#            tests/cases/emit/exit/expected.<kind>.exitcode
+#            tests/cases/emit/exit/expected.<kind>.exitcode; diag `build --emit-c --package . <file>` (a package dir with src/:
+#            `build --emit-c .`), whose stderr holds the front end's diagnostics as DiagTests.cs:34 rendered them, and for a
+#            `style-*` case `check --all` in its place (DiagTests added the style lints there only; `check` always adds them);
+#            stderr is <stem>.diag with the input's directory read back as the relative path (`main.byn:<l>:<c>` in a package
+#            case); its exit code is compared under emit. Only the diag files the CLI can write are run, told from the frozen file
+#            and the case dir: no `error` line, empty or in a package dir, no stdlib/ dir. The rest are counted and printed as not
+#            replayed, per group: a flat case with diagnostics (the C# test rendered no `-->` line, includePath: false; the CLI
+#            always prints it), a package with stdlib/ (the C# test used it as the std) and a case with an error (the CLI adds
+#            its `✗ build failed` summary)
 #   emit     scripts/selfhost/freeze-csharp.sh, the script that wrote them, with the inputs as its pick file: each input's line of
 #            emit/modes/expected.<mode>.sha256 (run/ inputs) or emit/exit/expected.diag.exitcode (diag/ inputs) against the tree's,
 #            and its run-c.sha256 line through the script's own check
@@ -41,18 +49,24 @@
 # Outside the golden route, a produced file is compared by bytes with the tree's when that tree path has a FREEZE.tsv file row (an
 # exit-code line: when the input has a line there), unless its case is on DIVERGENCES.tsv (<kind>/<Class>/<case>, <Class>.<case> or
 # <Class>.<Test> for a case <Test>-<n>; flat: <kind>/<stem>). A differing file is printed with its first differing line; a frozen
-# file the replay did not produce is printed as missing. Prints `replay: <n> files compared by bytes, <g> through the golden
-# runner's masks, <d> on the divergence list, <f> failed` (<g>: the golden route); exit 0 when none failed, 1 when one did, 2 on a
-# usage error.
-# DIVERGENCES.tsv rows with question T59 for wall times in frozen bytes (the `untimed` compare word of the T27 sem cases):
-#   grep -l -E ' in [0-9]+\.[0-9][0-9]s' tests/cases/sem/{BuiltinResultsTests,FunctionTypeTests}/*/expected.stdout
-# and for the compiler version a dist manifest records (the C# CLI at the export head is `bayan 0.3.2`), the row out/dist:
+# file the replay did not produce is printed as missing.
+# Wall-time mask: a case with the compare word `untimed` (the T27 sem cases; their `check` prints `◆ checked input in 0.14s`, a
+# wall time of the export run that no rerun repeats) has every file compared after `sed -E 's/ in [0-9]+\.[0-9]{2}s$/ in <time>/'`
+# on both sides (the duration number only, at a line end, as goldenProgramUntimed, goldenprograms.byn:838); any other byte still
+# differs. Those files are counted apart, as `through the wall-time mask`. Cases with the mask's matches in the tree:
+#   grep -l -E ' in [0-9]+\.[0-9][0-9]s$' tests/cases/sem/{BuiltinResultsTests,FunctionTypeTests}/*/expected.stdout
+# Prints `replay: <n> files compared by bytes, <t> through the wall-time mask, <g> through the golden runner's masks, <d> on the
+# divergence list, <f> failed` (<g>: the golden route); exit 0 when none failed, 1 when one did, 2 on a usage error.
+# DIVERGENCES.tsv row for the compiler version a dist manifest records (the C# CLI at the export head is `bayan 0.3.2`), out/dist:
 #   grep -l '"compiler": "bayan ' tests/cases/out/*.tree
 # bash 3.2.
 set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root" || exit 2
 cases=tests/cases; tab="$(printf '\t')"
+why_diag_path="a flat case with diagnostics: DiagTests.cs:34 rendered it with includePath: false, no \`-->\` line; every C# CLI argv prints that line"
+why_diag_err="a case with an error: the C# CLI prints its \`✗ build failed\` summary and explain line after the diagnostics, which DiagTests.cs:34 did not render"
+why_diag_std="a package case with a stdlib/ dir: DiagTests.cs:24-27 compiled it with that dir as the std; the C# CLI reads the shipped std"
 
 list() {
   local why_mut="its stdout went through the C# MaskMutation (SelfhostDriverMutateTests.cs:52-71), which the replay does not carry"
@@ -75,7 +89,7 @@ list() {
     sem/InterfaceDeclarationTests case "" \
     parse flat "" \
     typed flat "" \
-    diag - "$why_inproc (its exit codes, emit/exit/expected.diag.exitcode, are replayed under emit)" \
+    diag flat "" \
     diag-json - "$why_inproc" \
     lex - "$why_inproc" \
     manifest - "$why_inproc" \
@@ -95,7 +109,7 @@ mkdir -p "$w/cache" "$w/s"
 list > "$w/routes"
 awk -F'\t' '$1 == "file" { print $3 }' "$cases/FREEZE.tsv" > "$w/frozen"
 awk -F'\t' 'NR > 1 { print $1 }' "$cases/DIVERGENCES.tsv" > "$w/divkeys"
-n=0; ng=0; ndiv=0; bad=0
+n=0; nt=0; ng=0; ndiv=0; bad=0; untimed=""; ndiag_err=0; ndiag_path=0; ndiag_std=0
 
 # put <text file> <from> <to>: the file with each <from> read as <to> (literal text), in place
 put() {
@@ -125,11 +139,16 @@ check() {
   local got="$1" p="$2"; shift 2
   grep -qxF "$p" "$w/frozen" || return 0
   local k; for k in "$@"; do grep -qxF "$k" "$w/divkeys" && { ndiv=$((ndiv + 1)); return 0; }; done
-  n=$((n + 1))
+  local want="$p"
+  if [ -n "$untimed" ]; then nt=$((nt + 1)); else n=$((n + 1)); fi
   if [ ! -f "$got" ]; then echo "replay: missing from the replay: $p"; bad=$((bad + 1)); return 0; fi
   if [ ! -f "$p" ]; then echo "replay: frozen file not in the tree: $p"; bad=$((bad + 1)); return 0; fi
-  cmp -s "$got" "$p" && return 0
-  echo "replay: differs from the frozen compiler: $p (first difference: $(cmp "$got" "$p" 2>&1 | sed 's/.*differ: //; s/^cmp: //'))"
+  if [ -n "$untimed" ]; then
+    want="$got.want"; sed -E 's/ in [0-9]+\.[0-9]{2}s$/ in <time>/' "$p" > "$want"
+    sed -E 's/ in [0-9]+\.[0-9]{2}s$/ in <time>/' "$got" > "$got.m" && mv "$got.m" "$got"
+  fi
+  cmp -s "$got" "$want" && return 0
+  echo "replay: differs from the frozen compiler: $p (first difference: $(cmp "$got" "$want" 2>&1 | sed 's/.*differ: //; s/^cmp: //'))"
   bad=$((bad + 1))
 }
 
@@ -165,10 +184,12 @@ replay_case() {
     if [ "$word" = seconds-masked ]; then sed -E 's/ in [0-9]+\.[0-9]{2}s/ in masked/g' "$o/$f" > "$o/$f.m" && mv "$o/$f.m" "$o/$f"; fi
   done
   [ "$kind" != emit-c ] || mv "$o/stdout" "$o/c"
+  untimed=""; [ "$word" != untimed ] || untimed=1
   for f in "$d"/expected.*; do
     [ -f "$f" ] || continue
     check "$o/${f##*/expected.}" "$f" "$kc" "$cls.$name" "$cls.$base"
   done
+  untimed=""
   rm -rf "$s"
 }
 
@@ -176,12 +197,24 @@ replay_case() {
 replay_flat() {
   local kind="$1" name="$2" file="${2##*/}" ending
   local o="$w/o/$name"; local dir="$cases/${name%/*}"
+  local stem="${name%.byn}"; local key="$stem"; [ "$file" != main.byn ] || key="${name%/main.byn}"
   case "$kind" in
     (parse) ending=ast; run "$dir" /dev/null "$o" "" parse --ast "$file" ;;
     (typed) ending=types; run "$dir" /dev/null "$o" "" types --package . "$file" ;;
+    (diag)
+      ending=diag; local want="$cases/$stem.diag"
+      grep -qxF "$want" "$w/frozen" || return 0
+      if grep -q '^error' "$want"; then ndiag_err=$((ndiag_err + 1)); return 0; fi
+      case "$name" in (*/*/*) ;; (*) if [ -s "$want" ]; then ndiag_path=$((ndiag_path + 1)); return 0; fi ;; esac
+      if [ -d "$dir/stdlib" ]; then ndiag_std=$((ndiag_std + 1)); return 0; fi
+      local -a cmd; cmd=(build --emit-c); case "${key##*/}" in (style-*) cmd=(check --all) ;; esac
+      case "$name" in
+        (*/*/*) if [ -d "$dir/src" ]; then run "$dir" /dev/null "$o" "" "${cmd[@]}" .; else run "$dir" /dev/null "$o" "" "${cmd[@]}" --package . "$file"; fi ;;
+        (*) run "$dir" /dev/null "$o" "" "${cmd[@]}" --package . "$file" ;;
+      esac
+      put "$o/stderr" "$root/$dir/" ""; check "$o/stderr" "$want" "$key"; return 0 ;;
     (*) echo "replay: $kind has no flat route"; bad=$((bad + 1)); return 0 ;;
   esac
-  local stem="${name%.byn}"; local key="$stem"; [ "$file" != main.byn ] || key="${name%/main.byn}"
   check "$o/stdout" "$cases/$stem.$ending" "$key"
   local ex="$cases/emit/exit/expected.$kind.exitcode"
   if grep -qxF "$ex" "$w/frozen" && grep -q "  $name\$" "$ex"; then
@@ -289,5 +322,8 @@ while IFS= read -r u; do
 done < "$units"
 [ ! -s "$w/emit.pick" ] || replay_emit
 [ ! -s "$w/golden.pick" ] || replay_golden
-echo "replay: $n files compared by bytes, $ng through the golden runner's masks, $ndiv on the divergence list, $bad failed"
+[ $ndiag_path = 0 ] || echo "replay: not replayed: $ndiag_path diag files (not checked): $why_diag_path"
+[ $ndiag_std = 0 ] || echo "replay: not replayed: $ndiag_std diag files (not checked): $why_diag_std"
+[ $ndiag_err = 0 ] || echo "replay: not replayed: $ndiag_err diag files (not checked): $why_diag_err"
+echo "replay: $n files compared by bytes, $nt through the wall-time mask, $ng through the golden runner's masks, $ndiv on the divergence list, $bad failed"
 [ $bad = 0 ]
