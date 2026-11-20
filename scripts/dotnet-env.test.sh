@@ -9,7 +9,8 @@ set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 allow="scripts/ci/install-dotnet.sh scripts/ci/install-dotnet.test.sh scripts/ci/sdk-patch-check.sh
-scripts/ci/sdk-patch-check.test.sh scripts/ci/ddc.sh scripts/ci/ddc.test.sh .github/workflows/ddc.yml"
+scripts/ci/sdk-patch-check.test.sh scripts/ci/ddc.sh scripts/ci/ddc.test.sh .github/workflows/ddc.yml
+scripts/selfhost/reexport-check.sh"
 # One per line: <file> <task that removes its .NET call>.
 pending=".github/workflows/laws-nightly.yml T44a"
 
