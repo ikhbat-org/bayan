@@ -7,6 +7,7 @@
 # sites lie only in the files, then `bayan mutate --binary` runs every site of each build, replaying the recording per mutant
 # (replay.py); sites under `@unobservable because "…"` come back marked, not survived. The reports are copied to
 # <log dir>/quality-<n>-<binary>.json. BAYAN_EXE is the driver under test (the caller sets it).
+# `bayan mutate` runs with BAYAN_TEST_TIMEOUT_MS (its mutant-0 limit) at the caller's value, else 1800000 (30 min; 60 s cut a 90 s replay, T48c).
 # Problems go to the caller's note() (which fills its FAIL array: the step runs only while FAIL is empty). Returns 0 when it
 # reached the per-build runs, 1 when the CLI, the recording or the manifest stopped it before. A recording whose cases ran and
 # failed (golden lines `failed <kind>/<case>`, `timed out <kind>/<case>`) is noted as `mutation: recording under BAYAN_SNAPSHOT:
@@ -14,7 +15,7 @@
 # tests under BAYAN_SNAPSHOT failed`.
 mutation_step() {
   local LOG=$1 FILTER=$2 MUTATE=$3 SURV=$4 REL=${1#$PWD/} n name bin sites l MX failed first w
-  local BAYAN SNAP=$1/snap REPLAY ONLY
+  local BAYAN SNAP=$1/snap REPLAY ONLY TMS=${BAYAN_TEST_TIMEOUT_MS:-1800000} alone
   REPLAY=$(dirname "${BASH_SOURCE[0]}")/replay.py
   # `bayan mutate` is tooling: it runs from the pinned build of dev (scripts/pinned-bayan.sh), never the branch under test
   if ! BAYAN=$(bash "$(dirname "${BASH_SOURCE[0]}")/../pinned-bayan.sh" 2> "$LOG/pinned-bayan.txt"); then
@@ -50,10 +51,15 @@ mutation_step() {
   while IFS=$'\t' read -r bin sites; do
     [ -n "$bin" ] || continue; n=$((n+1)); name=$n-$(basename "$bin"); rm -f "$(dirname "$bin")/bayan-quality.json"
     # site ids are per build: the replay runs only this build's recorded runs
-    "$BAYAN" mutate --binary "$bin" --sites "$sites" -- python3 -I "$REPLAY" --binary "$bin" "$SNAP" > "$LOG/mutate-$name.txt" 2>&1; MX=$?
+    BAYAN_TEST_TIMEOUT_MS=$TMS "$BAYAN" mutate --binary "$bin" --sites "$sites" -- python3 -I "$REPLAY" --binary "$bin" "$SNAP" > "$LOG/mutate-$name.txt" 2>&1; MX=$?
     # bayan mutate exits 1 only when mutant 0 fails (usage errors exit 2, a gate below its minimum 3)
+    # a rerun that passes alone means mutant 0 ran out of the limit, not that the recording differs
     if [ $MX = 1 ]; then
-      note "mutation: the recording does not replay on the unmutated build $bin (mutant 0) — $(BAYAN_MUTANT=0 python3 -I "$REPLAY" --binary "$bin" "$SNAP" 2>&1 | tail -3 | tr '\n' ' ' | cut -c1-400)"; continue; fi
+      if alone=$(BAYAN_MUTANT=0 python3 -I "$REPLAY" --binary "$bin" "$SNAP" 2>&1); then
+        note "mutation: mutant 0 of $bin failed under bayan mutate's limit BAYAN_TEST_TIMEOUT_MS=$TMS ms, but the unmutated replay passes when run alone ($REL/mutate-$name.txt); raise BAYAN_TEST_TIMEOUT_MS"
+      else
+        note "mutation: the recording does not replay on the unmutated build $bin (mutant 0) — $(tail -3 <<< "$alone" | tr '\n' ' ' | cut -c1-400)"; fi
+      continue; fi
     [ -f "$(dirname "$bin")/bayan-quality.json" ] || { note "mutation: bayan mutate exited $MX on $bin without a report — $(tail -3 "$LOG/mutate-$name.txt" | tr '\n' ' ')"; continue; }
     cp "$(dirname "$bin")/bayan-quality.json" "$LOG/quality-$name.json"
     echo "mutation build $name (per site: $REL/mutate-$name.txt, report: $REL/quality-$name.json):"

@@ -13,7 +13,10 @@
 # root or src/ fails the group naming the report; --files keeps the group's union filter; a score drop exits 1, a recording
 # whose tests fail exits 4 naming every failed test, one that fails with none failed (a host crash) 3; a live tmp/mutate-batch.lock stops a second run (exit 3) and leaves it alone, a stale one is taken over, the lock is released; .github/workflows/mutation.yml: read-only permissions, no persisted credentials, a concurrency group, shards upload
 # reports and not the baseline, a final job needing the shards merges all reports in one update, uploads the accepted reports, and documents applying the run.
+# `bayan mutate` sees BAYAN_TEST_TIMEOUT_MS=1800000 when the caller has none and the caller's value when it has one; a mutant 0 that fails
+# while the unmutated replay passes alone (a stub python3) is noted as passing alone under the limit, not as a replay mismatch (T48c).
 set -e
+unset BAYAN_TEST_TIMEOUT_MS
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 r="$root/tmp/mutate-batch-test"; aux="$root/tmp/mutate-batch-test-aux"
 rm -rf "$r" "$aux" && mkdir -p "$r/src/semantics" "$r/src/parser" "$r/src/emitter/cprint" "$r/tests" "$aux/rep" "$aux/bin" && cd "$r"
@@ -55,13 +58,20 @@ cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 [ "$1" = run ] && case $2 in */quality-baseline.byn|*/report-paths.byn|*/coverage-missing.byn|*/mutate-plan.byn) exec "$REAL_BAYAN" "$@";; esac
 [ "$1" = run ] && { m=${@: -1}; grep -q ']}$' "$m" || { echo "manifest-builds: $m: malformed" >&2; exit 1; }
   tr '{' '\n' < "$m" | sed -n 's/^"binary": "\([^"]*\)", "sites": "\([^"]*\)".*/\1 \2/p' | tr ' ' '\t'; exit 0; }
+echo "${BAYAN_TEST_TIMEOUT_MS-unset}" > $AUX/mutate-timeout.txt
 bn=$(basename "$(dirname "$3")")
 prog=$(basename "$3")
 [ -f $AUX/rep/$bn-$prog.mismatch ] || [ -f $AUX/rep/$bn.mismatch ] && { echo "bayan: mutant 0 differs" >&2; exit 1; }
 cat $AUX/rep/$bn.txt; cp $AUX/rep/$bn.json "$(dirname "$3")/bayan-quality.json"
 exit 0
 STUB
-chmod +x $aux/dotnet $aux/rec csharp/Bayan.Cli/bin/Debug/net10.0/bayan; export REAL_BAYAN=$(cd "$root" && env -u PINNED_BAYAN bash scripts/pinned-bayan.sh)
+# stub python3: with $AUX/replayok the unmutated replay.py rerun passes; any other call runs the real python3
+cat > $aux/python3 <<STUB
+#!/bin/bash
+[ -f \$AUX/replayok ] && case \$2 in */replay.py) exit 0;; esac
+exec $(command -v python3) "\$@"
+STUB
+chmod +x $aux/dotnet $aux/rec $aux/python3 csharp/Bayan.Cli/bin/Debug/net10.0/bayan; export REAL_BAYAN=$(cd "$root" && env -u PINNED_BAYAN bash scripts/pinned-bayan.sh)
 export AUX=$aux PINNED_BAYAN=$PWD/csharp/Bayan.Cli/bin/Debug/net10.0/bayan BAYAN_EXE=$aux/rec
 # rep <file> <killed> <survived> <marked>: the stub report and summary of the build recorded for <file>
 rep() { local bn; bn=$(basename "$1")
@@ -139,6 +149,8 @@ echo garbage > $aux/bad.json; MUTATE_BASELINE=$aux/bad.json brc --files src/pars
 touch $aux/nomanifest; brc --files src/parser/p.byn; nomanifest=$(cat $aux/brc.txt); nomanifestx=$BRC; rm $aux/nomanifest
 touch $aux/testfail; brc --files src/parser/p.byn; testfail=$(cat $aux/brc.txt); testfailx=$BRC; rm $aux/testfail
 touch $aux/hostcrash; brc --files src/parser/p.byn; hostcrash=$(cat $aux/brc.txt); hostcrashx=$BRC; rm $aux/hostcrash
+brc --files src/parser/p.byn; tdef=$(cat $aux/mutate-timeout.txt); BAYAN_TEST_TIMEOUT_MS=4321 brc --files src/parser/p.byn; tset=$(cat $aux/mutate-timeout.txt)
+touch $aux/rep/p.byn.mismatch $aux/replayok; brc --files src/parser/p.byn; alone=$(cat $aux/brc.txt); alonex=$BRC; rm $aux/rep/p.byn.mismatch $aux/replayok
 mv csharp/Bayan.Cli/bin/Debug/net10.0/bayan $aux/bayan; brc --files src/parser/p.byn; nocli=$(cat $aux/brc.txt); noclix=$BRC; cd "$root"
 wf=$(cat .github/workflows/mutation.yml); [ -f $aux/dotnet-calls.txt ] && dotnetcalls=$(cat $aux/dotnet-calls.txt) || dotnetcalls=""
 rm -rf "$r" "$aux"
@@ -180,6 +192,10 @@ echo "$stale" | grep -q '^== group parser' && [ $released = 1 ] || fail "a stale
 echo "$badshard" | grep -q 'want k/n' || fail "a bad --shard was accepted" "$badshard"
 [ "$m0x" = 4 ] && [ "$m0p" = 1.0 ] && [ -z "$m0a" ] || fail "a failed mutant 0 exited $m0x (a=$m0a p=$m0p)" "$m0"
 echo "$m0" | grep -q '^group semantics: mutation: the recording does not replay on the unmutated build' || fail "a failed mutant 0 did not name its group" "$m0"
+[ "$tdef" = 1800000 ] || fail "bayan mutate saw BAYAN_TEST_TIMEOUT_MS=$tdef with none from the caller (want 1800000)" ""
+[ "$tset" = 4321 ] || fail "bayan mutate saw BAYAN_TEST_TIMEOUT_MS=$tset with 4321 from the caller" ""
+[ "$alonex" = 4 ] && echo "$alone" | grep -qF "group parser: mutation: mutant 0 of $aux/bin/p.byn/prog failed under bayan mutate's limit BAYAN_TEST_TIMEOUT_MS=1800000 ms, but the unmutated replay passes when run alone (tmp/mutate-batch/parser/mutate-1-prog.txt); raise BAYAN_TEST_TIMEOUT_MS" \
+  && ! echo "$alone" | grep -q 'does not replay' || fail "a mutant 0 whose replay passes alone exited $alonex (want 4) or was not noted as passing alone under the limit" "$alone"
 echo "$nomanifest" | grep -q '^group parser: mutation: the recording wrote no tmp/mutate-batch/parser/snap/manifest.json' || fail "a manifest-less recording did not name its group" "$nomanifest"
 [ "$testfailx" = 4 ] && echo "$testfail" | grep -qF 'group parser: mutation: recording under BAYAN_SNAPSHOT: 2 test(s) failed (tmp/mutate-batch/parser/record.txt): sem/SelfhostSemanticsDTests/format-round3; sem/SelfhostSemanticsETests/time — first: two runs differ' || fail "failed tests in the recording exited $testfailx (want 4) or did not name both" "$testfail"
 [ "$hostcrashx" = 3 ] && echo "$hostcrash" | grep -q '^group parser: mutation: recording the tests under BAYAN_SNAPSHOT failed (tmp/mutate-batch/parser/record.txt)' || fail "a recording with no failed test (host crash) exited $hostcrashx, not 3" "$hostcrash"
