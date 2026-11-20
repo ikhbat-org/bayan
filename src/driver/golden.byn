@@ -327,7 +327,8 @@ string? goldenCompare(string actual, for string input, at string expected, by st
 /// emit-c/SelfhostEmitterHarnessTests, sem/SelfhostPathT7Tests, sem/SelfhostSemanticsT11Tests), in the script path `bayan new` names after
 /// `created script` and `run it with `bayan` (cli/SelfhostDefaultT4Tests NewWritesTheLayoutAsCSharp), and in a `rel` or `combine` line of
 /// sem/SelfhostPathT7Tests (:180 `Path.GetRelativePath`, `Path.Combine`) and a `fullpath` line of sem/SelfhostSemanticsT11Tests, there with the
-/// drive `Path.GetFullPath` puts before a rooted path dropped (`C:\a\c.byn` read as `/a/c.byn`); and, in cli/SelfhostDefaultT9Tests and
+/// drive `Path.GetFullPath` puts before a rooted path dropped (`C:\a\c.byn` read as `/a/c.byn`) and the answer `\\` for `//` read as `/`
+/// (`goldenWindowsFull`); and, in cli/SelfhostDefaultT9Tests and
 /// cli/SelfhostDriverT5Tests when `expected` names no `.exe`, a `.exe` that ends a line dropped (Targets.cs:30 `ExecutableName` names a Windows
 /// program `<name>.exe`); and, in a cli/SelfhostDefaultT5Tests line that says `can't be run`, `/` for `\` and a `.exe` before a space, a
 /// backtick or the line end dropped (doctor.byn names the tool `ccFindOnPath` found, `Path.combine(dir, "zig.exe")`). Another class's
@@ -350,7 +351,7 @@ string goldenWindowsRead(string actual, for string expected, as string cls, by b
         sb.append("\n") unless first
         first = false
         let path = rel && (line.startsWith("rel ") || line.startsWith("combine ")) ? line.replaced("\\", by: "/")
-            : full && line.startsWith("fullpath ") ? goldenWindowsUnrooted(line.replaced("\\", by: "/"))
+            : full && line.startsWith("fullpath ") ? goldenWindowsFull(line.replaced("\\", by: "/"))
             : tools && line.contains("can't be run") ? goldenWindowsTool(line.replaced("\\", by: "/")) : $"{line}"
         sb.append(exe && path.endsWith(".exe") ? $"{path[0..path.length - 4]}" : path)
     }
@@ -361,6 +362,15 @@ string goldenWindowsRead(string actual, for string expected, as string cls, by b
 string goldenWindowsTool(string line) uses alloc {
     let dropped = line.replaced(".exe ", by: " ").replaced(".exe`", by: "`")
     return dropped.endsWith(".exe") ? $"{dropped[0..dropped.length - 4]}" : dropped
+}
+
+/// A sem/SelfhostSemanticsT11Tests `fullpath` line `line` (`\` read as `/`) through `goldenWindowsUnrooted`, with the Windows answer `//` for
+/// the input `//` read as the Unix one, `/`. The C# oracle printed the host's `Path.GetFullPath(p)` (SelfhostSemanticsT11Tests.cs:409, inputs
+/// at :213), which on Windows is `GetFullPathNameW` (runtime/bayan-rt.c `byn_path_full` does the same): `//` is an empty UNC root there, `\\`,
+/// with no drive to drop; the expected file holds the macOS answer (019-win9, criterion 12).
+string goldenWindowsFull(string line) uses alloc {
+    let unrooted = goldenWindowsUnrooted(line)
+    return unrooted == "fullpath // //" ? "fullpath // /" : unrooted
 }
 
 /// `line` with each space-separated field that starts with a drive and `/` (`C:/a`) read without the drive (`/a`).

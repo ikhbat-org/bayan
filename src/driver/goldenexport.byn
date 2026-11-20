@@ -3383,6 +3383,17 @@ test "a Windows run reads a case of a class no Windows rule names as is, CR LF r
     assert(goldenWindowsClass(expected) == "cli/SelfhostDriverT5Tests")
 }
 
+test "a Windows run reads the T11 `fullpath` answer `\\\\` for `//` as `/`, only that answer and only in that class (SelfhostSemanticsT11Tests.cs:409, 019-win9)" {
+    let t11 = "sem/SelfhostSemanticsT11Tests"
+    assert(goldenWindowsRead("fullpath // \\\\\n", for: "", as: t11, by: true) == "fullpath // /\n")
+    assert(goldenWindowsRead("fullpath /a//b/ C:\\a\\b\\\n", for: "", as: t11, by: true) == "fullpath /a//b/ /a/b/\n")
+    assert(goldenWindowsRead("fullpath //x //x\n", for: "", as: t11, by: true) == "fullpath //x //x\n")
+    assert(goldenWindowsRead("fullpath // //\n", for: "", as: t11, by: false) == "fullpath // //\n")
+    assert(
+        goldenWindowsRead("fullpath // //\n", for: "", as: "sem/SelfhostPathT7Tests", by: true) == "fullpath // //\n"
+    )
+}
+
 test "a Windows run reads a SelfhostDefaultT5Tests `can't be run` tool with `/` and no `.exe`, other lines and classes as is (019-win9)" {
     let cc = "✗ C compiler: `<repo>/tmp/t5-doctor/path-broken\\zig.exe cc` can't be run\n"
     let zig = "✗ zig: <repo>/tmp/t5-doctor/path-broken\\zig.exe can't be run"
