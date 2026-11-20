@@ -114,9 +114,10 @@ test "a widened input tree (019-t19x export) is the case root a `links` line sta
     goldenWrite(root, for: "inputs/files/aa", as: "z\n")
     goldenWrite(root, for: "inputs/trees/tt.tsv", as: "")
     let scratch = Path.combine(root, "scratch")
+    var linkFailure = ""
     var failure = ""
-    let _ = goldenCliStage(sym, from: root, to: scratch, through: ref failure)
-    let _ = goldenCliStage(up, from: root, to: scratch, through: ref failure)
+    let _ = goldenCliStage(sym, from: root, to: scratch, through: ref linkFailure)
+    let _ = goldenCliStage(up, from: root, to: scratch, through: ref linkFailure)
     let _ = goldenCliStage(module, from: root, to: scratch, through: ref failure)
     let real = Fs.fileExists(Path.combine(scratch, "tmp/t8/symlink/real.byn"))
     let link = goldenCliRun(["test", "-L", Path.combine(scratch, "tmp/t8/symlink/link.byn")]) == ""
@@ -124,11 +125,14 @@ test "a widened input tree (019-t19x export) is the case root a `links` line sta
     let parent = goldenCliRun(["test", "-L", Path.combine(scratch, "tmp/t6/parent-link/dir/link")]) == ""
     let sibling = Fs.fileExists(Path.combine(scratch, "tmp/t5/empty/f.byn"))
     deleteWorkDir(root)
+    // a `links` case runs only on macos and linux (its `os` file, 019-win8): on Windows Git bash's `ln -s` copies or fails
+    let windows = Target.os == "windows"
+    assert(linkFailure == "" || windows && linkFailure.startsWith("ln failed"))
     assert(failure == "")
     assert(real)
-    assert(link)
+    assert(windows || link)
     assert(outside)
-    assert(parent)
+    assert(windows || parent)
     assert(sibling)
 }
 
