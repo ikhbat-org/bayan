@@ -1,0 +1,43 @@
+// 019 T29 (coverage ratchet): main.byn paths no golden case reaches: `--many` over a directory with a non-`.byn` entry,
+// over a `.byn` directory and over a missing directory, `--time`, `--codes`, a path argument and the usage errors. The
+// standard-input path of `parseOne` is not reached. The expected values are the exit codes of the self-hosted parser at
+// the commit that added the test.
+
+test "parser t29: the driver modes give their exit codes" {
+    let keywords = Keywords.build()
+    let dir = "tests/cases/diag/std-import-nested-module"
+    let file = $"{dir}/main.byn"
+    let codes = [
+        parseMany(dir, by: keywords),
+        parseMany("tests/cases/emit-c/SelfhostEmitterT21Tests", by: keywords),
+        parseMany("src/parser/t29-no-such-dir", by: keywords),
+        parseTimed(file, by: keywords),
+        parseTimed("src/parser/t29-no-such-file.byn", by: keywords),
+        parseOne(file, by: keywords),
+        parseOne("src/parser/t29-no-such-file.byn", by: keywords),
+        printCodes(),
+    ]
+    var sb = StrBuf()
+    for c in codes {
+        sb.append($"{c} ")
+    }
+    assert sb.finish() == "0 2 2 0 2 0 4 0 "
+}
+
+test "parser t29: main routes its arguments" {
+    let dir = "tests/cases/diag/std-import-nested-module"
+    let codes = [
+        main([$"{dir}/main.byn"]),
+        main(["--many", dir]),
+        main(["--time", $"{dir}/main.byn"]),
+        main(["--codes"]),
+        main(["--no-such-option"]),
+        main(["--many", "a", "b"]),
+        main(["--no-such-option", "a"]),
+    ]
+    var sb = StrBuf()
+    for c in codes {
+        sb.append($"{c} ")
+    }
+    assert sb.finish() == "0 0 0 0 2 2 2 "
+}

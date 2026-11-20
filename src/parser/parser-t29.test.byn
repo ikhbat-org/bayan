@@ -1,0 +1,9 @@
+// 019 T29 (coverage ratchet): the `inExtern` setter, which no parse path calls (`parseExternDecl` assigns the field). The
+// expected values are the output of the self-hosted parser at the commit that added the test.
+
+test "parser t29: setInExtern returns the old flag and sets the new one" {
+    var p = t3ParserOf("x")
+    let first = p.setInExtern(value: true)
+    let second = p.setInExtern(value: false)
+    assert $"{first} {second} {p.inExtern}" == "false true false"
+}

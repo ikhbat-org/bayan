@@ -1,0 +1,289 @@
+// 019 T29 (coverage ratchet): the span walker over every parse case of the golden corpus, and the out-of-range lines
+// of `nodeSpan` and `childSpan`. The expected values are the output of the self-hosted parser at the commit that added
+// the test.
+
+import lexer
+
+test "parser t29: every parse case keeps its spans inside the input" {
+    let keywords = Keywords.build()
+    let dir = "tests/cases/parse"
+    let names = Io.listDir(dir) catch {
+        assert false
+        return
+    }
+    var count = 0
+    var all = StrBuf()
+    for name in names {
+        unless name.endsWith(".byn") {
+            continue
+        }
+        let bytes = Io.readFile($"{dir}/{name}") catch {
+            assert false
+            return
+        }
+        var p = Parser.create(lexer.lex(SourceText.create(name, from: move bytes), by: keywords))
+        let unit = parseCompilationUnit(ref p)
+        var sb = StrBuf()
+        checkSpans(in unit, until: p.lexed.source.bytes.length, to: ref sb)
+        let text = sb.finish()
+        if text.length > 0 {
+            all.append($"== {name}\n{text}")
+        }
+        count += 1
+    }
+    assert count == 64
+    let expected = """
+            == attributes.byn
+            span out of range: attributeSyntax 30+12 outside 87+9
+            == because.byn
+            span out of range: becauseClause 132+32 outside 113+18
+            span out of range: becauseClause 20+44 outside 0+19
+            span out of range: becauseClause 75+11 outside 65+9
+            == catch-block-assign.byn
+            span out of range: targetMemberExpr 70+4 outside 65+4
+            span out of range: targetMemberExpr 143+4 outside 138+4
+            == catch-struct-literal.byn
+            span out of range: targetMemberExpr 96+4 outside 91+4
+            == collection-literals.byn
+            span out of range: literalExpr 20+2 outside 13+6
+            span out of range: literalExpr 31+1 outside 24+6
+            span out of range: collectionExpr 136+6 outside 131+4
+            span out of range: parenExpr 149+11 outside 144+4
+            span out of range: structLiteralExpr 203+20 outside 196+6
+            span out of range: structLiteralExpr 232+13 outside 225+6
+            span out of range: structLiteralExpr 268+20 outside 260+7
+            == control-flow-bare.byn
+            span out of range: forStmt 762+100 outside 755+6
+            span out of range: breakStmt label 824+5 outside 818+0
+            span out of range: blockStmt 899+12 outside 867+31
+            == defer-family.byn
+            span out of range: exprStmt 21+7 outside 15+5
+            span out of range: exprStmt 47+10 outside 33+13
+            span out of range: blockStmt 80+10 outside 62+17
+            span out of range: exprStmt 111+7 outside 95+15
+            span out of range: blockStmt 143+18 outside 123+19
+            span out of range: exprStmt 184+6 outside 166+17
+            span out of range: exprStmt 201+9 outside 195+5
+            span out of range: exprStmt 221+17 outside 215+5
+            == error-payload.byn
+            span out of range: unionField 66+12 outside 58+7
+            span out of range: unionField 93+13 outside 84+8
+            span out of range: unionField 108+8 outside 84+8
+            == except-expr.byn
+            span out of range: constantPattern 23+2 outside 11+11
+            span out of range: constantPattern 57+4 outside 37+19
+            == except-wasl.byn
+            span out of range: constantPattern 27+2 outside 11+15
+            == expressions.byn
+            span out of range: memberExpr member 613+1 outside 610+3
+            == function-types.byn
+            span out of range: namedType 113+8 outside 107+5
+            span out of range: usesClause effects 153+3 outside 148+4
+            span out of range: namedType 195+8 outside 189+5
+            span out of range: usesClause effects 186+2 outside 181+4
+            span out of range: namedType 387+1 outside 381+5
+            span out of range: namedType 390+1 outside 381+5
+            == input-fails-shorthand-forms.byn
+            span out of range: namedType 45+1 outside 51+7
+            span out of range: namedType 76+1 outside 82+7
+            == interpolation-specs.byn
+            span out of range: targetMemberExpr 46+4 outside 42+3
+            span out of range: literalExpr 64+1 outside 56+7
+            span out of range: literalExpr 78+1 outside 71+6
+            span out of range: literalExpr 87+3 outside 81+5
+            span out of range: targetMemberExpr 99+6 outside 92+6
+            == lambdas.byn
+            span out of range: blockStmt 216+28 outside 209+6
+            == null-checks.byn
+            span out of range: constantPattern 23+4 outside 19+3
+            span out of range: constantPattern 71+4 outside 67+3
+            span out of range: constantPattern 88+4 outside 84+3
+            span out of range: constantPattern 105+4 outside 101+3
+            == pattern-branches-unicode.byn
+            span out of range: constantPattern 40+0 outside 35+4
+            span out of range: constantPattern 56+0 outside 51+4
+            span out of range: constantPattern 277+0 outside 272+4
+            span out of range: exprStmt 382+1 outside 379+2
+            span out of range: exprStmt 405+1 outside 402+2
+            == patterns.byn
+            span out of range: constantPattern 32+4 outside 28+3
+            span out of range: varPattern name 88+1 outside 84+3
+            span out of range: varPattern name 235+5 outside 231+3
+            span out of range: varPattern name 249+4 outside 245+3
+            span out of range: varPattern name 318+1 outside 314+3
+            span out of range: varPattern name 343+4 outside 339+3
+            == receiver-pattern-property.byn
+            span out of range: blockStmt 53+50 outside 34+18
+            == statements.byn
+            span out of range: forStmt 631+123 outside 624+6
+            span out of range: breakStmt label 693+5 outside 687+0
+            span out of range: continueStmt label 733+5 outside 724+0
+            span out of range: exprStmt 765+8 outside 759+5
+            span out of range: exprStmt 792+10 outside 778+13
+            span out of range: blockStmt 825+10 outside 807+17
+            == struct-literal-colon.byn
+            span out of range: forStmt 323+41 outside 316+6
+            span out of range: breakStmt label 353+5 outside 347+0
+            span out of range: targetMemberExpr 438+4 outside 433+4
+            == struct-literal-unicode-upper.byn
+            span out of range: exprStmt 168+1 outside 165+2
+            span out of range: exprStmt 188+1 outside 185+2
+            == switch.byn
+            span out of range: varPattern name 171+5 outside 167+3
+            == unions.byn
+            span out of range: varPattern name 215+1 outside 211+3
+            span out of range: varPattern name 247+1 outside 243+3
+
+            """
+    assert all.finish() == expected
+}
+
+test "parser t29: attributes on every declaration and statement keep their spans" {
+    let text = """
+            @a import x.y
+            @a print(1)
+            @a struct S {
+                @a int f
+                @a int p { get => 1 }
+                @a init() { }
+                @a int g => 1
+            }
+            @a interface I {
+                @a void m()
+                @a type T
+            }
+            @a extension S {
+            }
+            @a enum E {
+                a
+            }
+            @a union U {
+                a
+                b(int x)
+            }
+            @a union error Er {
+                a
+            }
+            @a union error Es = Er, Ef
+            @a type T = int
+            @a effect ef = fs
+            @a test "t" {
+            }
+            extern void ext(u8* p)
+            void f() {
+                @a let x = 1
+                @a x = 2
+                @a x += 1
+                @a x++
+                @a return
+                @a fail .a
+                @a break
+                @a continue
+                @a become g()
+                @a if x {
+                }
+                @a unless x {
+                }
+                @a while x {
+                }
+                @a do {
+                } while x
+                @a while let y = x {
+                }
+                @a for i in xs {
+                }
+                @a outer: for i in xs {
+                }
+                @a switch x {
+                    case 1:
+                        break
+                }
+                @a defer g()
+                @a assert x
+                @a provide allocator: a {
+                }
+                @a {
+                }
+                @a ;
+                @a )
+                let c = (u8)x
+                let m = move x
+                (int, int) t = (1, 2)
+                let n = g<int>()
+                let k = g() catch (Er.a) 0
+                let k2 = g() catch (e) 0
+                switch x {
+                    case .a b:
+                        break
+                }
+            }
+            """
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var p = Parser.create(lexer.lex(SourceText.create("t.byn", from: move bytes), by: Keywords.build()))
+    let unit = parseCompilationUnit(ref p)
+    var sb = StrBuf()
+    checkSpans(in unit, until: p.lexed.source.bytes.length, to: ref sb)
+    for d in p.lexed.diagnostics {
+        sb.append($"{d.code} {d.span.start}+{d.span.length} {d.message}\n")
+    }
+    let expected = """
+            span out of range: attributeSyntax 14+2 outside 17+8
+            span out of range: blockStmt 66+12 outside 57+8
+            span out of range: errorExpr 852+0 outside 849+2
+            span out of range: nameExpr 889+1 outside 884+4
+            span out of range: targetMemberExpr member 1027+1 outside 1026+1
+            BYN1012 68+8 this expression does nothing as a statement
+            BYN1016 344+6 `extern` is not allowed here
+            BYN1001 367+4 expected `{`, found `void`
+            BYN1069 382+2 attribute `@a` is not allowed before a statement
+            BYN1069 399+2 attribute `@a` is not allowed before a statement
+            BYN1069 412+2 attribute `@a` is not allowed before a statement
+            BYN1069 426+2 attribute `@a` is not allowed before a statement
+            BYN1069 437+2 attribute `@a` is not allowed before a statement
+            BYN1069 451+2 attribute `@a` is not allowed before a statement
+            BYN1069 466+2 attribute `@a` is not allowed before a statement
+            BYN1069 479+2 attribute `@a` is not allowed before a statement
+            BYN1069 495+2 attribute `@a` is not allowed before a statement
+            BYN1001 505+1 expected `.`, found `g`
+            BYN1069 533+2 attribute `@a` is not allowed before a statement
+            BYN1069 557+2 attribute `@a` is not allowed before a statement
+            BYN1069 580+2 attribute `@a` is not allowed before a statement
+            BYN1069 606+2 attribute `@a` is not allowed before a statement
+            BYN1069 637+2 attribute `@a` is not allowed before a statement
+            BYN1069 664+2 attribute `@a` is not allowed before a statement
+            BYN1069 698+2 attribute `@a` is not allowed before a statement
+            BYN1069 756+2 attribute `@a` is not allowed before a statement
+            BYN1069 773+2 attribute `@a` is not allowed before a statement
+            BYN1069 789+2 attribute `@a` is not allowed before a statement
+            BYN1069 825+2 attribute `@a` is not allowed before a statement
+            BYN1069 840+2 attribute `@a` is not allowed before a statement
+            BYN1040 843+1 `;` is an input form; a statement ends at the newline
+            BYN1069 849+2 attribute `@a` is not allowed before a statement
+            BYN1002 852+1 expected an expression, found `)`
+            BYN1057 866+4 `(u8)x` is an input form; write `u8(x)`
+            BYN1043 895+12 `(int, int) t` is an input form; write `let t: (int, int)`
+            BYN1025 992+3 `catch (e)` is an input form; bind the error in a `catch switch` arm
+
+            """
+    assert sb.finish() == expected
+}
+
+test "parser t29: a span before the input or of negative length is out of range" {
+    var sb = StrBuf()
+    nodeSpan(TextSpan { start: -1, length: 1 }, for: "a", until: 4, to: ref sb)
+    nodeSpan(TextSpan { start: 1, length: -1 }, for: "b", until: 4, to: ref sb)
+    nodeSpan(TextSpan { start: 1, length: 3 }, for: "c", until: 4, to: ref sb)
+    nodeSpan(TextSpan { start: 1, length: 4 }, for: "d", until: 4, to: ref sb)
+    childSpan(TextSpan { start: 0, length: 1 }, for: "e", through: TextSpan { start: 1, length: 2 }, to: ref sb)
+    let expected = """
+            span out of range: a -1+1
+            span out of range: b 1+-1
+            span out of range: d 1+4
+            span out of range: e 0+1 outside 1+2
+
+            """
+    assert sb.finish() == expected
+}
