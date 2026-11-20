@@ -19,3 +19,4 @@ After any sequence of `map[k] = v`, `remove`, `clear` and `slot(k)` on a `Map<K,
 
 ## Proof notes
 Proof 2026-11-19 (spec 019 T31b): the proof is the `map model: ` test blocks of src/driver/mapmodel.byn, the port of all 49 MapModelTests (generated sources byte-equal with the C#, the same custom RNG and seeds), so no export is needed. The check runs them (49 passed) after the `run/map-` cases (12 passed); `--only 'map model: zzz-nomatch'` exits 2 (`no test name contains`). The re-insertion break was not rerun in this part.
+Break 2026-11-20 (spec 019 T31b, 019-t31b2): commenting out `h->live--;` in `byn_map_remove` (src/driver/runtime.byn:3135, the embedded runtime/bayan-rt.c:2495) made the check fail: `run/map-` 4 of 12 failed (run/map-key-tuple, run/map-many, run/map-model, run/map-slot) and `map model: ` 40 of 49 failed (first `map model: L003 generated sequence matches model (seed: 1, stringKeys: false)`), exit 3; restored, both pass again (12 and 49).
