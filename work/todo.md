@@ -1145,3 +1145,10 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - LOW (019 winblk, 2026-11-20; T41b): `goldenSnapshotPath` reads `\` as `/` on POSIX too, where `\` is a legal name byte; harmless for src/ names.
 - LOW (019 windrive, 2026-11-20; T41b): runtime/tests/run.sh reports only the first differing line of a std-path case file, which hid seven more drive rows behind row 10 in hosted run 44638732821.
 - LOW (019 windrive, 2026-11-20; T41b): the drive swap in runtime/tests/std-path-cases.c ran on wp1 from C: and a `subst Q:` drive (22 ok each); a hosted run on D: is still owed.
+- LOW (019 019-t31b2, 2026-11-20; T28): the src/driver build prints a warning at `copyIds(in c.errorUnionTypes[idx].sets)` (line 729 of a file the writer did not name); find the file and clear it.
+- LOW (019 019-t31b2, 2026-11-20; tooling): the worker hook blocks `git checkout --`, so writers restore break runs by hand; allow `git checkout -- <path>` inside a worker worktree or give the rules another restore step.
+- LOW (019 019-t64a, 2026-11-20; T64): safe and fast emitted C are identical for every input (CliApp.cs:453 only branches on Debug), so expected.fast.sha256 duplicates safe.
+- LOW (019 019-t64a, 2026-11-20; T64): "every parse case" was taken as the 64 flat parse/*.byn (C# Golden.Cases); the 864 exported parse class cases are not run (349 hold expected.exitcode already, the rest are collector/shape dumps).
+- LOW (019 019-t64a, 2026-11-20; T64): run-c.sha256:148 (run/io-stdin-read.byn, ab4f72f77) is a self-hosted hash the C# cannot produce (BYN2003); owner: keep it or record a divergence.
+- LOW (019 019-t64a, 2026-11-20; T64): diag/circular-field-default-generic-growing{,-list,-owned}.byn crash the C# checker (stack overflow, exit 134); their frozen exit code is a crash code.
+- LOW (019 019-t64a, 2026-11-20; T64): 4 run/*.test.byn have no CLI route to their emitted C; their run-c.sha256 rows depend on the frozen test project until T67.
