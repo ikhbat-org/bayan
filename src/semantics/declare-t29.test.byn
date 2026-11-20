@@ -292,3 +292,21 @@ test "declare t29: members named twice, positional counts and a duplicate in ano
         """
     assert $"{t29s1Diags(in c)}{sb.finish()}" == expected
 }
+
+test "declare t29: an error variant named twice" {
+    let text = """
+        union error E {
+            bad(i64 a)
+            ok
+            bad(i64 b)
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2006 `bad` is declared twice
+
+        """
+    assert t29s1Diags(in c) == expected
+}
