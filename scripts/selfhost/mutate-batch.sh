@@ -2,7 +2,8 @@
 # mutate-batch.sh — the batch mutation run (spec 013 T28, R14): guard.sh's mutation step (mutation-step.sh) over every
 # src/**/*.byn with its test filter, then the scores into tests/quality-baseline.json. Run from the repo root; the recording runs
 # on BAYAN_EXE, else the stage-1 driver scripts/bootstrap-build.sh prints (no dotnet, spec 019 T48c).
-#   bash scripts/selfhost/mutate-batch.sh [--list] [--files a.byn,b.byn] [--shard k/n] [--tasks <tasks.md>]...
+#   bash scripts/selfhost/mutate-batch.sh [--list] [--files a.byn,b.byn] [--shard k/n] [--jobs N] [--tasks <tasks.md>]...
+# --jobs N (default 1, a whole number from 1): the mutants each `bayan mutate` runs at once (mutation-step.sh's <jobs>); another value exits 2.
 # A file's filter is derived from the --tasks files (repeatable; default docs/specs/010-self-hosted-semantics/010-tasks.md and
 # docs/specs/017-selfhost-default/017-tasks.md, where the driver's task lines live): every task line whose
 # `files:` list names the file contributes the *Tests.cs classes of that same list, as `<kind>/<Class>/` selectors of the exported
@@ -31,10 +32,12 @@
 # a lock without a pid file is held for 60 s (its holder may be between mkdir and the pid write), then stale;
 # CI shards (.github/workflows/mutation.yml) upload only the reports, and a final job runs one `update` over all of them.
 set -u
-TASKS=(); LIST=0; FILES=""; SHARD=""
+TASKS=(); LIST=0; FILES=""; SHARD=""; JOBS=1
 while [ $# -gt 0 ]; do case "$1" in
   --list) LIST=1; shift;; --files) FILES=$2; shift 2;; --shard) SHARD=$2; shift 2;; --tasks) TASKS+=("$2"); shift 2;;
+  --jobs) JOBS=$2; shift 2;;
   *) echo "unknown arg $1"; exit 2;; esac; done
+case $JOBS in ''|*[!0-9]*|0*) echo "mutate-batch: --jobs expects a whole number from 1, got '$JOBS'"; exit 2;; esac
 [ ${#TASKS[@]} -gt 0 ] || TASKS=(docs/specs/010-self-hosted-semantics/010-tasks.md docs/specs/017-selfhost-default/017-tasks.md)
 HERE=$(dirname "$0"); OUT=$PWD/tmp/mutate-batch; BASELINE=${MUTATE_BASELINE:-tests/quality-baseline.json}
 
@@ -69,7 +72,7 @@ while IFS= read -r g <&3; do
   case $flt in "bayan test --mutate "*) echo "== group $g: not run: $mut mutate under \`$flt\` (spec 019 T48c C4)"; continue;; esac
   LOG="$OUT/$g"; rm -rf "$LOG"; mkdir -p "$LOG"; FAIL=()
   echo "== group $g ($flt): $mut"
-  mutation_step "$LOG" "$flt" "$mut" 0
+  mutation_step "$LOG" "$flt" "$mut" 0 "$JOBS"
   # bayan mutate writes absolute source paths: make each report's paths repo-root-relative, so any machine can read it
   if [ ${#FAIL[@]} = 0 ]; then for rp in "$LOG"/quality-*.json; do
     [ -f "$rp" ] && { bash "$HERE/../bayan-tool.sh" report-paths "$rp" "$(pwd -W 2>/dev/null || pwd)" 2> "$LOG/relpath.txt" || note "report: $(tail -1 "$LOG/relpath.txt")"

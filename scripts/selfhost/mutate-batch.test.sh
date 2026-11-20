@@ -15,6 +15,8 @@
 # reports and not the baseline, a final job needing the shards merges all reports in one update, uploads the accepted reports, and documents applying the run.
 # `bayan mutate` sees BAYAN_TEST_TIMEOUT_MS=1800000 when the caller has none and the caller's value when it has one; a mutant 0 that fails
 # while the unmutated replay passes alone (a stub python3) is noted as passing alone under the limit, not as a replay mismatch (T48c).
+# --jobs 1 (the default) passes no --jobs to `bayan mutate`, --jobs 3 passes `--jobs 3` with BAYAN_EXE naming the pinned bayan, --jobs 0 and
+# --jobs x exit 2 naming the value; mutation.yml passes --jobs 4.
 set -e
 unset BAYAN_TEST_TIMEOUT_MS
 root="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -59,6 +61,7 @@ cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 [ "$1" = run ] && { m=${@: -1}; grep -q ']}$' "$m" || { echo "manifest-builds: $m: malformed" >&2; exit 1; }
   tr '{' '\n' < "$m" | sed -n 's/^"binary": "\([^"]*\)", "sites": "\([^"]*\)".*/\1 \2/p' | tr ' ' '\t'; exit 0; }
 echo "${BAYAN_TEST_TIMEOUT_MS-unset}" > $AUX/mutate-timeout.txt
+echo "$*" > $AUX/mutate-args.txt; echo "${BAYAN_EXE-unset}" > $AUX/mutate-exe.txt
 bn=$(basename "$(dirname "$3")")
 prog=$(basename "$3")
 [ -f $AUX/rep/$bn-$prog.mismatch ] || [ -f $AUX/rep/$bn.mismatch ] && { echo "bayan: mutant 0 differs" >&2; exit 1; }
@@ -150,6 +153,8 @@ touch $aux/nomanifest; brc --files src/parser/p.byn; nomanifest=$(cat $aux/brc.t
 touch $aux/testfail; brc --files src/parser/p.byn; testfail=$(cat $aux/brc.txt); testfailx=$BRC; rm $aux/testfail
 touch $aux/hostcrash; brc --files src/parser/p.byn; hostcrash=$(cat $aux/brc.txt); hostcrashx=$BRC; rm $aux/hostcrash
 brc --files src/parser/p.byn; tdef=$(cat $aux/mutate-timeout.txt); BAYAN_TEST_TIMEOUT_MS=4321 brc --files src/parser/p.byn; tset=$(cat $aux/mutate-timeout.txt)
+jdef=$(cat $aux/mutate-args.txt); brc --files src/parser/p.byn --jobs 3; jset=$(cat $aux/mutate-args.txt); jexe=$(cat $aux/mutate-exe.txt)
+brc --files src/parser/p.byn --jobs 0; j0=$(cat $aux/brc.txt); j0x=$BRC; brc --files src/parser/p.byn --jobs x; jx=$(cat $aux/brc.txt); jxx=$BRC
 touch $aux/rep/p.byn.mismatch $aux/replayok; brc --files src/parser/p.byn; alone=$(cat $aux/brc.txt); alonex=$BRC; rm $aux/rep/p.byn.mismatch $aux/replayok
 mv csharp/Bayan.Cli/bin/Debug/net10.0/bayan $aux/bayan; brc --files src/parser/p.byn; nocli=$(cat $aux/brc.txt); noclix=$BRC; cd "$root"
 wf=$(cat .github/workflows/mutation.yml); [ -f $aux/dotnet-calls.txt ] && dotnetcalls=$(cat $aux/dotnet-calls.txt) || dotnetcalls=""
@@ -206,6 +211,11 @@ echo "$outside" | grep -q '^group parser: report: .*quality-1-prog.json: path /e
 [ $scratch = 1 ] || fail "MUTATE_BASELINE did not take the place of tests/quality-baseline.json" ""
 [ "$m0_2x" != 0 ] && [ -z "$fail_matches" ] && [ -n "$fail_rej" ] || fail "a failed group's report was matched by the merge job's glob ($fail_matches)" "$m0_2"
 [ -z "$dotnetcalls" ] || fail "mutate-batch.sh called dotnet" "$dotnetcalls"
+case " $jdef " in *" --jobs "*) fail "--jobs 1 (the default) passed --jobs to bayan mutate" "$jdef";; esac
+case " $jset " in *" --jobs 3 -- python3 "*) ;; *) fail "--jobs 3 did not reach bayan mutate as --jobs 3" "$jset";; esac
+[ "$jexe" = "$PINNED_BAYAN" ] || fail "bayan mutate under --jobs 3 did not get BAYAN_EXE naming the pinned bayan (got $jexe)" ""
+[ "$j0x" = 2 ] && echo "$j0" | grep -qF "mutate-batch: --jobs expects a whole number from 1, got '0'" || fail "--jobs 0 exited $j0x (want 2) or did not name the value" "$j0"
+[ "$jxx" = 2 ] && echo "$jx" | grep -qF "mutate-batch: --jobs expects a whole number from 1, got 'x'" || fail "--jobs x exited $jxx (want 2) or did not name the value" "$jx"
 has() { echo "$wf" | grep -qE "$1" || fail "mutation.yml: $2" ""; }
 has '^permissions:' "no workflow-level permissions"; has '^  contents: read$' "permissions are not contents: read"
 [ "$(echo "$wf" | grep -c 'git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"')" = 2 ] || fail "mutation.yml: both jobs need the tokenless shell checkout" ""
@@ -215,6 +225,7 @@ has '^          MUTATE_FILES: \$\{\{ inputs\.files \}\}$' "the files input does 
 has '^          MUTATE_TASKS: \$\{\{ inputs\.tasks ' "the tasks input does not reach the Mutate step through env: MUTATE_TASKS"
 echo "$wf" | grep 'inputs\.' | grep -qvE '^          MUTATE_(FILES|TASKS): ' && fail "mutation.yml: \${{ inputs. outside the Mutate step's env:" ""
 has '[-]-tasks "\$MUTATE_TASKS"' "the run does not pass --tasks \"\$MUTATE_TASKS\""
+has 'args=\(--shard "\$SHARD/4" --jobs 4 ' "the run does not pass --jobs 4"
 has 'if \[ -n "\$MUTATE_FILES" \]; then args\+=\(--files "\$MUTATE_FILES"\); fi' "--files \"\$MUTATE_FILES\" is not added only when non-empty"
 echo "$wf" | grep -qE '^  schedule:' && fail "mutation.yml: the nightly schedule is on before a shared-recording run fits under 6h (Q910)" ""
 has '^concurrency:' "no concurrency group"; has 'group: mutation-\$\{\{ github.ref \}\}' "the concurrency group is not mutation-\${{ github.ref }}"

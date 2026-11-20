@@ -64,7 +64,7 @@ jobs:
           BAYAN_TEST_TIME_SCALE: 3
         shell: bash
         run: |
-          args=(--shard "$SHARD/4" --tasks "$MUTATE_TASKS")
+          args=(--shard "$SHARD/4" --jobs 4 --tasks "$MUTATE_TASKS")
           if [ -n "$MUTATE_FILES" ]; then args+=(--files "$MUTATE_FILES"); fi
           bash scripts/selfhost/mutate-batch.sh "${args[@]}"
       - uses: actions/upload-artifact@v7
