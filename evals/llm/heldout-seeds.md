@@ -169,9 +169,11 @@ The same task as a heldout seed would differ in four places:
 Each seed passes:
 
 ```sh
-cd /Users/sy/Developer/ikhbat.org/bayan
-bash scripts/bayan-tool.sh llm-eval recheck ../bayan-heldout/tasks --only <task-name>
+cd /Users/sy/Developer/ikhbat.org/bayan/.worktrees/025-llm-eval
+bash scripts/bayan-tool.sh llm-eval recheck /Users/sy/Developer/ikhbat.org/bayan-heldout/tasks --only <task-name>
 ```
+
+Run it from the 025 worktree: the main checkout's branch has no `scripts/bayan-tool.sh` until 025 merges.
 
 `recheck` checks four things: the reference gets all four results, the header and the file set are right, the marker is present, and, for repair tasks, the starter fails with exactly the code the title names.
 
