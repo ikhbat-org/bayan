@@ -1,6 +1,7 @@
 // 019 T29 (coverage ratchet): dist.byn paths no golden case reaches: the depth, directory, file and byte budgets of the
 // source walk and the copy into `latest/`, a walk already stopped, a `dist/` with no version, a project with no `src/`,
-// and a target named twice. The expected values are the output of the self-hosted driver at the commit that added the test.
+// and a target named twice; `distBuild` stopped by either walk (T29c). The expected values are the output of the
+// self-hosted driver at the commit that added the test.
 
 /// tmp/dist-t29/<name> under the working directory, emptied, holding `a.byn` and `sub/b.byn`.
 string t29DistDir(string name) uses alloc, fs {
@@ -93,4 +94,52 @@ test "driver t29: distResolveTargets keeps a target named twice once" {
     let host = t5HostTarget()
     let targets = distResolveTargets(null, by: ["host", host]) ?? []
     assert targets.length == 1 && targets[0] == host
+}
+
+/// `distBuild` of an empty C program for the host into `root`, as version `release`; its exit code.
+i32 t29DistBuild(string root, as string release) uses alloc, clock, console, env, fs, process, random {
+    goldenWrite(root, for: "package.byn", as: "p\n")
+    let plan = DistPlan { name: "local/t29", program: "t29", root: root, version: release, mode: "safe", json: false }
+    let targets: List<string> = [t5HostTarget()]
+    var d = newDCtx()
+    let symbols = t19Symbols(in d.styleErr)
+    let code = distBuild(
+        "int main(void) { return 0; }\n",
+        by: in plan,
+        for: in targets,
+        from: null,
+        through: ref d,
+        at: in symbols,
+    ) catch { panic("dist") }
+    return code
+}
+
+test "driver t29: distBuild of sources nested past the depth budget publishes nothing" {
+    let root = Path.combine(Path.combine(Path.fullPath("tmp"), "dist-t29"), "build-deep")
+    deleteWorkDir(root)
+    var deep = Path.combine(root, "src")
+    for i in 0..66 {
+        deep = Path.combine(deep, "d")
+    }
+    goldenWrite(deep, for: "x.byn", as: "let x = 1\n")
+    let dist = Path.combine(root, "dist")
+    assert t29DistBuild(root, as: "1.0.0") == exitFailure
+    assert !t5DirectoryExists(Path.combine(dist, ".1.0.0.tmp")) && !t5DirectoryExists(Path.combine(dist, "1.0.0"))
+    deleteWorkDir(root)
+}
+
+test "driver t29: distBuild with a newer version nested past the copy budget leaves latest unset" {
+    let root = Path.combine(Path.combine(Path.fullPath("tmp"), "dist-t29"), "build-latest")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "src/app/main.byn", as: "void main() {\n}\n")
+    let dist = Path.combine(root, "dist")
+    var deep = Path.combine(dist, "9.9.9")
+    for i in 0..66 {
+        deep = Path.combine(deep, "d")
+    }
+    goldenWrite(deep, for: "x", as: "x\n")
+    assert t29DistBuild(root, as: "1.0.0") == exitFailure
+    assert t5DirectoryExists(Path.combine(dist, "1.0.0")) && !t5DirectoryExists(Path.combine(dist, "latest"))
+    assert !t5DirectoryExists(Path.combine(dist, ".latest.tmp"))
+    deleteWorkDir(root)
 }

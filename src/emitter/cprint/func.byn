@@ -596,6 +596,7 @@ void statement(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.LTree
                     by: in f,
                     for: $"byn_on_panic = {functionName(ref cc, from: ref c, for: c.bSetOnPanics[i].handler)};",
                 )
+            // coverage-exempt: Q1286 `default: panic`
             default: panic(
                 $"cannot emit {t9StmtNames()[i64(semantics.boundKind(s).ordinal) - i64(semantics.BoundKind.block.ordinal)]}",
             )

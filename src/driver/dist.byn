@@ -262,6 +262,7 @@ List<string>? distResolveTargets(string? arg, by in List<string> manifestTargets
 
 /// Dist.cs:135 `ReadSource`: the commit and dirtiness of the git work tree holding `root`; null outside one or when it ignores the project.
 DistSource? distReadSource(string root) uses alloc, env, fs, process {
+    // coverage-exempt: Q1286 needs `git` missing from PATH, which a test cannot set
     let git = ccFindOnPath("git", for: Target.os) ?? return null
     let inside = scaffoldGit(git, at: root, for: "rev-parse", through: "--is-inside-work-tree")
     return null if !(inside.code == 0 && inside.stdout == "true")

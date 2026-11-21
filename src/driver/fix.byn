@@ -40,7 +40,7 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
     for path in paths {
         if t6DirectoryExists(path) {
             let root = realPath(path) catch switch {
-                // coverage-exempt: Q1106 a directory that exists resolves
+                // coverage-exempt: Q1286 a directory that exists resolves (Q1106)
                 IoError e => {
                     Io.stderr.write($"bayan: {path}: {e}\n")
                     return exitFailure
@@ -62,7 +62,7 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
         continue if sorted.length > 0 && sorted[sorted.length - 1] == f
         if Path.fileName(f) != "package.byn" {
             let real = realPath(f) catch switch {
-                // coverage-exempt: Q1106 a file that exists resolves
+                // coverage-exempt: Q1286 a file that exists resolves (Q1106)
                 IoError e => {
                     Io.stderr.write($"bayan: {f}: {e}\n")
                     return exitFailure
@@ -154,7 +154,7 @@ void fixModule(string dir, for in List<string> files, until i64 maxPasses, throu
             var check = t8Parser(files[k], from: in fixedBytes)
             let _ = parser.parseCompilationUnit(ref check)
             if fixBlocking(in check.lexed.diagnostics).length > 0 {
-                // coverage-exempt: Q1122 through `rewriting it made it unparsable`
+                // coverage-exempt: Q1286 through `rewriting it made it unparsable` (Q1122)
                 Io.stderr.write(
                     $"bayan: {files[k]}: rewriting it made it unparsable, so the rewrite was abandoned and the file left unchanged\n",
                 )

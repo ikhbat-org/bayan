@@ -270,29 +270,35 @@ struct ZigOrCc : ICCompiler {
         // Toolchain.cs:397-402: the runtime object first. A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode`.
         let runtimeArgs = ccRuntimeArguments(in compiler, for: dir, by: mode, through: resolved)
         let rt = Io.run(compiler[0], runtimeArgs.span, env: zigCacheEnv(compiler)) catch switch {
+            // coverage-exempt: Q1286 a compiler killed by a signal: a test cannot set BAYAN_CC or PATH
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
                 errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
                 rejected: true,
             },
+            // coverage-exempt: Q1286 `ccFindOnPath` checks `Fs.fileExists` before the run
             IoError e => return NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`" },
         }
         return NativeBuild {
             errors: $"C compiler failed (exit {rt.exitCode}):\n{rt.stdout}{rt.stderr}",
             rejected: true,
         } if rt.exitCode != 0
+            // coverage-exempt: Q1286 a compiler that exits 0 without writing bayan-rt.o
             || !t1FileExists(Path.combine(dir, "bayan-rt.o"))
         // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:440).
         let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
+            // coverage-exempt: Q1286 a compiler killed by a signal: a test cannot set BAYAN_CC or PATH
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
                 errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
                 rejected: true,
             },
+            // coverage-exempt: Q1286 `ccFindOnPath` checks `Fs.fileExists` before the run
             IoError e => return NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`" },
         }
         return NativeBuild {
             errors: $"C compiler failed (exit {r.exitCode}):\n{r.stdout}{r.stderr}",
             rejected: true,
         } if r.exitCode != 0
+            // coverage-exempt: Q1286 a compiler that exits 0 without writing the output
             || !t1FileExists(output)
         return NativeBuild { succeeded: true }
     }

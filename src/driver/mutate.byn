@@ -228,15 +228,18 @@ i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, proc
     // the workers are this driver started again (`mutateWorker`), which the runtime can only name through `$BAYAN_EXE`, as the golden
     // runner's `--jobs` workers (golden.byn `goldenJobs`); Windows has no `sh` to start them
     var driver = ""
+    // coverage-exempt: Q1286 through `jobs = 1` the Windows arm
     if jobs > 1 && Target.os == "windows" {
         Io.stderr.write($"bayan: Windows has no `sh` to start mutant workers: {jobsName} {jobs} runs as 1\n")
         jobs = 1
     } else if jobs > 1 {
         driver = Env.get("BAYAN_EXE") ?? ""
+        // coverage-exempt: Q1286 through `names no file` needs BAYAN_EXE to name no file
         unless Fs.fileExists(driver) {
             Io.stderr.write(
                 $"bayan: {jobsName} {jobs} starts its workers through `BAYAN_EXE`, which names no file: `{driver}`\n",
             )
+            // coverage-exempt: Q1286 needs BAYAN_EXE to name no file
             return exitUsage
         }
     }
@@ -253,6 +256,7 @@ i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, proc
     let map = externalSiteReadAll(text) ?? return t13BadSites(s)
     let full = Path.fullPath(b)
     var min: i64? = null
+    // coverage-exempt: Q1286 through `min = manifest.minMutation` needs `package.byn` in the working directory
     if Fs.fileExists("package.byn") {
         // `Manifest.Read` throws, uncaught, when the existing manifest cannot be read.
         // coverage-exempt: Q1258 an IO failure the C# lets escape
@@ -681,6 +685,7 @@ string t13Workers(
         args.append(a)
     }
     // a failure to start `sh` leaves every outcome unwritten, which `mutationRunExternal` reports at the first site
+    // coverage-exempt: Q1286 needs `sh` to fail to start
     let _ = Io.run("sh", args.span) catch return dir
     return dir
 }
@@ -744,6 +749,7 @@ i32 mutateWorker(List<string> args) uses alloc, clock, console, fs, process {
             Io.stderr.write($"bayan: cannot run {command[0]} for mutant {id}\n")
             return exitFailure
         }
+        // coverage-exempt: Q1286 the null result already returned at the `if ran is null` above
         if (ran is { } o) {
             let file = Path.combine(dir, $"{i}")
             Io.writeFile(file, $"{o.timedOut ? 1 : 0} {o.exitCode != 0 ? 1 : 0} {o.elapsedNanos}\n".bytes) catch {
@@ -999,6 +1005,7 @@ const t13RunnerFixture: string = "i64 big(i64 n) {\n    if n > 5 { return 1 }\n 
 semantics.Ctx t13RunnerCompile(string name, by string source, at ref string dir) uses alloc, clock, fs {
     dir = Path.combine(Path.fullPath("tmp"), name)
     deleteWorkDir(dir)
+    // coverage-exempt: Q1286 a test helper's `catch { panic }`
     Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
     var files = List<lexer.SourceText>()
     var bytes = List<u8>()
@@ -1017,6 +1024,7 @@ MutantResult t13RunnerMutant(in MutationResult result, by string op, for string 
     for m in result.mutants {
         return m if m.site.op == op && m.site.original == original && m.site.mutated == mutated
     }
+    // coverage-exempt: Q1286 `panic`
     panic($"no {op} mutant {original} -> {mutated}")
 }
 
