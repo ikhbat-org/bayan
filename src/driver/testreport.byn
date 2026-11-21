@@ -62,6 +62,14 @@ string testStatusName(TestStatus status) {
 
 /// TestReport.cs:21 `ToJson`.
 string testReportJson(in TestReport r) uses alloc {
+    var sb = StrBuf()
+    testReportJsonTo(in r, to: ref sb)
+    return $"{sb.finish()}"
+}
+
+/// `testReportJson` appended to `sb`. Each entry is written in an arena of its own and only its bytes are kept, in `sb` (2026-11-21: about
+/// 60 pieces and their escaped values a golden case, 5.4 KB a case held for 422 bytes of JSON).
+void testReportJsonTo(in TestReport r, to ref StrBuf sb) uses alloc {
     var w = T11Json {}
     t11JsonOpen(ref w, for: null, by: "{")
     if (r.package is { } package) {
@@ -72,30 +80,38 @@ string testReportJson(in TestReport r) uses alloc {
     t11JsonValue(ref w, for: "mode", by: t11JsonString(r.mode))
     t11JsonValue(ref w, for: "target", by: t11JsonString(r.target))
     t11JsonOpen(ref w, for: "tests", by: "[")
+    sb.append(t11JsonText(in w))
     for t in r.tests {
-        t11JsonOpen(ref w, for: null, by: "{")
-        t11JsonValue(ref w, for: "name", by: t11JsonString(t.name))
-        t11JsonValue(ref w, for: "file", by: t11JsonString(t.file))
-        t11JsonValue(ref w, for: "line", by: $"{t.line}")
-        t11JsonValue(ref w, for: "status", by: t11JsonString(testStatusName(t.status)))
-        t11JsonValue(ref w, for: "durationMs", by: t11JsonMilliseconds(t.elapsedNanos))
-        t11JsonValue(ref w, for: "output", by: t11JsonString(t.output))
-        if r.golden {
-            t11JsonValue(ref w, for: "kind", by: t11JsonString(t.kind))
-            t11JsonValue(ref w, for: "caseKind", by: t11JsonString(t.caseKind))
-            t11JsonValue(ref w, for: "path", by: t11JsonString(t.path))
+        using let arena = Arena()
+        provide allocator: arena {
+            var e = T11Json { depth: w.depth, first: w.first }
+            t11JsonOpen(ref e, for: null, by: "{")
+            t11JsonValue(ref e, for: "name", by: t11JsonString(t.name))
+            t11JsonValue(ref e, for: "file", by: t11JsonString(t.file))
+            t11JsonValue(ref e, for: "line", by: $"{t.line}")
+            t11JsonValue(ref e, for: "status", by: t11JsonString(testStatusName(t.status)))
+            t11JsonValue(ref e, for: "durationMs", by: t11JsonMilliseconds(t.elapsedNanos))
+            t11JsonValue(ref e, for: "output", by: t11JsonString(t.output))
+            if r.golden {
+                t11JsonValue(ref e, for: "kind", by: t11JsonString(t.kind))
+                t11JsonValue(ref e, for: "caseKind", by: t11JsonString(t.caseKind))
+                t11JsonValue(ref e, for: "path", by: t11JsonString(t.path))
+            }
+            t11JsonClose(ref e, by: "}")
+            sb.append(t11JsonText(in e))
         }
-        t11JsonClose(ref w, by: "}")
+        w.first = false
     }
-    t11JsonClose(ref w, by: "]")
-    t11JsonOpen(ref w, for: "summary", by: "{")
-    t11JsonValue(ref w, for: "total", by: $"{r.tests.length}")
-    t11JsonValue(ref w, for: "passed", by: $"{testReportCount(in r, for: .passed)}")
-    t11JsonValue(ref w, for: "failed", by: $"{testReportCount(in r, for: .failed)}")
-    t11JsonValue(ref w, for: "panicked", by: $"{testReportCount(in r, for: .panicked)}")
-    t11JsonValue(ref w, for: "timedOut", by: $"{testReportCount(in r, for: .timedOut)}")
-    t11JsonValue(ref w, for: "pending", by: $"{testReportCount(in r, for: .pending)}")
-    t11JsonValue(ref w, for: "skipped", by: $"{r.skipped}")
+    var tail = T11Json { depth: w.depth, first: w.first }
+    t11JsonClose(ref tail, by: "]")
+    t11JsonOpen(ref tail, for: "summary", by: "{")
+    t11JsonValue(ref tail, for: "total", by: $"{r.tests.length}")
+    t11JsonValue(ref tail, for: "passed", by: $"{testReportCount(in r, for: .passed)}")
+    t11JsonValue(ref tail, for: "failed", by: $"{testReportCount(in r, for: .failed)}")
+    t11JsonValue(ref tail, for: "panicked", by: $"{testReportCount(in r, for: .panicked)}")
+    t11JsonValue(ref tail, for: "timedOut", by: $"{testReportCount(in r, for: .timedOut)}")
+    t11JsonValue(ref tail, for: "pending", by: $"{testReportCount(in r, for: .pending)}")
+    t11JsonValue(ref tail, for: "skipped", by: $"{r.skipped}")
     if r.golden {
         var cases: i64 = 0
         for t in r.tests {
@@ -103,13 +119,14 @@ string testReportJson(in TestReport r) uses alloc {
                 cases += 1
             }
         }
-        t11JsonValue(ref w, for: "testBlocks", by: $"{r.tests.length - cases}")
-        t11JsonValue(ref w, for: "goldenCases", by: $"{cases}")
+        t11JsonValue(ref tail, for: "testBlocks", by: $"{r.tests.length - cases}")
+        t11JsonValue(ref tail, for: "goldenCases", by: $"{cases}")
     }
-    t11JsonValue(ref w, for: "durationMs", by: t11JsonMilliseconds(r.elapsedNanos))
-    t11JsonClose(ref w, by: "}")
-    t11JsonClose(ref w, by: "}")
-    return $"{t11JsonText(in w)}\n"
+    t11JsonValue(ref tail, for: "durationMs", by: t11JsonMilliseconds(r.elapsedNanos))
+    t11JsonClose(ref tail, by: "}")
+    t11JsonClose(ref tail, by: "}")
+    sb.append(t11JsonText(in tail))
+    sb.append("\n")
 }
 
 /// `Math.Round(elapsed.TotalMilliseconds, 1)` as `Utf8JsonWriter` writes the double: tenths of the whole 100 ns ticks, half to even
