@@ -1,6 +1,7 @@
 // 019 T29 (coverage ratchet): `buildSchema` and a `--mutate` emit over the corpus of lower-t29.test.byn. The expected
 // values are the output of the self-hosted emitter at the commit that added the test.
 
+import lexer
 import parser
 import semantics
 
@@ -417,4 +418,127 @@ test "emitter t29: schemataMarkOf skips a mark of another file" {
     marks.append(T29Mark { file: own.file, span: own.span, op: own.op, reason: own.reason })
     c.unobservable = move marks
     assert schemataMarkOf(in c, for: in site) == "clamped"
+}
+
+test "emitter t29: buildSchema keeps an uninitialized local's first assignment and reads a converted `fail`" {
+    let d = t29SchemaDump(
+        """
+        union error F {
+            a
+            b
+        }
+
+        union error X {
+            odd
+        }
+
+        i64 f(i64 n) fails F, X {
+            var k: i64
+            k = n
+            k += 2
+            let xs: i64[3] = [1, 2, 3]
+            let y = xs[i32(1)]
+            let y2 = xs[1ul]
+            let e = F.a
+            fail e if k == 9
+            let o: F? = k == 7 ? F.a : null
+            if o is not null {
+                fail o
+            }
+            fail F.b if k == 8
+            return k
+        }
+
+        void main() {
+            let p = f(1) catch { return }
+        }
+        """,
+    )
+    // `k = n` is `k`'s first assignment, so it is not removed; `k += 2` is, and is mutated as arithmetic.
+    for line in [
+        "13:5 statement `k += 2` -> `` true",
+        "13:5 arithmetic `k += 2` -> `k -= 2` true",
+        "15:20 literal `1` -> `2` true",
+        "16:17 literal `1ul` -> `2ul` true",
+        "23:10 variant `F.b` -> `F.a` true",
+    ] {
+        assert d.contains($"{line}\n")
+    }
+    assert !d.contains("12:5 statement")
+    // `fail e` fails a local and `fail o` a narrowed optional, not a variant: neither has a variant site.
+    assert !d.contains("18:10 variant")
+    assert !d.contains("21:9 variant")
+    assert !d.contains("21:14 variant")
+    assert d.endsWith("\nswitches 16")
+}
+
+test "emitter t29: schemataOffset stops at the end of the source inside a scalar" {
+    var bytes = List<u8>()
+    for b in "aé".bytes {
+        bytes.append(b)
+    }
+    var source = lexer.SourceText.create("x.byn", from: move bytes)
+    assert schemataOffset(ref source, at: 1, by: 2) == 1
+    assert schemataOffset(ref source, at: 1, by: 3) == 3
+}
+
+test "emitter t29: buildSchema with no statement syntax mutates only expressions" {
+    var c = t29Compile(
+        "i64 f(i64 k) {\n    var n = k\n    while n < 3 {\n        n += 1\n    }\n    return n\n}\n\nvoid main() {\n    let x = f(1)\n}\n",
+    )
+    assert t29Errors(in c) == ""
+    c.nodeSyntaxOf = []
+    let schema = buildSchema(ref c, for: in List<string>())
+    var sb = StrBuf()
+    for s in schema.sites {
+        sb.append($"{s.site.line}:{s.site.column} {s.site.op} `{s.site.original}` -> `{s.site.mutated}` {s.emitted}\n")
+    }
+    // No condition, statement, arithmetic-assignment or empty-return site: those need the statement's syntax.
+    let expected = """
+        3:11 boundary `n < 3` -> `n <= 3` true
+        3:11 relational `n < 3` -> `n >= 3` true
+        3:15 literal `3` -> `4` true
+        3:15 literal `3` -> `2` true
+        4:14 literal `1` -> `2` true
+        4:14 literal `1` -> `0` true
+        10:15 literal `1` -> `2` true
+        10:15 literal `1` -> `0` true
+        """
+    assert sb.finish() == $"{expected}\n"
+}
+
+test "emitter t29: buildSchema skips a function with no body, no file or another kind" {
+    var c = t29Compile(
+        "i64 a(i64 k) {\n    return k + 1\n}\n\ni64 b(i64 k) {\n    return k + 2\n}\n\ni64 d(i64 k) {\n    return k + 3\n}\n\nvoid main() {\n    let x = a(1) + b(1) + d(1)\n}\n",
+    )
+    assert t29Errors(in c) == ""
+    for f in c.modules[c.entryModule].allFunctions {
+        if c.functions[f].name == "a" {
+            c.functions[f].body = -1
+        } else if c.functions[f].name == "b" {
+            c.functions[f].file = -1
+        } else if c.functions[f].name == "d" {
+            c.functions[f].kind = .testKeyword
+        }
+    }
+    let schema = buildSchema(ref c, for: in List<string>())
+    var sb = StrBuf()
+    for s in schema.sites {
+        sb.append($"{s.site.line}:{s.site.column} {s.site.op} `{s.site.original}` -> `{s.site.mutated}` {s.emitted}\n")
+    }
+    // Only `main` has sites.
+    let expected = """
+        14:13 arithmetic `a(1) + b(1) + d(1)` -> `a(1) + b(1) - d(1)` true
+        14:13 arithmetic `a(1) + b(1)` -> `a(1) - b(1)` true
+        14:15 literal `1` -> `2` true
+        14:15 literal `1` -> `0` true
+        14:22 literal `1` -> `2` true
+        14:22 literal `1` -> `0` true
+        14:29 literal `1` -> `2` true
+        14:29 literal `1` -> `0` true
+        """
+    assert sb.finish() == $"{expected}\n"
+    assert schema.switches.length == 5
+    // A literal with no parent is in no constant expression, so any value folds.
+    assert mutatorFoldsInParent(in c, for: 0, by: t10Big(1), at: -1, as: semantics.prim(.i64))
 }
