@@ -100,6 +100,32 @@ test "driver t29: zigTrimEntries keeps the newest when the listing is not oldest
     deleteWorkDir(dir)
 }
 
+test "driver t29: zigTrimEntries keeps an unreadable and an empty entry and removes the next driver object" {
+    let dir = t29CacheDir("trimlock")
+    goldenWrite(dir, for: "lock/main.o", as: "x")
+    goldenWrite(dir, for: "obj/main.o", as: "x")
+    goldenWrite(dir, for: "new/main.o", as: "x")
+    Io.createDirectory(Path.combine(dir, "empty")) catch { panic("mkdir") }
+    let hours: Map<string, i64> = ["lock": 1, "empty": 2, "obj": 3, "new": 4]
+    for name in ["lock", "empty", "obj", "new"] {
+        let at = Time.fromNanos((1609459200 + hours[name] * 3600) * 1000000000)
+        Fs.setModified(Path.combine(dir, name), to: at) catch { panic("stamp") }
+    }
+    // the unreadable entry is made by `/bin/chmod 000`, and Windows has no permission bits that deny a read
+    if Target.os == "windows" {
+        todo("`chmod` permission bits are Unix-only")
+    }
+    let lock = Path.combine(dir, "lock")
+    t29CacheRun("chmod", by: ["000", lock])
+    zigTrimEntries(dir, by: 3, until: 0) catch { panic("trim") }
+    t29CacheRun("chmod", by: ["755", lock])
+    assert t9DirectoryExists(lock) && Fs.fileExists(Path.combine(lock, "main.o"))
+    assert t9DirectoryExists(Path.combine(dir, "empty"))
+    assert !t9DirectoryExists(Path.combine(dir, "obj"))
+    assert Fs.fileExists(Path.combine(Path.combine(dir, "new"), "main.o"))
+    deleteWorkDir(dir)
+}
+
 test "driver t29: t9Evict passes over a file among the programs" {
     let data = t29CacheDir("evict")
     goldenWrite(data, for: "programs/f", as: "x")
