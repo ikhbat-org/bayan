@@ -3354,8 +3354,10 @@ test "one worker of the driver itself runs more than a batch of cases, started a
 // Decision 2026-11-20 (Fable for the owner, T43): the release memory gate samples shard 1/12 (T9b), laws-nightly.yml the full tree.
 
 /// `sh -c` text: runs `BAYAN_EXE=$1 $1 test $2`, output dropped, writing its exit code to the file `$4` when it ends; until then, every 50 ms,
-/// the resident set (`ps`, KB) of it and of each `$1 test --golden-worker $3…`. Prints `<exit> <runner peak KB> <largest worker peak KB>`.
-const goldenPeakScript: string = "( BAYAN_EXE=\"$1\" \"$1\" test \"$2\" > \"$4.out\" 2>&1; echo $? > \"$4\" ) & t=0; w=0; while [ ! -s \"$4\" ]; do s=$(ps -A -ww -o rss=,args= | awk -v p=\"$1 test $2\" -v q=\"$1 test --golden-worker $3\" '{ k = $1 + 0; sub(/^ *[0-9]+ /, \"\") } $0 == p && k > a { a = k } index($0, q) == 1 && k > b { b = k } END { print a + 0, b + 0 }'); a=${s% *}; b=${s#* }; [ \"$a\" -gt \"$t\" ] && t=$a; [ \"$b\" -gt \"$w\" ] && w=$b; sleep 0.05; done; echo \"$(cat \"$4\") $t $w $(grep -o '[0-9]* golden case' \"$4.out\" | tail -1 | cut -d' ' -f1)\""
+/// the resident set (`ps`, KB) of it and of each `$1 test --golden-worker $3…`. Prints `<exit> <runner peak KB> <largest worker peak KB> <golden cases, 0 if none> <k:next>`:
+/// the worker `k` that set the largest peak and the content of its `next-<k>` then (the index its running batch started at; `k` when the file
+/// is not there yet, the first batch), `-` when no worker was seen.
+const goldenPeakScript: string = "( BAYAN_EXE=\"$1\" \"$1\" test \"$2\" > \"$4.out\" 2>&1; echo $? > \"$4\" ) & t=0; w=0; p=-; while [ ! -s \"$4\" ]; do s=$(ps -A -ww -o rss=,args= | awk -v p=\"$1 test $2\" -v q=\"$1 test --golden-worker $3\" 'BEGIN { d = \"-\"; n = \"-\" } { k = $1 + 0; sub(/^ *[0-9]+ /, \"\") } $0 == p && k > a { a = k } index($0, q) == 1 && k > b { b = k; r = substr($0, index($0, \"--golden-worker \") + 16); split(r, f, \" \"); d = f[1]; n = f[2] } END { print a + 0, b + 0, d, n }'); a=${s%% *}; r=${s#* }; b=${r%% *}; r=${r#* }; d=${r%% *}; n=${r#* }; [ \"$a\" -gt \"$t\" ] && t=$a; if [ \"$b\" -gt \"$w\" ]; then w=$b; p=\"$n:$(cat \"$d/next-$n\" 2>/dev/null || echo \"$n\")\"; fi; sleep 0.05; done; c=$(grep -o '[0-9]* golden case' \"$4.out\" | tail -1 | cut -d' ' -f1); echo \"$(cat \"$4\") $t $w ${c:-0} $p\""
 
 test "a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory" {
     if Target.os == "windows" {
@@ -3425,10 +3427,22 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     for f in r.stdout.trimmed(from: .end).parts(by: " ") {
         fields.append(f)
     }
-    assert(fields.length == 3 || fields.length == 4)
+    assert(fields.length == 5)
     let runner = t9Digits(fields[1], until: 9223372036854775807) ?? 0
     let worker = t9Digits(fields[2], until: 9223372036854775807) ?? 0
-    let cases = fields.length == 4 ? t9Digits(fields[3], until: 9223372036854775807) ?? 0 : 0
+    let cases = t9Digits(fields[3], until: 9223372036854775807) ?? 0
+    // The worker that set the peak and the index its running batch started at (`k:next`): the batch is the cases `next`, `next + 4` ... below
+    // `next + 400` of the run's case list. The names are not read: the list is `tmp/golden-jobs-<n>/cases`, deleted when the run ends, and the
+    // sampled run may be a shard, so the index window is printed alone.
+    var window = fields[4]
+    var peak = List<string>()
+    for f in fields[4].parts(by: ":") {
+        peak.append(f)
+    }
+    if peak.length == 2 {
+        let first = t9Digits(peak[1], until: 2147483647) ?? 0
+        window = $"{fields[4]} (worker {peak[0]}, case indexes {first} to {first + 4 * (goldenWorkerBatch - 1)} step 4 of the run's list)"
+    }
     // Decision 2026-11-21 (owner): the runner holds each case's result until the report is written (about 1.8 KB a case after the
     // per-entry report arenas), so over the full tree its bound is 15 MB plus 2 KB a case; a shard keeps the flat 15 MB the release gate
     // samples. Streaming the results to disk, which would make the full tree flat too, is in work/todo.md.
@@ -3451,14 +3465,48 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
         }
     }
     print(
-        $"{over}: exit {fields[0]}, {cases} cases, runner {runner} KB (bound {runnerBound}), largest worker {worker} KB (measured 9,984 and 9,792), left in {tmp}: {t5Join(in left)}",
+        $"{over}: exit {fields[0]}, {cases} cases, runner {runner} KB (bound {runnerBound}), largest worker {worker} KB (measured 9,984 and 9,792) at {window}, left in {tmp}: {t5Join(in left)}",
     )
     print($"failed in the sampled run: {t5Join(failedRows)}") if fields[0] != "0"
     assert(fields[0] == "0")
     assert(cases > 0)
     assert(runner > 0 && runner < runnerBound)
+    print($"largest worker over its bound at {window}") if worker >= 15 * 1024
     assert(worker > 0 && worker < 15 * 1024)
     assert(left.length == 0)
+}
+
+/// `goldenPeakScript` over the fake driver `fake` (the runner waits for a one-second process whose args are those of worker 7 of `root`/golden-jobs-1):
+/// its output line.
+string goldenPeakFake(string root, for string fake) uses alloc, fs, process {
+    var args = List<string>()
+    for a in ["-c", goldenPeakScript, "sh", fake, "x", Path.combine(root, "golden-jobs-"), Path.combine(root, "exit")] {
+        args.append(a)
+    }
+    let r = Io.run("sh", args.span, timeout: Millis(60000)) catch { return "" }
+    return r.stdout.trimmed(from: .end)
+}
+
+test "the peak script prints the worker that set the largest peak and its next-<k>, k when the file is not there" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), "golden-peak-fake")
+    deleteWorkDir(root)
+    // `exec -a` (bash) gives the sleeping process the args of a golden worker, as a compiled driver has them
+    let fake = goldenCliFake(
+        root,
+        for: "fake",
+        as: "[ \"$2\" = --golden-worker ] && exit 0\nbash -c 'exec -a \"$0\" sleep 1' \"$0 test --golden-worker ${0%/*}/golden-jobs-1 7 4 100\" &\nwait",
+    )
+    goldenWrite(root, for: "golden-jobs-1/next-7", as: "300\n")
+    let withFile = goldenPeakFake(root, for: fake)
+    deleteWorkDir(Path.combine(root, "golden-jobs-1"))
+    Io.remove(Path.combine(root, "exit")) catch {}
+    let without = goldenPeakFake(root, for: fake)
+    deleteWorkDir(root)
+    assert(withFile.endsWith(" 7:300"))
+    assert(without.endsWith(" 7:7"))
 }
 
 /// `goldenPeakScript` with `$2` split into words, so it can carry `--only` and `--jobs`.
