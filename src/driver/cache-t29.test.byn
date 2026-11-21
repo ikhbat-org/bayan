@@ -353,3 +353,35 @@ test "driver t29: t9Build of C the compiler rejects" {
     assert !built.result.succeeded && built.result.rejected
     assert built.result.errors.startsWith("C compiler failed (exit ")
 }
+
+test "driver t29: t9CompileIn keeps the entry another build put under its key first" {
+    // the compiler is `/bin/sh -c` writing the `-o` file, and Windows has no `/bin/sh`
+    if Target.os == "windows" {
+        todo("`/bin/sh` is Unix-only")
+    }
+    var d = newDCtx()
+    let key = $"t29-race-{t9Unique(ref d)}"
+    let entry = Path.combine(t9Programs(), key)
+    goldenWrite(entry, for: "a.out", as: "won")
+    goldenWrite(entry, for: "program.sha256", as: $"{t9Hash("won")}\n")
+    let work = t29CacheDir("compile-race")
+    let built = t9CompileIn(
+        work,
+        by: boundList(
+            ["/bin/sh", "-c", "while [ $# -gt 0 ]; do if [ \"$1\" = -o ]; then printf ours > \"$2\"; fi; shift; done"],
+        ),
+        through: boundList([]),
+        from: "int main(void) { return 0; }\n",
+        for: key,
+        as: "a.out",
+        until: "rt.o",
+        at: false,
+        to: ref d,
+    ) catch { panic("compile") }
+    assert built.succeeded && !built.rejected
+    // the move failed: `work` keeps its own program and the entry the other build's
+    t29Same(t9ReadTrimmed(Path.combine(work, "a.out")) catch { panic("read work") }, as: "ours")
+    t29Same(t9ReadTrimmed(Path.combine(entry, "a.out")) catch { panic("read entry") }, as: "won")
+    deleteWorkDir(entry)
+    deleteWorkDir(work)
+}
