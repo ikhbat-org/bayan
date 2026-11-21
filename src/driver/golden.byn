@@ -3400,6 +3400,13 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     let r = Io.run("sh", args.span, env: env, timeout: Millis(limit - 10000)) catch {
         panic($"the sampled run over the {over} did not end")
     }
+    // The sampled run's report is in the work directory, deleted below: keep its `failed` and `timed out` rows (at most 20) for the message.
+    var failedRows = List<string>()
+    for line in goldenLines(Io.readText(Path.combine(root, "exit.out")) catch "") {
+        if (line.startsWith("failed ") || line.startsWith("timed out ")) && failedRows.length < 20 {
+            failedRows.append(line)
+        }
+    }
     deleteWorkDir(root)
     let after = Io.listDir(tmp) catch List<string>()
     var fields = List<string>()
@@ -3434,6 +3441,7 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     print(
         $"{over}: exit {fields[0]}, {cases} cases, runner {runner} KB (bound {runnerBound}), largest worker {worker} KB (measured 9,984 and 9,792), left in {tmp}: {t5Join(in left)}",
     )
+    print($"failed in the sampled run: {t5Join(failedRows)}") if fields[0] != "0"
     assert(fields[0] == "0")
     assert(cases > 0)
     assert(runner > 0 && runner < runnerBound)
