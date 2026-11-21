@@ -820,10 +820,24 @@ void zigTrimEntries(string dir, by i64 limit, until i64 minAgeNanos) uses alloc,
     for i in order {
         break if count <= limit
         continue if used[i] > cutoff
+        continue if !zigDriverObject(paths[i])
         count -= 1
         continue if t3Unlinked(paths[i])
         try t9DeleteTree(paths[i])
     }
+}
+
+/// Whether the `o/` entry `path` holds only objects of the driver's own compiles (`main.c`, `bayan-rt.c`), so it may be trimmed.
+/// zig builds its toolchain pieces (`libcompiler_rt.a`, libc, crt, ubsan) once per target into `o/` and every later link reads
+/// them through a manifest in `h/`; removing one makes that link fail with `failed to parse archive: FileNotFound` (laws-nightly
+/// 44901747519, 2026-11-21). Those pieces are bounded per target, so they are kept, as is an empty or unreadable entry.
+bool zigDriverObject(string path) uses alloc, fs {
+    let names = Io.listDir(path) catch return false
+    return false if names.length == 0
+    for name in names {
+        return false if name != "main.o" && name != "main.obj" && name != "bayan-rt.o" && name != "bayan-rt.obj"
+    }
+    return true
 }
 
 /// `TryParse` with `NumberStyles.None` (Toolchain.cs:147, :485): `text` as decimal digits only, null when it is empty, has
@@ -1164,14 +1178,14 @@ test "replace-file: replacing a file leaves the new content at its path" {
     assert((Io.readText(path) catch "") == "after")
 }
 
-/// `<root>/zig/o/` with `count` entries `e0`..`e<count-1>`, each a directory holding one file, `e<i>` written at 2021-01-01 + i
-/// hours, so `e0` is the oldest.
+/// `<root>/zig/o/` with `count` entries `e0`..`e<count-1>`, each a directory holding one driver object `main.o`, `e<i>` written
+/// at 2021-01-01 + i hours, so `e0` is the oldest.
 string zigTestCache(string root, at i64 count) uses alloc, fs {
     let o = Path.combine(Path.combine(root, "zig"), "o")
     for i in 0..count {
         let entry = Path.combine(o, $"e{i}")
         Io.createDirectory(entry) catch { panic($"cannot create {entry}") }
-        Io.writeFile(Path.combine(entry, "obj"), "x".bytes) catch { panic($"cannot write in {entry}") }
+        Io.writeFile(Path.combine(entry, "main.o"), "x".bytes) catch { panic($"cannot write in {entry}") }
         Fs.setModified(
             entry,
             to: Time.fromNanos((1609459200 + i * 3600) * 1000000000),
@@ -1188,9 +1202,35 @@ test "zig-cache-trim: past the limit the oldest entries of zig/o are removed who
     assert(!t9DirectoryExists(Path.combine(o, "e0")))
     assert(!t9DirectoryExists(Path.combine(o, "e1")))
     for name in ["e2", "e3", "e4"] {
-        assert(Fs.fileExists(Path.combine(Path.combine(o, name), "obj")))
+        assert(Fs.fileExists(Path.combine(Path.combine(o, name), "main.o")))
     }
     assert((Io.listDir(o) catch List<string>()).length == 3)
+}
+
+test "zig-cache-toolchain: past the limit an entry holding anything but main or bayan-rt objects is kept, however old" {
+    let root = t9TestRoot("zig-toolchain")
+    let o = zigTestCache(root, at: 5)
+    let rt = Path.combine(o, "e0")
+    Io.writeFile(Path.combine(rt, "libcompiler_rt.a"), "x".bytes) catch { panic($"cannot write in {rt}") }
+    let win = Path.combine(o, "e1")
+    Io.remove(Path.combine(win, "main.o")) catch { panic($"cannot empty {win}") }
+    Io.writeFile(Path.combine(win, "bayan-rt.obj"), "x".bytes) catch { panic($"cannot write in {win}") }
+    let crt = Path.combine(o, "e2")
+    Io.remove(Path.combine(crt, "main.o")) catch { panic($"cannot empty {crt}") }
+    Io.writeFile(Path.combine(crt, "Scrt1.o"), "x".bytes) catch { panic($"cannot write in {crt}") }
+    let empty = Path.combine(o, "e3")
+    Io.remove(Path.combine(empty, "main.o")) catch { panic($"cannot empty {empty}") }
+    for name in ["e0", "e1", "e2", "e3"] {
+        Fs.setModified(Path.combine(o, name), to: Time.fromNanos((1609459200 + 3600) * 1000000000)) catch { panic($"cannot stamp {name}") }
+    }
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: null, at: root, by: 4, until: 0)
+    assert(env.length == 1)
+    assert(Fs.fileExists(Path.combine(rt, "libcompiler_rt.a")))
+    assert(!t9DirectoryExists(win))
+    assert(Fs.fileExists(Path.combine(crt, "Scrt1.o")))
+    assert(t9DirectoryExists(empty))
+    assert(Fs.fileExists(Path.combine(Path.combine(o, "e4"), "main.o")))
+    assert((Io.listDir(o) catch List<string>()).length == 4)
 }
 
 test "zig-cache-set: a set ZIG_GLOBAL_CACHE_DIR is passed through unchanged and nothing is trimmed" {
@@ -1225,7 +1265,7 @@ test "zig-cache-young: an entry written within the minimum age survives past the
         assert(!t9DirectoryExists(Path.combine(o, name)))
     }
     for name in ["e3", "e4"] {
-        assert(Fs.fileExists(Path.combine(Path.combine(o, name), "obj")))
+        assert(Fs.fileExists(Path.combine(Path.combine(o, name), "main.o")))
     }
 }
 

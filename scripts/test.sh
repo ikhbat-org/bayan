@@ -65,11 +65,17 @@ else
   export ZIG_GLOBAL_CACHE_DIR="$root/tmp/zig-global"
   # Its o/ keeps the newest 2000 entries, past them only those written in the last 10 minutes (a concurrent zig cc), as the
   # driver trims its own (zigCacheEntries, zigCacheMinAge in src/driver/cache.byn). A caller's directory is the caller's to trim.
+  # Only entries holding nothing but main/bayan-rt objects go, as zigDriverObject: zig's toolchain pieces (libcompiler_rt.a, libc,
+  # crt) are built once and read by every later link through h/, so removing one fails that link with FileNotFound.
   zig_o="$ZIG_GLOBAL_CACHE_DIR/o"
   if [ -d "$zig_o" ]; then
     zig_keep=$(( $(find "$zig_o" -mindepth 1 -maxdepth 1 -mmin -10 | wc -l) ))
     [ "$zig_keep" -gt 2000 ] || zig_keep=2000
-    ls -At "$zig_o" | tail -n +$((zig_keep + 1)) | while IFS= read -r e; do rm -rf "${zig_o:?}/$e"; done
+    ls -At "$zig_o" | tail -n +$((zig_keep + 1)) | while IFS= read -r e; do
+      [ -d "$zig_o/$e" ] && [ ! -L "$zig_o/$e" ] || continue
+      zig_other=$(ls -A "$zig_o/$e" | grep -cvxE 'main\.o|main\.obj|bayan-rt\.o|bayan-rt\.obj')
+      [ "$zig_other" = 0 ] && [ -n "$(ls -A "$zig_o/$e")" ] && rm -rf "${zig_o:?}/$e"
+    done
   fi
 fi
 logs="$(mktemp -d "$root/tmp/test.XXXXXX")" || exit 2
