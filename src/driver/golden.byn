@@ -3400,11 +3400,22 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     let r = Io.run("sh", args.span, env: env, timeout: Millis(limit - 10000)) catch {
         panic($"the sampled run over the {over} did not end")
     }
-    // The sampled run's report is in the work directory, deleted below: keep its `failed` and `timed out` rows (at most 20) for the message.
+    // The sampled run's report is in the work directory, deleted below: keep its `failed` and `timed out` rows (at most 20) for the message,
+    // each with the first 4 indented lines under it (the case's file and why it failed; laws-nightly 44875305683 named only the rows).
     var failedRows = List<string>()
+    var detail: i64 = -1
     for line in goldenLines(Io.readText(Path.combine(root, "exit.out")) catch "") {
-        if (line.startsWith("failed ") || line.startsWith("timed out ")) && failedRows.length < 20 {
-            failedRows.append(line)
+        if line.startsWith("failed ") || line.startsWith("timed out ") {
+            detail = -1
+            if failedRows.length < 20 {
+                failedRows.append(line)
+                detail = 0
+            }
+        } else if detail >= 0 && detail < 4 && line.startsWith("    ") {
+            failedRows[failedRows.length - 1] = $"{failedRows[failedRows.length - 1]} | {line.trimmed()}"
+            detail += 1
+        } else if !line.startsWith("    ") {
+            detail = -1
         }
     }
     deleteWorkDir(root)
