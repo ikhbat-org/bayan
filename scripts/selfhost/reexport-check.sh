@@ -159,6 +159,9 @@ if [ -s "$w/rno" ]; then
 fi
 
 dotnet="${REEXPORT_DOTNET:-dotnet}"
+# The frozen tree's projects stay as frozen: a NuGet advisory published after the freeze (NU1903 on
+# Microsoft.DotNet.ILCompiler 10.0.12, GHSA-p3jp-9v83-76w9, 2026-11-21) would fail their build under warnings-as-errors.
+export NuGetAudit=false
 command -v "$dotnet" > /dev/null 2>&1 ||
   { echo "reexport-check: no dotnet on PATH: L043 is not checked here (the R27 job, .github/workflows/ddc.yml, runs it)" >&2; rm -rf "$w"; exit 1; }
 die() { echo "reexport-check: $1 (work dir kept: $w)" >&2; exit 1; }

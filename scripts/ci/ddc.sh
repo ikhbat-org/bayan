@@ -14,6 +14,9 @@
 # fails, 2 on a usage error or an unknown REF. Tests only: DDC_DOTNET replaces `dotnet`, DDC_RID the rid picked from the host.
 # The build needs a C compiler (zig or cc), as the C# `build` does. bash 3.2.
 set -uo pipefail
+# The frozen tree's projects stay as frozen: a NuGet advisory published after the freeze (NU1903 on
+# Microsoft.DotNet.ILCompiler 10.0.12, GHSA-p3jp-9v83-76w9, 2026-11-21) would fail their build under warnings-as-errors.
+export NuGetAudit=false
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root" || exit 2
 
