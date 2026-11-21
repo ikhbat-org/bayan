@@ -3,6 +3,7 @@
 // test.
 
 import lexer
+import parser
 
 Ctx t29BoundCtx() uses alloc, clock, fs {
     var sources = List<lexer.SourceText>()
@@ -120,4 +121,174 @@ test "bound t29: syntax records skip -1, share a node's syntax and type a state 
     assert (c.nodeSyntaxOf.tryGet(at: shared) ?? -1) == (c.nodeSyntaxOf.tryGet(at: block) ?? -2)
     let state = addStructLiteral(ref c, from: BStructLiteral { span: t29bdAt(4), structId: 0, state: 1 })
     assert kindOf(exprType(in c, for: state)) == .structType
+}
+
+/// The parse of `lines`, one statement per line.
+parser.CompilationUnit t29bdUnit(List<string> lines) uses alloc {
+    var bytes = List<u8>()
+    for line in lines {
+        for b in line.bytes {
+            bytes.append(b)
+        }
+        bytes.append(10)
+    }
+    var p = parser.Parser.create(
+        lexer.lex(lexer.SourceText.create("t.byn", from: move bytes), by: lexer.Keywords.build()),
+    )
+    return parser.parseCompilationUnit(ref p)
+}
+
+/// `kind@start ` of the `Syntax` recorded for `n`, `none ` when there is none.
+string t29bdRecorded(in Ctx c, for BNode n) uses alloc {
+    if (nodeSyntax(in c, for: n) is { } s) {
+        return $"{s.kind}@{s.span.start} "
+    }
+    return "none "
+}
+
+test "bound t29: recordStmtSyntax records the kind of every statement" {
+    let lines: List<string> = [
+        "{ }",
+        "let a = 1",
+        "x",
+        "a = 2",
+        "a++",
+        "return 1",
+        "fail e",
+        "break",
+        "continue",
+        "become f()",
+        "if a { }",
+        "unless a { }",
+        "return if a",
+        "while a { }",
+        "do { } while a",
+        "while let b = c { }",
+        "for i in xs { }",
+        "outer: for i in xs { }",
+        "switch a { }",
+        "defer f()",
+        "assert a",
+        "context(allocator: a) { }",
+        ";",
+        "else",
+    ]
+    let unit = t29bdUnit(lines)
+    var c = t29BoundCtx()
+    var shown = StrBuf()
+    for decl in unit.members {
+        if decl is .globalStatement(let g) {
+            let n = addErrorStmt(ref c, from: BErrorStmt { span: t29bdAt(0) })
+            assert recordStmtSyntax(ref c, for: n, from: in g.value.statement) == n
+            shown.append(t29bdRecorded(in c, for: n))
+        }
+    }
+    let n = addErrorStmt(ref c, from: BErrorStmt { span: t29bdAt(0) })
+    assert recordStmtSyntax(ref c, for: n, from: in parser.Stmt.none) == n
+    shown.append(t29bdRecorded(in c, for: n))
+    let expected: List<string> = [
+        "blockStmt@0",
+        "localDecl@4",
+        "exprStmt@14",
+        "assignStmt@16",
+        "incDecStmt@22",
+        "returnStmt@26",
+        "failStmt@35",
+        "breakStmt@42",
+        "continueStmt@48",
+        "becomeStmt@57",
+        "ifStmt@68",
+        "unlessStmt@77",
+        "guardedStmt@90",
+        "whileStmt@102",
+        "doWhileStmt@114",
+        "whileLetStmt@129",
+        "forStmt@149",
+        "labeledStmt@165",
+        "switchStmt@188",
+        "deferStmt@201",
+        "assertStmt@211",
+        "contextStmt@220",
+        "emptyStmt@246",
+        "errorStmt@248",
+        "none",
+    ]
+    var want = StrBuf()
+    for e in expected {
+        want.append($"{e} ")
+    }
+    assert t29BoundIs(shown.finish(), as: want.finish())
+}
+
+/// `kind@start ` of the expression syntax `syntaxNode` records for `e` (and for each element of a collection), `-1 ` when
+/// it records none.
+string t29bdExpr(ref Ctx c, for in parser.Expr e) uses alloc {
+    var shown = StrBuf()
+    let h = syntaxNode(ref c, from: in e)
+    if h == -1 {
+        shown.append("-1 ")
+    } else {
+        let node = exprSyntaxNode(in c, at: h)
+        shown.append($"{node.kind}@{node.span.start} ")
+    }
+    if e is .collectionExpr(let x) {
+        for element in x.value.elements {
+            shown.append(t29bdExpr(ref c, for: in element))
+        }
+    }
+    return shown.finish()
+}
+
+test "bound t29: syntaxNode records casts, stackalloc, map entries and error expressions" {
+    let unit = t29bdUnit(["let v = (i64)a", "let v = stackalloc i64[4]", "let v = [a: b]", "let v = )", "return"])
+    var c = t29BoundCtx()
+    var shown = StrBuf()
+    for decl in unit.members {
+        if decl is .globalStatement(let g) {
+            switch g.value.statement {
+                case .localDecl(let d):
+                    shown.append(t29bdExpr(ref c, for: in d.value.init))
+                case .returnStmt(let r):
+                    shown.append(t29bdExpr(ref c, for: in r.value.value))
+                default:
+                    shown.append("other ")
+            }
+        }
+    }
+    assert t29BoundIs(
+        shown.finish(),
+        as: "castExpr@8 stackallocExpr@23 collectionExpr@49 mapEntryExpr@50 errorExpr@64 -1 ",
+    )
+}
+
+/// `kind@start ` of the syntax `recordPatternSyntax` records for `p` (and for each element of a list pattern).
+string t29bdPattern(ref Ctx c, for in parser.Pattern p) uses alloc {
+    let n = addErrorStmt(ref c, from: BErrorStmt { span: t29bdAt(0) })
+    assert recordPatternSyntax(ref c, for: n, from: in p) == n
+    var shown = StrBuf()
+    shown.append(t29bdRecorded(in c, for: n))
+    if p is .listPattern(let x) {
+        for element in x.value.elements {
+            shown.append(t29bdPattern(ref c, for: in element))
+        }
+    }
+    return shown.finish()
+}
+
+test "bound t29: recordPatternSyntax records constant, property and slice patterns" {
+    let unit = t29bdUnit(["let v = a is 1", "let v = a is { x: 1 }", "let v = a is [.., 1]"])
+    var c = t29BoundCtx()
+    var shown = StrBuf()
+    for decl in unit.members {
+        if decl is .globalStatement(let g) {
+            if g.value.statement is .localDecl(let d) {
+                if d.value.init is .isExpr(let x) {
+                    shown.append(t29bdPattern(ref c, for: in x.value.pattern))
+                }
+            }
+        }
+    }
+    shown.append(t29bdPattern(ref c, for: in parser.Pattern.none))
+    let expected = "constantPattern@13 propertyPattern@28 listPattern@50 slicePattern@51 constantPattern@55 none "
+    assert t29BoundIs(shown.finish(), as: expected)
 }
