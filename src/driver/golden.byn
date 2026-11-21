@@ -1213,14 +1213,26 @@ i32 goldenTest(
         Io.stderr.write(text)
         return exitUsage
     }
+    // the fields are views of `listing`, taken with no list per line (2026-11-21: one per line, never freed, in `General`)
+    let listing = kept.finish()
     var cases = List<GoldenCase>()
-    for line in kept.finish().parts(by: "\n") {
-        var fields = List<string>()
+    for line in listing.parts(by: "\n") {
+        var fields: i64 = 0
+        var kind = ""
+        var name = ""
+        var input = ""
         for f in line.parts(by: "\t") {
-            fields.append(f)
+            if fields == 0 {
+                kind = f
+            } else if fields == 1 {
+                name = f
+            } else if fields == 2 {
+                input = f
+            }
+            fields += 1
         }
-        if fields.length == 3 {
-            cases.append(GoldenCase { kind: fields[0], name: fields[1], input: fields[2] })
+        if fields == 3 {
+            cases.append(GoldenCase { kind: kind, name: name, input: input })
         }
     }
     let snap = snapshot ?? Env.get("BAYAN_SNAPSHOT") ?? ""
@@ -1239,7 +1251,8 @@ i32 goldenTest(
             $"running {cases.length} {cases.length == 1 ? "case" : "cases"} of {root}{shard == "" ? "" : $" (shard {shard})"}",
         )
     }
-    var mine = List<GoldenResult>()
+    // the results go straight to `results`, from `base` on, their inputs set in place below
+    let base = results.length
     // Workers need a driver that starts (T2c); without one the cases run here, each failing with the T2c text as under `--jobs 1`.
     var unusable = ""
     let driver = goldenExeOf(exe, through: ref unusable)
@@ -1249,10 +1262,10 @@ i32 goldenTest(
         // the workers build the programs first, in processes of their own (`goldenPrebuildWorker`); one at a time (`--jobs 1`, Windows), a
         // run of more than `goldenWorkerBatch` cases goes through one worker too, so it restarts as the parallel ones do (T17e), as does a
         // recording, whose builds and runs read BAYAN_SNAPSHOT in the processes that make them
-        goldenJobs(cases, by: exe, for: limitMs, as: parallel ? workers : 1, to: ref mine, buildMs: buildMs)
-        for r in mine {
+        goldenJobs(cases, by: exe, for: limitMs, as: parallel ? workers : 1, to: ref results, buildMs: buildMs, listed: listing)
+        for i in base..results.length {
             unless quiet {
-                goldenPrint(in r)
+                goldenPrint(in results[i])
             }
         }
     } else {
@@ -1264,7 +1277,7 @@ i32 goldenTest(
             unless quiet {
                 goldenPrint(in r)
             }
-            mine.append(move r)
+            results.append(move r)
         }
     }
     // each case clears its work directory when it starts (docs/memory-leaks.md rule 7); the run removes them all when it ends
@@ -1276,12 +1289,10 @@ i32 goldenTest(
         deleteWorkDir(Path.combine(Path.fullPath("tmp"), "p"))
     }
     var failed = false
-    for i in 0..mine.length {
-        let status = mine[i].status
+    for i in 0..results.length - base {
+        let status = results[base + i].status
         failed = failed || status == "failed" || status == "timed out"
-        results.append(
-            GoldenResult { name: mine[i].name, status: status, detail: mine[i].detail, input: cases[i].input },
-        )
+        results[base + i].input = cases[i].input
     }
     return failed || exit != 0 ? exitTestFailure : exitOk
 }
@@ -1387,24 +1398,28 @@ const goldenWorkerMore: i32  = 75
 const goldenWorkerBatch: i64 = 100
 
 /// `cases` run by `jobs` workers through the driver `exe`, each with the time limit `limitMs`, after their programs are built (each within
-/// `buildMs`): one result per case added to `results`, in case order. One worker runs with no `sh` (`goldenWorkerOne`). A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
+/// `buildMs`): one result per case added to `results`, in case order. `listed` is the cases as their `<kind>\t<case>\t<input>` lines when the
+/// caller holds them (`goldenTest`), written as they are. One worker runs with no `sh` (`goldenWorkerOne`). A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
 void goldenJobs(
     in List<GoldenCase> cases,
     by string exe,
     for i64 limitMs,
     as i64 jobs,
     to ref List<GoldenResult> results,
-    i64 buildMs = goldenBuildLimitMs
+    i64 buildMs = goldenBuildLimitMs,
+    string? listed = null
 )
         uses alloc, clock, fs, process {
     let dir = Path.combine(Path.fullPath("tmp"), $"golden-jobs-{Io.monotonicNanos()}")
     deleteWorkDir(dir)
     var list = StrBuf()
-    for c in cases {
-        list.append($"{c.kind}\t{c.name}\t{c.input}\n")
+    if listed is null {
+        for c in cases {
+            list.append($"{c.kind}\t{c.name}\t{c.input}\n")
+        }
     }
     let n = jobs < cases.length ? jobs : cases.length
-    let wrote = goldenWrote(Path.combine(dir, "cases"), as: list.finish())
+    let wrote = goldenWrote(Path.combine(dir, "cases"), as: listed ?? list.finish())
     if wrote && n == 1 {
         goldenWorkerOne(exe, at: dir, for: $"{limitMs}", by: $"{buildMs}")
     } else if wrote {
@@ -3418,6 +3433,38 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     assert(runner > 0 && runner < 15 * 1024)
     assert(worker > 0 && worker < 15 * 1024)
     assert(left.length == 0)
+}
+
+test "the runner over 12000 generated cases, every one passed by a fake driver, keeps its peak under 56 MB" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let root = boundFresh("golden-runner-cases")
+    let cases = Path.combine(root, "cases")
+    for i in 0..12000 {
+        goldenWrite(cases, for: $"lex/a-generated-case-with-a-name-of-fifty-characters-{i}.byn", as: "")
+    }
+    // tmp/golden-growth/fake.sh (2026-11-21): the runner alone, each worker writing `passed` for its share of the cases
+    let fake = goldenCliFake(
+        root,
+        for: "fake",
+        as: "[ \"$1\" = version ] && { echo 'bayan fake'; exit 0; }\n[ \"$2\" = --golden-prebuild ] && exit 0\n[ \"$2\" = --golden-worker ] || exit 1\nawk -v d=\"$3\" -v k=\"$4\" -v n=\"$5\" '{ i = NR - 1; if (i % n == k) { f = d \"/\" i; print \"passed\" > f; close(f) } }' \"$3/cases\"",
+    )
+    let run = boundStart(
+        boundList([exe, "test", cases, "--jobs", "2"]),
+        at: root,
+        as: boundList([$"BAYAN_EXE={fake}"]),
+    )
+    deleteWorkDir(root)
+    // measured 2026-11-21 on macOS arm64 (stage-1 driver, loaded machine, scripts/release/peak-rss.sh): 35,168 to 41,280 KB in three runs;
+    // with the report built in `General` and its JSON kept as about 60 pieces a case (test.byn and testreport.byn as before), 83,040 KB.
+    // The peak is sampled every 10 ms and the report is built in well under a second, so the cases are many enough to keep it in view.
+    print($"peak {run.peakKb} KB, exit {run.exit}")
+    assert(run.exit == exitOk)
+    assert(run.stdout.contains("12000 passed"))
+    assert(run.peakKb > 0)
+    assert(run.peakKb < 56 * 1024)
 }
 
 /// A cases directory `root` for update mode (R5): `lex/a-same` matching; `lex/b-changed`, and `lex/c-pending` with a `.pending` file, their third

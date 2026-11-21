@@ -561,47 +561,56 @@ i32 t11Golden(in T11Options o, by ref DCtx d) uses alloc, clock, console, env, f
     let exit = goldenTest(o.path, by: wanted, for: testTimeout(), to: ref results, jobs: o.jobs ?? 4, quiet: o.testJson)
     return exit if exit == exitUsage
     let totalNanos = Io.monotonicNanos() - total
-    var report = TestReport {
-        package: null,
-        mode: o.mode,
-        target: t5HostTarget(),
-        elapsedNanos: totalNanos,
-        golden: true,
-    }
     var passed: i64 = 0
     var failed: i64 = 0
     var pending: i64 = 0
-    for r in results {
-        var status = TestStatus.failed
-        if r.status == "passed" {
-            status = .passed
-            passed += 1
-        } else if r.status == "skipped" {
-            status = .pending
-            pending += 1
-        } else if r.status == "timed out" {
-            status = .timedOut
-            failed += 1
-        } else {
-            failed += 1
+    // the report and its JSON pieces are freed with the arena; only the JSON text and the counts leave it (2026-11-21: 5.4 KB a case held
+    // to the end of a run, for 422 bytes of JSON)
+    var text = StrBuf()
+    {
+        using let arena = Arena()
+        provide allocator: arena {
+            var report = TestReport {
+                package: null,
+                mode: o.mode,
+                target: t5HostTarget(),
+                elapsedNanos: totalNanos,
+                golden: true,
+            }
+            for r in results {
+                var status = TestStatus.failed
+                if r.status == "passed" {
+                    status = .passed
+                    passed += 1
+                } else if r.status == "skipped" {
+                    status = .pending
+                    pending += 1
+                } else if r.status == "timed out" {
+                    status = .timedOut
+                    failed += 1
+                } else {
+                    failed += 1
+                }
+                let slash = goldenOffset(r.name, for: "/")
+                report.tests.append(
+                    TestResult {
+                        name: r.name,
+                        file: r.input,
+                        line: 0,
+                        status: status,
+                        elapsedNanos: 0,
+                        output: status == .passed ? "" : r.detail,
+                        kind: "golden",
+                        caseKind: slash < 0 ? "" : r.name[0..slash],
+                        path: r.input,
+                    },
+                )
+            }
+            testReportJsonTo(in report, to: ref text)
         }
-        let slash = goldenOffset(r.name, for: "/")
-        report.tests.append(
-            TestResult {
-                name: r.name,
-                file: r.input,
-                line: 0,
-                status: status,
-                elapsedNanos: 0,
-                output: status == .passed ? "" : r.detail,
-                kind: "golden",
-                caseKind: slash < 0 ? "" : r.name[0..slash],
-                path: r.input,
-            },
-        )
     }
     let cases = results.length == 1 ? "1 golden case" : $"{results.length} golden cases"
-    let json = testReportJson(in report)
+    let json = text.finish()
     if o.testJson {
         Io.stdout.write(json)
     } else {
