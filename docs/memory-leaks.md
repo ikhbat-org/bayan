@@ -122,9 +122,11 @@ env BAYAN_GOLDEN_BOUND_SHARD="$bound_shard" BAYAN_TEST_TIMEOUT_MS="$bound_ms" "$
 
 The first line runs the bound blocks of `editors/language-server/src/bounds/bounds.byn` (spec 019 T38a, R22) with no .NET;
 they are pending on Windows (no `sh` or `ps`), and on Linux and macOS the gate fails when any is pending or none passed.
-The block "16 messages of 2 MiB read and 16 written …" allows less than four messages (8192 KB) of growth on macOS for the reads
-and for the writes, two (4096 KB) elsewhere (spec 019 T43, 2026-11-20). The hosted macos-15 runner grew 6288 KB on the reads and
-4160 KB on the writes (release dry run 44688158908). On macOS arm64 a scratch copy of the block, its input framed once and
+The block "16 messages of 2 MiB read and 16 written …" allows less than eight messages (16384 KB, half the 32768 KB a
+kept message per read adds at 16) of growth on macOS for the reads and for the writes, two (4096 KB) elsewhere (spec 019 T43,
+2026-11-20; macOS raised from 8192 KB 2026-11-21). The hosted macos-15 runner grew 6288 KB on the reads and 4160 KB on the writes
+(release dry run 44688158908), then 13392, 11760 and 8912 KB on the reads with no transport or runtime change (44825766493,
+44835983809, 44851112492). On macOS arm64 a scratch copy of the block, its input framed once and
 moved into the transport (0.5 GB resident at 256 messages instead of 3 GB, which the loaded machine paged out), grew on the
 reads 16, 496 and 16 KB at 16 messages, 1376, 1792 and 1616 KB at 64, 528, 1616 and -3056 KB at 256; the writes alone (no
 input held beside them) grew 1184, 2640 and 32 KB at 16, 1520, 2128 and 3104 KB at 64, 2896, 3584 and 3408 KB at 256. Kept
