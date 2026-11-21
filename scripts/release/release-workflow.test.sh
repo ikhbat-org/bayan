@@ -19,6 +19,8 @@ awk '/^  release:/{r=1} r&&/needs:/{print; exit}' "$wf" | grep -qw 'ddc' || fail
 grep -qx '  workflow_call:' "$ddc" || fail "ddc.yml is not callable"
 grep -qE "^    - cron: '[0-9]+ [0-9]+ \* \* [0-6]'" "$ddc" || fail "ddc.yml lost its weekly schedule"
 grep -q 'bash scripts/ci/install-dotnet.sh' "$ddc" && grep -q 'bash scripts/ci/ddc.sh' "$ddc" || fail "ddc.yml does not install .NET with install-dotnet.sh and run ddc.sh"
+awk '/^  [a-z]/{j=$0} /bash scripts\/selfhost\/reexport-check.sh/{print j}' "$ddc" | grep -qx '  reexport:' || fail "ddc.yml's re-export does not run in its own reexport job"
+awk '/^  reexport:/{j=1;next} j&&/^  [^ #]/{exit} j&&/runs-on:/{print $2}' "$ddc" | grep -q '^macos-' || fail "ddc.yml's reexport job does not run on macOS, the host the frozen files were exported on"
 ddcref=$(sed -n "s/.*DDC_REF: \${{ inputs.ref || '\([^']*\)' }}.*/\1/p" "$ddc")
 # a CI checkout fetches with --no-tags: the check needs a clone that has tags
 if [ -n "$(git -C "$root" tag -l | head -n 1)" ]; then

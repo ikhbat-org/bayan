@@ -54,10 +54,30 @@ jobs:
         env:
           BAYAN_TEST_TIME_SCALE: 3
         run: bash scripts/ci/ddc.sh "$DDC_REF"
-      # L043 (spec 019 T59): the C# compiler at the export head tests/cases/FREEZE.tsv names re-exports one class per kind
-      # (seeded by the ISO week), or every class on a dispatch with `full`; each compared frozen file must match the tree.
+  # L043 (spec 019 T59): the C# compiler at the export head tests/cases/FREEZE.tsv names re-exports one class per kind
+  # (seeded by the ISO week), or every class on a dispatch with `full`; each compared frozen file must match the tree.
+  # macOS, the host the frozen files were exported on (owner, 2026-11-21): they name the host (`macos-arm64`), its temp
+  # directory, and number cases in directory-listing order; the full run on Linux (wp1 WSL, 3e19e8532) differed in 987 of 54,337 files.
+  reexport:
+    runs-on: macos-15
+    timeout-minutes: ${{ inputs.full && 300 || 60 }}
+    steps:
+      - name: Checkout
+        shell: bash
+        run: |
+          git init -q .
+          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q --detach FETCH_HEAD
+      - name: Install .NET SDK
+        shell: bash
+        run: |
+          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
+          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
+          echo "$dotnet_root" >> "$GITHUB_PATH"
+      - name: Install zig
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
       - name: Frozen files re-export
-        if: ${{ !cancelled() }}
         shell: bash
         env:
           BAYAN_TEST_TIME_SCALE: 3
