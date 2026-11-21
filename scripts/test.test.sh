@@ -84,14 +84,17 @@ rc=0; ZIG_GLOBAL_CACHE_DIR="$tmp/own-zig" "$BASH" "$s" --only runtime >/dev/null
 stub runtime 0
 
 # the default zig cache's o/ is trimmed to the newest 2000 entries, keeping one written in the last 10 minutes; a copy of
-# test.sh under $tmp/fake makes $tmp/fake/tmp/zig-global the default, so the checkout's own cache is not touched.
+# test.sh under $tmp/fake makes $tmp/fake/tmp/zig-global the default, so the checkout's own cache is not touched. Entries hold
+# a main.o; rt, the oldest, holds zig's libcompiler_rt.a and is kept (laws-nightly 44901747519).
 mkdir -p "$tmp/fake/scripts" "$tmp/fake/tmp/zig-global/o" "$tmp/own-zig/o"; cp "$s" "$tmp/fake/scripts/test.sh"
-(cd "$tmp/fake/tmp/zig-global/o" && seq 1 2001 | xargs mkdir && touch -t 202001010000 * && mkdir new)
+(cd "$tmp/fake/tmp/zig-global/o" && seq 1 2001 | xargs mkdir && seq 1 2001 | sed 's#$#/main.o#' | xargs touch \
+  && mkdir rt && touch rt/libcompiler_rt.a && touch -t 202001010000 * && touch -t 201901010000 rt && mkdir new)
 (cd "$tmp/own-zig/o" && seq 1 2001 | xargs mkdir && touch -t 202001010000 *)
 rc=0; (unset ZIG_GLOBAL_CACHE_DIR; "$BASH" "$tmp/fake/scripts/test.sh" --only runtime >/dev/null 2>&1) || rc=$?
 [ $rc = 0 ] || fail "test.sh with an old zig cache exited $rc"
-[ "$(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l | tr -d ' ')" = 2000 ] || fail "the default zig cache's o/ has $(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l) entries, not 2000"
+[ "$(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l | tr -d ' ')" = 2001 ] || fail "the default zig cache's o/ has $(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l) entries, not 2001"
 [ -d "$tmp/fake/tmp/zig-global/o/new" ] || fail "an o/ entry written in the last 10 minutes was trimmed"
+[ -f "$tmp/fake/tmp/zig-global/o/rt/libcompiler_rt.a" ] || fail "the o/ entry holding zig's libcompiler_rt.a was trimmed"
 rc=0; ZIG_GLOBAL_CACHE_DIR="$tmp/own-zig" "$BASH" "$s" --only runtime >/dev/null 2>&1 || rc=$?
 [ $rc = 0 ] && [ "$(ls -A "$tmp/own-zig/o" | wc -l | tr -d ' ')" = 2001 ] || fail "a caller-set ZIG_GLOBAL_CACHE_DIR was trimmed (exit $rc)"
 rc=0; "$BASH" "$s" --jobs 0 >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "--jobs 0 exited $rc, not 2"
