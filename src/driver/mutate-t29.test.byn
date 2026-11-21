@@ -1,0 +1,194 @@
+// mutate.byn's `mutate --binary` route run in the test process (019 T29): the argument errors, `--jobs 2` through the workers of
+// `$BAYAN_EXE`, the worker itself, its outcome files and the runner fixture's helpers.
+
+/// A fresh `tmp/<name>` with a stand-in binary `prog`, its site map of sites 1 to 4 (site 3 not emitted) and `replay.sh`, the replay
+/// command: mutant 2 exits 1, the others exit 0. Returns the directory.
+string t29Fixture(string name) uses alloc, fs {
+    let dir = Path.combine(Path.fullPath("tmp"), name)
+    deleteWorkDir(dir)
+    goldenWrite(dir, for: "prog", as: "")
+    var sites = StrBuf()
+    sites.append("{ \"version\": 1, \"sites\": [")
+    for id in 1..5 {
+        let emitted = id == 3 ? ", \"emitted\": false" : ""
+        sites.append(
+            $"{id > 1 ? "," : ""} {{ \"id\": {id}, \"file\": \"lib.byn\", \"line\": {id}, \"column\": 5, \"operator\": \"arithmetic\", \"original\": \"n + {id}\", \"mutated\": \"n - {id}\"{emitted} }}",
+        )
+    }
+    sites.append(" ] }\n")
+    goldenWrite(dir, for: "prog.sites.json", as: sites.finish())
+    goldenWrite(dir, for: "replay.sh", as: "case $BAYAN_MUTANT in\n  2) exit 1 ;;\nesac\nexit 0\n")
+    return dir
+}
+
+/// `mutate --binary` arguments over the `t29Fixture` in `dir` with `extra` before `--`.
+List<string> t29Args(string dir, by List<string> extra) uses alloc {
+    var args = List<string>()
+    for a in ["--binary", Path.combine(dir, "prog"), "--sites", Path.combine(dir, "prog.sites.json")] {
+        args.append(a)
+    }
+    for a in extra {
+        args.append(a)
+    }
+    for a in ["--", "/bin/sh", Path.combine(dir, "replay.sh")] {
+        args.append(a)
+    }
+    return args
+}
+
+/// The `totals` object of a mutation report with 1 killed, 2 survived and 1 not emitted, as `qualityMutationJson` writes it.
+const t29Totals: string = "\"totals\": {\n    \"killed\": 1,\n    \"survived\": 2,\n    \"timeout\": 0,\n    \"marked\": 0,\n    \"not_reached\": 0,\n    \"not_emitted\": 1\n  }"
+
+test "mutate t29: --jobs 2 runs the sites through workers of $BAYAN_EXE and writes the report beside the binary" {
+    if Target.os == "windows" {
+        todo("the replay command is a `sh` script and the workers start through `sh`")
+    }
+    let dir = t29Fixture("mutate-t29-jobs")
+    // mutant 4 sleeps past its limit, 5 s after a mutant 0 of a few milliseconds
+    goldenWrite(dir, for: "replay.sh", as: "case $BAYAN_MUTANT in\n  2) exit 1 ;;\n  4) sleep 7 ;;\nesac\nexit 0\n")
+    let code = mutateBinary(t29Args(dir, by: ["--jobs", "2"]))
+    let report = Io.readText(Path.combine(dir, "bayan-quality.json")) catch ""
+    deleteWorkDir(dir)
+    assert(code == exitOk)
+    assert(report.contains("\"tool\": \"bayan mutate\""))
+    assert(report.contains(
+        t29Totals.replaced("\"survived\": 2,\n    \"timeout\": 0", by: "\"survived\": 1,\n    \"timeout\": 1"),
+    ))
+}
+
+test "mutate t29: a worker flag alone, --jobs without its value and --jobs 0 exit 2" {
+    let dir = t29Fixture("mutate-t29-usage")
+    let worker = mutateBinary(["--mutate-worker"])
+    let bare = mutateBinary(["--binary", "a", "--sites", "b", "--jobs"])
+    let zero = mutateBinary(t29Args(dir, by: ["--jobs", "0"]))
+    deleteWorkDir(dir)
+    assert(worker == exitUsage && bare == exitUsage && zero == exitUsage)
+}
+
+test "mutate t29: a mutation gate of 100% fails on survivors and the report is still written" {
+    if Target.os == "windows" {
+        todo("the replay command is a `sh` script")
+    }
+    let dir = t29Fixture("mutate-t29-gate")
+    let sites = externalSiteReadAll(Io.readText(Path.combine(dir, "prog.sites.json")) catch "")
+        ?? panic("not a site map")
+    let reportDir = Path.combine(dir, "report")
+    let code = runExternal(
+        in sites,
+        by: ["/bin/sh", Path.combine(dir, "replay.sh")],
+        for: Path.combine(dir, "prog"),
+        through: "t29",
+        to: reportDir,
+        as: 0,
+        minMutation: 100,
+    )
+    let report = Io.readText(Path.combine(reportDir, "bayan-quality.json")) catch ""
+    deleteWorkDir(dir)
+    assert(code == exitTestFailure)
+    assert(report.contains("\"tool\": \"t29\""))
+    assert(report.contains(t29Totals))
+}
+
+test "mutate t29: a test-block mutant's limit is 5 x its unmutated time, at least 1 s" {
+    assert(t13Limit(1000000000) == 5000)
+    assert(t13Limit(0) == 1000)
+}
+
+test "mutate t29: a worker refuses bad arguments and a missing site list" {
+    let dir = t29Fixture("mutate-t29-worker-usage")
+    let tooFew = mutateWorker(["--mutate-worker"])
+    let noDash = mutateWorker(["--mutate-worker", dir, "0", "1", "5", "b", "x", "c"])
+    let k = mutateWorker(["--mutate-worker", dir, "x", "1", "5", "b", "--", "c"])
+    let n = mutateWorker(["--mutate-worker", dir, "0", "x", "5", "b", "--", "c"])
+    let limit = mutateWorker(["--mutate-worker", dir, "0", "1", "x", "b", "--", "c"])
+    let none = mutateWorker(["--mutate-worker", dir, "0", "0", "5", "b", "--", "c"])
+    let noSites = mutateWorker(["--mutate-worker", dir, "0", "1", "5", "b", "--", "c"])
+    deleteWorkDir(dir)
+    assert(tooFew == exitUsage && noDash == exitUsage)
+    assert(k == exitUsage && n == exitUsage && limit == exitUsage && none == exitUsage)
+    assert(noSites == exitFailure)
+}
+
+test "mutate t29: a worker writes each of its sites' outcomes and stops at a bad id, a command that cannot start or a write that fails" {
+    if Target.os == "windows" {
+        todo("the command is a `sh` script")
+    }
+    let dir = t29Fixture("mutate-t29-worker")
+    let script = Path.combine(dir, "w.sh")
+    goldenWrite(dir, for: "w.sh", as: "case $BAYAN_MUTANT in\n  1) exit 1 ;;\n  2) sleep 3 ;;\nesac\nexit 0\n")
+    goldenWrite(dir, for: "sites", as: "-\n1\n2\n3\n")
+    let ran = mutateWorker(["--mutate-worker", dir, "0", "1", "300", "b", "--", "/bin/sh", script])
+    var files = List<string>()
+    for i in 0..4 {
+        files.append(Io.readText(Path.combine(dir, $"{i}")) catch "none")
+    }
+    // the second of two workers runs only the second emitted site, whose id is not a number
+    goldenWrite(dir, for: "sites", as: "1\nx\n")
+    let badId = mutateWorker(["--mutate-worker", dir, "1", "2", "300", "b", "--", "/bin/sh", script])
+    goldenWrite(dir, for: "sites", as: "3\n")
+    let noStart = mutateWorker(["--mutate-worker", dir, "0", "1", "300", "b", "--", "/nonexistent/cmd"])
+    Io.createDirectory(Path.combine(dir, "0")) catch {}
+    let noWrite = mutateWorker(["--mutate-worker", dir, "0", "1", "300", "b", "--", "/bin/sh", script])
+    deleteWorkDir(dir)
+    assert(ran == exitOk)
+    assert(files[0] == "none")
+    assert(files[1].startsWith("0 1 ") && files[1].endsWith("\n"))
+    assert(files[2].startsWith("1 1 "))
+    assert(files[3].startsWith("0 0 "))
+    assert(badId == exitUsage && noStart == exitFailure && noWrite == exitFailure)
+}
+
+test "mutate t29: a worker's outcome file is read back, null when missing or not three numbers" {
+    let dir = Path.combine(Path.fullPath("tmp"), "mutate-t29-outcome")
+    deleteWorkDir(dir)
+    goldenWrite(dir, for: "1", as: "1 2\n")
+    goldenWrite(dir, for: "2", as: "x 0 5\n")
+    goldenWrite(dir, for: "3", as: "0 x 5\n")
+    goldenWrite(dir, for: "4", as: "0 0 x\n")
+    goldenWrite(dir, for: "5", as: "1 1 7\n")
+    goldenWrite(dir, for: "6", as: "0 0 9\n")
+    goldenWrite(dir, for: "err-0", as: "a\n")
+    var nulls: i64 = 0
+    for i in 0..5 {
+        nulls += t13WorkerOutcome(dir, at: i) is null ? 1 : 0
+    }
+    let failed = t13WorkerOutcome(dir, at: 5) ?? panic("no outcome 5")
+    let passed = t13WorkerOutcome(dir, at: 6) ?? panic("no outcome 6")
+    let err = t13WorkerErr(dir, by: 2)
+    deleteWorkDir(dir)
+    assert(nulls == 5)
+    assert(failed.exitCode == 1 && failed.timedOut && failed.elapsedNanos == 7)
+    assert(passed.exitCode == 0 && !passed.timedOut && passed.elapsedNanos == 9)
+    assert(t13WorkerErr("", by: 2) == "")
+    assert(err == " (a mutant worker wrote no outcome; the workers' stderr: a\n)")
+}
+
+test "mutate t29: the runner fixture's helpers find a mutant by all three of its names and compile into a fresh directory" {
+    var mutants = List<MutantResult>()
+    let originals = ["x", "o", "o"]
+    let mutated = ["y", "z", "y"]
+    for i in 0..3 {
+        let site = ExternalSite {
+            id: i + 1,
+            file: "f",
+            line: 1,
+            column: 1,
+            op: "a",
+            original: originals[i],
+            mutated: mutated[i],
+        }
+        mutants.append(MutantResult { site: site, status: .survived })
+    }
+    let result = MutationResult { mutants: move mutants }
+    assert(t13RunnerMutant(result, by: "a", for: "o", to: "y").site.id == 3)
+    var dir = ""
+    let c = t13RunnerCompile(
+        "mutate-t29-compile",
+        by: "i64 inc(i64 n) {\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n",
+        at: ref dir,
+    )
+    let made = t5DirectoryExists(dir)
+    deleteWorkDir(dir)
+    assert(dir == Path.combine(Path.fullPath("tmp"), "mutate-t29-compile"))
+    assert(made && c.tests.length == 1)
+}

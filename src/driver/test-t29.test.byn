@@ -278,3 +278,88 @@ test "driver t29: fast mode, a debug run without the summary, two modules and --
     t29Same(got.joined(by: " "), as: "null 0 2")
     deleteWorkDir(dir)
 }
+
+test "driver t29: a test block whose error escapes fails with exit 1, and a pending one under --json -v prints nothing" {
+    let dir = t29TestDir("escape")
+    goldenWrite(dir, for: "package.byn", as: "Package {\n    name: \"local/escape\",\n    version: \"0.1.0\",\n}\n")
+    goldenWrite(
+        dir,
+        for: "src/app/main.byn",
+        as: "union error E {\n    bad\n}\n\nvoid check(i64 n) fails E {\n    fail .bad if n < 0\n}\n\nprint(\"main\")\n\ntest \"t29 error\" {\n    try check(-1)\n}\n\ntest \"t29 pending\" {\n    todo(\"later\")\n}\n",
+    )
+    t29Same(t29TestRun(["--json", "-v", dir]), as: "3")
+    let results = Io.readText(Path.combine(dir, "out/test/results.json")) catch ""
+    deleteWorkDir(dir)
+    assert results.contains("\"line\": 11,\n      \"status\": \"fail\",")
+    assert results.contains("\"output\": \"error: bad\"")
+    assert results.contains("\"status\": \"pending\",")
+    assert results.contains("\"failed\": 1,\n    \"panicked\": 0,\n    \"timedOut\": 0,\n    \"pending\": 1,")
+}
+
+test "driver t29: runTest stops a test past its limit as timed out with exit -1" {
+    // the stand-in test is a `sh` script made executable by `/bin/chmod`
+    if Target.os == "windows" {
+        todo("the stand-in test is a `sh` script")
+    }
+    let dir = t29TestDir("slow")
+    goldenWrite(dir, for: "slow.sh", as: "#!/bin/sh\nsleep 5\n")
+    t29WalkRun("chmod", by: ["755", Path.combine(dir, "slow.sh")])
+    let o = runTest(Path.combine(dir, "slow.sh"), at: 0, by: null, for: 200)
+    deleteWorkDir(dir)
+    assert o.timedOut && o.exitCode == -1
+}
+
+test "driver t29: deleteStale removes only its prefix's files and passes over a missing or unlistable directory" {
+    if Target.os == "windows" {
+        todo("the unlistable directory is made by `chmod 000`")
+    }
+    let dir = t29TestDir("stale")
+    goldenWrite(dir, for: "cov/P.1", as: "x")
+    goldenWrite(dir, for: "cov/P.d/keep", as: "x")
+    goldenWrite(dir, for: "cov/Q.1", as: "x")
+    deleteStale(Path.combine(dir, "cov/P"))
+    let removed = !Fs.fileExists(Path.combine(dir, "cov/P.1"))
+    let kept = t5DirectoryExists(Path.combine(dir, "cov/P.d")) && Fs.fileExists(Path.combine(dir, "cov/Q.1"))
+    deleteStale(Path.combine(dir, "none/P"))
+    goldenWrite(dir, for: "locked/P.1", as: "x")
+    t29WalkRun("chmod", by: ["000", Path.combine(dir, "locked")])
+    deleteStale(Path.combine(dir, "locked/P"))
+    t29WalkRun("chmod", by: ["755", Path.combine(dir, "locked")])
+    let locked = Fs.fileExists(Path.combine(dir, "locked/P.1"))
+    deleteWorkDir(dir)
+    assert removed && kept && locked
+}
+
+test "driver t29: readCounters refuses a missing file and a counter id that is not a number" {
+    let dir = t29TestDir("counters")
+    goldenWrite(dir, for: "bad", as: "bayan-coverage 1\nx 5\n")
+    goldenWrite(dir, for: "good", as: "bayan-coverage 1\n3 5\n")
+    let bad = readCounters(Path.combine(dir, "bad"))
+    let missing = readCounters(Path.combine(dir, "missing"))
+    let good = readCounters(Path.combine(dir, "good")) ?? []
+    deleteWorkDir(dir)
+    assert bad is null && missing is null
+    assert good.length == 1 && good[3] == 5
+}
+
+test "driver t29: a library's entry module is its name in camelCase" {
+    var dir = ""
+    var c = t13RunnerCompile("test-t29-lib", by: "i64 inc(i64 n) {\n    return n + 1\n}\n", at: ref dir)
+    let entry = t11EntryModule(ref c, for: dir)
+    deleteWorkDir(dir)
+    t29Same(entry, as: "testT29Lib")
+}
+
+test "driver t29: a test build whose executable path is a directory is a toolchain failure, in text and in JSON" {
+    let dir = t29TestDir("blocked")
+    goldenWrite(dir, for: "package.byn", as: "Package {\n    name: \"local/blocked\",\n    version: \"0.1.0\",\n}\n")
+    goldenWrite(dir, for: "src/app/main.byn", as: "print(\"main\")\n\ntest \"t29 ok\" {\n    assert 1 == 1\n}\n")
+    let host = t5HostTarget()
+    goldenWrite(dir, for: $"out/safe/{host}/{targetExecutableName("blocked-test", for: host)}/keep", as: "x")
+    var got = List<string>()
+    got.append(t29TestRun([dir]))
+    got.append(t29TestRun(["--json", dir]))
+    got.append(t29TestRun(["--diagnostics", "json", dir]))
+    deleteWorkDir(dir)
+    t29Same(got.joined(by: " "), as: $"{exitToolchain} {exitToolchain} {exitToolchain}")
+}
