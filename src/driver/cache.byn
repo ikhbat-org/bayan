@@ -820,7 +820,7 @@ void zigTrimEntries(string dir, by i64 limit, until i64 minAgeNanos) uses alloc,
     for i in order {
         break if count <= limit
         continue if used[i] > cutoff
-        continue if !zigDriverObject(paths[i])
+        continue if t9DirectoryExists(paths[i]) && !zigDriverObject(paths[i])
         count -= 1
         continue if t3Unlinked(paths[i])
         try t9DeleteTree(paths[i])
@@ -830,7 +830,8 @@ void zigTrimEntries(string dir, by i64 limit, until i64 minAgeNanos) uses alloc,
 /// Whether the `o/` entry `path` holds only objects of the driver's own compiles (`main.c`, `bayan-rt.c`), so it may be trimmed.
 /// zig builds its toolchain pieces (`libcompiler_rt.a`, libc, crt, ubsan) once per target into `o/` and every later link reads
 /// them through a manifest in `h/`; removing one makes that link fail with `failed to parse archive: FileNotFound` (laws-nightly
-/// 44901747519, 2026-11-21). Those pieces are bounded per target, so they are kept, as is an empty or unreadable entry.
+/// 44901747519, 2026-11-21). Those pieces are bounded per target, so they are kept, as is an empty or unreadable entry. The trim
+/// asks this only of a directory: a link or a file in `o/` holds no toolchain piece and is removed as before.
 bool zigDriverObject(string path) uses alloc, fs {
     let names = Io.listDir(path) catch return false
     return false if names.length == 0
