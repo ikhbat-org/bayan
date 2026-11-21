@@ -16,6 +16,9 @@ docs_fixture() {
   printf '// driver\nconst version: string = "1.2.3-dev"\n' > "$r/src/driver/main.byn"
   printf '{\n  "compiler": "bayan 1.2.3-dev",\n  "x": 1\n}\n{\n  "compiler": "bayan 1.2.3-dev"\n}\n' > "$r/tests/cases/out/dist.tree"
   printf '# Bayan\n\n```sh\nscripts/dist.sh                                # this host: dist/macos-arm64/1.2.3-dev/bayan\n```\n' > "$r/README.md"
+  mkdir -p "$r/tests/parity/cli-cli/version-prints-version/expected" "$r/tests/parity/cli-environment/doctor-reports-a-healthy-toolchain/expected"
+  printf '$ bayan --version\nbayan 1.2.3-dev (<build>)\n' > "$r/tests/parity/cli-cli/version-prints-version/expected/stdout"
+  printf '\n\n◆ bayan       1.2.3-dev (commit <c>)\n' > "$r/tests/parity/cli-environment/doctor-reports-a-healthy-toolchain/expected/stdout"
   printf '# 0001 — First\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$r/docs/revisions/0001-first.md"
   printf '# 0002 — Second\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$r/docs/revisions/0002-second.md"
   for d in spec grammar style; do

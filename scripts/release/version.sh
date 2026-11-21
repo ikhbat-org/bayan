@@ -43,5 +43,7 @@ bayan_mirrors() {
   printf '%s\t%s\t%s\n' \
     src/driver/main.byn '^(const version: string = ")' '(")' \
     tests/cases/out/dist.tree '("compiler": "bayan )' '(")' \
-    README.md '(scripts/dist\.sh .*dist/[a-z0-9-]+/)' '(/bayan)'
+    README.md '(scripts/dist\.sh .*dist/[a-z0-9-]+/)' '(/bayan)' \
+    tests/parity/cli-cli/version-prints-version/expected/stdout '^(bayan )' '( \(<build>\))' \
+    tests/parity/cli-environment/doctor-reports-a-healthy-toolchain/expected/stdout '^(◆ bayan +)' '( \(commit)'
 }
