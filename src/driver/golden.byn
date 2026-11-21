@@ -3401,7 +3401,8 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
         panic($"the sampled run over the {over} did not end")
     }
     // The sampled run's report is in the work directory, deleted below: keep its `failed` and `timed out` rows (at most 20) for the message,
-    // each with the first 4 indented lines under it (the case's file and why it failed; laws-nightly 44875305683 named only the rows).
+    // each with the first 12 indented lines under it (the case's file and why it failed; laws-nightly 44875305683 named only the rows,
+    // and 44886790373 kept 4, which cut a BYN4001 row before the C compiler's own output).
     var failedRows = List<string>()
     var detail: i64 = -1
     for line in goldenLines(Io.readText(Path.combine(root, "exit.out")) catch "") {
@@ -3411,7 +3412,7 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
                 failedRows.append(line)
                 detail = 0
             }
-        } else if detail >= 0 && detail < 4 && line.startsWith("    ") {
+        } else if detail >= 0 && detail < 12 && line.startsWith("    ") {
             failedRows[failedRows.length - 1] = $"{failedRows[failedRows.length - 1]} | {line.trimmed()}"
             detail += 1
         } else if !line.startsWith("    ") {
