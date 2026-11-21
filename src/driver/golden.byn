@@ -3355,7 +3355,7 @@ test "one worker of the driver itself runs more than a batch of cases, started a
 
 /// `sh -c` text: runs `BAYAN_EXE=$1 $1 test $2`, output dropped, writing its exit code to the file `$4` when it ends; until then, every 50 ms,
 /// the resident set (`ps`, KB) of it and of each `$1 test --golden-worker $3…`. Prints `<exit> <runner peak KB> <largest worker peak KB>`.
-const goldenPeakScript: string = "( BAYAN_EXE=\"$1\" \"$1\" test \"$2\" >/dev/null 2>&1; echo $? > \"$4\" ) & t=0; w=0; while [ ! -s \"$4\" ]; do s=$(ps -A -ww -o rss=,args= | awk -v p=\"$1 test $2\" -v q=\"$1 test --golden-worker $3\" '{ k = $1 + 0; sub(/^ *[0-9]+ /, \"\") } $0 == p && k > a { a = k } index($0, q) == 1 && k > b { b = k } END { print a + 0, b + 0 }'); a=${s% *}; b=${s#* }; [ \"$a\" -gt \"$t\" ] && t=$a; [ \"$b\" -gt \"$w\" ] && w=$b; sleep 0.05; done; echo \"$(cat \"$4\") $t $w\""
+const goldenPeakScript: string = "( BAYAN_EXE=\"$1\" \"$1\" test \"$2\" > \"$4.out\" 2>&1; echo $? > \"$4\" ) & t=0; w=0; while [ ! -s \"$4\" ]; do s=$(ps -A -ww -o rss=,args= | awk -v p=\"$1 test $2\" -v q=\"$1 test --golden-worker $3\" '{ k = $1 + 0; sub(/^ *[0-9]+ /, \"\") } $0 == p && k > a { a = k } index($0, q) == 1 && k > b { b = k } END { print a + 0, b + 0 }'); a=${s% *}; b=${s#* }; [ \"$a\" -gt \"$t\" ] && t=$a; [ \"$b\" -gt \"$w\" ] && w=$b; sleep 0.05; done; echo \"$(cat \"$4\") $t $w $(grep -o '[0-9]* golden case' \"$4.out\" | tail -1 | cut -d' ' -f1)\""
 
 test "a run over tests/cases keeps the runner and each worker under 15 MB and leaves no scratch directory" {
     if Target.os == "windows" {
@@ -3406,9 +3406,14 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     for f in r.stdout.trimmed(from: .end).parts(by: " ") {
         fields.append(f)
     }
-    assert(fields.length == 3)
+    assert(fields.length == 3 || fields.length == 4)
     let runner = t9Digits(fields[1], until: 9223372036854775807) ?? 0
     let worker = t9Digits(fields[2], until: 9223372036854775807) ?? 0
+    let cases = fields.length == 4 ? t9Digits(fields[3], until: 9223372036854775807) ?? 0 : 0
+    // Decision 2026-11-21 (owner): the runner holds each case's result until the report is written (about 1.8 KB a case after the
+    // per-entry report arenas), so over the full tree its bound is 15 MB plus 2 KB a case; a shard keeps the flat 15 MB the release gate
+    // samples. Streaming the results to disk, which would make the full tree flat too, is in work/todo.md.
+    let runnerBound = shard == "" ? 15 * 1024 + 2 * cases : 15 * 1024
     // measured 2026-11-17 on macOS arm64 (10 CPUs, shared), default --jobs 4, four runs: runner 9,296 to 9,984 KB, largest worker 9,568 to
     // 9,792 KB; the bounds are 1.5 times that. The runner lists the cases, starts the workers and reads their results; each worker runs its
     // share of the cases in itself, so it is sampled on its own. The drivers a worker starts to build or run a case are not counted.
@@ -3427,10 +3432,11 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
         }
     }
     print(
-        $"{over}: exit {fields[0]}, runner {runner} KB, largest worker {worker} KB (measured 9,984 and 9,792), left in {tmp}: {t5Join(in left)}",
+        $"{over}: exit {fields[0]}, {cases} cases, runner {runner} KB (bound {runnerBound}), largest worker {worker} KB (measured 9,984 and 9,792), left in {tmp}: {t5Join(in left)}",
     )
     assert(fields[0] == "0")
-    assert(runner > 0 && runner < 15 * 1024)
+    assert(cases > 0)
+    assert(runner > 0 && runner < runnerBound)
     assert(worker > 0 && worker < 15 * 1024)
     assert(left.length == 0)
 }

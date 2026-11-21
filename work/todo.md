@@ -931,6 +931,7 @@ Not doing, with the reason. Kept so the same idea does not get re-raised every q
 - LOW (019 T9a) `walk.byn` has no file budget of its own (memory-leaks rule 1).
 - LOW (019 T9b) the `memory-gate` job in `.github/workflows/release.yml` has a 30-minute timeout; it now also builds the pinned bayan and `src/driver` and runs the multi-minute runner bound. Check it fits before the next release.
 - LOW (019 T9b) the 15 MB golden runner bound is measured on macOS only; measure it on Linux (bayan-test01) and adjust `golden.byn` and `docs/memory-leaks.md` if needed.
+- 019 T44a (Decision 2026-11-21, owner): stream the golden runner's per-case results and results.json to disk as cases finish, so the full-tree runner bound in `src/driver/golden.byn` ("a run over tests/cases keeps the runner…") can return from 15 MB + 2 KB per case (88,560 KB at 41,125 cases, macOS) to the flat 15 MB shard 1/12 keeps.
 - LOW (019 T21 gate) `scripts/ci/pre-push.test.sh`: no case covers the golden-commit-check step in `pre-push.sh`.
 - LOW (019 T21 gate) `scripts/ci/golden-commit-check.sh:25`: any 7–40 hex run with a digit counts as a cause, so a date like `20261117` passes as a sha.
 - LOW (019 T23, 2026-11-18): golden case `out/dist` hit its 60 s timeout once under a loaded Mac (4 writers), passed on rerun; `scripts/test.sh` real run 511 s (golden 203, bayan 91, scripts 183, runtime 34).
