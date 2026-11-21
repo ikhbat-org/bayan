@@ -103,8 +103,9 @@ jobs:
           BAYAN_TEST_TIME_SCALE: 3
           BAYAN_TEST_SHARD: ${{ matrix.shard }}/6
           # as ci.yml's Test step: 3 SelfhostDefaultT12Tests dist cases (cold zig cache) timed out at the 60 s case default
-          # (laws-nightly run 44740572844, shard 5)
-          BAYAN_TEST_TIMEOUT_MS: 300000
+          # (laws-nightly run 44740572844, shard 5); 300 s then timed out cli/SelfhostDefaultT12Tests/AllTargetsAreBuilt (`dist tally
+          # --target all`, every target, cold zig cache) in runs 44793811721 and 44835983809, so it is the 300 s times this job's time scale
+          BAYAN_TEST_TIMEOUT_MS: 900000
           BAYAN_CC_TIMEOUT_S: 1800
         run: |
           mkdir -p tmp
