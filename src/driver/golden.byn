@@ -3446,7 +3446,7 @@ const goldenPeakWordsScript: string = "( BAYAN_EXE=\"$1\" \"$1\" test $2 > \"$4.
 
 // A worker's peak is set by the heavy cli case it runs, not by the batch: FeaturesMatchesTheCSharpCli-13 stages 7,615,584 bytes in 253 files.
 // `goldenCliPlace` kept every input file of a case in the case's arena (largest worker 21,840 KB, macOS arm64, 2026-11-21); it now holds one
-// file at a time (largest worker peak: see the printed figure, same machine and day). A run of one case has no `--golden-worker` (the case runs in the
+// file at a time (largest worker 3,600 to 4,144 KB over three gate runs, runner 10,944 to 11,248 KB, same machine and day). A run of one case has no `--golden-worker` (the case runs in the
 // runner, `goldenTest`), so a second case is selected to start the workers; the heavy case runs in one of them.
 test "bound: cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-13 keeps its peak under 15 MB" {
     if Target.os == "windows" {
