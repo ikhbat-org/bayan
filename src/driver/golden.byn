@@ -3441,6 +3441,52 @@ test "a run over tests/cases keeps the runner and each worker under 15 MB and le
     assert(left.length == 0)
 }
 
+/// `goldenPeakScript` with `$2` split into words, so it can carry `--only` and `--jobs`.
+const goldenPeakWordsScript: string = "( BAYAN_EXE=\"$1\" \"$1\" test $2 > \"$4.out\" 2>&1; echo $? > \"$4\" ) & t=0; w=0; while [ ! -s \"$4\" ]; do s=$(ps -A -ww -o rss=,args= | awk -v p=\"$1 test $2\" -v q=\"$1 test --golden-worker $3\" '{ k = $1 + 0; sub(/^ *[0-9]+ /, \"\") } $0 == p && k > a { a = k } index($0, q) == 1 && k > b { b = k } END { print a + 0, b + 0 }'); a=${s% *}; b=${s#* }; [ \"$a\" -gt \"$t\" ] && t=$a; [ \"$b\" -gt \"$w\" ] && w=$b; sleep 0.05; done; echo \"$(cat \"$4\") $t $w\""
+
+// A worker's peak is set by the heavy cli case it runs, not by the batch: FeaturesMatchesTheCSharpCli-13 stages 7,615,584 bytes in 253 files.
+// `goldenCliPlace` kept every input file of a case in the case's arena (largest worker 21,840 KB, macOS arm64, 2026-11-21); it now holds one
+// file at a time (10,864 KB sampled in the runner, same machine and day; 18,000 KB with the arena removed). A run of one case has no `--golden-worker` (the case runs in the runner, `goldenTest`),
+// so the sampled process is the runner, which does the same staging.
+test "bound: cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-13 keeps its peak under 15 MB" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    print(failure) if exe == ""
+    assert(exe != "")
+    let tmp = Path.fullPath("tmp")
+    let root = Path.combine(tmp, "golden-bound-cli")
+    deleteWorkDir(root)
+    Io.createDirectory(root) catch { panic($"cannot create {root}") }
+    var args = List<string>()
+    for a in [
+        "-c",
+        goldenPeakWordsScript,
+        "sh",
+        exe,
+        "tests/cases --only cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-13 --jobs 2",
+        Path.combine(tmp, "golden-jobs-"),
+        Path.combine(root, "exit"),
+    ] {
+        args.append(a)
+    }
+    let r = Io.run("sh", args.span, timeout: Millis(testTimeout() - 10000)) catch {
+        panic("the sampled run of the case did not end")
+    }
+    deleteWorkDir(root)
+    var fields = List<string>()
+    for f in r.stdout.trimmed(from: .end).parts(by: " ") {
+        fields.append(f)
+    }
+    assert(fields.length == 3)
+    let peak = t9Digits(fields[1], until: 9223372036854775807) ?? 0
+    print($"exit {fields[0]}, peak {peak} KB (measured 21,840 before)")
+    assert(fields[0] == "0")
+    assert(peak > 0 && peak < 15 * 1024)
+}
+
 test "the runner over 12000 generated cases, every one passed by a fake driver, keeps its peak under 56 MB" {
     if Target.os == "windows" {
         todo("`sh` and `ps` sample the resident set; Windows has neither")
