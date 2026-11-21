@@ -62,7 +62,7 @@ List<string> bynFiles(
     var failed = false
     var pending = List<T6Pending>()
     let root = realPath(dir) catch switch {
-        // coverage-exempt: Q1106 through `return files`
+        // coverage-exempt: Q1106 through `            return files` (the arm's own, by its indentation)
         IoError e => {
             unless silent { Io.stderr.write($"bayan: {dir}: {e}\n") }
             exit = 1

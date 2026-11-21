@@ -489,7 +489,7 @@ i32 buildCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console
     }
     if o.schemataFiles is not null {
         let path = emitter.sitesPath(built.exe)
-        // coverage-exempt: Q1258 an IO failure, as `mutateTests` lets it escape
+        // coverage-exempt: Q1286 an IO failure, as `mutateTests` lets it escape (Q1258)
         Io.writeFile(path, sitesBuf.finish().bytes) catch { panic($"cannot write {path}") }
     }
     return exitOk if o.json
