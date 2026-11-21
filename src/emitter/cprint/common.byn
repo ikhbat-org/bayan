@@ -160,6 +160,7 @@ public string key(ref Ctx c, for Type t) uses alloc {
             }
             sb.append(key(ref c, for: ret))
             return $"{sb.finish()}"
+        // coverage-exempt: Q1286 `default: panic`
         default: panic($"no C type for {semantics.typeDisplay(ref c, by: t)}")
     }
 }

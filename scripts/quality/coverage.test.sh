@@ -7,6 +7,10 @@
 # per case, src/driver/golden.byn goldenCoveragePrefix and its test block) and the shard; --corpus merges the `--counters`
 # report with the packages' ones (a line only the corpus covers counts); a file still below fails; a missing counter
 # directory, or one with no c.* file, fails with a message.
+# T29c: a missed line under a valid `// coverage-exempt:` marker (tools/coverage-gate.byn through scripts/bayan-tool.sh)
+# leaves the file's total, so b.byn meets 1.0, and the written report keeps the raw count; a marker whose Question cites
+# no line of its file fails, named; `--add-report` merges another host's report (its own checkout's full paths), covering
+# a line the packages miss; one whose totals differ is exit 2.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 d="$root/tmp/quality/coverage-test"; rm -rf "$d"; mkdir -p "$d/bin" "$d/tree/src/a" "$d/tree/src/b" "$d/tree/src/c" "$d/tree/tests"
@@ -102,6 +106,32 @@ grep -qx "coverage.sh: --corpus $d/empty: no counter file c.\*" "$d/err.txt" || 
 mkdir -p "$d/many"; long=$(printf 'x%.0s' $(seq 1 200)); (cd "$d/many" && seq 1 12000 | sed "s/^/c.$long./" | xargs touch)
 out=$(CORPUS=lift run --corpus "$d/many") || true
 grep -q "no counter file" "$d/err.txt" && fail "a directory of 12000 counter files was reported as empty" "$(head -3 "$d/err.txt")"
+
+# exempt markers: Q900 cites b.byn, Q901 does not
+mkdir -p "$t/docs"; printf '900. **fixture** b.byn:2 is dead.\n901. **fixture** a.byn:1 only.\n' > "$t/docs/bayan-questions.md"
+printf '// coverage-exempt: Q900 dead in the fixture\ntest "y" {}\n' > "$t/src/b/b.byn"
+base 1.0 ''
+out=$(run) || fail "an exempted missed line did not raise b.byn to its figure" "$out$(cat "$d/err.txt")"
+echo "$out" | grep -qx 'coverage: 2 files measured, 0 below their figure' || fail "no count line with an exempted line" "$out"
+[ "$(python3 -I -c 'import json, sys; print([(f["path"], f["lines"]["covered"], f["lines"]["total"]) for f in json.load(open(sys.argv[1]))["files"]])' "$d/out.json")" \
+  = "[('src/a/a.byn', 4, 4), ('src/b/b.byn', 3, 4)]" ] || fail "the report does not keep b.byn's raw 3/4" "$(cat "$d/out.json")"
+# at a figure b.byn meets without the marker, so only the marker fails it
+base 0.75 ''
+printf '// coverage-exempt: Q901 dead in the fixture\ntest "y" {}\n' > "$t/src/b/b.byn"
+out=$(run) && fail "an invalid coverage-exempt marker exited 0" "$out"
+grep -q '^- coverage: src/b/b.byn:1 exempts 2-2 for Q901, but Q901 in .* cites no b.byn line$' "$d/err.txt" \
+  || fail "the invalid marker is not named" "$(cat "$d/err.txt")"
+printf 'test "y" {}\n' > "$t/src/b/b.byn"
+
+# another host's report: b.byn 4/4 under /elsewhere/bayan
+base 1.0 ''
+printf '{"version": 1, "kind": "coverage", "files": [%s]}\n' "$(rep b/b.byn 4 4 '' 0 "$twice" | sed 's|@|/elsewhere/bayan|')" > "$d/host.json"
+out=$(run --add-report "$d/host.json") || fail "the added report did not lift b.byn to its figure" "$out$(cat "$d/err.txt")"
+[ "$(python3 -I -c 'import json, sys; print([(f["path"], f["lines"]["covered"]) for f in json.load(open(sys.argv[1]))["files"]])' "$d/out.json")" \
+  = "[('src/a/a.byn', 4), ('src/b/b.byn', 4)]" ] || fail "the merged report is not a.byn 4/4 and b.byn 4/4" "$(cat "$d/out.json")"
+printf '{"version": 1, "kind": "coverage", "files": [%s]}\n' "$(rep b/b.byn 5 5 '' 0 "$twice" | sed 's|@|/elsewhere/bayan|')" > "$d/host.json"
+set +e; run --add-report "$d/host.json" > /dev/null; rx=$?; set -e
+[ "$rx" = 2 ] || fail "an added report with other totals did not exit 2 (exit $rx)" "$(cat "$d/err.txt")"
 
 [ ! -e "$d/calls" ] || fail "dotnet was called" "$(cat "$d/calls")"
 echo PASS

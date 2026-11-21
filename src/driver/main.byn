@@ -231,6 +231,7 @@ DStyle decideStyle(string colorFlag, by bool ascii, through bool isTty, for i64 
                 color = false
             } else if (Env.get("FORCE_COLOR") ?? "").length > 0 && Env.get("FORCE_COLOR") != "0" {
                 color = true
+                // coverage-exempt: Q1286 through `color = false` `decideStyle` reads TERM itself: needs TERM=dumb
             } else if dumb {
                 color = false
             } else {
@@ -321,6 +322,7 @@ bool t7Utf8() uses alloc, env {
         continue if locale.length == 0
         return locale.lowercased().contains("utf-8") || locale.lowercased().contains("utf8")
     }
+    // coverage-exempt: Q1286 needs LC_ALL, LC_CTYPE and LANG all unset
     return true
 }
 

@@ -32,6 +32,7 @@ type LocalSymbol      = semantics.LocalSymbol
 /// `l.mutating`/`l.mutants` and `l.covering`/`l.coverage`, set by the caller.
 public LoweredProgram lower(ref Ctx c, to ref LCtx l) uses alloc {
     for d in c.diagnostics {
+        // coverage-exempt: Q1286 through `cannot lower a compilation with errors` leads only to the panic
         if !d.isWarning {
             panic("cannot lower a compilation with errors")
         }
@@ -573,6 +574,7 @@ bool operands(
         let lvalue = i < lvalues.length && lvalues[i]
         // coverage-exempt: Q774
         if (i < barrier && !isTrivial(in c, through: in l, for: values[i]) || movedFirst[i]) && !lvalue
+                // coverage-exempt: Q1286 a value `isTrivial` passes is never void here (also Q774, the marker above)
                 && !isVoidExpr(values[i]) {
             values[i] = spill(ref c, through: ref l, for: values[i])
         }

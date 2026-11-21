@@ -354,6 +354,7 @@ public string vtable(ref CCtx cc, from ref Ctx c, for semantics.StructId s, as s
         }
     }
     // C# `First` throws when the struct has no conformance to `i`.
+    // coverage-exempt: Q1286 through `no conformance of` leads only to the panic
     if conformance == -1 {
         panic($"no conformance of {c.structs[s].name} to {c.interfaces[i].name}")
     }

@@ -205,14 +205,17 @@ T5Check t5CCompiler() uses alloc, env, fs, process {
 
 /// Toolchain.cs:107 `FindCompiler`: `$BAYAN_CC` split on spaces (:110), else cc.byn `ccFindCompiler`; empty is C#'s null.
 List<string> t5FindCompiler() uses alloc, env, fs {
+    // coverage-exempt: Q1286 the `?? ""` result is never null
     if ((Env.get("BAYAN_CC") ?? "") is { } cc && cc.length > 0) {
         var found = List<string>()
         for part in cc.parts(by: " ") {
+            // coverage-exempt: Q1286 needs BAYAN_CC with two adjacent spaces, which a test cannot set
             if part.length > 0 {
                 found.append($"{part}")
             }
         }
         // the C# `compiler[0]` of Doctor.cs:56 throws IndexOutOfRangeException on no words; the driver panics (Q1095)
+        // coverage-exempt: Q1286 through `names no program` leads only to the panic
         if found.length == 0 {
             panic("BAYAN_CC is set but names no program")
         }

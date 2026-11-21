@@ -221,6 +221,7 @@ public string emitExpr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in 
             case .count:
                 return $"byn_cov[{t.counts[i].id}]++"
             default:
+                // coverage-exempt: Q1286 `default: panic`
                 panic($"cannot emit {t10LoweredName(ltree.lKindOf(e))}")
         }
     }
@@ -365,6 +366,7 @@ public string emitExpr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in 
                     }
                     return $"(({ctype}){{{{{t10Join(in parts)}}}}})"
                 default:
+                    // coverage-exempt: Q1286 `default: panic`
                     panic("cannot emit BoundCollection")
             }
         case .index:
@@ -393,6 +395,7 @@ public string emitExpr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in 
         case .staticArray:
             return staticArray(ref cc, from: ref c, for: c.bStaticArrays[i].constId)
         default:
+            // coverage-exempt: Q1286 `default: panic`
             panic($"cannot emit {t10BoundName(semantics.boundKind(e))}")
     }
 }

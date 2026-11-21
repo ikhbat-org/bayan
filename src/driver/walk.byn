@@ -89,6 +89,7 @@ List<string> bynFiles(
             let file = Path.combine(at.path, name)
             let real = realPath(Path.combine(canonical, name)) catch switch {
                 IoError e => {
+                    // coverage-exempt: Q1286 `realPath` fails only after the `Fs.fileExists` check above succeeds
                     unless silent { Io.stderr.write($"bayan: {file}: {e}\n") }
                     failed = true
                     continue

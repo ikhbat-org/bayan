@@ -977,3 +977,29 @@ test "emitter t29: a slice of an array field of a list element slices it in plac
         """,
     )
 }
+
+test "emitter t29: a states field read of a call that never returns ends at the panic" {
+    t29LxCase(
+        """
+        void f() {
+            let n = lampOf(panic("x")).shared
+        }
+
+        struct Lamp {
+            states {
+                lit(i64 shared)
+                dark(i64 shared)
+            }
+        }
+
+        Lamp lampOf(i64 x) => Lamp.dark { shared: x }
+        """,
+        by: """
+        void byn_main__f(void) {
+            int64_t l0_n = {0};
+        #line 32 "t29.byn"
+            (void)byn_panic_str(BYN_STR("x", 1), byn_file_0, 32);
+        }
+        """,
+    )
+}

@@ -6,6 +6,10 @@ Sources: the Q-ids, revisions, plans and commits each entry names
 
 One entry per working session, added at the end of the session. Entries are kept as written; the order is as recorded (newest first since 2026-11-05, older entries below in date order).
 
+- **2026-11-22 — 019 T29c: coverage exemptions, `--add-report`, cov8 markers (`worker-019-t29c`).**
+  - `scripts/quality/coverage.sh` reads `// coverage-exempt:` markers through the new `coverage-gate --exempt` mode and leaves exempted missed items out of the gate's figure. `--out` keeps the raw counts, and a below line names `(N exempt)`. An invalid marker exits 1. `--add-report FILE` merges another host's report, and differing totals still exit 2. `coverage.test.sh` PASS, and each new case was break-tested.
+  - Q1286 records 41 markers for the cov8 U items and a corrected Q774 anchor. New tests: dist.byn 204, 205 and 218 (`dist-t29.test.byn`), and lowerexpr.byn 151 (`lowerexpr-t29.test.byn`).
+  - Left: 8 pre-existing invalid markers (listed in Q1286) make coverage.sh on the real tree exit 1.
 - **2026-11-21 — 019 golden memory, release dry run green, T43 and T48e ticked; 025 heldout plan (option E) (`feat/019-dotnet-exit`, `feat/025-llm-eval-set`).**
   - Release dry run 44860518829 (d2d365155, `0.4.0-rc.1`) passed all 19 jobs; all six archives print `(selfhost)` and no job runs .NET, so T43 is ticked.
   - Golden bound, owner decision: the full tree may use 15 MB plus 2 KB per case; shard 1/12 stays at a flat 15 MB.
