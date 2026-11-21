@@ -87,7 +87,7 @@ test "driver t29: t9Intact and t9DirectoryExists on entries that cannot be read"
 test "driver t29: zigTrimEntries keeps the newest when the listing is not oldest first" {
     let dir = t29CacheDir("trim")
     for name in ["a", "b", "c"] {
-        goldenWrite(dir, for: $"{name}/obj", as: "x")
+        goldenWrite(dir, for: $"{name}/main.o", as: "x")
     }
     let hours: Map<string, i64> = ["a": 3, "b": 1, "c": 2]
     for name in ["a", "b", "c"] {
