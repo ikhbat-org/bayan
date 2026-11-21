@@ -311,16 +311,45 @@ void goldenCliPlace(
         failure = $"not an input line: {line}"
         return
     }
-    let file = Path.combine(Path.combine(inputs, "files"), sha)
-    let bytes = Io.readFile(file) catch {
-        failure = $"missing input file {file}"
+    // the bytes of one input file live in an arena freed after its write (2026-11-21: 7.6 MB staged for FeaturesMatchesTheCSharpCli-13);
+    // `failure` and `exec` outlive the call, so the arena only decides: 1 missing, 2 cannot create, 3 cannot write
+    var bad = 0
+    {
+        using let arena = Arena()
+        provide allocator: arena {
+            let file = Path.combine(Path.combine(inputs, "files"), sha)
+            // one pass, so a failed step leaves it with `break`
+            for _ in 0..1 {
+                let bytes = Io.readFile(file) catch switch {
+                    IoError e => {
+                        bad = 1
+                        break
+                    }
+                }
+                Io.createDirectory(Path.directoryName(path) ?? ".") catch switch {
+                    IoError e => {
+                        bad = 2
+                        break
+                    }
+                }
+                Io.writeFile(path, bytes.span) catch switch {
+                    IoError e => {
+                        bad = 3
+                        break
+                    }
+                }
+            }
+        }
+    }
+    if bad == 1 {
+        failure = $"missing input file {Path.combine(Path.combine(inputs, "files"), sha)}"
         return
     }
-    Io.createDirectory(Path.directoryName(path) ?? ".") catch {
+    if bad == 2 {
         failure = $"cannot create {path}"
         return
     }
-    Io.writeFile(path, bytes.span) catch {
+    if bad == 3 {
         failure = $"cannot write {path}"
         return
     }
