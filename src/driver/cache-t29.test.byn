@@ -316,7 +316,14 @@ test "driver t29: t9CompileIn when the compiler exits non-zero or leaves no prog
     let entry = t29CacheDir("lookup-nosum")
     goldenWrite(entry, for: "exe", as: "x")
     let found = t9LookupEntry(entry, by: "exe", from: "exe.sha256", through: ref d) catch { panic("lookup") }
-    assert found is null && !t9DirectoryExists(entry)
+    assert found is null
+    // Discard moves the entry into staging, under %LOCALAPPDATA% on Windows, and a directory move cannot cross volumes: with the
+    // checkout on another drive (D: against C: on windows-latest, ci run 44793805775) the move fails as the C# caught IOException
+    // does, and the entry stays. Cache entries live beside staging, so only this test's entry can sit on another drive.
+    let sameVolume = Target.os != "windows" || $"{t9Staging().runes.take(2)}".lowercased() == $"{entry.runes.take(2)}".lowercased()
+    if sameVolume {
+        assert !t9DirectoryExists(entry)
+    }
     // the compiler is `/bin/sh -c 'exit N'`, and Windows has no `/bin/sh`
     if Target.os == "windows" {
         todo("`/bin/sh` is Unix-only")
