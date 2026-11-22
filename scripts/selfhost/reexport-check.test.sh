@@ -4,7 +4,8 @@
 # when $EXTRA is set. The tree passes; a changed expected file, a missing row and an extra file with a FREEZE.tsv row each fail
 # naming the path; an extra file with no row is listed and passes; step 4 alone (REEXPORT_COMPARE) pairs renumbered and
 # duplicated cases by content and a class with no key files by name, masks the P2 mktemp suffix and the T9 programs and runtime hashes
-# and fails a byte outside either, and names a renumbered case that differs by its tree path; a
+# and fails a byte outside either, names a renumbered case that differs by its tree path, counts and skips a class the export
+# wrote no case for and listed in UNEXPORTED.tsv, and fails one it wrote no case for and did not list; a
 # DIVERGENCES.tsv row (case key or Class.Test) lets its case differ; the seed picks the same classes twice; --full filters to
 # every export class, so a test of no export class does not run; a class whose source names no SelfhostExport type at the head is printed as left out, never compared, and
 # refused by --class; the C# CLI replay (a stub CLI) passes, names a changed expected file, a frozen file it did not write and an
@@ -182,19 +183,24 @@ git checkout -q -- tests/cases
 rm -rf tmp/reexport.*
 
 # step 4 alone (REEXPORT_COMPARE=<dir>: <dir>/sel against <dir>/land/cases, no export): a case pairs by its key (section and
-# input.byn.ref, else input.byn.ref and args), of equal keys by content, then by name; a class with no key files by name
+# input.byn.ref, else input.byn.ref and args), of equal keys by content, then by name; a class with no key files by name; a
+# class with no case dir in <dir>/export and a row in its <kind>/UNEXPORTED.tsv is not export-written: counted, not compared
 cmp="$tmp/cmp"; lc="$cmp/land/cases"
 ck() { mkdir -p "$1/$2"; [ -z "$3" ] || printf '%s\n' "$3" > "$1/$2/args"; printf '%s\n' "$4" > "$1/$2/expected.${5:-stdout}"; }
 ck tests/cases sem/PairTests/X a x; ck tests/cases sem/PairTests/X-2 b y
 ck tests/cases sem/PairTests/D d d1; ck tests/cases sem/PairTests/D-2 d d2
 ck tests/cases sem/PairTests/S s s; ck tests/cases sem/PairTests/S-9 s s
 ck tests/cases sem/NameTests/N "" n
+ck tests/cases sem/GoneTests/G g g; ck tests/cases sem/LostTests/L l l
 ck tests/cases cli/SelfhostDefaultP2Tests/P "" "at /tmp/p2-errors-abc123/x" stderr
 printf 'in /tmp/p2-errors-abc123\n' > tests/cases/cli/SelfhostDefaultP2Tests/P/section
 ck tests/cases cli/SelfhostDefaultT9Tests/T build "cache/v1/programs/$(printf 'a%.0s' $(seq 64))/p cache/v1/runtime/$(printf 'c%.0s' $(seq 64))/r" names
-find tests/cases/sem/PairTests tests/cases/sem/NameTests tests/cases/cli/SelfhostDefaultP2Tests tests/cases/cli/SelfhostDefaultT9Tests \
+find tests/cases/sem/PairTests tests/cases/sem/NameTests tests/cases/sem/GoneTests tests/cases/sem/LostTests tests/cases/cli/SelfhostDefaultP2Tests tests/cases/cli/SelfhostDefaultT9Tests \
   -name 'expected.*' | while IFS= read -r p; do printf 'file\t%s\t%s\n' "$(git hash-object "$p")" "$p"; done >> tests/cases/FREEZE.tsv
-cmpland() { rm -rf "$cmp"; mkdir -p "$lc"; printf 'sem/PairTests\nsem/NameTests\ncli/SelfhostDefaultP2Tests\ncli/SelfhostDefaultT9Tests\n' > "$cmp/sel"
+cmpland() { rm -rf "$cmp"; mkdir -p "$lc"
+  printf 'sem/GoneTests\nsem/PairTests\nsem/NameTests\ncli/SelfhostDefaultP2Tests\ncli/SelfhostDefaultT9Tests\n' > "$cmp/sel"
+  mkdir -p "$cmp/export/sem/PairTests" "$cmp/export/sem/NameTests" "$cmp/export/cli/SelfhostDefaultP2Tests" "$cmp/export/cli/SelfhostDefaultT9Tests"
+  printf 'GoneTests\tG\tg\nPairTests\tZ\tz\n' > "$cmp/export/sem/UNEXPORTED.tsv"
   mkdir -p "$lc/sem" "$lc/cli"; cp -R tests/cases/sem/NameTests "$lc/sem/"
   cp -R tests/cases/cli/SelfhostDefaultP2Tests tests/cases/cli/SelfhostDefaultT9Tests "$lc/cli/"
   ck "$lc" sem/PairTests/X b y; ck "$lc" sem/PairTests/X-2 a x
@@ -209,6 +215,11 @@ cmpland
 [ "$(crun)" = 0 ] && grep -q "9 files compared, 0 on the divergence list, 0 skipped by an os file, 0 failed" "$tmp/out" &&
   grep -A1 "no manifest row (no L043 row, not compared): 1 files" "$tmp/out" | grep -q "^  tests/cases/sem/PairTests/S-4/expected.stdout$" \
   || fail "the pairing: renumbered and duplicated cases, the P2 and T9 masks: want exit 0, 9 compared, S-4 listed" "$(cat "$tmp/out")"
+[ "$(grep -c "not export-written: 1 classes" "$tmp/out")" = 1 ] && ! grep -q GoneTests "$tmp/out" \
+  || fail "a class the export did not write: want it counted once and not compared" "$(cat "$tmp/out")"
+cmpland; printf 'sem/LostTests\n' >> "$cmp/sel"
+[ "$(crun)" = 1 ] && grep -q "missing from the re-export: tests/cases/sem/LostTests/L/expected.stdout$" "$tmp/out" && ! grep -q "not export-written: 2" "$tmp/out" \
+  || fail "an export-written class missing from the re-export: want exit 1 and its path" "$(cat "$tmp/out")"
 printf 'x!\n' > "$lc/sem/PairTests/X-2/expected.stdout"
 [ "$(crun)" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/sem/PairTests/X/expected.stdout (re-exported as X-2)$" "$tmp/out" \
   || fail "a renumbered case that differs: want exit 1 and its tree path" "$(cat "$tmp/out")"
@@ -227,7 +238,7 @@ for v in q/r p/s; do
   [ "$(crun)" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/cli/SelfhostDefaultT9Tests/T/expected.names$" "$tmp/out" \
     || fail "the T9 mask: a byte outside the programs or runtime hash ($v): want exit 1" "$(cat "$tmp/out")"
 done
-rm -rf "$cmp" tests/cases/sem/PairTests tests/cases/sem/NameTests tests/cases/cli/SelfhostDefaultP2Tests tests/cases/cli/SelfhostDefaultT9Tests
+rm -rf "$cmp" tests/cases/sem/PairTests tests/cases/sem/NameTests tests/cases/sem/GoneTests tests/cases/sem/LostTests tests/cases/cli/SelfhostDefaultP2Tests tests/cases/cli/SelfhostDefaultT9Tests
 git checkout -q -- tests/cases
 
 rep=(--class sem/FunctionTypeTests --class cli/DiagnosticRendererTests --class parse)

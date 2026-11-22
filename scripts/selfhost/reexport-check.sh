@@ -25,6 +25,8 @@
 #      case is on tests/cases/DIVERGENCES.tsv (the case key <kind>/<Class>/<case>, or <Class>.<Test> for <case> <Test> or
 #      <Test>-<n>) or holds an `os` file that does not name this host's OS (macos, linux, windows); both are counted. A landed
 #      file with no FREEZE.tsv row and not in the tree (a case the owner removed) is no L043 row: it is listed, not failed.
+#      A chosen class the export wrote no case dir for and listed in its <kind>/UNEXPORTED.tsv (export mode ran its compare
+#      calls and wrote nothing, as SelfhostExport.NotExported records) is not export-written: counted, not compared.
 # A row a golden update changed since the freeze differs from the frozen compiler's output: it belongs on DIVERGENCES.tsv.
 # The work dir is removed when the run passes and kept, and named, otherwise. Exit 0 when every compared file matches, 1 when
 # one does not, the export run fails or no .NET is on PATH (nothing is checked then: never a pass), 2 on a usage error or an
@@ -50,11 +52,19 @@ n=0; [ $full = 0 ] || n=$((n + 1)); [ -z "$seed" ] || n=$((n + 1)); [ -z "$picke
 
 cases=tests/cases; tab="$(printf '\t')"
 [ -f "$cases/FREEZE.tsv" ] && [ -f "$cases/EXPORT.tsv" ] || { echo "reexport-check: no $cases/FREEZE.tsv or EXPORT.tsv" >&2; exit 2; }
-# compare <sel> <land dir> <scratch dir>: step 4 over the classes in <sel>, the tree's tests/cases against <land dir>/cases;
-# prints the exceptions and the counts, returns 1 when a file failed; writes only under <scratch dir>.
+# compare <sel> <land dir> <scratch dir> <export dir>: step 4 over the classes in <sel>, the tree's tests/cases against
+# <land dir>/cases; prints the exceptions and the counts, returns 1 when a file failed; writes only under <scratch dir>.
 compare() {
-  local sel="$1" land="$2" s="$3" kc os side dir k f t
+  local sel="$1" land="$2" s="$3" ex="$4" kc os side dir k f t nx=0
   case "$(uname -s)" in (Darwin) os=macos ;; (Linux) os=linux ;; (MINGW*|MSYS*|CYGWIN*) os=windows ;; (*) os=unknown ;; esac
+  # not export-written (header): no case dir in the export and a row of its own in the export's <kind>/UNEXPORTED.tsv
+  : > "$s/sel.w"
+  while IFS= read -r kc; do
+    if [ ! -d "$ex/$kc" ] && [ -f "$ex/${kc%%/*}/UNEXPORTED.tsv" ] && cut -f1 "$ex/${kc%%/*}/UNEXPORTED.tsv" | grep -qxF "${kc#*/}"
+    then nx=$((nx + 1)); else printf '%s\n' "$kc" >> "$s/sel.w"; fi
+  done < "$sel"
+  [ $nx = 0 ] || echo "reexport-check: not export-written: $nx classes (no case in the export, its calls in UNEXPORTED.tsv; not compared)"
+  sel="$s/sel.w"
   # files: <side t or e>\t<kind>/<Class>\t<case>\t<file>\t<path hashed>, the key files and expected.* files of each case dir
   : > "$s/files"
   while IFS= read -r kc; do
@@ -146,7 +156,7 @@ compare() {
 }
 if [ -n "${REEXPORT_COMPARE:-}" ]; then
   mkdir -p tmp; s="$(mktemp -d "$root/tmp/reexport-compare.XXXXXX")"
-  compare "$REEXPORT_COMPARE/sel" "$REEXPORT_COMPARE/land" "$s"; rc=$?; rm -rf "$s"; exit $rc
+  compare "$REEXPORT_COMPARE/sel" "$REEXPORT_COMPARE/land" "$s" "$REEXPORT_COMPARE/export"; rc=$?; rm -rf "$s"; exit $rc
 fi
 IFS="$tab" read -r ref sha <<EOF
 $(awk -F'\t' '$1 == "export" { print $2 "\t" $3; exit }' "$cases/FREEZE.tsv")
@@ -300,7 +310,7 @@ cp tests/inventory-019.tsv "$w/land/"
 GIT_CEILING_DIRECTORIES="$root/tmp" bash scripts/selfhost/land-export.sh "$w/export" "$w/tree" "$w/land/cases" > "$w/land.out" 2>&1 ||
   { cat "$w/land.out" >&2; die "land-export.sh refused the re-export"; }
 
-compare "$w/sel" "$w/land" "$w"
+compare "$w/sel" "$w/land" "$w" "$w/export"
 crc=$?
 fi
 if [ -s "$w/runits" ]; then
