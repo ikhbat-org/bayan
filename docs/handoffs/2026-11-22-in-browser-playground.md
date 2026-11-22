@@ -1,5 +1,10 @@
 # HANDOFF — Bayan in the browser: runnable docs and a tour (future, not scheduled)
 
+Status: parked (future spec, not scheduled)
+Release: unscheduled
+Sources: owner request 2026-11-22
+
+
 Written 2026-11-22 from a Rein session. Parked idea for a future spec, approved by the owner as "do a handoff for a future implementation". Do not interrupt 011/012/013/015. File it under `docs/handoffs/` when the repo is on `dev` with a clean tree.
 
 ## 1. Goal
