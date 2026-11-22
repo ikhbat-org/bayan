@@ -1,5 +1,12 @@
-== diags.diag/context-block-input
-BYN6006 2:5 `context (…) { }` is now `provide … { }`
-  label the input form
-  help write `provide allocator: arena { }` without the parentheses
-  fix 2:5-2:31 provide allocator: arena
+== diags.diag/renamed-member
+BYN2230 3:8 `add` is now `append`
+  label the old name
+  help rename it `append`
+  fix 3:8-3:11 append
+BYN2230 6:14 `asString()` is now `finish()`
+  label the old name
+  help rename it `finish`
+  fix 6:14-6:22 finish
+BYN2311 2:9 `xs` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 2:5-2:8 let

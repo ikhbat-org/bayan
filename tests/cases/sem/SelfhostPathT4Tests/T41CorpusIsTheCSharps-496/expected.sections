@@ -1,6 +1,6 @@
-== diags.diag/for-unique-item
-BYN2022 11:16 a `for` over the unique `Item` `List<i64>` of `Rows` is not supported in v0.1
-  help make `Rows.Item` a value that is not unique, such as an index, and look the item up in the loop
-BYN6005 6:15 `get` uses `alloc`, beyond the bound `pure` declared by `IIndexable.get`
-  label uses `alloc`
-  help declare `alloc` on `IIndexable.get`, or pass a function without it
+== diags.diag/ref-out-escape-ref-element
+BYN3002 11:9 arena `arena` does not live as long as `xs`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 2:9-2:10 `pass` stores `s` into `g` here
+store pass 0 1 47..48

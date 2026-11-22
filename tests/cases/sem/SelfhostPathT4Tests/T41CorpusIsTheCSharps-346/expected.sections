@@ -1,9 +1,1 @@
-== diags.diag/line-join-member
-BYN5103 4:1 a line starting with `.` joins the statement above; indent it deeper
-  label joins the statement on line 3
-  help indent it deeper than the line its statement starts on
-  fix 4:1-4:1     
-BYN5103 9:5 a line starting with `.` joins the statement above; indent it deeper
-  label joins the statement on line 8
-  help indent it deeper than the line its statement starts on
-  fix 9:1-9:5         
+== diags.run/whole-value-binding

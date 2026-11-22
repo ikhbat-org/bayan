@@ -1,10 +1,6 @@
-== diags.diag/duplicate-union-value
-BYN2711 3:13 `read` and `write` share the value 1
-  label already used
-  help give each case its own value
-BYN2711 9:12 `mid` and `high` share the value 2
-  label already used
-  help give each case its own value
-BYN2711 15:5 `two` and `next` share the value 2
-  label follows `one`, so it is 2
-  help give each case its own value
+== diags.diag/ref-out-escape-out-field
+BYN3002 14:9 arena `arena` does not live as long as `b`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 6:9-6:10 `pass` stores `s` into `g` here
+store pass 0 1 76..77

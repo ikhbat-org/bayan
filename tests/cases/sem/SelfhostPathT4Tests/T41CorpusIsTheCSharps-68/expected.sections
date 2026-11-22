@@ -1,6 +1,6 @@
-== diags.diag/number-agreement-exempt
-BYN2770 22:6 unknown attribute `json`
-  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test
-BYN5104 12:34 `draft` holds a collection; name it with a plural, `drafts`
-  help rename it `drafts`
-  fix 12:34-12:39 drafts
+== diags.diag/ref-out-escape-ref-this-list-field
+BYN3002 14:9 arena `arena` does not live as long as `b`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 5:22-5:23 `add` stores `v` into `this` here
+store add 0 -1 93..94

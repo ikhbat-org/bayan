@@ -1,7 +1,1 @@
-== diags.diag/assert-not-bool
-BYN2775 2:8 `assert` needs a `bool`, got `i32`
-  label this is not a `bool`
-  help check the value against what you expect, e.g. `assert count == 3`
-BYN2775 3:8 `assert` needs a `bool`, got `string`
-  label this is not a `bool`
-  help check the value against what you expect, e.g. `assert count == 3`
+== diags.run/lambda-captures

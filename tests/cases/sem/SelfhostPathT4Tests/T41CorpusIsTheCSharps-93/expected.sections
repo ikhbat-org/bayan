@@ -1,11 +1,5 @@
-== diags.diag/invalid-const-array
-BYN2229 4:32 module-level `const` array `names` must hold literal numbers, `bool`s, `rune`s or `string`s
-  label not a constant
-  help write `const T[N] names = [ … ]` with `T` a number type, `bool`, `rune` or `string`, and only literals or constants inside
-BYN2229 5:30 module-level `const` array `computed` must hold literal numbers, `bool`s, `rune`s or `string`s
-  label not a constant
-  help write `const T[N] computed = [ … ]` with `T` a number type, `bool`, `rune` or `string`, and only literals or constants inside
-BYN2229 6:13 module-level `const` array `list` must hold literal numbers, `bool`s, `rune`s or `string`s
-  help write `const T[N] list = [ … ]` with `T` a number type, `bool`, `rune` or `string`, and only literals or constants inside
-BYN2106 9:1 cannot modify this value
-  label a `const` never changes
+== diags.diag/lambda-nested-it
+BYN2029 13:42 `it` inside a lambda that already uses `it`; name one lambda
+  help name the lambda's parameter: `x => …`
+BYN2029 18:35 `it` inside a lambda that already uses `it`; name one lambda
+  help name the inner lambda's parameter: `x => …`

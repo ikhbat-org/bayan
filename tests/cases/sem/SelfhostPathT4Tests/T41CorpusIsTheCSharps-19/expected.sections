@@ -1,18 +1,1 @@
-== diags.diag/error-payload-mismatch
-BYN2705 7:10 variant `timeout` carries a payload
-  help pass it: `.timeout(after)`
-BYN2706 11:10 variant `closed` has no payload
-  help write `.closed` without parentheses
-BYN2021 15:19 `timeout` has no parameter `before`
-BYN2202 19:26 expected `i64`, found `string`
-BYN2302 23:34 `timeout` takes 1 argument(s)
-BYN2706 27:27 variant `closed` has no payload
-  help write `.closed` without parentheses
-BYN2705 31:27 variant `timeout` carries a payload
-  help pass it: `.timeout(after)`
-BYN2705 32:13 variant `timeout` carries a payload
-  help pass it: `.timeout(after)`
-BYN2705 38:10 variant `timeout` carries a payload
-  help pass it: `.timeout(after)`
-BYN2705 42:12 variant `timeout` carries a payload
-  help pass it: `.timeout(after)`
+== diags.run/format-spec-struct

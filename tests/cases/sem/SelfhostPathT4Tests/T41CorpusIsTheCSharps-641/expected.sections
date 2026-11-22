@@ -1,7 +1,4 @@
-== diags.diag/state-literal-violated
-BYN2321 9:31 `-1` violates `requires it > 0` of `Order`
-  label fails the contract
-  help pass a value that meets `requires it > 0`
-BYN2321 10:29 `0` violates `requires it > 0` of `Order`
-  label fails the contract
-  help pass a value that meets `requires it > 0`
+== diags.diag/generic-body-changes-state
+BYN7012 10:5 `o` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+store put 0 1 189..193

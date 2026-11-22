@@ -1,17 +1,6 @@
-== diags.diag/moved-while-borrowed
-BYN3006 30:13 `s` is moved while `d` still borrows it
-  label `d` is used again on line 32
-  help finish using `d` first, or copy what it needs before moving `s`
-BYN3006 38:10 `s` is moved while `d` still borrows it
-  label `d` is used again on line 39
-  help finish using `d` first, or copy what it needs before moving `s`
-BYN3006 45:13 `s` is moved while `sp` still borrows it
-  label `sp` is used again on line 47
-  help finish using `sp` first, or copy what it needs before moving `s`
-BYN3006 57:12 `slot` is moved while `sp` still borrows it
-  label `sp` is used again on line 62
-  help finish using `sp` first, or copy what it needs before moving `slot`
-BYN3006 69:14 `xs` is moved while `sp` still borrows it
-  label `sp` is used again on line 71
-  help finish using `sp` first, or copy what it needs before moving `xs`
-returns items 1
+== diags.run/suq-order
+returns tracking -1
+store addLine 0 -1 3922..3926
+store cancel 0 -1 5155..5173
+store markPaid 0 -1 4610..4624
+store markShipped 0 -1 4970..4997

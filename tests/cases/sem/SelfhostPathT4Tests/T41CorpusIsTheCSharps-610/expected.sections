@@ -1,4 +1,10 @@
-== diags.diag/interface-field-type-mismatch
-BYN2802 6:9 `Box.count` is `i32 count` but `ICount` requires `i64 count { get }`
-  label does not match `ICount`
-  help change the field's type to `i64`
+== diags.diag/missing-because
+BYN8001 1:1 `@allow` bypasses a safety rule and needs `because "…"`
+  label bypasses a safety rule
+  help explain the bypass in a `because` clause
+BYN8001 3:5 `load()` bypasses a safety rule and needs `because "…"`
+  label bypasses a safety rule
+  help explain the bypass in a `because` clause
+BYN8001 7:1 `@allow` bypasses a safety rule and needs `because "…"`
+  label bypasses a safety rule
+  help explain the bypass in a `because` clause

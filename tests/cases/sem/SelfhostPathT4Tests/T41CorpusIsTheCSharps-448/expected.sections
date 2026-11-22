@@ -1,7 +1,4 @@
-== diags.diag/constraint-member
-BYN2806 7:20 `T` has no member `perimeter` in its constraints (`IShape`)
-  help add an interface declaring `perimeter` to the `where` clause
-BYN2744 11:20 `area` is not a member of type parameter `T`
-  help add `where T : …` naming an interface that declares `area`, or use a concrete type
-BYN2806 3:34 `Self` has no member `name` in its constraints (`IShape`)
-  help declare `name` in `IShape`; a default method sees only its interface's members
+== diags.diag/stacked-case
+BYN1014 4:9 stacked `case` labels
+  label a second label for the same statements
+  help combine the patterns into one label, e.g. `case .sat or .sun:`

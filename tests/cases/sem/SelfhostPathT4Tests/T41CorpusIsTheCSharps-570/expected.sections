@@ -1,5 +1,3 @@
-== diags.diag/fs-set-modified-needs-fs
-BYN6002 3:9 `undeclared` uses `fs` but does not declare it
-  label uses `fs`
-  help add `fs` to the `uses` clause, or remove the call
-  fix 2:33-2:33  uses fs
+== diags.diag/duplicate-declaration
+BYN2006 3:5 `area` is declared twice
+  label already declared on line 1

@@ -1,5 +1,1 @@
-== diags.diag/method-group-not-a-value
-BYN2019 15:6 `weight` is a method, not a value
-  help call it: `weight()`
-BYN2019 17:9 `copy` is a method, not a value
-  help call it: `copy()`
+== diags.run/memory-assign-order

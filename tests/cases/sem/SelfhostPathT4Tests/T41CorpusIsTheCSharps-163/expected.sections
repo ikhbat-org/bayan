@@ -1,2 +1,7 @@
-== diags.run/assert-fails.test
-BYN2014 1:1 the program has no entry point
+== diags.diag/type-parameter-arithmetic
+BYN2743 1:26 `+` cannot be applied to a value of type parameter `T`
+  help use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type parameters have no constraints
+BYN2743 2:21 `-` cannot be applied to a value of type parameter `T`
+  help use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type parameters have no constraints
+BYN2743 7:18 `*` cannot be applied to a value of type parameter `T`
+  help use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type parameters have no constraints

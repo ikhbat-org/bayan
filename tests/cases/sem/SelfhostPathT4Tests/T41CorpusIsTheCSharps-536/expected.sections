@@ -1,7 +1,6 @@
-== diags.diag/lambda-typed-parameter
-BYN1001 2:14 expected a lambda parameter name, found `i32 x`
-  label not a bare name
-  help write the parameter's name only; a lambda takes its parameter types from the function type it is passed to
-BYN1001 3:14 expected a lambda parameter name, found `by x`
-  label not a bare name
-  help write the parameter's name only; a lambda takes its parameter types from the function type it is passed to
+== diags.diag/type-parameter-comparison
+BYN2743 1:36 `<` cannot be applied to a value of type parameter `T`
+  help use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type parameters have no constraints
+BYN2743 2:34 `>=` cannot be applied to a value of type parameter `T`
+  help use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type parameters have no constraints
+returns max 0 1

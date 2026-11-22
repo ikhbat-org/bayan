@@ -1,7 +1,5 @@
-== diags.diag/var-never-reassigned
-BYN2311 15:25 `r` is never reassigned; declare it with `let`
-  help declare it with `let` to tell the reader the value never changes
-  fix 15:21-15:24 let
-BYN2311 23:9 `total` is never reassigned; declare it with `let`
-  help declare it with `let` to tell the reader the value never changes
-  fix 23:5-23:8 let
+== diags.diag/rest-escapes
+BYN3214 2:12 `xs` is borrowed for the call and cannot be stored
+  help copy it first: `xs.copy()`
+BYN3214 7:12 `xs` is borrowed for the call and cannot be stored
+  help copy it first: `xs.copy()`

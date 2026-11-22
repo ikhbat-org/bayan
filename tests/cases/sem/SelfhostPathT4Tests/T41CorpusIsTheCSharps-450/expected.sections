@@ -1,24 +1,4 @@
-== diags.diag/string-member-renames
-BYN2230 4:15 `offset` is now `position`
-  label the old name
-  help rename it `position`
-  fix 4:15-4:21 position
-BYN2230 5:15 `toUtf16()` is now `utf16`
-  label the old name
-  help write `utf16`
-  fix 5:15-5:24 utf16
-BYN2230 7:16 `toList()` is now `copy()`
-  label the old name
-  help rename it `copy`
-  fix 7:16-7:22 copy
-BYN2230 8:21 `toList()` is now `copy()`
-  label the old name
-  help rename it `copy`
-  fix 8:21-8:27 copy
-BYN2230 10:19 `toList()` is now `span.copy()`
-  label the old name
-  help rename it `span.copy`
-  fix 10:19-10:25 span.copy
-BYN2311 6:9 `xs` is never reassigned; declare it with `let`
-  help declare it with `let` to tell the reader the value never changes
-  fix 6:5-6:8 let
+== diags.run/loop-item-ledger
+returns everyone 0
+returns names 0
+store credit 0 1 411..415

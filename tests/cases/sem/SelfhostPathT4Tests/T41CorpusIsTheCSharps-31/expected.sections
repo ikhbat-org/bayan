@@ -1,7 +1,5 @@
-== diags.diag/dyn-not-dyn-safe
-BYN2808 10:13 `IMap` cannot be used with `dyn`: `get` is generic
-  label used with `dyn` here
-  help use a `where` constraint instead
-BYN2808 12:11 `ICursor` cannot be used with `dyn`: `Item` is an associated type
-  label used with `dyn` here
-  help use a `where` constraint instead
+== diags.diag/wrong-state-member-test
+BYN7001 14:16 `ship` needs `order` to be `.paid`, but it is `Order`
+  help `isPaid` doesn't narrow; write `if order is .paid`
+BYN7001 17:16 `ship` needs `order` to be `.paid`, but it is `Order`
+  help check the state with `is` or `switch` first

@@ -1,3 +1,10 @@
-== diags.run/unique-checker-clean
-returns grow 0
-returns pack 0
+== diags.diag/cases-misplaced
+BYN1016 1:1 `@cases` is not allowed here
+  help put `@cases(...)` on a test that takes parameters
+BYN1016 9:22 `i32 n, bool ok` is not allowed here
+  label a test without `@cases` takes no parameters
+  help add `@cases(...)` with one value per parameter for each case, or remove the parameters
+BYN1016 14:1 `@cases` is not allowed here
+  help combine the cases into one `@cases(...)`
+BYN1016 5:5 `@cases` is not allowed here
+  help put `@cases(...)` on a test that takes parameters

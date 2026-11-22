@@ -1,10 +1,3 @@
-== diags.diag/interface-as-type
-BYN2816 5:11 `IShape` is an interface, not a type
-  label an interface
-  help write `dyn ref IShape` or add a `where` constraint
-BYN2816 6:12 `IShape` is an interface, not a type
-  label an interface
-  help write `dyn ref IShape` or add a `where` constraint
-BYN2816 10:22 `IShape` is an interface, not a type
-  label an interface
-  help write `dyn ref IShape` or add a `where` constraint
+== diags.diag/literal-with-constructor
+BYN2111 11:9 `Ratio` has a constructor; call it instead of using a struct literal
+  help call the constructor: `Ratio(num: …, den: …)`

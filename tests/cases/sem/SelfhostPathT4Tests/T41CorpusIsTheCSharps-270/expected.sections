@@ -1,4 +1,4 @@
-== diags.diag/use-before-assign
-BYN2102 6:10 `total` is used before it is assigned
-  label declared without a value on line 2
-  help assign it on every path before this, or give the declaration a value
+== diags.diag/unknown-particle
+BYN5008 1:11 `over` is not a particle
+  label not a particle
+  help choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`

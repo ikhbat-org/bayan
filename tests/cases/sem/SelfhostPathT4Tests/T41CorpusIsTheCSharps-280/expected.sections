@@ -1,4 +1,4 @@
-== diags.diag/goto-case
-BYN1010 4:13 `goto` does not exist in Bayan
-  label `goto case` does not exist
-  help combine patterns with `or`, or move shared code into a function; switch sections never fall through
+== diags.diag/pointer-outside-extern
+BYN1067 1:11 pointer types are allowed only in `extern` declarations
+  label a pointer type
+  help wrap the C call in an `extern` declaration

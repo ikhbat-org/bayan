@@ -1,3 +1,2 @@
-== diags.diag/field-write-sealed
-BYN3216 8:5 `HttpClientOptions.retries` can be written only by `HttpClientOptions`'s own methods or with `with`: `HttpClientOptions` is `@sealed`
-  help add a `ref this` method to `HttpClientOptions`, or build a new value with `with`
+== diags.diag/assert-fails-infallible
+BYN2605 9:8 `assert … fails` needs a call that can fail

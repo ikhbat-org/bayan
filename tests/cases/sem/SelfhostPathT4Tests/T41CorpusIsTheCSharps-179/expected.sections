@@ -1,9 +1,4 @@
-== diags.diag/interface-generic-bases
-BYN2801 5:12 `S` does not provide `rank` required by `IOrder<i64>`
-  label needs `rank`
-  help add `i64 rank(i64 x)` to `S`
-  fix 7:1-7:1     i64 rank(i64 x) => todo("rank")
-BYN2801 5:25 `S` does not provide `rank` required by `IOrder<string>`
-  label needs `rank`
-  help add `i64 rank(string x)` to `S`
-  fix 7:1-7:1     i64 rank(string x) => todo("rank")
+== diags.diag/ternary-in-collection
+BYN1013 1:11 a conditional expression inside a collection literal must be parenthesized
+  help wrap it in parentheses
+  fix 1:11-1:20 (a ? 1 : 2)

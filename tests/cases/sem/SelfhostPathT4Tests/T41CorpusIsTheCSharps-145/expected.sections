@@ -1,9 +1,7 @@
-== diags.diag/return-error-input
-BYN1056 13:5 `return .empty` returns an error; write `fail .empty`
-  label this leaves with an error
-  help leave with the error: `fail .empty`
-  fix 13:5-13:11 fail
-BYN1056 14:5 `return .tooLong` returns an error; write `fail .tooLong`
-  label this leaves with an error
-  help leave with the error: `fail .tooLong`
-  fix 14:5-14:11 fail
+== diags.diag/borrow-stored-through-span
+BYN3002 5:14 the `stackalloc` buffer on line 2 does not live as long as `dst`, which borrows it
+  label the `stackalloc` buffer on line 2 is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+BYN3002 20:15 the `stackalloc` buffer on line 12 does not live as long as `view`, which borrows it
+  label the `stackalloc` buffer on line 12 is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough

@@ -1,6 +1,25 @@
-== diags.diag/ref-out-escape-ref
-BYN3002 10:9 arena `arena` does not live as long as `kept`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-  related 2:9-2:10 `pass` stores `s` into `g` here
-store pass 0 1 47..48
+== diags.diag/type-name-order-declarations
+BYN1043 2:5 `weight: i64` is an input form; write `i64 weight`
+  label name before type
+  help put the type before the name; declarations are type-first
+  fix 2:5-2:16 i64 weight
+BYN1043 4:12 `area(…) -> i64` is an input form; write `i64 area(…)`
+  label return type after the parameters
+  help put the return type before the name
+  fix 4:5-4:18 i64 area()
+BYN1043 8:13 `after: i64` is an input form; write `i64 after`
+  label name before type
+  help put the type before the name; declarations are type-first
+  fix 8:13-8:23 i64 after
+BYN1043 11:5 `a: i64` is an input form; write `i64 a`
+  label name before type
+  help put the type before the name; declarations are type-first
+  fix 11:5-11:11 i64 a
+BYN1043 11:20 `add(…) -> i64` is an input form; write `i64 add(…)`
+  label return type after the parameters
+  help put the return type before the name
+  fix 11:1-11:26 i64 add(a: i64, i64 b)
+BYN1043 15:1 `main(…)` is an input form; write `void main(…)`
+  label no return type
+  help put `void` before the name when the function returns nothing
+  fix 15:1-15:1 void 

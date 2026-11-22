@@ -1,6 +1,5 @@
-== diags.diag/generic-ref-changes-state
-BYN7012 16:5 `x` would change state here; a state changes only through `become`
-  label the generic code needs this of its type arguments
-  help call `put` with a type without states; it replaces a value of its type argument whole
-  related 11:5-11:15 in `put`
-store put 0 1 238..242
+== diags.diag/effect-random-not-declared
+BYN6002 2:12 `token` uses `random` but does not declare it
+  label uses `random`
+  help add `random` to the `uses` clause, or remove the call
+  fix 1:19-1:19  uses random

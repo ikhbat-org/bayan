@@ -1,5 +1,3 @@
-== diags.alloc-roots
-BYN3003 28:28 cannot return a borrow of arena `h`, which is freed when `viaField` returns
-  help let the caller pass the buffer or allocator in, and borrow or allocate from that
-returns make 0
-returns viaField 0
+== diags.diag/unclosed-struct
+BYN1001 3:1 expected `}`, found end of file
+  help close the struct opened on line 1

@@ -1,13 +1,1 @@
-== diags.diag/unknown-state
-BYN7007 7:28 `Order` has no state `.lost`
-  help check the states declared in `Order`
-BYN7007 7:43 `Order` has no state `.gone`
-  help check the states declared in `Order`
-BYN7007 12:19 `Order` has no state `.refunded`
-  help check the states declared in `Order`
-BYN7007 15:39 `Order` has no state `.archived`
-  help check the states declared in `Order`
-BYN7007 18:19 `Order` has no state `.missing`
-  help check the states declared in `Order`
-BYN7007 8:17 `Order` has no state `.gone`
-  help check the states declared in `Order`
+== diags.diag/style-guards-postfix

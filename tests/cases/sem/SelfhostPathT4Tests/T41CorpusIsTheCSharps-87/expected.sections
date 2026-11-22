@@ -1,11 +1,7 @@
-== diags.diag/cases-not-constant
-BYN2774 7:8 each `@cases` value must be a constant
-  label cases from a const list are not supported yet
-  help write each case as a tuple literal, such as `@cases((0, false), (1, true))`
-BYN2774 7:15 each `@cases` value must be a constant
-  help write the value as a literal: a number, string, rune, `true`, `false`, `null` or a `.case`
-BYN2774 7:23 each `@cases` value must be a constant
-  help write the value as a literal: a number, string, rune, `true`, `false`, `null` or a `.case`
-BYN2774 12:8 each `@cases` value must be a constant
-  label cases from a const list are not supported yet
-  help write each case as a tuple literal, such as `@cases((0, false), (1, true))`
+== diags.run/requires
+BYN5011 2:5 this `expects` reads only `percent`; a type with `requires` checks it once
+  help declare a type with `requires` for `percent`
+BYN5011 3:5 this `expects` reads only `total`; a type with `requires` checks it once
+  help declare a type with `requires` for `total`
+BYN5011 6:27 this `expects` reads only `value`; a type with `requires` checks it once
+  help declare a type with `requires` for `value`

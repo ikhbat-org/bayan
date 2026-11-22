@@ -1,5 +1,1 @@
-== diags.diag/env-get-as-value
-BYN2019 3:16 `get` is a method, not a value
-  help call it: `get(…)`
-BYN2019 4:18 `fileExists` is a method, not a value
-  help call it: `fileExists(…)`
+== diags.run/typestate-order

@@ -1,2 +1,1 @@
-== diags.diag/error-equality-list-payload
-BYN2208 9:14 `==` cannot be applied to `ListError` and `ListError`
+== diags.run/list-remove-range-panics

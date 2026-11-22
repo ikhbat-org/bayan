@@ -1,9 +1,4 @@
-== diags.diag/input-field-init-equals
-BYN1021 7:23 `x = …` in a literal is an input form; write `x: …`
-  label the input form
-  help write `:` after the field name
-  fix 7:22-7:24 :
-BYN1021 8:24 `y = …` in a literal is an input form; write `y: …`
-  label the input form
-  help write `:` after the field name
-  fix 8:23-8:25 :
+== diags.diag/dyn-ref-list-element-ref-and-value
+BYN3005 21:10 `xs` is passed by `ref` and again in the same call
+  label `xs` is also passed by `ref`
+  help copy the value into a local first, or make two calls

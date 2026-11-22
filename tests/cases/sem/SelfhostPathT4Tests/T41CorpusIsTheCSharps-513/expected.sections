@@ -1,3 +1,2 @@
-== diags.diag/count-name-exempt
-BYN2770 3:6 unknown attribute `json`
-  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+== diags.diag/recovery
+BYN1002 3:5 expected an expression, found keyword `let`

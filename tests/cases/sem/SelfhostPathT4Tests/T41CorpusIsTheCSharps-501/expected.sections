@@ -1,10 +1,1 @@
-== diags.diag/shadowing
-BYN2007 3:9 `total` is already a local here
-  label already declared on line 1
-  help pick a different name; Bayan does not let a local hide another one
-BYN2028 9:5 `size` shadows an earlier `size` of the same type `i32`
-  label `size` is declared on line 8
-  help use the first one, or rename this one to say how it differs
-BYN2007 12:5 `step` is already a local here
-  label already declared on line 10
-  help pick a different name; Bayan does not let a local hide another one
+== diags.run/fs-modified

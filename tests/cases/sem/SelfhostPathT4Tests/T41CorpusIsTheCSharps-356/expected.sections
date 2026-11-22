@@ -1,7 +1,4 @@
-== diags.diag/region-combo-store-through-ref-this-map
-BYN3002 19:9 arena `arena` does not live as long as `b`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-  related 11:5-11:13 `fill` stores `s` into `b` here
-store fill 0 1 251..259
-store put 0 -1 200..201
+== diags.diag/bad-binary-operands
+BYN2208 3:9 `+` cannot be applied to `i64` and `u64`
+  help convert one side explicitly, e.g. `(u64)…`; mixed signedness never converts implicitly
+BYN2208 4:9 `+` cannot be applied to `bool` and `i32`

@@ -1,3 +1,1 @@
-== diags.diag/duplicate-main
-BYN2013 1:1 the program has two entry points
-  label `main` is also declared on line 2
+== diags.run/for-indexable-nested

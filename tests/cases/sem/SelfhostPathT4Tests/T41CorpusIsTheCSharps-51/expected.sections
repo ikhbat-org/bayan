@@ -1,3 +1,7 @@
-== diags.diag/requires-not-bool
-BYN2320 1:25 a `requires` clause must be `bool`, got `i32`
-  help write a condition the arguments must meet, such as `count > 0`
+== diags.diag/non-struct-conformance
+BYN2815 5:15 `Shape` is a union; only structs can conform yet
+  label listed here
+  help wrap it in a struct that conforms
+BYN2815 10:14 `Color` is an enum; only structs can conform yet
+  label listed here
+  help wrap it in a struct that conforms

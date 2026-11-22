@@ -1,2 +1,20 @@
-== diags.diag/default-reads-field
-BYN2001 3:20 `side` is not defined
+== diags.broad
+BYN2800 1:11 `Sink` must start with `I` and an uppercase letter
+  label an interface name
+  help rename it to `ISink`
+  fix 1:11-1:15 ISink
+BYN5004 13:6 `viaDyn` has 2 unlabeled parameters; give each but one a particle
+  label 2 unlabeled parameters
+  help keep one unlabeled parameter, the object
+BYN5006 13:36 `v` is a required parameter besides the object and needs a particle
+  label needs a particle
+  help label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+BYN3002 22:9 arena `arena` does not live as long as `b`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 14:5-14:13 `viaDyn` stores `v` into `k` here
+BYN3004 24:9 `arena` is modified while `b` still borrows it
+  label `b` is used again on line 26
+  help finish using `b` first, or copy what it needs before changing `arena`
+store put 0 -1 134..135
+store viaDyn 1 0 189..197

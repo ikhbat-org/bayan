@@ -1,3 +1,1 @@
-== diags.diag/missing-fields
-BYN2109 6:9 `Point` needs a value for `y`
-  help set it: `Point { y: … }`
+== diags.diag/unique-move-cleanup-ok

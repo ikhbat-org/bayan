@@ -1,5 +1,5 @@
-== diags.run/region-combo-all-three-in-time
-returns mk 1
-returns mk2 1
-store pass 0 1 484..485
-store put 0 -1 426..427
+== diags.diag/postfix-on-new-line
+BYN1042 5:9 a postfix `if` must be on the line of its statement
+  label on the next line
+  help move the `if` clause up to the statement's line
+  fix 4:11-5:9  

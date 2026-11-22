@@ -1,5 +1,4 @@
-== diags.diag/else-on-new-line
-BYN1041 5:5 `else` must follow `}` on the same line
-  label on a new line
-  help move `else` up to the line of `}`
-  fix 4:6-5:5  
+== diags.diag/bad-unary-operand
+BYN2207 2:9 `-` cannot be applied to `u32`
+  help convert to a signed type first; unsigned values cannot be negative
+BYN2207 3:9 `!` cannot be applied to `u32`

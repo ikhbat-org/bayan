@@ -1,2 +1,9 @@
-== diags.diag/index-out-of-range
-BYN2213 2:12 index 3 is out of range for `i64[3]`
+== diags.diag/single-state-local-alias
+BYN7006 9:19 `Order is .paid` is an input form; write `Order.paid`
+  label one state
+  help write the state type `Order.paid`
+  fix 9:13-9:27 Order.paid
+BYN7006 11:18 `Order is .paid` is an input form; write `Order.paid`
+  label one state
+  help write the state type `Order.paid`
+  fix 11:12-11:26 Order.paid

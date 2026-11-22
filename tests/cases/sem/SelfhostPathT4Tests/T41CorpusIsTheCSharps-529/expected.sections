@@ -1,7 +1,16 @@
-== diags.diag/ref-out-escape-call-result
-BYN3002 14:9 arena `arena` does not live as long as `kept`, which borrows it
+== diags.broad-ref
+BYN2304 15:26 a positional argument cannot follow a named one
+BYN2202 25:16 expected `dyn ref IKeeper`, found `i32`
+BYN3002 24:9 arena `arena` does not live as long as `k`, which borrows it
   label arena `arena` is freed at the end of its block
   help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-  related 6:9-6:16 `pass` stores `s` into `g` here
-returns pick 0
-store pass 0 1 87..94
+  related 14:5-14:25 `viaDyn` stores `v` into `k` here
+BYN3002 25:9 arena `arena` does not live as long as `kept`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 14:5-14:25 `viaDyn` stores `v` into `t` here
+store keep 0 1 174..175
+store viaDyn 0 2 252..272
+store viaDyn 1 0 252..272
+store viaDyn 1 2 252..272
+store viaDyn 2 0 252..272

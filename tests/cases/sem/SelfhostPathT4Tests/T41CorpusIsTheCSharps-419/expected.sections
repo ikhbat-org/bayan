@@ -1,5 +1,5 @@
-== diags.diag/string-member-arguments
-BYN2720 4:30 `middle` is not a member of `Edge`
-BYN2720 5:32 `loose` is not a member of `Comparison`
-BYN2202 6:24 expected `string`, found `i32`
-BYN2202 8:22 expected `i64`, found `string`
+== diags.diag/noalloc-removed
+BYN6001 1:18 `noalloc` is removed; a function without `uses` is already pure
+  label removed
+  help remove `noalloc`
+  fix 1:17-1:25 

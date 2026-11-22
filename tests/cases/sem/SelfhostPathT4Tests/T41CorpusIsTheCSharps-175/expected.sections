@@ -1,13 +1,1 @@
-== diags.diag/effect-not-declared
-BYN6002 2:5 `greet` uses `console` but does not declare it
-  label uses `console`
-  help add `console` to the `uses` clause, or remove the call
-  fix 1:31-1:31  uses console
-BYN6002 7:12 `measure` uses `clock` but does not declare it
-  label uses `clock`
-  help add `clock` to the `uses` clause, or remove the call
-  fix 5:45-5:45 , clock
-BYN6002 15:5 `callsHelper` uses `console` but does not declare it
-  label uses `console`
-  help add `console` to the `uses` clause, or remove the call
-  fix 14:26-14:26  uses console
+== diags.run/io-stdin-invalid-utf8

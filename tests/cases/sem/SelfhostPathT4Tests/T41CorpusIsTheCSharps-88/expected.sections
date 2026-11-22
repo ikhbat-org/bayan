@@ -1,2 +1,1 @@
-== diags.diag/missing-argument
-BYN2301 2:10 missing argument `by` for `area`
+== diags.run/lines-trailing-cr

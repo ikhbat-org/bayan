@@ -8,20 +8,30 @@
 # instead; --full takes them all. The chosen classes are printed first.
 # Steps, in <root>/tmp/reexport.XXXXXX (no worktree: the checkout's git state is left alone):
 #   1. `git archive` of the export head tests/cases/FREEZE.tsv names (its `export` row) into tree/;
-#   2. in tree/: BAYAN_EXPORT_DIR=<w>/export dotnet test csharp/tests/Bayan.Tests -v q --filter <the classes> (no filter with
-#      --full), the export mode that wrote the cases (src/tests/SelfhostExport.cs on that head);
+#   2. in tree/: BAYAN_EXPORT_DIR=<w>/export dotnet test csharp/tests/Bayan.Tests -v q --filter <the classes> (--full too: tests
+#      of no export class, which write no case, do not run), the export mode that wrote the cases (src/tests/SelfhostExport.cs on
+#      that head);
 #   3. scripts/selfhost/land-export.sh lands the export into land/cases (the land-time masks the tree's cases went through);
 #   4. for each chosen <kind>/<Class>, every file under tests/cases/<kind>/<Class>/ with a FREEZE.tsv row or named expected.*,
 #      in the tree or in land/cases, is compared by git blob id (the attributes of the tree's path, as FREEZE.tsv records);
-#      one that differs, is missing from the re-export or is extra (landed, not in the tree) fails with its path, unless its
+#      a tree case dir pairs with a re-exported one by content, not name (the export numbers a test's cases in its own
+#      order): its key is its section and input.byn.ref blobs, else its input.byn.ref and args blobs, else (a class with
+#      neither) its name; of equal keys, equal name and expected.* blobs pair first, then equal expected.* blobs (in name
+#      order), then equal names, the rest in blob-id order, and a case left over is missing or extra; a pair's path is the
+#      tree's name, followed by "(re-exported as <name>)" when the names differ. Masks, on both sides before hashing:
+#      SelfhostDefaultP2Tests section and expected.*, the mktemp suffix p2-errors-XXXXXX; SelfhostDefaultT9Tests
+#      expected.names, the hashes in cache/v1/programs/<sha256>/ and cache/v1/runtime/<sha256>/. One that differs, is missing
+#      from the re-export or is extra (landed, not in the tree) fails with its path, unless its
 #      case is on tests/cases/DIVERGENCES.tsv (the case key <kind>/<Class>/<case>, or <Class>.<Test> for <case> <Test> or
 #      <Test>-<n>) or holds an `os` file that does not name this host's OS (macos, linux, windows); both are counted. A landed
 #      file with no FREEZE.tsv row and not in the tree (a case the owner removed) is no L043 row: it is listed, not failed.
+#      A chosen class the export wrote no case dir for and listed in its <kind>/UNEXPORTED.tsv (export mode ran its compare
+#      calls and wrote nothing, as SelfhostExport.NotExported records) is not export-written: counted, not compared.
 # A row a golden update changed since the freeze differs from the frozen compiler's output: it belongs on DIVERGENCES.tsv.
 # The work dir is removed when the run passes and kept, and named, otherwise. Exit 0 when every compared file matches, 1 when
 # one does not, the export run fails or no .NET is on PATH (nothing is checked then: never a pass), 2 on a usage error or an
 # export head not in the clone. Tests only: REEXPORT_DOTNET replaces `dotnet`, REEXPORT_RUNNER the golden runner
-# the replay builds from src/driver. bash 3.2.
+# the replay builds from src/driver, REEXPORT_COMPARE=<work dir> runs step 4 alone on a kept work dir's sel and land/cases. bash 3.2.
 set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root" || exit 2
@@ -42,6 +52,112 @@ n=0; [ $full = 0 ] || n=$((n + 1)); [ -z "$seed" ] || n=$((n + 1)); [ -z "$picke
 
 cases=tests/cases; tab="$(printf '\t')"
 [ -f "$cases/FREEZE.tsv" ] && [ -f "$cases/EXPORT.tsv" ] || { echo "reexport-check: no $cases/FREEZE.tsv or EXPORT.tsv" >&2; exit 2; }
+# compare <sel> <land dir> <scratch dir> <export dir>: step 4 over the classes in <sel>, the tree's tests/cases against
+# <land dir>/cases; prints the exceptions and the counts, returns 1 when a file failed; writes only under <scratch dir>.
+compare() {
+  local sel="$1" land="$2" s="$3" ex="$4" kc os side dir k f t nx=0
+  case "$(uname -s)" in (Darwin) os=macos ;; (Linux) os=linux ;; (MINGW*|MSYS*|CYGWIN*) os=windows ;; (*) os=unknown ;; esac
+  # not export-written (header): no case dir in the export and a row of its own in the export's <kind>/UNEXPORTED.tsv
+  : > "$s/sel.w"
+  while IFS= read -r kc; do
+    if [ ! -d "$ex/$kc" ] && [ -f "$ex/${kc%%/*}/UNEXPORTED.tsv" ] && cut -f1 "$ex/${kc%%/*}/UNEXPORTED.tsv" | grep -qxF "${kc#*/}"
+    then nx=$((nx + 1)); else printf '%s\n' "$kc" >> "$s/sel.w"; fi
+  done < "$sel"
+  [ $nx = 0 ] || echo "reexport-check: not export-written: $nx classes (no case in the export, its calls in UNEXPORTED.tsv; not compared)"
+  sel="$s/sel.w"
+  # files: <side t or e>\t<kind>/<Class>\t<case>\t<file>\t<path hashed>, the key files and expected.* files of each case dir
+  : > "$s/files"
+  while IFS= read -r kc; do
+    for side in t e; do
+      if [ $side = t ]; then dir="$cases"; else dir="$land/cases"; fi
+      [ ! -d "$dir/$kc" ] || (cd "$dir" && find "$kc" -mindepth 2 -maxdepth 2 -type f \
+        \( -name 'expected.*' -o -name section -o -name input.byn.ref -o -name args \)) |
+        awk -F/ -v sd=$side -v d="$dir/" '{ print sd "\t" $1 "/" $2 "\t" $3 "\t" $4 "\t" d $0 }' >> "$s/files"
+    done
+  done < "$sel"
+  # the masks (header): a masked file is hashed from a masked copy under <scratch>/m, on both sides
+  : > "$s/masks"; mkdir -p "$s/m"
+  awk -F'\t' -v m="$s/m/" -v ml="$s/masks" 'BEGIN { OFS = "\t" }
+    { c = $2; sub(/^[^\/]*\//, "", c); k = ""
+      if (c == "SelfhostDefaultP2Tests" && ($4 == "section" || $4 ~ /^expected\./)) k = "p2"
+      else if (c == "SelfhostDefaultT9Tests" && $4 == "expected.names") k = "t9"
+      if (k != "") { n++; print k "\t" $5 "\t" m n > ml; $5 = m n }
+      print }' "$s/files" > "$s/files.m"
+  while IFS="$tab" read -r k f t; do
+    case $k in
+      (p2) sed -E 's/p2-errors-[A-Za-z0-9]{6}/p2-errors-<tmp>/g' "$f" > "$t" ;;
+      (t9) sed -E 's#cache/v1/(programs|runtime)/[0-9a-f]{64}/#cache/v1/\1/<sha>/#g' "$f" > "$t" ;;
+    esac
+  done < "$s/masks"
+  : > "$s/hashed"
+  [ ! -s "$s/files.m" ] || cut -f5 "$s/files.m" | git hash-object --stdin-paths | paste -d "$tab" "$s/files.m" - |
+    LC_ALL=C sort -t "$tab" -k1,1 -k2,2 -k3,3 -k4,4 > "$s/hashed"
+  # the pairing (header): per case dir its key and the blob ids of its expected.* files by name (its signature); of equal keys,
+  # equal name and signature pair first, then equal signatures, then equal names, the rest in signature order
+  awk -F'\t' 'function out() { if (id == "") return
+      if (sec != "") key = "s" sec ":" ref; else if (ref != "" || arg != "") key = "a" ref ":" arg; else key = "n" cs
+      print kc "\t" key "\t" sig "\t" sd "\t" cs }
+    { i = $1 "\t" $2 "\t" $3; if (i != id) { out(); id = i; sd = $1; kc = $2; cs = $3; sec = ref = arg = sig = "" }
+      if ($4 == "section") sec = $6; else if ($4 == "input.byn.ref") ref = $6; else if ($4 == "args") arg = $6; else sig = sig $4 "=" $6 ";" }
+    END { out() }' "$s/hashed" | LC_ALL=C sort -t "$tab" -k1,1 -k2,2 -k3,3 -k5,5 |
+    awk -F'\t' 'function pair(i, j) { ut[i] = 1; used[j] = 1; print g1 "\t" t[i] "\t" e[j] }
+      function flush(  i, j, n, q) {
+        split("", b); split("", en); split("", ut); split("", used); split("", lt); split("", le); n = q = 0
+        for (j = 1; j <= ne; j++) en[e[j] SUBSEP es[j]] = j
+        for (i = 1; i <= nt; i++) if ((t[i] SUBSEP ts[i]) in en) pair(i, en[t[i] SUBSEP ts[i]])
+        for (j = ne; j >= 1; j--) if (!(j in used)) b[es[j]] = j " " b[es[j]]
+        for (i = 1; i <= nt; i++) if (!(i in ut) && b[ts[i]] != "") { j = b[ts[i]] + 0; sub(/^[0-9]+ /, "", b[ts[i]]); pair(i, j) }
+        split("", en); for (j = 1; j <= ne; j++) if (!(j in used)) en[e[j]] = j
+        for (i = 1; i <= nt; i++) if (!(i in ut) && t[i] in en) pair(i, en[t[i]])
+        for (i = 1; i <= nt; i++) if (!(i in ut)) lt[++q] = t[i]
+        for (j = 1; j <= ne; j++) if (!(j in used)) le[++n] = e[j]
+        for (i = 1; i <= (q > n ? q : n); i++) print g1 "\t" lt[i] "\t" le[i]
+        nt = ne = 0 }
+      { g = $1 "\t" $2; if (g != gk) { if (gk != "") flush(); gk = g; g1 = $1 }
+        if ($4 == "t") { t[++nt] = $5; ts[nt] = $3 } else { e[++ne] = $5; es[ne] = $3 } }
+      END { if (gk != "") flush() }' | LC_ALL=C sort > "$s/pairs"
+  while IFS= read -r kc; do
+    [ ! -d "$cases/$kc" ] || find "$cases/$kc" -mindepth 2 -maxdepth 2 -type f -name os
+  done < "$sel" | while IFS= read -r f; do grep -qw "$os" "$f" || printf '%s\n' "${f%/os}"; done | sed 's|^tests/cases/||' > "$s/os-skip"
+
+  awk -F'\t' -v hs="$s/hashed" -v dv="$cases/DIVERGENCES.tsv" -v oss="$s/os-skip" -v fz="$cases/FREEZE.tsv" '
+    BEGIN {
+      while ((getline l < fz) > 0) { split(l, a, "\t"); if (a[1] == "file") row[a[3]] = 1 }
+      while ((getline l < hs) > 0) { split(l, a, "\t"); if (a[4] !~ /^expected\./) continue
+        c = a[1] SUBSEP a[2] SUBSEP a[3]; h[c, a[4]] = a[6]; fl[c] = fl[c] "\t" a[4] }
+      while ((getline l < dv) > 0) { split(l, a, "\t"); if (a[1] != "case") div[a[1]] = 1 }
+      while ((getline l < oss) > 0) skipos[l] = 1
+    }
+    {
+      kc = $1; tc = $2; ec = $3; name = tc != "" ? tc : ec; key = kc "/" name
+      split(kc, k, "/"); base = name; sub(/-[0-9]+$/, "", base)
+      as = (tc != "" && ec != "" && tc != ec) ? " (re-exported as " ec ")" : ""
+      split("", seen); nf = 0
+      if (tc != "") { m = split(substr(fl["t", kc, tc], 2), x, "\t"); for (i = 1; i <= m; i++) if (!(x[i] in seen)) { seen[x[i]] = 1; f[++nf] = x[i] } }
+      if (ec != "") { m = split(substr(fl["e", kc, ec], 2), x, "\t"); for (i = 1; i <= m; i++) if (!(x[i] in seen)) { seen[x[i]] = 1; f[++nf] = x[i] } }
+      for (i = 1; i <= nf; i++) {
+        p = "tests/cases/" key "/" f[i]; it = (tc != "" && (("t", kc, tc, f[i]) in h)); ie = (ec != "" && (("e", kc, ec, f[i]) in h))
+        if (key in div || (k[2] "." name) in div || (k[2] "." base) in div) { ndiv++; continue }
+        if (key in skipos) { nos++; continue }
+        if (ie && !it && !(p in row)) { norow[++nnr] = p; continue }
+        n++
+        if (!ie) { print "reexport-check: missing from the re-export: " p as; bad++ }
+        else if (!it) { print "reexport-check: extra (re-exported, not in the tree): " p as; bad++ }
+        else if (h["t", kc, tc, f[i]] != h["e", kc, ec, f[i]]) { print "reexport-check: differs from the frozen compiler: " p as; bad++ }
+      }
+    }
+    END {
+      if (nnr > 0) {
+        printf "reexport-check: re-exported with no manifest row (no L043 row, not compared): %d files\n", nnr
+        for (i = 1; i <= nnr; i++) print "  " norow[i]
+      }
+      printf "reexport-check: %d files compared, %d on the divergence list, %d skipped by an os file, %d failed\n", n, ndiv, nos, bad
+      exit (bad > 0) }' "$s/pairs"
+}
+if [ -n "${REEXPORT_COMPARE:-}" ]; then
+  mkdir -p tmp; s="$(mktemp -d "$root/tmp/reexport-compare.XXXXXX")"
+  compare "$REEXPORT_COMPARE/sel" "$REEXPORT_COMPARE/land" "$s" "$REEXPORT_COMPARE/export"; rc=$?; rm -rf "$s"; exit $rc
+fi
 IFS="$tab" read -r ref sha <<EOF
 $(awk -F'\t' '$1 == "export" { print $2 "\t" $3; exit }' "$cases/FREEZE.tsv")
 EOF
@@ -183,9 +299,7 @@ git archive --format=tar "$sha" | tar -xf - -C "$w/tree" || die "cannot extract 
 trc=0; crc=0; prc=0
 if [ -s "$w/sel" ]; then
 filter=""
-if [ $full = 0 ]; then
-  for c in $(cut -d/ -f2 "$w/sel" | LC_ALL=C sort -u); do filter="${filter:+$filter|}FullyQualifiedName~.$c."; done
-fi
+for c in $(cut -d/ -f2 "$w/sel" | LC_ALL=C sort -u); do filter="${filter:+$filter|}FullyQualifiedName~.$c."; done
 # The tree is no git work tree (GIT_CEILING_DIRECTORIES): git finds no repo around it, as in ddc.sh.
 (cd "$w/tree" && BAYAN_EXPORT_DIR="$w/export" BAYAN_CACHE="$w/tree/tmp/cache" GIT_CEILING_DIRECTORIES="$root/tmp" \
   "$dotnet" test csharp/tests/Bayan.Tests -v q ${filter:+--filter "$filter"}) > "$w/test.out" 2>&1
@@ -196,52 +310,7 @@ cp tests/inventory-019.tsv "$w/land/"
 GIT_CEILING_DIRECTORIES="$root/tmp" bash scripts/selfhost/land-export.sh "$w/export" "$w/tree" "$w/land/cases" > "$w/land.out" 2>&1 ||
   { cat "$w/land.out" >&2; die "land-export.sh refused the re-export"; }
 
-case "$(uname -s)" in (Darwin) os=macos ;; (Linux) os=linux ;; (MINGW*|MSYS*|CYGWIN*) os=windows ;; (*) os=unknown ;; esac
-# rows: <path>\t<tree blob or empty>\t<re-export blob or empty>\t<skip: div, os or empty>, one per compared path
-: > "$w/tpaths"; : > "$w/epaths"
-while IFS= read -r kc; do
-  [ ! -d "$cases/$kc" ] || find "$cases/$kc" -type f -name 'expected.*' >> "$w/tpaths"
-  [ ! -d "$w/land/cases/$kc" ] || (cd "$w/land" && find "cases/$kc" -type f -name 'expected.*') | sed 's|^|tests/|' >> "$w/epaths"
-done < "$w/sel"
-awk -F'\t' -v sel="$w/sel" 'BEGIN { while ((getline l < sel) > 0) want["tests/cases/" l "/"] = 1 }
-  $1 == "file" { p = $3; split(p, a, "/"); if ((a[1] "/" a[2] "/" a[3] "/" a[4] "/") in want) print p }' "$cases/FREEZE.tsv" >> "$w/tpaths"
-LC_ALL=C sort -u "$w/tpaths" "$w/epaths" > "$w/paths"
-: > "$w/thash"; : > "$w/ehash"
-while IFS= read -r p; do
-  [ ! -f "$p" ] || printf '%s\n' "$p" >> "$w/thash"
-  [ ! -f "$w/land/${p#tests/}" ] || printf '%s\n' "$w/land/${p#tests/}" >> "$w/ehash"
-done < "$w/paths"
-hashes() { [ -s "$1" ] || return 0; git hash-object --stdin-paths < "$1" | paste -d "$tab" "$1" -; }
-hashes "$w/thash" > "$w/tb"; hashes "$w/ehash" | sed "s|^$w/land/|tests/|" > "$w/eb"
-while IFS= read -r kc; do
-  [ ! -d "$cases/$kc" ] || find "$cases/$kc" -mindepth 2 -maxdepth 2 -type f -name os
-done < "$w/sel" | while IFS= read -r f; do grep -qw "$os" "$f" || printf '%s\n' "${f%/os}"; done | sed 's|^tests/cases/||' > "$w/os-skip"
-
-awk -F'\t' -v tb="$w/tb" -v eb="$w/eb" -v dv="$cases/DIVERGENCES.tsv" -v oss="$w/os-skip" -v fz="$cases/FREEZE.tsv" '
-  BEGIN {
-    while ((getline l < fz) > 0) { split(l, a, "\t"); if (a[1] == "file") row[a[3]] = 1 }
-    while ((getline l < tb) > 0) { i = index(l, "\t"); t[substr(l, 1, i - 1)] = substr(l, i + 1) }
-    while ((getline l < eb) > 0) { i = index(l, "\t"); e[substr(l, 1, i - 1)] = substr(l, i + 1) }
-    while ((getline l < dv) > 0) { split(l, a, "\t"); if (a[1] != "case") div[a[1]] = 1 }
-    while ((getline l < oss) > 0) skipos[l] = 1
-  }
-  {
-    p = $0; key = substr(p, 13); sub(/\/[^\/]*$/, "", key); split(key, k, "/"); name = k[3]; base = name; sub(/-[0-9]+$/, "", base)
-    if (key in div || (k[2] "." name) in div || (k[2] "." base) in div) { ndiv++; next }
-    if (key in skipos) { nos++; next }
-    if ((p in e) && !(p in t) && !(p in row)) { norow[++nnr] = p; next }
-    n++
-    if (!(p in e)) { print "reexport-check: missing from the re-export: " p; bad++ }
-    else if (!(p in t)) { print "reexport-check: extra (re-exported, not in the tree): " p; bad++ }
-    else if (t[p] != e[p]) { print "reexport-check: differs from the frozen compiler: " p; bad++ }
-  }
-  END {
-    if (nnr > 0) {
-      printf "reexport-check: re-exported with no manifest row (no L043 row, not compared): %d files\n", nnr
-      for (i = 1; i <= nnr; i++) print "  " norow[i]
-    }
-    printf "reexport-check: %d files compared, %d on the divergence list, %d skipped by an os file, %d failed\n", n, ndiv, nos, bad
-    exit (bad > 0) }' "$w/paths"
+compare "$w/sel" "$w/land" "$w" "$w/export"
 crc=$?
 fi
 if [ -s "$w/runits" ]; then

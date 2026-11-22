@@ -1,24 +1,10 @@
-== diags.diag/trust-input
-BYN1062 4:7 `trust(x, reason: …)` is now `x.trustUnchecked() because "…"`
-  label the input form
-  help call `trustUnchecked()` on the value and give the reason in `because`
-  fix 4:7-4:57 u.trustUnchecked() because "checked against the allow list"
-BYN1062 5:10 `trust(x, reason: …)` is now `x.trustUnchecked() because "…"`
-  label the input form
-  help call `trustUnchecked()` on the value and give the reason in `because`
-  fix 5:10-5:35 (v.trustUnchecked() because "small")
-BYN1062 6:10 `trust(x, reason: …)` is now `x.trustUnchecked() because "…"`
-  label the input form
-  help call `trustUnchecked()` on the value and give the reason in `because`
-  fix 6:10-6:35 (u.trustUnchecked() because "short")
-BYN1062 7:10 `trust(x, reason: …)` is now `x.trustUnchecked() because "…"`
-  label the input form
-  help call `trustUnchecked()` on the value and give the reason in `because`
-  fix 7:10-7:39 u.trustUnchecked() because "in a hole"
-BYN1062 8:7 `trust(x, reason: …)` is now `x.trustUnchecked() because "…"`
-  label the input form
-  help call `trustUnchecked()` on the value and give the reason in `because`
-BYN1062 10:7 `trust(x, reason: …)` is now `x.trustUnchecked() because "…"`
-  label the input form
-  help call `trustUnchecked()` on the value and give the reason in `because`
-  fix 10:7-10:34 (v + v).trustUnchecked() because "sum"
+== diags.diag/union-value-not-integer
+BYN2709 2:12 a case value must be an integer constant
+  label not an `i32` integer literal
+  help write the value as an integer literal, or remove it
+BYN2709 3:13 a case value must be an integer constant
+  label not an `i32` integer literal
+  help write the value as an integer literal, or remove it
+BYN2709 4:11 a case value must be an integer constant
+  label not an `i32` integer literal
+  help write the value as an integer literal, or remove it

@@ -1,2 +1,1 @@
-== diags.diag/not-callable
-BYN2220 2:9 `i32` cannot be called
+== diags.run/errors-defer-return-value

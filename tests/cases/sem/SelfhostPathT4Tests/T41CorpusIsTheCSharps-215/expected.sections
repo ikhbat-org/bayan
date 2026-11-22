@@ -1,11 +1,5 @@
-== diags.builtin-arity
-BYN2301 7:5 missing argument `text` for `append`
-BYN2301 11:5 missing argument `until` for `remove`
-BYN2301 12:5 missing argument `item` for `append`
-BYN2301 13:5 missing argument `key` for `slot`
-BYN3201 13:5 the value of this `m.slot()` is unused
-  label value dropped
-  help assign it with `let _ = …`, or remove the expression
-BYN2301 15:14 missing argument `to` for `copy`
-BYN2784 15:14 a `Map<U, i64>` holding `U` cannot be copied: the copy would share its storage
-  help build the copy with a loop that copies each element, or share the original by `ref`
+== diags.diag/strbuf-over-needs-alloc
+BYN6002 3:13 `f` uses `alloc` but does not declare it
+  label uses `alloc`
+  help add `alloc` to the `uses` clause, or remove the call
+  fix 2:15-2:15  uses alloc

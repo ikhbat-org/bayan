@@ -1,4 +1,9 @@
-== diags.diag/postfix-chained
-BYN1009 2:17 postfix conditions cannot be chained
-  label a second condition
-  help combine the conditions with `&&` in one postfix `if`
+== diags.diag/return-error-input
+BYN1056 13:5 `return .empty` returns an error; write `fail .empty`
+  label this leaves with an error
+  help leave with the error: `fail .empty`
+  fix 13:5-13:11 fail
+BYN1056 14:5 `return .tooLong` returns an error; write `fail .tooLong`
+  label this leaves with an error
+  help leave with the error: `fail .tooLong`
+  fix 14:5-14:11 fail

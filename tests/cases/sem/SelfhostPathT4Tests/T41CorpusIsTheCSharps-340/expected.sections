@@ -1,5 +1,2 @@
-== diags.diag/fs-modified-needs-fs
-BYN6002 3:17 `undeclared` uses `fs` but does not declare it
-  label uses `fs`
-  help add `fs` to the `uses` clause, or remove the call
-  fix 2:33-2:33  uses fs
+== diags.run/loop-item-nested-field
+returns pass 0

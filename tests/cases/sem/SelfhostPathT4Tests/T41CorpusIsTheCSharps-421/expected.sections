@@ -1,4 +1,10 @@
-== diags.diag/non-exhaustive-union-arms
-BYN2410 7:22 `switch` does not handle every `Shape`
-  label not covered: .rect, .none
-  help add the missing arms: .rect, .none
+== diags.diag/std-json-no-lookup
+BYN2003 6:38 `get` is not a member of `Json`
+returns close 0
+returns next -1
+returns over 0
+returns parse 0
+returns readNumber -1
+returns readString -1
+returns readValue -1
+returns treeOf 0 1

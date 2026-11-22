@@ -1,25 +1,4 @@
-== diags.diag/number-agreement-caps
-BYN2009 6:25 `URL` must be camelCase
-  help rename it `url`; only types are PascalCase
-  fix 6:25-6:28 url
-BYN2009 7:23 `ID` must be camelCase
-  help rename it `id`; only types are PascalCase
-  fix 7:23-7:25 id
-BYN2009 9:16 `numOrderLINES` must be camelCase
-  help rename it `numOrderLines`
-  fix 9:16-9:29 numOrderLines
-BYN5104 6:25 `URL` holds a collection; name it with a plural, `Urls`
-  help rename it `Urls`
-  fix 6:25-6:28 Urls
-BYN5104 7:23 `ID` holds a collection; name it with a plural, `Ids`
-  help rename it `Ids`
-  fix 7:23-7:25 Ids
-BYN5104 8:23 `userID` holds a collection; name it with a plural, `userIds`
-  help rename it `userIds`
-  fix 8:23-8:29 userIds
-BYN5105 9:16 `numOrderLINES` counts items; name it `orderLineCount`
-  help rename it `orderLineCount`
-  fix 9:16-9:29 orderLineCount
-BYN5105 10:16 `numOrderLines` counts items; name it `orderLineCount`
-  help rename it `orderLineCount`
-  fix 10:16-10:29 orderLineCount
+== diags.diag/map-key-struct-instantiation
+BYN2831 3:17 `Weight` cannot be a `Map` key: field `grams` is a `f64`
+  label the generic code needs this of its type arguments
+  help use a field that identifies the value as the key, such as an id or a `Symbol`

@@ -1,3 +1,1 @@
-== diags.diag/pattern-mismatch
-BYN2411 2:14 `null` cannot match `i32`
-BYN2411 3:19 3 elements cannot match `(i32, i32)`
+== diags.run/for-indexable-count-once

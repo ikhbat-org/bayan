@@ -1,2 +1,1 @@
-== diags.diag/assert-fails-infallible
-BYN2605 9:8 `assert … fails` needs a call that can fail
+== diags.run/fs-rename

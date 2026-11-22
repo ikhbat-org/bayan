@@ -1,7 +1,1 @@
-== diags.diag/this-ref-call-modifies-borrowed-field
-BYN3004 31:9 `items` is modified while `d` still borrows it
-  label `d` is used again on line 33
-  help finish using `d` first, or copy what it needs before changing `items`
-BYN3004 32:9 `items` is modified while `d` still borrows it
-  label `d` is used again on line 33
-  help finish using `d` first, or copy what it needs before changing `items`
+== diags.run/for-enumerator-field-current

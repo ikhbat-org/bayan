@@ -1,4 +1,4 @@
-== diags.diag/distinct-bare-literal
-BYN3204 4:17 `7` is not a `Id`
-  help wrap it: `Id(7)`
-  fix 4:17-4:18 Id(7)
+== diags.diag/owned-escapes-arena
+BYN3002 11:20 arena `arena` does not live as long as `head`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough

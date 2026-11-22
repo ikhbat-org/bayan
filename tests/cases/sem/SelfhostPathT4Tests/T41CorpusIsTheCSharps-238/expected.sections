@@ -1,6 +1,5 @@
-== diags.diag/generic-argument-count
-BYN2742 9:9 `pick` takes 1 type argument(s), not 2
-BYN2742 10:9 `plain` takes 0 type argument(s), not 1
-  help remove the type arguments; `plain` is not generic
-BYN2023 11:8 `Pair` takes 2 type argument(s), not 1
-returns pick 0 1
+== diags.diag/method-group-not-a-value
+BYN2019 15:6 `weight` is a method, not a value
+  help call it: `weight()`
+BYN2019 17:9 `copy` is a method, not a value
+  help call it: `copy()`

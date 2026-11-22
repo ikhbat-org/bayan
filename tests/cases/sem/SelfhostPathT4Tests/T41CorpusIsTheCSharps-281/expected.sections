@@ -1,9 +1,1 @@
-== diags.diag/for-try-iterable
-BYN2221 14:16 `Rows` cannot be iterated
-  label each step can fail
-  help write `for try`
-  fix 14:8-14:8  try
-BYN2221 17:18 `List<i64>` cannot be iterated
-  help give `for try` a value with a failing `next()` that returns `T?`; write `for x in …` for a sequence that cannot fail
-BYN2411 20:9 2 names cannot match `i64`
-  help name one loop variable, or iterate over pairs such as a map's entries
+== diags.run/symbol-const

@@ -1,10 +1,13 @@
-== diags.diag/unique-move-in-failed-guard
-BYN2712 23:9 `_` hides future cases of `U`, declared in this package
-  label matches every case added later
-  help list the cases instead: .a, .b
-BYN2781 15:22 `x` is used after it was moved
-  label moved on line 12
-  help assign `x` a new value before using it again, or move a `.copy(to: alloc)` of it instead
-BYN2781 23:14 `x` is used after it was moved
-  label moved on line 22
-  help assign `x` a new value before using it again, or move a `.copy(to: alloc)` of it instead
+== diags.diag/effect-not-declared
+BYN6002 2:5 `greet` uses `console` but does not declare it
+  label uses `console`
+  help add `console` to the `uses` clause, or remove the call
+  fix 1:31-1:31  uses console
+BYN6002 7:12 `measure` uses `clock` but does not declare it
+  label uses `clock`
+  help add `clock` to the `uses` clause, or remove the call
+  fix 5:45-5:45 , clock
+BYN6002 15:5 `callsHelper` uses `console` but does not declare it
+  label uses `console`
+  help add `console` to the `uses` clause, or remove the call
+  fix 14:26-14:26  uses console

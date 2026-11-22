@@ -1,7 +1,13 @@
-== diags.diag/enum-argument-count
-BYN2301 2:5 missing argument `radius` for `Planet.mercury`
-BYN2302 3:26 `Planet.venus` takes 2 argument(s)
-BYN2301 4:5 missing argument `mass`, `radius` for `Planet.earth`
-BYN2021 5:24 `Planet.mars` has no parameter `size`
-BYN2202 6:13 expected `f64`, found `string`
-BYN2302 10:9 `Color.red` takes 0 argument(s)
+== diags.diag/assignment-changes-state
+BYN7012 15:5 `o` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7012 19:5 `o` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7012 27:5 `o` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7012 44:11 `o` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7012 9:15 `this` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7002 10:16 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`

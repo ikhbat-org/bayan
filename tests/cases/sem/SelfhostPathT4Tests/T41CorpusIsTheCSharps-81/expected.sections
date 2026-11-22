@@ -1,6 +1,7 @@
-== diags.diag/fail-undeclared-case
-BYN2603 6:10 `.missing` is not in the `fails` clause of `f`
-  help name a case of `ParseError`
-BYN2602 10:10 `f` can fail; handle the error or pass it on
-  help propagate the error with `try`, or handle it with `catch`
-  fix 10:10-10:10 try 
+== diags.diag/bracket-attribute
+BYN1045 1:1 `[Cases(1, 2)]` is an input form; write `@cases(1, 2)`
+  help write the attribute with `@` and a camelCase name
+  fix 1:1-1:14 @cases(1, 2)
+BYN1045 7:5 `[ExitCode(3)]` is an input form; write `@exitCode(3)`
+  help write the attribute with `@` and a camelCase name
+  fix 7:5-7:18 @exitCode(3)

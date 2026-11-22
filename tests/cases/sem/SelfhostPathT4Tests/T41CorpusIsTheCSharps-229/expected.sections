@@ -1,9 +1,17 @@
-== diags.diag/borrow-then-mutated-in-initializer
-BYN3004 37:57 `w` is modified while `sp` still borrows it
-  label `sp` is used again on line 38
-  help finish using `sp` first, or copy what it needs before changing `w`
-BYN3004 41:50 `b` is modified while `d` still borrows it
-  label `d` is used again on line 42
-  help finish using `d` first, or copy what it needs before changing `b`
-returns first 0
-returns pick 0
+== diags.diag/statement-attribute-semicolon
+BYN1040 4:11 `;` is an input form; a statement ends at the newline
+  label remove `;`
+  help remove the `;`
+  fix 4:11-4:12 
+BYN1008 6:9 a postfix `if` applies only to a simple statement
+  help put the condition first: `if cond { … }`
+BYN1008 8:20 a postfix `unless` applies only to a simple statement
+  help put the condition first: `if cond { … }`
+BYN1040 8:32 `;` is an input form; a statement ends at the newline
+  label remove `;`
+  help remove the `;`
+  fix 8:32-8:33 
+BYN1040 10:22 `;` is an input form; a statement ends at the newline
+  label remove `;`
+  help remove the `;`
+  fix 10:22-10:23 

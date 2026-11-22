@@ -1,8 +1,2 @@
-== diags.diag/input-fails-empty
-BYN1012 1:1 this expression does nothing as a statement
-  label the value is computed and discarded
-  help write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand alone
-BYN1005 1:4 expected a line break after the statement
-  label found `!`
-  help put the next statement on its own line
-  fix 1:4-1:4 
+== diags.diag/array-length-mismatch
+BYN2222 1:18 `i64[3]` needs exactly its length in elements, found 2

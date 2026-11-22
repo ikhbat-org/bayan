@@ -1,7 +1,7 @@
-== diags.diag/map-key-string-part
-BYN3002 10:15 arena `arena` does not live as long as `plain`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-BYN3002 11:16 arena `arena` does not live as long as `scoped`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+== diags.diag/generic-conflicting-inference
+BYN2741 4:21 type argument `T` of `pick` is inferred as both `i32` and `string`
+  help make the arguments agree, or write it out: `pick<…>(…)`
+BYN2741 6:25 type argument `T` of `head` is inferred as both `string` and `i32`
+  help make the arguments agree, or write it out: `head<…>(…)`
+returns head 1
+returns pick 0 1

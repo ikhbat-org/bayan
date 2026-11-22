@@ -1,4 +1,9 @@
-== diags.diag/unique-move-in-loop
-BYN2781 10:22 `a` is used after it was moved
-  label moved on line 10
-  help assign `a` a new value before using it again, or move a `.copy(to: alloc)` of it instead
+== diags.diag/rest-input
+BYN1058 1:9 `params i32[] xs` is an input form; write `rest ReadOnlySpan<i32> xs`
+  label the input form
+  help declare the variadic parameter with `rest`
+  fix 1:9-1:21 rest ReadOnlySpan<i32>
+BYN1058 4:14 `i32... xs` is an input form; write `rest ReadOnlySpan<i32> xs`
+  label the input form
+  help declare the variadic parameter with `rest`
+  fix 4:11-4:17 rest ReadOnlySpan<i32>

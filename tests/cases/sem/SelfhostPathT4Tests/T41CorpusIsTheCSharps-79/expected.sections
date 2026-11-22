@@ -1,2 +1,5 @@
-== diags.diag/positional-after-named
-BYN2304 2:20 a positional argument cannot follow a named one
+== diags.diag/witness-mutates-this
+BYN2115 9:9 `reset` modifies `this` but is not declared `ref this`
+  label `this` is modified here
+  help declare it `ref this` as the first parameter
+  fix 8:16-8:16 ref this

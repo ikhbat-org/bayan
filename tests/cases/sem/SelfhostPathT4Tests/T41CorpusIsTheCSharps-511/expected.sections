@@ -1,3 +1,4 @@
-== diags.diag/unknown-module
-BYN2004 1:8 no module `mony`
-  help put the module's `.byn` files in `mony/` next to the entry file; a module is a directory
+== diags.diag/union-value-on-payload
+BYN2710 2:21 `circle` carries data and cannot have a value
+  label only a case without data can have a value
+  help remove the value

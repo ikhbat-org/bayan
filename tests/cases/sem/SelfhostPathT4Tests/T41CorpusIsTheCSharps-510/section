@@ -1,1 +1,1 @@
-diags.run/panic-handler-skips-defer
+diags.diag/union-borrow-payload

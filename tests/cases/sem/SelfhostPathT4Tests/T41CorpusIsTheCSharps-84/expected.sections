@@ -1,2 +1,3 @@
-== diags.diag/missing-return-value
-BYN2402 2:5 this function returns `i64`; `return` needs a value
+== diags.diag/requires-not-bool
+BYN2320 1:25 a `requires` clause must be `bool`, got `i32`
+  help write a condition the arguments must meet, such as `count > 0`

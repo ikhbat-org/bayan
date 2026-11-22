@@ -1,5 +1,7 @@
-== diags.diag/ref-this-let-receiver
-BYN2104 13:1 `c` is immutable
-  label `bump` modifies it; declared with `let` on line 11
-  help declare it with `var` if it should change
-  fix 11:1-11:4 var
+== diags.diag/not-an-interface
+BYN2804 9:34 `Point` is not an interface
+  label a struct
+  help list an `interface` here
+BYN2804 5:17 `Point` is not an interface
+  label a struct
+  help list an `interface` here

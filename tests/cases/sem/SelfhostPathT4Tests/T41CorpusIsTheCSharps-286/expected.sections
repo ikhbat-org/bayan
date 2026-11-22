@@ -1,3 +1,5 @@
-== diags.generic-iface-default
-returns get -1
-returns twice -1
+== diags.diag/postfix-not-simple
+BYN1008 2:16 a postfix `if` applies only to a simple statement
+  help put the condition first: `if cond { … }`
+BYN1008 3:15 a postfix `if` applies only to a simple statement
+  help declare the variable, then assign it conditionally; a declaration cannot be conditional

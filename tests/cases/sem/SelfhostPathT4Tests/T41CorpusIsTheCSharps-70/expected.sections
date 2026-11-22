@@ -1,7 +1,11 @@
-== diags.diag/borrow-escapes-region
-BYN3002 7:16 the `stackalloc` buffer on line 4 does not live as long as `view`, which borrows it
-  label the `stackalloc` buffer on line 4 is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-BYN3002 13:16 arena `arena` does not live as long as `kept`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+== diags.diag/input-body-nested-diagnostic
+BYN1017 4:8 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 4:8-4:55 a { unless b { print("s") } else { print("t") } }
+BYN1006 4:36 `unless` cannot have an `else` branch
+  label `else` after `unless`
+  help use `if` with the opposite condition, so both branches read positively
+BYN1018 4:12 the body of `if` must be a block
+  label a single statement
+  help wrap the statement in `{ }`

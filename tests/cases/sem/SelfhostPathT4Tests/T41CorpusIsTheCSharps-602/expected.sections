@@ -1,17 +1,13 @@
-== diags.diag/codec-renames
-BYN2230 4:24 `string.from` is now `Utf8.decode`
-  label the old name
-  help write `Utf8.decode`
-  fix 4:17-4:28 Utf8.decode
-BYN2230 5:24 `string.fromUtf8` is now `Utf8.decode`
-  label the old name
-  help write `Utf8.decode`
-  fix 5:17-5:32 Utf8.decode
-BYN2230 6:20 `string.tryFrom` is now `Utf8.tryDecode`
-  label the old name
-  help write `Utf8.tryDecode`
-  fix 6:13-6:27 Utf8.tryDecode
-BYN2230 7:17 `try string(bytes)` is now `try Utf8.decode(bytes)`
-  label the old name
-  help write `Utf8.decode`
-  fix 7:17-7:23 Utf8.decode
+== diags.diag/hashmap-not-supported
+BYN2830 3:5 `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
+  help write `Map<string, i32>`
+  fix 3:5-3:25 Map<string, i32>
+BYN2830 6:11 `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
+  help write `Map<string, i32>`
+  fix 6:11-6:31 Map<string, i32>
+BYN2830 9:16 `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
+  help write `Map<string, i32>`
+  fix 9:16-9:36 Map<string, i32>
+BYN2830 11:22 `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
+  help write `Map<string, i32>`
+  fix 11:22-11:42 Map<string, i32>

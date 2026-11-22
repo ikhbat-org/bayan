@@ -1,3 +1,1 @@
-== diags.diag/io-unknown-member-suggests-directory
-BYN2003 3:12 `removeDirector` is not a member of `Io`
-  help did you mean `removeDirectory`?
+== diags.run/interface-constraint-unique

@@ -1,2 +1,1 @@
-== diags.diag/array-length-mismatch
-BYN2222 1:18 `i64[3]` needs exactly its length in elements, found 2
+== diags.run/move-after-borrow-last-use

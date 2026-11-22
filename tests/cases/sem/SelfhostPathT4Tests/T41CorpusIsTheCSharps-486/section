@@ -1,1 +1,1 @@
-diags.diag/duplicate-enum-member
+diags.diag/ref-out-return-mutual-recursion

@@ -1,9 +1,6 @@
-== diags.diag/env-get-needs-env
-BYN6002 3:12 `undeclaredHome` uses `env` but does not declare it
-  label uses `env`
-  help add `env` to the `uses` clause, or remove the call
-  fix 2:32-2:32  uses alloc, env
-BYN6002 3:12 `undeclaredHome` uses `alloc` but does not declare it
-  label uses `alloc`
-  help add `alloc` to the `uses` clause, or remove the call
-  fix 2:32-2:32  uses alloc, env
+== diags.ref-this-tuple-field
+BYN3002 14:9 arena `arena` does not live as long as `b`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 5:15-5:16 `put` stores `v` into `this` here
+store put 0 -1 87..88

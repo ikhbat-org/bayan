@@ -1,4 +1,38 @@
-== diags.diag/non-exhaustive-data-enum
-BYN2410 7:29 `switch` does not handle every `Planet`
-  label not covered: .venus, .earth
-  help add the missing arms, or `_ => …` for the rest
+== diags.diag/this-narrowing
+BYN7010 91:15 `total` declares `becomes .draft` but takes `move this is .paid`; a transition needs `ref this`
+  help change the receiver of `total` to `ref this`, or return the new state as a value
+  fix 91:15-91:19 ref
+BYN7012 155:5 `o` would change state here; a state changes only through `become`
+  help assign a value in the same state, or move the transition into a `becomes` method
+BYN7002 30:24 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`
+BYN7002 35:16 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`
+BYN7003 61:13 `again` calls `reset`, which changes the state; declare `becomes` on `again`
+  help add `becomes .draft` to the signature of `again`
+  fix 59:25-59:25  becomes .draft
+BYN7002 62:22 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`
+BYN7002 70:18 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`
+BYN7001 71:18 `onlyPaid` needs `this` to be `.paid`, but it is `Order`
+  help check the state with `is` or `switch` first
+BYN7002 78:18 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`
+BYN7001 79:18 `onlyPaid` needs `this` to be `.paid`, but it is `Order`
+  help check the state with `is` or `switch` first
+BYN7002 85:22 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`
+BYN7002 99:20 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`
+BYN7001 100:20 `onlyPaid` needs `this` to be `.paid`, but it is `Order`
+  help check the state with `is` or `switch` first
+BYN7003 117:9 `erase` calls `reset`, which changes the state; declare `becomes` on `erase`
+  help add `becomes .draft` to the signature of `erase`
+  fix 116:25-116:25  becomes .draft
+BYN7003 120:9 `eraseTo` calls `reset`, which changes the state; declare `becomes` on `eraseTo`
+  help add `becomes .draft` to the signature of `eraseTo`
+BYN7002 147:26 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
+  help match `.paid` with `is` or `switch` before reading `payment`
+BYN7009 134:5 `handleCharge` declares `becomes .paid` but returns here without `become`
+  help add `become .paid(…)` before returning, or fail

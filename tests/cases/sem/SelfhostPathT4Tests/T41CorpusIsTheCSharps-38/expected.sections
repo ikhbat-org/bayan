@@ -1,4 +1,3 @@
-== diags.diag/unique-struct-containment
-BYN2780 13:16 implicit copy of a unique value: `Ledger` is unique because field `xs` is a `List<i64>`
-  help hand the value over with `move ledger`; pass it by `ref` to share it instead
-  fix 13:16-13:16 move 
+== diags.diag/nothing-to-handle
+BYN2605 2:13 `try` needs a call that can fail
+  fix 2:9-2:13 

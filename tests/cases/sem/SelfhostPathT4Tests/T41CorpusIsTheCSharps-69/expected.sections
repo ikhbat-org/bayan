@@ -1,8 +1,4 @@
-== diags.diag/loop-item-user-iteration-escapes
-BYN3002 19:25 `b` does not live as long as `kept`, which borrows it
-  label `b` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-BYN3002 22:13 `b` does not live as long as `n`, which borrows it
-  label `b` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-returns pass 0
+== diags.diag/unique-struct-containment
+BYN2780 13:16 implicit copy of a unique value: `Ledger` is unique because field `xs` is a `List<i64>`
+  help hand the value over with `move ledger`; pass it by `ref` to share it instead
+  fix 13:16-13:16 move 

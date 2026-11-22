@@ -1,5 +1,3 @@
-== diags.diag/fs-file-exists-needs-fs
-BYN6002 3:12 `undeclaredExists` uses `fs` but does not declare it
-  label uses `fs`
-  help add `fs` to the `uses` clause, or remove the call
-  fix 2:39-2:39  uses fs
+== diags.diag/path-unknown-member
+BYN2003 2:12 `fileNme` is not a member of `Path`
+  help did you mean `fileName`?

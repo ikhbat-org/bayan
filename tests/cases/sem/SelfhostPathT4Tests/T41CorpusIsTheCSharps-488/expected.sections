@@ -1,2 +1,1 @@
-== diags.run/take
-returns drain 0
+== diags.run/io-stdin-bytes

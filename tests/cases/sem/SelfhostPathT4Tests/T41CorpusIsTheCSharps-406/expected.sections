@@ -1,4 +1,1 @@
-== diags.diag/unless-else
-BYN1006 2:27 `unless` cannot have an `else` branch
-  label `else` after `unless`
-  help use `if` with the opposite condition, so both branches read positively
+== diags.run/path-file-name

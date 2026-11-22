@@ -1,2 +1,5 @@
-== diags.run/owned-list
-returns push 1
+== diags.diag/input-error-set-pipe
+BYN1029 11:1 an error set is declared `union error SignupError = A, B`
+  label the input form
+  help write `union error`, with `,` between the members
+  fix 11:1-11:45 union error SignupError = EmailError, DbError

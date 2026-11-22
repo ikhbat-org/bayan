@@ -1,5 +1,2 @@
-== diags.diag/strbuf-over-needs-alloc
-BYN6002 3:13 `f` uses `alloc` but does not declare it
-  label uses `alloc`
-  help add `alloc` to the `uses` clause, or remove the call
-  fix 2:15-2:15  uses alloc
+== diags.run/lambda-named-function
+returns hooked 0 1

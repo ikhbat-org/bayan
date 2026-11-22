@@ -1,13 +1,1 @@
-== diags.diag/count-name
-BYN5105 2:16 `linesCount` counts items; name it `lineCount`
-  help rename it `lineCount`
-  fix 2:16-2:26 lineCount
-BYN5105 3:16 `numLines` counts items; name it `lineCount`
-  help rename it `lineCount`
-  fix 3:16-3:24 lineCount
-BYN5105 4:16 `numberOfItems` counts items; name it `itemCount`
-  help rename it `itemCount`
-  fix 4:16-4:29 itemCount
-BYN5105 7:16 `totalLinesCount` counts items; name it `totalLineCount`
-  help rename it `totalLineCount`
-  fix 7:16-7:31 totalLineCount
+== diags.run/with-move-unique

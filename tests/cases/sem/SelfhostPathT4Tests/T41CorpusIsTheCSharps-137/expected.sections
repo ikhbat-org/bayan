@@ -1,4 +1,16 @@
-== diags.diag/interface-default-conflict
-BYN2802 9:16 `S.name` is `IA.name` but `IB` requires `string name()`
-  label `name` also has a default in `IA`
-  help add `string name()` to `S` to choose one
+== diags.diag/constraint-not-satisfied
+BYN2807 25:30 `T` does not conform to `IShape`: missing `area`
+  label the generic code needs this of its type arguments
+  help add `where T : IShape` to the declaration of `T`
+BYN2807 34:12 `Square` does not conform to `IShape`: missing `area`
+  label the generic code needs this of its type arguments
+  help add `: IShape` to `Square` and provide `area`
+BYN2807 30:31 `Square` does not conform to `IShape`: missing `area`
+  label the generic code needs this of its type arguments
+  help add `: IShape` to `Square` and provide `area`
+BYN2807 31:14 `Square` does not conform to `IShape`: missing `area`
+  label the generic code needs this of its type arguments
+  help add `: IShape` to `Square` and provide `area`
+BYN2807 33:14 `i32` does not conform to `IShape`: missing `area`
+  label the generic code needs this of its type arguments
+  help pass a struct that conforms to `IShape`; primitives do not conform to interfaces

@@ -1,3 +1,87 @@
-== diags.diag/target-unknown-member
-BYN2003 2:14 `osx` is not a member of `Target`
-  help did you mean `os`?
+== diags.diag/map-copy
+BYN2783 80:21 `m` borrows from what it was bound to and cannot be changed or moved
+  help change the subject itself, or work on a `.copy(to: alloc)`; a loop or pattern variable of a unique type borrows from its subject
+BYN2783 82:21 `b` borrows from what it was bound to and cannot be changed or moved
+  label `append` modifies it
+  help change the subject itself, or work on a `.copy(to: alloc)`; a loop or pattern variable of a unique type borrows from its subject
+BYN2780 26:12 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `s.data.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 26:18-26:18 .copy(to: alloc)
+BYN2780 30:12 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `maps[0].copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 30:19-30:19 .copy(to: alloc)
+BYN2780 34:12 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `m.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 34:13-34:13 .copy(to: alloc)
+BYN2780 38:12 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `r.value.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 38:19-38:19 .copy(to: alloc)
+BYN2780 46:13 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 46:13-46:13 move 
+BYN2780 47:13 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `p.copy(to: alloc)`; declare the parameter `move p` to take ownership; pass it by `ref` to share it instead
+  fix 47:14-47:14 .copy(to: alloc)
+BYN2780 49:13 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `s.data.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 49:19-49:19 .copy(to: alloc)
+BYN2780 50:9 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 50:9-50:9 move 
+BYN2780 51:14 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 51:14-51:14 move 
+BYN2780 52:38 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 52:38-52:38 move 
+BYN2780 54:26 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 54:26-54:26 move 
+BYN2780 56:17 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 56:17-56:17 move 
+BYN2780 58:17 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 58:17-58:17 move 
+BYN2780 59:34 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 59:34-59:34 move 
+BYN2780 60:13 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `arr[1].copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 60:19-60:19 .copy(to: alloc)
+BYN2780 61:17 implicit copy of a unique value: `Store` is unique because field `data` is a `Map<i64, i64>`
+  help hand the value over with `move s`; pass it by `ref` to share it instead
+  fix 61:17-61:17 move 
+BYN2780 62:17 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 62:17-62:17 move 
+BYN2780 64:13 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `o.value.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 64:20-64:20 .copy(to: alloc)
+BYN2780 65:13 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `nested[1].copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 65:22-65:22 .copy(to: alloc)
+BYN2780 66:13 implicit copy of a unique value: `Store` is unique because field `data` is a `Map<i64, i64>`
+  help write `move s with { … }` to give up `s`
+BYN2780 67:28 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 67:28-67:28 move 
+BYN2780 68:29 implicit copy of a unique value: `Map<i64, i64>?` is unique because it holds a `Map<i64, i64>`
+  help hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 68:29-68:29 move 
+BYN2780 74:16 implicit copy of a unique value: `StrBuf` is unique: it owns its storage
+  help hand the value over with `move sb`; make an independent copy with `sb.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 74:16-74:16 move 
+BYN2780 96:16 implicit copy of a unique value: `Named` is unique because field `m` is a `Map<i64, i64>`
+  help pass it by `ref` to share it instead
+BYN2780 15:21 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `data.copy(to: alloc)`; declare the parameter `move data` to take ownership; pass it by `ref` to share it instead
+  fix 15:25-15:25 .copy(to: alloc)
+BYN2780 19:16 implicit copy of a unique value: `Map<i64, i64>` is unique: it owns its storage
+  help make an independent copy with `this.data.copy(to: alloc)`; pass it by `ref` to share it instead
+  fix 19:25-19:25 .copy(to: alloc)
+returns fromElement 0
+returns fromField 0
+returns fromRef 0
+returns fromResult 0
+returns take -1

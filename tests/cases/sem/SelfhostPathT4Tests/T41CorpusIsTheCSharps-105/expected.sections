@@ -1,5 +1,5 @@
-== diags.diag/io-remove-needs-fs
-BYN6002 3:9 `undeclaredRemove` uses `fs` but does not declare it
-  label uses `fs`
-  help add `fs` to the `uses` clause, or remove the call
-  fix 2:39-2:39  uses fs
+== diags.diag/becomes-on-ref-parameter
+BYN7011 20:5 `pay` changes the state of `order`, a `ref` parameter; a state changes in place only through `ref this`
+  help take `order` by `move` and return the new state as a value
+BYN7011 14:9 `pay` changes the state of `other`, a `ref` parameter; a state changes in place only through `ref this`
+  help take `other` by `move` and return the new state as a value

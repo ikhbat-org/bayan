@@ -1,2 +1,4 @@
-== diags.diag/catch-switch-foreign-set
-BYN2411 18:5 `DbError` cannot match `ParseError`
+== diags.diag/interface-unique-field-witness-constraint
+BYN2780 6:15 implicit copy of a unique value: `List<i64>` is unique: it owns its storage
+  label cannot stand for `IHas.items`
+  help rename the field and write the getter `List<i64> items => …` in `H`, returning a copy or a fresh value

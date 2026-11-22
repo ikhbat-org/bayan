@@ -1,7 +1,1 @@
-== diags.state-fields
-BYN5014 10:9 `via` is not a known verb, noun or adjective
-  help add it to `grammar` in package.byn: `nouns: ["via"]`, `verbs: ["via"]` or `adjectives: ["via"]`
-BYN5014 10:12 `lambda` is not a known verb, noun or adjective
-  help add it to `grammar` in package.byn: `nouns: ["lambda"]`, `verbs: ["lambda"]` or `adjectives: ["lambda"]`
-BYN2821 11:34 `payment` cannot be captured: it is read through `this`, which a lambda does not capture
-  help copy the fields you need into `let` values first
+== diags.run/error-equality-other-set

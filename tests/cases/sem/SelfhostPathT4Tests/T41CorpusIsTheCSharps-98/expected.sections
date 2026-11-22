@@ -1,7 +1,1 @@
-== diags.diag/borrow-stored-through-span
-BYN3002 5:14 the `stackalloc` buffer on line 2 does not live as long as `dst`, which borrows it
-  label the `stackalloc` buffer on line 2 is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-BYN3002 20:15 the `stackalloc` buffer on line 12 does not live as long as `view`, which borrows it
-  label the `stackalloc` buffer on line 12 is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+== diags.run/symbol-debug-field

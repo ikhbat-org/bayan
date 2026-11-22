@@ -1,38 +1,42 @@
-== diags.diag/this-narrowing
-BYN7010 91:15 `total` declares `becomes .draft` but takes `move this is .paid`; a transition needs `ref this`
-  help change the receiver of `total` to `ref this`, or return the new state as a value
-  fix 91:15-91:19 ref
-BYN7012 155:5 `o` would change state here; a state changes only through `become`
-  help assign a value in the same state, or move the transition into a `becomes` method
-BYN7002 30:24 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
-  help match `.paid` with `is` or `switch` before reading `payment`
-BYN7002 35:16 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
-  help match `.paid` with `is` or `switch` before reading `payment`
-BYN7003 61:13 `again` calls `reset`, which changes the state; declare `becomes` on `again`
-  help add `becomes .draft` to the signature of `again`
-  fix 59:25-59:25  becomes .draft
-BYN7002 62:22 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
-  help match `.paid` with `is` or `switch` before reading `payment`
-BYN7002 70:18 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
-  help match `.paid` with `is` or `switch` before reading `payment`
-BYN7001 71:18 `onlyPaid` needs `this` to be `.paid`, but it is `Order`
-  help check the state with `is` or `switch` first
-BYN7002 78:18 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
-  help match `.paid` with `is` or `switch` before reading `payment`
-BYN7001 79:18 `onlyPaid` needs `this` to be `.paid`, but it is `Order`
-  help check the state with `is` or `switch` first
-BYN7002 85:22 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
-  help match `.paid` with `is` or `switch` before reading `payment`
-BYN7002 99:20 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
-  help match `.paid` with `is` or `switch` before reading `payment`
-BYN7001 100:20 `onlyPaid` needs `this` to be `.paid`, but it is `Order`
-  help check the state with `is` or `switch` first
-BYN7003 117:9 `erase` calls `reset`, which changes the state; declare `becomes` on `erase`
-  help add `becomes .draft` to the signature of `erase`
-  fix 116:25-116:25  becomes .draft
-BYN7003 120:9 `eraseTo` calls `reset`, which changes the state; declare `becomes` on `eraseTo`
-  help add `becomes .draft` to the signature of `eraseTo`
-BYN7002 147:26 `payment` is a payload of `.paid`; `this` is not known to be `.paid`
-  help match `.paid` with `is` or `switch` before reading `payment`
-BYN7009 134:5 `handleCharge` declares `becomes .paid` but returns here without `become`
-  help add `become .paid(…)` before returning, or fail
+== diags.type-names
+BYN5014 5:10 `inst` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `nouns: ["inst"]`, `verbs: ["inst"]` or `adjectives: ["inst"]`
+BYN5014 6:17 `st` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `nouns: ["st"]`, `verbs: ["st"]` or `adjectives: ["st"]`
+BYN2023 10:13 `List` takes 1 type argument(s), not 0
+BYN2019 10:13 `?` is a type, not a value
+BYN2023 11:13 `Map` takes 2 type argument(s), not 0
+BYN2019 11:13 `?` is a type, not a value
+BYN2023 12:13 `Span` takes 1 type argument(s), not 0
+BYN2019 12:13 `?` is a type, not a value
+BYN2023 13:13 `ReadOnlySpan` takes 1 type argument(s), not 0
+BYN2019 13:13 `?` is a type, not a value
+BYN2019 14:13 `Arena` is a type, not a value
+BYN2019 15:13 `StrBuf` is a type, not a value
+BYN2019 16:13 `IoError` is a type, not a value
+BYN2019 17:13 `Utf8Error` is a type, not a value
+BYN2019 18:13 `ParseError` is a type, not a value
+BYN2023 19:13 `ValidationError` takes 1 type argument(s), not 0
+BYN2019 19:13 `?` is a type, not a value
+BYN2019 20:13 `ProcessResult` is a type, not a value
+BYN2228 21:21 `Notfond` is not a variant of `IoError`
+  help did you mean `notFound`?
+BYN2228 22:21 `zzzzqq` is not a variant of `IoError`
+BYN2003 23:15 `inst` is not a member of `S`
+  help call it on a `S` value; `inst` belongs to a value, not the type
+BYN2003 24:15 `a` is not a member of `S`
+  help call it on a `S` value; `a` belongs to a value, not the type
+BYN2003 25:15 `p` is not a member of `S`
+  help call it on a `S` value; `p` belongs to a value, not the type
+BYN2003 26:15 `zzzzqq` is not a member of `S`
+BYN2019 27:13 `st` is a method, not a value
+  help call it: `st()`
+BYN2003 28:20 `inter` is not a member of `Symbol`
+  help did you mean `intern`?
+BYN2003 29:20 `zzzzqq` is not a member of `Symbol`
+BYN2019 30:13 `intern` is a method, not a value
+  help call it: `intern(…)`
+BYN2003 31:16 `readFil` is not a member of `Io`
+  help did you mean `readFile`?
+BYN2003 32:19 `x` is not a member of `Arena`
+BYN2003 33:20 `x` is not a member of `StrBuf`

@@ -1,3 +1,7 @@
-== diags.diag/validation-error-undeclared
-BYN2603 13:13 `ValidationError<Signup>` is not in the `fails` clause of `register`
-  help add it to the signature: `fails ValidationError<Address>, ValidationError<Signup>`
+== diags.diag/wildcard-on-local-union
+BYN2712 9:5 `_` hides future cases of `Shape`, declared in this package
+  label matches every case added later
+  help list the cases instead: .rect, .none
+BYN2712 16:5 `_` hides future cases of `Shape`, declared in this package
+  label matches every case added later
+  help remove the `_` arm

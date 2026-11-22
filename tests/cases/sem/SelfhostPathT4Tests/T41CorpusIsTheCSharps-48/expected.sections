@@ -1,7 +1,4 @@
-== diags.diag/bracket-attribute
-BYN1045 1:1 `[Cases(1, 2)]` is an input form; write `@cases(1, 2)`
-  help write the attribute with `@` and a camelCase name
-  fix 1:1-1:14 @cases(1, 2)
-BYN1045 7:5 `[ExitCode(3)]` is an input form; write `@exitCode(3)`
-  help write the attribute with `@` and a camelCase name
-  fix 7:5-7:18 @exitCode(3)
+== diags.diag/owned-read-only
+BYN2106 7:5 cannot modify this value
+  label an `Owned` value is read-only
+  help build a new value and wrap it with `Owned(…)`

@@ -1,4 +1,5 @@
-== diags.diag/except-in-case-left
-BYN1051 3:22 `except` is not allowed in a `case` pattern
-  label not allowed here
-  help write the arm as `case not .circle`
+== diags.diag/input-fails-shorthand-uses
+BYN1031 4:4 `T!E` is an input form; write `T f() fails E`
+  label the input form
+  help write `fails E` as the last clause of the signature
+  fix 4:4-4:23  g() uses console fails E

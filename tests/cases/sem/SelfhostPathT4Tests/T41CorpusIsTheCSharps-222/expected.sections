@@ -1,5 +1,10 @@
-== diags.diag/lambda-generic-inference
-BYN2218 4:21 `[ … ]` needs a known type here
-  help declare the type: `List<i64> xs = [1, 2]`
-BYN2740 4:16 cannot infer type argument `T` of `pick`
-  help pass an argument it can be read from, or write it out: `pick<T>(…)`
+== diags.diag/interface-as-type
+BYN2816 5:11 `IShape` is an interface, not a type
+  label an interface
+  help write `dyn ref IShape` or add a `where` constraint
+BYN2816 6:12 `IShape` is an interface, not a type
+  label an interface
+  help write `dyn ref IShape` or add a `where` constraint
+BYN2816 10:22 `IShape` is an interface, not a type
+  label an interface
+  help write `dyn ref IShape` or add a `where` constraint

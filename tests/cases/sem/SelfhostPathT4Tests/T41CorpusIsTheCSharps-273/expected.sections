@@ -1,10 +1,6 @@
-== diags.diag/std-json-no-lookup
-BYN2003 6:38 `get` is not a member of `Json`
-returns close 0
-returns next -1
-returns over 0
-returns parse 0
-returns readNumber -1
-returns readString -1
-returns readValue -1
-returns treeOf 0 1
+== diags.diag/line-join-enum-shorthand
+BYN5103 11:1 a line starting with `.` joins the statement above; indent it deeper
+  label joins the statement on line 10
+  help indent it deeper than the line its statement starts on
+  fix 11:1-11:1     
+BYN2003 11:2 `green` is not a member of `Color`

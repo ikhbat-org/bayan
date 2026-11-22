@@ -1,6 +1,7 @@
-== diags.diag/ref-out-escape-map-index-set
-BYN3002 10:9 arena `arena` does not live as long as `kept`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-  related 2:7-2:8 `keep` stores `s` into `m` here
-store keep 0 1 55..56
+== diags.diag/null-equality-optional-fix
+BYN2027 3:13 compare with `is null` / `is not null`, not `==`
+  help write `n is null`
+  fix 3:13-3:22 n is null
+BYN2027 4:13 compare with `is null` / `is not null`, not `==`
+  help write `n is not null`
+  fix 4:13-4:22 n is not null

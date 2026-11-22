@@ -1,9 +1,1 @@
-== diags.diag/path-needs-alloc
-BYN6002 4:12 `undeclaredName` uses `alloc` but does not declare it
-  label uses `alloc`
-  help add `alloc` to the `uses` clause, or remove the call
-  fix 3:39-3:39  uses alloc
-BYN6002 8:12 `undeclaredRelative` uses `alloc` but does not declare it
-  label uses `alloc`
-  help add `alloc` to the `uses` clause, or remove the call
-  fix 7:64-7:64  uses alloc
+== diags.run/positional-requires

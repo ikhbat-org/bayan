@@ -1,2 +1,8 @@
-== diags.diag/nested-optional
-BYN2024 2:8 `i64??` is already optional
+== diags.diag/io-run-named
+BYN2305 4:38 argument for `directory` must be named
+  help write `directory: …`; `Io.run`'s options are named
+  fix 4:38-4:38 directory: 
+BYN2021 5:38 `run` has no parameter `dir`
+BYN2202 6:49 expected `string?`, found `i32`
+BYN2202 7:45 expected `ReadOnlySpan<u8>?`, found `string`
+BYN2202 8:49 expected `string?`, found `i32`

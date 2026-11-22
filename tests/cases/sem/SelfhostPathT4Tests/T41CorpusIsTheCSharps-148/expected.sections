@@ -1,9 +1,3 @@
-== diags.diag/positional-states
-BYN1016 1:1 `@positional` is not allowed here
-  help remove `@positional`: a struct with states is built with state literals
-BYN2009 6:9 `Open` must be camelCase
-  help rename it `open`; only types are PascalCase
-  fix 6:9-6:13 open
-BYN2009 7:9 `Closed` must be camelCase
-  help rename it `closed`; only types are PascalCase
-  fix 7:9-7:15 closed
+== diags.diag/validation-error-unknown-variant
+BYN2228 19:35 `boom` is not a variant of `ValidationError<Signup> | ValidationError<Address>`
+  help use a variant of `ValidationError<Signup>`, `ValidationError<Address>`, the sets `register` fails with

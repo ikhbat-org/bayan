@@ -1,5 +1,1 @@
-== diags.diag/input-fails-shorthand-uses
-BYN1031 4:4 `T!E` is an input form; write `T f() fails E`
-  label the input form
-  help write `fails E` as the last clause of the signature
-  fix 4:4-4:23  g() uses console fails E
+== diags.run/path-combine

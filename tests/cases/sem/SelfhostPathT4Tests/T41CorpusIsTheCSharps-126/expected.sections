@@ -1,7 +1,2 @@
-== diags.diag/switch-move-field
-BYN2789 14:17 `switch move …` needs a local or a `move` parameter, not field `slot`
-  help drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection field into a local first
-BYN2789 17:17 `switch move …` needs a local or a `move` parameter, not an element
-  help drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection field into a local first
-BYN2789 20:17 `switch move …` needs a local or a `move` parameter, not parameter `plain`
-  help drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection field into a local first
+== diags.diag/missing-argument
+BYN2301 2:10 missing argument `by` for `area`

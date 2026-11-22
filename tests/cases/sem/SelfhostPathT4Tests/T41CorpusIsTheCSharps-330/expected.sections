@@ -1,6 +1,1 @@
-== diags.diag/become-without-ref-this
-BYN7010 7:15 `push` declares `becomes .open` but takes `this is .shut`; a transition needs `ref this`
-  help change the receiver of `push` to `ref this`, or return the new state as a value
-  fix 7:15-7:15 ref 
-BYN2022 11:9 `become` in a static method is not supported in v0.1
-  help remove `become`; only an instance method has a `this` to change
+== diags.run/io-run-timeout-exit

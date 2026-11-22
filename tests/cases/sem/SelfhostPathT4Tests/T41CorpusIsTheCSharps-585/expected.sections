@@ -1,9 +1,10 @@
-== diags.diag/string-indexer
-BYN2201 2:17 a `string` cannot be indexed
-  label strings have no indexer
-  help read a byte, slice, or take characters; `string` is UTF-8, so position 0 is not a character:
-  `name.bytes[0]`       the byte at offset 0 (applied below)
-  `name[a..b]`          the text between byte offsets a and b
-  `name.runes.take(n)`  the first n runes
-  `name.graphemes`      user-perceived characters
-  fix 2:13-2:20 name.bytes[0]
+== diags.diag/strbuf-grow-escapes-context
+BYN3002 10:20 arena `arena` does not live as long as `text`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+BYN3002 11:21 arena `arena` does not live as long as `outer`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+BYN3002 15:12 arena `arena` does not live as long as `text`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough

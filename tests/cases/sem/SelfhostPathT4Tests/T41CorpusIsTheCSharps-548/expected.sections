@@ -1,5 +1,1 @@
-== diags.diag/receiver-without-state
-BYN1061 4:14 `this` without a state is the default receiver
-  label the default receiver
-  help remove `this`, or add a state: `this is .s`
-  fix 4:14-4:18 
+== diags.run/memory-readonly-span

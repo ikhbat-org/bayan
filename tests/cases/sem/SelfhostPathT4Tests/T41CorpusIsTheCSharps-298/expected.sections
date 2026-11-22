@@ -1,2 +1,3 @@
-== diags.diag/required-with-default
-BYN2108 2:18 required field `max` has a default value
+== diags.diag/undeclared-error
+BYN2603 15:12 `ParseError` is not in the `fails` clause of `total`
+  help add it to the signature: `fails MoneyError, ParseError`

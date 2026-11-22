@@ -1,3 +1,5 @@
-== diags.diag/not-formattable-struct
-BYN2225 7:10 `Point` cannot be formatted
-  help add `formatInto(ref StrBuf)` to `Point`, or use `{x, as: .debug}`
+== diags.diag/string-member-arguments
+BYN2720 4:30 `middle` is not a member of `Edge`
+BYN2720 5:32 `loose` is not a member of `Comparison`
+BYN2202 6:24 expected `string`, found `i32`
+BYN2202 8:22 expected `i64`, found `string`

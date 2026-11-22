@@ -1,15 +1,6 @@
-== diags.diag/state-line-input
-BYN1059 3:5 `state draft` is an input form; declare the states in one `states { … }` block
-  label the input form
-  help move each state into the struct's `states` block
-  fix 3:1-5:1     states {
-        draft
-        paid(i64 payment)
-    }
-BYN1059 4:5 `state paid(i64 payment)` is an input form; declare the states in one `states { … }` block
-  label the input form
-  help move each state into the struct's `states` block
-  fix 3:1-5:1     states {
-        draft
-        paid(i64 payment)
-    }
+== diags.diag/borrow-returned
+BYN3003 3:12 cannot return a borrow of the `stackalloc` buffer on line 2, which is freed when `scratch` returns
+  help let the caller pass the buffer or allocator in, and borrow or allocate from that
+BYN3003 6:46 cannot return a borrow of `values`, which is freed when `firstTwo` returns
+  help let the caller pass the buffer or allocator in, and borrow or allocate from that
+returns fine 0

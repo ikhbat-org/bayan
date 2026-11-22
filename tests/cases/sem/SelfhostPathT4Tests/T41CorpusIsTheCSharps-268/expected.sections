@@ -1,7 +1,1 @@
-== diags.diag/interface-member-mismatch
-BYN2802 13:12 `Square.area` is `string area()` but `IShape` requires `i64 area()`
-  label does not match `IShape`
-  help change the signature to `i64 area()`
-BYN2802 15:9 `Square.parse` is `i64 parse(string text)` but `IShape` requires `i64 parse(string text) fails ParseError`
-  label does not match `IShape`
-  help change the signature to `i64 parse(string text) fails ParseError`
+== diags.run/condition-cast

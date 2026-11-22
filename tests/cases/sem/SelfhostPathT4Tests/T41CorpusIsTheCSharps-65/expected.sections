@@ -1,3 +1,1 @@
-== diags.diag/env-unknown-member
-BYN2003 2:11 `gett` is not a member of `Env`
-  help did you mean `get`?
+== diags.run/style-fix-conditions-patterns-fixed

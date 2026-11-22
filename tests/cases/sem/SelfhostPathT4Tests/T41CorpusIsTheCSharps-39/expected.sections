@@ -1,11 +1,4 @@
-== diags.diag/input-body-nested-diagnostic
-BYN1017 4:8 parentheses around a condition are an input form
-  label not needed
-  help remove the parentheses
-  fix 4:8-4:55 a { unless b { print("s") } else { print("t") } }
-BYN1006 4:36 `unless` cannot have an `else` branch
-  label `else` after `unless`
-  help use `if` with the opposite condition, so both branches read positively
-BYN1018 4:12 the body of `if` must be a block
-  label a single statement
-  help wrap the statement in `{ }`
+== diags.diag/function-type-unknown-effect
+BYN6003 3:34 `network` is not an effect
+  label not an effect or an `effect` alias of this module
+  help choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console`, or a declared effect alias

@@ -1,7 +1,7 @@
-== diags.diag/null-equality-optional-fix
-BYN2027 3:13 compare with `is null` / `is not null`, not `==`
-  help write `n is null`
-  fix 3:13-3:22 n is null
-BYN2027 4:13 compare with `is null` / `is not null`, not `==`
-  help write `n is not null`
-  fix 4:13-4:22 n is not null
+== diags.diag/dyn-not-dyn-safe
+BYN2808 10:13 `IMap` cannot be used with `dyn`: `get` is generic
+  label used with `dyn` here
+  help use a `where` constraint instead
+BYN2808 12:11 `ICursor` cannot be used with `dyn`: `Item` is an associated type
+  label used with `dyn` here
+  help use a `where` constraint instead

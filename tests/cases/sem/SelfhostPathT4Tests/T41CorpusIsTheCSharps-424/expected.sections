@@ -1,4 +1,1 @@
-== diags.diag/generic-body-changes-state
-BYN7012 10:5 `o` would change state here; a state changes only through `become`
-  help assign a value in the same state, or move the transition into a `becomes` method
-store put 0 1 189..193
+== diags.run/validation-error-composed

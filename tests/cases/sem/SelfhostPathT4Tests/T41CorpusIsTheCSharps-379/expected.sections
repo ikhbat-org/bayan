@@ -1,7 +1,5 @@
-== diags.diag/path-escapes-context
-BYN3002 9:20 arena `arena` does not live as long as `name`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-BYN3002 10:19 arena `arena` does not live as long as `rel`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+== diags.diag/loop-item-field-list-cleared
+BYN3004 17:5 `expenses` is modified while `shares` still borrows it
+  label `shares` is used again on line 18
+  help finish using `shares` first, or copy what it needs before changing `expenses`
+returns pass 0

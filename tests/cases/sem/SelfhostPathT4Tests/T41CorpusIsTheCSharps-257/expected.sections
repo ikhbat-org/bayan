@@ -1,3 +1,2 @@
-== diags.diag/for-dyn-ref-coalesce
-BYN2106 15:26 cannot modify this value
-  label it is borrowed element by element as `dyn ref IC`
+== diags.diag/narrowing-ends-with-block
+BYN2208 5:12 `+` cannot be applied to `i64?` and `i64`

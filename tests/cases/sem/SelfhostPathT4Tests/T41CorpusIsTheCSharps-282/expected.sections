@@ -1,17 +1,3 @@
-== diags.diag/input-parenthesized-condition
-BYN1017 3:8 parentheses around a condition are an input form
-  label not needed
-  help remove the parentheses
-  fix 3:8-3:15 x > 2
-BYN1017 6:11 parentheses around a condition are an input form
-  label not needed
-  help remove the parentheses
-  fix 6:11-6:18 x > 5
-BYN1017 9:12 parentheses around a condition are an input form
-  label not needed
-  help remove the parentheses
-  fix 9:12-9:15 x
-BYN1017 15:13 parentheses around a condition are an input form
-  label not needed
-  help remove the parentheses
-  fix 15:13-15:20 x < 4
+== diags.diag/not-iterable
+BYN2221 1:10 `i32` cannot be iterated
+  help use `for` over ranges (`0..n`), spans, lists, arrays, strings, or a type conforming to `IIndexable` or `IEnumerator`

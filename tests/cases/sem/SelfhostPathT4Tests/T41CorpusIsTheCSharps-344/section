@@ -1,1 +1,1 @@
-diags.diag/never-returns
+diags.run/path-outlives-source

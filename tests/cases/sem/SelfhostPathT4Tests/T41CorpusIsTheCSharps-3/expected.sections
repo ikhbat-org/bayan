@@ -1,25 +1,4 @@
-== diags.builtins
-BYN2225 11:15 `P` cannot be formatted
-  help add `formatInto(ref StrBuf)` to `P`, or use `{x, as: .debug}`
-BYN2301 17:14 missing argument `by` for `parts`
-BYN2202 25:19 expected `Range<i64>`, found `Range<i32>`
-BYN2720 31:35 `loose` is not a member of `Comparison`
-BYN2785 33:5 `slot` needs a default value, and `P` has none
-  help read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`
-BYN2784 35:14 a `List<List<i64>>` holding `List<i64>` cannot be copied: the copy would share its storage
-  help build the copy with a loop that copies each element, or share the original by `ref`
-BYN2301 37:14 missing argument `to` for `copy`
-BYN2784 37:14 a `Map<string, List<i64>>` holding `List<i64>` cannot be copied: the copy would share its storage
-  help build the copy with a loop that copies each element, or share the original by `ref`
-BYN2301 39:15 missing argument `to` for `copy`
-BYN2106 41:14 cannot modify this value
-  label `mutableSpan` modifies it; a `const` never changes
-BYN2311 34:9 `ls` is never reassigned; declare it with `let`
-  help declare it with `let` to tell the reader the value never changes
-  fix 34:5-34:8 let
-BYN2311 36:9 `mm` is never reassigned; declare it with `let`
-  help declare it with `let` to tell the reader the value never changes
-  fix 36:5-36:8 let
-BYN2311 38:9 `mk` is never reassigned; declare it with `let`
-  help declare it with `let` to tell the reader the value never changes
-  fix 38:5-38:8 let
+== diags.diag/ref-this-not-first
+BYN2117 4:22 `ref this` must be the first parameter
+  label after other parameters
+  help move `ref this` to the start of the parameter list

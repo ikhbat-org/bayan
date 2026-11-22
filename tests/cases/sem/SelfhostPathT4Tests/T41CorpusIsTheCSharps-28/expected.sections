@@ -1,4 +1,4 @@
-== diags.diag/owned-read-only
-BYN2106 7:5 cannot modify this value
-  label an `Owned` value is read-only
-  help build a new value and wrap it with `Owned(…)`
+== diags.diag/for-dyn-ref-span-index
+BYN2106 17:26 cannot modify this value
+  label a `ReadOnlySpan` cannot be written through
+returns view 0

@@ -1,7 +1,2 @@
-== diags.diag/non-exhaustive
-BYN2410 7:9 `switch` does not handle every `MoneyError`
-  label not covered: .tooPrecise
-  help add the missing arms, or `_ => …` for the rest
-BYN2410 11:9 `switch` does not handle every `bool`
-  label not covered: false
-  help add the missing arms, or `_ => …` for the rest
+== diags.run/assert-fails.test
+BYN2014 1:1 the program has no entry point

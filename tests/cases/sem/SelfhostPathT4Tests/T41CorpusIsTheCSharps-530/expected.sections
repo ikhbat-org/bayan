@@ -1,5 +1,5 @@
-== diags.diag/requires-on-function
-BYN1063 1:17 `requires` on a function is an input form; write `expects`
-  label the input form
-  help use `expects` for a precondition; `requires` is checked at construction
-  fix 1:17-1:25 expects
+== diags.diag/time-now-needs-clock
+BYN6002 3:12 `undeclared` uses `clock` but does not declare it
+  label uses `clock`
+  help add `clock` to the `uses` clause, or remove the call
+  fix 2:24-2:24  uses clock

@@ -1,10 +1,4 @@
-== diags.diag/unique-borrowed-mutation
-BYN2783 10:23 `xs` borrows from what it was bound to and cannot be changed or moved
-  label `append` modifies it
-  help change the subject itself, or work on a `.copy(to: alloc)`; a loop or pattern variable of a unique type borrows from its subject
-BYN2783 12:27 `xs` borrows from what it was bound to and cannot be changed or moved
-  label moving it would take the value out of what it borrows from
-  help move or copy the value it was bound to instead
-BYN2783 15:35 `items` borrows from what it was bound to and cannot be changed or moved
-  label `append` modifies it
-  help change the subject itself, or work on a `.copy(to: alloc)`; a loop or pattern variable of a unique type borrows from its subject
+== diags.diag/input-csharp-type-name-base
+BYN2804 1:12 `i32` is not an interface
+  label a type
+  help list an `interface` here

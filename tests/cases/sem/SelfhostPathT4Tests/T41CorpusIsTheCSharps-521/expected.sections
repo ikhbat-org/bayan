@@ -1,3 +1,4 @@
-== diags.diag/var-not-narrowed
-BYN2211 10:16 `v` is not a member of `Box?`; the value may be null
-  help check it first: `if (b is { } value) { … value.v … }`
+== diags.diag/dyn-ref-local-argument-modified
+BYN3004 16:10 `b` is modified while `s` still borrows it
+  label `s` is used again on line 17
+  help finish using `s` first, or copy what it needs before changing `b`

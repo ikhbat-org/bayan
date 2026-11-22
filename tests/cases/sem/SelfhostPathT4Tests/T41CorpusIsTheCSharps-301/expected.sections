@@ -1,4 +1,10 @@
-== diags.diag/interface-unique-field-witness-dyn
-BYN2780 6:15 implicit copy of a unique value: `List<i64>` is unique: it owns its storage
-  label cannot stand for `IHas.items`
-  help rename the field and write the getter `List<i64> items => …` in `H`, returning a copy or a fresh value
+== diags.diag/null-equality
+BYN2027 3:8 compare with `is null` / `is not null`, not `==`
+  help write `name is null`
+  fix 3:8-3:20 name is null
+BYN2027 6:8 compare with `is null` / `is not null`, not `==`
+  help write `name is not null`
+  fix 6:8-6:20 name is not null
+BYN2027 9:8 compare with `is null` / `is not null`, not `==`
+  help write `name is null`
+  fix 9:8-9:20 name is null

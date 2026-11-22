@@ -1,3 +1,4 @@
-== diags.diag/fs-unknown-member
-BYN2003 2:16 `fileExist` is not a member of `Fs`
-  help did you mean `fileExists`?
+== diags.diag/extension-conformance
+BYN2811 9:1 `extension Money : IShape` is not supported yet
+  label retroactive conformance
+  help list `IShape` on `Money`'s declaration

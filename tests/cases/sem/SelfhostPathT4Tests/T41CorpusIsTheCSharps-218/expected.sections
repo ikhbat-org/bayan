@@ -1,2 +1,1 @@
-== diags.diag/circular-field-default
-BYN2034 1:22 the default of field `A.b` depends on itself
+== diags.run/dyn-ref-this-region

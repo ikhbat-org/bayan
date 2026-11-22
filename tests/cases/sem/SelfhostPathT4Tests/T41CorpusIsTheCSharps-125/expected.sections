@@ -1,5 +1,11 @@
-== diags.diag/sealed-misplaced
-BYN1016 1:1 `@sealed` is not allowed here
-  help put `@sealed` on a struct
-BYN1016 4:1 `@sealed(strict)` is not allowed here
-  help write `@sealed` with no arguments and no `because`
+== diags.diag/cases-not-constant
+BYN2774 7:8 each `@cases` value must be a constant
+  label cases from a const list are not supported yet
+  help write each case as a tuple literal, such as `@cases((0, false), (1, true))`
+BYN2774 7:15 each `@cases` value must be a constant
+  help write the value as a literal: a number, string, rune, `true`, `false`, `null` or a `.case`
+BYN2774 7:23 each `@cases` value must be a constant
+  help write the value as a literal: a number, string, rune, `true`, `false`, `null` or a `.case`
+BYN2774 12:8 each `@cases` value must be a constant
+  label cases from a const list are not supported yet
+  help write each case as a tuple literal, such as `@cases((0, false), (1, true))`

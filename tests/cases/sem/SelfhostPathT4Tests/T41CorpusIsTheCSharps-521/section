@@ -1,1 +1,1 @@
-diags.diag/var-not-narrowed
+diags.diag/dyn-ref-local-argument-modified

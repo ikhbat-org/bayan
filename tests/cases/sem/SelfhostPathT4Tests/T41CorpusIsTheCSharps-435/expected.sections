@@ -1,5 +1,6 @@
-== diags.diag/arguments-swapped
-BYN5005 6:21 `end` is passed without its particle `until:`
-  label needs `until:`
-  help add `until:` before the argument
-  fix 6:21-6:21 until: 
+== diags.diag/generic-cannot-infer
+BYN2740 4:9 cannot infer type argument `T` of `none`
+  help pass an argument it can be read from, or write it out: `none<T>(…)`
+BYN2740 5:9 cannot infer type argument `T` of `orDefault`
+  help pass an argument it can be read from, or write it out: `orDefault<T>(…)`
+returns orDefault 0 1

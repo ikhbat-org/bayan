@@ -1,1 +1,1 @@
-diags.call-arity
+diags.diag/non-exhaustive-union-arms

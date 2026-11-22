@@ -1,7 +1,9 @@
-== diags.diag/parameter-needs-particle
-BYN5004 5:10 `record` has 2 unlabeled parameters; give each but one a particle
-  label 2 unlabeled parameters
-  help keep one unlabeled parameter, the object
-BYN5006 5:43 `fee` is a required parameter besides the object and needs a particle
-  label needs a particle
-  help label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+== diags.diag/lambda-effects-through-value
+BYN6002 3:5 `run` uses `console` but does not declare it
+  label uses `console`
+  help add `console` to the `uses` clause, or remove the call
+  fix 1:18-1:18  uses console
+BYN6002 7:5 `inner` uses `console` but does not declare it
+  label uses `console`
+  help add `console` to the `uses` clause, or remove the call
+  fix 6:45-6:45  uses console

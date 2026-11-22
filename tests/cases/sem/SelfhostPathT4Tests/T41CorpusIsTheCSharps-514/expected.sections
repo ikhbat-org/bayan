@@ -1,4 +1,5 @@
-== diags.diag/in-range-unassigned
-BYN2102 3:19 `hi` is used before it is assigned
-  label declared without a value on line 1
-  help assign it on every path before this, or give the declaration a value
+== diags.diag/hashmap-type-argument-count
+BYN2830 3:12 `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
+  help write `Map<i32>`
+  fix 3:12-3:24 Map<i32>
+BYN2023 3:12 `Map` takes 2 type argument(s), not 1

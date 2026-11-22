@@ -1,3 +1,2 @@
-== diags.diag/matches-after-v0-1
-BYN2003 4:16 `matches` is not a member of `string`
-  label `matches` arrives with `std.regex` after v0.1
+== diags.diag/not-formattable
+BYN2225 2:10 `List<i64>` cannot be formatted

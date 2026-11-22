@@ -1,6 +1,4 @@
-== diags.diag/ref-out-escape-ref-this-map-field
-BYN3002 14:9 arena `arena` does not live as long as `b`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-  related 5:16-5:17 `put` stores `v` into `this` here
-store put 0 -1 87..88
+== diags.diag/unknown-enum-member
+BYN2720 7:15 `gren` is not a member of `Color`
+  help did you mean `green`?
+BYN2720 8:17 `purple` is not a member of `Color`
