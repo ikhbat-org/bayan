@@ -96,7 +96,6 @@ list=$(b --list)
 all_files=$(echo "$list" | cut -d' ' -f1 | sort)
 sh_files=$(for k in 1 2 3; do b --shard $k/3 --list; done | cut -d' ' -f1 | sort); sh_one=$(b --shard 1/2 --list | cut -d' ' -f1 | tr '\n' ' ')
 sh_two=$(b --shard 2/2 --list | cut -d' ' -f1 | tr '\n' ' '); sh_only=$(b --shard 1/2 --files src/semantics/a.byn,src/semantics/b.byn --list | cut -d' ' -f1 | tr '\n' ' ')
-<<<<<<< HEAD
 A='sem/SelfhostSemanticsATests/'; B="$A|sem/SelfhostSemanticsBTests/|sem/SelfhostSemanticsCTests/"
 # o <filter>: the recording's --only arguments for a `|`-joined filter
 o() { echo "--only ${1//|/ --only }"; }
