@@ -6,6 +6,11 @@ Sources: the Q-ids, revisions, plans and commits each entry names
 
 One entry per working session, added at the end of the session. Entries are kept as written; the order is as recorded (newest first since 2026-11-05, older entries below in date order).
 
+- **2026-11-22 — 019 T29 done (cov9), golden bound instrumented (`feat/019-dotnet-exit`).**
+  - cov9 at 74f3c4a54: 8 corpus shards on wp1 WSL (85,865 counter files), the package reports and mb1's `src/driver` report through `--add-report`. Result: `coverage.sh --corpus` rc 0, 186 files measured, 0 below their T22 figure. T29 ticked.
+  - Two traps on the way. At the 60 s test default, two mb1 tests timed out and left 3,706 unknown lines, and an unknown item is never exempted, so 13 files stayed below; the report was rerun with `BAYAN_TEST_TIMEOUT_MS=600000`. The run's clone has no `dev`, so `PINNED_BAYAN_REF=HEAD` (CI already sets it). Both are in `work/todo.md`, with the style-shapes test that times out at load ~7.
+  - `goldenPeakScript` now names the worker and its `next-<k>` index at the peak, and the bound test prints the case window (`worker-019-bound-peak`). The macOS run under coverage ended before the bound check, so the window comes from the next laws-nightly macOS job.
+  - bootstrap/bayan.c regenerated for the marker line shifts; the diff is line numbers and moved statements only.
 - **2026-11-22 — 019 T29c: coverage exemptions, `--add-report`, cov8 markers (`worker-019-t29c`).**
   - `scripts/quality/coverage.sh` reads `// coverage-exempt:` markers through the new `coverage-gate --exempt` mode and leaves exempted missed items out of the gate's figure. `--out` keeps the raw counts, and a below line names `(N exempt)`. An invalid marker exits 1. `--add-report FILE` merges another host's report, and differing totals still exit 2. `coverage.test.sh` PASS, and each new case was break-tested.
   - Q1286 records 41 markers for the cov8 U items and a corrected Q774 anchor. New tests: dist.byn 204, 205 and 218 (`dist-t29.test.byn`), and lowerexpr.byn 151 (`lowerexpr-t29.test.byn`).
