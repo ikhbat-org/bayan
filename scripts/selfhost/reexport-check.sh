@@ -158,12 +158,23 @@ if [ -s "$w/rno" ]; then
   sed "s/^/  /; s/$tab/: /" "$w/rno"
 fi
 
-dotnet="${REEXPORT_DOTNET:-dotnet}"
+dotnet="${REEXPORT_DOTNET:-}"
+# A shell whose PATH came from an older login (a Claude Code shell snapshot, a launchd job) can lack the SDK dir that
+# ~/.zshenv or /etc/paths.d adds: past PATH, try $DOTNET_ROOT, the installer's root, then ~/.dotnet (dotnet-install.sh).
+if [ -z "$dotnet" ]; then
+  for d in dotnet ${DOTNET_ROOT:+"$DOTNET_ROOT/dotnet"} /usr/local/share/dotnet/dotnet "$HOME/.dotnet/dotnet"; do
+    command -v "$d" > /dev/null 2>&1 || continue
+    dotnet=$d
+    [ "$d" = dotnet ] || { export PATH="${d%/dotnet}:$PATH"; export DOTNET_ROOT="${DOTNET_ROOT:-${d%/dotnet}}"; }
+    break
+  done
+  [ -n "$dotnet" ] || dotnet=dotnet
+fi
 # The frozen tree's projects stay as frozen: a NuGet advisory published after the freeze (NU1903 on
 # Microsoft.DotNet.ILCompiler 10.0.12, GHSA-p3jp-9v83-76w9, 2026-11-21) would fail their build under warnings-as-errors.
 export NuGetAudit=false
 command -v "$dotnet" > /dev/null 2>&1 ||
-  { echo "reexport-check: no dotnet on PATH: L043 is not checked here (the R27 job, .github/workflows/ddc.yml, runs it)" >&2; rm -rf "$w"; exit 1; }
+  { echo "reexport-check: no dotnet on PATH, in \$DOTNET_ROOT, /usr/local/share/dotnet or ~/.dotnet: L043 is not checked here (the R27 job, .github/workflows/ddc.yml, runs it)" >&2; rm -rf "$w"; exit 1; }
 die() { echo "reexport-check: $1 (work dir kept: $w)" >&2; exit 1; }
 start=$(date +%s)
 
