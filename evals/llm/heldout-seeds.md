@@ -20,7 +20,7 @@ The tasks themselves never go in this repository. They go in `../bayan-heldout/t
 | `small-011-…` | small | 1 | tests or stdout | |
 | `std-011-…` | std | 2 | tests or stdout | |
 | `errors-011-…` | errors | 1 | tests | |
-| `contracts-011-…` | contracts | 2 | tests | uses `expects`: two of the 10 heldout contracts tasks must |
+| `contracts-011-…` | contracts | 2 | stdout when the task is about `expects`, else tests | two of the 10 heldout contracts tasks must use `expects`; such a task is `Check: stdout` with `checks/exitcode` 134 (README, "The `expects` rule") |
 | `port-011-…` | port | 2 | stdout | |
 | `repair-011-…` | repair | 1 | stdout | |
 | `effects-011-…` | effects | 3 | tests or stdout | |
@@ -42,6 +42,7 @@ Every task has `task.md`, `prompt.md` and `reference/solution.byn`. The rest dep
 | Category | Further files |
 |---|---|
 | small, std, errors, contracts, effects, spec | `checks/checks.test.byn` and `checks/entry.byn` (`Check: tests`), or `checks/stdin` and `checks/expected.stdout` (`Check: stdout`) |
+| contracts about `expects` | `checks/stdin`, `checks/expected.stdout` and `checks/exitcode` (the line `134`): the hidden run must end with the failed `expects` |
 | port | `source.py` or `source.sh` (the program to port), `checks/stdin`, `checks/expected.stdout` |
 | repair | `starter/solution.byn`: a broken file that fails with exactly the diagnostic code the title names, shown in full in the prompt. Plus `checks/stdin` and `checks/expected.stdout` |
 
