@@ -2,7 +2,7 @@
 # mutate-batch.sh on a tiny fixture with a stub `dotnet` and a stub `bayan` CLI at the repo's build path (no dotnet needed),
 # the way guard.test.sh stubs them, and a fixture tasks file: --list derives each file's filter from the *Tests.cs classes of
 # the tasks naming it (sorted union, a glob class skipped, a class of another family dropped, the family default when none is left, a bare basename when unique, a {a,b} path) and falls back to the
-# directory default, an unknown directory fails naming it; a family's files share one group, one union filter and one recording
+# directory default, an unknown directory fails naming it, unless --files leaves its file out; a family's files share one group, one union filter and one recording
 # (Q910); --shard k/n puts each file in exactly one shard, --files then limits the files; the reports land in tmp/mutate-batch/<group>/; an empty baseline is filled, a higher score replaces a lower
 # one, a drop fails naming the file with old and new score and leaves the baseline unchanged; a failed mutant 0, a missing CLI
 # and a manifest-less recording fail naming the group, the other groups still raise the baseline; a failed group's reports are
@@ -76,7 +76,7 @@ all_files=$(echo "$list" | cut -d' ' -f1 | sort)
 sh_files=$(for k in 1 2 3; do b --shard $k/3 --list; done | cut -d' ' -f1 | sort); sh_one=$(b --shard 1/2 --list | cut -d' ' -f1 | tr '\n' ' ')
 sh_two=$(b --shard 2/2 --list | cut -d' ' -f1 | tr '\n' ' '); sh_only=$(b --shard 1/2 --files src/semantics/a.byn,src/semantics/b.byn --list | cut -d' ' -f1 | tr '\n' ' ')
 A='FullyQualifiedName~SelfhostSemanticsATests'; B="$A|FullyQualifiedName~SelfhostSemanticsBTests|FullyQualifiedName~SelfhostSemanticsCTests"
-touch src/semantics/z.byn; mkdir src/other; echo > src/other/z.byn; badlist=$(b --list); rm -r src/other src/semantics/z.byn
+touch src/semantics/z.byn; mkdir src/other; echo > src/other/z.byn; badlist=$(b --list); skiplist=$(b --files src/semantics/a.byn --list); rm -r src/other src/semantics/z.byn
 list_one=$(b --files src/semantics/a.byn --list)
 [ -f $aux/record.txt ] && listran=1 || listran=0
 # fill: an empty baseline gets an entry for every file
@@ -138,6 +138,7 @@ src/semantics/b.byn -> $B
 src/semantics/c.byn -> $B"
 [ "$list" = "$want" ] || fail "--list mapping differs (want a, b, c: the union A|B|C sorted, glob class skipped; p: directory default; emitter/ and emitter/cprint/ one family)" "$list"
 echo "$badlist" | grep -q 'src/other/z.byn' && echo "$badlist" | grep -q 'no test family' || fail "an unknown directory was not a FAIL naming it" "$badlist"
+[ "$skiplist" = "src/semantics/a.byn -> $A" ] || fail "--files a.byn was stopped by a family-less file it did not choose" "$skiplist"
 [ $listran = 0 ] || fail "--list ran dotnet" ""
 [ "$(echo "$rec" | wc -l | tr -d ' ')" = 3 ] || fail "a family's files did not share one recording (want 3 recordings)" "$rec"
 echo "$rec" | grep -qxF "src/emitter/cprint/cp.byn,src/emitter/e.byn (FullyQualifiedName~SelfhostEmitter|FullyQualifiedName~SelfhostEmitterT9Tests)&Snapshot!=skip" || fail "emitter/ and emitter/cprint/ were not recorded as one family" "$rec"
