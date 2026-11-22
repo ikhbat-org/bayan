@@ -1,13 +1,1 @@
-== diags.diag/hashmap-not-supported
-BYN2830 3:5 `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
-  help write `Map<string, i32>`
-  fix 3:5-3:25 Map<string, i32>
-BYN2830 6:11 `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
-  help write `Map<string, i32>`
-  fix 6:11-6:31 Map<string, i32>
-BYN2830 9:16 `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
-  help write `Map<string, i32>`
-  fix 9:16-9:36 Map<string, i32>
-BYN2830 11:22 `HashMap` is not supported yet: `Map` hashes the same way and keeps insertion order
-  help write `Map<string, i32>`
-  fix 11:22-11:42 Map<string, i32>
+== diags.run/path-combine-span

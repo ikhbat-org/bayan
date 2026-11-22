@@ -1,1 +1,1 @@
-diags.diag/generic-cannot-infer
+diags.diag/non-exhaustive-union-guard

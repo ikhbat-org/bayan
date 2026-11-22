@@ -1,13 +1,1 @@
-== diags.diag/clause-order
-BYN1065 4:38 `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`, `fails`
-  label out of order
-  help move `uses` before `fails`
-  fix 4:21-4:45 uses io fails ParseError
-BYN1065 12:49 `uses` must come before `becomes`; the order is `where`, `expects`, `uses`, `becomes`, `fails`
-  label out of order
-  help move `uses` before `becomes`
-  fix 12:35-12:61 uses console becomes .shut
-BYN1065 16:40 `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`, `fails`
-  label out of order
-  help move `uses` before `fails`
-  fix 16:23-16:47 uses io fails ParseError
+== diags.run/io-stdin

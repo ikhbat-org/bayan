@@ -1,4 +1,1 @@
-== diags.run/lambda-alias-any
-BYN2310 3:10 `xs` is never written through; use `ReadOnlySpan<i32>`
-  help take a `ReadOnlySpan`; it also accepts strings and read-only views
-  fix 3:10-3:14 ReadOnlySpan
+== diags.run/millis

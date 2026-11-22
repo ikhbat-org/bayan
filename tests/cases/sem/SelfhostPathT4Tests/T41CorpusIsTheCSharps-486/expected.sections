@@ -1,3 +1,6 @@
-== diags.diag/duplicate-enum-member
-BYN2721 4:5 enum `Color` already has a member `red`
-  label already declared on line 2
+== diags.diag/ref-out-return-mutual-recursion
+BYN3002 18:16 arena `arena` does not live as long as `kept`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+returns f 1
+returns g 0

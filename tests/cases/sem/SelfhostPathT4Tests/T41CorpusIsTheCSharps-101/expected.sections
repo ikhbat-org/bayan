@@ -1,3 +1,4 @@
-== diags.diag/validation-error-unknown-variant
-BYN2228 19:35 `boom` is not a variant of `ValidationError<Signup> | ValidationError<Address>`
-  help use a variant of `ValidationError<Signup>`, `ValidationError<Address>`, the sets `register` fails with
+== diags.diag/env-fs-target-far-member
+BYN2003 3:15 `zzzzzzzz` is not a member of `Env`
+BYN2003 4:20 `zzzzzzzz` is not a member of `Fs`
+BYN2003 5:18 `zzzzzzzz` is not a member of `Target`

@@ -1,7 +1,10 @@
-== diags.run/requires
-BYN5011 2:5 this `expects` reads only `percent`; a type with `requires` checks it once
-  help declare a type with `requires` for `percent`
-BYN5011 3:5 this `expects` reads only `total`; a type with `requires` checks it once
-  help declare a type with `requires` for `total`
-BYN5011 6:27 this `expects` reads only `value`; a type with `requires` checks it once
-  help declare a type with `requires` for `value`
+== diags.diag/dyn-ref-this-list-field-modified
+BYN3004 18:13 `items` is modified while `d` still borrows it
+  label `d` is used again on line 20
+  help finish using `d` first, or copy what it needs before changing `items`
+BYN3004 22:17 `items` is modified while `e` still borrows it
+  label `e` is used again on line 24
+  help finish using `e` first, or copy what it needs before changing `items`
+BYN3004 23:9 `items` is modified while `e` still borrows it
+  label `e` is used again on line 24
+  help finish using `e` first, or copy what it needs before changing `items`

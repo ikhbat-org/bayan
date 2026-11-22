@@ -1,16 +1,2 @@
-== diags.call-shapes
-BYN2022 7:13 `?.` is not supported in v0.1
-BYN8001 8:13 `trustUnchecked()` bypasses a safety rule and needs `because "…"`
-  label bypasses a safety rule
-  help explain the bypass in a `because` clause
-BYN2211 8:15 `trustUnchecked` is not a member of `string?`; the value may be null
-  help check it first: `if (s is { } value) { … value.trustUnchecked … }`
-BYN2003 9:18 `tryFrom` is not a member of `bool`
-BYN2001 10:14 `Nope` is not defined
-BYN2003 11:18 `tryParse` is not a member of `bool`
-BYN2001 12:14 `Nope` is not defined
-BYN2003 14:17 `parse` is not a member of `f64`
-BYN2023 15:13 `StrBuf` takes 0 type argument(s), not 1
-BYN2003 15:24 `over` is not a member of `StrBuf`
-BYN2001 16:14 `Nope` is not defined
-BYN2220 17:13 `Shape` cannot be called
+== diags.log-import
+BYN2003 4:9 `debug` is not a member of `module Log`

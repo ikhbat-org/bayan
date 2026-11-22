@@ -1,2 +1,4 @@
-== diags.diag/millis-bare-literal
-BYN2202 3:21 expected `Millis`, found `i32`
+== diags.diag/dyn-ref-this-argument-changed-fields
+BYN3004 15:9 `items` is modified while `s` still borrows it
+  label `s` is used again on line 16
+  help finish using `s` first, or copy what it needs before changing `items`

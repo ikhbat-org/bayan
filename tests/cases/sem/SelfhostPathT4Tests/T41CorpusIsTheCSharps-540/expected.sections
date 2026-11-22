@@ -1,6 +1,3 @@
-== diags.diag/ref-out-escape-ref-this-map-slot
-BYN3002 14:9 arena `arena` does not live as long as `b`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-  related 5:21-5:22 `put` stores `v` into `this` here
-store put 0 -1 92..93
+== diags.run/region-combo-store-through-ref-this-map-in-time
+store fill 0 1 296..304
+store put 0 -1 245..246

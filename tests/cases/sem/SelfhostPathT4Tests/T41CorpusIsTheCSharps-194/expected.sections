@@ -1,5 +1,5 @@
-== diags.diag/postfix-not-simple
-BYN1008 2:16 a postfix `if` applies only to a simple statement
-  help put the condition first: `if cond { … }`
-BYN1008 3:15 a postfix `if` applies only to a simple statement
-  help declare the variable, then assign it conditionally; a declaration cannot be conditional
+== diags.diag/io-remove-directory-needs-fs
+BYN6002 3:9 `undeclared` uses `fs` but does not declare it
+  label uses `fs`
+  help add `fs` to the `uses` clause, or remove the call
+  fix 2:33-2:33  uses fs

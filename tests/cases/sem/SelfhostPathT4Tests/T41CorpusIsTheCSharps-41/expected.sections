@@ -1,9 +1,1 @@
-== diags.diag/input-fat-arrow-function-type
-BYN1055 1:12 `=>` in a type is an input form; write `->`
-  label the input form
-  help write the function type with `->`
-  fix 1:12-1:14 ->
-BYN1055 3:17 `=>` in a type is an input form; write `->`
-  label the input form
-  help write the function type with `->`
-  fix 3:17-3:19 ->
+== diags.run/assert-values-types

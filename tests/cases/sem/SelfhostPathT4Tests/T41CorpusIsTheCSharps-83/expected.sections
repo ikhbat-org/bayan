@@ -1,4 +1,7 @@
-== diags.run/pending-peers-q74
-BYN2311 2:5 `b` is never reassigned; declare it with `let`
-  help declare it with `let` to tell the reader the value never changes
-  fix 2:1-2:4 let
+== diags.diag/io-read-escapes-context
+BYN3002 9:20 arena `arena` does not live as long as `text`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+BYN3002 10:21 arena `arena` does not live as long as `bytes`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough

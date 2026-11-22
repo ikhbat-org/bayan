@@ -1,4 +1,1 @@
-== diags.diag/map-key-struct-instantiation
-BYN2831 3:17 `Weight` cannot be a `Map` key: field `grams` is a `f64`
-  label the generic code needs this of its type arguments
-  help use a field that identifies the value as the key, such as an id or a `Symbol`
+== diags.run/assert-side-effect

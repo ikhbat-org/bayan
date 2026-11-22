@@ -1,3 +1,7 @@
-== diags.diag/catch-block-completes
-BYN2611 19:36 this `catch` block can complete normally; end it with `return`, `break`, `continue` or a panic
-  help leave the block instead of falling through; `parse` returns a value
+== diags.diag/span-parameter-never-written
+BYN2310 1:11 `values` is never written through; use `ReadOnlySpan<i64>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 1:11-1:15 ReadOnlySpan
+BYN2310 30:17 `values` is never written through; use `ReadOnlySpan<i64>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 30:17-30:21 ReadOnlySpan

@@ -1,4 +1,1 @@
-== diags.diag/ref-and-value
-BYN3005 7:31 `xs` is passed by `ref` and again in the same call
-  label `xs` is also passed by `ref`
-  help copy the value into a local first, or make two calls
+== diags.run/io-missing-file

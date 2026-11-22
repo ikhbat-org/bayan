@@ -1,9 +1,2 @@
-== diags.iface-default
-BYN3002 41:16 arena `a2` does not live as long as `kept`, which borrows it
-  label arena `a2` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-returns make 0
-returns name -1
-returns pair 1
-store grow -1 0 225..226
-store twice -1 0 112..127
+== diags.diag/index-out-of-range
+BYN2213 2:12 index 3 is out of range for `i64[3]`

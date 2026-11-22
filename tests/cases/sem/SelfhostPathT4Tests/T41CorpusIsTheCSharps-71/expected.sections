@@ -1,2 +1,1 @@
-== diags.diag/function-type-uses-fails-display
-BYN2202 2:54 expected `i64 -> i64 uses console fails IoError`, found `i32`
+== diags.run/interface-bare-fails-member

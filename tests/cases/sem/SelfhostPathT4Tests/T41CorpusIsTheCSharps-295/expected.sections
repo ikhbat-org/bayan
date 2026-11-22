@@ -1,4 +1,2 @@
-== diags.diag/stacked-case
-BYN1014 4:9 stacked `case` labels
-  label a second label for the same statements
-  help combine the patterns into one label, e.g. `case .sat or .sun:`
+== diags.diag/unknown-label
+BYN2020 2:11 no enclosing loop is labeled `outer`

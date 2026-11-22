@@ -1,7 +1,4 @@
-== diags.diag/requires-literal-violated
-BYN2321 8:26 `-1` violates `requires it >= 0` of `Range`
-  label fails the contract
-  help pass a value that meets `requires it >= 0`
-BYN2321 9:13 `Range { low: 3, high: 1 }` violates `requires low <= high` of `Range`
-  label fails the contract
-  help pass a value that meets `requires low <= high`
+== diags.diag/interface-field-not-method
+BYN2801 5:14 `Box` does not provide `count` required by `ICount`
+  label needs `count`
+  help rename the field `count` and add `i64 count()` to `Box`; a field cannot provide a method

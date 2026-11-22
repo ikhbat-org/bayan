@@ -1,3 +1,9 @@
-== diags.diag/expects-single-parameter
-BYN5011 1:24 this `expects` reads only `value`; a type with `requires` checks it once
-  help declare a type with `requires` for `value`
+== diags.diag/path-needs-alloc
+BYN6002 4:12 `undeclaredName` uses `alloc` but does not declare it
+  label uses `alloc`
+  help add `alloc` to the `uses` clause, or remove the call
+  fix 3:39-3:39  uses alloc
+BYN6002 8:12 `undeclaredRelative` uses `alloc` but does not declare it
+  label uses `alloc`
+  help add `alloc` to the `uses` clause, or remove the call
+  fix 7:64-7:64  uses alloc

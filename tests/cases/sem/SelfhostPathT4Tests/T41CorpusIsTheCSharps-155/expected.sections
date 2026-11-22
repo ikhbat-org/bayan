@@ -1,4 +1,1 @@
-== diags.misc-shapes
-BYN2311 12:9 `xs` is never reassigned; declare it with `let`
-  help declare it with `let` to tell the reader the value never changes
-  fix 12:5-12:8 let
+== diags.run/strbuf-insert

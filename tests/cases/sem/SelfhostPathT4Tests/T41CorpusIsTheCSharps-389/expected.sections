@@ -1,4 +1,7 @@
-== diags.diag/interface-static-witness
-BYN2802 6:16 `A.area` is `static i64 area()` but `IShape` requires `i64 area()`
-  label does not match `IShape`
-  help change the signature to `i64 area()`
+== diags.diag/ref-this-argument-modifies-borrowed-field
+BYN3004 7:18 `items` is modified while `s` still borrows it
+  label `s` is used again on line 8
+  help finish using `s` first, or copy what it needs before changing `items`
+BYN3004 18:9 `items` is modified while `s` still borrows it
+  label `s` is used again on line 19
+  help finish using `s` first, or copy what it needs before changing `items`

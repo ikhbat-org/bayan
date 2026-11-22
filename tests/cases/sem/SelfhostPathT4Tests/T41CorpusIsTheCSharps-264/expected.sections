@@ -1,9 +1,15 @@
-== diags.diag/lambda-effects-through-value
-BYN6002 3:5 `run` uses `console` but does not declare it
-  label uses `console`
-  help add `console` to the `uses` clause, or remove the call
-  fix 1:18-1:18  uses console
-BYN6002 7:5 `inner` uses `console` but does not declare it
-  label uses `console`
-  help add `console` to the `uses` clause, or remove the call
-  fix 6:45-6:45  uses console
+== diags.diag/state-line-input
+BYN1059 3:5 `state draft` is an input form; declare the states in one `states { … }` block
+  label the input form
+  help move each state into the struct's `states` block
+  fix 3:1-5:1     states {
+        draft
+        paid(i64 payment)
+    }
+BYN1059 4:5 `state paid(i64 payment)` is an input form; declare the states in one `states { … }` block
+  label the input form
+  help move each state into the struct's `states` block
+  fix 3:1-5:1     states {
+        draft
+        paid(i64 payment)
+    }

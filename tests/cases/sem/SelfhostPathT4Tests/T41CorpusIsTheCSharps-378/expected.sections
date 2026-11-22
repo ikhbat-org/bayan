@@ -1,13 +1,1 @@
-== diags.diag/unique-const
-BYN3209 9:1 a `unique` type cannot be `const`
-  label `File` is `unique`
-  help declare it with `let`
-  fix 9:1-9:6 let
-BYN3209 12:5 a `unique` type cannot be `const`
-  label `File` is `unique`
-  help declare it with `let`
-  fix 12:5-12:10 let
-BYN3209 13:5 a `unique` type cannot be `const`
-  label `File` is `unique`
-  help declare it with `let`
-  fix 13:5-13:10 let
+== diags.run/for-enumerator-var

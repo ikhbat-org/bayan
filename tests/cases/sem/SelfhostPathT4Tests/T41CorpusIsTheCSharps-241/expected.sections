@@ -1,9 +1,4 @@
-== diags.run/std-json
-returns close 0
-returns next -1
-returns over 0
-returns parse 0
-returns readNumber -1
-returns readString -1
-returns readValue -1
-returns treeOf 0 1
+== diags.diag/except-not-pattern
+BYN1052 2:22 `except` takes a pattern, not a condition
+  label a condition
+  help use `where` for a condition

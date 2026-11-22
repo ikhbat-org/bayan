@@ -1,7 +1,1 @@
-== diags.diag/strbuf-loan-refusals
-BYN3004 6:5 `sb` is modified while `s` still borrows it
-  label `s` is used again on line 7
-  help finish using `s` first, or copy what it needs before changing `sb`
-BYN3006 14:13 `sb` is moved while `s` still borrows it
-  label `s` is used again on line 15
-  help finish using `s` first, or copy what it needs before moving `sb`
+== diags.run/for-dyn-ref-temporary

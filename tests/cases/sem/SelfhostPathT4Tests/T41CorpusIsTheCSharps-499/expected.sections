@@ -1,5 +1,1 @@
-== diags.diag/line-join-and
-BYN5103 5:1 a line starting with `&&` joins the statement above; indent it deeper
-  label joins the statement on line 4
-  help indent it deeper than the line its statement starts on
-  fix 5:1-5:1     
+== diags.run/string-position

@@ -1,4 +1,13 @@
-== diags.diag/duplicate-error-case
-BYN3202 11:1 `CarrierError` and `StockError` both have a case `rejected`
-  label two cases `rejected`
-  help rename one case, or compose fewer sets
+== diags.diag/semicolon-input
+BYN1040 1:10 `;` is an input form; a statement ends at the newline
+  label remove `;`
+  help remove the `;`
+  fix 1:10-1:11 
+BYN1040 2:10 `;` is an input form; a statement ends at the newline
+  label remove `;`
+  help put the next statement on its own line
+  fix 2:10-2:12 
+BYN1040 2:24 `;` is an input form; a statement ends at the newline
+  label remove `;`
+  help remove the `;`
+  fix 2:24-2:25 

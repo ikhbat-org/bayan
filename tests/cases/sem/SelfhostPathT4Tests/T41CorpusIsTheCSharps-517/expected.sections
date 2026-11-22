@@ -1,13 +1,1 @@
-== diags.diag/invalid-map-key
-BYN2760 5:5 `f64` cannot be a `Map` key
-  help use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those as the key
-BYN2760 5:33 `f64` cannot be a `Map` key
-  help use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those as the key
-BYN2760 9:23 `Planet` cannot be a `Map` key
-  help use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those as the key
-BYN2760 10:22 `string?` cannot be a `Map` key
-  help use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those as the key
-BYN2760 11:21 `List<i32>` cannot be a `Map` key
-  help use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those as the key
-BYN2023 12:17 `Map` takes 2 type argument(s), not 1
-BYN2208 18:8 `==` cannot be applied to `Map<string, i64>` and `Map<string, i64>`
+== diags.run/log-backslash

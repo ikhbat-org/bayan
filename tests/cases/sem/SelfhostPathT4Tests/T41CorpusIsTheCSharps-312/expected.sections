@@ -1,13 +1,12 @@
-== diags.diag/defer-declaration-body
-BYN1018 2:11 the body of `defer` must be a block
-  label a single statement
-  help wrap the statement in `{ }`
-  fix 2:10-2:20  { let x = 1 }
-BYN1018 3:11 the body of `defer` must be a block
-  label a single statement
-  help wrap the statement in `{ }`
-  fix 3:10-3:25  { let y: i32 = 1 }
-BYN1018 8:19 the body of `defer` must be a block
-  label a single statement
-  help wrap the statement in `{ }`
-  fix 8:18-8:28  { let z = 1 }
+== diags.diag/fails-shorthand-comment
+BYN1065 9:5 `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`, `fails`
+  label out of order
+  help move `uses` before `fails`
+  fix 8:5-9:17 uses console
+    fails F
+BYN1031 7:4 `T!E` is an input form; write `T f() fails E`
+  label the input form
+  help write `fails E, F` as the last clause of the signature
+  fix 7:4-9:17  g()
+    uses console // keep me
+    fails E, F

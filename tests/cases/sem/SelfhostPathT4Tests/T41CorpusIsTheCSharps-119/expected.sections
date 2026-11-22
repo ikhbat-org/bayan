@@ -1,4 +1,6 @@
-== diags.diag/ternary-in-collection
-BYN1013 1:11 a conditional expression inside a collection literal must be parenthesized
-  help wrap it in parentheses
-  fix 1:11-1:20 (a ? 1 : 2)
+== diags.diag/fail-undeclared-case
+BYN2603 6:10 `.missing` is not in the `fails` clause of `f`
+  help name a case of `ParseError`
+BYN2602 10:10 `f` can fail; handle the error or pass it on
+  help propagate the error with `try`, or handle it with `catch`
+  fix 10:10-10:10 try 

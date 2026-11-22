@@ -1,9 +1,7 @@
-== diags.diag/not-formattable-untrusted-part
-BYN2225 9:14 `Box` cannot be formatted
-  help add `formatInto(ref StrBuf)` to `Box`, or use `{x, as: .debug}`
-BYN2225 11:14 `Untrusted<string>?` cannot be formatted
-  label the value is `Untrusted<string>`
-BYN2225 13:14 `Map<string, Untrusted<string>>` cannot be formatted
-  label the value is `Untrusted<string>`
-BYN2225 15:14 `List<Untrusted<string>>` cannot be formatted
-  label an element is `Untrusted<string>`
+== diags.diag/instrument-changes-this
+BYN5107 8:16 `OrderHasher` is a tool; `hash` must not change `this`
+  help remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step
+BYN5107 15:16 `OrderComparer` is a tool; `compare` must not change `this`
+  help remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step
+BYN5107 19:12 `IOrderCodec` is a tool; `encode` must not change `this`
+  help remove `ref this` and keep fixed settings in fields, or rename the type as a doer if it is fed data step by step

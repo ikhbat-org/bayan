@@ -1,2 +1,3 @@
-== diags.diag/not-constant
-BYN2219 3:16 a `const` must be a compile-time constant
+== diags.diag/symbol-user-struct
+BYN2003 6:25 `id` is not a member of `Symbol`
+BYN2114 9:13 `Symbol` is not a struct

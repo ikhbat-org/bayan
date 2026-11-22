@@ -1,4 +1,7 @@
-== diags.diag/input-csharp-type-name-where
-BYN2804 1:25 `i32` is not an interface
-  label a type
-  help list an `interface` here
+== diags.diag/csharp-name-declared
+BYN0012 1:15 `int` is reserved and cannot be used as an identifier
+  label a C# primitive type name
+  help choose another name
+BYN0012 2:9 `long` is reserved and cannot be used as an identifier
+  label a C# primitive type name
+  help choose another name

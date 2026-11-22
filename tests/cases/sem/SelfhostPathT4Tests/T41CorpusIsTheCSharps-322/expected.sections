@@ -1,2 +1,1 @@
-== diags.diag/not-an-error-set
-BYN2608 1:15 `i64` is not an error enum
+== diags.run/if-never-return

@@ -1,5 +1,7 @@
-== diags.diag/trust-unchecked-because
-BYN8001 2:7 `trustUnchecked()` bypasses a safety rule and needs `because "…"`
-  label bypasses a safety rule
-  help explain the bypass in a `because` clause
-BYN2202 3:7 expected `Untrusted<string>`, found `string`
+== diags.diag/cases-arity
+BYN2773 1:20 `@cases` gives 3 values but the test takes 2 parameters
+  help give each case one value per parameter, in order: `(input, valid)`
+BYN2773 1:34 `@cases` gives 1 values but the test takes 2 parameters
+  help give each case one value per parameter, in order: `(input, valid)`
+BYN2773 6:8 `@cases` gives 2 values but the test takes 1 parameters
+  help give one value per case: `@cases(1, 2, 3)`

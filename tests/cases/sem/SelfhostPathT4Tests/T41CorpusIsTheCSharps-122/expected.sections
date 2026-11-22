@@ -1,4 +1,2 @@
-== diags.diag/literal-needs-try
-BYN3207 5:52 a literal of `Order` can fail its `requires`; write `try Order { … }`
-  help add `try` before the literal and handle the `ValidationError<Order>`
-  fix 5:52-5:52 try 
+== diags.diag/missing-return-value
+BYN2402 2:5 this function returns `i64`; `return` needs a value

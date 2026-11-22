@@ -1,5 +1,3 @@
-== diags.run/generics-types
-returns swap 0 1
-returns wrap 0
-store replace 0 -1 558..566
-store replace 1 -1 584..588
+== diags.diag/return-value-in-void
+BYN2403 2:12 `log` returns nothing, but `return` has a value
+  help declare a return type instead of `void`, or remove the value

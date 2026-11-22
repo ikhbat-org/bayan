@@ -1,2 +1,7 @@
-== diags.diag/line-join-quiet
-BYN2605 38:25 `catch` needs a call that can fail
+== diags.diag/var-never-reassigned
+BYN2311 15:25 `r` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 15:21-15:24 let
+BYN2311 23:9 `total` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 23:5-23:8 let

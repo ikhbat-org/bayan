@@ -1,6 +1,7 @@
-== diags.diag/generic-cannot-infer
-BYN2740 4:9 cannot infer type argument `T` of `none`
-  help pass an argument it can be read from, or write it out: `none<T>(…)`
-BYN2740 5:9 cannot infer type argument `T` of `orDefault`
-  help pass an argument it can be read from, or write it out: `orDefault<T>(…)`
-returns orDefault 0 1
+== diags.diag/non-exhaustive-union-guard
+BYN2410 7:22 `switch` does not handle every `Shape`
+  label not covered: .circle
+  help add the missing arms: .circle
+BYN2410 14:12 `switch` does not handle every `Shape`
+  label not covered: .circle
+  help add the missing cases or a `default:` section

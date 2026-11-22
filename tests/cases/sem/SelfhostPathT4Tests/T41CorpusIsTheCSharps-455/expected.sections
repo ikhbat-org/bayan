@@ -1,5 +1,4 @@
-== diags.diag/panic-handler-path
-BYN2612 4:16 allocation is not allowed in a panic handler
-  help remove it; panic handlers can't recover
-BYN2612 5:15 allocation is not allowed in a panic handler
-  help remove it; panic handlers can't recover
+== diags.diag/interface-unique-field-witness-dyn
+BYN2780 6:15 implicit copy of a unique value: `List<i64>` is unique: it owns its storage
+  label cannot stand for `IHas.items`
+  help rename the field and write the getter `List<i64> items => …` in `H`, returning a copy or a fresh value

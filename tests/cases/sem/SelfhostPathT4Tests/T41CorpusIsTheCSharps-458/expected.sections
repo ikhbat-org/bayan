@@ -1,3 +1,1 @@
-== diags.diag/panic-handler-symbol-intern
-BYN2612 3:13 allocation is not allowed in a panic handler
-  help remove it; panic handlers can't recover
+== diags.run/map-index-panic

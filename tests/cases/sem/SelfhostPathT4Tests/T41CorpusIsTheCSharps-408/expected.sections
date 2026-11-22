@@ -1,2 +1,3 @@
-== diags.diag/assert-fails-other-set
-BYN2411 14:20 `DbError` cannot match `ParseError`
+== diags.diag/expected-member
+BYN1003 1:15 expected a type, found `,`
+BYN1004 4:5 expected a field, property, constructor or method, found `+`

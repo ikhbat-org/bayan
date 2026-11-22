@@ -1,4 +1,5 @@
-== diags.diag/strbuf-finish-then-clear
-BYN3004 5:5 `sb` is modified while `s` still borrows it
-  label `s` is used again on line 6
-  help finish using `s` first, or copy what it needs before changing `sb`
+== diags.diag/fs-rename-needs-fs
+BYN6002 3:9 `undeclared` uses `fs` but does not declare it
+  label uses `fs`
+  help add `fs` to the `uses` clause, or remove the call
+  fix 2:33-2:33  uses fs

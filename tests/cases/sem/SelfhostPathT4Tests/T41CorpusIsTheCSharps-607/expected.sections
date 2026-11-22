@@ -1,5 +1,1 @@
-== diags.diag/valid-borrows
-returns keep 1
-returns pick 0 1
-returns tail 0
-returns view -1
+== diags.run/format-into-both-forms

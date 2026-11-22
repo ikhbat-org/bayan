@@ -1,3 +1,2 @@
-== diags.diag/unclosed-brace
-BYN1001 5:1 expected `}`, found `void`
-  help close the block opened on line 2
+== diags.diag/lambda-break-outside-loop
+BYN2406 8:13 `break` outside a loop

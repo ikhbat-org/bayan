@@ -1,5 +1,3 @@
-== diags.diag/loop-item-iterable-cleared
-BYN3004 17:5 `expenses` is modified while `shares` still borrows it
-  label `shares` is used again on line 18
-  help finish using `shares` first, or copy what it needs before changing `expenses`
-returns pass 0
+== diags.diag/for-dyn-ref-get-or
+BYN2106 17:26 cannot modify this value
+  label it is borrowed element by element as `dyn ref IC`

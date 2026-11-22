@@ -1,3 +1,7 @@
-== diags.diag/null-equality-no-fix
-BYN2208 3:13 `==` cannot be applied to `i32` and `null`
-BYN2208 4:13 `==` cannot be applied to `null` and `null`
+== diags.diag/path-escapes-context
+BYN3002 9:20 arena `arena` does not live as long as `name`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+BYN3002 10:19 arena `arena` does not live as long as `rel`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough

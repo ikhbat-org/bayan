@@ -1,9 +1,6 @@
-== diags.diag/input-fails-shorthand
-BYN1031 11:4 `T!E` is an input form; write `T f() fails E`
-  label the input form
-  help write `fails ParseError` as the last clause of the signature
-  fix 11:4-11:31  parse(string s) fails ParseError
-BYN1031 16:4 `T!E` is an input form; write `T f() fails E`
-  label the input form
-  help write `fails ParseError, RangeError` as the last clause of the signature
-  fix 16:4-16:50  parseSmall(string s) fails ParseError, RangeError
+== diags.diag/ref-out-escape-lambda-loop
+BYN3002 8:9 the lambda on line 8 does not live as long as `last`, which borrows it
+  label the lambda on line 8 is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 2:9-2:10 `pass` stores `f` into `g` here
+store pass 0 1 59..60

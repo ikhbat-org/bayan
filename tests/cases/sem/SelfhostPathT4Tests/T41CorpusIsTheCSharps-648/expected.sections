@@ -1,2 +1,1 @@
-== diags.diag/public-inferred-fails
-BYN2607 1:28 public function `parse` must list its errors
+== diags.run/assert-values

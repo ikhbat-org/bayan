@@ -1,3 +1,2 @@
-== diags.diag/interface-default-missing-return
-BYN2401 8:5 `big` must return `i64` on every path
-  help add a `return` (or `panic(…)`) on the paths that reach the end
+== diags.diag/duplicate-argument
+BYN2303 2:22 `x` is passed twice

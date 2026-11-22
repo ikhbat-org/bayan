@@ -1,4 +1,3 @@
-== diags.diag/lambda-void-body-value
-BYN3201 9:23 the value of this `x + 1` is unused
-  label value dropped
-  help assign it with `let _ = …`, or remove the expression
+== diags.diag/no-constructor
+BYN2112 6:9 `Point` has no constructor
+  help set the fields with a struct literal: `Point { x: …, y: … }`

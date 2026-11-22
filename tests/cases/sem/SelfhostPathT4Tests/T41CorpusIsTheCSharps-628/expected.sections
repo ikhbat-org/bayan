@@ -1,5 +1,4 @@
-== diags.diag/fs-copy-needs-fs
-BYN6002 3:9 `undeclared` uses `fs` but does not declare it
-  label uses `fs`
-  help add `fs` to the `uses` clause, or remove the call
-  fix 2:33-2:33  uses fs
+== diags.diag/dyn-ref-this-argument-modified
+BYN3004 13:14 `items` is modified while `s` still borrows it
+  label `s` is used again on line 14
+  help finish using `s` first, or copy what it needs before changing `items`

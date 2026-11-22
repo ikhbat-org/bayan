@@ -1,2 +1,1 @@
-== diags.diag/constant-overflow
-BYN2204 1:18 constant arithmetic overflows `i32`
+== diags.run/type-alias-static-call

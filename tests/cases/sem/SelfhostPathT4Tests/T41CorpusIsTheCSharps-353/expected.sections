@@ -1,6 +1,3 @@
-== diags.diag/type-parameter-comparison
-BYN2743 1:36 `<` cannot be applied to a value of type parameter `T`
-  help use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type parameters have no constraints
-BYN2743 2:34 `>=` cannot be applied to a value of type parameter `T`
-  help use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type parameters have no constraints
-returns max 0 1
+== diags.diag/target-unknown-member
+BYN2003 2:14 `osx` is not a member of `Target`
+  help did you mean `os`?

@@ -1,6 +1,3 @@
-== diags.diag/line-join-enum-shorthand
-BYN5103 11:1 a line starting with `.` joins the statement above; indent it deeper
-  label joins the statement on line 10
-  help indent it deeper than the line its statement starts on
-  fix 11:1-11:1     
-BYN2003 11:2 `green` is not a member of `Color`
+== diags.diag/self-member
+BYN2806 3:23 `Self` has no member `nope` in its constraints (`IShape`)
+  help declare `nope` in `IShape`; a default method sees only its interface's members

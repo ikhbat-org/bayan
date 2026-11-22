@@ -1,5 +1,1 @@
-== diags.diag/invalid-assignment
-BYN1011 2:5 cannot assign to this expression
-  help assign to a variable, a field or an indexed element
-BYN1011 3:5 cannot assign to this expression
-  help assign to a variable, a field or an indexed element
+== diags.run/struct-literal-colon

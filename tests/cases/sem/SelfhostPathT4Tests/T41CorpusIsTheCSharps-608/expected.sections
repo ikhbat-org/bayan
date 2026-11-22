@@ -1,5 +1,4 @@
-== diags.diag/for-dyn-ref-let-array
-BYN2104 11:26 `a` is immutable
-  label it is borrowed element by element as `dyn ref IC`; declared with `let` on line 10
-  help declare it with `var` if it should change
-  fix 10:5-10:8 var
+== diags.diag/argument-must-be-named
+BYN2305 6:6 argument for `verbose` must be named
+  help write `verbose: …`; a `bool` argument says nothing at the call site
+  fix 6:6-6:6 verbose: 

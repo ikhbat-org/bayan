@@ -1,4 +1,4 @@
-== diags.diag/unknown-particle
-BYN5008 1:11 `over` is not a particle
-  label not a particle
-  help choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`
+== diags.diag/literal-needs-try
+BYN3207 5:52 a literal of `Order` can fail its `requires`; write `try Order { … }`
+  help add `try` before the literal and handle the `ValidationError<Order>`
+  fix 5:52-5:52 try 

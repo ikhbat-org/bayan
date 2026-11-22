@@ -1,7 +1,1 @@
-== diags.diag/ref-out-escape-mutual-recursion
-BYN3002 14:9 arena `arena` does not live as long as `kept`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-  related 2:16-2:42 `f` stores `s` into `t` here
-store f 0 1 61..87
-store g 0 1 194..195
+== diags.diag/style-functions-length-off

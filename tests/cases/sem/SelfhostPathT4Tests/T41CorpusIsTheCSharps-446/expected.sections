@@ -1,16 +1,4 @@
-== diags.diag/becomes-needs-ref
-BYN7010 7:14 `pay` declares `becomes .paid` but takes `move this is .draft`; a transition needs `ref this`
-  help change the receiver of `pay` to `ref this`, or return the new state as a value
-  fix 7:14-7:18 ref
-BYN7010 10:17 `settle` declares `becomes .paid` but takes `this is .draft`; a transition needs `ref this`
-  help change the receiver of `settle` to `ref this`, or return the new state as a value
-  fix 10:17-10:17 ref 
-BYN7010 13:10 `reset` declares `becomes .draft` but takes `this`; a transition needs `ref this`
-  help change the receiver of `reset` to `ref this`, or return the new state as a value
-  fix 13:16-13:16 ref this
-BYN7010 16:10 `retry` declares `becomes .paid` but takes `this`; a transition needs `ref this`
-  help change the receiver of `retry` to `ref this`, or return the new state as a value
-  fix 16:16-16:16 ref this, 
-BYN7010 22:16 `close` declares `becomes .draft` but takes `move this`; a transition needs `ref this`
-  help change the receiver of `close` to `ref this`, or return the new state as a value
-  fix 22:16-22:20 ref
+== diags.diag/duplicate-error-case
+BYN3202 11:1 `CarrierError` and `StockError` both have a case `rejected`
+  label two cases `rejected`
+  help rename one case, or compose fewer sets

@@ -1,3 +1,1 @@
-== diags.diag/expected-member
-BYN1003 1:15 expected a type, found `,`
-BYN1004 4:5 expected a field, property, constructor or method, found `+`
+== diags.run/list-remove-forms

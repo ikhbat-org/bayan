@@ -1,3 +1,1 @@
-== diags.diag/unclosed-struct
-BYN1001 3:1 expected `}`, found end of file
-  help close the struct opened on line 1
+== diags.run/control-flow

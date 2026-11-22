@@ -1,2 +1,9 @@
-== diags.diag/not-a-value
-BYN2019 5:9 `Money` is a type, not a value
+== diags.diag/not-formattable-untrusted-part
+BYN2225 9:14 `Box` cannot be formatted
+  help add `formatInto(ref StrBuf)` to `Box`, or use `{x, as: .debug}`
+BYN2225 11:14 `Untrusted<string>?` cannot be formatted
+  label the value is `Untrusted<string>`
+BYN2225 13:14 `Map<string, Untrusted<string>>` cannot be formatted
+  label the value is `Untrusted<string>`
+BYN2225 15:14 `List<Untrusted<string>>` cannot be formatted
+  label an element is `Untrusted<string>`

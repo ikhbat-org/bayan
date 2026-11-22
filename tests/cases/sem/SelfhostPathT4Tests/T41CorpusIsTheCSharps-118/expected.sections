@@ -1,3 +1,7 @@
-== diags.diag/recursive-cycle
-BYN2761 1:8 `Tree` contains itself by value: Tree → Forest → Tree
-  help store the inner one as `Owned<Tree>` (or in a `List<Tree>`); a value cannot contain itself
+== diags.diag/span-views
+BYN2106 5:5 cannot modify this value
+  label a `ReadOnlySpan` cannot be written through
+BYN2104 7:13 `ys` is immutable
+  label `mutableSpan` modifies it; declared with `let` on line 6
+  help declare it with `var` if it should change
+  fix 6:5-6:8 var

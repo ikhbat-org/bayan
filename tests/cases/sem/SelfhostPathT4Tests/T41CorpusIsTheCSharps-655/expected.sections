@@ -1,7 +1,1 @@
-== diags.diag/for-unique-item-constraint
-BYN2022 18:14 a `for` over the unique `Item` `List<i64>` of `Rows` is not supported in v0.1
-  label the generic code needs this of its type arguments
-  help make `Rows.Item` a value that is not unique, such as an index, and look the item up in the loop
-BYN6005 6:15 `get` uses `alloc`, beyond the bound `pure` declared by `IIndexable.get`
-  label uses `alloc`
-  help declare `alloc` on `IIndexable.get`, or pass a function without it
+== diags.run/lambda-nested-function-types

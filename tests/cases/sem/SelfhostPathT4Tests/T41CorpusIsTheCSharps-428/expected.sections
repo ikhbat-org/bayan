@@ -1,4 +1,1 @@
-== diags.diag/undefined-name
-BYN2001 2:10 `cout` is not defined
-  help did you mean `count`?
-  fix 2:10-2:14 count
+== diags.run/style-fix-conditions-patterns

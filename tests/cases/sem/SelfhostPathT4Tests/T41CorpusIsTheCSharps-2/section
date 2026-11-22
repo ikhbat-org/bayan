@@ -1,1 +1,1 @@
-diags.diag/ref-this-not-first
+diags.diag/mutates-without-ref-this

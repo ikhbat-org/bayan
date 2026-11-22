@@ -3,8 +3,8 @@
 # and copies the classes the filter names from $AUX/export into BAYAN_EXPORT_DIR, less the case in $DROP and plus $AUX/extra
 # when $EXTRA is set. The tree passes; a changed expected file, a missing row and an extra file with a FREEZE.tsv row each fail
 # naming the path; an extra file with no row is listed and passes; a
-# DIVERGENCES.tsv row (case key or Class.Test) lets its case differ; the seed picks the same classes twice; --full has no
-# filter; a class whose source names no SelfhostExport type at the head is printed as left out, never compared, and
+# DIVERGENCES.tsv row (case key or Class.Test) lets its case differ; the seed picks the same classes twice; --full filters to
+# every export class, so a test of no export class does not run; a class whose source names no SelfhostExport type at the head is printed as left out, never compared, and
 # refused by --class; the C# CLI replay (a stub CLI) passes, names a changed expected file, a frozen file it did not write and an
 # exit-code difference (a file and a flat exit-code line), passes an `untimed` file that differs in its wall time only and names
 # one with another byte changed, replays a diag package case and names its changed .diag, honours a divergence row, picks one unit per kind weekly and refuses a
@@ -147,7 +147,8 @@ grep -q "^reexport-check: lex has no weekly class" "$tmp/out" && grep -A2 "left 
 [ "$(run --class lex/DLexTests)" = 0 ] || fail "--class takes a class over 2,000 cases" "$(cat "$tmp/out")"
 run > /dev/null; grep -q "seed $(date -u +%G%V): 2 classes" "$tmp/out" || fail "no seed: want the ISO week" "$(cat "$tmp/out")"
 grep -q "^  sem/CSemTests: no replay route$" "$tmp/out" || fail "the left-out class is not printed" "$(cat "$tmp/out")"
-[ "$(run --full)" = 0 ] && [ "$(grep "^filter=" "$aux/log" | tail -1)" = "filter=" ] || fail "--full: want exit 0 and no filter" "$(cat "$tmp/out")"
+[ "$(run --full)" = 0 ] && [ "$(grep "^filter=" "$aux/log" | tail -1)" = "filter=FullyQualifiedName~.ACliTests.|FullyQualifiedName~.ASemTests.|FullyQualifiedName~.BSemTests.|FullyQualifiedName~.DLexTests.|FullyQualifiedName~.ESemTests." ] \
+  || fail "--full: want exit 0 and the filter of every export class" "$(cat "$tmp/out"; grep "^filter=" "$aux/log" | tail -1)"
 grep -q "4 files compared" "$tmp/out" && ! grep -q "^  sem/CSemTests$" <(sed -n '/^== /,/left out/p' "$tmp/out") \
   || fail "--full counts a left-out class" "$(cat "$tmp/out")"
 

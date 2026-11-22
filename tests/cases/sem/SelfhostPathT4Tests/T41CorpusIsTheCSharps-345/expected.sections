@@ -1,3 +1,1 @@
-== diags.diag/no-constructor
-BYN2112 6:9 `Point` has no constructor
-  help set the fields with a struct literal: `Point { x: …, y: … }`
+== diags.run/move-narrowed

@@ -1,2 +1,9 @@
-== diags.diag/coalesce-not-optional
-BYN2210 2:9 `??` needs an optional value on the left, found `i64`
+== diags.diag/doer-without-verb
+BYN5106 6:15 `CsvParser` is named for the act `parse` but has no `parse` member
+  help add a member named `parse`, or rename the type for what it is
+BYN5106 11:15 `RowBuilder` is named for the act `build` but has no `build` member
+  help add a member named `build`, or rename the type for what it is
+BYN5106 20:15 `TableCodec` is named for the act `encode` but has no `encode` member
+  help add a member named `encode` or `decode`, or rename the type for what it is
+BYN5106 15:18 `ITableWriter` is named for the act `write` but has no `write` member
+  help add a member named `write`, or rename the type for what it is

@@ -1,7 +1,3 @@
-== diags.diag/clause-order-uses-fix
-BYN5011 4:24 this `expects` reads only `n`; a type with `requires` checks it once
-  help declare a type with `requires` for `n`
-BYN6002 5:5 `log` uses `console` but does not declare it
-  label uses `console`
-  help add `console` to the `uses` clause, or remove the call
-  fix 4:37-4:37  uses console
+== diags.diag/panic-handler-strbuf-over
+BYN2612 2:13 allocation is not allowed in a panic handler
+  help remove it; panic handlers can't recover

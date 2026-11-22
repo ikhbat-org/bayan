@@ -1,3 +1,3 @@
-== diags.diag/with-unique-copy
-BYN2780 9:16 implicit copy of a unique value: `Ledger` is unique because field `items` is a `List<i64>`
-  help write `move ledger with { … }` to give up `ledger`
+== diags.diag/missing-fields
+BYN2109 6:9 `Point` needs a value for `y`
+  help set it: `Point { y: … }`

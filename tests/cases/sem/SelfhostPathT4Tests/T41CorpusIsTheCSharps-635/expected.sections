@@ -1,4 +1,1 @@
-== diags.diag/validation-error-clash
-BYN3202 14:1 `ValidationError<Signup>` and `SignupError` both have a case `invalid`
-  label two cases `invalid`
-  help rename one case, or compose fewer sets
+== diags.run/struct-field-enum

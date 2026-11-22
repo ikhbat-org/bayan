@@ -1,4 +1,4 @@
-== diags.diag/argument-must-be-named
-BYN2305 6:6 argument for `verbose` must be named
-  help write `verbose: …`; a `bool` argument says nothing at the call site
-  fix 6:6-6:6 verbose: 
+== diags.diag/ref-and-value
+BYN3005 7:31 `xs` is passed by `ref` and again in the same call
+  label `xs` is also passed by `ref`
+  help copy the value into a local first, or make two calls

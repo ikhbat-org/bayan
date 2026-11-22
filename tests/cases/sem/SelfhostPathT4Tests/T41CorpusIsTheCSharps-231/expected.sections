@@ -1,4 +1,4 @@
-== diags.diag/unknown-enum-member
-BYN2720 7:15 `gren` is not a member of `Color`
-  help did you mean `green`?
-BYN2720 8:17 `purple` is not a member of `Color`
+== diags.run/lambda-alias-any
+BYN2310 3:10 `xs` is never written through; use `ReadOnlySpan<i32>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 3:10-3:14 ReadOnlySpan

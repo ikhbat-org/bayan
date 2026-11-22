@@ -1,4 +1,15 @@
-== diags.run/collection-literals
-BYN2311 36:5 `s` is never reassigned; declare it with `let`
-  help declare it with `let` to tell the reader the value never changes
-  fix 36:1-36:4 let
+== diags.diag/function-value-not-a-function
+BYN2824 36:17 `print` cannot be used as a value: it is built in
+  help wrap it in a lambda: `text => print(text)`
+BYN2824 37:18 `zeroOf` cannot be used as a value: it is generic
+  help wrap it in a lambda: `() => zeroOf()`
+BYN2824 38:18 `Order.zero` cannot be used as a value: it is a method
+  help wrap it in a lambda: `() => Order.zero()`
+BYN2824 39:18 `o.doubled` cannot be used as a value: it is a method
+  help wrap it in a lambda: `() => o.doubled()`
+BYN2824 40:19 `Point` cannot be used as a value: it is a constructor
+  help wrap it in a lambda: `x => Point(x)`
+BYN2824 41:19 `Shape.circle` cannot be used as a value: it is a union variant
+  help wrap it in a lambda: `radius => Shape.circle(radius)`
+BYN2824 42:19 `Order` cannot be used as a value: it is a constructor
+  help wrap it in a lambda: `cents => Order(cents)`

@@ -1,10 +1,3 @@
-== diags.diag/unique-param-store
-BYN2780 6:49 implicit copy of a unique value: `List<i64>` is unique: it owns its storage
-  help make an independent copy with `items.copy(to: alloc)`; declare the parameter `move items` to take ownership; pass it by `ref` to share it instead
-  fix 6:54-6:54 .copy(to: alloc)
-BYN2780 9:12 implicit copy of a unique value: `List<i64>` is unique: it owns its storage
-  help make an independent copy with `items.copy(to: alloc)`; declare the parameter `move items` to take ownership; pass it by `ref` to share it instead
-  fix 9:17-9:17 .copy(to: alloc)
-returns keep 0
-returns owned 0
-returns pass 0
+== diags.diag/interface-builtin-redeclared
+BYN2006 1:11 `IEnumerator` is declared twice
+  label already declared as a built-in interface

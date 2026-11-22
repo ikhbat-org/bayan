@@ -1,3 +1,3 @@
-== diags.escape-combine
-BYN3003 4:16 cannot return a borrow of arena `arena`, which is freed when `f` returns
-  help let the caller pass the buffer or allocator in, and borrow or allocate from that
+== diags.panic-handler-full-path
+BYN2612 3:17 allocation is not allowed in a panic handler
+  help remove it; panic handlers can't recover

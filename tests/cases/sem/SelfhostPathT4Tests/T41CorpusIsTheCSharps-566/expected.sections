@@ -1,11 +1,13 @@
-== diags.diag/generic-instantiation-rules
-BYN2760 19:10 `f64` cannot be a `Map` key
-  label the generic code needs this of its type arguments
-  help use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those as the key
-BYN2760 14:10 `f64` cannot be a `Map` key
-  label the generic code needs this of its type arguments
-  help use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those as the key
-BYN2208 17:10 `==` cannot be applied to `List<i64>` and `List<i64>`
-  label the generic code needs this of its type arguments
-BYN2225 18:7 `Arena` cannot be formatted
-  label the generic code needs this of its type arguments
+== diags.diag/clause-order
+BYN1065 4:38 `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`, `fails`
+  label out of order
+  help move `uses` before `fails`
+  fix 4:21-4:45 uses io fails ParseError
+BYN1065 12:49 `uses` must come before `becomes`; the order is `where`, `expects`, `uses`, `becomes`, `fails`
+  label out of order
+  help move `uses` before `becomes`
+  fix 12:35-12:61 uses console becomes .shut
+BYN1065 16:40 `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`, `fails`
+  label out of order
+  help move `uses` before `fails`
+  fix 16:23-16:47 uses io fails ParseError

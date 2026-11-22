@@ -1,10 +1,1 @@
-== diags.diag/except-narrowing
-BYN2228 7:44 `lost` is not a variant of `CarrierError`
-BYN2609 8:13 error enum `Nothing` has no variants
-BYN2603 16:22 `CarrierError.rejected` is not in the `fails` clause of `retry`
-  help pick another case, or remove `.rejected` from the `except` list
-BYN2603 23:22 `CarrierError.rejected` is not in the `fails` clause of `retryNamed`
-  help pick another case, or remove `.rejected` from the `except` list
-BYN2603 17:12 `CarrierError.rejected` is not in the `fails` clause of `retry`
-  help handle it with `catch (CarrierError.rejected)`, or remove `.rejected` from the `except` list
-BYN2228 20:39 `rejected` is not a variant of `CarrierError except .rejected`
+== diags.diag/style-nesting-depth

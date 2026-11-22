@@ -1,4 +1,6 @@
-== diags.diag/because-unchecked
-BYN8001 9:14 `readUnchecked()` bypasses a safety rule and needs `because "…"`
-  label bypasses a safety rule
-  help explain the bypass in a `because` clause
+== diags.diag/number-agreement-exempt
+BYN2770 22:6 unknown attribute `json`
+  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+BYN5104 12:34 `draft` holds a collection; name it with a plural, `drafts`
+  help rename it `drafts`
+  fix 12:34-12:39 drafts

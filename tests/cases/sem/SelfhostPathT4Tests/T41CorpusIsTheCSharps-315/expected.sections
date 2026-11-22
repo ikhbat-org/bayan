@@ -1,5 +1,8 @@
-== diags.diag/fail-in-defer
-BYN2610 7:9 `fail` cannot leave a `defer` or `defer failing` body
-BYN2602 11:1 `f` can fail; handle the error or pass it on
-  help propagate the error with `try`, or handle it with `catch`
-  fix 11:1-11:1 try 
+== diags.diag/unknown-handler
+BYN6007 3:13 `memory` is not a handler; `provide` takes `alloc`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console` or `log`
+  label not a handler
+  help choose one of the handler names; `suspend` has no handler
+BYN6007 6:13 `suspend` is not a handler; `provide` takes `alloc`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console` or `log`
+  label `suspend` has no handler
+  help choose one of the handler names; `suspend` has no handler
+BYN2022 9:27 the `log` handler is not supported in v0.1

@@ -1,5 +1,1 @@
-== diags.multi-file
-BYN3002 8:9 arena `arena` does not live as long as `kept`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-store keep 0 1 54..55
+== diags.run/for-paren-single-variable

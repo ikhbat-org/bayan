@@ -1,3 +1,2 @@
-== diags.diag/lambda-capture-rule-it
-BYN2821 4:51 `it` cannot be captured: the checked value is read through `this`, which a lambda does not capture
-  help copy the fields you need into `let` values first
+== diags.diag/coalesce-not-optional
+BYN2210 2:9 `??` needs an optional value on the left, found `i64`

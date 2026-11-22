@@ -1,16 +1,10 @@
-== diags.diag/symbol-from-string
-BYN2832 7:25 a `string` value is not a `Symbol`; only a string literal converts
-  help convert it with `Symbol.intern(name)`
-  fix 7:25-7:29 Symbol.intern(name)
-BYN2832 8:32 a `string` value is not a `Symbol`; only a string literal converts
-  help convert it with `Symbol.intern($"{name}x")`
-  fix 8:32-8:42 Symbol.intern($"{name}x")
-BYN2832 9:25 a `string` value is not a `Symbol`; only a string literal converts
-  help convert it with `Symbol.intern(name[0..2])`
-  fix 9:25-9:35 Symbol.intern(name[0..2])
-BYN2832 10:29 a `string` value is not a `Symbol`; only a string literal converts
-  help convert it with `Symbol.intern(name)`
-  fix 10:29-10:33 Symbol.intern(name)
-BYN2832 11:18 a `string` value is not a `Symbol`; only a string literal converts
-  help convert it with `Symbol.intern(name)`
-  fix 11:18-11:22 Symbol.intern(name)
+== diags.diag/number-agreement-whole
+BYN5104 32:23 `line` holds a collection; name it with a plural, `lines`
+  help rename it `lines`
+  fix 32:23-32:27 lines
+BYN5104 33:17 `lines` holds one `Line`; name it with a singular noun
+  help rename it `line`
+  fix 33:17-33:22 line
+BYN5104 34:21 `lineOptions` holds one `Keywords`; name it with a singular noun
+  help rename it `lineOption`
+  fix 34:21-34:32 lineOption

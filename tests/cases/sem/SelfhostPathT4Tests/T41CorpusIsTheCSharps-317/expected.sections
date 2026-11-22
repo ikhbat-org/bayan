@@ -1,7 +1,11 @@
-== diags.diag/expression-statement
-BYN1012 2:5 this expression does nothing as a statement
-  label the value is computed and discarded
-  help write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand alone
-BYN1012 3:5 this expression does nothing as a statement
-  label the value is computed and discarded
-  help write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand alone
+== diags.builtin-arity
+BYN2301 7:5 missing argument `text` for `append`
+BYN2301 11:5 missing argument `until` for `remove`
+BYN2301 12:5 missing argument `item` for `append`
+BYN2301 13:5 missing argument `key` for `slot`
+BYN3201 13:5 the value of this `m.slot()` is unused
+  label value dropped
+  help assign it with `let _ = …`, or remove the expression
+BYN2301 15:14 missing argument `to` for `copy`
+BYN2784 15:14 a `Map<U, i64>` holding `U` cannot be copied: the copy would share its storage
+  help build the copy with a loop that copies each element, or share the original by `ref`

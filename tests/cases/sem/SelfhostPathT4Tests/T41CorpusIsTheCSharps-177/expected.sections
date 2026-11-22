@@ -1,4 +1,1 @@
-== diags.diag/interface-unique-field-witness-generic
-BYN2780 3:15 implicit copy of a unique value: `List<i64>` is unique: it owns its storage
-  label cannot stand for `IHas.items`
-  help rename the field and write the getter `List<i64> items => …` in `H`, returning a copy or a fresh value
+== diags.run/ref-and-value-element-copy

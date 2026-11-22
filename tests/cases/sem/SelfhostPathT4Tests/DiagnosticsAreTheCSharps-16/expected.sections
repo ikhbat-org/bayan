@@ -1,8 +1,3 @@
-== diags.unknown-member
-BYN2003 2:18 `combin` is not a member of `Path`
-  help did you mean `combine`?
-BYN2003 3:18 `fullPat` is not a member of `Path`
-  help did you mean `fullPath`?
-BYN2003 4:18 `directoryNam` is not a member of `Path`
-  help did you mean `directoryName`?
-BYN2003 5:18 `nope` is not a member of `Path`
+== diags.panic-handler-combine-span
+BYN2612 3:17 allocation is not allowed in a panic handler
+  help remove it; panic handlers can't recover

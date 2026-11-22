@@ -1,2 +1,3 @@
-== diags.diag/circular-alias
-BYN2011 1:6 type alias `Alpha` refers to itself
+== diags.run/unique-checker-clean
+returns grow 0
+returns pack 0

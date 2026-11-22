@@ -1,11 +1,10 @@
-== diags.diag/lambda-capture
-BYN2821 8:43 `total` cannot be captured: it is a `ref` parameter
-  help pass it as a plain parameter
-BYN2821 25:28 `step` cannot be captured: it is a `var`
-  help copy it into a `let` first
-BYN2821 30:37 `r` cannot be captured: it is a `var`
-  help copy it into a `let` first
-BYN2821 14:32 `this` cannot be captured: a lambda does not capture `this`
-  help copy the fields you need into `let` values first
-BYN2821 15:32 `count` cannot be captured: it is read through `this`, which a lambda does not capture
-  help copy the fields you need into `let` values first
+== diags.diag/unique-param-store
+BYN2780 6:49 implicit copy of a unique value: `List<i64>` is unique: it owns its storage
+  help make an independent copy with `items.copy(to: alloc)`; declare the parameter `move items` to take ownership; pass it by `ref` to share it instead
+  fix 6:54-6:54 .copy(to: alloc)
+BYN2780 9:12 implicit copy of a unique value: `List<i64>` is unique: it owns its storage
+  help make an independent copy with `items.copy(to: alloc)`; declare the parameter `move items` to take ownership; pass it by `ref` to share it instead
+  fix 9:17-9:17 .copy(to: alloc)
+returns keep 0
+returns owned 0
+returns pass 0

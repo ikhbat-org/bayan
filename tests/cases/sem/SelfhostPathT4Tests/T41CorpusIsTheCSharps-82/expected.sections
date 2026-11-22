@@ -1,3 +1,5 @@
-== diags.diag/union-pattern-arity
-BYN2703 8:5 variant `rect` has 2 payload field(s), but the pattern lists 1
-  help list every field: `.rect(let w, let h)`, or `_` to skip one
+== diags.diag/for-type-first
+BYN1043 2:9 `for i32 x` is an input form; write `for x: i32`
+  label type before name
+  help write `for x: i32`; loop variables put the name first
+  fix 2:9-2:14 x: i32

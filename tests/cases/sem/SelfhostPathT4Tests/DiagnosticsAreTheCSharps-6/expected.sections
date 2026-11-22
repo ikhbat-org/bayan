@@ -1,13 +1,1 @@
-== diags.missing-alloc
-BYN6002 2:13 `directory` uses `alloc` but does not declare it
-  label uses `alloc`
-  help add `alloc` to the `uses` clause, or remove the call
-BYN6002 6:13 `combine` uses `alloc` but does not declare it
-  label uses `alloc`
-  help add `alloc` to the `uses` clause, or remove the call
-BYN6002 10:13 `combineSpan` uses `alloc` but does not declare it
-  label uses `alloc`
-  help add `alloc` to the `uses` clause, or remove the call
-BYN6002 14:13 `full` uses `alloc` but does not declare it
-  label uses `alloc`
-  help add `alloc` to the `uses` clause, or remove the call
+== diags.each-function

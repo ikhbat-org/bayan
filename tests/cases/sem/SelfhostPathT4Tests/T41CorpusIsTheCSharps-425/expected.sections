@@ -1,3 +1,7 @@
-== diags.diag/state-shadows-static
-BYN7008 4:9 state `.empty` has the same name as static member `Cart.empty`
-  help rename the state or the static member
+== diags.diag/spread-not-sequence
+BYN2235 2:22 `..n` spreads a `i32`, which is not a sequence
+  label not a `List`, `Span` or fixed array
+  help drop the `..` to add `n` as one element
+BYN2235 4:25 `..stock` spreads a `Map<string, i32>`, which is not a sequence
+  label not a `List`, `Span` or fixed array
+  help spread a `List`, `Span` or fixed array; a single value goes in without `..`

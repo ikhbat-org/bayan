@@ -1,2 +1,9 @@
-== diags.log-import
-BYN2003 4:9 `debug` is not a member of `module Log`
+== diags.log-shapes
+BYN2002 2:5 unknown type `Log`
+BYN2001 3:5 `Log` is not defined
+BYN5007 4:5 `Log.debug` names a level, not the act; write `log(…, as: .debug)`
+  help call `log` and pass the level `as: .debug`
+BYN5007 6:5 `Log.debug` names a level, not the act; write `log(…, as: .debug)`
+  help call `log` and pass the level `as: .debug`
+BYN2311 5:9 `s` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes

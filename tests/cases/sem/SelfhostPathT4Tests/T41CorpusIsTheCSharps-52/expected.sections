@@ -1,3 +1,1 @@
-== diags.diag/catch-switch-block-arm
-BYN2611 12:29 this `catch` block can complete normally; end it with `return`, `break`, `continue` or a panic
-  help leave the block instead of falling through; the call returns a value
+== diags.run/fs-file-exists

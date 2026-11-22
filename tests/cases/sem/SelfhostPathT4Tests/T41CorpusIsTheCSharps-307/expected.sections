@@ -1,5 +1,1 @@
-== diags.diag/stray-tokens
-BYN1001 1:1 expected a declaration or statement, found `}`
-  help remove this `}`; it has no matching `{`
-BYN1001 3:1 expected a statement, found keyword `else`
-  help remove this `else`; it has no matching `if`
+== diags.run/lambda-non-capturing

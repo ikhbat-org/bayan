@@ -1,3 +1,7 @@
-== diags.diag/union-borrow-payload
-BYN2708 2:28 a union payload cannot hold a borrowed `ReadOnlySpan<u8>`
-  help store a `List` copied with `.copy(to: alloc)` instead
+== diags.diag/type-parameter-member
+BYN2744 1:23 `length` is not a member of type parameter `T`
+  help add `where T : …` naming an interface that declares `length`, or use a concrete type
+BYN2744 2:27 `toString` is not a member of type parameter `T`
+  help add `where T : …` naming an interface that declares `toString`, or use a concrete type
+BYN2744 7:26 `count` is not a member of type parameter `T`
+  help add `where T : …` naming an interface that declares `count`, or use a concrete type

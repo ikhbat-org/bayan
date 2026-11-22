@@ -1,9 +1,14 @@
-== diags.diag/ref-this-mismatch
-BYN2814 9:9 `Counter.next` must match `ICounter.next`, which takes `ref this`
-  label not declared `ref this`
-  help add `ref this` on `Counter.next`
-  fix 9:14-9:14 ref this
-BYN2814 11:9 `Counter.peek` must match `ICounter.peek`, which does not take `ref this`
-  label declared `ref this`
-  help remove `ref this` on `Counter.peek`
-  fix 11:14-11:22 
+== diags.run/self-hosting-lambdas
+BYN2310 18:10 `ts` is never written through; use `ReadOnlySpan<Token>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 18:10-18:14 ReadOnlySpan
+BYN2310 27:16 `ts` is never written through; use `ReadOnlySpan<Token>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 27:16-27:20 ReadOnlySpan
+BYN2310 38:16 `ts` is never written through; use `ReadOnlySpan<Token>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 38:16-38:20 ReadOnlySpan
+BYN2310 54:14 `ts` is never written through; use `ReadOnlySpan<Token>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 54:14-54:18 ReadOnlySpan
+returns render 0 1

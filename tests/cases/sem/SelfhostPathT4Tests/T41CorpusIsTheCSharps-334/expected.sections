@@ -1,6 +1,1 @@
-== diags.run/suq-order
-returns tracking -1
-store addLine 0 -1 3922..3926
-store cancel 0 -1 5155..5173
-store markPaid 0 -1 4610..4624
-store markShipped 0 -1 4970..4997
+== diags.run/dyn-ref-dispatch

@@ -1,2 +1,4 @@
-== diags.diag/too-many-arguments
-BYN2302 2:19 `twice` takes 1 argument(s)
+== diags.diag/misplaced-modifier
+BYN1016 1:1 `public` is not allowed here
+BYN1016 2:1 `readonly` is not allowed here
+BYN1016 3:1 `static` is not allowed here

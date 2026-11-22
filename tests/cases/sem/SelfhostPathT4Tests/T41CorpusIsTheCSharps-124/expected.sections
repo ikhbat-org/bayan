@@ -1,3 +1,2 @@
-== diags.diag/self-member
-BYN2806 3:23 `Self` has no member `nope` in its constraints (`IShape`)
-  help declare `nope` in `IShape`; a default method sees only its interface's members
+== diags.diag/not-callable
+BYN2220 2:9 `i32` cannot be called

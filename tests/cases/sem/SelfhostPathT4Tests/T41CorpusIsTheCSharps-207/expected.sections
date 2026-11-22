@@ -1,4 +1,2 @@
-== diags.diag/bad-unary-operand
-BYN2207 2:9 `-` cannot be applied to `u32`
-  help convert to a signed type first; unsigned values cannot be negative
-BYN2207 3:9 `!` cannot be applied to `u32`
+== diags.diag/unknown-type
+BYN2002 1:12 unknown type `Mony`

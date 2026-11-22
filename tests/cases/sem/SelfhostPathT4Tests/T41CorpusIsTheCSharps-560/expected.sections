@@ -1,8 +1,40 @@
-== diags.diag/call-result-borrows-ref-argument
-BYN3004 20:5 `l` is modified while `r` still borrows it
-  label `r` is used again on line 21
-  help finish using `r` first, or copy what it needs before changing `l`
-BYN3004 23:5 `l` is modified while `s` still borrows it
-  label `s` is used again on line 24
-  help finish using `s` first, or copy what it needs before changing `l`
-returns all 0
+== diags.builtin-names
+BYN2019 10:18 `Io` is a type, not a value
+BYN2019 11:18 `Hex` is a type, not a value
+BYN2019 12:18 `Utf8` is a type, not a value
+BYN2019 13:18 `Panic` is a type, not a value
+BYN2202 14:18 expected `i64`, found `IoStream`
+BYN2202 15:18 expected `i64`, found `IoInput`
+BYN2602 16:18 `run` can fail; handle the error or pass it on
+  help propagate the error with `try`, or handle it with `catch`
+  fix 16:18-16:18 try 
+BYN2202 16:18 expected `i64`, found `ProcessResult`
+BYN2003 17:16 `rea` is not a member of `Io`
+BYN2003 18:16 `zzzzqq` is not a member of `Io`
+BYN2003 19:17 `encod` is not a member of `Hex`
+  help did you mean `encode`?
+BYN2003 20:17 `zzzzqq` is not a member of `Hex`
+BYN2003 21:18 `decod` is not a member of `Utf8`
+  help did you mean `decode`?
+BYN2003 22:18 `zzzzqq` is not a member of `Utf8`
+BYN2003 23:18 `relativ` is not a member of `Path`
+  help did you mean `relative`?
+BYN2003 24:18 `zzzzqq` is not a member of `Path`
+BYN2019 25:13 `invalidUtf8At` is a method, not a value
+  help call it: `invalidUtf8At(…)`
+BYN2003 26:20 `invalidUtf8A` is not a member of `string`
+  help did you mean `invalidUtf8At`?
+BYN2003 27:20 `zzzzqq` is not a member of `string`
+BYN2230 28:20 `string.from` is now `Utf8.decode`
+  label the old name
+  help write `Utf8.decode`
+  fix 28:13-28:24 Utf8.decode
+BYN2230 29:20 `string.fromUtf8` is now `Utf8.decode`
+  label the old name
+  help write `Utf8.decode`
+  fix 29:13-29:28 Utf8.decode
+BYN2230 30:20 `string.tryFrom` is now `Utf8.tryDecode`
+  label the old name
+  help write `Utf8.tryDecode`
+  fix 30:13-30:27 Utf8.tryDecode
+BYN2202 5:22 expected `i64`, found `FormatSpec`

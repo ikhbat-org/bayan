@@ -1,5 +1,3 @@
-== diags.diag/out-not-assigned
-BYN2103 3:9 `out` parameter `value` is not assigned on every path
-  help assign `value` before every `return`
-BYN2103 10:5 `out` parameter `value` is not assigned on every path
-  help assign `value` before every `return`
+== diags.diag/unknown-union-variant
+BYN2700 7:19 `square` is not a variant of union `Shape`
+BYN2700 9:14 `Triangle` is not a variant of union `Shape`

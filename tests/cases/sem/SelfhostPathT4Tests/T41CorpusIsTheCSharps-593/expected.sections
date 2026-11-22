@@ -1,7 +1,4 @@
-== diags.diag/bool-without-prefix
-BYN5102 6:17 `locked` is a `bool` state; prefix with `is`, `has` or `can`
-  help rename it `isLocked`
-  fix 6:17-6:23 isLocked
-BYN5102 4:17 `ajar` is a `bool` state; prefix with `is`, `has` or `can`
-  help rename it `isAjar`
-  fix 4:17-4:21 isAjar
+== diags.diag/interface-static-witness
+BYN2802 6:16 `A.area` is `static i64 area()` but `IShape` requires `i64 area()`
+  label does not match `IShape`
+  help change the signature to `i64 area()`

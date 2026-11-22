@@ -1,6 +1,9 @@
-== diags.diag/ref-out-escape-map-slot
-BYN3002 10:9 arena `arena` does not live as long as `kept`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-  related 2:12-2:13 `keep` stores `s` into `m` here
-store keep 0 1 60..61
+== diags.diag/positional-states
+BYN1016 1:1 `@positional` is not allowed here
+  help remove `@positional`: a struct with states is built with state literals
+BYN2009 6:9 `Open` must be camelCase
+  help rename it `open`; only types are PascalCase
+  fix 6:9-6:13 open
+BYN2009 7:9 `Closed` must be camelCase
+  help rename it `closed`; only types are PascalCase
+  fix 7:9-7:15 closed

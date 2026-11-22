@@ -1,4 +1,2 @@
-== diags.run/lambda-generic
-returns apply 0 1
-returns twice 0 1
-returns twice$lambda1 0
+== diags.diag/circular-constant
+BYN2012 1:7 constant `first` depends on itself

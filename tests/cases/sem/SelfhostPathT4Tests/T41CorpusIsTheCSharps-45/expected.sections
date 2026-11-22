@@ -1,4 +1,21 @@
-== diags.diag/because-json-expose
-BYN8001 1:1 `@json(expose)` bypasses a safety rule and needs `because "…"`
-  label bypasses a safety rule
-  help explain the bypass in a `because` clause
+== diags.diag/unless-parenthesized
+BYN1022 4:5 `unless` with `&&`/`||` reads as a double negative
+  label a compound condition
+  help use `if` with the negated condition
+  fix 4:5-4:22 if !(a && a)
+BYN1007 7:5 `unless` with a negated condition is a double negative
+  label `unless` already negates
+  help use `if` with the condition as written
+  fix 7:5-7:18 if a
+BYN1007 10:12 `unless` with a negated condition is a double negative
+  label `unless` already negates
+  help use `if` with the condition as written
+  fix 10:12-10:23 if a
+BYN1022 11:12 `unless` with `&&`/`||` reads as a double negative
+  label a compound condition
+  help use `if` with the negated condition
+  fix 11:12-11:29 if !(a || a)
+BYN1023 12:12 `unless x is null` is not allowed; write `if x is not null`
+  label a negated null test
+  help use `if` with `is not null`
+  fix 12:12-12:30 if p is not null

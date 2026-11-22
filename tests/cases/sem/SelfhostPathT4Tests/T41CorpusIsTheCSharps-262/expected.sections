@@ -1,7 +1,9 @@
-== diags.diag/switch-move-use-after
-BYN2783 23:32 `items` borrows from what it was bound to and cannot be changed or moved
-  label moving it would take the value out of what it borrows from
-  help move or copy the value it was bound to instead
-BYN2781 17:12 `r` is used after it was moved
-  label moved on line 11
-  help assign `r` a new value before using it again, or move a `.copy(to: alloc)` of it instead
+== diags.diag/interface-generic-bases
+BYN2801 5:12 `S` does not provide `rank` required by `IOrder<i64>`
+  label needs `rank`
+  help add `i64 rank(i64 x)` to `S`
+  fix 7:1-7:1     i64 rank(i64 x) => todo("rank")
+BYN2801 5:25 `S` does not provide `rank` required by `IOrder<string>`
+  label needs `rank`
+  help add `i64 rank(string x)` to `S`
+  fix 7:1-7:1     i64 rank(string x) => todo("rank")

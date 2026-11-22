@@ -1,5 +1,2 @@
-== diags.diag/for-let-enumerator
-BYN2104 18:14 `steps` is immutable
-  label `moveNext` modifies it; declared with `let` on line 17
-  help declare it with `var` if it should change
-  fix 17:5-17:8 var
+== diags.diag/millis-bare-literal
+BYN2202 3:21 expected `Millis`, found `i32`

@@ -1,4 +1,7 @@
-== diags.diag/owned-escapes-arena
-BYN3002 11:20 arena `arena` does not live as long as `head`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+== diags.diag/switch-move-field
+BYN2789 14:17 `switch move …` needs a local or a `move` parameter, not field `slot`
+  help drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection field into a local first
+BYN2789 17:17 `switch move …` needs a local or a `move` parameter, not an element
+  help drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection field into a local first
+BYN2789 20:17 `switch move …` needs a local or a `move` parameter, not parameter `plain`
+  help drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection field into a local first

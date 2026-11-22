@@ -1,3 +1,1 @@
-== diags.diag/field-write-outside
-BYN3216 7:5 `SignupForm.password` can be written only by `SignupForm`'s own methods or with `with`: `SignupForm` has `requires`
-  help add a `ref this` method to `SignupForm`, or build a new value with `with`
+== diags.run/map-slot

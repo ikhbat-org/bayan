@@ -1,5 +1,4 @@
-== diags.diag/literal-out-of-range
-BYN2203 1:13 300 does not fit in `u8`
-  help use a value from 0 to 255, the range of `u8`
-BYN2203 2:13 -129 does not fit in `i8`
-  help use a value from -128 to 127, the range of `i8`
+== diags.diag/panic-handler-reads
+BYN2613 4:67 a panic handler reads only `let` bindings and parameters
+  label `count` is not a `let` or a parameter
+  help copy the value into a `let` before the handler and read that

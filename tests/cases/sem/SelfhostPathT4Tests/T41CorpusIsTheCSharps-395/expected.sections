@@ -1,13 +1,4 @@
-== diags.diag/string-concatenation
-BYN2209 2:16 strings cannot be joined with `+`; use interpolation
-  help write the parts as one interpolation: `$"{a}{b}"`, or `buf.append($"{a}{b}")` in a loop
-  fix 2:16-2:32 $"Hello, {name}"
-BYN2209 3:12 strings cannot be joined with `+`; use interpolation
-  help write one literal: `"/usr/lib"`
-  fix 3:12-3:27 "/usr/lib"
-BYN2209 4:13 strings cannot be joined with `+`; use interpolation
-  help write the parts as one interpolation: `$"{a}{b}"`, or `buf.append($"{a}{b}")` in a loop
-  fix 4:13-4:30 $"{name}!{name}"
-BYN2209 6:1 strings cannot be joined with `+`; use interpolation
-  help write the parts as one interpolation: `s = $"{s}{x}"`, or build text in a `StrBuf`: `buf.append($"{a}{b}")`
-  fix 6:1-6:12 log = $"{log}{name}"
+== diags.diag/dyn-ref-this-field-outlived
+BYN3002 22:16 `b` does not live as long as `late`, which borrows it
+  label `b` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough

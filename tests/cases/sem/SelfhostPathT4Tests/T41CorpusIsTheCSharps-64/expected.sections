@@ -1,4 +1,4 @@
-== diags.diag/expected-expression
-BYN1002 2:1 expected an expression, found keyword `let`
-BYN1002 3:1 expected an expression, found keyword `let`
-BYN1002 3:13 expected an expression, found `)`
+== diags.run/pending-peers-negate
+BYN2311 1:5 `a` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 1:1-1:4 let

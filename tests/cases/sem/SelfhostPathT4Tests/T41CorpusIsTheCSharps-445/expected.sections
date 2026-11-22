@@ -1,9 +1,12 @@
-== diags.diag/cast-input
-BYN1057 3:14 `(u8)x` is an input form; write `u8(x)`
-  label a cast
-  help call the conversion: `u8(x)`
-  fix 3:14-3:22 u8(wide)
-BYN1057 4:11 `(i32)x` is an input form; write `i32(x)`
-  label a cast
-  help call the conversion: `i32(x)`
-  fix 4:11-4:26 i32(wide + 1)
+== diags.diag/become-undeclared
+BYN7003 9:9 `become` needs `becomes .paid` on `pay`
+  help add `becomes .paid` to the signature of `pay`
+  fix 8:14-8:46 ref this is .draft, i64 amount) becomes .paid
+BYN7003 12:17 `become .paid` is not declared; `ship` becomes `.shipped`
+  help change the target to `.shipped`, or declare `becomes .paid`
+BYN7003 15:9 `become` needs `becomes .paid` on `settle`
+  help add `becomes .paid` to the signature of `settle`
+  fix 14:17-14:69 ref this is .draft, i64 amount) expects amount > id becomes .paid
+BYN7003 18:9 `become` needs `becomes .paid` on `charge`
+  help add `becomes .paid` to the signature of `charge`
+  fix 17:17-17:49 ref this is .draft, i64 amount) becomes .paid

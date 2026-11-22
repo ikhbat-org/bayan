@@ -1,4 +1,1 @@
-== diags.wrong-argument-type
-BYN2202 2:27 expected `string`, found `i32`
-BYN2202 3:32 expected `string`, found `bool`
-BYN2202 4:31 expected `string`, found `i32`
+== diags.fresh-combine

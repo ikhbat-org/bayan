@@ -1,16 +1,1 @@
-== diags.diag/number-agreement
-BYN5104 6:23 `line` holds a collection; name it with a plural, `lines`
-  help rename it `lines`
-  fix 6:23-6:27 lines
-BYN5104 7:17 `lines` holds one `Line`; name it with a singular noun
-  help rename it `line`
-  fix 7:17-7:22 line
-BYN5104 8:29 `weight` holds a collection; name it with a plural, `weights`
-  help rename it `weights`
-  fix 8:29-8:35 weights
-BYN5104 12:30 `lineByName` holds a collection; name it with a plural, `linesByName`
-  help rename it `linesByName`
-  fix 12:30-12:40 linesByName
-BYN5104 14:36 `items` holds one `Line`; name it with a singular noun
-  help rename it `item`
-  fix 14:36-14:41 item
+== diags.run/string-copy-default

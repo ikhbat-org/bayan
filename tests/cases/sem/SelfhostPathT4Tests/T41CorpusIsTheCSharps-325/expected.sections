@@ -1,6 +1,2 @@
-== diags.diag/ref-out-escape-ref-element
-BYN3002 11:9 arena `arena` does not live as long as `xs`, which borrows it
-  label arena `arena` is freed at the end of its block
-  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
-  related 2:9-2:10 `pass` stores `s` into `g` here
-store pass 0 1 47..48
+== diags.diag/circular-field-default
+BYN2034 1:22 the default of field `A.b` depends on itself

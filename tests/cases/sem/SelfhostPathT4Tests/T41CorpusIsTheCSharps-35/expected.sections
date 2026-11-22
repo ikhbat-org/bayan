@@ -1,4 +1,18 @@
-== diags.run/pending-peers-negate
-BYN2311 1:5 `a` is never reassigned; declare it with `let`
-  help declare it with `let` to tell the reader the value never changes
-  fix 1:1-1:4 let
+== diags.diag/error-payload-mismatch
+BYN2705 7:10 variant `timeout` carries a payload
+  help pass it: `.timeout(after)`
+BYN2706 11:10 variant `closed` has no payload
+  help write `.closed` without parentheses
+BYN2021 15:19 `timeout` has no parameter `before`
+BYN2202 19:26 expected `i64`, found `string`
+BYN2302 23:34 `timeout` takes 1 argument(s)
+BYN2706 27:27 variant `closed` has no payload
+  help write `.closed` without parentheses
+BYN2705 31:27 variant `timeout` carries a payload
+  help pass it: `.timeout(after)`
+BYN2705 32:13 variant `timeout` carries a payload
+  help pass it: `.timeout(after)`
+BYN2705 38:10 variant `timeout` carries a payload
+  help pass it: `.timeout(after)`
+BYN2705 42:12 variant `timeout` carries a payload
+  help pass it: `.timeout(after)`

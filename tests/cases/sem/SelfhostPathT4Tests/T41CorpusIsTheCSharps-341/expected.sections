@@ -1,4 +1,11 @@
-== diags.diag/dyn-ref-local-argument-modified
-BYN3004 16:10 `b` is modified while `s` still borrows it
-  label `s` is used again on line 17
-  help finish using `s` first, or copy what it needs before changing `b`
+== diags.diag/block-comment
+BYN1047 1:1 `/* */` is an input form; write `//` lines
+  label block comment
+  help write each line with `//`
+  fix 1:1-2:28 // Prices are in cents.
+// Discounts round down.
+BYN1047 6:15 `/* */` is an input form; write `//` lines
+  label block comment
+  help write each line with `//`
+  fix 6:15-6:27 // inline
+    

@@ -1,5 +1,17 @@
-== diags.diag/run-untrusted
-BYN2786 4:24 `Untrusted<string>` cannot be passed to `Io.run`: it is `Untrusted`
-  help check the value, then clear the mark with `x.trustUnchecked() because "…"`
-BYN2786 5:39 `Untrusted<string>` cannot be passed to `Io.run`: it is `Untrusted`
-  help check the value, then clear the mark with `x.trustUnchecked() because "…"`
+== diags.diag/input-parenthesized-condition
+BYN1017 3:8 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 3:8-3:15 x > 2
+BYN1017 6:11 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 6:11-6:18 x > 5
+BYN1017 9:12 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 9:12-9:15 x
+BYN1017 15:13 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 15:13-15:20 x < 4

@@ -1,4 +1,1 @@
-== diags.diag/enum-argument-not-constant
-BYN2723 5:11 argument `bytes` of `Size.large` must be a compile-time constant
-  label computed at run time
-  help use literals and `const`s only; enum data is static
+== diags.run/lambda-capture-no-alloc

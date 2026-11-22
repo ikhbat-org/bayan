@@ -1,7 +1,1 @@
-== diags.diag/string-concat-literals
-BYN2209 1:19 strings cannot be joined with `+`; use interpolation
-  help write one literal: `"ab"`
-  fix 1:19-1:28 "ab"
-BYN2209 2:19 strings cannot be joined with `+`; use interpolation
-  help write one literal: `"x{}\n"`
-  fix 2:19-2:31 "x{}\n"
+== diags.run/main-fails-exit-code

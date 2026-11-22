@@ -1,10 +1,1 @@
-== diags.diag/invalid-exit-code
-BYN1016 18:5 `@exitCode` is not allowed here
-  help remove the repeated attribute
-BYN2772 2:15 `@exitCode` needs one integer constant from 1 to 255
-  help pick a code from 1 to 255; 0 means success, and exit codes above 255 do not survive the operating system
-BYN2772 5:15 `@exitCode` needs one integer constant from 1 to 255
-  help pick a code from 1 to 255; 0 means success, and exit codes above 255 do not survive the operating system
-BYN2772 8:5 `@exitCode` needs one integer constant from 1 to 255
-BYN2772 11:15 `@exitCode` needs one integer constant from 1 to 255
-BYN2772 14:5 `@exitCode` needs one integer constant from 1 to 255
+== diags.run/function-type-key-nested-fails

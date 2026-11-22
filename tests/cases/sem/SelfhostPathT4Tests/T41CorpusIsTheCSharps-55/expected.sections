@@ -1,2 +1,1 @@
-== diags.run/generics-var-literal-rollback
-returns id 0
+== diags.run/lambda-uses-provide

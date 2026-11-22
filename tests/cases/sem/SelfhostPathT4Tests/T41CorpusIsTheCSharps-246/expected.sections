@@ -1,2 +1,1 @@
-== diags.diag/invalid-cast
-BYN2206 1:9 cannot convert `string` to `i64`
+== diags.run/generic-ref-known-state

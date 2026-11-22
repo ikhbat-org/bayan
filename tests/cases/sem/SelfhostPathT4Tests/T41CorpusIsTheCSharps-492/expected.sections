@@ -1,9 +1,2 @@
-== diags.diag/run-batch-untrusted
-BYN2786 7:29 `Untrusted<string>` cannot be passed to `Io.runBatch`: it is `Untrusted`
-  help check the value, then clear the mark with `x.trustUnchecked() because "…"`
-BYN2786 8:50 `Untrusted<string>` cannot be passed to `Io.runBatch`: it is `Untrusted`
-  help check the value, then clear the mark with `x.trustUnchecked() because "…"`
-BYN2786 9:44 `List<Untrusted<string>>` cannot be passed to `Io.runBatch`: it is `Untrusted`
-  help check the value, then clear the mark with `x.trustUnchecked() because "…"`
-BYN2786 10:44 `ReadOnlySpan<Untrusted<string>>` cannot be passed to `Io.runBatch`: it is `Untrusted`
-  help check the value, then clear the mark with `x.trustUnchecked() because "…"`
+== diags.diag/not-an-error-set
+BYN2608 1:15 `i64` is not an error enum

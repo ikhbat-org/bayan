@@ -1,7 +1,3 @@
-== diags.diag/function-value-call
-BYN2302 6:18 `f` takes 1 argument(s)
-BYN2021 7:15 `f` has no parameter `x`
-BYN2021 8:15 `f` has no parameter `to`
-BYN2602 13:12 `f` can fail; handle the error or pass it on
-  help propagate the error with `try`, or handle it with `catch`
-  fix 13:12-13:12 try 
+== diags.run/unique-return
+returns handOver 0
+returns ledger 0

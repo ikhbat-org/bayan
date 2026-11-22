@@ -1,3 +1,4 @@
-== diags.diag/literal-with-constructor
-BYN2111 11:9 `Ratio` has a constructor; call it instead of using a struct literal
-  help call the constructor: `Ratio(num: …, den: …)`
+== diags.diag/static-interface-member
+BYN2810 2:16 `static` interface members are not supported yet
+  label declared `static`
+  help remove `static` or make it a free function

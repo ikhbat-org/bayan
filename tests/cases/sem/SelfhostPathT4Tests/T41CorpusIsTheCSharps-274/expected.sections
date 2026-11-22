@@ -1,14 +1,1 @@
-== diags.diag/input-body-nested
-BYN1017 3:8 parentheses around a condition are an input form
-  label not needed
-  help remove the parentheses
-BYN1017 3:15 parentheses around a condition are an input form
-  label not needed
-  help remove the parentheses
-  fix 3:15-3:29 x { print("a") }
-BYN1018 3:19 the body of `if` must be a block
-  label a single statement
-  help wrap the statement in `{ }`
-BYN1018 3:12 the body of `if` must be a block
-  label a single statement
-  help wrap the statement in `{ }`
+== diags.diag/arguments-single-not-swapped

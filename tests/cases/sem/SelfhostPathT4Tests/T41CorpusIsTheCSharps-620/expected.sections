@@ -1,2 +1,5 @@
-== diags.diag/unknown-parameter
-BYN2021 2:15 `area` has no parameter `widht`
+== diags.diag/unknown-word
+BYN5014 4:10 `upsert` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `verbs: ["upsert"]`, `nouns: ["upsert"]` or `adjectives: ["upsert"]`
+BYN5014 8:9 `sku` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `nouns: ["sku"]`, `verbs: ["sku"]` or `adjectives: ["sku"]`

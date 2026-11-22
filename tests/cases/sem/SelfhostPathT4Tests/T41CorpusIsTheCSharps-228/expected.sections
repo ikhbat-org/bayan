@@ -1,9 +1,4 @@
-== diags.diag/char-input
-BYN1048 1:14 `char` is now `rune`
-  label the input form
-  help rename the type to `rune`
-  fix 1:14-1:18 rune
-BYN1048 4:23 `char` is now `rune`
-  label the input form
-  help rename the type to `rune`
-  fix 4:23-4:27 rune
+== diags.misc-shapes
+BYN2311 12:9 `xs` is never reassigned; declare it with `let`
+  help declare it with `let` to tell the reader the value never changes
+  fix 12:5-12:8 let

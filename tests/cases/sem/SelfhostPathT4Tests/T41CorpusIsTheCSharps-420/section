@@ -1,1 +1,1 @@
-diags.diag/panic-handler-strbuf-over
+diags.run/strbuf-finish-then-append

@@ -1,7 +1,3 @@
-== diags.diag/map-slot-no-default
-BYN2785 18:5 `slot` needs a default value, and `Color` has none
-  help read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`
-BYN2785 20:5 `slot` needs a default value, and `Point` has none
-  help read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`
-BYN2785 22:5 `slot` needs a default value, and `List<i64>` has none
-  help read with `map[key]` or `map.tryGet(at: key) ?? fallback`, and write with `map[key] = value`
+== diags.diag/field-write-states
+BYN3216 10:5 `Order.total` can be written only by `Order`'s own methods or with `with`: `Order` has states
+  help add a `ref this` method to `Order`, or build a new value with `with`

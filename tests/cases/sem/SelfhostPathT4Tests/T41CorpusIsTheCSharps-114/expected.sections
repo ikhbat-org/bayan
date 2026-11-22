@@ -1,3 +1,3 @@
-== diags.diag/interface-builtin-redeclared
-BYN2006 1:11 `IEnumerator` is declared twice
-  label already declared as a built-in interface
+== diags.diag/lambda-no-target-type
+BYN2218 2:13 `x => x` needs a known type here
+  help write the function type it has, such as `let f: i64 -> i64 = x => x`

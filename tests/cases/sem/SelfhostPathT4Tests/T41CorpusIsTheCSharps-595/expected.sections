@@ -1,25 +1,5 @@
-== diags.diag/number-agreement-positions
-BYN5104 5:29 `line` holds a collection; name it with a plural, `lines`
-  help rename it `lines`
-  fix 5:29-5:33 lines
-BYN5104 7:23 `lines` holds one `Line`; name it with a singular noun
-  help rename it `line`
-  fix 7:23-7:28 line
-BYN5104 10:16 `item` holds a collection; name it with a plural, `items`
-  help rename it `items`
-  fix 10:16-10:20 items
-BYN5105 11:9 `linesCount` counts items; name it `lineCount`
-  help rename it `lineCount`
-  fix 11:9-11:19 lineCount
-BYN5104 12:26 `line` holds a collection; name it with a plural, `lines`
-  help rename it `lines`
-  fix 12:26-12:30 lines
-BYN5104 16:24 `item` holds a collection; name it with a plural, `items`
-  help rename it `items`
-  fix 16:24-16:28 items
-BYN5105 16:34 `numBoxes` counts items; name it `boxCount`
-  help rename it `boxCount`
-  fix 16:34-16:42 boxCount
-BYN5104 21:25 `line` holds a collection; name it with a plural, `lines`
-  help rename it `lines`
-  fix 21:25-21:29 lines
+== diags.diag/type-name-order-function-type
+BYN1043 4:5 `i32 -> bool f` is an input form; write `let f: i32 -> bool`
+  label type before name
+  help write `let f: i32 -> bool`; local bindings put the name first
+  fix 4:5-4:18 let f: i32 -> bool

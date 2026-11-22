@@ -1,3 +1,1 @@
-== diags.diag/duplicate-union-variant
-BYN2701 4:5 union `Shape` already has a variant `circle`
-  label already declared on line 2
+== diags.run/struct-requires

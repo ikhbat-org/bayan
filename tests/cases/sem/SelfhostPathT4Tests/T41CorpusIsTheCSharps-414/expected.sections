@@ -1,3 +1,1 @@
-== diags.diag/lambda-capture-unique
-BYN2780 6:28 implicit copy of a unique value: `List<i64>` is unique: it owns its storage
-  help copy what the lambda needs from `xs` into `let` values first
+== diags.run/io-run-relative-program

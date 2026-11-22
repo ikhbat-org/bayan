@@ -1,5 +1,4 @@
-== diags.diag/trust-reason
-BYN2787 2:7 `trust` needs a reason: a non-empty string literal
-  help write `x.trustUnchecked() because "why this value is safe"`
-BYN2787 3:7 `trust` needs a reason: a non-empty string literal
-  help write `x.trustUnchecked() because "why this value is safe"`
+== diags.diag/union-case-casing
+BYN2009 2:5 `Circle` must be camelCase
+  help rename it `circle`; only types are PascalCase
+  fix 2:5-2:11 circle

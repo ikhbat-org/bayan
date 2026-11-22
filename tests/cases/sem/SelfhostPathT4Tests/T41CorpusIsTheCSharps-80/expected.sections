@@ -1,7 +1,6 @@
-== diags.diag/span-views
-BYN2106 5:5 cannot modify this value
-  label a `ReadOnlySpan` cannot be written through
-BYN2104 7:13 `ys` is immutable
-  label `mutableSpan` modifies it; declared with `let` on line 6
-  help declare it with `var` if it should change
-  fix 6:5-6:8 var
+== diags.diag/ref-out-escape-ref-this-field
+BYN3002 14:9 arena `arena` does not live as long as `b`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+  related 5:13-5:14 `put` stores `v` into `this` here
+store put 0 -1 74..75

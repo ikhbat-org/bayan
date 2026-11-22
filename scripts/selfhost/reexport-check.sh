@@ -8,8 +8,9 @@
 # instead; --full takes them all. The chosen classes are printed first.
 # Steps, in <root>/tmp/reexport.XXXXXX (no worktree: the checkout's git state is left alone):
 #   1. `git archive` of the export head tests/cases/FREEZE.tsv names (its `export` row) into tree/;
-#   2. in tree/: BAYAN_EXPORT_DIR=<w>/export dotnet test csharp/tests/Bayan.Tests -v q --filter <the classes> (no filter with
-#      --full), the export mode that wrote the cases (src/tests/SelfhostExport.cs on that head);
+#   2. in tree/: BAYAN_EXPORT_DIR=<w>/export dotnet test csharp/tests/Bayan.Tests -v q --filter <the classes> (--full too: tests
+#      of no export class, which write no case, do not run), the export mode that wrote the cases (src/tests/SelfhostExport.cs on
+#      that head);
 #   3. scripts/selfhost/land-export.sh lands the export into land/cases (the land-time masks the tree's cases went through);
 #   4. for each chosen <kind>/<Class>, every file under tests/cases/<kind>/<Class>/ with a FREEZE.tsv row or named expected.*,
 #      in the tree or in land/cases, is compared by git blob id (the attributes of the tree's path, as FREEZE.tsv records);
@@ -183,9 +184,7 @@ git archive --format=tar "$sha" | tar -xf - -C "$w/tree" || die "cannot extract 
 trc=0; crc=0; prc=0
 if [ -s "$w/sel" ]; then
 filter=""
-if [ $full = 0 ]; then
-  for c in $(cut -d/ -f2 "$w/sel" | LC_ALL=C sort -u); do filter="${filter:+$filter|}FullyQualifiedName~.$c."; done
-fi
+for c in $(cut -d/ -f2 "$w/sel" | LC_ALL=C sort -u); do filter="${filter:+$filter|}FullyQualifiedName~.$c."; done
 # The tree is no git work tree (GIT_CEILING_DIRECTORIES): git finds no repo around it, as in ddc.sh.
 (cd "$w/tree" && BAYAN_EXPORT_DIR="$w/export" BAYAN_CACHE="$w/tree/tmp/cache" GIT_CEILING_DIRECTORIES="$root/tmp" \
   "$dotnet" test csharp/tests/Bayan.Tests -v q ${filter:+--filter "$filter"}) > "$w/test.out" 2>&1

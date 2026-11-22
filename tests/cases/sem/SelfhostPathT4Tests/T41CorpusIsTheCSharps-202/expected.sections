@@ -1,3 +1,4 @@
-== diags.diag/for-dyn-ref-conditional
-BYN2106 15:26 cannot modify this value
-  label it is borrowed element by element as `dyn ref IC`
+== diags.diag/interface-default-conflict
+BYN2802 9:16 `S.name` is `IA.name` but `IB` requires `string name()`
+  label `name` also has a default in `IA`
+  help add `string name()` to `S` to choose one

@@ -1,4 +1,7 @@
-== diags.diag/dyn-ref-this-argument-modified
-BYN3004 13:14 `items` is modified while `s` still borrows it
-  label `s` is used again on line 14
-  help finish using `s` first, or copy what it needs before changing `items`
+== diags.diag/string-bytes-read-only
+BYN2106 9:1 cannot modify this value
+  label a `ReadOnlySpan` cannot be written through
+BYN2106 11:1 cannot modify this value
+  label a `ReadOnlySpan` cannot be written through
+BYN2202 12:21 expected `Span<u8>`, found `ReadOnlySpan<u8>`
+BYN2202 13:7 expected `Span<u8>`, found `ReadOnlySpan<u8>`
