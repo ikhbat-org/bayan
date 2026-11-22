@@ -166,6 +166,12 @@ string plan(string only, for string shard, from List<string> tasks) uses fs, all
         let dir = Path.directoryName(f) ?? ""
         let fam = family(dir) ?? ""
         if fam.isEmpty {
+            // A file --files leaves out is never planned, so its directory needing a family does not stop the run.
+            var picked = only.isEmpty
+            for w in only.parts(by: ",") {
+                if w == f { picked = true }
+            }
+            if !picked { continue }
             fail .failed(message: $"{f}: the directory {dir}/ has no test family (src/semantics, parser, lexer, emitter, driver)")
         }
         var cls = List<string>()
@@ -225,8 +231,18 @@ string plan(string only, for string shard, from List<string> tasks) uses fs, all
             if !shard.isEmpty ? (idx % n == k - 1) : true { mine.append(Row { file: $"{r.file}", filter: $"{r.filter}" }) }
             idx += 1
         }
-        var parts = List<string>()
+        // The group's filter is the union over the files this run mutates: with --files, only theirs,
+        // so a narrowed run does not replay tests that never reach its files.
+        var picked = List<Row>()
         for r in mine {
+            var chosen = want.length == 0
+            for w in want {
+                if w == r.file { chosen = true }
+            }
+            if chosen { picked.append(Row { file: $"{r.file}", filter: $"{r.filter}" }) }
+        }
+        var parts = List<string>()
+        for r in picked {
             for p in r.filter.parts(by: "|") { parts.append(p) }
         }
         let flt = join(sortedSet(parts))
@@ -234,13 +250,7 @@ string plan(string only, for string shard, from List<string> tasks) uses fs, all
         for p in d.parts(by: "/") { dirParts.append(p) }
         let suffix = shard.isEmpty ? "" : $"-shard{k}of{n}"
         let name = $"{dirParts[dirParts.length - 1]}{suffix}"
-        for r in mine {
-            var chosen = want.length == 0
-            for w in want {
-                if w == r.file { chosen = true }
-            }
-            if chosen { lines2.append($"{name}\t{r.file}\t{flt}\n") }
-        }
+        for r in picked { lines2.append($"{name}\t{r.file}\t{flt}\n") }
     }
     return lines2.finish()
 }
