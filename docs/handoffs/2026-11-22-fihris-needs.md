@@ -1,5 +1,10 @@
 # Dropoff: what Extrode Tidy (`tidy`, codename fihris) needs from Bayan
 
+Status: open (std P0 spec after 0.4.0, owner 2026-11-22)
+Release: unscheduled
+Sources: /Users/sy/Developer/extrode.com/tidy/docs/architecture/001-concept.md
+
+
 From: `extrode.com/tidy` (local file organizer, CLI in Bayan; concept in
 `/Users/sy/Developer/extrode.com/tidy/docs/architecture/001-concept.md`).
 Written here, not in `bayan/docs/handoffs/`, because the bayan checkout was on
