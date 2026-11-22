@@ -3,8 +3,8 @@
 # BAYAN_SNAPSHOT records), a stub pinned `bayan` CLI and a stub `dotnet` that fails the test when called (spec 019 T48c: no dotnet),
 # the way guard.test.sh stubs them, and a fixture tasks file: --list derives each file's `<kind>/<Class>/` selectors from the *Tests.cs classes of
 # the tasks naming it (sorted union, a glob class skipped, a class of another family dropped, the family default when none is left, a bare basename when unique, a {a,b} path) and falls back to the
-# directory default, an unknown directory fails naming it, a src/driver file is routed to `bayan test --mutate src/driver` and its group not run;
-# a family's files share one group, one union filter and one recording
+# directory default, an unknown directory fails naming it, unless --files leaves its file out, a src/driver file is routed to
+# `bayan test --mutate src/driver` and its group not run; a family's files share one group, one union filter and one recording
 # (Q910); --shard k/n puts each file in exactly one shard, --files then limits the files; the reports land in tmp/mutate-batch/<group>/; an empty baseline is filled, a higher score replaces a lower
 # one, a drop fails naming the file with old and new score and leaves the baseline unchanged; a failed mutant 0, a missing CLI
 # and a manifest-less recording fail naming the group, the other groups still raise the baseline; a failed group's reports are
@@ -96,10 +96,11 @@ list=$(b --list)
 all_files=$(echo "$list" | cut -d' ' -f1 | sort)
 sh_files=$(for k in 1 2 3; do b --shard $k/3 --list; done | cut -d' ' -f1 | sort); sh_one=$(b --shard 1/2 --list | cut -d' ' -f1 | tr '\n' ' ')
 sh_two=$(b --shard 2/2 --list | cut -d' ' -f1 | tr '\n' ' '); sh_only=$(b --shard 1/2 --files src/semantics/a.byn,src/semantics/b.byn --list | cut -d' ' -f1 | tr '\n' ' ')
+<<<<<<< HEAD
 A='sem/SelfhostSemanticsATests/'; B="$A|sem/SelfhostSemanticsBTests/|sem/SelfhostSemanticsCTests/"
 # o <filter>: the recording's --only arguments for a `|`-joined filter
 o() { echo "--only ${1//|/ --only }"; }
-touch src/semantics/z.byn; mkdir src/other; echo > src/other/z.byn; badlist=$(b --list); rm -r src/other src/semantics/z.byn
+touch src/semantics/z.byn; mkdir src/other; echo > src/other/z.byn; badlist=$(b --list); skiplist=$(b --files src/semantics/a.byn --list); rm -r src/other src/semantics/z.byn
 list_one=$(b --files src/semantics/a.byn --list)
 [ -f $aux/record.txt ] && listran=1 || listran=0
 # a src/driver file is routed to `bayan test --mutate src/driver` (T48c C4): its group is not run, records nothing and fails nothing
@@ -168,6 +169,7 @@ src/semantics/b.byn -> $B
 src/semantics/c.byn -> $B"
 [ "$list" = "$want" ] || fail "--list mapping differs (want a, b, c: the union A|B|C sorted, glob class skipped; p: directory default; emitter/ and emitter/cprint/ one family)" "$list"
 echo "$badlist" | grep -q 'src/other/z.byn' && echo "$badlist" | grep -q 'no test family' || fail "an unknown directory was not a FAIL naming it" "$badlist"
+[ "$skiplist" = "src/semantics/a.byn -> $A" ] || fail "--files a.byn was stopped by a family-less file it did not choose" "$skiplist"
 [ $listran = 0 ] || fail "--list recorded" ""
 [ "$drvlist" = "src/driver/d.byn -> bayan test --mutate src/driver" ] || fail "a src/driver file was not routed to bayan test --mutate src/driver" "$drvlist"
 [ "$drvx" = 0 ] && [ $drvran = 0 ] && echo "$drv" | grep -qxF '== group driver: not run: src/driver/d.byn mutate under `bayan test --mutate src/driver` (spec 019 T48c C4)' || fail "the driver group ran, recorded or failed (rc=$drvx, recorded=$drvran)" "$drv"

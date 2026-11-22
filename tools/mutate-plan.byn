@@ -176,6 +176,12 @@ string plan(string only, for string shard, from List<string> tasks) uses fs, all
         let dir = Path.directoryName(f) ?? ""
         let fam = family(dir) ?? ""
         if fam.isEmpty {
+            // A file --files leaves out is never planned, so its directory needing a family does not stop the run.
+            var picked = only.isEmpty
+            for w in only.parts(by: ",") {
+                if w == f { picked = true }
+            }
+            if !picked { continue }
             fail .failed(message: $"{f}: the directory {dir}/ has no test family (src/semantics, parser, lexer, emitter, driver)")
         }
         if fam == "SelfhostDriver" {
