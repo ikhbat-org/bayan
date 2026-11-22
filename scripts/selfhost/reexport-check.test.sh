@@ -231,5 +231,18 @@ git checkout -q -- tests/cases; rm -rf tmp/reexport.*
 rm -rf tmp/reexport.*
 
 [ "$(REEXPORT_DOTNET=$tmp/no-dotnet run "${all[@]}")" = 1 ] || fail "no dotnet: want exit 1" "$(cat "$tmp/out")"
-grep -q "no dotnet on PATH: L043 is not checked" "$tmp/out" && ! grep -q "ok in" "$tmp/out" || fail "no dotnet: want the message and no pass" "$(cat "$tmp/out")"
+grep -q "no dotnet on PATH, in \$DOTNET_ROOT, /usr/local/share/dotnet or ~/.dotnet: L043 is not checked" "$tmp/out" && ! grep -q "ok in" "$tmp/out" \
+  || fail "no dotnet: want the message and no pass" "$(cat "$tmp/out")"
+rm -rf tmp/reexport.*
+# no REEXPORT_DOTNET and no dotnet on PATH: the stub in $DOTNET_ROOT runs (skipped where dotnet sits in /usr/bin or /bin)
+mkdir -p "$tmp/root"; cp "$aux/dotnet" "$tmp/root/dotnet"; : > "$aux/log"
+nodn=""; skip=0; IFS=: read -ra dirs <<< "$PATH"
+for d in "${dirs[@]}"; do
+  if [ -x "$d/dotnet" ]; then case "$d" in (/usr/bin|/bin) skip=1 ;; esac; else nodn="${nodn:+$nodn:}$d"; fi
+done
+if [ $skip = 1 ]; then echo "skip: dotnet in /usr/bin or /bin, the DOTNET_ROOT lookup is not checked here"
+else
+  env -u REEXPORT_DOTNET PATH="$nodn" DOTNET_ROOT="$tmp/root" bash scripts/selfhost/reexport-check.sh "${all[@]}" > "$tmp/out" 2>&1 &&
+    grep -q "^filter=FullyQualifiedName~" "$aux/log" || fail "DOTNET_ROOT: want the stub run and a pass" "$(cat "$tmp/out" "$aux/log")"
+fi
 echo PASS
