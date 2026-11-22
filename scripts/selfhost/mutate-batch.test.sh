@@ -3,8 +3,8 @@
 # BAYAN_SNAPSHOT records), a stub pinned `bayan` CLI and a stub `dotnet` that fails the test when called (spec 019 T48c: no dotnet),
 # the way guard.test.sh stubs them, and a fixture tasks file: --list derives each file's `<kind>/<Class>/` selectors from the *Tests.cs classes of
 # the tasks naming it (sorted union, a glob class skipped, a class of another family dropped, the family default when none is left, a bare basename when unique, a {a,b} path) and falls back to the
-# directory default, an unknown directory fails naming it, a src/driver file is routed to `bayan test --mutate src/driver` and its group not run;
-# a family's files share one group, one union filter and one recording
+# directory default, an unknown directory fails naming it, unless --files leaves its file out, a src/driver file is routed to
+# `bayan test --mutate src/driver` and its group not run; a family's files share one group, one union filter and one recording
 # (Q910); --shard k/n puts each file in exactly one shard, --files then limits the files; the reports land in tmp/mutate-batch/<group>/; an empty baseline is filled, a higher score replaces a lower
 # one, a drop fails naming the file with old and new score and leaves the baseline unchanged; a failed mutant 0, a missing CLI
 # and a manifest-less recording fail naming the group, the other groups still raise the baseline; a failed group's reports are
@@ -99,7 +99,7 @@ sh_two=$(b --shard 2/2 --list | cut -d' ' -f1 | tr '\n' ' '); sh_only=$(b --shar
 A='sem/SelfhostSemanticsATests/'; B="$A|sem/SelfhostSemanticsBTests/|sem/SelfhostSemanticsCTests/"
 # o <filter>: the recording's --only arguments for a `|`-joined filter
 o() { echo "--only ${1//|/ --only }"; }
-touch src/semantics/z.byn; mkdir src/other; echo > src/other/z.byn; badlist=$(b --list); rm -r src/other src/semantics/z.byn
+touch src/semantics/z.byn; mkdir src/other; echo > src/other/z.byn; badlist=$(b --list); skiplist=$(b --files src/semantics/a.byn --list); rm -r src/other src/semantics/z.byn
 list_one=$(b --files src/semantics/a.byn --list)
 [ -f $aux/record.txt ] && listran=1 || listran=0
 # a src/driver file is routed to `bayan test --mutate src/driver` (T48c C4): its group is not run, records nothing and fails nothing
@@ -168,6 +168,7 @@ src/semantics/b.byn -> $B
 src/semantics/c.byn -> $B"
 [ "$list" = "$want" ] || fail "--list mapping differs (want a, b, c: the union A|B|C sorted, glob class skipped; p: directory default; emitter/ and emitter/cprint/ one family)" "$list"
 echo "$badlist" | grep -q 'src/other/z.byn' && echo "$badlist" | grep -q 'no test family' || fail "an unknown directory was not a FAIL naming it" "$badlist"
+[ "$skiplist" = "src/semantics/a.byn -> $A" ] || fail "--files a.byn was stopped by a family-less file it did not choose" "$skiplist"
 [ $listran = 0 ] || fail "--list recorded" ""
 [ "$drvlist" = "src/driver/d.byn -> bayan test --mutate src/driver" ] || fail "a src/driver file was not routed to bayan test --mutate src/driver" "$drvlist"
 [ "$drvx" = 0 ] && [ $drvran = 0 ] && echo "$drv" | grep -qxF '== group driver: not run: src/driver/d.byn mutate under `bayan test --mutate src/driver` (spec 019 T48c C4)' || fail "the driver group ran, recorded or failed (rc=$drvx, recorded=$drvran)" "$drv"
@@ -178,7 +179,7 @@ echo "$fill" | grep -q '^mutation: 3 killed, 1 survived, 0 timeout, 1 marked' ||
 [ "$fa" = 0.75 ] && [ "$fp" = 0.75 ] || fail "an empty baseline was not filled (a=$fa p=$fp)" "$fill"
 [ $report = 1 ] || fail "the report was not written to tmp/mutate-batch/semantics/quality-1-prog.json" "$fill"
 [ "$ra" = 1.0 ] || fail "a higher score did not replace the baseline (a=$ra)" "$rise"
-[ "$rrec" = "src/semantics/a.byn $(o "$B")" ] || fail "--files a.byn did not record a with the union filter of its whole group" "$rrec"
+[ "$rrec" = "src/semantics/a.byn $(o "$A")" ] || fail "--files a.byn did not record a with its own filter only" "$rrec"
 echo "$drop" | grep -q '^baseline: mutation score of src/semantics/a.byn fell from 1.0 to 0.5 ' || fail "a drop did not name the file with old and new score" "$drop"
 [ $dropx = 1 ] && [ $dropsame = 1 ] || fail "a drop exited $dropx or changed the baseline" "$drop"
 [ -z "$dropleft" ] && [ "$droprej" = 3 ] || fail "a refused check left accepted reports ($dropleft) or rejected $droprej, not 3 (one per group)" "$drop"
@@ -187,7 +188,7 @@ echo "$drop" | grep -q '^baseline: mutation score of src/semantics/a.byn fell fr
 [ "$sh_files" = "$all_files" ] || fail "the union of --shard 1..3/3 differs from the unsharded files (a file lost or placed twice)" "$sh_files"
 [ "$sh_one" = "src/emitter/cprint/cp.byn src/parser/p.byn src/semantics/a.byn src/semantics/c.byn " ] && [ "$sh_two" = "src/emitter/e.byn src/semantics/b.byn " ] || fail "--shard i mod n split: '$sh_one' / '$sh_two'" ""
 [ "$sh_only" = "src/semantics/a.byn " ] || fail "--files with --shard did not restrict after sharding ('$sh_only')" ""
-[ "$list_one" = "src/semantics/a.byn -> $B" ] || fail "--files a.byn --list did not show the group's union filter" "$list_one"
+[ "$list_one" = "src/semantics/a.byn -> $A" ] || fail "--files a.byn --list did not narrow the filter to a.byn's own" "$list_one"
 echo "$missing" | grep -q '^group parser: report: .*quality-1-prog.json: path parser/nope.byn is no file under the repo root' || fail "a report path that is no file under the root or src/ did not fail the group" "$missing"
 [ "$lockx" = 3 ] && echo "$lockout" | grep -q "mutate-batch: .*tmp/mutate-batch is in use by another run (lock .*, pid $$)" && [ $lockran = 0 ] && [ $lockkept = 1 ] || fail "a live lock did not stop the run with exit 3 (rc=$lockx, ran=$lockran, kept=$lockkept)" "$lockout"
 echo "$stale" | grep -q '^== group parser' && [ $released = 1 ] || fail "a stale lock was not taken over, or the lock outlived the run (released=$released)" "$stale"
