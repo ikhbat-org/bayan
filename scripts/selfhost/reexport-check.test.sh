@@ -2,7 +2,9 @@
 # Tests scripts/selfhost/reexport-check.sh on a scratch repo with a stub `dotnet` (REEXPORT_DOTNET): its `test` logs the filter
 # and copies the classes the filter names from $AUX/export into BAYAN_EXPORT_DIR, less the case in $DROP and plus $AUX/extra
 # when $EXTRA is set. The tree passes; a changed expected file, a missing row and an extra file with a FREEZE.tsv row each fail
-# naming the path; an extra file with no row is listed and passes; a
+# naming the path; an extra file with no row is listed and passes; step 4 alone (REEXPORT_COMPARE) pairs renumbered and
+# duplicated cases by content and a class with no key files by name, masks the P2 mktemp suffix and the T9 programs hash
+# and fails a byte outside either, and names a renumbered case that differs by its tree path; a
 # DIVERGENCES.tsv row (case key or Class.Test) lets its case differ; the seed picks the same classes twice; --full filters to
 # every export class, so a test of no export class does not run; a class whose source names no SelfhostExport type at the head is printed as left out, never compared, and
 # refused by --class; the C# CLI replay (a stub CLI) passes, names a changed expected file, a frozen file it did not write and an
@@ -178,6 +180,51 @@ printf 'file\t%s\ttests/cases/sem/ASemTests/Four/expected.stdout\n' "$(printf 'f
 grep -q "extra (re-exported, not in the tree): tests/cases/sem/ASemTests/Four/expected.stdout" "$tmp/out" || fail "the extra file is not named" "$(cat "$tmp/out")"
 git checkout -q -- tests/cases
 rm -rf tmp/reexport.*
+
+# step 4 alone (REEXPORT_COMPARE=<dir>: <dir>/sel against <dir>/land/cases, no export): a case pairs by its key (section and
+# input.byn.ref, else input.byn.ref and args), of equal keys by content, then by name; a class with no key files by name
+cmp="$tmp/cmp"; lc="$cmp/land/cases"
+ck() { mkdir -p "$1/$2"; [ -z "$3" ] || printf '%s\n' "$3" > "$1/$2/args"; printf '%s\n' "$4" > "$1/$2/expected.${5:-stdout}"; }
+ck tests/cases sem/PairTests/X a x; ck tests/cases sem/PairTests/X-2 b y
+ck tests/cases sem/PairTests/D d d1; ck tests/cases sem/PairTests/D-2 d d2
+ck tests/cases sem/PairTests/S s s; ck tests/cases sem/PairTests/S-9 s s
+ck tests/cases sem/NameTests/N "" n
+ck tests/cases cli/SelfhostDefaultP2Tests/P "" "at /tmp/p2-errors-abc123/x" stderr
+printf 'in /tmp/p2-errors-abc123\n' > tests/cases/cli/SelfhostDefaultP2Tests/P/section
+ck tests/cases cli/SelfhostDefaultT9Tests/T build "cache/v1/programs/$(printf 'a%.0s' $(seq 64))/p" names
+find tests/cases/sem/PairTests tests/cases/sem/NameTests tests/cases/cli/SelfhostDefaultP2Tests tests/cases/cli/SelfhostDefaultT9Tests \
+  -name 'expected.*' | while IFS= read -r p; do printf 'file\t%s\t%s\n' "$(git hash-object "$p")" "$p"; done >> tests/cases/FREEZE.tsv
+cmpland() { rm -rf "$cmp"; mkdir -p "$lc"; printf 'sem/PairTests\nsem/NameTests\ncli/SelfhostDefaultP2Tests\ncli/SelfhostDefaultT9Tests\n' > "$cmp/sel"
+  mkdir -p "$lc/sem" "$lc/cli"; cp -R tests/cases/sem/NameTests "$lc/sem/"
+  cp -R tests/cases/cli/SelfhostDefaultP2Tests tests/cases/cli/SelfhostDefaultT9Tests "$lc/cli/"
+  ck "$lc" sem/PairTests/X b y; ck "$lc" sem/PairTests/X-2 a x
+  ck "$lc" sem/PairTests/D d d2; ck "$lc" sem/PairTests/D-2 d d1
+  ck "$lc" sem/PairTests/S s s; ck "$lc" sem/PairTests/S-4 s s; ck "$lc" sem/PairTests/S-9 s s
+  printf 'at /tmp/p2-errors-xyz789/x\n' > "$lc/cli/SelfhostDefaultP2Tests/P/expected.stderr"
+  printf 'in /tmp/p2-errors-xyz789\n' > "$lc/cli/SelfhostDefaultP2Tests/P/section"
+  printf 'cache/v1/programs/%s/p\n' "$(printf 'b%.0s' $(seq 64))" > "$lc/cli/SelfhostDefaultT9Tests/T/expected.names"; }
+crun() { REEXPORT_COMPARE="$cmp" bash scripts/selfhost/reexport-check.sh > "$tmp/out" 2>&1 && echo 0 || echo $?; }
+cmpland
+[ "$(crun)" = 0 ] && grep -q "9 files compared, 0 on the divergence list, 0 skipped by an os file, 0 failed" "$tmp/out" &&
+  grep -A1 "no manifest row (no L043 row, not compared): 1 files" "$tmp/out" | grep -q "^  tests/cases/sem/PairTests/S-4/expected.stdout$" \
+  || fail "the pairing: renumbered and duplicated cases, the P2 and T9 masks: want exit 0, 9 compared, S-4 listed" "$(cat "$tmp/out")"
+printf 'x!\n' > "$lc/sem/PairTests/X-2/expected.stdout"
+[ "$(crun)" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/sem/PairTests/X/expected.stdout (re-exported as X-2)$" "$tmp/out" \
+  || fail "a renumbered case that differs: want exit 1 and its tree path" "$(cat "$tmp/out")"
+cmpland; rm -rf "$lc/sem/PairTests/D"
+[ "$(crun)" = 1 ] && grep -q "missing from the re-export: tests/cases/sem/PairTests/D-2/expected.stdout$" "$tmp/out" && [ "$(grep -c "PairTests/D" "$tmp/out")" = 1 ] \
+  || fail "a duplicate key with one case dropped: want D-2 missing, D paired" "$(cat "$tmp/out")"
+cmpland; mkdir -p "$lc/sem/NameTests/N-2"; mv "$lc/sem/NameTests/N/expected.stdout" "$lc/sem/NameTests/N-2/"; rm -rf "$lc/sem/NameTests/N"
+[ "$(crun)" = 1 ] && grep -q "missing from the re-export: tests/cases/sem/NameTests/N/expected.stdout$" "$tmp/out" \
+  || fail "a class with no key files pairs by name: want N missing" "$(cat "$tmp/out")"
+cmpland; printf 'at /tmp/p2-errors-xyz789/y\n' > "$lc/cli/SelfhostDefaultP2Tests/P/expected.stderr"
+[ "$(crun)" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/cli/SelfhostDefaultP2Tests/P/expected.stderr$" "$tmp/out" \
+  || fail "the P2 mask: a byte outside the mktemp suffix: want exit 1" "$(cat "$tmp/out")"
+cmpland; printf 'cache/v1/programs/%s/q\n' "$(printf 'b%.0s' $(seq 64))" > "$lc/cli/SelfhostDefaultT9Tests/T/expected.names"
+[ "$(crun)" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/cli/SelfhostDefaultT9Tests/T/expected.names$" "$tmp/out" \
+  || fail "the T9 mask: a byte outside the programs hash: want exit 1" "$(cat "$tmp/out")"
+rm -rf "$cmp" tests/cases/sem/PairTests tests/cases/sem/NameTests tests/cases/cli/SelfhostDefaultP2Tests tests/cases/cli/SelfhostDefaultT9Tests
+git checkout -q -- tests/cases
 
 rep=(--class sem/FunctionTypeTests --class cli/DiagnosticRendererTests --class parse)
 [ "$(run "${rep[@]}")" = 0 ] || fail "the replay: want exit 0" "$(cat "$tmp/out")"
