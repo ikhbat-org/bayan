@@ -3,7 +3,7 @@
 # and copies the classes the filter names from $AUX/export into BAYAN_EXPORT_DIR, less the case in $DROP and plus $AUX/extra
 # when $EXTRA is set. The tree passes; a changed expected file, a missing row and an extra file with a FREEZE.tsv row each fail
 # naming the path; an extra file with no row is listed and passes; step 4 alone (REEXPORT_COMPARE) pairs renumbered and
-# duplicated cases by content and a class with no key files by name, masks the P2 mktemp suffix and the T9 programs hash
+# duplicated cases by content and a class with no key files by name, masks the P2 mktemp suffix and the T9 programs and runtime hashes
 # and fails a byte outside either, and names a renumbered case that differs by its tree path; a
 # DIVERGENCES.tsv row (case key or Class.Test) lets its case differ; the seed picks the same classes twice; --full filters to
 # every export class, so a test of no export class does not run; a class whose source names no SelfhostExport type at the head is printed as left out, never compared, and
@@ -191,7 +191,7 @@ ck tests/cases sem/PairTests/S s s; ck tests/cases sem/PairTests/S-9 s s
 ck tests/cases sem/NameTests/N "" n
 ck tests/cases cli/SelfhostDefaultP2Tests/P "" "at /tmp/p2-errors-abc123/x" stderr
 printf 'in /tmp/p2-errors-abc123\n' > tests/cases/cli/SelfhostDefaultP2Tests/P/section
-ck tests/cases cli/SelfhostDefaultT9Tests/T build "cache/v1/programs/$(printf 'a%.0s' $(seq 64))/p" names
+ck tests/cases cli/SelfhostDefaultT9Tests/T build "cache/v1/programs/$(printf 'a%.0s' $(seq 64))/p cache/v1/runtime/$(printf 'c%.0s' $(seq 64))/r" names
 find tests/cases/sem/PairTests tests/cases/sem/NameTests tests/cases/cli/SelfhostDefaultP2Tests tests/cases/cli/SelfhostDefaultT9Tests \
   -name 'expected.*' | while IFS= read -r p; do printf 'file\t%s\t%s\n' "$(git hash-object "$p")" "$p"; done >> tests/cases/FREEZE.tsv
 cmpland() { rm -rf "$cmp"; mkdir -p "$lc"; printf 'sem/PairTests\nsem/NameTests\ncli/SelfhostDefaultP2Tests\ncli/SelfhostDefaultT9Tests\n' > "$cmp/sel"
@@ -202,7 +202,8 @@ cmpland() { rm -rf "$cmp"; mkdir -p "$lc"; printf 'sem/PairTests\nsem/NameTests\
   ck "$lc" sem/PairTests/S s s; ck "$lc" sem/PairTests/S-4 s s; ck "$lc" sem/PairTests/S-9 s s
   printf 'at /tmp/p2-errors-xyz789/x\n' > "$lc/cli/SelfhostDefaultP2Tests/P/expected.stderr"
   printf 'in /tmp/p2-errors-xyz789\n' > "$lc/cli/SelfhostDefaultP2Tests/P/section"
-  printf 'cache/v1/programs/%s/p\n' "$(printf 'b%.0s' $(seq 64))" > "$lc/cli/SelfhostDefaultT9Tests/T/expected.names"; }
+  printf 'cache/v1/programs/%s/p cache/v1/runtime/%s/r\n' "$(printf 'b%.0s' $(seq 64))" "$(printf 'd%.0s' $(seq 64))" \
+    > "$lc/cli/SelfhostDefaultT9Tests/T/expected.names"; }
 crun() { REEXPORT_COMPARE="$cmp" bash scripts/selfhost/reexport-check.sh > "$tmp/out" 2>&1 && echo 0 || echo $?; }
 cmpland
 [ "$(crun)" = 0 ] && grep -q "9 files compared, 0 on the divergence list, 0 skipped by an os file, 0 failed" "$tmp/out" &&
@@ -220,9 +221,12 @@ cmpland; mkdir -p "$lc/sem/NameTests/N-2"; mv "$lc/sem/NameTests/N/expected.stdo
 cmpland; printf 'at /tmp/p2-errors-xyz789/y\n' > "$lc/cli/SelfhostDefaultP2Tests/P/expected.stderr"
 [ "$(crun)" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/cli/SelfhostDefaultP2Tests/P/expected.stderr$" "$tmp/out" \
   || fail "the P2 mask: a byte outside the mktemp suffix: want exit 1" "$(cat "$tmp/out")"
-cmpland; printf 'cache/v1/programs/%s/q\n' "$(printf 'b%.0s' $(seq 64))" > "$lc/cli/SelfhostDefaultT9Tests/T/expected.names"
-[ "$(crun)" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/cli/SelfhostDefaultT9Tests/T/expected.names$" "$tmp/out" \
-  || fail "the T9 mask: a byte outside the programs hash: want exit 1" "$(cat "$tmp/out")"
+for v in q/r p/s; do
+  cmpland; printf 'cache/v1/programs/%s/%s cache/v1/runtime/%s/%s\n' "$(printf 'b%.0s' $(seq 64))" "${v%/*}" "$(printf 'd%.0s' $(seq 64))" "${v#*/}" \
+    > "$lc/cli/SelfhostDefaultT9Tests/T/expected.names"
+  [ "$(crun)" = 1 ] && grep -q "differs from the frozen compiler: tests/cases/cli/SelfhostDefaultT9Tests/T/expected.names$" "$tmp/out" \
+    || fail "the T9 mask: a byte outside the programs or runtime hash ($v): want exit 1" "$(cat "$tmp/out")"
+done
 rm -rf "$cmp" tests/cases/sem/PairTests tests/cases/sem/NameTests tests/cases/cli/SelfhostDefaultP2Tests tests/cases/cli/SelfhostDefaultT9Tests
 git checkout -q -- tests/cases
 

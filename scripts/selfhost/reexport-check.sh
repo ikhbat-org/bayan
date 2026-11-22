@@ -20,7 +20,8 @@
 #      order), then equal names, the rest in blob-id order, and a case left over is missing or extra; a pair's path is the
 #      tree's name, followed by "(re-exported as <name>)" when the names differ. Masks, on both sides before hashing:
 #      SelfhostDefaultP2Tests section and expected.*, the mktemp suffix p2-errors-XXXXXX; SelfhostDefaultT9Tests
-#      expected.names, the hash in cache/v1/programs/<sha256>/. One that differs, is missing from the re-export or is extra (landed, not in the tree) fails with its path, unless its
+#      expected.names, the hashes in cache/v1/programs/<sha256>/ and cache/v1/runtime/<sha256>/. One that differs, is missing
+#      from the re-export or is extra (landed, not in the tree) fails with its path, unless its
 #      case is on tests/cases/DIVERGENCES.tsv (the case key <kind>/<Class>/<case>, or <Class>.<Test> for <case> <Test> or
 #      <Test>-<n>) or holds an `os` file that does not name this host's OS (macos, linux, windows); both are counted. A landed
 #      file with no FREEZE.tsv row and not in the tree (a case the owner removed) is no L043 row: it is listed, not failed.
@@ -75,7 +76,7 @@ compare() {
   while IFS="$tab" read -r k f t; do
     case $k in
       (p2) sed -E 's/p2-errors-[A-Za-z0-9]{6}/p2-errors-<tmp>/g' "$f" > "$t" ;;
-      (t9) sed -E 's|cache/v1/programs/[0-9a-f]{64}/|cache/v1/programs/<sha>/|g' "$f" > "$t" ;;
+      (t9) sed -E 's#cache/v1/(programs|runtime)/[0-9a-f]{64}/#cache/v1/\1/<sha>/#g' "$f" > "$t" ;;
     esac
   done < "$s/masks"
   : > "$s/hashed"
