@@ -11,8 +11,8 @@
 # a file with none left uses SelfhostSemantics, SelfhostParser, SelfhostLexer, SelfhostEmitter or SelfhostDriver; another directory fails. One group per family and shard (Q910):
 # its filter is the union of its files' filters, so the tests are recorded once per (shard, family); src/emitter/ and its subdirectories are one family.
 # --list prints file -> group filter and runs nothing; --shard k/n gives file i of each family to shard (i mod n)+1; --files narrows
-# which files are mutated (BAYAN_SNAPSHOT_FILES) but each group keeps the union filter of all its (shard's) files, the one a full run
-# raised the baseline with.
+# which files are mutated (BAYAN_SNAPSHOT_FILES) and the group filter to the union of those files' filters, so a narrowed run
+# does not replay tests that never reach its files (run 45002232186: shard 4 hit the 6 h limit on json.byn under the law tests).
 # Per group: reports and logs in tmp/mutate-batch/<group>/ (quality-<n>-<binary>.json), bayan mutate's summary printed. A group
 # whose CLI, recording or mutant 0 fails is named and fails the run. Then quality-baseline check over the reports: a score
 # below the baseline names the file with old and new score and exits 1 with the baseline untouched; else `update` raises it.
