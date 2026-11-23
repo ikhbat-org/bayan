@@ -45,13 +45,6 @@ jobs:
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$ref"
           git checkout -q --detach FETCH_HEAD
           echo "llm-eval-nightly: $ref at $(git rev-parse HEAD)"
-      # Replaces actions/setup-dotnet: the SDK pinned in install-dotnet.sh, sha512-checked. pinned-bayan.sh builds the CLI with it.
-      - name: Install .NET SDK
-        shell: bash
-        run: |
-          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
-          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
-          echo "$dotnet_root" >> "$GITHUB_PATH"
       # The scorer copies zig into its tools directory and compiles every reference with it; no runner image has it.
       - name: Install zig
         shell: bash
