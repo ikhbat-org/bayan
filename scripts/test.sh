@@ -63,17 +63,17 @@ if [ -n "${ZIG_GLOBAL_CACHE_DIR:-}" ]; then
   export ZIG_GLOBAL_CACHE_DIR
 else
   export ZIG_GLOBAL_CACHE_DIR="$root/tmp/zig-global"
-  # Its o/ keeps the newest 2000 entries, past them only those written in the last 10 minutes (a concurrent zig cc), as the
-  # driver trims its own (zigCacheEntries, zigCacheMinAge in src/driver/cache.byn). A caller's directory is the caller's to trim.
+  # When its o/ holds more than 2000 entries, it trims to the newest 1500 plus any written in the last 10 minutes (a concurrent
+  # zig cc), as the driver trims its own (zigCacheEntries, zigCacheMinAge in src/driver/cache.byn, keeping limit - limit/4).
+  # A caller's directory is the caller's to trim.
   # Only entries holding nothing but main/bayan-rt objects go, as zigDriverObject: zig's toolchain pieces (libcompiler_rt.a, libc,
   # crt) are built once and read by every later link through h/, so removing one fails that link with FileNotFound.
   # A manifest in h/ names its inputs, not its o/ entry, so a hit on one whose entry is gone fails FileNotFound; a manifest gone
   # is only a miss. So before any o/ entry goes, every manifest naming main.c or bayan-rt.c goes, as zigTrimEntries does.
   zig_o="$ZIG_GLOBAL_CACHE_DIR/o"
   zig_h="$ZIG_GLOBAL_CACHE_DIR/h"
-  if [ -d "$zig_o" ]; then
-    zig_keep=$(( $(find "$zig_o" -mindepth 1 -maxdepth 1 -mmin -10 | wc -l) ))
-    [ "$zig_keep" -gt 2000 ] || zig_keep=2000
+  if [ -d "$zig_o" ] && [ $(( $(ls -A "$zig_o" | wc -l) )) -gt 2000 ]; then
+    zig_keep=$(( 1500 + $(find "$zig_o" -mindepth 1 -maxdepth 1 -mmin -10 | wc -l) ))
     zig_gone=""
     while IFS= read -r e; do
       [ -d "$zig_o/$e" ] && [ ! -L "$zig_o/$e" ] || continue
@@ -86,12 +86,16 @@ EOF
     if [ -n "$zig_gone" ]; then
       if [ -d "$zig_h" ]; then
         # A whole file name, as zigNamesBytes: after / \ or a space, before a line end, NUL or EOF (zig 0.17 ends a path
-        # with NUL, so tr makes it a line end), so zig's own gccmain.c, dllmain.c, __libc_start_main.c stay. LC_ALL=C: under a
-        # UTF-8 locale BSD tr stops at the first byte that is not UTF-8, and a manifest holds such bytes. One batched grep picks
-        # the candidates, so tr and the exact match run only on manifests that name one of the two files.
-        find "$zig_h" -type f -exec env LC_ALL=C grep -l -a -E '[/\\ ](main|bayan-rt)\.c' {} + | while IFS= read -r m; do
-          LC_ALL=C tr '\000\r' '\n\n' < "$m" | LC_ALL=C grep -q -a -E '[/\\ ](main|bayan-rt)\.c$' && rm -f "$m"
-        done
+        # with NUL, so tr makes it a line end), so zig's own gccmain.c, dllmain.c, __libc_start_main.c and main.c.o stay.
+        # LC_ALL=C: under a UTF-8 locale BSD tr stops at the first byte that is not UTF-8, and a manifest holds such bytes.
+        # One batched grep -H -o captures the file name, the match and one trailing byte; tr turns NUL/CR into LF so only
+        # whole-name matches end the line at .c.
+        find "$zig_h" -type f -exec env LC_ALL=C grep -H -o -a -E '[/\\ ](main|bayan-rt)\.c.?' {} + \
+          | LC_ALL=C tr '\000\r' '\n\n' \
+          | LC_ALL=C sed -n -E 's#:[/\\ ](main|bayan-rt)\.c$##p' \
+          | LC_ALL=C sort -u \
+          | LC_ALL=C tr '\n' '\0' \
+          | xargs -0 rm -f
       fi
       printf '%s' "$zig_gone" | while IFS= read -r e; do
         [ -n "$e" ] && rm -rf "${zig_o:?}/$e"

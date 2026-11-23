@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: Branch, tag or commit to re-check
+        description: Branch, tag or commit to re-check (e95baa653 or newer; no .NET on runner)
         type: string
         default: dev
 
@@ -44,6 +44,10 @@ jobs:
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$ref"
           git checkout -q --detach FETCH_HEAD
+          if ! grep -q 'bootstrap/bayan\.c' scripts/pinned-bayan.sh 2>/dev/null; then
+            echo "llm-eval-nightly: ref '$ref' ($(git rev-parse --short HEAD)) predates e95baa653 (pinned-bayan without .NET); pass e95baa653 or newer" >&2
+            exit 1
+          fi
           echo "llm-eval-nightly: $ref at $(git rev-parse HEAD)"
       # The scorer copies zig into its tools directory and compiles every reference with it; no runner image has it.
       - name: Install zig

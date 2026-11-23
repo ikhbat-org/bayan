@@ -7,7 +7,7 @@ release: unscheduled
 sources: spec 024 R3
 kind: property
 scope: src/sabk/enc/encode.byn, src/sabk/testdata/encodings.tsv
-proof: src/tests/SabkLawTests.cs
+proof: scripts/sabk/l046.sh
 check: bash scripts/sabk/l046.sh
 ---
 
