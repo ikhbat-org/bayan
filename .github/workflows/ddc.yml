@@ -11,7 +11,7 @@ on:
     - cron: '0 5 * * 1'
   workflow_dispatch:
     inputs:
-      ref: { description: 'Frozen ref', required: false, default: 'csharp-final' }
+      ref: { description: 'Frozen ref', required: false, default: 'v0.3.2' }
       full: { description: 'Re-export every class (L043), not the weekly sample', type: boolean, required: false, default: false }
   # release.yml calls it: the job is required by a release.
   workflow_call:
@@ -31,8 +31,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: ${{ inputs.full && 300 || 60 }}
     env:
-      # csharp-final: the last commit with the C# compiler (spec 019 R31, T65).
-      DDC_REF: ${{ inputs.ref || 'csharp-final' }}
+      # v0.3.2 (the C# oracle freeze) until the owner tags csharp-final (T65); T65 switches both defaults.
+      DDC_REF: ${{ inputs.ref || 'v0.3.2' }}
     steps:
       # Same shell checkout as ci.yml: the exact commit at depth 1, plus the frozen tag ddc.sh archives. The repo is public, so no token.
       - name: Checkout
