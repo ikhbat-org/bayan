@@ -20,7 +20,7 @@ unix=(scripts/ci/bash32-parse.test.sh scripts/ci/install-zig.test.sh scripts/ci/
   scripts/quality/coverage.test.sh
   scripts/quality/converters.test.sh scripts/ci/input-blobs.test.sh
   scripts/dotnet-env.test.sh scripts/ci/llm-eval-smoke.test.sh
-  scripts/sabk/record-encodings.test.sh scripts/sabk/record-macho.test.sh scripts/sabk/record-skip.test.sh)
+  scripts/sabk/record-encodings.test.sh scripts/sabk/record-macho.test.sh scripts/sabk/record-skip.test.sh scripts/sabk/sabk.test.sh)
 slow=(scripts/evals/llm-eval.test.sh scripts/evals/llm-sandbox.test.sh)  # minutes each: CI only, not before a push
 docs=(scripts/release/set-version.test.sh scripts/release/cut.test.sh scripts/docs/*.test.sh scripts/docs/check.sh)
 groups=("$@"); [ ${#groups[@]} -gt 0 ] || groups=(unix docs)
