@@ -217,7 +217,8 @@ i64 t11Line(in List<u8> text, at i64 offset) {
     return line
 }
 
-/// The first option of `o` that `t11Golden` does not read (it reads `--only`, `--jobs`, `--json` and `--mode`), or null.
+/// The first option of `o` that `t11Golden` does not read (it reads `--only`, `--jobs`, `--json` and `--mode`), or null. `--diagnostics text`
+/// and a bare `--` leave `o` as without them, so they pass.
 string? t11GoldenUnsupported(in T11Options o) {
     return "--coverage" if o.coverage
     return "--base" if o.baseRef is not null
@@ -226,6 +227,9 @@ string? t11GoldenUnsupported(in T11Options o) {
     return "--package" if o.package is not null
     return "--mutate" if o.mutate
     return "-v" if o.verbose
+    return "--all" if o.all
+    return "--diagnostics" if o.json
+    return "--" if o.programArgs.length > 0
     return null
 }
 
@@ -1163,16 +1167,19 @@ test "a cases directory refuses each option the golden run does not read, and ke
         ["--mutate"],
         ["-v"],
         ["--verbose"],
+        ["--all"],
+        ["--diagnostics", "json"],
+        ["--", "x"],
     ]
-    let named: List<string> = ["--coverage", "--changed", "--base", "--run", "--package", "--mutate", "-v", "-v"]
+    let named: List<string> = ["--coverage", "--changed", "--base", "--run", "--package", "--mutate", "-v", "-v", "--all", "--diagnostics", "--"]
     var exits = List<i32>()
     var names = List<string>()
     for k in 0..refused.length {
         var args = List<string>()
+        args.append(dir)
         for a in refused[k] {
             args.append(a)
         }
-        args.append(dir)
         if (t11ParseBuildOptions(in args) is { } o) {
             names.append(t11GoldenUnsupported(in o) ?? "-")
         }
