@@ -1225,3 +1225,54 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - scripts/selfhost/mutation-step.sh:54-57: a full run (no --files) still mutates every file of a group against every build in the manifest, even builds whose recorded runs never reach the file (run 45002232186: json.byn builds 2-19, 0 killed each, 81+ min). Needs a per-build skip when the runs do not cover the file (T44b).
 - 019 T67 prerequisite (dry run 2026-11-23, tmp/t67-dryrun.log): src/driver/cinventory.byn:240 ciHits reads csharp/Bayan.Backend.C/CEmitter.cs and ciRead panics on a missing file (:28); its test block (:327) runs in scripts/test.sh, so T68 fails after the removal. Needs its own commit before T67 (drop the file from the list and CEmitter-only rows of 011-c-inventory.md). T67 text names tests/Bayan.Tests/, which is csharp/tests/Bayan.Tests.
 - golden.byn:3444 the bound-failure message hardcodes "step 4" instead of the run's job count (seen 2026-11-23, golden-bound macOS debug).
+- 019 full review LOWs (2026-11-23, range 16729ccae..feat/019, logs tmp/review019/; fixing task: T69c or 019b follow-up unless named):
+  - src/driver/test.byn:288-295: `--jobs` accepts up to 2147483647, and `goldenJobs` (golden.byn:1421) caps it only at the case count.
+  - src/driver/golden.byn:197-204: The sort looks each name up in `found` and takes the first match.
+  - src/driver/golden.byn:1204-1215: The `--only` no-match check runs before the shard is validated.
+  - src/driver/golden.byn:2355: `goldenEmit` never checks the `exit` it passes to `goldenBynCases`.
+  - src/driver/golden.byn:651-654: The copy is placed outside `tmp/l009` only when `Path.relative` returns a `../` path.
+  - src/driver/progress.byn:258-263: The test named "the timer cycles frames then clears" never checks that frames cycle. `frame >= 1 && shown` holds after a single tick.
+  - src/driver/goldenprograms.byn:194 (with :163): If a package source cannot be read, it is staged as an empty file (`catch List<u8>()`), and the cache key also hashes `""` for it (:163).
+  - src/driver/goldenexport.byn:539 (also :1448, :2611): `Io.run("chmod", …)` is called as `let _ =`: only a failure to start chmod is caught, and its exit code is ignored.
+  - src/driver/goldenexport.byn:412, :420: When an input file cannot be read, `Io.readFile(...) catch List<u8>()` writes an empty file in its place and sets no `failure`.
+  - src/driver/cinventory.byn:357: The `--emit-c` child runs through bare `Io.run`, with no timeout and without `goldenEnv`. That differs from every other child in these files, which goes through `goldenChild` with a deadline and `BAYAN_CACHE=tmp/cache`.
+  - src/driver/mapmodel.byn:531: All 8 `@cases` of "index panics exactly for non-live keys" share one directory, tmp/map-model/l003-index, and each case deletes it first and last. The C# version used a per-run GUID work directory.
+  - src/driver/mutate.byn:670: the work directory name is predictable (monotonic nanoseconds, where the existing route uses `t9Unique`), and the code runs `deleteWorkDir` then `createDirectory` with a gap between them in a shared `/tmp`.
+  - src/driver/build.byn:165 (t5CoverageReport): `--counters <prefix>` merges every `<prefix>.*` file it finds and never removes them. Counter ids are not tied to the build that wrote them.
+  - src/driver/build.byn:117 (t5Source with `--coverage`): with no `-o`, the instrumented program and its C go to the same `out/<mode>/<target>/` path as a plain build.
+  - runtime/bayan-rt.c:4014: `drain_error = GetLastError()` runs after `WaitForSingleObject` returned WAIT_TIMEOUT, which does not set the last error.
+  - runtime/bayan-rt.c:3157 (byn_io_remove, Windows): `byn_path_full` panics through `byn_path_fail` when `GetFullPathNameW` fails. Before this change the call returned an IoError.
+  - src/driver/cache.byn:778 (zigCacheEnvFor): only `o/` is trimmed, and `<cache>/zig` sits outside `t9Evict`'s data directory, so `BAYAN_CACHE_MAX_MB` does not count it.
+  - src/driver/mutate.byn:748-751 (`mutateWorker`): A worker that cannot start the command for one site returns `exitFailure` and drops all of its remaining sites.
+  - src/driver/mutate.byn:219-224: An empty `BAYAN_MUTATE_JOBS` (set but "") is treated as invalid, not as unset.
+  - src/driver/cache.byn:485-511: `<cache>/zig` is bounded only by the `o/` entry count. `h/`, `z/` and `tmp/` are never trimmed, and none of it counts toward `BAYAN_CACHE_MAX_MB`, since `evictWith` only looks at `v1`.
+  - src/driver/bounds.byn:247-254 (`boundEvictCase`): `t9Evict(...) catch {}` swallows the error and the test compares only the names left.
+  - editors/language-server/src/workspace/workspace.byn:914: The walk matches `.byn` names with `isBynName(name, as: caseless)`, and `caseless` is true on macOS. As far as I know, .NET `EnumerateFiles("*.byn")` matches case-sensitively on all Unix systems, macOS included.
+  - editors/language-server/src/server/server.byn:649-655: `indexUri` indexes only URIs that `parseUri` returns as `.file`. The C# `IndexUri` (Server.cs) indexes `new Uri(uri).LocalPath` for any scheme that parses.
+  - editors/language-server/sessions/record.sh:22-23,52-58: With `BAYAN_LSP` unset, record.sh still builds `Bayan.LanguageServer.csproj` with dotnet.
+  - editors/language-server/sessions/record.sh:89 (reader thread): `int(v)` on a Content-Length the server sends that is not a number raises an exception, which kills the reader thread silently.
+  - editors/language-server/sessions/l044.law.test.sh: Nothing in `.github/workflows` or `scripts` refers to `l044.law.test.sh` or `record.test.sh`. Only release.yml builds bayan-lsp.
+  - editors/language-server/src/bounds/bounds.byn:12-19: `fresh()` deletes and recreates fixed directories `tmp/lsp-bounds/<name>` relative to the process's current directory.
+  - scripts/ci/nightly-modes.sh:60,67: It does `rm -rf "$out"` / `rm -rf "$work"` on fixed paths under tmp/nightly-modes.
+  - scripts/release/peak-rss.sh:13: It polls `while [ ! -s "$exitf" ]` and the background subshell writes exitf. There is no exit when the subshell dies without writing it, and no trap kills the measured PID.
+  - scripts/pinned-bayan.sh:36: It hardcodes `${CC:-cc} ... -lm`, with no zig fallback and no Windows libs (bootstrap-build.sh adds -lshell32). It also reuses `.cache/bayan/<sha>` under the unchanged key.
+  - scripts/test.sh (zig cache trim): It does `rm -rf` on entries in the shared `$root/tmp/zig-global/o` beyond the newest 2000 or older than 10 min, with no lock.
+  - scripts/selfhost/land.sh:93-95: The regen step hardcodes `tmp/bootstrap/stage1/bayan` with no `.exe` suffix.
+  - .github/workflows/laws-nightly.yml:112: `sed -n 's/^check: //p' docs/laws/028-*.md` takes every `check:` line in the file, not just the front matter (pre-push-laws.sh uses front()).
+  - scripts/selfhost/pre-push-laws.sh (L043 check -> reexport-check.sh): Without BAYAN_LAWS_LEFT, the full tier runs reexport-check, which exits 1 when dotnet is missing.
+  - .github/workflows/release.yml (bayan-lsp build step), scripts/dist.sh: bayan-lsp is built with no `--mode`, while bayan itself is built with `--mode safe`.
+  - scripts/quality/coverage.sh: It writes into src/out/test and then does `rm -rf src/out/test`.
+  - scripts/ci/golden-commit-check.sh:31: `grep -oE` consumes the boundary character on both sides of a match, so a hex token right after another matched token loses its leading boundary and is skipped
+  - scripts/ci/nightly-modes.sh:181: `got` is set to "" when the exit code is 0, but `want` keeps the literal "0" read from the .exitcode file
+  - scripts/pinned-bayan.sh:36: `"${CC:-cc}"` is quoted, so it is never split into words, and `-lm` is hardcoded with no Windows library. bootstrap-build.sh splits CC and adds -lshell32 on Windows
+  - scripts/selfhost/reexport-check.sh:239: `sed 's\
+  - scripts/selfhost/reexport-check.sh:300-334: When both `sel` and `runits` are empty, the script still prints "ok" with nothing compared, although its header says "nothing checked is never a pass"
+  - scripts/selfhost/mutation-step.sh:32: The BAYAN_SNAPSHOT recording run does not unset BAYAN_TEST_SHARD
+  - scripts/ci/libc-inventory-check.sh:56: The `pending` (name at end of line) and `def_open` state is not reset at FNR==1, only `state` and `out` are
+  - scripts/ci/libc-inventory-check.sh:50: A name is skipped when the character before it is `.` or `>`, so `a >foo(x)` (comparison with no space) drops the call, not only `->foo(`
+  - scripts/selfhost/guard.sh:77: The "0 skipped" check only greps the `skip` summary lines of scripts/test.sh
+  - src/driver/build.byn:340 (claim cites :172) (confirmed, LOW): New on this branch; the C# has no `--counters`. `bayan-stage1 build cov/main.byn --coverage --counters typo/cov` printed "coverage: lines 0/1 (0%)…" with no warning. From the code, `Io.listDir(dir) catch List<string>()` and an empty match set both pass silently. A failing gate then exits 3, which fails closed.
+  - src/driver/mutate.byn:670 (confirmed, LOW): New on this branch; the C# mutation runner has no jobs mode. The `?? panic(...)` at mutate.byn:643 comes before the only `deleteWorkDir(dir)` (line 649), and the prefix list in `sweepStale` (cache.byn:985) is `bayan-coverage-`, `bayan-mutate-` and `bayan-asan-`. A grep of src, docs and scripts finds `mutjobs` only at line 670. It leaks only on a crash or kill, and the files are small.
+  - src/driver/mutate.byn:626 (confirmed, LOW): New on this branch, not in the C#. `timeout = t13ExternalLimit(baseline.elapsedNanos)` comes from the serial mutant-0 run and is passed unchanged to `t13Workers`. The `--jobs` parsing (mutate.byn:198) has no cap at the core count, and the quality.byn:992 test shows that `gatesMutation` counts timeouts as detected. This was not run: it needs more workers than cores, or heavy contention. Example: a 10 s CPU-bound command gets a 20 s limit, but with 4× oversubscription each survivor takes about 40 s and counts as `.timeout`.
+  - src/driver/golden.byn:1096 (confirmed, LOW): the deadline is compared at :1096, after the `goldenSnapshot` loop at :1091-1095 re-reads every expected file, so that read time counts against the case; the window is the cost of reading a few files, small next to how much a case's own run time varies, so the flakiness it adds is marginal; new on this branch (the function is absent on dev)
+  - src/driver/golden.byn:1219-1236 vs 1519-1541 (confirmed, LOW): with tmp/ref019-golden/c4/run holding `a`, `a<TAB>b`, `c` (expected output WRONG) and `d`, `--jobs 2` reported "run/c: worker stopped on it" and put c's diff (`c.stdout expected WRONG`) under run/d, while `--jobs 1` was correct; it needs a case file name with a tab or newline, and the default is `--jobs 4`; new on this branch
