@@ -1,4 +1,5 @@
 # Dropoff: what the Rein IDE core needs from Bayan (concurrency first)
+Status: open (taken up by spec 027)
 Release: unscheduled
 Sources: Rein IDE redesign, `extrode.com/rein` (2026-11-23)
 
