@@ -8,7 +8,7 @@ enacted: 2026-10-26
 amended: 2026-11-20
 kind: property
 scope: src/parser/main.byn
-proof: src/tests/SelfhostParserEquivalenceLawTests.cs
+proof: scripts/ci/bootstrap-check.sh
 check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'parse/'
 timeout: 1800
 ---
@@ -38,3 +38,6 @@ Q506: 4 candidates (1 seed A, 3 seed B) make `SyntaxTree.Parse`/`AstDump.Dump` t
 Run time: 11.3 s of test time (16 s wall including the build) on 2026-10-26.
 
 Mutation: `src/parser/dump2.byn:33`, the `.add` arm of `binaryText`. `.add => "+"` changed to `.add => "-"` (one `BinaryOp` text swapped with `.sub`'s, which stays on the next line). `Law=L017` failed: `BayanParseEqualsTheCParserOnEveryInput`, on `parse/contextual-keywords.byn` (written as `tmp/l017/parse/00010.byn`), first difference at dump line 49, expected `(+ …)` and actual `(- …)`. Restored with `cp tmp/l017/dump2-backup.byn src/parser/dump2.byn`; `cmp` was clean and the rerun passed. `src/parser/dump2.byn` is unchanged in the tree.
+
+## Proof since 019b
+Since spec 019b (2026-11-24) the proof is the `check:` command, which runs with no .NET (spec 019 R18). The C# test `src/tests/SelfhostParserEquivalenceLawTests.cs` this law cited before is at the tag `csharp-final`.

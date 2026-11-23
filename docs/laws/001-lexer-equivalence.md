@@ -6,7 +6,7 @@ release: 0.1.0
 sources: none recorded
 kind: property
 scope: src/lexer/lexer.byn
-proof: src/tests/SelfhostLexerTests.cs
+proof: scripts/ci/bootstrap-check.sh
 check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'lex/'
 timeout: 1800
 enacted: 2026-10-20
@@ -21,3 +21,6 @@ Kept from the statement in force before 2026-11-20, for `bayan-lex` alone: it re
 
 ## Counterexample looks like
 An input `let é = 1;` written with `e` + U+0301 where the C# JSON dump has a BYN0005 diagnostic with fix `é` and the Bayan JSON dump has none, or the two dumps differ in one token's span.
+
+## Proof since 019b
+Since spec 019b (2026-11-24) the proof is the `check:` command, which runs with no .NET (spec 019 R18). The C# test `src/tests/SelfhostLexerTests.cs` this law cited before is at the tag `csharp-final`.

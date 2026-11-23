@@ -1,6 +1,7 @@
 #!/bin/bash
 # Builds and runs each C driver under runtime/tests/ against bayan-rt.c, with no .NET. The build lines and pass
-# conditions follow csharp/tests/Bayan.Tests (RuntimeNativeTests, StdPathTests, L005RunBatchTests).
+# conditions follow the C# tests at tag csharp-final (RuntimeNativeTests, StdPathTests, L005RunBatchTests). It is the check: of
+# laws L005 and L026.
 # Compiler: $CC, else cc, else zig cc. Exits non-zero when any file fails.
 # BAYAN_RT_CASES overrides the fixture directory (tests/cases).
 here=$(cd "$(dirname "$0")" && pwd)

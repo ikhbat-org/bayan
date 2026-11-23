@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# The check: of laws L001, L004, L011, L014, L017, L026 and L028 runs golden selectors with the stage-1 binary this script builds.
 # Bootstrap freshness and chain (spec 019 R26, R36), with no .NET: bootstrap/bayan-rt.h and bayan-rt.c are runtime/'s, and
 # bootstrap/bayan.c is the C that src/driver emits (`build --emit-c --mode safe --package src src/driver`) when built by
 # the previous commit's bootstrap. Stage 0 is scripts/pinned-bayan.sh at that commit (cc on its bootstrap/bayan.c);
