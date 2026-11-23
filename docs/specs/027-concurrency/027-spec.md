@@ -1,5 +1,7 @@
 # 027 — Concurrency: `scope`, `spawn`, cancellation, streamed child processes
 Status: draft
+Release: 0.5.0 (phase 1)
+Sources: `docs/bayan-concurrency.md` (design R1–R7, confirmed 2026-11-01); owner decisions 2026-11-23 (D1–D8)
 Created: 2026-11-23
 
 Design source: `docs/bayan-concurrency.md` (confirmed 2026-11-01, decisions design R1–R7, cited with "design" so they
