@@ -1,4 +1,6 @@
 # Dropoff: what the Rein IDE core needs from Bayan (concurrency first)
+Release: unscheduled
+Sources: Rein IDE redesign, `extrode.com/rein` (2026-11-23)
 
 From: `extrode.com/rein`. The IDE redesign (`rein/docs/research/ide-redesign/2026-11-23-prototypes/README.md`)
 puts a Bayan program under the web UI as its core: workspace files, search, git, processes and the UI protocol.
