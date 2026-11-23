@@ -65,6 +65,7 @@ arc4random_buf
 atoi
 calloc
 chdir
+clearerr
 clock_gettime
 close
 closedir
@@ -83,7 +84,9 @@ fputc
 fputs
 fread
 free
+fseek
 fstat
+ftell
 ftruncate
 fwrite
 getcwd
