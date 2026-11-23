@@ -187,7 +187,7 @@ test "decode refuses broken text with the bad byte offset" (string input, string
 }
 """
 
-const stdSource2: string = """// Tests of Fs.copy, Fs.modified, Fs.setModified and Fs.realPath, over files the tests build in tmp/ below the working
+const stdSource2: string = """// Tests of Fs.copy, Fs.modified, Fs.fileSize, Fs.setModified and Fs.realPath, over files the tests build in tmp/ below the working
 // directory. Ported from StdFsTests; the expected values are the literals of that class.
 
 /// Makes `dir` an empty directory: removes what an earlier run left (with `rm`; none on Windows, where the leftovers stay).
@@ -293,6 +293,23 @@ test "write-times-match-dotnet" {
     // A missing path fails both, as File.SetLastWriteTimeUtc does.
     assert stamped("tmp/fs-times/missing", to: nanos) == "notFound"
     assert modifiedNanos("tmp/fs-times/missing") == -1
+}
+
+test "file-size-is-the-byte-count" {
+    let work = "tmp/fs-size"
+    fresh(work)
+    let file = "tmp/fs-size/file.txt"
+    Io.writeFile(file, "seven b".bytes) catch { assert false }
+    let size = Fs.fileSize(file) catch switch {
+        _ => -1,
+    }
+    assert size == 7
+    // A missing path is notFound.
+    let missing = Fs.fileSize("tmp/fs-size/missing") catch switch {
+        .notFound => -2,
+        _ => -1,
+    }
+    assert missing == -2
 }
 
 test "real-path-matches-dotnet" {

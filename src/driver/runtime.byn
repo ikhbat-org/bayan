@@ -629,6 +629,9 @@ uint32_t byn_fs_copy(byn_str path, byn_str dest);
 /* `Fs.modified`: the last write time. `out` may be NULL. */
 uint32_t byn_fs_modified(byn_str path, byn_time* out);
 
+/* `Fs.fileSize`: the size in bytes, without reading the file (`stat`, `GetFileAttributesExW`). `out` may be NULL. */
+uint32_t byn_fs_size(byn_str path, int64_t* out);
+
 /* `Fs.setModified`: sets the last write time (and leaves the access time). */
 uint32_t byn_fs_set_modified(byn_str path, byn_time t);
 
@@ -4086,6 +4089,29 @@ uint32_t byn_fs_modified(byn_str path, byn_time* out) {
     int64_t sec = st.st_mtim.tv_sec, nsec = st.st_mtim.tv_nsec;
 #endif
     if (out) out->nanos = sec * 1000000000 + nsec;
+    return 0;
+#endif
+}
+
+uint32_t byn_fs_size(byn_str path, int64_t* out) {
+    if (byn_has_nul(path)) return BYN_IO_INVALID_INPUT;
+#ifdef _WIN32
+    wchar_t* w = byn_wide(path.ptr, path.len);
+    WIN32_FILE_ATTRIBUTE_DATA a;
+    BOOL ok = GetFileAttributesExW(w, GetFileExInfoStandard, &a);
+    DWORD e = ok ? 0 : GetLastError();
+    free(w);
+    if (!ok) return byn_win_error(e);
+    if (out) *out = (int64_t)(((uint64_t)a.nFileSizeHigh << 32) | a.nFileSizeLow);
+    return 0;
+#else
+    char* c = byn_cstr(path);
+    struct stat st;
+    int rc = stat(c, &st);
+    int e = rc == 0 ? 0 : errno;
+    free(c);
+    if (rc != 0) return byn_io_error(e);
+    if (out) *out = (int64_t)st.st_size;
     return 0;
 #endif
 }

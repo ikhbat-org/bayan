@@ -697,6 +697,7 @@ List<string> t23Builtin(BuiltinFunction f) {
         or .fsRename
         or .fsCopy
         or .fsModified
+        or .fsFileSize
         or .fsSetModified
     return ["process", "alloc"] if f is .ioRun or .ioRunBatch
     return ["console", "alloc"] if f == .ioStdinReadAllBytes

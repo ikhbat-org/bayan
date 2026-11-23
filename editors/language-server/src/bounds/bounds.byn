@@ -49,6 +49,12 @@ string touch(string root, at string rel, as string text = "f() {}\n") uses alloc
     return path
 }
 
+/// Whether `path` can be read.
+bool readable(string path) uses alloc, fs {
+    let _ = Io.readFile(path) catch { return false }
+    return true
+}
+
 string uriOf(string root, at string rel) uses alloc => workspace.fileUri(Path.combine(root, rel))
 
 /// The file names of the documents held, sorted.
@@ -221,6 +227,32 @@ test "closing a buffer removes it when its disk file is under .worktrees/ or ove
     let n = names(ref ws)
     assert(n.length == 1 && n[0] == "kept.byn")
     assert(ws.charCount == 7)
+}
+
+test "a file over the per-file limit (maxFileBytes + 1 bytes) is rejected by its size, unread: an unreadable one is still removed" {
+    if Target.os == "windows" {
+        todo("`chmod 000` makes the file unreadable; Windows has no chmod")
+    }
+    let root = fresh("sized-unread")
+    let big = touch(root, at: "src/big.byn", as: "x".repeated(8))
+    var ws = workspace.Workspace.create()
+    ws.maxFileBytes = 32
+    ws.indexFolder(root)
+    assert(ws.slots().length == 1)
+    Io.writeFile(big, "x".repeated(33).bytes) catch { panic($"cannot write {big}") }
+    // Unreadable, so a full read fails and keeps the previous document; only the size check removes it.
+    var args = List<string>()
+    args.append("000")
+    args.append(big)
+    let _ = Io.run("chmod", args.span) catch { panic("cannot run chmod") }
+    let unreadable = !readable(big)
+    let _ = ws.loadFromDisk(big)
+    args[0] = "644"
+    let _ = Io.run("chmod", args.span) catch { panic("cannot run chmod") }
+    if !unreadable {
+        todo("`chmod 000` did not stop a read (running as root?)")
+    }
+    assert(ws.slots().length == 0)
 }
 
 test "the folder walk enters no hidden directory, tmp or build output (the incident: a whole tree and its mutants indexed)" {

@@ -685,6 +685,8 @@ public string call(
             return $"byn_fs_copy({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])})"
         case .fsModified:
             return $"byn_fs_modified({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
+        case .fsFileSize:
+            return $"byn_fs_size({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
         case .fsSetModified:
             let path = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
             return $"byn_fs_set_modified({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])})"

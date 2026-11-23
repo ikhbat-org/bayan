@@ -627,6 +627,9 @@ uint32_t byn_fs_copy(byn_str path, byn_str dest);
 /* `Fs.modified`: the last write time. `out` may be NULL. */
 uint32_t byn_fs_modified(byn_str path, byn_time* out);
 
+/* `Fs.fileSize`: the size in bytes, without reading the file (`stat`, `GetFileAttributesExW`). `out` may be NULL. */
+uint32_t byn_fs_size(byn_str path, int64_t* out);
+
 /* `Fs.setModified`: sets the last write time (and leaves the access time). */
 uint32_t byn_fs_set_modified(byn_str path, byn_time t);
 

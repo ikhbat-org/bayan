@@ -3450,6 +3450,29 @@ uint32_t byn_fs_modified(byn_str path, byn_time* out) {
 #endif
 }
 
+uint32_t byn_fs_size(byn_str path, int64_t* out) {
+    if (byn_has_nul(path)) return BYN_IO_INVALID_INPUT;
+#ifdef _WIN32
+    wchar_t* w = byn_wide(path.ptr, path.len);
+    WIN32_FILE_ATTRIBUTE_DATA a;
+    BOOL ok = GetFileAttributesExW(w, GetFileExInfoStandard, &a);
+    DWORD e = ok ? 0 : GetLastError();
+    free(w);
+    if (!ok) return byn_win_error(e);
+    if (out) *out = (int64_t)(((uint64_t)a.nFileSizeHigh << 32) | a.nFileSizeLow);
+    return 0;
+#else
+    char* c = byn_cstr(path);
+    struct stat st;
+    int rc = stat(c, &st);
+    int e = rc == 0 ? 0 : errno;
+    free(c);
+    if (rc != 0) return byn_io_error(e);
+    if (out) *out = (int64_t)st.st_size;
+    return 0;
+#endif
+}
+
 uint32_t byn_fs_set_modified(byn_str path, byn_time t) {
     if (byn_has_nul(path)) return BYN_IO_INVALID_INPUT;
     /* Floored, so a time before 1970 keeps a non-negative part below the second. */
